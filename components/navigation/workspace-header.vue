@@ -685,6 +685,48 @@ function goBack(): void {
   white-space: nowrap;
   scroll-snap-align: start;
   scroll-snap-stop: always;
+
+  /*
+   * ENFORCE the minimum width, do not merely calculate with it.
+   *
+   * tabLayoutMetrics() already knows a tab needs 96/112/128px to be readable,
+   * but it only uses that to decide HOW MANY tabs fit; the width each tab
+   * actually gets is a percentage from tabButtonBasis. Those two agree only if
+   * the strip's clientWidth was measured correctly at the moment the count was
+   * computed. When it is measured before the strip is constrained — first
+   * paint, an in-flight layout, a resize that has not settled — capacity comes
+   * out too high, every tab is declared to fit, and each is handed an equal
+   * fraction of a much narrower strip.
+   *
+   * On a 390px phone that produced FOUR TABS AT 31px WIDE (measured on the
+   * deployed app, 2026-08-05: Dashboard / Register / Navigation / Themes). At
+   * that size a tab is an icon and a truncated letter — it looks like a
+   * rendering fault rather than navigation, which is worse than hiding it,
+   * because it tells the user nothing about where they are.
+   *
+   * Enforcing the floor in CSS makes the layout correct regardless of whether
+   * the measurement was right. Tabs that no longer fit overflow into the
+   * horizontal scroller this strip already is — snap points, hidden scrollbar
+   * and both arrow controls are all present and were always the intended
+   * behaviour for overflow. Degrading to "scroll to reach the rest" is
+   * strictly better than "every tab is illegible".
+   *
+   * Keep these three values in step with tabLayoutMetrics(); they are the same
+   * numbers expressed in rem.
+   */
+  min-width: 6rem; /* 96px — tabLayoutMetrics() mobile minimumTabWidth */
+}
+
+@media (min-width: 640px) {
+  .tab-button {
+    min-width: 7rem; /* 112px */
+  }
+}
+
+@media (min-width: 1280px) {
+  .tab-button {
+    min-width: 8rem; /* 128px */
+  }
 }
 
 .tab-strip::-webkit-scrollbar {

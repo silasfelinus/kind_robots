@@ -36,8 +36,13 @@
 // file is read back and hashed identical. Run OPTIMIZE TABLE ArtImage
 // afterwards to return the freed pages to the filesystem.
 import 'dotenv/config'
+import { readdir } from 'node:fs/promises'
+import { resolve } from 'node:path'
 import prisma from './../../server/utils/prisma'
-import { offloadArtImageBytes } from './../../server/utils/artImageOffload'
+import {
+  mediaShareRootIsMounted,
+  offloadArtImageBytes,
+} from './../../server/utils/artImageOffload'
 
 const WRITE = process.argv.includes('--write')
 
@@ -59,15 +64,56 @@ type Row = { id: number; bytes: number }
 const mb = (n: number) => `${(n / 1024 / 1024).toFixed(1)} MB`
 
 async function main() {
-  if (!process.env.IMAGES_PATH?.trim()) {
+  const configuredRoot = process.env.IMAGES_PATH?.trim()
+
+  if (!configuredRoot) {
     console.error(
       '❌ IMAGES_PATH is not set, so there is nowhere to move bytes to.\n' +
-        '   Run this on the host with the share mounted (see docs/self-hosted-media.md),\n' +
-        '   e.g. IMAGES_PATH=/mnt/z/kindrobots/images',
+        '   Run this on the host with the share mounted (see docs/self-hosted-media.md).\n' +
+        '   On the Unraid box:  IMAGES_PATH=/mnt/user/pc/kindrobots/images\n' +
+        '   From WSL:           IMAGES_PATH=/mnt/z/kindrobots/images',
     )
     process.exitCode = 1
     return
   }
+
+  const root = resolve(configuredRoot)
+
+  /*
+   * Preflight, because this script's whole job is to delete database copies of
+   * files it just wrote. A typo'd or unmounted IMAGES_PATH is the one input
+   * that turns that into data loss, and it looks like a successful run: mkdir
+   * -p creates the wrong directory, every write "succeeds", every read-back
+   * matches, and 6 GB of art ends up somewhere nobody serves from.
+   *
+   * The root must already exist AND already contain files. A share that is
+   * mounted has years of images in it; an empty directory at that path means
+   * the mount is not there.
+   */
+  if (!(await mediaShareRootIsMounted(root))) {
+    console.error(
+      `❌ IMAGES_PATH does not exist as a directory: ${root}\n` +
+        '   Refusing to create it — a mistyped path must be a no-op, not 6 GB\n' +
+        '   written to the wrong filesystem with the database copies deleted.',
+    )
+    process.exitCode = 1
+    return
+  }
+
+  const existing = await readdir(root).catch(() => [] as string[])
+  if (!existing.length) {
+    console.error(
+      `❌ ${root} exists but is empty.\n` +
+        '   The real share has thousands of images in it, so an empty directory\n' +
+        '   here means it is not mounted. Refusing to run.',
+    )
+    process.exitCode = 1
+    return
+  }
+
+  console.log(
+    `Share looks mounted: ${root} (${existing.length} entries at the root)`,
+  )
 
   const totals = await prisma.$queryRawUnsafe<{ rowCount: number; bytes: number }[]>(`
     SELECT COUNT(*) AS rowCount, COALESCE(SUM(LENGTH(imageData)), 0) AS bytes
@@ -80,7 +126,7 @@ async function main() {
   console.log(
     `ArtImage rows holding at least ${MIN_BYTES} bytes: ${allRows} (${mb(allBytes)})`,
   )
-  console.log(`Media root: ${process.env.IMAGES_PATH}`)
+  console.log(`Media root: ${root}`)
   console.log(`Mode: ${WRITE ? 'WRITE — bytes will move' : 'dry run'}\n`)
 
   /*

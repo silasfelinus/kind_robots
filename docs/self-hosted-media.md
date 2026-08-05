@@ -207,6 +207,40 @@ Safe to interrupt and safe to re-run. Afterwards, `OPTIMIZE TABLE ArtImage`
 returns the freed pages to the filesystem — until then the tablespace stays the
 same size on disk.
 
+#### Run it on the box that holds the share
+
+The script needs the repository, not just the file — it imports the same
+`offloadArtImageBytes` helper the live routes use, plus the Prisma client. So
+copying `offloadArtImageData.ts` alone will not work; check the repo out on the
+network machine instead:
+
+```bash
+git clone https://github.com/silasfelinus/kind_robots   # or: git pull
+cd kind_robots
+npm ci
+npx prisma generate
+
+# Point at the share's NATIVE path on that box, not a Windows/WSL mount
+export IMAGES_PATH=/mnt/user/pc/kindrobots/images
+export DATABASE_URL='...'                # same database the app uses
+
+npm run offload:art-images               # dry run first — reports the plan
+npm run offload:art-images -- --write
+```
+
+Writing several gigabytes across an SMB mount from WSL is far slower than
+writing to the Unraid filesystem directly, and every byte crosses the network
+twice (database → WSL → share) instead of once. Running on the box that owns
+the share avoids both.
+
+**It refuses to run against a path that is not the share.** The root must
+already exist as a directory *and* already contain files. Everything here uses
+`mkdir -p`, so without that preflight a typo'd `IMAGES_PATH` would be silently
+created, gigabytes would be written to the wrong filesystem, every read-back
+would verify happily, and the database copies would be deleted — a run that
+looks completely successful and has lost the art. A mounted share has thousands
+of images at its root; an empty directory means the mount is absent.
+
 ### Export → link → prune, in that order
 
 `npm run prune:art-image-data` only reclaims rows that **already** have a

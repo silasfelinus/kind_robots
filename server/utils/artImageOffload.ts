@@ -80,11 +80,36 @@ function hasExternalPath(imagePath: string | null, id: number): boolean {
   return !imagePath.includes(`/api/art/images/${id}/file`)
 }
 
+/**
+ * The share root must ALREADY exist as a directory.
+ *
+ * Everything below uses `mkdir -p`, which would cheerfully materialise a
+ * typo'd IMAGES_PATH — and then the backfill writes gigabytes into a brand new
+ * empty directory on the wrong filesystem while nulling the database copies it
+ * just "moved". Refusing to create the root is what makes a mistyped path a
+ * no-op instead of a data-loss event. Subdirectories under a verified root are
+ * still created normally.
+ */
+export async function mediaShareRootIsMounted(root: string): Promise<boolean> {
+  try {
+    return (await fs.stat(root)).isDirectory()
+  } catch {
+    return false
+  }
+}
+
 export async function offloadArtImageBytes(
   artImageId: number,
 ): Promise<OffloadResult> {
   const root = mediaShareRoot()
   if (!root) return { offloaded: false, reason: 'IMAGES_PATH not set' }
+
+  if (!(await mediaShareRootIsMounted(root))) {
+    return {
+      offloaded: false,
+      reason: `IMAGES_PATH does not exist as a directory: ${root}`,
+    }
+  }
 
   if (!Number.isInteger(artImageId) || artImageId <= 0) {
     return { offloaded: false, reason: 'invalid ArtImage id' }

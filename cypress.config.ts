@@ -121,6 +121,45 @@ const countTestsByState = (tests: unknown[], state: string) =>
     return record.state === state || lastAttempt?.state === state
   }).length
 
+// t-053 (kind-robots): during a sustained upstream DB outage, a wave of specs
+// fails on the same underlying signature (Prisma pool timeout / ECONNREFUSED /
+// connection reset -- the same signature scripts/lib/databaseRetry.ts's
+// isTransientDatabaseError() and cypress/e2e/api/users.cy.ts's inline
+// pool-timeout check already key off) instead of a real regression. Left
+// unchecked, that wave silently burns the rest of the 30-minute job timeout
+// (see the 2026-08-02 incident this guard was filed from, root TALKBACK.md) --
+// N consecutive specs failing on this signature abort the run early instead.
+const DB_CONNECTION_FAILURE_PATTERN =
+  /pool timeout|failed to retrieve a connection|connect(?:ion)? timeout|connection (?:closed|refused|reset)|ECONNREFUSED|\bP1001\b|\bP1002\b|\bP1017\b|\bP2024\b/i
+
+const specHasDbConnectionFailure = (results: unknown): boolean => {
+  const tests = Array.isArray((results as { tests?: unknown[] })?.tests)
+    ? ((results as { tests: unknown[] }).tests as Array<{
+        state?: string
+        err?: { message?: unknown }
+        displayError?: unknown
+        attempts?: Array<{ state?: string; err?: { message?: unknown } }>
+      }>)
+    : []
+
+  return tests.some((test) => {
+    const lastAttempt = test.attempts?.[test.attempts.length - 1]
+    const state = test.state ?? lastAttempt?.state
+    if (state !== 'failed') return false
+
+    const message = [
+      test.err?.message,
+      lastAttempt?.err?.message,
+      test.displayError,
+    ]
+      .filter(Boolean)
+      .map(String)
+      .join(' ')
+
+    return DB_CONNECTION_FAILURE_PATTERN.test(message)
+  })
+}
+
 const keepSeedAfterRun = (env: Record<string, unknown>) =>
   process.env.CYPRESS_KEEP_SEED === '1' ||
   env.CYPRESS_KEEP_SEED === '1' ||
@@ -139,8 +178,8 @@ const dataArrayFromBody = (body: unknown): ApiRecord[] => {
   if (!body || typeof body !== 'object') return []
   const data = (body as Record<string, unknown>).data
   if (!Array.isArray(data)) return []
-  return data.filter(
-    (item): item is ApiRecord => Boolean(item && typeof item === 'object'),
+  return data.filter((item): item is ApiRecord =>
+    Boolean(item && typeof item === 'object'),
   )
 }
 
@@ -335,12 +374,12 @@ const sweepCypressFixtures = async (
           headers: listHeaders,
         })
         const listBody = await parseResponseBody(listResponse)
-        const records = dataArrayFromBody(listBody).filter(isCypressFixtureRecord)
+        const records = dataArrayFromBody(listBody).filter(
+          isCypressFixtureRecord,
+        )
 
-        return mapWithConcurrency(
-          records,
-          cleanupConcurrency,
-          (record) => deleteSweptRecord(apiBase, target, record, deleteAuths),
+        return mapWithConcurrency(records, cleanupConcurrency, (record) =>
+          deleteSweptRecord(apiBase, target, record, deleteAuths),
         )
       } catch (error) {
         return [
@@ -377,6 +416,14 @@ export default defineConfig({
       }> = []
       const cleanupRequests: CleanupRequest[] = []
 
+      // t-053: threshold is configurable (not hardcoded) so a future incident
+      // can tune it without a code change; 4 matches the task's "3-5" guidance.
+      const dbFailureAbortThreshold = Math.max(
+        1,
+        Number(process.env.CYPRESS_DB_FAILURE_ABORT_THRESHOLD) || 4,
+      )
+      let consecutiveDbConnectionFailureSpecs = 0
+
       const timingLog = (message: string) => {
         if (timingEnabled) console.log(`[cypress:timing] ${message}`)
       }
@@ -406,7 +453,8 @@ export default defineConfig({
       })
 
       on('after:spec', (spec, results) => {
-        const elapsed = Date.now() - (specStarts.get(spec.relative) || Date.now())
+        const elapsed =
+          Date.now() - (specStarts.get(spec.relative) || Date.now())
         const stats = results?.stats
         const tests = Array.isArray(results?.tests) ? results.tests : []
 
@@ -428,6 +476,32 @@ export default defineConfig({
             `tests=${summary.tests} pass=${summary.passes} ` +
             `fail=${summary.failures} pending=${summary.pending}`,
         )
+
+        if (specHasDbConnectionFailure(results)) {
+          consecutiveDbConnectionFailureSpecs += 1
+          console.error(
+            `[cypress:db-guard] ${spec.relative} failed with a database-connection ` +
+              `error signature (${consecutiveDbConnectionFailureSpecs}/${dbFailureAbortThreshold} consecutive specs).`,
+          )
+
+          if (consecutiveDbConnectionFailureSpecs >= dbFailureAbortThreshold) {
+            console.error(
+              `::error::${consecutiveDbConnectionFailureSpecs} consecutive specs failed with ` +
+                'database-connection errors (pool timeout / ECONNREFUSED / connection reset) -- ' +
+                'this looks like a sustained upstream outage, not a test regression. Aborting the ' +
+                'remaining run now instead of burning the rest of the job timeout (t-053).',
+            )
+            // Diagnostics already written per-spec (timing log, this spec's own
+            // report) are preserved; only the in-process after:run cleanup sweep
+            // is skipped -- the workflow's separate "Remove Cypress users after
+            // run" step still runs (it's `if: always()`), so stale seed users
+            // still get cleaned up.
+            process.exitCode = 1
+            process.exit(1)
+          }
+        } else {
+          consecutiveDbConnectionFailureSpecs = 0
+        }
       })
 
       on('after:run', async (results) => {
@@ -466,7 +540,9 @@ export default defineConfig({
         try {
           seed = await ensureCypressApiSeed(env)
           cleanupResults.push(
-            ...(await sweepCypressFixtures(seed.apiBase, seed.adminKey, [seed.user])),
+            ...(await sweepCypressFixtures(seed.apiBase, seed.adminKey, [
+              seed.user,
+            ])),
           )
         } catch (error) {
           cleanupResults.push({

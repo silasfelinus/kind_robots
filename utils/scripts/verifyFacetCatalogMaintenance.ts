@@ -160,6 +160,19 @@ assert.ok(
   runner.includes('signal: abortSignal'),
   'Lock loss must abort the currently running child mutation process.',
 )
+assert.ok(
+  runner.includes(
+    "const externallySerialized = process.argv.includes('--externally-serialized')",
+  ) &&
+    runner.includes(
+      'External scheduler owns serialization; database named lock skipped.',
+    ),
+  'The runner must support an explicit externally serialized mode without weakening direct named-lock runs.',
+)
+assert.ok(
+  runner.includes('await runWithDatabaseLock(databaseUrl)'),
+  'Direct invocations must continue through the database named-lock path.',
+)
 
 for (const required of [
   "DATABASE_CONNECTION_LIMIT: '2'",
@@ -168,10 +181,13 @@ for (const required of [
   "DATABASE_ACQUIRE_TIMEOUT_MS: '120000'",
   "DATABASE_IDLE_TIMEOUT_SECONDS: '300'",
   'timeout-minutes: 120',
+  'group: facet-catalog-maintenance',
+  'cancel-in-progress: false',
+  '--externally-serialized',
 ]) {
   assert.ok(
     workflow.includes(required),
-    `Facet maintenance workflow is missing its bounded ProxySQL pool contract: ${required}`,
+    `Facet maintenance workflow is missing its serialized ProxySQL contract: ${required}`,
   )
 }
 

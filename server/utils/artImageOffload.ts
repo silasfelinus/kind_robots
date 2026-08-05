@@ -33,7 +33,6 @@ import fs from 'node:fs/promises'
 import { createHash } from 'node:crypto'
 import sharp from 'sharp'
 import prisma from './prisma'
-import { getImageStorageRoot } from './imageStorageRoot'
 
 // Matches exportPageBackdropArt.ts and file.get.ts: 82 measured 8.3x smaller
 // than the source PNG with no visible artefacts at card size.

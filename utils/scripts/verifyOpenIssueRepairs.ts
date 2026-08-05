@@ -11,7 +11,7 @@ const characterEditor = readFileSync(
   'components/characters/add-character.vue',
   'utf8',
 )
-const superForm = readFileSync('components/pages/super-form.vue', 'utf8')
+const superForm = readFileSync('components/abandonware/pages/super-form.vue', 'utf8')
 const receiptStore = readFileSync(
   'stores/superkateReceiptStore.ts',
   'utf8',

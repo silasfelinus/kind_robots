@@ -1,6 +1,6 @@
 <!-- components/ruler-hooked/ruler-hooked-health.vue
      Read-only kingdom-health meters (data-model.md §4). Fill-% bars, one per axis,
-     using the same rangeFill idea as components/butterfly/single-slider.vue. -->
+     using the same rangeFill idea as components/abandonware/butterfly/single-slider.vue. -->
 <template>
   <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
     <div v-for="axis in axes" :key="axis.key" class="text-xs">

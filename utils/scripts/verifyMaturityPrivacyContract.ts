@@ -49,15 +49,12 @@ assert.ok(videoGenerator.includes('<content-visibility-controls'))
 assert.ok(videoGenerator.includes('isMature: isMature.value'))
 assert.ok(videoGenerator.includes('isPublic: isPublic.value'))
 
-const videoLoraPicker = readFileSync(
-  'components/video-lora-picker.vue',
-  'utf8',
-)
+const videoLoraPicker = readFileSync('components/video-lora-picker.vue', 'utf8')
 assert.ok(videoLoraPicker.includes('<maturity-toggle'))
 assert.ok(videoLoraPicker.includes('resourceStore.visibleLoras'))
 assert.ok(!videoLoraPicker.includes('artStore.showMature'))
 
-const artLoraPicker = readFileSync('components/art/lora-picker.vue', 'utf8')
+const artLoraPicker = readFileSync('components/abandonware/art/lora-picker.vue', 'utf8')
 assert.ok(artLoraPicker.includes('<maturity-toggle'))
 assert.ok(artLoraPicker.includes('resourceStore.visibleLoras'))
 assert.ok(artLoraPicker.includes('availableLoraIds'))
@@ -68,20 +65,21 @@ assert.ok(artMaker.includes('label="Mature checkpoint models"'))
 assert.ok(artMaker.includes('checkpointStore.visibleCheckpoints'))
 assert.ok(!artMaker.includes('artStore.showMature'))
 
+// lora-gallery and model-gallery were retired 2026-08-05 (unmounted, see the
+// retirement commit) along with their cards. The maturity gate still applies to
+// every SURVIVING gallery that lists mature-flaggable resources.
 for (const file of [
-  'components/lora/lora-gallery.vue',
-  'components/model/model-gallery.vue',
   'components/servers/checkpoint-gallery.vue',
   'components/resources/resource-gallery.vue',
 ]) {
   const source = readFileSync(file, 'utf8')
-  assert.ok(source.includes('<maturity-toggle'), `${file} needs maturity toggle`)
+  assert.ok(
+    source.includes('<maturity-toggle'),
+    `${file} needs maturity toggle`,
+  )
 }
 
-const loraDiscover = readFileSync(
-  'components/lora/lora-discover.vue',
-  'utf8',
-)
+const loraDiscover = readFileSync('components/lora/lora-discover.vue', 'utf8')
 assert.ok(loraDiscover.includes('<maturity-toggle'))
 assert.ok(
   loraDiscover.includes("if (userStore.showMature) params.set('nsfw', 'true')"),
@@ -115,9 +113,7 @@ const dashboardMaturityPreference = readFileSync(
   'components/user/dashboard-maturity-preference.vue',
   'utf8',
 )
-assert.ok(
-  dashboardMaturityPreference.includes('useMaturityPreferenceStore'),
-)
+assert.ok(dashboardMaturityPreference.includes('useMaturityPreferenceStore'))
 assert.ok(
   dashboardMaturityPreference.includes('setShowDashboardMaturityToggle'),
 )

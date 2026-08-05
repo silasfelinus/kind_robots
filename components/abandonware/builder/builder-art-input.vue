@@ -63,7 +63,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import ArtDesigner from '~/components/builder/art-builder.vue'
+import ArtDesigner from '@/components/abandonware/builder/art-builder.vue'
 import { useBuilderStore } from '@/stores/builderStore'
 
 type ArtDesignerPurpose =

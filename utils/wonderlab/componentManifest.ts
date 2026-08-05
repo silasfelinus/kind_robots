@@ -25,6 +25,12 @@ export type WonderLabManifestEntry = {
   componentName: string
   slug: string
   folderName: string
+  /**
+   * Parked in components/abandonware/: still a real file the museum can mount,
+   * but excluded from Nuxt auto-import and vue-tsc so it costs the app nothing.
+   * Optional because manifests generated before parking existed do not carry it.
+   */
+  abandoned?: boolean
 }
 
 export type WonderLabComponentManifest = {
@@ -42,7 +48,10 @@ function normalizePath(value: string): string {
 }
 
 function normalizeComponentName(value: string): string {
-  return value.trim().replace(/\.vue$/i, '').toLowerCase()
+  return value
+    .trim()
+    .replace(/\.vue$/i, '')
+    .toLowerCase()
 }
 
 function isManifest(value: unknown): value is WonderLabComponentManifest {
@@ -99,7 +108,8 @@ export function resolveWonderLabManifestEntry(
   const normalizedSourcePath = normalizePath(sourcePath).toLowerCase()
   if (normalizedSourcePath) {
     const exactPath = entries.find(
-      (entry) => normalizePath(entry.sourcePath).toLowerCase() === normalizedSourcePath,
+      (entry) =>
+        normalizePath(entry.sourcePath).toLowerCase() === normalizedSourcePath,
     )
     if (exactPath) return exactPath
   }
@@ -117,7 +127,8 @@ export function resolveWonderLabManifestEntry(
 
   return (
     candidates.find(
-      (entry) => normalizePath(entry.folderName).toLowerCase() === normalizedFolder,
+      (entry) =>
+        normalizePath(entry.folderName).toLowerCase() === normalizedFolder,
     ) ??
     candidates.find((entry) => {
       const entryFolder = normalizePath(entry.folderName).toLowerCase()

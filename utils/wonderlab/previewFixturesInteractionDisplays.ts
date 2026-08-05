@@ -44,7 +44,8 @@ const fixtures: Record<string, WonderLabPreviewFixture> = {
           species: 'Helpful construct',
           imagePath: null,
           artImageId: null,
-          personality: 'Patient, precise, and unwilling to hide missing context.',
+          personality:
+            'Patient, precise, and unwilling to hide missing context.',
         },
       },
       characters: [],
@@ -61,33 +62,6 @@ const fixtures: Record<string, WonderLabPreviewFixture> = {
     minHeight: '14rem',
     props: {
       butterfly: fixtureButterfly,
-    },
-  },
-  'butterfly-gallery': {
-    title: 'Butterfly Field Guide specimen',
-    description:
-      'Uses a short synthetic roster containing caught and uncaught slots. Inspection emits only to the preview host.',
-    viewport: 'tablet',
-    minHeight: '14rem',
-    props: {
-      slots: [
-        { rarityNumber: 15, butterfly: null },
-        { rarityNumber: 16, butterfly: null },
-        { rarityNumber: 17, butterfly: fixtureButterfly },
-        {
-          rarityNumber: 18,
-          butterfly: {
-            ...fixtureButterfly,
-            id: 'Amber Archivist',
-            name: 'Amber Archivist',
-            rarity: 18,
-            wingTopColor: 'hsl(38, 88%, 58%)',
-            wingBottomColor: 'hsl(12, 78%, 52%)',
-          },
-        },
-        { rarityNumber: 19, butterfly: null },
-        { rarityNumber: 20, butterfly: null },
-      ],
     },
   },
   'facet-picker': {

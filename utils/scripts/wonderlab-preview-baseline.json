@@ -17,8 +17,6 @@
     "components/dreams/daily-dream-object-art-workbench.vue",
     "components/gallery/kr-entity-card-body.vue",
     "components/gallery/kr-gallery.vue",
-    "components/lora/lora-card.vue",
-    "components/model/model-card.vue",
     "components/narrative/kr-chat-window.vue",
     "components/narrative/kr-choice-list.vue",
     "components/narrative/narrative-ingredient-card.vue",

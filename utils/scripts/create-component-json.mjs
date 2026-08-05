@@ -12,7 +12,25 @@ const EVIDENCE_OUTPUT = path.resolve(
   'utils/generated/wonderLabSourceEvidence.ts',
 )
 
-const ignoredSegments = new Set(['abandonware', '__tests__', '__fixtures__'])
+// Test scaffolding is not an exhibit and never was.
+const ignoredSegments = new Set(['__tests__', '__fixtures__'])
+
+/**
+ * Retired components are PARKED here, not deleted.
+ *
+ * They are excluded from Nuxt auto-import (nuxt.config.ts's `ignore` resolves
+ * relative to `~/components`) and from vue-tsc (tsconfig `exclude`), so they
+ * cost the app nothing — but they are still real files, so WonderLab can still
+ * mount them and their exhibits keep working. Skipping them here would drop
+ * them from the manifest, which makes reconcile flip `isDiscovered: false` and
+ * the museum report them as missing: exactly the outcome parking exists to
+ * avoid. So they are walked and FLAGGED instead.
+ */
+const ABANDONWARE_SEGMENT = 'abandonware'
+
+function isAbandoned(relativePath) {
+  return toPosix(relativePath).split('/').includes(ABANDONWARE_SEGMENT)
+}
 
 function toPosix(value) {
   return value.split(path.sep).join('/')
@@ -69,13 +87,17 @@ async function buildManifestEntry(absolutePath) {
     componentName,
     slug: toSlug(relativePath),
     folderName: folderName === '.' ? 'root' : folderName,
+    abandoned: isAbandoned(relativePath),
     sourceEvidence: extractWonderLabComponentSourceEvidence(source),
   }
 }
 
 function evidenceModule(entries) {
   const registry = Object.fromEntries(
-    entries.map((entry) => [entry.sourcePath.toLowerCase(), entry.sourceEvidence]),
+    entries.map((entry) => [
+      entry.sourcePath.toLowerCase(),
+      entry.sourceEvidence,
+    ]),
   )
   return [
     "import type { WonderLabComponentSourceEvidence } from '@/utils/wonderlab/componentManifest'",

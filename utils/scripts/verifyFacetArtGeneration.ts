@@ -18,7 +18,7 @@ async function main(): Promise<void> {
   const files = {
     selector: 'components/art/art-facet-selector.vue',
     generateButton: 'components/art/generate-button.vue',
-    creator: 'components/art/art-creator.vue',
+    creator: 'components/abandonware/art/art-creator.vue',
     editor: 'components/art/artjob-editor.vue',
     draftStore: 'stores/artFacetDraftStore.ts',
     requestStore: 'stores/facetArtRequestStore.ts',

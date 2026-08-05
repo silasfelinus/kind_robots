@@ -209,13 +209,6 @@ export default defineNuxtConfig({
       extensions: ['.vue'],
       ignore: ['abandonware/**/*.vue'],
     },
-    {
-      path: '~/components',
-      pathPrefix: false,
-      global: true,
-      extensions: ['.vue'],
-      pattern: ['**/gallery-gallery.vue', '**/lab-gallery.vue'],
-    },
   ],
 
   icon: {

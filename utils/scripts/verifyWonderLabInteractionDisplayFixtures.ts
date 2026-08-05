@@ -19,21 +19,16 @@ assert.equal(butterflyValue.artImageId, undefined)
 assert.ok(butterflyValue.wingTopColor)
 assert.ok(butterflyValue.wingBottomColor)
 
-const gallery = getWonderLabPreviewFixture('butterfly-gallery')
-const slots = gallery?.props?.slots
-assert.ok(Array.isArray(slots) && slots.length >= 6)
-assert.ok(
-  (slots as Array<Record<string, unknown>>).some((entry) => entry.butterfly),
-)
-assert.ok(
-  (slots as Array<Record<string, unknown>>).some(
-    (entry) => entry.butterfly === null,
-  ),
-)
-
-for (const key of ['facet-picker', 'reaction-card', 'butterfly-modal'] as const) {
+for (const key of [
+  'facet-picker',
+  'reaction-card',
+  'butterfly-modal',
+] as const) {
   const fixture = getWonderLabPreviewFixture(key)
-  assert.ok(fixture?.skipReason, `${key} must explain its write/global context.`)
+  assert.ok(
+    fixture?.skipReason,
+    `${key} must explain its write/global context.`,
+  )
 }
 
 // Confirm previous fixture modules remain visible through the combined catalog.

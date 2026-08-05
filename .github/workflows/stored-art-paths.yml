@@ -1,0 +1,98 @@
+# Stored art paths must serve real images.
+#
+# interface-vision/t-100. Every one of the 227 Reward.imagePath values was
+# stored as `/rewards/...` when the files live at `/images/rewards/...` (#1446).
+# 214 of them served a 142 KB Nuxt app shell as text/html — at HTTP **200**,
+# because a missing asset under a non-/images path falls through to the SPA
+# catch-all instead of 404ing. curl, uptime monitors and link checkers all read
+# that as healthy. The layout audit could not see it either: kr-art-plate caught
+# the decode failure and swapped in its fallback, exactly as designed, so the
+# page looked fine while the art was wrong.
+#
+# This job asks the one question none of those ask — does the stored path
+# actually return image bytes?
+#
+# Nightly rather than per-PR: it is a check on DATA, which changes when rows are
+# written, not when code merges. A PR cannot introduce a bad stored path, and a
+# few hundred requests per run is not something to spend on every push.
+#
+# FAILS ON: a 2xx whose content-type is not an image (the silent path bug).
+# REPORTS ONLY: a genuine 404 — that is art backlog, expected and self-healing.
+#
+# Requires the same repository Actions secrets as fallback-snapshot.yml. The DB
+# host is a tailnet address, so without the Tailscale step this fails with a
+# misleading 10s Prisma pool timeout (`active=0 idle=0`) that reads like a dead
+# database rather than an unrouted one.
+name: Stored art paths
+
+on:
+  schedule:
+    - cron: '43 10 * * *' # daily, 10:43 UTC ≈ 2:43am Pacific
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'Base URL to check against (defaults to production)'
+        required: false
+        default: ''
+
+concurrency:
+  group: stored-art-paths
+  cancel-in-progress: false
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      # ProxySQL enforces TLS; the adapter shared with server/utils/prisma.ts
+      # reads this CA to complete the handshake. Either form works.
+      DATABASE_SSL_CA_BASE64: ${{ secrets.DATABASE_SSL_CA_BASE64 }}
+      DATABASE_SSL_CA: ${{ secrets.DATABASE_SSL_CA }}
+      BASE_URL: ${{ github.event.inputs.base_url }}
+    steps:
+      - name: Require secrets
+        env:
+          TS_OAUTH_CLIENT_ID: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          TS_OAUTH_SECRET: ${{ secrets.TS_OAUTH_SECRET }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::DATABASE_URL is empty. Add it as a REPOSITORY ACTIONS SECRET (repo Settings → Secrets and variables → Actions). Vercel env vars and .env files do not resolve here."
+            exit 1
+          fi
+          if [ -z "$TS_OAUTH_CLIENT_ID" ] || [ -z "$TS_OAUTH_SECRET" ]; then
+            echo "::error::TS_OAUTH_CLIENT_ID / TS_OAUTH_SECRET are empty. The database host is a tailnet address; without them this fails as a Prisma pool timeout that looks like a dead database."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      # Proves the classifier can still tell an app shell from an image before
+      # it is trusted to make that call about production. A checker only ever
+      # seen to pass is indistinguishable from one that cannot fail (t-063).
+      - name: Self-test the classifier
+        run: npx tsx utils/scripts/verifyStoredArtPaths.ts --self-test
+
+      # Placed after the npm/prisma steps so the tailnet session stays short —
+      # only the sweep itself needs the database.
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Sweep stored art paths
+        run: npx tsx utils/scripts/verifyStoredArtPaths.ts

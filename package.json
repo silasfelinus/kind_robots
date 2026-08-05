@@ -70,6 +70,8 @@
     "test:gallery-adoption": "tsx utils/scripts/verifyGalleryAdoption.ts",
     "test:gallery-consistency": "tsx utils/scripts/verifyGalleryConsistency.ts",
     "test:earned-karma-wiring": "tsx utils/scripts/verifyEarnedKarmaWiring.ts",
+    "test:stored-art-paths": "tsx utils/scripts/verifyStoredArtPaths.ts",
+    "test:stored-art-paths:self": "tsx utils/scripts/verifyStoredArtPaths.ts --self-test",
     "test:channel-resolver": "tsx utils/scripts/verifyChannelResolver.ts",
     "test:data-surface-manifest": "tsx utils/scripts/verifyDataSurfaceManifest.ts",
     "test:nav-manifest": "tsx utils/scripts/verifyNavManifest.ts",

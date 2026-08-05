@@ -15,39 +15,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # t-099: ESLint as a ratcheted gate — it never asks anyone to fix the
-  # pre-existing problems, only refuses NEW ones, per rule.
-  #
-  # Its OWN job on purpose. The contract-verifiers job below is a ~100-step
-  # serial chain under a 10-minute budget, and a full-repo `eslint .` is the
-  # single slowest check here (measured: 41s in CI, 73s locally) while depending
-  # on none of those steps. Serialising it inside that chain spends the shared
-  # budget for no reason; in parallel it costs no extra wall-clock at all.
-  lint-ratchet:
-    name: ESLint ratchet
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          cache: 'npm'
-
-      # postinstall runs `nuxi prepare`, which generates the
-      # .nuxt/eslint.config.mjs that eslint.config.mjs extends.
-      - name: Install dependencies
-        run: npm ci
-        env:
-          CYPRESS_INSTALL_BINARY: '0'
-
-      - name: ESLint ratchet
-        run: npm run test:lint-ratchet
-
   contract-tests:
     name: Contract verifiers
     runs-on: ubuntu-latest
@@ -90,6 +57,19 @@ jobs:
 
       - name: Earned-karma wiring contract
         run: npm run test:earned-karma-wiring
+
+      # t-099: ESLint as a ratcheted gate — never asks anyone to fix the
+      # pre-existing problems, only refuses NEW ones, per rule.
+      #
+      # INSIDE this job deliberately, not a parallel one. `Contract verifiers`
+      # is a required status check on main; a separate job would not be, so the
+      # gate would run and report without ever being able to block a merge — a
+      # check that cannot fail a PR is not a gate. The cost of keeping it here
+      # is measured and small: 36s of ESLint on a 94s job under a 10-minute
+      # budget. If this ever does need its own job, the required-checks list in
+      # the repo ruleset has to gain that job's name in the same change.
+      - name: ESLint ratchet
+        run: npm run test:lint-ratchet
 
       - name: Data surface manifest contract
         run: npm run test:data-surface-manifest

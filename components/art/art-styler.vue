@@ -29,6 +29,8 @@
         <div class="flex-1" />
         <div
           class="flex overflow-hidden rounded-lg border border-base-300 text-xs"
+          role="group"
+          aria-label="Source image tab"
         >
           <button
             type="button"
@@ -362,7 +364,11 @@
       </div>
     </Transition>
 
-    <div class="flex flex-wrap gap-1.5">
+    <div
+      class="flex flex-wrap gap-1.5"
+      role="group"
+      aria-label="Filter styles by category"
+    >
       <button
         v-for="cat in allCategories"
         :key="cat"
@@ -1283,8 +1289,7 @@ async function hydrateGalleryThumbs() {
           })
 
           const hydrated = fetched as
-            | (ArtImage & { thumbnailData?: string | null })
-            | null
+            (ArtImage & { thumbnailData?: string | null }) | null
 
           if (hydrated?.thumbnailData) {
             galleryThumbs.value = {

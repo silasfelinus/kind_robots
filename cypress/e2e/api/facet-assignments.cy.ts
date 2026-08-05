@@ -260,7 +260,7 @@ describe('Dream and Scenario Facet assignments', () => {
     }).then((response) => {
       expect(response.status).to.eq(200)
       expect(response.body.success).to.be.true
-      expect(response.body.data.kind).to.eq('THEME')
+      expect(response.body.data.taxonomy).to.eq('THEME')
       expect(response.body.data.description).to.eq('Everything cows, updated.')
       expect(response.body.data.aliases).to.include(facetSlug)
       expect(response.body.data.aliases).to.include(cowAlias)

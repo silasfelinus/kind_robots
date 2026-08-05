@@ -35,8 +35,15 @@
 import 'dotenv/config'
 import prisma from './../../server/utils/prisma'
 import { pageBackdropArtPrompts } from './../../stores/seeds/pageBackdropArtPrompts'
+import {
+  KREA2_DEFAULT_CFG,
+  KREA2_DEFAULT_STEPS,
+  buildKrea2WorkflowFromRequest,
+} from './../../server/api/comfy/krea2/utils/workflow'
+import { enrichArtJobPayload } from './../../server/utils/artJobProvenance'
 
 const WRITE = process.argv.includes('--write')
+const REFRESH_FAILED = process.argv.includes('--refresh-failed')
 const USER_ID = Number(process.env.ART_SEED_USER_ID || 1)
 const PROJECT_SLUG = 'page-backdrops'
 const PRIORITY = 100
@@ -48,6 +55,61 @@ function requestIdFromPayload(payload: string): string | null {
   } catch {
     return null
   }
+}
+
+/*
+ * COMFY, not A1111 — and this is what the first batch got wrong.
+ *
+ * All 60 jobs failed with `WinError 10061 ... target machine actively refused
+ * it`: connection refused reaching the A1111 backend. Nothing was wrong with
+ * the prompts, and nothing ever read them. A1111 simply is not what runs here.
+ * The queue proves it — every PENDING job sampled is COMFY, every recent DONE
+ * job is COMFY, and the only A1111 rows anywhere are CANCELLED. The engine was
+ * copied from enqueueTwistedFairyTalesArtPrompts.ts without checking what the
+ * relay actually claims work for.
+ *
+ * Switching the engine alone would not have been enough: COMFY jobs carry a
+ * full workflow graph, so a payload of prompt/width/height that satisfies
+ * A1111 has nothing for ComfyUI to execute. This mirrors the known-good
+ * text2img path in scripts/generate_facet_art.ts exactly — same workflow
+ * builder, same steps/cfg, same enrichment — so the shape is one the relay is
+ * already running successfully thousands of times rather than one I invented.
+ */
+const STEPS = KREA2_DEFAULT_STEPS
+const CFG = KREA2_DEFAULT_CFG
+
+function buildPayload(entry: (typeof pageBackdropArtPrompts)[number]): string {
+  const { workflow, seed } = buildKrea2WorkflowFromRequest({
+    prompt: entry.promptString,
+    negativePrompt: entry.negativePrompt,
+    width: entry.width,
+    height: entry.height,
+    steps: STEPS,
+    cfg: CFG,
+  })
+
+  const { payload } = enrichArtJobPayload('COMFY', {
+    requestId: entry.requestId,
+    title: entry.title,
+    page: entry.page,
+    variant: entry.variant,
+    promptString: entry.promptString,
+    negativePrompt: entry.negativePrompt,
+    width: entry.width,
+    height: entry.height,
+    steps: STEPS,
+    cfg: CFG,
+    seed,
+    workflow,
+    imagePath: entry.imagePath,
+    save: {
+      isPublic: true,
+      isMature: false,
+      designer: 'Kind Robots / Page Backdrops',
+    },
+  })
+
+  return JSON.stringify(payload)
 }
 
 async function main() {
@@ -87,6 +149,25 @@ async function main() {
     (entry) => !existingByRequestId.has(entry.requestId),
   )
 
+  /*
+   * FAILED jobs are re-runnable, and a plain requestId match would hide them.
+   *
+   * The idempotency above keys on requestId alone, which is right for avoiding
+   * duplicates but wrong for recovery: a job that FAILED still has its
+   * requestId, so it reports EXISTS forever and can never be retried by
+   * re-running this script. That is the opposite of what you want after a bad
+   * batch.
+   *
+   * --refresh-failed rewrites those jobs' payloads from the CURRENT prompt
+   * definitions and returns them to PENDING. Rewriting rather than merely
+   * re-queueing is the point: if a job failed because the prompt or the canvas
+   * was wrong, /api/art/queue/[id]/reenqueue puts the same bad payload back and
+   * it fails again. This picks up whatever the seed file says now.
+   */
+  const failed = pageBackdropArtPrompts.filter(
+    (entry) => existingByRequestId.get(entry.requestId)?.status === 'FAILED',
+  )
+
   console.log(
     `Page backdrops: ${pageBackdropArtPrompts.length} prompt(s) across ` +
       `${new Set(pageBackdropArtPrompts.map((e) => e.page)).size} page(s), ` +
@@ -104,12 +185,44 @@ async function main() {
     )
   }
 
+  if (failed.length) {
+    console.log(
+      `\n${failed.length} job(s) are FAILED. ${
+        REFRESH_FAILED
+          ? 'Refreshing their payloads from the current prompts and re-queueing.'
+          : 'Re-run with --refresh-failed to rewrite their payloads from the current prompts and re-queue them.'
+      }`,
+    )
+  }
+
   if (!WRITE) {
     console.log(
       `\nDry run only. Re-run with --write to create ${missing.length} ArtJob ` +
-        `row(s) at priority ${PRIORITY} (ahead of the facet backlog at 0).`,
+        `row(s) at priority ${PRIORITY} (ahead of the facet backlog at 0)` +
+        `${REFRESH_FAILED && failed.length ? ` and refresh ${failed.length} failed job(s)` : ''}.`,
     )
     return
+  }
+
+  if (REFRESH_FAILED && failed.length) {
+    for (const entry of failed) {
+      const job = existingByRequestId.get(entry.requestId)
+      if (!job) continue
+      await prisma.artJob.update({
+        where: { id: job.id },
+        data: {
+          payload: buildPayload(entry),
+          status: 'PENDING',
+          priority: PRIORITY,
+          // Clear the previous attempt so the relay treats this as fresh work
+          // rather than something already tried and abandoned.
+          attempts: 0,
+          error: null,
+          claimedBy: null,
+        },
+      })
+    }
+    console.log(`Refreshed ${failed.length} failed job(s) back to PENDING.`)
   }
 
   if (!missing.length) {
@@ -121,26 +234,11 @@ async function main() {
     missing.map((entry) =>
       prisma.artJob.create({
         data: {
-          engine: 'A1111',
+          engine: 'COMFY',
           priority: PRIORITY,
           projectSlug: PROJECT_SLUG,
           userId: USER_ID,
-          payload: JSON.stringify({
-            requestId: entry.requestId,
-            title: entry.title,
-            page: entry.page,
-            variant: entry.variant,
-            promptString: entry.promptString,
-            negativePrompt: entry.negativePrompt,
-            width: entry.width,
-            height: entry.height,
-            imagePath: entry.imagePath,
-            save: {
-              isPublic: true,
-              isMature: false,
-              designer: 'Kind Robots / Page Backdrops',
-            },
-          }),
+          payload: buildPayload(entry),
         },
       }),
     ),

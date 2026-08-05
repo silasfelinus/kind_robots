@@ -51,6 +51,8 @@
     "migrate:art-jobs": "tsx utils/scripts/migratePromptsToArtJobs.ts",
     "seed:twisted-fairy-tales": "tsx utils/scripts/enqueueTwistedFairyTalesArtPrompts.ts",
     "seed:page-backdrops": "tsx utils/scripts/enqueuePageBackdropArt.ts",
+    "export:page-backdrops": "tsx utils/scripts/exportPageBackdropArt.ts",
+    "prune:art-image-data": "tsx utils/scripts/pruneRedundantArtImageData.ts",
     "characters:repair": "tsx utils/scripts/repairCharacterSlugs.mjs",
     "seed:davinci": "tsx utils/scripts/seedDaVinciEndings.ts",
     "seed:davinci:verify": "tsx utils/scripts/verifyDaVinciSeed.ts",

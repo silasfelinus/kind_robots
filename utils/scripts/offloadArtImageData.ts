@@ -171,7 +171,9 @@ async function main() {
 
   let moved = 0
   let freed = 0
+  let filed = 0
   const failures = new Map<string, number>()
+  const samples: string[] = []
 
   for (const [index, row] of rows.entries()) {
     const result = await offloadArtImageBytes(row.id)
@@ -179,6 +181,10 @@ async function main() {
     if (result.offloaded) {
       moved += 1
       freed += Number(result.bytesFreed || 0)
+      if (result.filed) filed += 1
+      // A few real destinations up front, so a mistaken convention is obvious
+      // in the first seconds rather than after several thousand files.
+      if (samples.length < 8 && result.imagePath) samples.push(result.imagePath)
     } else {
       const reason = result.reason || 'unknown'
       failures.set(reason, (failures.get(reason) || 0) + 1)
@@ -193,7 +199,16 @@ async function main() {
     }
   }
 
+  if (samples.length) {
+    console.log('\nWhere they landed:')
+    for (const sample of samples) console.log(`   ${sample}`)
+  }
+
   console.log(`\nMoved ${moved} row(s), freeing ${mb(freed)} of database storage.`)
+  console.log(
+    `   ${filed} filed under {context}/{slug}/, ` +
+      `${moved - filed} to the generated/ landing zone (no entity claims them).`,
+  )
 
   if (failures.size) {
     console.log('Left in the database:')

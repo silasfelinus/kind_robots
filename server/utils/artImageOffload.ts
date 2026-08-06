@@ -33,6 +33,8 @@ import fs from 'node:fs/promises'
 import { createHash } from 'node:crypto'
 import sharp from 'sharp'
 import prisma from './prisma'
+import { resolveArtImageFilePath } from './artImageFilePath'
+import type { EntityArtDb } from './entityArt'
 
 // Matches exportPageBackdropArt.ts and file.get.ts: 82 measured 8.3x smaller
 // than the source PNG with no visible artefacts at card size.
@@ -47,6 +49,8 @@ export type OffloadResult = {
   imagePath?: string
   bytesFreed?: number
   reason?: string
+  /** False when the image had no entity behind it and went to the landing zone. */
+  filed?: boolean
 }
 
 /**
@@ -118,7 +122,13 @@ export async function offloadArtImageBytes(
   try {
     const image = await prisma.artImage.findUnique({
       where: { id: artImageId },
-      select: { id: true, imageData: true, imagePath: true, fileType: true },
+      select: {
+        id: true,
+        imageData: true,
+        imagePath: true,
+        fileType: true,
+        path: true,
+      },
     })
 
     if (!image) return { offloaded: false, reason: 'ArtImage not found' }
@@ -143,17 +153,23 @@ export async function offloadArtImageBytes(
       : await sharp(original).webp({ quality: WEBP_QUALITY }).toBuffer()
 
     /*
-     * Keyed on the ArtImage id, so re-running this for the same row overwrites
-     * the same file instead of littering the share with near-duplicates. Dated
-     * directories keep any single directory from growing without bound.
+     * The destination follows conductor's URL-MAPPING.md convention —
+     * /images/{context}/{slug}/{slug}-{utility}-{n}.webp — resolved from the
+     * entity tag this image already carries. See artImageFilePath.ts.
+     *
+     * Silas, 2026-08-06: "we can't just rewrite everything as
+     * art-image-2846.webp and expect that to be good enough." An id-keyed flat
+     * name is only correct for art nothing has claimed, which is exactly what
+     * the resolver falls back to.
      */
-    const now = new Date()
-    const relative = path.posix.join(
-      'generated',
-      String(now.getUTCFullYear()),
-      String(now.getUTCMonth() + 1).padStart(2, '0'),
-      `artimage-${image.id}.${extension}`,
+    const placement = await resolveArtImageFilePath(
+      prisma as unknown as EntityArtDb,
+      { id: image.id, path: image.path },
+      extension,
+      root,
+      digest(bytes).slice(0, 8),
     )
+    const relative = placement.relative
     const absolute = path.join(root, relative)
 
     await fs.mkdir(path.dirname(absolute), { recursive: true })
@@ -195,6 +211,7 @@ export async function offloadArtImageBytes(
       offloaded: true,
       imagePath: servedPath,
       bytesFreed: image.imageData.length,
+      filed: placement.filed,
     }
   } catch (error: unknown) {
     /*

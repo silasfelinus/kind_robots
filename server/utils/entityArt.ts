@@ -43,7 +43,7 @@ export type EntityArtAuth = {
   isAdmin: boolean
 }
 
-type EntityArtDb = PrismaClient | Prisma.TransactionClient
+export type EntityArtDb = PrismaClient | Prisma.TransactionClient
 type EntityArtRecord = Record<string, unknown> & {
   id: number
   userId?: number | null
@@ -66,7 +66,7 @@ type EntityArtFieldConfig = {
   primary: boolean
 }
 
-const ENTITY_FIELDS: Record<
+export const ENTITY_FIELDS: Record<
   EntityArtType,
   Record<string, EntityArtFieldConfig>
 > = {
@@ -277,7 +277,7 @@ function safeBoolean(value: unknown, fallback: boolean): boolean {
   return typeof value === 'boolean' ? value : fallback
 }
 
-function cleanSlug(value: unknown, fallback: string): string {
+export function cleanSlug(value: unknown, fallback: string): string {
   const cleaned = safeText(value)
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
@@ -431,7 +431,7 @@ export async function resolveEntityArtTarget(
   return { entityType, entityId, field, config, record }
 }
 
-function recordTitle(
+export function recordTitle(
   entityType: EntityArtType,
   record: EntityArtRecord,
 ): string {
@@ -447,13 +447,45 @@ function currentFieldPath(record: EntityArtRecord, field: string): string {
   return safeText(record[field])
 }
 
+/**
+ * The per-slot id column for a secondary field, or null for the primary.
+ *
+ * cardPath -> cardArtImageId, and so on. Added 2026-08-06 so a slot's path
+ * field can hold a real file path instead of doubling as an id carrier.
+ */
+export function slotArtImageIdField(field: string): string | null {
+  const match = field.match(/^(card|hero|icon)Path$/)
+  if (!match) return null
+  const slot = match[1]
+  return slot ? `${slot}ArtImageId` : null
+}
+
 function currentArtImageId(
   record: EntityArtRecord,
   field: string,
   primary: boolean,
 ): number | null {
+  /*
+   * Resolution order, most to least authoritative:
+   *
+   * 1. The slot's own id column. Once populated this is the only source that
+   *    stays correct when the path field holds a static file path.
+   * 2. The id embedded in an /api/art/images/<id>/file URL. This WAS the only
+   *    source for secondary slots, and remains the fallback for rows the
+   *    backfill has not reached.
+   * 3. The record's primary artImageId — but only for the primary field.
+   *    Falling back to it for a card or hero would resolve the portrait, and
+   *    the next overwrite would archive the wrong image.
+   */
+  const slotField = slotArtImageIdField(field)
+  if (slotField) {
+    const slotId = Number(record[slotField])
+    if (Number.isInteger(slotId) && slotId > 0) return slotId
+  }
+
   const fromPath = imageIdFromPath(record[field])
   if (fromPath) return fromPath
+
   const id = Number(record.artImageId)
   return primary && Number.isInteger(id) && id > 0 ? id : null
 }
@@ -612,14 +644,18 @@ async function updateEntityRecord(
    * Null means "this is the primary slot" — each case then supplies its own
    * primary shape, since bot mirrors into both avatarImage and imagePath.
    */
-  const slotData =
-    input.field === 'cardPath'
-      ? { cardPath: input.imagePath }
-      : input.field === 'heroPath'
-        ? { heroPath: input.imagePath }
-        : input.field === 'iconPath'
-          ? { iconPath: input.imagePath }
-          : null
+  const slotIdField = slotArtImageIdField(input.field)
+  const slotData = slotIdField
+    ? {
+        [input.field]: input.imagePath,
+        /*
+         * Written together, always. The id column is what lets the path be a
+         * plain file path; a slot that updated one without the other would
+         * either lose track of its image or point at the wrong one.
+         */
+        [slotIdField]: input.artImageId,
+      }
+    : null
 
   switch (input.entityType) {
     case 'bot':

@@ -118,6 +118,11 @@ export function fromSeedScenario(scenario: ScenarioSeedInput): ScenarioView {
     iconPath: scenario.iconPath ?? null,
     cardPath: scenario.cardPath ?? null,
     heroPath: scenario.heroPath ?? null,
+    // Per-slot ArtImage ids. A seed scenario has no generated art behind it,
+    // so these stay null; they exist here only to satisfy ScenarioView.
+    iconArtImageId: scenario.iconArtImageId ?? null,
+    cardArtImageId: scenario.cardArtImageId ?? null,
+    heroArtImageId: scenario.heroArtImageId ?? null,
     allowReviews: scenario.allowReviews ?? false,
     locations: scenario.locations ?? null,
     artPrompt: scenario.artPrompt ?? null,

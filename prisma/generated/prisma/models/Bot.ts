@@ -31,6 +31,9 @@ export type BotAvgAggregateOutputType = {
   userId: number | null
   serverId: number | null
   artImageId: number | null
+  cardArtImageId: number | null
+  heroArtImageId: number | null
+  iconArtImageId: number | null
 }
 
 export type BotSumAggregateOutputType = {
@@ -38,6 +41,9 @@ export type BotSumAggregateOutputType = {
   userId: number | null
   serverId: number | null
   artImageId: number | null
+  cardArtImageId: number | null
+  heroArtImageId: number | null
+  iconArtImageId: number | null
 }
 
 export type BotMinAggregateOutputType = {
@@ -66,6 +72,9 @@ export type BotMinAggregateOutputType = {
   serverId: number | null
   serverName: string | null
   artImageId: number | null
+  cardArtImageId: number | null
+  heroArtImageId: number | null
+  iconArtImageId: number | null
   isMature: boolean | null
   isActive: boolean | null
   artPrompt: string | null
@@ -107,6 +116,9 @@ export type BotMaxAggregateOutputType = {
   serverId: number | null
   serverName: string | null
   artImageId: number | null
+  cardArtImageId: number | null
+  heroArtImageId: number | null
+  iconArtImageId: number | null
   isMature: boolean | null
   isActive: boolean | null
   artPrompt: string | null
@@ -148,6 +160,9 @@ export type BotCountAggregateOutputType = {
   serverId: number
   serverName: number
   artImageId: number
+  cardArtImageId: number
+  heroArtImageId: number
+  iconArtImageId: number
   isMature: number
   isActive: number
   artPrompt: number
@@ -170,6 +185,9 @@ export type BotAvgAggregateInputType = {
   userId?: true
   serverId?: true
   artImageId?: true
+  cardArtImageId?: true
+  heroArtImageId?: true
+  iconArtImageId?: true
 }
 
 export type BotSumAggregateInputType = {
@@ -177,6 +195,9 @@ export type BotSumAggregateInputType = {
   userId?: true
   serverId?: true
   artImageId?: true
+  cardArtImageId?: true
+  heroArtImageId?: true
+  iconArtImageId?: true
 }
 
 export type BotMinAggregateInputType = {
@@ -205,6 +226,9 @@ export type BotMinAggregateInputType = {
   serverId?: true
   serverName?: true
   artImageId?: true
+  cardArtImageId?: true
+  heroArtImageId?: true
+  iconArtImageId?: true
   isMature?: true
   isActive?: true
   artPrompt?: true
@@ -246,6 +270,9 @@ export type BotMaxAggregateInputType = {
   serverId?: true
   serverName?: true
   artImageId?: true
+  cardArtImageId?: true
+  heroArtImageId?: true
+  iconArtImageId?: true
   isMature?: true
   isActive?: true
   artPrompt?: true
@@ -287,6 +314,9 @@ export type BotCountAggregateInputType = {
   serverId?: true
   serverName?: true
   artImageId?: true
+  cardArtImageId?: true
+  heroArtImageId?: true
+  iconArtImageId?: true
   isMature?: true
   isActive?: true
   artPrompt?: true
@@ -415,6 +445,9 @@ export type BotGroupByOutputType = {
   serverId: number | null
   serverName: string | null
   artImageId: number | null
+  cardArtImageId: number | null
+  heroArtImageId: number | null
+  iconArtImageId: number | null
   isMature: boolean
   isActive: boolean
   artPrompt: string | null
@@ -479,6 +512,9 @@ export type BotWhereInput = {
   serverId?: Prisma.IntNullableFilter<"Bot"> | number | null
   serverName?: Prisma.StringNullableFilter<"Bot"> | string | null
   artImageId?: Prisma.IntNullableFilter<"Bot"> | number | null
+  cardArtImageId?: Prisma.IntNullableFilter<"Bot"> | number | null
+  heroArtImageId?: Prisma.IntNullableFilter<"Bot"> | number | null
+  iconArtImageId?: Prisma.IntNullableFilter<"Bot"> | number | null
   isMature?: Prisma.BoolFilter<"Bot"> | boolean
   isActive?: Prisma.BoolFilter<"Bot"> | boolean
   artPrompt?: Prisma.StringNullableFilter<"Bot"> | string | null
@@ -535,6 +571,9 @@ export type BotOrderByWithRelationInput = {
   serverId?: Prisma.SortOrderInput | Prisma.SortOrder
   serverName?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  cardArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  heroArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  iconArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -596,6 +635,9 @@ export type BotWhereUniqueInput = Prisma.AtLeast<{
   serverId?: Prisma.IntNullableFilter<"Bot"> | number | null
   serverName?: Prisma.StringNullableFilter<"Bot"> | string | null
   artImageId?: Prisma.IntNullableFilter<"Bot"> | number | null
+  cardArtImageId?: Prisma.IntNullableFilter<"Bot"> | number | null
+  heroArtImageId?: Prisma.IntNullableFilter<"Bot"> | number | null
+  iconArtImageId?: Prisma.IntNullableFilter<"Bot"> | number | null
   isMature?: Prisma.BoolFilter<"Bot"> | boolean
   isActive?: Prisma.BoolFilter<"Bot"> | boolean
   artPrompt?: Prisma.StringNullableFilter<"Bot"> | string | null
@@ -651,6 +693,9 @@ export type BotOrderByWithAggregationInput = {
   serverId?: Prisma.SortOrderInput | Prisma.SortOrder
   serverName?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  cardArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  heroArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  iconArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -700,6 +745,9 @@ export type BotScalarWhereWithAggregatesInput = {
   serverId?: Prisma.IntNullableWithAggregatesFilter<"Bot"> | number | null
   serverName?: Prisma.StringNullableWithAggregatesFilter<"Bot"> | string | null
   artImageId?: Prisma.IntNullableWithAggregatesFilter<"Bot"> | number | null
+  cardArtImageId?: Prisma.IntNullableWithAggregatesFilter<"Bot"> | number | null
+  heroArtImageId?: Prisma.IntNullableWithAggregatesFilter<"Bot"> | number | null
+  iconArtImageId?: Prisma.IntNullableWithAggregatesFilter<"Bot"> | number | null
   isMature?: Prisma.BoolWithAggregatesFilter<"Bot"> | boolean
   isActive?: Prisma.BoolWithAggregatesFilter<"Bot"> | boolean
   artPrompt?: Prisma.StringNullableWithAggregatesFilter<"Bot"> | string | null
@@ -737,6 +785,9 @@ export type BotCreateInput = {
   canDelete?: boolean
   designer?: string
   serverName?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -793,6 +844,9 @@ export type BotUncheckedCreateInput = {
   serverId?: number | null
   serverName?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -842,6 +896,9 @@ export type BotUpdateInput = {
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -898,6 +955,9 @@ export type BotUncheckedUpdateInput = {
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -951,6 +1011,9 @@ export type BotCreateManyInput = {
   serverId?: number | null
   serverName?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -988,6 +1051,9 @@ export type BotUpdateManyMutationInput = {
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1029,6 +1095,9 @@ export type BotUncheckedUpdateManyInput = {
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1091,6 +1160,9 @@ export type BotCountOrderByAggregateInput = {
   serverId?: Prisma.SortOrder
   serverName?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  cardArtImageId?: Prisma.SortOrder
+  heroArtImageId?: Prisma.SortOrder
+  iconArtImageId?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
@@ -1111,6 +1183,9 @@ export type BotAvgOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   serverId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  cardArtImageId?: Prisma.SortOrder
+  heroArtImageId?: Prisma.SortOrder
+  iconArtImageId?: Prisma.SortOrder
 }
 
 export type BotMaxOrderByAggregateInput = {
@@ -1139,6 +1214,9 @@ export type BotMaxOrderByAggregateInput = {
   serverId?: Prisma.SortOrder
   serverName?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  cardArtImageId?: Prisma.SortOrder
+  heroArtImageId?: Prisma.SortOrder
+  iconArtImageId?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
@@ -1180,6 +1258,9 @@ export type BotMinOrderByAggregateInput = {
   serverId?: Prisma.SortOrder
   serverName?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  cardArtImageId?: Prisma.SortOrder
+  heroArtImageId?: Prisma.SortOrder
+  iconArtImageId?: Prisma.SortOrder
   isMature?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
@@ -1200,6 +1281,9 @@ export type BotSumOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   serverId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  cardArtImageId?: Prisma.SortOrder
+  heroArtImageId?: Prisma.SortOrder
+  iconArtImageId?: Prisma.SortOrder
 }
 
 export type BotNullableScalarRelationFilter = {
@@ -1565,6 +1649,9 @@ export type BotCreateWithoutFacetLinksInput = {
   canDelete?: boolean
   designer?: string
   serverName?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -1620,6 +1707,9 @@ export type BotUncheckedCreateWithoutFacetLinksInput = {
   serverId?: number | null
   serverName?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -1684,6 +1774,9 @@ export type BotUpdateWithoutFacetLinksInput = {
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1739,6 +1832,9 @@ export type BotUncheckedUpdateWithoutFacetLinksInput = {
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1787,6 +1883,9 @@ export type BotCreateWithoutArtImageInput = {
   canDelete?: boolean
   designer?: string
   serverName?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -1841,6 +1940,9 @@ export type BotUncheckedCreateWithoutArtImageInput = {
   designer?: string
   serverId?: number | null
   serverName?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -1923,6 +2025,9 @@ export type BotScalarWhereInput = {
   serverId?: Prisma.IntNullableFilter<"Bot"> | number | null
   serverName?: Prisma.StringNullableFilter<"Bot"> | string | null
   artImageId?: Prisma.IntNullableFilter<"Bot"> | number | null
+  cardArtImageId?: Prisma.IntNullableFilter<"Bot"> | number | null
+  heroArtImageId?: Prisma.IntNullableFilter<"Bot"> | number | null
+  iconArtImageId?: Prisma.IntNullableFilter<"Bot"> | number | null
   isMature?: Prisma.BoolFilter<"Bot"> | boolean
   isActive?: Prisma.BoolFilter<"Bot"> | boolean
   artPrompt?: Prisma.StringNullableFilter<"Bot"> | string | null
@@ -1960,6 +2065,9 @@ export type BotCreateWithoutChatsInput = {
   canDelete?: boolean
   designer?: string
   serverName?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -2015,6 +2123,9 @@ export type BotUncheckedCreateWithoutChatsInput = {
   serverId?: number | null
   serverName?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -2079,6 +2190,9 @@ export type BotUpdateWithoutChatsInput = {
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2134,6 +2248,9 @@ export type BotUncheckedUpdateWithoutChatsInput = {
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2182,6 +2299,9 @@ export type BotCreateWithoutNarratedDreamsInput = {
   canDelete?: boolean
   designer?: string
   serverName?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -2237,6 +2357,9 @@ export type BotUncheckedCreateWithoutNarratedDreamsInput = {
   serverId?: number | null
   serverName?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -2290,6 +2413,9 @@ export type BotCreateWithoutDreamsInput = {
   canDelete?: boolean
   designer?: string
   serverName?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -2345,6 +2471,9 @@ export type BotUncheckedCreateWithoutDreamsInput = {
   serverId?: number | null
   serverName?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -2409,6 +2538,9 @@ export type BotUpdateWithoutNarratedDreamsInput = {
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2464,6 +2596,9 @@ export type BotUncheckedUpdateWithoutNarratedDreamsInput = {
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2528,6 +2663,9 @@ export type BotCreateWithoutManagedProjectsInput = {
   canDelete?: boolean
   designer?: string
   serverName?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -2583,6 +2721,9 @@ export type BotUncheckedCreateWithoutManagedProjectsInput = {
   serverId?: number | null
   serverName?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -2647,6 +2788,9 @@ export type BotUpdateWithoutManagedProjectsInput = {
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2702,6 +2846,9 @@ export type BotUncheckedUpdateWithoutManagedProjectsInput = {
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2750,6 +2897,9 @@ export type BotCreateWithoutExpressionMediaInput = {
   canDelete?: boolean
   designer?: string
   serverName?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -2805,6 +2955,9 @@ export type BotUncheckedCreateWithoutExpressionMediaInput = {
   serverId?: number | null
   serverName?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -2869,6 +3022,9 @@ export type BotUpdateWithoutExpressionMediaInput = {
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2924,6 +3080,9 @@ export type BotUncheckedUpdateWithoutExpressionMediaInput = {
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2972,6 +3131,9 @@ export type BotCreateWithoutExpressionTransitionInput = {
   canDelete?: boolean
   designer?: string
   serverName?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -3027,6 +3189,9 @@ export type BotUncheckedCreateWithoutExpressionTransitionInput = {
   serverId?: number | null
   serverName?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -3091,6 +3256,9 @@ export type BotUpdateWithoutExpressionTransitionInput = {
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3146,6 +3314,9 @@ export type BotUncheckedUpdateWithoutExpressionTransitionInput = {
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3194,6 +3365,9 @@ export type BotCreateWithoutNarratorThreadsInput = {
   canDelete?: boolean
   designer?: string
   serverName?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -3249,6 +3423,9 @@ export type BotUncheckedCreateWithoutNarratorThreadsInput = {
   serverId?: number | null
   serverName?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -3313,6 +3490,9 @@ export type BotUpdateWithoutNarratorThreadsInput = {
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3368,6 +3548,9 @@ export type BotUncheckedUpdateWithoutNarratorThreadsInput = {
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3416,6 +3599,9 @@ export type BotCreateWithoutPromptsInput = {
   canDelete?: boolean
   designer?: string
   serverName?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -3471,6 +3657,9 @@ export type BotUncheckedCreateWithoutPromptsInput = {
   serverId?: number | null
   serverName?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -3535,6 +3724,9 @@ export type BotUpdateWithoutPromptsInput = {
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3590,6 +3782,9 @@ export type BotUncheckedUpdateWithoutPromptsInput = {
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3638,6 +3833,9 @@ export type BotCreateWithoutReactionsInput = {
   canDelete?: boolean
   designer?: string
   serverName?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -3693,6 +3891,9 @@ export type BotUncheckedCreateWithoutReactionsInput = {
   serverId?: number | null
   serverName?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -3757,6 +3958,9 @@ export type BotUpdateWithoutReactionsInput = {
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3812,6 +4016,9 @@ export type BotUncheckedUpdateWithoutReactionsInput = {
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3860,6 +4067,9 @@ export type BotCreateWithoutServerInput = {
   canDelete?: boolean
   designer?: string
   serverName?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -3914,6 +4124,9 @@ export type BotUncheckedCreateWithoutServerInput = {
   designer?: string
   serverName?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -3989,6 +4202,9 @@ export type BotCreateWithoutUserInput = {
   canDelete?: boolean
   designer?: string
   serverName?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -4043,6 +4259,9 @@ export type BotUncheckedCreateWithoutUserInput = {
   serverId?: number | null
   serverName?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -4118,6 +4337,9 @@ export type BotCreateWithoutChallengeSubmissionsInput = {
   canDelete?: boolean
   designer?: string
   serverName?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -4173,6 +4395,9 @@ export type BotUncheckedCreateWithoutChallengeSubmissionsInput = {
   serverId?: number | null
   serverName?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -4237,6 +4462,9 @@ export type BotUpdateWithoutChallengeSubmissionsInput = {
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4292,6 +4520,9 @@ export type BotUncheckedUpdateWithoutChallengeSubmissionsInput = {
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4340,6 +4571,9 @@ export type BotCreateWithoutLifeRunsInput = {
   canDelete?: boolean
   designer?: string
   serverName?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -4395,6 +4629,9 @@ export type BotUncheckedCreateWithoutLifeRunsInput = {
   serverId?: number | null
   serverName?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -4459,6 +4696,9 @@ export type BotUpdateWithoutLifeRunsInput = {
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4514,6 +4754,9 @@ export type BotUncheckedUpdateWithoutLifeRunsInput = {
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4565,6 +4808,9 @@ export type BotCreateManyArtImageInput = {
   designer?: string
   serverId?: number | null
   serverName?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -4602,6 +4848,9 @@ export type BotUpdateWithoutArtImageInput = {
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4656,6 +4905,9 @@ export type BotUncheckedUpdateWithoutArtImageInput = {
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4708,6 +4960,9 @@ export type BotUncheckedUpdateManyWithoutArtImageInput = {
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4745,6 +5000,9 @@ export type BotUpdateWithoutDreamsInput = {
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4800,6 +5058,9 @@ export type BotUncheckedUpdateWithoutDreamsInput = {
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4852,6 +5113,9 @@ export type BotUncheckedUpdateManyWithoutDreamsInput = {
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4892,6 +5156,9 @@ export type BotCreateManyServerInput = {
   designer?: string
   serverName?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -4929,6 +5196,9 @@ export type BotUpdateWithoutServerInput = {
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4983,6 +5253,9 @@ export type BotUncheckedUpdateWithoutServerInput = {
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5035,6 +5308,9 @@ export type BotUncheckedUpdateManyWithoutServerInput = {
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5075,6 +5351,9 @@ export type BotCreateManyUserInput = {
   serverId?: number | null
   serverName?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isMature?: boolean
   isActive?: boolean
   artPrompt?: string | null
@@ -5112,6 +5391,9 @@ export type BotUpdateWithoutUserInput = {
   canDelete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   designer?: Prisma.StringFieldUpdateOperationsInput | string
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5166,6 +5448,9 @@ export type BotUncheckedUpdateWithoutUserInput = {
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5218,6 +5503,9 @@ export type BotUncheckedUpdateManyWithoutUserInput = {
   serverId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   serverName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5389,6 +5677,9 @@ export type BotSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   serverId?: boolean
   serverName?: boolean
   artImageId?: boolean
+  cardArtImageId?: boolean
+  heroArtImageId?: boolean
+  iconArtImageId?: boolean
   isMature?: boolean
   isActive?: boolean
   artPrompt?: boolean
@@ -5448,6 +5739,9 @@ export type BotSelectScalar = {
   serverId?: boolean
   serverName?: boolean
   artImageId?: boolean
+  cardArtImageId?: boolean
+  heroArtImageId?: boolean
+  iconArtImageId?: boolean
   isMature?: boolean
   isActive?: boolean
   artPrompt?: boolean
@@ -5463,7 +5757,7 @@ export type BotSelectScalar = {
   chatBorderImage?: boolean
 }
 
-export type BotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "BotType" | "name" | "subtitle" | "description" | "avatarImage" | "botIntro" | "userIntro" | "prompt" | "trainingPath" | "theme" | "personality" | "modules" | "sampleResponse" | "tagline" | "isPublic" | "underConstruction" | "canDelete" | "userId" | "designer" | "serverId" | "serverName" | "artImageId" | "isMature" | "isActive" | "artPrompt" | "imagePath" | "icon" | "iconPath" | "cardPath" | "heroPath" | "allowReviews" | "forgeIntro" | "narrativeVoice" | "slug" | "chatBorderImage", ExtArgs["result"]["bot"]>
+export type BotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "BotType" | "name" | "subtitle" | "description" | "avatarImage" | "botIntro" | "userIntro" | "prompt" | "trainingPath" | "theme" | "personality" | "modules" | "sampleResponse" | "tagline" | "isPublic" | "underConstruction" | "canDelete" | "userId" | "designer" | "serverId" | "serverName" | "artImageId" | "cardArtImageId" | "heroArtImageId" | "iconArtImageId" | "isMature" | "isActive" | "artPrompt" | "imagePath" | "icon" | "iconPath" | "cardPath" | "heroPath" | "allowReviews" | "forgeIntro" | "narrativeVoice" | "slug" | "chatBorderImage", ExtArgs["result"]["bot"]>
 export type BotInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtImage?: boolean | Prisma.Bot$ArtImageArgs<ExtArgs>
   Server?: boolean | Prisma.Bot$ServerArgs<ExtArgs>
@@ -5528,6 +5822,9 @@ export type $BotPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     serverId: number | null
     serverName: string | null
     artImageId: number | null
+    cardArtImageId: number | null
+    heroArtImageId: number | null
+    iconArtImageId: number | null
     isMature: boolean
     isActive: boolean
     artPrompt: string | null
@@ -5950,6 +6247,9 @@ export interface BotFieldRefs {
   readonly serverId: Prisma.FieldRef<"Bot", 'Int'>
   readonly serverName: Prisma.FieldRef<"Bot", 'String'>
   readonly artImageId: Prisma.FieldRef<"Bot", 'Int'>
+  readonly cardArtImageId: Prisma.FieldRef<"Bot", 'Int'>
+  readonly heroArtImageId: Prisma.FieldRef<"Bot", 'Int'>
+  readonly iconArtImageId: Prisma.FieldRef<"Bot", 'Int'>
   readonly isMature: Prisma.FieldRef<"Bot", 'Boolean'>
   readonly isActive: Prisma.FieldRef<"Bot", 'Boolean'>
   readonly artPrompt: Prisma.FieldRef<"Bot", 'String'>

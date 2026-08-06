@@ -265,7 +265,9 @@ export const useArtJobStore = defineStore('artJobStore', () => {
       )
       if (!visibility.isPublic || visibility.isMature) continue
 
-      const updatedAt = new Date(job.updatedAt).getTime()
+      const updatedAt = job.updatedAt
+        ? new Date(job.updatedAt).getTime()
+        : Number.NaN
       const version = Number.isFinite(updatedAt) ? `?v=${updatedAt}` : ''
       const src = `/api/art/images/${job.artImageId}/file${version}`
       const info = resolveArtImageSource({ imagePath: src, fileType: 'webp' })

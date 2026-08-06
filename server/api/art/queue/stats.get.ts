@@ -7,7 +7,8 @@
 // and images created — over a configurable window.
 //
 // Query: ?window=<hours> (default 24, max 720)
-//        ?summary=true returns the lightweight queue-card summary only.
+//        ?summary=true returns the lightweight queue-card summary with three
+//        focused queries instead of the full seven-query diagnostics pass.
 import { defineEventHandler, getQuery } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'

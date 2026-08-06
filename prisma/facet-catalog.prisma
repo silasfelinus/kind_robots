@@ -35,19 +35,19 @@ enum FacetTaxonomy {
 }
 
 model FacetProfile {
-  facetId        Int           @id
-  taxonomy       FacetTaxonomy @default(OTHER)
-  canonicalValue String?       @db.VarChar(255)
-  groupKey       String?       @db.VarChar(128)
-  groupLabel     String?       @db.VarChar(255)
-  sortOrder      Int           @default(0)
-  isRandomizable Boolean       @default(true)
-  randomWeight   Float         @default(1)
-  artRequired    Boolean       @default(true)
-  sourceRank     Int           @default(100)
-  metadata       String?       @db.LongText
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @default(now()) @updatedAt
+  facetId          Int           @id
+  taxonomy         FacetTaxonomy @default(OTHER)
+  canonicalValue   String?       @db.VarChar(255)
+  groupKey         String?       @db.VarChar(128)
+  groupLabel       String?       @db.VarChar(255)
+  sortOrder        Int           @default(0)
+  isRandomizable   Boolean       @default(true)
+  randomWeight     Float         @default(1)
+  artRequired      Boolean       @default(true)
+  sourceRank       Int           @default(100)
+  metadata         String?       @db.LongText
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @default(now()) @updatedAt
 
   @@index([taxonomy, groupKey, sortOrder])
   @@index([isRandomizable, taxonomy])

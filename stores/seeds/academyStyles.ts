@@ -2078,7 +2078,7 @@ export const academyStyles: AcademyStyle[] = [
       {
         name: 'Parmigianino',
         years: '1503–1540',
-        note: 'Pushed the movement\'s elongation furthest (his Madonna with the Long Neck is its most-cited example); this entry draws instead on one of his figure drawings.',
+        note: "Pushed the movement's elongation furthest (his Madonna with the Long Neck is its most-cited example); this entry draws instead on one of his figure drawings.",
       },
       {
         name: 'Perino del Vaga',
@@ -2090,6 +2090,106 @@ export const academyStyles: AcademyStyle[] = [
       mode: 'prompt',
       template:
         'Repaint this image as an Italian Mannerist painting: elegant, elongated figures in artificial, twisting poses, cool porcelain-smooth skin, a restrained jewel-toned palette against a plain or ambiguous dark ground, and a composed, faintly aloof emotional temperature rather than Baroque drama. Preserve the source composition and subject.',
+    },
+  },
+  {
+    slug: 'ethiopian-icon-painting',
+    name: 'Ethiopian Icon Painting',
+    era: 'c. 1450–1700',
+    sortYear: 1450,
+    previewImageSrc: '/images/academy/styles/ethiopian-icon-painting.webp',
+    region: 'Ethiopia',
+    keyIdeas:
+      'Ethiopian icon painting is a continuous devotional tradition of the Ethiopian Orthodox Tewahedo Church, painted in tempera on gesso-primed wood panels, most often as small, portable folding diptychs and triptychs meant to travel with a wealthy patron or hang in a church. The tradition draws on Byzantine and Coptic Egyptian pictorial conventions already familiar from Byzantine Mosaic — hieratic frontality, flat symbolic color, hierarchical scale — but develops its own unmistakable visual grammar: wide, direct, unblinking eyes that art historians describe as a deliberate "reversal gaze," meant to make the viewer feel watched by the sacred figure rather than the reverse, set within a warm, saturated palette built from red ochre, gold, and deep blue-green (blue conventionally marking the Virgin Mary, gold marking Christ). Panels fold shut to protect the painted interior in transit and open to reveal one or more scenes — most often the Virgin and Child flanked by archangels, saints on horseback (Saint George is the most frequently repeated figure), or narrative scenes from the life of Christ arranged in register-like compartments. Almost nothing is documented about individual painters before the 15th century; the one meaningful exception is Fre Seyon, active in the mid-15th century, the earliest Ethiopian icon painter identifiable by name and the presumed source of a recognizable workshop style that outlived him by generations.',
+    recognitionCues: [
+      "Large, wide-open, almond-shaped eyes gazing directly and frontally at the viewer on every major figure — the tradition's single most distinctive trait",
+      'Flat, unmodeled fields of color bounded by firm black contour outlines — no cast shadow, no atmospheric blending',
+      'A warm, saturated palette dominated by red ochre, gold, and deep blue-green, with blue conventionally marking the Virgin Mary and gold marking Christ',
+      'Strict frontal symmetry and hierarchical scale: the most sacred figure (Christ or the Virgin) largest and centered, secondary saints and archangels smaller and arranged around them',
+      'Compact, portable multi-panel folding formats (diptych or triptych) on wood, sized to close shut and travel',
+      'Mounted saints, especially Saint George spearing a dragon, rendered with simplified, tapering horse legs and decorative harness patterning rather than anatomical naturalism',
+    ],
+    artists: [
+      {
+        name: 'Fre Seyon',
+        years: 'active mid-15th century',
+        note: 'The earliest Ethiopian icon painter identifiable by name and the presumed source of a recognizable workshop style; named for historical context only, since this lesson\'s example works are catalogued as "Follower of Fre Seyon" or anonymous rather than by his own verified hand.',
+      },
+    ],
+    remix: {
+      mode: 'prompt',
+      template:
+        'Repaint this image as an Ethiopian Solomonic-era icon: flat, unmodeled fields of warm red ochre, gold, and deep blue-green bounded by firm black contour outlines, large wide-open frontal eyes gazing directly at the viewer, hierarchical scale with the most sacred figure largest and centered, simplified linear drapery folds, and a plain or minimally patterned background. Preserve the source composition and subject.',
+    },
+  },
+  {
+    slug: 'rinpa-school',
+    name: 'Rinpa School',
+    era: 'early 1600s–mid-1800s',
+    sortYear: 1600,
+    previewImageSrc: '/images/academy/styles/rinpa-school.webp',
+    region: 'Japan',
+    keyIdeas:
+      "Rinpa is a decorative painting and design tradition built around folding screens, hanging scrolls, fans, lacquer, ceramics, and textiles — not another Ukiyo-e lesson. Ukiyo-e is a print culture of actors, courtesans, travel, and reproducible woodblock color; Rinpa is brushed, one-of-a-kind, and organized around the collision of extreme flatness with close natural observation. Flowers, grasses, water, and seasonal motifs become bold arrangements of silhouette, rhythm, and empty space, set against broad grounds of gold or silver leaf, with pools of wet ink and color allowed to bloom into soft-edged forms beside crisp contour or metallic ground. The tradition is also notable for how it moved through time: rather than a single continuous workshop lineage, it passed by deliberate revival and admiration across three generations who never directly studied under one another — Ogata Kōrin looked back to earlier Kyoto decorative masters; a century later, Sakai Hōitsu rediscovered and codified Kōrin's vocabulary in Edo; and Hōitsu's own pupil Suzuki Kiitsu carried that revival into a sharper, more graphic nineteenth-century form.",
+    recognitionCues: [
+      'Large gold- or silver-leaf grounds that remove ordinary landscape depth and unify the composition as flat decorative surface',
+      'Asymmetrical compositions with major motifs cropped by the screen edge or scroll format, rather than centered or fully contained',
+      'Broad, simplified silhouettes paired with a few sharply observed botanical details — flatness and close natural observation held together at once',
+      'Repeated flowers, leaves, waves, or grasses arranged as visual rhythm rather than naturalistic, evenly-lit space',
+      'Pools of wet ink and color ("tarashikomi") allowed to bloom into soft-edged forms, often set directly beside crisp contour line or metallic ground',
+      'Strong, deliberate use of empty space, with subjects floating against an unmodeled field instead of a described setting',
+    ],
+    artists: [
+      {
+        name: 'Ogata Kōrin',
+        years: '1658–1716',
+        note: "The movement's central namesake figure; this lesson's generation-style anchor for combining highly stylized natural elements with formal Chinese-style ink training.",
+      },
+      {
+        name: 'Sakai Hōitsu',
+        years: '1761–1828',
+        note: "Led the later Edo Rinpa revival, rediscovering and codifying Kōrin's vocabulary in seasonal, literary compositions.",
+      },
+      {
+        name: 'Suzuki Kiitsu',
+        years: '1796–1858',
+        note: "Hōitsu's leading pupil, whose sharper, more graphic botanical forms mark the tradition's latest phase taught here.",
+      },
+    ],
+    remix: {
+      mode: 'prompt',
+      template:
+        'Repaint this image as a Rinpa-school folding-screen composition: a broad gold- or silver-leaf ground with no ordinary horizon, an asymmetrical cropped arrangement of seasonal flowers, grasses, or water, bold simplified silhouettes mixed with a few precise botanical details, pooled ink-and-color edges, rhythmic repetition, and generous empty space in place of realistic depth. Preserve the source composition and subject.',
+    },
+  },
+  {
+    slug: 'rajput-painting',
+    name: 'Rajput Painting',
+    era: 'c. 1600–1850',
+    sortYear: 1600,
+    previewImageSrc: '/images/academy/styles/rajput-painting.webp',
+    region: 'India',
+    keyIdeas:
+      "Where this curriculum's Mughal Miniature lesson tracks an imperial atelier moving toward naturalistic modeling and atmospheric recession, Rajput painting is what the smaller Hindu courts of Rajasthan — Mewar, Bikaner, Kishangarh, Bundi, Kota — and related Central Indian courts such as Malwa were doing at largely the same time, and it stayed closer to flat, intensely saturated color and bold graphic outline throughout its history rather than converging on Mughal naturalism. Subject matter runs devotional and lyrical rather than dynastic-narrative: episodes from Krishna's life (especially his courtship of Radha), ragamala series that paint a musical mode as a scene and mood rather than notation, court portraiture, and hunting or courtly-life scenes. Grounds are built from flat fields of saturated red, yellow, and blue rather than Mughal-style atmospheric gradation; figures are drawn with a confident continuous outline and large, almond-shaped eyes. Ragamala pages carry the additional layer of translating sound and emotion into fixed pictorial convention — a specific color palette, landscape, and pose for each named musical mode.",
+    recognitionCues: [
+      'Flat fields of intensely saturated color (deep red, yellow ochre, ultramarine) rather than Mughal-style atmospheric shading or naturalistic gradation',
+      'Confident, continuous outline defining figures and drapery, with large almond-shaped eyes rendered in profile or three-quarter view',
+      'Devotional and lyrical subjects — Krishna and Radha, ragamala musical-mode scenes, court portraits — rather than Mughal dynastic chronicle narrative',
+      'Architecture and landscape flattened into decorative pattern (tiled pavilions, stylized trees and water) rather than receding in depth',
+      'Gold used more sparingly than Persian miniature, often limited to jewelry, thrones, or architectural trim against a flat color ground',
+      "A plain or single-color background field is common, in contrast to Mughal miniature's dense, precisely rendered decorative borders",
+    ],
+    artists: [
+      {
+        name: 'Nihal Chand',
+        years: 'fl. c. 1735–1757',
+        note: 'The Kishangarh school\'s most celebrated later painter, credited with the "Bani Thani" portrait type; named for historical context only, since this lesson\'s Kishangarh example work predates his documented activity.',
+      },
+    ],
+    remix: {
+      mode: 'prompt',
+      template:
+        'Repaint this image as a Rajput court painting: flat fields of intensely saturated red, yellow, and blue, a confident continuous outline with large almond-shaped eyes, architecture and landscape flattened into decorative pattern rather than receding in depth, gold used sparingly for jewelry or trim only, and a plain or single-color background. Preserve the source composition and subject.',
     },
   },
 ]

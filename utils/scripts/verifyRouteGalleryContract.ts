@@ -99,6 +99,8 @@ type RouteGalleryBaseline = {
   /** Rule 4: tab managers not yet on the shared manager shell. */
   managerTotal: number
   managers: RatchetEntries
+  /** Rule 5: how big each core-object interact is. May only ever shrink. */
+  interactLines: Record<string, number>
 }
 
 const rel = (path: string): string => relative(root, path).replace(/\\/g, '/')
@@ -337,6 +339,39 @@ export function bucketHoldouts(
 export function totalHoldouts(buckets: RatchetEntries): number {
   return Object.keys(buckets).length
 }
+
+/* -------------------------------------------------------------------------- */
+/* rule 5 — the interact tier is a router, not a workspace                     */
+/* -------------------------------------------------------------------------- */
+
+/*
+ * WHAT IS UNIFORM HERE IS THE FRAME, NOT THE CONTENTS.
+ *
+ * Silas, 2026-08-06, approving this pass: "it will be inevitably less
+ * consistent across models, since that's where we are actually hitting 'what we
+ * do with them uniquely'."
+ *
+ * That is the whole design constraint, and it makes this rule deliberately
+ * different from Rule 4. The managers all do the SAME job, so they were made to
+ * share one layout outright. The interacts do DIFFERENT jobs -- a Bot is
+ * chatted with, a Reward is encountered, a Scenario is played -- so mandating a
+ * shared shell there would be forcing a uniformity the domain does not have.
+ *
+ * What they can share is the frame:
+ *
+ *   <x-gallery v-if="!selected" />     <x-workspace v-else />
+ *
+ * dream-interact is 56 lines because both its markup and its logic live in
+ * dream-workspace. reward-interact is 1096 because a complete encounter engine
+ * -- tone controls, prompt preview, session chats, narrative turns, a hero
+ * carousel -- sits in the router itself. Nothing about WHAT that engine does is
+ * wrong; it is in the wrong file.
+ *
+ * So this rule asserts the frame (hard: the interact renders its own object's
+ * gallery) and ratchets the router's SIZE (it may only shrink), rather than
+ * mandating a component name or a layout. A model whose workspace genuinely
+ * needs to be enormous can have that -- somewhere other than here.
+ */
 
 /* -------------------------------------------------------------------------- */
 /* rule 3 — the shadow-browser rule                                            */
@@ -1091,6 +1126,25 @@ function main(): void {
     if (!mountsComponent(source, SHARED_MANAGER)) managers[name] = ['off-shell']
   }
 
+  // --- rule 5 ---------------------------------------------------------------
+  const interactLines: Record<string, number> = {}
+  for (const core of CORE_OBJECT_ROUTES) {
+    const name = `${core.object}-interact`
+    const file = componentsByName.get(name)
+    if (!file) continue
+
+    const source = readFileSync(file, 'utf8')
+    interactLines[name] = source.split('\n').length
+
+    if (!mountsComponent(source, core.gallery)) {
+      failures += 1
+      console.error(
+        `FAIL - ${name} does not mount ${core.gallery}. The interact tier is the` +
+          ` browse-until-you-pick-one frame; without its gallery there is nothing to pick from.`,
+      )
+    }
+  }
+
   // --- rule 1 ---------------------------------------------------------------
   const buckets = bucketHoldouts(routes, adopted)
   const total = totalHoldouts(buckets)
@@ -1128,6 +1182,18 @@ function main(): void {
     )
   }
 
+  const grownInteracts = Object.entries(interactLines).filter(
+    ([name, lines]) => lines > (baseline?.interactLines?.[name] ?? Infinity),
+  )
+
+  console.log('\nCore-object interacts — routers, not workspaces:')
+  for (const [name, lines] of Object.entries(interactLines).sort()) {
+    const was = baseline?.interactLines?.[name]
+    console.log(
+      `  ${String(lines).padStart(5)} lines  ${name}${ratchetDelta(lines, was)}`,
+    )
+  }
+
   const managerCount = Object.keys(managers).length
   const grownManagers = grownRatchetBuckets(
     managers,
@@ -1144,7 +1210,12 @@ function main(): void {
   }
 
   if (update) {
-    const regressed = [...grown, ...grownShadows, ...grownManagers]
+    const regressed = [
+      ...grown,
+      ...grownShadows,
+      ...grownManagers,
+      ...grownInteracts.map(([name]) => name),
+    ]
     if (regressed.length) {
       console.error(
         `\n--update refuses to record growth. These got worse than the baseline:\n` +
@@ -1162,6 +1233,7 @@ function main(): void {
       shadows,
       managerTotal: managerCount,
       managers,
+      interactLines,
     })
     console.log(
       `\nRecorded ${total} holdout gallery/galleries and ${shadowCount} shadow browser(s) to ${BASELINE}.`,
@@ -1215,6 +1287,19 @@ function main(): void {
         `\n\nA manager that owns its own frame is where the next rival grid goes.` +
         ` Wrap it in <${SHARED_MANAGER}> and put each tab in a slot.`,
     )
+  }
+
+  if (grownInteracts.length) {
+    failures += grownInteracts.length
+    console.error(
+      `\nFAIL - ${grownInteracts.length} interact(s) GREW. The router is where the` +
+        ` frame lives; model-specific work belongs in a workspace component:`,
+    )
+    for (const [name, lines] of grownInteracts) {
+      console.error(
+        `  ${name}: ${baseline?.interactLines?.[name] ?? '(not in baseline)'} → ${lines} lines`,
+      )
+    }
   }
 
   if (failures) {

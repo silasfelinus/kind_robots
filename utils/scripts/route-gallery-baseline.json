@@ -21,5 +21,13 @@
   "shadowTotal": 0,
   "shadows": {},
   "managerTotal": 0,
-  "managers": {}
+  "managers": {},
+  "interactLines": {
+    "bot-interact": 721,
+    "character-interact": 923,
+    "dream-interact": 57,
+    "facet-interact": 204,
+    "reward-interact": 1097,
+    "scenario-interact": 531
+  }
 }

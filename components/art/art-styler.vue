@@ -517,6 +517,7 @@
               v-model="useNegative"
               type="checkbox"
               class="toggle toggle-primary toggle-xs"
+              :disabled="isGenerating"
             />
             <span class="label-text text-xs font-semibold">
               Inherit negative prompt
@@ -529,6 +530,7 @@
               v-model="isPublic"
               type="checkbox"
               class="toggle toggle-success toggle-xs"
+              :disabled="isGenerating"
             />
             <span class="label-text text-xs font-semibold">Public</span>
           </label>

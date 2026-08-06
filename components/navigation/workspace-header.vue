@@ -1,7 +1,7 @@
 <!-- /components/navigation/workspace-header.vue -->
 <template>
   <header
-    class="relative z-30 mb-2 shrink-0 overflow-visible rounded-2xl border border-base-300/70 bg-base-100/95 shadow-sm backdrop-blur"
+    class="relative z-30 mb-2 shrink-0 overflow-visible rounded-2xl border border-(--kr-surface-border) bg-(--kr-surface-raised) shadow-sm backdrop-blur"
   >
     <fx-region region="header" />
 

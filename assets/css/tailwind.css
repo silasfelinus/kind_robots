@@ -166,10 +166,16 @@
  * slash-opacity modifier.
  */
 [data-kr-backdrop] {
-  --kr-surface: color-mix(in oklch, var(--color-base-200) 78%, transparent);
-  --kr-surface-raised: color-mix(in oklch, var(--color-base-100) 82%, transparent);
-  --kr-surface-sunken: color-mix(in oklch, var(--color-base-300) 72%, transparent);
-  --kr-surface-border: color-mix(in oklch, var(--color-base-300) 60%, transparent);
+  /*
+   * Higher percentage = MORE opaque surface = LESS art showing through.
+   * Silas, 2026-08-06, on the first pass at 78/82/72/60: "we could see a bit
+   * more of the backgrounds." These are the four numbers to move, and moving
+   * them moves every page at once — that is the whole point of the tokens.
+   */
+  --kr-surface: color-mix(in oklch, var(--color-base-200) 62%, transparent);
+  --kr-surface-raised: color-mix(in oklch, var(--color-base-100) 66%, transparent);
+  --kr-surface-sunken: color-mix(in oklch, var(--color-base-300) 55%, transparent);
+  --kr-surface-border: color-mix(in oklch, var(--color-base-300) 45%, transparent);
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */

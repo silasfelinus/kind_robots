@@ -45,7 +45,7 @@
   -->
   <div
     v-if="hasBackdrop"
-    class="kr-backdrop pointer-events-none absolute inset-0 overflow-hidden rounded-2xl bg-cover bg-center bg-no-repeat"
+    class="kr-backdrop pointer-events-none absolute inset-0 overflow-hidden bg-cover bg-center bg-no-repeat"
     :style="backdropVars"
     aria-hidden="true"
   >

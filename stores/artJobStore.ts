@@ -9,6 +9,7 @@ import type {
 import { performFetch } from '@/stores/utils'
 import { resolveArtImageSource } from '~/utils/artImageSource'
 import type { ArtImageSource } from '~/utils/artImageSource'
+import { resolveMaturityPrivacy } from '~/utils/maturityPrivacy'
 
 export type ArtJobStatus =
   | 'PENDING'
@@ -213,9 +214,16 @@ type ArtJobState = {
 const DEFAULT_JOB_PAGE_SIZE = 20
 const MAX_JOB_PAGE_SIZE = 100
 
+type JsonRecord = Record<string, unknown>
+
 function normalizePageSize(value: number): number {
   if (!Number.isFinite(value)) return DEFAULT_JOB_PAGE_SIZE
   return Math.min(Math.max(Math.floor(value), 1), MAX_JOB_PAGE_SIZE)
+}
+
+function asRecord(value: unknown): JsonRecord {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
+  return value as JsonRecord
 }
 
 export const useArtJobStore = defineStore('artJobStore', () => {
@@ -248,6 +256,23 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     error: null,
     windowHours: 24,
   })
+
+  function cachePublicImageUrls(jobs: ArtJobRecord[]): void {
+    for (const job of jobs) {
+      if (typeof job.artImageId !== 'number') continue
+      const visibility = resolveMaturityPrivacy(
+        asRecord(asRecord(job.payload).save),
+      )
+      if (!visibility.isPublic || visibility.isMature) continue
+
+      const updatedAt = new Date(job.updatedAt).getTime()
+      const version = Number.isFinite(updatedAt) ? `?v=${updatedAt}` : ''
+      const src = `/api/art/images/${job.artImageId}/file${version}`
+      const info = resolveArtImageSource({ imagePath: src, fileType: 'webp' })
+      state.imageSrcById[job.artImageId] = src
+      state.imageInfoById[job.artImageId] = info
+    }
+  }
 
   async function fetchQueueControl(): Promise<void> {
     const res = await performFetch<{ paused: boolean; pausedBy: string | null }>(
@@ -369,6 +394,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
       if (res.success && res.data) {
         completedOverwriteIds(res.data.jobs)
         state.jobs = res.data.jobs
+        cachePublicImageUrls(res.data.jobs)
         applyPagination(res.data.pagination)
       } else if (!res.success) {
         state.error = res.message || 'Failed to load jobs.'
@@ -407,6 +433,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
         state.trainerJobs = res.data.jobs.filter((job) => {
           return typeof job.artImageId === 'number'
         })
+        cachePublicImageUrls(state.trainerJobs)
       } else if (!res.success) {
         state.error = res.message || 'Failed to load curated jobs.'
       }

@@ -1,76 +1,121 @@
 <!-- /components/narrative/narrative-role-assigner.vue -->
 <!--
-  Give each chosen cast member a part to play.
+  THE CASTING BOARD — lay the cast out as cards and give each one a part.
 
-  Storybook could already say WHICH Characters were in a story and not what any
-  of them were FOR, so a story bible listed a cast and left the narrator to
-  guess which one it was about. Silas, 2026-08-06: "a user can choose specific
-  characters and assign them as protagonist, villain, love interest....etc."
+  Silas, 2026-08-06: "I'm imagining a layout that lets the user feel like they
+  are selecting cards and creating a playboard that turns into a story."
 
-  Presentational and controlled, the same contract kr-gallery keeps: the parent
-  owns the cast list and the role map, this emits changes. No store import --
-  it has to drop into Storybook, and later Taskmaster and the Stage system,
-  without dragging any one of their models along.
+  The first version of this was a list of rows with a <select> in each. It
+  worked, and it was wrong twice over: it did not feel like anything, and it
+  did not even match the step directly above it, where the cast is chosen from
+  art-forward cards with selected rings and check badges
+  (narrative-ingredient-card.vue). Dropping from cards to a dropdown mid-flow
+  is the same hodgepodge this whole pass exists to remove.
 
-  Roles are OPTIONAL by design. An unassigned member produces exactly the cast
-  line it always did (see castLineWithRole), so a story that ignores this
-  feature generates identically to before.
+  So this is a board. Character art at 2:3 through the shared kr-art-plate, the
+  assigned part worn as a badge on the card itself, and the parts offered as
+  chips you press rather than options you unfold. The cast is capped at five,
+  which is what makes chips affordable: five cards of eight chips is a board
+  you can read at a glance, where five dropdowns is a form.
+
+  Presentational and controlled, the contract kr-gallery keeps: the parent owns
+  the cast and the role map, this emits changes, and it imports no store so it
+  can drop into Storybook now and Taskmaster or the Stage system later.
+
+  Roles stay OPTIONAL. An unassigned card is drawn quietly and produces exactly
+  the story-bible line it always did (see castLineWithRole), so a story that
+  ignores casting generates identically to before.
 -->
 <template>
-  <div v-if="members.length" class="space-y-2">
-    <div class="flex items-baseline justify-between gap-2">
-      <p class="text-sm font-bold">Who is who</p>
-      <p class="text-xs text-base-content/50">Optional</p>
+  <div v-if="members.length" class="space-y-3">
+    <div class="flex flex-wrap items-baseline justify-between gap-2">
+      <div>
+        <p class="text-sm font-black">The casting board</p>
+        <p class="mt-0.5 text-xs leading-relaxed text-base-content/55">
+          Give anyone a part and the narrator is told what it means — a
+          protagonist is followed, an antagonist is opposed. Leave a card blank
+          and the story decides.
+        </p>
+      </div>
+      <span
+        v-if="assignedCount"
+        class="badge badge-secondary badge-sm shrink-0"
+      >
+        {{ assignedCount }} cast
+      </span>
     </div>
 
-    <p class="text-xs leading-relaxed text-base-content/55">
-      Give anyone a part and the narrator is told what it means — a protagonist
-      is followed, an antagonist is opposed. Leave them unassigned and the story
-      decides.
-    </p>
-
-    <ul class="space-y-2">
+    <ul
+      class="grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(min(11rem,100%),1fr))]"
+    >
       <li
         v-for="member in members"
         :key="member.slug"
-        class="flex flex-wrap items-center gap-2 rounded-xl border border-base-300 bg-base-100 p-2"
+        class="flex flex-col overflow-hidden rounded-2xl border bg-base-100 transition"
+        :class="
+          roleFor(member.slug)
+            ? 'border-secondary/60 ring-1 ring-secondary/30'
+            : 'border-base-300'
+        "
       >
-        <img
-          v-if="artworkFor(member)"
-          :src="artworkFor(member) || ''"
-          :alt="member.title"
-          class="size-10 shrink-0 rounded-lg object-cover"
-          loading="lazy"
-        />
-        <span
-          v-else
-          class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-base-200"
-        >
-          <Icon
-            :name="member.icon || 'kind-icon:user'"
-            class="size-5 opacity-60"
+        <div class="relative">
+          <kr-art-plate
+            :source="member"
+            variant="card"
+            shape="card"
+            frame="none"
+            :alt="member.title"
+            :placeholder-icon="member.icon || 'kind-icon:user'"
           />
-        </span>
 
-        <span class="min-w-0 flex-1 truncate text-sm font-semibold">
-          {{ member.title }}
-        </span>
+          <!-- The part, worn on the card. This is what makes the board
+               readable without reading: a glance says who leads and who
+               opposes. -->
+          <span
+            v-if="roleFor(member.slug)"
+            class="badge badge-secondary badge-sm absolute left-2 top-2 gap-1 rounded-xl shadow"
+          >
+            <Icon
+              v-if="roleIcon(member.slug)"
+              :name="roleIcon(member.slug)"
+              class="size-3"
+              aria-hidden="true"
+            />
+            {{ roleLabel(member.slug) }}
+          </span>
 
-        <select
-          class="select select-bordered select-sm w-full max-w-[13rem] rounded-xl"
-          :value="modelValue[member.slug] ?? ''"
-          :aria-label="`Role for ${member.title}`"
-          @change="assign(member.slug, $event)"
+          <span
+            class="absolute inset-x-0 bottom-0 truncate bg-linear-to-t from-base-100 to-transparent px-2 pb-1.5 pt-6 text-xs font-black"
+          >
+            {{ member.title }}
+          </span>
+        </div>
+
+        <!--
+          Chips, not a dropdown. Pressing the active part again clears it, so
+          removing someone from a role costs the same one tap as giving them
+          one — a dropdown makes "none" a hunt back through the list.
+        -->
+        <div
+          class="flex flex-wrap gap-1 p-2"
+          role="group"
+          :aria-label="`Part for ${member.title}`"
         >
-          <option value="">Unassigned</option>
-          <option
+          <button
             v-for="role in NARRATIVE_ROLES"
             :key="role.key"
-            :value="role.key"
+            type="button"
+            class="btn btn-xs rounded-lg px-1.5 text-[0.65rem] font-bold"
+            :class="
+              roleFor(member.slug) === role.key ? 'btn-secondary' : 'btn-ghost'
+            "
+            :aria-pressed="roleFor(member.slug) === role.key"
+            :title="`${role.label} — ${role.description}`"
+            @click="toggle(member.slug, role.key)"
           >
             {{ role.label }}
-          </option>
-        </select>
+          </button>
+        </div>
       </li>
     </ul>
 
@@ -85,25 +130,18 @@
     >
       {{ duplicateWarning }}
     </p>
-
-    <p v-if="describedRole" class="text-xs italic text-base-content/55">
-      {{ describedRole }}
-    </p>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import {
   NARRATIVE_ROLES,
   duplicateSingularRoles,
   narrativeRole,
   narrativeRoleLabel,
 } from '@/utils/narrativeRoles'
-import {
-  narrativeIngredientArtwork,
-  type NarrativeIngredientOption,
-} from '@/utils/narrativeIngredients'
+import type { NarrativeIngredientOption } from '@/utils/narrativeIngredients'
 
 const props = defineProps<{
   /** The chosen cast, in the parent's order. */
@@ -116,38 +154,32 @@ const emit = defineEmits<{
   'update:modelValue': [value: Record<string, string>]
 }>()
 
-const lastAssigned = ref<string | null>(null)
+const roleFor = (slug: string): string | null => props.modelValue[slug] ?? null
+const roleLabel = (slug: string): string => narrativeRoleLabel(roleFor(slug))
+const roleIcon = (slug: string): string =>
+  narrativeRole(roleFor(slug))?.icon ?? ''
 
-function artworkFor(member: NarrativeIngredientOption): string | null {
-  return narrativeIngredientArtwork(member)
-}
-
-function assign(slug: string, event: Event): void {
-  const key = (event.target as HTMLSelectElement).value
+function toggle(slug: string, key: string): void {
   /*
    * An unassigned member is ABSENT from the map rather than stored as ''. The
-   * map is persisted in the setup draft, and a pile of empty-string entries
-   * would survive there forever for cast members long since removed. Rebuilt
-   * by filtering rather than deleting a computed key, which the lint config
-   * forbids and which mutates a fresh copy for no benefit.
+   * map is persisted in the setup draft, and empty entries would survive there
+   * forever for cast members long since removed. Rebuilt by filtering rather
+   * than deleting a computed key, which the lint config forbids.
    */
   const next = Object.fromEntries(
     Object.entries(props.modelValue).filter(([entry]) => entry !== slug),
   )
-  if (key) next[slug] = key
-  lastAssigned.value = key || null
+  if (roleFor(slug) !== key) next[slug] = key
   emit('update:modelValue', next)
 }
 
-/** Explains the part just chosen, so the effect on the story is visible here. */
-const describedRole = computed(() => {
-  const role = narrativeRole(lastAssigned.value)
-  return role ? `${role.label}: ${role.description}` : ''
-})
+const assignedCount = computed(
+  () => props.members.filter((member) => roleFor(member.slug)).length,
+)
 
 const duplicateWarning = computed(() => {
   const duplicates = duplicateSingularRoles(
-    props.members.map((member) => props.modelValue[member.slug]),
+    props.members.map((member) => roleFor(member.slug)),
   )
   if (!duplicates.length) return ''
   const named = duplicates.map((key) => narrativeRoleLabel(key)).join(' and ')

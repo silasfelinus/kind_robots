@@ -59,9 +59,7 @@
         v-if="store.statusMessage"
         class="shrink-0 border-b px-3 py-1 text-xs font-semibold"
         :class="
-          store.statusTone === 'error'
-            ? 'border-error/30 bg-error/10 text-error'
-            : 'border-success/30 bg-success/10 text-success'
+          store.statusTone === 'error' ? 'kr-note-error' : 'kr-note-success'
         "
       >
         {{ store.statusMessage }}

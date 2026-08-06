@@ -4,11 +4,7 @@
     <div
       v-if="isLoadingManager || managerError"
       class="mb-2 flex shrink-0 items-center gap-2 rounded-2xl border border-base-300 bg-base-100 px-3 py-2 text-xs shadow-sm"
-      :class="
-        managerError
-          ? 'border-error/40 bg-error/10 text-error'
-          : 'text-base-content/60'
-      "
+      :class="managerError ? 'kr-note-error' : 'text-base-content/60'"
     >
       <span
         v-if="isLoadingManager"

@@ -98,7 +98,7 @@
       <div
         v-if="feedback"
         class="shrink-0 rounded-2xl border px-4 py-3 text-sm font-semibold"
-        :class="feedbackError ? 'border-error/30 bg-error/10 text-error' : 'border-success/30 bg-success/10 text-success'"
+        :class="feedbackError ? 'kr-note-error' : 'kr-note-success'"
       >
         {{ feedback }}
       </div>

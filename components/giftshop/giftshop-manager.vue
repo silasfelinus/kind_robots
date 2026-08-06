@@ -48,8 +48,8 @@
               class="rounded-xl border p-3 text-center text-sm font-medium"
               :class="
                 manaTopupNotice === 'success'
-                  ? 'border-success/40 bg-success/10 text-success'
-                  : 'border-warning/40 bg-warning/10 text-warning'
+                  ? 'kr-note-success'
+                  : 'kr-note-warning'
               "
             >
               {{
@@ -63,8 +63,8 @@
               class="rounded-xl border p-3 text-center text-sm font-medium"
               :class="
                 subscriptionNotice === 'success'
-                  ? 'border-success/40 bg-success/10 text-success'
-                  : 'border-warning/40 bg-warning/10 text-warning'
+                  ? 'kr-note-success'
+                  : 'kr-note-warning'
               "
             >
               {{

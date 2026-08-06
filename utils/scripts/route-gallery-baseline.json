@@ -18,12 +18,8 @@
     "server-gallery": ["/servers"],
     "ui-gallery": ["/ui"]
   },
-  "shadowTotal": 1,
-  "shadows": {
-    "facet-manager": ["/facets"]
-  },
-  "managerTotal": 1,
-  "managers": {
-    "facet-manager": ["off-shell"]
-  }
+  "shadowTotal": 0,
+  "shadows": {},
+  "managerTotal": 0,
+  "managers": {}
 }

@@ -70,7 +70,12 @@ assert.ok(
 )
 
 await assert.rejects(
-  runWithKeyedConcurrency(items, 0, (item) => item.targetSlug, async () => {}),
+  runWithKeyedConcurrency(
+    items,
+    0,
+    (item) => item.targetSlug,
+    async () => {},
+  ),
   RangeError,
 )
 

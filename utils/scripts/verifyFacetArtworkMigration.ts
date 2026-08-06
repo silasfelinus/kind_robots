@@ -32,7 +32,9 @@ type CuratedArtwork = {
 
 function requireText(path: string, text: string, fragment: string): void {
   if (!text.includes(fragment)) {
-    throw new Error(`${path} is missing artwork migration contract text: ${fragment}`)
+    throw new Error(
+      `${path} is missing artwork migration contract text: ${fragment}`,
+    )
   }
 }
 
@@ -176,7 +178,9 @@ async function main(): Promise<void> {
     catalogStore,
     facetSummaries,
     facetStore,
+    facetEditor,
     facetManager,
+    facetGallery,
     facetProfileForm,
   ] = await Promise.all([
     readFile(resolve(root, 'utils/scripts/seedFacetCatalog.ts'), 'utf8'),
@@ -184,7 +188,9 @@ async function main(): Promise<void> {
     readFile(resolve(root, 'stores/facetCatalogStore.ts'), 'utf8'),
     readFile(resolve(root, 'server/utils/facetAssignments.ts'), 'utf8'),
     readFile(resolve(root, 'stores/facetStore.ts'), 'utf8'),
+    readFile(resolve(root, 'components/facets/facet-editor.vue'), 'utf8'),
     readFile(resolve(root, 'components/facets/facet-manager.vue'), 'utf8'),
+    readFile(resolve(root, 'components/facets/facet-gallery.vue'), 'utf8'),
     readFile(resolve(root, 'utils/facetProfileForm.ts'), 'utf8'),
   ])
 
@@ -274,21 +280,38 @@ async function main(): Promise<void> {
    * one particular spelling of the inputs, so the next legitimate refactor of the
    * form does not fail this again.
    */
-  for (const field of [
+  /*
+   * SPLIT ACROSS THREE FILES since facet-manager's Library grid was retired.
+   * Creating a Facet stayed in the manager; editing one (and therefore the art
+   * slots) moved to facet-editor.vue, reached through facet-interact's detail
+   * slot; and drawing a Facet's artwork belongs to the gallery, which is now
+   * the only surface that browses them.
+   */
+  requireText(
+    'components/facets/facet-manager.vue',
+    facetManager,
     '<FacetProfileEditor v-model="createForm" />',
+  )
+
+  for (const field of [
     '<FacetProfileEditor v-model="editForm" />',
     'entity-type="facet"',
     "field: 'imagePath'",
     "field: 'iconPath'",
     "field: 'cardPath'",
     "field: 'heroPath'",
-    // Was the literal chain `facet.cardPath || facet.imagePath || facet.heroPath`.
-    // That chain lived in six files and now lives in one (resolveEntityArtwork,
-    // utils/artImageSrc.ts), so this asserts the call rather than the copy.
-    'resolveEntityArtwork(facet)',
   ]) {
-    requireText('components/facets/facet-manager.vue', facetManager, field)
+    requireText('components/facets/facet-editor.vue', facetEditor, field)
   }
+
+  // Was the literal chain `facet.cardPath || facet.imagePath || facet.heroPath`.
+  // That chain lived in six files and now lives in one (resolveEntityArtwork,
+  // utils/artImageSrc.ts), so this asserts the call rather than the copy.
+  requireText(
+    'components/facets/facet-gallery.vue',
+    facetGallery,
+    'resolveEntityArtwork(facet)',
+  )
 
   /*
    * The form <-> Facet mapping moved out of the manager and into
@@ -311,7 +334,9 @@ async function main(): Promise<void> {
   }
 
   if (failures.length) {
-    throw new Error(`Facet artwork migration contract failed:\n- ${failures.join('\n- ')}`)
+    throw new Error(
+      `Facet artwork migration contract failed:\n- ${failures.join('\n- ')}`,
+    )
   }
 
   const uniquePaths = new Set(curated.map((entry) => entry.imagePath))

@@ -40,7 +40,10 @@ for (const required of [
   "groupKey: 'genre-recipe'",
   "duplicateSlug === 'carnival'",
 ]) {
-  assert.ok(directive.includes(required), `Missing directive contract: ${required}`)
+  assert.ok(
+    directive.includes(required),
+    `Missing directive contract: ${required}`,
+  )
 }
 
 assert.ok(
@@ -48,7 +51,9 @@ assert.ok(
   'Africanfuturism must be an alias of Afrofuturism.',
 )
 assert.ok(
-  directive.includes('await prisma.facet.delete({ where: { id: duplicate.id } })'),
+  directive.includes(
+    'await prisma.facet.delete({ where: { id: duplicate.id } })',
+  ),
   'Duplicate merges must physically delete old records.',
 )
 assert.ok(
@@ -65,7 +70,10 @@ assert.ok(
 )
 
 const hook = "script: 'utils/scripts/applyFacetCatalogDirectives.ts'"
-assert.ok(runner.includes(hook), 'Production build must apply catalog directives.')
+assert.ok(
+  runner.includes(hook),
+  'Production build must apply catalog directives.',
+)
 assert.ok(
   runner.indexOf(hook) < runner.indexOf('auditFacetCatalogOddities.ts'),
   'Catalog directives must run before the whole-catalog audit.',

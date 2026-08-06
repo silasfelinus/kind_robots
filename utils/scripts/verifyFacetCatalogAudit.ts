@@ -1,8 +1,5 @@
 // /utils/scripts/verifyFacetCatalogAudit.ts
-import {
-  auditFacetCatalog,
-  type FacetAuditInput,
-} from './../facetCatalogAudit'
+import { auditFacetCatalog, type FacetAuditInput } from './../facetCatalogAudit'
 
 function fixture(
   overrides: Partial<FacetAuditInput> & Pick<FacetAuditInput, 'id' | 'title'>,
@@ -10,7 +7,9 @@ function fixture(
   return {
     id: overrides.id,
     title: overrides.title,
-    slug: overrides.slug ?? overrides.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+    slug:
+      overrides.slug ??
+      overrides.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
     taxonomy: overrides.taxonomy === undefined ? 'OTHER' : overrides.taxonomy,
     groupKey: overrides.groupKey ?? null,
     groupLabel: overrides.groupLabel ?? null,
@@ -33,7 +32,10 @@ function candidateById(
   return report.candidates.find((candidate) => candidate.id === id)
 }
 
-function requireCondition(condition: unknown, message: string): asserts condition {
+function requireCondition(
+  condition: unknown,
+  message: string,
+): asserts condition {
   if (!condition) throw new Error(message)
 }
 
@@ -153,7 +155,10 @@ function main(): void {
 
   const duplicateA = candidateById(report, 5)
   const duplicateB = candidateById(report, 6)
-  requireCondition(duplicateA && duplicateB, 'Exact duplicate titles must be audited.')
+  requireCondition(
+    duplicateA && duplicateB,
+    'Exact duplicate titles must be audited.',
+  )
   requireCondition(
     duplicateA.actionHint === 'merge-exact-synonym' &&
       duplicateB.actionHint === 'merge-exact-synonym',

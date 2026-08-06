@@ -19,11 +19,14 @@ assert.deepEqual(prepareFacetAlias('  cows  '), {
   lookupKey: 'cows',
 })
 
-assert.deepEqual(prepareUniqueFacetAliases(['cowCore', 'cow-core', 'cow core', 'cow', 'cows']), [
-  { alias: 'cowCore', lookupKey: 'cowcore' },
-  { alias: 'cow', lookupKey: 'cow' },
-  { alias: 'cows', lookupKey: 'cows' },
-])
+assert.deepEqual(
+  prepareUniqueFacetAliases(['cowCore', 'cow-core', 'cow core', 'cow', 'cows']),
+  [
+    { alias: 'cowCore', lookupKey: 'cowcore' },
+    { alias: 'cow', lookupKey: 'cow' },
+    { alias: 'cows', lookupKey: 'cows' },
+  ],
+)
 
 assert.throws(() => prepareFacetAlias('---'), /letter or number/)
 

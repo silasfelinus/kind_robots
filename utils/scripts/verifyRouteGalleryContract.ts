@@ -477,6 +477,122 @@ export function isMultiColumnGrid(cls: string): boolean {
  * imported constant has no local `const` body, so it terminates immediately and
  * correctly reads as "not a collection".
  */
+/**
+ * The expression(s) a definition is BUILT FROM — its receivers.
+ *
+ * `const filteredFacets = computed(() => visibleFacets.value.filter(...))`
+ *   -> visibleFacets.value
+ * `const populatedTaxonomies = computed(() => FACET_TAXONOMIES.filter(...))`
+ *   -> FACET_TAXONOMIES
+ * `const visibleFacets = computed(() => flag ? store.facets : store.active)`
+ *   -> store.facets, store.active   (a ternary has two, and the test is neither)
+ *
+ * Following the receiver rather than any mention is what separates a list of
+ * the object from a list derived about it. facet-manager's replacement Library
+ * tab renders a per-taxonomy COUNT, whose chain reaches facetStore.facets
+ * inside a different computed's callback -- a "does it mention the collection"
+ * test flags that as a second Facet browser, which it plainly is not.
+ */
+export function receiversOf(definition: string): string[] {
+  let body = definition.trim()
+
+  // Unwrap the reactive wrapper and any arrow head.
+  body = body.replace(/^(?:computed|ref|shallowRef)\s*\(/, '').trim()
+  body = body.replace(/^(?:\([^)]*\)|\w+)\s*=>\s*/, '').trim()
+
+  // A block body: everything after the first top-level `return`.
+  if (body.startsWith('{')) {
+    const at = /\breturn\b/.exec(body)?.index
+    if (at === undefined) return []
+    body = body.slice(at + 'return'.length).trim()
+  }
+
+  const heads: string[] = []
+  for (const part of splitTernary(body)) {
+    const head = /^[([\s]*([A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*)/.exec(
+      part.trim(),
+    )?.[1]
+    if (head) heads.push(head)
+  }
+  return heads
+}
+
+/**
+ * A ternary's two branches, or the whole expression when it is not one.
+ *
+ * DEPTH-AWARE, and that is the whole point. A regex `?`-split matched inside
+ * the filter callback of facet-manager's real `filteredFacets` —
+ *
+ *   return visibleFacets.value.filter((facet) => {
+ *     ... facet.metadata ? JSON.stringify(facet.metadata) : '' ...
+ *   })
+ *
+ * — and returned `JSON.stringify` as the receiver, which resolves to nothing
+ * and quietly stopped the rule detecting the very grid it was written for.
+ * Only a `?` at bracket depth zero starts a ternary; `?.` and `??` never do.
+ */
+export function splitTernary(expression: string): string[] {
+  let depth = 0
+  let quote: string | null = null
+
+  for (let index = 0; index < expression.length; index += 1) {
+    const char = expression[index] as string
+
+    if (quote) {
+      if (char === '\\') index += 1
+      else if (char === quote) quote = null
+      continue
+    }
+    if (char === '"' || char === "'" || char === '`') {
+      quote = char
+      continue
+    }
+    if (char === '(' || char === '[' || char === '{') depth += 1
+    else if (char === ')' || char === ']' || char === '}') depth -= 1
+    else if (char === '?' && depth === 0) {
+      const next = expression[index + 1]
+      if (next === '.' || next === '?') {
+        index += 1
+        continue
+      }
+      const colon = matchingColon(expression, index + 1)
+      if (colon === -1) break
+      return [expression.slice(index + 1, colon), expression.slice(colon + 1)]
+    }
+  }
+  return [expression]
+}
+
+/** The `:` that closes a ternary opened at `from`, at the same depth. */
+function matchingColon(expression: string, from: number): number {
+  let depth = 0
+  let nested = 0
+  for (let index = from; index < expression.length; index += 1) {
+    const char = expression[index]
+    if (char === '(' || char === '[' || char === '{') depth += 1
+    else if (char === ')' || char === ']' || char === '}') depth -= 1
+    else if (char === '?' && depth === 0) nested += 1
+    else if (char === ':' && depth === 0) {
+      if (nested === 0) return index
+      nested -= 1
+    }
+  }
+  return -1
+}
+
+/**
+ * Does `source` trace back to the object's store collection?
+ *
+ * Name-matching the loop source is not enough: `FACET_TAXONOMIES` contains
+ * "facet" and is a <select>'s options, while `filteredFacets` is the browser.
+ * The difference is only visible by following the definition —
+ *
+ *   filteredFacets -> visibleFacets -> facetStore.facets / .activeFacets
+ *
+ * — which is two hops in the real file, hence the bounded recursion. An
+ * imported constant has no local `const` body, so it terminates immediately and
+ * correctly reads as "not a collection".
+ */
 export function resolvesToCollection(
   source: string,
   script: string,
@@ -494,12 +610,13 @@ export function resolvesToCollection(
     `\\b(?:const|let|var)\\s+${identifier}\\s*=\\s*([\\s\\S]*?)(?=\\n(?:const|let|var|function|async|export|/\\*|//)\\b|$)`,
   ).exec(script)?.[1]
   if (!definition) return false
-  if (collection.test(definition)) return true
 
-  for (const [, next] of definition.matchAll(/\b([A-Za-z_]\w*)\.value\b/g)) {
-    if (next && next !== identifier) {
-      if (resolvesToCollection(next, script, collection, depth + 1)) return true
-    }
+  for (const receiver of receiversOf(definition)) {
+    if (collection.test(receiver)) return true
+
+    const next = receiver.replace(/\.value$/, '')
+    if (next === identifier) continue
+    if (resolvesToCollection(next, script, collection, depth + 1)) return true
   }
   return false
 }
@@ -770,6 +887,59 @@ function selfTest(): void {
     )
   ) {
     fail('a self-referential computed must terminate as unresolved')
+  }
+
+  // --- rule 3: splitTernary / receiversOf ----------------------------------
+  /*
+   * The case that silently broke this rule once already. A regex `?`-split
+   * found the ternary INSIDE the filter callback and returned JSON.stringify
+   * as the receiver, so the detector stopped seeing the exact grid it exists
+   * for -- while still reporting a clean pass.
+   */
+  const nested = `computed(() => {
+    const needle = normalize(search.value)
+    return visibleFacets.value.filter((facet) => {
+      const values = [facet.title, facet.metadata ? JSON.stringify(facet.metadata) : '']
+      return values.some((value) => value.includes(needle))
+    })
+  })`
+  if (
+    JSON.stringify(receiversOf(nested)) !==
+    JSON.stringify(['visibleFacets.value.filter'])
+  ) {
+    fail(
+      `a ternary inside a callback must not become the receiver: ${JSON.stringify(receiversOf(nested))}`,
+    )
+  }
+
+  // A real top-level ternary still yields BOTH branches, never the test.
+  const branches = receiversOf(
+    'computed(() => showArchived.value ? facetStore.facets : facetStore.activeFacets)',
+  )
+  if (
+    JSON.stringify(branches) !==
+    JSON.stringify(['facetStore.facets', 'facetStore.activeFacets'])
+  ) {
+    fail(`ternary branches mismatch: ${JSON.stringify(branches)}`)
+  }
+  // Optional chaining and nullish coalescing are not ternaries.
+  if (splitTernary('store?.facets ?? []').length !== 1) {
+    fail('?. and ?? must not read as a ternary')
+  }
+  // An aggregate built from a constant does not resolve to the collection,
+  // which is what keeps a per-taxonomy count grid from reading as a browser.
+  const aggregate = `
+    const taxonomyCounts = computed(() => {
+      const counts = {}
+      for (const facet of facetStore.facets) counts[facet.taxonomy] = 1
+      return counts
+    })
+    const populatedTaxonomies = computed(() =>
+      FACET_TAXONOMIES.filter((taxonomy) => taxonomyCounts.value[taxonomy]),
+    )
+  `
+  if (resolvesToCollection('populatedTaxonomies', aggregate, facetCollection)) {
+    fail('a list derived from a CONSTANT must not resolve to the collection')
   }
 
   // --- rule 3: shadowBrowsers ----------------------------------------------

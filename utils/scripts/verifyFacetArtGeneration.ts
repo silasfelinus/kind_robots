@@ -10,7 +10,9 @@ async function source(path: string): Promise<string> {
 
 function requireText(path: string, text: string, value: string): void {
   if (!text.includes(value)) {
-    throw new Error(`${path} is missing required Facet art contract text: ${value}`)
+    throw new Error(
+      `${path} is missing required Facet art contract text: ${value}`,
+    )
   }
 }
 
@@ -41,13 +43,21 @@ async function main(): Promise<void> {
   requireText(files.selector, text.selector, 'requestPrimaryArtwork')
   requireText(files.selector, text.selector, 'update:modelValue')
   requireText(files.generateButton, text.generateButton, 'art-facet-selector')
-  requireText(files.generateButton, text.generateButton, 'decorateGenerationData')
+  requireText(
+    files.generateButton,
+    text.generateButton,
+    'decorateGenerationData',
+  )
   requireText(files.creator, text.creator, 'art-facet-selector')
   requireText(files.editor, text.editor, 'ArtJob Facets')
   requireText(files.editor, text.editor, 'basePromptString')
   requireText(files.editor, text.editor, 'facetIds')
   requireText(files.draftStore, text.draftStore, '__kindRobotsFacetSelection')
-  requireText(files.requestStore, text.requestStore, '/api/conductor/art-request')
+  requireText(
+    files.requestStore,
+    text.requestStore,
+    '/api/conductor/art-request',
+  )
   requireText(files.enqueue, text.enqueue, 'resolveArtFacetSelection')
   requireText(files.enqueue, text.enqueue, 'applyArtFacetsToPayload')
   requireText(files.edit, text.edit, 'readArtFacetIds')

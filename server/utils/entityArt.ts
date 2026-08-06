@@ -455,7 +455,9 @@ function currentFieldPath(record: EntityArtRecord, field: string): string {
  */
 export function slotArtImageIdField(field: string): string | null {
   const match = field.match(/^(card|hero|icon)Path$/)
-  return match ? `${match[1]}ArtImageId` : null
+  if (!match) return null
+  const slot = match[1]
+  return slot ? `${slot}ArtImageId` : null
 }
 
 function currentArtImageId(

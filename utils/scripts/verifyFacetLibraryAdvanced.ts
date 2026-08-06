@@ -11,11 +11,13 @@ async function main(): Promise<void> {
   const files = {
     manager: 'components/facets/facet-manager.vue',
     editor: 'components/facets/facet-profile-editor.vue',
+    facetEditor: 'components/facets/facet-editor.vue',
     form: 'utils/facetProfileForm.ts',
   } as const
-  const [manager, editor, form] = await Promise.all([
+  const [manager, editor, facetEditor, form] = await Promise.all([
     readFile(files.manager, 'utf8'),
     readFile(files.editor, 'utf8'),
+    readFile(files.facetEditor, 'utf8'),
     readFile(files.form, 'utf8'),
   ])
 
@@ -33,22 +35,39 @@ async function main(): Promise<void> {
     'iconPath',
     'artPrompt',
   ]) {
-    if (!manager.includes(field) && !editor.includes(field) && !form.includes(field)) {
+    if (
+      !manager.includes(field) &&
+      !editor.includes(field) &&
+      !facetEditor.includes(field) &&
+      !form.includes(field)
+    ) {
       throw new Error(`Complete Facet profile is missing field: ${field}`)
     }
   }
 
-  requireText(files.manager, manager, 'EntityArtManager')
-  requireText(files.manager, manager, "field: 'iconPath'")
-  if (manager.includes('requestPrimaryArtwork')) {
-    throw new Error('Facet Library must use ArtJobs instead of legacy YAML artwork requests.')
+  // EntityArtManager, the art slots and the save action moved to
+  // facet-editor.vue when facet-manager's Library grid was retired: a Facet is
+  // chosen in the gallery and edited in facet-interact's detail slot, rather
+  // than an editor expanding inside a grid cell. The Library tab keeps
+  // creation and the catalog fetch.
+  requireText(files.facetEditor, facetEditor, 'EntityArtManager')
+  requireText(files.facetEditor, facetEditor, "field: 'iconPath'")
+  requireText(files.facetEditor, facetEditor, 'Save canonical profile')
+  for (const [label, text] of [
+    [files.manager, manager],
+    [files.facetEditor, facetEditor],
+  ] as const) {
+    if (text.includes('requestPrimaryArtwork')) {
+      throw new Error(
+        `${label} must use ArtJobs instead of legacy YAML artwork requests.`,
+      )
+    }
   }
   requireText(
     files.manager,
     manager,
     'facetStore.fetchFacets({ includeInactive: true, includeMature: true })',
   )
-  requireText(files.manager, manager, 'Save canonical profile')
   requireText(files.manager, manager, 'FacetProfileEditor')
   requireText(files.editor, editor, 'Structured metadata (JSON object)')
   requireText(files.editor, editor, 'defineModel<FacetProfileForm>')

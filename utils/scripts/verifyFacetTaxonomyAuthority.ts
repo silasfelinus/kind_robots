@@ -34,7 +34,9 @@ function extractQuotedArray(text: string, marker: string): string[] {
 }
 
 function extractPrismaEnum(text: string, enumName: string): string[] {
-  const match = text.match(new RegExp(`enum\\s+${enumName}\\s*\\{([\\s\\S]*?)\\}`))
+  const match = text.match(
+    new RegExp(`enum\\s+${enumName}\\s*\\{([\\s\\S]*?)\\}`),
+  )
   const body = match?.[1]
   if (!body) throw new Error(`Could not parse Prisma enum ${enumName}.`)
   return body
@@ -47,7 +49,9 @@ function sameValues(label: string, left: string[], right: string[]): void {
   const a = [...left].sort()
   const b = [...right].sort()
   if (JSON.stringify(a) !== JSON.stringify(b)) {
-    throw new Error(`${label} mismatch:\nleft=${a.join(', ')}\nright=${b.join(', ')}`)
+    throw new Error(
+      `${label} mismatch:\nleft=${a.join(', ')}\nright=${b.join(', ')}`,
+    )
   }
 }
 
@@ -78,32 +82,66 @@ async function main(): Promise<void> {
   const text = Object.fromEntries(entries) as Record<keyof typeof files, string>
 
   const prismaTaxonomies = extractPrismaEnum(text.schema, 'FacetTaxonomy')
-  const serverTaxonomies = extractQuotedArray(text.serverCatalog, 'FACET_TAXONOMIES')
-  const clientTaxonomies = extractQuotedArray(text.catalogStore, 'FACET_TAXONOMIES')
+  const serverTaxonomies = extractQuotedArray(
+    text.serverCatalog,
+    'FACET_TAXONOMIES',
+  )
+  const clientTaxonomies = extractQuotedArray(
+    text.catalogStore,
+    'FACET_TAXONOMIES',
+  )
   sameValues('Prisma/server taxonomy', prismaTaxonomies, serverTaxonomies)
   sameValues('Prisma/client taxonomy', prismaTaxonomies, clientTaxonomies)
 
-  requireText(files.schema, text.schema, 'taxonomy         FacetTaxonomy @default(OTHER)')
+  requireText(
+    files.schema,
+    text.schema,
+    'taxonomy         FacetTaxonomy @default(OTHER)',
+  )
   requireText(files.migration, text.migration, 'MODIFY `taxonomy` ENUM(')
   requireText(files.migration, text.migration, "SET `taxonomy` = 'OTHER'")
   for (const taxonomy of prismaTaxonomies) {
     requireText(files.migration, text.migration, `'${taxonomy}'`)
   }
 
-  requireText(files.profileInput, text.profileInput, 'assertLegacyFacetKindAbsent')
+  requireText(
+    files.profileInput,
+    text.profileInput,
+    'assertLegacyFacetKindAbsent',
+  )
   /* t-072 dropped the physical Facet.kind column, which made the
      legacyFacetKindForTaxonomy() derivation dead code -- so these flipped from
      "must derive it" to "must not resurrect it". FacetProfile.taxonomy is the
      only classification left. */
-  forbidText(files.profileInput, text.profileInput, 'legacyFacetKindForTaxonomy')
-  requireText(files.profileInput, text.profileInput, 'Facet kind is deprecated. Use taxonomy instead.')
-  requireText(files.createApi, text.createApi, 'assertLegacyFacetKindAbsent(body)')
+  forbidText(
+    files.profileInput,
+    text.profileInput,
+    'legacyFacetKindForTaxonomy',
+  )
+  requireText(
+    files.profileInput,
+    text.profileInput,
+    'Facet kind is deprecated. Use taxonomy instead.',
+  )
+  requireText(
+    files.createApi,
+    text.createApi,
+    'assertLegacyFacetKindAbsent(body)',
+  )
   forbidText(files.createApi, text.createApi, 'legacyFacetKindForTaxonomy')
-  requireText(files.patchApi, text.patchApi, 'assertLegacyFacetKindAbsent(body)')
+  requireText(
+    files.patchApi,
+    text.patchApi,
+    'assertLegacyFacetKindAbsent(body)',
+  )
   forbidText(files.patchApi, text.patchApi, 'legacyFacetKindForTaxonomy')
   requireText(files.listApi, text.listApi, 'query.taxonomy')
   requireText(files.listApi, text.listApi, 'prisma.facetProfile.findMany')
-  requireText(files.listApi, text.listApi, 'Facet kind filtering is deprecated. Use taxonomy instead.')
+  requireText(
+    files.listApi,
+    text.listApi,
+    'Facet kind filtering is deprecated. Use taxonomy instead.',
+  )
 
   requireText(files.assignments, text.assignments, 'sortFacetSummaries')
   requireText(files.assignments, text.assignments, 'profile?.taxonomy')
@@ -124,10 +162,23 @@ async function main(): Promise<void> {
     forbidText(files.picker, text.picker, forbidden)
   }
 
-  requireText(files.manager, text.manager, 'taxonomyLabel(facet.taxonomy)')
+  /*
+   * The manager keys on `taxonomy`, never on the retired `kind`. It used to
+   * spell that as `taxonomyLabel(facet.taxonomy)` inside its Library card grid;
+   * that grid is gone (it was a second Facet browser on the Facets route), and
+   * the manager now labels taxonomies for its catalog breakdown while reading
+   * `facet.taxonomy` to count them. Both halves are asserted separately so the
+   * contract tracks the authority rather than one deleted call site.
+   */
+  requireText(files.manager, text.manager, 'taxonomyLabel(')
+  requireText(files.manager, text.manager, 'facet.taxonomy')
   forbidText(files.manager, text.manager, 'facet.kind')
 
-  requireText(files.taskmaster, text.taskmaster, 'storyGrammarTaxonomies.has(facet.taxonomy)')
+  requireText(
+    files.taskmaster,
+    text.taskmaster,
+    'storyGrammarTaxonomies.has(facet.taxonomy)',
+  )
   forbidText(files.taskmaster, text.taskmaster, 'facet.kind')
   forbidText(files.taskmaster, text.taskmaster, 'serendipity')
 

@@ -47,6 +47,10 @@ async function main(): Promise<void> {
     profileInput: 'server/utils/facetProfileInput.ts',
     facetStore: 'stores/facetStore.ts',
     facetManager: 'components/facets/facet-manager.vue',
+    // The per-Facet edit surface, split out of facet-manager when its Library
+    // grid was retired. Creation stayed in the manager; editing, archiving and
+    // the art slots moved here.
+    facetEditor: 'components/facets/facet-editor.vue',
     facetPicker: 'components/facets/facet-picker.vue',
     facetProfileEditor: 'components/facets/facet-profile-editor.vue',
     facetProfileForm: 'utils/facetProfileForm.ts',
@@ -79,15 +83,35 @@ async function main(): Promise<void> {
 
   requireText(files.schema, text.schema, 'enum FacetTaxonomy')
   requireText(files.schema, text.schema, 'model FacetProfile')
-  requireText(files.schema, text.schema, 'taxonomy         FacetTaxonomy @default(OTHER)')
+  requireText(
+    files.schema,
+    text.schema,
+    'taxonomy         FacetTaxonomy @default(OTHER)',
+  )
   requireText(files.schema, text.schema, 'model CharacterFacet')
-  requireText(files.schema, text.schema, '@@unique([characterId, facetId, fieldKey])')
+  requireText(
+    files.schema,
+    text.schema,
+    '@@unique([characterId, facetId, fieldKey])',
+  )
   requireText(files.migration, text.migration, 'FacetProfile_facetId_fkey')
-  requireText(files.migration, text.migration, 'CharacterFacet_characterId_fkey')
+  requireText(
+    files.migration,
+    text.migration,
+    'CharacterFacet_characterId_fkey',
+  )
   requireText(files.migration, text.migration, 'CharacterFacet_facetId_fkey')
   requireText(files.migration, text.migration, 'ON DELETE CASCADE')
-  requireText(files.taxonomyMigration, text.taxonomyMigration, 'MODIFY `taxonomy` ENUM(')
-  requireText(files.taxonomyMigration, text.taxonomyMigration, "SET `taxonomy` = 'OTHER'")
+  requireText(
+    files.taxonomyMigration,
+    text.taxonomyMigration,
+    'MODIFY `taxonomy` ENUM(',
+  )
+  requireText(
+    files.taxonomyMigration,
+    text.taxonomyMigration,
+    "SET `taxonomy` = 'OTHER'",
+  )
 
   for (const taxonomy of [
     'SPECIES',
@@ -112,26 +136,50 @@ async function main(): Promise<void> {
   requireText(files.catalog, text.catalog, 'normalizeFacetLookupKey')
   requireText(files.catalog, text.catalog, 'prisma.facetAlias.findMany')
   requireText(files.catalog, text.catalog, 'aliasFacetIds')
-  requireText(files.catalog, text.catalog, 'lookupKey: { contains: normalizedSearch }')
+  requireText(
+    files.catalog,
+    text.catalog,
+    'lookupKey: { contains: normalizedSearch }',
+  )
   requireText(files.catalog, text.catalog, 'id: { in: aliasFacetIds }')
   requireText(files.catalog, text.catalog, 'if (options.take == null)')
 
   requireText(files.profileInput, text.profileInput, 'normalizeFacetTaxonomy')
-  requireText(files.profileInput, text.profileInput, 'buildFacetProfileCreateData')
-  requireText(files.profileInput, text.profileInput, 'buildFacetProfileUpdateData')
-  requireText(files.profileInput, text.profileInput, 'assertLegacyFacetKindAbsent')
+  requireText(
+    files.profileInput,
+    text.profileInput,
+    'buildFacetProfileCreateData',
+  )
+  requireText(
+    files.profileInput,
+    text.profileInput,
+    'buildFacetProfileUpdateData',
+  )
+  requireText(
+    files.profileInput,
+    text.profileInput,
+    'assertLegacyFacetKindAbsent',
+  )
   /* t-072 dropped the physical Facet.kind column, which made the
      legacyFacetKindForTaxonomy() derivation dead code -- so these flipped from
      "must derive it" to "must not resurrect it". FacetProfile.taxonomy is the
      only classification left. */
-  forbidText(files.profileInput, text.profileInput, 'legacyFacetKindForTaxonomy')
+  forbidText(
+    files.profileInput,
+    text.profileInput,
+    'legacyFacetKindForTaxonomy',
+  )
   requireText(files.profileInput, text.profileInput, "taxonomy !== 'COLOR'")
   requireText(
     files.profileInput,
     text.profileInput,
     'Facet metadata must be a valid JSON object.',
   )
-  requireText(files.facetCreate, text.facetCreate, 'buildFacetProfileCreateData')
+  requireText(
+    files.facetCreate,
+    text.facetCreate,
+    'buildFacetProfileCreateData',
+  )
   forbidText(files.facetCreate, text.facetCreate, 'legacyFacetKindForTaxonomy')
   requireText(files.facetCreate, text.facetCreate, 'tx.facetProfile.create')
   requireText(files.facetPatch, text.facetPatch, 'buildFacetProfileUpdateData')
@@ -140,11 +188,31 @@ async function main(): Promise<void> {
   requireText(files.facetList, text.facetList, 'query.taxonomy')
   requireText(files.facetList, text.facetList, 'prisma.facetProfile.findMany')
 
-  requireText(files.facetAssignments, text.facetAssignments, 'prisma.facetProfile.findMany')
-  requireText(files.facetAssignments, text.facetAssignments, 'randomWeight: profile?.randomWeight')
-  requireText(files.facetAssignments, text.facetAssignments, 'metadata: parseMetadata')
-  requireText(files.facetAssignments, text.facetAssignments, 'sortFacetSummaries')
-  forbidText(files.facetAssignments, text.facetAssignments, 'export const facetKinds')
+  requireText(
+    files.facetAssignments,
+    text.facetAssignments,
+    'prisma.facetProfile.findMany',
+  )
+  requireText(
+    files.facetAssignments,
+    text.facetAssignments,
+    'randomWeight: profile?.randomWeight',
+  )
+  requireText(
+    files.facetAssignments,
+    text.facetAssignments,
+    'metadata: parseMetadata',
+  )
+  requireText(
+    files.facetAssignments,
+    text.facetAssignments,
+    'sortFacetSummaries',
+  )
+  forbidText(
+    files.facetAssignments,
+    text.facetAssignments,
+    'export const facetKinds',
+  )
   requireText(files.facetStore, text.facetStore, 'FACET_LIBRARY_PAGE_SIZE')
   requireText(files.facetStore, text.facetStore, 'while (true)')
   requireText(files.facetStore, text.facetStore, 'skip += page.length')
@@ -154,15 +222,37 @@ async function main(): Promise<void> {
   requireText(files.facetManager, text.facetManager, 'Create canonical Facet')
   requireText(files.facetManager, text.facetManager, 'FacetProfileEditor')
   requireText(files.facetManager, text.facetManager, 'facetProfilePayload')
-  requireText(files.facetManager, text.facetManager, 'EntityArtManager')
-  requireText(files.facetManager, text.facetManager, "field: 'iconPath'")
+  requireText(files.facetEditor, text.facetEditor, 'EntityArtManager')
+  requireText(files.facetEditor, text.facetEditor, "field: 'iconPath'")
   forbidText(files.facetManager, text.facetManager, 'requestPrimaryArtwork')
   forbidText(files.facetManager, text.facetManager, 'useFacetArtRequestStore')
-  requireText(files.facetProfileEditor, text.facetProfileEditor, 'form.randomWeight')
-  requireText(files.facetProfileEditor, text.facetProfileEditor, 'form.isRandomizable')
-  requireText(files.facetProfileEditor, text.facetProfileEditor, 'form.artRequired')
-  requireText(files.facetProfileEditor, text.facetProfileEditor, 'form.sourceRank')
-  requireText(files.facetProfileForm, text.facetProfileForm, 'parseFacetMetadata')
+  forbidText(files.facetEditor, text.facetEditor, 'requestPrimaryArtwork')
+  forbidText(files.facetEditor, text.facetEditor, 'useFacetArtRequestStore')
+  requireText(
+    files.facetProfileEditor,
+    text.facetProfileEditor,
+    'form.randomWeight',
+  )
+  requireText(
+    files.facetProfileEditor,
+    text.facetProfileEditor,
+    'form.isRandomizable',
+  )
+  requireText(
+    files.facetProfileEditor,
+    text.facetProfileEditor,
+    'form.artRequired',
+  )
+  requireText(
+    files.facetProfileEditor,
+    text.facetProfileEditor,
+    'form.sourceRank',
+  )
+  requireText(
+    files.facetProfileForm,
+    text.facetProfileForm,
+    'parseFacetMetadata',
+  )
   requireText(files.facetProfileForm, text.facetProfileForm, 'canonicalValue')
   requireText(files.facetProfileForm, text.facetProfileForm, 'sortOrder')
   forbidText(files.facetProfileForm, text.facetProfileForm, 'kindForTaxonomy')
@@ -177,33 +267,89 @@ async function main(): Promise<void> {
     text.characterFacetSync,
     'syncCharacterFacetsInTransaction',
   )
-  requireText(files.characterFacetSync, text.characterFacetSync, 'CHARACTER_MUTATION')
-  requireText(files.characterFacetSync, text.characterFacetSync, "gender: ['GENDER']")
-  requireText(files.characterFacetSync, text.characterFacetSync, 'tx.characterFacet.deleteMany')
-  requireText(files.characterFacetSync, text.characterFacetSync, 'tx.characterFacet.createMany')
-  requireText(files.characterFacetSync, text.characterFacetSync, 'allowed.includes(taxonomy)')
-  requireText(files.characterCreate, text.characterCreate, 'prisma.$transaction')
-  requireText(files.characterCreate, text.characterCreate, 'syncCharacterFacetsInTransaction')
+  requireText(
+    files.characterFacetSync,
+    text.characterFacetSync,
+    'CHARACTER_MUTATION',
+  )
+  requireText(
+    files.characterFacetSync,
+    text.characterFacetSync,
+    "gender: ['GENDER']",
+  )
+  requireText(
+    files.characterFacetSync,
+    text.characterFacetSync,
+    'tx.characterFacet.deleteMany',
+  )
+  requireText(
+    files.characterFacetSync,
+    text.characterFacetSync,
+    'tx.characterFacet.createMany',
+  )
+  requireText(
+    files.characterFacetSync,
+    text.characterFacetSync,
+    'allowed.includes(taxonomy)',
+  )
+  requireText(
+    files.characterCreate,
+    text.characterCreate,
+    'prisma.$transaction',
+  )
+  requireText(
+    files.characterCreate,
+    text.characterCreate,
+    'syncCharacterFacetsInTransaction',
+  )
   requireText(files.characterPatch, text.characterPatch, 'prisma.$transaction')
-  requireText(files.characterPatch, text.characterPatch, 'syncCharacterFacetsInTransaction')
+  requireText(
+    files.characterPatch,
+    text.characterPatch,
+    'syncCharacterFacetsInTransaction',
+  )
   requireText(files.characterGet, text.characterGet, 'getOptionalApiUser')
   requireText(files.characterPut, text.characterPut, 'requireApiUser')
   requireText(files.characterPut, text.characterPut, 'resolveFacetSelection')
-  requireText(files.characterPut, text.characterPut, 'characterFacet.deleteMany')
-  requireText(files.characterPut, text.characterPut, 'characterFacet.createMany')
+  requireText(
+    files.characterPut,
+    text.characterPut,
+    'characterFacet.deleteMany',
+  )
+  requireText(
+    files.characterPut,
+    text.characterPut,
+    'characterFacet.createMany',
+  )
 
   requireText(files.seedWrapper, text.seedWrapper, 'ADVENTURE_CARDS')
-  requireText(files.seedWrapper, text.seedWrapper, 'if (!choice.opensList) continue')
+  requireText(
+    files.seedWrapper,
+    text.seedWrapper,
+    'if (!choice.opensList) continue',
+  )
   requireText(files.seedWrapper, text.seedWrapper, 'choice.listOptions')
-  requireText(files.seedWrapper, text.seedWrapper, 'step.listOptions = Array.from(completeList)')
+  requireText(
+    files.seedWrapper,
+    text.seedWrapper,
+    'step.listOptions = Array.from(completeList)',
+  )
   requireText(files.seedWrapper, text.seedWrapper, 'promotedBuilderOptions')
-  requireText(files.seedWrapper, text.seedWrapper, "import('./seedGenderFacetCatalog')")
+  requireText(
+    files.seedWrapper,
+    text.seedWrapper,
+    "import('./seedGenderFacetCatalog')",
+  )
   requireText(files.seed, text.seed, 'ADVENTURE_CARDS')
   requireText(files.seed, text.seed, 'animalDataList')
   requireText(files.seed, text.seed, 'artListPresets')
   requireText(files.seed, text.seed, "title = isWaterBear ? 'Tardigrade'")
   requireText(files.seed, text.seed, "taxonomy !== 'COLOR'")
-  requireText(files.seed, text.seed, 'negative prompts remain generation configuration')
+  requireText(
+    files.seed,
+    text.seed,
+    'negative prompts remain generation configuration',
+  )
   requireText(files.seed, text.seed, 'backfillCharacterLinks')
   requireText(files.seed, text.seed, 'createDatabaseAdapter')
   forbidText(files.seed, text.seed, 'new PrismaMariaDb(')
@@ -211,27 +357,63 @@ async function main(): Promise<void> {
   requireText(files.genderSeed, text.genderSeed, "taxonomy: 'GENDER'")
   requireText(files.genderSeed, text.genderSeed, 'backfillCharacterGender')
   requireText(files.genderValues, text.genderValues, 'legacyFacetGenderValues')
-  requireText(files.builderCoverage, text.builderCoverage, 'FACET_BACKED_FIELDS')
+  requireText(
+    files.builderCoverage,
+    text.builderCoverage,
+    'FACET_BACKED_FIELDS',
+  )
   requireText(files.builderCoverage, text.builderCoverage, "'gender'")
-  requireText(files.seedPolicy, text.seedPolicy, 'utils/scripts/seedGenderFacetCatalog.ts')
+  requireText(
+    files.seedPolicy,
+    text.seedPolicy,
+    'utils/scripts/seedGenderFacetCatalog.ts',
+  )
 
-  requireText(files.catalogStore, text.catalogStore, 'CHARACTER_FIELD_TAXONOMIES')
+  requireText(
+    files.catalogStore,
+    text.catalogStore,
+    'CHARACTER_FIELD_TAXONOMIES',
+  )
   requireText(files.catalogStore, text.catalogStore, "gender: ['GENDER']")
   requireText(files.catalogStore, text.catalogStore, 'fetchAllCatalogPages')
   requireText(files.catalogStore, text.catalogStore, 'while (true)')
   requireText(files.catalogStore, text.catalogStore, 'skip += page.length')
-  requireText(files.catalogStore, text.catalogStore, 'entriesById.set(entry.id, entry)')
+  requireText(
+    files.catalogStore,
+    text.catalogStore,
+    'entriesById.set(entry.id, entry)',
+  )
   forbidText(files.catalogStore, text.catalogStore, 'syncCharacterFacets')
   forbidText(files.catalogStore, text.catalogStore, 'characterAssignments')
 
   requireText(files.generatorStore, text.generatorStore, 'useFacetCatalogStore')
-  requireText(files.generatorStore, text.generatorStore, 'facetCatalog.randomFacetForField(fieldKey)')
-  requireText(files.generatorStore, text.generatorStore, '.facetsForCharacterField(fieldKey)')
-  requireText(files.generatorStore, text.generatorStore, 'entry.isRandomizable && entry.randomWeight > 0')
+  requireText(
+    files.generatorStore,
+    text.generatorStore,
+    'facetCatalog.randomFacetForField(fieldKey)',
+  )
+  requireText(
+    files.generatorStore,
+    text.generatorStore,
+    '.facetsForCharacterField(fieldKey)',
+  )
+  requireText(
+    files.generatorStore,
+    text.generatorStore,
+    'entry.isRandomizable && entry.randomWeight > 0',
+  )
   forbidText(files.generatorStore, text.generatorStore, '__facetCatalogPatched')
 
-  requireText(files.builderPlugin, text.builderPlugin, "import('@/stores/helpers/adventureCards')")
-  requireText(files.builderPlugin, text.builderPlugin, "import('@/stores/helpers/scenarioCards')")
+  requireText(
+    files.builderPlugin,
+    text.builderPlugin,
+    "import('@/stores/helpers/adventureCards')",
+  )
+  requireText(
+    files.builderPlugin,
+    text.builderPlugin,
+    "import('@/stores/helpers/scenarioCards')",
+  )
   requireText(
     files.builderPlugin,
     text.builderPlugin,
@@ -242,7 +424,11 @@ async function main(): Promise<void> {
     text.builderPlugin,
     'hydrateBuilderCards(SCENARIO_CARDS, catalog)',
   )
-  requireText(files.builderPlugin, text.builderPlugin, 'Generator methods read this same catalog')
+  requireText(
+    files.builderPlugin,
+    text.builderPlugin,
+    'Generator methods read this same catalog',
+  )
   forbidText(files.builderPlugin, text.builderPlugin, 'patchGenerator')
   forbidText(files.builderPlugin, text.builderPlugin, '__facetCatalogPatched')
   forbidText(files.builderPlugin, text.builderPlugin, 'useGeneratorStore')
@@ -257,7 +443,11 @@ async function main(): Promise<void> {
   forbidText(files.randomStore, text.randomStore, 'BRAINSTORM')
   forbidText(files.randomStore, text.randomStore, 'PITCH')
 
-  requireText(files.randomHelper, text.randomHelper, 'only procedural language pools')
+  requireText(
+    files.randomHelper,
+    text.randomHelper,
+    'only procedural language pools',
+  )
   forbidText(files.randomHelper, text.randomHelper, 'randomSpecies')
   forbidText(files.randomHelper, text.randomHelper, 'randomAnimal')
   forbidText(files.randomHelper, text.randomHelper, 'randomClass')
@@ -273,7 +463,11 @@ async function main(): Promise<void> {
     text.vercelBuild,
     'run_facet_catalog_maintenance.ts',
   )
-  requireText(files.vercelBuild, text.vercelBuild, 'Applying production migrations')
+  requireText(
+    files.vercelBuild,
+    text.vercelBuild,
+    'Applying production migrations',
+  )
 
   await requireMissingPath(
     'components/art/list-manager.vue',

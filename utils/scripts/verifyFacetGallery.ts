@@ -16,20 +16,31 @@ async function source(path: string): Promise<string> {
 
 function requireText(path: string, text: string, fragment: string): void {
   if (!text.includes(fragment)) {
-    throw new Error(`${path} is missing Facet gallery contract text: ${fragment}`)
+    throw new Error(
+      `${path} is missing Facet gallery contract text: ${fragment}`,
+    )
   }
 }
 
 function forbidText(path: string, text: string, fragment: string): void {
   if (containsCode(text, fragment)) {
-    throw new Error(`${path} contains forbidden Facet gallery text: ${fragment}`)
+    throw new Error(
+      `${path} contains forbidden Facet gallery text: ${fragment}`,
+    )
   }
 }
 
 async function main(): Promise<void> {
+  // content/facet-gallery.md is gone. It was a `redirect: /facets` stub kept
+  // from when facet-gallery.vue had no route of its own; /facets now reaches
+  // the gallery through facet-manager -> facet-interact, so the stub was a
+  // second front door for one object and verifyRouteGalleryContract.ts's
+  // Rule 2 exists to forbid exactly that. Silas, 2026-08-06: "that
+  // facet-gallery endpoint was specifically marked for deletion ... we are in
+  // alpha, I'm the only user, and we are not preserving stale routes just in
+  // case someone bookmarked it."
   const files = {
     gallery: 'components/facets/facet-gallery.vue',
-    content: 'content/facet-gallery.md',
   } as const
 
   const text = Object.fromEntries(
@@ -55,14 +66,6 @@ async function main(): Promise<void> {
     'FacetProfileEditor',
   ]) {
     forbidText(files.gallery, text.gallery, mutation)
-  }
-
-  const mountsGallery = text.content.includes(':facet-gallery')
-  const redirectsToCanonicalGallery = text.content.includes('redirect: /facets')
-  if (!mountsGallery && !redirectsToCanonicalGallery) {
-    throw new Error(
-      `${files.content} must mount :facet-gallery or redirect to the canonical /facets route`,
-    )
   }
 
   process.stdout.write(

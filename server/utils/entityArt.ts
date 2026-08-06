@@ -43,7 +43,7 @@ export type EntityArtAuth = {
   isAdmin: boolean
 }
 
-type EntityArtDb = PrismaClient | Prisma.TransactionClient
+export type EntityArtDb = PrismaClient | Prisma.TransactionClient
 type EntityArtRecord = Record<string, unknown> & {
   id: number
   userId?: number | null
@@ -66,7 +66,7 @@ type EntityArtFieldConfig = {
   primary: boolean
 }
 
-const ENTITY_FIELDS: Record<
+export const ENTITY_FIELDS: Record<
   EntityArtType,
   Record<string, EntityArtFieldConfig>
 > = {
@@ -277,7 +277,7 @@ function safeBoolean(value: unknown, fallback: boolean): boolean {
   return typeof value === 'boolean' ? value : fallback
 }
 
-function cleanSlug(value: unknown, fallback: string): string {
+export function cleanSlug(value: unknown, fallback: string): string {
   const cleaned = safeText(value)
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
@@ -431,7 +431,7 @@ export async function resolveEntityArtTarget(
   return { entityType, entityId, field, config, record }
 }
 
-function recordTitle(
+export function recordTitle(
   entityType: EntityArtType,
   record: EntityArtRecord,
 ): string {

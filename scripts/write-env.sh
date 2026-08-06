@@ -11,6 +11,10 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
+urlencode() {
+  node -e "let value = ''; process.stdin.setEncoding('utf8'); process.stdin.on('data', chunk => { value += chunk }); process.stdin.on('end', () => process.stdout.write(encodeURIComponent(value)))"
+}
+
 read -rp 'DB host:port [100.89.251.10:5544]: ' HOSTPORT
 HOSTPORT="${HOSTPORT:-100.89.251.10:5544}"
 read -rp 'DB name [kindblank_fresh]: ' DBNAME
@@ -22,9 +26,13 @@ echo
 read -rp 'IMAGES_PATH [/mnt/user/pc/kindrobots/images]: ' IMGPATH
 IMGPATH="${IMGPATH:-/mnt/user/pc/kindrobots/images}"
 
+ENCODED_DBNAME="$(printf '%s' "$DBNAME" | urlencode)"
+ENCODED_DBUSER="$(printf '%s' "$DBUSER" | urlencode)"
+ENCODED_DBPASS="$(printf '%s' "$DBPASS" | urlencode)"
+
 umask 077
 cat > .env <<EOF
-DATABASE_URL="mysql://${DBUSER}:${DBPASS}@${HOSTPORT}/${DBNAME}?sslaccept=accept_invalid_certs"
+DATABASE_URL="mysql://${ENCODED_DBUSER}:${ENCODED_DBPASS}@${HOSTPORT}/${ENCODED_DBNAME}?sslaccept=accept_invalid_certs"
 # ProxySQL presents a certificate the mariadb adapter cannot verify. The URL
 # already says accept_invalid_certs; the adapter reads this env var instead.
 DATABASE_SSL_REJECT_UNAUTHORIZED=false

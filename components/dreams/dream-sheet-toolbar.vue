@@ -39,7 +39,7 @@
     <p
       v-if="lastMessage"
       class="mt-3 rounded-2xl border px-3 py-2 text-sm"
-      :class="lastSuccess ? 'border-success/30 bg-success/10 text-success' : 'border-error/30 bg-error/10 text-error'"
+      :class="lastSuccess ? 'kr-note-success' : 'kr-note-error'"
     >
       {{ lastMessage }}
     </p>

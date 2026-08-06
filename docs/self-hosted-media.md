@@ -150,3 +150,113 @@ curl -sSI https://media.acrocatranch.com/images/generated/gallery.json
 6. Stop committing new image binaries.
 7. Remove the tracked image tree in a separate change.
 8. Rewrite Git history only after all working copies and automation are ready.
+
+## Automatic offload of generated art
+
+Every art path funnels through `saveImage()`, which writes raw base64 into
+`ArtImage.imageData` — a LongText column. Until 2026-08-05 nothing ever took it
+back out, so the column grew with every completed job: **6,775 rows /
+6,123.2 MB** at the point it was measured.
+
+`server/utils/artImageOffload.ts` closes that loop. After a job completes — and
+after any completion proof has been verified — `offloadArtImageBytes()` writes
+the image to `IMAGES_PATH` under `generated/<year>/<month>/artimage-<id>.webp`,
+points `imagePath` at it, and nulls `imageData`.
+
+It runs from four places: the queue completion route
+(`/api/art/queue/[id]/complete`) and the three direct generate routes
+(`/api/art/generate`, `/api/comfy/sdxl/generate`,
+`/api/chats/openai/images/generate`).
+
+### It only runs where the share is real
+
+**Only when `IMAGES_PATH` is set.** That is an explicit opt-in rather than a
+probe of "is this directory writable", because the dangerous failure is the
+inverse: a serverless filesystem accepts the write, discards it at the end of
+the invocation, and leaves a row pointing at a file that no longer exists with
+its only copy already deleted.
+
+Vercel must never set `IMAGES_PATH` (see above), so **on Vercel this is a
+no-op** and behaviour is exactly what it was. New art generated through a
+Vercel-hosted API still lands in the database and needs the backfill below, run
+from a host that can reach the share. Making production offload directly would
+need the "separate authenticated media-ingest path" this document already names
+as deliberately not built.
+
+### It cannot destroy the only copy
+
+`imageData` is nulled only after the file has been written, read back off the
+filesystem, and hashed identical to what was written. The clearing update is
+conditional on `imageData` still holding the value that was read, so a
+concurrent write loses the race instead of being clobbered. Any failure leaves
+the row exactly as it was, and the function never throws — it runs after the
+caller's work has committed, where a throw would turn a finished generation
+into a 500 and lose the job.
+
+`npm run test:art-image-offload` pins all of that; every assertion in it has
+been watched to fail under mutation.
+
+### Backfilling what is already stored
+
+```bash
+npm run offload:art-images                 # dry run
+npm run offload:art-images -- --write      # move bytes, largest rows first
+```
+
+Safe to interrupt and safe to re-run. Afterwards, `OPTIMIZE TABLE ArtImage`
+returns the freed pages to the filesystem — until then the tablespace stays the
+same size on disk.
+
+#### Run it on the box that holds the share
+
+The script needs the repository, not just the file — it imports the same
+`offloadArtImageBytes` helper the live routes use, plus the Prisma client. So
+copying `offloadArtImageData.ts` alone will not work; check the repo out on the
+network machine instead:
+
+```bash
+git clone https://github.com/silasfelinus/kind_robots   # or: git pull
+cd kind_robots
+npm ci
+npx prisma generate
+
+# Point at the share's NATIVE path on that box, not a Windows/WSL mount
+export IMAGES_PATH=/mnt/user/pc/kindrobots/images
+export DATABASE_URL='...'                # same database the app uses
+
+npm run offload:art-images               # dry run first — reports the plan
+npm run offload:art-images -- --write
+```
+
+Writing several gigabytes across an SMB mount from WSL is far slower than
+writing to the Unraid filesystem directly, and every byte crosses the network
+twice (database → WSL → share) instead of once. Running on the box that owns
+the share avoids both.
+
+**It refuses to run against a path that is not the share.** The root must
+already exist as a directory *and* already contain files. Everything here uses
+`mkdir -p`, so without that preflight a typo'd `IMAGES_PATH` would be silently
+created, gigabytes would be written to the wrong filesystem, every read-back
+would verify happily, and the database copies would be deleted — a run that
+looks completely successful and has lost the art. A mounted share has thousands
+of images at its root; an empty directory means the mount is absent.
+
+### Export → link → prune, in that order
+
+`npm run prune:art-image-data` only reclaims rows that **already** have a
+verified external copy. On 2026-08-05 that population was empty, which is worth
+recording because the dry run's output actively misled:
+
+```
+100 KB and over    3791 rows   6131.2 MB
+under 100 KB        211 rows     16.9 MB
+empty              2784 rows        0 MB
+under 512 B           2 rows        0 MB
+```
+
+All 2,784 rows the pruner examined and rejected as "stored base64 did not
+decode" were `imageData = ''` — an empty string passes an `IS NOT NULL` filter
+and then fails a truthiness check. Nothing was corrupt and nothing was wrong
+with the decoder; the prune simply had the wrong population, because the
+6.1 GB lives in 3,791 rows that have no external copy for it to verify. The
+pruner now reports those as `skip-empty-column` so the distinction is visible.

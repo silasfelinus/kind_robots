@@ -4,6 +4,7 @@ import { requireMachineUser } from '../../../../utils/authGuard'
 import prisma from '../../../../utils/prisma'
 import { errorHandler } from './../../../../utils/error'
 import { saveImage } from '../../../../utils/saveImage'
+import { offloadArtImageBytes } from '../../../../utils/artImageOffload'
 import { manaGate } from '../../../../utils/manaGate'
 import { estimateArtCostUsd } from '../../../../utils/manaCost'
 import { resolveMaturityPrivacy } from '~/utils/maturityPrivacy'
@@ -164,7 +165,9 @@ export default defineEventHandler(async (event) => {
       },
       data: {
         path: savedImage.fileName,
-        imagePath: savedImage.fileName,
+        // Not imagePath — see the same fix in comfy/sdxl/generate.post.ts.
+        // savedImage.fileName is a bare upload name, and file.get.ts would
+        // redirect to it as though it were a URL.
         fileName: savedImage.fileName,
         fileType: 'png',
         cfg: requestData.cfg ?? null,
@@ -207,12 +210,20 @@ export default defineEventHandler(async (event) => {
 
     const { balance } = await gate.commit(`openai-image:${updatedImage.id}`)
 
+    // Same offload as comfy/sdxl: drop the database copy once the file is on
+    // the share, but keep imageData in this response so the client still
+    // renders instantly. No-op unless IMAGES_PATH is set.
+    const offload = await offloadArtImageBytes(updatedImage.id)
+    const responseImage = offload.offloaded
+      ? { ...updatedImage, imagePath: offload.imagePath ?? updatedImage.imagePath }
+      : updatedImage
+
     event.node.res.statusCode = 201
 
     return {
       success: true,
       message: 'OpenAI image generated successfully.',
-      data: updatedImage,
+      data: responseImage,
       mana: {
         balance,
         charged: gate.cost,

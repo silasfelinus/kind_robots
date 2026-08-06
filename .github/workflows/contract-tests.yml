@@ -78,6 +78,14 @@ jobs:
       - name: Art image caching contract
         run: npm run test:art-image-caching
 
+      # Offloading art bytes to the media share is the most destructive
+      # operation in the repo — it deletes image data. The properties that make
+      # it safe (explicit IMAGES_PATH opt-in, read-back verified before the
+      # delete, conditional write, never throws, runs after the completion
+      # proof) are invisible in review and catastrophic when lost.
+      - name: ArtImage offload contract
+        run: npm run test:art-image-offload
+
       # t-099: ESLint as a ratcheted gate — never asks anyone to fix the
       # pre-existing problems, only refuses NEW ones, per rule.
       #

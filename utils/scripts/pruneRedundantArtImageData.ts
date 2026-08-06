@@ -40,6 +40,7 @@ type Verdict =
   | 'skip-missing'
   | 'skip-self-reference'
   | 'skip-byte-mismatch'
+  | 'skip-empty-column'
   | 'skip-invalid-data'
   | 'skip-error'
 
@@ -121,7 +122,25 @@ async function verify(row: Row): Promise<{ verdict: Verdict; detail: string }> {
       where: { id: row.id },
       select: { imageData: true },
     })
-    const storedBytes = stored?.imageData ? decodeStoredImage(stored.imageData) : null
+    /*
+     * An empty column is NOT a decode failure, and conflating them cost a
+     * session. The first dry run reported "stored base64 did not decode" for
+     * 2784 of 2784 candidates, which reads as mass corruption; the rows were
+     * simply `imageData = ''`, which passes the candidate query's
+     * `IS NOT NULL` filter and then fails a truthiness check. There was
+     * nothing to prune and nothing wrong with the decoder.
+     */
+    if (!stored?.imageData) {
+      return { verdict: 'skip-empty-column', detail: 'imageData is NULL' }
+    }
+    if (!stored.imageData.trim()) {
+      return {
+        verdict: 'skip-empty-column',
+        detail: 'imageData is an empty string — no bytes to reclaim',
+      }
+    }
+
+    const storedBytes = decodeStoredImage(stored.imageData)
     if (!storedBytes) {
       return { verdict: 'skip-invalid-data', detail: 'stored base64 did not decode' }
     }

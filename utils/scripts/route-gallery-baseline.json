@@ -21,5 +21,9 @@
   "shadowTotal": 1,
   "shadows": {
     "facet-manager": ["/facets"]
+  },
+  "managerTotal": 1,
+  "managers": {
+    "facet-manager": ["off-shell"]
   }
 }

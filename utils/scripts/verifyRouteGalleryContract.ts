@@ -68,6 +68,24 @@ const BASELINE = resolve(root, 'utils/scripts/route-gallery-baseline.json')
 const SCRIPT = 'utils/scripts/verifyRouteGalleryContract.ts'
 
 const SHARED_GALLERY = 'kr-gallery'
+const SHARED_MANAGER = 'kr-manager'
+
+/*
+ * The tab managers that must wear the shared shell.
+ *
+ * conductor is deliberately absent: components/pages/conductor-manager.vue
+ * routes on pageStore.workspaceCardKey rather than dashboard tabs, has no
+ * status banner and no tab machinery, and is 54 lines. Forcing it into a shape
+ * it does not have would be pretend-consistency, which is worse than none.
+ */
+const TAB_MANAGERS = [
+  'bot-manager',
+  'character-manager',
+  'dream-manager',
+  'facet-manager',
+  'reward-manager',
+  'scenario-manager',
+]
 
 type RouteGalleryBaseline = {
   note: string
@@ -78,6 +96,9 @@ type RouteGalleryBaseline = {
   /** Rule 3: second browsers for an object on its own route. */
   shadowTotal: number
   shadows: RatchetEntries
+  /** Rule 4: tab managers not yet on the shared manager shell. */
+  managerTotal: number
+  managers: RatchetEntries
 }
 
 const rel = (path: string): string => relative(root, path).replace(/\\/g, '/')
@@ -111,9 +132,27 @@ export function scriptOf(source: string): string {
  * ui-gallery.vue is the live example that a substring test gets wrong.
  */
 export function mountsKrGallery(source: string): boolean {
-  return /<\s*(?:Lazy|lazy-)?(?:kr-gallery|KrGallery)(?=[\s/>])/.test(
-    templateOf(source),
+  return mountsComponent(source, SHARED_GALLERY)
+}
+
+/**
+ * Does this source MOUNT the named kebab-case component?
+ *
+ * The tag must open an element: `<kr-gallery`, `<KrGallery`, and Nuxt's
+ * auto-registered `<LazyKrGallery>` / `<lazy-kr-gallery>` all count. A class
+ * name, a prop value, or a doc comment naming the component does not -- that
+ * distinction is the whole point, and `class="kr-gallery h-full ..."` in
+ * ui-gallery.vue is the live example that a substring test gets wrong.
+ */
+export function mountsComponent(source: string, kebabName: string): boolean {
+  const pascal = kebabName
+    .split('-')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join('')
+  const pattern = new RegExp(
+    `<\\s*(?:Lazy|lazy-)?(?:${kebabName}|${pascal})(?=[\\s/>])`,
   )
+  return pattern.test(templateOf(source))
 }
 
 /* -------------------------------------------------------------------------- */
@@ -554,6 +593,33 @@ function selfTest(): void {
     }
   }
 
+  // The generalised matcher must keep the same discipline for kr-manager: a
+  // manager that merely mentions the shell in a comment has not adopted it.
+  if (
+    !mountsComponent(
+      '<template><kr-manager :loading="x" /></template>',
+      'kr-manager',
+    )
+  ) {
+    fail('mountsComponent must match the kebab tag')
+  }
+  if (!mountsComponent('<template><KrManager /></template>', 'kr-manager')) {
+    fail('mountsComponent must match the Pascal tag')
+  }
+  if (
+    mountsComponent(
+      '<template><div class="kr-manager" /></template>',
+      'kr-manager',
+    )
+  ) {
+    fail('a class named kr-manager must NOT count as a mount')
+  }
+  if (
+    mountsComponent('<template><kr-manager-header /></template>', 'kr-manager')
+  ) {
+    fail('a longer tag sharing the prefix must NOT count as a mount')
+  }
+
   // --- subtreeOf -----------------------------------------------------------
   const graph: Record<string, string[]> = {
     'facet-manager': ['facet-interact'],
@@ -832,6 +898,29 @@ function main(): void {
     }
   }
 
+  // --- rule 4 ---------------------------------------------------------------
+  /*
+   * The tab managers on the shared shell.
+   *
+   * This is the rule that makes Rule 3 mostly redundant, and that is the point:
+   * a free-form manager always has somewhere to hand-roll a rival grid, so the
+   * durable fix is a layout with no free space in it rather than a heuristic
+   * that hunts for strays. Ratcheted while facet-manager still carries its
+   * Library grid; hard once it does not.
+   */
+  const managers: RatchetEntries = {}
+  for (const name of TAB_MANAGERS) {
+    const source = readSource(name)
+    if (!source) {
+      failures += 1
+      console.error(
+        `FAIL - ${name}.vue is missing (rename it in TAB_MANAGERS if it moved)`,
+      )
+      continue
+    }
+    if (!mountsComponent(source, SHARED_MANAGER)) managers[name] = ['off-shell']
+  }
+
   // --- rule 1 ---------------------------------------------------------------
   const buckets = bucketHoldouts(routes, adopted)
   const total = totalHoldouts(buckets)
@@ -869,8 +958,23 @@ function main(): void {
     )
   }
 
+  const managerCount = Object.keys(managers).length
+  const grownManagers = grownRatchetBuckets(
+    managers,
+    baseline?.managers ?? null,
+  )
+
+  console.log(
+    `\nTab managers on ${SHARED_MANAGER}: ` +
+      `${TAB_MANAGERS.length - managerCount}/${TAB_MANAGERS.length}` +
+      `${ratchetDelta(managerCount, baseline?.managerTotal)}`,
+  )
+  for (const name of TAB_MANAGERS) {
+    console.log(`  ${managers[name] ? '·' : '✓'} ${name}`)
+  }
+
   if (update) {
-    const regressed = [...grown, ...grownShadows]
+    const regressed = [...grown, ...grownShadows, ...grownManagers]
     if (regressed.length) {
       console.error(
         `\n--update refuses to record growth. These got worse than the baseline:\n` +
@@ -886,6 +990,8 @@ function main(): void {
       holdouts: buckets,
       shadowTotal: shadowCount,
       shadows,
+      managerTotal: managerCount,
+      managers,
     })
     console.log(
       `\nRecorded ${total} holdout gallery/galleries and ${shadowCount} shadow browser(s) to ${BASELINE}.`,
@@ -928,6 +1034,16 @@ function main(): void {
       `\nThis is how /facets ended up with two Facet browsers, one of which linked` +
         ` to the canonical profile from nowhere. Route the grid through <${SHARED_GALLERY}>,` +
         ` or hand selection to the object's gallery instead of drawing a rival one.`,
+    )
+  }
+
+  if (grownManagers.length) {
+    failures += grownManagers.length
+    console.error(
+      `\nFAIL - ${grownManagers.length} manager(s) came OFF the shared shell:\n` +
+        grownManagers.map((key) => `  ${key}`).join('\n') +
+        `\n\nA manager that owns its own frame is where the next rival grid goes.` +
+        ` Wrap it in <${SHARED_MANAGER}> and put each tab in a slot.`,
     )
   }
 

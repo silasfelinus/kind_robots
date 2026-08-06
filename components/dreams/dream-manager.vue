@@ -1,68 +1,39 @@
-<!-- /components/dreams/dream-manager.vue -->
+<!-- /components/content/dreams/dream-manager.vue -->
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
-    <div
-      v-if="isLoadingManager || managerError"
-      class="mb-2 flex shrink-0 items-center gap-2 rounded-2xl border border-base-300 bg-base-100 px-3 py-2 text-xs shadow-sm"
-      :class="managerError ? 'kr-note-error' : 'text-base-content/60'"
-    >
-      <span
-        v-if="isLoadingManager"
-        class="loading loading-spinner loading-xs text-primary"
-      />
+  <kr-manager
+    dashboard-key="dream"
+    :loading="isLoadingManager"
+    :error="managerError"
+    :loading-label="managerSummary"
+    :aliases="{ add: 'dreammaker', maker: 'dreammaker' }"
+    @refresh="refreshManagerData"
+  >
+    <!-- Above every tab: the daily Dream is offered wherever you are. -->
+    <template #persistent>
+      <daily-dream-generator @created="onDailyDreamCreated" />
+    </template>
 
-      <Icon
-        v-else
-        name="kind-icon:warning"
-        class="h-4 w-4 shrink-0 text-error"
-      />
-
-      <p class="min-w-0 flex-1 truncate">
-        {{ managerError || managerSummary }}
-      </p>
-
-      <button
-        type="button"
-        class="btn btn-ghost btn-xs tooltip tooltip-left shrink-0 rounded-xl"
-        :class="managerError ? 'text-error' : ''"
-        :disabled="isLoadingManager"
-        data-tip="Refresh Dream workspace"
-        aria-label="Refresh Dream workspace"
-        @click="refreshManagerData"
-      >
-        <Icon name="kind-icon:refresh" class="h-4 w-4" />
-      </button>
-    </div>
-
-    <daily-dream-generator @created="onDailyDreamCreated" />
-
-    <section
-      v-if="activeTab === 'dreammaker'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <dream-maker
-        class="h-full min-h-0 flex-1 overflow-hidden"
-        @saved="onDreamSaved"
-        @created="onDreamSaved"
-      />
-    </section>
-
-    <section
-      v-else-if="activeTab === 'brainstorm'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <dream-brainstorm class="h-full min-h-0 flex-1 overflow-hidden" />
-    </section>
-
-    <section v-else class="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+    <template #dreams>
       <dream-interact
         class="h-full min-h-0 flex-1 overflow-hidden"
         @selected="onDreamSelected"
         @editing="onDreamEditing"
         @created="onDreamCreated"
       />
-    </section>
-  </section>
+    </template>
+
+    <template #dreammaker>
+      <dream-maker
+        class="h-full min-h-0 flex-1 overflow-hidden"
+        @saved="onDreamSaved"
+        @created="onDreamSaved"
+      />
+    </template>
+
+    <template #brainstorm>
+      <dream-brainstorm class="h-full min-h-0 flex-1 overflow-hidden" />
+    </template>
+  </kr-manager>
 </template>
 
 <script setup lang="ts">
@@ -77,14 +48,6 @@ import { useServerStore } from '@/stores/serverStore'
 import { useUploadStore } from '@/stores/uploadStore'
 
 type DreamTab = 'dreams' | 'dreammaker' | 'brainstorm'
-type LegacyDreamTab =
-  | DreamTab
-  | 'interact'
-  | 'overview'
-  | 'gallery'
-  | 'add'
-  | 'maker'
-  | 'prompts'
 
 const dreamStore = useDreamStore()
 const navStore = useNavStore()
@@ -96,15 +59,9 @@ const collectionStore = useCollectionStore()
 const artStore = useArtStore()
 
 const dashboardKey = 'dream'
-const defaultTab: DreamTab = 'dreams'
 
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
-
-const activeTab = computed<DreamTab>(() => {
-  const selectedTab = navStore.getDashboardTab(dashboardKey) as LegacyDreamTab
-  return normalizeTab(selectedTab)
-})
 
 const managerSummary = computed(() => {
   const selected = dreamStore.selectedDream?.title || 'no Dream selected'
@@ -112,19 +69,13 @@ const managerSummary = computed(() => {
   return `${dreamStore.activeDreams.length}/${dreamStore.creativeDreams.length} active Dreams • ${scenarioStore.scenarios.length} Scenarios • ${selected}`
 })
 
-function normalizeTab(tab?: LegacyDreamTab | string | null): DreamTab {
-  if (tab === 'brainstorm') {
-    return 'brainstorm'
-  }
-
-  if (tab === 'add' || tab === 'maker' || tab === 'dreammaker') {
-    return 'dreammaker'
-  }
-
-  // 'interact', 'gallery', 'overview', 'prompts', and anything unknown
-  // resolve to the browse/workspace tab, which dream-interact owns.
-  return defaultTab
-}
+/*
+ * The legacy 'interact' / 'gallery' / 'overview' / 'prompts' keys used to be
+ * normalised here. kr-manager's fallback resolves any unknown tab to the
+ * default ('dreams'), which is where all four already pointed; only 'add' and
+ * 'maker' needed to survive as 'dreammaker', and those are declared as
+ * `aliases` on the shell above.
+ */
 
 function setTab(tab: DreamTab) {
   navStore.setDashboardTab?.(dashboardKey, tab)

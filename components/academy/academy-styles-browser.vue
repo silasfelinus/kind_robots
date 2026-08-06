@@ -147,7 +147,11 @@
             : 'border-base-300 bg-base-100 hover:border-primary/50 hover:shadow-sm'
         "
         :aria-expanded="expandedSlug === style.slug"
-        :aria-controls="`academy-style-detail-${style.slug}`"
+        :aria-controls="
+          expandedSlug === style.slug
+            ? `academy-style-detail-${style.slug}`
+            : undefined
+        "
         @click="expandedSlug = expandedSlug === style.slug ? null : style.slug"
       >
         <div

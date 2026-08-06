@@ -136,6 +136,9 @@ jobs:
         shell: bash # pipefail: `| tee` otherwise swallows the exit status
         run: npm run test:academy-examples-manifest 2>&1 | tee academy-examples-contract.txt
 
+      - name: Academy style gallery disclosure contract
+        run: npm run test:academy-style-gallery-disclosure
+
       - name: Navigation route access contract
         run: npx tsx utils/scripts/verifyNavigationRouteAccess.ts
 

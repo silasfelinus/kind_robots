@@ -5,7 +5,7 @@
 
     <!-- COCKPIT BAR: unified slim context strip -->
     <div
-      class="kr-toolbar rounded-xl border border-base-300/70 bg-base-100/90 px-3 py-1.5"
+      class="kr-toolbar rounded-xl border border-base-300/70 bg-(--kr-surface-raised)/90 px-3 py-1.5"
     >
       <!-- Left: breadcrumb or page label -->
       <div class="flex min-w-0 items-center gap-1.5">

@@ -8,7 +8,7 @@
     </header>
 
     <!-- Short Version -->
-    <section class="mb-10 p-5 rounded-2xl bg-base-200 border border-base-300">
+    <section class="mb-10 p-5 rounded-2xl bg-(--kr-surface) border border-base-300">
       <h2 class="text-xl font-semibold mb-2">The Short Version</h2>
       <p>
         We don't sell your data. We don't share your data. We don't want your

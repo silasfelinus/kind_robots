@@ -2,7 +2,7 @@
 <template>
   <section class="kr-surface">
     <header
-      class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 shadow-sm"
+      class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-(--kr-surface-raised) p-3 shadow-sm"
     >
       <div class="min-w-0">
         <p class="text-[0.7rem] font-bold uppercase tracking-wide text-primary/70">

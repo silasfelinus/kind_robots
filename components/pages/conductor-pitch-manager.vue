@@ -2,7 +2,7 @@
   <section
     class="kr-surface rounded-3xl border border-base-300/70 bg-gradient-to-br from-primary/5 via-base-200 to-secondary/10 shadow-xl"
   >
-    <header class="shrink-0 border-b border-base-300/70 bg-base-100/85 p-4 backdrop-blur">
+    <header class="shrink-0 border-b border-base-300/70 bg-(--kr-surface-raised)/85 p-4 backdrop-blur">
       <div class="flex flex-wrap items-start gap-3">
         <button
           type="button"

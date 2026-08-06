@@ -1,7 +1,7 @@
 <!-- /components/content/story/memory-dungeon.vue -->
 <!-- root div -->
 <template>
-  <div class="kr-surface min-h-[80vh] select-none gap-0 bg-base-200">
+  <div class="kr-surface min-h-[80vh] select-none gap-0 bg-(--kr-surface)">
     <header
       v-if="gameStarted"
       class="z-10 flex shrink-0 flex-wrap items-center justify-between gap-3 bg-base-300 px-4 pb-3 pt-4 shadow-md"

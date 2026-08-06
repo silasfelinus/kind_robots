@@ -2,7 +2,7 @@
   <div class="kr-unbound w-full max-w-3xl mx-auto p-6 space-y-8">
     <div
       v-if="userStore.isGuest"
-      class="rounded-2xl border border-accent/30 bg-base-200 p-6 text-center space-y-3"
+      class="rounded-2xl border border-accent/30 bg-(--kr-surface) p-6 text-center space-y-3"
     >
       <p class="text-base-content/80">
         You're browsing as a guest. Sign up to keep a karma and mana balance

@@ -73,7 +73,7 @@
         <button
           v-if="!isUploading && !isFinalizingUpload"
           type="button"
-          class="btn btn-circle btn-error btn-xs absolute right-1 top-1 opacity-0 shadow transition-opacity group-hover:opacity-100"
+          class="btn btn-circle btn-error btn-xs absolute right-1 top-1 opacity-0 shadow transition-opacity focus:opacity-100 group-hover:opacity-100"
           :title="`Remove ${item.file.name}`"
           @click.stop="removeFile(i)"
         >

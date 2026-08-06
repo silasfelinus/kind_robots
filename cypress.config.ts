@@ -299,7 +299,45 @@ const deleteSeedUser = async (
 const cleanupKey = (request: CleanupRequest) =>
   `${request.method || 'DELETE'} ${request.url} ${request.label}`
 
-const runCleanupRequest = async (request: CleanupRequest) => {
+type CleanupResult = {
+  label: string
+  method: string
+  url: string
+  status: number
+  ok: boolean
+  body: unknown
+}
+
+const buildCleanupResult = async (
+  request: CleanupRequest,
+  response: Response,
+  ok: boolean,
+): Promise<CleanupResult> => ({
+  label: request.label,
+  method: request.method || 'DELETE',
+  url: request.url,
+  status: response.status,
+  ok,
+  body: await parseResponseBody(response),
+})
+
+// A cleanup DELETE hitting a transient 5xx (DB pool/transaction timeout under
+// load, the same class of hiccup DB_CONNECTION_FAILURE_PATTERN guards against
+// for the tests themselves) used to fail this single fetch and report the
+// user as "leaked" -- failing the whole after:run cleanup even though every
+// actual test passed (see the 2026-08-05 "Unable to start a transaction in
+// the given time" run: 480/480 tests green, job red solely on one unretried
+// cleanup DELETE). DELETE is idempotent here (expectedStatuses already
+// includes 404), so retrying with backoff is safe and turns a same-request
+// blip into a pass instead of a false-red main.
+const cleanupRetryLimit = 3
+const cleanupRetryDelayMs = 750
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+const runCleanupRequest = async (
+  request: CleanupRequest,
+  attempt = 1,
+): Promise<CleanupResult> => {
   const response = await fetch(request.url, {
     method: request.method || 'DELETE',
     headers: {
@@ -309,15 +347,14 @@ const runCleanupRequest = async (request: CleanupRequest) => {
     body: request.body === undefined ? undefined : JSON.stringify(request.body),
   })
   const expectedStatuses = request.expectedStatuses || [200, 202, 204, 404]
+  const ok = expectedStatuses.includes(response.status)
 
-  return {
-    label: request.label,
-    method: request.method || 'DELETE',
-    url: request.url,
-    status: response.status,
-    ok: expectedStatuses.includes(response.status),
-    body: await parseResponseBody(response),
+  if (!ok && response.status >= 500 && attempt < cleanupRetryLimit) {
+    await sleep(cleanupRetryDelayMs * attempt)
+    return runCleanupRequest(request, attempt + 1)
   }
+
+  return buildCleanupResult(request, response, ok)
 }
 
 const deleteSweptRecord = async (

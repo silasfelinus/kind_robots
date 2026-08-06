@@ -187,6 +187,7 @@ type ArtJobState = {
   trainerJobs: ArtJobRecord[]
   imageSrcById: Record<number, string>
   imageInfoById: Record<number, ArtImageSource>
+  loadingImageIds: number[]
   jobStatusFilter: ArtJobStatus | 'ALL'
   jobPage: number
   jobPageSize: number
@@ -209,12 +210,6 @@ type ArtJobState = {
   windowHours: number
 }
 
-const MAX_JOB_IMAGES = 240
-// Loading the queue used to fire every image request at once with Promise.all.
-// A full trainer page can contain hundreds of DB-backed image blobs, so that
-// burst exhausted the per-instance MariaDB pool and returned 503s. Keep the
-// browser below the gallery's established concurrency of four.
-const JOB_IMAGE_LOAD_CONCURRENCY = 4
 const DEFAULT_JOB_PAGE_SIZE = 20
 const MAX_JOB_PAGE_SIZE = 100
 
@@ -231,6 +226,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     trainerJobs: [],
     imageSrcById: {},
     imageInfoById: {},
+    loadingImageIds: [],
     jobStatusFilter: 'PENDING',
     jobPage: 1,
     jobPageSize: DEFAULT_JOB_PAGE_SIZE,
@@ -288,7 +284,10 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     state.loadingStats = true
     try {
       const res = await performFetch<QueueStats>(
-        `/api/art/queue/stats?window=${state.windowHours}`,
+        `/api/art/queue/stats?window=${state.windowHours}&summary=true`,
+        { method: 'GET' },
+        1,
+        30_000,
       )
       if (res.success && res.data) {
         state.stats = res.data
@@ -368,10 +367,9 @@ export const useArtJobStore = defineStore('artJobStore', () => {
       }>(`/api/art/queue?${params.toString()}`)
 
       if (res.success && res.data) {
-        const forceImageIds = completedOverwriteIds(res.data.jobs)
+        completedOverwriteIds(res.data.jobs)
         state.jobs = res.data.jobs
         applyPagination(res.data.pagination)
-        void loadJobImages(forceImageIds)
       } else if (!res.success) {
         state.error = res.message || 'Failed to load jobs.'
       }
@@ -399,7 +397,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
         '/api/art/queue?status=DONE&limit=200',
       )
       if (res.success && res.data) {
-        const forceImageIds = completedOverwriteIds(res.data.jobs)
+        completedOverwriteIds(res.data.jobs)
         // Every finished render is reviewable. This used to require a CURATOR
         // verdict, which meant a vision model had to score the image before a
         // human was allowed to see it -- so removing that model would have left
@@ -409,7 +407,6 @@ export const useArtJobStore = defineStore('artJobStore', () => {
         state.trainerJobs = res.data.jobs.filter((job) => {
           return typeof job.artImageId === 'number'
         })
-        void loadJobImages(forceImageIds)
       } else if (!res.success) {
         state.error = res.message || 'Failed to load curated jobs.'
       }
@@ -418,48 +415,33 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     }
   }
 
-  async function loadJobImages(forceIds: number[] = []): Promise<void> {
-    const ids = [
-      ...forceIds,
-      ...[...state.jobs, ...state.trainerJobs]
-        .filter((job) => {
-          return job.status === 'DONE' && typeof job.artImageId === 'number'
-        })
-        .map((job) => job.artImageId as number),
-    ]
-      .filter((id, index, all) => all.indexOf(id) === index)
-      .filter((id) => forceIds.includes(id) || !(id in state.imageSrcById))
-      .slice(0, MAX_JOB_IMAGES)
+  async function loadJobImage(id: number): Promise<boolean> {
+    if (!Number.isInteger(id) || id <= 0) return false
+    if (state.imageSrcById[id]) return true
+    if (state.loadingImageIds.includes(id)) return false
 
-    if (!ids.length) return
-
-    let nextIndex = 0
-    const worker = async () => {
-      while (nextIndex < ids.length) {
-        const id = ids[nextIndex]
-        nextIndex += 1
-        if (id === undefined) return
-
-        const res = await performFetch<ArtImage>(
-          `/api/art/image/${id}?includeImageData=true`,
-          { method: 'GET' },
-          1,
-          30_000,
-        )
-        if (res.success && res.data) {
-          const info = resolveArtImageSource(res.data)
-          state.imageInfoById[id] = info
-          state.imageSrcById[id] = info.src
-        }
+    state.loadingImageIds = [...state.loadingImageIds, id]
+    try {
+      const res = await performFetch<ArtImage>(
+        `/api/art/image/${id}?includeImageData=true`,
+        { method: 'GET' },
+        1,
+        30_000,
+      )
+      if (res.success && res.data) {
+        const info = resolveArtImageSource(res.data)
+        state.imageInfoById[id] = info
+        if (info.src) state.imageSrcById[id] = info.src
+        return Boolean(info.src)
       }
-    }
 
-    await Promise.all(
-      Array.from(
-        { length: Math.min(JOB_IMAGE_LOAD_CONCURRENCY, ids.length) },
-        worker,
-      ),
-    )
+      state.error = res.message || `Failed to load ArtImage ${id}.`
+      return false
+    } finally {
+      state.loadingImageIds = state.loadingImageIds.filter(
+        (imageId) => imageId !== id,
+      )
+    }
   }
 
   function replaceJob(updated: ArtJobRecord): void {
@@ -470,6 +452,14 @@ export const useArtJobStore = defineStore('artJobStore', () => {
       (job) => job.id === updated.id,
     )
     if (trainerIndex >= 0) state.trainerJobs[trainerIndex] = updated
+  }
+
+  async function refreshMutationViews(): Promise<void> {
+    await Promise.all([
+      fetchJobs(),
+      fetchStats(),
+      ...(state.trainerJobs.length ? [fetchTrainerJobs()] : []),
+    ])
   }
 
   async function submitFeedback(
@@ -499,7 +489,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
       body: JSON.stringify({}),
     })
     if (res.success) {
-      await Promise.all([fetchJobs(), fetchStats(), fetchTrainerJobs()])
+      await refreshMutationViews()
       return true
     }
     state.error = res.message || `Failed to requeue job ${id}.`
@@ -512,7 +502,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
       body: JSON.stringify({}),
     })
     if (res.success) {
-      await Promise.all([fetchJobs(), fetchStats(), fetchTrainerJobs()])
+      await refreshMutationViews()
       return true
     }
     state.error = res.message || `Failed to cancel job ${id}.`
@@ -579,7 +569,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
       })
 
       if (res.success && res.data?.job) {
-        await Promise.all([fetchJobs(), fetchStats(), fetchTrainerJobs()])
+        await refreshMutationViews()
         return res.data.job.id
       }
 
@@ -607,7 +597,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
       )
 
       if (res.success && res.data) {
-        await Promise.all([fetchJobs(), fetchStats(), fetchTrainerJobs()])
+        await refreshMutationViews()
         return res.data
       }
 
@@ -639,7 +629,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
 
       if (res.success && res.data) {
         if (!dryRun) {
-          await Promise.all([fetchJobs(), fetchStats(), fetchTrainerJobs()])
+          await refreshMutationViews()
         }
         return res.data
       }
@@ -657,7 +647,6 @@ export const useArtJobStore = defineStore('artJobStore', () => {
       fetchStats(),
       fetchUptime(),
       fetchJobs(),
-      fetchTrainerJobs(),
       fetchQueueControl(),
     ])
   }
@@ -674,6 +663,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     setJobPage,
     setJobPageSize,
     fetchTrainerJobs,
+    loadJobImage,
     submitFeedback,
     requeueJob,
     cancelJob,

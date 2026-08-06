@@ -65,6 +65,13 @@ jobs:
       - name: Route gallery contract
         run: npm run test:route-gallery-contract
 
+      # Cast roles are almost entirely a STRING: a protagonist produces a
+      # different line in the story bible, and that line is all the narrator
+      # ever sees. Dropping the call leaves the picker working and the story
+      # generating, with nothing anywhere reporting that the lead was ignored.
+      - name: Narrative roles contract
+        run: npm run test:narrative-roles
+
       - name: Earned-karma wiring contract
         run: npm run test:earned-karma-wiring
 

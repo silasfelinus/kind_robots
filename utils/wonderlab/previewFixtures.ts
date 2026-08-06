@@ -497,6 +497,39 @@ const fixtures: Record<string, WonderLabPreviewFixture> = {
     skipReason:
       'The editor resolves its record from facetStore by id, so a naked mount with a synthetic facetId renders nothing at all — its whole template is behind that lookup. It needs a seeded Facet catalog rather than props. Preview it from /facets by opening a Facet, which is now the only way in.',
   },
+  'narrative-role-assigner': {
+    title: 'Cast role assignment',
+    description:
+      'Three synthetic cast members with a protagonist and two unassigned parts, so the select, the role description line, and the empty state are all visible at once.',
+    viewport: 'mobile',
+    minHeight: '20rem',
+    props: {
+      members: [
+        {
+          id: -601,
+          slug: 'ami-butterfly-fixture',
+          title: 'Ami Butterfly',
+          description: 'A cheerful chaos moth with poor impulse control.',
+          icon: 'kind-icon:butterfly',
+        },
+        {
+          id: -602,
+          slug: 'velvet-moon-fixture',
+          title: 'Velvet Moon',
+          description: 'Late-night polish, raccoon survival instincts.',
+          icon: 'kind-icon:microphone',
+        },
+        {
+          id: -603,
+          slug: 'cthulhu-fixture',
+          title: 'Cthulhu',
+          description: 'Sleeping god. Presidential hopeful.',
+          icon: 'kind-icon:eye',
+        },
+      ],
+      modelValue: { 'ami-butterfly-fixture': 'protagonist' },
+    },
+  },
   'flip-panel': {
     title: 'Flip Panel',
     skipReason:

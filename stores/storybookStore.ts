@@ -6,16 +6,13 @@ import { defineStore } from 'pinia'
 import { useNarrativeArtJobs } from '@/composables/useNarrativeArtJobs'
 import { useChatStore } from '@/stores/chatStore'
 import { useUserStore } from '@/stores/userStore'
+import { castLineWithRole } from '@/utils/narrativeRoles'
 import type { NarrativeArtJobState } from '@/utils/narrativeArtJobs'
 import type { NarrativeArtMoment } from '@/utils/narrativeArtProfiles'
 
 export type StorybookStructure = 'short-story' | 'chaptered' | 'episodic'
 export type StorybookNarratorStyle =
-  | 'cinematic'
-  | 'playful'
-  | 'storybook'
-  | 'mysterious'
-  | 'intimate'
+  'cinematic' | 'playful' | 'storybook' | 'mysterious' | 'intimate'
 
 export type StorybookSetupDraft = {
   title: string
@@ -23,9 +20,30 @@ export type StorybookSetupDraft = {
   narratorStyle: StorybookNarratorStyle
   structure: StorybookStructure
   castSlugs: string[]
+  /**
+   * slug -> narrative role key, for cast members who have been given one.
+   *
+   * A SIDECAR rather than a reshape of castSlugs, deliberately. The draft is
+   * persisted to localStorage and restored by spreading over defaultDraft(),
+   * so an additive field costs nothing and an existing draft keeps working
+   * with every member simply unassigned. Turning castSlugs into objects would
+   * have been a data migration for a feature that is meant to be optional.
+   */
+  castRoles: Record<string, string>
   locationSlug: string | null
   facetSlugs: string[]
   rewardSlugs: string[]
+  /**
+   * The Scenario this story is framed on, if any.
+   *
+   * Silas, 2026-08-06: "Scenario should be a special storybook story that is
+   * framed on a specific plot thread ... with an option to remix the prompt so
+   * it aligns with the rest of the choices (genre, location, etc)." So a
+   * Scenario is an ingredient like the others rather than a parallel story
+   * engine -- it supplies the thread, and the facets, cast and location bend
+   * it.
+   */
+  scenarioSlug: string | null
   notes: string
 }
 
@@ -39,6 +57,8 @@ export type StorybookIngredient = {
   icon?: string | null
   rarity?: string | null
   effect?: string | null
+  /** Set for cast members. See utils/narrativeRoles.ts. */
+  roleKey?: string | null
 }
 
 export type StorybookBible = {
@@ -50,6 +70,8 @@ export type StorybookBible = {
   location?: StorybookIngredient
   facets: StorybookIngredient[]
   rewards: StorybookIngredient[]
+  /** The plot thread this story is framed on, when it came from a Scenario. */
+  scenario?: StorybookIngredient
   notes?: string
   createdAt: string
 }
@@ -122,6 +144,7 @@ export type StorybookStartInput = {
   location?: StorybookIngredient
   facets: StorybookIngredient[]
   rewards: StorybookIngredient[]
+  scenario?: StorybookIngredient
   notes?: string
 }
 
@@ -200,9 +223,11 @@ function defaultDraft(): StorybookSetupDraft {
     narratorStyle: 'cinematic',
     structure: 'chaptered',
     castSlugs: [],
+    castRoles: {},
     locationSlug: null,
     facetSlugs: [],
     rewardSlugs: [],
+    scenarioSlug: null,
     notes: '',
   }
 }
@@ -272,7 +297,9 @@ function normalizeRestoredSession(value: StorybookSession): StorybookSession {
           stateDelta: beat.stateDelta ?? emptyStateDelta(),
         }))
       : [],
-    branchHistory: Array.isArray(value.branchHistory) ? value.branchHistory : [],
+    branchHistory: Array.isArray(value.branchHistory)
+      ? value.branchHistory
+      : [],
     consequences: Array.isArray(value.consequences) ? value.consequences : [],
     inventory: Array.isArray(value.inventory) ? value.inventory : [],
     stateVersion: 1,
@@ -299,16 +326,15 @@ export const useStorybookStore = defineStore('storybookStore', () => {
     () =>
       Boolean(
         session.value?.status === 'active' &&
-          currentBeat.value &&
-          !currentBeat.value.answer,
+        currentBeat.value &&
+        !currentBeat.value.answer,
       ) && !isWeaving.value,
   )
   const isComplete = computed(() => session.value?.status === 'complete')
   const canFinish = computed(
     () =>
       Boolean(
-        session.value?.status === 'active' &&
-          session.value.beats.length >= 2,
+        session.value?.status === 'active' && session.value.beats.length >= 2,
       ) && !isWeaving.value,
   )
 
@@ -423,6 +449,7 @@ export const useStorybookStore = defineStore('storybookStore', () => {
       location: input.location,
       facets: input.facets,
       rewards: input.rewards,
+      scenario: input.scenario,
       notes: input.notes?.trim() || undefined,
       createdAt: nowIso(),
     }
@@ -435,10 +462,32 @@ export const useStorybookStore = defineStore('storybookStore', () => {
       `Narrator style: ${bible.narratorStyle}`,
       `Structure: ${bible.structure}`,
     ]
+    /*
+     * THE SCENARIO IS THE FRAME, so it goes first -- before cast and facets,
+     * which are what bend it. Stated as a thread to be told rather than a
+     * summary to be reproduced, because the whole point of framing a Scenario
+     * this way is that the other ingredients are allowed to change it: Cthulhu
+     * for President stays the thread whether the facets say cosmic horror or
+     * workplace romance.
+     */
+    if (bible.scenario) {
+      parts.push(
+        `Plot thread (the frame for this story; the cast, setting and Facets` +
+          ` below reshape how it plays out rather than being decoration on it):` +
+          `\n${ingredientDescription(bible.scenario)}`,
+      )
+    }
     if (bible.cast.length) {
       parts.push(
         `Cast:\n${bible.cast
-          .map((member) => `- ${ingredientDescription(member)}`)
+          .map(
+            (member) =>
+              `- ${castLineWithRole(
+                ingredientDescription(member),
+                member.title,
+                member.roleKey,
+              )}`,
+          )
           .join('\n')}`,
       )
     }
@@ -494,11 +543,13 @@ export const useStorybookStore = defineStore('storybookStore', () => {
     const active = session.value
     const count = active?.beats.length ?? 0
     const structure = active?.bible.structure
-    if (count <= 1) return 'Deepen the opening promise and introduce a consequence.'
+    if (count <= 1)
+      return 'Deepen the opening promise and introduce a consequence.'
     if (structure === 'short-story' && count >= 4) {
       return 'The short story is nearing its climax. Tighten earlier threads.'
     }
-    if (count <= 4) return 'Develop relationships, discoveries, and meaningful risk.'
+    if (count <= 4)
+      return 'Develop relationships, discoveries, and meaningful risk.'
     return 'Recombine earlier choices and open a surprising but coherent path.'
   }
 
@@ -530,8 +581,8 @@ export const useStorybookStore = defineStore('storybookStore', () => {
         inventoryAdd: cleanStateStrings(parsed.inventoryAdd).filter((slug) =>
           allowedRewards.has(slug),
         ),
-        inventoryRemove: cleanStateStrings(parsed.inventoryRemove).filter((slug) =>
-          allowedRewards.has(slug),
+        inventoryRemove: cleanStateStrings(parsed.inventoryRemove).filter(
+          (slug) => allowedRewards.has(slug),
         ),
       },
     }
@@ -635,7 +686,9 @@ export const useStorybookStore = defineStore('storybookStore', () => {
       return true
     } catch (error) {
       errorMessage.value =
-        error instanceof Error ? error.message : 'The story thread slipped away.'
+        error instanceof Error
+          ? error.message
+          : 'The story thread slipped away.'
       return false
     } finally {
       isWeaving.value = false
@@ -661,14 +714,17 @@ export const useStorybookStore = defineStore('storybookStore', () => {
     }
     persist()
 
-    return weaveBeat(`${PERSONA}\n\nSTORY BIBLE\n${biblePrompt(bible)}\n\nWrite the opening scene. Establish an immediate image, introduce the most relevant cast member or force, and end with one consequential question.`)
+    return weaveBeat(
+      `${PERSONA}\n\nSTORY BIBLE\n${biblePrompt(bible)}\n\nWrite the opening scene. Establish an immediate image, introduce the most relevant cast member or force, and end with one consequential question.`,
+    )
   }
 
   async function answerCurrentBeat(answerText: string): Promise<boolean> {
     const active = session.value
     const beat = currentBeat.value
     const clean = answerText.trim()
-    if (!active || !beat || beat.answer || !clean || isWeaving.value) return false
+    if (!active || !beat || beat.answer || !clean || isWeaving.value)
+      return false
 
     const capturedAt = nowIso()
     beat.answer = { text: clean, capturedAt }
@@ -682,13 +738,18 @@ export const useStorybookStore = defineStore('storybookStore', () => {
     active.updatedAt = capturedAt
     persist()
 
-    return weaveBeat(`${PERSONA}\n\nSTORY BIBLE\n${biblePrompt(active.bible)}\n\n${statePrompt(active)}\n\n${phaseGuidance()}\n\nSTORY SO FAR\n${buildRecap()}\n\nContinue the story from the reader's latest choice. Preserve continuity, apply a fresh consequence or discovery when earned, and end with one new question.`)
+    return weaveBeat(
+      `${PERSONA}\n\nSTORY BIBLE\n${biblePrompt(active.bible)}\n\n${statePrompt(active)}\n\n${phaseGuidance()}\n\nSTORY SO FAR\n${buildRecap()}\n\nContinue the story from the reader's latest choice. Preserve continuity, apply a fresh consequence or discovery when earned, and end with one new question.`,
+    )
   }
 
   async function finishStory(): Promise<boolean> {
     const active = session.value
     if (!active || !canFinish.value) return false
-    return weaveBeat(`${PERSONA}\n\nSTORY BIBLE\n${biblePrompt(active.bible)}\n\n${statePrompt(active)}\n\nSTORY SO FAR\n${buildRecap()}\n\nWrite a satisfying finale for this session. Resolve the strongest active thread while leaving only intentional wonder. Do not end with a question.`, true)
+    return weaveBeat(
+      `${PERSONA}\n\nSTORY BIBLE\n${biblePrompt(active.bible)}\n\n${statePrompt(active)}\n\nSTORY SO FAR\n${buildRecap()}\n\nWrite a satisfying finale for this session. Resolve the strongest active thread while leaving only intentional wonder. Do not end with a question.`,
+      true,
+    )
   }
 
   watch(setupDraft, persist, { deep: true })

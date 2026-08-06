@@ -1,15 +1,6 @@
 // /utils/scripts/verifyAcademyStyleGalleryDisclosure.ts
 //
-// Regression guard for ai-art-academy/t-010 (lane-1 accessibility audit,
-// 2026-08-06: see projects/ai-art-academy/docs/frontend-audits/2026-08-06-style-gallery-accessibility.md
-// in the conductor repo). Every lesson tile in academy-styles-browser.vue used to bind
-// `aria-controls` unconditionally to `academy-style-detail-${style.slug}`, but the detail
-// element with that id only exists in the DOM while that lesson is expanded
-// (`v-if="expandedStyle"`). That made every collapsed tile's `aria-controls` point at a
-// nonexistent element -- an inaccurate disclosure relationship for assistive technology,
-// and dozens of broken id references on initial render. Fixed by binding `aria-controls`
-// only for the currently expanded tile (`undefined` otherwise). This script fails CI if
-// the unconditional-binding regression reappears.
+// Regression guard for ai-art-academy/t-010 lane-1 accessibility passes.
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -20,8 +11,6 @@ const COMPONENT_PATH = path.resolve(
 
 const contents = fs.readFileSync(COMPONENT_PATH, 'utf8')
 
-// The regression pattern: aria-controls bound directly to a template-literal id with no
-// surrounding conditional. Matches e.g. `:aria-controls="`academy-style-detail-${style.slug}`"`.
 const UNCONDITIONAL_PATTERN =
   /:aria-controls="`academy-style-detail-\$\{[^}]+\}`"/
 
@@ -32,9 +21,6 @@ assert.ok(
     "conditional (undefined when collapsed). See t-010's 2026-08-06 lane-1 accessibility audit.",
 )
 
-// The expected repair: a ternary that resolves to undefined for every tile except the one
-// matching expandedSlug (component-agnostic about the exact variable name on the "collapsed"
-// branch, but it must resolve to undefined/null there).
 const CONDITIONAL_PATTERN =
   /:aria-controls="\s*[\s\S]*?===\s*style\.slug\s*[\s\S]*?\?\s*`academy-style-detail-\$\{[^}]+\}`\s*:\s*undefined\s*"/
 
@@ -45,7 +31,21 @@ assert.ok(
     "tile). See t-010's 2026-08-06 lane-1 accessibility audit for the exact expected shape.",
 )
 
+assert.ok(
+  /<img\s+[\s\S]*?:src="style\.previewImageSrc"[\s\S]*?alt=""[\s\S]*?\/>/.test(
+    contents,
+  ),
+  'Academy lesson thumbnails must remain decorative. The visible style name already labels ' +
+    'the enclosing button, so a repeated image alt makes assistive technology announce the ' +
+    'lesson name twice.',
+)
+
+assert.ok(
+  !/:alt="style\.name"/.test(contents),
+  'Academy lesson thumbnails must not duplicate the visible style name in the button accessible name.',
+)
+
 console.log(
-  'academy-styles-browser.vue disclosure contract verified: aria-controls is bound only for ' +
-    'the expanded lesson tile.',
+  'academy-styles-browser.vue accessibility contract verified: disclosure references are valid ' +
+    'and preview thumbnails do not duplicate lesson names.',
 )

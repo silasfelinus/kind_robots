@@ -424,7 +424,7 @@
             class="absolute inset-x-0 bottom-0 flex flex-col items-center gap-0.5 px-1.5 pb-2 pt-1"
           >
             <span
-              class="text-[0.65rem] font-black leading-tight text-white drop-shadow-md"
+              class="text-[0.65rem] font-black leading-tight text-base-content drop-shadow-md"
             >
               {{ style.label }}
             </span>

@@ -142,6 +142,14 @@ check(
     `fall to the unfiled landing zone.`,
 )
 
+check(
+  placement.includes('declaredJobPath') && /artJob\s*\n?\s*\.findFirst|artJob\.findFirst/.test(placement),
+  `${PLACEMENT} must honour a destination the producing ArtJob already declared ` +
+    `in its payload imagePath, ahead of anything it infers. Without that, all 60 ` +
+    `page backdrops fall to the unfiled landing zone — where they render fine but ` +
+    `look like unclaimed art, which is what the triage pass deletes.`,
+)
+
 /* -- 2. read the file back and compare before deleting anything ------------- */
 
 check(

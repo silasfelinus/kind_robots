@@ -45,7 +45,7 @@
         <div
           v-else-if="managerError"
           role="alert"
-          class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-error/40 bg-error/10 p-4 text-error"
+          class="kr-note kr-note-error flex min-h-0 flex-1 flex-col overflow-hidden"
         >
           <div class="flex flex-wrap items-center justify-between gap-3">
             <span>{{ managerError }}</span>
@@ -75,7 +75,8 @@
 
         <div
           v-else
-          class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+          role="alert"
+          class="kr-note kr-note-warning flex min-h-0 flex-1 items-center justify-center"
         >
           Unknown academy tab: {{ activeTab }}
         </div>

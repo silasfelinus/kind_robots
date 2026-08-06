@@ -161,7 +161,7 @@
         >
           <img
             :src="style.previewImageSrc"
-            :alt="style.name"
+            alt=""
             loading="lazy"
             class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
           />

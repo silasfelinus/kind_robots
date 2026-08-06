@@ -58,7 +58,7 @@
       class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border"
       :class="
         showMature
-          ? 'kr-note-warning'
+          ? 'border-warning/60 bg-warning/15 text-warning'
           : 'border-base-300 bg-base-100 text-base-content/60'
       "
       :aria-label="buttonLabel"

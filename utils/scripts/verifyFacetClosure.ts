@@ -12,9 +12,7 @@ async function source(path: string): Promise<string> {
 
 function requireText(path: string, text: string, fragment: string): void {
   if (!text.includes(fragment)) {
-    throw new Error(
-      `${path} is missing Facet closure contract text: ${fragment}`,
-    )
+    throw new Error(`${path} is missing Facet closure contract text: ${fragment}`)
   }
 }
 
@@ -64,26 +62,10 @@ async function main(): Promise<void> {
   requireText(files.generator, text.generator, 'useFacetCatalogStore')
   requireText(files.generator, text.generator, 'FACET_EMERGENCY_FALLBACKS')
   requireText(files.generator, text.generator, "facetValue('gender', 'gender')")
-  requireText(
-    files.generator,
-    text.generator,
-    "facetValue('backstory', 'backstory')",
-  )
-  requireText(
-    files.generator,
-    text.generator,
-    "facetValues('personality', count, 'personality')",
-  )
-  requireText(
-    files.generator,
-    text.generator,
-    "facetValues('quirks', count, 'quirks')",
-  )
-  requireText(
-    files.generator,
-    text.generator,
-    'Names and honorifics are procedural language lexicons',
-  )
+  requireText(files.generator, text.generator, "facetValue('backstory', 'backstory')")
+  requireText(files.generator, text.generator, "facetValues('personality', count, 'personality')")
+  requireText(files.generator, text.generator, "facetValues('quirks', count, 'quirks')")
+  requireText(files.generator, text.generator, 'Names and honorifics are procedural language lexicons')
 
   for (const retired of [
     'const PERSONALITIES =',
@@ -126,26 +108,10 @@ async function main(): Promise<void> {
   requireText(files.audit, text.audit, 'if (strict && severe.length)')
   requireText(files.audit, text.audit, 'prisma.$disconnect()')
 
-  requireText(
-    files.proseAudit,
-    text.proseAudit,
-    "taxonomy: { in: ['BACKSTORY', 'QUIRK'] }",
-  )
-  requireText(
-    files.proseAudit,
-    text.proseAudit,
-    "fieldKey: { in: ['backstory', 'quirks'] }",
-  )
-  requireText(
-    files.proseAudit,
-    text.proseAudit,
-    'bespoke prose remains intentionally unlinked',
-  )
-  requireText(
-    files.proseAudit,
-    text.proseAudit,
-    'if (strict && findings.length)',
-  )
+  requireText(files.proseAudit, text.proseAudit, "taxonomy: { in: ['BACKSTORY', 'QUIRK'] }")
+  requireText(files.proseAudit, text.proseAudit, "fieldKey: { in: ['backstory', 'quirks'] }")
+  requireText(files.proseAudit, text.proseAudit, 'bespoke prose remains intentionally unlinked')
+  requireText(files.proseAudit, text.proseAudit, 'if (strict && findings.length)')
   requireText(files.proseAudit, text.proseAudit, 'prisma.$disconnect()')
 
   // Both live audits are read-only. File-system writes are allowed only for the

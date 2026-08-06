@@ -70,7 +70,7 @@ async function main(): Promise<void> {
     requireText(curatorPath, curator, target)
   }
 
-  requireText(curatorPath, curator, 'randomWeight: 0.5')
+  requireText(curatorPath, curator, "randomWeight: 0.5")
   requireText(curatorPath, curator, "relationType: 'RELATED'")
   requireText(curatorPath, curator, 'facetArtImage.count')
   requireText(curatorPath, curator, 'facetArtCollection.count')

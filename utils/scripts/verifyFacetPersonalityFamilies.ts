@@ -17,9 +17,7 @@ function requireText(path: string, text: string, value: string): void {
 
 function forbidText(path: string, text: string, value: string): void {
   if (containsCode(text, value)) {
-    throw new Error(
-      `${path} must not contain production mutation hook: ${value}`,
-    )
+    throw new Error(`${path} must not contain production mutation hook: ${value}`)
   }
 }
 

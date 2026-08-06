@@ -16,6 +16,13 @@ dashboardTab: achievements
 cards: navCards
 loadingMessage: Loading achievements
 refreshLabel: Refresh Achievements
+# Stage 3 backdrop art, resolved by slug via /api/art/backdrop/<page>-<variant>.
+# The route finds the completed ArtJob for this page and redirects to its
+# image, so art appears on its own once generation finishes. Until then the
+# route 404s and the page renders exactly as before.
+backgroundMobile: /api/art/backdrop/achievements-mobile
+backgroundTablet: /api/art/backdrop/achievements-tablet
+backgroundDesktop: /api/art/backdrop/achievements-desktop
 ---
 
 :user-manager

@@ -16,6 +16,13 @@ dashboardTab: animation-manager
 cards: labCards
 loadingMessage: Loading the Animation Manager...
 refreshLabel: Refresh Gallery
+# Stage 3 backdrop art, resolved by slug via /api/art/backdrop/<page>-<variant>.
+# The route finds the completed ArtJob for this page and redirects to its
+# image, so art appears on its own once generation finishes. Until then the
+# route 404s and the page renders exactly as before.
+backgroundMobile: /api/art/backdrop/animation-manager-mobile
+backgroundTablet: /api/art/backdrop/animation-manager-tablet
+backgroundDesktop: /api/art/backdrop/animation-manager-desktop
 ---
 
 :lab-manager

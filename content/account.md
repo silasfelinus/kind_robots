@@ -13,6 +13,13 @@ tabKey: account
 requiredPermission: authenticated
 loadingMessage: Loading account settings...
 refreshLabel: Refresh account
+# Stage 3 backdrop art, resolved by slug via /api/art/backdrop/<page>-<variant>.
+# The route finds the completed ArtJob for this page and redirects to its
+# image, so art appears on its own once generation finishes. Until then the
+# route 404s and the page renders exactly as before.
+backgroundMobile: /api/art/backdrop/account-mobile
+backgroundTablet: /api/art/backdrop/account-tablet
+backgroundDesktop: /api/art/backdrop/account-desktop
 ---
 
 :account-settings

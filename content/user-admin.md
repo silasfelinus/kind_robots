@@ -13,6 +13,13 @@ tabKey: user-admin
 requiredRole: ADMIN
 loadingMessage: Loading user admin...
 refreshLabel: Refresh users
+# Stage 3 backdrop art, resolved by slug via /api/art/backdrop/<page>-<variant>.
+# The route finds the completed ArtJob for this page and redirects to its
+# image, so art appears on its own once generation finishes. Until then the
+# route 404s and the page renders exactly as before.
+backgroundMobile: /api/art/backdrop/user-admin-mobile
+backgroundTablet: /api/art/backdrop/user-admin-tablet
+backgroundDesktop: /api/art/backdrop/user-admin-desktop
 ---
 
 :user-manager-directory

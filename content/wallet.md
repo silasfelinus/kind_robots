@@ -15,6 +15,13 @@ dashboardTab: profile
 requiredPermission: authenticated
 loadingMessage: Loading wallet...
 refreshLabel: Refresh wallet
+# Stage 3 backdrop art, resolved by slug via /api/art/backdrop/<page>-<variant>.
+# The route finds the completed ArtJob for this page and redirects to its
+# image, so art appears on its own once generation finishes. Until then the
+# route 404s and the page renders exactly as before.
+backgroundMobile: /api/art/backdrop/wallet-mobile
+backgroundTablet: /api/art/backdrop/wallet-tablet
+backgroundDesktop: /api/art/backdrop/wallet-desktop
 ---
 
 :wallet-page

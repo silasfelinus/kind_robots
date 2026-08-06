@@ -16,6 +16,13 @@ dashboardTab: user
 cards: navCards
 loadingMessage: Loading privacy
 refreshLabel: Refresh Privacy
+# Stage 3 backdrop art, resolved by slug via /api/art/backdrop/<page>-<variant>.
+# The route finds the completed ArtJob for this page and redirects to its
+# image, so art appears on its own once generation finishes. Until then the
+# route 404s and the page renders exactly as before.
+backgroundMobile: /api/art/backdrop/privacy-mobile
+backgroundTablet: /api/art/backdrop/privacy-tablet
+backgroundDesktop: /api/art/backdrop/privacy-desktop
 ---
 
 :privacy-page

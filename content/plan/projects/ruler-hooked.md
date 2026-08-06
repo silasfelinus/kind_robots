@@ -13,6 +13,13 @@ dashboardTab: ruler-hooked
 cards: navCards
 loadingMessage: Checking the tide charts...
 refreshLabel: Refresh the shore
+# Stage 3 backdrop art, resolved by slug via /api/art/backdrop/<page>-<variant>.
+# The route finds the completed ArtJob for this page and redirects to its
+# image, so art appears on its own once generation finishes. Until then the
+# route 404s and the page renders exactly as before.
+backgroundMobile: /api/art/backdrop/ruler-hooked-mobile
+backgroundTablet: /api/art/backdrop/ruler-hooked-tablet
+backgroundDesktop: /api/art/backdrop/ruler-hooked-desktop
 ---
 
 :ruler-hooked-page

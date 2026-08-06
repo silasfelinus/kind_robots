@@ -212,6 +212,336 @@ const PAGES: PageSeed[] = [
     scene:
       'The story door: a single ornate doorway standing free in a soft twilight meadow, its frame carved with small creatures, light spilling warm from the gap where it stands ajar. Tall grass and fireflies at the lower edges, deep blue sky above. Inviting and a little mysterious, with the space around the door left open.',
   },
+  {
+    page: 'about',
+    title: 'About — The Workshop Door',
+    scene:
+      'A welcoming studio entryway at dawn: a cracked-open door onto a sunlit workshop of half-built robots, paper birds and warm brass lamps, with ivy at the threshold and a hand-lettered welcome sign. Friendly and unpretentious.',
+  },
+  {
+    page: 'account',
+    title: 'Account — The Keeper\'s Desk',
+    scene:
+      'A quiet study nook with a leather ledger, a ring of small brass keys, a cup of tea going cold, and a window onto soft evening rooftops. Orderly, private and calm.',
+  },
+  {
+    page: 'achievements',
+    title: 'Achievements — The Trophy Conservatory',
+    scene:
+      'A glass conservatory of ribboned medals and small sculpted trophies on floating shelves, sunlight refracting through hanging prisms, laurel vines climbing the frames. Celebratory but unshowy.',
+  },
+  {
+    page: 'admin',
+    title: 'Admin — The Signal Tower',
+    scene:
+      'A calm control loft of brass dials, patch cables and softly blinking status lamps, tall windows onto a night city. Competent and unalarming.',
+  },
+  {
+    page: 'animation-manager',
+    title: 'Animation — The Flipbook Theatre',
+    scene:
+      'A small theatre of suspended film strips and flipbook pages caught mid-turn, a projector throwing soft light onto a screen at the edge, dust motes in the beam. Playful and mechanical.',
+  },
+  {
+    page: 'appmaker',
+    title: 'Appmaker — The Assembly Bench',
+    scene:
+      'A bright maker bench strewn with modular tiles, blueprints and glowing wireframe shapes assembling themselves midair, tools racked neatly on a pegboard wall. Inventive and tidy.',
+  },
+  {
+    page: 'artjob',
+    title: 'Art Queue — The Kiln Room',
+    scene:
+      'A warm kiln room where framed canvases move slowly along a wooden rail, some still blank, some glowing as they finish. Ledgers and numbered tags hang at the sides. Patient industry.',
+  },
+  {
+    page: 'brainstorm',
+    title: 'Brainstorm — The Idea Storm',
+    scene:
+      'A tall airy loft where sticky notes, chalk sketches and paper aeroplanes swirl on a gentle indoor breeze, lightning-bug sparks of inspiration drifting near the ceiling. Energetic, not chaotic.',
+  },
+  {
+    page: 'cart',
+    title: 'Cart — The Packing Room',
+    scene:
+      'A cosy shipping room of brown-paper parcels, twine spools, stamps and a wooden counter, a cat asleep on a stack of boxes, warm lamplight. Homely commerce.',
+  },
+  {
+    page: 'challenges',
+    title: 'Challenges — The Trial Grounds',
+    scene:
+      'A sunlit training yard of rope courses, targets and chalked circles, banners snapping, mountains beyond. Spirited and sporting.',
+  },
+  {
+    page: 'chats',
+    title: 'Chats — The Long Table',
+    scene:
+      'A convivial long table under strung lights in a courtyard, mismatched chairs, teapots and open notebooks, conversation implied by empty seats. Warm and social.',
+  },
+  {
+    page: 'coat-dance',
+    title: 'Coat Dance — The Cloakroom Ball',
+    scene:
+      'An empty ballroom where coats on stands sway as though dancing, chandeliers dimmed, moonlight across the parquet. Whimsical and a little uncanny.',
+  },
+  {
+    page: 'conductor-app',
+    title: 'Conductor — The Signal Room',
+    scene:
+      'An orchestral signal room where lines of light run from a central podium out to distant workshops, batons and score sheets on a stand. Coordinating many hands.',
+  },
+  {
+    page: 'dashboard',
+    title: 'Dashboard — The Observatory Deck',
+    scene:
+      'A brass observatory deck with orreries, charts and a wide balcony over a lantern-lit valley at blue hour. Overview and calm command.',
+  },
+  {
+    page: 'davinci',
+    title: 'Davinci — The Codex Loft',
+    scene:
+      'A Renaissance loft of flying-machine sketches, mirrored handwriting, brass instruments and a half-built wing. Curious and inventive.',
+  },
+  {
+    page: 'error',
+    title: 'Error — The Detour',
+    scene:
+      'A misty crossroads with a friendly signpost pointing several ways, a lantern-lit cart and a small robot offering directions. Reassuring, not ominous.',
+  },
+  {
+    page: 'facet-gallery',
+    title: 'Facet Gallery — The Prism Vault',
+    scene:
+      'A vault of floating cut gems each holding a tiny scene, refracted colour washing the stone walls, velvet display plinths at the edges. Jewel-like and curated.',
+  },
+  {
+    page: 'facets',
+    title: 'Facets — The Lapidary Bench',
+    scene:
+      'A lapidary workbench of loupe, tweezers and half-cut stones catching light, drawers of labelled specimens behind. Precise and tactile.',
+  },
+  {
+    page: 'for-you',
+    title: 'For You — The Gift Table',
+    scene:
+      'A table laid with wrapped parcels chosen just so, a hand-written tag on each, morning light and a vase of cut flowers. Personal and thoughtful.',
+  },
+  {
+    page: 'forum',
+    title: 'Forum — The Amphitheatre',
+    scene:
+      'A sunlit stone amphitheatre ringed with olive trees, cushions on the steps, banners at the rim. Open discussion, no podium.',
+  },
+  {
+    page: 'friends',
+    title: 'Friends — The Porch',
+    scene:
+      'A wide wooden porch at golden hour with rocking chairs, lemonade, a dog asleep, fields beyond. Easy companionship.',
+  },
+  {
+    page: 'hair-studio',
+    title: 'Hair Studio — The Styling Parlour',
+    scene:
+      'An art-deco styling parlour with mirrors ringed in warm bulbs, ribbons and combs on marble, potted ferns and a tall window onto a pastel street. Glamorous and gentle.',
+  },
+  {
+    page: 'home',
+    title: 'Home — The Hearth',
+    scene:
+      'A warm living hall with a lit hearth, deep armchairs, shelves of curios and a robot dozing on a rug, snow drifting past mullioned windows. Safe and welcoming.',
+  },
+  {
+    page: 'humboldt-scoop',
+    title: 'Humboldt Scoop — The Coast Desk',
+    scene:
+      'A weathered newsroom desk facing fogged redwood coast, typewriter, coffee, tide charts pinned to the wall. Local and grounded.',
+  },
+  {
+    page: 'icons',
+    title: 'Icons — The Sigil Wall',
+    scene:
+      'A wall of small carved and enamelled sigils in neat rows, a few lifted out on a workbench, warm raking light. Orderly and collectible.',
+  },
+  {
+    page: 'memory',
+    title: 'Memory — The Card Hall',
+    scene:
+      'A hall of face-down cards floating in neat ranks, a few flipped to show tiny glowing scenes, candlelight. Playful concentration.',
+  },
+  {
+    page: 'mermaids',
+    title: 'Mermaids — The Lagoon',
+    scene:
+      'A moonlit lagoon of bioluminescent water, kelp columns and coral arches, silver fish threading through. Mysterious and cool-toned.',
+  },
+  {
+    page: 'messages',
+    title: 'Messages — The Pigeon Loft',
+    scene:
+      'A timber pigeon loft at dawn, cubbies of folded notes, birds arriving and leaving through open shutters, straw and soft light. Anticipatory.',
+  },
+  {
+    page: 'model-builder',
+    title: 'Model Builder — The Armature Shop',
+    scene:
+      'A sculptor\'s shop of wire armatures, clay maquettes and calipers, north light through dusty glass. Constructive and hands-on.',
+  },
+  {
+    page: 'mural',
+    title: 'Mural — The Long Wall',
+    scene:
+      'A vast plastered wall part-painted with a sprawling colourful mural, scaffolding and paint pots at the edges, sunlight raking across the unfinished middle. Invitational — room to add.',
+  },
+  {
+    page: 'navigation',
+    title: 'Navigation — The Compass Rose',
+    scene:
+      'A stone floor inlaid with a huge compass rose, corridors radiating outward under arches, lanterns marking each way. Orientation made beautiful.',
+  },
+  {
+    page: 'navigation-health',
+    title: 'Navigation Health — The Chart Room',
+    scene:
+      'A ship\'s chart room with depth soundings, a brass sextant and a lamp over a spread map marked with careful corrections. Diagnostic and steady.',
+  },
+  {
+    page: 'newsfeed',
+    title: 'Newsfeed — The Press Room',
+    scene:
+      'A print room of hanging galley proofs, ink rollers and a wall of pinned dispatches, morning light through high windows. Current and busy.',
+  },
+  {
+    page: 'plan',
+    title: 'Plan — The Drafting Hall',
+    scene:
+      'A high drafting hall of tilted tables, pinned schematics, string-and-pin planning boards and tall north windows. Focused and unhurried.',
+  },
+  {
+    page: 'play',
+    title: 'Play — The Arcade Garden',
+    scene:
+      'An outdoor arcade among flowering trees: cabinets and games glowing under paper lanterns at dusk, confetti drifting. Joyful and inviting.',
+  },
+  {
+    page: 'privacy',
+    title: 'Privacy — The Safe Room',
+    scene:
+      'A panelled reading room with a heavy door ajar, curtains drawn, a single lamp and a locked box on the desk. Discreet and trustworthy.',
+  },
+  {
+    page: 'project-placement',
+    title: 'Project Placement — The Sorting Hall',
+    scene:
+      'A hall of labelled pigeonholes and a long sorting bench, folders in mid-flight to their slots. Methodical.',
+  },
+  {
+    page: 'register',
+    title: 'Register — The Threshold',
+    scene:
+      'An open gate onto a bright path through wildflowers, a welcome arch and a book on a stand. Beginning and invitation.',
+  },
+  {
+    page: 'reset-password',
+    title: 'Reset — The Locksmith',
+    scene:
+      'A locksmith\'s bench of key blanks, files and an open lock mechanism, warm focused lamplight. Repair, not alarm.',
+  },
+  {
+    page: 'ruler-hooked',
+    title: 'Ruler Hooked — The Measure Room',
+    scene:
+      'A room of hanging rulers, plumb lines and brass gauges catching light, a drafting stool below. Exacting and quiet.',
+  },
+  {
+    page: 'sanctuary-hub',
+    title: 'Sanctuary — The Quiet Grove',
+    scene:
+      'A still grove of tall pale trees around a mirror pool, soft mist, drifting fireflies, a stone bench. Restful and reverent.',
+  },
+  {
+    page: 'scoop-cms',
+    title: 'Scoop CMS — The Composing Room',
+    scene:
+      'A composing room of type cases, galley trays and a stone bench, ink and paper stacks. Editorial craft.',
+  },
+  {
+    page: 'screenfx',
+    title: 'Screen FX — The Effects Bay',
+    scene:
+      'A bay of lenses, gels and prisms throwing coloured light across a dark room, sparks and smoke curling. Showy and technical.',
+  },
+  {
+    page: 'servers',
+    title: 'Servers — The Engine Hall',
+    scene:
+      'A cathedral-scale engine hall of humming brass towers and cable runs, catwalks and status lamps in the dark. Powerful and orderly.',
+  },
+  {
+    page: 'shop-cancel',
+    title: 'Cancelled — The Turned Cart',
+    scene:
+      'A market cart turned back at a quiet lane, goods still neatly covered, a friendly vendor waving. Gentle, no blame.',
+  },
+  {
+    page: 'shop-success',
+    title: 'Success — The Ribbon Cut',
+    scene:
+      'A parcel handed over with a ribbon cut, confetti in low sun, market bunting overhead. Celebratory and warm.',
+  },
+  {
+    page: 'sketchy',
+    title: 'Sketchy — The Sketch Wall',
+    scene:
+      'A studio wall papered edge to edge with loose gesture drawings, charcoal dust, a jar of stubs on a stool. Raw and generative.',
+  },
+  {
+    page: 'stages',
+    title: 'Stages — The Backstage',
+    scene:
+      'A backstage of ropes, sandbags and half-lit flats, a slice of bright stage visible through the wings. Potential about to be revealed.',
+  },
+  {
+    page: 'stylist',
+    title: 'Stylist — The Atelier',
+    scene:
+      'A couture atelier of bolts of fabric, dress forms, pinned muslin and tall mirrors, afternoon light. Refined and creative.',
+  },
+  {
+    page: 'themes',
+    title: 'Themes — The Paint Library',
+    scene:
+      'A library of pigment jars and swatch cards arranged by hue across a whole wall, a ladder on rails. Chromatic and calm.',
+  },
+  {
+    page: 'user-admin',
+    title: 'User Admin — The Registry',
+    scene:
+      'A registry room of card catalogues and a brass name-plate press, tall ledgers and a lamp. Careful record-keeping.',
+  },
+  {
+    page: 'voice-lab',
+    title: 'Voice Lab — The Sound Booth',
+    scene:
+      'A warm sound booth of felt panels, a vintage ribbon microphone, waveform light rippling on the glass. Intimate and acoustic.',
+  },
+  {
+    page: 'wallet',
+    title: 'Wallet — The Counting House',
+    scene:
+      'A counting house of brass scales, coin trays and a ledger under a green-shaded lamp, warm wood. Trustworthy and precise.',
+  },
+  {
+    page: 'watchlist',
+    title: 'Watchlist — The Screening Room',
+    scene:
+      'A small velvet screening room, projector beam through dark, reels stacked at the side, one seat turned out. Anticipatory and cosy.',
+  },
+  {
+    page: 'wishmaster',
+    title: 'Wishmaster — The Wish Well',
+    scene:
+      'A moss-ringed stone well under a starry sky, coins glinting below, paper wishes tied to a nearby tree. Hopeful and magical.',
+  }
 ]
 
 function buildPrompt(seed: PageSeed, variant: BackdropVariant): string {

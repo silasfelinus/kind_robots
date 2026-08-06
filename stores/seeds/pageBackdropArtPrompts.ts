@@ -37,7 +37,10 @@ export type PageBackdropArtPrompt = {
  * switches on (mobile <768, tablet 768-1023, desktop >=1024) and to stay on
  * dimensions the generator handles well.
  */
-const CANVAS: Record<BackdropVariant, { width: number; height: number; framing: string }> = {
+const CANVAS: Record<
+  BackdropVariant,
+  { width: number; height: number; framing: string }
+> = {
   mobile: {
     width: 832,
     height: 1472,
@@ -168,7 +171,7 @@ const PAGES: PageSeed[] = [
     page: 'academy',
     title: 'Art Academy',
     scene:
-      "An art academy studio: a high-windowed atelier with plaster casts and anatomical models on shelves down one side, easels and stools ranged along the other, master studies pinned in rows on the far wall. Cool north light, chalk dust in the air, a faint smell of turpentine implied. Studious and generous rather than austere.",
+      'An art academy studio: a high-windowed atelier with plaster casts and anatomical models on shelves down one side, easels and stools ranged along the other, master studies pinned in rows on the far wall. Cool north light, chalk dust in the air, a faint smell of turpentine implied. Studious and generous rather than austere.',
   },
   {
     page: 'coloring',
@@ -220,7 +223,7 @@ const PAGES: PageSeed[] = [
   },
   {
     page: 'account',
-    title: 'Account — The Keeper\'s Desk',
+    title: "Account — The Keeper's Desk",
     scene:
       'A quiet study nook with a leather ledger, a ring of small brass keys, a cup of tea going cold, and a window onto soft evening rooftops. Orderly, private and calm.',
   },
@@ -309,12 +312,6 @@ const PAGES: PageSeed[] = [
       'A misty crossroads with a friendly signpost pointing several ways, a lantern-lit cart and a small robot offering directions. Reassuring, not ominous.',
   },
   {
-    page: 'facet-gallery',
-    title: 'Facet Gallery — The Prism Vault',
-    scene:
-      'A vault of floating cut gems each holding a tiny scene, refracted colour washing the stone walls, velvet display plinths at the edges. Jewel-like and curated.',
-  },
-  {
     page: 'facets',
     title: 'Facets — The Lapidary Bench',
     scene:
@@ -384,7 +381,7 @@ const PAGES: PageSeed[] = [
     page: 'model-builder',
     title: 'Model Builder — The Armature Shop',
     scene:
-      'A sculptor\'s shop of wire armatures, clay maquettes and calipers, north light through dusty glass. Constructive and hands-on.',
+      "A sculptor's shop of wire armatures, clay maquettes and calipers, north light through dusty glass. Constructive and hands-on.",
   },
   {
     page: 'mural',
@@ -402,7 +399,7 @@ const PAGES: PageSeed[] = [
     page: 'navigation-health',
     title: 'Navigation Health — The Chart Room',
     scene:
-      'A ship\'s chart room with depth soundings, a brass sextant and a lamp over a spread map marked with careful corrections. Diagnostic and steady.',
+      "A ship's chart room with depth soundings, a brass sextant and a lamp over a spread map marked with careful corrections. Diagnostic and steady.",
   },
   {
     page: 'newsfeed',
@@ -444,7 +441,7 @@ const PAGES: PageSeed[] = [
     page: 'reset-password',
     title: 'Reset — The Locksmith',
     scene:
-      'A locksmith\'s bench of key blanks, files and an open lock mechanism, warm focused lamplight. Repair, not alarm.',
+      "A locksmith's bench of key blanks, files and an open lock mechanism, warm focused lamplight. Repair, not alarm.",
   },
   {
     page: 'ruler-hooked',
@@ -541,7 +538,7 @@ const PAGES: PageSeed[] = [
     title: 'Wishmaster — The Wish Well',
     scene:
       'A moss-ringed stone well under a starry sky, coins glinting below, paper wishes tied to a nearby tree. Hopeful and magical.',
-  }
+  },
 ]
 
 function buildPrompt(seed: PageSeed, variant: BackdropVariant): string {

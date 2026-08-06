@@ -114,13 +114,21 @@
           surface resolves to the same opaque theme colour it always had.
         -->
         <!--
-          No background of its own. The shell-level backdrop is behind this, so
-          an opaque ground here would hide it again — which is the bug that made
-          the first backdrops invisible. The token resolves to base-100 exactly
-          when no page declares art.
+          NO BACKGROUND AT ALL. This is a structural container, not a surface —
+          the page root inside it is the surface, and every page root already
+          reads a translucent token.
+          
+          Giving <main> a token too stacked two translucent layers over the art:
+          66% and then 66% of what was left is ~88% opaque, which is why the
+          first full-page attempt looked like no backdrop at all. Opacity
+          multiplies down a stack; only one layer in it may paint.
+          
+          Pages with no backdrop are unaffected — .kr-shell paints base-100
+          behind this, and the page root resolves to the same colour it always
+          had.
         -->
         <main
-          class="kr-main relative z-10 h-full min-h-0 overflow-hidden rounded-2xl bg-(--kr-surface-raised) transition-[padding] duration-300 ease-out"
+          class="kr-main relative z-10 h-full min-h-0 overflow-hidden rounded-2xl transition-[padding] duration-300 ease-out"
           :class="workspaceSheetOpen ? 'hidden md:block' : 'block'"
         >
           <fx-region region="page" />

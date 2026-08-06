@@ -381,6 +381,32 @@ for (const name of PAGE_ROOTS) {
   )
 }
 
+/* -- only one layer between the art and the eye ---------------------------- */
+
+/*
+ * Opacity MULTIPLIES down a stack. Two translucent surfaces at 66% leave ~12%
+ * of the art visible, which reads as no backdrop at all — that is exactly what
+ * happened when <main> was given a surface token alongside the page root it
+ * contains (Silas, 2026-08-06: "Still not seeing backgrounds over the whole
+ * page").
+ *
+ * <main> is a structural container. The page root inside it is the surface.
+ * Giving <main> any background — a raw theme colour OR a token — puts a second
+ * layer in the stack and dims every backdrop in the app at once.
+ */
+{
+  const appSource = withoutComments(read('app.vue'))
+  const mainTag = appSource.match(/<main[^>]*>/)?.[0] ?? ''
+
+  check(
+    Boolean(mainTag) && !/\bbg-/.test(mainTag),
+    `app.vue's <main> must carry no background utility at all. It sits between ` +
+      `the shell-level backdrop and the page root's own translucent surface, so ` +
+      `anything it paints becomes a second layer — and two translucent layers ` +
+      `multiply into an effectively opaque one.`,
+  )
+}
+
 function selfTest(): void {
   const collisions = collidingSchemaKeys(`
   amiTip: z.string().optional(),

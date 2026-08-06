@@ -13,6 +13,9 @@ const runnerPath = path.join(root, 'scripts/run_facet_catalog_maintenance.ts')
 const buildPath = path.join(root, 'scripts/vercel-build.mjs')
 const schemaPath = path.join(root, 'prisma/schema.prisma')
 const managerPath = path.join(root, 'components/facets/facet-manager.vue')
+// Art variants live with the per-Facet editor since facet-manager's Library
+// grid was retired -- one Facet is chosen in the gallery, then edited here.
+const editorPath = path.join(root, 'components/facets/facet-editor.vue')
 const galleryPath = path.join(root, 'components/facets/facet-gallery.vue')
 const entityArtPath = path.join(root, 'server/utils/entityArt.ts')
 
@@ -22,6 +25,7 @@ const runner = fs.readFileSync(runnerPath, 'utf8')
 const build = fs.readFileSync(buildPath, 'utf8')
 const schema = fs.readFileSync(schemaPath, 'utf8')
 const manager = fs.readFileSync(managerPath, 'utf8')
+const editor = fs.readFileSync(editorPath, 'utf8')
 const gallery = fs.readFileSync(galleryPath, 'utf8')
 const entityArt = fs.readFileSync(entityArtPath, 'utf8')
 
@@ -112,14 +116,15 @@ for (const required of [
 }
 
 assert.ok(
-  manager.includes("field: 'iconPath'") &&
-    manager.includes('width: 256') &&
-    manager.includes('width: 512') &&
-    manager.includes('width: 1280'),
-  'Facet manager must expose canonical icon, card, and hero variants.',
+  editor.includes("field: 'iconPath'") &&
+    editor.includes('width: 256') &&
+    editor.includes('width: 512') &&
+    editor.includes('width: 1280'),
+  'Facet editor must expose canonical icon, card, and hero variants.',
 )
 assert.ok(
   !manager.includes('useFacetArtRequestStore') &&
+    !editor.includes('useFacetArtRequestStore') &&
     !gallery.includes('useFacetArtRequestStore'),
   'Facet surfaces must use the ArtJob-backed entity manager, not YAML art requests.',
 )

@@ -148,8 +148,10 @@ const fixtures: Record<string, WonderLabPreviewFixture> = {
         dreamType: 'STORY',
         description:
           'A gallery where every exhibit can explain the context it needs to become useful.',
-        pitch: 'A gentle backstage adventure through a living component museum.',
-        flavorText: 'Please do not feed the recursive preview hosts after midnight.',
+        pitch:
+          'A gentle backstage adventure through a living component museum.',
+        flavorText:
+          'Please do not feed the recursive preview hosts after midnight.',
         examples: null,
         artPrompt: null,
         imagePath: null,
@@ -280,7 +282,8 @@ const fixtures: Record<string, WonderLabPreviewFixture> = {
         updatedAt: fixtureDate,
         title: 'Museum',
         label: 'WonderLab',
-        description: 'A synthetic navigation icon used only by the preview harness.',
+        description:
+          'A synthetic navigation icon used only by the preview harness.',
         designer: 'WonderLab',
         icon: 'kind-icon:sparkles',
         link: '',
@@ -447,7 +450,8 @@ const fixtures: Record<string, WonderLabPreviewFixture> = {
         ]),
         genres: 'Whimsical mystery',
         locations: 'WonderLab archive',
-        inspirations: 'Component museums, backstage tours, and helpful error messages',
+        inspirations:
+          'Component museums, backstage tours, and helpful error messages',
         imagePath: null,
         artImageId: null,
         userId: 0,
@@ -488,10 +492,20 @@ const fixtures: Record<string, WonderLabPreviewFixture> = {
     skipReason:
       'This destructive admin utility is intentionally available only inside the authenticated Component reconciliation panel after a reviewed dry run.',
   },
+  'facet-editor': {
+    title: 'Facet editor',
+    skipReason:
+      'The editor resolves its record from facetStore by id, so a naked mount with a synthetic facetId renders nothing at all — its whole template is behind that lookup. It needs a seeded Facet catalog rather than props. Preview it from /facets by opening a Facet, which is now the only way in.',
+  },
   'flip-panel': {
     title: 'Flip Panel',
     skipReason:
       'Flip Panel requires meaningful named front and back slots. The current fixture catalog supplies props but not slot templates, so a blank mount would be misleading.',
+  },
+  'kr-manager': {
+    title: 'Shared manager shell',
+    skipReason:
+      'The manager shell is entirely slot-driven: it resolves the active dashboard tab from navStore and renders that tab as a named slot. The fixture catalog supplies props but not slot templates, so a naked mount would show only the unknown-tab recovery pane and read as broken. See any of the six model managers (bot, character, dream, facet, reward, scenario) for it in use.',
   },
   'lab-interact': {
     title: 'Component WonderLab museum',

@@ -9,7 +9,9 @@ function expectContains(path: string, needles: string[]): void {
   const source = read(path)
   for (const needle of needles) {
     if (!source.includes(needle)) {
-      throw new Error(`${path} is missing required entity-art contract: ${needle}`)
+      throw new Error(
+        `${path} is missing required entity-art contract: ${needle}`,
+      )
     }
   }
 }
@@ -66,7 +68,9 @@ for (const obsolete of [
   '/api/projects/${projectId}/art/replace',
 ]) {
   if (entityArtManagerSource.includes(obsolete)) {
-    throw new Error(`Entity art manager still uses obsolete queue path: ${obsolete}`)
+    throw new Error(
+      `Entity art manager still uses obsolete queue path: ${obsolete}`,
+    )
   }
 }
 
@@ -98,7 +102,10 @@ for (const path of [
   'components/characters/character-interact.vue',
   'components/scenarios/scenario-interact.vue',
   'components/rewards/reward-interact.vue',
-  'components/facets/facet-manager.vue',
+  // The Facet art slots moved with the editor when facet-manager's Library
+  // grid was retired: editing one Facet now lives in facet-interact's detail
+  // slot rather than expanding inside a grid cell.
+  'components/facets/facet-editor.vue',
 ]) {
   expectContains(path, ['<EntityArtManager'])
 }

@@ -75,9 +75,7 @@
         v-if="message"
         class="rounded-2xl border p-3 text-sm font-semibold"
         :class="
-          messageTone === 'error'
-            ? 'border-error/40 bg-error/10 text-error'
-            : 'border-success/40 bg-success/10 text-success'
+          messageTone === 'error' ? 'kr-note-error' : 'kr-note-success'
         "
       >
         {{ message }}

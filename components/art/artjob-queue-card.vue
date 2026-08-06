@@ -534,7 +534,9 @@ const publicImageSrc = computed<string>(() => {
   const id = props.job.artImageId
   if (typeof id !== 'number') return ''
   if (!jobVisibility.value.isPublic || jobVisibility.value.isMature) return ''
-  const updatedAt = new Date(props.job.updatedAt).getTime()
+  const updatedAt = props.job.updatedAt
+    ? new Date(props.job.updatedAt).getTime()
+    : Number.NaN
   const version = Number.isFinite(updatedAt) ? `?v=${updatedAt}` : ''
   return `/api/art/images/${id}/file${version}`
 })

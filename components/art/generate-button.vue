@@ -92,8 +92,8 @@
       class="flex items-start gap-2 rounded-2xl border p-3 text-sm font-semibold"
       :class="
         artStore.generationMessageTone === 'error'
-          ? 'border-error/40 bg-error/10 text-error'
-          : 'border-success/40 bg-success/10 text-success'
+          ? 'kr-note-error'
+          : 'kr-note-success'
       "
     >
       <icon

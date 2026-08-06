@@ -39,14 +39,23 @@ export default defineEventHandler(async (event) => {
     const staleBefore = new Date(Date.now() - STALE_CLAIM_MINUTES * 60_000)
 
     if (summaryOnly) {
-      const [statusGroups, oldestPending] = await Promise.all([
-        prisma.artJob.groupBy({ by: ['status'], _count: { _all: true } }),
-        prisma.artJob.findFirst({
-          where: { status: 'PENDING' },
-          orderBy: { id: 'asc' },
-          select: { id: true, createdAt: true, engine: true, projectSlug: true },
-        }),
-      ])
+      const [statusGroups, oldestPending, staleRunningCount] =
+        await Promise.all([
+          prisma.artJob.groupBy({ by: ['status'], _count: { _all: true } }),
+          prisma.artJob.findFirst({
+            where: { status: 'PENDING' },
+            orderBy: { id: 'asc' },
+            select: {
+              id: true,
+              createdAt: true,
+              engine: true,
+              projectSlug: true,
+            },
+          }),
+          prisma.artJob.count({
+            where: { status: 'RUNNING', claimedAt: { lt: staleBefore } },
+          }),
+        ])
       const now = Date.now()
 
       return {
@@ -65,7 +74,7 @@ export default defineEventHandler(async (event) => {
                 ),
               }
             : null,
-          staleRunningCount: 0,
+          staleRunningCount,
           staleRunning: [],
           recentFailed: [],
           imagesCreatedInWindow: 0,

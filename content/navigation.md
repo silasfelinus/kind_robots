@@ -15,6 +15,13 @@ dashboardTab: user
 cards: navCards
 loadingMessage: Loading navigation
 refreshLabel: Refresh navigation
+# Stage 3 backdrop art, resolved by slug via /api/art/backdrop/<page>-<variant>.
+# The route finds the completed ArtJob for this page and redirects to its
+# image, so art appears on its own once generation finishes. Until then the
+# route 404s and the page renders exactly as before.
+backgroundMobile: /api/art/backdrop/navigation-mobile
+backgroundTablet: /api/art/backdrop/navigation-tablet
+backgroundDesktop: /api/art/backdrop/navigation-desktop
 ---
 
 :navigation-trimmed

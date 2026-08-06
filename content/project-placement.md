@@ -15,6 +15,13 @@ loadingMessage: Loading project placement controls...
 refreshLabel: Reload Projects
 dottiTip: I made the placement migration visible so it cannot hide behind a store method forever.
 amiTip: Excellent. Dangerous buttons should at least have labels.
+# Stage 3 backdrop art, resolved by slug via /api/art/backdrop/<page>-<variant>.
+# The route finds the completed ArtJob for this page and redirects to its
+# image, so art appears on its own once generation finishes. Until then the
+# route 404s and the page renders exactly as before.
+backgroundMobile: /api/art/backdrop/project-placement-mobile
+backgroundTablet: /api/art/backdrop/project-placement-tablet
+backgroundDesktop: /api/art/backdrop/project-placement-desktop
 ---
 
 :project-placement-manager

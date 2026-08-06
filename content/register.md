@@ -16,6 +16,13 @@ dashboardTab: profile
 cards: navCards
 loadingMessage: Loading registration
 refreshLabel: Refresh registration
+# Stage 3 backdrop art, resolved by slug via /api/art/backdrop/<page>-<variant>.
+# The route finds the completed ArtJob for this page and redirects to its
+# image, so art appears on its own once generation finishes. Until then the
+# route 404s and the page renders exactly as before.
+backgroundMobile: /api/art/backdrop/register-mobile
+backgroundTablet: /api/art/backdrop/register-tablet
+backgroundDesktop: /api/art/backdrop/register-desktop
 ---
 
 :registration-page

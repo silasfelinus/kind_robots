@@ -143,16 +143,27 @@ export async function offloadArtImageBytes(
       : await sharp(original).webp({ quality: WEBP_QUALITY }).toBuffer()
 
     /*
-     * Keyed on the ArtImage id, so re-running this for the same row overwrites
-     * the same file instead of littering the share with near-duplicates. Dated
-     * directories keep any single directory from growing without bound.
+     * Keyed on the ArtImage id AND a short content hash. Both halves matter:
+     *
+     * The id makes re-running this for an unchanged row idempotent — same
+     * bytes, same hash, same filename, overwritten in place rather than
+     * littering the share with near-duplicates.
+     *
+     * The hash is what keeps an overwrite retry from serving stale art. Those
+     * retries replace an ArtImage's bytes in place while keeping its id, and
+     * entity art fields point at `/api/art/images/<id>/file?v=<updatedAt>`, so
+     * the ENTITY's URL changes but the file this redirects to would not. A
+     * browser or CDN holding the old file would keep showing the pre-retry
+     * image indefinitely. Different bytes now mean a different filename, so
+     * the redirect lands somewhere nothing has cached.
      */
+    const contentTag = digest(bytes).slice(0, 8)
     const now = new Date()
     const relative = path.posix.join(
       'generated',
       String(now.getUTCFullYear()),
       String(now.getUTCMonth() + 1).padStart(2, '0'),
-      `artimage-${image.id}.${extension}`,
+      `artimage-${image.id}-${contentTag}.${extension}`,
     )
     const absolute = path.join(root, relative)
 

@@ -7,6 +7,7 @@
 // and images created — over a configurable window.
 //
 // Query: ?window=<hours> (default 24, max 720)
+//        ?summary=true returns the lightweight queue-card summary only.
 import { defineEventHandler, getQuery } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
@@ -16,14 +17,63 @@ import { requireAdminApiUser } from '../../../utils/authGuard'
 // than this is considered stuck (its relay likely died mid-render).
 const STALE_CLAIM_MINUTES = 15
 
+function countByStatus(
+  groups: { status: string; _count: { _all: number } }[],
+): Record<string, number> {
+  return groups.reduce<Record<string, number>>((acc, group) => {
+    acc[group.status] = group._count._all
+    return acc
+  }, {})
+}
+
 export default defineEventHandler(async (event) => {
   try {
     await requireAdminApiUser(event)
 
     const query = getQuery(event)
     const windowHours = Math.min(Math.max(Number(query.window) || 24, 1), 720)
+    const summaryOnly = ['1', 'true', 'yes'].includes(
+      String(query.summary || '').trim().toLowerCase(),
+    )
     const since = new Date(Date.now() - windowHours * 3_600_000)
     const staleBefore = new Date(Date.now() - STALE_CLAIM_MINUTES * 60_000)
+
+    if (summaryOnly) {
+      const [statusGroups, oldestPending] = await Promise.all([
+        prisma.artJob.groupBy({ by: ['status'], _count: { _all: true } }),
+        prisma.artJob.findFirst({
+          where: { status: 'PENDING' },
+          orderBy: { id: 'asc' },
+          select: { id: true, createdAt: true, engine: true, projectSlug: true },
+        }),
+      ])
+      const now = Date.now()
+
+      return {
+        success: true,
+        message: 'ArtJob pipeline summary.',
+        data: {
+          windowHours,
+          since,
+          queueDepth: countByStatus(statusGroups),
+          windowThroughput: {},
+          oldestPending: oldestPending
+            ? {
+                ...oldestPending,
+                ageSeconds: Math.round(
+                  (now - oldestPending.createdAt.getTime()) / 1000,
+                ),
+              }
+            : null,
+          staleRunningCount: 0,
+          staleRunning: [],
+          recentFailed: [],
+          imagesCreatedInWindow: 0,
+          imagesByServer: [],
+        },
+        statusCode: 200,
+      }
+    }
 
     const [
       statusGroups,
@@ -85,14 +135,6 @@ export default defineEventHandler(async (event) => {
       }),
     ])
 
-    const countByStatus = (
-      groups: { status: string; _count: { _all: number } }[],
-    ) =>
-      groups.reduce<Record<string, number>>((acc, g) => {
-        acc[g.status] = g._count._all
-        return acc
-      }, {})
-
     const now = Date.now()
 
     return {
@@ -115,9 +157,9 @@ export default defineEventHandler(async (event) => {
         staleRunning,
         recentFailed,
         imagesCreatedInWindow: imagesInWindow,
-        imagesByServer: imagesByServer.map((g) => ({
-          serverName: g.serverName,
-          count: g._count._all,
+        imagesByServer: imagesByServer.map((group) => ({
+          serverName: group.serverName,
+          count: group._count._all,
         })),
       },
       statusCode: 200,

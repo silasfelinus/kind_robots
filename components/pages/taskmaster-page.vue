@@ -6,7 +6,23 @@
   <section
     class="kr-surface taskmaster-shell relative min-h-0 gap-0 overflow-x-hidden rounded-[2rem] border border-secondary/25 bg-(--kr-surface-raised)"
   >
-    <TaskmasterBackdrop :compact="Boolean(store.session)" />
+    <!--
+      Stands in for art, so it steps aside once there IS art.
+      
+      TaskmasterBackdrop paints ten gradient layers — including a wash at
+      color-mix(base-100 60%) — to give this page atmosphere back when no
+      generated backdrop existed. With real art behind the page it stops being
+      atmosphere and becomes an opaque lid: home and /art read correctly while
+      Taskmaster looked washed out, and the difference was entirely this layer
+      (Silas, 2026-08-06: "Unless it just didn't get the art backgrounds and I'm
+      just seeing that extra layer background you spoke of." — exactly that).
+      
+      Pages that declare no backdrop keep it unchanged.
+    -->
+    <TaskmasterBackdrop
+      v-if="!hasGeneratedBackdrop"
+      :compact="Boolean(store.session)"
+    />
 
     <!--
       kr-scroll, not a bare flex column. .kr-surface is `overflow-hidden` by
@@ -900,6 +916,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useDreamStore } from '@/stores/dreamStore'
 import { useFacetStore } from '@/stores/facetStore'
+import { usePageStore } from '@/stores/pageStore'
 import { getDashboardTabImagePath } from '@/stores/helpers/dashboardHelper'
 import { useProjectStore } from '@/stores/projectStore'
 import {
@@ -921,6 +938,20 @@ import {
 } from '@/utils/narrativeTurns'
 
 const store = useTaskmasterStore()
+
+/*
+ * Whether this page has real generated art behind it. Mirrors app.vue's
+ * hasPageBackdrop rather than importing it, because the decision is the same
+ * one: art present means the decorative stand-in must get out of its way.
+ */
+const pageStore = usePageStore()
+const hasGeneratedBackdrop = computed(() =>
+  Boolean(
+    pageStore.backgroundMobile ||
+      pageStore.backgroundTablet ||
+      pageStore.backgroundDesktop,
+  ),
+)
 const dreamStore = useDreamStore()
 const facetStore = useFacetStore()
 const projectStore = useProjectStore()

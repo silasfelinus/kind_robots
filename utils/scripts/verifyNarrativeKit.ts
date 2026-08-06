@@ -47,8 +47,9 @@ const plate = read(PLATE)
 // The layout contract counts components declaring more than one scroll region.
 // The chat window exists partly to REMOVE those, so it must not add one: every
 // surface that adopts it should shed scroll regions, never gain them.
-const scrollRegions = (chat.match(/kr-scroll|overflow-y-auto|overflow-auto/g) ?? [])
-  .length
+const scrollRegions = (
+  chat.match(/kr-scroll|overflow-y-auto|overflow-auto/g) ?? []
+).length
 check(
   scrollRegions === 1,
   `the chat window declares exactly one scroll region (found ${scrollRegions})`,
@@ -80,7 +81,8 @@ for (const [path, source] of [
   [PLATE, plate],
 ] as const) {
   check(
-    !/from '@\/stores\//.test(source) && !/useNarratorStore|storeToRefs/.test(source),
+    !/from '@\/stores\//.test(source) &&
+      !/useNarratorStore|storeToRefs/.test(source),
     `${path.split('/').pop()} imports no store (stays droppable anywhere)`,
   )
 }
@@ -94,7 +96,7 @@ check(
 )
 check(
   !/\.cardPath|\.heroPath|\.iconPath/.test(plate),
-  'the art plate reads no variant field directly (that is the resolver\'s job)',
+  "the art plate reads no variant field directly (that is the resolver's job)",
 )
 
 // --- theme-agnostic ----------------------------------------------------------
@@ -187,8 +189,22 @@ const INTERMEDIARIES = [
   // stays local on purpose — it is genuinely Dreams', and folding it into the
   // shared stage would bloat the piece every other surface imports.
   'components/navigation/workspace-narrator.vue',
+  // The workspace half of the interact frame. Scenario's configure/play phases
+  // moved out of scenario-interact into scenario-workspace, taking the chat
+  // window and choice list with them -- so the surface still renders the kit,
+  // one hop further down. Without this the counter reports scenario as a
+  // holdout the moment its router gets thinner, which is backwards: the split
+  // is the improvement.
+  //
+  // Add each `<model>-workspace.vue` here as the remaining interacts are
+  // split, or better, replace this hand-kept list with a real graph walk --
+  // the same lesson verifyRouteGalleryContract.ts had to learn about
+  // filename-shaped assumptions.
+  'components/scenarios/scenario-workspace.vue',
 ]
-const liveIntermediaries = INTERMEDIARIES.filter((path) => KIT_USE.test(read(path)))
+const liveIntermediaries = INTERMEDIARIES.filter((path) =>
+  KIT_USE.test(read(path)),
+)
 
 function adopts(path: string): boolean {
   const source = read(path)
@@ -225,5 +241,7 @@ if (failures) {
   console.error(`\nNarrative kit contract failed with ${failures} error(s).`)
   process.exitCode = 1
 } else {
-  console.log('\nNarrative kit contract passed: all checks behaved as expected.')
+  console.log(
+    '\nNarrative kit contract passed: all checks behaved as expected.',
+  )
 }

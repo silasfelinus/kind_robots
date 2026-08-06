@@ -138,6 +138,69 @@ async function nextIndex(
   return highest + 1
 }
 
+/**
+ * A destination the job that produced this image already declared.
+ *
+ * enqueuePageBackdropArt writes `imagePath: background/<page>-<variant>.webp`
+ * into every job payload, and relay_media_agent.py in conductor reads the same
+ * field to decide where to write the file. That is an explicit statement of
+ * where the art belongs, made before it was ever generated — so it outranks
+ * anything inferred here.
+ *
+ * MISSING THIS COST US. All 60 page backdrops landed in the unfiled landing
+ * zone because this function only understood entity tags. They still resolved
+ * and rendered, since /api/art/backdrop/<slug> follows the ArtImage wherever it
+ * sits, but they looked like unclaimed art — and unclaimed art is what the
+ * triage pass deletes. Silas spotted them: "there are absolutely a collection
+ * of art images that look identical to the art assets that we created for
+ * backgrounds… exactly 60 grouped by card, tablet, and desktop orientations."
+ *
+ * Returns a share-relative path, or null when the job declared nothing usable.
+ * `public/images/x`, `images/x`, `/images/x` and `x` all normalise to `x`.
+ */
+async function declaredJobPath(
+  db: EntityArtDb,
+  artImageId: number,
+): Promise<string | null> {
+  const job = await db.artJob
+    .findFirst({
+      where: { artImageId },
+      orderBy: { id: 'desc' },
+      select: { payload: true },
+    })
+    .catch(() => null)
+
+  if (!job?.payload) return null
+
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(job.payload)
+  } catch {
+    return null
+  }
+
+  const raw = (parsed as { imagePath?: unknown })?.imagePath
+  if (typeof raw !== 'string' || !raw.trim()) return null
+
+  const cleaned = raw
+    .trim()
+    .replace(/^\/+/, '')
+    .replace(/^public\//, '')
+    .replace(/^images\//, '')
+
+  /*
+   * The same traversal guard relay_media_agent.py applies to this same field.
+   * A payload is data a caller supplied, and this value becomes a filesystem
+   * path on the media share.
+   */
+  const segments = cleaned.split('/')
+  if (!cleaned || segments.some((part) => !part || part === '.' || part === '..')) {
+    return null
+  }
+
+  return cleaned
+}
+
 export async function resolveArtImageFilePath(
   db: EntityArtDb,
   image: { id: number; path: string | null },
@@ -166,6 +229,23 @@ export async function resolveArtImageFilePath(
       context: 'generated',
       slug: `artimage-${image.id}`,
       utility: 'art',
+    }
+  }
+
+  /*
+   * An explicitly declared destination wins over everything inferred. Checked
+   * first so page backdrops — and any future job that names its own path —
+   * land where they were always meant to instead of in the landing zone.
+   */
+  const declared = await declaredJobPath(db, image.id)
+  if (declared) {
+    const parts = declared.split('/')
+    return {
+      relative: declared,
+      filed: true,
+      context: parts[0] || 'declared',
+      slug: (parts.length > 1 ? parts[parts.length - 2] : parts[0]) || 'declared',
+      utility: 'declared',
     }
   }
 

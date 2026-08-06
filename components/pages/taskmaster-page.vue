@@ -8,7 +8,15 @@
   >
     <TaskmasterBackdrop :compact="Boolean(store.session)" />
 
-    <div class="relative z-10 flex min-h-0 flex-1 flex-col">
+    <!--
+      kr-scroll, not a bare flex column. .kr-surface is `overflow-hidden` by
+      design — it bounds the page and delegates scrolling to exactly one region
+      inside it. Without that region the hero, the objective form and the
+      recipe panel simply get clipped at the fold with no way to reach them
+      (Silas, 2026-08-06: "there is a scrolling bug preventing me from
+      scrolling to view more of it").
+    -->
+    <div class="kr-scroll relative z-10 flex flex-col">
       <template v-if="!store.session">
         <header class="taskmaster-hero relative flex min-h-64 items-start p-4 sm:min-h-72 sm:p-6 lg:min-h-80 lg:p-8">
           <div class="taskmaster-hero-copy max-w-2xl">

@@ -4,7 +4,28 @@
     class="kr-shell relative h-dvh min-h-dvh w-full overflow-hidden text-base-content"
     :class="showLoader ? 'bg-black' : 'bg-base-100'"
     :style="shellVars"
+    :data-kr-backdrop="hasPageBackdrop ? '' : undefined"
   >
+    <!--
+      FULL PAGE, not just the content well. Silas, 2026-08-06: "I'm more
+      interested in why we aren't doing backgrounds from the full page spread,
+      and instead still starting in main content, so the dashboard section and
+      gutters are independent. I think it would look better if backgrounds were
+      full page."
+
+      This lives on .kr-shell rather than inside <main> for exactly that reason:
+      <main> sits below the header and inside the shell's p-3/p-4, so a backdrop
+      mounted there can never reach the nav bar or the gutters. Absolute
+      inset-0 against the shell covers the viewport instead.
+
+      First child, and unpositioned in the stack, so every later sibling — the
+      header, the content, the overlays — paints above it.
+    -->
+    <kr-page-backdrop
+      :mobile="pageStore.backgroundMobile"
+      :tablet="pageStore.backgroundTablet"
+      :desktop="pageStore.backgroundDesktop"
+    />
     <div
       v-if="showLoader"
       class="pointer-events-none fixed inset-0 z-48 bg-black"
@@ -85,33 +106,23 @@
         </Transition>
 
         <!--
-          `data-kr-backdrop` flips the surface tokens (assets/css/tailwind.css)
-          for everything inside, so the shared kit's panels go translucent and
-          the art reads through them. Present ONLY when the page actually
-          declares backdrop art — otherwise the attribute is absent and every
+          `data-kr-backdrop` now lives on .kr-shell, not here — the header and
+          the gutters need the translucent tokens too, and they are outside
+          <main>. It flips the surface tokens (assets/css/tailwind.css) for
+          everything inside, so panels go translucent and the art reads through.
+          Present ONLY when the page actually declares art; otherwise every
           surface resolves to the same opaque theme colour it always had.
-
-          It sits on <main> rather than on the backdrop element because the
-          backdrop is a sibling of the page content, not its ancestor; the
-          tokens have to be inherited by the cards, which live under <main>.
+        -->
+        <!--
+          No background of its own. The shell-level backdrop is behind this, so
+          an opaque ground here would hide it again — which is the bug that made
+          the first backdrops invisible. The token resolves to base-100 exactly
+          when no page declares art.
         -->
         <main
-          class="kr-main relative z-10 h-full min-h-0 overflow-hidden rounded-2xl bg-base-100 transition-[padding] duration-300 ease-out"
+          class="kr-main relative z-10 h-full min-h-0 overflow-hidden rounded-2xl bg-(--kr-surface-raised) transition-[padding] duration-300 ease-out"
           :class="workspaceSheetOpen ? 'hidden md:block' : 'block'"
-          :data-kr-backdrop="hasPageBackdrop ? '' : undefined"
         >
-          <!--
-            Page backdrop art, BEFORE fx-region deliberately. Both layers sit
-            at z-0, so DOM order decides: the backdrop paints first, fx-region's
-            effects paint over it, and the z-10 <NuxtPage /> wrapper below sits
-            above both. Renders nothing at all unless the page declares art.
-          -->
-          <kr-page-backdrop
-            :mobile="pageStore.backgroundMobile"
-            :tablet="pageStore.backgroundTablet"
-            :desktop="pageStore.backgroundDesktop"
-          />
-
           <fx-region region="page" />
 
           <div

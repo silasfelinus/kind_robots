@@ -2,7 +2,7 @@
 <template>
   <main class="kr-unbound">
     <div
-      class="hero flex flex-col items-center justify-center bg-base-300 rounded-2xl border m-2 min-h-full w-full"
+      class="hero flex flex-col items-center justify-center bg-(--kr-surface-sunken) rounded-2xl border m-2 min-h-full w-full"
     >
       <div
         class="flex flex-col md:flex-row items-center justify-center w-full h-full space-y-4 md:space-y-0 md:space-x-4"

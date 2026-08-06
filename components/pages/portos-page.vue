@@ -1,5 +1,5 @@
 <template>
-  <section class="kr-surface rounded-2xl border border-base-300 bg-base-100 p-4">
+  <section class="kr-surface rounded-2xl border border-base-300 bg-(--kr-surface-raised) p-4">
     <div class="kr-scroll flex flex-col gap-4">
       <header class="flex items-start gap-3">
         <div class="flex size-12 shrink-0 items-center justify-center rounded-2xl border border-accent/30 bg-accent/10 text-accent">

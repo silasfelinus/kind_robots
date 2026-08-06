@@ -1,5 +1,5 @@
 <template>
-  <section class="kr-surface rounded-2xl border border-base-300 bg-base-200 p-3">
+  <section class="kr-surface rounded-2xl border border-base-300 bg-(--kr-surface) p-3">
     <header class="flex shrink-0 flex-wrap items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-3 py-2">
       <Icon name="kind-icon:gearhammer" class="size-4 text-primary" />
       <strong>Projects</strong>

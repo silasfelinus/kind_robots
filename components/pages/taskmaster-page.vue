@@ -4,7 +4,7 @@
      users choose story ingredients, never image-model settings. -->
 <template>
   <section
-    class="kr-surface taskmaster-shell relative min-h-0 gap-0 overflow-x-hidden rounded-[2rem] border border-secondary/25 bg-base-100"
+    class="kr-surface taskmaster-shell relative min-h-0 gap-0 overflow-x-hidden rounded-[2rem] border border-secondary/25 bg-(--kr-surface-raised)"
   >
     <TaskmasterBackdrop :compact="Boolean(store.session)" />
 

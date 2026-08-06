@@ -8,7 +8,7 @@
 -->
 <template>
   <section
-    class="kr-surface gap-4 rounded-2xl border border-base-300 bg-base-100 p-4 md:p-6"
+    class="kr-surface gap-4 rounded-2xl border border-base-300 bg-(--kr-surface-raised) p-4 md:p-6"
     data-animation-surface
   >
     <header class="flex flex-wrap items-center justify-between gap-3">

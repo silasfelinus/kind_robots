@@ -335,6 +335,52 @@ for (const file of walkContent(resolve(root, 'components'), [], '.vue')) {
 
 /* --------------------------------------------------------------------------- */
 
+/* -- page roots read the surface tokens, not raw theme colours -------------- */
+
+/*
+ * WHY THIS EXISTS. The first backdrop to actually render was invisible: art
+ * behind an opaque page. The tokens and the kit conversion were both correct,
+ * but page ROOTS were deliberately left out of scope — and a page root is the
+ * largest surface on screen, so it hid everything behind it. Silas, 2026-08-06,
+ * looking at Taskmaster: "instead of being the actual background, it just
+ * behind main content."
+ *
+ * These are the roots that sit over a backdrop. Reverting one to bg-base-*
+ * looks harmless in review and silently blanks that page's art again.
+ */
+const PAGE_ROOTS = [
+  'about-page',
+  'conductor-page',
+  'conductor-pitch-manager',
+  'conductor-project-gallery-page',
+  'memory-dungeon',
+  'mermaids-page',
+  'portos-page',
+  'privacy-page',
+  'rebel-button',
+  'serendipity-page',
+  'storybook-library-page',
+  'taskmaster-page',
+  'wallet-page',
+  'wishmaster-page',
+]
+
+for (const name of PAGE_ROOTS) {
+  const file = `components/pages/${name}.vue`
+  // The root element is the first tag in the template, so its class list is
+  // always inside the opening lines — deeper chips and wells are out of scope
+  // and legitimately keep their solid colours.
+  const head = withoutComments(read(file)).split('\n').slice(0, 24).join('\n')
+
+  check(
+    /bg-\(--kr-surface/.test(head),
+    `${file}'s root must read a surface token (bg-(--kr-surface…)), not a raw ` +
+      `theme colour. The tokens resolve to the identical base-* colour when no ` +
+      `backdrop is declared, so this costs nothing on pages without art — and ` +
+      `it is the only thing that lets art show through on pages with it.`,
+  )
+}
+
 function selfTest(): void {
   const collisions = collidingSchemaKeys(`
   amiTip: z.string().optional(),

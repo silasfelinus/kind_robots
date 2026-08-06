@@ -2017,6 +2017,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Spanish Golden Age Painting',
     era: 'c. 1620–1680',
     sortYear: 1620,
+    previewImageSrc: '/images/academy/styles/spanish-golden-age.webp',
     region: 'Spain',
     keyIdeas:
       "Spanish Golden Age painting (Siglo de Oro) shares the Baroque's chiaroscuro and psychological intensity already taught in this curriculum, but pulls toward a different pole entirely. Where Italian Baroque leans into theatrical motion and Dutch Baroque turns that same light toward cozy domestic interiors, Spanish Golden Age painters used tenebrism to freeze a single suspended, almost sculptural moment: figures and objects modeled with an austere, unblinking clarity against a plain dark or neutral ground, with little movement, minimal ornament, and an intense devotional or psychological gravity. Favored subjects were saints in solitary contemplation, humble monastic scenes, royal portraits stripped of overt flattery, and devotional images painted with still-life precision. Painted mostly for Spanish churches, monasteries, and the royal court during Spain's political decline but cultural high point, the movement's sobriety and psychological directness later drew Édouard Manet and 19th-century Realists back to Madrid to study Velázquez directly.",
@@ -2056,6 +2057,7 @@ export const academyStyles: AcademyStyle[] = [
     name: 'Mannerism',
     era: 'c. 1520–1580',
     sortYear: 1520,
+    previewImageSrc: '/images/academy/styles/mannerism.webp',
     region: 'Italy',
     keyIdeas:
       "Mannerism grew directly out of the High Renaissance but deliberately pushed past its balance and naturalism into elegant artifice. Where Leonardo, Raphael, and Botticelli sought anatomical correctness and calm, stable compositions, Mannerist painters stretched the figure into impossibly long limbs and swan necks, twisted poses into serpentine, off-balance spirals, and cooled the palette into acidic, jewel-like color harmonies that read as sophisticated rather than natural. Faces became smooth, porcelain-cool, and faintly emotionally distant — beautiful but unreadable, a style built for court sophistication rather than devotional warmth. Working mostly for the Medici court in Florence and the papal court in Rome, Mannerist painters treated technical virtuosity as its own subject: an impossibly long neck or elongated fingers weren't mistakes, they were the point.",

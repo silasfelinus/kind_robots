@@ -46,6 +46,19 @@ import {
 
 const WRITE = process.argv.includes('--write')
 
+/*
+ * Restrict to rows carrying an entity tag — the ones that file under
+ * {context}/{slug}/ rather than the landing zone.
+ *
+ * Added 2026-08-06 after the first --limit 20 run put all twenty in
+ * generated/: ordering by size selects the oldest, largest free-generation art,
+ * which legitimately has no entity behind it. 1,616 of 4,007 candidates ARE
+ * tagged, so "largest first" is simply the wrong sample for checking that
+ * filing works. This makes that check possible, and doubles as a way to move
+ * the art that matters most before the unclaimed backlog.
+ */
+const ONLY_TAGGED = process.argv.includes('--only-tagged')
+
 function numericFlag(name: string, fallback: number): number {
   const index = process.argv.indexOf(name)
   if (index === -1) return fallback
@@ -127,7 +140,10 @@ async function main() {
     `ArtImage rows holding at least ${MIN_BYTES} bytes: ${allRows} (${mb(allBytes)})`,
   )
   console.log(`Media root: ${root}`)
-  console.log(`Mode: ${WRITE ? 'WRITE — bytes will move' : 'dry run'}\n`)
+  console.log(
+    `Mode: ${WRITE ? 'WRITE — bytes will move' : 'dry run'}` +
+      `${ONLY_TAGGED ? '  (--only-tagged: entity art only)' : ''}\n`,
+  )
 
   /*
    * Ids and lengths only. Selecting imageData here would pull the entire 6 GB
@@ -143,6 +159,7 @@ async function main() {
     WHERE imageData IS NOT NULL
       AND LENGTH(imageData) >= ${Math.floor(MIN_BYTES)}
       AND (imagePath IS NULL OR imagePath = '' OR imagePath LIKE CONCAT('%/api/art/images/', id, '/file%'))
+      ${ONLY_TAGGED ? "AND path LIKE 'entity:%'" : ''}
     ORDER BY LENGTH(imageData) DESC
     ${LIMIT > 0 ? `LIMIT ${Math.floor(LIMIT)}` : ''}
   `)

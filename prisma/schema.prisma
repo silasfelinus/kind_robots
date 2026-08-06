@@ -139,6 +139,9 @@ model Bot {
   serverId             Int?
   serverName           String?                @db.VarChar(256)
   artImageId           Int?
+  cardArtImageId       Int?
+  heroArtImageId       Int?
+  iconArtImageId       Int?
   isMature             Boolean                @default(false)
   isActive             Boolean                @default(true)
   artPrompt            String?                @db.Text
@@ -189,6 +192,9 @@ model Character {
   quirks               String?                @db.Text
   genre                String?                @db.VarChar(256)
   artImageId           Int?
+  cardArtImageId       Int?
+  heroArtImageId       Int?
+  iconArtImageId       Int?
   isPublic             Boolean                @default(true)
   userId               Int?                   @default(10)
   packId               Int?
@@ -442,6 +448,9 @@ model Project {
   userId             Int?                   @default(10)
   managerBotId       Int?
   artImageId         Int?
+  cardArtImageId     Int?
+  heroArtImageId     Int?
+  iconArtImageId     Int?
   artCollectionId    Int?
   isPublic           Boolean                @default(true)
   isMature           Boolean                @default(false)
@@ -491,6 +500,9 @@ model Facet {
   creationSource     CreationSource       @default(HUMAN)
   userId             Int?                 @default(10)
   artImageId         Int?
+  cardArtImageId     Int?
+  heroArtImageId     Int?
+  iconArtImageId     Int?
   artCollectionId    Int?
   packId             Int?
   allowReviews       Boolean              @default(false)
@@ -1185,37 +1197,40 @@ model Resource {
 /// the LLM-facing narrative hook that tells the storytelling engine how the reward
 /// behaves when played into a scene.
 model Reward {
-  id           Int           @id @default(autoincrement())
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime?     @default(now()) @updatedAt
-  icon         String?       @db.VarChar(256)
-  iconPath     String?       @db.Text
-  collection   String?       @db.VarChar(764)
-  rarity       Rarity        @default(COMMON)
-  userId       Int?          @default(1)
-  artImageId   Int?
-  packId       Int?
-  imagePath    String?       @db.VarChar(764)
-  cardPath     String?       @db.Text
-  heroPath     String?       @db.Text
-  allowReviews Boolean       @default(false)
-  isMature     Boolean       @default(false)
-  isPublic     Boolean       @default(true)
-  isActive     Boolean       @default(true)
-  artPrompt    String?       @db.Text
-  rewardType   RewardType    @default(ITEM)
-  description  String?       @db.Text
-  effect       String?       @db.Text
-  flavorText   String?       @db.VarChar(512)
-  name         String        @db.VarChar(256)
-  slug         String?       @unique @db.VarChar(256)
-  Reactions    Reaction[]
-  ArtImage     ArtImage?     @relation(fields: [artImageId], references: [id])
-  User         User?         @relation(fields: [userId], references: [id])
-  Pack         Pack?         @relation(fields: [packId], references: [id])
-  Characters   Character[]   @relation("CharacterToReward")
-  Dreams       Dream[]       @relation("DreamToReward")
-  FacetLinks   RewardFacet[]
+  id             Int           @id @default(autoincrement())
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime?     @default(now()) @updatedAt
+  icon           String?       @db.VarChar(256)
+  iconPath       String?       @db.Text
+  collection     String?       @db.VarChar(764)
+  rarity         Rarity        @default(COMMON)
+  userId         Int?          @default(1)
+  artImageId     Int?
+  cardArtImageId Int?
+  heroArtImageId Int?
+  iconArtImageId Int?
+  packId         Int?
+  imagePath      String?       @db.VarChar(764)
+  cardPath       String?       @db.Text
+  heroPath       String?       @db.Text
+  allowReviews   Boolean       @default(false)
+  isMature       Boolean       @default(false)
+  isPublic       Boolean       @default(true)
+  isActive       Boolean       @default(true)
+  artPrompt      String?       @db.Text
+  rewardType     RewardType    @default(ITEM)
+  description    String?       @db.Text
+  effect         String?       @db.Text
+  flavorText     String?       @db.VarChar(512)
+  name           String        @db.VarChar(256)
+  slug           String?       @unique @db.VarChar(256)
+  Reactions      Reaction[]
+  ArtImage       ArtImage?     @relation(fields: [artImageId], references: [id])
+  User           User?         @relation(fields: [userId], references: [id])
+  Pack           Pack?         @relation(fields: [packId], references: [id])
+  Characters     Character[]   @relation("CharacterToReward")
+  Dreams         Dream[]       @relation("DreamToReward")
+  FacetLinks     RewardFacet[]
 
   @@index([userId], map: "Reward_userId_fkey")
   @@index([rewardType])
@@ -1235,6 +1250,9 @@ model Scenario {
   intros               String                @db.Text
   userId               Int?
   artImageId           Int?
+  cardArtImageId       Int?
+  heroArtImageId       Int?
+  iconArtImageId       Int?
   imagePath            String?
   icon                 String?
   iconPath             String?               @db.Text

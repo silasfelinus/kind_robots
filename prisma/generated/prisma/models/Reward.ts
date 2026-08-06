@@ -33,6 +33,9 @@ export type RewardAvgAggregateOutputType = {
   id: number | null
   userId: number | null
   artImageId: number | null
+  cardArtImageId: number | null
+  heroArtImageId: number | null
+  iconArtImageId: number | null
   packId: number | null
 }
 
@@ -40,6 +43,9 @@ export type RewardSumAggregateOutputType = {
   id: number | null
   userId: number | null
   artImageId: number | null
+  cardArtImageId: number | null
+  heroArtImageId: number | null
+  iconArtImageId: number | null
   packId: number | null
 }
 
@@ -53,6 +59,9 @@ export type RewardMinAggregateOutputType = {
   rarity: $Enums.Rarity | null
   userId: number | null
   artImageId: number | null
+  cardArtImageId: number | null
+  heroArtImageId: number | null
+  iconArtImageId: number | null
   packId: number | null
   imagePath: string | null
   cardPath: string | null
@@ -80,6 +89,9 @@ export type RewardMaxAggregateOutputType = {
   rarity: $Enums.Rarity | null
   userId: number | null
   artImageId: number | null
+  cardArtImageId: number | null
+  heroArtImageId: number | null
+  iconArtImageId: number | null
   packId: number | null
   imagePath: string | null
   cardPath: string | null
@@ -107,6 +119,9 @@ export type RewardCountAggregateOutputType = {
   rarity: number
   userId: number
   artImageId: number
+  cardArtImageId: number
+  heroArtImageId: number
+  iconArtImageId: number
   packId: number
   imagePath: number
   cardPath: number
@@ -130,6 +145,9 @@ export type RewardAvgAggregateInputType = {
   id?: true
   userId?: true
   artImageId?: true
+  cardArtImageId?: true
+  heroArtImageId?: true
+  iconArtImageId?: true
   packId?: true
 }
 
@@ -137,6 +155,9 @@ export type RewardSumAggregateInputType = {
   id?: true
   userId?: true
   artImageId?: true
+  cardArtImageId?: true
+  heroArtImageId?: true
+  iconArtImageId?: true
   packId?: true
 }
 
@@ -150,6 +171,9 @@ export type RewardMinAggregateInputType = {
   rarity?: true
   userId?: true
   artImageId?: true
+  cardArtImageId?: true
+  heroArtImageId?: true
+  iconArtImageId?: true
   packId?: true
   imagePath?: true
   cardPath?: true
@@ -177,6 +201,9 @@ export type RewardMaxAggregateInputType = {
   rarity?: true
   userId?: true
   artImageId?: true
+  cardArtImageId?: true
+  heroArtImageId?: true
+  iconArtImageId?: true
   packId?: true
   imagePath?: true
   cardPath?: true
@@ -204,6 +231,9 @@ export type RewardCountAggregateInputType = {
   rarity?: true
   userId?: true
   artImageId?: true
+  cardArtImageId?: true
+  heroArtImageId?: true
+  iconArtImageId?: true
   packId?: true
   imagePath?: true
   cardPath?: true
@@ -318,6 +348,9 @@ export type RewardGroupByOutputType = {
   rarity: $Enums.Rarity
   userId: number | null
   artImageId: number | null
+  cardArtImageId: number | null
+  heroArtImageId: number | null
+  iconArtImageId: number | null
   packId: number | null
   imagePath: string | null
   cardPath: string | null
@@ -368,6 +401,9 @@ export type RewardWhereInput = {
   rarity?: Prisma.EnumRarityFilter<"Reward"> | $Enums.Rarity
   userId?: Prisma.IntNullableFilter<"Reward"> | number | null
   artImageId?: Prisma.IntNullableFilter<"Reward"> | number | null
+  cardArtImageId?: Prisma.IntNullableFilter<"Reward"> | number | null
+  heroArtImageId?: Prisma.IntNullableFilter<"Reward"> | number | null
+  iconArtImageId?: Prisma.IntNullableFilter<"Reward"> | number | null
   packId?: Prisma.IntNullableFilter<"Reward"> | number | null
   imagePath?: Prisma.StringNullableFilter<"Reward"> | string | null
   cardPath?: Prisma.StringNullableFilter<"Reward"> | string | null
@@ -402,6 +438,9 @@ export type RewardOrderByWithRelationInput = {
   rarity?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  cardArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  heroArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  iconArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   packId?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
   cardPath?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -441,6 +480,9 @@ export type RewardWhereUniqueInput = Prisma.AtLeast<{
   rarity?: Prisma.EnumRarityFilter<"Reward"> | $Enums.Rarity
   userId?: Prisma.IntNullableFilter<"Reward"> | number | null
   artImageId?: Prisma.IntNullableFilter<"Reward"> | number | null
+  cardArtImageId?: Prisma.IntNullableFilter<"Reward"> | number | null
+  heroArtImageId?: Prisma.IntNullableFilter<"Reward"> | number | null
+  iconArtImageId?: Prisma.IntNullableFilter<"Reward"> | number | null
   packId?: Prisma.IntNullableFilter<"Reward"> | number | null
   imagePath?: Prisma.StringNullableFilter<"Reward"> | string | null
   cardPath?: Prisma.StringNullableFilter<"Reward"> | string | null
@@ -474,6 +516,9 @@ export type RewardOrderByWithAggregationInput = {
   rarity?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  cardArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  heroArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  iconArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   packId?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
   cardPath?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -509,6 +554,9 @@ export type RewardScalarWhereWithAggregatesInput = {
   rarity?: Prisma.EnumRarityWithAggregatesFilter<"Reward"> | $Enums.Rarity
   userId?: Prisma.IntNullableWithAggregatesFilter<"Reward"> | number | null
   artImageId?: Prisma.IntNullableWithAggregatesFilter<"Reward"> | number | null
+  cardArtImageId?: Prisma.IntNullableWithAggregatesFilter<"Reward"> | number | null
+  heroArtImageId?: Prisma.IntNullableWithAggregatesFilter<"Reward"> | number | null
+  iconArtImageId?: Prisma.IntNullableWithAggregatesFilter<"Reward"> | number | null
   packId?: Prisma.IntNullableWithAggregatesFilter<"Reward"> | number | null
   imagePath?: Prisma.StringNullableWithAggregatesFilter<"Reward"> | string | null
   cardPath?: Prisma.StringNullableWithAggregatesFilter<"Reward"> | string | null
@@ -533,6 +581,9 @@ export type RewardCreateInput = {
   iconPath?: string | null
   collection?: string | null
   rarity?: $Enums.Rarity
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
@@ -566,6 +617,9 @@ export type RewardUncheckedCreateInput = {
   rarity?: $Enums.Rarity
   userId?: number | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   packId?: number | null
   imagePath?: string | null
   cardPath?: string | null
@@ -594,6 +648,9 @@ export type RewardUpdateInput = {
   iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -627,6 +684,9 @@ export type RewardUncheckedUpdateInput = {
   rarity?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -658,6 +718,9 @@ export type RewardCreateManyInput = {
   rarity?: $Enums.Rarity
   userId?: number | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   packId?: number | null
   imagePath?: string | null
   cardPath?: string | null
@@ -682,6 +745,9 @@ export type RewardUpdateManyMutationInput = {
   iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -708,6 +774,9 @@ export type RewardUncheckedUpdateManyInput = {
   rarity?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -761,6 +830,9 @@ export type RewardCountOrderByAggregateInput = {
   rarity?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  cardArtImageId?: Prisma.SortOrder
+  heroArtImageId?: Prisma.SortOrder
+  iconArtImageId?: Prisma.SortOrder
   packId?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
   cardPath?: Prisma.SortOrder
@@ -782,6 +854,9 @@ export type RewardAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  cardArtImageId?: Prisma.SortOrder
+  heroArtImageId?: Prisma.SortOrder
+  iconArtImageId?: Prisma.SortOrder
   packId?: Prisma.SortOrder
 }
 
@@ -795,6 +870,9 @@ export type RewardMaxOrderByAggregateInput = {
   rarity?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  cardArtImageId?: Prisma.SortOrder
+  heroArtImageId?: Prisma.SortOrder
+  iconArtImageId?: Prisma.SortOrder
   packId?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
   cardPath?: Prisma.SortOrder
@@ -822,6 +900,9 @@ export type RewardMinOrderByAggregateInput = {
   rarity?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  cardArtImageId?: Prisma.SortOrder
+  heroArtImageId?: Prisma.SortOrder
+  iconArtImageId?: Prisma.SortOrder
   packId?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
   cardPath?: Prisma.SortOrder
@@ -843,6 +924,9 @@ export type RewardSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  cardArtImageId?: Prisma.SortOrder
+  heroArtImageId?: Prisma.SortOrder
+  iconArtImageId?: Prisma.SortOrder
   packId?: Prisma.SortOrder
 }
 
@@ -1089,6 +1173,9 @@ export type RewardCreateWithoutFacetLinksInput = {
   iconPath?: string | null
   collection?: string | null
   rarity?: $Enums.Rarity
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
@@ -1121,6 +1208,9 @@ export type RewardUncheckedCreateWithoutFacetLinksInput = {
   rarity?: $Enums.Rarity
   userId?: number | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   packId?: number | null
   imagePath?: string | null
   cardPath?: string | null
@@ -1164,6 +1254,9 @@ export type RewardUpdateWithoutFacetLinksInput = {
   iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1196,6 +1289,9 @@ export type RewardUncheckedUpdateWithoutFacetLinksInput = {
   rarity?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1223,6 +1319,9 @@ export type RewardCreateWithoutArtImageInput = {
   iconPath?: string | null
   collection?: string | null
   rarity?: $Enums.Rarity
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
@@ -1254,6 +1353,9 @@ export type RewardUncheckedCreateWithoutArtImageInput = {
   collection?: string | null
   rarity?: $Enums.Rarity
   userId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   packId?: number | null
   imagePath?: string | null
   cardPath?: string | null
@@ -1314,6 +1416,9 @@ export type RewardScalarWhereInput = {
   rarity?: Prisma.EnumRarityFilter<"Reward"> | $Enums.Rarity
   userId?: Prisma.IntNullableFilter<"Reward"> | number | null
   artImageId?: Prisma.IntNullableFilter<"Reward"> | number | null
+  cardArtImageId?: Prisma.IntNullableFilter<"Reward"> | number | null
+  heroArtImageId?: Prisma.IntNullableFilter<"Reward"> | number | null
+  iconArtImageId?: Prisma.IntNullableFilter<"Reward"> | number | null
   packId?: Prisma.IntNullableFilter<"Reward"> | number | null
   imagePath?: Prisma.StringNullableFilter<"Reward"> | string | null
   cardPath?: Prisma.StringNullableFilter<"Reward"> | string | null
@@ -1338,6 +1443,9 @@ export type RewardCreateWithoutCharactersInput = {
   iconPath?: string | null
   collection?: string | null
   rarity?: $Enums.Rarity
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
@@ -1370,6 +1478,9 @@ export type RewardUncheckedCreateWithoutCharactersInput = {
   rarity?: $Enums.Rarity
   userId?: number | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   packId?: number | null
   imagePath?: string | null
   cardPath?: string | null
@@ -1418,6 +1529,9 @@ export type RewardCreateWithoutDreamsInput = {
   iconPath?: string | null
   collection?: string | null
   rarity?: $Enums.Rarity
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
@@ -1450,6 +1564,9 @@ export type RewardUncheckedCreateWithoutDreamsInput = {
   rarity?: $Enums.Rarity
   userId?: number | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   packId?: number | null
   imagePath?: string | null
   cardPath?: string | null
@@ -1498,6 +1615,9 @@ export type RewardCreateWithoutPackInput = {
   iconPath?: string | null
   collection?: string | null
   rarity?: $Enums.Rarity
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
@@ -1530,6 +1650,9 @@ export type RewardUncheckedCreateWithoutPackInput = {
   rarity?: $Enums.Rarity
   userId?: number | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
@@ -1583,6 +1706,9 @@ export type RewardCreateWithoutReactionsInput = {
   iconPath?: string | null
   collection?: string | null
   rarity?: $Enums.Rarity
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
@@ -1615,6 +1741,9 @@ export type RewardUncheckedCreateWithoutReactionsInput = {
   rarity?: $Enums.Rarity
   userId?: number | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   packId?: number | null
   imagePath?: string | null
   cardPath?: string | null
@@ -1658,6 +1787,9 @@ export type RewardUpdateWithoutReactionsInput = {
   iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1690,6 +1822,9 @@ export type RewardUncheckedUpdateWithoutReactionsInput = {
   rarity?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1717,6 +1852,9 @@ export type RewardCreateWithoutUserInput = {
   iconPath?: string | null
   collection?: string | null
   rarity?: $Enums.Rarity
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
@@ -1748,6 +1886,9 @@ export type RewardUncheckedCreateWithoutUserInput = {
   collection?: string | null
   rarity?: $Enums.Rarity
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   packId?: number | null
   imagePath?: string | null
   cardPath?: string | null
@@ -1804,6 +1945,9 @@ export type RewardCreateManyArtImageInput = {
   collection?: string | null
   rarity?: $Enums.Rarity
   userId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   packId?: number | null
   imagePath?: string | null
   cardPath?: string | null
@@ -1828,6 +1972,9 @@ export type RewardUpdateWithoutArtImageInput = {
   iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1859,6 +2006,9 @@ export type RewardUncheckedUpdateWithoutArtImageInput = {
   collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1889,6 +2039,9 @@ export type RewardUncheckedUpdateManyWithoutArtImageInput = {
   collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1913,6 +2066,9 @@ export type RewardUpdateWithoutCharactersInput = {
   iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1945,6 +2101,9 @@ export type RewardUncheckedUpdateWithoutCharactersInput = {
   rarity?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1975,6 +2134,9 @@ export type RewardUncheckedUpdateManyWithoutCharactersInput = {
   rarity?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1999,6 +2161,9 @@ export type RewardUpdateWithoutDreamsInput = {
   iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2031,6 +2196,9 @@ export type RewardUncheckedUpdateWithoutDreamsInput = {
   rarity?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2061,6 +2229,9 @@ export type RewardUncheckedUpdateManyWithoutDreamsInput = {
   rarity?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2088,6 +2259,9 @@ export type RewardCreateManyPackInput = {
   rarity?: $Enums.Rarity
   userId?: number | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   imagePath?: string | null
   cardPath?: string | null
   heroPath?: string | null
@@ -2111,6 +2285,9 @@ export type RewardUpdateWithoutPackInput = {
   iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2143,6 +2320,9 @@ export type RewardUncheckedUpdateWithoutPackInput = {
   rarity?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2173,6 +2353,9 @@ export type RewardUncheckedUpdateManyWithoutPackInput = {
   rarity?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2198,6 +2381,9 @@ export type RewardCreateManyUserInput = {
   collection?: string | null
   rarity?: $Enums.Rarity
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   packId?: number | null
   imagePath?: string | null
   cardPath?: string | null
@@ -2222,6 +2408,9 @@ export type RewardUpdateWithoutUserInput = {
   iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2253,6 +2442,9 @@ export type RewardUncheckedUpdateWithoutUserInput = {
   collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2283,6 +2475,9 @@ export type RewardUncheckedUpdateManyWithoutUserInput = {
   collection?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rarity?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2368,6 +2563,9 @@ export type RewardSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   rarity?: boolean
   userId?: boolean
   artImageId?: boolean
+  cardArtImageId?: boolean
+  heroArtImageId?: boolean
+  iconArtImageId?: boolean
   packId?: boolean
   imagePath?: boolean
   cardPath?: boolean
@@ -2405,6 +2603,9 @@ export type RewardSelectScalar = {
   rarity?: boolean
   userId?: boolean
   artImageId?: boolean
+  cardArtImageId?: boolean
+  heroArtImageId?: boolean
+  iconArtImageId?: boolean
   packId?: boolean
   imagePath?: boolean
   cardPath?: boolean
@@ -2422,7 +2623,7 @@ export type RewardSelectScalar = {
   slug?: boolean
 }
 
-export type RewardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "icon" | "iconPath" | "collection" | "rarity" | "userId" | "artImageId" | "packId" | "imagePath" | "cardPath" | "heroPath" | "allowReviews" | "isMature" | "isPublic" | "isActive" | "artPrompt" | "rewardType" | "description" | "effect" | "flavorText" | "name" | "slug", ExtArgs["result"]["reward"]>
+export type RewardOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "icon" | "iconPath" | "collection" | "rarity" | "userId" | "artImageId" | "cardArtImageId" | "heroArtImageId" | "iconArtImageId" | "packId" | "imagePath" | "cardPath" | "heroPath" | "allowReviews" | "isMature" | "isPublic" | "isActive" | "artPrompt" | "rewardType" | "description" | "effect" | "flavorText" | "name" | "slug", ExtArgs["result"]["reward"]>
 export type RewardInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Reactions?: boolean | Prisma.Reward$ReactionsArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Reward$ArtImageArgs<ExtArgs>
@@ -2455,6 +2656,9 @@ export type $RewardPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     rarity: $Enums.Rarity
     userId: number | null
     artImageId: number | null
+    cardArtImageId: number | null
+    heroArtImageId: number | null
+    iconArtImageId: number | null
     packId: number | null
     imagePath: string | null
     cardPath: string | null
@@ -2855,6 +3059,9 @@ export interface RewardFieldRefs {
   readonly rarity: Prisma.FieldRef<"Reward", 'Rarity'>
   readonly userId: Prisma.FieldRef<"Reward", 'Int'>
   readonly artImageId: Prisma.FieldRef<"Reward", 'Int'>
+  readonly cardArtImageId: Prisma.FieldRef<"Reward", 'Int'>
+  readonly heroArtImageId: Prisma.FieldRef<"Reward", 'Int'>
+  readonly iconArtImageId: Prisma.FieldRef<"Reward", 'Int'>
   readonly packId: Prisma.FieldRef<"Reward", 'Int'>
   readonly imagePath: Prisma.FieldRef<"Reward", 'String'>
   readonly cardPath: Prisma.FieldRef<"Reward", 'String'>

@@ -31,6 +31,9 @@ export type CharacterAvgAggregateOutputType = {
   experience: number | null
   level: number | null
   artImageId: number | null
+  cardArtImageId: number | null
+  heroArtImageId: number | null
+  iconArtImageId: number | null
   userId: number | null
   packId: number | null
 }
@@ -40,6 +43,9 @@ export type CharacterSumAggregateOutputType = {
   experience: number | null
   level: number | null
   artImageId: number | null
+  cardArtImageId: number | null
+  heroArtImageId: number | null
+  iconArtImageId: number | null
   userId: number | null
   packId: number | null
 }
@@ -60,6 +66,9 @@ export type CharacterMinAggregateOutputType = {
   quirks: string | null
   genre: string | null
   artImageId: number | null
+  cardArtImageId: number | null
+  heroArtImageId: number | null
+  iconArtImageId: number | null
   isPublic: boolean | null
   userId: number | null
   packId: number | null
@@ -106,6 +115,9 @@ export type CharacterMaxAggregateOutputType = {
   quirks: string | null
   genre: string | null
   artImageId: number | null
+  cardArtImageId: number | null
+  heroArtImageId: number | null
+  iconArtImageId: number | null
   isPublic: boolean | null
   userId: number | null
   packId: number | null
@@ -152,6 +164,9 @@ export type CharacterCountAggregateOutputType = {
   quirks: number
   genre: number
   artImageId: number
+  cardArtImageId: number
+  heroArtImageId: number
+  iconArtImageId: number
   isPublic: number
   userId: number
   packId: number
@@ -189,6 +204,9 @@ export type CharacterAvgAggregateInputType = {
   experience?: true
   level?: true
   artImageId?: true
+  cardArtImageId?: true
+  heroArtImageId?: true
+  iconArtImageId?: true
   userId?: true
   packId?: true
 }
@@ -198,6 +216,9 @@ export type CharacterSumAggregateInputType = {
   experience?: true
   level?: true
   artImageId?: true
+  cardArtImageId?: true
+  heroArtImageId?: true
+  iconArtImageId?: true
   userId?: true
   packId?: true
 }
@@ -218,6 +239,9 @@ export type CharacterMinAggregateInputType = {
   quirks?: true
   genre?: true
   artImageId?: true
+  cardArtImageId?: true
+  heroArtImageId?: true
+  iconArtImageId?: true
   isPublic?: true
   userId?: true
   packId?: true
@@ -264,6 +288,9 @@ export type CharacterMaxAggregateInputType = {
   quirks?: true
   genre?: true
   artImageId?: true
+  cardArtImageId?: true
+  heroArtImageId?: true
+  iconArtImageId?: true
   isPublic?: true
   userId?: true
   packId?: true
@@ -310,6 +337,9 @@ export type CharacterCountAggregateInputType = {
   quirks?: true
   genre?: true
   artImageId?: true
+  cardArtImageId?: true
+  heroArtImageId?: true
+  iconArtImageId?: true
   isPublic?: true
   userId?: true
   packId?: true
@@ -443,6 +473,9 @@ export type CharacterGroupByOutputType = {
   quirks: string | null
   genre: string | null
   artImageId: number | null
+  cardArtImageId: number | null
+  heroArtImageId: number | null
+  iconArtImageId: number | null
   isPublic: boolean
   userId: number | null
   packId: number | null
@@ -512,6 +545,9 @@ export type CharacterWhereInput = {
   quirks?: Prisma.StringNullableFilter<"Character"> | string | null
   genre?: Prisma.StringNullableFilter<"Character"> | string | null
   artImageId?: Prisma.IntNullableFilter<"Character"> | number | null
+  cardArtImageId?: Prisma.IntNullableFilter<"Character"> | number | null
+  heroArtImageId?: Prisma.IntNullableFilter<"Character"> | number | null
+  iconArtImageId?: Prisma.IntNullableFilter<"Character"> | number | null
   isPublic?: Prisma.BoolFilter<"Character"> | boolean
   userId?: Prisma.IntNullableFilter<"Character"> | number | null
   packId?: Prisma.IntNullableFilter<"Character"> | number | null
@@ -571,6 +607,9 @@ export type CharacterOrderByWithRelationInput = {
   quirks?: Prisma.SortOrderInput | Prisma.SortOrder
   genre?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  cardArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  heroArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  iconArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   packId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -635,6 +674,9 @@ export type CharacterWhereUniqueInput = Prisma.AtLeast<{
   quirks?: Prisma.StringNullableFilter<"Character"> | string | null
   genre?: Prisma.StringNullableFilter<"Character"> | string | null
   artImageId?: Prisma.IntNullableFilter<"Character"> | number | null
+  cardArtImageId?: Prisma.IntNullableFilter<"Character"> | number | null
+  heroArtImageId?: Prisma.IntNullableFilter<"Character"> | number | null
+  iconArtImageId?: Prisma.IntNullableFilter<"Character"> | number | null
   isPublic?: Prisma.BoolFilter<"Character"> | boolean
   userId?: Prisma.IntNullableFilter<"Character"> | number | null
   packId?: Prisma.IntNullableFilter<"Character"> | number | null
@@ -693,6 +735,9 @@ export type CharacterOrderByWithAggregationInput = {
   quirks?: Prisma.SortOrderInput | Prisma.SortOrder
   genre?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  cardArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  heroArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  iconArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   packId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -747,6 +792,9 @@ export type CharacterScalarWhereWithAggregatesInput = {
   quirks?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
   genre?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
   artImageId?: Prisma.IntNullableWithAggregatesFilter<"Character"> | number | null
+  cardArtImageId?: Prisma.IntNullableWithAggregatesFilter<"Character"> | number | null
+  heroArtImageId?: Prisma.IntNullableWithAggregatesFilter<"Character"> | number | null
+  iconArtImageId?: Prisma.IntNullableWithAggregatesFilter<"Character"> | number | null
   isPublic?: Prisma.BoolWithAggregatesFilter<"Character"> | boolean
   userId?: Prisma.IntNullableWithAggregatesFilter<"Character"> | number | null
   packId?: Prisma.IntNullableWithAggregatesFilter<"Character"> | number | null
@@ -791,6 +839,9 @@ export type CharacterCreateInput = {
   drive?: string | null
   quirks?: string | null
   genre?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   artPrompt?: string | null
   honorific?: string | null
@@ -848,6 +899,9 @@ export type CharacterUncheckedCreateInput = {
   quirks?: string | null
   genre?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   userId?: number | null
   packId?: number | null
@@ -902,6 +956,9 @@ export type CharacterUpdateInput = {
   drive?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -959,6 +1016,9 @@ export type CharacterUncheckedUpdateInput = {
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1015,6 +1075,9 @@ export type CharacterCreateManyInput = {
   quirks?: string | null
   genre?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   userId?: number | null
   packId?: number | null
@@ -1059,6 +1122,9 @@ export type CharacterUpdateManyMutationInput = {
   drive?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1103,6 +1169,9 @@ export type CharacterUncheckedUpdateManyInput = {
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1170,6 +1239,9 @@ export type CharacterCountOrderByAggregateInput = {
   quirks?: Prisma.SortOrder
   genre?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  cardArtImageId?: Prisma.SortOrder
+  heroArtImageId?: Prisma.SortOrder
+  iconArtImageId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   packId?: Prisma.SortOrder
@@ -1205,6 +1277,9 @@ export type CharacterAvgOrderByAggregateInput = {
   experience?: Prisma.SortOrder
   level?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  cardArtImageId?: Prisma.SortOrder
+  heroArtImageId?: Prisma.SortOrder
+  iconArtImageId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   packId?: Prisma.SortOrder
 }
@@ -1225,6 +1300,9 @@ export type CharacterMaxOrderByAggregateInput = {
   quirks?: Prisma.SortOrder
   genre?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  cardArtImageId?: Prisma.SortOrder
+  heroArtImageId?: Prisma.SortOrder
+  iconArtImageId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   packId?: Prisma.SortOrder
@@ -1271,6 +1349,9 @@ export type CharacterMinOrderByAggregateInput = {
   quirks?: Prisma.SortOrder
   genre?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  cardArtImageId?: Prisma.SortOrder
+  heroArtImageId?: Prisma.SortOrder
+  iconArtImageId?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   packId?: Prisma.SortOrder
@@ -1306,6 +1387,9 @@ export type CharacterSumOrderByAggregateInput = {
   experience?: Prisma.SortOrder
   level?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
+  cardArtImageId?: Prisma.SortOrder
+  heroArtImageId?: Prisma.SortOrder
+  iconArtImageId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   packId?: Prisma.SortOrder
 }
@@ -1683,6 +1767,9 @@ export type CharacterCreateWithoutFacetLinksInput = {
   drive?: string | null
   quirks?: string | null
   genre?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   artPrompt?: string | null
   honorific?: string | null
@@ -1739,6 +1826,9 @@ export type CharacterUncheckedCreateWithoutFacetLinksInput = {
   quirks?: string | null
   genre?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   userId?: number | null
   packId?: number | null
@@ -1808,6 +1898,9 @@ export type CharacterUpdateWithoutFacetLinksInput = {
   drive?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1864,6 +1957,9 @@ export type CharacterUncheckedUpdateWithoutFacetLinksInput = {
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1917,6 +2013,9 @@ export type CharacterCreateWithoutArtImageInput = {
   drive?: string | null
   quirks?: string | null
   genre?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   artPrompt?: string | null
   honorific?: string | null
@@ -1972,6 +2071,9 @@ export type CharacterUncheckedCreateWithoutArtImageInput = {
   drive?: string | null
   quirks?: string | null
   genre?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   userId?: number | null
   packId?: number | null
@@ -2057,6 +2159,9 @@ export type CharacterScalarWhereInput = {
   quirks?: Prisma.StringNullableFilter<"Character"> | string | null
   genre?: Prisma.StringNullableFilter<"Character"> | string | null
   artImageId?: Prisma.IntNullableFilter<"Character"> | number | null
+  cardArtImageId?: Prisma.IntNullableFilter<"Character"> | number | null
+  heroArtImageId?: Prisma.IntNullableFilter<"Character"> | number | null
+  iconArtImageId?: Prisma.IntNullableFilter<"Character"> | number | null
   isPublic?: Prisma.BoolFilter<"Character"> | boolean
   userId?: Prisma.IntNullableFilter<"Character"> | number | null
   packId?: Prisma.IntNullableFilter<"Character"> | number | null
@@ -2101,6 +2206,9 @@ export type CharacterCreateWithoutChatsInput = {
   drive?: string | null
   quirks?: string | null
   genre?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   artPrompt?: string | null
   honorific?: string | null
@@ -2157,6 +2265,9 @@ export type CharacterUncheckedCreateWithoutChatsInput = {
   quirks?: string | null
   genre?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   userId?: number | null
   packId?: number | null
@@ -2226,6 +2337,9 @@ export type CharacterUpdateWithoutChatsInput = {
   drive?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2282,6 +2396,9 @@ export type CharacterUncheckedUpdateWithoutChatsInput = {
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2335,6 +2452,9 @@ export type CharacterCreateWithoutDreamsInput = {
   drive?: string | null
   quirks?: string | null
   genre?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   artPrompt?: string | null
   honorific?: string | null
@@ -2391,6 +2511,9 @@ export type CharacterUncheckedCreateWithoutDreamsInput = {
   quirks?: string | null
   genre?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   userId?: number | null
   packId?: number | null
@@ -2465,6 +2588,9 @@ export type CharacterCreateWithoutExpressionMediaInput = {
   drive?: string | null
   quirks?: string | null
   genre?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   artPrompt?: string | null
   honorific?: string | null
@@ -2521,6 +2647,9 @@ export type CharacterUncheckedCreateWithoutExpressionMediaInput = {
   quirks?: string | null
   genre?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   userId?: number | null
   packId?: number | null
@@ -2590,6 +2719,9 @@ export type CharacterUpdateWithoutExpressionMediaInput = {
   drive?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2646,6 +2778,9 @@ export type CharacterUncheckedUpdateWithoutExpressionMediaInput = {
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2699,6 +2834,9 @@ export type CharacterCreateWithoutExpressionTransitionInput = {
   drive?: string | null
   quirks?: string | null
   genre?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   artPrompt?: string | null
   honorific?: string | null
@@ -2755,6 +2893,9 @@ export type CharacterUncheckedCreateWithoutExpressionTransitionInput = {
   quirks?: string | null
   genre?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   userId?: number | null
   packId?: number | null
@@ -2824,6 +2965,9 @@ export type CharacterUpdateWithoutExpressionTransitionInput = {
   drive?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2880,6 +3024,9 @@ export type CharacterUncheckedUpdateWithoutExpressionTransitionInput = {
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2933,6 +3080,9 @@ export type CharacterCreateWithoutPackInput = {
   drive?: string | null
   quirks?: string | null
   genre?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   artPrompt?: string | null
   honorific?: string | null
@@ -2989,6 +3139,9 @@ export type CharacterUncheckedCreateWithoutPackInput = {
   quirks?: string | null
   genre?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   userId?: number | null
   artPrompt?: string | null
@@ -3068,6 +3221,9 @@ export type CharacterCreateWithoutReactionsInput = {
   drive?: string | null
   quirks?: string | null
   genre?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   artPrompt?: string | null
   honorific?: string | null
@@ -3124,6 +3280,9 @@ export type CharacterUncheckedCreateWithoutReactionsInput = {
   quirks?: string | null
   genre?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   userId?: number | null
   packId?: number | null
@@ -3193,6 +3352,9 @@ export type CharacterUpdateWithoutReactionsInput = {
   drive?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3249,6 +3411,9 @@ export type CharacterUncheckedUpdateWithoutReactionsInput = {
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3302,6 +3467,9 @@ export type CharacterCreateWithoutRewardsInput = {
   drive?: string | null
   quirks?: string | null
   genre?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   artPrompt?: string | null
   honorific?: string | null
@@ -3358,6 +3526,9 @@ export type CharacterUncheckedCreateWithoutRewardsInput = {
   quirks?: string | null
   genre?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   userId?: number | null
   packId?: number | null
@@ -3432,6 +3603,9 @@ export type CharacterCreateWithoutScenariosInput = {
   drive?: string | null
   quirks?: string | null
   genre?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   artPrompt?: string | null
   honorific?: string | null
@@ -3488,6 +3662,9 @@ export type CharacterUncheckedCreateWithoutScenariosInput = {
   quirks?: string | null
   genre?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   userId?: number | null
   packId?: number | null
@@ -3562,6 +3739,9 @@ export type CharacterCreateWithoutUserInput = {
   drive?: string | null
   quirks?: string | null
   genre?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   artPrompt?: string | null
   honorific?: string | null
@@ -3618,6 +3798,9 @@ export type CharacterUncheckedCreateWithoutUserInput = {
   quirks?: string | null
   genre?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   packId?: number | null
   artPrompt?: string | null
@@ -3697,6 +3880,9 @@ export type CharacterCreateWithoutChallengeSubmissionsInput = {
   drive?: string | null
   quirks?: string | null
   genre?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   artPrompt?: string | null
   honorific?: string | null
@@ -3753,6 +3939,9 @@ export type CharacterUncheckedCreateWithoutChallengeSubmissionsInput = {
   quirks?: string | null
   genre?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   userId?: number | null
   packId?: number | null
@@ -3822,6 +4011,9 @@ export type CharacterUpdateWithoutChallengeSubmissionsInput = {
   drive?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3878,6 +4070,9 @@ export type CharacterUncheckedUpdateWithoutChallengeSubmissionsInput = {
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -3931,6 +4126,9 @@ export type CharacterCreateWithoutLifeRunsInput = {
   drive?: string | null
   quirks?: string | null
   genre?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   artPrompt?: string | null
   honorific?: string | null
@@ -3987,6 +4185,9 @@ export type CharacterUncheckedCreateWithoutLifeRunsInput = {
   quirks?: string | null
   genre?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   userId?: number | null
   packId?: number | null
@@ -4056,6 +4257,9 @@ export type CharacterUpdateWithoutLifeRunsInput = {
   drive?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4112,6 +4316,9 @@ export type CharacterUncheckedUpdateWithoutLifeRunsInput = {
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4166,6 +4373,9 @@ export type CharacterCreateManyArtImageInput = {
   drive?: string | null
   quirks?: string | null
   genre?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   userId?: number | null
   packId?: number | null
@@ -4210,6 +4420,9 @@ export type CharacterUpdateWithoutArtImageInput = {
   drive?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4265,6 +4478,9 @@ export type CharacterUncheckedUpdateWithoutArtImageInput = {
   drive?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4320,6 +4536,9 @@ export type CharacterUncheckedUpdateManyWithoutArtImageInput = {
   drive?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4364,6 +4583,9 @@ export type CharacterUpdateWithoutDreamsInput = {
   drive?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4420,6 +4642,9 @@ export type CharacterUncheckedUpdateWithoutDreamsInput = {
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4475,6 +4700,9 @@ export type CharacterUncheckedUpdateManyWithoutDreamsInput = {
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4521,6 +4749,9 @@ export type CharacterCreateManyPackInput = {
   quirks?: string | null
   genre?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   userId?: number | null
   artPrompt?: string | null
@@ -4564,6 +4795,9 @@ export type CharacterUpdateWithoutPackInput = {
   drive?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4620,6 +4854,9 @@ export type CharacterUncheckedUpdateWithoutPackInput = {
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4675,6 +4912,9 @@ export type CharacterUncheckedUpdateManyWithoutPackInput = {
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4718,6 +4958,9 @@ export type CharacterUpdateWithoutRewardsInput = {
   drive?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4774,6 +5017,9 @@ export type CharacterUncheckedUpdateWithoutRewardsInput = {
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4829,6 +5075,9 @@ export type CharacterUncheckedUpdateManyWithoutRewardsInput = {
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4873,6 +5122,9 @@ export type CharacterUpdateWithoutScenariosInput = {
   drive?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4929,6 +5181,9 @@ export type CharacterUncheckedUpdateWithoutScenariosInput = {
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -4984,6 +5239,9 @@ export type CharacterUncheckedUpdateManyWithoutScenariosInput = {
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -5030,6 +5288,9 @@ export type CharacterCreateManyUserInput = {
   quirks?: string | null
   genre?: string | null
   artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
   isPublic?: boolean
   packId?: number | null
   artPrompt?: string | null
@@ -5073,6 +5334,9 @@ export type CharacterUpdateWithoutUserInput = {
   drive?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5129,6 +5393,9 @@ export type CharacterUncheckedUpdateWithoutUserInput = {
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5184,6 +5451,9 @@ export type CharacterUncheckedUpdateManyWithoutUserInput = {
   quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5341,6 +5611,9 @@ export type CharacterSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   quirks?: boolean
   genre?: boolean
   artImageId?: boolean
+  cardArtImageId?: boolean
+  heroArtImageId?: boolean
+  iconArtImageId?: boolean
   isPublic?: boolean
   userId?: boolean
   packId?: boolean
@@ -5403,6 +5676,9 @@ export type CharacterSelectScalar = {
   quirks?: boolean
   genre?: boolean
   artImageId?: boolean
+  cardArtImageId?: boolean
+  heroArtImageId?: boolean
+  iconArtImageId?: boolean
   isPublic?: boolean
   userId?: boolean
   packId?: boolean
@@ -5433,7 +5709,7 @@ export type CharacterSelectScalar = {
   slug?: boolean
 }
 
-export type CharacterOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "achievements" | "alignment" | "experience" | "level" | "class" | "species" | "backstory" | "drive" | "quirks" | "genre" | "artImageId" | "isPublic" | "userId" | "packId" | "artPrompt" | "honorific" | "imagePath" | "icon" | "iconPath" | "cardPath" | "heroPath" | "allowReviews" | "designer" | "personality" | "sampleResponse" | "voice" | "isMature" | "isActive" | "charm" | "empathy" | "grace" | "luck" | "might" | "presentation" | "role" | "title" | "wits" | "gender" | "slug", ExtArgs["result"]["character"]>
+export type CharacterOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "achievements" | "alignment" | "experience" | "level" | "class" | "species" | "backstory" | "drive" | "quirks" | "genre" | "artImageId" | "cardArtImageId" | "heroArtImageId" | "iconArtImageId" | "isPublic" | "userId" | "packId" | "artPrompt" | "honorific" | "imagePath" | "icon" | "iconPath" | "cardPath" | "heroPath" | "allowReviews" | "designer" | "personality" | "sampleResponse" | "voice" | "isMature" | "isActive" | "charm" | "empathy" | "grace" | "luck" | "might" | "presentation" | "role" | "title" | "wits" | "gender" | "slug", ExtArgs["result"]["character"]>
 export type CharacterInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ChallengeSubmissions?: boolean | Prisma.Character$ChallengeSubmissionsArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Character$ArtImageArgs<ExtArgs>
@@ -5484,6 +5760,9 @@ export type $CharacterPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     quirks: string | null
     genre: string | null
     artImageId: number | null
+    cardArtImageId: number | null
+    heroArtImageId: number | null
+    iconArtImageId: number | null
     isPublic: boolean
     userId: number | null
     packId: number | null
@@ -5909,6 +6188,9 @@ export interface CharacterFieldRefs {
   readonly quirks: Prisma.FieldRef<"Character", 'String'>
   readonly genre: Prisma.FieldRef<"Character", 'String'>
   readonly artImageId: Prisma.FieldRef<"Character", 'Int'>
+  readonly cardArtImageId: Prisma.FieldRef<"Character", 'Int'>
+  readonly heroArtImageId: Prisma.FieldRef<"Character", 'Int'>
+  readonly iconArtImageId: Prisma.FieldRef<"Character", 'Int'>
   readonly isPublic: Prisma.FieldRef<"Character", 'Boolean'>
   readonly userId: Prisma.FieldRef<"Character", 'Int'>
   readonly packId: Prisma.FieldRef<"Character", 'Int'>

@@ -1,6 +1,6 @@
 <!-- /components/academy/academy-remix.vue -->
 <template>
-  <section class="flex flex-col gap-3">
+  <section class="flex flex-col gap-4">
     <header
       class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-200 p-4"
     >

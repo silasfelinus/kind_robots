@@ -2,7 +2,7 @@
 <template>
   <section class="flex flex-col gap-4">
     <header
-      class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-200 p-4"
+      class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-200 p-4"
     >
       <div class="flex min-w-0 flex-col gap-1">
         <h2

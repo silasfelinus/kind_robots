@@ -105,7 +105,7 @@
                 class="tab h-auto min-h-9 gap-2 rounded-xl px-4"
                 :class="{ 'tab-active': artJobWorkspaceTab === 'queue' }"
                 :aria-selected="artJobWorkspaceTab === 'queue'"
-                @click="artJobWorkspaceTab = 'queue'"
+                @click="selectArtJobWorkspace('queue')"
               >
                 Queue
                 <span
@@ -121,7 +121,7 @@
                 class="tab h-auto min-h-9 gap-2 rounded-xl px-4"
                 :class="{ 'tab-active': artJobWorkspaceTab === 'trainer' }"
                 :aria-selected="artJobWorkspaceTab === 'trainer'"
-                @click="artJobWorkspaceTab = 'trainer'"
+                @click="selectArtJobWorkspace('trainer')"
               >
                 Art trainer
                 <span
@@ -136,7 +136,7 @@
             <p class="hidden text-xs text-base-content/50 lg:block">
               {{
                 artJobWorkspaceTab === 'queue'
-                  ? 'Pipeline health, progress, and recovery controls'
+                  ? 'Jobs refresh every 15s; health summaries refresh every minute'
                   : 'Review finished renders and leave training feedback'
               }}
             </p>
@@ -238,6 +238,7 @@ type LegacyArtTab = ArtTab | 'upload'
 type ArtJobWorkspaceTab = 'queue' | 'trainer'
 
 const ART_JOB_REFRESH_INTERVAL_MS = 15_000
+const ART_JOB_STATS_REFRESH_INTERVAL_MS = 60_000
 
 const artJobStore = useArtJobStore()
 const artStore = useArtStore()
@@ -268,6 +269,7 @@ const artPreviewDialog = ref<HTMLDialogElement | null>(null)
 const artPreviewSrc = ref('')
 const artPreviewTitle = ref('Generated art')
 let artJobRefreshTimer: ReturnType<typeof setInterval> | null = null
+let artJobStatsRefreshTimer: ReturnType<typeof setInterval> | null = null
 
 const dashboardKey = computed(() => {
   return navStore.dashboardShell.dashboardKey || defaultDashboardKey
@@ -334,18 +336,42 @@ async function refreshManagerData() {
   await loadManagerData(true)
 }
 
-function stopArtJobLiveRefresh(): void {
-  if (!artJobRefreshTimer) return
-  clearInterval(artJobRefreshTimer)
-  artJobRefreshTimer = null
+async function selectArtJobWorkspace(tab: ArtJobWorkspaceTab): Promise<void> {
+  artJobWorkspaceTab.value = tab
+  if (
+    tab === 'trainer' &&
+    !artJobStore.trainerJobs.length &&
+    !artJobStore.loadingTrainerJobs
+  ) {
+    await artJobStore.fetchTrainerJobs()
+  }
 }
 
-async function refreshArtJobLiveData(): Promise<void> {
+function stopArtJobLiveRefresh(): void {
+  if (artJobRefreshTimer) {
+    clearInterval(artJobRefreshTimer)
+    artJobRefreshTimer = null
+  }
+  if (artJobStatsRefreshTimer) {
+    clearInterval(artJobStatsRefreshTimer)
+    artJobStatsRefreshTimer = null
+  }
+}
+
+async function refreshArtJobRows(): Promise<void> {
   if (!import.meta.client || !shouldLiveRefreshArtJobs.value) return
   if (document.visibilityState !== 'visible') return
-  if (artJobStore.loadingJobs || artJobStore.loadingStats) return
+  if (artJobStore.loadingJobs) return
 
-  await Promise.all([artJobStore.fetchJobs(), artJobStore.fetchStats()])
+  await artJobStore.fetchJobs()
+}
+
+async function refreshArtJobStats(): Promise<void> {
+  if (!import.meta.client || !shouldLiveRefreshArtJobs.value) return
+  if (document.visibilityState !== 'visible') return
+  if (artJobStore.loadingStats) return
+
+  await artJobStore.fetchStats()
 }
 
 function syncArtJobLiveRefresh(): void {
@@ -353,13 +379,17 @@ function syncArtJobLiveRefresh(): void {
   if (!import.meta.client || !shouldLiveRefreshArtJobs.value) return
 
   artJobRefreshTimer = setInterval(() => {
-    void refreshArtJobLiveData()
+    void refreshArtJobRows()
   }, ART_JOB_REFRESH_INTERVAL_MS)
+  artJobStatsRefreshTimer = setInterval(() => {
+    void refreshArtJobStats()
+  }, ART_JOB_STATS_REFRESH_INTERVAL_MS)
 }
 
 function handleVisibilityChange(): void {
   if (document.visibilityState === 'visible') {
-    void refreshArtJobLiveData()
+    void refreshArtJobRows()
+    void refreshArtJobStats()
   }
 }
 

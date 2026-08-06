@@ -52,6 +52,11 @@ function asRecord(value: unknown): JsonRecord {
   return value as JsonRecord
 }
 
+function resolveRequestUrl(url: string): string {
+  if (!import.meta.server || !url.startsWith('/')) return url
+  return new URL(url, useRequestURL()).toString()
+}
+
 function circuitIsOpen(): boolean {
   return import.meta.client && Date.now() < circuitOpenUntil
 }
@@ -336,6 +341,7 @@ export async function performFetch<T = unknown>(
   const userStore = useUserStore()
   const errorStore = useErrorStore()
   const token = userStore.token || userStore.user?.token || ''
+  const requestUrl = resolveRequestUrl(url)
 
   const normalizedHeaders = new Headers(options.headers ?? {})
 
@@ -382,7 +388,7 @@ export async function performFetch<T = unknown>(
     const timeoutId = setTimeout(() => controller.abort(), timeout)
 
     try {
-      const res = await fetch(url, {
+      const res = await fetch(requestUrl, {
         ...options,
         headers: normalizedHeaders,
         signal: controller.signal,

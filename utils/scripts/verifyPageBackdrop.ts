@@ -407,6 +407,33 @@ for (const name of PAGE_ROOTS) {
   )
 }
 
+/* -- the store is populated during SSR, not only after hydration ------------ */
+
+/*
+ * pages/[...slug].vue resolves its content with an awaited useAsyncData, so the
+ * page IS known on the server. But syncPageStore() only ran inside onMounted,
+ * which never fires there — so pageStore stayed empty through SSR and anything
+ * reading it rendered nothing until hydration.
+ *
+ * The backdrop makes that visible: app.vue emits no backdrop element at all
+ * when the store reports no art, so every load painted a backdrop-less first
+ * frame and then popped the art in. Moving the call back inside onMounted would
+ * silently restore that flash on every page in the app.
+ */
+{
+  const slugPage = withoutComments(read('pages/[...slug].vue'))
+  const setupCall = slugPage.search(/^syncPageStore\(\)/m)
+  const mountedAt = slugPage.search(/onMounted\(/)
+
+  check(
+    setupCall !== -1 && (mountedAt === -1 || setupCall < mountedAt),
+    `pages/[...slug].vue must call syncPageStore() at setup scope, before ` +
+      `onMounted. onMounted never runs on the server, so a mount-only call ` +
+      `leaves pageStore empty through SSR and the backdrop renders only after ` +
+      `hydration — a visible flash on every page load.`,
+  )
+}
+
 function selfTest(): void {
   const collisions = collidingSchemaKeys(`
   amiTip: z.string().optional(),

@@ -227,6 +227,25 @@ function syncPageStore(): void {
   pageStore.clearPage()
 }
 
+/*
+ * Populate the store during SETUP, not only on mount.
+ *
+ * activePage comes from an awaited useAsyncData, so the content is already
+ * resolved on the server — but syncPageStore only ran inside onMounted, which
+ * never fires there. The store stayed empty through SSR, so anything driven by
+ * it rendered nothing until hydration.
+ *
+ * The page backdrop made that visible: app.vue emits no backdrop element at all
+ * when pageStore reports no art, so every page load painted a backdrop-less
+ * first frame and then popped the art in. Title and description came from the
+ * same store and had the same gap.
+ *
+ * onMounted still runs it, which is a harmless no-op re-set on the client and
+ * still the right place to start the store's own async initialize and the
+ * route watcher.
+ */
+syncPageStore()
+
 onMounted(() => {
   pageStore.initialize()
   syncPageStore()

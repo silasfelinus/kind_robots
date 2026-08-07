@@ -1,11 +1,9 @@
 {
   "note": "Route gallery RATCHET: this file may only ever shrink. --update refuses to record a larger count. See utils/scripts/verifyRouteGalleryContract.ts.",
   "recorded": "2026-08-07",
-  "total": 3,
+  "total": 1,
   "holdouts": {
-    "art-gallery": ["/art", "/artjob"],
-    "daily-digest-object-gallery": ["/for-you"],
-    "ui-gallery": ["/ui"]
+    "art-gallery": ["/art", "/artjob"]
   },
   "shadowTotal": 0,
   "shadows": {},

@@ -98,7 +98,20 @@
       {{ emptyState }}
     </div>
 
-    <div v-else class="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+    <!--
+      No xl:grid-cols-3. `xl:` is a viewport breakpoint, not a container
+      one -- Taskmaster's only usage of this picker sits inside its
+      "recipe" panel, one of three columns in a `main` grid that ALSO
+      switches on the same xl breakpoint, so 1440px viewport meant a
+      ~390-430px sidebar column asked to hold three cards at once. Each
+      card's fixed w-28/sm:w-32 image column ate most of that, crushing
+      the flexible text span to a 24px sliver (interface-vision/t-112,
+      kind_robots run 31207144813). Two columns fits the same sidebar
+      comfortably; both current call sites (Setting, Genre/mood/style)
+      only ever render in this narrow column, so there is no wide-usage
+      case this tier was serving.
+    -->
+    <div v-else class="grid gap-2 md:grid-cols-2">
       <button
         v-if="allowEmpty"
         type="button"

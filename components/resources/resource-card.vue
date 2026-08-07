@@ -8,13 +8,17 @@
   every one of the ~20 references would have become
   `resourceById.get(Number(item.id))!`.
 
-  WHAT MOVED AND WHAT DID NOT. The four pure display helpers came with it --
-  previewSrc, resourceLabel, triggerText and isEditable are functions of the
-  record and nothing else, so they belong to the thing that draws it. The five
+  WHAT MOVED AND WHAT DID NOT. previewSrc and isEditable came with it -- pure
+  functions of the record, so they belong to the thing that draws it. The five
   actions did NOT: generating a preview, uploading one, editing, and pushing a
   Resource into the art build all reach stores and APIs, so they are emits and
   the gallery decides what they mean. Same split the entity cards use, for the
   same reason -- a card that owns the consequence cannot be reused or exhibited.
+
+  `label` and `triggerText` are the card's own copies. The gallery keeps its
+  versions because the GENERATION path still needs them to build a prompt and
+  choose checkpoint vs LoRA, which is store work. Duplicated deliberately: the
+  alternative is the card importing from the gallery it is rendered by.
 
   The two busy flags are props rather than looked up, so this stays mountable in
   WonderLab from a plain fixture.

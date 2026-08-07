@@ -50,14 +50,22 @@ const ROUTES = flag(
   'routes',
   // interface-vision/t-103: growing this list toward the t-102 inventory's
   // full 51-route gap, in scoped slices. Slice 1 added the 11 reachable,
-  // non-admin `channelKey: home` routes. Slice 2 adds 8 of the `channelKey:
+  // non-admin `channelKey: home` routes. Slice 2 added 8 of the `channelKey:
   // plan` public tool pages (no auth gate) -- appmaker, brainstorm, coloring,
-  // model-builder, packs, stylist, wishmaster, conductor-app. The remaining
-  // `/plan/*`-prefixed plan-channel routes are left for a later slice. Track
-  // progress in projects/interface-vision/docs/t-102-reachable-surface-inventory.md.
+  // model-builder, packs, stylist, wishmaster, conductor-app. Slice 3 covers
+  // the `channelKey: play` bucket plus the sibling `content/play/*` subdir
+  // routes -- academy, facets, resources (shadowed by pages/resources.vue,
+  // which is the page actually rendered at this path), serendipity,
+  // storybook, taskmaster, and /play/challenges, /play/davinci, /play/memory,
+  // /play/screenfx. None of these set requiredPermission -- all public. The
+  // remaining `/plan/*`-prefixed and `/build/*` routes are left for a later
+  // slice. Track progress in
+  // projects/interface-vision/docs/t-102-reachable-surface-inventory.md.
   '/,/conductor,/dreams,/art,/bots,/characters,/rewards,/stories,' +
     '/account,/achievements,/chats,/dashboard,/for-you,/friends,/messages,/navigation,/register,/themes,/wallet,' +
-    '/appmaker,/brainstorm,/coloring,/model-builder,/packs,/stylist,/wishmaster,/conductor-app',
+    '/appmaker,/brainstorm,/coloring,/model-builder,/packs,/stylist,/wishmaster,/conductor-app,' +
+    '/academy,/facets,/resources,/serendipity,/storybook,/taskmaster,' +
+    '/play/challenges,/play/davinci,/play/memory,/play/screenfx',
 )
   .split(',')
   .map((r) => r.trim())

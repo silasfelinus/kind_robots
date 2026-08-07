@@ -376,7 +376,7 @@ const currentUsername = computed(() =>
 )
 
 const isLoading = computed(() =>
-  Boolean(isRefreshing.value || chatStore.fetchHumanChatsPromise),
+  Boolean(isRefreshing.value || chatStore.isFetchingHumanChats),
 )
 
 const inboxChats = computed<ChatMessage[]>(() => {

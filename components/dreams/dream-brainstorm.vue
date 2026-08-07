@@ -59,9 +59,7 @@
         v-if="statusMessage"
         class="mt-3 rounded-2xl border p-3 text-sm"
         :class="
-          statusTone === 'error'
-            ? 'border-error/40 bg-error/10 text-error'
-            : 'border-success/40 bg-success/10 text-success'
+          statusTone === 'error' ? 'kr-note-error' : 'kr-note-success'
         "
       >
         {{ statusMessage }}

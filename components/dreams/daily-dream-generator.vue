@@ -72,9 +72,7 @@
         v-if="message"
         class="mt-3 rounded-xl border p-3 text-sm"
         :class="
-          error
-            ? 'border-error/30 bg-error/10 text-error'
-            : 'border-success/30 bg-success/10 text-success'
+          error ? 'kr-note-error' : 'kr-note-success'
         "
       >
         {{ message }}

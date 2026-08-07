@@ -414,7 +414,7 @@
         >
           <img
             :src="style.previewImageSrc"
-            :alt="style.label"
+            alt=""
             class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
           />
           <div

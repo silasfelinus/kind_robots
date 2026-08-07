@@ -278,6 +278,16 @@ export const useChatStore = defineStore('chatStore', () => {
   const fetchChatsPromise = ref<Promise<void> | null>(null)
   const lastFetchedUserId = ref<number | null>(null)
   const fetchHumanChatsPromise = ref<Promise<void> | null>(null)
+
+  /*
+   * A serializable view of the in-flight fetch, for the one consumer that
+   * needs it. chat-gallery.vue read `fetchHumanChatsPromise` directly for its
+   * truthiness -- but a Promise in store state is what devalue chokes on during
+   * SSR, so the promise stays private and this boolean is exported instead.
+   */
+  const isFetchingHumanChats = computed(() =>
+    Boolean(fetchHumanChatsPromise.value),
+  )
   const lastFetchedHumanUserId = ref<number | null>(null)
 
   const state = reactive<ChatStoreState>({
@@ -1684,6 +1694,7 @@ export const useChatStore = defineStore('chatStore', () => {
   }
 
   return {
+    isFetchingHumanChats,
     chats,
     unreadMessages,
     selectedChat,
@@ -1692,8 +1703,30 @@ export const useChatStore = defineStore('chatStore', () => {
     pendingChatId,
     pendingChat,
     pendingText,
-    initializePromise,
-    fetchChatsPromise,
+    /*
+     * initializePromise is deliberately NOT returned.
+     *
+     * In a Pinia setup store every returned ref becomes STATE, and Nuxt
+     * serializes that state into the SSR payload with devalue -- which cannot
+     * stringify a Promise:
+     *
+     *   DevalueError: Cannot stringify a Promise or thenable
+     *   path: '.pinia.chatStore.initializePromise'
+     *
+     * That threw on EVERY `/[...slug]` render, so production returned 500 on
+     * every content route. The ref is an in-flight re-entrancy guard, not state
+     * any consumer reads -- nothing outside these stores references it -- and
+     * serverStore already keeps its equivalent private, which is the pattern
+     * this restores.
+     */
+    /*
+     * Promise refs are deliberately NOT returned. In a Pinia setup store a
+     * returned ref becomes state, Nuxt serializes state into the SSR payload
+     * with devalue, and devalue cannot stringify a Promise -- which returned
+     * 500 on every page of the site. They stay private; re-entrancy is
+     * unaffected because the functions return the promise VALUE to callers.
+     * Guarded by utils/scripts/verifyNoPromiseInStoreState.ts.
+     */
     lastFetchedUserId,
     state,
     textForm: computed(() => state.textForm),
@@ -1737,7 +1770,6 @@ export const useChatStore = defineStore('chatStore', () => {
     serverUsesOwnResource,
     getServerProvider,
     getTextStreamEndpoint,
-    fetchHumanChatsPromise,
     lastFetchedHumanUserId,
     humanChats,
     inboxChats,

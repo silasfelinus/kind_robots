@@ -357,7 +357,7 @@ assert.doesNotMatch(
   /group: responsive-layout-audit-\$\{\{ github\.event\.deployment_status\.target_url/,
 )
 assert.match(responsiveAuditSource, /name: Check deployment freshness/)
-assert.match(responsiveAuditSource, /git ls-remote origin/)
+assert.match(responsiveAuditSource, /git ls-remote --heads origin/)
 assert.match(responsiveAuditSource, /Skipping superseded deployment/)
 assert.match(
   responsiveAuditSource,

@@ -146,7 +146,6 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
   const modelLoading = ref(false)
   const modelStatusLoading = ref(false)
   const modelStatusError = ref('')
-  const fetchModelPromise = ref<Promise<void> | null>(null)
 
   const allCheckpoints = ref<Partial<Resource>[]>(validCheckpoints)
   const allSamplers = ref<Partial<Resource>[]>(validSamplers)
@@ -722,7 +721,14 @@ export const useCheckpointStore = defineStore('checkpointStore', () => {
     modelStatusError,
     modelUpdating,
     modelLoading,
-    fetchModelPromise,
+    /*
+     * Promise refs are deliberately NOT returned. In a Pinia setup store a
+     * returned ref becomes state, Nuxt serializes state into the SSR payload
+     * with devalue, and devalue cannot stringify a Promise -- which returned
+     * 500 on every page of the site. They stay private; re-entrancy is
+     * unaffected because the functions return the promise VALUE to callers.
+     * Guarded by utils/scripts/verifyNoPromiseInStoreState.ts.
+     */
     activeEngine,
     hasModelMismatch,
     initialize,

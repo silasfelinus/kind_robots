@@ -278,6 +278,16 @@ export const useChatStore = defineStore('chatStore', () => {
   const fetchChatsPromise = ref<Promise<void> | null>(null)
   const lastFetchedUserId = ref<number | null>(null)
   const fetchHumanChatsPromise = ref<Promise<void> | null>(null)
+
+  /*
+   * A serializable view of the in-flight fetch, for the one consumer that
+   * needs it. chat-gallery.vue read `fetchHumanChatsPromise` directly for its
+   * truthiness -- but a Promise in store state is what devalue chokes on during
+   * SSR, so the promise stays private and this boolean is exported instead.
+   */
+  const isFetchingHumanChats = computed(() =>
+    Boolean(fetchHumanChatsPromise.value),
+  )
   const lastFetchedHumanUserId = ref<number | null>(null)
 
   const state = reactive<ChatStoreState>({
@@ -1684,6 +1694,7 @@ export const useChatStore = defineStore('chatStore', () => {
   }
 
   return {
+    isFetchingHumanChats,
     chats,
     unreadMessages,
     selectedChat,
@@ -1708,7 +1719,14 @@ export const useChatStore = defineStore('chatStore', () => {
      * serverStore already keeps its equivalent private, which is the pattern
      * this restores.
      */
-    fetchChatsPromise,
+    /*
+     * Promise refs are deliberately NOT returned. In a Pinia setup store a
+     * returned ref becomes state, Nuxt serializes state into the SSR payload
+     * with devalue, and devalue cannot stringify a Promise -- which returned
+     * 500 on every page of the site. They stay private; re-entrancy is
+     * unaffected because the functions return the promise VALUE to callers.
+     * Guarded by utils/scripts/verifyNoPromiseInStoreState.ts.
+     */
     lastFetchedUserId,
     state,
     textForm: computed(() => state.textForm),
@@ -1752,7 +1770,6 @@ export const useChatStore = defineStore('chatStore', () => {
     serverUsesOwnResource,
     getServerProvider,
     getTextStreamEndpoint,
-    fetchHumanChatsPromise,
     lastFetchedHumanUserId,
     humanChats,
     inboxChats,

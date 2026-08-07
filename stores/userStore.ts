@@ -865,7 +865,14 @@ export const useUserStore = defineStore('userStore', () => {
     recipient,
     googleToken,
     initialized,
-    initializePromise,
+    /*
+     * Promise refs are deliberately NOT returned. In a Pinia setup store a
+     * returned ref becomes state, Nuxt serializes state into the SSR payload
+     * with devalue, and devalue cannot stringify a Promise -- which returned
+     * 500 on every page of the site. They stay private; re-entrancy is
+     * unaffected because the functions return the promise VALUE to callers.
+     * Guarded by utils/scripts/verifyNoPromiseInStoreState.ts.
+     */
     isGuest,
     isLoggedIn,
     userId,
@@ -903,7 +910,6 @@ export const useUserStore = defineStore('userStore', () => {
     userImage,
     getUserNameByUserId,
     getUserById,
-    userByIdPromises,
     ensureRealUser,
   }
 })

@@ -596,7 +596,6 @@ import { computed, onMounted, ref } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useDreamStore } from '@/stores/dreamStore'
 import { useFacetStore } from '@/stores/facetStore'
-import { getDashboardTabImagePath } from '@/stores/helpers/dashboardHelper'
 import { useRewardStore } from '@/stores/rewardStore'
 import {
   STORYBOOK_NARRATOR_STYLES,
@@ -622,9 +621,16 @@ const router = useRouter()
 const facetStore = useFacetStore()
 const rewardStore = useRewardStore()
 
-const tabImage = computed(() =>
-  getDashboardTabImagePath('scenario', 'storybook'),
-)
+/*
+ * scenario/storybook.webp was never uploaded to the media share (confirmed
+ * 404 against media.acrocatranch.com, sibling scenario/* tab images all
+ * resolve fine — see interface-vision/t-111). The global
+ * navigation-image-fallback plugin would eventually swap in the same
+ * placeholder on error, but only after a real failed request and a second
+ * network round trip, which is what the responsive audit's BROKEN-ART check
+ * caught. Point at the working placeholder directly until real art exists.
+ */
+const tabImage = computed(() => '/images/botcafe.webp')
 
 const setupStep = ref(0)
 const furthestStep = ref(0)

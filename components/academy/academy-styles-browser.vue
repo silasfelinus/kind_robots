@@ -406,7 +406,10 @@ const resultSummary = computed(() => {
 })
 
 const emptyStateIcon = computed(() => {
-  return lessonFilter.value === 'new' ? 'kind-icon:check' : 'kind-icon:search'
+  if (searchQuery.value) return 'kind-icon:search'
+  if (lessonFilter.value === 'new') return 'kind-icon:check'
+  if (lessonFilter.value === 'explored') return 'kind-icon:gallery'
+  return 'kind-icon:search'
 })
 
 const emptyStateMessage = computed(() => {

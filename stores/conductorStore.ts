@@ -103,7 +103,9 @@ function clearLegacyVotes(): void {
   if (!import.meta.client) return
   try {
     localStorage.removeItem(LEGACY_VOTE_KEY)
-  } catch {}
+  } catch {
+    // Legacy cleanup is best-effort; unavailable storage should not block the workspace.
+  }
 }
 
 export const useConductorStore = defineStore('conductor', () => {
@@ -143,8 +145,8 @@ export const useConductorStore = defineStore('conductor', () => {
     ),
   )
   const humanGates = computed<ConductorHumanGate[]>(() =>
-    allHumanGates.value.filter(
-      ({ project }) => project.conductorStatus === 'active',
+    allHumanGates.value.filter(({ project }) =>
+      ['active', 'continuous'].includes(project.conductorStatus ?? ''),
     ),
   )
   const pausedHumanGates = computed<ConductorHumanGate[]>(() =>
@@ -283,8 +285,7 @@ export const useConductorStore = defineStore('conductor', () => {
         cause instanceof Error ? cause.message : 'Pitch status update failed'
       return false
     } finally {
-      const next = { ...optimisticPitchStatuses.value }
-      delete next[slug]
+      const { [slug]: _removed, ...next } = optimisticPitchStatuses.value
       optimisticPitchStatuses.value = next
       updatingPitchSlugs.value = updatingPitchSlugs.value.filter(
         (entry) => entry !== slug,

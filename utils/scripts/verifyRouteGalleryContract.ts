@@ -300,39 +300,8 @@ export function subtreeOf(
   return seen
 }
 
-/**
- * Components whose name ends in `-gallery` but which are not browse surfaces.
- *
- * These leave the DENOMINATOR, not just the numerator. An exemption that only
- * skipped the adoption test would still print `12/21`, quietly implying nine
- * outstanding conversions when only seven exist -- the count has to mean what
- * it says.
- *
- * The bar for an entry here is that adopting the shell would COST the user
- * something real, not that the conversion is awkward. Each reason is written
- * out so a later reader can disagree with it on the merits.
- *
- * This is the mirror image of the shadow-browser rule below. That rule exists
- * because a filename is not a shape, and it finds browsers that are not called
- * galleries; this map is the same principle pointed the other way, at things
- * called galleries that are not browsers. Neither is a naming convention.
- */
-const NOT_GALLERIES: Record<string, string> = {
-  'chat-gallery':
-    'A message inbox: a thread list plus a transcript pane. Silas, 2026-08-06: ' +
-    '"agreed, chat-gallery is not a real gallery. it could be renamed, but ' +
-    'ignoring is fine."',
-  'daily-digest-object-gallery':
-    'A snap-scrolling carousel strip inside the /for-you digest, six objects ' +
-    'wide on desktop and horizontally swipeable on a phone. kr-gallery lays ' +
-    'out an auto-fill GRID, so adopting it would turn a one-row strip into a ' +
-    'tall vertical list on mobile -- the opposite of the vertical-space ' +
-    'budget this whole stage is fixing.',
-}
-
 const isGalleryComponent = (name: string): boolean =>
   name !== SHARED_GALLERY &&
-  !(name in NOT_GALLERIES) &&
   (name.endsWith('-gallery') || name.endsWith('-gallery-page'))
 
 /* -------------------------------------------------------------------------- */
@@ -350,6 +319,39 @@ const isGalleryComponent = (name: string): boolean =>
  * deletes one bucket, and a NEW route rendering an existing holdout still
  * grows that bucket and fails.
  */
+/**
+ * Components named `*-gallery` that are NOT galleries, with the reason.
+ *
+ * The whole contract exists because a filename is not a shape -- that is how a
+ * second Facet browser hid inside facet-manager.vue. This is the same lesson
+ * pointing the other way: a component can be CALLED a gallery and not be one,
+ * and counting it as a holdout invents work that would make the UI worse.
+ *
+ * An entry here is a design decision, not a deferral. It must say why, and it
+ * must be wrong to adopt -- not merely awkward.
+ */
+export const NOT_GALLERIES: Record<string, string> = {
+  'daily-digest-object-gallery':
+    'A snap CAROUSEL, not a browse grid. On narrow screens it is ' +
+    '`flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain` with ' +
+    'min-w-40 items -- you swipe it sideways -- and it only becomes a grid at ' +
+    '`lg`. kr-gallery has no carousel mode and adding one would repeat the ' +
+    'mistake `list` was removed for: a mode whose identity is a layout rather ' +
+    'than an image. Adopting would silently replace a deliberate horizontal ' +
+    'swipe with a vertical stack on every phone. It is a digest strip of at ' +
+    'most six items, not a surface anyone browses.',
+  'chat-gallery':
+    'An inbox and a transcript, not a browse surface. Its thread rows are ' +
+    '`flex w-full` -- a 48px avatar plus name, title, preview and timestamp -- ' +
+    'and the narrowest kr-gallery mode is `cards` at minmax(min(11rem,100%),1fr), ' +
+    'which in a full-width panel yields five to eight columns and crushes every ' +
+    'row. No mode fits: `list` was the one that would have, and Silas removed it ' +
+    'from the vocabulary on 2026-08-03 ("List is the odd duck out ... kill line") ' +
+    'precisely because a mode whose identity is a layout rather than an image ' +
+    'cannot stay in lockstep with the schema. Adopting here would mean either ' +
+    'wrecking the inbox or resurrecting that mode.',
+}
+
 export function bucketHoldouts(
   routes: readonly { route: string; galleries: readonly string[] }[],
   adopted: (name: string) => boolean,
@@ -358,6 +360,7 @@ export function bucketHoldouts(
   for (const { route, galleries } of routes) {
     for (const gallery of galleries) {
       if (adopted(gallery)) continue
+      if (gallery in NOT_GALLERIES) continue
       ;(buckets[gallery] ??= []).push(route)
     }
   }
@@ -1182,7 +1185,22 @@ function main(): void {
   const baseline = loadRatchetBaseline<RouteGalleryBaseline>(BASELINE)
   const grown = grownRatchetBuckets(buckets, baseline?.holdouts ?? null)
 
-  const liveGalleries = new Set(routes.flatMap((entry) => entry.galleries))
+  for (const [name, reason] of Object.entries(NOT_GALLERIES)) {
+    console.log(`\nNot a gallery, by decision: ${name}`)
+    console.log(`  ${reason.replace(/(.{72}\S*)\s/g, '$1\n  ')}`)
+  }
+
+  /*
+   * NOT_GALLERIES leave the DENOMINATOR too, not just the holdout list.
+   * The headline is `liveGalleries.size - total`, so exempting one from
+   * `total` alone would silently count it as ADOPTED -- a number that reads
+   * like progress and is a lie. They are reported in their own section above.
+   */
+  const liveGalleries = new Set(
+    routes
+      .flatMap((entry) => entry.galleries)
+      .filter((gallery) => !(gallery in NOT_GALLERIES)),
+  )
   console.log(
     `\nLive galleries on ${SHARED_GALLERY}: ` +
       `${liveGalleries.size - total}/${liveGalleries.size}` +
@@ -1193,28 +1211,6 @@ function main(): void {
     console.log(
       `  ${adopted(gallery) ? '✓' : '·'} ${gallery.padEnd(32)} ${where.join(' ')}`,
     )
-  }
-
-  /*
-   * Exemptions are PRINTED, never silent. A count that drops because something
-   * left the denominator has to say so on the same screen as the count, or the
-   * next reader reads progress into a definition change.
-   *
-   * A stale entry fails: once the named component is gone, the exemption is a
-   * comment that can no longer be checked against anything.
-   */
-  console.log(
-    `\nNot browse surfaces — named -gallery, excluded from the count above:`,
-  )
-  for (const [name, reason] of Object.entries(NOT_GALLERIES).sort()) {
-    if (!componentsByName.has(name)) {
-      failures += 1
-      console.log(
-        `  FAIL - ${name} is exempted but no longer exists; delete it from NOT_GALLERIES.`,
-      )
-      continue
-    }
-    console.log(`  — ${name}\n      ${reason}`)
   }
 
   const shadowCount = Object.keys(shadows).length

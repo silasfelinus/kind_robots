@@ -5,11 +5,11 @@
   >
     <header
       v-if="showHeader"
-      class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+      class="flex shrink-0 flex-col gap-2 rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
     >
       <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
-          <h2 class="truncate text-lg font-bold text-base-content">
+          <h2 class="truncate text-base font-bold text-base-content">
             {{ title }}
           </h2>
 
@@ -23,8 +23,8 @@
             </span>
           </p>
 
-          <p v-else class="text-sm text-base-content/60">
-            {{ subtitle }}
+          <p v-else class="truncate text-sm text-base-content/60">
+            <span class="hidden md:inline">{{ subtitle }}</span>
           </p>
         </div>
 
@@ -61,52 +61,6 @@
             <span class="hidden sm:inline">Refresh</span>
           </button>
         </div>
-      </div>
-
-      <div
-        v-if="showControls && !isDropdownMode"
-        class="grid grid-cols-1 gap-2 lg:grid-cols-[auto_auto_minmax(0,1fr)_auto]"
-      >
-        <label
-          v-if="userStore.isAdmin"
-          class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-4 py-2"
-        >
-          <span class="label-text font-bold">Show Mature</span>
-
-          <input
-            v-model="showMature"
-            type="checkbox"
-            class="toggle toggle-accent toggle-sm"
-          />
-        </label>
-
-        <select
-          v-model="constructionFilter"
-          class="select select-bordered select-sm w-full bg-base-100 lg:w-auto"
-          aria-label="Filter bots by construction status"
-        >
-          <option value="all">All statuses</option>
-          <option value="ready">Ready only</option>
-          <option value="building">Under construction</option>
-        </select>
-
-        <input
-          v-model="searchQuery"
-          type="search"
-          placeholder="Search bots..."
-          class="input input-bordered input-sm w-full bg-base-100"
-          aria-label="Search bots"
-        />
-
-        <button
-          class="btn btn-ghost btn-sm rounded-xl lg:w-auto"
-          type="button"
-          :disabled="!botStore.currentBot"
-          @click="clearSelectedBot"
-        >
-          <Icon name="kind-icon:x" class="h-4 w-4" />
-          Clear
-        </button>
       </div>
     </header>
 
@@ -335,6 +289,54 @@
         empty-label="bots"
         @update:mode="galleryMode = $event"
       >
+        <template #toolbar>
+          <div
+            v-if="showControls && !isDropdownMode"
+            class="grid grid-cols-1 gap-2 lg:grid-cols-[auto_auto_minmax(0,1fr)_auto]"
+          >
+            <label
+              v-if="userStore.isAdmin"
+              class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-4 py-2"
+            >
+              <span class="label-text font-bold">Show Mature</span>
+
+              <input
+                v-model="showMature"
+                type="checkbox"
+                class="toggle toggle-accent toggle-sm"
+              />
+            </label>
+
+            <select
+              v-model="constructionFilter"
+              class="select select-bordered select-sm w-full bg-base-100 lg:w-auto"
+              aria-label="Filter bots by construction status"
+            >
+              <option value="all">All statuses</option>
+              <option value="ready">Ready only</option>
+              <option value="building">Under construction</option>
+            </select>
+
+            <input
+              v-model="searchQuery"
+              type="search"
+              placeholder="Search bots..."
+              class="input input-bordered input-sm w-full bg-base-100"
+              aria-label="Search bots"
+            />
+
+            <button
+              class="btn btn-ghost btn-sm rounded-xl lg:w-auto"
+              type="button"
+              :disabled="!botStore.currentBot"
+              @click="clearSelectedBot"
+            >
+              <Icon name="kind-icon:x" class="h-4 w-4" />
+              Clear
+            </button>
+          </div>
+        </template>
+
         <template #item="{ item }">
           <bot-card
             v-if="botById.get(Number(item.id))"

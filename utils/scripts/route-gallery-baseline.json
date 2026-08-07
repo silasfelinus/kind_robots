@@ -1,32 +1,8 @@
 {
   "note": "Route gallery RATCHET: this file may only ever shrink. --update refuses to record a larger count. See utils/scripts/verifyRouteGalleryContract.ts.",
   "recorded": "2026-08-07",
-  "total": 5,
-  "holdouts": {
-    "achievement-gallery": [
-      "/achievements",
-      "/dashboard",
-      "/themes"
-    ],
-    "friend-gallery": [
-      "/achievements",
-      "/dashboard",
-      "/themes"
-    ],
-    "theme-gallery": [
-      "/achievements",
-      "/dashboard",
-      "/themes"
-    ],
-    "dream-relationship-gallery": [
-      "/brainstorm",
-      "/dreams"
-    ],
-    "scenario-relationship-gallery": [
-      "/brainstorm",
-      "/dreams"
-    ]
-  },
+  "total": 0,
+  "holdouts": {},
   "shadowTotal": 0,
   "shadows": {},
   "managerTotal": 0,

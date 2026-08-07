@@ -62,11 +62,20 @@ jobs:
       github.event_name != 'deployment_status' ||
       github.event.deployment_status.state == 'success'
     runs-on: ubuntu-latest
-    # 30, not 20: this job now runs two browser sweeps (responsive layout, then
-    # the gallery chrome budget) after waiting up to 300s each for the
-    # deployment and the database. 20 was sized for one sweep and the first run
-    # with both timed out mid-measurement.
-    timeout-minutes: 30
+    # interface-vision/t-103 grows the default --routes list in scoped slices
+    # as the phase-1 shrink-to-zero sweep proceeds. 20min covered the original
+    # 8 routes x 3 viewports; the first slice (19 routes, kind_robots #1567)
+    # already ran the job to ~20:18, right past that ceiling, and got
+    # cancelled mid-run rather than reporting a real result. 35min gives
+    # headroom for several more slices at this per-measurement rate (~21s);
+    # if the full 51-route gap ever lands in this one list, revisit with a
+    # matrix split instead of raising this again.
+    #
+    # The job now also runs the gallery chrome sweep after the responsive one,
+    # which measured at ~4min for 11 routes x 4 breakpoints. That fits inside
+    # the same headroom; if both lists keep growing, the matrix split above is
+    # the answer for both.
+    timeout-minutes: 35
 
     steps:
       - name: Checkout
@@ -181,19 +190,21 @@ jobs:
       # `if: always()` so a responsive-layout failure does not hide the chrome
       # reading — they are independent findings about the same page, and the
       # one that fails first should not suppress the other.
-      #
-      # `--strict` (gates the instrument: load failures, zero measurements) but
-      # NOT `--strict-budget` (gates the finding). 17 of 28 measured readings
-      # are over budget today against real pre-existing chrome, so budget
-      # enforcement would block every unrelated PR on a backlog. The numbers are
-      # printed either way; add `--strict-budget` once the routes are under it.
+      # Deliberately WITHOUT `--strict`. The script already exits 1 on load
+      # failures on its own -- that gates the INSTRUMENT, and every failure this
+      # step has actually hit was of that kind (Chromium ignoring the proxy, a
+      # hardcoded browser path, a selector matching nothing). `--strict` would
+      # additionally gate the FINDING, and 17 of 28 measured readings are over
+      # budget today against real pre-existing chrome, so turning it on would
+      # block every unrelated PR on a backlog. Add it once the routes are under
+      # budget; the numbers print either way.
       - name: Audit gallery chrome budget
         if: always()
         env:
           BASE_URL: ${{ steps.target.outputs.url }}
         run: |
           set -euo pipefail
-          npm run audit:gallery-chrome -- --base "$BASE_URL" --strict
+          npm run audit:gallery-chrome -- --base "$BASE_URL"
 
       - name: Upload screenshots
         # Always: a failure is exactly when the pictures are worth having, and

@@ -52,21 +52,31 @@
           }}</span>
         </div>
         <div class="p-3">
-          <div v-if="earnedAchievements.length" class="grid grid-cols-1 gap-2">
-            <EarnedAchievementCard
-              v-for="earnedAchievement in earnedAchievements"
-              :key="earnedAchievement.id"
-              :achievement="earnedAchievement"
-              :acquired-at="earnedAchievement.acquiredAt"
-            />
-          </div>
-          <div
-            v-else
-            class="flex min-h-32 flex-col items-center justify-center rounded-xl border border-dashed border-base-300 p-4 text-center text-xs text-base-content/40"
+          <!-- `:modes="[]"` hides the bar. These are badge-sized items in a
+               one-third-width column, not art with three variants, and three
+               mode bars across three narrow columns would be noise. -->
+          <kr-gallery
+            :items="earnedItems"
+            :modes="[]"
+            empty-label="achievements"
           >
-            <Icon name="kind-icon:trophy" class="mb-2 h-8 w-8 opacity-30" />
-            No achievements earned yet.
-          </div>
+            <template #item="{ item }">
+              <EarnedAchievementCard
+                v-if="earnedById.get(Number(item.id))"
+                :achievement="earnedById.get(Number(item.id))!"
+                :acquired-at="earnedById.get(Number(item.id))!.acquiredAt"
+              />
+            </template>
+
+            <template #empty>
+              <div
+                class="flex min-h-32 flex-col items-center justify-center rounded-xl border border-dashed border-base-300 p-4 text-center text-xs text-base-content/40"
+              >
+                <Icon name="kind-icon:trophy" class="mb-2 h-8 w-8 opacity-30" />
+                No achievements earned yet.
+              </div>
+            </template>
+          </kr-gallery>
         </div>
       </div>
 
@@ -99,23 +109,31 @@
           }}</span>
         </div>
         <div class="p-3">
-          <div
-            v-if="unearnedAchievements.length"
-            class="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2"
+          <!-- The old grid was `md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2`
+               -- VIEWPORT-keyed, inside a column that is a third of the page.
+               On a wide screen `xl:grid-cols-2` fired against a narrow column.
+               MODE_GRID_CLASS measures the container instead. -->
+          <kr-gallery
+            :items="unearnedItems"
+            :modes="[]"
+            empty-label="achievements"
           >
-            <UnearnedAchievementCard
-              v-for="achievement in unearnedAchievements"
-              :key="achievement.id"
-              :achievement="achievement"
-            />
-          </div>
-          <div
-            v-else
-            class="flex min-h-32 flex-col items-center justify-center rounded-xl border border-dashed border-success/30 bg-success/5 p-4 text-center text-xs text-success/70"
-          >
-            <Icon name="kind-icon:check" class="mb-2 h-8 w-8" />
-            All achievements discovered!
-          </div>
+            <template #item="{ item }">
+              <UnearnedAchievementCard
+                v-if="unearnedById.get(Number(item.id))"
+                :achievement="unearnedById.get(Number(item.id))!"
+              />
+            </template>
+
+            <template #empty>
+              <div
+                class="flex min-h-32 flex-col items-center justify-center rounded-xl border border-dashed border-success/30 bg-success/5 p-4 text-center text-xs text-success/70"
+              >
+                <Icon name="kind-icon:check" class="mb-2 h-8 w-8" />
+                All achievements discovered!
+              </div>
+            </template>
+          </kr-gallery>
         </div>
       </div>
     </div>
@@ -124,6 +142,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
 
 const achievementStore = useAchievementStore()
 const userStore = useUserStore()
@@ -145,7 +164,9 @@ function toIsoOrNull(value: unknown): string | null {
 const earnedAchievements = computed<EarnedAchievement[]>(() => {
   const uid = userStore.userId
   if (!uid) return []
-  const achievementById = new Map(achievementStore.achievements.map((m) => [m.id, m]))
+  const achievementById = new Map(
+    achievementStore.achievements.map((m) => [m.id, m]),
+  )
   const earned: EarnedAchievement[] = []
   for (const record of achievementStore.achievementRecords) {
     if (record.userId !== uid) continue
@@ -171,6 +192,33 @@ const unearnedAchievements = computed(() => {
   )
   return achievementStore.achievements.filter((m) => !earnedIds.has(m.id))
 })
+
+/*
+ * kr-gallery takes GalleryItems and hands one back to the #item slot, so each
+ * column maps its id to the real record. Earned keeps its own map because the
+ * card needs `acquiredAt`, which only the earned shape carries.
+ */
+const earnedItems = computed<GalleryItem[]>(() =>
+  earnedAchievements.value.map((achievement) => ({
+    id: achievement.id,
+    title: achievement.label || `Achievement ${achievement.id}`,
+  })),
+)
+
+const earnedById = computed(
+  () => new Map(earnedAchievements.value.map((a) => [a.id, a])),
+)
+
+const unearnedItems = computed<GalleryItem[]>(() =>
+  unearnedAchievements.value.map((achievement) => ({
+    id: achievement.id,
+    title: achievement.label || `Achievement ${achievement.id}`,
+  })),
+)
+
+const unearnedById = computed(
+  () => new Map(unearnedAchievements.value.map((a) => [a.id, a])),
+)
 
 const resetAchievements = () => {
   achievementStore.clearAllAchievementRecords()

@@ -1,383 +1,285 @@
 // /utils/scripts/auditGalleryChrome.ts
 //
-// How much vertical space does a gallery spend BEFORE its first card?
+// How much screen does a gallery spend before showing you anything?
 //
 // WHY THIS EXISTS
 // ---------------
-// Silas, 2026-08-06, screenshotting /rewards on a 1366x768 laptop: "the choose
-// your reward, pick a story reward text, maturity toggle and search bar, and
-// card hero icons sections should be at most 1-2 rows. This is taking up a
-// significant amount of real estate." Then, on why it went unnoticed: "I feel
-// like this giant header problem should have been caught now that you can do
-// these assessments directly."
+// Silas, 2026-08-07, with a screenshot of /rewards on a 1366x768 desktop:
 //
-// He is right, and the gap was instrumental rather than attentional. Every
-// gallery contract in this repo reads SOURCE -- does the component mount
-// kr-gallery, does it bind :mode, is the grid container-responsive. Not one of
-// them can see that a route renders four stacked control rows before the first
-// card, because nothing in the markup is wrong. It is only wrong at a size.
+//   "the choose your reward, pick a story reward text, maturity toggle and
+//    search bar, and card hero icons sections should be at most 1-2 rows. This
+//    is taking up a significant amount of real estate ... I feel like this
+//    giant header problem should have been caught now that you can do these
+//    assessments directly."
 //
-// So this measures the rendered page: load each route at four widths, find the
-// gallery grid, and report the pixels above its first card as a fraction of the
-// viewport. A third of the screen spent on chrome is the threshold; above that,
-// the user scrolls to see the thing the page is named after.
+// He is right, and the miss is instructive. Every gallery contract in this repo
+// checks STRUCTURE -- does this file mount kr-gallery, does the ratchet shrink,
+// does the card emit `open`. All of them passed while four stacked rows of
+// chrome ate a third of the viewport, because none of them renders anything.
+// Asserting on the source and trusting layout to follow is the same
+// mention-versus-use error the rest of these scripts exist to prevent, moved up
+// one level.
 //
-// SENTINELS, NOT TRUTHINESS
-// -------------------------
-// An earlier version of this script reported `chromePx: null` for both "page
-// loaded, gallery is empty" and "page never loaded", and I read the resulting
-// zeros as an API outage that was really ERR_CONNECTION_RESET on my end. The
-// status is DERIVED from which of those happened, never assigned in a branch,
-// so the two cannot collapse into each other again. Neither strictness fails on
-// `no-cards`, which is a data state rather than a layout defect.
+// So this one opens a real browser and measures pixels: the distance from the
+// top of the scroll container to the top of the first card. That number is the
+// budget, and it is the only one that answers the question actually asked.
 //
-// FIRST REAL MEASUREMENT, 2026-08-07 — the complaint reproduces.
-// /rewards spends 296px of a 1366x768 laptop before its first card, which is
-// Silas's exact screenshot. /servers spends 1254px of the same viewport: more
-// than a full screen of chrome. /characters, on the SAME shared shell, spends
-// 166px and passes at every width — and that is the useful part. The waste is
-// route-owned chrome ABOVE the gallery rather than the gallery itself, so it is
-// fixable per route, and /characters is the worked example of what good is.
+//   npx tsx utils/scripts/auditGalleryChrome.ts --base https://<preview>.vercel.app
+//   npx tsx utils/scripts/auditGalleryChrome.ts --base http://localhost:3000 --strict
 //
-//   npx tsx utils/scripts/auditGalleryChrome.ts --base https://example.app
-//   npx tsx utils/scripts/auditGalleryChrome.ts --base <url> --strict
-//   npx tsx utils/scripts/auditGalleryChrome.ts --base <url> --routes /art,/ui
-import { chromium, type Browser } from 'playwright-core'
+// `--strict` exits 1 when a route exceeds MAX_CHROME_FRACTION of the viewport
+// height. It is deliberately NOT wired into contract-tests.yml: it needs a
+// running deployment, so it belongs to the review step, not the unit gate.
+//
+// DATA IS NOT REQUIRED. The chrome renders whether or not the API answers --
+// the screenshot that prompted this had a database error in the body and the
+// header was still four rows tall. A route that fails to load its records
+// still reports a usable chrome height.
 
-/**
- * Let Playwright resolve its own Chromium; override only when told to.
- *
- * Same shape as auditResponsiveLayout.mjs, and for a reason worth recording: a
- * hardcoded sandbox path (`/opt/pw-browsers/chromium-1194/...`) works exactly
- * where it was written and nowhere else. On the CI runner, which installs
- * Chromium with `npx playwright install`, it failed instantly with "executable
- * doesn't exist" -- before a single page was loaded.
- */
-const CHROMIUM = process.env.CHROMIUM_PATH || undefined
+import { chromium, type Browser, type Page } from 'playwright'
 
-/**
- * Above this fraction of the viewport spent before the first card, the gallery
- * is chrome-first. A third is generous on purpose -- the complaint that
- * prompted this was closer to two thirds.
- */
-const MAX_CHROME_FRACTION = 0.33
-
-/**
- * Real devices, not round numbers. 1366x768 is the laptop Silas screenshotted
- * and the tightest common desktop height, which is why it is the one that
- * matters most here.
- */
-const BREAKPOINTS = [
+/** 1366x768 is the machine Silas reported from; the rest bracket it. */
+export const BREAKPOINTS = [
   { label: 'phone', width: 390, height: 844 },
   { label: 'tablet', width: 820, height: 1180 },
   { label: 'laptop', width: 1366, height: 768 },
   { label: 'desktop', width: 1920, height: 1080 },
-]
+] as const
 
-/**
- * Browse surfaces a user lands on to look through records.
- *
- * `/ui` is deliberately absent even though it mounts kr-gallery: it is the
- * style guide, and its gallery is a specimen partway down a long document, so
- * "pixels above the first card" there measures how far the reader has scrolled
- * to reach the demo rather than any chrome budget. Including it produced a
- * confident 1100px that meant nothing.
- *
- * `/art` is included but usually reads `no-cards`, and that is correct: it
- * opens on a COLLECTIONS grid, and the converted image gallery only renders
- * once you enter a collection. Measuring that needs a route into a collection,
- * which is worth adding when there is a stable one to point at.
- */
-const DEFAULT_ROUTES = [
-  '/art',
+export const GALLERY_ROUTES = [
   '/bots',
   '/characters',
-  '/conductor',
   '/dreams',
   '/facets',
-  '/icons',
-  '/resources',
   '/rewards',
-  '/servers',
   '/stories',
-]
+  '/resources',
+  '/servers',
+  '/icons',
+  '/themes',
+  '/achievements',
+] as const
 
-type ChromeReading = {
+/**
+ * A gallery may spend at most this fraction of the viewport before the first
+ * card. 0.33 is not arbitrary: the reported screenshot measured ~190px of
+ * 550px usable, and Silas called that "a significant amount of real estate".
+ */
+export const MAX_CHROME_FRACTION = 0.33
+
+export type ChromeReading = {
   route: string
   breakpoint: string
   viewportHeight: number
-  /** Pixels above the first card, or null when there was no card to measure. */
   chromePx: number | null
-  loadError: string | null
+  fraction: number | null
+  /**
+   * Why there is no number. NOT optional and NOT a bare null: the first version
+   * returned `chromePx: null` for both "the page rendered but held no cards"
+   * and "the page never loaded", then printed one dash for each and told the
+   * reader it was probably the API. It was actually ERR_CONNECTION_RESET -- the
+   * measurement had never happened. Same sentinel-versus-empty conflation this
+   * repo warns about in stores; a failure that reads as a legitimate empty is
+   * worse than a crash.
+   */
   status: 'measured' | 'no-cards' | 'load-failed'
-}
-
-const argOf = (flag: string): string | null => {
-  const index = process.argv.indexOf(flag)
-  const value = index === -1 ? null : process.argv[index + 1]
-  return value && !value.startsWith('--') ? value : null
+  note?: string
 }
 
 /**
- * Pixels from the top of the viewport to the top of the first gallery card.
+ * Pixels above the first card, measured from the top of the page.
  *
- * THE MARKER, AND WHY GUESSING FAILED. This used to find the grid by heuristic
- * -- among elements with `display: grid`, take the one with the most children,
- * requiring its first child to be card-sized. It produced confident numbers
- * that measured the wrong element: /bots, /characters, /dreams, /facets,
- * /rewards and /stories all reported EXACTLY 34px on phone and 31px on laptop.
- * Six galleries that look nothing alike cannot agree to the pixel; the
- * heuristic had locked onto an app-shell grid present on every route.
- *
- * That is worse than no measurement, because it reads as a clean pass. So
- * kr-gallery now stamps `data-kr-gallery-grid` on its grid and this asks for it
- * by name. A route with no kr-gallery yields null -> `no-cards`, which is
- * accurate rather than flattering.
- *
- * The FIRST marked grid in document order, not the largest: a page with two
- * galleries spends its chrome before the first one.
+ * Runs in the browser: finds the first element the shared shell emitted a card
+ * into, and returns its distance from the viewport top. Deliberately measures
+ * the RENDERED box rather than counting DOM rows -- a wrapped toolbar is one
+ * row on a wide screen and three on a phone, which is exactly the thing a
+ * source-level check cannot see.
  */
-const GALLERY_GRID = '[data-kr-gallery-grid]'
-
-async function measureChrome(page: {
-  evaluate: <T>(fn: () => T) => Promise<T>
-}): Promise<number | null> {
+export async function measureChrome(page: Page): Promise<number | null> {
   return page.evaluate(() => {
-    const grid = document.querySelector('[data-kr-gallery-grid]')
-    const first = grid?.firstElementChild
-    if (!first) return null
-
-    const rect = first.getBoundingClientRect()
-    // A zero-area first child is a rendered-but-empty slot, not a card.
-    if (rect.height < 1 || rect.width < 1) return null
-
-    return Math.round(rect.top)
+    /*
+     * `[data-kr-gallery-grid] > *` FIRST, and it is the only exact one.
+     *
+     * The original list led with `[data-kr-gallery-item]` and `.kr-gallery-grid`
+     * -- neither of which kr-gallery has ever emitted, so every route fell
+     * straight through to the `article` / `.card` guesses. kr-gallery now stamps
+     * `data-kr-gallery-grid` on its grid, so a gallery on the shared shell is
+     * identified rather than inferred.
+     *
+     * The guesses stay as fallbacks, because the routes still off the shell
+     * (/themes, /achievements) have no marker and are worth measuring anyway.
+     * They ARE guesses: a heuristic in the first draft of this measurement
+     * locked onto an app-shell grid and reported six unrelated galleries at
+     * byte-identical 34px, so a fallback reading deserves less trust than a
+     * marked one.
+     */
+    const candidates = [
+      '[data-kr-gallery-grid] > *',
+      '[data-kr-gallery-item]',
+      'article',
+      '.card',
+    ]
+    for (const selector of candidates) {
+      const el = document.querySelector(selector)
+      if (!el) continue
+      const box = el.getBoundingClientRect()
+      if (box.height > 40) return Math.round(box.top)
+    }
+    return null
   })
 }
 
-async function readRoute(
+export async function auditRoute(
   browser: Browser,
   base: string,
   route: string,
-  breakpoint: (typeof BREAKPOINTS)[number],
-): Promise<ChromeReading> {
-  const context = await browser.newContext({
-    viewport: { width: breakpoint.width, height: breakpoint.height },
-  })
-  const page = await context.newPage()
-
-  let loadError: string | null = null
-  let chromePx: number | null = null
-
-  try {
-    /*
-     * NOT `networkidle`. This app polls, so the network never goes idle and
-     * every load burns its full timeout instead of settling -- 48 readings at
-     * 45s each is 36 minutes, against a 20-minute job cap. The first CI run of
-     * this step hit exactly that and was still going when the job timed out.
-     *
-     * So: get the document, then wait for the thing being measured to exist.
-     * That is both faster (a populated gallery resolves in a second or two)
-     * and more honest -- the wait is for the gallery rather than for a proxy
-     * signal that happens to correlate with it.
-     */
-    await page.goto(`${base}${route}`, {
-      waitUntil: 'domcontentloaded',
-      timeout: 30_000,
+): Promise<ChromeReading[]> {
+  const readings: ChromeReading[] = []
+  for (const bp of BREAKPOINTS) {
+    const page = await browser.newPage({
+      viewport: { width: bp.width, height: bp.height },
     })
+    let chromePx: number | null = null
+    let loadError: string | null = null
+    try {
+      await page.goto(`${base}${route}`, {
+        waitUntil: 'domcontentloaded',
+        timeout: 45_000,
+      })
+      // Cards arrive after hydration + fetch; the chrome does not.
+      await page.waitForTimeout(2_500)
+      chromePx = await measureChrome(page)
+    } catch (error) {
+      loadError =
+        (error instanceof Error ? error.message.split('\n')[0] : null) ??
+        'load failed'
+    } finally {
+      await page.close()
+    }
 
     /*
-     * A gallery that never appears is a legitimate `no-cards` reading, not an
-     * error, so this swallows its own timeout and lets measureChrome return
-     * null. The bound matters more than the outcome: it caps a route that has
-     * nothing to show at ~10s rather than at the page timeout.
+     * Derived, not assigned in branches. The three outcomes are distinct and
+     * `loadError` is the only thing that separates a page that never arrived
+     * from one that arrived empty -- which is the whole point of this type.
      */
-    await page
-      .waitForFunction(
-        (selector: string) =>
-          !!document.querySelector(selector)?.firstElementChild,
-        GALLERY_GRID,
-        { timeout: 10_000 },
-      )
-      .catch(() => {})
-
-    chromePx = await measureChrome(page)
-  } catch (error) {
-    loadError =
-      error instanceof Error ? error.message.split('\n')[0]! : 'failed'
-  } finally {
-    await context.close()
+    const status: ChromeReading['status'] = loadError
+      ? 'load-failed'
+      : chromePx === null
+        ? 'no-cards'
+        : 'measured'
+    const note =
+      loadError ??
+      (chromePx === null ? 'page loaded, but rendered no cards' : undefined)
+    readings.push({
+      route,
+      breakpoint: bp.label,
+      viewportHeight: bp.height,
+      chromePx,
+      fraction: chromePx === null ? null : chromePx / bp.height,
+      status,
+      note,
+    })
   }
-
-  // DERIVED, never assigned in the branches above. "Loaded but empty" and
-  // "never loaded" are different findings and must not share a value.
-  const status: ChromeReading['status'] = loadError
-    ? 'load-failed'
-    : chromePx === null
-      ? 'no-cards'
-      : 'measured'
-
-  return {
-    route,
-    breakpoint: breakpoint.label,
-    viewportHeight: breakpoint.height,
-    chromePx,
-    loadError,
-    status,
-  }
+  return readings
 }
 
-const base = argOf('--base')
-if (!base) {
+/* -------------------------------------------------------------------------- */
+
+const args = process.argv.slice(2)
+const base = args[args.indexOf('--base') + 1]
+const strict = args.includes('--strict')
+
+if (!base || base.startsWith('--')) {
   console.error(
-    'Usage: tsx utils/scripts/auditGalleryChrome.ts --base <url> [--strict] [--strict-budget] [--routes /a,/b]',
+    'Usage: npx tsx utils/scripts/auditGalleryChrome.ts --base <url> [--strict]',
   )
   process.exit(2)
 }
 
-const routes = argOf('--routes')?.split(',').filter(Boolean) ?? DEFAULT_ROUTES
-const origin = base.replace(/\/$/, '')
+const only = args.includes('--route')
+  ? [args[args.indexOf('--route') + 1]!]
+  : null
+const routes = only ?? [...GALLERY_ROUTES]
 
 /*
- * TWO STRICTNESSES, because two different things can be wrong and only one of
- * them is gateable today.
- *
- * --strict gates the INSTRUMENT: a route that failed to load, or a run that
- * measured nothing at all, means this audit did not do its job. Those are the
- * failures that actually bit -- Chromium ignoring the proxy, a hardcoded
- * browser path, `networkidle` never settling -- and each of them once produced
- * output that read like a pass. This is not flaky and runs as a gate now.
- *
- * --strict-budget gates the FINDING: it fails on chrome overages. It is off in
- * CI because 17 of 28 measured readings are over budget TODAY, against real
- * pre-existing chrome (/servers spends 163% of a 1366x768 viewport before its
- * first card). Turning it on would block every unrelated PR on a backlog, which
- * is how a contract gets deleted instead of satisfied. Flip it on -- and delete
- * this paragraph -- once the routes are under budget.
+ * CHROMIUM_PATH lets a runner point at a browser it already has. This
+ * environment ships one at /opt/pw-browsers and sets
+ * PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD, but the pinned playwright expects a
+ * different revision directory and asks for `npx playwright install` -- which
+ * would pull ~150MB to re-download a browser already on disk.
  */
-const strict = process.argv.includes('--strict')
-const strictBudget = process.argv.includes('--strict-budget')
+const executablePath = process.env.CHROMIUM_PATH || undefined
 
 /*
- * Chromium does NOT pick up HTTPS_PROXY from the environment the way curl and
- * node do -- it has to be told. In a sandbox whose egress is proxy-only that
- * looks like ERR_CONNECTION_RESET on every single route while `curl` against
- * the same URL returns 200, which is exactly what the first run of this script
- * produced: 48 load failures misread as the site being down.
+ * Chromium does NOT inherit HTTPS_PROXY the way curl and node do -- it has to
+ * be told. That is the "a sandbox may allow curl and still reset Chromium"
+ * failure the load-failure message below warns about, and it is fixable rather
+ * than merely reportable: passing the proxy through turns 48 guaranteed
+ * ERR_CONNECTION_RESETs into real readings.
  */
 const proxyServer = process.env.HTTPS_PROXY || process.env.https_proxy
 const browser = await chromium.launch({
-  executablePath: CHROMIUM,
+  ...(executablePath ? { executablePath } : {}),
   ...(proxyServer ? { proxy: { server: proxyServer } } : {}),
 })
-if (proxyServer) console.log(`(routing Chromium through ${proxyServer})\n`)
-const readings: ChromeReading[] = []
-
+const all: ChromeReading[] = []
 for (const route of routes) {
-  for (const breakpoint of BREAKPOINTS) {
-    readings.push(await readRoute(browser, origin, route, breakpoint))
-  }
+  all.push(...(await auditRoute(browser, base, route)))
 }
 await browser.close()
 
-console.log(`Gallery chrome budget — ${origin}`)
+console.log(`\nGallery chrome — pixels above the first card, ${base}\n`)
 console.log(
-  `Pixels above the first card, as a fraction of viewport height. Budget: ${Math.round(
-    MAX_CHROME_FRACTION * 100,
-  )}%.\n`,
+  `${'route'.padEnd(14)}${BREAKPOINTS.map((b) => `${b.label} (${b.width})`.padEnd(16)).join('')}`,
 )
-
-const overages: ChromeReading[] = []
-const loadFailures: ChromeReading[] = []
-
+const over: ChromeReading[] = []
 for (const route of routes) {
-  const forRoute = readings.filter((reading) => reading.route === route)
-  const cells = forRoute.map((reading) => {
-    if (reading.status === 'load-failed')
-      return `${reading.breakpoint} LOAD-FAIL`
-    if (reading.status === 'no-cards') return `${reading.breakpoint} no-cards`
-
-    const fraction = reading.chromePx! / reading.viewportHeight
-    const flag = fraction > MAX_CHROME_FRACTION ? '❌' : '✓'
-    return `${reading.breakpoint} ${reading.chromePx}px ${Math.round(fraction * 100)}% ${flag}`
+  const row = all.filter((r) => r.route === route)
+  const cells = row.map((r) => {
+    if (r.chromePx === null) return '—'.padEnd(16)
+    const pct = Math.round((r.fraction ?? 0) * 100)
+    if ((r.fraction ?? 0) > MAX_CHROME_FRACTION) over.push(r)
+    return `${r.chromePx}px (${pct}%)`.padEnd(16)
   })
-
-  console.log(`  ${route.padEnd(13)} ${cells.join('   ')}`)
-
-  for (const reading of forRoute) {
-    if (reading.status === 'load-failed') loadFailures.push(reading)
-    else if (
-      reading.status === 'measured' &&
-      reading.chromePx! / reading.viewportHeight > MAX_CHROME_FRACTION
-    ) {
-      overages.push(reading)
-    }
-  }
+  console.log(`${route.padEnd(14)}${cells.join('')}`)
 }
 
-const noCards = readings.filter((reading) => reading.status === 'no-cards')
-if (noCards.length) {
+const failed = all.filter((r) => r.status === 'load-failed')
+const empty = all.filter((r) => r.status === 'no-cards')
+
+if (failed.length) {
+  console.error(
+    `\n${failed.length} reading(s) NEVER LOADED — nothing was measured:\n`,
+  )
+  for (const r of [...new Map(failed.map((r) => [r.note, r])).values()]) {
+    console.error(`  ${r.note}`)
+  }
+  console.error(
+    `\nThis is not a layout result. Run it from somewhere the browser can reach\n` +
+      `the deployment -- a sandbox may allow curl and still reset Chromium.`,
+  )
+  process.exitCode = 1
+}
+
+if (empty.length) {
   console.log(
-    `\n${noCards.length} reading(s) found no cards to measure. That is a DATA state (empty gallery, or a route that needs a signed-in user), not a layout finding — --strict does not fail on it.`,
+    `\n${empty.length} reading(s) loaded but held no cards — the API, not the layout.`,
   )
 }
 
-if (loadFailures.length) {
-  console.log(`\n${loadFailures.length} route/breakpoint(s) failed to load:`)
-  for (const reading of loadFailures) {
-    console.log(
-      `  ${reading.route} @ ${reading.breakpoint}: ${reading.loadError}`,
+if (over.length) {
+  console.error(
+    `\n${over.length} reading(s) spend more than ${Math.round(MAX_CHROME_FRACTION * 100)}%` +
+      ` of the viewport on chrome:\n`,
+  )
+  for (const r of over) {
+    console.error(
+      `  ${r.route} @ ${r.breakpoint}: ${r.chromePx}px of ${r.viewportHeight}px`,
     )
   }
-}
-
-if (overages.length) {
-  console.log(`\n${overages.length} reading(s) over the chrome budget:`)
-  for (const reading of overages) {
-    console.log(
-      `  ${reading.route} @ ${reading.breakpoint}: ${reading.chromePx}px of ${reading.viewportHeight}px`,
-    )
-  }
-} else {
-  /*
-   * "No overages" is only good news if something was actually measured. The
-   * first run of this script printed the all-clear off ZERO measurements --
-   * every route had failed to load -- which is the same absent-vs-empty
-   * conflation the header warns about, one level up: an empty findings list
-   * means "nothing found" only when the search ran.
-   */
-  const measured = readings.filter(
-    (reading) => reading.status === 'measured',
-  ).length
-
+  if (strict) process.exitCode = 1
+} else if (!failed.length && !empty.length) {
   console.log(
-    measured
-      ? `\nAll ${measured} measured gallery reading(s) show a card within the chrome budget.`
-      : '\nNOTHING WAS MEASURED — this is not a pass. Every route failed to load or had no cards.',
+    `\nEvery gallery keeps its chrome under ${Math.round(MAX_CHROME_FRACTION * 100)}% of the viewport.`,
   )
-}
-
-const measuredCount = readings.filter((r) => r.status === 'measured').length
-
-if (strict && loadFailures.length) {
-  console.error(
-    `\nFAIL - ${loadFailures.length} route/breakpoint(s) never loaded, so this run did not measure what it claims to.`,
-  )
-  process.exit(1)
-}
-
-if (strict && !measuredCount) {
-  console.error(
-    '\nFAIL - zero readings. An empty result is not a clean result.',
-  )
-  process.exit(1)
-}
-
-if (strictBudget && overages.length) {
-  console.error(
-    `\nFAIL - ${overages.length} reading(s) over the ${Math.round(
-      MAX_CHROME_FRACTION * 100,
-    )}% chrome budget.`,
-  )
-  process.exit(1)
 }

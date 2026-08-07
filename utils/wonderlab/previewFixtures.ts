@@ -13,6 +13,39 @@ export type WonderLabPreviewFixture = {
 const fixtureDate = new Date('2026-01-01T00:00:00.000Z')
 
 const fixtures: Record<string, WonderLabPreviewFixture> = {
+  'resource-card': {
+    title: 'Resource card specimen',
+    description:
+      'A synthetic LoRA with a trigger phrase and both use counts, so the type badges, the hover trigger strip, the four build actions and the Edit affordance are all visible. Presentational: it takes the record and its two busy flags as props and reads no store.',
+    viewport: 'mobile',
+    minHeight: '28rem',
+    props: {
+      resource: {
+        id: -801,
+        createdAt: fixtureDate,
+        updatedAt: fixtureDate,
+        name: 'wonderlab-fixture-lora.safetensors',
+        customLabel: 'Museum Placard Style',
+        description:
+          'A synthetic Resource for checking resource-card badges, truncation, and button layout.',
+        resourceType: 'LORA',
+        generation: 'SDXL',
+        supportedServer: 'COMFY',
+        defaultTrigger: 'museum placard, clean lettering',
+        triggerWords: null,
+        artPrompt: null,
+        localPath: null,
+        previewImageUrl: null,
+        imagePath: null,
+        isMature: false,
+        userId: 0,
+        ArtImage: null,
+        _count: { ArtImages: 12, UsedInImages: 47 },
+      },
+      generatingPreview: false,
+      uploadingPreview: false,
+    },
+  },
   'icon-card': {
     title: 'Smart Icon card',
     description:
@@ -347,49 +380,6 @@ const fixtures: Record<string, WonderLabPreviewFixture> = {
       allowSelect: false,
       showDescription: true,
       showMeta: true,
-    },
-  },
-  /*
-   * resource-card was extracted from resource-gallery when that grid moved onto
-   * kr-gallery, so it is newly mountable on its own and newly needs a fixture.
-   *
-   * It takes only the record plus two busy flags -- its five actions are emits
-   * the gallery owns -- which is exactly what makes it exhibitable here: a card
-   * that owned its consequences could not be mounted from a plain fixture.
-   * Both busy flags are set so the spinner states are visible in the specimen
-   * rather than being a code path nothing ever draws.
-   */
-  'resource-card': {
-    title: 'Resource Card specimen',
-    description:
-      'Uses a synthetic LoRA. Every action is an emit, so nothing here reaches a store or an API.',
-    viewport: 'mobile',
-    minHeight: '27rem',
-    props: {
-      resource: {
-        id: -305,
-        name: 'wonderlab-safe-lora.safetensors',
-        customLabel: 'WonderLab Safe LoRA',
-        description:
-          'A synthetic resource used to inspect trigger words, use counts, and the edit affordance.',
-        resourceType: 'LORA',
-        generation: 'SDXL',
-        supportedServer: 'COMFY',
-        defaultTrigger: 'wonderlab specimen',
-        triggerWords: null,
-        artPrompt: null,
-        localPath: '',
-        MediaPath: null,
-        previewImageUrl: null,
-        imagePath: null,
-        ArtImage: null,
-        isMature: false,
-        artImageId: null,
-        userId: null,
-        _count: { ArtImages: 12, UsedInImages: 4 },
-      },
-      generatingPreview: false,
-      uploadingPreview: false,
     },
   },
   'server-card': {

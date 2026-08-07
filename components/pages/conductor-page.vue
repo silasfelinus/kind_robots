@@ -540,6 +540,18 @@
                   :class="kindBadgeClass(selectedProject.kind)"
                   >{{ selectedProject.kind }}</span
                 >
+                <span
+                  v-if="selectedProject.conductorStatus"
+                  class="badge badge-sm shrink-0"
+                  :class="
+                    selectedProject.conductorStatus === 'continuous'
+                      ? 'badge-accent'
+                      : selectedProject.conductorStatus === 'active'
+                        ? 'badge-success'
+                        : 'badge-ghost'
+                  "
+                  >{{ selectedProject.conductorStatus }}</span
+                >
               </div>
             </div>
 
@@ -581,6 +593,7 @@
                 @change="handleProjectStatusChange"
               >
                 <option value="ACTIVE">ACTIVE</option>
+                <option value="CONTINUOUS">CONTINUOUS</option>
                 <option value="PAUSED">PAUSED</option>
                 <option value="BRAINSTORM">BRAINSTORM</option>
                 <option value="DONE">DONE</option>
@@ -1308,7 +1321,8 @@ import ConductorProjectChat from '@/components/conductor/conductor-project-chat.
 import KaizenPopup from '@/components/conductor/kaizen-popup.vue'
 import SnapshotModeBanner from '@/components/navigation/snapshot-mode-banner.vue'
 
-type ProjectStatus = 'ACTIVE' | 'PAUSED' | 'DONE' | 'ARCHIVED' | 'BRAINSTORM'
+type ProjectStatus =
+  'ACTIVE' | 'CONTINUOUS' | 'PAUSED' | 'DONE' | 'ARCHIVED' | 'BRAINSTORM'
 
 type ProjectPatch = {
   description?: string | null
@@ -1447,13 +1461,25 @@ function projectIconPath(slug: string | null): string {
 
 const activeProjects = computed(() =>
   projects.value.filter((project) => {
-    const status = projectRecordForSlug(project.slug)?.status
-    return status !== 'BRAINSTORM' && status !== 'ARCHIVED'
+    if (project.conductorStatus) {
+      return ['active', 'continuous'].includes(project.conductorStatus)
+    }
+    // Database-only projects have no Conductor lifecycle yet. Treat only the
+    // live runtime ACTIVE state as workspace-active; DONE/PAUSED/ARCHIVED stay out.
+    return projectRecordForSlug(project.slug)?.status === 'ACTIVE'
   }),
 )
 
 const sortedActiveProjects = computed(() =>
   [...activeProjects.value].sort((a, b) => {
+    const lifecycleOrder = { active: 0, continuous: 1 } as const
+    const lifecycleA = a.conductorStatus ?? 'active'
+    const lifecycleB = b.conductorStatus ?? 'active'
+    const lifecycleDelta =
+      (lifecycleOrder[lifecycleA as keyof typeof lifecycleOrder] ?? 0) -
+      (lifecycleOrder[lifecycleB as keyof typeof lifecycleOrder] ?? 0)
+    if (lifecycleDelta !== 0) return lifecycleDelta
+
     const order: Record<ProjectPriorityLevel, number> = {
       HIGH: 0,
       NORMAL: 1,

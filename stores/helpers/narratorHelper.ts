@@ -146,7 +146,10 @@ export const narratorNavigationTree: NarratorNavAction[] = [
     description:
       'Create and expand Dreams, bots, stories, characters, and rewards.',
     icon: 'kind-icon:wand',
-    path: '/builder',
+    // '/builder' matched no page or content route -- see the identical fix
+    // and rationale on dashboardConfigs.footer's 'builder' tab in
+    // dashboardHelper.ts (interface-vision/t-107).
+    path: '/characters',
     flavor: 'Tools out. Sparks on.',
     prompt:
       'Help me build the next useful piece for this Dream. Suggest what to create next and why.',
@@ -176,7 +179,7 @@ export const narratorNavigationTree: NarratorNavAction[] = [
     title: 'Scenarios',
     description: 'Choose a playable setup, location, or scene frame.',
     icon: 'kind-icon:map',
-    path: '/scenarios',
+    path: '/stories',
     flavor: 'The stage is waiting.',
     prompt:
       'Help me launch a scenario in this Dream. Use a vivid opening beat and end with choices.',
@@ -432,7 +435,7 @@ export const narratorCreateSpecs: NarratorCreateSpec[] = [
     type: 'scenario',
     title: 'New Scenario',
     icon: 'kind-icon:map',
-    builderPath: '/scenarios',
+    builderPath: '/stories',
     flavor: 'A new stage rolls into place.',
     prompt:
       'Create a single playable scenario for the Dream "{dream}". Return a title, a vivid location, a central tension, an opening intro beat, and 2–3 first choices.',
@@ -711,7 +714,7 @@ export function buildNarratorStarterPrompts(options: {
       icon: 'kind-icon:map',
       action: 'screen',
       screen: 'scenarios',
-      path: '/scenarios',
+      path: '/stories',
       flavor: 'The stage is waiting.',
       prompt: `Tell me a story in the Dream "${dreamTitle}". Use the selected scenario if one exists, and end with 2 or 3 choices.`,
     },

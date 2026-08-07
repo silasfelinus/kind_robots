@@ -19,9 +19,7 @@
       automatically per theme and keep components consistent.
 -->
 <template>
-  <div
-    class="kr-gallery h-full min-h-0 overflow-y-auto bg-base-200 text-base-content"
-  >
+  <div class="h-full min-h-0 overflow-y-auto bg-base-200 text-base-content">
     <!-- Header + theme switcher -->
     <header
       class="sticky top-0 z-20 border-b border-base-300 bg-base-100/90 backdrop-blur"
@@ -337,6 +335,67 @@
       </section>
 
       <!-- Cards -->
+      <section id="gallery" class="scroll-mt-32 kr-section">
+        <SectionHeading
+          title="Gallery"
+          hint="The shared browse shell. Every core object's gallery insets this."
+        />
+
+        <!-- The style guide had `class="kr-gallery"` on its ROOT and no
+             kr-gallery anywhere in it -- a dead class (no CSS rule defines it)
+             that happened to shadow the component name. That is the exact
+             false positive the adoption check shipped with: a substring match
+             counted this page as an adopter while it demonstrated nothing.
+             The class is gone and this is the real thing. -->
+        <!-- Density is the OTHER axis, and the one people conflate with mode.
+             Mode picks which stored image loads; density picks how many tiles
+             fit per row. They are independent, so both are switchable here. -->
+        <label class="mb-2 flex w-fit items-center gap-2">
+          <span class="text-smart-caption opacity-70">Density</span>
+          <select
+            v-model="demoGalleryDensity"
+            class="select select-bordered select-sm"
+          >
+            <option
+              v-for="option in GALLERY_DENSITIES"
+              :key="option.value"
+              :value="option.value"
+            >
+              {{ option.label }}
+            </option>
+          </select>
+        </label>
+
+        <kr-gallery
+          :items="demoGalleryItems"
+          :mode="demoGalleryMode"
+          :density="demoGalleryDensity"
+          empty-label="specimens"
+          @update:mode="demoGalleryMode = $event"
+        >
+          <template #item="{ item, mode }">
+            <div
+              class="flex flex-col gap-1 rounded-2xl border border-base-300 bg-base-100 p-3"
+            >
+              <span class="text-smart-heading font-black">{{
+                item.title
+              }}</span>
+              <span class="text-smart-compact opacity-70">
+                {{ item.description }}
+              </span>
+              <span class="badge badge-ghost badge-sm w-fit">{{ mode }}</span>
+            </div>
+          </template>
+        </kr-gallery>
+
+        <p class="text-smart-compact mt-2 opacity-70">
+          The Cards / Heroes / Icons bar is the shell's, and it is sticky inside
+          whichever ancestor scrolls. Swap modes above and the grid changes with
+          it -- each mode is a different MODE_GRID_CLASS, container-responsive
+          rather than viewport-keyed.
+        </p>
+      </section>
+
       <section id="cards" class="scroll-mt-32 kr-section">
         <SectionHeading
           title="Cards"
@@ -376,60 +435,6 @@
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      <!--
-        The gallery shell, live.
-
-        This page is called ui-gallery and carried `class="kr-gallery"` on its
-        root, which made every filename- and substring-keyed check believe the
-        style guide was already on the shared shell. It was not: that class is
-        a layout utility that happens to share the name.
-
-        A style guide that documents the aesthetic but not the one component
-        every object browser is built from is missing its most-used entry, so
-        the fix is to actually mount it rather than to exempt the page. Both
-        axes are switchable below because they are independent and that is the
-        part people get wrong: mode picks WHICH stored image loads, density
-        picks HOW MANY tiles fit per row.
-      -->
-      <section id="gallery" class="scroll-mt-32 kr-section">
-        <SectionHeading
-          title="Gallery shell"
-          hint="kr-gallery — the shared browse surface behind every object gallery. Mode picks which stored art loads; density picks how many tiles fit per row."
-        />
-
-        <div class="kr-panel space-y-3">
-          <div class="flex flex-wrap items-center gap-4">
-            <label class="flex items-center gap-2">
-              <span class="text-smart-caption opacity-70">Density</span>
-              <select
-                v-model="demoDensity"
-                class="select select-bordered select-sm"
-              >
-                <option
-                  v-for="option in GALLERY_DENSITIES"
-                  :key="option.value"
-                  :value="option.value"
-                >
-                  {{ option.label }}
-                </option>
-              </select>
-            </label>
-            <p class="text-smart-caption opacity-70">
-              The Cards / Heroes / Icons bar below is the shell's own, and is
-              sticky inside whatever ancestor scrolls it.
-            </p>
-          </div>
-
-          <kr-gallery
-            :items="demoGalleryItems"
-            :mode="demoMode"
-            :density="demoDensity"
-            empty-label="samples"
-            @update:mode="demoMode = $event"
-          />
         </div>
       </section>
 
@@ -631,6 +636,15 @@ function onThemeChange(event: Event) {
   themeStore.setActiveTheme(value)
 }
 
+const demoGalleryMode = ref<GalleryMode>('cards')
+const demoGalleryDensity = ref<GalleryDensity>('md')
+
+const demoGalleryItems: GalleryItem[] = [
+  { id: 1, title: 'Specimen One', description: 'A card-shaped entry.' },
+  { id: 2, title: 'Specimen Two', description: 'Another, for spacing.' },
+  { id: 3, title: 'Specimen Three', description: 'And a third, for wrap.' },
+]
+
 const sections = [
   { id: 'conventions', label: 'Conventions' },
   { id: 'tokens', label: 'Tokens' },
@@ -639,55 +653,12 @@ const sections = [
   { id: 'badges', label: 'Badges' },
   { id: 'alerts', label: 'Alerts' },
   { id: 'callouts', label: 'Callouts' },
-  { id: 'cards', label: 'Cards' },
   { id: 'gallery', label: 'Gallery' },
+  { id: 'cards', label: 'Cards' },
   { id: 'forms', label: 'Forms' },
   { id: 'nav', label: 'Nav' },
   { id: 'data', label: 'Data' },
   { id: 'progress', label: 'Progress' },
-]
-
-const demoMode = ref<GalleryMode>('cards')
-const demoDensity = ref<GalleryDensity>('md')
-
-/*
- * Deliberately art-less. The shell's art-absent placeholder is the state a
- * gallery is in most often here -- art is queued rather than required -- so a
- * style guide that only ever showed illustrated tiles would document the rare
- * case. `placeholderIcon` and `placeholderLabel` are the two knobs a caller
- * has over it, so each sample sets a different pair.
- */
-const demoGalleryItems: GalleryItem[] = [
-  {
-    id: 'dream',
-    title: 'A Dream',
-    description: 'Titles truncate to one line; descriptions clamp to two.',
-    meta: 'meta line · shown in cards and heroes, hidden in icons',
-    placeholderIcon: 'kind-icon:moon',
-    placeholderLabel: 'Dream',
-    badges: [{ label: 'new', class: 'badge-primary' }],
-  },
-  {
-    id: 'character',
-    title: 'A Character With A Name Long Enough To Truncate',
-    description:
-      'Two lines of description, then an ellipsis. This sentence exists to reach the clamp so the boundary is visible rather than described.',
-    placeholderIcon: 'kind-icon:mask',
-    placeholderLabel: 'Character',
-  },
-  {
-    id: 'reward',
-    title: 'A Reward',
-    description: 'Progress bars render under the meta line.',
-    progressPercent: 62,
-    placeholderIcon: 'kind-icon:gift',
-    placeholderLabel: 'Reward',
-  },
-  {
-    id: 'scenario',
-    title: 'A Scenario',
-    placeholderIcon: 'kind-icon:map',
-  },
 ]
 
 const sampleLeaderboard = [

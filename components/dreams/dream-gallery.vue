@@ -382,11 +382,22 @@
              :mode is bound so the shell picks the right MODE_GRID_CLASS, and
              :modes="[]" hides ITS bar because this gallery already renders one
              in its toolbar above -- two bars driving one mode would be worse
-             than none. -->
+             than none.
+
+             THE PROP WAS MISSING. The comment above described the intent and
+             the binding was never written, so /dreams shipped with TWO mode
+             pickers: this gallery's button group in the toolbar and the shell's
+             own bar underneath it. Both drove `galleryMode`, so they stayed in
+             sync and nothing looked broken -- it just cost a whole row on the
+             busiest route, which is exactly the vertical budget Silas flagged
+             on 2026-08-07. Found while auditing gallery chrome, not by the
+             contract: "does it mount kr-gallery" cannot see a duplicated
+             control. -->
         <kr-gallery
           v-else
           :items="galleryItems"
           :mode="galleryMode"
+          :modes="[]"
           empty-label="dreams"
           @update:mode="galleryMode = $event"
         >

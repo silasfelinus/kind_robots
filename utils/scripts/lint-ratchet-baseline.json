@@ -1,7 +1,7 @@
 {
   "note": "ESLint RATCHET: this file may only ever shrink. --update refuses to record a larger count. See utils/scripts/verifyLintRatchet.ts.",
   "recorded": "2026-08-07",
-  "total": 395,
+  "total": 392,
   "violations": {
     "vue/v-on-event-hyphenation": [
       "app.vue:37:22"
@@ -9,7 +9,7 @@
     "@typescript-eslint/no-explicit-any": [
       "components/abandonware/achievements/locked-achievements.vue:49:25",
       "components/abandonware/themes/theme-lab.vue:191:25",
-      "components/achievements/achievement-gallery.vue:158:42",
+      "components/achievements/achievement-gallery.vue:179:42",
       "components/giftshop/subscription-manager.vue:100:17",
       "components/giftshop/subscription-manager.vue:112:17",
       "server/api/bots/[id].patch.ts:40:24",
@@ -217,7 +217,6 @@
       "stores/characterStore.ts:99:11",
       "stores/chatStore.ts:169:11",
       "stores/chatStore.ts:177:11",
-      "stores/conductorStore.ts:106:11",
       "stores/dreamStore.ts:215:11",
       "stores/dreamStore.ts:223:11",
       "stores/memoryStore.ts:212:11",
@@ -247,7 +246,7 @@
     "@typescript-eslint/no-dynamic-delete": [
       "components/art/art-gallery.vue:1603:17",
       "components/art/art-gallery.vue:875:19",
-      "components/art/stylist-client-gallery.vue:144:20",
+      "components/art/stylist-client-gallery.vue:210:20",
       "components/art/stylist-clients.vue:120:20",
       "components/art/stylist-clients.vue:170:22",
       "components/giftshop/shopping-cart.vue:177:50",
@@ -266,7 +265,6 @@
       "stores/characterStore.ts:824:52",
       "stores/collectionStore.ts:816:36",
       "stores/collectionStore.ts:991:32",
-      "stores/conductorStore.ts:287:19",
       "stores/dreamStore.ts:1057:47",
       "stores/dreamStore.ts:1208:41",
       "stores/dreamStore.ts:839:29",
@@ -307,9 +305,9 @@
       "components/bots/add-bot.vue:688:51"
     ],
     "@typescript-eslint/unified-signatures": [
-      "components/dreams/dream-gallery.vue:490:4",
-      "components/dreams/dream-gallery.vue:491:4",
-      "components/dreams/dream-gallery.vue:491:4",
+      "components/dreams/dream-gallery.vue:501:4",
+      "components/dreams/dream-gallery.vue:502:4",
+      "components/dreams/dream-gallery.vue:502:4",
       "components/dreams/dream-list.vue:231:4",
       "components/dreams/dream-list.vue:232:4",
       "components/dreams/dream-list.vue:232:4",
@@ -430,8 +428,7 @@
       "utils/scripts/cypress-fast-fix.mjs:52:5",
       "utils/scripts/cypress-fast-fix.mjs:66:5",
       "utils/scripts/cypress-fast-repair.mjs:45:5",
-      "utils/scripts/cypress-fast-repair.mjs:59:5",
-      "utils/scripts/verifyConductorProjectRegistry.ts:77:41"
+      "utils/scripts/cypress-fast-repair.mjs:59:5"
     ],
     "(parse error)": [
       "server/api/reactions/index.post.ts:239:3"

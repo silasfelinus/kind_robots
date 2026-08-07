@@ -4,12 +4,12 @@ Kind Robots does not independently own roadmap or human-gate state. It stores a 
 
 ## Authority
 
-| Data | Authority |
-|---|---|
-| Project lifecycle and coordination priority | Conductor |
-| Roadmap tasks, milestones, dependencies, claims, gates, notes, and pitches | Conductor |
-| Project title, description, route, channel, tab, URLs, and artwork | Kind Robots `Project` |
-| User state, runtime queues, ArtJobs, payments, grants, and application data | Kind Robots |
+| Data                                                                        | Authority             |
+| --------------------------------------------------------------------------- | --------------------- |
+| Project lifecycle and coordination priority                                 | Conductor             |
+| Roadmap tasks, milestones, dependencies, claims, gates, notes, and pitches  | Conductor             |
+| Project title, description, route, channel, tab, URLs, and artwork          | Kind Robots `Project` |
+| User state, runtime queues, ArtJobs, payments, grants, and application data | Kind Robots           |
 
 `Project.conductorSlug` is the cross-repository join key.
 
@@ -43,7 +43,7 @@ An optimistic browser update is temporary feedback. It is not canonical completi
 The sync endpoint updates only coordination fields on an existing `Project`:
 
 - `conductorSlug`, when missing;
-- `status`;
+- `status` (including first-class `CONTINUOUS` for Conductor's `continuous` lifecycle);
 - `priority`;
 - `lastSyncedAt`.
 

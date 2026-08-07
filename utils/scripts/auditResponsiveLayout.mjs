@@ -48,7 +48,37 @@ const flag = (name, fallback) => {
 const BASE = flag('base', process.env.AUDIT_BASE || 'http://127.0.0.1:3000')
 const ROUTES = flag(
   'routes',
-  '/,/conductor,/dreams,/art,/bots,/characters,/rewards,/scenarios',
+  // interface-vision/t-103: growing this list toward the t-102 inventory's
+  // full 51-route gap, in scoped slices. Slice 1 added the 11 reachable,
+  // non-admin `channelKey: home` routes. Slice 2 added 8 of the `channelKey:
+  // plan` public tool pages (no auth gate) -- appmaker, brainstorm, coloring,
+  // model-builder, packs, stylist, wishmaster, conductor-app. Slice 3 covers
+  // the `channelKey: play` bucket plus the sibling `content/play/*` subdir
+  // routes -- academy, facets, resources (shadowed by pages/resources.vue,
+  // which is the page actually rendered at this path), serendipity,
+  // storybook, taskmaster, and /play/challenges, /play/davinci, /play/memory,
+  // /play/screenfx. Slice 4 covers the remaining `content/plan/*` pages --
+  // newsfeed, voice-lab, watchlist, wonderlab, and the plan/projects/* case
+  // studies (coat-dance, humboldt-scoop, ruler-hooked, sketchy) -- plus the
+  // sibling `content/build/*` routes (animation-manager, hair-studio, mural),
+  // all resolved through pages/[...slug].vue by content path. Slice 5 covers
+  // the `channelKey: sanctuary` bucket (about, cart, giving, mermaids,
+  // privacy, sanctuary itself) plus the two no-channelKey top-level content
+  // routes /forum and /servers. None of these set requiredPermission -- all
+  // public. Remaining gap: the static pages (/auth/google, /build-bench,
+  // /coloring-page, /music-mentor, /play/challenges/leaderboard,
+  // /play/video-generator) and the dynamic-path representatives (/users/1,
+  // /play/challenges/<slug>). Track progress in
+  // projects/interface-vision/docs/t-102-reachable-surface-inventory.md.
+  '/,/conductor,/dreams,/art,/bots,/characters,/rewards,/stories,' +
+    '/account,/achievements,/chats,/dashboard,/for-you,/friends,/messages,/navigation,/register,/themes,/wallet,' +
+    '/appmaker,/brainstorm,/coloring,/model-builder,/packs,/stylist,/wishmaster,/conductor-app,' +
+    '/academy,/facets,/resources,/serendipity,/storybook,/taskmaster,' +
+    '/play/challenges,/play/davinci,/play/memory,/play/screenfx,' +
+    '/plan/newsfeed,/plan/voice-lab,/plan/watchlist,/plan/wonderlab,' +
+    '/plan/projects/coat-dance,/plan/projects/humboldt-scoop,/plan/projects/ruler-hooked,/plan/projects/sketchy,' +
+    '/build/animation-manager,/build/hair-studio,/build/mural,' +
+    '/about,/cart,/giving,/mermaids,/privacy,/sanctuary,/forum,/servers',
 )
   .split(',')
   .map((r) => r.trim())

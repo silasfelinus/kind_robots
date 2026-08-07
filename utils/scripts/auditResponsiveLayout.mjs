@@ -48,7 +48,13 @@ const flag = (name, fallback) => {
 const BASE = flag('base', process.env.AUDIT_BASE || 'http://127.0.0.1:3000')
 const ROUTES = flag(
   'routes',
-  '/,/conductor,/dreams,/art,/bots,/characters,/rewards,/stories',
+  // interface-vision/t-103: growing this list toward the t-102 inventory's
+  // full 51-route gap, in scoped slices. This slice adds the 11 reachable,
+  // non-admin `channelKey: home` routes -- the first bucket from that
+  // inventory's "Gaps" section. Track progress in
+  // projects/interface-vision/docs/t-102-reachable-surface-inventory.md.
+  '/,/conductor,/dreams,/art,/bots,/characters,/rewards,/stories,' +
+    '/account,/achievements,/chats,/dashboard,/for-you,/friends,/messages,/navigation,/register,/themes,/wallet',
 )
   .split(',')
   .map((r) => r.trim())

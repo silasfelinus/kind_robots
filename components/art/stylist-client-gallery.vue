@@ -8,14 +8,20 @@
       <div class="flex-1" />
       <select v-model="folderFilter" class="select select-bordered select-xs">
         <option value="">All folders</option>
-        <option v-for="folder in folders" :key="folder" :value="folder">{{ folder }}</option>
+        <option v-for="folder in folders" :key="folder" :value="folder">
+          {{ folder }}
+        </option>
       </select>
     </header>
 
     <div class="mb-3 flex flex-wrap items-end gap-2 rounded-xl bg-base-100 p-3">
       <label class="flex min-w-28 flex-col gap-1">
         <span class="text-xs font-bold">Folder</span>
-        <input v-model="uploadFolder" class="input input-bordered input-xs" placeholder="general" />
+        <input
+          v-model="uploadFolder"
+          class="input input-bordered input-xs"
+          placeholder="general"
+        />
       </label>
       <label class="flex min-w-28 flex-col gap-1">
         <span class="text-xs font-bold">Type</span>
@@ -29,9 +35,16 @@
       </label>
       <label class="flex min-w-44 flex-1 flex-col gap-1">
         <span class="text-xs font-bold">Caption</span>
-        <input v-model="uploadCaption" class="input input-bordered input-xs" placeholder="Color, formula, date, or notes" />
+        <input
+          v-model="uploadCaption"
+          class="input input-bordered input-xs"
+          placeholder="Color, formula, date, or notes"
+        />
       </label>
-      <label class="btn btn-primary btn-sm" :class="{ 'btn-disabled': uploading }">
+      <label
+        class="btn btn-primary btn-sm"
+        :class="{ 'btn-disabled': uploading }"
+      >
         <span v-if="uploading" class="loading loading-spinner loading-xs" />
         <Icon v-else name="kind-icon:upload" class="size-4" />
         Add photos
@@ -44,7 +57,10 @@
           @change="uploadPhotos"
         />
       </label>
-      <label class="btn btn-ghost btn-sm" :class="{ 'btn-disabled': uploading }">
+      <label
+        class="btn btn-ghost btn-sm"
+        :class="{ 'btn-disabled': uploading }"
+      >
         <Icon name="kind-icon:camera" class="size-4" />
         Take photo
         <input
@@ -58,60 +74,106 @@
       </label>
     </div>
 
-    <p v-if="error" class="mb-3 rounded-xl bg-error/10 p-2 text-xs text-error">{{ error }}</p>
-    <p v-if="loading" class="py-6 text-center text-sm text-base-content/50">Loading gallery…</p>
-    <p v-else-if="!filteredPhotos.length" class="py-6 text-center text-sm text-base-content/40">
-      No photos in this folder yet.
+    <p v-if="error" class="mb-3 rounded-xl bg-error/10 p-2 text-xs text-error">
+      {{ error }}
     </p>
-
-    <div v-else class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-      <article
-        v-for="photo in filteredPhotos"
-        :key="photo.id"
-        class="overflow-hidden rounded-xl border border-base-300 bg-base-100"
-      >
-        <div class="relative aspect-square bg-base-300">
-          <img
-            v-if="photoUrls[photo.id]"
-            :src="photoUrls[photo.id]"
-            :alt="photo.caption || `${client.name} ${photo.kind}`"
-            class="h-full w-full object-cover"
-          />
-          <span v-if="photo.isPrimary" class="badge badge-primary badge-sm absolute left-2 top-2">Primary</span>
-        </div>
-        <div class="flex flex-col gap-1 p-2">
-          <div class="flex flex-wrap gap-1">
-            <span class="badge badge-outline badge-xs">{{ photo.folder }}</span>
-            <span class="badge badge-ghost badge-xs">{{ photo.kind }}</span>
-          </div>
-          <p class="min-h-8 text-xs text-base-content/65">{{ photo.caption || 'No caption' }}</p>
-          <div class="flex flex-wrap gap-1">
-            <button
-              v-if="!photo.isPrimary"
-              type="button"
-              class="btn btn-primary btn-xs"
-              @click="setPrimary(photo.id)"
+    <!-- The shared shell owns the grid, the mode bar, and the loading and
+         empty states. The photo card stays bespoke: these are stylist client
+         photos with folder/kind badges and a primary flag, not entity art, so
+         the #item slot replaces kr-gallery's default card outright. -->
+    <kr-gallery
+      :items="galleryItems"
+      :mode="galleryMode"
+      :loading="loading"
+      empty-label="photos"
+      @update:mode="galleryMode = $event"
+    >
+      <template #item="{ item }">
+        <article
+          v-if="photoById.get(Number(item.id))"
+          class="overflow-hidden rounded-xl border border-base-300 bg-base-100"
+        >
+          <div class="relative aspect-square bg-base-300">
+            <img
+              v-if="photoUrls[Number(item.id)]"
+              :src="photoUrls[Number(item.id)]"
+              :alt="
+                photoById.get(Number(item.id))!.caption ||
+                `${client.name} ${photoById.get(Number(item.id))!.kind}`
+              "
+              class="h-full w-full object-cover"
+            />
+            <span
+              v-if="photoById.get(Number(item.id))!.isPrimary"
+              class="badge badge-primary badge-sm absolute left-2 top-2"
+              >Primary</span
             >
-              Set primary
-            </button>
-            <button type="button" class="btn btn-ghost btn-xs text-error" @click="removePhoto(photo.id)">
-              Delete
-            </button>
           </div>
-        </div>
-      </article>
-    </div>
+          <div class="flex flex-col gap-1 p-2">
+            <div class="flex flex-wrap gap-1">
+              <span class="badge badge-outline badge-xs">{{
+                photoById.get(Number(item.id))!.folder
+              }}</span>
+              <span class="badge badge-ghost badge-xs">{{
+                photoById.get(Number(item.id))!.kind
+              }}</span>
+            </div>
+            <p class="min-h-8 text-xs text-base-content/65">
+              {{ photoById.get(Number(item.id))!.caption || 'No caption' }}
+            </p>
+            <div class="flex flex-wrap gap-1">
+              <button
+                v-if="!photoById.get(Number(item.id))!.isPrimary"
+                type="button"
+                class="btn btn-primary btn-xs"
+                @click="setPrimary(Number(item.id))"
+              >
+                Set primary
+              </button>
+              <button
+                type="button"
+                class="btn btn-ghost btn-xs text-error"
+                @click="removePhoto(Number(item.id))"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </article>
+      </template>
+
+      <template #empty>
+        <p class="py-6 text-center text-sm text-base-content/40">
+          No photos in this folder yet.
+        </p>
+      </template>
+    </kr-gallery>
   </section>
 </template>
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
+import type { GalleryMode } from '@/utils/galleryVocabulary'
 import type { SuperkateCustomer } from '@/stores/superkateStore'
 import { performFetch } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'
 
 const props = defineProps<{ client: SuperkateCustomer }>()
 const emit = defineEmits<{ changed: [] }>()
+
+const galleryMode = ref<GalleryMode>('cards')
+
+const galleryItems = computed<GalleryItem[]>(() =>
+  filteredPhotos.value.map((photo) => ({
+    id: photo.id,
+    title: photo.caption || `${photo.folder} · ${photo.kind}`,
+  })),
+)
+
+const photoById = computed(
+  () => new Map(filteredPhotos.value.map((photo) => [photo.id, photo])),
+)
 const userStore = useUserStore()
 
 type GalleryPhoto = {
@@ -133,9 +195,13 @@ const uploadCaption = ref('')
 const folderFilter = ref('')
 const photoUrls = reactive<Record<number, string>>({})
 
-const folders = computed(() => [...new Set(photos.value.map((photo) => photo.folder))].sort())
+const folders = computed(() =>
+  [...new Set(photos.value.map((photo) => photo.folder))].sort(),
+)
 const filteredPhotos = computed(() =>
-  folderFilter.value ? photos.value.filter((photo) => photo.folder === folderFilter.value) : photos.value,
+  folderFilter.value
+    ? photos.value.filter((photo) => photo.folder === folderFilter.value)
+    : photos.value,
 )
 
 function revoke(id: number) {
@@ -170,7 +236,9 @@ async function loadGallery() {
   }
   const next = response.data.photos || []
   const ids = new Set(next.map((photo) => photo.id))
-  Object.keys(photoUrls).forEach((id) => { if (!ids.has(Number(id))) revoke(Number(id)) })
+  Object.keys(photoUrls).forEach((id) => {
+    if (!ids.has(Number(id))) revoke(Number(id))
+  })
   photos.value = next
   await Promise.all(next.map(loadBlob))
   loading.value = false
@@ -210,7 +278,8 @@ async function setPrimary(photoId: number) {
     `/api/stylist/client/${props.client.id}/photo/${photoId}`,
     { method: 'PATCH', body: JSON.stringify({ isPrimary: true }) },
   )
-  if (!response.success) error.value = response.message || 'Could not select primary photo.'
+  if (!response.success)
+    error.value = response.message || 'Could not select primary photo.'
   await loadGallery()
   emit('changed')
 }
@@ -221,11 +290,14 @@ async function removePhoto(photoId: number) {
     `/api/stylist/client/${props.client.id}/photo/${photoId}`,
     { method: 'DELETE' },
   )
-  if (!response.success) error.value = response.message || 'Could not delete photo.'
+  if (!response.success)
+    error.value = response.message || 'Could not delete photo.'
   await loadGallery()
   emit('changed')
 }
 
 onMounted(loadGallery)
-onBeforeUnmount(() => Object.keys(photoUrls).forEach((id) => revoke(Number(id))))
+onBeforeUnmount(() =>
+  Object.keys(photoUrls).forEach((id) => revoke(Number(id))),
+)
 </script>

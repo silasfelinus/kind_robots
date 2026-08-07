@@ -8,11 +8,16 @@
     :aliases="{ add: 'dreammaker', maker: 'dreammaker' }"
     @refresh="refreshManagerData"
   >
-    <!-- Above every tab: the daily Dream is offered wherever you are. -->
-    <template #persistent>
-      <daily-dream-generator @created="onDailyDreamCreated" />
-    </template>
+    <!--
+      The daily-dream-generator used to live in a `#persistent` slot here, so
+      "Today's Facet Dream" rendered above EVERY Dreams tab and cost a band on
+      every visit. Silas, 2026-08-07: "if that's supposed to be part of the
+      daily dream index, it shouldn't be here. killing that entire section would
+      bring back the space we want, and it's not an option I need or want."
 
+      It belongs to the daily-dream index, not to the Dream browser, so it is
+      gone from here rather than shrunk. Nothing else on this page linked to it.
+    -->
     <template #dreams>
       <dream-interact
         class="h-full min-h-0 flex-1 overflow-hidden"
@@ -92,13 +97,6 @@ function onDreamEditing() {
 
 function onDreamCreated() {
   setTab('dreammaker')
-}
-
-async function onDailyDreamCreated(dream: DreamWithRelations) {
-  await loadManagerData(true)
-  await dreamStore.selectDreamById(dream.id)
-  setupUploadTarget()
-  setTab('dreams')
 }
 
 async function onDreamSaved(id?: number | number[] | DreamWithRelations) {

@@ -8,6 +8,7 @@ import {
 } from '@/stores/resourceGalleryStore'
 import { useArtStore } from '@/stores/artStore'
 import { useNavStore } from '@/stores/navStore'
+import { useUserStore } from '@/stores/userStore'
 import type { Resource } from '@/stores/resourceStore'
 
 const RESOURCE_TYPE = {
@@ -19,11 +20,31 @@ const RESOURCE_TYPE = {
 const resourceGalleryStore = useResourceGalleryStore()
 const artStore = useArtStore()
 const navStore = useNavStore()
+const userStore = useUserStore()
 
 const query = ref('')
 const resourceType = ref('ALL')
 const generation = ref('ALL')
-const maturity = ref<'ALL' | 'SAFE' | 'MATURE'>('ALL')
+/*
+ * SAFE BY DEFAULT, and not merely by default.
+ *
+ * This defaulted to 'ALL' ("Visible Resources") and consulted nothing else, so
+ * a signed-out guest browsing /resources was served mature LoRAs and
+ * checkpoints on first paint. Silas, 2026-08-07: "even worse, the default for
+ * guests seems to be visible resources, no safe only!"
+ *
+ * The default alone would not have fixed it -- a default is a starting value,
+ * and the dropdown could still be set back to ALL by anyone. So `canSeeMature`
+ * gates the FILTER as well: when the account cannot see mature content, the
+ * list is safe-only no matter what this ref says, and the two options that
+ * would reveal it are not rendered.
+ *
+ * userStore.showMature is the canonical flag and is already CHILD-restricted
+ * (a CHILD reads false even with the flag set), so this inherits that rule
+ * rather than re-deriving it.
+ */
+const maturity = ref<'ALL' | 'SAFE' | 'MATURE'>('SAFE')
+const canSeeMature = computed(() => Boolean(userStore.showMature))
 const message = ref('')
 const messageTone = ref<'success' | 'error'>('success')
 const activePreviewResourceId = ref<number | null>(null)
@@ -95,6 +116,10 @@ const filteredResources = computed(() => {
     if (generation.value !== 'ALL' && entry.generation !== generation.value) {
       return false
     }
+
+    // The gate, not the preference: an account that cannot see mature content
+    // gets a safe list regardless of what the dropdown is set to.
+    if (!canSeeMature.value && entry.isMature) return false
 
     if (maturity.value === 'SAFE' && entry.isMature) return false
     if (maturity.value === 'MATURE' && !entry.isMature) return false
@@ -453,7 +478,12 @@ onMounted(async () => {
             </option>
           </select>
 
+          <!-- Only rendered when the account can actually see mature content.
+               Offering "Mature only" to a guest advertises something the filter
+               above will refuse to show them, which reads as a bug either way
+               it resolves. -->
           <select
+            v-if="canSeeMature"
             v-model="maturity"
             class="select select-bordered select-xs rounded-2xl"
             aria-label="Filter by maturity"

@@ -167,31 +167,23 @@
         @open="(item) => open(item as Item)"
       >
         <template #toolbar>
+          <!--
+            FILTERS ONLY, NO STANDING COUNTS. This row opened with "44",
+            "23 shown", "1 sync", "10 blocked" and then the filter buttons that
+            carry those same numbers. Silas, 2026-08-07: "none of those need to
+            be said, they are just duplicates of the same outputs better done as
+            toggles to actually select the appropriate group right after it."
+
+            The total is `All 44`. The shown count is whichever filter is lit.
+            So both badges are deleted rather than restyled -- a number that a
+            control beside it already reports is clutter with a word on it.
+
+            Sync and Blocked survive because they are NOT duplicates: neither is
+            a project status, so no filter button carries them. They become
+            toggles in the same group, styled and sized like the filters, so
+            they read as "another way to narrow this" rather than as a readout.
+          -->
           <div class="flex flex-wrap items-center gap-1">
-            <span class="badge badge-primary badge-sm">{{
-              allItems.length
-            }}</span>
-            <span
-              v-if="galleryItems.length !== allItems.length"
-              class="text-xs text-base-content/45"
-              >{{ galleryItems.length }} shown</span
-            >
-
-            <button
-              v-if="syncIssueCount"
-              class="badge badge-warning badge-sm"
-              @click="showSync = !showSync"
-            >
-              {{ syncIssueCount }} sync
-            </button>
-            <button
-              v-if="blockedTasks.length"
-              class="badge badge-error badge-sm"
-              @click="showBlocked = !showBlocked"
-            >
-              {{ blockedTasks.length }} blocked
-            </button>
-
             <button
               v-for="option in filters"
               :key="option.value"
@@ -205,6 +197,32 @@
               <span class="badge badge-xs">{{
                 filterCount(option.value)
               }}</span>
+            </button>
+
+            <!-- Sync and Blocked sit with the filters, not ahead of them: they
+                 narrow the view the same way, they just are not statuses. -->
+            <button
+              v-if="syncIssueCount"
+              class="btn btn-xs gap-1 rounded-xl"
+              :class="showSync ? 'btn-warning' : 'btn-ghost'"
+              :aria-pressed="showSync"
+              @click="showSync = !showSync"
+            >
+              <Icon name="kind-icon:warning" class="size-3" />
+              <span class="hidden sm:inline">Sync</span>
+              <span class="badge badge-xs">{{ syncIssueCount }}</span>
+            </button>
+
+            <button
+              v-if="blockedTasks.length"
+              class="btn btn-xs gap-1 rounded-xl"
+              :class="showBlocked ? 'btn-error' : 'btn-ghost'"
+              :aria-pressed="showBlocked"
+              @click="showBlocked = !showBlocked"
+            >
+              <Icon name="kind-icon:pause" class="size-3" />
+              <span class="hidden sm:inline">Blocked</span>
+              <span class="badge badge-xs">{{ blockedTasks.length }}</span>
             </button>
 
             <button

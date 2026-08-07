@@ -152,10 +152,41 @@ async function readRoute(
   let chromePx: number | null = null
 
   try {
+    /*
+     * NOT `networkidle`. This app polls, so the network never goes idle and
+     * every load burns its full timeout instead of settling -- 48 readings at
+     * 45s each is 36 minutes, against a 20-minute job cap. The first CI run of
+     * this step hit exactly that and was still going when the job timed out.
+     *
+     * So: get the document, then wait for the thing being measured to exist.
+     * That is both faster (a populated gallery resolves in a second or two)
+     * and more honest -- the wait is for the gallery rather than for a proxy
+     * signal that happens to correlate with it.
+     */
     await page.goto(`${base}${route}`, {
-      waitUntil: 'networkidle',
-      timeout: 45_000,
+      waitUntil: 'domcontentloaded',
+      timeout: 30_000,
     })
+
+    /*
+     * A gallery that never appears is a legitimate `no-cards` reading, not an
+     * error, so this swallows its own timeout and lets measureChrome return
+     * null. The bound matters more than the outcome: it caps a route that has
+     * nothing to show at ~10s rather than at the page timeout.
+     */
+    await page
+      .waitForFunction(
+        () =>
+          Array.from(document.querySelectorAll('*')).some(
+            (element) =>
+              window.getComputedStyle(element).display === 'grid' &&
+              element.childElementCount >= 2,
+          ),
+        undefined,
+        { timeout: 10_000 },
+      )
+      .catch(() => {})
+
     chromePx = await measureChrome(page)
   } catch (error) {
     loadError =

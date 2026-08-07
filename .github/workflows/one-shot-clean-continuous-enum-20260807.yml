@@ -29,6 +29,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+      - name: Configure git identity
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
       - name: Fold in current main
         run: git merge --no-edit origin/main
       - name: Restore compact gallery formatting and reapply lifecycle additions
@@ -63,8 +67,6 @@ jobs:
         run: rm .github/workflows/one-shot-clean-continuous-enum-20260807.yml
       - name: Commit and push
         run: |
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add -A
           git commit -m "chore: trim continuous lifecycle diff" || exit 0
           git push origin HEAD:claude/project-continuous-enum-20260807

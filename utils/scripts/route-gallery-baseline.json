@@ -24,7 +24,7 @@
   "managers": {},
   "interactLines": {
     "bot-interact": 721,
-    "character-interact": 923,
+    "character-interact": 59,
     "dream-interact": 57,
     "facet-interact": 204,
     "reward-interact": 61,

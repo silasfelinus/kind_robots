@@ -224,8 +224,10 @@ GROUP BY cli_host
 ORDER BY sessions DESC, oldest_state_ms DESC;
 "
 
+# ProxySQL's admin interface is SQLite-backed, so schema introspection uses
+# PRAGMA rather than MySQL SHOW COLUMNS.
 proxysql_sql_optional 'processlist schema for version reference' "
-SHOW COLUMNS FROM stats_mysql_processlist;
+PRAGMA table_info(stats_mysql_processlist);
 "
 
 mariadb_sql 'global and account ceilings' "

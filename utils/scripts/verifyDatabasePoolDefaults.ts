@@ -18,6 +18,9 @@ import {
   VERCEL_IDLE_TIMEOUT_SECONDS,
   VERCEL_MINIMUM_IDLE,
   VERCEL_PING_TIMEOUT_MS,
+  VERCEL_PREVIEW_CONNECTION_LIMIT,
+  VERCEL_PREVIEW_IDLE_TIMEOUT_SECONDS,
+  VERCEL_PREVIEW_MINIMUM_IDLE,
   resolveDatabasePoolDefaults,
 } from './../../server/utils/databasePoolDefaults'
 
@@ -45,7 +48,14 @@ function withEnvironment(
 }
 
 const longLivedDefaults = resolveDatabasePoolDefaults({})
-const vercelDefaults = resolveDatabasePoolDefaults({ VERCEL: '1' })
+const vercelDefaults = resolveDatabasePoolDefaults({
+  VERCEL: '1',
+  VERCEL_ENV: 'production',
+})
+const previewDefaults = resolveDatabasePoolDefaults({
+  VERCEL: '1',
+  VERCEL_ENV: 'preview',
+})
 
 // A controlled long-lived local process needs enough capacity for the app's
 // parallel route work and may retain one validated socket.
@@ -74,8 +84,8 @@ assert.ok(
   'The long-lived runtime must keep at least one warm connection.',
 )
 
-// Vercel scales by function-process count. A warm connection per lambda caused
-// 200 ProxySQL frontend sessions while MariaDB remained bounded near 40.
+// Production Vercel scales by function-process count. A warm connection per
+// lambda caused 200 ProxySQL frontend sessions while MariaDB remained bounded.
 assert.equal(vercelDefaults.profile, 'vercel-function')
 assert.equal(vercelDefaults.connectionLimit, VERCEL_CONNECTION_LIMIT)
 assert.equal(vercelDefaults.connectTimeoutMs, VERCEL_CONNECT_TIMEOUT_MS)
@@ -85,7 +95,7 @@ assert.equal(vercelDefaults.minimumIdle, VERCEL_MINIMUM_IDLE)
 assert.equal(vercelDefaults.pingTimeoutMs, VERCEL_PING_TIMEOUT_MS)
 assert.ok(
   vercelDefaults.connectionLimit <= 2,
-  'A Vercel function must not carry a server-sized connector pool.',
+  'A production Vercel function must not carry a server-sized connector pool.',
 )
 assert.equal(
   vercelDefaults.minimumIdle,
@@ -97,9 +107,33 @@ assert.ok(
   'Idle Vercel frontend sessions must retire promptly.',
 )
 
+// Preview deployments multiply across PR commits and browser audits. While they
+// still share the production ProxySQL user, each preview process gets one
+// connection maximum and retires it faster than production.
+assert.equal(previewDefaults.profile, 'vercel-preview')
+assert.equal(
+  previewDefaults.connectionLimit,
+  VERCEL_PREVIEW_CONNECTION_LIMIT,
+)
+assert.equal(
+  previewDefaults.idleTimeoutSeconds,
+  VERCEL_PREVIEW_IDLE_TIMEOUT_SECONDS,
+)
+assert.equal(previewDefaults.minimumIdle, VERCEL_PREVIEW_MINIMUM_IDLE)
+assert.equal(previewDefaults.connectionLimit, 1)
+assert.ok(
+  previewDefaults.connectionLimit < vercelDefaults.connectionLimit,
+  'Preview pool capacity must stay below production while previews share its DB user.',
+)
+assert.ok(
+  previewDefaults.idleTimeoutSeconds < vercelDefaults.idleTimeoutSeconds,
+  'Preview idle sessions must retire faster than production sessions.',
+)
+
 withEnvironment(
   {
     VERCEL: '1',
+    VERCEL_ENV: 'production',
     DATABASE_CONNECTION_LIMIT: '10',
     DATABASE_IDLE_TIMEOUT_SECONDS: '300',
     DATABASE_MINIMUM_IDLE: '1',
@@ -115,12 +149,12 @@ withEnvironment(
     assert.equal(
       resolved.searchParams.get('connectionLimit'),
       String(VERCEL_CONNECTION_LIMIT),
-      'Vercel must clamp stale URL and environment pool-size overrides.',
+      'Production Vercel must clamp stale URL and environment pool-size overrides.',
     )
     assert.equal(
       resolved.searchParams.get('idleTimeout'),
       String(VERCEL_IDLE_TIMEOUT_SECONDS),
-      'Vercel must retire idle ProxySQL frontends promptly despite stale overrides.',
+      'Production Vercel must retire idle ProxySQL frontends promptly despite stale overrides.',
     )
     assert.equal(
       resolved.searchParams.get('minimumIdle'),
@@ -132,7 +166,41 @@ withEnvironment(
 
 withEnvironment(
   {
+    VERCEL: '1',
+    VERCEL_ENV: 'preview',
+    DATABASE_CONNECTION_LIMIT: '10',
+    DATABASE_IDLE_TIMEOUT_SECONDS: '300',
+    DATABASE_MINIMUM_IDLE: '1',
+  },
+  () => {
+    const resolved = new URL(
+      buildDatabaseUrl(
+        'mysql://kindrobot:secret@database.example:5544/kindblank' +
+          '?connectionLimit=12&idleTimeout=600&minimumIdle=4',
+      ),
+    )
+
+    assert.equal(
+      resolved.searchParams.get('connectionLimit'),
+      String(VERCEL_PREVIEW_CONNECTION_LIMIT),
+      'Preview Vercel must clamp even production-safe overrides to its stricter pool.',
+    )
+    assert.equal(
+      resolved.searchParams.get('idleTimeout'),
+      String(VERCEL_PREVIEW_IDLE_TIMEOUT_SECONDS),
+      'Preview Vercel must retire frontend sessions aggressively.',
+    )
+    assert.equal(
+      resolved.searchParams.get('minimumIdle'),
+      String(VERCEL_PREVIEW_MINIMUM_IDLE),
+    )
+  },
+)
+
+withEnvironment(
+  {
     VERCEL: undefined,
+    VERCEL_ENV: undefined,
     DATABASE_CONNECTION_LIMIT: '10',
     DATABASE_IDLE_TIMEOUT_SECONDS: '300',
     DATABASE_MINIMUM_IDLE: '1',
@@ -151,7 +219,7 @@ withEnvironment(
   },
 )
 
-for (const defaults of [longLivedDefaults, vercelDefaults]) {
+for (const defaults of [longLivedDefaults, vercelDefaults, previewDefaults]) {
   assert.ok(
     defaults.acquireTimeoutMs > defaults.connectTimeoutMs,
     `${defaults.profile} acquire timeout must exceed its connect timeout.`,
@@ -178,6 +246,10 @@ const vercelBuildSource = readFileSync(
   new URL('../../scripts/vercel-build.mjs', import.meta.url),
   'utf8',
 )
+const responsiveAuditSource = readFileSync(
+  new URL('../../.github/workflows/responsive-layout-audit.yml', import.meta.url),
+  'utf8',
+)
 const directProbeSource = readFileSync(
   new URL('../../server/utils/databaseDirectProbe.ts', import.meta.url),
   'utf8',
@@ -201,34 +273,40 @@ const clientDiagnosticSource = readFileSync(
 )
 
 assert.match(poolDefaultsSource, /env\.VERCEL === '1'/)
+assert.match(poolDefaultsSource, /env\.VERCEL_ENV === 'preview'/)
 assert.match(poolDefaultsSource, /profile:\s*'vercel-function'/)
+assert.match(poolDefaultsSource, /profile:\s*'vercel-preview'/)
 assert.match(poolDefaultsSource, /VERCEL_CONNECTION_LIMIT = 2/)
 assert.match(poolDefaultsSource, /VERCEL_IDLE_TIMEOUT_SECONDS = 15/)
 assert.match(poolDefaultsSource, /VERCEL_MINIMUM_IDLE = 0/)
+assert.match(poolDefaultsSource, /VERCEL_PREVIEW_CONNECTION_LIMIT = 1/)
+assert.match(poolDefaultsSource, /VERCEL_PREVIEW_IDLE_TIMEOUT_SECONDS = 5/)
 assert.match(poolDefaultsSource, /LONG_LIVED_CONNECTION_LIMIT = 10/)
 assert.match(poolDefaultsSource, /LONG_LIVED_MINIMUM_IDLE = 1/)
 
-// Request-time Prisma and standalone scripts consume the same active runtime
-// defaults through the adapter. Long-lived overrides remain supported, while a
-// Vercel URL or environment cannot exceed the serverless safety envelope.
+// Request-time Prisma and standalone scripts consume the active runtime profile
+// through the adapter. Long-lived overrides remain supported, while every
+// Vercel environment is clamped to its own serverless safety envelope.
 assert.match(adapterSource, /process\.env\.DATABASE_CONNECTION_LIMIT/)
 assert.match(adapterSource, /process\.env\.DATABASE_IDLE_TIMEOUT_SECONDS/)
 assert.match(adapterSource, /process\.env\.DATABASE_MINIMUM_IDLE/)
 assert.match(adapterSource, /process\.env\.DATABASE_PING_TIMEOUT_MS/)
 assert.match(adapterSource, /isVercelFunctionRuntime\(\)/)
+assert.match(adapterSource, /resolveDatabasePoolDefaults\(\)/)
 assert.match(
   adapterSource,
-  /Math\.min\(requestedConnectionLimit, VERCEL_CONNECTION_LIMIT\)/,
+  /Math\.min\(requestedConnectionLimit, runtimePoolDefaults\.connectionLimit\)/,
 )
 assert.match(
   adapterSource,
-  /Math\.min\(requestedIdleTimeout, VERCEL_IDLE_TIMEOUT_SECONDS\)/,
+  /Math\.min\(requestedIdleTimeout, runtimePoolDefaults\.idleTimeoutSeconds\)/,
 )
 assert.match(
   adapterSource,
-  /isVercelRuntime\s*\?\s*VERCEL_MINIMUM_IDLE\s*:\s*requestedMinimumIdle/,
+  /isVercelRuntime\s*\?\s*runtimePoolDefaults\.minimumIdle\s*:\s*requestedMinimumIdle/,
 )
 assert.match(adapterSource, /Clamped unsafe Vercel database pool override/)
+assert.match(adapterSource, /profile:\s*runtimePoolDefaults\.profile/)
 assert.match(adapterSource, /pipelining:\s*readDatabasePipelining\(\)/)
 assert.match(adapterSource, /process\.env\.DATABASE_USE_TEXT_PROTOCOL/)
 assert.match(
@@ -267,6 +345,25 @@ for (const maintenanceScript of [
   )
 }
 
+// Browser audits must collapse repeated commits on the same branch instead of
+// using the unique deployment URL as their concurrency identity. A deployment
+// whose branch head has already moved must exit before touching the database.
+assert.match(
+  responsiveAuditSource,
+  /group: responsive-layout-audit-\$\{\{ github\.event\.deployment\.ref \|\| github\.ref_name \}\}/,
+)
+assert.doesNotMatch(
+  responsiveAuditSource,
+  /group: responsive-layout-audit-\$\{\{ github\.event\.deployment_status\.target_url/,
+)
+assert.match(responsiveAuditSource, /name: Check deployment freshness/)
+assert.match(responsiveAuditSource, /git ls-remote --heads origin/)
+assert.match(responsiveAuditSource, /Skipping superseded deployment/)
+assert.match(
+  responsiveAuditSource,
+  /steps\.freshness\.outputs\.run_audit == 'true'/,
+)
+
 // The request-time singleton creates exactly one base Prisma client per process.
 assert.match(
   prismaSource,
@@ -304,6 +401,8 @@ assert.match(capacityDiagnosticSource, /cli_host/)
 assert.match(capacityDiagnosticSource, /frontend source totals/)
 assert.match(capacityDiagnosticSource, /proxysql_sql_optional/)
 assert.match(capacityDiagnosticSource, /Access_Denied_Max_User_Connections/)
+assert.match(capacityDiagnosticSource, /PRAGMA table_info\(stats_mysql_processlist\)/)
+assert.doesNotMatch(capacityDiagnosticSource, /SHOW COLUMNS FROM stats_mysql_processlist/)
 assert.doesNotMatch(
   capacityDiagnosticSource,
   /SELECT[^;]*(transaction_found|multiplex_disabled)/s,
@@ -342,6 +441,8 @@ assert.match(
 console.log(
   `Database pool profiles verified: local=${longLivedDefaults.connectionLimit}/` +
     `${longLivedDefaults.minimumIdle}/${longLivedDefaults.idleTimeoutSeconds}s, ` +
-    `vercel=${vercelDefaults.connectionLimit}/${vercelDefaults.minimumIdle}/` +
-    `${vercelDefaults.idleTimeoutSeconds}s; one Prisma client per process.`,
+    `production=${vercelDefaults.connectionLimit}/${vercelDefaults.minimumIdle}/` +
+    `${vercelDefaults.idleTimeoutSeconds}s, preview=${previewDefaults.connectionLimit}/` +
+    `${previewDefaults.minimumIdle}/${previewDefaults.idleTimeoutSeconds}s; ` +
+    'one Prisma client per process and stale preview audits cancelled.',
 )

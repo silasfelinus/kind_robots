@@ -27,14 +27,8 @@ name: Responsive Layout Audit
 #                     fire, this still catches every regression within the hour.
 #
 #   deployment_status  the better signal IF Vercel's GitHub integration emits
-#                     it here — it would audit each PR's own preview, against
-#                     the real database, before the change reaches main. No
-#                     other workflow in this repo uses this event, so it is
-#                     UNVERIFIED. It is additive: if it never fires, nothing is
-#                     lost that the schedule does not already cover. Check the
-#                     Actions tab for runs triggered by `deployment_status`; if
-#                     there are none after a few PRs, delete that trigger rather
-#                     than leaving a line that looks like a gate and is not.
+#                     it here — it audits each PR's own preview, against the real
+#                     database, before the change reaches main.
 on:
   schedule:
     - cron: '41 * * * *'
@@ -50,8 +44,12 @@ on:
         required: false
         default: ''
 
+# A deployment URL is unique per commit, so keying concurrency by target_url
+# lets every preview commit run a separate 60-minute database-backed browser
+# crawl. Key by source ref instead: a newer push to the same branch cancels the
+# older audit, while separate PR branches remain independent.
 concurrency:
-  group: responsive-layout-audit-${{ github.event.deployment_status.target_url || github.ref }}
+  group: responsive-layout-audit-${{ github.event.deployment.ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
@@ -88,24 +86,53 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Check deployment freshness
+        id: freshness
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          DEPLOY_REF: ${{ github.event.deployment.ref }}
+          DEPLOY_SHA: ${{ github.event.deployment.sha }}
+        run: |
+          set -euo pipefail
+          run_audit=true
+
+          if [ "$EVENT_NAME" = "deployment_status" ] && [ -n "${DEPLOY_REF:-}" ] && [ -n "${DEPLOY_SHA:-}" ]; then
+            branch="$DEPLOY_REF"
+            remote_sha="$(git ls-remote --heads origin "$branch" | awk 'NR == 1 {print $1}')"
+
+            if [ -z "$remote_sha" ]; then
+              echo "Skipping deployment ${DEPLOY_SHA:0:7}: source branch ${branch} no longer exists."
+              run_audit=false
+            elif [ "$remote_sha" != "$DEPLOY_SHA" ]; then
+              echo "Skipping superseded deployment ${DEPLOY_SHA:0:7}: ${branch} is now ${remote_sha:0:7}."
+              run_audit=false
+            fi
+          fi
+
+          echo "run_audit=$run_audit" >>"$GITHUB_OUTPUT"
+
       - name: Set up Node
+        if: steps.freshness.outputs.run_audit == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '24'
           cache: npm
 
       - name: Install dependencies
+        if: steps.freshness.outputs.run_audit == 'true'
         run: npm ci
         env:
           CYPRESS_INSTALL_BINARY: '0'
 
       - name: Install Chromium
+        if: steps.freshness.outputs.run_audit == 'true'
         # Only Chromium — the audit measures layout, not cross-browser
         # behaviour, and pulling three engines would triple the install for no
         # extra signal.
         run: npx playwright install --with-deps chromium
 
       - name: Resolve target URL
+        if: steps.freshness.outputs.run_audit == 'true'
         id: target
         env:
           DEPLOY_URL: ${{ github.event.deployment_status.target_url }}
@@ -122,6 +149,7 @@ jobs:
           echo "Auditing $url"
 
       - name: Wait for the deployment to answer
+        if: steps.freshness.outputs.run_audit == 'true'
         env:
           BASE_URL: ${{ steps.target.outputs.url }}
         run: |
@@ -149,6 +177,7 @@ jobs:
           exit 1
 
       - name: Wait for the database
+        if: steps.freshness.outputs.run_audit == 'true'
         env:
           BASE_URL: ${{ steps.target.outputs.url }}
         run: |
@@ -177,6 +206,7 @@ jobs:
           exit 1
 
       - name: Audit responsive layout
+        if: steps.freshness.outputs.run_audit == 'true'
         env:
           BASE_URL: ${{ steps.target.outputs.url }}
           ROUTES: ${{ github.event.inputs.routes }}
@@ -188,19 +218,10 @@ jobs:
             npm run audit:responsive -- --base "$BASE_URL" --shots audit-shots
           fi
 
-      # Deliberately WITHOUT `--strict`, and `if: always()` so it still reports
-      # when the responsive sweep above fails.
-      #
-      # The script exits 1 on load failures on its own, which gates the
-      # INSTRUMENT -- every failure this step has actually hit was of that kind
-      # (Chromium not inheriting HTTPS_PROXY, a hardcoded browser path, a lead
-      # selector matching nothing), and each once produced output that read like
-      # a pass. `--strict` would additionally gate the FINDING, and most measured
-      # readings are over budget today against real pre-existing chrome, so
-      # turning it on would block every unrelated PR on a backlog. Add it once
-      # the routes are under budget; the numbers print either way.
+      # Deliberately WITHOUT `--strict`, and still runs when the responsive
+      # sweep above fails. A stale deployment never reaches this step.
       - name: Audit gallery chrome budget
-        if: always()
+        if: ${{ always() && steps.freshness.outputs.run_audit == 'true' }}
         env:
           BASE_URL: ${{ steps.target.outputs.url }}
         run: |
@@ -208,9 +229,9 @@ jobs:
           npm run audit:gallery-chrome -- --base "$BASE_URL"
 
       - name: Upload screenshots
-        # Always: a failure is exactly when the pictures are worth having, and
-        # a pass is worth spot-checking against.
-        if: always()
+        # Always for an audit that actually ran: a failure is exactly when the
+        # pictures are worth having, and a pass is worth spot-checking.
+        if: ${{ always() && steps.freshness.outputs.run_audit == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: responsive-audit-${{ github.run_id }}

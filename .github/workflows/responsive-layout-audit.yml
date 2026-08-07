@@ -66,11 +66,23 @@ jobs:
     # as the phase-1 shrink-to-zero sweep proceeds. 20min covered the original
     # 8 routes x 3 viewports; the first slice (19 routes, kind_robots #1567)
     # already ran the job to ~20:18, right past that ceiling, and got
-    # cancelled mid-run rather than reporting a real result. 35min gives
-    # headroom for several more slices at this per-measurement rate (~21s);
-    # if the full 51-route gap ever lands in this one list, revisit with a
-    # matrix split instead of raising this again.
-    timeout-minutes: 35
+    # cancelled mid-run rather than reporting a real result. 35min covered
+    # slices 2-5. Slice 6 (kind_robots #1575) landed the full 64-route list --
+    # the "if the full gap ever lands" case this comment used to warn about --
+    # and 35min was not enough: measured run 31203187021 got cancelled at
+    # desktop/register, 149 of 192 route/viewport checks in, ~13.5s/check
+    # average. That rate projects the full run to ~44min including ~1.5min
+    # setup. Bumped to 60min for headroom rather than attempting a matrix
+    # split here: a route-viewport split is easy (any subset of --routes),
+    # but a *viewport* split is not, because
+    # verifyGalleryConsistency-equivalent cross-viewport backdrop check below
+    # (search "PER-BREAKPOINT BACKDROPS") requires all 3 viewports for a
+    # route in the SAME process to fire at all -- silently disabling it is a
+    # real regression risk, not a free parallelization win. If a future slice
+    # needs to grow this further, split the matrix by ROUTES (each shard runs
+    # all 3 viewports for its subset, preserving the per-route cross-viewport
+    # check), not by viewport.
+    timeout-minutes: 60
 
     steps:
       - name: Checkout

@@ -5,11 +5,11 @@
   >
     <header
       v-if="showHeader"
-      class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+      class="flex shrink-0 flex-col gap-2 rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
     >
       <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
-          <h2 class="truncate text-lg font-bold text-base-content">
+          <h2 class="truncate text-base font-bold text-base-content">
             {{ title }}
           </h2>
 
@@ -34,8 +34,11 @@
             </button>
           </div>
 
-          <p v-else class="text-sm text-base-content/60">
-            {{ subtitle }}
+          <!-- Inline, not a second line. The subtitle is orientation text and
+               was costing a full row of a 768px-tall screen; `hidden md:inline`
+               drops it entirely where the room is tightest. -->
+          <p v-else class="truncate text-sm text-base-content/60">
+            <span class="hidden md:inline">{{ subtitle }}</span>
           </p>
         </div>
 
@@ -66,70 +69,6 @@
             <span class="hidden sm:inline">Refresh</span>
           </button>
         </div>
-      </div>
-
-      <div
-        v-if="showControls && !isDropdownMode"
-        class="grid grid-cols-1 gap-2 lg:grid-cols-[auto_auto_auto_minmax(0,1fr)_auto]"
-      >
-        <label
-          v-if="userStore.isAdmin"
-          class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-4 py-2"
-        >
-          <span class="label-text font-bold">Show Mature</span>
-
-          <input
-            v-model="showMature"
-            type="checkbox"
-            class="toggle toggle-accent toggle-sm"
-          />
-        </label>
-
-        <select
-          v-model="selectedCollection"
-          class="select select-bordered select-sm w-full bg-base-100 lg:w-auto"
-          aria-label="Filter rewards by collection"
-        >
-          <option value="all">All collections</option>
-
-          <option
-            v-for="collection in collections"
-            :key="collection"
-            :value="collection"
-          >
-            {{ collection }}
-          </option>
-        </select>
-
-        <select
-          v-model="selectedRarity"
-          class="select select-bordered select-sm w-full bg-base-100 lg:w-auto"
-          aria-label="Filter rewards by rarity"
-        >
-          <option value="all">All rarities</option>
-
-          <option v-for="rarity in rarities" :key="rarity" :value="rarity">
-            {{ rarity }}
-          </option>
-        </select>
-
-        <input
-          v-model="searchQuery"
-          type="search"
-          aria-label="Search rewards"
-          placeholder="Search rewards..."
-          class="input input-bordered input-sm w-full bg-base-100"
-        />
-
-        <button
-          class="btn btn-ghost btn-sm rounded-xl lg:w-auto"
-          type="button"
-          :disabled="!rewardStore.selectedReward"
-          @click="clearSelectedReward"
-        >
-          <Icon name="kind-icon:x" class="h-4 w-4" />
-          Clear
-        </button>
       </div>
     </header>
 
@@ -325,6 +264,72 @@
         empty-label="rewards"
         @update:mode="galleryMode = $event"
       >
+        <template #toolbar>
+          <div
+            v-if="showControls && !isDropdownMode"
+            class="grid grid-cols-1 gap-2 lg:grid-cols-[auto_auto_auto_minmax(0,1fr)_auto]"
+          >
+            <label
+              v-if="userStore.isAdmin"
+              class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-4 py-2"
+            >
+              <span class="label-text font-bold">Show Mature</span>
+
+              <input
+                v-model="showMature"
+                type="checkbox"
+                class="toggle toggle-accent toggle-sm"
+              />
+            </label>
+
+            <select
+              v-model="selectedCollection"
+              class="select select-bordered select-sm w-full bg-base-100 lg:w-auto"
+              aria-label="Filter rewards by collection"
+            >
+              <option value="all">All collections</option>
+
+              <option
+                v-for="collection in collections"
+                :key="collection"
+                :value="collection"
+              >
+                {{ collection }}
+              </option>
+            </select>
+
+            <select
+              v-model="selectedRarity"
+              class="select select-bordered select-sm w-full bg-base-100 lg:w-auto"
+              aria-label="Filter rewards by rarity"
+            >
+              <option value="all">All rarities</option>
+
+              <option v-for="rarity in rarities" :key="rarity" :value="rarity">
+                {{ rarity }}
+              </option>
+            </select>
+
+            <input
+              v-model="searchQuery"
+              type="search"
+              aria-label="Search rewards"
+              placeholder="Search rewards..."
+              class="input input-bordered input-sm w-full bg-base-100"
+            />
+
+            <button
+              class="btn btn-ghost btn-sm rounded-xl lg:w-auto"
+              type="button"
+              :disabled="!rewardStore.selectedReward"
+              @click="clearSelectedReward"
+            >
+              <Icon name="kind-icon:x" class="h-4 w-4" />
+              Clear
+            </button>
+          </div>
+        </template>
+
         <template #item="{ item }">
           <reward-card
             v-if="rewardById.get(Number(item.id))"

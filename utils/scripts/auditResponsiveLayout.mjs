@@ -48,7 +48,7 @@ const flag = (name, fallback) => {
 const BASE = flag('base', process.env.AUDIT_BASE || 'http://127.0.0.1:3000')
 const ROUTES = flag(
   'routes',
-  '/,/conductor,/dreams,/art,/bots,/characters,/rewards,/scenarios',
+  '/,/conductor,/dreams,/art,/bots,/characters,/rewards,/stories',
 )
   .split(',')
   .map((r) => r.trim())

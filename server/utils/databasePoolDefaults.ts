@@ -1,19 +1,27 @@
 // /server/utils/databasePoolDefaults.ts
 //
-// Kind Robots currently has two materially different runtime shapes:
+// Kind Robots currently has three materially different runtime shapes:
 //
 // 1. A long-lived local Node/Nitro process, where retaining a small warm pool is
 //    useful and the process count is controlled.
-// 2. Vercel Node functions, where every warm lambda and every preview deployment
-//    can own an independent connector pool. A global minimumIdle=1 caused each
-//    warm lambda to retain a ProxySQL frontend session indefinitely, eventually
-//    filling the shared kindrobot 200-session frontend limit even though
-//    ProxySQL successfully multiplexed those clients onto <=40 MariaDB backends.
+// 2. Vercel production functions, where every warm lambda owns an independent
+//    connector pool and the per-process pool must stay deliberately small.
+// 3. Vercel preview functions, which can multiply rapidly across PR commits and
+//    browser audits. They get an even smaller pool so preview fan-out cannot
+//    consume the production ProxySQL frontend budget as quickly.
 //
-// Keep both profiles centralized and explicit. Never solve a serverless fan-out
+// A global minimumIdle=1 previously caused each warm lambda to retain a ProxySQL
+// frontend session indefinitely, eventually filling the shared kindrobot
+// 200-session frontend limit even though ProxySQL successfully multiplexed those
+// clients onto <=40 MariaDB backends.
+//
+// Keep these profiles centralized and explicit. Never solve a serverless fan-out
 // incident by weakening the healthy long-lived process, or vice versa.
 
-export type DatabasePoolProfile = 'long-lived' | 'vercel-function'
+export type DatabasePoolProfile =
+  | 'long-lived'
+  | 'vercel-function'
+  | 'vercel-preview'
 
 export type DatabasePoolDefaults = {
   profile: DatabasePoolProfile
@@ -34,8 +42,9 @@ export const LONG_LIVED_IDLE_TIMEOUT_SECONDS = 300
 export const LONG_LIVED_MINIMUM_IDLE = 1
 export const LONG_LIVED_PING_TIMEOUT_MS = 2_000
 
-// Vercel functions scale by process count, so the per-process pool must be
-// deliberately tiny and must not retain a connection merely to stay warm.
+// Production Vercel functions scale by process count, so the per-process pool
+// must be deliberately tiny and must not retain a connection merely to stay
+// warm.
 export const VERCEL_CONNECTION_LIMIT = 2
 export const VERCEL_CONNECT_TIMEOUT_MS = 5_000
 export const VERCEL_ACQUIRE_TIMEOUT_MS = 10_000
@@ -43,15 +52,40 @@ export const VERCEL_IDLE_TIMEOUT_SECONDS = 15
 export const VERCEL_MINIMUM_IDLE = 0
 export const VERCEL_PING_TIMEOUT_MS = 2_000
 
+// Preview deployments multiply faster than production because every PR commit
+// can create another warm deployment and its own browser audit. Give previews a
+// stricter envelope while they still share the production ProxySQL user.
+export const VERCEL_PREVIEW_CONNECTION_LIMIT = 1
+export const VERCEL_PREVIEW_IDLE_TIMEOUT_SECONDS = 5
+export const VERCEL_PREVIEW_MINIMUM_IDLE = 0
+
 export function isVercelFunctionRuntime(
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {
   return env.VERCEL === '1'
 }
 
+export function isVercelPreviewRuntime(
+  env: NodeJS.ProcessEnv = process.env,
+): boolean {
+  return env.VERCEL === '1' && env.VERCEL_ENV === 'preview'
+}
+
 export function resolveDatabasePoolDefaults(
   env: NodeJS.ProcessEnv = process.env,
 ): DatabasePoolDefaults {
+  if (isVercelPreviewRuntime(env)) {
+    return {
+      profile: 'vercel-preview',
+      connectionLimit: VERCEL_PREVIEW_CONNECTION_LIMIT,
+      connectTimeoutMs: VERCEL_CONNECT_TIMEOUT_MS,
+      acquireTimeoutMs: VERCEL_ACQUIRE_TIMEOUT_MS,
+      idleTimeoutSeconds: VERCEL_PREVIEW_IDLE_TIMEOUT_SECONDS,
+      minimumIdle: VERCEL_PREVIEW_MINIMUM_IDLE,
+      pingTimeoutMs: VERCEL_PING_TIMEOUT_MS,
+    }
+  }
+
   if (isVercelFunctionRuntime(env)) {
     return {
       profile: 'vercel-function',
@@ -103,7 +137,8 @@ if (
 
 for (const defaults of [
   resolveDatabasePoolDefaults({}),
-  resolveDatabasePoolDefaults({ VERCEL: '1' }),
+  resolveDatabasePoolDefaults({ VERCEL: '1', VERCEL_ENV: 'production' }),
+  resolveDatabasePoolDefaults({ VERCEL: '1', VERCEL_ENV: 'preview' }),
 ]) {
   if (defaults.acquireTimeoutMs <= defaults.connectTimeoutMs) {
     throw new Error(

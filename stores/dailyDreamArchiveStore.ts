@@ -409,6 +409,7 @@ export const useDailyDreamArchiveStore = defineStore(
               isPublic: input.entity.isPublic ?? true,
               isMature: input.entity.isMature ?? false,
               designer: input.entity.designer || null,
+              priority: 100,
               ...(input.steps ? { steps: input.steps } : {}),
               ...(input.denoise != null ? { denoise: input.denoise } : {}),
               ...(input.originalWeight != null

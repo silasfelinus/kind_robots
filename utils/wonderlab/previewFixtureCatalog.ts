@@ -27,6 +27,10 @@ import {
   getWonderLabCoverageClosureFixture,
   listWonderLabCoverageClosureFixtureKeys,
 } from './previewFixturesCoverageClosure'
+import {
+  getWonderLabArtTrainerFixture,
+  listWonderLabArtTrainerFixtureKeys,
+} from './previewFixturesArtTrainer'
 
 export type {
   WonderLabPreviewFixture,
@@ -44,7 +48,8 @@ export function getWonderLabPreviewFixture(
     getWonderLabLearningControlFixture(componentName, sourcePath) ??
     getWonderLabBuilderRulerFixture(componentName, sourcePath) ??
     getWonderLabInteractionDisplayFixture(componentName, sourcePath) ??
-    getWonderLabCoverageClosureFixture(componentName, sourcePath)
+    getWonderLabCoverageClosureFixture(componentName, sourcePath) ??
+    getWonderLabArtTrainerFixture(componentName, sourcePath)
   )
 }
 
@@ -58,6 +63,7 @@ export function listWonderLabPreviewFixtureKeys(): string[] {
       ...listWonderLabBuilderRulerFixtureKeys(),
       ...listWonderLabInteractionDisplayFixtureKeys(),
       ...listWonderLabCoverageClosureFixtureKeys(),
+      ...listWonderLabArtTrainerFixtureKeys(),
     ]),
   ].sort()
 }

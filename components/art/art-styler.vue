@@ -542,7 +542,7 @@
       <div v-if="isGenerating" class="flex flex-col gap-2">
         <div class="flex items-center gap-2 text-xs font-semibold text-primary">
           <span class="loading loading-spinner loading-xs" />
-          Applying {{ selectedStyle?.label }} via Kontext…
+          Applying {{ generatingStyleLabel }} via Kontext…
         </div>
         <progress class="progress progress-primary w-full" />
       </div>
@@ -855,6 +855,12 @@ const extraPrompt = ref('')
 const useNegative = ref(true)
 const isPublic = ref(true)
 const isGenerating = ref(false)
+// Snapshot of the style being generated, separate from the live
+// `selectedStyle` ref -- a user can reselect a different style while a
+// generation is still in flight (see the `generationToken` comment below),
+// which would otherwise make the "Applying X via Kontext…" banner name a
+// style other than the one the in-flight request is actually for.
+const generatingStyleLabel = ref('')
 const errorMessage = ref('')
 const successMessage = ref('')
 const resultImage = ref<ArtImage | null>(null)
@@ -1447,13 +1453,14 @@ async function runStyleTransfer(): Promise<void> {
   if (!selectedStyle.value || !selectedSourceImage.value) return
 
   const token = ++generationToken
+  const style = selectedStyle.value
   errorMessage.value = ''
   successMessage.value = ''
   isGenerating.value = true
+  generatingStyleLabel.value = style.label
   resultImage.value = null
 
   try {
-    const style = selectedStyle.value
     const loraRef = buildLoraReference(style)
 
     const promptString = [

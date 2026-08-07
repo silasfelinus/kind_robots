@@ -16,6 +16,31 @@ new = """  const humanGates = computed<ConductorHumanGate[]>(() =>
 """
 if old not in text:
     raise SystemExit('conductorStore humanGates anchor drifted')
+text = text.replace(old, new, 1)
+
+old = """  try {
+    localStorage.removeItem(LEGACY_VOTE_KEY)
+  } catch {}
+"""
+new = """  try {
+    localStorage.removeItem(LEGACY_VOTE_KEY)
+  } catch {
+    // Legacy cleanup is best-effort; unavailable storage should not block the workspace.
+  }
+"""
+if old not in text:
+    raise SystemExit('conductorStore empty-catch lint anchor drifted')
+text = text.replace(old, new, 1)
+
+old = """      const next = { ...optimisticPitchStatuses.value }
+      delete next[slug]
+      optimisticPitchStatuses.value = next
+"""
+new = """      const { [slug]: _removed, ...next } = optimisticPitchStatuses.value
+      optimisticPitchStatuses.value = next
+"""
+if old not in text:
+    raise SystemExit('conductorStore dynamic-delete lint anchor drifted')
 store.write_text(text.replace(old, new, 1), encoding='utf-8')
 
 page = Path('components/pages/conductor-page.vue')

@@ -13,8 +13,8 @@
             </span>
           </div>
           <p class="mt-1 text-xs text-base-content/60">
-            Conductor curates finished jobs. Your verdict becomes training context
-            for its next pass.
+            Review finished renders yourself. Promote and Reject save feedback;
+            Revise can queue a real prompt-only or image-guided replacement.
           </p>
         </div>
         <button
@@ -162,11 +162,17 @@
             <textarea
               v-model="notesByJob[job.id]"
               class="textarea textarea-bordered mt-2 min-h-20 w-full rounded-2xl text-xs"
-              placeholder="What worked, what failed, or how the next prompt should change…"
+              placeholder="What worked, what failed, or what should be remembered for the next attempt…"
             />
           </div>
 
-          <div class="mt-3 grid grid-cols-3 gap-2">
+          <artjob-trainer-redo-controls
+            :job="job"
+            :summary="notesByJob[job.id] || null"
+            :tags="tagsByJob[job.id] || []"
+          />
+
+          <div class="mt-3 grid grid-cols-2 gap-2">
             <button
               type="button"
               class="btn btn-success btn-sm rounded-2xl"
@@ -174,14 +180,6 @@
               @click="saveFeedback(job, 'PROMOTE')"
             >
               Promote
-            </button>
-            <button
-              type="button"
-              class="btn btn-warning btn-sm rounded-2xl"
-              :disabled="isSaving(job.id)"
-              @click="saveFeedback(job, 'REVISE')"
-            >
-              Revise
             </button>
             <button
               type="button"
@@ -320,51 +318,51 @@ function jobImageInfo(job: ArtJobRecord) {
   return artJobStore.imageInfoById[job.artImageId] || null
 }
 
-// Track srcs whose <img>/<video> failed to load (e.g. a path that 404s) so the
-// tile falls back to the diagnostic instead of a silent broken-image icon.
 const failedSrcs = ref<Set<string>>(new Set())
 function markImageFailed(job: ArtJobRecord) {
-  const s = jobImageSrc(job)
-  if (s) failedSrcs.value = new Set(failedSrcs.value).add(s)
+  const src = jobImageSrc(job)
+  if (src) failedSrcs.value = new Set(failedSrcs.value).add(src)
 }
 function jobImageFailed(job: ArtJobRecord): boolean {
-  const s = jobImageSrc(job)
-  return !!s && failedSrcs.value.has(s)
+  const src = jobImageSrc(job)
+  return Boolean(src && failedSrcs.value.has(src))
 }
 function jobImageShowable(job: ArtJobRecord): boolean {
-  return !!jobImageSrc(job) && !jobImageFailed(job)
+  return Boolean(jobImageSrc(job)) && !jobImageFailed(job)
 }
 
 function jobImageKind(job: ArtJobRecord): string {
   return jobImageInfo(job)?.kind ?? 'none'
 }
 
-// Short keyword under the placeholder; '' while the image is still loading.
 function jobImageReason(job: ArtJobRecord): string {
   if (jobImageFailed(job)) return 'load failed (404?)'
   const info = jobImageInfo(job)
   if (!info || info.kind !== 'none') return ''
-  const d = info.diag
-  if (!d.hasImageData && d.imagePath === '(none)' && d.path === '(none)') return 'no bytes stored'
-  if (d.imageDataShape === 'unusable') return 'bad imageData'
-  if (d.imagePath !== '(none)' || d.path !== '(none)') return 'unresolved path'
+  const diag = info.diag
+  if (!diag.hasImageData && diag.imagePath === '(none)' && diag.path === '(none)') {
+    return 'no bytes stored'
+  }
+  if (diag.imageDataShape === 'unusable') return 'bad imageData'
+  if (diag.imagePath !== '(none)' || diag.path !== '(none)') return 'unresolved path'
   return 'no source'
 }
 
-// Full field dump for the hover tooltip — what the row actually holds.
 function jobImageDiag(job: ArtJobRecord): string {
   const info = jobImageInfo(job)
   if (!info) return `ArtImage ${job.artImageId ?? '—'}: not loaded yet`
-  const d = info.diag
+  const diag = info.diag
   const lines = [
     `reason: ${info.reason}`,
-    `kind: ${info.kind}  ·  used: ${d.usedField}`,
-    `imageData: ${d.hasImageData ? d.imageDataShape : 'empty'}`,
-    `fileType: ${d.fileType}`,
-    `imagePath: ${d.imagePath}`,
-    `path: ${d.path}`,
+    `kind: ${info.kind}  ·  used: ${diag.usedField}`,
+    `imageData: ${diag.hasImageData ? diag.imageDataShape : 'empty'}`,
+    `fileType: ${diag.fileType}`,
+    `imagePath: ${diag.imagePath}`,
+    `path: ${diag.path}`,
   ]
-  if (jobImageFailed(job)) lines.unshift(`LOAD FAILED — attempted: ${jobImageSrc(job)}`)
+  if (jobImageFailed(job)) {
+    lines.unshift(`LOAD FAILED — attempted: ${jobImageSrc(job)}`)
+  }
   return lines.join('\n')
 }
 
@@ -422,7 +420,7 @@ async function saveFeedback(
       verdict,
       summary: notesByJob[job.id]?.trim() || null,
       tags: tagsByJob[job.id] || [],
-      rubricKey: 'silas-art-trainer-v1',
+      rubricKey: 'silas-art-trainer-v2',
     })
   } finally {
     savingIds.value = savingIds.value.filter((id) => id !== job.id)

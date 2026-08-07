@@ -2,6 +2,7 @@
 import { readFileSync, readdirSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { buildComponentGraph, mountsElement } from './componentGraph'
 
 // Contract for the shared conversation kit (interface-vision, 2026-08-02).
 //
@@ -47,8 +48,9 @@ const plate = read(PLATE)
 // The layout contract counts components declaring more than one scroll region.
 // The chat window exists partly to REMOVE those, so it must not add one: every
 // surface that adopts it should shed scroll regions, never gain them.
-const scrollRegions = (chat.match(/kr-scroll|overflow-y-auto|overflow-auto/g) ?? [])
-  .length
+const scrollRegions = (
+  chat.match(/kr-scroll|overflow-y-auto|overflow-auto/g) ?? []
+).length
 check(
   scrollRegions === 1,
   `the chat window declares exactly one scroll region (found ${scrollRegions})`,
@@ -80,7 +82,8 @@ for (const [path, source] of [
   [PLATE, plate],
 ] as const) {
   check(
-    !/from '@\/stores\//.test(source) && !/useNarratorStore|storeToRefs/.test(source),
+    !/from '@\/stores\//.test(source) &&
+      !/useNarratorStore|storeToRefs/.test(source),
     `${path.split('/').pop()} imports no store (stays droppable anywhere)`,
   )
 }
@@ -94,7 +97,7 @@ check(
 )
 check(
   !/\.cardPath|\.heroPath|\.iconPath/.test(plate),
-  'the art plate reads no variant field directly (that is the resolver\'s job)',
+  "the art plate reads no variant field directly (that is the resolver's job)",
 )
 
 // --- theme-agnostic ----------------------------------------------------------
@@ -163,47 +166,80 @@ const existing = SURFACES.filter((path) => {
     return false
   }
 })
-const KIT_USE =
-  /kr-chat-window|KrChatWindow|kr-choice-list|KrChoiceList|kr-art-plate|KrArtPlate/
+/*
+ * THE CONVERSATION PIECES, and deliberately not kr-art-plate.
+ *
+ * This used to include the art plate, which was harmless while adoption was
+ * checked one hop deep off a hand-kept list. Under a transitive walk it makes
+ * the number a lie: kr-art-plate is rendered by nearly every card in the app,
+ * so ANY surface that shows a card reaches it, and the count can never fall.
+ * A metric that cannot go down is worse than no metric -- it reports success
+ * for work nobody did.
+ *
+ * Caught by mutation: stripping kr-chat-window and kr-choice-list out of
+ * reward-workspace entirely left the count at a cheerful 7/7.
+ *
+ * The heading says "conversation kit", so this counts the conversation: the
+ * transcript, the choices, and the composer that takes a custom reply. The art
+ * plate's own invariants are asserted directly above by file, which is where
+ * they belong.
+ */
+const KIT_PIECES = [
+  'kr-chat-window',
+  'kr-choice-list',
+  'narrative-response-composer',
+]
+
+/**
+ * Does this source MOUNT a conversation piece?
+ *
+ * ELEMENT-LEVEL, IN THE TEMPLATE. This was a substring test over the whole
+ * file, which counted
+ *
+ *   import type { NarrativeTurn } from '@/components/narrative/kr-chat-window.vue'
+ *
+ * as adoption -- so a surface that imported a TYPE and hand-rolled everything
+ * else scored a tick. Caught by mutation: stripping every kit element out of
+ * reward-workspace left the count at 7/7 because the type import remained.
+ *
+ * That is the fourth time in one session that asserting on a mention rather
+ * than a use produced a false pass in this repo's verifiers. It is the house
+ * failure mode, and the fix is always the same: require the tag to open an
+ * element, in the template, after comments are stripped.
+ */
+function mountsKitPiece(source: string): boolean {
+  return KIT_PIECES.some((piece) => mountsElement(source, piece))
+}
 
 /*
- * Count TRANSITIVE adoption, one level deep.
+ * ADOPTION IS FOUND BY WALKING, NOT BY A LIST.
  *
  * Storybook and Taskmaster reach the kit through kr-narrator-stage rather than
- * mounting it themselves, and a counter that missed that would report 0/7 while
- * the components were demonstrably live in both render paths -- understating
- * progress and, worse, hiding a regression if the stage stopped using them.
+ * mounting it themselves, so a check that only looked at each surface's own
+ * file would report 0/7 while the components were demonstrably live in both
+ * render paths.
+ *
+ * This was a hand-kept INTERMEDIARIES array once. It broke twice in one
+ * afternoon: splitting scenario-workspace out of scenario-interact dropped the
+ * count to 6/7, and splitting reward-workspace out of reward-interact dropped
+ * it again. Both times the kit had not been abandoned; it had moved one hop
+ * further down, and a list of names could not see that.
+ *
+ * The walk itself now lives in componentGraph.ts, shared with
+ * verifyEntityArtManager -- which went red for exactly this reason a third
+ * time, when the same splits carried <EntityArtManager down with them.
  */
-const INTERMEDIARIES = [
-  'components/narrative/kr-narrator-stage.vue',
-  // Both of these are themselves mounted by the product pages, and both now
-  // render kit pieces internally (the composer's suggested-response row is a
-  // kr-choice-list; the art status' rendered illustration is a kr-art-plate).
-  // A surface that mounts either is on the kit whether it says so or not.
-  'components/narrative/narrative-response-composer.vue',
-  'components/narrative/narrative-art-status.vue',
-  // Dreams reaches the kit through its slide-out dock rather than mounting the
-  // pieces itself. The dock's own chrome (card flip, musings, emoji bursts)
-  // stays local on purpose — it is genuinely Dreams', and folding it into the
-  // shared stage would bloat the piece every other surface imports.
-  'components/navigation/workspace-narrator.vue',
-]
-const liveIntermediaries = INTERMEDIARIES.filter((path) => KIT_USE.test(read(path)))
+const graph = buildComponentGraph(resolve(root, 'components'))
 
+/** Does this surface, or anything it renders, mount a kit piece? */
 function adopts(path: string): boolean {
-  const source = read(path)
-  if (KIT_USE.test(source)) return true
-  return liveIntermediaries.some((intermediary) => {
-    const name = intermediary.split('/').pop()?.replace('.vue', '') ?? ''
-    const pascal = name.replace(/(^|-)([a-z])/g, (_, __, c) => c.toUpperCase())
-    return new RegExp(`${name}|${pascal}|Lazy${pascal}`).test(source)
-  })
+  return graph.reaches(path, mountsKitPiece)
 }
 
 const adopters = existing.filter(adopts)
 console.log(
   `\ninfo - conversation kit adopted by ${adopters.length}/${existing.length} surface(s) ` +
-    `(directly or via ${liveIntermediaries.length} shared stage)`,
+    '(directly, or through anything they render)',
 )
 for (const path of existing) {
   console.log(
@@ -225,5 +261,7 @@ if (failures) {
   console.error(`\nNarrative kit contract failed with ${failures} error(s).`)
   process.exitCode = 1
 } else {
-  console.log('\nNarrative kit contract passed: all checks behaved as expected.')
+  console.log(
+    '\nNarrative kit contract passed: all checks behaved as expected.',
+  )
 }

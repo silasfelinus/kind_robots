@@ -241,6 +241,15 @@
             :initial-limit="9"
             :max-selections="5"
           />
+
+          <!-- Roles live next to the cast picker rather than in the review
+               step: choosing who is in the story and choosing what they are
+               for is one decision, and splitting them across screens is how
+               the cast ends up unassigned by default. -->
+          <NarrativeRoleAssigner
+            v-model="store.setupDraft.castRoles"
+            :members="selectedCast"
+          />
         </section>
 
         <section
@@ -255,6 +264,20 @@
               direction remains automatic.
             </p>
           </div>
+
+          <!-- The frame goes above the setting and flavor, because those are
+               what bend it. -->
+          <NarrativeIngredientPicker
+            v-model="store.setupDraft.scenarioSlug"
+            :items="scenarioOptions"
+            label="Plot thread"
+            helper="Frame this story on an existing Scenario. The cast, setting and Facets you pick will reshape how it plays out."
+            empty-label="No plot thread — start from the premise alone"
+            empty-description="Storybook builds the shape of the story from your premise."
+            empty-state="No Scenarios are available yet."
+            :allow-empty="true"
+            :loading="scenarioStore.loading"
+          />
 
           <NarrativeIngredientPicker
             v-model="store.setupDraft.locationSlug"
@@ -583,16 +606,19 @@ import {
 } from '@/stores/storybookStore'
 import type { NarrativeTurn } from '@/components/narrative/kr-chat-window.vue'
 import type { NarrativeIngredientOption } from '@/utils/narrativeIngredients'
-import {
-  beatIdFromTurnId,
-  narrativeBeatsToTurns,
-} from '@/utils/narrativeTurns'
+import { isNarrativeRoleKey } from '@/utils/narrativeRoles'
+import { useScenarioStore } from '@/stores/scenarioStore'
+import { useRoute, useRouter } from 'vue-router'
+import { beatIdFromTurnId, narrativeBeatsToTurns } from '@/utils/narrativeTurns'
 
 const { mode, setMode, dataTheme, modes } = useStorybookMode()
 
 const store = useStorybookStore()
 const characterStore = useCharacterStore()
 const dreamStore = useDreamStore()
+const scenarioStore = useScenarioStore()
+const route = useRoute()
+const router = useRouter()
 const facetStore = useFacetStore()
 const rewardStore = useRewardStore()
 
@@ -645,6 +671,36 @@ const characterOptions = computed<NarrativeIngredientOption[]>(() =>
   })),
 )
 
+/*
+ * Scenarios as story FRAMES.
+ *
+ * Silas, 2026-08-06: "Scenario should be a special storybook story that is
+ * framed on a specific plot thread ... so now we get a darker story about
+ * cthulhu's presidential run with ami-butterfly as the main character." A
+ * Scenario is therefore an ingredient like any other rather than a parallel
+ * story engine -- it supplies the thread, and the cast, setting and Facets
+ * chosen alongside it reshape how that thread plays out.
+ */
+const scenarioOptions = computed<NarrativeIngredientOption[]>(() =>
+  scenarioStore.scenarios
+    .filter((scenario) => scenario.slug)
+    .map((scenario) => ({
+      id: scenario.id,
+      slug: scenario.slug || String(scenario.id),
+      title: scenario.title || 'Untitled scenario',
+      description: scenario.description,
+      imagePath: scenario.imagePath,
+      icon: 'kind-icon:map',
+      badge: scenario.genres || undefined,
+    })),
+)
+
+const selectedScenario = computed(() =>
+  scenarioOptions.value.find(
+    (item) => item.slug === store.setupDraft.scenarioSlug,
+  ),
+)
+
 const locationOptions = computed<NarrativeIngredientOption[]>(() =>
   dreamStore.dreams
     .filter(
@@ -676,7 +732,9 @@ const creativeFacetTaxonomies = new Set([
 ])
 const facetOptions = computed<NarrativeIngredientOption[]>(() =>
   facetStore.activeFacets
-    .filter((facet) => creativeFacetTaxonomies.has(facet.taxonomy) && facet.slug)
+    .filter(
+      (facet) => creativeFacetTaxonomies.has(facet.taxonomy) && facet.slug,
+    )
     .map((facet) => ({
       id: facet.id,
       slug: facet.slug || String(facet.id),
@@ -751,6 +809,12 @@ function rarityLabel(value: string): string {
   return value.toLowerCase().replace(/\b\w/g, (letter) => letter.toUpperCase())
 }
 
+/** The stored role for a cast member, or null when it is unset or stale. */
+function assignedRole(slug: string): string | null {
+  const key = store.setupDraft.castRoles?.[slug]
+  return key && isNarrativeRoleKey(key) ? key : null
+}
+
 function toIngredient(option: NarrativeIngredientOption): StorybookIngredient {
   const reward = rewardStore.rewards.find((item) => item.slug === option.slug)
   return {
@@ -785,12 +849,21 @@ async function beginStory() {
     premise: store.setupDraft.premise,
     narratorStyle: store.setupDraft.narratorStyle,
     structure: store.setupDraft.structure,
-    cast: selectedCast.value.map(toIngredient),
+    // Cast members carry their part into the story bible; the role map is
+    // keyed by slug and validated on the way in, since it is persisted and a
+    // draft can outlive a role being renamed.
+    cast: selectedCast.value.map((member) => ({
+      ...toIngredient(member),
+      roleKey: assignedRole(member.slug),
+    })),
     location: selectedLocation.value
       ? toIngredient(selectedLocation.value)
       : undefined,
     facets: selectedFacets.value.map(toIngredient),
     rewards: selectedRewards.value.map(toIngredient),
+    scenario: selectedScenario.value
+      ? toIngredient(selectedScenario.value)
+      : undefined,
     notes: store.setupDraft.notes,
   })
 }
@@ -808,8 +881,53 @@ function startAnother() {
   furthestStep.value = 0
 }
 
+/*
+ * ARRIVING WITH AN INGREDIENT ALREADY CHOSEN.
+ *
+ * Storybook had no query handling at all, so a Facet or Reward could be IN a
+ * story only if you came here first and hunted for it in a picker. That is the
+ * missing half of Silas's design: "we should have links to these elements that
+ * start the process to tell a storybook story with that element as part of
+ * it." Facets and Rewards do not need conversations of their own -- they need
+ * a way in here.
+ *
+ * Seeds the draft rather than replacing it, so a link never destroys a story
+ * someone was already assembling. The query is cleared immediately so a
+ * reload, bookmark or share does not silently re-add the ingredient after the
+ * author removed it -- the same one-shot treatment /facets?create=1 gets.
+ */
+function seedFromQuery(): void {
+  const draft = store.setupDraft
+  const single = (value: unknown): string | null => {
+    const raw = Array.isArray(value) ? value[0] : value
+    return typeof raw === 'string' && raw ? raw : null
+  }
+  const addOnce = (list: string[], slug: string | null) => {
+    if (slug && !list.includes(slug)) list.push(slug)
+  }
+
+  const scenario = single(route.query.scenario)
+  if (scenario) draft.scenarioSlug = scenario
+  const location = single(route.query.location)
+  if (location) draft.locationSlug = location
+  addOnce(draft.castSlugs, single(route.query.character))
+  addOnce(draft.facetSlugs, single(route.query.facet))
+  addOnce(draft.rewardSlugs, single(route.query.reward))
+
+  const consumed = ['scenario', 'location', 'character', 'facet', 'reward']
+  if (!consumed.some((key) => route.query[key])) return
+
+  const query = Object.fromEntries(
+    Object.entries(route.query).filter(([key]) => !consumed.includes(key)),
+  )
+  void router.replace({ query })
+}
+
 onMounted(() => {
   store.restoreFromLocalStorage()
+  // After the restore, so a link seeds ON TOP of the saved draft rather than
+  // being overwritten by it.
+  seedFromQuery()
   void characterStore.initialize({
     fetchRemote: true,
     createDefaultForm: false,
@@ -819,5 +937,6 @@ onMounted(() => {
   }
   if (!facetStore.loaded) void facetStore.fetchFacets({ take: 250 })
   void rewardStore.initialize({ fetchRemote: true })
+  void scenarioStore.initialize({ fetchRemote: true })
 })
 </script>

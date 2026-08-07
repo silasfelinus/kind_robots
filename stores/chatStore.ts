@@ -374,6 +374,52 @@ export const useChatStore = defineStore('chatStore', () => {
     }
   }
 
+  /*
+   * WHICH CHATS BELONG TO THE CONVERSATION HAPPENING RIGHT NOW.
+   *
+   * bot-interact and reward-interact each kept a private
+   * `sessionChatIds = ref<number[]>([])`, pushed to as the user talked and
+   * cleared when they backed out. That worked, but it put the answer to "is a
+   * conversation in progress?" inside a component -- and both of them route on
+   * it (`!currentBot && sessionChats.length === 0`), so splitting the working
+   * surface out of the router meant the router could no longer see its own
+   * routing condition.
+   *
+   * Session membership is a fact about the chats, so it lives with the chats.
+   * Keyed by scope ('bot', 'reward', ...) so two surfaces open at once do not
+   * share a session, and so clearing one does not clear the other.
+   */
+  const sessionChatIdsByScope = ref<Record<string, number[]>>({})
+
+  function sessionChatIds(scope: string): number[] {
+    return sessionChatIdsByScope.value[scope] ?? []
+  }
+
+  /** The live Chat records for a scope's session, in store order. */
+  function sessionChats(scope: string): Chat[] {
+    const ids = sessionChatIds(scope)
+    if (!ids.length) return []
+    return chats.value.filter((chat) => ids.includes(chat.id))
+  }
+
+  function addSessionChat(scope: string, chatId: number): void {
+    const ids = sessionChatIdsByScope.value[scope] ?? []
+    if (ids.includes(chatId)) return
+    sessionChatIdsByScope.value = {
+      ...sessionChatIdsByScope.value,
+      [scope]: [...ids, chatId],
+    }
+  }
+
+  function clearSessionChats(scope: string): void {
+    if (!sessionChatIdsByScope.value[scope]) return
+    sessionChatIdsByScope.value = Object.fromEntries(
+      Object.entries(sessionChatIdsByScope.value).filter(
+        ([key]) => key !== scope,
+      ),
+    )
+  }
+
   const activeChatsByBotId = (botId: number) =>
     chats.value.filter((chat) => chat.botId === botId)
 
@@ -1694,6 +1740,10 @@ export const useChatStore = defineStore('chatStore', () => {
   }
 
   return {
+    sessionChatIds,
+    sessionChats,
+    addSessionChat,
+    clearSessionChats,
     isFetchingHumanChats,
     chats,
     unreadMessages,

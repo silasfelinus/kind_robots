@@ -65,6 +65,18 @@ export function unguardedDestructure(input: string): string {
 export function truthinessOnly(input: string): boolean {
   return Boolean(input.match(/(\\d+)/))
 }
+
+// A capture group immediately followed by a CHARACTER CLASS puts a literal
+// \`)[\` inside the regex. The old inline-chain pattern read that as the match
+// result being indexed and flagged this correctly-guarded function -- the real
+// false positive that reward-workspace.vue's choice parser hit.
+export function guardedRegexContainingCloseParenBracket(
+  input: string,
+): string {
+  const match = input.match(/^\\s*(1|2|3)[.)]\\s+(.+?)\\s*$/)
+  if (!match) return ''
+  return match[2] ?? ''
+}
 `
 
 const repo = mkdtempSync(join(tmpdir(), 'capture-group-guards-'))
@@ -87,8 +99,8 @@ try {
 
   assert.equal(
     candidatesChecked,
-    8,
-    `expected 8 new .exec(/.match( call sites checked, got ${candidatesChecked}: ${errors.join('; ')}`,
+    9,
+    `expected 9 new .exec(/.match( call sites checked, got ${candidatesChecked}: ${errors.join('; ')}`,
   )
 
   assert.equal(

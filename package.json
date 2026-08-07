@@ -103,6 +103,7 @@
     "test:admin-flag-casts": "tsx utils/scripts/verifyAdminFlagCasts.ts",
     "test:user-role-expand": "tsx utils/scripts/verifyUserRoleExpand.ts",
     "test:user-role-predicates": "tsx utils/scripts/verifyUserRolePredicates.ts",
+    "test:narrative-roles": "tsx utils/scripts/verifyNarrativeRoles.ts",
     "test:narrative-kit": "tsx utils/scripts/verifyNarrativeKit.ts",
     "test:child-maturity": "tsx utils/scripts/verifyChildMaturityRestriction.ts",
     "test:no-unquoted-reserved-word-tables": "tsx utils/scripts/verifyNoUnquotedReservedWordTables.ts",

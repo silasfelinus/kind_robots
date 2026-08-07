@@ -66,33 +66,52 @@
         </div>
       </div>
 
-      <div v-else class="dream-grid">
-        <dream-card
-          v-for="dream in filteredDreams"
-          :key="dream.id"
-          :dream="dream"
-          :selected="dreamStore.selectedDream?.id === dream.id"
-          :is-selected="dreamStore.selectedDream?.id === dream.id"
-          :compact="compact"
-          :show-image="showImages"
-          :show-actions="showCardActions"
-          :show-description="showDescriptions"
-          :show-meta="showMeta"
-          :show-stats="showStats"
-          :allow-edit="allowEdit"
-          :allow-delete="allowDelete"
-          image-fit="cover"
-          @open="selectDreamAndOpen"
-          @edit="startEditingDreamById"
-          @delete="handleDreamDeleted"
-        />
-      </div>
+      <!-- The shared shell owns the grid and the Cards/Heroes/Icons bar;
+           dream-card stays the card.
+
+           NOT a responsive fix, unlike the earlier conversions: `.dream-grid`
+           was already `auto-fill` over `minmax(min(220px,100%),1fr)`, which is
+           correct. What it lacked was the mode bar, and it was a second private
+           spelling of a grid the vocabulary already owns. Its
+           `.dream-grid > * { min-height: 20rem }` goes with it — kr-gallery's
+           cards grid sizes its own rows. -->
+      <kr-gallery
+        v-else
+        :items="galleryItems"
+        :mode="galleryMode"
+        empty-label="dreams"
+        @update:mode="galleryMode = $event"
+      >
+        <template #item="{ item }">
+          <dream-card
+            v-if="dreamById.get(Number(item.id))"
+            :dream="dreamById.get(Number(item.id))!"
+            :selected="dreamStore.selectedDream?.id === item.id"
+            :is-selected="dreamStore.selectedDream?.id === item.id"
+            :compact="compact"
+            :show-image="showImages"
+            :show-actions="showCardActions"
+            :show-description="showDescriptions"
+            :show-meta="showMeta"
+            :show-stats="showStats"
+            :allow-edit="allowEdit"
+            :allow-delete="allowDelete"
+            :variant="MODE_VARIANT[galleryMode]"
+            image-fit="cover"
+            @open="selectDreamAndOpen"
+            @edit="startEditingDreamById"
+            @delete="handleDreamDeleted"
+          />
+        </template>
+      </kr-gallery>
     </section>
   </section>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
+import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
+import { MODE_VARIANT, type GalleryMode } from '@/utils/galleryVocabulary'
 import type {
   ArtCollection,
   ArtImage,
@@ -251,6 +270,20 @@ const filteredDreams = computed<DreamWithRelations[]>(() => {
     dreamSearchText(dream).toLowerCase().includes(query),
   )
 })
+
+const galleryMode = ref<GalleryMode>('cards')
+
+const galleryItems = computed<GalleryItem[]>(() =>
+  filteredDreams.value.map((dream) => ({
+    id: dream.id,
+    title: dream.title || `Dream ${dream.id}`,
+    source: dream,
+  })),
+)
+
+const dreamById = computed(
+  () => new Map(filteredDreams.value.map((dream) => [dream.id, dream])),
+)
 
 const emptyTitle = computed(() => {
   if (searchQuery.value) return 'No connected Dreams match your search.'
@@ -459,16 +492,3 @@ function previewImage(dream: DreamWithRelations) {
   )
 }
 </script>
-
-<style scoped>
-.dream-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
-  gap: 1rem;
-  align-items: stretch;
-}
-
-.dream-grid > * {
-  min-height: 20rem;
-}
-</style>

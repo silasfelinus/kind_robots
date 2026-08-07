@@ -129,33 +129,50 @@
         </button>
       </div>
 
-      <div v-else class="scenario-grid">
-        <ScenarioCard
-          v-for="scenario in filteredScenarios"
-          :key="scenario.id"
-          :scenario="scenario"
-          :selected="scenarioStore.selectedScenario?.id === scenario.id"
-          :show-image="showImages"
-          :compact="compact"
-          :show-actions="showCardActions"
-          :show-description="showDescriptions"
-          :show-meta="showMeta"
-          :show-inspirations="showInspirations"
-          :allow-edit="allowEdit"
-          :allow-delete="allowDelete"
-          :allow-clone="allowClone"
-          @open="selectScenarioById"
-          @edit="startEditingScenarioById"
-          @clone="cloneScenarioById"
-          @delete="handleScenarioDeleted"
-        />
-      </div>
+      <!-- The shared shell owns the grid and the Cards/Heroes/Icons bar;
+           ScenarioCard stays the card.
+
+           NOT a responsive fix: `.scenario-grid` was already `auto-fill` over
+           `minmax(min(240px,100%),1fr)`, which is correct. What it lacked was
+           the mode bar, and it was a private spelling of a grid the shared
+           vocabulary already owns. -->
+      <kr-gallery
+        v-else
+        :items="galleryItems"
+        :mode="galleryMode"
+        empty-label="scenarios"
+        @update:mode="galleryMode = $event"
+      >
+        <template #item="{ item }">
+          <ScenarioCard
+            v-if="scenarioById.get(Number(item.id))"
+            :scenario="scenarioById.get(Number(item.id))!"
+            :selected="scenarioStore.selectedScenario?.id === item.id"
+            :show-image="showImages"
+            :compact="compact"
+            :show-actions="showCardActions"
+            :show-description="showDescriptions"
+            :show-meta="showMeta"
+            :show-inspirations="showInspirations"
+            :allow-edit="allowEdit"
+            :allow-delete="allowDelete"
+            :allow-clone="allowClone"
+            :variant="MODE_VARIANT[galleryMode]"
+            @open="selectScenarioById"
+            @edit="startEditingScenarioById"
+            @clone="cloneScenarioById"
+            @delete="handleScenarioDeleted"
+          />
+        </template>
+      </kr-gallery>
     </section>
   </section>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
+import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
+import { MODE_VARIANT, type GalleryMode } from '@/utils/galleryVocabulary'
 import type { DreamWithRelations } from '@/stores/dreamStore'
 import type { ScenarioWithRelations } from '@/stores/scenarioStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
@@ -283,6 +300,21 @@ const filteredScenarios = computed<ScenarioWithRelations[]>(() => {
     return scenarioSearchText(scenario).toLowerCase().includes(query)
   })
 })
+
+const galleryMode = ref<GalleryMode>('cards')
+
+const galleryItems = computed<GalleryItem[]>(() =>
+  filteredScenarios.value.map((scenario) => ({
+    id: scenario.id,
+    title: scenario.title || `Scenario ${scenario.id}`,
+    source: scenario,
+  })),
+)
+
+const scenarioById = computed(
+  () =>
+    new Map(filteredScenarios.value.map((scenario) => [scenario.id, scenario])),
+)
 
 const emptyTitle = computed(() => {
   if (searchQuery.value) return 'No scenarios match your search.'
@@ -448,12 +480,3 @@ function scenarioSearchText(scenario: ScenarioWithRelations) {
     .join(' ')
 }
 </script>
-
-<style scoped>
-.scenario-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
-  gap: 1rem;
-  align-items: start;
-}
-</style>

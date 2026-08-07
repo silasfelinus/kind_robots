@@ -54,60 +54,28 @@
       </select>
     </div>
 
-    <!-- Icon Grid -->
-    <div class="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-6">
-      <div
-        v-for="icon in filteredIcons"
-        :key="icon.id"
-        class="relative group p-4 border-2 rounded-2xl bg-base-100 shadow-md flex flex-col items-center gap-2"
-        :class="{
-          'border-primary/30': icon.type === 'nav',
-          'border-secondary/30': icon.type === 'utility',
-          'border-base-300': !icon.type,
-        }"
-      >
-        <!-- Type badge -->
-        <span
-          class="absolute top-2 left-2 text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md"
-          :class="{
-            'bg-primary/10 text-primary': icon.type === 'nav',
-            'bg-secondary/10 text-secondary': icon.type === 'utility',
-            'bg-base-300 text-base-content/40': !icon.type,
-          }"
-        >
-          {{ icon.type || '?' }}
-        </span>
-
-        <Icon :name="icon.icon || 'kind-icon:help'" class="text-4xl mt-3" />
-
-        <div class="text-center text-sm font-medium">
-          {{ icon.label || icon.title }}
-        </div>
-
-        <div v-if="icon.description" class="text-center text-sm font-medium">
-          {{ icon.description }}
-        </div>
-
-        <button
-          v-if="isAdmin"
-          class="mt-1 text-[10px] underline text-blue-500 hover:text-blue-700"
-          @click="openEditModal(icon)"
-        >
-          Edit Details
-        </button>
-
-        <button
-          class="btn btn-xs mt-1 rounded-xl"
-          :class="{
-            'btn-secondary': isInSmartBar(icon.id),
-            'btn-outline': !isInSmartBar(icon.id),
-          }"
-          @click="toggleIcon(icon.id)"
-        >
-          {{ isInSmartBar(icon.id) ? 'Remove' : 'Add' }}
-        </button>
-      </div>
-    </div>
+    <!-- The shared shell owns the grid, the Cards/Heroes/Icons bar, and the
+         loading and empty states; icon-card stays the card. Smart Icons are
+         glyphs rather than art, so the #item slot replaces kr-gallery's default
+         card outright instead of handing it an image to resolve. -->
+    <kr-gallery
+      :items="galleryItems"
+      :mode="galleryMode"
+      :loading="smartbarStore.loading"
+      empty-label="icons"
+      @update:mode="galleryMode = $event"
+    >
+      <template #item="{ item }">
+        <icon-card
+          v-if="iconById.get(Number(item.id))"
+          :icon="iconById.get(Number(item.id))!"
+          :in-smart-bar="isInSmartBar(Number(item.id))"
+          :can-edit="isAdmin"
+          @edit="openEditModal"
+          @toggle="toggleIcon"
+        />
+      </template>
+    </kr-gallery>
 
     <!-- Edit Modal -->
     <Teleport to="body">
@@ -129,6 +97,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
+import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
+import type { GalleryMode } from '@/utils/galleryVocabulary'
 import { useSmartbarStore, type SmartIcon } from '@/stores/smartbarStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -142,6 +112,7 @@ const selectedIcon = ref<SmartIcon | null>(null)
 
 const filterScope = ref<'all' | 'user' | 'public'>('all')
 const filterType = ref('')
+const galleryMode = ref<GalleryMode>('cards')
 
 const isAdmin = computed(() => userStore.isAdmin)
 
@@ -160,6 +131,23 @@ const filteredIcons = computed(() =>
     if (filterType.value && i.type !== filterType.value) return false
     return true
   }),
+)
+
+/*
+ * kr-gallery takes GalleryItems and hands one back to the #item slot, so the
+ * card reaches its record through this map. Title falls back to the icon's own
+ * name so the shared empty/loading states have something to say.
+ */
+const galleryItems = computed<GalleryItem[]>(() =>
+  filteredIcons.value.map((icon) => ({
+    id: icon.id,
+    title: icon.label || icon.title || `Icon ${icon.id}`,
+    description: icon.description || undefined,
+  })),
+)
+
+const iconById = computed(
+  () => new Map(filteredIcons.value.map((icon) => [icon.id, icon])),
 )
 
 function isInSmartBar(id: number) {

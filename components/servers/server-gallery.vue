@@ -1,7 +1,12 @@
 <!-- /components/server/server-gallery.vue -->
 <template>
-  <section class="flex h-full w-full flex-col gap-3 rounded-2xl bg-base-300 p-3">
-    <header v-if="showHeader" class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3">
+  <section
+    class="flex h-full w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
+  >
+    <header
+      v-if="showHeader"
+      class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+    >
       <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
           <h2 class="truncate text-lg font-bold text-base-content">
@@ -30,7 +35,10 @@
           placeholder="Filter servers"
         />
 
-        <select v-model="selectedType" class="select select-bordered rounded-xl">
+        <select
+          v-model="selectedType"
+          class="select select-bordered rounded-xl"
+        >
           <option value="all">All types</option>
           <option value="A1111">A1111</option>
           <option value="COMFY">COMFY</option>
@@ -48,38 +56,61 @@
 
     <add-server v-if="showAddServer" />
 
-    <div v-if="serverStore.loading || isLoading" class="flex justify-center rounded-2xl bg-base-200 p-6">
-      <span class="loading loading-spinner loading-lg" />
-    </div>
+    <!-- The shared shell owns the grid, the mode bar, and the loading and empty
+         states; server-card stays the card.
 
-    <div v-else-if="filteredServers.length" class="grid gap-3" :class="gridClass">
-      <server-card
-        v-for="server in filteredServers"
-        :key="server.id"
-        :server="server"
-        :compact="variant === 'row' || variant === 'dropdown'"
-        :show-description="showDescriptions"
-        :show-meta="showMeta"
-        :show-use-buttons="showUseButtons"
-        :show-actions="showCardActions"
-        :allow-edit="showCardActions"
-        :allow-test="showCardActions"
-      />
-    </div>
+         The compact variants pass `:modes="[]"`, which hides the bar: a row or
+         a dropdown is a PICKER, not a gallery, and offering Cards/Heroes/Icons
+         inside one would be offering a choice that has nowhere to land. They
+         are pinned to `icons`, whose grid is the row-shaped one — and because
+         every MODE_GRID_CLASS is auto-fill over `minmax(min(X,100%),1fr)`, it
+         collapses to a single column in a narrow container on its own. -->
+    <kr-gallery
+      :items="galleryItems"
+      :mode="isCompact ? 'icons' : galleryMode"
+      :modes="isCompact ? [] : [...GALLERY_MODES]"
+      :loading="serverStore.loading || isLoading"
+      empty-label="servers"
+      @update:mode="galleryMode = $event"
+    >
+      <template #item="{ item }">
+        <server-card
+          v-if="serverById.get(Number(item.id))"
+          :server="serverById.get(Number(item.id))!"
+          :compact="isCompact"
+          :show-description="showDescriptions"
+          :show-meta="showMeta"
+          :show-use-buttons="showUseButtons"
+          :show-actions="showCardActions"
+          :allow-edit="showCardActions"
+          :allow-test="showCardActions"
+        />
+      </template>
 
-    <div v-else class="rounded-2xl border border-dashed border-base-300 bg-base-200 p-6 text-center">
-      <Icon name="kind-icon:server-off" class="mx-auto mb-2 h-8 w-8 text-base-content/40" />
-      <p class="font-bold">No matching servers.</p>
-      <p class="text-sm text-base-content/60">
-        Add a configured A1111, Comfy, OpenAI, Anthropic, or Custom endpoint.
-      </p>
-    </div>
+      <template #empty>
+        <div
+          class="rounded-2xl border border-dashed border-base-300 bg-base-200 p-6 text-center"
+        >
+          <Icon
+            name="kind-icon:server-off"
+            class="mx-auto mb-2 h-8 w-8 text-base-content/40"
+          />
+          <p class="font-bold">No matching servers.</p>
+          <p class="text-sm text-base-content/60">
+            Add a configured A1111, Comfy, OpenAI, Anthropic, or Custom
+            endpoint.
+          </p>
+        </div>
+      </template>
+    </kr-gallery>
   </section>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import type { Server, ServerType } from '~/prisma/generated/prisma/client'
+import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
+import { GALLERY_MODES, type GalleryMode } from '@/utils/galleryVocabulary'
 import { useServerStore } from '@/stores/serverStore'
 
 type GalleryVariant = 'dashboard' | 'row' | 'dropdown'
@@ -142,23 +173,55 @@ const isLoading = ref(false)
 const showAddServer = ref(false)
 
 const resolvedTitle = computed(() => {
-  return props.title || (props.mode === 'art' ? 'Art Servers' : props.mode === 'text' ? 'Text Servers' : 'Servers')
+  return (
+    props.title ||
+    (props.mode === 'art'
+      ? 'Art Servers'
+      : props.mode === 'text'
+        ? 'Text Servers'
+        : 'Servers')
+  )
 })
 
 const resolvedSubtitle = computed(() => {
-  return props.subtitle || 'Configured access points only. Route behavior lives in endpoints now.'
+  return (
+    props.subtitle ||
+    'Configured access points only. Route behavior lives in endpoints now.'
+  )
 })
 
-const gridClass = computed(() => {
-  if (props.variant === 'row' || props.variant === 'dropdown') return 'grid-cols-1'
-  return 'md:grid-cols-2 xl:grid-cols-3'
-})
+/*
+ * The grid moved to kr-gallery. What used to be `md:grid-cols-2 xl:grid-cols-3`
+ * is now MODE_GRID_CLASS, which is container-responsive rather than
+ * viewport-responsive -- this gallery is mounted inside manager panels, where
+ * `xl:` fired on a wide screen while the actual container was narrow.
+ */
+const isCompact = computed(
+  () => props.variant === 'row' || props.variant === 'dropdown',
+)
+
+const galleryMode = ref<GalleryMode>('cards')
+
+const galleryItems = computed<GalleryItem[]>(() =>
+  filteredServers.value.map((server) => ({
+    id: server.id,
+    title: server.title || server.label || `Server ${server.id}`,
+  })),
+)
+
+/** Slot props give back a GalleryItem, so map the id to the real record. */
+const serverById = computed(
+  () => new Map(filteredServers.value.map((server) => [server.id, server])),
+)
 
 const serversByMode = computed<Server[]>(() => {
   const servers = Array.isArray(serverStore.servers) ? serverStore.servers : []
 
   if (props.mode === 'art') {
-    return servers.filter((server) => server.serverType === 'A1111' || server.serverType === 'COMFY')
+    return servers.filter(
+      (server) =>
+        server.serverType === 'A1111' || server.serverType === 'COMFY',
+    )
   }
 
   if (props.mode === 'text') {
@@ -175,7 +238,11 @@ const filteredServers = computed<Server[]>(() => {
 
   return serversByMode.value.filter((server) => {
     if (!server.isActive) return false
-    if (selectedType.value !== 'all' && server.serverType !== selectedType.value) return false
+    if (
+      selectedType.value !== 'all' &&
+      server.serverType !== selectedType.value
+    )
+      return false
 
     if (!query) return true
 

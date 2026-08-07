@@ -21,10 +21,8 @@ import {
   DEFAULT_IDLE_TIMEOUT_SECONDS,
   DEFAULT_MINIMUM_IDLE,
   DEFAULT_PING_TIMEOUT_MS,
-  VERCEL_CONNECTION_LIMIT,
-  VERCEL_IDLE_TIMEOUT_SECONDS,
-  VERCEL_MINIMUM_IDLE,
   isVercelFunctionRuntime,
+  resolveDatabasePoolDefaults,
 } from './databasePoolDefaults'
 
 export type PrismaMariaDbConfig = ConstructorParameters<typeof PrismaMariaDb>[0]
@@ -72,6 +70,7 @@ export function readDatabaseUseTextProtocol(): boolean {
 export function buildDatabaseUrl(url: string): string {
   const parsed = new URL(url)
   const isVercelRuntime = isVercelFunctionRuntime()
+  const runtimePoolDefaults = resolveDatabasePoolDefaults()
   const connectTimeout = readPositiveInteger(
     parsed.searchParams.get('connectTimeout') ??
       process.env.DATABASE_CONNECT_TIMEOUT_MS,
@@ -108,13 +107,13 @@ export function buildDatabaseUrl(url: string): string {
     DEFAULT_PING_TIMEOUT_MS,
   )
   const connectionLimit = isVercelRuntime
-    ? Math.min(requestedConnectionLimit, VERCEL_CONNECTION_LIMIT)
+    ? Math.min(requestedConnectionLimit, runtimePoolDefaults.connectionLimit)
     : requestedConnectionLimit
   const idleTimeout = isVercelRuntime
-    ? Math.min(requestedIdleTimeout, VERCEL_IDLE_TIMEOUT_SECONDS)
+    ? Math.min(requestedIdleTimeout, runtimePoolDefaults.idleTimeoutSeconds)
     : requestedIdleTimeout
   const minimumIdle = isVercelRuntime
-    ? VERCEL_MINIMUM_IDLE
+    ? runtimePoolDefaults.minimumIdle
     : requestedMinimumIdle
 
   if (
@@ -124,6 +123,7 @@ export function buildDatabaseUrl(url: string): string {
       minimumIdle !== requestedMinimumIdle)
   ) {
     console.warn('[prisma] Clamped unsafe Vercel database pool override', {
+      profile: runtimePoolDefaults.profile,
       requestedConnectionLimit,
       requestedIdleTimeout,
       requestedMinimumIdle,

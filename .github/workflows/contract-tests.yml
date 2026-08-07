@@ -46,6 +46,13 @@ jobs:
       - name: Channel content contract
         run: npm run test:channel-content
 
+      # A Promise returned from a Pinia setup store becomes SSR state, and
+      # devalue cannot serialize one -- so it is a 500 on EVERY page. This was
+      # fixed by hand twice and came back both times, because devalue reports
+      # only the first offender it meets. 53 were returned repo-wide.
+      - name: No Promise in Pinia store state
+        run: npm run test:no-promise-in-store-state
+
       - name: Channel resolver contract
         run: npm run test:channel-resolver
 

@@ -26,24 +26,20 @@ const query = ref('')
 const resourceType = ref('ALL')
 const generation = ref('ALL')
 /*
- * SAFE BY DEFAULT, and not merely by default.
+ * THE maturity rule, and the only one.
  *
- * This defaulted to 'ALL' ("Visible Resources") and consulted nothing else, so
- * a signed-out guest browsing /resources was served mature LoRAs and
- * checkpoints on first paint. Silas, 2026-08-07: "even worse, the default for
- * guests seems to be visible resources, no safe only!"
+ * Two bugs lived here. The filter defaulted to 'ALL' and consulted no account
+ * state at all, so a signed-out guest was served mature LoRAs and checkpoints
+ * on first paint -- Silas, 2026-08-07: "the default for guests seems to be
+ * visible resources, no safe only!". And a Maturity <select> sat beside the
+ * account-level maturity-toggle offering All / Safe only / Mature only, so the
+ * page carried two controls for one concept that openly disagreed on screen.
  *
- * The default alone would not have fixed it -- a default is a starting value,
- * and the dropdown could still be set back to ALL by anyone. So `canSeeMature`
- * gates the FILTER as well: when the account cannot see mature content, the
- * list is safe-only no matter what this ref says, and the two options that
- * would reveal it are not rendered.
- *
- * userStore.showMature is the canonical flag and is already CHILD-restricted
- * (a CHILD reads false even with the flag set), so this inherits that rule
- * rather than re-deriving it.
+ * Both are gone. This computed IS the rule: mature allowed, or safe. It reads
+ * userStore.showMature, which is already CHILD-restricted (a CHILD reads false
+ * even with the flag set), so the restriction is inherited rather than
+ * re-derived here.
  */
-const maturity = ref<'ALL' | 'SAFE' | 'MATURE'>('SAFE')
 const canSeeMature = computed(() => Boolean(userStore.showMature))
 const message = ref('')
 const messageTone = ref<'success' | 'error'>('success')
@@ -117,12 +113,17 @@ const filteredResources = computed(() => {
       return false
     }
 
-    // The gate, not the preference: an account that cannot see mature content
-    // gets a safe list regardless of what the dropdown is set to.
+    // ONE maturity control, and it is the account toggle. There used to be a
+    // second: a Maturity <select> (All / Safe only / Mature only) sitting
+    // beside the account-level maturity-toggle and disagreeing with it -- the
+    // toggle read "Mature LoRAs and checkpoint models are included" while the
+    // select read "Safe only". Silas, 2026-08-07: "we aren't really going to
+    // need: only show mature: just base it on our real toggle, so we are
+    // either showing all, or safe".
+    //
+    // So the whole select is gone and this is the entire rule: mature allowed,
+    // or safe. Two controls for one concept can only ever agree by accident.
     if (!canSeeMature.value && entry.isMature) return false
-
-    if (maturity.value === 'SAFE' && entry.isMature) return false
-    if (maturity.value === 'MATURE' && !entry.isMature) return false
 
     if (!search) return true
 
@@ -337,7 +338,12 @@ onMounted(async () => {
           </p>
         </div>
 
-        <div class="flex shrink-0 gap-2">
+        <div class="flex shrink-0 items-center gap-2">
+          <!-- The Library/Discover switch lands HERE rather than in a strip of
+               its own above the page. resource-manager fills it; a host that
+               only wants the gallery passes nothing and the row is unchanged. -->
+          <slot name="tabs" />
+
           <button
             type="button"
             class="btn btn-primary btn-xs rounded-2xl"
@@ -476,21 +482,6 @@ onMounted(async () => {
             <option v-for="base in generations" :key="base" :value="base">
               {{ base }}
             </option>
-          </select>
-
-          <!-- Only rendered when the account can actually see mature content.
-               Offering "Mature only" to a guest advertises something the filter
-               above will refuse to show them, which reads as a bug either way
-               it resolves. -->
-          <select
-            v-if="canSeeMature"
-            v-model="maturity"
-            class="select select-bordered select-xs rounded-2xl"
-            aria-label="Filter by maturity"
-          >
-            <option value="ALL">Visible Resources</option>
-            <option value="SAFE">Safe only</option>
-            <option value="MATURE">Mature only</option>
           </select>
 
           <!-- `icon`, not `resource`: the resource variant is a labelled block

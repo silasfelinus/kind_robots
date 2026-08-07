@@ -137,9 +137,11 @@ export default defineEventHandler(async (event) => {
         const imageName = `kr_trainer_kontext_${crypto.randomUUID()}.${extension}`
         prepared.workflow = buildKontextWorkflow({
           prompt: promptString,
+          negativePrompt: renderRequest.negativePrompt,
           imageName,
           width: renderRequest.width,
           height: renderRequest.height,
+          originalWeight: 0.55,
           seed: null,
         })
         prepared.images = [{ name: imageName, imageData }]
@@ -150,7 +152,6 @@ export default defineEventHandler(async (event) => {
           negativePrompt: renderRequest.negativePrompt,
           imageName,
           seed: null,
-          denoise: 0.55,
           originalWeight: 0.55,
         })
         prepared.workflow = workflow

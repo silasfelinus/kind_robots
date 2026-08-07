@@ -34,10 +34,25 @@
            <h1> behind it. Silas, 2026-08-04: "I can't actually select the
            channel option anymore." The children round their own outer corners
            instead. -->
+      <!-- channel-select used to carry `shrink-0` here, which pinned it to its
+           full unclamped label width (e.g. "Sanctuary") no matter how little
+           room the row had left. Since the tab strip's own wrapper is
+           `flex-1` with a flex-basis of 0%, flexbox gives basis-0 items NO
+           share of the shrink deficit — so a shrink-0 sibling forces 100% of
+           any squeeze onto the tab strip instead, crushing `#channel-tab-strip`
+           to a several-pixel sliver on narrow phones (interface-vision/t-109:
+           /about, /cart, /giving, /mermaids, /privacy, /sanctuary, and
+           /auth/google, all only on the 390px phone viewport — there was
+           always enough room at tablet+). `shrink` (default flex-shrink: 1)
+           plus `min-w-0` here, and the matching `w-full min-w-0` replacing
+           channel-select's own internal `shrink-0` in channel-select.vue, let
+           the picker absorb the deficit first and truncate its label (the
+           span already had `min-w-0 truncate`, it just never got a chance to
+           engage) rather than starving the navigation the row exists for. -->
       <div
         class="flex h-10 min-h-10 min-w-0 flex-1 items-stretch rounded-xl border border-base-300 bg-base-100 shadow-sm sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14"
       >
-        <channel-select seamless class="shrink-0" />
+        <channel-select seamless class="min-w-0 shrink" />
 
         <!-- The horizontal strip owns clipping. This wrapper stays visible so
              the complete-tab menu can escape below the one-row header. -->
@@ -210,14 +225,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  computed,
-  nextTick,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  watch,
-} from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { ResolvedTab } from '@/stores/helpers/channelContent'
 import { useChannelContentStore } from '@/stores/channelContentStore'
@@ -430,9 +438,7 @@ function currentTabStartIndex(): number {
   let closestDistance = Number.POSITIVE_INFINITY
 
   buttons.forEach((button, index) => {
-    const distance = Math.abs(
-      tabOffset(button, firstButton) - strip.scrollLeft,
-    )
+    const distance = Math.abs(tabOffset(button, firstButton) - strip.scrollLeft)
 
     if (distance < closestDistance) {
       closestIndex = index
@@ -542,10 +548,7 @@ async function syncTabStrip(
 
 function scrollTabs(direction: -1 | 1): void {
   const currentStart = currentTabStartIndex()
-  scrollToTabIndex(
-    currentStart + direction * visibleTabCount.value,
-    'smooth',
-  )
+  scrollToTabIndex(currentStart + direction * visibleTabCount.value, 'smooth')
 }
 
 /**

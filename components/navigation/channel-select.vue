@@ -4,7 +4,7 @@
     <button
       tabindex="0"
       type="button"
-      class="flex h-full min-h-10 shrink-0 items-center gap-2 overflow-hidden px-2 transition-all xl:gap-2.5 xl:px-3"
+      class="flex h-full min-h-10 w-full min-w-0 items-center gap-2 overflow-hidden px-2 transition-all xl:gap-2.5 xl:px-3"
       :class="
         seamless
           ? 'rounded-l-xl hover:bg-base-200'

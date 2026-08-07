@@ -5,18 +5,18 @@
   The frame every core object shares, and the only thing the interact tier is
   for:
 
-    <x-gallery v-if="!selected" />     <x-workspace v-else />
+    <x-gallery v-if="!selected" />     <x-{activity} v-else />
 
   It used to be 923 lines -- 482 of template and 440 of script -- because both
   the chat and adventure modes were inlined here. All of it moved to
-  character-workspace.vue unchanged.
+  character-chat.vue unchanged.
 
   WHY THE SESSION SIGNAL COMES FROM THE STORE. Interact mode is not just "a
   Character is selected": a conversation already under way keeps you here even
   after the Character is deselected. That was answered by a local
   `chatMessages` array, which is display state that moved out with the
-  workspace -- so the router would have lost sight of its own condition. The
-  workspace registers each real Chat id with chatStore under the 'character'
+  chat surface -- so the router would have lost sight of its own condition. The
+  chat surface registers each real Chat id with chatStore under the 'character'
   scope, which is the same answer reward-interact and bot-interact use.
 -->
 <template>
@@ -34,7 +34,7 @@
       :show-card-actions="true"
     />
 
-    <character-workspace v-else class="min-h-0 flex-1" />
+    <character-chat v-else class="min-h-0 flex-1" />
   </section>
 </template>
 
@@ -47,7 +47,7 @@ const characterStore = useCharacterStore()
 const chatStore = useChatStore()
 
 /*
- * A conversation in progress keeps you in the workspace even with no Character
+ * A conversation in progress keeps you in the chat surface even with no Character
  * selected, which is why this is not simply `Boolean(selectedCharacter)`.
  */
 const isInteractMode = computed(

@@ -5,11 +5,11 @@
     class="h-full min-h-0"
     variant="dashboard"
     title="Choose a Dream"
-    subtitle="Pick a Dream to open its organic workspace."
+    subtitle="Pick a Dream to open its narration."
     :open-on-select="true"
   />
 
-  <dream-workspace v-else class="h-full min-h-0" />
+  <dream-narration v-else class="h-full min-h-0" />
 
   <!--
     The narrator lives here rather than in app.vue's global chrome. It used to

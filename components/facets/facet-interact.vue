@@ -4,10 +4,10 @@
 
   Every other model follows the same shape -- content/<model>.md mounts
   :<model>-manager, which routes to <model>-interact, which shows a gallery until
-  you pick something and a workspace once you have:
+  you pick something and a surface surface once you have:
 
     bot-interact    <bot-gallery   v-if="!botStore.currentBot">   ... else the chat
-    dream-interact  <dream-gallery v-if="!selectedDream">  <dream-workspace v-else>
+    dream-interact  <dream-gallery v-if="!selectedDream">  <dream-narration v-else>
 
   Facets had neither tier. facet-manager rendered all ~1611 rows itself and
   expanded an editor INSIDE the grid cell, which is why selecting one felt wrong

@@ -13,6 +13,29 @@ export type WonderLabPreviewFixture = {
 const fixtureDate = new Date('2026-01-01T00:00:00.000Z')
 
 const fixtures: Record<string, WonderLabPreviewFixture> = {
+  'icon-card': {
+    title: 'Smart Icon card',
+    description:
+      'A nav-typed icon already in the smart bar, with the admin edit affordance on — so the type badge, the Remove state and the edit link are all visible at once. Presentational: it takes its record as a prop and reads no store.',
+    viewport: 'mobile',
+    minHeight: '12rem',
+    props: {
+      icon: {
+        id: -701,
+        title: 'Brainstorm',
+        label: 'Brainstorm',
+        icon: 'kind-icon:brain',
+        description: 'Open the idea forge.',
+        type: 'nav',
+        isPublic: true,
+        userId: 1,
+        createdAt: fixtureDate,
+        updatedAt: fixtureDate,
+      },
+      inSmartBar: true,
+      canEdit: true,
+    },
+  },
   'bot-card': {
     title: 'Bot Card specimen',
     description:

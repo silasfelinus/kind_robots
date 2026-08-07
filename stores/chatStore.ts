@@ -1692,7 +1692,22 @@ export const useChatStore = defineStore('chatStore', () => {
     pendingChatId,
     pendingChat,
     pendingText,
-    initializePromise,
+    /*
+     * initializePromise is deliberately NOT returned.
+     *
+     * In a Pinia setup store every returned ref becomes STATE, and Nuxt
+     * serializes that state into the SSR payload with devalue -- which cannot
+     * stringify a Promise:
+     *
+     *   DevalueError: Cannot stringify a Promise or thenable
+     *   path: '.pinia.chatStore.initializePromise'
+     *
+     * That threw on EVERY `/[...slug]` render, so production returned 500 on
+     * every content route. The ref is an in-flight re-entrancy guard, not state
+     * any consumer reads -- nothing outside these stores references it -- and
+     * serverStore already keeps its equivalent private, which is the pattern
+     * this restores.
+     */
     fetchChatsPromise,
     lastFetchedUserId,
     state,

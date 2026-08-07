@@ -80,7 +80,20 @@
       </slot>
     </div>
 
-    <section v-else :class="gridClass">
+    <!--
+      data-kr-gallery-grid marks THE grid for utils/scripts/auditGalleryChrome.ts,
+      which measures how much vertical space a route spends before its first
+      card. That audit used to find the grid by heuristic -- "the element with
+      display:grid and the most children" -- and the heuristic was wrong: it
+      picked the same app-shell grid on every route, so six different galleries
+      reported byte-identical numbers (34px phone, 31px laptop). A measurement
+      that agrees across pages that look nothing alike is measuring the layout,
+      not the pages.
+
+      An attribute is cheap and unambiguous, and it lives here because this is
+      the component that knows which element is the gallery grid.
+    -->
+    <section v-else :class="gridClass" data-kr-gallery-grid>
       <!--
         An `item` slot, so a gallery can keep its own object card inside this
         shell instead of trading it away to adopt the shell.

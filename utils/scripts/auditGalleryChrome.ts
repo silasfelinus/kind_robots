@@ -67,6 +67,20 @@ const BREAKPOINTS = [
   { label: 'desktop', width: 1920, height: 1080 },
 ]
 
+/**
+ * Browse surfaces a user lands on to look through records.
+ *
+ * `/ui` is deliberately absent even though it mounts kr-gallery: it is the
+ * style guide, and its gallery is a specimen partway down a long document, so
+ * "pixels above the first card" there measures how far the reader has scrolled
+ * to reach the demo rather than any chrome budget. Including it produced a
+ * confident 1100px that meant nothing.
+ *
+ * `/art` is included but usually reads `no-cards`, and that is correct: it
+ * opens on a COLLECTIONS grid, and the converted image gallery only renders
+ * once you enter a collection. Measuring that needs a route into a collection,
+ * which is worth adding when there is a stable one to point at.
+ */
 const DEFAULT_ROUTES = [
   '/art',
   '/bots',
@@ -79,7 +93,6 @@ const DEFAULT_ROUTES = [
   '/rewards',
   '/servers',
   '/stories',
-  '/ui',
 ]
 
 type ChromeReading = {
@@ -101,39 +114,37 @@ const argOf = (flag: string): string | null => {
 /**
  * Pixels from the top of the viewport to the top of the first gallery card.
  *
- * Runs in the page because the gallery grid cannot be selected from outside it:
- * Tailwind arbitrary values mean the grid's class attribute is
- * `[grid-template-columns:repeat(auto-fill,...)]`, escaped, and a selector for
- * that is far more brittle than asking the browser which elements are actually
- * laid out as grids.
+ * THE MARKER, AND WHY GUESSING FAILED. This used to find the grid by heuristic
+ * -- among elements with `display: grid`, take the one with the most children,
+ * requiring its first child to be card-sized. It produced confident numbers
+ * that measured the wrong element: /bots, /characters, /dreams, /facets,
+ * /rewards and /stories all reported EXACTLY 34px on phone and 31px on laptop.
+ * Six galleries that look nothing alike cannot agree to the pixel; the
+ * heuristic had locked onto an app-shell grid present on every route.
  *
- * Among candidate grids it takes the one with the MOST children -- a gallery of
- * records beats a two-cell layout wrapper -- and requires its first child to be
- * card-sized, so a row of filter chips does not win.
+ * That is worse than no measurement, because it reads as a clean pass. So
+ * kr-gallery now stamps `data-kr-gallery-grid` on its grid and this asks for it
+ * by name. A route with no kr-gallery yields null -> `no-cards`, which is
+ * accurate rather than flattering.
+ *
+ * The FIRST marked grid in document order, not the largest: a page with two
+ * galleries spends its chrome before the first one.
  */
+const GALLERY_GRID = '[data-kr-gallery-grid]'
+
 async function measureChrome(page: {
   evaluate: <T>(fn: () => T) => Promise<T>
 }): Promise<number | null> {
   return page.evaluate(() => {
-    const MIN_CARD_HEIGHT = 60
-    let best: { count: number; top: number } | null = null
+    const grid = document.querySelector('[data-kr-gallery-grid]')
+    const first = grid?.firstElementChild
+    if (!first) return null
 
-    for (const element of Array.from(document.querySelectorAll('*'))) {
-      if (window.getComputedStyle(element).display !== 'grid') continue
+    const rect = first.getBoundingClientRect()
+    // A zero-area first child is a rendered-but-empty slot, not a card.
+    if (rect.height < 1 || rect.width < 1) return null
 
-      const first = element.firstElementChild
-      if (!first || element.childElementCount < 2) continue
-
-      const rect = first.getBoundingClientRect()
-      if (rect.height < MIN_CARD_HEIGHT || rect.width < MIN_CARD_HEIGHT)
-        continue
-
-      if (!best || element.childElementCount > best.count) {
-        best = { count: element.childElementCount, top: rect.top }
-      }
-    }
-
-    return best ? Math.round(best.top) : null
+    return Math.round(rect.top)
   })
 }
 
@@ -176,13 +187,9 @@ async function readRoute(
      */
     await page
       .waitForFunction(
-        () =>
-          Array.from(document.querySelectorAll('*')).some(
-            (element) =>
-              window.getComputedStyle(element).display === 'grid' &&
-              element.childElementCount >= 2,
-          ),
-        undefined,
+        (selector: string) =>
+          !!document.querySelector(selector)?.firstElementChild,
+        GALLERY_GRID,
         { timeout: 10_000 },
       )
       .catch(() => {})

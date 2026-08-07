@@ -49,6 +49,7 @@ expectContains('components/dreams/daily-dream-object-art-workbench.vue', [
 
 expectContains('stores/dailyDreamArchiveStore.ts', [
   "'/api/art/enqueue'",
+  'priority: 100',
   '`/api/art/queue/${jobId}`',
   'entityArt:',
   'async function updateObject(',

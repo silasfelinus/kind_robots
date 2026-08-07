@@ -41,6 +41,18 @@ const generation = ref('ALL')
  * re-derived here.
  */
 const canSeeMature = computed(() => Boolean(userStore.showMature))
+
+/*
+ * A VETTING view, not a second maturity control.
+ *
+ * `canSeeMature` decides what the catalog may show at all; this narrows an
+ * already-permitted list down to just the flagged rows, which is what makes
+ * reviewing them practical -- Silas needs to walk the ones the auto-tagger
+ * flagged and confirm or clear each. It only renders when showMature is on, so
+ * it can never contradict the account toggle the way the old Maturity <select>
+ * did: with mature hidden there is nothing for it to narrow to.
+ */
+const matureOnly = ref(false)
 const message = ref('')
 const messageTone = ref<'success' | 'error'>('success')
 const activePreviewResourceId = ref<number | null>(null)
@@ -124,6 +136,10 @@ const filteredResources = computed(() => {
     // So the whole select is gone and this is the entire rule: mature allowed,
     // or safe. Two controls for one concept can only ever agree by accident.
     if (!canSeeMature.value && entry.isMature) return false
+
+    // Only reachable while canSeeMature is true -- the control that sets it is
+    // not rendered otherwise.
+    if (matureOnly.value && !entry.isMature) return false
 
     if (!search) return true
 
@@ -483,6 +499,19 @@ onMounted(async () => {
               {{ base }}
             </option>
           </select>
+
+          <button
+            v-if="canSeeMature"
+            type="button"
+            class="btn btn-xs gap-1 rounded-2xl"
+            :class="matureOnly ? 'btn-warning' : 'btn-ghost'"
+            :aria-pressed="matureOnly"
+            title="Show only Resources flagged mature"
+            @click="matureOnly = !matureOnly"
+          >
+            <Icon name="kind-icon:eye" class="h-3.5 w-3.5" />
+            <span class="hidden sm:inline">Mature only</span>
+          </button>
 
           <!-- `icon`, not `resource`: the resource variant is a labelled block
                with an explanatory sentence, which is a band of its own. -->

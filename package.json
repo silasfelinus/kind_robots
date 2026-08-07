@@ -167,7 +167,9 @@
     "test:art-image-offload": "tsx utils/scripts/verifyArtImageOffload.ts",
     "offload:sample": "tsx utils/scripts/offloadArtImageData.ts --write --limit 20 --only-tagged",
     "dedupe:generated-art": "tsx utils/scripts/dedupeGeneratedArtImages.ts",
-    "test:no-shadowed-content-routes": "tsx utils/scripts/verifyNoShadowedContentRoutes.ts"
+    "test:no-shadowed-content-routes": "tsx utils/scripts/verifyNoShadowedContentRoutes.ts",
+    "flag:mature-resources": "tsx utils/scripts/flagMatureResources.ts",
+    "test:mature-terms": "tsx utils/scripts/flagMatureResources.ts --self-test"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.1.0",

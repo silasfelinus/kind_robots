@@ -130,6 +130,9 @@ jobs:
       - name: Data surface manifest contract
         run: npm run test:data-surface-manifest
 
+      - name: Mature-term matcher self-test
+        run: npm run test:mature-terms
+
       - name: No content route shadowed by a page
         run: npm run test:no-shadowed-content-routes
 

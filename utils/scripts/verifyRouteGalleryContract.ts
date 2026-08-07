@@ -331,6 +331,15 @@ const isGalleryComponent = (name: string): boolean =>
  * must be wrong to adopt -- not merely awkward.
  */
 export const NOT_GALLERIES: Record<string, string> = {
+  'daily-digest-object-gallery':
+    'A snap CAROUSEL, not a browse grid. On narrow screens it is ' +
+    '`flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain` with ' +
+    'min-w-40 items -- you swipe it sideways -- and it only becomes a grid at ' +
+    '`lg`. kr-gallery has no carousel mode and adding one would repeat the ' +
+    'mistake `list` was removed for: a mode whose identity is a layout rather ' +
+    'than an image. Adopting would silently replace a deliberate horizontal ' +
+    'swipe with a vertical stack on every phone. It is a digest strip of at ' +
+    'most six items, not a surface anyone browses.',
   'chat-gallery':
     'An inbox and a transcript, not a browse surface. Its thread rows are ' +
     '`flex w-full` -- a 48px avatar plus name, title, preview and timestamp -- ' +

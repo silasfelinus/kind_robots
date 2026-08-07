@@ -19,9 +19,7 @@
       automatically per theme and keep components consistent.
 -->
 <template>
-  <div
-    class="kr-gallery h-full min-h-0 overflow-y-auto bg-base-200 text-base-content"
-  >
+  <div class="h-full min-h-0 overflow-y-auto bg-base-200 text-base-content">
     <!-- Header + theme switcher -->
     <header
       class="sticky top-0 z-20 border-b border-base-300 bg-base-100/90 backdrop-blur"
@@ -142,7 +140,8 @@
               <li>
                 <code>.kr-unbound</code>
                 <span class="font-sans opacity-70"
-                  >— root-surface marker, no scroll/height of its own (MDC-mounted pages)</span
+                  >— root-surface marker, no scroll/height of its own
+                  (MDC-mounted pages)</span
                 >
               </li>
               <li>
@@ -336,6 +335,47 @@
       </section>
 
       <!-- Cards -->
+      <section id="gallery" class="scroll-mt-32 kr-section">
+        <SectionHeading
+          title="Gallery"
+          hint="The shared browse shell. Every core object's gallery insets this."
+        />
+
+        <!-- The style guide had `class="kr-gallery"` on its ROOT and no
+             kr-gallery anywhere in it -- a dead class (no CSS rule defines it)
+             that happened to shadow the component name. That is the exact
+             false positive the adoption check shipped with: a substring match
+             counted this page as an adopter while it demonstrated nothing.
+             The class is gone and this is the real thing. -->
+        <kr-gallery
+          :items="demoGalleryItems"
+          :mode="demoGalleryMode"
+          empty-label="specimens"
+          @update:mode="demoGalleryMode = $event"
+        >
+          <template #item="{ item, mode }">
+            <div
+              class="flex flex-col gap-1 rounded-2xl border border-base-300 bg-base-100 p-3"
+            >
+              <span class="text-smart-heading font-black">{{
+                item.title
+              }}</span>
+              <span class="text-smart-compact opacity-70">
+                {{ item.description }}
+              </span>
+              <span class="badge badge-ghost badge-sm w-fit">{{ mode }}</span>
+            </div>
+          </template>
+        </kr-gallery>
+
+        <p class="text-smart-compact mt-2 opacity-70">
+          The Cards / Heroes / Icons bar is the shell's, and it is sticky inside
+          whichever ancestor scrolls. Swap modes above and the grid changes with
+          it -- each mode is a different MODE_GRID_CLASS, container-responsive
+          rather than viewport-keyed.
+        </p>
+      </section>
+
       <section id="cards" class="scroll-mt-32 kr-section">
         <SectionHeading
           title="Cards"
@@ -557,7 +597,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
+import type { GalleryMode } from '@/utils/galleryVocabulary'
 import { useThemeStore } from '@/stores/themeStore'
 import { daisyuiThemes } from '@/stores/helpers/themeHelper'
 
@@ -570,6 +612,14 @@ function onThemeChange(event: Event) {
   themeStore.setActiveTheme(value)
 }
 
+const demoGalleryMode = ref<GalleryMode>('cards')
+
+const demoGalleryItems: GalleryItem[] = [
+  { id: 1, title: 'Specimen One', description: 'A card-shaped entry.' },
+  { id: 2, title: 'Specimen Two', description: 'Another, for spacing.' },
+  { id: 3, title: 'Specimen Three', description: 'And a third, for wrap.' },
+]
+
 const sections = [
   { id: 'conventions', label: 'Conventions' },
   { id: 'tokens', label: 'Tokens' },
@@ -578,6 +628,7 @@ const sections = [
   { id: 'badges', label: 'Badges' },
   { id: 'alerts', label: 'Alerts' },
   { id: 'callouts', label: 'Callouts' },
+  { id: 'gallery', label: 'Gallery' },
   { id: 'cards', label: 'Cards' },
   { id: 'forms', label: 'Forms' },
   { id: 'nav', label: 'Nav' },

@@ -1,7 +1,7 @@
 {
   "note": "ESLint RATCHET: this file may only ever shrink. --update refuses to record a larger count. See utils/scripts/verifyLintRatchet.ts.",
   "recorded": "2026-08-07",
-  "total": 393,
+  "total": 392,
   "violations": {
     "vue/v-on-event-hyphenation": [
       "app.vue:37:22"
@@ -305,9 +305,9 @@
       "components/bots/add-bot.vue:688:51"
     ],
     "@typescript-eslint/unified-signatures": [
-      "components/dreams/dream-gallery.vue:490:4",
-      "components/dreams/dream-gallery.vue:491:4",
-      "components/dreams/dream-gallery.vue:491:4",
+      "components/dreams/dream-gallery.vue:501:4",
+      "components/dreams/dream-gallery.vue:502:4",
+      "components/dreams/dream-gallery.vue:502:4",
       "components/dreams/dream-list.vue:231:4",
       "components/dreams/dream-list.vue:232:4",
       "components/dreams/dream-list.vue:232:4",
@@ -428,8 +428,7 @@
       "utils/scripts/cypress-fast-fix.mjs:52:5",
       "utils/scripts/cypress-fast-fix.mjs:66:5",
       "utils/scripts/cypress-fast-repair.mjs:45:5",
-      "utils/scripts/cypress-fast-repair.mjs:59:5",
-      "utils/scripts/verifyConductorProjectRegistry.ts:77:41"
+      "utils/scripts/cypress-fast-repair.mjs:59:5"
     ],
     "(parse error)": [
       "server/api/reactions/index.post.ts:239:3"

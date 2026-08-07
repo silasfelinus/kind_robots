@@ -1,5 +1,6 @@
 export const CONDUCTOR_PROJECT_STATUSES = [
   'active',
+  'continuous',
   'paused',
   'finished',
   'retired',
@@ -54,6 +55,7 @@ const STATUS_TO_PROJECT: Record<
   ProjectLifecycleStatus
 > = {
   active: 'ACTIVE',
+  continuous: 'ACTIVE',
   paused: 'PAUSED',
   finished: 'DONE',
   retired: 'ARCHIVED',

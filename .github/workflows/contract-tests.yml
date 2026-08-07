@@ -54,6 +54,8 @@ jobs:
         run: npm run test:no-promise-in-store-state
       - name: UI tier vocabulary (workspace stays with navigation)
         run: npm run test:ui-tier-vocabulary
+      - name: Card action contract (cards emit, galleries decide)
+        run: npm run test:card-action-contract
 
       - name: Channel resolver contract
         run: npm run test:channel-resolver

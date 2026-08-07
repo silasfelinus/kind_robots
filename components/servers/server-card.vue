@@ -174,6 +174,11 @@ const props = withDefaults(
   },
 )
 
+const emit = defineEmits<{
+  open: [id: number]
+  edit: [id: number]
+}>()
+
 const serverStore = useServerStore()
 
 const serverTitle = computed(() => {
@@ -220,11 +225,20 @@ const statusBadgeClass = computed(() => {
   return 'badge-ghost'
 })
 
+/*
+ * Emit, then act. server-card had NO emits at all and drove serverStore
+ * directly, so a parent could not intercept a choice or reuse the card as a
+ * picker -- it was the only entity card with no entry points whatsoever.
+ * The store calls stay for now so existing pages keep working; the emits are
+ * what make the card usable as an entry point.
+ */
 function selectServer() {
+  emit('open', props.server.id)
   serverStore.setCurrentServer?.(props.server.id)
 }
 
 function editServer() {
+  emit('edit', props.server.id)
   serverStore.setCurrentServer?.(props.server.id)
   serverStore.startEditingServer?.(props.server.id)
   serverStore.openServerForm?.()

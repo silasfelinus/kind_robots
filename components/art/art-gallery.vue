@@ -223,7 +223,7 @@
           :show-mature="showMature"
           :size="viewSize"
           :preview-art-image="getPreviewImage(group)"
-          @select="selectGroup(group.key)"
+          @open="selectGroup(group.key)"
           @delete="handleCollectionDeleted"
         />
       </div>
@@ -498,7 +498,7 @@
               :auto-load-image="false"
               :size="viewSize"
               :earned-karma="earnedKarmaByImageId[image.id]"
-              @select="handleImageCardClick"
+              @open="handleImageCardClick"
               @delete="handleImageDeleted"
             />
           </div>
@@ -717,7 +717,19 @@ function clearImageSelection() {
   selectedImageIds.value = []
 }
 
-async function handleImageCardClick(image: ArtImage) {
+/*
+ * image-card emits an id now rather than the record. Everything downstream
+ * here still wants the ArtImage, so this resolves it once at the boundary --
+ * the pagination and hydration maps are the authority on which record an id
+ * refers to, not the card.
+ */
+async function handleImageCardClick(id: number) {
+  const image =
+    hydratedImages.value[id] ||
+    pagedActiveImages.value.find((entry) => entry.id === id)
+
+  if (!image) return
+
   if (bulkSelectEnabled.value) {
     toggleImageSelection(image)
     return

@@ -371,7 +371,7 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  select: [artImage: ArtImage]
+  open: [id: number]
   edit: [id: number]
   delete: [id: number]
   copied: [value: string]
@@ -576,7 +576,7 @@ function handleImageError() {
 }
 
 function selectImage() {
-  emit('select', displayImage.value)
+  emit('open', displayImage.value.id)
 }
 
 async function copyPrompt() {

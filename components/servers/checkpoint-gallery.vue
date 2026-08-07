@@ -28,10 +28,7 @@
         </button>
       </div>
 
-      <div
-        v-if="showControls"
-        class="grid gap-2 md:grid-cols-[1fr_auto_auto]"
-      >
+      <div v-if="showControls" class="grid gap-2 md:grid-cols-[1fr_auto_auto]">
         <input
           v-model="searchQuery"
           class="input input-bordered rounded-xl"
@@ -110,6 +107,7 @@
         :show-meta="showMeta"
         :show-select-button="showSelectButtons"
         :can-react="false"
+        @open="openCheckpoint"
       />
     </div>
 
@@ -133,12 +131,7 @@ import { useServerStore } from '@/stores/serverStore'
 
 type CheckpointGalleryVariant = 'dashboard' | 'compact' | 'selector'
 type CheckpointModelFamily =
-  | 'all'
-  | 'A1111'
-  | 'COMFY'
-  | 'FLUX'
-  | 'KONTEXT'
-  | 'SDXL'
+  'all' | 'A1111' | 'COMFY' | 'FLUX' | 'KONTEXT' | 'SDXL'
 
 const props = withDefaults(
   defineProps<{
@@ -199,6 +192,15 @@ const subtitleText = computed(() => {
 })
 
 const compact = computed(() => props.compact || props.variant === 'compact')
+
+/*
+ * checkpoint-card used to call checkpointStore.selectCheckpointByName()
+ * itself and had no emits at all, so a parent could neither intercept the
+ * choice nor reuse the card as a picker. The gallery owns it now.
+ */
+function openCheckpoint(checkpointName: string) {
+  checkpointStore.selectCheckpointByName(checkpointName)
+}
 
 const filteredCheckpoints = computed<Partial<Resource>[]>(() => {
   const query = searchQuery.value.trim().toLowerCase()

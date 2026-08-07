@@ -153,6 +153,7 @@
           :allow-delete="false"
           :allow-clone="false"
           @edit="startEditingScenarioById"
+          @open="openScenario"
         />
 
         <section
@@ -239,6 +240,7 @@
             @edit="startEditingScenarioById"
             @clone="cloneScenarioById"
             @delete="handleScenarioDeleted"
+            @open="openScenario"
           />
         </div>
 
@@ -265,6 +267,7 @@
               @edit="startEditingScenarioById"
               @clone="cloneScenarioById"
               @delete="handleScenarioDeleted"
+              @open="openScenario"
             />
           </template>
         </kr-gallery>
@@ -557,6 +560,14 @@ async function refreshScenarios(force = false) {
   } finally {
     isLoading.value = false
   }
+}
+
+/*
+ * scenario-card used to select the Scenario itself AND emit, so the store was
+ * already changed before the gallery heard about it. It emits only now.
+ */
+function openScenario(id: number) {
+  void scenarioStore.selectScenario(id)
 }
 
 function selectScenarioFromEvent(event: Event) {

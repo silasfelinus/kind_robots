@@ -205,6 +205,10 @@ const props = withDefaults(
   },
 )
 
+const emit = defineEmits<{
+  open: [checkpointName: string]
+}>()
+
 const checkpointStore = useCheckpointStore()
 const serverStore = useServerStore()
 
@@ -317,9 +321,14 @@ function safeText(value: unknown): string {
   return ''
 }
 
+/*
+ * Emit only. This card had no emits at all and called
+ * checkpointStore.selectCheckpointByName() directly, so a parent could
+ * neither intercept the choice nor reuse the card as a picker.
+ */
 function selectCheckpoint() {
   if (!canSelect.value) return
 
-  checkpointStore.selectCheckpointByName(checkpointName.value)
+  emit('open', checkpointName.value)
 }
 </script>

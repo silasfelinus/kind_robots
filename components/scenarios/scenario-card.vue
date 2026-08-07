@@ -160,7 +160,7 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  choose: [scenario: Scenario]
+  open: [id: number]
   edit: [id: number]
   clone: [id: number]
   delete: [id: number]
@@ -246,8 +246,14 @@ const metaChips = computed<EntityCardChip[]>(() => {
 })
 
 async function selectScenario() {
-  await scenarioStore.selectScenario(props.scenario.id)
-  emit('choose', props.scenario)
+  /*
+   * Emit only. This used to `await scenarioStore.selectScenario()` FIRST and
+   * then emit, which meant the store was already changed by the time the
+   * gallery heard about it -- so a parent could not interpret the click any
+   * other way. That is why bot-gallery and reward-gallery can offer a dropdown
+   * variant that selects WITHOUT navigating and this one could not.
+   */
+  emit('open', props.scenario.id)
 }
 
 async function deleteScenario() {

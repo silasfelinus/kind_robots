@@ -19,7 +19,7 @@
       'h-full min-h-0 bg-base-100 shadow-sm hover:-translate-y-0.5 hover:shadow-xl',
       cardClass,
     ]"
-    @select="emit('choose', dream)"
+    @select="emit('open', dream.id)"
   >
     <kr-entity-card-body
       :title="dreamTitle"
@@ -131,7 +131,7 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  choose: [dream: DreamWithRelations]
+  open: [id: number]
   edit: [id: number]
   delete: [id: number]
 }>()

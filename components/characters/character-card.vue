@@ -232,6 +232,7 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
+  open: [id: number]
   edit: [id: number]
   clone: [id: number]
   delete: [id: number]
@@ -338,8 +339,16 @@ const statRows = computed(() => [
   { key: 'wits', label: 'Wits', value: props.character.wits || 'COMMON' },
 ])
 
-async function selectCharacter() {
-  await characterStore.selectCharacter(props.character.id)
+/*
+ * Emit only -- this used to call characterStore.selectCharacter() itself.
+ *
+ * A card that mutates its own domain store has decided what clicking it MEANS,
+ * so a parent cannot reuse it any other way: it is why bot-gallery and
+ * reward-gallery can offer a dropdown variant that selects without navigating
+ * and this one could not. The gallery owns the consequence now.
+ */
+function selectCharacter() {
+  emit('open', props.character.id)
 }
 
 async function deleteCharacter() {

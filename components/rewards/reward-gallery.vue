@@ -310,7 +310,7 @@
           :selected="rewardStore.selectedReward?.id === reward.id"
           :earned-karma="earnedKarmaByRewardId[reward.id]"
           v-bind="rewardCardProps"
-          @select="selectReward"
+          @open="selectReward"
           @edit="startEditingRewardById"
           @delete="handleRewardDeleted"
         />
@@ -333,7 +333,7 @@
             :earned-karma="earnedKarmaByRewardId[Number(item.id)]"
             :variant="MODE_VARIANT[galleryMode]"
             v-bind="rewardCardProps"
-            @select="selectReward"
+            @open="selectReward"
             @edit="startEditingRewardById"
             @delete="handleRewardDeleted"
           />

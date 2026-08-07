@@ -341,7 +341,7 @@ export function totalHoldouts(buckets: RatchetEntries): number {
 }
 
 /* -------------------------------------------------------------------------- */
-/* rule 5 — the interact tier is a router, not a workspace                     */
+/* rule 5 — the interact tier is a router, not the working surface             */
 /* -------------------------------------------------------------------------- */
 
 /*
@@ -359,17 +359,17 @@ export function totalHoldouts(buckets: RatchetEntries): number {
  *
  * What they can share is the frame:
  *
- *   <x-gallery v-if="!selected" />     <x-workspace v-else />
+ *   <x-gallery v-if="!selected" />     <x-{activity} v-else />
  *
  * dream-interact is 56 lines because both its markup and its logic live in
- * dream-workspace. reward-interact is 1096 because a complete encounter engine
+ * dream-narration. reward-interact is 1096 because a complete encounter engine
  * -- tone controls, prompt preview, session chats, narrative turns, a hero
  * carousel -- sits in the router itself. Nothing about WHAT that engine does is
  * wrong; it is in the wrong file.
  *
  * So this rule asserts the frame (hard: the interact renders its own object's
  * gallery) and ratchets the router's SIZE (it may only shrink), rather than
- * mandating a component name or a layout. A model whose workspace genuinely
+ * mandating a component name or a layout. A model whose surface genuinely
  * needs to be enormous can have that -- somewhere other than here.
  */
 
@@ -1186,7 +1186,7 @@ function main(): void {
     ([name, lines]) => lines > (baseline?.interactLines?.[name] ?? Infinity),
   )
 
-  console.log('\nCore-object interacts — routers, not workspaces:')
+  console.log('\nCore-object interacts — routers, not working surfaces:')
   for (const [name, lines] of Object.entries(interactLines).sort()) {
     const was = baseline?.interactLines?.[name]
     console.log(
@@ -1293,7 +1293,8 @@ function main(): void {
     failures += grownInteracts.length
     console.error(
       `\nFAIL - ${grownInteracts.length} interact(s) GREW. The router is where the` +
-        ` frame lives; model-specific work belongs in a workspace component:`,
+        ` frame lives; model-specific work belongs in the activity surface\n` +
+        ` (bot-chat, dream-narration, reward-encounter, scenario-story):`,
     )
     for (const [name, lines] of grownInteracts) {
       console.error(

@@ -52,6 +52,8 @@ jobs:
       # only the first offender it meets. 53 were returned repo-wide.
       - name: No Promise in Pinia store state
         run: npm run test:no-promise-in-store-state
+      - name: UI tier vocabulary (workspace stays with navigation)
+        run: npm run test:ui-tier-vocabulary
 
       - name: Channel resolver contract
         run: npm run test:channel-resolver

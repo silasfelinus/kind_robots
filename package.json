@@ -99,6 +99,7 @@
     "test:deploy-wait-ancestry": "tsx utils/scripts/verifyDeployWaitAncestry.ts",
     "test:deploy-wait-noop": "tsx utils/scripts/verifyDeployWaitNoOp.ts",
     "test:no-promise-in-store-state": "tsx utils/scripts/verifyNoPromiseInStoreState.ts",
+    "test:ui-tier-vocabulary": "tsx utils/scripts/verifyUiTierVocabulary.ts",
     "test:no-prisma-json-cast": "tsx utils/scripts/verifyNoPrismaJsonCast.ts",
     "test:admin-flag-casts": "tsx utils/scripts/verifyAdminFlagCasts.ts",
     "test:user-role-expand": "tsx utils/scripts/verifyUserRoleExpand.ts",

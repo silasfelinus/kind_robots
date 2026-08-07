@@ -8,15 +8,45 @@ Use this as a checklist when adding a new content model or user-facing channel. 
 
 Keep these names aligned or routing, stores, and generated UI will drift.
 
-| Thing | Convention | Example |
-| --- | --- | --- |
-| Prisma model | singular PascalCase | `Sample` |
-| API route | lowercase plural | `/api/samples`, `server/api/samples/` |
-| Store | `stores/<x>Store.ts`, `use<X>Store` | `stores/sampleStore.ts`, `useSampleStore` |
-| Components | domain folder, kebab-case filenames | `components/sample/sample-manager.vue` |
-| Content page | route markdown | `content/samples.md` → `/samples` |
+| Thing        | Convention                          | Example                                   |
+| ------------ | ----------------------------------- | ----------------------------------------- |
+| Prisma model | singular PascalCase                 | `Sample`                                  |
+| API route    | lowercase plural                    | `/api/samples`, `server/api/samples/`     |
+| Store        | `stores/<x>Store.ts`, `use<X>Store` | `stores/sampleStore.ts`, `useSampleStore` |
+| Components   | domain folder, kebab-case filenames | `components/sample/sample-manager.vue`    |
+| Content page | route markdown                      | `content/samples.md` → `/samples`         |
 
 Component filenames must remain globally unique because Nuxt component registration can ignore path prefixes. Treat folders as organization, not namespace safety.
+
+## The four UI tiers
+
+Silas, 2026-08-07: _"things are either an 'interact' (just one thing) or a studio (a group of models interacting for a purpose)."_
+
+| tier             | owns                                                                                                               | scope                 |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------ | --------------------- |
+| `<x>-manager`    | the route, its tabs, the one status banner, and everything acting on the **set** — create, archive, bulk, taxonomy | many, admin           |
+| `<x>-gallery`    | presenting **many**. Store-free and presentational: items in, slots out                                            | many, display         |
+| `<x>-interact`   | one decision — browse, or work with the selected one. Nothing else                                                 | one, routing          |
+| `<x>-<activity>` | what you actually **do** with one selected object                                                                  | one, doing            |
+| `<x>-studio`     | several object _types_ composed into something new                                                                 | many kinds, authoring |
+
+`interact` stays small by construction: it renders its gallery or its activity surface and holds only the condition that chooses between them. That condition is often "an object is selected **or** a conversation is under way", and the second half must live in a store (`chatStore.sessionChats(scope)`) — if it lives in the file that moves out, the router loses sight of its own condition.
+
+**The activity surface is named for what it does**, not with a uniform suffix, because this is the tier where models legitimately differ:
+
+| model     | router               | activity surface   |
+| --------- | -------------------- | ------------------ |
+| Bot       | `bot-interact`       | `bot-chat`         |
+| Character | `character-interact` | `character-chat`   |
+| Dream     | `dream-interact`     | `dream-narration`  |
+| Reward    | `reward-interact`    | `reward-encounter` |
+| Scenario  | `scenario-interact`  | `scenario-story`   |
+
+Contracts locate these by walking the render graph (`utils/scripts/componentGraph.ts`), never by filename, so activity naming costs nothing in enforcement.
+
+**`workspace` is not one of these words.** It belongs to the navigation layer — `components/navigation/workspace-{header,hand,sheet}.vue` are the app's persistent page furniture, mounted straight from `app.vue`, and `stores/workspaceStore.ts` owns their panel state. Using it for a per-object surface collides with that. (`workspace-narrator.vue` predates the split and is a fossil from when a narrator was always front and centre; it is reached only through `dream-narration`.)
+
+`utils/scripts/verifyUiTierVocabulary.ts` enforces the reservation.
 
 ## Adding a new model
 
@@ -109,13 +139,13 @@ The nav system is mostly derived from registries. For a new channel `x` at route
 
 All paths are under `public/images/` unless the current project has moved to a newer collection pipeline.
 
-| Image | Path |
-| --- | --- |
-| Channel hero | `nav/heroes/{channel}.webp` |
-| Channel card/thumb | `nav/thumbs/{channel}.webp` |
-| Dashboard tab | `dashboard-tabs/{channel}/{tab}.webp` |
-| Tutorial section | `tutorials/{channel}/{tab}.webp` |
-| Tutorial hero | `tutorials/{channel}/hero.webp` |
+| Image              | Path                                  |
+| ------------------ | ------------------------------------- |
+| Channel hero       | `nav/heroes/{channel}.webp`           |
+| Channel card/thumb | `nav/thumbs/{channel}.webp`           |
+| Dashboard tab      | `dashboard-tabs/{channel}/{tab}.webp` |
+| Tutorial section   | `tutorials/{channel}/{tab}.webp`      |
+| Tutorial hero      | `tutorials/{channel}/hero.webp`       |
 
 The channel icon should be an Iconify name such as `kind-icon:*`, not an image file.
 

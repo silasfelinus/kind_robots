@@ -13,6 +13,39 @@ export type WonderLabPreviewFixture = {
 const fixtureDate = new Date('2026-01-01T00:00:00.000Z')
 
 const fixtures: Record<string, WonderLabPreviewFixture> = {
+  'resource-card': {
+    title: 'Resource card specimen',
+    description:
+      'A synthetic LoRA with a trigger phrase and both use counts, so the type badges, the hover trigger strip, the four build actions and the Edit affordance are all visible. Presentational: it takes the record and its two busy flags as props and reads no store.',
+    viewport: 'mobile',
+    minHeight: '28rem',
+    props: {
+      resource: {
+        id: -801,
+        createdAt: fixtureDate,
+        updatedAt: fixtureDate,
+        name: 'wonderlab-fixture-lora.safetensors',
+        customLabel: 'Museum Placard Style',
+        description:
+          'A synthetic Resource for checking resource-card badges, truncation, and button layout.',
+        resourceType: 'LORA',
+        generation: 'SDXL',
+        supportedServer: 'COMFY',
+        defaultTrigger: 'museum placard, clean lettering',
+        triggerWords: null,
+        artPrompt: null,
+        localPath: null,
+        previewImageUrl: null,
+        imagePath: null,
+        isMature: false,
+        userId: 0,
+        ArtImage: null,
+        _count: { ArtImages: 12, UsedInImages: 47 },
+      },
+      generatingPreview: false,
+      uploadingPreview: false,
+    },
+  },
   'icon-card': {
     title: 'Smart Icon card',
     description:

@@ -37,7 +37,9 @@
         v-else
         class="flex h-full w-full flex-col items-center justify-center gap-3 border-dashed border-base-300 bg-base-100 p-5 text-center"
       >
-        <span class="text-xs font-black uppercase tracking-widest text-base-content/35">
+        <span
+          class="text-xs font-black uppercase tracking-widest text-base-content/35"
+        >
           {{ canShowJobContent ? previewPlaceholder : 'Mature hidden' }}
         </span>
         <button
@@ -73,7 +75,9 @@
         </span>
       </div>
 
-      <div class="absolute right-2 top-2 flex max-w-[65%] flex-wrap justify-end gap-1">
+      <div
+        class="absolute right-2 top-2 flex max-w-[65%] flex-wrap justify-end gap-1"
+      >
         <span class="badge badge-outline badge-sm rounded-2xl">
           {{ job.engine }}
         </span>
@@ -534,6 +538,9 @@ const publicImageSrc = computed<string>(() => {
   const id = props.job.artImageId
   if (typeof id !== 'number') return ''
   if (!jobVisibility.value.isPublic || jobVisibility.value.isMature) return ''
+  // updatedAt is DateTime? in the schema, so it can genuinely be null. The
+  // line below already drops the cache-buster when the timestamp is not
+  // finite; this just stops the null reaching the Date constructor.
   const updatedAt = props.job.updatedAt
     ? new Date(props.job.updatedAt).getTime()
     : Number.NaN

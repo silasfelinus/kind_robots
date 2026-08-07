@@ -1,22 +1,14 @@
 // /stores/artJobStore.ts
 import { defineStore } from 'pinia'
 import { reactive, toRefs } from 'vue'
-import type {
-  ArtImage,
-  ArtJob,
-  Prisma,
-} from '~/prisma/generated/prisma/client'
+import type { ArtImage, ArtJob, Prisma } from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
 import { resolveArtImageSource } from '~/utils/artImageSource'
 import type { ArtImageSource } from '~/utils/artImageSource'
 import { resolveMaturityPrivacy } from '~/utils/maturityPrivacy'
 
 export type ArtJobStatus =
-  | 'PENDING'
-  | 'RUNNING'
-  | 'DONE'
-  | 'FAILED'
-  | 'CANCELLED'
+  'PENDING' | 'RUNNING' | 'DONE' | 'FAILED' | 'CANCELLED'
 
 export type ArtJobRetryMode = 'NEW_OUTPUT' | 'OVERWRITE'
 
@@ -265,6 +257,8 @@ export const useArtJobStore = defineStore('artJobStore', () => {
       )
       if (!visibility.isPublic || visibility.isMature) continue
 
+      // updatedAt is DateTime? in the schema. Same guard as
+      // artjob-queue-card.vue: a null timestamp simply means no cache-buster.
       const updatedAt = job.updatedAt
         ? new Date(job.updatedAt).getTime()
         : Number.NaN
@@ -277,10 +271,10 @@ export const useArtJobStore = defineStore('artJobStore', () => {
   }
 
   async function fetchQueueControl(): Promise<void> {
-    const res = await performFetch<{ paused: boolean; pausedBy: string | null }>(
-      '/api/art/queue/control',
-      { method: 'GET' },
-    )
+    const res = await performFetch<{
+      paused: boolean
+      pausedBy: string | null
+    }>('/api/art/queue/control', { method: 'GET' })
     if (res.success && res.data) {
       state.queuePaused = res.data.paused
       state.queuePausedBy = res.data.pausedBy ?? null
@@ -291,10 +285,13 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     if (state.togglingQueuePause) return false
     state.togglingQueuePause = true
     try {
-      const res = await performFetch<{ paused: boolean; pausedBy: string | null }>(
-        '/api/art/queue/control',
-        { method: 'POST', body: JSON.stringify({ paused }) },
-      )
+      const res = await performFetch<{
+        paused: boolean
+        pausedBy: string | null
+      }>('/api/art/queue/control', {
+        method: 'POST',
+        body: JSON.stringify({ paused }),
+      })
       if (res.success && res.data) {
         state.queuePaused = res.data.paused
         state.queuePausedBy = res.data.pausedBy ?? null

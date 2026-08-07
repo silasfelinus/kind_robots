@@ -1,10 +1,24 @@
 <!-- /components/pages/for-you-manager.vue -->
 <template>
-  <section class="kr-surface flex h-full min-h-0 w-full flex-col overflow-hidden">
+  <section
+    class="kr-surface flex h-full min-h-0 w-full flex-col overflow-hidden"
+  >
     <div class="kr-scroll min-h-0 flex-1 overscroll-contain">
       <div
         class="mx-auto w-full max-w-[1800px] space-y-6 p-2 pb-8 sm:p-4 sm:pb-10 xl:p-6"
       >
+        <!--
+          daily-dream-generator moved here from dream-manager, where it sat in a
+          `#persistent` slot and so rendered "Today's Facet Dream" above EVERY
+          Dreams tab. Silas, 2026-08-07: "if that's supposed to be part of the
+          daily dream index, it shouldn't be here."
+
+          This IS the daily-dream index, so it lands beside the digest browser
+          rather than being deleted -- the Dream browser should not carry the
+          daily ritual, but the daily page should.
+        -->
+        <daily-dream-generator />
+
         <daily-digest-browser />
 
         <header
@@ -13,11 +27,16 @@
           <div class="min-w-0">
             <div class="flex items-center gap-2 text-accent">
               <Icon name="kind-icon:sparkles" class="size-5" />
-              <p class="text-xs font-black uppercase tracking-[0.18em]">For You</p>
+              <p class="text-xs font-black uppercase tracking-[0.18em]">
+                For You
+              </p>
             </div>
-            <h2 class="mt-1 text-xl font-black sm:text-2xl">Your attention desk</h2>
+            <h2 class="mt-1 text-xl font-black sm:text-2xl">
+              Your attention desk
+            </h2>
             <p class="mt-1 max-w-3xl text-sm text-base-content/60">
-              Decisions, proposals, and follow-ups gathered into one human-sized place.
+              Decisions, proposals, and follow-ups gathered into one human-sized
+              place.
             </p>
           </div>
 
@@ -67,14 +86,17 @@
           v-if="urgentCount > 0"
           class="rounded-2xl border border-error/20 bg-error/5 px-4 py-3 text-sm font-semibold text-error"
         >
-          {{ urgentCount }} item{{ urgentCount === 1 ? '' : 's' }} need a decision.
+          {{ urgentCount }} item{{ urgentCount === 1 ? '' : 's' }} need a
+          decision.
         </p>
 
         <template v-if="userStore.isAdmin">
           <section class="space-y-3">
             <div class="flex flex-wrap items-end justify-between gap-3 px-1">
               <div>
-                <p class="text-xs font-black uppercase tracking-[0.16em] text-warning">
+                <p
+                  class="text-xs font-black uppercase tracking-[0.16em] text-warning"
+                >
                   Conductor
                 </p>
                 <h2 class="text-xl font-black">Human gates</h2>
@@ -158,7 +180,10 @@
                 </div>
 
                 <div class="mt-3 flex flex-wrap gap-1.5">
-                  <span v-if="gate.task.stakes" class="badge badge-ghost badge-sm rounded-xl">
+                  <span
+                    v-if="gate.task.stakes"
+                    class="badge badge-ghost badge-sm rounded-xl"
+                  >
                     {{ gate.task.stakes }}
                   </span>
                   <span
@@ -194,7 +219,9 @@
                     type="button"
                     class="btn btn-success btn-sm rounded-xl"
                     :disabled="taskIsUpdating(gate.project.slug, gate.task.id)"
-                    @click="actOnGate(gate.project.slug, gate.task.id, 'approve')"
+                    @click="
+                      actOnGate(gate.project.slug, gate.task.id, 'approve')
+                    "
                   >
                     <span
                       v-if="taskIsUpdating(gate.project.slug, gate.task.id)"
@@ -219,10 +246,14 @@
                       class="mt-3 rounded-2xl border border-base-300 bg-base-200/60 p-3"
                     >
                       <textarea
-                        v-model="gateMessages[gateKey(gate.project.slug, gate.task.id)]"
+                        v-model="
+                          gateMessages[gateKey(gate.project.slug, gate.task.id)]
+                        "
                         class="textarea textarea-bordered min-h-24 w-full rounded-xl bg-base-100 text-sm"
                         placeholder="Add context, requested changes, or a note…"
-                        :disabled="taskIsUpdating(gate.project.slug, gate.task.id)"
+                        :disabled="
+                          taskIsUpdating(gate.project.slug, gate.task.id)
+                        "
                       />
                       <div class="mt-2 flex flex-wrap gap-2">
                         <button
@@ -232,7 +263,9 @@
                             taskIsUpdating(gate.project.slug, gate.task.id) ||
                             !gateMessage(gate.project.slug, gate.task.id).trim()
                           "
-                          @click="actOnGate(gate.project.slug, gate.task.id, 'reject')"
+                          @click="
+                            actOnGate(gate.project.slug, gate.task.id, 'reject')
+                          "
                         >
                           Send back
                         </button>
@@ -243,7 +276,13 @@
                             taskIsUpdating(gate.project.slug, gate.task.id) ||
                             !gateMessage(gate.project.slug, gate.task.id).trim()
                           "
-                          @click="actOnGate(gate.project.slug, gate.task.id, 'comment')"
+                          @click="
+                            actOnGate(
+                              gate.project.slug,
+                              gate.task.id,
+                              'comment',
+                            )
+                          "
                         >
                           Send note
                         </button>
@@ -262,12 +301,18 @@
                 name="kind-icon:check-circle"
                 class="mx-auto mb-2 size-9 text-success/55"
               />
-              <p class="font-black">No active Conductor gates are waiting on you.</p>
+              <p class="font-black">
+                No active Conductor gates are waiting on you.
+              </p>
               <p class="mt-1 text-sm text-base-content/50">
                 <template v-if="conductorStore.pausedHumanGates.length">
-                  {{ conductorStore.pausedHumanGates.length }} paused-project gate{{
-                    conductorStore.pausedHumanGates.length === 1 ? ' is' : 's are'
-                  }} hidden above.
+                  {{ conductorStore.pausedHumanGates.length }} paused-project
+                  gate{{
+                    conductorStore.pausedHumanGates.length === 1
+                      ? ' is'
+                      : 's are'
+                  }}
+                  hidden above.
                 </template>
                 <template v-else>The robots may proceed.</template>
               </p>
@@ -277,7 +322,9 @@
           <section class="space-y-3">
             <div class="flex flex-wrap items-end justify-between gap-3 px-1">
               <div>
-                <p class="text-xs font-black uppercase tracking-[0.16em] text-secondary">
+                <p
+                  class="text-xs font-black uppercase tracking-[0.16em] text-secondary"
+                >
                   Possibilities
                 </p>
                 <h2 class="text-xl font-black">Pitch proposals</h2>
@@ -305,9 +352,14 @@
                       {{ pitch.projectTarget || 'General' }}
                       <span v-if="pitch.date"> · {{ pitch.date }}</span>
                     </p>
-                    <h3 class="mt-1 text-base font-black leading-snug">{{ pitch.title }}</h3>
+                    <h3 class="mt-1 text-base font-black leading-snug">
+                      {{ pitch.title }}
+                    </h3>
                   </div>
-                  <span v-if="pitch.effort" class="badge badge-ghost badge-sm rounded-xl">
+                  <span
+                    v-if="pitch.effort"
+                    class="badge badge-ghost badge-sm rounded-xl"
+                  >
                     {{ pitch.effort }}
                   </span>
                 </div>
@@ -324,7 +376,9 @@
                     type="button"
                     class="btn btn-success btn-sm rounded-xl"
                     :disabled="pitchIsUpdating(pitch.slug)"
-                    @click="conductorStore.updatePitchStatus(pitch.slug, 'approved')"
+                    @click="
+                      conductorStore.updatePitchStatus(pitch.slug, 'approved')
+                    "
                   >
                     Approve pitch
                   </button>
@@ -332,7 +386,9 @@
                     type="button"
                     class="btn btn-error btn-outline btn-sm rounded-xl"
                     :disabled="pitchIsUpdating(pitch.slug)"
-                    @click="conductorStore.updatePitchStatus(pitch.slug, 'rejected')"
+                    @click="
+                      conductorStore.updatePitchStatus(pitch.slug, 'rejected')
+                    "
                   >
                     Reject
                   </button>
@@ -351,8 +407,13 @@
               v-else-if="conductorStore.hasLiveData && !conductorStore.pending"
               class="rounded-2xl border border-base-300 bg-base-100 px-5 py-7 text-center"
             >
-              <Icon name="kind-icon:lightbulb" class="mx-auto mb-2 size-8 text-secondary/45" />
-              <p class="font-bold text-base-content/65">No new pitches are waiting.</p>
+              <Icon
+                name="kind-icon:lightbulb"
+                class="mx-auto mb-2 size-8 text-secondary/45"
+              />
+              <p class="font-bold text-base-content/65">
+                No new pitches are waiting.
+              </p>
             </div>
           </section>
         </template>
@@ -360,7 +421,9 @@
         <section class="space-y-3">
           <div class="flex flex-wrap items-end justify-between gap-3 px-1">
             <div>
-              <p class="text-xs font-black uppercase tracking-[0.16em] text-accent">
+              <p
+                class="text-xs font-black uppercase tracking-[0.16em] text-accent"
+              >
                 Kind Robots
               </p>
               <h2 class="text-xl font-black">Personal follow-ups</h2>
@@ -403,16 +466,25 @@
             v-else
             class="rounded-2xl border border-base-300 bg-base-100 px-5 py-7 text-center"
           >
-            <Icon name="kind-icon:check-circle" class="mx-auto mb-2 size-8 text-success/45" />
-            <p class="font-bold text-base-content/65">No personal follow-ups are waiting.</p>
+            <Icon
+              name="kind-icon:check-circle"
+              class="mx-auto mb-2 size-8 text-success/45"
+            />
+            <p class="font-bold text-base-content/65">
+              No personal follow-ups are waiting.
+            </p>
           </div>
         </section>
 
         <p
-          v-if="conductorStore.taskUpdateError || conductorStore.pitchUpdateError"
+          v-if="
+            conductorStore.taskUpdateError || conductorStore.pitchUpdateError
+          "
           class="rounded-2xl border border-error/20 bg-error/10 px-4 py-3 text-sm text-error"
         >
-          {{ conductorStore.taskUpdateError || conductorStore.pitchUpdateError }}
+          {{
+            conductorStore.taskUpdateError || conductorStore.pitchUpdateError
+          }}
         </p>
       </div>
     </div>

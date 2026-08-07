@@ -66,43 +66,28 @@
             <Icon name="kind-icon:check" class="h-3.5 w-3.5 shrink-0" />
             <span class="truncate">{{ activeThemeName }}</span>
           </span>
-        </div>
-      </div>
 
-      <div
-        class="grid grid-cols-3 divide-x divide-base-300 border-t border-base-300 bg-base-100 text-center"
-      >
-        <div class="px-3 py-2">
-          <p class="text-lg font-black text-primary">
-            {{ filteredDaisyThemes.length }}
-          </p>
-          <p
-            class="text-[0.65rem] font-bold uppercase tracking-wide text-base-content/50"
-          >
-            Default
-          </p>
-        </div>
+          <!--
+            THREE BADGES, NOT A STATS BAND. These counts used to be a
+            `grid-cols-3 divide-x` strip with its own top border -- a full row,
+            each cell a big number stacked over a tiny uppercase caption, for
+            three integers. Silas, 2026-08-07: "one devoted to the output count:
+            default, shared, showing, that's a lot of real estate for something
+            that could share the row above it."
 
-        <div class="px-3 py-2">
-          <p class="text-lg font-black text-secondary">
-            {{ filteredSharedThemes.length }}
-          </p>
-          <p
-            class="text-[0.65rem] font-bold uppercase tracking-wide text-base-content/50"
-          >
-            Shared
-          </p>
-        </div>
-
-        <div class="px-3 py-2">
-          <p class="text-lg font-black text-accent">
-            {{ visibleThemeCount }}
-          </p>
-          <p
-            class="text-[0.65rem] font-bold uppercase tracking-wide text-base-content/50"
-          >
-            Showing
-          </p>
+            Same three numbers, same order, on the line that was already here.
+          -->
+          <span class="flex flex-wrap items-center gap-1 text-xs">
+            <span class="badge badge-primary badge-sm rounded-lg">
+              {{ filteredDaisyThemes.length }} default
+            </span>
+            <span class="badge badge-secondary badge-sm rounded-lg">
+              {{ filteredSharedThemes.length }} shared
+            </span>
+            <span class="badge badge-accent badge-sm rounded-lg">
+              {{ visibleThemeCount }} showing
+            </span>
+          </span>
         </div>
       </div>
     </header>

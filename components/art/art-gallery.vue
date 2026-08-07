@@ -145,24 +145,32 @@
           <option :value="48">48</option>
           <option :value="96">96</option>
         </select>
-      </div>
 
-      <!-- Stats row (no pagination here — moved to bottom) -->
-      <div
-        class="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs text-base-content/50"
-      >
-        <span class="badge badge-ghost badge-sm"
-          >{{ visibleGroups.length }} collections</span
+        <!-- The counts, on the filter line rather than a line of their own.
+             This header ran THREE rows -- title+controls, search+filters, and a
+             row holding nothing but these four badges. Badges are short and the
+             filter row has slack at the end, so they ride along; `ml-auto`
+             pushes them right and they wrap only when the row genuinely runs
+             out of width. -->
+        <span
+          class="ml-auto hidden flex-wrap items-center gap-1.5 text-xs text-base-content/50 sm:flex"
         >
-        <span class="badge badge-ghost badge-sm"
-          >{{ visibleImageCount }} images</span
-        >
-        <span v-if="activeGroup" class="badge badge-primary badge-sm"
-          >{{ activeGroup.images.length }} in view</span
-        >
-        <span v-if="isHydratingImages" class="badge badge-info badge-sm gap-1">
-          <span class="loading loading-spinner loading-xs" />
-          Loading
+          <span class="badge badge-ghost badge-sm"
+            >{{ visibleGroups.length }} collections</span
+          >
+          <span class="badge badge-ghost badge-sm"
+            >{{ visibleImageCount }} images</span
+          >
+          <span v-if="activeGroup" class="badge badge-primary badge-sm"
+            >{{ activeGroup.images.length }} in view</span
+          >
+          <span
+            v-if="isHydratingImages"
+            class="badge badge-info badge-sm gap-1"
+          >
+            <span class="loading loading-spinner loading-xs" />
+            Loading
+          </span>
         </span>
       </div>
     </header>

@@ -3,9 +3,21 @@
   <section
     class="flex h-full min-h-0 w-full flex-col gap-2 overflow-hidden rounded-2xl bg-base-300/60 p-2"
   >
+    <!--
+      `relative z-30` so the tooltips escape. These controls are DaisyUI
+      `tooltip tooltip-bottom`, which paints its bubble in a pseudo-element at a
+      low z-index and DOWNWARD -- straight into the gallery below. Two things
+      then bury it: this header's own `backdrop-blur` opens a stacking context,
+      and kr-gallery's mode bar is `sticky top-0 z-20`. Silas, 2026-08-07: "the
+      mine only and show archived toggles have poor z-index on the info popup
+      and are hiding behind the gallery."
+
+      z-30 clears the sticky bar's z-20; `relative` is what makes the z-index
+      apply at all on a static element.
+    -->
     <header
       v-if="showToolbar && !isDropdownMode"
-      class="shrink-0 rounded-2xl border border-base-300 bg-base-100/95 px-2 py-2 shadow-sm backdrop-blur"
+      class="relative z-30 shrink-0 rounded-2xl border border-base-300 bg-base-100/95 px-2 py-2 shadow-sm backdrop-blur"
     >
       <!-- Wraps, rather than scrolling sideways. This row used to be
            `overflow-x-auto whitespace-nowrap` with shrink-0 controls, so on a
@@ -34,34 +46,42 @@
           </span>
         </div>
 
-        <!-- Truncates to "41/41 shown • 41 active • N..." on a phone, where it
-             says nothing and still claims a min-w-28 flex-1 slot that forces a
-             wrap. The count badge above already carries the useful number. -->
-        <p
-          class="hidden min-w-28 max-w-72 flex-1 truncate text-xs font-medium text-base-content/60 sm:block"
-          :class="dreamStore.error ? 'text-error' : ''"
-          :title="dreamStore.error || statusLine"
-        >
-          {{ dreamStore.error || statusLine }}
-        </p>
+        <!--
+          ERRORS ONLY. This slot used to render `statusLine` --
+          "48/48 shown • 48 active • No Dream selected" -- which Silas called
+          out on 2026-08-07: "all redundant info and can be killed." He is
+          right on every clause. The count badge beside the title already
+          carries the visible number; "48 active" restates it whenever nothing
+          is filtered; and "No Dream selected" describes the absence of a thing
+          whose presence is already obvious from the cards.
 
-        <!-- The error still has to reach a phone, so it gets its own line
-             rather than riding on the status paragraph that mobile hides. -->
+          An error is NOT redundant, so the slot survives for that alone, at
+          every width rather than splitting into a desktop line plus a
+          mobile-only twin.
+        -->
         <p
           v-if="dreamStore.error"
-          class="w-full truncate text-xs font-medium text-error sm:hidden"
+          class="min-w-0 flex-1 truncate text-xs font-medium text-error"
           :title="dreamStore.error"
         >
           {{ dreamStore.error }}
         </p>
 
-        <!-- Search is an icon until asked for. A full-width input costs an
-             entire toolbar row on a phone for a control most visits never
-             touch; at sm+ there is room, so it stays permanently expanded. -->
+        <!--
+          Search is an ICON until asked for, at EVERY width. It used to expand
+          permanently at sm+, on the reasoning that wide screens have room --
+          but room is not the same as needing to spend it, and a permanently
+          open `min-w-60 flex-1` input pushes the type filter and the toggles
+          toward a wrap on exactly the 1366x768 laptop this stage is fixing.
+          Silas, 2026-08-07: "Search should be an icon."
+
+          The icon still turns secondary while a query is active, so a filtered
+          list never looks unfiltered just because the box is closed.
+        -->
         <button
           v-if="showControls && !searchOpen"
           type="button"
-          class="btn btn-sm h-9 shrink-0 rounded-2xl sm:hidden"
+          class="btn btn-sm h-9 shrink-0 rounded-2xl"
           :class="searchQuery ? 'btn-secondary' : 'btn-outline'"
           aria-label="Search Dreams"
           @click="openSearch"
@@ -71,7 +91,7 @@
 
         <label
           v-if="showControls"
-          class="input input-bordered input-sm h-9 items-center gap-2 rounded-2xl bg-base-200 sm:flex sm:min-w-60 sm:flex-1 lg:max-w-md"
+          class="input input-bordered input-sm h-9 items-center gap-2 rounded-2xl bg-base-200 sm:min-w-60 sm:flex-1 lg:max-w-md"
           :class="searchOpen ? 'flex w-full' : 'hidden'"
         >
           <Icon name="kind-icon:search" class="h-4 w-4 opacity-60" />
@@ -86,17 +106,49 @@
           />
         </label>
 
-        <select
+        <!--
+          ICON TOGGLES, not a dropdown. Silas, 2026-08-07: "types dropdown would
+          be better as icon toggles." A <select> hides every option but one, so
+          the shape of the collection -- which types exist, how they divide --
+          is invisible until you open it. The toggles show it at rest, and the
+          list is short because `dreamTypes` is derived from the Dreams actually
+          present rather than from the full DreamType enum.
+
+          Icon-only with the label as tooltip and accessible name: ten labelled
+          buttons would be the row this change exists to save.
+        -->
+        <div
           v-if="showControls"
-          v-model="selectedType"
-          class="select select-bordered select-sm h-9 w-24 shrink-0 rounded-2xl bg-base-200 sm:w-32"
+          class="flex shrink-0 flex-wrap items-center gap-0.5"
+          role="group"
           aria-label="Dream type filter"
         >
-          <option value="all">All types</option>
-          <option v-for="type in dreamTypes" :key="type" :value="type">
-            {{ dreamTypeLabel(type) }}
-          </option>
-        </select>
+          <button
+            type="button"
+            class="btn btn-sm h-9 w-9 rounded-2xl p-0"
+            :class="selectedType === 'all' ? 'btn-primary' : 'btn-ghost'"
+            :aria-pressed="selectedType === 'all'"
+            title="All types"
+            aria-label="All types"
+            @click="selectedType = 'all'"
+          >
+            <Icon name="kind-icon:cards" class="h-4 w-4" />
+          </button>
+
+          <button
+            v-for="type in dreamTypes"
+            :key="type"
+            type="button"
+            class="btn btn-sm h-9 w-9 rounded-2xl p-0"
+            :class="selectedType === type ? 'btn-primary' : 'btn-ghost'"
+            :aria-pressed="selectedType === type"
+            :title="dreamTypeLabel(type)"
+            :aria-label="dreamTypeLabel(type)"
+            @click="selectedType = type"
+          >
+            <Icon :name="dreamTypeIcon(type)" class="h-4 w-4" />
+          </button>
+        </div>
 
         <!-- The Cards/Heroes/Icons bar used to live HERE, hand-rolled, while
              the other six galleries used kr-gallery's. Silas, 2026-08-04: "I
@@ -728,20 +780,6 @@ const filteredDreams = computed<DreamWithRelations[]>(() => {
   return dreams
 })
 
-const statusLine = computed(() => {
-  const selected = dreamStore.selectedDream
-    ? `Selected: ${getDreamTitle(dreamStore.selectedDream)}`
-    : 'No Dream selected'
-
-  const total = dreamStore.creativeDreams.length
-  const visible = filteredDreams.value.length
-  const active = dreamStore.activeDreams?.length ?? galleryDreams.value.length
-  const hidden = Math.max(total - visible, 0)
-  const hiddenText = hidden ? ` • ${hidden} hidden` : ''
-
-  return `${visible}/${total} shown • ${active} active${hiddenText} • ${selected}`
-})
-
 const exclusionSummary = computed(() => {
   const allDreams = dreamStore.creativeDreams ?? []
   const currentId = currentUserId.value
@@ -872,6 +910,33 @@ onMounted(async () => {
     await refreshDreams()
   }
 })
+
+/*
+ * One icon per DreamType. Every name here is verified against assets/icons --
+ * an Icon whose name does not resolve renders a broken glyph rather than
+ * failing loudly, so guessing is expensive. `wish` and `brainstorm` have no
+ * same-named file; `magic` and `brain` are the closest real ones.
+ *
+ * Unknown types fall back to the generic Dream glyph rather than to nothing:
+ * dreamTypes is built from live data, so a value added to the enum shows up
+ * here before anyone updates this map.
+ */
+const DREAM_TYPE_ICON: Record<string, string> = {
+  ART: 'kind-icon:art',
+  BRAINSTORM: 'kind-icon:brain',
+  PROMPTBOT: 'kind-icon:robot',
+  NARRATOR: 'kind-icon:story',
+  CHARACTER: 'kind-icon:mask',
+  REWARD: 'kind-icon:gift',
+  SCENARIO: 'kind-icon:map',
+  LOCATION: 'kind-icon:map',
+  PITCH: 'kind-icon:pitch',
+  WISH: 'kind-icon:magic',
+}
+
+function dreamTypeIcon(type?: string | null): string {
+  return DREAM_TYPE_ICON[String(type || '').toUpperCase()] || 'kind-icon:dream'
+}
 
 function dreamMatchesSearch(dream: DreamWithRelations, query: string) {
   return dreamSearchText(dream).toLowerCase().includes(query)

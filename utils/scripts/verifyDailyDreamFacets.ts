@@ -11,13 +11,17 @@ async function source(path: string): Promise<string> {
 
 function requireText(path: string, text: string, value: string): void {
   if (!text.includes(value)) {
-    throw new Error(`${path} is missing Daily Dream Facet contract text: ${value}`)
+    throw new Error(
+      `${path} is missing Daily Dream Facet contract text: ${value}`,
+    )
   }
 }
 
 function forbidText(path: string, text: string, value: string): void {
   if (containsCode(text, value)) {
-    throw new Error(`${path} contains forbidden component request text: ${value}`)
+    throw new Error(
+      `${path} contains forbidden component request text: ${value}`,
+    )
   }
 }
 
@@ -30,7 +34,13 @@ async function main(): Promise<void> {
     endpoint: 'server/api/dreams/daily.post.ts',
     dailyStore: 'stores/dailyDreamStore.ts',
     generator: 'components/dreams/daily-dream-generator.vue',
-    dreamManager: 'components/dreams/dream-manager.vue',
+    // The daily generator's HOST. It used to be dream-manager, in a
+    // `#persistent` slot that put "Today's Facet Dream" above every Dreams
+    // tab -- Silas, 2026-08-07: "if that's supposed to be part of the daily
+    // dream index, it shouldn't be here." /for-you IS that index, so the
+    // mount moved and this contract follows it rather than pinning the
+    // component to a page it no longer belongs on.
+    dailyDreamHost: 'components/pages/for-you-manager.vue',
     rewardHelper: 'server/utils/rewardFacetCatalog.ts',
     rewardGet: 'server/api/rewards/[id]/facets.get.ts',
     rewardPut: 'server/api/rewards/[id]/facets.put.ts',
@@ -49,7 +59,11 @@ async function main(): Promise<void> {
   const text = Object.fromEntries(entries) as Record<keyof typeof files, string>
 
   requireText(files.schema, text.schema, 'model RewardFacet')
-  requireText(files.schema, text.schema, '@@unique([rewardId, facetId, fieldKey])')
+  requireText(
+    files.schema,
+    text.schema,
+    '@@unique([rewardId, facetId, fieldKey])',
+  )
   requireText(files.migration, text.migration, 'CREATE TABLE `RewardFacet`')
   requireText(files.migration, text.migration, 'RewardFacet_rewardId_fkey')
   requireText(files.migration, text.migration, 'RewardFacet_facetId_fkey')
@@ -71,11 +85,23 @@ async function main(): Promise<void> {
   // A narrator bot, two locations, and typed rewards (spec: 3 characters,
   // 2 locations, 1 narrator bot, 2 rewards — one SKILL, one ITEM).
   requireText(files.blueprint, text.blueprint, "one('BOT_TYPE')")
-  requireText(files.blueprint, text.blueprint, "weightedMany(pool('SETTING'), 2, random)")
-  requireText(files.blueprint, text.blueprint, "facetByEnum('REWARD_TYPE', rewardType)")
+  requireText(
+    files.blueprint,
+    text.blueprint,
+    "weightedMany(pool('SETTING'), 2, random)",
+  )
+  requireText(
+    files.blueprint,
+    text.blueprint,
+    "facetByEnum('REWARD_TYPE', rewardType)",
+  )
   requireText(files.blueprint, text.blueprint, "? 'SKILL'")
   requireText(files.blueprint, text.blueprint, "? 'ITEM'")
-  requireText(files.blueprint, text.blueprint, "use(rewardTypeFacet, 'rewardType')")
+  requireText(
+    files.blueprint,
+    text.blueprint,
+    "use(rewardTypeFacet, 'rewardType')",
+  )
 
   requireText(files.endpoint, text.endpoint, 'validDateKey(dateKey)')
   requireText(files.endpoint, text.endpoint, 'rewardType: reward.rewardType')
@@ -87,18 +113,30 @@ async function main(): Promise<void> {
 
   requireText(files.dailyStore, text.dailyStore, 'defineStore')
   requireText(files.dailyStore, text.dailyStore, "'/api/dreams/daily'")
-  requireText(files.dailyStore, text.dailyStore, 'performFetch<DailyDreamResponse>')
+  requireText(
+    files.dailyStore,
+    text.dailyStore,
+    'performFetch<DailyDreamResponse>',
+  )
   requireText(files.dailyStore, text.dailyStore, 'lastBlueprint.value')
   requireText(files.generator, text.generator, 'useDailyDreamStore')
-  requireText(files.generator, text.generator, 'dailyDreamStore.createDailyDream')
+  requireText(
+    files.generator,
+    text.generator,
+    'dailyDreamStore.createDailyDream',
+  )
   requireText(files.generator, text.generator, 'characterCount')
   requireText(files.generator, text.generator, 'rewardCount')
   forbidText(files.generator, text.generator, '/api/dreams/daily')
   forbidText(files.generator, text.generator, 'performFetch')
+  // Element-level, not the old exact prop string: the `@created` handler was
+  // dream-manager's own (it re-selected the new Dream and switched tabs) and
+  // has no meaning on the daily index. What this contract actually cares about
+  // is that the generator is still MOUNTED somewhere a user can reach.
   requireText(
-    files.dreamManager,
-    text.dreamManager,
-    '<daily-dream-generator @created="onDailyDreamCreated" />',
+    files.dailyDreamHost,
+    text.dailyDreamHost,
+    '<daily-dream-generator',
   )
 
   requireText(files.rewardHelper, text.rewardHelper, 'rewardFacetFieldKey')
@@ -106,10 +144,22 @@ async function main(): Promise<void> {
   requireText(files.rewardGet, text.rewardGet, 'loadRewardFacetCatalog')
   requireText(files.rewardPut, text.rewardPut, 'tx.rewardFacet.deleteMany')
   requireText(files.rewardPut, text.rewardPut, 'tx.rewardFacet.createMany')
-  requireText(files.rewardPut, text.rewardPut, 'rewardFacetFieldKey(facet.taxonomy)')
+  requireText(
+    files.rewardPut,
+    text.rewardPut,
+    'rewardFacetFieldKey(facet.taxonomy)',
+  )
   requireText(files.rewardFacetStore, text.rewardFacetStore, 'useFacetStore')
-  requireText(files.rewardFacetStore, text.rewardFacetStore, 'fetchRewardFacets')
-  requireText(files.rewardFacetStore, text.rewardFacetStore, 'replaceRewardFacets')
+  requireText(
+    files.rewardFacetStore,
+    text.rewardFacetStore,
+    'fetchRewardFacets',
+  )
+  requireText(
+    files.rewardFacetStore,
+    text.rewardFacetStore,
+    'replaceRewardFacets',
+  )
   requireText(
     files.rewardFacetStore,
     text.rewardFacetStore,

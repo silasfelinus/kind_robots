@@ -290,20 +290,29 @@
         @update:mode="galleryMode = $event"
       >
         <template #toolbar>
+          <!-- WRAP, do not stack. This was `grid grid-cols-1 ...
+                 lg:grid-cols-[...]`, so below lg every control claimed a
+                 full-width row of its own -- four filters became four rows on a
+                 phone, which is most of why /rewards spent 54% of a 390px
+                 viewport before its first card. flex-wrap puts as many on a
+                 line as fit and only breaks when it must. -->
           <div
             v-if="showControls && !isDropdownMode"
-            class="grid grid-cols-1 gap-2 lg:grid-cols-[auto_auto_minmax(0,1fr)_auto]"
+            class="flex flex-wrap items-center gap-1.5"
           >
+            <!-- `px-4 py-2` with a bold label made this the tallest thing on
+                 the row and forced its height onto every neighbour. Same
+                 control, sized like the selects beside it. -->
             <label
               v-if="userStore.isAdmin"
-              class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-4 py-2"
+              class="flex cursor-pointer items-center gap-1.5 rounded-2xl border border-base-300 bg-base-100 px-2 py-1"
             >
-              <span class="label-text font-bold">Show Mature</span>
+              <span class="text-xs font-bold">Mature</span>
 
               <input
                 v-model="showMature"
                 type="checkbox"
-                class="toggle toggle-accent toggle-sm"
+                class="toggle toggle-accent toggle-xs"
               />
             </label>
 

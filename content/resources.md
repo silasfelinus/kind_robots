@@ -18,4 +18,4 @@ backgroundTablet: /api/art/backdrop/resources-tablet
 backgroundDesktop: /api/art/backdrop/resources-desktop
 ---
 
-:resource-gallery
+:resource-manager

@@ -1,57 +1,36 @@
 <!-- /components/content/icons/icon-gallery.vue -->
 <template>
-  <div class="container mx-auto p-4 space-y-4">
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-      <h1 class="text-3xl font-bold text-primary">Smart Icon Gallery</h1>
+  <div class="container mx-auto space-y-2 p-3">
+    <!--
+      ONE HEADER ROW, THEN THE SHELL'S TOOLBAR. This page previously stacked
+      FOUR full-width blocks before the first icon: a text-3xl title row, a
+      `p-4` bordered panel holding a single Custom Icons toggle, a row of two
+      full-size selects, and then kr-gallery's own mode bar. The chrome audit
+      measured /icons over its whole budget at every width -- the worst of any
+      gallery route.
 
-      <div class="flex flex-wrap items-center justify-center gap-2">
+      The title and its two actions stay as one row; the toggle and the two
+      filters move into the shell's `#toolbar` slot, which exists exactly so
+      filters share the mode bar's line instead of claiming rows of their own.
+      Same move reward-gallery already made.
+    -->
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <h1 class="text-xl font-bold text-primary">Smart Icon Gallery</h1>
+
+      <div class="flex flex-wrap items-center gap-2">
         <button
           type="button"
-          class="btn btn-outline btn-sm rounded-xl"
+          class="btn btn-outline btn-xs rounded-xl"
           :disabled="smartbarStore.loading"
           @click="smartbarStore.fetchIcons(true)"
         >
-          {{ smartbarStore.loading ? 'Refreshing...' : 'Refresh Icons' }}
+          {{ smartbarStore.loading ? 'Refreshing...' : 'Refresh' }}
         </button>
 
-        <NuxtLink to="/addicon" class="btn btn-primary btn-sm rounded-xl">
+        <NuxtLink to="/addicon" class="btn btn-primary btn-xs rounded-xl">
           ➕ Add New Icon
         </NuxtLink>
       </div>
-    </div>
-
-    <!-- Custom Toggle -->
-    <div
-      class="flex items-center justify-between rounded-2xl border bg-base-100 p-4"
-    >
-      <div class="text-sm">
-        <span class="font-semibold">Custom Icons:</span>
-        <span class="ml-2">{{
-          customIconsEnabled ? 'Enabled' : 'Disabled'
-        }}</span>
-      </div>
-      <button
-        class="btn btn-sm rounded-xl"
-        :class="customIconsEnabled ? 'btn-secondary' : 'btn-outline'"
-        @click="toggleCustom"
-      >
-        {{ customIconsEnabled ? 'Disable' : 'Enable' }}
-      </button>
-    </div>
-
-    <!-- Filters -->
-    <div class="flex flex-wrap gap-4">
-      <select v-model="filterScope" class="select select-bordered rounded-lg">
-        <option value="all">All Icons</option>
-        <option value="user">My Icons</option>
-        <option value="public">Public Only</option>
-      </select>
-      <select v-model="filterType" class="select select-bordered rounded-lg">
-        <option value="">All Types</option>
-        <option value="nav">Navigation</option>
-        <option value="utility">Utility</option>
-      </select>
     </div>
 
     <!-- The shared shell owns the grid, the Cards/Heroes/Icons bar, and the
@@ -65,6 +44,39 @@
       empty-label="icons"
       @update:mode="galleryMode = $event"
     >
+      <template #toolbar>
+        <div class="flex flex-wrap items-center gap-2">
+          <select
+            v-model="filterScope"
+            class="select select-bordered select-xs rounded-lg"
+            aria-label="Filter icons by scope"
+          >
+            <option value="all">All Icons</option>
+            <option value="user">My Icons</option>
+            <option value="public">Public Only</option>
+          </select>
+
+          <select
+            v-model="filterType"
+            class="select select-bordered select-xs rounded-lg"
+            aria-label="Filter icons by type"
+          >
+            <option value="">All Types</option>
+            <option value="nav">Navigation</option>
+            <option value="utility">Utility</option>
+          </select>
+
+          <button
+            class="btn btn-xs rounded-xl"
+            :class="customIconsEnabled ? 'btn-secondary' : 'btn-outline'"
+            :aria-pressed="customIconsEnabled"
+            @click="toggleCustom"
+          >
+            Custom icons: {{ customIconsEnabled ? 'On' : 'Off' }}
+          </button>
+        </div>
+      </template>
+
       <template #item="{ item }">
         <icon-card
           v-if="iconById.get(Number(item.id))"

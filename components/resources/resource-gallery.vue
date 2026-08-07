@@ -8,6 +8,7 @@ import {
 } from '@/stores/resourceGalleryStore'
 import { useArtStore } from '@/stores/artStore'
 import { useNavStore } from '@/stores/navStore'
+import { useUserStore } from '@/stores/userStore'
 import type { Resource } from '@/stores/resourceStore'
 
 const RESOURCE_TYPE = {
@@ -19,11 +20,39 @@ const RESOURCE_TYPE = {
 const resourceGalleryStore = useResourceGalleryStore()
 const artStore = useArtStore()
 const navStore = useNavStore()
+const userStore = useUserStore()
 
 const query = ref('')
 const resourceType = ref('ALL')
 const generation = ref('ALL')
-const maturity = ref<'ALL' | 'SAFE' | 'MATURE'>('ALL')
+/*
+ * THE maturity rule, and the only one.
+ *
+ * Two bugs lived here. The filter defaulted to 'ALL' and consulted no account
+ * state at all, so a signed-out guest was served mature LoRAs and checkpoints
+ * on first paint -- Silas, 2026-08-07: "the default for guests seems to be
+ * visible resources, no safe only!". And a Maturity <select> sat beside the
+ * account-level maturity-toggle offering All / Safe only / Mature only, so the
+ * page carried two controls for one concept that openly disagreed on screen.
+ *
+ * Both are gone. This computed IS the rule: mature allowed, or safe. It reads
+ * userStore.showMature, which is already CHILD-restricted (a CHILD reads false
+ * even with the flag set), so the restriction is inherited rather than
+ * re-derived here.
+ */
+const canSeeMature = computed(() => Boolean(userStore.showMature))
+
+/*
+ * A VETTING view, not a second maturity control.
+ *
+ * `canSeeMature` decides what the catalog may show at all; this narrows an
+ * already-permitted list down to just the flagged rows, which is what makes
+ * reviewing them practical -- Silas needs to walk the ones the auto-tagger
+ * flagged and confirm or clear each. It only renders when showMature is on, so
+ * it can never contradict the account toggle the way the old Maturity <select>
+ * did: with mature hidden there is nothing for it to narrow to.
+ */
+const matureOnly = ref(false)
 const message = ref('')
 const messageTone = ref<'success' | 'error'>('success')
 const activePreviewResourceId = ref<number | null>(null)
@@ -96,8 +125,21 @@ const filteredResources = computed(() => {
       return false
     }
 
-    if (maturity.value === 'SAFE' && entry.isMature) return false
-    if (maturity.value === 'MATURE' && !entry.isMature) return false
+    // ONE maturity control, and it is the account toggle. There used to be a
+    // second: a Maturity <select> (All / Safe only / Mature only) sitting
+    // beside the account-level maturity-toggle and disagreeing with it -- the
+    // toggle read "Mature LoRAs and checkpoint models are included" while the
+    // select read "Safe only". Silas, 2026-08-07: "we aren't really going to
+    // need: only show mature: just base it on our real toggle, so we are
+    // either showing all, or safe".
+    //
+    // So the whole select is gone and this is the entire rule: mature allowed,
+    // or safe. Two controls for one concept can only ever agree by accident.
+    if (!canSeeMature.value && entry.isMature) return false
+
+    // Only reachable while canSeeMature is true -- the control that sets it is
+    // not rendered otherwise.
+    if (matureOnly.value && !entry.isMature) return false
 
     if (!search) return true
 
@@ -285,34 +327,51 @@ onMounted(async () => {
 
 <template>
   <section class="flex min-h-full w-full flex-col gap-4">
+    <!--
+      ONE HEADER ROW. This <header> was a single band but FOUR stacked rows
+      inside it: a text-2xl title beside a three-line paragraph, a
+      `resource`-variant maturity toggle (a labelled block with its own
+      explanatory sentence), and a four-up grid of labelled filters that becomes
+      FOUR rows on a phone (`sm:grid-cols-2 xl:grid-cols-4` collapses to one
+      column below sm).
+
+      Title and actions stay here; every filter moves to kr-gallery's `#toolbar`
+      slot. The blurb survives at md+ only -- it is orientation text, and it was
+      costing three rows on exactly the screens with the fewest to spare.
+    -->
     <header
-      class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm"
+      class="rounded-2xl border border-base-300 bg-base-100 px-3 py-2 shadow-sm"
     >
-      <div
-        class="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between"
-      >
-        <div>
-          <h2 class="text-2xl font-bold">Resource Gallery</h2>
-          <p class="max-w-3xl text-sm text-base-content/65">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="min-w-0">
+          <h2 class="text-base font-bold">Resource Gallery</h2>
+          <p
+            class="hidden max-w-3xl truncate text-xs text-base-content/65 md:block"
+          >
             Browse checkpoints, LoRAs, embeddings, and generation tools. Add one
             to the current build, start fresh, or manufacture a preview when the
             catalog arrived wearing a paper bag over its head.
           </p>
         </div>
 
-        <div class="flex shrink-0 gap-2">
+        <div class="flex shrink-0 items-center gap-2">
+          <!-- The Library/Discover switch lands HERE rather than in a strip of
+               its own above the page. resource-manager fills it; a host that
+               only wants the gallery passes nothing and the row is unchanged. -->
+          <slot name="tabs" />
+
           <button
             type="button"
-            class="btn btn-primary btn-sm rounded-2xl"
+            class="btn btn-primary btn-xs rounded-2xl"
             @click="openAddChoice"
           >
-            <icon name="kind-icon:plus" class="h-4 w-4" />
+            <icon name="kind-icon:plus" class="h-3.5 w-3.5" />
             Add
           </button>
 
           <button
             type="button"
-            class="btn btn-outline btn-sm rounded-2xl"
+            class="btn btn-outline btn-xs rounded-2xl"
             :disabled="resourceGalleryStore.isLoading"
             @click="resourceGalleryStore.loadResources()"
           >
@@ -320,65 +379,10 @@ onMounted(async () => {
               v-if="resourceGalleryStore.isLoading"
               class="loading loading-spinner loading-xs"
             />
-            <icon v-else name="kind-icon:refresh" class="h-4 w-4" />
+            <icon v-else name="kind-icon:refresh" class="h-3.5 w-3.5" />
             Refresh
           </button>
         </div>
-      </div>
-
-      <maturity-toggle
-        class="mt-4"
-        variant="resource"
-        label="Mature Resources"
-        visible-text="Mature LoRAs and checkpoint models are included."
-        hidden-text="Mature LoRAs and checkpoint models are hidden."
-      />
-
-      <div class="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-        <label class="form-control">
-          <span class="label-text text-xs">Search</span>
-          <input
-            v-model="query"
-            type="search"
-            class="input input-bordered rounded-2xl"
-            placeholder="Name, trigger, base model..."
-          />
-        </label>
-
-        <label class="form-control">
-          <span class="label-text text-xs">Type</span>
-          <select
-            v-model="resourceType"
-            class="select select-bordered rounded-2xl"
-          >
-            <option value="ALL">All types</option>
-            <option v-for="type in resourceTypes" :key="type" :value="type">
-              {{ type }}
-            </option>
-          </select>
-        </label>
-
-        <label class="form-control">
-          <span class="label-text text-xs">Base model</span>
-          <select
-            v-model="generation"
-            class="select select-bordered rounded-2xl"
-          >
-            <option value="ALL">All base models</option>
-            <option v-for="base in generations" :key="base" :value="base">
-              {{ base }}
-            </option>
-          </select>
-        </label>
-
-        <label class="form-control">
-          <span class="label-text text-xs">Maturity</span>
-          <select v-model="maturity" class="select select-bordered rounded-2xl">
-            <option value="ALL">Visible Resources</option>
-            <option value="SAFE">Safe only</option>
-            <option value="MATURE">Mature only</option>
-          </select>
-        </label>
       </div>
     </header>
 
@@ -456,6 +460,70 @@ onMounted(async () => {
       "
       empty-label="Resources"
     >
+      <!-- The filters, on one line. `:modes="[]"` above still hides the
+           Cards/Heroes/Icons picker (Silas: Resources have one canonical card),
+           and the shell renders this bar for a toolbar alone -- so the controls
+           get the line without the mode picker coming back with them.
+
+           Labels become aria-labels rather than stacked `label-text` spans: a
+           labelled form-control is two rows tall each, which is what made four
+           filters into four rows on a phone. -->
+      <template #toolbar>
+        <div class="flex flex-wrap items-center gap-1.5">
+          <input
+            v-model="query"
+            type="search"
+            class="input input-bordered input-xs w-36 rounded-2xl sm:w-52"
+            placeholder="Name, trigger, base model..."
+            aria-label="Search Resources"
+          />
+
+          <select
+            v-model="resourceType"
+            class="select select-bordered select-xs rounded-2xl"
+            aria-label="Filter by resource type"
+          >
+            <option value="ALL">All types</option>
+            <option v-for="type in resourceTypes" :key="type" :value="type">
+              {{ type }}
+            </option>
+          </select>
+
+          <select
+            v-model="generation"
+            class="select select-bordered select-xs rounded-2xl"
+            aria-label="Filter by base model"
+          >
+            <option value="ALL">All base models</option>
+            <option v-for="base in generations" :key="base" :value="base">
+              {{ base }}
+            </option>
+          </select>
+
+          <button
+            v-if="canSeeMature"
+            type="button"
+            class="btn btn-xs gap-1 rounded-2xl"
+            :class="matureOnly ? 'btn-warning' : 'btn-ghost'"
+            :aria-pressed="matureOnly"
+            title="Show only Resources flagged mature"
+            @click="matureOnly = !matureOnly"
+          >
+            <Icon name="kind-icon:eye" class="h-3.5 w-3.5" />
+            <span class="hidden sm:inline">Mature only</span>
+          </button>
+
+          <!-- `icon`, not `resource`: the resource variant is a labelled block
+               with an explanatory sentence, which is a band of its own. -->
+          <maturity-toggle
+            variant="icon"
+            label="Mature Resources"
+            visible-text="Mature LoRAs and checkpoint models are included."
+            hidden-text="Mature LoRAs and checkpoint models are hidden."
+          />
+        </div>
+      </template>
+
       <template #item="{ item }">
         <resource-card
           v-if="resourceById.get(Number(item.id))"

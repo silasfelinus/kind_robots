@@ -3,55 +3,32 @@
   <section
     class="flex h-full w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
   >
+    <!-- ONE ROW. This was a title/subtitle row plus a full-width controls grid
+         (`grid gap-2 md:grid-cols-[1fr_auto_auto]`, so one column and three
+         rows below md). Filter, type and refresh are all filters over the same
+         list, so they ride the shell's toolbar line instead. -->
     <header
       v-if="showHeader"
-      class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+      class="flex shrink-0 items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
     >
-      <div class="flex items-start justify-between gap-3">
-        <div class="min-w-0">
-          <h2 class="truncate text-lg font-bold text-base-content">
-            {{ resolvedTitle }}
-          </h2>
-          <p class="text-sm text-base-content/60">
-            {{ resolvedSubtitle }}
-          </p>
-        </div>
-
-        <button
-          v-if="showCardActions"
-          class="btn btn-sm btn-primary rounded-xl"
-          type="button"
-          @click="startAddServer"
-        >
-          <Icon name="kind-icon:plus" class="h-4 w-4" />
-          Add Server
-        </button>
+      <div class="min-w-0">
+        <h2 class="truncate text-sm font-bold text-base-content">
+          {{ resolvedTitle }}
+        </h2>
+        <p class="hidden truncate text-xs text-base-content/60 md:block">
+          {{ resolvedSubtitle }}
+        </p>
       </div>
 
-      <div v-if="showControls" class="grid gap-2 md:grid-cols-[1fr_auto_auto]">
-        <input
-          v-model="searchQuery"
-          class="input input-bordered rounded-xl"
-          placeholder="Filter servers"
-        />
-
-        <select
-          v-model="selectedType"
-          class="select select-bordered rounded-xl"
-        >
-          <option value="all">All types</option>
-          <option value="A1111">A1111</option>
-          <option value="COMFY">COMFY</option>
-          <option value="OPENAI">OPENAI</option>
-          <option value="ANTHROPIC">ANTHROPIC</option>
-          <option value="CUSTOM">CUSTOM</option>
-        </select>
-
-        <button class="btn rounded-xl" type="button" @click="refreshServers">
-          <Icon name="kind-icon:refresh-cw" class="h-4 w-4" />
-          Refresh
-        </button>
-      </div>
+      <button
+        v-if="showCardActions"
+        class="btn btn-xs btn-primary shrink-0 rounded-xl"
+        type="button"
+        @click="startAddServer"
+      >
+        <Icon name="kind-icon:plus" class="h-3.5 w-3.5" />
+        Add Server
+      </button>
     </header>
 
     <add-server v-if="showAddServer" />
@@ -73,6 +50,38 @@
       empty-label="servers"
       @update:mode="galleryMode = $event"
     >
+      <template v-if="showControls" #toolbar>
+        <div class="flex flex-wrap items-center gap-1.5">
+          <input
+            v-model="searchQuery"
+            class="input input-bordered input-xs w-32 rounded-xl sm:w-44"
+            placeholder="Filter servers"
+            aria-label="Filter servers"
+          />
+
+          <select
+            v-model="selectedType"
+            class="select select-bordered select-xs rounded-xl"
+            aria-label="Filter by server type"
+          >
+            <option value="all">All types</option>
+            <option value="A1111">A1111</option>
+            <option value="COMFY">COMFY</option>
+            <option value="OPENAI">OPENAI</option>
+            <option value="ANTHROPIC">ANTHROPIC</option>
+            <option value="CUSTOM">CUSTOM</option>
+          </select>
+
+          <button
+            class="btn btn-ghost btn-xs rounded-xl"
+            type="button"
+            @click="refreshServers"
+          >
+            <Icon name="kind-icon:refresh-cw" class="h-3.5 w-3.5" />
+            <span class="hidden sm:inline">Refresh</span>
+          </button>
+        </div>
+      </template>
       <template #item="{ item }">
         <server-card
           v-if="serverById.get(Number(item.id))"

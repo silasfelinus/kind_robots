@@ -425,8 +425,6 @@
           <div v-if="showCharacterPanel" class="mt-4">
             <character-gallery
               variant="dropdown"
-              title="Character"
-              subtitle="Optionally anchor the reward story to a character."
               :show-controls="false"
               :show-images="true"
               :show-card-actions="false"

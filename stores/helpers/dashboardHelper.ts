@@ -657,7 +657,13 @@ export const dashboardConfigs = {
         tagline: 'Build people, places, bots, rewards, and story fuel.',
         narrative:
           'Build the pieces of your world from reusable cards: profiles, dream seeds, characters, bots, rewards, scenarios, and art. Start small, stack boldly, and let the tiny construction goblins unionize later.',
-        route: '/builder',
+        // '/builder' was never a real route -- the multi-tab Builder dashboard
+        // (dashboardConfigs.builder, above) has no dedicated landing page, and
+        // its own UI (components/abandonware/builder/builder-manager.vue) was
+        // parked as unreachable by the orphan-component sweep (#1475). Route
+        // to dashboardConfigs.builder's own defaultTab destination instead of
+        // a dead link (interface-vision/t-107).
+        route: '/characters',
       },
       {
         key: 'games',

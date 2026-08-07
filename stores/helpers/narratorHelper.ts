@@ -146,7 +146,10 @@ export const narratorNavigationTree: NarratorNavAction[] = [
     description:
       'Create and expand Dreams, bots, stories, characters, and rewards.',
     icon: 'kind-icon:wand',
-    path: '/builder',
+    // '/builder' matched no page or content route -- see the identical fix
+    // and rationale on dashboardConfigs.footer's 'builder' tab in
+    // dashboardHelper.ts (interface-vision/t-107).
+    path: '/characters',
     flavor: 'Tools out. Sparks on.',
     prompt:
       'Help me build the next useful piece for this Dream. Suggest what to create next and why.',

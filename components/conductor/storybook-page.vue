@@ -14,7 +14,18 @@
       >
         <Icon name="kind-icon:book" class="size-6" />
       </div>
-      <div class="min-w-0 flex-1">
+      <!--
+        basis-full: header's siblings (the icon and the mode-toggle group)
+        are both shrink-0, so with flex-1's default flex-basis:0% this div
+        contributed ~0 to flex-wrap's line-collection step and never earned
+        its own line -- all three ended up sharing one row on phone, with
+        the entire shrink deficit landing on this one flexible child and
+        crushing it to a ~10px sliver (interface-vision/t-110). basis-full
+        forces a 100% hypothetical width up front, so it wraps onto its own
+        row below the icon instead; sm:basis-auto restores the compact
+        single-line layout once there's room for everything.
+      -->
+      <div class="min-w-0 flex-1 basis-full sm:basis-auto">
         <p class="text-2xl font-black leading-tight">
           Build a world, then step inside it
         </p>

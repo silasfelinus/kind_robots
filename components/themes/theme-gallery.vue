@@ -147,79 +147,88 @@
             </span>
           </div>
 
-          <div
-            v-if="filteredDaisyThemes.length"
-            class="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8"
-          >
-            <article
-              v-for="theme in filteredDaisyThemes"
-              :key="theme"
-              :data-theme="theme"
-              class="group flex min-h-28 flex-col overflow-hidden rounded-2xl border bg-base-100 text-base-content shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-              :class="
-                activeThemeName === theme
-                  ? 'border-primary ring-2 ring-primary/40'
-                  : 'border-base-300 hover:border-primary/45'
-              "
-            >
-              <button
-                class="flex flex-1 flex-col p-2.5 text-left"
-                type="button"
-                @click="applyBuiltInTheme(theme)"
+          <!-- The shared shell owns the grid. The old class was
+               `grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5
+               xl:grid-cols-6 2xl:grid-cols-8` -- SIX viewport breakpoints for a
+               panel that is not full width. MODE_GRID_CLASS measures the
+               container once instead.
+
+               `:modes="[]"` hides the bar: a theme swatch has no card/hero/icon
+               art to switch between.
+
+               A DaisyUI theme is a plain STRING, so the GalleryItem id IS the
+               theme and the card needs no lookup at all. -->
+          <kr-gallery :items="daisyItems" :modes="[]" empty-label="themes">
+            <template #item="{ item }">
+              <article
+                :data-theme="String(item.id)"
+                class="group flex min-h-28 flex-col overflow-hidden rounded-2xl border bg-base-100 text-base-content shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                :class="
+                  activeThemeName === String(item.id)
+                    ? 'border-primary ring-2 ring-primary/40'
+                    : 'border-base-300 hover:border-primary/45'
+                "
               >
-                <div
-                  class="grid h-8 grid-cols-5 overflow-hidden rounded-xl border border-base-300"
+                <button
+                  class="flex flex-1 flex-col p-2.5 text-left"
+                  type="button"
+                  @click="applyBuiltInTheme(String(item.id))"
                 >
-                  <span class="bg-primary" />
-                  <span class="bg-secondary" />
-                  <span class="bg-accent" />
-                  <span class="bg-neutral" />
-                  <span class="bg-base-300" />
-                </div>
-
-                <div
-                  class="mt-2 flex min-w-0 items-center justify-between gap-2"
-                >
-                  <h3 class="truncate text-sm font-black capitalize">
-                    {{ theme }}
-                  </h3>
-
-                  <Icon
-                    v-if="activeThemeName === theme"
-                    name="kind-icon:check"
-                    class="h-4 w-4 shrink-0 text-primary"
-                  />
-                </div>
-
-                <div
-                  class="mt-2 grid grid-cols-3 gap-1 text-center text-[0.62rem] font-black"
-                >
-                  <span
-                    class="rounded-lg bg-primary px-1.5 py-1 text-primary-content"
+                  <div
+                    class="grid h-8 grid-cols-5 overflow-hidden rounded-xl border border-base-300"
                   >
-                    P
-                  </span>
-                  <span
-                    class="rounded-lg bg-secondary px-1.5 py-1 text-secondary-content"
-                  >
-                    S
-                  </span>
-                  <span
-                    class="rounded-lg bg-accent px-1.5 py-1 text-accent-content"
-                  >
-                    A
-                  </span>
-                </div>
-              </button>
-            </article>
-          </div>
+                    <span class="bg-primary" />
+                    <span class="bg-secondary" />
+                    <span class="bg-accent" />
+                    <span class="bg-neutral" />
+                    <span class="bg-base-300" />
+                  </div>
 
-          <div
-            v-else
-            class="rounded-2xl border border-dashed border-base-300 bg-base-200 p-4 text-center text-sm font-semibold text-base-content/55"
-          >
-            No default themes match that search. Suspiciously specific.
-          </div>
+                  <div
+                    class="mt-2 flex min-w-0 items-center justify-between gap-2"
+                  >
+                    <h3 class="truncate text-sm font-black capitalize">
+                      {{ String(item.id) }}
+                    </h3>
+
+                    <Icon
+                      v-if="activeThemeName === String(item.id)"
+                      name="kind-icon:check"
+                      class="h-4 w-4 shrink-0 text-primary"
+                    />
+                  </div>
+
+                  <div
+                    class="mt-2 grid grid-cols-3 gap-1 text-center text-[0.62rem] font-black"
+                  >
+                    <span
+                      class="rounded-lg bg-primary px-1.5 py-1 text-primary-content"
+                    >
+                      P
+                    </span>
+                    <span
+                      class="rounded-lg bg-secondary px-1.5 py-1 text-secondary-content"
+                    >
+                      S
+                    </span>
+                    <span
+                      class="rounded-lg bg-accent px-1.5 py-1 text-accent-content"
+                    >
+                      A
+                    </span>
+                  </div>
+                </button>
+              </article>
+            </template>
+
+            <template #empty>
+              <div
+                class="rounded-2xl border border-dashed border-base-300 bg-base-200 p-4 text-center text-sm font-semibold text-base-content/55"
+              >
+                No default themes match that search. Suspiciously specific.
+              </div>
+            </template>
+          </kr-gallery>
         </section>
 
         <section
@@ -250,114 +259,124 @@
             </span>
           </div>
 
-          <div
-            v-if="filteredSharedThemes.length"
-            class="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8"
-          >
-            <article
-              v-for="theme in filteredSharedThemes"
-              :key="theme.id"
-              class="group flex min-h-32 flex-col overflow-hidden rounded-2xl border bg-base-100 text-base-content shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-              :class="
-                activeThemeName === theme.name
-                  ? 'border-secondary ring-2 ring-secondary/40'
-                  : 'border-base-300 hover:border-secondary/45'
-              "
-              :style="previewStyleFor(theme)"
-            >
-              <button
-                class="flex flex-1 flex-col p-2.5 text-left"
-                type="button"
-                @click="applySharedTheme(theme)"
+          <!-- Same shell, same six-breakpoint grid retired. Shared themes ARE
+               records, so unlike the DaisyUI list above this one looks its
+               theme up by id. -->
+          <kr-gallery :items="sharedItems" :modes="[]" empty-label="themes">
+            <template #item="{ item }">
+              <article
+                v-if="sharedById.get(Number(item.id))"
+                class="group flex min-h-32 flex-col overflow-hidden rounded-2xl border bg-base-100 text-base-content shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                :class="
+                  activeThemeName === sharedById.get(Number(item.id))!.name
+                    ? 'border-secondary ring-2 ring-secondary/40'
+                    : 'border-base-300 hover:border-secondary/45'
+                "
+                :style="previewStyleFor(sharedById.get(Number(item.id))!)"
               >
-                <div
-                  class="grid h-8 grid-cols-5 overflow-hidden rounded-xl border border-base-300"
+                <button
+                  class="flex flex-1 flex-col p-2.5 text-left"
+                  type="button"
+                  @click="applySharedTheme(sharedById.get(Number(item.id))!)"
                 >
-                  <span class="bg-primary" />
-                  <span class="bg-secondary" />
-                  <span class="bg-accent" />
-                  <span class="bg-neutral" />
-                  <span class="bg-base-300" />
-                </div>
-
-                <div
-                  class="mt-2 flex min-w-0 items-center justify-between gap-2"
-                >
-                  <h3 class="truncate text-sm font-black">
-                    {{ theme.name }}
-                  </h3>
-
-                  <Icon
-                    v-if="activeThemeName === theme.name"
-                    name="kind-icon:check"
-                    class="h-4 w-4 shrink-0 text-secondary"
-                  />
-                </div>
-
-                <p
-                  class="mt-1 line-clamp-1 text-[0.7rem] font-semibold text-base-content/55"
-                >
-                  {{
-                    theme.tagline || theme.room || 'Custom Kind Robots palette'
-                  }}
-                </p>
-
-                <div
-                  class="mt-2 grid grid-cols-3 gap-1 text-center text-[0.62rem] font-black"
-                >
-                  <span
-                    class="rounded-lg bg-primary px-1.5 py-1 text-primary-content"
+                  <div
+                    class="grid h-8 grid-cols-5 overflow-hidden rounded-xl border border-base-300"
                   >
-                    P
-                  </span>
-                  <span
-                    class="rounded-lg bg-secondary px-1.5 py-1 text-secondary-content"
-                  >
-                    S
-                  </span>
-                  <span
-                    class="rounded-lg bg-accent px-1.5 py-1 text-accent-content"
-                  >
-                    A
-                  </span>
-                </div>
-              </button>
+                    <span class="bg-primary" />
+                    <span class="bg-secondary" />
+                    <span class="bg-accent" />
+                    <span class="bg-neutral" />
+                    <span class="bg-base-300" />
+                  </div>
 
+                  <div
+                    class="mt-2 flex min-w-0 items-center justify-between gap-2"
+                  >
+                    <h3 class="truncate text-sm font-black">
+                      {{ sharedById.get(Number(item.id))!.name }}
+                    </h3>
+
+                    <Icon
+                      v-if="
+                        activeThemeName ===
+                        sharedById.get(Number(item.id))!.name
+                      "
+                      name="kind-icon:check"
+                      class="h-4 w-4 shrink-0 text-secondary"
+                    />
+                  </div>
+
+                  <p
+                    class="mt-1 line-clamp-1 text-[0.7rem] font-semibold text-base-content/55"
+                  >
+                    {{
+                      sharedById.get(Number(item.id))!.tagline ||
+                      sharedById.get(Number(item.id))!.room ||
+                      'Custom Kind Robots palette'
+                    }}
+                  </p>
+
+                  <div
+                    class="mt-2 grid grid-cols-3 gap-1 text-center text-[0.62rem] font-black"
+                  >
+                    <span
+                      class="rounded-lg bg-primary px-1.5 py-1 text-primary-content"
+                    >
+                      P
+                    </span>
+                    <span
+                      class="rounded-lg bg-secondary px-1.5 py-1 text-secondary-content"
+                    >
+                      S
+                    </span>
+                    <span
+                      class="rounded-lg bg-accent px-1.5 py-1 text-accent-content"
+                    >
+                      A
+                    </span>
+                  </div>
+                </button>
+
+                <div
+                  class="grid grid-cols-2 border-t border-base-300 bg-base-200/70"
+                >
+                  <button
+                    class="btn btn-ghost btn-xs rounded-none"
+                    type="button"
+                    @click="applySharedTheme(sharedById.get(Number(item.id))!)"
+                  >
+                    Apply
+                  </button>
+
+                  <button
+                    class="btn btn-ghost btn-xs rounded-none"
+                    type="button"
+                    @click="handleThemeEdit(sharedById.get(Number(item.id))!)"
+                  >
+                    Edit
+                  </button>
+                </div>
+              </article>
+            </template>
+
+            <template #empty>
               <div
-                class="grid grid-cols-2 border-t border-base-300 bg-base-200/70"
+                class="flex min-h-44 flex-col items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-200 p-6 text-center text-base-content/55"
               >
-                <button
-                  class="btn btn-ghost btn-xs rounded-none"
-                  type="button"
-                  @click="applySharedTheme(theme)"
-                >
-                  Apply
-                </button>
+                <Icon
+                  name="kind-icon:palette"
+                  class="h-10 w-10 text-secondary"
+                />
 
-                <button
-                  class="btn btn-ghost btn-xs rounded-none"
-                  type="button"
-                  @click="handleThemeEdit(theme)"
-                >
-                  Edit
-                </button>
+                <p class="mt-2 text-base font-black">No shared themes found.</p>
+
+                <p class="mt-1 max-w-md text-sm">
+                  Either the goblin published nothing, or your search is too
+                  powerful.
+                </p>
               </div>
-            </article>
-          </div>
-
-          <div
-            v-else
-            class="flex min-h-44 flex-col items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-200 p-6 text-center text-base-content/55"
-          >
-            <Icon name="kind-icon:palette" class="h-10 w-10 text-secondary" />
-
-            <p class="mt-2 text-base font-black">No shared themes found.</p>
-
-            <p class="mt-1 max-w-md text-sm">
-              Either the goblin published nothing, or your search is too
-              powerful.
-            </p>
-          </div>
+            </template>
+          </kr-gallery>
         </section>
 
         <section
@@ -384,8 +403,7 @@
 
           <pre
             class="max-h-72 overflow-auto rounded-2xl bg-base-200 p-3 text-xs text-base-content/75"
-            >{{ inspectValues }}</pre
-          >
+            >{{ inspectValues }}</pre>
         </section>
       </section>
     </main>
@@ -394,6 +412,7 @@
 
 <script setup lang="ts">
 // /components/content/themes/theme-gallery.vue
+import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
 import { computed, onMounted, ref } from 'vue'
 import { useAchievementStore } from '@/stores/achievementStore'
 import { useThemeStore, type Theme } from '@/stores/themeStore'
@@ -544,6 +563,26 @@ const filteredSharedThemes = computed(() => {
       .includes(query)
   })
 })
+
+/*
+ * Two collections, two item lists. DaisyUI themes are strings, so the id is
+ * the theme itself and the card reads `String(item.id)` with no lookup; shared
+ * themes are records and need one.
+ */
+const daisyItems = computed<GalleryItem[]>(() =>
+  filteredDaisyThemes.value.map((theme) => ({ id: theme, title: theme })),
+)
+
+const sharedItems = computed<GalleryItem[]>(() =>
+  filteredSharedThemes.value.map((theme) => ({
+    id: theme.id,
+    title: theme.name || `Theme ${theme.id}`,
+  })),
+)
+
+const sharedById = computed(
+  () => new Map(filteredSharedThemes.value.map((theme) => [theme.id, theme])),
+)
 
 const showDefaultThemes = computed(() => {
   return activeFilter.value === 'all' || activeFilter.value === 'default'

@@ -18,6 +18,9 @@ on:
 permissions:
   contents: write
 
+env:
+  DATABASE_URL: mysql://ci:ci@127.0.0.1:3306/kind_robots_ci
+
 jobs:
   patch:
     runs-on: ubuntu-latest

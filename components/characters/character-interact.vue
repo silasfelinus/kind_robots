@@ -27,9 +27,6 @@
       v-if="!isInteractMode"
       class="min-h-0 flex-1"
       variant="dashboard"
-      title="Choose Your Character"
-      subtitle="Pick someone to talk to, or send them on an adventure."
-      :show-header="true"
       :show-controls="true"
       :show-card-actions="true"
     />

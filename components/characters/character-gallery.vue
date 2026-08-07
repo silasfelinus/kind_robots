@@ -295,10 +295,19 @@ type GalleryVariant = 'dashboard' | 'row' | 'dropdown'
 
 const props = withDefaults(
   defineProps<{
+    /*
+     * NO title/subtitle/showHeader. They were declared here with defaults and
+     * rendered NOWHERE -- three callers passed strings into a void, most
+     * visibly character-interact's "Choose Your Character".
+     *
+     * Deleted rather than wired up, on Silas's call. /characters is the page he
+     * pointed at as closest to ideal ("this just has cards, heroes, icons, and
+     * it's a lot closer to ideal"), and that is true BECAUSE the header never
+     * rendered. Honouring the props would have added the band every other
+     * gallery just spent this stage removing -- so the props were the bug, not
+     * the missing markup.
+     */
     variant?: GalleryVariant
-    title?: string
-    subtitle?: string
-    showHeader?: boolean
     showImages?: boolean
     showControls?: boolean
     showCardActions?: boolean
@@ -317,10 +326,6 @@ const props = withDefaults(
   }>(),
   {
     variant: 'dashboard',
-    title: 'Characters',
-    subtitle:
-      'Choose a character to chat, prompt, or throw into narrative danger.',
-    showHeader: true,
     showImages: true,
     showControls: true,
     showCardActions: true,

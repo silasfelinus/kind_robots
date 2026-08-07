@@ -59,14 +59,84 @@ const ASSIGNED_SCALAR_PATTERN =
   /\b(?:const|let|var)\s+(\w+)\s*=\s*.*\.(?:exec|match)\(/
 const DESTRUCTURE_LINE_PATTERN =
   /\b(?:const|let|var)\s*\[([^\]]*)\]\s*=\s*(.*\.(?:exec|match)\(.*)$/
-// `.*` (not `[^)]*`) because the call argument is almost always a regex
-// literal containing its own capture-group parens (e.g. `/(\d+)/`) -- a
-// negated-`)` class stops at that inner `)` and never reaches the call's
-// real closing paren. `.*` backtracks from the end of the line instead, so
-// it finds the LAST `)` on the line, which is the one that actually closes
-// the call.
-const INLINE_CHAINED_INDEX_PATTERN = /\.(?:exec|match)\(.*\)\s*(\?\.)?\s*\[/
 const CONTEXT_WINDOW_LINES = 15
+
+/**
+ * Text following the paren that actually closes the first `.exec(`/`.match(`
+ * call on the line, or null if there is no such call (or it never closes).
+ *
+ * WHY A SCANNER AND NOT A REGEX. This was
+ * `/\.(?:exec|match)\(.*\)\s*(\?\.)?\s*\[/`, on the reasoning that a greedy
+ * `.*` backtracks to "the LAST `)` on the line, which is the one that actually
+ * closes the call". It does not -- it finds the last `)` that happens to be
+ * followed by `[`, which an inner `)[` inside the regex literal itself
+ * satisfies. So this was reported as indexing its match result:
+ *
+ *   const match = line.match(/^\s*(1|2|3)[.)]\s+(.+?)\s*$/)
+ *                                        ^^ the capture group's `)`, then the
+ *                                           character class's `[`
+ *
+ * -- a false positive on code that guards correctly with `if (!match) continue`
+ * two lines later. Any regex whose capture group is immediately followed by a
+ * character class trips it, which is a common enough shape to be worth reading
+ * the line properly instead.
+ *
+ * Balanced paren scan, skipping over string and regex literals so their
+ * contents cannot be mistaken for syntax.
+ */
+export function afterCaptureCallClose(text: string): string | null {
+  const call = /\.(?:exec|match)\(/.exec(text)
+  if (!call) return null
+
+  let depth = 0
+  for (let i = call.index + call[0].length - 1; i < text.length; i += 1) {
+    const char = text[i]
+
+    if (char === "'" || char === '"' || char === '`') {
+      i += 1
+      while (i < text.length && text[i] !== char) {
+        if (text[i] === '\\') i += 1
+        i += 1
+      }
+      continue
+    }
+
+    /*
+     * A `/` here opens a regex literal rather than dividing: we are inside a
+     * call's argument list, so the previous significant character is always an
+     * opener or separator. Character classes are skipped wholesale because an
+     * unescaped `/` is legal inside them.
+     */
+    if (char === '/') {
+      i += 1
+      let inClass = false
+      while (i < text.length) {
+        if (text[i] === '\\') i += 2
+        else if (text[i] === '[') {
+          inClass = true
+          i += 1
+        } else if (text[i] === ']') {
+          inClass = false
+          i += 1
+        } else if (text[i] === '/' && !inClass) break
+        else i += 1
+      }
+      continue
+    }
+
+    if (char === '(') depth += 1
+    else if (char === ')') {
+      depth -= 1
+      if (depth === 0) return text.slice(i + 1)
+    }
+  }
+  return null
+}
+
+function indexedInline(text: string): boolean {
+  const rest = afterCaptureCallClose(text)
+  return rest !== null && /^\s*(?:\?\.)?\s*\[/.test(rest)
+}
 
 type Candidate = {
   file: string
@@ -132,12 +202,12 @@ function parseAddedLines(diffText: string): Candidate[] {
 }
 
 function candidateGuardedInline(text: string): boolean {
-  // `.*` for the same reason as INLINE_CHAINED_INDEX_PATTERN above: the call
-  // argument's own regex-literal parens defeat a `[^)]*` class.
   if (CAPTURE_CALL_PATTERN.test(text) && text.includes('?.[')) return true
-  if (/\.(?:exec|match)\(.*\)\s*(?:\|\|\s*\[)/.test(text)) return true
-  if (/\.(?:exec|match)\(.*\)\s*\?\?\s*\[/.test(text)) return true
-  return false
+  // Same balanced read as indexedInline: `|| []` / `?? []` right after the
+  // call's real closing paren, not after whatever paren a regex happens to end
+  // with.
+  const rest = afterCaptureCallClose(text)
+  return rest !== null && /^\s*(?:\|\||\?\?)\s*\[/.test(rest)
 }
 
 /** Default-valued array destructuring (`const [h = 0] = ...`) is treated as self-guarding. */
@@ -240,7 +310,7 @@ export function scanCaptureGroupGuards(
       continue
     }
 
-    if (INLINE_CHAINED_INDEX_PATTERN.test(candidate.text)) {
+    if (indexedInline(candidate.text)) {
       // Chained straight into an index with no `?.` seen by
       // candidateGuardedInline() above -- e.g. `str.exec(re)[1]`.
       errors.push(

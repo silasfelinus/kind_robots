@@ -2,6 +2,7 @@
 import { readFileSync, readdirSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { buildComponentGraph, mountsElement } from './componentGraph'
 
 // Contract for the shared conversation kit (interface-vision, 2026-08-02).
 //
@@ -207,139 +208,32 @@ const KIT_PIECES = [
  * element, in the template, after comments are stripped.
  */
 function mountsKitPiece(source: string): boolean {
-  const template = source
-    .replace(/<script[\s\S]*?<\/script>/g, '')
-    .replace(/<style[\s\S]*?<\/style>/g, '')
-    .replace(/<!--[\s\S]*?-->/g, '')
-  return KIT_PIECES.some((piece) => {
-    const pascal = piece
-      .split('-')
-      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-      .join('')
-    return new RegExp(
-      `<\\s*(?:Lazy|lazy-)?(?:${piece}|${pascal})(?=[\\s/>])`,
-    ).test(template)
-  })
+  return KIT_PIECES.some((piece) => mountsElement(source, piece))
 }
 
-/*
- * Count TRANSITIVE adoption, one level deep.
- *
- * Storybook and Taskmaster reach the kit through kr-narrator-stage rather than
- * mounting it themselves, and a counter that missed that would report 0/7 while
- * the components were demonstrably live in both render paths -- understating
- * progress and, worse, hiding a regression if the stage stopped using them.
- */
 /*
  * ADOPTION IS FOUND BY WALKING, NOT BY A LIST.
  *
- * This used to be a hand-kept INTERMEDIARIES array -- kr-narrator-stage, the
- * response composer, the art status, the Dreams dock -- matched one level deep.
- * It broke twice in one afternoon: splitting scenario-workspace out of
- * scenario-interact dropped the count to 6/7, and splitting reward-workspace
- * out of reward-interact dropped it again. Both times the kit had not been
- * abandoned; it had moved one hop further down, and a list of names could not
- * see that.
+ * Storybook and Taskmaster reach the kit through kr-narrator-stage rather than
+ * mounting it themselves, so a check that only looked at each surface's own
+ * file would report 0/7 while the components were demonstrably live in both
+ * render paths.
  *
- * Reporting a refactor as a regression is the same filename-shaped blindness
- * verifyRouteGalleryContract.ts had to learn out of. So this follows the actual
- * component graph from each surface: a surface adopts the kit if anything it
- * transitively renders does.
+ * This was a hand-kept INTERMEDIARIES array once. It broke twice in one
+ * afternoon: splitting scenario-workspace out of scenario-interact dropped the
+ * count to 6/7, and splitting reward-workspace out of reward-interact dropped
+ * it again. Both times the kit had not been abandoned; it had moved one hop
+ * further down, and a list of names could not see that.
  *
- * ONE EXCLUSION. wonderlab-preview-host.vue mounts every component in the repo
- * through import.meta.glob, so traversing into it would make every surface look
- * adopted. Being exhibited in the museum is not being used.
+ * The walk itself now lives in componentGraph.ts, shared with
+ * verifyEntityArtManager -- which went red for exactly this reason a third
+ * time, when the same splits carried <EntityArtManager down with them.
  */
-const MUSEUM_MOUNTS_EVERYTHING = 'wonderlab-preview-host'
-
-const SKIP_DIRS = new Set([
-  'node_modules',
-  '.nuxt',
-  '.git',
-  'dist',
-  '.output',
-  'abandonware',
-  'archives',
-  'cypress',
-  'sample',
-])
-
-function walkVue(directory: string, out: string[] = []): string[] {
-  let entries: string[]
-  try {
-    entries = readdirSync(directory, { withFileTypes: true }).map((e) => e.name)
-  } catch {
-    return out
-  }
-  for (const entry of entries) {
-    if (SKIP_DIRS.has(entry)) continue
-    const full = resolve(directory, entry)
-    if (entry.endsWith('.vue')) out.push(full)
-    else if (!entry.includes('.')) walkVue(full, out)
-  }
-  return out
-}
-
-const componentsByName = new Map<string, string>()
-for (const file of walkVue(resolve(root, 'components'))) {
-  const name = file.split('/').pop()?.replace('.vue', '') ?? ''
-  if (name && !componentsByName.has(name)) componentsByName.set(name, file)
-}
-
-const templateOf = (source: string): string =>
-  source
-    .replace(/<script[\s\S]*?<\/script>/g, '')
-    .replace(/<style[\s\S]*?<\/style>/g, '')
-    .replace(/<!--[\s\S]*?-->/g, '')
-
-const kebab = (tag: string): string =>
-  (/^[a-z]/.test(tag)
-    ? tag
-    : tag.replace(/(?<!^)(?=[A-Z])/g, '-').toLowerCase()
-  ).replace(/^lazy-/, '')
-
-const childCache = new Map<string, string[]>()
-function childComponents(name: string): string[] {
-  const cached = childCache.get(name)
-  if (cached) return cached
-  const file = componentsByName.get(name)
-  if (!file) {
-    childCache.set(name, [])
-    return []
-  }
-  const template = templateOf(readFileSync(file, 'utf8'))
-  const found = new Set<string>()
-  for (const [, tag] of template.matchAll(/<([A-Za-z][\w-]*)/g)) {
-    const key = kebab(tag ?? '')
-    if (
-      key !== name &&
-      key !== MUSEUM_MOUNTS_EVERYTHING &&
-      componentsByName.has(key)
-    ) {
-      found.add(key)
-    }
-  }
-  const result = [...found].sort()
-  childCache.set(name, result)
-  return result
-}
+const graph = buildComponentGraph(resolve(root, 'components'))
 
 /** Does this surface, or anything it renders, mount a kit piece? */
 function adopts(path: string): boolean {
-  const seen = new Set<string>()
-  const stack = [path.split('/').pop()?.replace('.vue', '') ?? '']
-  while (stack.length) {
-    const current = stack.pop()
-    if (!current || seen.has(current)) continue
-    seen.add(current)
-    const file = componentsByName.get(current)
-    if (!file) continue
-    if (mountsKitPiece(readFileSync(file, 'utf8'))) return true
-    for (const child of childComponents(current)) {
-      if (!seen.has(child)) stack.push(child)
-    }
-  }
-  return false
+  return graph.reaches(path, mountsKitPiece)
 }
 
 const adopters = existing.filter(adopts)

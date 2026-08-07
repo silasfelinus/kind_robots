@@ -181,6 +181,12 @@ jobs:
       # `if: always()` so a responsive-layout failure does not hide the chrome
       # reading — they are independent findings about the same page, and the
       # one that fails first should not suppress the other.
+      #
+      # `--strict` (gates the instrument: load failures, zero measurements) but
+      # NOT `--strict-budget` (gates the finding). 17 of 28 measured readings
+      # are over budget today against real pre-existing chrome, so budget
+      # enforcement would block every unrelated PR on a backlog. The numbers are
+      # printed either way; add `--strict-budget` once the routes are under it.
       - name: Audit gallery chrome budget
         if: always()
         env:

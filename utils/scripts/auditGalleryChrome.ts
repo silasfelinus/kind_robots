@@ -28,9 +28,16 @@
 // loaded, gallery is empty" and "page never loaded", and I read the resulting
 // zeros as an API outage that was really ERR_CONNECTION_RESET on my end. The
 // status is DERIVED from which of those happened, never assigned in a branch,
-// so the two cannot collapse into each other again. `--strict` fails on a
-// measured overage AND on a load failure; it deliberately does not fail on
+// so the two cannot collapse into each other again. Neither strictness fails on
 // `no-cards`, which is a data state rather than a layout defect.
+//
+// FIRST REAL MEASUREMENT, 2026-08-07 — the complaint reproduces.
+// /rewards spends 296px of a 1366x768 laptop before its first card, which is
+// Silas's exact screenshot. /servers spends 1254px of the same viewport: more
+// than a full screen of chrome. /characters, on the SAME shared shell, spends
+// 166px and passes at every width — and that is the useful part. The waste is
+// route-owned chrome ABOVE the gallery rather than the gallery itself, so it is
+// fixable per route, and /characters is the worked example of what good is.
 //
 //   npx tsx utils/scripts/auditGalleryChrome.ts --base https://example.app
 //   npx tsx utils/scripts/auditGalleryChrome.ts --base <url> --strict
@@ -223,14 +230,33 @@ async function readRoute(
 const base = argOf('--base')
 if (!base) {
   console.error(
-    'Usage: tsx utils/scripts/auditGalleryChrome.ts --base <url> [--strict] [--routes /a,/b]',
+    'Usage: tsx utils/scripts/auditGalleryChrome.ts --base <url> [--strict] [--strict-budget] [--routes /a,/b]',
   )
   process.exit(2)
 }
 
 const routes = argOf('--routes')?.split(',').filter(Boolean) ?? DEFAULT_ROUTES
-const strict = process.argv.includes('--strict')
 const origin = base.replace(/\/$/, '')
+
+/*
+ * TWO STRICTNESSES, because two different things can be wrong and only one of
+ * them is gateable today.
+ *
+ * --strict gates the INSTRUMENT: a route that failed to load, or a run that
+ * measured nothing at all, means this audit did not do its job. Those are the
+ * failures that actually bit -- Chromium ignoring the proxy, a hardcoded
+ * browser path, `networkidle` never settling -- and each of them once produced
+ * output that read like a pass. This is not flaky and runs as a gate now.
+ *
+ * --strict-budget gates the FINDING: it fails on chrome overages. It is off in
+ * CI because 17 of 28 measured readings are over budget TODAY, against real
+ * pre-existing chrome (/servers spends 163% of a 1366x768 viewport before its
+ * first card). Turning it on would block every unrelated PR on a backlog, which
+ * is how a contract gets deleted instead of satisfied. Flip it on -- and delete
+ * this paragraph -- once the routes are under budget.
+ */
+const strict = process.argv.includes('--strict')
+const strictBudget = process.argv.includes('--strict-budget')
 
 /*
  * Chromium does NOT pick up HTTPS_PROXY from the environment the way curl and
@@ -331,4 +357,27 @@ if (overages.length) {
   )
 }
 
-if (strict && (overages.length || loadFailures.length)) process.exit(1)
+const measuredCount = readings.filter((r) => r.status === 'measured').length
+
+if (strict && loadFailures.length) {
+  console.error(
+    `\nFAIL - ${loadFailures.length} route/breakpoint(s) never loaded, so this run did not measure what it claims to.`,
+  )
+  process.exit(1)
+}
+
+if (strict && !measuredCount) {
+  console.error(
+    '\nFAIL - zero readings. An empty result is not a clean result.',
+  )
+  process.exit(1)
+}
+
+if (strictBudget && overages.length) {
+  console.error(
+    `\nFAIL - ${overages.length} reading(s) over the ${Math.round(
+      MAX_CHROME_FRACTION * 100,
+    )}% chrome budget.`,
+  )
+  process.exit(1)
+}

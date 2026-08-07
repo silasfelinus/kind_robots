@@ -1,18 +1,14 @@
 name: Cypress Tests
 
-# Runs on a schedule rather than `push`. main's commit velocity (often multiple
-# merges per minute during active conductor cycles) is faster than a single
-# run can complete (deploy wait + DB readiness + the suite itself commonly
-# exceeds 20-30 minutes), so a push-triggered run under cancel-in-progress
-# concurrency was preempted by the next push before it could ever finish --
-# every run in the history showed conclusion "cancelled", so main effectively
-# had no Cypress signal at all. The "wait for deploy" step already tolerates
-# testing a commit that has been superseded by a later one on main, so a
-# periodic run against whatever is live works the same way a push-triggered
-# run did, just decoupled from push cadence.
+# TEMPORARILY MANUAL-ONLY while Vercel Preview/test traffic shares the
+# production ProxySQL identity. The 2026-08-07 scheduled run passed database
+# readiness after a ProxySQL restart, then the Cypress API suite coincided with
+# fresh production P2039 / pool-acquisition failures. Re-enable scheduling only
+# after #1581 isolates test/preview database capacity from production.
+#
+# workflow_dispatch preserves the full production test path for intentional
+# runs without allowing the 30-minute cron to repeatedly refill ProxySQL.
 on:
-  schedule:
-    - cron: '*/30 * * * *'
   workflow_dispatch:
     inputs:
       max_wait_seconds:
@@ -60,14 +56,6 @@ jobs:
                 echo "Production is serving ${live} — deploy is live."
                 exit 0
               fi
-              # A burst of several merges within a short window can land newer
-              # commits on main before this run's own deploy goes live, so an
-              # already-superseded TARGET_SHA never becomes the exact `live`
-              # value. If the live commit already contains TARGET_SHA (i.e.
-              # TARGET_SHA is one of its ancestors), this deploy's changes are
-              # live too via that superseding commit -- not a failure. Only
-              # deepen the (shallow) checkout when ancestry needs checking, so
-              # the common exact-match case stays fast.
               if ! git cat-file -e "${live}^{commit}" 2>/dev/null; then
                 git fetch --quiet --depth=200 origin main 2>/dev/null || true
               fi
@@ -75,14 +63,6 @@ jobs:
                 echo "Production is serving ${live}, a newer commit that already includes ${TARGET_SHA} — deploy is live (superseded)."
                 exit 0
               fi
-              # The opposite direction: ${live} predates ${TARGET_SHA}, but
-              # scripts/vercel-ignore-build.mjs may have skipped building
-              # TARGET_SHA on its own because every file it changed since
-              # ${live} is deploy-inert (cypress/docs/tests — see
-              # scripts/lib/deployIgnorePaths.mjs). In that case production
-              # will never serve TARGET_SHA and this loop would otherwise
-              # time out waiting for a deployment Vercel already decided not
-              # to build.
               if node scripts/check-deploy-noop.mjs "$live" "$TARGET_SHA" 2>/dev/null; then
                 echo "Production is serving ${live}; ${TARGET_SHA}'s changes since then are deploy-inert (test- and docs-only) — deploy is live (no-op)."
                 exit 0
@@ -138,12 +118,6 @@ jobs:
             local round="$1"
             local attempt failed pids
 
-            # Each round is itself meant to soak-test recovery across ProxySQL's
-            # idle-retirement window (see the pauses between rounds below); a single
-            # blip within one round's 8 concurrent requests used to abort the whole
-            # job immediately via `set -e` on the very first attempt, which defeated
-            # that soak-testing intent -- rounds 2 and 3 never even ran. Retry a
-            # failed round up to 3 attempts before treating it as a real failure.
             for attempt in 1 2 3; do
               failed=0
               pids=()
@@ -221,9 +195,6 @@ jobs:
         run: node scripts/cleanup-cypress-users.mjs
 
       - name: Verify Cypress cleanup
-        # Only meaningful when Cypress actually ran. When an earlier gate (deploy
-        # wait / DB readiness) fails, the test step is skipped and produces no
-        # reports — running verify then just masks the real failure.
         if: always() && steps.cypress.outcome != 'skipped'
         run: node scripts/verify-cypress-cleanup.mjs
 

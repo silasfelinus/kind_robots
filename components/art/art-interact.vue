@@ -626,9 +626,7 @@ const collectionButtonLabel = computed(() => {
 })
 
 const statusClass = computed(() =>
-  statusTone.value === 'error'
-    ? 'border-error/40 bg-error/10 text-error'
-    : 'border-success/40 bg-success/10 text-success',
+  statusTone.value === 'error' ? 'kr-note-error' : 'kr-note-success',
 )
 
 const hasDirtyFields = computed(() => {

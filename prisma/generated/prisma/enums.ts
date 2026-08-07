@@ -346,7 +346,8 @@ export const ProjectStatus = {
   PAUSED: 'PAUSED',
   DONE: 'DONE',
   ARCHIVED: 'ARCHIVED',
-  BRAINSTORM: 'BRAINSTORM'
+  BRAINSTORM: 'BRAINSTORM',
+  CONTINUOUS: 'CONTINUOUS'
 } as const
 
 export type ProjectStatus = (typeof ProjectStatus)[keyof typeof ProjectStatus]

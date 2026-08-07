@@ -11,6 +11,7 @@ import { userIsAdmin } from '../../utils/authUser'
 
 export const projectStatuses = new Set<ProjectStatus>([
   'ACTIVE',
+  'CONTINUOUS',
   'PAUSED',
   'DONE',
   'ARCHIVED',
@@ -213,7 +214,10 @@ async function assertRelationTargetAttachable(
 
   const row = await find(id)
   if (!row) {
-    throw createError({ statusCode: 404, message: `${label} not found: ${id}.` })
+    throw createError({
+      statusCode: 404,
+      message: `${label} not found: ${id}.`,
+    })
   }
 
   if (row.userId !== userId && row.isPublic !== true) {

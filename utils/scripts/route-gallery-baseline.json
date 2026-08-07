@@ -1,6 +1,6 @@
 {
   "note": "Route gallery RATCHET: this file may only ever shrink. --update refuses to record a larger count. See utils/scripts/verifyRouteGalleryContract.ts.",
-  "recorded": "2026-08-06",
+  "recorded": "2026-08-07",
   "total": 14,
   "holdouts": {
     "achievement-gallery": ["/achievements", "/dashboard", "/themes"],
@@ -27,7 +27,7 @@
     "character-interact": 923,
     "dream-interact": 57,
     "facet-interact": 204,
-    "reward-interact": 1097,
+    "reward-interact": 61,
     "scenario-interact": 54
   }
 }

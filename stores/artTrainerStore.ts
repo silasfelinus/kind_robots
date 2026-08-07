@@ -48,7 +48,12 @@ export const useArtTrainerStore = defineStore('artTrainerStore', () => {
         `The finished image could not be loaded for img2img (${response.status}).`,
       )
     }
-    return blobToDataUri(await response.blob())
+
+    const blob = await response.blob()
+    if (!blob.type.startsWith('image/')) {
+      throw new Error('This finished ArtJob is not an image and cannot use img2img.')
+    }
+    return blobToDataUri(blob)
   }
 
   async function queueRedo(
@@ -56,7 +61,11 @@ export const useArtTrainerStore = defineStore('artTrainerStore', () => {
     input: ArtTrainerRedoInput,
   ): Promise<{ success: boolean; message: string; jobId: number | null }> {
     if (isSubmitting(job.id)) {
-      return { success: false, message: 'This revision is already being queued.', jobId: null }
+      return {
+        success: false,
+        message: 'This revision is already being queued.',
+        jobId: null,
+      }
     }
 
     submittingJobIds.value = [...submittingJobIds.value, job.id]

@@ -1,15 +1,13 @@
 {
   "note": "Route gallery RATCHET: this file may only ever shrink. --update refuses to record a larger count. See utils/scripts/verifyRouteGalleryContract.ts.",
   "recorded": "2026-08-07",
-  "total": 10,
+  "total": 8,
   "holdouts": {
     "achievement-gallery": ["/achievements", "/dashboard", "/themes"],
     "chat-gallery": ["/achievements", "/chats", "/dashboard", "/themes"],
     "friend-gallery": ["/achievements", "/dashboard", "/themes"],
     "theme-gallery": ["/achievements", "/dashboard", "/themes"],
     "art-gallery": ["/art", "/artjob"],
-    "dream-relationship-gallery": ["/brainstorm", "/dreams"],
-    "scenario-relationship-gallery": ["/brainstorm", "/dreams"],
     "daily-digest-object-gallery": ["/for-you"],
     "resource-gallery": ["/resources"],
     "ui-gallery": ["/ui"]

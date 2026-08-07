@@ -93,39 +93,50 @@
       </label>
     </div>
 
-    <div
-      class="grid gap-3"
-      :class="compact ? 'grid-cols-1' : 'sm:grid-cols-2 xl:grid-cols-3'"
+    <!-- The shared shell owns the grid, the mode bar, and the empty state;
+         checkpoint-card stays the card. The compact variant is a PICKER, so it
+         passes `:modes="[]"` to hide the bar and pins to `icons`, the
+         row-shaped grid — the same call server-gallery makes. -->
+    <kr-gallery
+      :items="galleryItems"
+      :mode="compact ? 'icons' : galleryMode"
+      :modes="compact ? [] : [...GALLERY_MODES]"
+      empty-label="checkpoints"
+      @update:mode="galleryMode = $event"
     >
-      <checkpoint-card
-        v-for="checkpoint in filteredCheckpoints"
-        :key="checkpoint.id || checkpoint.name"
-        :checkpoint="checkpoint"
-        :compact="compact"
-        :show-image="showImages"
-        :show-description="showDescriptions"
-        :show-meta="showMeta"
-        :show-select-button="showSelectButtons"
-        :can-react="false"
-        @open="openCheckpoint"
-      />
-    </div>
+      <template #item="{ item }">
+        <checkpoint-card
+          v-if="checkpointByKey.get(String(item.id))"
+          :checkpoint="checkpointByKey.get(String(item.id))!"
+          :compact="compact"
+          :show-image="showImages"
+          :show-description="showDescriptions"
+          :show-meta="showMeta"
+          :show-select-button="showSelectButtons"
+          :can-react="false"
+          @open="openCheckpoint"
+        />
+      </template>
 
-    <div
-      v-if="!filteredCheckpoints.length"
-      class="rounded-2xl border border-dashed border-base-300 bg-base-200 p-6 text-center"
-    >
-      <p class="font-bold">No checkpoints found.</p>
-      <p class="text-sm text-base-content/60">
-        Try another filter or add a checkpoint.
-      </p>
-    </div>
+      <template #empty>
+        <div
+          class="rounded-2xl border border-dashed border-base-300 bg-base-200 p-6 text-center"
+        >
+          <p class="font-bold">No checkpoints found.</p>
+          <p class="text-sm text-base-content/60">
+            Try another filter or add a checkpoint.
+          </p>
+        </div>
+      </template>
+    </kr-gallery>
   </section>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import type { Resource } from '~/prisma/generated/prisma/client'
+import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
+import { GALLERY_MODES, type GalleryMode } from '@/utils/galleryVocabulary'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useServerStore } from '@/stores/serverStore'
 
@@ -233,6 +244,35 @@ const filteredCheckpoints = computed<Partial<Resource>[]>(() => {
       .some((value) => String(value).toLowerCase().includes(query))
   })
 })
+
+const galleryMode = ref<GalleryMode>('cards')
+
+/*
+ * Checkpoints are Partial<Resource>, so an id can be missing -- the old grid
+ * keyed on `checkpoint.id || checkpoint.name` for exactly that reason. The
+ * GalleryItem id keeps that fallback and the lookup is keyed by string so the
+ * two halves cannot drift apart.
+ */
+const checkpointKey = (checkpoint: Partial<Resource>): string =>
+  String(checkpoint.id ?? checkpoint.name ?? '')
+
+const galleryItems = computed<GalleryItem[]>(() =>
+  filteredCheckpoints.value.map((checkpoint) => ({
+    id: checkpointKey(checkpoint),
+    title: checkpoint.customLabel || checkpoint.name || 'Checkpoint',
+    description: checkpoint.description || undefined,
+  })),
+)
+
+const checkpointByKey = computed(
+  () =>
+    new Map(
+      filteredCheckpoints.value.map((checkpoint) => [
+        checkpointKey(checkpoint),
+        checkpoint,
+      ]),
+    ),
+)
 
 function selectSampler(event: Event): void {
   const target = event.target as HTMLSelectElement

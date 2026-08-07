@@ -19,97 +19,116 @@
       </span>
     </div>
 
-    <!-- Empty state -->
-    <div
-      v-if="visibleUsers.length === 0"
-      class="flex flex-col items-center gap-2 py-12 text-base-content/50"
-    >
-      <Icon name="kind-icon:person" class="h-12 w-12" />
-      <p>No public profiles yet.</p>
-    </div>
+    <!-- The shared shell owns the grid and the empty state. The old user grid
+         was `grid-cols-2 md:grid-cols-3 lg:grid-cols-4` -- viewport-keyed --
+         and MODE_GRID_CLASS measures the container instead.
 
-    <!-- User grid -->
-    <div v-else class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-      <div
-        v-for="u in visibleUsers"
-        :key="u.id"
-        class="card relative rounded-xl bg-base-200 shadow"
-        :class="{ 'ring-2 ring-primary': u.id === currentUserId }"
-      >
-        <!-- "You" badge -->
-        <span
-          v-if="u.id === currentUserId"
-          class="badge badge-primary absolute left-2 top-2 text-[0.65rem]"
+         `:modes="[]"` hides the bar: these are avatars and buttons, not art at
+         three variants. The per-user art strip inside each card stays exactly
+         as it was -- it is a card detail, not a gallery.
+
+         The user id IS the GalleryItem id, so most of the card reads it
+         straight off the slot; only the three fields that need the whole
+         record go through the lookup. -->
+    <kr-gallery :items="galleryItems" :modes="[]" empty-label="profiles">
+      <template #item="{ item }">
+        <div
+          v-if="userById.get(Number(item.id))"
+          class="card relative rounded-xl bg-base-200 shadow"
+          :class="{ 'ring-2 ring-primary': Number(item.id) === currentUserId }"
         >
-          You
-        </span>
-
-        <div class="flex flex-col items-center p-4 pt-6">
-          <user-avatar :user-id="u.id" class="mb-2 h-20 w-20 rounded-full" />
-          <h3 class="text-center text-base font-bold">
-            {{ u.designerName || u.username || 'Unknown User' }}
-          </h3>
-          <p class="text-xs text-base-content/50 uppercase tracking-widest">
-            {{ formatRole(u.Role) }}
-          </p>
-
-          <div class="mt-3 flex gap-2">
-            <button
-              class="btn btn-primary btn-sm"
-              type="button"
-              @click="toggleCollection(u.id)"
-            >
-              {{ selectedUserId === u.id ? 'Hide' : 'Collection' }}
-            </button>
-
-            <button
-              v-if="isLoggedIn && u.id !== currentUserId"
-              class="btn btn-secondary btn-sm relative"
-              type="button"
-              @click="sendMessage(u.id)"
-            >
-              Message
-              <span
-                v-if="hasUnreadFrom(u.id)"
-                class="absolute -right-1 -top-1 flex h-2.5 w-2.5 rounded-full bg-error"
-              />
-            </button>
-          </div>
-        </div>
-
-        <!-- Art collection panel -->
-        <div v-if="selectedUserId === u.id" class="px-4 pb-4">
-          <h4 class="mb-2 text-sm font-semibold">Art Collection</h4>
-
-          <div
-            v-if="(userCollections[u.id] ?? []).length > 0"
-            class="grid grid-cols-2 gap-2"
+          <!-- "You" badge -->
+          <span
+            v-if="Number(item.id) === currentUserId"
+            class="badge badge-primary absolute left-2 top-2 text-[0.65rem]"
           >
-            <div
-              v-for="art in userCollections[u.id] ?? []"
-              :key="art.id"
-              class="rounded-md bg-base-100 p-1 shadow-sm"
-            >
-              <img
-                :src="artImages[art.id] || '/images/kindtitle.webp'"
-                alt="Art"
-                class="h-20 w-full rounded-md object-cover"
-                @error="handleImageError(art.id)"
-              />
+            You
+          </span>
+
+          <div class="flex flex-col items-center p-4 pt-6">
+            <user-avatar
+              :user-id="Number(item.id)"
+              class="mb-2 h-20 w-20 rounded-full"
+            />
+            <h3 class="text-center text-base font-bold">
+              {{
+                userById.get(Number(item.id))!.designerName ||
+                userById.get(Number(item.id))!.username ||
+                'Unknown User'
+              }}
+            </h3>
+            <p class="text-xs text-base-content/50 uppercase tracking-widest">
+              {{ formatRole(userById.get(Number(item.id))!.Role) }}
+            </p>
+
+            <div class="mt-3 flex gap-2">
+              <button
+                class="btn btn-primary btn-sm"
+                type="button"
+                @click="toggleCollection(Number(item.id))"
+              >
+                {{ selectedUserId === Number(item.id) ? 'Hide' : 'Collection' }}
+              </button>
+
+              <button
+                v-if="isLoggedIn && Number(item.id) !== currentUserId"
+                class="btn btn-secondary btn-sm relative"
+                type="button"
+                @click="sendMessage(Number(item.id))"
+              >
+                Message
+                <span
+                  v-if="hasUnreadFrom(Number(item.id))"
+                  class="absolute -right-1 -top-1 flex h-2.5 w-2.5 rounded-full bg-error"
+                />
+              </button>
             </div>
           </div>
 
-          <p v-else class="text-sm text-base-content/50">
-            No art in collection yet.
-          </p>
+          <!-- Art collection panel -->
+          <div v-if="selectedUserId === Number(item.id)" class="px-4 pb-4">
+            <h4 class="mb-2 text-sm font-semibold">Art Collection</h4>
+
+            <div
+              v-if="(userCollections[Number(item.id)] ?? []).length > 0"
+              class="grid grid-cols-2 gap-2"
+            >
+              <div
+                v-for="art in userCollections[Number(item.id)] ?? []"
+                :key="art.id"
+                class="rounded-md bg-base-100 p-1 shadow-sm"
+              >
+                <img
+                  :src="artImages[art.id] || '/images/kindtitle.webp'"
+                  alt="Art"
+                  class="h-20 w-full rounded-md object-cover"
+                  @error="handleImageError(art.id)"
+                />
+              </div>
+            </div>
+
+            <p v-else class="text-sm text-base-content/50">
+              No art in collection yet.
+            </p>
+          </div>
         </div>
-      </div>
-    </div>
+      </template>
+
+      <template #empty>
+        <div
+          class="flex flex-col items-center gap-2 py-12 text-base-content/50"
+        >
+          <Icon name="kind-icon:person" class="h-12 w-12" />
+          <p>No public profiles yet.</p>
+        </div>
+      </template>
+    </kr-gallery>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
 import { useUserStore } from '@/stores/userStore'
 import { useArtStore } from '@/stores/artStore'
 import { useChatStore } from '@/stores/chatStore'
@@ -136,6 +155,17 @@ const visibleUsers = computed(() => {
 
   return all.filter((u) => u.isPublic || u.id === uid)
 })
+
+const galleryItems = computed<GalleryItem[]>(() =>
+  visibleUsers.value.map((user) => ({
+    id: user.id,
+    title: user.designerName || user.username || 'Unknown User',
+  })),
+)
+
+const userById = computed(
+  () => new Map(visibleUsers.value.map((user) => [user.id, user])),
+)
 
 const selectedUserId = ref<number | null>(null)
 const userCollections = ref<Record<number, ArtImage[]>>({})

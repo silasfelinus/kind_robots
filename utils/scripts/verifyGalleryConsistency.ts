@@ -88,9 +88,25 @@ for (const mapName of GRID_MAPS) {
     continue
   }
 
+  /*
+   * Test the CLASS STRING, not the whole line.
+   *
+   * DENSITY_GRID_CLASS is keyed `xs/sm/md/lg` -- the density names collide
+   * exactly with Tailwind's breakpoint names, so `sm: '...'` as an object KEY
+   * matches /\b(sm|md|lg|xl|2xl):/ and every correct entry reported itself as
+   * an offender. MODE_GRID_CLASS never exposed this because its keys are
+   * cards/heroes/icons. Found by running the full CI sweep after the rule was
+   * generalised, which is also why the earlier mutation run on this rule
+   * proved nothing: the check was already red on unmutated source.
+   */
+  const classStringOf = (line: string): string =>
+    [...line.matchAll(/'([^']*)'|"([^"]*)"/g)]
+      .map((match) => match[1] ?? match[2] ?? '')
+      .join(' ')
+
   const offenders = gridBlock
     .split('\n')
-    .filter((line) => VIEWPORT_PREFIX.test(line))
+    .filter((line) => VIEWPORT_PREFIX.test(classStringOf(line)))
     .map((line) => line.trim())
 
   if (offenders.length) {

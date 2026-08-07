@@ -72,6 +72,8 @@ export type ChromeReading = {
   breakpoint: string
   viewportHeight: number
   chromePx: number | null
+  /** Which selector produced the number. The marked one is exact; the rest are guesses. */
+  matchedBy: string | null
   fraction: number | null
   /**
    * Why there is no number. NOT optional and NOT a bare null: the first version
@@ -95,7 +97,9 @@ export type ChromeReading = {
  * row on a wide screen and three on a phone, which is exactly the thing a
  * source-level check cannot see.
  */
-export async function measureChrome(page: Page): Promise<number | null> {
+export type ChromeHit = { top: number; matchedBy: string }
+
+export async function measureChrome(page: Page): Promise<ChromeHit | null> {
   return page.evaluate(() => {
     /*
      * `[data-kr-gallery-grid] > *` FIRST, and it is the only exact one.
@@ -123,7 +127,9 @@ export async function measureChrome(page: Page): Promise<number | null> {
       const el = document.querySelector(selector)
       if (!el) continue
       const box = el.getBoundingClientRect()
-      if (box.height > 40) return Math.round(box.top)
+      if (box.height > 40) {
+        return { top: Math.round(box.top), matchedBy: selector }
+      }
     }
     return null
   })
@@ -139,7 +145,7 @@ export async function auditRoute(
     const page = await browser.newPage({
       viewport: { width: bp.width, height: bp.height },
     })
-    let chromePx: number | null = null
+    let hit: ChromeHit | null = null
     let loadError: string | null = null
     try {
       await page.goto(`${base}${route}`, {
@@ -148,7 +154,7 @@ export async function auditRoute(
       })
       // Cards arrive after hydration + fetch; the chrome does not.
       await page.waitForTimeout(2_500)
-      chromePx = await measureChrome(page)
+      hit = await measureChrome(page)
     } catch (error) {
       loadError =
         (error instanceof Error ? error.message.split('\n')[0] : null) ??
@@ -164,18 +170,19 @@ export async function auditRoute(
      */
     const status: ChromeReading['status'] = loadError
       ? 'load-failed'
-      : chromePx === null
+      : hit === null
         ? 'no-cards'
         : 'measured'
     const note =
       loadError ??
-      (chromePx === null ? 'page loaded, but rendered no cards' : undefined)
+      (hit === null ? 'page loaded, but rendered no cards' : undefined)
     readings.push({
       route,
       breakpoint: bp.label,
       viewportHeight: bp.height,
-      chromePx,
-      fraction: chromePx === null ? null : chromePx / bp.height,
+      chromePx: hit?.top ?? null,
+      matchedBy: hit?.matchedBy ?? null,
+      fraction: hit === null ? null : hit.top / bp.height,
       status,
       note,
     })
@@ -242,6 +249,29 @@ for (const route of routes) {
     return `${r.chromePx}px (${pct}%)`.padEnd(16)
   })
   console.log(`${route.padEnd(14)}${cells.join('')}`)
+}
+
+/*
+ * WHICH SELECTOR MATCHED, per route. A number from `[data-kr-gallery-grid] > *`
+ * is measuring the shared shell's first card. A number from `article` or
+ * `.card` is measuring whatever happened to be the first such box on the page,
+ * which on a route whose default tab is not a gallery at all (/servers opens on
+ * an overview panel) is not gallery chrome in any sense. Reporting the two the
+ * same way is how a confident wrong number gets acted on.
+ */
+const guessed = all.filter(
+  (r) =>
+    r.status === 'measured' && r.matchedBy !== '[data-kr-gallery-grid] > *',
+)
+if (guessed.length) {
+  const byRoute = new Map<string, string>()
+  for (const r of guessed) byRoute.set(r.route, r.matchedBy ?? '?')
+  console.log(
+    `\n${guessed.length} reading(s) came from a FALLBACK selector, not the marked gallery grid.` +
+      ` Treat these as indicative, not as gallery chrome:`,
+  )
+  for (const [route, selector] of byRoute)
+    console.log(`  ${route} via ${selector}`)
 }
 
 const failed = all.filter((r) => r.status === 'load-failed')

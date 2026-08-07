@@ -300,8 +300,39 @@ export function subtreeOf(
   return seen
 }
 
+/**
+ * Components whose name ends in `-gallery` but which are not browse surfaces.
+ *
+ * These leave the DENOMINATOR, not just the numerator. An exemption that only
+ * skipped the adoption test would still print `12/21`, quietly implying nine
+ * outstanding conversions when only seven exist -- the count has to mean what
+ * it says.
+ *
+ * The bar for an entry here is that adopting the shell would COST the user
+ * something real, not that the conversion is awkward. Each reason is written
+ * out so a later reader can disagree with it on the merits.
+ *
+ * This is the mirror image of the shadow-browser rule below. That rule exists
+ * because a filename is not a shape, and it finds browsers that are not called
+ * galleries; this map is the same principle pointed the other way, at things
+ * called galleries that are not browsers. Neither is a naming convention.
+ */
+const NOT_GALLERIES: Record<string, string> = {
+  'chat-gallery':
+    'A message inbox: a thread list plus a transcript pane. Silas, 2026-08-06: ' +
+    '"agreed, chat-gallery is not a real gallery. it could be renamed, but ' +
+    'ignoring is fine."',
+  'daily-digest-object-gallery':
+    'A snap-scrolling carousel strip inside the /for-you digest, six objects ' +
+    'wide on desktop and horizontally swipeable on a phone. kr-gallery lays ' +
+    'out an auto-fill GRID, so adopting it would turn a one-row strip into a ' +
+    'tall vertical list on mobile -- the opposite of the vertical-space ' +
+    'budget this whole stage is fixing.',
+}
+
 const isGalleryComponent = (name: string): boolean =>
   name !== SHARED_GALLERY &&
+  !(name in NOT_GALLERIES) &&
   (name.endsWith('-gallery') || name.endsWith('-gallery-page'))
 
 /* -------------------------------------------------------------------------- */
@@ -1162,6 +1193,28 @@ function main(): void {
     console.log(
       `  ${adopted(gallery) ? '✓' : '·'} ${gallery.padEnd(32)} ${where.join(' ')}`,
     )
+  }
+
+  /*
+   * Exemptions are PRINTED, never silent. A count that drops because something
+   * left the denominator has to say so on the same screen as the count, or the
+   * next reader reads progress into a definition change.
+   *
+   * A stale entry fails: once the named component is gone, the exemption is a
+   * comment that can no longer be checked against anything.
+   */
+  console.log(
+    `\nNot browse surfaces — named -gallery, excluded from the count above:`,
+  )
+  for (const [name, reason] of Object.entries(NOT_GALLERIES).sort()) {
+    if (!componentsByName.has(name)) {
+      failures += 1
+      console.log(
+        `  FAIL - ${name} is exempted but no longer exists; delete it from NOT_GALLERIES.`,
+      )
+      continue
+    }
+    console.log(`  — ${name}\n      ${reason}`)
   }
 
   const shadowCount = Object.keys(shadows).length

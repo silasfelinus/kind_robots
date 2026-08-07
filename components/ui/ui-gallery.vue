@@ -142,7 +142,8 @@
               <li>
                 <code>.kr-unbound</code>
                 <span class="font-sans opacity-70"
-                  >— root-surface marker, no scroll/height of its own (MDC-mounted pages)</span
+                  >— root-surface marker, no scroll/height of its own
+                  (MDC-mounted pages)</span
                 >
               </li>
               <li>
@@ -378,6 +379,60 @@
         </div>
       </section>
 
+      <!--
+        The gallery shell, live.
+
+        This page is called ui-gallery and carried `class="kr-gallery"` on its
+        root, which made every filename- and substring-keyed check believe the
+        style guide was already on the shared shell. It was not: that class is
+        a layout utility that happens to share the name.
+
+        A style guide that documents the aesthetic but not the one component
+        every object browser is built from is missing its most-used entry, so
+        the fix is to actually mount it rather than to exempt the page. Both
+        axes are switchable below because they are independent and that is the
+        part people get wrong: mode picks WHICH stored image loads, density
+        picks HOW MANY tiles fit per row.
+      -->
+      <section id="gallery" class="scroll-mt-32 kr-section">
+        <SectionHeading
+          title="Gallery shell"
+          hint="kr-gallery — the shared browse surface behind every object gallery. Mode picks which stored art loads; density picks how many tiles fit per row."
+        />
+
+        <div class="kr-panel space-y-3">
+          <div class="flex flex-wrap items-center gap-4">
+            <label class="flex items-center gap-2">
+              <span class="text-smart-caption opacity-70">Density</span>
+              <select
+                v-model="demoDensity"
+                class="select select-bordered select-sm"
+              >
+                <option
+                  v-for="option in GALLERY_DENSITIES"
+                  :key="option.value"
+                  :value="option.value"
+                >
+                  {{ option.label }}
+                </option>
+              </select>
+            </label>
+            <p class="text-smart-caption opacity-70">
+              The Cards / Heroes / Icons bar below is the shell's own, and is
+              sticky inside whatever ancestor scrolls it.
+            </p>
+          </div>
+
+          <kr-gallery
+            :items="demoGalleryItems"
+            :mode="demoMode"
+            :density="demoDensity"
+            empty-label="samples"
+            @update:mode="demoMode = $event"
+          />
+        </div>
+      </section>
+
       <!-- Form controls -->
       <section id="forms" class="scroll-mt-32 kr-section">
         <SectionHeading
@@ -557,7 +612,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
+import {
+  GALLERY_DENSITIES,
+  type GalleryDensity,
+  type GalleryMode,
+} from '@/utils/galleryVocabulary'
 import { useThemeStore } from '@/stores/themeStore'
 import { daisyuiThemes } from '@/stores/helpers/themeHelper'
 
@@ -579,10 +640,54 @@ const sections = [
   { id: 'alerts', label: 'Alerts' },
   { id: 'callouts', label: 'Callouts' },
   { id: 'cards', label: 'Cards' },
+  { id: 'gallery', label: 'Gallery' },
   { id: 'forms', label: 'Forms' },
   { id: 'nav', label: 'Nav' },
   { id: 'data', label: 'Data' },
   { id: 'progress', label: 'Progress' },
+]
+
+const demoMode = ref<GalleryMode>('cards')
+const demoDensity = ref<GalleryDensity>('md')
+
+/*
+ * Deliberately art-less. The shell's art-absent placeholder is the state a
+ * gallery is in most often here -- art is queued rather than required -- so a
+ * style guide that only ever showed illustrated tiles would document the rare
+ * case. `placeholderIcon` and `placeholderLabel` are the two knobs a caller
+ * has over it, so each sample sets a different pair.
+ */
+const demoGalleryItems: GalleryItem[] = [
+  {
+    id: 'dream',
+    title: 'A Dream',
+    description: 'Titles truncate to one line; descriptions clamp to two.',
+    meta: 'meta line · shown in cards and heroes, hidden in icons',
+    placeholderIcon: 'kind-icon:moon',
+    placeholderLabel: 'Dream',
+    badges: [{ label: 'new', class: 'badge-primary' }],
+  },
+  {
+    id: 'character',
+    title: 'A Character With A Name Long Enough To Truncate',
+    description:
+      'Two lines of description, then an ellipsis. This sentence exists to reach the clamp so the boundary is visible rather than described.',
+    placeholderIcon: 'kind-icon:mask',
+    placeholderLabel: 'Character',
+  },
+  {
+    id: 'reward',
+    title: 'A Reward',
+    description: 'Progress bars render under the meta line.',
+    progressPercent: 62,
+    placeholderIcon: 'kind-icon:gift',
+    placeholderLabel: 'Reward',
+  },
+  {
+    id: 'scenario',
+    title: 'A Scenario',
+    placeholderIcon: 'kind-icon:map',
+  },
 ]
 
 const sampleLeaderboard = [

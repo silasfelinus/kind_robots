@@ -66,15 +66,28 @@ const VIEWPORT_PREFIX = /\b(sm|md|lg|xl|2xl):/
 const vocabSrc = stripComments(
   await readFile('utils/galleryVocabulary.ts', 'utf8'),
 )
-const gridBlock = vocabSrc.match(
-  /export const MODE_GRID_CLASS[\s\S]*?\n\}/,
-)?.[0]
+// EVERY grid map in the vocabulary, not just the first one. DENSITY_GRID_CLASS
+// was added for art-gallery's xs/sm/md/lg picker and its whole justification is
+// that it replaces a hand-rolled VIEWPORT-keyed switch
+// (`grid-cols-2 md:grid-cols-3 xl:grid-cols-4`) with container-responsive
+// grids. A rule that only knew about MODE_GRID_CLASS would have let the new map
+// reintroduce the exact defect this check exists to catch -- confirmed by
+// mutation: swapping one DENSITY_GRID_CLASS entry back to breakpoints passed
+// every contract in CI before this loop was generalised.
+const GRID_MAPS = ['MODE_GRID_CLASS', 'DENSITY_GRID_CLASS']
 
-if (!gridBlock) {
-  fail(
-    'utils/galleryVocabulary.ts: MODE_GRID_CLASS not found. If it moved, update this contract.',
-  )
-} else {
+for (const mapName of GRID_MAPS) {
+  const gridBlock = vocabSrc.match(
+    new RegExp(`export const ${mapName}[\\s\\S]*?\\n\\}`),
+  )?.[0]
+
+  if (!gridBlock) {
+    fail(
+      `utils/galleryVocabulary.ts: ${mapName} not found. If it moved, update this contract.`,
+    )
+    continue
+  }
+
   const offenders = gridBlock
     .split('\n')
     .filter((line) => VIEWPORT_PREFIX.test(line))
@@ -82,7 +95,7 @@ if (!gridBlock) {
 
   if (offenders.length) {
     fail(
-      'MODE_GRID_CLASS uses VIEWPORT breakpoints. Galleries mount inside panels, ' +
+      `${mapName} uses VIEWPORT breakpoints. Galleries mount inside panels, ` +
         'so sm:/lg:/xl: sizes columns by the screen while the container is narrow ' +
         '-- this is the "small card" defect (4 columns of 71px in a 320px panel). ' +
         'Use repeat(auto-fill, minmax(min(<rem>,100%),1fr)) instead:\n' +
@@ -90,12 +103,12 @@ if (!gridBlock) {
     )
   } else if (!gridBlock.includes('auto-fill')) {
     fail(
-      'MODE_GRID_CLASS no longer uses auto-fill. Container-responsive sizing is ' +
+      `${mapName} no longer uses auto-fill. Container-responsive sizing is ` +
         'the contract; a fixed column count cannot adapt to the panel it is in.',
     )
   } else {
     ok(
-      'gallery grids are container-responsive (auto-fill, no viewport breakpoints)',
+      `${mapName} is container-responsive (auto-fill, no viewport breakpoints)`,
     )
   }
 }

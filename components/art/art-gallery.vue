@@ -436,73 +436,100 @@
           </div>
         </div>
 
-        <!-- Empty image state -->
-        <div
-          v-if="filteredActiveImages.length === 0"
-          class="flex min-h-56 flex-col items-center justify-center rounded-xl border border-base-300 bg-base-100 p-6 text-center text-base-content/60"
+        <!--
+          The shared shell owns the grid, the density and the empty state;
+          image-card stays the card, and pagination, filters and the collection
+          sidebar stay with this component.
+
+          `:modes="[]"` hides the mode bar on purpose. This gallery's control is
+          the xs/sm/md/lg size picker in its own header, which now drives
+          `density`; a second row of Cards/Heroes/Icons buttons would be two
+          pickers steering one grid.
+        -->
+        <kr-gallery
+          :items="galleryItems"
+          :modes="[]"
+          :density="viewSize"
+          empty-label="art images"
         >
-          <Icon name="kind-icon:image" class="h-12 w-12 text-primary" />
-          <p class="mt-2 text-lg font-black text-base-content">
-            No images here.
-          </p>
-          <p class="text-sm">No art images match the current filters.</p>
-        </div>
-
-        <div v-else class="grid gap-2" :class="imageGridClass">
-          <div
-            v-for="image in pagedActiveImages"
-            :key="image.id"
-            class="relative"
-          >
-            <button
-              v-if="bulkSelectEnabled"
-              class="absolute left-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-xl border shadow-lg transition"
-              :class="
-                isImageSelected(image.id)
-                  ? 'border-primary bg-primary text-primary-content'
-                  : 'border-base-300 bg-base-100/90 text-base-content hover:bg-base-200'
-              "
-              type="button"
-              :title="
-                isImageSelected(image.id) ? 'Deselect image' : 'Select image'
-              "
-              @click.stop="toggleImageSelection(image)"
+          <template #item="{ item }">
+            <!--
+              Vue has no v-let, so a single-element v-for is how a slot binds
+              its record to a template local. Earned rather than stylistic: the
+              card below makes ~15 references to `image`, and without the local
+              every one of them becomes imageById.get(Number(item.id))!.
+            -->
+            <template
+              v-for="image in [imageById.get(Number(item.id))]"
+              :key="image?.id ?? item.id"
             >
-              <Icon
-                :name="
-                  isImageSelected(image.id)
-                    ? 'kind-icon:check'
-                    : 'kind-icon:plus'
-                "
-                class="h-4 w-4"
-              />
-            </button>
+              <div v-if="image" class="relative">
+                <button
+                  v-if="bulkSelectEnabled"
+                  class="absolute left-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-xl border shadow-lg transition"
+                  :class="
+                    isImageSelected(image.id)
+                      ? 'border-primary bg-primary text-primary-content'
+                      : 'border-base-300 bg-base-100/90 text-base-content hover:bg-base-200'
+                  "
+                  type="button"
+                  :title="
+                    isImageSelected(image.id)
+                      ? 'Deselect image'
+                      : 'Select image'
+                  "
+                  @click.stop="toggleImageSelection(image)"
+                >
+                  <Icon
+                    :name="
+                      isImageSelected(image.id)
+                        ? 'kind-icon:check'
+                        : 'kind-icon:plus'
+                    "
+                    class="h-4 w-4"
+                  />
+                </button>
 
-            <image-card
-              :art-image="hydratedImages[image.id] || image"
-              :selected="
-                isImageSelected(image.id) ||
-                selectedImageForOverlay?.id === image.id
-              "
-              :compact="viewSize === 'xs' || viewSize === 'sm'"
-              :show-actions="
-                !bulkSelectEnabled && selectedImageForOverlay?.id === image.id
-              "
-              :show-prompt="viewSize !== 'xs'"
-              :show-meta="viewSize === 'md' || viewSize === 'lg'"
-              :show-generation-meta="false"
-              :show-image-status="false"
-              :show-select-button="false"
-              :allow-delete="canModifyImage(image) && !bulkSelectEnabled"
-              :allow-edit="false"
-              :auto-load-image="false"
-              :size="viewSize"
-              :earned-karma="earnedKarmaByImageId[image.id]"
-              @open="handleImageCardClick"
-              @delete="handleImageDeleted"
-            />
-          </div>
-        </div>
+                <image-card
+                  :art-image="hydratedImages[image.id] || image"
+                  :selected="
+                    isImageSelected(image.id) ||
+                    selectedImageForOverlay?.id === image.id
+                  "
+                  :compact="viewSize === 'xs' || viewSize === 'sm'"
+                  :show-actions="
+                    !bulkSelectEnabled &&
+                    selectedImageForOverlay?.id === image.id
+                  "
+                  :show-prompt="viewSize !== 'xs'"
+                  :show-meta="viewSize === 'md' || viewSize === 'lg'"
+                  :show-generation-meta="false"
+                  :show-image-status="false"
+                  :show-select-button="false"
+                  :allow-delete="canModifyImage(image) && !bulkSelectEnabled"
+                  :allow-edit="false"
+                  :auto-load-image="false"
+                  :size="viewSize"
+                  :earned-karma="earnedKarmaByImageId[image.id]"
+                  @open="handleImageCardClick"
+                  @delete="handleImageDeleted"
+                />
+              </div>
+            </template>
+          </template>
+
+          <template #empty>
+            <div
+              class="flex min-h-56 w-full flex-col items-center justify-center rounded-xl border border-base-300 bg-base-100 p-6 text-center text-base-content/60"
+            >
+              <Icon name="kind-icon:image" class="h-12 w-12 text-primary" />
+              <p class="mt-2 text-lg font-black text-base-content">
+                No images here.
+              </p>
+              <p class="text-sm">No art images match the current filters.</p>
+            </div>
+          </template>
+        </kr-gallery>
       </div>
 
       <!-- Image overlay -->
@@ -625,6 +652,12 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
+import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
+import {
+  GALLERY_DENSITIES,
+  IS_GALLERY_DENSITY,
+  type GalleryDensity,
+} from '@/utils/galleryVocabulary'
 import { useArtStore } from '@/stores/artStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { ErrorType, useErrorStore } from '@/stores/errorStore'
@@ -928,14 +961,14 @@ type GalleryGroup = {
   collection: GalleryCollection
 }
 
-type ViewSize = 'xs' | 'sm' | 'md' | 'lg'
+/*
+ * The size picker is now the shared GalleryDensity axis -- same four values and
+ * the same labels it always had, but the grid comes from DENSITY_GRID_CLASS via
+ * kr-gallery instead of the viewport-keyed switch this file used to carry.
+ */
+type ViewSize = GalleryDensity
 
-const SIZE_OPTIONS: { value: ViewSize; label: string }[] = [
-  { value: 'xs', label: 'Extra compact' },
-  { value: 'sm', label: 'Compact' },
-  { value: 'md', label: 'Normal' },
-  { value: 'lg', label: 'Large' },
-]
+const SIZE_OPTIONS = GALLERY_DENSITIES
 
 const artStore = useArtStore()
 const collectionStore = useCollectionStore()
@@ -972,18 +1005,8 @@ const folderGridClass = computed(() => {
   }
 })
 
-const imageGridClass = computed(() => {
-  switch (viewSize.value) {
-    case 'xs':
-      return 'grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6'
-    case 'sm':
-      return 'grid-cols-2 md:grid-cols-3 xl:grid-cols-4'
-    case 'lg':
-      return 'grid-cols-1 md:grid-cols-1 xl:grid-cols-2'
-    default:
-      return 'grid-cols-1 md:grid-cols-2 2xl:grid-cols-3'
-  }
-})
+// The image grid moved to DENSITY_GRID_CLASS -- see the kr-gallery below. The
+// folder grid above stays local because folders are not on the shared shell.
 
 // ── Computed ──────────────────────────────────────────────────────────────────
 
@@ -1224,6 +1247,29 @@ const pagedActiveImages = computed(() => {
   return filteredActiveImages.value.slice(start, start + imagePageSize.value)
 })
 
+/*
+ * The current page as GalleryItems. Only the page, not the whole filtered set:
+ * pagination stays this component's job, and kr-gallery renders exactly what it
+ * is handed.
+ *
+ * `title`/`description` are filled for correctness even though the item slot
+ * draws the card -- an item that lies about itself is a trap for the next
+ * caller who drops the slot.
+ */
+const galleryItems = computed<GalleryItem[]>(() =>
+  pagedActiveImages.value.map((image) => ({
+    id: image.id,
+    // ArtImage has no title column; the prompt is what a human reads it by.
+    title: image.promptString || image.artPrompt || `Image ${image.id}`,
+    description: image.artPrompt || undefined,
+    source: image,
+  })),
+)
+
+const imageById = computed(
+  () => new Map(pagedActiveImages.value.map((image) => [image.id, image])),
+)
+
 // ── Watchers ──────────────────────────────────────────────────────────────────
 
 watch([searchQuery, showMature, folderPageSize], () => {
@@ -1267,9 +1313,10 @@ watch(viewSize, (val) => {
 onMounted(async () => {
   showMature.value = Boolean(userStore.user?.showMature ?? userStore.showMature)
   if (typeof localStorage !== 'undefined') {
-    const stored = localStorage.getItem('galleryViewSize') as ViewSize | null
-    if (stored && ['xs', 'sm', 'md', 'lg'].includes(stored))
-      viewSize.value = stored
+    // A stored value is untrusted input, so it goes through the vocabulary's
+    // own guard rather than a hand-repeated list that can drift from the enum.
+    const stored = localStorage.getItem('galleryViewSize')
+    if (stored && IS_GALLERY_DENSITY(stored)) viewSize.value = stored
   }
   await initializeGallery()
 })

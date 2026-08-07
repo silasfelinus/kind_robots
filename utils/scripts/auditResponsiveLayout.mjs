@@ -49,12 +49,15 @@ const BASE = flag('base', process.env.AUDIT_BASE || 'http://127.0.0.1:3000')
 const ROUTES = flag(
   'routes',
   // interface-vision/t-103: growing this list toward the t-102 inventory's
-  // full 51-route gap, in scoped slices. This slice adds the 11 reachable,
-  // non-admin `channelKey: home` routes -- the first bucket from that
-  // inventory's "Gaps" section. Track progress in
-  // projects/interface-vision/docs/t-102-reachable-surface-inventory.md.
+  // full 51-route gap, in scoped slices. Slice 1 added the 11 reachable,
+  // non-admin `channelKey: home` routes. Slice 2 adds 8 of the `channelKey:
+  // plan` public tool pages (no auth gate) -- appmaker, brainstorm, coloring,
+  // model-builder, packs, stylist, wishmaster, conductor-app. The remaining
+  // `/plan/*`-prefixed plan-channel routes are left for a later slice. Track
+  // progress in projects/interface-vision/docs/t-102-reachable-surface-inventory.md.
   '/,/conductor,/dreams,/art,/bots,/characters,/rewards,/stories,' +
-    '/account,/achievements,/chats,/dashboard,/for-you,/friends,/messages,/navigation,/register,/themes,/wallet',
+    '/account,/achievements,/chats,/dashboard,/for-you,/friends,/messages,/navigation,/register,/themes,/wallet,' +
+    '/appmaker,/brainstorm,/coloring,/model-builder,/packs,/stylist,/wishmaster,/conductor-app',
 )
   .split(',')
   .map((r) => r.trim())

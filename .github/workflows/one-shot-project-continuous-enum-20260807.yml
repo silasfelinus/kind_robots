@@ -7,12 +7,14 @@ on:
       - main
     paths:
       - utils/scripts/_projectContinuousEnumPatch20260807.py
+      - utils/scripts/_projectContinuousLintFix20260807.py
       - .github/workflows/one-shot-project-continuous-enum-20260807.yml
   push:
     branches:
       - claude/project-continuous-enum-20260807
     paths:
       - utils/scripts/_projectContinuousEnumPatch20260807.py
+      - utils/scripts/_projectContinuousLintFix20260807.py
       - .github/workflows/one-shot-project-continuous-enum-20260807.yml
 
 permissions:
@@ -36,7 +38,9 @@ jobs:
         with:
           python-version: '3.12'
       - name: Apply first-class continuous lifecycle patch
-        run: python utils/scripts/_projectContinuousEnumPatch20260807.py
+        run: |
+          python utils/scripts/_projectContinuousEnumPatch20260807.py
+          python utils/scripts/_projectContinuousLintFix20260807.py
       - name: Install dependencies
         run: npm ci
       - name: Regenerate Prisma client
@@ -52,6 +56,7 @@ jobs:
       - name: Remove one-shot helpers
         run: |
           rm utils/scripts/_projectContinuousEnumPatch20260807.py
+          rm utils/scripts/_projectContinuousLintFix20260807.py
           rm .github/workflows/one-shot-project-continuous-enum-20260807.yml
       - name: Commit and push
         run: |

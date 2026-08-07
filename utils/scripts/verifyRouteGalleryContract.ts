@@ -319,6 +319,30 @@ const isGalleryComponent = (name: string): boolean =>
  * deletes one bucket, and a NEW route rendering an existing holdout still
  * grows that bucket and fails.
  */
+/**
+ * Components named `*-gallery` that are NOT galleries, with the reason.
+ *
+ * The whole contract exists because a filename is not a shape -- that is how a
+ * second Facet browser hid inside facet-manager.vue. This is the same lesson
+ * pointing the other way: a component can be CALLED a gallery and not be one,
+ * and counting it as a holdout invents work that would make the UI worse.
+ *
+ * An entry here is a design decision, not a deferral. It must say why, and it
+ * must be wrong to adopt -- not merely awkward.
+ */
+export const NOT_GALLERIES: Record<string, string> = {
+  'chat-gallery':
+    'An inbox and a transcript, not a browse surface. Its thread rows are ' +
+    '`flex w-full` -- a 48px avatar plus name, title, preview and timestamp -- ' +
+    'and the narrowest kr-gallery mode is `cards` at minmax(min(11rem,100%),1fr), ' +
+    'which in a full-width panel yields five to eight columns and crushes every ' +
+    'row. No mode fits: `list` was the one that would have, and Silas removed it ' +
+    'from the vocabulary on 2026-08-03 ("List is the odd duck out ... kill line") ' +
+    'precisely because a mode whose identity is a layout rather than an image ' +
+    'cannot stay in lockstep with the schema. Adopting here would mean either ' +
+    'wrecking the inbox or resurrecting that mode.',
+}
+
 export function bucketHoldouts(
   routes: readonly { route: string; galleries: readonly string[] }[],
   adopted: (name: string) => boolean,
@@ -327,6 +351,7 @@ export function bucketHoldouts(
   for (const { route, galleries } of routes) {
     for (const gallery of galleries) {
       if (adopted(gallery)) continue
+      if (gallery in NOT_GALLERIES) continue
       ;(buckets[gallery] ??= []).push(route)
     }
   }
@@ -1151,7 +1176,22 @@ function main(): void {
   const baseline = loadRatchetBaseline<RouteGalleryBaseline>(BASELINE)
   const grown = grownRatchetBuckets(buckets, baseline?.holdouts ?? null)
 
-  const liveGalleries = new Set(routes.flatMap((entry) => entry.galleries))
+  for (const [name, reason] of Object.entries(NOT_GALLERIES)) {
+    console.log(`\nNot a gallery, by decision: ${name}`)
+    console.log(`  ${reason.replace(/(.{72}\S*)\s/g, '$1\n  ')}`)
+  }
+
+  /*
+   * NOT_GALLERIES leave the DENOMINATOR too, not just the holdout list.
+   * The headline is `liveGalleries.size - total`, so exempting one from
+   * `total` alone would silently count it as ADOPTED -- a number that reads
+   * like progress and is a lie. They are reported in their own section above.
+   */
+  const liveGalleries = new Set(
+    routes
+      .flatMap((entry) => entry.galleries)
+      .filter((gallery) => !(gallery in NOT_GALLERIES)),
+  )
   console.log(
     `\nLive galleries on ${SHARED_GALLERY}: ` +
       `${liveGalleries.size - total}/${liveGalleries.size}` +

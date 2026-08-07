@@ -1,7 +1,13 @@
 <!-- /components/dreams/dream-relationship-gallery.vue -->
 <template>
   <section class="flex h-full min-h-0 w-full flex-col gap-3">
-    <header class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3">
+    <!-- Search shares the control row instead of claiming a `mt-3` row of
+           its own below it. These panels are inset inside a Dream workspace,
+           so a second full-width band costs the host page a row it did not
+           choose to spend. -->
+    <header
+      class="shrink-0 rounded-2xl border border-base-300 bg-base-100 px-3 py-2"
+    >
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="min-w-0">
           <h2 class="truncate text-lg font-black text-base-content">
@@ -30,21 +36,21 @@
             <option value="available">Available</option>
             <option value="all">All</option>
           </select>
+
+          <label
+            class="input input-bordered input-xs flex min-w-36 flex-1 items-center gap-2 rounded-2xl bg-base-200"
+          >
+            <Icon name="kind-icon:search" class="h-4 w-4 opacity-50" />
+            <input
+              v-model="searchQuery"
+              type="search"
+              aria-label="Search Dreams"
+              placeholder="Search Dreams..."
+              class="grow bg-transparent"
+            />
+          </label>
         </div>
       </div>
-
-      <label
-        class="input input-bordered input-sm mt-3 flex items-center gap-2 rounded-2xl bg-base-200"
-      >
-        <Icon name="kind-icon:search" class="h-4 w-4 opacity-50" />
-        <input
-          v-model="searchQuery"
-          type="search"
-          aria-label="Search Dreams"
-          placeholder="Search Dreams..."
-          class="grow bg-transparent"
-        />
-      </label>
     </header>
 
     <section class="min-h-0 flex-1 overflow-y-auto">

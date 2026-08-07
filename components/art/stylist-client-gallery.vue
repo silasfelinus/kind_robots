@@ -12,9 +12,27 @@
           {{ folder }}
         </option>
       </select>
+
+      <!-- The upload form used to sit open BELOW this row on every client, so
+           a gallery you came to look at opened with a form you did not ask for.
+           Same treatment as Projects' Create: a toggle here, the form when
+           asked. -->
+      <button
+        type="button"
+        class="btn btn-xs gap-1 rounded-xl"
+        :class="uploadOpen ? 'btn-primary' : 'btn-ghost'"
+        :aria-expanded="uploadOpen"
+        @click="uploadOpen = !uploadOpen"
+      >
+        <Icon name="kind-icon:upload" class="size-3.5" />
+        <span class="hidden sm:inline">Upload</span>
+      </button>
     </header>
 
-    <div class="mb-3 flex flex-wrap items-end gap-2 rounded-xl bg-base-100 p-3">
+    <div
+      v-if="uploadOpen"
+      class="mb-3 flex flex-wrap items-end gap-2 rounded-xl bg-base-100 p-3"
+    >
       <label class="flex min-w-28 flex-col gap-1">
         <span class="text-xs font-bold">Folder</span>
         <input
@@ -189,6 +207,7 @@ const photos = ref<GalleryPhoto[]>([])
 const loading = ref(false)
 const uploading = ref(false)
 const error = ref('')
+const uploadOpen = ref(false)
 const uploadFolder = ref('general')
 const uploadKind = ref('style')
 const uploadCaption = ref('')

@@ -63,7 +63,8 @@ export function promiseRefNames(source: string): string[] {
     match;
     match = declaration.exec(source)
   ) {
-    const name = match[1] as string
+    const name = match?.[1]
+    if (!name) continue
     /*
      * Read the BALANCED <...> rather than regexing to the next `Promise`.
      *

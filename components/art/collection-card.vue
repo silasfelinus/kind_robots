@@ -276,7 +276,7 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  select: [collection: ArtCollection]
+  open: [id: number]
   edit: [id: number]
   delete: [id: number]
 }>()
@@ -408,7 +408,7 @@ async function selectCollection() {
   if (isHiddenMature.value) return
   collectionStore.setCurrentCollection(props.collection.id)
   collectionStore.setSelectedCollectionIds([props.collection.id])
-  emit('select', props.collection)
+  emit('open', props.collection.id)
 }
 
 async function deleteCollection() {

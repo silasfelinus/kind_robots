@@ -185,7 +185,7 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  select: [id: number]
+  open: [id: number]
   edit: [id: number]
   delete: [id: number]
 }>()
@@ -289,9 +289,13 @@ const rewardTitle = computed(() => {
   return props.reward.name || `Reward #${props.reward.id}`
 })
 
-async function selectReward() {
-  await rewardStore.selectReward(props.reward.id)
-  emit('select', props.reward.id)
+/*
+ * Emit only. This selected the Reward itself and THEN emitted, so
+ * reward-gallery's dropdown variant -- which wants to select without starting
+ * an interaction -- was being second-guessed by the card.
+ */
+function selectReward() {
+  emit('open', props.reward.id)
 }
 
 async function interactWithReward() {

@@ -4,13 +4,20 @@
     <header class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="min-w-0">
-          <h2 class="truncate text-lg font-black text-base-content">{{ title }}</h2>
-          <p class="truncate text-sm text-base-content/60">{{ subtitleLine }}</p>
+          <h2 class="truncate text-lg font-black text-base-content">
+            {{ title }}
+          </h2>
+          <p class="truncate text-sm text-base-content/60">
+            {{ subtitleLine }}
+          </p>
         </div>
 
         <div class="flex shrink-0 flex-wrap items-center gap-2">
           <span class="badge badge-ghost">{{ filteredScenarios.length }}</span>
-          <span v-if="resolvedDreamId" class="badge badge-primary badge-sm rounded-xl">
+          <span
+            v-if="resolvedDreamId"
+            class="badge badge-primary badge-sm rounded-xl"
+          >
             Dream #{{ resolvedDreamId }}
           </span>
 
@@ -36,7 +43,9 @@
         </div>
       </div>
 
-      <label class="input input-bordered input-sm mt-3 flex items-center gap-2 rounded-2xl bg-base-200">
+      <label
+        class="input input-bordered input-sm mt-3 flex items-center gap-2 rounded-2xl bg-base-200"
+      >
         <Icon name="kind-icon:search" class="h-4 w-4 opacity-50" />
         <input
           v-model="searchQuery"
@@ -70,7 +79,10 @@
     </section>
 
     <section class="min-h-0 flex-1 overflow-y-auto">
-      <div v-if="isLoading" class="flex h-full min-h-48 items-center justify-center">
+      <div
+        v-if="isLoading"
+        class="flex h-full min-h-48 items-center justify-center"
+      >
         <span class="loading loading-spinner loading-lg text-primary" />
       </div>
 
@@ -81,7 +93,8 @@
         <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
           <h3 class="font-black text-warning">Choose a Dream first</h3>
           <p class="mt-1 text-sm text-base-content/70">
-            This Scenario view needs a Dream anchor before it can show useful relationships.
+            This Scenario view needs a Dream anchor before it can show useful
+            relationships.
           </p>
         </div>
 
@@ -131,7 +144,7 @@
           :allow-edit="allowEdit"
           :allow-delete="allowDelete"
           :allow-clone="allowClone"
-          @choose="selectScenarioCard"
+          @open="selectScenarioById"
           @edit="startEditingScenarioById"
           @clone="cloneScenarioById"
           @delete="handleScenarioDeleted"
@@ -235,7 +248,10 @@ const visibleScenarios = computed<ScenarioWithRelations[]>(() => {
 
   if (!userStore.isAdmin) {
     scenarios = scenarios.filter((scenario) => {
-      return scenario.isPublic || (currentUserId !== null && scenario.userId === currentUserId)
+      return (
+        scenario.isPublic ||
+        (currentUserId !== null && scenario.userId === currentUserId)
+      )
     })
   }
 
@@ -270,15 +286,19 @@ const filteredScenarios = computed<ScenarioWithRelations[]>(() => {
 
 const emptyTitle = computed(() => {
   if (searchQuery.value) return 'No scenarios match your search.'
-  if (localRelationMode.value === 'connected') return 'No connected scenarios yet.'
-  if (localRelationMode.value === 'available') return 'No available scenarios to connect.'
+  if (localRelationMode.value === 'connected')
+    return 'No connected scenarios yet.'
+  if (localRelationMode.value === 'available')
+    return 'No available scenarios to connect.'
   return 'No scenarios yet.'
 })
 
 const emptySubtitle = computed(() => {
   if (searchQuery.value) return 'Try fewer or stranger words.'
-  if (localRelationMode.value === 'connected') return 'Create one here or switch to Available.'
-  if (localRelationMode.value === 'available') return 'Everything visible is already connected or filtered out.'
+  if (localRelationMode.value === 'connected')
+    return 'Create one here or switch to Available.'
+  if (localRelationMode.value === 'available')
+    return 'Everything visible is already connected or filtered out.'
   return 'Every weird little world starts somewhere.'
 })
 
@@ -362,7 +382,9 @@ function cloneScenarioById(id: number) {
     id: undefined,
     title: `Copy of ${scenario.title || 'Untitled Scenario'}`,
     isPublic: false,
-    dreamIds: dreamId ? [dreamId] : scenario.Dreams?.map((dream) => dream.id) ?? [],
+    dreamIds: dreamId
+      ? [dreamId]
+      : (scenario.Dreams?.map((dream) => dream.id) ?? []),
   }
 
   formMode.value = 'add'
@@ -381,10 +403,6 @@ function handleScenarioDeleted(id: number) {
   }
 }
 
-async function selectScenarioCard(scenario: ScenarioWithRelations) {
-  await selectScenarioById(scenario.id)
-}
-
 async function selectScenarioById(id: number) {
   const scenario = await scenarioStore.selectScenario(id)
   if (!scenario) return
@@ -398,10 +416,21 @@ function handleContextDreamSelected(dream: DreamWithRelations) {
 }
 
 function scenarioSearchText(scenario: ScenarioWithRelations) {
-  const dreamText = scenario.Dreams?.map((dream) => dream.title || dream.slug || '').join(' ') ?? ''
+  const dreamText =
+    scenario.Dreams?.map((dream) => dream.title || dream.slug || '').join(
+      ' ',
+    ) ?? ''
   const characterText =
     scenario.Characters?.map((character) =>
-      [character.name, character.honorific, character.title, character.role, character.class, character.species, character.genre]
+      [
+        character.name,
+        character.honorific,
+        character.title,
+        character.role,
+        character.class,
+        character.species,
+        character.genre,
+      ]
         .filter(Boolean)
         .join(' '),
     ).join(' ') ?? ''

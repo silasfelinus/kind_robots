@@ -159,7 +159,7 @@
         :show-reaction="false"
         :selected="image.id === activeArtImageId"
         :class="isSaving ? 'pointer-events-none opacity-60' : ''"
-        @select="setHighlightImage(image)"
+        @open="setHighlightImage(image)"
       />
 
       <div

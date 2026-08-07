@@ -117,7 +117,7 @@
             :show-reaction="false"
             :show-select-button="selectable"
             :selected="art.id === selectedArtImageId"
-            @select="onSelectArt"
+            @open="onSelectArt"
           />
         </template>
 
@@ -356,8 +356,14 @@ watch(
   },
 )
 
-function onSelectArt(artImage: ArtImage) {
-  emit('select-art', artImage)
+/*
+ * image-card emits an id now, not the record. This component's own
+ * `select-art` contract still hands the record upward, so it resolves it here
+ * rather than pushing the change on its own parents.
+ */
+function onSelectArt(id: number) {
+  const artImage = artList.value.find((entry) => entry.id === id)
+  if (artImage) emit('select-art', artImage)
 }
 
 async function refreshList() {

@@ -82,7 +82,7 @@
           :allow-edit="allowEdit"
           :allow-delete="allowDelete"
           image-fit="cover"
-          @choose="selectDreamAndOpen"
+          @open="selectDreamAndOpen"
           @edit="startEditingDreamById"
           @delete="handleDreamDeleted"
         />

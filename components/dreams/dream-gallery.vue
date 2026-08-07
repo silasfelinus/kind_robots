@@ -372,7 +372,7 @@
             :variant="modeVariant"
             :earned-karma="earnedKarmaByDreamId[dream.id]"
             v-bind="dreamCardProps"
-            @choose="selectDreamAndOpen"
+            @open="selectDreamAndOpen"
             @edit="startEditingDreamById"
             @delete="handleDreamDeleted"
           />
@@ -399,7 +399,7 @@
               :variant="modeVariant"
               :earned-karma="earnedKarmaByDreamId[Number(item.id)]"
               v-bind="dreamCardProps"
-              @choose="selectDreamAndOpen"
+              @open="selectDreamAndOpen"
               @edit="startEditingDreamById"
               @delete="handleDreamDeleted"
             />

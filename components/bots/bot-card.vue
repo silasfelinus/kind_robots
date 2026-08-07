@@ -218,7 +218,7 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  select: [id: number]
+  open: [id: number]
   edit: [id: number]
   clone: [id: number]
   delete: [id: number]
@@ -327,15 +327,14 @@ async function loadBotImage() {
   }
 }
 
-async function selectBot() {
-  const selected = await botStore.selectBot(props.bot.id)
-
-  if (!selected) {
-    setStatus('Bot could not be selected.', 'error')
-    return
-  }
-
-  emit('select', props.bot.id)
+/*
+ * Emit only. This selected the Bot itself and then emitted, which duplicated
+ * bot-gallery -- selectBot() there already chooses between selecting (dropdown
+ * variant) and launching, so the card was pre-empting a decision the gallery
+ * exists to make.
+ */
+function selectBot() {
+  emit('open', props.bot.id)
 }
 
 async function startEditing() {
@@ -375,20 +374,12 @@ async function deleteBot() {
   setStatus(result.message || 'Failed to delete bot.', 'error')
 }
 
-async function launchBot() {
-  const selected = await botStore.selectBot(props.bot.id)
-
-  if (!selected) {
-    setStatus('Bot could not be launched.', 'error')
-    return
-  }
-
-  botStore.setPendingLaunchMessage(
-    `Ready to chat with ${selected.name || 'this bot'}.`,
-  )
-
+/*
+ * Also emit only: bot-gallery's launchBotById() already selects the Bot and
+ * sets the pending launch message, so both were happening twice.
+ */
+function launchBot() {
   emit('launch', props.bot.id)
-  setStatus('Bot selected for chat.')
 }
 
 watch(

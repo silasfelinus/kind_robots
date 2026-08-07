@@ -250,6 +250,7 @@
           @edit="startEditingCharacterById"
           @clone="cloneCharacterById"
           @delete="handleCharacterDeleted"
+          @open="openCharacter"
         />
       </div>
 
@@ -274,6 +275,7 @@
             @edit="startEditingCharacterById"
             @clone="cloneCharacterById"
             @delete="handleCharacterDeleted"
+            @open="openCharacter"
           />
         </template>
       </kr-gallery>
@@ -689,6 +691,15 @@ async function refreshCharacters(force = false) {
   } finally {
     isLoading.value = false
   }
+}
+
+/*
+ * character-card used to call characterStore.selectCharacter() itself. It emits
+ * now, so the gallery owns the consequence -- which is what lets a picker
+ * variant interpret the same click differently.
+ */
+function openCharacter(id: number) {
+  void characterStore.selectCharacter(id)
 }
 
 function selectCharacterFromEvent(event: Event) {

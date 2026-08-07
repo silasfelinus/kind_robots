@@ -3,16 +3,16 @@
   <section class="flex h-full min-h-0 w-full flex-col gap-3">
     <header
       v-if="showHeader"
-      class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
+      class="flex shrink-0 flex-col gap-2 rounded-2xl border border-base-300 bg-base-100 px-3 py-2"
     >
       <div class="flex items-center justify-between gap-3">
         <div class="min-w-0">
-          <h2 class="truncate text-lg font-black text-base-content">
+          <h2 class="truncate text-base font-black text-base-content">
             {{ title }}
           </h2>
 
           <p class="truncate text-sm text-base-content/60">
-            {{ subtitle }}
+            <span class="hidden md:inline">{{ subtitle }}</span>
           </p>
         </div>
 
@@ -42,37 +42,6 @@
             <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
           </button>
         </div>
-      </div>
-
-      <div
-        v-if="showControls && !isDropdownMode"
-        class="flex flex-col gap-2 sm:flex-row sm:items-center"
-      >
-        <label
-          class="input input-bordered input-sm flex flex-1 items-center gap-2 bg-base-200"
-        >
-          <Icon name="kind-icon:search" class="h-4 w-4 opacity-50" />
-          <input
-            v-model="searchQuery"
-            type="search"
-            aria-label="Search scenarios"
-            placeholder="Search scenarios..."
-            class="grow bg-transparent"
-          />
-        </label>
-
-        <label
-          v-if="userStore.isAdmin"
-          class="label cursor-pointer gap-2 rounded-xl border border-base-300 bg-base-200 px-3 py-1.5"
-        >
-          <span class="label-text text-sm font-bold">Mature</span>
-
-          <input
-            v-model="showMature"
-            type="checkbox"
-            class="toggle toggle-accent toggle-sm"
-          />
-        </label>
       </div>
     </header>
 
@@ -256,6 +225,39 @@
           empty-label="scenarios"
           @update:mode="galleryMode = $event"
         >
+          <template #toolbar>
+            <div
+              v-if="showControls && !isDropdownMode"
+              class="flex flex-col gap-2 sm:flex-row sm:items-center"
+            >
+              <label
+                class="input input-bordered input-sm flex flex-1 items-center gap-2 bg-base-200"
+              >
+                <Icon name="kind-icon:search" class="h-4 w-4 opacity-50" />
+                <input
+                  v-model="searchQuery"
+                  type="search"
+                  aria-label="Search scenarios"
+                  placeholder="Search scenarios..."
+                  class="grow bg-transparent"
+                />
+              </label>
+
+              <label
+                v-if="userStore.isAdmin"
+                class="label cursor-pointer gap-2 rounded-xl border border-base-300 bg-base-200 px-3 py-1.5"
+              >
+                <span class="label-text text-sm font-bold">Mature</span>
+
+                <input
+                  v-model="showMature"
+                  type="checkbox"
+                  class="toggle toggle-accent toggle-sm"
+                />
+              </label>
+            </div>
+          </template>
+
           <template #item="{ item }">
             <ScenarioCard
               v-if="scenarioById.get(Number(item.id))"

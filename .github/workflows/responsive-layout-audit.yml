@@ -188,6 +188,25 @@ jobs:
             npm run audit:responsive -- --base "$BASE_URL" --shots audit-shots
           fi
 
+      # Deliberately WITHOUT `--strict`, and `if: always()` so it still reports
+      # when the responsive sweep above fails.
+      #
+      # The script exits 1 on load failures on its own, which gates the
+      # INSTRUMENT -- every failure this step has actually hit was of that kind
+      # (Chromium not inheriting HTTPS_PROXY, a hardcoded browser path, a lead
+      # selector matching nothing), and each once produced output that read like
+      # a pass. `--strict` would additionally gate the FINDING, and most measured
+      # readings are over budget today against real pre-existing chrome, so
+      # turning it on would block every unrelated PR on a backlog. Add it once
+      # the routes are under budget; the numbers print either way.
+      - name: Audit gallery chrome budget
+        if: always()
+        env:
+          BASE_URL: ${{ steps.target.outputs.url }}
+        run: |
+          set -euo pipefail
+          npm run audit:gallery-chrome -- --base "$BASE_URL"
+
       - name: Upload screenshots
         # Always: a failure is exactly when the pictures are worth having, and
         # a pass is worth spot-checking against.

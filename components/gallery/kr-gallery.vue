@@ -97,7 +97,20 @@
       </slot>
     </div>
 
-    <section v-else :class="gridClass">
+    <!--
+      data-kr-gallery-grid marks THE grid for utils/scripts/auditGalleryChrome.ts,
+      which measures how much vertical space a route spends before its first
+      card. That audit used to find the grid by heuristic -- "the element with
+      display:grid and the most children" -- and the heuristic was wrong: it
+      picked the same app-shell grid on every route, so six different galleries
+      reported byte-identical numbers (34px phone, 31px laptop). A measurement
+      that agrees across pages that look nothing alike is measuring the layout,
+      not the pages.
+
+      An attribute is cheap and unambiguous, and it lives here because this is
+      the component that knows which element is the gallery grid.
+    -->
+    <section v-else :class="gridClass" data-kr-gallery-grid>
       <!--
         An `item` slot, so a gallery can keep its own object card inside this
         shell instead of trading it away to adopt the shell.
@@ -255,14 +268,16 @@ import {
 // `import type { GalleryMode } from '.../kr-gallery.vue'` call sites keep
 // working; new code should import from the util directly.
 import {
+  DENSITY_GRID_CLASS,
   GALLERY_MODES,
   MODE_GRID_CLASS,
   MODE_VARIANT,
+  type GalleryDensity,
   type GalleryMode,
   type GalleryModeOption,
 } from '@/utils/galleryVocabulary'
 
-export type { GalleryMode, GalleryModeOption }
+export type { GalleryDensity, GalleryMode, GalleryModeOption }
 
 export interface GalleryItem {
   id: string | number
@@ -301,6 +316,13 @@ const props = withDefaults(
     error?: string
     emptyLabel?: string
     skeletonCount?: number
+    /**
+     * How many tiles per row, independent of which image `mode` loads. Omit to
+     * let mode pick the grid, which is what every gallery but art-gallery does.
+     * See the GalleryDensity note in utils/galleryVocabulary.ts for why this is
+     * a fourth axis and why it is a closed enum rather than a class string.
+     */
+    density?: GalleryDensity
   }>(),
   {
     mode: 'cards',
@@ -309,6 +331,7 @@ const props = withDefaults(
     error: '',
     emptyLabel: 'items',
     skeletonCount: 8,
+    density: undefined,
   },
 )
 
@@ -317,7 +340,16 @@ const emit = defineEmits<{
   'update:mode': [mode: GalleryMode]
 }>()
 
-const gridClass = computed(() => MODE_GRID_CLASS[props.mode])
+/*
+ * Density wins when the caller sets it, otherwise mode picks the grid. Both
+ * maps live in galleryVocabulary.ts, so neither is a class string invented
+ * here -- the shell has no bespoke-grid escape hatch, by design.
+ */
+const gridClass = computed(() =>
+  props.density
+    ? DENSITY_GRID_CLASS[props.density]
+    : MODE_GRID_CLASS[props.mode],
+)
 const imageWrapClass = computed(() =>
   props.mode === 'heroes'
     ? 'min-h-64'

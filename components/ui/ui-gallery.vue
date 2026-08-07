@@ -347,9 +347,29 @@
              false positive the adoption check shipped with: a substring match
              counted this page as an adopter while it demonstrated nothing.
              The class is gone and this is the real thing. -->
+        <!-- Density is the OTHER axis, and the one people conflate with mode.
+             Mode picks which stored image loads; density picks how many tiles
+             fit per row. They are independent, so both are switchable here. -->
+        <label class="mb-2 flex w-fit items-center gap-2">
+          <span class="text-smart-caption opacity-70">Density</span>
+          <select
+            v-model="demoGalleryDensity"
+            class="select select-bordered select-sm"
+          >
+            <option
+              v-for="option in GALLERY_DENSITIES"
+              :key="option.value"
+              :value="option.value"
+            >
+              {{ option.label }}
+            </option>
+          </select>
+        </label>
+
         <kr-gallery
           :items="demoGalleryItems"
           :mode="demoGalleryMode"
+          :density="demoGalleryDensity"
           empty-label="specimens"
           @update:mode="demoGalleryMode = $event"
         >
@@ -599,7 +619,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
-import type { GalleryMode } from '@/utils/galleryVocabulary'
+import {
+  GALLERY_DENSITIES,
+  type GalleryDensity,
+  type GalleryMode,
+} from '@/utils/galleryVocabulary'
 import { useThemeStore } from '@/stores/themeStore'
 import { daisyuiThemes } from '@/stores/helpers/themeHelper'
 
@@ -613,6 +637,7 @@ function onThemeChange(event: Event) {
 }
 
 const demoGalleryMode = ref<GalleryMode>('cards')
+const demoGalleryDensity = ref<GalleryDensity>('md')
 
 const demoGalleryItems: GalleryItem[] = [
   { id: 1, title: 'Specimen One', description: 'A card-shaped entry.' },

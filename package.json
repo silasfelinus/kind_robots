@@ -166,7 +166,8 @@
     "offload:art-images": "tsx utils/scripts/offloadArtImageData.ts",
     "test:art-image-offload": "tsx utils/scripts/verifyArtImageOffload.ts",
     "offload:sample": "tsx utils/scripts/offloadArtImageData.ts --write --limit 20 --only-tagged",
-    "dedupe:generated-art": "tsx utils/scripts/dedupeGeneratedArtImages.ts"
+    "dedupe:generated-art": "tsx utils/scripts/dedupeGeneratedArtImages.ts",
+    "audit:gallery-chrome": "tsx utils/scripts/auditGalleryChrome.ts"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.1.0",

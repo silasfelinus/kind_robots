@@ -153,6 +153,68 @@ export const MODE_GRID_CLASS: Record<GalleryMode, string> = {
 }
 
 /**
+ * HOW BIG THE TILES ARE — a fourth axis, added deliberately and closed.
+ *
+ * The module header warns that "inventing a fourth vocabulary is how five
+ * values became eight," so this needs its justification written down.
+ *
+ * art-gallery has carried a four-step xs/sm/md/lg size picker since long before
+ * kr-gallery existed. It is genuinely NOT mode: mode says which stored image
+ * loads (card/hero/icon) and each mode happens to bundle a density with it,
+ * but art-gallery wants density while staying on one variant, and it also
+ * feeds the same value to `compact`, `showPrompt` and `showMeta` on the card.
+ * Folding it into mode would mean either deleting a working control or leaving
+ * the largest gallery in the app off the shared shell.
+ *
+ * What makes this safe rather than a fifth overlapping name:
+ *
+ *   - It is a CLOSED enum, not a free-form class string. An escape-hatch prop
+ *     taking arbitrary Tailwind is the version of this that quietly lets every
+ *     gallery keep its own bespoke grid.
+ *   - It is ORTHOGONAL to mode, not a rival spelling of it. Density answers
+ *     "how many per row", mode answers "which image". Both can be set.
+ *   - It replaces a hand-rolled switch rather than sitting beside one:
+ *     art-gallery's own imageGridClass was VIEWPORT-keyed
+ *     (`md:grid-cols-3 xl:grid-cols-4`), the exact breakpoint bug the
+ *     MODE_GRID_CLASS note above documents. Moving it here fixes it, and
+ *     verifyGalleryConsistency holds both maps to the same rule.
+ *
+ * A gallery that does not pass `density` is unaffected — mode still picks the
+ * grid, which is why this is additive.
+ */
+export type GalleryDensity = 'xs' | 'sm' | 'md' | 'lg'
+
+export interface GalleryDensityOption {
+  value: GalleryDensity
+  label: string
+}
+
+/** Labels are art-gallery's shipped wording, kept so the control reads the same. */
+export const GALLERY_DENSITIES: readonly GalleryDensityOption[] = [
+  { value: 'xs', label: 'Extra compact' },
+  { value: 'sm', label: 'Compact' },
+  { value: 'md', label: 'Normal' },
+  { value: 'lg', label: 'Large' },
+]
+
+/** Persisted to localStorage by art-gallery, so treat reads as untrusted. */
+export const IS_GALLERY_DENSITY = (value: string): value is GalleryDensity =>
+  GALLERY_DENSITIES.some((density) => density.value === value)
+
+/**
+ * Container-responsive for the same reason MODE_GRID_CLASS is: these are
+ * auto-fill grids that fill the width they are actually given. The literals
+ * are enumerated rather than composed because Tailwind's JIT only compiles
+ * arbitrary values it can see whole in the source.
+ */
+export const DENSITY_GRID_CLASS: Record<GalleryDensity, string> = {
+  xs: 'grid gap-2 [grid-template-columns:repeat(auto-fill,minmax(min(9rem,100%),1fr))]',
+  sm: 'grid gap-2 [grid-template-columns:repeat(auto-fill,minmax(min(12rem,100%),1fr))]',
+  md: 'grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(min(18rem,100%),1fr))]',
+  lg: 'grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(min(28rem,100%),1fr))]',
+}
+
+/**
  * The aspect a frame is drawn at — NOT which image is loaded (that is
  * ArtVariant). `plate` is the 3:2 mockup shape the aesthetic is named for and
  * is kr-art-plate's default; `wide` is 4:3 and is kr-entity-card-body's.

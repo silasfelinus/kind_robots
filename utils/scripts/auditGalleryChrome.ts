@@ -97,9 +97,25 @@ export type ChromeReading = {
  */
 export async function measureChrome(page: Page): Promise<number | null> {
   return page.evaluate(() => {
+    /*
+     * `[data-kr-gallery-grid] > *` FIRST, and it is the only exact one.
+     *
+     * The original list led with `[data-kr-gallery-item]` and `.kr-gallery-grid`
+     * -- neither of which kr-gallery has ever emitted, so every route fell
+     * straight through to the `article` / `.card` guesses. kr-gallery now stamps
+     * `data-kr-gallery-grid` on its grid, so a gallery on the shared shell is
+     * identified rather than inferred.
+     *
+     * The guesses stay as fallbacks, because the routes still off the shell
+     * (/themes, /achievements) have no marker and are worth measuring anyway.
+     * They ARE guesses: a heuristic in the first draft of this measurement
+     * locked onto an app-shell grid and reported six unrelated galleries at
+     * byte-identical 34px, so a fallback reading deserves less trust than a
+     * marked one.
+     */
     const candidates = [
+      '[data-kr-gallery-grid] > *',
       '[data-kr-gallery-item]',
-      '.kr-gallery-grid > *',
       'article',
       '.card',
     ]
@@ -193,7 +209,19 @@ const routes = only ?? [...GALLERY_ROUTES]
  * would pull ~150MB to re-download a browser already on disk.
  */
 const executablePath = process.env.CHROMIUM_PATH || undefined
-const browser = await chromium.launch(executablePath ? { executablePath } : {})
+
+/*
+ * Chromium does NOT inherit HTTPS_PROXY the way curl and node do -- it has to
+ * be told. That is the "a sandbox may allow curl and still reset Chromium"
+ * failure the load-failure message below warns about, and it is fixable rather
+ * than merely reportable: passing the proxy through turns 48 guaranteed
+ * ERR_CONNECTION_RESETs into real readings.
+ */
+const proxyServer = process.env.HTTPS_PROXY || process.env.https_proxy
+const browser = await chromium.launch({
+  ...(executablePath ? { executablePath } : {}),
+  ...(proxyServer ? { proxy: { server: proxyServer } } : {}),
+})
 const all: ChromeReading[] = []
 for (const route of routes) {
   all.push(...(await auditRoute(browser, base, route)))

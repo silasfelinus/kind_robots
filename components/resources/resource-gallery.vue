@@ -1,6 +1,8 @@
 <!-- /components/resources/resource-gallery.vue -->
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
+import type { GalleryMode } from '@/utils/galleryVocabulary'
 import {
   useResourceGalleryStore,
   type ResourceGalleryRecord,
@@ -32,14 +34,6 @@ const showAddChoice = ref(false)
 const showForm = ref(false)
 const formKind = ref<'CHECKPOINT' | 'LORA'>('CHECKPOINT')
 const editing = ref<Partial<Resource> | null>(null)
-
-function isEditable(resource: ResourceGalleryRecord): boolean {
-  return (
-    resource.resourceType === RESOURCE_TYPE.CHECKPOINT ||
-    resource.resourceType === RESOURCE_TYPE.LORA ||
-    resource.resourceType === RESOURCE_TYPE.LYCORIS
-  )
-}
 
 function openAddChoice(): void {
   showAddChoice.value = true
@@ -122,6 +116,21 @@ const filteredResources = computed(() => {
   })
 })
 
+const galleryMode = ref<GalleryMode>('cards')
+
+const galleryItems = computed<GalleryItem[]>(() =>
+  filteredResources.value.map((resource) => ({
+    id: resource.id,
+    title: resourceLabel(resource),
+    description: resource.description || undefined,
+  })),
+)
+
+const resourceById = computed(
+  () =>
+    new Map(filteredResources.value.map((resource) => [resource.id, resource])),
+)
+
 function resourceLabel(resource: ResourceGalleryRecord): string {
   return resource.customLabel || resource.name
 }
@@ -136,22 +145,12 @@ function triggerText(resource: ResourceGalleryRecord): string {
   )
 }
 
-function previewSrc(resource: ResourceGalleryRecord): string {
-  return (
-    resource.ArtImage?.thumbnailPath ||
-    resource.ArtImage?.imagePath ||
-    resource.ArtImage?.path ||
-    resource.previewImageUrl ||
-    resource.imagePath ||
-    '/images/kindart.webp'
-  )
-}
-
 function appendPrompt(base: string, addition: string): string {
   const current = base.trim()
   const next = addition.trim()
 
-  if (!next || current.toLowerCase().includes(next.toLowerCase())) return current
+  if (!next || current.toLowerCase().includes(next.toLowerCase()))
+    return current
   return current ? `${current}, ${next}` : next
 }
 
@@ -214,9 +213,7 @@ function startGeneration(resource: ResourceGalleryRecord): void {
   )
 }
 
-async function generatePreview(
-  resource: ResourceGalleryRecord,
-): Promise<void> {
+async function generatePreview(resource: ResourceGalleryRecord): Promise<void> {
   activePreviewResourceId.value = resource.id
   message.value = ''
 
@@ -379,10 +376,7 @@ onMounted(async () => {
 
         <label class="form-control">
           <span class="label-text text-xs">Maturity</span>
-          <select
-            v-model="maturity"
-            class="select select-bordered rounded-2xl"
-          >
+          <select v-model="maturity" class="select select-bordered rounded-2xl">
             <option value="ALL">Visible Resources</option>
             <option value="SAFE">Safe only</option>
             <option value="MATURE">Mature only</option>
@@ -453,138 +447,42 @@ onMounted(async () => {
       {{ resourceGalleryStore.error }}
     </div>
 
-    <div
-      v-if="
-        resourceGalleryStore.isLoading &&
-        !resourceGalleryStore.resources.length
+    <!-- The shared shell owns the grid, the mode bar, and the loading and
+         empty states; resource-card stays the card. The old grid was
+         `sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4` -- viewport-keyed, so
+         it fired against a narrow container whenever this gallery was inset.
+         A Resource preview falls back to a static placeholder rather than
+         entity art, so the #item slot replaces the default card outright. -->
+    <kr-gallery
+      :items="galleryItems"
+      :mode="galleryMode"
+      :loading="
+        resourceGalleryStore.isLoading && !resourceGalleryStore.resources.length
       "
-      class="flex min-h-72 items-center justify-center rounded-2xl border border-base-300 bg-base-100"
+      empty-label="Resources"
+      @update:mode="galleryMode = $event"
     >
-      <span class="loading loading-spinner loading-lg text-primary" />
-    </div>
+      <template #item="{ item }">
+        <resource-card
+          v-if="resourceById.get(Number(item.id))"
+          :resource="resourceById.get(Number(item.id))!"
+          :generating-preview="activePreviewResourceId === Number(item.id)"
+          :uploading-preview="activeUploadResourceId === Number(item.id)"
+          @edit="openEdit"
+          @add-to-build="addToGeneration"
+          @start-fresh="startGeneration"
+          @generate-preview="generatePreview"
+          @upload-preview="choosePreviewFile"
+        />
+      </template>
 
-    <div
-      v-else-if="!filteredResources.length"
-      class="flex min-h-72 items-center justify-center rounded-2xl border border-base-300 bg-base-100 p-6 text-center text-base-content/60"
-    >
-      No Resources match those filters.
-    </div>
-
-    <div
-      v-else
-      class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4"
-    >
-      <article
-        v-for="resource in filteredResources"
-        :key="resource.id"
-        class="group flex min-h-[430px] flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
-      >
-        <div class="relative aspect-square overflow-hidden bg-base-200">
-          <img
-            :src="previewSrc(resource)"
-            :alt="resourceLabel(resource)"
-            class="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
-            loading="lazy"
-          />
-
-          <div class="absolute left-2 top-2 flex flex-wrap gap-1">
-            <span class="badge badge-primary badge-sm">
-              {{ resource.resourceType }}
-            </span>
-            <span
-              v-if="resource.generation"
-              class="badge badge-neutral badge-sm"
-            >
-              {{ resource.generation }}
-            </span>
-            <span v-if="resource.isMature" class="badge badge-error badge-sm">
-              18+
-            </span>
-          </div>
-
-          <div
-            v-if="triggerText(resource)"
-            class="absolute inset-x-2 bottom-2 translate-y-2 rounded-2xl bg-base-100/95 p-2 text-xs opacity-0 shadow transition group-hover:translate-y-0 group-hover:opacity-100"
-          >
-            <span class="font-semibold">Trigger:</span>
-            {{ triggerText(resource) }}
-          </div>
+      <template #empty>
+        <div
+          class="flex min-h-72 items-center justify-center rounded-2xl border border-base-300 bg-base-100 p-6 text-center text-base-content/60"
+        >
+          No Resources match those filters.
         </div>
-
-        <div class="flex flex-1 flex-col gap-3 p-4">
-          <div>
-            <h3 class="line-clamp-2 text-lg font-bold">
-              {{ resourceLabel(resource) }}
-            </h3>
-            <p class="mt-1 line-clamp-3 text-sm text-base-content/65">
-              {{ resource.description || 'No description yet.' }}
-            </p>
-          </div>
-
-          <div class="flex flex-wrap gap-1 text-xs">
-            <span class="badge badge-outline badge-sm">
-              {{ resource.supportedServer }}
-            </span>
-            <span class="badge badge-outline badge-sm">
-              {{ resource._count?.ArtImages || 0 }} checkpoint uses
-            </span>
-            <span class="badge badge-outline badge-sm">
-              {{ resource._count?.UsedInImages || 0 }} LoRA uses
-            </span>
-          </div>
-
-          <div class="mt-auto grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              class="btn btn-primary btn-sm rounded-2xl"
-              @click="addToGeneration(resource)"
-            >
-              Add to build
-            </button>
-            <button
-              type="button"
-              class="btn btn-secondary btn-sm rounded-2xl"
-              @click="startGeneration(resource)"
-            >
-              Start fresh
-            </button>
-            <button
-              type="button"
-              class="btn btn-outline btn-sm rounded-2xl"
-              :disabled="activePreviewResourceId === resource.id"
-              @click="generatePreview(resource)"
-            >
-              <span
-                v-if="activePreviewResourceId === resource.id"
-                class="loading loading-spinner loading-xs"
-              />
-              Generate preview
-            </button>
-            <button
-              type="button"
-              class="btn btn-ghost btn-sm rounded-2xl"
-              :disabled="activeUploadResourceId === resource.id"
-              @click="choosePreviewFile(resource)"
-            >
-              <span
-                v-if="activeUploadResourceId === resource.id"
-                class="loading loading-spinner loading-xs"
-              />
-              Upload preview
-            </button>
-          </div>
-
-          <button
-            v-if="isEditable(resource)"
-            type="button"
-            class="btn btn-ghost btn-sm rounded-2xl"
-            @click="openEdit(resource)"
-          >
-            <icon name="kind-icon:edit" class="h-4 w-4" />
-            Edit
-          </button>
-        </div>
-      </article>
-    </div>
+      </template>
+    </kr-gallery>
   </section>
 </template>

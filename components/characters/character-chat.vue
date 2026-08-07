@@ -1,11 +1,11 @@
-<!-- /components/characters/character-workspace.vue -->
+<!-- /components/characters/character-chat.vue -->
 <!--
   The Character working surface: chat with them, or run an adventure.
 
   Split out of character-interact, which had grown to 923 lines -- 482 of
   template and 440 of script -- because both modes were inlined in the
   component whose only job is choosing between browsing and working.
-  dream-interact does that job in 57 lines because dream-workspace exists; this
+  dream-interact does that job in 57 lines because dream-narration exists; this
   is that, for Characters.
 
   Silas, 2026-08-06, on the interact tier: it "will be inevitably less

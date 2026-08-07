@@ -1,4 +1,4 @@
-<!-- /components/bots/bot-workspace.vue -->
+<!-- /components/bots/bot-chat.vue -->
 <!--
   The Bot working surface: the conversation, its controls, and the prompt
   preview. Split out of bot-interact.vue, which was 720 lines because all of

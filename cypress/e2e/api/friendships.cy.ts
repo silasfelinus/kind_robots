@@ -379,13 +379,15 @@ describe('Friendship / UserRelation API Tests', () => {
 
   it('keeps reverse family requests pending', () => {
     createRelation('PARENT').then((parentRow) => {
-      createRelation('CHILD', actorUserId, adminAuthHeaders()).then((childRow) => {
-        expect(parentRow.status).to.eq('PENDING')
-        expect(childRow.status).to.eq('PENDING')
+      createRelation('CHILD', actorUserId, adminAuthHeaders()).then(
+        (childRow) => {
+          expect(parentRow.status).to.eq('PENDING')
+          expect(childRow.status).to.eq('PENDING')
 
-        deleteRelation(parentRow.id)
-        deleteRelation(childRow.id, adminAuthHeaders())
-      })
+          deleteRelation(parentRow.id)
+          deleteRelation(childRow.id, adminAuthHeaders())
+        },
+      )
     })
   })
 
@@ -402,7 +404,8 @@ describe('Friendship / UserRelation API Tests', () => {
               row.userId === relatedUserId &&
               row.relatedUserId === actorUserId,
           )
-          expect(childRow, 'CHILD inverse created on accept').to.not.be.undefined
+          expect(childRow, 'CHILD inverse created on accept').to.not.be
+            .undefined
           if (childRow) track(childRow.id)
 
           deleteRelation(parentRow.id).then((response) => {
@@ -430,6 +433,37 @@ describe('Friendship / UserRelation API Tests', () => {
 
       deleteRelation(block.id).then((response) => {
         expect([200, 202, 204]).to.include(response.status)
+      })
+    })
+  })
+
+  // A test that throws mid-flow (e.g. after an accept but before its own
+  // cleanup delete) can leave the actor/related pair in a split state: one
+  // row reset to PENDING by a later retry's re-request, its already-ACCEPTED
+  // inverse untouched. Cypress reruns the `it` body on retry but not
+  // `before()`, so the pair persists across attempts unless something clears
+  // it in between. `afterEach` runs after every attempt (retried or not),
+  // so this guarantees the next attempt (or the next test) never inherits a
+  // stale FRIEND relation from a failed one. See the 2026-08-06/07 CI
+  // incident this fixes: a mid-test failure left one FRIEND row PENDING and
+  // its inverse ACCEPTED, which made "target sees pending request" fail on
+  // every subsequent run for that pair.
+  afterEach(() => {
+    if (!userToken || !actorUserId || !relatedUserId) return
+
+    listRelations(userHeaders()).then((rows) => {
+      const stray = rows.filter(
+        (row) =>
+          row.type === 'FRIEND' &&
+          ((row.userId === actorUserId &&
+            row.relatedUserId === relatedUserId) ||
+            (row.userId === relatedUserId &&
+              row.relatedUserId === actorUserId)),
+      )
+      stray.forEach((row) => {
+        const headers =
+          row.userId === actorUserId ? userHeaders() : adminAuthHeaders()
+        deleteRelation(row.id, headers).then(() => untrack(row.id))
       })
     })
   })

@@ -132,6 +132,27 @@ export default defineEventHandler(async (event) => {
     }
   }
 
+  // A repeat request for an already-ACCEPTED relation must be a no-op, not a
+  // demotion back to PENDING. Without this guard, a duplicate/retried POST
+  // (e.g. a client retry, or two tabs racing) resets the forward row to
+  // PENDING while its already-ACCEPTED inverse row is left untouched,
+  // splitting one friendship into a self-contradictory PENDING/ACCEPTED pair
+  // that no later request can reconcile (see kind_robots CI incident
+  // 2026-08-06/07: this exact split state deadlocked friendships.cy.ts).
+  const existing = await prisma.userRelation.findUnique({
+    where: {
+      userId_relatedUserId_type: { userId, relatedUserId, type },
+    },
+  })
+  if (existing?.status === 'ACCEPTED') {
+    setResponseStatus(event, 200)
+    return {
+      success: true,
+      message: 'Relation already accepted.',
+      data: existing,
+    }
+  }
+
   // Fresh request → PENDING.
   const data = await prisma.userRelation.upsert({
     where: {

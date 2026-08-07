@@ -1,6 +1,11 @@
 name: One-shot clean continuous enum diff 2026-08-07
 
 on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/one-shot-clean-continuous-enum-20260807.yml
   push:
     branches:
       - claude/project-continuous-enum-20260807

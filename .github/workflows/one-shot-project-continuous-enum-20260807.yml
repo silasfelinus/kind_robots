@@ -2,6 +2,12 @@ name: One-shot Project continuous enum 2026-08-07
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - utils/scripts/_projectContinuousEnumPatch20260807.py
+      - .github/workflows/one-shot-project-continuous-enum-20260807.yml
   push:
     branches:
       - claude/project-continuous-enum-20260807

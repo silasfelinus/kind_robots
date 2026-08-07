@@ -168,6 +168,23 @@ jobs:
             npm run audit:responsive -- --base "$BASE_URL" --shots audit-shots
           fi
 
+      # Rides the same harness deliberately. The gallery chrome budget needs
+      # exactly what the step above already paid for: a live deployment, a
+      # healthy database (an empty gallery has no first card to measure), and a
+      # browser with real egress. Standing up a second workflow would duplicate
+      # the URL resolution and both waits to answer a neighbouring question.
+      #
+      # `if: always()` so a responsive-layout failure does not hide the chrome
+      # reading — they are independent findings about the same page, and the
+      # one that fails first should not suppress the other.
+      - name: Audit gallery chrome budget
+        if: always()
+        env:
+          BASE_URL: ${{ steps.target.outputs.url }}
+        run: |
+          set -euo pipefail
+          npm run audit:gallery-chrome -- --base "$BASE_URL" --strict
+
       - name: Upload screenshots
         # Always: a failure is exactly when the pictures are worth having, and
         # a pass is worth spot-checking against.

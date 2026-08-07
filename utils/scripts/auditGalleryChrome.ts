@@ -37,10 +37,16 @@
 //   npx tsx utils/scripts/auditGalleryChrome.ts --base <url> --routes /art,/ui
 import { chromium, type Browser } from 'playwright-core'
 
-/** Where the sandbox keeps Chromium. PLAYWRIGHT_BROWSERS_PATH points here. */
-const CHROMIUM =
-  process.env.CHROMIUM_PATH ||
-  '/opt/pw-browsers/chromium-1194/chrome-linux/chrome'
+/**
+ * Let Playwright resolve its own Chromium; override only when told to.
+ *
+ * Same shape as auditResponsiveLayout.mjs, and for a reason worth recording: a
+ * hardcoded sandbox path (`/opt/pw-browsers/chromium-1194/...`) works exactly
+ * where it was written and nowhere else. On the CI runner, which installs
+ * Chromium with `npx playwright install`, it failed instantly with "executable
+ * doesn't exist" -- before a single page was loaded.
+ */
+const CHROMIUM = process.env.CHROMIUM_PATH || undefined
 
 /**
  * Above this fraction of the viewport spent before the first card, the gallery

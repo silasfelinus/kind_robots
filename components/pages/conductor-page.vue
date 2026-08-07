@@ -593,6 +593,7 @@
                 @change="handleProjectStatusChange"
               >
                 <option value="ACTIVE">ACTIVE</option>
+                <option value="CONTINUOUS">CONTINUOUS</option>
                 <option value="PAUSED">PAUSED</option>
                 <option value="BRAINSTORM">BRAINSTORM</option>
                 <option value="DONE">DONE</option>
@@ -1320,7 +1321,8 @@ import ConductorProjectChat from '@/components/conductor/conductor-project-chat.
 import KaizenPopup from '@/components/conductor/kaizen-popup.vue'
 import SnapshotModeBanner from '@/components/navigation/snapshot-mode-banner.vue'
 
-type ProjectStatus = 'ACTIVE' | 'PAUSED' | 'DONE' | 'ARCHIVED' | 'BRAINSTORM'
+type ProjectStatus =
+  'ACTIVE' | 'CONTINUOUS' | 'PAUSED' | 'DONE' | 'ARCHIVED' | 'BRAINSTORM'
 
 type ProjectPatch = {
   description?: string | null

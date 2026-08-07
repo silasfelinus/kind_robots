@@ -20,18 +20,13 @@ export const CONDUCTOR_PROJECT_KINDS = [
   'brainstorm',
 ] as const
 
-export type ConductorProjectStatus =
-  (typeof CONDUCTOR_PROJECT_STATUSES)[number]
+export type ConductorProjectStatus = (typeof CONDUCTOR_PROJECT_STATUSES)[number]
 export type ConductorProjectPriority =
   (typeof CONDUCTOR_PROJECT_PRIORITIES)[number]
 export type ConductorProjectKind = (typeof CONDUCTOR_PROJECT_KINDS)[number]
 
 export type ProjectLifecycleStatus =
-  | 'ACTIVE'
-  | 'PAUSED'
-  | 'DONE'
-  | 'ARCHIVED'
-  | 'BRAINSTORM'
+  'ACTIVE' | 'PAUSED' | 'DONE' | 'ARCHIVED' | 'BRAINSTORM' | 'CONTINUOUS'
 export type ProjectLifecyclePriority = 'LOW' | 'NORMAL' | 'HIGH'
 
 export interface ConductorProjectOverride {
@@ -55,7 +50,7 @@ const STATUS_TO_PROJECT: Record<
   ProjectLifecycleStatus
 > = {
   active: 'ACTIVE',
-  continuous: 'ACTIVE',
+  continuous: 'CONTINUOUS',
   paused: 'PAUSED',
   finished: 'DONE',
   retired: 'ARCHIVED',
@@ -66,6 +61,7 @@ const STATUS_TO_CONDUCTOR: Record<
   ConductorProjectStatus
 > = {
   ACTIVE: 'active',
+  CONTINUOUS: 'continuous',
   PAUSED: 'paused',
   DONE: 'finished',
   ARCHIVED: 'retired',
@@ -237,9 +233,7 @@ export function updateConductorProjectOverride(
     if (!value) return
     const fieldIndex = lines.findIndex(
       (line, index) =>
-        index > start &&
-        index < end &&
-        new RegExp(`^\\s{4}${key}:`).test(line),
+        index > start && index < end && new RegExp(`^\\s{4}${key}:`).test(line),
     )
     if (fieldIndex >= 0) {
       lines[fieldIndex] = replaceFieldLine(lines[fieldIndex] ?? '', key, value)
@@ -247,7 +241,11 @@ export function updateConductorProjectOverride(
     }
 
     const insertionOffset = key === 'status' ? 1 : 2
-    lines.splice(Math.min(start + insertionOffset, end), 0, `    ${key}: ${value}`)
+    lines.splice(
+      Math.min(start + insertionOffset, end),
+      0,
+      `    ${key}: ${value}`,
+    )
     end += 1
   }
 

@@ -2288,6 +2288,7 @@ enum ProjectStatus {
   DONE
   ARCHIVED
   BRAINSTORM
+  CONTINUOUS
 }
 
 enum ProjectPriority {

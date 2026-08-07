@@ -142,13 +142,13 @@ import type { BuilderCard } from '@/stores/helpers/builderCards'
 import { IS_GALLERY_MODE, type GalleryMode } from '@/utils/galleryVocabulary'
 
 const IMG_BASE = 'https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images'
-type Status = 'ACTIVE' | 'PAUSED' | 'DONE' | 'BRAINSTORM' | 'ARCHIVED'
+type Status = 'ACTIVE' | 'CONTINUOUS' | 'PAUSED' | 'DONE' | 'BRAINSTORM' | 'ARCHIVED'
 type Filter = Status | 'ALL'
 type Item = { id: number; slug: string; title: string; description: string; status: Status; dbStatus: Status; priority: ProjectPriorityLevel; progress: number; done: number; total: number; blocked: number; needsHuman: number; icon: string; card: string; hero: string; meta: string; progressPercent: number; badges: Array<{ label: string; class?: string }>; updated: number; drift: boolean; hasConductor: boolean }
 type BlockedTask = ConductorTask & { projectSlug: string; projectTitle: string }
 
 const GALLERY_KEY = 'conductor-project-gallery'
-const filters = [{ value: 'ACTIVE' as const, label: 'Active', icon: 'kind-icon:sparkles' }, { value: 'PAUSED' as const, label: 'Paused', icon: 'kind-icon:pause' }, { value: 'DONE' as const, label: 'Completed', icon: 'kind-icon:check-circle' }, { value: 'BRAINSTORM' as const, label: 'Ideas', icon: 'kind-icon:lightbulb' }, { value: 'ARCHIVED' as const, label: 'Archived', icon: 'kind-icon:archive' }, { value: 'ALL' as const, label: 'All', icon: 'kind-icon:cards' }]
+const filters = [{ value: 'ACTIVE' as const, label: 'Active', icon: 'kind-icon:sparkles' }, { value: 'CONTINUOUS' as const, label: 'Continuous', icon: 'kind-icon:refresh' }, { value: 'PAUSED' as const, label: 'Paused', icon: 'kind-icon:pause' }, { value: 'DONE' as const, label: 'Completed', icon: 'kind-icon:check-circle' }, { value: 'BRAINSTORM' as const, label: 'Ideas', icon: 'kind-icon:lightbulb' }, { value: 'ARCHIVED' as const, label: 'Archived', icon: 'kind-icon:archive' }, { value: 'ALL' as const, label: 'All', icon: 'kind-icon:cards' }]
 const IS_FILTER = (value: string): value is Filter => filters.some((entry) => entry.value === value) || value === 'ALL'
 
 const projects = useProjectStore()
@@ -193,7 +193,7 @@ function image(record: ProjectWithRelations, source: ConductorProject | undefine
 }
 
 const statusLabel = (value: Status) => value === 'DONE' ? 'Completed' : value === 'BRAINSTORM' ? 'Idea' : value.charAt(0) + value.slice(1).toLowerCase()
-const statusClass = (value: Status) => value === 'DONE' ? 'badge-success' : value === 'PAUSED' ? 'badge-warning' : value === 'ARCHIVED' ? 'badge-ghost' : value === 'BRAINSTORM' ? 'badge-secondary' : 'badge-primary'
+const statusClass = (value: Status) => value === 'DONE' ? 'badge-success' : value === 'CONTINUOUS' ? 'badge-accent' : value === 'PAUSED' ? 'badge-warning' : value === 'ARCHIVED' ? 'badge-ghost' : value === 'BRAINSTORM' ? 'badge-secondary' : 'badge-primary'
 const priorityClass = (value: ProjectPriorityLevel) => value === 'HIGH' ? 'badge-error' : value === 'LOW' ? 'badge-ghost' : 'badge-warning'
 
 function toItem(record: ProjectWithRelations): Item {

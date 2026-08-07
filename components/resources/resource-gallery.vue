@@ -2,7 +2,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
-import type { GalleryMode } from '@/utils/galleryVocabulary'
 import {
   useResourceGalleryStore,
   type ResourceGalleryRecord,
@@ -115,8 +114,6 @@ const filteredResources = computed(() => {
       .some((value) => String(value).toLowerCase().includes(search))
   })
 })
-
-const galleryMode = ref<GalleryMode>('cards')
 
 const galleryItems = computed<GalleryItem[]>(() =>
   filteredResources.value.map((resource) => ({
@@ -447,20 +444,17 @@ onMounted(async () => {
       {{ resourceGalleryStore.error }}
     </div>
 
-    <!-- The shared shell owns the grid, the mode bar, and the loading and
-         empty states; resource-card stays the card. The old grid was
-         `sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4` -- viewport-keyed, so
-         it fired against a narrow container whenever this gallery was inset.
-         A Resource preview falls back to a static placeholder rather than
-         entity art, so the #item slot replaces the default card outright. -->
+    <!-- Resources currently have one canonical preview/card presentation, so the shared
+         shell owns the grid, loading and empty states but intentionally exposes no
+         Cards/Heroes/Icons control. A mode picker would promise variants this model
+         does not implement. -->
     <kr-gallery
       :items="galleryItems"
-      :mode="galleryMode"
+      :modes="[]"
       :loading="
         resourceGalleryStore.isLoading && !resourceGalleryStore.resources.length
       "
       empty-label="Resources"
-      @update:mode="galleryMode = $event"
     >
       <template #item="{ item }">
         <resource-card

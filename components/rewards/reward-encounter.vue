@@ -1,4 +1,4 @@
-<!-- /components/rewards/reward-workspace.vue -->
+<!-- /components/rewards/reward-encounter.vue -->
 <!--
   The Reward working surface: an encounter with a chosen Reward.
 
@@ -7,7 +7,7 @@
   component whose only job is choosing between browsing and working. Tone
   controls, prompt preview, session chat tracking, narrative turns and choices,
   and a hero-image carousel all sit here now. dream-interact does the same
-  routing job in 57 lines because dream-workspace exists; this is that.
+  routing job in 57 lines because dream-narration exists; this is that.
 
   Silas, 2026-08-06, on the interact tier: it "will be inevitably less
   consistent across models, since that's where we are actually hitting what we
@@ -15,7 +15,7 @@
   in the move -- the frame is what is shared, not the contents.
 
   The status banner came along rather than staying in the router: every
-  setStatus() call is a workspace action (prompt copied, story returned, story
+  setStatus() call is an encounter action (prompt copied, story returned, story
   continued), so it reports on this surface and belongs to it.
 -->
 <template>

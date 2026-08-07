@@ -1,13 +1,13 @@
-<!-- /components/scenarios/scenario-workspace.vue -->
+<!-- /components/scenarios/scenario-story.vue -->
 <!--
   The Scenario working surface: configure a chosen Scenario, then play it.
 
   Split out of scenario-interact, which had grown to 531 lines because both
   phases were inlined in the router. dream-interact is 57 lines for the same
-  job, because its markup and its logic live in dream-workspace -- that is the
+  job, because its markup and its logic live in dream-narration -- that is the
   frame every model shares:
 
-    <x-gallery v-if="!selected" />     <x-workspace v-else />
+    <x-gallery v-if="!selected" />     <x-{activity} v-else />
 
   Silas, 2026-08-06: the interact tier "will be inevitably less consistent
   across models, since that's where we are actually hitting 'what we do with

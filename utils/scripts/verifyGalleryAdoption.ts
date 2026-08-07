@@ -2,6 +2,7 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { basename, dirname, extname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { ownerRoute } from './coreObjectRoutes'
 
 /*
  * Adoption counter for the shared gallery shell.
@@ -183,8 +184,7 @@ function primaryMounts(): { route: string; mount: string }[] {
   for (const file of walkMd(contentRoot)) {
     const body = readFileSync(file, 'utf8').replace(/^---[\s\S]*?\n---\n/, '')
     const route =
-      '/' +
-      relative(contentRoot, file).replace(/\\/g, '/').replace(/\.md$/, '')
+      '/' + relative(contentRoot, file).replace(/\\/g, '/').replace(/\.md$/, '')
     for (const line of body.split('\n')) {
       const trimmed = line.trim()
       if (/^:{1,2}[a-z][a-z0-9-]*$/.test(trimmed)) {
@@ -195,9 +195,21 @@ function primaryMounts(): { route: string; mount: string }[] {
   return out
 }
 
-/** Every component transitively rendered from a content route, name -> a route. */
-function reachableComponents(): Map<string, string> {
-  const reached = new Map<string, string>()
+/**
+ * Every component transitively rendered from a content route, name -> EVERY
+ * route that reaches it.
+ *
+ * All of them, not the first one found. This map used to keep only the first,
+ * and printed `dream-gallery ... reached from /academy` — true, but only
+ * because academy-manager -> image-upload -> dream-gallery. Naming an incidental
+ * route makes the report answer a question nobody asked: it would go on saying
+ * "/academy" even if /dreams stopped rendering a gallery entirely. Which route a
+ * user actually lands on for an object is Rule 2 of
+ * verifyRouteGalleryContract.ts; this map's job is only to be honest about the
+ * set.
+ */
+function reachableComponents(): Map<string, string[]> {
+  const reached = new Map<string, string[]>()
   for (const { route, mount } of primaryMounts()) {
     const stack = [mount]
     const seen = new Set<string>()
@@ -205,7 +217,8 @@ function reachableComponents(): Map<string, string> {
       const current = stack.pop()
       if (!current || seen.has(current)) continue
       seen.add(current)
-      if (!reached.has(current)) reached.set(current, route)
+      const routes = reached.get(current) ?? []
+      if (!routes.includes(route)) reached.set(current, [...routes, route])
       for (const child of childComponents(current)) {
         if (!seen.has(child)) stack.push(child)
       }
@@ -216,8 +229,40 @@ function reachableComponents(): Map<string, string> {
 
 const reachable = reachableComponents()
 
+/**
+ * The route worth naming for a component: the one whose slug matches the
+ * object, when there is one. `dream-gallery` reports /dreams rather than
+ * whichever route the traversal happened to visit first.
+ */
+function homeRoute(name: string): string | undefined {
+  return ownerRoute(name, reachable.get(name) ?? [])
+}
+
+/** How the reaching routes are described in the report. */
+function reachedFrom(name: string): string {
+  const routes = reachable.get(name)
+  if (!routes?.length) return 'UNREACHABLE — no content route renders it'
+  const home = homeRoute(name)
+  const others = routes.length - 1
+  return `reached from ${home}${others ? ` (+${others} more)` : ''}`
+}
+
 // --- adoption ----------------------------------------------------------------
-const KR_GALLERY_USE = /kr-gallery|KrGallery/
+/*
+ * ADOPTION IS A MOUNT, NOT A MENTION.
+ *
+ * This was `/kr-gallery|KrGallery/` — a bare substring — which counted
+ * ui-gallery.vue as an adopter on the strength of
+ * `class="kr-gallery h-full min-h-0 ..."`. A CSS class that happens to share the
+ * component's name is not the component, and the inflated number is exactly the
+ * kind of unearned progress this file was written to prevent (see the `global-ui`
+ * note at the top: 25/25 tasks done at ~7% real adoption).
+ *
+ * The tag must OPEN an element. Nuxt's auto-registered Lazy prefix counts;
+ * a longer tag that merely starts with the same characters (`<kr-gallery-header>`)
+ * does not.
+ */
+const KR_GALLERY_USE = /<\s*(?:Lazy|lazy-)?(?:kr-gallery|KrGallery)(?=[\s/>])/
 
 const galleryFiles = walk(resolve(root, 'components')).filter(
   (file) => basename(file).endsWith('-gallery.vue') && rel(file) !== GALLERY,
@@ -297,12 +342,9 @@ console.log(
 )
 for (const path of CORE_OBJECT_GALLERIES) {
   const name = basename(path, '.vue')
-  const route = reachable.get(name)
   const mark = coreAdopted.includes(path) ? '✓' : '·'
   console.log(
-    `       ${mark} ${basename(path).padEnd(36)} ${
-      route ? `reached from ${route}` : 'UNREACHABLE — no content route renders it'
-    }`,
+    `       ${mark} ${basename(path).padEnd(36)} ${reachedFrom(name)}`,
   )
 }
 
@@ -348,11 +390,7 @@ console.log(
 for (const path of OBJECT_CARDS) {
   const name = basename(path, '.vue')
   console.log(
-    `       ${cardBodyAdopters.includes(path) ? '✓' : '·'} ${basename(path).padEnd(22)} ${
-      reachable.has(name)
-        ? `reached from ${reachable.get(name)}`
-        : 'UNREACHABLE — no content route renders it'
-    }`,
+    `       ${cardBodyAdopters.includes(path) ? '✓' : '·'} ${basename(path).padEnd(22)} ${reachedFrom(name)}`,
   )
 }
 
@@ -375,7 +413,9 @@ for (const model of MODELS) {
     `       ${model.padEnd(10)} manager ${present[0]}  interact ${present[1]}  gallery ${present[2]}`,
   )
 }
-console.log('       ✓ = reachable · ~ = exists but unreachable · ✗ = does not exist')
+console.log(
+  '       ✓ = reachable · ~ = exists but unreachable · ✗ = does not exist',
+)
 
 if (failures) {
   console.error(`\nGallery adoption contract failed with ${failures} error(s).`)

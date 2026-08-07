@@ -1,57 +1,28 @@
-<!-- /components/scenarios/scenario-manager.vue -->
-<!--
-  Two tabs while we build out the rest of the suite:
-    scenarios — the full phased flow (browse → configure → story),
-                owned by scenario-interact + storyStore.phase
-    add       — the "+" tab, straight into add-scenario
-  Legacy tab keys (overview, interact, characters, rewards) funnel
-  into 'scenarios' so stale navStore state never strands the user.
--->
+<!-- /components/content/scenarios/scenario-manager.vue -->
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
-    <div
-      v-if="isLoadingManager || managerError"
-      class="mb-4 shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4"
-    >
-      <div v-if="isLoadingManager" class="flex items-center gap-2 text-sm">
-        <span class="loading loading-spinner loading-sm text-primary" />
-        <span>Loading weirdness from the database...</span>
-      </div>
-
-      <div v-if="managerError" class="mt-2 text-sm text-error">
-        {{ managerError }}
-      </div>
-
-      <button
-        v-if="managerError"
-        type="button"
-        class="btn btn-sm btn-outline mt-3 rounded-2xl"
-        @click="refreshManagerData"
-      >
-        Try Again
-      </button>
-    </div>
-
+  <kr-manager
+    dashboard-key="scenario"
+    :loading="isLoadingManager"
+    :error="managerError"
+    loading-label="Loading weirdness from the database..."
+    :panel-tabs="['add']"
+    @refresh="refreshManagerData"
+    @tab="handleTabChange"
+  >
     <!-- Scenarios: gallery → select → configure → story, all in place -->
-    <section
-      v-if="activeTab === 'scenarios'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
+    <template #scenarios>
       <scenario-interact class="h-full min-h-0 flex-1 overflow-hidden" />
-    </section>
+    </template>
 
     <!-- Add: the "+" tab -->
-    <section
-      v-else
-      class="flex h-full min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain"
-    >
+    <template #add>
       <add-scenario mode="add" @saved="handleScenarioSaved" />
-    </section>
-  </section>
+    </template>
+  </kr-manager>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from '#app'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useChoiceStore } from '@/stores/choiceStore'
@@ -60,10 +31,7 @@ import { useRewardStore } from '@/stores/rewardStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useServerStore } from '@/stores/serverStore'
 
-type ScenarioTab = 'scenarios' | 'add'
-
-const defaultDashboardKey = 'scenario'
-const defaultTab: ScenarioTab = 'scenarios'
+const dashboardKey = 'scenario'
 
 const characterStore = useCharacterStore()
 const choiceStore = useChoiceStore()
@@ -76,16 +44,6 @@ const serverStore = useServerStore()
 
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
-
-const dashboardKey = computed(() => {
-  return navStore.dashboardShell.dashboardKey || defaultDashboardKey
-})
-
-const activeTab = computed<ScenarioTab>(() => {
-  const selectedTab = navStore.getDashboardTab(dashboardKey.value)
-
-  return selectedTab === 'add' ? 'add' : defaultTab
-})
 
 /** Blank form for a fresh scenario. */
 function blankScenarioForm() {
@@ -119,12 +77,23 @@ function prepareAddForm() {
   }
 }
 
+/*
+ * Entering the "+" tab is a navigation event that must prep the form exactly
+ * once per entry. kr-manager owns tab resolution now and emits the rendered
+ * tab, so this reacts to that rather than re-deriving it from navStore.
+ */
+function handleTabChange(tab: string) {
+  if (tab === 'add') {
+    prepareAddForm()
+  }
+}
+
 /**
  * createScenario already selects the new scenario in the store, so jumping
  * to the scenarios tab lands directly in the configure phase for it.
  */
 function handleScenarioSaved() {
-  navStore.setDashboardTab(dashboardKey.value, 'scenarios')
+  navStore.setDashboardTab(dashboardKey, 'scenarios')
 }
 
 async function loadManagerData(force = false) {
@@ -174,24 +143,12 @@ onMounted(async () => {
   // the add tab. This must run *after* loadManagerData, since the page's
   // own content frontmatter (dashboardTab: scenarios) already resolved the
   // tab to 'scenarios' before this component mounted -- setting it here is
-  // what actually overrides that default.
+  // what actually overrides that default. kr-manager's `tab` emit then fires
+  // and preps the form.
   if (route.query.scenario === 'new') {
-    navStore.setDashboardTab(dashboardKey.value, 'add')
+    navStore.setDashboardTab(dashboardKey, 'add')
     const { scenario: _drop, ...restQuery } = route.query
     router.replace({ query: restQuery })
-    return
-  }
-
-  if (activeTab.value === 'add') {
-    prepareAddForm()
-  }
-})
-
-// Needed: entering the "+" tab is a navigation event that must prep
-// the form exactly once per entry, without clobbering unsaved drafts.
-watch(activeTab, (tab) => {
-  if (tab === 'add') {
-    prepareAddForm()
   }
 })
 </script>

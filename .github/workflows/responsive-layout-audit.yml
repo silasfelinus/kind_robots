@@ -97,8 +97,8 @@ jobs:
           run_audit=true
 
           if [ "$EVENT_NAME" = "deployment_status" ] && [ -n "${DEPLOY_REF:-}" ] && [ -n "${DEPLOY_SHA:-}" ]; then
-            branch="${DEPLOY_REF#refs/heads/}"
-            remote_sha="$(git ls-remote origin "refs/heads/${branch}" | awk 'NR == 1 {print $1}')"
+            branch="$DEPLOY_REF"
+            remote_sha="$(git ls-remote --heads origin "$branch" | awk 'NR == 1 {print $1}')"
 
             if [ -z "$remote_sha" ]; then
               echo "Skipping deployment ${DEPLOY_SHA:0:7}: source branch ${branch} no longer exists."

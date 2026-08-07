@@ -61,10 +61,14 @@ const ROUTES = flag(
   // newsfeed, voice-lab, watchlist, wonderlab, and the plan/projects/* case
   // studies (coat-dance, humboldt-scoop, ruler-hooked, sketchy) -- plus the
   // sibling `content/build/*` routes (animation-manager, hair-studio, mural),
-  // all resolved through pages/[...slug].vue by content path. None of these
-  // set requiredPermission -- all public. The sanctuary channel bucket and
-  // the no-channelKey /forum, /servers routes are left for a later slice.
-  // Track progress in
+  // all resolved through pages/[...slug].vue by content path. Slice 5 covers
+  // the `channelKey: sanctuary` bucket (about, cart, giving, mermaids,
+  // privacy, sanctuary itself) plus the two no-channelKey top-level content
+  // routes /forum and /servers. None of these set requiredPermission -- all
+  // public. Remaining gap: the static pages (/auth/google, /build-bench,
+  // /coloring-page, /music-mentor, /play/challenges/leaderboard,
+  // /play/video-generator) and the dynamic-path representatives (/users/1,
+  // /play/challenges/<slug>). Track progress in
   // projects/interface-vision/docs/t-102-reachable-surface-inventory.md.
   '/,/conductor,/dreams,/art,/bots,/characters,/rewards,/stories,' +
     '/account,/achievements,/chats,/dashboard,/for-you,/friends,/messages,/navigation,/register,/themes,/wallet,' +
@@ -73,7 +77,8 @@ const ROUTES = flag(
     '/play/challenges,/play/davinci,/play/memory,/play/screenfx,' +
     '/plan/newsfeed,/plan/voice-lab,/plan/watchlist,/plan/wonderlab,' +
     '/plan/projects/coat-dance,/plan/projects/humboldt-scoop,/plan/projects/ruler-hooked,/plan/projects/sketchy,' +
-    '/build/animation-manager,/build/hair-studio,/build/mural',
+    '/build/animation-manager,/build/hair-studio,/build/mural,' +
+    '/about,/cart,/giving,/mermaids,/privacy,/sanctuary,/forum,/servers',
 )
   .split(',')
   .map((r) => r.trim())

@@ -64,11 +64,15 @@ const ROUTES = flag(
   // all resolved through pages/[...slug].vue by content path. Slice 5 covers
   // the `channelKey: sanctuary` bucket (about, cart, giving, mermaids,
   // privacy, sanctuary itself) plus the two no-channelKey top-level content
-  // routes /forum and /servers. None of these set requiredPermission -- all
-  // public. Remaining gap: the static pages (/auth/google, /build-bench,
-  // /coloring-page, /music-mentor, /play/challenges/leaderboard,
-  // /play/video-generator) and the dynamic-path representatives (/users/1,
-  // /play/challenges/<slug>). Track progress in
+  // routes /forum and /servers. Slice 6 covers the last gap from the t-102
+  // inventory: the 6 static `pages/**/*.vue` routes not yet audited
+  // (/auth/google, /build-bench, /coloring-page, /music-mentor,
+  // /play/challenges/leaderboard, /play/video-generator) plus one
+  // representative path each for the 2 dynamic route patterns (/users/[id],
+  // /play/challenges/[slug]) -- /users/1 and
+  // /play/challenges/neon-ramen-bar-icon, per the inventory's own chosen
+  // examples. None of these set requiredPermission -- all public. This
+  // closes the t-102 inventory's full non-admin, nav-linked gap list. See
   // projects/interface-vision/docs/t-102-reachable-surface-inventory.md.
   '/,/conductor,/dreams,/art,/bots,/characters,/rewards,/stories,' +
     '/account,/achievements,/chats,/dashboard,/for-you,/friends,/messages,/navigation,/register,/themes,/wallet,' +
@@ -78,7 +82,9 @@ const ROUTES = flag(
     '/plan/newsfeed,/plan/voice-lab,/plan/watchlist,/plan/wonderlab,' +
     '/plan/projects/coat-dance,/plan/projects/humboldt-scoop,/plan/projects/ruler-hooked,/plan/projects/sketchy,' +
     '/build/animation-manager,/build/hair-studio,/build/mural,' +
-    '/about,/cart,/giving,/mermaids,/privacy,/sanctuary,/forum,/servers',
+    '/about,/cart,/giving,/mermaids,/privacy,/sanctuary,/forum,/servers,' +
+    '/auth/google,/build-bench,/coloring-page,/music-mentor,/play/challenges/leaderboard,/play/video-generator,' +
+    '/users/1,/play/challenges/neon-ramen-bar-icon',
 )
   .split(',')
   .map((r) => r.trim())

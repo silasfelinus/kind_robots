@@ -57,15 +57,23 @@ const ROUTES = flag(
   // routes -- academy, facets, resources (shadowed by pages/resources.vue,
   // which is the page actually rendered at this path), serendipity,
   // storybook, taskmaster, and /play/challenges, /play/davinci, /play/memory,
-  // /play/screenfx. None of these set requiredPermission -- all public. The
-  // remaining `/plan/*`-prefixed and `/build/*` routes are left for a later
-  // slice. Track progress in
+  // /play/screenfx. Slice 4 covers the remaining `content/plan/*` pages --
+  // newsfeed, voice-lab, watchlist, wonderlab, and the plan/projects/* case
+  // studies (coat-dance, humboldt-scoop, ruler-hooked, sketchy) -- plus the
+  // sibling `content/build/*` routes (animation-manager, hair-studio, mural),
+  // all resolved through pages/[...slug].vue by content path. None of these
+  // set requiredPermission -- all public. The sanctuary channel bucket and
+  // the no-channelKey /forum, /servers routes are left for a later slice.
+  // Track progress in
   // projects/interface-vision/docs/t-102-reachable-surface-inventory.md.
   '/,/conductor,/dreams,/art,/bots,/characters,/rewards,/stories,' +
     '/account,/achievements,/chats,/dashboard,/for-you,/friends,/messages,/navigation,/register,/themes,/wallet,' +
     '/appmaker,/brainstorm,/coloring,/model-builder,/packs,/stylist,/wishmaster,/conductor-app,' +
     '/academy,/facets,/resources,/serendipity,/storybook,/taskmaster,' +
-    '/play/challenges,/play/davinci,/play/memory,/play/screenfx',
+    '/play/challenges,/play/davinci,/play/memory,/play/screenfx,' +
+    '/plan/newsfeed,/plan/voice-lab,/plan/watchlist,/plan/wonderlab,' +
+    '/plan/projects/coat-dance,/plan/projects/humboldt-scoop,/plan/projects/ruler-hooked,/plan/projects/sketchy,' +
+    '/build/animation-manager,/build/hair-studio,/build/mural',
 )
   .split(',')
   .map((r) => r.trim())

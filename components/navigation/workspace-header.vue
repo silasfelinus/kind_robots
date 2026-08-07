@@ -36,19 +36,18 @@
            instead. -->
       <!-- channel-select used to carry `shrink-0` here, which pinned it to its
            full unclamped label width (e.g. "Sanctuary") no matter how little
-           room the row had left. Since the tab strip's own wrapper is
-           `flex-1` with a flex-basis of 0%, flexbox gives basis-0 items NO
-           share of the shrink deficit — so a shrink-0 sibling forces 100% of
-           any squeeze onto the tab strip instead, crushing `#channel-tab-strip`
-           to a several-pixel sliver on narrow phones (interface-vision/t-109:
+           room the row had left, crushing `#channel-tab-strip` to a
+           several-pixel sliver on narrow phones (interface-vision/t-109:
            /about, /cart, /giving, /mermaids, /privacy, /sanctuary, and
            /auth/google, all only on the 390px phone viewport — there was
            always enough room at tablet+). `shrink` (default flex-shrink: 1)
            plus `min-w-0` here, and the matching `w-full min-w-0` replacing
            channel-select's own internal `shrink-0` in channel-select.vue, let
-           the picker absorb the deficit first and truncate its label (the
-           span already had `min-w-0 truncate`, it just never got a chance to
-           engage) rather than starving the navigation the row exists for. -->
+           the picker absorb a shrink deficit and truncate its label instead
+           of starving the navigation the row exists for -- but by itself
+           this was NOT enough to fix the crush: see the `.tab-strip`
+           min-width comment below for why, and the empirical confirmation
+           that this half alone still crushed identically. -->
       <div
         class="flex h-10 min-h-10 min-w-0 flex-1 items-stretch rounded-xl border border-base-300 bg-base-100 shadow-sm sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14"
       >
@@ -680,6 +679,42 @@ function goBack(): void {
   -ms-overflow-style: none;
   scroll-padding-inline: 0.375rem;
   overscroll-behavior-inline: contain;
+
+  /*
+   * Follow-up to the interface-vision/t-109 fix above: making channel-select
+   * shrinkable was necessary but not sufficient. `overflow-x: auto` makes an
+   * item's AUTOMATIC minimum size (the one used when min-width is `auto`)
+   * resolve to 0, per the flexbox spec -- so with no min-width set here, the
+   * browser never sees the row as overflowing at all: channel-select simply
+   * keeps its full content width (flex-grow: 0 means "don't grow past
+   * content", not "shrink to make room"), and this strip is handed whatever
+   * sliver is left over, same as before that fix. Confirmed empirically: PR
+   * #1577 shipped the shrinkable channel-select alone and the responsive
+   * audit (kind_robots run 31212650601, this PR's own head) still measured
+   * the identical crush -- w=18 on the six sanctuary routes, w=12 on
+   * /auth/google -- because shrink/grow never engaged without a real deficit
+   * to detect.
+   *
+   * An EXPLICIT min-width bypasses the automatic-minimum-is-0 rule, so the
+   * browser now genuinely detects overflow once channel-select's content
+   * plus this floor exceed the row -- at which point channel-select (now
+   * shrinkable) is the one that gives ground, per normal shrink-factor
+   * distribution. Matches tab-button's own floor below (same three values),
+   * since one visible, readable tab is the minimum this strip is for.
+   */
+  min-width: 6rem; /* 96px */
+}
+
+@media (min-width: 640px) {
+  .tab-strip {
+    min-width: 7rem; /* 112px */
+  }
+}
+
+@media (min-width: 1280px) {
+  .tab-strip {
+    min-width: 8rem; /* 128px */
+  }
 }
 
 .tab-button {

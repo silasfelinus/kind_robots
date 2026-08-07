@@ -3,95 +3,49 @@
   <section
     class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
   >
+    <!--
+      ONE TITLE ROW, THEN THE SHELL'S TOOLBAR.
+
+      This stacked FIVE always-on bands before the first checkpoint: a
+      title/subtitle header, a full-width search+family+refresh grid, a
+      maturity-toggle band, a sampler panel, and then kr-gallery's mode bar.
+      Search, family, refresh, maturity and sampler are all filters over the
+      same list, so they belong on the shell's toolbar line rather than owning
+      four rows between the user and the thing they came to look at.
+
+      `add-checkpoint` and `server-status` stay as their own bands because they
+      are conditional and are not filters -- one is a form, the other is status.
+    -->
     <header
       v-if="showHeader"
-      class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+      class="flex shrink-0 items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
     >
-      <div class="flex items-start justify-between gap-3">
-        <div class="min-w-0">
-          <h2 class="truncate text-lg font-bold text-base-content">
-            {{ title }}
-          </h2>
-          <p class="text-sm text-base-content/60">
-            {{ subtitleText }}
-          </p>
-        </div>
-
-        <button
-          v-if="allowAdd"
-          class="btn btn-sm btn-primary rounded-xl"
-          type="button"
-          @click="showAdd = !showAdd"
-        >
-          <Icon name="kind-icon:plus" class="h-4 w-4" />
-          Add
-        </button>
+      <div class="min-w-0">
+        <h2 class="truncate text-sm font-bold text-base-content">
+          {{ title }}
+        </h2>
+        <!-- Orientation text, not instruction: it costs a whole row on the
+             screens where rows are scarcest, so it appears only once there is
+             room for it. -->
+        <p class="hidden truncate text-xs text-base-content/60 md:block">
+          {{ subtitleText }}
+        </p>
       </div>
 
-      <div v-if="showControls" class="grid gap-2 md:grid-cols-[1fr_auto_auto]">
-        <input
-          v-model="searchQuery"
-          class="input input-bordered rounded-xl"
-          placeholder="Search checkpoints"
-        />
-
-        <select
-          v-model="selectedFamily"
-          class="select select-bordered rounded-xl"
-        >
-          <option value="all">All</option>
-          <option value="A1111">A1111</option>
-          <option value="COMFY">COMFY</option>
-          <option value="FLUX">FLUX</option>
-          <option value="KONTEXT">KONTEXT</option>
-          <option value="SDXL">SDXL</option>
-        </select>
-
-        <button
-          v-if="allowRefresh"
-          class="btn rounded-xl"
-          type="button"
-          @click="refreshStatus"
-        >
-          <Icon name="kind-icon:refresh-cw" class="h-4 w-4" />
-          Refresh
-        </button>
-      </div>
+      <button
+        v-if="allowAdd"
+        class="btn btn-xs btn-primary shrink-0 rounded-xl"
+        type="button"
+        @click="showAdd = !showAdd"
+      >
+        <Icon name="kind-icon:plus" class="h-3.5 w-3.5" />
+        Add
+      </button>
     </header>
-
-    <maturity-toggle
-      variant="resource"
-      label="Mature checkpoint models"
-      visible-text="Mature checkpoint models are available for selection."
-      hidden-text="Mature checkpoint models are hidden from selection."
-    />
 
     <add-checkpoint v-if="showAdd" />
 
     <server-status v-if="showStatus" compact />
-
-    <div
-      v-if="showSampler"
-      class="rounded-2xl border border-base-300 bg-base-100 p-3"
-    >
-      <label class="form-control">
-        <span class="label-text font-bold">Sampler</span>
-        <select
-          :value="checkpointStore.selectedSampler?.name || ''"
-          class="select select-bordered rounded-xl"
-          @change="selectSampler"
-        >
-          <option value="">No sampler selected</option>
-          <option
-            v-for="sampler in checkpointStore.allSamplers"
-            :key="sampler.name || sampler.id"
-            :value="sampler.name || ''"
-          >
-            {{ sampler.customLabel || sampler.name }}
-          </option>
-        </select>
-      </label>
-    </div>
 
     <!-- The shared shell owns the grid, the mode bar, and the empty state;
          checkpoint-card stays the card. The compact variant is a PICKER, so it
@@ -104,6 +58,71 @@
       empty-label="checkpoints"
       @update:mode="galleryMode = $event"
     >
+      <template v-if="showControls || showSampler" #toolbar>
+        <div class="flex flex-wrap items-center gap-1.5">
+          <input
+            v-if="showControls"
+            v-model="searchQuery"
+            class="input input-bordered input-xs w-32 rounded-xl sm:w-44"
+            placeholder="Search checkpoints"
+            aria-label="Search checkpoints"
+          />
+
+          <select
+            v-if="showControls"
+            v-model="selectedFamily"
+            class="select select-bordered select-xs rounded-xl"
+            aria-label="Filter by model family"
+          >
+            <option value="all">All</option>
+            <option value="A1111">A1111</option>
+            <option value="COMFY">COMFY</option>
+            <option value="FLUX">FLUX</option>
+            <option value="KONTEXT">KONTEXT</option>
+            <option value="SDXL">SDXL</option>
+          </select>
+
+          <select
+            v-if="showSampler"
+            :value="checkpointStore.selectedSampler?.name || ''"
+            class="select select-bordered select-xs rounded-xl"
+            aria-label="Sampler"
+            @change="selectSampler"
+          >
+            <option value="">No sampler</option>
+            <option
+              v-for="sampler in checkpointStore.allSamplers"
+              :key="sampler.name || sampler.id"
+              :value="sampler.name || ''"
+            >
+              {{ sampler.customLabel || sampler.name }}
+            </option>
+          </select>
+
+          <!-- `icon`, not `resource`. The resource variant is a labelled block
+               with an explanatory sentence under it -- a whole band, which is
+               the band this change is removing. The icon variant is the same
+               control as a single square toggle, and it keeps the wording as
+               its accessible name and tooltip rather than as body text. -->
+          <maturity-toggle
+            variant="icon"
+            label="Mature checkpoint models"
+            visible-text="Mature checkpoint models are available for selection."
+            hidden-text="Mature checkpoint models are hidden from selection."
+          />
+
+          <button
+            v-if="showControls && allowRefresh"
+            class="btn btn-ghost btn-xs rounded-xl"
+            type="button"
+            @click="refreshStatus"
+          >
+            <Icon name="kind-icon:refresh-cw" class="h-3.5 w-3.5" />
+            <span class="hidden sm:inline">Refresh</span>
+          </button>
+        </div>
+      </template>
+
       <template #item="{ item }">
         <checkpoint-card
           v-if="checkpointByKey.get(String(item.id))"

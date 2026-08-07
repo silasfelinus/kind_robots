@@ -345,16 +345,23 @@ for (const maintenanceScript of [
   )
 }
 
-// Browser audits must collapse repeated commits on the same branch instead of
-// using the unique deployment URL as their concurrency identity. A deployment
-// whose branch head has already moved must exit before touching the database.
+// Browser audits still share one database identity, so only one heavy crawler
+// may run at a time across every PR and the hourly production sweep. GitHub may
+// retain one pending replacement, but it must not cancel a healthy running
+// audit just because another deployment arrived. A deployment whose branch head
+// moved while queued exits before touching the database.
 assert.match(
   responsiveAuditSource,
-  /group: responsive-layout-audit-\$\{\{ github\.event\.deployment\.ref \|\| github\.ref_name \}\}/,
+  /group: responsive-layout-audit-database/,
 )
+assert.match(responsiveAuditSource, /cancel-in-progress:\s*false/)
 assert.doesNotMatch(
   responsiveAuditSource,
   /group: responsive-layout-audit-\$\{\{ github\.event\.deployment_status\.target_url/,
+)
+assert.doesNotMatch(
+  responsiveAuditSource,
+  /group: responsive-layout-audit-\$\{\{ github\.event\.deployment\.ref/,
 )
 assert.match(responsiveAuditSource, /name: Check deployment freshness/)
 assert.match(responsiveAuditSource, /git ls-remote --heads origin/)
@@ -444,5 +451,5 @@ console.log(
     `production=${vercelDefaults.connectionLimit}/${vercelDefaults.minimumIdle}/` +
     `${vercelDefaults.idleTimeoutSeconds}s, preview=${previewDefaults.connectionLimit}/` +
     `${previewDefaults.minimumIdle}/${previewDefaults.idleTimeoutSeconds}s; ` +
-    'one Prisma client per process and stale preview audits cancelled.',
+    'one Prisma client per process and database-backed audits globally serialized.',
 )

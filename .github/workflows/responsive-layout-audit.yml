@@ -44,13 +44,16 @@ on:
         required: false
         default: ''
 
-# A deployment URL is unique per commit, so keying concurrency by target_url
-# lets every preview commit run a separate 60-minute database-backed browser
-# crawl. Key by source ref instead: a newer push to the same branch cancels the
-# older audit, while separate PR branches remain independent.
+# Every audit currently shares the production ProxySQL user, so even separate
+# PR branches compete for the same 200 frontend sessions. Serialize the heavy
+# database-backed browser crawl globally until Preview has its own DB identity.
+# Keep the running audit rather than cancelling it: GitHub concurrency retains
+# at most one running + one pending job, replacing older pending work as newer
+# deployments arrive. The freshness check below then drops a queued preview if
+# its source branch has moved before it starts.
 concurrency:
-  group: responsive-layout-audit-${{ github.event.deployment.ref || github.ref_name }}
-  cancel-in-progress: true
+  group: responsive-layout-audit-database
+  cancel-in-progress: false
 
 jobs:
   audit:

@@ -19,10 +19,27 @@
       background is required: without it the grid shows through as it passes
       under the buttons.
     -->
+    <!--
+      ONE ROW, NOT TWO. Silas, 2026-08-07, on a 1366x768 desktop: "the choose
+      your reward, pick a story reward text, maturity toggle and search bar, and
+      card hero icons sections should be at most 1-2 rows. This is taking up a
+      significant amount of real estate."
+
+      He was right, and the mode bar was half of it -- a full row of its own for
+      three small buttons, above whatever filter row the parent had already
+      drawn. The `#toolbar` slot lets a gallery put its filters HERE instead, so
+      filters and modes share one line and the parent's second row disappears.
+      The bar still renders alone when nothing is slotted, so galleries that
+      have not adopted it are unaffected.
+    -->
     <div
-      v-if="modes.length"
-      class="sticky top-0 z-20 -mx-1 flex shrink-0 gap-0.5 bg-(--kr-surface-sunken) px-1 py-1 backdrop-blur"
+      v-if="modes.length || $slots.toolbar"
+      class="sticky top-0 z-20 -mx-1 flex shrink-0 flex-wrap items-center gap-1 bg-(--kr-surface-sunken) px-1 py-1 backdrop-blur"
     >
+      <div v-if="$slots.toolbar" class="min-w-0 flex-1">
+        <slot name="toolbar" />
+      </div>
+
       <button
         v-for="entry in modes"
         :key="entry.value"

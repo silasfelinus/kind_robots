@@ -5,50 +5,20 @@
     :href="allowNavigation ? item.url : undefined"
     :target="allowNavigation ? '_blank' : undefined"
     :rel="allowNavigation ? 'noopener noreferrer' : undefined"
-    class="group flex h-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm transition-shadow duration-300 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-100 motion-safe:hover:-translate-y-0.5 motion-safe:transition-transform"
+    class="group flex h-full flex-col gap-2 overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-3 shadow-sm transition-shadow duration-300 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-100 motion-safe:hover:-translate-y-0.5 motion-safe:transition-transform"
   >
-    <figure
-      v-if="showImage"
-      class="relative aspect-video w-full overflow-hidden bg-base-300"
+    <kr-entity-card-body
+      class="flex flex-1 flex-col"
+      :title="item.title"
+      :description="item.summary || undefined"
+      :show-description="Boolean(item.summary)"
+      :show-image="showImage"
+      :source="imageSource"
+      variant="hero"
+      :fallback="fallbackImageSrc"
+      hover-zoom
+      :badges="badges"
     >
-      <img
-        v-if="imageSrc && !imageFailed"
-        :src="imageSrc"
-        :alt="item.title"
-        class="h-full w-full object-cover motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:scale-[1.03]"
-        loading="lazy"
-        @error="imageFailed = true"
-      />
-      <img
-        v-else
-        :src="fallbackImageSrc"
-        :alt="item.title"
-        class="h-full w-full object-cover motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:scale-[1.03]"
-        loading="lazy"
-      />
-
-      <span
-        v-if="primaryCategory"
-        class="badge badge-primary badge-sm absolute left-2 top-2 rounded-xl shadow"
-      >
-        {{ primaryCategory }}
-      </span>
-    </figure>
-
-    <div class="flex flex-1 flex-col gap-2 p-3">
-      <h3
-        class="line-clamp-2 text-sm font-black leading-tight text-base-content sm:text-base"
-      >
-        {{ item.title }}
-      </h3>
-
-      <p
-        v-if="item.summary"
-        class="line-clamp-2 text-xs leading-relaxed text-base-content/65 sm:text-sm"
-      >
-        {{ item.summary }}
-      </p>
-
       <div
         class="mt-auto flex flex-wrap items-center justify-between gap-2 pt-1"
       >
@@ -84,14 +54,16 @@
           />
         </span>
       </div>
-    </div>
+    </kr-entity-card-body>
   </component>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import type { NewsFeedItem } from '@/stores/helpers/newsfeed'
 import { useFeedPreferenceStore } from '@/stores/feedPreferenceStore'
+import type { EntityCardChip } from '@/components/gallery/kr-entity-card-body.vue'
+import type { ArtImageSrcLike } from '@/utils/artImageSrc'
 
 const props = withDefaults(
   defineProps<{
@@ -107,10 +79,21 @@ const props = withDefaults(
 
 const feedPreferenceStore = useFeedPreferenceStore()
 
-const imageFailed = ref(false)
-
-const imageSrc = computed(() => props.item.image || '')
 const primaryCategory = computed(() => props.item.category?.[0] || '')
+
+// NewsFeedItem carries a plain `image` URL rather than the cardPath/heroPath/
+// iconPath shape most art-bearing records use -- kr-art-plate's resolver
+// chain falls through to `imagePath` for any variant that has no dedicated
+// path of its own, so wrapping it here is enough to reuse the same plate/
+// fallback/retry-on-error logic every other card gets instead of hand-rolling
+// a second <img>-with-@error pair.
+const imageSource = computed<ArtImageSrcLike>(() => ({
+  imagePath: props.item.image || null,
+}))
+
+const badges = computed<EntityCardChip[]>(() =>
+  primaryCategory.value ? [{ label: primaryCategory.value }] : [],
+)
 
 // A repeating flat icon on every image-less card reads as "a sea of empty
 // boxes" (Silas, 2026-07-25) -- pick one of 8 default illustrations per item

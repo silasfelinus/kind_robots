@@ -50,6 +50,15 @@ function asRecord(value: unknown): ArtJobPayloadRecord {
   return value as ArtJobPayloadRecord
 }
 
+function finiteNumber(value: unknown): number | undefined {
+  return typeof value === 'number' && Number.isFinite(value) ? value : undefined
+}
+
+function nonEmptyString(value: unknown): string | undefined {
+  const text = typeof value === 'string' ? value.trim() : ''
+  return text || undefined
+}
+
 function normalizeImageData(value: unknown): string {
   const imageData = String(value || '').trim()
   if (!imageData) return ''
@@ -188,6 +197,12 @@ export default defineEventHandler(async (event) => {
       prompt: promptString,
       seed: null,
     }
+    const inheritedSettings = {
+      steps: finiteNumber(prepared.steps),
+      cfg: finiteNumber(prepared.cfg),
+      sampler: nonEmptyString(prepared.sampler),
+      scheduler: nonEmptyString(prepared.scheduler),
+    }
 
     if (mode === 'TEXT') {
       prepared.workflow = buildWorkflowForEngine('comfy', renderRequest)
@@ -232,6 +247,7 @@ export default defineEventHandler(async (event) => {
     const payload = applyArtJobOverrides(prepared, {
       promptString,
       checkpoint: checkpoint?.localPath,
+      ...inheritedSettings,
     })
 
     if (checkpoint) {

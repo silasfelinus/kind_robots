@@ -32,6 +32,7 @@ import {
   WAN_DEFAULT_DURATION,
   WAN_DEFAULT_FRAME_RATE,
 } from '../comfy/wan/utils/imageToVideoWorkflow'
+import { assertArtPromptContract } from '../../utils/artPromptContract'
 import {
   applyArtFacetsToPayload,
   normalizeArtFacetIds,
@@ -380,6 +381,17 @@ export default defineEventHandler(async (event) => {
       contextualBasePrompt,
       facets,
     )
+
+    // Gate the FULL composed prompt — after entity context and Facet direction
+    // are folded in — because that is the string the model actually sees. Facet
+    // artPrompts and entity context are just as capable of smuggling in a
+    // conditional or a format noun as the caller's own text.
+    assertArtPromptContract({
+      prompt: promptString,
+      engine,
+      steps: resolvedBody.steps ?? null,
+      cfg: resolvedBody.cfg ?? null,
+    })
 
     // Everything that reaches this endpoint is interactive or corrective: the
     // entity art workbench redoing a bad image, a narrative beat a player is

@@ -74,12 +74,9 @@
             <span
               class="relative flex h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-base-200"
             >
-              <img
-                v-if="tab.image"
+              <NavigationArtwork
                 :src="tab.image"
                 :alt="tab.title || tab.label"
-                loading="lazy"
-                class="h-full w-full object-cover"
               />
               <span
                 class="absolute inset-0 flex items-center justify-center bg-base-content/15"

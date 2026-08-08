@@ -301,7 +301,7 @@
 
             <select
               v-model="selectedCollection"
-              class="select select-bordered select-sm bg-base-100"
+              class="select select-bordered select-sm w-auto max-w-44 bg-base-100"
               aria-label="Filter rewards by collection"
             >
               <option value="all">All collections</option>
@@ -317,7 +317,7 @@
 
             <select
               v-model="selectedRarity"
-              class="select select-bordered select-sm bg-base-100"
+              class="select select-bordered select-sm w-auto max-w-44 bg-base-100"
               aria-label="Filter rewards by rarity"
             >
               <option value="all">All rarities</option>

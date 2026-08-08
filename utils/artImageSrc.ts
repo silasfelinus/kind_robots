@@ -75,10 +75,9 @@ const VARIANT_DATA_KEYS = {
  * avatar or primary image. That left hundreds of rendered card images sitting in
  * the database, invisible.
  *
- * Degrades deliberately: variant path -> variant base64 -> the full-size
- * resolver -> `fallback`. A slot that has not rendered yet therefore behaves
- * exactly as it did before rather than leaving a hole, which is what lets this
- * ship while the render queue is still draining.
+ * Degrades deliberately: requested variant path -> requested variant base64 ->
+ * the full-size resolver -> `fallback`. A gallery that asks for a card therefore
+ * gets the card when one exists and the general imagePath when it does not.
  */
 export function resolveArtVariantSrc(
   image: ArtImageSrcLike,
@@ -95,28 +94,27 @@ export function resolveArtVariantSrc(
 }
 
 /**
- * Card-first display artwork for any entity that carries art, or null.
+ * General display artwork for an entity that carries art, or null.
  *
- * This chain -- `cardPath || imagePath || heroPath [|| iconPath]` -- had been
- * hand-written SIX times: utils/narrativeIngredients.ts, facet-gallery.vue,
- * facet-manager.vue, facet-picker.vue, character-facet-picker.vue,
- * reward-facet-picker.vue and art-facet-selector.vue each carried their own
- * copy. They had already drifted: some included iconPath, some did not.
+ * `imagePath` is the canonical baseline image: one good primary render is enough
+ * for an entity to be displayable everywhere because cards/heroes/icons can
+ * resize or crop it. Purpose-built variants remain optional enhancements. When a
+ * caller has no specific variant requirement, fall back in the stable order:
  *
- * Ordering is preserved rather than "improved". Asking resolveArtVariantSrc for
- * each variant in turn yields cardPath -> cardData -> imagePath -> imageData ->
- * heroPath -> ... -> iconPath, so the relative precedence of the three path
- * fields matches every copy this replaces; the base64 fallbacks are a superset,
- * reachable only where a path was absent and the old chain returned null.
+ *   imagePath -> cardPath -> heroPath -> iconPath
  *
- * Returns null, not '', because every caller tested truthiness to decide
- * between an <img> and a placeholder.
+ * Variant-aware galleries should keep using resolveArtVariantSrc(), which first
+ * asks for the requested shape and then falls back to imagePath.
  */
 export function resolveEntityArtwork(image: ArtImageSrcLike): string | null {
   return (
-    resolveArtVariantSrc(image, 'card') ||
-    resolveArtVariantSrc(image, 'hero') ||
-    resolveArtVariantSrc(image, 'icon') ||
+    resolveArtImageSrc(image) ||
+    cleanValue(image?.cardPath) ||
+    toArtDataUri(image?.cardData, image?.fileType) ||
+    cleanValue(image?.heroPath) ||
+    toArtDataUri(image?.heroData, image?.fileType) ||
+    cleanValue(image?.iconPath) ||
+    toArtDataUri(image?.iconData, image?.fileType) ||
     null
   )
 }

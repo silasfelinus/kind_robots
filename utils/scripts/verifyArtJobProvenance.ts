@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import {
   assertArtImageMatchesCompletion,
   enrichArtJobPayload,
+  extractWorkflowPositivePromptCandidates,
   hashArtImageData,
   validateArtJobCompletionProof,
 } from '../../server/utils/artJobProvenance'
@@ -27,12 +28,29 @@ function workflow(prompt: string, seed: number) {
         seed,
         model: ['24', 0],
       },
+      _meta: { title: 'Positive Prompt' },
+    },
+  }
+}
+
+function simpleWorkflow(prompt: string, negative: string) {
+  return {
+    '3': {
+      class_type: 'CLIPTextEncode',
+      inputs: { text: prompt, clip: ['2', 0] },
+      _meta: { title: 'Positive Prompt' },
+    },
+    '4': {
+      class_type: 'CLIPTextEncode',
+      inputs: { text: negative, clip: ['2', 0] },
+      _meta: { title: 'Negative Prompt' },
     },
   }
 }
 
 const promptA = 'A vampire family portrait in a velvet crypt lounge.'
 const promptB = 'A lighthouse keeper confronting a sea monster.'
+const negativePrompt = 'text, watermark, blurry anatomy'
 const imageDataA = Buffer.from('job-a-pixels').toString('base64')
 const imageDataB = Buffer.from('job-b-pixels').toString('base64')
 const imageHashA = hashArtImageData(imageDataA)
@@ -78,6 +96,36 @@ assert.equal(
 assert.equal(attemptA.provenance.workflowPromptMatches, true)
 assert.ok(
   attemptA.provenance.expectedModels.includes('flux1-dev-Q8_0.gguf'),
+)
+
+const recoveredFromWorkflow = enrichArtJobPayload('COMFY', {
+  workflow: simpleWorkflow(promptA, negativePrompt),
+})
+assert.equal(recoveredFromWorkflow.payload.promptString, promptA)
+assert.equal(recoveredFromWorkflow.provenance.normalizedPrompt, promptA)
+assert.equal(recoveredFromWorkflow.provenance.workflowPromptMatches, true)
+assert.deepEqual(
+  extractWorkflowPositivePromptCandidates(
+    simpleWorkflow(promptA, negativePrompt),
+  ),
+  [promptA],
+  'negative conditioning must never be mistaken for a recoverable positive prompt',
+)
+
+assert.throws(
+  () =>
+    enrichArtJobPayload('COMFY', {
+      workflow: {
+        ...simpleWorkflow(promptA, negativePrompt),
+        '5': {
+          class_type: 'CLIPTextEncode',
+          inputs: { text: promptB, clip: ['2', 0] },
+          _meta: { title: 'Second Positive Prompt' },
+        },
+      },
+    }),
+  /multiple distinct positive prompts/i,
+  'missing top-level prompt metadata must not guess between distinct positive workflow prompts',
 )
 
 const attemptB = enrichArtJobPayload(

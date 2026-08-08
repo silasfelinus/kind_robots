@@ -91,8 +91,8 @@
 
               <p class="text-sm leading-relaxed text-base-content/70">
                 The butterflies are drafting community guidelines in glitter
-                ink. This tab is wired to the dashboard canon and ready for
-                the real forum component when it lands.
+                ink. This tab is wired to the dashboard canon and ready for the
+                real forum component when it lands.
               </p>
             </div>
           </div>
@@ -186,6 +186,17 @@ const swarmMemo = computed(() => {
 
 onMounted(async () => {
   await refreshManagerData()
+
+  // The 'mermaids' tab routes to its own page (/mermaids) rather than
+  // rendering in-place here, but navStore's persisted dashboard tab can still
+  // land on 'mermaids' (e.g. a stale selection from a prior visit) when this
+  // component mounts on /sanctuary directly. Without this, activeTab falls
+  // through the template's catch-all "misplaced tab" warning instead of
+  // reaching the real content. Send the visitor where the tab itself points.
+  if (storedTab.value === 'mermaids') {
+    await router.replace('/mermaids')
+    return
+  }
 
   const topupQuery = route.query.manaTopup
   if (topupQuery === 'success' || topupQuery === 'cancelled') {

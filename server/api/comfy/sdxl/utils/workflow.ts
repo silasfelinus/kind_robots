@@ -13,8 +13,6 @@ export type ComfyWorkflowNode = {
   _meta?: Record<string, unknown>
 }
 
-// The generation params the builder/patcher consume (the direct route's
-// GenerateComfyImageInput minus the transport-only server/workflow fields).
 export type ComfyWorkflowInput = {
   prompt: string
   cfgValue: number
@@ -59,8 +57,6 @@ function assignIfKeyExists(
   }
 }
 
-// Apply the request's prompt/seed/steps/cfg/sampler/checkpoint onto a
-// caller-supplied Comfy workflow, matching nodes by class_type + title.
 export function patchComfyWorkflow(
   workflow: ComfyWorkflow,
   input: ComfyWorkflowInput,
@@ -129,8 +125,6 @@ export function patchComfyWorkflow(
 export type SdxlImg2ImgInput = {
   prompt: string
   negativePrompt?: string | null
-  // Filename the relay uploads to Comfy's input folder (see the `images` payload
-  // the enqueue route builds), referenced by the LoadImage node below.
   imageName: string
   checkpoint?: string | null
   cfgValue?: number | null
@@ -138,32 +132,15 @@ export type SdxlImg2ImgInput = {
   seed?: number | null
   sampler?: string | null
   scheduler?: string | null
-  // How much of the ORIGINAL image to preserve, 0..1. denoise = 1 - originalWeight
-  // (floored to MIN_SDXL_IMG2IMG_DENOISE), so a higher weight keeps more of the
-  // source composition/subject and gives the checkpoint + style LoRA less room to
-  // repaint. When omitted, an explicit `denoise` is used; when both are omitted a
-  // restyle-friendly default is applied.
   originalWeight?: number | null
   denoise?: number | null
-  // Optional style LoRA. Unlike the Flux/Kontext model-only splice, SDXL style
-  // LoRAs frequently carry text-encoder weights, so a full LoraLoader (model +
-  // clip) is used and the CLIP encoders read through it too.
   loraName?: string | null
   loraStrength?: number | null
   filenamePrefix?: string | null
 }
 
-// Defaults tuned for the SDXL-Turbo base (dreamshaperXL_v21TurboDPMSDE): few
-// steps, low cfg, DPM++ SDE / Karras. A non-Turbo checkpoint still renders with
-// these but the UI is expected to expose step/cfg overrides.
 export const DEFAULT_SDXL_IMG2IMG_ORIGINAL_WEIGHT = 0.35
 const MIN_SDXL_IMG2IMG_DENOISE = 0.15
-// Subfolder-qualified, matching how ComfyUI lists a recursive checkpoints dir
-// (files live under SDXL/, Flux/, … so a bare filename would not resolve). The
-// styler is expected to pass the checkpoint Resource's real localPath; this is
-// only the fallback when none is supplied.
-const DEFAULT_SDXL_IMG2IMG_CHECKPOINT =
-  'SDXL/dreamshaperXL_v21TurboDPMSDE.safetensors'
 
 function resolveSdxlSeed(seed?: number | null): number {
   if (typeof seed === 'number' && Number.isFinite(seed) && seed >= 0) {
@@ -176,10 +153,6 @@ function clampUnit(value: number): number {
   return Math.min(1, Math.max(0, value))
 }
 
-// SDXL restyle: VAE-encode the source photo and sample from it at a reduced
-// denoise so the composition survives while the checkpoint (and optional style
-// LoRA) reinterpret the look. Mirrors the img2img shape of the Kontext builder,
-// but on a plain CheckpointLoaderSimple graph (baked CLIP + VAE).
 export function buildSdxlImg2ImgWorkflow(input: SdxlImg2ImgInput): {
   workflow: ComfyWorkflow
   seed: number
@@ -192,7 +165,13 @@ export function buildSdxlImg2ImgWorkflow(input: SdxlImg2ImgInput): {
     ? normalizeComfySampler(input.sampler)
     : 'dpmpp_sde'
   const scheduler = input.scheduler?.trim() || 'karras'
-  const checkpoint = input.checkpoint?.trim() || DEFAULT_SDXL_IMG2IMG_CHECKPOINT
+  const checkpoint = input.checkpoint?.trim()
+
+  if (!checkpoint) {
+    throw new Error(
+      'SDXL img2img requires an explicit checkpoint Resource path; refusing to build a workflow with a stale hard-coded fallback.',
+    )
+  }
 
   const originalWeight =
     typeof input.originalWeight === 'number' &&
@@ -212,7 +191,6 @@ export function buildSdxlImg2ImgWorkflow(input: SdxlImg2ImgInput): {
       ? input.loraStrength
       : 1
 
-  // Model + CLIP sources flip to the LoRA loader when a style LoRA is applied.
   const modelSource: [string, number] = loraName ? ['10', 0] : ['1', 0]
   const clipSource: [string, number] = loraName ? ['10', 1] : ['1', 1]
 

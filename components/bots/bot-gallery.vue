@@ -295,7 +295,21 @@
                  full-width row of its own -- four filters became four rows on a
                  phone, which is most of why /rewards spent 54% of a 390px
                  viewport before its first card. flex-wrap puts as many on a
-                 line as fit and only breaks when it must. -->
+                 line as fit and only breaks when it must.
+
+                 AND THE CHILDREN HAVE TO AGREE. Switching the container was
+                 only half the fix: the controls kept the `w-full` the grid had
+                 given them, and a `w-full` child fills its line and forces the
+                 next one to wrap, which is stacking by another name. The search
+                 box was the worst of it -- plain `w-full`, no responsive
+                 escape at all, so it took a row of its own at EVERY width,
+                 desktop included.
+
+                 So the selects size to their content and the search box is
+                 `flex-1` with a floor: it absorbs whatever slack is left on the
+                 line instead of claiming the whole one, and `min-w-32` is what
+                 makes it wrap rather than collapse to nothing when the line is
+                 full. resource-gallery's toolbar already worked this way. -->
           <div
             v-if="showControls && !isDropdownMode"
             class="flex flex-wrap items-center gap-1.5"
@@ -318,7 +332,7 @@
 
             <select
               v-model="constructionFilter"
-              class="select select-bordered select-sm w-full bg-base-100 lg:w-auto"
+              class="select select-bordered select-sm bg-base-100"
               aria-label="Filter bots by construction status"
             >
               <option value="all">All statuses</option>
@@ -330,12 +344,12 @@
               v-model="searchQuery"
               type="search"
               placeholder="Search bots..."
-              class="input input-bordered input-sm w-full bg-base-100"
+              class="input input-bordered input-sm min-w-32 flex-1 bg-base-100"
               aria-label="Search bots"
             />
 
             <button
-              class="btn btn-ghost btn-sm rounded-xl lg:w-auto"
+              class="btn btn-ghost btn-sm rounded-xl"
               type="button"
               :disabled="!botStore.currentBot"
               @click="clearSelectedBot"
@@ -383,6 +397,21 @@ const props = withDefaults(
     variant?: GalleryVariant
     title?: string
     subtitle?: string
+    /**
+     * The gallery's own title/subtitle band.
+     *
+     * TRUE BY DEFAULT, AND OFF ON THE ROUTE. kr-manager already renders this
+     * panel's title and summary from dashboardHelper config -- it says so
+     * itself, citing "the brief's one-header rule" -- so on /bots this band is a
+     * second page heading for the same panel.
+     *
+     * It stays available rather than being deleted because the same gallery is
+     * embedded as a PICKER inside bot-chat, where no manager sits above it and
+     * this title is the only label. Duplication on the ROUTE is not duplication
+     * everywhere, so bot-interact opts out explicitly and the default is left
+     * alone for the pickers. reward-gallery and scenario-gallery carry the same
+     * split for the same reason (character-chat, character-flip-card).
+     */
     showHeader?: boolean
     showImages?: boolean
     showControls?: boolean

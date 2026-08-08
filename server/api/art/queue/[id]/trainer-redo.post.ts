@@ -10,12 +10,18 @@ import { errorHandler } from '../../../../utils/error'
 import { requireMachineUser } from '../../../../utils/authGuard'
 import {
   decodeArtJobPayload,
+  parseArtJobPayload,
   serializeArtJobPayload,
+  type ArtJobPayloadRecord,
 } from '../../../../utils/artJobPayload'
 import {
   applyArtJobOverrides,
   prepareArtJobRetryPayload,
 } from '../../../../utils/artJobRetry'
+import {
+  resolveActiveCheckpointResourceReference,
+  type ResolvedCheckpointResource,
+} from '../../../../utils/artJobResourceRefresh'
 import { assessArtPrompt, cleanArtPrompt } from '../../../../utils/artPromptQuality'
 import {
   buildWorkflowForEngine,
@@ -35,6 +41,22 @@ type TrainerRedoBody = {
   model?: string | null
   promptString?: string | null
   sourceImageBase64?: string | null
+  checkpointResourceId?: number | null
+  checkpoint?: string | null
+}
+
+function asRecord(value: unknown): ArtJobPayloadRecord {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
+  return value as ArtJobPayloadRecord
+}
+
+function finiteNumber(value: unknown): number | undefined {
+  return typeof value === 'number' && Number.isFinite(value) ? value : undefined
+}
+
+function nonEmptyString(value: unknown): string | undefined {
+  const text = typeof value === 'string' ? value.trim() : ''
+  return text || undefined
 }
 
 function normalizeImageData(value: unknown): string {
@@ -43,6 +65,56 @@ function normalizeImageData(value: unknown): string {
   return imageData.startsWith('data:image/')
     ? imageData
     : `data:image/png;base64,${imageData}`
+}
+
+async function resolveTrainerCheckpoint(input: {
+  body: TrainerRedoBody | null
+  sourcePayload: unknown
+  sourceArtImageId: number
+}): Promise<ResolvedCheckpointResource> {
+  const sourceImage = await prisma.artImage.findUnique({
+    where: { id: input.sourceArtImageId },
+    select: {
+      checkpointResourceId: true,
+      checkpoint: true,
+    },
+  })
+
+  if (!sourceImage) {
+    throw createError({
+      statusCode: 409,
+      message: `Source ArtImage ${input.sourceArtImageId} no longer exists.`,
+    })
+  }
+
+  const sourcePayload = parseArtJobPayload(input.sourcePayload)
+  const resources = asRecord(sourcePayload.resources)
+  const requestedResourceId =
+    Number(input.body?.checkpointResourceId) ||
+    Number(sourceImage.checkpointResourceId) ||
+    Number(resources.checkpointResourceId) ||
+    Number(sourcePayload.checkpointResourceId) ||
+    null
+
+  const checkpoint = await resolveActiveCheckpointResourceReference({
+    resourceId: requestedResourceId,
+    names: [
+      input.body?.checkpoint,
+      sourceImage.checkpoint,
+      resources.checkpointName,
+      sourcePayload.checkpoint,
+    ],
+  })
+
+  if (!checkpoint) {
+    throw createError({
+      statusCode: 409,
+      message:
+        'SDXL trainer revision could not resolve the requested/source checkpoint to an active CHECKPOINT Resource. Sync the checkpoint catalog or select a checkpoint Resource before retrying.',
+    })
+  }
+
+  return checkpoint
 }
 
 export default defineEventHandler(async (event) => {
@@ -103,6 +175,15 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const checkpoint =
+      model === 'SDXL'
+        ? await resolveTrainerCheckpoint({
+            body,
+            sourcePayload: source.payload,
+            sourceArtImageId: source.artImageId,
+          })
+        : null
+
     const prepared = prepareArtJobRetryPayload(
       source.payload,
       source.id,
@@ -116,10 +197,13 @@ export default defineEventHandler(async (event) => {
       prompt: promptString,
       seed: null,
     }
+    const inheritedSettings = {
+      steps: finiteNumber(prepared.steps),
+      cfg: finiteNumber(prepared.cfg),
+      sampler: nonEmptyString(prepared.sampler),
+      scheduler: nonEmptyString(prepared.scheduler),
+    }
 
-    // A trainer redo deliberately rebuilds the render graph instead of merely
-    // mutating the old one. That makes the two human-facing choices explicit:
-    // prompt-only SDXL, or image-guided SDXL/Kontext using the finished image.
     if (mode === 'TEXT') {
       prepared.workflow = buildWorkflowForEngine('comfy', renderRequest)
       delete prepared.images
@@ -151,6 +235,7 @@ export default defineEventHandler(async (event) => {
           prompt: promptString,
           negativePrompt: renderRequest.negativePrompt,
           imageName,
+          checkpoint: checkpoint?.localPath,
           seed: null,
           originalWeight: 0.55,
         })
@@ -159,14 +244,38 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    const payload = applyArtJobOverrides(prepared, { promptString })
-    delete payload.resources
+    const payload = applyArtJobOverrides(prepared, {
+      promptString,
+      checkpoint: checkpoint?.localPath,
+      ...inheritedSettings,
+    })
+
+    if (checkpoint) {
+      payload.resources = {
+        checkpointResourceId: checkpoint.id,
+        checkpointName: checkpoint.localPath,
+        loraResourceIds: [],
+        loraNames: [],
+      }
+      payload.checkpointResourceId = checkpoint.id
+    } else {
+      delete payload.resources
+      delete payload.checkpointResourceId
+      delete payload.checkpoint
+    }
+
     payload.trainerRedo = {
       mode,
       model,
       sourceJobId: source.id,
       sourceArtImageId: source.artImageId,
       priority: 100,
+      ...(checkpoint
+        ? {
+            checkpointResourceId: checkpoint.id,
+            checkpointName: checkpoint.localPath,
+          }
+        : {}),
       requestedAt: new Date().toISOString(),
     }
 
@@ -191,6 +300,8 @@ export default defineEventHandler(async (event) => {
         sourceArtImageId: source.artImageId,
         mode,
         model,
+        checkpointResourceId: checkpoint?.id ?? null,
+        checkpointName: checkpoint?.localPath ?? null,
       },
       statusCode: 201,
     }

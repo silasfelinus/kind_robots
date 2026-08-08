@@ -117,6 +117,19 @@
         </span>
       </div>
     </div>
+
+    <!--
+      NAMED, not the default slot the column layout below uses for
+      per-object extras (a Scenario's inspirations panel, etc.) — those are
+      block content sized for a card, and icon mode's five existing callers
+      (bot/character/dream/reward/scenario-card, whenever their gallery's
+      mode bar is set to Icons) never expected a slot to render here. A bare
+      `<slot />` would have surfaced that block content, unrequested, into
+      every one of their icon rows. `icon-actions` is opt-in and net new, so
+      today's five callers render byte-identical icon rows; only a caller
+      that asks for it (icon-card) gets it.
+    -->
+    <slot name="icon-actions" />
   </div>
 
   <div v-else class="flex w-full flex-col">

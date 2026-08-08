@@ -8,7 +8,26 @@
   filtering, and mode persistence (see stores/galleryPreferenceStore.ts).
 -->
 <template>
-  <div class="flex w-full flex-col gap-3">
+  <!--
+    data-kr-gallery marks THE GALLERY, as data-kr-gallery-grid below marks its
+    grid. Both exist for utils/scripts/auditGalleryChrome.ts, and the second one
+    alone turned out not to be enough.
+
+    The grid renders only when a gallery HAS items, so on a route that mounts
+    several galleries the audit's `first marked grid on the page` silently
+    resolved to whichever gallery happened to be populated. /servers measured
+    742px that way: server-overview stacks four galleries, the first three were
+    empty ("No matching servers"), and the number reported as that route's
+    chrome was the offset of the FOURTH. The true chrome above its first gallery
+    is ~106px -- comfortably inside budget, and the opposite conclusion.
+
+    Same failure family as the fallback selectors removed in #1595: a confident
+    number measured off the wrong element. Marking the gallery root -- which
+    renders whether or not the API answered -- lets the audit name the first
+    gallery, measure the chrome above it without needing data, and say
+    `no-cards` about THAT gallery instead of skipping to a later one.
+  -->
+  <div class="flex w-full flex-col gap-3" data-kr-gallery>
     <!--
       STICKY, because the shell does not own the scroll container -- the parent
       does, and every adopting parent scrolls the whole gallery including this

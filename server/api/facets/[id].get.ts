@@ -3,6 +3,7 @@ import { createError, defineEventHandler, getRouterParam } from 'h3'
 import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
 import { resolveFacetAlias } from '~/server/utils/facetAliases'
+import { existsActiveGrant } from '~/server/utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -26,12 +27,22 @@ export default defineEventHandler(async (event) => {
 
     const isOwner =
       Boolean(auth?.user.id) && resolved.facet.userId === auth?.user.id
-    const canView =
+    const baseAllowed =
       auth?.isAdmin ||
       isOwner ||
       (resolved.facet.isPublic && !resolved.facet.isMature)
 
-    if (!canView) {
+    // PACK Grant fallback (digital-storefront/t-004: DLC catalog wiring).
+    // Only checked once the base isPublic/own/admin formula has already
+    // failed, and it deliberately does not bypass the isMature gate above --
+    // a Pack unlock is not a maturity override.
+    const packGranted =
+      !baseAllowed &&
+      resolved.facet.packId != null &&
+      auth?.user.id != null &&
+      (await existsActiveGrant(auth.user.id, 'PACK', resolved.facet.packId))
+
+    if (!baseAllowed && !packGranted) {
       throw createError({
         statusCode: auth ? 403 : 404,
         message: auth

@@ -3,6 +3,7 @@ import { defineEventHandler, createError } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
+import { existsActiveGrant } from '@/server/utils/contentAccess'
 import { assertDreamAccess, dreamInclude, getDreamId } from './index'
 
 export default defineEventHandler(async (event) => {
@@ -27,12 +28,25 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    assertDreamAccess({
-      dream: data,
-      userId,
-      userRole,
-      action: 'view',
-    })
+    try {
+      assertDreamAccess({
+        dream: data,
+        userId,
+        userRole,
+        action: 'view',
+      })
+    } catch (accessError) {
+      // Not the owner, not admin, not public -- last chance is an active
+      // PACK Grant on this Dream's packId (digital-storefront/t-004: DLC
+      // catalog wiring). Only checked once assertDreamAccess has already
+      // ruled out every other path, so its own error/message stays the
+      // fallback for every case this doesn't cover.
+      const packGranted =
+        data.packId != null &&
+        userId != null &&
+        (await existsActiveGrant(userId, 'PACK', data.packId))
+      if (!packGranted) throw accessError
+    }
 
     event.node.res.statusCode = 200
 

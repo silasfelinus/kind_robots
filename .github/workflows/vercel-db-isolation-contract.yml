@@ -6,6 +6,7 @@ on:
     paths:
       - 'scripts/provision-vercel-db-isolation.sh'
       - 'scripts/provision-agent-db-lane.sh'
+      - 'scripts/tune-agent-database-url.sh'
       - 'scripts/prisma-migrate-deploy.mjs'
       - 'utils/scripts/verifyVercelDbIsolationProvisioning.mjs'
       - 'utils/scripts/verifyAgentDbLaneProvisioning.mjs'

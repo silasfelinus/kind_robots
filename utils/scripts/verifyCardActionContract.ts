@@ -64,6 +64,15 @@ export const ENTITY_CARDS = [
   'checkpoint-card',
 ] as const
 
+const SHARED_BODY_CARDS = new Set([
+  'bot-card',
+  'character-card',
+  'dream-card',
+  'reward-card',
+  'scenario-card',
+  'server-card',
+])
+
 export type Offence = { card: string; reason: string }
 
 export function emitNames(source: string): string[] {
@@ -134,6 +143,16 @@ export function findOffences(
         reason: `mutates its own store (${call}) instead of emitting — the gallery owns the consequence`,
       })
     }
+
+    if (
+      SHARED_BODY_CARDS.has(card) &&
+      !stripComments(source).includes('<kr-entity-card-body')
+    ) {
+      offences.push({
+        card,
+        reason: 'regressed from the shared `kr-entity-card-body` presentation',
+      })
+    }
   }
   return offences
 }
@@ -179,6 +198,18 @@ function selfTest(): void {
     fail(
       'a card emitting `select` must be flagged for the stale verb AND the missing open',
     )
+  }
+
+  const bespokeBody = `
+    <template><article /></template>
+    <script setup lang="ts">
+    const emit = defineEmits<{ open: [id: number] }>()
+    </script>`
+  const bodyOffences = findOffences([
+    { card: 'server-card', source: bespokeBody },
+  ])
+  if (!bodyOffences.some(({ reason }) => reason.includes('kr-entity-card-body'))) {
+    fail('a migrated card that drops the shared body must be reported')
   }
 
   console.log('✅ verifyCardActionContract self-test passed.')

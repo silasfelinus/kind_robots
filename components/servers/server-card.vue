@@ -6,27 +6,15 @@
       activeSelected ? 'border-primary shadow-primary/20' : 'border-base-300'
     "
   >
-    <header class="flex items-start justify-between gap-3">
-      <div class="min-w-0">
-        <div class="flex flex-wrap items-center gap-2">
-          <Icon :name="serverIcon" class="h-5 w-5 text-primary" />
-          <h3 class="truncate text-lg font-black">
-            {{ serverTitle }}
-          </h3>
-          <span class="badge badge-sm" :class="statusBadgeClass">
-            {{ server.lastStatus || 'UNKNOWN' }}
-          </span>
-        </div>
-
-        <p
-          v-if="showDescription && server.description"
-          class="mt-1 line-clamp-2 text-sm text-base-content/60"
-        >
-          {{ server.description }}
-        </p>
-      </div>
-
-      <div v-if="showActions" class="flex shrink-0 gap-1">
+    <kr-entity-card-body
+      :title="serverTitle"
+      :description="server.description || undefined"
+      :show-description="showDescription"
+      :show-image="false"
+      :badges="serverBadges"
+      :meta="showMeta ? serverMeta : []"
+    >
+      <div v-if="showActions" class="mt-3 flex flex-wrap gap-1">
         <button
           class="btn btn-xs btn-ghost rounded-xl"
           type="button"
@@ -56,84 +44,34 @@
           <Icon name="kind-icon:activity" class="h-4 w-4" />
         </button>
       </div>
-    </header>
 
-    <section
-      class="grid gap-2 text-sm"
-      :class="compact ? 'grid-cols-1' : 'sm:grid-cols-2'"
-    >
-      <div class="rounded-xl bg-base-200 p-3">
-        <p class="text-xs font-black uppercase text-base-content/50">Type</p>
-        <p class="font-bold">{{ server.serverType }}</p>
+      <div v-if="showUseButtons" class="mt-3 flex flex-wrap gap-2">
+        <button
+          v-if="isArtServer"
+          class="btn btn-sm btn-primary rounded-xl"
+          type="button"
+          @click="useForArt"
+        >
+          Use for Art
+        </button>
+
+        <button
+          v-if="isTextServer"
+          class="btn btn-sm btn-secondary rounded-xl"
+          type="button"
+          @click="useForText"
+        >
+          Use for Text
+        </button>
       </div>
-
-      <div class="rounded-xl bg-base-200 p-3">
-        <p class="text-xs font-black uppercase text-base-content/50">Access</p>
-        <p class="font-bold">{{ server.accessMode }}</p>
-      </div>
-
-      <div class="rounded-xl bg-base-200 p-3">
-        <p class="text-xs font-black uppercase text-base-content/50">Auth</p>
-        <p class="font-bold">{{ server.authType }}</p>
-      </div>
-
-      <div class="rounded-xl bg-base-200 p-3">
-        <p class="text-xs font-black uppercase text-base-content/50">Owner</p>
-        <p class="font-bold">
-          {{
-            server.isOfficial
-              ? 'Official'
-              : server.isPublic
-                ? 'Public'
-                : 'Private'
-          }}
-        </p>
-      </div>
-    </section>
-
-    <section
-      v-if="showMeta"
-      class="flex flex-col gap-2 rounded-xl bg-base-200 p-3 text-xs"
-    >
-      <p class="break-all">
-        <span class="font-black text-base-content/50">Base:</span>
-        {{ server.baseUrl || 'n/a' }}
-      </p>
-      <p class="break-all">
-        <span class="font-black text-base-content/50">Endpoint:</span>
-        {{ server.endpointPath || 'n/a' }}
-      </p>
-      <p class="break-all">
-        <span class="font-black text-base-content/50">Health:</span>
-        {{ server.healthPath || 'n/a' }}
-      </p>
-    </section>
-
-    <footer v-if="showUseButtons" class="flex flex-wrap gap-2">
-      <button
-        v-if="isArtServer"
-        class="btn btn-sm btn-primary rounded-xl"
-        type="button"
-        @click="useForArt"
-      >
-        Use for Art
-      </button>
-
-      <button
-        v-if="isTextServer"
-        class="btn btn-sm btn-secondary rounded-xl"
-        type="button"
-        @click="useForText"
-      >
-        Use for Text
-      </button>
-    </footer>
+    </kr-entity-card-body>
   </article>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Server } from '~/prisma/generated/prisma/client'
+import type { EntityCardChip } from '@/components/gallery/kr-entity-card-body.vue'
 import { useServerStore } from '@/stores/serverStore'
 
 const props = withDefaults(
@@ -210,14 +148,6 @@ const isTextServer = computed(() => {
   )
 })
 
-const serverIcon = computed(() => {
-  if (props.server.serverType === 'COMFY') return 'kind-icon:workflow'
-  if (props.server.serverType === 'A1111') return 'kind-icon:image'
-  if (props.server.serverType === 'OPENAI') return 'kind-icon:openai'
-  if (props.server.serverType === 'ANTHROPIC') return 'kind-icon:anthropic'
-  return 'kind-icon:server'
-})
-
 const statusBadgeClass = computed(() => {
   if (props.server.lastStatus === 'ONLINE') return 'badge-success'
   if (props.server.lastStatus === 'OFFLINE') return 'badge-error'
@@ -225,13 +155,60 @@ const statusBadgeClass = computed(() => {
   return 'badge-ghost'
 })
 
-/*
- * Emit, then act. server-card had NO emits at all and drove serverStore
- * directly, so a parent could not intercept a choice or reuse the card as a
- * picker -- it was the only entity card with no entry points whatsoever.
- * The store calls stay for now so existing pages keep working; the emits are
- * what make the card usable as an entry point.
- */
+const ownershipLabel = computed(() => {
+  if (props.server.isOfficial) return 'Official'
+  if (props.server.isPublic) return 'Public'
+  return 'Private'
+})
+
+const serverBadges = computed<EntityCardChip[]>(() => {
+  const badges: EntityCardChip[] = [
+    {
+      label: props.server.lastStatus || 'UNKNOWN',
+      class: statusBadgeClass.value,
+    },
+    { label: String(props.server.serverType), class: 'badge-primary' },
+  ]
+
+  if (props.server.accessMode) {
+    badges.push({
+      label: String(props.server.accessMode),
+      class: 'badge-outline',
+    })
+  }
+
+  badges.push({ label: ownershipLabel.value, class: 'badge-ghost' })
+  return badges
+})
+
+const serverMeta = computed<EntityCardChip[]>(() => {
+  const chips: EntityCardChip[] = []
+
+  if (props.server.authType) {
+    chips.push({ label: `Auth: ${props.server.authType}` })
+  }
+  if (props.server.baseUrl) {
+    chips.push({
+      label: `Base: ${props.server.baseUrl}`,
+      title: props.server.baseUrl,
+    })
+  }
+  if (props.server.endpointPath) {
+    chips.push({
+      label: `Endpoint: ${props.server.endpointPath}`,
+      title: props.server.endpointPath,
+    })
+  }
+  if (props.server.healthPath) {
+    chips.push({
+      label: `Health: ${props.server.healthPath}`,
+      title: props.server.healthPath,
+    })
+  }
+
+  return chips
+})
+
 function selectServer() {
   emit('open', props.server.id)
   serverStore.setCurrentServer?.(props.server.id)

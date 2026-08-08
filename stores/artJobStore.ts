@@ -180,6 +180,13 @@ type ArtJobState = {
   trainerJobs: ArtJobRecord[]
   imageSrcById: Record<number, string>
   imageInfoById: Record<number, ArtImageSource>
+  // ArtImage id -> the job updatedAt the cached bytes came from. An OVERWRITE
+  // retry replaces the bytes of an EXISTING ArtImage row and deletes the freshly
+  // uploaded one (see server/api/art/queue/[id]/complete.post.ts), so the id is
+  // a stable key for changing content. Caching on id alone made a re-render look
+  // like it never happened: the job row appeared in the queue browser with the
+  // pre-overwrite thumbnail, for the rest of the session.
+  imageVersionById: Record<number, string>
   loadingImageIds: number[]
   jobStatusFilter: ArtJobStatus | 'ALL'
   jobPage: number
@@ -226,6 +233,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     trainerJobs: [],
     imageSrcById: {},
     imageInfoById: {},
+    imageVersionById: {},
     loadingImageIds: [],
     jobStatusFilter: 'PENDING',
     jobPage: 1,
@@ -267,6 +275,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
       const info = resolveArtImageSource({ imagePath: src, fileType: 'webp' })
       state.imageSrcById[job.artImageId] = src
       state.imageInfoById[job.artImageId] = info
+      state.imageVersionById[job.artImageId] = version
     }
   }
 
@@ -354,6 +363,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     for (const id of ids) {
       delete state.imageSrcById[id]
       delete state.imageInfoById[id]
+      delete state.imageVersionById[id]
     }
     return ids
   }
@@ -441,9 +451,14 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     }
   }
 
-  async function loadJobImage(id: number): Promise<boolean> {
+  async function loadJobImage(id: number, version = ''): Promise<boolean> {
     if (!Number.isInteger(id) || id <= 0) return false
-    if (state.imageSrcById[id]) return true
+    // Only trust the cache when it holds the same version of this ArtImage.
+    // Overwrites mutate an id's bytes in place, so an id-only check pins the
+    // stale render permanently.
+    if (state.imageSrcById[id] && state.imageVersionById[id] === version) {
+      return true
+    }
     if (state.loadingImageIds.includes(id)) return false
 
     state.loadingImageIds = [...state.loadingImageIds, id]
@@ -457,6 +472,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
       if (res.success && res.data) {
         const info = resolveArtImageSource(res.data)
         state.imageInfoById[id] = info
+        state.imageVersionById[id] = version
         if (info.src) state.imageSrcById[id] = info.src
         return Boolean(info.src)
       }

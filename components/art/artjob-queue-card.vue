@@ -534,18 +534,21 @@ const jobSettings = computed<string[]>(() => {
     .map(([label, value]) => `${label}: ${value}`)
 })
 
+// updatedAt is DateTime? in the schema, so it can genuinely be null; a null
+// timestamp simply means no cache-buster. Shared by the public URL and the
+// protected-preview cache key so both invalidate together on an overwrite.
+const imageVersion = computed<string>(() => {
+  const updatedAt = props.job.updatedAt
+    ? new Date(props.job.updatedAt).getTime()
+    : Number.NaN
+  return Number.isFinite(updatedAt) ? `?v=${updatedAt}` : ''
+})
+
 const publicImageSrc = computed<string>(() => {
   const id = props.job.artImageId
   if (typeof id !== 'number') return ''
   if (!jobVisibility.value.isPublic || jobVisibility.value.isMature) return ''
-  // updatedAt is DateTime? in the schema, so it can genuinely be null. The
-  // line below already drops the cache-buster when the timestamp is not
-  // finite; this just stops the null reaching the Date constructor.
-  const updatedAt = props.job.updatedAt
-    ? new Date(props.job.updatedAt).getTime()
-    : Number.NaN
-  const version = Number.isFinite(updatedAt) ? `?v=${updatedAt}` : ''
-  return `/api/art/images/${id}/file${version}`
+  return `/api/art/images/${id}/file${imageVersion.value}`
 })
 
 const jobImageSrc = computed<string>(() => {
@@ -587,7 +590,9 @@ const isEditableInPlace = computed<boolean>(() =>
 async function loadProtectedPreview(): Promise<void> {
   const id = props.job.artImageId
   if (typeof id !== 'number') return
-  await artJobStore.loadJobImage(id)
+  // Pass the job's version so an OVERWRITE retry — which reuses this ArtImage
+  // id with new bytes — refetches instead of serving the previous render.
+  await artJobStore.loadJobImage(id, imageVersion.value)
 }
 
 async function handleCopy(): Promise<void> {

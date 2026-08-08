@@ -22,11 +22,32 @@ function getStripeClient() {
   return stripe
 }
 
+// Mirrors getStripeClient()'s explicit-guard shape (digital-storefront/t-039):
+// the bare `process.env.STRIPE_PRICE_ID!` non-null assertion this used to pass
+// straight into `line_items` doesn't check anything at runtime, so an unset
+// price id fell through to a raw Stripe "No such price: 'undefined'" API
+// error instead of the app's own structured 500 every other Stripe route
+// returns when its own required config is missing.
+function getSubscriptionPriceId() {
+  const priceId = process.env.STRIPE_PRICE_ID
+
+  if (!priceId) {
+    const error = new Error(
+      'Stripe subscription price is not configured',
+    ) as Error & { statusCode: number }
+    error.statusCode = 500
+    throw error
+  }
+
+  return priceId
+}
+
 export default defineEventHandler(async (event) => {
   try {
     const { user } = await requireApiUser(event)
 
     const stripe = getStripeClient()
+    const priceId = getSubscriptionPriceId()
     const email = user.email || `user-${user.id}@kindrobots.org`
 
     const customerId =
@@ -44,7 +65,7 @@ export default defineEventHandler(async (event) => {
       customer: customerId,
       line_items: [
         {
-          price: process.env.STRIPE_PRICE_ID!,
+          price: priceId,
           quantity: 1,
         },
       ],

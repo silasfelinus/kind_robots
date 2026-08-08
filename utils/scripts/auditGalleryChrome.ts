@@ -72,7 +72,12 @@ export type ChromeReading = {
   breakpoint: string
   viewportHeight: number
   chromePx: number | null
-  /** Which selector produced the number. The marked one is exact; the rest are guesses. */
+  /**
+   * Which selector produced the number. Only ever the marked grid now -- the
+   * `article`/`.card` fallbacks were removed once every gallery was on the
+   * shared shell. Kept as a field so a future fallback cannot be reintroduced
+   * without the report being able to say so.
+   */
   matchedBy: string | null
   fraction: number | null
   /**
@@ -102,33 +107,32 @@ export type ChromeHit = { top: number; matchedBy: string }
 export async function measureChrome(page: Page): Promise<ChromeHit | null> {
   return page.evaluate(() => {
     /*
-     * `[data-kr-gallery-grid] > *` FIRST, and it is the only exact one.
+     * ONE SELECTOR. No fallbacks.
      *
-     * The original list led with `[data-kr-gallery-item]` and `.kr-gallery-grid`
-     * -- neither of which kr-gallery has ever emitted, so every route fell
-     * straight through to the `article` / `.card` guesses. kr-gallery now stamps
-     * `data-kr-gallery-grid` on its grid, so a gallery on the shared shell is
-     * identified rather than inferred.
+     * This used to fall back to `article` and `.card` for galleries not yet on
+     * the shared shell. The route-gallery ratchet reached 0 -- every live
+     * gallery mounts kr-gallery -- so the fallbacks no longer cover anything,
+     * and the 2026-08-08 production run showed they had become actively
+     * harmful: /facets, /resources and /achievements each reported an
+     * identical 1221 / 34 / 41 / 41. Three unrelated pages agreeing to the
+     * pixel is the same "locked onto the app shell" signature that made the
+     * FIRST version of this measurement worthless.
      *
-     * The guesses stay as fallbacks, because the routes still off the shell
-     * (/themes, /achievements) have no marker and are worth measuring anyway.
-     * They ARE guesses: a heuristic in the first draft of this measurement
-     * locked onto an app-shell grid and reported six unrelated galleries at
-     * byte-identical 34px, so a fallback reading deserves less trust than a
-     * marked one.
+     * The cause is specific and worth keeping written down: kr-gallery renders
+     * its marked grid only when it HAS items -- an empty or still-loading
+     * gallery shows the skeleton or empty state instead. So the fallback fired
+     * exactly when there was no gallery to measure, and answered with a
+     * confident number for some unrelated <article>. "No cards yet" is the
+     * true answer there, and `no-cards` already says it.
      */
-    const candidates = [
-      '[data-kr-gallery-grid] > *',
-      '[data-kr-gallery-item]',
-      'article',
-      '.card',
-    ]
-    for (const selector of candidates) {
-      const el = document.querySelector(selector)
-      if (!el) continue
+    const el = document.querySelector('[data-kr-gallery-grid] > *')
+    if (el) {
       const box = el.getBoundingClientRect()
       if (box.height > 40) {
-        return { top: Math.round(box.top), matchedBy: selector }
+        return {
+          top: Math.round(box.top),
+          matchedBy: '[data-kr-gallery-grid] > *',
+        }
       }
     }
     return null
@@ -249,29 +253,6 @@ for (const route of routes) {
     return `${r.chromePx}px (${pct}%)`.padEnd(16)
   })
   console.log(`${route.padEnd(14)}${cells.join('')}`)
-}
-
-/*
- * WHICH SELECTOR MATCHED, per route. A number from `[data-kr-gallery-grid] > *`
- * is measuring the shared shell's first card. A number from `article` or
- * `.card` is measuring whatever happened to be the first such box on the page,
- * which on a route whose default tab is not a gallery at all (/servers opens on
- * an overview panel) is not gallery chrome in any sense. Reporting the two the
- * same way is how a confident wrong number gets acted on.
- */
-const guessed = all.filter(
-  (r) =>
-    r.status === 'measured' && r.matchedBy !== '[data-kr-gallery-grid] > *',
-)
-if (guessed.length) {
-  const byRoute = new Map<string, string>()
-  for (const r of guessed) byRoute.set(r.route, r.matchedBy ?? '?')
-  console.log(
-    `\n${guessed.length} reading(s) came from a FALLBACK selector, not the marked gallery grid.` +
-      ` Treat these as indicative, not as gallery chrome:`,
-  )
-  for (const [route, selector] of byRoute)
-    console.log(`  ${route} via ${selector}`)
 }
 
 const failed = all.filter((r) => r.status === 'load-failed')

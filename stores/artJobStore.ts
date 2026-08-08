@@ -363,7 +363,11 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     for (const id of ids) {
       delete state.imageSrcById[id]
       delete state.imageInfoById[id]
-      delete state.imageVersionById[id]
+      // Not `delete`: the lint ratchet counts @typescript-eslint/no-dynamic-delete
+      // and blocks any net increase. Clearing the version to '' is equivalent
+      // here — loadJobImage only trusts the cache on an exact version match, and
+      // '' never matches a real `?v=` string.
+      state.imageVersionById[id] = ''
     }
     return ids
   }

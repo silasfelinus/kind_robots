@@ -151,6 +151,18 @@ export default defineNuxtConfig({
   compatibilityDate: '2026-06-01',
   app: {
     head: {
+      meta: [
+        {
+          name: 'viewport',
+          content: 'width=device-width, initial-scale=1, viewport-fit=cover',
+        },
+        // Matches the light theme's primary (terracotta) in assets/css/tailwind.css;
+        // also set as pwa.manifest.theme_color below for the install-prompt chrome.
+        { name: 'theme-color', content: '#b4653a' },
+      ],
+      link: [
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+      ],
       script: [
         // Must stay first: patches builtins the rest of the bundle assumes.
         {
@@ -200,7 +212,45 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxt/icon',
     '@nuxt/image',
+    '@vite-pwa/nuxt',
   ],
+
+  // ai-art-academy/t-066: installability foundation for t-062/t-063's mobile
+  // delivery path. Additive-only -- a manifest plus a cache-first service
+  // worker for the built static assets. Academy content is API-driven, so
+  // this deliberately does not build a full offline mode yet.
+  pwa: {
+    registerType: 'autoUpdate',
+    manifest: {
+      name: 'Kind Robots',
+      short_name: 'Kind Robots',
+      description: 'A friendly AI playground for humans and robots.',
+      theme_color: '#b4653a',
+      background_color: '#f7f1e3',
+      display: 'standalone',
+      start_url: '/',
+      icons: [
+        { src: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+        { src: '/icon-512x512.png', sizes: '512x512', type: 'image/png' },
+        {
+          src: '/icon-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'maskable',
+        },
+      ],
+    },
+    workbox: {
+      // Precache the built client bundle + static icons; cache-first is
+      // enough for a first pass since pages themselves are server-rendered
+      // per request, not precached.
+      globPatterns: ['**/*.{js,css,ico,png,svg,webp,woff2}'],
+      navigateFallback: null,
+    },
+    client: {
+      installPrompt: true,
+    },
+  },
 
   components: [
     {

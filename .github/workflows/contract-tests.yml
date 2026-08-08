@@ -43,6 +43,14 @@ jobs:
       - name: Art-request YAML indentation contract
         run: npm run test:art-request-yaml
 
+      # Rejects, at enqueue, the prompt shapes that rendered wrong on
+      # 2026-08-08: conditional instructions a diffusion model cannot evaluate,
+      # format nouns ("treasure-card illustration") that make it draw the object
+      # rather than the art, negation piles that land in positive conditioning
+      # at cfg 1, and distilled engines run above their trained guidance.
+      - name: Art prompt contract
+        run: npm run test:art-prompt-contract
+
       - name: Channel content contract
         run: npm run test:channel-content
 

@@ -60,12 +60,26 @@ export function orderArtFacetEntries(
     .map((item) => item.entry)
 }
 
+/** Comparable form for "is this direction already in the prompt?". */
+function normalizedForDedupe(value: string): string {
+  return value.replace(/\s+/g, ' ').trim().toLowerCase()
+}
+
 export function buildArtFacetPromptAddon(
   entries: readonly ArtFacetPromptEntry[],
+  basePrompt = '',
 ): string {
+  const base = normalizedForDedupe(basePrompt)
   const values = Array.from(
     new Set(orderArtFacetEntries(entries).map(artFacetPromptValue).filter(Boolean)),
-  )
+    // A Facet whose direction the base prompt already states adds nothing by
+    // being restated. Several catalog prompts are BUILT from their Facet's
+    // artPrompt, so appending it again duplicated the whole thing — including
+    // its "no text, no logo, no watermark" tail, which then appeared three
+    // times in one prompt. At cfg 1 the negative prompt is inert, so those
+    // repeats land in positive conditioning on a text-specialist model: the
+    // prompt ends up asking for text by naming it eight times.
+  ).filter((value) => !base.includes(normalizedForDedupe(value)))
   return values.length ? `Facet direction: ${values.join(', ')}` : ''
 }
 
@@ -74,6 +88,6 @@ export function composeArtPromptWithFacets(
   entries: readonly ArtFacetPromptEntry[],
 ): string {
   const base = String(basePrompt || '').replace(/\s+/g, ' ').trim()
-  const addon = buildArtFacetPromptAddon(entries)
+  const addon = buildArtFacetPromptAddon(entries, base)
   return [base, addon].filter(Boolean).join(', ')
 }

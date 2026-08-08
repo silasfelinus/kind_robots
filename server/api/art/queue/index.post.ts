@@ -14,6 +14,8 @@ import {
 } from '../../../utils/artJobPayload'
 import { enrichArtJobPayload } from '../../../utils/artJobProvenance'
 import { normalizeQueuedArtJobPayload } from '../../../utils/artJobNormalization'
+import { assertArtPromptContract } from '../../../utils/artPromptContract'
+import { extractRenderRequest } from '../../comfy/utils/engineWorkflow'
 
 const ENGINES = new Set(['A1111', 'COMFY'])
 const SLUG_PATTERN = /^[a-z0-9][a-z0-9_-]*$/
@@ -89,6 +91,37 @@ export default defineEventHandler(async (event) => {
       ? Number(body?.priority)
       : 0
     const normalizedPayload = normalizeQueuedArtJobPayload(rawPayload).payload
+
+    // Gate after normalization, on the render request actually extracted from
+    // the workflow — that is the string ComfyUI receives, and it is not always
+    // the caller's `promptString` (a COMFY payload carries a baked graph).
+    // Conductor's bulk lanes enter here, so this is where a stale replayed
+    // prompt gets stopped rather than rendered.
+    try {
+      // extractRenderRequest returns prompt/size/seed only; steps and cfg live
+      // on the payload, which is Record<string, unknown> — coerce explicitly
+      // rather than leaning on `unknown` surviving `||` and `??`.
+      const render = extractRenderRequest(normalizedPayload)
+      const numeric = (value: unknown): number | null => {
+        const parsed = Number(value)
+        return Number.isFinite(parsed) ? parsed : null
+      }
+      const payloadEngine =
+        typeof normalizedPayload.engine === 'string'
+          ? normalizedPayload.engine
+          : engine
+      assertArtPromptContract({
+        prompt: render.prompt,
+        engine: String(payloadEngine || '').toLowerCase(),
+        steps: numeric(normalizedPayload.steps),
+        cfg: numeric(normalizedPayload.cfg),
+      })
+    } catch (contractError: unknown) {
+      // A payload shape this endpoint cannot introspect is not a contract
+      // violation — only rethrow the gate's own 422.
+      const status = (contractError as { statusCode?: number })?.statusCode
+      if (status === 422) throw contractError
+    }
 
     const { payload, provenance } = enrichArtJobPayload(
       engine as 'A1111' | 'COMFY',

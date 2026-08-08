@@ -89,20 +89,42 @@
       </template>
     </kr-gallery>
 
-    <!-- Edit Modal -->
-    <Teleport to="body">
-      <div
-        v-if="selectedIcon"
-        class="fixed inset-0 z-50 bg-base-200/90 backdrop-blur-md flex items-center justify-center p-4"
-        @click.self="selectedIcon = null"
-      >
-        <edit-icon
-          :icon="selectedIcon"
-          @close="selectedIcon = null"
-          style="max-height: 95vh; overflow-y: auto"
-        />
-      </div>
-    </Teleport>
+    <!--
+      CLIENT-ONLY, and this is not a preference.
+
+      A `<Teleport to="body">` that renders during SSR emits teleport anchors
+      into <body>, and hydrating them consumed body's FIRST child. That child is
+      the boot cover's inline <style> (server/plugins/00-startup-composition-shell.ts
+      prepends the style and the cover together). With its stylesheet gone the
+      cover lost `position: fixed` and fell into normal flow, where a 749px
+      black block shoved the entire .kr-shell down the page.
+
+      That is the whole of /icons' "122% chrome budget" reading: 749px of
+      displaced boot cover plus 186px of genuine chrome, which is in line with
+      /characters at 166px. The audit was measuring a hydration bug and
+      reporting it as a layout problem, and component-level header trimming
+      could never have moved it -- the pixels were above the component, above
+      the page, above even the app shell.
+
+      app.vue's own body teleports (animation-layer, fx-clear-all) already sit
+      inside ClientOnly, which is why every other route is unaffected. The modal
+      only ever opens on a click, so it has nothing to render on the server.
+    -->
+    <ClientOnly>
+      <Teleport to="body">
+        <div
+          v-if="selectedIcon"
+          class="fixed inset-0 z-50 bg-base-200/90 backdrop-blur-md flex items-center justify-center p-4"
+          @click.self="selectedIcon = null"
+        >
+          <edit-icon
+            :icon="selectedIcon"
+            @close="selectedIcon = null"
+            style="max-height: 95vh; overflow-y: auto"
+          />
+        </div>
+      </Teleport>
+    </ClientOnly>
   </div>
 </template>
 

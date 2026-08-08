@@ -81,6 +81,24 @@ export type ChromeReading = {
   matchedBy: string | null
   fraction: number | null
   /**
+   * Pixels above the first GALLERY, as opposed to above its first card.
+   *
+   * This is the data-independent half of the measurement, and the one this
+   * script's own header always claimed to be taking ("DATA IS NOT REQUIRED").
+   * It was not: the grid renders only when items exist, so an empty gallery
+   * produced no number at all and a route with several galleries produced a
+   * number belonging to a different one. The gallery root renders in every
+   * state -- grid, skeleton, empty -- so this reports the route's real chrome
+   * even when the API returns nothing.
+   */
+  galleryPx: number | null
+  /**
+   * How many galleries the route mounts. Anything above 1 means "pixels above
+   * the first card" is a question about the FIRST of them, and the report says
+   * so rather than quietly averaging a stacked layout into one number.
+   */
+  galleryCount: number
+  /**
    * Why there is no number. NOT optional and NOT a bare null: the first version
    * returned `chromePx: null` for both "the page rendered but held no cards"
    * and "the page never loaded", then printed one dash for each and told the
@@ -102,12 +120,17 @@ export type ChromeReading = {
  * row on a wide screen and three on a phone, which is exactly the thing a
  * source-level check cannot see.
  */
-export type ChromeHit = { top: number; matchedBy: string }
+export type ChromeHit = {
+  top: number | null
+  matchedBy: string | null
+  galleryTop: number | null
+  galleryCount: number
+}
 
 export async function measureChrome(page: Page): Promise<ChromeHit | null> {
   return page.evaluate(() => {
     /*
-     * ONE SELECTOR. No fallbacks.
+     * ONE SELECTOR. No fallbacks. And it must resolve within the FIRST gallery.
      *
      * This used to fall back to `article` and `.card` for galleries not yet on
      * the shared shell. The route-gallery ratchet reached 0 -- every live
@@ -118,24 +141,46 @@ export async function measureChrome(page: Page): Promise<ChromeHit | null> {
      * pixel is the same "locked onto the app shell" signature that made the
      * FIRST version of this measurement worthless.
      *
-     * The cause is specific and worth keeping written down: kr-gallery renders
-     * its marked grid only when it HAS items -- an empty or still-loading
-     * gallery shows the skeleton or empty state instead. So the fallback fired
-     * exactly when there was no gallery to measure, and answered with a
-     * confident number for some unrelated <article>. "No cards yet" is the
-     * true answer there, and `no-cards` already says it.
+     * Removing them left a subtler version of the same error, because the
+     * document-wide `[data-kr-gallery-grid]` search is itself a fallback when a
+     * route mounts more than one gallery. /servers stacks four; the first three
+     * were empty, so the "first marked grid on the page" was the fourth
+     * gallery's, and 742px (97% of a laptop viewport) got filed as that route's
+     * chrome. Its actual first gallery starts at ~106px. The number was real,
+     * measured off a real element, and answered a question nobody asked.
+     *
+     * So: locate the first gallery, then look for the grid INSIDE it. A first
+     * gallery holding no cards reports `no-cards` about itself -- it never
+     * resolves to a later gallery's grid.
      */
-    const el = document.querySelector('[data-kr-gallery-grid] > *')
+    const galleries = document.querySelectorAll('[data-kr-gallery]')
+    const first = galleries[0]
+    if (!first) return null
+
+    const galleryTop = Math.round(first.getBoundingClientRect().top)
+    const el = first.querySelector('[data-kr-gallery-grid] > *')
     if (el) {
       const box = el.getBoundingClientRect()
       if (box.height > 40) {
         return {
           top: Math.round(box.top),
-          matchedBy: '[data-kr-gallery-grid] > *',
+          matchedBy: '[data-kr-gallery] [data-kr-gallery-grid] > *',
+          galleryTop,
+          galleryCount: galleries.length,
         }
       }
     }
-    return null
+    /*
+     * The gallery is there and measurable; only its cards are missing. That is
+     * still a usable chrome reading, which is the whole point of marking the
+     * gallery root, so this returns rather than collapsing to null.
+     */
+    return {
+      top: null,
+      matchedBy: null,
+      galleryTop,
+      galleryCount: galleries.length,
+    }
   })
 }
 
@@ -174,19 +219,25 @@ export async function auditRoute(
      */
     const status: ChromeReading['status'] = loadError
       ? 'load-failed'
-      : hit === null
+      : hit === null || hit.top === null
         ? 'no-cards'
         : 'measured'
     const note =
       loadError ??
-      (hit === null ? 'page loaded, but rendered no cards' : undefined)
+      (hit === null
+        ? 'page mounts no gallery at all'
+        : hit.top === null
+          ? 'first gallery rendered, but holds no cards'
+          : undefined)
     readings.push({
       route,
       breakpoint: bp.label,
       viewportHeight: bp.height,
       chromePx: hit?.top ?? null,
       matchedBy: hit?.matchedBy ?? null,
-      fraction: hit === null ? null : hit.top / bp.height,
+      fraction: hit?.top == null ? null : hit.top / bp.height,
+      galleryPx: hit?.galleryTop ?? null,
+      galleryCount: hit?.galleryCount ?? 0,
       status,
       note,
     })
@@ -196,7 +247,113 @@ export async function auditRoute(
 
 /* -------------------------------------------------------------------------- */
 
+/*
+ * A synthetic page is enough to pin the one rule that matters here, and it does
+ * not need a deployment or a database to run -- which is the point, because the
+ * bug this guards against only appears when the FIRST gallery is empty and a
+ * LATER one is not. That state is hard to reach on demand against a live site
+ * and trivially constructed here.
+ *
+ * Each case also records what the previous, document-wide selector would have
+ * answered. Where the two differ, the case is a live mutation test: reverting
+ * measureChrome to `document.querySelector('[data-kr-gallery-grid] > *')` makes
+ * it fail rather than silently pass.
+ */
+const SELF_TEST_CASES: Array<{
+  name: string
+  html: string
+  expect: { top: number | null; galleryTop: number; galleryCount: number }
+  legacyWouldReturn: number | null
+}> = [
+  {
+    name: 'first gallery populated — measures its own first card',
+    html: `
+      <div data-kr-gallery style="position:absolute;top:100px;left:0;width:100%">
+        <div data-kr-gallery-grid><div style="height:200px">card</div></div>
+      </div>`,
+    expect: { top: 100, galleryTop: 100, galleryCount: 1 },
+    legacyWouldReturn: 100,
+  },
+  {
+    name: 'first three galleries empty, fourth populated — /servers shape',
+    html: `
+      <div data-kr-gallery style="position:absolute;top:106px;left:0;width:100%">
+        <div style="height:60px">No matching servers.</div>
+      </div>
+      <div data-kr-gallery style="position:absolute;top:402px;left:0;width:100%">
+        <div style="height:60px">No matching servers.</div>
+      </div>
+      <div data-kr-gallery style="position:absolute;top:450px;left:0;width:100%">
+        <div style="height:60px">No matching servers.</div>
+      </div>
+      <div data-kr-gallery style="position:absolute;top:742px;left:0;width:100%">
+        <div data-kr-gallery-grid><div style="height:200px">card</div></div>
+      </div>`,
+    // The whole finding in one line: 106, not 742.
+    expect: { top: null, galleryTop: 106, galleryCount: 4 },
+    legacyWouldReturn: 742,
+  },
+  {
+    name: 'card shorter than the 40px floor is not a card',
+    html: `
+      <div data-kr-gallery style="position:absolute;top:80px;left:0;width:100%">
+        <div data-kr-gallery-grid><div style="height:12px">sliver</div></div>
+      </div>`,
+    expect: { top: null, galleryTop: 80, galleryCount: 1 },
+    legacyWouldReturn: null,
+  },
+]
+
+async function runSelfTest(): Promise<number> {
+  const browser = await chromium.launch({
+    ...(process.env.CHROMIUM_PATH
+      ? { executablePath: process.env.CHROMIUM_PATH }
+      : {}),
+  })
+  let failures = 0
+  for (const test of SELF_TEST_CASES) {
+    const page = await browser.newPage({
+      viewport: { width: 1366, height: 768 },
+    })
+    await page.setContent(
+      `<!doctype html><html><body style="margin:0">${test.html}</body></html>`,
+    )
+    const hit = await measureChrome(page)
+    const got = {
+      top: hit?.top ?? null,
+      galleryTop: hit?.galleryTop ?? null,
+      galleryCount: hit?.galleryCount ?? 0,
+    }
+    const ok =
+      got.top === test.expect.top &&
+      got.galleryTop === test.expect.galleryTop &&
+      got.galleryCount === test.expect.galleryCount
+    if (!ok) failures += 1
+    console.log(
+      `  ${ok ? 'PASS' : 'FAIL'}  ${test.name}\n` +
+        `        expected ${JSON.stringify(test.expect)}\n` +
+        `        got      ${JSON.stringify(got)}`,
+    )
+    if (test.legacyWouldReturn !== test.expect.top) {
+      console.log(
+        `        (document-wide selector would have said ${test.legacyWouldReturn} — this case is the mutation test)`,
+      )
+    }
+    await page.close()
+  }
+  await browser.close()
+  console.log(
+    failures ? `\n${failures} self-test failure(s).` : '\nSelf-test passed.',
+  )
+  return failures ? 1 : 0
+}
+
 const args = process.argv.slice(2)
+
+if (args.includes('--self-test')) {
+  process.exit(await runSelfTest())
+}
+
 const base = args[args.indexOf('--base') + 1]
 const strict = args.includes('--strict')
 
@@ -228,7 +385,20 @@ const executablePath = process.env.CHROMIUM_PATH || undefined
  * than merely reportable: passing the proxy through turns 48 guaranteed
  * ERR_CONNECTION_RESETs into real readings.
  */
-const proxyServer = process.env.HTTPS_PROXY || process.env.https_proxy
+/*
+ * ...but NOT for a loopback base, which is the other documented usage of this
+ * script. Playwright's `proxy` option passes `--proxy-bypass-list=<-loopback>`,
+ * which switches OFF Chromium's built-in "never proxy localhost" rule, so
+ * `--base http://localhost:3000` got sent to the egress proxy and came back
+ * with nothing to measure. The failure was quiet in the worst way: the page
+ * "loaded", so the run reported no-cards for every route rather than an error,
+ * which reads as an empty database instead of an unreachable server.
+ */
+const isLoopbackBase =
+  /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:|\/|$)/i.test(base)
+const proxyServer = isLoopbackBase
+  ? undefined
+  : process.env.HTTPS_PROXY || process.env.https_proxy
 const browser = await chromium.launch({
   ...(executablePath ? { executablePath } : {}),
   ...(proxyServer ? { proxy: { server: proxyServer } } : {}),
@@ -255,6 +425,39 @@ for (const route of routes) {
   console.log(`${route.padEnd(14)}${cells.join('')}`)
 }
 
+/*
+ * The chrome above the first gallery, which is measurable in every state the
+ * page can be in. Printed as its own table rather than folded into the one
+ * above, because it answers a different question: the first table is "how far
+ * down is the first card", this one is "how far down does the gallery start" --
+ * and only the second survives an empty API, which is precisely the condition
+ * under which the old report went quiet and the numbers went wrong.
+ */
+console.log(`\nChrome above the first gallery (renders with or without data)\n`)
+console.log(
+  `${'route'.padEnd(14)}${BREAKPOINTS.map((b) => `${b.label} (${b.width})`.padEnd(16)).join('')}galleries`,
+)
+for (const route of routes) {
+  const row = all.filter((r) => r.route === route)
+  const cells = row.map((r) => {
+    if (r.galleryPx === null) return '—'.padEnd(16)
+    const pct = Math.round((r.galleryPx / r.viewportHeight) * 100)
+    return `${r.galleryPx}px (${pct}%)`.padEnd(16)
+  })
+  const counts = [...new Set(row.map((r) => r.galleryCount))].join('/')
+  console.log(`${route.padEnd(14)}${cells.join('')}${counts}`)
+}
+
+const stacked = routes.filter((route) =>
+  all.some((r) => r.route === route && r.galleryCount > 1),
+)
+if (stacked.length) {
+  console.log(
+    `\n${stacked.length} route(s) mount more than one gallery — the numbers above\n` +
+      `describe the FIRST one only: ${stacked.join(', ')}`,
+  )
+}
+
 const failed = all.filter((r) => r.status === 'load-failed')
 const empty = all.filter((r) => r.status === 'no-cards')
 
@@ -276,6 +479,16 @@ if (empty.length) {
   console.log(
     `\n${empty.length} reading(s) loaded but held no cards — the API, not the layout.`,
   )
+  /*
+   * Which of the two empties this is decides who should look at it, and the
+   * single dash the first table prints cannot tell them apart. "No gallery at
+   * all" is a route that regressed off the shared shell and belongs to
+   * verifyRouteGalleryContract; "gallery, no cards" is an empty API and the
+   * gallery table above still carries that route's real chrome number.
+   */
+  for (const r of [...new Map(empty.map((r) => [r.note, r])).values()]) {
+    console.log(`  ${r.note}`)
+  }
 }
 
 if (over.length) {

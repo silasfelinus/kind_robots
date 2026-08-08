@@ -18,6 +18,11 @@ const managerPath = path.join(root, 'components/facets/facet-manager.vue')
 const editorPath = path.join(root, 'components/facets/facet-editor.vue')
 const galleryPath = path.join(root, 'components/facets/facet-gallery.vue')
 const entityArtPath = path.join(root, 'server/utils/entityArt.ts')
+const queueCoveragePath = path.join(
+  root,
+  'server/utils/artJobQueueCoverage.ts',
+)
+const queueClaimPath = path.join(root, 'server/api/art/queue/claim.post.ts')
 
 const cleanup = fs.readFileSync(cleanupPath, 'utf8')
 const art = fs.readFileSync(artPath, 'utf8')
@@ -28,6 +33,8 @@ const manager = fs.readFileSync(managerPath, 'utf8')
 const editor = fs.readFileSync(editorPath, 'utf8')
 const gallery = fs.readFileSync(galleryPath, 'utf8')
 const entityArt = fs.readFileSync(entityArtPath, 'utf8')
+const queueCoverage = fs.readFileSync(queueCoveragePath, 'utf8')
+const queueClaim = fs.readFileSync(queueClaimPath, 'utf8')
 
 for (const required of [
   "designer: 'facet-catalog-merged'",
@@ -95,6 +102,71 @@ for (const required of [
 ]) {
   assert.ok(art.includes(required), `Missing Facet art contract: ${required}`)
 }
+
+/*
+ * Baseline coverage policy, 2026-08-08.
+ *
+ * Facets can still own four purpose-built slots, and the editor still exposes
+ * them for intentional curation. The automatic backlog is different: its job is
+ * to make every displayable object have something usable before spending three
+ * more renders improving the same object. Claim-time reconciliation therefore
+ * collapses active Facet coverage work to one job in this exact order. It never
+ * cancels RUNNING work and preserves cancelled ArtJob rows for provenance.
+ */
+for (const required of [
+  'FACET_COVERAGE_FIELD_ORDER',
+  "'imagePath'",
+  "'cardPath'",
+  "'heroPath'",
+  "'iconPath'",
+  "candidate.projectSlug !== 'facet-catalog'",
+  "status: { in: ['PENDING', 'RUNNING'] }",
+  "status: 'CANCELLED'",
+  'hasDisplayArt',
+  'selectFacetCoverageKeeper',
+  'payload.retry',
+  'duplicate static delivery',
+  'inferQueuedArtEngine',
+  'queuedArtSamplerSettings',
+  'assertQueuedArtPromptContract',
+]) {
+  assert.ok(
+    queueCoverage.includes(required),
+    `Missing queue coverage contract: ${required}`,
+  )
+}
+
+const imagePathOrder = queueCoverage.indexOf("'imagePath'")
+const cardPathOrder = queueCoverage.indexOf("'cardPath'")
+const heroPathOrder = queueCoverage.indexOf("'heroPath'")
+const iconPathOrder = queueCoverage.indexOf("'iconPath'")
+assert.ok(
+  imagePathOrder >= 0 &&
+    imagePathOrder < cardPathOrder &&
+    cardPathOrder < heroPathOrder &&
+    heroPathOrder < iconPathOrder,
+  'Baseline coverage fallback order must be imagePath -> cardPath -> heroPath -> iconPath.',
+)
+
+for (const required of [
+  'reconcileQueuedArtJobCoverage',
+  'assertQueuedArtPromptContract',
+  'const coverage = await reconcileQueuedArtJobCoverage',
+  'payload: serializeArtJobPayload(candidate.payload)',
+  'if (coverage.skipCandidate)',
+  'ArtJob validation failed before claim',
+]) {
+  assert.ok(
+    queueClaim.includes(required),
+    `ArtJob claim must enforce queue coverage/quality guard: ${required}`,
+  )
+}
+
+assert.ok(
+  queueCoverage.includes("job.status === 'PENDING'") &&
+    !queueCoverage.includes("status: 'RUNNING',\n      claimedAt: null"),
+  'Coverage cleanup may cancel PENDING jobs but must never rewrite a RUNNING job to CANCELLED.',
+)
 
 for (const required of [
   'iconPath           String?',

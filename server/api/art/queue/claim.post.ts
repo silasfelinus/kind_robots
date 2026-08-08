@@ -28,6 +28,10 @@ import {
   artJobQueueAffinityKey,
   selectSmartQueueCandidate,
 } from '../../../utils/artJobQueueAffinity'
+import {
+  assertQueuedArtPromptContract,
+  reconcileQueuedArtJobCoverage,
+} from '../../../utils/artJobQueueCoverage'
 import { recordRelayClaimAttempt } from '../../../utils/relayAgentRegistry'
 import { isQueuePaused } from '../../../utils/queueControl'
 
@@ -225,9 +229,29 @@ export default defineEventHandler(async (event) => {
 
       if (!candidate) continue
 
+      // Baseline coverage is one useful image per entity, not four speculative
+      // variants. Reconcile only this candidate's equivalence class so a large
+      // backlog is cleaned as it drains without adding an O(queue) sweep to
+      // every relay poll. Explicit retry payloads are excluded by the policy.
+      const coverage = await reconcileQueuedArtJobCoverage({
+        ...candidate,
+        payload: serializeArtJobPayload(candidate.payload),
+      })
+      if (coverage.skipCandidate) {
+        skippedIds.push(candidate.id)
+        continue
+      }
+
       let enrichedPayload
 
       try {
+        // New enqueues pass the prompt contract at creation time. Old backlog
+        // rows predate that boundary, so apply the same rules again immediately
+        // before claim using the ACTUAL Comfy graph's engine/cfg/steps. This is
+        // what prevents stale 20-step/cfg-7 Krea jobs from rendering just because
+        // they were already sitting in PENDING when the gate shipped.
+        assertQueuedArtPromptContract(candidate.engine, candidate.payload)
+
         const currentProvenance = readArtJobProvenance(candidate.payload)
         enrichedPayload = enrichArtJobPayload(
           candidate.engine as 'A1111' | 'COMFY',
@@ -250,7 +274,7 @@ export default defineEventHandler(async (event) => {
           },
           data: {
             status: 'FAILED',
-            error: `Prompt provenance validation failed before claim: ${handled.message}`.slice(
+            error: `ArtJob validation failed before claim: ${handled.message}`.slice(
               0,
               4000,
             ),

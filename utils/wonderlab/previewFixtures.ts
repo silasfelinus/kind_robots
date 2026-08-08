@@ -13,6 +13,24 @@ export type WonderLabPreviewFixture = {
 const fixtureDate = new Date('2026-01-01T00:00:00.000Z')
 
 const fixtures: Record<string, WonderLabPreviewFixture> = {
+  'kr-card-back': {
+    title: 'Card back specimen',
+    description:
+      'The shared info face every object gets when its card is turned over: art, title, badges, description, the per-model #details slot, and the Edit/Interact row. Presentational -- it reads no store, and `interact` is an emit because the interact surfaces are working spaces the host navigates to rather than panels this renders.',
+    viewport: 'tablet',
+    minHeight: '26rem',
+    props: {
+      title: 'Museum Placard Style',
+      subtitle: 'SDXL 1.0',
+      description:
+        'A synthetic object for checking the card back: header, badges, body and the action row together.',
+      badges: ['LORA', 'SDXL 1.0'],
+      canEdit: true,
+      canInteract: true,
+      interactLabel: 'Chat',
+    },
+  },
+
   'resource-card': {
     title: 'Resource card specimen',
     description:

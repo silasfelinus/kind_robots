@@ -58,6 +58,81 @@ const messageTone = ref<'success' | 'error'>('success')
 const activePreviewResourceId = ref<number | null>(null)
 const activeUploadResourceId = ref<number | null>(null)
 
+/*
+ * INFO FIRST. Selecting a Resource turns the card over to its stats rather
+ * than doing anything to it -- the same frame Bots uses, which is the point of
+ * kr-card-back existing rather than each gallery growing its own panel.
+ *
+ * The id is the open state so the two cannot disagree; only the false
+ * direction is writable, because the flip closes itself on Escape and the
+ * backdrop and needs somewhere to put that.
+ */
+const infoResourceId = ref<number | null>(null)
+
+const infoResource = computed(
+  () =>
+    resourceGalleryStore.resources.find(
+      (entry) => entry.id === infoResourceId.value,
+    ) ?? null,
+)
+
+const infoOpen = computed({
+  get: () => infoResourceId.value !== null,
+  set: (value: boolean) => {
+    if (!value) infoResourceId.value = null
+  },
+})
+
+function openResourceInfo(id: number): void {
+  infoResourceId.value = id
+}
+
+const infoResourceArt = computed(() => {
+  const entry = infoResource.value
+  if (!entry) return ''
+
+  return (
+    entry.ArtImage?.thumbnailPath ||
+    entry.ArtImage?.imagePath ||
+    entry.previewImageUrl ||
+    entry.imagePath ||
+    ''
+  )
+})
+
+const infoResourceTrigger = computed(() => {
+  const entry = infoResource.value
+  if (!entry) return ''
+  return entry.defaultTrigger || entry.triggerWords || entry.artPrompt || ''
+})
+
+/*
+ * The back shows a description only when there is one worth reading, on the
+ * same rule the card front uses -- an import string restating the badges is no
+ * more useful at full size than it was at card size.
+ */
+const infoResourceDescription = computed(() => {
+  const entry = infoResource.value
+  if (!entry) return ''
+  const text = (entry.description || '').trim()
+  return isMachineDescription(text) ? '' : text
+})
+
+const infoResourceBadges = computed(() => {
+  const entry = infoResource.value
+  if (!entry) return []
+
+  return [entry.resourceType, entry.generation, entry.isMature ? '18+' : '']
+    .filter((value): value is string => Boolean(value))
+    .map(String)
+})
+
+const canEditInfoResource = computed(() => {
+  const entry = infoResource.value
+  if (!entry) return false
+  return EDITABLE_RESOURCE_TYPES.includes(String(entry.resourceType))
+})
+
 const showAddChoice = ref(false)
 const showForm = ref(false)
 const formKind = ref<'CHECKPOINT' | 'LORA'>('CHECKPOINT')
@@ -93,6 +168,29 @@ async function handleSaved(
     return
   }
   closeForm()
+}
+
+const EDITABLE_RESOURCE_TYPES = ['CHECKPOINT', 'LORA', 'LYCORIS']
+
+/*
+ * Mirrors resource-card's rule so the front and the back agree about which
+ * descriptions are worth showing. Duplicated rather than imported for the same
+ * reason `label` already is: the card must stay mountable from a fixture, and
+ * importing from the gallery that renders it is the wrong direction.
+ */
+function isMachineDescription(text: string): boolean {
+  const segments = text
+    .split('|')
+    .map((segment) => segment.trim())
+    .filter(Boolean)
+
+  if (segments.length < 2) return false
+
+  const fielded = segments.filter((segment) =>
+    /^[\w ]{2,24}:\s*\S/.test(segment),
+  ).length
+
+  return fielded >= 2 && fielded * 2 >= segments.length
 }
 
 const resourceTypes = computed(() => {
@@ -363,13 +461,15 @@ onMounted(async () => {
       <div class="flex flex-wrap items-center justify-between gap-2">
         <div class="min-w-0">
           <h2 class="text-base font-bold">Resource Gallery</h2>
-          <p
-            class="hidden max-w-3xl truncate text-xs text-base-content/65 md:block"
-          >
-            Browse checkpoints, LoRAs, embeddings, and generation tools. Add one
-            to the current build, start fresh, or manufacture a preview when the
-            catalog arrived wearing a paper bag over its head.
-          </p>
+          <!--
+            TITLE ONLY. The blurb under it was `max-w-3xl`, so it claimed the
+            whole line and pushed Library/Discover/Add/Refresh onto a row of
+            their own -- Silas, 2026-08-08, of the preview: "still appears to
+            have multiple rows before the resource cards". It also truncated to
+            "...manufacture a preview wh...", so the row bought an unfinished
+            sentence. The page already carries a `?` help affordance, which is
+            where orientation prose belongs.
+          -->
         </div>
 
         <div class="flex shrink-0 items-center gap-2">
@@ -433,6 +533,76 @@ onMounted(async () => {
         </button>
       </div>
     </div>
+
+    <!--
+      THE BACK OF THE CARD, one instance for the gallery. A Resource has no
+      interact tier -- verifyCardActionContract's note on this card says its
+      primary actions "are model-specific by nature", and there is no surface
+      to hand over to -- so the back carries info and Edit and stops there.
+      `can-interact` stays false rather than inventing a destination.
+    -->
+    <kr-card-flip
+      v-model="infoOpen"
+      :label="infoResource ? resourceLabel(infoResource) : 'Resource'"
+    >
+      <template #back="{ close, commit }">
+        <kr-card-back
+          v-if="infoResource"
+          :title="resourceLabel(infoResource)"
+          :subtitle="infoResource.generation || ''"
+          :description="infoResourceDescription"
+          :art-src="infoResourceArt"
+          :badges="infoResourceBadges"
+          :can-edit="canEditInfoResource"
+          @back="commit"
+        >
+          <template #details>
+            <dl class="grid grid-cols-2 gap-2 text-xs">
+              <div v-if="infoResourceTrigger" class="col-span-2">
+                <dt class="font-black uppercase opacity-55">Trigger</dt>
+                <dd class="break-words font-mono">{{ infoResourceTrigger }}</dd>
+              </div>
+              <div v-if="infoResource.supportedServer">
+                <dt class="font-black uppercase opacity-55">Server</dt>
+                <dd>{{ infoResource.supportedServer }}</dd>
+              </div>
+              <div v-if="infoResource.localPath" class="col-span-2">
+                <dt class="font-black uppercase opacity-55">Path</dt>
+                <dd class="break-all font-mono">
+                  {{ infoResource.localPath }}
+                </dd>
+              </div>
+            </dl>
+          </template>
+
+          <template #edit="{ done }">
+            <add-model
+              v-if="infoResource.resourceType === RESOURCE_TYPE.CHECKPOINT"
+              :model="infoResource"
+              @saved="(saved: Resource) => handleSaved(saved, done)"
+              @close="done"
+            />
+            <add-lora
+              v-else
+              :lora="infoResource"
+              @saved="(saved: Resource) => handleSaved(saved, done)"
+              @close="done"
+            />
+          </template>
+        </kr-card-back>
+
+        <div v-else class="p-6 text-center text-sm opacity-60">
+          <p>That Resource is no longer available.</p>
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm mt-3 rounded-xl"
+            @click="close"
+          >
+            Close
+          </button>
+        </div>
+      </template>
+    </kr-card-flip>
 
     <!--
       ADD only. Editing an existing Resource flips its own card (see the `edit`
@@ -565,38 +735,12 @@ onMounted(async () => {
           :resource="resourceById.get(Number(item.id))!"
           :generating-preview="activePreviewResourceId === Number(item.id)"
           :uploading-preview="activeUploadResourceId === Number(item.id)"
+          @open="openResourceInfo"
           @add-to-build="addToGeneration"
           @start-fresh="startGeneration"
           @generate-preview="generatePreview"
           @upload-preview="choosePreviewFile"
-        >
-          <!--
-            The editor rides the BACK OF THE CARD now. It used to render up at
-            the top of the page from a gallery-level `showForm`/`editing` pair,
-            so editing the last row scrolled you away from it -- Silas,
-            2026-08-08: "selecting edit just creates the edit window at the very
-            top of the gallery, which is not ideal."
-
-            The card owns the gesture and hands the record back through the
-            slot, so there is no gallery-level "which one is being edited"
-            state to keep in sync any more. Which editor a Resource needs is
-            still decided here, because that is store-shaped knowledge.
-          -->
-          <template #edit="{ resource, close, commit }">
-            <add-model
-              v-if="resource.resourceType === RESOURCE_TYPE.CHECKPOINT"
-              :model="resource"
-              @saved="(saved: Resource) => handleSaved(saved, commit)"
-              @close="close"
-            />
-            <add-lora
-              v-else
-              :lora="resource"
-              @saved="(saved: Resource) => handleSaved(saved, commit)"
-              @close="close"
-            />
-          </template>
-        </resource-card>
+        />
       </template>
 
       <template #empty>

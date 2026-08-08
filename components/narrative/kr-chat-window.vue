@@ -46,72 +46,90 @@
       {{ emptyLabel }}
     </div>
 
-    <article
-      v-for="(turn, index) in turns"
-      :key="turn.id"
-      :class="['flex gap-2', turn.from === 'user' ? 'flex-row-reverse' : '']"
-      :aria-labelledby="turnHeadingId(index)"
-    >
-      <!-- Narrator turns are numbered scenes; the reader's own turns are named
+    <template v-for="(turn, index) in turns" :key="turn.id">
+      <div v-if="turn.dateLabel" class="flex justify-center py-1">
+        <span
+          class="rounded-full border border-base-300 bg-base-200 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-base-content/60"
+        >
+          {{ turn.dateLabel }}
+        </span>
+      </div>
+
+      <article
+        :class="['flex gap-2', turn.from === 'user' ? 'flex-row-reverse' : '']"
+        :aria-labelledby="turnHeadingId(index)"
+      >
+        <!-- Narrator turns are numbered scenes; the reader's own turns are named
            rather than numbered, so a screen reader walking the headings hears
            the shape of the conversation instead of a run of ordinals. The
            scene number counts narrator turns only — index would drift by one
            per answer and call the third scene "Scene 5". -->
-      <h3 :id="turnHeadingId(index)" class="sr-only">
-        {{
-          turn.from === 'user'
-            ? 'Your response'
-            : `Scene ${narratorTurnNumber(index)}`
-        }}
-      </h3>
+        <h3 :id="turnHeadingId(index)" class="sr-only">
+          {{
+            turn.from === 'user'
+              ? 'Your response'
+              : `Scene ${narratorTurnNumber(index)}`
+          }}
+        </h3>
 
-      <img
-        v-if="turn.portrait && turn.from !== 'user'"
-        :src="turn.portrait"
-        :alt="turn.speaker || 'Narrator'"
-        class="size-8 shrink-0 rounded-full border border-base-300 bg-base-300 object-cover"
-        loading="lazy"
-      />
-
-      <div
-        :class="[
-          'min-w-0 max-w-[92%] rounded-2xl px-4 py-3 text-sm leading-relaxed',
-          turn.from === 'user'
-            ? 'rounded-br-sm border border-secondary/30 bg-secondary/10'
-            : 'rounded-bl-sm border border-(--kr-surface-border) bg-(--kr-surface-raised) shadow-sm',
-        ]"
-      >
-        <p
-          v-if="turn.speaker && turn.from !== 'user'"
-          class="text-[0.65rem] font-black uppercase tracking-wide text-primary/70"
-        >
-          {{ turn.speaker }}
-        </p>
-
-        <p
-          :class="[
-            'whitespace-pre-wrap text-base-content/85',
-            turn.speaker && turn.from !== 'user' ? 'mt-1' : '',
-            prose ? 'kr-prose' : '',
-          ]"
-        >
-          {{ turn.text }}
-        </p>
-
-        <kr-choice-list
-          v-if="turn.choices?.length"
-          class="mt-3"
-          layout="row"
-          :choices="turn.choices"
-          :disabled="isStreaming"
-          :show-index="false"
-          :selected-key="selectedKey"
-          @select="emit('choose', $event, turn)"
+        <img
+          v-if="turn.portrait && turn.from !== 'user'"
+          :src="turn.portrait"
+          :alt="turn.speaker || 'Narrator'"
+          class="size-8 shrink-0 rounded-full border border-base-300 bg-base-300 object-cover"
+          loading="lazy"
         />
 
-        <slot name="after-turn" :turn="turn" :index="index" />
-      </div>
-    </article>
+        <div
+          :class="[
+            'min-w-0 max-w-[92%] rounded-2xl px-4 py-3 text-sm leading-relaxed',
+            turn.from === 'user'
+              ? 'rounded-br-sm border border-secondary/30 bg-secondary/10'
+              : 'rounded-bl-sm border border-(--kr-surface-border) bg-(--kr-surface-raised) shadow-sm',
+          ]"
+        >
+          <p
+            v-if="turn.speaker && turn.from !== 'user'"
+            class="text-[0.65rem] font-black uppercase tracking-wide text-primary/70"
+          >
+            {{ turn.speaker }}
+          </p>
+
+          <p
+            :class="[
+              'whitespace-pre-wrap text-base-content/85',
+              turn.speaker && turn.from !== 'user' ? 'mt-1' : '',
+              prose ? 'kr-prose' : '',
+            ]"
+          >
+            {{ turn.text }}
+          </p>
+
+          <p
+            v-if="turn.timestamp"
+            :class="[
+              'mt-1 text-[10px] opacity-60',
+              turn.from === 'user' ? 'text-right' : 'text-left',
+            ]"
+          >
+            {{ turn.timestamp }}
+          </p>
+
+          <kr-choice-list
+            v-if="turn.choices?.length"
+            class="mt-3"
+            layout="row"
+            :choices="turn.choices"
+            :disabled="isStreaming"
+            :show-index="false"
+            :selected-key="selectedKey"
+            @select="emit('choose', $event, turn)"
+          />
+
+          <slot name="after-turn" :turn="turn" :index="index" />
+        </div>
+      </article>
+    </template>
 
     <div
       v-if="isStreaming"
@@ -151,6 +169,21 @@ export type NarrativeTurn = {
   speaker?: string
   portrait?: string | null
   choices?: NarrativeChoice[]
+  /**
+   * A day/section heading rendered as a centered pill above this turn (e.g.
+   * "Tue, Aug 5"). The caller decides when a turn starts a new group — this
+   * component has no notion of "day" on its own, it only renders the label
+   * when one is given. Chat surfaces with a real timeline (chat-gallery) set
+   * this on the first turn of each day; conversational surfaces without one
+   * (Storybook, Taskmaster, bot-chat) omit it and see no change.
+   */
+  dateLabel?: string
+  /**
+   * A per-turn timestamp rendered under the bubble (e.g. "3:41 PM"). Purely
+   * cosmetic and independent of dateLabel — a caller can set one without the
+   * other.
+   */
+  timestamp?: string
 }
 
 const props = withDefaults(

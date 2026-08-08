@@ -144,8 +144,6 @@
       <!--
         `supportedServer` renders ONLY when it is not already overhead: it
         carries values like "SD15" beside a "SD 1.5" badge two inches up.
-        Compared with separators and case stripped, so SD15/SD 1.5 and
-        Flux.1 D/flux1-d collapse rather than sneaking through.
       -->
       <span v-if="showsServerBadge" class="badge badge-outline badge-xs w-fit">
         {{ resource.supportedServer }}
@@ -318,10 +316,27 @@ function normalizeModelToken(value: unknown): string {
     .replace(/[^a-z0-9]/g, '')
 }
 
+/*
+ * PREFIX, not equality. Comparing the two normalised tokens outright still let
+ * "SDXL" through beside an "SDXL 1.0" badge -- Silas, 2026-08-08, from the
+ * preview: "there is still a type listed twice : eg sdxl". The server field
+ * carries the family and the generation field carries family-plus-version, so
+ * the two are never going to be equal; one CONTAINING the other is what makes
+ * it a repeat.
+ *
+ * Biased toward collapsing -- "SD" beside "SDXL 1.0" goes too. Slightly
+ * aggressive, and deliberately the direction the brief asks for: a badge that
+ * only re-states a coarser version of what a neighbour already said is exactly
+ * the clutter being removed.
+ */
 const showsServerBadge = computed(() => {
   const server = normalizeModelToken(props.resource.supportedServer)
   if (!server) return false
-  return server !== normalizeModelToken(props.resource.generation)
+
+  const generation = normalizeModelToken(props.resource.generation)
+  if (!generation) return true
+
+  return !server.startsWith(generation) && !generation.startsWith(server)
 })
 
 const isEditable = computed(() =>

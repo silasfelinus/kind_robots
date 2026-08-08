@@ -461,13 +461,15 @@ onMounted(async () => {
       <div class="flex flex-wrap items-center justify-between gap-2">
         <div class="min-w-0">
           <h2 class="text-base font-bold">Resource Gallery</h2>
-          <p
-            class="hidden max-w-3xl truncate text-xs text-base-content/65 md:block"
-          >
-            Browse checkpoints, LoRAs, embeddings, and generation tools. Add one
-            to the current build, start fresh, or manufacture a preview when the
-            catalog arrived wearing a paper bag over its head.
-          </p>
+          <!--
+            TITLE ONLY. The blurb under it was `max-w-3xl`, so it claimed the
+            whole line and pushed Library/Discover/Add/Refresh onto a row of
+            their own -- Silas, 2026-08-08, of the preview: "still appears to
+            have multiple rows before the resource cards". It also truncated to
+            "...manufacture a preview wh...", so the row bought an unfinished
+            sentence. The page already carries a `?` help affordance, which is
+            where orientation prose belongs.
+          -->
         </div>
 
         <div class="flex shrink-0 items-center gap-2">

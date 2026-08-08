@@ -166,30 +166,29 @@ export function checkArtPromptContract(
 
   for (const { pattern, rule } of CONDITIONAL_PATTERNS) {
     const match = prompt.match(pattern)
-    if (match) {
-      violations.push({
-        rule,
-        detail:
-          `"${match[0]}" asks the model to evaluate a condition. Diffusion models ` +
-          `cannot; they render the words. Decide before enqueueing and state one outcome.`,
-      })
-    }
+    if (!match) continue
+    violations.push({
+      rule,
+      detail:
+        `"${match[0]}" asks the model to evaluate a condition. Diffusion models ` +
+        `cannot; they render the words. Decide before enqueueing and state one outcome.`,
+    })
   }
 
   for (const { pattern, rule } of FORMAT_PATTERNS) {
     const match = prompt.match(pattern)
+    if (!match || typeof match.index !== 'number') continue
     // A format noun the author is excluding ("no comic panel") is the opposite
     // of a format request. Flagging it rejected the coloring-book lane, whose
     // prompts legitimately name the formats they are avoiding.
-    if (match && typeof match.index === 'number' && !negated(prompt, match.index)) {
-      violations.push({
-        rule,
-        detail:
-          `"${match[0]}" asks for a physical format, so the model renders the ` +
-          `format — frame, title bar, and invented text included. Describe the ` +
-          `subject and the aspect ratio instead.`,
-      })
-    }
+    if (negated(prompt, match.index)) continue
+    violations.push({
+      rule,
+      detail:
+        `"${match[0]}" asks for a physical format, so the model renders the ` +
+        `format — frame, title bar, and invented text included. Describe the ` +
+        `subject and the aspect ratio instead.`,
+    })
   }
 
   if (VAGUE_BRAND_STYLE.test(prompt)) {

@@ -63,6 +63,12 @@ check(
   /autoScroll/.test(chat),
   'auto-scroll is opt-out, so a reader reviewing an earlier scene can stay put',
 )
+check(
+  /\[\s*\(\) => props\.turns,\s*\(\) => props\.turns\.length,\s*\(\) => props\.streamingText\s*\]/s.test(
+    chat,
+  ),
+  'auto-scroll watches turn identity and count, so equal-length thread switches still follow the latest message',
+)
 // Trailing conversation-level content (Taskmaster's ledger, Dreams' musings)
 // must be able to sit INSIDE the scroll region. Without this slot a caller has
 // to put it in a sibling element, which means a second scroll region — the one

@@ -208,59 +208,13 @@
         </div>
       </div>
 
-      <div ref="messageScroll" class="min-h-0 flex-1 overflow-y-auto p-4">
-        <div class="flex flex-col gap-3">
-          <template
-            v-for="(message, index) in activeThread.messages"
-            :key="message.id"
-          >
-            <div
-              v-if="
-                shouldShowDateDivider(message, index, activeThread.messages)
-              "
-              class="flex justify-center py-1"
-            >
-              <span
-                class="rounded-full border border-base-300 bg-base-200 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-base-content/60"
-              >
-                {{ formatDay(message.createdAt) }}
-              </span>
-            </div>
-
-            <div
-              class="flex w-full"
-              :class="isIncoming(message) ? 'justify-start' : 'justify-end'"
-            >
-              <div
-                class="max-w-[80%] rounded-2xl px-4 py-2 text-sm shadow-sm"
-                :class="
-                  isIncoming(message)
-                    ? 'bg-base-200 text-base-content'
-                    : 'bg-primary text-primary-content'
-                "
-              >
-                <p
-                  v-if="showSenderLabel(message)"
-                  class="mb-1 text-xs font-black opacity-70"
-                >
-                  {{ getSenderLabel(message) }}
-                </p>
-
-                <p class="whitespace-pre-wrap wrap-break-word">
-                  {{ message.content }}
-                </p>
-
-                <p
-                  class="mt-1 text-[10px] opacity-60"
-                  :class="isIncoming(message) ? 'text-left' : 'text-right'"
-                >
-                  {{ formatDate(message.createdAt) }}
-                </p>
-              </div>
-            </div>
-          </template>
-        </div>
-      </div>
+      <kr-chat-window
+        class="bg-base-100 p-4"
+        :turns="threadTurns"
+        :prose="false"
+        :label="`${activeThread.otherLabel} conversation`"
+        empty-label="No messages yet."
+      />
 
       <div class="shrink-0 border-t border-base-300 bg-base-200 p-3">
         <p v-if="replyError" class="mb-2 text-xs font-semibold text-error">
@@ -297,9 +251,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useChatStore } from '@/stores/chatStore'
 import { useUserStore } from '@/stores/userStore'
+import type { NarrativeTurn } from '@/components/narrative/kr-chat-window.vue'
 
 withDefaults(defineProps<{ showHeader?: boolean }>(), { showHeader: true })
 
@@ -359,7 +314,6 @@ const activeThreadKey = ref<string | null>(null)
 const replyMessage = ref('')
 const replyError = ref('')
 const isReplying = ref(false)
-const messageScroll = ref<HTMLElement | null>(null)
 
 const userInfo = ref<
   Record<number, { username: string; avatar: string | null }>
@@ -465,6 +419,23 @@ const activeThread = computed<ChatThread | null>(() => {
       (thread) => thread.threadKey === activeThreadKey.value,
     ) || null
   )
+})
+
+const threadTurns = computed<NarrativeTurn[]>(() => {
+  const thread = activeThread.value
+  if (!thread) return []
+
+  return thread.messages.map((message, index) => ({
+    id: String(message.id),
+    text: message.content,
+    from: isOutgoing(message) ? 'user' : 'narrator',
+    speaker: showSenderLabel(message) ? getSenderLabel(message) : undefined,
+    portrait: isIncoming(message) ? thread.otherAvatar : null,
+    dateLabel: shouldShowDateDivider(message, index, thread.messages)
+      ? formatDay(message.createdAt)
+      : undefined,
+    timestamp: formatDate(message.createdAt),
+  }))
 })
 
 const canReply = computed(() => Boolean(activeThread.value?.otherUserId))
@@ -870,13 +841,6 @@ async function refreshChats() {
   }
 }
 
-function scrollToBottom() {
-  void nextTick(() => {
-    const el = messageScroll.value
-    if (el) el.scrollTop = el.scrollHeight
-  })
-}
-
 async function openThread(thread: ChatThread) {
   activeThreadKey.value = thread.threadKey
   replyMessage.value = ''
@@ -891,8 +855,6 @@ async function openThread(thread: ChatThread) {
   } catch (error) {
     console.error('Error selecting chat:', error)
   }
-
-  scrollToBottom()
 }
 
 function closeThread() {
@@ -932,7 +894,6 @@ async function sendReply() {
 
     replyMessage.value = ''
     await refreshChats()
-    scrollToBottom()
   } catch (error) {
     console.error('Error sending reply:', error)
     replyError.value = 'Failed to send message.'
@@ -940,13 +901,6 @@ async function sendReply() {
     isReplying.value = false
   }
 }
-
-watch(
-  () => activeThread.value?.count,
-  () => {
-    if (activeThread.value) scrollToBottom()
-  },
-)
 
 onMounted(refreshChats)
 </script>

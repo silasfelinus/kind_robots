@@ -42,48 +42,39 @@
     </div>
 
     <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-      <article class="stat rounded-2xl border border-base-300 bg-base-100 shadow-sm">
-        <div class="stat-title">Channels</div>
-        <div class="stat-value text-primary">{{ channels.length }}</div>
-        <div class="stat-desc">Resolved parent documents</div>
-      </article>
+      <kr-stat-tile
+        title="Channels"
+        :value="channels.length"
+        tone="primary"
+        desc="Resolved parent documents"
+      />
 
-      <article class="stat rounded-2xl border border-base-300 bg-base-100 shadow-sm">
-        <div class="stat-title">Tabs</div>
-        <div class="stat-value">{{ totalTabs }}</div>
-        <div class="stat-desc">Resolved child documents</div>
-      </article>
+      <kr-stat-tile title="Tabs" :value="totalTabs" desc="Resolved child documents" />
 
-      <article class="stat rounded-2xl border border-base-300 bg-base-100 shadow-sm">
-        <div class="stat-title">Shared routes</div>
-        <div class="stat-value text-secondary">{{ sharedRouteGroups.length }}</div>
-        <div class="stat-desc">Groups using ?tab= addressing</div>
-      </article>
+      <kr-stat-tile
+        title="Shared routes"
+        :value="sharedRouteGroups.length"
+        tone="secondary"
+        desc="Groups using ?tab= addressing"
+      />
 
-      <article class="stat rounded-2xl border border-base-300 bg-base-100 shadow-sm">
-        <div class="stat-title">Legacy adapters</div>
-        <div
-          class="stat-value"
-          :class="legacyAdapterFailureCount ? 'text-error' : 'text-warning'"
-        >
-          {{ legacyAdapterCount - legacyAdapterFailureCount }}/{{ legacyAdapterCount }}
-        </div>
-        <div class="stat-desc">
-          {{
-            legacyAdapterFailureCount
-              ? `${legacyAdapterFailureCount} failing navManifest validation`
-              : 'Tabs bridging old dashboards, all resolving'
-          }}
-        </div>
-      </article>
+      <kr-stat-tile
+        title="Legacy adapters"
+        :value="`${legacyAdapterCount - legacyAdapterFailureCount}/${legacyAdapterCount}`"
+        :tone="legacyAdapterFailureCount ? 'error' : 'warning'"
+        :desc="
+          legacyAdapterFailureCount
+            ? `${legacyAdapterFailureCount} failing navManifest validation`
+            : 'Tabs bridging old dashboards, all resolving'
+        "
+      />
 
-      <article class="stat rounded-2xl border border-base-300 bg-base-100 shadow-sm">
-        <div class="stat-title">Broken artwork</div>
-        <div class="stat-value" :class="brokenImages.size ? 'text-error' : 'text-success'">
-          {{ brokenImages.size }}
-        </div>
-        <div class="stat-desc">Detected by browser image loading</div>
-      </article>
+      <kr-stat-tile
+        title="Broken artwork"
+        :value="brokenImages.size"
+        :tone="brokenImages.size ? 'error' : 'success'"
+        desc="Detected by browser image loading"
+      />
     </section>
 
     <section

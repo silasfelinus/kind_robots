@@ -233,7 +233,10 @@ export default defineEventHandler(async (event) => {
       // variants. Reconcile only this candidate's equivalence class so a large
       // backlog is cleaned as it drains without adding an O(queue) sweep to
       // every relay poll. Explicit retry payloads are excluded by the policy.
-      const coverage = await reconcileQueuedArtJobCoverage(candidate)
+      const coverage = await reconcileQueuedArtJobCoverage({
+        ...candidate,
+        payload: serializeArtJobPayload(candidate.payload),
+      })
       if (coverage.skipCandidate) {
         skippedIds.push(candidate.id)
         continue

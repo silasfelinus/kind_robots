@@ -67,7 +67,7 @@ The script:
 - changes ProxySQL `mysql-wait_timeout` from the old eight-hour retention window to 600000 ms (10 minutes);
 - loads the server/user/variable changes into ProxySQL runtime and saves them to disk;
 - verifies the runtime users, hostgroups, limits, and timeout;
-- writes the generated handoff values to `/mnt/user/pc/kindrobots-db-isolation.env` with mode 600;
+- writes the generated handoff values to `/mnt/user/pc/kindrobots-db-isolation/kindrobots-db-isolation.env` with mode 600 inside a mode-700 private directory;
 - writes a password-free pre-change ProxySQL snapshot next to that file.
 
 The credential file is deliberately not printed to the terminal. Keep it private.
@@ -80,7 +80,8 @@ In the Vercel project, open **Settings -> Environment Variables**. Environment
 variables are scoped by deployment environment, and changing them affects only
 new deployments.
 
-Use the values from `/mnt/user/pc/kindrobots-db-isolation.env`:
+Use the values from
+`/mnt/user/pc/kindrobots-db-isolation/kindrobots-db-isolation.env`:
 
 1. Edit `DATABASE_URL` for **Preview only** and set it to the value of
    `VERCEL_PREVIEW_DATABASE_URL`.

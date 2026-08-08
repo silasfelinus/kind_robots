@@ -27,6 +27,9 @@ on:
       - 'server/utils/entityArt.ts'
       - 'utils/scripts/verifyArtQueueClaimFastPath.ts'
       - 'utils/scripts/verifyEntityArtManager.ts'
+      - 'utils/entityArtPromptFraming.ts'
+      - 'stores/dailyDreamArchiveStore.ts'
+      - 'utils/scripts/verifyEntityArtPromptFraming.ts'
       - 'utils/scripts/verifyDailyDreamArchiveWorkbench.ts'
       - 'utils/scripts/verifyEntityArtPromptSuggest.ts'
       - 'utils/scripts/verifyProjectArtPromptSuggest.ts'
@@ -48,6 +51,7 @@ jobs:
       - run: npx prisma generate
       - run: npx tsx utils/scripts/verifyArtQueueClaimFastPath.ts
       - run: npx tsx utils/scripts/verifyEntityArtManager.ts
+      - run: npx tsx utils/scripts/verifyEntityArtPromptFraming.ts
       - run: npx tsx utils/scripts/verifyDailyDreamArchiveWorkbench.ts
       - run: npx tsx utils/scripts/verifyEntityArtPromptSuggest.ts
       - run: npx tsx utils/scripts/verifyProjectArtPromptSuggest.ts

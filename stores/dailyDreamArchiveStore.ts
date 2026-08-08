@@ -12,6 +12,10 @@ import type {
   Scenario,
 } from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
+import {
+  artContextRules,
+  artSlotFraming,
+} from '~/utils/entityArtPromptFraming'
 
 export type DailyDreamArchiveArt = Pick<
   ArtImage,
@@ -213,11 +217,12 @@ function dreamArtPrompt(
   return [
     prompt.trim(),
     '',
-    `Create this as the ${slot.label.toLowerCase()} artwork for the following dream.`,
+    // Shape, not slot name: "the card artwork" made Krea 2 draw a literal
+    // trading card. See utils/entityArtPromptFraming.ts.
+    `Compose this as ${artSlotFraming(slot)} for the following dream.`,
     ...context,
     '',
-    'Treat the first paragraph as the primary art direction. Use the dream context for identity and continuity, not as text to render.',
-    'Do not add captions, labels, UI chrome, watermarks, signatures, or readable text unless the primary art direction explicitly requests them.',
+    ...artContextRules('dream'),
   ].join('\n')
 }
 

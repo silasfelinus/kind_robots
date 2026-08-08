@@ -26,18 +26,6 @@
               <Icon name="kind-icon:trophy" class="size-8 text-primary" />
             </div>
 
-            <!--
-              basis-full: this row's icon is shrink-0 and the actions group
-              has no min-w-0 floor override, so with flex-1's default
-              flex-basis:0% this div contributed ~0 to flex-wrap's
-              line-collection step and never earned its own line -- all
-              three ended up sharing one row on phone, with the entire
-              shrink deficit landing on this one flexible child and
-              crushing it to a ~20px sliver (interface-vision/t-110).
-              basis-full forces a 100% hypothetical width up front, so it
-              wraps onto its own row below the icon instead; sm:basis-auto
-              restores the compact single-line layout once there's room.
-            -->
             <div class="min-w-0 flex-1 basis-full sm:basis-auto">
               <p
                 class="text-xs font-black uppercase tracking-[0.28em] text-primary"

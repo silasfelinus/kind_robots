@@ -17,6 +17,7 @@
 //   npx tsx utils/scripts/enqueuePageBackdropArtViaApi.ts --write
 //   npx tsx utils/scripts/enqueuePageBackdropArtViaApi.ts --write --limit 6
 //   npx tsx utils/scripts/enqueuePageBackdropArtViaApi.ts --write --only index,about
+//   npx tsx utils/scripts/enqueuePageBackdropArtViaApi.ts --write --only mermaids --variant desktop
 import 'dotenv/config'
 import { pageBackdropArtPrompts } from './../../stores/seeds/pageBackdropArtPrompts'
 import {
@@ -46,6 +47,13 @@ const LIMIT = Number(flag('--limit') || 0)
 const ONLY = (flag('--only') || '')
   .split(',')
   .map((value) => value.trim())
+  .filter(Boolean)
+// A page has three genuinely different framings, so re-rendering one breakpoint
+// is a real thing to want — the desktop backdrop can be wrong while the phone
+// one is fine. Without this, repairing one image costs three renders.
+const VARIANTS = (flag('--variant') || '')
+  .split(',')
+  .map((value) => value.trim().toLowerCase())
   .filter(Boolean)
 
 function buildPayload(entry: (typeof pageBackdropArtPrompts)[number]) {
@@ -96,7 +104,13 @@ async function main() {
 
   let entries = pageBackdropArtPrompts
   if (ONLY.length) entries = entries.filter((e) => ONLY.includes(e.page))
+  if (VARIANTS.length) entries = entries.filter((e) => VARIANTS.includes(e.variant))
   if (LIMIT > 0) entries = entries.slice(0, LIMIT)
+  if (!entries.length) {
+    console.error('❌ No entries matched --only / --variant.')
+    process.exitCode = 1
+    return
+  }
 
   console.log(`Target: ${BASE}`)
   console.log(

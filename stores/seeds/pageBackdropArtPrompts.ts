@@ -57,7 +57,7 @@ const CANVAS: Record<
     width: 1536,
     height: 864,
     framing:
-      'Wide 16:9 landscape for a desktop. Push the interest to the left and right thirds and keep the centre open — that is where the main panel sits. Let the horizon and any architecture carry across the full width so the edges feel inhabited rather than cropped.',
+      'Wide 16:9 landscape for a desktop. Push the interest to the left and right thirds and keep the centre open — that is where the main panel sits. Let the horizon and any architecture carry across the full width so the edges read as more of the same place rather than a crop.',
   },
 }
 
@@ -67,8 +67,29 @@ const CANVAS: Record<
  * Deliberately restates the "quiet centre" rule that CANVAS.framing also
  * carries: it is the constraint a generator is most likely to drop, and saying
  * it twice is cheap insurance on a batch this size.
+ *
+ * BACKDROPS ARE UNPEOPLED. This used to read "...when any figures appear they
+ * are small, distant and incidental to the setting, and across the set they
+ * represent a diverse range of genders, races, ages, body sizes and body
+ * shapes, mixing humans, robots, animal-like beings and original nonhuman
+ * companions". Read by a person that is a restraint. Read by a diffusion model
+ * it is forty words of people with no way to evaluate the "when" — so all 222
+ * backdrops in the first batch rendered with a cast. voice-lab put a crowd of
+ * faces in both side windows; servers filled the street with a few dozen
+ * figures. Those are precisely the thirds where the composition guidance says
+ * to put the interest, and precisely where the UI panels do not cover them.
+ *
+ * The casting policy itself is right and lives on, in `CAST_DIRECTION` for art
+ * that actually has a cast. A page background is not that art. Same bug as the
+ * Tidefortune Ladle on 2026-08-08 — see server/utils/artPromptContract.ts,
+ * which now rejects this phrasing at enqueue.
  */
-const STYLE = `Create one standalone environment illustration to be used as a full-bleed page background for the Kind Robots web app. This is SCENERY, not a portrait or a poster: interface panels, cards and toolbars will be drawn on top of it, so the composition must stay open and calm through the centre of the canvas and carry its interest at the edges. Painted storybook-illustration style with cinematic depth, warm inviting light, soft atmospheric haze in the distance, and rich but unfussy detail. Kind Robots is a friendly, playful, multi-genre and cross-dimensional world; when any figures appear they are small, distant and incidental to the setting, and across the set they represent a diverse range of genders, races, ages, body sizes and body shapes, mixing humans, robots, animal-like beings and original nonhuman companions naturally and respectfully. No central subject, no single dominant focal point, no readable text, no logos, no watermarks, no borders, no panels, no collage.`
+// Scoped to PEOPLE on purpose, not to everything alive. Several scenes want
+// fauna or props — butterflies on taskmaster, jellyfish drifters on dreams,
+// half-assembled robots on the workbenches of bots — and a blanket "no
+// creatures, no robots" would fight the very scene it is wrapped around. What
+// broke the batch was a cast of characters, so that is what this excludes.
+const STYLE = `Create one standalone environment illustration to be used as a full-bleed page background for the Kind Robots web app. This is SCENERY: interface panels, cards and toolbars will be drawn on top of it, so the composition must stay open and calm through the centre of the canvas and carry its interest at the edges. Painted storybook-illustration style with cinematic depth, warm inviting light, soft atmospheric haze in the distance, and rich but unfussy detail. The place is empty of inhabitants — no people, no figures, no characters, no faces, no crowd, an unpeopled setting waiting to be entered. No central subject and no single dominant focal point; every surface unmarked and free of text.`
 
 const NEGATIVE_PROMPT = `text, caption, lettering, signage, logo, watermark, signature, border, frame, panel, collage, grid, contact sheet, ui mockup, interface elements, buttons, strong central subject, centered portrait, close-up face, busy cluttered centre, high-contrast centre, harsh clutter, photorealism, low detail, blurry, jpeg artifacts`
 
@@ -541,13 +562,13 @@ const PAGES: PageSeed[] = [
   },
 ]
 
+// The canvas size is a job parameter (CANVAS feeds width/height straight into
+// the render request), so it does not also need to be spelled out to the model.
+// It used to lead with "Final canvas: exactly 1536 x 864 pixels" — digits, in
+// the positive prompt, to a Qwen-Image-lineage model that renders text better
+// than anything else open. The framing sentence says the same thing in words.
 function buildPrompt(seed: PageSeed, variant: BackdropVariant): string {
-  const canvas = CANVAS[variant]
-  return [
-    STYLE,
-    `Final canvas: exactly ${canvas.width} x ${canvas.height} pixels. ${canvas.framing}`,
-    `Scene: ${seed.scene}`,
-  ].join('\n\n')
+  return [STYLE, CANVAS[variant].framing, `Scene: ${seed.scene}`].join('\n\n')
 }
 
 export const pageBackdropArtPrompts: PageBackdropArtPrompt[] = PAGES.flatMap(

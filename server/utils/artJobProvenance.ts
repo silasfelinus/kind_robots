@@ -47,10 +47,6 @@ type ProvenanceOptions = {
 const TEXT_INPUT_PATTERN = /(^|_)(prompt|text)($|_)/i
 const MODEL_INPUT_PATTERN =
   /(^|_)(ckpt|checkpoint|unet|clip|vae|lora|controlnet|ipadapter|ip_adapter|upscale|model).*name($|_)/i
-const POSITIVE_PROMPT_NODE_TYPES = new Set([
-  'CLIPTextEncode',
-  'ImpactWildcardEncode',
-])
 
 function asRecord(value: unknown): ArtJobPayloadRecord {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {}

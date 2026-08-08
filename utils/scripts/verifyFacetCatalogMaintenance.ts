@@ -91,7 +91,11 @@ for (const required of [
   'width: 1280',
   'height: 720',
   "const PROJECT_SLUG = 'facet-catalog'",
-  "const FACET_ART_VERSION = 'facet-multi-art-krea2-v2'",
+  "const FACET_ART_VERSION = 'facet-coverage-krea2-v3'",
+  "const ALL_VARIANTS = process.argv.includes('--all-variants')",
+  "const NEGATIVE_PROMPT = ''",
+  'assertArtPromptContract',
+  "engine: 'krea2'",
   'buildKrea2WorkflowFromRequest',
   "entityType: 'facet'",
   'field: variant.field',
@@ -99,6 +103,9 @@ for (const required of [
   'facets: [facetSnapshot',
   'priorityFor',
   'artPrompt: entry.identityPrompt',
+  "coverageMode: ALL_VARIANTS ? 'all-variants' : 'baseline'",
+  "payload: { contains: '\"entityType\":\"facet\"' }",
+  'variant: ART_VARIANTS[0]',
 ]) {
   assert.ok(art.includes(required), `Missing Facet art contract: ${required}`)
 }
@@ -109,10 +116,51 @@ for (const required of [
  * Facets can still own four purpose-built slots, and the editor still exposes
  * them for intentional curation. The automatic backlog is different: its job is
  * to make every displayable object have something usable before spending three
- * more renders improving the same object. Claim-time reconciliation therefore
- * collapses active Facet coverage work to one job in this exact order. It never
- * cancels RUNNING work and preserves cancelled ArtJob rows for provenance.
+ * more renders improving the same object. Both the producer and claim-time
+ * reconciliation use this exact order. RUNNING work is never cancelled and
+ * cancelled ArtJob rows remain as provenance.
  */
+const producerImagePathOrder = art.indexOf("field: 'imagePath'")
+const producerCardPathOrder = art.indexOf("field: 'cardPath'")
+const producerHeroPathOrder = art.indexOf("field: 'heroPath'")
+const producerIconPathOrder = art.indexOf("field: 'iconPath'")
+assert.ok(
+  producerImagePathOrder >= 0 &&
+    producerImagePathOrder < producerCardPathOrder &&
+    producerCardPathOrder < producerHeroPathOrder &&
+    producerHeroPathOrder < producerIconPathOrder,
+  'Facet producer order must be imagePath -> cardPath -> heroPath -> iconPath.',
+)
+
+for (const required of [
+  'if (!ALL_VARIANTS)',
+  'const hasDisplayArt = Boolean(',
+  'const pendingVariant = ART_VARIANTS.find',
+  'variant: ART_VARIANTS[0]',
+  'Explicit enhancement mode',
+  "ALL_VARIANTS ? 'all-variants' : 'baseline'",
+  'Reuse any PENDING or RUNNING Facet ArtJob regardless of artwork-version marker',
+]) {
+  assert.ok(
+    art.includes(required),
+    `Missing coverage-first producer contract: ${required}`,
+  )
+}
+
+// Card/hero/icon remain available when explicitly requested, but image-model
+// prompts must describe the desired crop rather than asking Krea to paint a
+// physical card or UI frame.
+for (const forbidden of [
+  'portrait card artwork',
+  'room for card chrome',
+  'icon logo artwork',
+]) {
+  assert.ok(
+    !art.includes(forbidden),
+    `Facet prompt vocabulary must not contain legacy format language: ${forbidden}`,
+  )
+}
+
 for (const required of [
   'FACET_COVERAGE_FIELD_ORDER',
   "'imagePath'",
@@ -202,7 +250,7 @@ assert.ok(
 )
 assert.ok(
   art.includes("status: { in: ['PENDING', 'RUNNING'] }"),
-  'Current-version queued or running jobs must be reused.',
+  'Pending or running Facet artwork must be reused.',
 )
 
 for (const required of [

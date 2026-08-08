@@ -89,6 +89,28 @@ const RULE_TITLES: Record<RuleId, string> = {
 
 /* screenfx is full-viewport effect canvases by design — genuinely exempt. */
 const VIEWPORT_EXEMPT = ['components/screenfx/', 'components/butterfly/']
+
+/**
+ * Source with comments removed, for the rules that scan raw text rather than
+ * the tokenizer's element stream.
+ *
+ * MENTION IS NOT USE. `no-viewport` tested the whole file, so a comment
+ * SAYING the words tripped it -- kr-card-flip.vue was flagged in 2026-08-08
+ * for a CSS comment reading "`100%` of the backdrop, NOT a dvh ...
+ * verifyLayoutContract forbids viewport units", i.e. for documenting its own
+ * compliance. The template rules never had this problem because the tokenizer
+ * already skips `<!-- -->`; this rule was the one reading `source` directly.
+ *
+ * `//` needs the negative lookbehind or every `https://` in a file becomes the
+ * start of a comment and everything after it on the line disappears.
+ */
+function codeOf(source: string): string {
+  return source
+    .replace(/<!--[\s\S]*?-->/g, ' ')
+    .replace(/\/\*[\s\S]*?\*\//g, ' ')
+    .replace(/(?<!:)\/\/[^\n]*/g, ' ')
+}
+
 const SKIP_DIRS = new Set([
   'node_modules',
   '.nuxt',
@@ -888,7 +910,10 @@ function collect(): Record<RuleId, string[]> {
     }
 
     const exempt = VIEWPORT_EXEMPT.some((prefix) => r.startsWith(prefix))
-    if (!exempt && /\b(h-screen|min-h-screen)\b|100vh|100dvh/.test(source)) {
+    if (
+      !exempt &&
+      /\b(h-screen|min-h-screen)\b|100vh|100dvh/.test(codeOf(source))
+    ) {
       violations['no-viewport'].push(r)
     }
 

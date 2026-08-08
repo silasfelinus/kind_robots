@@ -61,7 +61,6 @@ const activeUploadResourceId = ref<number | null>(null)
 const showAddChoice = ref(false)
 const showForm = ref(false)
 const formKind = ref<'CHECKPOINT' | 'LORA'>('CHECKPOINT')
-const editing = ref<Partial<Resource> | null>(null)
 
 function openAddChoice(): void {
   showAddChoice.value = true
@@ -69,26 +68,30 @@ function openAddChoice(): void {
 
 function startAdd(kind: 'CHECKPOINT' | 'LORA'): void {
   formKind.value = kind
-  editing.value = null
   showAddChoice.value = false
-  showForm.value = true
-}
-
-function openEdit(resource: ResourceGalleryRecord): void {
-  formKind.value =
-    resource.resourceType === RESOURCE_TYPE.CHECKPOINT ? 'CHECKPOINT' : 'LORA'
-  editing.value = resource
   showForm.value = true
 }
 
 function closeForm(): void {
   showForm.value = false
   showAddChoice.value = false
-  editing.value = null
 }
 
-async function handleSaved(resource: Resource): Promise<void> {
+/*
+ * `done` is the closer for whichever surface is open: the Add panel passes
+ * none and falls back to closeForm, while a flipped card passes its own
+ * `close` so the card turns back over instead of the panel state changing
+ * underneath a dialog that is not on screen.
+ */
+async function handleSaved(
+  resource: Resource,
+  done?: () => void,
+): Promise<void> {
   await resourceGalleryStore.getResource(resource.id)
+  if (done) {
+    done()
+    return
+  }
   closeForm()
 }
 
@@ -431,15 +434,18 @@ onMounted(async () => {
       </div>
     </div>
 
+    <!--
+      ADD only. Editing an existing Resource flips its own card (see the `edit`
+      slot on resource-card below); this pair is reached from the Add button,
+      where there is no card to turn over yet, so it stays a panel.
+    -->
     <add-model
       v-if="showForm && formKind === 'CHECKPOINT'"
-      :model="editing"
       @saved="handleSaved"
       @close="closeForm"
     />
     <add-lora
       v-if="showForm && formKind === 'LORA'"
-      :lora="editing"
       @saved="handleSaved"
       @close="closeForm"
     />
@@ -559,12 +565,38 @@ onMounted(async () => {
           :resource="resourceById.get(Number(item.id))!"
           :generating-preview="activePreviewResourceId === Number(item.id)"
           :uploading-preview="activeUploadResourceId === Number(item.id)"
-          @edit="openEdit"
           @add-to-build="addToGeneration"
           @start-fresh="startGeneration"
           @generate-preview="generatePreview"
           @upload-preview="choosePreviewFile"
-        />
+        >
+          <!--
+            The editor rides the BACK OF THE CARD now. It used to render up at
+            the top of the page from a gallery-level `showForm`/`editing` pair,
+            so editing the last row scrolled you away from it -- Silas,
+            2026-08-08: "selecting edit just creates the edit window at the very
+            top of the gallery, which is not ideal."
+
+            The card owns the gesture and hands the record back through the
+            slot, so there is no gallery-level "which one is being edited"
+            state to keep in sync any more. Which editor a Resource needs is
+            still decided here, because that is store-shaped knowledge.
+          -->
+          <template #edit="{ resource, close, commit }">
+            <add-model
+              v-if="resource.resourceType === RESOURCE_TYPE.CHECKPOINT"
+              :model="resource"
+              @saved="(saved: Resource) => handleSaved(saved, commit)"
+              @close="close"
+            />
+            <add-lora
+              v-else
+              :lora="resource"
+              @saved="(saved: Resource) => handleSaved(saved, commit)"
+              @close="close"
+            />
+          </template>
+        </resource-card>
       </template>
 
       <template #empty>

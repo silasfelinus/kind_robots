@@ -24,7 +24,7 @@
 #   PROXYSQL_WAIT_TIMEOUT_MS=600000
 #   PUBLIC_PROXYSQL_HOST=acrocatranch.com
 #   PUBLIC_PROXYSQL_PORT=5544
-#   OUTPUT_FILE=/mnt/user/pc/kindrobots-db-isolation.env
+#   OUTPUT_FILE=/mnt/user/pc/kindrobots-db-isolation/kindrobots-db-isolation.env
 #
 # Existing dedicated users are never silently rotated. If they already exist,
 # reuse the generated OUTPUT_FILE or explicitly provide their passwords.
@@ -54,7 +54,7 @@ MIGRATION_BACKEND_MAX="${MIGRATION_BACKEND_MAX:-4}"
 PROXYSQL_WAIT_TIMEOUT_MS="${PROXYSQL_WAIT_TIMEOUT_MS:-600000}"
 PUBLIC_PROXYSQL_HOST="${PUBLIC_PROXYSQL_HOST:-acrocatranch.com}"
 PUBLIC_PROXYSQL_PORT="${PUBLIC_PROXYSQL_PORT:-5544}"
-OUTPUT_FILE="${OUTPUT_FILE:-/mnt/user/pc/kindrobots-db-isolation.env}"
+OUTPUT_FILE="${OUTPUT_FILE:-/mnt/user/pc/kindrobots-db-isolation/kindrobots-db-isolation.env}"
 MARIADB_CONNECTION_RESERVE="${MARIADB_CONNECTION_RESERVE:-30}"
 
 fail() {

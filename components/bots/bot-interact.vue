@@ -29,13 +29,13 @@
   <section
     class="flex h-full min-h-0 w-full flex-col gap-4 rounded-2xl bg-base-200 p-4"
   >
+    <!-- show-header off: kr-manager renders the panel title. See the
+         showHeader note in bot-gallery.vue. -->
     <bot-gallery
       v-if="!isInteractMode"
       class="min-h-0 flex-1"
       variant="dashboard"
-      title="Choose Your Bot"
-      subtitle="Pick a bot to start a focused chat session."
-      :show-header="true"
+      :show-header="false"
       :show-images="true"
       :show-controls="true"
       :show-card-actions="true"

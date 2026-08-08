@@ -1,0 +1,2 @@
+Facet artwork migration verified: 297 direct visual Facet choices, 297 canonical titles, 297 declared image paths.
+NOTE: public/images/adventure is absent (it is gitignored), so the on-disk existence of those 297 paths was NOT checked. Declarations, precedence and title conflicts were.

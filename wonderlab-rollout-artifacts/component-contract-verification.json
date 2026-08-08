@@ -1,0 +1,25 @@
+{
+  "contractVersion": 1,
+  "baseUrl": "https://kind-robots.vercel.app",
+  "checkedAt": "2026-08-08T06:59:48.486Z",
+  "recordCount": 489,
+  "canonicalStatusRecordCount": 489,
+  "discoveredCount": 420,
+  "completeDiscoveredIdentityCount": 420,
+  "databaseOnlyCount": 69,
+  "statusCounts": {
+    "UNREVIEWED": 268,
+    "WORKING": 220,
+    "NEEDS_CONTEXT": 1,
+    "UNDER_CONSTRUCTION": 0,
+    "BROKEN": 0,
+    "RETIRED": 0,
+    "PREVIEW_UNSUPPORTED": 0
+  },
+  "invalidStatusCount": 0,
+  "retiredFieldExposureCount": 0,
+  "incompleteDiscoveredCount": 0,
+  "invalidStatusRows": [],
+  "retiredFieldRows": [],
+  "incompleteDiscoveredRows": []
+}

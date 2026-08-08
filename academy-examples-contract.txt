@@ -1,0 +1,5 @@
+
+> test:academy-examples-manifest
+> tsx utils/scripts/verifyAcademyExamplesManifest.ts
+
+Academy examples manifest contract passed: 21 entries validated from https://media.acrocatranch.com/images/academy/examples/examples.manifest.json plus 0 pending media entries against PUBLIC-DOMAIN-POLICY.md §3 and cross-checked against academyStyles.ts (media availability check skipped; set MEDIA_VERIFY_ASSETS=1 to enable).

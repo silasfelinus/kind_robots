@@ -383,6 +383,21 @@ const props = withDefaults(
     variant?: GalleryVariant
     title?: string
     subtitle?: string
+    /**
+     * The gallery's own title/subtitle band.
+     *
+     * TRUE BY DEFAULT, AND OFF ON THE ROUTE. kr-manager already renders this
+     * panel's title and summary from dashboardHelper config -- it says so
+     * itself, citing "the brief's one-header rule" -- so on /bots this band is a
+     * second page heading for the same panel.
+     *
+     * It stays available rather than being deleted because the same gallery is
+     * embedded as a PICKER inside bot-chat, where no manager sits above it and
+     * this title is the only label. Duplication on the ROUTE is not duplication
+     * everywhere, so bot-interact opts out explicitly and the default is left
+     * alone for the pickers. reward-gallery and scenario-gallery carry the same
+     * split for the same reason (character-chat, character-flip-card).
+     */
     showHeader?: boolean
     showImages?: boolean
     showControls?: boolean

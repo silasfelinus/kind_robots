@@ -37,6 +37,41 @@ assert.ok(
   '"treasure-card illustration" must be rejected',
 )
 
+// The page-backdrop house style: the same conditional wearing different words.
+// Every one of the 222 backdrops rendered with a cast standing in the left and
+// right thirds — exactly where the composition guidance puts the interest, and
+// exactly where no UI panel covers them.
+const BACKDROP_AS_SHIPPED =
+  'Create one standalone environment illustration to be used as a full-bleed ' +
+  'page background. Kind Robots is a friendly, playful, multi-genre and ' +
+  'cross-dimensional world; when any figures appear they are small, distant and ' +
+  'incidental to the setting, and across the set they represent a diverse range ' +
+  'of genders, races, ages, body sizes and body shapes, mixing humans, robots, ' +
+  'animal-like beings and original nonhuman companions naturally and respectfully.'
+assert.ok(
+  rules({ prompt: BACKDROP_AS_SHIPPED, engine: 'krea2' })
+    .includes('conditional-instruction'),
+  'the "when any figures appear" casting conditional must be rejected',
+)
+
+// Scoped to a cast noun plus a presence verb, so prose about people is fine.
+assert.deepEqual(
+  rules({
+    prompt: 'a harbour market at dusk when people light the paper lanterns',
+    engine: 'krea2',
+  }),
+  [],
+  '"when people light..." is a described scene, not an instruction to evaluate',
+)
+assert.deepEqual(
+  rules({
+    prompt: 'a lone figure on a pier where creatures once nested, cold grey light',
+    engine: 'krea2',
+  }),
+  [],
+  '"where creatures once nested" is setting, not a conditional',
+)
+
 // skill-ghost-ring-reading: rendered as a trading card with a rules box.
 assert.ok(
   rules({ prompt: 'a rare-tier ability card illustration of Ghost-Ring Reading' })

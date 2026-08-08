@@ -78,6 +78,23 @@ const CONDITIONAL_PATTERNS: Array<{ pattern: RegExp; rule: string }> = [
   { pattern: /\b(?:if|unless) (?:the )?(?:subject|scene|context|prompt)\b/i, rule: 'conditional-instruction' },
   { pattern: /\bwhere (?:appropriate|relevant|applicable)\b/i, rule: 'conditional-instruction' },
   { pattern: /\bas (?:needed|appropriate)\b/i, rule: 'conditional-instruction' },
+  // The same bug wearing different words. Every page backdrop carried "...when
+  // any figures APPEAR they are small, distant and incidental to the setting",
+  // and none of the patterns above match it: the conditional attaches to a cast
+  // noun, not to "the subject" or "the scene". All 222 rendered with a cast —
+  // crowds in the side windows of voice-lab, a street full of figures in
+  // servers — because the model has no way to reach the "when" and simply
+  // paints the forty words of people that follow it.
+  //
+  // Scoped to a cast noun plus a PRESENCE verb, so ordinary prose that happens
+  // to say "when" about people is untouched: "a market at dusk when people
+  // light the lanterns" describes a scene, "when people appear" hands the model
+  // a decision it cannot make.
+  {
+    pattern:
+      /\b(?:when|if|where|whenever|unless)\s+(?:any\s+|some\s+|the\s+|no\s+)?(?:figures?|people|persons?|characters?|humans?|robots?|creatures?|bystanders?|crowds?|onlookers?)\s+(?:do\s+|are\s+|is\s+)?(?:appear|present|shown|show up|included|visible|featured|depicted)\b/i,
+    rule: 'conditional-instruction',
+  },
 ]
 
 // Asking for a card, a poster, or a book cover gets you the object, not the art

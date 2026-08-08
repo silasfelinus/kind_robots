@@ -27,6 +27,14 @@
  *   6. root-surface  — page components start with a shared kr-surface/kr-stage/kr-unbound root
  *   7. pane-display  — kr-panes/kr-pane never carry a display utility that fights
  *                       the one the primitive bakes in (t-097)
+ *   8. viewport-grid — a shared (non-page) component never gates its grid-cols count
+ *                       behind a viewport breakpoint (sm:/md:/lg:/xl:/2xl:grid-cols-*);
+ *                       a shared component can be embedded in a host narrower than its
+ *                       own viewport class implies, so the column count must follow the
+ *                       host's actual width (grid-cols-[repeat(auto-fit,minmax(...))])
+ *                       rather than the browser's (interface-vision t-113/t-114 —
+ *                       the narrative-ingredient-picker regressed twice this way when
+ *                       reused inside Taskmaster's narrower recipe panel)
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, relative, basename, extname } from 'node:path'
@@ -55,6 +63,7 @@ type RuleId =
   | 'zero-scroll'
   | 'root-surface'
   | 'pane-display'
+  | 'viewport-grid'
 
 type Baseline = {
   note: string
@@ -74,6 +83,8 @@ const RULE_TITLES: Record<RuleId, string> = {
     'page components whose root wrapper does not use kr-surface, kr-stage, or kr-unbound',
   'pane-display':
     'kr-panes/kr-pane elements carrying a display utility that contradicts the one the primitive bakes in',
+  'viewport-grid':
+    'shared (non-page) components gating grid-cols count behind a viewport breakpoint instead of container width',
 }
 
 /* screenfx is full-viewport effect canvases by design — genuinely exempt. */
@@ -417,6 +428,32 @@ function paneDisplayConflicts(template: string): string[] {
   return conflicts
 }
 
+/*
+ * A viewport-breakpoint grid-cols/flex-col-count utility (sm:/md:/lg:/xl:/2xl:
+ * grid-cols-N, or the equivalent arbitrary-value form) picks its column count from
+ * the BROWSER's width, not the host container's. That is correct for a page-level
+ * component (it owns the full content width), but wrong for anything reusable: a
+ * shared component can be dropped into a narrower panel/sidebar/card at any wide
+ * viewport and the breakpoint fires anyway, crushing its children (interface-vision
+ * t-112/t-113 — narrative-ingredient-picker regressed on this exact pattern twice
+ * when Taskmaster embedded it in a narrower recipe column). The fix is a
+ * container-width-following pattern instead, e.g.
+ * `grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))]`.
+ */
+const VIEWPORT_GRID_BREAKPOINT_TOKEN =
+  /^(?:sm|md|lg|xl|2xl):grid-cols-(?:\d+|\[[^\]]+\])$/
+
+function viewportGridBreakpointMatches(template: string): string[] {
+  const matches: string[] = []
+  for (const classList of staticClassLists(template)) {
+    const tokens = classList.split(/\s+/).filter(Boolean)
+    for (const token of tokens) {
+      if (VIEWPORT_GRID_BREAKPOINT_TOKEN.test(token)) matches.push(token)
+    }
+  }
+  return matches
+}
+
 function hasKrAnchorPanes(template: string): boolean {
   return staticClassLists(template).some((classList) =>
     classList.split(/\s+/).filter(Boolean).includes('kr-anchor-panes'),
@@ -641,6 +678,43 @@ function verifyPaneScrollFixture(): void {
   }
 }
 
+function verifyViewportGridBreakpointFixture(): void {
+  const flagged = templateOf(`
+    <template>
+      <div class="grid gap-2 md:grid-cols-2"></div>
+      <div class="grid xl:grid-cols-[repeat(3,1fr)]"></div>
+    </template>
+  `)
+  const clean = templateOf(`
+    <template>
+      <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))] gap-2"></div>
+      <div class="grid grid-cols-2"></div>
+    </template>
+  `)
+
+  const matches = viewportGridBreakpointMatches(flagged)
+  if (matches.length !== 2) {
+    throw new Error(
+      `Viewport-grid fixture was not classified correctly (expected 2 matches, got ${matches.length}: ${matches.join(', ')}).`,
+    )
+  }
+  if (!matches.includes('md:grid-cols-2')) {
+    throw new Error(
+      'Viewport-grid fixture did not catch the numeric md:grid-cols-2 case.',
+    )
+  }
+  if (!matches.includes('xl:grid-cols-[repeat(3,1fr)]')) {
+    throw new Error(
+      'Viewport-grid fixture did not catch the arbitrary-value xl:grid-cols-[...] case.',
+    )
+  }
+  if (viewportGridBreakpointMatches(clean).length !== 0) {
+    throw new Error(
+      'Viewport-grid fixture false-positived on an auto-fit/minmax grid or a bare (non-breakpointed) grid-cols-2.',
+    )
+  }
+}
+
 function verifyAnchorScrollFixture(): void {
   const withAnchorPanes = templateOf(`
     <template>
@@ -700,6 +774,7 @@ function collect(): Record<RuleId, string[]> {
     'zero-scroll': [],
     'root-surface': [],
     'pane-display': [],
+    'viewport-grid': [],
   }
 
   /*
@@ -801,6 +876,17 @@ function collect(): Record<RuleId, string[]> {
       violations['pane-display'].push(`${r} → ${conflict}`)
     }
 
+    /*
+     * Page components legitimately own the full content width, so a viewport
+     * breakpoint is the right tool there — only shared/reusable components (the
+     * ones that can end up embedded in an arbitrarily narrow host) are in scope.
+     */
+    if (!pageComponent) {
+      for (const token of viewportGridBreakpointMatches(template)) {
+        violations['viewport-grid'].push(`${r} → ${token}`)
+      }
+    }
+
     const exempt = VIEWPORT_EXEMPT.some((prefix) => r.startsWith(prefix))
     if (!exempt && /\b(h-screen|min-h-screen)\b|100vh|100dvh/.test(source)) {
       violations['no-viewport'].push(r)
@@ -851,6 +937,7 @@ function main(): void {
   verifyPaneScrollFixture()
   verifyPaneDisplayFixture()
   verifyAnchorScrollFixture()
+  verifyViewportGridBreakpointFixture()
   const current = collect()
   const baseline = loadRatchetBaseline<Baseline>(BASELINE_PATH)
 

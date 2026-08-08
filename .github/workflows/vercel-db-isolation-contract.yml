@@ -1,0 +1,32 @@
+name: Vercel DB Isolation Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/provision-vercel-db-isolation.sh'
+      - 'scripts/prisma-migrate-deploy.mjs'
+      - 'utils/scripts/verifyVercelDbIsolationProvisioning.mjs'
+      - '.github/workflows/vercel-db-isolation-contract.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: vercel-db-isolation-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Provisioning contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Verify provisioning script
+        run: node utils/scripts/verifyVercelDbIsolationProvisioning.mjs

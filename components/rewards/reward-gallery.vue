@@ -270,7 +270,15 @@
                  full-width row of its own -- four filters became four rows on a
                  phone, which is most of why /rewards spent 54% of a 390px
                  viewport before its first card. flex-wrap puts as many on a
-                 line as fit and only breaks when it must. -->
+                 line as fit and only breaks when it must.
+
+                 AND THE CHILDREN HAVE TO AGREE -- see the longer note on the
+                 same block in bot-gallery.vue. A `w-full` child fills its line
+                 and forces the next one to wrap, so the controls kept stacking
+                 after the container was fixed; the search box had no responsive
+                 escape at all and took a row of its own even on desktop. This
+                 toolbar carries TWO selects rather than one, so it was paying
+                 an extra row for it. -->
           <div
             v-if="showControls && !isDropdownMode"
             class="flex flex-wrap items-center gap-1.5"
@@ -293,7 +301,7 @@
 
             <select
               v-model="selectedCollection"
-              class="select select-bordered select-sm w-full bg-base-100 lg:w-auto"
+              class="select select-bordered select-sm bg-base-100"
               aria-label="Filter rewards by collection"
             >
               <option value="all">All collections</option>
@@ -309,7 +317,7 @@
 
             <select
               v-model="selectedRarity"
-              class="select select-bordered select-sm w-full bg-base-100 lg:w-auto"
+              class="select select-bordered select-sm bg-base-100"
               aria-label="Filter rewards by rarity"
             >
               <option value="all">All rarities</option>
@@ -324,11 +332,11 @@
               type="search"
               aria-label="Search rewards"
               placeholder="Search rewards..."
-              class="input input-bordered input-sm w-full bg-base-100"
+              class="input input-bordered input-sm min-w-32 flex-1 bg-base-100"
             />
 
             <button
-              class="btn btn-ghost btn-sm rounded-xl lg:w-auto"
+              class="btn btn-ghost btn-sm rounded-xl"
               type="button"
               :disabled="!rewardStore.selectedReward"
               @click="clearSelectedReward"

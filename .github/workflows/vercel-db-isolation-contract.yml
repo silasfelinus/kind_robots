@@ -5,8 +5,11 @@ on:
     branches: [main]
     paths:
       - 'scripts/provision-vercel-db-isolation.sh'
+      - 'scripts/provision-agent-db-lane.sh'
       - 'scripts/prisma-migrate-deploy.mjs'
       - 'utils/scripts/verifyVercelDbIsolationProvisioning.mjs'
+      - 'utils/scripts/verifyAgentDbLaneProvisioning.mjs'
+      - 'docs/runbooks/agent-database-lane.md'
       - '.github/workflows/vercel-db-isolation-contract.yml'
   workflow_dispatch:
 
@@ -28,5 +31,8 @@ jobs:
         with:
           node-version: '24'
 
-      - name: Verify provisioning script
+      - name: Verify Vercel provisioning script
         run: node utils/scripts/verifyVercelDbIsolationProvisioning.mjs
+
+      - name: Verify coding-agent provisioning script
+        run: node utils/scripts/verifyAgentDbLaneProvisioning.mjs

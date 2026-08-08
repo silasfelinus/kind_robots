@@ -151,7 +151,8 @@ assert.ok(
 for (const required of [
   'reconcileQueuedArtJobCoverage',
   'assertQueuedArtPromptContract',
-  'const coverage = await reconcileQueuedArtJobCoverage(candidate)',
+  'const coverage = await reconcileQueuedArtJobCoverage',
+  'payload: serializeArtJobPayload(candidate.payload)',
   'if (coverage.skipCandidate)',
   'ArtJob validation failed before claim',
 ]) {

@@ -169,20 +169,7 @@ export type NarrativeTurn = {
   speaker?: string
   portrait?: string | null
   choices?: NarrativeChoice[]
-  /**
-   * A day/section heading rendered as a centered pill above this turn (e.g.
-   * "Tue, Aug 5"). The caller decides when a turn starts a new group — this
-   * component has no notion of "day" on its own, it only renders the label
-   * when one is given. Chat surfaces with a real timeline (chat-gallery) set
-   * this on the first turn of each day; conversational surfaces without one
-   * (Storybook, Taskmaster, bot-chat) omit it and see no change.
-   */
   dateLabel?: string
-  /**
-   * A per-turn timestamp rendered under the bubble (e.g. "3:41 PM"). Purely
-   * cosmetic and independent of dateLabel — a caller can set one without the
-   * other.
-   */
   timestamp?: string
 }
 
@@ -273,10 +260,8 @@ function narratorTurnNumber(index: number): number {
   return count
 }
 
-// Follow the conversation as it grows. Guarded on autoScroll so a surface that
-// wants the reader to stay put (reviewing an old scene) can opt out.
 watch(
-  () => [props.turns.length, props.streamingText],
+  [() => props.turns, () => props.turns.length, () => props.streamingText],
   async () => {
     if (!props.autoScroll) return
     await nextTick()

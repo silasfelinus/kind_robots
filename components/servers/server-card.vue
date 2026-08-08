@@ -163,12 +163,18 @@ const ownershipLabel = computed(() => {
 
 const serverBadges = computed<EntityCardChip[]>(() => {
   const badges: EntityCardChip[] = [
-    { label: props.server.lastStatus || 'UNKNOWN', class: statusBadgeClass.value },
+    {
+      label: props.server.lastStatus || 'UNKNOWN',
+      class: statusBadgeClass.value,
+    },
     { label: String(props.server.serverType), class: 'badge-primary' },
   ]
 
   if (props.server.accessMode) {
-    badges.push({ label: String(props.server.accessMode), class: 'badge-outline' })
+    badges.push({
+      label: String(props.server.accessMode),
+      class: 'badge-outline',
+    })
   }
 
   badges.push({ label: ownershipLabel.value, class: 'badge-ghost' })
@@ -178,10 +184,27 @@ const serverBadges = computed<EntityCardChip[]>(() => {
 const serverMeta = computed<EntityCardChip[]>(() => {
   const chips: EntityCardChip[] = []
 
-  if (props.server.authType) chips.push({ label: `Auth: ${props.server.authType}` })
-  if (props.server.baseUrl) chips.push({ label: `Base: ${props.server.baseUrl}`, title: props.server.baseUrl })
-  if (props.server.endpointPath) chips.push({ label: `Endpoint: ${props.server.endpointPath}`, title: props.server.endpointPath })
-  if (props.server.healthPath) chips.push({ label: `Health: ${props.server.healthPath}`, title: props.server.healthPath })
+  if (props.server.authType) {
+    chips.push({ label: `Auth: ${props.server.authType}` })
+  }
+  if (props.server.baseUrl) {
+    chips.push({
+      label: `Base: ${props.server.baseUrl}`,
+      title: props.server.baseUrl,
+    })
+  }
+  if (props.server.endpointPath) {
+    chips.push({
+      label: `Endpoint: ${props.server.endpointPath}`,
+      title: props.server.endpointPath,
+    })
+  }
+  if (props.server.healthPath) {
+    chips.push({
+      label: `Health: ${props.server.healthPath}`,
+      title: props.server.healthPath,
+    })
+  }
 
   return chips
 })

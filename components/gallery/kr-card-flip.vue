@@ -42,7 +42,7 @@
         viewport is only meaningful from the body.
       -->
       <div
-        v-if="modelValue"
+        v-if="visible"
         class="kr-flip-backdrop"
         :class="{ 'is-shown': shown }"
         @click="close"
@@ -51,14 +51,17 @@
           <div
             ref="panelRef"
             class="kr-flip-panel"
-            :class="{ 'is-shown': shown }"
+            :class="{
+              'is-shown': shown,
+              'is-dismissing': leaving && exitMode === 'dismiss',
+            }"
             role="dialog"
             aria-modal="true"
             :aria-label="label"
             tabindex="-1"
           >
             <div class="kr-flip-panel-scroll">
-              <slot name="back" :close="close" />
+              <slot name="back" :close="close" :commit="commit" />
             </div>
           </div>
         </div>
@@ -81,20 +84,80 @@ withDefaults(
 const modelValue = defineModel<boolean>({ default: false })
 
 const panelRef = ref<HTMLElement | null>(null)
+
 /*
- * `shown` trails `modelValue` by a frame ON PURPOSE. The panel mounts in its
- * pre-flip state (turned away and small) and only then gets the class that
- * animates it in -- mount it already-open and the browser has no previous
- * value to transition FROM, so the flip and the growth are both skipped and it
- * simply appears.
+ * TWO flags, not one, because the panel has to outlive `modelValue`.
+ *
+ *   visible  owns the v-if, so it is what MOUNTS the panel
+ *   shown    owns the animated class, so it is what MOVES it
+ *
+ * `shown` trails `visible` by a frame on the way in: the panel mounts turned
+ * away and small, and only then gets the class that animates it. Mount it
+ * already-open and the browser has no previous value to transition FROM, so
+ * the flip and the growth are both skipped and it simply appears.
+ *
+ * On the way OUT the order reverses and the gap is a whole transition rather
+ * than a frame -- `shown` goes false to play the turn backwards, and only when
+ * that has finished does `visible` unmount it. Silas, 2026-08-08: "we need to
+ * reverse the animation if the edit is okayed or canceled, or the user clicks
+ * outside the card." Driving the v-if straight off `modelValue` made the panel
+ * vanish instead, which is the one thing an animation like this cannot do --
+ * the point of turning a card over is that you saw it turn.
  */
+const visible = ref(false)
 const shown = ref(false)
+
+/*
+ * TWO WAYS OUT, because they mean different things. Silas, 2026-08-08:
+ * "clicking outside the card or canceling should probably just be a quick
+ * cancel, reverse might be appropriate if clicking to save the edit, as it's
+ * more of a grand choice."
+ *
+ *   dismiss  backdrop, Escape, Cancel -- nothing happened, so it just goes.
+ *            A shrink and a fade, no rotation, out of the way in 160ms.
+ *   commit   Save -- something happened, so the card turns back over and you
+ *            watch it land. 340ms, the entrance played backwards.
+ *
+ * Both numbers must stay in step with the stylesheet below: they decide when
+ * the panel unmounts, so a timer shorter than its CSS cuts the end off the
+ * animation, and one longer leaves a finished panel sitting over the page.
+ */
+type ExitMode = 'dismiss' | 'commit'
+
+const EXIT_MS: Record<ExitMode, number> = {
+  dismiss: 160,
+  commit: 340,
+}
+
+let exitTimer: ReturnType<typeof setTimeout> | null = null
+
+function clearExitTimer(): void {
+  if (exitTimer) clearTimeout(exitTimer)
+  exitTimer = null
+}
+
+const exitMode = ref<ExitMode>('dismiss')
+/*
+ * `leaving` exists so the dismiss styling applies ONLY during a real exit.
+ * Keying the class off `!shown` alone would also match the moment before the
+ * entrance, when the panel is deliberately sitting in its turned-away state --
+ * the quick-exit transform would overwrite that and the flip-in would be lost.
+ */
+const leaving = ref(false)
 
 function open(): void {
   modelValue.value = true
 }
 
+/** Nothing happened: Escape, the backdrop, Cancel. Quick. */
 function close(): void {
+  exitMode.value = 'dismiss'
+  modelValue.value = false
+}
+
+/** Something happened: the slot saved. Turn the card back over. */
+function commit(): void {
+  exitMode.value = 'commit'
   modelValue.value = false
 }
 
@@ -102,8 +165,19 @@ function onKeydown(event: KeyboardEvent): void {
   if (event.key === 'Escape') close()
 }
 
+function releasePage(): void {
+  document.removeEventListener('keydown', onKeydown)
+  document.body.style.overflow = ''
+}
+
 watch(modelValue, async (isOpen) => {
   if (isOpen) {
+    // Reopening mid-exit: cancel the pending unmount rather than letting it
+    // fire later and tear down a panel that is on its way back in.
+    clearExitTimer()
+
+    leaving.value = false
+    visible.value = true
     document.addEventListener('keydown', onKeydown)
     // The page behind must not scroll while a centred panel is up; otherwise
     // dismissing returns you somewhere other than where you opened it.
@@ -115,9 +189,21 @@ watch(modelValue, async (isOpen) => {
     return
   }
 
-  document.removeEventListener('keydown', onKeydown)
-  document.body.style.overflow = ''
+  // Scrolling is handed back at the START of the exit, not the end: the panel
+  // is already leaving and holding the page frozen for another third of a
+  // second reads as lag.
+  releasePage()
+  leaving.value = true
   shown.value = false
+
+  clearExitTimer()
+  exitTimer = setTimeout(() => {
+    // Re-check rather than trusting the timer: a reopen inside the window
+    // should win, and clearExitTimer alone cannot cover a race that resolved
+    // between the two.
+    if (!modelValue.value) visible.value = false
+    exitTimer = null
+  }, EXIT_MS[exitMode.value])
 })
 
 /*
@@ -125,8 +211,8 @@ watch(modelValue, async (isOpen) => {
  * unscrollable -- a navigation away with the panel open would lock the app.
  */
 onBeforeUnmount(() => {
-  document.removeEventListener('keydown', onKeydown)
-  document.body.style.overflow = ''
+  clearExitTimer()
+  releasePage()
 })
 </script>
 
@@ -181,14 +267,35 @@ onBeforeUnmount(() => {
   /* Turned away and small: the card is face-down and further off. */
   transform: rotateY(-180deg) scale(0.55);
   opacity: 0;
+  /*
+   * The COMMIT exit, and also the pre-entrance state -- an element transitions
+   * out through its own rule, and the `.is-shown` rule below overrides it on
+   * the way in. 340ms matches EXIT_MS.commit.
+   */
   transition:
-    transform 520ms cubic-bezier(0.4, 0.1, 0.2, 1),
-    opacity 260ms ease;
+    transform 340ms cubic-bezier(0.4, 0.1, 0.2, 1),
+    opacity 240ms ease;
+}
+
+/*
+ * The DISMISS exit. It has to override the turned-away transform above rather
+ * than share it: a cancel drops the card where it stands instead of rotating
+ * it, so the only movement is a slight shrink. 160ms matches EXIT_MS.dismiss.
+ */
+.kr-flip-panel.is-dismissing {
+  transform: scale(0.96);
+  opacity: 0;
+  transition:
+    transform 160ms ease-in,
+    opacity 160ms ease-in;
 }
 
 .kr-flip-panel.is-shown {
   transform: rotateY(0deg) scale(1);
   opacity: 1;
+  transition:
+    transform 520ms cubic-bezier(0.4, 0.1, 0.2, 1),
+    opacity 260ms ease;
 }
 
 /* The panel clips; this scrolls. `min-height: 0` is the load-bearing half --

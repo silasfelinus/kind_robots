@@ -209,14 +209,14 @@
       </div>
     </article>
 
-    <template #back="{ close }">
+    <template #back="{ close, commit }">
       <!--
         The gallery fills this. The card knows the gesture, not the form: which
         editor a Resource needs (add-model vs add-lora) and what saving means
         are both store work, and this file stays fixture-mountable by not
         knowing either.
       -->
-      <slot name="edit" :resource="resource" :close="close" />
+      <slot name="edit" :resource="resource" :close="close" :commit="commit" />
     </template>
   </kr-card-flip>
 </template>

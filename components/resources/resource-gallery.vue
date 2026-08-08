@@ -582,17 +582,17 @@ onMounted(async () => {
             state to keep in sync any more. Which editor a Resource needs is
             still decided here, because that is store-shaped knowledge.
           -->
-          <template #edit="{ resource, close }">
+          <template #edit="{ resource, close, commit }">
             <add-model
               v-if="resource.resourceType === RESOURCE_TYPE.CHECKPOINT"
               :model="resource"
-              @saved="(saved: Resource) => handleSaved(saved, close)"
+              @saved="(saved: Resource) => handleSaved(saved, commit)"
               @close="close"
             />
             <add-lora
               v-else
               :lora="resource"
-              @saved="(saved: Resource) => handleSaved(saved, close)"
+              @saved="(saved: Resource) => handleSaved(saved, commit)"
               @close="close"
             />
           </template>

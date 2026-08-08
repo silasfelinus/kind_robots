@@ -98,12 +98,23 @@ export default defineEventHandler(async (event) => {
     // Conductor's bulk lanes enter here, so this is where a stale replayed
     // prompt gets stopped rather than rendered.
     try {
+      // extractRenderRequest returns prompt/size/seed only; steps and cfg live
+      // on the payload, which is Record<string, unknown> — coerce explicitly
+      // rather than leaning on `unknown` surviving `||` and `??`.
       const render = extractRenderRequest(normalizedPayload)
+      const numeric = (value: unknown): number | null => {
+        const parsed = Number(value)
+        return Number.isFinite(parsed) ? parsed : null
+      }
+      const payloadEngine =
+        typeof normalizedPayload.engine === 'string'
+          ? normalizedPayload.engine
+          : engine
       assertArtPromptContract({
         prompt: render.prompt,
-        engine: String(normalizedPayload.engine || engine || '').toLowerCase(),
-        steps: Number(normalizedPayload.steps ?? render.steps ?? NaN),
-        cfg: Number(normalizedPayload.cfg ?? render.cfg ?? NaN),
+        engine: String(payloadEngine || '').toLowerCase(),
+        steps: numeric(normalizedPayload.steps),
+        cfg: numeric(normalizedPayload.cfg),
       })
     } catch (contractError: unknown) {
       // A payload shape this endpoint cannot introspect is not a contract

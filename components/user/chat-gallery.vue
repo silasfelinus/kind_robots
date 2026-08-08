@@ -208,13 +208,6 @@
         </div>
       </div>
 
-      <!-- The scrolling message list is kr-chat-window (interface-vision
-           t-104). It owns its own scroll region and follows the thread as it
-           grows, so the messageScroll ref and manual scrollToBottom calls
-           this replaced are gone with it. Outgoing (this user's own)
-           messages map to kr-chat-window's 'user' turns; everything else
-           ('narrator' in the shared vocabulary) covers bots, characters,
-           dreams, and other people. -->
       <kr-chat-window
         class="bg-base-100 p-4"
         :turns="threadTurns"
@@ -428,7 +421,6 @@ const activeThread = computed<ChatThread | null>(() => {
   )
 })
 
-/** activeThread's messages as kr-chat-window turns (interface-vision t-104). */
 const threadTurns = computed<NarrativeTurn[]>(() => {
   const thread = activeThread.value
   if (!thread) return []

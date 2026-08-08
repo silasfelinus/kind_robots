@@ -2,6 +2,7 @@
 import { createError, defineEventHandler, getRouterParam } from 'h3'
 import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
+import { canView } from '~/server/utils/contentAccess'
 import { resolveFacetAlias } from '~/server/utils/facetAliases'
 
 export default defineEventHandler(async (event) => {
@@ -26,12 +27,11 @@ export default defineEventHandler(async (event) => {
 
     const isOwner =
       Boolean(auth?.user.id) && resolved.facet.userId === auth?.user.id
-    const canView =
-      auth?.isAdmin ||
-      isOwner ||
-      (resolved.facet.isPublic && !resolved.facet.isMature)
+    const hasAccess = await canView(resolved.facet, null, auth?.user)
+    const maturityAllowed =
+      !resolved.facet.isMature || Boolean(auth?.isAdmin) || isOwner
 
-    if (!canView) {
+    if (!hasAccess || !maturityAllowed) {
       throw createError({
         statusCode: auth ? 403 : 404,
         message: auth

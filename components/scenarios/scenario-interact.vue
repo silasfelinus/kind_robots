@@ -30,12 +30,12 @@
       {{ storyStore.statusMessage }}
     </div>
 
+    <!-- show-header off: kr-manager renders the panel title. See bot-gallery. -->
     <scenario-gallery
       v-if="storyStore.phase === 'browse'"
       class="min-h-0 flex-1"
       variant="grid"
-      title="Choose Your Scenario"
-      subtitle="Tap a world to read it, configure it, and launch a story."
+      :show-header="false"
       :show-inspirations="false"
     />
 

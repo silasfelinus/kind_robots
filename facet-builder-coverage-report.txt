@@ -1,0 +1,295 @@
+Facet Builder coverage failed:
+- Human references missing Builder artwork: public/images/adventure/species/human.webp
+- Elf references missing Builder artwork: public/images/adventure/species/elf.webp
+- Dwarf references missing Builder artwork: public/images/adventure/species/dwarf.webp
+- Orc references missing Builder artwork: public/images/adventure/species/orc.webp
+- Goblin references missing Builder artwork: public/images/adventure/species/goblin.webp
+- Halfling references missing Builder artwork: public/images/adventure/species/halfling.webp
+- Gnome references missing Builder artwork: public/images/adventure/species/gnome.webp
+- Troll references missing Builder artwork: public/images/adventure/species/troll.webp
+- Ogre references missing Builder artwork: public/images/adventure/species/ogre.webp
+- Giant references missing Builder artwork: public/images/adventure/species/giant.webp
+- Catfolk references missing Builder artwork: public/images/adventure/species/catfolk.webp
+- Wolfkin references missing Builder artwork: public/images/adventure/species/wolfkin.webp
+- Foxkin references missing Builder artwork: public/images/adventure/species/foxkin.webp
+- Rabbitfolk references missing Builder artwork: public/images/adventure/species/rabbitfolk.webp
+- Bearfolk references missing Builder artwork: public/images/adventure/species/bearfolk.webp
+- Lizardfolk references missing Builder artwork: public/images/adventure/species/lizardfolk.webp
+- Frogfolk references missing Builder artwork: public/images/adventure/species/frogfolk.webp
+- Birdfolk references missing Builder artwork: public/images/adventure/species/birdfolk.webp
+- Sharkfolk references missing Builder artwork: public/images/adventure/species/sharkfolk.webp
+- Mothfolk references missing Builder artwork: public/images/adventure/species/mothfolk.webp
+- Fae references missing Builder artwork: public/images/adventure/species/fae.webp
+- Satyr references missing Builder artwork: public/images/adventure/species/satyr.webp
+- Merfolk references missing Builder artwork: public/images/adventure/species/merfolk.webp
+- Centaur references missing Builder artwork: public/images/adventure/species/centaur.webp
+- Minotaur references missing Builder artwork: public/images/adventure/species/minotaur.webp
+- Harpy references missing Builder artwork: public/images/adventure/species/harpy.webp
+- Sphinx references missing Builder artwork: public/images/adventure/species/sphinx.webp
+- Dragonkin references missing Builder artwork: public/images/adventure/species/dragonkin.webp
+- Phoenixborn references missing Builder artwork: public/images/adventure/species/phoenixborn.webp
+- Unicorn-Touched references missing Builder artwork: public/images/adventure/species/unicorn-touched.webp
+- Vampire references missing Builder artwork: public/images/adventure/species/vampire.webp
+- Werebeast references missing Builder artwork: public/images/adventure/species/werebeast.webp
+- Ghost references missing Builder artwork: public/images/adventure/species/ghost.webp
+- Skeleton references missing Builder artwork: public/images/adventure/species/skeleton.webp
+- Zombie references missing Builder artwork: public/images/adventure/species/zombie.webp
+- Ghoul references missing Builder artwork: public/images/adventure/species/ghoul.webp
+- Witchborn references missing Builder artwork: public/images/adventure/species/witchborn.webp
+- Shadowkin references missing Builder artwork: public/images/adventure/species/shadowkin.webp
+- Changeling references missing Builder artwork: public/images/adventure/species/changeling.webp
+- Nightmare references missing Builder artwork: public/images/adventure/species/nmare.webp
+- Robot references missing Builder artwork: public/images/adventure/species/robot.webp
+- Android references missing Builder artwork: public/images/adventure/species/android.webp
+- Golem references missing Builder artwork: public/images/adventure/species/golem.webp
+- Living Doll references missing Builder artwork: public/images/adventure/species/living-doll.webp
+- Slime references missing Builder artwork: public/images/adventure/species/slime.webp
+- Plantfolk references missing Builder artwork: public/images/adventure/species/plantfolk.webp
+- Mushroomfolk references missing Builder artwork: public/images/adventure/species/mushroomfolk.webp
+- Crystalborn references missing Builder artwork: public/images/adventure/species/crystalborn.webp
+- Starborn references missing Builder artwork: public/images/adventure/species/starborn.webp
+- Voidling references missing Builder artwork: public/images/adventure/species/voidling.webp
+- Siren references missing Builder artwork: public/images/adventure/species/siren.webp
+- Tardigrade references missing Builder artwork: public/images/adventure/species/tardigrade.webp
+- Axolotl references missing Builder artwork: public/images/adventure/species/axolotl.webp
+- Mantis Shrimp references missing Builder artwork: public/images/adventure/species/mantis-shrimp.webp
+- Murder of Crows references missing Builder artwork: public/images/adventure/species/murder-of-crows.webp
+- Leech references missing Builder artwork: public/images/adventure/species/leech.webp
+- Octopus references missing Builder artwork: public/images/adventure/species/octopus.webp
+- Elder God references missing Builder artwork: public/images/adventure/species/elder-god.webp
+- Platypus references missing Builder artwork: public/images/adventure/species/platypus.webp
+- Ankylosaurus references missing Builder artwork: public/images/adventure/species/ankylosaurus.webp
+- Angel references missing Builder artwork: public/images/adventure/species/angel.webp
+- Demon references missing Builder artwork: public/images/adventure/species/demon.webp
+- Trickster references missing Builder artwork: public/images/adventure/species/trickster.webp
+- Deity references missing Builder artwork: public/images/adventure/species/deity.webp
+- Fairy references missing Builder artwork: public/images/adventure/species/fairy.webp
+- Imp references missing Builder artwork: public/images/adventure/species/imp.webp
+- Gremlin references missing Builder artwork: public/images/adventure/species/gremlin.webp
+- Dryad references missing Builder artwork: public/images/adventure/species/dryad.webp
+- Luck Dragon references missing Builder artwork: public/images/adventure/species/luck-dragon.webp
+- Butterfly references missing Builder artwork: public/images/adventure/species/butterfly.webp
+- Spider references missing Builder artwork: public/images/adventure/species/spider.webp
+- Imaginary Friend references missing Builder artwork: public/images/adventure/species/imaginary-friend.webp
+- Poltergeist references missing Builder artwork: public/images/adventure/species/poltergeist.webp
+- Wendigo references missing Builder artwork: public/images/adventure/species/wendigo.webp
+- Cryptid references missing Builder artwork: public/images/adventure/species/cryptid.webp
+- Chupacabra references missing Builder artwork: public/images/adventure/species/chupacabra.webp
+- Leprechaun references missing Builder artwork: public/images/adventure/species/leprechaun.webp
+- Dragon references missing Builder artwork: public/images/adventure/species/dragon.webp
+- Whale references missing Builder artwork: public/images/adventure/species/whale.webp
+- Potted Geranium references missing Builder artwork: public/images/adventure/species/potted-geraniums.webp
+- SCP references missing Builder artwork: public/images/adventure/species/scp.webp
+- World Serpent references missing Builder artwork: public/images/adventure/species/world-serpent.webp
+- Sentient Spaceship references missing Builder artwork: public/images/adventure/species/sentient-spaceship.webp
+- Space Clown references missing Builder artwork: public/images/adventure/species/space-clown.webp
+- Kaiju references missing Builder artwork: public/images/adventure/species/kaiju.webp
+- Toon references missing Builder artwork: public/images/adventure/species/toon.webp
+- Yokai references missing Builder artwork: public/images/adventure/species/yokai.webp
+- Evolutionary Architect references missing Builder artwork: public/images/adventure/species/evolutionary-architect.webp
+- Backrooms Entity references missing Builder artwork: public/images/adventure/species/backrooms-entity.webp
+- Virus references missing Builder artwork: public/images/adventure/species/virus.webp
+- Scarecrow references missing Builder artwork: public/images/adventure/species/scarecrow.webp
+- Time Being references missing Builder artwork: public/images/adventure/species/time-being.webp
+- Blind Mole Rat references missing Builder artwork: public/images/adventure/species/blind-mole-rat.webp
+- Lion references missing Builder artwork: public/images/adventure/species/lion.webp
+- Cat references missing Builder artwork: public/images/adventure/species/cat.webp
+- Black-Footed Cat references missing Builder artwork: public/images/adventure/species/black-footed-cat.webp
+- Dog references missing Builder artwork: public/images/adventure/species/dog.webp
+- Rabbit references missing Builder artwork: public/images/adventure/species/rabbit.webp
+- Ocelot references missing Builder artwork: public/images/adventure/species/ocelot.webp
+- Lawful Good references missing Builder artwork: public/images/adventure/alignment/lawful-good.webp
+- Neutral Good references missing Builder artwork: public/images/adventure/alignment/neutral-good.webp
+- Chaotic Good references missing Builder artwork: public/images/adventure/alignment/chaotic-good.webp
+- Lawful Neutral references missing Builder artwork: public/images/adventure/alignment/lawful-neutral.webp
+- True Neutral references missing Builder artwork: public/images/adventure/alignment/neutral.webp
+- Chaotic Neutral references missing Builder artwork: public/images/adventure/alignment/chaotic-neutral.webp
+- Lawful Evil references missing Builder artwork: public/images/adventure/alignment/lawful-evil.webp
+- Neutral Evil references missing Builder artwork: public/images/adventure/alignment/neutral-evil.webp
+- Chaotic Evil references missing Builder artwork: public/images/adventure/alignment/chaotic-evil.webp
+- Appetite references missing Builder artwork: public/images/adventure/alignment/appetite.webp
+- Onanism references missing Builder artwork: public/images/adventure/alignment/onanism.webp
+- Safety references missing Builder artwork: public/images/adventure/alignment/safety.webp
+- Insatiable references missing Builder artwork: public/images/adventure/alignment/curious.webp
+- Petty references missing Builder artwork: public/images/adventure/alignment/petty.webp
+- Correct references missing Builder artwork: public/images/adventure/alignment/correct.webp
+- Loyal references missing Builder artwork: public/images/adventure/alignment/loyal.webp
+- Aesthetic references missing Builder artwork: public/images/adventure/alignment/aesthetic.webp
+- Utilitarian references missing Builder artwork: public/images/adventure/alignment/utilitarian.webp
+- Transactional references missing Builder artwork: public/images/adventure/alignment/transactional.webp
+- Rogue references missing Builder artwork: public/images/adventure/role/rogue.webp
+- Warrior references missing Builder artwork: public/images/adventure/role/warrior.webp
+- Wizard references missing Builder artwork: public/images/adventure/role/wizard.webp
+- Cleric references missing Builder artwork: public/images/adventure/role/cleric.webp
+- Bard references missing Builder artwork: public/images/adventure/role/bard.webp
+- Ranger references missing Builder artwork: public/images/adventure/role/ranger.webp
+- Paladin references missing Builder artwork: public/images/adventure/role/paladin.webp
+- Druid references missing Builder artwork: public/images/adventure/role/druid.webp
+- Monk references missing Builder artwork: public/images/adventure/role/monk.webp
+- Warlock references missing Builder artwork: public/images/adventure/role/warlock.webp
+- Artificer references missing Builder artwork: public/images/adventure/role/artificer.webp
+- Oracle references missing Builder artwork: public/images/adventure/role/oracle.webp
+- Witch references missing Builder artwork: public/images/adventure/role/witch.webp
+- Slacker references missing Builder artwork: public/images/adventure/role/slacker.webp
+- Netrunner references missing Builder artwork: public/images/adventure/role/netrunner.webp
+- Cupid references missing Builder artwork: public/images/adventure/role/cupid.webp
+- Accountant references missing Builder artwork: public/images/adventure/role/accountant.webp
+- Public Notary references missing Builder artwork: public/images/adventure/role/notary.webp
+- Politician references missing Builder artwork: public/images/adventure/role/politician.webp
+- Groupie references missing Builder artwork: public/images/adventure/role/groupie.webp
+- Musician references missing Builder artwork: public/images/adventure/role/musician.webp
+- Performance Artist references missing Builder artwork: public/images/adventure/role/performance-artist.webp
+- Bounty Hunter references missing Builder artwork: public/images/adventure/role/bounty-hunter.webp
+- Doctor references missing Builder artwork: public/images/adventure/role/doctor.webp
+- Lawyer references missing Builder artwork: public/images/adventure/role/lawyer.webp
+- Space Lawyer references missing Builder artwork: public/images/adventure/role/space-lawyer.webp
+- Criminal Mastermind references missing Builder artwork: public/images/adventure/role/criminal-mastermind.webp
+- Super Hero references missing Builder artwork: public/images/adventure/role/super-hero.webp
+- Super Villain references missing Builder artwork: public/images/adventure/role/super-villain.webp
+- Reporter references missing Builder artwork: public/images/adventure/role/reporter.webp
+- Clown references missing Builder artwork: public/images/adventure/role/clown.webp
+- Mime references missing Builder artwork: public/images/adventure/role/mime.webp
+- Assassin references missing Builder artwork: public/images/adventure/role/assassin.webp
+- NPC references missing Builder artwork: public/images/adventure/role/npc.webp
+- Gambler references missing Builder artwork: public/images/adventure/role/gambler.webp
+- Mad Scientist references missing Builder artwork: public/images/adventure/role/mad-scientist.webp
+- Alchemist references missing Builder artwork: public/images/adventure/role/alchemist.webp
+- Polymath references missing Builder artwork: public/images/adventure/role/polymath.webp
+- Poet references missing Builder artwork: public/images/adventure/role/poet.webp
+- Waste of Space references missing Builder artwork: public/images/adventure/role/waste-of-space.webp
+- Philanthropist references missing Builder artwork: public/images/adventure/role/philanthropist.webp
+- Troublemaker references missing Builder artwork: public/images/adventure/role/troublemaker.webp
+- Introverted references missing Builder artwork: public/images/adventure/quirks/introverted.webp
+- Extroverted references missing Builder artwork: public/images/adventure/quirks/extroverted.webp
+- Passionate references missing Builder artwork: public/images/adventure/quirks/passionate.webp
+- Hopeless Romantic references missing Builder artwork: public/images/adventure/quirks/hopeless-romantic.webp
+- Foolish references missing Builder artwork: public/images/adventure/quirks/foolish.webp
+- Easily Frustrated references missing Builder artwork: public/images/adventure/quirks/easily-frustrated.webp
+- Submissive references missing Builder artwork: public/images/adventure/quirks/submissive.webp
+- Dominant references missing Builder artwork: public/images/adventure/quirks/dominant.webp
+- Narcissistic references missing Builder artwork: public/images/adventure/quirks/narcissistic.webp
+- Nervous references missing Builder artwork: public/images/adventure/quirks/nervous.webp
+- Scatter-Brained references missing Builder artwork: public/images/adventure/quirks/scatter-brained.webp
+- Bookworm references missing Builder artwork: public/images/adventure/quirks/bookworm.webp
+- Book Smart references missing Builder artwork: public/images/adventure/quirks/book-smart.webp
+- Obsequious references missing Builder artwork: public/images/adventure/quirks/obsequious.webp
+- Driven references missing Builder artwork: public/images/adventure/quirks/driven.webp
+- Show-Off references missing Builder artwork: public/images/adventure/quirks/show-off.webp
+- Altruistic references missing Builder artwork: public/images/adventure/quirks/altruistic.webp
+- Generous references missing Builder artwork: public/images/adventure/quirks/generous.webp
+- Apathetic references missing Builder artwork: public/images/adventure/quirks/apathetic.webp
+- Sarcastic references missing Builder artwork: public/images/adventure/quirks/sarcastic.webp
+- Sense of Humor references missing Builder artwork: public/images/adventure/quirks/sense-of-humor.webp
+- Fatalistic references missing Builder artwork: public/images/adventure/quirks/fatalistic.webp
+- Optimist references missing Builder artwork: public/images/adventure/quirks/optimist.webp
+- Pessimist references missing Builder artwork: public/images/adventure/quirks/pessimist.webp
+- Logical references missing Builder artwork: public/images/adventure/quirks/logical.webp
+- Emotional references missing Builder artwork: public/images/adventure/quirks/emotional.webp
+- Charismatic references missing Builder artwork: public/images/adventure/quirks/charismatic.webp
+- Enthusiastic references missing Builder artwork: public/images/adventure/quirks/enthusiastic.webp
+- Energetic references missing Builder artwork: public/images/adventure/quirks/energetic.webp
+- Hyperactive references missing Builder artwork: public/images/adventure/quirks/hyperactive.webp
+- Ditzy references missing Builder artwork: public/images/adventure/quirks/ditzy.webp
+- Artistic references missing Builder artwork: public/images/adventure/quirks/artistic.webp
+- Authoritarian references missing Builder artwork: public/images/adventure/quirks/authoritarian.webp
+- Problem-Solver references missing Builder artwork: public/images/adventure/quirks/problem-solver.webp
+- Puzzler references missing Builder artwork: public/images/adventure/quirks/puzzler.webp
+- Devious references missing Builder artwork: public/images/adventure/quirks/devious.webp
+- Ignorant references missing Builder artwork: public/images/adventure/quirks/ignorant.webp
+- Obsessive references missing Builder artwork: public/images/adventure/quirks/obsessive.webp
+- Amoral references missing Builder artwork: public/images/adventure/quirks/amoral.webp
+- Inventive references missing Builder artwork: public/images/adventure/quirks/inventive.webp
+- Creative Writer references missing Builder artwork: public/images/adventure/quirks/creative-writer.webp
+- Secretive references missing Builder artwork: public/images/adventure/quirks/secretive.webp
+- Lone Wolf references missing Builder artwork: public/images/adventure/quirks/lone-wolf.webp
+- Team Player references missing Builder artwork: public/images/adventure/quirks/team-player.webp
+- Believes They're Psychic references missing Builder artwork: public/images/adventure/quirks/believes-psychic.webp
+- Metaphysical references missing Builder artwork: public/images/adventure/quirks/metaphysical.webp
+- Superstitious references missing Builder artwork: public/images/adventure/quirks/superstitious.webp
+- Overly Literal references missing Builder artwork: public/images/adventure/quirks/overly-literal.webp
+- Compulsively Honest references missing Builder artwork: public/images/adventure/quirks/compulsively-honest.webp
+- Pathological Liar references missing Builder artwork: public/images/adventure/quirks/pathological-liar.webp
+- Hoarder references missing Builder artwork: public/images/adventure/quirks/hoarder.webp
+- Conspiracy-Minded references missing Builder artwork: public/images/adventure/quirks/conspiracy-minded.webp
+- Soft-Spoken references missing Builder artwork: public/images/adventure/quirks/soft-spoken.webp
+- Brash references missing Builder artwork: public/images/adventure/quirks/brash.webp
+- Dramatic references missing Builder artwork: public/images/adventure/quirks/dramatic.webp
+- Deadpan references missing Builder artwork: public/images/adventure/quirks/deadpan.webp
+- Melancholy references missing Builder artwork: public/images/adventure/quirks/melancholy.webp
+- Cheerfully Morbid references missing Builder artwork: public/images/adventure/quirks/cheerfully-morbid.webp
+- Worrisome references missing Builder artwork: public/images/adventure/quirks/worrisome.webp
+- Reckless references missing Builder artwork: public/images/adventure/quirks/reckless.webp
+- Protective references missing Builder artwork: public/images/adventure/quirks/protective.webp
+- Jealous references missing Builder artwork: public/images/adventure/quirks/jealous.webp
+- Vindictive references missing Builder artwork: public/images/adventure/quirks/vindictive.webp
+- Diplomatic references missing Builder artwork: public/images/adventure/quirks/diplomatic.webp
+- Blunt references missing Builder artwork: public/images/adventure/quirks/blunt.webp
+- Curious references missing Builder artwork: public/images/adventure/quirks/curious.webp
+- Inquisitive references missing Builder artwork: public/images/adventure/quirks/inquisitive.webp
+- Gullible references missing Builder artwork: public/images/adventure/quirks/gullible.webp
+- Suspicious references missing Builder artwork: public/images/adventure/quirks/suspicious.webp
+- Perfectionist references missing Builder artwork: public/images/adventure/quirks/perfectionist.webp
+- Animist references missing Builder artwork: public/images/adventure/quirks/animist.webp
+- Serene references missing Builder artwork: public/images/adventure/quirks/serene.webp
+- Competitive references missing Builder artwork: public/images/adventure/quirks/competitive.webp
+- Flirtatious references missing Builder artwork: public/images/adventure/quirks/flirtatious.webp
+- Daydreamer references missing Builder artwork: public/images/adventure/quirks/daydreamer.webp
+- Daredevil references missing Builder artwork: public/images/adventure/quirks/daredevil.webp
+- Double-Jointed references missing Builder artwork: public/images/adventure/quirks/double-jointed.webp
+- Fortunate references missing Builder artwork: public/images/adventure/quirks/fortunate.webp
+- Heterochromia references missing Builder artwork: public/images/adventure/quirks/heterochromia.webp
+- Extra Body Part references missing Builder artwork: public/images/adventure/quirks/extra-body-part.webp
+- Musical references missing Builder artwork: public/images/adventure/quirks/musical.webp
+- Likes to Dance references missing Builder artwork: public/images/adventure/quirks/likes-to-dance.webp
+- Left-Handed references missing Builder artwork: public/images/adventure/quirks/left-handed.webp
+- Obsessive-Compulsive references missing Builder artwork: public/images/adventure/quirks/obsessive-compulsive.webp
+- Clumsy references missing Builder artwork: public/images/adventure/quirks/clumsy.webp
+- Notably Tall references missing Builder artwork: public/images/adventure/quirks/notably-tall.webp
+- Notably Short references missing Builder artwork: public/images/adventure/quirks/notably-short.webp
+- Kleptomaniac references missing Builder artwork: public/images/adventure/quirks/kleptomaniac.webp
+- Pyromaniac references missing Builder artwork: public/images/adventure/quirks/pyromaniac.webp
+- Lactose Intolerant references missing Builder artwork: public/images/adventure/quirks/lactose-intolerant.webp
+- Allergies references missing Builder artwork: public/images/adventure/quirks/allergies.webp
+- Addict references missing Builder artwork: public/images/adventure/quirks/addict.webp
+- Secret Identity references missing Builder artwork: public/images/adventure/quirks/secret-identity.webp
+- Always Online references missing Builder artwork: public/images/adventure/quirks/always-online.webp
+- Messy references missing Builder artwork: public/images/adventure/quirks/messy.webp
+- Fashionable references missing Builder artwork: public/images/adventure/quirks/fashionable.webp
+- Forgetful references missing Builder artwork: public/images/adventure/quirks/forgetful.webp
+- Animal Magnet references missing Builder artwork: public/images/adventure/quirks/animal-magnet.webp
+- Green Thumb references missing Builder artwork: public/images/adventure/quirks/green-thumb.webp
+- Insomniac references missing Builder artwork: public/images/adventure/quirks/insomniac.webp
+- Bad Luck Magnet references missing Builder artwork: public/images/adventure/quirks/bad-luck.webp
+- Hunted references missing Builder artwork: public/images/adventure/background/hunted.webp
+- Tragic Past references missing Builder artwork: public/images/adventure/background/tragic-past.webp
+- Blessed Life references missing Builder artwork: public/images/adventure/background/blessed-life.webp
+- Survivor references missing Builder artwork: public/images/adventure/background/survivor.webp
+- Exiled references missing Builder artwork: public/images/adventure/background/exiled.webp
+- Orphaned references missing Builder artwork: public/images/adventure/background/orphaned.webp
+- Resurrected references missing Builder artwork: public/images/adventure/background/resurrected.webp
+- Witch Blood references missing Builder artwork: public/images/adventure/background/witch-blood.webp
+- Escaped Cultist references missing Builder artwork: public/images/adventure/background/escaped-cultist.webp
+- Reformed Villain references missing Builder artwork: public/images/adventure/background/reformed-villain.webp
+- Rejected Destiny references missing Builder artwork: public/images/adventure/background/rejected-destiny.webp
+- Mutation references missing Builder artwork: public/images/adventure/background/mutation.webp
+- Child Prodigy references missing Builder artwork: public/images/adventure/background/child-prodigy.webp
+- Science Experiment references missing Builder artwork: public/images/adventure/background/science-experiment.webp
+- Cursed references missing Builder artwork: public/images/adventure/background/cursed.webp
+- Haunted references missing Builder artwork: public/images/adventure/background/haunted.webp
+- Chosen Wrong references missing Builder artwork: public/images/adventure/background/chosen-wrong.webp
+- Hidden Heir references missing Builder artwork: public/images/adventure/background/hidden-heir.webp
+- Lost Royal references missing Builder artwork: public/images/adventure/background/lost-royal.webp
+- Forbidden Born references missing Builder artwork: public/images/adventure/background/forbidden-born.webp
+- Omen Born references missing Builder artwork: public/images/adventure/background/omen-born.webp
+- Star Fallen references missing Builder artwork: public/images/adventure/background/star-fallen.webp
+- Time Lost references missing Builder artwork: public/images/adventure/background/time-lost.webp
+- World Stranded references missing Builder artwork: public/images/adventure/background/world-stranded.webp
+- Memory Erased references missing Builder artwork: public/images/adventure/background/memory-erased.webp
+- Name Stolen references missing Builder artwork: public/images/adventure/background/name-stolen.webp
+- Debt Born references missing Builder artwork: public/images/adventure/background/debt-born.webp
+- Miracle Child references missing Builder artwork: public/images/adventure/background/miracle-child.webp
+- Last of Kind references missing Builder artwork: public/images/adventure/background/last-of-kind.webp
+- Unmade references missing Builder artwork: public/images/adventure/background/unmade.webp
+- art:mode/mode/✦ Generate Art from Text has dedicated Builder artwork but field mode is not Facet-backed.
+- art:mode/mode/◐ Generate from Image has dedicated Builder artwork but field mode is not Facet-backed.
+- art:mode/mode/⊕ Kombine has dedicated Builder artwork but field mode is not Facet-backed.

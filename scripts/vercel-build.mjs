@@ -88,6 +88,12 @@ if (!isVercelBuild || isProductionDeployment) {
     ['scripts/seed_contenders.ts', '--write'],
     'Seeding Challenge Center contenders',
   )
+
+  runOptionalDatabaseMaintenance(
+    tsxBinary,
+    ['scripts/seed_kr_logo_art_image.ts', '--write'],
+    'Seeding Kind Robots logo storefront ArtImage row (digital-storefront/t-003)',
+  )
 } else {
   console.log(
     `[vercel-build] Skipping migrations and database seeds for Vercel ${process.env.VERCEL_ENV || 'unknown'} deployment`,

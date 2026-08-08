@@ -1,4 +1,28 @@
 // /stores/seeds/cartItems.ts
+//
+// The generic, per-type catalog for the general multi-item giftshop cart.
+// server/api/stripe/checkout.post.ts trusts this array as its server-side
+// price source (looked up by id) -- it answers "what does a sticker
+// generically cost," not "what does this specific printed sticker of
+// ArtImage #42 cost."
+//
+// This intentionally coexists with real `Product` rows (digital-storefront/
+// t-003, item 4): product-checkout.post.ts and pod-checkout.post.ts price
+// per-(printType, artImageId) *instances* against the Product table, upserting
+// a row per specific print rather than per generic type. The two aren't
+// duplicate catalogs of the same thing -- they operate at different
+// granularities and the webhook bridges them: server/api/stripe/webhook.post.ts's
+// GIFTSHOP_TYPE_TO_PRODUCT_TYPE map + handleGiftshopCartPurchase takes whichever
+// cartItems.ts entry was purchased and lazily upserts a matching Product row
+// (slug: `giftshop-${catalogEntry.id}`) at fulfillment time, so every general-cart
+// purchase still ends up with a real Product audit row -- just created on
+// demand instead of pre-seeded. `donation` and `tokens` have no Product-table
+// equivalent at all (donation is recorded via the same lazy webhook upsert;
+// tokens calls applyMana() directly, no Entitlement/PrintJob involved).
+// Retiring this file in favor of pre-seeded Product rows would need either two
+// different key shapes in one table (generic-type rows and per-instance rows)
+// or rewriting checkout.post.ts's cart-price-trust model entirely -- a real
+// design change, not something to do incidentally alongside a catalog task.
 
 export interface CartItem {
   id: string

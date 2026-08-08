@@ -152,6 +152,11 @@ const GATE_ENGINE: Record<
 }
 const SLUG_PATTERN = /^[a-z0-9][a-z0-9_-]*$/
 
+// The relay claims work by priority DESC, id ASC. /api/art/queue/[id]/priority
+// caps at 1000; 100 sits above bulk creation (0 and below) without pinning the
+// ceiling, so a genuine emergency can still be pushed past a redo.
+const DEFAULT_ENQUEUE_PRIORITY = 100
+
 function asRecord(value: unknown): JsonRecord {
   return value && typeof value === 'object' && !Array.isArray(value)
     ? (value as JsonRecord)
@@ -376,9 +381,16 @@ export default defineEventHandler(async (event) => {
       facets,
     )
 
+    // Everything that reaches this endpoint is interactive or corrective: the
+    // entity art workbench redoing a bad image, a narrative beat a player is
+    // waiting on, a repair pass replacing art that is live and wrong. Bulk
+    // creation (the facet catalog, daily-dream builds) goes through
+    // /api/art/queue from Conductor and sits at 0 or below. Redoing bad art
+    // should outrank making new art, so this defaults to the top of the range
+    // rather than the middle of it. An explicit body.priority still wins.
     const priority = Number.isInteger(resolvedBody.priority)
       ? Number(resolvedBody.priority)
-      : 0
+      : DEFAULT_ENQUEUE_PRIORITY
 
     const { jobEngine, payload } = buildJobPayload(engine, {
       body: resolvedBody,

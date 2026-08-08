@@ -4,6 +4,7 @@ import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { getOptionalApiUser } from '../../utils/authGuard'
 import {
+  resourceListSelect,
   resourceGallerySelect,
   resourceGalleryWhere,
   type ResourceGalleryRecord,
@@ -19,7 +20,10 @@ export default defineEventHandler(async (event) => {
         isAdmin: auth?.isAdmin ?? false,
         showMature: effectiveShowMature(auth?.user),
       }),
-      select: resourceGallerySelect,
+      // The LIST select, not the full one: this is every active Resource in
+      // one response, so the per-row cost is the whole cost. The card back
+      // fetches the rest by id when it opens.
+      select: resourceListSelect,
       orderBy: [{ customLabel: 'asc' }, { name: 'asc' }],
     })
 

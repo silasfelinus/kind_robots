@@ -83,8 +83,21 @@ const infoOpen = computed({
   },
 })
 
+/*
+ * HYDRATE ON OPEN. The list payload is trimmed to what a card draws, so a row
+ * in the grid is missing the fields the editor needs (civitaiUrl, hash, the
+ * timestamps). Fetching the full record by id when the card turns over is the
+ * "detail fetch, not every row" half of that trade -- getResource replaces the
+ * store entry in place, so the panel re-renders with the complete record and
+ * the form has everything it edits.
+ *
+ * Deliberately NOT awaited before opening: the panel shows the fields it
+ * already has immediately and fills in the rest, rather than making the flip
+ * wait on a round trip.
+ */
 function openResourceInfo(id: number): void {
   infoResourceId.value = id
+  void resourceGalleryStore.getResource(id)
 }
 
 const infoResourceArt = computed(() => {

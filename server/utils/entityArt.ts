@@ -13,6 +13,7 @@ import type {
 
 export type EntityArtType =
   | 'bot'
+  | 'dream'
   | 'character'
   | 'scenario'
   | 'reward'
@@ -112,6 +113,14 @@ export const ENTITY_FIELDS: Record<
       width: 1280,
       height: 720,
       primary: false,
+    },
+  },
+  dream: {
+    imagePath: {
+      label: 'Dream',
+      width: 512,
+      height: 768,
+      primary: true,
     },
   },
   character: {
@@ -309,6 +318,7 @@ export function normalizeEntityArtType(value: unknown): EntityArtType {
   const type = safeText(value).toLowerCase()
   if (
     type === 'bot' ||
+    type === 'dream' ||
     type === 'character' ||
     type === 'scenario' ||
     type === 'reward' ||
@@ -321,7 +331,7 @@ export function normalizeEntityArtType(value: unknown): EntityArtType {
   throw createError({
     statusCode: 400,
     message:
-      'Choose Bot, Character, Scenario, Reward, Facet, Project, or Achievement.',
+      'Choose Bot, Dream, Character, Scenario, Reward, Facet, Project, or Achievement.',
   })
 }
 
@@ -363,6 +373,10 @@ export async function getEntityArtRecord(
   switch (entityType) {
     case 'bot':
       return (await db.bot.findUnique({
+        where: { id: entityId },
+      })) as EntityArtRecord | null
+    case 'dream':
+      return (await db.dream.findUnique({
         where: { id: entityId },
       })) as EntityArtRecord | null
     case 'character':
@@ -667,6 +681,14 @@ async function updateEntityRecord(
           artImageId: input.artImageId,
         },
       })) as EntityArtRecord
+    case 'dream':
+      return (await db.dream.update({
+        where: { id: input.entityId },
+        data: {
+          imagePath: input.imagePath,
+          artImageId: input.artImageId,
+        },
+      })) as EntityArtRecord
     case 'character':
       return (await db.character.update({
         where: { id: input.entityId },
@@ -913,6 +935,15 @@ function contextLines(
       ['Theme', record.theme],
       ['Personality', record.personality],
       ['Tagline', record.tagline],
+      ['Existing art prompt', record.artPrompt],
+    ],
+    dream: [
+      ['Title', record.title],
+      ['Dream type', record.dreamType],
+      ['Description', record.description],
+      ['Pitch', record.pitch],
+      ['Flavor text', record.flavorText],
+      ['Examples', record.examples],
       ['Existing art prompt', record.artPrompt],
     ],
     character: [

@@ -6,10 +6,10 @@
 //
 //   /images/{context}/{slug}/{slug}-{utility}-{n}.webp
 //
-//   {context}  the KR schema the image serves — bots, characters, scenarios,
-//              rewards, facets, projects, achievements. "There is almost
-//              always a relevant one — figure it out rather than defaulting to
-//              a dump folder."
+//   {context}  the KR schema the image serves — dreams, bots, characters,
+//              scenarios, rewards, facets, projects, achievements. "There is
+//              almost always a relevant one — figure it out rather than
+//              defaulting to a dump folder."
 //   {slug}     the entity's slug, lowercase-hyphenated. A slug folder's
 //              contents ARE that slug's art collection.
 //   {utility}  what the image is for: avatar, portrait, icon, card, hero.
@@ -58,6 +58,7 @@ const ENTITY_TAG = /^entity:([a-z]+):(\d+):(current|history):(.*)$/
  */
 const CONTEXT_FOLDER: Record<EntityArtType, string> = {
   bot: 'bots',
+  dream: 'dreams',
   character: 'characters',
   scenario: 'scenarios',
   reward: 'rewards',

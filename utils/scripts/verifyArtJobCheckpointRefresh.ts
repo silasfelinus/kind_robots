@@ -3,6 +3,12 @@ import { readFileSync } from 'node:fs'
 import { applyResolvedCheckpointResourceToArtJobPayload } from '../../server/utils/artJobResourceRefresh'
 import { buildSdxlImg2ImgWorkflow } from '../../server/api/comfy/sdxl/utils/workflow'
 
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {}
+}
+
 {
   const refresh = applyResolvedCheckpointResourceToArtJobPayload(
     {
@@ -25,18 +31,23 @@ import { buildSdxlImg2ImgWorkflow } from '../../server/api/comfy/sdxl/utils/work
     },
   )
 
+  const workflow = asRecord(refresh.payload.workflow)
+  const checkpointNode = asRecord(workflow['1'])
+  const checkpointInputs = asRecord(checkpointNode.inputs)
+  const resources = asRecord(refresh.payload.resources)
+
   assert.equal(refresh.changed, true)
   assert.equal(refresh.checkpointResourceId, 77)
   assert.equal(refresh.checkpointName, 'SDXL/current/model.safetensors')
   assert.equal(refresh.payload.checkpoint, 'SDXL/current/model.safetensors')
   assert.equal(refresh.payload.checkpointResourceId, 77)
   assert.equal(
-    (refresh.payload.workflow as any)['1'].inputs.ckpt_name,
+    checkpointInputs.ckpt_name,
     'SDXL/current/model.safetensors',
   )
-  assert.equal((refresh.payload.resources as any).checkpointResourceId, 77)
+  assert.equal(resources.checkpointResourceId, 77)
   assert.equal(
-    (refresh.payload.resources as any).checkpointName,
+    resources.checkpointName,
     'SDXL/current/model.safetensors',
   )
 }

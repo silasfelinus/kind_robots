@@ -10,6 +10,10 @@ import type {
   Prisma,
   PrismaClient,
 } from '~/prisma/generated/prisma/client'
+import {
+  artContextRules,
+  artSlotFraming,
+} from '~/utils/entityArtPromptFraming'
 
 export type EntityArtType =
   | 'bot'
@@ -1022,11 +1026,12 @@ export function buildEntityArtPrompt(
   return [
     userPrompt.trim(),
     '',
-    `Create this as the ${field.label.toLowerCase()} artwork for the following ${target.entityType}.`,
+    // Describes the slot's shape rather than naming it. "the card artwork" made
+    // Krea 2 render a literal trading card. See utils/entityArtPromptFraming.ts.
+    `Compose this as ${artSlotFraming(field)} for the following ${target.entityType}.`,
     ...context,
     '',
-    'Treat the first paragraph as the primary art direction. Use the entity context for identity and continuity, not as a checklist or text to render.',
-    'Do not add captions, labels, UI chrome, watermarks, signatures, or readable text unless the primary art direction explicitly requests them.',
+    ...artContextRules('entity'),
   ]
     .filter(Boolean)
     .join('\n')

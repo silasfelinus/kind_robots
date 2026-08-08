@@ -158,10 +158,10 @@
             <button
               type="button"
               class="btn btn-sm btn-outline mt-4 rounded-2xl"
-              @click="addDemoItem(item)"
+              @click="addShowcaseItem(item)"
             >
               <Icon name="kind-icon:plus" class="h-4 w-4" />
-              Add demo item
+              Add to cart
             </button>
           </article>
         </div>
@@ -238,6 +238,7 @@ import {
   resolveArtImageSrc,
   resolveArtImageThumbSrc,
 } from '@/utils/artImageSrc'
+import { cartItems } from '@/stores/seeds/cartItems'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 
 // Placeholder print price until the POD product/pricing pipeline (digital-storefront
@@ -287,26 +288,32 @@ const giftshopFeatures: GiftshopFeature[] = [
   },
 ]
 
-const showcaseItems: ShowcaseItem[] = [
-  {
-    title: 'Butterfly Print',
-    icon: 'kind-icon:butterfly',
-    text: 'A placeholder print item until product cards get their full royal parade.',
-    type: 'print',
-    artImageId: 1,
-    imageUrl: '/images/butterfly-placeholder.webp',
-    price: 12,
-  },
-  {
-    title: 'Jellybean Token Pack',
-    icon: 'kind-icon:jellybean',
-    text: 'A tiny pile of imaginary nectar for keeping the robots politely caffeinated.',
-    type: 'tokens',
-    artImageId: 2,
-    imageUrl: '/images/jellybean-placeholder.webp',
-    price: 5,
-  },
-]
+// The print showcase item that used to live here was a guessed placeholder
+// (artImageId: 1, a fake image never validated against a real ArtImage). The
+// real Featured prints grid above sources genuine ArtImage rows via
+// /api/art/storefront-featured and supersedes it. Tokens have no equivalent
+// browsable section elsewhere, so it stays -- but now sourced from the real
+// cartItems catalog (the same array checkout.post.ts trusts server-side)
+// instead of a second hand-maintained copy of its price/label.
+const tokensCatalogEntry = cartItems.find((item) => item.id === 'tokens')
+
+const showcaseItems: ShowcaseItem[] = tokensCatalogEntry
+  ? [
+      {
+        title: tokensCatalogEntry.label,
+        icon: 'kind-icon:jellybean',
+        text: tokensCatalogEntry.description || tokensCatalogEntry.label,
+        type: tokensCatalogEntry.type,
+        // Non-art cart items (needsArt: false) use 0 as the client-side
+        // placeholder -- the server only requires/uses artImageId for
+        // needsArt items (see giving-page.vue's donation add for the same
+        // convention).
+        artImageId: 0,
+        imageUrl: tokensCatalogEntry.image,
+        price: tokensCatalogEntry.price,
+      },
+    ]
+  : []
 
 onMounted(() => {
   void cartStore.initialize()
@@ -336,7 +343,7 @@ function addFeaturedPrint(art: FeaturedArtImage) {
   goToCart()
 }
 
-function addDemoItem(item: ShowcaseItem) {
+function addShowcaseItem(item: ShowcaseItem) {
   cartStore.addItem({
     type: item.type,
     artImageId: item.artImageId,

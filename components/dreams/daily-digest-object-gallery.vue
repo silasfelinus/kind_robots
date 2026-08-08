@@ -34,28 +34,32 @@
           :aria-label="`Open ${item.title}`"
           @click="selectedItem = item"
         >
-          <figure class="relative h-16 shrink-0 overflow-hidden bg-base-200">
-            <img
-              v-if="item.image"
-              :src="item.image"
-              :alt="`${item.title} artwork`"
-              class="absolute inset-0 size-full object-cover transition duration-300 group-hover:scale-[1.03]"
-            />
-            <div
-              v-else
-              class="absolute inset-0 flex items-center justify-center gap-2 px-2 text-center text-base-content/30"
-            >
-              <Icon :name="item.icon" class="size-6 opacity-45" />
-              <span class="text-[0.58rem] font-bold uppercase tracking-wide">
-                Awaiting art
+          <kr-art-plate
+            :source="{ imagePath: item.image || null }"
+            variant="hero"
+            shape="hero"
+            compact
+            frame="none"
+            :alt="`${item.title} artwork`"
+            :placeholder-icon="item.icon"
+            hover-zoom
+          >
+            <template #overlay>
+              <div
+                v-if="!item.image"
+                class="absolute inset-0 flex items-center justify-center pt-8 text-center text-base-content/30"
+              >
+                <span class="text-[0.58rem] font-bold uppercase tracking-wide">
+                  Awaiting art
+                </span>
+              </div>
+              <span
+                class="badge badge-neutral badge-xs absolute left-1.5 top-1.5 max-w-[calc(100%-0.75rem)] truncate rounded-md shadow"
+              >
+                {{ item.role }}
               </span>
-            </div>
-            <span
-              class="badge badge-neutral badge-xs absolute left-1.5 top-1.5 max-w-[calc(100%-0.75rem)] truncate rounded-md shadow"
-            >
-              {{ item.role }}
-            </span>
-          </figure>
+            </template>
+          </kr-art-plate>
 
           <div class="flex min-h-0 flex-1 flex-col p-2.5">
             <div class="flex items-start gap-1.5">

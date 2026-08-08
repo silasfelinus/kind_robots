@@ -193,7 +193,153 @@ describe('Stripe Checkout Identity API Tests', () => {
     }).then((response) => {
       expect(response.status).to.eq(400)
       expect(response.body.success).to.eq(false)
-      expect(response.body.message).to.include('valid Stripe checkout session ID')
+      expect(response.body.message).to.include(
+        'valid Stripe checkout session ID',
+      )
+    })
+  })
+})
+
+// digital-storefront/t-039: topup/subscribe/cancel-subscription previously had
+// zero test coverage of any kind. Each route's real fulfillment step (creating
+// a live Stripe Checkout Session or cancelling a real subscription) needs a
+// configured Stripe account this suite doesn't have, but each route also does
+// real request-shape validation *before* it ever calls Stripe — the same
+// "cheap to verify, was never verified" gap stripe-checkout.cy.ts already
+// closed for checkout.post.ts/checkout-status.get.ts above.
+describe('Stripe Mana Top-up API Tests', () => {
+  let topupUrl = ''
+  let userToken = ''
+
+  before(() => {
+    return getApiEnv()
+      .then((env) => {
+        topupUrl = `${env.apiBase}/stripe/topup`
+        return createLoggedInTestUser()
+      })
+      .then((user) => {
+        userToken = user.token
+      })
+  })
+
+  it('rejects top-up without authentication', () => {
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: topupUrl,
+      headers: jsonHeaders(),
+      body: { tierId: 'small' },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.success).to.eq(false)
+    })
+  })
+
+  it('rejects top-up with an invalid token', () => {
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: topupUrl,
+      headers: invalidBearerHeaders(),
+      body: { tierId: 'small' },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.success).to.eq(false)
+    })
+  })
+
+  it('rejects unknown top-up tiers before contacting Stripe', () => {
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: topupUrl,
+      headers: bearerHeaders(userToken),
+      body: { tierId: 'gigantic' },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.message).to.include('Invalid top-up tier')
+    })
+  })
+})
+
+describe('Stripe Subscription API Tests', () => {
+  let subscribeUrl = ''
+  let cancelSubscriptionUrl = ''
+  let userToken = ''
+
+  before(() => {
+    return getApiEnv()
+      .then((env) => {
+        subscribeUrl = `${env.apiBase}/stripe/subscribe`
+        cancelSubscriptionUrl = `${env.apiBase}/stripe/cancel-subscription`
+        return createLoggedInTestUser()
+      })
+      .then((user) => {
+        userToken = user.token
+      })
+  })
+
+  it('rejects subscribe checkout without authentication', () => {
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: subscribeUrl,
+      headers: jsonHeaders(),
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.success).to.eq(false)
+    })
+  })
+
+  it('rejects subscribe checkout with an invalid token', () => {
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: subscribeUrl,
+      headers: invalidBearerHeaders(),
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.success).to.eq(false)
+    })
+  })
+
+  it('rejects cancel-subscription without authentication', () => {
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: cancelSubscriptionUrl,
+      headers: jsonHeaders(),
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.success).to.eq(false)
+    })
+  })
+
+  it('rejects cancel-subscription with an invalid token', () => {
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: cancelSubscriptionUrl,
+      headers: invalidBearerHeaders(),
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(401)
+      expect(response.body.success).to.eq(false)
+    })
+  })
+
+  it('rejects cancelling a subscription the user does not have, without contacting Stripe', () => {
+    // A freshly created test user has no stripeSubscriptionId, so this route's
+    // own guard must reject before it ever calls stripe.subscriptions.cancel().
+    cy.request<ApiResponse>({
+      method: 'POST',
+      url: cancelSubscriptionUrl,
+      headers: bearerHeaders(userToken),
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(400)
+      expect(response.body.success).to.eq(false)
+      expect(response.body.message).to.include('No active subscription')
     })
   })
 })

@@ -1,8 +1,6 @@
-<!-- /components/content/pages/about-page.vue -->
 <template>
   <div class="kr-unbound items-center gap-4 bg-(--kr-surface) py-6 px-4">
     <div class="w-full max-w-2xl">
-      <!-- Section header -->
       <div class="mb-6 flex flex-col items-center gap-2 text-center">
         <span
           class="flex h-14 w-14 items-center justify-center rounded-2xl bg-linear-to-br from-primary to-accent text-primary-content shadow-lg"
@@ -15,12 +13,11 @@
         </p>
       </div>
 
-      <!-- Card stack -->
       <div class="flex flex-col gap-3">
         <div
           v-for="(card, index) in cards"
           :key="index"
-          class="rounded-2xl border border-base-300 bg-base-100 p-5 shadow-sm transition-shadow hover:shadow-md"
+          class="kr-panel p-5 transition-shadow hover:shadow-md"
         >
           <div class="mb-3 flex items-center gap-3">
             <span
@@ -40,9 +37,7 @@
         </div>
       </div>
 
-      <section
-        class="mt-6 rounded-2xl border border-primary/25 bg-base-100 p-5 shadow-sm"
-      >
+      <section class="kr-panel mt-6 border-primary/25 p-5">
         <div class="mb-3 flex items-center gap-3">
           <span
             class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary"

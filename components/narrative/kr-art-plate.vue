@@ -80,6 +80,7 @@ const props = withDefaults(
      * shape.
      */
     shape?: ArtPlateShape
+    compact?: boolean
     /**
      * 'plate' is the white tipped-photo border the aesthetic is named for.
      * 'thin' is a plain hairline for inline thumbnails.
@@ -106,6 +107,7 @@ const props = withDefaults(
     fallback: '',
     alt: '',
     shape: 'plate',
+    compact: false,
     frame: 'plate',
     fit: 'cover',
     hoverZoom: false,
@@ -172,6 +174,8 @@ const src = computed(() => {
  * non-gallery surfaces that ask for them by name.
  */
 const aspectClass = computed(() => {
+  if (props.compact) return 'h-16 w-full'
+
   switch (props.shape) {
     case 'card':
       return 'aspect-2/3 w-full'
@@ -184,7 +188,6 @@ const aspectClass = computed(() => {
     case 'plate':
       return 'aspect-3/2 w-full'
     default:
-      // imagePath's shape. Square is the default because the stored image is.
       return 'aspect-square w-full'
   }
 })

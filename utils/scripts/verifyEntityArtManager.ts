@@ -32,11 +32,15 @@ expectContains('components/art/entity-art-manager.vue', [
 
 expectContains('server/utils/entityArt.ts', [
   "| 'bot'",
+  "| 'dream'",
   "| 'character'",
   "| 'scenario'",
   "| 'reward'",
   "| 'facet'",
   "| 'project'",
+  "case 'dream'",
+  'dream: {',
+  "label: 'Dream'",
   "case 'project'",
   'projectArtImage.upsert',
   'buildEntityArtPrompt',

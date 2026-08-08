@@ -11,6 +11,8 @@ on:
       - "server/utils/artJobRetry.ts"
       - "utils/scripts/verifyArtJobProvenance.ts"
       - "utils/scripts/verifyArtJobLoraOverride.ts"
+      - "utils/scripts/verifyArtJobCheckpointRefresh.ts"
+      - "utils/scripts/repairTrainerCheckpointFailures.ts"
       - ".github/workflows/artjob-provenance-contract.yml"
   pull_request:
     branches: [main]
@@ -22,6 +24,8 @@ on:
       - "server/utils/artJobRetry.ts"
       - "utils/scripts/verifyArtJobProvenance.ts"
       - "utils/scripts/verifyArtJobLoraOverride.ts"
+      - "utils/scripts/verifyArtJobCheckpointRefresh.ts"
+      - "utils/scripts/repairTrainerCheckpointFailures.ts"
       - ".github/workflows/artjob-provenance-contract.yml"
   workflow_dispatch:
 
@@ -52,6 +56,9 @@ jobs:
 
       - name: Verify LoRA retry resource refresh
         run: npm run test:artjob-lora-override
+
+      - name: Verify checkpoint resource refresh
+        run: npx tsx utils/scripts/verifyArtJobCheckpointRefresh.ts
 
       - name: TypeScript check
         run: npm run test

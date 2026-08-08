@@ -6,6 +6,20 @@
 // PrintJob fulfillment record once payment completes. Submitting the order to
 // a POD vendor (Printful) is intentionally NOT part of this route — no
 // vendor account/API key exists yet (digital-storefront/t-015, needs-human).
+//
+// RETIRED (digital-storefront/t-003, item 3, 2026-08-08): this route is
+// orphaned. Its only caller, components/abandonware/giftshop/print-swag.vue,
+// lives under a path Nuxt's component auto-import ignores entirely
+// (nuxt.config.ts's `ignore: ['abandonware/**/*.vue']`), so <print-swag> can
+// never resolve to a component and this endpoint is unreachable from the live
+// app. Formally superseded by the general-cart featured-art path
+// (giftshop-interact.vue's addFeaturedPrint -> shopping-cart.vue ->
+// checkout.post.ts -> the webhook's handleGiftshopCartPurchase), which already
+// does end-to-end what this route was meant to do and is what the KR-logo SKU
+// (t-003 item 1) uses. Left in place rather than deleted, in case a future
+// per-instance-priced POD SKU flow wants a real, tested starting point — but
+// do not wire any new UI to it without first re-confirming it's still needed
+// over the general-cart path.
 import { createError, defineEventHandler, readBody } from 'h3'
 import Stripe from 'stripe'
 import prisma from '../../utils/prisma'

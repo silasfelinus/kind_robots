@@ -92,6 +92,24 @@ assert.deepEqual(
   'a format noun the author EXCLUDES is not a format request',
 )
 
+// "poster composition" is framing language the coloring-book lane uses on
+// purpose; "a movie poster" is an object request. The asymmetry with "card
+// composition" is deliberate and evidence-led: that one demonstrably rendered a
+// titled trading card, and there is no equivalent evidence for poster framing.
+assert.deepEqual(
+  rules({
+    prompt: 'Extreme close-up poster composition, mostly face and one raised hand',
+    engine: 'krea2',
+  }),
+  [],
+  'poster COMPOSITION is framing, not a request for a poster',
+)
+assert.ok(
+  rules({ prompt: 'a vintage movie poster for a lost film', engine: 'krea2' })
+    .includes('format-vocabulary'),
+  'a movie poster as an OBJECT must still be rejected',
+)
+
 // Guidance scoping: the same five exclusions are tolerable where the negative
 // prompt can actually act on them.
 assert.deepEqual(

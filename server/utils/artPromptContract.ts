@@ -85,7 +85,18 @@ const CONDITIONAL_PATTERNS: Array<{ pattern: RegExp; rule: string }> = [
 const FORMAT_PATTERNS: Array<{ pattern: RegExp; rule: string }> = [
   { pattern: /\b(?:trading[- ])?card (?:illustration|artwork|composition|art)\b/i, rule: 'format-vocabulary' },
   { pattern: /\b(?:treasure|ability|item|reward)[- ]card\b/i, rule: 'format-vocabulary' },
-  { pattern: /\b(?:movie |film |book )?(?:poster|book cover|magazine cover|album cover)\b/i, rule: 'format-vocabulary' },
+  // "poster composition" is framing language (bold, graphic, close-cropped) and
+  // the coloring-book lane uses it deliberately; "a movie poster" is an object
+  // request. Only the latter is flagged. Note the asymmetry with "card
+  // composition" above, which IS flagged: that one is not a guess — "2:3
+  // portrait card composition" demonstrably rendered a titled trading card with
+  // a rules box. There is no equivalent evidence for poster framing, so the
+  // rule stops where the evidence stops.
+  {
+    pattern:
+      /\b(?:movie |film |book )?(?:poster|book cover|magazine cover|album cover)\b(?!\s+(?:composition|framing|layout|crop))/i,
+    rule: 'format-vocabulary',
+  },
   { pattern: /\bcomic (?:page|panel|strip)\b/i, rule: 'format-vocabulary' },
 ]
 

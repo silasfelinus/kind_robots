@@ -4,6 +4,7 @@ import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { getOptionalApiUser } from '~/server/utils/authGuard'
+import { viewablePackIds } from '~/server/utils/contentAccess'
 import {
   facetSummarySelect,
   hydrateFacetSummaries,
@@ -46,6 +47,7 @@ export default defineEventHandler(async (event) => {
     const auth = await getOptionalApiUser(event)
     const userId = auth?.user.id ?? null
     const isAdmin = auth?.isAdmin ?? false
+    const packIds = userId && !isAdmin ? await viewablePackIds(userId) : []
     const includeInactive = isAdmin && toBoolean(query.includeInactive)
     const includeMature = isAdmin && toBoolean(query.includeMature)
     const mine = toBoolean(query.mine)
@@ -66,7 +68,13 @@ export default defineEventHandler(async (event) => {
     } else if (!isAdmin) {
       andFilters.push(
         userId
-          ? { OR: [{ isPublic: true }, { userId }] }
+          ? {
+              OR: [
+                { isPublic: true },
+                { userId },
+                ...(packIds.length ? [{ packId: { in: packIds } }] : []),
+              ],
+            }
           : { isPublic: true },
       )
     }

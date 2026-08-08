@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { applyResolvedCheckpointResourceToArtJobPayload } from '../../server/utils/artJobResourceRefresh'
+import { buildSdxlImg2ImgWorkflow } from '../../server/api/comfy/sdxl/utils/workflow'
 
 {
   const refresh = applyResolvedCheckpointResourceToArtJobPayload(
@@ -37,6 +38,18 @@ import { applyResolvedCheckpointResourceToArtJobPayload } from '../../server/uti
   assert.equal(
     (refresh.payload.resources as any).checkpointName,
     'SDXL/current/model.safetensors',
+  )
+}
+
+{
+  assert.throws(
+    () =>
+      buildSdxlImg2ImgWorkflow({
+        prompt: 'A repaired image.',
+        imageName: 'source.png',
+      }),
+    /requires an explicit checkpoint Resource path/i,
+    'SDXL img2img must fail before queueing instead of injecting a stale checkpoint filename.',
   )
 }
 

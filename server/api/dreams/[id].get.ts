@@ -2,18 +2,16 @@
 import { defineEventHandler, createError } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
-import { validateApiKey } from '@/server/utils/validateKey'
-import { assertDreamAccess, dreamInclude, getDreamId } from './index'
+import { getOptionalApiUser } from '@/server/utils/authGuard'
+import { canView } from '@/server/utils/contentAccess'
+import { dreamInclude, getDreamId } from './index'
 
 export default defineEventHandler(async (event) => {
   let id = 0
 
   try {
     id = getDreamId(event)
-
-    const { isValid, user } = await validateApiKey(event)
-    const userId = isValid && user ? user.id : null
-    const userRole = isValid && user ? user.Role : null
+    const auth = await getOptionalApiUser(event)
 
     const data = await prisma.dream.findUnique({
       where: { id },
@@ -27,12 +25,12 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    assertDreamAccess({
-      dream: data,
-      userId,
-      userRole,
-      action: 'view',
-    })
+    if (!(await canView(data, null, auth?.user))) {
+      throw createError({
+        statusCode: 403,
+        message: 'You do not have permission to view this Dream.',
+      })
+    }
 
     event.node.res.statusCode = 200
 

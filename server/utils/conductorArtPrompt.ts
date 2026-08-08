@@ -4,7 +4,11 @@ import {
   cleanArtPrompt,
   isGenericArtLabel,
 } from './artPromptQuality'
-import { DEFAULT_ASSET_ART_DIRECTION } from './artJobNormalization'
+import {
+  DEFAULT_ASSET_ART_STYLE,
+  DEFAULT_CAST_ART_DIRECTION,
+  DEFAULT_UNPEOPLED_ART_DIRECTION,
+} from './artJobNormalization'
 
 type ArtPromptTarget = {
   sourceUrl: string
@@ -194,11 +198,16 @@ function contextualFallback(
 
   if (!subject || !context) return ''
 
+  // No LLM ran, so nothing here knows whether the subject has people in it.
+  // Default to the unpeopled direction: these are project, page, and product
+  // assets, where a spurious crowd is the common failure and a missing one is
+  // not. Prompts that want a cast get it from the LLM path below.
   const prompt = [
     `Create artwork for ${subject}.`,
     `Visible subject and scene context: ${context}.`,
     compositionFor(target),
-    DEFAULT_ASSET_ART_DIRECTION,
+    DEFAULT_ASSET_ART_STYLE,
+    DEFAULT_UNPEOPLED_ART_DIRECTION,
     'no readable text, no logos, no watermark, no collage',
   ].join(' ')
 
@@ -247,10 +256,16 @@ export async function buildContextualArtPrompt(
           'When a draft prompt is supplied, preserve its intended subject, objects, relationships, and exclusions. Enrich it; do not replace it with a different concept.',
           'Never treat a database id, filename number, or phrases such as “Image 529” as a subject.',
           'Never use “Kind Robots style”, “Kind Robots visual style”, “Kind Robots visual language”, or “cohesive visual style”; those phrases give an image model no visual information and often cause unwanted robots.',
-          `Use this concrete default art direction when the surrounding context does not specify another medium: ${DEFAULT_ASSET_ART_DIRECTION}.`,
+          `Use this concrete default art direction when the surrounding context does not specify another medium: ${DEFAULT_ASSET_ART_STYLE}.`,
           'Robots are not a default mascot. Include a robot only when the requested subject, story, or surrounding page context explicitly requires one.',
           'For software tools, dashboards, and project assets, prefer a concrete object, environment, mechanism, or visual metaphor over a generic character portrait.',
           'Do not invent a person, human face, headshot, mascot, or humanoid focal character unless the supplied context explicitly calls for one.',
+          // The image model cannot evaluate "only when the scene calls for it";
+          // you can. Decide here, and emit exactly one of these two clauses.
+          'Decide whether the finished image contains people at all, then commit to it in the prompt you return.',
+          `If people belong in the frame, include this clause verbatim: ${DEFAULT_CAST_ART_DIRECTION}.`,
+          `If the subject is an object, product, tool, mechanism, landscape, or empty interior, include this clause verbatim instead: ${DEFAULT_UNPEOPLED_ART_DIRECTION}.`,
+          'Never include both clauses. Never include the casting clause for an inanimate subject — image models read it as a literal instruction to paint a crowd, which erases the requested object.',
           'Return one vivid prompt only. No markdown, no JSON, no quotes.',
           'Describe the visible focal subject, supporting elements, action or state, setting, spatial arrangement, composition, camera or framing, lighting, color palette, materials or texture, mood, and concrete rendering style.',
           promptLengthDirection(target),

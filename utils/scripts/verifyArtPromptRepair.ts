@@ -5,7 +5,8 @@ import {
   isGenericArtLabel,
 } from '../../server/utils/artPromptQuality'
 import {
-  DEFAULT_ASSET_ART_DIRECTION,
+  DEFAULT_ASSET_ART_STYLE,
+  DEFAULT_CAST_ART_DIRECTION,
   normalizeKindRobotsImagePath,
   normalizeQueuedArtJobPayload,
 } from '../../server/utils/artJobNormalization'
@@ -72,7 +73,7 @@ const normalizedWorkflow = normalization.payload.workflow as Record<
   string,
   WorkflowNode
 >
-const defaultDirectionLead = DEFAULT_ASSET_ART_DIRECTION.split(';').at(0) ?? ''
+const defaultDirectionLead = DEFAULT_ASSET_ART_STYLE.split(';').at(0) ?? ''
 
 assert.equal(normalization.imagePathChanged, true)
 assert.equal(normalization.promptChanged, true)
@@ -90,6 +91,15 @@ assert.match(
   String(normalization.payload.promptString),
   new RegExp(defaultDirectionLead),
 )
+
+// The phrase substitution must never inject a casting instruction. It runs over
+// arbitrary prompts with no idea whether the subject is a person or a ladle, and
+// Krea 2 paints that clause literally. See artJobNormalization.ts.
+assert.doesNotMatch(
+  String(normalization.payload.promptString),
+  /cast the people who appear naturally/i,
+)
+assert.ok(!String(normalization.payload.promptString).includes(DEFAULT_CAST_ART_DIRECTION))
 
 const repaired = applyArtJobOverrides(structuredClone(payload), {
   promptString: strongPrompt,

@@ -35,23 +35,25 @@
 
     <template v-else>
       <section class="grid gap-3 sm:grid-cols-3">
-        <article class="stat rounded-2xl border border-base-300 bg-base-100 shadow-sm">
-          <div class="stat-title">Canonical placements</div>
-          <div class="stat-value text-primary">{{ expectedCount }}</div>
-          <div class="stat-desc">Defined in projectPlacements.ts</div>
-        </article>
+        <kr-stat-tile
+          title="Canonical placements"
+          :value="expectedCount"
+          tone="primary"
+          desc="Defined in projectPlacements.ts"
+        />
 
-        <article class="stat rounded-2xl border border-base-300 bg-base-100 shadow-sm">
-          <div class="stat-title">Projects loaded</div>
-          <div class="stat-value">{{ projectStore.projects.length }}</div>
-          <div class="stat-desc">Including inactive projects</div>
-        </article>
+        <kr-stat-tile
+          title="Projects loaded"
+          :value="projectStore.projects.length"
+          desc="Including inactive projects"
+        />
 
-        <article class="stat rounded-2xl border border-base-300 bg-base-100 shadow-sm">
-          <div class="stat-title">Placement matches</div>
-          <div class="stat-value text-secondary">{{ matchedCount }}</div>
-          <div class="stat-desc">Recognized by slug or conductor slug</div>
-        </article>
+        <kr-stat-tile
+          title="Placement matches"
+          :value="matchedCount"
+          tone="secondary"
+          desc="Recognized by slug or conductor slug"
+        />
       </section>
 
       <section

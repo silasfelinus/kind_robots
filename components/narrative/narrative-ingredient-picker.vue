@@ -72,7 +72,7 @@
     >
       <Icon
         name="kind-icon:alert"
-        class="mt-0.5 size-4 shrink-0"
+        class="mt-0.5 size-4 shrink-0 text-error"
         aria-hidden="true"
       />
       <span>{{ error }}</span>
@@ -98,7 +98,10 @@
       {{ emptyState }}
     </div>
 
-    <div v-else class="grid gap-2 md:grid-cols-2">
+    <div
+      v-else
+      class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))] gap-2"
+    >
       <button
         v-if="allowEmpty"
         type="button"

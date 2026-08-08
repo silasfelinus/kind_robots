@@ -43,12 +43,17 @@ export const resourceGallerySelect = {
   ArtImage: {
     select: resourcePreviewArtImageSelect,
   },
-  _count: {
-    select: {
-      ArtImages: true,
-      UsedInImages: true,
-    },
-  },
+  // NO `_count`. This carried `_count: { select: { ArtImages: true,
+  // UsedInImages: true } }`, which made the list query emit two correlated
+  // aggregates per row against ArtImage -- the most expensive thing in an
+  // already-unpaginated findMany over the whole Resource table, and the
+  // likeliest source of the /resources pool timeouts. What it bought was two
+  // card badges reading "0 checkpoint uses / 0 LoRA uses" -- zero on every card
+  // in the report Silas sent on 2026-08-08. Dropped on his call the same day.
+  //
+  // If per-resource usage counts return, they belong on the DETAIL fetch
+  // (`[id].get.ts`) or a separate endpoint for the visible page -- not on every
+  // row of the catalog listing.
 } satisfies Prisma.ResourceSelect
 
 export type ResourceGalleryRecord = Prisma.ResourceGetPayload<{

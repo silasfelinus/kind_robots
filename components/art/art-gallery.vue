@@ -454,8 +454,13 @@
           `density`; a second row of Cards/Heroes/Icons buttons would be two
           pickers steering one grid.
         -->
+        <!-- page-size 0: art-gallery pages itself. `galleryItems` is built
+             from pagedActiveImages, and its page size is a user control
+             (imagePageSize), so letting the shell page again would slice a
+             page into pages. -->
         <kr-gallery
           :items="galleryItems"
+          :page-size="0"
           :modes="[]"
           :density="viewSize"
           empty-label="art images"

@@ -75,12 +75,9 @@
         <span class="badge badge-outline badge-sm">
           {{ resource.supportedServer }}
         </span>
-        <span class="badge badge-outline badge-sm">
-          {{ resource._count?.ArtImages || 0 }} checkpoint uses
-        </span>
-        <span class="badge badge-outline badge-sm">
-          {{ resource._count?.UsedInImages || 0 }} LoRA uses
-        </span>
+        <!-- The "N checkpoint uses / N LoRA uses" badges lived here. They cost
+             two correlated aggregates per row on the catalog list query and
+             read 0 on every card; see the note on resourceGallerySelect. -->
       </div>
 
       <div class="mt-auto grid grid-cols-2 gap-2">

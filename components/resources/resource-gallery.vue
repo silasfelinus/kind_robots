@@ -157,6 +157,21 @@ const filteredResources = computed(() => {
   })
 })
 
+/*
+ * NO PAGING HERE. Silas, 2026-08-08: "There seems to be no pagination. Are we
+ * trying to load thousands on one page? It freezes." It did -- but the fix
+ * belongs to kr-gallery, not to this file. Eleven of the thirteen galleries had
+ * the same defect; /resources only reached it first because it is the biggest
+ * table. See the `pageSize` prop on kr-gallery.
+ *
+ * What stays whole-catalog on purpose: `filteredResources` runs over the entire
+ * array, so search and both dropdowns still cover the whole catalog rather than
+ * the visible page, and `resourceById` is a superset of whatever the shell
+ * chooses to render. The type and base-model options are DERIVED from the
+ * loaded set (see `resourceTypes` / `generations`), which is also why the FETCH
+ * is still whole-catalog: paginating the query would empty those dropdowns, and
+ * that needs the filters to move server-side first.
+ */
 const galleryItems = computed<GalleryItem[]>(() =>
   filteredResources.value.map((resource) => ({
     id: resource.id,
@@ -478,9 +493,23 @@ onMounted(async () => {
             aria-label="Search Resources"
           />
 
+          <!--
+            `w-auto` IS LOad-BEARING, not tidying. DaisyUI 5 gives `.select`
+            `width: clamp(3rem, 20rem, 100%)` -- the PREFERRED value is 20rem,
+            so a select with no width utility is 320px wide no matter how short
+            its options are. Two of them claimed 640px of this row and pushed
+            the rest of the filters onto lines of their own; Silas, 2026-08-08,
+            reported /resources loading with "several rows" for exactly this.
+            The search box beside them looked fine only because it already
+            carried explicit `w-36 sm:w-52`.
+
+            `.select` is `inline-flex` with `overflow:hidden` and
+            `text-overflow:ellipsis` already, so sizing to content is safe: a
+            long option name truncates rather than reflowing the row.
+          -->
           <select
             v-model="resourceType"
-            class="select select-bordered select-xs rounded-2xl"
+            class="select select-bordered select-xs w-auto max-w-44 rounded-2xl"
             aria-label="Filter by resource type"
           >
             <option value="ALL">All types</option>
@@ -491,7 +520,7 @@ onMounted(async () => {
 
           <select
             v-model="generation"
-            class="select select-bordered select-xs rounded-2xl"
+            class="select select-bordered select-xs w-auto max-w-44 rounded-2xl"
             aria-label="Filter by base model"
           >
             <option value="ALL">All base models</option>

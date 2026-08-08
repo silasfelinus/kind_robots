@@ -48,7 +48,7 @@
         <div class="flex flex-wrap items-center gap-2">
           <select
             v-model="filterScope"
-            class="select select-bordered select-xs rounded-lg"
+            class="select select-bordered select-xs w-auto max-w-44 rounded-lg"
             aria-label="Filter icons by scope"
           >
             <option value="all">All Icons</option>
@@ -58,7 +58,7 @@
 
           <select
             v-model="filterType"
-            class="select select-bordered select-xs rounded-lg"
+            class="select select-bordered select-xs w-auto max-w-44 rounded-lg"
             aria-label="Filter icons by type"
           >
             <option value="">All Types</option>

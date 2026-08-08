@@ -52,11 +52,56 @@
       have not adopted it are unaffected.
     -->
     <div
-      v-if="modes.length || $slots.toolbar"
+      v-if="modes.length || $slots.toolbar || pageCount > 1"
       class="sticky top-0 z-20 -mx-1 flex shrink-0 flex-wrap items-center gap-1 bg-(--kr-surface-sunken) px-1 py-1 backdrop-blur"
     >
       <div v-if="$slots.toolbar" class="min-w-0 flex-1">
         <slot name="toolbar" />
+      </div>
+
+      <!--
+        THE PAGER RIDES THIS BAR rather than sitting in a band under the grid.
+        The bar is `sticky` inside whatever ancestor scrolls, so on a big
+        collection the control stays reachable instead of living a thousand
+        cards below the fold -- and a band of its own would spend a row, which
+        is the opposite of what this stage is for.
+
+        It renders only when there IS a second page, so every gallery that fits
+        on one is visually unchanged. That is also why `pageCount > 1` joins the
+        bar's own v-if above: theme-gallery's two grids pass `:modes="[]"` and
+        no toolbar, so without it they would page with no way to turn the page.
+      -->
+      <div
+        v-if="pageCount > 1"
+        class="ml-auto flex shrink-0 items-center gap-1"
+      >
+        <span class="text-xs tabular-nums text-base-content/60">
+          {{ pageRangeLabel }}
+        </span>
+
+        <button
+          type="button"
+          class="btn btn-ghost btn-xs rounded-xl"
+          :disabled="page === 0"
+          aria-label="Previous page"
+          @click="page--"
+        >
+          <Icon name="kind-icon:arrow-left" class="h-3.5 w-3.5" />
+        </button>
+
+        <span class="text-xs font-bold tabular-nums">
+          {{ page + 1 }}/{{ pageCount }}
+        </span>
+
+        <button
+          type="button"
+          class="btn btn-ghost btn-xs rounded-xl"
+          :disabled="page >= pageCount - 1"
+          aria-label="Next page"
+          @click="page++"
+        >
+          <Icon name="kind-icon:arrow-right" class="h-3.5 w-3.5" />
+        </button>
       </div>
 
       <button
@@ -149,7 +194,7 @@
       -->
       <template v-if="$slots.item">
         <slot
-          v-for="item in items"
+          v-for="item in pagedItems"
           :key="`slot-${item.id}`"
           name="item"
           :item="item"
@@ -160,7 +205,7 @@
       </template>
 
       <button
-        v-for="item in items"
+        v-for="item in pagedItems"
         v-else
         :key="item.id"
         type="button"
@@ -274,7 +319,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import {
   resolveArtVariantSrc,
   type ArtImageSrcLike,
@@ -336,6 +381,27 @@ const props = withDefaults(
     emptyLabel?: string
     skeletonCount?: number
     /**
+     * How many items to RENDER at once. Pass 0 to render every item.
+     *
+     * ON BY DEFAULT, DELIBERATELY. The original split gave this shell the grid
+     * and left paging to each caller, on the reasoning that pagination is the
+     * parent's business. In practice it meant every caller had to remember, and
+     * eleven of the thirteen did not: bot, character, dream, reward, scenario,
+     * icon, server, checkpoint, stylist-client, theme and achievement all
+     * handed over their whole filtered set. Only art-gallery paged; only
+     * facet-gallery capped, per taxonomy group.
+     *
+     * It surfaced on /resources first because that is the biggest table --
+     * Silas, 2026-08-08: "There seems to be no pagination. Are we trying to
+     * load thousands on one page? It freezes." Every other gallery had the same
+     * defect and was waiting to grow into it, which is the argument for fixing
+     * it HERE instead of pasting a slice into eleven more files.
+     *
+     * A default you opt OUT of is the right way round: forgetting it now costs
+     * a pager nobody needed, rather than a frozen tab.
+     */
+    pageSize?: number
+    /**
      * How many tiles per row, independent of which image `mode` loads. Omit to
      * let mode pick the grid, which is what every gallery but art-gallery does.
      * See the GalleryDensity note in utils/galleryVocabulary.ts for why this is
@@ -350,6 +416,7 @@ const props = withDefaults(
     error: '',
     emptyLabel: 'items',
     skeletonCount: 8,
+    pageSize: 48,
     density: undefined,
   },
 )
@@ -369,6 +436,43 @@ const gridClass = computed(() =>
     ? DENSITY_GRID_CLASS[props.density]
     : MODE_GRID_CLASS[props.mode],
 )
+const page = ref(0)
+
+const pageCount = computed(() => {
+  if (props.pageSize <= 0) return 1
+  return Math.max(1, Math.ceil(props.items.length / props.pageSize))
+})
+
+const pagedItems = computed(() => {
+  if (props.pageSize <= 0) return props.items
+  const start = page.value * props.pageSize
+  return props.items.slice(start, start + props.pageSize)
+})
+
+/*
+ * CLAMP, do not reset. `items` is recomputed on every keystroke of a parent's
+ * search box, so resetting to page 0 whenever it changed would make any page
+ * but the first unreachable. Clamping moves you only when the page you are on
+ * has genuinely stopped existing -- narrow 2,000 rows to 30 while on page 12
+ * and every later render would otherwise be an empty grid with no way back.
+ *
+ * pageCount is pinned to 1 while paging is off, so this is inert for opted-out
+ * callers rather than something they have to reason about.
+ */
+watch(pageCount, (count) => {
+  if (page.value > count - 1) page.value = count - 1
+})
+
+const pageRangeLabel = computed(() => {
+  const total = props.items.length
+  if (!total) return ''
+
+  const first = page.value * props.pageSize + 1
+  const last = Math.min(first + props.pageSize - 1, total)
+
+  return `${first}–${last} of ${total}`
+})
+
 const imageWrapClass = computed(() =>
   props.mode === 'heroes'
     ? 'min-h-64'

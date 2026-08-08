@@ -96,8 +96,11 @@
              so mounting it N times is structurally fine, and `:modes="[]"` drops
              its own mode bar -- the picker above drives every group at once, so
              the groups stay visually consistent instead of drifting apart. -->
+        <!-- page-size 0: entries are already capped per taxonomy group by
+             this file's own show-more (`slice(0, shown[taxonomy] ?? PAGE)`). -->
         <kr-gallery
           :items="group.entries.map(toGalleryItem)"
+          :page-size="0"
           :mode="mode"
           :modes="[]"
           empty-label="facets"

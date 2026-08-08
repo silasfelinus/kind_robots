@@ -332,7 +332,7 @@
 
             <select
               v-model="constructionFilter"
-              class="select select-bordered select-sm bg-base-100"
+              class="select select-bordered select-sm w-auto max-w-44 bg-base-100"
               aria-label="Filter bots by construction status"
             >
               <option value="all">All statuses</option>

@@ -1,0 +1,22 @@
+
+> audit:channel-assets
+> tsx utils/scripts/auditChannelAssets.ts
+
+Channel artwork audit checked 61 local URL references across 5 channels.
+Missing 16 resolved channel or tab image(s):
+- home: /images/channels/home/channel.webp (https://media.acrocatranch.com/images/channels/home/channel.webp)
+- home/registration: /images/dashboard-tabs/user/profile.webp (https://media.acrocatranch.com/images/dashboard-tabs/user/profile.webp)
+- home/navigation: /images/dashboard-tabs/user/profile.webp (https://media.acrocatranch.com/images/dashboard-tabs/user/profile.webp)
+- home/account: /images/dashboard-tabs/user/profile.webp (https://media.acrocatranch.com/images/dashboard-tabs/user/profile.webp)
+- home/wallet: /images/dashboard-tabs/user/profile.webp (https://media.acrocatranch.com/images/dashboard-tabs/user/profile.webp)
+- plan: /images/channels/plan/channel.webp (https://media.acrocatranch.com/images/channels/plan/channel.webp)
+- play: /images/channels/play/channel.webp (https://media.acrocatranch.com/images/channels/play/channel.webp)
+- play/resources: /images/channels/play/resources.webp (https://media.acrocatranch.com/images/channels/play/resources.webp)
+- play/storybook: /images/dashboard-tabs/scenario/storybook.webp (https://media.acrocatranch.com/images/dashboard-tabs/scenario/storybook.webp)
+- play/music-mentor: /images/channels/play/music-mentor.webp (https://media.acrocatranch.com/images/channels/play/music-mentor.webp)
+- play/video-generator: /images/channels/play/video-generator.webp (https://media.acrocatranch.com/images/channels/play/video-generator.webp)
+- sanctuary: /images/channels/sanctuary/channel.webp (https://media.acrocatranch.com/images/channels/sanctuary/channel.webp)
+- sanctuary/about: /images/dashboard-tabs/giftshop/community.webp (https://media.acrocatranch.com/images/dashboard-tabs/giftshop/community.webp)
+- sanctuary/giving: /images/dashboard-tabs/giftshop/community.webp (https://media.acrocatranch.com/images/dashboard-tabs/giftshop/community.webp)
+- sanctuary/privacy: /images/dashboard-tabs/user/profile.webp (https://media.acrocatranch.com/images/dashboard-tabs/user/profile.webp)
+- admin: /images/channels/admin/channel.webp (https://media.acrocatranch.com/images/channels/admin/channel.webp)

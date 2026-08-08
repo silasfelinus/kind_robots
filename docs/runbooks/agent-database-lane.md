@@ -25,10 +25,13 @@ The agent lane defaults to:
 
 - ProxySQL frontend limit: 20 sessions;
 - ProxySQL/MariaDB backend limit: 6 connections per production backend row;
+- per-agent-process client pool target: 3 connections, zero minimum idle, 30-second idle expiry;
 - MariaDB privileges on the application schema: `SELECT`, `INSERT`, `UPDATE`, `DELETE`, `SHOW VIEW`;
 - no `CREATE`, `ALTER`, `DROP`, migration, routine, trigger, event, index, reference, or temporary-table privileges.
 
 This is intentionally not a migration identity. An agent that needs a schema change should produce or review the migration, but the schema-changing command should run only through the dedicated migration lane with explicit intent.
+
+Kind Robots uses Prisma 7 with `@prisma/adapter-mariadb`. The MariaDB driver adapter defaults to a pool of 10 connections, and the shared Kind Robots adapter also uses a 10-connection long-lived profile. Agent scripts are shorter-lived and may run in parallel, so their credential is tuned to a smaller three-connection client pool instead of relying on the generic long-lived default.
 
 ## Provision on Alexandria
 
@@ -65,6 +68,26 @@ Default handoff path:
 
 The directory is mode 700 and the file is mode 600. Do not paste the file into chat, issues, PRs, logs, or source control.
 
+After provisioning, tune the finished URL for coding-agent processes:
+
+```bash
+bash scripts/tune-agent-database-url.sh
+```
+
+This edits only the private `AGENT_DATABASE_URL` value. It does not rotate the password or change ProxySQL/MariaDB grants. The tuned URL carries these client-pool options:
+
+```text
+connectionLimit=3
+minimumIdle=0
+idleTimeout=30
+acquireTimeout=10000
+connectTimeout=5000
+minDelayValidation=0
+pipelining=false
+```
+
+The three-connection cap is deliberately below the lane's six-backend ceiling so one Claude process cannot occupy the entire backend lane. Two concurrent agent processes can still use the full six-connection backend allowance when necessary.
+
 ## Configure Claude
 
 The handoff file contains component fields plus one finished URL:
@@ -85,7 +108,7 @@ Remove the old production `DATABASE_URL` value instead of keeping both credentia
 
 Do **not** set a standing `MIGRATION_DATABASE_URL` for Claude. `prisma.config.ts` gives `MIGRATION_DATABASE_URL` precedence over `DATABASE_URL`, so defining it globally would silently give Prisma commands the schema-changing lane instead of the constrained agent lane.
 
-If Claude already has database TLS environment variables such as the ProxySQL CA settings, keep those unchanged. If the old `DATABASE_URL` carried transport-only query parameters, preserve only those required transport parameters on the new agent URL. Never preserve the old username or password.
+If Claude already has database TLS environment variables such as the ProxySQL CA settings, keep those unchanged. The tuning helper preserves the new identity and adds only client-pool/ProxySQL transport behavior to the generated URL. Never preserve the old username or password.
 
 ## Expected behavior
 
@@ -104,6 +127,12 @@ Claude should not be able to:
 - consume the production `kindrobot` ProxySQL frontend allowance.
 
 A schema-permission failure from the agent lane is therefore a safety boundary working as designed, not a reason to broaden the standing credential.
+
+## Read-only versus read/write agent identities
+
+A separate read-only coding-agent identity can be added later if operational experience shows that the extra credential switching is worth it. For the current workflow, the standing `kindrobot_agent` identity remains application read/write because many normal agent tasks intentionally finish with an `--apply` reconciliation or cleanup step. DDL remains the stronger boundary: schema-changing privileges never belong to the standing agent credential.
+
+HTTP method alone is not evidence that Preview needs database write privileges. For example, `POST /api/economy/karma-earned` is a batch read endpoint and performs a Prisma `groupBy` query only. Preview read-only compatibility should therefore be judged by actual database operations, not by whether a page calls POST endpoints.
 
 ## Verify after switching Claude
 

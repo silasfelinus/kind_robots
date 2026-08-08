@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "server/api/art/queue/**"
+      - "server/api/comfy/sdxl/utils/workflow.ts"
       - "server/utils/artJobProvenance.ts"
       - "server/utils/artImageSeed.ts"
       - "server/utils/artJobResourceRefresh.ts"
@@ -18,6 +19,7 @@ on:
     branches: [main]
     paths:
       - "server/api/art/queue/**"
+      - "server/api/comfy/sdxl/utils/workflow.ts"
       - "server/utils/artJobProvenance.ts"
       - "server/utils/artImageSeed.ts"
       - "server/utils/artJobResourceRefresh.ts"

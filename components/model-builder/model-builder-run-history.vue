@@ -154,6 +154,7 @@ function progress(run: BuildRun): string {
 
 async function open(runId: string): Promise<void> {
   await store.openRun(runId)
+  if (store.run?.id !== runId) return
   emit('close')
 }
 

@@ -177,7 +177,8 @@ export function checkArtPromptContract(
 
   for (const { pattern, rule } of FORMAT_PATTERNS) {
     const match = prompt.match(pattern)
-    if (!match || typeof match.index !== 'number') continue
+    if (!match) continue
+    if (typeof match.index !== 'number') continue
     // A format noun the author is excluding ("no comic panel") is the opposite
     // of a format request. Flagging it rejected the coloring-book lane, whose
     // prompts legitimately name the formats they are avoiding.

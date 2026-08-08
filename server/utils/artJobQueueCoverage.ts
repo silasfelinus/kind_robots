@@ -264,7 +264,7 @@ async function reconcileFacetCoverage(
     }
   }
 
-  const marker = `\"entityType\":\"facet\",\"entityId\":${target.facetId},`
+  const marker = `"entityType":"facet","entityId":${target.facetId},`
   const siblings = await prisma.artJob.findMany({
     where: {
       projectSlug: 'facet-catalog',
@@ -372,7 +372,7 @@ async function reconcileStaticDelivery(
   const target = readStaticDeliveryTarget(parsedPayload)
   if (!target) return null
 
-  const pathNeedle = `\"imagePath\":${JSON.stringify(target.imagePath)}`
+  const pathNeedle = `"imagePath":${JSON.stringify(target.imagePath)}`
   const siblings = await prisma.artJob.findMany({
     where: {
       status: { in: ['PENDING', 'RUNNING'] },

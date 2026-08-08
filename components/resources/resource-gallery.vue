@@ -1,6 +1,6 @@
 <!-- /components/resources/resource-gallery.vue -->
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
 import {
   useResourceGalleryStore,
@@ -158,61 +158,22 @@ const filteredResources = computed(() => {
 })
 
 /*
- * PAGINATE THE RENDER. Silas, 2026-08-08, from a tablet: "Really think we might
- * be getting an index overwhelm issue when getting resources. There seems to be
- * no pagination. Are we trying to load thousands on one page? It freezes."
+ * NO PAGING HERE. Silas, 2026-08-08: "There seems to be no pagination. Are we
+ * trying to load thousands on one page? It freezes." It did -- but the fix
+ * belongs to kr-gallery, not to this file. Eleven of the thirteen galleries had
+ * the same defect; /resources only reached it first because it is the biggest
+ * table. See the `pageSize` prop on kr-gallery.
  *
- * We were. `/api/resources` is an unpaginated findMany over every active
- * Resource, and this file handed the WHOLE filtered result to kr-gallery, so
- * the browser built a resource-card for every row in the catalog at once.
- *
- * art-gallery already answered this and says so on `pagedActiveImages`: "Only
- * the page, not the whole filtered set: pagination stays this component's job,
- * and kr-gallery renders exactly what it is handed." This gallery was the
- * outlier, so it adopts the same shape rather than inventing a second one.
- *
- * Note what is deliberately NOT paginated: `filteredResources` still runs over
- * the full array, so search, the type filter and the base-model filter keep
- * searching the entire catalog rather than only the visible page. The type and
- * base-model dropdowns also derive their options from the full set (see
- * `resourceTypes` / `generations`), which is why the fetch stays whole-catalog
- * for now -- paginating the QUERY would empty those dropdowns, which is a
- * separate change requiring the filters to move server-side.
+ * What stays whole-catalog on purpose: `filteredResources` runs over the entire
+ * array, so search and both dropdowns still cover the whole catalog rather than
+ * the visible page, and `resourceById` is a superset of whatever the shell
+ * chooses to render. The type and base-model options are DERIVED from the
+ * loaded set (see `resourceTypes` / `generations`), which is also why the FETCH
+ * is still whole-catalog: paginating the query would empty those dropdowns, and
+ * that needs the filters to move server-side first.
  */
-const RESOURCE_PAGE_SIZE = 48
-const resourcePage = ref(0)
-
-const pageCount = computed(() =>
-  Math.max(1, Math.ceil(filteredResources.value.length / RESOURCE_PAGE_SIZE)),
-)
-
-const pagedResources = computed(() => {
-  const start = resourcePage.value * RESOURCE_PAGE_SIZE
-  return filteredResources.value.slice(start, start + RESOURCE_PAGE_SIZE)
-})
-
-/*
- * Narrowing the list under a reader's feet would otherwise strand them on a
- * page that no longer exists -- filter 2,000 resources down to 30 while on page
- * 12 and every subsequent render is an empty grid with no way back. Clamping
- * rather than resetting to 0 keeps your place when the page is still valid.
- */
-watch(pageCount, (count) => {
-  if (resourcePage.value > count - 1) resourcePage.value = count - 1
-})
-
-const pageRangeLabel = computed(() => {
-  const total = filteredResources.value.length
-  if (!total) return ''
-
-  const first = resourcePage.value * RESOURCE_PAGE_SIZE + 1
-  const last = Math.min(first + RESOURCE_PAGE_SIZE - 1, total)
-
-  return `${first}–${last} of ${total}`
-})
-
 const galleryItems = computed<GalleryItem[]>(() =>
-  pagedResources.value.map((resource) => ({
+  filteredResources.value.map((resource) => ({
     id: resource.id,
     title: resourceLabel(resource),
     description: resource.description || undefined,
@@ -221,7 +182,7 @@ const galleryItems = computed<GalleryItem[]>(() =>
 
 const resourceById = computed(
   () =>
-    new Map(pagedResources.value.map((resource) => [resource.id, resource])),
+    new Map(filteredResources.value.map((resource) => [resource.id, resource])),
 )
 
 function resourceLabel(resource: ResourceGalleryRecord): string {
@@ -589,52 +550,6 @@ onMounted(async () => {
             visible-text="Mature LoRAs and checkpoint models are included."
             hidden-text="Mature LoRAs and checkpoint models are hidden."
           />
-
-          <!--
-            The pager rides the TOOLBAR, not a band under the grid. Two reasons:
-            the toolbar is `sticky` inside the parent's scroll owner, so with a
-            catalog this size the control stays reachable instead of living
-            2,000 cards below the fold; and the row has the space now that the
-            two selects are no longer 320px each. A band of its own would give
-            back the vertical space this whole change is trying to save.
-
-            Count first, then the controls: "1–48 of 2,317" answers "did my
-            filter do anything" without needing a separate badge for it.
-          -->
-          <div
-            v-if="filteredResources.length"
-            class="ml-auto flex shrink-0 items-center gap-1"
-          >
-            <span class="text-xs tabular-nums text-base-content/60">
-              {{ pageRangeLabel }}
-            </span>
-
-            <template v-if="pageCount > 1">
-              <button
-                type="button"
-                class="btn btn-ghost btn-xs rounded-2xl"
-                :disabled="resourcePage === 0"
-                aria-label="Previous page"
-                @click="resourcePage--"
-              >
-                <Icon name="kind-icon:arrow-left" class="h-3.5 w-3.5" />
-              </button>
-
-              <span class="text-xs tabular-nums font-bold">
-                {{ resourcePage + 1 }}/{{ pageCount }}
-              </span>
-
-              <button
-                type="button"
-                class="btn btn-ghost btn-xs rounded-2xl"
-                :disabled="resourcePage >= pageCount - 1"
-                aria-label="Next page"
-                @click="resourcePage++"
-              >
-                <Icon name="kind-icon:arrow-right" class="h-3.5 w-3.5" />
-              </button>
-            </template>
-          </div>
         </div>
       </template>
 

@@ -63,24 +63,50 @@
       </div>
 
       <div class="flex flex-1 flex-col gap-2 p-3">
-        <h3 class="line-clamp-2 text-base font-black leading-tight">
+        <!--
+          THE NAME GETS THE ROOM. Silas, 2026-08-08: "it was the actual title
+          that was cut off, so most of the time I could only see a fraction of
+          what the Lora was."
+
+          Two things made a two-line clamp fail on this catalog. Imported names
+          are long -- "[Exp] 每日渲染（风格）| Daily Render Style", "[LoRA]
+          Jellyfish forest / 水月森 / くらげの森" -- and they open with a
+          bracketed or underscored prefix ([LoRA], (color), _MOHAWK_) that is
+          the same across dozens of rows. So the clamp spent the visible lines
+          on the part that does not distinguish anything and elided the part
+          that does, which is why a grid of them reads as near-identical.
+
+          Three lines at `text-sm` holds roughly double the characters of two
+          at `text-base` while still reading as the heading. `break-words` is
+          for the unbroken runs ("_MOHAWK_Add_//COMICS"), which otherwise
+          overflow instead of wrapping.
+
+          Still CLAMPED, not free: kr-gallery's grid rows size to their tallest
+          card, so one pathological name would add height to every card on the
+          page. The clamp only hides overflow -- the full string stays in the
+          DOM for screen readers, `title` gives it back on hover, and the flip
+          side shows it in full.
+        -->
+        <h3
+          class="line-clamp-3 break-words text-sm font-black leading-snug"
+          :title="label"
+        >
           {{ label }}
         </h3>
 
         <!--
-          THE TRIGGER IS THE IDENTITY, so it is always on the card.
+          The trigger is the word you type to activate a LoRA, and it used to
+          live in an `opacity-0 ... group-hover:opacity-100` panel over the
+          artwork -- so on a touch screen it could not be read at all. Putting
+          it on the card costs nothing a hover was giving anyone.
 
-          It used to live in an `opacity-0 ... group-hover:opacity-100` panel
-          over the artwork. On a touch screen there is no hover, so the one
-          field that says what a LoRA actually DOES was unreachable -- which is
-          exactly what Silas reported from a tablet on 2026-08-08: "not enough
-          of the title info that we need, so I really can't tell what each lora
-          is meant to be." A reveal-on-hover affordance for the primary
-          identifying text is a desktop assumption, not a layout tweak.
+          ONE line, not two. It competes with the name for the same column, and
+          the name is what Silas could not read; clamping the trigger tighter
+          is how the title got its third line without the card growing.
         -->
         <p
           v-if="triggerText"
-          class="line-clamp-2 rounded-lg bg-base-200/70 px-2 py-1 font-mono text-xs leading-snug text-base-content/80"
+          class="line-clamp-1 rounded-lg bg-base-200/70 px-2 py-1 font-mono text-xs text-base-content/80"
           :title="triggerText"
         >
           {{ triggerText }}

@@ -174,7 +174,7 @@ const src = computed(() => {
  * non-gallery surfaces that ask for them by name.
  */
 const aspectClass = computed(() => {
-  if (props.compact) return 'h-16 w-full'
+  if (props.compact) return 'h-16 w-full shrink-0'
 
   switch (props.shape) {
     case 'card':

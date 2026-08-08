@@ -96,6 +96,67 @@
       />
     </section>
 
+    <!--
+      THE BACK OF THE CARD. One instance for the whole gallery, bound to
+      whichever Bot was picked -- the flip is a property of the gallery's
+      selection, not of forty-eight card components each carrying a dialog.
+    -->
+    <kr-card-flip v-model="infoOpen" :label="infoBot?.name || 'Bot'">
+      <template #back="{ close, commit }">
+        <kr-card-back
+          v-if="infoBot"
+          v-model:editing="infoEditing"
+          :title="infoBot.name || 'Unnamed Bot'"
+          :subtitle="infoBot.subtitle || ''"
+          :description="infoBot.description || infoBot.personality || ''"
+          :art-src="infoBot.avatarImage || ''"
+          :badges="infoBotBadges"
+          :can-edit="canEditInfoBot"
+          :can-interact="true"
+          interact-label="Chat"
+          @back="commit"
+          @interact="interactWithInfoBot"
+        >
+          <!-- The stats a BOT has and a Reward does not. kr-card-back never
+               learns what any of this means. -->
+          <template #details>
+            <dl class="grid grid-cols-2 gap-2 text-xs">
+              <div v-if="infoBot.personality" class="col-span-2">
+                <dt class="font-black uppercase opacity-55">Personality</dt>
+                <dd class="whitespace-pre-wrap">{{ infoBot.personality }}</dd>
+              </div>
+              <div v-if="infoBot.BotType">
+                <dt class="font-black uppercase opacity-55">Type</dt>
+                <dd>{{ infoBot.BotType }}</dd>
+              </div>
+              <div v-if="infoBot.name">
+                <dt class="font-black uppercase opacity-55">Handle</dt>
+                <dd class="break-words">{{ infoBot.name }}</dd>
+              </div>
+            </dl>
+          </template>
+
+          <template #edit="{ done }">
+            <add-bot mode="edit" @saved="done" @cancel="done" />
+          </template>
+        </kr-card-back>
+
+        <!-- A Bot that vanished from the store while its panel was open (a
+             delete from another tab) would otherwise render an empty dialog
+             with no way out but Escape. -->
+        <div v-else class="p-6 text-center text-sm opacity-60">
+          <p>That Bot is no longer available.</p>
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm mt-3 rounded-xl"
+            @click="close"
+          >
+            Close
+          </button>
+        </div>
+      </template>
+    </kr-card-flip>
+
     <section class="min-h-0 flex-1 overflow-auto">
       <div
         v-if="isLoading || botStore.loading"
@@ -381,7 +442,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { Bot } from '~/prisma/generated/prisma/client'
 import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
 import { MODE_VARIANT, type GalleryMode } from '@/utils/galleryVocabulary'
@@ -678,13 +739,90 @@ async function refreshBots(force = false) {
   }
 }
 
+/*
+ * INFO FIRST, INTERACTION AFTER. Silas, 2026-08-08: "selecting the card brings
+ * us to the full info display with the animation ... think the back of a
+ * baseball card with stats ... info is first, and interactions come after."
+ *
+ * So picking a Bot in the grid no longer launches straight into the chat; it
+ * turns the card over. Chat is now a button on the back, which is what makes
+ * the interact tier a destination you choose rather than the only thing a
+ * click can do.
+ *
+ * THE DROPDOWN BRANCH IS WHY THIS LIVES IN THE GALLERY and not in bot-card.
+ * This gallery is also embedded as a PICKER inside bot-chat, where a click has
+ * to pick and nothing else -- an info panel there would be in the way. The card
+ * contract already puts the decision here: "A card is an entry point. It emits;
+ * the gallery decides what that means." A card that opened its own info panel
+ * would have decided, and the picker would have no way to opt out.
+ */
 async function selectBot(id: number) {
   if (isDropdownMode.value) {
     await botStore.selectBot(id)
     return
   }
 
-  await launchBotById(id)
+  infoBotId.value = id
+}
+
+const infoBotId = ref<number | null>(null)
+const infoEditing = ref(false)
+
+const infoBot = computed(
+  () => botStore.bots.find((entry) => entry.id === infoBotId.value) ?? null,
+)
+
+/*
+ * The id IS the open state -- one source of truth rather than a boolean that
+ * can disagree with it. Only the false direction is writable, because the flip
+ * closes itself (Escape, the backdrop) and needs somewhere to put that.
+ */
+const infoOpen = computed({
+  get: () => infoBotId.value !== null,
+  set: (value: boolean) => {
+    if (!value) {
+      infoBotId.value = null
+      infoEditing.value = false
+    }
+  },
+})
+
+const infoBotBadges = computed(() => {
+  const bot = infoBot.value
+  if (!bot) return []
+
+  return [bot.BotType, bot.isPublic ? 'Public' : 'Private']
+    .filter((entry): entry is string => Boolean(entry))
+    .map(String)
+})
+
+const canEditInfoBot = computed(() => {
+  const bot = infoBot.value
+  if (!bot) return false
+  return userStore.isAdmin || bot.userId === userStore.userId
+})
+
+/*
+ * add-bot edits whatever botStore is holding, so entering edit mode has to
+ * load the record FIRST -- opening the form against a stale editing target is
+ * how you save changes onto the wrong Bot.
+ */
+watch(infoEditing, async (isEditing) => {
+  if (!isEditing || !infoBotId.value) return
+  await botStore.startEditingBot(infoBotId.value)
+})
+
+/*
+ * Interact LEAVES. The chat surface is a working space and a centred modal is
+ * the wrong frame for it, so the panel closes and the interact tier takes over
+ * the page exactly as it did when a card click went straight there. Closing
+ * first means the flip plays out rather than being unmounted underneath the
+ * navigation.
+ */
+async function interactWithInfoBot() {
+  const id = infoBotId.value
+  infoOpen.value = false
+  if (id) await launchBotById(id)
 }
 
 function startAddingBot() {

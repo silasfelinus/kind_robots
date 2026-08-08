@@ -77,8 +77,9 @@
       <!--
         PERSONAL NOTE PLACEHOLDER
         Silas writes this section himself (conductor: mermaids-of-venice t-002).
-        Replace the placeholder paragraph below with his note, verbatim, and
-        remove the "coming soon" styling.
+        Filled with lorem ipsum at Silas's own direction ("just lorem ipsum it
+        for now") while he writes the real note. Replace the paragraph below
+        with his note, verbatim, and remove the "coming soon" styling.
       -->
       <div
         class="mb-4 rounded-2xl border border-dashed border-base-300 bg-base-100 p-5 shadow-sm"
@@ -96,8 +97,11 @@
           </h2>
         </div>
         <p class="text-sm italic leading-relaxed text-base-content/50">
-          Silas is writing this note himself, in his own hand, like everything
-          else here worth reading. It will appear soon.
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
+          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+          ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+          aliquip ex ea commodo consequat — Silas's real note will replace
+          this placeholder soon.
         </p>
       </div>
 

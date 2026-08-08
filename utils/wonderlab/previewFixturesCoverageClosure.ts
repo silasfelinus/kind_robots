@@ -282,6 +282,19 @@ const fixtures: Record<string, WonderLabPreviewFixture> = {
     skipReason:
       'Chat Card resolves participant identities and artwork through User, Bot, Character, and Art stores, marks messages read, and exposes reply/delete actions. It needs a seeded messaging fixture with actions disabled before standalone previewing is safe.',
   },
+  'kr-stat-tile': {
+    title: 'Stat Tile specimen',
+    description:
+      'A single DaisyUI stat tile -- title, value, and an optional description -- with an optional tone that colors the value. Presentational, reads no store.',
+    viewport: 'mobile',
+    minHeight: '10rem',
+    props: {
+      title: 'Shared routes',
+      value: 6,
+      desc: 'Groups using ?tab= addressing',
+      tone: 'secondary',
+    },
+  },
 }
 
 function normalizeFixtureKey(value: string): string {

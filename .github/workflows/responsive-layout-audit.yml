@@ -101,14 +101,28 @@ jobs:
 
           if [ "$EVENT_NAME" = "deployment_status" ] && [ -n "${DEPLOY_REF:-}" ] && [ -n "${DEPLOY_SHA:-}" ]; then
             branch="$DEPLOY_REF"
-            remote_sha="$(git ls-remote --heads origin "$branch" | awk 'NR == 1 {print $1}')"
 
-            if [ -z "$remote_sha" ]; then
-              echo "Skipping deployment ${DEPLOY_SHA:0:7}: source branch ${branch} no longer exists."
-              run_audit=false
-            elif [ "$remote_sha" != "$DEPLOY_SHA" ]; then
-              echo "Skipping superseded deployment ${DEPLOY_SHA:0:7}: ${branch} is now ${remote_sha:0:7}."
-              run_audit=false
+            if [[ "$branch" =~ ^[0-9a-f]{40}$ ]]; then
+              # Vercel sometimes sets the GitHub Deployment's `ref` to the
+              # commit SHA instead of the source branch name (observed
+              # 2026-08-08, kind_robots PR #1592: the run's own head_branch
+              # metadata correctly showed the real branch, but
+              # github.event.deployment.ref was the raw SHA) -- there's no
+              # branch tip to compare against in that case, so skip the
+              # staleness check entirely and just run the audit. Silently
+              # treating this as "branch no longer exists" made every such
+              # deployment a false-green skip with no audit ever run.
+              echo "Deployment ref is a commit SHA, not a branch name -- running the audit against ${DEPLOY_SHA:0:7} directly."
+            else
+              remote_sha="$(git ls-remote --heads origin "$branch" | awk 'NR == 1 {print $1}')"
+
+              if [ -z "$remote_sha" ]; then
+                echo "Skipping deployment ${DEPLOY_SHA:0:7}: source branch ${branch} no longer exists."
+                run_audit=false
+              elif [ "$remote_sha" != "$DEPLOY_SHA" ]; then
+                echo "Skipping superseded deployment ${DEPLOY_SHA:0:7}: ${branch} is now ${remote_sha:0:7}."
+                run_audit=false
+              fi
             fi
           fi
 

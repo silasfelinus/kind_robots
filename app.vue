@@ -7,6 +7,18 @@
     :data-kr-backdrop="hasPageBackdrop ? '' : undefined"
   >
     <!--
+      ai-art-academy/t-062+t-063: @vite-pwa/nuxt does not inject the
+      <link rel="manifest"> tag automatically -- it only ships one via this
+      renderless component (module source: dist/runtime/components/
+      VitePwaManifest.js), which nuxt.config.ts's `pwa` block never mounted
+      anywhere. Without a linked manifest, browsers never satisfy the
+      installability criteria and `beforeinstallprompt` never fires, even
+      though /manifest.webmanifest itself resolves fine. Renders nothing;
+      mount once, root-level, so every route gets the link.
+    -->
+    <VitePwaManifest />
+
+    <!--
       FULL PAGE, not just the content well. Silas, 2026-08-06: "I'm more
       interested in why we aren't doing backgrounds from the full page spread,
       and instead still starting in main content, so the dashboard section and
@@ -221,8 +233,8 @@ const pageStore = usePageStore()
 const hasPageBackdrop = computed(() =>
   Boolean(
     pageStore.backgroundMobile ||
-      pageStore.backgroundTablet ||
-      pageStore.backgroundDesktop,
+    pageStore.backgroundTablet ||
+    pageStore.backgroundDesktop,
   ),
 )
 const navStore = useNavStore()

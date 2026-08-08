@@ -1,17 +1,21 @@
 // /scripts/generate_facet_art.ts
 //
-// Audits the complete active Facet catalog and creates durable, deduplicated
-// ArtJobs for every missing Facet image, icon, card, and hero slot.
-// Structural oddities are reported and skipped rather than rewarded with art.
-// Existing curated artwork is never replaced.
+// Audits the complete active Facet catalog and creates durable ArtJobs for
+// uncovered Facets. Baseline mode intentionally queues ONE useful image per
+// Facet; purpose-built card/hero/icon renders are optional enhancements and are
+// only backfilled with --all-variants. Structural oddities are reported and
+// skipped rather than rewarded with art. Existing curated artwork is never
+// replaced.
 //
 // Usage:
 //   npx tsx scripts/generate_facet_art.ts
 //   npx tsx scripts/generate_facet_art.ts --write
+//   npx tsx scripts/generate_facet_art.ts --write --all-variants
 
 import 'dotenv/config'
 import { fileURLToPath } from 'node:url'
 import { buildKrea2WorkflowFromRequest } from '../server/api/comfy/krea2/utils/workflow'
+import { assertArtPromptContract } from '../server/utils/artPromptContract'
 import { enrichArtJobPayload } from '../server/utils/artJobProvenance'
 import {
   auditFacetCatalog,
@@ -23,48 +27,54 @@ import {
 } from './lib/databaseRetry'
 
 const WRITE = process.argv.includes('--write')
+const ALL_VARIANTS = process.argv.includes('--all-variants')
 const PROJECT_SLUG = 'facet-catalog'
-const FACET_ART_VERSION = 'facet-multi-art-krea2-v2'
+const FACET_ART_VERSION = 'facet-coverage-krea2-v3'
 
+// Order matters. It is the same coverage fallback contract used by the UI and
+// claim-time deduper: a general image is most reusable, then card, hero, icon.
 const ART_VARIANTS = [
   {
     field: 'imagePath',
-    label: 'primary square catalog artwork',
+    label: 'square catalog illustration',
     width: 1024,
     height: 1024,
     composition:
       'One decisive square composition with excellent thumbnail readability.',
   },
   {
-    field: 'iconPath',
-    label: 'icon logo artwork',
-    width: 256,
-    height: 256,
-    composition:
-      'A bold logo-like emblem with a clean silhouette and no written text.',
-  },
-  {
     field: 'cardPath',
-    label: 'portrait card artwork',
+    label: 'vertical 2:3 catalog illustration',
     width: 512,
     height: 768,
     composition:
-      'A vertical 2:3 composition with clear foreground, middle ground, and room for card chrome.',
+      'A vertical 2:3 composition with clear foreground, middle ground, and breathing room around the focal subject.',
   },
   {
     field: 'heroPath',
-    label: 'wide hero artwork',
+    label: 'wide cinematic illustration',
     width: 1280,
     height: 720,
     composition:
       'A cinematic 16:9 composition with the focal subject safely inside the center region.',
   },
+  {
+    field: 'iconPath',
+    label: 'compact emblem illustration',
+    width: 256,
+    height: 256,
+    composition:
+      'A bold square emblem with a clean silhouette and simple readable forms.',
+  },
 ] as const
 
 type FacetArtField = (typeof ART_VARIANTS)[number]['field']
 type FacetArtVariant = (typeof ART_VARIANTS)[number]
-const NEGATIVE_PROMPT =
-  'readable text, caption, watermark, signature, logo, UI, frame, border, duplicate subject, cropped subject, illegible anatomy'
+
+// Krea 2 Turbo runs at cfg 1, where negative conditioning is effectively inert.
+// Keep the negative prompt empty and put the wanted visual result in positive
+// language instead of feeding the model a pile of unwanted nouns.
+const NEGATIVE_PROMPT = ''
 
 const BLOCKING_REASON_CODES = new Set([
   'missing-profile',
@@ -252,9 +262,9 @@ export function buildFacetVariantPrompt(
   const label = profile.groupLabel || profile.taxonomy.replaceAll('_', ' ')
   return [
     identityPrompt,
-    `Create this as ${variant.label} for Kind Robots ${label}: ${facet.title}.`,
+    `Create a ${variant.label} for Kind Robots ${label}: ${facet.title}.`,
     variant.composition,
-    'Polished fantasy-software illustration, rich controlled lighting, crisp subject separation, no text, no watermark.',
+    'Polished fantasy-software illustration, rich controlled lighting, crisp subject separation, clean unmarked surfaces.',
   ].join('\n\n')
 }
 
@@ -289,6 +299,16 @@ export function buildFacetArtPayload(
     identityPrompt,
     variant,
   )
+
+  // This producer writes ArtJobs directly, so enforce the same model contract
+  // used by the API before anything reaches the queue ledger.
+  assertArtPromptContract({
+    prompt: promptString,
+    engine: 'krea2',
+    steps: 8,
+    cfg: 1,
+  })
+
   const { workflow, seed } = buildKrea2WorkflowFromRequest({
     prompt: promptString,
     negativePrompt: NEGATIVE_PROMPT,
@@ -329,6 +349,7 @@ export function buildFacetArtPayload(
         groupKey: profile.groupKey,
         sourceRank: profile.sourceRank,
         variant: variant.field,
+        coverageMode: ALL_VARIANTS ? 'all-variants' : 'baseline',
       },
     },
     {
@@ -418,11 +439,14 @@ async function main(): Promise<void> {
         }),
         prisma.facetArtImage.findMany({ select: { facetId: true } }),
         prisma.facetArtCollection.findMany({ select: { facetId: true } }),
+        // Reuse ANY active Facet ArtJob, including v2 backlog rows. Changing the
+        // producer version must not make the maintenance task forget work that
+        // is already queued or rendering.
         prisma.artJob.findMany({
           where: {
             projectSlug: PROJECT_SLUG,
             status: { in: ['PENDING', 'RUNNING'] },
-            payload: { contains: facetArtVersionMarker() },
+            payload: { contains: '"entityType":"facet"' },
           },
           select: { id: true, status: true, payload: true },
         }),
@@ -533,6 +557,8 @@ async function main(): Promise<void> {
         }
 
         const identityPrompt = buildFacetIdentityPrompt(facet, profile)
+
+        // Count what exists independently of what we decide to enqueue.
         for (const variant of ART_VARIANTS) {
           const primaryLinked = Boolean(
             variant.field === 'imagePath' &&
@@ -543,8 +569,48 @@ async function main(): Promise<void> {
               variant.field,
               (available.get(variant.field) ?? 0) + 1,
             )
+          }
+        }
+
+        if (!ALL_VARIANTS) {
+          const hasDisplayArt = Boolean(
+            clean(facet.imagePath) ||
+              clean(facet.cardPath) ||
+              clean(facet.heroPath) ||
+              clean(facet.iconPath) ||
+              facet.artImageId !== null ||
+              linkedPrimaryArt.has(facet.id),
+          )
+          if (hasDisplayArt) continue
+
+          // Any already-active shape can satisfy baseline coverage once it
+          // finishes. Prefer the same fallback order so reporting is stable.
+          const pendingVariant = ART_VARIANTS.find((variant) =>
+            pendingFacetFields.has(`${facet.id}:${variant.field}`),
+          )
+          if (pendingVariant) {
+            reused.push({ id: facet.id, field: pendingVariant.field })
             continue
           }
+
+          // imagePath is the most reusable general-purpose baseline.
+          queue.push({
+            facet,
+            profile,
+            identityPrompt,
+            variant: ART_VARIANTS[0],
+          })
+          continue
+        }
+
+        // Explicit enhancement mode: fill every purpose-built slot that is
+        // still missing. This is intentionally NOT the weekly/default policy.
+        for (const variant of ART_VARIANTS) {
+          const primaryLinked = Boolean(
+            variant.field === 'imagePath' &&
+            (facet.artImageId !== null || linkedPrimaryArt.has(facet.id)),
+          )
+          if (clean(facet[variant.field]) || primaryLinked) continue
           if (pendingFacetFields.has(`${facet.id}:${variant.field}`)) {
             reused.push({ id: facet.id, field: variant.field })
             continue
@@ -592,7 +658,7 @@ async function main(): Promise<void> {
         }
 
         console.log(
-          `Facet art: ${inserted} variant job(s) queued, ${reused.length} pending job(s) reused, ${blocked.length} entry/entries held for catalog review.`,
+          `Facet art: ${inserted} ${ALL_VARIANTS ? 'variant' : 'baseline'} job(s) queued, ${reused.length} active job(s) reused, ${blocked.length} entry/entries held for catalog review.`,
         )
       }
 
@@ -600,6 +666,7 @@ async function main(): Promise<void> {
         JSON.stringify(
           {
             mode: WRITE ? 'write' : 'dry-run',
+            coverageMode: ALL_VARIANTS ? 'all-variants' : 'baseline',
             projectSlug: PROJECT_SLUG,
             version: FACET_ART_VERSION,
             fields: ART_VARIANTS.map((variant) => variant.field),
@@ -615,11 +682,12 @@ async function main(): Promise<void> {
             blocked: blocked.slice(0, 100),
             policy: {
               qualityGate:
-                'Do not generate art for duplicate, malformed, composite, taxonomy-leaking, cargo-cult, or unreviewed legacy Facets.',
-              scope:
-                'Queue every missing imagePath, iconPath, cardPath, and heroPath independently without replacing curated art.',
+                'Validate Krea 2 prompts before enqueue; do not generate art for duplicate, malformed, composite, taxonomy-leaking, cargo-cult, or unreviewed legacy Facets.',
+              scope: ALL_VARIANTS
+                ? 'Explicit enhancement mode: queue every missing imagePath, cardPath, heroPath, and iconPath without replacing curated art.'
+                : 'Coverage-first mode: queue at most one imagePath job for a Facet with no display art and no active Facet ArtJob.',
               dedupe:
-                'Reuse current-version PENDING or RUNNING jobs per Facet and field; a missing image after a completed job may be repaired by a new job.',
+                'Reuse any PENDING or RUNNING Facet ArtJob regardless of artwork-version marker; claim-time reconciliation remains the final concurrency guard.',
             },
           },
           null,

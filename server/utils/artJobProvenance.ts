@@ -139,6 +139,46 @@ export function extractWorkflowTextCandidates(workflow: unknown): string[] {
   return [...new Set(values)].sort()
 }
 
+export function extractWorkflowPositivePromptCandidates(
+  workflow: unknown,
+): string[] {
+  const values: string[] = []
+
+  for (const nodeValue of Object.values(asRecord(workflow))) {
+    const node = asRecord(nodeValue)
+    const classType = String(node.class_type || '')
+    const inputs = asRecord(node.inputs)
+    const title = normalizeArtPrompt(asRecord(node._meta).title).toLowerCase()
+
+    if (title.includes('negative')) continue
+
+    const add = (value: unknown) => {
+      const prompt = normalizeArtPrompt(value)
+      if (prompt) values.push(prompt)
+    }
+
+    if (classType === 'CLIPTextEncode') {
+      add(inputs.text)
+      continue
+    }
+
+    if (classType === 'ImpactWildcardEncode') {
+      add(inputs.wildcard_text)
+      add(inputs.populated_text)
+      continue
+    }
+
+    if (
+      classType === 'PrimitiveStringMultiline' &&
+      title.includes('prompt')
+    ) {
+      add(inputs.value)
+    }
+  }
+
+  return [...new Set(values)].sort()
+}
+
 export function extractWorkflowModels(workflow: unknown): string[] {
   const values: string[] = []
 
@@ -155,9 +195,25 @@ export function extractWorkflowModels(workflow: unknown): string[] {
 }
 
 function requestPrompt(payload: ArtJobPayloadRecord): string {
-  return normalizeArtPrompt(
+  const explicit = normalizeArtPrompt(
     payload.promptString || payload.artPrompt || payload.prompt,
   )
+  if (explicit) return explicit
+
+  const workflowCandidates = extractWorkflowPositivePromptCandidates(
+    payload.workflow,
+  )
+  if (workflowCandidates.length === 1) return workflowCandidates[0]!
+
+  if (workflowCandidates.length > 1) {
+    throw createError({
+      statusCode: 400,
+      message:
+        'ArtJob payload is missing promptString and the workflow contains multiple distinct positive prompts. Refusing to guess which prompt owns the render.',
+    })
+  }
+
+  return ''
 }
 
 function cleanIdempotencyKey(value: unknown): string | null {

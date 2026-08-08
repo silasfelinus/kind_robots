@@ -84,12 +84,39 @@ const CANVAS: Record<
  * Tidefortune Ladle on 2026-08-08 — see server/utils/artPromptContract.ts,
  * which now rejects this phrasing at enqueue.
  */
-// Scoped to PEOPLE on purpose, not to everything alive. Several scenes want
-// fauna or props — butterflies on taskmaster, jellyfish drifters on dreams,
-// half-assembled robots on the workbenches of bots — and a blanket "no
-// creatures, no robots" would fight the very scene it is wrapped around. What
-// broke the batch was a cast of characters, so that is what this excludes.
-const STYLE = `Create one standalone environment illustration to be used as a full-bleed page background for the Kind Robots web app. This is SCENERY: interface panels, cards and toolbars will be drawn on top of it, so the composition must stay open and calm through the centre of the canvas and carry its interest at the edges. Painted storybook-illustration style with cinematic depth, warm inviting light, soft atmospheric haze in the distance, and rich but unfussy detail. The place is empty of inhabitants — no people, no figures, no characters, no faces, no crowd, an unpeopled setting waiting to be entered. No central subject and no single dominant focal point; every surface unmarked and free of text.`
+// Split in two on purpose. CONTRACT is what makes an image usable as a
+// backdrop at all — scenery, quiet centre, unpeopled, unmarked — and no page
+// may opt out of it. AESTHETIC is only the look, and a page whose content
+// wants a different register can replace it (see PageSeed.aesthetic).
+//
+// The split exists because the alternative is a per-page override of the whole
+// block, and the first thing such an override would silently drop is the
+// unpeopled rule. That is the exact bug this file just shipped 222 times; it
+// should not be one copy-paste away from returning.
+//
+// The unpeopled rule is scoped to PEOPLE, not to everything alive. Several
+// scenes want fauna or props — butterflies on taskmaster, jellyfish drifters on
+// dreams, half-assembled robots on the workbenches of bots — and a blanket "no
+// creatures, no robots" would fight the very scene it wraps.
+const CONTRACT = `Create one standalone environment illustration to be used as a full-bleed page background for the Kind Robots web app. This is SCENERY: interface panels, cards and toolbars will be drawn on top of it, so the composition must stay open and calm through the centre of the canvas and carry its interest at the edges. The place is empty of inhabitants — no people, no figures, no characters, no faces, no crowd, an unpeopled setting waiting to be entered. No central subject and no single dominant focal point; every surface unmarked and free of text.`
+
+const HOUSE_AESTHETIC = `Painted storybook-illustration style with cinematic depth, warm inviting light, soft atmospheric haze in the distance, and rich but unfussy detail.`
+
+/**
+ * The house aesthetic is a children's-picture-book register, and it is right
+ * for almost every page here. It is wrong for `mermaids`, which fronts Silas's
+ * novel — "Mermaids of Venice: a subversive tale of gods and street
+ * performers", six years of work for adult readers.
+ *
+ * Silas, 2026-08-08, on the first batch: *"I don't have a problem with those,
+ * only the ones that linked to mermaids because it was specifically for an
+ * adult audience."* The acute problem there was the casting clause — the mobile
+ * and tablet backdrops came back lined with small children and toy robots,
+ * which is not art for that book. Removing the cast is necessary and not
+ * sufficient: "friendly, playful, warm inviting light" would still render a
+ * kids' game menu behind an adult novel.
+ */
+const NOVEL_AESTHETIC = `Painted in the manner of a literary book jacket: oil-like brushwork, restrained and moody, deep shadow with a narrow shaft of cold light, muted desaturated colour with one low ember accent, weathered and lived-in surfaces, unsentimental. Adult in register — not whimsical, not cute, not a children's picture book.`
 
 const NEGATIVE_PROMPT = `text, caption, lettering, signage, logo, watermark, signature, border, frame, panel, collage, grid, contact sheet, ui mockup, interface elements, buttons, strong central subject, centered portrait, close-up face, busy cluttered centre, high-contrast centre, harsh clutter, photorealism, low detail, blurry, jpeg artifacts`
 
@@ -98,6 +125,13 @@ type PageSeed = {
   title: string
   /** The setting. Written to survive all three framings. */
   scene: string
+  /**
+   * Replaces HOUSE_AESTHETIC for this page only. For pages whose content sits
+   * in a different register than the rest of the app — today that is `mermaids`
+   * and its adult novel. It cannot reach CONTRACT, so an override can restyle a
+   * backdrop but never un-scenery it or put people back in.
+   */
+  aesthetic?: string
 }
 
 /**
@@ -389,8 +423,13 @@ const PAGES: PageSeed[] = [
   {
     page: 'mermaids',
     title: 'Mermaids — The Lagoon',
+    // Grounded in the page's own frontmatter — room "Mermaids of Venice",
+    // subtitle "A subversive tale of gods and street performers" — rather than
+    // the generic lagoon the first batch used. A backdrop for a novel should
+    // look like that novel.
     scene:
-      'A moonlit lagoon of bioluminescent water, kelp columns and coral arches, silver fish threading through. Mysterious and cool-toned.',
+      'A Venetian back canal after midnight, black water lying flat between old stone walls streaked with salt and algae. A low bridge, a shuttered doorway half a step above the waterline, a moored boat knocking against its post. One lamp burns somewhere out of frame and lays a long cold reflection down the water. Drifting sea-fog, wet stone, a few pale fish holding still under the surface.',
+    aesthetic: NOVEL_AESTHETIC,
   },
   {
     page: 'messages',
@@ -568,7 +607,12 @@ const PAGES: PageSeed[] = [
 // the positive prompt, to a Qwen-Image-lineage model that renders text better
 // than anything else open. The framing sentence says the same thing in words.
 function buildPrompt(seed: PageSeed, variant: BackdropVariant): string {
-  return [STYLE, CANVAS[variant].framing, `Scene: ${seed.scene}`].join('\n\n')
+  return [
+    CONTRACT,
+    seed.aesthetic ?? HOUSE_AESTHETIC,
+    CANVAS[variant].framing,
+    `Scene: ${seed.scene}`,
+  ].join('\n\n')
 }
 
 export const pageBackdropArtPrompts: PageBackdropArtPrompt[] = PAGES.flatMap(

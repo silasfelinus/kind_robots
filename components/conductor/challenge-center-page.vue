@@ -26,7 +26,7 @@
               <Icon name="kind-icon:trophy" class="size-8 text-primary" />
             </div>
 
-            <div class="min-w-0 flex-1">
+            <div class="min-w-0 flex-1 basis-full sm:basis-auto">
               <p
                 class="text-xs font-black uppercase tracking-[0.28em] text-primary"
               >

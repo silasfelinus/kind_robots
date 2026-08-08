@@ -98,7 +98,7 @@
       {{ emptyState }}
     </div>
 
-    <div v-else class="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+    <div v-else class="grid gap-2 md:grid-cols-2">
       <button
         v-if="allowEmpty"
         type="button"

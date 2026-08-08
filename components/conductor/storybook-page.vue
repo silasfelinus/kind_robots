@@ -14,7 +14,7 @@
       >
         <Icon name="kind-icon:book" class="size-6" />
       </div>
-      <div class="min-w-0 flex-1">
+      <div class="min-w-0 flex-1 basis-full sm:basis-auto">
         <p class="text-2xl font-black leading-tight">
           Build a world, then step inside it
         </p>

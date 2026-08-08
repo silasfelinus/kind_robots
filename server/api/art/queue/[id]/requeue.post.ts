@@ -11,7 +11,7 @@ import prisma from '../../../../utils/prisma'
 import { errorHandler } from '../../../../utils/error'
 import { requireMachineUser } from '../../../../utils/authGuard'
 import { serializeArtJobPayload } from '../../../../utils/artJobPayload'
-import { refreshArtJobLoraResources } from '../../../../utils/artJobResourceRefresh'
+import { refreshArtJobResources } from '../../../../utils/artJobResourceRefresh'
 
 type RequeueBody = {
   resetAttempts?: boolean
@@ -50,11 +50,13 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const resourceRefresh = await refreshArtJobLoraResources(job.payload)
+    const resourceRefresh = await refreshArtJobResources(job.payload)
     const payload = resourceRefresh.payload
     payload.queueRepair = {
       repairedAt: new Date().toISOString(),
-      loraPathChanged: resourceRefresh.changed,
+      resourcePathsChanged: resourceRefresh.changed,
+      checkpointResourceId: resourceRefresh.checkpointResourceId,
+      checkpointName: resourceRefresh.checkpointName,
       loraResourceIds: resourceRefresh.loraResourceIds,
       loraNames: resourceRefresh.loraNames,
     }
@@ -74,11 +76,13 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: resourceRefresh.changed
-        ? `Job ${id} repaired from its current LoRA Resource and requeued (attempts ${updated.attempts}).`
+        ? `Job ${id} repaired from its current Resources and requeued (attempts ${updated.attempts}).`
         : `Job ${id} requeued (attempts ${updated.attempts}).`,
       data: {
         job: updated,
-        loraPathChanged: resourceRefresh.changed,
+        resourcePathsChanged: resourceRefresh.changed,
+        checkpointResourceId: resourceRefresh.checkpointResourceId,
+        checkpointName: resourceRefresh.checkpointName,
         loraResourceIds: resourceRefresh.loraResourceIds,
         loraNames: resourceRefresh.loraNames,
       },

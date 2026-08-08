@@ -11,7 +11,10 @@ import prisma from '../../../../utils/prisma'
 import { errorHandler } from '../../../../utils/error'
 import { requireMachineUser } from '../../../../utils/authGuard'
 import { serializeArtJobPayload } from '../../../../utils/artJobPayload'
-import { refreshArtJobResources } from '../../../../utils/artJobResourceRefresh'
+import {
+  refreshArtJobCheckpointResource,
+  refreshArtJobLoraResources,
+} from '../../../../utils/artJobResourceRefresh'
 
 type RequeueBody = {
   resetAttempts?: boolean
@@ -50,15 +53,17 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const resourceRefresh = await refreshArtJobResources(job.payload)
-    const payload = resourceRefresh.payload
+    const checkpointRefresh = await refreshArtJobCheckpointResource(job.payload)
+    const loraRefresh = await refreshArtJobLoraResources(checkpointRefresh.payload)
+    const resourcePathsChanged = checkpointRefresh.changed || loraRefresh.changed
+    const payload = loraRefresh.payload
     payload.queueRepair = {
       repairedAt: new Date().toISOString(),
-      resourcePathsChanged: resourceRefresh.changed,
-      checkpointResourceId: resourceRefresh.checkpointResourceId,
-      checkpointName: resourceRefresh.checkpointName,
-      loraResourceIds: resourceRefresh.loraResourceIds,
-      loraNames: resourceRefresh.loraNames,
+      resourcePathsChanged,
+      checkpointResourceId: checkpointRefresh.checkpointResourceId,
+      checkpointName: checkpointRefresh.checkpointName,
+      loraResourceIds: loraRefresh.loraResourceIds,
+      loraNames: loraRefresh.loraNames,
     }
 
     const updated = await prisma.artJob.update({
@@ -75,16 +80,16 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      message: resourceRefresh.changed
+      message: resourcePathsChanged
         ? `Job ${id} repaired from its current Resources and requeued (attempts ${updated.attempts}).`
         : `Job ${id} requeued (attempts ${updated.attempts}).`,
       data: {
         job: updated,
-        resourcePathsChanged: resourceRefresh.changed,
-        checkpointResourceId: resourceRefresh.checkpointResourceId,
-        checkpointName: resourceRefresh.checkpointName,
-        loraResourceIds: resourceRefresh.loraResourceIds,
-        loraNames: resourceRefresh.loraNames,
+        resourcePathsChanged,
+        checkpointResourceId: checkpointRefresh.checkpointResourceId,
+        checkpointName: checkpointRefresh.checkpointName,
+        loraResourceIds: loraRefresh.loraResourceIds,
+        loraNames: loraRefresh.loraNames,
       },
       statusCode: 200,
     }

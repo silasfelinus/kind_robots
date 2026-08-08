@@ -3,9 +3,12 @@ import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 
 const scriptUrl = new URL('../../scripts/provision-agent-db-lane.sh', import.meta.url)
+const tuningUrl = new URL('../../scripts/tune-agent-database-url.sh', import.meta.url)
 const source = readFileSync(scriptUrl, 'utf8')
+const tuningSource = readFileSync(tuningUrl, 'utf8')
 
 execFileSync('bash', ['-n', scriptUrl.pathname], { stdio: 'inherit' })
+execFileSync('bash', ['-n', tuningUrl.pathname], { stdio: 'inherit' })
 
 assert.match(source, /MODE='dry-run'/)
 assert.match(source, /AGENT_DB_USER="\$\{AGENT_DB_USER:-kindrobot_agent\}"/)
@@ -57,5 +60,23 @@ assert.doesNotMatch(source, /printf[^\n]*(AGENT_DB_PASSWORD|agent_url)/)
 
 assert.match(source, /replace Claude's existing DATABASE_URL with the AGENT_DATABASE_URL value/)
 assert.match(source, /Do not give Claude MIGRATION_DATABASE_URL unless intentionally performing a migration/)
+
+assert.match(tuningSource, /AGENT_CLIENT_CONNECTION_LIMIT="\$\{AGENT_CLIENT_CONNECTION_LIMIT:-3\}"/)
+assert.match(tuningSource, /AGENT_CLIENT_MINIMUM_IDLE="\$\{AGENT_CLIENT_MINIMUM_IDLE:-0\}"/)
+assert.match(tuningSource, /AGENT_CLIENT_IDLE_TIMEOUT_SECONDS="\$\{AGENT_CLIENT_IDLE_TIMEOUT_SECONDS:-30\}"/)
+assert.match(tuningSource, /AGENT_CLIENT_ACQUIRE_TIMEOUT_MS="\$\{AGENT_CLIENT_ACQUIRE_TIMEOUT_MS:-10000\}"/)
+assert.match(tuningSource, /AGENT_CLIENT_CONNECT_TIMEOUT_MS="\$\{AGENT_CLIENT_CONNECT_TIMEOUT_MS:-5000\}"/)
+assert.match(tuningSource, /connection limit must not exceed the default six-backend agent lane/)
+assert.match(tuningSource, /url\.searchParams\.set\('connectionLimit'/)
+assert.match(tuningSource, /url\.searchParams\.set\('minimumIdle'/)
+assert.match(tuningSource, /url\.searchParams\.set\('idleTimeout'/)
+assert.match(tuningSource, /url\.searchParams\.set\('acquireTimeout'/)
+assert.match(tuningSource, /url\.searchParams\.set\('connectTimeout'/)
+assert.match(tuningSource, /url\.searchParams\.set\('minDelayValidation', '0'\)/)
+assert.match(tuningSource, /url\.searchParams\.set\('pipelining', 'false'\)/)
+assert.match(tuningSource, /AGENT_DATABASE_URL=\$\{url\.toString\(\)\}/)
+assert.match(tuningSource, /chmodSync\(outputFile, 0o600\)/)
+assert.doesNotMatch(tuningSource, /MIGRATION_DATABASE_URL/)
+assert.doesNotMatch(tuningSource, /console\.log\([^\n]*AGENT_DATABASE_URL/)
 
 console.log('Agent database lane provisioning contract passed.')

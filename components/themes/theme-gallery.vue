@@ -42,11 +42,26 @@
             />
           </label>
 
+          <!--
+            THE COUNTS RIDE THE FILTERS. Each button carries the size of the
+            group it selects, which is the same relationship the Projects
+            gallery settled on -- Silas, 2026-08-07, of a row of standing
+            count badges beside their own filter buttons: "none of those need
+            to be said, they are just duplicates of the same outputs better
+            done as toggles to actually select the appropriate group right
+            after it."
+
+            So `Default 32` is both the number and the control that shows you
+            those 32, and the separate default/shared/showing badge strip below
+            is gone. `All` carries the showing count, because "showing" and
+            "all" are the same number exactly when All is lit -- and when it is
+            not, the lit button is the count.
+          -->
           <div class="join">
             <button
               v-for="filter in themeFilters"
               :key="filter.value"
-              class="btn join-item btn-sm rounded-2xl"
+              class="btn join-item btn-sm gap-1 rounded-2xl"
               :class="
                 activeFilter === filter.value
                   ? 'btn-primary'
@@ -56,6 +71,9 @@
               @click="activeFilter = filter.value"
             >
               {{ filter.label }}
+              <span class="font-black opacity-70">
+                {{ filterCounts[filter.value] }}
+              </span>
             </button>
           </div>
 
@@ -65,28 +83,6 @@
           >
             <Icon name="kind-icon:check" class="h-3.5 w-3.5 shrink-0" />
             <span class="truncate">{{ activeThemeName }}</span>
-          </span>
-
-          <!--
-            THREE BADGES, NOT A STATS BAND. These counts used to be a
-            `grid-cols-3 divide-x` strip with its own top border -- a full row,
-            each cell a big number stacked over a tiny uppercase caption, for
-            three integers. Silas, 2026-08-07: "one devoted to the output count:
-            default, shared, showing, that's a lot of real estate for something
-            that could share the row above it."
-
-            Same three numbers, same order, on the line that was already here.
-          -->
-          <span class="flex flex-wrap items-center gap-1 text-xs">
-            <span class="badge badge-primary badge-sm rounded-lg">
-              {{ filteredDaisyThemes.length }} default
-            </span>
-            <span class="badge badge-secondary badge-sm rounded-lg">
-              {{ filteredSharedThemes.length }} shared
-            </span>
-            <span class="badge badge-accent badge-sm rounded-lg">
-              {{ visibleThemeCount }} showing
-            </span>
           </span>
         </div>
       </div>
@@ -108,29 +104,25 @@
           v-if="showDefaultThemes"
           class="rounded-2xl border border-base-300 bg-base-100 p-3 shadow"
         >
-          <div class="mb-3 flex items-center justify-between gap-3">
-            <div class="flex min-w-0 items-center gap-2">
-              <span
-                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary"
-              >
-                <Icon name="kind-icon:palette" class="h-4 w-4" />
-              </span>
+          <!--
+            A SEPARATOR, ONLY WHEN THERE IS SOMETHING TO SEPARATE. This was an
+            icon tile, an `<h2>`, a subtitle and a count badge -- a full band
+            above the first swatch, and the third stacked heading on the route
+            after kr-manager's panel title and this gallery's own header.
 
-              <div class="min-w-0">
-                <h2 class="truncate text-base font-black text-base-content">
-                  Default Themes
-                </h2>
-
-                <p class="truncate text-xs text-base-content/55">
-                  Built-in DaisyUI palettes.
-                </p>
-              </div>
-            </div>
-
-            <span class="badge badge-primary badge-sm">
-              {{ filteredDaisyThemes.length }}
-            </span>
-          </div>
+            The heading's whole job is to tell two adjacent grids apart, so it
+            renders only when both are on screen (`showBothGroups`). Filter to
+            Default or Shared and the lit button already names what you are
+            looking at, so the band is deleted rather than restyled. The count
+            went to that button; the icon and the subtitle described a grid of
+            palettes that is directly visible underneath.
+          -->
+          <h2
+            v-if="showBothGroups"
+            class="mb-2 truncate text-xs font-black uppercase tracking-wide text-base-content/55"
+          >
+            Default
+          </h2>
 
           <!-- The shared shell owns the grid. The old class was
                `grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5
@@ -220,29 +212,13 @@
           v-if="showSharedThemes"
           class="rounded-2xl border border-base-300 bg-base-100 p-3 shadow"
         >
-          <div class="mb-3 flex items-center justify-between gap-3">
-            <div class="flex min-w-0 items-center gap-2">
-              <span
-                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-secondary/15 text-secondary"
-              >
-                <Icon name="kind-icon:sparkles" class="h-4 w-4" />
-              </span>
-
-              <div class="min-w-0">
-                <h2 class="truncate text-base font-black text-base-content">
-                  Shared Themes
-                </h2>
-
-                <p class="truncate text-xs text-base-content/55">
-                  Community and custom palettes.
-                </p>
-              </div>
-            </div>
-
-            <span class="badge badge-secondary badge-sm">
-              {{ filteredSharedThemes.length }}
-            </span>
-          </div>
+          <!-- Same separator rule as Default above. -->
+          <h2
+            v-if="showBothGroups"
+            class="mb-2 truncate text-xs font-black uppercase tracking-wide text-base-content/55"
+          >
+            Shared
+          </h2>
 
           <!-- Same shell, same six-breakpoint grid retired. Shared themes ARE
                records, so unlike the DaisyUI list above this one looks its
@@ -577,16 +553,25 @@ const showSharedThemes = computed(() => {
   return activeFilter.value === 'all' || activeFilter.value === 'shared'
 })
 
-const visibleThemeCount = computed(() => {
-  const defaultCount = showDefaultThemes.value
-    ? filteredDaisyThemes.value.length
-    : 0
-  const sharedCount = showSharedThemes.value
-    ? filteredSharedThemes.value.length
-    : 0
+/**
+ * Both grids are on screen at once only under `All`, which is the one case
+ * where a per-group heading earns its row.
+ */
+const showBothGroups = computed(
+  () => showDefaultThemes.value && showSharedThemes.value,
+)
 
-  return defaultCount + sharedCount
-})
+/**
+ * The size of the group each filter button selects, keyed by the button's own
+ * value so the template needs no branch. `all` is the sum rather than the total
+ * corpus because these lists are already search-filtered -- it has to answer
+ * "how many will I see if I press this", the same question the other two do.
+ */
+const filterCounts = computed<Record<ThemeFilter, number>>(() => ({
+  all: filteredDaisyThemes.value.length + filteredSharedThemes.value.length,
+  default: filteredDaisyThemes.value.length,
+  shared: filteredSharedThemes.value.length,
+}))
 
 function safeThemeValues(value: unknown): Record<string, string> {
   if (typeof value === 'string') {

@@ -73,8 +73,13 @@ import { applyResolvedCheckpointResourceToArtJobPayload } from '../../server/uti
   )
   assert.match(
     requeue,
-    /await refreshArtJobResources\(/,
-    'Requeue must refresh checkpoint and LoRA Resource paths before returning a job to PENDING.',
+    /await refreshArtJobCheckpointResource\(/,
+    'Requeue must refresh checkpoint Resources before returning a job to PENDING.',
+  )
+  assert.match(
+    requeue,
+    /await refreshArtJobLoraResources\(/,
+    'Requeue must continue refreshing LoRA Resources before returning a job to PENDING.',
   )
 }
 

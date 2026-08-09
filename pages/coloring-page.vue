@@ -7,7 +7,7 @@
   still lives in the Styler tab; this is the one-tap front door.
 -->
 <template>
-  <div class="kr-surface mx-auto w-full max-w-4xl">
+  <div class="kr-surface kr-container max-w-4xl">
     <div class="kr-scroll flex flex-col gap-4 p-4 sm:p-6">
       <header class="flex flex-col gap-2">
         <div class="flex flex-wrap items-center gap-2">

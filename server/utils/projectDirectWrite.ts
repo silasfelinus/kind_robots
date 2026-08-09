@@ -136,3 +136,43 @@ export async function upsertProjectDirect(
     })
   }
 }
+
+export async function createProjectScaffoldTodoDirect(input: {
+  projectId: number
+  title: string
+  description: string
+  workerUserId: number
+}) {
+  const connection = await createDatabaseDirectConnection()
+
+  try {
+    const result = (await connection.query(
+      `INSERT INTO \`Todo\` (` +
+        '`title`, `description`, `status`, `priority`, `category`, `userId`, `projectId`' +
+        `) SELECT ?, ?, 'OPEN', 'HIGH', 'AGENT', ?, ? ` +
+        `WHERE NOT EXISTS (` +
+        `SELECT 1 FROM \`Todo\` WHERE \`projectId\` = ? AND \`title\` = ? AND \`status\` = 'OPEN'` +
+        `)`,
+      [
+        input.title,
+        input.description,
+        input.workerUserId,
+        input.projectId,
+        input.projectId,
+        input.title,
+      ],
+    )) as { insertId?: number | bigint }
+
+    return Number(result.insertId ?? 0) || null
+  } finally {
+    await connection.end().catch((disconnectError: unknown) => {
+      console.warn('[project-todo:direct-mariadb-disconnect-failed]', {
+        projectId: input.projectId,
+        message:
+          disconnectError instanceof Error
+            ? disconnectError.message
+            : String(disconnectError),
+      })
+    })
+  }
+}

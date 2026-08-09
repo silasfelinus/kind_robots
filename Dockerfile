@@ -8,9 +8,8 @@ ENV NUXT_TELEMETRY_DISABLED=1
 
 COPY . .
 
-RUN npm ci
-RUN npx prisma generate
-RUN npm run build
+RUN DATABASE_URL=mysql://kindrobots:build-only@127.0.0.1:3306/kindrobots npm ci
+RUN DATABASE_URL=mysql://kindrobots:build-only@127.0.0.1:3306/kindrobots npm run build
 
 FROM node:24-alpine AS runtime
 

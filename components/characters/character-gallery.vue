@@ -35,6 +35,59 @@
       />
     </section>
 
+    <kr-card-flip
+      v-model="infoCharacterOpen"
+      :label="infoCharacter?.name || 'Character'"
+    >
+      <template #back="{ close, commit }">
+        <kr-card-back
+          v-if="infoCharacter"
+          v-model:editing="infoCharacterEditing"
+          :title="infoCharacter.name || 'Unnamed Character'"
+          :subtitle="infoCharacter.honorific || ''"
+          :description="infoCharacter.backstory || ''"
+          :art-src="infoCharacter.imagePath || ''"
+          :badges="infoCharacterBadges"
+          :can-interact="true"
+          interact-label="Chat"
+          @back="commit"
+          @interact="interactWithInfoCharacter"
+        >
+          <template #details>
+            <dl class="grid grid-cols-2 gap-2 text-xs">
+              <div v-if="infoCharacter.class">
+                <dt class="font-black uppercase opacity-55">Class</dt>
+                <dd>{{ infoCharacter.class }}</dd>
+              </div>
+              <div v-if="infoCharacter.genre">
+                <dt class="font-black uppercase opacity-55">Genre</dt>
+                <dd>{{ infoCharacter.genre }}</dd>
+              </div>
+              <div v-if="infoCharacter.charm">
+                <dt class="font-black uppercase opacity-55">Charm</dt>
+                <dd>{{ infoCharacter.charm }}</dd>
+              </div>
+              <div v-if="infoCharacter.empathy">
+                <dt class="font-black uppercase opacity-55">Empathy</dt>
+                <dd>{{ infoCharacter.empathy }}</dd>
+              </div>
+            </dl>
+          </template>
+        </kr-card-back>
+
+        <div v-else class="p-6 text-center text-sm opacity-60">
+          <p>That Character is no longer available.</p>
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm mt-3 rounded-xl"
+            @click="close"
+          >
+            Close
+          </button>
+        </div>
+      </template>
+    </kr-card-flip>
+
     <section class="min-h-0 flex-1 overflow-auto">
       <div
         v-if="isLoading || characterStore.loading"
@@ -704,8 +757,60 @@ async function refreshCharacters(force = false) {
  * variant interpret the same click differently.
  */
 function openCharacter(id: number) {
-  void characterStore.selectCharacter(id)
+  if (isDropdownMode.value) {
+    void characterStore.selectCharacter(id)
+    return
+  }
+
+  infoCharacterId.value = id
 }
+
+/* Interact LEAVES: the chat surface is a working space, not a panel. */
+function interactWithInfoCharacter() {
+  const id = infoCharacterId.value
+  infoCharacterOpen.value = false
+  if (id) void characterStore.selectCharacter(id)
+}
+
+/*
+ * INFO FIRST, INTERACTION AFTER -- the same frame Bots, Resources, Rewards and
+ * Scenarios use, and the reason kr-card-back is one component rather than one
+ * per gallery.
+ *
+ * THE DROPDOWN BRANCH COMES FIRST. This gallery is also embedded as a PICKER,
+ * where a click has to pick and nothing else. verifyCardActionContract puts
+ * that decision in the gallery -- "A card is an entry point. It emits; the
+ * gallery decides what that means" -- which is what lets browse and picker
+ * disagree about the same click.
+ */
+const infoCharacterId = ref<number | null>(null)
+const infoCharacterEditing = ref(false)
+
+const infoCharacter = computed(
+  () =>
+    characterStore.characters.find(
+      (entry) => entry.id === infoCharacterId.value,
+    ) ?? null,
+)
+
+const infoCharacterOpen = computed({
+  get: () => infoCharacterId.value !== null,
+  set: (value: boolean) => {
+    if (!value) {
+      infoCharacterId.value = null
+      infoCharacterEditing.value = false
+    }
+  },
+})
+
+const infoCharacterBadges = computed(() => {
+  const character = infoCharacter.value
+  if (!character) return []
+
+  return [character.class, character.genre, character.honorific]
+    .map((entry) => String(entry ?? '').trim())
+    .filter((entry) => entry.length > 0)
+})
 
 function selectCharacterFromEvent(event: Event) {
   const target = event.target as HTMLSelectElement

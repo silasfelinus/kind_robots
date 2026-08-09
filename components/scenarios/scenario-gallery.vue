@@ -66,6 +66,58 @@
       <add-scenario :mode="formMode" @saved="handleScenarioSaved" />
     </section>
 
+    <kr-card-flip
+      v-model="infoScenarioOpen"
+      :label="infoScenario?.title || 'Scenario'"
+    >
+      <template #back="{ close, commit }">
+        <kr-card-back
+          v-if="infoScenario"
+          v-model:editing="infoScenarioEditing"
+          :title="infoScenario.title || 'Untitled Scenario'"
+          :description="infoScenario.description || ''"
+          :art-src="infoScenario.imagePath || ''"
+          :badges="infoScenarioBadges"
+          :can-interact="true"
+          interact-label="Play"
+          @back="commit"
+          @interact="interactWithInfoScenario"
+        >
+          <template #details>
+            <dl class="grid grid-cols-2 gap-2 text-xs">
+              <div v-if="infoScenario.locations" class="col-span-2">
+                <dt class="font-black uppercase opacity-55">Locations</dt>
+                <dd class="whitespace-pre-wrap">
+                  {{ infoScenario.locations }}
+                </dd>
+              </div>
+              <div v-if="infoScenario.inspirations" class="col-span-2">
+                <dt class="font-black uppercase opacity-55">Inspirations</dt>
+                <dd class="whitespace-pre-wrap">
+                  {{ infoScenario.inspirations }}
+                </dd>
+              </div>
+              <div v-if="infoScenario.genres">
+                <dt class="font-black uppercase opacity-55">Genres</dt>
+                <dd>{{ infoScenario.genres }}</dd>
+              </div>
+            </dl>
+          </template>
+        </kr-card-back>
+
+        <div v-else class="p-6 text-center text-sm opacity-60">
+          <p>That Scenario is no longer available.</p>
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm mt-3 rounded-xl"
+            @click="close"
+          >
+            Close
+          </button>
+        </div>
+      </template>
+    </kr-card-flip>
+
     <section class="min-h-0 flex-1" :class="isRowMode ? '' : 'overflow-y-auto'">
       <div
         v-if="isLoading"
@@ -569,8 +621,64 @@ async function refreshScenarios(force = false) {
  * already changed before the gallery heard about it. It emits only now.
  */
 function openScenario(id: number) {
-  void scenarioStore.selectScenario(id)
+  if (isDropdownMode.value) {
+    void scenarioStore.selectScenario(id)
+    return
+  }
+
+  infoScenarioId.value = id
 }
+
+/* Interact LEAVES: the story surface is a working space, not a panel. */
+function interactWithInfoScenario() {
+  const id = infoScenarioId.value
+  infoScenarioOpen.value = false
+  if (id) void scenarioStore.selectScenario(id)
+}
+
+/*
+ * INFO FIRST, INTERACTION AFTER -- the same frame Bots, Resources and Rewards
+ * use, and the reason kr-card-back is one component rather than one per
+ * gallery. Picking turns the card over; the thing you came to do is a button
+ * on the back.
+ *
+ * THE DROPDOWN BRANCH COMES FIRST. This gallery is also embedded as a PICKER,
+ * where a click has to pick and nothing else. verifyCardActionContract puts
+ * that decision in the gallery -- "A card is an entry point. It emits; the
+ * gallery decides what that means" -- which is what lets browse and picker
+ * disagree about the same click.
+ *
+ * The id IS the open state so the two cannot drift; only the false direction
+ * is writable, because the flip closes itself on Escape and the backdrop.
+ */
+const infoScenarioId = ref<number | null>(null)
+const infoScenarioEditing = ref(false)
+
+const infoScenario = computed(
+  () =>
+    scenarioStore.scenarios.find(
+      (entry) => entry.id === infoScenarioId.value,
+    ) ?? null,
+)
+
+const infoScenarioOpen = computed({
+  get: () => infoScenarioId.value !== null,
+  set: (value: boolean) => {
+    if (!value) {
+      infoScenarioId.value = null
+      infoScenarioEditing.value = false
+    }
+  },
+})
+
+const infoScenarioBadges = computed(() => {
+  const scenario = infoScenario.value
+  if (!scenario) return []
+
+  return [scenario.genres, scenario.isMature ? '18+' : '']
+    .map((entry) => String(entry ?? '').trim())
+    .filter((entry) => entry.length > 0)
+})
 
 function selectScenarioFromEvent(event: Event) {
   const target = event.target as HTMLSelectElement

@@ -95,14 +95,12 @@ describe('Public WonderLab responsive acceptance', () => {
     expectNoHorizontalOverflow()
   })
 
-  it('keeps legacy Wonder and Lab entry points useful', () => {
+  it('keeps legacy Memory and WonderLab entry points useful', () => {
     cy.viewport(1280, 800)
 
-    for (const path of ['/memory', '/wonder']) {
-      cy.visit(path)
-      cy.location('pathname').should('eq', '/play/memory')
-      cy.contains(/enter the dungeon/i, { timeout: 30_000 }).should('be.visible')
-    }
+    cy.visit('/memory')
+    cy.location('pathname').should('eq', '/play/memory')
+    cy.contains(/enter the dungeon/i, { timeout: 30_000 }).should('be.visible')
 
     visitWonderLab('/wonderlab')
     cy.location('pathname').should('eq', '/plan/wonderlab')

@@ -1,5 +1,5 @@
 <template>
-  <div class="kr-unbound w-full max-w-3xl mx-auto p-6 space-y-8">
+  <div class="kr-unbound kr-container max-w-3xl p-6 space-y-8">
     <div
       v-if="userStore.isGuest"
       class="rounded-2xl border border-accent/30 bg-(--kr-surface) p-6 text-center space-y-3"

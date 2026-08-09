@@ -90,7 +90,7 @@ for (const variant of VARIANTS) {
 
 /**
  * Every key declared in content.config.ts, lowercased. A duplicate here is the
- * 500s-every-page bug the file warns about in prose.
+ * 500s-every-page bug the file warns about in prose only.
  */
 export function collidingSchemaKeys(source: string): string[] {
   const seen = new Map<string, string>()
@@ -362,7 +362,6 @@ const PAGE_ROOTS = [
   'storybook-library-page',
   'taskmaster-page',
   'wallet-page',
-  'wishmaster-page',
 ]
 
 for (const name of PAGE_ROOTS) {
@@ -418,7 +417,7 @@ for (const name of PAGE_ROOTS) {
  * The backdrop makes that visible: app.vue emits no backdrop element at all
  * when the store reports no art, so every load painted a backdrop-less first
  * frame and then popped the art in. Moving the call back inside onMounted would
- * silently restore that flash on every page in the app.
+ * silently restore that flash on every page load.
  */
 {
   const slugPage = withoutComments(read('pages/[...slug].vue'))

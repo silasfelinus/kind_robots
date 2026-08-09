@@ -1,7 +1,7 @@
 <!-- /components/content/giftshop/giftshop-interact.vue -->
 <template>
   <section class="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-    <div class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm">
+    <div class="kr-panel p-4">
       <div class="flex flex-col gap-4">
         <div
           class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
@@ -168,7 +168,7 @@
       </div>
     </div>
 
-    <aside class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm">
+    <aside class="kr-panel p-4">
       <div class="flex items-center justify-between gap-3">
         <div>
           <h3 class="text-xl font-black text-primary">Cart Nest</h3>

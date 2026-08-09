@@ -236,6 +236,9 @@ model Character {
   Rewards              Reward[]               @relation("CharacterToReward")
   Scenarios            Scenario[]             @relation("CharacterToScenario")
   FacetLinks           CharacterFacet[]
+  /// Optional daisyUI theme this record's card wears. NULL falls back to a
+  /// stable id-derived pick -- see resolveEntityTheme in utils/entityTheme.ts.
+  theme                String?                @db.VarChar(764)
 
   @@index([userId], map: "Character_userId_fkey")
   @@index([isPublic])
@@ -387,6 +390,9 @@ model Dream {
   ArtImages       ArtImage[]      @relation("DreamToArtImage")
   Rewards         Reward[]        @relation("DreamToReward")
   Scenarios       Scenario[]      @relation("DreamToScenario")
+  /// Optional daisyUI theme this record's card wears. NULL falls back to a
+  /// stable id-derived pick -- see resolveEntityTheme in utils/entityTheme.ts.
+  theme           String?         @db.VarChar(764)
 
   @@index([artImageId], map: "Dream_artImageId_fkey")
   @@index([userId])
@@ -525,6 +531,9 @@ model Facet {
   CharacterLinks     CharacterFacet[]
   BotLinks           BotFacet[]
   RewardLinks        RewardFacet[]
+  /// Optional daisyUI theme this record's card wears. NULL falls back to a
+  /// stable id-derived pick -- see resolveEntityTheme in utils/entityTheme.ts.
+  theme              String?              @db.VarChar(764)
 
   @@index([userId])
   @@index([artImageId])
@@ -1231,6 +1240,9 @@ model Reward {
   Characters     Character[]   @relation("CharacterToReward")
   Dreams         Dream[]       @relation("DreamToReward")
   FacetLinks     RewardFacet[]
+  /// Optional daisyUI theme this record's card wears. NULL falls back to a
+  /// stable id-derived pick -- see resolveEntityTheme in utils/entityTheme.ts.
+  theme          String?       @db.VarChar(764)
 
   @@index([userId], map: "Reward_userId_fkey")
   @@index([rewardType])
@@ -1280,6 +1292,9 @@ model Scenario {
   FacetLinks           ScenarioFacet[]
   Characters           Character[]           @relation("CharacterToScenario")
   Dreams               Dream[]               @relation("DreamToScenario")
+  /// Optional daisyUI theme this record's card wears. NULL falls back to a
+  /// stable id-derived pick -- see resolveEntityTheme in utils/entityTheme.ts.
+  theme                String?               @db.VarChar(764)
 
   @@index([artImageId], map: "Scenario_artImageId_fkey")
   @@index([userId], map: "Scenario_userId_fkey")

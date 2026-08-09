@@ -209,6 +209,7 @@
         v-else
         :key="item.id"
         type="button"
+        :data-theme="themed ? itemTheme(item) : undefined"
         class="group overflow-hidden rounded-2xl border border-(--kr-surface-border) bg-(--kr-surface) text-left transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg"
         @click="emit('open', item)"
       >
@@ -320,6 +321,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { resolveEntityTheme } from '@/utils/entityTheme'
 import {
   resolveArtVariantSrc,
   type ArtImageSrcLike,
@@ -400,6 +402,21 @@ const props = withDefaults(
      * A default you opt OUT of is the right way round: forgetting it now costs
      * a pager nobody needed, rather than a frozen tab.
      */
+    /**
+     * Paint each built-in tile with its record's daisyUI theme.
+     *
+     * OPT-IN, because this renderer draws more than the themed objects. Silas,
+     * 2026-08-10, naming the ones that get a theme column -- "rewards, dreams,
+     * characters" plus Facets -- and the ones that do not: "themes does not
+     * need a theme. Icons don't need themes. Achievements don't need themes."
+     * Those all reach this same built-in tile, so a default-on version would
+     * have themed exactly the galleries that were excluded.
+     *
+     * Galleries that pass an `item` slot theme their own card instead (see
+     * bot-card and its four siblings); this flag is for the ones with no card
+     * component of their own, which today means Facets.
+     */
+    themed?: boolean
     pageSize?: number
     /**
      * How many tiles per row, independent of which image `mode` loads. Omit to
@@ -416,6 +433,7 @@ const props = withDefaults(
     error: '',
     emptyLabel: 'items',
     skeletonCount: 8,
+    themed: false,
     pageSize: 48,
     density: undefined,
   },
@@ -515,5 +533,17 @@ function displayImage(item: GalleryItem): string {
   if (preResolved) return preResolved
   if (item.source) return resolveArtVariantSrc(item.source, modeVariant.value)
   return item.card || item.icon || item.hero || ''
+}
+
+/*
+ * The record's own theme, or a stable id-derived one. Only consulted when the
+ * caller opts in via `themed` -- see the prop's note for why this is not the
+ * default.
+ */
+function itemTheme(item: GalleryItem): string {
+  return resolveEntityTheme({
+    id: item.id,
+    theme: (item.source as { theme?: string | null } | undefined)?.theme,
+  })
 }
 </script>

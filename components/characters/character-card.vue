@@ -1,157 +1,175 @@
 <!-- /components/content/weird/character-card.vue -->
 <template>
-  <reactable-card
-    :selected="activeSelected"
-    :compact="compact"
-    :show-reaction="showReaction"
-    :allow-reviews="character.allowReviews"
-    :target-id="character.id"
-    target-type="character"
-    reaction-category="CHARACTER"
-    :target-title="displayName"
-    :earned-karma="earnedKarma"
-    @select="selectCharacter"
-  >
-    <template #actions>
-      <button
-        v-if="showActions && allowEdit && (activeSelected || compact)"
-        class="rounded-full bg-base-100/90 p-2 text-primary shadow backdrop-blur transition hover:bg-primary hover:text-primary-content"
-        type="button"
-        title="Edit Character"
-        @click.stop="emit('edit', character.id)"
-      >
-        <Icon name="kind-icon:pencil" class="h-4 w-4" />
-      </button>
+  <!--
+    THEMED WRAPPER, matching bot-card. Silas, 2026-08-10: "each card when
+    viewed should have a theme shift to distinguish it from neighbours, and the
+    nice themed background border around each card."
 
-      <button
-        v-if="showActions && allowClone && (activeSelected || compact)"
-        class="rounded-full bg-base-100/90 p-2 text-secondary shadow backdrop-blur transition hover:bg-secondary hover:text-secondary-content"
-        type="button"
-        title="Clone Character"
-        @click.stop="emit('clone', character.id)"
-      >
-        <Icon name="kind-icon:copy" class="h-4 w-4" />
-      </button>
-
-      <button
-        v-if="showActions && canDelete && (activeSelected || compact)"
-        class="rounded-full bg-base-100/90 p-2 text-error shadow backdrop-blur transition hover:bg-error hover:text-error-content"
-        type="button"
-        title="Delete Character"
-        @click.stop="deleteCharacter"
-      >
-        <Icon name="kind-icon:trash" class="h-4 w-4" />
-      </button>
-    </template>
-
-    <kr-entity-card-body
-      :title="displayName"
-      :source="character"
-      :variant="variant"
-      :fallback="artFallbackSrc"
-      :show-image="showImage"
-      :show-description="false"
-      :compact="compact"
+    The wrapper rather than the card itself because `data-theme` has to sit
+    ABOVE the surface that reads the theme's tokens: daisyUI resolves its
+    variables on the element carrying the attribute and its descendants, so
+    putting it on reactable-card would leave the card's own background painted
+    from the page theme. See resolveEntityTheme for why NULL is not random.
+  -->
+  <div :data-theme="characterCardTheme" class="h-full rounded-2xl">
+    <reactable-card
       :selected="activeSelected"
-      :badges="badges"
-      :meta="showMeta ? metaChips : []"
-      shape="card"
-      compact-shape="hero"
-      :fit="imageFit"
-      placeholder-icon="kind-icon:user"
-    />
-
-    <section
-      v-if="
-        activeSelected &&
-        !compact &&
-        (showDescription || showStats || showModeButtons || showDebug)
-      "
-      class="mt-2 grid gap-2 rounded-2xl border border-primary/20 bg-primary/5 p-3"
-      @click.stop
+      :compact="compact"
+      :show-reaction="showReaction"
+      :allow-reviews="character.allowReviews"
+      :target-id="character.id"
+      target-type="character"
+      reaction-category="CHARACTER"
+      :target-title="displayName"
+      :earned-karma="earnedKarma"
+      @select="selectCharacter"
     >
-      <p
-        v-if="showDescription"
-        class="line-clamp-3 text-sm leading-relaxed text-base-content/70"
-      >
-        {{
-          character.presentation ||
-          character.personality ||
-          character.backstory ||
-          'No story yet.'
-        }}
-      </p>
-
-      <div v-if="showStats" class="grid grid-cols-3 gap-2 kr-panel-flat p-2">
-        <div
-          v-for="stat in statRows"
-          :key="stat.key"
-          class="rounded-xl border border-base-300 bg-base-200 p-2 text-center"
+      <template #actions>
+        <button
+          v-if="showActions && allowEdit && (activeSelected || compact)"
+          class="rounded-full bg-base-100/90 p-2 text-primary shadow backdrop-blur transition hover:bg-primary hover:text-primary-content"
+          type="button"
+          title="Edit Character"
+          @click.stop="emit('edit', character.id)"
         >
-          <div
-            class="truncate text-[10px] font-bold uppercase text-base-content/60"
-          >
-            {{ stat.label }}
-          </div>
+          <Icon name="kind-icon:pencil" class="h-4 w-4" />
+        </button>
 
-          <div class="truncate text-xs font-black text-primary">
-            {{ stat.value }}
+        <button
+          v-if="showActions && allowClone && (activeSelected || compact)"
+          class="rounded-full bg-base-100/90 p-2 text-secondary shadow backdrop-blur transition hover:bg-secondary hover:text-secondary-content"
+          type="button"
+          title="Clone Character"
+          @click.stop="emit('clone', character.id)"
+        >
+          <Icon name="kind-icon:copy" class="h-4 w-4" />
+        </button>
+
+        <button
+          v-if="showActions && canDelete && (activeSelected || compact)"
+          class="rounded-full bg-base-100/90 p-2 text-error shadow backdrop-blur transition hover:bg-error hover:text-error-content"
+          type="button"
+          title="Delete Character"
+          @click.stop="deleteCharacter"
+        >
+          <Icon name="kind-icon:trash" class="h-4 w-4" />
+        </button>
+      </template>
+
+      <kr-entity-card-body
+        :title="displayName"
+        :source="character"
+        :variant="variant"
+        :fallback="artFallbackSrc"
+        :show-image="showImage"
+        :show-description="false"
+        :compact="compact"
+        :selected="activeSelected"
+        :badges="badges"
+        :meta="showMeta ? metaChips : []"
+        shape="card"
+        compact-shape="hero"
+        :fit="imageFit"
+        placeholder-icon="kind-icon:user"
+      />
+
+      <section
+        v-if="
+          activeSelected &&
+          !compact &&
+          (showDescription || showStats || showModeButtons || showDebug)
+        "
+        class="mt-2 grid gap-2 rounded-2xl border border-primary/20 bg-primary/5 p-3"
+        @click.stop
+      >
+        <p
+          v-if="showDescription"
+          class="line-clamp-3 text-sm leading-relaxed text-base-content/70"
+        >
+          {{
+            character.presentation ||
+            character.personality ||
+            character.backstory ||
+            'No story yet.'
+          }}
+        </p>
+
+        <div v-if="showStats" class="grid grid-cols-3 gap-2 kr-panel-flat p-2">
+          <div
+            v-for="stat in statRows"
+            :key="stat.key"
+            class="rounded-xl border border-base-300 bg-base-200 p-2 text-center"
+          >
+            <div
+              class="truncate text-[10px] font-bold uppercase text-base-content/60"
+            >
+              {{ stat.label }}
+            </div>
+
+            <div class="truncate text-xs font-black text-primary">
+              {{ stat.value }}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div v-if="showModeButtons" class="grid grid-cols-2 gap-2 pt-1">
-        <button
-          class="btn btn-sm rounded-xl"
-          :class="
-            activeMode === 'chat' ? 'btn-primary text-white' : 'btn-outline'
-          "
-          type="button"
-          @click.stop="toggleMode('chat')"
+        <div v-if="showModeButtons" class="grid grid-cols-2 gap-2 pt-1">
+          <button
+            class="btn btn-sm rounded-xl"
+            :class="
+              activeMode === 'chat' ? 'btn-primary text-white' : 'btn-outline'
+            "
+            type="button"
+            @click.stop="toggleMode('chat')"
+          >
+            <Icon name="kind-icon:message" class="h-4 w-4" />
+            Chat
+          </button>
+
+          <button
+            class="btn btn-sm rounded-xl"
+            :class="
+              activeMode === 'adventure' ? 'btn-secondary' : 'btn-outline'
+            "
+            type="button"
+            @click.stop="toggleMode('adventure')"
+          >
+            <Icon name="kind-icon:compass" class="h-4 w-4" />
+            Adventure
+          </button>
+        </div>
+
+        <div
+          v-if="activeMode === 'chat' && showInlineInteract"
+          class="kr-panel-flat p-3"
         >
-          <Icon name="kind-icon:message" class="h-4 w-4" />
-          Chat
-        </button>
+          <weird-chat :character="character" />
+        </div>
 
-        <button
-          class="btn btn-sm rounded-xl"
-          :class="activeMode === 'adventure' ? 'btn-secondary' : 'btn-outline'"
-          type="button"
-          @click.stop="toggleMode('adventure')"
+        <div
+          v-if="activeMode === 'adventure' && showInlineInteract"
+          class="kr-panel-flat p-3"
         >
-          <Icon name="kind-icon:compass" class="h-4 w-4" />
-          Adventure
-        </button>
-      </div>
+          <weird-card :character="character" />
+        </div>
 
-      <div
-        v-if="activeMode === 'chat' && showInlineInteract"
-        class="kr-panel-flat p-3"
-      >
-        <weird-chat :character="character" />
-      </div>
+        <details v-if="showDebug" class="kr-panel-flat p-2">
+          <summary
+            class="cursor-pointer text-xs font-bold text-base-content/70"
+          >
+            Debug
+          </summary>
 
-      <div
-        v-if="activeMode === 'adventure' && showInlineInteract"
-        class="kr-panel-flat p-3"
-      >
-        <weird-card :character="character" />
-      </div>
-
-      <details v-if="showDebug" class="kr-panel-flat p-2">
-        <summary class="cursor-pointer text-xs font-bold text-base-content/70">
-          Debug
-        </summary>
-
-        <pre class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70">{{
-          JSON.stringify(character, null, 2)
-        }}</pre>
-      </details>
-    </section>
-  </reactable-card>
+          <pre
+            class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70"
+            >{{ JSON.stringify(character, null, 2) }}</pre>
+        </details>
+      </section>
+    </reactable-card>
+  </div>
 </template>
 
 <script setup lang="ts">
+import { resolveEntityTheme } from '@/utils/entityTheme'
 import { computed, onMounted, ref, watch } from 'vue'
 import type { Character } from '~/prisma/generated/prisma/client'
 import { useArtStore, type ArtImage } from '@/stores/artStore'
@@ -224,6 +242,8 @@ const props = withDefaults(
     earnedKarma: undefined,
   },
 )
+
+const characterCardTheme = computed(() => resolveEntityTheme(props.character))
 
 const emit = defineEmits<{
   open: [id: number]

@@ -25,7 +25,7 @@
 
       <!-- The book -->
       <div
-        class="mb-4 flex flex-col gap-5 rounded-2xl border border-base-300 bg-base-100 p-5 shadow-sm sm:flex-row"
+        class="kr-panel mb-4 flex flex-col gap-5 p-5 sm:flex-row"
       >
         <img
           src="/images/utility/mermaids/mermaids1.jpg"
@@ -106,7 +106,7 @@
       </div>
 
       <!-- The AI disclosure — the only AI-written words on this page -->
-      <div class="rounded-2xl border border-base-300 bg-base-100 p-5 shadow-sm">
+      <div class="kr-panel p-5">
         <div class="mb-3 flex items-center gap-3">
           <span
             class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/12 text-accent"

@@ -37,7 +37,7 @@
     </div>
 
     <div class="grid gap-4 sm:grid-cols-2">
-      <div class="rounded-2xl border border-base-300 bg-base-100 p-5 shadow-sm">
+      <div class="kr-panel p-5">
         <Icon name="kind-icon:heart" class="h-6 w-6 text-secondary" />
 
         <h2 class="mt-2 text-lg font-black text-base-content">Why AMF?</h2>
@@ -47,7 +47,7 @@
         </p>
       </div>
 
-      <div class="rounded-2xl border border-base-300 bg-base-100 p-5 shadow-sm">
+      <div class="kr-panel p-5">
         <Icon name="kind-icon:cart" class="h-6 w-6 text-secondary" />
 
         <h2 class="mt-2 text-lg font-black text-base-content">
@@ -94,7 +94,7 @@
 
     <section
       id="monthly-support"
-      class="scroll-mt-24 rounded-2xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-7"
+      class="kr-panel scroll-mt-24 p-5 sm:p-7"
     >
       <div class="mb-6 text-center">
         <Icon name="kind-icon:rocket" class="mx-auto h-8 w-8 text-primary" />

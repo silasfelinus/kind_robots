@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM node:24-alpine AS build
+FROM node:24-bookworm-slim AS build
 
 WORKDIR /app
 
@@ -8,10 +8,10 @@ ENV NUXT_TELEMETRY_DISABLED=1
 
 COPY . .
 
-RUN DATABASE_URL=mysql://kindrobots:build-only@127.0.0.1:3306/kindrobots npm ci
+RUN DATABASE_URL=mysql://kindrobots:build-only@127.0.0.1:3306/kindrobots npm ci --include=optional
 RUN DATABASE_URL=mysql://kindrobots:build-only@127.0.0.1:3306/kindrobots npm run build
 
-FROM node:24-alpine AS runtime
+FROM node:24-bookworm-slim AS runtime
 
 WORKDIR /app
 

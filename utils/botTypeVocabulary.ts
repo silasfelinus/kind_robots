@@ -7,12 +7,24 @@
 // either in our icons folder, we can add them there. Icons are better than
 // words unless we have plenty of space."
 //
-// We already had both glyphs -- `components/dreams/dream-gallery.vue` maps
-// PROMPTBOT to kind-icon:robot and NARRATOR to kind-icon:story for Dream types,
-// and a Dream of type NARRATOR becomes a Bot of type NARRATOR, so the two
-// surfaces are showing the same thing. Reusing those exact names is what makes
-// a narrator read as a narrator on both screens rather than as two unrelated
-// pictures; adding a third drawing would have been the actual regression.
+// THESE HAVE TO BE MONOCHROME, and that is what picked them.
+//
+// `components/dreams/dream-gallery.vue` already maps PROMPTBOT to
+// kind-icon:robot and NARRATOR to kind-icon:story for Dream types, and reusing
+// those was the obvious move -- a Dream of type NARRATOR becomes a Bot of type
+// NARRATOR, so the two surfaces are showing the same thing. It does not work
+// here. Both of those files are full-colour illustrations (`robot.svg` paints
+// #fff and #000, `story.svg` #fff and #66e1ff); the Dream gallery renders them
+// large, where that is a feature, but these ride inside a `badge-primary` at
+// 12-14px, where a two-tone drawing becomes a smudge and a white-and-cyan book
+// on a primary fill is nearly invisible. Consistency with an unreadable icon
+// is not consistency.
+//
+// So the rule for anything used as a chip glyph: it must paint with
+// `currentColor` only -- no hex fills, no gradients -- so the badge tints it.
+// `scroll` and `chat` already qualified. Nothing in assets/icons was a
+// monochrome robot, so `robot-outline.svg` was added, which is the "we can add
+// them there" half of the instruction above.
 //
 // `Bot.BotType` is a free `String` column, not an enum (prisma/schema.prisma),
 // so this map is deliberately open: `botTypeMeta` answers for ANY string and
@@ -32,8 +44,8 @@ export type BotTypeMeta = {
 }
 
 const BOT_TYPE_META: Record<string, Omit<BotTypeMeta, 'value'>> = {
-  NARRATOR: { label: 'Narrator', icon: 'kind-icon:story' },
-  PROMPTBOT: { label: 'Prompt Bot', icon: 'kind-icon:robot' },
+  NARRATOR: { label: 'Narrator', icon: 'kind-icon:scroll' },
+  PROMPTBOT: { label: 'Prompt Bot', icon: 'kind-icon:robot-outline' },
   CHATBOT: { label: 'Chatbot', icon: 'kind-icon:chat' },
 }
 
@@ -70,7 +82,9 @@ export function botTypeMeta(value?: string | null): BotTypeMeta | null {
   return {
     value: normalized,
     label: known?.label || titleCase(normalized),
-    icon: known?.icon || 'kind-icon:bot',
+    // Falls back to the same monochrome robot rather than to `kind-icon:bot`,
+    // which is another full-colour illustration and would smudge at chip size.
+    icon: known?.icon || 'kind-icon:robot-outline',
   }
 }
 

@@ -247,6 +247,7 @@ const validIcons = [
   "ring",
   "robot",
   "robot-color",
+  "robot-outline",
   "rock",
   "rocket",
   "rotate",

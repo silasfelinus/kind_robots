@@ -285,9 +285,9 @@ const badges = computed<EntityCardChip[]>(() => {
    *
    * `NARRATOR` and `PROMPTBOT` are stored upper-case, so as text they were the
    * loudest thing on the card -- shouting a constant next to the Bot's actual
-   * name. The glyphs come from utils/botTypeVocabulary.ts, which reuses the
-   * same two icons the Dream gallery already uses for these types, and the
-   * label survives as the tooltip and the screen-reader text.
+   * name. The glyphs come from utils/botTypeVocabulary.ts, which explains why
+   * they are the monochrome ones rather than the illustrated ones the Dream
+   * gallery uses. The label survives as the tooltip and the sr-only text.
    */
   if (botType.value) {
     result.push({

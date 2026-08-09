@@ -246,24 +246,22 @@ assert.ok(
 )
 
 // Keep the reading helpers out of the prisma-importing module. Moving them back
-// would not break a single runtime caller — artJobQueueCoverage re-exports all
-// three — it would only make this file unrunnable in CI, silently, the way it
-// already was once.
+// would break no runtime caller — which is exactly why it would go unnoticed.
+// It would only make this file unrunnable in CI, silently, the way it already
+// was once.
 const settings = readFileSync('server/utils/artJobQueueSettings.ts', 'utf8')
 assert.ok(
   !/from '\.\/(prisma|artJobQueueCoverage)'/.test(settings),
   'artJobQueueSettings must stay database-free so the contract workflow can run it',
 )
+
+// And exactly one home per name. Nuxt auto-imports every export under
+// server/utils, so re-exporting these from artJobQueueCoverage registers each
+// name twice and the build logs "Duplicated imports ... has been ignored".
 const coverage = readFileSync('server/utils/artJobQueueCoverage.ts', 'utf8')
-for (const required of [
-  'inferQueuedArtEngine',
-  'queuedArtSamplerSettings',
-  'assertQueuedArtPromptContract',
-]) {
-  assert.ok(
-    coverage.includes(required),
-    `artJobQueueCoverage must keep re-exporting ${required} for existing callers`,
-  )
-}
+assert.ok(
+  !/export\s*\{[^}]*\}\s*from '\.\/artJobQueueSettings'/s.test(coverage),
+  'artJobQueueCoverage must not re-export artJobQueueSettings (auto-import collision)',
+)
 
 console.log('artJobSamplerRepair contract OK')

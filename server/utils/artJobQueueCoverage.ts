@@ -80,12 +80,13 @@ function hasRetry(payload: unknown): boolean {
 // Engine/sampler/prompt reading and the claim-time contract assertion live in
 // artJobQueueSettings.ts — they need no database, and this module's prisma
 // import made them unreachable from the DB-free contract-tests workflow.
-// Re-exported here so every existing caller keeps its import path.
-export {
-  inferQueuedArtEngine,
-  queuedArtSamplerSettings,
-  assertQueuedArtPromptContract,
-} from './artJobQueueSettings'
+//
+// They are deliberately NOT re-exported from here. Nuxt auto-imports every
+// export under server/utils, so a re-export registers the same name twice and
+// the build logs "Duplicated imports "assertQueuedArtPromptContract", the one
+// from artJobQueueCoverage.ts has been ignored" — three of those, twice per
+// build. Nitro picked the right module anyway, but a name with two auto-import
+// candidates is a coin toss nobody should have to think about. One home each.
 
 export function readFacetCoverageTarget(
   payload: unknown,

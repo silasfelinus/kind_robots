@@ -15,6 +15,10 @@ import {
   readArtJobProvenance,
 } from '../../../utils/artJobProvenance'
 import { normalizeQueuedArtJobPayload } from '../../../utils/artJobNormalization'
+import {
+  recordSamplerRepair,
+  repairQueuedArtSampler,
+} from '../../../utils/artJobSamplerRepair'
 import { refreshArtJobLoraResources } from '../../../utils/artJobResourceRefresh'
 
 const REQUEUE_CONCURRENCY = 10
@@ -45,9 +49,21 @@ function failureMessage(error: unknown): string {
   return String(error || 'Unknown requeue failure.')
 }
 
-async function requeueFailedJob(source: FailedJobSource): Promise<RequeueResult> {
+async function requeueFailedJob(
+  source: FailedJobSource,
+): Promise<RequeueResult> {
   const normalization = normalizeQueuedArtJobPayload(source.payload)
-  const resourceRefresh = await refreshArtJobLoraResources(normalization.payload)
+  // A job that failed the claim-time contract on nothing but an out-of-band
+  // step count would otherwise be requeued verbatim and fail again on the next
+  // poll — a requeue loop that repairs everything except the thing that killed
+  // it. Clamp the sampler here too, so a requeued row comes back legal.
+  const samplerRepair = repairQueuedArtSampler(
+    source.engine,
+    normalization.payload,
+  )
+  const resourceRefresh = await refreshArtJobLoraResources(
+    samplerRepair.payload,
+  )
   const priorProvenance = readArtJobProvenance(source.payload)
   const { payload } = enrichArtJobPayload(
     source.engine,
@@ -59,14 +75,17 @@ async function requeueFailedJob(source: FailedJobSource): Promise<RequeueResult>
     },
   )
 
+  const repairedAt = new Date().toISOString()
   payload.queueRepair = {
-    repairedAt: new Date().toISOString(),
+    repairedAt,
     imagePathChanged: normalization.imagePathChanged,
     promptChanged: normalization.promptChanged,
     loraPathChanged: resourceRefresh.changed,
     loraResourceIds: resourceRefresh.loraResourceIds,
     loraNames: resourceRefresh.loraNames,
+    samplerChanged: samplerRepair.changed,
   }
+  recordSamplerRepair(payload, samplerRepair, repairedAt)
 
   const updated = await prisma.artJob.updateMany({
     where: {

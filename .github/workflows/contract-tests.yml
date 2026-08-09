@@ -51,6 +51,14 @@ jobs:
       - name: Art prompt contract
         run: npm run test:art-prompt-contract
 
+      # The other side of that gate. Re-applying the contract at claim time also
+      # killed 8 pre-gate backlog rows over a step count and had 27 more queued
+      # to die the same way, so the claim path now clamps the sampler to the
+      # engine's ceiling before asserting. This keeps enqueue a hard rejection
+      # while the backlog self-heals — and fails if either half drifts.
+      - name: ArtJob sampler repair contract
+        run: npm run test:artjob-sampler-repair
+
       - name: Channel content contract
         run: npm run test:channel-content
 

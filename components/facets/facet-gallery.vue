@@ -4,10 +4,7 @@
     <!-- The shell renders the page title from content frontmatter (the brief's
          one-header rule), so this only carries the count and the loading state.
          showHeader lets a host that wants nothing at all drop even that. -->
-    <header
-      v-if="showHeader"
-      class="kr-toolbar shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3"
-    >
+    <header v-if="showHeader" class="kr-toolbar shrink-0 kr-panel-flat p-3">
       <Icon name="kind-icon:tag" class="size-5 text-secondary" />
       <div class="min-w-0 flex-1">
         <p class="font-black">{{ title }}</p>

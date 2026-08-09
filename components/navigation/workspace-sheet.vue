@@ -65,7 +65,7 @@
     <template v-if="tutorialChannelKey">
       <button
         type="button"
-        class="flex items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-3 text-left shadow-sm transition hover:border-primary/40"
+        class="flex items-center justify-between gap-3 kr-panel-flat px-4 py-3 text-left shadow-sm transition hover:border-primary/40"
         :aria-expanded="showTutorial"
         @click="showTutorial = !showTutorial"
       >

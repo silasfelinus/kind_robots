@@ -5,7 +5,7 @@
     :href="allowNavigation ? item.url : undefined"
     :target="allowNavigation ? '_blank' : undefined"
     :rel="allowNavigation ? 'noopener noreferrer' : undefined"
-    class="group flex h-full flex-col gap-2 overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-3 shadow-sm transition-shadow duration-300 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-100 motion-safe:hover:-translate-y-0.5 motion-safe:transition-transform"
+    class="group flex h-full flex-col gap-2 overflow-hidden kr-panel-flat p-3 shadow-sm transition-shadow duration-300 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-100 motion-safe:hover:-translate-y-0.5 motion-safe:transition-transform"
   >
     <kr-entity-card-body
       class="flex flex-1 flex-col"

@@ -58,7 +58,7 @@
         <div
           v-for="run in store.runs"
           :key="run.id"
-          class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 transition hover:border-primary/50"
+          class="flex items-center gap-3 kr-panel-flat p-3 transition hover:border-primary/50"
           :class="
             run.id === store.run?.id ? 'border-primary/60 bg-primary/5' : ''
           "

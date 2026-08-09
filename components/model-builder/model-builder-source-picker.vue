@@ -97,7 +97,7 @@
           v-for="record in store.sources"
           :key="record.id"
           type="button"
-          class="group flex flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 text-left transition hover:border-primary hover:shadow-md"
+          class="group flex flex-col overflow-hidden kr-panel-flat text-left transition hover:border-primary hover:shadow-md"
           @click="store.selectSource(record)"
         >
           <div class="grid aspect-square w-full place-items-center overflow-hidden bg-base-200">
@@ -134,7 +134,7 @@
           v-for="record in store.sources"
           :key="record.id"
           type="button"
-          class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-2.5 text-left transition hover:border-primary hover:bg-base-200"
+          class="flex items-center gap-3 kr-panel-flat p-2.5 text-left transition hover:border-primary hover:bg-base-200"
           @click="store.selectSource(record)"
         >
           <div

@@ -62,7 +62,7 @@
       <div
         v-for="(item, i) in queuedFiles"
         :key="item.id"
-        class="group relative aspect-square overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+        class="group relative aspect-square overflow-hidden kr-panel-flat"
       >
         <img
           :src="item.preview"

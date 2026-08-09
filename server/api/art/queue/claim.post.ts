@@ -28,10 +28,8 @@ import {
   artJobQueueAffinityKey,
   selectSmartQueueCandidate,
 } from '../../../utils/artJobQueueAffinity'
-import {
-  assertQueuedArtPromptContract,
-  reconcileQueuedArtJobCoverage,
-} from '../../../utils/artJobQueueCoverage'
+import { reconcileQueuedArtJobCoverage } from '../../../utils/artJobQueueCoverage'
+import { assertQueuedArtPromptContract } from '../../../utils/artJobQueueSettings'
 import {
   recordSamplerRepair,
   repairQueuedArtSampler,

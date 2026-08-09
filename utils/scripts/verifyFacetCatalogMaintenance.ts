@@ -18,10 +18,8 @@ const managerPath = path.join(root, 'components/facets/facet-manager.vue')
 const editorPath = path.join(root, 'components/facets/facet-editor.vue')
 const galleryPath = path.join(root, 'components/facets/facet-gallery.vue')
 const entityArtPath = path.join(root, 'server/utils/entityArt.ts')
-const queueCoveragePath = path.join(
-  root,
-  'server/utils/artJobQueueCoverage.ts',
-)
+const queueCoveragePath = path.join(root, 'server/utils/artJobQueueCoverage.ts')
+const queueSettingsPath = path.join(root, 'server/utils/artJobQueueSettings.ts')
 const queueClaimPath = path.join(root, 'server/api/art/queue/claim.post.ts')
 
 const cleanup = fs.readFileSync(cleanupPath, 'utf8')
@@ -34,6 +32,7 @@ const editor = fs.readFileSync(editorPath, 'utf8')
 const gallery = fs.readFileSync(galleryPath, 'utf8')
 const entityArt = fs.readFileSync(entityArtPath, 'utf8')
 const queueCoverage = fs.readFileSync(queueCoveragePath, 'utf8')
+const queueSettings = fs.readFileSync(queueSettingsPath, 'utf8')
 const queueClaim = fs.readFileSync(queueClaimPath, 'utf8')
 
 for (const required of [
@@ -104,7 +103,7 @@ for (const required of [
   'priorityFor',
   'artPrompt: entry.identityPrompt',
   "coverageMode: ALL_VARIANTS ? 'all-variants' : 'baseline'",
-  "payload: { contains: '\"entityType\":\"facet\"' }",
+  'payload: { contains: \'"entityType":"facet"\' }',
   'variant: ART_VARIANTS[0]',
 ]) {
   assert.ok(art.includes(required), `Missing Facet art contract: ${required}`)
@@ -174,13 +173,26 @@ for (const required of [
   'selectFacetCoverageKeeper',
   'payload.retry',
   'duplicate static delivery',
+]) {
+  assert.ok(
+    queueCoverage.includes(required),
+    `Missing queue coverage contract: ${required}`,
+  )
+}
+
+// The payload readers and the claim-time assertion moved to
+// artJobQueueSettings.ts (2026-08-09) so they stay reachable without a
+// database — artJobQueueCoverage imports prisma, which throws at import time
+// without DATABASE_URL, and that put the claim-time guard out of reach of the
+// DB-free contract-tests workflow. Same contract, asserted at its new home.
+for (const required of [
   'inferQueuedArtEngine',
   'queuedArtSamplerSettings',
   'assertQueuedArtPromptContract',
 ]) {
   assert.ok(
-    queueCoverage.includes(required),
-    `Missing queue coverage contract: ${required}`,
+    queueSettings.includes(required),
+    `Missing queued-art settings contract: ${required}`,
   )
 }
 

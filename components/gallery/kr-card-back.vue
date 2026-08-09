@@ -39,17 +39,54 @@
       because that is how you FIND a thing in a grid; on the back you have
       already found it, and the stats are what you came for.
     -->
-    <header
-      class="flex shrink-0 items-start gap-3 border-b border-base-300 bg-base-200/60 p-3"
-    >
-      <img
-        v-if="artSrc"
-        :src="artSrc"
-        :alt="title"
-        class="h-16 w-16 shrink-0 rounded-xl object-cover"
-      />
+    <header class="relative shrink-0 border-b border-base-300 bg-base-200/60">
+      <!--
+        THE ART IS THE CARD, not a favicon beside a heading. It was a 64px
+        square thumbnail, which reads as a list row rather than the back of
+        something -- Silas, 2026-08-08: "should definitely look card like, with
+        better image size".
 
-      <div class="min-w-0 flex-1">
+        A 4:3 plate the width of the panel is what makes it a card again, and
+        it is capped rather than free so a tall image cannot push the stats off
+        a phone. The title sits in a scrim ON the art, the same relationship
+        the FRONT of the card already uses, so turning it over reads as the
+        same object rather than a different screen.
+      -->
+      <div
+        v-if="artSrc"
+        class="relative aspect-[4/3] max-h-56 w-full shrink-0 overflow-hidden bg-base-300"
+      >
+        <img :src="artSrc" :alt="title" class="h-full w-full object-cover" />
+
+        <div
+          class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/45 to-transparent p-3 pt-8"
+        >
+          <h2 class="break-words text-lg font-black leading-tight text-white">
+            {{ title }}
+          </h2>
+
+          <p v-if="subtitle" class="mt-0.5 text-xs text-white/75">
+            {{ subtitle }}
+          </p>
+        </div>
+
+        <div
+          v-if="badges.length"
+          class="absolute left-2 top-2 flex flex-wrap gap-1"
+        >
+          <span
+            v-for="badge in badges"
+            :key="badge"
+            class="badge badge-sm border-none bg-black/60 text-white"
+          >
+            {{ badge }}
+          </span>
+        </div>
+      </div>
+
+      <!-- No art: the title has to carry the header on its own, so it keeps
+           the badges beside it rather than leaving an empty plate. -->
+      <div v-else class="min-w-0 flex-1 p-3">
         <h2 class="break-words text-lg font-black leading-tight">
           {{ title }}
         </h2>
@@ -77,7 +114,7 @@
       -->
       <button
         type="button"
-        class="btn btn-ghost btn-sm shrink-0 rounded-xl"
+        class="btn btn-sm absolute right-2 top-2 rounded-xl border-none bg-black/55 text-white hover:bg-black/75"
         @click="emit('back')"
       >
         <Icon name="kind-icon:arrow-left" class="h-4 w-4" />
@@ -85,7 +122,13 @@
       </button>
     </header>
 
-    <div class="min-h-0 flex-1 p-3">
+    <!--
+      min-h-0 is what lets this shrink below its content so kr-card-flip's
+      scroll container has something to scroll. Without it the flex child is
+      floored at content height and the panel grows instead, which is the same
+      failure the stage's height fix addresses from the other end.
+    -->
+    <div class="min-h-0 flex-1 overflow-y-auto p-3">
       <!--
         The edit form REPLACES the info body rather than flipping again --
         "the edit option is just an on-screen change to the modal". A second

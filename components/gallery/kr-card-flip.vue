@@ -183,7 +183,23 @@ watch(modelValue, async (isOpen) => {
     // dismissing returns you somewhere other than where you opened it.
     document.body.style.overflow = 'hidden'
 
+    /*
+     * TWO FRAMES, not nextTick. Silas, 2026-08-08: "no animation effect."
+     *
+     * nextTick only guarantees Vue has patched the DOM. The browser may not
+     * have computed style for the newly-inserted node yet, so setting
+     * `is-shown` in the same frame leaves the transition no previous value to
+     * animate FROM and it snaps straight to the end state -- the panel simply
+     * appears, which is the one thing a card turning over must not do.
+     *
+     * The first rAF fires before the next paint; the second lands after it, by
+     * which point the pre-flip transform is committed and the class change is
+     * a real transition. Vue's own <Transition> does the same internally.
+     */
     await nextTick()
+    await new Promise((resolve) => requestAnimationFrame(() => resolve(null)))
+    await new Promise((resolve) => requestAnimationFrame(() => resolve(null)))
+
     shown.value = true
     panelRef.value?.focus()
     return
@@ -247,8 +263,21 @@ onBeforeUnmount(() => {
    * 1rem of padding, so its content box already IS the viewport less the
    * gutter -- and verifyLayoutContract forbids viewport units nested inside
    * the h-dvh shell, which caught the `calc(100dvh - 2rem)` this replaced.
+   *
+   * HEIGHT, not max-height, and that distinction is the whole bug. The panel
+   * below caps itself with `max-height: 100%`, and a percentage resolves only
+   * against a parent's DEFINITE height -- a stage sized `max-height: 100%` is
+   * still auto-height, so that percentage computed to `none`, the panel grew
+   * as tall as its content, and on a phone it ran off the bottom with nothing
+   * to scroll. Silas, 2026-08-08: "on mobile and can't scroll ... Editing
+   * brings to an overly large screen with no scroll."
+   *
+   * `min-height: 0` lets this shrink inside the backdrop's flex line instead
+   * of being floored at its content height, which would put the bottom back
+   * off-screen by another route.
    */
-  max-height: 100%;
+  height: 100%;
+  min-height: 0;
   align-items: center;
   justify-content: center;
 }

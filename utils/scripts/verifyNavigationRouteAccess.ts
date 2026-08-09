@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import {
   filterChannelsByRole,
   resolveChannels,
@@ -197,6 +198,41 @@ const adminAdmin = evaluateNavigationRouteAccess(channels, adminChannels, {
 })
 assert.equal(adminAdmin.allowed, true)
 
+const middlewareSource = readFileSync(
+  'middleware/navigation-access.global.ts',
+  'utf8',
+)
+assert.match(
+  middlewareSource,
+  /if \(nuxtApp\.isHydrating && nuxtApp\.payload\.serverRendered\) \{[\s\S]*?nuxtApp\.hook\('app:mounted',[\s\S]*?enforceNavigationAccess/,
+  'Initial SSR client navigation must defer localStorage-backed access enforcement until app:mounted.',
+)
+
+const legacySessionSource = readFileSync(
+  'plugins/legacy-guest-session.client.ts',
+  'utf8',
+)
+const sessionMountedIndex = legacySessionSource.indexOf("hook('app:mounted'")
+const sessionInitializeIndex = legacySessionSource.indexOf('userStore.initialize()')
+assert.ok(
+  sessionMountedIndex >= 0 &&
+    sessionInitializeIndex >= 0 &&
+    sessionMountedIndex < sessionInitializeIndex,
+  'Saved-session restoration must not initialize the user store before app:mounted.',
+)
+
+const loaderSource = readFileSync('components/admin/kind-loader.vue', 'utf8')
+assert.equal(
+  loaderSource.includes('onBeforeMount('),
+  false,
+  'The startup loader must not mutate app/store state from onBeforeMount during hydration.',
+)
+assert.match(
+  loaderSource,
+  /onMounted\(\(\) => \{\s+void ensureStoresInitialized\(\)[\s\S]*?if \(startupMode\.value !== 'none'\) return[\s\S]*?emitReadyOnce\(\)/,
+  'Store initialization and the reload-mode pageReady handoff must begin from onMounted.',
+)
+
 console.log(
-  'Navigation route access contract passed: unrelated, public, authenticated, member, shared-route, and admin destinations verified.',
+  'Navigation route access contract passed: unrelated, public, authenticated, member, shared-route, admin, and hydration-safe startup behavior verified.',
 )

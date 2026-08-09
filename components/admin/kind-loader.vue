@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 // /components/content/story/kind-loader.vue
-import { onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useErrorStore, ErrorType } from '@/stores/errorStore'
 import { useViewportStore } from '@/stores/viewportStore'
@@ -312,17 +312,13 @@ watch(
   },
 )
 
-onBeforeMount(() => {
+onMounted(() => {
+  void ensureStoresInitialized()
+
   if (startupMode.value !== 'none') return
 
-  void ensureStoresInitialized()
   handleOverlayCovered()
   emitReadyOnce()
-})
-
-onMounted(() => {
-  if (startupMode.value !== 'full') return
-  void ensureStoresInitialized()
 })
 
 /*

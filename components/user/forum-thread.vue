@@ -1,6 +1,6 @@
 <!-- /components/content/forum/forum-thread.vue -->
 <template>
-  <div class="space-y-6 w-full max-w-4xl mx-auto px-4 py-8">
+  <div class="kr-container max-w-4xl space-y-6 px-4 py-8">
     <div class="flex flex-wrap justify-center gap-2 mb-6">
       <button
         v-for="channel in allChannels"

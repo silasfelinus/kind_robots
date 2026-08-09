@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full max-w-3xl mx-auto p-6 space-y-8">
+  <div class="kr-container max-w-3xl p-6 space-y-8">
     <div class="text-center space-y-2">
       <h1 class="text-3xl font-extrabold text-primary">
         ⚡ {{ userStore.username }}'s Mana Wallet

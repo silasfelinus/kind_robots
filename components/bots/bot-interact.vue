@@ -54,12 +54,11 @@ import { useChatStore } from '@/stores/chatStore'
 const botStore = useBotStore()
 const chatStore = useChatStore()
 
-/*
- * A conversation in progress keeps you in the chat surface even with no Bot
- * selected, which is why this is not simply `Boolean(currentBot)`.
- */
+// A live conversation keeps you here with no Bot selected; an open editor does
+// NOT, though it also sets currentBot -- see editingBotId in botStore.ts.
 const isInteractMode = computed(
   () =>
-    Boolean(botStore.currentBot) || chatStore.sessionChats('bot').length > 0,
+    !botStore.editingBotId &&
+    (Boolean(botStore.currentBot) || chatStore.sessionChats('bot').length > 0),
 )
 </script>

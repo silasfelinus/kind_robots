@@ -934,7 +934,18 @@ const canEditInfoBot = computed(() => {
  * how you save changes onto the wrong Bot.
  */
 watch(infoEditing, async (isEditing) => {
-  if (!isEditing || !infoBotId.value) return
+  /*
+   * Leaving edit mode releases the routing flag `startEditingBot` set. Without
+   * this, a user who opened the editor from an in-progress chat would be held
+   * on the gallery afterwards -- the same bug bot-interact's isInteractMode
+   * note describes, pointing the other way.
+   */
+  if (!isEditing) {
+    botStore.editingBotId = null
+    return
+  }
+
+  if (!infoBotId.value) return
   await botStore.startEditingBot(infoBotId.value)
 })
 
@@ -1038,12 +1049,19 @@ function clearSelectedBot() {
   showBotForm.value = false
 }
 
+/*
+ * Both of these release the routing flag for the same reason the infoEditing
+ * watcher does: the in-gallery form is the other caller of startEditingBot,
+ * and a flag left set after it closes would pin the router to the gallery.
+ */
 function closeBotForm() {
   showBotForm.value = false
+  botStore.editingBotId = null
 }
 
 async function handleBotSaved() {
   showBotForm.value = false
+  botStore.editingBotId = null
   await refreshBots(true)
 }
 

@@ -54,26 +54,11 @@ import { useChatStore } from '@/stores/chatStore'
 const botStore = useBotStore()
 const chatStore = useChatStore()
 
-/*
- * A conversation in progress keeps you in the chat surface even with no Bot
- * selected, which is why this is not simply `Boolean(currentBot)`.
- *
- * AND EDITING IS NOT INTERACTING. `startEditingBot` also sets `currentBot` --
- * add-bot reads it for its guard, its reviews toggle and its save target -- so
- * on this value alone, opening the editor read as "go and chat". It unmounted
- * bot-gallery, and with it the card back the editor renders inside, landing
- * the user in the chat surface instead. Silas, 2026-08-09: "edit just brings
- * me to interact, not an edit screen, so I can't test edit yet."
- *
- * botStore.editingBotId is what separates the two intentions; it is cleared by
- * selectBot/deselectBot/startAddingBot, so finishing an edit and then choosing
- * a Bot still routes here normally.
- */
-const isInteractMode = computed(() => {
-  if (botStore.editingBotId) return false
-
-  return (
-    Boolean(botStore.currentBot) || chatStore.sessionChats('bot').length > 0
-  )
-})
+// A live conversation keeps you here with no Bot selected; an open editor does
+// NOT, though it also sets currentBot -- see editingBotId in botStore.ts.
+const isInteractMode = computed(
+  () =>
+    !botStore.editingBotId &&
+    (Boolean(botStore.currentBot) || chatStore.sessionChats('bot').length > 0),
+)
 </script>

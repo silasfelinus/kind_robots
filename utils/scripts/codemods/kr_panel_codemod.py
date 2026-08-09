@@ -153,13 +153,21 @@ def process_file(path: Path):
     # line in the file shows as changed, not just the substituted ones.
     with open(path, "r", encoding="utf-8", newline="") as fh:
         text = fh.read()
-    # Only touch the <template> block, never <script>.
+    # Only touch the <template> block, never <script>. The file's root
+    # <template> is always the FIRST opening tag, but its closing tag is not
+    # necessarily the first `</template>` in the file: an SFC can nest a
+    # named-slot/conditional block like `<template v-if="..." #footer>`
+    # that closes with its own `</template>` well before the real end. A
+    # single `re.search` for `</template>` finds that inner close instead,
+    # silently truncating the scanned region and hiding every candidate
+    # after it (interface-vision/t-104 slice 19 / t-116). Use the LAST
+    # `</template>` in the file instead, which is always the root's.
     template_match = re.search(r"<template>", text)
     if not template_match:
         return None
-    template_end = re.search(r"</template>", text)
+    template_end_matches = list(re.finditer(r"</template>", text))
     template_start = template_match.end()
-    template_stop = template_end.start() if template_end else len(text)
+    template_stop = template_end_matches[-1].start() if template_end_matches else len(text)
 
     changes = []
     skips = []

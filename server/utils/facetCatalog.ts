@@ -1,6 +1,7 @@
 // /server/utils/facetCatalog.ts
 import type { FacetKind, Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
+import { viewablePackIds } from '~/server/utils/contentAccess'
 import { normalizeFacetLookupKey } from '~/utils/facetAliases'
 
 export const FACET_TAXONOMIES = [
@@ -139,6 +140,10 @@ export async function loadFacetCatalogEntries(
   const requestedFacetIds = profiles.map((profile) => profile.facetId)
   const search = options.search?.trim()
   const normalizedSearch = search ? normalizeFacetLookupKey(search) : ''
+  const packIds =
+    options.userId && !options.isAdmin
+      ? await viewablePackIds(options.userId)
+      : []
   const aliasFacetIds = search
     ? (
         await prisma.facetAlias.findMany({
@@ -168,6 +173,7 @@ export async function loadFacetCatalogEntries(
             OR: [
               { isPublic: true },
               ...(options.userId ? [{ userId: options.userId }] : []),
+              ...(packIds.length ? [{ packId: { in: packIds } }] : []),
             ],
           }),
       ...(search

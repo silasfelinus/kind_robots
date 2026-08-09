@@ -5,7 +5,7 @@
   >
     <!-- ── Header ──────────────────────────────────────────────────────── -->
     <header
-      class="flex shrink-0 items-center gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-3"
+      class="flex shrink-0 items-center gap-3 kr-panel-flat px-4 py-3"
     >
       <span
         class="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/15 ring-2 ring-accent/40"
@@ -42,7 +42,7 @@
 
     <!-- ── Tabs ────────────────────────────────────────────────────────── -->
     <div
-      class="flex shrink-0 gap-1 rounded-2xl border border-base-300 bg-base-100 p-1"
+      class="flex shrink-0 gap-1 kr-panel-flat p-1"
       role="tablist"
     >
       <button

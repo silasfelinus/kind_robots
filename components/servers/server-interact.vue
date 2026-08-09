@@ -2,7 +2,7 @@
 <template>
   <section class="flex w-full flex-col gap-4 rounded-2xl bg-base-200 p-4">
     <header
-      class="flex flex-col gap-4 rounded-2xl border border-base-300 bg-base-100 p-4 text-center shadow-md lg:flex-row lg:items-center lg:justify-between lg:text-left"
+      class="flex flex-col gap-4 kr-panel-flat p-4 text-center shadow-md lg:flex-row lg:items-center lg:justify-between lg:text-left"
     >
       <div class="flex flex-wrap justify-center gap-2 lg:justify-end">
         <button
@@ -39,14 +39,14 @@
     <add-server v-if="showServerForm" />
 
     <div class="grid gap-4 lg:grid-cols-2">
-      <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+      <div class="kr-panel-flat p-4">
         <h2 class="font-black text-primary">Active Art Server</h2>
         <p class="mt-1 text-sm text-base-content/60">
           {{ artSummary }}
         </p>
       </div>
 
-      <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+      <div class="kr-panel-flat p-4">
         <h2 class="font-black text-secondary">Active Text Server</h2>
         <p class="mt-1 text-sm text-base-content/60">
           {{ textSummary }}

@@ -3,7 +3,7 @@
   <section
     class="flex h-full min-h-0 w-full flex-col gap-4 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-4"
   >
-    <header class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4">
+    <header class="shrink-0 kr-panel-flat p-4">
       <h2 class="text-xl font-black">User Galleries</h2>
       <p class="text-sm text-base-content/60">
         Records where <span class="font-bold">userId</span> matches this
@@ -28,7 +28,7 @@
         <article
           v-for="section in userOwnedSections"
           :key="section.key"
-          class="rounded-2xl border border-base-300 bg-base-100 p-3"
+          class="kr-panel-flat p-3"
         >
           <div
             class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between"
@@ -119,7 +119,7 @@
             <component
               :is="section.galleryComponent"
               v-if="sectionDisplayModes[section.key] === 'gallery'"
-              class="max-h-136 min-h-0 overflow-auto rounded-2xl border border-base-300 bg-base-100 p-2"
+              class="max-h-136 min-h-0 overflow-auto kr-panel-flat p-2"
             />
 
             <div
@@ -129,7 +129,7 @@
               <div
                 v-for="item in section.items"
                 :key="`${section.key}-${item.id}`"
-                class="rounded-2xl border border-base-300 bg-base-100 p-3"
+                class="kr-panel-flat p-3"
               >
                 <div class="flex items-start justify-between gap-3">
                   <div class="min-w-0">
@@ -153,7 +153,7 @@
 
               <div
                 v-if="section.items.length === 0"
-                class="rounded-2xl border border-base-300 bg-base-100 p-4 text-center"
+                class="kr-panel-flat p-4 text-center"
               >
                 <p class="font-black">No {{ section.label }} yet.</p>
                 <p class="mt-1 text-sm text-base-content/60">

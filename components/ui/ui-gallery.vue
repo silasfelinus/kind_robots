@@ -374,9 +374,7 @@
           @update:mode="demoGalleryMode = $event"
         >
           <template #item="{ item, mode }">
-            <div
-              class="flex flex-col gap-1 rounded-2xl border border-base-300 bg-base-100 p-3"
-            >
+            <div class="flex flex-col gap-1 kr-panel-flat p-3">
               <span class="text-smart-heading font-black">{{
                 item.title
               }}</span>

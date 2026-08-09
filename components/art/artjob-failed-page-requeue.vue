@@ -1,9 +1,6 @@
 <!-- /components/art/artjob-failed-page-requeue.vue -->
 <template>
-  <section
-    v-if="failedJobIds.length || message"
-    class="rounded-2xl border border-base-300 bg-base-100 p-3"
-  >
+  <section v-if="failedJobIds.length || message" class="kr-panel-flat p-3">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div class="min-w-0">
         <h3 class="text-sm font-semibold">Failed-job recovery</h3>

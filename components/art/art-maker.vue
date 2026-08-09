@@ -5,7 +5,7 @@
       class="mx-auto flex min-h-full w-full max-w-6xl flex-col gap-4 rounded-2xl border border-base-300 bg-base-200 p-4 sm:p-6"
     >
       <header
-        class="rounded-2xl border border-base-300 bg-base-100 p-4 sm:p-5"
+        class="kr-panel-flat p-4 sm:p-5"
       >
         <div
           class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"
@@ -58,7 +58,7 @@
       </div>
 
       <section
-        class="grid grid-cols-1 gap-4 rounded-2xl border border-base-300 bg-base-100 p-4 lg:grid-cols-3"
+        class="grid grid-cols-1 gap-4 kr-panel-flat p-4 lg:grid-cols-3"
       >
         <label class="form-control">
           <span class="label">
@@ -184,7 +184,7 @@
       </section>
 
       <section
-        class="grid grid-cols-1 gap-4 rounded-2xl border border-base-300 bg-base-100 p-4 xl:grid-cols-[minmax(0,1fr)_320px]"
+        class="grid grid-cols-1 gap-4 kr-panel-flat p-4 xl:grid-cols-[minmax(0,1fr)_320px]"
       >
         <div class="flex min-h-0 flex-col gap-4">
           <label class="form-control">
@@ -374,7 +374,7 @@
         </aside>
       </section>
 
-      <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
+      <section class="kr-panel-flat p-4">
         <div
           class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
         >

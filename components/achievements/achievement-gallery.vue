@@ -5,7 +5,7 @@
   >
     <!-- ── Header ──────────────────────────────────────────────────────── -->
     <header
-      class="flex items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-3"
+      class="flex items-center justify-between gap-3 kr-panel-flat px-4 py-3"
     >
       <div class="flex items-center gap-3">
         <span
@@ -39,7 +39,7 @@
          (interface-vision t-047: one-scroll) ─────────────────────────── -->
     <div class="kr-scroll grid grid-cols-1 gap-4 lg:grid-cols-3">
       <!-- Earned -->
-      <div class="flex flex-col rounded-2xl border border-base-300 bg-base-100">
+      <div class="flex flex-col kr-panel-flat">
         <div class="flex items-center gap-2 border-b border-base-300 px-4 py-3">
           <span
             class="flex h-7 w-7 items-center justify-center rounded-lg bg-success/15 text-success"

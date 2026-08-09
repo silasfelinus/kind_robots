@@ -26,7 +26,7 @@
 
     <section
       v-if="store.isOpen"
-      class="absolute right-0 top-full z-50 mt-2 flex w-80 max-w-[calc(100vw-1rem)] flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 shadow-2xl"
+      class="absolute right-0 top-full z-50 mt-2 flex w-80 max-w-[calc(100vw-1rem)] flex-col gap-3 kr-panel-flat p-3 shadow-2xl"
     >
       <header class="flex items-center gap-3 rounded-2xl bg-base-200 p-3">
         <img

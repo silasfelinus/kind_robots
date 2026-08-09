@@ -22,7 +22,7 @@
     <!-- Request-link mode -->
     <form
       v-if="!hasToken"
-      class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-5"
+      class="flex flex-col gap-3 kr-panel-flat p-5"
       @submit.prevent="onRequest"
     >
       <label class="flex flex-col gap-1">
@@ -50,7 +50,7 @@
     <!-- Set-new-password mode -->
     <form
       v-else
-      class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-5"
+      class="flex flex-col gap-3 kr-panel-flat p-5"
       @submit.prevent="onReset"
     >
       <label class="flex flex-col gap-1">

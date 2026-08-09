@@ -41,7 +41,7 @@
       <!-- Most active month (BROWSE-UX.md §1) -->
       <p
         v-if="mostActiveMonth"
-        class="rounded-2xl border border-base-300 bg-base-100 px-4 py-2 text-center text-sm font-semibold text-base-content/70"
+        class="kr-panel-flat px-4 py-2 text-center text-sm font-semibold text-base-content/70"
       >
         You consumed the most in {{ mostActiveMonth.label }}:
         {{ mostActiveMonth.count }} entries
@@ -362,7 +362,7 @@
 
         <div
           v-else-if="isLoading && !entries.length"
-          class="flex min-h-32 items-center justify-center rounded-2xl border border-base-300 bg-base-100"
+          class="flex min-h-32 items-center justify-center kr-panel-flat"
         >
           <span class="loading loading-spinner loading-md text-primary" />
           <span class="sr-only">Loading entries…</span>

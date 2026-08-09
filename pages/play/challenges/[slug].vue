@@ -282,7 +282,7 @@
 
                 <div
                   v-else-if="submission.outputText"
-                  class="rounded-2xl border border-base-300 bg-base-100 p-5"
+                  class="kr-panel-flat p-5"
                 >
                   <p
                     class="whitespace-pre-line text-sm leading-relaxed"

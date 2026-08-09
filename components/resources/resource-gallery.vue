@@ -442,10 +442,7 @@ onMounted(async () => {
       </div>
     </header>
 
-    <div
-      v-if="showAddChoice"
-      class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4"
-    >
+    <div v-if="showAddChoice" class="flex flex-col gap-3 kr-panel-flat p-4">
       <p class="text-sm font-bold">What are you adding?</p>
       <div class="flex flex-wrap gap-2">
         <button

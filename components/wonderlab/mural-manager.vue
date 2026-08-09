@@ -1,6 +1,6 @@
 <template>
   <section class="flex h-full min-h-0 w-full flex-col gap-4 overflow-hidden">
-    <header class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4">
+    <header class="shrink-0 kr-panel-flat p-4">
       <div
         class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between"
       >
@@ -69,7 +69,7 @@
 
     <div
       v-if="!pageDefinition"
-      class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-base-300 bg-base-100"
+      class="flex min-h-0 flex-1 items-center justify-center kr-panel-flat"
     >
       <span class="loading loading-spinner loading-lg text-primary" />
     </div>
@@ -78,7 +78,7 @@
       v-else
       class="kr-panes grid-cols-1 xl:grid-cols-[minmax(280px,360px)_minmax(0,1fr)_minmax(280px,360px)]"
     >
-      <aside class="kr-pane rounded-2xl border border-base-300 bg-base-100">
+      <aside class="kr-pane kr-panel-flat">
         <div class="shrink-0 border-b border-base-300 p-4">
           <h2 class="text-lg font-black">Saved Colors</h2>
           <p class="mt-1 text-sm text-base-content/60">
@@ -173,9 +173,7 @@
         </form>
       </aside>
 
-      <main
-        class="kr-pane-scroll rounded-2xl border border-base-300 bg-base-100 p-4"
-      >
+      <main class="kr-pane-scroll kr-panel-flat p-4">
         <div
           class="rounded-2xl border border-base-300 bg-base-200 p-3 shadow-inner"
         >
@@ -228,7 +226,7 @@
         </div>
       </main>
 
-      <aside class="kr-pane rounded-2xl border border-base-300 bg-base-100">
+      <aside class="kr-pane kr-panel-flat">
         <div class="shrink-0 border-b border-base-300 p-4">
           <h2 class="text-lg font-black">Sections & Groups</h2>
           <p class="mt-1 text-sm text-base-content/60">

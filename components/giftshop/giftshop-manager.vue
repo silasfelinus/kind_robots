@@ -3,7 +3,7 @@
   <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
     <div
       v-if="isLoadingManager || managerError"
-      class="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-100 p-3 text-sm shadow"
+      class="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-2 kr-panel-flat p-3 text-sm shadow"
     >
       <p
         class="min-w-0 flex-1 text-base-content/70"
@@ -35,7 +35,7 @@
           activeTab === 'mana' ||
           activeTab === 'forum'
         "
-        class="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+        class="flex h-full min-h-0 flex-1 flex-col overflow-hidden kr-panel-flat"
       >
         <div class="kr-scroll overscroll-contain p-4">
           <template v-if="activeTab === 'community'">

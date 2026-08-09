@@ -1,6 +1,6 @@
 <!-- /components/art/entity-art-manager.vue -->
 <template>
-  <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
+  <section class="kr-panel-flat p-4">
     <header class="flex flex-wrap items-start gap-2">
       <div class="min-w-0 flex-1">
         <div class="flex items-center gap-2">

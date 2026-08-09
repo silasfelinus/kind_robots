@@ -39,7 +39,7 @@
 
     <div
       v-else-if="isLoading && !reviews.length"
-      class="mt-4 flex min-h-32 items-center justify-center rounded-2xl border border-base-300 bg-base-100"
+      class="mt-4 flex min-h-32 items-center justify-center kr-panel-flat"
     >
       <span class="loading loading-spinner loading-md text-primary" />
     </div>

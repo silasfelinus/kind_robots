@@ -74,7 +74,7 @@
         <div
           v-for="status in summaryStatuses"
           :key="status"
-          class="rounded-2xl border border-base-300 bg-base-100 p-3"
+          class="kr-panel-flat p-3"
         >
           <div
             class="text-[11px] font-semibold uppercase tracking-wide text-base-content/50"
@@ -86,7 +86,7 @@
       </div>
 
       <div class="grid gap-3 xl:grid-cols-2">
-        <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+        <div class="kr-panel-flat p-3">
           <div class="mb-2 flex items-center justify-between gap-2">
             <h3 class="text-sm font-semibold">Private art servers</h3>
             <button
@@ -162,7 +162,7 @@
           </div>
         </div>
 
-        <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+        <div class="kr-panel-flat p-3">
           <div class="mb-2 flex items-center justify-between gap-2">
             <h3 class="text-sm font-semibold">Uptime · {{ windowHours }}h</h3>
             <div
@@ -221,7 +221,7 @@
         </div>
       </div>
 
-      <section class="rounded-2xl border border-base-300 bg-base-100 p-3">
+      <section class="kr-panel-flat p-3">
         <div class="flex flex-col gap-3">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div class="flex flex-wrap items-center gap-2">

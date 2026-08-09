@@ -14,10 +14,7 @@
     </header>
 
     <!-- Incoming requests -->
-    <div
-      v-if="friends.allIncomingRequests.length"
-      class="rounded-2xl border border-base-300 bg-base-100 p-4"
-    >
+    <div v-if="friends.allIncomingRequests.length" class="kr-panel-flat p-4">
       <h2 class="mb-3 text-lg font-black">Requests</h2>
       <div class="flex flex-col gap-2">
         <div
@@ -47,7 +44,7 @@
     </div>
 
     <!-- Your friends -->
-    <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+    <div class="kr-panel-flat p-4">
       <h2 class="mb-3 text-lg font-black">
         Your friends ({{ friends.friendCount }})
       </h2>
@@ -97,7 +94,7 @@
     </div>
 
     <!-- Find people -->
-    <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+    <div class="kr-panel-flat p-4">
       <h2 class="mb-3 text-lg font-black">Find people</h2>
       <input
         v-model="search"
@@ -160,10 +157,7 @@
     </div>
 
     <!-- Blocked -->
-    <div
-      v-if="friends.blockedIds.length"
-      class="rounded-2xl border border-base-300 bg-base-100 p-4"
-    >
+    <div v-if="friends.blockedIds.length" class="kr-panel-flat p-4">
       <h2 class="mb-3 text-lg font-black">Blocked</h2>
       <div class="flex flex-col gap-2">
         <div

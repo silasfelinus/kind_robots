@@ -18,9 +18,7 @@
       </p>
     </div>
 
-    <div
-      class="flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-100 p-4"
-    >
+    <div class="flex flex-col gap-2 kr-panel-flat p-4">
       <div class="flex items-center justify-between">
         <span
           class="text-xs font-black uppercase tracking-widest text-primary/70"

@@ -1,7 +1,7 @@
 <!-- /components/content/art/add-checkpoint.vue -->
 <template>
   <form
-    class="flex flex-col gap-4 rounded-2xl border border-base-300 bg-base-100 p-4"
+    class="flex flex-col gap-4 kr-panel-flat p-4"
     @submit.prevent="submitCheckpoint"
   >
     <div class="flex items-start justify-between gap-3">

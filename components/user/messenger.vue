@@ -9,9 +9,7 @@
     class="kr-panes mx-auto h-[70vh] w-full max-w-5xl grid-cols-[auto_minmax(0,1fr)] p-3"
   >
     <!-- Conversation list -->
-    <aside
-      class="kr-pane w-full max-w-xs rounded-2xl border border-base-300 bg-base-100 sm:w-72"
-    >
+    <aside class="kr-pane w-full max-w-xs kr-panel-flat sm:w-72">
       <header
         class="flex items-center justify-between border-b border-base-300 p-3"
       >
@@ -66,7 +64,7 @@
     </aside>
 
     <!-- Active thread -->
-    <div class="kr-pane min-w-0 rounded-2xl border border-base-300 bg-base-100">
+    <div class="kr-pane min-w-0 kr-panel-flat">
       <template v-if="convo.activeId">
         <header class="flex items-center gap-2 border-b border-base-300 p-3">
           <div class="avatar">

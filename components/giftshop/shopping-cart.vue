@@ -56,7 +56,7 @@
         <article
           v-for="item in cartStore.items"
           :key="item.id"
-          class="flex flex-col gap-4 rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm sm:flex-row sm:items-center"
+          class="flex flex-col gap-4 kr-panel-flat p-4 shadow-sm sm:flex-row sm:items-center"
         >
           <img
             :src="item.imageUrl"

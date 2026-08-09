@@ -3,7 +3,7 @@
   <section
     class="flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-3"
   >
-    <header class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4">
+    <header class="shrink-0 kr-panel-flat p-4">
       <div
         class="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between"
       >
@@ -70,7 +70,7 @@
       class="kr-panes grid-cols-1 xl:grid-cols-[22rem_minmax(0,1fr)_22rem]"
     >
       <aside
-        class="kr-pane rounded-2xl border border-base-300 bg-base-100"
+        class="kr-pane kr-panel-flat"
       >
         <div class="shrink-0 border-b border-base-300 bg-base-200 p-3">
           <div class="flex items-center justify-between gap-2">
@@ -140,7 +140,7 @@
         </div>
       </aside>
 
-      <main class="kr-pane rounded-2xl border border-base-300 bg-base-100">
+      <main class="kr-pane kr-panel-flat">
         <section class="shrink-0 border-b border-base-300 bg-base-200 p-3">
           <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_14rem]">
             <label class="form-control">
@@ -256,7 +256,7 @@
               <article
                 v-for="candidate in candidates"
                 :key="candidate.id"
-                class="rounded-2xl border border-base-300 bg-base-100 p-3"
+                class="kr-panel-flat p-3"
                 :class="{
                   'border-success/60 bg-success/10':
                     candidate.status === 'accepted',
@@ -396,7 +396,7 @@
       </main>
 
       <aside
-        class="kr-pane gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
+        class="kr-pane gap-3 kr-panel-flat p-3"
       >
         <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
           <h2 class="mb-3 text-lg font-black">Text Server</h2>

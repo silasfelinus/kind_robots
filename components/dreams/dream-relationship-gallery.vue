@@ -5,9 +5,7 @@
            its own below it. These panels are inset inside a Dream workspace,
            so a second full-width band costs the host page a row it did not
            choose to spend. -->
-    <header
-      class="shrink-0 rounded-2xl border border-base-300 bg-base-100 px-3 py-2"
-    >
+    <header class="shrink-0 kr-panel-flat px-3 py-2">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="min-w-0">
           <h2 class="truncate text-lg font-black text-base-content">

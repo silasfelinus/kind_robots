@@ -149,10 +149,7 @@
         </div>
       </div>
 
-      <div
-        v-else
-        class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-inner"
-      >
+      <div v-else class="kr-panel-flat p-4 shadow-inner">
         <div
           class="mx-auto w-full transition-[max-width] duration-200"
           :class="viewportClass"

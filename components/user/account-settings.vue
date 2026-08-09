@@ -32,7 +32,7 @@
       </div>
 
       <!-- ── Security ─────────────────────────────────────────────── -->
-      <div class="rounded-2xl border border-base-300 bg-base-100 p-5">
+      <div class="kr-panel-flat p-5">
         <h2 class="mb-1 text-lg font-black">Security</h2>
         <p class="mb-4 text-sm text-base-content/70">
           Update your password and verify your email address.
@@ -138,7 +138,7 @@
       </div>
 
       <!-- ── Privacy & Consent ────────────────────────────────────── -->
-      <div class="rounded-2xl border border-base-300 bg-base-100 p-5">
+      <div class="kr-panel-flat p-5">
         <h2 class="mb-1 text-lg font-black">Privacy &amp; Consent</h2>
         <p class="mb-4 text-sm text-base-content/70">
           Consent is the default here. Choose what you see and what others can
@@ -243,7 +243,7 @@
       </div>
 
       <!-- ── Newsletter ───────────────────────────────────────────── -->
-      <div class="rounded-2xl border border-base-300 bg-base-100 p-5">
+      <div class="kr-panel-flat p-5">
         <h2 class="mb-1 text-lg font-black">Updates &amp; Promotions</h2>
         <p class="mb-4 text-sm text-base-content/70">
           Can we email you updates? Pick a rhythm — we only send what you ask

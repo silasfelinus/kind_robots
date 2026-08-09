@@ -1,6 +1,6 @@
 <!-- /components/content/art/server-model-status.vue -->
 <template>
-  <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
+  <section class="kr-panel-flat p-4">
     <div class="flex flex-col gap-4">
       <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div class="min-w-0">

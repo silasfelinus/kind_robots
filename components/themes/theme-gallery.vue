@@ -3,9 +3,7 @@
   <section
     class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
   >
-    <header
-      class="shrink-0 overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow"
-    >
+    <header class="shrink-0 overflow-hidden kr-panel-flat shadow">
       <div
         class="flex flex-col gap-3 bg-linear-to-br from-primary/12 via-secondary/10 to-accent/10 p-3 lg:flex-row lg:items-center lg:justify-between"
       >
@@ -100,10 +98,7 @@
 
     <main class="min-h-0 flex-1 overflow-y-auto pr-1">
       <section class="flex flex-col gap-3">
-        <section
-          v-if="showDefaultThemes"
-          class="rounded-2xl border border-base-300 bg-base-100 p-3 shadow"
-        >
+        <section v-if="showDefaultThemes" class="kr-panel-flat p-3 shadow">
           <!--
             A SEPARATOR, ONLY WHEN THERE IS SOMETHING TO SEPARATE. This was an
             icon tile, an `<h2>`, a subtitle and a count badge -- a full band

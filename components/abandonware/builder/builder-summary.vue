@@ -1,6 +1,6 @@
 <!-- /components/builder/builder-summary.vue -->
 <template>
-  <section class="flex min-h-full flex-col gap-4 rounded-2xl border border-base-300 bg-base-100 p-4">
+  <section class="flex min-h-full flex-col gap-4 kr-panel-flat p-4">
     <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
       <div>
         <p class="text-xs font-black uppercase tracking-widest text-success/80">Complete</p>

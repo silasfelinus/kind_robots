@@ -34,7 +34,7 @@
 
     <div class="grid gap-5 xl:grid-cols-[minmax(18rem,0.8fr)_minmax(0,1.2fr)]">
       <article class="flex flex-col gap-3 rounded-3xl border border-base-300 bg-base-200/40 p-4">
-        <div class="relative overflow-hidden rounded-2xl border border-base-300 bg-base-100">
+        <div class="relative overflow-hidden kr-panel-flat">
           <img
             v-if="displayUrl"
             :src="displayUrl"

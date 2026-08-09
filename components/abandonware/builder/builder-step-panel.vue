@@ -5,7 +5,7 @@
     class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
   >
     <section
-      class="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+      class="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden kr-panel-flat"
     >
       <template v-if="store.activeSelectionPreview">
         <div class="flex h-full min-h-0 flex-col overflow-hidden">

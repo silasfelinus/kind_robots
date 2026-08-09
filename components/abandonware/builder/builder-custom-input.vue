@@ -1,6 +1,6 @@
 <!-- /components/builder/builder-custom-input.vue -->
 <template>
-  <div v-if="step" class="rounded-2xl border border-base-300 bg-base-100 p-4">
+  <div v-if="step" class="kr-panel-flat p-4">
     <label class="form-control">
       <div class="label pb-1">
         <span class="label-text font-bold">{{ step.inputLabel || step.title }}</span>

@@ -59,7 +59,7 @@
 
     <section
       v-if="!activeThread"
-      class="min-h-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+      class="min-h-0 flex-1 overflow-hidden kr-panel-flat"
     >
       <div v-if="isLoading" class="flex h-full items-center justify-center p-6">
         <span class="loading loading-spinner loading-lg text-primary" />
@@ -179,7 +179,7 @@
 
     <section
       v-else
-      class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+      class="flex min-h-0 flex-1 flex-col overflow-hidden kr-panel-flat"
     >
       <div
         class="flex shrink-0 items-center gap-3 border-b border-base-300 bg-base-200 p-3"

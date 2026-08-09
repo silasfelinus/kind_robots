@@ -7,10 +7,7 @@
   fine-tuning to the existing item panel via the select-item event.
 -->
 <template>
-  <div
-    v-if="group"
-    class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
-  >
+  <div v-if="group" class="flex flex-col gap-3 kr-panel-flat p-3">
     <!-- Header -->
     <div class="flex items-start justify-between gap-2">
       <div>

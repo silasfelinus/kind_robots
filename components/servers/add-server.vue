@@ -1,7 +1,7 @@
 <!-- /components/server/add-server.vue -->
 <template>
   <form
-    class="flex max-h-[min(760px,88vh)] flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+    class="flex max-h-[min(760px,88vh)] flex-col overflow-hidden kr-panel-flat"
     @submit.prevent="saveServer"
   >
     <header

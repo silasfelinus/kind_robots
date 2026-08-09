@@ -49,7 +49,7 @@
 
       <div
         v-if="promptPreview"
-        class="mt-3 rounded-2xl border border-base-300 bg-base-100 p-3 text-xs leading-relaxed text-base-content/70"
+        class="mt-3 kr-panel-flat p-3 text-xs leading-relaxed text-base-content/70"
       >
         {{ promptPreview }}
       </div>
@@ -74,7 +74,7 @@
     <Transition name="art-creator-reveal">
       <div
         v-if="generatedImage"
-        class="rounded-2xl border border-base-300 bg-base-100 p-3"
+        class="kr-panel-flat p-3"
       >
         <image-card :art-image="generatedImage" />
       </div>

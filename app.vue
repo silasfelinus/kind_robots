@@ -78,7 +78,7 @@
         <Transition name="kr-sheet-slide">
           <aside
             v-if="workspaceSheetOpen"
-            class="absolute inset-y-0 left-0 z-30 flex h-full min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-xl md:w-(--sheet-w)"
+            class="absolute inset-y-0 left-0 z-30 flex h-full min-h-0 w-full flex-col overflow-hidden kr-panel-flat shadow-xl md:w-(--sheet-w)"
           >
             <fx-region region="sheet" />
 

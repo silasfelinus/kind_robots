@@ -45,14 +45,10 @@
 
       <div class="min-h-0 flex-1 overflow-y-auto p-4">
         <div class="grid grid-cols-1 gap-3 xl:grid-cols-2">
-          <div
-            class="rounded-2xl border border-base-300 bg-base-100 p-1 xl:col-span-2"
-          >
+          <div class="kr-panel-flat p-1 xl:col-span-2">
             <butterfly-demo class="h-64 w-full" />
           </div>
-          <div
-            class="rounded-2xl border border-base-300 bg-base-100 p-3 xl:col-span-2"
-          >
+          <div class="kr-panel-flat p-3 xl:col-span-2">
             <div
               class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
             >
@@ -63,7 +59,7 @@
             </div>
           </div>
 
-          <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+          <div class="kr-panel-flat p-3">
             <div
               class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
             >
@@ -118,7 +114,7 @@
             </div>
           </div>
 
-          <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+          <div class="kr-panel-flat p-3">
             <div
               class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
             >
@@ -153,7 +149,7 @@
             </div>
           </div>
 
-          <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+          <div class="kr-panel-flat p-3">
             <div
               class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
             >
@@ -215,7 +211,7 @@
             </div>
           </div>
 
-          <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+          <div class="kr-panel-flat p-3">
             <div
               class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
             >
@@ -257,7 +253,7 @@
             </div>
           </div>
 
-          <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+          <div class="kr-panel-flat p-3">
             <div
               class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
             >
@@ -303,9 +299,7 @@
             </div>
           </div>
 
-          <div
-            class="rounded-2xl border border-base-300 bg-base-100 p-3 xl:col-span-2"
-          >
+          <div class="kr-panel-flat p-3 xl:col-span-2">
             <div
               class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
             >
@@ -351,9 +345,7 @@
             </div>
           </div>
 
-          <div
-            class="rounded-2xl border border-base-300 bg-base-100 p-3 xl:col-span-2"
-          >
+          <div class="kr-panel-flat p-3 xl:col-span-2">
             <div
               class="text-xs font-semibold uppercase tracking-wide text-base-content/60"
             >

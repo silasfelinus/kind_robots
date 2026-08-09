@@ -312,16 +312,19 @@ export default defineNuxtConfig({
   },
 
   /*
-   * Storymaker was renamed to Storybook on 2026-08-02 (interface-vision t-002).
-   * The old path was a real, linkable route, so it redirects rather than 404s —
-   * a rename the user chose should not cost them their bookmarks or break any
-   * link already shared.
+   * Keep retired public entry points useful instead of turning bookmarks into
+   * dead ends. Memory Dungeon moved from /memory to /play/memory when Lab was
+   * dissolved; /wonder was the friendly entrance to that playful section.
+   * WonderLab Museum remains available at its canonical /plan/wonderlab route.
    *
-   * 301 rather than 302 because this is permanent: there is no plan to bring
-   * /storymaker back, and a permanent code lets crawlers and browsers stop
-   * asking.
+   * Storymaker was renamed to Storybook on 2026-08-02 (interface-vision t-002).
+   * 301 redirects are intentional because these legacy paths are permanent
+   * compatibility aliases, not temporary routing experiments.
    */
   routeRules: {
+    '/memory': { redirect: { to: '/play/memory', statusCode: 301 } },
+    '/wonder': { redirect: { to: '/play/memory', statusCode: 301 } },
+    '/wonderlab': { redirect: { to: '/plan/wonderlab', statusCode: 301 } },
     '/storymaker': { redirect: { to: '/storybook', statusCode: 301 } },
   },
 

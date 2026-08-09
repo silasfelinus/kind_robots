@@ -276,18 +276,29 @@ check(
   updateStart >= 0 && updateEnd > updateStart,
 )
 check(
-  'sync route preserves existing presentation fields',
+  'sync route preserves active Project presentation fields',
   ![
     'title:',
     'description:',
-    'liveUrl:',
-    'channelKey:',
-    'tabKey:',
     'repoUrl:',
     'imagePath:',
     'cardPath:',
     'heroPath:',
+    'liveUrl: project.liveUrl',
+    'channelKey: project.channelKey',
+    'tabKey: project.tabKey',
   ].some((field) => existingProjectUpdate.includes(field)),
+)
+check(
+  'archived Projects become inactive and lose dead placement',
+  existingProjectUpdate.includes('isActive: !isArchived') &&
+    ['liveUrl: null', 'channelKey: null', 'tabKey: null'].every((field) =>
+      existingProjectUpdate.includes(field),
+    ),
+)
+check(
+  'new archived Projects are inactive from creation',
+  syncRoute.includes("isActive: project.status !== 'ARCHIVED'"),
 )
 check(
   'read route uses local projection storage',

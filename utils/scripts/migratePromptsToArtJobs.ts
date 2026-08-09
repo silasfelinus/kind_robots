@@ -7,7 +7,9 @@
 // truth (see /api/art/enqueue).
 //
 // Each migrated Prompt gets:
-//   - a new ArtJob (engine A1111, payload built from artPrompt/prompt + imagePath)
+//   - a new ArtJob (engine COMFY/krea2, payload built from artPrompt/prompt +
+//     imagePath). This said A1111 until 2026-08-09; nothing on the relay serves
+//     A1111, so a migration run would have produced rows that could only fail.
 //   - artStatus cleared to null so it is not double-processed by the deprecated
 //     /api/prompts/generate driver.
 //
@@ -18,6 +20,11 @@
 import 'dotenv/config'
 import { PrismaClient } from './../../prisma/generated/prisma/client'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
+import {
+  buildKrea2WorkflowFromRequest,
+  KREA2_DEFAULT_CFG,
+  KREA2_DEFAULT_STEPS,
+} from './../../server/api/comfy/krea2/utils/workflow'
 
 const databaseUrl = process.env.DATABASE_URL
 if (!databaseUrl) throw new Error('DATABASE_URL is missing')
@@ -90,10 +97,14 @@ async function main() {
     await prisma.$transaction([
       prisma.artJob.create({
         data: {
-          engine: 'A1111',
+          engine: 'COMFY',
           userId: prompt.userId ?? FALLBACK_USER_ID,
           payload: JSON.stringify({
             promptString,
+            steps: KREA2_DEFAULT_STEPS,
+            cfg: KREA2_DEFAULT_CFG,
+            workflow: buildKrea2WorkflowFromRequest({ prompt: promptString })
+              .workflow,
             imagePath: prompt.imagePath ?? null,
             migratedFromPromptId: prompt.id,
             save: {

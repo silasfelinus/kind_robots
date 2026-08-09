@@ -21,6 +21,24 @@ export type ComfyWorkflowInput = {
   steps?: number
   checkpoint?: string | null
   sampler?: string | null
+  /** Optional style LoRA, same shape the img2img builder takes. */
+  loraName?: string | null
+  loraStrength?: number | null
+  width?: number | null
+  height?: number | null
+  filenamePrefix?: string | null
+}
+
+/**
+ * A concrete, non-negative seed. Anything missing or negative becomes a fresh
+ * random one — every Comfy lane in the repo resolves here or in its own copy of
+ * this, so "unspecified seed" always means "different image", never "-1".
+ */
+function resolveSdxlSeed(seed?: number | null): number {
+  if (typeof seed === 'number' && Number.isFinite(seed) && seed >= 0) {
+    return Math.floor(seed)
+  }
+  return Math.floor(Math.random() * 2_147_483_647)
 }
 
 export function normalizeComfySampler(sampler?: string | null): string {
@@ -63,7 +81,11 @@ export function patchComfyWorkflow(
 ): void {
   const positiveText = input.prompt
   const negativeText = input.negativePrompt || ''
-  const seed = input.seed ?? -1
+  // Resolve, don't pass -1 through. generate.post.ts calls this immediately
+  // after buildDefaultComfyWorkflow with the SAME input, so a literal -1 here
+  // would overwrite the random seed the builder just picked and quietly pin the
+  // route to one image per Comfy install.
+  const seed = resolveSdxlSeed(input.seed)
   const steps = input.steps ?? 20
   const cfg = input.cfgValue || 3
   const sampler = normalizeComfySampler(input.sampler)
@@ -142,13 +164,6 @@ export type SdxlImg2ImgInput = {
 export const DEFAULT_SDXL_IMG2IMG_ORIGINAL_WEIGHT = 0.35
 const MIN_SDXL_IMG2IMG_DENOISE = 0.15
 
-function resolveSdxlSeed(seed?: number | null): number {
-  if (typeof seed === 'number' && Number.isFinite(seed) && seed >= 0) {
-    return Math.floor(seed)
-  }
-  return Math.floor(Math.random() * 2_147_483_647)
-}
-
 function clampUnit(value: number): number {
   return Math.min(1, Math.max(0, value))
 }
@@ -187,7 +202,8 @@ export function buildSdxlImg2ImgWorkflow(input: SdxlImg2ImgInput): {
 
   const loraName = input.loraName?.trim() || ''
   const loraStrength =
-    typeof input.loraStrength === 'number' && Number.isFinite(input.loraStrength)
+    typeof input.loraStrength === 'number' &&
+    Number.isFinite(input.loraStrength)
       ? input.loraStrength
       : 1
 
@@ -268,6 +284,16 @@ export function buildSdxlImg2ImgWorkflow(input: SdxlImg2ImgInput): {
   return { workflow, seed, denoise }
 }
 
+/**
+ * SDXL/SD15 txt2img on a NAMED checkpoint.
+ *
+ * This is not the default text-to-image lane — krea2 is (see
+ * server/api/art/enqueue.post.ts). Use this one only when the caller is
+ * generating *for* a specific checkpoint or LoRA and the model is the point of
+ * the image rather than an implementation detail: a Resource preview is the
+ * whole reason it still exists. Rendering that on krea2 would show the user a
+ * lovely picture of the wrong model.
+ */
 export function buildDefaultComfyWorkflow({
   prompt,
   negativePrompt,
@@ -276,8 +302,29 @@ export function buildDefaultComfyWorkflow({
   steps,
   checkpoint,
   sampler,
+  loraName,
+  loraStrength,
+  width,
+  height,
+  filenamePrefix,
 }: ComfyWorkflowInput): ComfyWorkflow {
-  return {
+  // A literal -1 used to reach the KSampler here, unlike every sibling builder
+  // (krea2, flux, kontext, sdxl-img2img) which all resolve through a
+  // random-seed helper. That silently pinned this lane to one seed per Comfy
+  // install: re-running a job returned the same image, and "generate another
+  // preview" was a no-op you could not see was a no-op.
+  const resolvedSeed = resolveSdxlSeed(seed)
+  const style = (loraName || '').trim()
+  const strength =
+    typeof loraStrength === 'number' && Number.isFinite(loraStrength)
+      ? loraStrength
+      : 1
+  // With a LoRA in the graph, model and CLIP come off the LoraLoader instead of
+  // the checkpoint — same wiring as buildSdxlImg2ImgWorkflow.
+  const modelSource: [string, number] = style ? ['10', 0] : ['1', 0]
+  const clipSource: [string, number] = style ? ['10', 1] : ['1', 1]
+
+  const workflow: ComfyWorkflow = {
     '1': {
       class_type: 'CheckpointLoaderSimple',
       inputs: {
@@ -288,7 +335,7 @@ export function buildDefaultComfyWorkflow({
       class_type: 'CLIPTextEncode',
       inputs: {
         text: prompt,
-        clip: ['1', 1],
+        clip: clipSource,
       },
       _meta: {
         title: 'Positive Prompt',
@@ -298,7 +345,7 @@ export function buildDefaultComfyWorkflow({
       class_type: 'CLIPTextEncode',
       inputs: {
         text: negativePrompt || '',
-        clip: ['1', 1],
+        clip: clipSource,
       },
       _meta: {
         title: 'Negative Prompt',
@@ -307,21 +354,21 @@ export function buildDefaultComfyWorkflow({
     '4': {
       class_type: 'EmptyLatentImage',
       inputs: {
-        width: 1024,
-        height: 1024,
+        width: width ?? 1024,
+        height: height ?? 1024,
         batch_size: 1,
       },
     },
     '5': {
       class_type: 'KSampler',
       inputs: {
-        seed: seed ?? -1,
+        seed: resolvedSeed,
         steps: steps ?? 20,
         cfg: cfgValue || 3,
         sampler_name: normalizeComfySampler(sampler),
         scheduler: 'normal',
         denoise: 1,
-        model: ['1', 0],
+        model: modelSource,
         positive: ['2', 0],
         negative: ['3', 0],
         latent_image: ['4', 0],
@@ -337,9 +384,25 @@ export function buildDefaultComfyWorkflow({
     '7': {
       class_type: 'SaveImage',
       inputs: {
-        filename_prefix: 'kindrobots',
+        filename_prefix: filenamePrefix || 'kindrobots',
         images: ['6', 0],
       },
     },
   }
+
+  if (style) {
+    workflow['10'] = {
+      class_type: 'LoraLoader',
+      inputs: {
+        model: ['1', 0],
+        clip: ['1', 1],
+        lora_name: style,
+        strength_model: strength,
+        strength_clip: strength,
+      },
+      _meta: { title: 'Style LoRA' },
+    }
+  }
+
+  return workflow
 }

@@ -10,6 +10,11 @@
 import 'dotenv/config'
 import prisma from './../../server/utils/prisma'
 import { twistedFairyTalesArtPrompts } from './../../stores/seeds/twistedFairyTalesArtPrompts'
+import {
+  buildKrea2WorkflowFromRequest,
+  KREA2_DEFAULT_CFG,
+  KREA2_DEFAULT_STEPS,
+} from './../../server/api/comfy/krea2/utils/workflow'
 
 const WRITE = process.argv.includes('--write')
 const USER_ID = Number(process.env.ART_SEED_USER_ID || 1)
@@ -89,7 +94,7 @@ async function main() {
     missing.map((entry) =>
       prisma.artJob.create({
         data: {
-          engine: 'A1111',
+          engine: 'COMFY',
           priority: PRIORITY,
           projectSlug: PROJECT_SLUG,
           userId: USER_ID,
@@ -102,6 +107,14 @@ async function main() {
             negativePrompt: entry.negativePrompt,
             width: entry.width,
             height: entry.height,
+            steps: KREA2_DEFAULT_STEPS,
+            cfg: KREA2_DEFAULT_CFG,
+            workflow: buildKrea2WorkflowFromRequest({
+              prompt: entry.promptString,
+              negativePrompt: entry.negativePrompt,
+              width: entry.width,
+              height: entry.height,
+            }).workflow,
             imagePath: entry.imagePath,
             sourceImages: entry.sourceImages,
             save: {

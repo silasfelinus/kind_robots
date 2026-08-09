@@ -7,7 +7,7 @@ import type {
 } from '~/prisma/generated/prisma/client'
 import prisma, { isStaleDatabaseConnectionError } from '~/server/utils/prisma'
 import {
-  createProjectScaffoldTodoDirect,
+  projectScaffoldTodoContent,
   upsertProjectDirect,
 } from '~/server/utils/projectDirectWrite'
 import { errorHandler } from '~/server/utils/error'
@@ -62,21 +62,6 @@ function getWorkerUserId(): number {
   return Number.isInteger(raw) && raw > 0 ? raw : 1
 }
 
-function scaffoldTodoContent(input: {
-  conductorSlug: string
-  projectId: number
-  requesterUserId: number
-}) {
-  const title = `Scaffold conductor project for ${input.conductorSlug}`
-  const description = [
-    `New Project created by Kind Robots user ${input.requesterUserId} with slug '${input.conductorSlug}'.`,
-    `Create projects/${input.conductorSlug}/roadmap.yaml with at least one ready task.`,
-    `Project ${input.projectId} already exists in Kind Robots; do not create another.`,
-  ].join('\n')
-
-  return { title, description }
-}
-
 async function createProjectWithScaffoldTodo(
   data: Prisma.ProjectUncheckedCreateInput,
   conductorSlug: string,
@@ -88,7 +73,7 @@ async function createProjectWithScaffoldTodo(
         data,
         select: projectMutationSelect,
       })
-      const todoContent = scaffoldTodoContent({
+      const todoContent = projectScaffoldTodoContent({
         conductorSlug,
         projectId: project.id,
         requesterUserId,
@@ -115,27 +100,7 @@ async function createProjectWithScaffoldTodo(
       action: 'upsert-with-scaffold-todo',
     })
 
-    const project = await upsertProjectDirect(data, conductorSlug)
-    const projectId = Number((project as Record<string, unknown>).id)
-    if (!Number.isInteger(projectId) || projectId <= 0) {
-      throw new Error(
-        `Direct Project upsert returned an invalid id for ${conductorSlug}.`,
-        { cause: error },
-      )
-    }
-    const todoContent = scaffoldTodoContent({
-      conductorSlug,
-      projectId,
-      requesterUserId,
-    })
-
-    await createProjectScaffoldTodoDirect({
-      projectId,
-      ...todoContent,
-      workerUserId: getWorkerUserId(),
-    })
-
-    return project
+    return upsertProjectDirect(data, conductorSlug)
   }
 }
 

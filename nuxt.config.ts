@@ -247,9 +247,6 @@ export default defineNuxtConfig({
       globPatterns: ['**/*.{js,css,ico,png,svg,webp,woff2}'],
       navigateFallback: null,
     },
-    client: {
-      installPrompt: true,
-    },
   },
 
   components: [

@@ -1,51 +1,37 @@
-# syntax = docker/dockerfile:1
+# syntax=docker/dockerfile:1
 
-FROM node:alpine AS base
+FROM node:24-alpine AS build
 
-WORKDIR /src
+WORKDIR /app
 
-RUN chown -R node:node /src
+ENV NUXT_TELEMETRY_DISABLED=1
 
-# Build
-FROM base AS build
+COPY . .
 
-USER root
-
-COPY --link package.json package-lock.json ./
-COPY --link prisma/* ./prisma
-
-RUN npm install --omit=dev
-
-RUN npm install prisma
-
-COPY --link . .
-
-RUN chown -R node:node /src
-
-USER root
-
-RUN chmod +x ./node_modules/.bin/prisma
-RUN chmod +x ./node_modules/.bin/nuxt
-
-USER node
-
+RUN npm ci
 RUN npx prisma generate
+RUN npm run build
 
-RUN ./node_modules/.bin/nuxt build
+FROM node:24-alpine AS runtime
 
+WORKDIR /app
 
-# Run
-FROM base
+ENV NODE_ENV=production \
+    HOST=0.0.0.0 \
+    PORT=3000 \
+    NITRO_HOST=0.0.0.0 \
+    NITRO_PORT=3000 \
+    NUXT_TELEMETRY_DISABLED=1
+
+COPY --from=build --chown=node:node /app/.output ./.output
+COPY --from=build --chown=node:node /app/node_modules ./node_modules
+COPY --from=build --chown=node:node /app/package.json ./package.json
 
 USER node
 
-# Define PORT at build time and set it as an environment variable
-ARG PORT=3000
-ENV PORT=$PORT
+EXPOSE 3000
 
-EXPOSE $PORT
+HEALTHCHECK --interval=30s --timeout=10s --start-period=45s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:3000/api/health/database').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"
 
-COPY --from=build /src/.output /src/.output
-COPY --from=build /src/node_modules /src/node_modules
-
-CMD ["node", ".output/server/index.mjs"]
+CMD ["node", "--env-file-if-exists=/config/kind-robots.env", ".output/server/index.mjs"]

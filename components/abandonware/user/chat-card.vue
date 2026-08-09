@@ -84,7 +84,7 @@
       />
     </header>
 
-    <section class="rounded-2xl border border-base-300 bg-base-100 p-3">
+    <section class="kr-panel-flat p-3">
       <div class="mb-2 flex items-center justify-between gap-2">
         <p
           class="text-xs font-bold uppercase tracking-wide text-base-content/45"
@@ -166,10 +166,7 @@
     </section>
 
     <Transition name="reply-expand">
-      <section
-        v-if="showReply"
-        class="rounded-2xl border border-base-300 bg-base-100 p-3"
-      >
+      <section v-if="showReply" class="kr-panel-flat p-3">
         <label class="form-control">
           <span class="label">
             <span class="label-text font-bold"> Continue this exchange </span>

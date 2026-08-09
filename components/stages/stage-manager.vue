@@ -320,7 +320,7 @@
                     v-for="p in store.performers"
                     :key="p.id"
                     type="button"
-                    class="flex items-center gap-2 rounded-2xl border border-base-300 bg-base-100 p-2.5 text-left hover:border-primary/40 transition-all"
+                    class="flex items-center gap-2 kr-panel-flat p-2.5 text-left hover:border-primary/40 transition-all"
                     :draggable="true"
                     @click="pendingPerformer = p"
                   >
@@ -404,7 +404,7 @@
             <div
               v-for="role in store.selectedStage.roles"
               :key="role.key"
-              class="flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-100 p-4"
+              class="flex flex-col gap-2 kr-panel-flat p-4"
             >
               <header class="flex items-center justify-between gap-2">
                 <div class="flex items-center gap-3">

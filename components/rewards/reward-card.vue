@@ -62,7 +62,7 @@
     >
       <div
         v-if="showStats"
-        class="mx-0.5 mt-2.5 grid grid-cols-2 gap-2 rounded-2xl border border-base-300 bg-base-100 p-3 text-xs"
+        class="mx-0.5 mt-2.5 grid grid-cols-2 gap-2 kr-panel-flat p-3 text-xs"
       >
         <div>
           <p class="font-bold uppercase text-base-content/45">ID</p>
@@ -104,7 +104,7 @@
 
       <details
         v-if="showDebug"
-        class="mx-0.5 mt-2.5 rounded-2xl border border-base-300 bg-base-100 p-2"
+        class="mx-0.5 mt-2.5 kr-panel-flat p-2"
         @click.stop
       >
         <summary class="cursor-pointer text-xs font-bold text-base-content/70">

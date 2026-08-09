@@ -177,10 +177,7 @@
           @open="openScenario"
         />
 
-        <section
-          v-if="showSelectedCharacterCards"
-          class="rounded-2xl border border-base-300 bg-base-100 p-3"
-        >
+        <section v-if="showSelectedCharacterCards" class="kr-panel-flat p-3">
           <div class="mb-3 flex items-center justify-between gap-3">
             <div class="min-w-0">
               <h3 class="truncate text-base font-black text-base-content">
@@ -326,10 +323,7 @@
           </template>
         </kr-gallery>
 
-        <section
-          v-if="showSelectedCharacterCards"
-          class="rounded-2xl border border-base-300 bg-base-100 p-3"
-        >
+        <section v-if="showSelectedCharacterCards" class="kr-panel-flat p-3">
           <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
             <div class="min-w-0">
               <h3 class="truncate text-base font-black text-base-content">

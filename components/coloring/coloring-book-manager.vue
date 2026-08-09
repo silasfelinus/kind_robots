@@ -171,9 +171,7 @@
           @fill-request="onFillRequest"
         />
 
-        <aside
-          class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
-        >
+        <aside class="flex flex-col gap-3 kr-panel-flat p-3">
           <p
             class="flex items-center gap-1.5 text-xs font-black uppercase tracking-wide text-base-content/60"
           >

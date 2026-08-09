@@ -81,7 +81,7 @@
       </div>
 
       <!-- Leaderboard -->
-      <div class="flex flex-col rounded-2xl border border-base-300 bg-base-100">
+      <div class="flex flex-col kr-panel-flat">
         <div class="flex items-center gap-2 border-b border-base-300 px-4 py-3">
           <span
             class="flex h-7 w-7 items-center justify-center rounded-lg bg-secondary/15 text-secondary"
@@ -96,7 +96,7 @@
       </div>
 
       <!-- Undiscovered -->
-      <div class="flex flex-col rounded-2xl border border-base-300 bg-base-100">
+      <div class="flex flex-col kr-panel-flat">
         <div class="flex items-center gap-2 border-b border-base-300 px-4 py-3">
           <span
             class="flex h-7 w-7 items-center justify-center rounded-lg bg-base-300 text-base-content/50"

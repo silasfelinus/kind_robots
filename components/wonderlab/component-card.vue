@@ -120,7 +120,7 @@
 
     <div
       v-if="showMeta"
-      class="grid grid-cols-2 gap-2 rounded-2xl border border-base-300 bg-base-100 p-3 text-xs"
+      class="grid grid-cols-2 gap-2 kr-panel-flat p-3 text-xs"
     >
       <div>
         <p class="font-bold uppercase text-base-content/45">Folder</p>
@@ -162,7 +162,7 @@
 
     <details
       v-if="showDebug"
-      class="rounded-2xl border border-base-300 bg-base-100 p-2"
+      class="kr-panel-flat p-2"
       @click.stop
     >
       <summary class="cursor-pointer text-xs font-bold text-base-content/70">

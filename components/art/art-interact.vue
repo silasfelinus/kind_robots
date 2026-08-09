@@ -145,10 +145,7 @@
           :auto-load-image="true"
         />
 
-        <details
-          class="rounded-2xl border border-base-300 bg-base-100 p-3"
-          open
-        >
+        <details class="kr-panel-flat p-3" open>
           <summary
             class="flex cursor-pointer list-none items-center justify-between gap-2"
           >
@@ -197,9 +194,7 @@
       </aside>
 
       <!-- Main: editing panel -->
-      <main
-        class="kr-pane-scroll rounded-2xl border border-base-300 bg-base-100"
-      >
+      <main class="kr-pane-scroll kr-panel-flat">
         <div class="grid gap-3 p-3">
           <!-- Quick Edit -->
           <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
@@ -407,7 +402,7 @@
 
               <div
                 v-if="isCollectionMenuOpen"
-                class="absolute left-0 right-0 top-full z-30 mt-2 rounded-2xl border border-base-300 bg-base-100 p-3 shadow-xl"
+                class="absolute left-0 right-0 top-full z-30 mt-2 kr-panel-flat p-3 shadow-xl"
               >
                 <div class="mb-2 flex items-center justify-between gap-2">
                   <p class="text-sm font-black text-base-content">

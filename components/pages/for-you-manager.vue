@@ -405,7 +405,7 @@
 
             <div
               v-else-if="conductorStore.hasLiveData && !conductorStore.pending"
-              class="rounded-2xl border border-base-300 bg-base-100 px-5 py-7 text-center"
+              class="kr-panel-flat px-5 py-7 text-center"
             >
               <Icon
                 name="kind-icon:lightbulb"
@@ -462,10 +462,7 @@
             />
           </div>
 
-          <div
-            v-else
-            class="rounded-2xl border border-base-300 bg-base-100 px-5 py-7 text-center"
-          >
+          <div v-else class="kr-panel-flat px-5 py-7 text-center">
             <Icon
               name="kind-icon:check-circle"
               class="mx-auto mb-2 size-8 text-success/45"

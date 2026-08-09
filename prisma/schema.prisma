@@ -1579,13 +1579,33 @@ model ArtJob {
   error       String?      @db.Text
   userId      Int
   projectId   Int?
-  Project     Project?     @relation(fields: [projectId], references: [id])
-  User        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// Mirror of `payload.attemptFingerprint`, promoted to its own indexed column
+  /// purely so the enqueue dedup lookup stops scanning LongText.
+  ///
+  /// POST /api/art/queue found an existing attempt with
+  /// `payload: { contains: '"attemptFingerprint":"…"' }` — a `LIKE '%…%'` no
+  /// index can serve — inside an interactive transaction holding one of only
+  /// two pool connections. Two things made it degrade rather than merely be
+  /// slow: the status filter includes DONE, so the scan covered every job the
+  /// user had ever completed and grew forever, and `GET_LOCK(name, 3)` sat in
+  /// front of it. Production, 2026-08-09: "The timeout for this transaction was
+  /// 10000 ms, however 16096 ms passed", and pool errors reading
+  /// `active=2 idle=0 limit=2` across ~24 routes.
+  ///
+  /// Nullable because pre-migration rows are backfilled from their payload and
+  /// anything unparseable stays NULL, and because most create sites build a
+  /// fresh payload that has no fingerprint at all.
+  attemptFingerprint String? @db.VarChar(64)
+
+  Project Project? @relation(fields: [projectId], references: [id])
+  User    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([status, priority, id])
   @@index([userId])
   @@index([projectSlug])
   @@index([projectId])
+  @@index([userId, attemptFingerprint])
 }
 
 /// Singleton control row for the ArtJob queue. When `paused` is true the claim

@@ -134,11 +134,8 @@ export default defineEventHandler(async (event) => {
       },
     )
 
-    const fingerprintNeedle = `"attemptFingerprint":"${provenance.attemptFingerprint}"`
-    const lockName = `artjob:${auth.user.id}:${provenance.attemptFingerprint}`.slice(
-      0,
-      64,
-    )
+    const lockName =
+      `artjob:${auth.user.id}:${provenance.attemptFingerprint}`.slice(0, 64)
 
     const result = await prisma.$transaction(
       async (tx) => {
@@ -155,11 +152,23 @@ export default defineEventHandler(async (event) => {
         }
 
         try {
+          /*
+           * BY COLUMN, NOT BY LIKE. This was
+           *   payload: { contains: '"attemptFingerprint":"…"' }
+           * which no index can serve, so it scanned every LongText payload this
+           * user had ever produced -- inside this transaction, holding one of
+           * two pool connections. See ArtJob.attemptFingerprint in
+           * prisma/schema.prisma for the production numbers.
+           *
+           * Same semantics: the column mirrors payload.attemptFingerprint, and
+           * migration 20260809210000 backfilled it from the payload for every
+           * pre-existing row.
+           */
           const existing = await tx.artJob.findFirst({
             where: {
               userId: auth.user.id,
               status: { in: ['PENDING', 'RUNNING', 'DONE'] },
-              payload: { contains: fingerprintNeedle },
+              attemptFingerprint: provenance.attemptFingerprint,
             },
             orderBy: { id: 'desc' },
           })
@@ -172,6 +181,7 @@ export default defineEventHandler(async (event) => {
             data: {
               engine: engine as 'A1111' | 'COMFY',
               payload: serializeArtJobPayload(payload),
+              attemptFingerprint: provenance.attemptFingerprint,
               priority,
               projectSlug,
               userId: auth.user.id,

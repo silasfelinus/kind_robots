@@ -30,6 +30,29 @@ export function serializeArtJobPayload(value: unknown): string {
   return JSON.stringify(parseArtJobPayload(value))
 }
 
+/**
+ * The attempt fingerprint carried inside a payload, or null when it has none.
+ *
+ * ArtJob.attemptFingerprint exists so the enqueue dedup lookup can use an index
+ * instead of `payload LIKE '%…%'` over LongText — see the column's note in
+ * prisma/schema.prisma. The value still lives in the payload as well
+ * (artJobProvenance.ts sets it there); this reads it back out so a create site
+ * can mirror it into the column without knowing how provenance is built.
+ *
+ * Every create site whose payload can carry a fingerprint must use this, not
+ * just the one that mints it: `/api/art/queue/[id]/reenqueue` and
+ * `/api/art/queue/repair-weak-prompts` both derive their payload from an
+ * existing job and therefore INHERIT its fingerprint. Under the old LIKE scan
+ * those inherited copies were dedup targets automatically; a column that only
+ * the minting endpoint fills would silently stop matching them.
+ */
+export function attemptFingerprintFromPayload(value: unknown): string | null {
+  const fingerprint = parseArtJobPayload(value).attemptFingerprint
+  return typeof fingerprint === 'string' && fingerprint.length
+    ? fingerprint
+    : null
+}
+
 export function decodeArtJobPayload<T extends Pick<ArtJob, 'payload'>>(
   job: T,
 ): DecodedArtJob<T> {

@@ -65,6 +65,7 @@ export type ArtJobMinAggregateOutputType = {
   error: string | null
   userId: number | null
   projectId: number | null
+  attemptFingerprint: string | null
 }
 
 export type ArtJobMaxAggregateOutputType = {
@@ -83,6 +84,7 @@ export type ArtJobMaxAggregateOutputType = {
   error: string | null
   userId: number | null
   projectId: number | null
+  attemptFingerprint: string | null
 }
 
 export type ArtJobCountAggregateOutputType = {
@@ -101,6 +103,7 @@ export type ArtJobCountAggregateOutputType = {
   error: number
   userId: number
   projectId: number
+  attemptFingerprint: number
   _all: number
 }
 
@@ -139,6 +142,7 @@ export type ArtJobMinAggregateInputType = {
   error?: true
   userId?: true
   projectId?: true
+  attemptFingerprint?: true
 }
 
 export type ArtJobMaxAggregateInputType = {
@@ -157,6 +161,7 @@ export type ArtJobMaxAggregateInputType = {
   error?: true
   userId?: true
   projectId?: true
+  attemptFingerprint?: true
 }
 
 export type ArtJobCountAggregateInputType = {
@@ -175,6 +180,7 @@ export type ArtJobCountAggregateInputType = {
   error?: true
   userId?: true
   projectId?: true
+  attemptFingerprint?: true
   _all?: true
 }
 
@@ -280,6 +286,7 @@ export type ArtJobGroupByOutputType = {
   error: string | null
   userId: number
   projectId: number | null
+  attemptFingerprint: string | null
   _count: ArtJobCountAggregateOutputType | null
   _avg: ArtJobAvgAggregateOutputType | null
   _sum: ArtJobSumAggregateOutputType | null
@@ -321,6 +328,7 @@ export type ArtJobWhereInput = {
   error?: Prisma.StringNullableFilter<"ArtJob"> | string | null
   userId?: Prisma.IntFilter<"ArtJob"> | number
   projectId?: Prisma.IntNullableFilter<"ArtJob"> | number | null
+  attemptFingerprint?: Prisma.StringNullableFilter<"ArtJob"> | string | null
   Project?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
@@ -341,6 +349,7 @@ export type ArtJobOrderByWithRelationInput = {
   error?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrder
   projectId?: Prisma.SortOrderInput | Prisma.SortOrder
+  attemptFingerprint?: Prisma.SortOrderInput | Prisma.SortOrder
   Project?: Prisma.ProjectOrderByWithRelationInput
   User?: Prisma.UserOrderByWithRelationInput
   _relevance?: Prisma.ArtJobOrderByRelevanceInput
@@ -365,6 +374,7 @@ export type ArtJobWhereUniqueInput = Prisma.AtLeast<{
   error?: Prisma.StringNullableFilter<"ArtJob"> | string | null
   userId?: Prisma.IntFilter<"ArtJob"> | number
   projectId?: Prisma.IntNullableFilter<"ArtJob"> | number | null
+  attemptFingerprint?: Prisma.StringNullableFilter<"ArtJob"> | string | null
   Project?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id">
@@ -385,6 +395,7 @@ export type ArtJobOrderByWithAggregationInput = {
   error?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrder
   projectId?: Prisma.SortOrderInput | Prisma.SortOrder
+  attemptFingerprint?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ArtJobCountOrderByAggregateInput
   _avg?: Prisma.ArtJobAvgOrderByAggregateInput
   _max?: Prisma.ArtJobMaxOrderByAggregateInput
@@ -411,6 +422,7 @@ export type ArtJobScalarWhereWithAggregatesInput = {
   error?: Prisma.StringNullableWithAggregatesFilter<"ArtJob"> | string | null
   userId?: Prisma.IntWithAggregatesFilter<"ArtJob"> | number
   projectId?: Prisma.IntNullableWithAggregatesFilter<"ArtJob"> | number | null
+  attemptFingerprint?: Prisma.StringNullableWithAggregatesFilter<"ArtJob"> | string | null
 }
 
 export type ArtJobCreateInput = {
@@ -426,6 +438,7 @@ export type ArtJobCreateInput = {
   projectSlug?: string | null
   artImageId?: number | null
   error?: string | null
+  attemptFingerprint?: string | null
   Project?: Prisma.ProjectCreateNestedOneWithoutArtJobsInput
   User: Prisma.UserCreateNestedOneWithoutArtJobsInput
 }
@@ -446,6 +459,7 @@ export type ArtJobUncheckedCreateInput = {
   error?: string | null
   userId: number
   projectId?: number | null
+  attemptFingerprint?: string | null
 }
 
 export type ArtJobUpdateInput = {
@@ -461,6 +475,7 @@ export type ArtJobUpdateInput = {
   projectSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attemptFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Project?: Prisma.ProjectUpdateOneWithoutArtJobsNestedInput
   User?: Prisma.UserUpdateOneRequiredWithoutArtJobsNestedInput
 }
@@ -481,6 +496,7 @@ export type ArtJobUncheckedUpdateInput = {
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  attemptFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ArtJobCreateManyInput = {
@@ -499,6 +515,7 @@ export type ArtJobCreateManyInput = {
   error?: string | null
   userId: number
   projectId?: number | null
+  attemptFingerprint?: string | null
 }
 
 export type ArtJobUpdateManyMutationInput = {
@@ -514,6 +531,7 @@ export type ArtJobUpdateManyMutationInput = {
   projectSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attemptFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ArtJobUncheckedUpdateManyInput = {
@@ -532,6 +550,7 @@ export type ArtJobUncheckedUpdateManyInput = {
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  attemptFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ArtJobListRelationFilter = {
@@ -566,6 +585,7 @@ export type ArtJobCountOrderByAggregateInput = {
   error?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
+  attemptFingerprint?: Prisma.SortOrder
 }
 
 export type ArtJobAvgOrderByAggregateInput = {
@@ -593,6 +613,7 @@ export type ArtJobMaxOrderByAggregateInput = {
   error?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
+  attemptFingerprint?: Prisma.SortOrder
 }
 
 export type ArtJobMinOrderByAggregateInput = {
@@ -611,6 +632,7 @@ export type ArtJobMinOrderByAggregateInput = {
   error?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
+  attemptFingerprint?: Prisma.SortOrder
 }
 
 export type ArtJobSumOrderByAggregateInput = {
@@ -723,6 +745,7 @@ export type ArtJobCreateWithoutProjectInput = {
   projectSlug?: string | null
   artImageId?: number | null
   error?: string | null
+  attemptFingerprint?: string | null
   User: Prisma.UserCreateNestedOneWithoutArtJobsInput
 }
 
@@ -741,6 +764,7 @@ export type ArtJobUncheckedCreateWithoutProjectInput = {
   artImageId?: number | null
   error?: string | null
   userId: number
+  attemptFingerprint?: string | null
 }
 
 export type ArtJobCreateOrConnectWithoutProjectInput = {
@@ -788,6 +812,7 @@ export type ArtJobScalarWhereInput = {
   error?: Prisma.StringNullableFilter<"ArtJob"> | string | null
   userId?: Prisma.IntFilter<"ArtJob"> | number
   projectId?: Prisma.IntNullableFilter<"ArtJob"> | number | null
+  attemptFingerprint?: Prisma.StringNullableFilter<"ArtJob"> | string | null
 }
 
 export type ArtJobCreateWithoutUserInput = {
@@ -803,6 +828,7 @@ export type ArtJobCreateWithoutUserInput = {
   projectSlug?: string | null
   artImageId?: number | null
   error?: string | null
+  attemptFingerprint?: string | null
   Project?: Prisma.ProjectCreateNestedOneWithoutArtJobsInput
 }
 
@@ -821,6 +847,7 @@ export type ArtJobUncheckedCreateWithoutUserInput = {
   artImageId?: number | null
   error?: string | null
   projectId?: number | null
+  attemptFingerprint?: string | null
 }
 
 export type ArtJobCreateOrConnectWithoutUserInput = {
@@ -864,6 +891,7 @@ export type ArtJobCreateManyProjectInput = {
   artImageId?: number | null
   error?: string | null
   userId: number
+  attemptFingerprint?: string | null
 }
 
 export type ArtJobUpdateWithoutProjectInput = {
@@ -879,6 +907,7 @@ export type ArtJobUpdateWithoutProjectInput = {
   projectSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attemptFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   User?: Prisma.UserUpdateOneRequiredWithoutArtJobsNestedInput
 }
 
@@ -897,6 +926,7 @@ export type ArtJobUncheckedUpdateWithoutProjectInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
+  attemptFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ArtJobUncheckedUpdateManyWithoutProjectInput = {
@@ -914,6 +944,7 @@ export type ArtJobUncheckedUpdateManyWithoutProjectInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.IntFieldUpdateOperationsInput | number
+  attemptFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ArtJobCreateManyUserInput = {
@@ -931,6 +962,7 @@ export type ArtJobCreateManyUserInput = {
   artImageId?: number | null
   error?: string | null
   projectId?: number | null
+  attemptFingerprint?: string | null
 }
 
 export type ArtJobUpdateWithoutUserInput = {
@@ -946,6 +978,7 @@ export type ArtJobUpdateWithoutUserInput = {
   projectSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attemptFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Project?: Prisma.ProjectUpdateOneWithoutArtJobsNestedInput
 }
 
@@ -964,6 +997,7 @@ export type ArtJobUncheckedUpdateWithoutUserInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  attemptFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ArtJobUncheckedUpdateManyWithoutUserInput = {
@@ -981,6 +1015,7 @@ export type ArtJobUncheckedUpdateManyWithoutUserInput = {
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  attemptFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -1001,6 +1036,7 @@ export type ArtJobSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   error?: boolean
   userId?: boolean
   projectId?: boolean
+  attemptFingerprint?: boolean
   Project?: boolean | Prisma.ArtJob$ProjectArgs<ExtArgs>
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["artJob"]>
@@ -1023,9 +1059,10 @@ export type ArtJobSelectScalar = {
   error?: boolean
   userId?: boolean
   projectId?: boolean
+  attemptFingerprint?: boolean
 }
 
-export type ArtJobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "status" | "engine" | "payload" | "priority" | "attempts" | "claimedAt" | "claimedBy" | "projectSlug" | "artImageId" | "error" | "userId" | "projectId", ExtArgs["result"]["artJob"]>
+export type ArtJobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "status" | "engine" | "payload" | "priority" | "attempts" | "claimedAt" | "claimedBy" | "projectSlug" | "artImageId" | "error" | "userId" | "projectId" | "attemptFingerprint", ExtArgs["result"]["artJob"]>
 export type ArtJobInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Project?: boolean | Prisma.ArtJob$ProjectArgs<ExtArgs>
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1053,6 +1090,25 @@ export type $ArtJobPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     error: string | null
     userId: number
     projectId: number | null
+    /**
+     * Mirror of `payload.attemptFingerprint`, promoted to its own indexed column
+     * purely so the enqueue dedup lookup stops scanning LongText.
+     * 
+     * POST /api/art/queue found an existing attempt with
+     * `payload: { contains: '"attemptFingerprint":"…"' }` — a `LIKE '%…%'` no
+     * index can serve — inside an interactive transaction holding one of only
+     * two pool connections. Two things made it degrade rather than merely be
+     * slow: the status filter includes DONE, so the scan covered every job the
+     * user had ever completed and grew forever, and `GET_LOCK(name, 3)` sat in
+     * front of it. Production, 2026-08-09: "The timeout for this transaction was
+     * 10000 ms, however 16096 ms passed", and pool errors reading
+     * `active=2 idle=0 limit=2` across ~24 routes.
+     * 
+     * Nullable because pre-migration rows are backfilled from their payload and
+     * anything unparseable stays NULL, and because most create sites build a
+     * fresh payload that has no fingerprint at all.
+     */
+    attemptFingerprint: string | null
   }, ExtArgs["result"]["artJob"]>
   composites: {}
 }
@@ -1439,6 +1495,7 @@ export interface ArtJobFieldRefs {
   readonly error: Prisma.FieldRef<"ArtJob", 'String'>
   readonly userId: Prisma.FieldRef<"ArtJob", 'Int'>
   readonly projectId: Prisma.FieldRef<"ArtJob", 'Int'>
+  readonly attemptFingerprint: Prisma.FieldRef<"ArtJob", 'String'>
 }
     
 

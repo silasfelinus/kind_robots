@@ -1,14 +1,10 @@
 // /server/api/art/queue/[id]/reenqueue.post.ts
-import {
-  createError,
-  defineEventHandler,
-  getRouterParam,
-  readBody,
-} from 'h3'
+import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
 import prisma from '../../../../utils/prisma'
 import { errorHandler } from '../../../../utils/error'
 import { requireMachineUser } from '../../../../utils/authGuard'
 import {
+  attemptFingerprintFromPayload,
   decodeArtJobPayload,
   serializeArtJobPayload,
 } from '../../../../utils/artJobPayload'
@@ -26,7 +22,10 @@ import {
   readArtFacetIds,
   resolveArtFacetSelection,
 } from '../../../../utils/artFacetSelection'
-import { assessArtPrompt, cleanArtPrompt } from '../../../../utils/artPromptQuality'
+import {
+  assessArtPrompt,
+  cleanArtPrompt,
+} from '../../../../utils/artPromptQuality'
 import {
   buildWorkflowForEngine,
   extractRenderRequest,
@@ -60,8 +59,12 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'Invalid job id.' })
     }
 
-    const body = (await readBody(event).catch(() => null)) as ReenqueueBody | null
-    const mode = String(body?.mode || 'NEW_OUTPUT').toUpperCase() as ArtJobRetryMode
+    const body = (await readBody(event).catch(
+      () => null,
+    )) as ReenqueueBody | null
+    const mode = String(
+      body?.mode || 'NEW_OUTPUT',
+    ).toUpperCase() as ArtJobRetryMode
     const hasSeedOverride =
       typeof body?.overrides?.seed === 'number' &&
       Number.isFinite(body.overrides.seed)
@@ -111,7 +114,8 @@ export default defineEventHandler(async (event) => {
     const requestedBasePrompt = cleanArtPrompt(
       body?.overrides?.basePromptString ?? body?.overrides?.promptString,
     )
-    const basePrompt = requestedBasePrompt || currentBasePrompt || sourceRequest.prompt
+    const basePrompt =
+      requestedBasePrompt || currentBasePrompt || sourceRequest.prompt
     const hasFacetOverride = Array.isArray(body?.overrides?.facetIds)
     const facetIds = hasFacetOverride
       ? body?.overrides?.facetIds
@@ -163,6 +167,11 @@ export default defineEventHandler(async (event) => {
         data: {
           engine: jobEngine,
           payload: serializeArtJobPayload(payload),
+          // Inherited from the source job's payload -- see
+          // attemptFingerprintFromPayload. A re-enqueue that kept the
+          // fingerprint in its payload but not in the column would silently
+          // stop being a dedup target.
+          attemptFingerprint: attemptFingerprintFromPayload(payload),
           priority: source.priority,
           projectSlug: source.projectSlug,
           projectId: source.projectId,

@@ -318,6 +318,7 @@ onBeforeUnmount(() => {
  */
 .startup-animation__stage--immersive {
   background: #000;
+  pointer-events: auto;
   opacity: 1;
 }
 

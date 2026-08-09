@@ -35,4 +35,4 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=45s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:3000/api/health/database').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"
 
-CMD ["node", ".output/server/index.mjs"]
+CMD ["node", "--env-file-if-exists=/config/kind-robots.env", ".output/server/index.mjs"]

@@ -33,7 +33,7 @@
 
       <div
         tabindex="0"
-        class="dropdown-content z-50 mt-2 w-80 rounded-2xl border border-base-300 bg-base-100 p-2 shadow-xl"
+        class="dropdown-content z-50 mt-2 w-80 kr-panel-flat p-2 shadow-xl"
       >
         <div class="flex items-center justify-between px-2 py-1">
           <span class="font-black">Notifications</span>

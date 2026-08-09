@@ -4,7 +4,7 @@
     class="relative flex h-full w-full items-center justify-center rounded-2xl border border-base-300 bg-base-200 p-4"
   >
     <div
-      class="butterfly-card relative flex h-full w-full max-w-md flex-col items-center justify-center rounded-2xl border border-base-300 bg-base-100 p-6 text-base-content shadow-lg"
+      class="butterfly-card relative flex h-full w-full max-w-md flex-col items-center justify-center kr-panel-flat p-6 text-base-content shadow-lg"
     >
       <template v-if="currentButterfly">
         <div

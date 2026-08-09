@@ -293,7 +293,7 @@
           </button>
           <div
             tabindex="0"
-            class="dropdown-content z-10 mt-1 grid grid-cols-4 gap-1 rounded-2xl border border-base-300 bg-base-100 p-2 shadow-lg"
+            class="dropdown-content z-10 mt-1 grid grid-cols-4 gap-1 kr-panel-flat p-2 shadow-lg"
           >
             <button
               v-for="monthOption in MONTH_LABELS"

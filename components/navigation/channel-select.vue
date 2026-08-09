@@ -41,7 +41,7 @@
     >
       <ul
         ref="channelMenu"
-        class="menu w-[min(22rem,calc(100vw-1rem))] flex-nowrap overflow-x-hidden kr-anchor-scroll rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
+        class="menu w-[min(22rem,calc(100vw-1rem))] flex-nowrap overflow-x-hidden kr-anchor-scroll kr-panel-flat p-2 shadow-2xl"
         :style="{
           maxHeight: `${channelMenuMaxHeight}px`,
           scrollbarGutter: 'stable',
@@ -129,7 +129,7 @@
       <div
         v-if="expandedChannel && submenuMode === 'flyout'"
         ref="channelFlyout"
-        class="channel-submenu absolute left-full z-120 ml-2 flex-nowrap overflow-x-hidden kr-anchor-scroll rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
+        class="channel-submenu absolute left-full z-120 ml-2 flex-nowrap overflow-x-hidden kr-anchor-scroll kr-panel-flat p-2 shadow-2xl"
         :class="channelFlyoutColumns === 2 ? 'w-[40rem]' : 'w-80'"
         :style="{
           top: `${channelFlyoutTop}px`,

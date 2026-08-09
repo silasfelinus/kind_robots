@@ -20,6 +20,15 @@ interface GoogleUserInfoResponse {
   picture: string
 }
 
+function getGoogleRedirectUri() {
+  return (
+    process.env.GOOGLE_REDIRECT_URI ||
+    (process.env.VERCEL
+      ? 'https://kind-robots.vercel.app/api/auth/google/callback'
+      : 'https://kindrobots.org/api/auth/google/callback')
+  )
+}
+
 export default defineEventHandler(async (event) => {
   const { code } = getQuery(event)
 
@@ -33,7 +42,14 @@ export default defineEventHandler(async (event) => {
 
   const clientId = process.env.GOOGLE_ID
   const clientSecret = process.env.GOOGLE_SECRET
-  const redirectUri = 'https://kind-robots.vercel.app/api/auth/google/callback'
+  const redirectUri = getGoogleRedirectUri()
+
+  if (!clientId || !clientSecret) {
+    throw createError({
+      statusCode: 500,
+      message: 'Google OAuth credentials are not configured',
+    })
+  }
 
   try {
     const tokenResponse = await $fetch<GoogleTokenResponse, string>(

@@ -84,13 +84,22 @@ export default defineEventHandler(async (event) => {
         }
 
         if (existing) {
+          const isArchived = project.status === 'ARCHIVED'
           await tx.project.update({
             where: { id: existing.id },
             data: {
               conductorSlug: existing.conductorSlug ?? project.slug,
               status: project.status as ProjectStatus,
               priority: project.priority as ProjectPriority,
+              isActive: !isArchived,
               lastSyncedAt: syncedAt,
+              ...(isArchived
+                ? {
+                    liveUrl: null,
+                    channelKey: null,
+                    tabKey: null,
+                  }
+                : {}),
             },
           })
           updatedProjects += 1
@@ -116,7 +125,7 @@ export default defineEventHandler(async (event) => {
             lastSyncedAt: syncedAt,
             designer: 'conductor-projection',
             isPublic: true,
-            isActive: true,
+            isActive: project.status !== 'ARCHIVED',
           },
         })
         createdProjects += 1

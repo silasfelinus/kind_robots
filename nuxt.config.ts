@@ -314,8 +314,8 @@ export default defineNuxtConfig({
   /*
    * Keep retired public entry points useful instead of turning bookmarks into
    * dead ends. Memory Dungeon moved from /memory to /play/memory when Lab was
-   * dissolved; /wonder was the friendly entrance to that playful section.
-   * WonderLab Museum remains available at its canonical /plan/wonderlab route.
+   * dissolved. WonderLab Museum remains available at its canonical
+   * /plan/wonderlab route.
    *
    * Storymaker was renamed to Storybook on 2026-08-02 (interface-vision t-002).
    * 301 redirects are intentional because these legacy paths are permanent
@@ -323,7 +323,6 @@ export default defineNuxtConfig({
    */
   routeRules: {
     '/memory': { redirect: { to: '/play/memory', statusCode: 301 } },
-    '/wonder': { redirect: { to: '/play/memory', statusCode: 301 } },
     '/wonderlab': { redirect: { to: '/plan/wonderlab', statusCode: 301 } },
     '/storymaker': { redirect: { to: '/storybook', statusCode: 301 } },
   },

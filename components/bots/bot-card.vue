@@ -165,6 +165,7 @@ import { useBotStore } from '@/stores/botStore'
 import { useNavStore } from '@/stores/navStore'
 import { useUserStore } from '@/stores/userStore'
 import type { ArtVariant } from '@/utils/artImageSrc'
+import { botTypeMeta } from '@/utils/botTypeVocabulary'
 import type { EntityCardChip } from '@/components/gallery/kr-entity-card-body.vue'
 
 const props = withDefaults(
@@ -261,17 +262,40 @@ const artFallbackSrc = computed(
   () => loadedBotImage.value || avatarFallback.value,
 )
 
+/*
+ * NO PRIVACY BADGE. Silas, 2026-08-09: "bots don't need to report privacy
+ * status on the gallery front."
+ *
+ * Nearly every Bot in the gallery is Public, so the badge was a constant
+ * occupying the same corner on all 69 tiles -- it told you nothing about the
+ * one you were looking at, which is the test a badge has to pass. Privacy is
+ * still on the card BACK, where it is one fact among the object's stats
+ * rather than competing with the type for the front's only badge row.
+ */
+const botType = computed(() => botTypeMeta(props.bot.BotType))
+
 const badges = computed<EntityCardChip[]>(() => {
-  const result: EntityCardChip[] = [
-    props.bot.isPublic
-      ? { label: 'Public', class: 'badge-success' }
-      : { label: 'Private', class: 'badge-warning' },
-  ]
+  const result: EntityCardChip[] = []
   if (props.bot.underConstruction) {
     result.push({ label: 'Building', class: 'badge-error' })
   }
-  if (props.bot.BotType) {
-    result.push({ label: props.bot.BotType, class: 'badge-primary' })
+  /*
+   * TYPE AS A GLYPH, not as a word. Silas, 2026-08-09: "The difference between
+   * narrator and promptbot is a nice display but should be an icon for each."
+   *
+   * `NARRATOR` and `PROMPTBOT` are stored upper-case, so as text they were the
+   * loudest thing on the card -- shouting a constant next to the Bot's actual
+   * name. The glyphs come from utils/botTypeVocabulary.ts, which reuses the
+   * same two icons the Dream gallery already uses for these types, and the
+   * label survives as the tooltip and the screen-reader text.
+   */
+  if (botType.value) {
+    result.push({
+      label: '',
+      title: botType.value.label,
+      icon: botType.value.icon,
+      class: 'badge-primary',
+    })
   }
   if (activeSelected.value) {
     result.push({ label: 'Selected', class: 'badge-accent' })

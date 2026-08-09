@@ -375,11 +375,73 @@
             v-if="showControls && !isDropdownMode"
             class="flex flex-wrap items-center gap-1.5"
           >
+            <!--
+              THE TYPE TOGGLE. Silas, 2026-08-09: "the toggle to show narrator
+              bits or prompt bots or both can be a three way toggle/slider,
+              with 'all' in the middle. Icons are better than words unless we
+              have plenty of space."
+
+              Built from the types actually PRESENT in the loaded set, not from
+              a hard-coded pair -- `Bot.BotType` is a free String column, so a
+              fixed NARRATOR/PROMPTBOT control would silently strand any other
+              value (CHATBOT is the one in the seeds today). With the two types
+              Silas is looking at, that yields exactly the three-way control he
+              asked for; with more, All keeps the midpoint and the extra type
+              gets its own segment rather than becoming unreachable.
+
+              Absent below two types, for the same reason the Mature toggle is:
+              a filter that cannot change what is on screen is chrome.
+            -->
+            <div
+              v-if="botTypeSegments.length"
+              class="join"
+              role="group"
+              aria-label="Filter bots by type"
+            >
+              <button
+                v-for="segment in botTypeSegments"
+                :key="segment.value"
+                type="button"
+                class="btn join-item btn-sm"
+                :class="
+                  botTypeFilter === segment.value
+                    ? 'btn-primary'
+                    : 'btn-ghost bg-base-100'
+                "
+                :title="segment.label"
+                :aria-pressed="botTypeFilter === segment.value"
+                @click="botTypeFilter = segment.value"
+              >
+                <Icon
+                  v-if="segment.icon"
+                  :name="segment.icon"
+                  class="h-4 w-4"
+                  aria-hidden="true"
+                />
+                <span :class="segment.icon ? 'sr-only' : 'text-xs font-bold'">
+                  {{ segment.label }}
+                </span>
+              </button>
+            </div>
+
             <!-- `px-4 py-2` with a bold label made this the tallest thing on
                  the row and forced its height onto every neighbour. Same
                  control, sized like the selects beside it. -->
+            <!--
+              ONLY WHEN THERE IS SOMETHING TO FILTER. Silas, 2026-08-09:
+              "Maturity toggle doesn't need to be front and center on bots, we
+              don't even have isMature bots currently. As usual though, we
+              should not see that toggle if the user is guest or child roles."
+
+              The role half was already right -- `userStore.isAdmin` excludes
+              guests and children, and the store's showMature is itself
+              CHILD-restricted underneath. What was wrong is that it held a
+              prime slot in the toolbar for a filter with nothing to filter.
+              `hasMatureBots` means it appears exactly when a mature Bot
+              exists, so today it is simply absent and the row is shorter.
+            -->
             <label
-              v-if="userStore.isAdmin"
+              v-if="userStore.isAdmin && hasMatureBots"
               class="flex cursor-pointer items-center gap-1.5 rounded-2xl border border-base-300 bg-base-100 px-2 py-1"
             >
               <span class="text-xs font-bold">Mature</span>
@@ -446,6 +508,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import type { Bot } from '~/prisma/generated/prisma/client'
 import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
 import { MODE_VARIANT, type GalleryMode } from '@/utils/galleryVocabulary'
+import { botTypeOptions, normalizeBotType } from '@/utils/botTypeVocabulary'
 import { useBotStore } from '@/stores/botStore'
 import { useNavStore } from '@/stores/navStore'
 import { useUserStore } from '@/stores/userStore'
@@ -518,6 +581,7 @@ const navStore = useNavStore()
 const userStore = useUserStore()
 
 const constructionFilter = ref<ConstructionFilter>('all')
+const botTypeFilter = ref<string>('all')
 const searchQuery = ref('')
 const isLoading = ref(false)
 const showBotForm = ref(false)
@@ -540,6 +604,15 @@ const layoutClass = computed(() => {
 const currentUserId = computed(() => {
   return userStore.userId ?? userStore.user?.id ?? null
 })
+
+/*
+ * Whether the maturity filter has anything to act on. Derived rather than
+ * assumed: there are no mature Bots today, but the control has to reappear on
+ * its own the moment one exists rather than needing someone to remember.
+ */
+const hasMatureBots = computed(() =>
+  botStore.bots.some((entry) => entry.isMature),
+)
 
 const showMature = computed({
   get: () => userStore.user?.showMature ?? userStore.showMature ?? false,
@@ -625,6 +698,53 @@ const galleryBots = computed<Bot[]>(() => {
 })
 
 /*
+ * The type toggle's segments: every type present in the visible set, with All
+ * spliced into the MIDDLE rather than parked at one end -- `Math.floor(n / 2)`
+ * puts it dead centre for the two-type case the gallery has today and keeps it
+ * at the midpoint as types are added.
+ *
+ * Under two types there is nothing to choose between, so the control does not
+ * render at all and `botTypeFilter` stays 'all'.
+ *
+ * Sourced from galleryBots, NOT filteredBots: an option list narrowed by the
+ * filter it feeds collapses to a single segment the moment you pick one, and
+ * there is then no segment left to click your way back out of.
+ */
+const botTypeSegments = computed(() => {
+  const options = botTypeOptions(galleryBots.value)
+
+  if (options.length < 2) return []
+
+  const segments = options.map((option) => ({
+    value: option.value,
+    label: option.label,
+    icon: option.icon,
+  }))
+
+  segments.splice(Math.floor(segments.length / 2), 0, {
+    value: 'all',
+    label: 'All',
+    icon: '',
+  })
+
+  return segments
+})
+
+/*
+ * A filter pinned to a type that is no longer on offer shows an empty grid with
+ * no visible cause -- the segment it belongs to has vanished from the row. This
+ * happens for real: toggling Mature off can remove the last Bot of a type. Fall
+ * back to All whenever the current choice leaves the segment list.
+ */
+watch(botTypeSegments, (segments) => {
+  if (botTypeFilter.value === 'all') return
+
+  if (!segments.some((segment) => segment.value === botTypeFilter.value)) {
+    botTypeFilter.value = 'all'
+  }
+})
+
+/*
  * interface-vision t-060 — the grid variant renders through the shared
  * kr-gallery shell while bot-card stays the card, via kr-gallery's `item` slot.
  * Adopting the shell must not cost the reactions, karma and edit/clone/launch
@@ -676,6 +796,12 @@ const filteredBots = computed<Bot[]>(() => {
 
   if (constructionFilter.value === 'building') {
     bots = bots.filter((bot) => bot.underConstruction)
+  }
+
+  if (botTypeFilter.value !== 'all') {
+    bots = bots.filter(
+      (bot) => normalizeBotType(bot.BotType) === botTypeFilter.value,
+    )
   }
 
   const query = searchQuery.value.trim().toLowerCase()

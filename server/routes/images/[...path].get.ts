@@ -26,7 +26,7 @@ const CONTENT_TYPES: Record<string, string> = {
 export default defineEventHandler(async (event) => {
   const rawPath = getRouterParam(event, 'path') || ''
 
-  let relativePath = rawPath
+  let relativePath: string
   try {
     relativePath = decodeURIComponent(rawPath)
   } catch {
@@ -60,7 +60,7 @@ export default defineEventHandler(async (event) => {
   const contentType = CONTENT_TYPES[path.extname(filePath).toLowerCase()]
   if (contentType) setResponseHeader(event, 'Content-Type', contentType)
 
-  setResponseHeader(event, 'Content-Length', String(fileStat.size))
+  setResponseHeader(event, 'Content-Length', fileStat.size)
   setResponseHeader(event, 'Last-Modified', fileStat.mtime.toUTCString())
   setResponseHeader(event, 'Cache-Control', 'public, max-age=3600')
   setResponseHeader(event, 'X-Content-Type-Options', 'nosniff')

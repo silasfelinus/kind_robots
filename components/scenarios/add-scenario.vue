@@ -87,9 +87,7 @@
           label="Scenario Facets"
         />
 
-        <label
-          class="form-control rounded-2xl border border-base-300 bg-base-100 p-4"
-        >
+        <label class="form-control kr-panel-flat p-4">
           <span class="label">
             <span class="label-text font-bold">Inspirations</span>
           </span>

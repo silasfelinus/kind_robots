@@ -40,7 +40,7 @@
               <Icon name="kind-icon:download" class="size-4" /> Export
             </summary>
             <ul
-              class="menu dropdown-content z-20 mt-2 w-44 rounded-2xl border border-base-300 bg-base-100 p-2 shadow-xl"
+              class="menu dropdown-content z-20 mt-2 w-44 kr-panel-flat p-2 shadow-xl"
             >
               <li><button type="button" @click="downloadStory(undefined, 'markdown')">Markdown</button></li>
               <li><button type="button" @click="downloadStory(undefined, 'json')">JSON</button></li>

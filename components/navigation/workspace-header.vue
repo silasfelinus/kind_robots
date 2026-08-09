@@ -137,7 +137,7 @@
 
             <ul
               tabindex="0"
-              class="dropdown-content menu absolute right-0 top-full z-120 mt-2 max-h-[min(70vh,28rem)] w-[min(18rem,calc(100vw-1rem))] flex-nowrap overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 shadow-2xl"
+              class="dropdown-content menu absolute right-0 top-full z-120 mt-2 max-h-[min(70vh,28rem)] w-[min(18rem,calc(100vw-1rem))] flex-nowrap overflow-y-auto kr-panel-flat p-2 shadow-2xl"
               :aria-label="`${resolvedChannel?.label || 'Channel'} tabs`"
             >
               <li v-for="tab in resolvedTabs" :key="`all-${tab.tabKey}`">

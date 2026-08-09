@@ -315,7 +315,7 @@
               </label>
 
               <label
-                class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-4 py-3"
+                class="label cursor-pointer justify-between kr-panel-flat px-4 py-3"
               >
                 <span class="label-text font-bold">Half CFG</span>
                 <input
@@ -327,7 +327,7 @@
               </label>
 
               <label
-                class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-4 py-3"
+                class="label cursor-pointer justify-between kr-panel-flat px-4 py-3"
               >
                 <span class="label-text font-bold">Public</span>
                 <input
@@ -339,7 +339,7 @@
               </label>
 
               <label
-                class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-4 py-3"
+                class="label cursor-pointer justify-between kr-panel-flat px-4 py-3"
               >
                 <span class="label-text font-bold">Mature</span>
                 <input

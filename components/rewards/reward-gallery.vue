@@ -100,6 +100,55 @@
       <add-reward :mode="formMode" @saved="handleRewardSaved" />
     </section>
 
+    <kr-card-flip
+      v-model="infoRewardOpen"
+      :label="infoReward?.name || 'Reward'"
+    >
+      <template #back="{ close, commit }">
+        <kr-card-back
+          v-if="infoReward"
+          v-model:editing="infoRewardEditing"
+          :title="infoReward.name || 'Unnamed Reward'"
+          :subtitle="infoReward.collection || ''"
+          :description="infoReward.description || ''"
+          :art-src="infoReward.imagePath || ''"
+          :badges="infoRewardBadges"
+          :can-interact="true"
+          interact-label="Encounter"
+          @back="commit"
+          @interact="interactWithInfoReward"
+        >
+          <template #details>
+            <dl class="grid grid-cols-2 gap-2 text-xs">
+              <div v-if="infoReward.effect" class="col-span-2">
+                <dt class="font-black uppercase opacity-55">Effect</dt>
+                <dd class="whitespace-pre-wrap">{{ infoReward.effect }}</dd>
+              </div>
+              <div v-if="infoReward.rarity">
+                <dt class="font-black uppercase opacity-55">Rarity</dt>
+                <dd>{{ infoReward.rarity }}</dd>
+              </div>
+              <div v-if="infoReward.rewardType">
+                <dt class="font-black uppercase opacity-55">Type</dt>
+                <dd>{{ infoReward.rewardType }}</dd>
+              </div>
+            </dl>
+          </template>
+        </kr-card-back>
+
+        <div v-else class="p-6 text-center text-sm opacity-60">
+          <p>That Reward is no longer available.</p>
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm mt-3 rounded-xl"
+            @click="close"
+          >
+            Close
+          </button>
+        </div>
+      </template>
+    </kr-card-flip>
+
     <section class="min-h-0 flex-1 overflow-auto">
       <div
         v-if="isLoading"
@@ -681,8 +730,58 @@ async function selectReward(id: number) {
     return
   }
 
-  await rewardStore.startRewardInteraction(id)
+  infoRewardId.value = id
 }
+
+/* Interact LEAVES: the encounter surface is a working space, not a panel. */
+async function interactWithInfoReward() {
+  const id = infoRewardId.value
+  infoRewardOpen.value = false
+  if (id) await rewardStore.startRewardInteraction(id)
+}
+/*
+ * INFO FIRST, INTERACTION AFTER -- the same frame Bots and Resources use, and
+ * the reason kr-card-back exists as one component rather than one per gallery.
+ * Picking turns the card over; the model-specific thing you came to do is a
+ * button on the back.
+ *
+ * THE DROPDOWN BRANCH STAYS FIRST. This gallery is also embedded as a PICKER,
+ * where a click has to pick and nothing else -- an info panel there would be
+ * in the way. verifyCardActionContract puts that decision in the gallery ("A
+ * card is an entry point. It emits; the gallery decides what that means"),
+ * which is exactly what lets browse and picker disagree.
+ *
+ * The id IS the open state so the two cannot drift apart; only the false
+ * direction is writable, because the flip closes itself on Escape and the
+ * backdrop and needs somewhere to put that.
+ */
+const infoRewardId = ref<number | null>(null)
+const infoRewardEditing = ref(false)
+
+const infoReward = computed(
+  () =>
+    rewardStore.rewards.find((entry) => entry.id === infoRewardId.value) ??
+    null,
+)
+
+const infoRewardOpen = computed({
+  get: () => infoRewardId.value !== null,
+  set: (value: boolean) => {
+    if (!value) {
+      infoRewardId.value = null
+      infoRewardEditing.value = false
+    }
+  },
+})
+
+const infoRewardBadges = computed(() => {
+  const reward = infoReward.value
+  if (!reward) return []
+
+  return [reward.rewardType, reward.rarity]
+    .map((entry) => String(entry ?? '').trim())
+    .filter((entry) => entry.length > 0)
+})
 
 async function continueWithSelected() {
   const id = rewardStore.selectedReward?.id

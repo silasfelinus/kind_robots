@@ -170,20 +170,38 @@ async function initializeStores() {
       import('@/stores/themeStore'),
     ])
 
+    const userStore = useUserStore()
+    const achievementStore = useAchievementStore()
+
+    await errorStore.handleError(
+      async () => userStore.initialize?.(),
+      ErrorType.STORE_ERROR,
+      'Error initializing user store',
+    )
+
     await runWave('identity + chrome', [
-      useUserStore().initialize?.(),
       usePageStore().initialize?.(),
       useNavStore().initialize?.(),
       useSmartbarStore().initialize?.(),
       useConsoleStore().initialize?.(),
-      useAchievementStore().initialize?.({
-        fetchRemote: true,
-        migratePendingGuestAchievements: true,
-      }),
+      achievementStore.initialize?.(),
       useThemeStore().initialize({ fetchShared: true }),
     ])
 
-    await useAchievementStore().rewardAchievementForPath(route.path)
+    await runWave('achievement sync', [
+      achievementStore.fetchAchievements(true),
+      userStore.isLoggedIn
+        ? achievementStore.fetchAchievementRecords(true)
+        : undefined,
+    ])
+
+    await runWave('achievement migration', [
+      userStore.isLoggedIn
+        ? achievementStore.migratePendingGuestAchievements()
+        : undefined,
+    ])
+
+    await achievementStore.rewardAchievementForPath(route.path)
 
     const [{ useServerStore }, { useCheckpointStore }] = await Promise.all([
       import('@/stores/serverStore'),

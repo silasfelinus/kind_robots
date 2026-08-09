@@ -58,4 +58,38 @@ assert.ok(
   'Score loading must remain accurate across concurrent leaderboard requests.',
 )
 
+const loaderSource = readFileSync('components/admin/kind-loader.vue', 'utf8')
+const userInitializeIndex = loaderSource.indexOf('userStore.initialize?.()')
+const recordsFetchIndex = loaderSource.indexOf(
+  'achievementStore.fetchAchievementRecords(true)',
+)
+const migrationIndex = loaderSource.indexOf(
+  'achievementStore.migratePendingGuestAchievements()',
+)
+
+assert.ok(
+  userInitializeIndex >= 0 &&
+    recordsFetchIndex >= 0 &&
+    userInitializeIndex < recordsFetchIndex,
+  'Startup must resolve user identity before requesting achievement records.',
+)
+assert.ok(
+  loaderSource.includes('achievementStore.fetchAchievements(true)'),
+  'Guest startup must still refresh the public achievement catalog.',
+)
+assert.match(
+  loaderSource,
+  /userStore\.isLoggedIn\s*\?\s*achievementStore\.fetchAchievementRecords\(true\)\s*:\s*undefined/,
+  'Guest startup must not request authenticated achievement records.',
+)
+assert.match(
+  loaderSource,
+  /userStore\.isLoggedIn\s*\?\s*achievementStore\.migratePendingGuestAchievements\(\)\s*:\s*undefined/,
+  'Pending guest achievements must only migrate after authentication.',
+)
+assert.ok(
+  recordsFetchIndex < migrationIndex,
+  'Authenticated records must load before pending guest achievements migrate.',
+)
+
 console.log('Achievement store fetch safety contract passed.')

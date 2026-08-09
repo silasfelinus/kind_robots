@@ -40,7 +40,7 @@
 -->
 <template>
   <article
-    class="group flex h-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
+    class="group flex h-full flex-col overflow-hidden kr-panel p-0 transition hover:-translate-y-0.5 hover:shadow-lg"
   >
     <!--
       IDENTITY OVERLAYS THE ART, per Silas 2026-08-08: "we should have the

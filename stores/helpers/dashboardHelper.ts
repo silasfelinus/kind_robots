@@ -506,18 +506,6 @@ export const dashboardConfigs = {
         requiredRole: 'ADMIN',
       },
       {
-        key: 'wishmaster',
-        label: 'Wishmaster',
-        icon: 'kind-icon:sparkles',
-        title: 'Wishmaster',
-        summary: 'Turn wishes into scoped, buildable project seeds.',
-        image: tabImage('conductor', 'wishmaster'),
-        narrative:
-          'Wishmaster takes a raw wish and shapes it into a scoped, buildable project seed — the front door where a "wouldn\'t it be nice" becomes an actual plan.',
-        route: '/wishmaster',
-        requiredRole: 'ADMIN',
-      },
-      {
         key: 'appmaker',
         label: 'AppMaker',
         icon: 'kind-icon:foundry',

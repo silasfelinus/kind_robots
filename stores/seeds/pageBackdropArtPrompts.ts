@@ -593,12 +593,6 @@ const PAGES: PageSeed[] = [
     scene:
       'A small velvet screening room, projector beam through dark, reels stacked at the side, one seat turned out. Anticipatory and cosy.',
   },
-  {
-    page: 'wishmaster',
-    title: 'Wishmaster — The Wish Well',
-    scene:
-      'A moss-ringed stone well under a starry sky, coins glinting below, paper wishes tied to a nearby tree. Hopeful and magical.',
-  },
 ]
 
 // The canvas size is a job parameter (CANVAS feeds width/height straight into

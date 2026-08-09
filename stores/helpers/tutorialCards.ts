@@ -540,12 +540,6 @@ export const tutorialChannels = {
         image: `images/tutorials/conductor/conductor.webp`,
       },
       {
-        key: 'wishmaster',
-        title: 'Wishmaster',
-        body: 'Turn a raw wish into a scoped, buildable project seed — the front door where a "wouldn\'t it be nice" becomes an actual plan, tracked as a Dream until it\'s ready to grow into real infrastructure.',
-        image: tutorialImage('conductor', 'wishmaster'),
-      },
-      {
         key: 'appmaker',
         title: 'AppMaker',
         body: 'The app factory — browse the fleet of apps already built, or spin up a new one from a name and a one-line description. Every app is a workspace folder, a project roadmap, and a Dream sharing one slug, so it plugs straight into the rest of Kind Robots.',

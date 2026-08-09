@@ -1,3 +1,9 @@
+<!--
+  RETIRED 2026-08-09.
+  Wishmaster was removed from the live product because it duplicated project
+  creation without the infrastructure needed to justify a separate surface.
+  This copy is historical abandonware only and must not be mounted by live nav.
+-->
 <template>
   <section class="kr-unbound gap-4 rounded-2xl border border-base-300 bg-(--kr-surface-raised) p-4">
     <header class="flex items-start gap-3">

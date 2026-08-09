@@ -2,6 +2,8 @@
 import { defineEventHandler, createError } from 'h3'
 import { fetchRewardById } from './index'
 import { errorHandler } from '../../utils/error'
+import { getOptionalApiUser } from '../../utils/authGuard'
+import { canView } from '../../utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
   const id = Number(event.context.params?.id)
@@ -14,12 +16,24 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const data = await fetchRewardById(id)
+    const [data, auth] = await Promise.all([
+      fetchRewardById(id),
+      getOptionalApiUser(event),
+    ])
 
     if (!data) {
       throw createError({
         statusCode: 404,
         message: 'Reward not found.',
+      })
+    }
+
+    if (!(await canView(data, null, auth?.user))) {
+      throw createError({
+        statusCode: auth ? 403 : 404,
+        message: auth
+          ? 'You do not have permission to view this Reward.'
+          : 'Reward not found.',
       })
     }
 

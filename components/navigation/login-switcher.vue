@@ -135,11 +135,11 @@
       <NuxtLink
         v-else
         to="/login"
-        class="btn btn-primary btn-sm rounded-2xl"
+        class="btn btn-primary btn-sm w-full justify-center gap-2 whitespace-nowrap rounded-2xl px-4"
         @click="store.close"
       >
-        <Icon name="kind-icon:login" class="h-4 w-4" />
-        Log in
+        <Icon name="kind-icon:login" class="h-4 w-4 shrink-0" />
+        <span class="shrink-0">Log in</span>
       </NuxtLink>
 
       <button

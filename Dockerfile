@@ -27,6 +27,8 @@ COPY --from=build --chown=node:node /app/.output ./.output
 COPY --from=build --chown=node:node /app/node_modules ./node_modules
 COPY --from=build --chown=node:node /app/package.json ./package.json
 
+RUN ln -s /app/.output/public /app/public
+
 USER node
 
 EXPOSE 3000

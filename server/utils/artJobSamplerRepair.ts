@@ -31,7 +31,7 @@
 //     backlog drains, and the repair is recorded on the payload so it is visible
 //     rather than silent.
 import { DISTILLED_ENGINE_LIMITS } from './artPromptContract'
-import { inferQueuedArtEngine } from './artJobQueueCoverage'
+import { inferQueuedArtEngine } from './artJobQueueSettings'
 import { parseArtJobPayload, type ArtJobPayloadRecord } from './artJobPayload'
 
 export type SamplerRepairEntry = {

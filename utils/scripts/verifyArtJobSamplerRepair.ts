@@ -20,7 +20,11 @@ import {
   repairQueuedArtSampler,
   recordSamplerRepair,
 } from '../../server/utils/artJobSamplerRepair'
-import { assertQueuedArtPromptContract } from '../../server/utils/artJobQueueCoverage'
+// Imported from artJobQueueSettings, not artJobQueueCoverage: the latter pulls
+// in prisma, which throws at import time without DATABASE_URL, and this file
+// runs in the DB-free contract-tests workflow. That import is exactly what made
+// the first version of this test pass locally and fail in CI.
+import { assertQueuedArtPromptContract } from '../../server/utils/artJobQueueSettings'
 import { DISTILLED_ENGINE_LIMITS } from '../../server/utils/artPromptContract'
 
 /** The shape ArtJob 4877 actually carried, trimmed to what the gate reads. */
@@ -240,5 +244,26 @@ assert.ok(
   !enqueue.includes('repairQueuedArtSampler'),
   'enqueue must NOT auto-repair — producers fix themselves, backlog self-heals',
 )
+
+// Keep the reading helpers out of the prisma-importing module. Moving them back
+// would not break a single runtime caller — artJobQueueCoverage re-exports all
+// three — it would only make this file unrunnable in CI, silently, the way it
+// already was once.
+const settings = readFileSync('server/utils/artJobQueueSettings.ts', 'utf8')
+assert.ok(
+  !/from '\.\/(prisma|artJobQueueCoverage)'/.test(settings),
+  'artJobQueueSettings must stay database-free so the contract workflow can run it',
+)
+const coverage = readFileSync('server/utils/artJobQueueCoverage.ts', 'utf8')
+for (const required of [
+  'inferQueuedArtEngine',
+  'queuedArtSamplerSettings',
+  'assertQueuedArtPromptContract',
+]) {
+  assert.ok(
+    coverage.includes(required),
+    `artJobQueueCoverage must keep re-exporting ${required} for existing callers`,
+  )
+}
 
 console.log('artJobSamplerRepair contract OK')

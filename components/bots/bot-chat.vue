@@ -215,7 +215,7 @@
     </div>
 
     <aside class="flex min-h-0 flex-col gap-4 overflow-hidden">
-      <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
+      <section class="kr-panel-flat p-4">
         <div class="mb-3 flex items-center justify-between gap-2">
           <div>
             <h2 class="text-lg font-bold text-base-content">
@@ -281,9 +281,7 @@
             />
           </label>
 
-          <div
-            class="rounded-2xl border border-base-300 bg-base-200 p-3 text-sm"
-          >
+          <div class="kr-panel-muted p-3 text-sm">
             <p class="text-xs font-bold uppercase text-base-content/50">
               Active Text Server
             </p>
@@ -299,7 +297,7 @@
         </div>
       </section>
 
-      <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
+      <section class="kr-panel-flat p-4">
         <h2 class="text-lg font-bold text-base-content">Selected Bot</h2>
 
         <bot-card
@@ -314,7 +312,7 @@
 
         <div
           v-else
-          class="mt-3 rounded-2xl border border-base-300 bg-base-200 p-4 text-sm text-base-content/55"
+          class="mt-3 kr-panel-muted p-4 text-sm text-base-content/55"
         >
           Pick a bot first. Even robots need casting.
         </div>
@@ -356,9 +354,7 @@
         ]"
       />
 
-      <section
-        class="min-h-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-4"
-      >
+      <section class="min-h-0 flex-1 overflow-hidden kr-panel-flat p-4">
         <div class="mb-3 flex items-center justify-between gap-2">
           <h2 class="text-lg font-bold text-base-content">Prompt Preview</h2>
 

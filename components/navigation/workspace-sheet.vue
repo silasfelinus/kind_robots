@@ -1,9 +1,7 @@
 <!-- /components/navigation/workspace-sheet.vue -->
 <template>
   <aside class="flex min-h-0 flex-col gap-4 overflow-y-auto p-1">
-    <div
-      class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm"
-    >
+    <div class="overflow-hidden kr-panel p-0">
       <div
         class="relative overflow-hidden bg-base-300"
         :class="{ 'aspect-4/3': !imagePath }"
@@ -124,7 +122,7 @@
         <section
           v-for="card in builderStore.completedCardList"
           :key="card.key"
-          class="group relative overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
+          class="group relative overflow-hidden kr-panel p-0 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
         >
           <div
             v-if="cardImagePath(card)"

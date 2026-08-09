@@ -1,9 +1,7 @@
 <!-- /components/projects/project-placement-manager.vue -->
 <template>
   <section class="mx-auto flex w-full max-w-6xl flex-col gap-4 p-4 sm:p-6">
-    <header
-      class="overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm"
-    >
+    <header class="overflow-hidden kr-panel p-0">
       <div class="flex flex-col gap-3 p-5 sm:flex-row sm:items-start sm:justify-between">
         <div class="min-w-0">
           <div class="flex items-center gap-2">

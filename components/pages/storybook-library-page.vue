@@ -102,7 +102,7 @@
         <article
           v-for="story in library.recentStories"
           :key="story.id"
-          class="flex min-w-0 flex-col rounded-2xl border border-base-300 bg-base-100 p-3"
+          class="kr-panel-flat flex min-w-0 flex-col p-3"
         >
           <div class="min-w-0 flex-1">
             <div class="flex items-start justify-between gap-2">

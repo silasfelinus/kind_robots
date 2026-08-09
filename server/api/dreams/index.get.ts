@@ -3,6 +3,7 @@ import { defineEventHandler, getHeader, getQuery } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { validateApiKey } from '@/server/utils/validateKey'
+import { viewablePackIds } from '@/server/utils/contentAccess'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import { parseDreamType } from './index'
 
@@ -205,6 +206,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const isAdmin = userRole === 'ADMIN'
+    const packIds = userId && !isAdmin ? await viewablePackIds(userId) : []
     const take = normalizeLimit(query.take)
     const skip = normalizeSkip(query.skip)
     const includeMature = normalizeBoolean(query.includeMature)
@@ -236,7 +238,11 @@ export default defineEventHandler(async (event) => {
       andFilters.push({})
     } else if (userId) {
       andFilters.push({
-        OR: [{ isPublic: true }, { userId }],
+        OR: [
+          { isPublic: true },
+          { userId },
+          ...(packIds.length ? [{ packId: { in: packIds } }] : []),
+        ],
       })
     } else {
       andFilters.push({ isPublic: true })

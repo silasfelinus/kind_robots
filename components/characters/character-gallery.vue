@@ -74,6 +74,30 @@
               </div>
             </dl>
           </template>
+
+          <!--
+            REVIEWS LIVE ON THE BACK. Silas, 2026-08-10: "back: the rest of the
+            info, image, those buttons, and the review section."
+
+            They were not deleted, they were stranded -- reactable-card gates
+            its reaction button on `props.selected`, and since the card back
+            landed, clicking a tile sets the info id rather than the store's
+            current record, so nothing in a grid is ever "selected". Exactly
+            the same gate that hid edit/clone/delete.
+
+            allowReviews is still honoured here: a record that opted out of
+            reviews on the tile must not get them back on the back.
+          -->
+          <template #reviews>
+            <reaction-card
+              v-if="infoCharacter.allowReviews !== false"
+              :target-id="infoCharacter.id"
+              target-type="character"
+              reaction-category="CHARACTER"
+              :target-title="infoCharacter.name || 'Unnamed Character'"
+              compact
+            />
+          </template>
         </kr-card-back>
 
         <div v-else class="p-6 text-center text-sm opacity-60">

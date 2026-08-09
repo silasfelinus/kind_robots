@@ -4,7 +4,7 @@
      localStorage-backed store; no server round-trip is needed to play. -->
 <template>
   <ClientOnly>
-    <div class="mx-auto flex w-full max-w-3xl flex-col gap-4">
+    <div class="kr-container max-w-3xl flex flex-col gap-4">
       <template v-if="store.save">
         <RulerHookedStage :scene="store.scene" :regions="store.bundle.regions" />
 

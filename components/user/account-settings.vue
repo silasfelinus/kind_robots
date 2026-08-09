@@ -5,7 +5,7 @@
   from userStore and writes through accountStore's dedicated endpoints.
 -->
 <template>
-  <section class="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4 sm:p-6">
+  <section class="kr-container max-w-3xl flex flex-col gap-6 p-4 sm:p-6">
     <header class="flex flex-col gap-1">
       <h1 class="text-2xl font-black">Account &amp; Privacy</h1>
       <p class="text-sm text-base-content/70">

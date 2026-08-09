@@ -23,8 +23,11 @@
   front, as a transition for dealing a card into place. This one is stateful --
   it turns to the back and STAYS there until dismissed -- so the two cannot be
   collapsed. The 3D mechanics are the same family on purpose (perspective on a
-  stage, preserve-3d on the mover, backface-visibility on each face), and the
-  reduced-motion escape hatch is copied from it verbatim.
+  stage, a rotateY on the mover), and the reduced-motion escape hatch is copied
+  from it verbatim. They diverge on `transform-style`: flip-card really does
+  hold two stacked faces and needs `preserve-3d` to keep them apart, while this
+  one has a single scrolling face and must NOT declare it -- see the note on
+  `.kr-flip-panel` for why that one line cost three rounds of "cannot scroll".
 -->
 <template>
   <div class="contents">
@@ -292,7 +295,22 @@ onBeforeUnmount(() => {
   border-radius: 1.5rem;
   background: var(--color-base-100, #fff);
   box-shadow: 0 25px 60px oklch(0% 0 0 / 0.45);
-  transform-style: preserve-3d;
+  /*
+   * NO `transform-style: preserve-3d` HERE, and its absence is the scroll fix.
+   *
+   * Silas reported "cannot scroll" on the edit view three times, on iOS each
+   * time. The first two attempts chased the height chain -- a real bug, but
+   * not THIS one. `preserve-3d` promotes an element's descendants into a 3D
+   * rendering context, and in WebKit that stops `overflow-y: auto` on a child
+   * from scrolling at all, which is also why the symptom was iOS-shaped.
+   *
+   * It was never needed. This element ROTATES ITSELF; there are no
+   * 3D-positioned children to preserve depth for, unlike
+   * navigation/flip-card.vue which really does hold two stacked faces. The
+   * spec already forces `flat` when `overflow` is not `visible`, so the
+   * declaration was a no-op that browsers disagreed about.
+   */
+
   /* Turned away and small: the card is face-down and further off. */
   transform: rotateY(-180deg) scale(0.55);
   opacity: 0;
@@ -335,6 +353,10 @@ onBeforeUnmount(() => {
   min-height: 0;
   flex: 1;
   overflow-y: auto;
+  /* Momentum on older iOS, and a scroll that stops at its own edge rather than
+     dragging the page behind the backdrop along with it. */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -109,11 +109,20 @@
 
         <span
           v-for="badge in badges"
-          :key="badge.label"
+          :key="badge.title || badge.label"
           class="badge badge-xs shrink-0"
           :class="badge.class || 'badge-primary'"
+          :title="badge.title || badge.label"
         >
-          {{ badge.label }}
+          <Icon
+            v-if="badge.icon"
+            :name="badge.icon"
+            class="h-3 w-3"
+            :class="badge.label ? 'mr-1' : ''"
+            aria-hidden="true"
+          />
+          <template v-if="badge.label">{{ badge.label }}</template>
+          <span v-else class="sr-only">{{ badge.title }}</span>
         </span>
       </div>
     </div>
@@ -172,11 +181,20 @@
         >
           <span
             v-for="badge in badges"
-            :key="badge.label"
+            :key="badge.title || badge.label"
             class="badge badge-sm rounded-xl shadow"
             :class="badge.class || 'badge-primary'"
+            :title="badge.title || badge.label"
           >
-            {{ badge.label }}
+            <Icon
+              v-if="badge.icon"
+              :name="badge.icon"
+              class="h-3.5 w-3.5"
+              :class="badge.label ? 'mr-1' : ''"
+              aria-hidden="true"
+            />
+            <template v-if="badge.label">{{ badge.label }}</template>
+            <span v-else class="sr-only">{{ badge.title }}</span>
           </span>
         </div>
 
@@ -212,11 +230,20 @@
         <div v-if="badges.length" class="mt-1.5 flex flex-wrap gap-1">
           <span
             v-for="badge in badges"
-            :key="badge.label"
+            :key="badge.title || badge.label"
             class="badge badge-sm"
             :class="badge.class || 'badge-primary'"
+            :title="badge.title || badge.label"
           >
-            {{ badge.label }}
+            <Icon
+              v-if="badge.icon"
+              :name="badge.icon"
+              class="h-3.5 w-3.5"
+              :class="badge.label ? 'mr-1' : ''"
+              aria-hidden="true"
+            />
+            <template v-if="badge.label">{{ badge.label }}</template>
+            <span v-else class="sr-only">{{ badge.title }}</span>
           </span>
         </div>
       </div>
@@ -258,6 +285,14 @@ import type { ArtImageSrcLike, ArtVariant } from '@/utils/artImageSrc'
 import { VARIANT_SHAPE, type ArtPlateShape } from '@/utils/galleryVocabulary'
 
 export type EntityCardChip = {
+  /**
+   * Visible text. Pass `''` for an ICON-ONLY chip -- the icon then carries the
+   * meaning, `title` supplies the tooltip, and the same string is rendered
+   * `sr-only` so the chip is not silent to a screen reader. Silas, 2026-08-09:
+   * "Icons are better than words unless we have plenty of space." An icon-only
+   * chip without a `title` is a chip that says nothing to anyone who cannot see
+   * it, so always set one.
+   */
   label: string
   /** daisyUI badge modifier(s). Falls back to a sensible default per row. */
   class?: string

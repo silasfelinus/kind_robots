@@ -61,7 +61,8 @@ export function folderPathFromImageUrl(
 ): { slug: string; parentFolder: string | null } | null {
   if (!url) return null
   const parts = url.split('?')[0]?.split('/').filter(Boolean) ?? []
-  if (parts.length && /\.[a-z0-9]+$/i.test(parts[parts.length - 1] ?? '')) parts.pop()
+  if (parts.length && /\.[a-z0-9]+$/i.test(parts[parts.length - 1] ?? ''))
+    parts.pop()
   if (parts[0] === 'images') parts.shift() // drop the public URL prefix
   const slug = parts[parts.length - 1]
   if (!slug || NON_SLUG_DIRS.has(slug) || !SLUG_PATTERN.test(slug)) return null
@@ -70,7 +71,9 @@ export function folderPathFromImageUrl(
 }
 
 /** Just the slug from an image URL (see folderPathFromImageUrl). */
-export function folderSlugFromImageUrl(url: string | null | undefined): string | null {
+export function folderSlugFromImageUrl(
+  url: string | null | undefined,
+): string | null {
   return folderPathFromImageUrl(url)?.slug ?? null
 }
 
@@ -97,7 +100,11 @@ async function imagesFromFilesystem(slug: string): Promise<string[] | null> {
   try {
     const contexts = await fs.readdir(imagesRoot, { withFileTypes: true })
     for (const ctx of contexts) {
-      if (!ctx.isDirectory() || ctx.name === slug || ctx.name === 'artcollections')
+      if (
+        !ctx.isDirectory() ||
+        ctx.name === slug ||
+        ctx.name === 'artcollections'
+      )
         continue
       const nested = path.join(imagesRoot, ctx.name, slug)
       const images = await listImages(nested, `/images/${ctx.name}/${slug}`)
@@ -131,7 +138,9 @@ async function fetchJson(url: string): Promise<unknown | null> {
 function stemsToUrls(stems: unknown, urlPrefix: string): string[] | null {
   if (!Array.isArray(stems)) return null
   const urls = stems
-    .filter((stem): stem is string => typeof stem === 'string' && stem.length > 0)
+    .filter(
+      (stem): stem is string => typeof stem === 'string' && stem.length > 0,
+    )
     .map((stem) =>
       isImageFile(stem) ? `${urlPrefix}/${stem}` : `${urlPrefix}/${stem}.webp`,
     )
@@ -166,12 +175,61 @@ async function imagesFromManifest(
   )
 }
 
+/*
+ * ONE INDEX READ PER ORIGIN, NOT ONE PER SLUG.
+ *
+ * imagesFromManifest calls readCollectionsIndex for every slug it resolves, so
+ * listFolderCollections was re-reading the SAME collections.json once per
+ * folder -- N identical HTTP fetches on the CDN path, on top of the N gallery
+ * manifests it actually needs. That doubled the round trips behind the 40s
+ * timeouts on /api/art/collection/folders.
+ *
+ * The PROMISE is cached rather than the value, so the ten concurrent resolvers
+ * in a batch share one in-flight fetch instead of all missing an empty cache
+ * and racing. Keyed by origin because the parameter allows more than one.
+ *
+ * A failed read is deliberately NOT cached: readCollectionsIndex returns {} to
+ * let callers degrade, and pinning that for a minute would turn one bad fetch
+ * into a minute of empty collections. Only a populated index is retained.
+ */
+const COLLECTIONS_INDEX_TTL_MS = 60_000
+
+const collectionsIndexCache = new Map<
+  string,
+  { at: number; promise: Promise<Record<string, string>> }
+>()
+
+async function readCollectionsIndex(
+  origin: string,
+): Promise<Record<string, string>> {
+  const cached = collectionsIndexCache.get(origin)
+  if (cached && Date.now() - cached.at < COLLECTIONS_INDEX_TTL_MS) {
+    return cached.promise
+  }
+
+  const promise = readCollectionsIndexUncached(origin)
+  collectionsIndexCache.set(origin, { at: Date.now(), promise })
+
+  try {
+    const index = await promise
+    if (!Object.keys(index).length) collectionsIndexCache.delete(origin)
+    return index
+  } catch (error) {
+    // A rejected promise left in the map would be replayed to every caller for
+    // the full TTL, turning one bad read into a minute of failures. Evict it so
+    // the next call retries. (The uncached reader swallows its own I/O errors
+    // and returns {}, so this is a backstop, not the expected path.)
+    collectionsIndexCache.delete(origin)
+    throw error
+  }
+}
+
 /**
  * Read the master slug -> folder index. Prefers the configured local image root,
  * falls back to fetching the deployed copy. Returns {} when neither is available
  * so callers can degrade gracefully.
  */
-async function readCollectionsIndex(
+async function readCollectionsIndexUncached(
   origin: string,
 ): Promise<Record<string, string>> {
   const local = path.join(getImageStorageRoot(), 'collections.json')
@@ -252,17 +310,51 @@ export async function listFolderSlugs(origin: string): Promise<string[]> {
  * filesystem (dev) or master index + manifest (CDN). Note: this resolves every
  * folder's manifest, so it is O(folders) network calls — fine for listing, but
  * bulk mutations should page over listFolderSlugs instead.
+ *
+ * THOSE CALLS RUN IN BATCHES, NOT ONE AT A TIME. This loop used to await each
+ * folder before starting the next, so the endpoint's wall-clock was the SUM of
+ * every manifest fetch. `/api/art/collection/folders` was the top runtime error
+ * in production on 2026-08-09 — 17 hits of "Vercel Runtime Timeout Error: Task
+ * timed out after 40 seconds" in three hours — and this serial await is why: the
+ * work was never 40s of anything, it was N round trips queued end to end.
+ *
+ * Batched rather than a single Promise.all over every slug, because the CDN
+ * path is a network fetch per folder and an unbounded fan-out on a large site
+ * trades a timeout for socket exhaustion. 10 matches the REQUEUE_CONCURRENCY
+ * idiom in server/api/art/queue/reenqueue-failed.post.ts.
+ *
+ * Order is preserved: slugs arrive sorted from listFolderSlugs, batches are
+ * consumed in order, and Promise.all keeps each batch's results in index order.
  */
+const FOLDER_RESOLVE_CONCURRENCY = 10
+
 export async function listFolderCollections(
   origin: string,
 ): Promise<FolderCollection[]> {
   const slugs = await listFolderSlugs(origin)
 
   const collections: FolderCollection[] = []
-  for (const slug of slugs) {
-    const images = await resolveFolderImages(slug, origin)
-    if (images && images.length) collections.push({ slug, images })
+
+  for (
+    let index = 0;
+    index < slugs.length;
+    index += FOLDER_RESOLVE_CONCURRENCY
+  ) {
+    const batch = slugs.slice(index, index + FOLDER_RESOLVE_CONCURRENCY)
+    const resolved = await Promise.all(
+      batch.map(async (slug) => ({
+        slug,
+        images: await resolveFolderImages(slug, origin),
+      })),
+    )
+
+    for (const entry of resolved) {
+      if (entry.images && entry.images.length) {
+        collections.push({ slug: entry.slug, images: entry.images })
+      }
+    }
   }
+
   return collections
 }
 

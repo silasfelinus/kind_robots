@@ -27,11 +27,6 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'challenges',
     route: '/play/challenges',
   },
-  wishmaster: {
-    channelKey: 'plan',
-    tabKey: 'wishmaster',
-    route: '/wishmaster',
-  },
   appmaker: {
     channelKey: 'plan',
     tabKey: 'appmaker',

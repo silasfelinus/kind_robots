@@ -59,7 +59,7 @@
       <article
         v-for="review in reviews"
         :key="review.id"
-        class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm"
+        class="kr-panel p-4"
       >
         <div class="flex items-start gap-3">
           <NuxtLink

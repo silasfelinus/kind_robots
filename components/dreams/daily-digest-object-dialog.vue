@@ -87,7 +87,7 @@
               <article
                 v-for="row in overviewRows"
                 :key="row.key"
-                class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm"
+                class="kr-panel p-4"
               >
                 <p class="text-xs font-black uppercase tracking-[0.14em] text-primary/75">
                   {{ row.label }}

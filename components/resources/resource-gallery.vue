@@ -395,9 +395,7 @@ onMounted(async () => {
       slot. The blurb survives at md+ only -- it is orientation text, and it was
       costing three rows on exactly the screens with the fewest to spare.
     -->
-    <header
-      class="rounded-2xl border border-base-300 bg-base-100 px-3 py-2 shadow-sm"
-    >
+    <header class="kr-panel px-3 py-2">
       <div class="flex flex-wrap items-center justify-between gap-2">
         <div class="min-w-0">
           <h2 class="text-base font-bold">Resource Gallery</h2>

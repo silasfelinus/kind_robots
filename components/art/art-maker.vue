@@ -2,7 +2,7 @@
 <template>
   <section class="min-h-full w-full">
     <div
-      class="mx-auto flex min-h-full w-full max-w-6xl flex-col gap-4 rounded-2xl border border-base-300 bg-base-200 p-4 sm:p-6"
+      class="kr-container flex min-h-full flex-col gap-4 rounded-2xl border border-base-300 bg-base-200 p-4 sm:p-6"
     >
       <header
         class="kr-panel-flat p-4 sm:p-5"

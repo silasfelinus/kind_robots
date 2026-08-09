@@ -4,14 +4,15 @@ channelKey: play
 tabKey: experiments
 dashboardKey: wonder
 dashboardTab: memory-dungeon
-label: Experiments
-title: Lab Experiments
-subtitle: Prototypes, games, and unusual tools
-description: Explore active experiments and projects outside the standard workflow.
+label: Memory Dungeon
+title: Memory Dungeon
+subtitle: Match, survive, and loot
+summary: A roguelite memory-match dungeon with lives, levels, powerups, and surprise loot.
+description: Play the roguelite memory card dungeon with lives, levels, powerups, and surprise loot.
 icon: kind-icon:dungeon
 route: /play/memory
-sort: 110
+sort: 55
 requiredRole: GUEST
 ---
 
-A home for experiments that are still becoming themselves.
+Match cards, survive the dungeon, collect loot, and keep climbing.

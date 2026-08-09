@@ -7,6 +7,7 @@ on:
       - '.github/workflows/wonderlab-public-acceptance.yml'
       - 'cypress.public.config.ts'
       - 'cypress/public/wonderlab-responsive.cy.ts'
+      - 'nuxt.config.ts'
       - 'utils/scripts/verifyWonderLabPublicNavigation.ts'
       - 'stores/helpers/navigationRouteAccess.ts'
       - 'content/channels/plan/museum.md'
@@ -18,6 +19,7 @@ on:
       - '.github/workflows/wonderlab-public-acceptance.yml'
       - 'cypress.public.config.ts'
       - 'cypress/public/wonderlab-responsive.cy.ts'
+      - 'nuxt.config.ts'
       - 'utils/scripts/verifyWonderLabPublicNavigation.ts'
       - 'stores/helpers/navigationRouteAccess.ts'
       - 'content/channels/plan/museum.md'
@@ -82,6 +84,9 @@ jobs:
             '/plan/wonderlab',
             '/play/memory',
             '/play/screenfx',
+            '/memory',
+            '/wonder',
+            '/wonderlab',
             '1440',
             '390',
             'expectNoHorizontalOverflow',

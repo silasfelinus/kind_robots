@@ -37,6 +37,36 @@ for (const tab of publicTabs) {
   assert.match(source, /^requiredRole:\s*GUEST$/m, `${tab.route} must be public`)
 }
 
+const memoryTabSource = await readFile(
+  'content/channels/play/experiments.md',
+  'utf8',
+)
+assert.match(
+  memoryTabSource,
+  /^label:\s*Memory Dungeon$/m,
+  'Memory Dungeon must be named explicitly in Play navigation',
+)
+assert.match(
+  memoryTabSource,
+  /^sort:\s*55$/m,
+  'Memory Dungeon must stay promoted among the primary Play destinations',
+)
+
+const legacyRoutes = [
+  { from: '/memory', to: '/play/memory' },
+  { from: '/wonder', to: '/play/memory' },
+  { from: '/wonderlab', to: '/plan/wonderlab' },
+] as const
+
+const nuxtConfig = await readFile('nuxt.config.ts', 'utf8')
+for (const { from, to } of legacyRoutes) {
+  const rule = `'${from}': { redirect: { to: '${to}', statusCode: 301 } }`
+  assert.ok(
+    nuxtConfig.includes(rule),
+    `${from} must permanently redirect to ${to}`,
+  )
+}
+
 const items: ChannelContentItem[] = [
   {
     contentType: 'channel',
@@ -99,5 +129,5 @@ for (const route of [...publicTabs.map((tab) => tab.route), '/play/davinci']) {
 }
 
 console.log(
-  'WonderLab public navigation verified: public WonderLab surfaces (Museum, Memory, Screen FX) allow direct guests while admin-only tools remain restricted.',
+  'WonderLab public navigation verified: Museum, Memory Dungeon, and Screen FX remain public; Memory Dungeon stays obvious in Play; legacy Wonder/Lab routes redirect safely.',
 )

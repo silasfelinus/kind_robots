@@ -120,6 +120,7 @@ async function createProjectWithScaffoldTodo(
     if (!Number.isInteger(projectId) || projectId <= 0) {
       throw new Error(
         `Direct Project upsert returned an invalid id for ${conductorSlug}.`,
+        { cause: error },
       )
     }
     const todoContent = scaffoldTodoContent({

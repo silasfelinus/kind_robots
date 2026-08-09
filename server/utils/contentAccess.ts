@@ -103,6 +103,12 @@ const GRANT_LEVEL_RANK: Record<GrantLevel, number> = {
   [GrantLevel.ADMIN]: 2,
 }
 
+function qualifyingGrantLevels(minLevel: GrantLevel): GrantLevel[] {
+  return (Object.keys(GRANT_LEVEL_RANK) as GrantLevel[]).filter(
+    (level) => GRANT_LEVEL_RANK[level] >= GRANT_LEVEL_RANK[minLevel],
+  )
+}
+
 function isAdminUser(user: AccessUser): boolean {
   return typeof user.isAdmin === 'boolean' ? user.isAdmin : userIsAdmin(user)
 }
@@ -119,23 +125,34 @@ export async function existsActiveGrant(
   subjectId: number,
   minLevel: GrantLevel = GrantLevel.VIEW,
 ): Promise<boolean> {
-  const qualifyingLevels = (
-    Object.keys(GRANT_LEVEL_RANK) as GrantLevel[]
-  ).filter((level) => GRANT_LEVEL_RANK[level] >= GRANT_LEVEL_RANK[minLevel])
-
   const grant = await prisma.grant.findFirst({
     where: {
       granteeId: userId,
       subjectType,
       subjectId,
       status: 'ACTIVE',
-      level: { in: qualifyingLevels },
+      level: { in: qualifyingGrantLevels(minLevel) },
       OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
     },
     select: { id: true },
   })
 
   return grant !== null
+}
+
+export async function viewablePackIds(userId: number): Promise<number[]> {
+  const grants = await prisma.grant.findMany({
+    where: {
+      granteeId: userId,
+      subjectType: 'PACK',
+      status: 'ACTIVE',
+      level: { in: qualifyingGrantLevels(GrantLevel.VIEW) },
+      OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+    },
+    select: { subjectId: true },
+  })
+
+  return Array.from(new Set(grants.map((grant) => grant.subjectId)))
 }
 
 /**

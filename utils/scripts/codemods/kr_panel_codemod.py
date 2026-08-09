@@ -65,7 +65,7 @@ CLASS_ATTR_RE = re.compile(r'(?<![:\w-])class="([^"]*)"')
 # left completely alone and reported separately for manual review.
 SAFE_EXTRA_RE = re.compile(
     r"^("
-    r"(sm|md|lg|xl|2xl|hover|focus|focus-within|active|disabled|group-hover|dark|first|last|odd|even):.*|"
+    r"(sm|md|lg|xl|2xl|hover|focus|focus-within|focus-visible|active|disabled|group-hover|motion-safe|motion-reduce|dark|first|last|odd|even):.*|"
     r"(p|px|py|pt|pb|pl|pr|m|mx|my|mt|mb|ml|mr|gap|gap-x|gap-y|space-x|space-y)-\S+|"
     r"(w|h|min-w|min-h|max-w|max-h|size)-\S+|"
     r"(flex|inline-flex|grid|inline-grid|flex-col|flex-row|flex-wrap|flex-nowrap|flex-1|flex-auto|flex-none|flex-shrink|flex-shrink-0|shrink|shrink-0|flex-grow|flex-grow-0|grow|grow-0)|"
@@ -77,11 +77,34 @@ SAFE_EXTRA_RE = re.compile(
     r"(relative|absolute|fixed|sticky|static)|"
     r"(inset|top|left|right|bottom|z)-\S+|"
     r"(opacity|transition|duration|ease|animate)-\S+|"
+    r"transition|"
     r"(cursor)-\S+|"
     r"(mx-auto|my-auto|mt-auto|mb-auto|ml-auto|mr-auto)|"
-    r"kr-(pane|pane-scroll|surface|stage|unbound|container|container-wide|section)"
+    r"aspect-\S+|"
+    r"group|"
+    r"kr-(pane|pane-scroll|surface|stage|unbound|container|container-wide|section|toolbar)"
     r")$"
 )
+# 2026-08-09 (t-104 slice 15) additions, each verified against the compiled
+# Tailwind output (`npx @tailwindcss/cli -i assets/css/tailwind.css -o -`)
+# to declare NO background-color/border-color/border-radius of its own, so
+# none of them can affect the cascade question this allowlist exists to
+# police:
+#   - bare `group`/`transition` -- Tailwind's own marker/property-only
+#     utilities (`.group{}` has no declarations at all; `.transition{}` sets
+#     only transition-property/timing/duration).
+#   - `aspect-\S+` -- `aspect-ratio` only.
+#   - `focus-visible`/`motion-safe`/`motion-reduce` -- variant prefixes with
+#     the exact same non-effect as the already-allowlisted `hover`/`focus`.
+#   - `kr-toolbar` -- `@apply relative z-20 flex shrink-0 flex-wrap items-center
+#     gap-2` in tailwind.css; pure layout, same category as the other listed
+#     kr-* primitives.
+# Genuine DaisyUI component-root classes (stat, menu, dropdown-content, btn,
+# label, collapse, form-control, ...) are deliberately NOT added here even
+# where this slice's own empirical check found some of them (e.g. `.menu`,
+# `.label`) currently declare no conflicting background/border either --
+# policy stays conservative on daisyUI's own component classes since a
+# version bump could add one silently. Left for manual per-file review.
 
 
 def substitute_tokens(class_str):

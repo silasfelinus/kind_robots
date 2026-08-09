@@ -41,9 +41,7 @@
   </div>
 
   <section v-else class="kr-surface">
-    <header
-      class="kr-toolbar shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3"
-    >
+    <header class="kr-toolbar shrink-0 kr-panel-flat p-3">
       <button
         type="button"
         class="btn btn-ghost btn-sm rounded-xl"

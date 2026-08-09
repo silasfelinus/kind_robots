@@ -56,7 +56,7 @@
           v-if="expandedSlug !== style.slug"
           :ref="(el) => setToggleRef(style.slug, el)"
           type="button"
-          class="group flex w-full flex-wrap items-center gap-3 rounded-2xl border border-base-300 bg-base-100 px-4 py-3 text-left transition-all hover:border-primary/50 hover:shadow-sm"
+          class="group flex w-full flex-wrap items-center gap-3 kr-panel-flat px-4 py-3 text-left transition-all hover:border-primary/50 hover:shadow-sm"
           aria-expanded="false"
           :aria-controls="`academy-style-detail-${style.slug}`"
           @click="expandedSlug = style.slug"

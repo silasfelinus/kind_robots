@@ -13,43 +13,8 @@
       :earned-karma="earnedKarma"
       @select="selectBot"
     >
-      <template #actions>
-        <button
-          v-if="
-            showActions && allowEdit && canEdit && (activeSelected || compact)
-          "
-          class="rounded-full bg-base-100/90 p-2 text-primary shadow backdrop-blur transition hover:bg-primary hover:text-primary-content"
-          type="button"
-          title="Edit Bot"
-          @click.stop="startEditing"
-        >
-          <Icon name="kind-icon:pencil" class="h-4 w-4" />
-        </button>
-
-        <button
-          v-if="showActions && allowClone && (activeSelected || compact)"
-          class="rounded-full bg-base-100/90 p-2 text-secondary shadow backdrop-blur transition hover:bg-secondary hover:text-secondary-content"
-          type="button"
-          title="Clone Bot"
-          @click.stop="startCloning"
-        >
-          <Icon name="kind-icon:copy" class="h-4 w-4" />
-        </button>
-
-        <button
-          v-if="showActions && canDelete && (activeSelected || compact)"
-          class="rounded-full bg-base-100/90 p-2 text-error shadow backdrop-blur transition hover:bg-error hover:text-error-content"
-          type="button"
-          title="Delete Bot"
-          @click.stop="deleteBot"
-        >
-          <Icon name="kind-icon:trash" class="h-4 w-4" />
-        </button>
-      </template>
-
       <kr-entity-card-body
         :title="botTitle"
-        :subtitle="bot.subtitle || ''"
         :source="bot"
         :variant="variant"
         :fallback="artFallbackSrc"
@@ -58,7 +23,6 @@
         :compact="compact"
         :selected="activeSelected"
         :badges="badges"
-        :meta="showMeta ? metaChips : []"
         shape="card"
         compact-shape="hero"
         placeholder-icon="kind-icon:robot"
@@ -72,7 +36,6 @@
             showPersonality ||
             showPromptPreview ||
             showLaunchButton ||
-            statusMessage ||
             showDebug)
         "
         class="mt-2 grid gap-2 rounded-2xl border border-primary/20 bg-primary/5 p-3"
@@ -129,14 +92,6 @@
           </button>
         </div>
 
-        <div
-          v-if="statusMessage"
-          class="rounded-2xl border p-3 text-sm"
-          :class="statusTone === 'error' ? 'kr-note-error' : 'kr-note-success'"
-        >
-          {{ statusMessage }}
-        </div>
-
         <details v-if="showDebug" class="kr-panel-flat p-2" @click.stop>
           <summary
             class="cursor-pointer text-xs font-bold text-base-content/70"
@@ -158,8 +113,6 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import type { Bot } from '~/prisma/generated/prisma/client'
 import { useBotStore } from '@/stores/botStore'
-import { useNavStore } from '@/stores/navStore'
-import { useUserStore } from '@/stores/userStore'
 import type { ArtVariant } from '@/utils/artImageSrc'
 import { botTypeMeta } from '@/utils/botTypeVocabulary'
 import type { EntityCardChip } from '@/components/gallery/kr-entity-card-body.vue'
@@ -223,11 +176,7 @@ const emit = defineEmits<{
 }>()
 
 const botStore = useBotStore()
-const navStore = useNavStore()
-const userStore = useUserStore()
 
-const statusMessage = ref('')
-const statusTone = ref<'success' | 'error'>('success')
 const loadedBotImage = ref('')
 
 const activeSelected = computed(() => {
@@ -299,43 +248,6 @@ const badges = computed<EntityCardChip[]>(() => {
   return result
 })
 
-/*
- * NO THEME, NO DESIGNER. Silas, 2026-08-09: "I love the border around the
- * gallery images, but we don't need the designer or theme text."
- *
- * Both were near-constant down the page -- the same handle on every card, and
- * a palette name that the card's own `data-theme` border already SHOWS -- so
- * they were a row of chips repeating what the eye had, on all 69 tiles. The
- * theme still colours the frame; it just no longer also spells itself out.
- *
- * serverName survives because it varies and nothing else on the card carries
- * it, but most Bots have none, so in practice the strip is now usually empty.
- * Full provenance is on the card back, which is what the back is for.
- */
-const metaChips = computed<EntityCardChip[]>(() => {
-  const result: EntityCardChip[] = []
-  if (props.bot.serverName) {
-    result.push({ label: props.bot.serverName, class: 'badge-info' })
-  }
-  return result
-})
-
-const canEdit = computed(() => {
-  return userStore.isAdmin || props.bot.userId === userStore.userId
-})
-
-const canDelete = computed(() => {
-  if (!props.allowDelete) return false
-  if (props.bot.canDelete === false) return false
-
-  return canEdit.value
-})
-
-function setStatus(message: string, tone: 'success' | 'error' = 'success') {
-  statusMessage.value = message
-  statusTone.value = tone
-}
-
 async function loadBotImage() {
   loadedBotImage.value = ''
 
@@ -362,43 +274,6 @@ async function loadBotImage() {
  */
 function selectBot() {
   emit('open', props.bot.id)
-}
-
-async function startEditing() {
-  const bot = await botStore.startEditingBot(props.bot.id)
-
-  if (!bot) {
-    setStatus('Bot could not be loaded for editing.', 'error')
-    return
-  }
-
-  navStore.setDashboardTab('bot', 'forge')
-  emit('edit', props.bot.id)
-  setStatus('Bot loaded for editing.')
-}
-
-async function startCloning() {
-  const bot = await botStore.startCloningBot(props.bot.id)
-
-  if (!bot) {
-    setStatus('Bot could not be cloned.', 'error')
-    return
-  }
-
-  emit('clone', props.bot.id)
-  setStatus('Bot cloned into the form.')
-}
-
-async function deleteBot() {
-  const result = await botStore.deleteBotById(props.bot.id)
-
-  if (result.success) {
-    emit('delete', props.bot.id)
-    setStatus(result.message || 'Bot deleted.')
-    return
-  }
-
-  setStatus(result.message || 'Failed to delete bot.', 'error')
 }
 
 /*

@@ -137,6 +137,40 @@
             </dl>
           </template>
 
+          <!--
+            THE TILE'S ACTIONS LIVE HERE. Silas, 2026-08-10: "all those
+            buttons that you said were gated on front should be on the back."
+
+            bot-card still carries edit/clone/delete circles, but they are
+            gated on `activeSelected || compact` -- and since the card back
+            landed, clicking a tile sets infoBotId rather than
+            botStore.currentBot, so nothing in the grid is ever "selected" and
+            those three never rendered. The back is where the object's actions
+            were always meant to end up; Edit already arrived through
+            `can-edit`, and these are the two that were still stranded.
+          -->
+          <template #actions>
+            <button
+              v-if="canCloneInfoBot"
+              type="button"
+              class="btn btn-outline btn-sm mr-auto rounded-xl"
+              @click="cloneInfoBot"
+            >
+              <Icon name="kind-icon:copy" class="h-4 w-4" />
+              Clone
+            </button>
+
+            <button
+              v-if="canDeleteInfoBot"
+              type="button"
+              class="btn btn-outline btn-error btn-sm rounded-xl"
+              @click="deleteInfoBot"
+            >
+              <Icon name="kind-icon:trash" class="h-4 w-4" />
+              Delete
+            </button>
+          </template>
+
           <template #edit="{ done }">
             <add-bot mode="edit" @saved="done" @cancel="done" />
           </template>
@@ -920,6 +954,46 @@ const infoBotBadges = computed(() => {
     .filter((entry): entry is string => Boolean(entry))
     .map(String)
 })
+
+/*
+ * Clone is offered to anyone who can open the panel -- it creates a NEW Bot
+ * owned by the cloner, so it needs no ownership of the original. Delete needs
+ * the same right as Edit, plus the record's own canDelete opt-out, which is
+ * exactly what bot-card's front button checked.
+ */
+const canCloneInfoBot = computed(() =>
+  Boolean(props.allowClone && infoBot.value),
+)
+
+const canDeleteInfoBot = computed(() => {
+  const bot = infoBot.value
+  if (!props.allowDelete || !bot) return false
+  if (bot.canDelete === false) return false
+
+  return canEditInfoBot.value
+})
+
+/*
+ * Both close the panel first. Clone opens the add form underneath it, and a
+ * deleted Bot's panel would otherwise sit there describing a record that no
+ * longer exists -- the same reason the `v-else` branch above exists for a Bot
+ * that vanished from another tab.
+ */
+async function cloneInfoBot() {
+  const id = infoBotId.value
+  infoOpen.value = false
+  if (id) await cloneBotById(id)
+}
+
+async function deleteInfoBot() {
+  const id = infoBotId.value
+  if (!id) return
+
+  infoOpen.value = false
+  const result = await botStore.deleteBotById(id)
+
+  if (result.success) handleBotDeleted(id)
+}
 
 const canEditInfoBot = computed(() => {
   const bot = infoBot.value

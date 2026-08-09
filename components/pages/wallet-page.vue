@@ -1,5 +1,5 @@
 <template>
-  <div class="kr-unbound w-full max-w-3xl mx-auto p-6 space-y-8">
+  <div class="kr-unbound kr-container max-w-3xl p-6 space-y-8">
     <div
       v-if="userStore.isGuest"
       class="rounded-2xl border border-accent/30 bg-(--kr-surface) p-6 text-center space-y-3"
@@ -24,57 +24,29 @@
               {{ karmaStore.balance }}
             </div>
           </div>
-          <button
-            class="btn btn-ghost btn-sm rounded-xl"
-            :disabled="karmaStore.loading"
-            @click="karmaStore.fetch()"
-          >
-            Refresh
-          </button>
+          <Icon name="kind-icon:sparkles" class="size-12 text-primary/30" />
         </div>
-
         <p class="text-sm text-base-content/60">
-          Earned by reacting, creating, sharing, and helping other Kind Robots
-          users — a running score of your community contribution.
+          Karma reflects positive participation across Kind Robots.
         </p>
-
-        <div v-if="karmaStore.loading" class="text-base-content/50 text-sm">
-          Loading…
-        </div>
-        <div
-          v-else-if="!karmaStore.transactions.length"
-          class="text-base-content/50 text-sm"
-        >
-          No karma activity yet. Go react, create, and share! 🌱
-        </div>
-        <ul
-          v-else
-          class="divide-y divide-base-content/10 rounded-xl border border-base-content/10 overflow-hidden"
-        >
-          <li
-            v-for="txn in karmaStore.transactions"
-            :key="txn.id"
-            class="flex items-center justify-between px-4 py-3 bg-base-100"
-          >
-            <div class="space-y-0.5">
-              <div class="text-sm font-medium">
-                {{ formatReason(txn.reason) }}
-              </div>
-              <div class="text-xs text-base-content/50">
-                {{ formatWhen(txn.createdAt) }}
-              </div>
-            </div>
-            <span
-              class="font-bold tabular-nums"
-              :class="txn.amount >= 0 ? 'text-success' : 'text-error'"
-            >
-              {{ txn.amount >= 0 ? '+' : '' }}{{ txn.amount }}
-            </span>
-          </li>
-        </ul>
       </section>
 
-      <mana-wallet />
+      <section
+        class="rounded-2xl border border-secondary/20 bg-base-100 shadow-lg p-6 space-y-4"
+      >
+        <div class="flex items-end justify-between">
+          <div>
+            <h2 class="text-sm text-base-content/60">Mana</h2>
+            <div class="text-5xl font-extrabold text-secondary tabular-nums">
+              {{ manaStore.mana }}
+            </div>
+          </div>
+          <Icon name="kind-icon:flame" class="size-12 text-secondary/30" />
+        </div>
+        <p class="text-sm text-base-content/60">
+          Mana powers creative tools and refills over time.
+        </p>
+      </section>
     </template>
   </div>
 </template>
@@ -82,29 +54,16 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useKarmaStore } from '@/stores/karmaStore'
+import { useManaStore } from '@/stores/manaStore'
 import { useUserStore } from '@/stores/userStore'
 
 const karmaStore = useKarmaStore()
+const manaStore = useManaStore()
 const userStore = useUserStore()
 
-function formatReason(reason: string): string {
-  return reason
-    .toLowerCase()
-    .split('_')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ')
-}
-
-function formatWhen(iso: string): string {
-  return new Date(iso).toLocaleString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  })
-}
-
-onMounted(() => {
-  karmaStore.fetch()
+onMounted(async () => {
+  if (!userStore.isGuest) {
+    await Promise.all([karmaStore.fetchKarma(), manaStore.fetchMana()])
+  }
 })
 </script>

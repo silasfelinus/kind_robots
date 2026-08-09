@@ -55,6 +55,30 @@ export default defineNitroPlugin((nitroApp) => {
       `<meta name="${STARTUP_ANIMATION_META_NAME}" content="${launchSrc}">`,
     )
 
+    /*
+     * THE LAYOUT-CRITICAL DECLARATIONS ARE ALSO INLINE BELOW, and the
+     * duplication is deliberate.
+     *
+     * Silas, 2026-08-09, on /bots: "Building Kind Robots" stays above the
+     * webp, unadorned -- the title in the page's own serif on the page's own
+     * background, the image at natural width, and the app pushed DOWN below it
+     * rather than covered by it. That is this element with none of the <style>
+     * block applied: no fixed positioning, no black ground, no title plate. It
+     * reproduced on both the full startup and the fast refresh, so it is not a
+     * sequence-selection bug.
+     *
+     * Why that block does not take effect is still unexplained. The served
+     * HTML is correct (verified against production: <body>, then the <style>,
+     * then the cover), there is no CSP, and unlayered CSS in <body> outranks
+     * the app's layered Tailwind anyway. So rather than keep guessing at the
+     * cause, the handful of declarations that decide whether this thing COVERS
+     * the page or SITS IN IT also ride on a style attribute, where they cannot
+     * be lost to stylesheet parsing or cascade at all.
+     *
+     * opacity/visibility/animation stay in the block alone, on purpose: a
+     * style attribute would outrank the html.kr-app-ready rule and pin the
+     * cover open. The escape hatches have to stay beatable.
+     */
     html.bodyPrepend.unshift(`
       <style>
         .kr-boot-cover {
@@ -166,9 +190,18 @@ export default defineNitroPlugin((nitroApp) => {
         }
       </style>
 
-      <div class="kr-boot-cover" aria-hidden="true">
+      <div
+        class="kr-boot-cover"
+        aria-hidden="true"
+        style="position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 1rem; background: #000; color: #fff; pointer-events: none"
+      >
         <div class="kr-boot-cover__content">
-          <p class="kr-boot-cover__title">Building Kind Robots...</p>
+          <p
+            class="kr-boot-cover__title"
+            style="background: rgba(0, 0, 0, 0.78); color: #fff; padding: 0.65rem 1.2rem; text-align: center"
+          >
+            Building Kind Robots...
+          </p>
 
           <div class="kr-boot-cover__media-frame">
             <img

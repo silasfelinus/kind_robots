@@ -16,6 +16,7 @@ services:
       PORT: 3000
       NITRO_HOST: 0.0.0.0
       NITRO_PORT: 3000
+      IMAGES_PATH: /app/.output/public/images
     volumes:
       - ${KIND_ROBOTS_ENV_FILE:-./.env}:/config/kind-robots.env:ro
       - ${KIND_ROBOTS_MEDIA_PATH:-/mnt/user/pc/kindrobots/images}:/app/.output/public/images:rw

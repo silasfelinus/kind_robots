@@ -54,7 +54,6 @@ assert.match(
 
 const legacyRoutes = [
   { from: '/memory', to: '/play/memory' },
-  { from: '/wonder', to: '/play/memory' },
   { from: '/wonderlab', to: '/plan/wonderlab' },
 ] as const
 
@@ -66,6 +65,10 @@ for (const { from, to } of legacyRoutes) {
     `${from} must permanently redirect to ${to}`,
   )
 }
+assert.ok(
+  !nuxtConfig.includes("'/wonder': { redirect:"),
+  '/wonder must not be retained as a Memory Dungeon compatibility alias',
+)
 
 const items: ChannelContentItem[] = [
   {
@@ -129,5 +132,5 @@ for (const route of [...publicTabs.map((tab) => tab.route), '/play/davinci']) {
 }
 
 console.log(
-  'WonderLab public navigation verified: Museum, Memory Dungeon, and Screen FX remain public; Memory Dungeon stays obvious in Play; legacy Wonder/Lab routes redirect safely.',
+  'WonderLab public navigation verified: Museum, Memory Dungeon, and Screen FX remain public; Memory Dungeon stays obvious in Play; /memory and /wonderlab retain only their intended compatibility redirects.',
 )

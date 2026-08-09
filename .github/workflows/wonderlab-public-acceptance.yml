@@ -85,7 +85,6 @@ jobs:
             '/play/memory',
             '/play/screenfx',
             '/memory',
-            '/wonder',
             '/wonderlab',
             '1440',
             '390',

@@ -149,7 +149,7 @@
         </label>
       </section>
 
-      <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
+      <section class="kr-panel-flat p-4">
         <div class="mb-4">
           <h2 class="text-xl font-bold text-base-content">Publishing</h2>
           <p class="text-sm text-base-content/70">
@@ -182,7 +182,7 @@
         </div>
       </section>
 
-      <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
+      <section class="kr-panel-flat p-4">
         <div
           class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
         >
@@ -204,7 +204,7 @@
         <choice-manager label="rewardEssence" model="Reward" />
       </section>
 
-      <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
+      <section class="kr-panel-flat p-4">
         <div
           class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
         >

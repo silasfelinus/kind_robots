@@ -51,7 +51,7 @@
       {{ store.lastError }}
     </div>
 
-    <div class="overflow-x-auto rounded-2xl border border-base-300 bg-base-100">
+    <div class="overflow-x-auto kr-panel-flat">
       <table class="table table-sm">
         <thead>
           <tr>

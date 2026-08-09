@@ -3,9 +3,7 @@
   <section
     class="flex h-full min-h-0 w-full flex-col gap-4 rounded-2xl bg-base-200 p-4"
   >
-    <header
-      class="rounded-2xl border border-base-300 bg-base-100 p-4 text-center shadow-md"
-    >
+    <header class="kr-panel-flat p-4 text-center shadow-md">
       <h1 class="text-2xl font-bold text-primary md:text-3xl">
         Character Interact
       </h1>
@@ -39,9 +37,7 @@
     />
 
     <section v-else class="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden">
-      <div
-        class="flex shrink-0 flex-wrap gap-2 rounded-2xl border border-base-300 bg-base-100 p-2"
-      >
+      <div class="flex shrink-0 flex-wrap gap-2 kr-panel-flat p-2">
         <button
           v-for="tab in modeTabs"
           :key="tab.key"
@@ -71,7 +67,7 @@
         class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-[minmax(0,1fr)_minmax(320px,420px)]"
       >
         <div class="flex min-h-0 min-w-0 flex-col gap-4 overflow-y-auto">
-          <article class="rounded-2xl border border-base-300 bg-base-100 p-4">
+          <article class="kr-panel-flat p-4">
             <div class="mb-3 flex items-center justify-between gap-2">
               <div>
                 <h2 class="text-xl font-bold text-base-content">
@@ -102,10 +98,7 @@
             </div>
           </article>
 
-          <article
-            v-if="activeMode === 'chat'"
-            class="rounded-2xl border border-base-300 bg-base-100 p-4"
-          >
+          <article v-if="activeMode === 'chat'" class="kr-panel-flat p-4">
             <div
               class="mb-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between"
             >
@@ -251,7 +244,7 @@
 
           <article
             v-else-if="activeMode === 'adventure'"
-            class="rounded-2xl border border-base-300 bg-base-100 p-4"
+            class="kr-panel-flat p-4"
           >
             <h2 class="mb-3 text-xl font-bold text-base-content">
               Adventure Setup
@@ -307,7 +300,7 @@
 
           <article
             v-else-if="activeMode === 'prompt'"
-            class="rounded-2xl border border-base-300 bg-base-100 p-4"
+            class="kr-panel-flat p-4"
           >
             <h2 class="mb-3 text-xl font-bold text-base-content">
               Character Prompt
@@ -347,10 +340,7 @@
             </div>
           </article>
 
-          <article
-            v-else
-            class="rounded-2xl border border-base-300 bg-base-100 p-4"
-          >
+          <article v-else class="kr-panel-flat p-4">
             <h2 class="mb-3 text-xl font-bold text-base-content">
               Raw Character Context
             </h2>
@@ -364,7 +354,7 @@
         </div>
 
         <aside class="flex min-h-0 flex-col gap-4 overflow-hidden">
-          <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
+          <section class="kr-panel-flat p-4">
             <h2 class="text-lg font-bold text-base-content">
               Interaction Summary
             </h2>
@@ -415,7 +405,7 @@
             </div>
           </section>
 
-          <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
+          <section class="kr-panel-flat p-4">
             <div class="mb-3 flex items-center justify-between gap-2">
               <div>
                 <h2 class="text-lg font-bold text-base-content">
@@ -458,7 +448,7 @@
 
           <section
             v-if="adventurePrompt"
-            class="min-h-0 flex-1 overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-4"
+            class="min-h-0 flex-1 overflow-hidden kr-panel-flat p-4"
           >
             <h2 class="mb-3 text-lg font-bold text-base-content">
               Adventure Prompt Preview

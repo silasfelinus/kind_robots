@@ -1,6 +1,6 @@
 <!-- /components/rewards/reward-facet-picker.vue -->
 <template>
-  <section class="space-y-3 rounded-2xl border border-base-300 bg-base-100 p-4">
+  <section class="space-y-3 kr-panel-flat p-4">
     <div class="flex flex-wrap items-center gap-2">
       <Icon name="kind-icon:tag" class="size-4 text-secondary" />
       <div class="min-w-0 flex-1">

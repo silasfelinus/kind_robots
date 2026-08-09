@@ -23,7 +23,7 @@
       <section
         class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_340px]"
       >
-        <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <div class="kr-panel-flat p-4">
           <div
             class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
           >
@@ -144,7 +144,7 @@
           </div>
         </div>
 
-        <aside class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <aside class="kr-panel-flat p-4">
           <div class="mb-4 flex items-center justify-between gap-2">
             <div>
               <h2 class="text-xl font-bold text-base-content">Portrait</h2>
@@ -201,7 +201,7 @@
       </section>
 
       <section class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <div class="kr-panel-flat p-4">
           <h2 class="mb-3 text-xl font-bold text-base-content">
             Personality and Voice
           </h2>
@@ -239,7 +239,7 @@
           </div>
         </div>
 
-        <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <div class="kr-panel-flat p-4">
           <h2 class="mb-3 text-xl font-bold text-base-content">
             Story and Motivation
           </h2>
@@ -279,7 +279,7 @@
         </div>
       </section>
 
-      <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
+      <section class="kr-panel-flat p-4">
         <div
           class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
         >
@@ -324,7 +324,7 @@
         :character-id="currentCharacterId"
       />
 
-      <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
+      <section class="kr-panel-flat p-4">
         <div
           class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
         >
@@ -397,7 +397,7 @@
         </div>
       </section>
 
-      <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
+      <section class="kr-panel-flat p-4">
         <div
           class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
         >

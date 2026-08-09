@@ -44,7 +44,7 @@
             <label
               v-for="color in colorKeys"
               :key="color"
-              class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100 px-3 py-3"
+              class="flex items-center gap-3 kr-panel-flat px-3 py-3"
             >
               <span class="min-w-0 flex-1 truncate text-sm font-medium">
                 {{ themeStore.labelFromKey(color) }}
@@ -131,9 +131,7 @@
         </div>
 
         <div class="min-h-0">
-          <div
-            class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm"
-          >
+          <div class="kr-panel-flat p-4 shadow-sm">
             <div class="mb-3 flex items-center justify-between gap-3">
               <div>
                 <h3 class="text-lg font-semibold">Live Preview</h3>

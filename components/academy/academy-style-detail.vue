@@ -1,8 +1,6 @@
 <!-- /components/academy/academy-style-detail.vue -->
 <template>
-  <article
-    class="flex flex-col gap-4 rounded-2xl border border-base-300 bg-base-100 p-4"
-  >
+  <article class="flex flex-col gap-4 kr-panel-flat p-4">
     <header class="flex flex-wrap items-start justify-between gap-2">
       <div class="flex min-w-0 flex-col gap-1">
         <div class="flex flex-wrap items-center gap-2">

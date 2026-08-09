@@ -68,7 +68,7 @@
           v-else
           class="flex h-full min-h-128 w-full items-center justify-center bg-base-300 p-4 text-center"
         >
-          <div class="rounded-2xl border border-base-300 bg-base-100 p-5">
+          <div class="kr-panel-flat p-5">
             <Icon
               name="kind-icon:palette"
               class="mx-auto h-14 w-14 text-primary"
@@ -130,7 +130,7 @@
           <!-- Sidebar -->
           <aside class="flex flex-col gap-3">
             <!-- Portrait thumbnail -->
-            <article class="rounded-2xl border border-base-300 bg-base-100 p-3">
+            <article class="kr-panel-flat p-3">
               <div
                 class="relative flex aspect-square items-center justify-center overflow-hidden rounded-2xl border border-base-300 bg-base-300"
               >
@@ -160,7 +160,7 @@
             </article>
 
             <!-- Completion checklist -->
-            <article class="rounded-2xl border border-base-300 bg-base-100 p-4">
+            <article class="kr-panel-flat p-4">
               <h3 class="flex items-center gap-2 font-black text-base-content">
                 <Icon name="kind-icon:check" class="h-5 w-5 text-primary" />
                 Completion
@@ -195,7 +195,7 @@
           <!-- Main content -->
           <main class="flex min-w-0 flex-col gap-3">
             <!-- Identity block -->
-            <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
+            <section class="kr-panel-flat p-4">
               <div class="flex items-start justify-between gap-3">
                 <div>
                   <p
@@ -367,7 +367,7 @@
               <aside class="flex flex-col gap-3">
                 <!-- Stat tiers -->
                 <article
-                  class="rounded-2xl border border-base-300 bg-base-100 p-4"
+                  class="kr-panel-flat p-4"
                 >
                   <div class="flex items-center justify-between gap-3">
                     <h3
@@ -422,7 +422,7 @@
 
                 <!-- Starting Skills (3 skill slots) -->
                 <article
-                  class="rounded-2xl border border-base-300 bg-base-100 p-4"
+                  class="kr-panel-flat p-4"
                 >
                   <h3
                     class="flex items-center gap-2 font-black text-base-content"

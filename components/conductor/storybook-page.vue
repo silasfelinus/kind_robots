@@ -4,10 +4,7 @@
      undefined, which Vue drops entirely, leaving the reader's global theme
      in charge — see composables/useStorybookMode.ts. -->
 <template>
-  <section
-    :data-theme="dataTheme"
-    class="kr-surface gap-4 rounded-2xl border border-base-300 bg-base-100 p-4"
-  >
+  <section :data-theme="dataTheme" class="kr-surface gap-4 kr-panel-flat p-4">
     <header class="flex shrink-0 flex-wrap items-start gap-3">
       <div
         class="flex size-12 shrink-0 items-center justify-center rounded-2xl border border-primary/30 bg-primary/10 text-primary"
@@ -345,9 +342,7 @@
           </div>
 
           <dl class="grid gap-3 md:grid-cols-2">
-            <div
-              class="rounded-2xl border border-base-300 bg-base-100 p-3 md:col-span-2"
-            >
+            <div class="kr-panel-flat p-3 md:col-span-2">
               <dt
                 class="text-[0.7rem] font-bold uppercase tracking-wide text-primary/70"
               >
@@ -357,19 +352,19 @@
                 {{ store.setupDraft.premise }}
               </dd>
             </div>
-            <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+            <div class="kr-panel-flat p-3">
               <dt class="text-xs font-bold text-base-content/55">Narration</dt>
               <dd class="mt-1 text-sm capitalize">
                 {{ store.setupDraft.narratorStyle }} · {{ structureLabel }}
               </dd>
             </div>
-            <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+            <div class="kr-panel-flat p-3">
               <dt class="text-xs font-bold text-base-content/55">Setting</dt>
               <dd class="mt-1 text-sm">
                 {{ selectedLocation?.title || 'Invented from the premise' }}
               </dd>
             </div>
-            <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+            <div class="kr-panel-flat p-3">
               <dt class="text-xs font-bold text-base-content/55">Cast</dt>
               <dd class="mt-1 text-sm">
                 {{
@@ -379,7 +374,7 @@
                 }}
               </dd>
             </div>
-            <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+            <div class="kr-panel-flat p-3">
               <dt class="text-xs font-bold text-base-content/55">Facets</dt>
               <dd class="mt-1 text-sm">
                 {{
@@ -389,9 +384,7 @@
                 }}
               </dd>
             </div>
-            <div
-              class="rounded-2xl border border-base-300 bg-base-100 p-3 md:col-span-2"
-            >
+            <div class="kr-panel-flat p-3 md:col-span-2">
               <dt class="text-xs font-bold text-base-content/55">
                 Possible Rewards
               </dt>
@@ -405,7 +398,7 @@
             </div>
             <div
               v-if="store.setupDraft.notes.trim()"
-              class="rounded-2xl border border-base-300 bg-base-100 p-3 md:col-span-2"
+              class="kr-panel-flat p-3 md:col-span-2"
             >
               <dt class="text-xs font-bold text-base-content/55">
                 Additional direction

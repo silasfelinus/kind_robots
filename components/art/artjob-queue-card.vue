@@ -189,7 +189,7 @@
         {{ job.error }}
       </div>
 
-      <details class="rounded-2xl border border-base-300 bg-base-100">
+      <details class="kr-panel-flat">
         <summary class="cursor-pointer px-3 py-2 text-xs font-semibold">
           Full brief and generation fields
         </summary>

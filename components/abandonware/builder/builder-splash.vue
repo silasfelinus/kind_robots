@@ -8,7 +8,7 @@
 -->
 <template>
   <section
-    class="relative grid min-h-full gap-6 overflow-hidden rounded-2xl border border-base-300 bg-base-100 p-5 lg:grid-cols-[minmax(0,1fr)_minmax(280px,440px)] lg:p-8"
+    class="relative grid min-h-full gap-6 overflow-hidden kr-panel-flat p-5 lg:grid-cols-[minmax(0,1fr)_minmax(280px,440px)] lg:p-8"
   >
     <!-- ambient wash: primary in one corner, secondary in the other -->
     <div

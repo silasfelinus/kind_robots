@@ -21,7 +21,7 @@
     <div
       v-for="(intro, index) in introEntries"
       :key="index"
-      class="flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-100 p-4"
+      class="flex flex-col gap-2 kr-panel-flat p-4"
     >
       <div class="flex items-center justify-between">
         <span

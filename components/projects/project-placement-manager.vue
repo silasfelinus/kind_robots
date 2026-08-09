@@ -55,7 +55,7 @@
       </section>
 
       <section
-        class="flex flex-col gap-4 rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm sm:p-5"
+        class="flex flex-col gap-4 kr-panel-flat p-4 shadow-sm sm:p-5"
       >
         <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
@@ -117,7 +117,7 @@
 
       <section
         v-if="result"
-        class="grid gap-4 rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm md:grid-cols-2 xl:grid-cols-4 xl:p-5"
+        class="grid gap-4 kr-panel-flat p-4 shadow-sm md:grid-cols-2 xl:grid-cols-4 xl:p-5"
       >
         <article>
           <div class="flex items-center justify-between gap-2">

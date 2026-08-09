@@ -35,7 +35,7 @@
 
     <p
       v-if="!filteredChannels.length"
-      class="rounded-2xl border border-base-300 bg-base-100 p-6 text-center text-sm text-base-content/60"
+      class="kr-panel-flat p-6 text-center text-sm text-base-content/60"
     >
       No destinations match “{{ query }}”.
     </p>

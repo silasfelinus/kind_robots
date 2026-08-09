@@ -37,7 +37,7 @@
       </button>
     </div>
 
-    <div class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-100 p-3">
+    <div class="flex flex-wrap items-center justify-between gap-2 kr-panel-flat p-3">
       <p class="text-sm font-semibold" :class="store.statAllocationComplete ? 'text-success' : 'text-base-content/50'">
         {{ store.statAllocationComplete ? 'Stats are allocated.' : 'Assign each number from 1 to 6 once.' }}
       </p>

@@ -1,7 +1,7 @@
 <!-- /components/builder/art-builder.vue -->
 <template>
   <section
-    class="flex flex-col gap-4 rounded-2xl border border-base-300 bg-base-100 p-4"
+    class="flex flex-col gap-4 kr-panel-flat p-4"
   >
     <!-- ── Header ──────────────────────────────────────────────────────── -->
     <header class="rounded-xl border border-base-300 bg-base-200/60 p-3">
@@ -76,7 +76,7 @@
         </div>
 
         <aside
-          class="flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-100 p-4"
+          class="flex flex-col gap-2 kr-panel-flat p-4"
         >
           <h4
             class="flex items-center gap-2 text-sm font-black text-base-content"
@@ -170,7 +170,7 @@
         v-else-if="mode === 'generate'"
         class="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_20rem]"
       >
-        <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <div class="kr-panel-flat p-4">
           <div class="mb-3 flex items-center gap-2">
             <span
               class="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/15 text-accent"
@@ -190,7 +190,7 @@
         </div>
 
         <aside
-          class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4"
+          class="flex flex-col gap-3 kr-panel-flat p-4"
         >
           <h4
             class="flex items-center gap-2 text-sm font-black text-base-content"

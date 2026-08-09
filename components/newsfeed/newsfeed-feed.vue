@@ -95,7 +95,7 @@
 
       <div
         v-else-if="isLoading && !allItems.length"
-        class="flex min-h-40 items-center justify-center rounded-2xl border border-base-300 bg-base-100"
+        class="flex min-h-40 items-center justify-center kr-panel-flat"
       >
         <span class="loading loading-spinner loading-md text-primary" />
         <span class="sr-only">Loading the newsfeed…</span>

@@ -1,6 +1,6 @@
 <!-- /components/art/art-facet-selector.vue -->
 <template>
-  <section class="space-y-2 rounded-2xl border border-base-300 bg-base-100 p-3">
+  <section class="space-y-2 kr-panel-flat p-3">
     <div class="flex items-center gap-2">
       <Icon name="kind-icon:tag" class="size-4 text-secondary" />
       <div class="min-w-0 flex-1">

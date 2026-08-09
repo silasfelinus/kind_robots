@@ -6,7 +6,7 @@
   >
     <template v-if="variant === 'resource'">
       <label
-        class="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100 px-3 py-2"
+        class="flex cursor-pointer items-center justify-between gap-3 kr-panel-flat px-3 py-2"
         :title="buttonTitle"
       >
         <span class="flex min-w-0 items-center gap-3">

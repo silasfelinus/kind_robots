@@ -103,7 +103,7 @@
 
     <div
       v-if="showResult && resultText"
-      class="whitespace-pre-wrap rounded-2xl border border-base-300 bg-base-100 p-3 text-sm leading-relaxed"
+      class="whitespace-pre-wrap kr-panel-flat p-3 text-sm leading-relaxed"
     >
       {{ resultText }}
     </div>

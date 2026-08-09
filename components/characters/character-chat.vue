@@ -32,7 +32,7 @@
       class="kr-panes grid-cols-1 xl:grid-cols-[minmax(320px,440px)_minmax(0,1fr)]"
     >
       <aside class="kr-pane-scroll flex flex-col gap-4">
-        <section class="rounded-2xl border border-base-300 bg-base-100 p-3">
+        <section class="kr-panel-flat p-3">
           <div class="mb-3 flex items-center justify-between gap-3">
             <div class="min-w-0">
               <h2 class="truncate text-xl font-black text-base-content">
@@ -106,7 +106,7 @@
 
         <section
           v-if="characterStore.selectedCharacter"
-          class="rounded-2xl border border-base-300 bg-base-100 p-4"
+          class="kr-panel-flat p-4"
         >
           <h2 class="text-lg font-bold text-base-content">Stats</h2>
 
@@ -127,7 +127,7 @@
           </div>
         </section>
 
-        <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <section class="kr-panel-flat p-4">
           <h2 class="text-lg font-bold text-base-content">
             Interaction Summary
           </h2>
@@ -180,9 +180,7 @@
       </aside>
 
       <main class="kr-pane gap-4">
-        <div
-          class="flex shrink-0 flex-wrap gap-2 rounded-2xl border border-base-300 bg-base-100 p-2"
-        >
+        <div class="flex shrink-0 flex-wrap gap-2 kr-panel-flat p-2">
           <button
             v-for="tab in modeTabs"
             :key="tab.key"
@@ -199,10 +197,7 @@
         </div>
 
         <section class="kr-pane-scroll">
-          <article
-            v-if="activeMode === 'chat'"
-            class="rounded-2xl border border-base-300 bg-base-100 p-4"
-          >
+          <article v-if="activeMode === 'chat'" class="kr-panel-flat p-4">
             <div
               class="mb-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between"
             >
@@ -354,7 +349,7 @@
 
           <article
             v-else-if="activeMode === 'adventure'"
-            class="rounded-2xl border border-base-300 bg-base-100 p-4"
+            class="kr-panel-flat p-4"
           >
             <h2 class="mb-3 text-xl font-bold text-base-content">
               Adventure Setup
@@ -423,7 +418,7 @@
 
           <article
             v-else-if="activeMode === 'prompt'"
-            class="rounded-2xl border border-base-300 bg-base-100 p-4"
+            class="kr-panel-flat p-4"
           >
             <h2 class="mb-3 text-xl font-bold text-base-content">
               Character Prompt
@@ -463,10 +458,7 @@
             </div>
           </article>
 
-          <article
-            v-else
-            class="rounded-2xl border border-base-300 bg-base-100 p-4"
-          >
+          <article v-else class="kr-panel-flat p-4">
             <h2 class="mb-3 text-xl font-bold text-base-content">
               Raw Character Context
             </h2>

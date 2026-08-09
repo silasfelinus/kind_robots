@@ -45,7 +45,7 @@
     class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto xl:grid-cols-[minmax(0,1fr)_minmax(320px,420px)] xl:overflow-hidden"
   >
     <div
-      class="grid min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+      class="grid min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden kr-panel-flat"
     >
       <div class="shrink-0 border-b border-base-300 p-4">
         <div

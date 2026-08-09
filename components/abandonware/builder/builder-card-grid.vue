@@ -1,7 +1,7 @@
 <!-- /components/builder/builder-card-grid.vue -->
 <template>
   <section
-    class="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+    class="flex h-full min-h-0 flex-1 flex-col overflow-hidden kr-panel-flat"
   >
     <div
       class="flex shrink-0 flex-col gap-2 border-b border-base-300 p-4 sm:flex-row sm:items-end sm:justify-between"

@@ -3,7 +3,7 @@
   <section
     class="flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-3"
   >
-    <header class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-3">
+    <header class="shrink-0 kr-panel-flat p-3">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="min-w-0">
           <h1 class="truncate text-lg font-black text-primary">
@@ -55,9 +55,7 @@
       </nav>
     </header>
 
-    <main
-      class="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-3"
-    >
+    <main class="min-h-0 flex-1 overflow-y-auto kr-panel-flat p-3">
       <div
         v-if="workspaceStore.dreamPanel === 'asset-sheet'"
         class="grid gap-3"

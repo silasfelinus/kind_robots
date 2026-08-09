@@ -2,7 +2,7 @@
 <template>
   <div
     v-if="item"
-    class="flex min-h-0 flex-1 flex-col gap-2 rounded-2xl border border-base-300 bg-base-100 p-3"
+    class="flex min-h-0 flex-1 flex-col gap-2 kr-panel-flat p-3"
   >
     <div class="flex items-center gap-2">
       <h4 class="text-sm font-black text-base-content">{{ item.label }}</h4>

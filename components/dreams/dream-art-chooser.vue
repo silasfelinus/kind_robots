@@ -146,7 +146,7 @@
     </div>
 
     <div
-      class="mt-3 grid max-h-80 grid-cols-2 gap-2 overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+      class="mt-3 grid max-h-80 grid-cols-2 gap-2 overflow-y-auto kr-panel-flat p-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
     >
       <image-card
         v-for="image in visibleImages"

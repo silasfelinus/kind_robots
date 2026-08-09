@@ -28,7 +28,7 @@
     -->
     <header
       v-if="isInteractMode"
-      class="flex shrink-0 items-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 shadow-md"
+      class="flex shrink-0 items-center gap-3 kr-panel-flat p-3 shadow-md"
     >
       <button
         class="btn btn-ghost btn-sm shrink-0 rounded-xl"
@@ -75,7 +75,7 @@
       class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto xl:grid-cols-[minmax(0,1fr)_minmax(320px,440px)] xl:overflow-hidden"
     >
       <div
-        class="grid min-h-[70vh] grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-2xl border border-base-300 bg-base-100 xl:min-h-0"
+        class="grid min-h-[70vh] grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden kr-panel-flat xl:min-h-0"
       >
         <div class="shrink-0 border-b border-base-300 p-4">
           <article v-if="rewardStore.selectedReward">
@@ -175,7 +175,7 @@
           @choose="handleChoiceSelected"
         >
           <template v-if="canShowCustomFollowup" #footer>
-            <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+            <div class="kr-panel-flat p-3">
               <label class="form-control">
                 <span class="label py-1">
                   <span

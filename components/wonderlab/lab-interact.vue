@@ -4,7 +4,7 @@
     class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
   >
     <header
-      class="grid shrink-0 grid-cols-1 gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 xl:grid-cols-[auto_minmax(0,1fr)_auto]"
+      class="grid shrink-0 grid-cols-1 gap-3 kr-panel-flat p-3 xl:grid-cols-[auto_minmax(0,1fr)_auto]"
     >
       <div v-if="showHeader" class="flex items-center gap-3">
         <div
@@ -109,7 +109,7 @@
       ]"
     >
       <aside
-        class="kr-pane rounded-2xl border border-base-300 bg-base-100"
+        class="kr-pane kr-panel-flat"
         :class="[selectedComponent ? 'hidden xl:flex' : 'flex']"
       >
         <div class="shrink-0 border-b border-base-300 p-3">
@@ -271,7 +271,7 @@
 
       <main
         v-if="selectedComponent"
-        class="kr-pane-scroll rounded-2xl border border-base-300 bg-base-100 p-3"
+        class="kr-pane-scroll kr-panel-flat p-3"
       >
         <article class="flex flex-col gap-4">
           <section class="rounded-2xl border border-base-300 bg-base-200 p-4">

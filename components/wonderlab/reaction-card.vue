@@ -33,7 +33,7 @@
     </div>
 
     <div class="grid gap-4">
-      <div class="rounded-2xl border border-base-300 bg-base-100 p-3">
+      <div class="kr-panel-flat p-3">
         <div
           class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
         >

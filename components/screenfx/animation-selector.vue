@@ -1,7 +1,7 @@
 <!-- /components/screenfx/animation-selector.vue -->
 <template>
   <section
-    class="flex min-w-0 flex-col gap-4 rounded-2xl border border-base-300 bg-base-100 p-4"
+    class="flex min-w-0 flex-col gap-4 kr-panel-flat p-4"
   >
     <header class="flex flex-wrap items-start justify-between gap-3">
       <div class="flex min-w-0 items-center gap-3">

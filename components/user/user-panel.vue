@@ -4,7 +4,7 @@
     class="flex h-full min-h-0 w-full flex-col gap-4 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-4"
   >
     <header
-      class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4 md:flex-row md:items-center md:justify-between"
+      class="flex shrink-0 flex-col gap-3 kr-panel-flat p-4 md:flex-row md:items-center md:justify-between"
     >
       <div class="min-w-0">
         <h2 class="truncate text-xl font-black">
@@ -39,7 +39,7 @@
 
     <form
       v-if="hasProfile"
-      class="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-4"
+      class="min-h-0 flex-1 overflow-y-auto kr-panel-flat p-4"
       @submit.prevent="updateProfile"
     >
       <div class="mb-4">

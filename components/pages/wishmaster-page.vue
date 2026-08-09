@@ -45,7 +45,7 @@
         <h3 class="text-xs font-bold uppercase tracking-wide text-base-content/50">Recent wish dreams</h3>
         <span v-if="dreamStore.loading" class="loading loading-spinner loading-xs text-primary" />
       </div>
-      <article v-for="wish in recentWishes" :key="wish.id" class="rounded-2xl border border-base-300 bg-base-100 px-4 py-3">
+      <article v-for="wish in recentWishes" :key="wish.id" class="kr-panel-flat px-4 py-3">
         <div class="flex items-start gap-3">
           <Icon name="kind-icon:sparkles" class="mt-0.5 size-4 shrink-0 text-primary" />
           <div class="min-w-0 flex-1">

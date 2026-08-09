@@ -4,7 +4,7 @@
     class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
   >
     <header
-      class="flex shrink-0 flex-col gap-2 rounded-2xl border border-base-300 bg-base-100 p-3 md:flex-row md:items-center md:justify-between"
+      class="flex shrink-0 flex-col gap-2 kr-panel-flat p-3 md:flex-row md:items-center md:justify-between"
     >
       <div class="min-w-0">
         <h1 class="text-xl font-black text-primary md:text-2xl">

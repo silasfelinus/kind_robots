@@ -9,7 +9,7 @@
       </div>
 
       <div class="grid grid-cols-1 gap-4 lg:grid-cols-4">
-        <label class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <label class="kr-panel-flat p-4">
           <div class="mb-2 font-semibold">Step size</div>
           <select v-model="stepSize" class="select select-bordered w-full rounded-2xl">
             <option :value="15">15°</option>
@@ -18,7 +18,7 @@
           </select>
         </label>
 
-        <label class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <label class="kr-panel-flat p-4">
           <div class="mb-2 font-semibold">Spread</div>
           <select v-model="spreadMode" class="select select-bordered w-full rounded-2xl">
             <option value="tight">[-step, 0, step]</option>
@@ -26,7 +26,7 @@
           </select>
         </label>
 
-        <label class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <label class="kr-panel-flat p-4">
           <div class="mb-2 font-semibold">Scale</div>
           <input
             v-model="scale"
@@ -39,7 +39,7 @@
           <div class="mt-2 text-sm font-mono">{{ scale.toFixed(2) }}</div>
         </label>
 
-        <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <div class="kr-panel-flat p-4">
           <div class="mb-2 font-semibold">Grid summary</div>
           <div class="text-sm">Combos: {{ combinations.length }}</div>
           <div class="text-sm">Marked ugly: {{ uglyCombos.length }}</div>
@@ -54,7 +54,7 @@
         </div>
       </div>
 
-      <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+      <div class="kr-panel-flat p-4">
         <div class="mb-2 font-semibold">Selected ugly combos</div>
         <pre class="max-h-56 overflow-auto rounded-2xl bg-base-200 p-3 text-xs font-mono">{{ uglyCombosJson }}</pre>
       </div>

@@ -110,7 +110,7 @@
             </div>
 
             <div class="mt-3 grid gap-3">
-              <article class="rounded-2xl border border-base-300 bg-base-100 p-3">
+              <article class="kr-panel-flat p-3">
                 <div class="flex items-start justify-between gap-3">
                   <div class="min-w-0">
                     <p class="font-black">OpenAI</p>
@@ -164,7 +164,7 @@
                 </form>
               </article>
 
-              <article class="rounded-2xl border border-base-300 bg-base-100 p-3">
+              <article class="kr-panel-flat p-3">
                 <div class="flex items-start justify-between gap-3">
                   <div class="min-w-0">
                     <p class="font-black">Anthropic</p>
@@ -217,7 +217,7 @@
               <article
                 v-for="server in localServers"
                 :key="server.id"
-                class="rounded-2xl border border-base-300 bg-base-100 p-3"
+                class="kr-panel-flat p-3"
               >
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div class="min-w-0">

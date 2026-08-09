@@ -1,7 +1,7 @@
 <!-- /components/content/art/add-collection.vue -->
 <template>
   <section
-    class="rounded-2xl border border-base-300 bg-base-100 p-3"
+    class="kr-panel-flat p-3"
     :class="compact ? 'space-y-2' : 'space-y-3'"
   >
     <button

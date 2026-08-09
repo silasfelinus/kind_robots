@@ -1,5 +1,5 @@
 <template>
-  <section class="space-y-2 rounded-2xl border border-base-300 bg-base-100 p-3">
+  <section class="space-y-2 kr-panel-flat p-3">
     <div class="flex flex-wrap items-start justify-between gap-2">
       <div>
         <h3 class="text-sm font-bold">Content visibility</h3>

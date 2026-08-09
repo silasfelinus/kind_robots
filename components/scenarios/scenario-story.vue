@@ -24,7 +24,7 @@
     class="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain"
   >
     <div
-      class="flex shrink-0 items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-100 p-2 pl-1 shadow-sm"
+      class="flex shrink-0 items-center justify-between gap-2 kr-panel-flat p-2 pl-1 shadow-sm"
     >
       <div class="flex min-w-0 items-center gap-1">
         <button
@@ -109,7 +109,7 @@
 
     <article
       v-if="introChoices.length"
-      class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
+      class="shrink-0 kr-panel-flat p-4 shadow-md"
     >
       <h2 class="text-smart-heading font-black text-base-content">
         How does it begin?
@@ -131,9 +131,7 @@
       />
     </article>
 
-    <article
-      class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
-    >
+    <article class="shrink-0 kr-panel-flat p-4 shadow-md">
       <h2 class="text-smart-heading font-black text-base-content">Direction</h2>
 
       <p class="mt-0.5 text-smart text-base-content/60">
@@ -205,7 +203,7 @@
 
   <section
     v-else
-    class="grid min-h-0 flex-1 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+    class="grid min-h-0 flex-1 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden kr-panel-flat"
   >
     <header
       class="flex shrink-0 items-center justify-between gap-3 border-b border-base-300 bg-base-100 p-3"

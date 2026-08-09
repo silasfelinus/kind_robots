@@ -1,8 +1,6 @@
 <!-- /components/dreams/dream-list.vue -->
 <template>
-  <section
-    class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-100"
-  >
+  <section class="flex min-h-0 flex-col overflow-hidden kr-panel-flat">
     <header
       class="flex shrink-0 items-start justify-between gap-2 border-b border-base-300 bg-base-200 p-3"
     >

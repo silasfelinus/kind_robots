@@ -4,7 +4,7 @@
     class="kr-unbound flex h-full min-h-0 items-center justify-center overflow-y-auto overscroll-contain p-3 sm:p-6"
   >
     <div
-      class="w-full max-w-xl rounded-2xl border border-base-300 bg-base-100 p-4 shadow-xl sm:p-6"
+      class="w-full max-w-xl kr-panel-flat p-4 shadow-xl sm:p-6"
     >
       <header class="mb-6 text-center">
         <site-logo class="mx-auto mb-4" />

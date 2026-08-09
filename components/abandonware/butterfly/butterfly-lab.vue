@@ -10,7 +10,7 @@
       </div>
 
       <div
-        class="relative flex min-h-96 items-center justify-center overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+        class="relative flex min-h-96 items-center justify-center overflow-hidden kr-panel-flat"
       >
         <div class="orientation-stage">
           <div class="orientation-guides" />
@@ -31,7 +31,7 @@
       </div>
 
       <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <label class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <label class="kr-panel-flat p-4">
           <div class="mb-2 flex items-center justify-between">
             <span class="font-semibold">Rotate X</span>
             <span class="rounded-xl bg-base-200 px-3 py-1 text-sm font-mono">
@@ -48,7 +48,7 @@
           />
         </label>
 
-        <label class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <label class="kr-panel-flat p-4">
           <div class="mb-2 flex items-center justify-between">
             <span class="font-semibold">Rotate Y</span>
             <span class="rounded-xl bg-base-200 px-3 py-1 text-sm font-mono">
@@ -65,7 +65,7 @@
           />
         </label>
 
-        <label class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <label class="kr-panel-flat p-4">
           <div class="mb-2 flex items-center justify-between">
             <span class="font-semibold">Rotate Z</span>
             <span class="rounded-xl bg-base-200 px-3 py-1 text-sm font-mono">
@@ -84,7 +84,7 @@
       </div>
 
       <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <label class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <label class="kr-panel-flat p-4">
           <div class="mb-2 flex items-center justify-between">
             <span class="font-semibold">Scale</span>
             <span class="rounded-xl bg-base-200 px-3 py-1 text-sm font-mono">
@@ -101,7 +101,7 @@
           />
         </label>
 
-        <label class="rounded-2xl border border-base-300 bg-base-100 p-4">
+        <label class="kr-panel-flat p-4">
           <div class="mb-2 flex items-center justify-between">
             <span class="font-semibold">Wing Speed</span>
             <span class="rounded-xl bg-base-200 px-3 py-1 text-sm font-mono">
@@ -157,7 +157,7 @@
         </button>
       </div>
 
-      <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+      <div class="kr-panel-flat p-4">
         <div class="mb-2 text-sm font-semibold">Current transform</div>
         <pre
           class="overflow-x-auto whitespace-pre-wrap wrap-break-word rounded-2xl bg-base-200 p-3 text-xs font-mono"

@@ -12,7 +12,7 @@
     </summary>
 
     <div class="mt-3 grid gap-3 lg:grid-cols-3">
-      <section class="rounded-2xl border border-base-300 bg-base-100 p-3">
+      <section class="kr-panel-flat p-3">
         <h3 class="text-xs font-bold uppercase tracking-wide text-base-content/55">
           Inventory
         </h3>
@@ -51,7 +51,7 @@
         </p>
       </section>
 
-      <section class="rounded-2xl border border-base-300 bg-base-100 p-3">
+      <section class="kr-panel-flat p-3">
         <h3 class="text-xs font-bold uppercase tracking-wide text-base-content/55">
           Consequences
         </h3>
@@ -77,7 +77,7 @@
         </p>
       </section>
 
-      <section class="rounded-2xl border border-base-300 bg-base-100 p-3">
+      <section class="kr-panel-flat p-3">
         <h3 class="text-xs font-bold uppercase tracking-wide text-base-content/55">
           Branch path
         </h3>

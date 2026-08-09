@@ -74,7 +74,7 @@
     <main class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
       <div class="grid gap-3 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <section class="grid gap-3">
-          <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+          <div class="kr-panel-flat p-4">
             <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_14rem]">
               <label class="form-control">
                 <span class="label py-1">
@@ -140,7 +140,7 @@
             </div>
           </div>
 
-          <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+          <div class="kr-panel-flat p-4">
             <label class="form-control">
               <span class="label py-1">
                 <span
@@ -191,7 +191,7 @@
             label="Dream Facets"
           />
 
-          <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+          <div class="kr-panel-flat p-4">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <h2 class="text-lg font-black">Art Prompt</h2>
@@ -216,7 +216,7 @@
             />
           </div>
 
-          <div class="rounded-2xl border border-base-300 bg-base-100 p-4">
+          <div class="kr-panel-flat p-4">
             <div class="grid gap-3 md:grid-cols-3">
               <label class="form-control">
                 <span class="label py-1"
@@ -276,7 +276,7 @@
         </section>
 
         <aside class="grid h-fit gap-3 xl:sticky xl:top-3">
-          <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
+          <section class="kr-panel-flat p-4">
             <h2 class="text-lg font-black">Visibility</h2>
             <div class="mt-3 grid gap-2">
               <label
@@ -315,7 +315,7 @@
             </div>
           </section>
 
-          <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
+          <section class="kr-panel-flat p-4">
             <h2 class="text-lg font-black">Preview</h2>
             <div
               class="mt-3 rounded-2xl border border-base-300 bg-base-200 p-3"
@@ -345,7 +345,7 @@
             </div>
           </section>
 
-          <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
+          <section class="kr-panel-flat p-4">
             <h2 class="text-lg font-black">Checks</h2>
             <div class="mt-3 grid gap-2 text-sm">
               <div

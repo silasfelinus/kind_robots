@@ -109,7 +109,7 @@
 
     <div
       v-if="showResult && resultImage"
-      class="rounded-2xl border border-base-300 bg-base-100 p-3"
+      class="kr-panel-flat p-3"
     >
       <image-card :art-image="resultImage" />
     </div>

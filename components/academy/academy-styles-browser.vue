@@ -81,7 +81,7 @@
     </header>
 
     <div
-      class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4 sm:flex-row sm:items-center sm:justify-between"
+      class="flex flex-col gap-3 kr-panel-flat p-4 sm:flex-row sm:items-center sm:justify-between"
     >
       <div class="min-w-0 flex-1">
         <div class="flex items-center justify-between gap-3">

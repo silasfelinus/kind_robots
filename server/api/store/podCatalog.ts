@@ -4,7 +4,11 @@
 // webhook's handleGiftshopCartPurchase (general multi-item cart, t-033).
 // Keys match both stores/seeds/cartItems.ts ids and pod-checkout.post.ts's
 // printType param — not real Printful catalog ids (no vendor account/API key
-// exists yet, digital-storefront/t-015, needs-human).
+// exists yet, digital-storefront/t-015, needs-human). Every printfulVariantId
+// below is a PLACEHOLDER_* string until then; server/utils/podVendorClient.ts's
+// isPlaceholderVariantId()/submitPodOrder() refuse to submit one to Printful,
+// so replacing these with real catalog ids is what actually unblocks
+// submission (digital-storefront/t-040) once an account exists.
 export const POD_CATALOG: Record<
   string,
   { title: string; priceCents: number; printfulVariantId: string }

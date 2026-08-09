@@ -7,7 +7,7 @@
   endpoints re-check admin server-side.
 -->
 <template>
-  <section class="mx-auto flex w-full max-w-6xl flex-col gap-4 p-4">
+  <section class="kr-container flex flex-col gap-4 p-4">
     <header
       class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
     >

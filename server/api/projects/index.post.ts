@@ -6,7 +6,10 @@ import type {
   ProjectStatus,
 } from '~/prisma/generated/prisma/client'
 import prisma, { isStaleDatabaseConnectionError } from '~/server/utils/prisma'
-import { upsertProjectDirect } from '~/server/utils/projectDirectWrite'
+import {
+  projectScaffoldTodoContent,
+  upsertProjectDirect,
+} from '~/server/utils/projectDirectWrite'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
 import { enforceProjectCap } from '~/server/utils/projectCap'
@@ -54,21 +57,47 @@ type ProjectCreateBody = {
   isActive?: unknown
 }
 
-async function createProjectWithDirectFallback(
+function getWorkerUserId(): number {
+  const raw = Number(process.env.BETA_ADMIN_USER_ID || 1)
+  return Number.isInteger(raw) && raw > 0 ? raw : 1
+}
+
+async function createProjectWithScaffoldTodo(
   data: Prisma.ProjectUncheckedCreateInput,
   conductorSlug: string,
+  requesterUserId: number,
 ) {
   try {
-    return await prisma.project.create({
-      data,
-      select: projectMutationSelect,
+    return await prisma.$transaction(async (tx) => {
+      const project = await tx.project.create({
+        data,
+        select: projectMutationSelect,
+      })
+      const todoContent = projectScaffoldTodoContent({
+        conductorSlug,
+        projectId: project.id,
+        requesterUserId,
+      })
+
+      await tx.todo.create({
+        data: {
+          ...todoContent,
+          status: 'OPEN',
+          priority: 'HIGH',
+          category: 'AGENT',
+          userId: getWorkerUserId(),
+          projectId: project.id,
+        },
+      })
+
+      return project
     })
   } catch (error: unknown) {
     if (!isStaleDatabaseConnectionError(error)) throw error
 
     console.warn('[project-sync:direct-mariadb-fallback]', {
       conductorSlug,
-      action: 'upsert',
+      action: 'upsert-with-scaffold-todo',
     })
 
     return upsertProjectDirect(data, conductorSlug)
@@ -160,9 +189,10 @@ export default defineEventHandler(async (event) => {
       userId: auth.user.id,
     } satisfies Prisma.ProjectUncheckedCreateInput
 
-    const project = await createProjectWithDirectFallback(
+    const project = await createProjectWithScaffoldTodo(
       projectData,
       conductorSlug,
+      auth.user.id,
     )
 
     event.node.res.statusCode = 201

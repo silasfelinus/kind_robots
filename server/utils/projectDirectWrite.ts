@@ -75,6 +75,26 @@ function booleanValue(value: unknown): boolean {
   return value === true || value === 1 || value === '1'
 }
 
+function workerUserId(): number {
+  const raw = Number(process.env.BETA_ADMIN_USER_ID || 1)
+  return Number.isInteger(raw) && raw > 0 ? raw : 1
+}
+
+export function projectScaffoldTodoContent(input: {
+  conductorSlug: string
+  projectId: number
+  requesterUserId: number
+}) {
+  const title = `Scaffold conductor project for ${input.conductorSlug}`
+  const description = [
+    `New Project created by Kind Robots user ${input.requesterUserId} with slug '${input.conductorSlug}'.`,
+    `Create projects/${input.conductorSlug}/roadmap.yaml with at least one ready task.`,
+    `Project ${input.projectId} already exists in Kind Robots; do not create another.`,
+  ].join('\n')
+
+  return { title, description }
+}
+
 export async function upsertProjectDirect(
   data: Prisma.ProjectUncheckedCreateInput,
   conductorSlug: string,
@@ -116,6 +136,41 @@ export async function upsertProjectDirect(
         `Direct Project upsert completed but ${conductorSlug} was not found.`,
       )
     }
+
+    const projectId = Number(project.id)
+    const requesterUserId = Number(data.userId)
+    if (
+      !Number.isInteger(projectId) ||
+      projectId <= 0 ||
+      !Number.isInteger(requesterUserId) ||
+      requesterUserId <= 0
+    ) {
+      throw new Error(
+        `Direct Project upsert returned invalid ownership data for ${conductorSlug}.`,
+      )
+    }
+
+    const todoContent = projectScaffoldTodoContent({
+      conductorSlug,
+      projectId,
+      requesterUserId,
+    })
+    await connection.query(
+      `INSERT INTO \`Todo\` (` +
+        '`title`, `description`, `status`, `priority`, `category`, `userId`, `projectId`' +
+        `) SELECT ?, ?, 'OPEN', 'HIGH', 'AGENT', ?, ? ` +
+        `WHERE NOT EXISTS (` +
+        `SELECT 1 FROM \`Todo\` WHERE \`projectId\` = ? AND \`title\` = ? AND \`status\` = 'OPEN'` +
+        `)`,
+      [
+        todoContent.title,
+        todoContent.description,
+        workerUserId(),
+        projectId,
+        projectId,
+        todoContent.title,
+      ],
+    )
 
     return {
       ...project,

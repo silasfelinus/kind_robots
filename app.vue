@@ -220,6 +220,7 @@ import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
 import { useUserStore } from '@/stores/userStore'
 import { useIntroStore } from '@/stores/introStore'
+import { retireBootCover } from '@/utils/startupLaunch'
 
 const pageStore = usePageStore()
 
@@ -291,6 +292,15 @@ if (import.meta.client) {
   failsafeTimeoutId = setTimeout(() => {
     showLoader.value = false
     failsafeTimeoutId = null
+
+    /*
+     * The server cover normally retires on its own 6s keyframe, or early via
+     * markAppReady() once kind-loader runs. Neither is guaranteed here -- this
+     * branch exists precisely for the case where the app never reached
+     * kind-loader, and the keyframe shares an inline <style> block that has
+     * been observed not to apply. Removing the node needs neither.
+     */
+    retireBootCover()
   }, 9000)
 }
 

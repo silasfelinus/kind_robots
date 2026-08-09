@@ -14,10 +14,7 @@ import {
 } from './helpers/botHelper'
 import { performFetch, handleError } from './utils'
 import { loadSnapshot, markSnapshotActive } from './helpers/snapshotLoader'
-import {
-  mergeDefinedRecord,
-  reconcileRecordsById,
-} from './helpers/recordMerge'
+import { mergeDefinedRecord, reconcileRecordsById } from './helpers/recordMerge'
 import { useServerStore } from './serverStore'
 import { useUserStore } from './userStore'
 import { useAchievementStore } from './achievementStore'
@@ -118,6 +115,28 @@ function normalizeBotId(input: number | string | Bot | null | undefined) {
 export const useBotStore = defineStore('botStore', () => {
   const bots: Ref<Bot[]> = ref([])
   const currentBot: Ref<Bot | null> = ref(null)
+
+  /*
+   * WHICH BOT IS OPEN FOR EDITING -- distinct from which Bot you are talking
+   * to, even though both live in `currentBot`.
+   *
+   * `add-bot` in edit mode reads `currentBot` (its guard, its reviews toggle,
+   * its save target), so `startEditingBot` has to set it. But bot-interact.vue
+   * routes on exactly that value: `<bot-gallery v-if="!isInteractMode">` with
+   * `isInteractMode = Boolean(currentBot) || sessionChats.length`. So opening
+   * the editor unmounted the gallery -- and with it the card back the editor
+   * was rendering inside -- and dropped the user into the chat surface.
+   *
+   * Silas, 2026-08-09: "edit just brings me to interact, not an edit screen,
+   * so I can't test edit yet."
+   *
+   * This flag is what lets the router tell the two apart. It is deliberately
+   * cleared by every path that means "I am done editing / I want the Bot for
+   * something else": selecting a Bot to talk to, deselecting, and starting a
+   * new one. A stale flag would strand someone in the gallery unable to chat,
+   * which is the same bug pointing the other way.
+   */
+  const editingBotId: Ref<number | null> = ref(null)
   const botForm: Ref<BotForm> = ref({})
   const currentImagePath = ref('')
   const loading = ref(false)
@@ -376,6 +395,7 @@ export const useBotStore = defineStore('botStore', () => {
 
   function startAddingBot(overrides: Partial<BotForm> = {}): void {
     currentBot.value = null
+    editingBotId.value = null
     botForm.value = createDefaultBotForm(overrides)
     currentImagePath.value = botForm.value.avatarImage || ''
     pendingLaunchMessage.value = ''
@@ -405,6 +425,7 @@ export const useBotStore = defineStore('botStore', () => {
     }
 
     currentBot.value = bot
+    editingBotId.value = bot.id
     botForm.value = toBotForm(bot)
     currentImagePath.value = bot.avatarImage || ''
     pendingLaunchMessage.value = ''
@@ -569,6 +590,10 @@ export const useBotStore = defineStore('botStore', () => {
 
     if (!botId) return null
 
+    // Before the early return below: picking a Bot to talk to ends editing
+    // even when it is the Bot already loaded in the form.
+    editingBotId.value = null
+
     if (currentBot.value?.id === botId) return currentBot.value
 
     const found =
@@ -599,6 +624,7 @@ export const useBotStore = defineStore('botStore', () => {
 
   function deselectBot(): void {
     currentBot.value = null
+    editingBotId.value = null
     botForm.value = {}
     currentImagePath.value = ''
     pendingLaunchMessage.value = ''
@@ -999,6 +1025,7 @@ export const useBotStore = defineStore('botStore', () => {
     loadBotById,
     selectBot,
     deselectBot,
+    editingBotId,
     revertBotForm,
 
     startAddingBot,

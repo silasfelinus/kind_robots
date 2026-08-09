@@ -4,7 +4,7 @@ import { useChannelContentStore } from '@/stores/channelContentStore'
 import { useUserStore } from '@/stores/userStore'
 
 /*
- * How long navigation will wait on the user and channel stores before
+ * How long the first navigation will wait on the user and channel stores before
  * proceeding ungated. Comfortably above a healthy round trip and comfortably
  * below app.vue's 9s loader failsafe, so a degraded backend produces a usable
  * page rather than a race between two deadlines.
@@ -56,25 +56,26 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   const nuxtApp = useNuxtApp()
 
-  async function enforceNavigationAccess() {
+  const enforceNavigationAccess = async () => {
     const userStore = useUserStore()
     const channelContentStore = useChannelContentStore()
 
     /*
-     * BOUNDED. On normal client-side navigation this runs before the route
-     * resolves, so anything it awaits is on the critical path to the next page.
-     * On the initial SSR hydration the block below defers this whole function to
-     * app:mounted instead: restoring localStorage-backed identity before Vue has
-     * reconciled the server's guest markup changes header v-if branches and
-     * produces a real hydration mismatch.
+     * BOUNDED. This runs before the first route resolves, so anything it awaits
+     * is on the critical path to the app being visible at all -- and
+     * `channelContentStore.initialize()` ends in `queryCollection('channels')`,
+     * while `userStore.initialize()` reaches the API. Neither carried a deadline,
+     * so a slow or failing backend held the initial navigation open indefinitely.
+     * Production has been logging both since 2026-08-06: AbortErrors on
+     * `/[...slug]` and 40s function timeouts.
      *
-     * Timing out is SAFE, and deliberately so: the access check below opens
+     * Timing out here is SAFE, and deliberately so: the access check below opens
      * with `if (!access.matched || access.allowed) return`, and an unpopulated
      * channel list matches nothing. So the degraded outcome is "this middleware
      * declines to gate", never "this middleware locks someone out" or, worse,
-     * bounces them to /login while the page underneath is still suspended.
-     * Whatever did resolve is kept -- the stores hold their own state, and the
-     * losing promise still settles into them for the next navigation.
+     * bounces them to /login and back while the page underneath is still
+     * suspended. Whatever did resolve is kept -- the stores hold their own state,
+     * and the losing promise still settles into them for the next navigation.
      */
     await Promise.race([
       Promise.all([userStore.initialize(), channelContentStore.initialize()]),
@@ -140,17 +141,6 @@ export default defineNuxtRouteMiddleware(async (to) => {
     })
   }
 
-  /*
-   * Nuxt executes global route middleware twice for an SSR first load: once on
-   * the server, then again in the browser before hydration. This middleware is
-   * intentionally client-only because the session token lives in localStorage,
-   * but that means the browser pass must NOT restore user state until the server
-   * DOM has been hydrated. Nuxt documents this exact isHydrating/serverRendered
-   * guard for initial client middleware.
-   *
-   * We still run the access check immediately after app:mounted so direct loads
-   * of protected routes keep the same redirect behavior; only the timing moves.
-   */
   if (nuxtApp.isHydrating && nuxtApp.payload.serverRendered) {
     nuxtApp.hook('app:mounted', () => {
       void nuxtApp.runWithContext(enforceNavigationAccess)

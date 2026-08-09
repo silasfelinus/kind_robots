@@ -1,7 +1,5 @@
 <template>
-  <section
-    class="mx-auto flex w-full max-w-6xl flex-col gap-4 p-3"
-  >
+  <section class="kr-container flex flex-col gap-4 p-3">
     <header class="flex flex-wrap items-center justify-between gap-2">
       <div>
         <h1 class="text-xl font-semibold">⚗️ Build Bench</h1>

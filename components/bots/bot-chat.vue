@@ -26,8 +26,23 @@
     {{ statusMessage }}
   </div>
 
+  <!--
+    BELOW xl THIS SCROLLS. Silas, 2026-08-09, from a tablet: "interact cannot
+    scroll, same as with resource."
+
+    At xl the two columns sit side by side, each bounded, each with its own
+    inner scroller -- so `overflow-hidden` here is correct and nothing needs to
+    move. Below xl `grid-cols-1` stacks them, and the stack is routinely taller
+    than the pane; with `overflow-hidden` still in force the overflow was
+    simply clipped and there was no way to reach the settings panel underneath
+    the conversation.
+
+    So the hidden overflow is now the WIDE case only. The panes keep their own
+    scrollers either way, which is why this does not turn into two competing
+    scroll owners at xl -- the same mistake that broke the card back in #1631.
+  -->
   <section
-    class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden xl:grid-cols-[minmax(0,1fr)_minmax(320px,420px)]"
+    class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto xl:grid-cols-[minmax(0,1fr)_minmax(320px,420px)] xl:overflow-hidden"
   >
     <div
       class="grid min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-2xl border border-base-300 bg-base-100"

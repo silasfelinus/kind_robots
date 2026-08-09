@@ -52,23 +52,23 @@
         the FRONT of the card already uses, so turning it over reads as the
         same object rather than a different screen.
       -->
+      <!--
+        CONTAIN, not cover, and the title sits BELOW rather than on top.
+        Silas, 2026-08-09: "layout should be card like and not cut off the
+        image". `object-cover` filled the plate by cropping, which on a tall
+        Bot portrait meant slicing the head off; `object-contain` shows the
+        whole frame and letterboxes the remainder against the plate.
+
+        The title moved out of the scrim for the same reason -- a scrim over a
+        CONTAINED image sits on empty plate as often as on artwork, so it read
+        as a bar rather than a caption. Art up top, name beneath it: the shape
+        an actual card back has.
+      -->
       <div
         v-if="artSrc"
-        class="relative aspect-[4/3] max-h-56 w-full shrink-0 overflow-hidden bg-base-300"
+        class="relative aspect-[4/3] max-h-64 w-full shrink-0 overflow-hidden bg-neutral"
       >
-        <img :src="artSrc" :alt="title" class="h-full w-full object-cover" />
-
-        <div
-          class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/45 to-transparent p-3 pt-8"
-        >
-          <h2 class="break-words text-lg font-black leading-tight text-white">
-            {{ title }}
-          </h2>
-
-          <p v-if="subtitle" class="mt-0.5 text-xs text-white/75">
-            {{ subtitle }}
-          </p>
-        </div>
+        <img :src="artSrc" :alt="title" class="h-full w-full object-contain" />
 
         <div
           v-if="badges.length"
@@ -82,6 +82,16 @@
             {{ badge }}
           </span>
         </div>
+      </div>
+
+      <div v-if="artSrc" class="min-w-0 px-3 pb-3 pt-2">
+        <h2 class="break-words text-lg font-black leading-tight">
+          {{ title }}
+        </h2>
+
+        <p v-if="subtitle" class="mt-0.5 text-xs text-base-content/60">
+          {{ subtitle }}
+        </p>
       </div>
 
       <!-- No art: the title has to carry the header on its own, so it keeps

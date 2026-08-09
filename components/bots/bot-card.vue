@@ -279,14 +279,21 @@ const badges = computed<EntityCardChip[]>(() => {
   return result
 })
 
+/*
+ * NO THEME, NO DESIGNER. Silas, 2026-08-09: "I love the border around the
+ * gallery images, but we don't need the designer or theme text."
+ *
+ * Both were near-constant down the page -- the same handle on every card, and
+ * a palette name that the card's own `data-theme` border already SHOWS -- so
+ * they were a row of chips repeating what the eye had, on all 69 tiles. The
+ * theme still colours the frame; it just no longer also spells itself out.
+ *
+ * serverName survives because it varies and nothing else on the card carries
+ * it, but most Bots have none, so in practice the strip is now usually empty.
+ * Full provenance is on the card back, which is what the back is for.
+ */
 const metaChips = computed<EntityCardChip[]>(() => {
   const result: EntityCardChip[] = []
-  if (props.bot.theme) {
-    result.push({ label: props.bot.theme, class: 'badge-ghost' })
-  }
-  if (props.bot.designer) {
-    result.push({ label: props.bot.designer, class: 'badge-outline' })
-  }
   if (props.bot.serverName) {
     result.push({ label: props.bot.serverName, class: 'badge-info' })
   }

@@ -149,72 +149,16 @@
         {{ resource.supportedServer }}
       </span>
 
-      <div class="mt-auto flex flex-col gap-1.5 pt-1">
-        <div class="grid grid-cols-2 gap-1.5">
-          <button
-            type="button"
-            class="btn btn-primary btn-xs rounded-xl"
-            @click="emit('add-to-build', resource)"
-          >
-            Add to build
-          </button>
-          <button
-            type="button"
-            class="btn btn-secondary btn-xs rounded-xl"
-            @click="emit('start-fresh', resource)"
-          >
-            Start fresh
-          </button>
-        </div>
+      <!--
+        NO ACTION BUTTONS. They were four -- Add to build, Start fresh,
+        Preview, Upload -- stacked under every tile in a grid of 48. Silas,
+        2026-08-09: "the buttons that are currently on the gallery card before
+        clicking need to be moved to the bottom row of the selected back".
 
-        <!--
-          The preview pair and Edit are secondary, so they are icon buttons
-          on one line rather than two more full-width rows. Five stacked
-          call-to-actions made every card taller than its own artwork.
-        -->
-        <div class="flex items-center gap-1.5">
-          <button
-            type="button"
-            class="btn btn-ghost btn-xs flex-1 rounded-xl"
-            :disabled="generatingPreview"
-            title="Generate preview"
-            @click="emit('generate-preview', resource)"
-          >
-            <span
-              v-if="generatingPreview"
-              class="loading loading-spinner loading-xs"
-            />
-            <Icon v-else name="kind-icon:sparkles" class="h-3.5 w-3.5" />
-            Preview
-          </button>
-
-          <button
-            type="button"
-            class="btn btn-ghost btn-xs flex-1 rounded-xl"
-            :disabled="uploadingPreview"
-            title="Upload preview"
-            @click="emit('upload-preview', resource)"
-          >
-            <span
-              v-if="uploadingPreview"
-              class="loading loading-spinner loading-xs"
-            />
-            <Icon v-else name="kind-icon:upload" class="h-3.5 w-3.5" />
-            Upload
-          </button>
-
-          <button
-            v-if="isEditable"
-            type="button"
-            class="btn btn-ghost btn-xs rounded-xl"
-            title="Open this Resource"
-            aria-label="Open this Resource"
-            @click="emit('open', resource.id)"
-          >
-            <Icon name="kind-icon:info" class="h-3.5 w-3.5" />
-          </button>
-        </div>
-      </div>
+        The front's job is to be findable: art, name, trigger. Anything you DO
+        to a Resource now lives on the back, one flip away, where there is room
+        to label it properly and it is not repeated 48 times down the page.
+      -->
     </div>
   </article>
 </template>
@@ -223,31 +167,20 @@
 import { computed } from 'vue'
 import type { ResourceGalleryRecord } from '@/stores/resourceGalleryStore'
 
-const EDITABLE_TYPES = ['CHECKPOINT', 'LORA', 'LYCORIS']
-
 const props = withDefaults(
   defineProps<{
     resource: ResourceGalleryRecord
-    generatingPreview?: boolean
-    uploadingPreview?: boolean
   }>(),
-  {
-    generatingPreview: false,
-    uploadingPreview: false,
-  },
+  {},
 )
 
 const emit = defineEmits<{
   /*
-   * `open` is the contract's pick action, and here it means "turn the card
-   * over". The GALLERY decides that, per verifyCardActionContract -- which is
-   * what lets a picker embed opt out while a browse gallery opens the back.
+   * `open` is all that is left. The build and preview actions moved to the
+   * card BACK on 2026-08-09, so the front no longer emits them -- keeping
+   * dead emits around would advertise a contract this file no longer honours.
    */
   open: [id: number]
-  'add-to-build': [resource: ResourceGalleryRecord]
-  'start-fresh': [resource: ResourceGalleryRecord]
-  'generate-preview': [resource: ResourceGalleryRecord]
-  'upload-preview': [resource: ResourceGalleryRecord]
 }>()
 
 const previewSrc = computed(
@@ -338,8 +271,4 @@ const showsServerBadge = computed(() => {
 
   return !server.startsWith(generation) && !generation.startsWith(server)
 })
-
-const isEditable = computed(() =>
-  EDITABLE_TYPES.includes(String(props.resource.resourceType)),
-)
 </script>

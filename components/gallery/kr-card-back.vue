@@ -128,7 +128,18 @@
       floored at content height and the panel grows instead, which is the same
       failure the stage's height fix addresses from the other end.
     -->
-    <div class="min-h-0 flex-1 overflow-y-auto p-3">
+    <!--
+      NO overflow HERE. kr-card-flip's panel is already the scroll owner, and
+      giving this its own `overflow-y-auto` made two nested scrollers where the
+      inner one's parent (this section) has no bounded height -- so the inner
+      region never became scrollable and the outer one never received the
+      overflow. Silas, 2026-08-09, on the edit view: "we cannot scroll."
+
+      Plain flow content, one scroller above it. The footer scrolls with the
+      body as a result, which is the right trade: an action bar pinned over a
+      form you cannot reach is worse than one you scroll to.
+    -->
+    <div class="p-3">
       <!--
         The edit form REPLACES the info body rather than flipping again --
         "the edit option is just an on-screen change to the modal". A second
@@ -186,9 +197,19 @@
       that would navigate away from it are a trap.
     -->
     <footer
-      v-if="!editing && (canEdit || canInteract)"
+      v-if="!editing && (canEdit || canInteract || $slots.actions)"
       class="flex shrink-0 items-center justify-end gap-2 border-t border-base-300 bg-base-200/60 p-3"
     >
+      <!--
+        MODEL-SPECIFIC ACTIONS FIRST. Silas, 2026-08-09: "the buttons that are
+        currently on the gallery card before clicking need to be moved to the
+        bottom row of the selected back". What those buttons ARE is per-object
+        -- a Resource joins an art build, a Bot does not -- so they arrive
+        through a slot for the same reason `#details` does, and this file still
+        names nothing model-specific.
+      -->
+      <slot name="actions" />
+
       <button
         v-if="canEdit"
         type="button"

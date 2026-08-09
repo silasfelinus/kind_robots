@@ -7,7 +7,6 @@ import {
   type ResourceGalleryRecord,
 } from '@/stores/resourceGalleryStore'
 import { useArtStore } from '@/stores/artStore'
-import { useNavStore } from '@/stores/navStore'
 import { useUserStore } from '@/stores/userStore'
 import type { Resource } from '@/stores/resourceStore'
 
@@ -19,7 +18,6 @@ const RESOURCE_TYPE = {
 
 const resourceGalleryStore = useResourceGalleryStore()
 const artStore = useArtStore()
-const navStore = useNavStore()
 const userStore = useUserStore()
 
 const query = ref('')
@@ -56,7 +54,6 @@ const matureOnly = ref(false)
 const message = ref('')
 const messageTone = ref<'success' | 'error'>('success')
 const activePreviewResourceId = ref<number | null>(null)
-const activeUploadResourceId = ref<number | null>(null)
 
 /*
  * INFO FIRST. Selecting a Resource turns the card over to its stats rather
@@ -360,27 +357,6 @@ function addToGeneration(resource: ResourceGalleryRecord): void {
   message.value = `${resourceLabel(resource)} added to the current generation.`
 }
 
-function startGeneration(resource: ResourceGalleryRecord): void {
-  const isCheckpoint = resource.resourceType === RESOURCE_TYPE.CHECKPOINT
-  const isLora =
-    resource.resourceType === RESOURCE_TYPE.LORA ||
-    resource.resourceType === RESOURCE_TYPE.LYCORIS
-
-  artStore.setArtForm({
-    promptString: triggerText(resource) || resourceLabel(resource),
-    checkpoint: isCheckpoint ? resourceEngineName(resource) : '',
-    checkpointResourceId: isCheckpoint ? resource.id : null,
-    loraName: isLora ? resourceEngineName(resource) : null,
-    loraResourceIds: isLora ? [resource.id] : [],
-  })
-
-  navStore.setDashboardTab(
-    'art',
-    'generate',
-    `Start generation from Resource ${resource.id}`,
-  )
-}
-
 async function generatePreview(resource: ResourceGalleryRecord): Promise<void> {
   activePreviewResourceId.value = resource.id
   message.value = ''
@@ -398,55 +374,6 @@ async function generatePreview(resource: ResourceGalleryRecord): Promise<void> {
   } finally {
     activePreviewResourceId.value = null
   }
-}
-
-function readFileAsDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(String(reader.result || ''))
-    reader.onerror = () => reject(new Error('Failed to read preview image.'))
-    reader.readAsDataURL(file)
-  })
-}
-
-async function choosePreviewFile(
-  resource: ResourceGalleryRecord,
-): Promise<void> {
-  const input = document.createElement('input')
-  input.type = 'file'
-  input.accept = 'image/png,image/jpeg,image/webp,image/avif'
-
-  input.addEventListener(
-    'change',
-    async () => {
-      const file = input.files?.[0]
-      if (!file) return
-
-      activeUploadResourceId.value = resource.id
-      message.value = ''
-
-      try {
-        const imageData = await readFileAsDataUrl(file)
-        await resourceGalleryStore.uploadPreview({
-          resourceId: resource.id,
-          imageData,
-          fileName: file.name,
-          fileType: file.type.split('/').at(-1),
-        })
-        messageTone.value = 'success'
-        message.value = `Preview uploaded for ${resourceLabel(resource)}.`
-      } catch (cause) {
-        messageTone.value = 'error'
-        message.value =
-          cause instanceof Error ? cause.message : 'Failed to upload preview.'
-      } finally {
-        activeUploadResourceId.value = null
-      }
-    },
-    { once: true },
-  )
-
-  input.click()
 }
 
 onMounted(async () => {
@@ -586,6 +513,49 @@ onMounted(async () => {
                 </dd>
               </div>
             </dl>
+          </template>
+
+          <!--
+            ONE build button, not two. "Add to build" appended this Resource to
+            the current art form; "Start fresh" REPLACED the form with only
+            this one and navigated away. Silas, 2026-08-09: "add to build and
+            start fresh should be one button."
+
+            The survivor is the additive one. Collapsing to the destructive
+            variant would mean a single tap could silently discard a build
+            someone was part-way through, and "add to an empty build" already
+            IS starting fresh -- so nothing is actually lost by keeping the
+            safe one.
+
+            Generate preview renders art for a Resource that has none, so it
+            only appears when there is none -- which is also the answer to "I
+            assume preview is some sort of generate option, but I have no idea
+            what": a button that shows up exactly when it applies explains
+            itself. Upload is gone entirely, per "just kill upload".
+          -->
+          <template #actions>
+            <button
+              type="button"
+              class="btn btn-outline btn-sm mr-auto rounded-xl"
+              :disabled="activePreviewResourceId === infoResource.id"
+              @click="generatePreview(infoResource)"
+            >
+              <span
+                v-if="activePreviewResourceId === infoResource.id"
+                class="loading loading-spinner loading-xs"
+              />
+              <Icon v-else name="kind-icon:sparkles" class="h-4 w-4" />
+              {{ infoResourceArt ? 'Regenerate art' : 'Generate art' }}
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-primary btn-sm rounded-xl"
+              @click="addToGeneration(infoResource)"
+            >
+              <Icon name="kind-icon:plus" class="h-4 w-4" />
+              Add to build
+            </button>
           </template>
 
           <template #edit="{ done }">
@@ -746,13 +716,7 @@ onMounted(async () => {
         <resource-card
           v-if="resourceById.get(Number(item.id))"
           :resource="resourceById.get(Number(item.id))!"
-          :generating-preview="activePreviewResourceId === Number(item.id)"
-          :uploading-preview="activeUploadResourceId === Number(item.id)"
           @open="openResourceInfo"
-          @add-to-build="addToGeneration"
-          @start-fresh="startGeneration"
-          @generate-preview="generatePreview"
-          @upload-preview="choosePreviewFile"
         />
       </template>
 

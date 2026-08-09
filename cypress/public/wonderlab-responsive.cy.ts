@@ -74,7 +74,7 @@ describe('Public WonderLab responsive acceptance', () => {
 
   it('restores URL-backed museum state', () => {
     cy.viewport(1280, 800)
-    visitWonderLab('/wonderlab?q=bot&status=WORKING&view=list&sort=REVIEWS')
+    visitWonderLab('/plan/wonderlab?q=bot&status=WORKING&view=list&sort=REVIEWS')
 
     cy.get('input[aria-label="Search WonderLab components"]').should(
       'have.value',
@@ -92,6 +92,20 @@ describe('Public WonderLab responsive acceptance', () => {
     cy.url().should('include', 'q=bot')
     cy.url().should('include', 'status=WORKING')
     cy.url().should('include', 'view=list')
+    expectNoHorizontalOverflow()
+  })
+
+  it('keeps legacy Wonder and Lab entry points useful', () => {
+    cy.viewport(1280, 800)
+
+    for (const path of ['/memory', '/wonder']) {
+      cy.visit(path)
+      cy.location('pathname').should('eq', '/play/memory')
+      cy.contains(/enter the dungeon/i, { timeout: 30_000 }).should('be.visible')
+    }
+
+    visitWonderLab('/wonderlab')
+    cy.location('pathname').should('eq', '/plan/wonderlab')
     expectNoHorizontalOverflow()
   })
 

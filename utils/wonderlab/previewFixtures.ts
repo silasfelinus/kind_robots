@@ -60,8 +60,6 @@ const fixtures: Record<string, WonderLabPreviewFixture> = {
         ArtImage: null,
         _count: { ArtImages: 12, UsedInImages: 47 },
       },
-      generatingPreview: false,
-      uploadingPreview: false,
     },
   },
   'icon-card': {

@@ -257,6 +257,43 @@ function handlePageReady(): void {
   }
 }
 
+/*
+ * ARMED IN SETUP, NOT onMounted -- and that distinction is the whole bug.
+ *
+ * Silas, 2026-08-09: "Whenever I load the site from a non-root address of
+ * kind-robots.vercel.app/ we are seeing our loading animation on loop."
+ *
+ * The z-48 black base below is SSR-rendered and gated on `showLoader`, and only
+ * two things ever clear it: kind-loader's `pageReady` (inside <ClientOnly>, so
+ * it needs a mounted app) and this timer. Parking the timer in `onMounted` put
+ * BOTH escapes behind the same door.
+ *
+ * pages/[...slug].vue -- the page component for nearly every route, including
+ * `/` -- has a top-level `await useAsyncData(...)` in <script setup>. Nuxt
+ * wraps a page in `Suspense` with `suspensible: true`, which propagates to the
+ * root Suspense that `deferHydration()` is waiting on. So while that content
+ * query is outstanding the root never finishes hydrating, `onMounted` never
+ * fires, the failsafe is never armed, and the black cover has no upper bound at
+ * all. Production has been logging exactly that outstanding query since
+ * 2026-08-06: `[performFetch] Failed after 1 attempt(s): AbortError` on the
+ * `/[...slug]` route, alongside 40s function timeouts.
+ *
+ * setup() DOES run in that state -- hydration walks the root before it reaches
+ * the suspended child -- so a timer started here survives a page that never
+ * settles. A failsafe downstream of the thing it exists to catch is not a
+ * failsafe.
+ *
+ * The delay still clears the graceful path: loading-messages fades by ~5.7s
+ * worst case (INTRO_MAX_MS + the 650ms fade), so at 9s this only ever fires
+ * when the normal handoff did not.
+ */
+if (import.meta.client) {
+  failsafeTimeoutId = setTimeout(() => {
+    showLoader.value = false
+    failsafeTimeoutId = null
+  }, 9000)
+}
+
 const isMd = ref(false)
 const isXl = ref(false)
 
@@ -404,15 +441,10 @@ onMounted(async () => {
   xlMedia.addEventListener('change', syncBreakpoints)
 
   /*
-   * Last-resort only. The intro fades on its own by ~5.7s worst case
-   * (loading-messages.vue: INTRO_MAX_MS + the 650ms fade), so this must sit
-   * well clear of that — at 8s it used to rip the loader out mid-sequence and
-   * pre-empt the graceful fade on every slow load.
+   * The loader failsafe used to be armed HERE. It moved into setup() -- see the
+   * note beside `showLoader` -- because reaching this hook is precisely what a
+   * stalled page prevents.
    */
-  failsafeTimeoutId = setTimeout(() => {
-    showLoader.value = false
-    failsafeTimeoutId = null
-  }, 9000)
 })
 
 onBeforeUnmount(() => {

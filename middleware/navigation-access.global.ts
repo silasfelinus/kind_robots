@@ -3,6 +3,14 @@ import { evaluateNavigationRouteAccess } from '@/stores/helpers/navigationRouteA
 import { useChannelContentStore } from '@/stores/channelContentStore'
 import { useUserStore } from '@/stores/userStore'
 
+/*
+ * How long the first navigation will wait on the user and channel stores before
+ * proceeding ungated. Comfortably above a healthy round trip and comfortably
+ * below app.vue's 9s loader failsafe, so a degraded backend produces a usable
+ * page rather than a race between two deadlines.
+ */
+const INITIALIZE_TIMEOUT_MS = 4000
+
 const navigationReturnStorageKey = 'kindrobots:navigation-return-to'
 const accountPermissions = new Set([
   'authenticated',
@@ -49,9 +57,26 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const userStore = useUserStore()
   const channelContentStore = useChannelContentStore()
 
-  await Promise.all([
-    userStore.initialize(),
-    channelContentStore.initialize(),
+  /*
+   * BOUNDED. This runs before the first route resolves, so anything it awaits
+   * is on the critical path to the app being visible at all -- and
+   * `channelContentStore.initialize()` ends in `queryCollection('channels')`,
+   * while `userStore.initialize()` reaches the API. Neither carried a deadline,
+   * so a slow or failing backend held the initial navigation open indefinitely.
+   * Production has been logging both since 2026-08-06: AbortErrors on
+   * `/[...slug]` and 40s function timeouts.
+   *
+   * Timing out here is SAFE, and deliberately so: the access check below opens
+   * with `if (!access.matched || access.allowed) return`, and an unpopulated
+   * channel list matches nothing. So the degraded outcome is "this middleware
+   * declines to gate", never "this middleware locks someone out" or, worse,
+   * bounces them to /login and back while the page underneath is still
+   * suspended. Whatever did resolve is kept -- the stores hold their own state,
+   * and the losing promise still settles into them for the next navigation.
+   */
+  await Promise.race([
+    Promise.all([userStore.initialize(), channelContentStore.initialize()]),
+    new Promise((resolve) => setTimeout(resolve, INITIALIZE_TIMEOUT_MS)),
   ])
 
   const requestedLoginReturn = safeReturnPath(to.query.redirect)

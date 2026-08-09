@@ -41,7 +41,7 @@
     <!-- Source context: what we already have on the record we're building from -->
     <div
       v-if="source"
-      class="flex items-start gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
+      class="flex items-start gap-3 kr-panel-flat p-3"
     >
       <div
         class="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-xl bg-base-200"
@@ -76,7 +76,7 @@
     </div>
 
     <!-- Stage matrix -->
-    <div class="overflow-x-auto rounded-2xl border border-base-300 bg-base-100">
+    <div class="overflow-x-auto kr-panel-flat">
       <table class="table table-sm">
         <thead>
           <tr>

@@ -87,7 +87,7 @@
 
         <div
           v-if="showPersonality && bot.personality"
-          class="rounded-2xl border border-base-300 bg-base-100 p-3 text-sm"
+          class="kr-panel-flat p-3 text-sm"
         >
           <p class="text-xs font-bold uppercase text-base-content/50">
             Personality
@@ -100,7 +100,7 @@
 
         <div
           v-if="showPromptPreview && bot.prompt"
-          class="rounded-2xl border border-base-300 bg-base-100 p-3 text-sm"
+          class="kr-panel-flat p-3 text-sm"
         >
           <p class="text-xs font-bold uppercase text-base-content/50">Prompt</p>
 
@@ -137,11 +137,7 @@
           {{ statusMessage }}
         </div>
 
-        <details
-          v-if="showDebug"
-          class="rounded-2xl border border-base-300 bg-base-100 p-2"
-          @click.stop
-        >
+        <details v-if="showDebug" class="kr-panel-flat p-2" @click.stop>
           <summary
             class="cursor-pointer text-xs font-bold text-base-content/70"
           >

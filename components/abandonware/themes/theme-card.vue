@@ -31,9 +31,7 @@
       </button>
     </template>
 
-    <div
-      class="flex min-h-32 flex-col justify-between rounded-2xl border border-base-300 bg-base-100 p-4"
-    >
+    <div class="flex min-h-32 flex-col justify-between kr-panel-flat p-4">
       <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
           <p
@@ -116,7 +114,7 @@
 
     <div
       v-if="showMeta && !isDefaultTheme"
-      class="grid grid-cols-2 gap-2 rounded-2xl border border-base-300 bg-base-100 p-3 text-xs"
+      class="grid grid-cols-2 gap-2 kr-panel-flat p-3 text-xs"
     >
       <div>
         <p class="font-bold uppercase text-base-content/45">Room</p>
@@ -168,11 +166,7 @@
       {{ localMessage }}
     </div>
 
-    <details
-      v-if="showDebug"
-      class="rounded-2xl border border-base-300 bg-base-100 p-2"
-      @click.stop
-    >
+    <details v-if="showDebug" class="kr-panel-flat p-2" @click.stop>
       <summary class="cursor-pointer text-xs font-bold text-base-content/70">
         Debug
       </summary>

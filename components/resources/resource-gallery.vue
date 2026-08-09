@@ -717,7 +717,7 @@ onMounted(async () => {
 
       <template #empty>
         <div
-          class="flex min-h-72 items-center justify-center rounded-2xl border border-base-300 bg-base-100 p-6 text-center text-base-content/60"
+          class="flex min-h-72 items-center justify-center kr-panel-flat p-6 text-center text-base-content/60"
         >
           No Resources match those filters.
         </div>

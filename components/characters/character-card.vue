@@ -82,10 +82,7 @@
         }}
       </p>
 
-      <div
-        v-if="showStats"
-        class="grid grid-cols-3 gap-2 rounded-2xl border border-base-300 bg-base-100 p-2"
-      >
+      <div v-if="showStats" class="grid grid-cols-3 gap-2 kr-panel-flat p-2">
         <div
           v-for="stat in statRows"
           :key="stat.key"
@@ -129,22 +126,19 @@
 
       <div
         v-if="activeMode === 'chat' && showInlineInteract"
-        class="rounded-2xl border border-base-300 bg-base-100 p-3"
+        class="kr-panel-flat p-3"
       >
         <weird-chat :character="character" />
       </div>
 
       <div
         v-if="activeMode === 'adventure' && showInlineInteract"
-        class="rounded-2xl border border-base-300 bg-base-100 p-3"
+        class="kr-panel-flat p-3"
       >
         <weird-card :character="character" />
       </div>
 
-      <details
-        v-if="showDebug"
-        class="rounded-2xl border border-base-300 bg-base-100 p-2"
-      >
+      <details v-if="showDebug" class="kr-panel-flat p-2">
         <summary class="cursor-pointer text-xs font-bold text-base-content/70">
           Debug
         </summary>

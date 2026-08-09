@@ -175,9 +175,7 @@
       </div>
 
       <div v-else-if="isDropdownMode" class="flex flex-col gap-3">
-        <div
-          class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-3"
-        >
+        <div class="flex flex-col gap-3 kr-panel-flat p-3">
           <div class="flex items-start justify-between gap-3">
             <div class="flex min-w-0 items-start gap-3">
               <div
@@ -442,7 +440,7 @@
             -->
             <label
               v-if="userStore.isAdmin && hasMatureBots"
-              class="flex cursor-pointer items-center gap-1.5 rounded-2xl border border-base-300 bg-base-100 px-2 py-1"
+              class="flex cursor-pointer items-center gap-1.5 kr-panel-flat px-2 py-1"
             >
               <span class="text-xs font-bold">Mature</span>
 

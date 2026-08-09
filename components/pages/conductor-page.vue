@@ -195,7 +195,7 @@
           <!-- TASKS -->
           <div v-if="viewMode === 'tasks'" class="flex flex-col gap-4 pb-4">
             <form
-              class="rounded-2xl border border-base-300 bg-base-100 p-4 space-y-3"
+              class="kr-panel-flat p-4 space-y-3"
               @submit.prevent="submitNewTodo"
             >
               <h4
@@ -657,10 +657,7 @@
             <div
               class="grid shrink-0 gap-4 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]"
             >
-              <div
-                v-if="linkedProject"
-                class="space-y-3 rounded-2xl border border-base-300 bg-base-100 p-4"
-              >
+              <div v-if="linkedProject" class="space-y-3 kr-panel-flat p-4">
                 <div class="flex items-center gap-2">
                   <Icon name="kind-icon:dream" class="size-4 text-primary" />
                   <h4
@@ -906,7 +903,7 @@
                   <div
                     v-for="task in activeTasks"
                     :key="task.id"
-                    class="rounded-2xl border border-base-300 bg-base-100 px-4 py-3"
+                    class="kr-panel-flat px-4 py-3"
                   >
                     <div class="flex items-start gap-3">
                       <div
@@ -1044,10 +1041,7 @@
             </div>
 
             <!-- PROJECT TASK CREATION (t-002) -->
-            <div
-              v-if="linkedProject"
-              class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4"
-            >
+            <div v-if="linkedProject" class="shrink-0 kr-panel-flat p-4">
               <h4
                 class="mb-3 text-xs font-bold uppercase tracking-wide text-base-content/50"
               >
@@ -1187,7 +1181,7 @@
             <!-- DESIRED FEATURES (t-007) -->
             <div
               v-if="linkedProject"
-              class="shrink-0 space-y-3 rounded-2xl border border-base-300 bg-base-100 p-4"
+              class="shrink-0 space-y-3 kr-panel-flat p-4"
             >
               <div class="flex items-center gap-2">
                 <Icon name="kind-icon:check" class="size-4 text-primary" />

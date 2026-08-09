@@ -203,10 +203,7 @@
           </kr-gallery>
         </section>
 
-        <section
-          v-if="showSharedThemes"
-          class="rounded-2xl border border-base-300 bg-base-100 p-3 shadow"
-        >
+        <section v-if="showSharedThemes" class="kr-panel-flat p-3 shadow">
           <!-- Same separator rule as Default above. -->
           <h2
             v-if="showBothGroups"
@@ -335,10 +332,7 @@
           </kr-gallery>
         </section>
 
-        <section
-          v-if="inspectValues"
-          class="rounded-2xl border border-base-300 bg-base-100 p-3 shadow"
-        >
+        <section v-if="inspectValues" class="kr-panel-flat p-3 shadow">
           <div class="mb-2 flex items-center justify-between gap-2">
             <div class="flex min-w-0 items-center gap-2">
               <Icon name="kind-icon:code" class="h-4 w-4 text-primary" />

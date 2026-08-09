@@ -156,6 +156,13 @@ assert.ok(
   'Immersive mode must own an opaque black screensaver backdrop so the live site cannot bleed through.',
 )
 
+assert.ok(
+  /\.startup-animation__stage--immersive\s*\{[^}]*pointer-events:\s*auto;/s.test(
+    startupAnimation,
+  ),
+  'Immersive mode must capture pointer input so clicks reach the startup effect instead of the loaded page underneath.',
+)
+
 /*
  * The intro visual is a real <img> with its own animation->logo fallback.
  * Never paint additional WebPs behind it in CSS: those backgrounds bypass the

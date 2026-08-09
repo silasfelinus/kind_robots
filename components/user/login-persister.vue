@@ -1,6 +1,6 @@
 <!-- /components/content/user/login-persister.vue -->
 <template>
-  <div class="w-full max-w-sm mx-auto space-y-2">
+  <div class="kr-container max-w-sm space-y-2">
     <div class="flex items-center space-x-2">
       <input
         id="stayLoggedIn"

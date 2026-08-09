@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full max-w-5xl mx-auto space-y-10">
+  <div class="kr-container max-w-5xl space-y-10">
     <div class="text-center space-y-2">
       <h2 class="text-3xl font-extrabold text-primary-content">
         🧠 Choose Your Destiny Plan

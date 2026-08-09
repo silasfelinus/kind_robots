@@ -1,19 +1,31 @@
 <!-- /components/scenarios/scenario-card.vue -->
 <template>
-  <reactable-card
-    :selected="activeSelected"
-    :compact="compact"
-    :show-reaction="showReaction"
-    :allow-reviews="scenario.allowReviews"
-    :target-id="scenario.id"
-    target-type="scenario"
-    reaction-category="SCENARIO"
-    :target-title="scenarioTitle"
-    :earned-karma="earnedKarma"
-    @select="selectScenario"
-  >
-    <template #actions>
-      <!--
+  <!--
+    THEMED WRAPPER, matching bot-card. Silas, 2026-08-10: "each card when
+    viewed should have a theme shift to distinguish it from neighbours, and the
+    nice themed background border around each card."
+
+    The wrapper rather than the card itself because `data-theme` has to sit
+    ABOVE the surface that reads the theme's tokens: daisyUI resolves its
+    variables on the element carrying the attribute and its descendants, so
+    putting it on reactable-card would leave the card's own background painted
+    from the page theme. See resolveEntityTheme for why NULL is not random.
+  -->
+  <div :data-theme="scenarioCardTheme" class="h-full rounded-2xl">
+    <reactable-card
+      :selected="activeSelected"
+      :compact="compact"
+      :show-reaction="showReaction"
+      :allow-reviews="scenario.allowReviews"
+      :target-id="scenario.id"
+      target-type="scenario"
+      reaction-category="SCENARIO"
+      :target-title="scenarioTitle"
+      :earned-karma="earnedKarma"
+      @select="selectScenario"
+    >
+      <template #actions>
+        <!--
         HIDDEN AT REST. These three sat visible on every card at all times,
         three filled circles punched over the art. Silas, 2026-08-05: "the icon
         popups for delete copy etc should def not be visible on load, maybe
@@ -28,84 +40,86 @@
         before it can be deleted is fine, but one that can never be reached by
         keyboard is not.
       -->
-      <div
-        class="flex items-center gap-2 transition-opacity duration-150"
-        :class="
-          activeSelected || compact
-            ? 'opacity-100'
-            : 'opacity-0 focus-within:opacity-100 group-hover:opacity-100'
-        "
+        <div
+          class="flex items-center gap-2 transition-opacity duration-150"
+          :class="
+            activeSelected || compact
+              ? 'opacity-100'
+              : 'opacity-0 focus-within:opacity-100 group-hover:opacity-100'
+          "
+        >
+          <button
+            v-if="showActions && canEdit"
+            class="rounded-full bg-base-100/90 p-2 text-primary shadow backdrop-blur transition hover:bg-primary hover:text-primary-content"
+            type="button"
+            title="Edit Scenario"
+            @click.stop="emit('edit', scenario.id)"
+          >
+            <Icon name="kind-icon:pencil" class="h-4 w-4" />
+          </button>
+
+          <button
+            v-if="showActions && allowClone"
+            class="rounded-full bg-base-100/90 p-2 text-secondary shadow backdrop-blur transition hover:bg-secondary hover:text-secondary-content"
+            type="button"
+            title="Clone Scenario"
+            @click.stop="emit('clone', scenario.id)"
+          >
+            <Icon name="kind-icon:copy" class="h-4 w-4" />
+          </button>
+
+          <button
+            v-if="showActions && canDelete"
+            class="rounded-full bg-base-100/90 p-2 text-error shadow backdrop-blur transition hover:bg-error hover:text-error-content"
+            type="button"
+            title="Delete Scenario"
+            @click.stop="deleteScenario"
+          >
+            <Icon name="kind-icon:trash" class="h-4 w-4" />
+          </button>
+        </div>
+      </template>
+
+      <kr-entity-card-body
+        :title="scenarioTitle"
+        :subtitle="scenario.genres || ''"
+        :description="scenario.description"
+        description-fallback="No description yet."
+        :source="scenario"
+        :variant="variant"
+        :fallback="artFallbackSrc"
+        :show-image="showImage"
+        :show-description="showDescription"
+        :compact="compact"
+        :selected="activeSelected"
+        :badges="badges"
+        :meta="showMeta ? metaChips : []"
+        placeholder-icon="kind-icon:map"
       >
-        <button
-          v-if="showActions && canEdit"
-          class="rounded-full bg-base-100/90 p-2 text-primary shadow backdrop-blur transition hover:bg-primary hover:text-primary-content"
-          type="button"
-          title="Edit Scenario"
-          @click.stop="emit('edit', scenario.id)"
+        <!-- The one genuinely Scenario-shaped thing on the card. -->
+        <div
+          v-if="showInspirations && scenario.inspirations && !compact"
+          class="mx-0.5 mt-2.5 rounded-xl border border-base-300 bg-base-100 p-2.5"
         >
-          <Icon name="kind-icon:pencil" class="h-4 w-4" />
-        </button>
+          <p
+            class="text-[0.65rem] font-bold uppercase tracking-wider text-base-content/50"
+          >
+            Inspirations
+          </p>
 
-        <button
-          v-if="showActions && allowClone"
-          class="rounded-full bg-base-100/90 p-2 text-secondary shadow backdrop-blur transition hover:bg-secondary hover:text-secondary-content"
-          type="button"
-          title="Clone Scenario"
-          @click.stop="emit('clone', scenario.id)"
-        >
-          <Icon name="kind-icon:copy" class="h-4 w-4" />
-        </button>
-
-        <button
-          v-if="showActions && canDelete"
-          class="rounded-full bg-base-100/90 p-2 text-error shadow backdrop-blur transition hover:bg-error hover:text-error-content"
-          type="button"
-          title="Delete Scenario"
-          @click.stop="deleteScenario"
-        >
-          <Icon name="kind-icon:trash" class="h-4 w-4" />
-        </button>
-      </div>
-    </template>
-
-    <kr-entity-card-body
-      :title="scenarioTitle"
-      :subtitle="scenario.genres || ''"
-      :description="scenario.description"
-      description-fallback="No description yet."
-      :source="scenario"
-      :variant="variant"
-      :fallback="artFallbackSrc"
-      :show-image="showImage"
-      :show-description="showDescription"
-      :compact="compact"
-      :selected="activeSelected"
-      :badges="badges"
-      :meta="showMeta ? metaChips : []"
-      placeholder-icon="kind-icon:map"
-    >
-      <!-- The one genuinely Scenario-shaped thing on the card. -->
-      <div
-        v-if="showInspirations && scenario.inspirations && !compact"
-        class="mx-0.5 mt-2.5 rounded-xl border border-base-300 bg-base-100 p-2.5"
-      >
-        <p
-          class="text-[0.65rem] font-bold uppercase tracking-wider text-base-content/50"
-        >
-          Inspirations
-        </p>
-
-        <p
-          class="mt-0.5 line-clamp-2 text-xs leading-relaxed text-base-content/70"
-        >
-          {{ scenario.inspirations }}
-        </p>
-      </div>
-    </kr-entity-card-body>
-  </reactable-card>
+          <p
+            class="mt-0.5 line-clamp-2 text-xs leading-relaxed text-base-content/70"
+          >
+            {{ scenario.inspirations }}
+          </p>
+        </div>
+      </kr-entity-card-body>
+    </reactable-card>
+  </div>
 </template>
 
 <script setup lang="ts">
+import { resolveEntityTheme } from '@/utils/entityTheme'
 import { computed, onMounted, ref, watch } from 'vue'
 import type { Scenario } from '~/prisma/generated/prisma/client'
 import { useArtStore, type ArtImage } from '@/stores/artStore'
@@ -158,6 +172,8 @@ const props = withDefaults(
     earnedKarma: undefined,
   },
 )
+
+const scenarioCardTheme = computed(() => resolveEntityTheme(props.scenario))
 
 const emit = defineEmits<{
   open: [id: number]

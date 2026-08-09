@@ -6267,7 +6267,8 @@ export const CharacterScalarFieldEnum = {
   title: 'title',
   wits: 'wits',
   gender: 'gender',
-  slug: 'slug'
+  slug: 'slug',
+  theme: 'theme'
 } as const
 
 export type CharacterScalarFieldEnum = (typeof CharacterScalarFieldEnum)[keyof typeof CharacterScalarFieldEnum]
@@ -6363,7 +6364,8 @@ export const DreamScalarFieldEnum = {
   allowReviews: 'allowReviews',
   cardPath: 'cardPath',
   heroPath: 'heroPath',
-  narratorId: 'narratorId'
+  narratorId: 'narratorId',
+  theme: 'theme'
 } as const
 
 export type DreamScalarFieldEnum = (typeof DreamScalarFieldEnum)[keyof typeof DreamScalarFieldEnum]
@@ -6452,7 +6454,8 @@ export const FacetScalarFieldEnum = {
   allowReviews: 'allowReviews',
   isPublic: 'isPublic',
   isMature: 'isMature',
-  isActive: 'isActive'
+  isActive: 'isActive',
+  theme: 'theme'
 } as const
 
 export type FacetScalarFieldEnum = (typeof FacetScalarFieldEnum)[keyof typeof FacetScalarFieldEnum]
@@ -6947,7 +6950,8 @@ export const RewardScalarFieldEnum = {
   effect: 'effect',
   flavorText: 'flavorText',
   name: 'name',
-  slug: 'slug'
+  slug: 'slug',
+  theme: 'theme'
 } as const
 
 export type RewardScalarFieldEnum = (typeof RewardScalarFieldEnum)[keyof typeof RewardScalarFieldEnum]
@@ -6984,7 +6988,8 @@ export const ScenarioScalarFieldEnum = {
   tier: 'tier',
   cast: 'cast',
   outputType: 'outputType',
-  slug: 'slug'
+  slug: 'slug',
+  theme: 'theme'
 } as const
 
 export type ScenarioScalarFieldEnum = (typeof ScenarioScalarFieldEnum)[keyof typeof ScenarioScalarFieldEnum]
@@ -7847,7 +7852,8 @@ export const CharacterOrderByRelevanceFieldEnum = {
   role: 'role',
   title: 'title',
   gender: 'gender',
-  slug: 'slug'
+  slug: 'slug',
+  theme: 'theme'
 } as const
 
 export type CharacterOrderByRelevanceFieldEnum = (typeof CharacterOrderByRelevanceFieldEnum)[keyof typeof CharacterOrderByRelevanceFieldEnum]
@@ -7916,7 +7922,8 @@ export const DreamOrderByRelevanceFieldEnum = {
   iconPath: 'iconPath',
   pitch: 'pitch',
   cardPath: 'cardPath',
-  heroPath: 'heroPath'
+  heroPath: 'heroPath',
+  theme: 'theme'
 } as const
 
 export type DreamOrderByRelevanceFieldEnum = (typeof DreamOrderByRelevanceFieldEnum)[keyof typeof DreamOrderByRelevanceFieldEnum]
@@ -7966,7 +7973,8 @@ export const FacetOrderByRelevanceFieldEnum = {
   heroPath: 'heroPath',
   icon: 'icon',
   iconPath: 'iconPath',
-  designer: 'designer'
+  designer: 'designer',
+  theme: 'theme'
 } as const
 
 export type FacetOrderByRelevanceFieldEnum = (typeof FacetOrderByRelevanceFieldEnum)[keyof typeof FacetOrderByRelevanceFieldEnum]
@@ -8191,7 +8199,8 @@ export const RewardOrderByRelevanceFieldEnum = {
   effect: 'effect',
   flavorText: 'flavorText',
   name: 'name',
-  slug: 'slug'
+  slug: 'slug',
+  theme: 'theme'
 } as const
 
 export type RewardOrderByRelevanceFieldEnum = (typeof RewardOrderByRelevanceFieldEnum)[keyof typeof RewardOrderByRelevanceFieldEnum]
@@ -8214,7 +8223,8 @@ export const ScenarioOrderByRelevanceFieldEnum = {
   secretNotes: 'secretNotes',
   tier: 'tier',
   cast: 'cast',
-  slug: 'slug'
+  slug: 'slug',
+  theme: 'theme'
 } as const
 
 export type ScenarioOrderByRelevanceFieldEnum = (typeof ScenarioOrderByRelevanceFieldEnum)[keyof typeof ScenarioOrderByRelevanceFieldEnum]

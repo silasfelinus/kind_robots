@@ -96,6 +96,7 @@
         <!-- page-size 0: entries are already capped per taxonomy group by
              this file's own show-more (`slice(0, shown[taxonomy] ?? PAGE)`). -->
         <kr-gallery
+          themed
           :items="group.entries.map(toGalleryItem)"
           :page-size="0"
           :mode="mode"

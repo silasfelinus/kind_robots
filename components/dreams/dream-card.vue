@@ -6,77 +6,91 @@
        :padded="false" is GONE with the bespoke poster -- the body insets its
        own art and owns its padding, exactly as the other four do, which is
        what "a single display that is consistent across galleries" means. -->
-  <reactable-card
-    :selected="activeSelected"
-    :compact="compact"
-    :allow-reviews="dream.allowReviews"
-    :target-id="dream.id"
-    target-type="dream"
-    reaction-category="DREAM"
-    :target-title="dreamTitle"
-    :earned-karma="earnedKarma"
-    :card-class="[
-      'h-full min-h-0 bg-base-100 shadow-sm hover:-translate-y-0.5 hover:shadow-xl',
-      cardClass,
-    ]"
-    @select="emit('open', dream.id)"
-  >
-    <kr-entity-card-body
-      :title="dreamTitle"
-      :subtitle="dreamTypeLabel(dream.dreamType)"
-      :description="dreamDescription"
-      description-fallback="No description yet."
-      :source="dream"
-      :variant="variant"
-      :fallback="previewImage"
-      :show-image="showImage"
-      :show-description="showDescription"
-      :compact="compact"
+  <!--
+    THEMED WRAPPER, matching bot-card. Silas, 2026-08-10: "each card when
+    viewed should have a theme shift to distinguish it from neighbours, and the
+    nice themed background border around each card."
+
+    The wrapper rather than the card itself because `data-theme` has to sit
+    ABOVE the surface that reads the theme's tokens: daisyUI resolves its
+    variables on the element carrying the attribute and its descendants, so
+    putting it on reactable-card would leave the card's own background painted
+    from the page theme. See resolveEntityTheme for why NULL is not random.
+  -->
+  <div :data-theme="dreamCardTheme" class="h-full rounded-2xl">
+    <reactable-card
       :selected="activeSelected"
-      :badges="badges"
-      :meta="showMeta ? metaChips : []"
-      :fit="imageFit"
-      placeholder-icon="kind-icon:dream"
-    />
-
-    <template #actions>
-      <button
-        v-if="showActions && allowEdit"
-        type="button"
-        class="btn btn-circle btn-sm border-base-300 bg-base-100/90 shadow backdrop-blur"
-        title="Edit Dream"
-        @click="emit('edit', dream.id)"
-      >
-        <Icon name="kind-icon:edit" class="h-4 w-4" />
-      </button>
-
-      <button
-        v-if="showActions && allowDelete"
-        type="button"
-        class="btn btn-circle btn-sm border-base-300 bg-base-100/90 text-error shadow backdrop-blur"
-        title="Archive Dream"
-        @click="emit('delete', dream.id)"
-      >
-        <Icon name="kind-icon:archive" class="h-4 w-4" />
-      </button>
-    </template>
-
-    <details
-      v-if="showDebug"
-      class="absolute inset-x-2 bottom-2 z-10 rounded-2xl border border-base-300 bg-base-100/95 p-2 text-xs shadow backdrop-blur"
-      @click.stop
+      :compact="compact"
+      :allow-reviews="dream.allowReviews"
+      :target-id="dream.id"
+      target-type="dream"
+      reaction-category="DREAM"
+      :target-title="dreamTitle"
+      :earned-karma="earnedKarma"
+      :card-class="[
+        'h-full min-h-0 bg-base-100 shadow-sm hover:-translate-y-0.5 hover:shadow-xl',
+        cardClass,
+      ]"
+      @select="emit('open', dream.id)"
     >
-      <summary class="cursor-pointer font-bold text-primary">
-        Image debug · {{ debugInfo.winningSource }}
-      </summary>
-      <pre class="mt-2 max-h-56 overflow-auto whitespace-pre-wrap">{{
-        debugInfo
-      }}</pre>
-    </details>
-  </reactable-card>
+      <kr-entity-card-body
+        :title="dreamTitle"
+        :subtitle="dreamTypeLabel(dream.dreamType)"
+        :description="dreamDescription"
+        description-fallback="No description yet."
+        :source="dream"
+        :variant="variant"
+        :fallback="previewImage"
+        :show-image="showImage"
+        :show-description="showDescription"
+        :compact="compact"
+        :selected="activeSelected"
+        :badges="badges"
+        :meta="showMeta ? metaChips : []"
+        :fit="imageFit"
+        placeholder-icon="kind-icon:dream"
+      />
+
+      <template #actions>
+        <button
+          v-if="showActions && allowEdit"
+          type="button"
+          class="btn btn-circle btn-sm border-base-300 bg-base-100/90 shadow backdrop-blur"
+          title="Edit Dream"
+          @click="emit('edit', dream.id)"
+        >
+          <Icon name="kind-icon:edit" class="h-4 w-4" />
+        </button>
+
+        <button
+          v-if="showActions && allowDelete"
+          type="button"
+          class="btn btn-circle btn-sm border-base-300 bg-base-100/90 text-error shadow backdrop-blur"
+          title="Archive Dream"
+          @click="emit('delete', dream.id)"
+        >
+          <Icon name="kind-icon:archive" class="h-4 w-4" />
+        </button>
+      </template>
+
+      <details
+        v-if="showDebug"
+        class="absolute inset-x-2 bottom-2 z-10 rounded-2xl border border-base-300 bg-base-100/95 p-2 text-xs shadow backdrop-blur"
+        @click.stop
+      >
+        <summary class="cursor-pointer font-bold text-primary">
+          Image debug · {{ debugInfo.winningSource }}
+        </summary>
+        <pre class="mt-2 max-h-56 overflow-auto whitespace-pre-wrap">{{
+          debugInfo
+        }}</pre>
+      </details>
+    </reactable-card>
+  </div>
 </template>
 
 <script setup lang="ts">
+import { resolveEntityTheme } from '@/utils/entityTheme'
 import { computed, onMounted, ref, watch } from 'vue'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 import type { DreamWithRelations } from '@/stores/dreamStore'
@@ -129,6 +143,8 @@ const props = withDefaults(
     earnedKarma: undefined,
   },
 )
+
+const dreamCardTheme = computed(() => resolveEntityTheme(props.dream))
 
 const emit = defineEmits<{
   open: [id: number]

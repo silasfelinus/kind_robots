@@ -1,125 +1,141 @@
 <!-- /components/content/rewards/reward-card.vue -->
 <template>
-  <reactable-card
-    :selected="activeSelected"
-    :compact="compact"
-    :show-reaction="showReaction"
-    :allow-reviews="reward.allowReviews"
-    :target-id="reward.id"
-    target-type="reward"
-    reaction-category="REWARD"
-    :target-title="rewardTitle"
-    :earned-karma="earnedKarma"
-    @select="selectReward"
-  >
-    <template #actions>
-      <button
-        v-if="showActions && (activeSelected || compact)"
-        class="rounded-full bg-base-100 p-2 text-success shadow transition hover:bg-success hover:text-success-content"
-        type="button"
-        title="Start Reward Story"
-        @click.stop="interactWithReward"
-      >
-        <Icon name="kind-icon:story" class="h-4 w-4" />
-      </button>
+  <!--
+    THEMED WRAPPER, matching bot-card. Silas, 2026-08-10: "each card when
+    viewed should have a theme shift to distinguish it from neighbours, and the
+    nice themed background border around each card."
 
-      <button
-        v-if="showActions && allowEdit && (activeSelected || compact)"
-        class="rounded-full bg-base-100 p-2 text-primary shadow transition hover:bg-primary hover:text-primary-content"
-        type="button"
-        title="Edit Reward"
-        @click.stop="emit('edit', reward.id)"
-      >
-        <Icon name="kind-icon:pencil" class="h-4 w-4" />
-      </button>
-
-      <button
-        v-if="showActions && allowDelete && (activeSelected || compact)"
-        class="rounded-full bg-base-100 p-2 text-error shadow transition hover:bg-error hover:text-error-content"
-        type="button"
-        title="Delete Reward"
-        @click.stop="deleteReward"
-      >
-        <Icon name="kind-icon:trash" class="h-4 w-4" />
-      </button>
-    </template>
-
-    <kr-entity-card-body
-      :title="rewardTitle"
-      :subtitle="reward.rewardType || ''"
-      :description="reward.effect || reward.description || ''"
-      description-fallback="No effect described yet."
-      :source="reward"
-      :variant="variant"
-      :fallback="artFallbackSrc"
-      :show-image="showImage"
-      :show-description="showDescription"
-      :compact="compact"
+    The wrapper rather than the card itself because `data-theme` has to sit
+    ABOVE the surface that reads the theme's tokens: daisyUI resolves its
+    variables on the element carrying the attribute and its descendants, so
+    putting it on reactable-card would leave the card's own background painted
+    from the page theme. See resolveEntityTheme for why NULL is not random.
+  -->
+  <div :data-theme="rewardCardTheme" class="h-full rounded-2xl">
+    <reactable-card
       :selected="activeSelected"
-      :badges="badges"
-      :meta="showMeta ? metaChips : []"
-      :placeholder-icon="reward.icon || fallbackIcon"
+      :compact="compact"
+      :show-reaction="showReaction"
+      :allow-reviews="reward.allowReviews"
+      :target-id="reward.id"
+      target-type="reward"
+      reaction-category="REWARD"
+      :target-title="rewardTitle"
+      :earned-karma="earnedKarma"
+      @select="selectReward"
     >
-      <div
-        v-if="showStats"
-        class="mx-0.5 mt-2.5 grid grid-cols-2 gap-2 kr-panel-flat p-3 text-xs"
+      <template #actions>
+        <button
+          v-if="showActions && (activeSelected || compact)"
+          class="rounded-full bg-base-100 p-2 text-success shadow transition hover:bg-success hover:text-success-content"
+          type="button"
+          title="Start Reward Story"
+          @click.stop="interactWithReward"
+        >
+          <Icon name="kind-icon:story" class="h-4 w-4" />
+        </button>
+
+        <button
+          v-if="showActions && allowEdit && (activeSelected || compact)"
+          class="rounded-full bg-base-100 p-2 text-primary shadow transition hover:bg-primary hover:text-primary-content"
+          type="button"
+          title="Edit Reward"
+          @click.stop="emit('edit', reward.id)"
+        >
+          <Icon name="kind-icon:pencil" class="h-4 w-4" />
+        </button>
+
+        <button
+          v-if="showActions && allowDelete && (activeSelected || compact)"
+          class="rounded-full bg-base-100 p-2 text-error shadow transition hover:bg-error hover:text-error-content"
+          type="button"
+          title="Delete Reward"
+          @click.stop="deleteReward"
+        >
+          <Icon name="kind-icon:trash" class="h-4 w-4" />
+        </button>
+      </template>
+
+      <kr-entity-card-body
+        :title="rewardTitle"
+        :subtitle="reward.rewardType || ''"
+        :description="reward.effect || reward.description || ''"
+        description-fallback="No effect described yet."
+        :source="reward"
+        :variant="variant"
+        :fallback="artFallbackSrc"
+        :show-image="showImage"
+        :show-description="showDescription"
+        :compact="compact"
+        :selected="activeSelected"
+        :badges="badges"
+        :meta="showMeta ? metaChips : []"
+        :placeholder-icon="reward.icon || fallbackIcon"
       >
-        <div>
-          <p class="font-bold uppercase text-base-content/45">ID</p>
-          <p class="truncate text-base-content/75">#{{ reward.id }}</p>
+        <div
+          v-if="showStats"
+          class="mx-0.5 mt-2.5 grid grid-cols-2 gap-2 kr-panel-flat p-3 text-xs"
+        >
+          <div>
+            <p class="font-bold uppercase text-base-content/45">ID</p>
+            <p class="truncate text-base-content/75">#{{ reward.id }}</p>
+          </div>
+
+          <div>
+            <p class="font-bold uppercase text-base-content/45">Rarity</p>
+            <p class="truncate text-base-content/75">
+              {{ reward.rarity || 'COMMON' }}
+            </p>
+          </div>
+
+          <div>
+            <p class="font-bold uppercase text-base-content/45">Collection</p>
+            <p class="truncate text-base-content/75">
+              {{ reward.collection || 'general' }}
+            </p>
+          </div>
+
+          <div>
+            <p class="font-bold uppercase text-base-content/45">Image</p>
+            <p class="truncate text-base-content/75">
+              {{ reward.artImageId ? `#${reward.artImageId}` : 'none' }}
+            </p>
+          </div>
         </div>
 
-        <div>
-          <p class="font-bold uppercase text-base-content/45">Rarity</p>
-          <p class="truncate text-base-content/75">
-            {{ reward.rarity || 'COMMON' }}
-          </p>
-        </div>
+        <button
+          v-if="showSelectButton"
+          class="btn btn-sm mx-0.5 mt-2.5 rounded-xl"
+          :class="activeSelected ? 'btn-primary text-white' : 'btn-outline'"
+          type="button"
+          @click.stop="selectReward"
+        >
+          <Icon name="kind-icon:check" class="h-4 w-4" />
+          {{ activeSelected ? 'Selected' : 'Select' }}
+        </button>
 
-        <div>
-          <p class="font-bold uppercase text-base-content/45">Collection</p>
-          <p class="truncate text-base-content/75">
-            {{ reward.collection || 'general' }}
-          </p>
-        </div>
+        <details
+          v-if="showDebug"
+          class="mx-0.5 mt-2.5 kr-panel-flat p-2"
+          @click.stop
+        >
+          <summary
+            class="cursor-pointer text-xs font-bold text-base-content/70"
+          >
+            Debug
+          </summary>
 
-        <div>
-          <p class="font-bold uppercase text-base-content/45">Image</p>
-          <p class="truncate text-base-content/75">
-            {{ reward.artImageId ? `#${reward.artImageId}` : 'none' }}
-          </p>
-        </div>
-      </div>
-
-      <button
-        v-if="showSelectButton"
-        class="btn btn-sm mx-0.5 mt-2.5 rounded-xl"
-        :class="activeSelected ? 'btn-primary text-white' : 'btn-outline'"
-        type="button"
-        @click.stop="selectReward"
-      >
-        <Icon name="kind-icon:check" class="h-4 w-4" />
-        {{ activeSelected ? 'Selected' : 'Select' }}
-      </button>
-
-      <details
-        v-if="showDebug"
-        class="mx-0.5 mt-2.5 kr-panel-flat p-2"
-        @click.stop
-      >
-        <summary class="cursor-pointer text-xs font-bold text-base-content/70">
-          Debug
-        </summary>
-
-        <pre class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70">{{
-          JSON.stringify(reward, null, 2)
-        }}</pre>
-      </details>
-    </kr-entity-card-body>
-  </reactable-card>
+          <pre
+            class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70"
+            >{{ JSON.stringify(reward, null, 2) }}</pre>
+        </details>
+      </kr-entity-card-body>
+    </reactable-card>
+  </div>
 </template>
 
 <script setup lang="ts">
+import { resolveEntityTheme } from '@/utils/entityTheme'
 import { computed, onMounted, ref, watch } from 'vue'
 import type { Reward } from '~/prisma/generated/prisma/client'
 import { useArtStore, type ArtImage } from '@/stores/artStore'
@@ -183,6 +199,8 @@ const props = withDefaults(
     earnedKarma: undefined,
   },
 )
+
+const rewardCardTheme = computed(() => resolveEntityTheme(props.reward))
 
 const emit = defineEmits<{
   open: [id: number]

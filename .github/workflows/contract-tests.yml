@@ -59,6 +59,15 @@ jobs:
       - name: ArtJob sampler repair contract
         run: npm run test:artjob-sampler-repair
 
+      # Everything the site generates runs on Comfy. A1111 stays supported for a
+      # user's own server, but no site path may pick it and nothing may pick it
+      # by default -- resource previews hardcoded A1111 and died on a refused
+      # connection every time. Also pins the txt2img/img2img defaults Silas
+      # specified (krea2 8 steps/cfg 1; sdxl img2img) and that every lane picks
+      # a fresh random seed rather than emitting a literal -1.
+      - name: Comfy-only generation contract
+        run: npm run test:comfy-only-generation
+
       - name: Channel content contract
         run: npm run test:channel-content
 

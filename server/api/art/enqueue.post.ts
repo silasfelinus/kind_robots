@@ -185,7 +185,10 @@ function narrativeRequest(
   ])
 
   if (product !== 'storybook' && product !== 'taskmaster') {
-    throw createError({ statusCode: 400, message: 'Invalid narrative product.' })
+    throw createError({
+      statusCode: 400,
+      message: 'Invalid narrative product.',
+    })
   }
   if (!sessionId || sessionId.length > 160 || !beatId || beatId.length > 160) {
     throw createError({
@@ -194,7 +197,10 @@ function narrativeRequest(
     })
   }
   if (!allowedMoments.has(moment)) {
-    throw createError({ statusCode: 400, message: 'Invalid narrative art moment.' })
+    throw createError({
+      statusCode: 400,
+      message: 'Invalid narrative art moment.',
+    })
   }
 
   const expectedKey = [product, sessionId, beatId, moment].join(':')
@@ -229,8 +235,18 @@ function facetRequest(body: ArtEnqueueRequest | null): {
   }
 }
 
+// Silas, 2026-08-09: "Nothing should be running a1111. We support it as in
+// users can add an a1111 server, but it's not used by me to build the site. We
+// are 100% comfy at this point ... comfy should generally be the default."
+//
+// So `a1111` stays a VALID engine — a user who has added their own Automatic1111
+// server can still ask for it by name — but it is no longer what you get by
+// saying nothing. An omitted engine now means krea2: Comfy, cfg 1, 8 steps,
+// random seed (server/api/comfy/krea2/utils/workflow.ts).
+const DEFAULT_ENQUEUE_ENGINE: EnqueueEngine = 'krea2'
+
 function normalizeEngine(value: unknown): EnqueueEngine {
-  const raw = String(value || 'a1111').toLowerCase()
+  const raw = String(value || DEFAULT_ENQUEUE_ENGINE).toLowerCase()
   const engine = ENGINE_ALIASES[raw] ?? raw
   if (
     engine === 'a1111' ||
@@ -309,7 +325,8 @@ export default defineEventHandler(async (event) => {
     ) {
       throw createError({
         statusCode: 400,
-        message: 'Entity recreation requires a prompt-only engine such as Krea 2.',
+        message:
+          'Entity recreation requires a prompt-only engine such as Krea 2.',
       })
     }
 
@@ -351,7 +368,8 @@ export default defineEventHandler(async (event) => {
     }
 
     const resolvedLora = await resolveEnqueueLoraResource({
-      body: (bodyWithEntityArt ?? {}) as ArtEnqueueRequest & Record<string, unknown>,
+      body: (bodyWithEntityArt ?? {}) as ArtEnqueueRequest &
+        Record<string, unknown>,
       engine,
       userId: gate.user.id,
       isAdmin,

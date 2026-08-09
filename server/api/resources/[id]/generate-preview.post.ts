@@ -12,13 +12,27 @@ import { manaGate } from '~/server/utils/manaGate'
 import { estimateArtCostUsd } from '~/server/utils/manaCost'
 import { resourceGallerySelect, resourceGalleryWhere } from '../gallery'
 import { effectiveShowMature } from '~/server/utils/contentAccess'
+import { buildDefaultComfyWorkflow } from '~/server/api/comfy/sdxl/utils/workflow'
 
-const A1111_RESOURCE_FAMILIES: SupportedServer[] = [
+// Resource families the named-checkpoint Comfy graph can load. Named for what
+// they are — SD-lineage checkpoints — rather than for the engine that used to
+// render them; the engine is Comfy now, the model families are unchanged.
+const CHECKPOINT_RESOURCE_FAMILIES: SupportedServer[] = [
   SupportedServer.SD15,
   SupportedServer.SDXL,
   SupportedServer.GENERIC,
   SupportedServer.UNKNOWN,
 ]
+
+// Preview defaults. SDXL-lineage checkpoints are not distilled, so these are
+// ordinary SDXL numbers rather than krea2's 8/1 — but the seed is always random
+// (resolved inside the builder), same as every other Comfy lane.
+const PREVIEW_STEPS = 24
+const PREVIEW_CFG = 6
+const PREVIEW_SIZE = 768
+const PREVIEW_SAMPLER = 'Euler a'
+const PREVIEW_NEGATIVE_PROMPT =
+  'low quality, blurry, distorted, cropped, watermark, text, logo'
 
 function cleanModelName(value: string | null | undefined): string {
   return String(value || '').trim()
@@ -110,7 +124,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (!A1111_RESOURCE_FAMILIES.includes(resource.supportedServer)) {
+    if (!CHECKPOINT_RESOURCE_FAMILIES.includes(resource.supportedServer)) {
       throw createError({
         statusCode: 409,
         message: `Automatic previews for ${resource.supportedServer} resources need a compatible Comfy workflow. This Resource can still use an uploaded or imported preview.`,
@@ -125,15 +139,12 @@ export default defineEventHandler(async (event) => {
               {
                 resourceType: ResourceType.CHECKPOINT,
                 isActive: true,
-                supportedServer: { in: A1111_RESOURCE_FAMILIES },
+                supportedServer: { in: CHECKPOINT_RESOURCE_FAMILIES },
               },
               auth.isAdmin
                 ? {}
                 : {
-                    OR: [
-                      { isPublic: true },
-                      { userId: auth.user.id },
-                    ],
+                    OR: [{ isPublic: true }, { userId: auth.user.id }],
                   },
             ],
           },
@@ -150,7 +161,7 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 409,
         message:
-          'No accessible A1111-compatible checkpoint is available for this Resource.',
+          'No accessible SD-lineage checkpoint is available for this Resource.',
       })
     }
 
@@ -167,27 +178,50 @@ export default defineEventHandler(async (event) => {
 
     const promptString = buildPreviewPrompt(resource)
     const estimatedCostUsd = estimateArtCostUsd({
-      engine: 'a1111',
-      steps: 24,
-      width: 768,
-      height: 768,
+      engine: 'comfy',
+      steps: PREVIEW_STEPS,
+      width: PREVIEW_SIZE,
+      height: PREVIEW_SIZE,
     })
     const gate = await manaGate(event, {
       kind: 'art',
       estCostUsd: estimatedCostUsd,
     })
 
+    // Comfy, not A1111. This endpoint used to create `engine: 'A1111'` rows and
+    // every one of them died on a refused connection — nothing on the relay
+    // serves A1111 (ArtJob 8116, 2026-08-09, three attempts in two minutes).
+    //
+    // It does NOT use krea2, which is the default everywhere else. The entire
+    // point of this render is to show what THIS checkpoint or LoRA produces, so
+    // the resource's own model is the one thing that cannot be swapped for the
+    // house default. Comfy's named-checkpoint txt2img graph, with the LoRA wired
+    // in when the resource is one, and a random seed so "generate another
+    // preview" actually generates another preview.
+    const workflow = buildDefaultComfyWorkflow({
+      prompt: promptString,
+      negativePrompt: PREVIEW_NEGATIVE_PROMPT,
+      cfgValue: PREVIEW_CFG,
+      steps: PREVIEW_STEPS,
+      seed: null,
+      checkpoint: checkpointName,
+      sampler: PREVIEW_SAMPLER,
+      loraName,
+      loraStrength: loraName ? 1 : null,
+      width: PREVIEW_SIZE,
+      height: PREVIEW_SIZE,
+      filenamePrefix: 'kindrobots_resource_preview',
+    })
+
     const payload = {
+      workflow,
       promptString,
-      negativePrompt:
-        'low quality, blurry, distorted, cropped, watermark, text, logo',
-      steps: 24,
-      cfg: 6,
-      cfgHalf: false,
-      width: 768,
-      height: 768,
-      sampler: 'Euler a',
-      seed: -1,
+      negativePrompt: PREVIEW_NEGATIVE_PROMPT,
+      steps: PREVIEW_STEPS,
+      cfg: PREVIEW_CFG,
+      width: PREVIEW_SIZE,
+      height: PREVIEW_SIZE,
+      sampler: PREVIEW_SAMPLER,
       checkpoint: checkpointName,
       ...(loraName ? { loraName, loraStrength: 1 } : {}),
       save: {
@@ -209,7 +243,7 @@ export default defineEventHandler(async (event) => {
 
     const job = await prisma.artJob.create({
       data: {
-        engine: 'A1111',
+        engine: 'COMFY',
         payload: JSON.stringify(payload),
         priority: 1,
         projectSlug: 'resource-previews',

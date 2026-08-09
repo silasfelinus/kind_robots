@@ -253,7 +253,7 @@
 
           <div
             v-if="botStore.currentBot"
-            class="rounded-2xl border border-base-300 bg-base-200 p-3 text-xs text-base-content/70"
+            class="kr-panel-muted p-3 text-xs text-base-content/70"
           >
             <p class="line-clamp-3">
               {{ selectedBotDescription }}

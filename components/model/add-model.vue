@@ -145,7 +145,7 @@
     </label>
 
     <div
-      class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3 sm:flex-row sm:items-center sm:justify-between"
+      class="flex flex-col gap-3 kr-panel-muted p-3 sm:flex-row sm:items-center sm:justify-between"
     >
       <label class="label cursor-pointer justify-start gap-3">
         <input

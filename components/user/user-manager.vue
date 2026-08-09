@@ -45,10 +45,7 @@
       {{ managerError }}
     </div>
 
-    <div
-      v-if="isLoadingManager"
-      class="shrink-0 rounded-2xl border border-base-300 bg-base-200 p-4"
-    >
+    <div v-if="isLoadingManager" class="shrink-0 kr-panel-muted p-4">
       <span class="loading loading-spinner loading-sm" />
       <span class="ml-2">Loading user account details...</span>
     </div>

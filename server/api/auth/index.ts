@@ -8,15 +8,14 @@ import { userExists } from '../users'
 import prisma from '../../utils/prisma'
 import type { User } from '~/prisma/generated/prisma/client'
 
-const config = useRuntimeConfig()
-const JWT_SECRET = config.jwtSecret
+function getJwtSecret(): string {
+  const jwtSecret = useRuntimeConfig().jwtSecret
 
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET is not configured.')
-}
+  if (typeof jwtSecret !== 'string' || !jwtSecret) {
+    throw new Error('JWT_SECRET is not configured or is not a string.')
+  }
 
-if (typeof JWT_SECRET !== 'string' || !JWT_SECRET) {
-  throw new Error('JWT_SECRET is not configured or is not a string.')
+  return jwtSecret
 }
 
 export const verifyJwtToken = async (
@@ -29,7 +28,7 @@ export const verifyJwtToken = async (
 }> => {
   try {
     const secretKey = crypto.createSecretKey(
-      Buffer.from(JWT_SECRET as string, 'utf-8'),
+      Buffer.from(getJwtSecret(), 'utf-8'),
     )
     const decoded = await jwtVerify(token, secretKey)
 
@@ -88,7 +87,7 @@ export const getUserDataByToken = async (token: string) => {
 
 export async function createToken(user: User): Promise<string> {
   try {
-    const secretKey = crypto.createSecretKey(Buffer.from(JWT_SECRET as string))
+    const secretKey = crypto.createSecretKey(Buffer.from(getJwtSecret()))
 
     const token = await new SignJWT({
       id: user.id,

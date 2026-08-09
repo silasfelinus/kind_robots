@@ -171,9 +171,7 @@
               </div>
 
               <div v-if="isSendingChat" class="flex justify-start">
-                <div
-                  class="rounded-2xl border border-base-300 bg-base-100 p-3 text-sm text-base-content/70 shadow-sm"
-                >
+                <div class="kr-panel p-3 text-sm text-base-content/70">
                   <span class="loading loading-dots loading-sm text-primary" />
                   Thinking in character...
                 </div>

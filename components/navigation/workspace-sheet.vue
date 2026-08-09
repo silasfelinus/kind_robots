@@ -93,7 +93,7 @@
     </template>
 
     <template v-if="isBuilder">
-      <div class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm">
+      <div class="kr-panel p-4">
         <div class="mb-3 flex items-center justify-between gap-3">
           <p
             class="flex items-center gap-2 text-sm font-black uppercase tracking-widest text-base-content/45"
@@ -304,10 +304,7 @@
         </section>
       </div>
 
-      <div
-        v-else
-        class="rounded-2xl border border-dashed border-base-300 bg-base-100 p-6 text-center shadow-sm"
-      >
+      <div v-else class="kr-panel border-dashed text-center">
         <Icon
           name="kind-icon:cards"
           class="mx-auto h-12 w-12 text-base-content/25"

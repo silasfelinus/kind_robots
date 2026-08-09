@@ -116,7 +116,7 @@ async function createProjectWithScaffoldTodo(
     })
 
     const project = await upsertProjectDirect(data, conductorSlug)
-    const projectId = Number(project.id)
+    const projectId = Number((project as Record<string, unknown>).id)
     if (!Number.isInteger(projectId) || projectId <= 0) {
       throw new Error(
         `Direct Project upsert returned an invalid id for ${conductorSlug}.`,

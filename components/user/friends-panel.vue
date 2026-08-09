@@ -5,7 +5,7 @@
   "Message" hands off to the threaded messenger via conversationStore.
 -->
 <template>
-  <section class="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4">
+  <section class="kr-container max-w-3xl flex flex-col gap-6 p-4">
     <header>
       <h1 class="text-2xl font-black">Friends</h1>
       <p class="text-sm text-base-content/70">

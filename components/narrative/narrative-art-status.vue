@@ -2,7 +2,7 @@
 <template>
   <section
     v-if="art"
-    class="ml-2 overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-sm sm:ml-6"
+    class="kr-panel ml-2 overflow-hidden p-0 sm:ml-6"
     :role="isFailure ? 'alert' : 'status'"
     aria-live="polite"
     aria-atomic="true"

@@ -210,6 +210,59 @@
       </div>
     </header>
 
+    <kr-card-flip v-model="infoDreamOpen" :label="infoDream?.title || 'Dream'">
+      <template #back="{ close, commit }">
+        <kr-card-back
+          v-if="infoDream"
+          v-model:editing="infoDreamEditing"
+          :title="infoDream.title || 'Untitled Dream'"
+          :subtitle="infoDream.flavorText || ''"
+          :description="infoDream.description || infoDream.pitch || ''"
+          :art-src="infoDream.imagePath || ''"
+          :badges="infoDreamBadges"
+          :can-edit="true"
+          :can-interact="true"
+          interact-label="Open"
+          @back="commit"
+          @interact="interactWithInfoDream"
+        >
+          <template #details>
+            <dl class="grid grid-cols-2 gap-2 text-xs">
+              <div v-if="infoDream.pitch" class="col-span-2">
+                <dt class="font-black uppercase opacity-55">Pitch</dt>
+                <dd class="whitespace-pre-wrap">{{ infoDream.pitch }}</dd>
+              </div>
+              <div v-if="infoDream.dreamType">
+                <dt class="font-black uppercase opacity-55">Type</dt>
+                <dd>{{ infoDream.dreamType }}</dd>
+              </div>
+              <div v-if="infoDream.flavorText" class="col-span-2">
+                <dt class="font-black uppercase opacity-55">Flavor</dt>
+                <dd class="whitespace-pre-wrap">{{ infoDream.flavorText }}</dd>
+              </div>
+            </dl>
+          </template>
+
+          <!-- The same dream-maker the dreammaker TAB used to render. It edits
+               whatever dreamStore holds, which the watch above loads first. -->
+          <template #edit="{ done }">
+            <dream-maker @saved="done" @created="done" />
+          </template>
+        </kr-card-back>
+
+        <div v-else class="p-6 text-center text-sm opacity-60">
+          <p>That Dream is no longer available.</p>
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm mt-3 rounded-xl"
+            @click="close"
+          >
+            Close
+          </button>
+        </div>
+      </template>
+    </kr-card-flip>
+
     <section class="min-h-0 flex-1 overflow-auto overscroll-contain">
       <div
         v-if="isLoading || dreamStore.loading"
@@ -474,7 +527,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import type {
   ArtImage,
   Character,
@@ -1013,14 +1066,85 @@ async function startEditingSelectedDream() {
   await startEditingDreamById(id)
 }
 
+/*
+ * EDITING HAPPENS ON THE CARD, like every other object.
+ *
+ * This used to load the record and then send you to the DREAMMAKER TAB --
+ * `navStore.setDashboardTab('dream', 'dreammaker')` -- so editing a Dream
+ * navigated away from the grid you were reading, and the only thing that
+ * justified it was that Dreams had always worked that way. Silas, 2026-08-09:
+ * "consistency is great without a solid reason, and I don't think this one is
+ * anything but 'that's how we did it before'. (Tradition is a terrible
+ * excuse, imo)".
+ *
+ * dream-maker still edits whatever dreamStore is holding, so the load has to
+ * happen BEFORE the form appears -- same reason bot-gallery loads through
+ * startEditingBot when its panel enters edit mode. Opening the form against a
+ * stale editing target is how you save changes onto the wrong Dream.
+ *
+ * The `editing` emit survives: a host may still want to know, and dropping it
+ * would be a silent contract break for anything listening.
+ */
 async function startEditingDreamById(id: number) {
   const dream = await dreamStore.startEditingDream(id)
 
   if (!dream) return
 
-  navStore.setDashboardTab?.('dream', 'dreammaker')
+  infoDreamId.value = id
+  infoDreamEditing.value = true
   emit('editing', dream)
 }
+
+/*
+ * INFO FIRST, INTERACTION AFTER -- the frame Bots, Resources, Rewards,
+ * Characters and Scenarios all use now.
+ *
+ * THE DROPDOWN BRANCH COMES FIRST, as everywhere else: this gallery is also
+ * embedded as a picker, where a click has to pick and nothing else.
+ */
+const infoDreamId = ref<number | null>(null)
+const infoDreamEditing = ref(false)
+
+const infoDream = computed(
+  () =>
+    dreamStore.dreams.find((entry) => entry.id === infoDreamId.value) ?? null,
+)
+
+const infoDreamOpen = computed({
+  get: () => infoDreamId.value !== null,
+  set: (value: boolean) => {
+    if (!value) {
+      infoDreamId.value = null
+      infoDreamEditing.value = false
+    }
+  },
+})
+
+const infoDreamBadges = computed(() => {
+  const dream = infoDream.value
+  if (!dream) return []
+
+  return [
+    dream.dreamType,
+    dream.isMature ? '18+' : '',
+    dream.isPublic ? 'Public' : '',
+  ]
+    .map((entry) => String(entry ?? '').trim())
+    .filter((entry) => entry.length > 0)
+})
+
+/* Interact LEAVES: opening a Dream is the old selectDreamAndOpen path. */
+async function interactWithInfoDream() {
+  const id = infoDreamId.value
+  infoDreamOpen.value = false
+  if (id) await selectDreamAndOpen(id)
+}
+
+/* Loading before the form appears, for the same reason as the edit entry. */
+watch(infoDreamEditing, async (isEditing) => {
+  if (!isEditing || !infoDreamId.value) return
+  await dreamStore.startEditingDream(infoDreamId.value)
+})
 
 async function selectDreamAndOpen(dream: DreamWithRelations | number) {
   const id = typeof dream === 'number' ? dream : dream.id

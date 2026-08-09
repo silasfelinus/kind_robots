@@ -53,6 +53,13 @@
         same object rather than a different screen.
       -->
       <!--
+        NO FIXED ASPECT. A 4:3 plate around a portrait left wide grey bars down
+        both sides -- Silas, 2026-08-09: "Layout when selected is still
+        formatted oddly, we want something more vertical". The plate now takes
+        the image's own shape, capped at max-h-72, so a tall Bot portrait reads
+        tall and a wide one reads wide, and neither is padded out to a ratio
+        it does not have.
+
         CONTAIN, not cover, and the title sits BELOW rather than on top.
         Silas, 2026-08-09: "layout should be card like and not cut off the
         image". `object-cover` filled the plate by cropping, which on a tall
@@ -66,9 +73,13 @@
       -->
       <div
         v-if="artSrc"
-        class="relative aspect-[4/3] max-h-64 w-full shrink-0 overflow-hidden bg-neutral"
+        class="relative flex max-h-72 w-full shrink-0 justify-center overflow-hidden bg-base-200"
       >
-        <img :src="artSrc" :alt="title" class="h-full w-full object-contain" />
+        <img
+          :src="artSrc"
+          :alt="title"
+          class="max-h-72 w-auto max-w-full object-contain"
+        />
 
         <div
           v-if="badges.length"

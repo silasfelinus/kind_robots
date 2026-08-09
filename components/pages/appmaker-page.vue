@@ -2,7 +2,7 @@
 <!-- AppMaker (appmaker/t-004): browse the app fleet, create a new app
      (self-serve; server enforces caps), and jump into each app's project. -->
 <template>
-  <section class="kr-unbound mx-auto max-w-6xl space-y-6 p-4">
+  <section class="kr-unbound kr-container space-y-6 p-4">
     <header class="flex flex-wrap items-center justify-between gap-3">
       <div>
         <p class="text-2xl font-bold">AppMaker</p>

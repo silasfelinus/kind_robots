@@ -136,5 +136,10 @@ export function fromSeedScenario(scenario: ScenarioSeedInput): ScenarioView {
     group: scenario.group ?? null,
     secretNotes: scenario.secretNotes ?? null,
     cast: scenario.cast ?? null,
+    // Card theme. A seed Scenario has none stored, and NULL is the right value
+    // rather than a picked one: resolveEntityTheme derives a stable theme from
+    // the id when this is empty, so choosing here would only be able to
+    // disagree with it. Same reason the per-slot ArtImage ids above stay null.
+    theme: scenario.theme ?? null,
   }
 }

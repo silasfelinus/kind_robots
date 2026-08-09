@@ -5,7 +5,7 @@
   - ?token=... present: set a new password by consuming the token.
 -->
 <template>
-  <section class="mx-auto flex w-full max-w-md flex-col gap-5 p-6">
+  <section class="kr-container max-w-md flex flex-col gap-5 p-6">
     <header class="flex flex-col gap-1">
       <h1 class="text-2xl font-black">
         {{ hasToken ? 'Choose a new password' : 'Reset your password' }}

@@ -5,6 +5,7 @@ import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { requireMachineUser } from '../../../utils/authGuard'
 import {
+  attemptFingerprintFromPayload,
   parseArtJobPayload,
   serializeArtJobPayload,
   type ArtJobPayloadRecord,
@@ -83,7 +84,9 @@ function positiveInteger(
 
 function renderPrompt(payload: unknown): string {
   try {
-    return cleanArtPrompt(extractRenderRequest(parseArtJobPayload(payload)).prompt)
+    return cleanArtPrompt(
+      extractRenderRequest(parseArtJobPayload(payload)).prompt,
+    )
   } catch {
     return cleanArtPrompt(asRecord(parseArtJobPayload(payload)).promptString)
   }
@@ -268,6 +271,8 @@ async function repairCandidate(
       const createData: Prisma.ArtJobUncheckedCreateInput = {
         engine: job.engine,
         payload: serializeArtJobPayload(replacementPayload),
+        // Inherited from the repaired job's payload, same reason as reenqueue.
+        attemptFingerprint: attemptFingerprintFromPayload(replacementPayload),
         priority: job.priority,
         projectSlug: job.projectSlug,
         projectId: job.projectId,

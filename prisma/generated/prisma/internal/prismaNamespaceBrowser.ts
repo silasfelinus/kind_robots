@@ -1404,7 +1404,8 @@ export const ArtJobScalarFieldEnum = {
   artImageId: 'artImageId',
   error: 'error',
   userId: 'userId',
-  projectId: 'projectId'
+  projectId: 'projectId',
+  attemptFingerprint: 'attemptFingerprint'
 } as const
 
 export type ArtJobScalarFieldEnum = (typeof ArtJobScalarFieldEnum)[keyof typeof ArtJobScalarFieldEnum]
@@ -2541,7 +2542,8 @@ export const ArtJobOrderByRelevanceFieldEnum = {
   payload: 'payload',
   claimedBy: 'claimedBy',
   projectSlug: 'projectSlug',
-  error: 'error'
+  error: 'error',
+  attemptFingerprint: 'attemptFingerprint'
 } as const
 
 export type ArtJobOrderByRelevanceFieldEnum = (typeof ArtJobOrderByRelevanceFieldEnum)[keyof typeof ArtJobOrderByRelevanceFieldEnum]

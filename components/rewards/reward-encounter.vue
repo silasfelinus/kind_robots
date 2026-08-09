@@ -301,9 +301,7 @@
             },
           ]"
         />
-        <section
-          class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
-        >
+        <section class="shrink-0 kr-panel-flat p-4 shadow-md">
           <h2 class="mb-3 text-lg font-bold text-base-content">
             The Encounter
           </h2>
@@ -368,9 +366,7 @@
           </label>
         </section>
 
-        <section
-          class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
-        >
+        <section class="shrink-0 kr-panel-flat p-4 shadow-md">
           <h2 class="mb-1 text-lg font-bold text-base-content">About You</h2>
 
           <p class="mb-3 text-sm text-base-content/60">
@@ -393,9 +389,7 @@
           </label>
         </section>
 
-        <section
-          class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
-        >
+        <section class="shrink-0 kr-panel-flat p-4 shadow-md">
           <button
             class="flex w-full items-center justify-between gap-3 text-left"
             type="button"
@@ -445,9 +439,7 @@
           </div>
         </section>
 
-        <section
-          class="shrink-0 rounded-2xl border border-base-300 bg-base-100 p-4 shadow-md"
-        >
+        <section class="shrink-0 kr-panel-flat p-4 shadow-md">
           <div class="flex items-center justify-between gap-3">
             <button
               class="flex min-w-0 flex-1 items-center justify-between gap-3 text-left"

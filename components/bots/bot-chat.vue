@@ -37,9 +37,11 @@
     simply clipped and there was no way to reach the settings panel underneath
     the conversation.
 
-    So the hidden overflow is now the WIDE case only. The panes keep their own
-    scrollers either way, which is why this does not turn into two competing
-    scroll owners at xl -- the same mistake that broke the card back in #1631.
+    So the hidden overflow is now the WIDE case only. That is only safe because
+    both panes own an inner scroller at xl -- the conversation via its
+    `minmax(0,1fr)` row, and the aside via the `overflow-y-auto` below. When
+    this comment was written the aside did NOT have one, so at xl its lower
+    sections were clipped unreachable; see the note on the <aside>.
   -->
   <section
     class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-y-auto xl:grid-cols-[minmax(0,1fr)_minmax(320px,420px)] xl:overflow-hidden"
@@ -214,7 +216,29 @@
       </div>
     </div>
 
-    <aside class="flex min-h-0 flex-col gap-4 overflow-hidden">
+    <!--
+      THE SIDEBAR SCROLLS ITSELF. Silas, 2026-08-09, on a DESKTOP: "the bot
+      interact session controls window cannot vert scroll, so it's not just
+      mobile."
+
+      This was `overflow-hidden`, and the note on the grid above claimed "the
+      panes keep their own scrollers either way" -- which was true of the
+      conversation pane and false of this one. The aside stacks four sections
+      (Session Controls, Selected Bot, the art manager, Prompt Preview) that
+      together run well past any viewport, and only the Prompt Preview's <pre>
+      had a scroller of its own. At xl the aside is bounded by the grid row, so
+      `overflow-hidden` clipped the rest with no way to reach it. Below xl the
+      parent scrolls, which is why the tablet report read as fixed while the
+      desktop one did not.
+
+      SCOPED TO xl, so the two cases stay complementary rather than nested.
+      Below xl the section above owns the scroll for the whole stack and a
+      scroller here would be a second one inside it; at xl that section is
+      `overflow-hidden` and this is the only thing that can scroll the sidebar.
+      Exactly one scroll owner is live at any width, which is also what keeps
+      the one-scroll layout contract satisfied.
+    -->
+    <aside class="flex min-h-0 flex-col gap-4 xl:overflow-y-auto">
       <section class="kr-panel-flat p-4">
         <div class="mb-3 flex items-center justify-between gap-2">
           <div>
@@ -354,7 +378,14 @@
         ]"
       />
 
-      <section class="min-h-0 flex-1 overflow-hidden kr-panel-flat p-4">
+      <!--
+        `shrink-0` with a FIXED cap, not `flex-1` + `max-h-full`. Now that the
+        aside scrolls, it has no definite height for a percentage to resolve
+        against, so `max-h-full` on the <pre> below would have computed to
+        `none` and let a long prompt push every sibling out of reach -- the
+        same indefinite-parent trap that made the card back unscrollable.
+      -->
+      <section class="shrink-0 kr-panel-flat p-4">
         <div class="mb-3 flex items-center justify-between gap-2">
           <h2 class="text-lg font-bold text-base-content">Prompt Preview</h2>
 
@@ -369,7 +400,7 @@
         </div>
 
         <pre
-          class="max-h-full overflow-auto whitespace-pre-wrap rounded-2xl bg-base-200 p-3 text-xs text-base-content/70"
+          class="max-h-80 overflow-auto whitespace-pre-wrap rounded-2xl bg-base-200 p-3 text-xs text-base-content/70"
           >{{ promptPreview }}</pre>
       </section>
     </aside>

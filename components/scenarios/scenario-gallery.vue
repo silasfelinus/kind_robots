@@ -76,6 +76,7 @@
           v-model:editing="infoScenarioEditing"
           :title="infoScenario.title || 'Untitled Scenario'"
           :description="infoScenario.description || ''"
+          :source="infoScenario"
           :art-src="infoScenario.imagePath || ''"
           :badges="infoScenarioBadges"
           :can-interact="true"

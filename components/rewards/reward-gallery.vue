@@ -111,6 +111,7 @@
           :title="infoReward.name || 'Unnamed Reward'"
           :subtitle="infoReward.collection || ''"
           :description="infoReward.description || ''"
+          :source="infoReward"
           :art-src="infoReward.imagePath || ''"
           :badges="infoRewardBadges"
           :can-interact="true"

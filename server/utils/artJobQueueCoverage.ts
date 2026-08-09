@@ -25,7 +25,7 @@
 import type { ArtJob } from '~/prisma/generated/prisma/client'
 import prisma from './prisma'
 import { parseArtJobPayload } from './artJobPayload'
-import { assertArtPromptContract } from './artPromptContract'
+import { queuedArtPrompt } from './artJobQueueSettings'
 import { normalizeArtPrompt } from './artJobProvenance'
 
 export const FACET_COVERAGE_FIELD_ORDER = [
@@ -73,102 +73,19 @@ function positiveInteger(value: unknown): number | null {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : null
 }
 
-function finiteNumber(value: unknown): number | null {
-  const parsed = Number(value)
-  return Number.isFinite(parsed) ? parsed : null
-}
-
 function hasRetry(payload: unknown): boolean {
   return Object.keys(asRecord(asRecord(payload).retry)).length > 0
 }
 
-function workflowNodes(payload: unknown): JsonRecord[] {
-  return Object.values(asRecord(asRecord(payload).workflow)).map(asRecord)
-}
-
-/** Infer the model family from the actual Comfy graph, not only relay engine. */
-export function inferQueuedArtEngine(
-  payload: unknown,
-  fallbackEngine?: string | null,
-): string {
-  const record = asRecord(payload)
-  const explicit = clean(record.engine).toLowerCase()
-  if (explicit && explicit !== 'comfy') return explicit
-
-  let sawCheckpointLoader = false
-  for (const node of workflowNodes(record)) {
-    const classType = clean(node.class_type)
-    const inputs = asRecord(node.inputs)
-    const clipType = clean(inputs.type).toLowerCase()
-    const modelName = `${clean(inputs.unet_name)} ${clean(inputs.ckpt_name)}`.toLowerCase()
-
-    if (clipType === 'krea2' || modelName.includes('krea-2')) return 'krea2'
-    if (clipType === 'flux2' || modelName.includes('flux-2-klein')) return 'flux2'
-    if (classType === 'FluxGuidance' || clipType === 'flux') return 'flux'
-    if (classType === 'CheckpointLoaderSimple') sawCheckpointLoader = true
-  }
-
-  if (sawCheckpointLoader) return 'comfy'
-  return clean(fallbackEngine).toLowerCase()
-}
-
-/** Read the settings the sampler will actually execute. */
-export function queuedArtSamplerSettings(payload: unknown): {
-  steps: number | null
-  cfg: number | null
-} {
-  const record = asRecord(payload)
-  for (const node of workflowNodes(record)) {
-    if (clean(node.class_type) !== 'KSampler') continue
-    const inputs = asRecord(node.inputs)
-    return {
-      steps: finiteNumber(inputs.steps) ?? finiteNumber(record.steps),
-      cfg: finiteNumber(inputs.cfg) ?? finiteNumber(record.cfg),
-    }
-  }
-  return {
-    steps: finiteNumber(record.steps),
-    cfg: finiteNumber(record.cfg),
-  }
-}
-
-function queuedArtPrompt(payload: unknown): string {
-  const record = asRecord(payload)
-  const topLevel = clean(record.promptString) || clean(record.prompt)
-  if (topLevel) return topLevel
-
-  for (const node of workflowNodes(record)) {
-    const classType = clean(node.class_type)
-    if (classType !== 'CLIPTextEncode' && classType !== 'ImpactWildcardEncode') {
-      continue
-    }
-    const title = clean(asRecord(node._meta).title).toLowerCase()
-    if (title.includes('negative')) continue
-    const inputs = asRecord(node.inputs)
-    const prompt = clean(inputs.text) || clean(inputs.wildcard_text)
-    if (prompt) return prompt
-  }
-  return ''
-}
-
-/**
- * Apply today's prompt/model contract to old PENDING rows too. The enqueue gate
- * protects new work; this guard stops pre-gate backlog rows from quietly
- * rendering with stale Krea settings or known-bad prompt vocabulary.
- */
-export function assertQueuedArtPromptContract(
-  engine: string,
-  payload: unknown,
-): void {
-  const actualEngine = inferQueuedArtEngine(payload, engine)
-  const sampler = queuedArtSamplerSettings(payload)
-  assertArtPromptContract({
-    prompt: queuedArtPrompt(payload),
-    engine: actualEngine,
-    steps: sampler.steps,
-    cfg: sampler.cfg,
-  })
-}
+// Engine/sampler/prompt reading and the claim-time contract assertion live in
+// artJobQueueSettings.ts — they need no database, and this module's prisma
+// import made them unreachable from the DB-free contract-tests workflow.
+// Re-exported here so every existing caller keeps its import path.
+export {
+  inferQueuedArtEngine,
+  queuedArtSamplerSettings,
+  assertQueuedArtPromptContract,
+} from './artJobQueueSettings'
 
 export function readFacetCoverageTarget(
   payload: unknown,
@@ -183,7 +100,9 @@ export function readFacetCoverageTarget(
   return { facetId, field }
 }
 
-function readStaticDeliveryTarget(payload: unknown): StaticDeliveryTarget | null {
+function readStaticDeliveryTarget(
+  payload: unknown,
+): StaticDeliveryTarget | null {
   const record = asRecord(payload)
   if (hasRetry(record)) return null
   const targetRepo = clean(record.targetRepo).toLowerCase()
@@ -214,7 +133,9 @@ export function selectFacetCoverageKeeper<
 }
 
 async function cancelPending(ids: number[], reason: string): Promise<number> {
-  const uniqueIds = [...new Set(ids)].filter((id) => Number.isInteger(id) && id > 0)
+  const uniqueIds = [...new Set(ids)].filter(
+    (id) => Number.isInteger(id) && id > 0,
+  )
   if (!uniqueIds.length) return 0
   const result = await prisma.artJob.updateMany({
     where: {
@@ -235,7 +156,10 @@ async function reconcileFacetCoverage(
   candidate: QueueCandidate,
   parsedPayload: JsonRecord,
 ): Promise<CoverageResult | null> {
-  if (candidate.status !== 'PENDING' || candidate.projectSlug !== 'facet-catalog') {
+  if (
+    candidate.status !== 'PENDING' ||
+    candidate.projectSlug !== 'facet-catalog'
+  ) {
     return null
   }
   const target = readFacetCoverageTarget(parsedPayload)
@@ -288,10 +212,10 @@ async function reconcileFacetCoverage(
 
   const hasDisplayArt = Boolean(
     clean(facet.imagePath) ||
-      clean(facet.cardPath) ||
-      clean(facet.heroPath) ||
-      clean(facet.iconPath) ||
-      facet.artImageId,
+    clean(facet.cardPath) ||
+    clean(facet.heroPath) ||
+    clean(facet.iconPath) ||
+    facet.artImageId,
   )
 
   if (hasDisplayArt) {
@@ -386,7 +310,9 @@ async function reconcileStaticDelivery(
   })
 
   const matching = siblings.filter((job) => {
-    const siblingTarget = readStaticDeliveryTarget(parseArtJobPayload(job.payload))
+    const siblingTarget = readStaticDeliveryTarget(
+      parseArtJobPayload(job.payload),
+    )
     return (
       siblingTarget?.targetRepo === target.targetRepo &&
       siblingTarget.imagePath === target.imagePath &&

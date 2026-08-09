@@ -67,6 +67,7 @@
     "test:art-request-yaml": "tsx utils/scripts/verifyArtRequestYaml.ts && tsx utils/scripts/verifyArtAssetSuggest.ts",
     "test:art-prompt-repair": "tsx utils/scripts/verifyArtPromptRepair.ts",
     "test:art-prompt-contract": "tsx utils/scripts/verifyArtPromptContract.ts",
+    "test:artjob-sampler-repair": "tsx utils/scripts/verifyArtJobSamplerRepair.ts",
     "test:entity-art-prompt-framing": "tsx utils/scripts/verifyEntityArtPromptFraming.ts",
     "test:art-asset-suggest": "tsx utils/scripts/verifyArtAssetSuggest.ts",
     "test:artjob-bulk-scope": "tsx utils/scripts/verifyArtJobBulkScope.ts && tsx utils/scripts/verifyArtJobBulkCancel.ts",

@@ -32,6 +32,10 @@ import {
   assertQueuedArtPromptContract,
   reconcileQueuedArtJobCoverage,
 } from '../../../utils/artJobQueueCoverage'
+import {
+  recordSamplerRepair,
+  repairQueuedArtSampler,
+} from '../../../utils/artJobSamplerRepair'
 import { recordRelayClaimAttempt } from '../../../utils/relayAgentRegistry'
 import { isQueuePaused } from '../../../utils/queueControl'
 
@@ -245,17 +249,32 @@ export default defineEventHandler(async (event) => {
       let enrichedPayload
 
       try {
+        // A step or cfg above the engine's ceiling is the one contract
+        // violation with an objectively correct repair, so repair it instead of
+        // killing the row: clamp to the distilled limits first, then assert. On
+        // 2026-08-09 eight pre-gate jobs had already died on nothing but
+        // "krea2 ... got 20" with 27 more queued behind them, all of whose
+        // prompts were otherwise clean. Enqueue still rejects these outright, so
+        // producers writing new work still fail loudly; only the pre-gate
+        // backlog self-heals here. See server/utils/artJobSamplerRepair.ts.
+        const samplerRepair = repairQueuedArtSampler(
+          candidate.engine,
+          candidate.payload,
+        )
+
         // New enqueues pass the prompt contract at creation time. Old backlog
         // rows predate that boundary, so apply the same rules again immediately
         // before claim using the ACTUAL Comfy graph's engine/cfg/steps. This is
         // what prevents stale 20-step/cfg-7 Krea jobs from rendering just because
-        // they were already sitting in PENDING when the gate shipped.
-        assertQueuedArtPromptContract(candidate.engine, candidate.payload)
+        // they were already sitting in PENDING when the gate shipped — the clamp
+        // above fixes the sampler numbers, and everything a machine cannot
+        // safely rewrite (conditionals, format nouns, text piles) still fails.
+        assertQueuedArtPromptContract(candidate.engine, samplerRepair.payload)
 
-        const currentProvenance = readArtJobProvenance(candidate.payload)
+        const currentProvenance = readArtJobProvenance(samplerRepair.payload)
         enrichedPayload = enrichArtJobPayload(
           candidate.engine as 'A1111' | 'COMFY',
-          candidate.payload,
+          samplerRepair.payload,
           {
             projectSlug: candidate.projectSlug,
             idempotencyKey: currentProvenance?.idempotencyKey,
@@ -264,6 +283,11 @@ export default defineEventHandler(async (event) => {
               supportsCompletionProof,
           },
         ).payload
+        recordSamplerRepair(
+          enrichedPayload,
+          samplerRepair,
+          new Date().toISOString(),
+        )
       } catch (error: unknown) {
         const handled = errorHandler(error)
         const invalid = await prisma.artJob.updateMany({
@@ -274,10 +298,11 @@ export default defineEventHandler(async (event) => {
           },
           data: {
             status: 'FAILED',
-            error: `ArtJob validation failed before claim: ${handled.message}`.slice(
-              0,
-              4000,
-            ),
+            error:
+              `ArtJob validation failed before claim: ${handled.message}`.slice(
+                0,
+                4000,
+              ),
             claimedAt: null,
             claimedBy: null,
           },

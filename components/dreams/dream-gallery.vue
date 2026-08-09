@@ -218,6 +218,7 @@
           :title="infoDream.title || 'Untitled Dream'"
           :subtitle="infoDream.flavorText || ''"
           :description="infoDream.description || infoDream.pitch || ''"
+          :source="infoDream"
           :art-src="infoDream.imagePath || ''"
           :badges="infoDreamBadges"
           :can-edit="true"

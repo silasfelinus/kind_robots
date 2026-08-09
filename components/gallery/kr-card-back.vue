@@ -72,11 +72,11 @@
         an actual card back has.
       -->
       <div
-        v-if="artSrc"
+        v-if="resolvedArtSrc"
         class="relative flex max-h-72 w-full shrink-0 justify-center overflow-hidden bg-base-200"
       >
         <img
-          :src="artSrc"
+          :src="resolvedArtSrc"
           :alt="title"
           class="max-h-72 w-auto max-w-full object-contain"
         />
@@ -95,7 +95,7 @@
         </div>
       </div>
 
-      <div v-if="artSrc" class="min-w-0 px-3 pb-3 pt-2">
+      <div v-if="resolvedArtSrc" class="min-w-0 px-3 pb-3 pt-2">
         <h2 class="break-words text-lg font-black leading-tight">
           {{ title }}
         </h2>
@@ -255,11 +255,32 @@
 </template>
 
 <script setup lang="ts">
-withDefaults(
+import { computed } from 'vue'
+import { resolveEntityArtwork, type ArtImageSrcLike } from '@/utils/artImageSrc'
+
+const props = withDefaults(
   defineProps<{
     title: string
     subtitle?: string
     description?: string
+    /**
+     * The record itself, so the back can fall back through the SAME art chain
+     * the front already uses.
+     *
+     * Silas, 2026-08-10: "only about half the bots are showing images when
+     * selecting ... as long as one exists (and it does because we clicked on it
+     * to select) we have something to show."
+     *
+     * Exactly right, and the asymmetry was the bug. The front renders through
+     * kr-art-plate with `:source="record"`, which resolves imagePath, cardPath,
+     * heroPath and iconPath; every gallery then handed this component ONE field
+     * (`avatarImage` for Bots, `imagePath` for the other five). A Bot with a
+     * cardPath and no avatarImage therefore had art on the tile and a blank
+     * plate on the back. resolveEntityArtwork walks the same order the front
+     * does, so the back can no longer show less than the front did.
+     */
+    source?: ArtImageSrcLike | null
+    /** Explicit first choice, tried before `source`'s chain. */
     artSrc?: string
     badges?: string[]
     canEdit?: boolean
@@ -274,12 +295,20 @@ withDefaults(
   {
     subtitle: '',
     description: '',
+    source: null,
     artSrc: '',
     badges: () => [],
     canEdit: false,
     canInteract: false,
     interactLabel: 'Open',
   },
+)
+
+const resolvedArtSrc = computed(
+  () =>
+    props.artSrc ||
+    (props.source ? resolveEntityArtwork(props.source) : '') ||
+    '',
 )
 
 const emit = defineEmits<{

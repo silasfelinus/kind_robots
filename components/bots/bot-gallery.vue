@@ -109,6 +109,7 @@
           :title="infoBot.name || 'Unnamed Bot'"
           :subtitle="infoBot.subtitle || ''"
           :description="infoBot.description || infoBot.personality || ''"
+          :source="infoBot"
           :art-src="infoBot.avatarImage || ''"
           :badges="infoBotBadges"
           :can-edit="canEditInfoBot"

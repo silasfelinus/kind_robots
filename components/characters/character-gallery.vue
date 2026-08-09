@@ -46,6 +46,7 @@
           :title="infoCharacter.name || 'Unnamed Character'"
           :subtitle="infoCharacter.honorific || ''"
           :description="infoCharacter.backstory || ''"
+          :source="infoCharacter"
           :art-src="infoCharacter.imagePath || ''"
           :badges="infoCharacterBadges"
           :can-interact="true"

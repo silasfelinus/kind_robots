@@ -47,7 +47,7 @@
 
     <template #library>
       <details
-        class="rounded-2xl border border-base-300 bg-base-100"
+        class="kr-panel-flat"
         :open="createOpen"
       >
         <summary

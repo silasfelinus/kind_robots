@@ -1,0 +1,54 @@
+/// Durable private Brainstorm workspaces. `userId` is intentionally an indexed
+/// ownership scalar rather than another back-relation on the already enormous
+/// User model; authenticated API routes are the authority for owner scoping.
+/// Nested creative state that has no independent query semantics is serialized
+/// as JSON text in LongText columns, matching the repo's durable payload pattern.
+model BrainstormSession {
+  id              Int                  @id @default(autoincrement())
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime?            @default(now()) @updatedAt
+  userId          Int
+  name            String               @db.VarChar(255)
+  premise         String               @db.LongText
+  resultCount     Int                  @default(8)
+  constraints     String?              @db.LongText
+  examples        String?              @db.LongText
+  mode            String               @default("freeform") @db.VarChar(80)
+  batchShape      String               @default("focused") @db.VarChar(32)
+  returnTypes     String?              @db.LongText
+  source          String?              @db.LongText
+  batches         String               @db.LongText
+  activeBatchId   String?              @db.VarChar(200)
+  lastGeneratedAt DateTime?
+  isActive        Boolean              @default(true)
+  Candidates      BrainstormCandidate[]
+
+  @@index([userId, updatedAt])
+  @@index([userId, isActive])
+}
+
+/// One durable row per application-owned Brainstorm candidate. `clientId`
+/// remains the stable identity used by the workbench; revisions/meta stay
+/// serialized because their ordering and lineage are meaningful as a whole.
+model BrainstormCandidate {
+  id             Int               @id @default(autoincrement())
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime?         @default(now()) @updatedAt
+  sessionId      Int
+  clientId       String            @db.VarChar(200)
+  batchId        String            @db.VarChar(200)
+  position       Int               @default(0)
+  title          String?           @db.VarChar(120)
+  text           String            @db.LongText
+  status         String            @default("pending") @db.VarChar(32)
+  feedback       String?           @db.LongText
+  edited         Boolean           @default(false)
+  parentClientId String?           @db.VarChar(200)
+  revisions      String            @db.LongText
+  meta           String?           @db.LongText
+  Session        BrainstormSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, clientId])
+  @@index([sessionId, batchId, position])
+  @@index([sessionId, status])
+}

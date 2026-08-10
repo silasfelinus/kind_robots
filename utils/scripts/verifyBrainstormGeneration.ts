@@ -6,6 +6,7 @@ import {
   parseBrainstormProviderOutput,
 } from '../../server/utils/brainstorm/brainstormParser'
 import { buildBrainstormPrompts } from '../../server/utils/brainstorm/brainstormPrompt'
+import { brainstormProviderApiKey } from '../../server/utils/brainstorm/brainstormProvider'
 import { deriveSuggestProvider } from '../../server/utils/suggest/suggestProviders'
 
 const direct = parseBrainstormProviderOutput(
@@ -124,6 +125,39 @@ assert.equal(
   }),
   'openai',
 )
+assert.equal(
+  deriveSuggestProvider({
+    serverType: 'OPENAI',
+    baseUrl: 'https://example.test/v1',
+  }),
+  'openai_compatible',
+)
+
+assert.equal(
+  brainstormProviderApiKey('openai', {
+    serverApiKey: 'server-openai',
+    openaiApiKey: 'runtime-openai',
+  }),
+  'server-openai',
+)
+assert.equal(
+  brainstormProviderApiKey('openai', { openaiApiKey: 'runtime-openai' }),
+  'runtime-openai',
+)
+assert.equal(
+  brainstormProviderApiKey('openai_compatible', {
+    serverApiKey: 'custom-secret',
+    openaiApiKey: 'runtime-openai',
+  }),
+  'custom-secret',
+)
+assert.equal(
+  brainstormProviderApiKey('openai_compatible', {
+    openaiApiKey: 'runtime-openai',
+  }),
+  undefined,
+  'first-party OpenAI credentials must never be forwarded to a compatible URL',
+)
 
 const endpoint = readFileSync(
   resolve(process.cwd(), 'server/api/brainstorm/generate.post.ts'),
@@ -131,6 +165,9 @@ const endpoint = readFileSync(
 )
 assert.match(endpoint, /readServerById\(serverId\)/)
 assert.match(endpoint, /canReadServer\(server, viewer\)/)
+assert.match(endpoint, /assertBackendProviderAccess\(provider, server, viewer\)/)
+assert.match(endpoint, /\['BROWSER', 'TAILSCALE', 'LOCAL'\]/)
+assert.match(endpoint, /!server\.isPublic &&[\s\S]*?!server\.isOfficial &&[\s\S]*?!server\.isDefault/)
 assert.match(endpoint, /manaGate\(event/)
 assert.match(endpoint, /parseBrainstormProviderOutput\(raw, request\.count\)/)
 assert.match(endpoint, /errorHandler\(error\)/)

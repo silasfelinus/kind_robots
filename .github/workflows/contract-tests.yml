@@ -167,6 +167,9 @@ jobs:
       - name: Database pool defaults contract
         run: npm run test:database-pool-defaults
 
+      - name: Project scaffold Todo parity contract
+        run: npm run test:project-scaffold-todo-parity
+
       - name: Maturity and privacy generation contract
         run: npx tsx utils/scripts/verifyMaturityPrivacyContract.ts
 

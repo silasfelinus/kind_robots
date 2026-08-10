@@ -585,7 +585,7 @@ const fixtures: Record<string, WonderLabPreviewFixture> = {
   'narrative-role-assigner': {
     title: 'Cast role assignment',
     description:
-      'Three synthetic cast members with a protagonist and two unassigned parts, so the select, the role description line, and the empty state are all visible at once.',
+      'Three synthetic cast members — a protagonist and an antagonist in the lead row facing each other, one unassigned card ranked behind — so the tiered board layout, the role badge, and the unassigned state are all visible at once.',
     viewport: 'mobile',
     minHeight: '20rem',
     props: {
@@ -612,7 +612,10 @@ const fixtures: Record<string, WonderLabPreviewFixture> = {
           icon: 'kind-icon:eye',
         },
       ],
-      modelValue: { 'ami-butterfly-fixture': 'protagonist' },
+      modelValue: {
+        'ami-butterfly-fixture': 'protagonist',
+        'cthulhu-fixture': 'antagonist',
+      },
     },
   },
   'flip-panel': {

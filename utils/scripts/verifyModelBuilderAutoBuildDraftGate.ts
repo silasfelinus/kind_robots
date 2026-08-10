@@ -40,6 +40,21 @@
 // Both of these entry guards return 'skipped' (not 'failed') -- t-037 gave
 // autoBuildItem() a three-way outcome ('committed' | 'skipped' | 'failed') so
 // batchAutoBuild/autoBuildRun can tell "busy, try again" apart from "broken."
+//
+// Also asserts a third, unrelated guard (same task, later cycle still): the
+// function's own doc comment promises "draft what's empty," and the PITCH
+// branch honors that (`if (!item.pitch.trim())` before drafting), but the
+// artPrompt draftText call used to fire unconditionally whenever `wantArt`
+// was true -- regardless of whether item.promptDraft already held content.
+// promptDraft starts genuinely empty (unlike fieldsDraft, which is always
+// pre-filled with a non-empty defaultFieldsTemplate skeleton and so can't
+// use the same empty check), so a non-empty value there can only mean the
+// user already typed their own generation prompt via the "Generation
+// prompt" textarea before clicking Auto. Drafting over it unconditionally
+// silently discarded that hand-typed prompt for a fresh, unreviewed AI one
+// -- and generateItemAsset immediately renders art from it instead of what
+// the user wrote. Fixed by gating the artPrompt draft behind
+// `!item.promptDraft.trim()`, mirroring the PITCH branch.
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -171,6 +186,33 @@ export function checkAutoBuildDraftGate(content: string): string[] {
           'model-builder-item-panel.vue refuses to allow.',
       )
     }
+  }
+
+  // artPrompt-specific: draftText(itemId, 'artPrompt') must be gated behind
+  // `!item.promptDraft.trim()` (immediately, not just "called somewhere in
+  // the function") -- see the doc comment above for why promptDraft (unlike
+  // fieldsDraft) is a reliable "did the user already type one?" signal.
+  // Anchored to `wantArt && !item.promptDraft.trim()` as one condition,
+  // mirroring the exact shape of the fix, rather than accepting the check
+  // anywhere in an enclosing scope -- a `wantArt`-only outer if with the
+  // promptDraft check missing must still fail.
+  const artPromptEmptyGuard =
+    /if \(\s*wantArt\s*&&\s*!item\.promptDraft\.trim\(\)\s*\)\s*\{[\s\S]{0,1200}?await draftText\(itemId, 'artPrompt'\)/.exec(
+      fn.body,
+    )
+  if (!artPromptEmptyGuard) {
+    errors.push(
+      `${FN_NAME}() calls await draftText(itemId, 'artPrompt') without ` +
+        'gating it behind `if (wantArt && !item.promptDraft.trim())`. ' +
+        'promptDraft starts genuinely empty (unlike fieldsDraft, which is ' +
+        'always pre-filled with a non-empty defaultFieldsTemplate skeleton), ' +
+        'so a non-empty value can only mean the user already typed their ' +
+        'own generation prompt via the "Generation prompt" textarea before ' +
+        'clicking Auto. Drafting over it unconditionally silently discards ' +
+        'that hand-typed prompt for a fresh, unreviewed AI one, and ' +
+        'generateItemAsset then renders art from it instead of what the ' +
+        'user wrote.',
+    )
   }
 
   return errors

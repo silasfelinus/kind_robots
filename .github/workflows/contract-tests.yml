@@ -340,6 +340,12 @@ jobs:
       - name: Model Builder commit name/title field guard contract
         run: npm run test:model-builder-commit-name-field-guard
 
+      - name: Model Builder commit stale-snapshot guard checker self-test
+        run: npm run test:model-builder-commit-stale-snapshot-guard-selftest
+
+      - name: Model Builder commit stale-snapshot guard contract
+        run: npm run test:model-builder-commit-stale-snapshot-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

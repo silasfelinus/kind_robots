@@ -921,8 +921,20 @@ export default defineEventHandler(async (event) => {
       throw writeError
     }
 
+    // Re-read stageStatuses immediately before this final write rather than
+    // reusing the request-start `item` snapshot: the write above (promote /
+    // update / create+link) can be a slow, multi-step transaction, and
+    // nothing blocks the client from reopening this item's other stages
+    // (PATCH /items/:id) while it's in flight. Building the full
+    // stageStatuses blob from a stale snapshot would silently clobber that
+    // concurrent edit -- restoring stages to 'approved' that the user just
+    // reopened -- so merge the COMMIT key into the current DB value instead.
+    const latest = await prisma.modelBuildItem.findUnique({
+      where: { id },
+      select: { stageStatuses: true },
+    })
     const stages = parseStoredJson<Record<string, unknown>>(
-      item.stageStatuses,
+      latest?.stageStatuses ?? item.stageStatuses,
       {},
     )
     stages.COMMIT = {

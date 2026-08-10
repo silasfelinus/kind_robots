@@ -308,6 +308,7 @@
         v-for="candidate in activeCandidates"
         :key="candidate.id"
         :candidate="candidate"
+        :parent-candidate="parentCandidateFor(candidate)"
         :disabled="isGenerating"
         :busy="generationTargetId === candidate.id"
         :busy-action="candidateBusyAction(candidate.id)"
@@ -317,6 +318,7 @@
         @delete="deleteCandidate(candidate.id)"
         @feedback="setCandidateFeedback(candidate.id, $event)"
         @edit="editCandidate(candidate.id, $event)"
+        @restore-revision="restoreRevision(candidate.id, $event)"
         @regenerate="regenerate(candidate.id)"
         @branch="branch(candidate.id)"
       />
@@ -374,7 +376,10 @@ import {
   BRAINSTORM_MAX_RESULTS,
   BRAINSTORM_RETURN_TYPES,
 } from '@/types/brainstorm'
-import type { BrainstormReturnTypeId } from '@/types/brainstorm'
+import type {
+  BrainstormCandidate,
+  BrainstormReturnTypeId,
+} from '@/types/brainstorm'
 import { useBrainstormStore } from '@/stores/brainstormStore'
 
 const creativeDirections = [
@@ -566,6 +571,11 @@ function candidateBusyAction(candidateId: string): 'regenerate' | 'branch' | nul
     : null
 }
 
+function parentCandidateFor(candidate: BrainstormCandidate): BrainstormCandidate | null {
+  if (!candidate.parentId) return null
+  return activeCandidates.value.find((entry) => entry.id === candidate.parentId) ?? null
+}
+
 function setActiveBatch(batchId: string): void {
   store.setActiveBatch(batchId)
 }
@@ -595,6 +605,10 @@ function editCandidate(
   patch: { title: string; text: string },
 ): void {
   store.editCandidate(candidateId, patch)
+}
+
+function restoreRevision(candidateId: string, revisionIndex: number): void {
+  store.restoreCandidateRevision(candidateId, revisionIndex)
 }
 
 async function generate(): Promise<void> {

@@ -46,7 +46,9 @@
     </header>
 
     <div class="kr-scroll space-y-4">
-      <div class="grid gap-4 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
+      <div
+        class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,22rem),1fr))] gap-4"
+      >
         <kr-art-plate
           :source="selectedFacet"
           variant="card"

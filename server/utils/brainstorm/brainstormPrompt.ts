@@ -5,11 +5,34 @@ export type BrainstormPrompts = {
   userPrompt: string
 }
 
+const CREATIVE_DIRECTION_INSTRUCTIONS: Record<string, string> = {
+  stranger:
+    'Push past the first obvious answers. Explore surprising mechanisms and combinations while staying meaningfully connected to the premise.',
+  grounded:
+    'Favor ideas that are practical, usable, and plausibly actionable. Keep variety and surprise, but make the value concrete.',
+  'darker-funnier':
+    'Look for sharper comic premises, escalation, irony, gallows humor, cartoon peril, or darker absurdity where allowed. Do not substitute cruelty, shock value, or random grossness for an actual joke.',
+  shorter:
+    'Compress each idea to its strongest useful core. Prefer punchy seeds over explanations, throat-clearing, or polished marketing copy.',
+  'different-angle':
+    'Attack the premise from viewpoints, mechanisms, relationships, structures, or assumptions that the current obvious approach would miss.',
+  'genre-shift':
+    'Recast the premise through meaningfully different genres or creative grammars. Change what kind of idea it is, not just its vocabulary.',
+  invert:
+    'Reverse a central assumption, role, incentive, cause-and-effect relationship, or expected outcome and develop the consequences into useful ideas.',
+}
+
 function compactExamples(examples: string[] | undefined): string[] {
   return (examples || [])
     .map((example) => example.trim())
     .filter(Boolean)
     .slice(0, 12)
+}
+
+function creativeDirection(mode: string | undefined): string | null {
+  const normalized = mode?.trim() || 'freeform'
+  if (normalized === 'freeform') return null
+  return CREATIVE_DIRECTION_INSTRUCTIONS[normalized] || normalized
 }
 
 export function buildBrainstormPrompts(
@@ -38,6 +61,7 @@ export function buildBrainstormPrompts(
   ].join('\n')
 
   const examples = compactExamples(request.examples)
+  const direction = creativeDirection(request.mode)
   const lines = [
     `Premise: ${request.premise.trim()}`,
     `Generate exactly ${request.count} distinct candidate${request.count === 1 ? '' : 's'}.`,
@@ -47,8 +71,8 @@ export function buildBrainstormPrompts(
     lines.push(`Constraints: ${request.constraints.trim()}`)
   }
 
-  if (request.mode?.trim() && request.mode !== 'freeform') {
-    lines.push(`Creative direction: ${request.mode.trim()}`)
+  if (direction) {
+    lines.push(`Creative direction: ${direction}`)
   }
 
   if (examples.length) {

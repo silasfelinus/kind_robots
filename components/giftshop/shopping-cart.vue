@@ -1,6 +1,6 @@
 <!-- /components/content/shop/shopping-cart.vue -->
 <template>
-  <section class="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
+  <section class="kr-container max-w-5xl space-y-6 p-4 sm:p-6">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div>
         <h1 class="flex items-center gap-2 text-2xl font-black text-primary">

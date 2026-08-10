@@ -1,0 +1,10 @@
+{
+  "conductorDocument": "projects/kind-robots/PROJECT-CREATION.md",
+  "directCallSites": [
+    "server/api/appmaker/github/create-app.post.ts",
+    "server/api/appmaker/scaffold-request.post.ts",
+    "server/api/conductor/sync.post.ts",
+    "server/api/model-builder/items/[id]/commit.post.ts",
+    "server/api/projects/index.post.ts"
+  ]
+}

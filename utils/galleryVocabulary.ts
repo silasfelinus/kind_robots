@@ -58,13 +58,28 @@ export interface GalleryModeOption {
   value: GalleryMode
   label: string
   abbr: string
+  /**
+   * The glyph the mode bar draws below `lg`, where there is no room for words.
+   *
+   * MONOCHROME ONLY. Most of assets/icons is multicolour (card.svg, gallery.svg
+   * and picture.svg all hardcode fills), and the active mode button is
+   * `btn-primary` — a fixed-palette glyph on a primary fill reads as a sticker
+   * sitting on the button rather than part of it. These three are
+   * `currentColor`, so they take the button's own text colour in both states.
+   *
+   * The shapes describe the LAYOUT each mode produces, not the word:
+   *   cards   2x2 grid   — the card grid
+   *   heroes  wide bars  — full-width 16:9 art, stacked
+   *   icons   thin rules — the text-forward row with a small square intro
+   */
+  icon: string
 }
 
 /** The canonical mode list. Any gallery offering mode buttons reuses this. */
 export const GALLERY_MODES: readonly GalleryModeOption[] = [
-  { value: 'cards', label: 'Cards', abbr: 'C' },
-  { value: 'heroes', label: 'Heroes', abbr: 'H' },
-  { value: 'icons', label: 'Icons', abbr: 'I' },
+  { value: 'cards', label: 'Cards', abbr: 'C', icon: 'kind-icon:view-grid' },
+  { value: 'heroes', label: 'Heroes', abbr: 'H', icon: 'kind-icon:triple-row' },
+  { value: 'icons', label: 'Icons', abbr: 'I', icon: 'kind-icon:list' },
 ]
 
 /**

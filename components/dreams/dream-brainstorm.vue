@@ -58,20 +58,14 @@
       <div
         v-if="statusMessage"
         class="mt-3 rounded-2xl border p-3 text-sm"
-        :class="
-          statusTone === 'error' ? 'kr-note-error' : 'kr-note-success'
-        "
+        :class="statusTone === 'error' ? 'kr-note-error' : 'kr-note-success'"
       >
         {{ statusMessage }}
       </div>
     </header>
 
-    <div
-      class="kr-panes grid-cols-1 xl:grid-cols-[22rem_minmax(0,1fr)_22rem]"
-    >
-      <aside
-        class="kr-pane kr-panel-flat"
-      >
+    <div class="kr-panes grid-cols-1 xl:grid-cols-[22rem_minmax(0,1fr)_22rem]">
+      <aside class="kr-pane kr-panel-flat">
         <div class="shrink-0 border-b border-base-300 bg-base-200 p-3">
           <div class="flex items-center justify-between gap-2">
             <div>
@@ -238,10 +232,16 @@
                 >
                   Reject Pending
                 </button>
+                <!-- Absent rather than greyed: an empty candidate list has
+                     nothing to clear. "Reject Pending" above keeps its disabled
+                     state on purpose -- candidates can exist with none pending,
+                     so it is a real action that is momentarily unavailable
+                     rather than an action with no subject. That distinction is
+                     what verifyDisabledAffordances.ts is scoped to. -->
                 <button
+                  v-if="candidates.length"
                   type="button"
                   class="btn btn-ghost btn-xs rounded-2xl"
-                  :disabled="!candidates.length"
                   @click="clearCandidates"
                 >
                   Clear
@@ -395,9 +395,7 @@
         </footer>
       </main>
 
-      <aside
-        class="kr-pane gap-3 kr-panel-flat p-3"
-      >
+      <aside class="kr-pane gap-3 kr-panel-flat p-3">
         <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
           <h2 class="mb-3 text-lg font-black">Text Server</h2>
           <div class="grid gap-3">

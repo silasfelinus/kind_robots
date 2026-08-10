@@ -203,15 +203,27 @@
         class="header-control-strip flex shrink-0 items-center gap-1 sm:gap-1.5"
       >
         <!--
-          The tutorial/workspace toggle is a header utility, not primary
-          navigation. It now follows the channel + tab shell so both visual and
-          keyboard order read Back → Channel → Tabs → Tutorial → utilities.
+          THE TUTORIAL/WORKSPACE TOGGLE STAYS HERE, after the channel + tab
+          shell, because Silas moved it here himself in #1708 ("fix tutorial
+          header order"), refining the "LEFT-MOST item" he asked for earlier the
+          same day once he saw it live. His note, kept verbatim from that
+          commit:
 
-          The previous fix correctly moved this button out of app.vue's
-          absolute overlay and into the reserved header row, but interpreted
-          "inline" as "left-most" and put it ahead of the actual navigation.
-          Keeping it here preserves the no-overlap fix without making Tutorial
-          the first thing users encounter on every page.
+            The tutorial/workspace toggle is a header utility, not primary
+            navigation. It now follows the channel + tab shell so both visual
+            and keyboard order read Back -> Channel -> Tabs -> Tutorial ->
+            utilities.
+
+            The previous fix correctly moved this button out of app.vue's
+            absolute overlay and into the reserved header row, but interpreted
+            "inline" as "left-most" and put it ahead of the actual navigation.
+            Keeping it here preserves the no-overlap fix without making Tutorial
+            the first thing users encounter on every page.
+
+          This branch was cut before that landed and had it left-most, which is
+          what conflicted. His placement wins -- the thing that mattered was
+          getting the button out of the absolute overlay, and where it sits in
+          the row after that is his call.
         -->
         <button
           type="button"
@@ -229,29 +241,61 @@
           <Icon name="kind-icon:question" class="h-5 w-5" />
         </button>
 
-        <button
-          type="button"
-          class="btn btn-ghost btn-sm btn-square hidden shrink-0 rounded-xl border border-base-300 bg-base-100 sm:inline-flex"
-          aria-label="Refresh with launch animation"
-          title="Refresh with launch animation"
-          @click="requestFullStartupReload"
-        >
-          <Icon name="kind-icon:refresh" class="h-5 w-5" />
-        </button>
+        <!--
+          THE SUPPLEMENTALS, in a two-row stack. Silas, 2026-08-10:
+          "Notifications and refresh and server should all be in a two stacked
+          group like karma and mana. they are supplementals, login-manager is
+          the one worthy of being full sized. That will free up some space."
 
-        <!-- Stays on phones: switching server is an action, not a readout, and
-             hiding the three below already buys the title enough room. Note it
-             could not be hidden with a `hidden sm:flex` class anyway -- its own
-             root carries the `inline-flex` UTILITY, which competes with
-             `hidden` on equal specificity and wins on stylesheet order. The
-             refresh button above hides correctly because daisyUI's `.btn` is a
-             component class, which utilities outrank. Wrap in a container if
-             this ever does need hiding. -->
-        <server-selector class="header-control-item min-w-0" />
-        <maturity-toggle
-          v-if="showDashboardMaturityToggle && userStore.isLoggedIn"
-        />
-        <notification-bell class="shrink-0" />
+          That is a hierarchy statement, so it is applied at every width rather
+          than only where the row is tight: these three are things you reach for
+          occasionally, the avatar is the one you aim at. Drawing them at half
+          height next to a full-size avatar says which is which without a label.
+
+          The "?" above is deliberately NOT in this group. It is the one control
+          here that opens a whole surface rather than toggling a setting, and
+          Silas placed it in the navigation run (Back -> Channel -> Tabs ->
+          Tutorial) rather than among the utilities -- shrinking it into the
+          stack would undo that grouping.
+
+          `grid-rows-2 grid-flow-col` rather than a fixed column count, because
+          the membership is not fixed -- maturity-toggle appears only for a
+          logged-in user on a dashboard, and notification-bell carries a cart
+          button that appears only when the cart has items. Auto-flow fills top
+          to bottom and opens a new column every two items, so three controls
+          become 2x2 and four stay 2x2, with no per-case class. A fixed
+          `grid-cols-2` would reflow the wrong way as membership changed.
+
+          The refresh button dropped its `hidden sm:inline-flex`. It was hidden
+          on phones to buy the tab strip room, and stacking gives that room back
+          with interest: the cluster is two columns wide instead of three or
+          four, so even with refresh now drawn at 390px this section is
+          narrower than it was.
+
+          server-selector's own root carries the `inline-flex` UTILITY, which
+          beats `hidden` on equal specificity and stylesheet order -- so if one
+          of these ever does need hiding, it needs a wrapper, not a class.
+        -->
+        <div
+          class="header-supplementals grid shrink-0 grid-flow-col grid-rows-2 items-center gap-x-1 gap-y-0.5"
+        >
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300 bg-base-100"
+            aria-label="Refresh with launch animation"
+            title="Refresh with launch animation"
+            @click="requestFullStartupReload"
+          >
+            <Icon name="kind-icon:refresh" class="h-5 w-5" />
+          </button>
+
+          <server-selector class="header-control-item min-w-0" />
+          <maturity-toggle
+            v-if="showDashboardMaturityToggle && userStore.isLoggedIn"
+          />
+          <notification-bell class="shrink-0" />
+        </div>
+
         <login-switcher class="header-control-item min-w-0" />
 
         <!--
@@ -293,16 +337,21 @@
           the karma and mana readouts (✨3955 / ⚡709, header right) in a COLUMN
           at sm and md."
 
-          Two readouts of four or five digits are ~150px side by side, and sm/md
-          is exactly the band where the row is tightest but they are still
-          shown: below sm they are hidden outright (see above), and from lg
-          there is room for both on one line. Stacking trades horizontal space
-          the tab strip is starved of for vertical space the row already had --
-          the compact sizing in the scoped block below keeps the pair inside the
-          2.25rem the other controls stand at, so the header does not grow.
+          Two readouts of four or five digits are ~150px side by side, and
+          stacking trades horizontal space the tab strip is starved of for
+          vertical space the row already had. Below sm they are hidden outright
+          (see above).
+
+          COLUMN AT EVERY WIDTH now, where this first shipped as a column only
+          below lg. The supplementals beside it stack at all widths (Silas,
+          2026-08-10, on hierarchy rather than on space), and two adjacent
+          clusters that disagree about whether they stack is the "hodgepodge
+          that doesn't agree on layout" this stage exists to stop -- at 1024px
+          the old rule put a two-row cluster next to a one-row one for no reason
+          a reader could see.
         -->
         <div
-          class="header-readouts hidden shrink-0 flex-col items-stretch gap-0.5 sm:flex lg:flex-row lg:items-center lg:gap-1.5"
+          class="header-readouts hidden shrink-0 flex-col items-stretch gap-0.5 sm:flex"
         >
           <karma-widget class="shrink-0" />
           <mana-widget class="shrink-0" />
@@ -814,57 +863,127 @@ function goBack(): void {
 }
 
 /*
- * THE STACKED READOUTS MUST NOT GROW THE ROW.
+ * NEITHER STACKED CLUSTER MAY GROW THE ROW.
  *
- * Karma and mana are `.btn`s, and the strip rules above stand every .btn at
- * 2.25rem. Two of those stacked is 4.5rem in a row whose other controls are
- * 2.25rem — the header would grow by half its height at exactly the two
- * breakpoints this stage is trying to give space back at, which is the
- * opposite of the point.
+ * Karma, mana and the three supplementals are all `.btn`s, and the strip rules
+ * above stand every .btn at 2.25rem. Two of those stacked is 4.5rem in a row
+ * whose other controls are 2.25rem — the header would grow by half its height
+ * to save horizontal space, which is a trade nobody asked for.
  *
- * 1.125rem each plus the 0.125rem `gap-0.5` is 2.375rem, so the pair stands
- * within a rounding error of everything beside it. The emoji needs its own
- * rule: karma-widget and mana-widget carry `text-lg` (18px) on the glyph
- * span, which alone would set the line box taller than the button.
+ * 1.125rem each plus the 0.125rem `gap-*-0.5` is 2.375rem, so a stacked pair
+ * stands within a rounding error of the avatar beside it.
  *
- * Bounded at max-width 1023.98px to match the `lg:flex-row` on the wrapper —
- * from lg the pair is a row again and wants the ordinary control sizing back.
- * The selectors carry `.karma-widget`/`.mana-widget` to outrank the strip's
+ * NO LONGER BOUNDED BY A MEDIA QUERY. The first version capped this at
+ * max-width 1023.98px to match a `lg:flex-row` that no longer exists: both
+ * clusters now stack at every width, because Silas's reason was hierarchy
+ * ("they are supplementals, login-manager is the one worthy of being full
+ * sized"), not screen size. Half-height controls next to a full-size avatar
+ * say which is which without a label, and that reading should not evaporate
+ * at 1024px.
+ *
+ * The selectors name the widget class as well as `.btn` to outrank the strip's
  * own two-class rule for the same buttons; equal specificity would leave this
  * decided by source order, which is too fragile to rely on.
  */
-@media (max-width: 1023.98px) {
-  /*
-   * The widget ROOTS, not just their buttons. Each widget is a block <div>
-   * wrapping an inline-flex .btn, so the div gets a line box and the line box
-   * reserves descender space under the button -- 6px per widget, measured, for
-   * a glyph nothing renders. That put the stack at 50px while the buttons
-   * inside it were the 18px asked for below. Making the wrapper a flex
-   * container removes the line box, so the div hugs the button and the pair
-   * comes out at the 2.375rem this block is sized for.
-   */
-  .header-readouts :deep(.karma-widget),
-  .header-readouts :deep(.mana-widget) {
-    display: flex;
-  }
 
+/*
+ * The widget ROOTS, not just their buttons. Each widget is a block <div>
+ * wrapping an inline-flex .btn, so the div gets a line box and the line box
+ * reserves descender space under the button -- 6px per widget, measured, for a
+ * glyph nothing renders. That put the readout stack at 50px while the buttons
+ * inside it were the 18px asked for below. Making the wrapper a flex container
+ * removes the line box, so the div hugs the button.
+ */
+.header-readouts :deep(.karma-widget),
+.header-readouts :deep(.mana-widget),
+.header-supplementals :deep(.server-selector),
+.header-supplementals > :deep(div) {
+  display: flex;
+  align-items: center;
+}
+
+.header-readouts :deep(.karma-widget .btn),
+.header-readouts :deep(.mana-widget .btn) {
+  height: 1.125rem;
+  min-height: 1.125rem;
+  width: auto;
+  min-width: 0;
+  padding: 0 0.375rem;
+  font-size: 0.6875rem;
+  line-height: 1;
+  gap: 0.1875rem;
+  border-radius: 0.5rem;
+}
+
+.header-readouts :deep(.karma-icon),
+.header-readouts :deep(.mana-icon) {
+  font-size: 0.8125rem;
+  line-height: 1;
+}
+
+/*
+ * The supplementals are icon-only and square, so they take the same height but
+ * keep a 1:1 box rather than growing to fit a number. `!important` is absent on
+ * purpose — the `#kr-header-actions` rule above is the only ID selector in this
+ * block, and these three-class selectors clear the strip's two-class defaults
+ * on their own.
+ *
+ * The icon needs its own rule: server-selector draws at h-6 w-6 (24px) and the
+ * refresh button at h-5 w-5 (20px), either of which would overflow an 18px box
+ * and force the button taller than the height set here.
+ */
+/*
+ * THE DOUBLED CLASS IS LOAD-BEARING, not a typo.
+ *
+ * `.header-supplementals .btn` and the strip's own `.header-control-strip .btn`
+ * are the SAME specificity once scoped, so which one wins is decided purely by
+ * where each sits in this file -- and the strip has a second copy of its rule
+ * inside an `@media (min-width: 1280px)` block further down. At xl that later
+ * copy won, stood these buttons at 2.75rem, and pushed a 90px cluster through a
+ * 77px header. Measured, not theorised.
+ *
+ * The readout rules above never hit this because they name `.karma-widget` as
+ * well as `.btn`, which is one class more. There is no equivalent class to name
+ * here -- server-selector, notification-bell and maturity-toggle share nothing
+ * -- so repeating the parent selector buys the same extra weight without
+ * reaching into three child components or depending on source order, which the
+ * note above already says is too fragile to rely on.
+ */
+.header-supplementals.header-supplementals :deep(.btn) {
+  height: 1.125rem;
+  min-height: 1.125rem;
+  width: 1.125rem;
+  min-width: 1.125rem;
+  padding: 0;
+  border-radius: 0.5rem;
+}
+
+.header-supplementals.header-supplementals :deep(.btn svg),
+.header-supplementals.header-supplementals :deep(.btn .iconify) {
+  height: 0.8125rem;
+  width: 0.8125rem;
+}
+
+@media (min-width: 1280px) {
   .header-readouts :deep(.karma-widget .btn),
   .header-readouts :deep(.mana-widget .btn) {
-    height: 1.125rem;
-    min-height: 1.125rem;
+    height: 1.375rem;
+    min-height: 1.375rem;
     width: auto;
-    min-width: 0;
-    padding: 0 0.375rem;
-    font-size: 0.6875rem;
-    line-height: 1;
-    gap: 0.1875rem;
-    border-radius: 0.5rem;
+    font-size: 0.75rem;
   }
 
-  .header-readouts :deep(.karma-icon),
-  .header-readouts :deep(.mana-icon) {
-    font-size: 0.8125rem;
-    line-height: 1;
+  .header-supplementals.header-supplementals :deep(.btn) {
+    height: 1.375rem;
+    min-height: 1.375rem;
+    width: 1.375rem;
+    min-width: 1.375rem;
+  }
+
+  .header-supplementals.header-supplementals :deep(.btn svg),
+  .header-supplementals.header-supplementals :deep(.btn .iconify) {
+    height: 0.9375rem;
+    width: 0.9375rem;
   }
 }
 

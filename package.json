@@ -77,6 +77,7 @@
     "test:channel-content": "tsx utils/scripts/verifyChannelContent.ts",
     "test:gallery-adoption": "tsx utils/scripts/verifyGalleryAdoption.ts",
     "test:gallery-consistency": "tsx utils/scripts/verifyGalleryConsistency.ts",
+    "test:disabled-affordances": "tsx utils/scripts/verifyDisabledAffordances.ts",
     "test:route-gallery-contract": "tsx utils/scripts/verifyRouteGalleryContract.ts",
     "test:route-gallery-contract:self": "tsx utils/scripts/verifyRouteGalleryContract.ts --self-test",
     "test:component-reachability": "tsx utils/scripts/verifyComponentReachability.ts",

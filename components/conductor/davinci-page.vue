@@ -113,6 +113,15 @@
                 {{ chapterCount }}
               </template>
             </p>
+            <button
+              type="button"
+              class="btn btn-ghost btn-xs gap-1 rounded-lg text-base-content/40 normal-case hover:text-error"
+              :disabled="submitting"
+              @click="abandonRun"
+            >
+              <Icon name="kind-icon:close" class="size-3.5" />
+              Abandon this life
+            </button>
           </div>
 
           <div class="grid grid-cols-5 gap-2 sm:grid-cols-10">
@@ -782,6 +791,20 @@ function playAgain() {
   narrationError.value = ''
   aiChapter.value = null
   phase.value = 'start'
+}
+
+// The only way to leave an in-progress run used to be manually clearing
+// STORAGE_KEY from localStorage — never exposed in the UI. This gives players
+// a real exit before MIN_CHAPTERS_BEFORE_ENDING, gated behind a confirm since
+// it discards real progress. Reuses playAgain()'s reset logic rather than
+// duplicating it.
+function abandonRun() {
+  if (submitting.value) return
+  const confirmed = window.confirm(
+    'Abandon this life and start over? This discards your progress so far.',
+  )
+  if (!confirmed) return
+  playAgain()
 }
 
 onMounted(() => {

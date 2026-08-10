@@ -1,0 +1,53 @@
+name: Brainstorm Generation Contract
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/brainstorm-generation-contract.yml'
+      - 'server/api/brainstorm/**'
+      - 'server/utils/brainstorm/**'
+      - 'server/utils/suggest/suggestProviders.ts'
+      - 'server/api/suggest.post.ts'
+      - 'types/brainstorm.ts'
+      - 'utils/scripts/verifyBrainstormGeneration.ts'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/brainstorm-generation-contract.yml'
+      - 'server/api/brainstorm/**'
+      - 'server/utils/brainstorm/**'
+      - 'server/utils/suggest/suggestProviders.ts'
+      - 'server/api/suggest.post.ts'
+      - 'types/brainstorm.ts'
+      - 'utils/scripts/verifyBrainstormGeneration.ts'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: brainstorm-generation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    name: Structured provider contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Verify Brainstorm generation contract
+        run: npx tsx utils/scripts/verifyBrainstormGeneration.ts

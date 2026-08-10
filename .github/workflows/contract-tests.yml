@@ -328,6 +328,12 @@ jobs:
       - name: Model Builder run-writable guard contract
         run: npm run test:model-builder-run-writable-guard
 
+      - name: Model Builder open-run identity guard checker self-test
+        run: npm run test:model-builder-open-run-identity-guard-selftest
+
+      - name: Model Builder open-run identity guard contract
+        run: npm run test:model-builder-open-run-identity-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

@@ -58,7 +58,7 @@
             id="brainstorm-count"
             v-model.number="resultCountModel"
             type="number"
-            :min="BRAINSTORM_MIN_RESULTS"
+            :min="minimumMixResults"
             :max="BRAINSTORM_MAX_RESULTS"
             class="input input-bordered mt-1 w-24 bg-base-100 font-bold"
             :disabled="isGenerating"
@@ -107,6 +107,111 @@
           {{ activeCreativeDirection.description }}
         </p>
       </div>
+
+      <details
+        class="mt-4 rounded-2xl border border-base-content/10 bg-base-200/45 p-3"
+        data-testid="brainstorm-response-mix"
+      >
+        <summary class="cursor-pointer select-none text-sm font-bold text-base-content/75">
+          Response mix
+          <span class="ml-2 font-normal text-base-content/45">{{ responseMixSummary }}</span>
+        </summary>
+
+        <div class="mt-4 flex flex-wrap gap-2" role="group" aria-label="Batch shape">
+          <button
+            type="button"
+            class="btn btn-sm rounded-full"
+            :class="batchShape === 'focused' ? 'btn-primary' : 'btn-ghost border border-base-content/10 bg-base-100'"
+            :aria-pressed="batchShape === 'focused'"
+            :disabled="isGenerating"
+            data-testid="brainstorm-shape-focused"
+            @click="store.setBatchShape('focused')"
+          >
+            Focused
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm rounded-full"
+            :class="batchShape === 'assortment' ? 'btn-primary' : 'btn-ghost border border-base-content/10 bg-base-100'"
+            :aria-pressed="batchShape === 'assortment'"
+            :disabled="isGenerating"
+            data-testid="brainstorm-shape-assortment"
+            @click="store.setBatchShape('assortment')"
+          >
+            Assortment
+          </button>
+        </div>
+
+        <p class="mt-2 max-w-3xl text-xs leading-5 text-base-content/55">
+          <template v-if="batchShape === 'focused'">
+            Keep one coherent response family while the ideas themselves diverge.
+          </template>
+          <template v-else-if="returnTypes.length === 0">
+            Adaptive assortment: Brainstorm chooses several response lenses that fit the premise.
+          </template>
+          <template v-else>
+            Selected lenses appear at least once. Leave a count blank for Auto, or pin an exact quota.
+          </template>
+        </p>
+
+        <div
+          v-if="batchShape === 'assortment'"
+          class="mt-4 grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-3"
+          data-testid="brainstorm-return-types"
+        >
+          <div
+            v-for="option in BRAINSTORM_RETURN_TYPES"
+            :key="option.id"
+            class="rounded-2xl border p-3"
+            :class="returnTypeSelected(option.id) ? 'border-secondary/35 bg-secondary/8' : 'border-base-content/10 bg-base-100/70'"
+          >
+            <label class="flex cursor-pointer items-start gap-3">
+              <input
+                type="checkbox"
+                class="checkbox checkbox-secondary checkbox-sm mt-0.5"
+                :checked="returnTypeSelected(option.id)"
+                :disabled="isGenerating"
+                :data-testid="`brainstorm-return-type-${option.id}`"
+                @change="store.toggleReturnType(option.id)"
+              />
+              <span class="min-w-0">
+                <span class="block text-sm font-black text-base-content">{{ option.label }}</span>
+                <span class="mt-1 block text-xs leading-5 text-base-content/55">{{ option.description }}</span>
+              </span>
+            </label>
+
+            <div
+              v-if="returnTypeSelected(option.id)"
+              class="mt-3 flex flex-wrap items-center gap-2 border-t border-base-content/8 pt-3"
+            >
+              <label :for="`brainstorm-return-count-${option.id}`" class="text-xs font-bold text-base-content/55">
+                How many?
+              </label>
+              <input
+                :id="`brainstorm-return-count-${option.id}`"
+                type="number"
+                min="1"
+                :max="BRAINSTORM_MAX_RESULTS"
+                :value="returnTypeCount(option.id) ?? ''"
+                placeholder="Auto"
+                class="input input-bordered input-sm w-24 bg-base-100"
+                :disabled="isGenerating"
+                @input="updateReturnTypeCount(option.id, $event)"
+              />
+              <span class="text-xs text-base-content/45">
+                {{ returnTypeCount(option.id) ? 'pinned' : 'Auto' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <p
+          v-if="batchShape === 'assortment' && returnTypes.length"
+          class="mt-3 text-xs leading-5 text-base-content/45"
+        >
+          Pinned quotas plus one slot for each Auto lens require at least {{ minimumMixResults }} ideas. Extra slots stay flexible.
+        </p>
+      </details>
 
       <details class="mt-4 rounded-2xl border border-base-content/10 bg-base-200/45 p-3">
         <summary class="cursor-pointer select-none text-sm font-bold text-base-content/75">
@@ -267,8 +372,9 @@ import { computed, onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import {
   BRAINSTORM_MAX_RESULTS,
-  BRAINSTORM_MIN_RESULTS,
+  BRAINSTORM_RETURN_TYPES,
 } from '@/types/brainstorm'
+import type { BrainstormReturnTypeId } from '@/types/brainstorm'
 import { useBrainstormStore } from '@/stores/brainstormStore'
 
 const creativeDirections = [
@@ -321,6 +427,7 @@ const starterPremises = [
     premise:
       'Invent ten terrible ice cream flavors. Each should have an actual comic premise, not just a random gross ingredient.',
     mode: 'darker-funnier',
+    batchShape: 'assortment',
   },
   {
     label: 'Useful weirdness',
@@ -328,6 +435,7 @@ const starterPremises = [
     premise:
       'Give me eight genuinely different ways to make waiting in a long line more fun without using phones or spending much money.',
     mode: 'different-angle',
+    batchShape: 'focused',
   },
   {
     label: 'Cartoon peril',
@@ -335,6 +443,7 @@ const starterPremises = [
     premise:
       'Invent eight family-friendly comedy premises involving ridiculous cartoon peril. Find the joke instead of merely listing accidents.',
     mode: 'darker-funnier',
+    batchShape: 'assortment',
   },
   {
     label: 'Visual directions',
@@ -342,6 +451,7 @@ const starterPremises = [
     premise:
       'Give me eight visually distinct portrait concepts for a clockwork librarian who is terrified of overdue books.',
     mode: 'stranger',
+    batchShape: 'focused',
   },
 ] as const
 
@@ -352,11 +462,14 @@ const {
   constraints,
   examples,
   mode,
+  batchShape,
+  returnTypes,
   activeCandidates,
   keptCandidates,
   rejectedCandidates,
   batches,
   activeBatchId,
+  minimumMixResults,
   isGenerating,
   canGenerate,
   generationError,
@@ -392,6 +505,13 @@ const activeCreativeDirection = computed(
   () => creativeDirections.find((direction) => direction.id === mode.value) || creativeDirections[0],
 )
 
+const responseMixSummary = computed(() => {
+  if (batchShape.value === 'focused') return 'Focused'
+  if (!returnTypes.value.length) return 'Assortment · adaptive'
+  const pinned = returnTypes.value.filter((entry) => entry.count).length
+  return `Assortment · ${returnTypes.value.length} lens${returnTypes.value.length === 1 ? '' : 'es'}${pinned ? ` · ${pinned} pinned` : ''}`
+})
+
 const isBatchGenerating = computed(
   () => isGenerating.value && !generationTargetId.value,
 )
@@ -421,9 +541,23 @@ onMounted(() => {
   store.initializeSession()
 })
 
+function returnTypeSelected(id: BrainstormReturnTypeId): boolean {
+  return returnTypes.value.some((entry) => entry.id === id)
+}
+
+function returnTypeCount(id: BrainstormReturnTypeId): number | null {
+  return returnTypes.value.find((entry) => entry.id === id)?.count ?? null
+}
+
+function updateReturnTypeCount(id: BrainstormReturnTypeId, event: Event): void {
+  const value = (event.target as HTMLInputElement).value
+  store.setReturnTypeCount(id, value ? Number(value) : null)
+}
+
 function applyStarter(starter: (typeof starterPremises)[number]): void {
   store.setPremise(starter.premise)
   store.setMode(starter.mode)
+  store.setBatchShape(starter.batchShape)
 }
 
 function candidateBusyAction(candidateId: string): 'regenerate' | 'branch' | null {

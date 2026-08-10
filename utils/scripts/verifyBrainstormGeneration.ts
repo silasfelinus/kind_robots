@@ -5,7 +5,10 @@ import {
   normalizeBrainstormCandidates,
   parseBrainstormProviderOutput,
 } from '../../server/utils/brainstorm/brainstormParser'
-import { buildBrainstormPrompts } from '../../server/utils/brainstorm/brainstormPrompt'
+import {
+  brainstormJsonSchema,
+  buildBrainstormPrompts,
+} from '../../server/utils/brainstorm/brainstormPrompt'
 import { brainstormProviderApiKey } from '../../server/utils/brainstorm/brainstormProvider'
 import { deriveSuggestProvider } from '../../server/utils/suggest/suggestProviders'
 
@@ -82,7 +85,10 @@ const prompts = buildBrainstormPrompts({
 assert.match(prompts.systemPrompt, /Do not confuse safe with bland/i)
 assert.match(prompts.systemPrompt, /Random weird nouns are not a substitute for a joke/i)
 assert.match(prompts.systemPrompt, /corporate naming sludge/i)
+assert.match(prompts.systemPrompt, /dark-humor/i)
+assert.match(prompts.systemPrompt, /dad-joke/i)
 assert.match(prompts.userPrompt, /Pralines and Glass/)
+assert.match(prompts.userPrompt, /Batch shape: FOCUSED/)
 assert.doesNotMatch(prompts.userPrompt, /Creative direction:/)
 assert.doesNotMatch(prompts.systemPrompt, /Haunted Fitness Tracker|Misfortune Cookies/i)
 assert.doesNotMatch(prompts.userPrompt, /Haunted Fitness Tracker|Misfortune Cookies/i)
@@ -127,10 +133,119 @@ assert.match(
   'unknown direction text should remain usable as a future/custom creative instruction',
 )
 
+const adaptiveAssortment = buildBrainstormPrompts({
+  premise: 'Invent bad ice cream flavors',
+  count: 6,
+  mode: 'darker-funnier',
+  batchShape: 'assortment',
+  returnTypes: [],
+  source: null,
+})
+assert.match(adaptiveAssortment.userPrompt, /Batch shape: ASSORTMENT/)
+assert.match(adaptiveAssortment.userPrompt, /at least 3 distinct returnType labels/i)
+assert.match(adaptiveAssortment.userPrompt, /fit the actual premise/i)
+
+const selectedAssortment = buildBrainstormPrompts({
+  premise: 'Give me several ways to answer this joke premise',
+  count: 6,
+  mode: 'freeform',
+  batchShape: 'assortment',
+  returnTypes: [
+    { id: 'dark-humor', count: 2 },
+    { id: 'dry-observation', count: 2 },
+    { id: 'pun' },
+  ],
+  source: null,
+})
+assert.match(selectedAssortment.userPrompt, /Dark humor ×2/)
+assert.match(selectedAssortment.userPrompt, /Dry observation ×2/)
+assert.match(selectedAssortment.userPrompt, /Auto lenses: Pun \/ wordplay/)
+assert.match(selectedAssortment.userPrompt, /1 remaining wildcard slot/)
+
+const validSelectedMix = normalizeBrainstormCandidates(
+  {
+    candidates: [
+      { title: 'D1', text: 'A dark mechanism with enough detail to remain distinct.', returnType: 'dark-humor' },
+      { title: 'D2', text: 'Another darker premise using a completely different comic mechanism.', returnType: 'dark-humor' },
+      { title: 'Dry1', text: 'An underplayed observation about the premise and its mundane consequence.', returnType: 'dry-observation' },
+      { title: 'Dry2', text: 'A second deadpan angle that notices a different social detail entirely.', returnType: 'dry-observation' },
+      { title: 'Pun', text: 'A language-driven answer whose wordplay changes the premise itself.', returnType: 'pun' },
+      { title: 'Wild', text: 'A surprising inversion that attacks the setup from the opposite incentive.', returnType: 'inversion' },
+    ],
+  },
+  6,
+  {
+    batchShape: 'assortment',
+    returnTypes: [
+      { id: 'dark-humor', count: 2 },
+      { id: 'dry-observation', count: 2 },
+      { id: 'pun' },
+    ],
+  },
+)
+assert.equal(validSelectedMix?.length, 6)
+
+assert.equal(
+  normalizeBrainstormCandidates(
+    {
+      candidates: [
+        { title: 'D1', text: 'A dark response built from mechanism number one.', returnType: 'dark-humor' },
+        { title: 'Dry1', text: 'A dry response built from a different observation.', returnType: 'dry-observation' },
+        { title: 'Dry2', text: 'Another dry response centered on a separate social consequence.', returnType: 'dry-observation' },
+        { title: 'Pun', text: 'A pun that turns the key noun into a useful double meaning.', returnType: 'pun' },
+        { title: 'Wild1', text: 'A left-field answer that changes who benefits from the setup.', returnType: 'left-field' },
+        { title: 'Wild2', text: 'An inversion that makes the expected victim responsible for the rule.', returnType: 'inversion' },
+      ],
+    },
+    6,
+    {
+      batchShape: 'assortment',
+      returnTypes: [
+        { id: 'dark-humor', count: 2 },
+        { id: 'dry-observation', count: 2 },
+        { id: 'pun' },
+      ],
+    },
+  ),
+  null,
+  'a pinned quota must be exact, not merely suggested',
+)
+
+assert.equal(
+  normalizeBrainstormCandidates(
+    {
+      candidates: [
+        { title: 'A', text: 'First adaptive angle with a distinct mechanism and consequence.', returnType: 'dry-observation' },
+        { title: 'B', text: 'Second adaptive angle that uses an unrelated practical mechanism.', returnType: 'dry-observation' },
+        { title: 'C', text: 'Third adaptive angle that still uses yet another observational frame.', returnType: 'dry-observation' },
+      ],
+    },
+    3,
+    { batchShape: 'assortment', returnTypes: [] },
+  ),
+  null,
+  'adaptive assortment must actually diversify response lenses',
+)
+
+const schema = brainstormJsonSchema(4) as {
+  properties?: {
+    candidates?: {
+      items?: {
+        properties?: Record<string, unknown>
+        required?: string[]
+      }
+    }
+  }
+}
+assert.ok(schema.properties?.candidates?.items?.properties?.returnType)
+assert.ok(schema.properties?.candidates?.items?.required?.includes('returnType'))
+
 const replacement = buildBrainstormPrompts({
   premise: 'Invent stage deaths for a cartoonish improv game',
   count: 1,
   mode: 'freeform',
+  batchShape: 'assortment',
+  returnTypes: [{ id: 'dark-humor', count: 1 }],
   source: null,
   replaceCandidateId: 'candidate-1',
   referenceCandidate: {
@@ -140,12 +255,15 @@ const replacement = buildBrainstormPrompts({
   feedback: 'Too familiar. Find a stranger mechanism.',
 })
 assert.match(replacement.userPrompt, /Replacement task:/)
+assert.match(replacement.userPrompt, /Dark humor ×1/)
 assert.match(replacement.userPrompt, /Too familiar\. Find a stranger mechanism\./)
 
 const branch = buildBrainstormPrompts({
   premise: 'Invent stage deaths for a cartoonish improv game',
   count: 1,
   mode: 'freeform',
+  batchShape: 'assortment',
+  returnTypes: [{ id: 'dark-humor', count: 1 }],
   source: null,
   parentCandidateId: 'candidate-1',
   referenceCandidate: {
@@ -209,8 +327,9 @@ assert.match(endpoint, /canReadServer\(server, viewer\)/)
 assert.match(endpoint, /assertBackendProviderAccess\(provider, server, viewer\)/)
 assert.match(endpoint, /\['BROWSER', 'TAILSCALE', 'LOCAL'\]/)
 assert.match(endpoint, /!server\.isPublic &&[\s\S]*?!server\.isOfficial &&[\s\S]*?!server\.isDefault/)
+assert.match(endpoint, /normalizedReturnTypes\(body\.returnTypes, batchShape, count\)/)
 assert.match(endpoint, /manaGate\(event/)
-assert.match(endpoint, /parseBrainstormProviderOutput\(raw, request\.count\)/)
+assert.match(endpoint, /parseBrainstormProviderOutput\(raw, request\.count, request\)/)
 assert.match(endpoint, /errorHandler\(error\)/)
 assert.doesNotMatch(endpoint, /body\.server\?\.baseUrl/)
 assert.doesNotMatch(endpoint, /body\.server\?\.endpointPath/)

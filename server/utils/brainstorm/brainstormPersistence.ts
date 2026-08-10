@@ -9,6 +9,7 @@ import type {
   BrainstormBatchShape,
   BrainstormCandidate,
   BrainstormCandidateRevision,
+  BrainstormGenerateRequest,
   BrainstormReturnTypeId,
   BrainstormReturnTypeRequest,
   BrainstormSavedSession,
@@ -155,7 +156,11 @@ function normalizeSource(value: unknown): BrainstormSourceRef | null {
 function normalizeRevision(value: unknown): BrainstormCandidateRevision | null {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null
   const record = value as Record<string, unknown>
-  const revisionText = requiredText(record.text, 'candidate revision text', MAX_TEXT_LENGTH)
+  const revisionText = requiredText(
+    record.text,
+    'candidate revision text',
+    MAX_TEXT_LENGTH,
+  )
   const reason = typeof record.reason === 'string' ? record.reason.trim() : ''
   if (!REVISION_REASONS.has(reason)) return null
   const title = optionalText(record.title, 120)
@@ -168,7 +173,7 @@ function normalizeRevision(value: unknown): BrainstormCandidateRevision | null {
   }
 }
 
-function normalizeCandidate(value: unknown, position: number): BrainstormCandidate {
+function normalizeCandidate(value: unknown): BrainstormCandidate {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     badRequest('Every saved Brainstorm candidate must be an object.')
   }
@@ -177,7 +182,9 @@ function normalizeCandidate(value: unknown, position: number): BrainstormCandida
   const batchId = requiredText(record.batchId, 'candidate batch id', 200)
   const candidateText = requiredText(record.text, 'candidate text', MAX_TEXT_LENGTH)
   const status = typeof record.status === 'string' ? record.status.trim() : 'pending'
-  if (!CANDIDATE_STATUSES.has(status)) badRequest(`Candidate ${id} has an invalid status.`)
+  if (!CANDIDATE_STATUSES.has(status)) {
+    badRequest(`Candidate ${id} has an invalid status.`)
+  }
 
   const rawRevisions = Array.isArray(record.revisions)
     ? record.revisions.slice(0, MAX_REVISIONS_PER_CANDIDATE)
@@ -220,15 +227,60 @@ function normalizeCandidate(value: unknown, position: number): BrainstormCandida
     parentId: parentId || null,
     revisions: normalizedRevisions,
     meta,
-    // position is intentionally consumed by candidateCreateData; it is not part
-    // of the public candidate contract.
-    ...({ __position: position } as never),
+  }
+}
+
+function normalizeGenerateRequest(value: unknown): BrainstormGenerateRequest {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return { premise: '', count: BRAINSTORM_MIN_RESULTS }
+  }
+  const record = value as Record<string, unknown>
+  const count = Number(record.count)
+  const normalizedCount =
+    Number.isInteger(count) && count >= BRAINSTORM_MIN_RESULTS && count <= BRAINSTORM_MAX_RESULTS
+      ? count
+      : BRAINSTORM_MIN_RESULTS
+
+  return {
+    premise: optionalText(record.premise, MAX_PREMISE_LENGTH),
+    count: normalizedCount,
+    constraints: optionalText(record.constraints, MAX_CONSTRAINT_LENGTH),
+    examples: normalizeExamples(record.examples),
+    mode: optionalText(record.mode, 80) || 'freeform',
+    batchShape: record.batchShape === 'assortment' ? 'assortment' : 'focused',
+    returnTypes: normalizeReturnTypes(record.returnTypes),
+    source: normalizeSource(record.source),
+  }
+}
+
+function normalizeBatch(value: unknown): BrainstormBatch | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+  const record = value as Record<string, unknown>
+  const id = optionalText(record.id, 200)
+  const premise = optionalText(record.premise, MAX_PREMISE_LENGTH)
+  const candidateIds = Array.isArray(record.candidateIds)
+    ? record.candidateIds
+        .map((candidateId) => optionalText(candidateId, 200))
+        .filter(Boolean)
+        .slice(0, MAX_CANDIDATES)
+    : []
+  if (!id || !premise || candidateIds.length === 0) return null
+
+  return {
+    id,
+    createdAt: dateIso(record.createdAt),
+    premise,
+    request: normalizeGenerateRequest(record.request),
+    candidateIds,
   }
 }
 
 function normalizeBatches(value: unknown): BrainstormBatch[] {
   if (!Array.isArray(value)) return []
-  const batches = value.slice(0, MAX_BATCHES) as BrainstormBatch[]
+  const batches = value
+    .slice(0, MAX_BATCHES)
+    .map((batch) => normalizeBatch(batch))
+    .filter((batch): batch is BrainstormBatch => Boolean(batch))
   const serialized = JSON.stringify(batches)
   if (serialized.length > MAX_SERIALIZED_BATCHES) {
     badRequest('Brainstorm batch history is too large to save in one session.')
@@ -249,7 +301,9 @@ function normalizeSnapshot(value: unknown): BrainstormSessionSnapshot {
     rawCount < BRAINSTORM_MIN_RESULTS ||
     rawCount > BRAINSTORM_MAX_RESULTS
   ) {
-    badRequest(`Brainstorm result count must be ${BRAINSTORM_MIN_RESULTS}-${BRAINSTORM_MAX_RESULTS}.`)
+    badRequest(
+      `Brainstorm result count must be ${BRAINSTORM_MIN_RESULTS}-${BRAINSTORM_MAX_RESULTS}.`,
+    )
   }
 
   const rawCandidates = Array.isArray(record.candidates)
@@ -258,12 +312,26 @@ function normalizeSnapshot(value: unknown): BrainstormSessionSnapshot {
   if (Array.isArray(record.candidates) && record.candidates.length > MAX_CANDIDATES) {
     badRequest(`A Brainstorm session can save at most ${MAX_CANDIDATES} candidates.`)
   }
-  const candidates = rawCandidates.map((candidate, index) => normalizeCandidate(candidate, index))
+  const candidates = rawCandidates.map((candidate) => normalizeCandidate(candidate))
   const ids = new Set(candidates.map((candidate) => candidate.id))
-  if (ids.size !== candidates.length) badRequest('Brainstorm candidate ids must be unique within a session.')
+  if (ids.size !== candidates.length) {
+    badRequest('Brainstorm candidate ids must be unique within a session.')
+  }
+
+  const batches = normalizeBatches(record.batches)
+  const knownIds = new Set(candidates.map((candidate) => candidate.id))
+  for (const batch of batches) {
+    if (batch.candidateIds.some((candidateId) => !knownIds.has(candidateId))) {
+      badRequest(`Brainstorm batch ${batch.id} references a missing candidate.`)
+    }
+  }
 
   const batchShape: BrainstormBatchShape =
     record.batchShape === 'assortment' ? 'assortment' : 'focused'
+  const activeBatchId = optionalText(record.activeBatchId, 200) || null
+  if (activeBatchId && !batches.some((batch) => batch.id === activeBatchId)) {
+    badRequest('The active Brainstorm batch must exist in the saved batch history.')
+  }
 
   return {
     version: 1,
@@ -276,8 +344,8 @@ function normalizeSnapshot(value: unknown): BrainstormSessionSnapshot {
     returnTypes: normalizeReturnTypes(record.returnTypes),
     source: normalizeSource(record.source),
     candidates,
-    batches: normalizeBatches(record.batches),
-    activeBatchId: optionalText(record.activeBatchId, 200) || null,
+    batches,
+    activeBatchId,
     lastGeneratedAt:
       typeof record.lastGeneratedAt === 'string' && record.lastGeneratedAt.trim()
         ? dateIso(record.lastGeneratedAt)

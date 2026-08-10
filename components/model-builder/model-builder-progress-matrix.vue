@@ -118,8 +118,13 @@
                 class="inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px]"
                 :class="statusClass(item.stages[stage.key].status)"
                 :title="item.stages[stage.key].status"
+                :aria-label="`${stage.short}: ${item.stages[stage.key].status}`"
               >
-                <Icon :name="statusIcon(item.stages[stage.key].status)" class="h-3 w-3" />
+                <Icon
+                  :name="statusIcon(item.stages[stage.key].status)"
+                  class="h-3 w-3"
+                  aria-hidden="true"
+                />
               </span>
             </td>
           </tr>

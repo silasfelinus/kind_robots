@@ -5,14 +5,18 @@ import {
   setResponseStatus,
 } from 'h3'
 import type {
+  BrainstormBatchShape,
   BrainstormGeneratePayload,
   BrainstormGenerateRequest,
   BrainstormReferenceCandidate,
+  BrainstormReturnTypeId,
+  BrainstormReturnTypeRequest,
   BrainstormSourceRef,
 } from '../../../types/brainstorm'
 import {
   BRAINSTORM_MAX_RESULTS,
   BRAINSTORM_MIN_RESULTS,
+  BRAINSTORM_RETURN_TYPES,
 } from '../../../types/brainstorm'
 import { errorHandler } from '../../utils/error'
 import { manaGate } from '../../utils/manaGate'
@@ -44,6 +48,9 @@ const MAX_EXAMPLE_LENGTH = 4_000
 const MAX_EXAMPLES = 20
 const MAX_MODE_LENGTH = 80
 const MAX_FEEDBACK_LENGTH = 4_000
+const RETURN_TYPE_IDS = new Set<BrainstormReturnTypeId>(
+  BRAINSTORM_RETURN_TYPES.map((entry) => entry.id),
+)
 
 function requiredText(value: unknown, label: string, maxLength: number): string {
   const text = typeof value === 'string' ? value.trim() : ''
@@ -130,13 +137,61 @@ function normalizedReference(
   }
 }
 
+function normalizedBatchShape(value: unknown): BrainstormBatchShape {
+  return value === 'assortment' ? 'assortment' : 'focused'
+}
+
+function normalizedReturnTypes(
+  value: unknown,
+  batchShape: BrainstormBatchShape,
+  count: number,
+): BrainstormReturnTypeRequest[] {
+  if (batchShape !== 'assortment' || !Array.isArray(value)) return []
+
+  const result: BrainstormReturnTypeRequest[] = []
+  const seen = new Set<BrainstormReturnTypeId>()
+
+  for (const raw of value.slice(0, BRAINSTORM_RETURN_TYPES.length)) {
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) continue
+    const record = raw as Record<string, unknown>
+    const id = optionalText(record.id, 80) as BrainstormReturnTypeId | undefined
+    if (!id || !RETURN_TYPE_IDS.has(id) || seen.has(id)) continue
+
+    const parsedCount = Number(record.count)
+    const quota =
+      Number.isInteger(parsedCount) && parsedCount > 0
+        ? Math.min(BRAINSTORM_MAX_RESULTS, parsedCount)
+        : undefined
+    result.push({ id, ...(quota ? { count: quota } : {}) })
+    seen.add(id)
+  }
+
+  const minimumRequired = result.reduce(
+    (total, entry) => total + (entry.count ?? 1),
+    0,
+  )
+  if (minimumRequired > count) {
+    throw createError({
+      statusCode: 400,
+      message: `The selected response mix requires at least ${minimumRequired} ideas, but count is ${count}.`,
+    })
+  }
+
+  return result
+}
+
 function normalizeRequest(body: BrainstormGeneratePayload): BrainstormGenerateRequest {
+  const count = requestedCount(body.count)
+  const batchShape = normalizedBatchShape(body.batchShape)
+
   return {
     premise: requiredText(body.premise, 'premise', MAX_PREMISE_LENGTH),
-    count: requestedCount(body.count),
+    count,
     constraints: optionalText(body.constraints, MAX_CONSTRAINT_LENGTH),
     examples: normalizedExamples(body.examples),
     mode: optionalText(body.mode, MAX_MODE_LENGTH) || 'freeform',
+    batchShape,
+    returnTypes: normalizedReturnTypes(body.returnTypes, batchShape, count),
     source: normalizedSource(body.source),
     replaceCandidateId: optionalText(body.replaceCandidateId, 200) || null,
     parentCandidateId: optionalText(body.parentCandidateId, 200) || null,
@@ -181,8 +236,6 @@ function assertBackendProviderAccess(
   },
   viewer: { isAdmin?: boolean },
 ): void {
-  // First-party providers use fixed trusted URLs in brainstormProvider and do
-  // not issue requests to Server.baseUrl.
   if (provider === 'openai' || provider === 'anthropic') return
 
   const accessMode = str(server.accessMode).toUpperCase()
@@ -193,9 +246,6 @@ function assertBackendProviderAccess(
     })
   }
 
-  // Non-admin users can create private Server rows. Those rows must not turn a
-  // backend generation route into an arbitrary URL fetch primitive. Public,
-  // official, and default rows are admin-controlled configuration.
   if (
     !viewer.isAdmin &&
     !server.isPublic &&
@@ -238,9 +288,6 @@ export default defineEventHandler(async (event) => {
     const request = normalizeRequest(body)
     const serverId = requiredServerId(body)
 
-    // The browser may nominate a server id, but URLs, models, and credentials are
-    // always resolved from the canonical Server row to prevent arbitrary outbound
-    // requests or first-party secret forwarding.
     const viewer = await requireAuthUser(event)
     const server = await readServerById(serverId)
 
@@ -286,6 +333,8 @@ export default defineEventHandler(async (event) => {
       serverId: server.id,
       count: request.count,
       mode: request.mode,
+      batchShape: request.batchShape,
+      returnTypes: request.returnTypes,
       replacement: Boolean(request.replaceCandidateId),
       branch: Boolean(request.parentCandidateId),
     })
@@ -319,12 +368,12 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const parsed = parseBrainstormProviderOutput(raw, request.count)
+    const parsed = parseBrainstormProviderOutput(raw, request.count, request)
     if (!parsed) {
       throw createError({
         statusCode: 502,
         message:
-          'The selected text server returned an incomplete, duplicate, or malformed Brainstorm batch.',
+          'The selected text server returned an incomplete, duplicate, malformed, or response-mix-invalid Brainstorm batch.',
       })
     }
 

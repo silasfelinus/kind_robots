@@ -6,9 +6,11 @@ import {
   BRAINSTORM_DEFAULT_RESULTS,
   BRAINSTORM_MAX_RESULTS,
   BRAINSTORM_MIN_RESULTS,
+  BRAINSTORM_RETURN_TYPES,
 } from '@/types/brainstorm'
 import type {
   BrainstormBatch,
+  BrainstormBatchShape,
   BrainstormCandidate,
   BrainstormCandidateRevision,
   BrainstormCandidateStatus,
@@ -20,6 +22,8 @@ import type {
   BrainstormGenerateRequest,
   BrainstormGenerationState,
   BrainstormReferenceCandidate,
+  BrainstormReturnTypeId,
+  BrainstormReturnTypeRequest,
   BrainstormServerSnapshot,
   BrainstormSessionSnapshot,
   BrainstormSourceRef,
@@ -28,6 +32,9 @@ import type {
 const STORAGE_KEY = 'kindrobots:brainstorm-session:v1'
 const STORAGE_VERSION = 1 as const
 const GENERATION_TIMEOUT_MS = 60_000
+const RETURN_TYPE_IDS = new Set<BrainstormReturnTypeId>(
+  BRAINSTORM_RETURN_TYPES.map((entry) => entry.id),
+)
 
 let localIdSequence = 0
 
@@ -67,6 +74,48 @@ function clampResultCount(value: unknown): number {
   )
 }
 
+function normalizeBatchShape(value: unknown): BrainstormBatchShape {
+  return value === 'assortment' ? 'assortment' : 'focused'
+}
+
+function normalizeReturnTypeId(value: unknown): BrainstormReturnTypeId | null {
+  const id = cleanText(value) as BrainstormReturnTypeId
+  return RETURN_TYPE_IDS.has(id) ? id : null
+}
+
+function normalizeReturnTypes(value: unknown): BrainstormReturnTypeRequest[] {
+  if (!Array.isArray(value)) return []
+
+  const result: BrainstormReturnTypeRequest[] = []
+  const seen = new Set<BrainstormReturnTypeId>()
+
+  for (const raw of value) {
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) continue
+    const record = raw as Record<string, unknown>
+    const id = normalizeReturnTypeId(record.id)
+    if (!id || seen.has(id)) continue
+
+    const parsedCount = Number(record.count)
+    const count =
+      Number.isInteger(parsedCount) && parsedCount > 0
+        ? Math.min(BRAINSTORM_MAX_RESULTS, parsedCount)
+        : undefined
+
+    result.push({ id, ...(count ? { count } : {}) })
+    seen.add(id)
+  }
+
+  return result
+}
+
+function minimumResultCountForMix(entries: BrainstormReturnTypeRequest[]): number {
+  if (!entries.length) return BRAINSTORM_MIN_RESULTS
+  return Math.min(
+    BRAINSTORM_MAX_RESULTS,
+    entries.reduce((total, entry) => total + (entry.count ?? 1), 0),
+  )
+}
+
 function normalizeGeneratedCandidates(
   value: unknown,
   expectedCount: number,
@@ -82,6 +131,7 @@ function normalizeGeneratedCandidates(
     const record = raw as Record<string, unknown>
     const text = cleanMultilineText(record.text)
     const title = cleanText(record.title)
+    const returnType = normalizeReturnTypeId(record.returnType)
 
     if (!text) return null
 
@@ -92,6 +142,7 @@ function normalizeGeneratedCandidates(
     candidates.push({
       text,
       ...(title ? { title } : {}),
+      ...(returnType ? { returnType } : {}),
     })
   }
 
@@ -169,10 +220,12 @@ function normalizeStoredCandidate(value: unknown): BrainstormCandidate | null {
         .filter((revision): revision is BrainstormCandidateRevision => Boolean(revision))
     : []
 
-  const source =
-    record.meta && typeof record.meta === 'object'
-      ? normalizeSourceRef((record.meta as Record<string, unknown>).source)
-      : null
+  const meta =
+    record.meta && typeof record.meta === 'object' && !Array.isArray(record.meta)
+      ? (record.meta as Record<string, unknown>)
+      : {}
+  const source = normalizeSourceRef(meta.source)
+  const returnType = normalizeReturnTypeId(meta.returnType)
 
   return {
     id,
@@ -189,6 +242,7 @@ function normalizeStoredCandidate(value: unknown): BrainstormCandidate | null {
         : [{ title, text, createdAt: nowIso(), reason: 'generated' }],
     meta: {
       source,
+      returnType,
     },
   }
 }
@@ -217,6 +271,8 @@ function normalizeStoredBatch(value: unknown): BrainstormBatch | null {
     constraints: cleanMultilineText(requestRecord.constraints),
     examples: cleanExamples(requestRecord.examples),
     mode: cleanText(requestRecord.mode) || 'freeform',
+    batchShape: normalizeBatchShape(requestRecord.batchShape),
+    returnTypes: normalizeReturnTypes(requestRecord.returnTypes),
     source: normalizeSourceRef(requestRecord.source),
   }
 
@@ -238,6 +294,8 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
   const constraints = ref('')
   const examples = ref<string[]>([])
   const mode = ref('freeform')
+  const batchShape = ref<BrainstormBatchShape>('focused')
+  const returnTypes = ref<BrainstormReturnTypeRequest[]>([])
   const source = ref<BrainstormSourceRef | null>(null)
 
   const candidates = ref<BrainstormCandidate[]>([])
@@ -284,12 +342,21 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     activeCandidates.value.filter((candidate) => candidate.status === 'pending'),
   )
 
+  const minimumMixResults = computed(() =>
+    batchShape.value === 'assortment'
+      ? minimumResultCountForMix(returnTypes.value)
+      : BRAINSTORM_MIN_RESULTS,
+  )
+
   const isGenerating = computed(
     () => generationState.value === 'generating',
   )
 
   const canGenerate = computed(
-    () => Boolean(premise.value.trim()) && !isGenerating.value,
+    () =>
+      Boolean(premise.value.trim()) &&
+      !isGenerating.value &&
+      resultCount.value >= minimumMixResults.value,
   )
 
   function sessionSnapshot(): BrainstormSessionSnapshot {
@@ -300,6 +367,8 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
       constraints: constraints.value,
       examples: examples.value,
       mode: mode.value,
+      batchShape: batchShape.value,
+      returnTypes: returnTypes.value,
       source: source.value,
       candidates: candidates.value,
       batches: batches.value,
@@ -346,12 +415,20 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
 
       const requestedActiveBatchId = cleanText(parsed.activeBatchId)
       const fallbackActiveBatchId = restoredBatches.at(-1)?.id ?? null
+      const restoredShape = normalizeBatchShape(parsed.batchShape)
+      const restoredReturnTypes = normalizeReturnTypes(parsed.returnTypes)
+      const restoredMinimum =
+        restoredShape === 'assortment'
+          ? minimumResultCountForMix(restoredReturnTypes)
+          : BRAINSTORM_MIN_RESULTS
 
       premise.value = cleanMultilineText(parsed.premise)
-      resultCount.value = clampResultCount(parsed.resultCount)
+      resultCount.value = Math.max(clampResultCount(parsed.resultCount), restoredMinimum)
       constraints.value = cleanMultilineText(parsed.constraints)
       examples.value = cleanExamples(parsed.examples)
       mode.value = cleanText(parsed.mode) || 'freeform'
+      batchShape.value = restoredShape
+      returnTypes.value = restoredReturnTypes
       source.value = normalizeSourceRef(parsed.source)
       candidates.value = restoredCandidates
       batches.value = restoredBatches
@@ -383,12 +460,24 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     isInitialized.value = true
   }
 
+  function ensureMixFits(): void {
+    if (batchShape.value !== 'assortment') return
+    resultCount.value = Math.max(
+      clampResultCount(resultCount.value),
+      minimumResultCountForMix(returnTypes.value),
+    )
+  }
+
   function setPremise(value: string): void {
     premise.value = value
   }
 
   function setResultCount(value: number): void {
-    resultCount.value = clampResultCount(value)
+    const requested = clampResultCount(value)
+    resultCount.value =
+      batchShape.value === 'assortment'
+        ? Math.max(requested, minimumResultCountForMix(returnTypes.value))
+        : requested
   }
 
   function setConstraints(value: string): void {
@@ -405,6 +494,40 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
 
   function setMode(value: string): void {
     mode.value = cleanText(value) || 'freeform'
+  }
+
+  function setBatchShape(value: BrainstormBatchShape): void {
+    batchShape.value = value === 'assortment' ? 'assortment' : 'focused'
+    ensureMixFits()
+  }
+
+  function toggleReturnType(id: BrainstormReturnTypeId): void {
+    if (!RETURN_TYPE_IDS.has(id)) return
+    const index = returnTypes.value.findIndex((entry) => entry.id === id)
+    if (index >= 0) returnTypes.value.splice(index, 1)
+    else returnTypes.value.push({ id })
+    ensureMixFits()
+  }
+
+  function setReturnTypeCount(id: BrainstormReturnTypeId, value: number | null): void {
+    const entry = returnTypes.value.find((candidate) => candidate.id === id)
+    if (!entry) return
+
+    const parsed = Number(value)
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      delete entry.count
+      ensureMixFits()
+      return
+    }
+
+    const otherMinimum = returnTypes.value.reduce(
+      (total, candidate) =>
+        candidate.id === id ? total : total + (candidate.count ?? 1),
+      0,
+    )
+    const maxForEntry = Math.max(1, BRAINSTORM_MAX_RESULTS - otherMinimum)
+    entry.count = Math.min(maxForEntry, Math.max(1, Math.round(parsed)))
+    ensureMixFits()
   }
 
   function setSource(value: BrainstormSourceRef | null): void {
@@ -522,6 +645,7 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     const createdAt = nowIso()
     const title = cleanText(generated.title)
     const text = cleanMultilineText(generated.text)
+    const returnType = normalizeReturnTypeId(generated.returnType)
 
     return {
       id: createLocalId('candidate'),
@@ -543,6 +667,7 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
       meta: {
         source: source.value,
         intent: source.value?.intent || null,
+        returnType,
       },
     }
   }
@@ -585,6 +710,8 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     candidate.status = 'pending'
     candidate.feedback = ''
     candidate.edited = false
+    candidate.meta.returnType =
+      normalizeReturnTypeId(generated.returnType) ?? candidate.meta.returnType ?? null
     candidate.revisions.push({
       ...(title ? { title } : {}),
       text,
@@ -607,6 +734,7 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
       'branched',
       parent.id,
     )
+    if (!child.meta.returnType) child.meta.returnType = parent.meta.returnType ?? null
     candidates.value.push(child)
 
     const parentIndex = batch.candidateIds.indexOf(parent.id)
@@ -630,12 +758,15 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
       return null
     }
 
+    const shape = batchShape.value
     return {
       premise: cleanPremise,
       count: clampResultCount(resultCount.value),
       constraints: cleanMultilineText(constraints.value),
       examples: cleanExamples(examples.value),
       mode: cleanText(mode.value) || 'freeform',
+      batchShape: shape,
+      returnTypes: shape === 'assortment' ? normalizeReturnTypes(returnTypes.value) : [],
       source: source.value,
     }
   }
@@ -649,6 +780,7 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
       ...(candidate.title ? { title: candidate.title } : {}),
       text: candidate.text,
     }
+    const returnType = candidate.meta.returnType
 
     return {
       premise:
@@ -658,6 +790,8 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
         originalRequest?.constraints || cleanMultilineText(constraints.value),
       examples: originalRequest?.examples || cleanExamples(examples.value),
       mode: originalRequest?.mode || cleanText(mode.value) || 'freeform',
+      batchShape: returnType ? 'assortment' : 'focused',
+      returnTypes: returnType ? [{ id: returnType, count: 1 }] : [],
       source: originalRequest?.source ?? source.value,
       referenceCandidate,
       feedback: cleanMultilineText(candidate.feedback),
@@ -795,6 +929,8 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     constraints.value = ''
     examples.value = []
     mode.value = 'freeform'
+    batchShape.value = 'focused'
+    returnTypes.value = []
     source.value = null
     candidates.value = []
     batches.value = []
@@ -813,6 +949,8 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
         constraints: constraints.value,
         examples: examples.value,
         mode: mode.value,
+        batchShape: batchShape.value,
+        returnTypes: returnTypes.value,
         source: source.value,
         candidates: candidates.value,
         batches: batches.value,
@@ -830,6 +968,8 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     constraints,
     examples,
     mode,
+    batchShape,
+    returnTypes,
     source,
     candidates,
     batches,
@@ -844,6 +984,7 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     keptCandidates,
     rejectedCandidates,
     pendingCandidates,
+    minimumMixResults,
     isGenerating,
     canGenerate,
     initializeSession,
@@ -853,6 +994,9 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     setExamples,
     setExamplesFromText,
     setMode,
+    setBatchShape,
+    toggleReturnType,
+    setReturnTypeCount,
     setSource,
     setActiveBatch,
     clearGenerationError,

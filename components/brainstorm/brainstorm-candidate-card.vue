@@ -14,6 +14,14 @@
             {{ statusLabel }}
           </span>
           <span
+            v-if="returnTypeLabel"
+            class="rounded-full bg-accent/10 px-2.5 py-1 text-[0.68rem] font-bold text-accent"
+            :title="returnTypeDescription"
+            data-testid="brainstorm-return-type-badge"
+          >
+            {{ returnTypeLabel }}
+          </span>
+          <span
             v-if="candidate.parentId"
             class="rounded-full bg-secondary/10 px-2.5 py-1 text-[0.68rem] font-bold text-secondary"
           >
@@ -178,6 +186,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { BRAINSTORM_RETURN_TYPES } from '@/types/brainstorm'
 import type { BrainstormCandidate } from '@/types/brainstorm'
 
 const props = defineProps<{
@@ -241,6 +250,14 @@ const statusBadgeClass = computed(() => {
   if (props.candidate.status === 'rejected') return 'bg-error/12 text-error'
   return 'bg-primary/10 text-primary'
 })
+
+const returnType = computed(() =>
+  BRAINSTORM_RETURN_TYPES.find(
+    (entry) => entry.id === props.candidate.meta.returnType,
+  ),
+)
+const returnTypeLabel = computed(() => returnType.value?.label || '')
+const returnTypeDescription = computed(() => returnType.value?.description || '')
 
 function toggleKeep(): void {
   if (props.candidate.status === 'kept') emit('reset')

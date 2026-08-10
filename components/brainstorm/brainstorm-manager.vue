@@ -81,6 +81,33 @@
         </p>
       </div>
 
+      <div class="mt-4" data-testid="brainstorm-creative-directions">
+        <div class="flex flex-wrap items-baseline justify-between gap-2">
+          <p class="text-xs font-black uppercase tracking-[0.12em] text-base-content/55">
+            Push the batch
+          </p>
+          <p class="text-xs text-base-content/45">Creative moves, not model knobs.</p>
+        </div>
+        <div class="mt-2 flex flex-wrap gap-2" role="group" aria-label="Creative direction">
+          <button
+            v-for="direction in creativeDirections"
+            :key="direction.id"
+            type="button"
+            class="btn btn-sm h-auto min-h-9 rounded-full px-3 py-2"
+            :class="mode === direction.id ? 'btn-secondary' : 'btn-ghost border border-base-content/10 bg-base-100'"
+            :aria-pressed="mode === direction.id"
+            :disabled="isGenerating"
+            :data-testid="`brainstorm-direction-${direction.id}`"
+            @click="store.setMode(direction.id)"
+          >
+            {{ direction.label }}
+          </button>
+        </div>
+        <p class="mt-2 max-w-3xl text-xs leading-5 text-base-content/55">
+          {{ activeCreativeDirection.description }}
+        </p>
+      </div>
+
       <details class="mt-4 rounded-2xl border border-base-content/10 bg-base-200/45 p-3">
         <summary class="cursor-pointer select-none text-sm font-bold text-base-content/75">
           Add constraints or examples
@@ -218,6 +245,19 @@
       <p class="mx-auto mt-2 max-w-2xl text-sm leading-6 text-base-content/60">
         The blank page is currently winning. Give Brainstorm something to push against, then decide which ideas deserve to survive.
       </p>
+      <div class="mx-auto mt-5 flex max-w-4xl flex-wrap justify-center gap-2" aria-label="Brainstorm starters">
+        <button
+          v-for="starter in starterPremises"
+          :key="starter.label"
+          type="button"
+          class="btn btn-ghost btn-sm h-auto min-h-10 max-w-full whitespace-normal border border-base-content/10 bg-base-100 px-3 py-2 text-left"
+          :disabled="isGenerating"
+          @click="applyStarter(starter)"
+        >
+          <span class="font-black">{{ starter.label }}</span>
+          <span class="text-base-content/55">{{ starter.teaser }}</span>
+        </button>
+      </div>
     </div>
   </section>
 </template>
@@ -231,12 +271,87 @@ import {
 } from '@/types/brainstorm'
 import { useBrainstormStore } from '@/stores/brainstormStore'
 
+const creativeDirections = [
+  {
+    id: 'freeform',
+    label: 'Open field',
+    description: 'Follow the premise wherever the strongest distinct ideas lead.',
+  },
+  {
+    id: 'stranger',
+    label: 'Stranger',
+    description: 'Push beyond the first obvious answers without drifting into random noun soup.',
+  },
+  {
+    id: 'grounded',
+    label: 'More grounded',
+    description: 'Keep the variety, but favor ideas a human could actually use or build on.',
+  },
+  {
+    id: 'darker-funnier',
+    label: 'Darker / funnier',
+    description: 'Look for sharper comic premise, escalation, irony, cartoon peril, and darker absurdity where allowed.',
+  },
+  {
+    id: 'shorter',
+    label: 'Shorter',
+    description: 'Cut throat-clearing and explanations. Keep the strongest useful seed.',
+  },
+  {
+    id: 'different-angle',
+    label: 'Different angle',
+    description: 'Change the viewpoint, mechanism, relationship, structure, or assumption.',
+  },
+  {
+    id: 'genre-shift',
+    label: 'Genre shift',
+    description: 'Recast the premise through genuinely different creative grammars, not costume changes.',
+  },
+  {
+    id: 'invert',
+    label: 'Invert it',
+    description: 'Reverse a central assumption, role, incentive, cause, or expected outcome.',
+  },
+] as const
+
+const starterPremises = [
+  {
+    label: 'Bad ice cream',
+    teaser: 'Comic premise, not random gross nouns.',
+    premise:
+      'Invent ten terrible ice cream flavors. Each should have an actual comic premise, not just a random gross ingredient.',
+    mode: 'darker-funnier',
+  },
+  {
+    label: 'Useful weirdness',
+    teaser: 'Make an ordinary problem less ordinary.',
+    premise:
+      'Give me eight genuinely different ways to make waiting in a long line more fun without using phones or spending much money.',
+    mode: 'different-angle',
+  },
+  {
+    label: 'Cartoon peril',
+    teaser: 'Safe does not mean bland.',
+    premise:
+      'Invent eight family-friendly comedy premises involving ridiculous cartoon peril. Find the joke instead of merely listing accidents.',
+    mode: 'darker-funnier',
+  },
+  {
+    label: 'Visual directions',
+    teaser: 'Different compositions, not adjective swaps.',
+    premise:
+      'Give me eight visually distinct portrait concepts for a clockwork librarian who is terrified of overdue books.',
+    mode: 'stranger',
+  },
+] as const
+
 const store = useBrainstormStore()
 const {
   premise,
   resultCount,
   constraints,
   examples,
+  mode,
   activeCandidates,
   keptCandidates,
   rejectedCandidates,
@@ -273,6 +388,10 @@ const examplesText = computed({
   set: (value: string) => store.setExamplesFromText(value),
 })
 
+const activeCreativeDirection = computed(
+  () => creativeDirections.find((direction) => direction.id === mode.value) || creativeDirections[0],
+)
+
 const isBatchGenerating = computed(
   () => isGenerating.value && !generationTargetId.value,
 )
@@ -301,6 +420,11 @@ const errorHeading = computed(() => {
 onMounted(() => {
   store.initializeSession()
 })
+
+function applyStarter(starter: (typeof starterPremises)[number]): void {
+  store.setPremise(starter.premise)
+  store.setMode(starter.mode)
+}
 
 function candidateBusyAction(candidateId: string): 'regenerate' | 'branch' | null {
   return pendingCandidateAction.value?.id === candidateId

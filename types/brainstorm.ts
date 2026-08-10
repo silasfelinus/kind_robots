@@ -2,6 +2,57 @@ export const BRAINSTORM_MIN_RESULTS = 1
 export const BRAINSTORM_MAX_RESULTS = 24
 export const BRAINSTORM_DEFAULT_RESULTS = 8
 
+export const BRAINSTORM_RETURN_TYPES = [
+  {
+    id: 'dark-humor',
+    label: 'Dark humor',
+    description: 'Gallows humor, irony, cartoon peril, and darker comic premises where allowed.',
+  },
+  {
+    id: 'pun',
+    label: 'Pun / wordplay',
+    description: 'Language-driven ideas with an actual premise, not just a word swapped into a title.',
+  },
+  {
+    id: 'dad-joke',
+    label: 'Dad joke',
+    description: 'Earnest groaners, literal misunderstandings, and proudly obvious comic machinery.',
+  },
+  {
+    id: 'dry-observation',
+    label: 'Dry observation',
+    description: 'Underplayed, deadpan, or sharply observed responses that trust the premise.',
+  },
+  {
+    id: 'absurd-escalation',
+    label: 'Absurd escalation',
+    description: 'Take one coherent mechanism farther until the consequences become delightfully unreasonable.',
+  },
+  {
+    id: 'practical',
+    label: 'Practical',
+    description: 'Useful, buildable, or actionable answers that still avoid the obvious first draft.',
+  },
+  {
+    id: 'inversion',
+    label: 'Inversion',
+    description: 'Reverse a role, assumption, incentive, cause, or expected outcome.',
+  },
+  {
+    id: 'left-field',
+    label: 'Left field',
+    description: 'A surprising but premise-connected angle that changes the mechanism rather than adding random nouns.',
+  },
+] as const
+
+export type BrainstormReturnTypeId = (typeof BRAINSTORM_RETURN_TYPES)[number]['id']
+export type BrainstormBatchShape = 'focused' | 'assortment'
+
+export type BrainstormReturnTypeRequest = {
+  id: BrainstormReturnTypeId
+  count?: number
+}
+
 export type BrainstormCandidateStatus = 'pending' | 'kept' | 'rejected'
 
 export type BrainstormRevisionReason =
@@ -47,6 +98,7 @@ export type BrainstormCandidateArtMeta = {
 export type BrainstormCandidateMeta = {
   source?: BrainstormSourceRef | null
   intent?: string | null
+  returnType?: BrainstormReturnTypeId | null
   art?: BrainstormCandidateArtMeta
 }
 
@@ -74,6 +126,8 @@ export type BrainstormGenerateRequest = {
   constraints?: string
   examples?: string[]
   mode?: string
+  batchShape?: BrainstormBatchShape
+  returnTypes?: BrainstormReturnTypeRequest[]
   source?: BrainstormSourceRef | null
   replaceCandidateId?: string | null
   parentCandidateId?: string | null
@@ -96,6 +150,7 @@ export type BrainstormGeneratePayload = BrainstormGenerateRequest & {
 export type BrainstormGeneratedCandidate = {
   title?: string
   text: string
+  returnType?: BrainstormReturnTypeId
 }
 
 export type BrainstormGenerateData = {
@@ -123,6 +178,8 @@ export type BrainstormSessionSnapshot = {
   constraints: string
   examples: string[]
   mode: string
+  batchShape: BrainstormBatchShape
+  returnTypes: BrainstormReturnTypeRequest[]
   source: BrainstormSourceRef | null
   candidates: BrainstormCandidate[]
   batches: BrainstormBatch[]

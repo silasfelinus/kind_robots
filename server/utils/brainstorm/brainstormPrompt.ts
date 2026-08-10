@@ -106,7 +106,7 @@ function assortmentInstructions(
 
   if (wildcardSlots > 0) {
     lines.push(
-      `${wildcardSlots} remaining wildcard slot${wildcardSlots === 1 ? '' : 's'} may use any listed returnType if another lens would materially improve the batch.`,
+      `${wildcardSlots} remaining wildcard slot${wildcardSlots === 1 ? '' : 's'} may use an Auto lens again or another valid response lens if it materially improves the batch, but must never exceed a pinned quota.`,
     )
   } else {
     lines.push('The selected quotas consume the whole batch; do not introduce unselected response lenses.')

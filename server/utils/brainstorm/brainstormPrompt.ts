@@ -1,4 +1,11 @@
-import type { BrainstormGenerateRequest } from '../../../types/brainstorm'
+import {
+  BRAINSTORM_RETURN_TYPES,
+} from '../../../types/brainstorm'
+import type {
+  BrainstormGenerateRequest,
+  BrainstormReturnTypeId,
+  BrainstormReturnTypeRequest,
+} from '../../../types/brainstorm'
 
 export type BrainstormPrompts = {
   systemPrompt: string
@@ -22,6 +29,25 @@ const CREATIVE_DIRECTION_INSTRUCTIONS: Record<string, string> = {
     'Reverse a central assumption, role, incentive, cause-and-effect relationship, or expected outcome and develop the consequences into useful ideas.',
 }
 
+const RETURN_TYPE_INSTRUCTIONS: Record<BrainstormReturnTypeId, string> = {
+  'dark-humor':
+    'dark humor: gallows humor, irony, cartoon peril, or darker comic premise where allowed; never mere cruelty or shock value',
+  pun:
+    'pun / wordplay: language drives the idea, but the wordplay must create or sharpen a premise rather than merely rename a noun',
+  'dad-joke':
+    'dad joke: an earnest groaner, literal misunderstanding, obvious setup, or proudly corny mechanism that still lands as an actual joke',
+  'dry-observation':
+    'dry observation: underplayed, deadpan, or sharply observed; trust the premise instead of announcing the punchline',
+  'absurd-escalation':
+    'absurd escalation: take one coherent mechanism farther until its consequences become delightfully unreasonable',
+  practical:
+    'practical: useful, buildable, or actionable while still avoiding the most obvious first answer',
+  inversion:
+    'inversion: reverse a role, assumption, incentive, cause, or expected outcome and follow the consequences',
+  'left-field':
+    'left field: a surprising but premise-connected angle that changes the mechanism instead of adding random weird nouns',
+}
+
 function compactExamples(examples: string[] | undefined): string[] {
   return (examples || [])
     .map((example) => example.trim())
@@ -33,6 +59,63 @@ function creativeDirection(mode: string | undefined): string | null {
   const normalized = mode?.trim() || 'freeform'
   if (normalized === 'freeform') return null
   return CREATIVE_DIRECTION_INSTRUCTIONS[normalized] || normalized
+}
+
+function returnTypeLabel(id: BrainstormReturnTypeId): string {
+  return BRAINSTORM_RETURN_TYPES.find((entry) => entry.id === id)?.label || id
+}
+
+function assortmentInstructions(
+  count: number,
+  returnTypes: BrainstormReturnTypeRequest[] | undefined,
+): string[] {
+  const selected = returnTypes || []
+  if (!selected.length) {
+    return [
+      'Batch shape: ASSORTMENT.',
+      'Deliberately vary the response lenses across the batch. Choose lenses that fit the actual premise instead of forcing comedy into a practical request or practicality into a joke request.',
+      `When the premise supports comedy, available lenses include ${BRAINSTORM_RETURN_TYPES.map((entry) => entry.label).join(', ')}. For other premises, use these labels as useful creative strategies rather than compulsory joke formats.`,
+      `For ${count} candidates, use at least ${Math.min(count, 3)} distinct returnType labels when possible.`,
+    ]
+  }
+
+  const pinned = selected.filter((entry) => entry.count)
+  const automatic = selected.filter((entry) => !entry.count)
+  const pinnedTotal = pinned.reduce((total, entry) => total + (entry.count || 0), 0)
+  const minimumSelected = pinnedTotal + automatic.length
+  const wildcardSlots = Math.max(0, count - minimumSelected)
+
+  const lines = [
+    'Batch shape: ASSORTMENT with user-selected response lenses.',
+    'Each selected Auto lens must appear at least once. Each pinned count is an exact quota.',
+  ]
+
+  if (pinned.length) {
+    lines.push(
+      `Pinned quotas: ${pinned
+        .map((entry) => `${returnTypeLabel(entry.id)} ×${entry.count}`)
+        .join('; ')}.`,
+    )
+  }
+
+  if (automatic.length) {
+    lines.push(
+      `Auto lenses: ${automatic.map((entry) => returnTypeLabel(entry.id)).join(', ')}. Spread available slots among them rather than letting one dominate.`,
+    )
+  }
+
+  if (wildcardSlots > 0) {
+    lines.push(
+      `${wildcardSlots} remaining wildcard slot${wildcardSlots === 1 ? '' : 's'} may use any listed returnType if another lens would materially improve the batch.`,
+    )
+  } else {
+    lines.push('The selected quotas consume the whole batch; do not introduce unselected response lenses.')
+  }
+
+  lines.push(
+    'Response lenses must change the creative approach, not merely add a pun or adjective to the same underlying idea.',
+  )
+  return lines
 }
 
 export function buildBrainstormPrompts(
@@ -53,10 +136,16 @@ export function buildBrainstormPrompts(
     '- Respect explicit user constraints precisely.',
     '- Leave room for human development. Do not over-finish every seed into marketing copy.',
     '',
+    'RESPONSE LENSES',
+    ...BRAINSTORM_RETURN_TYPES.map(
+      (entry) => `- ${entry.id}: ${RETURN_TYPE_INSTRUCTIONS[entry.id]}.`,
+    ),
+    '',
     'OUTPUT CONTRACT',
     '- Return JSON only. No markdown fence, introduction, numbering, commentary, apology, or wrap-up.',
     '- Return one object with a "candidates" array.',
-    '- Every candidate must contain a short "title" and a useful "text" field.',
+    '- Every candidate must contain a short "title", a useful "text" field, and one valid "returnType" lens id.',
+    '- The returnType describes the candidate’s creative approach; it must not replace the title or become visible boilerplate inside the idea text.',
     '- Return exactly the requested candidate count.',
   ].join('\n')
 
@@ -73,6 +162,15 @@ export function buildBrainstormPrompts(
 
   if (direction) {
     lines.push(`Creative direction: ${direction}`)
+  }
+
+  if (request.batchShape === 'assortment') {
+    lines.push('', ...assortmentInstructions(request.count, request.returnTypes))
+  } else {
+    lines.push(
+      '',
+      'Batch shape: FOCUSED. Keep the batch coherent around the premise and selected creative direction while still making the underlying concepts materially different. Assign each candidate the closest returnType lens.',
+    )
   }
 
   if (examples.length) {
@@ -100,7 +198,7 @@ export function buildBrainstormPrompts(
   lines.push(
     '',
     'Before answering, silently compare the candidates against each other and replace obvious paraphrases or repeated mechanisms.',
-    'Return only: {"candidates":[{"title":"...","text":"..."}]}',
+    'Return only: {"candidates":[{"title":"...","text":"...","returnType":"dry-observation"}]}',
   )
 
   return {
@@ -132,8 +230,12 @@ export function brainstormJsonSchema(count: number): Record<string, unknown> {
               minLength: 1,
               maxLength: 4000,
             },
+            returnType: {
+              type: 'string',
+              enum: BRAINSTORM_RETURN_TYPES.map((entry) => entry.id),
+            },
           },
-          required: ['title', 'text'],
+          required: ['title', 'text', 'returnType'],
         },
       },
     },

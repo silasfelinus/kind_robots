@@ -105,19 +105,26 @@ export async function callBrainstormProvider(
 
 export function brainstormProviderApiKey(
   provider: SuggestProvider,
-  config: {
+  input: {
+    serverApiKey?: unknown
     anthropicApiKey?: unknown
     openaiApiKey?: unknown
   },
 ): string | undefined {
+  const serverApiKey = str(input.serverApiKey)
+
   if (provider === 'anthropic') {
-    return str(config.anthropicApiKey) || undefined
+    return serverApiKey || str(input.anthropicApiKey) || undefined
   }
 
   if (provider === 'openai') {
-    return str(config.openaiApiKey) || undefined
+    return serverApiKey || str(input.openaiApiKey) || undefined
   }
 
-  // Never forward first-party provider secrets to an arbitrary compatible URL.
+  if (provider === 'openai_compatible') {
+    // Only the canonical Server record may supply a secret for an arbitrary URL.
+    return serverApiKey || undefined
+  }
+
   return undefined
 }

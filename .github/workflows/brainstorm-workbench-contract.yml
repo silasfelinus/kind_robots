@@ -1,0 +1,47 @@
+name: Brainstorm Workbench Contract
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/brainstorm-workbench-contract.yml'
+      - 'components/brainstorm/**'
+      - 'content/brainstorm.md'
+      - 'stores/brainstormStore.ts'
+      - 'types/brainstorm.ts'
+      - 'utils/scripts/verifyBrainstormWorkbench.mjs'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/brainstorm-workbench-contract.yml'
+      - 'components/brainstorm/**'
+      - 'content/brainstorm.md'
+      - 'stores/brainstormStore.ts'
+      - 'types/brainstorm.ts'
+      - 'utils/scripts/verifyBrainstormWorkbench.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: brainstorm-workbench-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    name: Candidate-first workbench
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Verify Brainstorm workbench contract
+        run: node utils/scripts/verifyBrainstormWorkbench.mjs

@@ -27,6 +27,37 @@ const fixtureButterfly = {
 }
 
 const fixtures: Record<string, WonderLabPreviewFixture> = {
+  'brainstorm-candidate-card': {
+    title: 'Brainstorm Candidate specimen',
+    description:
+      'A synthetic pending candidate exercises the curation card without generation, persistence, or database dependencies.',
+    viewport: 'tablet',
+    minHeight: '20rem',
+    props: {
+      candidate: {
+        id: 'candidate-wonderlab-library',
+        batchId: 'batch-wonderlab',
+        title: 'The Library of Borrowed Weather',
+        text: 'A tiny public library checks out jars of weather for one afternoon at a time, with increasingly specific overdue notices.',
+        status: 'pending',
+        feedback: '',
+        edited: false,
+        parentId: null,
+        revisions: [
+          {
+            title: 'The Library of Borrowed Weather',
+            text: 'A tiny public library checks out jars of weather for one afternoon at a time, with increasingly specific overdue notices.',
+            createdAt: '2026-08-10T00:00:00.000Z',
+            reason: 'generated',
+          },
+        ],
+        meta: {},
+      },
+      disabled: false,
+      busy: false,
+      busyAction: null,
+    },
+  },
   'stage-slot': {
     title: 'Filled Stage Slot specimen',
     description:

@@ -83,8 +83,49 @@ assert.match(prompts.systemPrompt, /Do not confuse safe with bland/i)
 assert.match(prompts.systemPrompt, /Random weird nouns are not a substitute for a joke/i)
 assert.match(prompts.systemPrompt, /corporate naming sludge/i)
 assert.match(prompts.userPrompt, /Pralines and Glass/)
+assert.doesNotMatch(prompts.userPrompt, /Creative direction:/)
 assert.doesNotMatch(prompts.systemPrompt, /Haunted Fitness Tracker|Misfortune Cookies/i)
 assert.doesNotMatch(prompts.userPrompt, /Haunted Fitness Tracker|Misfortune Cookies/i)
+
+const darkerFunny = buildBrainstormPrompts({
+  premise: 'Invent family-friendly improv scenes with cartoon peril',
+  count: 6,
+  mode: 'darker-funnier',
+  source: null,
+})
+assert.match(darkerFunny.userPrompt, /sharper comic premises/i)
+assert.match(darkerFunny.userPrompt, /cartoon peril/i)
+assert.match(darkerFunny.userPrompt, /Do not substitute cruelty, shock value, or random grossness/i)
+assert.doesNotMatch(darkerFunny.userPrompt, /Creative direction: darker-funnier/)
+
+const stranger = buildBrainstormPrompts({
+  premise: 'Invent unusual uses for a waiting room',
+  count: 4,
+  mode: 'stranger',
+  source: null,
+})
+assert.match(stranger.userPrompt, /Push past the first obvious answers/i)
+assert.match(stranger.userPrompt, /staying meaningfully connected to the premise/i)
+
+const invert = buildBrainstormPrompts({
+  premise: 'Invent a school fundraiser',
+  count: 4,
+  mode: 'invert',
+  source: null,
+})
+assert.match(invert.userPrompt, /Reverse a central assumption, role, incentive/i)
+
+const customDirection = buildBrainstormPrompts({
+  premise: 'Invent tiny mysteries',
+  count: 3,
+  mode: 'Make every idea hinge on a misunderstanding.',
+  source: null,
+})
+assert.match(
+  customDirection.userPrompt,
+  /Creative direction: Make every idea hinge on a misunderstanding\./,
+  'unknown direction text should remain usable as a future/custom creative instruction',
+)
 
 const replacement = buildBrainstormPrompts({
   premise: 'Invent stage deaths for a cartoonish improv game',

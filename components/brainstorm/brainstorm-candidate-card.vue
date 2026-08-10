@@ -1,5 +1,6 @@
 <template>
   <article
+    :id="`brainstorm-candidate-${candidate.id}`"
     class="kr-panel-flat flex min-h-64 flex-col border bg-base-100/95 p-4 shadow-md transition sm:p-5"
     :class="statusClass"
     :data-candidate-id="candidate.id"
@@ -108,6 +109,87 @@
       </p>
     </div>
 
+    <details
+      v-if="candidate.meta.branchOrigin"
+      class="mt-4 rounded-2xl border border-secondary/15 bg-secondary/5 p-3"
+      data-testid="brainstorm-branch-lineage"
+    >
+      <summary class="cursor-pointer select-none text-xs font-black uppercase tracking-[0.12em] text-secondary/80">
+        Branch lineage · parent v{{ candidate.meta.branchOrigin.revisionIndex + 1 }}
+      </summary>
+      <div class="mt-3 text-xs leading-5 text-base-content/65">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="font-black text-base-content/80">
+            {{ candidate.meta.branchOrigin.title || 'Untitled parent' }}
+          </span>
+          <a
+            v-if="parentCandidate"
+            class="link link-secondary font-bold"
+            :href="`#brainstorm-candidate-${parentCandidate.id}`"
+          >
+            Jump to parent
+          </a>
+          <span v-else class="text-base-content/40">Parent no longer in this batch</span>
+        </div>
+        <p class="mt-2 max-h-24 overflow-auto whitespace-pre-wrap break-words rounded-xl bg-base-100/75 p-2">
+          {{ candidate.meta.branchOrigin.text }}
+        </p>
+      </div>
+    </details>
+
+    <details
+      v-if="candidate.revisions.length > 1"
+      class="mt-4 rounded-2xl border border-base-content/10 bg-base-200/35 p-3"
+      data-testid="brainstorm-revision-history"
+    >
+      <summary class="cursor-pointer select-none text-xs font-black uppercase tracking-[0.12em] text-base-content/60">
+        History · {{ candidate.revisions.length }} versions
+      </summary>
+      <div class="mt-3 flex flex-col gap-2">
+        <div
+          v-for="entry in revisionEntries"
+          :key="`${candidate.id}-revision-${entry.index}`"
+          class="rounded-xl border border-base-content/8 bg-base-100/80 p-3"
+        >
+          <div class="flex flex-wrap items-center gap-2 text-[0.7rem]">
+            <span class="font-black text-base-content/75">v{{ entry.index + 1 }}</span>
+            <span class="rounded-full bg-base-200 px-2 py-0.5 font-bold text-base-content/55">
+              {{ revisionReasonLabel(entry.revision.reason) }}
+            </span>
+            <span v-if="revisionReturnTypeLabel(entry.revision.returnType)" class="text-accent">
+              {{ revisionReturnTypeLabel(entry.revision.returnType) }}
+            </span>
+            <span class="text-base-content/35">{{ formatRevisionTime(entry.revision.createdAt) }}</span>
+            <span
+              v-if="entry.current"
+              class="ml-auto rounded-full bg-primary/10 px-2 py-0.5 font-black text-primary"
+            >
+              current
+            </span>
+          </div>
+          <p v-if="entry.revision.title" class="mt-2 text-xs font-black text-base-content/75">
+            {{ entry.revision.title }}
+          </p>
+          <p class="mt-1 max-h-20 overflow-auto whitespace-pre-wrap break-words text-xs leading-5 text-base-content/60">
+            {{ entry.revision.text }}
+          </p>
+          <div v-if="!entry.current" class="mt-2 flex justify-end">
+            <button
+              type="button"
+              class="btn btn-ghost btn-xs"
+              :disabled="disabled"
+              @click="emit('restoreRevision', entry.index)"
+            >
+              Restore this version
+            </button>
+          </div>
+        </div>
+      </div>
+      <p class="mt-2 text-[0.7rem] leading-5 text-base-content/40">
+        Restoring is non-destructive. The restored text becomes a new version instead of deleting later work.
+      </p>
+    </details>
+
     <div
       v-if="candidate.status === 'rejected'"
       class="mt-4 rounded-2xl border border-error/15 bg-error/5 p-3"
@@ -187,10 +269,16 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { BRAINSTORM_RETURN_TYPES } from '@/types/brainstorm'
-import type { BrainstormCandidate } from '@/types/brainstorm'
+import type {
+  BrainstormCandidate,
+  BrainstormCandidateRevision,
+  BrainstormReturnTypeId,
+  BrainstormRevisionReason,
+} from '@/types/brainstorm'
 
 const props = defineProps<{
   candidate: BrainstormCandidate
+  parentCandidate?: BrainstormCandidate | null
   disabled?: boolean
   busy?: boolean
   busyAction?: 'regenerate' | 'branch' | null
@@ -203,6 +291,7 @@ const emit = defineEmits<{
   delete: []
   regenerate: []
   branch: []
+  restoreRevision: [revisionIndex: number]
   edit: [patch: { title: string; text: string }]
   feedback: [value: string]
 }>()
@@ -258,6 +347,49 @@ const returnType = computed(() =>
 )
 const returnTypeLabel = computed(() => returnType.value?.label || '')
 const returnTypeDescription = computed(() => returnType.value?.description || '')
+
+const revisionEntries = computed(() =>
+  props.candidate.revisions
+    .map((revision, index) => ({
+      revision,
+      index,
+      current: index === props.candidate.revisions.length - 1,
+    }))
+    .reverse(),
+)
+
+function revisionReasonLabel(reason: BrainstormRevisionReason): string {
+  switch (reason) {
+    case 'generated':
+      return 'generated'
+    case 'edited':
+      return 'edited'
+    case 'regenerated':
+      return 'regenerated'
+    case 'branched':
+      return 'branch created'
+    case 'restored':
+      return 'restored'
+  }
+}
+
+function revisionReturnTypeLabel(
+  returnTypeId: BrainstormReturnTypeId | null | undefined,
+): string {
+  if (!returnTypeId) return ''
+  return BRAINSTORM_RETURN_TYPES.find((entry) => entry.id === returnTypeId)?.label || ''
+}
+
+function formatRevisionTime(value: BrainstormCandidateRevision['createdAt']): string {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  return new Intl.DateTimeFormat(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(date)
+}
 
 function toggleKeep(): void {
   if (props.candidate.status === 'kept') emit('reset')

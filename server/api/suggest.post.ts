@@ -118,7 +118,9 @@ export default defineEventHandler(async (event) => {
       apiKey:
         provider === 'anthropic'
           ? str(config.anthropicApiKey)
-          : str(config.openaiApiKey),
+          : provider === 'openai'
+            ? str(config.openaiApiKey)
+            : undefined,
       baseUrl:
         provider === 'ollama'
           ? str(

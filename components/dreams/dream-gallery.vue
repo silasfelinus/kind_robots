@@ -75,36 +75,21 @@
           toward a wrap on exactly the 1366x768 laptop this stage is fixing.
           Silas, 2026-08-07: "Search should be an icon."
 
-          The icon still turns secondary while a query is active, so a filtered
-          list never looks unfiltered just because the box is closed.
+          The hand-rolled version of that lived HERE, and it was the only one on
+          the site -- /stories and /facets still had full-width bars, so the
+          same control looked like two different controls depending on which
+          gallery you were in. Silas, 2026-08-10, asked for the icon everywhere,
+          so the behaviour moved into kr-search-field and this is now a caller
+          like the rest. Same recipe, including the active-query indicator that
+          keeps a filtered list from looking unfiltered while the box is closed.
         -->
-        <button
-          v-if="showControls && !searchOpen"
-          type="button"
-          class="btn btn-sm h-9 shrink-0 rounded-2xl"
-          :class="searchQuery ? 'btn-secondary' : 'btn-outline'"
-          aria-label="Search Dreams"
-          @click="openSearch"
-        >
-          <Icon name="kind-icon:search" class="h-4 w-4" />
-        </button>
-
-        <label
+        <kr-search-field
           v-if="showControls"
-          class="input input-bordered input-sm h-9 items-center gap-2 rounded-2xl bg-base-200 sm:min-w-60 sm:flex-1 lg:max-w-md"
-          :class="searchOpen ? 'flex w-full' : 'hidden'"
-        >
-          <Icon name="kind-icon:search" class="h-4 w-4 opacity-60" />
-          <input
-            ref="searchInput"
-            v-model="searchQuery"
-            class="grow bg-transparent"
-            type="search"
-            aria-label="Search Dreams"
-            placeholder="Search Dreams..."
-            @blur="closeSearchIfEmpty"
-          />
-        </label>
+          v-model="searchQuery"
+          label="Search Dreams"
+          placeholder="Search Dreams..."
+          class="lg:max-w-md"
+        />
 
         <!--
           ICON TOGGLES, not a dropdown. Silas, 2026-08-07: "types dropdown would
@@ -550,7 +535,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type {
   ArtImage,
   Character,
@@ -642,25 +627,9 @@ const showArchived = ref(false)
 const isLoading = ref(false)
 const galleryMode = ref<GalleryMode>('cards')
 
-/**
- * Mobile-only: the search field starts collapsed to its icon and expands on
- * tap. At sm+ the label is permanently visible via CSS, so this flag is
- * irrelevant there and never needs to be set.
- */
-const searchOpen = ref(false)
-const searchInput = ref<HTMLInputElement | null>(null)
-
-function openSearch(): void {
-  searchOpen.value = true
-  // The input does not exist until the flag flips, so focus after the patch.
-  nextTick(() => searchInput.value?.focus())
-}
-
-function closeSearchIfEmpty(): void {
-  // Re-collapse only when nothing was typed; a live query must stay visible or
-  // the list looks filtered for no discoverable reason.
-  if (!searchQuery.value) searchOpen.value = false
-}
+// The expand-on-tap state that used to live here (searchOpen, searchInput,
+// openSearch, closeSearchIfEmpty) now belongs to kr-search-field, along with
+// the doc comment explaining why a live query must not re-collapse.
 
 /** All four. dream-card honours each via its `variant` prop. */
 

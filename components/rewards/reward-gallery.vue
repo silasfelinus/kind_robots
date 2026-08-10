@@ -399,12 +399,13 @@
               </option>
             </select>
 
-            <input
+            <!-- Icon until selected, per Silas 2026-08-10. Was `flex-1`, so it
+                 claimed every pixel the rarity select and the buttons beside it
+                 did not. -->
+            <kr-search-field
               v-model="searchQuery"
-              type="search"
-              aria-label="Search rewards"
+              label="Search rewards"
               placeholder="Search rewards..."
-              class="input input-bordered input-sm min-w-32 flex-1 bg-base-100"
             />
 
             <button

@@ -31,6 +31,19 @@ const fixtures: Record<string, WonderLabPreviewFixture> = {
     },
   },
 
+  'kr-search-field': {
+    title: 'Gallery search field',
+    description:
+      'The shared search control every gallery toolbar wears: a single icon at rest, expanding to an input only once selected. Seeded with a live query, so this shows the expanded state and its clear control -- and the rule that produces it, which is that a field with something typed in it never re-collapses on blur, because an invisible filter leaves the grid looking broken rather than filtered. Empty it and click away to watch it fold back to the icon. Controlled: the parent owns the query, this owns only whether the box is showing.',
+    viewport: 'mobile',
+    minHeight: '6rem',
+    props: {
+      modelValue: 'placard',
+      label: 'Search scenarios',
+      placeholder: 'Search scenarios...',
+    },
+  },
+
   'resource-card': {
     title: 'Resource card specimen',
     description:

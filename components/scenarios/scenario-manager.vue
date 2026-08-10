@@ -11,7 +11,23 @@
   >
     <!-- Scenarios: gallery → select → configure → story, all in place -->
     <template #scenarios>
-      <scenario-interact class="h-full min-h-0 flex-1 overflow-hidden" />
+      <div class="flex h-full min-h-0 flex-1 flex-col gap-2">
+        <div
+          v-if="scenarioStore.selectedScenario?.slug"
+          class="flex shrink-0 justify-end"
+        >
+          <button
+            type="button"
+            class="btn btn-primary btn-sm rounded-xl"
+            title="Start a Storybook story seeded with this Scenario"
+            @click="startStoryWithScenario"
+          >
+            <Icon name="kind-icon:book-open" class="size-4" />
+            <span class="hidden sm:inline">Start a story with this</span>
+          </button>
+        </div>
+        <scenario-interact class="h-full min-h-0 flex-1 overflow-hidden" />
+      </div>
     </template>
 
     <!-- Add: the "+" tab -->
@@ -94,6 +110,12 @@ function handleTabChange(tab: string) {
  */
 function handleScenarioSaved() {
   navStore.setDashboardTab(dashboardKey, 'scenarios')
+}
+
+function startStoryWithScenario(): void {
+  const slug = scenarioStore.selectedScenario?.slug
+  if (!slug) return
+  void navigateTo({ path: '/storybook', query: { scenario: slug } })
 }
 
 async function loadManagerData(force = false) {

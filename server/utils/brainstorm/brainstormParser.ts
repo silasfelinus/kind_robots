@@ -1,10 +1,23 @@
+import {
+  BRAINSTORM_RETURN_TYPES,
+} from '../../../types/brainstorm'
 import type {
   BrainstormGenerateData,
   BrainstormGeneratedCandidate,
+  BrainstormGenerateRequest,
+  BrainstormReturnTypeId,
 } from '../../../types/brainstorm'
 
 const MAX_TITLE_LENGTH = 120
 const MAX_TEXT_LENGTH = 4_000
+const RETURN_TYPE_IDS = new Set<BrainstormReturnTypeId>(
+  BRAINSTORM_RETURN_TYPES.map((entry) => entry.id),
+)
+
+type BrainstormMixContract = Pick<
+  BrainstormGenerateRequest,
+  'batchShape' | 'returnTypes'
+>
 
 function trimFence(value: string): string {
   const trimmed = value.trim()
@@ -80,6 +93,14 @@ function candidateTitle(record: Record<string, unknown>): string {
   return record.title.trim().slice(0, MAX_TITLE_LENGTH)
 }
 
+function candidateReturnType(
+  record: Record<string, unknown>,
+): BrainstormReturnTypeId | null {
+  if (typeof record.returnType !== 'string') return null
+  const id = record.returnType.trim() as BrainstormReturnTypeId
+  return RETURN_TYPE_IDS.has(id) ? id : null
+}
+
 function duplicateKey(value: string): string {
   return value
     .toLocaleLowerCase()
@@ -115,9 +136,49 @@ function nearDuplicate(a: string, b: string): boolean {
   return union > 0 && intersection / union >= 0.88
 }
 
+function assortmentMatches(
+  candidates: BrainstormGeneratedCandidate[],
+  expectedCount: number,
+  mix: BrainstormMixContract | undefined,
+): boolean {
+  if (mix?.batchShape !== 'assortment') return true
+  if (candidates.some((candidate) => !candidate.returnType)) return false
+
+  const selected = mix.returnTypes || []
+  const counts = new Map<BrainstormReturnTypeId, number>()
+  for (const candidate of candidates) {
+    if (!candidate.returnType) return false
+    counts.set(candidate.returnType, (counts.get(candidate.returnType) || 0) + 1)
+  }
+
+  if (!selected.length) {
+    return counts.size >= Math.min(expectedCount, 3)
+  }
+
+  for (const entry of selected) {
+    const actual = counts.get(entry.id) || 0
+    if (entry.count && actual !== entry.count) return false
+    if (!entry.count && actual < 1) return false
+  }
+
+  const minimumSelected = selected.reduce(
+    (total, entry) => total + (entry.count ?? 1),
+    0,
+  )
+  if (minimumSelected === expectedCount) {
+    const selectedIds = new Set(selected.map((entry) => entry.id))
+    if (candidates.some((candidate) => !selectedIds.has(candidate.returnType!))) {
+      return false
+    }
+  }
+
+  return true
+}
+
 export function normalizeBrainstormCandidates(
   value: unknown,
   expectedCount: number,
+  mix?: BrainstormMixContract,
 ): BrainstormGeneratedCandidate[] | null {
   const rawCandidates = candidateArray(value)
   if (!rawCandidates || rawCandidates.length !== expectedCount) return null
@@ -136,24 +197,27 @@ export function normalizeBrainstormCandidates(
     }
 
     const title = candidateTitle(record)
+    const returnType = candidateReturnType(record)
     candidates.push({
       text,
       ...(title ? { title } : {}),
+      ...(returnType ? { returnType } : {}),
     })
   }
 
-  return candidates
+  return assortmentMatches(candidates, expectedCount, mix) ? candidates : null
 }
 
 export function parseBrainstormProviderOutput(
   raw: string,
   expectedCount: number,
+  mix?: BrainstormMixContract,
 ): BrainstormGenerateData | null {
   if (!raw.trim()) return null
 
   const parsed = parseEmbeddedJson(raw)
   if (parsed === null) return null
 
-  const candidates = normalizeBrainstormCandidates(parsed, expectedCount)
+  const candidates = normalizeBrainstormCandidates(parsed, expectedCount, mix)
   return candidates ? { candidates } : null
 }

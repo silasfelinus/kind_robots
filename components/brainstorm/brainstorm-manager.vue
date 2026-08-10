@@ -43,7 +43,7 @@
         </div>
 
         <div
-          class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
+          class="mt-6 grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-3"
           aria-label="Brainstorm workflow"
         >
           <article
@@ -76,8 +76,8 @@
     <div
       class="kr-panel-flat border border-base-content/10 bg-base-100/85 p-5 shadow-lg backdrop-blur sm:p-7"
     >
-      <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
-        <div>
+      <div class="flex flex-wrap items-center justify-between gap-5">
+        <div class="min-w-[min(100%,28rem)] flex-1">
           <p
             class="text-xs font-black uppercase tracking-[0.18em] text-base-content/45"
           >
@@ -94,7 +94,7 @@
           </p>
         </div>
 
-        <div class="flex flex-wrap gap-2 lg:max-w-72 lg:justify-end">
+        <div class="flex max-w-72 flex-wrap gap-2">
           <span
             v-for="action in candidateActions"
             :key="action"

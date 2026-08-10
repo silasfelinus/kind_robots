@@ -408,10 +408,12 @@
               placeholder="Search rewards..."
             />
 
+            <!-- Absent rather than greyed, same as bot-gallery's -- see the
+                 note there. Clear has nothing to say without a selection. -->
             <button
+              v-if="rewardStore.selectedReward"
               class="btn btn-ghost btn-sm rounded-xl"
               type="button"
-              :disabled="!rewardStore.selectedReward"
               @click="clearSelectedReward"
             >
               <Icon name="kind-icon:x" class="h-4 w-4" />

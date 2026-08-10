@@ -33,10 +33,11 @@
           class="range range-primary range-xs w-24"
         />
       </label>
+      <!-- Absent rather than greyed: nothing painted, nothing to erase. -->
       <button
+        v-if="hasPainted"
         type="button"
         class="btn btn-ghost btn-xs"
-        :disabled="!hasPainted"
         @click="clear"
       >
         <Icon name="mdi:eraser" class="h-3.5 w-3.5" /> Clear

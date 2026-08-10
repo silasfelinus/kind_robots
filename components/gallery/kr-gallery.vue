@@ -111,17 +111,27 @@
         class="btn btn-xs px-2"
         :class="mode === entry.value ? 'btn-primary' : 'btn-ghost'"
         :title="entry.label"
+        :aria-label="entry.label"
         :aria-pressed="mode === entry.value"
         @click="emit('update:mode', entry.value)"
       >
-        <!-- Abbreviation on a phone, full word once there is room. Three
-             labelled buttons are ~200px of a 390px screen; three letters are
-             ~90px. dream-gallery's hand-rolled bar already did this, and the
-             shell rendering `abbr` unconditionally is why Scenarios showed
-             "C H I" while Dreams showed "Cards Heroes Icons" -- the same
-             control looking like two different controls. -->
-        <span class="sm:hidden">{{ entry.abbr }}</span>
-        <span class="hidden sm:inline">{{ entry.label }}</span>
+        <!--
+          GLYPH BELOW lg, glyph AND word from lg. Silas, 2026-08-10: "Cards
+          heroes icons should be icons on sm and md displays."
+
+          This used to be a single letter below sm and the full word above it,
+          and the letter was the weakest part: "C H I" tells a first-time
+          visitor nothing, and three words are ~200px of a 390px row. A glyph
+          says what a letter cannot in the same space, and it stays on screen at
+          every width, so the control does not change identity as the window
+          grows -- it just gains a label. `title` and `aria-label` carry the
+          word at every size, so nothing is lost when it is not drawn.
+
+          `abbr` stays in the vocabulary for callers that still want a letter;
+          it simply is not what this bar reaches for any more.
+        -->
+        <Icon :name="entry.icon" class="h-3.5 w-3.5 shrink-0" />
+        <span class="hidden lg:inline">{{ entry.label }}</span>
       </button>
     </div>
 

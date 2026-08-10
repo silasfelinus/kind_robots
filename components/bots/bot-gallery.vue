@@ -529,10 +529,20 @@
               placeholder="Search bots..."
             />
 
+            <!-- ABSENT, not greyed. Silas, 2026-08-10: "Why is there
+                 significant space allocated to a greyed out Clear? ... We don't
+                 need to see an option if it isn't pertinent."
+
+                 Clear acts on the selection and says nothing without one, so
+                 disabling it spent a labelled button's width to communicate
+                 "there is nothing here" -- which the empty selection already
+                 says. This is the shape verifyDisabledAffordances.ts now
+                 guards: a clear/reset control whose only disabled condition is
+                 the absence of the thing it clears. -->
             <button
+              v-if="botStore.currentBot"
               class="btn btn-ghost btn-sm rounded-xl"
               type="button"
-              :disabled="!botStore.currentBot"
               @click="clearSelectedBot"
             >
               <Icon name="kind-icon:x" class="h-4 w-4" />

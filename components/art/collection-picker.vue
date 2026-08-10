@@ -45,11 +45,14 @@
         </option>
       </select>
 
+      <!-- Absent rather than greyed: with no selection there is nothing to
+           clear, and the `btn-disabled` skin was spending a labelled button to
+           say so. The class binding goes with it -- `btn-outline` was only ever
+           the other half of that pair. -->
       <button
+        v-if="hasSelection"
         type="button"
-        class="btn btn-sm rounded-2xl"
-        :class="hasSelection ? 'btn-outline' : 'btn-disabled'"
-        :disabled="!hasSelection"
+        class="btn btn-outline btn-sm rounded-2xl"
         @click="clearSelection"
       >
         <Icon name="kind-icon:trash" class="h-4 w-4" />
@@ -164,11 +167,7 @@ import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import { useArtStore } from '@/stores/artStore'
 
 export type CollectionPickerMode =
-  | 'all'
-  | 'generated'
-  | 'collection'
-  | 'collections'
-  | 'manual'
+  'all' | 'generated' | 'collection' | 'collections' | 'manual'
 
 const props = withDefaults(
   defineProps<{

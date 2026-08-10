@@ -63,6 +63,16 @@
       <span class="badge badge-outline badge-sm shrink-0">
         {{ selectedFacet.canonicalValue }}
       </span>
+
+      <button
+        type="button"
+        class="btn btn-primary btn-sm shrink-0 rounded-xl"
+        title="Start a Storybook story seeded with this Facet"
+        @click="startStoryWithFacet"
+      >
+        <Icon name="kind-icon:book-open" class="size-3.5" />
+        <span class="hidden sm:inline">Start a story with this</span>
+      </button>
     </header>
 
     <div class="kr-scroll space-y-4">
@@ -174,6 +184,22 @@ function goToCreateFacet(): void {
     'facet-interact create affordance',
   )
   void router.push({ query: { ...route.query, create: '1' } })
+}
+
+/*
+ * Facets are a tool that feeds other interactions rather than something a
+ * visitor talks to directly (Silas: Facets and Rewards should link out to
+ * Storybook instead of growing their own conversation). storybook-page.vue's
+ * seedFromQuery() reads ?facet=<slug> and adds it to the setup draft's
+ * facetSlugs on top of whatever draft is already restored, so this never
+ * destroys a story in progress.
+ */
+function startStoryWithFacet(): void {
+  if (!selectedFacet.value?.slug) return
+  void navigateTo({
+    path: '/storybook',
+    query: { facet: selectedFacet.value.slug },
+  })
 }
 
 function taxonomyLabel(taxonomy: string): string {

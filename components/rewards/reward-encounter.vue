@@ -57,6 +57,17 @@
       >
         {{ rewardStore.selectedReward.rarity }}
       </span>
+
+      <button
+        v-if="rewardStore.selectedReward?.slug"
+        type="button"
+        class="btn btn-primary btn-sm shrink-0 rounded-xl"
+        title="Start a Storybook story seeded with this Reward"
+        @click="startStoryWithReward"
+      >
+        <Icon name="kind-icon:book-open" class="h-4 w-4" />
+        <span class="hidden sm:inline">Start a story with this</span>
+      </button>
     </header>
 
     <div
@@ -1066,6 +1077,21 @@ function newStory() {
 function backToGallery() {
   newStory()
   rewardStore.deselectReward()
+}
+
+/*
+ * Rewards are a tool that feeds other interactions rather than something a
+ * visitor talks to directly (Silas: Facets and Rewards should link out to
+ * Storybook instead of growing their own conversation) -- separate from the
+ * encounter engine above, which predates that call and stays as-is here.
+ * storybook-page.vue's seedFromQuery() reads ?reward=<slug> and adds it to
+ * the setup draft's rewardSlugs on top of whatever draft is already
+ * restored, so this never destroys a story in progress.
+ */
+function startStoryWithReward() {
+  const slug = rewardStore.selectedReward?.slug
+  if (!slug) return
+  void navigateTo({ path: '/storybook', query: { reward: slug } })
 }
 
 function clearPromptOptions() {

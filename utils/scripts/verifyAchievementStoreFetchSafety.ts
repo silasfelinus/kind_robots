@@ -92,4 +92,22 @@ assert.ok(
   'Authenticated records must load before pending guest achievements migrate.',
 )
 
+const recordsRouteSource = readFileSync(
+  'server/api/achievements/records.get.ts',
+  'utf8',
+)
+assert.ok(
+  recordsRouteSource.includes('getOptionalApiUser(event)'),
+  'Achievement records GET must tolerate unauthenticated guest requests.',
+)
+assert.ok(
+  !recordsRouteSource.includes('requireApiUser(event)'),
+  'Achievement records GET must not turn guest reads into 401 responses.',
+)
+assert.match(
+  recordsRouteSource,
+  /if \(!auth\)[\s\S]*statusCode = 200[\s\S]*data: \[\][\s\S]*statusCode: 200/,
+  'Guest achievement record reads must return a successful empty list.',
+)
+
 console.log('Achievement store fetch safety contract passed.')

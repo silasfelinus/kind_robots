@@ -2,11 +2,24 @@
 import { defineEventHandler } from 'h3'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
-import { requireApiUser } from '../../utils/authGuard'
+import { getOptionalApiUser } from '../../utils/authGuard'
 
 export default defineEventHandler(async (event) => {
   try {
-    const { user, isAdmin } = await requireApiUser(event)
+    const auth = await getOptionalApiUser(event)
+
+    if (!auth) {
+      event.node.res.statusCode = 200
+
+      return {
+        success: true,
+        message: 'No achievement records for guest sessions.',
+        data: [],
+        statusCode: 200,
+      }
+    }
+
+    const { user, isAdmin } = auth
 
     const data = await prisma.achievementRecord.findMany({
       where: isAdmin ? undefined : { userId: user.id },

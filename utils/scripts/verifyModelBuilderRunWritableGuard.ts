@@ -28,18 +28,19 @@
 // verifyModelBuilderCommitCancelledRunGuard.ts's preference for explicit,
 // narrow textual checks over a general-purpose static analyzer.
 //
-// This script is already wired into the required Contract Tests workflow. Two
-// sibling Model Builder guard scripts were callable from package.json but never
-// wired into that required job, which meant they could silently regress without
-// blocking a PR. Until the workflow is reorganized, this required entry point
-// also executes those two existing guards so the approved-asset and item-patch
-// stage invariants are enforced by required CI rather than living as dormant
-// npm scripts.
+// This script is already wired into the required Contract Tests workflow.
+// Three sibling Model Builder guard scripts are callable from package.json but
+// are not wired into that required job directly, which means they would be
+// non-blocking on their own. Until the workflow is reorganized, this required
+// entry point executes them too so cancelled-run completion, approved-asset,
+// and item-patch stage invariants are enforced by required CI rather than
+// living as dormant npm scripts.
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { checkApprovedAssetGuard } from './verifyModelBuilderApprovedAssetGuard.js'
+import { checkCancelledRunGuard } from './verifyModelBuilderCancelledRunGuard.js'
 import { checkItemPatchStageGuard } from './verifyModelBuilderItemPatchStageGuard.js'
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url))
@@ -69,10 +70,6 @@ const ROUTES: RouteCheck[] = [
   },
 ]
 
-// Checks the fix's exact shape against the full source text of one route
-// file. Exported (rather than only exercised via main()) so the self-test
-// below can run it against synthetic route-shaped fixtures without touching
-// the real route files.
 export function checkRunWritableGuard(
   content: string,
   route: RouteCheck,
@@ -93,9 +90,6 @@ export function checkRunWritableGuard(
     return errors
   }
 
-  // Tolerant of the whitespace/indentation between the two statements
-  // (each route indents this pair differently) rather than requiring an
-  // exact adjacent line.
   const writablePattern = new RegExp(
     `assertRunAccess\\(\\s*${escapedVar},\\s*auth\\.user\\s*\\)\\s*\\n\\s*` +
       `assertRunWritable\\(\\s*${escapedVar}\\s*\\)`,
@@ -129,6 +123,7 @@ function main(): void {
     join(repositoryRoot, 'stores/modelBuilderStore.ts'),
     'utf8',
   )
+  allErrors.push(...checkCancelledRunGuard(storeContent))
   allErrors.push(...checkApprovedAssetGuard(storeContent))
 
   const runsIndexContent = readFileSync(
@@ -146,8 +141,9 @@ function main(): void {
 
   console.log(
     'Model Builder required guard contracts passed: all four write-capable ' +
-      'item routes refuse writes to CANCELLED runs, finished renders cannot ' +
-      'replace already-approved assets, and item PATCH writes cannot bypass ' +
+      'item routes refuse writes to CANCELLED runs, async completion cannot ' +
+      'persist after run cancellation, finished renders cannot replace ' +
+      'already-approved assets, and item PATCH writes cannot bypass ' +
       'server-stored stage review gates.',
   )
 }

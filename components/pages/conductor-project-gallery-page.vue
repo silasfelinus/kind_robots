@@ -35,7 +35,31 @@
               type="text"
               class="input input-bordered input-sm rounded-xl"
               placeholder="Project title"
+              @input="onTitleInput"
             />
+          </label>
+          <label class="form-control sm:col-span-2">
+            <span class="label-text text-xs">
+              Slug
+              <span class="opacity-60">(used as the project's URL/id)</span>
+            </span>
+            <input
+              ref="slugInputRef"
+              v-model="createForm.slug"
+              type="text"
+              class="input input-bordered input-sm rounded-xl font-mono"
+              :class="{ 'input-error': slugError }"
+              placeholder="project-slug"
+              @input="onSlugInput"
+              @blur="onSlugBlur"
+            />
+            <span v-if="slugError" class="label-text-alt mt-1 text-error">
+              {{ slugError }}
+            </span>
+            <span v-else class="label-text-alt mt-1 opacity-60">
+              Auto-filled from the title; edit it here if you'd rather choose
+              your own.
+            </span>
           </label>
           <label class="form-control sm:col-span-2">
             <span class="label-text text-xs">Description</span>
@@ -79,7 +103,7 @@
         <button
           type="button"
           class="btn btn-secondary btn-sm w-full rounded-xl"
-          :disabled="!createForm.title.trim() || projects.saving"
+          :disabled="!createForm.title.trim() || !!slugError || projects.saving"
           @click="createProject"
         >
           <span
@@ -276,6 +300,7 @@ import { useTodoStore } from '@/stores/todoStore'
 import { useGalleryPreferenceStore } from '@/stores/galleryPreferenceStore'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
 import { IS_GALLERY_MODE, type GalleryMode } from '@/utils/galleryVocabulary'
+import { slugify } from '@/utils/slugify'
 
 const IMG_BASE =
   'https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images'
@@ -358,15 +383,57 @@ const createOpen = ref(false)
 const createError = ref('')
 const createForm = ref<{
   title: string
+  slug: string
   description: string
   status: Status
   priority: ProjectPriorityLevel
 }>({
   title: '',
+  slug: '',
   description: '',
   status: 'BRAINSTORM',
   priority: 'NORMAL',
 })
+// Slug auto-derives from the title until the user edits it directly — once
+// they've typed into the slug field themselves, title changes stop
+// overwriting their choice.
+const slugTouched = ref(false)
+const slugInputRef = ref<HTMLInputElement | null>(null)
+// `/api/projects` (server/api/projects/index.ts's normalizeSlug) lowercases,
+// collapses non-alphanumerics to single hyphens, and trims edge hyphens
+// server-side too — mirrored here so the field previews exactly what will
+// be sent rather than drifting from the route's own rule.
+const slugError = computed(() => {
+  // Don't flash "required" before the user has typed anything — the slug
+  // stays derived-but-empty until a title exists to derive it from.
+  if (!createForm.value.title.trim() && !createForm.value.slug.trim()) {
+    return ''
+  }
+  return createForm.value.slug.trim()
+    ? ''
+    : 'A slug is required — it becomes the project URL and conductor directory name.'
+})
+
+function onTitleInput() {
+  if (slugTouched.value) return
+  createForm.value.slug = slugify(createForm.value.title)
+}
+
+function onSlugInput() {
+  slugTouched.value = true
+  // Light-touch while typing: lowercase and drop disallowed characters, but
+  // don't collapse repeat/edge hyphens yet — full slugify() runs on blur and
+  // again before submit. Doing the full normalize on every keystroke would
+  // strip a hyphen the instant it's typed (it's trailing until the next
+  // character lands), making "my-project" impossible to type by hand.
+  createForm.value.slug = createForm.value.slug
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '')
+}
+
+function onSlugBlur() {
+  createForm.value.slug = slugify(createForm.value.slug)
+}
 const loading = computed(() => projects.loading || conductor.pending)
 const error = computed(() => projects.error || conductor.error || '')
 
@@ -606,24 +673,49 @@ async function createProject(): Promise<void> {
   createError.value = ''
   const title = createForm.value.title.trim()
   if (!title) return
+  const slug = slugify(createForm.value.slug || title)
+  createForm.value.slug = slug
+  if (!slug) {
+    createError.value =
+      'A slug is required — it becomes the project URL and conductor directory name.'
+    return
+  }
   try {
     const created = await projects.createProject({
       title,
+      slug,
       description: createForm.value.description.trim() || null,
       status: createForm.value.status,
       priority: createForm.value.priority,
     })
     createForm.value = {
       title: '',
+      slug: '',
       description: '',
       status: 'BRAINSTORM',
       priority: 'NORMAL',
     }
+    slugTouched.value = false
     createOpen.value = false
     page.setWorkspaceCardKey(slugFor(created))
   } catch (error) {
-    createError.value =
-      error instanceof Error ? error.message : 'Project could not be created.'
+    const statusCode =
+      error instanceof Error
+        ? (error as Error & { statusCode?: number }).statusCode
+        : undefined
+    if (statusCode === 409) {
+      // The generic Prisma-unique-constraint message ("Record already
+      // exists.") doesn't tell the user what to do. `slug` is the only
+      // field this form submits that a Project uniquely constrains, so a
+      // 409 here always means the slug is taken — point them straight at
+      // the field that fixes it instead.
+      createError.value = `The slug "${slug}" is already taken — try a different one below.`
+      slugTouched.value = true
+      slugInputRef.value?.focus()
+    } else {
+      createError.value =
+        error instanceof Error ? error.message : 'Project could not be created.'
+    }
   }
 }
 </script>

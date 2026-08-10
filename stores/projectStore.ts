@@ -9,10 +9,7 @@ import type {
   Project,
 } from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
-import {
-  PROJECT_PLACEMENTS,
-  placementLiveUrl,
-} from '~/utils/projectPlacements'
+import { PROJECT_PLACEMENTS, placementLiveUrl } from '~/utils/projectPlacements'
 
 export type ProjectWithRelations = Project & {
   Manager?: Pick<
@@ -87,8 +84,10 @@ function isCanonicalList(options: ProjectListOptions): boolean {
 }
 
 function coverageScore(options: ProjectListOptions): number {
-  return Number(options.includeInactive === true) * 2 +
+  return (
+    Number(options.includeInactive === true) * 2 +
     Number(options.includeMature === true)
+  )
 }
 
 function mergeProjectDetail(
@@ -253,7 +252,14 @@ export const useProjectStore = defineStore('projectStore', () => {
         body: JSON.stringify(input),
       })
       if (!response.success || !response.data) {
-        throw new Error(response.message || 'Failed to create Project.')
+        // Callers that need to tell a slug collision (409) apart from any
+        // other failure — to point the user back at the slug field instead
+        // of a generic message — read `.statusCode` off the thrown error.
+        const error = new Error(
+          response.message || 'Failed to create Project.',
+        ) as Error & { statusCode?: number }
+        error.statusCode = response.status
+        throw error
       }
       return replaceProject(response.data)
     } finally {
@@ -289,7 +295,9 @@ export const useProjectStore = defineStore('projectStore', () => {
       },
     )
     if (!response.success || !response.data) {
-      throw new Error(response.message || 'Failed to synchronize Project lifecycle.')
+      throw new Error(
+        response.message || 'Failed to synchronize Project lifecycle.',
+      )
     }
     return replaceProject(response.data)
   }

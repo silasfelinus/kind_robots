@@ -1,0 +1,43 @@
+name: Brainstorm Store Contract
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/brainstorm-store-contract.yml'
+      - 'stores/brainstormStore.ts'
+      - 'types/brainstorm.ts'
+      - 'utils/scripts/verifyBrainstormStoreContract.mjs'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/brainstorm-store-contract.yml'
+      - 'stores/brainstormStore.ts'
+      - 'types/brainstorm.ts'
+      - 'utils/scripts/verifyBrainstormStoreContract.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: brainstorm-store-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    name: Typed Brainstorm ownership
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Verify Brainstorm store contract
+        run: node utils/scripts/verifyBrainstormStoreContract.mjs

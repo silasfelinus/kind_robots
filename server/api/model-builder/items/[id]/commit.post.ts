@@ -736,12 +736,20 @@ export default defineEventHandler(async (event) => {
     }
     const sourceId = item.Run.sourceId
     const text = (item.pitch || item.fieldsDraft || '').trim()
+    const fieldMap = parseFieldLines(item.fieldsDraft)
+    // Every CREATE target's field spec declares a required 'name' or 'title'
+    // line (see MODEL_FIELDS in modelBuilderFields.ts) that the batch editor
+    // and per-item panel both surface as the record's actual name/title. Honor
+    // whatever the user (or AI drafter) put there before falling back to the
+    // pitch's first line -- otherwise a deliberately-typed name is silently
+    // discarded in favor of pitch text on commit.
     const name = (
+      fieldMap.name ||
+      fieldMap.title ||
       item.pitch?.split('\n')[0]?.trim() ||
       item.label ||
       'Untitled'
     ).slice(0, 255)
-    const fieldMap = parseFieldLines(item.fieldsDraft)
 
     if (item.idempotencyKey) {
       return {

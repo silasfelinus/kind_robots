@@ -334,6 +334,12 @@ jobs:
       - name: Model Builder open-run identity guard contract
         run: npm run test:model-builder-open-run-identity-guard
 
+      - name: Model Builder commit name/title field guard checker self-test
+        run: npm run test:model-builder-commit-name-field-guard-selftest
+
+      - name: Model Builder commit name/title field guard contract
+        run: npm run test:model-builder-commit-name-field-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

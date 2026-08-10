@@ -12,11 +12,21 @@
   (narrative-ingredient-card.vue). Dropping from cards to a dropdown mid-flow
   is the same hodgepodge this whole pass exists to remove.
 
-  So this is a board. Character art at 2:3 through the shared kr-art-plate, the
-  assigned part worn as a badge on the card itself, and the parts offered as
-  chips you press rather than options you unfold. The cast is capped at five,
-  which is what makes chips affordable: five cards of eight chips is a board
-  you can read at a glance, where five dropdowns is a form.
+  It also, at first, put every card in one uniform auto-fill grid regardless
+  of part — reading order, not story order. t-011 (2026-08-10) fixed that:
+  the board now arranges BY role instead. Protagonist(s) and antagonist(s) get
+  the lead row, given prominence and set facing each other rather than side by
+  side in the same line — a protagonist and an antagonist read as opposed, not
+  as neighbours. Supporting parts (love interest, mentor, foil, ally,
+  wildcard) hold the middle row at the original size. Ensemble and anyone not
+  yet given a part share the back row, smaller and slightly receded — ranked
+  behind without being hidden, since an unassigned card still has to be
+  readable and pressable. A board with nothing assigned collapses to exactly
+  one back row, which is the old uniform grid: this is additive, not a
+  rewrite of the unassigned state.
+
+  Card markup itself lives in narrative-cast-card.vue so the three tiers don't
+  triple it.
 
   Presentational and controlled, the contract kr-gallery keeps: the parent owns
   the cast and the role map, this emits changes, and it imports no store so it
@@ -27,7 +37,7 @@
   ignores casting generates identically to before.
 -->
 <template>
-  <div v-if="members.length" class="space-y-3">
+  <div v-if="members.length" class="space-y-4">
     <div class="flex flex-wrap items-baseline justify-between gap-2">
       <div>
         <p class="text-sm font-black">The casting board</p>
@@ -45,78 +55,73 @@
       </span>
     </div>
 
+    <!-- Lead row: protagonist(s) given prominence on one side, antagonist(s)
+         set opposite on the other. Only renders once someone actually holds
+         one of these parts. -->
+    <div
+      v-if="protagonists.length || antagonists.length"
+      class="flex flex-wrap items-start justify-between gap-3"
+    >
+      <ul class="flex flex-wrap gap-3" role="group" aria-label="Protagonist(s)">
+        <narrative-cast-card
+          v-for="member in protagonists"
+          :key="member.slug"
+          class="w-36 sm:w-44"
+          :member="member"
+          :role="roleFor(member.slug)"
+          size="lead"
+          @toggle-role="toggle(member.slug, $event)"
+        />
+      </ul>
+      <ul
+        class="flex flex-wrap justify-end gap-3"
+        role="group"
+        aria-label="Antagonist(s)"
+      >
+        <narrative-cast-card
+          v-for="member in antagonists"
+          :key="member.slug"
+          class="w-36 sm:w-44"
+          :member="member"
+          :role="roleFor(member.slug)"
+          size="lead"
+          @toggle-role="toggle(member.slug, $event)"
+        />
+      </ul>
+    </div>
+
+    <!-- Supporting row: everyone with a part that isn't lead or ensemble,
+         at the board's original card size. -->
     <ul
+      v-if="supportingCast.length"
       class="grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(min(11rem,100%),1fr))]"
     >
-      <li
-        v-for="member in members"
+      <narrative-cast-card
+        v-for="member in supportingCast"
         :key="member.slug"
-        class="flex flex-col overflow-hidden rounded-2xl border bg-base-100 transition"
-        :class="
-          roleFor(member.slug)
-            ? 'border-secondary/60 ring-1 ring-secondary/30'
-            : 'border-base-300'
-        "
-      >
-        <div class="relative">
-          <kr-art-plate
-            :source="member"
-            variant="card"
-            shape="card"
-            frame="none"
-            :alt="member.title"
-            :placeholder-icon="member.icon || 'kind-icon:user'"
-          />
+        :member="member"
+        :role="roleFor(member.slug)"
+        size="support"
+        @toggle-role="toggle(member.slug, $event)"
+      />
+    </ul>
 
-          <!-- The part, worn on the card. This is what makes the board
-               readable without reading: a glance says who leads and who
-               opposes. -->
-          <span
-            v-if="roleFor(member.slug)"
-            class="badge badge-secondary badge-sm absolute left-2 top-2 gap-1 rounded-xl shadow"
-          >
-            <Icon
-              v-if="roleIcon(member.slug)"
-              :name="roleIcon(member.slug)"
-              class="size-3"
-              aria-hidden="true"
-            />
-            {{ roleLabel(member.slug) }}
-          </span>
-
-          <span
-            class="absolute inset-x-0 bottom-0 truncate bg-linear-to-t from-base-100 to-transparent px-2 pb-1.5 pt-6 text-xs font-black"
-          >
-            {{ member.title }}
-          </span>
-        </div>
-
-        <!--
-          Chips, not a dropdown. Pressing the active part again clears it, so
-          removing someone from a role costs the same one tap as giving them
-          one — a dropdown makes "none" a hunt back through the list.
-        -->
-        <div
-          class="flex flex-wrap gap-1 p-2"
-          role="group"
-          :aria-label="`Part for ${member.title}`"
-        >
-          <button
-            v-for="role in NARRATIVE_ROLES"
-            :key="role.key"
-            type="button"
-            class="btn btn-xs rounded-lg px-1.5 text-[0.65rem] font-bold"
-            :class="
-              roleFor(member.slug) === role.key ? 'btn-secondary' : 'btn-ghost'
-            "
-            :aria-pressed="roleFor(member.slug) === role.key"
-            :title="`${role.label} — ${role.description}`"
-            @click="toggle(member.slug, role.key)"
-          >
-            {{ role.label }}
-          </button>
-        </div>
-      </li>
+    <!-- Back row: ensemble and anyone not yet given a part. Ranked behind —
+         smaller and a touch quieter — but still fully readable and pressable,
+         since roles stay optional. This is the whole board when nothing has
+         been assigned yet. -->
+    <ul
+      v-if="backCast.length"
+      class="grid gap-2.5 [grid-template-columns:repeat(auto-fill,minmax(min(8.5rem,100%),1fr))]"
+    >
+      <narrative-cast-card
+        v-for="member in backCast"
+        :key="member.slug"
+        :member="member"
+        :role="roleFor(member.slug)"
+        size="back"
+        @toggle-role="toggle(member.slug, $event)"
+      />
     </ul>
 
     <!--
@@ -136,9 +141,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import {
-  NARRATIVE_ROLES,
   duplicateSingularRoles,
-  narrativeRole,
   narrativeRoleLabel,
 } from '@/utils/narrativeRoles'
 import type { NarrativeIngredientOption } from '@/utils/narrativeIngredients'
@@ -155,9 +158,37 @@ const emit = defineEmits<{
 }>()
 
 const roleFor = (slug: string): string | null => props.modelValue[slug] ?? null
-const roleLabel = (slug: string): string => narrativeRoleLabel(roleFor(slug))
-const roleIcon = (slug: string): string =>
-  narrativeRole(roleFor(slug))?.icon ?? ''
+
+/*
+ * The board's three tiers. A member falls into exactly one, decided purely
+ * by their current role — reassigning a part moves the card, nothing else
+ * to track. `protagonist`/`antagonist` lead; the other five real roles hold
+ * the supporting middle; `ensemble` and unassigned share the back row, since
+ * neither has been given prominence.
+ */
+const protagonists = computed(() =>
+  props.members.filter((member) => roleFor(member.slug) === 'protagonist'),
+)
+const antagonists = computed(() =>
+  props.members.filter((member) => roleFor(member.slug) === 'antagonist'),
+)
+const supportingCast = computed(() =>
+  props.members.filter((member) => {
+    const role = roleFor(member.slug)
+    return (
+      role !== null &&
+      role !== 'protagonist' &&
+      role !== 'antagonist' &&
+      role !== 'ensemble'
+    )
+  }),
+)
+const backCast = computed(() =>
+  props.members.filter((member) => {
+    const role = roleFor(member.slug)
+    return role === null || role === 'ensemble'
+  }),
+)
 
 function toggle(slug: string, key: string): void {
   /*

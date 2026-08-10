@@ -8,6 +8,47 @@
     <div
       class="flex min-h-12 min-w-0 items-center gap-1.5 px-1.5 py-1.5 sm:gap-2 sm:px-2 xl:min-h-16 xl:gap-3 xl:px-3"
     >
+      <!--
+        THE LEFT-MOST ITEM ON EVERY PAGE, and it used to not be in the header at
+        all. Silas, 2026-08-10, with screenshots of /stories, /facets and
+        /characters: "The floating '?' tutorial toggle. It renders OUTSIDE the
+        layout and overlaps content below the header ... Move it INLINE into the
+        header row as the LEFT-MOST item, on every page."
+
+        It lived in app.vue as `absolute left-0 top-0 z-40` inside the section
+        that holds <main>, so it floated over whatever the page drew in its
+        top-left corner: the Cards/Heroes/Icons bar on /characters, gallery
+        items on /resources, empty space on /facets. Absolute positioning cannot
+        be made to not overlap -- it is out of flow by definition, and the page
+        underneath has no way to reserve room for something it cannot see. The
+        fix is to put it back in flow, in the one row that is already reserved.
+
+        It is the WORKSPACE toggle, which is why it was hard to find by
+        searching for "tutorial" -- the tutorial is what the workspace sheet
+        opens onto (workspace-sheet.vue's "Show tutorial" panel), so the "?" is
+        how you reach it and reads as the tutorial button from the outside.
+
+        Now a real toggle rather than open-only. Floating over the content it
+        could hide itself behind the sheet it opened (`v-if="!workspaceSheetOpen"`);
+        in a fixed row it must say what it does in both states, and a control
+        that only ever opens is the kind of thing that gets clicked twice.
+      -->
+      <button
+        type="button"
+        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
+        :class="
+          workspaceSheetOpen
+            ? 'border-primary bg-primary/15 text-primary'
+            : 'bg-base-100'
+        "
+        :aria-label="workspaceToggleLabel"
+        :title="workspaceToggleLabel"
+        :aria-expanded="workspaceSheetOpen"
+        @click="navStore.toggleWorkspaceSheet()"
+      >
+        <Icon name="kind-icon:question" class="h-5 w-5" />
+      </button>
+
       <button
         v-if="showBackButton"
         type="button"
@@ -60,10 +101,26 @@
           ref="tabViewport"
           class="flex min-w-0 flex-1 items-stretch overflow-visible rounded-r-xl border-l border-base-300"
         >
+          <!--
+            A NARROW WALL, not a button. Silas, 2026-08-10: "Chevrons (< and >
+            around the channel tab strip) carry too much padding. Thin them to a
+            narrow wall — this is what causes crowding as the window narrows."
+
+            They were w-8/sm:w-9/xl:w-10 around a 16px icon, so up to 24px of
+            each 40px was padding, and the pair plus the map button reserved
+            120px of a 390px row before a single tab was drawn. 20px is the icon
+            plus 2px of breathing room on each side; the full-height hit area
+            (h-10 to h-14) keeps it a comfortable target vertically, which is
+            the axis a thumb actually has room in on a phone.
+
+            Keep tabLayoutMetrics().chevronWidth in step with these — it is the
+            same reservation expressed in pixels, and the tab-count arithmetic
+            is wrong the moment the two disagree.
+          -->
           <button
             v-if="hasTabOverflow"
             type="button"
-            class="tab-scroll-button flex w-8 shrink-0 items-center justify-center border-r border-base-300 text-base-content/60 transition hover:bg-base-200 hover:text-base-content focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary sm:w-9 xl:w-10"
+            class="tab-scroll-button flex w-5 shrink-0 items-center justify-center border-r border-base-300 text-base-content/60 transition hover:bg-base-200 hover:text-base-content focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary xl:w-6"
             :class="canScrollTabsLeft ? '' : 'invisible pointer-events-none'"
             :disabled="!canScrollTabsLeft"
             :aria-hidden="!canScrollTabsLeft"
@@ -110,7 +167,7 @@
           <button
             v-if="hasTabOverflow"
             type="button"
-            class="tab-scroll-button flex w-8 shrink-0 items-center justify-center border-l border-base-300 text-base-content/60 transition hover:bg-base-200 hover:text-base-content focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary sm:w-9 xl:w-10"
+            class="tab-scroll-button flex w-5 shrink-0 items-center justify-center border-l border-base-300 text-base-content/60 transition hover:bg-base-200 hover:text-base-content focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary xl:w-6"
             :class="canScrollTabsRight ? '' : 'invisible pointer-events-none'"
             :disabled="!canScrollTabsRight"
             :aria-hidden="!canScrollTabsRight"
@@ -210,14 +267,60 @@
         />
         <notification-bell class="shrink-0" />
         <login-switcher class="header-control-item min-w-0" />
+
+        <!--
+          WHERE A PAGE PUTS ITS OWN CONTROLS. Filled through
+          kr-header-actions.vue, which teleports here from inside <NuxtPage>.
+
+          Silas, 2026-08-10: "Same dead band holds refresh and log out on some
+          pages. Fold them into the header row too, so there is no strip between
+          header and content." That band was user-manager.vue's opening
+          `justify-end` row — a full page-width row whose only contents were
+          Refresh and Log Out, spent on /dashboard, /themes and /achievements.
+
+          AFTER login-switcher, not before the global refresh, and that position
+          is load-bearing. The first arrangement put this at the head of the
+          strip, which landed user-manager's account-refresh immediately beside
+          the global startup-reload — two buttons drawing the identical
+          `kind-icon:refresh` glyph, side by side, meaning different things.
+          There is no second refresh icon in assets/icons to tell them apart
+          (`rotate.svg` is the same path data), so separation does the work
+          instead: the page actions now sit with the avatar, which is also where
+          "refresh my account" and "log out" belong semantically.
+
+          `display: contents` rather than a plain wrapper: an empty flex child
+          still earns a gap from its siblings, so a bare <div> would leave a
+          visible notch in the control strip on every page that teleports
+          nothing. With `contents` the wrapper generates no box at all — the
+          teleported buttons become direct flex items of this strip, and an
+          empty target costs exactly zero.
+        -->
+        <div id="kr-header-actions" class="contents" />
         <!-- Readouts, not actions, so hiding them on a phone costs no
              capability. Everything else in this row is shrink-0, which makes
              the title section the only thing that can give -- and at 390px it
              gave all the way down to 18px, rendering the page title as a
              meaningless image sliver while these still overflowed the right
              edge as a clipped "395...". Both values remain on the profile. -->
-        <karma-widget class="hidden shrink-0 sm:flex" />
-        <mana-widget class="hidden shrink-0 sm:flex" />
+        <!--
+          STACKED AT sm AND md, side by side from lg. Silas, 2026-08-10: "Stack
+          the karma and mana readouts (✨3955 / ⚡709, header right) in a COLUMN
+          at sm and md."
+
+          Two readouts of four or five digits are ~150px side by side, and sm/md
+          is exactly the band where the row is tightest but they are still
+          shown: below sm they are hidden outright (see above), and from lg
+          there is room for both on one line. Stacking trades horizontal space
+          the tab strip is starved of for vertical space the row already had --
+          the compact sizing in the scoped block below keeps the pair inside the
+          2.25rem the other controls stand at, so the header does not grow.
+        -->
+        <div
+          class="header-readouts hidden shrink-0 flex-col items-stretch gap-0.5 sm:flex lg:flex-row lg:items-center lg:gap-1.5"
+        >
+          <karma-widget class="shrink-0" />
+          <mana-widget class="shrink-0" />
+        </div>
       </section>
     </div>
   </header>
@@ -285,6 +388,12 @@ const shellSummary = computed(
 )
 
 const showBackButton = computed(() => navStore.canGoBack)
+
+const workspaceSheetOpen = computed(() => navStore.workspaceSheetOpen)
+
+const workspaceToggleLabel = computed(() =>
+  workspaceSheetOpen.value ? 'Close workspace' : 'Open workspace',
+)
 
 const activeTabKey = computed(() => {
   const channel = resolvedChannel.value
@@ -356,22 +465,36 @@ const activeTitle = computed(
     pageStore.title,
 )
 
+/**
+ * What the overflow controls actually reserve, per breakpoint.
+ *
+ * `chevronWidth` and `menuWidth` are separate because the two controls are no
+ * longer the same size: the chevrons were thinned to a narrow wall (see the
+ * template comment beside them) while the map/all-tabs dropdown kept its width,
+ * being a menu trigger rather than a repeat-click scroller. A single
+ * `arrowWidth * 3` reserved 120px at xl for what is now 88, and over-reserving
+ * here is not harmless — it drops the tab count, which is the crowding this
+ * change exists to relieve.
+ *
+ * Keep these in step with the `w-*` classes on those three buttons.
+ */
 function tabLayoutMetrics(): {
   minimumTabWidth: number
   gap: number
-  arrowWidth: number
+  chevronWidth: number
+  menuWidth: number
 } {
   const viewportWidth = window.innerWidth
 
   if (viewportWidth >= 1280) {
-    return { minimumTabWidth: 128, gap: 6, arrowWidth: 40 }
+    return { minimumTabWidth: 128, gap: 6, chevronWidth: 24, menuWidth: 40 }
   }
 
   if (viewportWidth >= 640) {
-    return { minimumTabWidth: 112, gap: 6, arrowWidth: 36 }
+    return { minimumTabWidth: 112, gap: 6, chevronWidth: 20, menuWidth: 36 }
   }
 
-  return { minimumTabWidth: 96, gap: 4, arrowWidth: 32 }
+  return { minimumTabWidth: 96, gap: 4, chevronWidth: 20, menuWidth: 32 }
 }
 
 function tabCapacity(
@@ -379,9 +502,11 @@ function tabCapacity(
   reserveControls: boolean,
   metrics: ReturnType<typeof tabLayoutMetrics>,
 ): number {
-  const { minimumTabWidth, gap, arrowWidth } = metrics
+  const { minimumTabWidth, gap, chevronWidth, menuWidth } = metrics
   const stripPadding = 12
-  const controlSpace = reserveControls ? arrowWidth * 3 : 0
+  // Two chevrons and one map dropdown — the exact three controls that render
+  // together under `hasTabOverflow`.
+  const controlSpace = reserveControls ? chevronWidth * 2 + menuWidth : 0
   const availableWidth = Math.max(
     0,
     viewportWidth - stripPadding - controlSpace,
@@ -636,6 +761,35 @@ function goBack(): void {
   display: none;
 }
 
+/*
+ * PAGE ACTIONS ARE NOT SQUARE. Everything else in this strip is an icon-only
+ * control, so the rule above stands every .btn at a 2.25rem square with zero
+ * horizontal padding — correct for those, wrong for anything teleported in
+ * through kr-header-actions, which carries a label from `sm` up.
+ *
+ * This has to be said explicitly because CSS matches the DOM, not the component
+ * tree: a teleported button really is a descendant of .header-control-strip and
+ * really does pick up its `:deep` rules, however far away the component that
+ * wrote it lives. The ID selector clears the two-class rule by a wide margin,
+ * so ordering is not load-bearing here.
+ *
+ * Height stays as the strip sets it — page actions should stand exactly as tall
+ * as the controls beside them.
+ */
+.header-control-strip :deep(#kr-header-actions > .btn) {
+  width: auto;
+  min-width: 2.25rem;
+  padding-left: 0.625rem;
+  padding-right: 0.625rem;
+  gap: 0.25rem;
+}
+
+@media (min-width: 1280px) {
+  .header-control-strip :deep(#kr-header-actions > .btn) {
+    min-width: 2.75rem;
+  }
+}
+
 .header-control-strip :deep(.mana-icon),
 .header-control-strip :deep(.iconify),
 .header-control-strip :deep(svg),
@@ -671,6 +825,61 @@ function goBack(): void {
   padding-left: 0.5rem;
   padding-right: 0.5rem;
   gap: 0.25rem;
+}
+
+/*
+ * THE STACKED READOUTS MUST NOT GROW THE ROW.
+ *
+ * Karma and mana are `.btn`s, and the strip rules above stand every .btn at
+ * 2.25rem. Two of those stacked is 4.5rem in a row whose other controls are
+ * 2.25rem — the header would grow by half its height at exactly the two
+ * breakpoints this stage is trying to give space back at, which is the
+ * opposite of the point.
+ *
+ * 1.125rem each plus the 0.125rem `gap-0.5` is 2.375rem, so the pair stands
+ * within a rounding error of everything beside it. The emoji needs its own
+ * rule: karma-widget and mana-widget carry `text-lg` (18px) on the glyph
+ * span, which alone would set the line box taller than the button.
+ *
+ * Bounded at max-width 1023.98px to match the `lg:flex-row` on the wrapper —
+ * from lg the pair is a row again and wants the ordinary control sizing back.
+ * The selectors carry `.karma-widget`/`.mana-widget` to outrank the strip's
+ * own two-class rule for the same buttons; equal specificity would leave this
+ * decided by source order, which is too fragile to rely on.
+ */
+@media (max-width: 1023.98px) {
+  /*
+   * The widget ROOTS, not just their buttons. Each widget is a block <div>
+   * wrapping an inline-flex .btn, so the div gets a line box and the line box
+   * reserves descender space under the button -- 6px per widget, measured, for
+   * a glyph nothing renders. That put the stack at 50px while the buttons
+   * inside it were the 18px asked for below. Making the wrapper a flex
+   * container removes the line box, so the div hugs the button and the pair
+   * comes out at the 2.375rem this block is sized for.
+   */
+  .header-readouts :deep(.karma-widget),
+  .header-readouts :deep(.mana-widget) {
+    display: flex;
+  }
+
+  .header-readouts :deep(.karma-widget .btn),
+  .header-readouts :deep(.mana-widget .btn) {
+    height: 1.125rem;
+    min-height: 1.125rem;
+    width: auto;
+    min-width: 0;
+    padding: 0 0.375rem;
+    font-size: 0.6875rem;
+    line-height: 1;
+    gap: 0.1875rem;
+    border-radius: 0.5rem;
+  }
+
+  .header-readouts :deep(.karma-icon),
+  .header-readouts :deep(.mana-icon) {
+    font-size: 0.8125rem;
+    line-height: 1;
+  }
 }
 
 .tab-strip {

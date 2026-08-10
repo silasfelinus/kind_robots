@@ -300,22 +300,25 @@
           @update:mode="galleryMode = $event"
         >
           <template #toolbar>
+            <!-- ONE ROW AT EVERY WIDTH now. This was `flex-col sm:flex-row`
+                 purely because the search bar below was full-width and had to
+                 own a line of its own on a phone; collapsed to an icon, the
+                 whole toolbar is three small controls that fit beside each
+                 other at 390px. -->
             <div
               v-if="showControls && !isDropdownMode"
-              class="flex flex-col gap-2 sm:flex-row sm:items-center"
+              class="flex flex-wrap items-center gap-2"
             >
-              <label
-                class="input input-bordered input-sm flex flex-1 items-center gap-2 bg-base-200"
-              >
-                <Icon name="kind-icon:search" class="h-4 w-4 opacity-50" />
-                <input
-                  v-model="searchQuery"
-                  type="search"
-                  aria-label="Search scenarios"
-                  placeholder="Search scenarios..."
-                  class="grow bg-transparent"
-                />
-              </label>
+              <!-- An icon until you tap it. Silas, 2026-08-10: "Make them an
+                   ICON that expands to an input only when selected." This was
+                   a `flex-1` bar that owned the whole toolbar row, which is
+                   what pushed the Mature toggle and the Cards/Heroes/Icons
+                   buttons onto a second line on a phone. -->
+              <kr-search-field
+                v-model="searchQuery"
+                label="Search scenarios"
+                placeholder="Search scenarios..."
+              />
 
               <label
                 v-if="userStore.isAdmin"

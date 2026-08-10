@@ -28,17 +28,14 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
-          <label
-            class="input input-sm input-bordered flex min-w-0 flex-1 items-center gap-2 rounded-2xl bg-base-100/90 sm:w-64 sm:flex-none"
-          >
-            <Icon name="kind-icon:search" class="h-4 w-4 opacity-55" />
-            <input
-              v-model="searchQuery"
-              class="min-w-0"
-              type="search"
-              placeholder="Search themes"
-            />
-          </label>
+          <!-- Icon until selected, per Silas 2026-08-10. This one was a
+               standing 16rem box at sm+, beside a row of filter buttons that
+               each carry a count badge — the first thing to wrap. -->
+          <kr-search-field
+            v-model="searchQuery"
+            label="Search themes"
+            placeholder="Search themes"
+          />
 
           <!--
             THE COUNTS RIDE THE FILTERS. Each button carries the size of the

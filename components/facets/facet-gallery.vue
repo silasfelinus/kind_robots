@@ -24,12 +24,15 @@
          shrink-0 children, which is why its layout picker scrolls off the right
          edge on an iPad and Silas could not find it (2026-08-02 review). -->
     <div v-if="showControls" class="kr-toolbar shrink-0">
-      <input
+      <!-- An icon until you tap it. Silas, 2026-08-10: "Make them an ICON that
+           expands to an input only when selected." At `w-full max-w-sm` this
+           bar was 384px of a toolbar that also has to hold a taxonomy select,
+           an "Illustrated only" toggle and a layout select — which is why those
+           wrapped away from the search on anything narrower than a laptop. -->
+      <kr-search-field
         v-model="search"
-        type="search"
-        class="input input-bordered input-sm w-full max-w-sm rounded-xl bg-base-200"
+        label="Search facets"
         placeholder="Search title, alias, description, or taxonomy..."
-        aria-label="Search facets"
       />
       <select
         v-model="taxonomyFilter"

@@ -64,17 +64,22 @@
       <workspace-header class="relative z-30" />
 
       <section class="relative z-10 min-h-0 flex-1 overflow-hidden">
-        <button
-          v-if="!workspaceSheetOpen"
-          type="button"
-          class="btn btn-xs btn-square absolute left-0 top-0 z-40 shadow-lg"
-          aria-label="Open workspace"
-          :aria-expanded="workspaceSheetOpen"
-          @click="setWorkspaceSheetOpen(true)"
-        >
-          <Icon name="kind-icon:question" class="h-4 w-4" />
-        </button>
+        <!--
+          The "?" that opened this sheet USED TO LIVE HERE, as `absolute left-0
+          top-0 z-40`. It is now the left-most button in workspace-header.vue --
+          see the long note beside it there.
 
+          Short version: out of flow means over the page, always. Silas,
+          2026-08-10: "It renders OUTSIDE the layout and overlaps content below
+          the header." On /characters it landed on the Cards/Heroes/Icons bar,
+          on /resources on gallery items, on /facets in dead space. No page can
+          reserve room for an overlay it does not know about, so there is no
+          per-page fix -- only moving it back into the one row that is already
+          reserved for chrome.
+
+          Nothing replaces it here. The close control inside the sheet below is
+          still the sheet's own; the header button is what opens it.
+        -->
         <Transition name="kr-sheet-slide">
           <aside
             v-if="workspaceSheetOpen"

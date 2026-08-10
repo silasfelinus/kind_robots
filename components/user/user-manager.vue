@@ -1,11 +1,38 @@
 <!-- /components/content/user/user-manager.vue -->
 <template>
   <section class="flex h-full min-h-0 w-full flex-col gap-4 overflow-hidden">
-    <div class="flex shrink-0 flex-wrap items-center justify-end gap-2">
+    <!--
+      THESE THREE USED TO BE A ROW OF THEIR OWN, right here, as a full-width
+      `justify-end` strip above the account panes. Silas, 2026-08-10: "Same dead
+      band holds refresh and log out on some pages. Fold them into the header
+      row too, so there is no strip between header and content."
+
+      The strip carried two buttons and about 300px of nothing, on /dashboard,
+      /themes and /achievements — and the floating "?" landed on top of it,
+      which is how it got photographed. kr-header-actions teleports them into
+      the header's control strip, so the capability stays and the band is gone;
+      see that component for why a teleport rather than a store of descriptors
+      (Log Out has its own busy state, and descriptors cannot carry one).
+
+      Labels are `hidden xl:inline`, and `xl` rather than `sm` is a measured
+      number, not a guess. Labelled, these two stand at 102px and 92px; icon-
+      only they are 46px each. The channel tab strip is the one shrinkable thing
+      in this row and it was already sitting on its own min-width floor at 768px
+      (112px, one tab) with them labelled — so showing text here spends 100px
+      the navigation does not have until the row is genuinely wide. At xl the
+      strip has 600px+ and can afford it.
+
+      The icons carry the meaning below that, and both buttons keep their full
+      text in `title`/`aria-label`, so nothing is lost to a screen reader or a
+      hover.
+    -->
+    <kr-header-actions>
       <button
         class="btn btn-ghost btn-sm rounded-xl"
         type="button"
         :disabled="isLoadingManager"
+        title="Refresh account data"
+        aria-label="Refresh account data"
         @click="refreshManagerData(true)"
       >
         <span
@@ -13,16 +40,18 @@
           class="loading loading-spinner loading-xs"
         />
         <Icon v-else name="kind-icon:refresh" class="size-4" />
-        Refresh
+        <span class="hidden xl:inline">Refresh</span>
       </button>
 
       <NuxtLink
         v-if="!isLoggedIn"
         to="/login"
         class="btn btn-primary btn-sm rounded-xl"
+        title="Log in"
+        aria-label="Log in"
       >
         <Icon name="kind-icon:login" class="size-4" />
-        Log In
+        <span class="hidden xl:inline">Log In</span>
       </NuxtLink>
 
       <button
@@ -30,13 +59,17 @@
         class="btn btn-error btn-sm rounded-xl"
         type="button"
         :disabled="isLoggingOut"
+        :title="isLoggingOut ? 'Logging out…' : 'Log out'"
+        :aria-label="isLoggingOut ? 'Logging out…' : 'Log out'"
         @click="logout"
       >
         <span v-if="isLoggingOut" class="loading loading-spinner loading-xs" />
         <Icon v-else name="kind-icon:logout" class="size-4" />
-        {{ isLoggingOut ? 'Logging out…' : 'Log Out' }}
+        <span class="hidden xl:inline">
+          {{ isLoggingOut ? 'Logging out…' : 'Log Out' }}
+        </span>
       </button>
-    </div>
+    </kr-header-actions>
 
     <div
       v-if="managerError"

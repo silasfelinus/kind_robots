@@ -520,12 +520,13 @@
               <option value="building">Under construction</option>
             </select>
 
-            <input
+            <!-- Icon until selected, per Silas 2026-08-10. Was `flex-1`, so it
+                 claimed every pixel the status select and the buttons beside it
+                 did not. -->
+            <kr-search-field
               v-model="searchQuery"
-              type="search"
+              label="Search bots"
               placeholder="Search bots..."
-              class="input input-bordered input-sm min-w-32 flex-1 bg-base-100"
-              aria-label="Search bots"
             />
 
             <button

@@ -308,12 +308,12 @@ export const dashboardConfigs = {
         key: 'brainstorm',
         label: 'Brainstorm!',
         icon: 'kind-icon:brain',
-        title: 'Dream Brainstorm',
-        summary: 'Start with a pitch and generate riffs on the concept.',
+        title: 'Brainstorm',
+        summary: 'Start with a premise and generate genuinely different directions.',
         image: tabImage('brainstorm', 'brainstorm'),
         narrative:
-          'Feed the text server a dream pitch, generate fresh riffs, accept the good ones, reject the goblins, and turn the survivors into reusable dream seeds.',
-        route: '/dreams',
+          'Give Brainstorm a premise, generate distinct directions, keep the sparks, reject the beige, and refine the survivors into reusable creative material.',
+        route: '/brainstorm',
       },
       {
         key: 'prompts',

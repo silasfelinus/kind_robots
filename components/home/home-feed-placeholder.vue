@@ -30,7 +30,10 @@
       </NuxtLink>
     </header>
 
-    <NewsfeedFeed :initial-limit="9" />
+    <NewsfeedFeed
+      class="kr-panel-flat p-4 shadow-sm sm:p-5"
+      :initial-limit="9"
+    />
   </section>
 </template>
 

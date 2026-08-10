@@ -8,47 +8,6 @@
     <div
       class="flex min-h-12 min-w-0 items-center gap-1.5 px-1.5 py-1.5 sm:gap-2 sm:px-2 xl:min-h-16 xl:gap-3 xl:px-3"
     >
-      <!--
-        THE LEFT-MOST ITEM ON EVERY PAGE, and it used to not be in the header at
-        all. Silas, 2026-08-10, with screenshots of /stories, /facets and
-        /characters: "The floating '?' tutorial toggle. It renders OUTSIDE the
-        layout and overlaps content below the header ... Move it INLINE into the
-        header row as the LEFT-MOST item, on every page."
-
-        It lived in app.vue as `absolute left-0 top-0 z-40` inside the section
-        that holds <main>, so it floated over whatever the page drew in its
-        top-left corner: the Cards/Heroes/Icons bar on /characters, gallery
-        items on /resources, empty space on /facets. Absolute positioning cannot
-        be made to not overlap -- it is out of flow by definition, and the page
-        underneath has no way to reserve room for something it cannot see. The
-        fix is to put it back in flow, in the one row that is already reserved.
-
-        It is the WORKSPACE toggle, which is why it was hard to find by
-        searching for "tutorial" -- the tutorial is what the workspace sheet
-        opens onto (workspace-sheet.vue's "Show tutorial" panel), so the "?" is
-        how you reach it and reads as the tutorial button from the outside.
-
-        Now a real toggle rather than open-only. Floating over the content it
-        could hide itself behind the sheet it opened (`v-if="!workspaceSheetOpen"`);
-        in a fixed row it must say what it does in both states, and a control
-        that only ever opens is the kind of thing that gets clicked twice.
-      -->
-      <button
-        type="button"
-        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
-        :class="
-          workspaceSheetOpen
-            ? 'border-primary bg-primary/15 text-primary'
-            : 'bg-base-100'
-        "
-        :aria-label="workspaceToggleLabel"
-        :title="workspaceToggleLabel"
-        :aria-expanded="workspaceSheetOpen"
-        @click="navStore.toggleWorkspaceSheet()"
-      >
-        <Icon name="kind-icon:question" class="h-5 w-5" />
-      </button>
-
       <button
         v-if="showBackButton"
         type="button"
@@ -244,6 +203,45 @@
         class="header-control-strip flex shrink-0 items-center gap-1 sm:gap-1.5"
       >
         <!--
+          THE TUTORIAL/WORKSPACE TOGGLE STAYS HERE, after the channel + tab
+          shell, because Silas moved it here himself in #1708 ("fix tutorial
+          header order"), refining the "LEFT-MOST item" he asked for earlier the
+          same day once he saw it live. His note, kept verbatim from that
+          commit:
+
+            The tutorial/workspace toggle is a header utility, not primary
+            navigation. It now follows the channel + tab shell so both visual
+            and keyboard order read Back -> Channel -> Tabs -> Tutorial ->
+            utilities.
+
+            The previous fix correctly moved this button out of app.vue's
+            absolute overlay and into the reserved header row, but interpreted
+            "inline" as "left-most" and put it ahead of the actual navigation.
+            Keeping it here preserves the no-overlap fix without making Tutorial
+            the first thing users encounter on every page.
+
+          This branch was cut before that landed and had it left-most, which is
+          what conflicted. His placement wins -- the thing that mattered was
+          getting the button out of the absolute overlay, and where it sits in
+          the row after that is his call.
+        -->
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
+          :class="
+            workspaceSheetOpen
+              ? 'border-primary bg-primary/15 text-primary'
+              : 'bg-base-100'
+          "
+          :aria-label="workspaceToggleLabel"
+          :title="workspaceToggleLabel"
+          :aria-expanded="workspaceSheetOpen"
+          @click="navStore.toggleWorkspaceSheet()"
+        >
+          <Icon name="kind-icon:question" class="h-5 w-5" />
+        </button>
+
+        <!--
           THE SUPPLEMENTALS, in a two-row stack. Silas, 2026-08-10:
           "Notifications and refresh and server should all be in a two stacked
           group like karma and mana. they are supplementals, login-manager is
@@ -253,6 +251,12 @@
           than only where the row is tight: these three are things you reach for
           occasionally, the avatar is the one you aim at. Drawing them at half
           height next to a full-size avatar says which is which without a label.
+
+          The "?" above is deliberately NOT in this group. It is the one control
+          here that opens a whole surface rather than toggling a setting, and
+          Silas placed it in the navigation run (Back -> Channel -> Tabs ->
+          Tutorial) rather than among the utilities -- shrinking it into the
+          stack would undo that grouping.
 
           `grid-rows-2 grid-flow-col` rather than a fixed column count, because
           the membership is not fixed -- maturity-toggle appears only for a

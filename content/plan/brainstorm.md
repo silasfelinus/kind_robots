@@ -1,0 +1,4 @@
+---
+title: Brainstorm
+redirect: /brainstorm
+---

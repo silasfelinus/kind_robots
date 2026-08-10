@@ -5,8 +5,9 @@
 // the real check against synthetic store-shaped fixtures covering: the
 // pre-fix shape (draftText's result discarded, approveStage called
 // unconditionally -- the exact bug found by manual read-through), the fixed
-// shape (result captured and gated), the same-item reentrancy guard, and
-// autoBuildItem being absent entirely.
+// shape (result captured and gated), the same-item reentrancy guard,
+// autoBuildItem being absent entirely, and (a later cycle) the artPrompt
+// draft not being gated behind `!item.promptDraft.trim()`.
 import assert from 'node:assert/strict'
 
 import { checkAutoBuildDraftGate } from './verifyModelBuilderAutoBuildDraftGate.js'
@@ -83,7 +84,7 @@ const FIXED_FIXTURE = `
           const drafted = await draftText(itemId, 'fields')
           if (!drafted) return 'failed'
         }
-        if (wantArt) {
+        if (wantArt && !item.promptDraft.trim()) {
           const drafted = await draftText(itemId, 'artPrompt')
           if (!drafted) return 'failed'
         }
@@ -119,10 +120,11 @@ const MISSING_FIXTURE = `
 const buggyErrors = checkAutoBuildDraftGate(BUGGY_FIXTURE)
 assert.equal(
   buggyErrors.length,
-  5,
-  'expected the pre-fix shape (three discarded draftText results plus the ' +
-    'missing same-item reentrancy guard plus the missing manual-action-in-' +
-    `flight guard) to raise 5 errors, got ${buggyErrors.length}: ` +
+  6,
+  'expected the pre-fix shape (three discarded draftText results, the ' +
+    'missing same-item reentrancy guard, the missing manual-action-in-' +
+    'flight guard, and the unguarded artPrompt draft) to raise 6 errors, ' +
+    `got ${buggyErrors.length}: ` +
     JSON.stringify(buggyErrors),
 )
 assert.ok(
@@ -146,6 +148,13 @@ assert.ok(
     (e) => e.includes('generatingItemId') && e.includes('manual'),
   ),
   'expected a violation for the missing manual-action-in-flight guard',
+)
+assert.ok(
+  buggyErrors.some(
+    (e) => e.includes("'artPrompt'") && e.includes('promptDraft.trim()'),
+  ),
+  'expected a violation for the artPrompt draft not being gated behind ' +
+    '!item.promptDraft.trim()',
 )
 
 const fixedErrors = checkAutoBuildDraftGate(FIXED_FIXTURE)
@@ -191,6 +200,25 @@ assert.ok(
     noManualGuardErrors[0]!.includes('manual'),
 )
 
+const UNGATED_ARTPROMPT_FIXTURE = FIXED_FIXTURE.replace(
+  "if (wantArt && !item.promptDraft.trim()) {\n          const drafted = await draftText(itemId, 'artPrompt')",
+  "if (wantArt) {\n          const drafted = await draftText(itemId, 'artPrompt')",
+)
+const ungatedArtPromptErrors = checkAutoBuildDraftGate(
+  UNGATED_ARTPROMPT_FIXTURE,
+)
+assert.equal(
+  ungatedArtPromptErrors.length,
+  1,
+  'expected exactly one violation when the artPrompt draft is gated only ' +
+    `behind wantArt, not also !item.promptDraft.trim(), got ${ungatedArtPromptErrors.length}: ` +
+    JSON.stringify(ungatedArtPromptErrors),
+)
+assert.ok(
+  ungatedArtPromptErrors[0]!.includes("'artPrompt'") &&
+    ungatedArtPromptErrors[0]!.includes('promptDraft.trim()'),
+)
+
 const missingFnErrors = checkAutoBuildDraftGate(MISSING_FIXTURE)
 assert.equal(
   missingFnErrors.length,
@@ -201,6 +229,7 @@ assert.ok(missingFnErrors[0]!.includes('autoBuildItem'))
 
 console.log(
   'Model Builder auto-build gate checker verified: flags discarded draft ' +
-    'results and missing same-item reentrancy protection, clears the fixed shape, ' +
+    'results, missing same-item reentrancy protection, an artPrompt draft ' +
+    'not gated behind !item.promptDraft.trim(), clears the fixed shape, ' +
     'and flags autoBuildItem being absent entirely.',
 )

@@ -1495,7 +1495,20 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
           const drafted = await draftText(itemId, 'fields')
           if (!drafted) return 'failed'
         }
-        if (wantArt) {
+        if (wantArt && !item.promptDraft.trim()) {
+          // Mirrors the PITCH branch above: only draft what's actually
+          // empty. Unlike fieldsDraft (always pre-filled with a non-empty
+          // defaultFieldsTemplate skeleton, so an emptiness check there could
+          // never fire and isn't a reliable signal of user intent),
+          // promptDraft starts genuinely empty -- so a non-empty value here
+          // can only mean the user already typed their own generation
+          // prompt (the "Generation prompt" textarea's @change handler
+          // persists it via updatePrompt) before clicking Auto. Drafting
+          // unconditionally, as this used to, silently discarded that
+          // hand-typed prompt for a fresh AI one the user never asked for or
+          // reviewed -- and generateItemAsset immediately renders art from
+          // it (`item.promptDraft.trim() || item.pitch.trim()`) instead of
+          // what they wrote.
           const drafted = await draftText(itemId, 'artPrompt')
           if (!drafted) return 'failed'
         }

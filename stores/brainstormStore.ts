@@ -11,6 +11,7 @@ import {
 import type {
   BrainstormBatch,
   BrainstormBatchShape,
+  BrainstormBranchOrigin,
   BrainstormCandidate,
   BrainstormCandidateRevision,
   BrainstormCandidateStatus,
@@ -176,11 +177,12 @@ function normalizeRevision(value: unknown): BrainstormCandidateRevision | null {
   const title = cleanText(record.title)
   const createdAt = cleanText(record.createdAt)
   const reason = record.reason
+  const returnType = normalizeReturnTypeId(record.returnType)
 
   if (
     !text ||
     !createdAt ||
-    !['generated', 'edited', 'regenerated', 'branched'].includes(String(reason))
+    !['generated', 'edited', 'regenerated', 'branched', 'restored'].includes(String(reason))
   ) {
     return null
   }
@@ -190,6 +192,27 @@ function normalizeRevision(value: unknown): BrainstormCandidateRevision | null {
     createdAt,
     reason: reason as BrainstormCandidateRevision['reason'],
     ...(title ? { title } : {}),
+    returnType,
+  }
+}
+
+function normalizeBranchOrigin(value: unknown): BrainstormBranchOrigin | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+  const record = value as Record<string, unknown>
+  const candidateId = cleanText(record.candidateId)
+  const revisionIndex = Number(record.revisionIndex)
+  const title = cleanText(record.title)
+  const text = cleanMultilineText(record.text)
+
+  if (!candidateId || !text || !Number.isInteger(revisionIndex) || revisionIndex < 0) {
+    return null
+  }
+
+  return {
+    candidateId,
+    revisionIndex,
+    ...(title ? { title } : {}),
+    text,
   }
 }
 
@@ -226,6 +249,7 @@ function normalizeStoredCandidate(value: unknown): BrainstormCandidate | null {
       : {}
   const source = normalizeSourceRef(meta.source)
   const returnType = normalizeReturnTypeId(meta.returnType)
+  const branchOrigin = normalizeBranchOrigin(meta.branchOrigin)
 
   return {
     id,
@@ -239,10 +263,11 @@ function normalizeStoredCandidate(value: unknown): BrainstormCandidate | null {
     revisions:
       revisions.length > 0
         ? revisions
-        : [{ title, text, createdAt: nowIso(), reason: 'generated' }],
+        : [{ title, text, createdAt: nowIso(), reason: 'generated', returnType }],
     meta: {
       source,
       returnType,
+      branchOrigin,
     },
   }
 }
@@ -610,6 +635,46 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
       text: nextText,
       createdAt: nowIso(),
       reason: 'edited',
+      returnType: candidate.meta.returnType ?? null,
+    })
+    return true
+  }
+
+  function restoreCandidateRevision(
+    candidateId: string,
+    revisionIndex: number,
+  ): boolean {
+    const candidate = findCandidate(candidateId)
+    if (!candidate) return false
+    if (!Number.isInteger(revisionIndex) || revisionIndex < 0) return false
+
+    const revision = candidate.revisions[revisionIndex]
+    if (!revision) return false
+
+    const nextTitle = cleanText(revision.title)
+    const nextText = cleanMultilineText(revision.text)
+    if (!nextText) return false
+
+    const nextReturnType =
+      normalizeReturnTypeId(revision.returnType) ?? candidate.meta.returnType ?? null
+    if (
+      nextTitle === candidate.title &&
+      nextText === candidate.text &&
+      nextReturnType === (candidate.meta.returnType ?? null)
+    ) {
+      return true
+    }
+
+    candidate.title = nextTitle
+    candidate.text = nextText
+    candidate.meta.returnType = nextReturnType
+    candidate.edited = true
+    candidate.revisions.push({
+      ...(nextTitle ? { title: nextTitle } : {}),
+      text: nextText,
+      createdAt: nowIso(),
+      reason: 'restored',
+      returnType: nextReturnType,
     })
     return true
   }
@@ -662,12 +727,14 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
           text,
           createdAt,
           reason,
+          returnType,
         },
       ],
       meta: {
         source: source.value,
         intent: source.value?.intent || null,
         returnType,
+        branchOrigin: null,
       },
     }
   }
@@ -705,18 +772,20 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     const text = cleanMultilineText(generated.text)
     if (!text) return false
 
+    const returnType =
+      normalizeReturnTypeId(generated.returnType) ?? candidate.meta.returnType ?? null
     candidate.title = title
     candidate.text = text
     candidate.status = 'pending'
     candidate.feedback = ''
     candidate.edited = false
-    candidate.meta.returnType =
-      normalizeReturnTypeId(generated.returnType) ?? candidate.meta.returnType ?? null
+    candidate.meta.returnType = returnType
     candidate.revisions.push({
       ...(title ? { title } : {}),
       text,
       createdAt: nowIso(),
       reason: 'regenerated',
+      returnType,
     })
     return true
   }
@@ -735,6 +804,12 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
       parent.id,
     )
     if (!child.meta.returnType) child.meta.returnType = parent.meta.returnType ?? null
+    child.meta.branchOrigin = {
+      candidateId: parent.id,
+      revisionIndex: Math.max(0, parent.revisions.length - 1),
+      ...(parent.title ? { title: parent.title } : {}),
+      text: parent.text,
+    }
     candidates.value.push(child)
 
     const parentIndex = batch.candidateIds.indexOf(parent.id)
@@ -1006,6 +1081,7 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     resetCandidateStatus,
     setCandidateFeedback,
     editCandidate,
+    restoreCandidateRevision,
     removeCandidate,
     generateBatch,
     regenerateCandidate,

@@ -165,6 +165,8 @@
     "test:model-builder-open-run-identity-guard": "tsx utils/scripts/verifyModelBuilderOpenRunIdentityGuard.ts",
     "test:model-builder-commit-name-field-guard-selftest": "tsx utils/scripts/verifyModelBuilderCommitNameFieldGuard.test.ts",
     "test:model-builder-commit-name-field-guard": "tsx utils/scripts/verifyModelBuilderCommitNameFieldGuard.ts",
+    "test:model-builder-commit-stale-snapshot-guard-selftest": "tsx utils/scripts/verifyModelBuilderCommitStaleSnapshotGuard.test.ts",
+    "test:model-builder-commit-stale-snapshot-guard": "tsx utils/scripts/verifyModelBuilderCommitStaleSnapshotGuard.ts",
     "test:kontext-mask-forwarding": "tsx utils/scripts/verifyKontextMaskForwarding.ts",
     "test:pod-vendor-client-selftest": "tsx utils/scripts/verifyPodVendorClient.test.ts",
     "test:mana-gate-on-behalf-of-target": "tsx utils/scripts/verifyManaGateOnBehalfOfTarget.ts",

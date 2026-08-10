@@ -80,7 +80,7 @@
             :disabled="disabled"
             @click="cancelEdit"
           >
-            Cancel
+            Cancel edit
           </button>
           <button
             type="button"
@@ -127,7 +127,7 @@
         class="btn btn-sm"
         :class="candidate.status === 'kept' ? 'btn-success' : 'btn-ghost'"
         :disabled="disabled"
-        @click="emit(candidate.status === 'kept' ? 'reset' : 'keep')"
+        @click="toggleKeep"
       >
         {{ candidate.status === 'kept' ? '✓ Kept' : 'Keep' }}
       </button>
@@ -137,7 +137,7 @@
         class="btn btn-sm"
         :class="candidate.status === 'rejected' ? 'btn-error' : 'btn-ghost'"
         :disabled="disabled"
-        @click="emit(candidate.status === 'rejected' ? 'reset' : 'reject')"
+        @click="toggleReject"
       >
         {{ candidate.status === 'rejected' ? 'Rejected' : 'Reject' }}
       </button>
@@ -204,13 +204,23 @@ const draftText = ref(props.candidate.text)
 const feedbackDraft = ref(props.candidate.feedback)
 
 watch(
-  () => [props.candidate.title, props.candidate.text, props.candidate.feedback],
-  ([title, text, feedback]) => {
-    if (!editing.value) {
-      draftTitle.value = title || ''
-      draftText.value = text || ''
-    }
-    feedbackDraft.value = feedback || ''
+  () => props.candidate.title,
+  (value) => {
+    if (!editing.value) draftTitle.value = value
+  },
+)
+
+watch(
+  () => props.candidate.text,
+  (value) => {
+    if (!editing.value) draftText.value = value
+  },
+)
+
+watch(
+  () => props.candidate.feedback,
+  (value) => {
+    feedbackDraft.value = value
   },
 )
 
@@ -231,6 +241,16 @@ const statusBadgeClass = computed(() => {
   if (props.candidate.status === 'rejected') return 'bg-error/12 text-error'
   return 'bg-primary/10 text-primary'
 })
+
+function toggleKeep(): void {
+  if (props.candidate.status === 'kept') emit('reset')
+  else emit('keep')
+}
+
+function toggleReject(): void {
+  if (props.candidate.status === 'rejected') emit('reset')
+  else emit('reject')
+}
 
 function beginEdit(): void {
   draftTitle.value = props.candidate.title

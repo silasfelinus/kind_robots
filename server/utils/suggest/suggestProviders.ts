@@ -20,19 +20,19 @@ export function deriveSuggestProvider(
   const url = str(server.baseUrl).toLowerCase()
   const type = str(server.serverType).toUpperCase()
 
-  if (url.includes('anthropic.com')) return 'anthropic'
+  if (url.includes('anthropic.com') || type === 'ANTHROPIC') return 'anthropic'
   if (url.includes('openai.com')) return 'openai'
   if (
     url.includes('localhost') ||
     url.includes('127.0.0.1') ||
-    url.includes('ollama')
+    url.includes('ollama') ||
+    type === 'OLLAMA'
   ) {
     return 'ollama'
   }
 
-  if (type === 'OPENAI' || type === 'CUSTOM') {
-    return 'openai_compatible'
-  }
+  if (type === 'OPENAI') return url ? 'openai_compatible' : 'openai'
+  if (type === 'CUSTOM') return 'openai_compatible'
 
   return 'anthropic'
 }
@@ -100,7 +100,7 @@ async function callOpenAI(
   userPrompt: string,
   options: SuggestProviderOptions,
 ): Promise<string> {
-  if (!options.apiKey) {
+  if (options.provider === 'openai' && !options.apiKey) {
     throw createError({
       statusCode: 500,
       statusMessage: 'openaiApiKey not configured',
@@ -117,7 +117,9 @@ async function callOpenAI(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${options.apiKey}`,
+      ...(options.apiKey
+        ? { Authorization: `Bearer ${options.apiKey}` }
+        : {}),
     },
     body: JSON.stringify({
       model: options.model,

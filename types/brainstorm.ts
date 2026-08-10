@@ -68,6 +68,13 @@ export type BrainstormGenerationState =
   | 'success'
   | 'error'
 
+export type BrainstormPersistenceState =
+  | 'idle'
+  | 'loading'
+  | 'saving'
+  | 'success'
+  | 'error'
+
 export type BrainstormErrorKind =
   | 'validation'
   | 'auth'
@@ -195,4 +202,30 @@ export type BrainstormSessionSnapshot = {
   batches: BrainstormBatch[]
   activeBatchId: string | null
   lastGeneratedAt: string | null
+}
+
+export type BrainstormSavedSessionSummary = {
+  id: number
+  name: string
+  premise: string
+  candidateCount: number
+  createdAt: string
+  updatedAt: string
+}
+
+export type BrainstormSavedSession = BrainstormSavedSessionSummary & {
+  snapshot: BrainstormSessionSnapshot
+}
+
+export type BrainstormSessionSaveRequest = {
+  name: string
+  snapshot: BrainstormSessionSnapshot
+}
+
+export type BrainstormSavedSessionsData = {
+  sessions: BrainstormSavedSessionSummary[]
+}
+
+export type BrainstormSavedSessionData = {
+  session: BrainstormSavedSession
 }

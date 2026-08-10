@@ -1,5 +1,6 @@
 // POST /api/facets
 import { createError, defineEventHandler, readBody } from 'h3'
+import { coerceCardTheme } from '@/utils/entityTheme'
 import type { CreationSource, Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
@@ -156,6 +157,8 @@ export default defineEventHandler(async (event) => {
         iconPath: optionalText(body.iconPath),
         icon: optionalText(body.icon),
         designer: optionalText(body.designer),
+        // Card theme, never NULL on creation -- see dreams/index.post.ts.
+        theme: coerceCardTheme((body as { theme?: unknown }).theme),
         creationSource,
         userId: auth.user.id,
         artImageId,

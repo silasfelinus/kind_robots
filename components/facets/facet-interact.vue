@@ -63,6 +63,16 @@
       <span class="badge badge-outline badge-sm shrink-0">
         {{ selectedFacet.canonicalValue }}
       </span>
+
+      <button
+        type="button"
+        class="btn btn-primary btn-sm shrink-0 rounded-xl"
+        title="Start a Storybook story seeded with this Facet"
+        @click="startStoryWithFacet"
+      >
+        <Icon name="kind-icon:book-open" class="size-3.5" />
+        <span class="hidden sm:inline">Start a story with this</span>
+      </button>
     </header>
 
     <div class="kr-scroll space-y-4">
@@ -158,6 +168,14 @@ function closeFacet(): void {
   const query = { ...route.query }
   delete query.facet
   void router.push({ query })
+}
+
+function startStoryWithFacet(): void {
+  if (!selectedFacet.value?.slug) return
+  void navigateTo({
+    path: '/storybook',
+    query: { facet: selectedFacet.value.slug },
+  })
 }
 
 /*

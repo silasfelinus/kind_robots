@@ -123,7 +123,7 @@
       :key="renderedTab"
       :class="
         isPanelTab(renderedTab)
-          ? 'min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-2xl border border-base-300 bg-base-100 p-4'
+          ? 'kr-panel-flat min-h-0 flex-1 overflow-y-auto overscroll-contain p-4'
           : 'flex h-full min-h-0 flex-1 flex-col overflow-hidden'
       "
     >

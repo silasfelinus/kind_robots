@@ -315,7 +315,7 @@
 
                 <details
                   v-if="submission.promptUsed"
-                  class="collapse collapse-arrow mt-4 rounded-2xl border border-base-300 bg-base-100"
+                  class="collapse collapse-arrow kr-panel-flat mt-4"
                 >
                   <summary
                     class="collapse-title min-h-0 py-3 text-xs font-black uppercase tracking-wider"
@@ -331,7 +331,7 @@
 
                 <details
                   v-if="randomSelectionsList(submission).length"
-                  class="collapse collapse-arrow mt-3 rounded-2xl border border-base-300 bg-base-100"
+                  class="collapse collapse-arrow kr-panel-flat mt-3"
                 >
                   <summary
                     class="collapse-title min-h-0 py-3 text-xs font-black uppercase tracking-wider"

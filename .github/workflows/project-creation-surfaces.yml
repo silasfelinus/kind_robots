@@ -1,0 +1,53 @@
+name: Project Creation Surfaces
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'server/**'
+      - 'scripts/**'
+      - 'utils/contracts/project-creation-call-sites.json'
+      - 'utils/scripts/verifyProjectCreationSurfaces.mjs'
+      - '.github/workflows/project-creation-surfaces.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'server/**'
+      - 'scripts/**'
+      - 'utils/contracts/project-creation-call-sites.json'
+      - 'utils/scripts/verifyProjectCreationSurfaces.mjs'
+      - '.github/workflows/project-creation-surfaces.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: project-creation-surfaces-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify documented Project creation surfaces
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install parser dependency
+        run: npm ci --ignore-scripts
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Scanner self-test
+        run: node utils/scripts/verifyProjectCreationSurfaces.mjs --self-test
+
+      - name: Project creation surface contract
+        run: node utils/scripts/verifyProjectCreationSurfaces.mjs

@@ -145,7 +145,7 @@
         class="btn btn-sm"
         :class="batch.id === activeBatchId ? 'btn-primary' : 'btn-ghost'"
         :disabled="isGenerating"
-        @click="store.setActiveBatch(batch.id)"
+        @click="setActiveBatch(batch.id)"
       >
         {{ index + 1 }} · {{ batch.candidateIds.length }}
       </button>
@@ -178,13 +178,13 @@
         :candidate="candidate"
         :disabled="isGenerating"
         :busy="generationTargetId === candidate.id"
-        :busy-action="pendingCandidateAction?.id === candidate.id ? pendingCandidateAction.action : null"
-        @keep="store.keepCandidate(candidate.id)"
-        @reject="store.rejectCandidate(candidate.id)"
-        @reset="store.resetCandidateStatus(candidate.id)"
-        @delete="store.removeCandidate(candidate.id)"
-        @feedback="(value) => store.setCandidateFeedback(candidate.id, value)"
-        @edit="(patch) => store.editCandidate(candidate.id, patch)"
+        :busy-action="candidateBusyAction(candidate.id)"
+        @keep="keepCandidate(candidate.id)"
+        @reject="rejectCandidate(candidate.id)"
+        @reset="resetCandidate(candidate.id)"
+        @delete="deleteCandidate(candidate.id)"
+        @feedback="setCandidateFeedback(candidate.id, $event)"
+        @edit="editCandidate(candidate.id, $event)"
         @regenerate="regenerate(candidate.id)"
         @branch="branch(candidate.id)"
       />
@@ -196,7 +196,7 @@
       aria-label="Generating Brainstorm candidates"
     >
       <div
-        v-for="index in Math.min(resultCountModel, 6)"
+        v-for="index in skeletonCount"
         :key="index"
         class="kr-panel-flat min-h-56 animate-pulse border border-base-content/8 bg-base-100/75 p-5"
       >
@@ -277,6 +277,8 @@ const isBatchGenerating = computed(
   () => isGenerating.value && !generationTargetId.value,
 )
 
+const skeletonCount = computed(() => Math.min(resultCount.value, 6))
+
 const errorHeading = computed(() => {
   switch (generationError.value?.kind) {
     case 'auth':
@@ -299,6 +301,43 @@ const errorHeading = computed(() => {
 onMounted(() => {
   store.initializeSession()
 })
+
+function candidateBusyAction(candidateId: string): 'regenerate' | 'branch' | null {
+  return pendingCandidateAction.value?.id === candidateId
+    ? pendingCandidateAction.value.action
+    : null
+}
+
+function setActiveBatch(batchId: string): void {
+  store.setActiveBatch(batchId)
+}
+
+function keepCandidate(candidateId: string): void {
+  store.keepCandidate(candidateId)
+}
+
+function rejectCandidate(candidateId: string): void {
+  store.rejectCandidate(candidateId)
+}
+
+function resetCandidate(candidateId: string): void {
+  store.resetCandidateStatus(candidateId)
+}
+
+function deleteCandidate(candidateId: string): void {
+  store.removeCandidate(candidateId)
+}
+
+function setCandidateFeedback(candidateId: string, value: string): void {
+  store.setCandidateFeedback(candidateId, value)
+}
+
+function editCandidate(
+  candidateId: string,
+  patch: { title: string; text: string },
+): void {
+  store.editCandidate(candidateId, patch)
+}
 
 async function generate(): Promise<void> {
   if (!canGenerate.value) return

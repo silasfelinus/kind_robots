@@ -27,13 +27,24 @@ jobs:
   verify:
     name: Verify documented Project creation surfaces
     runs-on: ubuntu-latest
-    timeout-minutes: 2
+    timeout-minutes: 5
     permissions:
       contents: read
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install parser dependency
+        run: npm ci --ignore-scripts
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
 
       - name: Scanner self-test
         run: node utils/scripts/verifyProjectCreationSurfaces.mjs --self-test

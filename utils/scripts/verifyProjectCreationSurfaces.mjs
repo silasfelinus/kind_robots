@@ -9,86 +9,13 @@ import assert from 'node:assert/strict'
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { dirname, extname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import ts from 'typescript'
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
 const contractPath = join(repoRoot, 'utils/contracts/project-creation-call-sites.json')
 const contract = JSON.parse(readFileSync(contractPath, 'utf8'))
 const sourceRoots = ['server', 'scripts']
 const sourceExtensions = new Set(['.ts', '.js', '.mjs', '.cjs'])
-const directCreatePattern = /\.\s*project\s*\.\s*create\s*\(/g
-
-function stripCommentsAndStrings(source) {
-  let output = ''
-  let state = 'code'
-
-  for (let index = 0; index < source.length; index += 1) {
-    const char = source[index]
-    const next = source[index + 1]
-
-    if (state === 'code') {
-      if (char === '/' && next === '/') {
-        state = 'line-comment'
-        output += '  '
-        index += 1
-      } else if (char === '/' && next === '*') {
-        state = 'block-comment'
-        output += '  '
-        index += 1
-      } else if (char === "'") {
-        state = 'single-quote'
-        output += ' '
-      } else if (char === '"') {
-        state = 'double-quote'
-        output += ' '
-      } else if (char === '`') {
-        state = 'template'
-        output += ' '
-      } else {
-        output += char
-      }
-      continue
-    }
-
-    if (state === 'line-comment') {
-      if (char === '\n') {
-        state = 'code'
-        output += '\n'
-      } else {
-        output += ' '
-      }
-      continue
-    }
-
-    if (state === 'block-comment') {
-      if (char === '*' && next === '/') {
-        state = 'code'
-        output += '  '
-        index += 1
-      } else {
-        output += char === '\n' ? '\n' : ' '
-      }
-      continue
-    }
-
-    const closingQuote =
-      state === 'single-quote' ? "'" : state === 'double-quote' ? '"' : '`'
-
-    if (char === '\\') {
-      output += ' '
-      if (next !== undefined) {
-        output += next === '\n' ? '\n' : ' '
-        index += 1
-      }
-    } else if (char === closingQuote) {
-      state = 'code'
-      output += ' '
-    } else {
-      output += char === '\n' ? '\n' : ' '
-    }
-  }
-
-  return output
-}
 
 function findSourceFiles(root) {
   if (!statSync(root).isDirectory()) return []
@@ -102,14 +29,50 @@ function findSourceFiles(root) {
   })
 }
 
+function scriptKindFor(path) {
+  return extname(path) === '.ts' ? ts.ScriptKind.TS : ts.ScriptKind.JS
+}
+
+function countDirectProjectCreateCalls(source, filename = 'contract.ts') {
+  const sourceFile = ts.createSourceFile(
+    filename,
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    scriptKindFor(filename),
+  )
+  let count = 0
+
+  function visit(node) {
+    if (ts.isCallExpression(node)) {
+      const createAccess = node.expression
+      if (
+        ts.isPropertyAccessExpression(createAccess) &&
+        createAccess.name.text === 'create'
+      ) {
+        const projectAccess = createAccess.expression
+        if (
+          ts.isPropertyAccessExpression(projectAccess) &&
+          projectAccess.name.text === 'project'
+        ) {
+          count += 1
+        }
+      }
+    }
+    ts.forEachChild(node, visit)
+  }
+
+  visit(sourceFile)
+  return count
+}
+
 function findDirectProjectCreateSites() {
   const matches = new Set()
 
   for (const sourceRoot of sourceRoots) {
     for (const path of findSourceFiles(join(repoRoot, sourceRoot))) {
-      const codeOnly = stripCommentsAndStrings(readFileSync(path, 'utf8'))
-      directCreatePattern.lastIndex = 0
-      if (directCreatePattern.test(codeOnly)) {
+      const source = readFileSync(path, 'utf8')
+      if (countDirectProjectCreateCalls(source, path) > 0) {
         matches.add(relative(repoRoot, path).replaceAll('\\', '/'))
       }
     }
@@ -124,11 +87,10 @@ function runSelfTest() {
     // await prisma.project.create({ data: {} })
     /* database.project.create({ data: {} }) */
     const example = "prisma.project.create("
-    const template = \`tx.project.create(\`
+    const template = \`tx.project.create(\${'not code'})\`
     const project_create = () => undefined
   `
-  const codeOnly = stripCommentsAndStrings(sample)
-  assert.equal(codeOnly.match(directCreatePattern)?.length ?? 0, 1)
+  assert.equal(countDirectProjectCreateCalls(sample), 1)
 }
 
 if (process.argv.includes('--self-test')) {

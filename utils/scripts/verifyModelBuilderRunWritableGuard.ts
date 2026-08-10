@@ -70,6 +70,10 @@ const ROUTES: RouteCheck[] = [
   },
 ]
 
+// Checks the fix's exact shape against the full source text of one route
+// file. Exported (rather than only exercised via main()) so the self-test
+// below can run it against synthetic route-shaped fixtures without touching
+// the real route files.
 export function checkRunWritableGuard(
   content: string,
   route: RouteCheck,
@@ -90,6 +94,9 @@ export function checkRunWritableGuard(
     return errors
   }
 
+  // Tolerant of the whitespace/indentation between the two statements
+  // (each route indents this pair differently) rather than requiring an
+  // exact adjacent line.
   const writablePattern = new RegExp(
     `assertRunAccess\\(\\s*${escapedVar},\\s*auth\\.user\\s*\\)\\s*\\n\\s*` +
       `assertRunWritable\\(\\s*${escapedVar}\\s*\\)`,

@@ -92,3 +92,37 @@ export function resolveEntityTheme(
   const index = Math.abs(Math.trunc(id)) % DAISY_CARD_THEMES.length
   return DAISY_CARD_THEMES[index] ?? DAISY_CARD_THEMES[0]
 }
+
+/**
+ * A theme for a record being CREATED.
+ *
+ * Silas, 2026-08-10: "when I said randomize, I meant when we first seed them",
+ * and "When we build them, such as in our automatic daily dream, we should set
+ * a theme from the options."
+ *
+ * Genuinely random here, unlike resolveEntityTheme's fallback -- this runs ONCE
+ * and the answer is written to the row, so there is nothing to keep stable. The
+ * id-derived rule cannot be used at creation anyway: the row has no id yet.
+ */
+export function randomCardTheme(): string {
+  const index = Math.floor(Math.random() * DAISY_CARD_THEMES.length)
+  return DAISY_CARD_THEMES[index] ?? DAISY_CARD_THEMES[0]
+}
+
+/**
+ * A caller-supplied theme if it names a real one, otherwise a fresh random pick.
+ *
+ * Creation paths use this rather than trusting input: "it's more important to
+ * populate with something than to make a precise match", so an unrecognised or
+ * absent value becomes a valid theme instead of a NULL column or a `data-theme`
+ * pointing at nothing.
+ */
+export function coerceCardTheme(value: unknown): string {
+  const candidate = String(value ?? '')
+    .trim()
+    .toLowerCase()
+
+  return (DAISY_CARD_THEMES as readonly string[]).includes(candidate)
+    ? candidate
+    : randomCardTheme()
+}

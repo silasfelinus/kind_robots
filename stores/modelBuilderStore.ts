@@ -644,14 +644,19 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     payload: Record<string, unknown>,
     meta?: { stage?: string; reason?: string },
   ): void {
+    const runId = state.run?.id
     performFetch(`/api/model-builder/items/${item.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...payload, ...meta }),
     })
       .then((response) => {
-        if (!response.success) {
-          setStatus('error', response.message || 'Failed to save changes.')
+        if (!response.success && runId) {
+          setStatusForRun(
+            runId,
+            'error',
+            response.message || 'Failed to save changes.',
+          )
         }
       })
       .catch((error) => handleError(error, 'saving build item'))
@@ -669,6 +674,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     }>,
   ): void {
     if (!entries.length) return
+    const runId = state.run?.id
     performFetch('/api/model-builder/items/batch', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -681,8 +687,12 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       }),
     })
       .then((response) => {
-        if (!response.success) {
-          setStatus('error', response.message || 'Failed to save changes.')
+        if (!response.success && runId) {
+          setStatusForRun(
+            runId,
+            'error',
+            response.message || 'Failed to save changes.',
+          )
         }
       })
       .catch((error) => handleError(error, 'saving build items'))

@@ -60,6 +60,7 @@ export type BrainstormRevisionReason =
   | 'edited'
   | 'regenerated'
   | 'branched'
+  | 'restored'
 
 export type BrainstormGenerationState =
   | 'idle'
@@ -88,6 +89,14 @@ export type BrainstormCandidateRevision = {
   text: string
   createdAt: string
   reason: BrainstormRevisionReason
+  returnType?: BrainstormReturnTypeId | null
+}
+
+export type BrainstormBranchOrigin = {
+  candidateId: string
+  revisionIndex: number
+  title?: string
+  text: string
 }
 
 export type BrainstormCandidateArtMeta = {
@@ -99,6 +108,7 @@ export type BrainstormCandidateMeta = {
   source?: BrainstormSourceRef | null
   intent?: string | null
   returnType?: BrainstormReturnTypeId | null
+  branchOrigin?: BrainstormBranchOrigin | null
   art?: BrainstormCandidateArtMeta
 }
 

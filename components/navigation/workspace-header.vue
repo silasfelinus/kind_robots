@@ -242,42 +242,63 @@
         </button>
 
         <!--
-          THE SUPPLEMENTALS, in a two-row stack. Silas, 2026-08-10:
-          "Notifications and refresh and server should all be in a two stacked
-          group like karma and mana. they are supplementals, login-manager is
-          the one worthy of being full sized. That will free up some space."
+          ACCOUNT FIRST, RIGHT AFTER THE TUTORIAL BUTTON. Silas, 2026-08-10:
+          "login portal link (the user select) should be next to tutorial.
+          notifications, if present, should be next to them."
 
-          That is a hierarchy statement, so it is applied at every width rather
-          than only where the row is tight: these three are things you reach for
-          occasionally, the avatar is the one you aim at. Drawing them at half
-          height next to a full-size avatar says which is which without a label.
+          So the run reads Back -> Channel -> Tabs -> Tutorial -> You. The
+          avatar is the control with the highest hit rate in this row and the
+          only one that is a doorway rather than a setting, and notifications
+          belong beside it because they are about you too. Everything after
+          this point is machinery.
 
-          The "?" above is deliberately NOT in this group. It is the one control
-          here that opens a whole surface rather than toggling a setting, and
-          Silas placed it in the navigation run (Back -> Channel -> Tabs ->
-          Tutorial) rather than among the utilities -- shrinking it into the
-          stack would undo that grouping.
+          notification-bell renders nothing at all for a logged-out visitor
+          (its own v-if), and its cart button only appears with a cart -- so
+          "if present" is already how it behaves and needs no gate here.
+        -->
+        <login-switcher class="header-control-item min-w-0" />
+        <notification-bell class="shrink-0" />
 
-          `grid-rows-2 grid-flow-col` rather than a fixed column count, because
-          the membership is not fixed -- maturity-toggle appears only for a
-          logged-in user on a dashboard, and notification-bell carries a cart
-          button that appears only when the cart has items. Auto-flow fills top
-          to bottom and opens a new column every two items, so three controls
-          become 2x2 and four stay 2x2, with no per-case class. A fixed
-          `grid-cols-2` would reflow the wrong way as membership changed.
+        <!--
+          THE SUPPLEMENTALS: refresh and server, plus the maturity toggle where
+          it applies. Machinery you reach for occasionally.
 
-          The refresh button dropped its `hidden sm:inline-flex`. It was hidden
-          on phones to buy the tab strip room, and stacking gives that room back
-          with interest: the cluster is two columns wide instead of three or
-          four, so even with refresh now drawn at 390px this section is
-          narrower than it was.
+          THEY STACK ONLY WHEN THE ROW ACTUALLY NEEDS THE SPACE. Silas,
+          2026-08-10, looking at /bots: "This is only if there is need ... there
+          is plenty of room."
+
+          He is right, and the previous version was wrong to stack them
+          unconditionally. It read the earlier "they are supplementals" note as
+          a statement about hierarchy that should hold everywhere, and shrinking
+          controls that nothing is competing with buys nothing and costs a
+          comfortable hit target. Density is a response to pressure, not a
+          style.
+
+          `compactControls` measures that pressure instead of guessing it from a
+          breakpoint -- see updateControlDensity(). A breakpoint would be wrong
+          in both directions here, because the pressure depends on how many tabs
+          the CURRENT CHANNEL has, not on how wide the window is: /bots at 700px
+          has room to spare, while a channel with eight tabs does not have it at
+          1280px.
+
+          `grid-rows-2 grid-flow-col` when compact, rather than a fixed column
+          count, because the membership is not fixed -- maturity-toggle appears
+          only for a logged-in user on a dashboard. Auto-flow opens a new column
+          every two items, so two controls become one column and three become
+          two, with no per-case class.
 
           server-selector's own root carries the `inline-flex` UTILITY, which
           beats `hidden` on equal specificity and stylesheet order -- so if one
           of these ever does need hiding, it needs a wrapper, not a class.
         -->
         <div
-          class="header-supplementals grid shrink-0 grid-flow-col grid-rows-2 items-center gap-x-1 gap-y-0.5"
+          ref="supplementalsEl"
+          class="header-supplementals shrink-0 items-center"
+          :class="
+            compactControls
+              ? 'is-compact grid grid-flow-col grid-rows-2 gap-x-1 gap-y-0.5'
+              : 'flex gap-1 sm:gap-1.5'
+          "
         >
           <button
             type="button"
@@ -293,10 +314,7 @@
           <maturity-toggle
             v-if="showDashboardMaturityToggle && userStore.isLoggedIn"
           />
-          <notification-bell class="shrink-0" />
         </div>
-
-        <login-switcher class="header-control-item min-w-0" />
 
         <!--
           WHERE A PAGE PUTS ITS OWN CONTROLS. Filled through
@@ -385,6 +403,23 @@ const route = useRoute()
 
 const tabViewport = ref<HTMLElement | null>(null)
 const tabStrip = ref<HTMLElement | null>(null)
+const supplementalsEl = ref<HTMLElement | null>(null)
+
+/**
+ * Whether the supplemental controls stack into two short rows.
+ *
+ * FALSE is the resting state, deliberately. Density is a response to pressure,
+ * not a house style — see updateControlDensity() for how the pressure is
+ * measured and why it is measured rather than assumed from a breakpoint.
+ */
+const compactControls = ref(false)
+
+/**
+ * The cluster's width when NOT stacked, remembered so the stacked state can
+ * price what unstacking would cost. Null until the first measurement, which
+ * always happens un-stacked because that is the resting state.
+ */
+const fullClusterWidth = ref<number | null>(null)
 const visibleTabCount = ref(1)
 const tabGapPx = ref(4)
 const canScrollTabsLeft = ref(false)
@@ -576,6 +611,117 @@ function updateVisibleTabCount(): boolean {
   return changed
 }
 
+/**
+ * How many supplemental controls are actually rendered right now.
+ *
+ * Read off the DOM rather than recomputed from the same conditions the template
+ * uses, because a second copy of "is the maturity toggle showing?" is a second
+ * thing to keep in step — and this one only ever gets checked at a width where
+ * being wrong is invisible until it is not.
+ */
+function supplementalCount(): number {
+  return supplementalsEl.value?.childElementCount ?? 0
+}
+
+/**
+ * Decide whether the supplementals stack, from measured pressure on the row
+ * rather than from a breakpoint.
+ *
+ * WHAT "NEED" ACTUALLY MEANS HERE, because the obvious answer is wrong. The
+ * first version of this asked "do all the tabs fit?" and compacted whenever
+ * they did not -- which on /bots (13 tabs) is every width including 1366px,
+ * exactly the case Silas was looking at when he said "there is plenty of room".
+ * A channel with more tabs than any screen can show is not a row under
+ * pressure; it is a row doing its job, with a scroller.
+ *
+ * The honest signal is whether the row has run out of SLACK. `.tab-strip`
+ * carries a hard min-width floor (6/7/8rem, matching tabLayoutMetrics's
+ * minimumTabWidth), and the row gives ground in a fixed order as it narrows:
+ * channel-select truncates first, then the strip shrinks, and finally the strip
+ * hits that floor and cannot give any more. Sitting ON the floor is the row
+ * saying it has nothing left -- and that, not tab count, is when taking 40px
+ * back from the utilities is worth a smaller hit target.
+ *
+ * WHY NOT A BREAKPOINT. The floor is reached at different widths on different
+ * routes: a back button, a cart badge, a maturity toggle and the page-action
+ * teleport all come and go, and each one moves the point where the row runs
+ * out. Measuring finds it; a number in a media query guesses at it.
+ *
+ * WHY IT CANNOT OSCILLATE, which is the real hazard in a layout that measures
+ * itself and then changes its own size:
+ *
+ *   stacking FREES `savings` px -> the strip lifts off its floor -> "no
+ *   pressure" -> unstack -> back on the floor -> stack again -> forever.
+ *
+ * So the two thresholds are asymmetric, and each is evaluated against the width
+ * the OTHER state would have:
+ *
+ *   compact   when the strip is on its floor NOW
+ *   uncompact when the strip would still clear the floor after GIVING BACK
+ *             `savings`
+ *
+ * Between them is a hysteresis band where neither fires and the current state
+ * holds, so leaving compact cannot immediately re-trigger it: the condition for
+ * leaving is precisely "the wider layout also fits".
+ *
+ * `savings` is derived from the cluster's own measured width and its column
+ * count in each state, so it stays correct if the controls are resized, if the
+ * maturity toggle appears, or if the xl sizing changes -- none of which a
+ * hardcoded pixel constant would survive.
+ */
+function updateControlDensity(): void {
+  const strip = tabStrip.value
+  const cluster = supplementalsEl.value
+
+  if (!strip || !cluster || resolvedTabs.value.length === 0) return
+
+  const count = supplementalCount()
+  if (count === 0) return
+
+  const clusterWidth = cluster.getBoundingClientRect().width
+  if (clusterWidth === 0) return
+
+  /*
+   * `savings` IS MEASURED, NOT DERIVED FROM COLUMN COUNT. The first version of
+   * this computed it as "one column's width times the columns saved", which
+   * missed that compacting ALSO halves every control: on /themes the cluster
+   * goes 78px -> 18px, a 60px saving, while that formula reported 18px.
+   *
+   * Under-reporting the saving is precisely what makes this oscillate. The
+   * uncompact test then believes giving the space back is cheap, the strip
+   * drops onto its floor, the compact test fires, and the two trade places
+   * forever. Observed on /themes at 700px: strip 112px wide when full, 171px
+   * when compact, flipping between them.
+   *
+   * So the full width is recorded whenever the cluster IS full -- which is the
+   * resting state, and therefore always measured at least once before anything
+   * compacts -- and the saving is the plain difference. It re-records on every
+   * pass, so it follows a membership change (the maturity toggle appearing) or
+   * the xl size bump on its own.
+   */
+  if (!compactControls.value) fullClusterWidth.value = clusterWidth
+
+  const savings = Math.max(
+    0,
+    (fullClusterWidth.value ?? clusterWidth) - clusterWidth,
+  )
+
+  /*
+   * A few pixels of tolerance, because the floor is a rem value against a
+   * fractional measured width and "one pixel above the floor" is not slack in
+   * any sense a reader would recognise.
+   */
+  const floor = tabLayoutMetrics().minimumTabWidth + 8
+  const stripWidth = strip.getBoundingClientRect().width
+
+  if (compactControls.value) {
+    if (stripWidth - savings > floor) compactControls.value = false
+    return
+  }
+
+  if (stripWidth <= floor) compactControls.value = true
+}
+
 function tabButtons(): HTMLElement[] {
   return Array.from(
     tabStrip.value?.querySelectorAll<HTMLElement>('[data-tab-index]') ?? [],
@@ -691,6 +837,25 @@ async function syncTabStrip(
 ): Promise<void> {
   await nextTick()
   observeTabViewport()
+
+  /*
+   * DENSITY FIRST, then the tab count that depends on it.
+   *
+   * Compacting changes how much width the strip has, so deciding the visible
+   * tab count before deciding the density would size the tabs against a
+   * viewport about to change underneath them — one frame of the wrong layout on
+   * every resize. The `await` is what makes the following measurement see the
+   * new width rather than the old one.
+   *
+   * The ResizeObserver on the viewport fires again after a density change,
+   * which is what settles the strip: that second pass finds the new width, and
+   * updateControlDensity()'s hysteresis is what stops it becoming a third.
+   */
+  const densityBefore = compactControls.value
+  updateControlDensity()
+  if (compactControls.value !== densityBefore) {
+    await nextTick()
+  }
 
   if (updateVisibleTabCount()) {
     await nextTick()
@@ -873,13 +1038,13 @@ function goBack(): void {
  * 1.125rem each plus the 0.125rem `gap-*-0.5` is 2.375rem, so a stacked pair
  * stands within a rounding error of the avatar beside it.
  *
- * NO LONGER BOUNDED BY A MEDIA QUERY. The first version capped this at
- * max-width 1023.98px to match a `lg:flex-row` that no longer exists: both
- * clusters now stack at every width, because Silas's reason was hierarchy
- * ("they are supplementals, login-manager is the one worthy of being full
- * sized"), not screen size. Half-height controls next to a full-size avatar
- * say which is which without a label, and that reading should not evaporate
- * at 1024px.
+ * NOT BOUNDED BY A MEDIA QUERY, and for the supplementals not applied by
+ * default either. The readouts stack from `sm` up, which is what Silas asked
+ * for directly. The supplementals stack only while `.is-compact` is set, which
+ * updateControlDensity() decides by measuring whether the tab strip is actually
+ * short of room -- "This is only if there is need" (2026-08-10). A width-based
+ * rule cannot answer that, because the need comes from the channel's tab count
+ * rather than the window.
  *
  * The selectors name the widget class as well as `.btn` to outrank the strip's
  * own two-class rule for the same buttons; equal specificity would leave this
@@ -896,8 +1061,8 @@ function goBack(): void {
  */
 .header-readouts :deep(.karma-widget),
 .header-readouts :deep(.mana-widget),
-.header-supplementals :deep(.server-selector),
-.header-supplementals > :deep(div) {
+.header-supplementals.is-compact :deep(.server-selector),
+.header-supplementals.is-compact > :deep(div) {
   display: flex;
   align-items: center;
 }
@@ -949,7 +1114,7 @@ function goBack(): void {
  * reaching into three child components or depending on source order, which the
  * note above already says is too fragile to rely on.
  */
-.header-supplementals.header-supplementals :deep(.btn) {
+.header-supplementals.is-compact.is-compact :deep(.btn) {
   height: 1.125rem;
   min-height: 1.125rem;
   width: 1.125rem;
@@ -958,8 +1123,8 @@ function goBack(): void {
   border-radius: 0.5rem;
 }
 
-.header-supplementals.header-supplementals :deep(.btn svg),
-.header-supplementals.header-supplementals :deep(.btn .iconify) {
+.header-supplementals.is-compact.is-compact :deep(.btn svg),
+.header-supplementals.is-compact.is-compact :deep(.btn .iconify) {
   height: 0.8125rem;
   width: 0.8125rem;
 }
@@ -973,15 +1138,15 @@ function goBack(): void {
     font-size: 0.75rem;
   }
 
-  .header-supplementals.header-supplementals :deep(.btn) {
+  .header-supplementals.is-compact.is-compact :deep(.btn) {
     height: 1.375rem;
     min-height: 1.375rem;
     width: 1.375rem;
     min-width: 1.375rem;
   }
 
-  .header-supplementals.header-supplementals :deep(.btn svg),
-  .header-supplementals.header-supplementals :deep(.btn .iconify) {
+  .header-supplementals.is-compact.is-compact :deep(.btn svg),
+  .header-supplementals.is-compact.is-compact :deep(.btn .iconify) {
     height: 0.9375rem;
     width: 0.9375rem;
   }

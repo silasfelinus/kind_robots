@@ -1,5 +1,6 @@
 // /server/api/dreams/index.post.ts
 import { createError, defineEventHandler, readBody } from 'h3'
+import { coerceCardTheme } from '@/utils/entityTheme'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
@@ -62,10 +63,7 @@ export default defineEventHandler(async (event) => {
       body.characterIds,
       'characterIds',
     )
-    const rewardIds = normalizeBoundedDreamIdArray(
-      body.rewardIds,
-      'rewardIds',
-    )
+    const rewardIds = normalizeBoundedDreamIdArray(body.rewardIds, 'rewardIds')
     const artImageIds = normalizeBoundedDreamIdArray(
       body.artImageIds,
       'artImageIds',
@@ -90,6 +88,11 @@ export default defineEventHandler(async (event) => {
       heroPath: normalizeOptionalText(body.heroPath) ?? null,
       highlightImage: normalizeOptionalText(body.highlightImage) ?? null,
       icon: normalizeOptionalText(body.icon) ?? 'kind-icon:dream',
+      // Card theme, never left NULL on creation. Silas, 2026-08-10: "When we
+      // build them, such as in our automatic daily dream, we should set a theme
+      // from the options." coerceCardTheme takes the caller's pick and
+      // substitutes a random valid one for anything absent or unrecognised.
+      theme: coerceCardTheme(body.theme),
       designer: normalizeOptionalText(body.designer) ?? sender,
       allowReviews: body.allowReviews ?? false,
       isPublic: body.isPublic ?? true,

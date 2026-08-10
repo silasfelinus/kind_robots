@@ -1,5 +1,6 @@
 // /server/api/rewards/index.ts
 import { createError } from 'h3'
+import { coerceCardTheme } from '@/utils/entityTheme'
 import {
   Prisma,
   Rarity,
@@ -213,6 +214,9 @@ export function buildCreateData(
   const dreamIds = toPositiveIntArray(input.dreamIds)
 
   return {
+    // Card theme, never NULL on creation -- see dreams/index.post.ts. This
+    // builder serves createRewardsBatch too, so both paths get one.
+    theme: coerceCardTheme((input as { theme?: unknown }).theme),
     name,
     slug,
     description,

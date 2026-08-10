@@ -1,7 +1,11 @@
 import prisma from '@/server/utils/prisma'
+import { coerceCardTheme } from '@/utils/entityTheme'
 import { errorHandler } from '@/server/utils/error'
 import { normalizeSlugInput } from '~/utils/slugify'
-import { ScenarioOutputType, type Prisma } from '~/prisma/generated/prisma/client'
+import {
+  ScenarioOutputType,
+  type Prisma,
+} from '~/prisma/generated/prisma/client'
 import {
   assertScenarioMutationInput,
   assertScenarioRelationsExist,
@@ -89,6 +93,9 @@ export async function buildScenarioCreateInput(
   return {
     User: { connect: { id: authenticatedUserId } },
     title,
+    // Card theme, never NULL on creation -- see the note in dreams/index.post.ts.
+    // This builder serves the batch route too, so both paths get one.
+    theme: coerceCardTheme(scenarioData.theme),
     slug: normalizeSlugInput(scenarioData.slug) ?? undefined,
     description: normalizeScenarioString(
       scenarioData.description,

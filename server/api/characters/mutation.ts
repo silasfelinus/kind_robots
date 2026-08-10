@@ -1,4 +1,5 @@
 import { createError } from 'h3'
+import { coerceCardTheme } from '@/utils/entityTheme'
 import { Rarity, type Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '@/server/utils/prisma'
 
@@ -671,6 +672,9 @@ export async function buildCharacterCreateInput(options: {
   })
 
   return {
+    // Card theme, never NULL on creation -- see dreams/index.post.ts. This
+    // builder serves the batch route too, so both paths get one.
+    theme: coerceCardTheme((options.rawInput as { theme?: unknown })?.theme),
     User: { connect: { id: options.userId } },
     name: normalizeCharacterName(body.name),
     slug: options.slug,

@@ -13,9 +13,8 @@ channelKey: plan
 tabKey: brainstorm
 dashboardKey: brainstorm
 dashboardTab: brainstorm
-cards: dreamCards
 loadingMessage: Loading brainstorm
-refreshLabel: Refresh Brainstorms
+refreshLabel: Refresh Brainstorm
 # Stage 3 backdrop art, resolved by slug via /api/art/backdrop/<page>-<variant>.
 # The route finds the completed ArtJob for this page and redirects to its
 # image, so art appears on its own once generation finishes. Until then the
@@ -25,4 +24,4 @@ backgroundTablet: /api/art/backdrop/brainstorm-tablet
 backgroundDesktop: /api/art/backdrop/brainstorm-desktop
 ---
 
-:dream-manager
+:brainstorm-manager

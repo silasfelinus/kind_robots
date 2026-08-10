@@ -27,7 +27,10 @@ import {
   resolveSuggestModel,
   str,
 } from '../../utils/suggest/suggestProviders'
-import type { SuggestServerSnapshot } from '../../utils/suggest/suggestTypes'
+import type {
+  SuggestProvider,
+  SuggestServerSnapshot,
+} from '../../utils/suggest/suggestTypes'
 import { parseBrainstormProviderOutput } from '../../utils/brainstorm/brainstormParser'
 import { buildBrainstormPrompts } from '../../utils/brainstorm/brainstormPrompt'
 import {
@@ -160,9 +163,69 @@ function textCompatibleServer(server: {
   const category = str(server.category).toLowerCase()
   if (category) return category === 'text' || category === 'chat'
 
-  return ['TEXT', 'OPENAI', 'ANTHROPIC', 'OLLAMA', 'CUSTOM'].includes(
+  return ['OPENAI', 'ANTHROPIC', 'OLLAMA', 'CUSTOM'].includes(
     str(server.serverType).toUpperCase(),
   )
+}
+
+function assertBackendProviderAccess(
+  provider: SuggestProvider,
+  server: {
+    accessMode?: string | null
+    baseUrl?: string | null
+    isPublic?: boolean
+    isOfficial?: boolean
+    isDefault?: boolean
+    label?: string | null
+    title?: string | null
+  },
+  viewer: { isAdmin?: boolean },
+): void {
+  // First-party providers use fixed trusted URLs in brainstormProvider and do
+  // not issue requests to Server.baseUrl.
+  if (provider === 'openai' || provider === 'anthropic') return
+
+  const accessMode = str(server.accessMode).toUpperCase()
+  if (['BROWSER', 'TAILSCALE', 'LOCAL'].includes(accessMode)) {
+    throw createError({
+      statusCode: 503,
+      message: `${server.label || server.title || 'The selected text server'} is configured for ${accessMode.toLowerCase()} access and cannot be called safely from the Brainstorm backend. Choose a backend/public text server.`,
+    })
+  }
+
+  // Non-admin users can create private Server rows. Those rows must not turn a
+  // backend generation route into an arbitrary URL fetch primitive. Public,
+  // official, and default rows are admin-controlled configuration.
+  if (
+    !viewer.isAdmin &&
+    !server.isPublic &&
+    !server.isOfficial &&
+    !server.isDefault
+  ) {
+    throw createError({
+      statusCode: 403,
+      message:
+        'Private custom text servers are not callable from the Brainstorm backend. Use an approved backend/public server.',
+    })
+  }
+
+  const baseUrl = str(server.baseUrl)
+  let url: URL
+  try {
+    url = new URL(baseUrl)
+  } catch {
+    throw createError({
+      statusCode: 400,
+      message: 'The selected text server does not have a valid URL.',
+    })
+  }
+
+  if (!['http:', 'https:'].includes(url.protocol)) {
+    throw createError({
+      statusCode: 400,
+      message: 'Brainstorm text servers must use HTTP or HTTPS.',
+    })
+  }
 }
 
 function completionBudget(count: number): number {
@@ -203,6 +266,8 @@ export default defineEventHandler(async (event) => {
       model: server.model,
     }
     const provider = deriveSuggestProvider(serverSnapshot)
+    assertBackendProviderAccess(provider, server, viewer)
+
     const model = resolveSuggestModel(provider, server.model)
     const maxTokens = completionBudget(request.count)
 

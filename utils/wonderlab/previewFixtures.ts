@@ -582,6 +582,25 @@ const fixtures: Record<string, WonderLabPreviewFixture> = {
     skipReason:
       'The editor resolves its record from facetStore by id, so a naked mount with a synthetic facetId renders nothing at all — its whole template is behind that lookup. It needs a seeded Facet catalog rather than props. Preview it from /facets by opening a Facet, which is now the only way in.',
   },
+  'narrative-cast-card': {
+    title: 'Cast board card (lead tier)',
+    description:
+      'One casting-board card at its most prominent size, wearing the protagonist badge — the same tile narrative-role-assigner renders at three sizes across its lead/support/back tiers.',
+    viewport: 'mobile',
+    minHeight: '14rem',
+    props: {
+      member: {
+        id: -604,
+        slug: 'ami-butterfly-fixture',
+        title: 'Ami Butterfly',
+        description: 'A cheerful chaos moth with poor impulse control.',
+        icon: 'kind-icon:butterfly',
+      },
+      role: 'protagonist',
+      size: 'lead',
+    },
+  },
+
   'narrative-role-assigner': {
     title: 'Cast role assignment',
     description:

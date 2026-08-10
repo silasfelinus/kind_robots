@@ -7,6 +7,7 @@
 // created record comes out complete and specific (a Reward gets a real
 // type/rarity/effect) instead of a generic sentence.
 import type { SourceTypeKey } from '@/stores/helpers/modelBuilderRecipes'
+import { DAISY_CARD_THEMES } from '@/utils/entityTheme'
 
 export interface ModelFieldSpec {
   key: string
@@ -78,25 +79,63 @@ export const MODEL_FIELDS: Record<string, ModelFieldSpec[]> = {
     { key: 'luck', label: 'Luck', default: 'COMMON', choices: RARITY },
     { key: 'might', label: 'Might', default: 'COMMON', choices: RARITY },
     { key: 'wits', label: 'Wits', default: 'COMMON', choices: RARITY },
+    /*
+     * Card theme. Silas, 2026-08-10: "we should add theme choice to our model
+     * builder options, when the user manually creates new stuffs."
+     *
+     * No `default`, on purpose: leaving it blank is what tells the commit route
+     * to pick one at random, which is the behaviour every other creation path
+     * gets. A default here would make one theme the silent house pick.
+     */
+    { key: 'theme', label: 'Card theme', choices: [...DAISY_CARD_THEMES] },
   ],
   Bot: [
     { key: 'name', label: 'Name', required: true },
-    { key: 'botType', label: 'Bot type', default: 'CHATBOT', choices: BOT_TYPES },
+    {
+      key: 'botType',
+      label: 'Bot type',
+      default: 'CHATBOT',
+      choices: BOT_TYPES,
+    },
     { key: 'subtitle', label: 'Subtitle' },
     { key: 'description', label: 'Description', prose: true },
     { key: 'personality', label: 'Personality' },
     { key: 'botIntro', label: 'Bot intro', prose: true },
     { key: 'userIntro', label: 'User intro', prose: true },
     { key: 'prompt', label: 'System prompt', prose: true },
+    /*
+     * Card theme. Silas, 2026-08-10: "we should add theme choice to our model
+     * builder options, when the user manually creates new stuffs."
+     *
+     * No `default`, on purpose: leaving it blank is what tells the commit route
+     * to pick one at random, which is the behaviour every other creation path
+     * gets. A default here would make one theme the silent house pick.
+     */
+    { key: 'theme', label: 'Card theme', choices: [...DAISY_CARD_THEMES] },
   ],
   Reward: [
     { key: 'name', label: 'Name', required: true },
-    { key: 'rewardType', label: 'Type', required: true, default: 'ITEM', choices: REWARD_TYPES },
+    {
+      key: 'rewardType',
+      label: 'Type',
+      required: true,
+      default: 'ITEM',
+      choices: REWARD_TYPES,
+    },
     { key: 'rarity', label: 'Rarity', default: 'COMMON', choices: RARITY },
     { key: 'effect', label: 'Effect', required: true, prose: true },
     { key: 'description', label: 'Description', prose: true },
     { key: 'flavorText', label: 'Flavor text', prose: true },
     { key: 'collection', label: 'Collection' },
+    /*
+     * Card theme. Silas, 2026-08-10: "we should add theme choice to our model
+     * builder options, when the user manually creates new stuffs."
+     *
+     * No `default`, on purpose: leaving it blank is what tells the commit route
+     * to pick one at random, which is the behaviour every other creation path
+     * gets. A default here would make one theme the silent house pick.
+     */
+    { key: 'theme', label: 'Card theme', choices: [...DAISY_CARD_THEMES] },
   ],
   Dream: [
     { key: 'title', label: 'Title', required: true },
@@ -105,6 +144,15 @@ export const MODEL_FIELDS: Record<string, ModelFieldSpec[]> = {
     { key: 'description', label: 'Description', prose: true },
     { key: 'flavorText', label: 'Flavor text', prose: true },
     { key: 'examples', label: 'Examples (pipe-separated)' },
+    /*
+     * Card theme. Silas, 2026-08-10: "we should add theme choice to our model
+     * builder options, when the user manually creates new stuffs."
+     *
+     * No `default`, on purpose: leaving it blank is what tells the commit route
+     * to pick one at random, which is the behaviour every other creation path
+     * gets. A default here would make one theme the silent house pick.
+     */
+    { key: 'theme', label: 'Card theme', choices: [...DAISY_CARD_THEMES] },
   ],
   Scenario: [
     { key: 'title', label: 'Title', required: true },
@@ -113,6 +161,15 @@ export const MODEL_FIELDS: Record<string, ModelFieldSpec[]> = {
     { key: 'difficulty', label: 'Difficulty' },
     { key: 'locations', label: 'Locations' },
     { key: 'inspirations', label: 'Inspirations' },
+    /*
+     * Card theme. Silas, 2026-08-10: "we should add theme choice to our model
+     * builder options, when the user manually creates new stuffs."
+     *
+     * No `default`, on purpose: leaving it blank is what tells the commit route
+     * to pick one at random, which is the behaviour every other creation path
+     * gets. A default here would make one theme the silent house pick.
+     */
+    { key: 'theme', label: 'Card theme', choices: [...DAISY_CARD_THEMES] },
   ],
   Project: [
     { key: 'title', label: 'Title', required: true },
@@ -130,6 +187,15 @@ export const MODEL_FIELDS: Record<string, ModelFieldSpec[]> = {
     },
     { key: 'description', label: 'Description', prose: true },
     { key: 'examples', label: 'Examples' },
+    /*
+     * Card theme. Silas, 2026-08-10: "we should add theme choice to our model
+     * builder options, when the user manually creates new stuffs."
+     *
+     * No `default`, on purpose: leaving it blank is what tells the commit route
+     * to pick one at random, which is the behaviour every other creation path
+     * gets. A default here would make one theme the silent house pick.
+     */
+    { key: 'theme', label: 'Card theme', choices: [...DAISY_CARD_THEMES] },
   ],
 }
 

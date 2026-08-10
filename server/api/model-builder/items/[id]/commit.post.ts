@@ -1,6 +1,7 @@
 // /server/api/model-builder/items/[id]/commit.post.ts
 // Execute the approved COMMIT for a build item as an idempotent durable write.
 import { createError, defineEventHandler, readBody } from 'h3'
+import { coerceCardTheme } from '~/utils/entityTheme'
 import type {
   DreamType,
   Rarity,
@@ -99,6 +100,20 @@ function pickChoice<T extends string>(
   return choices.includes(upper) ? (upper as T) : undefined
 }
 
+/*
+ * THEME IS NOT pickChoice. That helper upper-cases before matching, which is
+ * right for enum-shaped fields (RARITY, REWARD_TYPES) and wrong here -- daisyUI
+ * theme names are lowercase, so every one of them would fail the membership
+ * test and silently vanish.
+ *
+ * Absent or unrecognised becomes a random valid theme rather than nothing:
+ * Silas, 2026-08-10, "It's more important to populate with something than to
+ * make a precise match."
+ */
+function pickTheme(fields: Record<string, string>): string {
+  return coerceCardTheme(fields.theme)
+}
+
 function pickText(
   fields: Record<string, string>,
   type: SourceType,
@@ -140,6 +155,7 @@ interface CharacterExtra {
   luck?: Rarity
   might?: Rarity
   wits?: Rarity
+  theme?: string
 }
 
 function characterFields(fields: Record<string, string>): CharacterExtra {
@@ -168,6 +184,7 @@ function characterFields(fields: Record<string, string>): CharacterExtra {
   if (might) data.might = might
   const wits = pickChoice<Rarity>(fields, 'Character', 'wits')
   if (wits) data.wits = wits
+  data.theme = pickTheme(fields)
   return data
 }
 
@@ -179,6 +196,7 @@ interface BotExtra {
   botIntro?: string
   userIntro?: string
   prompt?: string
+  theme?: string
 }
 
 function botFields(fields: Record<string, string>): BotExtra {
@@ -197,6 +215,7 @@ function botFields(fields: Record<string, string>): BotExtra {
   if (userIntro) data.userIntro = userIntro
   const prompt = pickText(fields, 'Bot', 'prompt')
   if (prompt) data.prompt = prompt
+  data.theme = pickTheme(fields)
   return data
 }
 
@@ -207,6 +226,7 @@ interface RewardExtra {
   description?: string
   flavorText?: string
   collection?: string
+  theme?: string
 }
 
 function rewardFields(fields: Record<string, string>): RewardExtra {
@@ -223,6 +243,7 @@ function rewardFields(fields: Record<string, string>): RewardExtra {
   if (flavorText) data.flavorText = flavorText
   const collection = pickText(fields, 'Reward', 'collection')
   if (collection) data.collection = collection
+  data.theme = pickTheme(fields)
   return data
 }
 
@@ -232,6 +253,7 @@ interface DreamExtra {
   description?: string
   flavorText?: string
   examples?: string
+  theme?: string
 }
 
 function dreamFields(fields: Record<string, string>): DreamExtra {
@@ -246,6 +268,7 @@ function dreamFields(fields: Record<string, string>): DreamExtra {
   if (flavorText) data.flavorText = flavorText
   const examples = pickText(fields, 'Dream', 'examples')
   if (examples) data.examples = examples
+  data.theme = pickTheme(fields)
   return data
 }
 
@@ -255,6 +278,7 @@ interface ScenarioExtra {
   difficulty?: number
   locations?: string
   inspirations?: string
+  theme?: string
 }
 
 function scenarioFields(fields: Record<string, string>): ScenarioExtra {
@@ -271,6 +295,7 @@ function scenarioFields(fields: Record<string, string>): ScenarioExtra {
   if (locations) data.locations = locations
   const inspirations = pickText(fields, 'Scenario', 'inspirations')
   if (inspirations) data.inspirations = inspirations
+  data.theme = pickTheme(fields)
   return data
 }
 
@@ -295,6 +320,7 @@ interface FacetExtra {
   taxonomy?: FacetTaxonomy
   description?: string
   examples?: string
+  theme?: string
 }
 
 function facetFields(fields: Record<string, string>): FacetExtra {
@@ -305,6 +331,7 @@ function facetFields(fields: Record<string, string>): FacetExtra {
   if (description) data.description = description
   const examples = pickText(fields, 'Facet', 'examples')
   if (examples) data.examples = examples
+  data.theme = pickTheme(fields)
   return data
 }
 

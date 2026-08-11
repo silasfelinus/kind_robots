@@ -24,4 +24,4 @@ backgroundTablet: /api/art/backdrop/memory-tablet
 backgroundDesktop: /api/art/backdrop/memory-desktop
 ---
 
-:lab-manager
+:memory-dungeon

@@ -5,6 +5,11 @@ on:
     paths:
       - 'components/animation/animation-manager.vue'
       - 'components/wonderlab/**'
+      - 'content/play/memory.md'
+      - 'content/play/screenfx.md'
+      - 'content/build/animation-manager.md'
+      - 'server/api/components/**'
+      - 'prisma/schema.prisma'
       - 'stores/animationManagerStore.ts'
       - 'stores/index.ts'
       - 'utils/scripts/verifyComponentRuntimeRetirement.ts'
@@ -14,6 +19,11 @@ on:
     paths:
       - 'components/animation/animation-manager.vue'
       - 'components/wonderlab/**'
+      - 'content/play/memory.md'
+      - 'content/play/screenfx.md'
+      - 'content/build/animation-manager.md'
+      - 'server/api/components/**'
+      - 'prisma/schema.prisma'
       - 'stores/animationManagerStore.ts'
       - 'stores/index.ts'
       - 'utils/scripts/verifyComponentRuntimeRetirement.ts'

@@ -44,6 +44,36 @@ assert.deepEqual(
   `Retired Component store is still referenced by live application code: ${offenders.join(', ')}`,
 )
 
+assert.equal(
+  await exists('server/api/components'),
+  false,
+  'Retired /api/components surface must stay deleted',
+)
+assert.equal(
+  await exists('components/wonderlab/lab-manager.vue'),
+  false,
+  'Retired lab-manager wrapper must stay deleted',
+)
+
+const [memoryContent, screenFxContent, animationManagerContent] = await Promise.all([
+  readFile('content/play/memory.md', 'utf8'),
+  readFile('content/play/screenfx.md', 'utf8'),
+  readFile('content/build/animation-manager.md', 'utf8'),
+])
+assert.match(memoryContent, /:memory-dungeon\s*$/m)
+assert.doesNotMatch(memoryContent, /:lab-manager/)
+assert.match(screenFxContent, /:screen-fx\{show-header=false\}\s*$/m)
+assert.doesNotMatch(screenFxContent, /:lab-manager/)
+assert.match(animationManagerContent, /:animation-manager\s*$/m)
+assert.doesNotMatch(animationManagerContent, /:lab-manager/)
+
+const prismaSchema = await readFile('prisma/schema.prisma', 'utf8')
+assert.match(
+  prismaSchema,
+  /model\s+Component\s*\{/,
+  'Component database schema must remain available while historical Component comments are still being migrated into the new review system',
+)
+
 const managerStore = await readFile('stores/animationManagerStore.ts', 'utf8')
 assert.match(managerStore, /animationEffects/)
 assert.match(managerStore, /useAnimationStore/)
@@ -57,4 +87,4 @@ assert.doesNotMatch(manager, /component-card|ComponentStatus|KindComponent|build
 const storeIndex = await readFile('stores/index.ts', 'utf8')
 assert.doesNotMatch(storeIndex, /loadComponentStore|componentStore/)
 
-console.log(`Component runtime retirement contract passed: ${files.length} live source files checked.`)
+console.log(`Component runtime retirement contract passed: ${files.length} live source files checked; Component schema preserved.`)

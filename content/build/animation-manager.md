@@ -25,4 +25,4 @@ backgroundTablet: /api/art/backdrop/animation-manager-tablet
 backgroundDesktop: /api/art/backdrop/animation-manager-desktop
 ---
 
-:lab-manager
+:animation-manager

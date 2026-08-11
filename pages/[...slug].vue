@@ -251,7 +251,7 @@ async function preloadAndSyncPageStore(): Promise<void> {
     await preloadModelCards(cards)
   }
 
-  if (contentPath.value !== resolvedPath || activePage.value !== page) return
+  if (contentPath.value !== resolvedPath || !hasResolvedCurrentPath.value) return
 
   syncPageStore()
 }

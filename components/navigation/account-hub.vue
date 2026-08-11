@@ -4,40 +4,42 @@
 
   Silas, 2026-08-10: "Let's move all the icons in that top bar, except the
   tutorial toggle and login-manager, their options inside the login-manager
-  (which might need a new name). The notification badge should appear on the
-  login pic if appropriate, but actual notification stays inside as well. server
-  link, mana and token count icons should be inside as well ... No lost
-  options."
+  (which might need a new name) ... No lost options."
 
   THE NEW NAME. This was login-switcher.vue, and that name stopped being true
-  the moment it absorbed the server picker, the wallet readouts, notifications,
-  the maturity toggle and the app reload — none of which is a login. It is the
-  one door to everything about YOUR session, so: account-hub. The store keeps
-  its own name (loginStore/useLoginManagerStore) because renaming persisted
-  state is a data migration, not a rename, and this component is not worth one.
+  the moment it absorbed the server picker, the wallet readouts, notifications
+  and the app reload — none of which is a login. The store keeps its own name
+  (loginStore/useLoginManagerStore) because renaming persisted state is a data
+  migration, not a rename.
 
-  WHAT MOVED IN, and where each thing went:
+  THE PANEL IS A LADDER, top to bottom. Silas, 2026-08-11: "the icons like
+  server and refresh should be below the user info (selectable pic name and
+  role), as well as mana and token counts, then notifications."
 
-    notifications   its own section, with the unread count ALSO on the avatar
-                    (Silas: "badge should appear on the login pic if
-                    appropriate, but actual notification stays inside as well")
-    karma + mana    a resources row — the widgets themselves, not copies of
-                    their numbers, so the transaction list, the refill
-                    countdown and the wallet links all come along
-    server          server-selector's own trigger; its picker is a <dialog>,
-                    so it escapes this panel rather than nesting inside it
-    maturity        `variant="resource"`, the labelled row form, because a bare
-                    icon toggle in a panel says nothing about what it toggles
-    refresh         the full startup reload, at the bottom with the other
-                    session-level action
-    page actions    the #kr-header-actions teleport target, so a page that
-                    injects its own controls (user-manager's account Refresh
-                    and Log Out) still has somewhere to put them
+    1. who you are      — and a button, because it opens the account menu
+    2. tools            — server picker, app reload
+    3. wallet           — karma and mana
+    4. notifications
+    5. maturity         — a preference, so it sits under the things it affects
 
-  NOTHING WAS DROPPED. That was the explicit ask, and it is the one thing worth
-  checking on any future edit here: this panel is now the only route to five
-  controls that used to be one click away in the header, so deleting a section
-  deletes the capability outright rather than moving it.
+  WHY ACCOUNT SWITCHING IS NESTED. The first version put the saved-login list,
+  Save, Add and Logout on the panel directly, which meant the signed-in user
+  appeared TWICE: once truncated in the header row and again, in full, as the
+  ticked row of the switcher. Silas: "we don't need two references to the same
+  info ... those items, non-duplicated, should be another nested menu if the
+  user clicks the avatar image."
+
+  So the identity row IS the disclosure. The name and role are no longer
+  competing with a column of icons for a 20rem panel, which is what truncated
+  them ("sila... / ADM..."), and the switcher's copy of the same user is behind
+  the click rather than beside it.
+
+  WHAT WAS REMOVED, and why it is not a lost option: the #kr-header-actions
+  teleport target. It carried user-manager's own Refresh and Log Out into this
+  panel, where they landed next to controls that already do those jobs — Silas,
+  looking at it: "a refresh option that has the same icon as our full refresh,
+  but I have no idea what it does, and ANOTHER logout button." Both are still
+  here, once each: the reload in Tools, logout in the account menu.
 -->
 <template>
   <div ref="menuRef" class="account-hub relative flex min-w-0 justify-center">
@@ -67,21 +69,13 @@
       Notification badge is being cut off by the circle we cover the avatar
       image in, it needs to be over it."
 
-      Exactly right: the button carries `overflow-hidden rounded-full` to crop
-      the avatar into a circle, and that crop applies to every descendant — so a
-      badge hung off the top-right corner had its corner shaved by the same
-      curve. Nudging it inward would have kept it whole but put it ON the face
-      rather than over the edge, which reads as part of the picture.
-
-      As a sibling it is positioned against .account-hub (already `relative`)
-      instead, so it overlaps the circle without being subject to its clip.
-      `pointer-events-none` keeps the whole avatar clickable through it, and the
-      count still reaches screen readers through the button's own aria-label —
-      see hubLabel.
-
-      With the bell gone from the header this is the only unread signal left on
-      screen, so it carries the count rather than a bare dot: "you have mail"
-      and "you have eleven" are different urgencies.
+      The button carries `overflow-hidden rounded-full` to crop the avatar into
+      a circle, and that crop applies to every descendant — so a badge hung off
+      the corner had it shaved by the same curve. As a sibling it is positioned
+      against .account-hub (already `relative`) instead, overlapping the circle
+      without being subject to its clip. `pointer-events-none` keeps the avatar
+      clickable through it, and the count reaches screen readers through the
+      button's own aria-label (see hubLabel).
     -->
     <span
       v-if="unreadCount"
@@ -92,105 +86,189 @@
     </span>
 
     <!--
-      v-show, NOT v-if, and that is a bug fix rather than a preference.
+      v-show rather than v-if, so opening the panel does not remount
+      server-selector (a ~1000 line component owning a <dialog>), both wallet
+      widgets and the notification list every time. All of them were
+      permanently mounted in the header before they moved in here, so this is
+      the cost that was already being paid rather than a new one, and
+      `display: none` keeps the shut panel out of the accessibility tree.
 
-      This panel hosts #kr-header-actions, the teleport target that pages fill
-      through kr-header-actions.vue. A `v-if` panel does not exist while the hub
-      is closed, so the teleport had no target to find and Vue threw on every
-      page that uses one -- observed as `TypeError: Cannot set properties of
-      null (setting '__vnode')` on /themes, /dashboard and /achievements, on
-      load, before anyone clicked anything.
-
-      Keeping it mounted and merely hidden costs nothing that was not already
-      being paid: karma-widget, mana-widget, server-selector, cart-button and
-      the notification load were ALL permanently mounted in the header before
-      they moved in here, so this restores exactly the old mounting cost rather
-      than adding one. `display: none` also keeps the hidden panel out of the
-      accessibility tree, so nothing is announced while it is shut.
-
-      RIGHT-ANCHORED, because the button moved. Silas put the hub to the right
-      of the tab selector (2026-08-11), which is a couple of controls in from
-      the right edge -- and a left-anchored 20rem panel hanging off THAT runs
-      straight past the viewport. Measured at 760px: the panel was clipped
-      mid-word. Anchoring to the button`s right edge grows it back toward the
-      middle of the screen, where there is room at every width.
+      RIGHT-ANCHORED, because the button sits a couple of controls in from the
+      right edge — a left-anchored 20rem panel hanging off it ran past the
+      viewport and was clipped mid-word at 760px.
     -->
     <section
       v-show="store.isOpen"
       class="absolute right-0 top-full z-50 mt-2 flex max-h-[min(80vh,44rem)] w-80 max-w-[calc(100vw-1rem)] flex-col gap-3 overflow-y-auto overscroll-contain kr-panel-flat p-3 shadow-2xl"
     >
-      <!--
-        ONE IDENTITY ROW. Silas, 2026-08-11: "karma and mana should be in the
-        same row as the username, image, role. server and refresh should be
-        above the karma and mana counters, also in that row."
+      <!-- 1. WHO YOU ARE, and the door to the account menu. The full width is
+              its own now, so the name and role stop truncating. -->
+      <div class="flex flex-col gap-2 rounded-2xl bg-base-200 p-2">
+        <button
+          type="button"
+          class="flex items-center gap-3 rounded-xl p-1 text-left transition hover:bg-base-300/60"
+          :aria-expanded="accountMenuOpen"
+          :aria-label="
+            accountMenuOpen ? 'Hide account options' : 'Show account options'
+          "
+          @click="accountMenuOpen = !accountMenuOpen"
+        >
+          <img
+            :src="store.currentAvatar"
+            :alt="`${userStore.username} avatar`"
+            class="h-11 w-11 shrink-0 rounded-2xl border border-base-300 object-cover"
+          />
 
-        So the row is who you are on the left and what you have on the right,
-        stacked: tools over totals. This collapses what shipped as three
-        separate blocks -- an identity header, a "Wallet" section and a
-        "Session" section that opened with server and refresh -- into the one
-        band you look at first. The panel loses roughly a third of its height
-        for it, which matters on a phone where it was already scrolling.
+          <span class="min-w-0 flex-1">
+            <span class="block truncate text-sm font-black text-base-content">
+              {{ userStore.isLoggedIn ? userStore.username : 'Guest' }}
+            </span>
 
-        The widgets themselves, not their numbers re-rendered: karma owns a
-        transaction list and mana owns a refill countdown and a top-up link,
-        and printing just the totals here would quietly drop all of that.
-      -->
-      <header class="flex items-center gap-3 rounded-2xl bg-base-200 p-3">
-        <img
-          :src="store.currentAvatar"
-          :alt="`${userStore.username} avatar`"
-          class="h-12 w-12 shrink-0 rounded-2xl border border-base-300 object-cover"
-        />
+            <span class="block truncate text-xs text-base-content/60">
+              {{ userStore.isLoggedIn ? userStore.role : 'Not logged in' }}
+            </span>
+          </span>
 
-        <div class="min-w-0 flex-1">
-          <p class="truncate text-sm font-black text-base-content">
-            {{ userStore.isLoggedIn ? userStore.username : 'Guest' }}
+          <Icon
+            name="kind-icon:chevron-down"
+            class="h-4 w-4 shrink-0 text-base-content/45 transition-transform"
+            :class="accountMenuOpen ? 'rotate-180' : ''"
+          />
+        </button>
+
+        <!-- THE NESTED ACCOUNT MENU: switching, saving, adding, leaving. Every
+             one of these acts on WHICH account you are, which is what the row
+             above names — so they belong behind it rather than beside it. -->
+        <div v-if="accountMenuOpen" class="flex flex-col gap-2 px-1 pb-1">
+          <div
+            v-if="store.lastError"
+            class="rounded-xl border border-error/30 bg-error/10 p-2 text-xs font-bold text-error"
+          >
+            {{ store.lastError }}
+          </div>
+
+          <button
+            v-for="account in store.accounts"
+            :key="account.userId"
+            type="button"
+            class="flex w-full items-center gap-2 rounded-xl border p-2 text-left transition hover:bg-base-100"
+            :class="
+              account.userId === currentUserId
+                ? 'border-primary bg-primary/10'
+                : 'border-base-300 bg-base-100/60'
+            "
+            :disabled="store.isSwitching || account.userId === currentUserId"
+            @click="store.switchToAccount(account.userId)"
+          >
+            <img
+              :src="account.avatarImage || fallbackAvatar"
+              :alt="`${account.username} avatar`"
+              class="h-8 w-8 shrink-0 rounded-lg border border-base-300 object-cover"
+            />
+
+            <span class="min-w-0 flex-1">
+              <span class="block truncate text-xs font-black">
+                {{ account.label || account.username }}
+              </span>
+
+              <span class="block truncate text-[0.65rem] text-base-content/60">
+                {{ account.relationship }} ·
+                {{
+                  (account.roles?.length ? account.roles : [account.role]).join(
+                    ' + ',
+                  )
+                }}
+              </span>
+            </span>
+
+            <Icon
+              v-if="account.userId === currentUserId"
+              name="kind-icon:check"
+              class="h-4 w-4 shrink-0 text-success"
+            />
+          </button>
+
+          <p
+            v-if="!store.accounts.length"
+            class="rounded-xl border border-dashed border-base-300 p-2 text-xs text-base-content/60"
+          >
+            No saved logins yet. Login once, then this switcher starts
+            collecting tiny test goblins.
           </p>
 
-          <p class="truncate text-xs text-base-content/60">
-            {{
-              userStore.isLoggedIn
-                ? `${userStore.role} · Logged in`
-                : 'Not logged in'
-            }}
-          </p>
-        </div>
-
-        <div class="account-hub-tools flex shrink-0 flex-col items-end gap-1">
-          <div class="flex items-center gap-1">
-            <server-selector />
+          <div v-if="userStore.isLoggedIn" class="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              class="btn btn-xs rounded-xl"
+              @click="captureCurrent"
+            >
+              <Icon name="kind-icon:save" class="h-3.5 w-3.5" />
+              Save
+            </button>
 
             <button
               type="button"
-              class="btn btn-ghost btn-sm btn-square rounded-lg"
-              aria-label="Refresh with launch animation"
-              title="Refresh with launch animation"
-              @click="requestFullStartupReload"
+              class="btn btn-xs btn-secondary rounded-xl"
+              @click="addAccount"
             >
-              <Icon name="kind-icon:refresh" class="h-4 w-4" />
+              <Icon name="kind-icon:plus" class="h-3.5 w-3.5" />
+              Add
             </button>
           </div>
 
-          <div v-if="userStore.isLoggedIn" class="flex items-center gap-1">
-            <karma-widget class="shrink-0" />
-            <mana-widget class="shrink-0" />
-          </div>
-        </div>
-      </header>
+          <NuxtLink
+            v-else
+            to="/login"
+            class="btn btn-primary btn-xs w-full justify-center gap-1.5 rounded-xl"
+            @click="store.close"
+          >
+            <Icon name="kind-icon:login" class="h-3.5 w-3.5 shrink-0" />
+            Log in
+          </NuxtLink>
 
-      <div
-        v-if="store.lastError"
-        class="rounded-2xl border border-error/30 bg-error/10 p-3 text-sm font-bold text-error"
-      >
-        {{ store.lastError }}
+          <button
+            v-if="userStore.isLoggedIn"
+            type="button"
+            class="btn btn-xs btn-ghost rounded-xl text-error"
+            @click="logout"
+          >
+            <Icon name="kind-icon:logout" class="h-3.5 w-3.5" />
+            Log out
+          </button>
+        </div>
       </div>
 
-      <!-- NOTIFICATIONS, in full. The badge above is the summary; this is the
-           thing itself, which Silas asked to keep inside. -->
-      <section
-        v-if="userStore.isLoggedIn && !userStore.isGuest"
-        class="flex flex-col gap-1.5"
-      >
+      <!-- 2. TOOLS. The one reload in this panel, next to the server picker. -->
+      <div class="flex items-center gap-2">
+        <server-selector />
+
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm gap-1.5 rounded-xl"
+          title="Reload the app with the launch animation"
+          @click="requestFullStartupReload"
+        >
+          <Icon name="kind-icon:refresh" class="h-4 w-4" />
+          <span class="text-xs font-bold">Reload</span>
+        </button>
+
+        <!-- Renders nothing until the cart has items, so it costs no row on
+             the pages where there is nothing to check out. -->
+        <cart-button />
+      </div>
+
+      <!-- 3. WALLET. The widgets themselves rather than their numbers copied
+              out: karma owns a transaction list and mana owns a refill
+              countdown and a top-up link, and reprinting the totals here would
+              quietly drop all of it. -->
+      <div v-if="userStore.isLoggedIn" class="flex items-center gap-2">
+        <karma-widget class="shrink-0" />
+        <mana-widget class="shrink-0" />
+      </div>
+
+      <!-- 4. NOTIFICATIONS. The badge on the avatar is the summary; this is
+              the thing itself. -->
+      <section v-if="canSeeNotifications" class="flex flex-col gap-1.5">
         <div class="flex items-center justify-between px-1">
           <p
             class="text-xs font-black uppercase tracking-widest text-base-content/50"
@@ -241,140 +319,11 @@
         </div>
       </section>
 
-      <!-- SESSION: what is left after the server picker and the reload moved
-           up into the identity row -- the cart doorway, the maturity
-           preference, and whatever the page teleports in. cart-button renders
-           nothing until the cart has items, so on most pages this section is
-           the maturity row alone, or nothing at all. -->
-      <section class="flex flex-col gap-2">
-        <p
-          class="px-1 text-xs font-black uppercase tracking-widest text-base-content/50"
-        >
-          Session
-        </p>
-
-        <cart-button />
-
-        <maturity-toggle
-          v-if="showDashboardMaturityToggle && userStore.isLoggedIn"
-          variant="resource"
-        />
-
-        <!--
-          WHERE A PAGE PUTS ITS OWN CONTROLS, moved in here with everything
-          else. kr-header-actions.vue teleports into this id from inside
-          <NuxtPage>; see that component for why a teleport rather than a store
-          of action descriptors.
-
-          A ROW OF ITS OWN, where the header version of this target was
-          `display: contents`. That was right in a flex ROW -- the buttons
-          became direct items of the control strip and inherited its spacing --
-          but wrong inside this column, where it made each teleported button a
-          full-width stacked block. `empty:hidden` keeps the old property that
-          mattered: a page teleporting nothing costs no box and no gap.
-        -->
-        <div
-          id="kr-header-actions"
-          class="flex flex-wrap items-center gap-2 empty:hidden"
-        />
-      </section>
-
-      <div class="flex flex-col gap-2">
-        <p
-          class="px-1 text-xs font-black uppercase tracking-widest text-base-content/50"
-        >
-          Saved logins
-        </p>
-
-        <button
-          v-for="account in store.accounts"
-          :key="account.userId"
-          type="button"
-          class="flex w-full items-center gap-3 rounded-2xl border p-2 text-left transition hover:bg-base-200"
-          :class="
-            account.userId === currentUserId
-              ? 'border-primary bg-primary/10'
-              : 'border-base-300 bg-base-100'
-          "
-          :disabled="store.isSwitching || account.userId === currentUserId"
-          @click="store.switchToAccount(account.userId)"
-        >
-          <img
-            :src="account.avatarImage || fallbackAvatar"
-            :alt="`${account.username} avatar`"
-            class="h-10 w-10 rounded-xl border border-base-300 object-cover"
-          />
-
-          <span class="min-w-0 flex-1">
-            <span class="block truncate text-sm font-black">
-              {{ account.label || account.username }}
-            </span>
-
-            <span class="block truncate text-xs text-base-content/60">
-              {{ account.relationship }} ·
-              {{
-                (account.roles?.length ? account.roles : [account.role]).join(
-                  ' + ',
-                )
-              }}
-            </span>
-          </span>
-
-          <Icon
-            v-if="account.userId === currentUserId"
-            name="kind-icon:check"
-            class="h-4 w-4 text-success"
-          />
-        </button>
-
-        <div
-          v-if="!store.accounts.length"
-          class="rounded-2xl border border-dashed border-base-300 bg-base-200 p-3 text-sm text-base-content/60"
-        >
-          No saved logins yet. Login once, then this switcher starts collecting
-          tiny test goblins.
-        </div>
-      </div>
-
-      <div v-if="userStore.isLoggedIn" class="grid grid-cols-2 gap-2">
-        <button
-          type="button"
-          class="btn btn-sm rounded-2xl"
-          @click="captureCurrent"
-        >
-          <Icon name="kind-icon:save" class="h-4 w-4" />
-          Save
-        </button>
-
-        <button
-          type="button"
-          class="btn btn-sm btn-secondary rounded-2xl"
-          @click="addAccount"
-        >
-          <Icon name="kind-icon:plus" class="h-4 w-4" />
-          Add
-        </button>
-      </div>
-
-      <NuxtLink
-        v-else
-        to="/login"
-        class="btn btn-primary btn-sm w-full justify-center gap-2 whitespace-nowrap rounded-2xl px-4"
-        @click="store.close"
-      >
-        <Icon name="kind-icon:login" class="h-4 w-4 shrink-0" />
-        <span class="shrink-0">Log in</span>
-      </NuxtLink>
-
-      <button
-        v-if="userStore.isLoggedIn"
-        type="button"
-        class="btn btn-sm btn-ghost rounded-2xl text-error"
-        @click="logout"
-      >
-        <Icon name="kind-icon:logout" class="h-4 w-4" />
-        Logout current
-      </button>
+      <!-- 5. MATURITY, a preference rather than an action, so it sits last. -->
+      <maturity-toggle
+        v-if="showDashboardMaturityToggle && userStore.isLoggedIn"
+        variant="resource"
+      />
     </section>
   </div>
 </template>
@@ -396,6 +345,15 @@ const notifications = useNotificationStore()
 const maturityPreferenceStore = useMaturityPreferenceStore()
 const menuRef = ref<HTMLElement | null>(null)
 const fallbackAvatar = '/images/kindart.webp'
+
+/**
+ * Whether the nested account menu is showing.
+ *
+ * Closed by default and reset whenever the hub closes, so reopening the panel
+ * always lands on the short version. Leaving it open would put the switcher
+ * back beside the identity row it was moved out of.
+ */
+const accountMenuOpen = ref(false)
 
 const currentUserId = computed(() => {
   return userStore.isLoggedIn ? (userStore.user?.id ?? null) : null
@@ -491,7 +449,12 @@ watch(currentUserId, (newId) => {
 watch(
   () => store.isOpen,
   (isOpen) => {
-    if (isOpen && canSeeNotifications.value) notifications.load()
+    if (!isOpen) {
+      accountMenuOpen.value = false
+      return
+    }
+
+    if (canSeeNotifications.value) notifications.load()
   },
 )
 

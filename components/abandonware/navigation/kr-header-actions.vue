@@ -1,4 +1,22 @@
-<!-- /components/navigation/kr-header-actions.vue -->
+<!-- /components/abandonware/navigation/kr-header-actions.vue -->
+<!--
+  PARKED 2026-08-11. The mechanism worked; the need went away.
+
+  Its one caller was user-manager.vue, teleporting that page's Refresh and Log
+  Out out of a dead band and into the header row. Then the header collapsed
+  into the account hub, and those two landed in the hub's panel beside the
+  hub's own reload and logout -- Silas: "a refresh option that has the same
+  icon as our full refresh, but I have no idea what it does, and ANOTHER logout
+  button." Removing the duplicates left this with nothing to carry, which
+  verifyComponentReachability flagged.
+
+  Kept rather than deleted because the problem it solves is real and recurring:
+  a page that wants a control in the shared chrome, with its own busy state,
+  where a store of action descriptors cannot go. If that comes up again, this
+  is the shape -- a `defer` Teleport inside ClientOnly, plus a
+  `display: contents` target in the host. Re-adding it means restoring the
+  target too; the hub no longer has one.
+-->
 <!--
   PUT A PAGE'S OWN CONTROLS IN THE HEADER ROW, not in a band above the content.
 

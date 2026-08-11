@@ -27,7 +27,7 @@
                 ? 'btn-ghost text-base-content/60'
                 : 'btn-ghost text-base-content/30 pointer-events-none'
           "
-          :disabled="!crumb.enabled"
+          :disabled="!crumb.enabled || store.startingRun"
           @click="crumb.enabled && store.goToStep(crumb.step)"
         >
           <span class="opacity-50">{{ index + 1 }}.</span>
@@ -39,6 +39,7 @@
         type="button"
         class="btn btn-xs btn-ghost ml-auto h-7 min-h-7 rounded-xl px-2"
         :class="showHistory ? 'text-primary' : 'text-base-content/60 hover:text-primary'"
+        :disabled="store.startingRun"
         aria-label="Toggle run history"
         :aria-pressed="showHistory"
         @click="showHistory = !showHistory"
@@ -50,6 +51,7 @@
       <button
         type="button"
         class="btn btn-xs btn-ghost h-7 min-h-7 rounded-xl px-2 text-base-content/60 hover:text-error"
+        :disabled="store.startingRun"
         aria-label="Reset Model Builder"
         @click="store.resetAll()"
       >

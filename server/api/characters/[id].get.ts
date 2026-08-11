@@ -1,43 +1,48 @@
-import { defineEventHandler } from 'h3'
+import { createError, defineEventHandler } from 'h3'
 import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
+import { getOptionalApiUser } from '../../utils/authGuard'
+import { canView } from '../../utils/contentAccess'
 
 export default defineEventHandler(async (event) => {
-  let response
-
   try {
     const id = Number(event.context.params?.id)
 
-    if (isNaN(id)) {
-      return {
-        success: false,
-        message: 'Invalid ID',
+    if (!Number.isInteger(id) || id <= 0) {
+      throw createError({
         statusCode: 400,
-      }
+        message: 'Invalid ID. It must be a positive integer.',
+      })
     }
 
-    // Fetch the character by ID
-    const data = await prisma.character.findUnique({
-      where: { id },
-    })
+    const [data, auth] = await Promise.all([
+      prisma.character.findUnique({ where: { id } }),
+      getOptionalApiUser(event),
+    ])
+
     if (!data) {
-      return {
-        success: false,
-        message: 'Character not found',
-        statusCode: 404,
-      }
+      throw createError({ statusCode: 404, message: 'Character not found.' })
     }
 
-    response = {
+    if (!(await canView(data, null, auth?.user))) {
+      throw createError({
+        statusCode: auth ? 403 : 404,
+        message: auth
+          ? 'You do not have permission to view this Character.'
+          : 'Character not found.',
+      })
+    }
+
+    event.node.res.statusCode = 200
+    return {
       success: true,
       message: 'Character details fetched successfully.',
-      data, // Return the character details under data
+      data,
       statusCode: 200,
     }
-    event.node.res.statusCode = response.statusCode
   } catch (error: unknown) {
-    return errorHandler(error)
+    const handled = errorHandler(error)
+    event.node.res.statusCode = handled.statusCode || 500
+    return handled
   }
-
-  return response
 })

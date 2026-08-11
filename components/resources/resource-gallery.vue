@@ -610,10 +610,7 @@ onMounted(async () => {
       {{ message }}
     </div>
 
-    <div
-      v-if="resourceGalleryStore.error"
-      class="rounded-2xl border border-error/40 bg-error/10 p-4 text-error"
-    >
+    <div v-if="resourceGalleryStore.error" class="kr-note kr-note-error">
       {{ resourceGalleryStore.error }}
     </div>
 

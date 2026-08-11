@@ -64,7 +64,7 @@
 
     <div
       v-else
-      class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+      class="kr-note kr-note-warning"
     >
       Unknown server tab: {{ activeTab }}
     </div>

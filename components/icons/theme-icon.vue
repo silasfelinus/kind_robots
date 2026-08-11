@@ -9,23 +9,17 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/icons/theme-icon.vue
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useThemeStore } from '@/stores/themeStore'
-import { useSmartbarStore } from '@/stores/smartbarStore'
 
 const router = useRouter()
 const themeStore = useThemeStore()
-const smartbarStore = useSmartbarStore()
-
-const isEditing = computed(() => smartbarStore.isEditing)
 const navLabel = computed(() => themeStore.currentTheme)
 
 function goToThemePage() {
-  if (!isEditing.value) router.push('/themes')
+  router.push('/themes')
 }
 
-// expose for label logic
 defineExpose({ navLabel })
 </script>

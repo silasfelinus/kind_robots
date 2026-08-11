@@ -37,20 +37,9 @@ const emit = defineEmits<{
 
 type StartupMode = 'full' | 'none'
 
-/*
- * A browser refresh skips the intro and goes straight to the site; a fresh
- * navigation plays it; the dashboard refresh button forces it.
- *
- * There used to be an additional localStorage build-id check here, but the
- * pre-hydration head script cleared that key on every non-reload navigation,
- * so it always evaluated true and never actually gated anything. Both halves
- * are gone rather than left as decoration.
- */
 function shouldShowFullStartupSequence(): boolean {
   if (!import.meta.client) return true
-
   if (consumeForcedFullStartup()) return true
-
   return !isBrowserReload()
 }
 
@@ -67,11 +56,6 @@ let initializationPromise: Promise<void> | null = null
 startupStore.reset()
 butterflyStore.setShowSwarm(startupMode.value === 'full')
 
-/*
- * Retires the server-rendered boot cover now that the app is rendering its own
- * intro. The cover also releases itself through CSS, so this only makes the
- * handoff prompt — it is never what guarantees the site becomes visible.
- */
 function releaseBootCover(): void {
   if (!import.meta.client) return
 
@@ -132,15 +116,10 @@ async function runWave(
 }
 
 /*
- * Every store below is imported on demand rather than at module scope.
- *
- * kind-loader is rendered by app.vue, so a static import here puts the store —
- * and everything it pulls in — into the eager entry chunk that must download,
- * parse and execute before the app can mount. That chain was dragging ~25
- * stores plus the builder card decks and seed tables into the critical path
- * for every visitor on every page, purely so this function could call
- * initialize() on them. Loading them here instead moves that work off first
- * paint without changing what runs or in what order.
+ * Global boot is deliberately conservative. Feature stores initialize from
+ * their own surfaces instead of making every visitor download/fetch the whole
+ * application. ConsoleStore is intentionally global: its browser-console
+ * journey is a product feature for attentive developers, not debug debris.
  */
 async function initializeStores() {
   try {
@@ -156,7 +135,6 @@ async function initializeStores() {
       { useUserStore },
       { usePageStore },
       { useNavStore },
-      { useSmartbarStore },
       { useConsoleStore },
       { useAchievementStore },
       { useThemeStore },
@@ -164,7 +142,6 @@ async function initializeStores() {
       import('@/stores/userStore'),
       import('@/stores/pageStore'),
       import('@/stores/navStore'),
-      import('@/stores/smartbarStore'),
       import('@/stores/consoleStore'),
       import('@/stores/achievementStore'),
       import('@/stores/themeStore'),
@@ -182,10 +159,11 @@ async function initializeStores() {
     await runWave('identity + chrome', [
       usePageStore().initialize?.(),
       useNavStore().initialize?.(),
-      useSmartbarStore().initialize?.(),
       useConsoleStore().initialize?.(),
       achievementStore.initialize?.(),
-      useThemeStore().initialize({ fetchShared: true }),
+      // Apply the current/local theme at boot. The shared theme catalog belongs
+      // to the Themes surface and should not be fetched for every page visit.
+      useThemeStore().initialize({ fetchShared: false }),
     ])
 
     await runWave('achievement sync', [
@@ -203,81 +181,13 @@ async function initializeStores() {
 
     await achievementStore.rewardAchievementForPath(route.path)
 
-    const [{ useServerStore }, { useCheckpointStore }] = await Promise.all([
-      import('@/stores/serverStore'),
-      import('@/stores/checkpointStore'),
-    ])
-    const serverStore = useServerStore()
-
-    await errorStore.handleError(
-      async () => {
-        if (
-          !serverStore.isInitialized ||
-          !serverStore.hasLoaded ||
-          serverStore.servers.length === 0
-        ) {
-          await serverStore.initialize({ fetchRemote: true })
-        }
-      },
-      ErrorType.STORE_ERROR,
-      'Error initializing server store',
-    )
-
-    await errorStore.handleError(
-      async () => {
-        useCheckpointStore().initialize()
-      },
-      ErrorType.STORE_ERROR,
-      'Error initializing checkpoint store',
-    )
-
-    const [{ useArtStore }, { useBotStore }, { useChatStore }] =
-      await Promise.all([
-        import('@/stores/artStore'),
-        import('@/stores/botStore'),
-        import('@/stores/chatStore'),
-      ])
-
-    await runWave('content stores', [
-      useArtStore().initialize?.(),
-      useBotStore().initialize?.(),
-      useChatStore().initialize?.(),
-    ])
-
-    const [
-      { useCharacterStore },
-      { usePromptStore },
-      { useReactionStore },
-      { useRewardStore },
-      { useScenarioStore },
-      { useWeirdStore },
-      { useChoiceStore },
-      { useRandomStore },
-      { ensureBuildersRegistered },
-    ] = await Promise.all([
-      import('@/stores/characterStore'),
-      import('@/stores/promptStore'),
-      import('@/stores/reactionStore'),
-      import('@/stores/rewardStore'),
-      import('@/stores/scenarioStore'),
-      import('@/stores/weirdStore'),
-      import('@/stores/choiceStore'),
-      import('@/stores/randomStore'),
-      import('@/stores/registerBuilderStore'),
-    ])
-
-    ensureBuildersRegistered()
-
-    await runWave('remaining stores', [
-      useCharacterStore().initialize?.(),
-      usePromptStore().initialize?.(),
-      useReactionStore().initialize?.(),
-      useRewardStore().initialize?.(),
-      useScenarioStore().initialize?.(),
-      useWeirdStore().initialize?.(),
-      useChoiceStore().initialize?.(),
-      useRandomStore().initialize?.(),
-    ])
+    /*
+     * Servers, checkpoints, art, chat, builders, facets/randomizer, prompts,
+     * rewards, scenarios, characters and the remaining feature stores all
+     * initialize from the surfaces that consume them. Historically boot woke
+     * these systems speculatively, including a 1,000-facet randomizer catalog,
+     * even when the visitor never opened those features.
+     */
   } catch (error) {
     errorStore.setError(
       ErrorType.UNKNOWN_ERROR,
@@ -318,12 +228,6 @@ onMounted(() => {
   emitReadyOnce()
 })
 
-/*
- * If anything unmounts the loader before it finished fading (an app-level
- * failsafe, a route teardown), the swarm flag would otherwise stay true and
- * leave the startup effect stage and control tray stranded on top of the site
- * with nothing left alive to remove them.
- */
 onBeforeUnmount(() => {
   handleOverlayHiding()
 })

@@ -1,5 +1,22 @@
-<!-- /components/navigation/notification-bell.vue -->
+<!-- /components/abandonware/navigation/notification-bell.vue -->
 <!--
+  PARKED 2026-08-10. Absorbed by account-hub.vue, not deleted.
+
+  Silas asked for every header icon except the tutorial toggle and the account
+  control to move inside the account control, with "the notification badge ...
+  on the login pic if appropriate, but actual notification stays inside as
+  well". Both halves of this component went there: the unread count now rides
+  the avatar, and the list renders as a section of the hub panel. Its cart
+  button is mounted directly by the hub.
+
+  Nothing in the app reaches this any more, which is what
+  verifyComponentReachability flagged. Parked rather than removed so it stays
+  exhibited in WonderLab and readable as the origin of the hub's notification
+  section -- if that section ever needs to become a standalone control again,
+  this is the shape it had.
+
+  ORIGINAL NOTE
+  -------------
   Header action cluster: a cart control that appears whenever the local cart has
   items, plus the logged-in user's notification dropdown. Keeping the cart here
   makes it visible from every dashboard surface without turning cart state into
@@ -26,7 +43,9 @@
             v-if="notifications.unreadCount"
             class="badge indicator-item badge-primary badge-xs"
           >
-            {{ notifications.unreadCount > 9 ? '9+' : notifications.unreadCount }}
+            {{
+              notifications.unreadCount > 9 ? '9+' : notifications.unreadCount
+            }}
           </span>
         </div>
       </button>

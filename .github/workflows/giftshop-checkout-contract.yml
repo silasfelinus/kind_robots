@@ -6,7 +6,7 @@ on:
     paths:
       - 'components/giftshop/**'
       - 'components/navigation/cart-button.vue'
-      - 'components/navigation/notification-bell.vue'
+      - 'components/navigation/account-hub.vue'
       - 'components/pages/giving-page.vue'
       - 'content/cart.md'
       - 'content/channels/sanctuary/cart.md'
@@ -21,7 +21,7 @@ on:
     paths:
       - 'components/giftshop/**'
       - 'components/navigation/cart-button.vue'
-      - 'components/navigation/notification-bell.vue'
+      - 'components/navigation/account-hub.vue'
       - 'components/pages/giving-page.vue'
       - 'content/cart.md'
       - 'content/channels/sanctuary/cart.md'

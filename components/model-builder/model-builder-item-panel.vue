@@ -53,6 +53,7 @@
           type="button"
           class="btn btn-xs btn-ghost mr-auto gap-1 rounded-lg text-secondary"
           :disabled="isDrafting('pitch')"
+          title="Draft this pitch with AI"
           @click="draft('pitch')"
         >
           <span v-if="isDrafting('pitch')" class="loading loading-dots loading-xs" />
@@ -100,6 +101,7 @@
           type="button"
           class="btn btn-ghost btn-xs h-5 min-h-5 gap-1 rounded-md px-1.5 text-[10px] text-secondary"
           :disabled="isDrafting('fields')"
+          title="Draft the schema fields and relationships with AI"
           @click="draft('fields')"
         >
           <span v-if="isDrafting('fields')" class="loading loading-dots loading-xs" />
@@ -126,6 +128,7 @@
           type="button"
           class="btn btn-ghost btn-xs h-5 min-h-5 gap-1 rounded-md px-1.5 text-[10px] text-secondary"
           :disabled="isDrafting('artPrompt')"
+          title="Draft the generation prompt with AI"
           @click="draft('artPrompt')"
         >
           <span v-if="isDrafting('artPrompt')" class="loading loading-dots loading-xs" />
@@ -201,6 +204,7 @@
             type="button"
             class="btn btn-sm btn-primary flex-1 rounded-xl"
             :disabled="!isEditable('GENERATE_ASSETS') || isGenerating || isQueued"
+            :title="item.imagePath ? 'Regenerate candidate' : 'Generate candidate'"
             @click="store.generateItemAsset(item.id)"
           >
             <span v-if="isGenerating" class="loading loading-dots loading-sm" />
@@ -302,6 +306,7 @@
             item.stages.COMMIT.status === 'approved' ||
             isCommitting
           "
+          title="Execute commit"
           @click="store.commitItem(item.id)"
         >
           <span v-if="isCommitting" class="loading loading-dots loading-xs" />

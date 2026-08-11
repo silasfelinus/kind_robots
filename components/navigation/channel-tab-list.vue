@@ -8,10 +8,8 @@
       :key="group.key"
       class="min-w-0"
       :class="{
-        'border-t border-base-300/70 pt-2':
-          index > 0 && effectiveColumns === 1,
-        'border-l border-base-300/70 pl-2':
-          index > 0 && effectiveColumns === 2,
+        'border-t border-base-300/70 pt-2': index > 0 && effectiveColumns === 1,
+        'border-l border-base-300/70 pl-2': index > 0 && effectiveColumns === 2,
       }"
       :aria-label="group.label || channel.label + ' tabs'"
     >
@@ -56,8 +54,22 @@
             <span
               class="flex min-w-0 flex-1 flex-col items-start leading-tight"
             >
-              <span class="flex max-w-full items-center gap-1">
-                <span class="truncate text-sm font-black">
+              <!--
+                `w-full`, not just `max-w-full`. The column above is
+                `items-start`, which makes every child size to its own
+                max-content on the cross axis — so `truncate` below had a box as
+                wide as its own text and never had anything to truncate. The
+                text simply ran out of the list: measured inside a 173px inline
+                submenu, one row reported a 498px scrollWidth against a 162px
+                button, and the overflow was being clipped mid-word by an
+                ancestor rather than ellipsised here.
+
+                Invisible until a caller got narrow. It surfaced when
+                channel-select stopped padding its menu out to 22rem, which is
+                the width that had been hiding it.
+              -->
+              <span class="flex w-full max-w-full items-center gap-1">
+                <span class="min-w-0 truncate text-sm font-black">
                   {{ tab.label }}
                 </span>
                 <span
@@ -70,7 +82,7 @@
               </span>
               <span
                 v-if="tab.summary || tab.description"
-                class="line-clamp-1 text-xs font-medium opacity-65"
+                class="line-clamp-1 w-full text-xs font-medium opacity-65"
               >
                 {{ tab.summary || tab.description }}
               </span>
@@ -88,10 +100,7 @@ import type {
   ResolvedChannel,
   ResolvedTab,
 } from '@/stores/helpers/channelContent'
-import {
-  channelTabGroups,
-  isAdminOnlyTab,
-} from '@/utils/channelTabGroups'
+import { channelTabGroups, isAdminOnlyTab } from '@/utils/channelTabGroups'
 
 const props = withDefaults(
   defineProps<{

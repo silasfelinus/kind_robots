@@ -319,7 +319,56 @@
         </div>
       </section>
 
-      <!-- 5. MATURITY, a preference rather than an action, so it sits last. -->
+      <!--
+        5. PREFERENCES, rather than actions, so they sit last.
+
+        THE CARD HAND SWITCH USED TO BE A FLOATING BUTTON pinned to the
+        bottom-right corner of every page. Silas, 2026-08-11: "remove the front
+        end toggle for the card view, and put it in the login-manager menu. It
+        needs a real icon, but that's it, and no other conditionals, just a
+        toggle that controls whether the user sees our hand navigation menu on
+        the bottom of the page, remembered in localstorage."
+
+        "No other conditionals" is why this one carries no `v-if` at all, unlike
+        the maturity toggle below it — the hand is chrome every visitor sees,
+        signed in or not, so gating the switch on a login would strand guests
+        with whatever state they happened to land on.
+      -->
+      <label
+        class="flex cursor-pointer items-center justify-between gap-3 kr-panel-flat px-3 py-2"
+        title="Show or hide the card hand along the bottom of the page"
+      >
+        <span class="flex min-w-0 items-center gap-3">
+          <span
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+            :class="
+              navStore.workspaceHandOpen
+                ? 'bg-primary/15 text-primary'
+                : 'bg-base-200 text-base-content/55'
+            "
+          >
+            <Icon name="kind-icon:cards" class="h-5 w-5" />
+          </span>
+
+          <span class="min-w-0">
+            <span class="block text-sm font-bold text-base-content">
+              Card hand
+            </span>
+            <span class="block text-xs text-base-content/55">
+              Navigation cards along the bottom of the page.
+            </span>
+          </span>
+        </span>
+
+        <input
+          type="checkbox"
+          class="toggle toggle-primary toggle-sm shrink-0"
+          :checked="navStore.workspaceHandOpen"
+          aria-label="Show the card hand"
+          @change="onCardHandChange"
+        />
+      </label>
+
       <maturity-toggle
         v-if="showDashboardMaturityToggle && userStore.isLoggedIn"
         variant="resource"
@@ -332,6 +381,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useLoginManagerStore } from '@/stores/loginStore'
 import { useMaturityPreferenceStore } from '@/stores/maturityPreferenceStore'
+import { useNavStore } from '@/stores/navStore'
 import {
   useNotificationStore,
   type AppNotification,
@@ -343,6 +393,7 @@ const store = useLoginManagerStore()
 const userStore = useUserStore()
 const notifications = useNotificationStore()
 const maturityPreferenceStore = useMaturityPreferenceStore()
+const navStore = useNavStore()
 const menuRef = ref<HTMLElement | null>(null)
 const fallbackAvatar = '/images/kindart.webp'
 
@@ -404,6 +455,10 @@ function handlePointerDown(event: PointerEvent) {
   if (!menuRef.value?.contains(target)) {
     store.close()
   }
+}
+
+function onCardHandChange(event: Event): void {
+  navStore.setWorkspaceHandOpen((event.target as HTMLInputElement).checked)
 }
 
 function captureCurrent() {

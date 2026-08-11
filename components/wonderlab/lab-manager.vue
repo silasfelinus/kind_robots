@@ -26,7 +26,7 @@
 
     <div
       v-else
-      class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+      class="kr-note kr-note-warning flex min-h-0 flex-1 items-center justify-center"
     >
       Unknown Lab tab: {{ activeTab }}
     </div>

@@ -16,8 +16,7 @@
             Animation Manager
           </h2>
           <p class="text-xs text-base-content/60">
-            {{ store.galleryItems.length }} catalog effects &middot;
-            {{ builtCount }} with build history
+            {{ store.galleryItems.length }} live catalog effects
           </p>
         </div>
       </div>
@@ -34,71 +33,28 @@
         <NuxtLink
           to="/conductor"
           class="btn btn-outline btn-sm rounded-xl"
-          title="Pitches and roadmap tasks for this project live in Conductor"
+          title="Animation development work lives in Conductor"
         >
           <Icon name="kind-icon:scroll" class="h-4 w-4" />
           Conductor
         </NuxtLink>
         <button
-          class="btn btn-primary btn-sm rounded-xl"
+          v-if="activeCount > 0"
+          class="btn btn-ghost btn-sm rounded-xl"
           type="button"
-          :disabled="refreshing"
-          @click="refresh"
+          @click="store.clearEffects()"
         >
-          <Icon
-            name="kind-icon:refresh"
-            class="h-4 w-4"
-            :class="{ 'animate-spin': refreshing }"
-          />
-          Refresh
+          <Icon name="kind-icon:x" class="h-4 w-4" />
+          Clear {{ activeCount }}
         </button>
       </div>
-    </div>
-
-    <div
-      class="flex flex-wrap items-center gap-2 border-b border-base-300 px-4 py-2"
-    >
-      <button
-        class="badge badge-lg cursor-pointer"
-        :class="store.statusFilter === 'ALL' ? 'badge-primary' : 'badge-outline'"
-        type="button"
-        @click="store.statusFilter = 'ALL'"
-      >
-        All ({{ store.galleryItems.length }})
-      </button>
-      <button
-        v-for="status in statusOrder"
-        :key="status"
-        class="badge badge-lg cursor-pointer"
-        :class="
-          store.statusFilter === status
-            ? statusBadgeClass(status)
-            : 'badge-outline'
-        "
-        type="button"
-        @click="
-          store.statusFilter = store.statusFilter === status ? 'ALL' : status
-        "
-      >
-        {{ statusLabels[status] }} ({{ store.statusCounts[status] ?? 0 }})
-      </button>
-
-      <button
-        v-if="store.compareIds.length > 0"
-        class="badge badge-lg badge-secondary ml-auto cursor-pointer"
-        type="button"
-        @click="store.clearCompare()"
-      >
-        Comparing {{ store.compareIds.length }}/2
-        <Icon name="kind-icon:x" class="ml-1 h-3 w-3" />
-      </button>
     </div>
 
     <div
       class="kr-panes gap-0"
       :class="[
         'grid-cols-1',
-        store.selectedItem || store.compareAttempts.length > 0
+        store.selectedItem
           ? 'xl:grid-cols-[minmax(0,1fr)_minmax(280px,320px)]'
           : '',
       ]"
@@ -106,312 +62,147 @@
       <div
         class="kr-pane-scroll grid auto-rows-min grid-cols-1 gap-3 p-4 sm:grid-cols-2 xl:grid-cols-3"
       >
-        <div
-          v-for="item in store.filteredGalleryItems"
-          :key="item.effect.id"
-          class="flex flex-col gap-3 rounded-2xl border bg-base-200 p-3 transition-shadow hover:shadow-lg"
-          :class="[
-            statusCardBorderClass(item.status),
-            store.selectedSlug === item.effect.id
-              ? 'ring-2 ring-primary'
-              : '',
-          ]"
+        <article
+          v-for="effect in store.galleryItems"
+          :key="effect.id"
+          class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3 transition-shadow hover:shadow-lg"
+          :class="store.selectedSlug === effect.id ? 'ring-2 ring-primary' : ''"
         >
-          <div
-            class="flex cursor-pointer items-start gap-3"
-            @click="store.selectSlug(item.effect.id)"
+          <button
+            class="flex w-full items-start gap-3 text-left"
+            type="button"
+            @click="store.selectSlug(effect.id)"
           >
             <span
               class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border"
-              :style="{ borderColor: item.effect.color, color: item.effect.color }"
+              :style="{ borderColor: effect.color, color: effect.color }"
             >
-              <Icon :name="item.effect.icon" class="h-6 w-6" />
+              <Icon :name="effect.icon" class="h-6 w-6" />
             </span>
 
-            <div class="min-w-0 flex-1">
-              <h3 class="truncate font-black text-base-content">
-                {{ item.effect.label }}
-              </h3>
-              <p class="truncate text-xs text-base-content/55">
-                {{ item.effect.id }}
-              </p>
-            </div>
-
-            <span class="badge badge-sm" :class="statusBadgeClass(item.status)">
-              {{ statusLabels[item.status] }}
+            <span class="min-w-0 flex-1">
+              <span class="block truncate font-black text-base-content">
+                {{ effect.label }}
+              </span>
+              <span class="block truncate text-xs text-base-content/55">
+                {{ effect.id }}
+              </span>
             </span>
-          </div>
 
-          <p class="text-xs text-base-content/60">
-            {{ item.attempts.length }}
-            {{ item.attempts.length === 1 ? 'build' : 'builds' }} logged
-            <span v-if="item.latestAttempt">
-              &middot; latest v{{ latestBuildNumber(item) }}
+            <span
+              v-if="store.isEffectActive(effect.id)"
+              class="badge badge-success badge-sm"
+            >
+              Active
             </span>
-            <span v-else>&middot; no attempt history yet</span>
+          </button>
+
+          <p class="text-xs leading-relaxed text-base-content/60">
+            {{ effect.tooltip }}
           </p>
 
-          <div v-if="item.live" class="flex flex-wrap items-center gap-2 text-xs">
-            <span v-if="ratingCount(item.live)" class="font-bold text-warning-content">
-              ★ {{ averageRatingLabel(item.live) }}
-              <span class="font-normal text-base-content/45"
-                >({{ ratingCount(item.live) }})</span
-              >
+          <div class="mt-auto flex flex-wrap items-center gap-2">
+            <button
+              class="btn btn-xs rounded-lg"
+              :class="store.isEffectActive(effect.id) ? 'btn-secondary' : 'btn-outline'"
+              type="button"
+              :title="store.isEffectActive(effect.id) ? 'Turn this effect off' : 'Trigger this effect live on screen'"
+              @click="store.previewEffect(effect.id)"
+            >
+              <Icon :name="store.isEffectActive(effect.id) ? 'kind-icon:x' : 'kind-icon:eye'" class="h-3 w-3" />
+              {{ store.isEffectActive(effect.id) ? 'Stop' : 'Preview' }}
+            </button>
+            <span class="badge badge-ghost badge-sm">
+              {{ surfaceLabel(effect.preferredSurface) }}
             </span>
-            <span v-else class="text-base-content/45">No ratings yet</span>
+            <span v-if="effect.generationSafe" class="badge badge-success badge-outline badge-sm">
+              generation-safe
+            </span>
           </div>
-
-          <div class="mt-auto flex flex-wrap gap-2">
-            <button
-              class="btn btn-xs rounded-lg"
-              type="button"
-              title="Trigger this effect live on screen"
-              @click="store.previewEffect(item.effect.id)"
-            >
-              <Icon name="kind-icon:eye" class="h-3 w-3" />
-              Preview
-            </button>
-            <button
-              class="btn btn-xs rounded-lg"
-              type="button"
-              @click="store.selectSlug(item.effect.id)"
-            >
-              <Icon name="kind-icon:search" class="h-3 w-3" />
-              History
-            </button>
-            <button
-              v-if="item.latestAttempt"
-              class="btn btn-xs rounded-lg"
-              :class="store.isComparing(item.latestAttempt.id) ? 'btn-secondary' : ''"
-              type="button"
-              title="Add latest build to comparison"
-              @click="store.toggleCompare(item.latestAttempt.id)"
-            >
-              <Icon name="kind-icon:copy" class="h-3 w-3" />
-              Compare
-            </button>
-          </div>
-        </div>
-
-        <div
-          v-if="store.filteredGalleryItems.length === 0"
-          class="col-span-full flex flex-col items-center justify-center gap-2 py-12 text-base-content/50"
-        >
-          <Icon name="kind-icon:sparkles" class="h-8 w-8" />
-          <p>No effects match this filter.</p>
-        </div>
+        </article>
       </div>
 
       <aside
-        v-if="store.selectedItem || store.compareAttempts.length > 0"
-        class="kr-pane-scroll flex flex-col gap-3 border-l border-base-300 bg-base-100 p-4"
+        v-if="store.selectedItem"
+        class="kr-pane-scroll flex flex-col gap-4 border-l border-base-300 bg-base-100 p-4"
       >
-        <div v-if="store.compareAttempts.length > 0" class="flex flex-col gap-2">
-          <div class="flex items-center justify-between">
-            <h3 class="font-black text-base-content">Compare builds</h3>
-            <button class="btn btn-ghost btn-xs" type="button" @click="store.clearCompare()">
-              <Icon name="kind-icon:x" class="h-4 w-4" />
-            </button>
-          </div>
-          <component-card
-            v-for="attempt in store.compareAttempts"
-            :key="attempt.id"
-            :component="attempt"
-            compact
-            :show-actions="false"
-          />
-        </div>
-
-        <div v-if="store.selectedItem" class="flex flex-col gap-3">
-          <div class="flex items-center justify-between">
-            <h3 class="font-black text-base-content">
-              {{ store.selectedItem.effect.label }} history
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <p class="text-xs font-black uppercase tracking-wide text-primary">
+              Catalog effect
+            </p>
+            <h3 class="mt-1 text-lg font-black text-base-content">
+              {{ store.selectedItem.label }}
             </h3>
-            <button
-              class="btn btn-ghost btn-xs"
-              type="button"
-              @click="store.selectSlug(null)"
-            >
-              <Icon name="kind-icon:x" class="h-4 w-4" />
-            </button>
           </div>
-
-          <p class="text-xs text-base-content/60">
-            {{ store.selectedItem.effect.tooltip }}
-          </p>
-
-          <div
-            v-if="store.selectedItem.attempts.length === 0"
-            class="rounded-xl border border-dashed border-base-300 p-3 text-center text-xs text-base-content/50"
+          <button
+            class="btn btn-ghost btn-xs"
+            type="button"
+            title="Close details"
+            @click="store.selectSlug(null)"
           >
-            No logged build attempts for this effect yet. The next Animation
-            Manager build cycle (animation-manager/t-007) can log one via
-            componentStore.recordAnimationAttempt.
-          </div>
-
-          <div
-            v-for="attempt in reversedAttempts(store.selectedItem)"
-            :key="attempt.id"
-            class="flex flex-col gap-2"
-          >
-            <component-card
-              :component="attempt"
-              compact
-              :show-actions="false"
-            />
-
-            <div class="flex flex-wrap gap-2 pl-1">
-              <button
-                class="btn btn-xs btn-success rounded-lg"
-                type="button"
-                :disabled="getStatus(attempt) === 'WORKING'"
-                @click="store.promoteAttempt(attempt)"
-              >
-                <Icon name="kind-icon:trophy" class="h-3 w-3" />
-                Promote
-              </button>
-              <button
-                class="btn btn-xs btn-warning rounded-lg"
-                type="button"
-                :disabled="getStatus(attempt) === 'UNDER_CONSTRUCTION'"
-                @click="store.sendToConstruction(attempt)"
-              >
-                <Icon name="kind-icon:gearhammer" class="h-3 w-3" />
-                Polish
-              </button>
-              <button
-                class="btn btn-xs btn-outline rounded-lg"
-                type="button"
-                :disabled="getStatus(attempt) === 'RETIRED'"
-                @click="store.retireAttempt(attempt)"
-              >
-                <Icon name="kind-icon:x" class="h-3 w-3" />
-                Retire
-              </button>
-              <button
-                class="btn btn-xs rounded-lg"
-                :class="store.isComparing(attempt.id) ? 'btn-secondary' : 'btn-outline'"
-                type="button"
-                @click="store.toggleCompare(attempt.id)"
-              >
-                <Icon name="kind-icon:copy" class="h-3 w-3" />
-                Compare
-              </button>
-            </div>
-          </div>
+            <Icon name="kind-icon:x" class="h-4 w-4" />
+          </button>
         </div>
+
+        <div
+          class="flex h-24 items-center justify-center rounded-2xl border border-base-300 bg-base-200"
+          :style="{ color: store.selectedItem.color }"
+        >
+          <Icon :name="store.selectedItem.icon" class="h-12 w-12" />
+        </div>
+
+        <p class="text-sm leading-relaxed text-base-content/70">
+          {{ store.selectedItem.tooltip }}
+        </p>
+
+        <dl class="grid gap-2 text-sm">
+          <div class="kr-panel-flat flex items-center justify-between gap-3 p-3">
+            <dt class="font-bold">Surface</dt>
+            <dd>{{ surfaceLabel(store.selectedItem.preferredSurface) }}</dd>
+          </div>
+          <div class="kr-panel-flat flex items-center justify-between gap-3 p-3">
+            <dt class="font-bold">Generation</dt>
+            <dd>{{ store.selectedItem.generationSafe ? 'Safe' : 'Manual only' }}</dd>
+          </div>
+          <div class="kr-panel-flat flex items-center justify-between gap-3 p-3">
+            <dt class="font-bold">Input</dt>
+            <dd>{{ store.selectedItem.blocksInput ? 'Blocks input' : 'Pass-through' }}</dd>
+          </div>
+        </dl>
+
+        <button
+          class="btn btn-primary"
+          type="button"
+          @click="store.previewEffect(store.selectedItem.id)"
+        >
+          <Icon name="kind-icon:sparkles" class="h-4 w-4" />
+          {{ store.isEffectActive(store.selectedItem.id) ? 'Stop effect' : 'Preview effect' }}
+        </button>
+
+        <p class="text-xs leading-relaxed text-base-content/50">
+          Animation history now belongs in source control and Conductor. The retired
+          Component museum is no longer used as a parallel build ledger.
+        </p>
       </aside>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-// /components/animation/animation-manager.vue
-import { computed, onMounted, ref } from 'vue'
-import ComponentCard from '@/components/wonderlab/component-card.vue'
+import { computed } from 'vue'
 import { useAnimationManagerStore } from '@/stores/animationManagerStore'
-import {
-  getComponentStatus,
-  type ComponentStatus,
-} from '@/utils/wonderlab/componentStatus'
-import type { KindComponent } from '@/stores/componentStore'
-import type { AnimationGalleryItem } from '@/stores/animationManagerStore'
+import type { FxRegion } from '@/stores/animationCatalog'
 
 withDefaults(defineProps<{ showHeader?: boolean }>(), { showHeader: true })
 
 const store = useAnimationManagerStore()
-const refreshing = ref(false)
-
-const statusOrder: ComponentStatus[] = [
-  'WORKING',
-  'UNDER_CONSTRUCTION',
-  'BROKEN',
-  'NEEDS_CONTEXT',
-  'UNREVIEWED',
-  'PREVIEW_UNSUPPORTED',
-  'RETIRED',
-]
-
-const statusLabels: Record<ComponentStatus, string> = {
-  UNREVIEWED: 'Unreviewed',
-  WORKING: 'Working',
-  NEEDS_CONTEXT: 'Needs context',
-  UNDER_CONSTRUCTION: 'Building',
-  BROKEN: 'Broken',
-  RETIRED: 'Retired',
-  PREVIEW_UNSUPPORTED: 'Preview unsupported',
-}
-
-const builtCount = computed(
-  () => store.galleryItems.filter((item) => item.attempts.length > 0).length,
+const activeCount = computed(
+  () => store.galleryItems.filter((effect) => store.isEffectActive(effect.id)).length,
 )
 
-function statusBadgeClass(status: ComponentStatus): string {
-  switch (status) {
-    case 'BROKEN':
-      return 'badge-error'
-    case 'UNDER_CONSTRUCTION':
-      return 'badge-warning'
-    case 'WORKING':
-      return 'badge-success'
-    case 'NEEDS_CONTEXT':
-      return 'badge-info'
-    case 'PREVIEW_UNSUPPORTED':
-      return 'badge-secondary'
-    default:
-      return 'badge-ghost'
-  }
+function surfaceLabel(surface: FxRegion | 'fullscreen' | undefined): string {
+  if (!surface || surface === 'fullscreen') return 'Fullscreen'
+  return surface.charAt(0).toUpperCase() + surface.slice(1)
 }
-
-function statusCardBorderClass(status: ComponentStatus): string {
-  switch (status) {
-    case 'BROKEN':
-      return 'border-error/50'
-    case 'UNDER_CONSTRUCTION':
-      return 'border-warning/50'
-    case 'WORKING':
-      return 'border-success/40'
-    case 'NEEDS_CONTEXT':
-      return 'border-info/45'
-    case 'RETIRED':
-      return 'border-base-300 opacity-70'
-    default:
-      return 'border-base-300'
-  }
-}
-
-function getStatus(attempt: KindComponent): ComponentStatus {
-  return getComponentStatus(attempt)
-}
-
-function latestBuildNumber(item: AnimationGalleryItem): string {
-  const match = /@v(\d+)$/.exec(item.latestAttempt?.componentName ?? '')
-  return match?.[1] ?? '?'
-}
-
-function reversedAttempts(item: AnimationGalleryItem): KindComponent[] {
-  return [...item.attempts].reverse()
-}
-
-function ratingCount(component: KindComponent): number {
-  return Math.max(0, Number(component.ratingCount) || 0)
-}
-
-function averageRatingLabel(component: KindComponent): string {
-  const value = Number(component.averageRating)
-  return Number.isFinite(value) ? value.toFixed(1) : '—'
-}
-
-async function refresh() {
-  refreshing.value = true
-  try {
-    await store.initialize(true)
-  } finally {
-    refreshing.value = false
-  }
-}
-
-onMounted(() => {
-  store.initialize()
-})
 </script>

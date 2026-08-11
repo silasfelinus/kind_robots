@@ -82,7 +82,7 @@ export async function preloadModelCards(
 
   const load = cardLoaders[key]().then((cards) => {
     modelCards[key] = cards
-    delete pendingLoads[key]
+    pendingLoads[key] = undefined
     return cards
   })
 
@@ -91,7 +91,7 @@ export async function preloadModelCards(
   try {
     return await load
   } catch (error) {
-    delete pendingLoads[key]
+    pendingLoads[key] = undefined
     throw error
   }
 }

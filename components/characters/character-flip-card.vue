@@ -89,10 +89,7 @@
               :show-inline-interact="false"
             />
 
-            <div
-              v-else
-              class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-sm text-warning"
-            >
+            <div v-else class="kr-note kr-note-warning">
               No character selected. Return to the gallery and pick a beautiful
               little problem.
             </div>

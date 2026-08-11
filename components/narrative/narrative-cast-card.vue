@@ -17,11 +17,13 @@
       role ? 'border-secondary/60 ring-1 ring-secondary/30' : 'border-base-300',
       size === 'back' ? 'opacity-90' : '',
     ]"
-    draggable="true"
-    @dragstart="startNativeDrag"
-    @dragend="emit('drag-cancel')"
   >
-    <div class="relative">
+    <div
+      class="relative cursor-grab active:cursor-grabbing"
+      draggable="true"
+      @dragstart="startNativeDrag"
+      @dragend="emit('drag-cancel')"
+    >
       <kr-art-plate
         :source="member"
         variant="card"

@@ -13,11 +13,6 @@ export const loadBotStore = async () => {
   return useBotStore()
 }
 
-export const loadComponentStore = async () => {
-  const { useComponentStore } = await import('@/stores/componentStore')
-  return useComponentStore()
-}
-
 export const loadChatStore = async () => {
   const { useChatStore } = await import('~/stores/chatStore')
   return useChatStore()

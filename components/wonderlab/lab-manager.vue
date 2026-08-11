@@ -1,23 +1,10 @@
 <template>
   <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
-    <ComponentRegistryHealth v-if="isWonderlabRoute" class="shrink-0" />
-
     <section
       v-if="activeTab === 'memory-dungeon'"
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
     >
       <memory-dungeon class="h-full min-h-0 flex-1 overflow-hidden" />
-    </section>
-
-    <section
-      v-else-if="activeTab === 'wonder-lab'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
-      <wonderlab-selection-router />
-      <lab-interact
-        class="h-full min-h-0 flex-1 overflow-hidden"
-        :show-header="false"
-      />
     </section>
 
     <section
@@ -41,7 +28,7 @@
       v-else
       class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
     >
-      Unknown WonderLab tab: {{ activeTab }}
+      Unknown Lab tab: {{ activeTab }}
     </div>
   </section>
 </template>
@@ -52,19 +39,15 @@ import { useRoute } from 'vue-router'
 import { useNavStore } from '@/stores/navStore'
 
 import AnimationManager from '@/components/animation/animation-manager.vue'
-import ComponentRegistryHealth from '@/components/wonderlab/component-registry-health.vue'
-import LabInteract from '@/components/wonderlab/lab-interact.vue'
 import MemoryDungeon from '@/components/pages/memory-dungeon.vue'
 import ScreenFx from '@/components/screenfx/screen-fx.vue'
-import WonderlabSelectionRouter from '@/components/wonderlab/wonderlab-selection-router.vue'
 
-type LabTab = 'memory-dungeon' | 'wonder-lab' | 'screen-fx' | 'animation-manager'
+type LabTab = 'memory-dungeon' | 'screen-fx' | 'animation-manager'
 
 const dashboardKey = 'wonder' as const
-const fallbackTab: LabTab = 'wonder-lab'
+const fallbackTab: LabTab = 'memory-dungeon'
 const validTabs: LabTab[] = [
   'memory-dungeon',
-  'wonder-lab',
   'screen-fx',
   'animation-manager',
 ]
@@ -77,7 +60,6 @@ const activeTab = computed<LabTab>(() => {
 
   // Explicit routes are authoritative. Remembered dashboard state is only a
   // fallback for embedded/global Lab surfaces and must never hijack a URL.
-  if (routePath === '/plan/wonderlab') return 'wonder-lab'
   if (routePath === '/play/memory') return 'memory-dungeon'
   if (routePath === '/play/screenfx') return 'screen-fx'
   if (routePath === '/build/animation-manager') return 'animation-manager'
@@ -90,15 +72,4 @@ const activeTab = computed<LabTab>(() => {
 
   return fallbackTab
 })
-
-/*
- * component-registry-health is content/plan/wonderlab.md's own museum-page
- * panel, not a generic lab-manager feature — the other four content pages
- * that mount :lab-manager (memory, screenfx, animation-manager, button) never
- * showed it. Gate on the explicit route, not activeTab, so an unmapped page
- * that happens to fall back to the 'wonder-lab' tab doesn't pick it up too.
- */
-const isWonderlabRoute = computed(
-  () => route.path.replace(/\/+$/, '') === '/plan/wonderlab',
-)
 </script>

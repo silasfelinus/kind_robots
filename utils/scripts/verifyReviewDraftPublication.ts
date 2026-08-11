@@ -1,102 +1,26 @@
 // /utils/scripts/verifyReviewDraftPublication.ts
+//
+// WonderLab's Component review feed is retired. First-party Reaction authorship
+// has its own dedicated contracts; this guard owns only the museum publication
+// boundary so it cannot accidentally require dead Component UI/runtime again.
 import assert from 'node:assert/strict'
-import { readFile } from 'node:fs/promises'
+import { access } from 'node:fs/promises'
 
-const publisherPath = 'server/utils/reviewDraftPublisher.ts'
-const endpointPath =
-  'server/api/admin/wonderlab/review-drafts/[id]/publish.post.ts'
-const revisionServicePath = 'server/utils/publishedReviewRevision.ts'
-const revisionEndpointPath =
-  'server/api/admin/wonderlab/review-drafts/[id]/revise.patch.ts'
-const componentReviewsPath = 'server/api/reactions/component/[id].get.ts'
-const componentFeedPath = 'components/wonderlab/component-review-feed.vue'
-const botManagerPath = 'components/bots/bot-manager.vue'
-const characterManagerPath = 'components/characters/character-manager.vue'
-const publicUserEndpointPath = 'server/api/users/public/[id].get.ts'
-const publicUserPagePath = 'pages/users/[id].vue'
+async function pathExists(path: string): Promise<boolean> {
+  try {
+    await access(path)
+    return true
+  } catch {
+    return false
+  }
+}
 
-const publisher = await readFile(publisherPath, 'utf8')
-const endpoint = await readFile(endpointPath, 'utf8')
-const revisionService = await readFile(revisionServicePath, 'utf8')
-const revisionEndpoint = await readFile(revisionEndpointPath, 'utf8')
-const componentReviews = await readFile(componentReviewsPath, 'utf8')
-const componentFeed = await readFile(componentFeedPath, 'utf8')
-const botManager = await readFile(botManagerPath, 'utf8')
-const characterManager = await readFile(characterManagerPath, 'utf8')
-const publicUserEndpoint = await readFile(publicUserEndpointPath, 'utf8')
-const publicUserPage = await readFile(publicUserPagePath, 'utf8')
-const ordinaryPost = await readFile('server/api/reactions/index.post.ts', 'utf8')
-
-assert.match(endpoint, /requireAdminApiUser\(event\)/)
-assert.match(endpoint, /publishReviewDraft\(id, auth\.user\.id\)/)
-
-assert.match(publisher, /prisma\.\$transaction/)
-assert.match(publisher, /FROM ReviewDraft[\s\S]*FOR UPDATE/)
-assert.match(publisher, /FROM Component[\s\S]*FOR UPDATE/)
-assert.match(publisher, /authorBotId = \$\{draft\.authorBotId\}/)
-assert.match(publisher, /authorCharacterId = \$\{draft\.authorCharacterId\}/)
-assert.match(publisher, /INSERT INTO Reaction/)
-assert.match(publisher, /UPDATE Reaction/)
-assert.match(publisher, /status = 'PUBLISHED'/)
-assert.match(publisher, /publishedReactionId = \$\{reactionId\}/)
-assert.match(publisher, /status IN \('PROPOSED', 'APPROVED', 'FAILED'\)/)
-assert.doesNotMatch(publisher, /DELETE\s+FROM\s+Reaction/i)
-assert.doesNotMatch(
-  publisher,
-  /authorBotId\s+IS\s+NULL\s+AND\s+authorCharacterId\s+IS\s+NULL[\s\S]*UPDATE Reaction/i,
+assert.equal(
+  await pathExists('components/wonderlab/component-review-feed.vue'),
+  false,
+  'retired Component review feed must not return',
 )
 
-assert.match(revisionEndpoint, /requireAdminApiUser\(event\)/)
-assert.match(revisionEndpoint, /expectedCurrentCommentHash/)
-assert.match(revisionEndpoint, /revisePublishedReview/)
-assert.match(revisionService, /prisma\.\$transaction/)
-assert.match(
-  revisionService,
-  /maxWait:\s*10_000,[\s\S]*timeout:\s*20_000/,
-  'Published review revision must declare a transaction budget above Prisma\'s 5-second default.',
+console.log(
+  'Review publication retirement boundary verified: the WonderLab feed is gone; first-party Reaction authorship is covered by its dedicated contracts.',
 )
-assert.match(revisionService, /FROM ReviewDraft[\s\S]*FOR UPDATE/)
-assert.match(revisionService, /FROM Reaction[\s\S]*FOR UPDATE/)
-assert.match(revisionService, /draft\.status !== 'PUBLISHED'/)
-assert.match(revisionService, /reaction\.userId !== draft\.publisherUserId/)
-assert.match(revisionService, /assertExpectedAuthor/)
-assert.match(revisionService, /expectedCurrentCommentHash/)
-assert.match(revisionService, /UPDATE ReviewDraft[\s\S]*editedComment/)
-assert.match(revisionService, /UPDATE Reaction[\s\S]*comment/)
-assert.doesNotMatch(revisionService, /INSERT\s+INTO|DELETE\s+FROM/i)
-assert.doesNotMatch(
-  revisionService,
-  /UPDATE ReviewDraft[\s\S]*authorBotId\s*=|UPDATE ReviewDraft[\s\S]*authorCharacterId\s*=/i,
-)
-assert.doesNotMatch(
-  revisionService,
-  /UPDATE Reaction[\s\S]*authorBotId\s*=|UPDATE Reaction[\s\S]*authorCharacterId\s*=/i,
-)
-
-assert.match(componentReviews, /LEFT JOIN Bot b ON b\.id = r\.authorBotId/)
-assert.match(componentReviews, /LEFT JOIN \\`Character\\` ch ON ch\.id = r\.authorCharacterId/)
-assert.match(componentReviews, /Author: projectFirstPartyAuthor\(row\)/)
-assert.doesNotMatch(componentReviews, /include:\s*\{/)
-
-assert.match(componentFeed, /review\.Author\?\.name/)
-assert.match(componentFeed, /First-party \{\{ review\.Author\.kind\.toLowerCase\(\) \}\}/)
-assert.match(componentFeed, /<NuxtLink/)
-assert.match(componentFeed, /`\/bots\?bot=\$\{review\.Author\.id\}`/)
-assert.match(componentFeed, /`\/characters\?character=\$\{review\.Author\.id\}`/)
-assert.match(componentFeed, /`\/users\/\$\{review\.User\.id\}`/)
-assert.match(componentFeed, /review\.User\?\.isPublic/)
-assert.match(componentFeed, /prepareAuthorSelection/)
-assert.match(botManager, /route\.query\.botId \?\? route\.query\.bot/)
-assert.match(botManager, /await botStore\.selectBot\(id\)/)
-assert.match(characterManager, /route\.query\.characterId \?\? route\.query\.character/)
-assert.match(characterManager, /await characterStore\.selectCharacter\(id\)/)
-
-assert.match(publicUserEndpoint, /isPublic:\s*true/)
-assert.match(publicUserEndpoint, /Public user profile not found/)
-assert.match(publicUserPage, /\/api\/users\/public\/\$\{userId\.value\}/)
-assert.match(publicUserPage, /Public Kind Robots profile/)
-
-assert.doesNotMatch(ordinaryPost, /authorBotId/)
-assert.doesNotMatch(ordinaryPost, /authorCharacterId/)
-
-console.log('Review draft publication, revision, and author-link contract passed.')

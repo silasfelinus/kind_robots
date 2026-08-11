@@ -403,12 +403,6 @@ const PAGES: PageSeed[] = [
       'A weathered newsroom desk facing fogged redwood coast, typewriter, coffee, tide charts pinned to the wall. Local and grounded.',
   },
   {
-    page: 'icons',
-    title: 'Icons — The Sigil Wall',
-    scene:
-      'A wall of small carved and enamelled sigils in neat rows, a few lifted out on a workbench, warm raking light. Orderly and collectible.',
-  },
-  {
     page: 'memory',
     title: 'Memory — The Card Hall',
     scene:

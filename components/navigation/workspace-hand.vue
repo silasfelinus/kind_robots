@@ -94,9 +94,30 @@
                 </div>
               </div>
 
+              <!--
+                NO `truncate`. Silas, 2026-08-11: "the cards need to be wide
+                enough to show their full titles. full stop."
+
+                Width alone cannot deliver that on every deck. The nav decks
+                need 54-65px of text and are easy; /conductor carries "Humboldt
+                Impropriety Calendar", 170px of it, and a card wide enough for
+                that on one line is 182px -- a 294px hand, 44% of a phone, in
+                flat contradiction of the height rule from one message earlier.
+
+                So the title wraps instead of the card growing, and the card is
+                sized so that wrapping always suffices: at least as wide as the
+                longest WORD in the deck (nothing is ever cut mid-word) and at
+                least a third of the longest TITLE (so three lines always
+                fit). See labelFloorPx. line-clamp-3 is the backstop that
+                arithmetic already satisfies, not the mechanism.
+
+                `leading-tight` rather than `leading-none` because a
+                single-line label was the only thing `leading-none` ever had to
+                lay out.
+              -->
               <div class="w-full bg-base-100 px-1.5 py-1.5">
                 <p
-                  class="truncate text-center text-[0.65rem] font-black leading-none text-base-content/75 sm:text-xs"
+                  class="line-clamp-3 text-center text-[0.65rem] font-black leading-tight text-base-content/75 sm:text-xs"
                   :title="card.label"
                 >
                   {{ card.label }}
@@ -117,9 +138,20 @@
                 />
               </div>
 
+              <!--
+                The back's spacer carries the SAME label, invisibly, so the two
+                faces are exactly the same height. It used to be a single
+                `&nbsp;`, which matched a one-line front and stopped matching
+                the moment titles were allowed to wrap — a two-line front over
+                a one-line back makes the card change height mid-flip.
+                `invisible` is visibility:hidden, so it holds its box and stays
+                out of the accessibility tree.
+              -->
               <div class="w-full bg-base-100 px-1.5 py-1.5">
-                <p class="text-center text-[0.65rem] leading-none sm:text-xs">
-                  &nbsp;
+                <p
+                  class="invisible line-clamp-3 text-center text-[0.65rem] font-black leading-tight sm:text-xs"
+                >
+                  {{ card.label }}
                 </p>
               </div>
             </div>
@@ -163,6 +195,9 @@ const scrollEl = ref<HTMLElement | null>(null)
 const stripEl = ref<HTMLElement | null>(null)
 const handWidth = ref(0)
 const viewportHeight = ref(0)
+/** The narrowest card that shows every title in this deck. See measureLabelFloor. */
+const labelFloorPx = ref(0)
+let labelMetrics: CanvasRenderingContext2D | null = null
 /** The strip's real rendered height, used to size the scroll box. */
 const measuredStripHeightPx = ref(0)
 /** Whether cards exist off either edge — drives the fade, see edgeMask. */
@@ -250,6 +285,10 @@ const handViewportShare = 0.17
    that hits a real height, so it has to be the measured number. */
 const cardLabelHeightPx = 22
 const absoluteMinCardWidthPx = 56
+/** px-1.5 either side of the label, i.e. what the text does NOT get. */
+const labelPaddingPx = 12
+/** line-clamp-3 on the label — the same number the floor is solved against. */
+const labelMaxLines = 3
 /* The card art is aspect-2/3, so height is width x this. */
 const cardAspectRatio = 1.5
 
@@ -328,15 +367,26 @@ const maxRestingCardWidthPx = computed(() => {
  */
 const restingCardWidthCeilingPx = computed(() => {
   const countCap = maxRestingCardWidthPx.value
+  const fromHeight = viewportHeight.value
+    ? Math.floor(
+        (viewportHeight.value * handViewportShare - cardLabelHeightPx) /
+          cardAspectRatio,
+      )
+    : countCap
 
-  if (!viewportHeight.value) return countCap
-
-  const heightBudget = viewportHeight.value * handViewportShare
-  const fromHeight = Math.floor(
-    (heightBudget - cardLabelHeightPx) / cardAspectRatio,
+  /*
+   * The label floor OVERRIDES the height budget rather than being clamped by
+   * it. Silas said "full stop" about the titles and only "should definitely
+   * not be 1/3" about the height, so where they disagree the title wins — and
+   * because the floor is solved against three lines of wrapping rather than
+   * one, they barely disagree: the widest deck on the site asks for 78px where
+   * a 667px-tall phone's budget offers 60.
+   */
+  return Math.max(
+    absoluteMinCardWidthPx,
+    labelFloorPx.value,
+    Math.min(countCap, fromHeight),
   )
-
-  return Math.max(absoluteMinCardWidthPx, Math.min(countCap, fromHeight))
 })
 
 /**
@@ -494,8 +544,59 @@ function updateScrollEdges(): void {
   canScrollEnd.value = el.scrollLeft < max - 1
 }
 
+/**
+ * The narrowest card width at which no title in this deck is cut off.
+ *
+ * Two constraints, both satisfied by the same number:
+ *   - no word is ever broken, so the widest single word must fit one line;
+ *   - the whole title fits the three lines line-clamp-3 allows, so the total
+ *     text length divided by three must also fit.
+ *
+ * MEASURED WITH CANVAS, not with the DOM. The obvious version -- read a
+ * label's scrollWidth -- cannot work: scrollWidth returns max(content, box),
+ * so a card already wider than its text reports the BOX, the floor ratchets up
+ * to it, and the next pass reports wider still. measureText asks the font
+ * directly and is answering a question layout cannot influence, which is what
+ * makes it safe to feed back into the width it decides.
+ *
+ * Returns 0 if canvas is unavailable, which simply leaves the old
+ * count-and-height sizing in charge rather than failing.
+ */
+function measureLabelFloor(): number {
+  const sample = stripEl.value?.querySelector('.card-front p')
+  if (!sample) return 0
+
+  if (!labelMetrics) {
+    labelMetrics = document.createElement('canvas').getContext('2d')
+  }
+  if (!labelMetrics) return 0
+
+  const style = getComputedStyle(sample)
+  labelMetrics.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`
+
+  let widest = 0
+
+  for (const card of handCards.value) {
+    const label = card.label ?? ''
+    if (!label) continue
+
+    const whole = labelMetrics.measureText(label).width
+
+    for (const word of label.split(/\s+/)) {
+      if (word) widest = Math.max(widest, labelMetrics.measureText(word).width)
+    }
+
+    widest = Math.max(widest, whole / labelMaxLines)
+  }
+
+  // +1 for the sub-pixel the browser rounds against us at the ellipsis.
+  return widest ? Math.ceil(widest) + labelPaddingPx + 1 : 0
+}
+
 function publishHeight(): void {
   if (!import.meta.client) return
+
+  labelFloorPx.value = measureLabelFloor()
 
   // Width drives card sizing.
   handWidth.value =

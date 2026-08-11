@@ -61,6 +61,8 @@
         :class="
           store.statusTone === 'error' ? 'kr-note-error' : 'kr-note-success'
         "
+        :role="store.statusTone === 'error' ? 'alert' : 'status'"
+        aria-atomic="true"
       >
         {{ store.statusMessage }}
       </div>

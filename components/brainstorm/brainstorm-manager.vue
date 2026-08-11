@@ -314,7 +314,7 @@
           <div class="rounded-2xl border border-base-content/10 bg-base-100/75 p-3">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <p class="text-xs font-black uppercase tracking-[0.12em] text-base-content/55">
-                Reopen
+                History
               </p>
               <button
                 type="button"
@@ -327,37 +327,56 @@
               </button>
             </div>
 
-            <select
-              v-model="savedSessionSelection"
-              class="select select-bordered mt-2 w-full bg-base-100"
-              :disabled="isPersisting || !savedSessions.length"
-              data-testid="brainstorm-saved-session-select"
+            <p
+              v-if="!savedSessions.length"
+              class="mt-2 text-xs leading-5 text-base-content/45"
             >
-              <option value="">{{ savedSessions.length ? 'Choose a saved session…' : 'No saved sessions loaded' }}</option>
-              <option
-                v-for="saved in savedSessions"
-                :key="saved.id"
-                :value="String(saved.id)"
-              >
-                {{ saved.name }} · {{ saved.candidateCount }} candidate{{ saved.candidateCount === 1 ? '' : 's' }}
-              </option>
-            </select>
+              No saved sessions loaded yet.
+            </p>
 
-            <div class="mt-3 flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                class="btn btn-secondary btn-sm"
-                :disabled="isPersisting || !savedSessionSelection"
-                data-testid="brainstorm-open-saved-session"
-                @click="openSavedSession"
-              >
-                <span v-if="persistenceState === 'loading'" class="loading loading-spinner loading-xs" aria-hidden="true" />
-                Open selected
-              </button>
-              <span v-if="selectedSavedSummary" class="text-xs text-base-content/45">
-                Updated {{ formatSavedTime(selectedSavedSummary.updatedAt) }}
-              </span>
-            </div>
+            <ul
+              v-else
+              class="mt-2 flex max-h-56 flex-col gap-1.5 overflow-y-auto pr-0.5"
+              data-testid="brainstorm-saved-session-list"
+            >
+              <li v-for="saved in savedSessions" :key="saved.id">
+                <button
+                  type="button"
+                  class="flex w-full items-start justify-between gap-2 rounded-xl border p-2 text-left transition"
+                  :class="
+                    saved.id === savedSessionId
+                      ? 'border-secondary/40 bg-secondary/10'
+                      : 'border-base-content/10 bg-base-100 hover:border-secondary/30'
+                  "
+                  :disabled="isPersisting"
+                  data-testid="brainstorm-open-saved-session"
+                  @click="openSavedSession(saved.id)"
+                >
+                  <span class="min-w-0">
+                    <span
+                      class="block truncate text-sm font-bold text-base-content"
+                    >
+                      {{ saved.name }}
+                    </span>
+                    <span
+                      class="mt-0.5 block truncate text-xs text-base-content/50"
+                    >
+                      {{ saved.premise || 'No premise recorded.' }}
+                    </span>
+                  </span>
+                  <span class="flex shrink-0 flex-col items-end gap-0.5">
+                    <span class="badge badge-ghost badge-sm">
+                      {{ saved.candidateCount }} idea{{
+                        saved.candidateCount === 1 ? '' : 's'
+                      }}
+                    </span>
+                    <span class="text-[10px] text-base-content/40">
+                      {{ formatSavedTime(saved.updatedAt) }}
+                    </span>
+                  </span>
+                </button>
+              </li>
+            </ul>
           </div>
         </div>
 
@@ -394,6 +413,77 @@
         Dismiss
       </button>
     </div>
+
+    <details
+      v-if="allKeptCandidates.length"
+      class="kr-panel-flat border border-base-content/10 bg-base-100/85 p-3"
+      data-testid="brainstorm-kept-export"
+    >
+      <summary
+        class="flex cursor-pointer select-none flex-wrap items-center justify-between gap-2"
+      >
+        <span class="text-sm font-bold text-base-content/75">
+          Kept ideas
+          <span class="ml-1 font-normal text-base-content/45">
+            {{ selectedKeptCandidates.length }}/{{ allKeptCandidates.length }}
+            selected
+          </span>
+        </span>
+        <span class="text-xs text-base-content/40"
+          >Copy or export without leaving this page</span
+        >
+      </summary>
+
+      <ul class="mt-3 flex max-h-64 flex-col gap-1.5 overflow-y-auto pr-0.5">
+        <li
+          v-for="candidate in allKeptCandidates"
+          :key="candidate.id"
+          class="flex items-start gap-2 rounded-xl border border-base-content/10 bg-base-100 p-2"
+        >
+          <input
+            type="checkbox"
+            class="checkbox checkbox-sm checkbox-secondary mt-0.5"
+            :checked="!excludedKeptIds.has(candidate.id)"
+            :data-testid="`brainstorm-kept-select-${candidate.id}`"
+            @change="toggleKeptSelection(candidate.id)"
+          />
+          <span class="min-w-0 flex-1">
+            <span class="block truncate text-sm font-bold text-base-content">{{
+              candidate.title
+            }}</span>
+            <span class="line-clamp-2 text-xs leading-5 text-base-content/55">{{
+              candidate.text
+            }}</span>
+          </span>
+        </li>
+      </ul>
+
+      <div class="mt-3 flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm"
+          :disabled="!selectedKeptCandidates.length"
+          data-testid="brainstorm-copy-kept"
+          @click="copySelectedKept"
+        >
+          <Icon name="kind-icon:copy" class="h-4 w-4" />
+          Copy selected
+        </button>
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm border border-base-content/10"
+          :disabled="!selectedKeptCandidates.length"
+          data-testid="brainstorm-export-kept"
+          @click="exportSelectedKept"
+        >
+          <Icon name="kind-icon:download" class="h-4 w-4" />
+          Export .md
+        </button>
+        <span v-if="keptExportMessage" class="text-xs text-base-content/50">{{
+          keptExportMessage
+        }}</span>
+      </div>
+    </details>
 
     <div
       v-if="batches.length > 1"
@@ -602,6 +692,7 @@ const {
   returnTypes,
   activeCandidates,
   keptCandidates,
+  allKeptCandidates,
   rejectedCandidates,
   batches,
   activeBatchId,
@@ -625,7 +716,12 @@ const pendingCandidateAction = ref<{
   id: string
   action: 'regenerate' | 'branch'
 } | null>(null)
-const savedSessionSelection = ref('')
+
+// Kept ideas are selected for copy/export by default; deselect individual
+// ones by id rather than tracking a growing "selected" set.
+const excludedKeptIds = ref<Set<string>>(new Set())
+const keptExportMessage = ref('')
+let keptExportMessageTimer: ReturnType<typeof setTimeout> | null = null
 
 const premiseModel = computed({
   get: () => premise.value,
@@ -663,14 +759,14 @@ const responseMixSummary = computed(() => {
   return `Assortment · ${returnTypes.value.length} lens${returnTypes.value.length === 1 ? '' : 'es'}${pinned ? ` · ${pinned} pinned` : ''}`
 })
 
-const selectedSavedSummary = computed(() => {
-  const id = Number(savedSessionSelection.value)
-  if (!Number.isInteger(id) || id <= 0) return null
-  return savedSessions.value.find((entry) => entry.id === id) ?? null
-})
-
 const isBatchGenerating = computed(
   () => isGenerating.value && !generationTargetId.value,
+)
+
+const selectedKeptCandidates = computed(() =>
+  allKeptCandidates.value.filter(
+    (candidate) => !excludedKeptIds.value.has(candidate.id),
+  ),
 )
 
 const skeletonCount = computed(() => Math.min(resultCount.value, 6))
@@ -780,21 +876,75 @@ function formatSavedTime(value: string): string {
   }).format(parsed)
 }
 
+function toggleKeptSelection(candidateId: string): void {
+  const next = new Set(excludedKeptIds.value)
+  if (next.has(candidateId)) next.delete(candidateId)
+  else next.add(candidateId)
+  excludedKeptIds.value = next
+}
+
+function showKeptExportMessage(message: string): void {
+  keptExportMessage.value = message
+  if (keptExportMessageTimer) clearTimeout(keptExportMessageTimer)
+  keptExportMessageTimer = setTimeout(() => {
+    keptExportMessage.value = ''
+  }, 4000)
+}
+
+function formatKeptCandidatesAsMarkdown(
+  candidates: BrainstormCandidate[],
+): string {
+  return candidates
+    .map((candidate) => `## ${candidate.title}\n\n${candidate.text}`)
+    .join('\n\n---\n\n')
+}
+
+async function copySelectedKept(): Promise<void> {
+  const selected = selectedKeptCandidates.value
+  if (!selected.length) return
+  try {
+    await navigator.clipboard.writeText(
+      formatKeptCandidatesAsMarkdown(selected),
+    )
+    showKeptExportMessage(
+      `Copied ${selected.length} idea${selected.length === 1 ? '' : 's'}.`,
+    )
+  } catch {
+    showKeptExportMessage(
+      'Could not copy — your browser blocked clipboard access.',
+    )
+  }
+}
+
+function exportSelectedKept(): void {
+  const selected = selectedKeptCandidates.value
+  if (!selected.length) return
+  const text = formatKeptCandidatesAsMarkdown(selected)
+  const blob = new Blob([text], { type: 'text/markdown;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  const stamp = new Date().toISOString().slice(0, 10)
+  link.href = url
+  link.download = `brainstorm-kept-ideas-${stamp}.md`
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  URL.revokeObjectURL(url)
+  showKeptExportMessage(
+    `Exported ${selected.length} idea${selected.length === 1 ? '' : 's'}.`,
+  )
+}
+
 async function saveSession(): Promise<void> {
   if (isGenerating.value) return
   await store.saveCurrentSession()
 }
 
 async function loadSavedSessions(): Promise<void> {
-  const loaded = await store.loadSavedSessions()
-  if (loaded && savedSessionId.value) {
-    savedSessionSelection.value = String(savedSessionId.value)
-  }
+  await store.loadSavedSessions()
 }
 
-async function openSavedSession(): Promise<void> {
-  const id = Number(savedSessionSelection.value)
-  if (!Number.isInteger(id) || id <= 0) return
+async function openSavedSession(id: number): Promise<void> {
   await store.openSavedSession(id)
 }
 

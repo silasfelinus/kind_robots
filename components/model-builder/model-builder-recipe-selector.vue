@@ -87,7 +87,7 @@
         <div
           v-if="output.quantity && store.selections[output.key]?.on"
           class="flex shrink-0 items-center gap-1"
-          @click.prevent
+          @click.stop
         >
           <span class="text-[10px] uppercase text-base-content/40">qty</span>
           <input

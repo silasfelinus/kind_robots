@@ -45,7 +45,7 @@
     "prisma:migrate": "prisma migrate deploy",
     "migration": "./scripts/migration.sh",
     "prisma:migrate:dev": "prisma migrate dev",
-    "postinstall": "nuxi prepare && prisma generate",
+    "postinstall": "nuxi prepare",
     "snapshot:fallback": "tsx utils/scripts/snapshotFallback.ts",
     "backfill:slugs": "tsx utils/scripts/backfillSlugs.ts",
     "migrate:art-jobs": "tsx utils/scripts/migratePromptsToArtJobs.ts",

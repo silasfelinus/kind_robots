@@ -51,6 +51,8 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
+  BrainstormSession: 'BrainstormSession',
+  BrainstormCandidate: 'BrainstormCandidate',
   FacetAlias: 'FacetAlias',
   FacetProfile: 'FacetProfile',
   CharacterFacet: 'CharacterFacet',
@@ -149,6 +151,50 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 } as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
+
+
+export const BrainstormSessionScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  name: 'name',
+  premise: 'premise',
+  resultCount: 'resultCount',
+  constraints: 'constraints',
+  examples: 'examples',
+  mode: 'mode',
+  batchShape: 'batchShape',
+  returnTypes: 'returnTypes',
+  source: 'source',
+  batches: 'batches',
+  activeBatchId: 'activeBatchId',
+  lastGeneratedAt: 'lastGeneratedAt',
+  isActive: 'isActive'
+} as const
+
+export type BrainstormSessionScalarFieldEnum = (typeof BrainstormSessionScalarFieldEnum)[keyof typeof BrainstormSessionScalarFieldEnum]
+
+
+export const BrainstormCandidateScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  sessionId: 'sessionId',
+  clientId: 'clientId',
+  batchId: 'batchId',
+  position: 'position',
+  title: 'title',
+  text: 'text',
+  status: 'status',
+  feedback: 'feedback',
+  edited: 'edited',
+  parentClientId: 'parentClientId',
+  revisions: 'revisions',
+  meta: 'meta'
+} as const
+
+export type BrainstormCandidateScalarFieldEnum = (typeof BrainstormCandidateScalarFieldEnum)[keyof typeof BrainstormCandidateScalarFieldEnum]
 
 
 export const FacetAliasScalarFieldEnum = {
@@ -1853,6 +1899,37 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const BrainstormSessionOrderByRelevanceFieldEnum = {
+  name: 'name',
+  premise: 'premise',
+  constraints: 'constraints',
+  examples: 'examples',
+  mode: 'mode',
+  batchShape: 'batchShape',
+  returnTypes: 'returnTypes',
+  source: 'source',
+  batches: 'batches',
+  activeBatchId: 'activeBatchId'
+} as const
+
+export type BrainstormSessionOrderByRelevanceFieldEnum = (typeof BrainstormSessionOrderByRelevanceFieldEnum)[keyof typeof BrainstormSessionOrderByRelevanceFieldEnum]
+
+
+export const BrainstormCandidateOrderByRelevanceFieldEnum = {
+  clientId: 'clientId',
+  batchId: 'batchId',
+  title: 'title',
+  text: 'text',
+  status: 'status',
+  feedback: 'feedback',
+  parentClientId: 'parentClientId',
+  revisions: 'revisions',
+  meta: 'meta'
+} as const
+
+export type BrainstormCandidateOrderByRelevanceFieldEnum = (typeof BrainstormCandidateOrderByRelevanceFieldEnum)[keyof typeof BrainstormCandidateOrderByRelevanceFieldEnum]
 
 
 export const FacetAliasOrderByRelevanceFieldEnum = {

@@ -18,6 +18,22 @@ export { Prisma }
 export * as $Enums from './enums'
 export * from './enums';
 /**
+ * Model BrainstormSession
+ * Durable private Brainstorm workspaces. `userId` is intentionally an indexed
+ * ownership scalar rather than another back-relation on the already enormous
+ * User model; authenticated API routes are the authority for owner scoping.
+ * Nested creative state that has no independent query semantics is serialized
+ * as JSON text in LongText columns, matching the repo's durable payload pattern.
+ */
+export type BrainstormSession = Prisma.BrainstormSessionModel
+/**
+ * Model BrainstormCandidate
+ * One durable row per application-owned Brainstorm candidate. `clientId`
+ * remains the stable identity used by the workbench; revisions/meta stay
+ * serialized because their ordering and lineage are meaningful as a whole.
+ */
+export type BrainstormCandidate = Prisma.BrainstormCandidateModel
+/**
  * Model FacetAlias
  * Alternate names that resolve to one canonical Facet.
  * 

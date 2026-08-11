@@ -447,30 +447,6 @@ export type FacetAliasOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type DateTimeFieldUpdateOperationsInput = {
-  set?: Date | string
-}
-
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
-export type StringFieldUpdateOperationsInput = {
-  set?: string
-}
-
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type FacetAliasCreateNestedManyWithoutFacetInput = {
   create?: Prisma.XOR<Prisma.FacetAliasCreateWithoutFacetInput, Prisma.FacetAliasUncheckedCreateWithoutFacetInput> | Prisma.FacetAliasCreateWithoutFacetInput[] | Prisma.FacetAliasUncheckedCreateWithoutFacetInput[]
   connectOrCreate?: Prisma.FacetAliasCreateOrConnectWithoutFacetInput | Prisma.FacetAliasCreateOrConnectWithoutFacetInput[]

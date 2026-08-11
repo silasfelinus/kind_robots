@@ -56,25 +56,40 @@
         class="h-full w-full rounded-full object-cover"
       />
 
-      <!--
-        THE BADGE RIDES THE AVATAR. With the bell gone from the header this is
-        the only unread signal left on screen, so it has to carry the count
-        rather than just a dot — "you have mail" and "you have eleven" are
-        different urgencies. It also goes into the button's aria-label, because
-        a positioned span is not announced in a useful order.
-      -->
       <span
-        v-if="unreadCount"
-        class="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[0.625rem] font-black leading-none text-primary-content ring-2 ring-base-100"
-      >
-        {{ unreadCount > 9 ? '9+' : unreadCount }}
-      </span>
-
-      <span
-        v-else-if="userStore.isLoggedIn"
+        v-if="!unreadCount && userStore.isLoggedIn"
         class="absolute bottom-0 right-0 h-3 w-3 rounded-full border border-base-100 bg-success"
       />
     </button>
+
+    <!--
+      THE BADGE SITS OUTSIDE THE BUTTON, and has to. Silas, 2026-08-11: "the
+      Notification badge is being cut off by the circle we cover the avatar
+      image in, it needs to be over it."
+
+      Exactly right: the button carries `overflow-hidden rounded-full` to crop
+      the avatar into a circle, and that crop applies to every descendant — so a
+      badge hung off the top-right corner had its corner shaved by the same
+      curve. Nudging it inward would have kept it whole but put it ON the face
+      rather than over the edge, which reads as part of the picture.
+
+      As a sibling it is positioned against .account-hub (already `relative`)
+      instead, so it overlaps the circle without being subject to its clip.
+      `pointer-events-none` keeps the whole avatar clickable through it, and the
+      count still reaches screen readers through the button's own aria-label —
+      see hubLabel.
+
+      With the bell gone from the header this is the only unread signal left on
+      screen, so it carries the count rather than a bare dot: "you have mail"
+      and "you have eleven" are different urgencies.
+    -->
+    <span
+      v-if="unreadCount"
+      class="pointer-events-none absolute -right-1 -top-1 z-10 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[0.625rem] font-black leading-none text-primary-content ring-2 ring-base-100"
+      aria-hidden="true"
+    >
+      {{ unreadCount > 9 ? '9+' : unreadCount }}
+    </span>
 
     <!--
       v-show, NOT v-if, and that is a bug fix rather than a preference.
@@ -93,19 +108,38 @@
       than adding one. `display: none` also keeps the hidden panel out of the
       accessibility tree, so nothing is announced while it is shut.
 
-      LEFT-ANCHORED, unlike the old right-anchored menu: the hub now sits at the
-      far left of the header, so a right-anchored panel would hang off the
-      screen edge on a phone.
+      RIGHT-ANCHORED, because the button moved. Silas put the hub to the right
+      of the tab selector (2026-08-11), which is a couple of controls in from
+      the right edge -- and a left-anchored 20rem panel hanging off THAT runs
+      straight past the viewport. Measured at 760px: the panel was clipped
+      mid-word. Anchoring to the button`s right edge grows it back toward the
+      middle of the screen, where there is room at every width.
     -->
     <section
       v-show="store.isOpen"
-      class="absolute left-0 top-full z-50 mt-2 flex max-h-[min(80vh,44rem)] w-80 max-w-[calc(100vw-1rem)] flex-col gap-3 overflow-y-auto overscroll-contain kr-panel-flat p-3 shadow-2xl"
+      class="absolute right-0 top-full z-50 mt-2 flex max-h-[min(80vh,44rem)] w-80 max-w-[calc(100vw-1rem)] flex-col gap-3 overflow-y-auto overscroll-contain kr-panel-flat p-3 shadow-2xl"
     >
+      <!--
+        ONE IDENTITY ROW. Silas, 2026-08-11: "karma and mana should be in the
+        same row as the username, image, role. server and refresh should be
+        above the karma and mana counters, also in that row."
+
+        So the row is who you are on the left and what you have on the right,
+        stacked: tools over totals. This collapses what shipped as three
+        separate blocks -- an identity header, a "Wallet" section and a
+        "Session" section that opened with server and refresh -- into the one
+        band you look at first. The panel loses roughly a third of its height
+        for it, which matters on a phone where it was already scrolling.
+
+        The widgets themselves, not their numbers re-rendered: karma owns a
+        transaction list and mana owns a refill countdown and a top-up link,
+        and printing just the totals here would quietly drop all of that.
+      -->
       <header class="flex items-center gap-3 rounded-2xl bg-base-200 p-3">
         <img
           :src="store.currentAvatar"
           :alt="`${userStore.username} avatar`"
-          class="h-12 w-12 rounded-2xl border border-base-300 object-cover"
+          class="h-12 w-12 shrink-0 rounded-2xl border border-base-300 object-cover"
         />
 
         <div class="min-w-0 flex-1">
@@ -121,6 +155,27 @@
             }}
           </p>
         </div>
+
+        <div class="account-hub-tools flex shrink-0 flex-col items-end gap-1">
+          <div class="flex items-center gap-1">
+            <server-selector />
+
+            <button
+              type="button"
+              class="btn btn-ghost btn-sm btn-square rounded-lg"
+              aria-label="Refresh with launch animation"
+              title="Refresh with launch animation"
+              @click="requestFullStartupReload"
+            >
+              <Icon name="kind-icon:refresh" class="h-4 w-4" />
+            </button>
+          </div>
+
+          <div v-if="userStore.isLoggedIn" class="flex items-center gap-1">
+            <karma-widget class="shrink-0" />
+            <mana-widget class="shrink-0" />
+          </div>
+        </div>
       </header>
 
       <div
@@ -129,23 +184,6 @@
       >
         {{ store.lastError }}
       </div>
-
-      <!-- RESOURCES. The widgets themselves rather than their numbers copied
-           out: each one owns a popover with the detail (karma's transaction
-           list, mana's refill countdown and top-up link) and re-rendering just
-           the totals here would quietly drop all of it. -->
-      <section v-if="userStore.isLoggedIn" class="flex flex-col gap-1.5">
-        <p
-          class="px-1 text-xs font-black uppercase tracking-widest text-base-content/50"
-        >
-          Wallet
-        </p>
-
-        <div class="flex items-center gap-2">
-          <karma-widget class="shrink-0" />
-          <mana-widget class="shrink-0" />
-        </div>
-      </section>
 
       <!-- NOTIFICATIONS, in full. The badge above is the summary; this is the
            thing itself, which Silas asked to keep inside. -->
@@ -203,8 +241,11 @@
         </div>
       </section>
 
-      <!-- SESSION TOOLS: the cart doorway, the server picker, the maturity
-           preference, and the app reload. -->
+      <!-- SESSION: what is left after the server picker and the reload moved
+           up into the identity row -- the cart doorway, the maturity
+           preference, and whatever the page teleports in. cart-button renders
+           nothing until the cart has items, so on most pages this section is
+           the maturity row alone, or nothing at all. -->
       <section class="flex flex-col gap-2">
         <p
           class="px-1 text-xs font-black uppercase tracking-widest text-base-content/50"
@@ -212,20 +253,7 @@
           Session
         </p>
 
-        <div class="flex items-center gap-2">
-          <cart-button />
-          <server-selector />
-
-          <button
-            type="button"
-            class="btn btn-ghost btn-sm rounded-xl"
-            aria-label="Refresh with launch animation"
-            title="Refresh with launch animation"
-            @click="requestFullStartupReload"
-          >
-            <Icon name="kind-icon:refresh" class="h-5 w-5" />
-          </button>
-        </div>
+        <cart-button />
 
         <maturity-toggle
           v-if="showDashboardMaturityToggle && userStore.isLoggedIn"

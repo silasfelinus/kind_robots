@@ -199,9 +199,11 @@ export default defineNuxtConfig({
   ],
 
   // ai-art-academy/t-066: installability foundation for t-062/t-063's mobile
-  // delivery path. Additive-only -- a manifest plus a cache-first service
-  // worker for the built static assets. Academy content is API-driven, so
-  // this deliberately does not build a full offline mode yet.
+  // delivery path. This is intentionally not a full offline application: pages
+  // are SSR/API-driven, so precaching hundreds of route-local JS chunks does
+  // not make an offline refresh work. It only makes every install/update fetch
+  // the whole product. Keep the service worker + manifest for installability
+  // and precache only the small, stable install chrome.
   pwa: {
     registerType: 'autoUpdate',
     manifest: {
@@ -224,10 +226,14 @@ export default defineNuxtConfig({
       ],
     },
     workbox: {
-      // Precache the built client bundle + static icons; cache-first is
-      // enough for a first pass since pages themselves are server-rendered
-      // per request, not precached.
-      globPatterns: ['**/*.{js,css,ico,png,svg,webp,woff2}'],
+      // No JS/CSS glob here on purpose. Route-local assets should be fetched
+      // when their feature is visited, not downloaded during PWA installation.
+      globPatterns: [
+        'icon-192x192.png',
+        'icon-512x512.png',
+        'apple-touch-icon.png',
+        'favicon.ico',
+      ],
       navigateFallback: null,
     },
   },

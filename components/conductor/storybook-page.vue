@@ -365,9 +365,39 @@
               </dd>
             </div>
             <div class="kr-panel-flat p-3">
+              <dt class="text-xs font-bold text-base-content/55">Plot thread</dt>
+              <dd class="mt-2 flex items-center gap-3">
+                <div v-if="selectedScenario" class="w-16 shrink-0">
+                  <KrArtPlate
+                    :source="selectedScenario"
+                    variant="icon"
+                    shape="square"
+                    frame="thin"
+                    :alt="selectedScenario.title"
+                    placeholder-icon="kind-icon:map"
+                  />
+                </div>
+                <span class="text-sm">
+                  {{ selectedScenario?.title || 'Premise-led story' }}
+                </span>
+              </dd>
+            </div>
+            <div class="kr-panel-flat p-3">
               <dt class="text-xs font-bold text-base-content/55">Setting</dt>
-              <dd class="mt-1 text-sm">
-                {{ selectedLocation?.title || 'Invented from the premise' }}
+              <dd class="mt-2 flex items-center gap-3">
+                <div v-if="selectedLocation" class="w-16 shrink-0">
+                  <KrArtPlate
+                    :source="selectedLocation"
+                    variant="icon"
+                    shape="square"
+                    frame="thin"
+                    :alt="selectedLocation.title"
+                    placeholder-icon="kind-icon:moon"
+                  />
+                </div>
+                <span class="text-sm">
+                  {{ selectedLocation?.title || 'Invented from the premise' }}
+                </span>
               </dd>
             </div>
             <div class="kr-panel-flat p-3">

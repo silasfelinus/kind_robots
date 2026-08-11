@@ -156,6 +156,8 @@
     "test:model-builder-commit-cancelled-run-guard": "tsx utils/scripts/verifyModelBuilderCommitCancelledRunGuard.ts",
     "test:model-builder-draft-approval-guard-selftest": "tsx utils/scripts/verifyModelBuilderDraftApprovalGuard.test.ts",
     "test:model-builder-draft-approval-guard": "tsx utils/scripts/verifyModelBuilderDraftApprovalGuard.ts",
+    "test:model-builder-draft-textarea-guard-selftest": "tsx utils/scripts/verifyModelBuilderDraftTextareaGuard.test.ts",
+    "test:model-builder-draft-textarea-guard": "tsx utils/scripts/verifyModelBuilderDraftTextareaGuard.ts",
     "test:model-builder-auto-build-draft-gate-selftest": "tsx utils/scripts/verifyModelBuilderAutoBuildDraftGate.test.ts",
     "test:model-builder-auto-build-draft-gate": "tsx utils/scripts/verifyModelBuilderAutoBuildDraftGate.ts",
     "test:model-builder-item-patch-stage-guard-selftest": "tsx utils/scripts/verifyModelBuilderItemPatchStageGuard.test.ts",

@@ -193,12 +193,6 @@ const PAGES: PageSeed[] = [
       'A storybook library: a cosy round reading room where shelves curve away on both sides, an open book the size of a table rests off-centre, and pages lift and drift upward turning into birds and small scenes as they rise. Warm lamplight below, deep blue evening through a tall window. Everything converging into one unfolding story.',
   },
   {
-    page: 'wonderlab',
-    title: 'WonderLab',
-    scene:
-      'A museum of components: a bright gallery of glass vitrines and plinths receding down both walls, each holding a strange small mechanism or fragment of interface rendered as a physical curiosity, with brass rails and soft picture-lighting. Cool clean daylight. Reverent and slightly absurd, a natural-history museum for software parts.',
-  },
-  {
     page: 'giftshop',
     title: 'Gift Shop',
     scene:

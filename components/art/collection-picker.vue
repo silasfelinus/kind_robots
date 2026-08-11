@@ -1,163 +1,103 @@
-<!-- /components/art/collection-picker.vue -->
 <template>
-  <section
-    class="flex w-full flex-col gap-3 rounded-2xl border border-base-content/15 bg-base-100/85 p-3 text-base-content shadow-xl backdrop-blur-md"
-  >
-    <div class="flex flex-wrap items-center justify-between gap-2">
-      <div class="flex items-center gap-2">
-        <Icon name="kind-icon:gallery" class="h-5 w-5 text-primary" />
-        <div>
-          <h3 class="text-sm font-black uppercase tracking-widest">
-            {{ title }}
-          </h3>
-          <p class="text-xs text-base-content/60">
-            {{ selectedSummary }}
-          </p>
-        </div>
-      </div>
-
+  <section class="flex w-full min-w-0 flex-col gap-2 text-base-content">
+    <div class="flex min-w-0 items-center gap-2">
       <button
-        v-if="allowMultiple"
         type="button"
-        class="btn btn-xs rounded-2xl"
+        class="btn btn-sm min-w-0 flex-1 justify-between rounded-2xl border-base-content/15 bg-base-100"
         :class="expanded ? 'btn-primary' : 'btn-outline'"
         @click="expanded = !expanded"
       >
-        <Icon
-          :name="expanded ? 'kind-icon:collapse' : 'kind-icon:collection'"
-          class="h-4 w-4"
-        />
-        {{ expanded ? 'Done' : 'Choose' }}
-      </button>
-    </div>
-
-    <div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
-      <select
-        v-model="localMode"
-        class="select select-bordered select-sm w-full rounded-2xl bg-base-200"
-        @change="handleModeChange"
-      >
-        <option value="all">All available art</option>
-        <option value="generated">Generated art</option>
-        <option value="collection">One collection</option>
-        <option v-if="allowMultiple" value="collections">
-          Multiple collections
-        </option>
-      </select>
-
-      <!-- Absent rather than greyed: with no selection there is nothing to
-           clear, and the `btn-disabled` skin was spending a labelled button to
-           say so. The class binding goes with it -- `btn-outline` was only ever
-           the other half of that pair. -->
-      <button
-        v-if="hasSelection"
-        type="button"
-        class="btn btn-outline btn-sm rounded-2xl"
-        @click="clearSelection"
-      >
-        <Icon name="kind-icon:trash" class="h-4 w-4" />
-        Clear
-      </button>
-    </div>
-
-    <select
-      v-if="localMode === 'collection'"
-      v-model.number="localCollectionId"
-      class="select select-bordered select-sm w-full rounded-2xl bg-base-200"
-      @change="emitSingleSelection"
-    >
-      <option :value="0">Choose a collection</option>
-      <option
-        v-for="collection in availableCollections"
-        :key="collection.id"
-        :value="collection.id"
-      >
-        {{ getCollectionLabel(collection) }}
-      </option>
-    </select>
-
-    <div
-      v-if="allowMultiple && localMode === 'collections'"
-      class="flex flex-col gap-2"
-    >
-      <button
-        type="button"
-        class="flex items-center justify-between rounded-2xl border border-base-content/15 bg-base-200 px-3 py-2 text-left text-sm font-bold"
-        @click="expanded = !expanded"
-      >
-        <span>
-          {{ selectedCollectionIds.length || 'No' }}
-          collection{{ selectedCollectionIds.length === 1 ? '' : 's' }}
-          selected
+        <span class="flex min-w-0 items-center gap-2">
+          <Icon name="kind-icon:gallery" class="h-4 w-4 shrink-0" />
+          <span class="truncate text-left">
+            <span class="font-black">{{ title }}:</span>
+            {{ selectedSummary }}
+          </span>
         </span>
         <Icon
           :name="expanded ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'"
-          class="h-5 w-5"
+          class="h-4 w-4 shrink-0"
         />
       </button>
 
-      <Transition name="picker-panel">
-        <div
-          v-if="expanded"
-          class="grid max-h-64 gap-2 overflow-y-auto rounded-2xl border border-base-content/10 bg-base-200/70 p-2 sm:grid-cols-2 lg:grid-cols-3"
-        >
-          <button
-            v-for="collection in availableCollections"
-            :key="collection.id"
-            type="button"
-            class="group flex min-h-18 flex-col items-start justify-between rounded-2xl border p-3 text-left transition hover:-translate-y-0.5 hover:shadow-lg"
-            :class="
-              isSelected(collection.id)
-                ? 'border-primary bg-primary/15 text-primary'
-                : 'border-base-content/10 bg-base-100 text-base-content'
-            "
-            @click="toggleCollection(collection.id)"
-          >
-            <span class="flex w-full items-start justify-between gap-2">
-              <span class="line-clamp-2 text-sm font-black">
-                {{ getCollectionLabel(collection) }}
-              </span>
-              <Icon
-                :name="
-                  isSelected(collection.id)
-                    ? 'kind-icon:check-circle'
-                    : 'kind-icon:circle'
-                "
-                class="h-5 w-5 shrink-0"
-              />
-            </span>
-
-            <span class="mt-2 text-xs text-base-content/60">
-              {{ getCollectionMeta(collection) }}
-            </span>
-          </button>
-        </div>
-      </Transition>
+      <button
+        v-if="hasSelection"
+        type="button"
+        class="btn btn-ghost btn-sm shrink-0 rounded-2xl"
+        title="Use all available art"
+        @click="useAllArt"
+      >
+        <Icon name="kind-icon:trash" class="h-4 w-4" />
+        <span class="hidden sm:inline">All art</span>
+      </button>
     </div>
 
-    <div
-      v-if="showPreview && selectedCollections.length"
-      class="flex flex-wrap gap-1.5"
-    >
-      <span
-        v-for="collection in selectedCollections"
-        :key="collection.id"
-        class="badge badge-primary badge-outline gap-1 rounded-2xl"
+    <Transition name="picker-panel">
+      <div
+        v-if="expanded"
+        class="grid max-h-72 gap-2 overflow-y-auto rounded-2xl border border-base-content/10 bg-base-200/80 p-2 sm:grid-cols-2 lg:grid-cols-3"
       >
-        {{ getCollectionLabel(collection) }}
         <button
           type="button"
-          class="ml-1 rounded-full hover:text-error"
-          @click="removeCollection(collection.id)"
+          class="flex min-h-18 flex-col items-start justify-between rounded-2xl border p-3 text-left transition hover:-translate-y-0.5 hover:shadow-lg"
+          :class="
+            !hasSelection
+              ? 'border-primary bg-primary/15 text-primary'
+              : 'border-base-content/10 bg-base-100 text-base-content'
+          "
+          @click="useAllArt"
         >
-          ×
+          <span class="flex w-full items-start justify-between gap-2">
+            <span class="text-sm font-black">All available art</span>
+            <Icon
+              :name="!hasSelection ? 'kind-icon:check-circle' : 'kind-icon:circle'"
+              class="h-5 w-5 shrink-0"
+            />
+          </span>
+          <span class="mt-2 text-xs text-base-content/60">
+            Draw the dungeon deck from the whole playable art library.
+          </span>
         </button>
-      </span>
-    </div>
 
-    <p v-if="emptyMessage" class="text-xs font-semibold text-warning">
-      {{ emptyMessage }}
-    </p>
+        <button
+          v-for="collection in availableCollections"
+          :key="collection.id"
+          type="button"
+          class="group flex min-h-18 flex-col items-start justify-between rounded-2xl border p-3 text-left transition hover:-translate-y-0.5 hover:shadow-lg"
+          :class="
+            isSelected(collection.id)
+              ? 'border-primary bg-primary/15 text-primary'
+              : 'border-base-content/10 bg-base-100 text-base-content'
+          "
+          @click="toggleCollection(collection.id)"
+        >
+          <span class="flex w-full items-start justify-between gap-2">
+            <span class="line-clamp-2 text-sm font-black">
+              {{ getCollectionLabel(collection) }}
+            </span>
+            <Icon
+              :name="
+                isSelected(collection.id)
+                  ? 'kind-icon:check-circle'
+                  : 'kind-icon:circle'
+              "
+              class="h-5 w-5 shrink-0"
+            />
+          </span>
+
+          <span class="mt-2 text-xs text-base-content/60">
+            {{ getCollectionMeta(collection) }}
+          </span>
+        </button>
+
+        <p
+          v-if="!availableCollections.length"
+          class="col-span-full px-2 py-3 text-xs font-semibold text-warning"
+        >
+          No usable collections found yet. The dungeon is browsing empty shelves.
+        </p>
+      </div>
+    </Transition>
   </section>
 </template>
 
@@ -167,7 +107,11 @@ import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import { useArtStore } from '@/stores/artStore'
 
 export type CollectionPickerMode =
-  'all' | 'generated' | 'collection' | 'collections' | 'manual'
+  | 'all'
+  | 'generated'
+  | 'collection'
+  | 'collections'
+  | 'manual'
 
 const props = withDefaults(
   defineProps<{
@@ -175,18 +119,12 @@ const props = withDefaults(
     mode?: CollectionPickerMode
     collectionId?: number | null
     collectionIds?: number[]
-    allowMultiple?: boolean
-    showPreview?: boolean
-    includeGenerated?: boolean
   }>(),
   {
     title: 'Card Source',
     mode: 'all',
     collectionId: null,
     collectionIds: () => [],
-    allowMultiple: true,
-    showPreview: true,
-    includeGenerated: true,
   },
 )
 
@@ -206,9 +144,8 @@ const emit = defineEmits<{
 const artStore = useArtStore()
 
 const expanded = ref(false)
-const localMode = ref<CollectionPickerMode>(props.mode)
-const localCollectionId = ref<number>(props.collectionId ?? 0)
-const selectedCollectionIds = ref<number[]>([...props.collectionIds])
+const localMode = ref<CollectionPickerMode>('all')
+const selectedCollectionIds = ref<number[]>([])
 
 const availableCollections = computed<ArtCollection[]>(() => {
   return artStore.generationCollections
@@ -216,74 +153,52 @@ const availableCollections = computed<ArtCollection[]>(() => {
 
 const selectedCollections = computed(() => {
   const ids = new Set(selectedCollectionIds.value)
-
-  if (localMode.value === 'collection' && localCollectionId.value > 0) {
-    return availableCollections.value.filter(
-      (collection) => collection.id === localCollectionId.value,
-    )
-  }
-
-  return availableCollections.value.filter((collection) =>
-    ids.has(collection.id),
-  )
+  return availableCollections.value.filter((collection) => ids.has(collection.id))
 })
 
-const hasSelection = computed(() => {
-  if (localMode.value === 'all') return false
-  if (localMode.value === 'generated') return true
-  if (localMode.value === 'collection') return localCollectionId.value > 0
-  return selectedCollectionIds.value.length > 0
-})
-
-const emptyMessage = computed(() => {
-  if (availableCollections.value.length) return ''
-  return 'No usable collections found yet. The dungeon is browsing empty shelves.'
-})
+const hasSelection = computed(
+  () => localMode.value === 'manual' || selectedCollectionIds.value.length > 0,
+)
 
 const selectedSummary = computed(() => {
-  if (localMode.value === 'all') return 'Using all available art images.'
-  if (localMode.value === 'generated') return 'Using recently generated art.'
-  if (localMode.value === 'collection') {
-    const collection = selectedCollections.value[0]
-    return collection
-      ? `Using ${getCollectionLabel(collection)}.`
-      : 'Choose one collection.'
-  }
-
-  if (!selectedCollectionIds.value.length) {
-    return 'Choose multiple collections.'
-  }
+  if (localMode.value === 'manual') return 'Custom art selection'
+  if (!selectedCollectionIds.value.length) return 'All art'
 
   if (selectedCollectionIds.value.length === 1) {
     const collection = selectedCollections.value[0]
-    return collection
-      ? `Using ${getCollectionLabel(collection)}.`
-      : 'Using one collection.'
+    return collection ? getCollectionLabel(collection) : '1 collection'
   }
 
-  return `Using ${selectedCollectionIds.value.length} collections.`
+  return `${selectedCollectionIds.value.length} collections`
 })
 
-watch(
-  () => props.mode,
-  (value) => {
-    localMode.value = value
-  },
-)
+function syncFromProps() {
+  if (props.mode === 'manual') {
+    localMode.value = 'manual'
+    selectedCollectionIds.value = []
+    return
+  }
+
+  if (props.mode === 'collection' && props.collectionId) {
+    localMode.value = 'collections'
+    selectedCollectionIds.value = [props.collectionId]
+    return
+  }
+
+  if (props.mode === 'collections' && props.collectionIds.length) {
+    localMode.value = 'collections'
+    selectedCollectionIds.value = [...new Set(props.collectionIds)]
+    return
+  }
+
+  localMode.value = 'all'
+  selectedCollectionIds.value = []
+}
 
 watch(
-  () => props.collectionId,
-  (value) => {
-    localCollectionId.value = value ?? 0
-  },
-)
-
-watch(
-  () => props.collectionIds,
-  (value) => {
-    selectedCollectionIds.value = [...value]
-  },
-  { deep: true },
+  [() => props.mode, () => props.collectionId, () => props.collectionIds],
+  syncFromProps,
+  { deep: true, immediate: true },
 )
 
 onMounted(async () => {
@@ -330,50 +245,27 @@ function getCollectionMeta(collection: ArtCollection): string {
 }
 
 function emitChange() {
-  emit('update:mode', localMode.value)
-  emit(
-    'update:collectionId',
-    localMode.value === 'collection' && localCollectionId.value > 0
-      ? localCollectionId.value
-      : null,
-  )
+  const mode: CollectionPickerMode =
+    localMode.value === 'manual'
+      ? 'manual'
+      : selectedCollectionIds.value.length
+        ? 'collections'
+        : 'all'
+
+  localMode.value = mode
+
+  emit('update:mode', mode)
+  emit('update:collectionId', null)
   emit(
     'update:collectionIds',
-    localMode.value === 'collections' ? [...selectedCollectionIds.value] : [],
+    mode === 'collections' ? [...selectedCollectionIds.value] : [],
   )
-
   emit('change', {
-    mode: localMode.value,
-    collectionId:
-      localMode.value === 'collection' && localCollectionId.value > 0
-        ? localCollectionId.value
-        : null,
+    mode,
+    collectionId: null,
     collectionIds:
-      localMode.value === 'collections' ? [...selectedCollectionIds.value] : [],
+      mode === 'collections' ? [...selectedCollectionIds.value] : [],
   })
-}
-
-function handleModeChange() {
-  if (localMode.value === 'all' || localMode.value === 'generated') {
-    localCollectionId.value = 0
-    selectedCollectionIds.value = []
-  }
-
-  if (localMode.value === 'collection') {
-    selectedCollectionIds.value = []
-  }
-
-  if (localMode.value === 'collections') {
-    localCollectionId.value = 0
-    expanded.value = true
-  }
-
-  emitChange()
-}
-
-function emitSingleSelection() {
-  selectedCollectionIds.value = []
-  emitChange()
 }
 
 function isSelected(collectionId: number): boolean {
@@ -381,33 +273,21 @@ function isSelected(collectionId: number): boolean {
 }
 
 function toggleCollection(collectionId: number) {
+  localMode.value = 'collections'
   selectedCollectionIds.value = isSelected(collectionId)
     ? selectedCollectionIds.value.filter((id) => id !== collectionId)
     : [...selectedCollectionIds.value, collectionId]
 
-  emitChange()
-}
-
-function removeCollection(collectionId: number) {
-  if (
-    localMode.value === 'collection' &&
-    localCollectionId.value === collectionId
-  ) {
-    localCollectionId.value = 0
+  if (!selectedCollectionIds.value.length) {
+    localMode.value = 'all'
   }
 
-  selectedCollectionIds.value = selectedCollectionIds.value.filter(
-    (id) => id !== collectionId,
-  )
-
   emitChange()
 }
 
-function clearSelection() {
+function useAllArt() {
   localMode.value = 'all'
-  localCollectionId.value = 0
   selectedCollectionIds.value = []
-  expanded.value = false
   emitChange()
 }
 </script>

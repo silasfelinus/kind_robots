@@ -5,6 +5,9 @@ on:
     paths:
       - 'utils/comments/**'
       - 'utils/scripts/verifyCommentMigrationFoundation.ts'
+      - 'utils/scripts/verifyCommentSignals.ts'
+      - 'utils/scripts/verifyCommentCalibrationBatch.ts'
+      - 'config/**'
       - 'docs/architecture/comment-migration-foundation.md'
       - '.github/workflows/comment-migration-contract.yml'
   push:
@@ -12,6 +15,9 @@ on:
     paths:
       - 'utils/comments/**'
       - 'utils/scripts/verifyCommentMigrationFoundation.ts'
+      - 'utils/scripts/verifyCommentSignals.ts'
+      - 'utils/scripts/verifyCommentCalibrationBatch.ts'
+      - 'config/**'
       - 'docs/architecture/comment-migration-foundation.md'
       - '.github/workflows/comment-migration-contract.yml'
 
@@ -28,5 +34,5 @@ jobs:
       - run: npm ci
         env:
           CYPRESS_INSTALL_BINARY: 0
-      - name: Verify object-first comment migration boundary
-        run: npx tsx utils/scripts/verifyCommentMigrationFoundation.ts
+      - name: Verify comment casting boundary, signals, and calibration batch
+        run: npm run test:comments

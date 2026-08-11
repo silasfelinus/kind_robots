@@ -84,4 +84,43 @@ assert.throws(
   /only once/,
 )
 
+// Exchange shapes. Two speakers stays the default everywhere; three is opt-in,
+// because a crowd around one object should be a decision, not a drift.
+const three = [
+  { kind: 'BOT' as const, id: 1, name: 'One' },
+  { kind: 'CHARACTER' as const, id: 2, name: 'Two' },
+  { kind: 'CHARACTER' as const, id: 3, name: 'Three' },
+]
+
+assert.equal(rankCommentSpeakers(target, three, 3).length, 3)
+assert.equal(rankCommentSpeakers(target, three, 9).length, 3, 'three is the hard cap')
+assert.equal(rankCommentSpeakers(target, three, 0).length, 1, 'one is the floor')
+
+assert.throws(
+  () => buildCommentDraftPrompt(target, three),
+  /one or two speakers/,
+  'a third speaker is refused unless the caller asks for the room',
+)
+assert.doesNotThrow(() => buildCommentDraftPrompt(target, three, { maxSpeakers: 3 }))
+assert.throws(
+  () => buildCommentDraftPrompt(target, three, { maxSpeakers: 3, shape: 'DUET' }),
+  /duet exchange takes exactly two speakers/,
+)
+assert.throws(
+  () => buildCommentDraftPrompt(target, [three[0]!], { shape: 'DUET_REPLY' }),
+  /duet exchange takes exactly two speakers/,
+)
+
+const solo = buildCommentDraftPrompt(target, [three[0]!], { shape: 'SOLO' })
+assert.match(solo.user, /standalone observation/)
+assert.equal((solo.responseSchema as { properties: { comments: { maxItems: number } } }).properties.comments.maxItems, 1)
+
+const reply = buildCommentDraftPrompt(target, three.slice(0, 2), { shape: 'DUET_REPLY' })
+assert.match(reply.user, /answering the first directly/)
+assert.notEqual(reply.user, buildCommentDraftPrompt(target, three.slice(0, 2), { shape: 'DUET' }).user)
+
+const trio = buildCommentDraftPrompt(target, three, { maxSpeakers: 3, shape: 'TRIO' })
+assert.match(trio.user, /Three voices on one object/)
+assert.equal((trio.responseSchema as { properties: { comments: { minItems: number } } }).properties.comments.minItems, 3)
+
 console.log('Comment migration foundation contract passed.')

@@ -252,7 +252,6 @@ async function initializeStores() {
       { useScenarioStore },
       { useWeirdStore },
       { useChoiceStore },
-      { useComponentStore },
       { useRandomStore },
       { ensureBuildersRegistered },
     ] = await Promise.all([
@@ -263,7 +262,6 @@ async function initializeStores() {
       import('@/stores/scenarioStore'),
       import('@/stores/weirdStore'),
       import('@/stores/choiceStore'),
-      import('@/stores/componentStore'),
       import('@/stores/randomStore'),
       import('@/stores/registerBuilderStore'),
     ])
@@ -278,7 +276,6 @@ async function initializeStores() {
       useScenarioStore().initialize?.(),
       useWeirdStore().initialize?.(),
       useChoiceStore().initialize?.(),
-      useComponentStore().initialize?.(),
       useRandomStore().initialize?.(),
     ])
   } catch (error) {

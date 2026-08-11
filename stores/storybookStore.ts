@@ -727,9 +727,10 @@ export const useStorybookStore = defineStore('storybookStore', () => {
       return false
 
     const capturedAt = nowIso()
+    const branchEntryId = makeId()
     beat.answer = { text: clean, capturedAt }
     active.branchHistory.push({
-      id: makeId(),
+      id: branchEntryId,
       beatId: beat.id,
       question: beat.question,
       answer: clean,
@@ -738,9 +739,25 @@ export const useStorybookStore = defineStore('storybookStore', () => {
     active.updatedAt = capturedAt
     persist()
 
-    return weaveBeat(
+    const wove = await weaveBeat(
       `${PERSONA}\n\nSTORY BIBLE\n${biblePrompt(active.bible)}\n\n${statePrompt(active)}\n\n${phaseGuidance()}\n\nSTORY SO FAR\n${buildRecap()}\n\nContinue the story from the reader's latest choice. Preserve continuity, apply a fresh consequence or discovery when earned, and end with one new question.`,
     )
+
+    if (!wove) {
+      // Roll back the recorded answer so the reader isn't soft-locked: without
+      // this, `awaitingAnswer` stays false (the beat already has an answer)
+      // while `canFinish` may still be false too (too few beats), leaving no
+      // way forward except discarding the whole session.
+      beat.answer = undefined
+      const historyIndex = active.branchHistory.findIndex(
+        (entry) => entry.id === branchEntryId,
+      )
+      if (historyIndex !== -1) active.branchHistory.splice(historyIndex, 1)
+      active.updatedAt = nowIso()
+      persist()
+    }
+
+    return wove
   }
 
   async function finishStory(): Promise<boolean> {

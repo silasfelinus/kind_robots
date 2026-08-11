@@ -904,7 +904,9 @@ function updateHighScore() {
 
   try {
     window.localStorage.setItem(HIGH_SCORE_STORAGE_KEY, String(score.value))
-  } catch {}
+  } catch {
+    // localStorage can be unavailable in privacy modes; the in-memory best still works.
+  }
 }
 
 async function submitCurrentScore() {

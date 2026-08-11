@@ -8,6 +8,8 @@
  *
  * 🟢 You can import this file directly.
  */
+export type * from './models/BrainstormSession'
+export type * from './models/BrainstormCandidate'
 export type * from './models/FacetAlias'
 export type * from './models/FacetProfile'
 export type * from './models/CharacterFacet'

@@ -31,8 +31,8 @@ export * from "./enums"
  * const prisma = new PrismaClient({
  *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
  * })
- * // Fetch zero or more FacetAliases
- * const facetAliases = await prisma.facetAlias.findMany()
+ * // Fetch zero or more BrainstormSessions
+ * const brainstormSessions = await prisma.brainstormSession.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -41,6 +41,22 @@ export const PrismaClient = $Class.getPrismaClientClass()
 export type PrismaClient<LogOpts extends Prisma.LogLevel = never, OmitOpts extends Prisma.PrismaClientOptions["omit"] = Prisma.PrismaClientOptions["omit"], ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = $Class.PrismaClient<LogOpts, OmitOpts, ExtArgs>
 export { Prisma }
 
+/**
+ * Model BrainstormSession
+ * Durable private Brainstorm workspaces. `userId` is intentionally an indexed
+ * ownership scalar rather than another back-relation on the already enormous
+ * User model; authenticated API routes are the authority for owner scoping.
+ * Nested creative state that has no independent query semantics is serialized
+ * as JSON text in LongText columns, matching the repo's durable payload pattern.
+ */
+export type BrainstormSession = Prisma.BrainstormSessionModel
+/**
+ * Model BrainstormCandidate
+ * One durable row per application-owned Brainstorm candidate. `clientId`
+ * remains the stable identity used by the workbench; revisions/meta stay
+ * serialized because their ordering and lineage are meaningful as a whole.
+ */
+export type BrainstormCandidate = Prisma.BrainstormCandidateModel
 /**
  * Model FacetAlias
  * Alternate names that resolve to one canonical Facet.

@@ -59,10 +59,6 @@
         <Icon name="kind-icon:arrow-left" class="h-5 w-5" />
       </button>
 
-      <!-- ON THE LEFT, per Silas. Everything that used to crowd the right of
-           this row now lives inside it. -->
-      <account-hub class="header-account shrink-0" />
-
       <!-- Channel picker and tab picker share one bordered shell so they read
            as a single control -- the same join the channel/strip pair had, now
            with a second dropdown instead of a scroller on the right of it.
@@ -105,6 +101,18 @@
           </span>
         </div>
       </div>
+
+      <!--
+        RIGHT OF THE TAB SELECTOR. Silas, 2026-08-11: "login-manager is to the
+        right of the tab selector."
+
+        It shipped on the far left, which put the account before the navigation
+        in both reading and tab order. Here it reads Channel -> Tab -> You ->
+        Tutorial: where you are, then whose session it is, then help. The panel
+        it opens had to flip to right-anchored when it moved here -- see the
+        note in account-hub.vue.
+      -->
+      <account-hub class="header-account shrink-0" />
 
       <!--
         FAR RIGHT, per Silas, and the last icon standing in this row.
@@ -157,7 +165,43 @@ const requestedTabKey = computed(() => {
   return typeof route.query.tab === 'string' ? route.query.tab.trim() : ''
 })
 
-const resolvedChannel = computed(() => pageStore.resolvedChannel)
+/**
+ * The channel this route belongs to, resolved from the ROUTE rather than from
+ * pageStore — because this header renders before the page that fills pageStore.
+ *
+ * THE BUG THIS FIXES, which presented as something else entirely. The tab list
+ * highlighted the wrong tab: on /bots it marked Dreams. Instrumenting the same
+ * element showed `isActiveTab` computing FALSE for Dreams and TRUE for Bots
+ * while the DOM carried `active` on Dreams — a rendered decision and a class
+ * that disagreed, which no single render can produce.
+ *
+ * It came from the SERVER. app.vue renders this header above <NuxtPage>, so
+ * during SSR the header's setup runs BEFORE pages/[...slug].vue calls
+ * setPage() — and pageStore, still empty, resolved every route to its default
+ * channel. The server therefore emitted the HOME channel's four tabs
+ * (dashboard/registration/navigation/themes, Dashboard marked active) on a
+ * route whose real channel is Play. Confirmed in the SSR HTML for /bots.
+ *
+ * Hydration then reused those elements for a thirteen-tab list, patched their
+ * text and attributes, and left the server's `active` sitting on the first one
+ * — which is why the stale highlight was always position one, and why it
+ * looked like a Vue patching anomaly rather than a data problem.
+ *
+ * `route.path` is available identically on both sides, so resolving from it
+ * makes the two renders agree and removes the mismatch rather than papering
+ * over its symptom. channelContentStore is awaited in setup above, so the
+ * channel data is present when this first evaluates, server included.
+ *
+ * pageStore stays as the fallback: it carries frontmatter that a path alone
+ * cannot express, and routes outside any channel resolve to null here.
+ */
+const routeChannelLocation = computed(() =>
+  channelContentStore.resolveActiveLocation({ path: route.path }),
+)
+
+const resolvedChannel = computed(
+  () => routeChannelLocation.value?.channel ?? pageStore.resolvedChannel,
+)
 const resolvedTabs = computed(() => resolvedChannel.value?.tabs ?? [])
 
 // The room label this fed ("CREATIVE WORLDS") sat above the page title in the
@@ -192,6 +236,24 @@ const activeTabKey = computed(() => {
     pageStore.resolvedTab.channelKey === channel.channelKey
   ) {
     return pageStore.resolvedTab.tabKey
+  }
+
+  /*
+   * The route's own tab, and the second half of the SSR fix above.
+   *
+   * Resolving the CHANNEL from the route was not enough: this fell straight
+   * past the empty pageStore into the stored/default branches, so the server
+   * still named the channel's defaultTab — `dreams` for Play — on every Play
+   * route. The client then said `bots`, the class mismatched, and hydration
+   * kept the server's highlight.
+   *
+   * Sits below pageStore so frontmatter still wins wherever it has loaded, and
+   * above the stored/default fallbacks because those are guesses where this is
+   * the actual route. Available identically on both sides, which is the point.
+   */
+  const routeTabKey = routeChannelLocation.value?.tab?.tabKey
+  if (routeTabKey && channel.tabs.some((tab) => tab.tabKey === routeTabKey)) {
+    return routeTabKey
   }
 
   const stored = channelContentStore.getActiveTab(channel.channelKey)

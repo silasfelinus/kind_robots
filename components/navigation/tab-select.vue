@@ -71,27 +71,27 @@
       :aria-label="`${channel.label} tabs`"
     >
       <!--
-        KNOWN, PRE-EXISTING: the highlight in this list does not track the
-        route. On /bots it marks Dreams -- the Play channel's defaultTab --
-        rather than Bots, even though this component's own trigger names Bots
-        correctly and the value handed down is `bots`.
+        THE HIGHLIGHT USED TO BE WRONG HERE, and the cause is worth keeping.
 
-        NOT introduced here. Reproduced on merged main with this branch stashed,
-        by opening channel-select and expanding a channel: its inline copy of
-        the same ChannelTabList marks Dreams too. So the defect lives in
-        ChannelTabList or in what both callers feed it, and this component only
-        makes it easier to see by putting the list on the primary control.
+        On /bots this list marked Dreams. Instrumenting one element showed
+        `isActiveTab` computing FALSE for it while the DOM carried `active` --
+        a decision and a class that disagreed inside a single render, which
+        looked like a Vue patching anomaly and is why an earlier pass wrote it
+        off as unexplained.
 
-        Ruled out along the way: HMR (reproduces on a cold server), SSR
-        mismatch (the server renders no active marker in this list), and stale
-        vnode reuse (re-keying the list on activeTabKey changed nothing).
-        Instrumentation showed the same element carrying
-        `data-dbg="dreams~bots"` and `class="active bg-secondary ..."` at once,
-        which should not be possible in a single render -- so the cause is
-        still unexplained and deliberately NOT papered over here.
+        It came from the server. app.vue renders workspace-header above
+        <NuxtPage>, so during SSR the header resolved its channel and tab from
+        a pageStore the page had not filled yet, and fell back to defaults --
+        the HOME channel on a Play route, then Play's defaultTab once the
+        channel was fixed. Hydration reused those elements, patched their text
+        and attributes, and left the server`s `active` on the first row. Always
+        position one, which is what made it look positional.
 
-        Left as-is rather than worked around: a fix belongs in ChannelTabList
-        where both callers get it, not in one host.
+        workspace-header now resolves both channel and tab from `route.path`,
+        which is identical on both sides, so the two renders agree and there is
+        no mismatch to leave anything behind. Nothing here needed changing --
+        recorded so the next person seeing a stale class in a hydrated list
+        looks at what the server rendered before suspecting the renderer.
       -->
       <ChannelTabList
         :channel="channel"

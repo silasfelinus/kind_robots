@@ -1,8 +1,6 @@
 // /stores/navStore.ts
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import type { SmartIcon } from '~/prisma/generated/prisma/client'
-import smartIconSeeds from '@/stores/seeds/smartIcons.json'
 import {
   dashboardConfigs,
   getDashboardDefaultTabs,
@@ -12,11 +10,7 @@ import {
   type DashboardKey,
   type DashboardTabConfig,
 } from '@/stores/helpers/dashboardHelper'
-import { useSmartbarStore } from '@/stores/smartbarStore'
 import { useSheetStore } from '@/stores/sheetStore'
-import { handleError } from '@/stores/utils'
-
-export type NavTab = 'favorites' | 'navigation' | 'all'
 
 export interface ContentDashboardInput {
   title?: string | null
@@ -49,7 +43,6 @@ function getFallbackDashboardKey(): DashboardKey {
   }
 
   const firstKey = Object.keys(dashboardConfigs)[0]
-
   return firstKey as DashboardKey
 }
 
@@ -96,23 +89,9 @@ function defaultDashboardShellState(): DashboardShellState {
   }
 }
 
-const navIconsStorageKey = 'navIcons'
-const navFavoritesStorageKey = 'navFavorites'
 const dashboardTabsStorageKey = 'dashboardTabs'
-const wonderLabFolderStorageKey = 'wonderLabFolder'
 const workspaceSheetOpenStorageKey = 'workspaceSheetOpen'
-/*
- * Whether the card hand shows along the bottom of every page. Silas,
- * 2026-08-11: "just a toggle that controls whether the user sees our hand
- * navigation menu on the bottom of the page, remembered in localstorage".
- *
- * It lives here rather than as app.vue local state because the control that
- * flips it is now inside the account hub, which is not an ancestor of the hand
- * -- and because "remembered" means it has to survive a reload, which a ref in
- * a component setup does not.
- */
 const workspaceHandOpenStorageKey = 'workspaceHandOpen'
-
 const isClient = typeof window !== 'undefined'
 
 function safeGetLocalStorage(key: string): string | null {
@@ -131,17 +110,6 @@ function safeSetLocalStorage(key: string, value: string): void {
   try {
     localStorage.setItem(key, value)
   } catch {}
-}
-
-function safeParseArray<T>(raw: string | null): T[] {
-  if (!raw) return []
-
-  try {
-    const parsed = JSON.parse(raw)
-    return Array.isArray(parsed) ? parsed : []
-  } catch {
-    return []
-  }
 }
 
 function safeParseRecord(raw: string | null): Record<string, string> {
@@ -165,36 +133,15 @@ function safeParseRecord(raw: string | null): Record<string, string> {
 function safeParseBoolean(raw: string | null, fallback = false): boolean {
   if (raw === 'true') return true
   if (raw === 'false') return false
-
   return fallback
 }
 
-function normalizeIcon(icon: SmartIcon): SmartIcon {
-  return {
-    ...icon,
-    type: icon.type || 'directory',
-  }
-}
-
-function normalizeIcons(icons: SmartIcon[]): SmartIcon[] {
-  return icons.map(normalizeIcon)
-}
-
-function seededIcons(): SmartIcon[] {
-  return normalizeIcons(smartIconSeeds as SmartIcon[])
-}
-
 export const useNavStore = defineStore('navStore', () => {
-  const items = ref<SmartIcon[]>([])
-  const favorites = ref<string[]>([])
-  const activeTab = ref<NavTab>('navigation')
-  const activeModelType = ref<string | null>(null)
-
   const isInitialized = ref(false)
   const isInitializing = ref(false)
   const loading = ref(false)
   const lastError = ref<string | null>(null)
-  const initializePromise = ref<Promise<void> | null>(null)
+  let initializePromise: Promise<void> | null = null
 
   const dashboardShell = ref<DashboardShellState>(defaultDashboardShellState())
   const workspaceSheetOpen = ref(false)
@@ -209,86 +156,32 @@ export const useNavStore = defineStore('navStore', () => {
       getFallbackDashboardKey(),
     ),
   })
-
   const dashboardTabsHydrated = ref(false)
 
-  const wonderLabFolder = ref<string | null>(null)
-
-  const smartbarStore = useSmartbarStore()
-
-  const directoryIcons = computed(() =>
-    items.value.filter((icon) => (icon.type ?? 'directory') === 'directory'),
-  )
-
-  const modelTypes = computed(() => {
-    const set = new Set<string>()
-
-    for (const icon of directoryIcons.value) {
-      const modelType = (icon.modelType ?? '').trim()
-      const category = (icon.category ?? '').trim()
-
-      if (modelType && category === 'model') {
-        set.add(modelType)
-      }
-    }
-
-    return Array.from(set).sort()
-  })
-
-  const favoritesIcons = computed(() => {
-    const favoriteSet = new Set(favorites.value)
-
-    return directoryIcons.value.filter((icon) => {
-      const link = (icon.link ?? '').trim()
-
-      return link.length > 0 && favoriteSet.has(link)
-    })
-  })
-
   const canGoBack = computed(() => currentIndex.value > 0)
-
   const canGoForward = computed(
     () =>
       currentIndex.value >= 0 &&
       currentIndex.value < routeHistory.value.length - 1,
   )
-
   const backPath = computed(() =>
     canGoBack.value ? routeHistory.value[currentIndex.value - 1] : null,
   )
-
   const forwardPath = computed(() =>
     canGoForward.value ? routeHistory.value[currentIndex.value + 1] : null,
   )
-
   const dashboardKeys = computed(
     () => Object.keys(dashboardConfigs) as DashboardKey[],
   )
-
   const dashboardList = computed(() =>
     dashboardKeys.value.map((key) => dashboardConfigs[key]),
   )
-
-  function setLastError(error: unknown, fallback: string): void {
-    lastError.value = error instanceof Error ? error.message : fallback
-  }
-
-  function clearError(): void {
-    lastError.value = null
-  }
-
-  function syncIconsToLocalStorage(): void {
-    safeSetLocalStorage(navIconsStorageKey, JSON.stringify(items.value))
-  }
-
-  function syncFavoritesToLocalStorage(): void {
-    safeSetLocalStorage(navFavoritesStorageKey, JSON.stringify(favorites.value))
-  }
+  const dashboardTitle = computed(() => dashboardShell.value.title || 'Dashboard')
+  const dashboardSummary = computed(() => dashboardShell.value.summary || '')
 
   function syncDashboardTabsToLocalStorage(reason = 'unknown'): void {
-    const payload = JSON.stringify(dashboardTabs.value)
-
-    safeSetLocalStorage(dashboardTabsStorageKey, payload)
+    void reason
+    safeSetLocalStorage(dashboardTabsStorageKey, JSON.stringify(dashboardTabs.value))
   }
 
   function syncDashboardTabs(reason = 'manual syncDashboardTabs'): void {
@@ -312,8 +205,7 @@ export const useNavStore = defineStore('navStore', () => {
   function hydrateDashboardTabsFromLocalStorage(force = false): void {
     if (dashboardTabsHydrated.value && !force) return
 
-    const raw = safeGetLocalStorage(dashboardTabsStorageKey)
-    const parsed = safeParseRecord(raw)
+    const parsed = safeParseRecord(safeGetLocalStorage(dashboardTabsStorageKey))
     const normalized = normalizeDashboardTabs(parsed)
     const fallbackKey = getFallbackDashboardKey()
     const fallbackTab = resolveDashboardTab(
@@ -326,7 +218,6 @@ export const useNavStore = defineStore('navStore', () => {
       ...normalized,
       [fallbackKey]: fallbackTab,
     }
-
     dashboardTabsHydrated.value = true
   }
 
@@ -344,15 +235,61 @@ export const useNavStore = defineStore('navStore', () => {
     )
   }
 
+  function hydrateFromLocalStorage(force = false): void {
+    hydrateDashboardTabsFromLocalStorage(force)
+    hydrateWorkspaceSheetOpenFromLocalStorage()
+    hydrateWorkspaceHandOpenFromLocalStorage()
+  }
+
+  function syncToLocalStorage(): void {
+    syncDashboardTabsToLocalStorage('syncToLocalStorage')
+    syncWorkspaceSheetOpenToLocalStorage()
+    syncWorkspaceHandOpenToLocalStorage()
+  }
+
+  async function initialize(force = false): Promise<void> {
+    if (initializePromise && !force) return initializePromise
+
+    if (isInitialized.value && !force) {
+      hydrateFromLocalStorage()
+      return
+    }
+
+    initializePromise = (async () => {
+      try {
+        isInitializing.value = true
+        loading.value = true
+        lastError.value = null
+        hydrateFromLocalStorage(force)
+        isInitialized.value = true
+      } catch (error) {
+        lastError.value =
+          error instanceof Error ? error.message : 'Failed to initialize nav store'
+        isInitialized.value = false
+      } finally {
+        loading.value = false
+        isInitializing.value = false
+        initializePromise = null
+      }
+    })()
+
+    return initializePromise
+  }
+
+  function resetInitialization(): void {
+    isInitialized.value = false
+    isInitializing.value = false
+    loading.value = false
+    initializePromise = null
+    lastError.value = null
+  }
+
   function getDashboardTab(dashboardKey: DashboardKey): string {
     const config = dashboardConfigs[dashboardKey]
     const current = dashboardTabs.value[dashboardKey]
-    const resolved =
-      current && isDashboardTabKey(dashboardKey, current)
-        ? current
-        : config.defaultTab
-
-    return resolved
+    return current && isDashboardTabKey(dashboardKey, current)
+      ? current
+      : config.defaultTab
   }
 
   function setDashboardTab(
@@ -363,261 +300,26 @@ export const useNavStore = defineStore('navStore', () => {
     const previous = dashboardTabs.value[dashboardKey]
     const nextTab = resolveDashboardTab(dashboardKey, tabKey)
 
-    if (previous === nextTab) {
-      return nextTab
-    }
+    if (previous === nextTab) return nextTab
 
     dashboardTabs.value = {
       ...dashboardTabs.value,
       [dashboardKey]: nextTab,
     }
-
     syncDashboardTabsToLocalStorage(
       `setDashboardTab(${dashboardKey}, ${nextTab}) from ${reason}`,
     )
 
-    // Traveling to a new subtab refreshes the workspace sheet with that
-    // tab's intro copy. Lazy import inside the function avoids a circular
-    // dependency (sheetStore proxies open/close back to navStore).
     const tabConfig = dashboardConfigs[dashboardKey]?.tabs.find(
       (tab) => tab.key === nextTab,
     )
-
-    if (tabConfig) {
-      useSheetStore().setSheetFromTab(tabConfig)
-    }
+    if (tabConfig) useSheetStore().setSheetFromTab(tabConfig)
 
     return nextTab
   }
 
-  function inferDashboardKeyFromContent(
-    input: ContentDashboardInput,
-  ): DashboardKey {
-    return resolveDashboardKey(input.dashboardKey)
-  }
-
-  function setDashboardShellFromContent(input: ContentDashboardInput): void {
-    const dashboardKey = inferDashboardKeyFromContent(input)
-    // A page that names one of this dashboard's real tabs IS that tab
-    // (e.g. /stylist -> art/stylist), so enforce it. A page without a valid
-    // tab hint is a channel landing page — keep the visitor's remembered tab
-    // instead of resetting to the dashboard default.
-    const requestedTab = (input.dashboardTab ?? '').trim()
-    const activeTabHint =
-      requestedTab && isDashboardTabKey(dashboardKey, requestedTab)
-        ? requestedTab
-        : getDashboardTab(dashboardKey)
-    const resolvedTab = setDashboardTab(
-      dashboardKey,
-      activeTabHint,
-      'content frontmatter',
-    )
-    const cards = (input.cards ?? '').trim() || null
-
-    dashboardShell.value = {
-      enabled: true,
-      dashboardKey,
-      activeTabHint: resolvedTab,
-      cards,
-      title: input.title?.trim() || input.subtitle?.trim() || 'Dashboard',
-      summary: input.summary?.trim() || input.description?.trim() || '',
-      loadingMessage: input.loadingMessage?.trim() || 'Loading dashboard…',
-      refreshLabel: input.refreshLabel?.trim() || 'Refresh',
-    }
-
-    // setDashboardTab early-returns when the tab didn't change, but
-    // pageStore.setPage just cleared the sheet — always re-push the
-    // resolved tab's intro so a same-tab page load isn't left empty.
-    const tabConfig = dashboardConfigs[dashboardKey].tabs.find(
-      (tab) => tab.key === resolvedTab,
-    )
-
-    if (tabConfig) {
-      useSheetStore().setSheetFromTab(tabConfig)
-    }
-  }
-  function clearDashboardShell(): void {
-    dashboardShell.value = defaultDashboardShellState()
-
-    const dashboardKey = dashboardShell.value.dashboardKey
-    const activeTabHint = dashboardShell.value.activeTabHint
-
-    setDashboardTab(dashboardKey, activeTabHint, 'clearDashboardShell fallback')
-  }
-
-  async function refreshDashboardShell(): Promise<void> {
-    await initialize(true)
-  }
-
-  function syncWonderLabFolderToLocalStorage(): void {
-    safeSetLocalStorage(wonderLabFolderStorageKey, wonderLabFolder.value ?? '')
-  }
-
-  function syncToLocalStorage(): void {
-    syncIconsToLocalStorage()
-    syncFavoritesToLocalStorage()
-    syncWonderLabFolderToLocalStorage()
-    syncWorkspaceSheetOpenToLocalStorage()
-  }
-
-  function hydrateIconsFromLocalStorage(): void {
-    const storedIcons = safeParseArray<SmartIcon>(
-      safeGetLocalStorage(navIconsStorageKey),
-    )
-
-    if (storedIcons.length) {
-      items.value = normalizeIcons(storedIcons)
-    }
-  }
-
-  function hydrateFavoritesFromLocalStorage(): void {
-    favorites.value = safeParseArray<string>(
-      safeGetLocalStorage(navFavoritesStorageKey),
-    )
-  }
-
-  function hydrateWonderLabFolderFromLocalStorage(): void {
-    wonderLabFolder.value =
-      safeGetLocalStorage(wonderLabFolderStorageKey) || null
-  }
-
-  function hydrateFromLocalStorage(force = false): void {
-    hydrateIconsFromLocalStorage()
-    hydrateFavoritesFromLocalStorage()
-    hydrateDashboardTabsFromLocalStorage(force)
-    hydrateWonderLabFolderFromLocalStorage()
-    hydrateWorkspaceSheetOpenFromLocalStorage()
-    hydrateWorkspaceHandOpenFromLocalStorage()
-  }
-
-  function applyIconsFromSmartbar(): void {
-    if (smartbarStore.icons.length) {
-      items.value = normalizeIcons(smartbarStore.icons)
-      syncIconsToLocalStorage()
-      return
-    }
-
-    if (!items.value.length) {
-      items.value = seededIcons()
-      syncIconsToLocalStorage()
-    }
-  }
-
-  function syncModelTypeIfNeeded(): void {
-    if (!activeModelType.value && modelTypes.value.length > 0) {
-      activeModelType.value = modelTypes.value[0] ?? null
-    }
-  }
-
-  const dashboardTitle = computed(() => {
-    return dashboardShell.value.title || 'Dashboard'
-  })
-
-  const dashboardSummary = computed(() => {
-    return dashboardShell.value.summary || ''
-  })
-
-  async function initialize(force = false): Promise<void> {
-    if (initializePromise.value && !force) {
-      return initializePromise.value
-    }
-
-    if (isInitialized.value && !force) {
-      hydrateDashboardTabsFromLocalStorage()
-      hydrateWonderLabFolderFromLocalStorage()
-      hydrateWorkspaceSheetOpenFromLocalStorage()
-      hydrateWorkspaceHandOpenFromLocalStorage()
-      return
-    }
-
-    initializePromise.value = (async () => {
-      try {
-        isInitializing.value = true
-        loading.value = true
-        clearError()
-
-        hydrateFromLocalStorage(force)
-
-        if (!smartbarStore.isInitialized || force) {
-          await smartbarStore.initialize({ force })
-        }
-
-        applyIconsFromSmartbar()
-        syncModelTypeIfNeeded()
-
-        isInitialized.value = true
-      } catch (error) {
-        handleError(error, 'initializing navStore')
-        setLastError(error, 'Failed to initialize nav store')
-
-        if (!items.value.length) {
-          items.value = seededIcons()
-          syncIconsToLocalStorage()
-          syncModelTypeIfNeeded()
-        }
-
-        hydrateDashboardTabsFromLocalStorage(force)
-        hydrateWonderLabFolderFromLocalStorage()
-        hydrateWorkspaceSheetOpenFromLocalStorage()
-        hydrateWorkspaceHandOpenFromLocalStorage()
-
-        isInitialized.value = false
-      } finally {
-        loading.value = false
-        isInitializing.value = false
-        initializePromise.value = null
-      }
-    })()
-
-    return initializePromise.value
-  }
-
-  function resetInitialization(): void {
-    isInitialized.value = false
-    isInitializing.value = false
-    loading.value = false
-    initializePromise.value = null
-    lastError.value = null
-  }
-
-  function setIcons(data: SmartIcon[]): void {
-    items.value = normalizeIcons(data)
-    syncModelTypeIfNeeded()
-    syncIconsToLocalStorage()
-  }
-
-  function refreshIconsFromSmartbar(): void {
-    applyIconsFromSmartbar()
-    syncModelTypeIfNeeded()
-  }
-
-  function setActiveTab(tab: NavTab): void {
-    activeTab.value = tab
-  }
-
-  function setActiveModelType(modelType: string | null): void {
-    activeModelType.value = modelType
-  }
-
-  function toggleFavorite(link?: string | null): void {
-    const normalized = (link ?? '').trim()
-
-    if (!normalized) return
-
-    const index = favorites.value.indexOf(normalized)
-
-    if (index === -1) {
-      favorites.value.push(normalized)
-    } else {
-      favorites.value.splice(index, 1)
-    }
-
-    syncFavoritesToLocalStorage()
-  }
-
   function setDashboardTabFromContent(tabKey?: string | null): string | null {
     const normalizedTabKey = (tabKey ?? '').trim()
-
     if (!normalizedTabKey) return null
 
     for (const dashboardKey of Object.keys(
@@ -633,19 +335,54 @@ export const useNavStore = defineStore('navStore', () => {
     }
 
     const fallbackKey = getFallbackDashboardKey()
-    const fallbackTab = getFallbackDashboardTab(fallbackKey)
-
     return setDashboardTab(
       fallbackKey,
-      fallbackTab,
+      getFallbackDashboardTab(fallbackKey),
       `setDashboardTabFromContent fallback for "${normalizedTabKey}"`,
     )
   }
 
-  function isFavorite(link?: string | null): boolean {
-    const normalized = (link ?? '').trim()
+  function setDashboardShellFromContent(input: ContentDashboardInput): void {
+    const dashboardKey = resolveDashboardKey(input.dashboardKey)
+    const requestedTab = (input.dashboardTab ?? '').trim()
+    const activeTabHint =
+      requestedTab && isDashboardTabKey(dashboardKey, requestedTab)
+        ? requestedTab
+        : getDashboardTab(dashboardKey)
+    const resolvedTab = setDashboardTab(
+      dashboardKey,
+      activeTabHint,
+      'content frontmatter',
+    )
 
-    return normalized ? favorites.value.includes(normalized) : false
+    dashboardShell.value = {
+      enabled: true,
+      dashboardKey,
+      activeTabHint: resolvedTab,
+      cards: (input.cards ?? '').trim() || null,
+      title: input.title?.trim() || input.subtitle?.trim() || 'Dashboard',
+      summary: input.summary?.trim() || input.description?.trim() || '',
+      loadingMessage: input.loadingMessage?.trim() || 'Loading dashboard…',
+      refreshLabel: input.refreshLabel?.trim() || 'Refresh',
+    }
+
+    const tabConfig = dashboardConfigs[dashboardKey].tabs.find(
+      (tab) => tab.key === resolvedTab,
+    )
+    if (tabConfig) useSheetStore().setSheetFromTab(tabConfig)
+  }
+
+  function clearDashboardShell(): void {
+    dashboardShell.value = defaultDashboardShellState()
+    setDashboardTab(
+      dashboardShell.value.dashboardKey,
+      dashboardShell.value.activeTabHint,
+      'clearDashboardShell fallback',
+    )
+  }
+
+  async function refreshDashboardShell(): Promise<void> {
+    await initialize(true)
   }
 
   function getDashboardConfig(dashboardKey: DashboardKey): DashboardConfig {
@@ -671,7 +408,6 @@ export const useNavStore = defineStore('navStore', () => {
     dashboardKey: DashboardKey,
   ): DashboardTabConfig {
     const activeTabKey = getDashboardTab(dashboardKey)
-
     return (
       dashboardConfigs[dashboardKey].tabs.find(
         (tab) => tab.key === activeTabKey,
@@ -687,7 +423,6 @@ export const useNavStore = defineStore('navStore', () => {
     }
 
     const current = routeHistory.value[currentIndex.value]
-
     if (path === current) return
 
     if (
@@ -717,11 +452,6 @@ export const useNavStore = defineStore('navStore', () => {
   function clearRouteHistory(): void {
     routeHistory.value = []
     currentIndex.value = -1
-  }
-
-  function setWonderLabFolder(folder: string | null): void {
-    wonderLabFolder.value = folder
-    syncWonderLabFolderToLocalStorage()
   }
 
   function hydrateDashboardTabs(force = false): void {
@@ -763,86 +493,46 @@ export const useNavStore = defineStore('navStore', () => {
   }
 
   return {
-    items,
-    favorites,
-    activeTab,
-    activeModelType,
-
     isInitialized,
     isInitializing,
     loading,
     lastError,
-    /*
-     * Promise refs are deliberately NOT returned. In a Pinia setup store a
-     * returned ref becomes state, Nuxt serializes state into the SSR payload
-     * with devalue, and devalue cannot stringify a Promise -- which returned
-     * 500 on every page of the site. They stay private; re-entrancy is
-     * unaffected because the functions return the promise VALUE to callers.
-     * Guarded by utils/scripts/verifyNoPromiseInStoreState.ts.
-     */
-
     dashboardShell,
     workspaceSheetOpen,
     workspaceHandOpen,
-
     routeHistory,
     currentIndex,
-
     dashboardTabs,
     dashboardKeys,
     dashboardList,
-    wonderLabFolder,
-
-    directoryIcons,
-    modelTypes,
-    favoritesIcons,
-
     canGoBack,
     canGoForward,
     backPath,
     forwardPath,
-
     syncDashboardTabs,
-
     initialize,
     resetInitialization,
     hydrateFromLocalStorage,
     syncToLocalStorage,
     hydrateDashboardTabs,
-
-    setIcons,
-    refreshIconsFromSmartbar,
-
-    setActiveTab,
-    setActiveModelType,
-
-    toggleFavorite,
-    isFavorite,
-
     getDashboardConfig,
     getDashboardTabs,
     getDashboardTab,
     setDashboardTab,
     resetDashboardTab,
     getDashboardActiveTabConfig,
-
     setDashboardShellFromContent,
     clearDashboardShell,
     refreshDashboardShell,
-
     recordVisit,
     clearRouteHistory,
-
-    setWonderLabFolder,
     setDashboardTabFromContent,
-
     setWorkspaceSheetOpen,
     toggleWorkspaceSheet,
     setWorkspaceHandOpen,
     toggleWorkspaceHand,
     showWorkspaceSheet,
     hideWorkspaceSheet,
-
     dashboardTitle,
     dashboardSummary,
     closeWorkspaceSheet,

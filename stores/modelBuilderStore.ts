@@ -1906,6 +1906,16 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     state.selections = {}
     state.run = null
     state.generatingItemId = null
+    // Clear the remaining store-wide "who's in flight" singletons too --
+    // they are not scoped to the run being abandoned here, so a reset while
+    // one is still claimed (e.g. mid auto-build or mid commit) would
+    // otherwise leak into the next run: its Auto-build/batch controls would
+    // read as busy until the abandoned run's own in-flight call resolves.
+    state.committingItemId = null
+    state.autoBuilding = false
+    state.autoBuildingItemId = null
+    state.batchingOutputKey = null
+    draftingField.value = null
     safeRemove(runIdKey)
     clearStatus()
   }

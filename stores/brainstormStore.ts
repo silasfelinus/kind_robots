@@ -11,6 +11,7 @@ import {
 import type {
   BrainstormBatch,
   BrainstormBatchShape,
+  BrainstormBranchOrigin,
   BrainstormCandidate,
   BrainstormCandidateRevision,
   BrainstormCandidateStatus,
@@ -21,17 +22,24 @@ import type {
   BrainstormGeneratePayload,
   BrainstormGenerateRequest,
   BrainstormGenerationState,
+  BrainstormPersistenceState,
   BrainstormReferenceCandidate,
   BrainstormReturnTypeId,
   BrainstormReturnTypeRequest,
+  BrainstormSavedSessionData,
+  BrainstormSavedSessionSummary,
+  BrainstormSavedSessionsData,
   BrainstormServerSnapshot,
+  BrainstormSessionSaveRequest,
   BrainstormSessionSnapshot,
   BrainstormSourceRef,
 } from '@/types/brainstorm'
 
 const STORAGE_KEY = 'kindrobots:brainstorm-session:v1'
+const SAVED_LINK_STORAGE_KEY = 'kindrobots:brainstorm-saved-link:v1'
 const STORAGE_VERSION = 1 as const
 const GENERATION_TIMEOUT_MS = 60_000
+const PERSISTENCE_TIMEOUT_MS = 30_000
 const RETURN_TYPE_IDS = new Set<BrainstormReturnTypeId>(
   BRAINSTORM_RETURN_TYPES.map((entry) => entry.id),
 )
@@ -176,11 +184,12 @@ function normalizeRevision(value: unknown): BrainstormCandidateRevision | null {
   const title = cleanText(record.title)
   const createdAt = cleanText(record.createdAt)
   const reason = record.reason
+  const returnType = normalizeReturnTypeId(record.returnType)
 
   if (
     !text ||
     !createdAt ||
-    !['generated', 'edited', 'regenerated', 'branched'].includes(String(reason))
+    !['generated', 'edited', 'regenerated', 'branched', 'restored'].includes(String(reason))
   ) {
     return null
   }
@@ -190,6 +199,27 @@ function normalizeRevision(value: unknown): BrainstormCandidateRevision | null {
     createdAt,
     reason: reason as BrainstormCandidateRevision['reason'],
     ...(title ? { title } : {}),
+    returnType,
+  }
+}
+
+function normalizeBranchOrigin(value: unknown): BrainstormBranchOrigin | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+  const record = value as Record<string, unknown>
+  const candidateId = cleanText(record.candidateId)
+  const revisionIndex = Number(record.revisionIndex)
+  const title = cleanText(record.title)
+  const text = cleanMultilineText(record.text)
+
+  if (!candidateId || !text || !Number.isInteger(revisionIndex) || revisionIndex < 0) {
+    return null
+  }
+
+  return {
+    candidateId,
+    revisionIndex,
+    ...(title ? { title } : {}),
+    text,
   }
 }
 
@@ -226,6 +256,7 @@ function normalizeStoredCandidate(value: unknown): BrainstormCandidate | null {
       : {}
   const source = normalizeSourceRef(meta.source)
   const returnType = normalizeReturnTypeId(meta.returnType)
+  const branchOrigin = normalizeBranchOrigin(meta.branchOrigin)
 
   return {
     id,
@@ -239,10 +270,11 @@ function normalizeStoredCandidate(value: unknown): BrainstormCandidate | null {
     revisions:
       revisions.length > 0
         ? revisions
-        : [{ title, text, createdAt: nowIso(), reason: 'generated' }],
+        : [{ title, text, createdAt: nowIso(), reason: 'generated', returnType }],
     meta: {
       source,
       returnType,
+      branchOrigin,
     },
   }
 }
@@ -306,8 +338,15 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
   const generationError = ref<BrainstormError | null>(null)
   const generationTargetId = ref<string | null>(null)
   const lastGeneratedAt = ref<string | null>(null)
-  const isInitialized = ref(false)
 
+  const savedSessionId = ref<number | null>(null)
+  const sessionName = ref('')
+  const savedSessions = ref<BrainstormSavedSessionSummary[]>([])
+  const persistenceState = ref<BrainstormPersistenceState>('idle')
+  const persistenceError = ref<BrainstormError | null>(null)
+  const lastSavedAt = ref<string | null>(null)
+
+  const isInitialized = ref(false)
   let persistenceReady = false
 
   const activeBatch = computed<BrainstormBatch | null>(() => {
@@ -351,6 +390,9 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
   const isGenerating = computed(
     () => generationState.value === 'generating',
   )
+  const isPersisting = computed(
+    () => persistenceState.value === 'loading' || persistenceState.value === 'saving',
+  )
 
   const canGenerate = computed(
     () =>
@@ -358,6 +400,18 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
       !isGenerating.value &&
       resultCount.value >= minimumMixResults.value,
   )
+
+  const canSaveSession = computed(
+    () => Boolean(premise.value.trim()) && Boolean(sessionName.value.trim()) && !isPersisting.value,
+  )
+
+  const suggestedSessionName = computed(() => {
+    const cleanPremise = cleanText(premise.value)
+    if (!cleanPremise) return 'Untitled Brainstorm'
+    return cleanPremise.length <= 60
+      ? cleanPremise
+      : `${cleanPremise.slice(0, 57).trimEnd()}…`
+  })
 
   function sessionSnapshot(): BrainstormSessionSnapshot {
     return {
@@ -384,6 +438,22 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(sessionSnapshot()))
     } catch {
       // Brainstorm remains usable if private browser storage is unavailable.
+    }
+  }
+
+  function persistSavedLink(): void {
+    if (!import.meta.client || !persistenceReady) return
+    try {
+      if (savedSessionId.value && sessionName.value.trim()) {
+        localStorage.setItem(
+          SAVED_LINK_STORAGE_KEY,
+          JSON.stringify({ id: savedSessionId.value, name: sessionName.value.trim() }),
+        )
+      } else {
+        localStorage.removeItem(SAVED_LINK_STORAGE_KEY)
+      }
+    } catch {
+      // Durable server persistence still works if browser storage is unavailable.
     }
   }
 
@@ -444,6 +514,20 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     }
   }
 
+  function restoreSavedLink(raw: string): void {
+    try {
+      const parsed = JSON.parse(raw) as Record<string, unknown>
+      const id = Number(parsed.id)
+      const name = cleanText(parsed.name)
+      if (Number.isInteger(id) && id > 0 && name) {
+        savedSessionId.value = id
+        sessionName.value = name
+      }
+    } catch {
+      // Ignore stale or malformed browser-only linkage.
+    }
+  }
+
   function initializeSession(): void {
     if (isInitialized.value) return
 
@@ -451,6 +535,8 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
       try {
         const stored = localStorage.getItem(STORAGE_KEY)
         if (stored) restoreSession(stored)
+        const savedLink = localStorage.getItem(SAVED_LINK_STORAGE_KEY)
+        if (savedLink) restoreSavedLink(savedLink)
       } catch {
         // Private mode / storage denial should not block the workbench.
       }
@@ -534,6 +620,19 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     source.value = value ? normalizeSourceRef(value) : null
   }
 
+  function setSessionName(value: string): void {
+    sessionName.value = value.slice(0, 255)
+  }
+
+  function useSuggestedSessionName(): void {
+    sessionName.value = suggestedSessionName.value
+  }
+
+  function detachSavedSession(): void {
+    savedSessionId.value = null
+    lastSavedAt.value = null
+  }
+
   function setActiveBatch(batchId: string): boolean {
     if (!batches.value.some((batch) => batch.id === batchId)) return false
     activeBatchId.value = batchId
@@ -545,9 +644,26 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     if (generationState.value === 'error') generationState.value = 'idle'
   }
 
+  function clearPersistenceError(): void {
+    persistenceError.value = null
+    if (persistenceState.value === 'error') persistenceState.value = 'idle'
+  }
+
   function setGenerationError(error: BrainstormError): void {
     generationState.value = 'error'
     generationError.value = error
+  }
+
+  function setPersistenceFailure(
+    status: number | undefined,
+    message: string,
+  ): void {
+    persistenceState.value = 'error'
+    persistenceError.value = {
+      kind: status === 400 ? 'validation' : classifyError(status),
+      message,
+      status: status ?? null,
+    }
   }
 
   function findCandidate(candidateId: string): BrainstormCandidate | null {
@@ -610,6 +726,46 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
       text: nextText,
       createdAt: nowIso(),
       reason: 'edited',
+      returnType: candidate.meta.returnType ?? null,
+    })
+    return true
+  }
+
+  function restoreCandidateRevision(
+    candidateId: string,
+    revisionIndex: number,
+  ): boolean {
+    const candidate = findCandidate(candidateId)
+    if (!candidate) return false
+    if (!Number.isInteger(revisionIndex) || revisionIndex < 0) return false
+
+    const revision = candidate.revisions[revisionIndex]
+    if (!revision) return false
+
+    const nextTitle = cleanText(revision.title)
+    const nextText = cleanMultilineText(revision.text)
+    if (!nextText) return false
+
+    const nextReturnType =
+      normalizeReturnTypeId(revision.returnType) ?? candidate.meta.returnType ?? null
+    if (
+      nextTitle === candidate.title &&
+      nextText === candidate.text &&
+      nextReturnType === (candidate.meta.returnType ?? null)
+    ) {
+      return true
+    }
+
+    candidate.title = nextTitle
+    candidate.text = nextText
+    candidate.meta.returnType = nextReturnType
+    candidate.edited = true
+    candidate.revisions.push({
+      ...(nextTitle ? { title: nextTitle } : {}),
+      text: nextText,
+      createdAt: nowIso(),
+      reason: 'restored',
+      returnType: nextReturnType,
     })
     return true
   }
@@ -662,12 +818,14 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
           text,
           createdAt,
           reason,
+          returnType,
         },
       ],
       meta: {
         source: source.value,
         intent: source.value?.intent || null,
         returnType,
+        branchOrigin: null,
       },
     }
   }
@@ -705,18 +863,20 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     const text = cleanMultilineText(generated.text)
     if (!text) return false
 
+    const returnType =
+      normalizeReturnTypeId(generated.returnType) ?? candidate.meta.returnType ?? null
     candidate.title = title
     candidate.text = text
     candidate.status = 'pending'
     candidate.feedback = ''
     candidate.edited = false
-    candidate.meta.returnType =
-      normalizeReturnTypeId(generated.returnType) ?? candidate.meta.returnType ?? null
+    candidate.meta.returnType = returnType
     candidate.revisions.push({
       ...(title ? { title } : {}),
       text,
       createdAt: nowIso(),
       reason: 'regenerated',
+      returnType,
     })
     return true
   }
@@ -735,6 +895,12 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
       parent.id,
     )
     if (!child.meta.returnType) child.meta.returnType = parent.meta.returnType ?? null
+    child.meta.branchOrigin = {
+      candidateId: parent.id,
+      revisionIndex: Math.max(0, parent.revisions.length - 1),
+      ...(parent.title ? { title: parent.title } : {}),
+      text: parent.text,
+    }
     candidates.value.push(child)
 
     const parentIndex = batch.candidateIds.indexOf(parent.id)
@@ -923,6 +1089,121 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     return Boolean(appendBranchCandidate(candidate, generated[0]))
   }
 
+  function upsertSavedSummary(summary: BrainstormSavedSessionSummary): void {
+    const index = savedSessions.value.findIndex((entry) => entry.id === summary.id)
+    if (index >= 0) savedSessions.value.splice(index, 1, summary)
+    else savedSessions.value.unshift(summary)
+    savedSessions.value.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+  }
+
+  async function loadSavedSessions(): Promise<boolean> {
+    clearPersistenceError()
+    persistenceState.value = 'loading'
+    const result = await performFetch<BrainstormSavedSessionsData>(
+      '/api/brainstorm/sessions',
+      { method: 'GET' },
+      0,
+      PERSISTENCE_TIMEOUT_MS,
+    )
+
+    if (!result.success) {
+      setPersistenceFailure(
+        result.status,
+        result.message || 'Failed to load saved Brainstorm sessions.',
+      )
+      return false
+    }
+
+    savedSessions.value = Array.isArray(result.data?.sessions)
+      ? result.data.sessions
+      : []
+    persistenceState.value = 'success'
+    return true
+  }
+
+  async function saveCurrentSession(): Promise<boolean> {
+    clearPersistenceError()
+    const name = cleanText(sessionName.value)
+    if (!name) {
+      setPersistenceFailure(400, 'Name this Brainstorm before saving it.')
+      return false
+    }
+    if (!premise.value.trim()) {
+      setPersistenceFailure(400, 'Give Brainstorm a premise before saving it.')
+      return false
+    }
+
+    persistenceState.value = 'saving'
+    const payload: BrainstormSessionSaveRequest = {
+      name,
+      snapshot: sessionSnapshot(),
+    }
+    const id = savedSessionId.value
+    const result = await performFetch<BrainstormSavedSessionData>(
+      id ? `/api/brainstorm/sessions/${id}` : '/api/brainstorm/sessions',
+      {
+        method: id ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      },
+      0,
+      PERSISTENCE_TIMEOUT_MS,
+    )
+
+    if (!result.success || !result.data?.session) {
+      setPersistenceFailure(
+        result.status,
+        result.message || 'Failed to save the Brainstorm session.',
+      )
+      return false
+    }
+
+    const saved = result.data.session
+    savedSessionId.value = saved.id
+    sessionName.value = saved.name
+    lastSavedAt.value = saved.updatedAt
+    upsertSavedSummary(saved)
+    persistenceState.value = 'success'
+    return true
+  }
+
+  async function openSavedSession(id: number): Promise<boolean> {
+    clearPersistenceError()
+    if (!Number.isInteger(id) || id <= 0) {
+      setPersistenceFailure(400, 'Choose a valid saved Brainstorm session.')
+      return false
+    }
+
+    persistenceState.value = 'loading'
+    const result = await performFetch<BrainstormSavedSessionData>(
+      `/api/brainstorm/sessions/${id}`,
+      { method: 'GET' },
+      0,
+      PERSISTENCE_TIMEOUT_MS,
+    )
+
+    if (!result.success || !result.data?.session) {
+      setPersistenceFailure(
+        result.status,
+        result.message || 'Failed to open the Brainstorm session.',
+      )
+      return false
+    }
+
+    const saved = result.data.session
+    if (!restoreSession(JSON.stringify(saved.snapshot))) {
+      setPersistenceFailure(500, 'The saved Brainstorm session could not be restored safely.')
+      return false
+    }
+
+    savedSessionId.value = saved.id
+    sessionName.value = saved.name
+    lastSavedAt.value = saved.updatedAt
+    upsertSavedSummary(saved)
+    persistenceState.value = 'success'
+    return true
+  }
+
   function clearSession(): void {
     premise.value = ''
     resultCount.value = BRAINSTORM_DEFAULT_RESULTS
@@ -939,6 +1220,11 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     generationError.value = null
     generationTargetId.value = null
     lastGeneratedAt.value = null
+    savedSessionId.value = null
+    sessionName.value = ''
+    persistenceState.value = 'idle'
+    persistenceError.value = null
+    lastSavedAt.value = null
   }
 
   if (import.meta.client) {
@@ -960,6 +1246,11 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
       persistSession,
       { deep: true },
     )
+    watch(
+      () => ({ id: savedSessionId.value, name: sessionName.value }),
+      persistSavedLink,
+      { deep: true },
+    )
   }
 
   return {
@@ -978,6 +1269,12 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     generationError,
     generationTargetId,
     lastGeneratedAt,
+    savedSessionId,
+    sessionName,
+    savedSessions,
+    persistenceState,
+    persistenceError,
+    lastSavedAt,
     isInitialized,
     activeBatch,
     activeCandidates,
@@ -986,7 +1283,10 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     pendingCandidates,
     minimumMixResults,
     isGenerating,
+    isPersisting,
     canGenerate,
+    canSaveSession,
+    suggestedSessionName,
     initializeSession,
     setPremise,
     setResultCount,
@@ -998,18 +1298,26 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     toggleReturnType,
     setReturnTypeCount,
     setSource,
+    setSessionName,
+    useSuggestedSessionName,
+    detachSavedSession,
     setActiveBatch,
     clearGenerationError,
+    clearPersistenceError,
     setCandidateStatus,
     keepCandidate,
     rejectCandidate,
     resetCandidateStatus,
     setCandidateFeedback,
     editCandidate,
+    restoreCandidateRevision,
     removeCandidate,
     generateBatch,
     regenerateCandidate,
     branchCandidate,
+    loadSavedSessions,
+    saveCurrentSession,
+    openSavedSession,
     clearSession,
   }
 })

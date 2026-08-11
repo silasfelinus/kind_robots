@@ -27,6 +27,7 @@
                 ? 'btn-ghost text-base-content/60'
                 : 'btn-ghost text-base-content/30 pointer-events-none'
           "
+          :disabled="!crumb.enabled"
           @click="crumb.enabled && store.goToStep(crumb.step)"
         >
           <span class="opacity-50">{{ index + 1 }}.</span>
@@ -38,6 +39,8 @@
         type="button"
         class="btn btn-xs btn-ghost ml-auto h-7 min-h-7 rounded-xl px-2"
         :class="showHistory ? 'text-primary' : 'text-base-content/60 hover:text-primary'"
+        aria-label="Toggle run history"
+        :aria-pressed="showHistory"
         @click="showHistory = !showHistory"
       >
         <Icon name="kind-icon:clock" class="h-3.5 w-3.5" />
@@ -47,6 +50,7 @@
       <button
         type="button"
         class="btn btn-xs btn-ghost h-7 min-h-7 rounded-xl px-2 text-base-content/60 hover:text-error"
+        aria-label="Reset Model Builder"
         @click="store.resetAll()"
       >
         <Icon name="kind-icon:trash" class="h-3.5 w-3.5" />
@@ -61,6 +65,8 @@
         :class="
           store.statusTone === 'error' ? 'kr-note-error' : 'kr-note-success'
         "
+        :role="store.statusTone === 'error' ? 'alert' : 'status'"
+        aria-atomic="true"
       >
         {{ store.statusMessage }}
       </div>

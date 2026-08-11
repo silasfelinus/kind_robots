@@ -60,10 +60,18 @@ export type BrainstormRevisionReason =
   | 'edited'
   | 'regenerated'
   | 'branched'
+  | 'restored'
 
 export type BrainstormGenerationState =
   | 'idle'
   | 'generating'
+  | 'success'
+  | 'error'
+
+export type BrainstormPersistenceState =
+  | 'idle'
+  | 'loading'
+  | 'saving'
   | 'success'
   | 'error'
 
@@ -88,6 +96,14 @@ export type BrainstormCandidateRevision = {
   text: string
   createdAt: string
   reason: BrainstormRevisionReason
+  returnType?: BrainstormReturnTypeId | null
+}
+
+export type BrainstormBranchOrigin = {
+  candidateId: string
+  revisionIndex: number
+  title?: string
+  text: string
 }
 
 export type BrainstormCandidateArtMeta = {
@@ -99,6 +115,7 @@ export type BrainstormCandidateMeta = {
   source?: BrainstormSourceRef | null
   intent?: string | null
   returnType?: BrainstormReturnTypeId | null
+  branchOrigin?: BrainstormBranchOrigin | null
   art?: BrainstormCandidateArtMeta
 }
 
@@ -185,4 +202,30 @@ export type BrainstormSessionSnapshot = {
   batches: BrainstormBatch[]
   activeBatchId: string | null
   lastGeneratedAt: string | null
+}
+
+export type BrainstormSavedSessionSummary = {
+  id: number
+  name: string
+  premise: string
+  candidateCount: number
+  createdAt: string
+  updatedAt: string
+}
+
+export type BrainstormSavedSession = BrainstormSavedSessionSummary & {
+  snapshot: BrainstormSessionSnapshot
+}
+
+export type BrainstormSessionSaveRequest = {
+  name: string
+  snapshot: BrainstormSessionSnapshot
+}
+
+export type BrainstormSavedSessionsData = {
+  sessions: BrainstormSavedSessionSummary[]
+}
+
+export type BrainstormSavedSessionData = {
+  session: BrainstormSavedSession
 }

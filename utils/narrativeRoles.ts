@@ -163,6 +163,33 @@ export function duplicateSingularRoles(
     .sort()
 }
 
+/** The casting board's three tiers. Lead is split into its two opposed parts
+ * so a caller can seat protagonist(s) and antagonist(s) on opposite sides
+ * rather than mixed into one row. */
+export type NarrativeCastTier =
+  'protagonist' | 'antagonist' | 'support' | 'back'
+
+/**
+ * Which tier of the casting board a role belongs in.
+ *
+ * `protagonist`/`antagonist` lead, given prominence and set opposite each
+ * other. The other five real roles (`love-interest`, `mentor`, `foil`,
+ * `ally`, `wildcard`) hold the supporting middle row. `ensemble` and an
+ * unassigned member (`null`) share the back row — ranked behind without
+ * being hidden, since roles stay optional and an unassigned card still has
+ * to be readable and pressable. Extracted from narrative-role-assigner.vue
+ * (t-011) so the grouping is a pure function CI can exercise directly rather
+ * than logic only reachable by mounting the component.
+ */
+export function narrativeCastTier(
+  roleKey: string | null | undefined,
+): NarrativeCastTier {
+  if (roleKey === 'protagonist') return 'protagonist'
+  if (roleKey === 'antagonist') return 'antagonist'
+  if (!roleKey || roleKey === 'ensemble') return 'back'
+  return 'support'
+}
+
 /**
  * The Cast line for the story bible.
  *

@@ -115,6 +115,13 @@ jobs:
       - name: Narrative roles contract
         run: npm run test:narrative-roles
 
+      # The casting board groups cast members into three tiers purely from
+      # their assigned role (t-011). Nothing asserted that grouping until
+      # now -- a future edit could silently move a role to the wrong tier,
+      # or collapse the branching back to one flat grid, with CI still green.
+      - name: Narrative cast tiers contract
+        run: npm run test:narrative-cast-tiers
+
       - name: Earned-karma wiring contract
         run: npm run test:earned-karma-wiring
 
@@ -327,6 +334,24 @@ jobs:
 
       - name: Model Builder run-writable guard contract
         run: npm run test:model-builder-run-writable-guard
+
+      - name: Model Builder open-run identity guard checker self-test
+        run: npm run test:model-builder-open-run-identity-guard-selftest
+
+      - name: Model Builder open-run identity guard contract
+        run: npm run test:model-builder-open-run-identity-guard
+
+      - name: Model Builder commit name/title field guard checker self-test
+        run: npm run test:model-builder-commit-name-field-guard-selftest
+
+      - name: Model Builder commit name/title field guard contract
+        run: npm run test:model-builder-commit-name-field-guard
+
+      - name: Model Builder commit stale-snapshot guard checker self-test
+        run: npm run test:model-builder-commit-stale-snapshot-guard-selftest
+
+      - name: Model Builder commit stale-snapshot guard contract
+        run: npm run test:model-builder-commit-stale-snapshot-guard
 
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding

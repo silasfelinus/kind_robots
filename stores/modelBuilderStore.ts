@@ -644,14 +644,19 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     payload: Record<string, unknown>,
     meta?: { stage?: string; reason?: string },
   ): void {
+    const runId = state.run?.id
     performFetch(`/api/model-builder/items/${item.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...payload, ...meta }),
     })
       .then((response) => {
-        if (!response.success) {
-          setStatus('error', response.message || 'Failed to save changes.')
+        if (!response.success && runId) {
+          setStatusForRun(
+            runId,
+            'error',
+            response.message || 'Failed to save changes.',
+          )
         }
       })
       .catch((error) => handleError(error, 'saving build item'))
@@ -669,6 +674,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     }>,
   ): void {
     if (!entries.length) return
+    const runId = state.run?.id
     performFetch('/api/model-builder/items/batch', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -681,8 +687,12 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       }),
     })
       .then((response) => {
-        if (!response.success) {
-          setStatus('error', response.message || 'Failed to save changes.')
+        if (!response.success && runId) {
+          setStatusForRun(
+            runId,
+            'error',
+            response.message || 'Failed to save changes.',
+          )
         }
       })
       .catch((error) => handleError(error, 'saving build items'))
@@ -1795,6 +1805,17 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   }
 
   async function openRun(runId: string): Promise<void> {
+    // Reopening the run that's already active must not swap in a fresh object:
+    // fetchRuns()/the fallback fetch below both rebuild items via adaptRun/adaptItem,
+    // which reset the client-only artJobId/queueState fields to null. Replacing
+    // state.run here would orphan pollAsyncArtJob's reference to the live item object
+    // mid-poll, making an in-flight async generation silently vanish from the UI even
+    // though it's still running (and completes against the now-detached object).
+    if (state.run?.id === runId) {
+      state.step = 'run'
+      return
+    }
+
     const cached = state.runs.find((entry) => entry.id === runId)
     if (cached) {
       state.run = cached

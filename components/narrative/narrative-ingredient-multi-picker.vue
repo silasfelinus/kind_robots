@@ -1,7 +1,7 @@
 <!-- /components/narrative/narrative-ingredient-multi-picker.vue -->
 <template>
   <section
-    class="space-y-3"
+    class="kr-panel-flat space-y-3 p-3"
     role="group"
     :aria-labelledby="headingId"
     :aria-describedby="describedBy"

@@ -27,9 +27,21 @@
 // bug shape, mirroring verifyModelBuilderItemPatchStageGuard.ts's and
 // verifyModelBuilderCommitCancelledRunGuard.ts's preference for explicit,
 // narrow textual checks over a general-purpose static analyzer.
+//
+// This script is already wired into the required Contract Tests workflow.
+// Three sibling Model Builder guard scripts are callable from package.json but
+// are not wired into that required job directly, which means they would be
+// non-blocking on their own. Until the workflow is reorganized, this required
+// entry point executes them too so cancelled-run completion, approved-asset,
+// and item-patch stage invariants are enforced by required CI rather than
+// living as dormant npm scripts.
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
+import { checkApprovedAssetGuard } from './verifyModelBuilderApprovedAssetGuard.js'
+import { checkCancelledRunGuard } from './verifyModelBuilderCancelledRunGuard.js'
+import { checkItemPatchStageGuard } from './verifyModelBuilderItemPatchStageGuard.js'
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url))
 const repositoryRoot = resolve(scriptDirectory, '../..')
@@ -114,18 +126,32 @@ function main(): void {
     allErrors.push(...checkRunWritableGuard(content, route))
   }
 
+  const storeContent = readFileSync(
+    join(repositoryRoot, 'stores/modelBuilderStore.ts'),
+    'utf8',
+  )
+  allErrors.push(...checkCancelledRunGuard(storeContent))
+  allErrors.push(...checkApprovedAssetGuard(storeContent))
+
+  const runsIndexContent = readFileSync(
+    join(repositoryRoot, 'server/api/model-builder/runs/index.ts'),
+    'utf8',
+  )
+  allErrors.push(...checkItemPatchStageGuard(runsIndexContent))
+
   if (allErrors.length) {
-    console.error('Model Builder run-writable guard contract failed:')
+    console.error('Model Builder required guard contracts failed:')
     for (const error of allErrors) console.error(`- ${error}`)
     process.exitCode = 1
     return
   }
 
   console.log(
-    'Model Builder run-writable guard contract passed: all four ' +
-      'write-capable item routes (item patch, batch patch, artifact post, ' +
-      'commit post) call assertRunWritable() immediately after ' +
-      'assertRunAccess(), refusing writes once a run is CANCELLED.',
+    'Model Builder required guard contracts passed: all four write-capable ' +
+      'item routes refuse writes to CANCELLED runs, async completion cannot ' +
+      'persist after run cancellation, finished renders cannot replace ' +
+      'already-approved assets, and item PATCH writes cannot bypass ' +
+      'server-stored stage review gates.',
   )
 }
 

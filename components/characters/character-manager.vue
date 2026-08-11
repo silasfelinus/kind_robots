@@ -8,7 +8,23 @@
     @refresh="refreshManagerData"
   >
     <template #characters>
-      <character-interact class="h-full min-h-0 flex-1 overflow-hidden" />
+      <div class="flex h-full min-h-0 flex-1 flex-col gap-2">
+        <div
+          v-if="characterStore.selectedCharacter?.slug"
+          class="flex shrink-0 justify-end"
+        >
+          <button
+            type="button"
+            class="btn btn-primary btn-sm rounded-xl"
+            title="Start a Storybook story seeded with this Character"
+            @click="startStoryWithCharacter"
+          >
+            <Icon name="kind-icon:book-open" class="size-4" />
+            <span class="hidden sm:inline">Start a story with this</span>
+          </button>
+        </div>
+        <character-interact class="h-full min-h-0 flex-1 overflow-hidden" />
+      </div>
     </template>
 
     <template #adventure>
@@ -72,6 +88,12 @@ async function syncCharacterFromRoute(): Promise<void> {
 
   navStore.setDashboardTab(dashboardKey, 'characters')
   await characterStore.selectCharacter(id)
+}
+
+function startStoryWithCharacter(): void {
+  const slug = characterStore.selectedCharacter?.slug
+  if (!slug) return
+  void navigateTo({ path: '/storybook', query: { character: slug } })
 }
 
 async function refreshManagerData() {

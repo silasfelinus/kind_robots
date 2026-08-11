@@ -17,6 +17,7 @@ import {
   type ItemPatchBody,
 } from '../runs/index'
 import { assertArtImageAttachable } from '../relations'
+import { assertItemPatchFieldsAreClientWritable } from './patch-policy'
 
 const itemInclude = {
   Artifacts: { orderBy: { id: 'asc' } },
@@ -93,6 +94,7 @@ export default defineEventHandler(async (event) => {
         }
         assertRunAccess(existing.Run, auth.user)
         assertRunWritable(existing.Run)
+        assertItemPatchFieldsAreClientWritable(entry)
 
         if (entry.artImageId !== undefined) {
           await assertArtImageAttachable(

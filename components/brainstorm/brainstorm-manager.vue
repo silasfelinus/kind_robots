@@ -246,6 +246,137 @@
           </div>
         </div>
       </details>
+
+      <details
+        class="mt-4 rounded-2xl border border-base-content/10 bg-base-200/45 p-3"
+        data-testid="brainstorm-saved-work"
+      >
+        <summary class="cursor-pointer select-none text-sm font-bold text-base-content/75">
+          Saved work
+          <span v-if="savedSessionId" class="ml-2 font-normal text-success">linked</span>
+        </summary>
+
+        <p class="mt-3 max-w-3xl text-xs leading-5 text-base-content/55">
+          Unsaved work stays private in this browser. Signed-in saves are private to your account and preserve batches, candidate IDs, curation, revisions, and branch lineage.
+        </p>
+
+        <div class="mt-4 grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-4">
+          <div class="rounded-2xl border border-base-content/10 bg-base-100/75 p-3">
+            <label for="brainstorm-session-name" class="text-xs font-black uppercase tracking-[0.12em] text-base-content/55">
+              Session name
+            </label>
+            <input
+              id="brainstorm-session-name"
+              v-model="sessionNameModel"
+              class="input input-bordered mt-2 w-full bg-base-100"
+              maxlength="255"
+              :placeholder="suggestedSessionName"
+              :disabled="isPersisting"
+              data-testid="brainstorm-session-name"
+            />
+
+            <div class="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                class="btn btn-ghost btn-sm"
+                :disabled="isPersisting || !premise.trim()"
+                @click="store.useSuggestedSessionName()"
+              >
+                Use premise
+              </button>
+              <button
+                type="button"
+                class="btn btn-success btn-sm"
+                :disabled="!canSaveSession || isGenerating"
+                data-testid="brainstorm-save-session"
+                @click="saveSession"
+              >
+                <span v-if="persistenceState === 'saving'" class="loading loading-spinner loading-xs" aria-hidden="true" />
+                {{ savedSessionId ? 'Update saved session' : 'Save session' }}
+              </button>
+              <button
+                v-if="savedSessionId"
+                type="button"
+                class="btn btn-ghost btn-sm"
+                :disabled="isPersisting"
+                data-testid="brainstorm-save-as-new"
+                @click="store.detachSavedSession()"
+              >
+                Save as new
+              </button>
+            </div>
+
+            <p v-if="lastSavedAt" class="mt-2 text-xs text-base-content/45">
+              Last saved {{ formatSavedTime(lastSavedAt) }}.
+            </p>
+          </div>
+
+          <div class="rounded-2xl border border-base-content/10 bg-base-100/75 p-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <p class="text-xs font-black uppercase tracking-[0.12em] text-base-content/55">
+                Reopen
+              </p>
+              <button
+                type="button"
+                class="btn btn-ghost btn-xs"
+                :disabled="isPersisting"
+                data-testid="brainstorm-load-saved-list"
+                @click="loadSavedSessions"
+              >
+                {{ savedSessions.length ? 'Refresh list' : 'Load saved sessions' }}
+              </button>
+            </div>
+
+            <select
+              v-model="savedSessionSelection"
+              class="select select-bordered mt-2 w-full bg-base-100"
+              :disabled="isPersisting || !savedSessions.length"
+              data-testid="brainstorm-saved-session-select"
+            >
+              <option value="">{{ savedSessions.length ? 'Choose a saved session…' : 'No saved sessions loaded' }}</option>
+              <option
+                v-for="saved in savedSessions"
+                :key="saved.id"
+                :value="String(saved.id)"
+              >
+                {{ saved.name }} · {{ saved.candidateCount }} candidate{{ saved.candidateCount === 1 ? '' : 's' }}
+              </option>
+            </select>
+
+            <div class="mt-3 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                class="btn btn-secondary btn-sm"
+                :disabled="isPersisting || !savedSessionSelection"
+                data-testid="brainstorm-open-saved-session"
+                @click="openSavedSession"
+              >
+                <span v-if="persistenceState === 'loading'" class="loading loading-spinner loading-xs" aria-hidden="true" />
+                Open selected
+              </button>
+              <span v-if="selectedSavedSummary" class="text-xs text-base-content/45">
+                Updated {{ formatSavedTime(selectedSavedSummary.updatedAt) }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div
+          v-if="persistenceError"
+          class="alert mt-4 border border-warning/25 bg-warning/10 text-base-content"
+          role="alert"
+          data-testid="brainstorm-persistence-error"
+        >
+          <span aria-hidden="true">⚠</span>
+          <div class="min-w-0 flex-1">
+            <p class="font-black">{{ persistenceErrorHeading }}</p>
+            <p class="mt-1 break-words text-sm opacity-80">{{ persistenceError.message }}</p>
+          </div>
+          <button type="button" class="btn btn-ghost btn-sm" @click="store.clearPersistenceError()">
+            Dismiss
+          </button>
+        </div>
+      </details>
     </form>
 
     <div
@@ -308,6 +439,7 @@
         v-for="candidate in activeCandidates"
         :key="candidate.id"
         :candidate="candidate"
+        :parent-candidate="parentCandidateFor(candidate)"
         :disabled="isGenerating"
         :busy="generationTargetId === candidate.id"
         :busy-action="candidateBusyAction(candidate.id)"
@@ -317,6 +449,7 @@
         @delete="deleteCandidate(candidate.id)"
         @feedback="setCandidateFeedback(candidate.id, $event)"
         @edit="editCandidate(candidate.id, $event)"
+        @restore-revision="restoreRevision(candidate.id, $event)"
         @regenerate="regenerate(candidate.id)"
         @branch="branch(candidate.id)"
       />
@@ -374,7 +507,10 @@ import {
   BRAINSTORM_MAX_RESULTS,
   BRAINSTORM_RETURN_TYPES,
 } from '@/types/brainstorm'
-import type { BrainstormReturnTypeId } from '@/types/brainstorm'
+import type {
+  BrainstormCandidate,
+  BrainstormReturnTypeId,
+} from '@/types/brainstorm'
 import { useBrainstormStore } from '@/stores/brainstormStore'
 
 const creativeDirections = [
@@ -474,12 +610,22 @@ const {
   canGenerate,
   generationError,
   generationTargetId,
+  savedSessionId,
+  sessionName,
+  savedSessions,
+  persistenceState,
+  persistenceError,
+  lastSavedAt,
+  isPersisting,
+  canSaveSession,
+  suggestedSessionName,
 } = storeToRefs(store)
 
 const pendingCandidateAction = ref<{
   id: string
   action: 'regenerate' | 'branch'
 } | null>(null)
+const savedSessionSelection = ref('')
 
 const premiseModel = computed({
   get: () => premise.value,
@@ -501,6 +647,11 @@ const examplesText = computed({
   set: (value: string) => store.setExamplesFromText(value),
 })
 
+const sessionNameModel = computed({
+  get: () => sessionName.value,
+  set: (value: string) => store.setSessionName(value),
+})
+
 const activeCreativeDirection = computed(
   () => creativeDirections.find((direction) => direction.id === mode.value) || creativeDirections[0],
 )
@@ -510,6 +661,12 @@ const responseMixSummary = computed(() => {
   if (!returnTypes.value.length) return 'Assortment · adaptive'
   const pinned = returnTypes.value.filter((entry) => entry.count).length
   return `Assortment · ${returnTypes.value.length} lens${returnTypes.value.length === 1 ? '' : 'es'}${pinned ? ` · ${pinned} pinned` : ''}`
+})
+
+const selectedSavedSummary = computed(() => {
+  const id = Number(savedSessionSelection.value)
+  if (!Number.isInteger(id) || id <= 0) return null
+  return savedSessions.value.find((entry) => entry.id === id) ?? null
 })
 
 const isBatchGenerating = computed(
@@ -535,6 +692,12 @@ const errorHeading = computed(() => {
     default:
       return 'Brainstorm hit a snag'
   }
+})
+
+const persistenceErrorHeading = computed(() => {
+  if (persistenceError.value?.kind === 'auth') return 'Sign in to save Brainstorms'
+  if (persistenceError.value?.kind === 'validation') return 'Check this saved session'
+  return 'Saved work hit a snag'
 })
 
 onMounted(() => {
@@ -566,6 +729,11 @@ function candidateBusyAction(candidateId: string): 'regenerate' | 'branch' | nul
     : null
 }
 
+function parentCandidateFor(candidate: BrainstormCandidate): BrainstormCandidate | null {
+  if (!candidate.parentId) return null
+  return activeCandidates.value.find((entry) => entry.id === candidate.parentId) ?? null
+}
+
 function setActiveBatch(batchId: string): void {
   store.setActiveBatch(batchId)
 }
@@ -595,6 +763,39 @@ function editCandidate(
   patch: { title: string; text: string },
 ): void {
   store.editCandidate(candidateId, patch)
+}
+
+function restoreRevision(candidateId: string, revisionIndex: number): void {
+  store.restoreCandidateRevision(candidateId, revisionIndex)
+}
+
+function formatSavedTime(value: string): string {
+  const parsed = new Date(value)
+  if (Number.isNaN(parsed.getTime())) return 'recently'
+  return new Intl.DateTimeFormat(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(parsed)
+}
+
+async function saveSession(): Promise<void> {
+  if (isGenerating.value) return
+  await store.saveCurrentSession()
+}
+
+async function loadSavedSessions(): Promise<void> {
+  const loaded = await store.loadSavedSessions()
+  if (loaded && savedSessionId.value) {
+    savedSessionSelection.value = String(savedSessionId.value)
+  }
+}
+
+async function openSavedSession(): Promise<void> {
+  const id = Number(savedSessionSelection.value)
+  if (!Number.isInteger(id) || id <= 0) return
+  await store.openSavedSession(id)
 }
 
 async function generate(): Promise<void> {

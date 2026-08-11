@@ -736,12 +736,20 @@ export default defineEventHandler(async (event) => {
     }
     const sourceId = item.Run.sourceId
     const text = (item.pitch || item.fieldsDraft || '').trim()
+    const fieldMap = parseFieldLines(item.fieldsDraft)
+    // Every CREATE target's field spec declares a required 'name' or 'title'
+    // line (see MODEL_FIELDS in modelBuilderFields.ts) that the batch editor
+    // and per-item panel both surface as the record's actual name/title. Honor
+    // whatever the user (or AI drafter) put there before falling back to the
+    // pitch's first line -- otherwise a deliberately-typed name is silently
+    // discarded in favor of pitch text on commit.
     const name = (
+      fieldMap.name ||
+      fieldMap.title ||
       item.pitch?.split('\n')[0]?.trim() ||
       item.label ||
       'Untitled'
     ).slice(0, 255)
-    const fieldMap = parseFieldLines(item.fieldsDraft)
 
     if (item.idempotencyKey) {
       return {
@@ -913,8 +921,20 @@ export default defineEventHandler(async (event) => {
       throw writeError
     }
 
+    // Re-read stageStatuses immediately before this final write rather than
+    // reusing the request-start `item` snapshot: the write above (promote /
+    // update / create+link) can be a slow, multi-step transaction, and
+    // nothing blocks the client from reopening this item's other stages
+    // (PATCH /items/:id) while it's in flight. Building the full
+    // stageStatuses blob from a stale snapshot would silently clobber that
+    // concurrent edit -- restoring stages to 'approved' that the user just
+    // reopened -- so merge the COMMIT key into the current DB value instead.
+    const latest = await prisma.modelBuildItem.findUnique({
+      where: { id },
+      select: { stageStatuses: true },
+    })
     const stages = parseStoredJson<Record<string, unknown>>(
-      item.stageStatuses,
+      latest?.stageStatuses ?? item.stageStatuses,
       {},
     )
     stages.COMMIT = {

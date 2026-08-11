@@ -1,0 +1,67 @@
+name: Brainstorm Persistence Contract
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/brainstorm-persistence-contract.yml'
+      - 'prisma/brainstorm.prisma'
+      - 'prisma/migrations/20260810122000_add_brainstorm_persistence/**'
+      - 'server/api/brainstorm/sessions/**'
+      - 'server/utils/brainstorm/brainstormPersistence.ts'
+      - 'stores/brainstormStore.ts'
+      - 'types/brainstorm.ts'
+      - 'components/brainstorm/**'
+      - 'utils/scripts/verifyBrainstormPersistence.ts'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/brainstorm-persistence-contract.yml'
+      - 'prisma/brainstorm.prisma'
+      - 'prisma/migrations/20260810122000_add_brainstorm_persistence/**'
+      - 'server/api/brainstorm/sessions/**'
+      - 'server/utils/brainstorm/brainstormPersistence.ts'
+      - 'stores/brainstormStore.ts'
+      - 'types/brainstorm.ts'
+      - 'components/brainstorm/**'
+      - 'utils/scripts/verifyBrainstormPersistence.ts'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: brainstorm-persistence-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    name: Private saved-session contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DATABASE_URL: mysql://brainstorm:brainstorm@127.0.0.1:3306/kindrobots
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Validate Prisma schemas
+        run: npx prisma validate
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Verify Brainstorm persistence contract
+        run: npx tsx utils/scripts/verifyBrainstormPersistence.ts

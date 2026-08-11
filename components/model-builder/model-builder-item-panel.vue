@@ -44,7 +44,7 @@
         rows="2"
         class="textarea textarea-bordered w-full rounded-xl text-sm"
         placeholder="Why this output exists and what it should convey…"
-        :disabled="!isEditable('PITCH') || isDrafting('pitch')"
+        :disabled="!isEditable('PITCH') || isAnyDraftInFlight"
         @change="store.updatePitch(item.id, pitch)"
       />
       <div class="mt-1.5 flex items-center justify-end gap-1.5">
@@ -52,7 +52,7 @@
           v-if="isEditable('PITCH')"
           type="button"
           class="btn btn-xs btn-ghost mr-auto gap-1 rounded-lg text-secondary"
-          :disabled="isDrafting('pitch')"
+          :disabled="isAnyDraftInFlight"
           title="Draft this pitch with AI"
           @click="draft('pitch')"
         >
@@ -100,7 +100,7 @@
           v-if="isEditable('FIELDS_AND_PROMPTS')"
           type="button"
           class="btn btn-ghost btn-xs h-5 min-h-5 gap-1 rounded-md px-1.5 text-[10px] text-secondary"
-          :disabled="isDrafting('fields')"
+          :disabled="isAnyDraftInFlight"
           title="Draft the schema fields and relationships with AI"
           @click="draft('fields')"
         >
@@ -116,7 +116,7 @@
         rows="2"
         class="textarea textarea-bordered mb-1.5 w-full rounded-xl text-sm"
         placeholder="Schema fields and relationships to write on commit…"
-        :disabled="!isEditable('FIELDS_AND_PROMPTS') || isDrafting('fields')"
+        :disabled="!isEditable('FIELDS_AND_PROMPTS') || isAnyDraftInFlight"
         @change="store.updateFields(item.id, fields)"
       />
       <div class="mb-0.5 flex items-center justify-between">
@@ -127,7 +127,7 @@
           v-if="isEditable('FIELDS_AND_PROMPTS')"
           type="button"
           class="btn btn-ghost btn-xs h-5 min-h-5 gap-1 rounded-md px-1.5 text-[10px] text-secondary"
-          :disabled="isDrafting('artPrompt')"
+          :disabled="isAnyDraftInFlight"
           title="Draft the generation prompt with AI"
           @click="draft('artPrompt')"
         >
@@ -143,7 +143,7 @@
         rows="2"
         class="textarea textarea-bordered w-full rounded-xl text-sm"
         placeholder="The prompt used to generate this asset…"
-        :disabled="!isEditable('FIELDS_AND_PROMPTS') || isDrafting('artPrompt')"
+        :disabled="!isEditable('FIELDS_AND_PROMPTS') || isAnyDraftInFlight"
         @change="store.updatePrompt(item.id, prompt)"
       />
       <div class="mt-1.5 flex justify-end gap-1.5">
@@ -374,6 +374,21 @@ function isDrafting(field: DraftField): boolean {
   )
 }
 
+// draftingField is a single store-wide slot (see modelBuilderStore.ts's
+// createOwnedSingleton comment) -- only one draft can genuinely be in flight
+// at a time, for any item/field in the whole run. isDrafting(field) alone
+// only reports whether *this exact* field owns that slot right now, so
+// gating each textarea/button on isDrafting(field) let a second click (a
+// sibling field on this item, or any field on a different item) silently
+// steal the slot out from under the first: the first field's isDrafting()
+// then flips to false, its textarea/button re-enable while its request is
+// still pending, and the eventual response can clobber whatever the user
+// typed in the meantime with no warning. Gating on "is *any* draft in
+// flight" instead closes that hole -- the spinner still only shows on the
+// field actually owning the slot (isDrafting), but nothing else becomes
+// editable/clickable until it's released.
+const isAnyDraftInFlight = computed(() => store.draftingField !== null)
+
 // A manual single-stage action already in flight for this item blocks Auto
 // too -- the store's autoBuildItem guard mirrors this, but the button must
 // disable in step or a click here is silently swallowed with no feedback.
@@ -382,9 +397,7 @@ const isManualActionInFlight = computed(
     isGenerating.value ||
     isQueued.value ||
     isCommitting.value ||
-    isDrafting('pitch') ||
-    isDrafting('fields') ||
-    isDrafting('artPrompt'),
+    isAnyDraftInFlight.value,
 )
 
 function draft(field: DraftField): void {

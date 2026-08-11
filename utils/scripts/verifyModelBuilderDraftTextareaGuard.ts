@@ -17,16 +17,32 @@
 // ref). No error, no warning beyond the unrelated "Drafted ... for ..."
 // success toast -- the typed text is just gone.
 //
-// Fixed by disabling each textarea while its own field is drafting, closing
-// the vulnerable window entirely: `:disabled="!isEditable('PITCH') ||
-// isDrafting('pitch')"` and the equivalent for fields/artPrompt.
+// Originally fixed by disabling each textarea while its own field was
+// drafting: `:disabled="!isEditable('PITCH') || isDrafting('pitch')"` and
+// the equivalent for fields/artPrompt.
 //
-// This asserts the textual shape of the fix stays in place: each of the
-// three textareas' `:disabled` attribute includes its matching
-// `isDrafting('field')` check alongside the existing `isEditable(...)` one.
-// Deliberately scoped to this one component/bug, mirroring
-// verifyModelBuilderDraftApprovalGuard.ts's preference for explicit, narrow
-// textual checks over a general-purpose static analyzer.
+// SUPERSEDED (model-builder/t-029, same recurring task, later slice): that
+// per-field check wasn't enough. `draftingField` is a single store-wide slot
+// (see modelBuilderStore.ts's createOwnedSingleton comment) -- only one
+// draft can genuinely be in flight at a time, for any item/field in the
+// whole run. Gating a textarea on `isDrafting('pitch')` alone only checks
+// whether *pitch* currently owns that slot; it says nothing about whether a
+// *different* field on this item (or any field on a *different* item) has
+// since stolen it. Clicking "Draft" on Fields while Pitch's draft was still
+// pending silently reassigned the slot to Fields -- `isDrafting('pitch')`
+// then flipped to `false`, the Pitch textarea re-enabled while its request
+// was still in flight, and the eventual response could clobber whatever the
+// user had typed in the meantime. Re-fixed by gating on `isAnyDraftInFlight`
+// (`store.draftingField !== null`) instead -- nothing re-enables until the
+// one draft slot is actually released, matching its real global-singleton
+// semantics.
+//
+// This asserts the textual shape of the current fix stays in place: each of
+// the three textareas' `:disabled` attribute includes `isAnyDraftInFlight`
+// alongside the existing `isEditable(...)` check. Deliberately scoped to
+// this one component/bug, mirroring verifyModelBuilderDraftApprovalGuard.ts's
+// preference for explicit, narrow textual checks over a general-purpose
+// static analyzer.
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -84,16 +100,21 @@ export function checkDraftTextareaGuard(content: string): string[] {
       continue
     }
 
-    if (!disabledMatch[1]!.includes(`isDrafting('${field}')`)) {
+    if (!disabledMatch[1]!.includes('isAnyDraftInFlight')) {
       errors.push(
         `The \`${model}\` textarea's \`:disabled\` binding does not include ` +
-          `isDrafting('${field}'). The textarea binds to a local ref that ` +
-          'only pushes to the store on @change (blur), so while a draft is ' +
-          'in flight the store\'s own "don\'t clobber a newer edit" guard ' +
+          'isAnyDraftInFlight. The textarea binds to a local ref that only ' +
+          'pushes to the store on @change (blur), so while a draft is in ' +
+          'flight the store\'s own "don\'t clobber a newer edit" guard ' +
           "(liveValue !== current in draftText()) can't see text the user " +
           "is still mid-typing -- the draft's completion handler silently " +
-          "overwrites it via the local ref's watcher. Disabling the " +
-          'textarea while isDrafting(field) is true closes that window.',
+          "overwrites it via the local ref's watcher. Gating only on " +
+          `isDrafting('${field}') isn't enough: draftingField is a single ` +
+          'store-wide slot, so a draft started on a different field or a ' +
+          'different item silently steals it and re-enables this textarea ' +
+          'while its own request is still pending. Disabling while ' +
+          'isAnyDraftInFlight (store.draftingField !== null) closes that ' +
+          'window for good.',
       )
     }
   }
@@ -117,9 +138,11 @@ function main(): void {
 
   console.log(
     'Model Builder draft textarea guard contract passed: the Pitch, ' +
-      'Fields, and Generation prompt textareas all disable while their own ' +
-      'field is drafting, so a still-in-flight AI draft can never silently ' +
-      "overwrite text the user hasn't blurred/committed yet.",
+      'Fields, and Generation prompt textareas all disable while ANY ' +
+      'draft is in flight (isAnyDraftInFlight), so a still-in-flight AI ' +
+      'draft on this field, a sibling field, or a different item can ' +
+      "never silently overwrite text the user hasn't blurred/committed " +
+      'yet.',
   )
 }
 

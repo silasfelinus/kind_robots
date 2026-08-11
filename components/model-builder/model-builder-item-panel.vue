@@ -409,6 +409,11 @@ const preview = computed(() => store.previewCommit(props.itemId))
 const canApproveAssets = computed(() => {
   if (!item.value) return false
   if (isLocked('GENERATE_ASSETS')) return false
+  // Async finalization clears queueState before its final image network round-trip.
+  // Keep the old candidate unapprovable until GENERATE_ASSETS actually leaves
+  // in-progress, otherwise the user can approve the old image and force the
+  // newly-rendered replacement to be discarded by the store's safety guard.
+  if (item.value.stages.GENERATE_ASSETS.status === 'in-progress') return false
   // A regenerate in flight means the current artImageId is about to be
   // replaced — approving now would commit a candidate the user never saw.
   if (isGenerating.value || isQueued.value) return false

@@ -311,6 +311,12 @@ jobs:
       - name: Model Builder resetRun guard contract
         run: npm run test:model-builder-reset-run-guard
 
+      - name: Model Builder stale-asset approval guard checker self-test
+        run: npm run test:model-builder-stale-asset-approval-guard-selftest
+
+      - name: Model Builder stale-asset approval guard contract
+        run: npm run test:model-builder-stale-asset-approval-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

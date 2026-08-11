@@ -99,6 +99,7 @@
             v-else
             type="button"
             class="btn btn-xs btn-error shrink-0 rounded-lg"
+            :aria-label="`Confirm cancellation of run ${run.sourceLabel || `#${run.sourceId}`}`"
             @click="confirmCancel(run.id)"
             @blur="armedRunId = null"
           >
@@ -108,6 +109,7 @@
           <button
             type="button"
             class="btn btn-xs btn-primary shrink-0 rounded-lg"
+            :aria-label="`Open run ${run.sourceLabel || `#${run.sourceId}`}`"
             @click="open(run.id)"
           >
             Open

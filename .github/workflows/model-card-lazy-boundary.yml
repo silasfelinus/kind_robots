@@ -1,0 +1,24 @@
+name: Model Card Lazy Boundary
+
+on:
+  pull_request:
+    paths:
+      - 'stores/helpers/modelCards.ts'
+      - 'stores/pageStore.ts'
+      - 'pages/[...slug].vue'
+      - 'utils/scripts/verifyModelCardLazyBoundary.mjs'
+      - '.github/workflows/model-card-lazy-boundary.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify lazy workspace card boundary
+        run: node utils/scripts/verifyModelCardLazyBoundary.mjs

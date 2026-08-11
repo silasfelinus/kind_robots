@@ -16,7 +16,7 @@
 
     <div
       v-else-if="managerError"
-      class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-error/40 bg-error/10 p-4 text-error"
+      class="flex min-h-0 flex-1 flex-col overflow-hidden kr-note kr-note-error"
     >
       <div class="flex flex-wrap items-center justify-between gap-3">
         <span>{{ managerError }}</span>
@@ -164,7 +164,7 @@
 
         <div
           v-else
-          class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+          class="flex min-h-0 flex-1 items-center justify-center kr-note kr-note-warning"
         >
           Unknown image tab: {{ activeTab }}
         </div>

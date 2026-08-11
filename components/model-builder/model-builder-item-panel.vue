@@ -44,7 +44,7 @@
         rows="2"
         class="textarea textarea-bordered w-full rounded-xl text-sm"
         placeholder="Why this output exists and what it should convey…"
-        :disabled="!isEditable('PITCH')"
+        :disabled="!isEditable('PITCH') || isDrafting('pitch')"
         @change="store.updatePitch(item.id, pitch)"
       />
       <div class="mt-1.5 flex items-center justify-end gap-1.5">
@@ -116,7 +116,7 @@
         rows="2"
         class="textarea textarea-bordered mb-1.5 w-full rounded-xl text-sm"
         placeholder="Schema fields and relationships to write on commit…"
-        :disabled="!isEditable('FIELDS_AND_PROMPTS')"
+        :disabled="!isEditable('FIELDS_AND_PROMPTS') || isDrafting('fields')"
         @change="store.updateFields(item.id, fields)"
       />
       <div class="mb-0.5 flex items-center justify-between">
@@ -143,7 +143,7 @@
         rows="2"
         class="textarea textarea-bordered w-full rounded-xl text-sm"
         placeholder="The prompt used to generate this asset…"
-        :disabled="!isEditable('FIELDS_AND_PROMPTS')"
+        :disabled="!isEditable('FIELDS_AND_PROMPTS') || isDrafting('artPrompt')"
         @change="store.updatePrompt(item.id, prompt)"
       />
       <div class="mt-1.5 flex justify-end gap-1.5">

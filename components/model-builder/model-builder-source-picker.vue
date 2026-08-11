@@ -217,12 +217,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed } from 'vue'
 import { useModelBuilderStore } from '@/stores/modelBuilderStore'
+import { useGalleryPreferenceStore } from '@/stores/galleryPreferenceStore'
 import type { SourceRecord } from '@/stores/modelBuilderStore'
 import { SOURCE_TYPES, getSourceType } from '@/stores/helpers/modelBuilderRecipes'
 
 const store = useModelBuilderStore()
+const galleryPrefs = useGalleryPreferenceStore()
 const sourceTypes = SOURCE_TYPES
 
 type ViewMode = 'gallery' | 'grid' | 'list'
@@ -233,19 +235,22 @@ const viewModes: { value: ViewMode; label: string; icon: string }[] = [
   { value: 'list', label: 'List', icon: 'kind-icon:document' },
 ]
 
-const VIEW_STORAGE_KEY = 'model-builder-source-view'
-const viewMode = ref<ViewMode>('grid')
-
-onMounted(() => {
-  const saved = localStorage.getItem(VIEW_STORAGE_KEY)
-  if (saved && viewModes.some((mode) => mode.value === saved)) {
-    viewMode.value = saved as ViewMode
-  }
+const VIEW_PREFERENCE_SCOPE = 'model-builder-source-picker'
+const isViewMode = (value: string): value is ViewMode =>
+  viewModes.some((mode) => mode.value === value)
+const viewMode = computed<ViewMode>({
+  get: () =>
+    galleryPrefs.get<ViewMode>(
+      VIEW_PREFERENCE_SCOPE,
+      'mode',
+      'grid',
+      isViewMode,
+    ),
+  set: (mode) => galleryPrefs.set(VIEW_PREFERENCE_SCOPE, 'mode', mode),
 })
 
 function setViewMode(mode: ViewMode): void {
   viewMode.value = mode
-  localStorage.setItem(VIEW_STORAGE_KEY, mode)
 }
 
 const activeType = computed(() =>

@@ -365,7 +365,9 @@
               </dd>
             </div>
             <div class="kr-panel-flat p-3">
-              <dt class="text-xs font-bold text-base-content/55">Plot thread</dt>
+              <dt class="text-xs font-bold text-base-content/55">
+                Plot thread
+              </dt>
               <dd class="mt-2 flex items-center gap-3">
                 <div v-if="selectedScenario" class="w-16 shrink-0">
                   <KrArtPlate
@@ -402,34 +404,79 @@
             </div>
             <div class="kr-panel-flat p-3">
               <dt class="text-xs font-bold text-base-content/55">Cast</dt>
-              <dd class="mt-1 text-sm">
-                {{
-                  selectedCast.length
-                    ? selectedCast.map((item) => item.title).join(', ')
-                    : 'Invented as needed'
-                }}
+              <dd class="mt-2">
+                <ul v-if="selectedCast.length" class="flex flex-wrap gap-2">
+                  <li
+                    v-for="member in selectedCast"
+                    :key="member.slug"
+                    class="flex items-center gap-2 rounded-xl border border-base-300 bg-base-100 py-1 pl-1 pr-2.5"
+                  >
+                    <div class="size-8 shrink-0 overflow-hidden rounded-lg">
+                      <KrArtPlate
+                        :source="member"
+                        variant="icon"
+                        shape="square"
+                        frame="none"
+                        :alt="member.title"
+                        :placeholder-icon="member.icon || 'kind-icon:mask'"
+                      />
+                    </div>
+                    <span class="text-sm">{{ member.title }}</span>
+                  </li>
+                </ul>
+                <span v-else class="text-sm">Invented as needed</span>
               </dd>
             </div>
             <div class="kr-panel-flat p-3">
               <dt class="text-xs font-bold text-base-content/55">Facets</dt>
-              <dd class="mt-1 text-sm">
-                {{
-                  selectedFacets.length
-                    ? selectedFacets.map((item) => item.title).join(', ')
-                    : 'None selected'
-                }}
+              <dd class="mt-2">
+                <ul v-if="selectedFacets.length" class="flex flex-wrap gap-2">
+                  <li
+                    v-for="facet in selectedFacets"
+                    :key="facet.slug"
+                    class="flex items-center gap-2 rounded-xl border border-base-300 bg-base-100 py-1 pl-1 pr-2.5"
+                  >
+                    <div class="size-8 shrink-0 overflow-hidden rounded-lg">
+                      <KrArtPlate
+                        :source="facet"
+                        variant="icon"
+                        shape="square"
+                        frame="none"
+                        :alt="facet.title"
+                        :placeholder-icon="facet.icon || 'kind-icon:sparkles'"
+                      />
+                    </div>
+                    <span class="text-sm">{{ facet.title }}</span>
+                  </li>
+                </ul>
+                <span v-else class="text-sm">None selected</span>
               </dd>
             </div>
             <div class="kr-panel-flat p-3 md:col-span-2">
               <dt class="text-xs font-bold text-base-content/55">
                 Possible Rewards
               </dt>
-              <dd class="mt-1 text-sm">
-                {{
-                  selectedRewards.length
-                    ? selectedRewards.map((item) => item.title).join(', ')
-                    : 'No curated inventory pool'
-                }}
+              <dd class="mt-2">
+                <ul v-if="selectedRewards.length" class="flex flex-wrap gap-2">
+                  <li
+                    v-for="reward in selectedRewards"
+                    :key="reward.slug"
+                    class="flex items-center gap-2 rounded-xl border border-base-300 bg-base-100 py-1 pl-1 pr-2.5"
+                  >
+                    <div class="size-8 shrink-0 overflow-hidden rounded-lg">
+                      <KrArtPlate
+                        :source="reward"
+                        variant="icon"
+                        shape="square"
+                        frame="none"
+                        :alt="reward.title"
+                        :placeholder-icon="reward.icon || 'kind-icon:gift'"
+                      />
+                    </div>
+                    <span class="text-sm">{{ reward.title }}</span>
+                  </li>
+                </ul>
+                <span v-else class="text-sm">No curated inventory pool</span>
               </dd>
             </div>
             <div

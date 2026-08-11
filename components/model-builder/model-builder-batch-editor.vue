@@ -120,15 +120,17 @@
           :key="field.key"
           class="flex items-center gap-2"
         >
-          <span
+          <label
             class="w-24 shrink-0 truncate text-xs font-semibold text-base-content"
+            :for="batchFieldId(field.key)"
             :title="field.label"
           >
             {{ field.label }}
             <span v-if="field.required" class="text-error">*</span>
-          </span>
+          </label>
           <select
             v-if="field.choices"
+            :id="batchFieldId(field.key)"
             v-model="batchValues[field.key]"
             class="select select-bordered select-xs flex-1 bg-base-100"
           >
@@ -143,6 +145,7 @@
           </select>
           <input
             v-else
+            :id="batchFieldId(field.key)"
             v-model="batchValues[field.key]"
             type="text"
             :placeholder="field.default || 'value for all'"
@@ -152,6 +155,7 @@
             type="button"
             class="btn btn-xs rounded-lg"
             :disabled="batching || !batchValues[field.key]"
+            :aria-label="`Apply ${field.label} to all ${group.items.length} items`"
             @click="applyField(field.key)"
           >
             Apply
@@ -237,6 +241,10 @@ const autoBuildGroupTitle = computed(() =>
 
 const onlyEmpty = ref(false)
 const batchValues = reactive<Record<string, string>>({})
+
+function batchFieldId(key: string): string {
+  return `model-builder-batch-${props.outputKey}-${key}`
+}
 
 async function draftAll(field: DraftField): Promise<void> {
   if (!group.value) return

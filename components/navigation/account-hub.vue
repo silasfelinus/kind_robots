@@ -238,32 +238,49 @@
         </div>
       </div>
 
-      <!-- 2. TOOLS. The one reload in this panel, next to the server picker. -->
-      <div class="flex items-center gap-2">
+      <!--
+        2. TOOLS AND WALLET, one row. Silas, 2026-08-11: "karma and mana should
+        be inline with the server and reload icons, and reload does not need a
+        title."
+
+        These were two stacked rows, which read as two categories when they are
+        really one strip of small readouts and switches — four items that each
+        fit in a 36px square, spread over two lines of a 20rem panel with the
+        top one half empty. Reload lost its "Reload" text with them: it is the
+        only refresh control in the panel now, next to a server picker that is
+        plainly a server picker, and the title attribute still says what it
+        does on hover.
+
+        The wallet widgets stay as widgets rather than having their numbers
+        reprinted here: karma owns a transaction list and mana owns a refill
+        countdown and a top-up link, and copying the totals out would quietly
+        drop all of it.
+
+        `flex-wrap` because this row is now four items wide and the panel is
+        not: on a narrow phone the wallet drops to a second line by itself
+        instead of squeezing the picker.
+      -->
+      <div class="flex flex-wrap items-center gap-2">
         <server-selector />
 
         <button
           type="button"
-          class="btn btn-ghost btn-sm gap-1.5 rounded-xl"
+          class="btn btn-ghost btn-sm btn-square rounded-xl"
           title="Reload the app with the launch animation"
+          aria-label="Reload the app"
           @click="requestFullStartupReload"
         >
           <Icon name="kind-icon:refresh" class="h-4 w-4" />
-          <span class="text-xs font-bold">Reload</span>
         </button>
 
         <!-- Renders nothing until the cart has items, so it costs no row on
              the pages where there is nothing to check out. -->
         <cart-button />
-      </div>
 
-      <!-- 3. WALLET. The widgets themselves rather than their numbers copied
-              out: karma owns a transaction list and mana owns a refill
-              countdown and a top-up link, and reprinting the totals here would
-              quietly drop all of it. -->
-      <div v-if="userStore.isLoggedIn" class="flex items-center gap-2">
-        <karma-widget class="shrink-0" />
-        <mana-widget class="shrink-0" />
+        <template v-if="userStore.isLoggedIn">
+          <karma-widget class="shrink-0" />
+          <mana-widget class="shrink-0" />
+        </template>
       </div>
 
       <!-- 4. NOTIFICATIONS. The badge on the avatar is the summary; this is

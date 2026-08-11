@@ -16,6 +16,7 @@
       <button
         type="button"
         class="btn btn-xs btn-ghost shrink-0 rounded-xl text-base-content/60"
+        :disabled="store.startingRun"
         @click="store.goToStep('source')"
       >
         <Icon name="kind-icon:arrow-left" class="h-3.5 w-3.5" />
@@ -35,6 +36,7 @@
             ? 'btn-primary'
             : 'btn-ghost border border-base-300'
         "
+        :disabled="store.startingRun"
         @click="store.selectRecipe(recipe.key)"
       >
         <span class="flex items-center gap-1.5 text-xs font-bold">
@@ -63,6 +65,7 @@
           type="checkbox"
           class="checkbox checkbox-sm checkbox-primary"
           :checked="store.selections[output.key]?.on"
+          :disabled="store.startingRun"
           @change="store.toggleOutput(output.key)"
         />
 
@@ -93,6 +96,7 @@
             max="12"
             class="input input-xs input-bordered w-14 rounded-lg text-center"
             :value="store.selections[output.key]?.quantity"
+            :disabled="store.startingRun"
             @input="onQuantity(output.key, $event)"
           />
         </div>
@@ -121,6 +125,7 @@
             type="checkbox"
             class="checkbox checkbox-xs checkbox-primary"
             :checked="store.includeArt"
+            :disabled="store.startingRun"
             @change="onIncludeArt($event)"
           />
           Include art

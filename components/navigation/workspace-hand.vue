@@ -162,6 +162,7 @@ const handEl = ref<HTMLElement | null>(null)
 const scrollEl = ref<HTMLElement | null>(null)
 const stripEl = ref<HTMLElement | null>(null)
 const handWidth = ref(0)
+const viewportHeight = ref(0)
 /** The strip's real rendered height, used to size the scroll box. */
 const measuredStripHeightPx = ref(0)
 /** Whether cards exist off either edge — drives the fade, see edgeMask. */
@@ -223,6 +224,34 @@ const expandedScale = 2.1
 const footerHeightPx = 36
 const verticalPaddingPx = 8
 const expansionSafetyPx = 128
+
+/*
+ * THE HAND IS CAPPED AS A SHARE OF THE SCREEN, not just by card count.
+ *
+ * Silas, 2026-08-11: "card hand is too tall by about half on small displays,
+ * it should definitely not be 1/3 of the screen."
+ *
+ * Card width was chosen from the card COUNT alone -- ten cards meant 112px,
+ * on a phone and on a 4K monitor alike -- and height follows width through the
+ * 2:3 art. Measured at 390x667 that came to a 189px strip, 28.3% of the
+ * viewport, and the page above it lost every one of those pixels to
+ * --footer-h. The count is the wrong input on a short screen: it says nothing
+ * about how much screen there is to spend.
+ *
+ * A sixth of the viewport is the budget. At 390x667 that resolves to a 60px
+ * card and a 111px strip (16.6%) -- close to half what it was, and nowhere
+ * near a third. It binds only where the screen is genuinely short: a 1080px
+ * desktop still lands on the count cap unchanged.
+ */
+const handViewportShare = 0.17
+/* What the label band under the art actually measures -- text-[0.65rem] with
+   leading-none inside py-1.5. The 36px in footerHeightPx above is the older
+   formula's estimate and overshoots; this one is used to solve for a width
+   that hits a real height, so it has to be the measured number. */
+const cardLabelHeightPx = 22
+const absoluteMinCardWidthPx = 56
+/* The card art is aspect-2/3, so height is width x this. */
+const cardAspectRatio = 1.5
 
 const isBuilderDeck = computed(() => pageStore.cardsKey === 'builderCards')
 
@@ -290,6 +319,27 @@ const maxRestingCardWidthPx = computed(() => {
 })
 
 /**
+ * The widest a card may be: the smaller of what the count allows and what the
+ * screen height affords, never below absoluteMinCardWidthPx.
+ *
+ * Solved backwards from the height budget, because height is what was too big
+ * and width is the only dial: the art is a fixed 2:3, so a strip of
+ * `share x viewport` tall implies a card of `(budget - label) / 1.5` wide.
+ */
+const restingCardWidthCeilingPx = computed(() => {
+  const countCap = maxRestingCardWidthPx.value
+
+  if (!viewportHeight.value) return countCap
+
+  const heightBudget = viewportHeight.value * handViewportShare
+  const fromHeight = Math.floor(
+    (heightBudget - cardLabelHeightPx) / cardAspectRatio,
+  )
+
+  return Math.max(absoluteMinCardWidthPx, Math.min(countCap, fromHeight))
+})
+
+/**
  * Cards keep a legible width and the strip SCROLLS when they do not fit. This
  * used to divide the available width by the card count, which guaranteed they
  * always fit — and produced the worst of both outcomes on a phone.
@@ -321,12 +371,14 @@ const restingCardWidthPx = computed(() => {
     handWidth.value - horizontalPaddingPx,
   )
 
-  return Math.min(maxRestingCardWidthPx.value, widest)
+  return Math.min(restingCardWidthCeilingPx.value, widest)
 })
 
 const restingHandHeightPx = computed(() => {
   return Math.ceil(
-    restingCardWidthPx.value * 1.5 + footerHeightPx + verticalPaddingPx,
+    restingCardWidthPx.value * cardAspectRatio +
+      footerHeightPx +
+      verticalPaddingPx,
   )
 })
 
@@ -448,6 +500,17 @@ function publishHeight(): void {
   // Width drives card sizing.
   handWidth.value =
     scrollEl.value?.clientWidth ?? handEl.value?.clientWidth ?? 0
+
+  /*
+   * And so does the viewport's HEIGHT, now that the hand is capped at a share
+   * of the screen. Read here rather than from a ResizeObserver because none of
+   * the observed elements changes size when the window gets shorter -- the
+   * frame's height is derived from the card size, so observing it to decide
+   * the card size would be the loop. window.innerHeight is an independent
+   * input, which is what makes it safe.
+   */
+  viewportHeight.value =
+    (typeof window === 'undefined' ? 0 : window.innerHeight) || 0
 
   /*
    * Height flows back up. app.vue reserves --footer-h as padding under the
@@ -634,10 +697,18 @@ onMounted(() => {
   if (stripEl.value) {
     stripEl.value.addEventListener('wheel', handleWheel, { passive: false })
   }
+
+  // A window that gets shorter changes the height budget, and no observed
+  // element reports that.
+  window.addEventListener('resize', publishHeight)
+  window.visualViewport?.addEventListener('resize', publishHeight)
 })
 
 onBeforeUnmount(() => {
   observer?.disconnect()
+
+  window.removeEventListener('resize', publishHeight)
+  window.visualViewport?.removeEventListener('resize', publishHeight)
 
   if (stripEl.value) {
     stripEl.value.removeEventListener('wheel', handleWheel)

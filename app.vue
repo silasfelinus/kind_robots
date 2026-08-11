@@ -160,8 +160,23 @@
     </section>
 
     <ClientOnly>
+      <!--
+        z-20, BELOW the header's z-30. Silas, 2026-08-11: "if it comes to it,
+        the login manager menu should be higher z than the hand."
+
+        It came to it. The account hub's panel is z-50, but that is z-50
+        *inside* workspace-header, and the header is z-30 — so the panel
+        competed with the hand as a z-30 thing against a z-40 one and lost
+        outright. Raising the panel could not have fixed it; the header's own
+        index is the ceiling for everything it contains.
+
+        The footer drops instead of the header rising, because the header
+        rising would put it over the startup loader (z-48/z-50) too. z-20 still
+        clears <main> and the workspace sheet, both of which live inside the
+        z-10 content section.
+      -->
       <section
-        class="kr-footer pointer-events-none fixed bottom-0 z-40 flex flex-col gap-2 px-2 sm:px-3 lg:flex-row lg:items-end"
+        class="kr-footer pointer-events-none fixed bottom-0 z-20 flex flex-col gap-2 px-2 sm:px-3 lg:flex-row lg:items-end"
         :style="footerVars"
       >
         <Transition name="kr-hand-slide">

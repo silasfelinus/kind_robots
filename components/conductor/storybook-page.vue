@@ -320,19 +320,21 @@
             :max-selections="3"
           />
 
-          <label class="form-control w-full">
-            <span
-              class="label-text mb-1 text-xs font-bold uppercase tracking-wide"
-            >
-              Extra story direction (optional)
-            </span>
-            <textarea
-              v-model="store.setupDraft.notes"
-              rows="3"
-              class="textarea textarea-bordered w-full rounded-xl bg-base-100 text-sm leading-relaxed"
-              placeholder="Keep the rivalry affectionate. Let every machine feel slightly alive. Avoid a chosen-one prophecy."
-            />
-          </label>
+          <div class="kr-panel-flat space-y-2 p-3">
+            <label class="form-control w-full">
+              <span
+                class="label-text mb-1 text-xs font-bold uppercase tracking-wide"
+              >
+                Extra story direction (optional)
+              </span>
+              <textarea
+                v-model="store.setupDraft.notes"
+                rows="3"
+                class="textarea textarea-bordered w-full rounded-xl bg-base-100 text-sm leading-relaxed"
+                placeholder="Keep the rivalry affectionate. Let every machine feel slightly alive. Avoid a chosen-one prophecy."
+              />
+            </label>
+          </div>
         </section>
 
         <section

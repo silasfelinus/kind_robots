@@ -23,47 +23,43 @@ const check = (condition, message) => {
 
 for (const moduleName of deckModules) {
   check(
-    !new RegExp(`^import\\s+[^\\n]+helpers/${moduleName}['\"]`, 'm').test(
-      modelCards,
-    ),
+    !modelCards.includes(`from '@/stores/helpers/${moduleName}'`),
     `modelCards.ts statically imports ${moduleName}; that pins the deck into the eager pageStore graph.`,
   )
   check(
-    new RegExp(`import\\(['\"]@/stores/helpers/${moduleName}['\"]\\)`).test(
-      modelCards,
-    ),
+    modelCards.includes(`import('@/stores/helpers/${moduleName}')`),
     `modelCards.ts has no dynamic loader for ${moduleName}.`,
   )
 }
 
 check(
-  /export\s+async\s+function\s+preloadModelCards/.test(modelCards),
+  modelCards.includes('export async function preloadModelCards'),
   'modelCards.ts must expose preloadModelCards so the router can hydrate the requested deck before pageStore reads it.',
 )
 check(
-  /pendingLoads/.test(modelCards),
+  modelCards.includes('pendingLoads'),
   'modelCards.ts must deduplicate in-flight deck imports during client navigation.',
 )
 check(
-  /import\s+\{\s*preloadModelCards\s*\}\s+from\s+['\"]@\/stores\/helpers\/modelCards['\"]/.test(
-    slugPage,
+  slugPage.includes(
+    "import { preloadModelCards } from '@/stores/helpers/modelCards'",
   ),
   'pages/[...slug].vue must import preloadModelCards.',
 )
 check(
-  /await\s+preloadModelCards\(initialCards\)/.test(slugPage),
+  slugPage.includes('await preloadModelCards(initialCards)'),
   'pages/[...slug].vue must preload the initial content-page deck during SSR.',
 )
 check(
-  /await\s+preloadModelCards\(cards\)/.test(slugPage),
+  slugPage.includes('await preloadModelCards(cards)'),
   'pages/[...slug].vue must await route-navigation deck loads before committing the page to Pinia.',
 )
 check(
-  /\nsyncPageStore\(\)\n\nonMounted\(/.test(slugPage),
+  slugPage.includes('\nsyncPageStore()\n\nonMounted('),
   'pages/[...slug].vue must synchronously commit the preloaded initial page before onMounted so SSR and hydration agree.',
 )
 check(
-  /getModelCards\(value\)/.test(pageStore),
+  pageStore.includes('getModelCards(value)'),
   'pageStore.ts must continue reading the preloaded deck synchronously so SSR and hydration render the same hand.',
 )
 

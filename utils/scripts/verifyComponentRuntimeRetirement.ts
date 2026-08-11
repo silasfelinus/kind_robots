@@ -1,10 +1,19 @@
 import assert from 'node:assert/strict'
-import { readFile, readdir, stat } from 'node:fs/promises'
+import { access, readFile, readdir, stat } from 'node:fs/promises'
 import { join } from 'node:path'
 
 const roots = ['app.vue', 'components', 'composables', 'layouts', 'pages', 'plugins', 'stores']
 const excludedParts = ['/abandonware/', '/wonderlab/']
 const sourceExtensions = ['.ts', '.vue']
+
+async function exists(path: string): Promise<boolean> {
+  try {
+    await access(path)
+    return true
+  } catch {
+    return false
+  }
+}
 
 async function walk(path: string): Promise<string[]> {
   const info = await stat(path)
@@ -14,7 +23,11 @@ async function walk(path: string): Promise<string[]> {
   return nested.flat()
 }
 
-const files = (await Promise.all(roots.map((root) => walk(root))))
+const existingRoots = (
+  await Promise.all(roots.map(async (root) => ((await exists(root)) ? root : null)))
+).filter((root): root is string => Boolean(root))
+
+const files = (await Promise.all(existingRoots.map((root) => walk(root))))
   .flat()
   .filter((file) => sourceExtensions.some((extension) => file.endsWith(extension)))
   .filter((file) => !excludedParts.some((part) => `/${file.replaceAll('\\', '/')}`.includes(part)))

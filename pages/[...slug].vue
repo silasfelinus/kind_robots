@@ -208,7 +208,7 @@ const isPageLoading = computed(() => {
   )
 })
 
-async function syncPageStore(): Promise<void> {
+function syncPageStore(): void {
   if (isLoginPath.value) {
     pageStore.clearPage()
     pageStore.setLoading(false)
@@ -224,22 +224,36 @@ async function syncPageStore(): Promise<void> {
 
   if (error.value) return
 
-  const page = activePage.value
-  if (page) {
-    const resolvedPath = contentPath.value
-    const cards = (page as CardContentPage).cards
-
-    if (typeof cards === 'string') {
-      await preloadModelCards(cards)
-    }
-
-    if (contentPath.value !== resolvedPath || activePage.value !== page) return
-
-    pageStore.setPage(page)
+  if (activePage.value) {
+    pageStore.setPage(activePage.value)
     return
   }
 
   pageStore.clearPage()
+}
+
+async function preloadAndSyncPageStore(): Promise<void> {
+  if (isLoginPath.value || isPageLoading.value || error.value) {
+    syncPageStore()
+    return
+  }
+
+  const page = activePage.value
+  if (!page) {
+    syncPageStore()
+    return
+  }
+
+  const resolvedPath = contentPath.value
+  const cards = (page as CardContentPage).cards
+
+  if (typeof cards === 'string') {
+    await preloadModelCards(cards)
+  }
+
+  if (contentPath.value !== resolvedPath || activePage.value !== page) return
+
+  syncPageStore()
 }
 
 /*
@@ -251,28 +265,30 @@ async function syncPageStore(): Promise<void> {
  * it rendered nothing until hydration.
  *
  * The page backdrop made that visible: app.vue emits no backdrop element at all
- * when pageStore reports no art, so every page load painted a backdrop-less
+ * when the store reports no art, so every page load painted a backdrop-less
  * first frame and then popped the art in. Title and description came from the
  * same store and had the same gap.
  *
- * Workspace card catalogs are also preloaded here before pageStore receives the
- * page. That keeps the card hand synchronous for SSR while allowing each deck to
- * remain a route-local chunk instead of pinning every catalog into app startup.
- *
- * onMounted still runs it, which is a harmless cached re-set on the client and
- * still the right place to start the store's own async initialize and the
- * route watcher.
+ * Workspace card catalogs are preloaded before this setup-scope synchronization.
+ * That keeps the card hand synchronous for SSR while allowing each deck to stay
+ * a route-local chunk instead of pinning every catalog into app startup.
  */
-await syncPageStore()
+if (activePage.value) {
+  const initialCards = (activePage.value as CardContentPage).cards
+  if (typeof initialCards === 'string') {
+    await preloadModelCards(initialCards)
+  }
+}
+syncPageStore()
 
 onMounted(() => {
   pageStore.initialize()
-  void syncPageStore()
+  void preloadAndSyncPageStore()
 
   watch(
     [activePage, status, error, contentPath, pagePayload, isLoginPath],
     () => {
-      void syncPageStore()
+      void preloadAndSyncPageStore()
     },
     { flush: 'post' },
   )

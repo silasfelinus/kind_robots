@@ -38,7 +38,7 @@
       </section>
 
       <template v-else>
-        <p v-if="notice" class="rounded-2xl border border-error/40 bg-error/10 p-4 text-error">
+        <p v-if="notice" class="kr-note kr-note-error">
           {{ notice }}
         </p>
 

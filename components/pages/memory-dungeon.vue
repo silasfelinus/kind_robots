@@ -627,6 +627,7 @@ const pendingCardSource = reactive<{
   collectionIds: [],
 })
 
+const HIGH_SCORE_STORAGE_KEY = 'memoryDungeonHighScore'
 const MAX_POSSIBLE_LIVES = 8
 const MIN_LEVEL_PAIRS = 4
 const MAX_LEVEL_PAIRS = 18
@@ -728,7 +729,7 @@ const DEATH_FLAVORS = [
   'Slain by your own memory. A poetic end.',
   "The Oracle whispers: 'Perhaps Wordle is more your speed.'",
   'The dungeon locks the exit. Your score remains as a warning to others.',
-  'Three lives, all spent. The dungeon offers its condolences. It is lying.',
+  'All your lives, all spent. The dungeon offers its condolences. It is lying.',
 ]
 
 const LEVEL_FLAVORS = [
@@ -887,6 +888,37 @@ function normalizeLegacyCardSource() {
   }
 }
 
+function loadHighScore() {
+  try {
+    const storedScore = Number(window.localStorage.getItem(HIGH_SCORE_STORAGE_KEY))
+    highScore.value = Number.isFinite(storedScore) ? Math.max(0, storedScore) : 0
+  } catch {
+    highScore.value = 0
+  }
+}
+
+function updateHighScore() {
+  if (score.value <= highScore.value) return
+
+  highScore.value = score.value
+
+  try {
+    window.localStorage.setItem(HIGH_SCORE_STORAGE_KEY, String(score.value))
+  } catch {}
+}
+
+async function submitCurrentScore() {
+  updateHighScore()
+  if (score.value <= 0) return
+
+  await achievementStore.initialize()
+  await achievementStore.updateMatchRecord(score.value)
+
+  if (score.value >= 50) {
+    await achievementStore.rewardAchievementByCode('memory-master')
+  }
+}
+
 const challenge = reactive({
   active: false,
   targetName: '',
@@ -979,7 +1011,7 @@ const boardLayout = computed(() => {
 
   return {
     ...best,
-    size: Math.max(1, Math.min(best.size, 260)),
+    size: Math.max(1, best.size),
   }
 })
 
@@ -1188,10 +1220,7 @@ function onMatch(matchedName: string) {
   }
 
   score.value += points
-
-  if (score.value > highScore.value) {
-    highScore.value = score.value
-  }
+  updateHighScore()
 
   addLog(`${pick(MATCH_FLAVORS)} (+${points})`, 'match')
 
@@ -1280,6 +1309,7 @@ function triggerGameOver() {
   cancelChallenge()
   deathFlavor.value = pick(DEATH_FLAVORS)
   addLog('💀 GAME OVER. The dungeon claims your score as a trophy.', 'system')
+  void submitCurrentScore()
 }
 
 function onLevelComplete() {
@@ -1290,10 +1320,7 @@ function onLevelComplete() {
   const bonus = completedLevel * 50
 
   score.value += bonus
-
-  if (score.value > highScore.value) {
-    highScore.value = score.value
-  }
+  updateHighScore()
 
   cancelChallenge()
   matchesSinceChallenge.value = 0
@@ -1313,6 +1340,7 @@ function onLevelComplete() {
   addLog(`✨ Level ${completedLevel} Bonus: +${bonus} pts`, 'system')
 
   grantFloorReward(wasFlawless) // random bonus on top, as before
+  void submitCurrentScore()
 
   setTimeout(async () => {
     level.value++
@@ -1517,10 +1545,7 @@ function grantFloorReward(wasFlawless: boolean) {
   if (!reward) return
 
   reward.apply()
-
-  if (score.value > highScore.value) {
-    highScore.value = score.value
-  }
+  updateHighScore()
 
   showAward(reward.icon, reward.title, reward.subtitle)
   addLog(`🎲 Floor reward: ${reward.title} — ${reward.subtitle}`, 'award')
@@ -1594,6 +1619,7 @@ function usePowerup(powerup: Powerup) {
 onMounted(async () => {
   normalizeLegacyCardSource()
   syncPendingSettings()
+  loadHighScore()
 
   if (!achievementStore.highMatchScores.length) {
     await achievementStore.fetchHighMatchScores()

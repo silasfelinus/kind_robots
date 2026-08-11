@@ -218,6 +218,9 @@
             class="btn btn-sm btn-outline btn-primary rounded-xl"
             :disabled="!isEditable('GENERATE_ASSETS') || isGenerating || isQueued"
             title="Queue generation and keep working — polls in the background, no need to wait here."
+            :aria-label="
+              item.imagePath ? 'Queue regeneration in background' : 'Queue generation in background'
+            "
             @click="store.generateItemAssetAsync(item.id)"
           >
             <Icon name="kind-icon:clock" class="h-4 w-4" />

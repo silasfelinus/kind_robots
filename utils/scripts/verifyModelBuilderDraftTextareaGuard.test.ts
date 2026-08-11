@@ -3,9 +3,13 @@
 // Regression test for checkDraftTextareaGuard() in
 // verifyModelBuilderDraftTextareaGuard.ts (model-builder/t-029). Exercises
 // the real check against synthetic component-shaped fixtures covering: the
-// pre-fix shape (textareas disabled only on `!isEditable(...)`, with no
-// `isDrafting(field)` check -- the exact bug found by manual read-through),
-// the fixed shape, and one textarea missing entirely.
+// original pre-fix shape (textareas disabled only on `!isEditable(...)`,
+// with no drafting check at all), the narrower `isDrafting(field)`-only
+// shape (the first fix -- now itself insufficient, since a draft on a
+// sibling field or a different item silently steals the shared
+// `draftingField` slot and re-enables this textarea while its own request
+// is still in flight), the current fixed shape (`isAnyDraftInFlight`), and
+// one textarea missing entirely.
 import assert from 'node:assert/strict'
 
 import { checkDraftTextareaGuard } from './verifyModelBuilderDraftTextareaGuard.js'
@@ -36,7 +40,12 @@ const BUGGY_FIXTURE = `
 </template>
 `
 
-const FIXED_FIXTURE = `
+// The first fix's shape -- gates each textarea on its own field's
+// isDrafting(field) only. Passed the original guard, but is insufficient:
+// draftingField is one shared slot, so a draft started on a sibling field
+// (or a different item) silently steals it, and this textarea re-enables
+// while its own request is still pending.
+const NARROW_FIXTURE = `
 <template>
   <textarea
     v-model="pitch"
@@ -62,6 +71,32 @@ const FIXED_FIXTURE = `
 </template>
 `
 
+const FIXED_FIXTURE = `
+<template>
+  <textarea
+    v-model="pitch"
+    rows="2"
+    placeholder="Why this output exists…"
+    :disabled="!isEditable('PITCH') || isAnyDraftInFlight"
+    @change="store.updatePitch(item.id, pitch)"
+  />
+  <textarea
+    v-model="fields"
+    rows="2"
+    placeholder="Schema fields…"
+    :disabled="!isEditable('FIELDS_AND_PROMPTS') || isAnyDraftInFlight"
+    @change="store.updateFields(item.id, fields)"
+  />
+  <textarea
+    v-model="prompt"
+    rows="2"
+    placeholder="The prompt used…"
+    :disabled="!isEditable('FIELDS_AND_PROMPTS') || isAnyDraftInFlight"
+    @change="store.updatePrompt(item.id, prompt)"
+  />
+</template>
+`
+
 const MISSING_FIXTURE = `
 <template>
   <div>no textareas here</div>
@@ -72,12 +107,24 @@ const buggyErrors = checkDraftTextareaGuard(BUGGY_FIXTURE)
 assert.equal(
   buggyErrors.length,
   3,
-  `expected the pre-fix shape (no isDrafting checks) to raise 3 errors, ` +
+  `expected the pre-fix shape (no drafting checks) to raise 3 errors, ` +
     `got ${buggyErrors.length}: ${JSON.stringify(buggyErrors)}`,
 )
-assert.ok(buggyErrors[0]!.includes("isDrafting('pitch')"))
-assert.ok(buggyErrors[1]!.includes("isDrafting('fields')"))
-assert.ok(buggyErrors[2]!.includes("isDrafting('artPrompt')"))
+for (const error of buggyErrors) {
+  assert.ok(error.includes('isAnyDraftInFlight'))
+}
+
+const narrowErrors = checkDraftTextareaGuard(NARROW_FIXTURE)
+assert.equal(
+  narrowErrors.length,
+  3,
+  'expected the narrower isDrafting(field)-only shape (the superseded ' +
+    `first fix) to still raise 3 errors, got ${narrowErrors.length}: ` +
+    `${JSON.stringify(narrowErrors)}`,
+)
+for (const error of narrowErrors) {
+  assert.ok(error.includes('isAnyDraftInFlight'))
+}
 
 const fixedErrors = checkDraftTextareaGuard(FIXED_FIXTURE)
 assert.equal(
@@ -99,6 +146,7 @@ for (const error of missingErrors) {
 
 console.log(
   'Model Builder draft textarea guard checker verified: flags the pre-fix ' +
-    'shape (textareas missing isDrafting(field) in :disabled), clears the ' +
-    'fixed shape, and flags each textarea being absent entirely.',
+    'shape (no drafting check) and the superseded narrower ' +
+    'isDrafting(field)-only shape, clears the current isAnyDraftInFlight ' +
+    'shape, and flags each textarea being absent entirely.',
 )

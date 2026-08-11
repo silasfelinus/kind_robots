@@ -263,6 +263,12 @@ jobs:
       - name: Model Builder draft textarea guard contract
         run: npm run test:model-builder-draft-textarea-guard
 
+      - name: Model Builder draft cross-field guard checker self-test
+        run: npm run test:model-builder-draft-cross-field-guard-selftest
+
+      - name: Model Builder draft cross-field guard contract
+        run: npm run test:model-builder-draft-cross-field-guard
+
       - name: Model Builder auto-build draft gate checker self-test
         run: npm run test:model-builder-auto-build-draft-gate-selftest
 

@@ -108,7 +108,7 @@
 
       <div
         v-else
-        class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+        class="flex min-h-0 flex-1 items-center justify-center kr-note kr-note-warning"
       >
         The butterflies misplaced tab
         <span class="mx-1 font-bold">{{ activeTab }}</span>

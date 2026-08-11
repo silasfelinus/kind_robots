@@ -7,8 +7,8 @@
   for why the board is tiered at all).
 
   Presentational only: the parent owns the role map and passes down which
-  role (if any) this member currently holds; this emits the chip press back
-  up rather than mutating anything itself.
+  role (if any) this member currently holds; this emits the chip press and
+  drag gestures back up rather than mutating anything itself.
 -->
 <template>
   <li
@@ -18,7 +18,12 @@
       size === 'back' ? 'opacity-90' : '',
     ]"
   >
-    <div class="relative">
+    <div
+      class="relative cursor-grab active:cursor-grabbing"
+      draggable="true"
+      @dragstart="startNativeDrag"
+      @dragend="emit('drag-cancel')"
+    >
       <kr-art-plate
         :source="member"
         variant="card"
@@ -28,8 +33,19 @@
         :placeholder-icon="member.icon || 'kind-icon:user'"
       />
 
-      <!-- The part, worn on the card. This is what makes the board readable
-           without reading: a glance says who leads and who opposes. -->
+      <button
+        type="button"
+        class="absolute right-2 top-2 z-10 cursor-grab touch-none rounded-lg bg-base-100/90 px-2 py-1 text-xs font-black shadow active:cursor-grabbing"
+        :aria-label="`Drag ${member.title} to a part`"
+        title="Drag to a part"
+        @pointerdown="startPointerDrag"
+        @pointermove="movePointerDrag"
+        @pointerup="finishPointerDrag"
+        @pointercancel="cancelPointerDrag"
+      >
+        <span aria-hidden="true">⋮⋮</span>
+      </button>
+
       <span
         v-if="role"
         class="badge badge-secondary badge-sm absolute left-2 top-2 gap-1 rounded-xl shadow"
@@ -50,11 +66,6 @@
       </span>
     </div>
 
-    <!--
-      Chips, not a dropdown. Pressing the active part again clears it, so
-      removing someone from a role costs the same one tap as giving them
-      one -- a dropdown makes "none" a hunt back through the list.
-    -->
     <div
       class="flex flex-wrap gap-1 p-2"
       role="group"
@@ -87,22 +98,71 @@ import type { NarrativeIngredientOption } from '@/utils/narrativeIngredients'
 
 const props = defineProps<{
   member: NarrativeIngredientOption
-  /** This member's current role key, or null when unassigned. */
   role: string | null
-  /**
-   * Board tier this card renders at. 'lead' is given prominence (protagonist
-   * / antagonist), 'support' is the default size, 'back' is ranked behind
-   * (ensemble and anyone not yet given a part) and reads as slightly
-   * receded rather than fully de-emphasised -- an unassigned card is still
-   * drawn quietly, not hidden.
-   */
   size: 'lead' | 'support' | 'back'
 }>()
 
 const emit = defineEmits<{
   'toggle-role': [key: string]
+  'drag-start': []
+  'drag-move': [x: number, y: number]
+  'drag-end': [x: number, y: number]
+  'drag-cancel': []
 }>()
 
 const roleLabel = computed(() => narrativeRoleLabel(props.role))
 const roleIcon = computed(() => narrativeRole(props.role)?.icon ?? '')
+
+let pointerId: number | null = null
+let pointerStartX = 0
+let pointerStartY = 0
+let pointerDragging = false
+
+function startNativeDrag(event: DragEvent): void {
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = 'move'
+    event.dataTransfer.setData('text/plain', props.member.slug)
+  }
+  emit('drag-start')
+}
+
+function startPointerDrag(event: PointerEvent): void {
+  if (event.pointerType === 'mouse') return
+  pointerId = event.pointerId
+  pointerStartX = event.clientX
+  pointerStartY = event.clientY
+  pointerDragging = false
+  ;(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId)
+}
+
+function movePointerDrag(event: PointerEvent): void {
+  if (event.pointerId !== pointerId) return
+  if (!pointerDragging) {
+    const distance = Math.hypot(
+      event.clientX - pointerStartX,
+      event.clientY - pointerStartY,
+    )
+    if (distance < 8) return
+    pointerDragging = true
+    emit('drag-start')
+  }
+  emit('drag-move', event.clientX, event.clientY)
+}
+
+function finishPointerDrag(event: PointerEvent): void {
+  if (event.pointerId !== pointerId) return
+  if (pointerDragging) emit('drag-end', event.clientX, event.clientY)
+  resetPointerDrag()
+}
+
+function cancelPointerDrag(event: PointerEvent): void {
+  if (event.pointerId !== pointerId) return
+  if (pointerDragging) emit('drag-cancel')
+  resetPointerDrag()
+}
+
+function resetPointerDrag(): void {
+  pointerId = null
+  pointerDragging = false
+}
 </script>

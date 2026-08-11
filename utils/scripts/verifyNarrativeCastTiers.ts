@@ -1,21 +1,8 @@
 // /utils/scripts/verifyNarrativeCastTiers.ts
 //
-// Kaizen from t-011 (kind_robots PR #1727): narrative-role-assigner.vue
-// groups cast members into three board tiers purely from their assigned
-// role -- protagonist/antagonist into the lead row (facing each other),
-// love-interest/mentor/foil/ally/wildcard into the supporting row, and
-// ensemble/unassigned into the back row -- but nothing asserted that
-// grouping in CI. eslint/vue-tsc/verifyNarrativeRoles.ts all passed without
-// ever checking tier placement, so a future edit could silently move a role
-// to the wrong tier, or collapse the branching entirely back to one flat
-// grid, and nothing would fail.
-//
-// The grouping logic now lives in narrativeCastTier() (utils/narrativeRoles),
-// extracted from the component so it is a pure function CI can feed a
-// synthetic member of every role through -- rather than only reachable by
-// mounting the component. Narrow by design, same spirit as
-// verifyStorybookObjectEntryLinks.mjs: this asserts the grouping itself, not
-// button markup, CSS classes, or layout.
+// Casting-board contract: role-to-tier grouping plus the interaction wiring
+// that lets cards move to role drop zones without removing the pressable-chip
+// accessibility fallback.
 //
 //   npx tsx utils/scripts/verifyNarrativeCastTiers.ts
 
@@ -37,8 +24,6 @@ function check(condition: boolean, message: string): void {
 
 const read = (path: string): string => readFileSync(resolve(root, path), 'utf8')
 
-/* --- the lead row: protagonist and antagonist, and only those two -------- */
-
 check(
   narrativeCastTier('protagonist') === 'protagonist',
   'a protagonist lands in the protagonist tier',
@@ -47,8 +32,6 @@ check(
   narrativeCastTier('antagonist') === 'antagonist',
   'an antagonist lands in the antagonist tier',
 )
-
-/* --- the supporting row: every other real, non-ensemble role ------------- */
 
 const supportingRoles = NARRATIVE_ROLE_KEYS.filter(
   (key) => key !== 'protagonist' && key !== 'antagonist' && key !== 'ensemble',
@@ -64,8 +47,6 @@ for (const key of supportingRoles) {
   )
 }
 
-/* --- the back row: ensemble and unassigned -------------------------------- */
-
 check(
   narrativeCastTier('ensemble') === 'back',
   'ensemble lands in the back tier',
@@ -78,46 +59,63 @@ check(
   narrativeCastTier(undefined) === 'back',
   'an unassigned member (undefined) lands in the back tier',
 )
-
-/* --- untrusted input: a stale/unknown role key should not vanish --------- */
-
 check(
   narrativeCastTier('villain') === 'support',
-  'an unknown/stale role key degrades to the supporting tier rather than ' +
-    'throwing or silently dropping the member off the board entirely',
+  'an unknown/stale role key degrades to the supporting tier rather than disappearing',
 )
 
-/* --- the wiring: the component must actually call this, not re-inline it - */
-/*
- * A CALL, not a mention. Asserting only that the file imports
- * narrativeCastTier would pass even if a future edit re-inlined the old
- * ad hoc role === 'protagonist' / role !== ... conditionals and left the
- * import dangling unused.
- */
 const component = read('components/narrative/narrative-role-assigner.vue')
 const calls = component.match(/narrativeCastTier\(/g) ?? []
 check(
   calls.length >= 4,
-  'the casting board calls narrativeCastTier() for each of its four tier ' +
-    'computeds (protagonists/antagonists/supportingCast/backCast), not an ' +
-    'inlined copy of the grouping logic',
+  'the casting board calls narrativeCastTier() for all four tier computeds',
 )
 check(
   !/roleFor\(member\.slug\)\s*===\s*'protagonist'/.test(component) &&
     !/roleFor\(member\.slug\)\s*===\s*'antagonist'/.test(component),
-  'the tier computeds no longer branch on role keys directly -- the shared ' +
-    'function is the single source of truth for tier placement',
+  'tier placement stays centralized in narrativeCastTier()',
+)
+
+const card = read('components/narrative/narrative-cast-card.vue')
+check(
+  /:data-cast-role="option\.key"/.test(component) &&
+    /@drop\.prevent="dropRole\(option\.key\)"/.test(component),
+  'each narrative role is rendered as an actual card drop zone',
+)
+check(
+  /draggable="true"/.test(card) && /@dragstart="startNativeDrag"/.test(card),
+  'cast cards support native mouse drag',
+)
+check(
+  /@pointerdown="startPointerDrag"/.test(card) &&
+    /event\.pointerType === 'mouse'/.test(card) &&
+    /setPointerCapture/.test(card) &&
+    /@pointermove="movePointerDrag"/.test(card) &&
+    /@pointerup="finishPointerDrag"/.test(card),
+  'cast cards provide a Pointer Events drag path for touch and pen',
+)
+check(
+  /class="[^"]*touch-none[^"]*"/.test(card),
+  'the touch drag handle suppresses browser panning while a pointer drag is active',
+)
+check(
+  /:aria-pressed="role === option\.key"/.test(card) &&
+    /@click="emit\('toggle-role', option\.key\)"/.test(card),
+  'pressable role chips remain as the keyboard/accessibility fallback',
+)
+check(
+  /elementFromPoint\(x, y\)/.test(component) &&
+    /closest\('\[data-cast-role\]'\)/.test(component),
+  'touch drag completion resolves the role slot under the pointer',
 )
 
 if (failures) {
   console.error(
-    `\nNarrative cast tiers contract failed with ${failures} error(s).`,
+    `\nNarrative casting-board contract failed with ${failures} error(s).`,
   )
   process.exitCode = 1
 } else {
   console.log(
-    '\nNarrative cast tiers contract passed: every role lands on the ' +
-      'casting board in its expected tier, and the board gets that ' +
-      'placement from the shared function rather than an inlined copy.',
+    '\nNarrative casting-board contract passed: role tiers, mouse drag, touch/pen drag, and chip fallback are all wired.',
   )
 }

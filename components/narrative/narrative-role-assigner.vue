@@ -5,36 +5,13 @@
   Silas, 2026-08-06: "I'm imagining a layout that lets the user feel like they
   are selecting cards and creating a playboard that turns into a story."
 
-  The first version of this was a list of rows with a <select> in each. It
-  worked, and it was wrong twice over: it did not feel like anything, and it
-  did not even match the step directly above it, where the cast is chosen from
-  art-forward cards with selected rings and check badges
-  (narrative-ingredient-card.vue). Dropping from cards to a dropdown mid-flow
-  is the same hodgepodge this whole pass exists to remove.
+  The board arranges BY role. Protagonist(s) and antagonist(s) get the lead
+  row, supporting parts hold the middle row, and ensemble/unassigned share a
+  smaller back row. Card markup lives in narrative-cast-card.vue.
 
-  It also, at first, put every card in one uniform auto-fill grid regardless
-  of part — reading order, not story order. t-011 (2026-08-10) fixed that:
-  the board now arranges BY role instead. Protagonist(s) and antagonist(s) get
-  the lead row, given prominence and set facing each other rather than side by
-  side in the same line — a protagonist and an antagonist read as opposed, not
-  as neighbours. Supporting parts (love interest, mentor, foil, ally,
-  wildcard) hold the middle row at the original size. Ensemble and anyone not
-  yet given a part share the back row, smaller and slightly receded — ranked
-  behind without being hidden, since an unassigned card still has to be
-  readable and pressable. A board with nothing assigned collapses to exactly
-  one back row, which is the old uniform grid: this is additive, not a
-  rewrite of the unassigned state.
-
-  Card markup itself lives in narrative-cast-card.vue so the three tiers don't
-  triple it.
-
-  Presentational and controlled, the contract kr-gallery keeps: the parent owns
-  the cast and the role map, this emits changes, and it imports no store so it
-  can drop into Storybook now and Taskmaster or the Stage system later.
-
-  Roles stay OPTIONAL. An unassigned card is drawn quietly and produces exactly
-  the story-bible line it always did (see castLineWithRole), so a story that
-  ignores casting generates identically to before.
+  Presentational and controlled: the parent owns the cast and role map, this
+  emits changes, and it imports no store. Roles stay optional, and the role
+  chips remain the keyboard/accessibility path alongside drag-and-drop.
 -->
 <template>
   <div v-if="members.length" class="space-y-4">
@@ -42,9 +19,8 @@
       <div>
         <p class="text-sm font-black">The casting board</p>
         <p class="mt-0.5 text-xs leading-relaxed text-base-content/55">
-          Give anyone a part and the narrator is told what it means — a
-          protagonist is followed, an antagonist is opposed. Leave a card blank
-          and the story decides.
+          Drag a card onto a part, or use its buttons. Leave a card blank and
+          the story decides.
         </p>
       </div>
       <span
@@ -55,9 +31,35 @@
       </span>
     </div>
 
-    <!-- Lead row: protagonist(s) given prominence on one side, antagonist(s)
-         set opposite on the other. Only renders once someone actually holds
-         one of these parts. -->
+    <div class="rounded-2xl border border-base-300 bg-base-200/40 p-2.5">
+      <div
+        class="grid gap-2 [grid-template-columns:repeat(auto-fit,minmax(min(7.5rem,100%),1fr))]"
+        role="group"
+        aria-label="Casting role drop zones"
+      >
+        <div
+          v-for="option in NARRATIVE_ROLES"
+          :key="option.key"
+          :data-cast-role="option.key"
+          class="flex min-h-12 items-center gap-2 rounded-xl border border-dashed px-2.5 py-2 text-xs font-bold transition"
+          :class="
+            dragOverRole === option.key
+              ? 'border-secondary bg-secondary/15 ring-2 ring-secondary/30'
+              : draggingSlug
+                ? 'border-base-content/35 bg-base-100'
+                : 'border-base-300 bg-base-100/70'
+          "
+          @dragenter.prevent="dragOverRole = option.key"
+          @dragover.prevent="dragOverRole = option.key"
+          @dragleave="dragOverRole = null"
+          @drop.prevent="dropRole(option.key)"
+        >
+          <Icon :name="option.icon" class="size-4 shrink-0" aria-hidden="true" />
+          <span>{{ option.label }}</span>
+        </div>
+      </div>
+    </div>
+
     <div
       v-if="protagonists.length || antagonists.length"
       class="flex flex-wrap items-start justify-between gap-3"
@@ -71,6 +73,10 @@
           :role="roleFor(member.slug)"
           size="lead"
           @toggle-role="toggle(member.slug, $event)"
+          @drag-start="startDrag(member.slug)"
+          @drag-move="trackPointerDrag"
+          @drag-end="finishPointerDrag"
+          @drag-cancel="cancelDrag"
         />
       </ul>
       <ul
@@ -86,12 +92,14 @@
           :role="roleFor(member.slug)"
           size="lead"
           @toggle-role="toggle(member.slug, $event)"
+          @drag-start="startDrag(member.slug)"
+          @drag-move="trackPointerDrag"
+          @drag-end="finishPointerDrag"
+          @drag-cancel="cancelDrag"
         />
       </ul>
     </div>
 
-    <!-- Supporting row: everyone with a part that isn't lead or ensemble,
-         at the board's original card size. -->
     <ul
       v-if="supportingCast.length"
       class="grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(min(11rem,100%),1fr))]"
@@ -103,13 +111,13 @@
         :role="roleFor(member.slug)"
         size="support"
         @toggle-role="toggle(member.slug, $event)"
+        @drag-start="startDrag(member.slug)"
+        @drag-move="trackPointerDrag"
+        @drag-end="finishPointerDrag"
+        @drag-cancel="cancelDrag"
       />
     </ul>
 
-    <!-- Back row: ensemble and anyone not yet given a part. Ranked behind —
-         smaller and a touch quieter — but still fully readable and pressable,
-         since roles stay optional. This is the whole board when nothing has
-         been assigned yet. -->
     <ul
       v-if="backCast.length"
       class="grid gap-2.5 [grid-template-columns:repeat(auto-fill,minmax(min(8.5rem,100%),1fr))]"
@@ -121,13 +129,13 @@
         :role="roleFor(member.slug)"
         size="back"
         @toggle-role="toggle(member.slug, $event)"
+        @drag-start="startDrag(member.slug)"
+        @drag-move="trackPointerDrag"
+        @drag-end="finishPointerDrag"
+        @drag-cancel="cancelDrag"
       />
     </ul>
 
-    <!--
-      A WARNING, not a block. Two protagonists is unusual, not invalid, and
-      refusing to render it would be the tool arguing with the author.
-    -->
     <p
       v-if="duplicateWarning"
       class="kr-note kr-note-warning text-xs"
@@ -139,18 +147,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import {
   duplicateSingularRoles,
+  NARRATIVE_ROLES,
   narrativeCastTier,
   narrativeRoleLabel,
 } from '@/utils/narrativeRoles'
 import type { NarrativeIngredientOption } from '@/utils/narrativeIngredients'
 
 const props = defineProps<{
-  /** The chosen cast, in the parent's order. */
   members: NarrativeIngredientOption[]
-  /** slug -> role key. Members absent from the map are unassigned. */
   modelValue: Record<string, string>
 }>()
 
@@ -158,15 +165,11 @@ const emit = defineEmits<{
   'update:modelValue': [value: Record<string, string>]
 }>()
 
+const draggingSlug = ref<string | null>(null)
+const dragOverRole = ref<string | null>(null)
+
 const roleFor = (slug: string): string | null => props.modelValue[slug] ?? null
 
-/*
- * The board's three tiers. A member falls into exactly one, decided purely
- * by their current role — reassigning a part moves the card, nothing else
- * to track. `protagonist`/`antagonist` lead; the other five real roles hold
- * the supporting middle; `ensemble` and unassigned share the back row, since
- * neither has been given prominence.
- */
 const protagonists = computed(() =>
   props.members.filter(
     (member) => narrativeCastTier(roleFor(member.slug)) === 'protagonist',
@@ -189,17 +192,48 @@ const backCast = computed(() =>
 )
 
 function toggle(slug: string, key: string): void {
-  /*
-   * An unassigned member is ABSENT from the map rather than stored as ''. The
-   * map is persisted in the setup draft, and empty entries would survive there
-   * forever for cast members long since removed. Rebuilt by filtering rather
-   * than deleting a computed key, which the lint config forbids.
-   */
   const next = Object.fromEntries(
     Object.entries(props.modelValue).filter(([entry]) => entry !== slug),
   )
   if (roleFor(slug) !== key) next[slug] = key
   emit('update:modelValue', next)
+}
+
+function assignRole(slug: string, key: string): void {
+  emit('update:modelValue', { ...props.modelValue, [slug]: key })
+}
+
+function startDrag(slug: string): void {
+  draggingSlug.value = slug
+}
+
+function cancelDrag(): void {
+  draggingSlug.value = null
+  dragOverRole.value = null
+}
+
+function dropRole(key: string): void {
+  if (draggingSlug.value) assignRole(draggingSlug.value, key)
+  cancelDrag()
+}
+
+function roleAtPoint(x: number, y: number): string | null {
+  if (typeof document === 'undefined') return null
+  const slot = document
+    .elementFromPoint(x, y)
+    ?.closest('[data-cast-role]') as HTMLElement | null
+  const key = slot?.dataset.castRole ?? null
+  return key && NARRATIVE_ROLES.some((role) => role.key === key) ? key : null
+}
+
+function trackPointerDrag(x: number, y: number): void {
+  dragOverRole.value = roleAtPoint(x, y)
+}
+
+function finishPointerDrag(x: number, y: number): void {
+  const role = roleAtPoint(x, y)
+  if (role) dropRole(role)
+  else cancelDrag()
 }
 
 const assignedCount = computed(

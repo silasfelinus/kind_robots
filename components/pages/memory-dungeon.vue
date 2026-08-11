@@ -1,92 +1,147 @@
 <!-- /components/content/story/memory-dungeon.vue -->
 <!-- root div -->
 <template>
-  <div class="kr-surface min-h-[80vh] select-none gap-0 bg-(--kr-surface)">
+  <div class="kr-surface select-none gap-0 bg-(--kr-surface)">
     <header
       v-if="gameStarted"
-      class="z-10 flex shrink-0 flex-wrap items-center justify-between gap-3 bg-base-300 px-4 pb-3 pt-4 shadow-md"
+      class="relative z-20 shrink-0 border-b border-base-content/10 bg-base-300 shadow-md"
     >
-      <div>
-        <p class="text-2xl font-black tracking-tight">🏰 Memory Dungeon</p>
-        <p class="text-xs text-gray-400">
-          Level {{ level }} · {{ level * 10 }}ft below sanity
-        </p>
-      </div>
-
-      <div class="flex flex-col items-center gap-1" title="Lives remaining">
-        <div class="flex gap-1 text-xl">
-          <span
-            v-for="i in maxLives"
-            :key="i"
-            class="transition-all duration-300"
-            :class="i <= lives ? '' : 'grayscale opacity-25'"
-          >
-            ❤️
-          </span>
-        </div>
-        <div class="text-xs text-base-content/50">
-          HP {{ lives }}/{{ maxLives }}
-        </div>
-      </div>
-
-      <div class="flex flex-wrap items-center gap-2">
-        <div class="text-right leading-none">
-          <div class="text-lg font-bold tabular-nums">
-            {{ score.toLocaleString() }}
-          </div>
-          <div class="text-xs text-gray-400">
-            Best: {{ highScore.toLocaleString() }}
-          </div>
+      <div class="flex min-w-0 items-center gap-2 px-2 py-1.5 sm:px-3">
+        <div class="min-w-0 flex-1 leading-tight">
+          <p class="truncate text-sm font-black tracking-tight sm:text-base">
+            🏰 Memory Dungeon
+          </p>
+          <p class="truncate text-[10px] text-base-content/50 sm:text-xs">
+            Level {{ level }} · {{ level * 10 }}ft below sanity
+          </p>
         </div>
 
-        <select
-          v-model="memoryStore.selectedDifficulty"
-          class="rounded border border-base-content/20 bg-base-100 px-2 py-1 text-sm"
-          :disabled="gameStarted && !gameOver"
+        <div
+          class="flex shrink-0 flex-col items-center leading-none"
+          title="Lives remaining"
         >
-          <option
-            v-for="difficulty in memoryStore.difficulties"
-            :key="difficulty.label"
-            :value="difficulty"
-          >
-            {{ difficulty.label }}
-          </option>
-        </select>
+          <div class="flex gap-0.5 text-base sm:text-lg">
+            <span
+              v-for="i in maxLives"
+              :key="i"
+              class="transition-all duration-300"
+              :class="i <= lives ? '' : 'grayscale opacity-25'"
+            >
+              ❤️
+            </span>
+          </div>
+          <div class="mt-0.5 text-[10px] text-base-content/50">
+            HP {{ lives }}/{{ maxLives }}
+          </div>
+        </div>
 
-        <collection-picker
-          class="max-w-2xl"
-          title="Dungeon Deck"
-          :mode="memoryStore.cardSource.type"
-          :collection-id="memoryStore.cardSource.collectionId"
-          :collection-ids="memoryStore.cardSource.collectionIds"
-          :allow-multiple="true"
-          @change="handleCollectionPickerChange"
-        />
+        <div class="flex shrink-0 items-center gap-1">
+          <div
+            v-if="shieldActive"
+            class="flex h-8 items-center rounded-lg bg-blue-700 px-2 text-xs font-medium text-white"
+            title="Shield active"
+          >
+            🛡️ <span class="hidden sm:inline">Shield</span>
+          </div>
+
+          <button
+            v-for="powerup in powerups"
+            :key="powerup.id"
+            class="flex h-8 min-w-8 items-center justify-center rounded-lg bg-purple-700 px-1.5 text-xs font-medium text-white transition hover:bg-purple-600 active:scale-95 sm:px-2"
+            type="button"
+            :title="powerup.description"
+            @click="usePowerup(powerup)"
+          >
+            {{ powerup.icon }}
+            <span class="ml-1 hidden md:inline">{{ powerup.name }}</span>
+          </button>
+        </div>
 
         <button
-          class="rounded bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-blue-700 active:scale-95"
           type="button"
+          class="btn btn-ghost btn-sm h-8 min-h-8 shrink-0 rounded-xl px-2"
+          :class="configOpen ? 'btn-active' : ''"
+          title="Dungeon settings"
+          @click="configOpen = !configOpen"
+        >
+          ⚙️
+          <span class="hidden sm:inline">{{ deckSummary }}</span>
+        </button>
+
+        <button
+          class="btn btn-primary btn-sm h-8 min-h-8 shrink-0 rounded-xl px-2 text-base"
+          type="button"
+          title="Restart dungeon"
           @click="startGame"
         >
-          {{ gameStarted ? '↺ Restart' : '⚔️ Enter Dungeon' }}
+          ↺
         </button>
       </div>
+
+      <Transition name="fade-slide">
+        <div
+          v-if="configOpen"
+          class="absolute right-2 top-[calc(100%+0.5rem)] z-50 flex w-[calc(100vw-1rem)] max-w-lg flex-col gap-3 rounded-2xl border border-base-content/15 bg-base-100/95 p-3 text-base-content shadow-2xl backdrop-blur-md"
+        >
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <label class="flex items-center gap-2 text-sm font-semibold">
+              <span>Difficulty</span>
+              <select
+                v-model="memoryStore.selectedDifficulty"
+                class="select select-bordered select-sm rounded-xl bg-base-200"
+                :disabled="gameStarted && !gameOver"
+              >
+                <option
+                  v-for="difficulty in memoryStore.difficulties"
+                  :key="difficulty.label"
+                  :value="difficulty"
+                >
+                  {{ difficulty.label }}
+                </option>
+              </select>
+            </label>
+
+            <span
+              v-if="gameStarted && !gameOver"
+              class="text-xs text-base-content/50"
+            >
+              Difficulty changes on restart.
+            </span>
+          </div>
+
+          <collection-picker
+            title="Dungeon Deck"
+            :mode="memoryStore.cardSource.type"
+            :collection-id="memoryStore.cardSource.collectionId"
+            :collection-ids="memoryStore.cardSource.collectionIds"
+            @change="handleCollectionPickerChange"
+          />
+
+          <button
+            type="button"
+            class="btn btn-primary btn-sm self-end rounded-xl"
+            @click="startGame"
+          >
+            ↺ Restart with these settings
+          </button>
+        </div>
+      </Transition>
     </header>
 
     <Transition name="slide-down">
       <div
         v-if="challenge.active"
-        class="z-10 flex shrink-0 items-center justify-between gap-3 bg-yellow-500 px-4 py-2 text-black"
+        class="z-10 flex shrink-0 items-center justify-between gap-2 bg-yellow-500 px-3 py-1 text-black"
       >
-        <div class="flex items-center gap-3">
+        <div class="flex min-w-0 items-center gap-2">
           <img
             v-if="challenge.targetImagePath"
             :src="challenge.targetImagePath"
-            class="h-10 w-10 rounded border-2 border-black object-cover shadow"
+            class="h-8 w-8 shrink-0 rounded border-2 border-black object-cover shadow"
             alt="Challenge target"
           />
 
-          <div>
+          <div class="min-w-0 truncate">
             <span class="font-black">⚔️ CHALLENGE!</span>
             <span class="ml-2 hidden text-sm sm:inline">
               Match this card for <strong>3×</strong> points!
@@ -95,38 +150,11 @@
         </div>
 
         <div
-          class="font-mono text-xl font-bold tabular-nums"
+          class="shrink-0 font-mono text-base font-bold tabular-nums sm:text-lg"
           :class="challenge.timeLeft <= 5 ? 'animate-pulse text-red-800' : ''"
         >
           {{ challenge.timeLeft }}s
         </div>
-      </div>
-    </Transition>
-
-    <Transition name="fade">
-      <div
-        v-if="powerups.length > 0 || shieldActive"
-        class="flex shrink-0 items-center gap-2 border-b border-base-content/10 bg-base-100 px-4 py-1.5"
-      >
-        <span class="text-xs text-gray-400">Powerups:</span>
-
-        <div
-          v-if="shieldActive"
-          class="rounded bg-blue-700 px-2 py-0.5 text-xs font-medium text-white opacity-80"
-        >
-          🛡️ Shield Active
-        </div>
-
-        <button
-          v-for="powerup in powerups"
-          :key="powerup.id"
-          class="rounded bg-purple-700 px-2 py-0.5 text-xs font-medium text-white transition hover:bg-purple-600 active:scale-95"
-          type="button"
-          :title="powerup.description"
-          @click="usePowerup(powerup)"
-        >
-          {{ powerup.icon }} {{ powerup.name }}
-        </button>
       </div>
     </Transition>
 
@@ -186,9 +214,9 @@
           class="relative z-10 mt-auto flex flex-col items-center gap-3 px-4 pb-6 pt-6 sm:pb-10"
         >
           <div
-            class="flex w-full max-w-3xl flex-col gap-3 rounded-2xl border border-yellow-500/30 bg-black/65 p-3 text-yellow-100 shadow-2xl backdrop-blur sm:flex-row sm:items-center sm:justify-center"
+            class="flex w-full max-w-3xl flex-col gap-3 rounded-2xl border border-yellow-500/30 bg-black/65 p-3 text-yellow-100 shadow-2xl backdrop-blur sm:flex-row sm:items-start"
           >
-            <label class="flex items-center justify-center gap-2 text-sm">
+            <label class="flex shrink-0 items-center justify-center gap-2 text-sm">
               <span class="font-semibold">Difficulty:</span>
               <select
                 v-model="memoryStore.selectedDifficulty"
@@ -210,7 +238,6 @@
               :mode="memoryStore.cardSource.type"
               :collection-id="memoryStore.cardSource.collectionId"
               :collection-ids="memoryStore.cardSource.collectionIds"
-              :allow-multiple="true"
               @change="handleCollectionPickerChange"
             />
           </div>
@@ -293,7 +320,7 @@
 
     <!-- ─── PLAY LAYOUT (board + log, only in-game) ─────────── -->
     <div v-else class="flex min-h-0 flex-1 overflow-hidden">
-      <div ref="boardPanel" class="min-h-0 flex-1 overflow-hidden p-3 sm:p-4">
+      <div ref="boardPanel" class="min-h-0 flex-1 overflow-hidden p-2 sm:p-3">
         <div
           v-if="memoryStore.isLoading"
           class="flex h-full items-center justify-center"
@@ -375,7 +402,8 @@
       </div>
 
       <aside
-        class="hidden w-60 shrink-0 flex-col overflow-hidden border-l border-base-content/20 bg-base-300/95 text-base-content shadow-2xl backdrop-blur-md lg:flex xl:w-72"
+        v-if="logOpen"
+        class="hidden w-52 shrink-0 flex-col overflow-hidden border-l border-base-content/20 bg-base-300/95 text-base-content shadow-2xl backdrop-blur-md lg:flex xl:w-60"
       >
         <div
           class="shrink-0 border-b border-base-content/20 bg-base-100/80 px-3 py-2 text-xs font-black uppercase tracking-widest text-base-content"
@@ -420,35 +448,52 @@
 
     <footer
       v-if="gameStarted"
-      class="flex shrink-0 items-center justify-between border-t border-base-content/10 bg-base-300 px-4 py-2 text-sm"
+      class="flex shrink-0 items-center gap-2 border-t border-base-content/10 bg-base-300 px-2 py-1.5 text-xs sm:px-3 sm:text-sm"
     >
-      <div class="flex flex-wrap gap-4">
+      <div
+        class="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto whitespace-nowrap sm:gap-3"
+      >
         <span>
-          🔥 Streak: <strong>{{ streak }}</strong>
+          ⭐ <strong>{{ score.toLocaleString() }}</strong>
         </span>
 
-        <span class="hidden text-gray-400 sm:inline">|</span>
-
-        <span class="hidden sm:inline">
-          Pairs: <strong>{{ matchedPairs }}/{{ totalPairs }}</strong>
+        <span class="hidden text-base-content/50 sm:inline">
+          Best <strong>{{ highScore.toLocaleString() }}</strong>
         </span>
 
-        <span v-if="levelPairModifier !== 0" class="hidden text-info sm:inline">
+        <span>
+          🔥 <strong>{{ streak }}</strong>
+        </span>
+
+        <span>
+          🃏 <strong>{{ matchedPairs }}/{{ totalPairs }}</strong>
+        </span>
+
+        <span v-if="levelPairModifier !== 0" class="hidden text-info md:inline">
           Next floor:
           <strong>
-            {{ levelPairModifier > 0 ? '+' : '' }}{{ levelPairModifier }}
-            pairs
+            {{ levelPairModifier > 0 ? '+' : '' }}{{ levelPairModifier }} pairs
           </strong>
         </span>
       </div>
 
-      <button
-        class="text-xs text-blue-400 underline transition hover:text-blue-300"
-        type="button"
-        @click="isOpen = !isOpen"
-      >
-        {{ isOpen ? '▲ Hide' : '▼ Show' }} Leaderboard
-      </button>
+      <div class="flex shrink-0 items-center gap-1">
+        <button
+          class="btn btn-ghost btn-xs hidden rounded-lg lg:inline-flex"
+          type="button"
+          @click="logOpen = !logOpen"
+        >
+          📜 {{ logOpen ? 'Hide log' : 'Log' }}
+        </button>
+
+        <button
+          class="btn btn-ghost btn-xs rounded-lg"
+          type="button"
+          @click="isOpen = !isOpen"
+        >
+          🏆 <span class="hidden sm:inline">{{ isOpen ? 'Hide' : 'Leaders' }}</span>
+        </button>
+      </div>
     </footer>
 
     <Transition name="fade-slide">
@@ -500,7 +545,6 @@ import {
 } from 'vue'
 import type { CSSProperties } from 'vue'
 import { useArtStore } from '@/stores/artStore'
-import type { MemoryCardSourceType } from '@/stores/memoryStore'
 import type { CollectionPickerMode } from '@/components/art/collection-picker.vue'
 
 const artStore = useArtStore()
@@ -693,6 +737,8 @@ const CHALLENGE_FAIL_FLAVORS = [
 ]
 
 const isOpen = ref(false)
+const configOpen = ref(false)
+const logOpen = ref(false)
 const logPanel = ref<HTMLElement | null>(null)
 
 const maxLives = ref(STARTING_MAX_LIVES)
@@ -713,28 +759,54 @@ const shieldActive = ref(false)
 const powerups = ref<Powerup[]>([])
 const dungeonLog = ref<LogEntry[]>([])
 
+const deckSummary = computed(() => {
+  const source = memoryStore.cardSource
+
+  if (source.type === 'manual') return 'Custom art'
+
+  if (source.type === 'collection') {
+    return source.collectionId ? '1 collection' : 'All art'
+  }
+
+  if (source.type === 'collections') {
+    const count = source.collectionIds.length
+    if (!count) return 'All art'
+    return `${count} collection${count === 1 ? '' : 's'}`
+  }
+
+  return 'All art'
+})
+
 function handleCollectionPickerChange(value: {
   mode: CollectionPickerMode
   collectionId: number | null
   collectionIds: number[]
 }) {
-  if (value.mode === 'all') {
-    memoryStore.useAllArtImages()
-    return
-  }
-
-  if (value.mode === 'generated') {
-    memoryStore.useGeneratedArtImages()
-    return
-  }
+  if (value.mode === 'manual') return
 
   if (value.mode === 'collection') {
-    memoryStore.useCollection(value.collectionId)
+    memoryStore.useCollections(value.collectionId ? [value.collectionId] : [])
     return
   }
 
   if (value.mode === 'collections') {
     memoryStore.useCollections(value.collectionIds)
+    return
+  }
+
+  memoryStore.useAllArtImages()
+}
+
+function normalizeLegacyCardSource() {
+  const source = memoryStore.cardSource
+
+  if (source.type === 'generated') {
+    memoryStore.useAllArtImages()
+    return
+  }
+
+  if (source.type === 'collection') {
+    memoryStore.useCollections(source.collectionId ? [source.collectionId] : [])
   }
 }
 
@@ -963,6 +1035,7 @@ async function resetBoardForCurrentLevel() {
 }
 
 async function startGame() {
+  configOpen.value = false
   maxLives.value = STARTING_MAX_LIVES
   lives.value = STARTING_MAX_LIVES
   levelPairModifier.value = 0
@@ -1439,6 +1512,8 @@ function usePowerup(powerup: Powerup) {
 }
 
 onMounted(async () => {
+  normalizeLegacyCardSource()
+
   if (!achievementStore.highMatchScores.length) {
     await achievementStore.fetchHighMatchScores()
   }

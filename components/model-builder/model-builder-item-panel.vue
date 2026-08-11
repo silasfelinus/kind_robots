@@ -412,6 +412,16 @@ const canApproveAssets = computed(() => {
   // A regenerate in flight means the current artImageId is about to be
   // replaced — approving now would commit a candidate the user never saw.
   if (isGenerating.value || isQueued.value) return false
+  // 'stale' means an upstream edit (reopening PITCH/FIELDS_AND_PROMPTS) marked
+  // this stage stale via markDownstreamStale after a candidate was already
+  // generated — but markDownstreamStale never clears artImageId/imagePath, so
+  // the item still carries the pre-edit candidate. Without this check, "Keep
+  // this asset" stayed clickable and approveStage would commit that stale
+  // image straight through with no re-review, silently pairing it with the
+  // just-edited (different) pitch/fields/prompt. Require a fresh regenerate
+  // first — isEditable('GENERATE_ASSETS') already keeps Generate/Regenerate
+  // enabled while stale.
+  if (item.value.stages.GENERATE_ASSETS.status === 'stale') return false
   // For image outputs, require a generated candidate first.
   if (item.value.generation === 'image') return Boolean(item.value.artImageId)
   return true

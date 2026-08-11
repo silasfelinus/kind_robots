@@ -60,6 +60,7 @@
 import { computed, onMounted, watch } from 'vue'
 import { navigateTo, useRoute } from '#app'
 import type { ContentCollectionItem } from '@nuxt/content'
+import { preloadModelCards } from '@/stores/helpers/modelCards'
 import { usePageStore } from '@/stores/pageStore'
 
 type PagePayload = {
@@ -74,6 +75,10 @@ type NarratedContentPage = ContentCollectionItem & {
 
 type RedirectingContentPage = ContentCollectionItem & {
   redirect?: unknown
+}
+
+type CardContentPage = ContentCollectionItem & {
+  cards?: unknown
 }
 
 const route = useRoute()
@@ -203,7 +208,7 @@ const isPageLoading = computed(() => {
   )
 })
 
-function syncPageStore(): void {
+async function syncPageStore(): Promise<void> {
   if (isLoginPath.value) {
     pageStore.clearPage()
     pageStore.setLoading(false)
@@ -219,8 +224,18 @@ function syncPageStore(): void {
 
   if (error.value) return
 
-  if (activePage.value) {
-    pageStore.setPage(activePage.value)
+  const page = activePage.value
+  if (page) {
+    const resolvedPath = contentPath.value
+    const cards = (page as CardContentPage).cards
+
+    if (typeof cards === 'string') {
+      await preloadModelCards(cards)
+    }
+
+    if (contentPath.value !== resolvedPath || activePage.value !== page) return
+
+    pageStore.setPage(page)
     return
   }
 
@@ -240,20 +255,24 @@ function syncPageStore(): void {
  * first frame and then popped the art in. Title and description came from the
  * same store and had the same gap.
  *
- * onMounted still runs it, which is a harmless no-op re-set on the client and
+ * Workspace card catalogs are also preloaded here before pageStore receives the
+ * page. That keeps the card hand synchronous for SSR while allowing each deck to
+ * remain a route-local chunk instead of pinning every catalog into app startup.
+ *
+ * onMounted still runs it, which is a harmless cached re-set on the client and
  * still the right place to start the store's own async initialize and the
  * route watcher.
  */
-syncPageStore()
+await syncPageStore()
 
 onMounted(() => {
   pageStore.initialize()
-  syncPageStore()
+  void syncPageStore()
 
   watch(
     [activePage, status, error, contentPath, pagePayload, isLoginPath],
     () => {
-      syncPageStore()
+      void syncPageStore()
     },
     { flush: 'post' },
   )

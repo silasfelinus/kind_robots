@@ -51,12 +51,16 @@ check(
   'pages/[...slug].vue must import preloadModelCards.',
 )
 check(
-  /await\s+preloadModelCards\(cards\)/.test(slugPage),
-  'pages/[...slug].vue must await the content page deck before committing the page to Pinia.',
+  /await\s+preloadModelCards\(initialCards\)/.test(slugPage),
+  'pages/[...slug].vue must preload the initial content-page deck during SSR.',
 )
 check(
-  /await\s+syncPageStore\(\)/.test(slugPage),
-  'pages/[...slug].vue must await initial page-store synchronization during SSR.',
+  /await\s+preloadModelCards\(cards\)/.test(slugPage),
+  'pages/[...slug].vue must await route-navigation deck loads before committing the page to Pinia.',
+)
+check(
+  /\nsyncPageStore\(\)\n\nonMounted\(/.test(slugPage),
+  'pages/[...slug].vue must synchronously commit the preloaded initial page before onMounted so SSR and hydration agree.',
 )
 check(
   /getModelCards\(value\)/.test(pageStore),

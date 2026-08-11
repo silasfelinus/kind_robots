@@ -2,74 +2,23 @@
 <template>
   <section class="flex h-full min-h-0 w-full flex-col gap-4 overflow-hidden">
     <!--
-      THESE THREE USED TO BE A ROW OF THEIR OWN, right here, as a full-width
-      `justify-end` strip above the account panes. Silas, 2026-08-10: "Same dead
-      band holds refresh and log out on some pages. Fold them into the header
-      row too, so there is no strip between header and content."
+      NO ACCOUNT ROW HERE, and none teleported elsewhere either.
 
-      The strip carried two buttons and about 300px of nothing, on /dashboard,
-      /themes and /achievements — and the floating "?" landed on top of it,
-      which is how it got photographed. kr-header-actions teleports them into
-      the header's control strip, so the capability stays and the band is gone;
-      see that component for why a teleport rather than a store of descriptors
-      (Log Out has its own busy state, and descriptors cannot carry one).
+      This opened with a full-width `justify-end` strip holding Refresh and Log
+      Out. Silas asked for that band to go (2026-08-10), so the pair moved into
+      the header through kr-header-actions -- and when the header collapsed into
+      the account hub they landed in its panel, beside the hub's own reload and
+      logout. Silas, seeing that: "a refresh option that has the same icon as
+      our full refresh, but I have no idea what it does, and ANOTHER logout
+      button."
 
-      Labels are `hidden xl:inline`, and `xl` rather than `sm` is a measured
-      number, not a guess. Labelled, these two stand at 102px and 92px; icon-
-      only they are 46px each. The channel tab strip is the one shrinkable thing
-      in this row and it was already sitting on its own min-width floor at 768px
-      (112px, one tab) with them labelled — so showing text here spends 100px
-      the navigation does not have until the row is genuinely wide. At xl the
-      strip has 600px+ and can afford it.
-
-      The icons carry the meaning below that, and both buttons keep their full
-      text in `title`/`aria-label`, so nothing is lost to a screen reader or a
-      hover.
+      Two controls doing a job the hub already does, two clicks from the
+      controls that do it properly. So they are gone from here rather than moved
+      again: the hub's Reload restarts the app (a superset of this page's
+      store-level refresh) and its account menu owns logging out. This page
+      still refreshes its own data on mount, which is what actually populated
+      it -- the button was only ever a manual re-trigger.
     -->
-    <kr-header-actions>
-      <button
-        class="btn btn-ghost btn-sm rounded-xl"
-        type="button"
-        :disabled="isLoadingManager"
-        title="Refresh account data"
-        aria-label="Refresh account data"
-        @click="refreshManagerData(true)"
-      >
-        <span
-          v-if="isLoadingManager"
-          class="loading loading-spinner loading-xs"
-        />
-        <Icon v-else name="kind-icon:refresh" class="size-4" />
-        <span class="hidden xl:inline">Refresh</span>
-      </button>
-
-      <NuxtLink
-        v-if="!isLoggedIn"
-        to="/login"
-        class="btn btn-primary btn-sm rounded-xl"
-        title="Log in"
-        aria-label="Log in"
-      >
-        <Icon name="kind-icon:login" class="size-4" />
-        <span class="hidden xl:inline">Log In</span>
-      </NuxtLink>
-
-      <button
-        v-else
-        class="btn btn-error btn-sm rounded-xl"
-        type="button"
-        :disabled="isLoggingOut"
-        :title="isLoggingOut ? 'Logging out…' : 'Log out'"
-        :aria-label="isLoggingOut ? 'Logging out…' : 'Log out'"
-        @click="logout"
-      >
-        <span v-if="isLoggingOut" class="loading loading-spinner loading-xs" />
-        <Icon v-else name="kind-icon:logout" class="size-4" />
-        <span class="hidden xl:inline">
-          {{ isLoggingOut ? 'Logging out…' : 'Log Out' }}
-        </span>
-      </button>
-    </kr-header-actions>
 
     <div
       v-if="managerError"
@@ -185,7 +134,6 @@ const navStore = useNavStore()
 const userStore = useUserStore()
 const serverStore = useServerStore()
 
-const isLoggingOut = ref(false)
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
 
@@ -220,19 +168,6 @@ async function refreshManagerData(force = false) {
 onMounted(async () => {
   await refreshManagerData()
 })
-
-async function logout(): Promise<void> {
-  if (isLoggingOut.value) return
-
-  isLoggingOut.value = true
-
-  try {
-    userStore.logout()
-    await navigateTo('/login', { replace: true })
-  } finally {
-    isLoggingOut.value = false
-  }
-}
 
 function onAvatarChosen(_artImage: ArtImage): void {
   navStore.setDashboardTab(dashboardKey, 'profile', 'avatar chosen')

@@ -20,10 +20,7 @@
       it -- the button was only ever a manual re-trigger.
     -->
 
-    <div
-      v-if="managerError"
-      class="shrink-0 rounded-2xl border border-error/40 bg-error/10 p-4 text-error"
-    >
+    <div v-if="managerError" class="shrink-0 kr-note kr-note-error">
       {{ managerError }}
     </div>
 
@@ -104,7 +101,7 @@
 
     <div
       v-else
-      class="flex min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-4 text-warning"
+      class="flex min-h-0 flex-1 items-center justify-center kr-note kr-note-warning"
     >
       Unknown user tab: {{ activeTab }}
     </div>

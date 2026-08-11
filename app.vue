@@ -175,35 +175,21 @@
         </Transition>
       </section>
 
-      <div
-        class="pointer-events-auto fixed bottom-3 right-3 z-40 flex items-end gap-2"
-      >
-        <button
-          type="button"
-          class="kr-workspace-dock group relative shrink-0 overflow-hidden rounded-full border-2 border-primary/70 bg-base-100 shadow-2xl ring-2 ring-base-100/80 transition duration-200 hover:scale-105 hover:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-          :aria-label="bottomDockLabel"
-          :title="bottomDockLabel"
-          :aria-expanded="handOpen"
-          @click="toggleCards"
-        >
-          <div
-            class="absolute -inset-1 rounded-full bg-primary/20 opacity-0 blur-xl transition group-hover:opacity-100"
-          />
+      <!--
+        THE FLOATING CARD DOCK USED TO LIVE HERE, as a `fixed bottom-3 right-3`
+        circle that toggled the hand. Silas, 2026-08-11: "remove the front end
+        toggle for the card view, and put it in the login-manager menu ... no
+        other conditionals, just a toggle that controls whether the user sees
+        our hand navigation menu on the bottom of the page".
 
-          <span
-            class="relative flex h-full w-full items-center justify-center bg-primary/10 text-primary"
-          >
-            <Icon name="kind-icon:card" class="h-8 w-8" />
-          </span>
-
-          <span
-            class="absolute bottom-0.5 left-0.5 flex h-6 w-6 items-center justify-center rounded-full border border-base-300 bg-base-100/95 text-primary shadow"
-            aria-hidden="true"
-          >
-            <Icon :name="bottomDockActionIcon" class="h-3.5 w-3.5" />
-          </span>
-        </button>
-      </div>
+        It was the last floating control on the page, and it cost more than its
+        own footprint: the hand had to stop short of it horizontally (see the
+        note on `right` in footerVars below), so a button that only ever said
+        "show cards / hide cards" was permanently eating a corner of the cards
+        it toggled. Moving it into the account hub gives the hand the full
+        width back and puts the switch where every other app-level preference
+        already lives.
+      -->
 
       <template #fallback>
         <div
@@ -322,9 +308,12 @@ let xlMedia: MediaQueryList | null = null
  * and sceneChoices into the eager first-paint bundle for every visitor. It now
  * belongs to the dream interact surface, which loads it on demand.
  *
- * The dock is a plain two-state toggle: cards shown, or cards hidden.
+ * The hand is a plain two-state preference: cards shown, or cards hidden. It
+ * reads from navStore rather than a local ref because the switch that flips it
+ * now lives in the account hub -- a sibling several levels down, not an
+ * ancestor -- and because the preference is remembered across reloads.
  */
-const handOpen = ref(false)
+const { workspaceHandOpen: handOpen } = storeToRefs(navStore)
 
 function syncBreakpoints(): void {
   if (mdMedia) isMd.value = mdMedia.matches
@@ -333,13 +322,7 @@ function syncBreakpoints(): void {
 
 const SHEET_W_MD = '20rem'
 const SHEET_W_XL = '24rem'
-const DOCK_CIRCLE_MD = '4.5rem'
-const DOCK_CIRCLE_MOBILE = '5.25rem'
 const HAND_PANEL_H = '11.5rem'
-
-const dockCircle = computed(() => {
-  return isMd.value ? DOCK_CIRCLE_MD : DOCK_CIRCLE_MOBILE
-})
 
 const sheetWidth = computed(() => {
   if (!workspaceSheetOpen.value || !isMd.value) return '0px'
@@ -368,7 +351,6 @@ const footerHeight = computed(() => {
 const shellVars = computed<CSSProperties>(() => {
   return {
     '--sheet-w': sheetWidth.value,
-    '--dock-circle': dockCircle.value,
     '--footer-h': footerHeight.value,
     // Same measured height as --footer-h: the slot the hand sits in and the
     // padding the page reserves for it must be the same number, or the
@@ -382,34 +364,18 @@ const footerVars = computed<CSSProperties>(() => {
   return {
     left: 'var(--sheet-w)',
     /*
-     * Stop the hand before the dock button instead of running underneath it.
-     * The dock is a sibling overlay pinned bottom-right, so a footer ending at
-     * right:0 necessarily passes behind it — measured at 390px, the hand's
-     * right edge was 382 while the dock started at 294, so 88px of cards sat
-     * under the button and the last card could not be reached. Silas: "the
-     * toggle is still over the hand display ... [it] should stop horizontally
-     * before it hits the toggle."
-     *
-     * --dock-circle is the button's own size and 0.75rem matches its `right-3`
-     * inset, so this tracks the dock at every breakpoint rather than hardcoding
-     * a width that would drift the moment the button is resized.
+     * FULL WIDTH AGAIN. This used to read
+     * `calc(var(--dock-circle) + 0.75rem + 0.5rem)` so the hand would stop
+     * short of the floating card dock rather than run underneath it — measured
+     * at 390px, 88px of cards sat under the button and the last card could not
+     * be reached. That dock is gone (Silas moved the toggle into the account
+     * hub, 2026-08-11), so there is nothing in the bottom-right corner left to
+     * dodge and the cards get the width back.
      */
-    right: 'calc(var(--dock-circle) + 0.75rem + 0.5rem)',
+    right: '0px',
     height: 'var(--footer-h)',
   } as CSSProperties
 })
-
-const bottomDockLabel = computed(() =>
-  handOpen.value ? 'Hide cards' : 'Show cards',
-)
-
-const bottomDockActionIcon = computed(() =>
-  handOpen.value ? 'kind-icon:close' : 'kind-icon:card',
-)
-
-function toggleCards(): void {
-  handOpen.value = !handOpen.value
-}
 
 function setWorkspaceSheetOpen(value: boolean): void {
   navStore.setWorkspaceSheetOpen(value)
@@ -479,11 +445,6 @@ onBeforeUnmount(() => {
   padding-bottom: var(--footer-h);
 }
 
-.kr-workspace-dock {
-  height: var(--dock-circle);
-  width: var(--dock-circle);
-}
-
 @media (min-width: 768px) {
   .kr-main {
     padding-left: var(--sheet-w);
@@ -503,10 +464,29 @@ onBeforeUnmount(() => {
   transform: translateX(-1rem);
 }
 
+/*
+ * This rule used to be a dangling selector list — `.kr-hand-slide-enter-active,
+ * .kr-hand-slide-leave-active,` with a comma running straight into the
+ * @media below and no declaration block of its own. The parser swallowed
+ * both selectors into the at-rule's prelude, so the hand had no transition at
+ * all and the reduced-motion guard had nothing to guard. The guard existing is
+ * the evidence motion was intended here; this restores it, matching the
+ * sheet's timing above.
+ */
 .kr-hand-slide-enter-active,
-.kr-hand-slide-leave-active,
+.kr-hand-slide-leave-active {
+  transition:
+    opacity 240ms ease,
+    transform 240ms ease;
+}
+
+.kr-hand-slide-enter-from,
+.kr-hand-slide-leave-to {
+  opacity: 0;
+  transform: translateY(1rem);
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .kr-workspace-dock,
   .kr-hand-slide-enter-active,
   .kr-hand-slide-leave-active {
     transition: none;

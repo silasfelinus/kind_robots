@@ -39,9 +39,29 @@
       class="dropdown-content z-110 mt-2 kr-anchor-panes"
       @focusin="scheduleChannelMenuViewportUpdate"
     >
+      <!--
+        SIZED BY ITS OWN CONTENT, not by the tab lists. Silas, 2026-08-11:
+        "There is a weird gap with our channel selector, it looks like it's
+        always as large as the larger tab listings, but we would have room to
+        show the channel and tabs closer to their actual inline with their
+        header locations if we didn't make that choice."
+
+        He was reading it exactly right. This was `w-[min(22rem,...)]` — the
+        same literal 22rem the tab dropdown uses — so a list of five one-word
+        channel names was held open at the width of the longest TAB list on the
+        site. Measured on /dashboard at 1440: 352px of menu around 239px of
+        content, and the tab flyout consequently started at x=390 when the tab
+        control it stands in for sits at x=185 in the header.
+
+        `w-max` lets the four channel rows decide, with a floor so a short list
+        does not collapse into a sliver and the old 22rem kept as the cap for
+        narrow viewports (where it degrades to the viewport instead). The
+        flyout moves left by whatever the rows save, which is the whole of what
+        "closer to their header locations" asks for.
+      -->
       <ul
         ref="channelMenu"
-        class="menu w-[min(22rem,calc(100vw-1rem))] flex-nowrap overflow-x-hidden kr-anchor-scroll kr-panel-flat p-2 shadow-2xl"
+        class="menu w-max min-w-56 max-w-[min(22rem,calc(100vw-1rem))] flex-nowrap overflow-x-hidden kr-anchor-scroll kr-panel-flat p-2 shadow-2xl"
         :style="{
           maxHeight: `${channelMenuMaxHeight}px`,
           scrollbarGutter: 'stable',
@@ -107,12 +127,34 @@
             </button>
           </div>
 
+          <!--
+            THE BELOW-FALLBACK, AND IT IS INDENTED. Silas, 2026-08-11: the tabs
+            go to the right "unless we need the space, in which case there
+            still should be an indent."
+
+            `ms-5` plus the accent border is that indent: dropped below its
+            channel, a tab list has nothing but position to say which channel it
+            belongs to, and position alone reads as a sixth channel.
+
+            THIS PANEL IS ALLOWED TO WIDEN THE MENU, and that is not a
+            regression of the sizing fix above. Inline only ever runs where the
+            flyout could not fit — under about 582px — and at those widths the
+            menu's 14rem of channel names is sitting in a viewport with 350
+            spare. Pinning it (a `w-0 min-w-full` trick did exactly that in an
+            earlier pass) bought consistency at the price of a 173px-wide tab
+            list on a phone, with every summary ellipsised to three words.
+
+            What Silas objected to was the menu being 22rem "always", including
+            with nothing expanded. It now costs that width only while an inline
+            submenu is actually open, and only where opening one is the only
+            option.
+          -->
           <div
             v-if="
               submenuMode === 'inline' &&
               expandedChannelKey === channel.channelKey
             "
-            class="mt-1 rounded-xl border border-base-300/70 bg-base-200/60 p-1"
+            class="ms-5 mt-1 rounded-xl border border-base-300/70 border-s-2 border-s-primary/40 bg-base-200/60 p-1"
             :aria-label="channel.label + ' tabs'"
           >
             <ChannelTabList
@@ -183,6 +225,17 @@ const router = useRouter()
 const pageStore = usePageStore()
 const channelContentStore = useChannelContentStore()
 const expandedChannelKey = ref('')
+/*
+ * Whether the open submenu was opened by hovering rather than by pressing the
+ * chevron, so the chevron does not immediately undo the hover.
+ *
+ * Browsers synthesise mouseenter before click on a tap, so on a touch device
+ * wide enough for the flyout the two handlers fought each other: the tap's
+ * mouseenter opened the flyout, the tap's own click saw it already open and
+ * closed it, and the chevron did nothing at all. Every tablet was in that band
+ * once the menu narrowed and the flyout started fitting at 604px.
+ */
+const expandedByPointer = ref(false)
 const channelMenu = ref<HTMLElement | null>(null)
 const channelFlyout = ref<HTMLElement | null>(null)
 const channelFlyoutTop = ref(0)
@@ -275,6 +328,7 @@ function destinationTab(channel: ResolvedChannel): ResolvedTab | null {
 
 function closeChannelTabs(): void {
   expandedChannelKey.value = ''
+  expandedByPointer.value = false
   channelFlyoutColumns.value = 1
 }
 
@@ -404,6 +458,7 @@ function openChannelTabs(
 
   submenuMode.value = nextMode
   expandedChannelKey.value = channel.channelKey
+  expandedByPointer.value = !allowInline
   channelFlyoutColumns.value =
     nextMode === 'flyout' ? preferredFlyoutColumns(channel) : 1
 
@@ -418,6 +473,17 @@ function previewChannelTabs(channel: ResolvedChannel, event: Event): void {
 
 function toggleChannel(channel: ResolvedChannel, event: Event): void {
   if (expandedChannelKey.value === channel.channelKey) {
+    /*
+     * Already open, but only because the pointer passed over the row -- the
+     * user has not asked for it yet, so the first press CLAIMS it rather than
+     * dismissing it. Without this a tap is a no-op (see expandedByPointer) and
+     * a mouse user has to click the chevron twice to make a hover stick.
+     */
+    if (expandedByPointer.value) {
+      expandedByPointer.value = false
+      return
+    }
+
     closeChannelTabs()
     return
   }

@@ -101,6 +101,17 @@ const navFavoritesStorageKey = 'navFavorites'
 const dashboardTabsStorageKey = 'dashboardTabs'
 const wonderLabFolderStorageKey = 'wonderLabFolder'
 const workspaceSheetOpenStorageKey = 'workspaceSheetOpen'
+/*
+ * Whether the card hand shows along the bottom of every page. Silas,
+ * 2026-08-11: "just a toggle that controls whether the user sees our hand
+ * navigation menu on the bottom of the page, remembered in localstorage".
+ *
+ * It lives here rather than as app.vue local state because the control that
+ * flips it is now inside the account hub, which is not an ancestor of the hand
+ * -- and because "remembered" means it has to survive a reload, which a ref in
+ * a component setup does not.
+ */
+const workspaceHandOpenStorageKey = 'workspaceHandOpen'
 
 const isClient = typeof window !== 'undefined'
 
@@ -187,6 +198,7 @@ export const useNavStore = defineStore('navStore', () => {
 
   const dashboardShell = ref<DashboardShellState>(defaultDashboardShellState())
   const workspaceSheetOpen = ref(false)
+  const workspaceHandOpen = ref(false)
 
   const routeHistory = ref<string[]>([])
   const currentIndex = ref(-1)
@@ -290,6 +302,13 @@ export const useNavStore = defineStore('navStore', () => {
     )
   }
 
+  function syncWorkspaceHandOpenToLocalStorage(): void {
+    safeSetLocalStorage(
+      workspaceHandOpenStorageKey,
+      String(workspaceHandOpen.value),
+    )
+  }
+
   function hydrateDashboardTabsFromLocalStorage(force = false): void {
     if (dashboardTabsHydrated.value && !force) return
 
@@ -314,6 +333,13 @@ export const useNavStore = defineStore('navStore', () => {
   function hydrateWorkspaceSheetOpenFromLocalStorage(): void {
     workspaceSheetOpen.value = safeParseBoolean(
       safeGetLocalStorage(workspaceSheetOpenStorageKey),
+      false,
+    )
+  }
+
+  function hydrateWorkspaceHandOpenFromLocalStorage(): void {
+    workspaceHandOpen.value = safeParseBoolean(
+      safeGetLocalStorage(workspaceHandOpenStorageKey),
       false,
     )
   }
@@ -461,6 +487,7 @@ export const useNavStore = defineStore('navStore', () => {
     hydrateDashboardTabsFromLocalStorage(force)
     hydrateWonderLabFolderFromLocalStorage()
     hydrateWorkspaceSheetOpenFromLocalStorage()
+    hydrateWorkspaceHandOpenFromLocalStorage()
   }
 
   function applyIconsFromSmartbar(): void {
@@ -499,6 +526,7 @@ export const useNavStore = defineStore('navStore', () => {
       hydrateDashboardTabsFromLocalStorage()
       hydrateWonderLabFolderFromLocalStorage()
       hydrateWorkspaceSheetOpenFromLocalStorage()
+      hydrateWorkspaceHandOpenFromLocalStorage()
       return
     }
 
@@ -531,6 +559,7 @@ export const useNavStore = defineStore('navStore', () => {
         hydrateDashboardTabsFromLocalStorage(force)
         hydrateWonderLabFolderFromLocalStorage()
         hydrateWorkspaceSheetOpenFromLocalStorage()
+        hydrateWorkspaceHandOpenFromLocalStorage()
 
         isInitialized.value = false
       } finally {
@@ -704,6 +733,15 @@ export const useNavStore = defineStore('navStore', () => {
     syncWorkspaceSheetOpenToLocalStorage()
   }
 
+  function setWorkspaceHandOpen(value: boolean): void {
+    workspaceHandOpen.value = value
+    syncWorkspaceHandOpenToLocalStorage()
+  }
+
+  function toggleWorkspaceHand(): void {
+    setWorkspaceHandOpen(!workspaceHandOpen.value)
+  }
+
   function closeWorkspaceSheet(): void {
     setWorkspaceSheetOpen(false)
   }
@@ -745,6 +783,7 @@ export const useNavStore = defineStore('navStore', () => {
 
     dashboardShell,
     workspaceSheetOpen,
+    workspaceHandOpen,
 
     routeHistory,
     currentIndex,
@@ -799,6 +838,8 @@ export const useNavStore = defineStore('navStore', () => {
 
     setWorkspaceSheetOpen,
     toggleWorkspaceSheet,
+    setWorkspaceHandOpen,
+    toggleWorkspaceHand,
     showWorkspaceSheet,
     hideWorkspaceSheet,
 

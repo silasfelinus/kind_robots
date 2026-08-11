@@ -228,7 +228,7 @@
         </div>
 
         <maturity-toggle
-          v-if="showMaturityToggle && userStore.isLoggedIn"
+          v-if="showDashboardMaturityToggle && userStore.isLoggedIn"
           variant="resource"
         />
 
@@ -381,7 +381,7 @@ const unreadCount = computed(() =>
   canSeeNotifications.value ? notifications.unreadCount : 0,
 )
 
-const showMaturityToggle = computed(
+const showDashboardMaturityToggle = computed(
   () => maturityPreferenceStore.showDashboardMaturityToggle,
 )
 

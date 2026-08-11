@@ -54,7 +54,10 @@ assert.ok(videoLoraPicker.includes('<maturity-toggle'))
 assert.ok(videoLoraPicker.includes('resourceStore.visibleLoras'))
 assert.ok(!videoLoraPicker.includes('artStore.showMature'))
 
-const artLoraPicker = readFileSync('components/abandonware/art/lora-picker.vue', 'utf8')
+const artLoraPicker = readFileSync(
+  'components/abandonware/art/lora-picker.vue',
+  'utf8',
+)
 assert.ok(artLoraPicker.includes('<maturity-toggle'))
 assert.ok(artLoraPicker.includes('resourceStore.visibleLoras'))
 assert.ok(artLoraPicker.includes('availableLoraIds'))
@@ -119,15 +122,16 @@ assert.ok(
 )
 assert.ok(dashboardMaturityPreference.includes('initialize()'))
 
-const workspaceHeader = readFileSync(
-  'components/navigation/workspace-header.vue',
-  'utf8',
-)
+// Repointed 2026-08-10: the header was reduced to account hub / channel / tab
+// / tutorial, and every utility control moved inside the hub. The GATE is
+// unchanged and still asserted literally -- opt-in via the stored preference
+// AND authenticated -- it is simply read from the component that now renders
+// the toggle. Following the old path would assert against a file that no
+// longer mounts it, which passes while proving nothing.
+const accountHub = readFileSync('components/navigation/account-hub.vue', 'utf8')
 assert.ok(
-  workspaceHeader.includes(
-    'showDashboardMaturityToggle && userStore.isLoggedIn',
-  ),
-  'The workspace header must keep the maturity toggle opt-in and authenticated',
+  accountHub.includes('showDashboardMaturityToggle && userStore.isLoggedIn'),
+  'The account hub must keep the maturity toggle opt-in and authenticated',
 )
 
 const accountStore = readFileSync('stores/accountStore.ts', 'utf8')

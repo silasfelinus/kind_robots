@@ -15,7 +15,7 @@ export const useAnimationManagerStore = defineStore('animationManagerStore', () 
   const animationStore = useAnimationStore()
   const selectedSlug = ref<AnimationEffectId | null>(null)
 
-  const galleryItems = computed<AnimationEffect[]>(() => animationEffects)
+  const galleryItems = computed<readonly AnimationEffect[]>(() => animationEffects)
   const selectedItem = computed<AnimationEffect | null>(() => {
     if (!selectedSlug.value) return null
     return galleryItems.value.find((effect) => effect.id === selectedSlug.value) ?? null

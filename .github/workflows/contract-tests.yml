@@ -24,9 +24,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          # Full history (not the default shallow depth-1 clone) so the
-          # capture-group guard contract below can diff the PR branch against
-          # origin/main via a merge-base-aware `git diff`.
           fetch-depth: 0
 
       - name: Set up Node
@@ -43,42 +40,24 @@ jobs:
       - name: Art-request YAML indentation contract
         run: npm run test:art-request-yaml
 
-      # Rejects, at enqueue, the prompt shapes that rendered wrong on
-      # 2026-08-08: conditional instructions a diffusion model cannot evaluate,
-      # format nouns ("treasure-card illustration") that make it draw the object
-      # rather than the art, negation piles that land in positive conditioning
-      # at cfg 1, and distilled engines run above their trained guidance.
       - name: Art prompt contract
         run: npm run test:art-prompt-contract
 
-      # The other side of that gate. Re-applying the contract at claim time also
-      # killed 8 pre-gate backlog rows over a step count and had 27 more queued
-      # to die the same way, so the claim path now clamps the sampler to the
-      # engine's ceiling before asserting. This keeps enqueue a hard rejection
-      # while the backlog self-heals — and fails if either half drifts.
       - name: ArtJob sampler repair contract
         run: npm run test:artjob-sampler-repair
 
-      # Everything the site generates runs on Comfy. A1111 stays supported for a
-      # user's own server, but no site path may pick it and nothing may pick it
-      # by default -- resource previews hardcoded A1111 and died on a refused
-      # connection every time. Also pins the txt2img/img2img defaults Silas
-      # specified (krea2 8 steps/cfg 1; sdxl img2img) and that every lane picks
-      # a fresh random seed rather than emitting a literal -1.
       - name: Comfy-only generation contract
         run: npm run test:comfy-only-generation
 
       - name: Channel content contract
         run: npm run test:channel-content
 
-      # A Promise returned from a Pinia setup store becomes SSR state, and
-      # devalue cannot serialize one -- so it is a 500 on EVERY page. This was
-      # fixed by hand twice and came back both times, because devalue reports
-      # only the first offender it meets. 53 were returned repo-wide.
       - name: No Promise in Pinia store state
         run: npm run test:no-promise-in-store-state
+
       - name: UI tier vocabulary (workspace stays with navigation)
         run: npm run test:ui-tier-vocabulary
+
       - name: Card action contract (cards emit, galleries decide)
         run: npm run test:card-action-contract
 
@@ -91,78 +70,33 @@ jobs:
       - name: Gallery consistency contract
         run: npm run test:gallery-consistency
 
-      # Silas, 2026-08-10: "why show a blanked out option of this type." Narrow
-      # by design -- only a clear/reset control disabled purely because the
-      # thing it clears is absent. See the header of the script for why the
-      # other ~120 :disabled bindings in the repo are correct and untouched.
       - name: Disabled-affordance contract
         run: npm run test:disabled-affordances
 
-      # The route-level half of the gallery story. verifyGalleryAdoption asks
-      # "is component X on kr-gallery, and does SOME route reach it?" -- which
-      # passed for weeks while /facets rendered an admin table, and which still
-      # reports a gallery as "reached from /academy" because an image picker
-      # three hops away embeds one. This asks the user's question instead: for
-      # each route, does the page you land on render the shared shell, and is
-      # there exactly one browser per object?
       - name: Route gallery contract
         run: npm run test:route-gallery-contract
 
-      # Cast roles are almost entirely a STRING: a protagonist produces a
-      # different line in the story bible, and that line is all the narrator
-      # ever sees. Dropping the call leaves the picker working and the story
-      # generating, with nothing anywhere reporting that the lead was ignored.
       - name: Narrative roles contract
         run: npm run test:narrative-roles
 
-      # The casting board groups cast members into three tiers purely from
-      # their assigned role (t-011). Nothing asserted that grouping until
-      # now -- a future edit could silently move a role to the wrong tier,
-      # or collapse the branching back to one flat grid, with CI still green.
       - name: Narrative cast tiers contract
         run: npm run test:narrative-cast-tiers
 
       - name: Earned-karma wiring contract
         run: npm run test:earned-karma-wiring
 
-      # Orphan components: nothing in app.vue, pages/, layouts/ or a content MDC
-      # mount reaches them, even transitively. A grep cannot answer this — a
-      # cluster that only cites itself looks referenced from every angle except
-      # the one that matters. New orphans belong in components/abandonware/.
       - name: Component reachability contract
         run: npm run test:component-reachability
 
-      # Stage 3 rails: per-breakpoint page backdrop art + the surface tokens
-      # that let the shared kit go translucent over it. The failure this really
-      # guards is a backdrop key wired into three of its four sites — the page
-      # typechecks, the frontmatter validates, and the art just never arrives.
       - name: Page backdrop contract
         run: npm run test:page-backdrop
 
-      # The app's busiest route by 3x. Its CDN cacheability is a multiplier on
-      # database sessions, so a silent regression here shows up as a
-      # connection-capacity incident rather than as anything looking broken.
       - name: Art image caching contract
         run: npm run test:art-image-caching
 
-      # Offloading art bytes to the media share is the most destructive
-      # operation in the repo — it deletes image data. The properties that make
-      # it safe (explicit IMAGES_PATH opt-in, read-back verified before the
-      # delete, conditional write, never throws, runs after the completion
-      # proof) are invisible in review and catastrophic when lost.
       - name: ArtImage offload contract
         run: npm run test:art-image-offload
 
-      # t-099: ESLint as a ratcheted gate — never asks anyone to fix the
-      # pre-existing problems, only refuses NEW ones, per rule.
-      #
-      # INSIDE this job deliberately, not a parallel one. `Contract verifiers`
-      # is a required status check on main; a separate job would not be, so the
-      # gate would run and report without ever being able to block a merge — a
-      # check that cannot fail a PR is not a gate. The cost of keeping it here
-      # is measured and small: 36s of ESLint on a 94s job under a 10-minute
-      # budget. If this ever does need its own job, the required-checks list in
-      # the repo ruleset has to gain that job's name in the same change.
       - name: ESLint ratchet
         run: npm run test:lint-ratchet
 
@@ -209,7 +143,7 @@ jobs:
         run: npm run test:academy-starter-manifest
 
       - name: Academy examples manifest provenance contract
-        shell: bash # pipefail: `| tee` otherwise swallows the exit status
+        shell: bash
         run: npm run test:academy-examples-manifest 2>&1 | tee academy-examples-contract.txt
 
       - name: Academy style gallery disclosure contract
@@ -359,81 +293,12 @@ jobs:
       - name: Mana-gate on-behalf-of target authorization contract
         run: npm run test:mana-gate-on-behalf-of-target
 
-      - name: WonderLab reconciliation contract
-        run: npm run test:wonderlab-reconcile
-
-      - name: WonderLab reconciliation transaction timeout contract
-        run: npx tsx utils/scripts/verifyWonderLabReconcileTransaction.ts
-
-      - name: WonderLab test-fixture cleanup contract
-        run: npm run test:wonderlab-fixture-cleanup
-
-      - name: WonderLab core preview fixtures contract
-        run: npm run test:wonderlab-core-fixtures
-
-      - name: WonderLab visual preview fixtures contract
-        run: npm run test:wonderlab-visual-fixtures
-
-      - name: WonderLab UI preview fixtures contract
-        run: npm run test:wonderlab-ui-fixtures
-
-      - name: WonderLab achievement and navigation fixtures contract
-        run: npm run test:wonderlab-achievement-navigation-fixtures
-
-      - name: WonderLab passive card fixtures contract
-        run: npm run test:wonderlab-passive-card-fixtures
-
-      - name: Animation attempt Component conventions contract
-        run: npm run test:animation-component-attempts
-
       - name: Animation catalog contract
         run: npm run test:animation-catalog
 
-      - name: WonderLab learning and control fixtures contract
-        run: npx tsx utils/scripts/verifyWonderLabLearningControlFixtures.ts
-
-      - name: WonderLab Builder and Ruler Hooked fixtures contract
-        run: npx tsx utils/scripts/verifyWonderLabBuilderRulerFixtures.ts
-
-      - name: WonderLab interaction and display fixtures contract
-        run: npx tsx utils/scripts/verifyWonderLabInteractionDisplayFixtures.ts
-
-      - name: WonderLab final coverage fixtures contract
-        run: npx tsx utils/scripts/verifyWonderLabCoverageClosureFixtures.ts
-
-      - name: WonderLab component manifest source contract
-        run: npx tsx utils/scripts/verifyWonderLabComponentManifest.ts
-
-      - name: WonderLab registry health contract
-        run: npx tsx utils/scripts/verifyWonderLabRegistryHealth.ts
-
-      - name: WonderLab museum URL query contract
-        run: npx tsx utils/scripts/verifyWonderLabMuseumQuery.ts
-
-      - name: WonderLab single load-owner contract
-        run: npx tsx utils/scripts/verifyWonderLabLoadOwnership.ts
-
-      - name: WonderLab canonical manifest contract
-        run: npx tsx utils/scripts/verifyWonderLabCanonicalManifest.ts
-
-      - name: WonderLab reviewer affinity contract
-        run: npx tsx utils/scripts/verifyWonderLabReviewerAffinity.ts
-
-      - name: WonderLab review draft prompt contract
-        run: npx tsx utils/scripts/verifyWonderLabReviewDraftPrompt.ts
-
-      - name: Component canonical expand migration contract
-        run: npx tsx utils/scripts/verifyComponentCanonicalExpand.ts
-
-      - name: Component canonical runtime adoption contract
-        run: npx tsx utils/scripts/verifyComponentCanonicalRuntime.ts
-
-      - name: Component canonical client and fallback audit
-        run: npx tsx utils/scripts/verifyComponentCanonicalClients.ts
-
-      - name: WonderLab Component catalog metrics contract
-        run: npx tsx utils/scripts/verifyWonderLabComponentCatalog.ts
-
+      # These generic first-party author + draft contracts survive WonderLab.
+      # They are the foundation for moving the 706 authored voice pieces onto
+      # actual reviewable Kind Robots objects.
       - name: Reaction first-party author expand migration contract
         run: npx tsx utils/scripts/verifyReactionFirstPartyAuthorExpand.ts
 
@@ -455,24 +320,7 @@ jobs:
       - name: Review draft generation contract
         run: npx tsx utils/scripts/verifyReviewDraftGeneration.ts
 
-      - name: WonderLab reviewer voice diversity acceptance
-        run: npx tsx utils/scripts/verifyWonderLabReviewVoiceDiversity.ts
-
-      - name: WonderLab review batch planning contract
-        run: npx tsx utils/scripts/verifyWonderLabReviewBatchPlan.ts
-
-      - name: WonderLab review rollout audit contract
-        run: npx tsx utils/scripts/verifyWonderLabReviewRolloutAudit.ts
-
-      - name: WonderLab preview coverage no-regression gate
-        shell: bash # pipefail: `| tee` otherwise swallows the exit status
-        run: npm run audit:wonderlab-previews -- --strict 2>&1 | tee wonderlab-preview-audit.txt
-
       - name: Fetch main for capture-group guard diff
-        # actions/checkout only fetches the ref it checks out (the PR's
-        # merge ref, not a local `origin/main`), even with fetch-depth: 0 --
-        # this creates/updates that remote-tracking ref so the diff below
-        # has something to diff against.
         run: git fetch origin main
 
       - name: Capture-group guard contract (new/changed lines vs main)
@@ -485,7 +333,7 @@ jobs:
           npm run test:seed-contenders
 
       - name: Channel artwork audit
-        shell: bash # pipefail: `| tee` otherwise swallows the exit status
+        shell: bash
         run: npm run audit:channel-assets 2>&1 | tee channel-artwork-audit.txt
 
       - name: Upload contract diagnostics
@@ -496,6 +344,5 @@ jobs:
           path: |
             academy-examples-contract.txt
             channel-artwork-audit.txt
-            wonderlab-preview-audit.txt
           if-no-files-found: warn
           retention-days: 14

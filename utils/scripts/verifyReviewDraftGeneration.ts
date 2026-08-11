@@ -1,97 +1,41 @@
 // /utils/scripts/verifyReviewDraftGeneration.ts
-import './verifyWonderLabReviewGrounding'
-import './verifyWonderLabSourceEvidence'
+//
+// WonderLab's component-grounded review generator was retired on 2026-08-11.
+// Keep this script name temporarily because package/workflow callers already
+// reference it, but make the contract protect the new boundary: the museum
+// generator stays gone while generic first-party Reaction authorship remains.
 import assert from 'node:assert/strict'
-import { readFile } from 'node:fs/promises'
+import { existsSync, readFileSync } from 'node:fs'
 
-const generatorPath = 'server/utils/wonderLabReviewDraftGenerator.ts'
-const endpointPath = 'server/api/admin/wonderlab/review-drafts/generate.post.ts'
-const groundingGatePath = 'server/utils/wonderLabReviewGroundingGate.ts'
-const groundingPath = 'utils/wonderlab/reviewDraftGrounding.ts'
-const evidencePath = 'utils/wonderlab/componentSourceEvidence.mjs'
-const promptPath = 'utils/wonderlab/reviewDraftPrompt.ts'
-const pagePath = 'pages/admin/wonderlab-review-generator.vue'
-const repositoryPath = 'server/utils/reviewDraftRepository.ts'
+const retiredPaths = [
+  'server/utils/wonderLabReviewDraftGenerator.ts',
+  'server/utils/wonderLabReviewGroundingGate.ts',
+  'server/api/admin/wonderlab/review-drafts/generate.post.ts',
+  'pages/admin/wonderlab-review-generator.vue',
+  'utils/wonderlab/reviewDraftGrounding.ts',
+  'utils/wonderlab/reviewDraftPrompt.ts',
+]
 
-const generator = await readFile(generatorPath, 'utf8')
-const endpoint = await readFile(endpointPath, 'utf8')
-const groundingGate = await readFile(groundingGatePath, 'utf8')
-const grounding = await readFile(groundingPath, 'utf8')
-const evidence = await readFile(evidencePath, 'utf8')
-const prompt = await readFile(promptPath, 'utf8')
-const page = await readFile(pagePath, 'utf8')
-const repository = await readFile(repositoryPath, 'utf8')
+for (const path of retiredPaths) {
+  assert.equal(
+    existsSync(path),
+    false,
+    `${path} belongs to the retired WonderLab component-review generator`,
+  )
+}
 
-assert.match(endpoint, /requireAdminApiUser\(event\)/)
-assert.match(endpoint, /generateWonderLabReviewDraft/)
-assert.match(endpoint, /enforceWonderLabReviewGrounding/)
-assert.match(endpoint, /held for editorial safety review/)
-assert.match(endpoint, /openai review generation timed out/i)
-assert.doesNotMatch(endpoint, /publishReviewDraft/)
-assert.doesNotMatch(endpoint, /status:\s*'APPROVED'/)
-
-assert.match(groundingGate, /assertWonderLabReviewGrounding/)
-assert.match(groundingGate, /resolveWonderLabReviewSourceEvidence/)
-assert.match(groundingGate, /status: 'FAILED'/)
-assert.match(groundingGate, /Grounding validation failed/)
-assert.doesNotMatch(groundingGate, /status: 'APPROVED'/)
-assert.doesNotMatch(groundingGate, /publishReviewDraft/)
-
-assert.match(grounding, /requireGroundedSourceObservation/)
-assert.match(grounding, /declarativeSourceClaim && evidenceOverlap/)
-assert.match(grounding, /unsupported causal experience claim/)
-assert.match(grounding, /unsupported inference from identifiers/)
-assert.match(grounding, /unsupported visual deficiency judgment/)
-assert.match(grounding, /unverified device responsiveness/)
-assert.match(grounding, /unsupported source observations/)
-assert.match(grounding, /wonderLabSourceEvidenceByPath/)
-assert.doesNotMatch(
-  grounding,
-  /Generated review comment does not overlap the supplied Component source evidence/,
+const authorProjection = readFileSync(
+  'utils/reactions/firstPartyReactionAuthor.ts',
+  'utf8',
 )
+const repository = readFileSync('server/utils/reviewDraftRepository.ts', 'utf8')
 
-assert.match(evidence, /browserEvents/)
-assert.match(evidence, /requestAnimationFrame\|cancelAnimationFrame/)
-assert.match(evidence, /styleBindings/)
-assert.match(evidence, /cssAnimations/)
-assert.match(evidence, /storeCalls/)
+assert.match(authorProjection, /authorBotId/)
+assert.match(authorProjection, /authorCharacterId/)
+assert.match(repository, /authorBotId/)
+assert.match(repository, /authorCharacterId/)
+assert.doesNotMatch(repository, /wonderLabSourceEvidenceByPath/)
 
-assert.match(prompt, /Stars carry the evaluation/)
-assert.match(prompt, /Write the personality, not a report/)
-assert.match(prompt, /SOURCE-CODE EVIDENCE is private grounding material/)
-assert.match(prompt, /One word, one sentence/)
-assert.match(prompt, /A nonverbal reaction is valid/)
-assert.match(prompt, /do not force observation wording/)
-assert.match(prompt, /private factual anchors drawn from SOURCE-CODE EVIDENCE/)
-assert.doesNotMatch(prompt, /Use source-declarative language for structural evidence/)
-assert.doesNotMatch(prompt, /Make at least one concrete observation from the supplied source facts/)
-
-assert.match(generator, /buildWonderLabReviewDraftPrompt/)
-assert.match(generator, /rankWonderLabReviewers/)
-assert.match(generator, /prisma\.narratorThread\.findMany/)
-assert.match(generator, /response_format:[\s\S]*type: 'json_schema'/)
-assert.match(generator, /validateGeneratedPayload/)
-assert.match(generator, /MINIMUM_CONFIDENCE/)
-assert.match(generator, /MINIMUM_COMMENT_WORDS = 1/)
-assert.match(generator, /MAXIMUM_COMMENT_WORDS = 180/)
-assert.match(generator, /wonderlab-museum-visitor-commentary-v2/)
-assert.match(generator, /REVIEW_GENERATION_TIMEOUT_MS = 30_000/)
-assert.match(generator, /timed out before the serverless deadline/)
-assert.match(generator, /status: 'FAILED'/)
-assert.match(generator, /createReviewDraft/)
-assert.match(generator, /generationAttempt: attempt/)
-assert.doesNotMatch(generator, /INSERT\s+INTO\s+Reaction/i)
-assert.doesNotMatch(generator, /UPDATE\s+Reaction/i)
-assert.doesNotMatch(generator, /publishReviewDraft/)
-
-assert.match(repository, /generationAttempt\?: number/)
-assert.match(repository, /generationAttempt\n\s*\)/)
-assert.match(repository, /\$\{generationAttempt\}/)
-
-assert.match(page, /This creates a proposed draft only/)
-assert.match(page, /\/api\/admin\/wonderlab\/review-drafts\/generate/)
-assert.match(page, /Open curator workspace/)
-assert.doesNotMatch(page, /\/publish/)
-assert.doesNotMatch(page, /status:\s*'APPROVED'/)
-
-console.log('Review draft generation contract passed.')
+console.log(
+  'Review draft retirement contract passed: WonderLab generation is gone; generic first-party author infrastructure remains.',
+)

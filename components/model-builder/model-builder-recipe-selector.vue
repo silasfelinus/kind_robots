@@ -37,6 +37,7 @@
             : 'btn-ghost border border-base-300'
         "
         :disabled="store.startingRun"
+        :aria-pressed="store.recipeKey === recipe.key"
         @click="store.selectRecipe(recipe.key)"
       >
         <span class="flex items-center gap-1.5 text-xs font-bold">

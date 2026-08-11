@@ -1,7 +1,7 @@
 <!-- /components/content/story/memory-dungeon.vue -->
 <!-- root div -->
 <template>
-  <div class="kr-surface select-none gap-0 bg-(--kr-surface)">
+  <div class="kr-surface relative select-none gap-0 bg-(--kr-surface)">
     <header
       v-if="gameStarted"
       class="relative z-20 shrink-0 border-b border-base-content/10 bg-base-300 shadow-md"
@@ -20,7 +20,7 @@
           class="flex shrink-0 flex-col items-center leading-none"
           title="Lives remaining"
         >
-          <div class="flex gap-0.5 text-base sm:text-lg">
+          <div class="hidden gap-0.5 text-base sm:flex sm:text-lg">
             <span
               v-for="i in maxLives"
               :key="i"
@@ -30,6 +30,7 @@
               ❤️
             </span>
           </div>
+          <div class="text-xs font-black sm:hidden">❤️ {{ lives }}</div>
           <div class="mt-0.5 text-[10px] text-base-content/50">
             HP {{ lives }}/{{ maxLives }}
           </div>
@@ -87,9 +88,8 @@
             <label class="flex items-center gap-2 text-sm font-semibold">
               <span>Difficulty</span>
               <select
-                v-model="memoryStore.selectedDifficulty"
+                v-model="pendingDifficulty"
                 class="select select-bordered select-sm rounded-xl bg-base-200"
-                :disabled="gameStarted && !gameOver"
               >
                 <option
                   v-for="difficulty in memoryStore.difficulties"
@@ -105,15 +105,15 @@
               v-if="gameStarted && !gameOver"
               class="text-xs text-base-content/50"
             >
-              Difficulty changes on restart.
+              Changes apply when you restart.
             </span>
           </div>
 
           <collection-picker
             title="Dungeon Deck"
-            :mode="memoryStore.cardSource.type"
-            :collection-id="memoryStore.cardSource.collectionId"
-            :collection-ids="memoryStore.cardSource.collectionIds"
+            :mode="pendingCardSource.mode"
+            :collection-id="pendingCardSource.collectionId"
+            :collection-ids="pendingCardSource.collectionIds"
             @change="handleCollectionPickerChange"
           />
 
@@ -219,7 +219,7 @@
             <label class="flex shrink-0 items-center justify-center gap-2 text-sm">
               <span class="font-semibold">Difficulty:</span>
               <select
-                v-model="memoryStore.selectedDifficulty"
+                v-model="pendingDifficulty"
                 class="rounded-xl border border-yellow-500/30 bg-base-300 px-3 py-2 text-base-content outline-none"
               >
                 <option
@@ -235,9 +235,9 @@
             <collection-picker
               class="min-w-0 flex-1"
               title="Dungeon Deck"
-              :mode="memoryStore.cardSource.type"
-              :collection-id="memoryStore.cardSource.collectionId"
-              :collection-ids="memoryStore.cardSource.collectionIds"
+              :mode="pendingCardSource.mode"
+              :collection-id="pendingCardSource.collectionId"
+              :collection-ids="pendingCardSource.collectionIds"
               @change="handleCollectionPickerChange"
             />
           </div>
@@ -245,10 +245,10 @@
           <!-- Start / Back buttons always visible below the config row -->
           <div class="flex w-full flex-col items-center gap-3 px-3 sm:px-4">
             <button
-              v-if="memoryStore.cardSource.type !== 'all'"
+              v-if="pendingCardSource.mode !== 'all'"
               type="button"
               class="rounded-full border border-yellow-500/40 bg-black/50 px-4 py-2 text-sm font-semibold text-yellow-300 transition hover:bg-black/70 active:scale-95"
-              @click="memoryStore.useAllArtImages()"
+              @click="useAllPendingArt"
             >
               ← All Images
             </button>
@@ -319,7 +319,7 @@
     </div>
 
     <!-- ─── PLAY LAYOUT (board + log, only in-game) ─────────── -->
-    <div v-else class="flex min-h-0 flex-1 overflow-hidden">
+    <div v-else class="relative flex min-h-0 flex-1 overflow-hidden">
       <div ref="boardPanel" class="min-h-0 flex-1 overflow-hidden p-2 sm:p-3">
         <div
           v-if="memoryStore.isLoading"
@@ -403,12 +403,20 @@
 
       <aside
         v-if="logOpen"
-        class="hidden w-52 shrink-0 flex-col overflow-hidden border-l border-base-content/20 bg-base-300/95 text-base-content shadow-2xl backdrop-blur-md lg:flex xl:w-60"
+        class="absolute inset-y-2 left-2 right-2 z-40 flex flex-col overflow-hidden rounded-2xl border border-base-content/20 bg-base-300/95 text-base-content shadow-2xl backdrop-blur-md sm:left-auto sm:w-72 xl:w-80"
       >
         <div
-          class="shrink-0 border-b border-base-content/20 bg-base-100/80 px-3 py-2 text-xs font-black uppercase tracking-widest text-base-content"
+          class="flex shrink-0 items-center justify-between gap-2 border-b border-base-content/20 bg-base-100/80 px-3 py-2 text-xs font-black uppercase tracking-widest text-base-content"
         >
-          📜 Dungeon Log
+          <span>📜 Dungeon Log</span>
+          <button
+            type="button"
+            class="btn btn-ghost btn-xs rounded-lg"
+            aria-label="Close dungeon log"
+            @click="logOpen = false"
+          >
+            ✕
+          </button>
         </div>
 
         <div ref="logPanel" class="flex-1 overflow-y-auto p-2">
@@ -479,11 +487,11 @@
 
       <div class="flex shrink-0 items-center gap-1">
         <button
-          class="btn btn-ghost btn-xs hidden rounded-lg lg:inline-flex"
+          class="btn btn-ghost btn-xs rounded-lg"
           type="button"
           @click="logOpen = !logOpen"
         >
-          📜 {{ logOpen ? 'Hide log' : 'Log' }}
+          📜 <span class="hidden sm:inline">{{ logOpen ? 'Hide log' : 'Log' }}</span>
         </button>
 
         <button
@@ -499,9 +507,19 @@
     <Transition name="fade-slide">
       <div
         v-if="isOpen && gameStarted"
-        class="max-h-44 shrink-0 overflow-y-auto border-t border-base-content/10 bg-base-100 px-4 py-3"
+        class="absolute bottom-10 left-2 right-2 z-40 max-h-[min(45dvh,20rem)] overflow-y-auto rounded-2xl border border-base-content/15 bg-base-100/95 px-4 py-3 shadow-2xl backdrop-blur-md sm:left-auto sm:w-96"
       >
-        <h2 class="mb-2 text-sm font-bold">🏆 Global Leaderboard</h2>
+        <div class="mb-2 flex items-center justify-between gap-2">
+          <h2 class="text-sm font-bold">🏆 Global Leaderboard</h2>
+          <button
+            type="button"
+            class="btn btn-ghost btn-xs rounded-lg"
+            aria-label="Close leaderboard"
+            @click="isOpen = false"
+          >
+            ✕
+          </button>
+        </div>
 
         <table class="w-full table-auto text-xs">
           <thead>
@@ -598,7 +616,17 @@ type MemoryStoreWithFlexibleReset = typeof memoryStore & {
 const memoryStore = useMemoryStore()
 const achievementStore = useAchievementStore()
 
-const STARTING_MAX_LIVES = 3
+const pendingDifficulty = ref(memoryStore.selectedDifficulty)
+const pendingCardSource = reactive<{
+  mode: CollectionPickerMode
+  collectionId: number | null
+  collectionIds: number[]
+}>({
+  mode: 'all',
+  collectionId: null,
+  collectionIds: [],
+})
+
 const MAX_POSSIBLE_LIVES = 8
 const MIN_LEVEL_PAIRS = 4
 const MAX_LEVEL_PAIRS = 18
@@ -741,8 +769,8 @@ const configOpen = ref(false)
 const logOpen = ref(false)
 const logPanel = ref<HTMLElement | null>(null)
 
-const maxLives = ref(STARTING_MAX_LIVES)
-const lives = ref(STARTING_MAX_LIVES)
+const maxLives = ref(memoryStore.selectedDifficulty.lives)
+const lives = ref(memoryStore.selectedDifficulty.lives)
 const levelPairModifier = ref(0)
 const score = ref(0)
 const highScore = ref(0)
@@ -784,13 +812,62 @@ function handleCollectionPickerChange(value: {
 }) {
   if (value.mode === 'manual') return
 
-  if (value.mode === 'collection') {
-    memoryStore.useCollections(value.collectionId ? [value.collectionId] : [])
+  pendingCardSource.mode =
+    value.mode === 'collection' ? 'collections' : value.mode
+  pendingCardSource.collectionId = null
+  pendingCardSource.collectionIds =
+    value.mode === 'collection' && value.collectionId
+      ? [value.collectionId]
+      : [...value.collectionIds]
+}
+
+function useAllPendingArt() {
+  pendingCardSource.mode = 'all'
+  pendingCardSource.collectionId = null
+  pendingCardSource.collectionIds = []
+}
+
+function syncPendingSettings() {
+  pendingDifficulty.value = memoryStore.selectedDifficulty
+
+  const source = memoryStore.cardSource
+
+  if (source.type === 'manual') {
+    pendingCardSource.mode = 'manual'
+    pendingCardSource.collectionId = null
+    pendingCardSource.collectionIds = []
     return
   }
 
-  if (value.mode === 'collections') {
-    memoryStore.useCollections(value.collectionIds)
+  if (source.type === 'collection' && source.collectionId) {
+    pendingCardSource.mode = 'collections'
+    pendingCardSource.collectionId = null
+    pendingCardSource.collectionIds = [source.collectionId]
+    return
+  }
+
+  if (source.type === 'collections' && source.collectionIds.length) {
+    pendingCardSource.mode = 'collections'
+    pendingCardSource.collectionId = null
+    pendingCardSource.collectionIds = [...source.collectionIds]
+    return
+  }
+
+  pendingCardSource.mode = 'all'
+  pendingCardSource.collectionId = null
+  pendingCardSource.collectionIds = []
+}
+
+function applyPendingSettings() {
+  memoryStore.selectedDifficulty = pendingDifficulty.value
+
+  if (pendingCardSource.mode === 'manual') return
+
+  if (
+    pendingCardSource.mode === 'collections' &&
+    pendingCardSource.collectionIds.length
+  ) {
+    memoryStore.useCollections(pendingCardSource.collectionIds)
     return
   }
 
@@ -902,7 +979,7 @@ const boardLayout = computed(() => {
 
   return {
     ...best,
-    size: Math.max(48, Math.min(best.size, 260)),
+    size: Math.max(1, Math.min(best.size, 260)),
   }
 })
 
@@ -1036,8 +1113,11 @@ async function resetBoardForCurrentLevel() {
 
 async function startGame() {
   configOpen.value = false
-  maxLives.value = STARTING_MAX_LIVES
-  lives.value = STARTING_MAX_LIVES
+  isOpen.value = false
+  logOpen.value = false
+  applyPendingSettings()
+  maxLives.value = memoryStore.selectedDifficulty.lives
+  lives.value = maxLives.value
   levelPairModifier.value = 0
   score.value = 0
   level.value = 1
@@ -1513,6 +1593,7 @@ function usePowerup(powerup: Powerup) {
 
 onMounted(async () => {
   normalizeLegacyCardSource()
+  syncPendingSettings()
 
   if (!achievementStore.highMatchScores.length) {
     await achievementStore.fetchHighMatchScores()

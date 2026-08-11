@@ -1,5 +1,4 @@
 // /nuxt.config.ts
-import { execFileSync } from 'node:child_process'
 import tailwindcss from '@tailwindcss/vite'
 import { DEFAULT_STARTUP_ANIMATION_SRC } from './utils/startupAnimations'
 
@@ -11,20 +10,6 @@ const requireEnv = (key: string) => {
   }
 
   return value
-}
-
-function generateWonderLabComponentMetadata(): void {
-  try {
-    const output = execFileSync(
-      process.execPath,
-      ['utils/scripts/create-component-json.mjs'],
-      { encoding: 'utf8' },
-    )
-    console.log(output.trim())
-  } catch (error) {
-    console.error('Failed to generate WonderLab component metadata:', error)
-    throw error
-  }
 }
 
 const buildId =
@@ -144,8 +129,6 @@ const startupPrehydrateScript = `(() => {
   link.fetchPriority = 'high'
   document.head.appendChild(link)
 })()`
-
-generateWonderLabComponentMetadata()
 
 export default defineNuxtConfig({
   compatibilityDate: '2026-06-01',
@@ -311,8 +294,9 @@ export default defineNuxtConfig({
   /*
    * Keep retired public entry points useful instead of turning bookmarks into
    * dead ends. Memory Dungeon moved from /memory to /play/memory when Lab was
-   * dissolved. WonderLab Museum remains available at its canonical
-   * /plan/wonderlab route.
+   * dissolved. WonderLab was retired on 2026-08-11, so its legacy entry point
+   * now falls back to the broader Plan channel rather than keeping the museum
+   * implementation alive.
    *
    * Storymaker was renamed to Storybook on 2026-08-02 (interface-vision t-002).
    * 301 redirects are intentional because these legacy paths are permanent
@@ -320,7 +304,7 @@ export default defineNuxtConfig({
    */
   routeRules: {
     '/memory': { redirect: { to: '/play/memory', statusCode: 301 } },
-    '/wonderlab': { redirect: { to: '/plan/wonderlab', statusCode: 301 } },
+    '/wonderlab': { redirect: { to: '/plan', statusCode: 301 } },
     '/storymaker': { redirect: { to: '/storybook', statusCode: 301 } },
   },
 

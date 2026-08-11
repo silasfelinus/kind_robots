@@ -168,6 +168,8 @@
     "test:model-builder-commit-name-field-guard": "tsx utils/scripts/verifyModelBuilderCommitNameFieldGuard.ts",
     "test:model-builder-commit-stale-snapshot-guard-selftest": "tsx utils/scripts/verifyModelBuilderCommitStaleSnapshotGuard.test.ts",
     "test:model-builder-commit-stale-snapshot-guard": "tsx utils/scripts/verifyModelBuilderCommitStaleSnapshotGuard.ts",
+    "test:model-builder-reset-all-guard-selftest": "tsx utils/scripts/verifyModelBuilderResetAllGuard.test.ts",
+    "test:model-builder-reset-all-guard": "tsx utils/scripts/verifyModelBuilderResetAllGuard.ts",
     "test:kontext-mask-forwarding": "tsx utils/scripts/verifyKontextMaskForwarding.ts",
     "test:pod-vendor-client-selftest": "tsx utils/scripts/verifyPodVendorClient.test.ts",
     "test:mana-gate-on-behalf-of-target": "tsx utils/scripts/verifyManaGateOnBehalfOfTarget.ts",

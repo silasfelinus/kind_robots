@@ -293,6 +293,12 @@ jobs:
       - name: Model Builder resetAll guard contract
         run: npm run test:model-builder-reset-all-guard
 
+      - name: Model Builder resetRun guard checker self-test
+        run: npm run test:model-builder-reset-run-guard-selftest
+
+      - name: Model Builder resetRun guard contract
+        run: npm run test:model-builder-reset-run-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

@@ -1893,6 +1893,20 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   function resetRun(): void {
     state.run = null
     state.step = state.selectedSource ? 'recipe' : 'source'
+    // Clear the same store-wide "who's in flight" singletons resetAll() clears
+    // (see its comment) -- resetRun() is reachable from ordinary UI clicks
+    // ("New run" in the progress matrix and run history, plus cancelRun()
+    // cancelling the active run) without going through resetAll(), so it was
+    // leaking the same stale-busy-indicator bug through a second path: e.g.
+    // starting a batch on output group "rewards" in Run A, then resetting to
+    // Run B before it finishes left Run B's same-named "rewards" batch
+    // controls reading busy until Run A's abandoned call happened to resolve.
+    state.generatingItemId = null
+    state.committingItemId = null
+    state.autoBuilding = false
+    state.autoBuildingItemId = null
+    state.batchingOutputKey = null
+    draftingField.value = null
     safeRemove(runIdKey)
     clearStatus()
   }

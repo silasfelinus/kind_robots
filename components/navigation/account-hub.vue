@@ -17,10 +17,15 @@
   role), as well as mana and token counts, then notifications."
 
     1. who you are      — and a button, because it opens the account menu
-    2. tools            — server picker, app reload
-    3. wallet           — karma and mana
-    4. notifications
-    5. maturity         — a preference, so it sits under the things it affects
+    2. tools            — server, reload, card hand, karma, mana
+    3. notifications
+    4. maturity         — a preference, so it sits under the things it affects
+
+  Tools and wallet were two rows until Silas collapsed them (2026-08-11:
+  "karma and mana should be inline with the server and reload icons"), and the
+  card-hand switch joined them a message later ("needs no explanation text and
+  sho[ul]d be in line between the refresh icon and the mana/karma section").
+  One strip of small controls, in his stated order.
 
   WHY ACCOUNT SWITCHING IS NESTED. The first version put the saved-login list,
   Save, Add and Logout on the panel directly, which meant the signed-in user
@@ -273,14 +278,43 @@
           <Icon name="kind-icon:refresh" class="h-4 w-4" />
         </button>
 
-        <!-- Renders nothing until the cart has items, so it costs no row on
-             the pages where there is nothing to check out. -->
-        <cart-button />
+        <!--
+          THE CARD HAND SWITCH, and it is just an icon. Silas, 2026-08-11: "the
+          card hand option needs no explanation text and sho[ul]d be in line
+          between the refresh icon and the mana/karma section."
+
+          It shipped a moment ago as a full-width labelled row with a
+          description underneath, which was the right shape when it sat alone
+          under a heading and the wrong one the moment this row existed. In a
+          strip of icons it is an icon: pressed state carries "on", the title
+          and aria-label carry the explanation, and the hand itself appearing
+          at the bottom of the screen is the rest of it.
+
+          `aria-pressed` rather than a checkbox, because that is what a toggle
+          button is -- the input version needed a <label> and visible text to
+          be reachable at all, which is exactly the text that had to go.
+        -->
+        <button
+          type="button"
+          class="btn btn-sm btn-square rounded-xl"
+          :class="navStore.workspaceHandOpen ? 'btn-primary' : 'btn-ghost'"
+          :aria-pressed="navStore.workspaceHandOpen"
+          :title="cardHandLabel"
+          :aria-label="cardHandLabel"
+          @click="navStore.toggleWorkspaceHand"
+        >
+          <Icon name="kind-icon:cards" class="h-4 w-4" />
+        </button>
 
         <template v-if="userStore.isLoggedIn">
           <karma-widget class="shrink-0" />
           <mana-widget class="shrink-0" />
         </template>
+
+        <!-- Renders nothing until the cart has items, so it costs no row on
+             the pages where there is nothing to check out. Last, so it cannot
+             come between the refresh and the wallet. -->
+        <cart-button />
       </div>
 
       <!-- 4. NOTIFICATIONS. The badge on the avatar is the summary; this is
@@ -336,56 +370,9 @@
         </div>
       </section>
 
-      <!--
-        5. PREFERENCES, rather than actions, so they sit last.
-
-        THE CARD HAND SWITCH USED TO BE A FLOATING BUTTON pinned to the
-        bottom-right corner of every page. Silas, 2026-08-11: "remove the front
-        end toggle for the card view, and put it in the login-manager menu. It
-        needs a real icon, but that's it, and no other conditionals, just a
-        toggle that controls whether the user sees our hand navigation menu on
-        the bottom of the page, remembered in localstorage."
-
-        "No other conditionals" is why this one carries no `v-if` at all, unlike
-        the maturity toggle below it — the hand is chrome every visitor sees,
-        signed in or not, so gating the switch on a login would strand guests
-        with whatever state they happened to land on.
-      -->
-      <label
-        class="flex cursor-pointer items-center justify-between gap-3 kr-panel-flat px-3 py-2"
-        title="Show or hide the card hand along the bottom of the page"
-      >
-        <span class="flex min-w-0 items-center gap-3">
-          <span
-            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
-            :class="
-              navStore.workspaceHandOpen
-                ? 'bg-primary/15 text-primary'
-                : 'bg-base-200 text-base-content/55'
-            "
-          >
-            <Icon name="kind-icon:cards" class="h-5 w-5" />
-          </span>
-
-          <span class="min-w-0">
-            <span class="block text-sm font-bold text-base-content">
-              Card hand
-            </span>
-            <span class="block text-xs text-base-content/55">
-              Navigation cards along the bottom of the page.
-            </span>
-          </span>
-        </span>
-
-        <input
-          type="checkbox"
-          class="toggle toggle-primary toggle-sm shrink-0"
-          :checked="navStore.workspaceHandOpen"
-          aria-label="Show the card hand"
-          @change="onCardHandChange"
-        />
-      </label>
-
+      <!-- 5. MATURITY, a preference rather than an action, so it sits last.
+              The card-hand switch used to live down here as a labelled row;
+              it is now an icon in the tools strip above. -->
       <maturity-toggle
         v-if="showDashboardMaturityToggle && userStore.isLoggedIn"
         variant="resource"
@@ -474,9 +461,18 @@ function handlePointerDown(event: PointerEvent) {
   }
 }
 
-function onCardHandChange(event: Event): void {
-  navStore.setWorkspaceHandOpen((event.target as HTMLInputElement).checked)
-}
+/**
+ * The card-hand button's whole explanation, now that it has no visible text.
+ *
+ * It states the ACTION rather than the state, because that is what a title on
+ * a toggle button is read as ("Show the card hand" while hidden); the pressed
+ * styling and aria-pressed carry the state.
+ */
+const cardHandLabel = computed(() =>
+  navStore.workspaceHandOpen
+    ? 'Hide the card hand at the bottom of the page'
+    : 'Show the card hand at the bottom of the page',
+)
 
 function captureCurrent() {
   store.captureCurrentSession()

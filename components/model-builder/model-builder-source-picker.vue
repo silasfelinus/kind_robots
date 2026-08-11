@@ -23,6 +23,8 @@
               : 'btn-ghost text-base-content/50'
           "
           :title="mode.label"
+          :aria-label="`${mode.label} view`"
+          :aria-pressed="viewMode === mode.value"
           @click="setViewMode(mode.value)"
         >
           <Icon :name="mode.icon" class="h-3.5 w-3.5" />
@@ -42,6 +44,7 @@
             ? 'btn-primary'
             : 'btn-ghost border border-base-300 text-base-content/70'
         "
+        :aria-pressed="store.sourceType === type.key"
         @click="store.selectSourceType(type.key)"
       >
         <Icon :name="type.icon" class="h-4 w-4" />

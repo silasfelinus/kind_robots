@@ -142,6 +142,7 @@
 import { computed } from 'vue'
 import {
   duplicateSingularRoles,
+  narrativeCastTier,
   narrativeRoleLabel,
 } from '@/utils/narrativeRoles'
 import type { NarrativeIngredientOption } from '@/utils/narrativeIngredients'
@@ -167,27 +168,24 @@ const roleFor = (slug: string): string | null => props.modelValue[slug] ?? null
  * neither has been given prominence.
  */
 const protagonists = computed(() =>
-  props.members.filter((member) => roleFor(member.slug) === 'protagonist'),
+  props.members.filter(
+    (member) => narrativeCastTier(roleFor(member.slug)) === 'protagonist',
+  ),
 )
 const antagonists = computed(() =>
-  props.members.filter((member) => roleFor(member.slug) === 'antagonist'),
+  props.members.filter(
+    (member) => narrativeCastTier(roleFor(member.slug)) === 'antagonist',
+  ),
 )
 const supportingCast = computed(() =>
-  props.members.filter((member) => {
-    const role = roleFor(member.slug)
-    return (
-      role !== null &&
-      role !== 'protagonist' &&
-      role !== 'antagonist' &&
-      role !== 'ensemble'
-    )
-  }),
+  props.members.filter(
+    (member) => narrativeCastTier(roleFor(member.slug)) === 'support',
+  ),
 )
 const backCast = computed(() =>
-  props.members.filter((member) => {
-    const role = roleFor(member.slug)
-    return role === null || role === 'ensemble'
-  }),
+  props.members.filter(
+    (member) => narrativeCastTier(roleFor(member.slug)) === 'back',
+  ),
 )
 
 function toggle(slug: string, key: string): void {

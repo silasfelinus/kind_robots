@@ -373,6 +373,13 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     activeCandidates.value.filter((candidate) => candidate.status === 'kept'),
   )
 
+  // Kept candidates across every batch in the working session, not just the
+  // active one -- the natural surface for a session-wide copy/export handoff
+  // (t-011), since a user may keep ideas from several batches before exporting.
+  const allKeptCandidates = computed(() =>
+    candidates.value.filter((candidate) => candidate.status === 'kept'),
+  )
+
   const rejectedCandidates = computed(() =>
     activeCandidates.value.filter((candidate) => candidate.status === 'rejected'),
   )
@@ -1279,6 +1286,7 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     activeBatch,
     activeCandidates,
     keptCandidates,
+    allKeptCandidates,
     rejectedCandidates,
     pendingCandidates,
     minimumMixResults,

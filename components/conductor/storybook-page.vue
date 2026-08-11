@@ -118,7 +118,7 @@
 
         <section
           v-if="setupStep === 0"
-          class="space-y-5 rounded-2xl border border-primary/20 bg-primary/5 p-4"
+          class="space-y-4 rounded-2xl border border-primary/20 bg-primary/5 p-4"
         >
           <div>
             <h2 class="text-lg font-black">The spark</h2>
@@ -128,39 +128,45 @@
             </p>
           </div>
 
-          <label class="form-control w-full">
-            <span
-              class="label-text mb-1 text-xs font-bold uppercase tracking-wide"
-            >
-              Working title (optional)
-            </span>
-            <input
-              v-model="store.setupDraft.title"
-              type="text"
-              class="input input-bordered w-full rounded-xl bg-base-100"
-              placeholder="The Clockwork Orchard"
-            />
-          </label>
+          <!-- Title and premise share one board card -- they're one decision
+               (what this story is), the same reasoning that keeps cast and
+               roles together on the casting board rather than splitting them
+               across screens. -->
+          <div class="kr-panel-flat space-y-3 p-3">
+            <label class="form-control w-full">
+              <span
+                class="label-text mb-1 text-xs font-bold uppercase tracking-wide"
+              >
+                Working title (optional)
+              </span>
+              <input
+                v-model="store.setupDraft.title"
+                type="text"
+                class="input input-bordered w-full rounded-xl bg-base-100"
+                placeholder="The Clockwork Orchard"
+              />
+            </label>
 
-          <label class="form-control w-full">
-            <span
-              class="label-text mb-1 text-xs font-bold uppercase tracking-wide"
-            >
-              Premise
-            </span>
-            <textarea
-              v-model="store.setupDraft.premise"
-              rows="5"
-              class="textarea textarea-bordered w-full rounded-xl bg-base-100 text-sm leading-relaxed"
-              placeholder="Every midnight, the town's abandoned observatory receives a letter from a star that should not exist…"
-            />
-            <span class="mt-1 text-[0.7rem] text-base-content/45">
-              This is creative direction, not a prompt for model or generator
-              settings.
-            </span>
-          </label>
+            <label class="form-control w-full">
+              <span
+                class="label-text mb-1 text-xs font-bold uppercase tracking-wide"
+              >
+                Premise
+              </span>
+              <textarea
+                v-model="store.setupDraft.premise"
+                rows="5"
+                class="textarea textarea-bordered w-full rounded-xl bg-base-100 text-sm leading-relaxed"
+                placeholder="Every midnight, the town's abandoned observatory receives a letter from a star that should not exist…"
+              />
+              <span class="mt-1 text-[0.7rem] text-base-content/45">
+                This is creative direction, not a prompt for model or generator
+                settings.
+              </span>
+            </label>
+          </div>
 
-          <div class="space-y-2">
+          <div class="kr-panel-flat space-y-2 p-3">
             <h3
               class="text-xs font-bold uppercase tracking-wide text-base-content/55"
             >
@@ -185,7 +191,7 @@
             </div>
           </div>
 
-          <div class="space-y-2">
+          <div class="kr-panel-flat space-y-2 p-3">
             <h3
               class="text-xs font-bold uppercase tracking-wide text-base-content/55"
             >

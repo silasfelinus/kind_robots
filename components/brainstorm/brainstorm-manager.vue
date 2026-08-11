@@ -336,7 +336,7 @@
 
             <ul
               v-else
-              class="mt-2 flex max-h-56 flex-col gap-1.5 overflow-y-auto pr-0.5"
+              class="mt-2 flex flex-col gap-1.5"
               data-testid="brainstorm-saved-session-list"
             >
               <li v-for="saved in savedSessions" :key="saved.id">
@@ -434,7 +434,7 @@
         >
       </summary>
 
-      <ul class="mt-3 flex max-h-64 flex-col gap-1.5 overflow-y-auto pr-0.5">
+      <ul class="mt-3 flex flex-col gap-1.5">
         <li
           v-for="candidate in allKeptCandidates"
           :key="candidate.id"

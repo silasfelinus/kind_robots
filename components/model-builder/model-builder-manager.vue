@@ -2,6 +2,7 @@
 <template>
   <section
     class="flex h-full min-h-0 max-h-full w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
+    :aria-busy="resumingRun"
   >
     <header
       class="flex h-10 shrink-0 items-center gap-2 border-b border-base-300 bg-base-100 px-2 sm:px-3"
@@ -27,7 +28,7 @@
                 ? 'btn-ghost text-base-content/60'
                 : 'btn-ghost text-base-content/30 pointer-events-none'
           "
-          :disabled="!crumb.enabled || store.startingRun"
+          :disabled="!crumb.enabled || store.startingRun || resumingRun"
           @click="crumb.enabled && store.goToStep(crumb.step)"
         >
           <span class="opacity-50">{{ index + 1 }}.</span>
@@ -39,7 +40,7 @@
         type="button"
         class="btn btn-xs btn-ghost ml-auto h-7 min-h-7 rounded-xl px-2"
         :class="showHistory ? 'text-primary' : 'text-base-content/60 hover:text-primary'"
-        :disabled="store.startingRun"
+        :disabled="store.startingRun || resumingRun"
         aria-label="Toggle run history"
         :aria-pressed="showHistory"
         @click="showHistory = !showHistory"
@@ -51,7 +52,7 @@
       <button
         type="button"
         class="btn btn-xs btn-ghost h-7 min-h-7 rounded-xl px-2 text-base-content/60 hover:text-error"
-        :disabled="store.startingRun"
+        :disabled="store.startingRun || resumingRun"
         aria-label="Reset Model Builder"
         @click="store.resetAll()"
       >
@@ -75,8 +76,17 @@
     </Transition>
 
     <main class="flex min-h-0 flex-1 flex-col overflow-y-auto p-2 sm:p-3">
+      <div
+        v-if="resumingRun"
+        class="flex min-h-32 flex-1 items-center justify-center gap-2 text-sm text-base-content/60"
+        role="status"
+        aria-live="polite"
+      >
+        <span class="loading loading-dots loading-md" aria-hidden="true" />
+        Restoring your latest build run…
+      </div>
       <model-builder-run-history
-        v-if="showHistory"
+        v-else-if="showHistory"
         @close="showHistory = false"
       />
       <template v-else>
@@ -94,6 +104,7 @@ import { useModelBuilderStore } from '@/stores/modelBuilderStore'
 
 const store = useModelBuilderStore()
 const showHistory = ref(false)
+const resumingRun = ref(true)
 
 const crumbs = computed(() => [
   { step: 'source' as const, label: 'Source', enabled: true },
@@ -105,8 +116,12 @@ const crumbs = computed(() => [
   { step: 'run' as const, label: 'Run', enabled: Boolean(store.run) },
 ])
 
-onMounted(() => {
-  store.resumeRun()
+onMounted(async () => {
+  try {
+    await store.resumeRun()
+  } finally {
+    resumingRun.value = false
+  }
 })
 </script>
 

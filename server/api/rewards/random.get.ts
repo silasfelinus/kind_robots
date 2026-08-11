@@ -1,13 +1,34 @@
 // /server/api/rewards/random.get.ts
 import { defineEventHandler } from 'h3'
 import prisma from '../../utils/prisma'
+import { getOptionalApiUser } from '../../utils/authGuard'
+import { viewablePackIds } from '../../utils/contentAccess'
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
   let response
 
   try {
-    // Count the total number of rewards in the database
-    const totalRewards = await prisma.reward.count()
+    const auth = await getOptionalApiUser(event)
+    const userId = auth?.user.id ?? null
+    const isAdmin = auth?.isAdmin ?? false
+    const packIds = userId && !isAdmin ? await viewablePackIds(userId) : []
+
+    const visibility = isAdmin
+      ? {}
+      : userId
+        ? {
+            OR: [
+              { isPublic: true },
+              { userId },
+              ...(packIds.length ? [{ packId: { in: packIds } }] : []),
+            ],
+          }
+        : { isPublic: true }
+
+    const where = { isActive: true, ...visibility }
+
+    // Count the total number of viewable rewards
+    const totalRewards = await prisma.reward.count({ where })
 
     if (totalRewards === 0) {
       return {
@@ -22,6 +43,7 @@ export default defineEventHandler(async () => {
 
     // Fetch a random reward from the database
     const randomReward = await prisma.reward.findFirst({
+      where,
       skip: randomOffset,
       take: 1,
     })

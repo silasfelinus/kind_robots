@@ -397,6 +397,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 
 export const ModelName = {
+  BrainstormSession: 'BrainstormSession',
+  BrainstormCandidate: 'BrainstormCandidate',
   FacetAlias: 'FacetAlias',
   FacetProfile: 'FacetProfile',
   CharacterFacet: 'CharacterFacet',
@@ -494,10 +496,142 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "component" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
+    modelProps: "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "component" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
+    BrainstormSession: {
+      payload: Prisma.$BrainstormSessionPayload<ExtArgs>
+      fields: Prisma.BrainstormSessionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BrainstormSessionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormSessionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BrainstormSessionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormSessionPayload>
+        }
+        findFirst: {
+          args: Prisma.BrainstormSessionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormSessionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BrainstormSessionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormSessionPayload>
+        }
+        findMany: {
+          args: Prisma.BrainstormSessionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormSessionPayload>[]
+        }
+        create: {
+          args: Prisma.BrainstormSessionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormSessionPayload>
+        }
+        createMany: {
+          args: Prisma.BrainstormSessionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.BrainstormSessionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormSessionPayload>
+        }
+        update: {
+          args: Prisma.BrainstormSessionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormSessionPayload>
+        }
+        deleteMany: {
+          args: Prisma.BrainstormSessionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BrainstormSessionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.BrainstormSessionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormSessionPayload>
+        }
+        aggregate: {
+          args: Prisma.BrainstormSessionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBrainstormSession>
+        }
+        groupBy: {
+          args: Prisma.BrainstormSessionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BrainstormSessionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BrainstormSessionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BrainstormSessionCountAggregateOutputType> | number
+        }
+      }
+    }
+    BrainstormCandidate: {
+      payload: Prisma.$BrainstormCandidatePayload<ExtArgs>
+      fields: Prisma.BrainstormCandidateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BrainstormCandidateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormCandidatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BrainstormCandidateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormCandidatePayload>
+        }
+        findFirst: {
+          args: Prisma.BrainstormCandidateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormCandidatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BrainstormCandidateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormCandidatePayload>
+        }
+        findMany: {
+          args: Prisma.BrainstormCandidateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormCandidatePayload>[]
+        }
+        create: {
+          args: Prisma.BrainstormCandidateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormCandidatePayload>
+        }
+        createMany: {
+          args: Prisma.BrainstormCandidateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.BrainstormCandidateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormCandidatePayload>
+        }
+        update: {
+          args: Prisma.BrainstormCandidateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormCandidatePayload>
+        }
+        deleteMany: {
+          args: Prisma.BrainstormCandidateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BrainstormCandidateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.BrainstormCandidateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BrainstormCandidatePayload>
+        }
+        aggregate: {
+          args: Prisma.BrainstormCandidateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBrainstormCandidate>
+        }
+        groupBy: {
+          args: Prisma.BrainstormCandidateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BrainstormCandidateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BrainstormCandidateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BrainstormCandidateCountAggregateOutputType> | number
+        }
+      }
+    }
     FacetAlias: {
       payload: Prisma.$FacetAliasPayload<ExtArgs>
       fields: Prisma.FacetAliasFieldRefs
@@ -5949,6 +6083,50 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
+export const BrainstormSessionScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  name: 'name',
+  premise: 'premise',
+  resultCount: 'resultCount',
+  constraints: 'constraints',
+  examples: 'examples',
+  mode: 'mode',
+  batchShape: 'batchShape',
+  returnTypes: 'returnTypes',
+  source: 'source',
+  batches: 'batches',
+  activeBatchId: 'activeBatchId',
+  lastGeneratedAt: 'lastGeneratedAt',
+  isActive: 'isActive'
+} as const
+
+export type BrainstormSessionScalarFieldEnum = (typeof BrainstormSessionScalarFieldEnum)[keyof typeof BrainstormSessionScalarFieldEnum]
+
+
+export const BrainstormCandidateScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  sessionId: 'sessionId',
+  clientId: 'clientId',
+  batchId: 'batchId',
+  position: 'position',
+  title: 'title',
+  text: 'text',
+  status: 'status',
+  feedback: 'feedback',
+  edited: 'edited',
+  parentClientId: 'parentClientId',
+  revisions: 'revisions',
+  meta: 'meta'
+} as const
+
+export type BrainstormCandidateScalarFieldEnum = (typeof BrainstormCandidateScalarFieldEnum)[keyof typeof BrainstormCandidateScalarFieldEnum]
+
+
 export const FacetAliasScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -7653,6 +7831,37 @@ export const NullsOrder = {
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
+export const BrainstormSessionOrderByRelevanceFieldEnum = {
+  name: 'name',
+  premise: 'premise',
+  constraints: 'constraints',
+  examples: 'examples',
+  mode: 'mode',
+  batchShape: 'batchShape',
+  returnTypes: 'returnTypes',
+  source: 'source',
+  batches: 'batches',
+  activeBatchId: 'activeBatchId'
+} as const
+
+export type BrainstormSessionOrderByRelevanceFieldEnum = (typeof BrainstormSessionOrderByRelevanceFieldEnum)[keyof typeof BrainstormSessionOrderByRelevanceFieldEnum]
+
+
+export const BrainstormCandidateOrderByRelevanceFieldEnum = {
+  clientId: 'clientId',
+  batchId: 'batchId',
+  title: 'title',
+  text: 'text',
+  status: 'status',
+  feedback: 'feedback',
+  parentClientId: 'parentClientId',
+  revisions: 'revisions',
+  meta: 'meta'
+} as const
+
+export type BrainstormCandidateOrderByRelevanceFieldEnum = (typeof BrainstormCandidateOrderByRelevanceFieldEnum)[keyof typeof BrainstormCandidateOrderByRelevanceFieldEnum]
+
+
 export const FacetAliasOrderByRelevanceFieldEnum = {
   alias: 'alias',
   lookupKey: 'lookupKey'
@@ -9195,6 +9404,8 @@ export interface PrismaClientOptionsWithAdapter extends PrismaClientBaseOptions 
  */
 export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaClientOptionsWithAdapter
 export type GlobalOmitConfig = {
+  brainstormSession?: Prisma.BrainstormSessionOmit
+  brainstormCandidate?: Prisma.BrainstormCandidateOmit
   facetAlias?: Prisma.FacetAliasOmit
   facetProfile?: Prisma.FacetProfileOmit
   characterFacet?: Prisma.CharacterFacetOmit

@@ -4,20 +4,18 @@ on:
   pull_request:
     paths:
       - 'components/animation/animation-manager.vue'
+      - 'components/wonderlab/**'
       - 'stores/animationManagerStore.ts'
-      - 'stores/componentStore.ts'
       - 'stores/index.ts'
-      - 'stores/helpers/animationComponentHelper.ts'
       - 'utils/scripts/verifyComponentRuntimeRetirement.ts'
       - '.github/workflows/component-runtime-retirement-contract.yml'
   push:
     branches: [main]
     paths:
       - 'components/animation/animation-manager.vue'
+      - 'components/wonderlab/**'
       - 'stores/animationManagerStore.ts'
-      - 'stores/componentStore.ts'
       - 'stores/index.ts'
-      - 'stores/helpers/animationComponentHelper.ts'
       - 'utils/scripts/verifyComponentRuntimeRetirement.ts'
       - '.github/workflows/component-runtime-retirement-contract.yml'
 

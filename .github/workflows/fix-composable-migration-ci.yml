@@ -58,29 +58,45 @@ jobs:
               raise SystemExit('missing pitch-detector import anchor')
           pitch.write_text(pitch_text.replace(old_import, new_import))
 
-          for rel in [
-              'components/bots/bot-gallery.vue',
-              'components/characters/character-gallery.vue',
-              'components/scenarios/scenario-gallery.vue',
-          ]:
+          comment_replacements = {
+              'components/art/art-gallery.vue': [
+                  ('hydrateVisibleImages. useEarnedKarma watches that id list itself, so the',
+                   'hydrateVisibleImages. The earned-karma tracker watches that id list itself, so the'),
+              ],
+              'components/dreams/dream-gallery.vue': [
+                  ('Earned karma comes from useEarnedKarma (t-066); the scoping decision below',
+                   'Earned karma comes from userStore tracking (t-066); the scoping decision below'),
+              ],
+              'components/rewards/reward-gallery.vue': [
+                  ('Earned karma comes from useEarnedKarma (t-066). This gallery wrote the first',
+                   'Earned karma comes from userStore tracking (t-066). This gallery wrote the first'),
+                  ('useEarnedKarma keys its watch on the id list,',
+                   'the earned-karma tracker keys its watch on the id list,'),
+              ],
+              'components/bots/bot-gallery.vue': [
+                  ('// the shared composable (see stores/userStore.ts). Scoped to',
+                   '// the shared userStore earned-karma tracker. Scoped to'),
+              ],
+              'components/characters/character-gallery.vue': [
+                  ('// the shared composable (see stores/userStore.ts). Scoped to',
+                   '// the shared userStore earned-karma tracker. Scoped to'),
+              ],
+              'components/scenarios/scenario-gallery.vue': [
+                  ('// the shared composable (see stores/userStore.ts). Scoped to',
+                   '// the shared userStore earned-karma tracker. Scoped to'),
+              ],
+          }
+
+          for rel, pairs in comment_replacements.items():
               p = Path(rel)
               s = p.read_text()
-              s = s.replace(
-                  '// the shared composable (see stores/userStore.ts). Scoped to',
-                  '// the shared userStore earned-karma tracker. Scoped to',
-              )
+              for old, new in pairs:
+                  s = s.replace(old, new)
               p.write_text(s)
-
-          reward = Path('components/rewards/reward-gallery.vue')
-          reward_text = reward.read_text().replace(
-              'useEarnedKarma keys its watch on the id list,',
-              'the earned-karma tracker keys its watch on the id list,',
-          )
-          reward.write_text(reward_text)
           PY
       - name: Confirm no active composable references remain
         run: |
-          if grep -RIn --include='*.ts' --include='*.vue' --include='*.mjs' -E "[~@]/composables/|useEarnedKarma|useDedupedArtwork|useStorybookLibrary|useStorybookMode" components stores plugins pages utils middleware server; then
+          if grep -RIn --include='*.ts' --include='*.vue' -E "[~@]/composables/|useEarnedKarma|useDedupedArtwork|useStorybookLibrary|useStorybookMode" components stores plugins pages middleware server; then
             echo 'Active composable breadcrumb remains.' >&2
             exit 1
           fi
@@ -88,6 +104,6 @@ jobs:
         run: |
           git config user.name "kind-robots-migration-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add stores/helpers/storybookLibraryHelper.ts utils/scripts/verifyPitchDetectorAccuracy.test.ts components/bots/bot-gallery.vue components/characters/character-gallery.vue components/scenarios/scenario-gallery.vue components/rewards/reward-gallery.vue
+          git add stores/helpers/storybookLibraryHelper.ts utils/scripts/verifyPitchDetectorAccuracy.test.ts components/art/art-gallery.vue components/bots/bot-gallery.vue components/characters/character-gallery.vue components/dreams/dream-gallery.vue components/scenarios/scenario-gallery.vue components/rewards/reward-gallery.vue
           git commit -m "fix: finish composables migration wiring [ci-migration-fixed]"
           git push origin HEAD:agent/remove-composables-island

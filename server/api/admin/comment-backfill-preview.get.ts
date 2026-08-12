@@ -8,9 +8,13 @@ import {
   getQuery,
   setResponseHeader,
 } from 'h3'
+import { gunzipSync } from 'node:zlib'
 import {
   getCommentBackfillStatus,
+  planManualCommentBackfillSlice,
+  publishManualCommentBackfillSlice,
   runCommentBackfillSlice,
+  type ManualBackfillPayload,
 } from '../../utils/commentBackfillGeneration'
 
 const BACKFILL_BRANCH = 'gpt/comment-backfill-live'
@@ -30,48 +34,79 @@ function positiveInteger(value: unknown, fallback: number): number {
   return Number.isInteger(parsed) && parsed >= 0 ? parsed : fallback
 }
 
-export default defineEventHandler(async (event) => {
-  assertBackfillPreview()
-  setResponseHeader(event, 'Cache-Control', 'no-store, max-age=0')
-
-  const query = getQuery(event)
-  const action = String(query.action || 'status').toLowerCase()
-
-  if (action === 'status') {
-    return {
-      ok: true,
-      executionGuard: {
-        vercelEnv: process.env.VERCEL_ENV || null,
-        gitBranch: process.env.VERCEL_GIT_COMMIT_REF || null,
-      },
-      credentials: {
-        databaseConfigured: Boolean(process.env.DATABASE_URL),
-        openAiConfigured: Boolean(process.env.OPENAI_API_KEY),
-      },
-      backfill: await getCommentBackfillStatus(),
-    }
-  }
-
-  if (action !== 'run') {
-    throw createError({ statusCode: 400, message: 'Unknown backfill action.' })
-  }
-
-  if (query.confirm !== PUBLISH_CONFIRMATION) {
+function assertPublishConfirmation(value: unknown): void {
+  if (value !== PUBLISH_CONFIRMATION) {
     throw createError({
       statusCode: 400,
       message: 'Explicit backfill confirmation token is required.',
     })
   }
+}
 
-  const start = positiveInteger(query.start, 0)
-  const limit = positiveInteger(query.limit, 8)
+function decodePayload(value: unknown): ManualBackfillPayload {
+  const encoded = String(value || '').trim()
+  if (!encoded) {
+    throw createError({ statusCode: 400, message: 'Missing manual payload.' })
+  }
 
+  try {
+    const json = gunzipSync(Buffer.from(encoded, 'base64url')).toString('utf8')
+    return JSON.parse(json) as ManualBackfillPayload
+  } catch {
+    throw createError({ statusCode: 400, message: 'Invalid manual payload.' })
+  }
+}
+
+function guardedResponse<T>(value: T) {
   return {
     ok: true,
     executionGuard: {
       vercelEnv: process.env.VERCEL_ENV || null,
       gitBranch: process.env.VERCEL_GIT_COMMIT_REF || null,
     },
-    run: await runCommentBackfillSlice({ start, limit }),
+    value,
   }
+}
+
+export default defineEventHandler(async (event) => {
+  assertBackfillPreview()
+  setResponseHeader(event, 'Cache-Control', 'no-store, max-age=0')
+
+  const query = getQuery(event)
+  const action = String(query.action || 'status').toLowerCase()
+  const start = positiveInteger(query.start, 0)
+  const limit = positiveInteger(query.limit, 8)
+
+  if (action === 'status') {
+    return guardedResponse({
+      credentials: {
+        databaseConfigured: Boolean(process.env.DATABASE_URL),
+        openAiConfigured: Boolean(process.env.OPENAI_API_KEY),
+      },
+      backfill: await getCommentBackfillStatus(),
+    })
+  }
+
+  if (action === 'plan') {
+    return guardedResponse(
+      await planManualCommentBackfillSlice({ start, limit }),
+    )
+  }
+
+  if (action === 'publish') {
+    assertPublishConfirmation(query.confirm)
+    return guardedResponse(
+      await publishManualCommentBackfillSlice({
+        start,
+        payload: decodePayload(query.payload),
+      }),
+    )
+  }
+
+  if (action === 'run') {
+    assertPublishConfirmation(query.confirm)
+    return guardedResponse(await runCommentBackfillSlice({ start, limit }))
+  }
+
+  throw createError({ statusCode: 400, message: 'Unknown backfill action.' })
 })

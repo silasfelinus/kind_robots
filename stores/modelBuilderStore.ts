@@ -1522,7 +1522,20 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
           const drafted = await draftText(itemId, 'artPrompt')
           if (!drafted) return 'failed'
         }
-        approveStage(itemId, 'FIELDS_AND_PROMPTS')
+        // approveStage() unconditionally overwrites the stage's status --
+        // unlike finishGenerateAssets/finishCommit, it has no in-flight
+        // check. A concurrent Edit click on PITCH (clickable throughout
+        // auto-build; only isCommitting disables it) can markDownstreamStale
+        // this very stage while the awaits above are pending, and a 'stale'
+        // status here means the drafted content reflects the pre-edit pitch.
+        // Only approve if the stage is still the 'ready' state auto-build
+        // itself put it in -- otherwise it needs a fresh review, not a
+        // silent approval of stale content.
+        if (item.stages.FIELDS_AND_PROMPTS.status === 'ready') {
+          approveStage(itemId, 'FIELDS_AND_PROMPTS')
+        } else {
+          return 'failed'
+        }
       }
 
       if (item.stages.GENERATE_ASSETS.status !== 'approved') {
@@ -1530,7 +1543,16 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
           const generated = await generateItemAsset(itemId)
           if (!generated) return 'failed'
         }
-        approveStage(itemId, 'GENERATE_ASSETS')
+        // Same race as above: generateItemAsset() can return true (the
+        // network render succeeded) while finishGenerateAssets() correctly
+        // refused to write the result because a concurrent upstream edit
+        // already staled this stage. Trusting `generated` alone would
+        // silently re-approve the reopened-and-unreviewed candidate.
+        if (item.stages.GENERATE_ASSETS.status === 'ready') {
+          approveStage(itemId, 'GENERATE_ASSETS')
+        } else {
+          return 'failed'
+        }
       }
 
       if (item.stages.COMMIT.status !== 'approved') {

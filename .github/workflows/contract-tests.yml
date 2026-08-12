@@ -335,6 +335,12 @@ jobs:
       - name: Model Builder ASSET_ONLY approval guard contract
         run: npm run test:model-builder-asset-only-approval-guard
 
+      - name: Model Builder auto-build approval-race guard checker self-test
+        run: npm run test:model-builder-auto-build-approval-race-guard-selftest
+
+      - name: Model Builder auto-build approval-race guard contract
+        run: npm run test:model-builder-auto-build-approval-race-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

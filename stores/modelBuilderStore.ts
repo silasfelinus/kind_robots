@@ -1811,11 +1811,25 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       }
 
       if (data) {
-        state.run = adaptRun(data)
-        state.sourceType = data.sourceType as SourceTypeKey
-        state.recipeKey = data.recipeKey as RecipeKey
-        state.step = 'run'
-        setActiveRunId(data.id)
+        // Resuming the run that's already active must not swap in a fresh object:
+        // adaptRun/adaptItem reset the client-only artJobId/queueState fields to
+        // null, and a component remount (e.g. navigating away from and back to
+        // the Model Builder page) re-runs resumeRun() unconditionally. Replacing
+        // state.run here would orphan pollAsyncArtJob's reference to the live item
+        // object mid-poll, making an in-flight async generation silently vanish
+        // from the UI even though it's still running (and completes against the
+        // now-detached object) — the same failure mode openRun() already guards
+        // against for its own reopen path.
+        if (state.run?.id === String(data.id)) {
+          state.step = 'run'
+          setActiveRunId(data.id)
+        } else {
+          state.run = adaptRun(data)
+          state.sourceType = data.sourceType as SourceTypeKey
+          state.recipeKey = data.recipeKey as RecipeKey
+          state.step = 'run'
+          setActiveRunId(data.id)
+        }
       }
     } catch {
       // Not signed in, or no runs yet — start fresh at the source picker.

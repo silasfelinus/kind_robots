@@ -47,9 +47,6 @@ async function main(): Promise<void> {
     profileInput: 'server/utils/facetProfileInput.ts',
     facetStore: 'stores/facetStore.ts',
     facetManager: 'components/facets/facet-manager.vue',
-    // The per-Facet edit surface, split out of facet-manager when its Library
-    // grid was retired. Creation stayed in the manager; editing, archiving and
-    // the art slots moved here.
     facetEditor: 'components/facets/facet-editor.vue',
     facetPicker: 'components/facets/facet-picker.vue',
     facetProfileEditor: 'components/facets/facet-profile-editor.vue',
@@ -64,14 +61,13 @@ async function main(): Promise<void> {
     genderSeed: 'utils/scripts/seedGenderFacetCatalog.ts',
     genderValues: 'utils/seeds/facetGenderValues.ts',
     builderCoverage: 'utils/scripts/verifyFacetBuilderCoverage.ts',
-    seedPolicy: 'scripts/lib/facetCatalogSeedPolicy.mjs',
     catalogStore: 'stores/facetCatalogStore.ts',
     generatorStore: 'stores/generatorStore.ts',
     randomStore: 'stores/randomStore.ts',
     randomHelper: 'stores/helpers/randomHelper.ts',
     builderPlugin: 'plugins/20.facet-catalog.client.ts',
     variants: 'server/api/challenges/variants.post.ts',
-    vercelBuild: 'scripts/vercel-build.mjs',
+    publish: '.github/workflows/publish-container.yml',
   } as const
 
   const entries = await Promise.all(
@@ -160,10 +156,6 @@ async function main(): Promise<void> {
     text.profileInput,
     'assertLegacyFacetKindAbsent',
   )
-  /* t-072 dropped the physical Facet.kind column, which made the
-     legacyFacetKindForTaxonomy() derivation dead code -- so these flipped from
-     "must derive it" to "must not resurrect it". FacetProfile.taxonomy is the
-     only classification left. */
   forbidText(
     files.profileInput,
     text.profileInput,
@@ -363,11 +355,6 @@ async function main(): Promise<void> {
     'FACET_BACKED_FIELDS',
   )
   requireText(files.builderCoverage, text.builderCoverage, "'gender'")
-  requireText(
-    files.seedPolicy,
-    text.seedPolicy,
-    'utils/scripts/seedGenderFacetCatalog.ts',
-  )
 
   requireText(
     files.catalogStore,
@@ -458,17 +445,15 @@ async function main(): Promise<void> {
   forbidText(files.variants, text.variants, 'prisma.dream.findMany')
   forbidText(files.variants, text.variants, 'dreamToRandomListItem')
 
-  requireText(
-    files.vercelBuild,
-    text.vercelBuild,
-    'run_facet_catalog_maintenance.ts',
-  )
-  requireText(
-    files.vercelBuild,
-    text.vercelBuild,
-    'Applying production migrations',
-  )
+  requireText(files.publish, text.publish, 'docker/build-push-action@v6')
+  requireText(files.publish, text.publish, 'COMMIT_SHA=${{ github.sha }}')
+  forbidText(files.publish, text.publish, 'run_facet_catalog_maintenance.ts')
+  forbidText(files.publish, text.publish, 'runFacetCatalogSeed.ts')
 
+  await requireMissingPath(
+    'scripts/lib/facetCatalogSeedPolicy.mjs',
+    'build-time provider ancestry no longer owns Facet seeding.',
+  )
   await requireMissingPath(
     'components/art/list-manager.vue',
     'random content is managed through Facets.',

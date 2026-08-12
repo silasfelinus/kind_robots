@@ -166,13 +166,6 @@ async function initializeStores() {
       useThemeStore().initialize({ fetchShared: false }),
     ])
 
-    await runWave('achievement sync', [
-      achievementStore.fetchAchievements(true),
-      userStore.isLoggedIn
-        ? achievementStore.fetchAchievementRecords(true)
-        : undefined,
-    ])
-
     await runWave('achievement migration', [
       userStore.isLoggedIn
         ? achievementStore.migratePendingGuestAchievements()

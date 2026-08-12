@@ -50,7 +50,7 @@ assert.ok(
 assert.ok(
   source.includes('fetchAchievements(true)') &&
     source.includes('fetchAchievementRecords(true)'),
-  'Initialization must refresh both catalog and award records after cache hydration.',
+  'Explicit remote initialization must still refresh both catalog and award records when requested.',
 )
 assert.ok(
   source.includes('const activeScoreFetches = ref(0)') &&
@@ -60,27 +60,24 @@ assert.ok(
 
 const loaderSource = readFileSync('components/admin/kind-loader.vue', 'utf8')
 const userInitializeIndex = loaderSource.indexOf('userStore.initialize?.()')
-const recordsFetchIndex = loaderSource.indexOf(
-  'achievementStore.fetchAchievementRecords(true)',
-)
+const achievementInitializeIndex = loaderSource.indexOf('achievementStore.initialize?.()')
 const migrationIndex = loaderSource.indexOf(
   'achievementStore.migratePendingGuestAchievements()',
+)
+const routeAwardIndex = loaderSource.indexOf(
+  'achievementStore.rewardAchievementForPath(route.path)',
 )
 
 assert.ok(
   userInitializeIndex >= 0 &&
-    recordsFetchIndex >= 0 &&
-    userInitializeIndex < recordsFetchIndex,
-  'Startup must resolve user identity before requesting achievement records.',
+    achievementInitializeIndex >= 0 &&
+    userInitializeIndex < achievementInitializeIndex,
+  'Startup must resolve user identity before hydrating achievement state.',
 )
 assert.ok(
-  loaderSource.includes('achievementStore.fetchAchievements(true)'),
-  'Guest startup must still refresh the public achievement catalog.',
-)
-assert.match(
-  loaderSource,
-  /userStore\.isLoggedIn\s*\?\s*achievementStore\.fetchAchievementRecords\(true\)\s*:\s*undefined/,
-  'Guest startup must not request authenticated achievement records.',
+  !loaderSource.includes('achievementStore.fetchAchievements(true)') &&
+    !loaderSource.includes('achievementStore.fetchAchievementRecords(true)'),
+  'Global startup must not force remote achievement catalog or record refreshes.',
 )
 assert.match(
   loaderSource,
@@ -88,8 +85,18 @@ assert.match(
   'Pending guest achievements must only migrate after authentication.',
 )
 assert.ok(
-  recordsFetchIndex < migrationIndex,
-  'Authenticated records must load before pending guest achievements migrate.',
+  achievementInitializeIndex < migrationIndex && migrationIndex < routeAwardIndex,
+  'Local achievement hydration must precede pending migration and route awards.',
+)
+assert.match(
+  source,
+  /if \(!achievements\.value\.length\)\s*{\s*await fetchAchievements\(\)/,
+  'Route/code awards must lazily fetch the catalog when local state cannot resolve the trigger.',
+)
+assert.match(
+  source,
+  /if \(!achievement\)\s*{[\s\S]*await fetchAchievementById\(achievementId\)/,
+  'Direct achievement awards must lazily fetch a missing achievement by ID.',
 )
 
 const recordsRouteSource = readFileSync(

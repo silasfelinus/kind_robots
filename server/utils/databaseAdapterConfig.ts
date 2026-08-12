@@ -21,8 +21,6 @@ import {
   DEFAULT_IDLE_TIMEOUT_SECONDS,
   DEFAULT_MINIMUM_IDLE,
   DEFAULT_PING_TIMEOUT_MS,
-  isVercelFunctionRuntime,
-  resolveDatabasePoolDefaults,
 } from './databasePoolDefaults'
 
 export type PrismaMariaDbConfig = ConstructorParameters<typeof PrismaMariaDb>[0]
@@ -44,19 +42,6 @@ export function readNonNegativeInteger(
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback
 }
 
-// ProxySQL's frontend does not support MySQL command pipelining. When the
-// MariaDB connector sends a second command while ProxySQL is still processing
-// the previous one on the same session, ProxySQL logs
-// "Unexpected packet from client ... Session_status: 6 ... Disconnecting it",
-// closes the frontend socket, and KILLs the backend query. That surfaced as
-// deterministic "Cannot execute new commands: connection closed" 503s on every
-// create/update whose Prisma plan runs multiple statements in one transaction
-// (an INSERT followed by the relation SELECTs of an `include`), while lean
-// single-statement writes and all reads went through fine — and it reproduced
-// only over the TLS ProxySQL path, never on a direct MariaDB connection (see
-// scripts/db-write-repro.mjs and issue #324). The connector pipelines by
-// default; disable it for this topology. Set DATABASE_PIPELINING=true to
-// restore pipelining (e.g. for a direct-to-MariaDB link with no ProxySQL).
 export function readDatabasePipelining(): boolean {
   const raw = process.env.DATABASE_PIPELINING?.trim().toLowerCase()
   return raw === 'true' || raw === '1' || raw === 'yes'
@@ -69,8 +54,6 @@ export function readDatabaseUseTextProtocol(): boolean {
 
 export function buildDatabaseUrl(url: string): string {
   const parsed = new URL(url)
-  const isVercelRuntime = isVercelFunctionRuntime()
-  const runtimePoolDefaults = resolveDatabasePoolDefaults()
   const connectTimeout = readPositiveInteger(
     parsed.searchParams.get('connectTimeout') ??
       process.env.DATABASE_CONNECT_TIMEOUT_MS,
@@ -81,7 +64,7 @@ export function buildDatabaseUrl(url: string): string {
       process.env.DATABASE_ACQUIRE_TIMEOUT_MS,
     DEFAULT_ACQUIRE_TIMEOUT_MS,
   )
-  const requestedConnectionLimit = readPositiveInteger(
+  const connectionLimit = readPositiveInteger(
     parsed.searchParams.get('connectionLimit') ??
       process.env.DATABASE_CONNECTION_LIMIT,
     DEFAULT_CONNECTION_LIMIT,
@@ -91,12 +74,12 @@ export function buildDatabaseUrl(url: string): string {
       process.env.DATABASE_MIN_DELAY_VALIDATION_MS,
     0,
   )
-  const requestedIdleTimeout = readPositiveInteger(
+  const idleTimeout = readPositiveInteger(
     parsed.searchParams.get('idleTimeout') ??
       process.env.DATABASE_IDLE_TIMEOUT_SECONDS,
     DEFAULT_IDLE_TIMEOUT_SECONDS,
   )
-  const requestedMinimumIdle = readNonNegativeInteger(
+  const minimumIdle = readNonNegativeInteger(
     parsed.searchParams.get('minimumIdle') ??
       process.env.DATABASE_MINIMUM_IDLE,
     DEFAULT_MINIMUM_IDLE,
@@ -106,32 +89,6 @@ export function buildDatabaseUrl(url: string): string {
       process.env.DATABASE_PING_TIMEOUT_MS,
     DEFAULT_PING_TIMEOUT_MS,
   )
-  const connectionLimit = isVercelRuntime
-    ? Math.min(requestedConnectionLimit, runtimePoolDefaults.connectionLimit)
-    : requestedConnectionLimit
-  const idleTimeout = isVercelRuntime
-    ? Math.min(requestedIdleTimeout, runtimePoolDefaults.idleTimeoutSeconds)
-    : requestedIdleTimeout
-  const minimumIdle = isVercelRuntime
-    ? runtimePoolDefaults.minimumIdle
-    : requestedMinimumIdle
-
-  if (
-    isVercelRuntime &&
-    (connectionLimit !== requestedConnectionLimit ||
-      idleTimeout !== requestedIdleTimeout ||
-      minimumIdle !== requestedMinimumIdle)
-  ) {
-    console.warn('[prisma] Clamped unsafe Vercel database pool override', {
-      profile: runtimePoolDefaults.profile,
-      requestedConnectionLimit,
-      requestedIdleTimeout,
-      requestedMinimumIdle,
-      connectionLimit,
-      idleTimeout,
-      minimumIdle,
-    })
-  }
 
   parsed.searchParams.set('connectTimeout', String(connectTimeout))
   parsed.searchParams.set('acquireTimeout', String(acquireTimeout))
@@ -242,24 +199,16 @@ export function buildDatabaseConfig(url: string): PrismaMariaDbConfig {
       parsed.searchParams.get('pingTimeout') ?? undefined,
       DEFAULT_PING_TIMEOUT_MS,
     ),
-    // Off by default for the ProxySQL topology — see readDatabasePipelining().
     pipelining: readDatabasePipelining(),
   })
 
   return poolConfig
 }
 
-// True when buildDatabaseConfig will negotiate TLS (a CA is configured, or
-// verification was explicitly relaxed while TLS stays on). Lets callers log
-// whether the ProxySQL-required TLS handshake is engaged WITHOUT ever touching
-// the host, credentials, or the certificate itself.
 export function databaseConfigUsesSsl(): boolean {
   return Boolean(readDatabaseSslCa()) || !readSslRejectUnauthorized()
 }
 
-// The one true way to build the adapter: SSL-aware config + the app's protocol
-// mode. Standalone scripts should call this instead of `new PrismaMariaDb(url)`
-// so they inherit the ProxySQL-required TLS handshake automatically.
 export function createDatabaseAdapter(url: string): PrismaMariaDb {
   return new PrismaMariaDb(buildDatabaseConfig(url), {
     useTextProtocol: readDatabaseUseTextProtocol(),

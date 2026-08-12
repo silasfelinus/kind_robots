@@ -10,6 +10,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 
 import {
+  fetchFreshSourceRows,
   getBrainstormSourceAdapter,
   resolveBrainstormSource,
   searchBrainstormSources,
@@ -137,6 +138,27 @@ async function main() {
   )
   assert.deepEqual(unregistered, [])
 
+  // Source search must fail closed when a fresh authorization/list fetch
+  // fails, even if the underlying store deliberately hands back cached rows
+  // for offline-friendly surfaces. This simulates a cached private row from a
+  // prior auth context plus a failed forced fetch: the picker must expose zero
+  // candidates. A successful fresh fetch may return the same row normally.
+  const cachedPrivateRows = [{ id: 99, title: 'Private Before Logout' }]
+  assert.deepEqual(
+    await fetchFreshSourceRows(
+      async () => cachedPrivateRows,
+      () => true,
+    ),
+    [],
+  )
+  assert.deepEqual(
+    await fetchFreshSourceRows(
+      async () => cachedPrivateRows,
+      () => false,
+    ),
+    cachedPrivateRows,
+  )
+
   // Real character adapter must revalidate authorization on every resolve,
   // not serve a cached/localStorage row: a persisted BrainstormSourceRef can
   // outlive an auth transition, and the server route's canView check only
@@ -155,15 +177,25 @@ async function main() {
       'so a stale cached row cannot bypass canView after an auth transition.',
   )
 
-  // The same staleness class applies to search: characterStore.fetchCharacters()
-  // short-circuits to whatever is already cached once hasLoaded is true, so an
-  // unforced call after an auth transition can list Character rows the current
-  // session is no longer authorized to view (follow-up reviewer finding on PR
-  // #1820, third review pass).
+  // Character and Dream search must both feed their fresh remote result through
+  // the fail-closed helper, and neither may search the store's cached list after
+  // revalidation fails. Character also still forces the remote list fetch.
   assert.ok(
-    adapterSource.includes('store.fetchCharacters(true)'),
-    'characterAdapter.search must force a fresh Character list fetch ' +
-      '(force=true) so the picker cannot surface pre-auth-transition cached rows.',
+    adapterSource.includes('() => store.fetchCharacters(true)') &&
+      adapterSource.includes('return freshCharacters'),
+    'characterAdapter.search must force a fresh Character list fetch and search ' +
+      'only the fail-closed fresh result.',
+  )
+  assert.ok(
+    adapterSource.includes('() => store.fetchDreams()') &&
+      adapterSource.includes('return freshDreams'),
+    'dreamAdapter.search must search only the fail-closed fresh result rather ' +
+      'than store.dreams after a failed remote fetch.',
+  )
+  assert.ok(
+    !adapterSource.includes('return store.characters') &&
+      !adapterSource.includes('return store.dreams'),
+    'Brainstorm source search must never return cached Character or Dream lists directly.',
   )
 
   // The source watcher in brainstorm-manager.vue must guard against a
@@ -224,9 +256,9 @@ async function main() {
     'Brainstorm source adapter registry verified: case-insensitive lookup, ' +
       'successful resolve passthrough, missing-row and unregistered-modelType ' +
       'fallbacks, thrown-adapter recovery, search dispatch/filtering, the ' +
-      "Character adapter force-revalidate contract, and the source watcher's " +
-      "and runSourceSearch's request-identity invalidation contracts " +
-      '(brainstorm/t-012).',
+      'Character adapter force-revalidate contract, fail-closed fresh source ' +
+      "searches, and the source watcher's and runSourceSearch's request-identity " +
+      'invalidation contracts (brainstorm/t-012).',
   )
 }
 

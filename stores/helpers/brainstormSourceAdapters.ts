@@ -26,6 +26,7 @@ import { useCharacterStore } from '@/stores/characterStore'
 import { useDreamStore } from '@/stores/dreamStore'
 import { resolveArtImageSrc } from '@/utils/artImageSrc'
 import {
+  fetchFreshSourceRows,
   getBrainstormSourceAdapter as getAdapterFromRegistry,
   matchesQuery,
   resolveBrainstormSource as resolveFromRegistry,
@@ -70,14 +71,16 @@ const characterAdapter: BrainstormSourceAdapter = {
   },
   async search(query) {
     const store = useCharacterStore()
-    // force=true: fetchCharacters() short-circuits to whatever is already
-    // cached/persisted once hasLoaded is true, same staleness the resolve()
-    // fix above addresses -- listing candidates from a pre-auth-transition
-    // cache would surface Character rows the current session may no longer
-    // be authorized to view (reviewer finding on PR #1820).
-    await store.fetchCharacters(true)
+    // fetchCharacters(true) intentionally preserves cached rows on network
+    // failure for offline-friendly Character surfaces. The Brainstorm picker
+    // has a stricter privacy contract: if fresh authorization cannot be
+    // confirmed, return zero candidates instead of searching that cache.
+    const freshCharacters = await fetchFreshSourceRows(
+      () => store.fetchCharacters(true),
+      () => Boolean(store.error),
+    )
 
-    return store.characters
+    return freshCharacters
       .filter((character) =>
         matchesQuery(
           [
@@ -121,9 +124,15 @@ const dreamAdapter: BrainstormSourceAdapter = {
   },
   async search(query) {
     const store = useDreamStore()
-    await store.fetchDreams()
+    // fetchDreams() already returns [] when the remote request fails, but use
+    // the same explicit fresh-result contract as Character search so this
+    // adapter can never fall back to store.dreams after a failed revalidation.
+    const freshDreams = await fetchFreshSourceRows(
+      () => store.fetchDreams(),
+      () => Boolean(store.error),
+    )
 
-    return store.dreams
+    return freshDreams
       .filter((dream) =>
         matchesQuery([dream.title, dream.pitch, dream.description], query),
       )

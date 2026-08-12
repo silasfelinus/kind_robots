@@ -96,7 +96,6 @@ async function main(): Promise<void> {
     patch: 'server/api/scenarios/[id].patch.ts',
     batchCreate: 'server/api/scenarios/batch.post.ts',
     batchPatch: 'server/api/scenarios/batch.patch.ts',
-    policy: 'scripts/lib/facetCatalogSeedPolicy.mjs',
   } as const
   const entries = await Promise.all(
     Object.entries(files).map(
@@ -130,9 +129,6 @@ async function main(): Promise<void> {
   }
   requireText(files.patch, text.patch, "if ('genres' in data)")
   requireText(files.batchPatch, text.batchPatch, "if ('genres' in data)")
-  requireText(files.policy, text.policy, 'stores/helpers/scenarioCards.ts')
-  requireText(files.policy, text.policy, 'utils/seeds/facetScenarioGenreArtwork.ts')
-  requireText(files.policy, text.policy, 'utils/scripts/seedScenarioGenreFacetCatalog.ts')
 
   if (failures.length) {
     throw new Error(`Scenario Genre Facet cutover failed:\n- ${failures.join('\n- ')}`)

@@ -82,6 +82,9 @@ export default defineEventHandler(async (event) => {
       credentials: {
         databaseConfigured: Boolean(process.env.DATABASE_URL),
         openAiConfigured: Boolean(process.env.OPENAI_API_KEY),
+        anthropicConfigured: Boolean(
+          process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY,
+        ),
       },
       backfill: await getCommentBackfillStatus(),
     })

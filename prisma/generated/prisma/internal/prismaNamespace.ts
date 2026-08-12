@@ -7097,7 +7097,8 @@ export const ResourceScalarFieldEnum = {
   civitaiModelVersionId: 'civitaiModelVersionId',
   imagePath: 'imagePath',
   slug: 'slug',
-  commercialSafe: 'commercialSafe'
+  commercialSafe: 'commercialSafe',
+  allowReviews: 'allowReviews'
 } as const
 
 export type ResourceScalarFieldEnum = (typeof ResourceScalarFieldEnum)[keyof typeof ResourceScalarFieldEnum]

@@ -489,6 +489,7 @@ onMounted(async () => {
           :art-src="infoResourceArt"
           :badges="infoResourceBadges"
           :can-edit="canEditInfoResource"
+          :can-review="infoResource.allowReviews !== false"
           @back="commit"
         >
           <template #details>
@@ -551,6 +552,27 @@ onMounted(async () => {
               <Icon name="kind-icon:plus" class="h-4 w-4" />
               Add to build
             </button>
+          </template>
+
+          <!--
+            Resources were the one reaction target with no allowReviews column
+            and no reviews affordance, so a LoRA could be reacted to by the API
+            and never by a person. Both halves landed together.
+          -->
+          <template #reviews>
+            <review-list
+              class="mb-3"
+              target-type="resource"
+              :target-id="infoResource.id"
+            />
+
+            <reaction-card
+              :target-id="infoResource.id"
+              target-type="resource"
+              reaction-category="RESOURCE"
+              :target-title="resourceLabel(infoResource)"
+              compact
+            />
           </template>
 
           <template #edit="{ done }">

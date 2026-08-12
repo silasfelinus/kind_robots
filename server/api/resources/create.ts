@@ -38,6 +38,7 @@ export const resourceCreateFields = new Set<string>([
   'supportedServer',
   'isPublic',
   'isActive',
+  'allowReviews',
   'artPrompt',
   'triggerWords',
   'defaultTrigger',

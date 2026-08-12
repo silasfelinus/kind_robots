@@ -168,6 +168,7 @@ export default defineEventHandler(async (event) => {
       supportedServer: resourceFields.supportedServer,
       isPublic: resourceFields.isPublic,
       isActive: resourceFields.isActive,
+      allowReviews: resourceFields.allowReviews,
       artPrompt: resourceFields.artPrompt,
       ArtImage:
         typeof resourceFields.artImageId === 'number'

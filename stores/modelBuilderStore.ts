@@ -1921,12 +1921,25 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       // artifacts onto items that belong to a run the user just cancelled —
       // and popping a misleading "Generated a candidate" success toast for
       // work they said they no longer want.
-      const cancelledRun =
-        state.runs.find((entry) => entry.id === runId) ??
-        (state.run?.id === runId ? state.run : null)
-      cancelledRun?.items.forEach((item) => {
-        item.artJobId = null
-        item.queueState = null
+      //
+      // adaptRun/adaptItem never memoize, so state.runs (populated
+      // independently by fetchRuns(), e.g. when the History panel mounts)
+      // and state.run (the currently open run) can each hold a distinct
+      // object instance for the same run id. pollAsyncArtJob's closure
+      // references whichever item object was live in state.run at the time
+      // generateItemAssetAsync queued the job — clearing only ONE of the two
+      // copies (the old `??` picked at most one) can null the state.runs
+      // duplicate while leaving state.run's original untouched, orphaning
+      // the poll instead of stopping it. Clear both copies whenever present.
+      const cancelledRuns = [
+        state.runs.find((entry) => entry.id === runId),
+        state.run?.id === runId ? state.run : null,
+      ].filter((entry): entry is BuildRun => entry != null)
+      cancelledRuns.forEach((run) => {
+        run.items.forEach((item) => {
+          item.artJobId = null
+          item.queueState = null
+        })
       })
       state.runs = state.runs.filter((entry) => entry.id !== runId)
       if (state.run?.id === runId) resetRun()

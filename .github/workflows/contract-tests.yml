@@ -317,6 +317,12 @@ jobs:
       - name: Model Builder stale-asset approval guard contract
         run: npm run test:model-builder-stale-asset-approval-guard
 
+      - name: Model Builder batch-editor key guard checker self-test
+        run: npm run test:model-builder-batch-editor-key-guard-selftest
+
+      - name: Model Builder batch-editor key guard contract
+        run: npm run test:model-builder-batch-editor-key-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

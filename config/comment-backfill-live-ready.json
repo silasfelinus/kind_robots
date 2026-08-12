@@ -1,0 +1,6 @@
+{
+  "ready": false,
+  "issueNumber": 1769,
+  "expectedTargetCount": 658,
+  "note": "Set ready=true only after the full reviewed draft corpus is complete and exact-head checks are green."
+}

@@ -1,0 +1,40 @@
+name: Comment Backfill Plan Export
+
+on:
+  push:
+    branches:
+      - gpt/comment-backfill-live
+    paths:
+      - 'config/comment-backfill-plan-ready.json'
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_SSL_CA_BASE64: ${{ secrets.DATABASE_SSL_CA_BASE64 }}
+      DATABASE_SSL_CA: ${{ secrets.DATABASE_SSL_CA }}
+      COMMENT_PLAN_START: '256'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - run: npx prisma generate
+      - uses: tailscale/github-action@v3
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+      - name: Export remaining plans (read only)
+        run: npx tsx utils/scripts/exportCommentBackfillPlans.ts
+      - uses: actions/upload-artifact@v4
+        with:
+          name: comment-backfill-plan-remaining
+          path: artifacts/comment-backfill-plan-remaining.json
+          retention-days: 1

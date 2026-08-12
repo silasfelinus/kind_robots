@@ -359,6 +359,12 @@ jobs:
       - name: Model Builder resume-run identity guard contract
         run: npm run test:model-builder-resume-run-identity-guard
 
+      - name: Model Builder cancel-run poll guard checker self-test
+        run: npm run test:model-builder-cancel-run-poll-guard-selftest
+
+      - name: Model Builder cancel-run poll guard contract
+        run: npm run test:model-builder-cancel-run-poll-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

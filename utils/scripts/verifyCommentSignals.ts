@@ -9,6 +9,10 @@
 import assert from 'node:assert/strict'
 import { rankCommentSpeakers } from '@/utils/comments/commentCasting'
 import {
+  facetIdsForSpeaker,
+  withFacetAttributes,
+} from '@/utils/comments/facetAttributeMatch'
+import {
   applyContrastDirectives,
   noveltyScore,
   relationshipScore,
@@ -238,6 +242,92 @@ assert.throws(
   () => applyContrastDirectives(baseCast, baseCast, [{ speakerKey: 'BOT:702', note: '  ' }]),
   /needs a note/,
   'an unexplained override is not inspectable and must fail',
+)
+
+// ------------------------------------------------- facet attribute matching
+//
+// CharacterFacet / BotFacet join rows are not on the public API, so the offline
+// casting path had `facetIds` empty and relationshipScore's strongest tier --
+// "carries this facet", worth 100 -- never fired on a facet target. Every
+// speaker scored relationship 0 on every facet and casting ran on vocabulary
+// overlap alone.
+//
+// facetAttributeMatch recovers the link from published attributes. The whole
+// value of that depends on it being SCOPED: handing out the strongest signal in
+// the system for a coincidental word match is worse than handing out nothing,
+// because a false 100 outranks a true 90.
+
+const catalog = [
+  { id: 9001, title: 'Chaotic Good', groupKey: 'alignment', groupLabel: 'Alignment' },
+  { id: 9002, title: 'Bard', groupKey: 'class', groupLabel: 'Class', aliases: ['minstrel'] },
+  { id: 9003, title: 'Axolotl', groupKey: 'species', groupLabel: 'Species' },
+  { id: 9004, title: 'Teal', groupKey: 'color', groupLabel: 'Colour' },
+]
+
+const alignedSpeaker = {
+  kind: 'CHARACTER' as const,
+  id: 9101,
+  name: 'Aligned',
+  alignment: 'Chaotic Good',
+}
+assert.deepEqual(
+  facetIdsForSpeaker(alignedSpeaker, catalog),
+  [9001],
+  'a speaker whose alignment IS the facet must carry it',
+)
+assert.equal(
+  relationshipScore(
+    { type: 'FACET', id: 9001, title: 'Chaotic Good' },
+    { ...alignedSpeaker, facetIds: facetIdsForSpeaker(alignedSpeaker, catalog) },
+  ).score,
+  100,
+  'carrying the facet as an attribute must reach the same tier the join row would',
+)
+
+assert.deepEqual(
+  facetIdsForSpeaker(
+    { kind: 'CHARACTER', id: 9102, name: 'Aliased', characterClass: 'Minstrel' },
+    catalog,
+  ),
+  [9002],
+  'a facet alias identifies it as surely as its title',
+)
+
+// The false positives, each of which would otherwise score a full 100.
+assert.deepEqual(
+  facetIdsForSpeaker(
+    {
+      kind: 'CHARACTER',
+      id: 9103,
+      name: 'Crossed',
+      backstory: 'Retired after a chaotic good deed went wrong in a bard college.',
+    },
+    catalog,
+  ),
+  [],
+  'a facet name appearing in the WRONG field must not match -- group scoping is the whole point',
+)
+assert.deepEqual(
+  facetIdsForSpeaker(
+    { kind: 'CHARACTER', id: 9104, name: 'Bounded', characterClass: 'Bardic Historian' },
+    catalog,
+  ),
+  [],
+  'a facet name embedded inside a longer word must not match; containment is by whole phrase',
+)
+assert.deepEqual(
+  facetIdsForSpeaker(
+    { kind: 'CHARACTER', id: 9105, name: 'Coloured', personality: 'Teal, mostly.' },
+    catalog,
+  ),
+  [],
+  'groups that describe objects rather than people are unmatched -- a character is not the colour teal',
+)
+
+assert.deepEqual(
+  withFacetAttributes([{ ...alignedSpeaker, facetIds: [9500] }], catalog)[0]!.facetIds,
+  [9500, 9001],
+  'attribute matches must add to any facets the speaker already carries, not replace them',
 )
 
 console.log('Comment casting signal contract passed.')

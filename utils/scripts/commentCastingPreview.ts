@@ -21,6 +21,7 @@
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { rankCommentSpeakers } from './../../utils/comments/commentCasting'
+import { withFacetAttributes } from './../../utils/comments/facetAttributeMatch'
 import {
   scoreSpeakerPool,
   type CastingContext,
@@ -187,14 +188,26 @@ async function main() {
     process.exit(1)
   }
 
-  const [characters, bots] = await Promise.all([
+  const [characters, bots, catalog] = await Promise.all([
     getRows('/api/characters'),
     getRows('/api/bots'),
+    getAllFacets(),
   ])
-  const pool: SignalSpeakerProfile[] = [
-    ...characters.map(characterProfile),
-    ...bots.map(botProfile),
-  ]
+
+  // CharacterFacet / BotFacet join rows are not on the public API, so
+  // `facetIds` would be empty here and relationshipScore's strongest tier --
+  // "carries this facet", worth 100 -- could never fire on a facet target.
+  // Recover it from the attributes the catalog and the cast already publish.
+  const pool: SignalSpeakerProfile[] = withFacetAttributes(
+    [...characters.map(characterProfile), ...bots.map(botProfile)],
+    catalog.map((row) => ({
+      id: Number(row.id),
+      title: row.title as string | null,
+      groupKey: row.groupKey as string | null,
+      groupLabel: row.groupLabel as string | null,
+      aliases: row.aliases as string | null,
+    })),
+  )
   const evidence = buildVoiceEvidenceIndex(loadArchive())
 
   const targets: SignalTargetProfile[] = []
@@ -204,13 +217,10 @@ async function main() {
     const facets = await getRows(`/api/rewards/${id}/facets`)
     targets.push(rewardTarget(row, facets.map((facet) => Number(facet.id))))
   }
-  if (facetIds.length) {
-    const catalog = await getAllFacets()
-    for (const id of facetIds) {
-      const row = catalog.find((entry) => Number(entry.id) === id)
-      if (!row) throw new Error(`Facet ${id} is not in the public catalog.`)
-      targets.push(facetTarget(row))
-    }
+  for (const id of facetIds) {
+    const row = catalog.find((entry) => Number(entry.id) === id)
+    if (!row) throw new Error(`Facet ${id} is not in the public catalog.`)
+    targets.push(facetTarget(row))
   }
 
   // Novelty is a batch property: casting one target changes the pressure on the

@@ -917,15 +917,26 @@ watch(
   { immediate: true },
 )
 
+// Request-identity token: an overlapping earlier search (e.g. the user
+// changes the type or edits the query while a prior search is still in
+// flight) must not overwrite a newer search's results or clear the loading
+// flag out from under it (follow-up reviewer finding on PR #1820).
+let sourceSearchToken = 0
+
 async function runSourceSearch() {
+  const token = ++sourceSearchToken
   isSearchingSource.value = true
   try {
-    sourceSearchResults.value = await searchBrainstormSources(
+    const results = await searchBrainstormSources(
       sourceModelType.value,
       sourceQuery.value,
     )
+    if (token !== sourceSearchToken) return
+    sourceSearchResults.value = results
   } finally {
-    isSearchingSource.value = false
+    if (token === sourceSearchToken) {
+      isSearchingSource.value = false
+    }
   }
 }
 

@@ -111,10 +111,22 @@ export function checkAutoBuildDraftGate(content: string): string[] {
     )
   }
 
-  const manualActionGuard =
+  // Accepts either the original inline three-condition check, or a call to
+  // the shared isItemManualActionInFlight(item.id) helper (added later, same
+  // task, to also cover item.queueState -- see
+  // verifyModelBuilderAutoBuildQueuedGuard.ts for that half of the contract).
+  // Both shapes return 'skipped' when a manual single-stage action is
+  // already in flight for this item; which one is in place is not this
+  // guard's concern, only that one of them is.
+  const manualActionGuardInline =
     /state\.generatingItemId\s*===\s*item\.id[\s\S]{0,200}state\.committingItemId\s*===\s*item\.id[\s\S]{0,200}draftingField\.value\?\.itemId\s*===\s*item\.id[\s\S]{0,80}return 'skipped'/.exec(
       fn.body,
     )
+  const manualActionGuardShared =
+    /isItemManualActionInFlight\(item\.id\)[\s\S]{0,80}return 'skipped'/.exec(
+      fn.body,
+    )
+  const manualActionGuard = manualActionGuardInline ?? manualActionGuardShared
   if (
     claimIndex < 0 ||
     !manualActionGuard ||
@@ -123,8 +135,9 @@ export function checkAutoBuildDraftGate(content: string): string[] {
     errors.push(
       `${FN_NAME}() must return 'skipped' when a manual single-stage action ` +
         '(state.generatingItemId, state.committingItemId, or ' +
-        "draftingField.value's itemId already matching item.id) is in " +
-        'flight for this item, before claiming autoBuildingItemSingleton. ' +
+        "draftingField.value's itemId already matching item.id -- directly " +
+        'or via the shared isItemManualActionInFlight(item.id) helper) is ' +
+        'in flight for this item, before claiming autoBuildingItemSingleton. ' +
         'Without that guard, clicking Auto while a manual "Generate ' +
         'candidate" / "Draft with AI" / "Execute commit" is still running ' +
         'fires a second, concurrent request for the same stage -- for ' +

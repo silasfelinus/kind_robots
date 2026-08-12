@@ -1461,12 +1461,15 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     // otherwise Auto walks straight into the same stage and fires a second,
     // concurrent request (generateItemAsset's own approved-stage guard only
     // catches the case where the first call already resolved to approved; it
-    // does nothing while both calls are still racing mid-flight).
-    if (
-      state.generatingItemId === item.id ||
-      state.committingItemId === item.id ||
-      draftingField.value?.itemId === item.id
-    ) {
+    // does nothing while both calls are still racing mid-flight). This must
+    // also check item.queueState (mirrors isItemManualActionInFlight above)
+    // -- otherwise an item with an async art job already queued/rendering
+    // via "Queue generation in background" isn't recognized as busy here,
+    // and Auto-build group/all (unlike the single-item Auto button, which
+    // does gate on isQueued) walks straight into GENERATE_ASSETS and fires a
+    // second, synchronous generateItemAsset() call for the same item while
+    // the first is still in flight.
+    if (isItemManualActionInFlight(item.id)) {
       return 'skipped'
     }
 

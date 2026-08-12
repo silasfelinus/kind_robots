@@ -30,6 +30,7 @@ export const resourceGallerySelect = {
   supportedServer: true,
   isPublic: true,
   isActive: true,
+  allowReviews: true,
   artPrompt: true,
   triggerWords: true,
   defaultTrigger: true,
@@ -94,6 +95,7 @@ export const resourceListSelect = {
   imagePath: true,
   isMature: true,
   isPublic: true,
+  allowReviews: true,
   userId: true,
   ArtImage: {
     select: resourcePreviewArtImageSelect,

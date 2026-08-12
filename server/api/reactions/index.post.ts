@@ -324,15 +324,15 @@ const contentTargetLabels: Record<string, string> = {
 
 /**
  * Target columns whose model carries an `allowReviews` opt-out. ArtImage,
- * ArtCollection, Prompt, Theme -- and, for now, Resource -- have no such
- * column, so selecting it would be a Prisma error rather than a permissive
- * default. Resource joins this set with the migration that adds it the column.
+ * ArtCollection, Prompt and Theme have no such column, so selecting it would be
+ * a Prisma error rather than a permissive default.
  */
 const REVIEWABLE_TARGETS = new Set([
   'botId',
   'characterId',
   'dreamId',
   'facetId',
+  'resourceId',
   'rewardId',
   'scenarioId',
 ])

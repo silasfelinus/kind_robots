@@ -150,7 +150,7 @@ model Bot {
   iconPath             String?                @db.Text
   cardPath             String?                @db.Text
   heroPath             String?                @db.Text
-  allowReviews         Boolean                @default(false)
+  allowReviews         Boolean                @default(true)
   forgeIntro           String?                @db.Text
   narrativeVoice       String?                @db.Text
   slug                 String?                @unique @db.VarChar(255)
@@ -206,7 +206,7 @@ model Character {
   iconPath             String?                @db.Text
   cardPath             String?                @db.Text
   heroPath             String?                @db.Text
-  allowReviews         Boolean                @default(false)
+  allowReviews         Boolean                @default(true)
   designer             String?                @db.VarChar(256)
   personality          String?                @db.Text
   sampleResponse       String?                @db.Text
@@ -369,7 +369,7 @@ model Dream {
   imagePath       String?         @db.Text
   iconPath        String?         @db.Text
   pitch           String?         @db.Text
-  allowReviews    Boolean         @default(false)
+  allowReviews    Boolean         @default(true)
   cardPath        String?         @db.Text
   heroPath        String?         @db.Text
   narratorId      Int?
@@ -443,7 +443,7 @@ model Project {
   channelKey         String?                @db.VarChar(255)
   tabKey             String?                @db.VarChar(255)
   lastSyncedAt       DateTime?
-  allowReviews       Boolean                @default(false)
+  allowReviews       Boolean                @default(true)
   highlightImage     String?                @db.VarChar(256)
   icon               String?
   imagePath          String?                @db.Text
@@ -513,7 +513,7 @@ model Facet {
   iconArtImageId     Int?
   artCollectionId    Int?
   packId             Int?
-  allowReviews       Boolean              @default(false)
+  allowReviews       Boolean              @default(true)
   isPublic           Boolean              @default(true)
   isMature           Boolean              @default(false)
   isActive           Boolean              @default(true)
@@ -1205,6 +1205,10 @@ model Resource {
   /// license-clean (FLUX.1 schnell, OpenAI, approved licensed APIs). The
   /// print-eligibility gate on ArtImage.checkpointResourceId reads this.
   commercialSafe        Boolean         @default(false)
+  /// Owner opt-out for reviews, matching Bot/Character/Reward/Facet/Scenario.
+  /// Added late: Resource was the one reaction target with no such flag, so it
+  /// could neither be opted out of nor gated like its siblings.
+  allowReviews          Boolean         @default(true)
   ArtImages             ArtImage[]      @relation("ArtImageCheckpointResource")
   Reactions             Reaction[]
   ArtImage              ArtImage?       @relation("ResourcePreviewImage", fields: [artImageId], references: [id])
@@ -1239,7 +1243,7 @@ model Reward {
   imagePath      String?       @db.VarChar(764)
   cardPath       String?       @db.Text
   heroPath       String?       @db.Text
-  allowReviews   Boolean       @default(false)
+  allowReviews   Boolean       @default(true)
   isMature       Boolean       @default(false)
   isPublic       Boolean       @default(true)
   isActive       Boolean       @default(true)
@@ -1287,7 +1291,7 @@ model Scenario {
   iconPath             String?               @db.Text
   cardPath             String?               @db.Text
   heroPath             String?               @db.Text
-  allowReviews         Boolean               @default(false)
+  allowReviews         Boolean               @default(true)
   locations            String?               @db.Text
   artPrompt            String?               @db.Text
   genres               String?

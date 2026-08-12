@@ -234,7 +234,7 @@ export function buildCreateData(
     isMature: toBoolean(input.isMature) ?? false,
     isPublic: toBoolean(input.isPublic) ?? true,
     isActive: toBoolean(input.isActive) ?? true,
-    allowReviews: toBoolean(input.allowReviews) ?? false,
+    allowReviews: toBoolean(input.allowReviews) ?? true,
     User: {
       connect: {
         id: authenticatedUserId,

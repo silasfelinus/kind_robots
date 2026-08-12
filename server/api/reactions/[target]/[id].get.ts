@@ -21,36 +21,11 @@ import { createError, defineEventHandler } from 'h3'
 import { errorHandler } from '../../../utils/error'
 import prisma from '../../../utils/prisma'
 import { getOptionalApiUser } from '../../../utils/authGuard'
+import { KARMA_REF_TARGET_COLUMNS, isKarmaRefType } from '~/utils/karmaRefTypes'
 import {
-  KARMA_REF_TARGET_COLUMNS,
-  isKarmaRefType,
-  type KarmaRefType,
-} from '~/utils/karmaRefTypes'
-
-/**
- * Models that own their reactions and can be visibility-checked by
- * `userId`/`isPublic`. Component has no `userId` and Chat has participant
- * rules of its own; both keep their existing routes.
- */
-const OWNED_TARGETS = {
-  artImage: 'artImage',
-  artCollection: 'artCollection',
-  bot: 'bot',
-  character: 'character',
-  dream: 'dream',
-  facet: 'facet',
-  prompt: 'prompt',
-  resource: 'resource',
-  reward: 'reward',
-  scenario: 'scenario',
-  theme: 'theme',
-} as const
-
-type OwnedTarget = keyof typeof OWNED_TARGETS
-
-function isOwnedTarget(value: KarmaRefType): value is OwnedTarget {
-  return value in OWNED_TARGETS
-}
+  canViewReactionsOn,
+  isOwnedReactionTarget,
+} from '../../../utils/reactionVisibility'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -71,7 +46,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    if (!isOwnedTarget(target)) {
+    if (!isOwnedReactionTarget(target)) {
       throw createError({
         statusCode: 400,
         message: `${target} reactions are read from their own route.`,
@@ -79,23 +54,15 @@ export default defineEventHandler(async (event) => {
     }
 
     const auth = await getOptionalApiUser(event)
-    const userId = auth?.user.id ?? null
-    const isAdmin = auth?.isAdmin ?? false
-
-    const model = prisma[target] as unknown as {
-      findUnique: (args: unknown) => Promise<unknown>
+    const viewer = {
+      userId: auth?.user.id ?? null,
+      isAdmin: auth?.isAdmin ?? false,
     }
 
-    const row = (await model.findUnique({
-      where: { id: targetId },
-      select: { userId: true, isPublic: true },
-    })) as { userId?: number | null; isPublic?: boolean | null } | null
-
-    if (!row) {
-      throw createError({ statusCode: 404, message: `${target} #${targetId} not found.` })
-    }
-
-    if (!isAdmin && row.isPublic !== true && row.userId !== userId) {
+    // Comments inherit their target's audience -- a public object's reactions
+    // are readable by anyone, signed in or not. Shared with [id].get.ts so the
+    // two cannot answer differently about the same reaction.
+    if (!(await canViewReactionsOn(target, targetId, viewer))) {
       throw createError({
         statusCode: 403,
         message: `You do not have permission to read reactions on this ${target}.`,

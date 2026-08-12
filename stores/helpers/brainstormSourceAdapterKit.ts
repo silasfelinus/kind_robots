@@ -48,6 +48,20 @@ export function matchesQuery(
   return haystack.some((part) => (part || '').toLowerCase().includes(needle))
 }
 
+/**
+ * Return rows only when the caller can prove the fetch just completed
+ * successfully. Some entity stores intentionally fall back to cached rows when
+ * their remote fetch fails; source pickers must not reuse that offline behavior
+ * because cached private rows may predate an auth transition.
+ */
+export async function fetchFreshSourceRows<T>(
+  fetchRows: () => Promise<T[]>,
+  didFetchFail: () => boolean,
+): Promise<T[]> {
+  const rows = await fetchRows()
+  return didFetchFail() ? [] : rows
+}
+
 export function getBrainstormSourceAdapter(
   modelType: string | null | undefined,
   registry: BrainstormSourceAdapterRegistry,

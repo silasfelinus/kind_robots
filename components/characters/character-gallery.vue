@@ -621,7 +621,7 @@ const filteredCharacters = computed<Character[]>(() => {
 })
 
 // interface-vision/t-066: earned karma for the rendered set, batched through
-// the shared composable (see stores/userStore.ts). Scoped to
+// the shared userStore earned-karma tracker. Scoped to
 // filteredCharacters — the set the grid actually renders.
 const { earnedKarma: earnedKarmaByCharacterId } = userStore.trackEarnedKarma(
   'character',

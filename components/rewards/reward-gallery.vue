@@ -461,7 +461,7 @@ import { useRewardStore } from '@/stores/rewardStore'
 import type { Rarity } from '@/stores/rewardStore'
 import { useUserStore } from '@/stores/userStore'
 
-// Earned karma comes from useEarnedKarma (t-066). This gallery wrote the first
+// Earned karma comes from userStore tracking (t-066). This gallery wrote the first
 // copy of that fetch under t-019 and invited the other consumers to copy it;
 // the composable is that invitation answered properly, so there is one
 // implementation instead of twelve.
@@ -634,7 +634,7 @@ const visibleRewards = computed<Reward[]>(() => {
 
 // Fetch earned karma for the broader visible set (pre search/collection/rarity
 // refinement) rather than re-fetching on every keystroke — those filters only
-// narrow an already-fetched set. useEarnedKarma keys its watch on the id list,
+// narrow an already-fetched set. the earned-karma tracker keys its watch on the id list,
 // so a refilter that yields the same rewards does not re-request.
 const { earnedKarma: earnedKarmaByRewardId } = userStore.trackEarnedKarma('reward', () =>
   visibleRewards.value.map((reward) => reward.id),

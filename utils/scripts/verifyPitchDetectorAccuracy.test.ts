@@ -15,7 +15,7 @@ import assert from 'node:assert/strict'
 import {
   detectPitchAutocorrelation,
   detectPitchYIN,
-} from '../../composables/useAudioAnalysis.js'
+} from '../../stores/helpers/audioAnalysisHelper.js'
 
 const SAMPLE_RATE = 16000
 const FRAME = 1024

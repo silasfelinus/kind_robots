@@ -122,7 +122,8 @@ export function createStorybookLibraryController(bridge: StorybookLibraryBridge)
       library.value = []
     }
     initialized.value = true
-    if (bridge.getSession()) upsert(bridge.getSession())
+    const current = bridge.getSession()
+    if (current) upsert(current)
   }
 
   function findStory(sessionId: string): StorybookSession | null {
@@ -191,10 +192,8 @@ export function createStorybookLibraryController(bridge: StorybookLibraryBridge)
 
   function duplicateStory(sessionId = bridge.getSession()?.id): string | null {
     if (!sessionId || bridge.isWeaving()) return null
-    const source =
-      bridge.getSession()?.id === sessionId
-        ? bridge.getSession()
-        : findStory(sessionId)
+    const current = bridge.getSession()
+    const source = current?.id === sessionId ? current : findStory(sessionId)
     if (!source) return null
     const duplicate = remapDuplicate(source)
     upsert(duplicate)
@@ -206,16 +205,15 @@ export function createStorybookLibraryController(bridge: StorybookLibraryBridge)
     sessionId = bridge.getSession()?.id,
   ): Promise<string | null> {
     if (!sessionId || bridge.isWeaving()) return null
-    const source =
-      bridge.getSession()?.id === sessionId
-        ? bridge.getSession()
-        : findStory(sessionId)
+    const current = bridge.getSession()
+    const source = current?.id === sessionId ? current : findStory(sessionId)
     if (!source) return null
     upsert(source)
     const started = await bridge.beginStory(restartInput(source.bible))
-    if (!started || !bridge.getSession()) return null
-    upsert(bridge.getSession())
-    return bridge.getSession().id
+    const restarted = bridge.getSession()
+    if (!started || !restarted) return null
+    upsert(restarted)
+    return restarted.id
   }
 
   function buildExport(
@@ -223,10 +221,8 @@ export function createStorybookLibraryController(bridge: StorybookLibraryBridge)
     format: 'markdown' | 'json' = 'markdown',
   ): StorybookLibraryExport | null {
     if (!sessionId) return null
-    const source =
-      bridge.getSession()?.id === sessionId
-        ? bridge.getSession()
-        : findStory(sessionId)
+    const current = bridge.getSession()
+    const source = current?.id === sessionId ? current : findStory(sessionId)
     if (!source) return null
     const copy = cloneSession(source)
 
@@ -285,7 +281,8 @@ export function createStorybookLibraryController(bridge: StorybookLibraryBridge)
   }
 
   function archiveCurrent(): void {
-    if (bridge.getSession()) upsert(bridge.getSession())
+    const current = bridge.getSession()
+    if (current) upsert(current)
   }
 
   watch(

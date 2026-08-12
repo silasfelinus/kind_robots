@@ -1564,7 +1564,7 @@ function clearSelectedImage() {
 // interface-vision/t-046 scoping, t-066 implementation: earned karma is
 // fetched for the current visible PAGE only (not the whole gallery), the same
 // "fetch on the rendered page, not every filter keystroke" rule as
-// hydrateVisibleImages. useEarnedKarma watches that id list itself, so the
+// hydrateVisibleImages. The earned-karma tracker watches that id list itself, so the
 // page/filter watch below no longer has to call refresh by hand; the explicit
 // Refresh button still does, because karma can change while the ids do not.
 const { earnedKarma: earnedKarmaByImageId, refresh: refreshEarnedKarma } =

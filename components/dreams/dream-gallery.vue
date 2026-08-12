@@ -564,7 +564,7 @@ import { useDreamStore, type DreamWithRelations } from '@/stores/dreamStore'
 import { useNavStore } from '@/stores/navStore'
 import { useUserStore } from '@/stores/userStore'
 
-// Earned karma comes from useEarnedKarma (t-066); the scoping decision below
+// Earned karma comes from userStore tracking (t-066); the scoping decision below
 // is t-048's and is unchanged.
 type GalleryVariant = 'dashboard' | 'row' | 'dropdown'
 

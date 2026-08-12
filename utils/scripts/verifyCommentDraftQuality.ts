@@ -168,14 +168,9 @@ for (const batch of batchNames) {
           `${words.length} words is outside the 4-120 guardrail`,
         )
       }
-      const banned = value.match(BANNED_REVIEW_LANGUAGE)
+      const banned = value.match(BANNED_REVIEW_LANGUAGE)?.[0]
       if (banned) {
-        flag(
-          batch,
-          item,
-          speaker.name,
-          `reviewer/museum language: "${banned[0]}"`,
-        )
+        flag(batch, item, speaker.name, `reviewer/museum language: "${banned}"`)
       }
 
       for (const sample of voiceIndex.get(key)?.samples || []) {

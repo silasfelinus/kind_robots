@@ -249,6 +249,127 @@
 
       <details
         class="mt-4 rounded-2xl border border-base-content/10 bg-base-200/45 p-3"
+        data-testid="brainstorm-source"
+      >
+        <summary class="cursor-pointer select-none text-sm font-bold text-base-content/75">
+          Ground it in a Kind Robots object
+          <span v-if="source" class="ml-2 font-normal text-success">linked</span>
+        </summary>
+
+        <p class="mt-3 max-w-3xl text-xs leading-5 text-base-content/55">
+          Pick a Character or Dream to brainstorm around. It rides along with the session and every candidate, but never changes what the model can see beyond what you'd normally share.
+        </p>
+
+        <div
+          v-if="resolvedSource"
+          class="mt-3 flex items-center gap-3 rounded-2xl border border-primary/25 bg-primary/5 p-3"
+          data-testid="brainstorm-source-selected"
+        >
+          <img
+            v-if="resolvedSource.thumbnailUrl"
+            :src="resolvedSource.thumbnailUrl"
+            :alt="resolvedSource.title"
+            class="h-12 w-12 shrink-0 rounded-xl object-cover"
+          />
+          <div
+            v-else
+            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-base-300 text-lg"
+            aria-hidden="true"
+          >
+            🧩
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-sm font-black text-base-content">
+              {{ resolvedSource.title }}
+            </p>
+            <p class="truncate text-xs text-base-content/55">
+              {{ resolvedSource.subtitle || resolvedSource.modelType }}
+            </p>
+          </div>
+          <button
+            type="button"
+            class="btn btn-ghost btn-xs rounded-xl text-error"
+            data-testid="brainstorm-source-remove"
+            @click="clearSource"
+          >
+            <Icon name="kind-icon:x" class="h-3.5 w-3.5" />
+            Remove
+          </button>
+        </div>
+        <p v-else-if="isResolvingSource" class="mt-3 text-xs text-base-content/50">
+          Loading selected source…
+        </p>
+
+        <div class="mt-4 grid grid-cols-[auto_minmax(0,1fr)_auto] items-end gap-2">
+          <label class="form-control">
+            <span class="label py-1"
+              ><span class="label-text text-xs font-bold uppercase tracking-[0.12em] text-base-content/55"
+                >Type</span
+              ></span
+            >
+            <select
+              v-model="sourceModelType"
+              class="select select-bordered select-sm rounded-xl bg-base-100"
+              data-testid="brainstorm-source-type"
+            >
+              <option v-for="adapter in sourceAdapters" :key="adapter.modelType" :value="adapter.modelType">
+                {{ adapter.label }}
+              </option>
+            </select>
+          </label>
+          <label class="form-control">
+            <span class="label py-1"
+              ><span class="label-text text-xs font-bold uppercase tracking-[0.12em] text-base-content/55"
+                >Search</span
+              ></span
+            >
+            <input
+              v-model="sourceQuery"
+              type="search"
+              class="input input-bordered input-sm rounded-xl bg-base-100"
+              placeholder="Search by name…"
+              data-testid="brainstorm-source-query"
+              @keydown.enter.prevent="runSourceSearch"
+            />
+          </label>
+          <button
+            type="button"
+            class="btn btn-sm rounded-xl"
+            :disabled="isSearchingSource"
+            data-testid="brainstorm-source-search"
+            @click="runSourceSearch"
+          >
+            <span v-if="isSearchingSource" class="loading loading-spinner loading-xs" aria-hidden="true" />
+            Search
+          </button>
+        </div>
+
+        <ul
+          v-if="sourceSearchResults.length"
+          class="mt-3 grid gap-2"
+          data-testid="brainstorm-source-results"
+        >
+          <li v-for="option in sourceSearchResults" :key="`${option.modelType}-${option.id}`">
+            <button
+              type="button"
+              class="w-full rounded-xl border border-base-content/10 bg-base-100 p-2 text-left text-sm hover:border-primary/40"
+              @click="pickSource(option)"
+            >
+              <span class="font-bold">{{ option.title }}</span>
+              <span v-if="option.subtitle" class="ml-2 text-xs text-base-content/50">{{ option.subtitle }}</span>
+            </button>
+          </li>
+        </ul>
+        <p
+          v-else-if="!isSearchingSource && sourceQuery"
+          class="mt-3 text-xs text-base-content/45"
+        >
+          No {{ sourceModelType }} matched "{{ sourceQuery }}".
+        </p>
+      </details>
+
+      <details
+        class="mt-4 rounded-2xl border border-base-content/10 bg-base-200/45 p-3"
         data-testid="brainstorm-saved-work"
       >
         <summary class="cursor-pointer select-none text-sm font-bold text-base-content/75">
@@ -591,7 +712,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import {
   BRAINSTORM_MAX_RESULTS,
@@ -602,6 +723,15 @@ import type {
   BrainstormReturnTypeId,
 } from '@/types/brainstorm'
 import { useBrainstormStore } from '@/stores/brainstormStore'
+import {
+  listBrainstormSourceAdapters,
+  resolveBrainstormSource,
+  searchBrainstormSources,
+} from '@/stores/helpers/brainstormSourceAdapters'
+import type {
+  BrainstormSourceDisplay,
+  BrainstormSourceOption,
+} from '@/stores/helpers/brainstormSourceAdapters'
 
 const creativeDirections = [
   {
@@ -710,6 +840,7 @@ const {
   isPersisting,
   canSaveSession,
   suggestedSessionName,
+  source,
 } = storeToRefs(store)
 
 const pendingCandidateAction = ref<{
@@ -747,6 +878,55 @@ const sessionNameModel = computed({
   get: () => sessionName.value,
   set: (value: string) => store.setSessionName(value),
 })
+
+// Source object (brainstorm/t-012): ground the premise in an existing Kind
+// Robots entity via the adapter registry in brainstormSourceAdapters.ts.
+const sourceAdapters = listBrainstormSourceAdapters()
+const sourceModelType = ref(sourceAdapters[0]?.modelType ?? 'character')
+const sourceQuery = ref('')
+const sourceSearchResults = ref<BrainstormSourceOption[]>([])
+const isSearchingSource = ref(false)
+const resolvedSource = ref<BrainstormSourceDisplay | null>(null)
+const isResolvingSource = ref(false)
+
+watch(
+  source,
+  async (ref) => {
+    if (!ref) {
+      resolvedSource.value = null
+      return
+    }
+    isResolvingSource.value = true
+    try {
+      resolvedSource.value = await resolveBrainstormSource(ref)
+    } finally {
+      isResolvingSource.value = false
+    }
+  },
+  { immediate: true },
+)
+
+async function runSourceSearch() {
+  isSearchingSource.value = true
+  try {
+    sourceSearchResults.value = await searchBrainstormSources(
+      sourceModelType.value,
+      sourceQuery.value,
+    )
+  } finally {
+    isSearchingSource.value = false
+  }
+}
+
+function pickSource(option: BrainstormSourceOption) {
+  store.setSource({ modelType: option.modelType, id: option.id })
+  sourceSearchResults.value = []
+  sourceQuery.value = ''
+}
+
+function clearSource() {
+  store.setSource(null)
+}
 
 const activeCreativeDirection = computed(
   () => creativeDirections.find((direction) => direction.id === mode.value) || creativeDirections[0],

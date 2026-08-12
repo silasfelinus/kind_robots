@@ -136,6 +136,7 @@
     "test:conductor-progress-parity": "tsx utils/scripts/verifyConductorProgressParity.ts",
     "test:pack-manifest": "tsx utils/scripts/verifyPackManifest.test.ts",
     "test:pitch-detector-accuracy": "tsx utils/scripts/verifyPitchDetectorAccuracy.test.ts",
+    "test:brainstorm-source-adapters": "tsx utils/scripts/verifyBrainstormSourceAdapters.test.ts",
     "test:pack-scaffold-extraction": "tsx utils/scripts/verifyPackScaffoldExtraction.test.ts",
     "test:parse-mysql-url": "tsx utils/scripts/verifyParseMysqlUrl.ts",
     "test:newsfeed-aggregation": "tsx utils/scripts/verifyNewsfeedAggregation.ts",

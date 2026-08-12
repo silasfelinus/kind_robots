@@ -1,0 +1,160 @@
+// /stores/helpers/brainstormSourceAdapters.ts
+//
+// conductor brainstorm/t-012: reusable source-object context adapter.
+//
+// A BrainstormSourceRef (types/brainstorm.ts) only carries
+// `{ modelType, id?, slug?, intent? }` -- enough to persist and replay a
+// session, but not enough to show the user *what* they picked or let them
+// find it in the first place. This registry maps a modelType to a small,
+// inspectable adapter that knows how to:
+//   (a) resolve a ref into a display-ready summary, reusing each entity's
+//       own Pinia store (fetchCharacterById, fetchDreamById, ...) rather
+//       than a bespoke brainstorm-specific endpoint, and
+//   (b) search that entity type for a picker UI.
+//
+// Start with Character and Dream -- the two entity types Brainstorm already
+// has typed hooks into (BrainstormSourceRef.modelType is a free string, but
+// these two are the only ones with real adapters so far). Scenario, Reward,
+// Bot, Project, and Prompt can each register a BrainstormSourceAdapter the
+// same way, with no new API surface and no bespoke endpoint -- just another
+// entry in BRAINSTORM_SOURCE_ADAPTERS backed by that entity's existing store.
+//
+// The store-agnostic dispatch/fallback logic lives in
+// brainstormSourceAdapterKit.ts (no Pinia imports, unit-testable with plain
+// tsx) and is re-exported here bound to the real registry below.
+import { useCharacterStore } from '@/stores/characterStore'
+import { useDreamStore } from '@/stores/dreamStore'
+import { resolveArtImageSrc } from '@/utils/artImageSrc'
+import {
+  getBrainstormSourceAdapter as getAdapterFromRegistry,
+  matchesQuery,
+  resolveBrainstormSource as resolveFromRegistry,
+  searchBrainstormSources as searchFromRegistry,
+} from '@/stores/helpers/brainstormSourceAdapterKit'
+import type { BrainstormSourceAdapter } from '@/stores/helpers/brainstormSourceAdapterKit'
+import type { BrainstormSourceRef } from '@/types/brainstorm'
+
+export type {
+  BrainstormSourceAdapter,
+  BrainstormSourceAdapterRegistry,
+  BrainstormSourceDisplay,
+  BrainstormSourceOption,
+} from '@/stores/helpers/brainstormSourceAdapterKit'
+
+const SEARCH_RESULT_LIMIT = 20
+
+const characterAdapter: BrainstormSourceAdapter = {
+  modelType: 'character',
+  label: 'Character',
+  async resolve(ref) {
+    if (!ref.id) return null
+    const store = useCharacterStore()
+    const character = await store.fetchCharacterById(ref.id)
+    if (!character) return null
+
+    return {
+      modelType: 'character',
+      id: character.id,
+      title: character.name || `Character #${character.id}`,
+      subtitle:
+        [character.honorific, character.class, character.species]
+          .filter(Boolean)
+          .join(' · ') || undefined,
+      thumbnailUrl: character.imagePath || null,
+    }
+  },
+  async search(query) {
+    const store = useCharacterStore()
+    await store.fetchCharacters()
+
+    return store.characters
+      .filter((character) =>
+        matchesQuery(
+          [
+            character.name,
+            character.honorific,
+            character.class,
+            character.species,
+          ],
+          query,
+        ),
+      )
+      .slice(0, SEARCH_RESULT_LIMIT)
+      .map((character) => ({
+        modelType: 'character',
+        id: character.id,
+        title: character.name || `Character #${character.id}`,
+        subtitle: character.honorific || character.class || undefined,
+      }))
+  },
+}
+
+const dreamAdapter: BrainstormSourceAdapter = {
+  modelType: 'dream',
+  label: 'Dream',
+  async resolve(ref) {
+    if (!ref.id) return null
+    const store = useDreamStore()
+    const dream = await store.fetchDreamById(ref.id)
+    if (!dream) return null
+
+    return {
+      modelType: 'dream',
+      id: dream.id,
+      title: dream.title || `Dream #${dream.id}`,
+      subtitle:
+        dream.pitch || dream.description || dream.flavorText || undefined,
+      thumbnailUrl: dream.ArtImage
+        ? resolveArtImageSrc(dream.ArtImage) || null
+        : null,
+    }
+  },
+  async search(query) {
+    const store = useDreamStore()
+    await store.fetchDreams()
+
+    return store.dreams
+      .filter((dream) =>
+        matchesQuery([dream.title, dream.pitch, dream.description], query),
+      )
+      .slice(0, SEARCH_RESULT_LIMIT)
+      .map((dream) => ({
+        modelType: 'dream',
+        id: dream.id,
+        title: dream.title || `Dream #${dream.id}`,
+        subtitle: dream.pitch || dream.description || undefined,
+      }))
+  },
+}
+
+/** The adapter registry. Keys are lowercase modelType strings. */
+export const BRAINSTORM_SOURCE_ADAPTERS: Record<
+  string,
+  BrainstormSourceAdapter
+> = {
+  character: characterAdapter,
+  dream: dreamAdapter,
+}
+
+export function listBrainstormSourceAdapters(): BrainstormSourceAdapter[] {
+  return Object.values(BRAINSTORM_SOURCE_ADAPTERS)
+}
+
+export function getBrainstormSourceAdapter(
+  modelType: string | null | undefined,
+): BrainstormSourceAdapter | null {
+  return getAdapterFromRegistry(modelType, BRAINSTORM_SOURCE_ADAPTERS)
+}
+
+export async function resolveBrainstormSource(
+  ref: BrainstormSourceRef | null | undefined,
+) {
+  return resolveFromRegistry(ref, BRAINSTORM_SOURCE_ADAPTERS)
+}
+
+export async function searchBrainstormSources(
+  modelType: string,
+  query: string,
+) {
+  return searchFromRegistry(modelType, query, BRAINSTORM_SOURCE_ADAPTERS)
+}

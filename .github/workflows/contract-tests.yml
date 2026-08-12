@@ -227,6 +227,9 @@ jobs:
       - name: Pitch detector accuracy contract
         run: npm run test:pitch-detector-accuracy
 
+      - name: Brainstorm source adapter contract
+        run: npm run test:brainstorm-source-adapters
+
       - name: mysql:// URL parser contract
         run: npm run test:parse-mysql-url
 

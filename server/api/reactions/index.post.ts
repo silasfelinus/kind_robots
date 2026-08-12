@@ -22,7 +22,6 @@ type ReactionBody = Record<string, unknown> & {
   botId?: unknown
   characterId?: unknown
   chatId?: unknown
-  componentId?: unknown
   dreamId?: unknown
   facetId?: unknown
   promptId?: unknown
@@ -43,7 +42,6 @@ const REACTION_CREATE_FIELDS = new Set([
   'botId',
   'characterId',
   'chatId',
-  'componentId',
   'dreamId',
   'facetId',
   'promptId',
@@ -55,7 +53,7 @@ const REACTION_CREATE_FIELDS = new Set([
 
 const validReactionTypes = Object.values(ReactionType)
 const validReactionCategories = Object.values(Reaction_reactionCategory)
-const retiredReactionCategories = new Set<string>(['BUTTERFLY'])
+const retiredReactionCategories = new Set<string>(['BUTTERFLY', 'COMPONENT'])
 
 const reactionCategoryAliases: Record<string, Reaction_reactionCategory> = {
   ART: Reaction_reactionCategory.ART_IMAGE,
@@ -69,7 +67,6 @@ const reactionCategoryAliases: Record<string, Reaction_reactionCategory> = {
   MESSAGE: Reaction_reactionCategory.MESSAGE,
   BOT: Reaction_reactionCategory.BOT,
   CHARACTER: Reaction_reactionCategory.CHARACTER,
-  COMPONENT: Reaction_reactionCategory.COMPONENT,
   DREAM: Reaction_reactionCategory.DREAM,
   FACET: Reaction_reactionCategory.FACET,
   PROMPT: Reaction_reactionCategory.PROMPT,
@@ -174,7 +171,6 @@ function getTargetFields(body: ReactionBody) {
     botId: toPositiveId(body.botId),
     characterId: toPositiveId(body.characterId),
     chatId: toPositiveId(body.chatId),
-    componentId: toPositiveId(body.componentId),
     dreamId: toPositiveId(body.dreamId),
     facetId: toPositiveId(body.facetId),
     promptId: toPositiveId(body.promptId),
@@ -219,7 +215,6 @@ function getExpectedTargetField(
     [Reaction_reactionCategory.BOT]: 'botId',
     [Reaction_reactionCategory.CHARACTER]: 'characterId',
     [Reaction_reactionCategory.CHAT_EXCHANGE]: 'chatId',
-    [Reaction_reactionCategory.COMPONENT]: 'componentId',
     [Reaction_reactionCategory.DREAM]: 'dreamId',
     [Reaction_reactionCategory.FACET]: 'facetId',
     [Reaction_reactionCategory.PROMPT]: 'promptId',
@@ -236,6 +231,7 @@ function getExpectedTargetField(
     [Reaction_reactionCategory.CHALLENGE_SUBMISSION]: null,
     // Retired earlier in the request by retiredReactionCategories.
     [Reaction_reactionCategory.BUTTERFLY]: null,
+    [Reaction_reactionCategory.COMPONENT]: null,
   }
 
   return map[category]
@@ -274,8 +270,6 @@ async function getContentOwnerId(
   if (!expectedField || expectedField === TARGETLESS) return null
   const targetId = targets[expectedField]
   if (!targetId) return null
-  // Component model has no userId field
-  if (expectedField === 'componentId') return null
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const modelMap: Record<
@@ -364,7 +358,6 @@ function reactionTargetNotFound(field: string, targetId: number) {
 
 // Full per-category access model for reaction targets: existence plus the right
 // access rule for each target's real model.
-//   - COMPONENT: museum items have no owner/visibility — existence only.
 //   - CHAT_EXCHANGE: participant model — allow a chat participant, a public chat,
 //     or an admin.
 //   - content categories (art/collection/bot/character/dream/prompt/resource/
@@ -381,15 +374,6 @@ async function assertReactionTargetAccessible(
 
   const targetId = targets[expectedField]
   if (!targetId) return
-
-  if (expectedField === 'componentId') {
-    const component = await prisma.component.findUnique({
-      where: { id: targetId },
-      select: { id: true },
-    })
-    if (!component) throw reactionTargetNotFound(expectedField, targetId)
-    return
-  }
 
   if (expectedField === 'chatId') {
     const chat = await prisma.chat.findUnique({
@@ -413,10 +397,9 @@ async function assertReactionTargetAccessible(
     })
   }
 
-  // Fail closed. Component and Chat return from their own branches above, so
-  // reaching here with no model means a target field was added to
-  // getExpectedTargetField without an access check -- which used to mean the
-  // reaction was written unchecked.
+  // Fail closed. Chat returns from its own branch above, so reaching here with
+  // no model means a target field was added to getExpectedTargetField without
+  // an access check -- which used to mean the reaction was written unchecked.
   const model = contentTargetModel(expectedField)
   if (!model) {
     throw createError({

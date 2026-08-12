@@ -10,14 +10,14 @@
 // module makes the first two the same values, so a new reaction target can't
 // be added to one and silently missed by the other.
 //
-// WHY THESE THIRTEEN. KarmaTransaction.refType is never written by hand. The
-// only award call site that sets it (server/api/reactions/index.post.ts,
-// REACTION_RECEIVED) derives it generically from the reaction's target field —
-// `botId` becomes `bot`, `artImageId` becomes `artImage`. So the set of types
-// that can earn karma IS the set of reaction target fields, by construction;
-// there is no per-type award wiring to add before a gallery can display a
-// total. (The two hand-written refType call sites, 'prompt' and 'artImage' in
-// server/api/prompts/, both name types already in this list.)
+// KarmaTransaction.refType is never written by hand. The only award call site
+// that sets it (server/api/reactions/index.post.ts, REACTION_RECEIVED) derives
+// it generically from the reaction's target field: `botId` becomes `bot`,
+// `artImageId` becomes `artImage`. So the set of types that can earn karma is
+// the set of live reaction target fields, by construction; there is no per-type
+// award wiring to add before a gallery can display a total. (The two
+// hand-written refType call sites, 'prompt' and 'artImage' in server/api/prompts/,
+// both name types already in this list.)
 
 /** Every object type that a KarmaTransaction can be attributed to. */
 export const KARMA_REF_TYPES = [
@@ -26,7 +26,6 @@ export const KARMA_REF_TYPES = [
   'bot',
   'character',
   'chat',
-  'component',
   'dream',
   'facet',
   'prompt',
@@ -53,7 +52,6 @@ export const KARMA_REF_TARGET_COLUMNS = {
   bot: 'botId',
   character: 'characterId',
   chat: 'chatId',
-  component: 'componentId',
   dream: 'dreamId',
   facet: 'facetId',
   prompt: 'promptId',

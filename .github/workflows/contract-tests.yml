@@ -344,29 +344,13 @@ jobs:
       - name: Animation catalog contract
         run: npm run test:animation-catalog
 
-      # These generic first-party author + draft contracts survive WonderLab.
-      # They are the foundation for moving the 706 authored voice pieces onto
-      # actual reviewable Kind Robots objects.
+      # First-party Bot/Character authorship is part of the replacement comment
+      # system and survives the retired WonderLab ReviewDraft machinery.
       - name: Reaction first-party author expand migration contract
         run: npx tsx utils/scripts/verifyReactionFirstPartyAuthorExpand.ts
 
       - name: Reaction first-party author runtime contract
         run: npx tsx utils/scripts/verifyFirstPartyReactionAuthor.ts
-
-      - name: Review draft storage expand contract
-        run: npx tsx utils/scripts/verifyReviewDraftStorageExpand.ts
-
-      - name: Review draft admin API contract
-        run: npx tsx utils/scripts/verifyReviewDraftAdminApi.ts
-
-      - name: Review draft publication contract
-        run: npx tsx utils/scripts/verifyReviewDraftPublication.ts
-
-      - name: Review draft curator UI contract
-        run: npx tsx utils/scripts/verifyReviewDraftCuratorUi.ts
-
-      - name: Review draft generation contract
-        run: npx tsx utils/scripts/verifyReviewDraftGeneration.ts
 
       - name: Fetch main for capture-group guard diff
         run: git fetch origin main

@@ -21,7 +21,7 @@ const WRITE = process.argv.includes('--write')
 const limitFlag = process.argv.indexOf('--limit')
 const LIMIT = limitFlag === -1 ? 0 : Number(process.argv[limitFlag + 1] || 0)
 
-const BASE = (process.env.PRUNE_VERIFY_BASE || 'https://kind-robots.vercel.app').replace(
+const BASE = (process.env.PRUNE_VERIFY_BASE || 'https://kindrobots.org').replace(
   /\/+$/,
   '',
 )

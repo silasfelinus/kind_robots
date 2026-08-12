@@ -8,9 +8,9 @@
 //   COMFY_TEST_AUTH_TOKEN   required — machine auth (user apiKey or admin token)
 //   COMFY_TEST_SERVER_ID    optional — target a specific Comfy server by id;
 //                           if unset, the server is resolved by capability
-//   COMFY_TEST_API_BASE     optional — default https://kind-robots.vercel.app
+//   COMFY_TEST_API_BASE     optional — default https://kindrobots.org
 
-const apiBase = (process.env.COMFY_TEST_API_BASE || 'https://kind-robots.vercel.app').replace(/\/+$/, '')
+const apiBase = (process.env.COMFY_TEST_API_BASE || 'https://kindrobots.org').replace(/\/+$/, '')
 const authToken = process.env.COMFY_TEST_AUTH_TOKEN || ''
 const serverIdRaw = process.env.COMFY_TEST_SERVER_ID
 

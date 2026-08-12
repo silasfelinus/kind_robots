@@ -30,7 +30,7 @@ jobs:
 
       - name: Run cleanup script
         env:
-          BASE_API_URL: https://kind-robots.vercel.app/api
+          BASE_API_URL: https://kindrobots.org/api
           ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
         run: |
           ARGS=""

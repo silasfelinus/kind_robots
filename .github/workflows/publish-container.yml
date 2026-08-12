@@ -70,5 +70,10 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          # Baked into the image so /api/version reports a real commit and
+          # runtimeConfig.public.buildId stops saying 'development'. Both used
+          # to come from VERCEL_GIT_COMMIT_SHA, which nothing sets here.
+          build-args: |
+            COMMIT_SHA=${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

@@ -21,7 +21,7 @@
  *     the ArtJob queue, then raise --limit.
  *
  * USAGE
- *   export KR_API_BASE=https://kind-robots.vercel.app   # or your local/tailscale host
+ *   export KR_API_BASE=https://kindrobots.org   # or your local/tailscale host
  *   export KR_API_TOKEN=<user apiKey or admin token>
  *
  *   # See what is missing, submit nothing:

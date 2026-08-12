@@ -15,7 +15,7 @@
 import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
-const BASE = (process.env.APP_BASE_URL || 'https://kind-robots.vercel.app').replace(/\/$/, '')
+const BASE = (process.env.APP_BASE_URL || 'https://kindrobots.org').replace(/\/$/, '')
 const TOKEN = process.env.KR_API_TOKEN || ''
 const DRAFT_DIR = process.env.DRAFT_DIR || '.'
 const commit = process.argv.includes('--commit')

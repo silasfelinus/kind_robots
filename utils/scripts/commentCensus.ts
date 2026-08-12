@@ -4,7 +4,7 @@
 // a speaker or writes a line.
 //
 //   npx tsx utils/scripts/commentCensus.ts
-//   npx tsx utils/scripts/commentCensus.ts --base https://kind-robots.vercel.app
+//   npx tsx utils/scripts/commentCensus.ts --base http://localhost:3000
 //
 // Two questions this answers, and nothing else:
 //

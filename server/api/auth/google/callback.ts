@@ -20,12 +20,12 @@ interface GoogleUserInfoResponse {
   picture: string
 }
 
+// Must stay byte-identical to the value in ../index.ts: Google rejects the
+// exchange if the redirect_uri differs from the one the auth request used.
 function getGoogleRedirectUri() {
   return (
     process.env.GOOGLE_REDIRECT_URI ||
-    (process.env.VERCEL
-      ? 'https://kind-robots.vercel.app/api/auth/google/callback'
-      : 'https://kindrobots.org/api/auth/google/callback')
+    'https://kindrobots.org/api/auth/google/callback'
   )
 }
 

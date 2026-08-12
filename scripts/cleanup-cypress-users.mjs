@@ -4,7 +4,7 @@ import path from 'node:path'
 const apiBase = String(
   process.env.CYPRESS_BASE_API_URL ||
     process.env.BASE_API_URL ||
-    'https://kind-robots.vercel.app/api',
+    'https://kindrobots.org/api',
 ).replace(/\/+$/, '')
 
 const adminToken = String(

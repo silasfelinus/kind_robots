@@ -33,7 +33,7 @@ const PRIORITY = 100
 const ENGINE = 'COMFY' as const
 
 const BASE = (
-  process.env.KR_API_BASE || 'https://kind-robots.vercel.app'
+  process.env.KR_API_BASE || 'https://kindrobots.org'
 ).replace(/\/+$/, '')
 const TOKEN = process.env.KR_API_TOKEN?.trim() || ''
 

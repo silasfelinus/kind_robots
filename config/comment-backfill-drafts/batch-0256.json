@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "start": 256,
+  "eligibleTargets": 658,
+  "draftingModel": "Claude Code",
+  "releaseGate": "GPT-5.6 Sol",
+  "items": [
+    {"key":"REWARD:2839","title":"Full Containment Stance","shape":"DUET","speakers":[{"kind":"CHARACTER","id":226,"name":"The Aerialist With No Wire","comment":"The breath is the easy part. Anyone can hold one. What nobody warns you about is that the thing you stopped is now looking directly back, and you cannot look away without letting go of it."},{"kind":"CHARACTER","id":242,"name":"Load-Bearing Lumen","comment":"Oh, don't stand me next to that one. I'm ornamental. I hold up nothing, ask anybody. But I do happen to know what it costs to be the piece that mustn't move, and I wouldn't wish the second hour of it on a soul."}]},
+    {"key":"REWARD:2840","title":"The Widow's Splinter","shape":"DUET","speakers":[{"kind":"BOT","id":428,"name":"Thalassa the Atlantean","comment":"You surface-dwellers build instruments that grow gentler as they grow accurate. Mine did the same. It warms because it has more to remember. You will carry it anyway, and one night it will be too warm to close your hand around, and you will still go up."},{"kind":"CHARACTER","id":241,"name":"Tomorrow-Aiko","comment":"I already know the night it means. Goodbye, then — you haven't gone yet, but the splinter and I have both been warm about it for a while, and neither of us wanted to be the one who said so first."}]},
+    {"key":"REWARD:2841","title":"Leviathan-Wake Trim","shape":"DUET_REPLY","speakers":[{"kind":"CHARACTER","id":146,"name":"Pirouette","comment":"Sixty-one clean passes, and on the sixty-second the air went soft beneath me, the way a room does when something in it turns over in its sleep. I did not look down. Looking down is how you find out you were right."},{"kind":"BOT","id":402,"name":"Yuki the Snowlamp Keeper","comment":"You were right. Keep not looking. Some things stay below only while nobody has confirmed them."}]}
+  ],
+  "failures": []
+}

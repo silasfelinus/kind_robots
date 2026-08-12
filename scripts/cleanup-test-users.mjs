@@ -10,14 +10,14 @@
 // DRY RUN by default — prints what it would delete. Pass --delete to execute.
 //
 // Usage:
-//   BASE_API_URL=https://kind-robots.vercel.app/api ADMIN_TOKEN=... \
+//   BASE_API_URL=https://kindrobots.org/api ADMIN_TOKEN=... \
 //     node scripts/cleanup-test-users.mjs [--delete] [--limit N]
 //
-// Env: BASE_API_URL (default https://kind-robots.vercel.app/api)
+// Env: BASE_API_URL (default https://kindrobots.org/api)
 //      ADMIN_TOKEN or BETA_ADMIN_TOKEN or API_KEY (required)
 
 const apiBase = String(
-  process.env.BASE_API_URL || 'https://kind-robots.vercel.app/api',
+  process.env.BASE_API_URL || 'https://kindrobots.org/api',
 ).replace(/\/+$/, '')
 
 const adminToken = String(

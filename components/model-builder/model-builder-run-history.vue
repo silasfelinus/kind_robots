@@ -13,7 +13,7 @@
         <button
           type="button"
           class="btn btn-xs btn-ghost rounded-xl text-base-content/60"
-          :disabled="store.loadingRuns"
+          :disabled="store.loadingRuns || Boolean(cancellingRunId)"
           @click="store.fetchRuns()"
         >
           <Icon name="kind-icon:refresh" class="h-3.5 w-3.5" aria-hidden="true" />
@@ -22,6 +22,7 @@
         <button
           type="button"
           class="btn btn-xs btn-primary rounded-xl"
+          :disabled="Boolean(cancellingRunId)"
           @click="startNew"
         >
           <Icon name="kind-icon:add" class="h-3.5 w-3.5" aria-hidden="true" />
@@ -62,6 +63,7 @@
           :class="
             run.id === store.run?.id ? 'border-primary/60 bg-primary/5' : ''
           "
+          :aria-busy="cancellingRunId === run.id"
         >
           <Icon
             :name="sourceIcon(run)"
@@ -90,6 +92,7 @@
             type="button"
             class="btn btn-xs btn-ghost shrink-0 rounded-lg text-error/70 hover:text-error"
             title="Cancel run"
+            :disabled="Boolean(cancellingRunId)"
             :aria-label="`Cancel run ${run.sourceLabel || `#${run.sourceId}`}`"
             @click="armedRunId = run.id"
           >
@@ -99,16 +102,28 @@
             v-else
             type="button"
             class="btn btn-xs btn-error shrink-0 rounded-lg"
+            :disabled="Boolean(cancellingRunId)"
             :aria-label="`Confirm cancellation of run ${run.sourceLabel || `#${run.sourceId}`}`"
             @click="confirmCancel(run.id)"
             @blur="armedRunId = null"
           >
-            <Icon name="kind-icon:trash" class="h-3.5 w-3.5" aria-hidden="true" />
-            Confirm?
+            <span
+              v-if="cancellingRunId === run.id"
+              class="loading loading-spinner loading-xs"
+              aria-hidden="true"
+            />
+            <Icon
+              v-else
+              name="kind-icon:trash"
+              class="h-3.5 w-3.5"
+              aria-hidden="true"
+            />
+            {{ cancellingRunId === run.id ? 'Cancelling…' : 'Confirm?' }}
           </button>
           <button
             type="button"
             class="btn btn-xs btn-primary shrink-0 rounded-lg"
+            :disabled="Boolean(cancellingRunId)"
             :aria-label="`Open run ${run.sourceLabel || `#${run.sourceId}`}`"
             @click="open(run.id)"
           >
@@ -132,10 +147,17 @@ const store = useModelBuilderStore()
 // Cancel button arms on first click, fires on second — mirrors art-interact.vue's
 // delete-confirm pattern so an irreversible PATCH-to-CANCELLED can't fire on a misclick.
 const armedRunId = ref<string | null>(null)
+const cancellingRunId = ref<string | null>(null)
 
-function confirmCancel(runId: string): void {
+async function confirmCancel(runId: string): Promise<void> {
+  if (cancellingRunId.value) return
   armedRunId.value = null
-  store.cancelRun(runId)
+  cancellingRunId.value = runId
+  try {
+    await store.cancelRun(runId)
+  } finally {
+    if (cancellingRunId.value === runId) cancellingRunId.value = null
+  }
 }
 
 function recipeLabel(run: BuildRun): string {

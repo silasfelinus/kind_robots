@@ -2,31 +2,36 @@ name: Comment Migration Contract
 
 on:
   pull_request:
+    branches:
+      - main
     paths:
       - 'utils/comments/**'
-      - 'utils/scripts/verifyCommentMigrationFoundation.ts'
-      - 'docs/architecture/comment-migration-foundation.md'
+      - 'utils/scripts/**'
+      - 'config/**'
+      - 'artifacts/comment-census.json'
+      - 'docs/architecture/**'
       - '.github/workflows/comment-migration-contract.yml'
   push:
-    branches: [main]
+    branches:
+      - main
     paths:
       - 'utils/comments/**'
-      - 'utils/scripts/verifyCommentMigrationFoundation.ts'
-      - 'docs/architecture/comment-migration-foundation.md'
+      - 'utils/scripts/**'
+      - 'config/**'
+      - 'artifacts/comment-census.json'
+      - 'docs/architecture/**'
       - '.github/workflows/comment-migration-contract.yml'
 
 jobs:
-  contract:
+  comment-contract:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
-          cache: npm
+          node-version: '22'
+          cache: 'npm'
       - run: npm ci
-        env:
-          CYPRESS_INSTALL_BINARY: 0
-      - name: Verify object-first comment migration boundary
-        run: npx tsx utils/scripts/verifyCommentMigrationFoundation.ts
+      - run: npx tsx utils/scripts/verifyCommentMigrationFoundation.ts
+      - run: npx tsx utils/scripts/verifyCommentSignals.ts
+      - run: npx tsx utils/scripts/verifyCommentCalibrationBatch.ts

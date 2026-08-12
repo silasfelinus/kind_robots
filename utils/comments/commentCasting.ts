@@ -71,5 +71,7 @@ export function rankCommentSpeakers(
         left.kind.localeCompare(right.kind) ||
         left.id - right.id,
     )
-    .slice(0, Math.max(1, Math.min(2, Math.floor(limit))))
+    // Two is the working default. Three exists for the rare object that
+    // genuinely earns a crowd, and is never reached without asking for it.
+    .slice(0, Math.max(1, Math.min(3, Math.floor(limit))))
 }

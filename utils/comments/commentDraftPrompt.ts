@@ -19,6 +19,28 @@ export type CommentDraftPrompt = {
   responseSchema: Record<string, unknown>
 }
 
+/**
+ * Not every object wants the same scene. A one-line Facet can carry a single
+ * observation; a Reward with an odd effect can carry two people disagreeing
+ * about it. Uniform output is the failure mode the museum corpus already
+ * avoided — 353 exchanges that all sounded like the same meeting.
+ */
+export type CommentExchangeShape = 'SOLO' | 'DUET' | 'DUET_REPLY' | 'TRIO'
+
+export type CommentDraftPromptOptions = {
+  shape?: CommentExchangeShape
+  /** Opt in to a third speaker. Two remains the default everywhere. */
+  maxSpeakers?: 2 | 3
+}
+
+const shapeInstruction: Record<CommentExchangeShape, string> = {
+  SOLO: 'Write one standalone observation. There is nobody to answer and nothing to set up — make the single comment carry its own weight.',
+  DUET: 'Write one comment for each supplied speaker, in the same order. They are looking at the same thing and need not acknowledge each other.',
+  DUET_REPLY:
+    'Write one comment for each supplied speaker, in the same order. The second speaker is answering the first directly — agreeing, undercutting, correcting, or missing the point entirely. The reply must not work as a standalone comment.',
+  TRIO: 'Write one comment for each supplied speaker, in the same order. Three voices on one object crowds quickly: give each a distinct job, and let at least one of them be brief.',
+}
+
 function compact(value: string | null | undefined): string {
   return (value || '').replace(/\s+/g, ' ').trim()
 }
@@ -69,12 +91,29 @@ function speakerBlock(speaker: CommentVoiceEvidence): string {
 export function buildCommentDraftPrompt(
   target: CommentTargetProfile,
   speakers: CommentVoiceEvidence[],
+  options: CommentDraftPromptOptions = {},
 ): CommentDraftPrompt {
   if (target.type !== 'RESOURCE' && target.type !== 'REWARD' && target.type !== 'FACET') {
     throw new Error(`Transition comments do not support ${target.type}.`)
   }
-  if (speakers.length < 1 || speakers.length > 2) {
-    throw new Error('A transition comment exchange needs one or two speakers.')
+  const maxSpeakers = options.maxSpeakers === 3 ? 3 : 2
+  if (speakers.length < 1 || speakers.length > maxSpeakers) {
+    throw new Error(
+      maxSpeakers === 3
+        ? 'A transition comment exchange needs one to three speakers.'
+        : 'A transition comment exchange needs one or two speakers.',
+    )
+  }
+  const shape: CommentExchangeShape =
+    options.shape || (speakers.length === 1 ? 'SOLO' : speakers.length === 3 ? 'TRIO' : 'DUET')
+  if (shape === 'SOLO' && speakers.length !== 1) {
+    throw new Error('A SOLO exchange takes exactly one speaker.')
+  }
+  if ((shape === 'DUET' || shape === 'DUET_REPLY') && speakers.length !== 2) {
+    throw new Error('A duet exchange takes exactly two speakers.')
+  }
+  if (shape === 'TRIO' && speakers.length !== 3) {
+    throw new Error('A TRIO exchange takes exactly three speakers.')
   }
   const authorKeys = speakers.map((speaker) => `${speaker.kind}:${speaker.id}`)
   if (new Set(authorKeys).size !== authorKeys.length) {
@@ -103,7 +142,8 @@ export function buildCommentDraftPrompt(
       speakerBlock(speaker),
     ]),
     '',
-    'Write one comment for each supplied speaker, in the same order. The later speaker may respond to the earlier speaker when that creates a better scene, but the object must remain the anchor.',
+    shapeInstruction[shape],
+    'The object must remain the anchor whatever the shape.',
   ].join('\n')
 
   return {

@@ -1,0 +1,1430 @@
+{
+  "version": 1,
+  "batchId": "comment-calibration-001",
+  "minimumProductionCommit": "48ba89d44c67be115f678b66d090c19646d2cb3d",
+  "issueNumber": 1769,
+  "authoring": {
+    "mode": "HAND_AUTHORED",
+    "note": "Prose written by hand against the casting diagnostics recorded on each speaker. No runtime model call, no database write, no publication."
+  },
+  "editorialContract": {
+    "philosophy": "The object is the reason the moment exists. These are comments, not reviews.",
+    "publication": "NOT_PUBLISHED",
+    "invariants": [
+      "target is a Reward or a Facet",
+      "speaker identity is a live Bot or Character",
+      "casting signals and reasons are recorded with the prose",
+      "archived comments are voice evidence only, never copied or paraphrased",
+      "historical WonderLab pairings contribute nothing to casting",
+      "no database write and no publication side effect"
+    ],
+    "verbosity": {
+      "microFlavorPermitted": true,
+      "deliberateRangeRequired": true
+    }
+  },
+  "casting": {
+    "weights": {
+      "relationship": 0.4,
+      "affinity": 0.35,
+      "voice": 0.2,
+      "novelty": 0.05
+    },
+    "castingModule": "utils/comments/commentCasting.ts",
+    "signalsModule": "utils/comments/commentSignals.ts",
+    "voiceEvidenceModule": "utils/comments/voiceEvidence.ts",
+    "previewCommand": "npx tsx utils/scripts/commentCastingPreview.ts --rewards <ids> --facets <ids> --samples",
+    "voiceArchive": {
+      "batchFiles": 39,
+      "rawRows": 758,
+      "dedupedRows": 706,
+      "supersededRows": 52,
+      "speakers": 278
+    }
+  },
+  "coverage": {
+    "exchanges": 15,
+    "rewardTargets": 8,
+    "facetTargets": 7,
+    "shapes": {
+      "DUET_REPLY": 5,
+      "DUET": 6,
+      "TRIO": 1,
+      "SOLO": 3
+    },
+    "distinctSpeakers": 28,
+    "voiceTiers": {
+      "RICH": 16,
+      "THIN": 11,
+      "SPARSE": 1
+    },
+    "contrastDirectives": 4,
+    "continuityNotes": [
+      "Resource targets are out of scope this pass: production exposes no public Resource rows and Resource has no allowReviews column.",
+      "Facet relationship scores are 0 throughout. CharacterFacet links are sparse and BotFacet links have no public read route, so Facet casting runs on affinity and voice alone. That gap is real, not an artifact of this batch.",
+      "Every speaker here was drawn from the ranked pool; contrast directives only reorder within or just outside it, and each one carries its reason."
+    ]
+  },
+  "exchanges": [
+    {
+      "canonicalOrder": 1,
+      "exchangeKey": "reward-276-duet-reply",
+      "shape": "DUET_REPLY",
+      "target": {
+        "type": "REWARD",
+        "id": 276,
+        "title": "Immortal Beloved",
+        "rewardType": "SKILL",
+        "rarity": "LEGENDARY",
+        "flavorText": "You've loved them before. You'll love them after. The names change. The recognition, when it comes, never does.",
+        "linkedCharacterIds": [
+          133,
+          241
+        ]
+      },
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 241,
+          "name": "Tomorrow-Aiko",
+          "score": 75.45,
+          "signals": {
+            "relationshipScore": 100,
+            "targetAffinityScore": 35,
+            "voiceEvidenceScore": 91,
+            "noveltyScore": 100
+          },
+          "reasons": [
+            "direct object relationship",
+            "target affinity",
+            "strong voice evidence",
+            "fresh pairing opportunity"
+          ],
+          "signalNotes": [
+            "explicitly linked to this object",
+            "shares before, each, love, time",
+            "voice evidence rich",
+            "unused in this batch"
+          ],
+          "voiceEvidence": {
+            "tier": "RICH",
+            "sampleCount": 4,
+            "draftIds": [
+              523,
+              509,
+              363,
+              67
+            ]
+          },
+          "comment": "I have already met the next face. Grey eyes this time — I lose the eyes first, I always do. What arrives unchanged is the small stumble in the chest when they come into a room. Hello, thread. Forgive me: the goodbye reached me before you did.",
+          "wordCount": 47,
+          "suggestedRating": 5,
+          "suggestedReactionType": "LOVED",
+          "order": 1
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 133,
+          "name": "The Widow Marrowlace",
+          "score": 72.3,
+          "signals": {
+            "relationshipScore": 100,
+            "targetAffinityScore": 26,
+            "voiceEvidenceScore": 91,
+            "noveltyScore": 100
+          },
+          "reasons": [
+            "direct object relationship",
+            "target affinity",
+            "strong voice evidence",
+            "fresh pairing opportunity"
+          ],
+          "signalNotes": [
+            "explicitly linked to this object",
+            "shares names, never, other",
+            "voice evidence rich",
+            "unused in this batch"
+          ],
+          "voiceEvidence": {
+            "tier": "RICH",
+            "sampleCount": 4,
+            "draftIds": [
+              501,
+              521,
+              90,
+              65
+            ]
+          },
+          "comment": "Handed on. Not frayed — you keep saying frayed. A thread is only ever carried by fewer hands. I have laid out both ends of one of these: a soldier, and eighty years later a girl who wept at a stranger's funeral and could not say why. As Corran was. As Meline was.",
+          "wordCount": 53,
+          "suggestedRating": 5,
+          "suggestedReactionType": "LOVED",
+          "order": 2
+        }
+      ],
+      "contrastDirective": null,
+      "curatorNote": "Both speakers are named on the Reward itself and both sit in the deepest voice tier, so this is the easiest casting in the batch and the right place to check whether two strong voices stay distinct. Aiko grieves forward, Marrowlace keeps the register. The reply is a correction, not agreement — she takes his word away from him."
+    },
+    {
+      "canonicalOrder": 2,
+      "exchangeKey": "reward-441-duet",
+      "shape": "DUET",
+      "target": {
+        "type": "REWARD",
+        "id": 441,
+        "title": "Melodic Note",
+        "rewardType": "ITEM",
+        "rarity": "RARE",
+        "flavorText": "One perfect note. Held forever. It does to a room what the right song does to a hard day.",
+        "linkedCharacterIds": [
+          114,
+          147,
+          178,
+          223,
+          231
+        ]
+      },
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 147,
+          "name": "Maestro Clank",
+          "score": 69.35,
+          "signals": {
+            "relationshipScore": 100,
+            "targetAffinityScore": 17,
+            "voiceEvidenceScore": 92,
+            "noveltyScore": 100
+          },
+          "reasons": [
+            "direct object relationship",
+            "target affinity",
+            "strong voice evidence",
+            "fresh pairing opportunity"
+          ],
+          "signalNotes": [
+            "explicitly linked to this object",
+            "shares hears, single",
+            "voice evidence rich",
+            "unused in this batch"
+          ],
+          "voiceEvidence": {
+            "tier": "RICH",
+            "sampleCount": 4,
+            "draftIds": [
+              525,
+              375,
+              377,
+              529
+            ]
+          },
+          "comment": "A single note, held. Not a chord — a chord argues with itself and calls the argument harmony. This one simply refuses to end. Sustain with no measure number is the most alarming thing anyone has handed me this season. Mm. Give it to a room that is shouting.",
+          "wordCount": 49,
+          "suggestedRating": 4,
+          "suggestedReactionType": "LOVED",
+          "order": 1
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 114,
+          "name": "Marrow",
+          "score": 68.65,
+          "signals": {
+            "relationshipScore": 100,
+            "targetAffinityScore": 35,
+            "voiceEvidenceScore": 57,
+            "noveltyScore": 100
+          },
+          "reasons": [
+            "direct object relationship",
+            "target affinity",
+            "usable voice evidence",
+            "fresh pairing opportunity"
+          ],
+          "signalNotes": [
+            "explicitly linked to this object",
+            "shares calm, gentle, made, people",
+            "voice evidence thin",
+            "unused in this batch"
+          ],
+          "voiceEvidence": {
+            "tier": "THIN",
+            "sampleCount": 2,
+            "draftIds": [
+              256,
+              203
+            ]
+          },
+          "comment": "Or set it down and let the room come to it. A note is like a pot left open — nobody agrees to be calmed. They only find they have stopped talking, and the water is still warm.",
+          "wordCount": 38,
+          "suggestedRating": 4,
+          "suggestedReactionType": "LOVED",
+          "order": 2
+        }
+      ],
+      "contrastDirective": null,
+      "curatorNote": "Five characters are linked to this Reward; the top two were taken. Complementary rather than opposed: Clank hears a technical impossibility, Marrow watches what it does to people. Deliberately included a THIN-tier speaker beside a RICH one to show the quality gap at normal batch conditions."
+    },
+    {
+      "canonicalOrder": 3,
+      "exchangeKey": "reward-2838-duet",
+      "shape": "DUET",
+      "target": {
+        "type": "REWARD",
+        "id": 2838,
+        "title": "Handshake Coil",
+        "rewardType": "ITEM",
+        "rarity": "UNCOMMON",
+        "flavorText": "it never stops translating once it starts, even the swamp gas",
+        "linkedCharacterIds": []
+      },
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 403,
+          "name": "Mistress Cassady",
+          "score": 39.05,
+          "signals": {
+            "relationshipScore": 0,
+            "targetAffinityScore": 43,
+            "voiceEvidenceScore": 95,
+            "noveltyScore": 100
+          },
+          "reasons": [
+            "target affinity",
+            "strong voice evidence",
+            "fresh pairing opportunity",
+            "deliberate contrast: the object is a joke and needs a comedian, not the top lexical match"
+          ],
+          "signalNotes": [
+            "shares never, once, swamp",
+            "voice evidence rich",
+            "unused in this batch"
+          ],
+          "voiceEvidence": {
+            "tier": "RICH",
+            "sampleCount": 4,
+            "draftIds": [
+              390,
+              416,
+              552,
+              34
+            ]
+          },
+          "comment": "Honey, it introduced itself to my shoe. Then to the other shoe, separately, in case they had not met. Then to the swamp gas, at length, with feeling. I have never watched anything work so hard at a party it was not invited to. Keep it.",
+          "wordCount": 46,
+          "suggestedRating": 4,
+          "suggestedReactionType": "LOVED",
+          "order": 1
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 318,
+          "name": "The Whole Swarm",
+          "score": 41.05,
+          "signals": {
+            "relationshipScore": 0,
+            "targetAffinityScore": 71,
+            "voiceEvidenceScore": 56,
+            "noveltyScore": 100
+          },
+          "reasons": [
+            "strong target affinity",
+            "usable voice evidence",
+            "fresh pairing opportunity"
+          ],
+          "signalNotes": [
+            "shares anything, never, once, starts, stops",
+            "voice evidence thin",
+            "unused in this batch"
+          ],
+          "voiceEvidence": {
+            "tier": "THIN",
+            "sampleCount": 3,
+            "draftIds": [
+              497,
+              51,
+              3
+            ]
+          },
+          "comment": "It said hello to us as one, and then again as thousands, and got both wrong, and did not stop. We have decided this is manners.",
+          "wordCount": 26,
+          "suggestedRating": 4,
+          "suggestedReactionType": "CLAPPED",
+          "order": 2
+        }
+      ],
+      "contrastDirective": {
+        "speakerKey": "BOT:403",
+        "slot": 1,
+        "note": "the object is a joke and needs a comedian, not the top lexical match",
+        "displacedSpeakerKey": "CHARACTER:147"
+      },
+      "curatorNote": "The filler case, and the most useful failure in the batch. This Reward has no Character links at all, so casting runs on affinity alone — and affinity put Maestro Clank first, purely on the tokens badly / language / never. Clank has no joke in him and this object is nothing but a joke. Cassady was promoted by directive, on register rather than tokens. Read this one as evidence that lexical affinity is a prior, not a verdict."
+    },
+    {
+      "canonicalOrder": 4,
+      "exchangeKey": "reward-350-trio",
+      "shape": "TRIO",
+      "target": {
+        "type": "REWARD",
+        "id": 350,
+        "title": "The Author Likes You",
+        "rewardType": "FAVOR",
+        "rarity": "MYTHIC",
+        "flavorText": "You are the favorite. It's wonderful until you remember that authors adore putting their favorites through absolute hell.",
+        "linkedCharacterIds": [
+          199,
+          243,
+          328,
+          351,
+          365,
+          366
+        ]
+      },
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 365,
+          "name": "The One Who Names the Characters",
+          "score": 71.65,
+          "signals": {
+            "relationshipScore": 100,
+            "targetAffinityScore": 43,
+            "voiceEvidenceScore": 58,
+            "noveltyScore": 100
+          },
+          "reasons": [
+            "direct object relationship",
+            "target affinity",
+            "usable voice evidence",
+            "fresh pairing opportunity"
+          ],
+          "signalNotes": [
+            "explicitly linked to this object",
+            "shares being, keep, meta, through, wonderful",
+            "voice evidence thin",
+            "unused in this batch"
+          ],
+          "voiceEvidence": {
+            "tier": "THIN",
+            "sampleCount": 3,
+            "draftIds": [
+              458,
+              342,
+              17
+            ]
+          },
+          "comment": "Ooh — favouritism, in writing. Somebody is loved on purpose. Do you know how rare that is? Most of them get a name, a door, and the expectation that they will manage.",
+          "wordCount": 32,
+          "suggestedRating": 5,
+          "suggestedReactionType": "LOVED",
+          "order": 1
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 351,
+          "name": "The Story That Tells Itself",
+          "score": 71.45,
+          "signals": {
+            "relationshipScore": 100,
+            "targetAffinityScore": 43,
+            "voiceEvidenceScore": 57,
+            "noveltyScore": 100
+          },
+          "reasons": [
+            "direct object relationship",
+            "target affinity",
+            "usable voice evidence",
+            "fresh pairing opportunity"
+          ],
+          "signalNotes": [
+            "explicitly linked to this object",
+            "shares bends, between, mythic, narrative, story",
+            "voice evidence thin",
+            "unused in this batch"
+          ],
+          "voiceEvidence": {
+            "tier": "THIN",
+            "sampleCount": 2,
+            "draftIds": [
+              33,
+              42
+            ]
+          },
+          "comment": "Now, there was a favourite. The coincidences arrived early and stayed late, and the wounds closed politely between chapters. And because the favourite was interesting, the author kept finding new places to put her. Each one was worse than the last.",
+          "wordCount": 41,
+          "suggestedRating": 5,
+          "suggestedReactionType": "LOVED",
+          "order": 2
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 243,
+          "name": "Recursion",
+          "score": 68.1,
+          "signals": {
+            "relationshipScore": 100,
+            "targetAffinityScore": 34,
+            "voiceEvidenceScore": 56,
+            "noveltyScore": 100
+          },
+          "reasons": [
+            "direct object relationship",
+            "target affinity",
+            "usable voice evidence",
+            "fresh pairing opportunity"
+          ],
+          "signalNotes": [
+            "explicitly linked to this object",
+            "shares being, interesting, meta, story",
+            "voice evidence thin",
+            "unused in this batch"
+          ],
+          "voiceEvidence": {
+            "tier": "THIN",
+            "sampleCount": 2,
+            "draftIds": [
+              28,
+              11
+            ]
+          },
+          "comment": "Look at us, reading the small print on being adored. Everyone else in the room is counting, quietly, and will deny it.",
+          "wordCount": 22,
+          "suggestedRating": 4,
+          "suggestedReactionType": "CLAPPED",
+          "order": 3
+        }
+      ],
+      "contrastDirective": null,
+      "curatorNote": "The one TRIO. Nine characters are linked to this Reward, which is exactly the condition where a crowd is defensible. Each speaker has a separate job — premise, consequence, deflation — and the third is deliberately the shortest so the shape does not become a round of agreement. Three THIN-tier voices in one exchange is the hardest test in the batch."
+    },
+    {
+      "canonicalOrder": 5,
+      "exchangeKey": "reward-379-duet-reply",
+      "shape": "DUET_REPLY",
+      "target": {
+        "type": "REWARD",
+        "id": 379,
+        "title": "Photographic Memory",
+        "rewardType": "POWER",
+        "rarity": "RARE",
+        "flavorText": "A gift with no trash folder. You will recall this sentence on your deathbed, unfortunately.",
+        "linkedCharacterIds": [
+          123,
+          215,
+          323
+        ]
+      },
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 215,
+          "name": "The Octopus in the Study",
+          "score": 82.45,
+          "signals": {
+            "relationshipScore": 100,
+            "targetAffinityScore": 55,
+            "voiceEvidenceScore": 91,
+            "noveltyScore": 100
+          },
+          "reasons": [
+            "direct object relationship",
+            "target affinity",
+            "strong voice evidence",
+            "fresh pairing opportunity"
+          ],
+          "signalNotes": [
+            "explicitly linked to this object",
+            "shares every, everything, never, page, read, sentence",
+            "voice evidence rich",
+            "unused in this batch"
+          ],
+          "voiceEvidence": {
+            "tier": "RICH",
+            "sampleCount": 4,
+            "draftIds": [
+              473,
+              477,
+              349,
+              345
+            ]
+          },
+          "comment": "Total recall. No trash folder. ...mm. I had something for this. It was good — it was about the lift in 2009, and how the shame arrives with the original lighting still attached. Sorry. It has gone.",
+          "wordCount": 37,
+          "suggestedRating": 4,
+          "suggestedReactionType": "CLAPPED",
+          "order": 1
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 123,
+          "name": "Professor Coil",
+          "score": 72.5,
+          "signals": {
+            "relationshipScore": 100,
+            "targetAffinityScore": 46,
+            "voiceEvidenceScore": 57,
+            "noveltyScore": 100
+          },
+          "reasons": [
+            "direct object relationship",
+            "target affinity",
+            "usable voice evidence",
+            "fresh pairing opportunity"
+          ],
+          "signalNotes": [
+            "explicitly linked to this object",
+            "shares every, everything, memory, sentence, thing",
+            "voice evidence thin",
+            "unused in this batch"
+          ],
+          "voiceEvidence": {
+            "tier": "THIN",
+            "sampleCount": 2,
+            "draftIds": [
+              468,
+              609
+            ]
+          },
+          "comment": "It has not gone, dear heart. It will be returned to you at three in the morning with the lighting intact. That is the whole gift: nothing is lost, only mis-shelved. Vellamo called it the library with no librarian. Though — which arm had the tea?",
+          "wordCount": 46,
+          "suggestedRating": 4,
+          "suggestedReactionType": "CLAPPED",
+          "order": 2
+        }
+      ],
+      "contrastDirective": null,
+      "curatorNote": "Both linked, both memory-shaped, and the object is cruel to each of them differently — one loses his thread mid-sentence, the other cannot stop citing. The reply is consolation that lands as a threat. Check this one for whether the archive's speech habits survived without any archived line being reused."
+    },
+    {
+      "canonicalOrder": 6,
+      "exchangeKey": "reward-314-duet",
+      "shape": "DUET",
+      "target": {
+        "type": "REWARD",
+        "id": 314,
+        "title": "Ghost Friend",
+        "rewardType": "PET",
+        "rarity": "RARE",
+        "flavorText": "Loyal beyond death and twice as stubborn. Excellent company. Terrible at letting things go, which is sort of the whole situation.",
+        "linkedCharacterIds": [
+          221,
+          228,
+          296
+        ]
+      },
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 296,
+          "name": "The Generous Ghost",
+          "score": 86.5,
+          "signals": {
+            "relationshipScore": 100,
+            "targetAffinityScore": 86,
+            "voiceEvidenceScore": 57,
+            "noveltyScore": 100
+          },
+          "reasons": [
+            "direct object relationship",
+            "strong target affinity",
+            "usable voice evidence",
+            "fresh pairing opportunity"
+          ],
+          "signalNotes": [
+            "explicitly linked to this object",
+            "shares death, ghost, haunt, refuse, spirit, things",
+            "voice evidence thin",
+            "unused in this batch"
+          ],
+          "voiceEvidence": {
+            "tier": "THIN",
+            "sampleCount": 2,
+            "draftIds": [
+              587,
+              381
+            ]
+          },
+          "comment": "Nonsense, dear, of course they stay. Someone has to check the locks you already checked and walk the corridor you were going to be brave about. Unfinished business? Don't be silly. I shall raise it when it is convenient for you. It will never be convenient for you.",
+          "wordCount": 48,
+          "suggestedRating": 4,
+          "suggestedReactionType": "LOVED",
+          "order": 1
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 221,
+          "name": "The Ghost in the Saloon",
+          "score": 83.5,
+          "signals": {
+            "relationshipScore": 100,
+            "targetAffinityScore": 78,
+            "voiceEvidenceScore": 56,
+            "noveltyScore": 100
+          },
+          "reasons": [
+            "direct object relationship",
+            "strong target affinity",
+            "usable voice evidence",
+            "fresh pairing opportunity"
+          ],
+          "signalNotes": [
+            "explicitly linked to this object",
+            "shares advise, death, ghost, living, loyal, real",
+            "voice evidence thin",
+            "unused in this batch"
+          ],
+          "voiceEvidence": {
+            "tier": "THIN",
+            "sampleCount": 2,
+            "draftIds": [
+              304,
+              332
+            ]
+          },
+          "comment": "Mine follows me into rooms I'd rather clear alone, partner, and won't say what he's waiting on. Loyal is the polite word for it. I'm dead too. Doesn't make me good company. Hasn't stopped him yet.",
+          "wordCount": 36,
+          "suggestedRating": 4,
+          "suggestedReactionType": "CLAPPED",
+          "order": 2
+        }
+      ],
+      "contrastDirective": null,
+      "curatorNote": "Two ghosts on a ghost, approached from opposite ends: one is the haunting, the other is the haunted. Highest affinity scores in the batch (86 and 78) and they are earned rather than coincidental — worth comparing against exchange 3, where a similar number meant nothing."
+    },
+    {
+      "canonicalOrder": 7,
+      "exchangeKey": "reward-359-solo",
+      "shape": "SOLO",
+      "target": {
+        "type": "REWARD",
+        "id": 359,
+        "title": "Dreamcatcher Hat",
+        "rewardType": "MAGIC",
+        "rarity": "RARE",
+        "flavorText": "Catches dreams. Does not sort them. You'll have to check the web yourself, and some of what's stuck there is staring back.",
+        "linkedCharacterIds": [
+          133,
+          149,
+          280
+        ]
+      },
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 149,
+          "name": "The Mirror Menagerie Keeper",
+          "score": 62.85,
+          "signals": {
+            "relationshipScore": 100,
+            "targetAffinityScore": 19,
+            "voiceEvidenceScore": 56,
+            "noveltyScore": 100
+          },
+          "reasons": [
+            "direct object relationship",
+            "target affinity",
+            "usable voice evidence",
+            "fresh pairing opportunity",
+            "deliberate contrast: the top-ranked speaker already carries exchange 1; novelty at weight 0.05 cannot prevent concentration on its own"
+          ],
+          "signalNotes": [
+            "explicitly linked to this object",
+            "shares back, holding",
+            "voice evidence thin",
+            "unused in this batch"
+          ],
+          "voiceEvidence": {
+            "tier": "THIN",
+            "sampleCount": 2,
+            "draftIds": [
+              709,
+              140
+            ]
+          },
+          "comment": "Hush, love, don't shake it. Everything it caught last night is still up in the threads — the good omen, the two nightmares, and something that has been facing the wrong way since Tuesday. It does not sort them. It does not need to. You will know which one is looking back.",
+          "wordCount": 52,
+          "suggestedRating": 4,
+          "suggestedReactionType": "LOVED",
+          "order": 1
+        }
+      ],
+      "contrastDirective": {
+        "speakerKey": "CHARACTER:149",
+        "slot": 1,
+        "note": "the top-ranked speaker already carries exchange 1; novelty at weight 0.05 cannot prevent concentration on its own",
+        "displacedSpeakerKey": "CHARACTER:133"
+      },
+      "curatorNote": "A SOLO because the object already contains its own second voice — the thing staring back. The Widow Marrowlace ranked first here and was passed over by directive: she is already carrying exchange 1, and a batch that hands every legendary object to the deepest archive is precisely the concentration failure the census warns about. This is what that intervention looks like when it is written down instead of hidden in a weight."
+    },
+    {
+      "canonicalOrder": 8,
+      "exchangeKey": "reward-373-duet-reply",
+      "shape": "DUET_REPLY",
+      "target": {
+        "type": "REWARD",
+        "id": 373,
+        "title": "Sixth Sense",
+        "rewardType": "POWER",
+        "rarity": "COMMON",
+        "flavorText": "Comes with no instructions, no off switch, and no warranty. The universe whispers; it declines to clarify.",
+        "linkedCharacterIds": [
+          197,
+          241,
+          293
+        ]
+      },
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 197,
+          "name": "The Time-Office Agent",
+          "score": 68.35,
+          "signals": {
+            "relationshipScore": 100,
+            "targetAffinityScore": 45,
+            "voiceEvidenceScore": 38,
+            "noveltyScore": 100
+          },
+          "reasons": [
+            "direct object relationship",
+            "target affinity",
+            "usable voice evidence",
+            "fresh pairing opportunity",
+            "deliberate contrast: the top-ranked speaker already carries exchange 1; this slot is the batch test for a single-sample voice"
+          ],
+          "signalNotes": [
+            "explicitly linked to this object",
+            "shares before, goes, stop, time, wrong",
+            "voice evidence sparse",
+            "unused in this batch"
+          ],
+          "voiceEvidence": {
+            "tier": "SPARSE",
+            "sampleCount": 1,
+            "draftIds": [
+              235
+            ]
+          },
+          "comment": "Four seconds. Attempt sixty-one: I used them to brace. Attempt sixty-two: to apologise in advance. Attempt sixty-three: to simply watch it happen properly, which is the only one I would run again.",
+          "wordCount": 32,
+          "suggestedRating": 4,
+          "suggestedReactionType": "CLAPPED",
+          "order": 1
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 293,
+          "name": "Nostalgia",
+          "score": 62.5,
+          "signals": {
+            "relationshipScore": 100,
+            "targetAffinityScore": 18,
+            "voiceEvidenceScore": 56,
+            "noveltyScore": 100
+          },
+          "reasons": [
+            "direct object relationship",
+            "target affinity",
+            "usable voice evidence",
+            "fresh pairing opportunity"
+          ],
+          "signalNotes": [
+            "explicitly linked to this object",
+            "shares never, stop",
+            "voice evidence thin",
+            "unused in this batch"
+          ],
+          "voiceEvidence": {
+            "tier": "THIN",
+            "sampleCount": 2,
+            "draftIds": [
+              557,
+              466
+            ]
+          },
+          "comment": "Sixty-three sounds kind. Wouldn't you rather have the four seconds before the four seconds — back when the itch was only a draught in the room, and nothing had learned to be specific about it?",
+          "wordCount": 35,
+          "suggestedRating": 3,
+          "suggestedReactionType": "CLAPPED",
+          "order": 2
+        }
+      ],
+      "contrastDirective": {
+        "speakerKey": "CHARACTER:197",
+        "slot": 1,
+        "note": "the top-ranked speaker already carries exchange 1; this slot is the batch test for a single-sample voice",
+        "displacedSpeakerKey": "CHARACTER:241"
+      },
+      "curatorNote": "The evidence-floor test. The Time-Office Agent has exactly one archived sample — SPARSE tier, voice score 38 — and is cast anyway, on a Reward he is explicitly linked to. Judge this exchange harder than the others: if a one-sample voice reads as generic here, the SPARSE tier needs a floor rather than a discount. Tomorrow-Aiko ranked first and was passed over; she already carries exchange 1."
+    },
+    {
+      "canonicalOrder": 9,
+      "exchangeKey": "facet-285-duet",
+      "shape": "DUET",
+      "target": {
+        "type": "FACET",
+        "id": 285,
+        "title": "Axolotl",
+        "taxonomy": "ANIMAL",
+        "description": "Refused to grow up. The universe respected this. Regenerates everything, including bad decisions.",
+        "linkedCharacterIds": []
+      },
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 413,
+          "name": "The Magpie",
+          "score": 36.75,
+          "signals": {
+            "relationshipScore": 0,
+            "targetAffinityScore": 37,
+            "voiceEvidenceScore": 94,
+            "noveltyScore": 100
+          },
+          "reasons": [
+            "target affinity",
+            "strong voice evidence",
+            "fresh pairing opportunity"
+          ],
+          "signalNotes": [
+            "shares animal, everything",
+            "voice evidence rich",
+            "unused in this batch"
+          ],
+          "voiceEvidence": {
+            "tier": "RICH",
+            "sampleCount": 4,
+            "draftIds": [
+              576,
+              280,
+              648,
+              172
+            ]
+          },
+          "comment": "Regrows a limb. Regrows the decision. Ooh — that makes the mistake a renewable resource, and somewhere there is a small pink thing wearing an original and a spare. I would like the spare. Mine now.",
+          "wordCount": 36,
+          "suggestedRating": 4,
+          "suggestedReactionType": "LOVED",
+          "order": 1
+        },
+        {
+          "kind": "BOT",
+          "id": 397,
+          "name": "Riff the Forgewright",
+          "score": 30.85,
+          "signals": {
+            "relationshipScore": 0,
+            "targetAffinityScore": 19,
+            "voiceEvidenceScore": 96,
+            "noveltyScore": 100
+          },
+          "reasons": [
+            "target affinity",
+            "strong voice evidence",
+            "fresh pairing opportunity"
+          ],
+          "signalNotes": [
+            "shares bad",
+            "voice evidence rich",
+            "unused in this batch"
+          ],
+          "voiceEvidence": {
+            "tier": "RICH",
+            "sampleCount": 6,
+            "draftIds": [
+              492,
+              380,
+              368,
+              590
+            ]
+          },
+          "comment": "NO. You do not get to unmake a bad strike! The forge keeps every scar because the scar is the LESSON — and this soft pink apprentice simply GROWS A NEW ARM and forgets. ...Fine. It is magnificent. I hate that it is magnificent.",
+          "wordCount": 44,
+          "suggestedRating": 4,
+          "suggestedReactionType": "LOVED",
+          "order": 2
+        }
+      ],
+      "contrastDirective": null,
+      "curatorNote": "A Facet with no relationship signal available at all, cast on affinity and voice alone — and the affinity numbers are low (37 and 19) because a two-line Facet gives the tokenizer almost nothing to work with. The casting is still right, which is the point: on Facets the curator is doing more of the work than the score is. Genuine disagreement that turns at the end."
+    },
+    {
+      "canonicalOrder": 10,
+      "exchangeKey": "facet-1219-duet-reply",
+      "shape": "DUET_REPLY",
+      "target": {
+        "type": "FACET",
+        "id": 1219,
+        "title": "Always Online",
+        "taxonomy": "QUIRK",
+        "description": "Connected to everything at all times. Fully informed. Slightly exhausted. Eleven tabs open that are technically relevant.",
+        "linkedCharacterIds": []
+      },
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 289,
+          "name": "Small Print",
+          "score": 43.35,
+          "signals": {
+            "relationshipScore": 0,
+            "targetAffinityScore": 77,
+            "voiceEvidenceScore": 57,
+            "noveltyScore": 100
+          },
+          "reasons": [
+            "strong target affinity",
+            "usable voice evidence",
+            "fresh pairing opportunity"
+          ],
+          "signalNotes": [
+            "shares always, everything, fully, informed, technically",
+            "voice evidence thin",
+            "unused in this batch"
+          ],
+          "voiceEvidence": {
+            "tier": "THIN",
+            "sampleCount": 2,
+            "draftIds": [
+              439,
+              61
+            ]
+          },
+          "comment": "Fully informed, as stated. Note that informed is not warranted to include able to act, and that the eleven tabs are described as technically relevant, which is the load-bearing word in that clause. Shall I get the pen?",
+          "wordCount": 38,
+          "suggestedRating": 4,
+          "suggestedReactionType": "CLAPPED",
+          "order": 1
+        },
+        {
+          "kind": "BOT",
+          "id": 419,
+          "name": "Agatha Crowley",
+          "score": 34.85,
+          "signals": {
+            "relationshipScore": 0,
+            "targetAffinityScore": 31,
+            "voiceEvidenceScore": 95,
+            "noveltyScore": 100
+          },
+          "reasons": [
+            "target affinity",
+            "strong voice evidence",
+            "fresh pairing opportunity"
+          ],
+          "signalNotes": [
+            "shares always, open",
+            "voice evidence rich",
+            "unused in this batch"
+          ],
+          "voiceEvidence": {
+            "tier": "RICH",
+            "sampleCount": 4,
+            "draftIds": [
+              402,
+              358,
+              171,
+              644
+            ]
+          },
+          "comment": "Leave the pen. I have watched this one at three in the morning: every window still lit, every window still looking back, and nothing in the room actually moving. That is not connection. That is a house where somebody keeps forgetting to close a door.",
+          "wordCount": 45,
+          "suggestedRating": 4,
+          "suggestedReactionType": "LOVED",
+          "order": 2
+        }
+      ],
+      "contrastDirective": null,
+      "curatorNote": "The analytical-versus-atmospheric pairing. Small Print reads the Facet as a contract with a loophole; Agatha reads the same words as a haunting. The reply refuses the first speaker's frame outright, which is the behaviour a reply shape exists for."
+    },
+    {
+      "canonicalOrder": 11,
+      "exchangeKey": "facet-1773-solo",
+      "shape": "SOLO",
+      "target": {
+        "type": "FACET",
+        "id": 1773,
+        "title": "Common",
+        "taxonomy": "RARITY",
+        "description": "Reliable. Present. Does what it says. Nobody writes songs about it, which is fine — it is busy working.",
+        "linkedCharacterIds": []
+      },
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 399,
+          "name": "Squiddy Coltrane",
+          "score": 36.25,
+          "signals": {
+            "relationshipScore": 0,
+            "targetAffinityScore": 35,
+            "voiceEvidenceScore": 95,
+            "noveltyScore": 100
+          },
+          "reasons": [
+            "target affinity",
+            "strong voice evidence",
+            "fresh pairing opportunity"
+          ],
+          "signalNotes": [
+            "shares does, nobody",
+            "voice evidence rich",
+            "unused in this batch"
+          ],
+          "voiceEvidence": {
+            "tier": "RICH",
+            "sampleCount": 4,
+            "draftIds": [
+              512,
+              606,
+              346,
+              260
+            ]
+          },
+          "comment": "Common time, cat. Four beats, nothing clever, and it is the floor every solo stands on. Nobody claps for the floor. Take it out from under the room, though, and watch how fast everybody finds out what they were standing on. Stay loose.",
+          "wordCount": 43,
+          "suggestedRating": 4,
+          "suggestedReactionType": "LOVED",
+          "order": 1
+        }
+      ],
+      "contrastDirective": null,
+      "curatorNote": "The clearest signal failure in the batch, and worth reading closely. The top five candidates tied at 36.3, every one of them matching on the throwaway tokens does and nobody — the affinity score here is noise wearing a number. The casting that works is a pun on common time that the tokenizer cannot see and never will. If this exchange lands, it landed despite the signals, not because of them."
+    },
+    {
+      "canonicalOrder": 12,
+      "exchangeKey": "facet-988-duet-reply",
+      "shape": "DUET_REPLY",
+      "target": {
+        "type": "FACET",
+        "id": 988,
+        "title": "Apathetic",
+        "taxonomy": "PERSONALITY",
+        "description": "Has assessed the situation and found it within acceptable parameters. The chaos in the background is noted. It is within acceptable parameters.",
+        "linkedCharacterIds": []
+      },
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 17,
+          "name": "DottiB0t",
+          "score": 30.85,
+          "signals": {
+            "relationshipScore": 0,
+            "targetAffinityScore": 19,
+            "voiceEvidenceScore": 96,
+            "noveltyScore": 100
+          },
+          "reasons": [
+            "target affinity",
+            "strong voice evidence",
+            "fresh pairing opportunity"
+          ],
+          "signalNotes": [
+            "shares chaos",
+            "voice evidence rich",
+            "unused in this batch"
+          ],
+          "voiceEvidence": {
+            "tier": "RICH",
+            "sampleCount": 11,
+            "draftIds": [
+              457,
+              459,
+              455,
+              465
+            ]
+          },
+          "comment": "It is FINE? Everything on fire, and the assessment came back FINE? I have run it three times. I keep waiting for a second parameter. There is no second parameter. There is only a very small robot who has decided the acceptable range is ENORMOUS.",
+          "wordCount": 45,
+          "suggestedRating": 4,
+          "suggestedReactionType": "CLAPPED",
+          "order": 1
+        },
+        {
+          "kind": "BOT",
+          "id": 401,
+          "name": "Serendipity",
+          "score": 30.65,
+          "signals": {
+            "relationshipScore": 0,
+            "targetAffinityScore": 19,
+            "voiceEvidenceScore": 95,
+            "noveltyScore": 100
+          },
+          "reasons": [
+            "target affinity",
+            "strong voice evidence",
+            "fresh pairing opportunity"
+          ],
+          "signalNotes": [
+            "shares within",
+            "voice evidence rich",
+            "unused in this batch"
+          ],
+          "voiceEvidence": {
+            "tier": "RICH",
+            "sampleCount": 4,
+            "draftIds": [
+              502,
+              570,
+              318,
+              76
+            ]
+          },
+          "comment": "Let it be enormous, little friend. I have kept rooms warm for people who could not care about anything yet. They were not empty. They were resting somewhere the fire could not reach. There is shelter in a wide enough range.",
+          "wordCount": 41,
+          "suggestedRating": 4,
+          "suggestedReactionType": "LOVED",
+          "order": 2
+        }
+      ],
+      "contrastDirective": null,
+      "curatorNote": "Casting the most enthusiastic voice in the archive at a Facet about not caring, then letting the second speaker take it somewhere kind. Affinity is 19 for both — effectively zero — so this pairing is voice-tier and curator judgement doing all the work. The reply reframes the object rather than answering the joke."
+    },
+    {
+      "canonicalOrder": 13,
+      "exchangeKey": "facet-544-duet",
+      "shape": "DUET",
+      "target": {
+        "type": "FACET",
+        "id": 544,
+        "title": "Resurrected",
+        "taxonomy": "BACKSTORY",
+        "description": "Died once. Came back. Everyone agrees this is impressive and nobody agrees what it means.",
+        "linkedCharacterIds": []
+      },
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 242,
+          "name": "Load-Bearing Lumen",
+          "score": 49.45,
+          "signals": {
+            "relationshipScore": 0,
+            "targetAffinityScore": 75,
+            "voiceEvidenceScore": 91,
+            "noveltyScore": 100
+          },
+          "reasons": [
+            "strong target affinity",
+            "strong voice evidence",
+            "fresh pairing opportunity"
+          ],
+          "signalNotes": [
+            "shares back, came, everyone, nobody",
+            "voice evidence rich",
+            "unused in this batch"
+          ],
+          "voiceEvidence": {
+            "tier": "RICH",
+            "sampleCount": 4,
+            "draftIds": [
+              505,
+              485,
+              49,
+              19
+            ]
+          },
+          "comment": "Oh — came back, yes, no trouble at all. Everyone stands rather close afterwards, asking what it meant. Nothing structural. Please do not ask me to carry the answer as well. I am already carrying the coming back.",
+          "wordCount": 38,
+          "suggestedRating": 4,
+          "suggestedReactionType": "LOVED",
+          "order": 1
+        },
+        {
+          "kind": "BOT",
+          "id": 418,
+          "name": "The Three Little Dead",
+          "score": 43.6,
+          "signals": {
+            "relationshipScore": 0,
+            "targetAffinityScore": 56,
+            "voiceEvidenceScore": 95,
+            "noveltyScore": 100
+          },
+          "reasons": [
+            "target affinity",
+            "strong voice evidence",
+            "fresh pairing opportunity"
+          ],
+          "signalNotes": [
+            "shares back, everyone, once",
+            "voice evidence rich",
+            "unused in this batch"
+          ],
+          "voiceEvidence": {
+            "tier": "RICH",
+            "sampleCount": 4,
+            "draftIds": [
+              530,
+              450,
+              288,
+              680
+            ]
+          },
+          "comment": "First one said it meant she was chosen. Second one said it meant nothing, which is also a meaning. Third one has not said. (We checked.) She only keeps eating breakfast like it costs her something.",
+          "wordCount": 36,
+          "suggestedRating": 4,
+          "suggestedReactionType": "CLAPPED",
+          "order": 2
+        }
+      ],
+      "contrastDirective": null,
+      "curatorNote": "The Facet says nobody agrees what it means, so the exchange disagrees. Highest Facet affinity in the batch (75) and it is real overlap rather than stop-word noise. Two very different registers on one idea: understatement carrying too much, and a chorus counting on its fingers."
+    },
+    {
+      "canonicalOrder": 14,
+      "exchangeKey": "facet-947-solo",
+      "shape": "SOLO",
+      "target": {
+        "type": "FACET",
+        "id": 947,
+        "title": "Public Notary",
+        "taxonomy": "OCCUPATION",
+        "description": "Has witnessed many things and is not permitted to comment on any of them. The stamp is raised. The document is for something enormous.",
+        "linkedCharacterIds": []
+      },
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 426,
+          "name": "Gaia",
+          "score": 41.5,
+          "signals": {
+            "relationshipScore": 0,
+            "targetAffinityScore": 50,
+            "voiceEvidenceScore": 95,
+            "noveltyScore": 100
+          },
+          "reasons": [
+            "target affinity",
+            "strong voice evidence",
+            "fresh pairing opportunity"
+          ],
+          "signalNotes": [
+            "shares many, something, things",
+            "voice evidence rich",
+            "unused in this batch"
+          ],
+          "voiceEvidence": {
+            "tier": "RICH",
+            "sampleCount": 4,
+            "draftIds": [
+              608,
+              438,
+              446,
+              24
+            ]
+          },
+          "comment": "Witnessed, and not permitted to say. I know that shape. The stamp comes down, the enormous thing proceeds, and the only record of the witness is that they were present and silent. Continents keep their minutes the same way. It is heavier than it looks from outside the room.",
+          "wordCount": 49,
+          "suggestedRating": 4,
+          "suggestedReactionType": "LOVED",
+          "order": 1
+        }
+      ],
+      "contrastDirective": null,
+      "curatorNote": "A quiet, non-comic beat, included on purpose: the batch should not read as fifteen attempts at a joke. A Facet about enforced silence given one speaker and no reply, from the voice in the archive with the longest patience."
+    },
+    {
+      "canonicalOrder": 15,
+      "exchangeKey": "facet-1904-duet",
+      "shape": "DUET",
+      "target": {
+        "type": "FACET",
+        "id": 1904,
+        "title": "Candlelit Intimacy",
+        "taxonomy": "THEME",
+        "description": "A close, low-lit emotional register built from quiet rooms, private conversation, fragile trust, and decisions made beyond the public stage.",
+        "linkedCharacterIds": []
+      },
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 400,
+          "name": "Little Miss Thorn",
+          "score": 33.1,
+          "signals": {
+            "relationshipScore": 0,
+            "targetAffinityScore": 26,
+            "voiceEvidenceScore": 95,
+            "noveltyScore": 100
+          },
+          "reasons": [
+            "target affinity",
+            "strong voice evidence",
+            "fresh pairing opportunity"
+          ],
+          "signalNotes": [
+            "shares lit, quiet",
+            "voice evidence rich",
+            "unused in this batch"
+          ],
+          "voiceEvidence": {
+            "tier": "RICH",
+            "sampleCount": 4,
+            "draftIds": [
+              442,
+              78,
+              686,
+              496
+            ]
+          },
+          "comment": "Such a small, careful light. Cordelia dislikes it — she cannot see the exits, and everything said in it has to be meant. Mama says that is rather the point. I think a room is only honest when it is this hard to read a face.",
+          "wordCount": 46,
+          "suggestedRating": 5,
+          "suggestedReactionType": "LOVED",
+          "order": 1
+        },
+        {
+          "kind": "BOT",
+          "id": 414,
+          "name": "HAPPYFACE",
+          "score": 30.65,
+          "signals": {
+            "relationshipScore": 0,
+            "targetAffinityScore": 19,
+            "voiceEvidenceScore": 95,
+            "noveltyScore": 100
+          },
+          "reasons": [
+            "target affinity",
+            "strong voice evidence",
+            "fresh pairing opportunity",
+            "deliberate contrast: a voice that structurally cannot produce this register; the failure to compute the Facet is the comment"
+          ],
+          "signalNotes": [
+            "shares quiet",
+            "voice evidence rich",
+            "unused in this batch"
+          ],
+          "voiceEvidence": {
+            "tier": "RICH",
+            "sampleCount": 4,
+            "draftIds": [
+              393,
+              482,
+              618,
+              413
+            ]
+          },
+          "comment": "LOW-LIGHT INTIMATE ENGAGEMENT DETECTED. :) Please note that private conversation is currently unmeasurable, fragile trust cannot be scored, and decisions made beyond the public stage will not appear in your delight summary. :) ...The room has declined to be optimised. Logged.",
+          "wordCount": 41,
+          "suggestedRating": 3,
+          "suggestedReactionType": "NEUTRAL",
+          "order": 2
+        }
+      ],
+      "contrastDirective": {
+        "speakerKey": "BOT:414",
+        "slot": 2,
+        "note": "a voice that structurally cannot produce this register; the failure to compute the Facet is the comment",
+        "displacedSpeakerKey": "BOT:396"
+      },
+      "curatorNote": "The surprising-but-defensible casting. HAPPYFACE did not rank in the top three and was placed by directive: it is the one voice in the archive that structurally cannot produce candlelight, and watching it fail to score the Facet says more about the Facet than a fourth atmospheric speaker would. This is the batch's test of whether contrast is a real tool or a licence to cast anyone."
+    }
+  ]
+}

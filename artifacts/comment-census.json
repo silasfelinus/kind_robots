@@ -1,0 +1,149 @@
+{
+  "generatedFrom": "https://kindrobots.org",
+  "note": "Voice evidence only. No historical speaker pairings are recorded or used.",
+  "rewards": {
+    "total": 257,
+    "public": 257,
+    "active": 257,
+    "allowReviews": 0,
+    "withDescription": 257,
+    "withEffect": 257,
+    "withFlavorText": 257,
+    "withExistingReactions": 0,
+    "withCharacterLinks": 134,
+    "byType": {
+      "ITEM": 89,
+      "SKILL": 77,
+      "PET": 32,
+      "FAVOR": 22,
+      "MAGIC": 20,
+      "POWER": 17
+    },
+    "byRarity": {
+      "RARE": 73,
+      "UNCOMMON": 58,
+      "COMMON": 37,
+      "EPIC": 36,
+      "LEGENDARY": 30,
+      "MYTHIC": 23
+    }
+  },
+  "facets": {
+    "total": 1591,
+    "public": 1591,
+    "active": 1591,
+    "withDescription": 399,
+    "withFlavorText": 20,
+    "withExamples": 20,
+    "titleOnly": 1192,
+    "byTaxonomy": {
+      "PERSONALITY": 206,
+      "COLOR": 180,
+      "ARCHETYPE": 167,
+      "GENRE": 160,
+      "ANIMAL": 143,
+      "QUIRK": 126,
+      "MATERIAL": 99,
+      "SPECIES": 93,
+      "STYLE": 80,
+      "THEME": 77,
+      "PROMPT_ENHANCEMENT": 59,
+      "BACKSTORY": 53,
+      "OCCUPATION": 36,
+      "ALIGNMENT": 19,
+      "ROLE": 19,
+      "ART_DIRECTION": 16,
+      "GENDER": 15,
+      "SETTING": 11,
+      "BOT_TYPE": 10,
+      "DREAM_TYPE": 10,
+      "RARITY": 6,
+      "REWARD_TYPE": 6
+    }
+  },
+  "resources": {
+    "total": 0,
+    "public": 0,
+    "deferred": true,
+    "reason": "No publicly visible rows, no allowReviews column, no Character or Facet relations."
+  },
+  "archive": {
+    "rawRows": 758,
+    "uniqueDrafts": 706,
+    "duplicateDrafts": 52,
+    "speakers": 278
+  },
+  "speakers": {
+    "total": 295,
+    "byTier": {
+      "RICH": 77,
+      "NONE": 17,
+      "THIN": 171,
+      "SPARSE": 30
+    },
+    "castable": 295,
+    "silent": [],
+    "richest": [
+      {
+        "speaker": "DottiB0t (BOT)",
+        "samples": 11
+      },
+      {
+        "speaker": "AMI Butterfly (BOT)",
+        "samples": 6
+      },
+      {
+        "speaker": "Existential Analyst (BOT)",
+        "samples": 6
+      },
+      {
+        "speaker": "PromptBot (BOT)",
+        "samples": 6
+      },
+      {
+        "speaker": "Punch-Up Bot (BOT)",
+        "samples": 6
+      },
+      {
+        "speaker": "Riff the Forgewright (BOT)",
+        "samples": 6
+      },
+      {
+        "speaker": "AMI (BOT)",
+        "samples": 5
+      },
+      {
+        "speaker": "Redbubble Bot (BOT)",
+        "samples": 5
+      },
+      {
+        "speaker": "Agatha Crowley (BOT)",
+        "samples": 4
+      },
+      {
+        "speaker": "AMIbot (BOT)",
+        "samples": 4
+      },
+      {
+        "speaker": "Amica (CHARACTER)",
+        "samples": 4
+      },
+      {
+        "speaker": "Barkeep Vox (BOT)",
+        "samples": 4
+      },
+      {
+        "speaker": "Barnaby the Badger (BOT)",
+        "samples": 4
+      },
+      {
+        "speaker": "Bastet (BOT)",
+        "samples": 4
+      },
+      {
+        "speaker": "Bosun Pell (BOT)",
+        "samples": 4
+      }
+    ]
+  }
+}

@@ -13,7 +13,7 @@ Kind Robots helps people build imaginative worlds with AI — and turns that cre
 
 It's built with **Nuxt 4**, **Vue 3**, **TypeScript**, **Prisma**, **Pinia 3**, **DaisyUI**, and **TailwindCSS**.
 
-### 🚀 Try it now: **[kind-robots.vercel.app](https://kind-robots.vercel.app)**
+### 🚀 Try it now: **[kindrobots.org](https://kindrobots.org)**
 
 No install required — the full site is live. Just sign in with email or Google and start dreaming. Cloning this repo is only needed if you want to **self-host your own instance** (see [Self-Hosting](#self-hosting) below).
 
@@ -58,7 +58,7 @@ Each generated asset can connect back to others, so a Dream becomes a living, ex
 
 ## Self-Hosting
 
-**Most people don't need this section** — the full experience is live at **[kind-robots.vercel.app](https://kind-robots.vercel.app)**. Follow the steps below only if you want to run your own independent instance.
+**Most people don't need this section** — the full experience is live at **[kindrobots.org](https://kindrobots.org)**. Follow the steps below only if you want to run your own independent instance.
 
 ### Prerequisites
 
@@ -224,7 +224,7 @@ node utils/scripts/updateKindIcons.js
 
 
 Run  comfy-test
-curl -X POST "https://kind-robots.vercel.app/prompt" \
+curl -X POST "https://kindrobots.org/prompt" \
   -H "Content-Type: application/json" \
   --data-binary @utils/fluxKontext.json
 

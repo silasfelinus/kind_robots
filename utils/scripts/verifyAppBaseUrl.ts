@@ -55,10 +55,10 @@ const legacyMatch = emailSource.match(
   /const LEGACY_APP_BASE_URLS\s*=\s*new Set\(\[([\s\S]*?)\]\)/,
 )
 assert.ok(
-  legacyMatch,
+  legacyMatch?.[1],
   'server/utils/email.ts must declare LEGACY_APP_BASE_URLS as a Set literal.',
 )
-const legacyHosts = [...legacyMatch![1].matchAll(/'([^']+)'/g)].map(
+const legacyHosts = [...legacyMatch![1]!.matchAll(/'([^']+)'/g)].map(
   (match) => match[1] as string,
 )
 

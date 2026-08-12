@@ -21,7 +21,11 @@ import { assertSingleFirstPartyReactionAuthor } from '@/utils/reactions/firstPar
 
 const ISSUE_NUMBER = 1769
 const PUBLISHER_USER_ID = 1
-const EXPECTED_AUTHORING_MODEL = 'GPT-5.6 Sol'
+// The gate the corpus was approved through. Deliberately not a claim about who
+// wrote it: the assembler reports authoringModels as the aggregate of what the
+// packets declare, because more than one author has contributed and naming a
+// single one was already inaccurate.
+const EXPECTED_RELEASE_GATE = 'GPT-5.6 Sol'
 const BANNED_REVIEW_LANGUAGE =
   /\b(component|wonderlab|museum|exhibit|star rating|rating|review|implementation|usability)\b/i
 
@@ -45,9 +49,14 @@ type PayloadItem = {
 type BatchFile = {
   version: number
   issueNumber: number
-  authoringModel: string
+  authoringModels: string[]
+  draftingModels?: string[]
+  releaseGate: string
   createdFor: string
+  /** Targets this payload covers: a prefix of the eligible list, 1..eligible. */
   targetCount: number
+  /** Full eligible corpus size, so a deliberate partial run is distinguishable. */
+  eligibleTargets?: number
   batches: Array<{
     start: number
     items: PayloadItem[]
@@ -299,8 +308,11 @@ async function main() {
   if (batchFile.version !== 1 || batchFile.issueNumber !== ISSUE_NUMBER) {
     throw new Error('Unexpected live comment backfill payload metadata.')
   }
-  if (batchFile.authoringModel !== EXPECTED_AUTHORING_MODEL) {
-    throw new Error(`Unexpected authoring model: ${batchFile.authoringModel}`)
+  if (batchFile.releaseGate !== EXPECTED_RELEASE_GATE) {
+    throw new Error(`Unexpected release gate: ${batchFile.releaseGate}`)
+  }
+  if (!batchFile.authoringModels?.length) {
+    throw new Error('Payload records no authoring models.')
   }
   if (!batchFile.batches.length) {
     throw new Error('Live comment backfill payload has no batches.')
@@ -319,21 +331,47 @@ async function main() {
     throw new Error(`Publisher user #${PUBLISHER_USER_ID} does not exist.`)
   }
 
+  // The payload is a PREFIX of the eligible targets, not necessarily all of
+  // them. It used to have to be all of them, which meant 491 finished comments
+  // could not reach the site until every one of 658 targets had been written.
+  //
+  // Publishing a prefix lands exactly the rows publishing everything would,
+  // because this run skips any target that already carries a first-party
+  // comment (see below) -- so 0..255 now and 256..657 later is the same
+  // destination by a different route. The two things that must still hold are
+  // that the payload is not longer than what exists, and that it lines up
+  // positionally with the eligible list; a hole would shift every later item
+  // onto the wrong object, which is worse than publishing nothing.
   const payload = flattenPayload()
-  if (batchFile.targetCount !== eligibleTargets.length) {
+  if (payload.length !== batchFile.targetCount) {
     throw new Error(
-      `Payload expected ${batchFile.targetCount} targets; production currently has ${eligibleTargets.length}.`,
+      `Payload declares ${batchFile.targetCount} targets but carries ${payload.length}.`,
     )
   }
-  if (payload.length !== eligibleTargets.length) {
+  if (!payload.length) {
+    throw new Error('Payload contains no targets.')
+  }
+  if (payload.length > eligibleTargets.length) {
     throw new Error(
-      `Payload contains ${payload.length} targets; expected ${eligibleTargets.length}.`,
+      `Payload contains ${payload.length} targets; production has only ${eligibleTargets.length} eligible.`,
+    )
+  }
+  if (
+    typeof batchFile.eligibleTargets === 'number' &&
+    batchFile.eligibleTargets !== eligibleTargets.length
+  ) {
+    throw new Error(
+      `Payload was assembled against ${batchFile.eligibleTargets} eligible targets; production currently has ${eligibleTargets.length}. The target list moved -- reassemble before publishing.`,
     )
   }
 
+  // Only the slice being published. Beyond it, eligible targets are deliberately
+  // left alone rather than treated as missing.
+  const publishTargets = eligibleTargets.slice(0, payload.length)
+
   const seenTargets = new Set<string>()
   const validationText = new Map(existing.authoredText)
-  for (const [index, target] of eligibleTargets.entries()) {
+  for (const [index, target] of publishTargets.entries()) {
     const item = payload[index]
     if (!item || item.index !== index || item.key !== target.key) {
       throw new Error(
@@ -371,7 +409,8 @@ async function main() {
   console.log(
     'COMMENT_BACKFILL_VALIDATED',
     JSON.stringify({
-      targetCount: eligibleTargets.length,
+      publishingTargets: publishTargets.length,
+      eligibleTargets: eligibleTargets.length,
       existingFirstPartyComments: existing.rows,
       publisher,
       voiceArchiveRows: archivedVoiceRecords.length,
@@ -383,7 +422,10 @@ async function main() {
   let publishedComments = 0
   let skippedTargets = 0
 
-  for (const [index, target] of eligibleTargets.entries()) {
+  // publishTargets, not eligibleTargets: past the prefix payload[index] is
+  // undefined, and the non-null assertion would take it straight into
+  // item.speakers.
+  for (const [index, target] of publishTargets.entries()) {
     const item = payload[index]!
     if (existing.targetKeys.has(target.key)) {
       skippedTargets += 1
@@ -430,12 +472,15 @@ async function main() {
     }
   }
 
-  const remaining = eligibleTargets.filter(
+  // Scoped to the slice we set out to publish. Checking every eligible target
+  // here would fail any partial run by definition -- the targets past the
+  // prefix are not missing, they are simply not this run's job.
+  const remaining = publishTargets.filter(
     (target) => !existing.targetKeys.has(target.key),
   )
   if (remaining.length) {
     throw new Error(
-      `Backfill ended with ${remaining.length} eligible target(s) empty: ${remaining
+      `Backfill ended with ${remaining.length} target(s) in the published slice empty: ${remaining
         .slice(0, 10)
         .map((target) => target.key)
         .join(', ')}.`,
@@ -446,6 +491,8 @@ async function main() {
     'COMMENT_BACKFILL_COMPLETE',
     JSON.stringify({
       eligibleTargets: eligibleTargets.length,
+      publishedSlice: publishTargets.length,
+      undrafted: eligibleTargets.length - publishTargets.length,
       publishedTargets,
       publishedComments,
       skippedTargets,

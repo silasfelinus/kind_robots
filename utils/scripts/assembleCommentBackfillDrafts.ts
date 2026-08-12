@@ -60,8 +60,29 @@ for (const { name, packet } of packets) {
   cursor += packet.items.length
 }
 
-if (cursor !== expectedTargets) {
-  throw new Error(`Draft corpus covers ${cursor}/${expectedTargets} targets.`)
+// A PREFIX of the eligible targets, not necessarily all of them.
+//
+// This used to require cursor === expectedTargets, so a corpus covering 256 of
+// 658 targets assembled into nothing at all. That made the 491 comments already
+// written unpublishable until every remaining target had been drafted -- months
+// of authoring during which the review layer stayed empty on a live site,
+// because the drafts are written in target order and the gate was all-or-
+// nothing.
+//
+// Prefix publishing is safe here for a reason particular to this pipeline: the
+// publisher walks eligible targets positionally and skips any target that
+// already carries a first-party comment, so publishing 0..255 now and 256..657
+// later lands the same rows as publishing all 658 at once. What must not happen
+// is a HOLE -- a gap in the middle would silently shift every later item onto
+// the wrong target. Contiguity from 0 is what rules that out, and it is still
+// enforced above, per packet, before we get here.
+if (cursor > expectedTargets) {
+  throw new Error(
+    `Draft corpus covers ${cursor} targets but only ${expectedTargets} are eligible. A packet claims targets that do not exist.`,
+  )
+}
+if (cursor === 0) {
+  throw new Error('Draft corpus is empty.')
 }
 
 const allItems = batches.flatMap((batch) => batch.items)
@@ -71,11 +92,21 @@ if (keys.size !== allItems.length) throw new Error('Draft corpus contains duplic
 const output = {
   version: 1,
   issueNumber: 1769,
-  authoringModel: 'GPT-5.6 Sol',
+  // Every model that actually wrote part of this corpus, aggregated from the
+  // packets rather than asserted. This was a hardcoded singular 'GPT-5.6 Sol',
+  // which stopped being true the moment a second author contributed a packet --
+  // a provenance record that names the wrong author is worse than none.
+  // releaseGate below is a different thing and stays constant: it is the gate
+  // the corpus was approved through, not a claim about who wrote it.
+  authoringModels: [...draftingModels].sort(),
   draftingModels: [...draftingModels].sort(),
   releaseGate: 'GPT-5.6 Sol',
   createdFor: 'Production Reward/Facet object comments after #1802 voice approval',
-  targetCount: expectedTargets,
+  // What this payload covers, which is now a prefix rather than the whole set.
+  // eligibleTargets records the full corpus size so the publisher can tell a
+  // deliberate partial run from a payload that lost items.
+  targetCount: cursor,
+  eligibleTargets: expectedTargets,
   batches,
 }
 writeFileSync(
@@ -85,5 +116,16 @@ writeFileSync(
 )
 console.log(
   'COMMENT_BACKFILL_DRAFTS_ASSEMBLED',
-  JSON.stringify({ targetCount: expectedTargets, packets: packets.length, draftingModels: output.draftingModels }),
+  JSON.stringify({
+    targetCount: cursor,
+    eligibleTargets: expectedTargets,
+    complete: cursor === expectedTargets,
+    packets: packets.length,
+    draftingModels: output.draftingModels,
+  }),
 )
+if (cursor < expectedTargets) {
+  console.log(
+    `Partial corpus: targets 0..${cursor - 1} of ${expectedTargets}. The remaining ${expectedTargets - cursor} keep their existing comments (none) until a later run.`,
+  )
+}

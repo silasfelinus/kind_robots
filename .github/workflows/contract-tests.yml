@@ -88,6 +88,9 @@ jobs:
       - name: Reaction target coverage contract
         run: npm run test:reaction-targets
 
+      - name: Reaction route auth contract
+        run: npm run test:reaction-route-auth
+
       - name: Component reachability contract
         run: npm run test:component-reachability
 

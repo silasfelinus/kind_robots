@@ -1,0 +1,93 @@
+name: Fix Composables Migration CI
+
+on:
+  push:
+    branches:
+      - agent/remove-composables-island
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: ${{ !contains(github.event.head_commit.message, '[ci-migration-fixed]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/remove-composables-island
+          fetch-depth: 0
+      - name: Fix TypeScript narrowing and stale architecture breadcrumbs
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('stores/helpers/storybookLibraryHelper.ts')
+          text = path.read_text()
+
+          replacements = [
+              (
+                  "    initialized.value = true\n    if (bridge.getSession()) upsert(bridge.getSession())\n",
+                  "    initialized.value = true\n    const current = bridge.getSession()\n    if (current) upsert(current)\n",
+              ),
+              (
+                  "    const source =\n      bridge.getSession()?.id === sessionId\n        ? bridge.getSession()\n        : findStory(sessionId)\n",
+                  "    const current = bridge.getSession()\n    const source = current?.id === sessionId ? current : findStory(sessionId)\n",
+              ),
+              (
+                  "    const started = await bridge.beginStory(restartInput(source.bible))\n    if (!started || !bridge.getSession()) return null\n    upsert(bridge.getSession())\n    return bridge.getSession().id\n",
+                  "    const started = await bridge.beginStory(restartInput(source.bible))\n    const restarted = bridge.getSession()\n    if (!started || !restarted) return null\n    upsert(restarted)\n    return restarted.id\n",
+              ),
+              (
+                  "  function archiveCurrent(): void {\n    if (bridge.getSession()) upsert(bridge.getSession())\n  }\n",
+                  "  function archiveCurrent(): void {\n    const current = bridge.getSession()\n    if (current) upsert(current)\n  }\n",
+              ),
+          ]
+
+          for old, new in replacements:
+              if old not in text:
+                  raise SystemExit(f'missing Storybook narrowing anchor: {old[:70]!r}')
+              text = text.replace(old, new)
+          path.write_text(text)
+
+          pitch = Path('utils/scripts/verifyPitchDetectorAccuracy.test.ts')
+          pitch_text = pitch.read_text()
+          old_import = '../../composables/useAudioAnalysis.js'
+          new_import = '../../stores/helpers/audioAnalysisHelper.js'
+          if old_import not in pitch_text:
+              raise SystemExit('missing pitch-detector import anchor')
+          pitch.write_text(pitch_text.replace(old_import, new_import))
+
+          for rel in [
+              'components/bots/bot-gallery.vue',
+              'components/characters/character-gallery.vue',
+              'components/scenarios/scenario-gallery.vue',
+          ]:
+              p = Path(rel)
+              s = p.read_text()
+              s = s.replace(
+                  '// the shared composable (see stores/userStore.ts). Scoped to',
+                  '// the shared userStore earned-karma tracker. Scoped to',
+              )
+              p.write_text(s)
+
+          reward = Path('components/rewards/reward-gallery.vue')
+          reward_text = reward.read_text().replace(
+              'useEarnedKarma keys its watch on the id list,',
+              'the earned-karma tracker keys its watch on the id list,',
+          )
+          reward.write_text(reward_text)
+          PY
+      - name: Confirm no active composable references remain
+        run: |
+          if grep -RIn --include='*.ts' --include='*.vue' --include='*.mjs' -E "[~@]/composables/|useEarnedKarma|useDedupedArtwork|useStorybookLibrary|useStorybookMode" components stores plugins pages utils middleware server; then
+            echo 'Active composable breadcrumb remains.' >&2
+            exit 1
+          fi
+      - name: Commit fixes
+        run: |
+          git config user.name "kind-robots-migration-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add stores/helpers/storybookLibraryHelper.ts utils/scripts/verifyPitchDetectorAccuracy.test.ts components/bots/bot-gallery.vue components/characters/character-gallery.vue components/scenarios/scenario-gallery.vue components/rewards/reward-gallery.vue
+          git commit -m "fix: finish composables migration wiring [ci-migration-fixed]"
+          git push origin HEAD:agent/remove-composables-island

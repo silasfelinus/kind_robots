@@ -185,7 +185,9 @@ async function loadSpeakers(): Promise<SignalSpeakerProfile[]> {
     }),
   ])
 
-  const seedById = new Map(characterVoiceSeeds.map((seed) => [seed.id, seed]))
+  const seedById = new Map<number, (typeof characterVoiceSeeds)[number]>(
+    characterVoiceSeeds.map((seed) => [seed.id, seed]),
+  )
 
   return [
     ...characters.map((row) => {

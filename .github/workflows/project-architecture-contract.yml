@@ -2,26 +2,8 @@ name: Project Architecture Contract
 
 on:
   pull_request:
-    paths:
-      - 'AGENTS.md'
-      - 'app/**'
-      - 'composables/**'
-      - 'middleware/**'
-      - 'server/middleware/**'
-      - 'stores/**'
-      - 'components/**'
-      - 'utils/scripts/verify-project-architecture.mjs'
   push:
     branches: [main]
-    paths:
-      - 'AGENTS.md'
-      - 'app/**'
-      - 'composables/**'
-      - 'middleware/**'
-      - 'server/middleware/**'
-      - 'stores/**'
-      - 'components/**'
-      - 'utils/scripts/verify-project-architecture.mjs'
 
 jobs:
   verify:

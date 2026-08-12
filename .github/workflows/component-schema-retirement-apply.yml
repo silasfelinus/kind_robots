@@ -37,6 +37,8 @@ jobs:
 
       - name: Regenerate Prisma client
         run: npx prisma generate
+        env:
+          DATABASE_URL: mysql://user:pass@127.0.0.1:3306/kindrobots
 
       - name: Remove one-shot tooling
         run: |

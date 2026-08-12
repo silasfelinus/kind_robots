@@ -1,0 +1,29 @@
+name: Boot Achievement Budget
+
+on:
+  pull_request:
+    paths:
+      - 'components/admin/kind-loader.vue'
+      - 'stores/achievementStore.ts'
+      - 'utils/scripts/verifyBootAchievementBudget.mjs'
+      - '.github/workflows/boot-achievement-budget.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'components/admin/kind-loader.vue'
+      - 'stores/achievementStore.ts'
+      - 'utils/scripts/verifyBootAchievementBudget.mjs'
+      - '.github/workflows/boot-achievement-budget.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node utils/scripts/verifyBootAchievementBudget.mjs

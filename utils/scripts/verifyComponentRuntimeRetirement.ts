@@ -73,11 +73,31 @@ assert.match(animationManagerContent, /:animation-manager\s*$/m)
 assert.doesNotMatch(animationManagerContent, /:lab-manager/)
 
 const prismaSchema = await readFile('prisma/schema.prisma', 'utf8')
-assert.match(
-  prismaSchema,
-  /model\s+Component\s*\{/,
-  'Component database schema must remain available while historical Component comments are still being migrated into the new review system',
+assert.doesNotMatch(prismaSchema, /model\s+Component\s*\{/, 'Retired Component model must not return')
+assert.doesNotMatch(prismaSchema, /\bcomponentId\s+Int\?/, 'Retired Reaction.componentId must not return')
+assert.doesNotMatch(prismaSchema, /enum\s+ComponentStatus\s*\{/, 'Retired ComponentStatus enum must not return')
+
+const migration = await readFile(
+  'prisma/migrations/20260812040500_retire_component_schema/migration.sql',
+  'utf8',
 )
+const orderedDrops = [
+  'DROP TABLE IF EXISTS `ReviewDraft`',
+  'DELETE FROM `Reaction`',
+  'DROP FOREIGN KEY `Reaction_componentId_fkey`',
+  'DROP COLUMN `componentId`',
+  'DROP TABLE `Component`',
+]
+let cursor = -1
+for (const fragment of orderedDrops) {
+  const next = migration.indexOf(fragment)
+  assert.ok(next > cursor, `Component retirement migration must preserve dependency order: ${fragment}`)
+  cursor = next
+}
+
+const configFiles = await readdir('config')
+const voiceCorpus = configFiles.filter((name) => /^wonderlab-voice-polish-batch-\d+\.json$/.test(name))
+assert.equal(voiceCorpus.length, 39, 'The 39 checked-in voice corpus files must survive Component table retirement')
 
 const managerStore = await readFile('stores/animationManagerStore.ts', 'utf8')
 assert.match(managerStore, /animationEffects/)
@@ -92,4 +112,6 @@ assert.doesNotMatch(manager, /component-card|ComponentStatus|KindComponent|build
 const storeIndex = await readFile('stores/index.ts', 'utf8')
 assert.doesNotMatch(storeIndex, /loadComponentStore|componentStore/)
 
-console.log(`Component runtime retirement contract passed: ${files.length} live source files checked; Component schema preserved.`)
+console.log(
+  `Component retirement contract passed: ${files.length} live source files checked; Component schema removed and 39-file voice corpus preserved.`,
+)

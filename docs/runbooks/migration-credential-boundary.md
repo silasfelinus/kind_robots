@@ -32,3 +32,11 @@ This keeps local migration work possible while making elevation visible in the c
 ## CI and production
 
 CI or production jobs that execute migrations must provide `MIGRATION_DATABASE_URL` through the environment or secret store. Jobs that only build, typecheck, generate Prisma Client code, or run application tests should continue to use the ordinary database lane and should not receive the migration credential unless they genuinely need schema-write capability.
+
+### Applying migrations to production
+
+`.github/workflows/migrate-production.yml` is the production lane. It is `workflow_dispatch` only, requires the literal confirmation string `migrate`, reaches the database over Tailscale, and runs `node scripts/prisma-migrate-deploy.mjs` with `MIGRATION_DATABASE_URL` from the secret store. `migrate deploy` applies pending migrations only — it never resets, drops, or generates.
+
+This exists because migrations used to ride the Vercel build (`scripts/vercel-build.mjs` called the same wrapper) and the container path runs plain `npm run build`, so merging a migration to `main` stopped applying it anywhere once Vercel was retired.
+
+Do not move this into the container entrypoint. A long-running application container that can execute schema changes holds a standing migration credential, which is precisely what this boundary prevents. The migration credential should exist only for the lifetime of the job that needs it.

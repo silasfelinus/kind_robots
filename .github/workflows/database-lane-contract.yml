@@ -1,0 +1,34 @@
+name: Agent DB Lane Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/provision-agent-db-lane.sh'
+      - 'scripts/tune-agent-database-url.sh'
+      - 'scripts/prisma-migrate-deploy.mjs'
+      - 'utils/scripts/verifyAgentDbLaneProvisioning.mjs'
+      - 'docs/runbooks/agent-database-lane.md'
+      - '.github/workflows/database-lane-contract.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: agent-db-lane-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Provisioning contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Verify coding-agent provisioning script
+        run: node utils/scripts/verifyAgentDbLaneProvisioning.mjs

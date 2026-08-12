@@ -1,18 +1,12 @@
 name: Cypress Tests
 
-# TEMPORARILY MANUAL-ONLY while Vercel Preview/test traffic shares the
-# production ProxySQL identity. The 2026-08-07 scheduled run passed database
-# readiness after a ProxySQL restart, then the Cypress API suite coincided with
-# fresh production P2039 / pool-acquisition failures. Re-enable scheduling only
-# after #1581 isolates test/preview database capacity from production.
-#
-# workflow_dispatch preserves the full production test path for intentional
-# runs without allowing the 30-minute cron to repeatedly refill ProxySQL.
+# Manual-only while production API tests share the production ProxySQL identity.
+# Keep this intentional until test traffic has its own database capacity.
 on:
   workflow_dispatch:
     inputs:
       max_wait_seconds:
-        description: 'Max seconds to wait for the pushed commit to go live on Vercel before running tests'
+        description: 'Max seconds to wait for the pushed commit to go live on production before running tests'
         required: false
         default: '1200'
 
@@ -41,7 +35,7 @@ jobs:
 
       - name: Wait for deploy to go live
         env:
-          BASE_URL: https://kind-robots.vercel.app
+          BASE_URL: https://kindrobots.org
           TARGET_SHA: ${{ github.sha }}
           MAX_WAIT: ${{ github.event.inputs.max_wait_seconds || '1200' }}
         run: |
@@ -76,7 +70,7 @@ jobs:
 
       - name: Verify database readiness
         env:
-          BASE_URL: https://kind-robots.vercel.app
+          BASE_URL: https://kindrobots.org
         run: |
           set -euo pipefail
 
@@ -121,7 +115,6 @@ jobs:
             for attempt in 1 2 3; do
               failed=0
               pids=()
-
               rm -f "$tmpdir"/*
               echo "Running pooled database soak round ${round} (8 concurrent requests, attempt ${attempt}/3)..."
               for request in $(seq 1 8); do
@@ -163,7 +156,7 @@ jobs:
 
       - name: Remove stale Cypress users
         env:
-          CYPRESS_BASE_API_URL: https://kind-robots.vercel.app/api
+          CYPRESS_BASE_API_URL: https://kindrobots.org/api
           CYPRESS_BETA_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
           CYPRESS_API_KEY: ${{ secrets.CYPRESS_API_KEY }}
           CYPRESS_CLEANUP_PHASE: before-run
@@ -177,7 +170,7 @@ jobs:
           browser: chrome
           record: ${{ secrets.CYPRESS_RECORD_KEY != '' }}
         env:
-          CYPRESS_BASE_API_URL: https://kind-robots.vercel.app/api
+          CYPRESS_BASE_API_URL: https://kindrobots.org/api
           CYPRESS_BETA_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
           CYPRESS_API_KEY: ${{ secrets.CYPRESS_API_KEY }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
@@ -188,7 +181,7 @@ jobs:
       - name: Remove Cypress users after run
         if: always() && steps.cypress.outcome != 'skipped'
         env:
-          CYPRESS_BASE_API_URL: https://kind-robots.vercel.app/api
+          CYPRESS_BASE_API_URL: https://kindrobots.org/api
           CYPRESS_BETA_ADMIN_TOKEN: ${{ secrets.CYPRESS_BETA_ADMIN_TOKEN }}
           CYPRESS_API_KEY: ${{ secrets.CYPRESS_API_KEY }}
           CYPRESS_CLEANUP_PHASE: after-run

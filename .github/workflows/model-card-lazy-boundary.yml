@@ -5,7 +5,7 @@ on:
     paths:
       - 'stores/helpers/modelCards.ts'
       - 'stores/pageStore.ts'
-      - 'pages/[...slug].vue'
+      - 'pages/**'
       - 'utils/scripts/verifyModelCardLazyBoundary.mjs'
       - '.github/workflows/model-card-lazy-boundary.yml'
   workflow_dispatch:

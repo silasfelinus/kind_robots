@@ -3,7 +3,7 @@
   "batchId": "comment-calibration-003",
   "minimumProductionCommit": "e9b828e8ef8de2f26607f36a53fc388153896470",
   "issueNumber": 1769,
-  "purpose": "Exact buildCommentDraftPrompt replay inputs. No generated prose belongs in this file.",
+  "purpose": "Exact buildCommentDraftPrompt replay inputs preserved as generation evidence. No generated prose belongs in this file.",
   "exchanges": [
     {
       "canonicalOrder": 1,

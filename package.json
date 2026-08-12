@@ -113,6 +113,7 @@
     "audit:gallery-chrome": "tsx utils/scripts/auditGalleryChrome.ts",
     "test:card-action-contract": "tsx utils/scripts/verifyCardActionContract.ts",
     "test:reaction-targets": "tsx utils/scripts/verifyReactionTargetCoverage.ts",
+    "test:reaction-route-auth": "tsx utils/scripts/verifyReactionRouteAuth.ts",
     "test:no-prisma-json-cast": "tsx utils/scripts/verifyNoPrismaJsonCast.ts",
     "test:admin-flag-casts": "tsx utils/scripts/verifyAdminFlagCasts.ts",
     "test:user-role-expand": "tsx utils/scripts/verifyUserRoleExpand.ts",

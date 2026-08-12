@@ -118,8 +118,7 @@ async function runWave(
 /*
  * Global boot is deliberately conservative. Feature stores initialize from
  * their own surfaces instead of making every visitor download/fetch the whole
- * application. ConsoleStore is intentionally global: its browser-console
- * journey is a product feature for attentive developers, not debug debris.
+ * application.
  */
 async function initializeStores() {
   try {
@@ -135,14 +134,12 @@ async function initializeStores() {
       { useUserStore },
       { usePageStore },
       { useNavStore },
-      { useConsoleStore },
       { useAchievementStore },
       { useThemeStore },
     ] = await Promise.all([
       import('@/stores/userStore'),
       import('@/stores/pageStore'),
       import('@/stores/navStore'),
-      import('@/stores/consoleStore'),
       import('@/stores/achievementStore'),
       import('@/stores/themeStore'),
     ])
@@ -159,7 +156,6 @@ async function initializeStores() {
     await runWave('identity + chrome', [
       usePageStore().initialize?.(),
       useNavStore().initialize?.(),
-      useConsoleStore().initialize?.(),
       achievementStore.initialize?.(),
       // Apply the current/local theme at boot. The shared theme catalog belongs
       // to the Themes surface and should not be fetched for every page visit.
@@ -176,10 +172,11 @@ async function initializeStores() {
 
     /*
      * Servers, checkpoints, art, chat, builders, facets/randomizer, prompts,
-     * rewards, scenarios, characters and the remaining feature stores all
-     * initialize from the surfaces that consume them. Historically boot woke
-     * these systems speculatively, including a 1,000-facet randomizer catalog,
-     * even when the visitor never opened those features.
+     * rewards, scenarios, characters, console progression and the remaining
+     * feature stores all initialize from the surfaces that consume them.
+     * Historically boot woke these systems speculatively, including a 1,000-
+     * facet randomizer catalog, even when the visitor never opened those
+     * features.
      */
   } catch (error) {
     errorStore.setError(

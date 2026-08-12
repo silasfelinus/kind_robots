@@ -1,4 +1,4 @@
-// /composables/useNarrativeArtJobs.ts
+// /stores/helpers/narrativeArtJobsHelper.ts
 import { useArtStore, type QueuedArtJob } from '@/stores/artStore'
 import { useServerStore } from '@/stores/serverStore'
 import { performFetch } from '@/stores/utils'
@@ -26,7 +26,7 @@ function clearPoll(dedupeKey: string): void {
   pollTimers.delete(dedupeKey)
 }
 
-export function useNarrativeArtJobs() {
+export function createNarrativeArtJobsController() {
   const artStore = useArtStore()
   const serverStore = useServerStore()
 

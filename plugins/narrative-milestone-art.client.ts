@@ -1,6 +1,6 @@
 // /plugins/narrative-milestone-art.client.ts
 import { watch } from 'vue'
-import { useNarrativeArtJobs } from '@/composables/useNarrativeArtJobs'
+import { createNarrativeArtJobsController } from '@/stores/helpers/narrativeArtJobsHelper'
 import {
   useStorybookStore,
   type StorybookBeat,
@@ -43,7 +43,7 @@ function persistSession(key: string, value: unknown): void {
 export default defineNuxtPlugin(() => {
   const storyStore = useStorybookStore()
   const taskStore = useTaskmasterStore()
-  const artJobs = useNarrativeArtJobs()
+  const artJobs = createNarrativeArtJobsController()
   const seenStoryBeats = new Map<string, Set<string>>()
   const seenTaskBeats = new Map<string, Set<string>>()
 

@@ -1,11 +1,10 @@
-// /composables/useStorybookLibrary.ts
-import { computed, proxyRefs, ref, watch } from 'vue'
-import {
-  useStorybookStore,
-  type StorybookBible,
-  type StorybookSession,
+// /stores/helpers/storybookLibraryHelper.ts
+import { computed, ref, watch } from 'vue'
+import type {
+  StorybookBible,
+  StorybookSession,
+  StorybookStartInput,
 } from '@/stores/storybookStore'
-import { useUserStore } from '@/stores/userStore'
 
 export type StorybookLibraryExport = {
   filename: string
@@ -65,14 +64,21 @@ function restartInput(bible: StorybookBible) {
   }
 }
 
-export function useStorybookLibrary() {
-  const storyStore = useStorybookStore()
-  const userStore = useUserStore()
+type StorybookLibraryBridge = {
+  getSession: () => StorybookSession | null
+  setSession: (session: StorybookSession) => void
+  isWeaving: () => boolean
+  resumeNarrativeArtJobs: () => void
+  beginStory: (input: StorybookStartInput) => Promise<boolean>
+  authenticatedUserId: () => number | null
+}
+
+export function createStorybookLibraryController(bridge: StorybookLibraryBridge) {
   const library = ref<StorybookSession[]>([])
   const initialized = ref(false)
 
   const recentStories = computed(() => {
-    const userId = userStore.authenticatedUserId
+    const userId = bridge.authenticatedUserId()
     return library.value
       .filter((entry) => entry.userId === userId)
       .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))
@@ -116,7 +122,8 @@ export function useStorybookLibrary() {
       library.value = []
     }
     initialized.value = true
-    if (storyStore.session) upsert(storyStore.session)
+    const current = bridge.getSession()
+    if (current) upsert(current)
   }
 
   function findStory(sessionId: string): StorybookSession | null {
@@ -125,9 +132,9 @@ export function useStorybookLibrary() {
 
   function openStory(sessionId: string): boolean {
     const found = findStory(sessionId)
-    if (!found || storyStore.isWeaving) return false
-    storyStore.$patch({ session: cloneSession(found), errorMessage: '' })
-    storyStore.resumeNarrativeArtJobs()
+    if (!found || bridge.isWeaving()) return false
+    bridge.setSession(cloneSession(found))
+    bridge.resumeNarrativeArtJobs()
     return true
   }
 
@@ -157,7 +164,7 @@ export function useStorybookLibrary() {
     return {
       ...duplicate,
       id: sessionId,
-      userId: userStore.authenticatedUserId,
+      userId: bridge.authenticatedUserId(),
       bible: {
         ...duplicate.bible,
         title: `Copy of ${duplicate.bible.title}`,
@@ -183,44 +190,39 @@ export function useStorybookLibrary() {
     }
   }
 
-  function duplicateStory(sessionId = storyStore.session?.id): string | null {
-    if (!sessionId || storyStore.isWeaving) return null
-    const source =
-      storyStore.session?.id === sessionId
-        ? storyStore.session
-        : findStory(sessionId)
+  function duplicateStory(sessionId = bridge.getSession()?.id): string | null {
+    if (!sessionId || bridge.isWeaving()) return null
+    const current = bridge.getSession()
+    const source = current?.id === sessionId ? current : findStory(sessionId)
     if (!source) return null
     const duplicate = remapDuplicate(source)
     upsert(duplicate)
-    storyStore.$patch({ session: duplicate, errorMessage: '' })
+    bridge.setSession(duplicate)
     return duplicate.id
   }
 
   async function restartStory(
-    sessionId = storyStore.session?.id,
+    sessionId = bridge.getSession()?.id,
   ): Promise<string | null> {
-    if (!sessionId || storyStore.isWeaving) return null
-    const source =
-      storyStore.session?.id === sessionId
-        ? storyStore.session
-        : findStory(sessionId)
+    if (!sessionId || bridge.isWeaving()) return null
+    const current = bridge.getSession()
+    const source = current?.id === sessionId ? current : findStory(sessionId)
     if (!source) return null
     upsert(source)
-    const started = await storyStore.beginStory(restartInput(source.bible))
-    if (!started || !storyStore.session) return null
-    upsert(storyStore.session)
-    return storyStore.session.id
+    const started = await bridge.beginStory(restartInput(source.bible))
+    const restarted = bridge.getSession()
+    if (!started || !restarted) return null
+    upsert(restarted)
+    return restarted.id
   }
 
   function buildExport(
-    sessionId = storyStore.session?.id,
+    sessionId = bridge.getSession()?.id,
     format: 'markdown' | 'json' = 'markdown',
   ): StorybookLibraryExport | null {
     if (!sessionId) return null
-    const source =
-      storyStore.session?.id === sessionId
-        ? storyStore.session
-        : findStory(sessionId)
+    const current = bridge.getSession()
+    const source = current?.id === sessionId ? current : findStory(sessionId)
     if (!source) return null
     const copy = cloneSession(source)
 
@@ -279,11 +281,12 @@ export function useStorybookLibrary() {
   }
 
   function archiveCurrent(): void {
-    if (storyStore.session) upsert(storyStore.session)
+    const current = bridge.getSession()
+    if (current) upsert(current)
   }
 
   watch(
-    () => storyStore.session,
+    () => bridge.getSession(),
     (next, previous) => {
       if (!initialized.value) return
       if (next) upsert(next)
@@ -292,7 +295,7 @@ export function useStorybookLibrary() {
     { deep: true },
   )
 
-  return proxyRefs({
+  return {
     library,
     recentStories,
     initialize,
@@ -301,5 +304,5 @@ export function useStorybookLibrary() {
     duplicateStory,
     restartStory,
     buildExport,
-  })
+  }
 }

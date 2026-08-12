@@ -1564,18 +1564,18 @@ function clearSelectedImage() {
 // interface-vision/t-046 scoping, t-066 implementation: earned karma is
 // fetched for the current visible PAGE only (not the whole gallery), the same
 // "fetch on the rendered page, not every filter keystroke" rule as
-// hydrateVisibleImages. useEarnedKarma watches that id list itself, so the
+// hydrateVisibleImages. The earned-karma tracker watches that id list itself, so the
 // page/filter watch below no longer has to call refresh by hand; the explicit
 // Refresh button still does, because karma can change while the ids do not.
 const { earnedKarma: earnedKarmaByImageId, refresh: refreshEarnedKarma } =
-  useEarnedKarma('artImage', () => pagedActiveImages.value.map((i) => i.id))
+  userStore.trackEarnedKarma('artImage', () => pagedActiveImages.value.map((i) => i.id))
 
 // Collections earn karma the same way images do (reaction-category
 // ART_COLLECTION). Virtual groups — "Unsorted" and the folder-derived ones —
 // are excluded: they share the sentinel id -1 and have no ArtCollection row to
 // attribute karma to, so batching them would spend request slots on a lookup
 // that can only ever return 0.
-const { earnedKarma: earnedKarmaByCollectionId } = useEarnedKarma(
+const { earnedKarma: earnedKarmaByCollectionId } = userStore.trackEarnedKarma(
   'artCollection',
   () =>
     pagedGroups.value

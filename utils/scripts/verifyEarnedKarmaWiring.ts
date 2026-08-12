@@ -4,7 +4,7 @@
 // practice before this file existed.
 //
 // 1. ONE FETCH. /api/economy/karma-earned is requested from exactly one place
-//    on the client: composables/useEarnedKarma.ts. reward-gallery wrote the
+//    on the client: stores/userStore.ts. reward-gallery wrote the
 //    first copy under t-019 and its comment invited "the remaining eleven
 //    reactable-card consumers" to copy it. Two did, and by the third copy they
 //    had already diverged — two clamped to the endpoint's 200-item batch limit
@@ -34,13 +34,13 @@ const root = process.cwd()
 const ENDPOINT = '/api/economy/karma-earned'
 
 /** The single client-side owner of that fetch. */
-const OWNER = 'composables/useEarnedKarma.ts'
+const OWNER = 'stores/userStore.ts'
 
 /** Where the server derives refType from the reaction's target field. */
 const REACTION_ROUTE = 'server/api/reactions/index.post.ts'
 
 /** Client trees a gallery could plausibly fetch from. */
-const CLIENT_DIRS = ['components', 'composables', 'pages', 'stores', 'utils']
+const CLIENT_DIRS = ['components', 'pages', 'stores', 'utils']
 
 const SKIP_DIRS = new Set(['node_modules', '.nuxt', '.output', 'dist'])
 
@@ -117,7 +117,7 @@ async function main(): Promise<void> {
       const rel = relative(root, file).replace(/\\/g, '/')
       if (rel === OWNER) continue
       // This verifier names the endpoint in prose; so may a comment pointing
-      // a reader at the composable. Only real code counts.
+      // a reader at the store. Only real code counts.
       if (rel.startsWith('utils/scripts/')) continue
       if (containsCode(await readFile(file, 'utf8'), ENDPOINT)) offenders.push(rel)
     }
@@ -127,7 +127,7 @@ async function main(): Promise<void> {
     failures.push(
       `${ENDPOINT} must be requested only from ${OWNER}, but these fetch it directly:\n` +
         offenders.map((path) => `    - ${path}`).join('\n') +
-        `\n  Use useEarnedKarma(refType, () => visibleIds) instead of a new copy.`,
+        `\n  Use useUserStore().trackEarnedKarma(refType, () => visibleIds) instead of a new copy.`,
     )
   }
 

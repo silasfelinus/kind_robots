@@ -34,6 +34,17 @@ MariaDB. Deployed on Vercel.
   rather than hard-coded colors.
 - Keep props and emits few. Shared state belongs in a Pinia store, not threaded through
   component trees.
+- **Root-first client layout is intentional.** Kind Robots keeps `components/`, `pages/`,
+  `stores/`, `middleware/`, `assets/`, and `utils/` at repository root. Do not migrate
+  them into a wrapper `app/` directory merely because a newer Nuxt convention suggests it.
+- **Do not create a root `composables/` directory.** Domain state, API calls, persistence,
+  caching, and orchestration belong to the responsible Pinia store. Store-owned implementation
+  machinery belongs in `stores/helpers/`; genuinely cross-domain stateless code belongs in
+  `utils/`. Using `ref`, `computed`, or `watch` does not by itself justify a new
+  architectural category.
+- Root `middleware/` is client/router middleware (`defineNuxtRouteMiddleware`).
+  `server/middleware/` is Nitro request middleware. Keep both when needed; they are different
+  execution layers and must not be collapsed for folder-count aesthetics.
 - **Components never call APIs or localStorage directly.** Stores own API calls,
   localStorage, and state. This is the rule most often broken by well-meaning edits — if a
   component is reaching for `$fetch` or `localStorage`, the logic belongs in a store.

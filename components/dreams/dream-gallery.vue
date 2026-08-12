@@ -564,7 +564,7 @@ import { useDreamStore, type DreamWithRelations } from '@/stores/dreamStore'
 import { useNavStore } from '@/stores/navStore'
 import { useUserStore } from '@/stores/userStore'
 
-// Earned karma comes from useEarnedKarma (t-066); the scoping decision below
+// Earned karma comes from userStore tracking (t-066); the scoping decision below
 // is t-048's and is unchanged.
 type GalleryVariant = 'dashboard' | 'row' | 'dropdown'
 
@@ -759,7 +759,7 @@ const galleryDreams = computed<DreamWithRelations[]>(() => {
 // has no paging concept (unlike art-gallery's pagedActiveImages), so the
 // broader galleryDreams set (filtered by ownership/mature/archived, not yet by
 // type/search) is the closest equivalent to a "rendered page".
-const { earnedKarma: earnedKarmaByDreamId } = useEarnedKarma('dream', () =>
+const { earnedKarma: earnedKarmaByDreamId } = userStore.trackEarnedKarma('dream', () =>
   galleryDreams.value.map((dream) => dream.id),
 )
 

@@ -1,4 +1,4 @@
-// /composables/useAudioAnalysis.ts
+// /stores/helpers/audioAnalysisHelper.ts
 //
 // Client-side audio feature extraction for the Music Mentor page. Accepts audio
 // or video files (the audio track is pulled out of mp4/mov, so an iPhone video

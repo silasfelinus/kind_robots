@@ -13,7 +13,7 @@
 
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
-import { useDedupedArtwork } from '@/composables/useDedupedArtwork'
+import { useArtStore } from '@/stores/artStore'
 
 const props = defineProps<{
   src?: string
@@ -21,7 +21,13 @@ const props = defineProps<{
 }>()
 
 const root = ref<HTMLElement>()
-const { resolvedSrc, request } = useDedupedArtwork()
+const artStore = useArtStore()
+const resolvedSrc = ref<string>()
+
+async function request(url: string): Promise<void> {
+  await artStore.preloadArtwork(url)
+  resolvedSrc.value = url
+}
 
 let observer: IntersectionObserver | undefined
 

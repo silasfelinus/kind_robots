@@ -591,9 +591,9 @@ const filteredScenarios = computed<ScenarioWithRelations[]>(() => {
 })
 
 // interface-vision/t-066: earned karma for the rendered set, batched through
-// the shared composable (see composables/useEarnedKarma.ts). Scoped to
+// the shared userStore earned-karma tracker. Scoped to
 // filteredScenarios — the set the grid actually renders.
-const { earnedKarma: earnedKarmaByScenarioId } = useEarnedKarma(
+const { earnedKarma: earnedKarmaByScenarioId } = userStore.trackEarnedKarma(
   'scenario',
   () => filteredScenarios.value.map((scenario) => scenario.id),
 )

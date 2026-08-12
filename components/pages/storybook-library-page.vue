@@ -9,8 +9,8 @@
           Story library
         </p>
         <p class="mt-0.5 text-sm text-base-content/60">
-          {{ library.recentStories.length }} saved
-          {{ library.recentStories.length === 1 ? 'story' : 'stories' }} on this account
+          {{ storyStore.recentStories.length }} saved
+          {{ storyStore.recentStories.length === 1 ? 'story' : 'stories' }} on this account
         </p>
       </div>
 
@@ -96,11 +96,11 @@
       </div>
 
       <div
-        v-if="library.recentStories.length"
+        v-if="storyStore.recentStories.length"
         class="grid gap-3 md:grid-cols-2 xl:grid-cols-3"
       >
         <article
-          v-for="story in library.recentStories"
+          v-for="story in storyStore.recentStories"
           :key="story.id"
           class="kr-panel-flat flex min-w-0 flex-col p-3"
         >
@@ -169,11 +169,9 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useStorybookLibrary } from '@/composables/useStorybookLibrary'
 import { useStorybookStore } from '@/stores/storybookStore'
 
 const storyStore = useStorybookStore()
-const library = useStorybookLibrary()
 const route = useRoute()
 const router = useRouter()
 
@@ -192,26 +190,26 @@ function updateStoryQuery(sessionId: string | null): void {
 }
 
 function openStory(sessionId: string): void {
-  if (!library.openStory(sessionId)) return
+  if (!storyStore.openStory(sessionId)) return
   libraryOpen.value = false
   updateStoryQuery(sessionId)
 }
 
 function duplicateStory(sessionId: string): void {
-  const duplicateId = library.duplicateStory(sessionId)
+  const duplicateId = storyStore.duplicateStory(sessionId)
   if (!duplicateId) return
   libraryOpen.value = false
   updateStoryQuery(duplicateId)
 }
 
 function duplicateCurrent(): void {
-  const duplicateId = library.duplicateStory()
+  const duplicateId = storyStore.duplicateStory()
   if (duplicateId) updateStoryQuery(duplicateId)
 }
 
 async function restartCurrent(): Promise<void> {
   restartArmed.value = false
-  const restartedId = await library.restartStory()
+  const restartedId = await storyStore.restartStory()
   if (restartedId) updateStoryQuery(restartedId)
 }
 
@@ -237,13 +235,13 @@ function downloadStory(
   sessionId?: string,
   format: 'markdown' | 'json' = 'markdown',
 ): void {
-  const payload = library.buildExport(sessionId, format)
+  const payload = storyStore.buildExport(sessionId, format)
   if (payload) triggerDownload(payload)
 }
 
 function startNewStory(): void {
   if (storyStore.isWeaving) return
-  library.archiveCurrent()
+  storyStore.archiveCurrent()
   storyStore.resetSession()
   libraryOpen.value = false
   updateStoryQuery(null)
@@ -277,10 +275,10 @@ watch(
 
 onMounted(() => {
   storyStore.restoreFromLocalStorage()
-  library.initialize()
+  storyStore.initializeLibrary()
   const directId = queryStoryId()
-  if (directId) library.openStory(directId)
-  libraryOpen.value = !storyStore.session && library.recentStories.length > 0
+  if (directId) storyStore.openStory(directId)
+  libraryOpen.value = !storyStore.session && storyStore.recentStories.length > 0
   if (storyStore.session && !directId) updateStoryQuery(storyStore.session.id)
 })
 </script>

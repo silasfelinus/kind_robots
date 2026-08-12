@@ -3,7 +3,8 @@
 // task write-back behavior; the two products share presentation only.
 import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
-import { useNarrativeArtJobs } from '@/composables/useNarrativeArtJobs'
+import { createNarrativeArtJobsController } from '@/stores/helpers/narrativeArtJobsHelper'
+import { createStorybookLibraryController } from '@/stores/helpers/storybookLibraryHelper'
 import { useChatStore } from '@/stores/chatStore'
 import { useUserStore } from '@/stores/userStore'
 import { castLineWithRole } from '@/utils/narrativeRoles'
@@ -146,6 +147,25 @@ export type StorybookStartInput = {
   rewards: StorybookIngredient[]
   scenario?: StorybookIngredient
   notes?: string
+}
+
+export type StorybookMode = 'classic' | 'storybook' | 'storybook-dark'
+
+export const STORYBOOK_MODES: {
+  key: StorybookMode
+  label: string
+  hint: string
+}[] = [
+  { key: 'classic', label: 'Classic', hint: 'Your own theme, standard layout' },
+  { key: 'storybook', label: 'Storybook', hint: 'Warm paper, serif narration' },
+  { key: 'storybook-dark', label: 'Storybook Dark', hint: 'A lit stage in a dark house' },
+]
+
+const STORYBOOK_MODE_STORAGE_KEY = 'storybookMode'
+const DEFAULT_STORYBOOK_MODE: StorybookMode = 'storybook'
+
+function isStorybookMode(value: unknown): value is StorybookMode {
+  return STORYBOOK_MODES.some((mode) => mode.key === value)
 }
 
 const STORAGE_KEY = 'storybook-session'
@@ -309,12 +329,62 @@ function normalizeRestoredSession(value: StorybookSession): StorybookSession {
 export const useStorybookStore = defineStore('storybookStore', () => {
   const chatStore = useChatStore()
   const userStore = useUserStore()
-  const narrativeArtJobs = useNarrativeArtJobs()
+  const narrativeArtJobs = createNarrativeArtJobsController()
 
   const setupDraft = ref<StorybookSetupDraft>(defaultDraft())
   const session = ref<StorybookSession | null>(null)
   const isWeaving = ref(false)
   const errorMessage = ref('')
+
+  const mode = ref<StorybookMode>(DEFAULT_STORYBOOK_MODE)
+  let modeHydrated = false
+  const dataTheme = computed<string | undefined>(() =>
+    mode.value === 'classic' ? undefined : mode.value,
+  )
+  const isStoryStyled = computed(() => mode.value !== 'classic')
+  const modes = STORYBOOK_MODES
+
+  function hydrateStorybookMode(): void {
+    if (modeHydrated || typeof localStorage === 'undefined') return
+    try {
+      const stored = localStorage.getItem(STORYBOOK_MODE_STORAGE_KEY)
+      mode.value = isStorybookMode(stored) ? stored : DEFAULT_STORYBOOK_MODE
+    } catch {
+      mode.value = DEFAULT_STORYBOOK_MODE
+    }
+    modeHydrated = true
+  }
+
+  function setMode(next: StorybookMode): void {
+    if (!isStorybookMode(next)) return
+    mode.value = next
+    if (typeof localStorage === 'undefined') return
+    try {
+      localStorage.setItem(STORYBOOK_MODE_STORAGE_KEY, next)
+    } catch {}
+  }
+
+  const {
+    library,
+    recentStories,
+    initialize: initializeLibrary,
+    archiveCurrent,
+    openStory,
+    duplicateStory,
+    restartStory,
+    buildExport,
+  } = createStorybookLibraryController({
+    getSession: () => session.value,
+    setSession: (next) => {
+      session.value = next
+      errorMessage.value = ''
+      persist()
+    },
+    isWeaving: () => isWeaving.value,
+    resumeNarrativeArtJobs,
+    beginStory,
+    authenticatedUserId: () => userStore.authenticatedUserId,
+  })
 
   const streamingText = computed(() =>
     isWeaving.value ? chatStore.pendingText : '',
@@ -354,6 +424,7 @@ export const useStorybookStore = defineStore('storybookStore', () => {
 
   function restoreFromLocalStorage() {
     if (typeof localStorage === 'undefined') return
+    hydrateStorybookMode()
     try {
       const draftRaw = localStorage.getItem(DRAFT_STORAGE_KEY)
       const sessionRaw = localStorage.getItem(STORAGE_KEY)
@@ -773,6 +844,19 @@ export const useStorybookStore = defineStore('storybookStore', () => {
   watch(session, persist, { deep: true })
 
   return {
+    mode,
+    setMode,
+    dataTheme,
+    isStoryStyled,
+    modes,
+    library,
+    recentStories,
+    initializeLibrary,
+    archiveCurrent,
+    openStory,
+    duplicateStory,
+    restartStory,
+    buildExport,
     setupDraft,
     session,
     isWeaving,

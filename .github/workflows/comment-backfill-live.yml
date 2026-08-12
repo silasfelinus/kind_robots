@@ -1,7 +1,7 @@
 name: Approved Comment Backfill Live
 
 # One-shot production write lane for kind_robots#1769.
-# Draft packets are committed during review. Only the final ready marker opens
+# Draft packets are committed during review. Only the explicit ready marker opens
 # the production lane. Temporary execution files are removed after the run.
 on:
   push:
@@ -15,7 +15,24 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.marker.outputs.ready }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read explicit production-ready marker
+        id: marker
+        run: |
+          READY="$(node -p "require('./config/comment-backfill-live-ready.json').ready === true ? 'true' : 'false'")"
+          echo "ready=$READY" >> "$GITHUB_OUTPUT"
+          if [ "$READY" != "true" ]; then
+            echo "Production comment backfill remains closed; ready marker is false."
+          fi
+
   publish:
+    needs: gate
+    if: needs.gate.outputs.ready == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:

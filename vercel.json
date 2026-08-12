@@ -16,11 +16,6 @@
     }
   ],
   "git": {
-    "deploymentEnabled": {
-      "claude/*": true,
-      "agent/*": false,
-      "worker/*": false,
-      "conductor/*": false
-    }
+    "deploymentEnabled": false
   }
 }

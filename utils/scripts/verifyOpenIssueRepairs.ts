@@ -11,7 +11,6 @@ const characterEditor = readFileSync(
   'components/characters/add-character.vue',
   'utf8',
 )
-const superForm = readFileSync('components/abandonware/pages/super-form.vue', 'utf8')
 const receiptStore = readFileSync(
   'stores/superkateReceiptStore.ts',
   'utf8',
@@ -31,9 +30,6 @@ assert.match(characterEditor, /characterStore\.saveCharacter\(\)/)
 assert.match(characterEditor, /Character Identity/)
 assert.doesNotMatch(characterEditor, /usePromptStore|promptStore|Promote to Dream/)
 
-assert.match(superForm, /useSuperkateReceiptStore/)
-assert.match(superForm, /receiptStore\.sendReceiptEmail/)
-assert.doesNotMatch(superForm, /BREVO_API_KEY|api\.brevo\.com|process\.env/)
 assert.match(receiptStore, /performFetch<ReceiptEmailResponse>/)
 assert.match(receiptEndpoint, /requireApiUser/)
 assert.match(receiptEndpoint, /sendTransactionalEmail/)

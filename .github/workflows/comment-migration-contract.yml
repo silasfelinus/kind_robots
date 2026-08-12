@@ -6,24 +6,20 @@ on:
       - main
     paths:
       - 'utils/comments/**'
-      - 'utils/scripts/comment*.ts'
-      - 'utils/scripts/verifyComment*.ts'
-      - 'config/wonderlab-voice-polish-batch-*.json'
-      - 'config/comment-calibration-*.json'
+      - 'utils/scripts/**'
+      - 'config/**'
       - 'artifacts/comment-census.json'
-      - 'docs/architecture/comment-*.md'
+      - 'docs/architecture/**'
       - '.github/workflows/comment-migration-contract.yml'
   push:
     branches:
       - main
     paths:
       - 'utils/comments/**'
-      - 'utils/scripts/comment*.ts'
-      - 'utils/scripts/verifyComment*.ts'
-      - 'config/wonderlab-voice-polish-batch-*.json'
-      - 'config/comment-calibration-*.json'
+      - 'utils/scripts/**'
+      - 'config/**'
       - 'artifacts/comment-census.json'
-      - 'docs/architecture/comment-*.md'
+      - 'docs/architecture/**'
       - '.github/workflows/comment-migration-contract.yml'
 
 jobs:

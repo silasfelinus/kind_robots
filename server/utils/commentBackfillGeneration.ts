@@ -715,6 +715,258 @@ function mergeAuthoredText(
   }
 }
 
+export type ManualBackfillPlan = {
+  start: number
+  limit: number
+  eligibleTargets: number
+  items: Array<{
+    key: string
+    title: string
+    type: SupportedTargetType
+    description: string | null
+    flavorText: string | null
+    category: string | null
+    tags: string[]
+    shape: CommentExchangeShape
+    speakers: Array<{
+      kind: 'BOT' | 'CHARACTER'
+      id: number
+      name: string
+      voice: string | null
+      sampleResponse: string | null
+      archiveSamples: string[]
+    }>
+  }>
+}
+
+export type ManualBackfillPayload = {
+  items: Array<{
+    key: string
+    comments: string[]
+  }>
+}
+
+export async function planManualCommentBackfillSlice(options: {
+  start?: number
+  limit?: number
+}): Promise<ManualBackfillPlan> {
+  const start = Math.max(0, Math.floor(options.start || 0))
+  const limit = Math.max(1, Math.min(MAX_BATCH, Math.floor(options.limit || 8)))
+  const [targets, speakers, existing] = await Promise.all([
+    loadTargets(),
+    loadSpeakers(),
+    loadExistingState(),
+  ])
+  const speakerMap = new Map(
+    speakers.map((speaker) => [speakerKey(speaker), speaker]),
+  )
+  const slice = targets.slice(start, start + limit)
+  const items: ManualBackfillPlan['items'] = []
+
+  for (const [localIndex, target] of slice.entries()) {
+    if (existing.targetKeys.has(targetKey(target))) continue
+    const plan = planExchange(
+      target,
+      start + localIndex,
+      speakers,
+      speakerMap,
+      existing.castCounts,
+    )
+    items.push({
+      key: targetKey(target),
+      title: target.title,
+      type: target.type,
+      description: target.promptProfile.description || null,
+      flavorText: target.promptProfile.flavorText || null,
+      category: target.promptProfile.category || null,
+      tags: target.promptProfile.tags || [],
+      shape: plan.shape,
+      speakers: plan.speakers.map((speaker) => {
+        const evidence = voiceIndex.get(speakerKey(speaker))
+        return {
+          kind: speaker.kind,
+          id: speaker.id,
+          name: speaker.name,
+          voice:
+            speaker.voice ||
+            speaker.narrativeVoice ||
+            speaker.botIntro ||
+            speaker.personality ||
+            speaker.description ||
+            null,
+          sampleResponse: speaker.sampleResponse || null,
+          archiveSamples: selectVoiceSamples(evidence, 2).map(
+            (sample) => sample.text,
+          ),
+        }
+      }),
+    })
+  }
+
+  return {
+    start,
+    limit,
+    eligibleTargets: targets.length,
+    items,
+  }
+}
+
+export async function publishManualCommentBackfillSlice(options: {
+  start?: number
+  payload: ManualBackfillPayload
+}) {
+  const start = Math.max(0, Math.floor(options.start || 0))
+  const items = options.payload.items || []
+  if (!Array.isArray(items) || items.length < 1 || items.length > MAX_BATCH) {
+    throw new Error(`Manual payload must contain 1–${MAX_BATCH} items.`)
+  }
+
+  const [targets, speakers, existing, publisher] = await Promise.all([
+    loadTargets(),
+    loadSpeakers(),
+    loadExistingState(),
+    prisma.user.findUnique({
+      where: { id: PUBLISHER_USER_ID },
+      select: { id: true },
+    }),
+  ])
+  if (!publisher) {
+    throw new Error(
+      `Publisher accountability user #${PUBLISHER_USER_ID} does not exist.`,
+    )
+  }
+
+  const speakerMap = new Map(
+    speakers.map((speaker) => [speakerKey(speaker), speaker]),
+  )
+  const slice = targets.slice(start, start + items.length)
+  if (slice.length !== items.length) {
+    throw new Error(
+      `Manual payload runs past the eligible target list at start ${start}.`,
+    )
+  }
+
+  const plans = slice.map((target, localIndex) =>
+    planExchange(
+      target,
+      start + localIndex,
+      speakers,
+      speakerMap,
+      existing.castCounts,
+    ),
+  )
+
+  const results: Array<{
+    key: string
+    title: string
+    status: 'PUBLISHED' | 'SKIPPED_EXISTING' | 'FAILED'
+    speakers: string[]
+    comments?: string[]
+    error?: string
+  }> = []
+
+  let publishedTargets = 0
+  let publishedComments = 0
+  let failedTargets = 0
+  let skippedExisting = 0
+
+  for (const [index, plan] of plans.entries()) {
+    const item = items[index]
+    const key = targetKey(plan.target)
+    if (!item || item.key !== key) {
+      failedTargets += 1
+      results.push({
+        key,
+        title: plan.target.title,
+        status: 'FAILED',
+        speakers: plan.speakers.map(
+          (speaker) => `${speaker.kind}:${speaker.id} ${speaker.name}`,
+        ),
+        error: `Payload key mismatch: expected ${key}, received ${item?.key || 'missing'}.`,
+      })
+      continue
+    }
+
+    if (existing.targetKeys.has(key)) {
+      skippedExisting += 1
+      results.push({
+        key,
+        title: plan.target.title,
+        status: 'SKIPPED_EXISTING',
+        speakers: plan.speakers.map(
+          (speaker) => `${speaker.kind}:${speaker.id} ${speaker.name}`,
+        ),
+      })
+      continue
+    }
+
+    const generated: GeneratedComment[] = plan.speakers.map(
+      (speaker, speakerIndex) => ({
+        authorKind: speaker.kind,
+        authorId: speaker.id,
+        comment: text(item.comments?.[speakerIndex]),
+      }),
+    )
+
+    try {
+      if (generated.length !== item.comments?.length) {
+        throw new Error(
+          `Expected ${generated.length} comments, received ${item.comments?.length || 0}.`,
+        )
+      }
+      validateComments(plan, generated, existing.authoredText)
+      const count = await publishExchange(plan, generated, publisher.id)
+      if (count === 0) {
+        skippedExisting += 1
+        results.push({
+          key,
+          title: plan.target.title,
+          status: 'SKIPPED_EXISTING',
+          speakers: plan.speakers.map(
+            (speaker) => `${speaker.kind}:${speaker.id} ${speaker.name}`,
+          ),
+        })
+        continue
+      }
+      mergeAuthoredText(existing.authoredText, generated)
+      existing.targetKeys.add(key)
+      publishedTargets += 1
+      publishedComments += count
+      results.push({
+        key,
+        title: plan.target.title,
+        status: 'PUBLISHED',
+        speakers: plan.speakers.map(
+          (speaker) => `${speaker.kind}:${speaker.id} ${speaker.name}`,
+        ),
+        comments: generated.map((comment) => comment.comment),
+      })
+    } catch (error) {
+      failedTargets += 1
+      results.push({
+        key,
+        title: plan.target.title,
+        status: 'FAILED',
+        speakers: plan.speakers.map(
+          (speaker) => `${speaker.kind}:${speaker.id} ${speaker.name}`,
+        ),
+        comments: generated.map((comment) => comment.comment),
+        error: error instanceof Error ? error.message : 'Manual publish failed.',
+      })
+    }
+  }
+
+  return {
+    start,
+    attemptedTargets: items.length,
+    publishedTargets,
+    publishedComments,
+    skippedExisting,
+    failedTargets,
+    results,
+  }
+}
+
 export async function getCommentBackfillStatus() {
   const [targets, existing, publisher] = await Promise.all([
     loadTargets(),

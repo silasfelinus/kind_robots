@@ -7,16 +7,16 @@ import mariadb from 'mariadb'
 import { repairKnownFailedMigrations } from './repair-known-prisma-migrations.mjs'
 import { withConnectionRetry } from './db-connection-retry.mjs'
 
-// Resolve the same URL Prisma Migrate will use. prisma.config.ts reads
-// `MIGRATION_DATABASE_URL ?? DATABASE_URL`, so we must resolve it identically —
-// otherwise a MIGRATION_DATABASE_URL set without SSL params bypasses the TLS
-// setup below, and ProxySQL (which requires TLS) rejects with P1000.
-const databaseUrl =
-  process.env.MIGRATION_DATABASE_URL ?? process.env.DATABASE_URL
+// Production migration execution must use the explicitly elevated migration
+// credential. DATABASE_URL belongs to the normal application/coding-agent lane
+// and is intentionally not accepted here.
+const databaseUrl = process.env.MIGRATION_DATABASE_URL?.trim()
 const caFilePath = '/tmp/kindrobots-proxysql-ca.pem'
 
 if (!databaseUrl) {
-  throw new Error('MIGRATION_DATABASE_URL / DATABASE_URL is missing')
+  throw new Error(
+    'MIGRATION_DATABASE_URL is required for migration execution; DATABASE_URL is intentionally not accepted.',
+  )
 }
 
 function readDatabaseSslCa() {
@@ -41,9 +41,9 @@ function runPrismaCommand(url, args) {
       stdio: 'inherit',
       env: {
         ...process.env,
-        // Force BOTH vars to the SSL-augmented URL so prisma.config.ts
-        // (`MIGRATION_DATABASE_URL ?? DATABASE_URL`) cannot route around the
-        // TLS params ProxySQL requires.
+        // Force both variables to the SSL-augmented migration URL. The child
+        // process remains in the elevated migration lane even when Prisma reads
+        // datasource configuration through prisma.config.ts.
         DATABASE_URL: url,
         MIGRATION_DATABASE_URL: url,
       },
@@ -95,7 +95,7 @@ async function main() {
 
   if (!sslCa) {
     console.warn(
-      '[database] No custom CA configured; running Prisma Migrate with DATABASE_URL unchanged.',
+      '[database] No custom CA configured; running Prisma Migrate with MIGRATION_DATABASE_URL unchanged.',
     )
     await runPrismaMigrate(databaseUrl)
     return

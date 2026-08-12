@@ -1,0 +1,52 @@
+name: Patch issue 1757 achievement boot
+
+on:
+  push:
+    branches:
+      - agent/issue-1757-lazy-achievements
+    paths:
+      - '.github/workflows/patch-issue-1757-achievements.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/issue-1757-lazy-achievements
+          fetch-depth: 0
+
+      - name: Remove unconditional remote achievement sync
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('components/admin/kind-loader.vue')
+          text = path.read_text()
+          old = '''    await runWave('achievement sync', [
+      achievementStore.fetchAchievements(true),
+      userStore.isLoggedIn
+        ? achievementStore.fetchAchievementRecords(true)
+        : undefined,
+    ])
+
+'''
+          if text.count(old) != 1:
+              raise SystemExit(f'expected one achievement sync wave, found {text.count(old)}')
+          path.write_text(text.replace(old, '', 1))
+          PY
+
+      - name: Verify lazy boot contract
+        run: node utils/scripts/verifyBootAchievementBudget.mjs
+
+      - name: Commit source fix and remove temporary workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/patch-issue-1757-achievements.yml
+          git add components/admin/kind-loader.vue
+          git commit -m 'perf(boot): keep achievement catalogs lazy'
+          git push origin HEAD:agent/issue-1757-lazy-achievements

@@ -22,7 +22,7 @@ covers only what is true about *this codebase*. Don't restate coordination rules
 ## Stack
 
 Nuxt 4, Vue 3, TypeScript (ES modules), Nitro/h3, Pinia, Tailwind + DaisyUI, Prisma,
-MariaDB. Deployed on Vercel.
+MariaDB. Production is served at `https://kindrobots.org` through the current container/self-hosted deployment path. Vercel is retired infrastructure: its deployment status is not authoritative for this repo and must not block review or merge decisions.
 
 ## Code conventions
 
@@ -54,7 +54,7 @@ MariaDB. Deployed on Vercel.
   `art/storefront-featured.get.ts`).
 - `errorHandler()` (`server/utils/error.ts`) returns `{ success, message, statusCode }`.
   Route handlers funnel failures through it rather than throwing raw errors — it already
-  classifies Prisma, auth, and transient-database errors, and keeps 4xx out of Vercel's
+  classifies Prisma, auth, and transient-database errors, and keeps 4xx out of production
   error clusters.
 - Match the idiom of the file you're editing. Keep diffs small and reviewable.
 - When returning code in chat, return complete copy-paste-ready files or sections — never

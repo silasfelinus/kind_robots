@@ -7060,7 +7060,9 @@ export const ReactionScalarFieldEnum = {
   themeId: 'themeId',
   challengeSubmissionId: 'challengeSubmissionId',
   projectId: 'projectId',
-  facetId: 'facetId'
+  facetId: 'facetId',
+  authorBotId: 'authorBotId',
+  authorCharacterId: 'authorCharacterId'
 } as const
 
 export type ReactionScalarFieldEnum = (typeof ReactionScalarFieldEnum)[keyof typeof ReactionScalarFieldEnum]

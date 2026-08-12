@@ -24,6 +24,7 @@ type ReactionBody = Record<string, unknown> & {
   chatId?: unknown
   componentId?: unknown
   dreamId?: unknown
+  facetId?: unknown
   promptId?: unknown
   resourceId?: unknown
   rewardId?: unknown
@@ -44,6 +45,7 @@ const REACTION_CREATE_FIELDS = new Set([
   'chatId',
   'componentId',
   'dreamId',
+  'facetId',
   'promptId',
   'resourceId',
   'rewardId',
@@ -69,6 +71,7 @@ const reactionCategoryAliases: Record<string, Reaction_reactionCategory> = {
   CHARACTER: Reaction_reactionCategory.CHARACTER,
   COMPONENT: Reaction_reactionCategory.COMPONENT,
   DREAM: Reaction_reactionCategory.DREAM,
+  FACET: Reaction_reactionCategory.FACET,
   PROMPT: Reaction_reactionCategory.PROMPT,
   RESOURCE: Reaction_reactionCategory.RESOURCE,
   REWARD: Reaction_reactionCategory.REWARD,
@@ -173,6 +176,7 @@ function getTargetFields(body: ReactionBody) {
     chatId: toPositiveId(body.chatId),
     componentId: toPositiveId(body.componentId),
     dreamId: toPositiveId(body.dreamId),
+    facetId: toPositiveId(body.facetId),
     promptId: toPositiveId(body.promptId),
     resourceId: toPositiveId(body.resourceId),
     rewardId: toPositiveId(body.rewardId),
@@ -181,13 +185,35 @@ function getTargetFields(body: ReactionBody) {
   }
 }
 
-function getExpectedTargetField(category: Reaction_reactionCategory) {
-  const map: Partial<
-    Record<
-      Reaction_reactionCategory,
-      keyof ReturnType<typeof getTargetFields> | null
-    >
-  > = {
+/**
+ * A category that legitimately has no target row of its own. MESSAGE is the
+ * only one, and it is not the same thing as a category this route does not
+ * support -- which is exactly the distinction the old `?? null` collapsed.
+ */
+const TARGETLESS = 'TARGETLESS' as const
+
+type ExpectedTargetField =
+  | keyof ReturnType<typeof getTargetFields>
+  | typeof TARGETLESS
+  | null
+
+/**
+ * Which column carries the target for this category. `null` means "this route
+ * does not support that category" and callers must reject it.
+ *
+ * The map is a total Record on purpose. It used to be Partial, and three enum
+ * values (FACET, PROJECT, CHALLENGE_SUBMISSION) were simply missing from it --
+ * which meant `map[category] ?? null` returned null, buildTargetWhere returned
+ * an empty where clause, and the route happily wrote a Reaction with every
+ * foreign key null. Worse, the dedupe findFirst inherited that empty clause, so
+ * a user's second such reaction updated their first one, across the whole
+ * table. Making the Record total means a new enum value cannot be forgotten
+ * here: it fails to compile instead.
+ */
+function getExpectedTargetField(
+  category: Reaction_reactionCategory,
+): ExpectedTargetField {
+  const map: Record<Reaction_reactionCategory, ExpectedTargetField> = {
     [Reaction_reactionCategory.ART_IMAGE]: 'artImageId',
     [Reaction_reactionCategory.ART_COLLECTION]: 'artCollectionId',
     [Reaction_reactionCategory.BOT]: 'botId',
@@ -195,15 +221,24 @@ function getExpectedTargetField(category: Reaction_reactionCategory) {
     [Reaction_reactionCategory.CHAT_EXCHANGE]: 'chatId',
     [Reaction_reactionCategory.COMPONENT]: 'componentId',
     [Reaction_reactionCategory.DREAM]: 'dreamId',
+    [Reaction_reactionCategory.FACET]: 'facetId',
     [Reaction_reactionCategory.PROMPT]: 'promptId',
     [Reaction_reactionCategory.RESOURCE]: 'resourceId',
     [Reaction_reactionCategory.REWARD]: 'rewardId',
     [Reaction_reactionCategory.SCENARIO]: 'scenarioId',
     [Reaction_reactionCategory.THEME]: 'themeId',
-    [Reaction_reactionCategory.MESSAGE]: null,
+    [Reaction_reactionCategory.MESSAGE]: TARGETLESS,
+    // Reachable enum values with no route support. They have columns on
+    // Reaction, but no allow-listed field, no access check and no owner
+    // lookup, so accepting one would write an untargeted row. Give them a
+    // target field before removing them from this list.
+    [Reaction_reactionCategory.PROJECT]: null,
+    [Reaction_reactionCategory.CHALLENGE_SUBMISSION]: null,
+    // Retired earlier in the request by retiredReactionCategories.
+    [Reaction_reactionCategory.BUTTERFLY]: null,
   }
 
-  return map[category] ?? null
+  return map[category]
 }
 
 function buildTargetWhere(
@@ -211,7 +246,13 @@ function buildTargetWhere(
   targets: ReturnType<typeof getTargetFields>,
 ): Prisma.ReactionWhereInput {
   const expectedField = getExpectedTargetField(category)
-  if (!expectedField) return {}
+  if (expectedField === TARGETLESS) return {}
+  if (!expectedField) {
+    throw createError({
+      statusCode: 400,
+      message: `reactionCategory ${category} is not supported.`,
+    })
+  }
 
   const expectedId = targets[expectedField]
 
@@ -230,7 +271,7 @@ async function getContentOwnerId(
   targets: ReturnType<typeof getTargetFields>,
 ): Promise<number | null> {
   const expectedField = getExpectedTargetField(category)
-  if (!expectedField) return null
+  if (!expectedField || expectedField === TARGETLESS) return null
   const targetId = targets[expectedField]
   if (!targetId) return null
   // Component model has no userId field
@@ -247,6 +288,7 @@ async function getContentOwnerId(
     characterId: prisma.character,
     chatId: prisma.chat,
     dreamId: prisma.dream,
+    facetId: prisma.facet,
     promptId: prisma.prompt,
     resourceId: prisma.resource,
     rewardId: prisma.reward,
@@ -272,12 +314,28 @@ const contentTargetLabels: Record<string, string> = {
   botId: 'Bot',
   characterId: 'Character',
   dreamId: 'Dream',
+  facetId: 'Facet',
   promptId: 'Prompt',
   resourceId: 'Resource',
   rewardId: 'Reward',
   scenarioId: 'Scenario',
   themeId: 'Theme',
 }
+
+/**
+ * Target columns whose model carries an `allowReviews` opt-out. ArtImage,
+ * ArtCollection, Prompt, Theme -- and, for now, Resource -- have no such
+ * column, so selecting it would be a Prisma error rather than a permissive
+ * default. Resource joins this set with the migration that adds it the column.
+ */
+const REVIEWABLE_TARGETS = new Set([
+  'botId',
+  'characterId',
+  'dreamId',
+  'facetId',
+  'rewardId',
+  'scenarioId',
+])
 
 function contentTargetModel(field: string) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -319,7 +377,7 @@ async function assertReactionTargetAccessible(
   isAdmin: boolean,
 ) {
   const expectedField = getExpectedTargetField(category)
-  if (!expectedField) return
+  if (!expectedField || expectedField === TARGETLESS) return
 
   const targetId = targets[expectedField]
   if (!targetId) return
@@ -355,15 +413,42 @@ async function assertReactionTargetAccessible(
     })
   }
 
+  // Fail closed. Component and Chat return from their own branches above, so
+  // reaching here with no model means a target field was added to
+  // getExpectedTargetField without an access check -- which used to mean the
+  // reaction was written unchecked.
   const model = contentTargetModel(expectedField)
-  if (!model) return
+  if (!model) {
+    throw createError({
+      statusCode: 400,
+      message: `No access check is defined for ${expectedField}.`,
+    })
+  }
 
   const row = (await model.findUnique({
     where: { id: targetId },
-    select: { userId: true, isPublic: true },
-  })) as { userId?: number | null; isPublic?: boolean | null } | null
+    select: {
+      userId: true,
+      isPublic: true,
+      ...(REVIEWABLE_TARGETS.has(expectedField) ? { allowReviews: true } : {}),
+    },
+  })) as {
+    userId?: number | null
+    isPublic?: boolean | null
+    allowReviews?: boolean | null
+  } | null
 
   if (!row) throw reactionTargetNotFound(expectedField, targetId)
+
+  // allowReviews was a client-side gate only: the galleries honoured it and the
+  // API never looked at it, so a direct POST walked straight past an owner's
+  // opt-out. The owner and admins can still react to their own record.
+  if (row.allowReviews === false && !isAdmin && row.userId !== userId) {
+    throw createError({
+      statusCode: 403,
+      message: `${contentTargetLabels[expectedField] ?? 'This record'} has reviews turned off.`,
+    })
+  }
 
   if (isAdmin || row.isPublic === true || row.userId === userId) return
 
@@ -446,9 +531,11 @@ export default defineEventHandler(async (event) => {
       // Attribute this to the reacted-on OBJECT (refType/refId), not the Reaction
       // row itself, so per-object earned-karma totals can be aggregated later.
       const targetField = getExpectedTargetField(reactionCategory)
-      const targetRefId = targetField ? targets[targetField] : undefined
-      const targetRefType = targetField
-        ? targetField.replace(/Id$/, '')
+      const targetedField =
+        targetField && targetField !== TARGETLESS ? targetField : null
+      const targetRefId = targetedField ? targets[targetedField] : undefined
+      const targetRefType = targetedField
+        ? targetedField.replace(/Id$/, '')
         : undefined
 
       getContentOwnerId(reactionCategory, targets)

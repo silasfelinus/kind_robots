@@ -593,6 +593,7 @@ export type CharacterWhereInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionListRelationFilter
   LifeRuns?: Prisma.LifeRunListRelationFilter
   Reactions?: Prisma.ReactionListRelationFilter
+  AuthoredReactions?: Prisma.ReactionListRelationFilter
   Dreams?: Prisma.DreamListRelationFilter
   Rewards?: Prisma.RewardListRelationFilter
   Scenarios?: Prisma.ScenarioListRelationFilter
@@ -656,6 +657,7 @@ export type CharacterOrderByWithRelationInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionOrderByRelationAggregateInput
   LifeRuns?: Prisma.LifeRunOrderByRelationAggregateInput
   Reactions?: Prisma.ReactionOrderByRelationAggregateInput
+  AuthoredReactions?: Prisma.ReactionOrderByRelationAggregateInput
   Dreams?: Prisma.DreamOrderByRelationAggregateInput
   Rewards?: Prisma.RewardOrderByRelationAggregateInput
   Scenarios?: Prisma.ScenarioOrderByRelationAggregateInput
@@ -723,6 +725,7 @@ export type CharacterWhereUniqueInput = Prisma.AtLeast<{
   ExpressionTransition?: Prisma.ExpressionTransitionListRelationFilter
   LifeRuns?: Prisma.LifeRunListRelationFilter
   Reactions?: Prisma.ReactionListRelationFilter
+  AuthoredReactions?: Prisma.ReactionListRelationFilter
   Dreams?: Prisma.DreamListRelationFilter
   Rewards?: Prisma.RewardListRelationFilter
   Scenarios?: Prisma.ScenarioListRelationFilter
@@ -890,6 +893,7 @@ export type CharacterCreateInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutCharacterInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionCreateNestedManyWithoutAuthorCharacterInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutCharactersInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
@@ -950,6 +954,7 @@ export type CharacterUncheckedCreateInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutCharacterInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutAuthorCharacterInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutCharactersInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutCharactersInput
@@ -1009,6 +1014,7 @@ export type CharacterUpdateInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutCharacterNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUpdateManyWithoutAuthorCharacterNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
@@ -1069,6 +1075,7 @@ export type CharacterUncheckedUpdateInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutCharacterNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUncheckedUpdateManyWithoutAuthorCharacterNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutCharactersNestedInput
@@ -1615,6 +1622,12 @@ export type CharacterCreateNestedOneWithoutReactionsInput = {
   connect?: Prisma.CharacterWhereUniqueInput
 }
 
+export type CharacterCreateNestedOneWithoutAuthoredReactionsInput = {
+  create?: Prisma.XOR<Prisma.CharacterCreateWithoutAuthoredReactionsInput, Prisma.CharacterUncheckedCreateWithoutAuthoredReactionsInput>
+  connectOrCreate?: Prisma.CharacterCreateOrConnectWithoutAuthoredReactionsInput
+  connect?: Prisma.CharacterWhereUniqueInput
+}
+
 export type CharacterUpdateOneWithoutReactionsNestedInput = {
   create?: Prisma.XOR<Prisma.CharacterCreateWithoutReactionsInput, Prisma.CharacterUncheckedCreateWithoutReactionsInput>
   connectOrCreate?: Prisma.CharacterCreateOrConnectWithoutReactionsInput
@@ -1623,6 +1636,16 @@ export type CharacterUpdateOneWithoutReactionsNestedInput = {
   delete?: Prisma.CharacterWhereInput | boolean
   connect?: Prisma.CharacterWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.CharacterUpdateToOneWithWhereWithoutReactionsInput, Prisma.CharacterUpdateWithoutReactionsInput>, Prisma.CharacterUncheckedUpdateWithoutReactionsInput>
+}
+
+export type CharacterUpdateOneWithoutAuthoredReactionsNestedInput = {
+  create?: Prisma.XOR<Prisma.CharacterCreateWithoutAuthoredReactionsInput, Prisma.CharacterUncheckedCreateWithoutAuthoredReactionsInput>
+  connectOrCreate?: Prisma.CharacterCreateOrConnectWithoutAuthoredReactionsInput
+  upsert?: Prisma.CharacterUpsertWithoutAuthoredReactionsInput
+  disconnect?: Prisma.CharacterWhereInput | boolean
+  delete?: Prisma.CharacterWhereInput | boolean
+  connect?: Prisma.CharacterWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CharacterUpdateToOneWithWhereWithoutAuthoredReactionsInput, Prisma.CharacterUpdateWithoutAuthoredReactionsInput>, Prisma.CharacterUncheckedUpdateWithoutAuthoredReactionsInput>
 }
 
 export type CharacterCreateNestedManyWithoutRewardsInput = {
@@ -1828,6 +1851,7 @@ export type CharacterCreateWithoutFacetLinksInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutCharacterInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionCreateNestedManyWithoutAuthorCharacterInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutCharactersInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
@@ -1887,6 +1911,7 @@ export type CharacterUncheckedCreateWithoutFacetLinksInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutCharacterInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutAuthorCharacterInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutCharactersInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutCharactersInput
@@ -1961,6 +1986,7 @@ export type CharacterUpdateWithoutFacetLinksInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutCharacterNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUpdateManyWithoutAuthorCharacterNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
@@ -2020,6 +2046,7 @@ export type CharacterUncheckedUpdateWithoutFacetLinksInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutCharacterNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUncheckedUpdateManyWithoutAuthorCharacterNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutCharactersNestedInput
@@ -2077,6 +2104,7 @@ export type CharacterCreateWithoutArtImageInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutCharacterInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionCreateNestedManyWithoutAuthorCharacterInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutCharactersInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
@@ -2136,6 +2164,7 @@ export type CharacterUncheckedCreateWithoutArtImageInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutCharacterInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutAuthorCharacterInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutCharactersInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutCharactersInput
@@ -2273,6 +2302,7 @@ export type CharacterCreateWithoutChatsInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutCharacterInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionCreateNestedManyWithoutAuthorCharacterInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutCharactersInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
@@ -2332,6 +2362,7 @@ export type CharacterUncheckedCreateWithoutChatsInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutCharacterInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutAuthorCharacterInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutCharactersInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutCharactersInput
@@ -2406,6 +2437,7 @@ export type CharacterUpdateWithoutChatsInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutCharacterNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUpdateManyWithoutAuthorCharacterNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
@@ -2465,6 +2497,7 @@ export type CharacterUncheckedUpdateWithoutChatsInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutCharacterNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUncheckedUpdateManyWithoutAuthorCharacterNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutCharactersNestedInput
@@ -2524,6 +2557,7 @@ export type CharacterCreateWithoutDreamsInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutCharacterInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionCreateNestedManyWithoutAuthorCharacterInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
   FacetLinks?: Prisma.CharacterFacetCreateNestedManyWithoutCharacterInput
@@ -2583,6 +2617,7 @@ export type CharacterUncheckedCreateWithoutDreamsInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutCharacterInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutAuthorCharacterInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutCharactersInput
   FacetLinks?: Prisma.CharacterFacetUncheckedCreateNestedManyWithoutCharacterInput
@@ -2661,6 +2696,7 @@ export type CharacterCreateWithoutExpressionMediaInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutCharacterInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionCreateNestedManyWithoutAuthorCharacterInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutCharactersInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
@@ -2720,6 +2756,7 @@ export type CharacterUncheckedCreateWithoutExpressionMediaInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutCharacterInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutAuthorCharacterInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutCharactersInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutCharactersInput
@@ -2794,6 +2831,7 @@ export type CharacterUpdateWithoutExpressionMediaInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutCharacterNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUpdateManyWithoutAuthorCharacterNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
@@ -2853,6 +2891,7 @@ export type CharacterUncheckedUpdateWithoutExpressionMediaInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutCharacterNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUncheckedUpdateManyWithoutAuthorCharacterNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutCharactersNestedInput
@@ -2911,6 +2950,7 @@ export type CharacterCreateWithoutExpressionTransitionInput = {
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutCharacterInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionCreateNestedManyWithoutAuthorCharacterInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutCharactersInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
@@ -2970,6 +3010,7 @@ export type CharacterUncheckedCreateWithoutExpressionTransitionInput = {
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutCharacterInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutAuthorCharacterInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutCharactersInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutCharactersInput
@@ -3044,6 +3085,7 @@ export type CharacterUpdateWithoutExpressionTransitionInput = {
   ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutCharacterNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUpdateManyWithoutAuthorCharacterNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
@@ -3103,6 +3145,7 @@ export type CharacterUncheckedUpdateWithoutExpressionTransitionInput = {
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutCharacterNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUncheckedUpdateManyWithoutAuthorCharacterNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutCharactersNestedInput
@@ -3161,6 +3204,7 @@ export type CharacterCreateWithoutPackInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutCharacterInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionCreateNestedManyWithoutAuthorCharacterInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutCharactersInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
@@ -3220,6 +3264,7 @@ export type CharacterUncheckedCreateWithoutPackInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutCharacterInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutAuthorCharacterInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutCharactersInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutCharactersInput
@@ -3304,6 +3349,7 @@ export type CharacterCreateWithoutReactionsInput = {
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutCharacterInput
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionCreateNestedManyWithoutAuthorCharacterInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutCharactersInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
@@ -3363,6 +3409,7 @@ export type CharacterUncheckedCreateWithoutReactionsInput = {
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutCharacterInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutAuthorCharacterInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutCharactersInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutCharactersInput
@@ -3372,6 +3419,130 @@ export type CharacterUncheckedCreateWithoutReactionsInput = {
 export type CharacterCreateOrConnectWithoutReactionsInput = {
   where: Prisma.CharacterWhereUniqueInput
   create: Prisma.XOR<Prisma.CharacterCreateWithoutReactionsInput, Prisma.CharacterUncheckedCreateWithoutReactionsInput>
+}
+
+export type CharacterCreateWithoutAuthoredReactionsInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  name: string
+  achievements?: string | null
+  alignment?: string | null
+  experience?: number
+  level?: number
+  class?: string | null
+  species?: string | null
+  backstory?: string | null
+  drive?: string | null
+  quirks?: string | null
+  genre?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
+  isPublic?: boolean
+  artPrompt?: string | null
+  honorific?: string | null
+  imagePath?: string | null
+  icon?: string | null
+  iconPath?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
+  designer?: string | null
+  personality?: string | null
+  sampleResponse?: string | null
+  voice?: string | null
+  isMature?: boolean
+  isActive?: boolean
+  charm?: $Enums.Rarity
+  empathy?: $Enums.Rarity
+  grace?: $Enums.Rarity
+  luck?: $Enums.Rarity
+  might?: $Enums.Rarity
+  presentation?: string | null
+  role?: string | null
+  title?: string | null
+  wits?: $Enums.Rarity
+  gender?: string | null
+  slug?: string | null
+  theme?: string | null
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutCharacterInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCharactersInput
+  User?: Prisma.UserCreateNestedOneWithoutCharactersInput
+  Pack?: Prisma.PackCreateNestedOneWithoutCharactersInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutCharacterInput
+  ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutCharacterInput
+  ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutCharacterInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutCharacterInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutCharacterInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutCharactersInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
+  FacetLinks?: Prisma.CharacterFacetCreateNestedManyWithoutCharacterInput
+}
+
+export type CharacterUncheckedCreateWithoutAuthoredReactionsInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  name: string
+  achievements?: string | null
+  alignment?: string | null
+  experience?: number
+  level?: number
+  class?: string | null
+  species?: string | null
+  backstory?: string | null
+  drive?: string | null
+  quirks?: string | null
+  genre?: string | null
+  artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
+  isPublic?: boolean
+  userId?: number | null
+  packId?: number | null
+  artPrompt?: string | null
+  honorific?: string | null
+  imagePath?: string | null
+  icon?: string | null
+  iconPath?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  allowReviews?: boolean
+  designer?: string | null
+  personality?: string | null
+  sampleResponse?: string | null
+  voice?: string | null
+  isMature?: boolean
+  isActive?: boolean
+  charm?: $Enums.Rarity
+  empathy?: $Enums.Rarity
+  grace?: $Enums.Rarity
+  luck?: $Enums.Rarity
+  might?: $Enums.Rarity
+  presentation?: string | null
+  role?: string | null
+  title?: string | null
+  wits?: $Enums.Rarity
+  gender?: string | null
+  slug?: string | null
+  theme?: string | null
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
+  ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutCharacterInput
+  ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutCharacterInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutCharacterInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutCharacterInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutCharactersInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutCharactersInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutCharactersInput
+  FacetLinks?: Prisma.CharacterFacetUncheckedCreateNestedManyWithoutCharacterInput
+}
+
+export type CharacterCreateOrConnectWithoutAuthoredReactionsInput = {
+  where: Prisma.CharacterWhereUniqueInput
+  create: Prisma.XOR<Prisma.CharacterCreateWithoutAuthoredReactionsInput, Prisma.CharacterUncheckedCreateWithoutAuthoredReactionsInput>
 }
 
 export type CharacterUpsertWithoutReactionsInput = {
@@ -3437,6 +3608,7 @@ export type CharacterUpdateWithoutReactionsInput = {
   ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutCharacterNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUpdateManyWithoutAuthorCharacterNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
@@ -3496,6 +3668,137 @@ export type CharacterUncheckedUpdateWithoutReactionsInput = {
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutCharacterNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUncheckedUpdateManyWithoutAuthorCharacterNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutCharactersNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutCharactersNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutCharactersNestedInput
+  FacetLinks?: Prisma.CharacterFacetUncheckedUpdateManyWithoutCharacterNestedInput
+}
+
+export type CharacterUpsertWithoutAuthoredReactionsInput = {
+  update: Prisma.XOR<Prisma.CharacterUpdateWithoutAuthoredReactionsInput, Prisma.CharacterUncheckedUpdateWithoutAuthoredReactionsInput>
+  create: Prisma.XOR<Prisma.CharacterCreateWithoutAuthoredReactionsInput, Prisma.CharacterUncheckedCreateWithoutAuthoredReactionsInput>
+  where?: Prisma.CharacterWhereInput
+}
+
+export type CharacterUpdateToOneWithWhereWithoutAuthoredReactionsInput = {
+  where?: Prisma.CharacterWhereInput
+  data: Prisma.XOR<Prisma.CharacterUpdateWithoutAuthoredReactionsInput, Prisma.CharacterUncheckedUpdateWithoutAuthoredReactionsInput>
+}
+
+export type CharacterUpdateWithoutAuthoredReactionsInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  achievements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  experience?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  backstory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  drive?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  empathy?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  grace?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  luck?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  might?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutCharacterNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutCharactersNestedInput
+  User?: Prisma.UserUpdateOneWithoutCharactersNestedInput
+  Pack?: Prisma.PackUpdateOneWithoutCharactersNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutCharacterNestedInput
+  ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutCharacterNestedInput
+  ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutCharacterNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutCharacterNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutCharacterNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutCharactersNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
+  FacetLinks?: Prisma.CharacterFacetUpdateManyWithoutCharacterNestedInput
+}
+
+export type CharacterUncheckedUpdateWithoutAuthoredReactionsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  achievements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  experience?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  backstory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  drive?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  genre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  honorific?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personality?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sampleResponse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voice?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  empathy?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  grace?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  luck?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  might?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  presentation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
+  ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutCharacterNestedInput
+  ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutCharacterNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutCharacterNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutCharacterNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutCharactersNestedInput
@@ -3555,6 +3858,7 @@ export type CharacterCreateWithoutRewardsInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutCharacterInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionCreateNestedManyWithoutAuthorCharacterInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
   FacetLinks?: Prisma.CharacterFacetCreateNestedManyWithoutCharacterInput
@@ -3614,6 +3918,7 @@ export type CharacterUncheckedCreateWithoutRewardsInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutCharacterInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutAuthorCharacterInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutCharactersInput
   FacetLinks?: Prisma.CharacterFacetUncheckedCreateNestedManyWithoutCharacterInput
@@ -3693,6 +3998,7 @@ export type CharacterCreateWithoutScenariosInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutCharacterInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionCreateNestedManyWithoutAuthorCharacterInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutCharactersInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   FacetLinks?: Prisma.CharacterFacetCreateNestedManyWithoutCharacterInput
@@ -3752,6 +4058,7 @@ export type CharacterUncheckedCreateWithoutScenariosInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutCharacterInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutAuthorCharacterInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutCharactersInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutCharactersInput
   FacetLinks?: Prisma.CharacterFacetUncheckedCreateNestedManyWithoutCharacterInput
@@ -3830,6 +4137,7 @@ export type CharacterCreateWithoutUserInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutCharacterInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionCreateNestedManyWithoutAuthorCharacterInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutCharactersInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
@@ -3889,6 +4197,7 @@ export type CharacterUncheckedCreateWithoutUserInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutCharacterInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutAuthorCharacterInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutCharactersInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutCharactersInput
@@ -3973,6 +4282,7 @@ export type CharacterCreateWithoutChallengeSubmissionsInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutCharacterInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionCreateNestedManyWithoutAuthorCharacterInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutCharactersInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
@@ -4032,6 +4342,7 @@ export type CharacterUncheckedCreateWithoutChallengeSubmissionsInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutCharacterInput
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutCharacterInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutAuthorCharacterInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutCharactersInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutCharactersInput
@@ -4106,6 +4417,7 @@ export type CharacterUpdateWithoutChallengeSubmissionsInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutCharacterNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUpdateManyWithoutAuthorCharacterNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
@@ -4165,6 +4477,7 @@ export type CharacterUncheckedUpdateWithoutChallengeSubmissionsInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutCharacterNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUncheckedUpdateManyWithoutAuthorCharacterNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutCharactersNestedInput
@@ -4223,6 +4536,7 @@ export type CharacterCreateWithoutLifeRunsInput = {
   ExpressionMedia?: Prisma.ExpressionMediaCreateNestedManyWithoutCharacterInput
   ExpressionTransition?: Prisma.ExpressionTransitionCreateNestedManyWithoutCharacterInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionCreateNestedManyWithoutAuthorCharacterInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutCharactersInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioCreateNestedManyWithoutCharactersInput
@@ -4282,6 +4596,7 @@ export type CharacterUncheckedCreateWithoutLifeRunsInput = {
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutCharacterInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedCreateNestedManyWithoutCharacterInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutCharacterInput
+  AuthoredReactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutAuthorCharacterInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutCharactersInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutCharactersInput
   Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutCharactersInput
@@ -4356,6 +4671,7 @@ export type CharacterUpdateWithoutLifeRunsInput = {
   ExpressionMedia?: Prisma.ExpressionMediaUpdateManyWithoutCharacterNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutCharacterNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUpdateManyWithoutAuthorCharacterNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
@@ -4415,6 +4731,7 @@ export type CharacterUncheckedUpdateWithoutLifeRunsInput = {
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutCharacterNestedInput
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutCharacterNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUncheckedUpdateManyWithoutAuthorCharacterNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutCharactersNestedInput
@@ -4522,6 +4839,7 @@ export type CharacterUpdateWithoutArtImageInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutCharacterNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUpdateManyWithoutAuthorCharacterNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
@@ -4581,6 +4899,7 @@ export type CharacterUncheckedUpdateWithoutArtImageInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutCharacterNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUncheckedUpdateManyWithoutAuthorCharacterNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutCharactersNestedInput
@@ -4689,6 +5008,7 @@ export type CharacterUpdateWithoutDreamsInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutCharacterNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUpdateManyWithoutAuthorCharacterNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
   FacetLinks?: Prisma.CharacterFacetUpdateManyWithoutCharacterNestedInput
@@ -4748,6 +5068,7 @@ export type CharacterUncheckedUpdateWithoutDreamsInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutCharacterNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUncheckedUpdateManyWithoutAuthorCharacterNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutCharactersNestedInput
   FacetLinks?: Prisma.CharacterFacetUncheckedUpdateManyWithoutCharacterNestedInput
@@ -4904,6 +5225,7 @@ export type CharacterUpdateWithoutPackInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutCharacterNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUpdateManyWithoutAuthorCharacterNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
@@ -4963,6 +5285,7 @@ export type CharacterUncheckedUpdateWithoutPackInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutCharacterNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUncheckedUpdateManyWithoutAuthorCharacterNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutCharactersNestedInput
@@ -5071,6 +5394,7 @@ export type CharacterUpdateWithoutRewardsInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutCharacterNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUpdateManyWithoutAuthorCharacterNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
   FacetLinks?: Prisma.CharacterFacetUpdateManyWithoutCharacterNestedInput
@@ -5130,6 +5454,7 @@ export type CharacterUncheckedUpdateWithoutRewardsInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutCharacterNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUncheckedUpdateManyWithoutAuthorCharacterNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutCharactersNestedInput
   FacetLinks?: Prisma.CharacterFacetUncheckedUpdateManyWithoutCharacterNestedInput
@@ -5238,6 +5563,7 @@ export type CharacterUpdateWithoutScenariosInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutCharacterNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUpdateManyWithoutAuthorCharacterNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   FacetLinks?: Prisma.CharacterFacetUpdateManyWithoutCharacterNestedInput
@@ -5297,6 +5623,7 @@ export type CharacterUncheckedUpdateWithoutScenariosInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutCharacterNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUncheckedUpdateManyWithoutAuthorCharacterNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutCharactersNestedInput
   FacetLinks?: Prisma.CharacterFacetUncheckedUpdateManyWithoutCharacterNestedInput
@@ -5453,6 +5780,7 @@ export type CharacterUpdateWithoutUserInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutCharacterNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUpdateManyWithoutAuthorCharacterNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUpdateManyWithoutCharactersNestedInput
@@ -5512,6 +5840,7 @@ export type CharacterUncheckedUpdateWithoutUserInput = {
   ExpressionTransition?: Prisma.ExpressionTransitionUncheckedUpdateManyWithoutCharacterNestedInput
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutCharacterNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutCharacterNestedInput
+  AuthoredReactions?: Prisma.ReactionUncheckedUpdateManyWithoutAuthorCharacterNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutCharactersNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutCharactersNestedInput
   Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutCharactersNestedInput
@@ -5579,6 +5908,7 @@ export type CharacterCountOutputType = {
   ExpressionTransition: number
   LifeRuns: number
   Reactions: number
+  AuthoredReactions: number
   Dreams: number
   Rewards: number
   Scenarios: number
@@ -5592,6 +5922,7 @@ export type CharacterCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensi
   ExpressionTransition?: boolean | CharacterCountOutputTypeCountExpressionTransitionArgs
   LifeRuns?: boolean | CharacterCountOutputTypeCountLifeRunsArgs
   Reactions?: boolean | CharacterCountOutputTypeCountReactionsArgs
+  AuthoredReactions?: boolean | CharacterCountOutputTypeCountAuthoredReactionsArgs
   Dreams?: boolean | CharacterCountOutputTypeCountDreamsArgs
   Rewards?: boolean | CharacterCountOutputTypeCountRewardsArgs
   Scenarios?: boolean | CharacterCountOutputTypeCountScenariosArgs
@@ -5647,6 +5978,13 @@ export type CharacterCountOutputTypeCountLifeRunsArgs<ExtArgs extends runtime.Ty
  * CharacterCountOutputType without action
  */
 export type CharacterCountOutputTypeCountReactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ReactionWhereInput
+}
+
+/**
+ * CharacterCountOutputType without action
+ */
+export type CharacterCountOutputTypeCountAuthoredReactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ReactionWhereInput
 }
 
@@ -5736,6 +6074,7 @@ export type CharacterSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   ExpressionTransition?: boolean | Prisma.Character$ExpressionTransitionArgs<ExtArgs>
   LifeRuns?: boolean | Prisma.Character$LifeRunsArgs<ExtArgs>
   Reactions?: boolean | Prisma.Character$ReactionsArgs<ExtArgs>
+  AuthoredReactions?: boolean | Prisma.Character$AuthoredReactionsArgs<ExtArgs>
   Dreams?: boolean | Prisma.Character$DreamsArgs<ExtArgs>
   Rewards?: boolean | Prisma.Character$RewardsArgs<ExtArgs>
   Scenarios?: boolean | Prisma.Character$ScenariosArgs<ExtArgs>
@@ -5806,6 +6145,7 @@ export type CharacterInclude<ExtArgs extends runtime.Types.Extensions.InternalAr
   ExpressionTransition?: boolean | Prisma.Character$ExpressionTransitionArgs<ExtArgs>
   LifeRuns?: boolean | Prisma.Character$LifeRunsArgs<ExtArgs>
   Reactions?: boolean | Prisma.Character$ReactionsArgs<ExtArgs>
+  AuthoredReactions?: boolean | Prisma.Character$AuthoredReactionsArgs<ExtArgs>
   Dreams?: boolean | Prisma.Character$DreamsArgs<ExtArgs>
   Rewards?: boolean | Prisma.Character$RewardsArgs<ExtArgs>
   Scenarios?: boolean | Prisma.Character$ScenariosArgs<ExtArgs>
@@ -5825,6 +6165,7 @@ export type $CharacterPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     ExpressionTransition: Prisma.$ExpressionTransitionPayload<ExtArgs>[]
     LifeRuns: Prisma.$LifeRunPayload<ExtArgs>[]
     Reactions: Prisma.$ReactionPayload<ExtArgs>[]
+    AuthoredReactions: Prisma.$ReactionPayload<ExtArgs>[]
     Dreams: Prisma.$DreamPayload<ExtArgs>[]
     Rewards: Prisma.$RewardPayload<ExtArgs>[]
     Scenarios: Prisma.$ScenarioPayload<ExtArgs>[]
@@ -6231,6 +6572,7 @@ export interface Prisma__CharacterClient<T, Null = never, ExtArgs extends runtim
   ExpressionTransition<T extends Prisma.Character$ExpressionTransitionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Character$ExpressionTransitionArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExpressionTransitionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   LifeRuns<T extends Prisma.Character$LifeRunsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Character$LifeRunsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Reactions<T extends Prisma.Character$ReactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Character$ReactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  AuthoredReactions<T extends Prisma.Character$AuthoredReactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Character$AuthoredReactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Dreams<T extends Prisma.Character$DreamsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Character$DreamsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DreamPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Rewards<T extends Prisma.Character$RewardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Character$RewardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RewardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Scenarios<T extends Prisma.Character$ScenariosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Character$ScenariosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScenarioPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -6839,6 +7181,30 @@ export type Character$LifeRunsArgs<ExtArgs extends runtime.Types.Extensions.Inte
  * Character.Reactions
  */
 export type Character$ReactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Reaction
+   */
+  select?: Prisma.ReactionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Reaction
+   */
+  omit?: Prisma.ReactionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReactionInclude<ExtArgs> | null
+  where?: Prisma.ReactionWhereInput
+  orderBy?: Prisma.ReactionOrderByWithRelationInput | Prisma.ReactionOrderByWithRelationInput[]
+  cursor?: Prisma.ReactionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ReactionScalarFieldEnum | Prisma.ReactionScalarFieldEnum[]
+}
+
+/**
+ * Character.AuthoredReactions
+ */
+export type Character$AuthoredReactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the Reaction
    */

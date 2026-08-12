@@ -201,13 +201,23 @@
         </div>
 
         <!--
-          Reviews sit with the info, not with the actions. Silas: "this also
-          feels like it should be where we show the toggle to give a review,
-          which we've talked about as an interact object." Reacting to a thing
-          is a response to having read about it, so it belongs at the end of
-          the reading rather than in the row of things you can go and do.
+          Reviews used to sit here unconditionally, on the reasoning that
+          "reacting to a thing is a response to having read about it, so it
+          belongs at the end of the reading rather than in the row of things you
+          can go and do."
+
+          Silas, 2026-08-11, reversed the placement: reviews are a clickable
+          button in the same row as the interact links and Edit. The content
+          still renders here -- a review panel in a button-height row would be
+          unreadable -- but it is now revealed BY that button rather than
+          sitting open, so the row is the entry point for all three of interact,
+          edit and review. That matches the three abilities verifyCardActionContract
+          already names as the card's job.
         -->
-        <div v-if="$slots.reviews" class="mt-4 border-t border-base-300 pt-3">
+        <div
+          v-if="$slots.reviews && reviewsOpen"
+          class="mt-4 border-t border-base-300 pt-3"
+        >
           <slot name="reviews" />
         </div>
       </template>
@@ -218,7 +228,7 @@
       that would navigate away from it are a trap.
     -->
     <footer
-      v-if="!editing && (canEdit || canInteract || $slots.actions)"
+      v-if="!editing && (canEdit || canInteract || canReview || $slots.actions)"
       class="flex shrink-0 items-center justify-end gap-2 border-t border-base-300 bg-base-200/60 p-3"
     >
       <!--
@@ -230,6 +240,18 @@
         names nothing model-specific.
       -->
       <slot name="actions" />
+
+      <button
+        v-if="canReview && $slots.reviews"
+        type="button"
+        class="btn btn-sm rounded-xl"
+        :class="reviewsOpen ? 'btn-accent' : 'btn-outline'"
+        :aria-expanded="reviewsOpen"
+        @click="reviewsOpen = !reviewsOpen"
+      >
+        <Icon name="kind-icon:comment" class="h-4 w-4" />
+        Reviews
+      </button>
 
       <button
         v-if="canEdit"
@@ -255,7 +277,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { resolveEntityArtwork, type ArtImageSrcLike } from '@/utils/artImageSrc'
 
 const props = withDefaults(
@@ -286,6 +308,12 @@ const props = withDefaults(
     canEdit?: boolean
     canInteract?: boolean
     /**
+     * Whether this record accepts reviews. Hosts pass the record's
+     * `allowReviews`; an owner who turned reviews off loses the button, and the
+     * API refuses the write too, so the gate is no longer decorative.
+     */
+    canReview?: boolean
+    /**
      * What the interact tier is CALLED for this object -- "Chat", "Play",
      * "Open". The verb is per-model even though the button is not, which is
      * the same line verifyCardActionContract draws around `open`.
@@ -300,6 +328,7 @@ const props = withDefaults(
     badges: () => [],
     canEdit: false,
     canInteract: false,
+    canReview: false,
     interactLabel: 'Open',
   },
 )
@@ -323,6 +352,20 @@ const emit = defineEmits<{
  * v-model:editing and see it.
  */
 const editing = defineModel<boolean>('editing', { default: false })
+
+/*
+ * Local, and closed by default. The panel opens on request rather than sitting
+ * open under every card: on a Facet with forty reviews it would otherwise push
+ * the action row off the bottom of the flip.
+ */
+const reviewsOpen = ref(false)
+
+watch(
+  () => props.title,
+  () => {
+    reviewsOpen.value = false
+  },
+)
 
 function stopEditing(): void {
   editing.value = false

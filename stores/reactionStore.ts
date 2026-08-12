@@ -6,7 +6,7 @@ import type {
   ReactionType,
   Reaction_reactionCategory,
 } from '~/prisma/generated/prisma/client'
-import type { KarmaRefType } from '~/utils/karmaRefTypes'
+import { KARMA_REF_TARGET_COLUMNS, type KarmaRefType } from '~/utils/karmaRefTypes'
 import { performFetch, handleError } from './utils'
 import { useAchievementStore } from './achievementStore'
 import { useUserStore } from './userStore'
@@ -31,6 +31,7 @@ export const reactionCategories: ReactionCategoryEnum[] = [
   'CHAT_EXCHANGE',
   'COMPONENT',
   'DREAM',
+  'FACET',
   'MESSAGE',
   'PROMPT',
   'RESOURCE',
@@ -54,6 +55,7 @@ type ReactionTargetIdKey =
   | 'chatId'
   | 'componentId'
   | 'dreamId'
+  | 'facetId'
   | 'promptId'
   | 'resourceId'
   | 'rewardId'
@@ -72,6 +74,7 @@ type AddReactionPayload = {
   chatId?: number | null
   componentId?: number | null
   dreamId?: number | null
+  facetId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null
@@ -85,20 +88,10 @@ type UpdateReactionPayload = {
   comment?: string
 }
 
-const targetIdKeyMap: Record<ReactionTargetType, ReactionTargetIdKey> = {
-  artImage: 'artImageId',
-  artCollection: 'artCollectionId',
-  bot: 'botId',
-  character: 'characterId',
-  chat: 'chatId',
-  component: 'componentId',
-  dream: 'dreamId',
-  prompt: 'promptId',
-  resource: 'resourceId',
-  reward: 'rewardId',
-  scenario: 'scenarioId',
-  theme: 'themeId',
-}
+// t-066 again: this map used to be spelled out here as well. It now comes from
+// the same module as the type it is keyed by, so a new target cannot be half-added.
+const targetIdKeyMap: Record<ReactionTargetType, ReactionTargetIdKey> =
+  KARMA_REF_TARGET_COLUMNS
 
 export function getReactionTargetPayload(
   targetType: ReactionTargetType,
@@ -303,7 +296,7 @@ export const useReactionStore = defineStore('reactionStore', () => {
       try {
         clearError()
 
-        const res = await performFetch<Reaction[]>(
+        const res = await performFetch<Reaction[] | { reactions?: Reaction[] }>(
           `/api/reactions/${targetType}/${targetId}`,
         )
 
@@ -311,7 +304,12 @@ export const useReactionStore = defineStore('reactionStore', () => {
           throw new Error(res.message || 'Failed to fetch reactions')
         }
 
-        const incoming = res.data || []
+        // Two envelopes in the wild: the catch-all route returns a flat array,
+        // while the older art/ and dream/ routes wrap it as `{ reactions }`.
+        // mergeReactions used to iterate the object, throw, and have the error
+        // swallowed below -- which is one of the reasons reviews never appeared.
+        const payload = res.data
+        const incoming = Array.isArray(payload) ? payload : payload?.reactions || []
         mergeReactions(incoming)
         loadedKeys.value.add(key)
 

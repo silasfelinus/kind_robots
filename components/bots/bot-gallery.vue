@@ -115,6 +115,7 @@
           :can-edit="canEditInfoBot"
           :can-interact="true"
           interact-label="Chat"
+          :can-review="infoBot.allowReviews !== false"
           @back="commit"
           @interact="interactWithInfoBot"
         >
@@ -181,12 +182,23 @@
             current record, so nothing in a grid is ever "selected". Exactly
             the same gate that hid edit/clone/delete.
 
-            allowReviews is still honoured here: a record that opted out of
-            reviews on the tile must not get them back on the back.
+            allowReviews is still honoured, now through `:can-review` on the
+            card back rather than a v-if in here -- an owner who opted out loses
+            the button, and POST /api/reactions refuses the write as well.
           -->
           <template #reviews>
+            <!--
+              The list first, then the form. Reviews were write-only until now:
+              nothing rendered what had already been left, so a review could be
+              submitted and never seen again.
+            -->
+            <review-list
+              class="mb-3"
+              target-type="bot"
+              :target-id="infoBot.id"
+            />
+
             <reaction-card
-              v-if="infoBot.allowReviews !== false"
               :target-id="infoBot.id"
               target-type="bot"
               reaction-category="BOT"

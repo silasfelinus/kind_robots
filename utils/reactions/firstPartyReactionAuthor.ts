@@ -16,6 +16,9 @@ type AuthorEntity = {
   imagePath?: string | null
   BotType?: string | null
   characterType?: string | null
+  /// Character has a `role` column and no `characterType` one, so a Character
+  /// author fell back to the literal 'CHARACTER' every time. Read role too.
+  role?: string | null
 }
 
 export type FirstPartyReactionAuthorSource = {
@@ -75,7 +78,10 @@ export function firstPartyReactionAuthor(
       id: characterId,
       name: publicName(source.AuthorCharacter, `Character #${characterId}`),
       avatarImage: publicAvatar(source.AuthorCharacter),
-      role: source.AuthorCharacter.characterType?.trim() || 'CHARACTER',
+      role:
+        source.AuthorCharacter.characterType?.trim() ||
+        source.AuthorCharacter.role?.trim() ||
+        'CHARACTER',
     }
   }
 

@@ -51,23 +51,23 @@ function replaceEverywhere(from, to) {
 mkdirSync(abs('stores/helpers'), { recursive: true })
 
 // Audio analysis is implementation machinery owned by musicMentorStore.
-renameSync(abs('composables/useAudioAnalysis.ts'), abs('stores/helpers/audioAnalysisHelper.ts'))
+renameSync(abs('stores/helpers/audioAnalysisHelper.ts'), abs('stores/helpers/audioAnalysisHelper.ts'))
 rewrite('stores/helpers/audioAnalysisHelper.ts', (source) =>
-  source.replace('// /composables/useAudioAnalysis.ts', '// /stores/helpers/audioAnalysisHelper.ts'),
+  source.replace('// /stores/helpers/audioAnalysisHelper.ts', '// /stores/helpers/audioAnalysisHelper.ts'),
 )
-replaceEverywhere('@/composables/useAudioAnalysis', '@/stores/helpers/audioAnalysisHelper')
-replaceEverywhere('composables/useAudioAnalysis.ts', 'stores/helpers/audioAnalysisHelper.ts')
+replaceEverywhere('@/stores/helpers/audioAnalysisHelper', '@/stores/helpers/audioAnalysisHelper')
+replaceEverywhere('stores/helpers/audioAnalysisHelper.ts', 'stores/helpers/audioAnalysisHelper.ts')
 
 // Narrative art is shared store orchestration, not component lifecycle state.
-renameSync(abs('composables/useNarrativeArtJobs.ts'), abs('stores/helpers/narrativeArtJobsHelper.ts'))
+renameSync(abs('stores/helpers/narrativeArtJobsHelper.ts'), abs('stores/helpers/narrativeArtJobsHelper.ts'))
 rewrite('stores/helpers/narrativeArtJobsHelper.ts', (source) =>
   source
-    .replace('// /composables/useNarrativeArtJobs.ts', '// /stores/helpers/narrativeArtJobsHelper.ts')
-    .replace('export function useNarrativeArtJobs()', 'export function createNarrativeArtJobsController()'),
+    .replace('// /stores/helpers/narrativeArtJobsHelper.ts', '// /stores/helpers/narrativeArtJobsHelper.ts')
+    .replace('export function createNarrativeArtJobsController()', 'export function createNarrativeArtJobsController()'),
 )
-replaceEverywhere('@/composables/useNarrativeArtJobs', '@/stores/helpers/narrativeArtJobsHelper')
-replaceEverywhere('composables/useNarrativeArtJobs.ts', 'stores/helpers/narrativeArtJobsHelper.ts')
-replaceEverywhere('useNarrativeArtJobs', 'createNarrativeArtJobsController')
+replaceEverywhere('@/stores/helpers/narrativeArtJobsHelper', '@/stores/helpers/narrativeArtJobsHelper')
+replaceEverywhere('stores/helpers/narrativeArtJobsHelper.ts', 'stores/helpers/narrativeArtJobsHelper.ts')
+replaceEverywhere('createNarrativeArtJobsController', 'createNarrativeArtJobsController')
 
 // Artwork request dedupe belongs to artStore. The helper only owns the low-level
 // in-flight Promise cache; callers enter through the store.
@@ -75,7 +75,7 @@ write(
   'stores/helpers/artworkLoadHelper.ts',
   `// /stores/helpers/artworkLoadHelper.ts\nconst inFlight = new Map<string, Promise<void>>()\n\nexport function preloadArtwork(url: string): Promise<void> {\n  let settle = inFlight.get(url)\n  if (!settle) {\n    settle = new Promise<void>((resolve) => {\n      const probe = new Image()\n      probe.onload = () => resolve()\n      probe.onerror = () => resolve()\n      probe.src = url\n    })\n    inFlight.set(url, settle)\n  }\n  return settle\n}\n`,
 )
-remove('composables/useDedupedArtwork.ts')
+remove('stores/helpers/artworkLoadHelper.ts')
 rewrite('stores/artStore.ts', (source) => {
   const importAnchor = "import { resolveArtImageSrc } from '@/utils/artImageSrc'\n"
   requireText(source, importAnchor, 'artStore resolveArtImageSrc import')
@@ -94,7 +94,7 @@ rewrite('stores/artStore.ts', (source) => {
 })
 rewrite('components/navigation/navigation-artwork.vue', (source) => {
   source = source.replace(
-    "import { useDedupedArtwork } from '@/composables/useDedupedArtwork'\n",
+    "import { useDedupedArtwork } from '@/stores/helpers/useDedupedArtwork'\n",
     "import { useArtStore } from '@/stores/artStore'\n",
   )
   const old = 'const root = ref<HTMLElement>()\nconst { resolvedSrc, request } = useDedupedArtwork()\n'
@@ -104,7 +104,7 @@ rewrite('components/navigation/navigation-artwork.vue', (source) => {
     `const root = ref<HTMLElement>()\nconst artStore = useArtStore()\nconst resolvedSrc = ref<string>()\n\nasync function request(url: string): Promise<void> {\n  await artStore.preloadArtwork(url)\n  resolvedSrc.value = url\n}\n`,
   )
 })
-replaceEverywhere('composables/useDedupedArtwork.ts', 'stores/helpers/artworkLoadHelper.ts')
+replaceEverywhere('stores/helpers/artworkLoadHelper.ts', 'stores/helpers/artworkLoadHelper.ts')
 
 // Earned-karma display tracking is entered through userStore. The helper is
 // deliberately API-agnostic: userStore remains the only client owner of the
@@ -113,7 +113,7 @@ write(
   'stores/helpers/earnedKarmaHelper.ts',
   `// /stores/helpers/earnedKarmaHelper.ts\nimport { computed, ref, watch, type Ref } from 'vue'\nimport { KARMA_EARNED_BATCH_LIMIT, type KarmaRefType } from '@/utils/karmaRefTypes'\n\nexport type KarmaEarnedRow = {\n  refType: string\n  refId: string\n  earnedKarma: number\n}\n\nexport type EarnedKarmaLoader = (\n  refType: KarmaRefType,\n  ids: number[],\n) => Promise<KarmaEarnedRow[] | null>\n\nexport function createEarnedKarmaTracker(\n  refType: KarmaRefType,\n  visibleIds: () => ReadonlyArray<number | string | null | undefined>,\n  load: EarnedKarmaLoader,\n): { earnedKarma: Ref<Record<number, number>>; refresh: () => Promise<void> } {\n  const earnedKarma = ref<Record<number, number>>({})\n\n  function batchIds(): number[] {\n    const ids = new Set<number>()\n    for (const raw of visibleIds()) {\n      const id = Number(raw)\n      if (!Number.isFinite(id)) continue\n      ids.add(id)\n      if (ids.size >= KARMA_EARNED_BATCH_LIMIT) break\n    }\n    return Array.from(ids)\n  }\n\n  const batchKey = computed(() => batchIds().join(','))\n\n  async function refresh(): Promise<void> {\n    const ids = batchIds()\n    if (!ids.length) {\n      earnedKarma.value = {}\n      return\n    }\n\n    const rows = await load(refType, ids)\n    if (!rows) return\n\n    const next: Record<number, number> = {}\n    for (const row of rows) {\n      const id = Number(row.refId)\n      if (Number.isFinite(id)) next[id] = row.earnedKarma\n    }\n    earnedKarma.value = next\n  }\n\n  watch(batchKey, () => void refresh(), { immediate: true })\n  return { earnedKarma, refresh }\n}\n`,
 )
-remove('composables/useEarnedKarma.ts')
+remove('stores/userStore.ts')
 rewrite('stores/userStore.ts', (source) => {
   const importAnchor = "import { performFetch, handleError } from './utils'\n"
   requireText(source, importAnchor, 'userStore utils import')
@@ -155,12 +155,12 @@ for (const file of walkText(abs('components'))) {
   }
   write(file, source)
 }
-replaceEverywhere('composables/useEarnedKarma.ts', 'stores/userStore.ts')
+replaceEverywhere('stores/userStore.ts', 'stores/userStore.ts')
 
 rewrite('utils/scripts/verifyEarnedKarmaWiring.ts', (source) =>
   source
-    .replace('client: composables/useEarnedKarma.ts.', 'client: stores/userStore.ts.')
-    .replace("const OWNER = 'composables/useEarnedKarma.ts'", "const OWNER = 'stores/userStore.ts'")
+    .replace('client: stores/userStore.ts.', 'client: stores/userStore.ts.')
+    .replace("const OWNER = 'stores/userStore.ts'", "const OWNER = 'stores/userStore.ts'")
     .replace("const CLIENT_DIRS = ['components', 'composables', 'pages', 'stores', 'utils']", "const CLIENT_DIRS = ['components', 'pages', 'stores', 'utils']")
     .replace('a reader at the composable.', 'a reader at the store.')
     .replace('Use useEarnedKarma(refType, () => visibleIds) instead of a new copy.', 'Use useUserStore().trackEarnedKarma(refType, () => visibleIds) instead of a new copy.'),
@@ -168,9 +168,9 @@ rewrite('utils/scripts/verifyEarnedKarmaWiring.ts', (source) =>
 
 // Storybook library remains factored for readability, but it is instantiated
 // inside storybookStore and receives store-owned state through an explicit bridge.
-let libraryHelper = read('composables/useStorybookLibrary.ts')
+let libraryHelper = read('stores/helpers/storybookLibraryHelper.ts')
 libraryHelper = libraryHelper
-  .replace('// /composables/useStorybookLibrary.ts', '// /stores/helpers/storybookLibraryHelper.ts')
+  .replace('// /stores/helpers/storybookLibraryHelper.ts', '// /stores/helpers/storybookLibraryHelper.ts')
   .replace("import { computed, proxyRefs, ref, watch } from 'vue'", "import { computed, ref, watch } from 'vue'")
   .replace(
     `import {\n  useStorybookStore,\n  type StorybookBible,\n  type StorybookSession,\n} from '@/stores/storybookStore'\nimport { useUserStore } from '@/stores/userStore'`,
@@ -194,11 +194,11 @@ const proxyTail = '  })\n}\n'
 if (!libraryHelper.endsWith(proxyTail)) throw new Error('Unexpected storybook library return tail')
 libraryHelper = libraryHelper.slice(0, -proxyTail.length) + '  }\n}\n'
 write('stores/helpers/storybookLibraryHelper.ts', libraryHelper)
-remove('composables/useStorybookLibrary.ts')
+remove('stores/helpers/storybookLibraryHelper.ts')
 
 // Storybook mode is actual shared preference state, so it lives directly in
 // storybookStore rather than in a module-level ref outside Pinia.
-remove('composables/useStorybookMode.ts')
+remove('stores/storybookStore.ts')
 rewrite('stores/storybookStore.ts', (source) => {
   source = source
     .replace("import { createNarrativeArtJobsController } from '@/stores/helpers/narrativeArtJobsHelper'", "import { createNarrativeArtJobsController } from '@/stores/helpers/narrativeArtJobsHelper'\nimport { createStorybookLibraryController } from '@/stores/helpers/storybookLibraryHelper'")
@@ -235,7 +235,7 @@ rewrite('stores/storybookStore.ts', (source) => {
 
 rewrite('components/conductor/storybook-page.vue', (source) =>
   source
-    .replace('see composables/useStorybookMode.ts.', 'see storybookStore reading-mode state.')
+    .replace('see stores/storybookStore.ts.', 'see storybookStore reading-mode state.')
     .replace(':data-theme="dataTheme"', ':data-theme="store.dataTheme"')
     .replace('v-for="option in modes"', 'v-for="option in store.modes"')
     .replaceAll('mode === option.key', 'store.mode === option.key')
@@ -247,15 +247,15 @@ rewrite('components/narrative/kr-choice-list.vue', (source) =>
 )
 
 rewrite('components/pages/storybook-library-page.vue', (source) => {
-  source = source.replace("import { useStorybookLibrary } from '@/composables/useStorybookLibrary'\n", '')
+  source = source.replace("import { useStorybookLibrary } from '@/stores/helpers/useStorybookLibrary'\n", '')
   source = source.replace('const library = useStorybookLibrary()\n', '')
   source = source.replaceAll('library.recentStories', 'storyStore.recentStories')
   source = source.replace('library.initialize()', 'storyStore.initializeLibrary()')
   source = source.replaceAll('library.', 'storyStore.')
   return source
 })
-replaceEverywhere('composables/useStorybookLibrary.ts', 'stores/helpers/storybookLibraryHelper.ts')
-replaceEverywhere('composables/useStorybookMode.ts', 'stores/storybookStore.ts')
+replaceEverywhere('stores/helpers/storybookLibraryHelper.ts', 'stores/helpers/storybookLibraryHelper.ts')
+replaceEverywhere('stores/storybookStore.ts', 'stores/storybookStore.ts')
 
 // Rewrite the Storybook library contract around the new ownership boundary.
 write(
@@ -283,7 +283,7 @@ rewrite('AGENTS.md', (source) => {
 
 // Remove the now-empty architectural island and stale exact-path references.
 remove('composables')
-replaceEverywhere('@/composables/', '@/stores/helpers/')
-replaceEverywhere('~/composables/', '~/stores/helpers/')
+replaceEverywhere('@/stores/helpers/', '@/stores/helpers/')
+replaceEverywhere('~/stores/helpers/', '~/stores/helpers/')
 
 console.log('Composable-island migration applied.')

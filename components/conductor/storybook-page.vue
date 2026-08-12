@@ -2,9 +2,9 @@
 <!-- data-theme scopes the reading mode to THIS subtree, so picking
      Storybook Dark here does not hijack the rest of the app. Classic binds
      undefined, which Vue drops entirely, leaving the reader's global theme
-     in charge — see composables/useStorybookMode.ts. -->
+     in charge — see storybookStore reading-mode state. -->
 <template>
-  <section :data-theme="dataTheme" class="kr-surface gap-4 kr-panel-flat p-4">
+  <section :data-theme="store.dataTheme" class="kr-surface gap-4 kr-panel-flat p-4">
     <header class="flex shrink-0 flex-wrap items-start gap-3">
       <div
         class="flex size-12 shrink-0 items-center justify-center rounded-2xl border border-primary/30 bg-primary/10 text-primary"
@@ -28,18 +28,18 @@
         aria-label="Reading mode"
       >
         <button
-          v-for="option in modes"
+          v-for="option in store.modes"
           :key="option.key"
           type="button"
           class="rounded-lg px-2.5 py-1.5 text-xs font-bold transition"
           :class="
-            mode === option.key
+            store.mode === option.key
               ? 'bg-primary text-primary-content shadow-sm'
               : 'text-base-content/60 hover:bg-base-300/60'
           "
           :title="option.hint"
-          :aria-pressed="mode === option.key"
-          @click="setMode(option.key)"
+          :aria-pressed="store.mode === option.key"
+          @click="store.setMode(option.key)"
         >
           {{ option.label }}
         </button>
@@ -688,8 +688,6 @@ import { useScenarioStore } from '@/stores/scenarioStore'
 import { useRoute, useRouter } from 'vue-router'
 import { beatIdFromTurnId, narrativeBeatsToTurns } from '@/utils/narrativeTurns'
 import { getTutorialImagePath } from '@/stores/helpers/tutorialCards'
-
-const { mode, setMode, dataTheme, modes } = useStorybookMode()
 
 const store = useStorybookStore()
 const characterStore = useCharacterStore()

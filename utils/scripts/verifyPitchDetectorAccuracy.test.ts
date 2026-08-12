@@ -2,7 +2,7 @@
 //
 // Accuracy comparison for conductor music-mentor/t-007 ("evaluate a heavier
 // pitch model"). Exercises both pitch detectors exported from
-// composables/useAudioAnalysis.ts against synthetic frames of known frequency —
+// stores/helpers/audioAnalysisHelper.ts against synthetic frames of known frequency —
 // pure tones across the sung range, harmonic-rich tones (the classic
 // octave-error stress case for plain autocorrelation, since a strong 2nd
 // harmonic looks like an even shorter, more "confident" period), and

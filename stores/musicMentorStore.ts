@@ -12,7 +12,7 @@ import { performFetch } from '@/stores/utils'
 import {
   analyzeAudioFile,
   type AudioFeatureSummary,
-} from '@/composables/useAudioAnalysis'
+} from '@/stores/helpers/audioAnalysisHelper'
 
 export type MentorDimension =
   'intonation' | 'timing' | 'dynamics' | 'arrangement'

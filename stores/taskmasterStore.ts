@@ -3,7 +3,7 @@
 // behind an explicit per-item Apply action; conductor roadmap YAML is read-only.
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import { useNarrativeArtJobs } from '@/composables/useNarrativeArtJobs'
+import { createNarrativeArtJobsController } from '@/stores/helpers/narrativeArtJobsHelper'
 import { useChatStore } from '@/stores/chatStore'
 import { useConductorStore } from '@/stores/conductorStore'
 import { useProjectStore } from '@/stores/projectStore'
@@ -179,7 +179,7 @@ export const useTaskmasterStore = defineStore('taskmasterStore', () => {
   const projectStore = useProjectStore()
   const todoStore = useTodoStore()
   const userStore = useUserStore()
-  const narrativeArtJobs = useNarrativeArtJobs()
+  const narrativeArtJobs = createNarrativeArtJobsController()
 
   const session = ref<TaskmasterSession | null>(null)
   const isWeaving = ref(false)

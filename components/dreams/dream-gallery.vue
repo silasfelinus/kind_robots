@@ -759,7 +759,7 @@ const galleryDreams = computed<DreamWithRelations[]>(() => {
 // has no paging concept (unlike art-gallery's pagedActiveImages), so the
 // broader galleryDreams set (filtered by ownership/mature/archived, not yet by
 // type/search) is the closest equivalent to a "rendered page".
-const { earnedKarma: earnedKarmaByDreamId } = useEarnedKarma('dream', () =>
+const { earnedKarma: earnedKarmaByDreamId } = userStore.trackEarnedKarma('dream', () =>
   galleryDreams.value.map((dream) => dream.id),
 )
 

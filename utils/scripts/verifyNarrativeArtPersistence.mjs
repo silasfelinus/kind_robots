@@ -16,7 +16,7 @@ function includesAll(path, values) {
 
 const profilesPath = 'utils/narrativeArtProfiles.ts'
 const jobsPath = 'utils/narrativeArtJobs.ts'
-const controllerPath = 'composables/useNarrativeArtJobs.ts'
+const controllerPath = 'stores/helpers/narrativeArtJobsHelper.ts'
 const artStorePath = 'stores/artStore.ts'
 const enqueuePath = 'server/api/art/enqueue.post.ts'
 const recoveryPath = 'server/api/art/queue/narrative.get.ts'
@@ -142,7 +142,7 @@ assert.ok(
 for (const storePath of [storyStorePath, taskStorePath]) {
   includesAll(storePath, [
     'art?: NarrativeArtJobState',
-    'useNarrativeArtJobs()',
+    'createNarrativeArtJobsController()',
     'updateBeatArt',
     'requestBeatArt',
     'resumeNarrativeArtJobs',

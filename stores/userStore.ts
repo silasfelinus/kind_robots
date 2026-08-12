@@ -3,6 +3,8 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { User } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from './utils'
+import { createEarnedKarmaTracker, type KarmaEarnedRow } from './helpers/earnedKarmaHelper'
+import type { KarmaRefType } from '@/utils/karmaRefTypes'
 import { mergeRecordsById } from './helpers/recordMerge'
 import { useAchievementStore } from './achievementStore'
 import { generateUsername } from '@/utils/generateUsername'
@@ -854,6 +856,25 @@ export const useUserStore = defineStore('userStore', () => {
     }
   }
 
+  function trackEarnedKarma(
+    refType: KarmaRefType,
+    visibleIds: () => ReadonlyArray<number | string | null | undefined>,
+  ) {
+    return createEarnedKarmaTracker(refType, visibleIds, async (type, ids) => {
+      const res = await performFetch<KarmaEarnedRow[]>(
+        '/api/economy/karma-earned',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            items: ids.map((id) => ({ refType: type, refId: id })),
+          }),
+        },
+      )
+
+      return res.success && Array.isArray(res.data) ? res.data : null
+    })
+  }
+
   return {
     user,
     token,
@@ -892,6 +913,7 @@ export const useUserStore = defineStore('userStore', () => {
     showMature,
     matchRecord,
     clickRecord,
+    trackEarnedKarma,
     initialize,
     login,
     logout,

@@ -636,7 +636,7 @@ const visibleRewards = computed<Reward[]>(() => {
 // refinement) rather than re-fetching on every keystroke — those filters only
 // narrow an already-fetched set. useEarnedKarma keys its watch on the id list,
 // so a refilter that yields the same rewards does not re-request.
-const { earnedKarma: earnedKarmaByRewardId } = useEarnedKarma('reward', () =>
+const { earnedKarma: earnedKarmaByRewardId } = userStore.trackEarnedKarma('reward', () =>
   visibleRewards.value.map((reward) => reward.id),
 )
 

@@ -2,6 +2,7 @@
 import { defineStore } from 'pinia'
 import { computed, reactive, ref, toRefs } from 'vue'
 import { resolveArtImageSrc } from '@/utils/artImageSrc'
+import { preloadArtwork } from '@/stores/helpers/artworkLoadHelper'
 import type {
   ArtImage,
   Reaction,
@@ -2730,6 +2731,7 @@ export const useArtStore = defineStore('artStore', () => {
 
     addArtImageToCollection,
     removeArtImageFromCollection,
+    preloadArtwork,
     fetchArtImageForDisplay,
     fetchArtImageThumbnail,
     updateArtImageConnections,

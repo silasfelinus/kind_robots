@@ -914,9 +914,9 @@ const filteredBots = computed<Bot[]>(() => {
 })
 
 // interface-vision/t-066: earned karma for the rendered set, batched through
-// the shared composable (see composables/useEarnedKarma.ts). Scoped to
+// the shared composable (see stores/userStore.ts). Scoped to
 // filteredBots — the set the grid actually renders.
-const { earnedKarma: earnedKarmaByBotId } = useEarnedKarma('bot', () =>
+const { earnedKarma: earnedKarmaByBotId } = userStore.trackEarnedKarma('bot', () =>
   filteredBots.value.map((bot) => bot.id),
 )
 

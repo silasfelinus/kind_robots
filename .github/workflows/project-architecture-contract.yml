@@ -1,0 +1,32 @@
+name: Project Architecture Contract
+
+on:
+  pull_request:
+    paths:
+      - 'AGENTS.md'
+      - 'app/**'
+      - 'composables/**'
+      - 'middleware/**'
+      - 'server/middleware/**'
+      - 'stores/**'
+      - 'components/**'
+      - 'utils/scripts/verify-project-architecture.mjs'
+  push:
+    branches: [main]
+    paths:
+      - 'AGENTS.md'
+      - 'app/**'
+      - 'composables/**'
+      - 'middleware/**'
+      - 'server/middleware/**'
+      - 'stores/**'
+      - 'components/**'
+      - 'utils/scripts/verify-project-architecture.mjs'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Kind Robots project architecture
+        run: node utils/scripts/verify-project-architecture.mjs

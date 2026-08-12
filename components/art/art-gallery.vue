@@ -1568,14 +1568,14 @@ function clearSelectedImage() {
 // page/filter watch below no longer has to call refresh by hand; the explicit
 // Refresh button still does, because karma can change while the ids do not.
 const { earnedKarma: earnedKarmaByImageId, refresh: refreshEarnedKarma } =
-  useEarnedKarma('artImage', () => pagedActiveImages.value.map((i) => i.id))
+  userStore.trackEarnedKarma('artImage', () => pagedActiveImages.value.map((i) => i.id))
 
 // Collections earn karma the same way images do (reaction-category
 // ART_COLLECTION). Virtual groups — "Unsorted" and the folder-derived ones —
 // are excluded: they share the sentinel id -1 and have no ArtCollection row to
 // attribute karma to, so batching them would spend request slots on a lookup
 // that can only ever return 0.
-const { earnedKarma: earnedKarmaByCollectionId } = useEarnedKarma(
+const { earnedKarma: earnedKarmaByCollectionId } = userStore.trackEarnedKarma(
   'artCollection',
   () =>
     pagedGroups.value

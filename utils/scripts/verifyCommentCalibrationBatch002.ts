@@ -171,7 +171,7 @@ function shingles(value: string): Set<string> {
 const seenKeys = new Set<string>()
 const seenTargets = new Set<string>()
 const allWordCounts: number[] = []
-const shapeTally: Record<string, number> = {}
+const shapeTally: Record<string, number> = { SOLO: 0, DUET: 0, DUET_REPLY: 0, TRIO: 0 }
 const tierTally: Record<string, number> = {}
 const speakerAppearances = new Map<string, { count: number; tier: string }>()
 let rewardTargets = 0

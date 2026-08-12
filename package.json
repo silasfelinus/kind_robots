@@ -37,7 +37,6 @@
     "test:relay-agent-registry": "tsx utils/scripts/verifyRelayAgentRegistry.ts",
     "test:seed-challenges": "tsx scripts/seed_challenges.ts",
     "test:seed-contenders": "tsx scripts/seed_contenders.ts",
-    "vercel-build": "node scripts/vercel-build.mjs",
     "dev": "nuxt dev --host",
     "build": "nuxi prepare && prisma generate && nuxi build",
     "start": "nuxi start",

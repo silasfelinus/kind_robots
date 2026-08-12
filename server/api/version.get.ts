@@ -1,8 +1,12 @@
 // /server/api/version.get.ts
 // Public, read-only build-identity endpoint. Reports the git commit this
 // deployment was built from so CI (and humans) can confirm which build is
-// actually live before exercising the rest of the API. Vercel injects the
-// VERCEL_GIT_* system environment variables at build and runtime.
+// actually live before exercising the rest of the API.
+//
+// Vercel injected the VERCEL_GIT_* variables for free. The container does not,
+// so COMMIT_SHA is baked in by the Dockerfile from a build arg that
+// publish-container.yml fills with github.sha. Without it this returned
+// `commit: null` on every request and the deploy-wait below could never pass.
 //
 // The Cypress workflow polls this after a push to main and only starts the API
 // suite once `data.commit` matches the pushed SHA. That closes the race where

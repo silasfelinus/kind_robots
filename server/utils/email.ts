@@ -5,10 +5,22 @@
 // log or ignore the result as appropriate.
 
 const BREVO_ENDPOINT = 'https://api.brevo.com/v3/smtp/email'
-const DEFAULT_APP_BASE_URL = 'https://kind-robots.vercel.app'
+
+// The live site is https://kindrobots.org. This used to say the opposite: the
+// default was the Vercel preview host and kindrobots.org was in the LEGACY set,
+// so `normalizeAppBaseUrl` took the correct domain that nuxt.config.ts supplies
+// and rewrote it to Vercel. Every verification link, password-reset link and
+// newsletter confirmation pointed at a host that no longer serves the app, as
+// did the redirects in auth/email/verify.get.ts and newsletter/confirm.get.ts.
+//
+// Vercel is retired infrastructure (AGENTS.md), so the polarity is now the way
+// round it was always meant to be: a stale APP_BASE_URL pointing at Vercel is
+// rewritten FORWARD to the live domain rather than the live domain being
+// rewritten backward. verifyAppBaseUrl.ts pins this so it cannot invert again.
+const DEFAULT_APP_BASE_URL = 'https://kindrobots.org'
 const LEGACY_APP_BASE_URLS = new Set([
-  'http://kindrobots.org',
-  'https://kindrobots.org',
+  'http://kind-robots.vercel.app',
+  'https://kind-robots.vercel.app',
 ])
 
 export type SendEmailInput = {
@@ -28,7 +40,14 @@ export type SendEmailResult = {
 function normalizeAppBaseUrl(value: string): string {
   const normalized = value.trim().replace(/\/$/, '')
 
-  if (!normalized || LEGACY_APP_BASE_URLS.has(normalized)) {
+  // Preview deployments carried per-branch hostnames, so the two names in
+  // LEGACY_APP_BASE_URLS are not the only ones that could be sitting in a stale
+  // APP_BASE_URL. Any vercel.app host is retired by definition.
+  if (
+    !normalized ||
+    LEGACY_APP_BASE_URLS.has(normalized) ||
+    /^https?:\/\/[^/]*\.vercel\.app$/i.test(normalized)
+  ) {
     return DEFAULT_APP_BASE_URL
   }
 

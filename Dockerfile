@@ -4,7 +4,14 @@ FROM node:24-bookworm-slim AS build
 
 WORKDIR /app
 
-ENV NUXT_TELEMETRY_DISABLED=1
+# The commit this image is built from. nuxt.config.ts bakes runtimeConfig.public
+# .buildId at BUILD time, so this has to be present before `npm run build` or the
+# deployed app reports itself as 'development'. publish-container.yml passes
+# github.sha; a local `docker build` without it still works and just says so.
+ARG COMMIT_SHA=unknown
+
+ENV NUXT_TELEMETRY_DISABLED=1 \
+    NUXT_PUBLIC_BUILD_ID=$COMMIT_SHA
 
 COPY . .
 
@@ -20,12 +27,19 @@ FROM node:24-bookworm-slim AS runtime
 
 WORKDIR /app
 
+# Repeated because ARGs do not cross stage boundaries. /api/version reads
+# COMMIT_SHA at request time, which is what the deploy-wait in cypress.yml polls
+# for; it used to be unset outside Vercel, so the endpoint always answered
+# `commit: null` and the wait could never succeed.
+ARG COMMIT_SHA=unknown
+
 ENV NODE_ENV=production \
     HOST=0.0.0.0 \
     PORT=3000 \
     NITRO_HOST=0.0.0.0 \
     NITRO_PORT=3000 \
-    NUXT_TELEMETRY_DISABLED=1
+    NUXT_TELEMETRY_DISABLED=1 \
+    COMMIT_SHA=$COMMIT_SHA
 
 COPY --from=build --chown=node:node /app/.output ./.output
 COPY --from=build --chown=node:node /app/node_modules ./node_modules

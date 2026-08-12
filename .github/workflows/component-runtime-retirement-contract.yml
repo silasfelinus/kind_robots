@@ -10,9 +10,12 @@ on:
       - 'content/build/animation-manager.md'
       - 'server/api/**'
       - 'prisma/schema.prisma'
+      - 'prisma/migrations/**'
+      - 'config/**'
       - 'stores/animationManagerStore.ts'
       - 'stores/index.ts'
       - 'utils/scripts/verifyComponentRuntimeRetirement.ts'
+      - 'utils/scripts/verifyComponentSchemaRetirement.ts'
       - '.github/workflows/component-runtime-retirement-contract.yml'
   push:
     branches: [main]
@@ -24,9 +27,12 @@ on:
       - 'content/build/animation-manager.md'
       - 'server/api/**'
       - 'prisma/schema.prisma'
+      - 'prisma/migrations/**'
+      - 'config/**'
       - 'stores/animationManagerStore.ts'
       - 'stores/index.ts'
       - 'utils/scripts/verifyComponentRuntimeRetirement.ts'
+      - 'utils/scripts/verifyComponentSchemaRetirement.ts'
       - '.github/workflows/component-runtime-retirement-contract.yml'
 
 jobs:
@@ -44,3 +50,5 @@ jobs:
           CYPRESS_INSTALL_BINARY: 0
       - name: Verify live app no longer depends on Component runtime
         run: npx tsx utils/scripts/verifyComponentRuntimeRetirement.ts
+      - name: Verify Component database schema is permanently retired
+        run: npx tsx utils/scripts/verifyComponentSchemaRetirement.ts

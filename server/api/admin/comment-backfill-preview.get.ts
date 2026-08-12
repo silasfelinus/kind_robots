@@ -91,9 +91,32 @@ export default defineEventHandler(async (event) => {
   }
 
   if (action === 'plan') {
-    return guardedResponse(
-      await planManualCommentBackfillSlice({ start, limit }),
-    )
+    const plan = await planManualCommentBackfillSlice({ start, limit })
+    if (String(query.compact || '') === '1') {
+      return guardedResponse({
+        start: plan.start,
+        limit: plan.limit,
+        eligibleTargets: plan.eligibleTargets,
+        items: plan.items.map((item) => ({
+          key: item.key,
+          title: item.title,
+          type: item.type,
+          description: item.description,
+          flavorText: item.flavorText,
+          category: item.category,
+          tags: item.tags,
+          shape: item.shape,
+          speakers: item.speakers.map((speaker) => ({
+            kind: speaker.kind,
+            id: speaker.id,
+            name: speaker.name,
+            voice: speaker.voice,
+            sampleResponse: speaker.sampleResponse,
+          })),
+        })),
+      })
+    }
+    return guardedResponse(plan)
   }
 
   if (action === 'publish') {

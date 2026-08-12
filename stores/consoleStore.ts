@@ -1,7 +1,6 @@
 // /stores/consoleStore.ts
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import { useUserStore } from './userStore'
+import { computed, ref } from 'vue'
 import { randomFunLine } from './utils/randomFunLine'
 import { randomQuote } from './utils/randomQuote'
 import { randomTrivia } from './utils/randomTrivia'
@@ -15,7 +14,6 @@ type ConsoleMessage = {
 }
 
 const LEVEL_THRESHOLDS = [0, 50, 120, 250, 500, 1000]
-const isClient = typeof window !== 'undefined'
 
 export const useConsoleStore = defineStore('consoleStore', () => {
   const messages = ref<ConsoleMessage[]>([])
@@ -23,9 +21,6 @@ export const useConsoleStore = defineStore('consoleStore', () => {
   const level = ref(1)
   const loginStart = ref(Date.now())
   const initialized = ref(false)
-  const initializePromise = ref<Promise<void> | null>(null)
-  const hasFetched = ref(false)
-  const userId = ref<number | null>(null)
 
   const sessionDuration = computed(() =>
     Math.floor((Date.now() - loginStart.value) / 1000),
@@ -33,116 +28,11 @@ export const useConsoleStore = defineStore('consoleStore', () => {
 
   async function initialize(): Promise<void> {
     if (initialized.value) return
-    if (initializePromise.value) return initializePromise.value
 
-    initializePromise.value = (async () => {
-      const userStore = useUserStore()
-      userId.value = userStore.user?.id || null
-      loginStart.value = Date.now()
-
-      loadFromLocalStorage()
-      loadMessagesFromLocal()
-
-      if (!hasFetched.value) {
-        await fetchConsoleData()
-      }
-
-      logRandomMessage()
-      incrementXP(10)
-      initialized.value = true
-    })()
-
-    try {
-      await initializePromise.value
-    } finally {
-      initializePromise.value = null
-    }
-  }
-
-  function loadFromLocalStorage(): void {
-    if (!isClient) return
-
-    try {
-      const saved = localStorage.getItem('consoleStore')
-      if (!saved) return
-
-      const data = JSON.parse(saved)
-      xp.value = data.xp || 0
-      level.value = data.level || 1
-    } catch (error) {
-      console.warn(
-        '[consoleStore] Failed to load consoleStore from localStorage',
-        error,
-      )
-    }
-  }
-
-  function saveToLocalStorage(): void {
-    if (!isClient) return
-
-    try {
-      localStorage.setItem(
-        'consoleStore',
-        JSON.stringify({ xp: xp.value, level: level.value }),
-      )
-    } catch (error) {
-      console.warn(
-        '[consoleStore] Failed to save consoleStore to localStorage',
-        error,
-      )
-    }
-  }
-
-  function saveMessagesToLocal(): void {
-    if (!isClient) return
-
-    try {
-      localStorage.setItem(
-        'consoleMessages',
-        JSON.stringify(messages.value.slice(-100)),
-      )
-    } catch (error) {
-      console.warn(
-        '[consoleStore] Failed to save consoleMessages to localStorage',
-        error,
-      )
-    }
-  }
-
-  function loadMessagesFromLocal(): void {
-    if (!isClient) return
-
-    try {
-      const saved = localStorage.getItem('consoleMessages')
-      if (!saved) return
-      messages.value = JSON.parse(saved)
-    } catch (error) {
-      console.warn(
-        '[consoleStore] Failed to load consoleMessages from localStorage',
-        error,
-      )
-    }
-  }
-
-  async function fetchConsoleData(): Promise<void> {
-    if (hasFetched.value) return
-
-    hasFetched.value = true
-
-    try {
-      // Optional backend fetch logic
-    } catch (error) {
-      console.error('ConsoleStore fetch failed', error)
-      hasFetched.value = false
-    }
-  }
-
-  async function saveConsoleData(): Promise<void> {
-    try {
-      // Optional backend save logic
-    } catch (error) {
-      console.warn('Could not save console progress')
-    }
+    loginStart.value = Date.now()
+    logRandomMessage()
+    incrementXP(10)
+    initialized.value = true
   }
 
   function logMessage(text: string, type: ConsoleMessage['type']): void {
@@ -153,8 +43,7 @@ export const useConsoleStore = defineStore('consoleStore', () => {
       timestamp: Date.now(),
     })
 
-    saveMessagesToLocal()
-    console.log(`%c[Console XP] ${text}`, 'color: limegreen; font-weight: bold')
+    console.log(`%c[Kind Robots] ${text}`, 'color: limegreen; font-weight: bold')
   }
 
   function logRandomMessage(): void {
@@ -182,7 +71,6 @@ export const useConsoleStore = defineStore('consoleStore', () => {
 
   function incrementXP(amount: number): void {
     xp.value += amount
-    saveToLocalStorage()
 
     while (
       level.value < LEVEL_THRESHOLDS.length &&
@@ -195,7 +83,6 @@ export const useConsoleStore = defineStore('consoleStore', () => {
   function levelUp(): void {
     level.value++
     logMessage(`🎉 Level up! You're now Level ${level.value}`, 'system')
-    saveConsoleData()
   }
 
   function tickStory(): void {
@@ -215,10 +102,7 @@ export const useConsoleStore = defineStore('consoleStore', () => {
     xp.value = 0
     level.value = 1
     loginStart.value = Date.now()
-    hasFetched.value = false
-    userId.value = null
     initialized.value = false
-    initializePromise.value = null
   }
 
   return {
@@ -227,24 +111,8 @@ export const useConsoleStore = defineStore('consoleStore', () => {
     level,
     loginStart,
     initialized,
-    /*
-     * Promise refs are deliberately NOT returned. In a Pinia setup store a
-     * returned ref becomes state, Nuxt serializes state into the SSR payload
-     * with devalue, and devalue cannot stringify a Promise -- which returned
-     * 500 on every page of the site. They stay private; re-entrancy is
-     * unaffected because the functions return the promise VALUE to callers.
-     * Guarded by utils/scripts/verifyNoPromiseInStoreState.ts.
-     */
-    hasFetched,
-    userId,
     sessionDuration,
     initialize,
-    loadFromLocalStorage,
-    saveToLocalStorage,
-    saveMessagesToLocal,
-    loadMessagesFromLocal,
-    fetchConsoleData,
-    saveConsoleData,
     logMessage,
     logRandomMessage,
     incrementXP,

@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises'
 
 const loader = await readFile('components/admin/kind-loader.vue', 'utf8')
 const store = await readFile('stores/achievementStore.ts', 'utf8')
+const consoleStore = await readFile('stores/consoleStore.ts', 'utf8')
 
 assert.doesNotMatch(
   loader,
@@ -16,8 +17,18 @@ assert.doesNotMatch(
 )
 assert.doesNotMatch(
   loader,
-  /useConsoleStore|consoleStore\.initialize/,
+  /consoleStore\.initialize|useConsoleStore\(\)\.initialize/,
   'global boot must not initialize console progression',
+)
+assert.match(
+  loader,
+  /useConsoleStore\(\)\.logRandomMessage\(\)/,
+  'global boot must keep the intentional random console message',
+)
+assert.doesNotMatch(
+  consoleStore,
+  /localStorage|fetchConsoleData|saveConsoleData|loadMessagesFromLocal|saveMessagesToLocal/,
+  'console startup behavior must remain ephemeral and avoid persistence or backend sync',
 )
 assert.match(
   loader,
@@ -45,4 +56,4 @@ assert.match(
   'ID-based awards must retain their lazy single-achievement fallback',
 )
 
-console.log('Boot achievement budget contract passed: mount stays shell-focused; remote catalogs and console progression stay lazy.')
+console.log('Boot achievement budget contract passed: shell startup keeps one random console message while remote catalogs and console persistence stay lazy.')

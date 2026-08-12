@@ -6,11 +6,16 @@ records without ever putting the admin credential in a conversation.
 
 ## Production endpoints
 
-- Action schema: `https://kind-robots.vercel.app/api/chatgpt/openapi`
-- Machine API: `https://kind-robots.vercel.app/api/chatgpt`
+The canonical production origin is `https://kindrobots.org`.
+
+- Action schema: `https://kindrobots.org/api/chatgpt/openapi`
+- Machine API: `https://kindrobots.org/api/chatgpt`
 
 The action schema is public metadata. The machine API is not public: every operation still
 passes through the normal Kind Robots machine-user auth guard.
+
+The Vercel deployment hostname may remain useful for deployment diagnostics and previews, but
+it is not the canonical public/API origin.
 
 ## Credential
 
@@ -29,7 +34,7 @@ request bodies.
 4. Paste the value of `ADMIN_TOKEN` into the action's secret credential field. This is a
    configuration secret, not conversation content.
 5. Import the OpenAPI schema from
-   `https://kind-robots.vercel.app/api/chatgpt/openapi`.
+   `https://kindrobots.org/api/chatgpt/openapi`.
 6. In Preview, ask the GPT to run `meta.describe`. A successful response identifies the
    actor role as `admin` and the auth source as `beta-admin-token`.
 7. Keep the GPT private unless there is a deliberate reason to share its admin capability.

@@ -107,7 +107,7 @@
             <img
               v-if="recordImage(record)"
               :src="recordImage(record)"
-              :alt="store.sourceLabel(record)"
+              alt=""
               class="h-full w-full object-cover transition group-hover:scale-105"
               loading="lazy"
             />
@@ -146,7 +146,7 @@
             <img
               v-if="recordImage(record)"
               :src="recordImage(record)"
-              :alt="store.sourceLabel(record)"
+              alt=""
               class="h-full w-full object-cover"
               loading="lazy"
             />
@@ -189,7 +189,7 @@
             <img
               v-if="recordImage(record)"
               :src="recordImage(record)"
-              :alt="store.sourceLabel(record)"
+              alt=""
               class="h-full w-full object-cover"
               loading="lazy"
             />

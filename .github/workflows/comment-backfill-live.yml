@@ -66,6 +66,14 @@ jobs:
         env:
           CYPRESS_INSTALL_BINARY: '0'
 
+      # Before Prisma, before Tailscale, before the DB lane opens. The publisher
+      # re-checks author names against the live directory and aborts on the
+      # FIRST mismatch, so a drifted corpus used to burn a full production run
+      # per renamed speaker. This names every drift at once, over public HTTP,
+      # in about ten seconds.
+      - name: Verify draft authors against the live directory
+        run: npm run test:comment-authors
+
       - name: Generate Prisma client
         run: npx prisma generate
 

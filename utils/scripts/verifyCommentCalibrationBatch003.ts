@@ -225,7 +225,7 @@ for (const [position, input] of inputs.exchanges.entries()) {
   if (input.target.type === 'REWARD') rewardTargets += 1
   else facetTargets += 1
 
-  shapeTally[input.shape] += 1
+  shapeTally[input.shape] = (shapeTally[input.shape] || 0) + 1
   assert.equal(output.comments.length, expectedPerShape[input.shape], `${input.exchangeKey}: comment count does not match shape`)
   assert.equal(output.comments.length, input.speakerIds.length, `${input.exchangeKey}: speaker count drifted`)
 
@@ -255,7 +255,7 @@ for (const [position, input] of inputs.exchanges.entries()) {
   assert.equal(output.promptSha256, promptHash, `${input.exchangeKey}: exact prompt fingerprint drifted`)
 
   for (const [speakerPosition, comment] of output.comments.entries()) {
-    const expectedId = input.speakerIds[speakerPosition]
+    const expectedId = input.speakerIds[speakerPosition]!
     const source = promptSpeakers[speakerPosition]
     assert.ok(source, `${input.exchangeKey}: source speaker missing`)
     assert.equal(comment.authorKind, 'CHARACTER')

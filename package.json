@@ -179,6 +179,8 @@
     "test:model-builder-batch-editor-key-guard": "tsx utils/scripts/verifyModelBuilderBatchEditorKeyGuard.ts",
     "test:model-builder-asset-only-approval-guard-selftest": "tsx utils/scripts/verifyModelBuilderAssetOnlyApprovalGuard.test.ts",
     "test:model-builder-asset-only-approval-guard": "tsx utils/scripts/verifyModelBuilderAssetOnlyApprovalGuard.ts",
+    "test:model-builder-auto-build-approval-race-guard-selftest": "tsx utils/scripts/verifyModelBuilderAutoBuildApprovalRaceGuard.test.ts",
+    "test:model-builder-auto-build-approval-race-guard": "tsx utils/scripts/verifyModelBuilderAutoBuildApprovalRaceGuard.ts",
     "test:kontext-mask-forwarding": "tsx utils/scripts/verifyKontextMaskForwarding.ts",
     "test:pod-vendor-client-selftest": "tsx utils/scripts/verifyPodVendorClient.test.ts",
     "test:mana-gate-on-behalf-of-target": "tsx utils/scripts/verifyManaGateOnBehalfOfTarget.ts",

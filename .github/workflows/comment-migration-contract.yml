@@ -35,4 +35,5 @@ jobs:
       - run: npx tsx utils/scripts/verifyCommentMigrationFoundation.ts
       - run: npx tsx utils/scripts/verifyCommentSignals.ts
       - run: npx tsx utils/scripts/verifyCommentCalibrationBatch.ts
+      - run: npx tsx utils/scripts/runCommentCalibrationBatch002Contract.ts
       - run: npx tsx utils/scripts/verifyCommentCalibrationBatch003.ts

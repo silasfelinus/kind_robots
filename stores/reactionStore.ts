@@ -29,7 +29,6 @@ export const reactionCategories: ReactionCategoryEnum[] = [
   'BOT',
   'CHARACTER',
   'CHAT_EXCHANGE',
-  'COMPONENT',
   'DREAM',
   'FACET',
   'MESSAGE',
@@ -53,7 +52,6 @@ type ReactionTargetIdKey =
   | 'botId'
   | 'characterId'
   | 'chatId'
-  | 'componentId'
   | 'dreamId'
   | 'facetId'
   | 'promptId'
@@ -72,7 +70,6 @@ type AddReactionPayload = {
   botId?: number | null
   characterId?: number | null
   chatId?: number | null
-  componentId?: number | null
   dreamId?: number | null
   facetId?: number | null
   promptId?: number | null
@@ -178,18 +175,8 @@ export const useReactionStore = defineStore('reactionStore', () => {
     }
   })
 
-  const getReactionsByComponentId = computed(() => (componentId: number) => {
-    return getReactionsByTarget.value('component', componentId)
-  })
-
   const getReactionsByArtImageId = computed(() => (artImageId: number) => {
     return getReactionsByTarget.value('artImage', artImageId)
-  })
-
-  const getUserReactionForComponent = computed(() => {
-    return (componentId: number, userId: number) => {
-      return getUserReactionForTarget.value('component', componentId, userId)
-    }
   })
 
   const getUserReactionForArtImage = computed(() => {
@@ -332,13 +319,6 @@ export const useReactionStore = defineStore('reactionStore', () => {
     force = false,
   ): Promise<Reaction[]> {
     return fetchReactionsByTarget('artImage', artImageId, force)
-  }
-
-  async function fetchReactionsByComponentId(
-    componentId: number,
-    force = false,
-  ): Promise<Reaction[]> {
-    return fetchReactionsByTarget('component', componentId, force)
   }
 
   async function addReaction(payload: AddReactionPayload) {
@@ -485,8 +465,6 @@ export const useReactionStore = defineStore('reactionStore', () => {
 
     getReactionsByTarget,
     getUserReactionForTarget,
-    getReactionsByComponentId,
-    getUserReactionForComponent,
 
     getReactionsByArtImageId,
     getUserReactionForArtImage,
@@ -495,7 +473,6 @@ export const useReactionStore = defineStore('reactionStore', () => {
     resetInitialization,
     resetReactionsForKey,
     fetchReactionsByTarget,
-    fetchReactionsByComponentId,
     addReaction,
     updateReaction,
     deleteReaction,

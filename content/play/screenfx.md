@@ -25,4 +25,4 @@ backgroundTablet: /api/art/backdrop/screenfx-tablet
 backgroundDesktop: /api/art/backdrop/screenfx-desktop
 ---
 
-:lab-manager
+:screen-fx{show-header=false}

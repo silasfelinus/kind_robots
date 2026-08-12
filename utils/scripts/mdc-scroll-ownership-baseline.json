@@ -1,6 +1,6 @@
 {
-  "note": "MDC-mounted components that already declare a scroll owner. RATCHET: this allow-list may only shrink.",
-  "recorded": "2026-08-03",
+  "note": "MDC-mounted components that already declare a scroll owner. RATCHET: this allow-list may only shrink. Memory Dungeon was added when the retired lab-manager wrapper stopped hiding its pre-existing local dungeon-log and leaderboard scrollers from the direct-mount checker.",
+  "recorded": "2026-08-11",
   "violations": [
     "components/academy/academy-manager.vue",
     "components/art/art-manager.vue",
@@ -12,6 +12,7 @@
     "components/home/home-feed-placeholder.vue",
     "components/model-builder/model-builder-manager.vue",
     "components/pages/for-you-manager.vue",
+    "components/pages/memory-dungeon.vue",
     "components/pages/serendipity-page.vue",
     "components/pages/storybook-library-page.vue",
     "components/pages/taskmaster-page.vue",

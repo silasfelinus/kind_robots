@@ -60,6 +60,7 @@
 import { computed, onMounted, watch } from 'vue'
 import { navigateTo, useRoute } from '#app'
 import type { ContentCollectionItem } from '@nuxt/content'
+import { preloadModelCards } from '@/stores/helpers/modelCards'
 import { usePageStore } from '@/stores/pageStore'
 
 type PagePayload = {
@@ -74,6 +75,10 @@ type NarratedContentPage = ContentCollectionItem & {
 
 type RedirectingContentPage = ContentCollectionItem & {
   redirect?: unknown
+}
+
+type CardContentPage = ContentCollectionItem & {
+  cards?: unknown
 }
 
 const route = useRoute()
@@ -227,6 +232,30 @@ function syncPageStore(): void {
   pageStore.clearPage()
 }
 
+async function preloadAndSyncPageStore(): Promise<void> {
+  if (isLoginPath.value || isPageLoading.value || error.value) {
+    syncPageStore()
+    return
+  }
+
+  const page = activePage.value
+  if (!page) {
+    syncPageStore()
+    return
+  }
+
+  const resolvedPath = contentPath.value
+  const cards = (page as CardContentPage).cards
+
+  if (typeof cards === 'string') {
+    await preloadModelCards(cards)
+  }
+
+  if (contentPath.value !== resolvedPath || !hasResolvedCurrentPath.value) return
+
+  syncPageStore()
+}
+
 /*
  * Populate the store during SETUP, not only on mount.
  *
@@ -236,24 +265,30 @@ function syncPageStore(): void {
  * it rendered nothing until hydration.
  *
  * The page backdrop made that visible: app.vue emits no backdrop element at all
- * when pageStore reports no art, so every page load painted a backdrop-less
+ * when the store reports no art, so every page load painted a backdrop-less
  * first frame and then popped the art in. Title and description came from the
  * same store and had the same gap.
  *
- * onMounted still runs it, which is a harmless no-op re-set on the client and
- * still the right place to start the store's own async initialize and the
- * route watcher.
+ * Workspace card catalogs are preloaded before this setup-scope synchronization.
+ * That keeps the card hand synchronous for SSR while allowing each deck to stay
+ * a route-local chunk instead of pinning every catalog into app startup.
  */
+if (activePage.value) {
+  const initialCards = (activePage.value as CardContentPage).cards
+  if (typeof initialCards === 'string') {
+    await preloadModelCards(initialCards)
+  }
+}
 syncPageStore()
 
 onMounted(() => {
   pageStore.initialize()
-  syncPageStore()
+  void preloadAndSyncPageStore()
 
   watch(
     [activePage, status, error, contentPath, pagePayload, isLoginPath],
     () => {
-      syncPageStore()
+      void preloadAndSyncPageStore()
     },
     { flush: 'post' },
   )

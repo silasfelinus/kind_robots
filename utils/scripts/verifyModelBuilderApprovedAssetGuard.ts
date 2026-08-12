@@ -2,43 +2,30 @@
 //
 // Regression guard (model-builder/t-029, kaizen) -- pollAsyncArtJob clears
 // item.artJobId/queueState before awaiting artStore.finalizeQueuedArtImage(),
-// a real network round-trip. The item panel's canApproveAssets computed
-// reads item.artJobId (via isQueued) as its only "is a render still
-// happening" signal alongside isGenerating/isLocked -- none of which are
-// true during that exact span, so on a REGENERATE (item.artImageId already
-// holds a prior candidate) canApproveAssets briefly evaluates true, letting
-// the user click "Keep this asset" using the OLD image while
-// GENERATE_ASSETS is still nominally 'in-progress'. approveStage writes
-// 'approved' straight through with no gate of its own. Before this fix, the
-// completion handler then unconditionally overwrote item.artImageId /
-// item.imagePath with the NEW image once finalizeQueuedArtImage resolved --
-// silently swapping what an already-'approved' stage points at, with no
-// re-review, directly contradicting the file's own stale-invalidation
-// philosophy (isStageEditable's doc comment: "the review gate would be
-// lying about what's actually stored"). Fixed by checking
-// `item.stages.GENERATE_ASSETS.status === 'approved'` right before the
-// artImageId/imagePath write and discarding the finished render instead of
-// applying it when the stage was approved out from under the poll. A
-// concurrent 'stale' (upstream edit reopening an earlier stage) is left
-// alone on purpose -- that's the existing, intended way to flag "re-review
-// this candidate," and should still receive the image.
+// a real network round-trip. The item panel's canApproveAssets computed used
+// item.artJobId (via isQueued) as its only "is a render still happening"
+// signal alongside isGenerating/isLocked. During that exact span those flags
+// are all false while GENERATE_ASSETS remains 'in-progress', so on a
+// REGENERATE (item.artImageId already holds a prior candidate) the UI could
+// briefly enable "Keep this asset" for the OLD image. The store already
+// refused to overwrite an approved candidate with the newly finalized render,
+// which prevented silent replacement but meant the user's accidental click
+// discarded the new render. The UI now also refuses approval while the stage
+// is 'in-progress', closing the race at the affordance instead of relying only
+// on the store's defensive discard.
 //
-// generateItemAsset (the synchronous sibling) had the identical gap: two
-// calls can be in flight for the same item id at once (an item's own "Auto"
-// button and a run-level "Auto-build all" both reaching the same item
-// concurrently -- generatingItemSingleton only guards a *different* owner
-// overwriting this one, not two calls sharing the same item id), so an
-// earlier-started call finishing after the user approved a sibling call's
-// candidate would silently overwrite it. Fixed with the exact same guard,
-// so this checker covers both functions.
+// The store-side guard remains necessary for non-UI/concurrent entry points.
+// pollAsyncArtJob and generateItemAsset both check
+// `item.stages.GENERATE_ASSETS.status === 'approved'` before writing the
+// finished image. A concurrent 'stale' (upstream edit reopening an earlier
+// stage) is intentionally left alone -- that's the existing way to flag
+// "re-review this candidate," and should still receive the image.
 //
-// This asserts the textual shape of that fix stays in place in each function:
-// `item.stages.GENERATE_ASSETS.status === 'approved'` strictly between the
-// `if (!result.success` branch and the `item.artImageId =` write that
-// follows it in the same function body -- deliberately scoped to this one
-// bug shape, mirroring verifyModelBuilderCancelledRunGuard.ts's preference
-// for explicit, narrow textual checks over a general-purpose static
-// analyzer.
+// This checker therefore protects both halves of the contract:
+// 1. Store: each render-completion path checks for an already-approved stage
+//    between result validation and the artImageId write.
+// 2. UI: canApproveAssets explicitly returns false while GENERATE_ASSETS is
+//    'in-progress', covering the async finalization span after queueState clears.
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -49,17 +36,20 @@ const scriptDirectory = dirname(fileURLToPath(import.meta.url))
 const repositoryRoot = resolve(scriptDirectory, '../..')
 
 const STORE_PATH = join(repositoryRoot, 'stores/modelBuilderStore.ts')
+const PANEL_PATH = join(
+  repositoryRoot,
+  'components/model-builder/model-builder-item-panel.vue',
+)
 
 const FN_NAMES = ['pollAsyncArtJob', 'generateItemAsset']
 const RESULT_BRANCH = 'if (!result.success'
 const IMAGE_WRITE = 'item.artImageId = image.id'
 const GUARD = "item.stages.GENERATE_ASSETS.status === 'approved'"
+const UI_GUARD =
+  "item.value.stages.GENERATE_ASSETS.status === 'in-progress'"
 
-// Checks the fix's exact shape against the full source text of a file
-// containing `pollAsyncArtJob`/`generateItemAsset`-named async functions.
-// Exported (rather than only exercised via main()) so the self-test below
-// can run it against synthetic buggy/fixed fixtures without touching the
-// real store file.
+// Checks the store-side fix's exact shape against source text containing the
+// pollAsyncArtJob/generateItemAsset functions. Exported for the self-test.
 export function checkApprovedAssetGuard(content: string): string[] {
   const errors: string[] = []
   const functions = extractFunctionBodies(content)
@@ -99,12 +89,9 @@ export function checkApprovedAssetGuard(content: string): string[] {
       errors.push(
         `${fnName}() does not check \`${GUARD}\` between its ${RESULT_BRANCH} ` +
           `branch and the ${IMAGE_WRITE} write. Two calls can complete for ` +
-          'the same item (regenerate-while-queued for pollAsyncArtJob, or ' +
-          'two entry points reaching the same item concurrently for ' +
-          'generateItemAsset), so without this check a render that finishes ' +
-          'after the user already approved a sibling candidate silently ' +
-          'overwrites the already-approved artImageId/imagePath with no ' +
-          're-review.',
+          'the same item, so without this check a render that finishes after ' +
+          'the user already approved a sibling candidate silently overwrites ' +
+          'the already-approved artImageId/imagePath with no re-review.',
       )
     }
   }
@@ -112,13 +99,54 @@ export function checkApprovedAssetGuard(content: string): string[] {
   return errors
 }
 
+// Checks the UI half of the same race. The stage remains 'in-progress' during
+// async finalization even after queueState/artJobId have been cleared, so the
+// stage status is the durable signal canApproveAssets must honor.
+export function checkApprovedAssetUiGuard(content: string): string[] {
+  const errors: string[] = []
+  const start = content.indexOf('const canApproveAssets = computed(() => {')
+  if (start === -1) {
+    return [
+      'Could not find canApproveAssets in model-builder-item-panel.vue -- ' +
+        'has it been renamed or restructured? Re-check the approval affordance ' +
+        'for the async-finalization race.',
+    ]
+  }
+
+  const end = content.indexOf('\n})', start)
+  if (end === -1) {
+    return [
+      'Could not determine the end of canApproveAssets in ' +
+        'model-builder-item-panel.vue -- this guard anchor has moved.',
+    ]
+  }
+
+  const body = content.slice(start, end)
+  if (!body.includes(UI_GUARD)) {
+    errors.push(
+      `canApproveAssets does not check \`${UI_GUARD}\`. pollAsyncArtJob ` +
+        'clears queueState/artJobId before its final image network round-trip; ' +
+        "during that span GENERATE_ASSETS is still 'in-progress', so a " +
+        'regenerate with an old artImageId would briefly make "Keep this ' +
+        'asset" approve the old candidate and force the finished replacement ' +
+        'to be discarded by the store safety guard.',
+    )
+  }
+
+  return errors
+}
+
 function main(): void {
-  const content = readFileSync(STORE_PATH, 'utf8')
-  const errors = checkApprovedAssetGuard(content)
+  const storeContent = readFileSync(STORE_PATH, 'utf8')
+  const panelContent = readFileSync(PANEL_PATH, 'utf8')
+  const errors = [
+    ...checkApprovedAssetGuard(storeContent),
+    ...checkApprovedAssetUiGuard(panelContent),
+  ]
 
   if (errors.length) {
     console.error(
-      'Model Builder approved-asset guard contract failed in modelBuilderStore.ts:',
+      'Model Builder approved-asset guard contract failed:',
     )
     for (const error of errors) console.error(`- ${error}`)
     process.exitCode = 1
@@ -126,9 +154,9 @@ function main(): void {
   }
 
   console.log(
-    'Model Builder approved-asset guard contract passed: ' +
-      `${FN_NAMES.map((n) => `${n}()`).join(' and ')} refuse to overwrite ` +
-      'an already-approved candidate with a render that finishes after the fact.',
+    'Model Builder approved-asset guard contract passed: render completion ' +
+      'refuses to overwrite an approved candidate, and the item panel keeps ' +
+      'the old candidate unapprovable while async finalization is in progress.',
   )
 }
 

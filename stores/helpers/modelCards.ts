@@ -1,14 +1,5 @@
 // /stores/helpers/modelCards.ts
 import type { BuilderCard } from '@/stores/helpers/builderCards'
-import { ADVENTURE_CARDS } from '@/stores/helpers/adventureCards'
-import { ART_CARDS } from '@/stores/helpers/artCards'
-import { BOT_CARDS } from '@/stores/helpers/botCards'
-import { CONDUCTOR_CARDS } from '@/stores/helpers/conductorCards'
-import { DREAM_CARDS } from '@/stores/helpers/dreamCards'
-import { LAB_CARDS } from '@/stores/helpers/labCards'
-import { NAV_CARDS } from '@/stores/helpers/navCards'
-import { REWARD_CARDS } from '@/stores/helpers/rewardCards'
-import { SCENARIO_CARDS } from '@/stores/helpers/scenarioCards'
 
 export type BuilderCardsKey =
   | 'adventureCards'
@@ -22,26 +13,85 @@ export type BuilderCardsKey =
   | 'scenarioCards'
   | 'userCards'
 
-export const modelCards: Partial<Record<BuilderCardsKey, BuilderCard[]>> = {
-  adventureCards: ADVENTURE_CARDS,
-  artCards: ART_CARDS,
-  botCards: BOT_CARDS,
-  conductorCards: CONDUCTOR_CARDS,
-  dreamCards: DREAM_CARDS,
-  labCards: LAB_CARDS,
-  navCards: NAV_CARDS,
-  rewardCards: REWARD_CARDS,
-  scenarioCards: SCENARIO_CARDS,
+type LoadableBuilderCardsKey = Exclude<BuilderCardsKey, 'userCards'>
+
+const BUILDER_CARD_KEYS = new Set<BuilderCardsKey>([
+  'adventureCards',
+  'artCards',
+  'botCards',
+  'conductorCards',
+  'dreamCards',
+  'labCards',
+  'navCards',
+  'rewardCards',
+  'scenarioCards',
+  'userCards',
+])
+
+export const modelCards: Partial<Record<BuilderCardsKey, BuilderCard[]>> = {}
+
+const pendingLoads: Partial<
+  Record<LoadableBuilderCardsKey, Promise<BuilderCard[]>>
+> = {}
+
+const cardLoaders: Record<
+  LoadableBuilderCardsKey,
+  () => Promise<BuilderCard[]>
+> = {
+  adventureCards: async () =>
+    (await import('@/stores/helpers/adventureCards')).ADVENTURE_CARDS,
+  artCards: async () => (await import('@/stores/helpers/artCards')).ART_CARDS,
+  botCards: async () => (await import('@/stores/helpers/botCards')).BOT_CARDS,
+  conductorCards: async () =>
+    (await import('@/stores/helpers/conductorCards')).CONDUCTOR_CARDS,
+  dreamCards: async () =>
+    (await import('@/stores/helpers/dreamCards')).DREAM_CARDS,
+  labCards: async () => (await import('@/stores/helpers/labCards')).LAB_CARDS,
+  navCards: async () => (await import('@/stores/helpers/navCards')).NAV_CARDS,
+  rewardCards: async () =>
+    (await import('@/stores/helpers/rewardCards')).REWARD_CARDS,
+  scenarioCards: async () =>
+    (await import('@/stores/helpers/scenarioCards')).SCENARIO_CARDS,
 }
 
 export function isBuilderCardsKey(value: string): value is BuilderCardsKey {
-  return value in modelCards || value === 'userCards'
+  return BUILDER_CARD_KEYS.has(value as BuilderCardsKey)
+}
+
+function normalizeCardsKey(value?: string | null): BuilderCardsKey | null {
+  const key = (value ?? '').trim()
+  return key && isBuilderCardsKey(key) ? key : null
 }
 
 export function getModelCards(value?: string | null): BuilderCard[] {
-  const key = (value ?? '').trim()
+  const key = normalizeCardsKey(value)
+  return key ? modelCards[key] ?? [] : []
+}
 
-  if (!key || !isBuilderCardsKey(key)) return []
+export async function preloadModelCards(
+  value?: string | null,
+): Promise<BuilderCard[]> {
+  const key = normalizeCardsKey(value)
+  if (!key || key === 'userCards') return []
 
-  return modelCards[key as BuilderCardsKey] ?? []
+  const cached = modelCards[key]
+  if (cached) return cached
+
+  const pending = pendingLoads[key]
+  if (pending) return pending
+
+  const load = cardLoaders[key]().then((cards) => {
+    modelCards[key] = cards
+    pendingLoads[key] = undefined
+    return cards
+  })
+
+  pendingLoads[key] = load
+
+  try {
+    return await load
+  } catch (error) {
+    pendingLoads[key] = undefined
+    throw error
+  }
 }

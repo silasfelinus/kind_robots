@@ -1,16 +1,13 @@
 // /utils/scripts/verifyModelBuilderApprovedAssetGuard.test.ts
 //
-// Regression test for checkApprovedAssetGuard() in
-// verifyModelBuilderApprovedAssetGuard.ts (model-builder/t-029). Exercises
-// the real check against synthetic store-shaped fixtures covering both
-// pollAsyncArtJob and generateItemAsset: the pre-fix shape (no
-// `GENERATE_ASSETS.status === 'approved'` guard before the artImageId write
-// -- the exact bug found by manual read-through, present independently in
-// each function), and the fixed shape (the guard checked and returned on
-// between the result branch and the write).
+// Regression test for the store + UI halves of the approved-asset guard in
+// verifyModelBuilderApprovedAssetGuard.ts (model-builder/t-029).
 import assert from 'node:assert/strict'
 
-import { checkApprovedAssetGuard } from './verifyModelBuilderApprovedAssetGuard.js'
+import {
+  checkApprovedAssetGuard,
+  checkApprovedAssetUiGuard,
+} from './verifyModelBuilderApprovedAssetGuard.js'
 
 function pollAsyncArtJobBody(guarded: boolean): string {
   return `
@@ -112,6 +109,23 @@ function generateItemAssetBody(guarded: boolean): string {
 `
 }
 
+function panelBody(guarded: boolean): string {
+  return `
+const canApproveAssets = computed(() => {
+  if (!item.value) return false
+  if (isLocked('GENERATE_ASSETS')) return false
+  ${
+    guarded
+      ? "if (item.value.stages.GENERATE_ASSETS.status === 'in-progress') return false"
+      : ''
+  }
+  if (isGenerating.value || isQueued.value) return false
+  if (item.value.generation === 'image') return Boolean(item.value.artImageId)
+  return true
+})
+`
+}
+
 const BUGGY_FIXTURE = pollAsyncArtJobBody(false) + generateItemAssetBody(false)
 const FIXED_FIXTURE = pollAsyncArtJobBody(true) + generateItemAssetBody(true)
 const PARTIALLY_FIXED_FIXTURE =
@@ -129,22 +143,20 @@ const buggyErrors = checkApprovedAssetGuard(BUGGY_FIXTURE)
 assert.equal(
   buggyErrors.length,
   2,
-  `expected the pre-fix shape (missing approved-stage guard in both ` +
-    `functions) to raise 2 errors, got ${buggyErrors.length}: ` +
+  `expected the pre-fix store shape to raise 2 errors, got ${buggyErrors.length}: ` +
     `${JSON.stringify(buggyErrors)}`,
 )
 assert.ok(
   buggyErrors.every((e) => e.includes("GENERATE_ASSETS.status === 'approved'")),
-  'expected both violations to name the missing approved-stage guard',
+  'expected both store violations to name the missing approved-stage guard',
 )
 
 const partiallyFixedErrors = checkApprovedAssetGuard(PARTIALLY_FIXED_FIXTURE)
 assert.equal(
   partiallyFixedErrors.length,
   1,
-  `expected fixing only pollAsyncArtJob to leave 1 error (generateItemAsset ` +
-    `still unguarded), got ${partiallyFixedErrors.length}: ` +
-    `${JSON.stringify(partiallyFixedErrors)}`,
+  `expected fixing only pollAsyncArtJob to leave 1 error, got ` +
+    `${partiallyFixedErrors.length}: ${JSON.stringify(partiallyFixedErrors)}`,
 )
 assert.ok(partiallyFixedErrors[0]!.includes('generateItemAsset'))
 
@@ -152,22 +164,39 @@ const fixedErrors = checkApprovedAssetGuard(FIXED_FIXTURE)
 assert.equal(
   fixedErrors.length,
   0,
-  `expected the fixed shape to raise no errors, got: ${JSON.stringify(fixedErrors)}`,
+  `expected the fixed store shape to raise no errors, got: ${JSON.stringify(fixedErrors)}`,
 )
 
 const missingFnErrors = checkApprovedAssetGuard(MISSING_FIXTURE)
 assert.equal(
   missingFnErrors.length,
   2,
-  'expected a "function not found" violation for each of pollAsyncArtJob ' +
-    'and generateItemAsset when both are absent',
+  'expected a function-not-found violation for pollAsyncArtJob and generateItemAsset',
 )
 assert.ok(missingFnErrors.some((e) => e.includes('pollAsyncArtJob')))
 assert.ok(missingFnErrors.some((e) => e.includes('generateItemAsset')))
 
+const buggyUiErrors = checkApprovedAssetUiGuard(panelBody(false))
+assert.equal(
+  buggyUiErrors.length,
+  1,
+  `expected the pre-fix UI shape to raise 1 error, got: ${JSON.stringify(buggyUiErrors)}`,
+)
+assert.ok(buggyUiErrors[0]!.includes("GENERATE_ASSETS.status === 'in-progress'"))
+
+const fixedUiErrors = checkApprovedAssetUiGuard(panelBody(true))
+assert.equal(
+  fixedUiErrors.length,
+  0,
+  `expected the fixed UI shape to raise no errors, got: ${JSON.stringify(fixedUiErrors)}`,
+)
+
+const missingUiErrors = checkApprovedAssetUiGuard('const somethingElse = true')
+assert.equal(missingUiErrors.length, 1)
+assert.ok(missingUiErrors[0]!.includes('canApproveAssets'))
+
 console.log(
-  'Model Builder approved-asset guard checker verified: flags the pre-fix ' +
-    'shape (missing approved-stage guard before the artImageId write) in ' +
-    'either function independently, clears the fixed shape, and flags ' +
-    'either function being absent entirely.',
+  'Model Builder approved-asset guard checker verified: flags missing ' +
+    'store completion guards and the UI async-finalization approval window, ' +
+    'and clears both fixed shapes.',
 )

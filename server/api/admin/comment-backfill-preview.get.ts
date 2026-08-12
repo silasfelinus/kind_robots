@@ -2,12 +2,19 @@
 // Temporary execution surface for kind_robots#1769.
 // It is deliberately impossible to run on production: only the named Vercel
 // preview branch may enter. Remove this route after the approved backfill.
-import { createError, defineEventHandler } from 'h3'
-import { readdirSync } from 'node:fs'
-import { join } from 'node:path'
-import prisma from '../../utils/prisma'
+import {
+  createError,
+  defineEventHandler,
+  getQuery,
+  setResponseHeader,
+} from 'h3'
+import {
+  getCommentBackfillStatus,
+  runCommentBackfillSlice,
+} from '../../utils/commentBackfillGeneration'
 
 const BACKFILL_BRANCH = 'gpt/comment-backfill-live'
+const PUBLISH_CONFIRMATION = 'publish-1769'
 
 function assertBackfillPreview(): void {
   if (
@@ -18,48 +25,46 @@ function assertBackfillPreview(): void {
   }
 }
 
-function archiveFileCount(): number | null {
-  try {
-    return readdirSync(join(process.cwd(), 'config')).filter((name) =>
-      /^wonderlab-voice-polish-batch-\d+\.json$/.test(name),
-    ).length
-  } catch {
-    return null
-  }
+function positiveInteger(value: unknown, fallback: number): number {
+  const parsed = Number(value)
+  return Number.isInteger(parsed) && parsed >= 0 ? parsed : fallback
 }
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
   assertBackfillPreview()
+  setResponseHeader(event, 'Cache-Control', 'no-store, max-age=0')
 
-  const [
-    rewards,
-    reviewableRewards,
-    facets,
-    reviewableFacets,
-    rewardReactions,
-    facetReactions,
-    firstPartyRewardReactions,
-    firstPartyFacetReactions,
-  ] = await Promise.all([
-    prisma.reward.count({ where: { isPublic: true, isActive: true } }),
-    prisma.reward.count({ where: { isPublic: true, isActive: true, allowReviews: true } }),
-    prisma.facet.count({ where: { isPublic: true, isActive: true } }),
-    prisma.facet.count({ where: { isPublic: true, isActive: true, allowReviews: true } }),
-    prisma.reaction.count({ where: { rewardId: { not: null } } }),
-    prisma.reaction.count({ where: { facetId: { not: null } } }),
-    prisma.reaction.count({
-      where: {
-        rewardId: { not: null },
-        OR: [{ authorBotId: { not: null } }, { authorCharacterId: { not: null } }],
+  const query = getQuery(event)
+  const action = String(query.action || 'status').toLowerCase()
+
+  if (action === 'status') {
+    return {
+      ok: true,
+      executionGuard: {
+        vercelEnv: process.env.VERCEL_ENV || null,
+        gitBranch: process.env.VERCEL_GIT_COMMIT_REF || null,
       },
-    }),
-    prisma.reaction.count({
-      where: {
-        facetId: { not: null },
-        OR: [{ authorBotId: { not: null } }, { authorCharacterId: { not: null } }],
+      credentials: {
+        databaseConfigured: Boolean(process.env.DATABASE_URL),
+        openAiConfigured: Boolean(process.env.OPENAI_API_KEY),
       },
-    }),
-  ])
+      backfill: await getCommentBackfillStatus(),
+    }
+  }
+
+  if (action !== 'run') {
+    throw createError({ statusCode: 400, message: 'Unknown backfill action.' })
+  }
+
+  if (query.confirm !== PUBLISH_CONFIRMATION) {
+    throw createError({
+      statusCode: 400,
+      message: 'Explicit backfill confirmation token is required.',
+    })
+  }
+
+  const start = positiveInteger(query.start, 0)
+  const limit = positiveInteger(query.limit, 8)
 
   return {
     ok: true,
@@ -67,20 +72,6 @@ export default defineEventHandler(async () => {
       vercelEnv: process.env.VERCEL_ENV || null,
       gitBranch: process.env.VERCEL_GIT_COMMIT_REF || null,
     },
-    credentials: {
-      databaseConfigured: Boolean(process.env.DATABASE_URL),
-      openAiConfigured: Boolean(process.env.OPENAI_API_KEY),
-    },
-    corpus: {
-      rewards,
-      reviewableRewards,
-      facets,
-      reviewableFacets,
-      rewardReactions,
-      facetReactions,
-      firstPartyRewardReactions,
-      firstPartyFacetReactions,
-      archiveFilesOnDisk: archiveFileCount(),
-    },
+    run: await runCommentBackfillSlice({ start, limit }),
   }
 })

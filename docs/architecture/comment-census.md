@@ -18,12 +18,13 @@ base for casting: what is worth commenting on, and who can credibly speak.
 **Resources are deferred this pass.** The public API returns 0 of them:
 every Resource row is `isPublic: false`, they are LoRA/checkpoint/embedding infrastructure
 rather than play objects, and `Resource` is the only one of the three target models with no
-`allowReviews` column and no Character or Facet relations. Whether a private LoRA deserves
-in-world commentary is a product question, not an oversight.
+`allowReviews` column and no Character or Facet relations. Silas explicitly authorized this
+phase-one deferral on 2026-08-11; Resource coverage is not required for the calibration gate.
 
 **`allowReviews` is false on every row we can see** — Rewards, Characters, and Bots alike.
 If first-party commentary is gated on that flag the way user reviews are, none of this work
-will ever render. That decision belongs to Silas and is not made here.
+will ever render. The separate review-layer/migration work must resolve that deliberately;
+this census does not turn the flag on or backfill production rows.
 
 ### Rewards
 
@@ -109,9 +110,18 @@ No historical pairing or co-occurrence data. Which two speakers shared a museum 
 not a casting signal, and computing it here would invite the next pass to reach for it.
 Voice, not history.
 
-## Open questions
+## Decisions and remaining questions
 
-1. Does `allowReviews` gate first-party commentary, or only user reviews?
-2. Do private Resources deserve in-world commentary at all?
-3. Facets that are a bare title — comment on them, or require a minimum amount of object
+Resolved on 2026-08-11:
+
+- **Voice direction approved** for calibration batch 001.
+- **Resources deferred** from phase-one calibration/backfill design.
+- **`https://kindrobots.org` is the canonical production origin.** Older documentation that
+  presents the Vercel hostname as canonical is stale after the domain migration.
+
+Still open:
+
+1. Does `allowReviews` gate first-party commentary, or only user reviews? The production-facing
+   migration/backfill is a separate decision from the voice gate.
+2. Facets that are a bare title — comment on them, or require a minimum amount of object
    text before a Facet becomes castable?

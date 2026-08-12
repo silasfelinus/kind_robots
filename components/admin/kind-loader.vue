@@ -118,7 +118,8 @@ async function runWave(
 /*
  * Global boot is deliberately conservative. Feature stores initialize from
  * their own surfaces instead of making every visitor download/fetch the whole
- * application.
+ * application. The random console message is intentional shell behavior: one
+ * fresh bit of weirdness per startup, without restoring console persistence.
  */
 async function initializeStores() {
   try {
@@ -136,12 +137,14 @@ async function initializeStores() {
       { useNavStore },
       { useAchievementStore },
       { useThemeStore },
+      { useConsoleStore },
     ] = await Promise.all([
       import('@/stores/userStore'),
       import('@/stores/pageStore'),
       import('@/stores/navStore'),
       import('@/stores/achievementStore'),
       import('@/stores/themeStore'),
+      import('@/stores/consoleStore'),
     ])
 
     const userStore = useUserStore()
@@ -162,6 +165,8 @@ async function initializeStores() {
       useThemeStore().initialize({ fetchShared: false }),
     ])
 
+    useConsoleStore().logRandomMessage()
+
     await runWave('achievement migration', [
       userStore.isLoggedIn
         ? achievementStore.migratePendingGuestAchievements()
@@ -172,11 +177,10 @@ async function initializeStores() {
 
     /*
      * Servers, checkpoints, art, chat, builders, facets/randomizer, prompts,
-     * rewards, scenarios, characters, console progression and the remaining
-     * feature stores all initialize from the surfaces that consume them.
-     * Historically boot woke these systems speculatively, including a 1,000-
-     * facet randomizer catalog, even when the visitor never opened those
-     * features.
+     * rewards, scenarios, characters and the remaining feature stores all
+     * initialize from the surfaces that consume them. Historically boot woke
+     * these systems speculatively, including a 1,000-facet randomizer catalog,
+     * even when the visitor never opened those features.
      */
   } catch (error) {
     errorStore.setError(

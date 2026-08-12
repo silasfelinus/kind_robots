@@ -1,0 +1,100 @@
+name: Migrate Production Schema
+
+# Applies pending Prisma migrations to production.
+#
+# WHY THIS EXISTS
+# ---------------
+# Migrations used to ride the deploy: scripts/vercel-build.mjs ran
+# scripts/prisma-migrate-deploy.mjs as part of `vercel-build`. The container
+# path runs plain `npm run build` (Dockerfile), which does not, and no other
+# workflow picked it up when Vercel was retired -- so merging a migration to
+# main stopped applying it anywhere. This restores the capability that was lost.
+#
+# WHY IT IS A WORKFLOW AND NOT A CONTAINER ENTRYPOINT
+# ---------------------------------------------------
+# Running `prisma migrate deploy` on container start would be simpler, and it is
+# the wrong shape for this repo. docs/runbooks/migration-credential-boundary.md
+# separates the ordinary application lane (DATABASE_URL) from schema-write
+# capability (MIGRATION_DATABASE_URL) on purpose, and
+# scripts/prisma-migrate-deploy.mjs refuses to accept DATABASE_URL at all. An
+# entrypoint would mean the long-running app container holds a standing
+# migration credential, which is the exact thing that boundary exists to
+# prevent. The runbook's own instruction is that production jobs supply the
+# elevated credential "through the environment or secret store" -- so it lives
+# here, in a job that exists only for the length of the migration.
+#
+# WHY IT IS MANUAL
+# ----------------
+# Applying schema changes to production on every merge is a bigger behavioural
+# change than restoring the lost step, and it is not reversible in the way a
+# code deploy is. This is deliberate and explicit: a human dispatches it, having
+# read what is pending. `migrate deploy` only applies pending migrations -- it
+# never resets, never drops, and never generates new ones.
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "migrate" to confirm applying pending migrations to production'
+        required: true
+        default: ''
+
+concurrency:
+  group: migrate-production
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Require explicit confirmation
+        run: |
+          if [ "${{ inputs.confirm }}" != "migrate" ]; then
+            echo "::error::Confirmation input must be exactly 'migrate'."
+            exit 1
+          fi
+
+      - name: Require the elevated migration lane
+        env:
+          MIGRATION_DATABASE_URL: ${{ secrets.MIGRATION_DATABASE_URL }}
+          TS_OAUTH_CLIENT_ID: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          TS_OAUTH_SECRET: ${{ secrets.TS_OAUTH_SECRET }}
+        run: |
+          if [ -z "$MIGRATION_DATABASE_URL" ]; then
+            echo "::error::MIGRATION_DATABASE_URL is empty. DATABASE_URL is intentionally not accepted for schema writes."
+            exit 1
+          fi
+          if [ -z "$TS_OAUTH_CLIENT_ID" ] || [ -z "$TS_OAUTH_SECRET" ]; then
+            echo "::error::Tailscale OAuth secrets are empty; the database is not reachable from a hosted runner without them."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Apply pending migrations
+        env:
+          MIGRATION_DATABASE_URL: ${{ secrets.MIGRATION_DATABASE_URL }}
+          DATABASE_SSL_CA_BASE64: ${{ secrets.DATABASE_SSL_CA_BASE64 }}
+          DATABASE_SSL_CA: ${{ secrets.DATABASE_SSL_CA }}
+        run: node scripts/prisma-migrate-deploy.mjs

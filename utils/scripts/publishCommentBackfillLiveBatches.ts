@@ -254,6 +254,7 @@ function validateCommentFreshness(
   speaker: PayloadSpeaker,
   canonicalSample: string | null,
   authoredText: Map<string, string[]>,
+  compareAgainstExistingGenerated = true,
 ): void {
   const value = speaker.comment.trim()
   const words = normalizeWords(value)
@@ -283,13 +284,15 @@ function validateCommentFreshness(
       throw new Error(`${speaker.name}: reused canonical phrase "${overlap}".`)
     }
   }
-  for (const prior of authoredText.get(key) || []) {
-    const overlap = sharedShingle(value, prior)
-    if (overlap) {
-      throw new Error(`${speaker.name}: repeated generated phrase "${overlap}".`)
+  if (compareAgainstExistingGenerated) {
+    for (const prior of authoredText.get(key) || []) {
+      const overlap = sharedShingle(value, prior)
+      if (overlap) {
+        throw new Error(`${speaker.name}: repeated generated phrase "${overlap}".`)
+      }
     }
+    authoredText.set(key, [...(authoredText.get(key) || []), value])
   }
-  authoredText.set(key, [...(authoredText.get(key) || []), value])
 }
 
 async function main() {
@@ -360,6 +363,7 @@ async function main() {
         speaker,
         directory.sampleResponse,
         validationText,
+        !existing.targetKeys.has(item.key),
       )
     }
   }

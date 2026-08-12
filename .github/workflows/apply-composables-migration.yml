@@ -1,0 +1,33 @@
+name: Apply Composables Migration
+
+on:
+  push:
+    branches:
+      - agent/remove-composables-island
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    if: ${{ !contains(github.event.head_commit.message, '[composables-migrated]') && !contains(github.event.head_commit.message, '[skip-composables-migration]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/remove-composables-island
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Apply repository architecture migration
+        run: node utils/scripts/migrateComposableIsland.mjs
+      - name: Verify architecture fence
+        run: node utils/scripts/verify-project-architecture.mjs
+      - name: Commit migration
+        run: |
+          git config user.name "kind-robots-migration-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -m "refactor: fold composables into store architecture [composables-migrated]"
+          git push origin HEAD:agent/remove-composables-island

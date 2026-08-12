@@ -155,6 +155,17 @@ async function main() {
       'so a stale cached row cannot bypass canView after an auth transition.',
   )
 
+  // The same staleness class applies to search: characterStore.fetchCharacters()
+  // short-circuits to whatever is already cached once hasLoaded is true, so an
+  // unforced call after an auth transition can list Character rows the current
+  // session is no longer authorized to view (follow-up reviewer finding on PR
+  // #1820, third review pass).
+  assert.ok(
+    adapterSource.includes('store.fetchCharacters(true)'),
+    'characterAdapter.search must force a fresh Character list fetch ' +
+      '(force=true) so the picker cannot surface pre-auth-transition cached rows.',
+  )
+
   // The source watcher in brainstorm-manager.vue must guard against a
   // slower, superseded resolve overwriting a later selection or resurrecting
   // a removed source -- request-identity/token invalidation, not just a

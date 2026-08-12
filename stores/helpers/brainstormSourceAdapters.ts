@@ -70,7 +70,12 @@ const characterAdapter: BrainstormSourceAdapter = {
   },
   async search(query) {
     const store = useCharacterStore()
-    await store.fetchCharacters()
+    // force=true: fetchCharacters() short-circuits to whatever is already
+    // cached/persisted once hasLoaded is true, same staleness the resolve()
+    // fix above addresses -- listing candidates from a pre-auth-transition
+    // cache would surface Character rows the current session may no longer
+    // be authorized to view (reviewer finding on PR #1820).
+    await store.fetchCharacters(true)
 
     return store.characters
       .filter((character) =>

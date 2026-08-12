@@ -50,6 +50,11 @@ assert.equal(
   'Retired /api/components surface must stay deleted',
 )
 assert.equal(
+  await exists('stores/helpers/componentHelper.ts'),
+  false,
+  'Retired Component API helper must stay deleted with the /api/components surface',
+)
+assert.equal(
   await exists('components/wonderlab/lab-manager.vue'),
   false,
   'Retired lab-manager wrapper must stay deleted',

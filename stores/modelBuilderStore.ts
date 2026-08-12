@@ -169,6 +169,7 @@ interface ServerItem {
 interface ServerRun {
   id: number
   createdAt: string
+  status?: string
   sourceType: string
   sourceId: number
   sourceLabel: string | null
@@ -1782,7 +1783,19 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         const response = await performFetch<ServerRun>(
           `/api/model-builder/runs/${remembered}`,
         )
-        if (response.success && response.data) data = response.data
+        if (
+          response.success &&
+          response.data &&
+          response.data.status !== 'CANCELLED'
+        ) {
+          data = response.data
+        } else if (response.success && response.data) {
+          // The remembered run exists but was cancelled (e.g. cancelled from
+          // another tab/run, so this tab's shared localStorage key was never
+          // cleared by cancelRun's own-run check). Stop remembering it so we
+          // don't keep resuming a dead run into a read-only 409 trap.
+          safeRemove(runIdKey)
+        }
       }
 
       if (!data) {

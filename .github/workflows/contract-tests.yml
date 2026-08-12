@@ -341,6 +341,12 @@ jobs:
       - name: Model Builder auto-build approval-race guard contract
         run: npm run test:model-builder-auto-build-approval-race-guard
 
+      - name: Model Builder resume-cancelled-run guard checker self-test
+        run: npm run test:model-builder-resume-cancelled-run-guard-selftest
+
+      - name: Model Builder resume-cancelled-run guard contract
+        run: npm run test:model-builder-resume-cancelled-run-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

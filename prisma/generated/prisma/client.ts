@@ -145,11 +145,6 @@ export type Character = Prisma.CharacterModel
  */
 export type Chat = Prisma.ChatModel
 /**
- * Model Component
- * Components track all the components we use making kindrobots. it's primary uses are as a museum of developmental attemps, while allowing reactions to allow sifting concepts and allowing the best to rise to attention.
- */
-export type Component = Prisma.ComponentModel
-/**
  * Model Dream
  * A Dream is the canonical "idea/vibe" that governs a generation. It absorbs
  * the old Pitch concept: a single big-picture seed that fuels art assets, text

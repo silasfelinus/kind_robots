@@ -706,19 +706,6 @@ export const GrantStatus = {
 export type GrantStatus = (typeof GrantStatus)[keyof typeof GrantStatus]
 
 
-export const ComponentStatus = {
-  UNREVIEWED: 'UNREVIEWED',
-  WORKING: 'WORKING',
-  NEEDS_CONTEXT: 'NEEDS_CONTEXT',
-  UNDER_CONSTRUCTION: 'UNDER_CONSTRUCTION',
-  BROKEN: 'BROKEN',
-  RETIRED: 'RETIRED',
-  PREVIEW_UNSUPPORTED: 'PREVIEW_UNSUPPORTED'
-} as const
-
-export type ComponentStatus = (typeof ComponentStatus)[keyof typeof ComponentStatus]
-
-
 export const MediaType = {
   MOVIE: 'MOVIE',
   TV: 'TV',

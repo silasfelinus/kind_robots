@@ -413,7 +413,6 @@ export const ModelName = {
   Bot: 'Bot',
   Character: 'Character',
   Chat: 'Chat',
-  Component: 'Component',
   Dream: 'Dream',
   DreamRelation: 'DreamRelation',
   Project: 'Project',
@@ -496,7 +495,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "component" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
+    modelProps: "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1553,72 +1552,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ChatCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ChatCountAggregateOutputType> | number
-        }
-      }
-    }
-    Component: {
-      payload: Prisma.$ComponentPayload<ExtArgs>
-      fields: Prisma.ComponentFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.ComponentFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComponentPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.ComponentFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComponentPayload>
-        }
-        findFirst: {
-          args: Prisma.ComponentFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComponentPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.ComponentFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComponentPayload>
-        }
-        findMany: {
-          args: Prisma.ComponentFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComponentPayload>[]
-        }
-        create: {
-          args: Prisma.ComponentCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComponentPayload>
-        }
-        createMany: {
-          args: Prisma.ComponentCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        delete: {
-          args: Prisma.ComponentDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComponentPayload>
-        }
-        update: {
-          args: Prisma.ComponentUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComponentPayload>
-        }
-        deleteMany: {
-          args: Prisma.ComponentDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.ComponentUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        upsert: {
-          args: Prisma.ComponentUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ComponentPayload>
-        }
-        aggregate: {
-          args: Prisma.ComponentAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateComponent>
-        }
-        groupBy: {
-          args: Prisma.ComponentGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ComponentGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.ComponentCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ComponentCountAggregateOutputType> | number
         }
       }
     }
@@ -6487,33 +6420,6 @@ export const ChatScalarFieldEnum = {
 export type ChatScalarFieldEnum = (typeof ChatScalarFieldEnum)[keyof typeof ChatScalarFieldEnum]
 
 
-export const ComponentScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  folderName: 'folderName',
-  componentName: 'componentName',
-  slug: 'slug',
-  sourcePath: 'sourcePath',
-  sourceKey: 'sourceKey',
-  sourceHash: 'sourceHash',
-  status: 'status',
-  statusReason: 'statusReason',
-  title: 'title',
-  description: 'description',
-  notes: 'notes',
-  category: 'category',
-  tags: 'tags',
-  previewMode: 'previewMode',
-  previewConfig: 'previewConfig',
-  lastSeenAt: 'lastSeenAt',
-  isDiscovered: 'isDiscovered',
-  artImageId: 'artImageId'
-} as const
-
-export type ComponentScalarFieldEnum = (typeof ComponentScalarFieldEnum)[keyof typeof ComponentScalarFieldEnum]
-
-
 export const DreamScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -7042,7 +6948,6 @@ export const ReactionScalarFieldEnum = {
   updatedAt: 'updatedAt',
   comment: 'comment',
   userId: 'userId',
-  componentId: 'componentId',
   reactionType: 'reactionType',
   reactionCategory: 'reactionCategory',
   rating: 'rating',
@@ -7818,14 +7723,6 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
-export const NullableJsonNullValueInput = {
-  DbNull: DbNull,
-  JsonNull: JsonNull
-} as const
-
-export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
-
-
 export const NullsOrder = {
   first: 'first',
   last: 'last'
@@ -8083,41 +7980,6 @@ export const ChatOrderByRelevanceFieldEnum = {
 } as const
 
 export type ChatOrderByRelevanceFieldEnum = (typeof ChatOrderByRelevanceFieldEnum)[keyof typeof ChatOrderByRelevanceFieldEnum]
-
-
-export const JsonNullValueFilter = {
-  DbNull: DbNull,
-  JsonNull: JsonNull,
-  AnyNull: AnyNull
-} as const
-
-export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
-
-
-export const QueryMode = {
-  default: 'default',
-  insensitive: 'insensitive'
-} as const
-
-export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
-
-
-export const ComponentOrderByRelevanceFieldEnum = {
-  folderName: 'folderName',
-  componentName: 'componentName',
-  slug: 'slug',
-  sourcePath: 'sourcePath',
-  sourceKey: 'sourceKey',
-  sourceHash: 'sourceHash',
-  statusReason: 'statusReason',
-  title: 'title',
-  description: 'description',
-  notes: 'notes',
-  category: 'category',
-  previewMode: 'previewMode'
-} as const
-
-export type ComponentOrderByRelevanceFieldEnum = (typeof ComponentOrderByRelevanceFieldEnum)[keyof typeof ComponentOrderByRelevanceFieldEnum]
 
 
 export const DreamOrderByRelevanceFieldEnum = {
@@ -8873,27 +8735,6 @@ export type EnumChatTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 
 
 /**
- * Reference to a field of type 'ComponentStatus'
- */
-export type EnumComponentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ComponentStatus'>
-    
-
-
-/**
- * Reference to a field of type 'Json'
- */
-export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-/**
- * Reference to a field of type 'QueryMode'
- */
-export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
-    
-
-
-/**
  * Reference to a field of type 'CreationSource'
  */
 export type EnumCreationSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CreationSource'>
@@ -9423,7 +9264,6 @@ export type GlobalOmitConfig = {
   bot?: Prisma.BotOmit
   character?: Prisma.CharacterOmit
   chat?: Prisma.ChatOmit
-  component?: Prisma.ComponentOmit
   dream?: Prisma.DreamOmit
   dreamRelation?: Prisma.DreamRelationOmit
   project?: Prisma.ProjectOmit

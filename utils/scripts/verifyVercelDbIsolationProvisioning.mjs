@@ -76,7 +76,15 @@ assert.doesNotMatch(provisionSource, /prisma\s+migrate\s+reset/i)
 
 assert.match(
   migrateSource,
+  /const databaseUrl = process\.env\.MIGRATION_DATABASE_URL\?\.trim\(\)/,
+)
+assert.doesNotMatch(
+  migrateSource,
   /process\.env\.MIGRATION_DATABASE_URL\s*\?\?\s*process\.env\.DATABASE_URL/,
+)
+assert.match(
+  migrateSource,
+  /MIGRATION_DATABASE_URL is required for migration execution; DATABASE_URL is intentionally not accepted/,
 )
 
 console.log('Vercel database isolation provisioning contract passed.')

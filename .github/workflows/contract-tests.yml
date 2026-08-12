@@ -353,6 +353,12 @@ jobs:
       - name: Model Builder auto-build queued-item guard contract
         run: npm run test:model-builder-auto-build-queued-guard
 
+      - name: Model Builder resume-run identity guard checker self-test
+        run: npm run test:model-builder-resume-run-identity-guard-selftest
+
+      - name: Model Builder resume-run identity guard contract
+        run: npm run test:model-builder-resume-run-identity-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

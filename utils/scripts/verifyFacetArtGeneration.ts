@@ -18,7 +18,6 @@ async function main(): Promise<void> {
   const files = {
     selector: 'components/art/art-facet-selector.vue',
     generateButton: 'components/art/generate-button.vue',
-    creator: 'components/abandonware/art/art-creator.vue',
     editor: 'components/art/artjob-editor.vue',
     draftStore: 'stores/artFacetDraftStore.ts',
     requestStore: 'stores/facetArtRequestStore.ts',
@@ -42,7 +41,6 @@ async function main(): Promise<void> {
   requireText(files.selector, text.selector, 'update:modelValue')
   requireText(files.generateButton, text.generateButton, 'art-facet-selector')
   requireText(files.generateButton, text.generateButton, 'decorateGenerationData')
-  requireText(files.creator, text.creator, 'art-facet-selector')
   requireText(files.editor, text.editor, 'ArtJob Facets')
   requireText(files.editor, text.editor, 'basePromptString')
   requireText(files.editor, text.editor, 'facetIds')

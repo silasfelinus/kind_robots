@@ -25,7 +25,7 @@ async function main(): Promise<void> {
   const files = {
     wrapper: 'utils/scripts/runFacetCatalogSeed.ts',
     merge: 'utils/scripts/mergeCanonicalFacetDuplicates.ts',
-    build: 'scripts/vercel-build.mjs',
+    publish: '.github/workflows/publish-container.yml',
     runner: 'scripts/run_facet_catalog_maintenance.ts',
     package: 'package.json',
   } as const
@@ -55,7 +55,6 @@ async function main(): Promise<void> {
   requireText(files.merge, text.merge, 'isActive: false')
   requireText(files.merge, text.merge, 'facetAlias.upsert')
 
-  // Canonical data wins; duplicate data fills missing curated content and media.
   for (const field of [
     'description: canonical.description || duplicate.description',
     'flavorText: canonical.flavorText || duplicate.flavorText',
@@ -88,12 +87,9 @@ async function main(): Promise<void> {
 
   requireText(files.runner, text.runner, 'runFacetCatalogSeed.ts')
   requireText(files.runner, text.runner, 'mergeCanonicalFacetDuplicates.ts')
-  requireText(files.build, text.build, 'run_facet_catalog_maintenance.ts')
-  forbidText(
-    files.build,
-    text.build,
-    "['utils/scripts/seedFacetCatalog.ts', '--apply']",
-  )
+  forbidText(files.publish, text.publish, 'run_facet_catalog_maintenance.ts')
+  forbidText(files.publish, text.publish, 'runFacetCatalogSeed.ts')
+  forbidText(files.publish, text.publish, 'mergeCanonicalFacetDuplicates.ts')
 
   requireText(files.package, text.package, 'runFacetCatalogSeed.ts')
   requireText(files.package, text.package, 'mergeCanonicalFacetDuplicates.ts')

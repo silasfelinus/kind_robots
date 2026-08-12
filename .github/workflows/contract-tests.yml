@@ -323,6 +323,12 @@ jobs:
       - name: Model Builder batch-editor key guard contract
         run: npm run test:model-builder-batch-editor-key-guard
 
+      - name: Model Builder ASSET_ONLY approval guard checker self-test
+        run: npm run test:model-builder-asset-only-approval-guard-selftest
+
+      - name: Model Builder ASSET_ONLY approval guard contract
+        run: npm run test:model-builder-asset-only-approval-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

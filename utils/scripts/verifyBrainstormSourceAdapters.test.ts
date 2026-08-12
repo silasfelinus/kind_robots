@@ -7,6 +7,7 @@
 // runtime, which this test intentionally never touches; the kit module has
 // no such dependency, which is exactly why the split exists.
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 
 import {
   getBrainstormSourceAdapter,
@@ -136,11 +137,55 @@ async function main() {
   )
   assert.deepEqual(unregistered, [])
 
+  // Real character adapter must revalidate authorization on every resolve,
+  // not serve a cached/localStorage row: a persisted BrainstormSourceRef can
+  // outlive an auth transition, and the server route's canView check only
+  // runs on the live /api/characters/:id fetch, not the cached-store lookup.
+  // Exercising this against the live Pinia store needs a Nuxt runtime this
+  // sandbox doesn't have (documented repeatedly for this repo), so this
+  // asserts the source contract directly -- same pattern as
+  // verifyAchievementStoreFetchSafety.ts (reviewer finding on PR #1820).
+  const adapterSource = readFileSync(
+    'stores/helpers/brainstormSourceAdapters.ts',
+    'utf8',
+  )
+  assert.ok(
+    adapterSource.includes('store.fetchCharacterById(ref.id, true)'),
+    'characterAdapter.resolve must force a fresh Character fetch (force=true) ' +
+      'so a stale cached row cannot bypass canView after an auth transition.',
+  )
+
+  // The source watcher in brainstorm-manager.vue must guard against a
+  // slower, superseded resolve overwriting a later selection or resurrecting
+  // a removed source -- request-identity/token invalidation, not just a
+  // loading flag.
+  const managerSource = readFileSync(
+    'components/brainstorm/brainstorm-manager.vue',
+    'utf8',
+  )
+  assert.ok(
+    managerSource.includes('let sourceResolveToken = 0'),
+    'brainstorm-manager.vue must track a request-identity token for the ' +
+      'source resolve watcher.',
+  )
+  assert.ok(
+    managerSource.includes('if (token !== sourceResolveToken) return'),
+    'A stale resolve (token mismatch) must not overwrite resolvedSource.',
+  )
+  assert.ok(
+    /if\s*\(!ref\)\s*\{\s*resolvedSource\.value = null\s*\n\s*isResolvingSource\.value = false/.test(
+      managerSource,
+    ),
+    'Clearing the source (ref becomes null) must reset isResolvingSource too, ' +
+      'so a superseded in-flight resolve cannot leave the loading flag stuck.',
+  )
+
   console.log(
     'Brainstorm source adapter registry verified: case-insensitive lookup, ' +
       'successful resolve passthrough, missing-row and unregistered-modelType ' +
-      'fallbacks, thrown-adapter recovery, and search dispatch/filtering ' +
-      '(brainstorm/t-012).',
+      'fallbacks, thrown-adapter recovery, search dispatch/filtering, the ' +
+      "Character adapter force-revalidate contract, and the source watcher's " +
+      'request-identity invalidation contract (brainstorm/t-012).',
   )
 }
 

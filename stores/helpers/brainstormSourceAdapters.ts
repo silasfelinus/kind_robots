@@ -49,7 +49,12 @@ const characterAdapter: BrainstormSourceAdapter = {
   async resolve(ref) {
     if (!ref.id) return null
     const store = useCharacterStore()
-    const character = await store.fetchCharacterById(ref.id)
+    // force=true: a cached/localStorage Character can predate an auth
+    // transition. The server route enforces canView on every request, so a
+    // fresh fetch is the actual authorization check -- serving the cached
+    // row here would let a stale reference expose a Character the current
+    // session is no longer allowed to view (reviewer finding on PR #1820).
+    const character = await store.fetchCharacterById(ref.id, true)
     if (!character) return null
 
     return {

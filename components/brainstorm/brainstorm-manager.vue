@@ -889,18 +889,29 @@ const isSearchingSource = ref(false)
 const resolvedSource = ref<BrainstormSourceDisplay | null>(null)
 const isResolvingSource = ref(false)
 
+// Request-identity token: an overlapping earlier resolve (e.g. two rapid
+// source changes) must not overwrite a later selection or resurrect a
+// removed source once it finally settles (reviewer finding on PR #1820).
+let sourceResolveToken = 0
+
 watch(
   source,
   async (ref) => {
+    const token = ++sourceResolveToken
     if (!ref) {
       resolvedSource.value = null
+      isResolvingSource.value = false
       return
     }
     isResolvingSource.value = true
     try {
-      resolvedSource.value = await resolveBrainstormSource(ref)
+      const resolved = await resolveBrainstormSource(ref)
+      if (token !== sourceResolveToken) return
+      resolvedSource.value = resolved
     } finally {
-      isResolvingSource.value = false
+      if (token === sourceResolveToken) {
+        isResolvingSource.value = false
+      }
     }
   },
   { immediate: true },

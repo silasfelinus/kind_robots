@@ -34,6 +34,25 @@
         {{ selectedFacet.canonicalValue }}
       </span>
 
+      <!--
+        Facets keep a linkable profile rather than a card back (Rule 5), so
+        their action row is this header. The Reviews button sits beside the
+        interact verb here for the same reason it does in kr-card-back's
+        footer: interact, edit and review are the three things a selected
+        object offers.
+      -->
+      <button
+        v-if="selectedFacet.allowReviews !== false"
+        type="button"
+        class="btn btn-sm shrink-0 rounded-xl"
+        :class="reviewsOpen ? 'btn-accent' : 'btn-outline'"
+        :aria-expanded="reviewsOpen"
+        @click="reviewsOpen = !reviewsOpen"
+      >
+        <Icon name="kind-icon:comment" class="size-3.5" />
+        <span class="hidden sm:inline">Reviews</span>
+      </button>
+
       <button
         type="button"
         class="btn btn-primary btn-sm shrink-0 rounded-xl"
@@ -101,13 +120,32 @@
         </div>
       </div>
 
+      <section
+        v-if="reviewsOpen && selectedFacet.allowReviews !== false"
+        class="border-t border-base-300 pt-4"
+      >
+        <review-list
+          class="mb-3"
+          target-type="facet"
+          :target-id="selectedFacet.id"
+        />
+
+        <reaction-card
+          :target-id="selectedFacet.id"
+          target-type="facet"
+          reaction-category="FACET"
+          :target-title="selectedFacet.title"
+          compact
+        />
+      </section>
+
       <slot name="detail" :facet="selectedFacet" />
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   useFacetCatalogStore,
@@ -126,6 +164,14 @@ const selectedFacet = computed<FacetCatalogEntry | null>(() => {
   const slug = route.query.facet
   if (typeof slug !== 'string' || !slug) return null
   return catalog.entries.find((entry) => entry.slug === slug) ?? null
+})
+
+/* Closed by default, and reset when the URL moves to another Facet so the
+   panel does not carry over from the last one. */
+const reviewsOpen = ref(false)
+
+watch(selectedFacet, () => {
+  reviewsOpen.value = false
 })
 
 function closeFacet(): void {

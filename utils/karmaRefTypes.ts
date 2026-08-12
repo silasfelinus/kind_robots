@@ -10,7 +10,7 @@
 // module makes the first two the same values, so a new reaction target can't
 // be added to one and silently missed by the other.
 //
-// WHY THESE TWELVE. KarmaTransaction.refType is never written by hand. The
+// WHY THESE THIRTEEN. KarmaTransaction.refType is never written by hand. The
 // only award call site that sets it (server/api/reactions/index.post.ts,
 // REACTION_RECEIVED) derives it generically from the reaction's target field —
 // `botId` becomes `bot`, `artImageId` becomes `artImage`. So the set of types
@@ -28,6 +28,7 @@ export const KARMA_REF_TYPES = [
   'chat',
   'component',
   'dream',
+  'facet',
   'prompt',
   'resource',
   'reward',
@@ -36,6 +37,34 @@ export const KARMA_REF_TYPES = [
 ] as const
 
 export type KarmaRefType = (typeof KARMA_REF_TYPES)[number]
+
+/**
+ * The Reaction column that carries each target. Same reason this file exists at
+ * all: the map used to be written out again in stores/reactionStore.ts and a
+ * third time as a literal in server/api/reactions/index.post.ts, so a new
+ * target could be added to the list and missed by the lookup.
+ *
+ * `satisfies` rather than a type annotation keeps the literal column names, so
+ * `KarmaRefTargetColumn` is a union of the actual strings rather than `string`.
+ */
+export const KARMA_REF_TARGET_COLUMNS = {
+  artImage: 'artImageId',
+  artCollection: 'artCollectionId',
+  bot: 'botId',
+  character: 'characterId',
+  chat: 'chatId',
+  component: 'componentId',
+  dream: 'dreamId',
+  facet: 'facetId',
+  prompt: 'promptId',
+  resource: 'resourceId',
+  reward: 'rewardId',
+  scenario: 'scenarioId',
+  theme: 'themeId',
+} as const satisfies Record<KarmaRefType, string>
+
+export type KarmaRefTargetColumn =
+  (typeof KARMA_REF_TARGET_COLUMNS)[KarmaRefType]
 
 /**
  * Maximum items in one /api/economy/karma-earned request. The endpoint rejects

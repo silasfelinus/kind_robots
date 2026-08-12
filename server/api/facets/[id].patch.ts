@@ -144,6 +144,10 @@ export default defineEventHandler(async (event) => {
     if (nextArtCollectionId !== undefined)
       data.artCollectionId = nextArtCollectionId
     if (typeof body.isPublic === 'boolean') data.isPublic = body.isPublic
+    // Facet has carried allowReviews since it was created and no route could
+    // ever set it, so a Facet gate would have been permanently off.
+    if (typeof body.allowReviews === 'boolean')
+      data.allowReviews = body.allowReviews
     if (typeof body.isMature === 'boolean') data.isMature = body.isMature
     if (typeof body.isActive === 'boolean') data.isActive = body.isActive
 

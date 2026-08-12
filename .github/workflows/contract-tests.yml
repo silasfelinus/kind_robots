@@ -85,6 +85,9 @@ jobs:
       - name: Earned-karma wiring contract
         run: npm run test:earned-karma-wiring
 
+      - name: Reaction target coverage contract
+        run: npm run test:reaction-targets
+
       - name: Component reachability contract
         run: npm run test:component-reachability
 

@@ -25,6 +25,7 @@ export type FacetSummary = Pick<
   | 'isPublic'
   | 'isMature'
   | 'isActive'
+  | 'allowReviews'
 > & {
   aliases: string[]
   taxonomy: FacetTaxonomy
@@ -59,6 +60,7 @@ export const facetSummarySelect = {
   isPublic: true,
   isMature: true,
   isActive: true,
+  allowReviews: true,
 } satisfies Prisma.FacetSelect
 
 type RawFacetSummary = Prisma.FacetGetPayload<{

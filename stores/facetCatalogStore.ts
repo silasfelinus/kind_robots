@@ -64,6 +64,7 @@ export type FacetCatalogEntry = {
   isPublic: boolean
   isMature: boolean
   isActive: boolean
+  allowReviews: boolean
 }
 
 type FacetCatalogQuery = {

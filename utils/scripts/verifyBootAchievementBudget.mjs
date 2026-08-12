@@ -14,6 +14,11 @@ assert.doesNotMatch(
   /achievementStore\.fetchAchievementRecords\s*\(/,
   'global boot must not fetch all remote achievement records',
 )
+assert.doesNotMatch(
+  loader,
+  /useConsoleStore|consoleStore\.initialize/,
+  'global boot must not initialize console progression',
+)
 assert.match(
   loader,
   /achievementStore\.initialize\?\.\(\)/,
@@ -40,4 +45,4 @@ assert.match(
   'ID-based awards must retain their lazy single-achievement fallback',
 )
 
-console.log('Boot achievement budget contract passed: mount hydrates local state; remote catalogs stay lazy.')
+console.log('Boot achievement budget contract passed: mount stays shell-focused; remote catalogs and console progression stay lazy.')

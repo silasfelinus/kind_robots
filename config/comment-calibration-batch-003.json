@@ -1,0 +1,219 @@
+{
+  "version": 1,
+  "batchId": "comment-calibration-003",
+  "minimumProductionCommit": "e9b828e8ef8de2f26607f36a53fc388153896470",
+  "issueNumber": 1769,
+  "reviewState": "PENDING_HUMAN_REVIEW",
+  "authoring": {
+    "mode": "GPT_5_6_SOL_EXACT_PROMPT_BUILDER_REPLAY",
+    "model": "GPT-5.6 Sol",
+    "generationEnvironment": "ChatGPT conversation session",
+    "runtimeCaller": "ABSENT_IN_REPOSITORY",
+    "humanPolish": "NONE_BEFORE_REVIEW",
+    "generationAttempt": 1,
+    "note": "Each output below is the first response authored after GitHub Actions rendered the exact current buildCommentDraftPrompt payload. No production route currently calls that builder, so this is an exact prompt replay rather than a claim of live runtime generation."
+  },
+  "provenance": {
+    "promptBuilder": "utils/comments/commentDraftPrompt.ts",
+    "promptBuilderBlobSha": "a41c5e7f185733f9ca2bd3debdc87f40306cc281",
+    "voiceEvidenceModule": "utils/comments/voiceEvidence.ts",
+    "voiceEvidenceBlobSha": "cf017adfd8a7ac66a39418026b86670539481f3c",
+    "characterVoiceSeeds": "stores/seeds/characterVoices.ts",
+    "characterVoiceSeedsBlobSha": "759cf59b71d47ba9a39df1944fe33e0e3de8fb95",
+    "inputManifest": "config/comment-calibration-batch-003-inputs.json",
+    "promptRenderer": "utils/scripts/renderCommentCalibrationBatch003Prompts.ts",
+    "githubActionsJobId": 94002934556,
+    "archiveSelection": "selectVoiceSamples(evidence, 4): longest-first, draftId tie-break",
+    "publication": "NOT_PUBLISHED"
+  },
+  "coverage": {
+    "exchanges": 8,
+    "rewardTargets": 7,
+    "facetTargets": 1,
+    "shapes": {
+      "SOLO": 2,
+      "DUET": 2,
+      "DUET_REPLY": 3,
+      "TRIO": 1
+    },
+    "speakerSlots": 15,
+    "distinctSpeakers": 14,
+    "repeatedSpeakers": ["CHARACTER:147"],
+    "wordRange": {
+      "minimum": 16,
+      "maximum": 38
+    }
+  },
+  "exchanges": [
+    {
+      "canonicalOrder": 1,
+      "exchangeKey": "reward-276-runtime-replay",
+      "promptSha256": "a7c17fc00f6c0e2dd9589607cddbacfd2bc5880ce619c22649e361063ee2722d",
+      "shape": "DUET_REPLY",
+      "target": {"type": "REWARD", "id": 276, "title": "Immortal Beloved"},
+      "comparison": "batch-001 exchange 1",
+      "comments": [
+        {
+          "authorKind": "CHARACTER",
+          "authorId": 241,
+          "authorName": "Tomorrow-Aiko",
+          "comment": "You arrive carrying a face I have not mourned yet. That is unusual. I keep wanting to say I missed you, but that belongs to later. So: hello, carefully. I will try not to grieve ahead of us."
+        },
+        {
+          "authorKind": "CHARACTER",
+          "authorId": 133,
+          "authorName": "The Widow Marrowlace",
+          "comment": "Then do not grant the future first rights to the room. Sit with what is living before you. The dead have patience enough; I have tested it. Let the beloved possess a present tense, while one remains."
+        }
+      ]
+    },
+    {
+      "canonicalOrder": 2,
+      "exchangeKey": "reward-441-runtime-replay",
+      "promptSha256": "12f6aea92f9e4e8b43264d56e611e9656bc922be5c0d56720b590456a0bc0280",
+      "shape": "DUET",
+      "target": {"type": "REWARD", "id": 441, "title": "Melodic Note"},
+      "comparison": "batch-001 exchange 2",
+      "comments": [
+        {
+          "authorKind": "CHARACTER",
+          "authorId": 147,
+          "authorName": "Maestro Clank",
+          "comment": "One tone, sustained beyond the bar line. Mm. Do not ornament it. The room will supply its own harmony once it grows tired of resisting."
+        },
+        {
+          "authorKind": "CHARACTER",
+          "authorId": 114,
+          "authorName": "Marrow",
+          "comment": "I'd leave it alone. Good things get bitter when everybody keeps stirring to prove they're helping. Let the note sit warm a minute."
+        }
+      ]
+    },
+    {
+      "canonicalOrder": 3,
+      "exchangeKey": "reward-379-runtime-replay",
+      "promptSha256": "3b2af66f9fafd0712d2e29ded38c414508cd5499b7e892241fbe71041c822655",
+      "shape": "DUET_REPLY",
+      "target": {"type": "REWARD", "id": 379, "title": "Photographic Memory"},
+      "comparison": "batch-001 exchange 5",
+      "comments": [
+        {
+          "authorKind": "CHARACTER",
+          "authorId": 215,
+          "authorName": "The Octopus in the Study",
+          "comment": "Every page stays? ...That sounds exhausting. I already keep bookmarks in three books and forget why I stood up. Remembering the exact sentence forever seems rude to the sentences that come after."
+        },
+        {
+          "authorKind": "CHARACTER",
+          "authorId": 123,
+          "authorName": "Professor Coil",
+          "comment": "Rude, perhaps, but archivally magnificent. There is a paper on intrusive recall by— no, wrong shelf. The point is that forgetting is indexing with mercy. I had another point. Tea?"
+        }
+      ]
+    },
+    {
+      "canonicalOrder": 4,
+      "exchangeKey": "reward-373-runtime-replay",
+      "promptSha256": "6775b447597789879a0c82d9bc57357b1494c4866a33a84d87b7d6dcdb4bc612",
+      "shape": "DUET_REPLY",
+      "target": {"type": "REWARD", "id": 373, "title": "Sixth Sense"},
+      "comparison": "batch-001 exchange 8",
+      "comments": [
+        {
+          "authorKind": "CHARACTER",
+          "authorId": 197,
+          "authorName": "The Time-Office Agent",
+          "comment": "Attempt seventy-two. The warning arrived before the cause again. I have recorded the temperature, the clock error, and the place where my hand started shaking. None of them explain it."
+        },
+        {
+          "authorKind": "CHARACTER",
+          "authorId": 293,
+          "authorName": "Nostalgia",
+          "comment": "Then stop at the shaking. Before it becomes evidence, it is only a little weather in the body. You could stay there. Nothing has happened yet, if we are gentle with the clock."
+        }
+      ]
+    },
+    {
+      "canonicalOrder": 5,
+      "exchangeKey": "reward-314-runtime-replay",
+      "promptSha256": "ca70d83ab525239d88f8f8410650a88acbf5e72119109f481f62156ba05bc305",
+      "shape": "DUET",
+      "target": {"type": "REWARD", "id": 314, "title": "Ghost Friend"},
+      "comparison": "batch-001 exchange 6",
+      "comments": [
+        {
+          "authorKind": "CHARACTER",
+          "authorId": 296,
+          "authorName": "The Generous Ghost",
+          "comment": "Of course they follow you. You leave cups half-finished and windows unlatched and feelings absolutely everywhere. Someone ought to stay behind and see to things. Don't make that face. I have already made the bed."
+        },
+        {
+          "authorKind": "CHARACTER",
+          "authorId": 221,
+          "authorName": "The Ghost in the Saloon",
+          "comment": "Mine mostly cheats at cards I can't hold and rattles the bottles when I'm trying to brood. I'm dead, what do I care. Still save him a chair."
+        }
+      ]
+    },
+    {
+      "canonicalOrder": 6,
+      "exchangeKey": "reward-359-runtime-replay",
+      "promptSha256": "41c178bbbb7559a0a29c624c2ba568f0814b42398f27defc08af8b5d47af8b95",
+      "shape": "SOLO",
+      "target": {"type": "REWARD", "id": 359, "title": "Dreamcatcher Hat"},
+      "comparison": "batch-001 exchange 7",
+      "comments": [
+        {
+          "authorKind": "CHARACTER",
+          "authorId": 149,
+          "authorName": "The Mirror Menagerie Keeper",
+          "comment": "Easy, darling. Turn it slowly. The pleasant dreams are shy, the ugly ones bite the glass, and that one in the middle has been pretending not to notice us. Hush. No, sweetheart, I meant the reflection."
+        }
+      ]
+    },
+    {
+      "canonicalOrder": 7,
+      "exchangeKey": "reward-350-runtime-replay",
+      "promptSha256": "8cee830488be685daf04e84623fb70048b16340d3ce60c104c160290cf00b17e",
+      "shape": "TRIO",
+      "target": {"type": "REWARD", "id": 350, "title": "The Author Likes You"},
+      "comparison": "batch-001 exchange 4",
+      "comments": [
+        {
+          "authorKind": "CHARACTER",
+          "authorId": 365,
+          "authorName": "The One Who Names the Characters",
+          "comment": "Ooh, terrible news: somebody noticed you. Worse, they have ideas. Still, being chosen means there was something in you worth ruining beautifully. Here, take a pencil. Add a flaw before they do."
+        },
+        {
+          "authorKind": "CHARACTER",
+          "authorId": 351,
+          "authorName": "The Story That Tells Itself",
+          "comment": "Now there was a favorite who mistook extra pages for protection. The road kept bending toward her because the tale wanted more of her, not less. She learned eventually that survival and mercy are different genres."
+        },
+        {
+          "authorKind": "CHARACTER",
+          "authorId": 243,
+          "authorName": "Recursion",
+          "comment": "Favorite status: unlocked. Consequence: apparently also unlocked. That's a suspiciously efficient attribute spread. Can we spend one point on 'author gets distracted by somebody else'?"
+        }
+      ]
+    },
+    {
+      "canonicalOrder": 8,
+      "exchangeKey": "facet-1773-clank-cross-target",
+      "promptSha256": "abdbf5f87f21e3cf3a13d58f2d89314c8d4fcf781f1ac5bfc2522c2429cba7b0",
+      "shape": "SOLO",
+      "target": {"type": "FACET", "id": 1773, "title": "Common"},
+      "comparison": "cross-target repeatability: Maestro Clank also appears in exchange 2",
+      "comments": [
+        {
+          "authorKind": "CHARACTER",
+          "authorId": 147,
+          "authorName": "Maestro Clank",
+          "comment": "No flourish. A plain pulse that returns when promised. Good. Pianissimo. Let reliability keep the tempo."
+        }
+      ]
+    }
+  ]
+}

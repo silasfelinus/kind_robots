@@ -183,6 +183,8 @@
     "test:model-builder-auto-build-approval-race-guard": "tsx utils/scripts/verifyModelBuilderAutoBuildApprovalRaceGuard.ts",
     "test:model-builder-resume-cancelled-run-guard-selftest": "tsx utils/scripts/verifyModelBuilderResumeCancelledRunGuard.test.ts",
     "test:model-builder-resume-cancelled-run-guard": "tsx utils/scripts/verifyModelBuilderResumeCancelledRunGuard.ts",
+    "test:model-builder-auto-build-queued-guard-selftest": "tsx utils/scripts/verifyModelBuilderAutoBuildQueuedGuard.test.ts",
+    "test:model-builder-auto-build-queued-guard": "tsx utils/scripts/verifyModelBuilderAutoBuildQueuedGuard.ts",
     "test:kontext-mask-forwarding": "tsx utils/scripts/verifyKontextMaskForwarding.ts",
     "test:pod-vendor-client-selftest": "tsx utils/scripts/verifyPodVendorClient.test.ts",
     "test:mana-gate-on-behalf-of-target": "tsx utils/scripts/verifyManaGateOnBehalfOfTarget.ts",

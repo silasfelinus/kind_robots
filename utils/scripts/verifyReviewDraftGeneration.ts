@@ -1,41 +1,31 @@
-// /utils/scripts/verifyReviewDraftGeneration.ts
-//
-// WonderLab's component-grounded review generator was retired on 2026-08-11.
-// Keep this script name temporarily because package/workflow callers already
-// reference it, but make the contract protect the new boundary: the museum
-// generator stays gone while generic first-party Reaction authorship remains.
 import assert from 'node:assert/strict'
-import { existsSync, readFileSync } from 'node:fs'
+import { access, readFile } from 'node:fs/promises'
+
+async function exists(path: string): Promise<boolean> {
+  try {
+    await access(path)
+    return true
+  } catch {
+    return false
+  }
+}
 
 const retiredPaths = [
-  'server/utils/wonderLabReviewDraftGenerator.ts',
-  'server/utils/wonderLabReviewGroundingGate.ts',
-  'server/api/admin/wonderlab/review-drafts/generate.post.ts',
-  'pages/admin/wonderlab-review-generator.vue',
-  'utils/wonderlab/reviewDraftGrounding.ts',
-  'utils/wonderlab/reviewDraftPrompt.ts',
+  'server/api/admin/wonderlab',
+  'pages/admin/wonderlab-reviews.vue',
+  'pages/admin/wonderlab-review-plan.vue',
+  'pages/admin/wonderlab-review-rollout.vue',
+  'server/utils/reviewDraftPublisher.ts',
+  'server/utils/reviewDraftRepository.ts',
+  'utils/wonderlab',
 ]
 
 for (const path of retiredPaths) {
-  assert.equal(
-    existsSync(path),
-    false,
-    `${path} belongs to the retired WonderLab component-review generator`,
-  )
+  assert.equal(await exists(path), false, `${path} is retired WonderLab runtime and must not return`)
 }
 
-const authorProjection = readFileSync(
-  'utils/reactions/firstPartyReactionAuthor.ts',
-  'utf8',
-)
-const repository = readFileSync('server/utils/reviewDraftRepository.ts', 'utf8')
+assert.equal(await exists('utils/comments/voiceEvidence.ts'), true, 'object-first comment voice evidence must remain available')
+const schema = await readFile('prisma/schema.prisma', 'utf8')
+assert.match(schema, /model\s+Component\s*\{/, 'Component history must remain until comment migration finishes')
 
-assert.match(authorProjection, /authorBotId/)
-assert.match(authorProjection, /authorCharacterId/)
-assert.match(repository, /authorBotId/)
-assert.match(repository, /authorCharacterId/)
-assert.doesNotMatch(repository, /wonderLabSourceEvidenceByPath/)
-
-console.log(
-  'Review draft retirement contract passed: WonderLab generation is gone; generic first-party author infrastructure remains.',
-)
+console.log('Retired ReviewDraft/WonderLab runtime remains absent; migration evidence is preserved.')

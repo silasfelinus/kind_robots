@@ -1,12 +1,7 @@
-// /utils/scripts/verifyReviewDraftPublication.ts
-//
-// WonderLab's Component review feed is retired. First-party Reaction authorship
-// has its own dedicated contracts; this guard owns only the museum publication
-// boundary so it cannot accidentally require dead Component UI/runtime again.
 import assert from 'node:assert/strict'
-import { access } from 'node:fs/promises'
+import { access, readFile } from 'node:fs/promises'
 
-async function pathExists(path: string): Promise<boolean> {
+async function exists(path: string): Promise<boolean> {
   try {
     await access(path)
     return true
@@ -15,12 +10,22 @@ async function pathExists(path: string): Promise<boolean> {
   }
 }
 
-assert.equal(
-  await pathExists('components/wonderlab/component-review-feed.vue'),
-  false,
-  'retired Component review feed must not return',
-)
+const retiredPaths = [
+  'server/api/admin/wonderlab',
+  'pages/admin/wonderlab-reviews.vue',
+  'pages/admin/wonderlab-review-plan.vue',
+  'pages/admin/wonderlab-review-rollout.vue',
+  'server/utils/reviewDraftPublisher.ts',
+  'server/utils/reviewDraftRepository.ts',
+  'utils/wonderlab',
+]
 
-console.log(
-  'Review publication retirement boundary verified: the WonderLab feed is gone; first-party Reaction authorship is covered by its dedicated contracts.',
-)
+for (const path of retiredPaths) {
+  assert.equal(await exists(path), false, `${path} is retired WonderLab runtime and must not return`)
+}
+
+assert.equal(await exists('utils/comments/voiceEvidence.ts'), true, 'object-first comment voice evidence must remain available')
+const schema = await readFile('prisma/schema.prisma', 'utf8')
+assert.match(schema, /model\s+Component\s*\{/, 'Component history must remain until comment migration finishes')
+
+console.log('Retired ReviewDraft/WonderLab runtime remains absent; migration evidence is preserved.')

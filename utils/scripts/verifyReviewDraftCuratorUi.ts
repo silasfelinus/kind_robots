@@ -1,26 +1,31 @@
-// /utils/scripts/verifyReviewDraftCuratorUi.ts
 import assert from 'node:assert/strict'
-import { readFile } from 'node:fs/promises'
+import { access, readFile } from 'node:fs/promises'
 
-const pagePath = 'pages/admin/wonderlab-reviews.vue'
-const source = await readFile(pagePath, 'utf8')
+async function exists(path: string): Promise<boolean> {
+  try {
+    await access(path)
+    return true
+  } catch {
+    return false
+  }
+}
 
-assert.match(source, /Personality review drafts/)
-assert.match(source, /Nothing on this page publishes automatically/)
-assert.match(source, /userStore\.isAdmin/)
-assert.match(source, /\/api\/admin\/wonderlab\/review-drafts\?/)
-assert.match(source, /method: 'PATCH'/)
-assert.match(source, /status: 'APPROVED'/)
-assert.match(source, /status: DraftStatus/)
-assert.match(source, /\/publish`/)
-assert.match(source, /Publish approved review/)
-assert.match(source, /Create a curator-written draft/)
-assert.match(source, /crypto\.subtle\.digest\('SHA-256'/)
-assert.match(source, /promptVersion: 'curator-manual-v1'/)
+const retiredPaths = [
+  'server/api/admin/wonderlab',
+  'pages/admin/wonderlab-reviews.vue',
+  'pages/admin/wonderlab-review-plan.vue',
+  'pages/admin/wonderlab-review-rollout.vue',
+  'server/utils/reviewDraftPublisher.ts',
+  'server/utils/reviewDraftRepository.ts',
+  'utils/wonderlab',
+]
 
-const mountedBlock = source.match(/onMounted\([\s\S]*?\n\}\)/)?.[0] || ''
-assert.doesNotMatch(mountedBlock, /publishDraft/)
-assert.doesNotMatch(source, /setInterval\([\s\S]*publish/i)
-assert.doesNotMatch(source, /watch\([\s\S]{0,300}publishDraft/)
+for (const path of retiredPaths) {
+  assert.equal(await exists(path), false, `${path} is retired WonderLab runtime and must not return`)
+}
 
-console.log('Review draft curator UI contract passed.')
+assert.equal(await exists('utils/comments/voiceEvidence.ts'), true, 'object-first comment voice evidence must remain available')
+const schema = await readFile('prisma/schema.prisma', 'utf8')
+assert.match(schema, /model\s+Component\s*\{/, 'Component history must remain until comment migration finishes')
+
+console.log('Retired ReviewDraft/WonderLab runtime remains absent; migration evidence is preserved.')

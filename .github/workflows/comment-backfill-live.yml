@@ -1,14 +1,14 @@
 name: Approved Comment Backfill Live
 
 # One-shot production write lane for kind_robots#1769.
-# The job only fires when the reviewed payload file changes on the dedicated
-# branch. The temporary workflow and payload are removed after the run.
+# Draft packets are committed during review. Only the final ready marker opens
+# the production lane. Temporary execution files are removed after the run.
 on:
   push:
     branches:
       - gpt/comment-backfill-live
     paths:
-      - 'config/comment-backfill-live-batches.json'
+      - 'config/comment-backfill-live-ready.json'
 
 concurrency:
   group: approved-comment-backfill-live
@@ -51,6 +51,9 @@ jobs:
 
       - name: Generate Prisma client
         run: npx prisma generate
+
+      - name: Assemble complete reviewed draft corpus
+        run: npx tsx utils/scripts/assembleCommentBackfillDrafts.ts
 
       - name: Connect to Tailscale
         uses: tailscale/github-action@v3

@@ -179,15 +179,24 @@ assert.match(
 assert.match(deploySource, /attempts:\s*6/)
 assert.match(deploySource, /baseDelayMs:\s*3_000/)
 
-// Migrations must resolve the same URL Prisma uses (MIGRATION_DATABASE_URL ??
-// DATABASE_URL) and force SSL onto it — otherwise a MIGRATION_DATABASE_URL set
-// without TLS params bypasses ProxySQL's SSL requirement and fails with P1000.
+// Migration repair must use the explicitly elevated URL and force SSL onto it.
+// Falling back to DATABASE_URL would let an ordinary app/coding credential begin
+// Prisma migration bookkeeping before the first DDL statement fails.
 assert.match(
+  deploySource,
+  /const databaseUrl = process\.env\.MIGRATION_DATABASE_URL\?\.trim\(\)/,
+)
+assert.doesNotMatch(
   deploySource,
   /process\.env\.MIGRATION_DATABASE_URL\s*\?\?\s*process\.env\.DATABASE_URL/,
 )
-// ...and both vars are forced to the SSL-augmented URL in the child prisma env.
+assert.match(
+  deploySource,
+  /MIGRATION_DATABASE_URL is required for migration execution; DATABASE_URL is intentionally not accepted/,
+)
+// Both vars are forced to the SSL-augmented elevated URL in the child Prisma env.
 assert.match(deploySource, /MIGRATION_DATABASE_URL:\s*url/)
+assert.match(deploySource, /DATABASE_URL:\s*url/)
 
 // --- Connection-retry classification ---------------------------------------
 // Transient connection-level failures are retryable...

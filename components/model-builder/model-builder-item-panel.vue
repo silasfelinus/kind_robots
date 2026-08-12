@@ -427,8 +427,21 @@ const canApproveAssets = computed(() => {
   // first — isEditable('GENERATE_ASSETS') already keeps Generate/Regenerate
   // enabled while stale.
   if (item.value.stages.GENERATE_ASSETS.status === 'stale') return false
-  // For image outputs, require a generated candidate first.
-  if (item.value.generation === 'image') return Boolean(item.value.artImageId)
+  // ASSET_ONLY items always write artImageId on commit (see
+  // server/api/model-builder/items/[id]/commit.post.ts), regardless of
+  // generation kind. Gating this only on generation === 'image' let
+  // ASSET_ONLY + non-image-kind outputs (e.g. 'plan'/'three-d' recipe
+  // entries like launch-plan, three-d-reference, reward-3d — several
+  // defaultOn) approve GENERATE_ASSETS with no candidate ever generated,
+  // since those kinds have no wired generator and always fall through
+  // this check. "Keep this asset" then looked identical to a real
+  // approval, COMMIT unlocked, and the server-side commit threw
+  // "Generate and keep an asset before committing" -- a dead end, since
+  // reopening the stage just re-shows the same always-enabled button.
+  // Text-generation UPDATE/CREATE items never need artImageId to commit
+  // (they commit on `text` instead), so this must key off `action`, not
+  // `generation`, to keep those correctly approvable.
+  if (item.value.action === 'ASSET_ONLY') return Boolean(item.value.artImageId)
   return true
 })
 

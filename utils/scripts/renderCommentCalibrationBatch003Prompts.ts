@@ -1,5 +1,6 @@
 // Render the exact buildCommentDraftPrompt inputs for calibration batch 003.
 // Offline except for GitHub Actions itself: no database, no model call, no writes.
+import { createHash } from 'node:crypto'
 import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { characterVoiceSeeds } from '@/stores/seeds/characterVoices'
@@ -87,6 +88,7 @@ for (const [position, exchange] of inputs.exchanges.entries()) {
       maxSpeakers: exchange.shape === 'TRIO' ? 3 : 2,
     },
   )
+  const promptSha256 = createHash('sha256').update(JSON.stringify(prompt)).digest('hex')
 
   console.log(
     `BATCH003_PROMPT ${JSON.stringify({
@@ -95,6 +97,7 @@ for (const [position, exchange] of inputs.exchanges.entries()) {
       comparison: exchange.comparison,
       target: exchange.target,
       shape: exchange.shape,
+      promptSha256,
       selectedVoiceEvidence: speakers.map((speaker) => speaker.selectedVoiceEvidence),
       prompt,
     })}`,

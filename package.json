@@ -188,6 +188,8 @@
     "test:model-builder-auto-build-queued-guard": "tsx utils/scripts/verifyModelBuilderAutoBuildQueuedGuard.ts",
     "test:model-builder-resume-run-identity-guard-selftest": "tsx utils/scripts/verifyModelBuilderResumeRunIdentityGuard.test.ts",
     "test:model-builder-resume-run-identity-guard": "tsx utils/scripts/verifyModelBuilderResumeRunIdentityGuard.ts",
+    "test:model-builder-cancel-run-poll-guard-selftest": "tsx utils/scripts/verifyModelBuilderCancelRunPollGuard.test.ts",
+    "test:model-builder-cancel-run-poll-guard": "tsx utils/scripts/verifyModelBuilderCancelRunPollGuard.ts",
     "test:kontext-mask-forwarding": "tsx utils/scripts/verifyKontextMaskForwarding.ts",
     "test:pod-vendor-client-selftest": "tsx utils/scripts/verifyPodVendorClient.test.ts",
     "test:mana-gate-on-behalf-of-target": "tsx utils/scripts/verifyManaGateOnBehalfOfTarget.ts",

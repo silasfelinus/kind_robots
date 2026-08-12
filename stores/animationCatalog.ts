@@ -196,6 +196,17 @@ export const ANIMATION_EFFECTS = [
     preferredSurface: 'fullscreen',
   },
   {
+    id: 'ant-farm-excavation',
+    label: 'Ant Farm Excavation',
+    reveal: 'The colony is still digging',
+    icon: 'kind-icon:bug',
+    tooltip:
+      'A cross-section sand column where a small colony digs, abandons, and re-digs its tunnels; wave the pointer to redirect diggers, click to drop a grain-pile obstacle 🐜',
+    color: '#b45309',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
+  {
     id: 'cloud-city-drift',
     label: 'Cloud City Drift',
     reveal: 'The skyline surfaces',

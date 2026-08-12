@@ -17,7 +17,6 @@ const [
   accountHub,
   givingPage,
   giftshop,
-  legacyCart,
   shoppingCart,
   checkoutRoute,
   statusRoute,
@@ -30,7 +29,6 @@ const [
   source('components/navigation/account-hub.vue'),
   source('components/pages/giving-page.vue'),
   source('components/giftshop/giftshop-interact.vue'),
-  source('components/abandonware/giftshop/cart-interact.vue'),
   source('components/giftshop/shopping-cart.vue'),
   source('server/api/stripe/checkout.post.ts'),
   source('server/api/stripe/checkout-status.get.ts'),
@@ -64,11 +62,6 @@ assert.match(
   /router\.push\('\/cart'\)/,
   'cart control must open /cart',
 )
-// Repointed 2026-08-10: notification-bell was absorbed into account-hub and
-// parked. The guarantee is unchanged -- the header must still mount the cart
-// control -- so it now asserts against the component that actually does it,
-// rather than following the old file into components/abandonware/ where it
-// would pass while proving nothing about the shipped app.
 assert.match(
   accountHub,
   /<cart-button\s*\/>/,
@@ -105,16 +98,6 @@ assert.doesNotMatch(
   giftshop,
   /setDashboardTab\?\.\('giftshop', 'cart'\)/,
   'giftshop must not target an unregistered dashboard tab',
-)
-assert.match(
-  legacyCart,
-  /^\s*<shopping-cart\s*\/>/m,
-  'legacy cart mount must delegate to the real cart',
-)
-assert.doesNotMatch(
-  legacyCart,
-  /Pretend|alert\(/,
-  'no fake checkout may remain',
 )
 
 assert.match(

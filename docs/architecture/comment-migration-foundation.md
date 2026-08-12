@@ -6,7 +6,7 @@ WonderLab is retired. Its archived Bot and Character commentary is source materi
 
 Generate fresh first-party comments only for low-stakes objects:
 
-- ~~Resources~~ — deferred, see below
+- ~~Resources~~ — deferred for phase one by Silas on 2026-08-11, see below
 - Rewards
 - Facets
 
@@ -18,14 +18,15 @@ Resources are deferred, on evidence rather than preference. The census
 (`docs/architecture/comment-census.md`) found:
 
 - production exposes **zero** publicly visible Resource rows — every one is `isPublic: false`;
-- `Resource` is the only one of the three models with no `allowReviews` column;
+- `Resource` is the only one of the three models with no `allowReviews` column in the calibration baseline;
 - `Resource` has no Character or Facet relations, so object-first casting has nothing to
   rank on but raw text.
 
-Whether a private LoRA or checkpoint deserves in-world commentary is a product question, and
-it should be answered before anything is built for it. `buildCommentDraftPrompt` still accepts
-`RESOURCE` — the boundary that matters is enforced where the work happens, in the calibration
-contract, which rejects any target that is not a Reward or a Facet.
+Silas explicitly authorized this deferral on 2026-08-11. Resource commentary is not required
+for the phase-one calibration gate. If Resources become a useful public-facing object later,
+they can receive a separate evidence/casting pass instead of being forced into this one.
+`buildCommentDraftPrompt` still accepts `RESOURCE`; the calibration contract is intentionally
+narrower and accepts only Reward or Facet targets.
 
 ## How casting works
 
@@ -45,6 +46,8 @@ There is no input for historical WonderLab pairings, and adding one would fail
 To see why a speaker was chosen for any live object:
 
     npx tsx utils/scripts/commentCastingPreview.ts --rewards 276 --facets 285 --samples
+
+The public/API production origin for those tools is `https://kindrobots.org`.
 
 ### Deliberate contrast is an override, not a signal
 
@@ -68,19 +71,35 @@ Not every object wants the same scene. `buildCommentDraftPrompt` accepts `SOLO`,
 - Do not paraphrase a Component review into a new object comment. New text should arise from the new object and the speakers' voices.
 - The archive may provide cadence, vocabulary, emotional habits, stage-direction habits, and other voice evidence.
 - Draft quality matters more than preserving row count. There is no target that all 706 historical entries must survive.
+- Do not make every comment a polished 30–50 word miniature essay. Genuine micro-reactions and speaker-justified longer turns are part of the target range.
+- A recognizable voice must survive repeated casting without simply recycling its tic or catchphrase.
 
-## Publication gate
+## Calibration status and publication gate
 
-Generation and curation may produce drafts automatically. No migrated comment is published until a calibration sample of the new exchanges receives human approval.
+Generation and curation may produce drafts automatically. No migrated comment is published until the creative direction has human approval.
 
-The calibration sample is `config/comment-calibration-batch-001.json`: fifteen hand-authored
-exchanges across Rewards and Facets, each carrying the casting signals, the reasons, the
-archived drafts used as voice evidence, and a curator note. It is a file, not a database row —
-there is no publication path out of it, and `utils/scripts/verifyCommentCalibrationBatch.ts`
-fails if anything in it starts to look like one.
+The first calibration sample is `config/comment-calibration-batch-001.json`: fifteen
+hand-authored exchanges across Rewards and Facets, each carrying the casting signals, the
+reasons, the archived drafts used as voice evidence, and a curator note. It is a file, not a
+database row — there is no publication path out of it, and
+`utils/scripts/verifyCommentCalibrationBatch.ts` fails if anything in it starts to look like
+one.
 
-That contract also enforces the creative rules above mechanically: comments may not contain
-review vocabulary, and no eight-word run of a new comment may appear in any archived sample by
-the same speaker. "Do not paraphrase" is a check, not an intention.
+**Silas approved the batch-001 voice direction on 2026-08-11.** He also authorized the
+Resource deferral above. That clears the direction gate, but not automatic bulk publication.
+Before scaling, batch 002 is a generator stress test authored by GPT rather than another
+hand-polished showcase. It should deliberately exercise:
+
+- repeated speakers on unrelated targets, including RICH, THIN, and SPARSE evidence;
+- much wider response-length range, including at least one genuine micro-reaction;
+- low-signal casting where lexical affinity is noisy;
+- the same no-paraphrase and object-first constraints as batch 001.
+
+Batch 002 remains publication-free and should be reviewed as evidence that the approved voice
+direction is reproducible rather than a one-off editorial success.
+
+The calibration contract also enforces the creative rules above mechanically: comments may
+not contain review vocabulary, and no eight-word run of a new comment may appear in any
+archived sample by the same speaker. "Do not paraphrase" is a check, not an intention.
 
 The database may continue to call these records reviews/reactions internally. Product-facing copy and project discussion call them comments.

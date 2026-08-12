@@ -79,7 +79,7 @@ const triggerSources: Record<string, string[]> = {
   'first-character': ['stores/characterStore.ts'],
   artcritic: ['stores/reactionStore.ts'],
   amibot: ['stores/achievementStore.ts'],
-  theme: ['components/abandonware/themes/add-theme.vue', 'components/themes/theme-gallery.vue'],
+  theme: ['components/themes/theme-gallery.vue'],
   'achievement-tour': ['stores/achievementStore.ts'],
   'first-bot': ['stores/botStore.ts'],
   'art-ten': ['stores/artStore.ts'],

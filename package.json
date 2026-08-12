@@ -178,6 +178,8 @@
     "test:model-builder-reset-run-guard": "tsx utils/scripts/verifyModelBuilderResetRunGuard.ts",
     "test:model-builder-stale-asset-approval-guard-selftest": "tsx utils/scripts/verifyModelBuilderStaleAssetApprovalGuard.test.ts",
     "test:model-builder-stale-asset-approval-guard": "tsx utils/scripts/verifyModelBuilderStaleAssetApprovalGuard.ts",
+    "test:model-builder-batch-editor-key-guard-selftest": "tsx utils/scripts/verifyModelBuilderBatchEditorKeyGuard.test.ts",
+    "test:model-builder-batch-editor-key-guard": "tsx utils/scripts/verifyModelBuilderBatchEditorKeyGuard.ts",
     "test:kontext-mask-forwarding": "tsx utils/scripts/verifyKontextMaskForwarding.ts",
     "test:pod-vendor-client-selftest": "tsx utils/scripts/verifyPodVendorClient.test.ts",
     "test:mana-gate-on-behalf-of-target": "tsx utils/scripts/verifyManaGateOnBehalfOfTarget.ts",

@@ -136,6 +136,7 @@
     <!-- Batch editor for the selected item's quantity group -->
     <model-builder-batch-editor
       v-if="selectedItem && showBatch"
+      :key="selectedItem.outputKey"
       :output-key="selectedItem.outputKey"
       @select-item="selectedItemId = $event"
     />

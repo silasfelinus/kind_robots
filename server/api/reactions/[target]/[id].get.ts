@@ -2,8 +2,9 @@
 //
 // Read the reactions on one object, for any reaction target type.
 //
-// There were four hand-written read routes -- art, chat, component, dream --
-// for thirteen target types, and the store asks for
+// There were four hand-written read routes -- art, chat, component, dream (the
+// component one has since been retired with the model) -- for thirteen target
+// types, and the store asks for
 // `/api/reactions/${targetType}/${id}` using the camelCase type names, so
 // `artImage` never even matched the `art` directory. Everything else
 // (reward, character, bot, scenario, resource, facet, ...) 404'd, the store
@@ -15,8 +16,7 @@
 //
 // Visibility: reactions are only as public as the thing they are attached to,
 // so the target is checked first and a private object 403s rather than leaking
-// its reaction list. Component and Chat keep their own routes and are not
-// reachable here.
+// its reaction list. Chat keeps its own route and is not reachable here.
 import { createError, defineEventHandler } from 'h3'
 import { errorHandler } from '../../../utils/error'
 import prisma from '../../../utils/prisma'

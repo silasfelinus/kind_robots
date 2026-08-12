@@ -25,14 +25,9 @@ export type ReactionViewer = {
 }
 
 /**
- * Targets whose visibility is a `userId` / `isPublic` pair on their own row.
- * The two exceptions are deliberate:
- *
- *   component  has no userId and no isPublic -- it is a source file, not user
- *              content. Its reactions are the museum corpus and have always
- *              been world-readable through their own route.
- *   chat       has participant rules rather than a public flag, so it is not
- *              readable by inheritance and stays author-or-admin.
+ * Targets whose visibility is a `userId` / `isPublic` pair on their own row --
+ * every reaction target except one. `chat` has participant rules rather than a
+ * public flag, so it is not readable by inheritance and stays author-or-admin.
  */
 const OWNED_TARGETS = [
   'artImage',
@@ -58,8 +53,13 @@ export function isOwnedReactionTarget(
   return OWNED.has(value)
 }
 
-/** Public to everyone, with no owner to compare against. */
-export const PUBLIC_TARGETS = new Set<string>(['component'])
+// There used to be a PUBLIC_TARGETS set here, holding `component` alone: a
+// source file has no userId and no isPublic, so its reactions were readable by
+// everyone unconditionally. Component was retired in
+// 20260812040500_retire_component_schema and is no longer a KarmaRefType, which
+// made that branch unreachable -- dead code that still read as live policy.
+// Nothing is world-readable without an owner check any more; if something ever
+// is again, the branch comes back with it.
 
 /** Readable only by the reaction's author or an admin. */
 export const PRIVATE_TARGETS = new Set<string>(['chat'])
@@ -102,7 +102,6 @@ export async function canViewReactionsOn(
   viewer: ReactionViewer,
 ): Promise<boolean> {
   if (viewer.isAdmin) return true
-  if (PUBLIC_TARGETS.has(target)) return true
   if (PRIVATE_TARGETS.has(target)) return false
   if (!isOwnedReactionTarget(target)) return false
 

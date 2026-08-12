@@ -40,12 +40,17 @@
 import 'dotenv/config'
 import { fileURLToPath } from 'node:url'
 import { PrismaClient } from '../prisma/generated/prisma/client'
-import { PrismaMariaDb } from '@prisma/adapter-mariadb'
+import { createDatabaseAdapter } from '../server/utils/databaseAdapterConfig'
 
 function createSeedPrismaClient(): PrismaClient {
   const databaseUrl = process.env.DATABASE_URL
   if (!databaseUrl) throw new Error('DATABASE_URL is missing')
-  return new PrismaClient({ adapter: new PrismaMariaDb(databaseUrl) })
+
+  // This seed runs during Vercel production builds. Reuse the application's
+  // single adapter factory so it inherits the serverless connection cap,
+  // minimumIdle=0, ProxySQL TLS settings, and text-protocol policy instead of
+  // silently creating @prisma/adapter-mariadb's default 10-connection pool.
+  return new PrismaClient({ adapter: createDatabaseAdapter(databaseUrl) })
 }
 
 // fileName is the idempotency key: ArtImage has no unique slug column, so a

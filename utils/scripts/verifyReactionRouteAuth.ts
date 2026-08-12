@@ -30,6 +30,7 @@ import assert from 'node:assert/strict'
 import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { stripComments } from './lib/sourceText'
+import { KARMA_REF_TYPES } from '@/utils/karmaRefTypes'
 
 const reactionsDir = join(process.cwd(), 'server/api/reactions')
 
@@ -93,20 +94,52 @@ assert.match(
 
 const byIdRoute = read('[id].get.ts')
 
+// Reviews are public by default and are meant to be read across the site, so
+// this route must NOT require a login -- it must check the target's audience.
+// Silas, 2026-08-12: "as long as people can see the comments left by others,
+// then we are good."
 assert.match(
+  byIdRoute,
+  /canViewReaction\(/,
+  'GET /api/reactions/<id> must decide by the target’s visibility, not by its own rule',
+)
+assert.doesNotMatch(
   byIdRoute,
   /requireApiUser/,
-  'GET /api/reactions/<id> must authenticate: walking ids rebuilds the table one row at a time, which is the same leak the list route had.',
-)
-assert.match(
-  byIdRoute,
-  /data\.userId !== auth\.user\.id/,
-  'GET /api/reactions/<id> must return only the caller’s own reaction unless they are an admin',
+  'GET /api/reactions/<id> must stay readable signed-out: a comment on a public object is public, and requiring auth here hides ordinary commentary.',
 )
 assert.match(
   byIdRoute,
   /statusCode: 404/,
   'a reaction the caller may not read must 404 rather than 403 -- a 403 confirms the row exists',
+)
+
+const targetRoute = readFileSync(
+  join(reactionsDir, '[target]/[id].get.ts'),
+  'utf8',
+)
+
+assert.match(
+  stripComments(targetRoute),
+  /canViewReactionsOn\(/,
+  'the per-target read must share the visibility rule rather than restating it -- the two routes drifting apart is what let one of them leak',
+)
+
+// The shared rule itself: public targets readable by anyone, private ones by
+// author or admin.
+const visibility = stripComments(
+  readFileSync(join(process.cwd(), 'server/utils/reactionVisibility.ts'), 'utf8'),
+)
+
+assert.match(
+  visibility,
+  /row\.isPublic === true/,
+  'a reaction on a public object must be readable without an account',
+)
+assert.match(
+  visibility,
+  /PRIVATE_TARGETS/,
+  'chat-targeted reactions have participant rules and must not be readable by inheritance',
 )
 
 // ---------------------------------------------------------------- create path
@@ -122,6 +155,23 @@ assert.match(
   createRoute,
   /assertReactionTargetAccessible/,
   'POST /api/reactions must keep its per-target access check',
+)
+
+// Every target type must be classified. An unclassified one falls through to
+// "not readable", which would make a whole object type's comments silently
+// invisible rather than loudly broken -- the same failure mode as the review
+// layer being dark for months.
+// Read the lists out of the source rather than importing them: importing
+// reactionVisibility.ts drags in prisma, and a contract that opens a database
+// connection is not one that belongs in CI.
+const classified = new Set(
+  [...visibility.matchAll(/'([a-zA-Z]+)'/g)].map((match) => match[1] as string),
+)
+const unclassified = KARMA_REF_TYPES.filter((target) => !classified.has(target))
+assert.deepEqual(
+  unclassified,
+  [],
+  `these reaction targets have no visibility rule and their comments would never render: ${unclassified.join(', ')}`,
 )
 
 const routeFiles = readdirSync(reactionsDir).filter((name) => name.endsWith('.ts'))

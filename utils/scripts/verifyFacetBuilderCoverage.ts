@@ -122,9 +122,6 @@ async function main(): Promise<void> {
             continue
           }
 
-          // Adventure art is versioned in-repo except for the tracked Gender
-          // backlog. Art Builder assets live on the media host and are validated
-          // by the seed's media contract instead of local existsSync/access.
           if (
             source.sourceKey === 'adventure' &&
             !(await pathExists(imagePath))
@@ -224,7 +221,6 @@ async function main(): Promise<void> {
     genderSeed: 'utils/scripts/seedGenderFacetCatalog.ts',
     genderValues: 'utils/seeds/facetGenderValues.ts',
     genderArtwork: 'utils/seeds/facetGenderArtwork.ts',
-    seedPolicy: 'scripts/lib/facetCatalogSeedPolicy.mjs',
     builderPlugin: 'plugins/20.facet-catalog.client.ts',
   } as const
 
@@ -282,18 +278,6 @@ async function main(): Promise<void> {
   requireText(files.genderSeed, text.genderSeed, 'existingPublicImagePath')
   requireText(files.genderValues, text.genderValues, 'legacyFacetGenderValues')
   requireText(files.genderArtwork, text.genderArtwork, 'GENDER_ARTWORK_TARGETS')
-  requireText(files.seedPolicy, text.seedPolicy, 'stores/helpers/artCards.ts')
-  requireText(
-    files.seedPolicy,
-    text.seedPolicy,
-    'utils/scripts/seedArtBuilderFacetCatalog.ts',
-  )
-  // PR #1211 moved the card decks behind dynamic import() to keep them out of
-  // the first-paint bundle, so the static `import { ART_CARDS }` statement no
-  // longer exists — the deck arrives via `import('@/stores/helpers/artCards')`
-  // destructured as `{ ART_CARDS }`. Assert on the module specifier, which
-  // survives either import style and is what this contract actually cares
-  // about: that the art deck is loaded by this plugin at all.
   requireText(
     files.builderPlugin,
     text.builderPlugin,

@@ -1,38 +1,13 @@
 name: Facet Catalog Maintenance
 
-# Runs the serialized Facet catalog maintenance OUT OF BAND, off the deploy path.
+# Runs serialized Facet catalog maintenance out of band, off the deploy path.
+# The deploy build no longer owns this long-lived database mutation session;
+# this workflow is the durable scheduled/manual owner.
 #
-# WHY THIS EXISTS (kind-robots/t-051)
-# Facet catalog maintenance used to run inside the Vercel production build, and
-# scripts/vercel-build.mjs treated a non-zero exit as fatal. Because `nuxt build`
-# runs last, a failure here meant the application was never even compiled — nine
-# consecutive production deploys died this way between 13:15 and 15:00 UTC on
-# 2026-08-01 while the live site sat frozen on PR #1253.
-#
-# The build no longer runs the maintenance at all; it just logs "run
-# scripts/run_facet_catalog_maintenance.ts explicitly". This workflow is the
-# thing that runs it. Without it that instruction points at nothing and the
-# catalog silently stops being maintained — utils/scripts/
-# verifyFacetCatalogMaintenance.ts asserts this file exists for exactly that
-# reason.
-#
-# The run still takes the MySQL named lock inside
-# run_facet_catalog_maintenance.ts, so a manual dispatch cannot collide with the
-# weekly schedule, with a second dispatch, or with anyone running the script by
-# hand. Deploys no longer contend for it.
-#
-# Required secrets (repository Actions secrets: Settings → Secrets and variables
-# → Actions → New repository secret) — identical to the nightly fallback
-# snapshot, which is the proven working pattern for reaching this database:
-#   DATABASE_URL            mysql://user:pass@host:port/db — host must be the
-#                           Unraid machine's TAILNET address, not its public
-#                           hostname. GitHub-hosted runner IPs cannot reach the
-#                           database directly.
-#   DATABASE_SSL_CA_BASE64  base64 PEM of the CA signing ProxySQL's cert (or
-#                           DATABASE_SSL_CA for the raw PEM). ProxySQL ENFORCES
-#                           TLS; without this the connection is refused with
-#                           "Access denied ... SSL is required".
-#   TS_OAUTH_CLIENT_ID      Tailscale OAuth client (scope: Auth Keys, tag:ci)
+# Required repository Actions secrets:
+#   DATABASE_URL
+#   DATABASE_SSL_CA_BASE64 or DATABASE_SSL_CA
+#   TS_OAUTH_CLIENT_ID
 #   TS_OAUTH_SECRET
 
 on:
@@ -52,8 +27,6 @@ concurrency:
 jobs:
   maintenance:
     runs-on: ubuntu-latest
-    # The full run is ~13 sequential child steps and has been observed taking
-    # ~45 minutes. Generous ceiling so a slow-but-healthy run is not killed.
     timeout-minutes: 90
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -66,7 +39,7 @@ jobs:
           TS_OAUTH_SECRET: ${{ secrets.TS_OAUTH_SECRET }}
         run: |
           if [ -z "$DATABASE_URL" ]; then
-            echo "::error::DATABASE_URL is empty. Add it as a REPOSITORY ACTIONS SECRET (Settings → Secrets and variables → Actions). Vercel env vars and .env files do not resolve here."
+            echo "::error::DATABASE_URL is empty. Add it as a REPOSITORY ACTIONS SECRET (Settings → Secrets and variables → Actions). Runtime env vars and .env files do not resolve here."
             exit 1
           fi
           if [ -z "$TS_OAUTH_CLIENT_ID" ] || [ -z "$TS_OAUTH_SECRET" ]; then
@@ -92,7 +65,6 @@ jobs:
       - name: Generate Prisma client
         run: npx prisma generate
 
-      # Joined late so the tailnet session stays as short as possible.
       - name: Connect to Tailscale
         uses: tailscale/github-action@v3
         with:

@@ -10,11 +10,12 @@ const cleanupPath = path.join(
 )
 const artPath = path.join(root, 'scripts/generate_facet_art.ts')
 const runnerPath = path.join(root, 'scripts/run_facet_catalog_maintenance.ts')
-const buildPath = path.join(root, 'scripts/vercel-build.mjs')
+const publishWorkflowPath = path.join(
+  root,
+  '.github/workflows/publish-container.yml',
+)
 const schemaPath = path.join(root, 'prisma/schema.prisma')
 const managerPath = path.join(root, 'components/facets/facet-manager.vue')
-// Art variants live with the per-Facet editor since facet-manager's Library
-// grid was retired -- one Facet is chosen in the gallery, then edited here.
 const editorPath = path.join(root, 'components/facets/facet-editor.vue')
 const galleryPath = path.join(root, 'components/facets/facet-gallery.vue')
 const entityArtPath = path.join(root, 'server/utils/entityArt.ts')
@@ -25,7 +26,7 @@ const queueClaimPath = path.join(root, 'server/api/art/queue/claim.post.ts')
 const cleanup = fs.readFileSync(cleanupPath, 'utf8')
 const art = fs.readFileSync(artPath, 'utf8')
 const runner = fs.readFileSync(runnerPath, 'utf8')
-const build = fs.readFileSync(buildPath, 'utf8')
+const publishWorkflow = fs.readFileSync(publishWorkflowPath, 'utf8')
 const schema = fs.readFileSync(schemaPath, 'utf8')
 const manager = fs.readFileSync(managerPath, 'utf8')
 const editor = fs.readFileSync(editorPath, 'utf8')
@@ -109,16 +110,6 @@ for (const required of [
   assert.ok(art.includes(required), `Missing Facet art contract: ${required}`)
 }
 
-/*
- * Baseline coverage policy, 2026-08-08.
- *
- * Facets can still own four purpose-built slots, and the editor still exposes
- * them for intentional curation. The automatic backlog is different: its job is
- * to make every displayable object have something usable before spending three
- * more renders improving the same object. Both the producer and claim-time
- * reconciliation use this exact order. RUNNING work is never cancelled and
- * cancelled ArtJob rows remain as provenance.
- */
 const producerImagePathOrder = art.indexOf("field: 'imagePath'")
 const producerCardPathOrder = art.indexOf("field: 'cardPath'")
 const producerHeroPathOrder = art.indexOf("field: 'heroPath'")
@@ -146,9 +137,6 @@ for (const required of [
   )
 }
 
-// Card/hero/icon remain available when explicitly requested, but image-model
-// prompts must describe the desired crop rather than asking Krea to paint a
-// physical card or UI frame.
 for (const forbidden of [
   'portrait card artwork',
   'room for card chrome',
@@ -180,11 +168,6 @@ for (const required of [
   )
 }
 
-// The payload readers and the claim-time assertion moved to
-// artJobQueueSettings.ts (2026-08-09) so they stay reachable without a
-// database — artJobQueueCoverage imports prisma, which throws at import time
-// without DATABASE_URL, and that put the claim-time guard out of reach of the
-// DB-free contract-tests workflow. Same contract, asserted at its new home.
 for (const required of [
   'inferQueuedArtEngine',
   'queuedArtSamplerSettings',
@@ -317,34 +300,22 @@ assert.ok(
 )
 
 assert.ok(
-  !build.includes("'scripts/run_facet_catalog_maintenance.ts'"),
-  'Production deployment must not run long-lived Facet catalog mutations.',
+  !publishWorkflow.includes('run_facet_catalog_maintenance'),
+  'Production image publication must not run long-lived Facet catalog mutations.',
 )
 assert.ok(
-  build.includes('Skipping Facet catalog maintenance during deployment'),
-  'Production build must explain how explicit Facet maintenance is separated from application delivery.',
+  !publishWorkflow.includes('runFacetCatalogSeed'),
+  'Production image publication must not bypass the explicit Facet maintenance runner.',
 )
 assert.ok(
-  !build.includes("['utils/scripts/runFacetCatalogSeed.ts', '--apply']"),
-  'Production build must not bypass the explicit Facet maintenance runner.',
+  !publishWorkflow.includes('generate_facet_art'),
+  'Production image publication must not queue Facet artwork.',
 )
-
-/*
- * kind-robots/t-051. The production build deliberately no longer runs Facet
- * catalog maintenance (see the two assertions above) -- it was blocking deploys:
- * nine consecutive production builds died there on 2026-08-01, and because
- * `nuxt build` runs last in vercel-build.mjs the application was never compiled.
- *
- * But "the build must not run it" only makes sense paired with something that
- * does. Without this workflow the build's own log line -- "run
- * scripts/run_facet_catalog_maintenance.ts explicitly" -- points at nothing, and
- * the catalog silently stops being maintained at all.
- */
 assert.ok(
   fs.existsSync(
     path.join(root, '.github/workflows/facet-catalog-maintenance.yml'),
   ),
-  'An out-of-band Facet catalog maintenance workflow must exist, because the production build no longer runs the maintenance itself.',
+  'An out-of-band Facet catalog maintenance workflow must exist because production image publication does not own maintenance.',
 )
 
 console.log('Facet catalog maintenance and artwork queue contract verified.')

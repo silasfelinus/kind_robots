@@ -73,7 +73,6 @@ async function main(): Promise<void> {
     put: 'server/api/bots/[id]/facets.put.ts',
     plugin: 'plugins/20.facet-catalog.client.ts',
     randomStore: 'stores/randomStore.ts',
-    policy: 'scripts/lib/facetCatalogSeedPolicy.mjs',
     legacyTypes: 'utils/seeds/facetLegacyBotTypes.ts',
   } as const
 
@@ -146,16 +145,6 @@ async function main(): Promise<void> {
   requireText(files.plugin, text.plugin, 'builderChoicesForBotField')
   requireText(files.plugin, text.plugin, "fieldKey === 'personality'")
   requireText(files.randomStore, text.randomStore, "botType: ['BOT_TYPE']")
-  for (const source of [
-    'stores/helpers/botCards.ts',
-    'utils/seeds/facetBotTypeArtwork.ts',
-    'utils/seeds/facetLegacyBotTypes.ts',
-    'utils/scripts/normalizeBotPersonalityFacetValues.ts',
-    'utils/scripts/seedBotFacetCatalog.ts',
-    'utils/scripts/seedLegacyBotTypeFacets.ts',
-  ]) {
-    requireText(files.policy, text.policy, source)
-  }
 
   if (failures.length) {
     throw new Error(`Bot Facet cutover failed:\n- ${failures.join('\n- ')}`)

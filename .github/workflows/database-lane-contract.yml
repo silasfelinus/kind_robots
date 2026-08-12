@@ -1,21 +1,19 @@
-name: Vercel DB Isolation Contract
+name: Agent DB Lane Contract
 
 on:
   pull_request:
     branches: [main]
     paths:
-      - 'scripts/provision-vercel-db-isolation.sh'
       - 'scripts/provision-agent-db-lane.sh'
       - 'scripts/tune-agent-database-url.sh'
       - 'scripts/prisma-migrate-deploy.mjs'
-      - 'utils/scripts/verifyVercelDbIsolationProvisioning.mjs'
       - 'utils/scripts/verifyAgentDbLaneProvisioning.mjs'
       - 'docs/runbooks/agent-database-lane.md'
-      - '.github/workflows/vercel-db-isolation-contract.yml'
+      - '.github/workflows/database-lane-contract.yml'
   workflow_dispatch:
 
 concurrency:
-  group: vercel-db-isolation-contract-${{ github.ref }}
+  group: agent-db-lane-contract-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -31,9 +29,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-
-      - name: Verify Vercel provisioning script
-        run: node utils/scripts/verifyVercelDbIsolationProvisioning.mjs
 
       - name: Verify coding-agent provisioning script
         run: node utils/scripts/verifyAgentDbLaneProvisioning.mjs

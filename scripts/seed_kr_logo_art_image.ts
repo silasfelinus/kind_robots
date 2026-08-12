@@ -29,9 +29,8 @@
 // checkpointResourceId is left null so checkPrintEligibility's base-model
 // branch applies ("no checkpoint/LoRA override" -- eligible unconditionally).
 //
-// Wired into scripts/vercel-build.mjs's production-deploy maintenance step
-// (alongside seed_achievements.ts/seed_contenders.ts) so this row reconciles
-// itself on every production deploy instead of needing a one-off manual run.
+// This is an explicit maintenance command, not part of image publication.
+// Run it intentionally when the canonical logo row needs reconciliation.
 //
 // Usage:
 //   npx tsx scripts/seed_kr_logo_art_image.ts            # dry run (default)
@@ -46,10 +45,8 @@ function createSeedPrismaClient(): PrismaClient {
   const databaseUrl = process.env.DATABASE_URL
   if (!databaseUrl) throw new Error('DATABASE_URL is missing')
 
-  // This seed runs during Vercel production builds. Reuse the application's
-  // single adapter factory so it inherits the serverless connection cap,
-  // minimumIdle=0, ProxySQL TLS settings, and text-protocol policy instead of
-  // silently creating @prisma/adapter-mariadb's default 10-connection pool.
+  // Reuse the application's single adapter factory so maintenance follows the
+  // same long-lived pool, ProxySQL TLS, and text-protocol policy as production.
   return new PrismaClient({ adapter: createDatabaseAdapter(databaseUrl) })
 }
 

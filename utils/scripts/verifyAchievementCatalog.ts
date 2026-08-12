@@ -249,14 +249,11 @@ assert.ok(
   'Production achievement maintenance must use the shared adapter and bounded retries.',
 )
 
-const build = source('scripts/vercel-build.mjs')
-const seedIndex = build.indexOf("['scripts/seed_achievements.ts', '--write']")
-const artIndex = build.indexOf(
-  "['scripts/generate_achievement_art.ts', '--write']",
-)
+const publishWorkflow = source('.github/workflows/publish-container.yml')
 assert.ok(
-  seedIndex >= 0 && artIndex > seedIndex,
-  'Production must seed before queuing art.',
+  !publishWorkflow.includes('seed_achievements.ts') &&
+    !publishWorkflow.includes('generate_achievement_art.ts'),
+  'Production image publication must not mutate the achievement catalog or queue artwork.',
 )
 
 console.log('Achievement catalog contract passed: 25 realistic goals are wired.')

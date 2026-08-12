@@ -20,7 +20,7 @@ on:
       base_url:
         description: 'Deployed base URL to verify'
         required: false
-        default: 'https://kind-robots.vercel.app'
+        default: 'https://kindrobots.org'
 
 permissions:
   contents: read
@@ -87,7 +87,7 @@ jobs:
           config-file: cypress.public.config.ts
           spec: cypress/public/narrative-accessibility.cy.ts
         env:
-          CYPRESS_BASE_URL: ${{ inputs.base_url || 'https://kind-robots.vercel.app' }}
+          CYPRESS_BASE_URL: ${{ inputs.base_url || 'https://kindrobots.org' }}
 
       - name: Upload screenshots on failure
         if: failure()

@@ -23,7 +23,7 @@
 // sixteen comments is not handed a seventeenth while ninety-five speakers have
 // never said anything.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import { rankCommentSpeakers } from './../../utils/comments/commentCasting'
 import { withFacetAttributes } from './../../utils/comments/facetAttributeMatch'
 import {
@@ -292,7 +292,8 @@ async function main() {
   }
 
   if (jsonOut) {
-    writeFileSync(join(root, jsonOut), `${JSON.stringify(plan, null, 2)}\n`, 'utf8')
+    // resolve, not join: an absolute --json path must not be glued onto root.
+    writeFileSync(resolve(root, jsonOut), `${JSON.stringify(plan, null, 2)}\n`, 'utf8')
     console.log(`Wrote ${plan.length} planned target(s) to ${jsonOut}.`)
     return
   }

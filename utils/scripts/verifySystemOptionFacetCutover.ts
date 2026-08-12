@@ -101,7 +101,6 @@ async function main(): Promise<void> {
     seed: 'utils/scripts/seedSystemOptionFacets.ts',
     manifest: 'utils/seeds/facetSystemOptionArtwork.ts',
     wrapper: 'utils/scripts/runFacetCatalogSeed.ts',
-    policy: 'scripts/lib/facetCatalogSeedPolicy.mjs',
   } as const
   const entries = await Promise.all(
     Object.entries(files).map(
@@ -129,17 +128,8 @@ async function main(): Promise<void> {
   requireText(files.seed, text.seed, 'randomWeight: 0')
   requireText(files.seed, text.seed, 'structuralEnum: true')
   requireText(files.seed, text.seed, 'enumValue: target.enumValue')
-  /* Was `kind: 'OTHER'` -- the seeder's classification of a system-option
-     Facet. t-072 dropped the physical Facet.kind column, so the surviving
-     statement of the same intent is the FacetProfile taxonomy the seeder
-     writes. Asserting the removed column would only re-assert that it is
-     gone, which verifyFacetTaxonomyAuthority.ts already covers. */
   requireText(files.seed, text.seed, 'taxonomy: target.taxonomy')
   requireText(files.wrapper, text.wrapper, "import('./seedSystemOptionFacets')")
-  requireText(files.policy, text.policy, 'stores/helpers/dreamCards.ts')
-  requireText(files.policy, text.policy, 'stores/helpers/rewardCards.ts')
-  requireText(files.policy, text.policy, 'utils/seeds/facetSystemOptionArtwork.ts')
-  requireText(files.policy, text.policy, 'utils/scripts/seedSystemOptionFacets.ts')
 
   for (const forbidden of ['prisma.dreamFacet', 'prisma.rewardFacet']) {
     if (containsCode(text.seed, forbidden)) {

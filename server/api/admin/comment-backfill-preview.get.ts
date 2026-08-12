@@ -17,6 +17,7 @@ import {
   type ManualBackfillPayload,
 } from '../../utils/commentBackfillGeneration'
 import { draftCommentBackfillSlice } from '../../utils/commentBackfillAnthropic'
+import { draftPackedCommentBackfillSlice } from '../../utils/commentBackfillAnthropicPack'
 
 const BACKFILL_BRANCH = 'gpt/comment-backfill-live'
 const PUBLISH_CONFIRMATION = 'publish-1769'
@@ -123,6 +124,16 @@ export default defineEventHandler(async (event) => {
   if (action === 'draft') {
     return guardedResponse(
       await draftCommentBackfillSlice({
+        start,
+        limit,
+        model: String(query.model || '') || undefined,
+      }),
+    )
+  }
+
+  if (action === 'draftpack') {
+    return guardedResponse(
+      await draftPackedCommentBackfillSlice({
         start,
         limit,
         model: String(query.model || '') || undefined,

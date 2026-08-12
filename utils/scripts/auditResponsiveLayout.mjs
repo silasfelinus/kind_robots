@@ -32,7 +32,7 @@
  * gallery with no rows renders an empty state whose geometry says nothing about
  * the gallery.
  *
- *     npm run audit:responsive -- --base https://kind-robots.vercel.app
+ *     npm run audit:responsive -- --base http://localhost:3000
  *
  * Exits non-zero when any route/viewport has a defect. Do not pipe the command
  * in CI — that replaces this exit status with the last pipeline stage's, which

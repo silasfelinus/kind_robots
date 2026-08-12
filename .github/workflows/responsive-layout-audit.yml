@@ -38,7 +38,7 @@ on:
       base_url:
         description: 'Base URL to audit (defaults to production)'
         required: false
-        default: 'https://kind-robots.vercel.app'
+        default: 'https://kindrobots.org'
       routes:
         description: 'Comma-separated routes to audit'
         required: false
@@ -160,7 +160,7 @@ jobs:
           # which is the point of the schedule trigger.
           url="${INPUT_URL:-}"
           if [ -z "$url" ]; then url="${DEPLOY_URL:-}"; fi
-          if [ -z "$url" ]; then url="https://kind-robots.vercel.app"; fi
+          if [ -z "$url" ]; then url="https://kindrobots.org"; fi
           url="${url%/}"
           echo "url=$url" >>"$GITHUB_OUTPUT"
           echo "Auditing $url"

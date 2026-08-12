@@ -23,7 +23,7 @@
 // check against the public API — no database, no secrets, ~10 seconds.
 //
 //   npm run test:comment-authors
-//   npx tsx utils/scripts/verifyCommentBackfillAuthors.ts --base https://kind-robots.vercel.app
+//   npx tsx utils/scripts/verifyCommentBackfillAuthors.ts --base http://localhost:3000
 //
 // Deliberately NOT part of `npm run test:comments`. The other comment contracts
 // are pure and offline; this one asserts against a live third party, so folding

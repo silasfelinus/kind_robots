@@ -1,11 +1,12 @@
 import { createError, defineEventHandler, setHeaders, setResponseStatus } from 'h3'
 
+// The Vercel arm this used to carry is gone with the deployment: `VERCEL` is
+// never set on the container, so it only ever selected a host that no longer
+// serves the callback. GOOGLE_REDIRECT_URI still overrides for local work.
 function getGoogleRedirectUri() {
   return (
     process.env.GOOGLE_REDIRECT_URI ||
-    (process.env.VERCEL
-      ? 'https://kind-robots.vercel.app/api/auth/google/callback'
-      : 'https://kindrobots.org/api/auth/google/callback')
+    'https://kindrobots.org/api/auth/google/callback'
   )
 }
 

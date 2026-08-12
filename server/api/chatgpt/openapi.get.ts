@@ -48,7 +48,7 @@ export default defineEventHandler((event) => {
     },
     servers: [
       {
-        url: 'https://kind-robots.vercel.app',
+        url: 'https://kindrobots.org',
         description: 'Kind Robots production',
       },
     ],

@@ -11,7 +11,7 @@
 //
 // Usage:
 //   KR_API_TOKEN=... node scripts/export-narrator-content.mjs
-//   APP_BASE_URL=https://kind-robots.vercel.app KR_API_TOKEN=... node scripts/export-narrator-content.mjs
+//   APP_BASE_URL=https://kindrobots.org KR_API_TOKEN=... node scripts/export-narrator-content.mjs
 //
 // Reads the GET endpoints (server/api/bots/topics.get.ts, threads.get.ts) with
 // ?includeInactive=true so soft-deleted rows are captured too.
@@ -21,7 +21,7 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const BASE = (
-  process.env.APP_BASE_URL || 'https://kind-robots.vercel.app'
+  process.env.APP_BASE_URL || 'https://kindrobots.org'
 ).replace(/\/$/, '')
 const TOKEN = process.env.KR_API_TOKEN || ''
 const __dirname = dirname(fileURLToPath(import.meta.url))

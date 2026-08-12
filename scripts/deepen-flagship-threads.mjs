@@ -20,7 +20,7 @@ import { readFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const BASE = (process.env.APP_BASE_URL || 'https://kind-robots.vercel.app').replace(/\/$/, '')
+const BASE = (process.env.APP_BASE_URL || 'https://kindrobots.org').replace(/\/$/, '')
 const TOKEN = process.env.KR_API_TOKEN || ''
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const commit = process.argv.includes('--commit')

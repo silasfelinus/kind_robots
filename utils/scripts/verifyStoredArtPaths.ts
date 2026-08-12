@@ -37,7 +37,7 @@ import { createDatabaseAdapter } from './../../server/utils/databaseAdapterConfi
 
 // Matches responsive-layout-audit.yml's production fallback, so both checks
 // measure the same deployment.
-const DEFAULT_BASE = 'https://kind-robots.vercel.app'
+const DEFAULT_BASE = 'https://kindrobots.org'
 
 /** How many paths to have in flight. 227 paths took ~90s at 12. */
 const CONCURRENCY = 12

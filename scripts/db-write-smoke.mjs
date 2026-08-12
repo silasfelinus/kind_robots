@@ -17,7 +17,7 @@
 // so leaked fixtures are removed by the janitor even if this script dies.
 
 const apiBase = String(
-  process.env.BASE_API_URL || 'https://kind-robots.vercel.app/api',
+  process.env.BASE_API_URL || 'https://kindrobots.org/api',
 ).replace(/\/+$/, '')
 
 const stamp = `${Date.now()}`

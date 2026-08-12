@@ -660,7 +660,23 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
           )
         }
       })
-      .catch((error) => handleError(error, 'saving build item'))
+      .catch((error) => {
+        // Mirror the success:false branch above rather than unconditionally
+        // calling handleError: a PATCH that rejects (network error, etc.)
+        // after its run was cancelled or the user has since navigated
+        // elsewhere shouldn't pop a global error banner for a run that's no
+        // longer on screen. setStatusForRun already no-ops unless state.run
+        // still matches the run this write belonged to.
+        if (runId) {
+          setStatusForRun(
+            runId,
+            'error',
+            error instanceof Error
+              ? error.message
+              : 'Failed to save changes.',
+          )
+        }
+      })
   }
 
   // Background persistence of a whole group edit in one round-trip. Callers
@@ -696,7 +712,21 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
           )
         }
       })
-      .catch((error) => handleError(error, 'saving build items'))
+      .catch((error) => {
+        // Same reasoning as pushItem's catch above: mirror the success:false
+        // branch's run-scoping instead of unconditionally calling
+        // handleError, so a rejected batch write doesn't pop a global error
+        // banner for a run the user has cancelled or moved away from.
+        if (runId) {
+          setStatusForRun(
+            runId,
+            'error',
+            error instanceof Error
+              ? error.message
+              : 'Failed to save changes.',
+          )
+        }
+      })
   }
 
   // A stage's content is only safe to overwrite while it is workable — ready,

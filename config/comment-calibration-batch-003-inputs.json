@@ -1,0 +1,129 @@
+{
+  "version": 1,
+  "batchId": "comment-calibration-003",
+  "minimumProductionCommit": "e9b828e8ef8de2f26607f36a53fc388153896470",
+  "issueNumber": 1769,
+  "purpose": "Exact buildCommentDraftPrompt replay inputs preserved as generation evidence. No generated prose belongs in this file.",
+  "exchanges": [
+    {
+      "canonicalOrder": 1,
+      "exchangeKey": "reward-276-runtime-replay",
+      "shape": "DUET_REPLY",
+      "target": {
+        "type": "REWARD",
+        "id": 276,
+        "title": "Immortal Beloved",
+        "flavorText": "You've loved them before. You'll love them after. The names change. The recognition, when it comes, never does.",
+        "category": "SKILL",
+        "tags": ["LEGENDARY"]
+      },
+      "speakerIds": [241, 133],
+      "comparison": "batch-001 exchange 1"
+    },
+    {
+      "canonicalOrder": 2,
+      "exchangeKey": "reward-441-runtime-replay",
+      "shape": "DUET",
+      "target": {
+        "type": "REWARD",
+        "id": 441,
+        "title": "Melodic Note",
+        "flavorText": "One perfect note. Held forever. It does to a room what the right song does to a hard day.",
+        "category": "ITEM",
+        "tags": ["RARE"]
+      },
+      "speakerIds": [147, 114],
+      "comparison": "batch-001 exchange 2"
+    },
+    {
+      "canonicalOrder": 3,
+      "exchangeKey": "reward-379-runtime-replay",
+      "shape": "DUET_REPLY",
+      "target": {
+        "type": "REWARD",
+        "id": 379,
+        "title": "Photographic Memory",
+        "flavorText": "A gift with no trash folder. You will recall this sentence on your deathbed, unfortunately.",
+        "category": "POWER",
+        "tags": ["RARE"]
+      },
+      "speakerIds": [215, 123],
+      "comparison": "batch-001 exchange 5"
+    },
+    {
+      "canonicalOrder": 4,
+      "exchangeKey": "reward-373-runtime-replay",
+      "shape": "DUET_REPLY",
+      "target": {
+        "type": "REWARD",
+        "id": 373,
+        "title": "Sixth Sense",
+        "flavorText": "Comes with no instructions, no off switch, and no warranty. The universe whispers; it declines to clarify.",
+        "category": "POWER",
+        "tags": ["COMMON"]
+      },
+      "speakerIds": [197, 293],
+      "comparison": "batch-001 exchange 8"
+    },
+    {
+      "canonicalOrder": 5,
+      "exchangeKey": "reward-314-runtime-replay",
+      "shape": "DUET",
+      "target": {
+        "type": "REWARD",
+        "id": 314,
+        "title": "Ghost Friend",
+        "flavorText": "Loyal beyond death and twice as stubborn. Excellent company. Terrible at letting things go, which is sort of the whole situation.",
+        "category": "PET",
+        "tags": ["RARE"]
+      },
+      "speakerIds": [296, 221],
+      "comparison": "batch-001 exchange 6"
+    },
+    {
+      "canonicalOrder": 6,
+      "exchangeKey": "reward-359-runtime-replay",
+      "shape": "SOLO",
+      "target": {
+        "type": "REWARD",
+        "id": 359,
+        "title": "Dreamcatcher Hat",
+        "flavorText": "Catches dreams. Does not sort them. You'll have to check the web yourself, and some of what's stuck there is staring back.",
+        "category": "MAGIC",
+        "tags": ["RARE"]
+      },
+      "speakerIds": [149],
+      "comparison": "batch-001 exchange 7"
+    },
+    {
+      "canonicalOrder": 7,
+      "exchangeKey": "reward-350-runtime-replay",
+      "shape": "TRIO",
+      "target": {
+        "type": "REWARD",
+        "id": 350,
+        "title": "The Author Likes You",
+        "flavorText": "You are the favorite. It's wonderful until you remember that authors adore putting their favorites through absolute hell.",
+        "category": "FAVOR",
+        "tags": ["MYTHIC"]
+      },
+      "speakerIds": [365, 351, 243],
+      "comparison": "batch-001 exchange 4"
+    },
+    {
+      "canonicalOrder": 8,
+      "exchangeKey": "facet-1773-clank-cross-target",
+      "shape": "SOLO",
+      "target": {
+        "type": "FACET",
+        "id": 1773,
+        "title": "Common",
+        "description": "Reliable. Present. Does what it says. Nobody writes songs about it, which is fine — it is busy working.",
+        "category": "RARITY",
+        "tags": []
+      },
+      "speakerIds": [147],
+      "comparison": "cross-target repeatability: Maestro Clank also appears in exchange 2"
+    }
+  ]
+}

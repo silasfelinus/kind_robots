@@ -44,6 +44,21 @@ ENV NODE_ENV=production \
 COPY --from=build --chown=node:node /app/.output ./.output
 COPY --from=build --chown=node:node /app/node_modules ./node_modules
 COPY --from=build --chown=node:node /app/package.json ./package.json
+
+# Everything `scripts/prisma-migrate-deploy.mjs` needs to run against this exact
+# build. The runtime image used to carry .output, node_modules and package.json
+# only, which meant migrations could not be applied from the image at all: the
+# wrapper was absent, and so were the schema and the migration SQL that Prisma
+# reads. That is why migrations had to be run from a separate repo checkout on
+# the host, against whatever revision that checkout happened to be on.
+#
+# Carrying them here makes the image self-sufficient, so the migration that runs
+# is always the one belonging to the code about to serve -- and lets
+# docker-compose gate the app behind a one-shot migrate service. It is cheap:
+# migration SQL and a handful of .mjs files.
+COPY --from=build --chown=node:node /app/prisma ./prisma
+COPY --from=build --chown=node:node /app/scripts ./scripts
+COPY --from=build --chown=node:node /app/prisma.config.ts ./prisma.config.ts
 # Nitro bundles Sharp's native binding privately. Make the matching prebuilt
 # libvips shared libraries available to the system dynamic linker so the
 # binding can load regardless of Nitro's nested node_modules layout.

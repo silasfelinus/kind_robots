@@ -121,6 +121,9 @@ jobs:
       - name: Database pool defaults contract
         run: npm run test:database-pool-defaults
 
+      - name: Migrate-on-deploy contract
+        run: npm run test:migrate-on-deploy
+
       - name: Project scaffold Todo parity contract
         run: npm run test:project-scaffold-todo-parity
 

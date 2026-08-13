@@ -1,4 +1,35 @@
 services:
+  # Applies pending migrations, then exits. The app will not start until this
+  # has completed successfully, so schema and code move together instead of the
+  # schema drifting behind whatever was last deployed by hand.
+  #
+  # This is a SEPARATE service on purpose, not a step inside the app container.
+  # docs/runbooks/migration-credential-boundary.md keeps schema-write capability
+  # out of the ordinary application lane, and scripts/prisma-migrate-deploy.mjs
+  # refuses DATABASE_URL outright. A long-running app container holding
+  # MIGRATION_DATABASE_URL is exactly what that boundary prevents; a container
+  # whose entire lifetime is the migration is not.
+  #
+  # `migrate deploy` applies pending migrations only. It never resets, never
+  # drops, and never generates. Re-running it is a no-op.
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: kind-robots:local
+    container_name: kind-robots-migrate
+    restart: "no"
+    env_file:
+      - ${KIND_ROBOTS_ENV_FILE:-.env}
+    environment:
+      # Deliberately not read from the app env file. Compose fails loudly here
+      # if it is unset rather than silently skipping migrations -- a deploy that
+      # cannot migrate should stop, not quietly serve old schema.
+      MIGRATION_DATABASE_URL: ${MIGRATION_DATABASE_URL:?set MIGRATION_DATABASE_URL to the kindrobot_migrate credential; see docs/runbooks/migration-credential-boundary.md}
+    command: ["node", "scripts/prisma-migrate-deploy.mjs"]
+    networks:
+      - cafepurr
+
   kind-robots:
     build:
       context: .
@@ -6,6 +37,9 @@ services:
     image: kind-robots:local
     container_name: kind-robots
     restart: unless-stopped
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
     ports:
       - "${KIND_ROBOTS_PORT:-3009}:3000"
     env_file:

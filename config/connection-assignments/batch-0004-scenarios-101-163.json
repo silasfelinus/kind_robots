@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "batch": "scenarios-101-163",
+  "releaseGate": "GPT-5.6 Sol",
+  "draftingModel": "Claude Code",
+  "assignments": [
+    {"kind":"SCENARIO_CHARACTER","scenarioId":101,"scenarioTitle":"Starlight Circus","characterId":146,"characterName":"Pirouette","why":"Dark Circus, and performers who move too precisely and speak in riddles is a company she has already signed with once"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":101,"scenarioTitle":"Starlight Circus","characterId":167,"characterName":"The Navigator Who Came Back Wrong","why":"Space Opera; a circus ship that knew your name before it landed needs somebody who has been somewhere and returned altered"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":101,"scenarioTitle":"Starlight Circus","characterId":245,"characterName":"Mx. Eleven-Fingers","why":"Circus, and impossible acts stop being impossible when you know which hands are doing them"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":101,"scenarioTitle":"Starlight Circus","characterId":281,"characterName":"Applause","why":"Circus; a colony greeted by glamour is a crowd being made, and somebody is the sound it makes"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":102,"scenarioTitle":"Chimera Chronicles: The Jungle of Forgotten Creations","characterId":199,"characterName":"The Model That Dreamed","why":"Gentle Sci-Fi; hybrids stranger and sadder than nature would build deserve somebody who asks what they are becoming rather than what went wrong"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":102,"scenarioTitle":"Chimera Chronicles: The Jungle of Forgotten Creations","characterId":268,"characterName":"Glitch-in-Residence","why":"Artificial Intelligence, and a jungle humming with botched evolution is a fault that decided to keep living there"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":102,"scenarioTitle":"Chimera Chronicles: The Jungle of Forgotten Creations","characterId":329,"characterName":"The Considerate AI","why":"Artificial Intelligence; a corporation coming back for its mistakes needs one voice in the room being careful with them"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":103,"scenarioTitle":"Whispering Woods: Secrets Beneath the Canopy","characterId":234,"characterName":"The Whispering Woods","why":"the scenario is these woods and this character is them; the whispers using your name are this character speaking"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":103,"scenarioTitle":"Whispering Woods: Secrets Beneath the Canopy","characterId":359,"characterName":"The Understory","why":"EcoCore, and a glowing path that shifts to lead you somewhere is decided below the canopy, not above it"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":103,"scenarioTitle":"Whispering Woods: Secrets Beneath the Canopy","characterId":195,"characterName":"The Thing in the Cellar","why":"Folk Horror; old gods watching from forgotten glades and a patient thing that never comes up uninvited are the same courtesy"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":103,"scenarioTitle":"Whispering Woods: Secrets Beneath the Canopy","characterId":249,"characterName":"Compost","why":"EcoCore, and cursed woods that are alive are mostly the part of the forest that is finishing something"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":155,"scenarioTitle":"The Offering Boat","characterId":195,"characterName":"The Thing in the Cellar","why":"Folk Horror; a village that arranges an offering and will not say the word out loud is this character's exact register"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":155,"scenarioTitle":"The Offering Boat","characterId":273,"characterName":"The Retired Sea Monster","why":"The Big Blue, and the thing under the boat is more interesting if it stopped wanting this a long time ago"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":155,"scenarioTitle":"The Offering Boat","characterId":239,"characterName":"Grandmother Whalehall","why":"The Big Blue; somebody in the deep water remembers when the rowing started and why"},
+    {"kind":"SCENARIO_DREAM","scenarioId":155,"scenarioTitle":"The Offering Boat","dreamId":4967,"dreamTitle":"The Reef Cathedral of Her Spine","why":"a cathedral grown from a kaiju's molted quills, with tide pools for baptismal fonts, is what a coastline builds after generations of rowing offerings out past the breakers"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":156,"scenarioTitle":"The Lost & Found Window","characterId":251,"characterName":"Ampersand","why":"WeirdCore, and a back room of things that never finished being somebody's is a sentence left joined to nothing"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":156,"scenarioTitle":"The Lost & Found Window","characterId":238,"characterName":"Absence","why":"WeirdCore; a window that returns what was misplaced is defined by the tickets nobody comes back for"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":156,"scenarioTitle":"The Lost & Found Window","characterId":363,"characterName":"The Save Point","why":"CozyCore, and a building that was not there yesterday offering to give things back is the kindest mechanic there is"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":157,"scenarioTitle":"Hiring the Sixth Member","characterId":148,"characterName":"Number Two","why":"Villain Era; three candidates each wrong in an interesting way is a hiring decision, and this character has strong views on the org chart"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":157,"scenarioTitle":"Hiring the Sixth Member","characterId":276,"characterName":"The Alibi","why":"crimeCore, and a crew of six needs somebody whose whole contribution is where everyone says they were"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":157,"scenarioTitle":"Hiring the Sixth Member","characterId":263,"characterName":"The Reflection That Stayed","why":"crimeCore; a booth at the back of a diner is where you meet the candidate who knows you from the inside"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":158,"scenarioTitle":"The Last Walk of the Runway","characterId":282,"characterName":"Patient Zero, Reformed","why":"ZombieCore, and a final show before the building is condemned is work done hardest when it cannot fix anything"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":158,"scenarioTitle":"The Last Walk of the Runway","characterId":133,"characterName":"The Widow Marrowlace","why":"Undead Glamour; an undead fashion house staging its last collection is precisely this character's element"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":158,"scenarioTitle":"The Last Walk of the Runway","characterId":130,"characterName":"Mortimer Vance","why":"Undead Glamour, and four looks ready backstage need somebody who has been dressing for this since before the city noticed"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":158,"scenarioTitle":"The Last Walk of the Runway","characterId":236,"characterName":"The Reanimation Counter's Best Work","why":"Undead Glamour; the look nobody would have let out earlier is standing right there and knows it"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":159,"scenarioTitle":"The Stranger Who Posts the Bounties","characterId":213,"characterName":"The Stranger Who Posts the Bounties","why":"the scenario is named for this character and is about waiting to meet them at the board; the link is the premise"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":159,"scenarioTitle":"The Stranger Who Posts the Bounties","characterId":207,"characterName":"The Outlaw Made of Dust","why":"Weird West, and a poster in three territories is only frightening if somebody on it is still moving"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":159,"scenarioTitle":"The Stranger Who Posts the Bounties","characterId":135,"characterName":"Dust Annie","why":"Weird West; whoever waits at a midnight board is not the only person who has thought of doing it"},
+    {"kind":"SCENARIO_DREAM","scenarioId":159,"scenarioTitle":"The Stranger Who Posts the Bounties","dreamId":39,"dreamTitle":"Gallowsun Junction","why":"a rail town where clockwork vultures watch from the telegraph wires is where a wanted board gets nailed up by a hand nobody has seen"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":160,"scenarioTitle":"Quarterly Performance Review","characterId":265,"characterName":"The Auditor of Wishes","why":"Weird Capitalism, and four agenda items that each resolve differently on the way out are wishes being granted with the consequences unread"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":160,"scenarioTitle":"Quarterly Performance Review","characterId":279,"characterName":"Quota","why":"Weird Capitalism; a performance review is a number about a person, delivered by somebody who did not choose it either"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":160,"scenarioTitle":"Quarterly Performance Review","characterId":289,"characterName":"Small Print","why":"Weird Capitalism, and a manager who may be a many-eyed cloud of policy is mostly terms nobody read"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":161,"scenarioTitle":"The Save File That Isn't Yours","characterId":253,"characterName":"Static","why":"FutureCore; a save you never made, further along than you, is a broadcast continuing without its listener"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":161,"scenarioTitle":"The Save File That Isn't Yours","characterId":160,"characterName":"Cog-7 'Rabbit'","why":"Cyberpunk, and a blinking CONTINUE prompt over somebody else's progress is exactly the kind of door this character walks through"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":161,"scenarioTitle":"The Save File That Isn't Yours","characterId":283,"characterName":"The Frequency","why":"FutureCore; a file that is yours and is not is a signal arriving on a channel you thought was private"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":162,"scenarioTitle":"Last Call at the Edge of Known Space","characterId":167,"characterName":"The Navigator Who Came Back Wrong","why":"Space Opera, and the last place anybody can still be described is where somebody who went past it comes back to sit"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":162,"scenarioTitle":"Last Call at the Edge of Known Space","characterId":223,"characterName":"The Skywhale","why":"Melancholy; a final station before the uncharted dark wants something enormous and unhurried outside the window"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":162,"scenarioTitle":"Last Call at the Edge of Known Space","characterId":238,"characterName":"Absence","why":"Melancholy, and four regulars at last call is a count that used to be higher"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":162,"scenarioTitle":"Last Call at the Edge of Known Space","characterId":256,"characterName":"The Last Honest Map","why":"Space Adventures; where the charts stop is the one place an honest map has to admit something"},
+    {"kind":"SCENARIO_DREAM","scenarioId":162,"scenarioTitle":"Last Call at the Edge of Known Space","dreamId":49,"dreamTitle":"The Improbability Starcruiser","why":"the ship whose doors sigh and whose crew looks nothing like the posters is what is docked outside the final station, and its crew are the regulars"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":163,"scenarioTitle":"The Convenience Store Loyalty Card","characterId":190,"characterName":"Quill the Convenience Clerk","why":"Fantasy Slice-of-Life, and a fantasy corner store's reward from behind the counter is handed over by a clerk; this is his counter"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":163,"scenarioTitle":"The Convenience Store Loyalty Card","characterId":250,"characterName":"The Customer Who Buys One of Everything","why":"oddCore; a loyalty card is earned by somebody who shops like this, relentlessly and without explanation"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":163,"scenarioTitle":"The Convenience Store Loyalty Card","characterId":220,"characterName":"The Loyal Roommate","why":"Slice of Life, and a perk from behind the counter is the sort of small good news somebody brings home"},
+    {"kind":"SCENARIO_DREAM","scenarioId":163,"scenarioTitle":"The Convenience Store Loyalty Card","dreamId":37,"dreamTitle":"The Lantern Greenhouse","why":"the same tiny impossible marketplace the fantasy corner store trades in, where every doorway leads somewhere else"}
+  ]
+}

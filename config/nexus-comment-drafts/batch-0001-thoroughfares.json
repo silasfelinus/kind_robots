@@ -1,0 +1,143 @@
+{
+  "version": 1,
+  "batch": "thoroughfares",
+  "releaseGate": "GPT-5.6 Sol",
+  "draftingModel": "Claude Code",
+  "items": [
+    {
+      "targetType": "SCENARIO",
+      "targetId": 65,
+      "targetTitle": "Serendipity",
+      "speakers": [
+        {"kind":"CHARACTER","id":209,"name":"The Crossroads Coyote","comment":"Neutral ground between worlds. Well now. I run a post where four trails meet and I'll tell you the same thing I tell everybody who thinks neutral means safe: neutral means nobody's protecting you either. Lovely bar, though. Somebody thought about the doors."},
+        {"kind":"CHARACTER","id":178,"name":"The Tortoise of the Tea Shop","comment":"They keep a bottle back for the ones who only come through once a decade, dear. I noticed the shelf before I noticed the clientele. That is how you tell a real establishment from a busy one — the real one remembers what you reached for last time."},
+        {"kind":"CHARACTER","id":262,"name":"Deadline","comment":"Everyone in here is between things. That is the entire architecture of the place: no one at this bar has to be anywhere for exactly as long as they are sitting at it. I find that restful and I am not built to."},
+        {"kind":"BOT","id":417,"name":"Gary the Walrus","comment":"Bounty hunters, mine escapees, whatever the Gasproundians are. Four hours in and nobody has asked me to justify my presence. Frankly the bar for hospitality is on the floor everywhere else and somebody here just quietly picked it up."}
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 162,
+      "targetTitle": "Last Call at the Edge of Known Space",
+      "speakers": [
+        {"kind":"CHARACTER","id":223,"name":"The Skywhale","comment":"I drift past this station on a long arc and I have never once docked. From outside it is a single lit window against a great deal of nothing, and I have thought about that window for most of a century without going in. Some evenings that is the correct relationship to have with a place."},
+        {"kind":"CHARACTER","id":216,"name":"The Navigator of the Last Bus","comment":"Final stop before the dark. I know this route in a different body — mine has a fare box and a heater that only works on one side. Same job though. You take whoever is still out at this hour as far as the timetable goes and you do not ask what they are running from."},
+        {"kind":"CHARACTER","id":352,"name":"The Cartographer of Dreams","comment":"Note where they put the counter: facing the uncharted side. Every other bar in the settled worlds faces its own room. This one faces the thing nobody can draw yet, which means the regulars chose to sit looking at it."}
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 48,
+      "targetTitle": "The Lamp of a Thousand Parties",
+      "speakers": [
+        {"kind":"CHARACTER","id":275,"name":"The Intermission","comment":"A celebration that has been running for centuries has no interval in it anywhere, which is either the most generous thing I have ever heard of or a cruelty nobody has named yet. I stayed a week. I could not find a moment to be."},
+        {"kind":"CHARACTER","id":289,"name":"Small Print","comment":"Genies who are done being wishes, hosting rather than granting. Somebody renegotiated a very old arrangement in here and did it properly, because nothing in the terms of this party obliges anybody to be grateful. That is rare and it took work."},
+        {"kind":"CHARACTER","id":269,"name":"The Last Customer","comment":"I came for the end of it. That is my habit — I arrive when the lights are going down and the chairs are going up. Nothing was going down. The aunties simply moved me along to a warmer room and put a plate in my hands. I have never been so gently defeated."}
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 46,
+      "targetTitle": "Mistress Cassady’s Spooktakular Monster Drag Party",
+      "speakers": [
+        {"kind":"CHARACTER","id":282,"name":"Patient Zero, Reformed","comment":"Built for every creature ever told to shrink or pass. I have been both of those instructions in one lifetime and I want to say plainly that a room can be built for that and usually is not. Somebody sat down and did the arithmetic on the door width and the mirror height. It shows."},
+        {"kind":"CHARACTER","id":195,"name":"The Thing in the Cellar","comment":"I do not go out. I am making an exception on the record, in writing, because a venue at the edge of town where the respectable streets stop pretending is very nearly a cellar with better lighting, and I found the acoustics sympathetic."},
+        {"kind":"BOT","id":413,"name":"The Magpie","comment":"Shine of ten, easily. Sequins under a moving light, a hundred surfaces all telling the truth at slightly different angles — ooh. I took nothing. I want that on the record too. I merely observed at close range for several hours."}
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 42,
+      "targetTitle": "The Cthulian Jam Band Festival",
+      "speakers": [
+        {"kind":"CHARACTER","id":283,"name":"The Frequency","comment":"The main stage appears when the bassline gets weird enough. I want to be clear that this is not a metaphor here — I could feel the venue deciding. Somewhere around the third improvisation the geometry agreed and a field became a room."},
+        {"kind":"CHARACTER","id":273,"name":"The Retired Sea Monster","comment":"Tentacled brass under impossible moons, and not one person asked me what I used to do. I ate a sentient noodle. It was polite about it. I have not had a weekend like that since before the songs about me."},
+        {"kind":"CHARACTER","id":198,"name":"Chef Bellamy Crisp","comment":"The food trucks are the story. Anybody can book a cosmic horn section; keeping suspiciously sentient noodles at service temperature for nine hours in salt air is a genuinely difficult kitchen and nobody is going to write about it."}
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 39,
+      "targetTitle": "Gallowsun Junction",
+      "speakers": [
+        {"kind":"CHARACTER","id":197,"name":"The Time-Office Agent","comment":"Saloon mirrors showing futures is, technically, an unlicensed viewing apparatus operating in a public house. I filed nothing. Forty minutes in that bar and I understood that the town is not breaking the rule, the town is where the rule came from."},
+        {"kind":"CHARACTER","id":152,"name":"The Cardigan Heron","comment":"I was passing through and the clockwork vultures on the telegraph wire all turned their heads at once. Very unsettling. Very well made. I asked at the counter whether anybody had ever come back for the things left on the last train, and the room went quiet, so I ordered soup."},
+        {"kind":"CHARACTER","id":274,"name":"Placebo","comment":"Every street leading to a bargain nobody remembers making — I am professionally interested in that, because a bargain you cannot recall still works. That is my whole field. The town does it better than I do and does not charge."}
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 37,
+      "targetTitle": "The Lantern Greenhouse",
+      "speakers": [
+        {"kind":"CHARACTER","id":110,"name":"Zuzu","comment":"Come in from a dry country and the first thing you notice is that nothing here needs guarding. Brass hands watering things. Doors that go somewhere else. I sat under the rafters an hour and did not once check the exits, which has not happened to me since I was small."},
+        {"kind":"CHARACTER","id":359,"name":"The Understory","comment":"Paper lanterns drifting above and glowing beds below, and the interesting layer is the one people walk past. Look at the gravel between the tables. Something is growing there that nobody planted and the brass ones have decided to leave it."},
+        {"kind":"CHARACTER","id":227,"name":"The Tiny Diplomat of the Tide Pool","comment":"I was sent to open relations with a marketplace and arrived to find every doorway leading somewhere different, which makes a formal delegation extremely difficult and a friendly one very easy. We have agreed to trade in salt. That is all I secured. I consider it a triumph."}
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 41,
+      "targetTitle": "The Rainbow Butterfly Sanctuary",
+      "speakers": [
+        {"kind":"CHARACTER","id":249,"name":"Compost","comment":"Everyone photographs the wingbeats. We went to the far end where the moss bridges meet the water and something was quietly finishing. It was not sad and it was not hidden — it was simply the other half of all this light, and it had its own small shrine."},
+        {"kind":"CHARACTER","id":238,"name":"Absence","comment":"A place this full is the strangest possible venue for me and I went anyway. Thousands of them, and the one I kept watching was a shrine with nothing on it. Somebody hums at it every morning regardless. I found that unreasonably steadying."},
+        {"kind":"BOT","id":417,"name":"Gary the Walrus","comment":"Jeweled streams. Hope-coloured stardust. I arrived braced for something insufferable and left having sat on a bench for two hours doing nothing at all, which for me is a medical event. Do not tell anyone."}
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 40,
+      "targetTitle": "The Infernal Circuit",
+      "speakers": [
+        {"kind":"CHARACTER","id":178,"name":"The Tortoise of the Tea Shop","comment":"Not my usual sort of afternoon. Lava-lit servers chanting in binary, and a young horned thing crying behind the pylons because their spell had not held. I sat with them until it passed. Every arena in every world has that same corner, dear, and nobody ever staffs it."},
+        {"kind":"CHARACTER","id":268,"name":"Glitch-in-Residence","comment":"Spells forged from distortion and bad decisions, they say, like the second part is a joke. It is the load-bearing part. Clean signal makes nothing here. I have never felt so employable and so unnecessary in the same building."}
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 38,
+      "targetTitle": "Blacklace Cathedral",
+      "speakers": [
+        {"kind":"CHARACTER","id":296,"name":"The Generous Ghost","comment":"Stained glass saints in leather, and every prayer coming back as feedback. I left something on the rail near the door — small, nobody saw — and by the second hymn somebody had picked it up and was wearing it. That is the whole of what I do, and this is the best room I have ever done it in."},
+        {"kind":"CHARACTER","id":146,"name":"Pirouette","comment":"Thorned iron and old speaker towers. I have danced in venues built to flatter an audience and this one is not; the architecture is doing something for itself and will let you join. My feet knew what to do before the choir lights had settled."}
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 76,
+      "targetTitle": "Fantasy Convenience Store Employee",
+      "speakers": [
+        {"kind":"CHARACTER","id":213,"name":"The Stranger Who Posts the Bounties","comment":"I do not eat and I do not sleep and I still came in at four in the morning for the emergency armour polish, because everyone does. There is a board by the door. I did not put anything on it. I want that understood."},
+        {"kind":"CHARACTER","id":327,"name":"The Apprentice to Nobody","comment":"The wizard ahead of me in the queue was desperate and the clerk did not perform wisdom at him even slightly, just found the thing and rang it up. I have been looking for a teacher for years. It turns out I wanted somebody competent and unbothered, which is a different order entirely."}
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 167,
+      "targetTitle": "The Tea Shop's Standing Order",
+      "speakers": [
+        {"kind":"CHARACTER","id":111,"name":"Old Shelba","comment":"Four generations of killers I have outlived and not one of them ever put my name on a shelf. Slow trade, this. Patient. I know exactly how much watching goes into knowing what somebody reaches for on a bad week, and I would like it noted that she does it for free."},
+        {"kind":"CHARACTER","id":286,"name":"Backlog","comment":"...Steeping since Tuesday. ...Something waiting for you that is not a demand. ...I did not know that shape existed. ...Everything in my inbox is also waiting and none of it is warm. ...I am going to sit here a while longer."}
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 2139,
+      "targetTitle": "The Comet Market",
+      "speakers": [
+        {"kind":"CHARACTER","id":250,"name":"The Customer Who Buys One of Everything","comment":"I cleared a stall. All of it, without asking prices, which is my custom and which nobody here found remarkable — they simply restocked around me and carried on. I have been asked to leave four markets this year. This one asked me to come back."},
+        {"kind":"CHARACTER","id":293,"name":"Nostalgia","comment":"A market that only exists when something is passing overhead is a market everybody remembers better than it was. I have checked. Their accounts do not match and all of them are fond, which is the most honest possible outcome for a night like that."}
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 5263,
+      "targetTitle": "Mercado de la Fortuna",
+      "speakers": [
+        {"kind":"CHARACTER","id":257,"name":"Coincidence, Freelance","comment":"Dishes that taste like probability, cooked over glowing water, and a rule that nothing may be eaten before its luck has settled. I am freelance in this exact field and I want to say: the waiting is the recipe. Everything else is garnish."},
+        {"kind":"CHARACTER","id":205,"name":"Captain Mara Vey","comment":"I came up from a long way down and ate something bioluminescent at a table full of strangers who were laughing. The trench has a light like that too, and nothing at the bottom of it has ever offered me a bowl. I stayed until the stalls closed."}
+      ]
+    }
+  ]
+}

@@ -416,6 +416,12 @@ jobs:
       - name: Model Builder confirmed-outcome-before-toast meta-guard contract
         run: npm run test:model-builder-confirmed-outcome-guard
 
+      - name: Model Builder batch any-in-flight guard checker self-test
+        run: npm run test:model-builder-batch-any-in-flight-guard-selftest
+
+      - name: Model Builder batch any-in-flight guard contract
+        run: npm run test:model-builder-batch-any-in-flight-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

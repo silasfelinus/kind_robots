@@ -20,6 +20,34 @@ import {
   POPULATION_TARGET_TYPES,
   type PopulationTargetType,
 } from './../../utils/comments/populationTargets'
+import { createFetcher } from './../../utils/comments/fitnessLoader'
+
+function arg(name: string, fallback = ''): string {
+  const hit = process.argv.find((value) => value.startsWith(`--${name}=`))
+  return hit ? hit.slice(name.length + 3) : fallback
+}
+const baseUrl = arg('base', 'https://kindrobots.org').replace(/\/+$/, '')
+
+/**
+ * Speaker names as production currently has them.
+ *
+ * The publisher aborts on the FIRST name mismatch, so without this a drifted
+ * corpus costs one production run per renamed speaker. That happened on the
+ * #1769 lane -- seven renames, discovered one at a time -- which is why the
+ * check moved offline and over public HTTP, where it names all of them at once
+ * in about ten seconds.
+ */
+async function liveSpeakerNames(): Promise<Map<string, string>> {
+  const get = createFetcher(baseUrl)
+  const [bots, characters] = await Promise.all([
+    get<Array<{ id: number; name: string }>>('/api/bots?page=1&pageSize=500'),
+    get<Array<{ id: number; name: string }>>('/api/characters'),
+  ])
+  const map = new Map<string, string>()
+  for (const row of bots) map.set(`BOT:${row.id}`, row.name)
+  for (const row of characters) map.set(`CHARACTER:${row.id}`, row.name)
+  return map
+}
 
 const root = process.cwd()
 const nexusDir = join(root, 'config', 'nexus-comment-drafts')
@@ -98,6 +126,7 @@ async function main() {
     return
   }
 
+  const live = await liveSpeakerNames()
   const authored = priorCorpusText()
   const seenTargets = new Set<string>()
   let comments = 0
@@ -127,6 +156,16 @@ async function main() {
         const sKey = speakerKey(speaker)
         if (inExchange.has(sKey)) flag(where, `${sKey} speaks twice in one exchange`)
         inExchange.add(sKey)
+
+        const liveName = live.get(sKey)
+        if (!liveName) {
+          flag(`${where} ${sKey}`, 'speaker does not exist in production')
+        } else if (liveName !== speaker.name) {
+          flag(
+            `${where} ${sKey}`,
+            `production says "${liveName}", packet says "${speaker.name}"`,
+          )
+        }
 
         const text = String(speaker.comment || '').trim()
         const words = normalizeWords(text).length

@@ -221,6 +221,12 @@ jobs:
       - name: Da Vinci narration bounds contract
         run: npm run test:davinci-narration
 
+      - name: Da Vinci dimension-tone guard self-test
+        run: npm run test:davinci-dimension-tone-guard-selftest
+
+      - name: Da Vinci dimension-tone guard
+        run: npm run test:davinci-dimension-tone-guard
+
       - name: Pack manifest validator self-test
         run: npm run test:pack-manifest
 

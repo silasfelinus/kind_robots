@@ -7,7 +7,7 @@
 // background/<page>-<variant>.webp` in each job payload, and the content
 // frontmatter declares the same path — but nothing in the completion path acts
 // on it. complete.post.ts stores finished art as an ArtImage row (imageData,
-// imagePath null); per docs/self-hosted-media.md, "Vercel cannot write to the
+// imagePath null); per docs/self-hosted-media.md, "ephemeral serverless runtimes cannot write to the
 // Unraid share. Production upload behavior remains database-backed." So all 60
 // images would generate successfully and no page would show one.
 //

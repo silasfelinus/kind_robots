@@ -4,7 +4,7 @@
 //
 // WHAT HAPPENED, 2026-08-07
 // -------------------------
-// kind-robots.vercel.app returned 500 on every content route:
+// the former production host returned 500 on every content route:
 //
 //   DevalueError: Cannot stringify a Promise or thenable
 //     path: '.pinia.pageStore.initializePromise'

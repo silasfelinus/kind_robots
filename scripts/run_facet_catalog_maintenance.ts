@@ -1,7 +1,7 @@
 // /scripts/run_facet_catalog_maintenance.ts
 //
 // Serializes the complete production Facet catalog mutation sequence with a
-// MariaDB named lock. Vercel production deployments can overlap, but canonical
+// MariaDB named lock. Serverless production deployments can overlap, but canonical
 // seeding, merge cleanup, taxonomy curation, and ArtJob creation must behave as
 // one ordered catalog operation rather than several interleaved writers.
 

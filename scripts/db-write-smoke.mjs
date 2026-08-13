@@ -6,7 +6,7 @@
 // with network access in ~15s: no Cypress, no Cypress Cloud, no DB credentials.
 //
 //   node scripts/db-write-smoke.mjs
-//   BASE_API_URL=https://preview-url.vercel.app/api node scripts/db-write-smoke.mjs
+//   BASE_API_URL=https://kindrobots.org/api node scripts/db-write-smoke.mjs
 //
 // Exit code 0 = both writes committed (bug fixed / healthy).
 // Exit code 1 = the failing-table write still 503s (bug present) or the

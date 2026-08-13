@@ -4,8 +4,8 @@
 //
 // WHY
 // ---
-// Migrations stopped running anywhere when Vercel was retired:
-// `scripts/vercel-build.mjs` had been the thing that ran them, and the container
+// Migrations stopped running when the former hosted deploy path was retired:
+// The provider-specific build script had been the thing that ran them, and the container
 // path runs plain `npm run build`. Merging a migration to main applied it to
 // nothing.
 //

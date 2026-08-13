@@ -31,7 +31,6 @@ const EXCLUDED_DIRECTORIES = new Set([
   '.git',
   '.nuxt',
   '.output',
-  '.vercel',
   'node_modules',
   'dist',
   'coverage',

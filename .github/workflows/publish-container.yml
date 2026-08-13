@@ -71,8 +71,8 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           # Baked into the image so /api/version reports a real commit and
-          # runtimeConfig.public.buildId stops saying 'development'. Both used
-          # to come from VERCEL_GIT_COMMIT_SHA, which nothing sets here.
+          # runtimeConfig.public.buildId stops saying 'development'. Both use
+          # the explicit COMMIT_SHA build argument.
           build-args: |
             COMMIT_SHA=${{ github.sha }}
           cache-from: type=gha

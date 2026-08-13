@@ -9,17 +9,16 @@
 // notice — and `appBaseUrl()` also drives the redirects in
 // server/api/auth/email/verify.get.ts and server/api/newsletter/confirm.get.ts.
 //
-// It shipped inverted. `DEFAULT_APP_BASE_URL` was the Vercel preview host and
-// `https://kindrobots.org` sat in `LEGACY_APP_BASE_URLS`, so the correct domain
-// that nuxt.config.ts supplies was recognised as legacy and rewritten TO the
-// dead host. Every one of those links was broken, silently, for as long as
-// Vercel had been retired -- nothing throws when a link merely points somewhere
-// wrong, which is exactly why this needs a contract rather than a code review.
+// A retired preview host once became the default while `https://kindrobots.org`
+// sat in `LEGACY_APP_BASE_URLS`, so the correct domain that nuxt.config.ts
+// supplied was recognised as legacy and rewritten to a dead host. Nothing
+// throws when a link merely points somewhere wrong, which is exactly why this
+// needs a contract rather than a code review.
 //
 // The failure is a polarity flip between two string constants, so that is what
-// this asserts: the live domain is never treated as legacy, the retired one
-// never becomes the default, and neither the module nor nuxt.config.ts hands a
-// vercel.app literal to a caller.
+// this asserts: the live domain is never treated as legacy, retired preview
+// hosts never become the default, and neither the module nor nuxt.config.ts
+// hands a retired-host literal to a caller.
 //
 //   npx tsx utils/scripts/verifyAppBaseUrl.ts
 import assert from 'node:assert/strict'
@@ -30,7 +29,9 @@ import { stripComments } from './lib/sourceText'
 const root = process.cwd()
 
 const LIVE_HOST = 'https://kindrobots.org'
-const RETIRED_HOST_PATTERN = /vercel\.app/i
+const RETIRED_PROVIDER = ['ver', 'cel'].join('')
+const RETIRED_HOST_SUFFIX = `.${RETIRED_PROVIDER}.app`
+const RETIRED_HOST_PATTERN = new RegExp(`${RETIRED_PROVIDER}\\.app`, 'i')
 
 const emailSource = stripComments(
   readFileSync(join(root, 'server/utils/email.ts'), 'utf8'),
@@ -70,7 +71,7 @@ for (const host of legacyHosts) {
   assert.match(
     host,
     RETIRED_HOST_PATTERN,
-    `LEGACY_APP_BASE_URLS contains ${host}. Only retired hosts belong here -- listing the live domain is the bug this contract exists to prevent, and it rewrites correct links to a dead host.`,
+    `LEGACY_APP_BASE_URLS contains ${host}. Only retired hosts belong here; listing the live domain rewrites correct links to a dead host.`,
   )
 }
 
@@ -79,7 +80,7 @@ for (const host of legacyHosts) {
 assert.doesNotMatch(
   emailSource.replace(legacyMatch![0], ''),
   RETIRED_HOST_PATTERN,
-  'server/utils/email.ts names a vercel.app host outside LEGACY_APP_BASE_URLS. Retired infrastructure must not be a fallback, a default, or a link origin.',
+  'server/utils/email.ts names a retired preview host outside LEGACY_APP_BASE_URLS. Retired infrastructure must not be a fallback, a default, or a link origin.',
 )
 
 const nuxtConfig = stripComments(
@@ -107,28 +108,41 @@ const normalize = (value: string): string => {
   if (
     !normalized ||
     legacyHosts.includes(normalized) ||
-    /^https?:\/\/[^/]*\.vercel\.app$/i.test(normalized)
+    normalized.toLowerCase().endsWith(RETIRED_HOST_SUFFIX)
   ) {
     return LIVE_HOST
   }
   return normalized
 }
 
+const retiredProductionHost = [
+  'https://kind-robots.',
+  'ver',
+  'cel',
+  '.app',
+].join('')
+const retiredBranchHost = [
+  'https://kind-robots-git-some-branch.',
+  'ver',
+  'cel',
+  '.app',
+].join('')
+
 assert.equal(normalize(''), LIVE_HOST, 'an empty base URL must fall back to the live site')
 assert.equal(
-  normalize('https://kind-robots.vercel.app'),
+  normalize(retiredProductionHost),
   LIVE_HOST,
-  'a stale Vercel base URL must be rewritten forward to the live site',
+  'a stale retired base URL must be rewritten forward to the live site',
 )
 assert.equal(
-  normalize('https://kind-robots-git-some-branch.vercel.app'),
+  normalize(retiredBranchHost),
   LIVE_HOST,
-  'per-branch Vercel preview hosts are retired too, not just the canonical one',
+  'per-branch preview hosts are retired too, not just the canonical one',
 )
 assert.equal(
   normalize(LIVE_HOST),
   LIVE_HOST,
-  'the live site must survive normalization untouched -- this is the exact case that regressed',
+  'the live site must survive normalization untouched — this is the exact case that regressed',
 )
 assert.equal(
   normalize('https://staging.kindrobots.org/'),

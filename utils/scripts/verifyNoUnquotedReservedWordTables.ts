@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url'
 // locally since Prisma's generated client and this contract's own mocks
 // never exercise real MariaDB grammar. This exact shape shipped across four
 // call sites in kind_robots (a migration-repair script that runs during
-// `npm run vercel-build`, plus three API/util files) before anyone noticed;
+// the former provider-specific build command, plus three API/util files) before anyone noticed;
 // the migration-repair one broke every production deploy until it was fixed
 // by quoting the identifier with backticks (`` `Character` ``). Add new
 // reserved words here as they're found to bite a real call site -- keep the
@@ -35,7 +35,6 @@ const EXCLUDED_DIRECTORIES = new Set([
   '.git',
   '.nuxt',
   '.output',
-  '.vercel',
   'node_modules',
   'dist',
   'coverage',

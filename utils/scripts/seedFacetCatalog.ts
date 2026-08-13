@@ -475,7 +475,7 @@ type CatalogState = {
 // The seed previously re-read the DB per candidate/alias/character (a
 // couple thousand serial round trips against a remote ProxySQL host with
 // pipelining disabled), which is what pushed production builds past
-// Vercel's max build time (see facet-catalog production incident,
+// the former serverless build-time limit (see facet-catalog production incident,
 // 2026-07-25 -- every build since the Facet catalog cutover landed timed
 // out with BUILD_EXCEEDED_MAXIMUM_TIME). Loading the full existing state
 // once up front turns those reads into two queries total.

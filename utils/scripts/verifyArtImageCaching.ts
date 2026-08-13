@@ -3,7 +3,7 @@
 // The busiest route in the app stays CDN-cacheable.
 //
 // `/api/art/images/[id]/file` was 1591 requests in a two-hour window on
-// 2026-08-05 — 34% of all Vercel function invocations and 3x the next busiest
+// 2026-08-05 — 34% of all serverless function invocations and 3x the next busiest
 // route — because gallery pages mount 140+ images at once. Every request that
 // misses the CDN invokes the function, hits Prisma, and opens a ProxySQL
 // session to read a base64 LongText blob. So this route's cache behaviour is

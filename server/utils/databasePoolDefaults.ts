@@ -2,7 +2,7 @@
 //
 // Kind Robots production runs as a controlled, long-lived Node/Nitro container.
 // Keep one explicit pool profile for that topology. Provider-specific serverless
-// envelopes were retired with the Vercel deployment path.
+// envelopes were retired with the former serverless deployment path.
 
 export type DatabasePoolProfile = 'long-lived'
 

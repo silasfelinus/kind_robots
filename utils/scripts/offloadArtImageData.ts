@@ -25,7 +25,7 @@
 // offloadArtImageBytes with the live completion path, so a backfilled row and a
 // freshly generated one end up byte-for-byte in the same shape.
 //
-// Usage (on a host where IMAGES_PATH reaches the share — Vercel cannot):
+// Usage (on a host where IMAGES_PATH reaches the share — ephemeral serverless runtimes cannot):
 //   npm run offload:art-images                    # dry run, reports the plan
 //   npm run offload:art-images -- --write         # actually move bytes
 //   npm run offload:art-images -- --write --limit 25

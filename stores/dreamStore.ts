@@ -323,6 +323,7 @@ function defaultDreamForm(
     isPublic: true,
     isMature: false,
     isActive: true,
+    allowReviews: true,
     artImageId: null,
     artCollectionId: null,
     scenarioId: null,

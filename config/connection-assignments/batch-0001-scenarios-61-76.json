@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "batch": "scenarios-61-76",
+  "releaseGate": "GPT-5.6 Sol",
+  "draftingModel": "Claude Code",
+  "assignments": [
+    {"kind":"SCENARIO_CHARACTER","scenarioId":61,"scenarioTitle":"Zombie Fashion Runway","characterId":282,"characterName":"Patient Zero, Reformed","why":"ZombieCore, and the one person on a runway of the undead who knows the etiquette from both sides of it"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":61,"scenarioTitle":"Zombie Fashion Runway","characterId":245,"characterName":"Mx. Eleven-Fingers","why":"CircusCore against the scenario's Circus facet; a spectacle this staged needs somebody who has worked a tent"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":61,"scenarioTitle":"Zombie Fashion Runway","characterId":281,"characterName":"Applause","why":"the antagonist of the Circus facet, and a fashion week is entirely a machine for producing applause"},
+    {"kind":"SCENARIO_DREAM","scenarioId":61,"scenarioTitle":"Zombie Fashion Runway","dreamId":46,"dreamTitle":"Mistress Cassady’s Spooktakular Monster Drag Party","why":"a midnight monster revue for every creature told to hide or pass is the same room as a runway the undead have taken over"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":62,"scenarioTitle":"The Fox Prince","characterId":154,"characterName":"Reginald Brushtail","why":"Folklore Fantasy, and shares the scenario's own vocabulary of nine, tail and crown; this is the fox court he belongs in"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":62,"scenarioTitle":"The Fox Prince","characterId":324,"characterName":"Sir Reginald Pemberton III","why":"Animal Protagonists, and a court drama needs somebody who takes the titles entirely seriously"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":62,"scenarioTitle":"The Fox Prince","characterId":294,"characterName":"The Apex Pet","why":"Animal Protagonists; a story about guardians of nature wants the animal who has been on the other side of the leash"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":63,"scenarioTitle":"Fairy Theft","characterId":192,"characterName":"Fizzwick the Fairy","why":"Dark Whimsy, and a fairy court assignment is literally this character's own vocabulary of fairy, court and assignment"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":63,"scenarioTitle":"Fairy Theft","characterId":278,"characterName":"Sweet Tooth","why":"Fractured Fairy Tales; an uninvited guest at a christening is the oldest version of this exact errand"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":63,"scenarioTitle":"Fairy Theft","characterId":287,"characterName":"The Gardener of Teeth","why":"Fractured Fairy Tales, and somebody in a story about stolen infants should know what gets left in the cradle instead"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":64,"scenarioTitle":"Freefall","characterId":150,"characterName":"The Sentient Couch","why":"WeirdCore, and an endless fall through bizarre strata is funnier and sadder with furniture falling alongside you"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":64,"scenarioTitle":"Freefall","characterId":251,"characterName":"Ampersand","why":"WeirdCore; a character who is a conjunction belongs in a story that never reaches its landing"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":64,"scenarioTitle":"Freefall","characterId":320,"characterName":"Doodle","why":"WeirdCore, and the strata of a gravity-optional world are exactly the kind of thing Doodle would draw more of"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":65,"scenarioTitle":"Serendipity","characterId":165,"characterName":"Serendipity Sal","why":"Sci-Fi Comedy, and she shares the bar's name; a neutral ground between worlds needs the person behind the counter"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":65,"scenarioTitle":"Serendipity","characterId":256,"characterName":"The Last Honest Map","why":"Space Adventures; every bar at the edge of known space runs on somebody's directions being trustworthy"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":65,"scenarioTitle":"Serendipity","characterId":285,"characterName":"The Cartographer of Wrong Turns","why":"Space Adventures, and the honest map deserves its opposite drinking three stools down"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":65,"scenarioTitle":"Serendipity","characterId":358,"characterName":"Grand Marshal Aurelia Vane","why":"Space Adventures; a neutral ground is only interesting when somebody with rank has to check their authority at the airlock"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":65,"scenarioTitle":"Serendipity","characterId":261,"characterName":"The Understudy Sun","why":"Space Adventures, and a bar where everyone is welcome is where an understudy finally gets talked to directly"},
+    {"kind":"SCENARIO_DREAM","scenarioId":65,"scenarioTitle":"Serendipity","dreamId":49,"dreamTitle":"The Improbability Starcruiser","why":"a barely functional ship whose crew looks nothing like the recruitment posters docks at exactly this bar, and both run on mutual respect and bad coffee"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":66,"scenarioTitle":"I'm a Sea Anemone and I WILL Take Over the World","characterId":208,"characterName":"Dewy the Dugong","why":"named outright in the scenario as the loyal and not especially bright assistant; this link should already have existed"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":66,"scenarioTitle":"I'm a Sea Anemone and I WILL Take Over the World","characterId":148,"characterName":"Number Two","why":"Villain Era, and a world-domination plot with one henchperson is exactly the org chart Number Two has opinions about"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":66,"scenarioTitle":"I'm a Sea Anemone and I WILL Take Over the World","characterId":273,"characterName":"The Retired Sea Monster","why":"The Big Blue; somebody in the kelp who already tried menacing the surface and stopped"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":66,"scenarioTitle":"I'm a Sea Anemone and I WILL Take Over the World","characterId":239,"characterName":"Grandmother Whalehall","why":"The Big Blue, and every monologuing anemone needs an elder who remembers them being small"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":67,"scenarioTitle":"Cthulhu for President","characterId":254,"characterName":"The Polite Plague","why":"EldritchCore; a campaign that ends democracy while being scrupulously courteous about it is this character's whole method"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":67,"scenarioTitle":"Cthulhu for President","characterId":289,"characterName":"Small Print","why":"Weird Capitalism, and the terms of an eldritch ballot are where the actual campaign happens"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":67,"scenarioTitle":"Cthulhu for President","characterId":271,"characterName":"The Kaiju Who Just Wants to Sit Down","why":"KaijuCore; the endless abyss of polling deserves somebody who is tired in a way the press cannot photograph"},
+    {"kind":"SCENARIO_DREAM","scenarioId":67,"scenarioTitle":"Cthulhu for President","dreamId":42,"dreamTitle":"The Cthulian Jam Band Festival","why":"a seaside cosmic festival under impossible moons is the one campaign stop where the Great Old One polls well, and the food trucks are already sentient"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":68,"scenarioTitle":"Space Casino","characterId":276,"characterName":"The Alibi","why":"crimeCore, and a heist on the galaxy's most lethal floor is won or lost on where everybody says they were"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":68,"scenarioTitle":"Space Casino","characterId":284,"characterName":"Mr. Fairweather","why":"crimeCore; a house that always wins wants a partner who is present for exactly as long as that holds"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":68,"scenarioTitle":"Space Casino","characterId":263,"characterName":"The Reflection That Stayed","why":"crimeCore, and a vault job in a hall of mirrored floors needs the one who did not leave with the person they belonged to"},
+    {"kind":"SCENARIO_DREAM","scenarioId":68,"scenarioTitle":"Space Casino","dreamId":49,"dreamTitle":"The Improbability Starcruiser","why":"the crew that arrives to case Vega Prime flies something held together by duct tape and recycled optimism, which is the only reason the odds are interesting"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":69,"scenarioTitle":"Zuzu, Koala Assassin","characterId":110,"characterName":"Zuzu","why":"the scenario is named for Zuzu and Zuzu is already cast in its Dream; the Scenario link was simply never written"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":69,"scenarioTitle":"Zuzu, Koala Assassin","characterId":112,"characterName":"Tomoe of the Long Road","why":"already cast in the Koala Assassin Dream, and the scenario offers the young samurai who has hunted Zuzu a thousand miles"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":69,"scenarioTitle":"Zuzu, Koala Assassin","characterId":111,"characterName":"Old Shelba","why":"already cast in the Dream; a contract broker is who a town with a secret worth killing for goes through"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":69,"scenarioTitle":"Zuzu, Koala Assassin","characterId":113,"characterName":"The Smiling Magpie","why":"already cast in the Dream, and a frontier standoff wants somebody enjoying it more than anyone should"},
+    {"kind":"SCENARIO_DREAM","scenarioId":69,"scenarioTitle":"Zuzu, Koala Assassin","dreamId":39,"dreamTitle":"Gallowsun Junction","why":"a weird western rail town where every dusty street leads to a bargain nobody remembers making is the town Zuzu rides into"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":70,"scenarioTitle":"I Am a New Intern and I Will Shatter the Glass Ceiling with My Feminist Dialectic and Giant Sledgehammer","characterId":138,"characterName":"Penny Wrecker","why":"office satire and intern hierarchies in her own words; OverCorp is the building she was written to swing at"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":70,"scenarioTitle":"I Am a New Intern and I Will Shatter the Glass Ceiling with My Feminist Dialectic and Giant Sledgehammer","characterId":279,"characterName":"Quota","why":"Weird Capitalism; a soul-sucking megacorporation is a number that goes up, and somebody has to be that number"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":70,"scenarioTitle":"I Am a New Intern and I Will Shatter the Glass Ceiling with My Feminist Dialectic and Giant Sledgehammer","characterId":244,"characterName":"The Footnote","why":"Weird Capitalism, and every corporate ceiling has the clause underneath explaining why it is not a ceiling"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":70,"scenarioTitle":"I Am a New Intern and I Will Shatter the Glass Ceiling with My Feminist Dialectic and Giant Sledgehammer","characterId":139,"characterName":"The Form That Bites","why":"sentient paperwork, which is what an intern armed with a sledgehammer actually has to get past"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":71,"scenarioTitle":"Why Do People Keep Attacking My Dungeon?","characterId":248,"characterName":"The Understudy for the Final Boss","why":"Villain Era, and a mid-tier dungeon is precisely where an understudy gets the shift nobody else wanted"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":71,"scenarioTitle":"Why Do People Keep Attacking My Dungeon?","characterId":148,"characterName":"Number Two","why":"Villain Era; managing staff between trap rebuilds is the workplace satire this character already lives in"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":71,"scenarioTitle":"Why Do People Keep Attacking My Dungeon?","characterId":295,"characterName":"Consensus","why":"Villain Era, and a dungeon whose staff have started unionizing needs whoever the room agrees with"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":72,"scenarioTitle":"High School Octopus Dating Simulator","characterId":240,"characterName":"The Cubit","why":"oddCore; the only human transfer student needs a classmate whose measurements of everything are slightly wrong"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":72,"scenarioTitle":"High School Octopus Dating Simulator","characterId":273,"characterName":"The Retired Sea Monster","why":"The Big Blue, and every aquatic high school has one faculty member who used to be a legend"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":72,"scenarioTitle":"High School Octopus Dating Simulator","characterId":257,"characterName":"Coincidence, Freelance","why":"oddCore; a dating simulator runs entirely on somebody arranging to be in the cafeteria at the right moment"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":73,"scenarioTitle":"It's My Birthday So I Kidnapped a Princess and Today We're Getting Married","characterId":143,"characterName":"Grenidan","why":"Villain Era, and a birthday wedding by abduction is the kind of plan that needs somebody fully committed to it"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":73,"scenarioTitle":"It's My Birthday So I Kidnapped a Princess and Today We're Getting Married","characterId":144,"characterName":"Vexa Thornes","why":"Villain Era; she filled four roles with applause and has strong feelings about a scheme nobody talked the villain out of"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":73,"scenarioTitle":"It's My Birthday So I Kidnapped a Princess and Today We're Getting Married","characterId":278,"characterName":"Sweet Tooth","why":"Fractured Fairy Tales, and a warm room, an unwilling bride and everyone being terribly polite is the shape she knows"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":74,"scenarioTitle":"Alien Zookeeper","characterId":285,"characterName":"The Cartographer of Wrong Turns","why":"Space Adventures; a sanctuary of gravity-defying creatures is mostly a problem of where anything currently is"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":74,"scenarioTitle":"Alien Zookeeper","characterId":255,"characterName":"Mx. Quorum","why":"oddCore, and keeping the peace among telepathic squids is a negotiation before it is a job"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":74,"scenarioTitle":"Alien Zookeeper","characterId":294,"characterName":"The Apex Pet","why":"the animal who knows what being kept feels like belongs in the galaxy's most chaotic wildlife sanctuary"},
+    {"kind":"SCENARIO_DREAM","scenarioId":74,"scenarioTitle":"Alien Zookeeper","dreamId":49,"dreamTitle":"The Improbability Starcruiser","why":"a ship whose doors sigh and whose vents complain is how the chaotic creatures arrive, and how the keeper leaves when it goes badly"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":75,"scenarioTitle":"Zombie Necromancer Pet Shop","characterId":282,"characterName":"Patient Zero, Reformed","why":"ZombieCore, and a shop selling undead companions wants the one who can say honestly what comes back and what does not"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":75,"scenarioTitle":"Zombie Necromancer Pet Shop","characterId":269,"characterName":"The Last Customer","why":"CozyCore; a quaint shop with steady business is defined by whoever is still coming in at closing"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":75,"scenarioTitle":"Zombie Necromancer Pet Shop","characterId":270,"characterName":"Echo, Returns Department","why":"oddCore, and skeletal kittens are exactly the merchandise somebody eventually tries to bring back"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":76,"scenarioTitle":"Fantasy Convenience Store Employee","characterId":190,"characterName":"Quill the Convenience Clerk","why":"Fantasy Slice-of-Life, and this character is the convenience clerk; Ye Olde Quick-Stop is the counter he stands behind"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":76,"scenarioTitle":"Fantasy Convenience Store Employee","characterId":250,"characterName":"The Customer Who Buys One of Everything","why":"oddCore; a store stocking potions and emergency armor polish needs the regular who clears a shelf without explanation"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":76,"scenarioTitle":"Fantasy Convenience Store Employee","characterId":269,"characterName":"The Last Customer","why":"CozyCore, and the wizard who comes in desperate at the end of a shift is the whole genre in one visit"},
+    {"kind":"SCENARIO_DREAM","scenarioId":76,"scenarioTitle":"Fantasy Convenience Store Employee","dreamId":37,"dreamTitle":"The Lantern Greenhouse","why":"a tiny impossible marketplace where every doorway leads somewhere else is the district Ye Olde Quick-Stop trades in"}
+  ]
+}

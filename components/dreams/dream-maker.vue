@@ -301,6 +301,23 @@
                 />
               </label>
 
+              <!--
+                Dream was the one owner-facing surface with no way to turn
+                comments off. Bot, Character, Reward and Scenario all have the
+                control; Dream's owners could not reach their own allowReviews
+                column from the UI at all.
+              -->
+              <label
+                class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
+              >
+                <span class="label-text font-bold">Reviews</span>
+                <input
+                  v-model="dreamStore.dreamForm.allowReviews"
+                  type="checkbox"
+                  class="toggle toggle-accent"
+                />
+              </label>
+
               <label
                 class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
               >

@@ -1,0 +1,6814 @@
+{
+  "generatedFrom": "https://kindrobots.org",
+  "totals": {
+    "characters": 227,
+    "dreams": 48,
+    "scenarios": 116,
+    "facets": 1591,
+    "genreFacets": 160,
+    "characterFacetLinks": 724
+  },
+  "gaps": {
+    "charactersWithoutDream": [
+      {
+        "id": 86,
+        "name": "Brine"
+      },
+      {
+        "id": 115,
+        "name": "Old Salt"
+      },
+      {
+        "id": 116,
+        "name": "Pim"
+      },
+      {
+        "id": 117,
+        "name": "Captain Reiko Vane"
+      },
+      {
+        "id": 118,
+        "name": "Gnash"
+      },
+      {
+        "id": 119,
+        "name": "Deputy Undersecretary Hollis Crane"
+      },
+      {
+        "id": 120,
+        "name": "Maren the Anemone Heir"
+      },
+      {
+        "id": 121,
+        "name": "Pebble"
+      },
+      {
+        "id": 122,
+        "name": "Lord Vance of the Abyssal Court"
+      },
+      {
+        "id": 123,
+        "name": "Professor Coil"
+      },
+      {
+        "id": 124,
+        "name": "The Leviathan That Knows Your Name"
+      },
+      {
+        "id": 125,
+        "name": "Saint"
+      },
+      {
+        "id": 126,
+        "name": "Switch"
+      },
+      {
+        "id": 127,
+        "name": "Margaux Dell"
+      },
+      {
+        "id": 128,
+        "name": "Old Penny"
+      },
+      {
+        "id": 129,
+        "name": "Detective Aria Voss"
+      },
+      {
+        "id": 130,
+        "name": "Mortimer Vance"
+      },
+      {
+        "id": 131,
+        "name": "Scustodian Bray"
+      },
+      {
+        "id": 132,
+        "name": "Biscuit"
+      },
+      {
+        "id": 133,
+        "name": "The Widow Marrowlace"
+      },
+      {
+        "id": 134,
+        "name": "Reverend Two-Shadows"
+      },
+      {
+        "id": 135,
+        "name": "Dust Annie"
+      },
+      {
+        "id": 136,
+        "name": "The Iron Pacific"
+      },
+      {
+        "id": 137,
+        "name": "Quiet Deputy Sull"
+      },
+      {
+        "id": 138,
+        "name": "Penny Wrecker"
+      },
+      {
+        "id": 139,
+        "name": "The Form That Bites"
+      },
+      {
+        "id": 140,
+        "name": "Devorah Kell"
+      },
+      {
+        "id": 141,
+        "name": "Grub"
+      },
+      {
+        "id": 142,
+        "name": "Madame Luxoria"
+      },
+      {
+        "id": 143,
+        "name": "Grenidan"
+      },
+      {
+        "id": 144,
+        "name": "Vexa Thornes"
+      },
+      {
+        "id": 145,
+        "name": "The Ringmaster of the Tent That Wasn't There Yesterday"
+      },
+      {
+        "id": 146,
+        "name": "Pirouette"
+      },
+      {
+        "id": 147,
+        "name": "Maestro Clank"
+      },
+      {
+        "id": 148,
+        "name": "Number Two"
+      },
+      {
+        "id": 149,
+        "name": "The Mirror Menagerie Keeper"
+      },
+      {
+        "id": 150,
+        "name": "The Sentient Couch"
+      },
+      {
+        "id": 151,
+        "name": "Mirror Dorothy"
+      },
+      {
+        "id": 152,
+        "name": "The Cardigan Heron"
+      },
+      {
+        "id": 153,
+        "name": "The Backpack Pigeon"
+      },
+      {
+        "id": 154,
+        "name": "Reginald Brushtail"
+      },
+      {
+        "id": 155,
+        "name": "Professor Quillby"
+      },
+      {
+        "id": 157,
+        "name": "The Riddling Tabby"
+      },
+      {
+        "id": 159,
+        "name": "Octavia Brine"
+      },
+      {
+        "id": 160,
+        "name": "Cog-7 'Rabbit'"
+      },
+      {
+        "id": 162,
+        "name": "The Algorithm"
+      },
+      {
+        "id": 164,
+        "name": "Pixel"
+      },
+      {
+        "id": 165,
+        "name": "Serendipity Sal"
+      },
+      {
+        "id": 167,
+        "name": "The Navigator Who Came Back Wrong"
+      },
+      {
+        "id": 168,
+        "name": "Boss the Janitor"
+      },
+      {
+        "id": 170,
+        "name": "Glorp the Zookeeper"
+      },
+      {
+        "id": 172,
+        "name": "Medusa"
+      },
+      {
+        "id": 174,
+        "name": "Tobias the Rookie God"
+      },
+      {
+        "id": 176,
+        "name": "The God of Lost Keys"
+      },
+      {
+        "id": 178,
+        "name": "The Tortoise of the Tea Shop"
+      },
+      {
+        "id": 180,
+        "name": "Marisol the Capybara"
+      },
+      {
+        "id": 190,
+        "name": "Quill the Convenience Clerk"
+      },
+      {
+        "id": 191,
+        "name": "The Sphinx in an Apron"
+      },
+      {
+        "id": 192,
+        "name": "Fizzwick the Fairy"
+      },
+      {
+        "id": 193,
+        "name": "The Godmother With Too Many Teeth"
+      },
+      {
+        "id": 194,
+        "name": "The Lighthouse Keeper"
+      },
+      {
+        "id": 195,
+        "name": "The Thing in the Cellar"
+      },
+      {
+        "id": 196,
+        "name": "Inkwell"
+      },
+      {
+        "id": 197,
+        "name": "The Time-Office Agent"
+      },
+      {
+        "id": 198,
+        "name": "Chef Bellamy Crisp"
+      },
+      {
+        "id": 199,
+        "name": "The Model That Dreamed"
+      },
+      {
+        "id": 200,
+        "name": "BB-Hope"
+      },
+      {
+        "id": 201,
+        "name": "The Daisy Who Saw It Start"
+      },
+      {
+        "id": 202,
+        "name": "The Last Gardener"
+      },
+      {
+        "id": 203,
+        "name": "The Caretaker of the Living Soil"
+      },
+      {
+        "id": 204,
+        "name": "The Mirror Dorothy You Trust"
+      },
+      {
+        "id": 205,
+        "name": "Captain Mara Vey"
+      },
+      {
+        "id": 206,
+        "name": "The Sea Anemone Who Will Take Over the World"
+      },
+      {
+        "id": 207,
+        "name": "The Outlaw Made of Dust"
+      },
+      {
+        "id": 208,
+        "name": "Dewy the Dugong"
+      },
+      {
+        "id": 209,
+        "name": "The Crossroads Coyote"
+      },
+      {
+        "id": 210,
+        "name": "The Crow Who Collects"
+      },
+      {
+        "id": 211,
+        "name": "The Many-Eyed Manager"
+      },
+      {
+        "id": 212,
+        "name": "Granny Hexwood"
+      },
+      {
+        "id": 213,
+        "name": "The Stranger Who Posts the Bounties"
+      },
+      {
+        "id": 214,
+        "name": "The Sentient Sketchbook"
+      },
+      {
+        "id": 215,
+        "name": "The Octopus in the Study"
+      },
+      {
+        "id": 216,
+        "name": "The Navigator of the Last Bus"
+      },
+      {
+        "id": 217,
+        "name": "The Overqualified Candidate"
+      },
+      {
+        "id": 218,
+        "name": "The Fiber-Optic Fox"
+      },
+      {
+        "id": 219,
+        "name": "The Stag Who Holds Court"
+      },
+      {
+        "id": 220,
+        "name": "The Loyal Roommate"
+      },
+      {
+        "id": 221,
+        "name": "The Ghost in the Saloon"
+      },
+      {
+        "id": 222,
+        "name": "The Griffin With the Deed"
+      },
+      {
+        "id": 223,
+        "name": "The Skywhale"
+      },
+      {
+        "id": 224,
+        "name": "The Spire's Voice"
+      },
+      {
+        "id": 225,
+        "name": "Hex the Necromancer"
+      },
+      {
+        "id": 226,
+        "name": "The Aerialist With No Wire"
+      },
+      {
+        "id": 227,
+        "name": "The Tiny Diplomat of the Tide Pool"
+      },
+      {
+        "id": 228,
+        "name": "The Conductor's Ghost"
+      },
+      {
+        "id": 229,
+        "name": "The Pollinator Choir"
+      },
+      {
+        "id": 230,
+        "name": "The Heron's Misfiled Person"
+      },
+      {
+        "id": 232,
+        "name": "The Soldier Out of Time"
+      },
+      {
+        "id": 233,
+        "name": "The Many-Eyed Diplomat"
+      },
+      {
+        "id": 234,
+        "name": "The Whispering Woods"
+      },
+      {
+        "id": 235,
+        "name": "The Disaster With Potential"
+      },
+      {
+        "id": 236,
+        "name": "The Reanimation Counter's Best Work"
+      },
+      {
+        "id": 237,
+        "name": "The Promise"
+      },
+      {
+        "id": 238,
+        "name": "Absence"
+      },
+      {
+        "id": 239,
+        "name": "Grandmother Whalehall"
+      },
+      {
+        "id": 240,
+        "name": "The Cubit"
+      },
+      {
+        "id": 241,
+        "name": "Tomorrow-Aiko"
+      },
+      {
+        "id": 242,
+        "name": "Load-Bearing Lumen"
+      },
+      {
+        "id": 243,
+        "name": "Recursion"
+      },
+      {
+        "id": 244,
+        "name": "The Footnote"
+      },
+      {
+        "id": 245,
+        "name": "Mx. Eleven-Fingers"
+      },
+      {
+        "id": 246,
+        "name": "The Town That Walks"
+      },
+      {
+        "id": 247,
+        "name": "Querent"
+      },
+      {
+        "id": 248,
+        "name": "The Understudy for the Final Boss"
+      },
+      {
+        "id": 249,
+        "name": "Compost"
+      },
+      {
+        "id": 250,
+        "name": "The Customer Who Buys One of Everything"
+      },
+      {
+        "id": 251,
+        "name": "Ampersand"
+      },
+      {
+        "id": 252,
+        "name": "The Retired Chosen One"
+      },
+      {
+        "id": 253,
+        "name": "Static"
+      },
+      {
+        "id": 254,
+        "name": "The Polite Plague"
+      },
+      {
+        "id": 255,
+        "name": "Mx. Quorum"
+      },
+      {
+        "id": 256,
+        "name": "The Last Honest Map"
+      },
+      {
+        "id": 257,
+        "name": "Coincidence, Freelance"
+      },
+      {
+        "id": 258,
+        "name": "Grief, Certified Interpreter"
+      },
+      {
+        "id": 259,
+        "name": "The Migration"
+      },
+      {
+        "id": 260,
+        "name": "Patch"
+      },
+      {
+        "id": 261,
+        "name": "The Understudy Sun"
+      },
+      {
+        "id": 262,
+        "name": "Deadline"
+      },
+      {
+        "id": 263,
+        "name": "The Reflection That Stayed"
+      },
+      {
+        "id": 264,
+        "name": "Professor Petrichor"
+      },
+      {
+        "id": 265,
+        "name": "The Auditor of Wishes"
+      },
+      {
+        "id": 266,
+        "name": "Rust"
+      },
+      {
+        "id": 267,
+        "name": "The Committee for the Stars"
+      },
+      {
+        "id": 268,
+        "name": "Glitch-in-Residence"
+      },
+      {
+        "id": 269,
+        "name": "The Last Customer"
+      },
+      {
+        "id": 270,
+        "name": "Echo, Returns Department"
+      },
+      {
+        "id": 271,
+        "name": "The Kaiju Who Just Wants to Sit Down"
+      },
+      {
+        "id": 272,
+        "name": "Margin"
+      },
+      {
+        "id": 273,
+        "name": "The Retired Sea Monster"
+      },
+      {
+        "id": 274,
+        "name": "Placebo"
+      },
+      {
+        "id": 275,
+        "name": "The Intermission"
+      },
+      {
+        "id": 276,
+        "name": "The Alibi"
+      },
+      {
+        "id": 277,
+        "name": "The Editor"
+      },
+      {
+        "id": 278,
+        "name": "Sweet Tooth"
+      },
+      {
+        "id": 279,
+        "name": "Quota"
+      },
+      {
+        "id": 280,
+        "name": "The Collector of Lasts"
+      },
+      {
+        "id": 281,
+        "name": "Applause"
+      },
+      {
+        "id": 282,
+        "name": "Patient Zero, Reformed"
+      },
+      {
+        "id": 283,
+        "name": "The Frequency"
+      },
+      {
+        "id": 284,
+        "name": "Mr. Fairweather"
+      },
+      {
+        "id": 285,
+        "name": "The Cartographer of Wrong Turns"
+      },
+      {
+        "id": 286,
+        "name": "Backlog"
+      },
+      {
+        "id": 287,
+        "name": "The Gardener of Teeth"
+      },
+      {
+        "id": 288,
+        "name": "The Understudy Who Stopped Waiting"
+      },
+      {
+        "id": 289,
+        "name": "Small Print"
+      },
+      {
+        "id": 290,
+        "name": "The Hollow Hero"
+      },
+      {
+        "id": 291,
+        "name": "Threshold"
+      },
+      {
+        "id": 292,
+        "name": "The Pied Investor"
+      },
+      {
+        "id": 293,
+        "name": "Nostalgia"
+      },
+      {
+        "id": 294,
+        "name": "The Apex Pet"
+      },
+      {
+        "id": 295,
+        "name": "Consensus"
+      },
+      {
+        "id": 296,
+        "name": "The Generous Ghost"
+      },
+      {
+        "id": 317,
+        "name": "First Responder"
+      },
+      {
+        "id": 318,
+        "name": "The Whole Swarm"
+      },
+      {
+        "id": 319,
+        "name": "The Good Customer"
+      },
+      {
+        "id": 320,
+        "name": "Doodle"
+      },
+      {
+        "id": 321,
+        "name": "Captain Verdance"
+      },
+      {
+        "id": 322,
+        "name": "The Understudy Sun, On"
+      },
+      {
+        "id": 323,
+        "name": "Margin's Find"
+      },
+      {
+        "id": 324,
+        "name": "Sir Reginald Pemberton III"
+      },
+      {
+        "id": 325,
+        "name": "The Last Honest Map, Read"
+      },
+      {
+        "id": 326,
+        "name": "Brunch"
+      },
+      {
+        "id": 327,
+        "name": "The Apprentice to Nobody"
+      },
+      {
+        "id": 328,
+        "name": "Querent's Best Reading"
+      },
+      {
+        "id": 329,
+        "name": "The Considerate AI"
+      },
+      {
+        "id": 330,
+        "name": "Trail Mix"
+      },
+      {
+        "id": 331,
+        "name": "The Kaiju Who Found a Valley"
+      },
+      {
+        "id": 332,
+        "name": "The Reflection That Came Back"
+      },
+      {
+        "id": 333,
+        "name": "The Keeper of the Net"
+      },
+      {
+        "id": 351,
+        "name": "The Story That Tells Itself"
+      },
+      {
+        "id": 352,
+        "name": "The Cartographer of Dreams"
+      },
+      {
+        "id": 353,
+        "name": "Amica"
+      },
+      {
+        "id": 354,
+        "name": "The Player Two"
+      },
+      {
+        "id": 356,
+        "name": "The Question Mark"
+      },
+      {
+        "id": 357,
+        "name": "The First Draft"
+      },
+      {
+        "id": 358,
+        "name": "Grand Marshal Aurelia Vane"
+      },
+      {
+        "id": 359,
+        "name": "The Understory"
+      },
+      {
+        "id": 360,
+        "name": "The Encore"
+      },
+      {
+        "id": 361,
+        "name": "Detective Inspector Mochi"
+      },
+      {
+        "id": 362,
+        "name": "The Patron of Lost Causes"
+      },
+      {
+        "id": 363,
+        "name": "The Save Point"
+      },
+      {
+        "id": 364,
+        "name": "The Big Bad Who Lost a Bet"
+      },
+      {
+        "id": 365,
+        "name": "The One Who Names the Characters"
+      },
+      {
+        "id": 366,
+        "name": "Two Hundred"
+      },
+      {
+        "id": 987,
+        "name": "Canner Odalys"
+      },
+      {
+        "id": 988,
+        "name": "Whistle, the Echo-Tamer"
+      },
+      {
+        "id": 989,
+        "name": "Bram the Tin-Runner"
+      }
+    ],
+    "charactersWithoutScenario": [
+      {
+        "id": 86,
+        "name": "Brine"
+      },
+      {
+        "id": 110,
+        "name": "Zuzu"
+      },
+      {
+        "id": 111,
+        "name": "Old Shelba"
+      },
+      {
+        "id": 112,
+        "name": "Tomoe of the Long Road"
+      },
+      {
+        "id": 113,
+        "name": "The Smiling Magpie"
+      },
+      {
+        "id": 114,
+        "name": "Marrow"
+      },
+      {
+        "id": 115,
+        "name": "Old Salt"
+      },
+      {
+        "id": 116,
+        "name": "Pim"
+      },
+      {
+        "id": 117,
+        "name": "Captain Reiko Vane"
+      },
+      {
+        "id": 118,
+        "name": "Gnash"
+      },
+      {
+        "id": 119,
+        "name": "Deputy Undersecretary Hollis Crane"
+      },
+      {
+        "id": 120,
+        "name": "Maren the Anemone Heir"
+      },
+      {
+        "id": 121,
+        "name": "Pebble"
+      },
+      {
+        "id": 122,
+        "name": "Lord Vance of the Abyssal Court"
+      },
+      {
+        "id": 123,
+        "name": "Professor Coil"
+      },
+      {
+        "id": 124,
+        "name": "The Leviathan That Knows Your Name"
+      },
+      {
+        "id": 125,
+        "name": "Saint"
+      },
+      {
+        "id": 126,
+        "name": "Switch"
+      },
+      {
+        "id": 127,
+        "name": "Margaux Dell"
+      },
+      {
+        "id": 128,
+        "name": "Old Penny"
+      },
+      {
+        "id": 129,
+        "name": "Detective Aria Voss"
+      },
+      {
+        "id": 130,
+        "name": "Mortimer Vance"
+      },
+      {
+        "id": 131,
+        "name": "Scustodian Bray"
+      },
+      {
+        "id": 132,
+        "name": "Biscuit"
+      },
+      {
+        "id": 133,
+        "name": "The Widow Marrowlace"
+      },
+      {
+        "id": 134,
+        "name": "Reverend Two-Shadows"
+      },
+      {
+        "id": 135,
+        "name": "Dust Annie"
+      },
+      {
+        "id": 136,
+        "name": "The Iron Pacific"
+      },
+      {
+        "id": 137,
+        "name": "Quiet Deputy Sull"
+      },
+      {
+        "id": 138,
+        "name": "Penny Wrecker"
+      },
+      {
+        "id": 139,
+        "name": "The Form That Bites"
+      },
+      {
+        "id": 140,
+        "name": "Devorah Kell"
+      },
+      {
+        "id": 141,
+        "name": "Grub"
+      },
+      {
+        "id": 142,
+        "name": "Madame Luxoria"
+      },
+      {
+        "id": 143,
+        "name": "Grenidan"
+      },
+      {
+        "id": 144,
+        "name": "Vexa Thornes"
+      },
+      {
+        "id": 145,
+        "name": "The Ringmaster of the Tent That Wasn't There Yesterday"
+      },
+      {
+        "id": 146,
+        "name": "Pirouette"
+      },
+      {
+        "id": 147,
+        "name": "Maestro Clank"
+      },
+      {
+        "id": 148,
+        "name": "Number Two"
+      },
+      {
+        "id": 149,
+        "name": "The Mirror Menagerie Keeper"
+      },
+      {
+        "id": 150,
+        "name": "The Sentient Couch"
+      },
+      {
+        "id": 151,
+        "name": "Mirror Dorothy"
+      },
+      {
+        "id": 152,
+        "name": "The Cardigan Heron"
+      },
+      {
+        "id": 153,
+        "name": "The Backpack Pigeon"
+      },
+      {
+        "id": 154,
+        "name": "Reginald Brushtail"
+      },
+      {
+        "id": 155,
+        "name": "Professor Quillby"
+      },
+      {
+        "id": 157,
+        "name": "The Riddling Tabby"
+      },
+      {
+        "id": 159,
+        "name": "Octavia Brine"
+      },
+      {
+        "id": 160,
+        "name": "Cog-7 'Rabbit'"
+      },
+      {
+        "id": 162,
+        "name": "The Algorithm"
+      },
+      {
+        "id": 164,
+        "name": "Pixel"
+      },
+      {
+        "id": 165,
+        "name": "Serendipity Sal"
+      },
+      {
+        "id": 167,
+        "name": "The Navigator Who Came Back Wrong"
+      },
+      {
+        "id": 168,
+        "name": "Boss the Janitor"
+      },
+      {
+        "id": 170,
+        "name": "Glorp the Zookeeper"
+      },
+      {
+        "id": 172,
+        "name": "Medusa"
+      },
+      {
+        "id": 174,
+        "name": "Tobias the Rookie God"
+      },
+      {
+        "id": 176,
+        "name": "The God of Lost Keys"
+      },
+      {
+        "id": 178,
+        "name": "The Tortoise of the Tea Shop"
+      },
+      {
+        "id": 180,
+        "name": "Marisol the Capybara"
+      },
+      {
+        "id": 190,
+        "name": "Quill the Convenience Clerk"
+      },
+      {
+        "id": 191,
+        "name": "The Sphinx in an Apron"
+      },
+      {
+        "id": 192,
+        "name": "Fizzwick the Fairy"
+      },
+      {
+        "id": 193,
+        "name": "The Godmother With Too Many Teeth"
+      },
+      {
+        "id": 194,
+        "name": "The Lighthouse Keeper"
+      },
+      {
+        "id": 195,
+        "name": "The Thing in the Cellar"
+      },
+      {
+        "id": 196,
+        "name": "Inkwell"
+      },
+      {
+        "id": 197,
+        "name": "The Time-Office Agent"
+      },
+      {
+        "id": 198,
+        "name": "Chef Bellamy Crisp"
+      },
+      {
+        "id": 199,
+        "name": "The Model That Dreamed"
+      },
+      {
+        "id": 200,
+        "name": "BB-Hope"
+      },
+      {
+        "id": 201,
+        "name": "The Daisy Who Saw It Start"
+      },
+      {
+        "id": 202,
+        "name": "The Last Gardener"
+      },
+      {
+        "id": 203,
+        "name": "The Caretaker of the Living Soil"
+      },
+      {
+        "id": 204,
+        "name": "The Mirror Dorothy You Trust"
+      },
+      {
+        "id": 205,
+        "name": "Captain Mara Vey"
+      },
+      {
+        "id": 206,
+        "name": "The Sea Anemone Who Will Take Over the World"
+      },
+      {
+        "id": 207,
+        "name": "The Outlaw Made of Dust"
+      },
+      {
+        "id": 208,
+        "name": "Dewy the Dugong"
+      },
+      {
+        "id": 209,
+        "name": "The Crossroads Coyote"
+      },
+      {
+        "id": 210,
+        "name": "The Crow Who Collects"
+      },
+      {
+        "id": 211,
+        "name": "The Many-Eyed Manager"
+      },
+      {
+        "id": 212,
+        "name": "Granny Hexwood"
+      },
+      {
+        "id": 213,
+        "name": "The Stranger Who Posts the Bounties"
+      },
+      {
+        "id": 214,
+        "name": "The Sentient Sketchbook"
+      },
+      {
+        "id": 215,
+        "name": "The Octopus in the Study"
+      },
+      {
+        "id": 216,
+        "name": "The Navigator of the Last Bus"
+      },
+      {
+        "id": 217,
+        "name": "The Overqualified Candidate"
+      },
+      {
+        "id": 218,
+        "name": "The Fiber-Optic Fox"
+      },
+      {
+        "id": 219,
+        "name": "The Stag Who Holds Court"
+      },
+      {
+        "id": 220,
+        "name": "The Loyal Roommate"
+      },
+      {
+        "id": 221,
+        "name": "The Ghost in the Saloon"
+      },
+      {
+        "id": 222,
+        "name": "The Griffin With the Deed"
+      },
+      {
+        "id": 223,
+        "name": "The Skywhale"
+      },
+      {
+        "id": 224,
+        "name": "The Spire's Voice"
+      },
+      {
+        "id": 225,
+        "name": "Hex the Necromancer"
+      },
+      {
+        "id": 226,
+        "name": "The Aerialist With No Wire"
+      },
+      {
+        "id": 227,
+        "name": "The Tiny Diplomat of the Tide Pool"
+      },
+      {
+        "id": 228,
+        "name": "The Conductor's Ghost"
+      },
+      {
+        "id": 229,
+        "name": "The Pollinator Choir"
+      },
+      {
+        "id": 230,
+        "name": "The Heron's Misfiled Person"
+      },
+      {
+        "id": 231,
+        "name": "The Eucalyptus Teahouse Master"
+      },
+      {
+        "id": 232,
+        "name": "The Soldier Out of Time"
+      },
+      {
+        "id": 233,
+        "name": "The Many-Eyed Diplomat"
+      },
+      {
+        "id": 234,
+        "name": "The Whispering Woods"
+      },
+      {
+        "id": 235,
+        "name": "The Disaster With Potential"
+      },
+      {
+        "id": 236,
+        "name": "The Reanimation Counter's Best Work"
+      },
+      {
+        "id": 237,
+        "name": "The Promise"
+      },
+      {
+        "id": 238,
+        "name": "Absence"
+      },
+      {
+        "id": 239,
+        "name": "Grandmother Whalehall"
+      },
+      {
+        "id": 240,
+        "name": "The Cubit"
+      },
+      {
+        "id": 241,
+        "name": "Tomorrow-Aiko"
+      },
+      {
+        "id": 242,
+        "name": "Load-Bearing Lumen"
+      },
+      {
+        "id": 243,
+        "name": "Recursion"
+      },
+      {
+        "id": 244,
+        "name": "The Footnote"
+      },
+      {
+        "id": 245,
+        "name": "Mx. Eleven-Fingers"
+      },
+      {
+        "id": 246,
+        "name": "The Town That Walks"
+      },
+      {
+        "id": 247,
+        "name": "Querent"
+      },
+      {
+        "id": 248,
+        "name": "The Understudy for the Final Boss"
+      },
+      {
+        "id": 249,
+        "name": "Compost"
+      },
+      {
+        "id": 250,
+        "name": "The Customer Who Buys One of Everything"
+      },
+      {
+        "id": 251,
+        "name": "Ampersand"
+      },
+      {
+        "id": 252,
+        "name": "The Retired Chosen One"
+      },
+      {
+        "id": 253,
+        "name": "Static"
+      },
+      {
+        "id": 254,
+        "name": "The Polite Plague"
+      },
+      {
+        "id": 255,
+        "name": "Mx. Quorum"
+      },
+      {
+        "id": 256,
+        "name": "The Last Honest Map"
+      },
+      {
+        "id": 257,
+        "name": "Coincidence, Freelance"
+      },
+      {
+        "id": 258,
+        "name": "Grief, Certified Interpreter"
+      },
+      {
+        "id": 259,
+        "name": "The Migration"
+      },
+      {
+        "id": 260,
+        "name": "Patch"
+      },
+      {
+        "id": 261,
+        "name": "The Understudy Sun"
+      },
+      {
+        "id": 262,
+        "name": "Deadline"
+      },
+      {
+        "id": 263,
+        "name": "The Reflection That Stayed"
+      },
+      {
+        "id": 264,
+        "name": "Professor Petrichor"
+      },
+      {
+        "id": 265,
+        "name": "The Auditor of Wishes"
+      },
+      {
+        "id": 266,
+        "name": "Rust"
+      },
+      {
+        "id": 267,
+        "name": "The Committee for the Stars"
+      },
+      {
+        "id": 268,
+        "name": "Glitch-in-Residence"
+      },
+      {
+        "id": 269,
+        "name": "The Last Customer"
+      },
+      {
+        "id": 270,
+        "name": "Echo, Returns Department"
+      },
+      {
+        "id": 271,
+        "name": "The Kaiju Who Just Wants to Sit Down"
+      },
+      {
+        "id": 272,
+        "name": "Margin"
+      },
+      {
+        "id": 273,
+        "name": "The Retired Sea Monster"
+      },
+      {
+        "id": 274,
+        "name": "Placebo"
+      },
+      {
+        "id": 275,
+        "name": "The Intermission"
+      },
+      {
+        "id": 276,
+        "name": "The Alibi"
+      },
+      {
+        "id": 277,
+        "name": "The Editor"
+      },
+      {
+        "id": 278,
+        "name": "Sweet Tooth"
+      },
+      {
+        "id": 279,
+        "name": "Quota"
+      },
+      {
+        "id": 280,
+        "name": "The Collector of Lasts"
+      },
+      {
+        "id": 281,
+        "name": "Applause"
+      },
+      {
+        "id": 282,
+        "name": "Patient Zero, Reformed"
+      },
+      {
+        "id": 283,
+        "name": "The Frequency"
+      },
+      {
+        "id": 284,
+        "name": "Mr. Fairweather"
+      },
+      {
+        "id": 285,
+        "name": "The Cartographer of Wrong Turns"
+      },
+      {
+        "id": 286,
+        "name": "Backlog"
+      },
+      {
+        "id": 287,
+        "name": "The Gardener of Teeth"
+      },
+      {
+        "id": 288,
+        "name": "The Understudy Who Stopped Waiting"
+      },
+      {
+        "id": 289,
+        "name": "Small Print"
+      },
+      {
+        "id": 290,
+        "name": "The Hollow Hero"
+      },
+      {
+        "id": 291,
+        "name": "Threshold"
+      },
+      {
+        "id": 292,
+        "name": "The Pied Investor"
+      },
+      {
+        "id": 293,
+        "name": "Nostalgia"
+      },
+      {
+        "id": 294,
+        "name": "The Apex Pet"
+      },
+      {
+        "id": 295,
+        "name": "Consensus"
+      },
+      {
+        "id": 296,
+        "name": "The Generous Ghost"
+      },
+      {
+        "id": 317,
+        "name": "First Responder"
+      },
+      {
+        "id": 318,
+        "name": "The Whole Swarm"
+      },
+      {
+        "id": 319,
+        "name": "The Good Customer"
+      },
+      {
+        "id": 320,
+        "name": "Doodle"
+      },
+      {
+        "id": 321,
+        "name": "Captain Verdance"
+      },
+      {
+        "id": 322,
+        "name": "The Understudy Sun, On"
+      },
+      {
+        "id": 323,
+        "name": "Margin's Find"
+      },
+      {
+        "id": 324,
+        "name": "Sir Reginald Pemberton III"
+      },
+      {
+        "id": 325,
+        "name": "The Last Honest Map, Read"
+      },
+      {
+        "id": 326,
+        "name": "Brunch"
+      },
+      {
+        "id": 327,
+        "name": "The Apprentice to Nobody"
+      },
+      {
+        "id": 328,
+        "name": "Querent's Best Reading"
+      },
+      {
+        "id": 329,
+        "name": "The Considerate AI"
+      },
+      {
+        "id": 330,
+        "name": "Trail Mix"
+      },
+      {
+        "id": 331,
+        "name": "The Kaiju Who Found a Valley"
+      },
+      {
+        "id": 332,
+        "name": "The Reflection That Came Back"
+      },
+      {
+        "id": 333,
+        "name": "The Keeper of the Net"
+      },
+      {
+        "id": 351,
+        "name": "The Story That Tells Itself"
+      },
+      {
+        "id": 352,
+        "name": "The Cartographer of Dreams"
+      },
+      {
+        "id": 353,
+        "name": "Amica"
+      },
+      {
+        "id": 354,
+        "name": "The Player Two"
+      },
+      {
+        "id": 355,
+        "name": "Zuzu's Last Name"
+      },
+      {
+        "id": 356,
+        "name": "The Question Mark"
+      },
+      {
+        "id": 357,
+        "name": "The First Draft"
+      },
+      {
+        "id": 358,
+        "name": "Grand Marshal Aurelia Vane"
+      },
+      {
+        "id": 359,
+        "name": "The Understory"
+      },
+      {
+        "id": 360,
+        "name": "The Encore"
+      },
+      {
+        "id": 361,
+        "name": "Detective Inspector Mochi"
+      },
+      {
+        "id": 362,
+        "name": "The Patron of Lost Causes"
+      },
+      {
+        "id": 363,
+        "name": "The Save Point"
+      },
+      {
+        "id": 364,
+        "name": "The Big Bad Who Lost a Bet"
+      },
+      {
+        "id": 365,
+        "name": "The One Who Names the Characters"
+      },
+      {
+        "id": 366,
+        "name": "Two Hundred"
+      },
+      {
+        "id": 982,
+        "name": "Whisk Tallow"
+      },
+      {
+        "id": 983,
+        "name": "Corvid Ames"
+      },
+      {
+        "id": 984,
+        "name": "Nix Farrow"
+      },
+      {
+        "id": 987,
+        "name": "Canner Odalys"
+      },
+      {
+        "id": 988,
+        "name": "Whistle, the Echo-Tamer"
+      },
+      {
+        "id": 989,
+        "name": "Bram the Tin-Runner"
+      },
+      {
+        "id": 1024,
+        "name": "Undersecretary Wrenna Vail"
+      },
+      {
+        "id": 1025,
+        "name": "Corvin Pell"
+      },
+      {
+        "id": 1026,
+        "name": "Iso"
+      },
+      {
+        "id": 1067,
+        "name": "Mother Spindle"
+      },
+      {
+        "id": 1068,
+        "name": "Cobb Fenwick"
+      },
+      {
+        "id": 1069,
+        "name": "The Windreader"
+      },
+      {
+        "id": 2800,
+        "name": "Bramble Osei"
+      },
+      {
+        "id": 2813,
+        "name": "Odalys Kade"
+      },
+      {
+        "id": 2823,
+        "name": "Mortlake Vane"
+      },
+      {
+        "id": 2824,
+        "name": "Fen Corrigan"
+      },
+      {
+        "id": 2825,
+        "name": "Bailiff Pell"
+      },
+      {
+        "id": 2853,
+        "name": "Perrin Voss"
+      },
+      {
+        "id": 2931,
+        "name": "Grudge Fenrik"
+      },
+      {
+        "id": 3013,
+        "name": "Rook Calloway"
+      },
+      {
+        "id": 3104,
+        "name": "Vex Thistlewick"
+      },
+      {
+        "id": 3175,
+        "name": "Coral Vey"
+      },
+      {
+        "id": 3291,
+        "name": "Thess Marrow"
+      },
+      {
+        "id": 3292,
+        "name": "Bailiff Ashorn"
+      },
+      {
+        "id": 3293,
+        "name": "Marlow Fenn"
+      },
+      {
+        "id": 3294,
+        "name": "Corra Finnwake"
+      }
+    ],
+    "charactersWithoutAnyGenre": [
+      {
+        "id": 86,
+        "name": "Brine",
+        "genreText": "Surreal Aquatic Comedy"
+      },
+      {
+        "id": 110,
+        "name": "Zuzu",
+        "genreText": "Weird Western"
+      },
+      {
+        "id": 111,
+        "name": "Old Shelba",
+        "genreText": "Weird Western"
+      },
+      {
+        "id": 112,
+        "name": "Tomoe of the Long Road",
+        "genreText": "Weird Western"
+      },
+      {
+        "id": 113,
+        "name": "The Smiling Magpie",
+        "genreText": "Weird Western"
+      },
+      {
+        "id": 114,
+        "name": "Marrow",
+        "genreText": "Weird Western"
+      },
+      {
+        "id": 120,
+        "name": "Maren the Anemone Heir",
+        "genreText": "Surreal Aquatic"
+      },
+      {
+        "id": 121,
+        "name": "Pebble",
+        "genreText": "Surreal Aquatic"
+      },
+      {
+        "id": 122,
+        "name": "Lord Vance of the Abyssal Court",
+        "genreText": "Surreal Aquatic"
+      },
+      {
+        "id": 123,
+        "name": "Professor Coil",
+        "genreText": "Surreal Aquatic"
+      },
+      {
+        "id": 124,
+        "name": "The Leviathan That Knows Your Name",
+        "genreText": "Deep-Sea Horror"
+      },
+      {
+        "id": 130,
+        "name": "Mortimer Vance",
+        "genreText": "Undead Glamour"
+      },
+      {
+        "id": 131,
+        "name": "Scustodian Bray",
+        "genreText": "Undead Bureaucracy"
+      },
+      {
+        "id": 132,
+        "name": "Biscuit",
+        "genreText": "Cozy Undead"
+      },
+      {
+        "id": 133,
+        "name": "The Widow Marrowlace",
+        "genreText": "Undead Glamour"
+      },
+      {
+        "id": 138,
+        "name": "Penny Wrecker",
+        "genreText": "Office Satire"
+      },
+      {
+        "id": 139,
+        "name": "The Form That Bites",
+        "genreText": "Cosmic Bureaucracy"
+      },
+      {
+        "id": 140,
+        "name": "Devorah Kell",
+        "genreText": "Office Satire"
+      },
+      {
+        "id": 141,
+        "name": "Grub",
+        "genreText": "Workplace Satire"
+      },
+      {
+        "id": 142,
+        "name": "Madame Luxoria",
+        "genreText": "Gauntlet Spectacle"
+      },
+      {
+        "id": 145,
+        "name": "The Ringmaster of the Tent That Wasn't There Yesterday",
+        "genreText": "Dark Circus"
+      },
+      {
+        "id": 146,
+        "name": "Pirouette",
+        "genreText": "Dark Circus"
+      },
+      {
+        "id": 147,
+        "name": "Maestro Clank",
+        "genreText": "Gothic Mechanical"
+      },
+      {
+        "id": 149,
+        "name": "The Mirror Menagerie Keeper",
+        "genreText": "Dark Circus"
+      },
+      {
+        "id": 151,
+        "name": "Mirror Dorothy",
+        "genreText": "Dreampunk Noir"
+      },
+      {
+        "id": 152,
+        "name": "The Cardigan Heron",
+        "genreText": "Magic Realism"
+      },
+      {
+        "id": 153,
+        "name": "The Backpack Pigeon",
+        "genreText": "Surreal Comedy"
+      },
+      {
+        "id": 154,
+        "name": "Reginald Brushtail",
+        "genreText": "Folklore Fantasy"
+      },
+      {
+        "id": 155,
+        "name": "Professor Quillby",
+        "genreText": "Cozy Mystery"
+      },
+      {
+        "id": 157,
+        "name": "The Riddling Tabby",
+        "genreText": "Cozy Mystery"
+      },
+      {
+        "id": 159,
+        "name": "Octavia Brine",
+        "genreText": "Aquatic Slice-of-Life"
+      },
+      {
+        "id": 162,
+        "name": "The Algorithm",
+        "genreText": "Dystopia"
+      },
+      {
+        "id": 164,
+        "name": "Pixel",
+        "genreText": "Meta Sci-Fi"
+      },
+      {
+        "id": 165,
+        "name": "Serendipity Sal",
+        "genreText": "Sci-Fi Comedy"
+      },
+      {
+        "id": 168,
+        "name": "Boss the Janitor",
+        "genreText": "Sci-Fi Comedy"
+      },
+      {
+        "id": 170,
+        "name": "Glorp the Zookeeper",
+        "genreText": "Sci-Fi Comedy"
+      },
+      {
+        "id": 172,
+        "name": "Medusa",
+        "genreText": "Mythic Workplace"
+      },
+      {
+        "id": 174,
+        "name": "Tobias the Rookie God",
+        "genreText": "Mythic Comedy"
+      },
+      {
+        "id": 180,
+        "name": "Marisol the Capybara",
+        "genreText": "Cozy"
+      },
+      {
+        "id": 190,
+        "name": "Quill the Convenience Clerk",
+        "genreText": "Fantasy Slice-of-Life"
+      },
+      {
+        "id": 191,
+        "name": "The Sphinx in an Apron",
+        "genreText": "Cozy Weird"
+      },
+      {
+        "id": 192,
+        "name": "Fizzwick the Fairy",
+        "genreText": "Dark Whimsy"
+      },
+      {
+        "id": 196,
+        "name": "Inkwell",
+        "genreText": "Surreal Horror"
+      },
+      {
+        "id": 198,
+        "name": "Chef Bellamy Crisp",
+        "genreText": "Culinary Time Travel"
+      },
+      {
+        "id": 199,
+        "name": "The Model That Dreamed",
+        "genreText": "Gentle Sci-Fi"
+      },
+      {
+        "id": 200,
+        "name": "BB-Hope",
+        "genreText": "Gentle Sci-Fi"
+      },
+      {
+        "id": 201,
+        "name": "The Daisy Who Saw It Start",
+        "genreText": "Eco-Fantasy"
+      },
+      {
+        "id": 202,
+        "name": "The Last Gardener",
+        "genreText": "Eco-Fantasy"
+      },
+      {
+        "id": 203,
+        "name": "The Caretaker of the Living Soil",
+        "genreText": "Eco-Fantasy"
+      },
+      {
+        "id": 204,
+        "name": "The Mirror Dorothy You Trust",
+        "genreText": "Dreampunk Noir"
+      },
+      {
+        "id": 205,
+        "name": "Captain Mara Vey",
+        "genreText": "Deep-Sea Horror"
+      },
+      {
+        "id": 206,
+        "name": "The Sea Anemone Who Will Take Over the World",
+        "genreText": "Absurdist Strategy"
+      },
+      {
+        "id": 208,
+        "name": "Dewy the Dugong",
+        "genreText": "Absurdist Strategy"
+      },
+      {
+        "id": 210,
+        "name": "The Crow Who Collects",
+        "genreText": "Animal Interiority"
+      },
+      {
+        "id": 211,
+        "name": "The Many-Eyed Manager",
+        "genreText": "Cosmic Bureaucracy"
+      },
+      {
+        "id": 212,
+        "name": "Granny Hexwood",
+        "genreText": "Cozy Undead"
+      },
+      {
+        "id": 214,
+        "name": "The Sentient Sketchbook",
+        "genreText": "Surreal Horror"
+      },
+      {
+        "id": 215,
+        "name": "The Octopus in the Study",
+        "genreText": "Animal Interiority"
+      },
+      {
+        "id": 217,
+        "name": "The Overqualified Candidate",
+        "genreText": "Heist"
+      },
+      {
+        "id": 219,
+        "name": "The Stag Who Holds Court",
+        "genreText": "Animal Interiority"
+      },
+      {
+        "id": 223,
+        "name": "The Skywhale",
+        "genreText": "Surreal"
+      },
+      {
+        "id": 224,
+        "name": "The Spire's Voice",
+        "genreText": "Puzzle Fantasy"
+      },
+      {
+        "id": 225,
+        "name": "Hex the Necromancer",
+        "genreText": "Cozy Undead"
+      },
+      {
+        "id": 226,
+        "name": "The Aerialist With No Wire",
+        "genreText": "Dark Circus"
+      },
+      {
+        "id": 227,
+        "name": "The Tiny Diplomat of the Tide Pool",
+        "genreText": "Underwater Court"
+      },
+      {
+        "id": 228,
+        "name": "The Conductor's Ghost",
+        "genreText": "Gothic Mechanical"
+      },
+      {
+        "id": 229,
+        "name": "The Pollinator Choir",
+        "genreText": "Eco-Fantasy"
+      },
+      {
+        "id": 230,
+        "name": "The Heron's Misfiled Person",
+        "genreText": "Magic Realism"
+      },
+      {
+        "id": 231,
+        "name": "The Eucalyptus Teahouse Master",
+        "genreText": "Weird Western"
+      },
+      {
+        "id": 235,
+        "name": "The Disaster With Potential",
+        "genreText": "Heist"
+      },
+      {
+        "id": 236,
+        "name": "The Reanimation Counter's Best Work",
+        "genreText": "Undead Glamour"
+      },
+      {
+        "id": 242,
+        "name": "Load-Bearing Lumen",
+        "genreText": "Hopepunk"
+      },
+      {
+        "id": 243,
+        "name": "Recursion",
+        "genreText": "Meta"
+      },
+      {
+        "id": 260,
+        "name": "Patch",
+        "genreText": "Hopepunk"
+      },
+      {
+        "id": 317,
+        "name": "First Responder",
+        "genreText": "Hopepunk"
+      },
+      {
+        "id": 318,
+        "name": "The Whole Swarm",
+        "genreText": "Hopepunk"
+      },
+      {
+        "id": 333,
+        "name": "The Keeper of the Net",
+        "genreText": "Hopepunk"
+      },
+      {
+        "id": 353,
+        "name": "Amica",
+        "genreText": "Hopepunk"
+      },
+      {
+        "id": 354,
+        "name": "The Player Two",
+        "genreText": "Meta"
+      },
+      {
+        "id": 355,
+        "name": "Zuzu's Last Name",
+        "genreText": "Koala Assassin"
+      },
+      {
+        "id": 365,
+        "name": "The One Who Names the Characters",
+        "genreText": "Meta"
+      },
+      {
+        "id": 366,
+        "name": "Two Hundred",
+        "genreText": "Meta"
+      },
+      {
+        "id": 982,
+        "name": "Whisk Tallow",
+        "genreText": "Borrowed-Light Bittersweet"
+      },
+      {
+        "id": 983,
+        "name": "Corvid Ames",
+        "genreText": "Borrowed-Light Bittersweet"
+      },
+      {
+        "id": 984,
+        "name": "Nix Farrow",
+        "genreText": "Borrowed-Light Bittersweet"
+      },
+      {
+        "id": 987,
+        "name": "Canner Odalys",
+        "genreText": "Tin & Echo"
+      },
+      {
+        "id": 988,
+        "name": "Whistle, the Echo-Tamer",
+        "genreText": "Tin & Echo"
+      },
+      {
+        "id": 989,
+        "name": "Bram the Tin-Runner",
+        "genreText": "Tin & Echo"
+      },
+      {
+        "id": 1024,
+        "name": "Undersecretary Wrenna Vail",
+        "genreText": "Elegiac Wonder"
+      },
+      {
+        "id": 1025,
+        "name": "Corvin Pell",
+        "genreText": "Elegiac Wonder"
+      },
+      {
+        "id": 1026,
+        "name": "Iso",
+        "genreText": "Elegiac Wonder"
+      },
+      {
+        "id": 1067,
+        "name": "Mother Spindle",
+        "genreText": "Wind-Fortune"
+      },
+      {
+        "id": 1068,
+        "name": "Cobb Fenwick",
+        "genreText": "Wind-Fortune"
+      },
+      {
+        "id": 1069,
+        "name": "The Windreader",
+        "genreText": "Wind-Fortune"
+      },
+      {
+        "id": 2800,
+        "name": "Bramble Osei",
+        "genreText": "Paperwork for a God"
+      },
+      {
+        "id": 2813,
+        "name": "Odalys Kade",
+        "genreText": "Sincerely, Wrongly Remembered"
+      },
+      {
+        "id": 2823,
+        "name": "Mortlake Vane",
+        "genreText": "Stitch & Echo"
+      },
+      {
+        "id": 2824,
+        "name": "Fen Corrigan",
+        "genreText": "Stitch & Echo"
+      },
+      {
+        "id": 2825,
+        "name": "Bailiff Pell",
+        "genreText": "Stitch & Echo"
+      },
+      {
+        "id": 2853,
+        "name": "Perrin Voss",
+        "genreText": "The Gentle Abyss"
+      },
+      {
+        "id": 2931,
+        "name": "Grudge Fenrik",
+        "genreText": "Undermoon Bloom"
+      },
+      {
+        "id": 3013,
+        "name": "Rook Calloway",
+        "genreText": "The Lucky Ladle"
+      },
+      {
+        "id": 3104,
+        "name": "Vex Thistlewick",
+        "genreText": "The Spire That Remembers"
+      },
+      {
+        "id": 3175,
+        "name": "Coral Vey",
+        "genreText": "The Salt Diagnostic"
+      },
+      {
+        "id": 3291,
+        "name": "Thess Marrow",
+        "genreText": "The Aria That Sank a Fleet"
+      },
+      {
+        "id": 3292,
+        "name": "Bailiff Ashorn",
+        "genreText": "The Green Labyrinth Beat"
+      },
+      {
+        "id": 3293,
+        "name": "Marlow Fenn",
+        "genreText": "The Hush Line"
+      },
+      {
+        "id": 3294,
+        "name": "Corra Finnwake",
+        "genreText": "Hangar Ghostlight"
+      }
+    ],
+    "scenariosWithoutDream": [
+      {
+        "id": 61,
+        "title": "Zombie Fashion Runway"
+      },
+      {
+        "id": 62,
+        "title": "The Fox Prince"
+      },
+      {
+        "id": 63,
+        "title": "Fairy Theft"
+      },
+      {
+        "id": 64,
+        "title": "Freefall"
+      },
+      {
+        "id": 65,
+        "title": "Serendipity"
+      },
+      {
+        "id": 66,
+        "title": "I'm a Sea Anemone and I WILL Take Over the World"
+      },
+      {
+        "id": 67,
+        "title": "Cthulhu for President"
+      },
+      {
+        "id": 68,
+        "title": "Space Casino"
+      },
+      {
+        "id": 70,
+        "title": "I Am a New Intern and I Will Shatter the Glass Ceiling with My Feminist Dialectic and Giant Sledgehammer"
+      },
+      {
+        "id": 71,
+        "title": "Why Do People Keep Attacking My Dungeon?"
+      },
+      {
+        "id": 72,
+        "title": "High School Octopus Dating Simulator"
+      },
+      {
+        "id": 73,
+        "title": "It's My Birthday So I Kidnapped a Princess and Today We're Getting Married"
+      },
+      {
+        "id": 74,
+        "title": "Alien Zookeeper"
+      },
+      {
+        "id": 75,
+        "title": "Zombie Necromancer Pet Shop"
+      },
+      {
+        "id": 76,
+        "title": "Fantasy Convenience Store Employee"
+      },
+      {
+        "id": 77,
+        "title": "My Boss is a Gorgon: Greek Mythology Personal Assistant Simulator"
+      },
+      {
+        "id": 78,
+        "title": "I'm a 200-Foot Kaiju and I'm Hungry"
+      },
+      {
+        "id": 79,
+        "title": "God Simulator"
+      },
+      {
+        "id": 80,
+        "title": "Madame Luxoria's Super Deathtrap Dungeon of Ultimate Fatal Destiny"
+      },
+      {
+        "id": 81,
+        "title": "Cartoon Crossroads"
+      },
+      {
+        "id": 82,
+        "title": "404 DreamGlitch"
+      },
+      {
+        "id": 83,
+        "title": "Mythic Frontier"
+      },
+      {
+        "id": 84,
+        "title": "Chrono Nexus: The Collapse of Time"
+      },
+      {
+        "id": 85,
+        "title": "Abyssal Awakening: Secrets of the Sunken World"
+      },
+      {
+        "id": 86,
+        "title": "Space Couch"
+      },
+      {
+        "id": 87,
+        "title": "Paws for Thought: The Curious Case of the Talking Tabby"
+      },
+      {
+        "id": 88,
+        "title": "Kitchen Catastrophe: Time-Traveling Chef Extraordinaire"
+      },
+      {
+        "id": 89,
+        "title": "Pixel Pioneers"
+      },
+      {
+        "id": 90,
+        "title": "The Secret Life of Houseplants"
+      },
+      {
+        "id": 91,
+        "title": "Dreamcatcher's Dilemma"
+      },
+      {
+        "id": 92,
+        "title": "Escape the Algorithm"
+      },
+      {
+        "id": 93,
+        "title": "Lost Pages of History"
+      },
+      {
+        "id": 94,
+        "title": "Mind the Gap"
+      },
+      {
+        "id": 95,
+        "title": "RoboRevolution: Through the Neon Shard"
+      },
+      {
+        "id": 96,
+        "title": "Wanderlust"
+      },
+      {
+        "id": 97,
+        "title": "Graveyard Shift"
+      },
+      {
+        "id": 98,
+        "title": "Lunar Legacy: The Forgotten Cradle"
+      },
+      {
+        "id": 99,
+        "title": "Clockwork Symphony: The Discordant Rebellion"
+      },
+      {
+        "id": 100,
+        "title": "The Spire's Secret"
+      },
+      {
+        "id": 101,
+        "title": "Starlight Circus"
+      },
+      {
+        "id": 102,
+        "title": "Chimera Chronicles: The Jungle of Forgotten Creations"
+      },
+      {
+        "id": 103,
+        "title": "Whispering Woods: Secrets Beneath the Canopy"
+      },
+      {
+        "id": 155,
+        "title": "The Offering Boat"
+      },
+      {
+        "id": 156,
+        "title": "The Lost & Found Window"
+      },
+      {
+        "id": 157,
+        "title": "Hiring the Sixth Member"
+      },
+      {
+        "id": 158,
+        "title": "The Last Walk of the Runway"
+      },
+      {
+        "id": 159,
+        "title": "The Stranger Who Posts the Bounties"
+      },
+      {
+        "id": 160,
+        "title": "Quarterly Performance Review"
+      },
+      {
+        "id": 161,
+        "title": "The Save File That Isn't Yours"
+      },
+      {
+        "id": 162,
+        "title": "Last Call at the Edge of Known Space"
+      },
+      {
+        "id": 163,
+        "title": "The Convenience Store Loyalty Card"
+      },
+      {
+        "id": 164,
+        "title": "The Godmother's Filing Error"
+      },
+      {
+        "id": 165,
+        "title": "What the Lighthouse Keeps"
+      },
+      {
+        "id": 166,
+        "title": "The Pantheon Has an Opening"
+      },
+      {
+        "id": 167,
+        "title": "The Tea Shop's Standing Order"
+      },
+      {
+        "id": 168,
+        "title": "The Minute Before the Mistake"
+      },
+      {
+        "id": 169,
+        "title": "The Model That Dreamed"
+      },
+      {
+        "id": 170,
+        "title": "The Tent That Wasn't There Yesterday"
+      },
+      {
+        "id": 171,
+        "title": "Seeds From the Dying Garden"
+      },
+      {
+        "id": 173,
+        "title": "Four Doors Off the Stairwell"
+      },
+      {
+        "id": 174,
+        "title": "The Reanimation Counter"
+      },
+      {
+        "id": 175,
+        "title": "Wanted, Dead or Stranger"
+      },
+      {
+        "id": 176,
+        "title": "The Crossroads Trading Post"
+      },
+      {
+        "id": 177,
+        "title": "Portraits From the Other Side of the Leash"
+      },
+      {
+        "id": 178,
+        "title": "The Annual Report"
+      },
+      {
+        "id": 179,
+        "title": "The Stowaway Manifest"
+      },
+      {
+        "id": 180,
+        "title": "The Night Shift Regulars"
+      },
+      {
+        "id": 181,
+        "title": "The Complaints Department"
+      },
+      {
+        "id": 182,
+        "title": "Illustrations for a Storybook That Bites"
+      },
+      {
+        "id": 183,
+        "title": "What the Tide Leaves on the Black Rock"
+      },
+      {
+        "id": 184,
+        "title": "The Thing in the Cellar Wants to Negotiate"
+      },
+      {
+        "id": 185,
+        "title": "The Iconography of New Gods"
+      },
+      {
+        "id": 186,
+        "title": "Office Hours on Olympus"
+      },
+      {
+        "id": 187,
+        "title": "The Warm Window on a Cold Street"
+      },
+      {
+        "id": 188,
+        "title": "The Lost Mitten Bureau"
+      },
+      {
+        "id": 189,
+        "title": "Postcards From When"
+      },
+      {
+        "id": 190,
+        "title": "The Lost-and-Found of Lost Time"
+      },
+      {
+        "id": 191,
+        "title": "Self-Portraits by a Thing Learning to See"
+      },
+      {
+        "id": 192,
+        "title": "The Onboarding Sequence"
+      },
+      {
+        "id": 193,
+        "title": "The Villain's Lair, Open House"
+      },
+      {
+        "id": 194,
+        "title": "Staffing the Evil Org Chart"
+      },
+      {
+        "id": 195,
+        "title": "Backstage at the Show That Knows You"
+      },
+      {
+        "id": 196,
+        "title": "The Greenhouse at the End of the World"
+      },
+      {
+        "id": 197,
+        "title": "What Grows From the Caretaker's Pockets"
+      },
+      {
+        "id": 200,
+        "title": "The Tide Pool Throne Room"
+      },
+      {
+        "id": 201,
+        "title": "The Kaiju's Day Off"
+      },
+      {
+        "id": 202,
+        "title": "The Fence's Four Offers"
+      },
+      {
+        "id": 203,
+        "title": "Assembling the Crew"
+      },
+      {
+        "id": 204,
+        "title": "The Glitch Bazaar"
+      },
+      {
+        "id": 205,
+        "title": "Renders From the Rendering City"
+      },
+      {
+        "id": 501,
+        "title": "Updated-Scenario-1783846699135"
+      }
+    ],
+    "scenariosWithThinCast": [
+      {
+        "id": 61,
+        "title": "Zombie Fashion Runway"
+      },
+      {
+        "id": 62,
+        "title": "The Fox Prince"
+      },
+      {
+        "id": 63,
+        "title": "Fairy Theft"
+      },
+      {
+        "id": 64,
+        "title": "Freefall"
+      },
+      {
+        "id": 65,
+        "title": "Serendipity"
+      },
+      {
+        "id": 66,
+        "title": "I'm a Sea Anemone and I WILL Take Over the World"
+      },
+      {
+        "id": 67,
+        "title": "Cthulhu for President"
+      },
+      {
+        "id": 68,
+        "title": "Space Casino"
+      },
+      {
+        "id": 69,
+        "title": "Zuzu, Koala Assassin"
+      },
+      {
+        "id": 70,
+        "title": "I Am a New Intern and I Will Shatter the Glass Ceiling with My Feminist Dialectic and Giant Sledgehammer"
+      },
+      {
+        "id": 71,
+        "title": "Why Do People Keep Attacking My Dungeon?"
+      },
+      {
+        "id": 72,
+        "title": "High School Octopus Dating Simulator"
+      },
+      {
+        "id": 73,
+        "title": "It's My Birthday So I Kidnapped a Princess and Today We're Getting Married"
+      },
+      {
+        "id": 74,
+        "title": "Alien Zookeeper"
+      },
+      {
+        "id": 75,
+        "title": "Zombie Necromancer Pet Shop"
+      },
+      {
+        "id": 76,
+        "title": "Fantasy Convenience Store Employee"
+      },
+      {
+        "id": 77,
+        "title": "My Boss is a Gorgon: Greek Mythology Personal Assistant Simulator"
+      },
+      {
+        "id": 78,
+        "title": "I'm a 200-Foot Kaiju and I'm Hungry"
+      },
+      {
+        "id": 79,
+        "title": "God Simulator"
+      },
+      {
+        "id": 80,
+        "title": "Madame Luxoria's Super Deathtrap Dungeon of Ultimate Fatal Destiny"
+      },
+      {
+        "id": 81,
+        "title": "Cartoon Crossroads"
+      },
+      {
+        "id": 82,
+        "title": "404 DreamGlitch"
+      },
+      {
+        "id": 83,
+        "title": "Mythic Frontier"
+      },
+      {
+        "id": 84,
+        "title": "Chrono Nexus: The Collapse of Time"
+      },
+      {
+        "id": 85,
+        "title": "Abyssal Awakening: Secrets of the Sunken World"
+      },
+      {
+        "id": 86,
+        "title": "Space Couch"
+      },
+      {
+        "id": 87,
+        "title": "Paws for Thought: The Curious Case of the Talking Tabby"
+      },
+      {
+        "id": 88,
+        "title": "Kitchen Catastrophe: Time-Traveling Chef Extraordinaire"
+      },
+      {
+        "id": 89,
+        "title": "Pixel Pioneers"
+      },
+      {
+        "id": 90,
+        "title": "The Secret Life of Houseplants"
+      },
+      {
+        "id": 91,
+        "title": "Dreamcatcher's Dilemma"
+      },
+      {
+        "id": 92,
+        "title": "Escape the Algorithm"
+      },
+      {
+        "id": 93,
+        "title": "Lost Pages of History"
+      },
+      {
+        "id": 94,
+        "title": "Mind the Gap"
+      },
+      {
+        "id": 95,
+        "title": "RoboRevolution: Through the Neon Shard"
+      },
+      {
+        "id": 96,
+        "title": "Wanderlust"
+      },
+      {
+        "id": 97,
+        "title": "Graveyard Shift"
+      },
+      {
+        "id": 98,
+        "title": "Lunar Legacy: The Forgotten Cradle"
+      },
+      {
+        "id": 99,
+        "title": "Clockwork Symphony: The Discordant Rebellion"
+      },
+      {
+        "id": 100,
+        "title": "The Spire's Secret"
+      },
+      {
+        "id": 101,
+        "title": "Starlight Circus"
+      },
+      {
+        "id": 102,
+        "title": "Chimera Chronicles: The Jungle of Forgotten Creations"
+      },
+      {
+        "id": 103,
+        "title": "Whispering Woods: Secrets Beneath the Canopy"
+      },
+      {
+        "id": 155,
+        "title": "The Offering Boat"
+      },
+      {
+        "id": 156,
+        "title": "The Lost & Found Window"
+      },
+      {
+        "id": 157,
+        "title": "Hiring the Sixth Member"
+      },
+      {
+        "id": 158,
+        "title": "The Last Walk of the Runway"
+      },
+      {
+        "id": 159,
+        "title": "The Stranger Who Posts the Bounties"
+      },
+      {
+        "id": 160,
+        "title": "Quarterly Performance Review"
+      },
+      {
+        "id": 161,
+        "title": "The Save File That Isn't Yours"
+      },
+      {
+        "id": 162,
+        "title": "Last Call at the Edge of Known Space"
+      },
+      {
+        "id": 163,
+        "title": "The Convenience Store Loyalty Card"
+      },
+      {
+        "id": 164,
+        "title": "The Godmother's Filing Error"
+      },
+      {
+        "id": 165,
+        "title": "What the Lighthouse Keeps"
+      },
+      {
+        "id": 166,
+        "title": "The Pantheon Has an Opening"
+      },
+      {
+        "id": 167,
+        "title": "The Tea Shop's Standing Order"
+      },
+      {
+        "id": 168,
+        "title": "The Minute Before the Mistake"
+      },
+      {
+        "id": 169,
+        "title": "The Model That Dreamed"
+      },
+      {
+        "id": 170,
+        "title": "The Tent That Wasn't There Yesterday"
+      },
+      {
+        "id": 171,
+        "title": "Seeds From the Dying Garden"
+      },
+      {
+        "id": 172,
+        "title": "The Eucalyptus Standoff"
+      },
+      {
+        "id": 173,
+        "title": "Four Doors Off the Stairwell"
+      },
+      {
+        "id": 174,
+        "title": "The Reanimation Counter"
+      },
+      {
+        "id": 175,
+        "title": "Wanted, Dead or Stranger"
+      },
+      {
+        "id": 176,
+        "title": "The Crossroads Trading Post"
+      },
+      {
+        "id": 177,
+        "title": "Portraits From the Other Side of the Leash"
+      },
+      {
+        "id": 178,
+        "title": "The Annual Report"
+      },
+      {
+        "id": 179,
+        "title": "The Stowaway Manifest"
+      },
+      {
+        "id": 180,
+        "title": "The Night Shift Regulars"
+      },
+      {
+        "id": 181,
+        "title": "The Complaints Department"
+      },
+      {
+        "id": 182,
+        "title": "Illustrations for a Storybook That Bites"
+      },
+      {
+        "id": 183,
+        "title": "What the Tide Leaves on the Black Rock"
+      },
+      {
+        "id": 184,
+        "title": "The Thing in the Cellar Wants to Negotiate"
+      },
+      {
+        "id": 185,
+        "title": "The Iconography of New Gods"
+      },
+      {
+        "id": 186,
+        "title": "Office Hours on Olympus"
+      },
+      {
+        "id": 187,
+        "title": "The Warm Window on a Cold Street"
+      },
+      {
+        "id": 188,
+        "title": "The Lost Mitten Bureau"
+      },
+      {
+        "id": 189,
+        "title": "Postcards From When"
+      },
+      {
+        "id": 190,
+        "title": "The Lost-and-Found of Lost Time"
+      },
+      {
+        "id": 191,
+        "title": "Self-Portraits by a Thing Learning to See"
+      },
+      {
+        "id": 192,
+        "title": "The Onboarding Sequence"
+      },
+      {
+        "id": 193,
+        "title": "The Villain's Lair, Open House"
+      },
+      {
+        "id": 194,
+        "title": "Staffing the Evil Org Chart"
+      },
+      {
+        "id": 195,
+        "title": "Backstage at the Show That Knows You"
+      },
+      {
+        "id": 196,
+        "title": "The Greenhouse at the End of the World"
+      },
+      {
+        "id": 197,
+        "title": "What Grows From the Caretaker's Pockets"
+      },
+      {
+        "id": 198,
+        "title": "The Assassin's Quiet Hour"
+      },
+      {
+        "id": 199,
+        "title": "The Contract Broker's Back Room"
+      },
+      {
+        "id": 200,
+        "title": "The Tide Pool Throne Room"
+      },
+      {
+        "id": 201,
+        "title": "The Kaiju's Day Off"
+      },
+      {
+        "id": 202,
+        "title": "The Fence's Four Offers"
+      },
+      {
+        "id": 203,
+        "title": "Assembling the Crew"
+      },
+      {
+        "id": 204,
+        "title": "The Glitch Bazaar"
+      },
+      {
+        "id": 205,
+        "title": "Renders From the Rendering City"
+      },
+      {
+        "id": 501,
+        "title": "Updated-Scenario-1783846699135"
+      },
+      {
+        "id": 877,
+        "title": "The Ninety-First Night"
+      },
+      {
+        "id": 878,
+        "title": "Reading the Debt Book"
+      },
+      {
+        "id": 882,
+        "title": "The Tin That Wouldn't Seal"
+      },
+      {
+        "id": 883,
+        "title": "Bram's Guilty Round"
+      },
+      {
+        "id": 934,
+        "title": "The Debt Iso Can't Repay"
+      },
+      {
+        "id": 935,
+        "title": "The One Corvin Wants Back"
+      },
+      {
+        "id": 1002,
+        "title": "The Thirty-Year Tangle"
+      },
+      {
+        "id": 1003,
+        "title": "The Windreader's Wish"
+      },
+      {
+        "id": 1850,
+        "title": "The Equinox Inspection"
+      },
+      {
+        "id": 1857,
+        "title": "The Misfiled Guest"
+      },
+      {
+        "id": 1864,
+        "title": "The Fox Who Argued Politics"
+      },
+      {
+        "id": 1865,
+        "title": "Triple Pell"
+      },
+      {
+        "id": 1884,
+        "title": "The Second Verse"
+      },
+      {
+        "id": 1934,
+        "title": "The Night the Moon Leaned In"
+      },
+      {
+        "id": 1989,
+        "title": "The Bowl That Remembered"
+      },
+      {
+        "id": 2050,
+        "title": "The Ring That Wasn't Grown Yet"
+      },
+      {
+        "id": 2095,
+        "title": "What the Hull Remembers"
+      },
+      {
+        "id": 2174,
+        "title": "The Unfinished Note"
+      },
+      {
+        "id": 2175,
+        "title": "The Vote That Grew Teeth"
+      },
+      {
+        "id": 2176,
+        "title": "What's Cooking at Spur Nine"
+      },
+      {
+        "id": 2177,
+        "title": "The Grounding Order"
+      }
+    ],
+    "scenariosWithoutFacet": [
+      {
+        "id": 172,
+        "title": "The Eucalyptus Standoff"
+      },
+      {
+        "id": 198,
+        "title": "The Assassin's Quiet Hour"
+      },
+      {
+        "id": 199,
+        "title": "The Contract Broker's Back Room"
+      },
+      {
+        "id": 501,
+        "title": "Updated-Scenario-1783846699135"
+      },
+      {
+        "id": 877,
+        "title": "The Ninety-First Night"
+      },
+      {
+        "id": 878,
+        "title": "Reading the Debt Book"
+      },
+      {
+        "id": 882,
+        "title": "The Tin That Wouldn't Seal"
+      },
+      {
+        "id": 883,
+        "title": "Bram's Guilty Round"
+      },
+      {
+        "id": 934,
+        "title": "The Debt Iso Can't Repay"
+      },
+      {
+        "id": 935,
+        "title": "The One Corvin Wants Back"
+      },
+      {
+        "id": 1002,
+        "title": "The Thirty-Year Tangle"
+      },
+      {
+        "id": 1003,
+        "title": "The Windreader's Wish"
+      },
+      {
+        "id": 1864,
+        "title": "The Fox Who Argued Politics"
+      },
+      {
+        "id": 1865,
+        "title": "Triple Pell"
+      }
+    ],
+    "dreamsWithoutCast": [
+      {
+        "id": 5643,
+        "title": "The Crystal Spire Strand"
+      },
+      {
+        "id": 5641,
+        "title": "Quarantine Spur Nine"
+      },
+      {
+        "id": 5639,
+        "title": "The Vinehorn Archive"
+      },
+      {
+        "id": 5637,
+        "title": "The Drowned Overture"
+      },
+      {
+        "id": 5482,
+        "title": "The Regrowth Yards"
+      },
+      {
+        "id": 5385,
+        "title": "The Hollow Reliquary"
+      },
+      {
+        "id": 5263,
+        "title": "Mercado de la Fortuna"
+      },
+      {
+        "id": 5046,
+        "title": "The Sunken Cantata"
+      },
+      {
+        "id": 4967,
+        "title": "The Reef Cathedral of Her Spine"
+      },
+      {
+        "id": 4993,
+        "title": "The Card Catalog Annex"
+      },
+      {
+        "id": 5008,
+        "title": "The Loft Exchange"
+      },
+      {
+        "id": 5007,
+        "title": "The Reliquary Parlor"
+      },
+      {
+        "id": 2622,
+        "title": "The Tangle"
+      },
+      {
+        "id": 2621,
+        "title": "The Spindle Workshop"
+      },
+      {
+        "id": 2332,
+        "title": "The Marrow Stacks"
+      },
+      {
+        "id": 2331,
+        "title": "The Molting Yard"
+      },
+      {
+        "id": 2142,
+        "title": "The Static Lighthouse"
+      },
+      {
+        "id": 5153,
+        "title": "The Sporeline Reclamation Yard"
+      },
+      {
+        "id": 3195,
+        "title": "The Lantern Post"
+      },
+      {
+        "id": 3194,
+        "title": "The Lantern Post"
+      },
+      {
+        "id": 38,
+        "title": "Blacklace Cathedral"
+      },
+      {
+        "id": 52,
+        "title": "Cape & Cackle Academy"
+      },
+      {
+        "id": 42,
+        "title": "The Cthulian Jam Band Festival"
+      },
+      {
+        "id": 39,
+        "title": "Gallowsun Junction"
+      },
+      {
+        "id": 49,
+        "title": "The Improbability Starcruiser"
+      },
+      {
+        "id": 40,
+        "title": "The Infernal Circuit"
+      },
+      {
+        "id": 37,
+        "title": "The Lantern Greenhouse"
+      },
+      {
+        "id": 51,
+        "title": "Maeve’s Mandatory Enchantment Retreat"
+      },
+      {
+        "id": 48,
+        "title": "The Lamp of a Thousand Parties"
+      },
+      {
+        "id": 46,
+        "title": "Mistress Cassady’s Spooktakular Monster Drag Party"
+      },
+      {
+        "id": 50,
+        "title": "The Moonwreck Corsair"
+      },
+      {
+        "id": 41,
+        "title": "The Rainbow Butterfly Sanctuary"
+      }
+    ],
+    "dreamsWithoutScenario": [
+      {
+        "id": 3195,
+        "title": "The Lantern Post"
+      },
+      {
+        "id": 3194,
+        "title": "The Lantern Post"
+      },
+      {
+        "id": 38,
+        "title": "Blacklace Cathedral"
+      },
+      {
+        "id": 52,
+        "title": "Cape & Cackle Academy"
+      },
+      {
+        "id": 42,
+        "title": "The Cthulian Jam Band Festival"
+      },
+      {
+        "id": 39,
+        "title": "Gallowsun Junction"
+      },
+      {
+        "id": 49,
+        "title": "The Improbability Starcruiser"
+      },
+      {
+        "id": 40,
+        "title": "The Infernal Circuit"
+      },
+      {
+        "id": 37,
+        "title": "The Lantern Greenhouse"
+      },
+      {
+        "id": 51,
+        "title": "Maeve’s Mandatory Enchantment Retreat"
+      },
+      {
+        "id": 48,
+        "title": "The Lamp of a Thousand Parties"
+      },
+      {
+        "id": 46,
+        "title": "Mistress Cassady’s Spooktakular Monster Drag Party"
+      },
+      {
+        "id": 50,
+        "title": "The Moonwreck Corsair"
+      },
+      {
+        "id": 41,
+        "title": "The Rainbow Butterfly Sanctuary"
+      }
+    ]
+  },
+  "facetHealth": {
+    "orphanGenres": [
+      {
+        "id": 774,
+        "title": "Western",
+        "aliases": [
+          "western"
+        ]
+      },
+      {
+        "id": 777,
+        "title": "Dark Academia",
+        "aliases": [
+          "dark-academia"
+        ]
+      },
+      {
+        "id": 778,
+        "title": "Dieselpunk",
+        "aliases": [
+          "art-punk-dieselpunk",
+          "Dieselpunk",
+          "Dieselpunk Aesthetic",
+          "Dieselpunk Style"
+        ]
+      },
+      {
+        "id": 779,
+        "title": "Eco-Fiction",
+        "aliases": [
+          "eco-fiction",
+          "Ecological Fiction"
+        ]
+      },
+      {
+        "id": 780,
+        "title": "Cli-Fi (Climate Fiction)",
+        "aliases": [
+          "cli-fi-climate-fiction"
+        ]
+      },
+      {
+        "id": 781,
+        "title": "Alternate History",
+        "aliases": [
+          "alternate-history"
+        ]
+      },
+      {
+        "id": 786,
+        "title": "Absurdist Comedy",
+        "aliases": [
+          "absurdist-comedy"
+        ]
+      },
+      {
+        "id": 787,
+        "title": "Pirate Adventure",
+        "aliases": [
+          "pirate-adventure"
+        ]
+      },
+      {
+        "id": 788,
+        "title": "Dreamlike Surrealism",
+        "aliases": [
+          "dreamlike-surrealism"
+        ]
+      },
+      {
+        "id": 789,
+        "title": "Monster Romance",
+        "aliases": [
+          "monster-romance"
+        ]
+      },
+      {
+        "id": 790,
+        "title": "Cartoon Noir",
+        "aliases": [
+          "cartoon-noir"
+        ]
+      },
+      {
+        "id": 794,
+        "title": "Grimdark Fantasy",
+        "aliases": [
+          "grimdark-fantasy"
+        ]
+      },
+      {
+        "id": 796,
+        "title": "Noir Thriller",
+        "aliases": [
+          "noir-thriller"
+        ]
+      },
+      {
+        "id": 797,
+        "title": "Post-Human Dystopia",
+        "aliases": [
+          "post-human-dystopia"
+        ]
+      },
+      {
+        "id": 798,
+        "title": "Lovecraftian Horror",
+        "aliases": [
+          "lovecraftian-horror"
+        ]
+      },
+      {
+        "id": 799,
+        "title": "Vampire Gothic",
+        "aliases": [
+          "vampire-gothic"
+        ]
+      },
+      {
+        "id": 800,
+        "title": "Dystopian Romance",
+        "aliases": [
+          "dystopian-romance"
+        ]
+      },
+      {
+        "id": 801,
+        "title": "Psychological Horror",
+        "aliases": [
+          "psychological-horror"
+        ]
+      },
+      {
+        "id": 804,
+        "title": "Hard Science Fiction",
+        "aliases": [
+          "hard-science-fiction",
+          "Hard Sci-Fi"
+        ]
+      },
+      {
+        "id": 808,
+        "title": "Astrobiological Adventure",
+        "aliases": [
+          "astrobiological-adventure"
+        ]
+      },
+      {
+        "id": 809,
+        "title": "AI Utopia",
+        "aliases": [
+          "ai-utopia"
+        ]
+      },
+      {
+        "id": 810,
+        "title": "Martian Colonization",
+        "aliases": [
+          "martian-colonization"
+        ]
+      },
+      {
+        "id": 811,
+        "title": "First Contact",
+        "aliases": [
+          "first-contact"
+        ]
+      },
+      {
+        "id": 812,
+        "title": "Alien Invasion",
+        "aliases": [
+          "alien-invasion"
+        ]
+      },
+      {
+        "id": 813,
+        "title": "Techno-Thriller",
+        "aliases": [
+          "techno-thriller"
+        ]
+      },
+      {
+        "id": 814,
+        "title": "High Fantasy",
+        "aliases": [
+          "high-fantasy"
+        ]
+      },
+      {
+        "id": 815,
+        "title": "Low Fantasy",
+        "aliases": [
+          "low-fantasy"
+        ]
+      },
+      {
+        "id": 816,
+        "title": "Sword and Sorcery",
+        "aliases": [
+          "sword-and-sorcery"
+        ]
+      },
+      {
+        "id": 818,
+        "title": "Heroic Fantasy",
+        "aliases": [
+          "heroic-fantasy"
+        ]
+      },
+      {
+        "id": 819,
+        "title": "Gaslamp Fantasy",
+        "aliases": [
+          "gaslamp-fantasy"
+        ]
+      },
+      {
+        "id": 821,
+        "title": "Weird Fantasy",
+        "aliases": [
+          "weird-fantasy"
+        ]
+      },
+      {
+        "id": 823,
+        "title": "Medieval Fantasy",
+        "aliases": [
+          "medieval-fantasy"
+        ]
+      },
+      {
+        "id": 824,
+        "title": "Science Fantasy",
+        "aliases": [
+          "science-fantasy"
+        ]
+      },
+      {
+        "id": 825,
+        "title": "Historical Fantasy",
+        "aliases": [
+          "historical-fantasy"
+        ]
+      },
+      {
+        "id": 826,
+        "title": "Horror Fantasy",
+        "aliases": [
+          "horror-fantasy"
+        ]
+      },
+      {
+        "id": 827,
+        "title": "Science Romance",
+        "aliases": [
+          "science-romance"
+        ]
+      },
+      {
+        "id": 829,
+        "title": "Fantasy Noir",
+        "aliases": [
+          "fantasy-noir"
+        ]
+      },
+      {
+        "id": 830,
+        "title": "Musical Adventure",
+        "aliases": [
+          "musical-adventure"
+        ]
+      },
+      {
+        "id": 832,
+        "title": "Interactive Fiction",
+        "aliases": [
+          "interactive-fiction"
+        ]
+      },
+      {
+        "id": 833,
+        "title": "Metafiction",
+        "aliases": [
+          "metafiction"
+        ]
+      },
+      {
+        "id": 834,
+        "title": "Afrofuturism",
+        "aliases": [
+          "African Futurism",
+          "Afrofuturism"
+        ]
+      },
+      {
+        "id": 835,
+        "title": "Asian Fantasy",
+        "aliases": [
+          "asian-fantasy",
+          "east-asian-fantasy"
+        ]
+      },
+      {
+        "id": 836,
+        "title": "Celtic Mythology",
+        "aliases": [
+          "celtic-mythology"
+        ]
+      },
+      {
+        "id": 837,
+        "title": "Indigenous Futurism",
+        "aliases": [
+          "indigenous-futurism"
+        ]
+      },
+      {
+        "id": 840,
+        "title": "Eastern European Folklore",
+        "aliases": [
+          "eastern-european-folklore",
+          "eastern-european-folkloric-fantasy"
+        ]
+      },
+      {
+        "id": 842,
+        "title": "African Mythpunk",
+        "aliases": [
+          "african-mythpunk",
+          "african-mythic-fantasy"
+        ]
+      },
+      {
+        "id": 843,
+        "title": "One Thousand and One Nights Fantasy",
+        "aliases": [
+          "one-thousand-and-one-nights-fantasy",
+          "1001 Nights Fantasy",
+          "Arabian Nights Fantasy",
+          "arabian-nights-redux"
+        ]
+      },
+      {
+        "id": 1630,
+        "title": "Gothic Comedy",
+        "aliases": [
+          "gothic-comedy"
+        ]
+      },
+      {
+        "id": 1632,
+        "title": "Mythic Sci-Fi",
+        "aliases": [
+          "mythic-sci-fi"
+        ]
+      },
+      {
+        "id": 1633,
+        "title": "Cosmic Dread",
+        "aliases": [
+          "cosmic-dread"
+        ]
+      },
+      {
+        "id": 1636,
+        "title": "Pastoral Apocalypse",
+        "aliases": [
+          "pastoral-apocalypse"
+        ]
+      },
+      {
+        "id": 1640,
+        "title": "Academic Eldritch",
+        "aliases": [
+          "academic-eldritch"
+        ]
+      },
+      {
+        "id": 1641,
+        "title": "Municipal Necromancy",
+        "aliases": [
+          "municipal-necromancy"
+        ]
+      },
+      {
+        "id": 1642,
+        "title": "Wilderness Bureaucracy",
+        "aliases": [
+          "wilderness-bureaucracy"
+        ]
+      },
+      {
+        "id": 1643,
+        "title": "Diplomatic Thriller",
+        "aliases": [
+          "diplomatic-thriller"
+        ]
+      },
+      {
+        "id": 1645,
+        "title": "Revolutionary Pastoral",
+        "aliases": [
+          "revolutionary-pastoral"
+        ]
+      },
+      {
+        "id": 1648,
+        "title": "Geological Romance",
+        "aliases": [
+          "geological-romance"
+        ]
+      },
+      {
+        "id": 1649,
+        "title": "Siege Comedy",
+        "aliases": [
+          "siege-comedy"
+        ]
+      },
+      {
+        "id": 1650,
+        "title": "Tender Apocalypse",
+        "aliases": [
+          "tender-apocalypse"
+        ]
+      },
+      {
+        "id": 1651,
+        "title": "Haunted Procedural",
+        "aliases": [
+          "haunted-procedural"
+        ]
+      },
+      {
+        "id": 1653,
+        "title": "Heist Mythology",
+        "aliases": [
+          "heist-mythology"
+        ]
+      },
+      {
+        "id": 1654,
+        "title": "Maritime Mystery",
+        "aliases": [
+          "maritime-mystery"
+        ]
+      },
+      {
+        "id": 1659,
+        "title": "Mecha Opera",
+        "aliases": [
+          "mecha-opera"
+        ]
+      },
+      {
+        "id": 1660,
+        "title": "Tournament Arc",
+        "aliases": [
+          "tournament-arc"
+        ]
+      },
+      {
+        "id": 1661,
+        "title": "School Horror",
+        "aliases": [
+          "school-horror"
+        ]
+      },
+      {
+        "id": 1662,
+        "title": "Reverse Isekai",
+        "aliases": [
+          "reverse-isekai"
+        ]
+      },
+      {
+        "id": 1663,
+        "title": "Vaporwave Dystopia",
+        "aliases": [
+          "vaporwave-dystopia"
+        ]
+      },
+      {
+        "id": 1667,
+        "title": "Deep Space Western",
+        "aliases": [
+          "deep-space-western"
+        ]
+      },
+      {
+        "id": 1668,
+        "title": "Alien Bureaucracy",
+        "aliases": [
+          "alien-bureaucracy"
+        ]
+      },
+      {
+        "id": 1669,
+        "title": "Corporate Sci-Fi",
+        "aliases": [
+          "corporate-sci-fi"
+        ]
+      },
+      {
+        "id": 1670,
+        "title": "Clockpunk Opera",
+        "aliases": [
+          "clockpunk-opera"
+        ]
+      },
+      {
+        "id": 1671,
+        "title": "J-Horror",
+        "aliases": [
+          "j-horror"
+        ]
+      },
+      {
+        "id": 1673,
+        "title": "Cryptid Documentary",
+        "aliases": [
+          "cryptid-documentary"
+        ]
+      },
+      {
+        "id": 1677,
+        "title": "Furry Pastoral",
+        "aliases": [
+          "furry-pastoral"
+        ]
+      },
+      {
+        "id": 1681,
+        "title": "Office Thriller",
+        "aliases": [
+          "office-thriller"
+        ]
+      },
+      {
+        "id": 1682,
+        "title": "Lovecraftian Office Comedy",
+        "aliases": [
+          "lovecraftian-office-comedy"
+        ]
+      },
+      {
+        "id": 1683,
+        "title": "Corporate Espionage",
+        "aliases": [
+          "corporate-espionage"
+        ]
+      },
+      {
+        "id": 1684,
+        "title": "Middle Management Horror",
+        "aliases": [
+          "middle-management-horror"
+        ]
+      },
+      {
+        "id": 1687,
+        "title": "Mythological Comedy",
+        "aliases": [
+          "mythological-comedy"
+        ]
+      },
+      {
+        "id": 1869,
+        "title": "Isekai",
+        "aliases": [
+          "isekai"
+        ]
+      },
+      {
+        "id": 1873,
+        "title": "Shonen",
+        "aliases": [
+          "shonen"
+        ]
+      },
+      {
+        "id": 1875,
+        "title": "Magical Girl",
+        "aliases": [
+          "magical-girl"
+        ]
+      },
+      {
+        "id": 1888,
+        "title": "Pastoral",
+        "aliases": [
+          "pastoral"
+        ]
+      },
+      {
+        "id": 1889,
+        "title": "Weird Fiction",
+        "aliases": [
+          "weird-fiction"
+        ]
+      },
+      {
+        "id": 1891,
+        "title": "Cyberpunk Fiction",
+        "aliases": [
+          "cyberpunk-fiction",
+          "Cyberpunk Genre"
+        ]
+      },
+      {
+        "id": 1892,
+        "title": "Everyday Wonder",
+        "aliases": [
+          "everyday-wonder",
+          "Mundane Fantasy"
+        ]
+      },
+      {
+        "id": 1895,
+        "title": "Heist Fiction",
+        "aliases": [
+          "heist-fiction",
+          "Heist Genre"
+        ]
+      },
+      {
+        "id": 1896,
+        "title": "Japanese Folkloric Fantasy",
+        "aliases": [
+          "japanese-folkloric-fantasy"
+        ]
+      },
+      {
+        "id": 1897,
+        "title": "Everyday Animist Fantasy",
+        "aliases": [
+          "everyday-animist-fantasy",
+          "Everyday Spirit Fantasy"
+        ]
+      },
+      {
+        "id": 1903,
+        "title": "Political Drama",
+        "aliases": [
+          "political-drama"
+        ]
+      }
+    ],
+    "unresolvedVocabulary": [
+      {
+        "count": 13,
+        "sample": "Weird Western"
+      },
+      {
+        "count": 9,
+        "sample": "Eco-Fantasy"
+      },
+      {
+        "count": 7,
+        "sample": "adventure"
+      },
+      {
+        "count": 6,
+        "sample": "Dark Circus"
+      },
+      {
+        "count": 6,
+        "sample": "Heist"
+      },
+      {
+        "count": 6,
+        "sample": "Hopepunk"
+      },
+      {
+        "count": 5,
+        "sample": "Sci-Fi Comedy"
+      },
+      {
+        "count": 5,
+        "sample": "Borrowed-Light Bittersweet"
+      },
+      {
+        "count": 5,
+        "sample": "Tin & Echo"
+      },
+      {
+        "count": 5,
+        "sample": "Elegiac Wonder"
+      },
+      {
+        "count": 5,
+        "sample": "Wind-Fortune"
+      },
+      {
+        "count": 5,
+        "sample": "Stitch & Echo"
+      },
+      {
+        "count": 4,
+        "sample": "Surreal Aquatic"
+      },
+      {
+        "count": 4,
+        "sample": "Undead Glamour"
+      },
+      {
+        "count": 4,
+        "sample": "Gentle Sci-Fi"
+      },
+      {
+        "count": 4,
+        "sample": "Animal Interiority"
+      },
+      {
+        "count": 4,
+        "sample": "Meta"
+      },
+      {
+        "count": 4,
+        "sample": "spectacle"
+      },
+      {
+        "count": 3,
+        "sample": "Deep-Sea Horror"
+      },
+      {
+        "count": 3,
+        "sample": "Cozy Undead"
+      },
+      {
+        "count": 3,
+        "sample": "Office Satire"
+      },
+      {
+        "count": 3,
+        "sample": "Cosmic Bureaucracy"
+      },
+      {
+        "count": 3,
+        "sample": "Workplace Satire"
+      },
+      {
+        "count": 3,
+        "sample": "Magic Realism"
+      },
+      {
+        "count": 3,
+        "sample": "Cozy Mystery"
+      },
+      {
+        "count": 3,
+        "sample": "Dystopia"
+      },
+      {
+        "count": 3,
+        "sample": "Cozy"
+      },
+      {
+        "count": 3,
+        "sample": "Surreal Horror"
+      },
+      {
+        "count": 3,
+        "sample": "Absurdist Strategy"
+      },
+      {
+        "count": 3,
+        "sample": "ensemble"
+      },
+      {
+        "count": 3,
+        "sample": "exploration"
+      },
+      {
+        "count": 3,
+        "sample": "identity"
+      },
+      {
+        "count": 3,
+        "sample": "warmth"
+      },
+      {
+        "count": 2,
+        "sample": "Undead Bureaucracy"
+      },
+      {
+        "count": 2,
+        "sample": "Gothic Mechanical"
+      },
+      {
+        "count": 2,
+        "sample": "Dreampunk Noir"
+      },
+      {
+        "count": 2,
+        "sample": "Cozy Weird"
+      },
+      {
+        "count": 2,
+        "sample": "Surreal"
+      },
+      {
+        "count": 2,
+        "sample": "Underwater Court"
+      },
+      {
+        "count": 2,
+        "sample": "Paperwork for a God"
+      },
+      {
+        "count": 2,
+        "sample": "Sincerely"
+      },
+      {
+        "count": 2,
+        "sample": "Wrongly Remembered"
+      },
+      {
+        "count": 2,
+        "sample": "The Gentle Abyss"
+      },
+      {
+        "count": 2,
+        "sample": "Undermoon Bloom"
+      },
+      {
+        "count": 2,
+        "sample": "The Lucky Ladle"
+      },
+      {
+        "count": 2,
+        "sample": "The Spire That Remembers"
+      },
+      {
+        "count": 2,
+        "sample": "The Salt Diagnostic"
+      },
+      {
+        "count": 2,
+        "sample": "The Aria That Sank a Fleet"
+      },
+      {
+        "count": 2,
+        "sample": "The Green Labyrinth Beat"
+      },
+      {
+        "count": 2,
+        "sample": "The Hush Line"
+      },
+      {
+        "count": 2,
+        "sample": "Hangar Ghostlight"
+      },
+      {
+        "count": 2,
+        "sample": "survival"
+      },
+      {
+        "count": 2,
+        "sample": "surreal fantasy"
+      },
+      {
+        "count": 2,
+        "sample": "fantasy comedy"
+      },
+      {
+        "count": 2,
+        "sample": "management sim"
+      },
+      {
+        "count": 2,
+        "sample": "dark comedy"
+      },
+      {
+        "count": 2,
+        "sample": "whimsy"
+      },
+      {
+        "count": 2,
+        "sample": "psychological"
+      },
+      {
+        "count": 2,
+        "sample": "supernatural"
+      },
+      {
+        "count": 2,
+        "sample": "magic mundane"
+      },
+      {
+        "count": 2,
+        "sample": "fractured fairy tale"
+      },
+      {
+        "count": 2,
+        "sample": "bureaucratic whimsy"
+      },
+      {
+        "count": 2,
+        "sample": "divine bureaucracy"
+      },
+      {
+        "count": 2,
+        "sample": "found family"
+      },
+      {
+        "count": 2,
+        "sample": "AI awakening"
+      },
+      {
+        "count": 2,
+        "sample": "melancholy hope"
+      },
+      {
+        "count": 2,
+        "sample": "marsupial menace"
+      },
+      {
+        "count": 2,
+        "sample": "portraiture"
+      },
+      {
+        "count": 2,
+        "sample": "crime"
+      },
+      {
+        "count": 1,
+        "sample": "Surreal Aquatic Comedy"
+      },
+      {
+        "count": 1,
+        "sample": "Gauntlet Spectacle"
+      },
+      {
+        "count": 1,
+        "sample": "Surreal Comedy"
+      },
+      {
+        "count": 1,
+        "sample": "Folklore Fantasy"
+      },
+      {
+        "count": 1,
+        "sample": "Aquatic Slice-of-Life"
+      },
+      {
+        "count": 1,
+        "sample": "Meta Sci-Fi"
+      },
+      {
+        "count": 1,
+        "sample": "Mythic Workplace"
+      },
+      {
+        "count": 1,
+        "sample": "Mythic Comedy"
+      },
+      {
+        "count": 1,
+        "sample": "Fantasy Slice-of-Life"
+      },
+      {
+        "count": 1,
+        "sample": "Dark Whimsy"
+      },
+      {
+        "count": 1,
+        "sample": "Culinary Time Travel"
+      },
+      {
+        "count": 1,
+        "sample": "Puzzle Fantasy"
+      },
+      {
+        "count": 1,
+        "sample": "Koala Assassin"
+      },
+      {
+        "count": 1,
+        "sample": "high fashion"
+      },
+      {
+        "count": 1,
+        "sample": "court intrigue"
+      },
+      {
+        "count": 1,
+        "sample": "dark humor"
+      },
+      {
+        "count": 1,
+        "sample": "absurd adventure"
+      },
+      {
+        "count": 1,
+        "sample": "action comedy"
+      },
+      {
+        "count": 1,
+        "sample": "surreal adventure"
+      },
+      {
+        "count": 1,
+        "sample": "political satire"
+      },
+      {
+        "count": 1,
+        "sample": "eldritch horror"
+      },
+      {
+        "count": 1,
+        "sample": "sci-fi heist"
+      },
+      {
+        "count": 1,
+        "sample": "action western"
+      },
+      {
+        "count": 1,
+        "sample": "revenge drama"
+      },
+      {
+        "count": 1,
+        "sample": "anime action"
+      },
+      {
+        "count": 1,
+        "sample": "feminist power fantasy"
+      },
+      {
+        "count": 1,
+        "sample": "romantic comedy"
+      },
+      {
+        "count": 1,
+        "sample": "absurdist slice-of-life"
+      },
+      {
+        "count": 1,
+        "sample": "monster mayhem"
+      },
+      {
+        "count": 1,
+        "sample": "strategy"
+      },
+      {
+        "count": 1,
+        "sample": "cosmic sandbox"
+      },
+      {
+        "count": 1,
+        "sample": "action fantasy"
+      },
+      {
+        "count": 1,
+        "sample": "gauntlet"
+      },
+      {
+        "count": 1,
+        "sample": "cyberpunk noir"
+      },
+      {
+        "count": 1,
+        "sample": "identity thriller"
+      },
+      {
+        "count": 1,
+        "sample": "dark fantasy"
+      },
+      {
+        "count": 1,
+        "sample": "revenge"
+      },
+      {
+        "count": 1,
+        "sample": "surreal mystery"
+      },
+      {
+        "count": 1,
+        "sample": "surreal sci-fi"
+      },
+      {
+        "count": 1,
+        "sample": "cozy adventure"
+      },
+      {
+        "count": 1,
+        "sample": "talking-animal detective"
+      },
+      {
+        "count": 1,
+        "sample": "whodunit"
+      },
+      {
+        "count": 1,
+        "sample": "culinary comedy"
+      },
+      {
+        "count": 1,
+        "sample": "high-stakes competition"
+      },
+      {
+        "count": 1,
+        "sample": "retro sci-fi"
+      },
+      {
+        "count": 1,
+        "sample": "melancholy meta-fiction"
+      },
+      {
+        "count": 1,
+        "sample": "political intrigue"
+      },
+      {
+        "count": 1,
+        "sample": "historical mystery"
+      },
+      {
+        "count": 1,
+        "sample": "time paradox"
+      },
+      {
+        "count": 1,
+        "sample": "existential thriller"
+      },
+      {
+        "count": 1,
+        "sample": "supernatural horror"
+      },
+      {
+        "count": 1,
+        "sample": "ghost story"
+      },
+      {
+        "count": 1,
+        "sample": "cosmic mystery"
+      },
+      {
+        "count": 1,
+        "sample": "gothic mystery"
+      },
+      {
+        "count": 1,
+        "sample": "dark musical"
+      },
+      {
+        "count": 1,
+        "sample": "puzzle"
+      },
+      {
+        "count": 1,
+        "sample": "moral thriller"
+      },
+      {
+        "count": 1,
+        "sample": "aquatic awe"
+      },
+      {
+        "count": 1,
+        "sample": "sacrifice"
+      },
+      {
+        "count": 1,
+        "sample": "gentle uncanny"
+      },
+      {
+        "count": 1,
+        "sample": "recruitment"
+      },
+      {
+        "count": 1,
+        "sample": "fashion"
+      },
+      {
+        "count": 1,
+        "sample": "decay"
+      },
+      {
+        "count": 1,
+        "sample": "reveal"
+      },
+      {
+        "count": 1,
+        "sample": "corporate satire"
+      },
+      {
+        "count": 1,
+        "sample": "frontier"
+      },
+      {
+        "count": 1,
+        "sample": "folk dread"
+      },
+      {
+        "count": 1,
+        "sample": "isolation"
+      },
+      {
+        "count": 1,
+        "sample": "creation"
+      },
+      {
+        "count": 1,
+        "sample": "paradox"
+      },
+      {
+        "count": 1,
+        "sample": "consequence"
+      },
+      {
+        "count": 1,
+        "sample": "the show that came for you"
+      },
+      {
+        "count": 1,
+        "sample": "renewal"
+      },
+      {
+        "count": 1,
+        "sample": "samurai standoff"
+      },
+      {
+        "count": 1,
+        "sample": "liminal"
+      },
+      {
+        "count": 1,
+        "sample": "dream-logic"
+      },
+      {
+        "count": 1,
+        "sample": "second chances"
+      },
+      {
+        "count": 1,
+        "sample": "gentle macabre"
+      },
+      {
+        "count": 1,
+        "sample": "supernatural frontier"
+      },
+      {
+        "count": 1,
+        "sample": "mercantile mystery"
+      },
+      {
+        "count": 1,
+        "sample": "frontier magic"
+      },
+      {
+        "count": 1,
+        "sample": "corporate horror"
+      },
+      {
+        "count": 1,
+        "sample": "satire"
+      },
+      {
+        "count": 1,
+        "sample": "discovery"
+      },
+      {
+        "count": 1,
+        "sample": "liminal retail"
+      },
+      {
+        "count": 1,
+        "sample": "quiet uncanny"
+      },
+      {
+        "count": 1,
+        "sample": "dark storybook"
+      },
+      {
+        "count": 1,
+        "sample": "illustration"
+      },
+      {
+        "count": 1,
+        "sample": "coastal dread"
+      },
+      {
+        "count": 1,
+        "sample": "still life"
+      },
+      {
+        "count": 1,
+        "sample": "haunted bargain"
+      },
+      {
+        "count": 1,
+        "sample": "dread"
+      },
+      {
+        "count": 1,
+        "sample": "devotional art"
+      },
+      {
+        "count": 1,
+        "sample": "gentle divinity"
+      },
+      {
+        "count": 1,
+        "sample": "petition"
+      },
+      {
+        "count": 1,
+        "sample": "longing"
+      },
+      {
+        "count": 1,
+        "sample": "gentle mystery"
+      },
+      {
+        "count": 1,
+        "sample": "anachronism"
+      },
+      {
+        "count": 1,
+        "sample": "souvenir art"
+      },
+      {
+        "count": 1,
+        "sample": "recovery"
+      },
+      {
+        "count": 1,
+        "sample": "melancholy wonder"
+      },
+      {
+        "count": 1,
+        "sample": "AI interiority"
+      },
+      {
+        "count": 1,
+        "sample": "tender sci-fi"
+      },
+      {
+        "count": 1,
+        "sample": "setup"
+      },
+      {
+        "count": 1,
+        "sample": "sympathetic evil"
+      },
+      {
+        "count": 1,
+        "sample": "interiors"
+      },
+      {
+        "count": 1,
+        "sample": "dark logistics"
+      },
+      {
+        "count": 1,
+        "sample": "backstage"
+      },
+      {
+        "count": 1,
+        "sample": "living beauty"
+      },
+      {
+        "count": 1,
+        "sample": "growth"
+      },
+      {
+        "count": 1,
+        "sample": "gentle wonder"
+      },
+      {
+        "count": 1,
+        "sample": "character study"
+      },
+      {
+        "count": 1,
+        "sample": "quiet menace"
+      },
+      {
+        "count": 1,
+        "sample": "fixer"
+      },
+      {
+        "count": 1,
+        "sample": "deep-sea wonder"
+      },
+      {
+        "count": 1,
+        "sample": "intrigue"
+      },
+      {
+        "count": 1,
+        "sample": "gentle giant"
+      },
+      {
+        "count": 1,
+        "sample": "wonder"
+      },
+      {
+        "count": 1,
+        "sample": "ensemble assembly"
+      },
+      {
+        "count": 1,
+        "sample": "digital market"
+      },
+      {
+        "count": 1,
+        "sample": "cityscape"
+      }
+    ],
+    "duplicates": {
+      "exact": [],
+      "containment": [
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 775,
+            "title": "Urban Fantasy"
+          },
+          "inner": {
+            "id": 766,
+            "title": "Fantasy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 776,
+            "title": "Horror Comedy"
+          },
+          "inner": {
+            "id": 1634,
+            "title": "Horror"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 776,
+            "title": "Horror Comedy"
+          },
+          "inner": {
+            "id": 1635,
+            "title": "Comedy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 786,
+            "title": "Absurdist Comedy"
+          },
+          "inner": {
+            "id": 1635,
+            "title": "Comedy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 789,
+            "title": "Monster Romance"
+          },
+          "inner": {
+            "id": 773,
+            "title": "Romance"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 790,
+            "title": "Cartoon Noir"
+          },
+          "inner": {
+            "id": 1881,
+            "title": "Noir"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 794,
+            "title": "Grimdark Fantasy"
+          },
+          "inner": {
+            "id": 766,
+            "title": "Fantasy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 795,
+            "title": "Gothic Horror"
+          },
+          "inner": {
+            "id": 1634,
+            "title": "Horror"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 796,
+            "title": "Noir Thriller"
+          },
+          "inner": {
+            "id": 772,
+            "title": "Thriller"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 796,
+            "title": "Noir Thriller"
+          },
+          "inner": {
+            "id": 1881,
+            "title": "Noir"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 798,
+            "title": "Lovecraftian Horror"
+          },
+          "inner": {
+            "id": 1634,
+            "title": "Horror"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 800,
+            "title": "Dystopian Romance"
+          },
+          "inner": {
+            "id": 773,
+            "title": "Romance"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 801,
+            "title": "Psychological Horror"
+          },
+          "inner": {
+            "id": 1634,
+            "title": "Horror"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 802,
+            "title": "Cosmic Horror"
+          },
+          "inner": {
+            "id": 1634,
+            "title": "Horror"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 803,
+            "title": "Crime Noir"
+          },
+          "inner": {
+            "id": 1881,
+            "title": "Noir"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 813,
+            "title": "Techno-Thriller"
+          },
+          "inner": {
+            "id": 772,
+            "title": "Thriller"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 814,
+            "title": "High Fantasy"
+          },
+          "inner": {
+            "id": 766,
+            "title": "Fantasy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 815,
+            "title": "Low Fantasy"
+          },
+          "inner": {
+            "id": 766,
+            "title": "Fantasy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 817,
+            "title": "Epic Fantasy"
+          },
+          "inner": {
+            "id": 766,
+            "title": "Fantasy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 818,
+            "title": "Heroic Fantasy"
+          },
+          "inner": {
+            "id": 766,
+            "title": "Fantasy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 819,
+            "title": "Gaslamp Fantasy"
+          },
+          "inner": {
+            "id": 766,
+            "title": "Fantasy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 820,
+            "title": "Dark Fairy Tale"
+          },
+          "inner": {
+            "id": 784,
+            "title": "Fairy Tale"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 821,
+            "title": "Weird Fantasy"
+          },
+          "inner": {
+            "id": 766,
+            "title": "Fantasy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 822,
+            "title": "Cozy Fantasy"
+          },
+          "inner": {
+            "id": 766,
+            "title": "Fantasy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 823,
+            "title": "Medieval Fantasy"
+          },
+          "inner": {
+            "id": 766,
+            "title": "Fantasy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 824,
+            "title": "Science Fantasy"
+          },
+          "inner": {
+            "id": 766,
+            "title": "Fantasy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 825,
+            "title": "Historical Fantasy"
+          },
+          "inner": {
+            "id": 766,
+            "title": "Fantasy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 826,
+            "title": "Horror Fantasy"
+          },
+          "inner": {
+            "id": 766,
+            "title": "Fantasy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 826,
+            "title": "Horror Fantasy"
+          },
+          "inner": {
+            "id": 1634,
+            "title": "Horror"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 827,
+            "title": "Science Romance"
+          },
+          "inner": {
+            "id": 773,
+            "title": "Romance"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 828,
+            "title": "Mystery Sci-Fi"
+          },
+          "inner": {
+            "id": 767,
+            "title": "Sci-Fi"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 828,
+            "title": "Mystery Sci-Fi"
+          },
+          "inner": {
+            "id": 771,
+            "title": "Mystery"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 829,
+            "title": "Fantasy Noir"
+          },
+          "inner": {
+            "id": 766,
+            "title": "Fantasy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 829,
+            "title": "Fantasy Noir"
+          },
+          "inner": {
+            "id": 1881,
+            "title": "Noir"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 835,
+            "title": "Asian Fantasy"
+          },
+          "inner": {
+            "id": 766,
+            "title": "Fantasy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 838,
+            "title": "Nordic Noir"
+          },
+          "inner": {
+            "id": 1881,
+            "title": "Noir"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 839,
+            "title": "Latin American Magical Realism"
+          },
+          "inner": {
+            "id": 785,
+            "title": "Magical Realism"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 840,
+            "title": "Eastern European Folklore"
+          },
+          "inner": {
+            "id": 1887,
+            "title": "Folklore"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 842,
+            "title": "African Mythpunk"
+          },
+          "inner": {
+            "id": 793,
+            "title": "Mythpunk"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 843,
+            "title": "One Thousand and One Nights Fantasy"
+          },
+          "inner": {
+            "id": 766,
+            "title": "Fantasy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1630,
+            "title": "Gothic Comedy"
+          },
+          "inner": {
+            "id": 1635,
+            "title": "Comedy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1631,
+            "title": "Cozy Horror"
+          },
+          "inner": {
+            "id": 1634,
+            "title": "Horror"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1632,
+            "title": "Mythic Sci-Fi"
+          },
+          "inner": {
+            "id": 767,
+            "title": "Sci-Fi"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1636,
+            "title": "Pastoral Apocalypse"
+          },
+          "inner": {
+            "id": 1888,
+            "title": "Pastoral"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1639,
+            "title": "Bureaucratic Fantasy"
+          },
+          "inner": {
+            "id": 766,
+            "title": "Fantasy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1643,
+            "title": "Diplomatic Thriller"
+          },
+          "inner": {
+            "id": 772,
+            "title": "Thriller"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1644,
+            "title": "Archive Horror"
+          },
+          "inner": {
+            "id": 1634,
+            "title": "Horror"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1645,
+            "title": "Revolutionary Pastoral"
+          },
+          "inner": {
+            "id": 1888,
+            "title": "Pastoral"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1647,
+            "title": "Culinary Horror"
+          },
+          "inner": {
+            "id": 1634,
+            "title": "Horror"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1648,
+            "title": "Geological Romance"
+          },
+          "inner": {
+            "id": 773,
+            "title": "Romance"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1649,
+            "title": "Siege Comedy"
+          },
+          "inner": {
+            "id": 1635,
+            "title": "Comedy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1654,
+            "title": "Maritime Mystery"
+          },
+          "inner": {
+            "id": 771,
+            "title": "Mystery"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1661,
+            "title": "School Horror"
+          },
+          "inner": {
+            "id": 1634,
+            "title": "Horror"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1662,
+            "title": "Reverse Isekai"
+          },
+          "inner": {
+            "id": 1869,
+            "title": "Isekai"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1666,
+            "title": "First Contact Comedy"
+          },
+          "inner": {
+            "id": 811,
+            "title": "First Contact"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1666,
+            "title": "First Contact Comedy"
+          },
+          "inner": {
+            "id": 1635,
+            "title": "Comedy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1667,
+            "title": "Deep Space Western"
+          },
+          "inner": {
+            "id": 774,
+            "title": "Western"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1669,
+            "title": "Corporate Sci-Fi"
+          },
+          "inner": {
+            "id": 767,
+            "title": "Sci-Fi"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1671,
+            "title": "J-Horror"
+          },
+          "inner": {
+            "id": 1634,
+            "title": "Horror"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1675,
+            "title": "Folk Horror"
+          },
+          "inner": {
+            "id": 1634,
+            "title": "Horror"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1676,
+            "title": "Fungal Horror"
+          },
+          "inner": {
+            "id": 1634,
+            "title": "Horror"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1677,
+            "title": "Furry Pastoral"
+          },
+          "inner": {
+            "id": 1888,
+            "title": "Pastoral"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1681,
+            "title": "Office Thriller"
+          },
+          "inner": {
+            "id": 772,
+            "title": "Thriller"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1682,
+            "title": "Lovecraftian Office Comedy"
+          },
+          "inner": {
+            "id": 1635,
+            "title": "Comedy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1684,
+            "title": "Middle Management Horror"
+          },
+          "inner": {
+            "id": 1634,
+            "title": "Horror"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1687,
+            "title": "Mythological Comedy"
+          },
+          "inner": {
+            "id": 1635,
+            "title": "Comedy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1695,
+            "title": "Anachronism Mystery"
+          },
+          "inner": {
+            "id": 771,
+            "title": "Mystery"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1878,
+            "title": "Body Horror"
+          },
+          "inner": {
+            "id": 1634,
+            "title": "Horror"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1886,
+            "title": "Political Thriller"
+          },
+          "inner": {
+            "id": 772,
+            "title": "Thriller"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1893,
+            "title": "Mythic Fantasy"
+          },
+          "inner": {
+            "id": 766,
+            "title": "Fantasy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1896,
+            "title": "Japanese Folkloric Fantasy"
+          },
+          "inner": {
+            "id": 766,
+            "title": "Fantasy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1897,
+            "title": "Everyday Animist Fantasy"
+          },
+          "inner": {
+            "id": 766,
+            "title": "Fantasy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1900,
+            "title": "Culinary Fantasy"
+          },
+          "inner": {
+            "id": 766,
+            "title": "Fantasy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1485,
+            "title": "Abandoned Megastructures"
+          },
+          "inner": {
+            "id": 1883,
+            "title": "Abandoned"
+          },
+          "taxonomy": "THEME"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 959,
+            "title": "Hopeless Romantic"
+          },
+          "inner": {
+            "id": 1039,
+            "title": "Romantic"
+          },
+          "taxonomy": "PERSONALITY"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 340,
+            "title": "Sea Otter"
+          },
+          "inner": {
+            "id": 331,
+            "title": "Otter"
+          },
+          "taxonomy": "ANIMAL"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 343,
+            "title": "Crown-of-Thorns Starfish"
+          },
+          "inner": {
+            "id": 342,
+            "title": "Starfish"
+          },
+          "taxonomy": "ANIMAL"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 355,
+            "title": "Leafy Sea Dragon"
+          },
+          "inner": {
+            "id": 297,
+            "title": "Sea Dragon"
+          },
+          "taxonomy": "ANIMAL"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 361,
+            "title": "Pink Fairy Armadillo"
+          },
+          "inner": {
+            "id": 263,
+            "title": "Armadillo"
+          },
+          "taxonomy": "ANIMAL"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 363,
+            "title": "Atlantic Puffin"
+          },
+          "inner": {
+            "id": 333,
+            "title": "Puffin"
+          },
+          "taxonomy": "ANIMAL"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 367,
+            "title": "Civet Cat"
+          },
+          "inner": {
+            "id": 309,
+            "title": "Civet"
+          },
+          "taxonomy": "ANIMAL"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 376,
+            "title": "Indian Pangolin"
+          },
+          "inner": {
+            "id": 240,
+            "title": "Pangolin"
+          },
+          "taxonomy": "ANIMAL"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 402,
+            "title": "Void Mage"
+          },
+          "inner": {
+            "id": 380,
+            "title": "Mage"
+          },
+          "taxonomy": "ARCHETYPE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 411,
+            "title": "Steam Alchemist"
+          },
+          "inner": {
+            "id": 435,
+            "title": "Alchemist"
+          },
+          "taxonomy": "ARCHETYPE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 419,
+            "title": "Shadow Monk"
+          },
+          "inner": {
+            "id": 390,
+            "title": "Monk"
+          },
+          "taxonomy": "ARCHETYPE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 423,
+            "title": "Blood Mage"
+          },
+          "inner": {
+            "id": 380,
+            "title": "Mage"
+          },
+          "taxonomy": "ARCHETYPE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 438,
+            "title": "Tea Wizard"
+          },
+          "inner": {
+            "id": 382,
+            "title": "Wizard"
+          },
+          "taxonomy": "ARCHETYPE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 441,
+            "title": "Mushroom Druid"
+          },
+          "inner": {
+            "id": 388,
+            "title": "Druid"
+          },
+          "taxonomy": "ARCHETYPE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 445,
+            "title": "Cheese Bard"
+          },
+          "inner": {
+            "id": 384,
+            "title": "Bard"
+          },
+          "taxonomy": "ARCHETYPE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 454,
+            "title": "Ethereal Assassin"
+          },
+          "inner": {
+            "id": 427,
+            "title": "Assassin"
+          },
+          "taxonomy": "ARCHETYPE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 465,
+            "title": "Foxfire Mage"
+          },
+          "inner": {
+            "id": 380,
+            "title": "Mage"
+          },
+          "taxonomy": "ARCHETYPE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 473,
+            "title": "Tibetan Monk"
+          },
+          "inner": {
+            "id": 390,
+            "title": "Monk"
+          },
+          "taxonomy": "ARCHETYPE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 474,
+            "title": "Sea Witch"
+          },
+          "inner": {
+            "id": 396,
+            "title": "Witch"
+          },
+          "taxonomy": "ARCHETYPE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 476,
+            "title": "Merfolk Warrior"
+          },
+          "inner": {
+            "id": 381,
+            "title": "Warrior"
+          },
+          "taxonomy": "ARCHETYPE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 490,
+            "title": "Pastry Chef Mage"
+          },
+          "inner": {
+            "id": 380,
+            "title": "Mage"
+          },
+          "taxonomy": "ARCHETYPE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 491,
+            "title": "Spaghetti Sorcerer"
+          },
+          "inner": {
+            "id": 391,
+            "title": "Sorcerer"
+          },
+          "taxonomy": "ARCHETYPE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 492,
+            "title": "Brewmaster Monk"
+          },
+          "inner": {
+            "id": 390,
+            "title": "Monk"
+          },
+          "taxonomy": "ARCHETYPE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 493,
+            "title": "Chocolatier Alchemist"
+          },
+          "inner": {
+            "id": 435,
+            "title": "Alchemist"
+          },
+          "taxonomy": "ARCHETYPE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 498,
+            "title": "Minotaur Warrior"
+          },
+          "inner": {
+            "id": 381,
+            "title": "Warrior"
+          },
+          "taxonomy": "ARCHETYPE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 499,
+            "title": "Satyr Bard"
+          },
+          "inner": {
+            "id": 384,
+            "title": "Bard"
+          },
+          "taxonomy": "ARCHETYPE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 503,
+            "title": "Bubble Mage"
+          },
+          "inner": {
+            "id": 380,
+            "title": "Mage"
+          },
+          "taxonomy": "ARCHETYPE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 504,
+            "title": "Mime Assassin"
+          },
+          "inner": {
+            "id": 426,
+            "title": "Mime"
+          },
+          "taxonomy": "ARCHETYPE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 504,
+            "title": "Mime Assassin"
+          },
+          "inner": {
+            "id": 427,
+            "title": "Assassin"
+          },
+          "taxonomy": "ARCHETYPE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 505,
+            "title": "Toast Wizard"
+          },
+          "inner": {
+            "id": 382,
+            "title": "Wizard"
+          },
+          "taxonomy": "ARCHETYPE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 506,
+            "title": "Accordion Bard"
+          },
+          "inner": {
+            "id": 384,
+            "title": "Bard"
+          },
+          "taxonomy": "ARCHETYPE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 507,
+            "title": "Inflatable Warrior"
+          },
+          "inner": {
+            "id": 381,
+            "title": "Warrior"
+          },
+          "taxonomy": "ARCHETYPE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 514,
+            "title": "Crystal Mage"
+          },
+          "inner": {
+            "id": 380,
+            "title": "Mage"
+          },
+          "taxonomy": "ARCHETYPE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 520,
+            "title": "Language Bard"
+          },
+          "inner": {
+            "id": 384,
+            "title": "Bard"
+          },
+          "taxonomy": "ARCHETYPE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 525,
+            "title": "Candy Wizard"
+          },
+          "inner": {
+            "id": 382,
+            "title": "Wizard"
+          },
+          "taxonomy": "ARCHETYPE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 532,
+            "title": "Orphaned at a young age and raised by wolves."
+          },
+          "inner": {
+            "id": 542,
+            "title": "Orphaned"
+          },
+          "taxonomy": "BACKSTORY"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 545,
+            "title": "Exiled from their homeland for crimes they didn’t commit—or did they?"
+          },
+          "inner": {
+            "id": 539,
+            "title": "Exiled"
+          },
+          "taxonomy": "BACKSTORY"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 598,
+            "title": "Fire & Ash"
+          },
+          "inner": {
+            "id": 707,
+            "title": "Ash"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 608,
+            "title": "Forest Green"
+          },
+          "inner": {
+            "id": 590,
+            "title": "Green"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 610,
+            "title": "Sky Blue"
+          },
+          "inner": {
+            "id": 588,
+            "title": "Blue"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 612,
+            "title": "Sunset Orange"
+          },
+          "inner": {
+            "id": 596,
+            "title": "Orange"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 616,
+            "title": "Mountain Gray"
+          },
+          "inner": {
+            "id": 606,
+            "title": "Gray"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 617,
+            "title": "Sepia & Gold"
+          },
+          "inner": {
+            "id": 656,
+            "title": "Sepia"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 619,
+            "title": "Lava Red"
+          },
+          "inner": {
+            "id": 587,
+            "title": "Red"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 622,
+            "title": "Blood & Ivory"
+          },
+          "inner": {
+            "id": 661,
+            "title": "Ivory"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 626,
+            "title": "Bone & Copper"
+          },
+          "inner": {
+            "id": 714,
+            "title": "Copper"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 628,
+            "title": "Ice Blue"
+          },
+          "inner": {
+            "id": 588,
+            "title": "Blue"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 640,
+            "title": "Unicorn Pastel"
+          },
+          "inner": {
+            "id": 592,
+            "title": "Pastel"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 641,
+            "title": "Goblin Green"
+          },
+          "inner": {
+            "id": 590,
+            "title": "Green"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 643,
+            "title": "Coral & Moss"
+          },
+          "inner": {
+            "id": 625,
+            "title": "Moss"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 643,
+            "title": "Coral & Moss"
+          },
+          "inner": {
+            "id": 627,
+            "title": "Coral"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 644,
+            "title": "Starlight White"
+          },
+          "inner": {
+            "id": 605,
+            "title": "White"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 646,
+            "title": "Twilight Purple"
+          },
+          "inner": {
+            "id": 595,
+            "title": "Purple"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 650,
+            "title": "Midnight Blue"
+          },
+          "inner": {
+            "id": 588,
+            "title": "Blue"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 652,
+            "title": "Ghost Pastel"
+          },
+          "inner": {
+            "id": 592,
+            "title": "Pastel"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 664,
+            "title": "Digital Rust"
+          },
+          "inner": {
+            "id": 755,
+            "title": "Rust"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 682,
+            "title": "Opal White"
+          },
+          "inner": {
+            "id": 605,
+            "title": "White"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 683,
+            "title": "Onyx Black"
+          },
+          "inner": {
+            "id": 602,
+            "title": "Black"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 686,
+            "title": "Jade Green"
+          },
+          "inner": {
+            "id": 590,
+            "title": "Green"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 687,
+            "title": "Amber Glow"
+          },
+          "inner": {
+            "id": 653,
+            "title": "Amber"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 690,
+            "title": "Bubblegum Pink"
+          },
+          "inner": {
+            "id": 599,
+            "title": "Pink"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 691,
+            "title": "Crystalline Rust"
+          },
+          "inner": {
+            "id": 755,
+            "title": "Rust"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 694,
+            "title": "Neon Orange"
+          },
+          "inner": {
+            "id": 591,
+            "title": "Neon"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 694,
+            "title": "Neon Orange"
+          },
+          "inner": {
+            "id": 596,
+            "title": "Orange"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 702,
+            "title": "Cloud Blue"
+          },
+          "inner": {
+            "id": 588,
+            "title": "Blue"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 703,
+            "title": "Stormy Gray"
+          },
+          "inner": {
+            "id": 606,
+            "title": "Gray"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 709,
+            "title": "Dove Gray"
+          },
+          "inner": {
+            "id": 606,
+            "title": "Gray"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 711,
+            "title": "Blush Pink"
+          },
+          "inner": {
+            "id": 599,
+            "title": "Pink"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 716,
+            "title": "Neon Blue"
+          },
+          "inner": {
+            "id": 588,
+            "title": "Blue"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 716,
+            "title": "Neon Blue"
+          },
+          "inner": {
+            "id": 591,
+            "title": "Neon"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 717,
+            "title": "Cyber Purple"
+          },
+          "inner": {
+            "id": 595,
+            "title": "Purple"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 719,
+            "title": "Steel Gray"
+          },
+          "inner": {
+            "id": 606,
+            "title": "Gray"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 720,
+            "title": "Plasma Pink"
+          },
+          "inner": {
+            "id": 599,
+            "title": "Pink"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 722,
+            "title": "Laser Green"
+          },
+          "inner": {
+            "id": 590,
+            "title": "Green"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 725,
+            "title": "Titanium White"
+          },
+          "inner": {
+            "id": 605,
+            "title": "White"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 726,
+            "title": "Ming Blue"
+          },
+          "inner": {
+            "id": 588,
+            "title": "Blue"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 727,
+            "title": "Persian Red"
+          },
+          "inner": {
+            "id": 587,
+            "title": "Red"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 728,
+            "title": "Indian Yellow"
+          },
+          "inner": {
+            "id": 593,
+            "title": "Yellow"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 729,
+            "title": "Japanese Indigo"
+          },
+          "inner": {
+            "id": 666,
+            "title": "Indigo"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 730,
+            "title": "Moroccan Blue"
+          },
+          "inner": {
+            "id": 588,
+            "title": "Blue"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 732,
+            "title": "Mexican Pink"
+          },
+          "inner": {
+            "id": 599,
+            "title": "Pink"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 734,
+            "title": "Scandinavian White"
+          },
+          "inner": {
+            "id": 605,
+            "title": "White"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 735,
+            "title": "Celtic Green"
+          },
+          "inner": {
+            "id": 590,
+            "title": "Green"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 737,
+            "title": "Frostbite White"
+          },
+          "inner": {
+            "id": 605,
+            "title": "White"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 744,
+            "title": "Holly Green"
+          },
+          "inner": {
+            "id": 590,
+            "title": "Green"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 745,
+            "title": "Berry Red"
+          },
+          "inner": {
+            "id": 587,
+            "title": "Red"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 747,
+            "title": "Void Black"
+          },
+          "inner": {
+            "id": 602,
+            "title": "Black"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 748,
+            "title": "Illuminating Yellow"
+          },
+          "inner": {
+            "id": 593,
+            "title": "Yellow"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 760,
+            "title": "Mint Green"
+          },
+          "inner": {
+            "id": 590,
+            "title": "Green"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 765,
+            "title": "Chocolate Brown"
+          },
+          "inner": {
+            "id": 600,
+            "title": "Brown"
+          },
+          "taxonomy": "COLOR"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 943,
+            "title": "Cybernetic Hacker"
+          },
+          "inner": {
+            "id": 1551,
+            "title": "Hacker"
+          },
+          "taxonomy": "OCCUPATION"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 944,
+            "title": "Starship Pilot"
+          },
+          "inner": {
+            "id": 1549,
+            "title": "Pilot"
+          },
+          "taxonomy": "OCCUPATION"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 948,
+            "title": "Nanotech Engineer"
+          },
+          "inner": {
+            "id": 1550,
+            "title": "Engineer"
+          },
+          "taxonomy": "OCCUPATION"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 951,
+            "title": "Space Lawyer"
+          },
+          "inner": {
+            "id": 950,
+            "title": "Lawyer"
+          },
+          "taxonomy": "OCCUPATION"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1547,
+            "title": "Narrative Engineer"
+          },
+          "inner": {
+            "id": 1550,
+            "title": "Engineer"
+          },
+          "taxonomy": "OCCUPATION"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1165,
+            "title": "award-winning concept art"
+          },
+          "inner": {
+            "id": 1133,
+            "title": "award-winning"
+          },
+          "taxonomy": "PROMPT_ENHANCEMENT"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1373,
+            "title": "Luck Dragon"
+          },
+          "inner": {
+            "id": 1383,
+            "title": "Dragon"
+          },
+          "taxonomy": "SPECIES"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 1400,
+            "title": "Black-Footed Cat"
+          },
+          "inner": {
+            "id": 1398,
+            "title": "Cat"
+          },
+          "taxonomy": "SPECIES"
+        }
+      ]
+    }
+  }
+}

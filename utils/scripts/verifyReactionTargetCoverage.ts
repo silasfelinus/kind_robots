@@ -109,6 +109,38 @@ for (const target of KARMA_REF_TYPES) {
   )
 }
 
+// -------------------------------------------------- 3b. writable, not just named
+//
+// The check above only asks whether the column is mentioned anywhere in the
+// file, and that is not enough. `facetId` appeared in the body type, the create
+// allow-list, getTargetFields, getExpectedTargetField, the owner lookup,
+// contentTargetLabels and REVIEWABLE_TARGETS -- seven places -- but NOT in
+// contentTargetModel. So assertReactionTargetAccessible fell through to its
+// fail-closed branch and every FACET reaction 400'd with "No access check is
+// defined for facetId", while 961 published facet comments sat there unreplyable.
+// A mention is not a wiring; the access-check map is the one that has to be
+// complete, because it is the one that fails closed.
+
+const accessModelBlock = routeSource.match(
+  /function contentTargetModel\(field: string\) \{[\s\S]*?const map: Record<[\s\S]*?> = \{([\s\S]*?)\n {2}\}/,
+)?.[1]
+assert.ok(
+  accessModelBlock,
+  'contentTargetModel no longer declares its map; the access check is what keeps an unchecked reaction from being written.',
+)
+
+for (const target of KARMA_REF_TYPES) {
+  const column = KARMA_REF_TARGET_COLUMNS[target]
+  // chat has its own participant branch above the fail-closed fallthrough and
+  // deliberately never reaches contentTargetModel.
+  if (column === 'chatId') continue
+
+  assert.ok(
+    new RegExp(`\\b${column}:`).test(accessModelBlock),
+    `${column} has no entry in contentTargetModel, so every reaction on a ${target} is rejected with "No access check is defined for ${column}." Being listed in the other maps is not enough -- this is the one that fails closed.`,
+  )
+}
+
 assert.ok(isKarmaRefType('facet'), 'facet must be a reaction target')
 assert.ok(!isKarmaRefType('message'), 'MESSAGE has no target column and earns no karma')
 

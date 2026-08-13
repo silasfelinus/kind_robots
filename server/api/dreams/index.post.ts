@@ -94,7 +94,12 @@ export default defineEventHandler(async (event) => {
       // substitutes a random valid one for anything absent or unrecognised.
       theme: coerceCardTheme(body.theme),
       designer: normalizeOptionalText(body.designer) ?? sender,
-      allowReviews: body.allowReviews ?? false,
+      // Mirrors the schema default (true), which is the whole point of the
+      // default: a Dream created through the API is as commentable as one
+      // created any other way. This read `?? false` and silently opted every
+      // API-created Dream out of comments -- including the automatic daily
+      // dream -- while the column claimed otherwise.
+      allowReviews: body.allowReviews ?? true,
       isPublic: body.isPublic ?? true,
       isMature: body.isMature ?? false,
       isActive: body.isActive ?? true,

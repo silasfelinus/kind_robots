@@ -123,7 +123,10 @@ export function fromSeedScenario(scenario: ScenarioSeedInput): ScenarioView {
     iconArtImageId: scenario.iconArtImageId ?? null,
     cardArtImageId: scenario.cardArtImageId ?? null,
     heroArtImageId: scenario.heroArtImageId ?? null,
-    allowReviews: scenario.allowReviews ?? false,
+    // Schema default is true. A seed scenario arriving without the field was
+    // being presented as reviews-off, which is not what the column says and not
+    // what the owner chose.
+    allowReviews: scenario.allowReviews ?? true,
     locations: scenario.locations ?? null,
     artPrompt: scenario.artPrompt ?? null,
     genres: scenario.genres ?? null,

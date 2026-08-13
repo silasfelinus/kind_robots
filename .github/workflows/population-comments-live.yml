@@ -1,0 +1,113 @@
+name: Population Comments Live
+
+# Production write lane for the population pass (Bots, Characters, Dreams,
+# Scenarios, Projects).
+#
+# Manual only. There is no schedule and no push trigger: this writes Reactions
+# to production, and the one thing worse than forgetting to run it is running it
+# by accident on a branch nobody meant to publish from.
+#
+# The confirm input is a typed phrase rather than a boolean because a boolean
+# defaults to something, and the default for a production write should not be
+# reachable by pressing Enter.
+#
+# The publisher is idempotent per target -- a target already carrying a
+# first-party comment is skipped -- so a re-run after a partial failure resumes
+# rather than duplicating.
+#
+# Required repository Actions secrets:
+#   DATABASE_URL
+#   DATABASE_SSL_CA_BASE64 or DATABASE_SSL_CA
+#   TS_OAUTH_CLIENT_ID
+#   TS_OAUTH_SECRET
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type PUBLISH to write population comments to production'
+        required: true
+        default: ''
+      dry_run:
+        description: 'Run every check and stop before the first write'
+        type: boolean
+        default: false
+
+concurrency:
+  group: population-comments-live
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_SSL_CA_BASE64: ${{ secrets.DATABASE_SSL_CA_BASE64 }}
+      DATABASE_SSL_CA: ${{ secrets.DATABASE_SSL_CA }}
+    steps:
+      - name: Require the typed confirmation
+        run: |
+          if [ "${{ inputs.confirm }}" != "PUBLISH" ]; then
+            echo "::error::confirm must be exactly PUBLISH. Got: '${{ inputs.confirm }}'"
+            exit 1
+          fi
+
+      - name: Require production DB lane
+        env:
+          TS_OAUTH_CLIENT_ID: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          TS_OAUTH_SECRET: ${{ secrets.TS_OAUTH_SECRET }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::DATABASE_URL is empty. Add it as a REPOSITORY ACTIONS SECRET (Settings → Secrets and variables → Actions)."
+            exit 1
+          fi
+          if [ -z "$TS_OAUTH_CLIENT_ID" ] || [ -z "$TS_OAUTH_SECRET" ]; then
+            echo "::error::Tailscale OAuth secrets are empty. The database is not reachable from GitHub runner IPs without joining the tailnet."
+            exit 1
+          fi
+          if [ -z "$DATABASE_SSL_CA_BASE64" ] && [ -z "$DATABASE_SSL_CA" ]; then
+            echo "::warning::No database CA secret set. ProxySQL enforces TLS, so this run will likely fail with 'Access denied ... SSL is required'."
+          fi
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      # Offline, over public HTTP, before the DB lane opens. The publisher aborts
+      # on the FIRST bad packet, so without this a drifted corpus costs one
+      # production run per problem. These name every problem at once.
+      - name: Verify casting contract
+        run: npm run test:population-casting
+
+      - name: Verify draft prose quality
+        run: npm run test:population-quality
+
+      - name: Verify draft authors against the live directory
+        run: npm run test:comment-authors
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Publish population comments
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            npx tsx utils/scripts/publishPopulationComments.ts --dry-run
+          else
+            npx tsx utils/scripts/publishPopulationComments.ts
+          fi

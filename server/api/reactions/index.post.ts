@@ -24,6 +24,7 @@ type ReactionBody = Record<string, unknown> & {
   chatId?: unknown
   dreamId?: unknown
   facetId?: unknown
+  projectId?: unknown
   promptId?: unknown
   resourceId?: unknown
   rewardId?: unknown
@@ -44,6 +45,7 @@ const REACTION_CREATE_FIELDS = new Set([
   'chatId',
   'dreamId',
   'facetId',
+  'projectId',
   'promptId',
   'resourceId',
   'rewardId',
@@ -69,6 +71,7 @@ const reactionCategoryAliases: Record<string, Reaction_reactionCategory> = {
   CHARACTER: Reaction_reactionCategory.CHARACTER,
   DREAM: Reaction_reactionCategory.DREAM,
   FACET: Reaction_reactionCategory.FACET,
+  PROJECT: Reaction_reactionCategory.PROJECT,
   PROMPT: Reaction_reactionCategory.PROMPT,
   RESOURCE: Reaction_reactionCategory.RESOURCE,
   REWARD: Reaction_reactionCategory.REWARD,
@@ -173,6 +176,7 @@ function getTargetFields(body: ReactionBody) {
     chatId: toPositiveId(body.chatId),
     dreamId: toPositiveId(body.dreamId),
     facetId: toPositiveId(body.facetId),
+    projectId: toPositiveId(body.projectId),
     promptId: toPositiveId(body.promptId),
     resourceId: toPositiveId(body.resourceId),
     rewardId: toPositiveId(body.rewardId),
@@ -222,12 +226,17 @@ function getExpectedTargetField(
     [Reaction_reactionCategory.REWARD]: 'rewardId',
     [Reaction_reactionCategory.SCENARIO]: 'scenarioId',
     [Reaction_reactionCategory.THEME]: 'themeId',
+    [Reaction_reactionCategory.PROJECT]: 'projectId',
     [Reaction_reactionCategory.MESSAGE]: TARGETLESS,
     // Reachable enum values with no route support. They have columns on
     // Reaction, but no allow-listed field, no access check and no owner
     // lookup, so accepting one would write an untargeted row. Give them a
     // target field before removing them from this list.
-    [Reaction_reactionCategory.PROJECT]: null,
+    //
+    // CHALLENGE_SUBMISSION stays null deliberately: ChallengeSubmission has no
+    // userId/isPublic pair to check, and Reaction's
+    // @@unique([userId, challengeSubmissionId]) makes it one row per user --
+    // a vote, not a comment thread.
     [Reaction_reactionCategory.CHALLENGE_SUBMISSION]: null,
     // Retired earlier in the request by retiredReactionCategories.
     [Reaction_reactionCategory.BUTTERFLY]: null,
@@ -283,6 +292,7 @@ async function getContentOwnerId(
     chatId: prisma.chat,
     dreamId: prisma.dream,
     facetId: prisma.facet,
+    projectId: prisma.project,
     promptId: prisma.prompt,
     resourceId: prisma.resource,
     rewardId: prisma.reward,
@@ -309,6 +319,7 @@ const contentTargetLabels: Record<string, string> = {
   characterId: 'Character',
   dreamId: 'Dream',
   facetId: 'Facet',
+  projectId: 'Project',
   promptId: 'Prompt',
   resourceId: 'Resource',
   rewardId: 'Reward',
@@ -326,6 +337,7 @@ const REVIEWABLE_TARGETS = new Set([
   'characterId',
   'dreamId',
   'facetId',
+  'projectId',
   'resourceId',
   'rewardId',
   'scenarioId',
@@ -339,6 +351,13 @@ function contentTargetModel(field: string) {
     botId: prisma.bot,
     characterId: prisma.character,
     dreamId: prisma.dream,
+    // facetId was in every other map in this file -- the allow-list, the
+    // category map, the owner lookup, contentTargetLabels, REVIEWABLE_TARGETS
+    // -- but not this one, so every FACET reaction fell through to the
+    // fail-closed branch below and 400'd with "No access check is defined for
+    // facetId." Facets carry 961 published comments that nobody could reply to.
+    facetId: prisma.facet,
+    projectId: prisma.project,
     promptId: prisma.prompt,
     resourceId: prisma.resource,
     rewardId: prisma.reward,

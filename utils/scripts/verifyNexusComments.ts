@@ -20,7 +20,7 @@ import {
   POPULATION_TARGET_TYPES,
   type PopulationTargetType,
 } from './../../utils/comments/populationTargets'
-import { createFetcher } from './../../utils/comments/fitnessLoader'
+import { createFetcher, pool } from './../../utils/comments/fitnessLoader'
 
 function arg(name: string, fallback = ''): string {
   const hit = process.argv.find((value) => value.startsWith(`--${name}=`))
@@ -49,13 +49,99 @@ async function liveSpeakerNames(): Promise<Map<string, string>> {
   return map
 }
 
+/**
+ * Which reaction read route serves each target type.
+ *
+ * These are the `KarmaRefType` names, not the packet's SCREAMING type names --
+ * `/api/reactions/BOT/14` 400s as "not a reaction target type".
+ */
+const TARGET_ROUTE: Record<PopulationTargetType, string> = {
+  BOT: 'bot',
+  CHARACTER: 'character',
+  DREAM: 'dream',
+  SCENARIO: 'scenario',
+  PROJECT: 'project',
+}
+
+type LiveReaction = {
+  comment: string | null
+  authorBotId: number | null
+  authorCharacterId: number | null
+}
+
+/**
+ * What each first-party speaker has ALREADY said on the given targets, keyed
+ * `TYPE:id|KIND:id`.
+ *
+ * Only fetched for targets that actually carry a reply, because it is a request
+ * per target and most targets have none.
+ */
+async function liveCommentsOnTargets(
+  keys: readonly string[],
+): Promise<Map<string, string[]>> {
+  const get = createFetcher(baseUrl)
+  const out = new Map<string, string[]>()
+  await pool([...keys], async (key) => {
+    const [type, rawId] = key.split(':') as [PopulationTargetType, string]
+    const body = await get<LiveReaction[] | { reactions?: LiveReaction[] }>(
+      `/api/reactions/${TARGET_ROUTE[type]}/${rawId}`,
+    )
+    // The generic `[target]/[id]` route answers with a flat array under `data`.
+    // The older hand-written dream route nests its list one level deeper, under
+    // `data.reactions`, and a reader that assumes the flat shape sees every
+    // Dream as having no comments at all. (It did, for a while: a survey run
+    // reported 1 comment per Dream when there were three or four, because it
+    // was measuring the length of the wrapper object.)
+    const rows = Array.isArray(body) ? body : body?.reactions || []
+    for (const row of rows) {
+      const speaker =
+        row.authorBotId != null
+          ? `BOT:${row.authorBotId}`
+          : row.authorCharacterId != null
+            ? `CHARACTER:${row.authorCharacterId}`
+            : null
+      // Human-authored reactions have no first-party speaker and cannot be
+      // answered by name, so they are not candidates for an anchor.
+      if (!speaker) continue
+      const mapKey = `${key}|${speaker}`
+      out.set(mapKey, [...(out.get(mapKey) || []), String(row.comment || '')])
+    }
+  })
+  return out
+}
+
 const root = process.cwd()
 const nexusDir = join(root, 'config', 'nexus-comment-drafts')
 const PRIOR_DIRS = ['comment-backfill-drafts', 'population-comment-drafts']
 const BANNED =
   /\b(components?|wonderlabs?|museums?|exhibits?|star ratings?|ratings?|reviews?|implementations?|usability)\b/i
 
-type Speaker = { kind: 'BOT' | 'CHARACTER'; id: number; name: string; comment: string }
+type Speaker = {
+  kind: 'BOT' | 'CHARACTER'
+  id: number
+  name: string
+  comment: string
+  /**
+   * Marks this comment as answering another one on the same card.
+   *
+   * Reaction has no parent column -- comments are flat siblings -- so a reply
+   * only works as prose, on a card where the reader can see both. That makes it
+   * fragile in a way threading is not: if the comment being answered is not
+   * actually there, the reply reads as broken rather than as absent.
+   *
+   * So a reply must name who it answers and quote an anchor phrase from them,
+   * and both are checked. `anchor` must genuinely appear in that speaker's
+   * comment on this target, either already live or earlier in this batch.
+   *
+   * Both read routes order `updatedAt: 'desc'` and review-list.vue does not
+   * re-sort, so the card is reverse-chronological: a reply published after its
+   * referent renders ABOVE it. That is the ordinary shape of a comment feed and
+   * needs no correction -- but it does mean the only thing keeping a reply
+   * coherent is that the comment it answers is present and quoted, which is
+   * precisely what these two fields make checkable.
+   */
+  repliesTo?: { kind: 'BOT' | 'CHARACTER'; id: number; anchor: string }
+}
 type Item = {
   targetType: PopulationTargetType
   targetId: number
@@ -126,14 +212,34 @@ async function main() {
     return
   }
 
-  const live = await liveSpeakerNames()
+  const packets = names.map((name) => ({
+    name,
+    packet: JSON.parse(readFileSync(join(nexusDir, name), 'utf8')) as Batch,
+  }))
+
+  // Only targets that carry a reply need their live comment list read.
+  const replyTargets = new Set<string>()
+  for (const { packet } of packets) {
+    for (const item of packet.items || []) {
+      if ((item.speakers || []).some((speaker) => speaker.repliesTo)) {
+        replyTargets.add(`${item.targetType}:${item.targetId}`)
+      }
+    }
+  }
+
+  const [live, liveOnTarget] = await Promise.all([
+    liveSpeakerNames(),
+    replyTargets.size
+      ? liveCommentsOnTargets([...replyTargets])
+      : Promise.resolve(new Map<string, string[]>()),
+  ])
   const authored = priorCorpusText()
   const seenTargets = new Set<string>()
   let comments = 0
+  let replies = 0
   const wordCounts: number[] = []
 
-  for (const name of names) {
-    const packet = JSON.parse(readFileSync(join(nexusDir, name), 'utf8')) as Batch
+  for (const { name, packet } of packets) {
     assert.equal(packet.version, 1, `${name}: unexpected version.`)
     assert.equal(packet.releaseGate, 'GPT-5.6 Sol', `${name}: unexpected release gate.`)
 
@@ -152,10 +258,46 @@ async function main() {
       }
 
       const inExchange = new Set<string>()
+      // What each speaker has said on THIS target, in batch order, so a later
+      // reply can be checked against an earlier comment in the same file.
+      const onThisTarget = new Map<string, string[]>()
       for (const speaker of item.speakers) {
         const sKey = speakerKey(speaker)
         if (inExchange.has(sKey)) flag(where, `${sKey} speaks twice in one exchange`)
         inExchange.add(sKey)
+
+        // A reply must answer something the reader can actually see on this
+        // card: either a comment already live on the target, or one written
+        // earlier in this same item. Anything else is a reply into thin air.
+        if (speaker.repliesTo) {
+          replies += 1
+          const parentKey = `${speaker.repliesTo.kind}:${speaker.repliesTo.id}`
+          if (parentKey === sKey) {
+            flag(`${where} ${sKey}`, 'replies to itself')
+          }
+          const anchor = String(speaker.repliesTo.anchor || '').trim()
+          if (anchor.split(/\s+/).filter(Boolean).length < 3) {
+            flag(
+              `${where} ${sKey}`,
+              'repliesTo.anchor must quote at least three words of the comment it answers',
+            )
+          }
+          const candidates = [
+            ...(onThisTarget.get(parentKey) || []),
+            ...(liveOnTarget.get(`${key}|${parentKey}`) || []),
+          ]
+          if (!candidates.length) {
+            flag(
+              `${where} ${sKey}`,
+              `replies to ${parentKey}, who has not spoken on this target`,
+            )
+          } else if (!candidates.some((prior) => prior.includes(anchor))) {
+            flag(
+              `${where} ${sKey}`,
+              `repliesTo.anchor "${anchor}" does not appear in ${parentKey}'s comment here`,
+            )
+          }
+        }
 
         const liveName = live.get(sKey)
         if (!liveName) {
@@ -193,6 +335,7 @@ async function main() {
           if (overlap) flag(`${where} ${sKey}`, `repeats their own earlier comment: "${overlap}"`)
         }
         authored.set(sKey, [...(authored.get(sKey) || []), text])
+        onThisTarget.set(sKey, [...(onThisTarget.get(sKey) || []), text])
       }
     }
   }
@@ -206,7 +349,7 @@ async function main() {
   wordCounts.sort((a, b) => a - b)
   const median = wordCounts[Math.floor(wordCounts.length / 2)] || 0
   console.log(
-    `Nexus comments verified: ${comments} comment(s) across ${names.length} batch file(s), ${seenTargets.size} target(s), median ${median} words (${wordCounts[0]}-${wordCounts[wordCounts.length - 1]}).`,
+    `Nexus comments verified: ${comments} comment(s) across ${names.length} batch file(s), ${seenTargets.size} target(s), ${replies} reply/replies, median ${median} words (${wordCounts[0]}-${wordCounts[wordCounts.length - 1]}).`,
   )
 }
 

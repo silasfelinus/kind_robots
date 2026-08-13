@@ -404,6 +404,12 @@ jobs:
       - name: Model Builder draftText status-scope guard contract
         run: npm run test:model-builder-draft-status-scope-guard
 
+      - name: Model Builder batchSetField confirmed-success guard checker self-test
+        run: npm run test:model-builder-batch-set-field-confirmed-success-guard-selftest
+
+      - name: Model Builder batchSetField confirmed-success guard contract
+        run: npm run test:model-builder-batch-set-field-confirmed-success-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

@@ -682,17 +682,20 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   // Background persistence of a whole group edit in one round-trip. Callers
   // mutate local state first (optimistic) and pass only the changed fields per
   // item, same contract as pushItem — this just collapses N per-item PATCH
-  // requests into a single batch request.
+  // requests into a single batch request. Returns whether the write actually
+  // succeeded, so a caller that summarizes its own outcome (batchSetField) can
+  // await the real result instead of assuming success the instant the request
+  // is issued.
   function batchPushItems(
     entries: Array<{
       item: BuildItem
       payload: Record<string, unknown>
       meta?: { stage?: string; reason?: string }
     }>,
-  ): void {
-    if (!entries.length) return
+  ): Promise<boolean> {
+    if (!entries.length) return Promise.resolve(true)
     const runId = state.run?.id
-    performFetch('/api/model-builder/items/batch', {
+    return performFetch('/api/model-builder/items/batch', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -704,13 +707,17 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       }),
     })
       .then((response) => {
-        if (!response.success && runId) {
-          setStatusForRun(
-            runId,
-            'error',
-            response.message || 'Failed to save changes.',
-          )
+        if (!response.success) {
+          if (runId) {
+            setStatusForRun(
+              runId,
+              'error',
+              response.message || 'Failed to save changes.',
+            )
+          }
+          return false
         }
+        return true
       })
       .catch((error) => {
         // Same reasoning as pushItem's catch above: mirror the success:false
@@ -726,6 +733,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
               : 'Failed to save changes.',
           )
         }
+        return false
       })
   }
 
@@ -1739,12 +1747,23 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   // Set one model field to the same value on every item in a group (e.g. rarity =
   // RARE across 10 rewards). Only rewrites items whose value actually changes.
   // Persists the whole group in a single batch request rather than one PATCH
-  // per changed item.
-  function batchSetField(
+  // per changed item. Reports success only once that request actually
+  // confirms it -- unlike every other batch entry point (batchDraftField,
+  // batchAutoBuild), this used to call batchPushItems(entries) without
+  // awaiting it and then unconditionally show a "Set ... on N/M items."
+  // success toast the instant the request was issued, before the server had
+  // even responded. A partial or total failure (e.g. a concurrent edit on
+  // another tab making one item no longer stage-editable server-side, or a
+  // network error) still popped that same misleading success banner, then
+  // moments later silently overwrote it with batchPushItems' own generic,
+  // unscoped-looking "Failed to save changes." -- while every item's local
+  // fieldsDraft/stageStatuses had already been optimistically changed with no
+  // indication of which items, if any, never actually persisted.
+  async function batchSetField(
     outputKey: string,
     fieldKey: string,
     value: string,
-  ): void {
+  ): Promise<void> {
     const items = groupItems(outputKey)
     const entries: Array<{
       item: BuildItem
@@ -1765,11 +1784,21 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         meta: { stage: 'FIELDS_AND_PROMPTS', reason: 'edited fields' },
       })
     }
-    batchPushItems(entries)
-    setStatus(
-      'success',
-      `Set ${fieldKey} on ${entries.length}/${items.length} items.`,
-    )
+    batchingOutputSingleton.claim(outputKey)
+    try {
+      const ok = await batchPushItems(entries)
+      // On failure, batchPushItems already surfaced the real error via
+      // setStatusForRun -- reporting a blanket "success" here too would be
+      // actively misleading.
+      if (ok) {
+        setStatus(
+          'success',
+          `Set ${fieldKey} on ${entries.length}/${items.length} items.`,
+        )
+      }
+    } finally {
+      batchingOutputSingleton.release(outputKey)
+    }
   }
 
   // Approve a stage for every (unlocked) item in a group at once.

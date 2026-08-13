@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: plan
+channelKey: admin
 tabKey: animation-manager
 dashboardKey: wonder
 dashboardTab: animation-manager
@@ -11,7 +11,6 @@ description: Browse every Screen FX catalog effect, its build history, and React
 icon: kind-icon:trophy
 route: /build/animation-manager
 sort: 100
-requiredRole: GUEST
 ---
 
 The gallery and promotion workspace for Screen FX build attempts: status, version lineage, and ratings for every effect, one museum row per build.

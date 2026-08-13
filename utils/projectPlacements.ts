@@ -48,7 +48,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/model-builder',
   },
   'animation-manager': {
-    channelKey: 'plan',
+    channelKey: 'admin',
     tabKey: 'animation-manager',
     route: '/build/animation-manager',
   },
@@ -63,7 +63,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/plan/projects/sketchy',
   },
   packmaker: {
-    channelKey: 'plan',
+    channelKey: 'admin',
     tabKey: 'packs',
     route: '/packs',
   },
@@ -88,7 +88,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/plan/projects/ruler-hooked',
   },
   newsfeed: {
-    channelKey: 'plan',
+    channelKey: 'home',
     tabKey: 'newsfeed',
     route: '/plan/newsfeed',
   },
@@ -138,7 +138,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/brainstorm',
   },
   'mural-design': {
-    channelKey: 'plan',
+    channelKey: 'admin',
     tabKey: 'mural',
     route: '/build/mural',
   },

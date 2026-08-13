@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: plan
+channelKey: admin
 tabKey: mural
 dashboardKey: wonder
 dashboardTab: mural
@@ -11,7 +11,6 @@ description: Color mural regions, save swatches, coordinate shared fills, and pr
 icon: kind-icon:paintbrush
 route: /build/mural
 sort: 90
-requiredRole: GUEST
 ---
 
 A bridge between digital experimentation and an actual wall that cannot be undone with Ctrl+Z.

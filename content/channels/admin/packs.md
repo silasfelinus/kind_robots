@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: plan
+channelKey: admin
 tabKey: packs
 dashboardKey: builder
 dashboardTab: packs

@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: plan
+channelKey: home
 tabKey: newsfeed
 dashboardKey: wonder
 dashboardTab: newsfeed

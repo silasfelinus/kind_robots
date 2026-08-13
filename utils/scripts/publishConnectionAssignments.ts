@@ -24,6 +24,28 @@ import {
   type AssignmentBatch,
 } from '@/utils/comments/connectionAssignments'
 
+/**
+ * Run thunks one at a time, returning results in order.
+ *
+ * Serialized deliberately: four lanes hung indefinitely on their first query
+ * from a CI runner while production stayed healthy, and a database + ProxySQL
+ * reboot did not clear it. The one job that has always worked against this
+ * database is run_facet_catalog_maintenance, whose own step is named "Run
+ * serialized Facet catalog maintenance". Every hanging lane opened its reads
+ * with Promise.all. If the CI user's connection allowance is small, a parallel
+ * fan-out does not fail -- it waits, forever, with nothing to report.
+ *
+ * Tuple-typed because a plain array collapses differently-shaped queries into
+ * one union and every destructured name comes back wrong.
+ */
+async function serial<T extends readonly (() => Promise<unknown>)[]>(
+  thunks: [...T],
+): Promise<{ [K in keyof T]: Awaited<ReturnType<T[K]>> }> {
+  const out: unknown[] = []
+  for (const thunk of thunks) out.push(await thunk())
+  return out as { [K in keyof T]: Awaited<ReturnType<T[K]>> }
+}
+
 const DRY_RUN = process.argv.includes('--dry-run')
 const EXPECTED_RELEASE_GATE = 'GPT-5.6 Sol'
 const dir = join(process.cwd(), 'config', 'connection-assignments')
@@ -86,14 +108,14 @@ async function main() {
   //
   // These tables are hundreds of rows, not millions. Reading all of them is
   // cheaper than being clever.
-  const [allCharacters, allDreams, allScenarios] = await Promise.all([
-    prisma.character.findMany({
+  const [allCharacters, allDreams, allScenarios] = await serial([
+    () => prisma.character.findMany({
       select: { id: true, name: true, isPublic: true, isActive: true },
     }),
-    prisma.dream.findMany({
+    () => prisma.dream.findMany({
       select: { id: true, title: true, isPublic: true, isActive: true },
     }),
-    prisma.scenario.findMany({
+    () => prisma.scenario.findMany({
       select: { id: true, title: true, isPublic: true, isActive: true },
     }),
   ])

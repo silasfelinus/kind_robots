@@ -31,6 +31,28 @@ import {
   type DreamLocationBatch,
 } from '@/utils/comments/dreamLocations'
 
+/**
+ * Run thunks one at a time, returning results in order.
+ *
+ * Serialized deliberately: four lanes hung indefinitely on their first query
+ * from a CI runner while production stayed healthy, and a database + ProxySQL
+ * reboot did not clear it. The one job that has always worked against this
+ * database is run_facet_catalog_maintenance, whose own step is named "Run
+ * serialized Facet catalog maintenance". Every hanging lane opened its reads
+ * with Promise.all. If the CI user's connection allowance is small, a parallel
+ * fan-out does not fail -- it waits, forever, with nothing to report.
+ *
+ * Tuple-typed because a plain array collapses differently-shaped queries into
+ * one union and every destructured name comes back wrong.
+ */
+async function serial<T extends readonly (() => Promise<unknown>)[]>(
+  thunks: [...T],
+): Promise<{ [K in keyof T]: Awaited<ReturnType<T[K]>> }> {
+  const out: unknown[] = []
+  for (const thunk of thunks) out.push(await thunk())
+  return out as { [K in keyof T]: Awaited<ReturnType<T[K]>> }
+}
+
 const DRY_RUN = process.argv.includes('--dry-run')
 const OWNER_USER_ID = 1
 const EXPECTED_RELEASE_GATE = 'GPT-5.6 Sol'
@@ -74,14 +96,14 @@ async function main() {
   const locations = loadLocations()
 
   const scenarioIds = [...new Set(locations.flatMap((l) => l.scenarioIds))]
-  const [existingDreams, scenarios, owner] = await Promise.all([
+  const [existingDreams, scenarios, owner] = await serial([
     // Whole tables, filtered in memory -- a large IN list hung another lane's
     // dry run for fourteen minutes through ProxySQL.
-    prisma.dream.findMany({ select: { id: true, slug: true, title: true } }),
-    prisma.scenario.findMany({
+    () => prisma.dream.findMany({ select: { id: true, slug: true, title: true } }),
+    () => prisma.scenario.findMany({
       select: { id: true, title: true, isPublic: true, isActive: true },
     }),
-    prisma.user.findUnique({
+    () => prisma.user.findUnique({
       where: { id: OWNER_USER_ID },
       select: { id: true, username: true },
     }),

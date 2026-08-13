@@ -39,7 +39,8 @@ const FACET_PLACEHOLDERS: Record<string, FacetTaxonomy[]> = {
   quirk: ['QUIRK'],
   theme: ['THEME'],
   style: ['STYLE'],
-  mood: ['MOOD'],
+  // MOOD is empty by policy; narrative tone lives in THEME. See randomStore.
+  mood: ['THEME'],
   setting: ['SETTING'],
   core: ['CORE'],
   artdirection: ['ART_DIRECTION', 'PROMPT_ENHANCEMENT'],

@@ -56,10 +56,30 @@ export type DailyDreamNarratorBlueprint = {
   facets: DailyDreamFacetUse[]
 }
 
+/**
+ * A location has no `mood`.
+ *
+ * It used to. The field was fed by `one('MOOD')`, and the facet catalog no
+ * longer has a MOOD taxonomy to draw from -- `applyFacetCatalogDirectives`
+ * migrates narrative tone to THEME and then asserts zero MOOD profiles remain.
+ * So the pick had been silently returning null and every location was already
+ * being built with `mood: ''` before this field was removed; dropping it
+ * changes the type, not the output.
+ *
+ * ART_DIRECTION is not the substitute it looks like. Its eight `art-atmosphere`
+ * rows (Serene, Melancholy, Ominous, Dreamlike...) are all
+ * `isRandomizable: false`, so a randomizable pick from that taxonomy returns art
+ * SUBJECTS instead -- a location's atmosphere would come out as "Landscape".
+ *
+ * Silas, 2026-08-13: "a mood is not a hard set thing anyway, it's like hard
+ * setting a character with emotion. As my clown teacher said: every character
+ * can experience every emotion." A place is the same. The Dream's THEME already
+ * carries tone for the whole piece; pinning a second, different one per location
+ * was fixing something that reads better unfixed.
+ */
 export type DailyDreamLocationBlueprint = {
   name: string
   setting: string
-  mood: string
   description: string
   facets: DailyDreamFacetUse[]
 }
@@ -268,11 +288,11 @@ export async function buildDailyDreamFacetBlueprint(options: {
 
   const genre = one('GENRE')
   const theme = one('THEME')
-  const mood = one('MOOD')
   const setting = one('SETTING')
   const style = one('STYLE')
   const color = one('COLOR')
-  const dreamEntries = [genre, theme, mood, setting, style, color].filter(
+  // No MOOD pick: the taxonomy is empty by policy. See DailyDreamLocationBlueprint.
+  const dreamEntries = [genre, theme, setting, style, color].filter(
     (entry): entry is FacetCatalogEntry => Boolean(entry),
   )
   const dreamValues = dreamEntries.map(value)
@@ -311,19 +331,15 @@ export async function buildDailyDreamFacetBlueprint(options: {
   // Two locations so a Dream spans more than one place (spec: 2 locations).
   const locationEntries = weightedMany(pool('SETTING'), 2, random)
   const locations: DailyDreamLocationBlueprint[] = locationEntries.map(
-    (entry, index) => {
-      const locationMood = index === 0 ? mood : one('MOOD')
+    (entry) => {
       const settingValue = value(entry) || 'A place that should not exist'
-      const moodValue = value(locationMood)
       return {
         name: settingValue,
         setting: settingValue,
-        mood: moodValue,
-        description: `${settingValue}${moodValue ? `, ${moodValue.toLowerCase()}` : ''} — one of the two places this Dream unfolds.`,
-        facets: [
-          use(entry, 'location'),
-          use(locationMood, 'locationMood'),
-        ].filter((item): item is DailyDreamFacetUse => Boolean(item)),
+        description: `${settingValue} — one of the two places this Dream unfolds.`,
+        facets: [use(entry, 'location')].filter(
+          (item): item is DailyDreamFacetUse => Boolean(item),
+        ),
       }
     },
   )

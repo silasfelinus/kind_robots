@@ -103,6 +103,13 @@ async function main(): Promise<void> {
     "use(rewardTypeFacet, 'rewardType')",
   )
 
+  // The blueprint must not draw from MOOD. applyFacetCatalogDirectives migrates
+  // narrative tone to THEME and then asserts no MOOD profiles remain, so a pick
+  // from that taxonomy silently returns null -- which is how every daily dream
+  // came to be built with an empty atmosphere and nobody noticed. Re-adding the
+  // pick would restore the silence, not the facet.
+  forbidText(files.blueprint, text.blueprint, "one('MOOD')")
+
   requireText(files.endpoint, text.endpoint, 'validDateKey(dateKey)')
   requireText(files.endpoint, text.endpoint, 'rewardType: reward.rewardType')
   requireText(files.endpoint, text.endpoint, 'tx.dreamFacet.createMany')

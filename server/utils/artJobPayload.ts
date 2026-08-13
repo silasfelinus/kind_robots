@@ -40,9 +40,9 @@ export function serializeArtJobPayload(value: unknown): string {
  * can mirror it into the column without knowing how provenance is built.
  *
  * Every create site whose payload can carry a fingerprint must use this, not
- * just the one that mints it: `/api/art/queue/[id]/reenqueue` and
- * `/api/art/queue/repair-weak-prompts` both derive their payload from an
- * existing job and therefore INHERIT its fingerprint. Under the old LIKE scan
+ * just the one that mints it: `/api/art/queue/[id]/reenqueue` derives its
+ * payload from an existing job and therefore INHERITS its fingerprint. Under
+ * the old LIKE scan
  * those inherited copies were dedup targets automatically; a column that only
  * the minting endpoint fills would silently stop matching them.
  */

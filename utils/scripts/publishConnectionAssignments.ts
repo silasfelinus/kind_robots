@@ -75,20 +75,31 @@ async function main() {
     if (assignment.scenarioId) scenarioIds.add(assignment.scenarioId)
   }
 
-  const [characters, dreams, scenarios] = await Promise.all([
+  // Fetch whole tables and filter in memory rather than sending
+  // `WHERE id IN (...)` with a couple of hundred parameters.
+  //
+  // The first dry run sat in this step for fourteen minutes and had to be
+  // cancelled. The population publisher queries the same tables in about three
+  // seconds -- the only difference was that it selects everything and filters
+  // locally. Prisma's MariaDB adapter runs in text-query mode through ProxySQL
+  // here, and a 250-parameter IN list is evidently pathological for that path.
+  //
+  // These tables are hundreds of rows, not millions. Reading all of them is
+  // cheaper than being clever.
+  const [allCharacters, allDreams, allScenarios] = await Promise.all([
     prisma.character.findMany({
-      where: { id: { in: [...characterIds] } },
       select: { id: true, name: true, isPublic: true, isActive: true },
     }),
     prisma.dream.findMany({
-      where: { id: { in: [...dreamIds] } },
       select: { id: true, title: true, isPublic: true, isActive: true },
     }),
     prisma.scenario.findMany({
-      where: { id: { in: [...scenarioIds] } },
       select: { id: true, title: true, isPublic: true, isActive: true },
     }),
   ])
+  const characters = allCharacters.filter((row) => characterIds.has(row.id))
+  const dreams = allDreams.filter((row) => dreamIds.has(row.id))
+  const scenarios = allScenarios.filter((row) => scenarioIds.has(row.id))
 
   const characterById = new Map(characters.map((row) => [row.id, row]))
   const dreamById = new Map(dreams.map((row) => [row.id, row]))

@@ -75,12 +75,10 @@ async function main() {
 
   const scenarioIds = [...new Set(locations.flatMap((l) => l.scenarioIds))]
   const [existingDreams, scenarios, owner] = await Promise.all([
-    prisma.dream.findMany({
-      where: { slug: { in: locations.map((l) => l.slug) } },
-      select: { id: true, slug: true, title: true },
-    }),
+    // Whole tables, filtered in memory -- a large IN list hung another lane's
+    // dry run for fourteen minutes through ProxySQL.
+    prisma.dream.findMany({ select: { id: true, slug: true, title: true } }),
     prisma.scenario.findMany({
-      where: { id: { in: scenarioIds } },
       select: { id: true, title: true, isPublic: true, isActive: true },
     }),
     prisma.user.findUnique({
@@ -91,7 +89,10 @@ async function main() {
 
   if (!owner) throw new Error(`Owner user #${OWNER_USER_ID} does not exist.`)
 
-  const scenarioById = new Map(scenarios.map((s) => [s.id, s]))
+  const scenarioIdSet = new Set(scenarioIds)
+  const scenarioById = new Map(
+    scenarios.filter((s) => scenarioIdSet.has(s.id)).map((s) => [s.id, s]),
+  )
   for (const location of locations) {
     for (const scenarioId of location.scenarioIds) {
       const scenario = scenarioById.get(scenarioId)
@@ -106,12 +107,17 @@ async function main() {
     }
   }
 
-  const bySlug = new Map(existingDreams.map((d) => [d.slug || '', d]))
+  const wantedSlugs = new Set(locations.map((l) => l.slug))
+  const bySlug = new Map(
+    existingDreams
+      .filter((d) => d.slug && wantedSlugs.has(d.slug))
+      .map((d) => [d.slug || '', d]),
+  )
   console.log(
     'LOCATIONS_VALIDATED',
     JSON.stringify({
       locations: locations.length,
-      alreadyPresent: existingDreams.length,
+      alreadyPresent: bySlug.size,
       scenarios: scenarioIds.length,
       owner,
     }),

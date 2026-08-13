@@ -100,7 +100,7 @@ function loadArchive(): ArchivedVoiceRecord[] {
 function priorCorpusText(): Map<string, string[]> {
   const dir = join(root, 'config', 'comment-backfill-drafts')
   const map = new Map<string, string[]>()
-  let names: string[] = []
+  let names: string[]
   try {
     names = readdirSync(dir).filter((name) => /^batch-\d+\.json$/.test(name))
   } catch {
@@ -119,6 +119,44 @@ function priorCorpusText(): Map<string, string[]> {
   }
   return map
 }
+
+/**
+ * Every speaker resolved against production, by id and by name.
+ *
+ * This corpus had no such check and a production dry run found out why: the
+ * packets cast BOT:339 "Link Analytica", and production has that bot at id 22.
+ * The publisher aborts on the first unknown author, so a corpus with several
+ * would have cost one production run apiece to discover.
+ *
+ * test:comment-authors already does this -- for the #1769 corpus only. The
+ * lesson is that a pre-flight belongs to a corpus, not to a lane, and a second
+ * corpus needs its own.
+ */
+async function liveSpeakers(): Promise<Map<string, string>> {
+  const base = (
+    process.argv
+      .find((value) => value.startsWith('--base='))
+      ?.slice('--base='.length) || 'https://kindrobots.org'
+  ).replace(/\/+$/, '')
+  const get = async <T,>(path: string): Promise<T> => {
+    const response = await fetch(`${base}${path}`, {
+      headers: { accept: 'application/json' },
+    })
+    if (!response.ok) throw new Error(`GET ${path} failed: ${response.status}`)
+    const body = (await response.json()) as { data?: T }
+    return (body.data ?? (body as unknown)) as T
+  }
+  const [bots, characters] = await Promise.all([
+    get<Array<{ id: number; name: string }>>('/api/bots?page=1&pageSize=500'),
+    get<Array<{ id: number; name: string }>>('/api/characters'),
+  ])
+  const map = new Map<string, string>()
+  for (const row of bots) map.set(`BOT:${row.id}`, row.name)
+  for (const row of characters) map.set(`CHARACTER:${row.id}`, row.name)
+  return map
+}
+
+const live = await liveSpeakers()
 
 const voiceIndex = buildVoiceEvidenceIndex(loadArchive())
 const canonicalById = new Map<number, string | null>(
@@ -233,6 +271,18 @@ for (const batch of batchNames) {
       const value = speaker.comment.trim()
       const words = normalizeWords(value)
       const key = speakerKey(speaker)
+
+      const liveName = live.get(key)
+      if (!liveName) {
+        flag(batch, item, speaker.name, `${key} does not exist in production`)
+      } else if (liveName !== speaker.name) {
+        flag(
+          batch,
+          item,
+          speaker.name,
+          `${key} is "${liveName}" in production`,
+        )
+      }
 
       if (value.length < 2 || value.length > 1200) {
         flag(batch, item, speaker.name, `comment is ${value.length} characters`)

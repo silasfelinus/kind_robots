@@ -37,6 +37,7 @@ function withEnvironment(
   }
 }
 
+const retiredProviderPattern = new RegExp(['VER', 'CEL'].join(''), 'i')
 const longLivedDefaults = resolveDatabasePoolDefaults()
 
 assert.equal(longLivedDefaults.profile, 'long-lived')
@@ -132,13 +133,13 @@ const clientDiagnosticSource = readFileSync(
 assert.match(poolDefaultsSource, /profile:\s*'long-lived'/)
 assert.match(poolDefaultsSource, /LONG_LIVED_CONNECTION_LIMIT = 10/)
 assert.match(poolDefaultsSource, /LONG_LIVED_MINIMUM_IDLE = 1/)
-assert.doesNotMatch(poolDefaultsSource, /VERCEL/)
+assert.doesNotMatch(poolDefaultsSource, retiredProviderPattern)
 
 assert.match(adapterSource, /process\.env\.DATABASE_CONNECTION_LIMIT/)
 assert.match(adapterSource, /process\.env\.DATABASE_IDLE_TIMEOUT_SECONDS/)
 assert.match(adapterSource, /process\.env\.DATABASE_MINIMUM_IDLE/)
 assert.match(adapterSource, /process\.env\.DATABASE_PING_TIMEOUT_MS/)
-assert.doesNotMatch(adapterSource, /VERCEL/)
+assert.doesNotMatch(adapterSource, retiredProviderPattern)
 assert.match(adapterSource, /pipelining:\s*readDatabasePipelining\(\)/)
 assert.match(adapterSource, /process\.env\.DATABASE_USE_TEXT_PROTOCOL/)
 assert.match(

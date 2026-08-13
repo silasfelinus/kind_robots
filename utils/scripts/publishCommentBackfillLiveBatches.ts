@@ -501,3 +501,15 @@ async function main() {
 }
 
 await main()
+
+// The pool does not close itself.
+//
+// A dry run printed POPULATION_DRY_RUN at 15:37:06 and the job then sat idle
+// until 15:57:12 before cleanup -- twenty minutes of nothing, on work that took
+// three seconds. Prisma's adapter here reports `poolLifecycle:
+// 'singleton-per-runtime', poolProfile: 'long-lived'`, so its handles keep the
+// event loop alive after main() resolves and the process never exits on its own.
+//
+// This was mistaken for a database hang, twice, and two runs were cancelled
+// mid-"hang" that had in fact already finished their work.
+await prisma.$disconnect()

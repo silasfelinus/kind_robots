@@ -9,7 +9,7 @@
    "characterId": 282,
    "characterName": "Patient Zero, Reformed",
    "dreamId": 46,
-   "dreamTitle": "Mistress Cassady’s Spooktakular Monster Drag Party",
+   "dreamTitle": "Mistress Cassady\u2019s Spooktakular Monster Drag Party",
    "why": "cast in the Scenario \"Zombie Fashion Runway\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
   },
   {
@@ -17,7 +17,7 @@
    "characterId": 245,
    "characterName": "Mx. Eleven-Fingers",
    "dreamId": 46,
-   "dreamTitle": "Mistress Cassady’s Spooktakular Monster Drag Party",
+   "dreamTitle": "Mistress Cassady\u2019s Spooktakular Monster Drag Party",
    "why": "cast in the Scenario \"Zombie Fashion Runway\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
   },
   {
@@ -25,7 +25,7 @@
    "characterId": 281,
    "characterName": "Applause",
    "dreamId": 46,
-   "dreamTitle": "Mistress Cassady’s Spooktakular Monster Drag Party",
+   "dreamTitle": "Mistress Cassady\u2019s Spooktakular Monster Drag Party",
    "why": "cast in the Scenario \"Zombie Fashion Runway\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
   },
   {
@@ -395,30 +395,6 @@
    "dreamId": 49,
    "dreamTitle": "The Improbability Starcruiser",
    "why": "cast in the Scenario \"Wanderlust\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
-  },
-  {
-   "kind": "CHARACTER_DREAM",
-   "characterId": 254,
-   "characterName": "The Polite Plague",
-   "dreamId": 50,
-   "dreamTitle": "The Moonwreck Corsair",
-   "why": "cast in the Scenario \"Graveyard Shift\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
-  },
-  {
-   "kind": "CHARACTER_DREAM",
-   "characterId": 291,
-   "characterName": "Threshold",
-   "dreamId": 50,
-   "dreamTitle": "The Moonwreck Corsair",
-   "why": "cast in the Scenario \"Graveyard Shift\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
-  },
-  {
-   "kind": "CHARACTER_DREAM",
-   "characterId": 280,
-   "characterName": "The Collector of Lasts",
-   "dreamId": 50,
-   "dreamTitle": "The Moonwreck Corsair",
-   "why": "cast in the Scenario \"Graveyard Shift\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
   },
   {
    "kind": "CHARACTER_DREAM",

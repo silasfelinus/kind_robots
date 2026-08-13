@@ -129,11 +129,7 @@
               v-for="dim in DAVINCI_DIMENSIONS"
               :key="dim"
               class="flex flex-col items-center gap-0.5 rounded-xl border p-2 text-center"
-              :class="
-                (statMap[dim] ?? 0) >= 1
-                  ? 'border-success/40 bg-success/10'
-                  : 'border-base-300 bg-base-200/40'
-              "
+              :class="dimensionPillClass(statMap[dim] ?? 0)"
               :title="`${DIMENSION_LABELS[dim]}: ${statMap[dim] ?? 0}`"
             >
               <span
@@ -141,7 +137,11 @@
               >
                 {{ DIMENSION_LABELS[dim] }}
               </span>
-              <span class="text-xs font-black">{{ statMap[dim] ?? 0 }}</span>
+              <span
+                class="text-xs font-black"
+                :class="dimensionValueClass(statMap[dim] ?? 0)"
+                >{{ statMap[dim] ?? 0 }}</span
+              >
             </div>
           </div>
 
@@ -174,6 +174,7 @@
               <button
                 type="button"
                 class="btn btn-primary btn-sm gap-1.5 rounded-xl"
+                :disabled="narrating"
                 @click="narrateChapter()"
               >
                 <Icon name="kind-icon:refresh" class="size-4" />
@@ -675,6 +676,27 @@ function victoryBadgeClass(type: LifeEndingData['victoryType']) {
     default:
       return 'badge-warning'
   }
+}
+
+// The dimension grid previously only distinguished "has any positive value"
+// (success green) from everything else, including dimensions the player has
+// actively driven negative (health: -2 in "The Collapse", wealth: -1 in "The
+// Spark", etc. — several curated chapters have negative-effect choices by
+// design). A negative dimension looked identical to an untouched, neutral
+// one, so a player watching their stats had no visual signal that a choice
+// had cost them something until they read the small numeral. Three-way tone
+// now matches the shared status-tint formula (border-{status}/40 +
+// bg-{status}/10) already used for success here and for .kr-note elsewhere.
+function dimensionPillClass(value: number): string {
+  if (value >= 1) return 'border-success/40 bg-success/10'
+  if (value < 0) return 'border-error/40 bg-error/10'
+  return 'border-base-300 bg-base-200/40'
+}
+
+function dimensionValueClass(value: number): string {
+  if (value >= 1) return 'text-success'
+  if (value < 0) return 'text-error'
+  return ''
 }
 
 // Best-effort: the illustration is decorative, so a failed attach never

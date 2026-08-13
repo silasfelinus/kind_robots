@@ -67,6 +67,8 @@
     "seed:davinci:verify": "tsx utils/scripts/verifyDaVinciSeed.ts",
     "seed:davinci:playloop-verify": "tsx utils/scripts/verifyDaVinciPlayLoop.ts",
     "test:davinci-narration": "tsx utils/scripts/verifyDaVinciNarration.ts",
+    "test:davinci-dimension-tone-guard-selftest": "tsx utils/scripts/verifyDaVinciDimensionToneGuard.test.ts",
+    "test:davinci-dimension-tone-guard": "tsx utils/scripts/verifyDaVinciDimensionToneGuard.ts",
     "test:achievement-store": "tsx utils/scripts/verifyAchievementStoreFetchSafety.ts",
     "test:achievement-catalog": "tsx utils/scripts/verifyDatabaseRetry.ts && tsx utils/scripts/verifyAchievementArtJobDedupe.ts && tsx utils/scripts/verifyAchievementCatalog.ts",
     "seed:achievements": "tsx scripts/seed_achievements.ts",

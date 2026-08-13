@@ -53,6 +53,7 @@ const bots = [
   { id: 10, name: 'Utility One', BotType: 'PROMPTBOT', botIntro: 'helps' },
   { id: 11, name: 'Utility Two', BotType: 'PROMPTBOT', botIntro: 'helps' },
   { id: 12, name: 'Teller', BotType: 'NARRATOR', botIntro: 'narrates' },
+  { id: 13, name: 'Second Teller', BotType: 'NARRATOR', botIntro: 'narrates' },
 ]
 
 // Alpha and Delta share a Dream. Alpha ALSO shares a genre with Beta, which is
@@ -150,7 +151,7 @@ assert.equal(project.tier, 'promptbot', 'Projects pair with promptbots')
 assert.deepEqual(
   keys(project.allowed),
   ['BOT:10', 'BOT:11'],
-  'every PROMPTBOT and only PROMPTBOTs -- the NARRATOR must not be admitted, and no Character may comment on a Project',
+  'every PROMPTBOT and only PROMPTBOTs -- no NARRATOR may be admitted, and no Character may comment on a Project',
 )
 
 // -------------------------------------------------- 4. Dream + Scenario reach
@@ -159,18 +160,20 @@ const sharedDream = connectionsFor('DREAM', dreams[0]!, index)
 assert.equal(sharedDream.tier, 'dream-cast', 'a Dream with a cast uses it directly')
 assert.deepEqual(keys(sharedDream.allowed), ['BOT:12', 'CHARACTER:1', 'CHARACTER:4'])
 
-// The Dream carries only a STUB scenario ({id: 201}); the facets live on the
-// full row. This is the case that took Dream coverage from 28/48 to 46/48.
+// A Dream with no cast of its own goes to narrators, not to the characters its
+// scenarios happen to touch. Every recorded Bot<->Dream link in production is a
+// narrator and none is a promptbot, so this is the move the catalog already
+// makes. Silas, 2026-08-13: "narrators are natural dream commenters."
 const lonelyDream = connectionsFor('DREAM', dreams[1]!, index)
 assert.equal(
   lonelyDream.tier,
-  'scenario-dream-cast',
-  'a Dream with no cast must resolve its scenario stubs against the full scenario rows; a stub has no Facets and would report unconnected',
+  'narrator',
+  'a Dream with no cast must fall to narrators, ranked above the scenario/character route',
 )
 assert.deepEqual(
   keys(lonelyDream.allowed),
-  ['CHARACTER:5'],
-  'reached through scenario 201 -> facet 900 -> Epsilon',
+  ['BOT:12', 'BOT:13'],
+  'every narrator and only narrators -- a promptbot is a utility, not a voice of a world',
 )
 
 const facetScenario = connectionsFor('SCENARIO', scenarios[1]!, index)
@@ -184,8 +187,22 @@ assert.equal(
   "a Scenario's Dream outranks its facets; the Dream carries real cast",
 )
 
+// Narrators close the remainder on Scenarios -- but BELOW the facet route, not
+// above it. A character who IS Circus speaking on a Circus scenario is a real
+// connection; any narrator is a weaker one. Promoting narrators here would
+// trade 84 strong casts for 84 plausible ones.
+assert.equal(
+  facetScenario.tier,
+  'scenario-facet',
+  'a Scenario with a facet match must NOT be handed to a narrator instead; the facet match is the stronger connection',
+)
 const barrenScenario = connectionsFor('SCENARIO', scenarios[2]!, index)
-assert.equal(barrenScenario.tier, 'unconnected')
+assert.equal(
+  barrenScenario.tier,
+  'narrator',
+  'a Scenario with neither a Dream nor facets falls to narrators rather than reporting unconnected',
+)
+assert.deepEqual(keys(barrenScenario.allowed), ['BOT:12', 'BOT:13'])
 
 // -------------------------------------------------------- 5. the tokeniser
 

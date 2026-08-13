@@ -44,6 +44,7 @@ export type CastTier =
   | 'genre-exact'
   | 'genre-token'
   | 'promptbot'
+  | 'narrator'
   | 'unconnected'
 
 export type SpeakerRef = { kind: 'BOT' | 'CHARACTER'; id: number }
@@ -125,6 +126,13 @@ export type CastingIndex = {
   scenarioById: Map<number, PopulationRow>
   /** Every PROMPTBOT, for the Project pairing. */
   promptBots: SpeakerRef[]
+  /**
+   * Every NARRATOR bot, for Dreams. All 17 Bot<->Dream links in production are
+   * narrators and not one is a promptbot, so the catalog already sorts itself:
+   * narrators are voices OF a world, promptbots are utilities. Silas,
+   * 2026-08-13: "narrators are natural dream commenters."
+   */
+  narratorBots: SpeakerRef[]
   /** All character ids, so genre lookups can enumerate. */
   characterIds: number[]
 }
@@ -172,6 +180,11 @@ export function buildCastingIndex(input: {
     .map((bot) => ({ kind: 'BOT' as const, id: Number(bot.id) }))
     .filter((ref) => Number.isInteger(ref.id))
 
+  const narratorBots = input.bots
+    .filter((bot) => text(bot.BotType).toUpperCase() === 'NARRATOR')
+    .map((bot) => ({ kind: 'BOT' as const, id: Number(bot.id) }))
+    .filter((ref) => Number.isInteger(ref.id))
+
   const scenarioById = new Map<number, PopulationRow>()
   for (const scenario of input.scenarios) {
     const scenarioId = Number(scenario.id)
@@ -185,6 +198,7 @@ export function buildCastingIndex(input: {
     facetCharacters: input.facetCharacters || new Map(),
     characterGenre,
     promptBots,
+    narratorBots,
     characterIds,
   }
 }
@@ -263,8 +277,15 @@ export function connectionsFor(
     const cast = index.dreamCast.get(id) || []
     if (cast.length) return { tier: 'dream-cast', allowed: cast }
 
-    // No direct cast: reach through the scenarios this Dream owns, and through
-    // whatever those scenarios are built from.
+    // A Dream with no cast of its own gets a narrator. This outranks the
+    // scenario/character route on purpose: every recorded Bot<->Dream link in
+    // production is a narrator, so a narrator arriving at an unfamiliar world
+    // is the same move the catalog already makes, and it gives the 26
+    // narrators with no Dream of their own something to speak on.
+    if (index.narratorBots.length) {
+      return { tier: 'narrator', allowed: index.narratorBots }
+    }
+
     const viaScenarios = scenarioReach(row.Scenarios, index)
     if (viaScenarios.length) {
       return { tier: 'scenario-dream-cast', allowed: viaScenarios }
@@ -297,6 +318,15 @@ export function connectionsFor(
     }
     if (viaFacets.size) {
       return { tier: 'scenario-facet', allowed: [...viaFacets.values()] }
+    }
+
+    // Narrators close the remainder, but deliberately BELOW the facet route
+    // rather than above it. A character who IS Circus speaking on a scenario
+    // built out of Circus is a real connection; any narrator is a weaker one.
+    // Promoting narrators over facets here would trade 84 strong casts for 84
+    // plausible ones, which is the opposite of the point.
+    if (index.narratorBots.length) {
+      return { tier: 'narrator', allowed: index.narratorBots }
     }
     return { tier: 'unconnected', allowed: [] }
   }

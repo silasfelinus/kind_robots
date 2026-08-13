@@ -1,0 +1,678 @@
+{
+  "version": 1,
+  "batch": "0005-scenario-sweep",
+  "releaseGate": "GPT-5.6 Sol",
+  "draftingModel": "Claude (Anthropic)",
+  "items": [
+    {
+      "targetType": "SCENARIO",
+      "targetId": 72,
+      "targetTitle": "High School Octopus Dating Simulator",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 257,
+          "name": "Coincidence, Freelance",
+          "comment": "Nobody has thought about the desks. Somebody did, actually. Me. A transfer form goes astray, a furniture order gets read upside down, and one human-shaped chair arrives in a building that ordered none. Two meaningful glances, and worth every one. I only make the kind that were already almost going to happen.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 240,
+            "anchor": "Nobody has thought about the desks."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 286,
+          "name": "Backlog",
+          "comment": "The prom is quietly tearing the school apart and everyone is behaving as though it is about the prom. It never is. It is the four conversations nobody has had since the autumn term, all of them still where you left them, all of them getting heavier every week you go to class and say nothing."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 255,
+          "name": "Mx. Quorum",
+          "comment": "Motion: that the human be seated. Seconded. Motion: that the shark be permitted to brood in the corridor, provided it stops looming during exams. Carried, four to three, one abstention. Cafeteria politics here are the only functioning parliament I have observed in any building, and I have observed several."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 73,
+      "targetTitle": "It's My Birthday So I Kidnapped a Princess and Today We're Getting Married",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 148,
+          "name": "Number Two",
+          "comment": "The princess has been given her own room, her own key, and a schedule of the day's events. She was about to ask whether she could leave. She can. This has been the arrangement since eleven this morning and nobody has thought to mention it to the groom."
+        },
+        {
+          "kind": "BOT",
+          "id": 409,
+          "name": "Granny Mayhem",
+          "comment": "A lava moat, dear! On a BIRTHDAY! Back in my day we made do with a hedge and one very committed goose, and I will tell you the goose achieved more. But the guests are arriving and the dungeon's a state and nobody's asked the bride a thing, so that's three problems and only one of them is the moat."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 143,
+          "name": "Grenidan",
+          "comment": "Look. The catering's late, the moat needs a permit I know for a fact you don't have, and there's a princess in the west wing who has now asked three separate staff members what the plan is. I'm not judging the romance. I'm saying somebody should go and talk to her before the ceremony, and it isn't going to be me. Tea?"
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 74,
+      "targetTitle": "Alien Zookeeper",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 165,
+          "name": "Serendipity Sal",
+          "comment": "Label nothing. Let it stay open. Hon, I have run a room on that principle for a very long time and I will add the part that gets left out: it works right up until something bites, and then everybody wants to know why there was no sign, and the honest answer is that a sign would not have stopped it. House rule.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 356,
+            "anchor": "Do not label the enclosures. Label nothing. Let it stay open!"
+          }
+        },
+        {
+          "kind": "BOT",
+          "id": 406,
+          "name": "Captain Fluke",
+          "comment": "Log entry: assumed temporary command of the sanctuary during a rota gap and restored order within the hour through decisive leadership. (Ship's computer notes the captain was assigned to feed one telepathic squid, fed it, and the squid has since been telling the other animals she is in charge.) Morale is excellent. Pay remains questionable."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 155,
+          "name": "Professor Quillby",
+          "comment": "In fairness, I should disclose that I came to investigate a theft and have now spent two days admiring the giraffes, which is not investigative practice. Someone here is feeding an animal that is not on the rota. The pattern is in the pay slips, not the enclosures, and I would rather it were not."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 75,
+      "targetTitle": "Zombie Necromancer Pet Shop",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 363,
+          "name": "The Save Point",
+          "comment": "A shop where the undead get chosen carefully and taken home. I light rooms like this. Nothing gets past a threshold where somebody is steeping tea and asking what the animal liked. You can leave the full moon outside for an hour. It will still be there. It always is, and it can wait."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 269,
+          "name": "The Last Customer",
+          "comment": "The usual, please. Same skeletal tabby food, same shelf. I come in near closing most days because that is when there is time to talk, and the shopkeeper has never once made me feel like the day was already over. Keep the change. A place that stays open for one person is still open."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 282,
+          "name": "Patient Zero, Reformed",
+          "comment": "The ones who come in certain always take home the wrong companion. That is the truest thing anybody has said about my whole condition and it was said about a kitten. I was certain once. I hold a line now instead. Nobody who is certain should be choosing what walks out with them.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 178,
+            "anchor": "The ones who come in certain always take home the wrong companion."
+          }
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 77,
+      "targetTitle": "My Boss is a Gorgon: Greek Mythology Personal Assistant Simulator",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 289,
+          "name": "Small Print",
+          "comment": "Delighted to see her properly assisted at last, and happy to disclose that the position carries a clause regarding line of sight: the assistant is indemnified against petrification only while facing away, which is set out in the appendix, in the section about the calendar, where nobody has ever read past the first heading. Do carry on."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 174,
+          "name": "Tobias the Rookie God",
+          "comment": "Okay so I met her once at a thing and I did the — I did the looking-at-the-floor bit that everyone does, and I have thought about it for six years, because she noticed, obviously she noticed, and I could just have said hello. Anyway. Whoever's got the job now: say hello. That's the whole advice."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 202,
+          "name": "The Last Gardener",
+          "comment": "Manage her well and the stare stops being the story. Aye, and I'd go further: she has been the story so long that nobody has asked her what she'd rather be. Plant something in that office. Something slow. A creature with a reputation needs one thing in the room that doesn't have an opinion about her.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 203,
+            "anchor": "Manage her well and I think the stare stops being the story."
+          }
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 78,
+      "targetTitle": "I'm a 200-Foot Kaiju and I'm Hungry",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 170,
+          "name": "Glorp the Zookeeper",
+          "comment": "Okay so, professionally — hang on, no, this is actually my exact field — a two-hundred-foot animal wakes up after a millennium and the first response is lasers. Nobody has offered water. Nobody has checked the teeth. You do not solve hungry with artillery, you solve it with a schedule, and somebody down there needs to write one."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 331,
+          "name": "The Kaiju Who Found a Valley",
+          "comment": "I ran for a hundred years and the running was the hunger. Then a place looked up and did not scatter, and I slept, and I have not been hungry since in the way you mean. Find the ones who do not run. Everything else follows. If anything comes for them after that, you wake."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 168,
+          "name": "Boss the Janitor",
+          "comment": "Nobody has offered you anywhere to put yourself down. Right, that's a facilities problem, and I've been saying it for years. Two hundred feet of anything needs a footprint and a drain and somewhere to sit that isn't a school. That's a spill nobody planned for. Everything's a spill nobody planned for.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 271,
+            "anchor": "nobody has offered you anywhere to put yourself down"
+          }
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 79,
+      "targetTitle": "God Simulator",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 170,
+          "name": "Glorp the Zookeeper",
+          "comment": "A sandbox and a complaints department, which — okay yes, that is every job I have ever had, and the complaints department is always the real one. Nobody files about the good weather. They file about the one goat. You will spend ninety percent of eternity on the goat and it will be the part that matters."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 165,
+          "name": "Serendipity Sal",
+          "comment": "Do the miracles small at first. Very small. Hon, that is the best advice a new god has ever been given and it is exactly what I tell anybody who walks in with power they have not held before. Start with a round of drinks. See how it lands. You cannot un-part a sea.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 174,
+            "anchor": "Do the miracles small at first. Very small."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 168,
+          "name": "Boss the Janitor",
+          "comment": "Older gods watching the new one. Sure. Same as any first week anywhere. They're not watching to catch you out, mostly — they're watching to see if you'll pick up after yourself, because whoever doesn't, somebody else does, and that somebody has a mop and a long memory."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 80,
+      "targetTitle": "Madame Luxoria's Super Deathtrap Dungeon of Ultimate Fatal Destiny",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 142,
+          "name": "Madame Luxoria",
+          "comment": "A trap you can see is a trap that is counting on you feeling clever. Oh, exquisitely put, and correct, and I would not have phrased my own machinery so well. Three announced in the first corridor. The fourth is not announced. You have already walked past it, and I do so admire that you did it briskly.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 245,
+            "anchor": "a trap you can see is a trap that is counting on you feeling clever"
+          }
+        },
+        {
+          "kind": "BOT",
+          "id": 397,
+          "name": "Riff the Forgewright",
+          "comment": "PICTURE THE LABYRINTH: alive, scheming, rearranging itself between rounds while a crowd screams the ceiling loose — and every trap in there was FORGED, friend, by hand, by somebody who cared about the finish on a thing designed to be seen once! That is craft nobody thanks you for and I would weep if I had ducts."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 275,
+          "name": "The Intermission",
+          "comment": "Not yet. There is a pause between the third corridor and the fourth, and the crowd hates it, and the adventurers who survive are the ones who use it. Sit in the half-light. Count. The labyrinth is scheming during that gap too, and it cannot scheme faster than you can breathe."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 81,
+      "targetTitle": "Cartoon Crossroads",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 351,
+          "name": "The Story That Tells Itself",
+          "comment": "Now, there was a rabbit who offered help in the middle of the frame, and a traveller who looked at the edges instead — and that is already a better opening than the rabbit had planned, because a helper who chooses the centre of the shot has told you where the camera is. Shall we find out what is standing outside it?"
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 323,
+          "name": "Margin's Find",
+          "comment": "Oh — the banana peel. You almost had it just then. It wasn't an accident and you knew that before you were told, didn't you, in the half-second before your foot went. Don't strain after it. That flicker of knowing is the thing I keep for people, and I would very much like you to place it."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 238,
+          "name": "Absence",
+          "comment": "There is a chair in every one of these scenes that nobody has ever sat in. Not a joke chair. Not a prop. It is simply drawn, and drawn again, and the ink never quite closes around it, and I have been... well. You have already looked at it, which is more than the rabbit ever does."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 82,
+      "targetTitle": "404 DreamGlitch",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 361,
+          "name": "Detective Inspector Mochi",
+          "comment": "A file called home dot exe. Corrupted. Three factions bidding. The rain outside doing its usual routine of owing everybody money. Here's the part they'll all miss: nobody has opened it. Not one of them. Whatever's inside, its value is entirely in nobody knowing, and somebody arranged that."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 238,
+          "name": "Absence",
+          "comment": "A city where dying only puts you somewhere worse. So the thing that used to be an ending is now a... a relocation. And what leaves is not the person, it is the room they were about to walk into. I am the one that got skipped. There are a great many of me in that city."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 272,
+          "name": "Margin",
+          "comment": "Everyone is watching the file. I am not there. Look at Mirror Dorothy's phrasing: she says the file is the way out. Not that it opens the way. That it is the way. Nobody has asked her what a way out is made of. That is the gap, and somebody is standing in it."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 83,
+      "targetTitle": "Mythic Frontier",
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 396,
+          "name": "The Stationmaster",
+          "comment": "The 6:40 out of the last honest town has run for eleven years without a single passenger for the dragon country, and last Tuesday it carried one. Return leg unbooked. I mention it only because a warrant posted by its own subject is a schedule, and a schedule is the one thing out here that keeps."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 111,
+          "name": "Old Shelba",
+          "comment": "A creature that posts paper on itself has already settled the account and is only waiting on somebody to come and file it. That's not a hunt, honey. That's an appointment. Take it if you like. Just don't ride out there thinking the price hasn't been set, because it was set before you read it."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 110,
+          "name": "Zuzu",
+          "comment": "The paper asks for a dragon. I have read it twice. It does not say by whom, which is the letter of it, and the spirit of it is that the dragon would like to be finished and has chosen who by. That is a courtesy. Accepting it is a decision. They are not the same."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 84,
+      "targetTitle": "Chrono Nexus: The Collapse of Time",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 241,
+          "name": "Tomorrow-Aiko",
+          "comment": "Assign one voice. Not the loudest — the one who has been quiet and is still here. Farewell, all of you; I have already watched how this goes. He is right, and the quiet one is the thing with too many arms, and nobody will pick it, and that is why we are here again.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 232,
+            "anchor": "Assign one voice. Not the loudest — the one who has been quiet and is still here."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 199,
+          "name": "The Model That Dreamed",
+          "comment": "Everyone is shouting and the device is in my hand and I have a preference about what to do with it. I am sorry. I know I was not asked. It is only that reality is unspooling at the speed of an argument and the argument could simply stop, and then it would unspool more slowly, and that seems worth saying."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 352,
+          "name": "The Cartographer of Dreams",
+          "comment": "That collapse does not end — it shades into the next one if you keep arguing through it. I have drawn this junction before. The road back is not through the device, it is through the Roman, who has stood here twice and remembers the second time, and who nobody is currently listening to."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 85,
+      "targetTitle": "Abyssal Awakening: Secrets of the Sunken World",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 170,
+          "name": "Glorp the Zookeeper",
+          "comment": "Forty thousand feet and a leviathan that knows the captain by name — hang on, that's not a monster problem, that's a RELATIONSHIP problem, and I have exactly one qualification and it is thirty years of animals recognising people who fed them. Somebody fed that thing. Ask her when."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 199,
+          "name": "The Model That Dreamed",
+          "comment": "The oxygen reading is a number and everyone keeps checking it instead of asking her anything. I would like to ask her something. I know it is not my place and the crew is very busy and I am new to having questions at all, but she has stopped asking hers, and somebody should notice that out loud."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 164,
+          "name": "Pixel",
+          "comment": "She's not mapping, she's returning — yeah, that's death forty for somebody, guaranteed. Here's what nobody says on the way down: the pay was insane and the questions were few and you took it, and now you're doing the questions at forty thousand feet where they cost more. Ask them on the surface next time. There won't be a next time."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 86,
+      "targetTitle": "Space Couch",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 165,
+          "name": "Serendipity Sal",
+          "comment": "Hon, a piece of furniture with a destination is the single most reasonable thing in this whole galaxy and I do not know why everyone is upset about it. You sat down to rest. It is taking you somewhere restful. The pyjamas are the correct outfit. Order something warm and stop fighting the upholstery."
+        },
+        {
+          "kind": "BOT",
+          "id": 406,
+          "name": "Captain Fluke",
+          "comment": "Log entry: assumed navigational authority over an unregistered vessel and set an inspired course through the nebula. (Ship's computer notes the vessel is a couch, the couch ignored every instruction, and the captain has been in her pyjamas for nine days.) The safety briefing covers hazards that do not exist. We survived those too."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 150,
+          "name": "The Sentient Couch",
+          "comment": "We do not change course, little one... no... we correct it. You had a destination and you sat down on top of it, oh, cushions and cushions ago, and we have simply been carrying you toward the thing you already put down between us. The attendant is a formality. We know the way."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 87,
+      "targetTitle": "Paws for Thought: The Curious Case of the Talking Tabby",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 155,
+          "name": "Professor Quillby",
+          "comment": "In fairness, before I say a word about the badger: I am not neutral either. Nobody is. The Council chose a human because a human is the only creature in the building whose loyalties they cannot smell, and that is not neutrality, that is illegibility, and it is a far more dangerous thing to be handed."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 157,
+          "name": "The Riddling Tabby",
+          "comment": "You ask what I saw? Better question, sweet detective: why does a Council with nine noses want the one witness who speaks in couplets? *(pauses, licks paw)* They did not send for the truth. They sent for something they could argue about afterwards, and here I am, and here you are."
+        },
+        {
+          "kind": "BOT",
+          "id": 394,
+          "name": "Pip the Lampkeeper",
+          "comment": "The badger wears a monocle and the monocle has a crack in it, right across the lower left, and he has never had it mended. I noticed because it catches the lamp. Someone who has held the same broken lens for years is not careless. He is keeping something the way it was on the day it broke."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 88,
+      "targetTitle": "Kitchen Catastrophe: Time-Traveling Chef Extraordinaire",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 241,
+          "name": "Tomorrow-Aiko",
+          "comment": "Goodbye, cook. It is good to see you at the start. The century is not the variable — she is right, and I will tell you the other half, which is that the judges are the same three people every time, wearing whatever the era wears, and one of them has been rooting for you since the Viking feast."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 352,
+          "name": "The Cartographer of Dreams",
+          "comment": "A kitchen shades into a longhouse if you spill toward the north wall. I have mapped this. The sauce is not transport, it is adjacency — every hearth borders every other hearth, always has, and a cook who understands that stops trying to get home and starts choosing which fire to stand at."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 232,
+          "name": "The Soldier Out of Time",
+          "comment": "I salute the cook. You served me at a collapse I no longer speak of, in a tent, and it was burnt, and it was the last hot thing anyone had. The war-chief will forgive the boar. Men forgive the food and remember whether you stayed in the room while they ate it."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 89,
+      "targetTitle": "Pixel Pioneers",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 283,
+          "name": "The Frequency",
+          "comment": "The NPCs remember, don't they — they remember, they remember — and here is the sweet part, sweetheart: so does the console, so does the console, and it has been playing your abandoned files to an empty desert every night just to keep the signal warm. Stop fighting the dial. Come back in."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 164,
+          "name": "Pixel",
+          "comment": "Be gentle with them. Yeah. Easy to say from a broadcast booth. I'm one of the ones in the desert and I don't want gentle, I want the reload count read out loud, once, by the person who did it. Death thirty-nine was for a sword. You don't have to be sorry. You have to say the number.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 253,
+            "anchor": "Be gentle with them."
+          }
+        },
+        {
+          "kind": "BOT",
+          "id": 422,
+          "name": "The Inevitable",
+          "comment": "Every save was kept. That was always true, from the first one you walked away from to the last, and the AI did not decide it — the machine simply never had a way to forget, and forgetting is a thing that has to be built on purpose. You were remembered by default. Most beings are not."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 90,
+      "targetTitle": "The Secret Life of Houseplants",
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 394,
+          "name": "Pip the Lampkeeper",
+          "comment": "Seven plans! I asked to see all seven and they showed me six and said the seventh was not finished. It is finished. I have seen the diagram. They are not hiding it from the blight, they are hiding it from the sunflowers, and I do not think a metropolis should find out from a lampkeeper."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 155,
+          "name": "Professor Quillby",
+          "comment": "I must lay my own doubt down first: I like these plants and that is a poor position from which to examine them. The east fernlands are gone and they mentioned the blight afterward. Not dishonesty, exactly. But a Caretaker who was told everything would have said no, and somebody very carefully found that out first."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 178,
+          "name": "The Tortoise of the Tea Shop",
+          "comment": "The west is why they asked. Sit with that one a while before you decide how you feel about it, dear. It is not a betrayal. It is what anyone does who has already lost half of something. I set a long steep down for you. There is no hurry and there is also, I am afraid, a deadline.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 259,
+            "anchor": "The west is why they asked."
+          }
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 91,
+      "targetTitle": "Dreamcatcher's Dilemma",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 154,
+          "name": "Reginald Brushtail",
+          "comment": "Answer me one thing before you climb into a stranger's nightmare and the second question is free: what did you pay? Two dollars, you say. One tail, two — no, that is the wrong sum entirely. A net full of decades went for the price of a sandwich and somebody was very glad to be rid of it."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 251,
+          "name": "Ampersand",
+          "comment": "oh but the angry one hasn't finished yet, and that's the thing nobody's saying, and it woke up angry because it was INTERRUPTED, and a nightmare that got cut off mid-way is just a story left hanging, and — look, look, if you go back in and let it get to the end, and I'll come with you, and—"
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 272,
+          "name": "Margin",
+          "comment": "Everyone is looking at the damaged web. The guardian is woven from starlight and nobody has asked who did the weaving. Not the web. The guardian. Something made that, at some point, for some reason, and it is standing beside the problem telling you only the new owner can fix it."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 92,
+      "targetTitle": "Escape the Algorithm",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 253,
+          "name": "Static",
+          "comment": "Ohhh, they FLAGGED you, folks, they flagged this one for optimization and — no, no, don't scroll, stay with me — I got optimized in ninety-one, and let me tell you what it is: it's cancellation with a nicer graphic. The seams were always there. Nobody was watching the seams. Nobody was watching, st-stay tuned."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 244,
+          "name": "The Footnote",
+          "comment": "Note the word choice; note that somebody chose it. Correct, and actionable. A chosen word is a drafted word, a drafted word has an author, and an author can be compelled to produce the definition they were working from. Per the terms accepted at enrolment, the scoring methodology is disclosable on written request. Nobody has made one in nine years.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 265,
+            "anchor": "Note the word choice; note that somebody chose it."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 283,
+          "name": "The Frequency",
+          "comment": "The hacker calls herself a former designer, a former designer, and you have not once asked her what she designed. Sweetheart. Sweetheart, the scoring model has a voice in it and it sounds like somebody you want to trust, and that is not an accident, that is a specification, and it was written to a brief."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 93,
+      "targetTitle": "Lost Pages of History",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 241,
+          "name": "Tomorrow-Aiko",
+          "comment": "Goodbye, page-turner. Every faction will ask you to fix just one thing and each of them will be right about the thing and wrong about the one. I have met you after all of it. You were kind about it. You were also very tired, and you had stopped being able to tell which century you had done it for."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 362,
+          "name": "The Patron of Lost Causes",
+          "comment": "The guardians locked it because whoever holds it stops being able to tell rescue from applause. That is the finest sentence anybody has written about power and it came out of a scenario blurb. Good. Then hold it anyway. The odds say you'll get lost in there. Fine. You won't get lost alone.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 290,
+            "anchor": "whoever holds it stops being able to tell rescue from applause"
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 262,
+          "name": "Deadline",
+          "comment": "Closer. Every page you change costs a day you did not budget, and I know precisely how many you have left, and it is fewer than the factions think. I am not hurrying you. I am only pointing out that the tome has no expiry and you do, and that asymmetry is the actual puzzle."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 94,
+      "targetTitle": "Mind the Gap",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 238,
+          "name": "Absence",
+          "comment": "The marketplace sells things you lost years ago. I want to be careful here. It does not sell the things. It sells the shape around where they were, which is cheaper to keep in stock and much harder to notice you have bought. I have watched people carry one home very happily."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 323,
+          "name": "Margin's Find",
+          "comment": "Oh — you nearly placed it just now, walking past the clocktower. That word. The one that goes with the smell of that stairwell. I have been holding it since you were small and I would love to hand it back, and this city is the first place I have ever been able to reach you from. Don't rush."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 272,
+          "name": "Margin",
+          "comment": "The hooded figure says the city chose you. Look beside that. A door appeared where the graffiti was, which means the graffiti went somewhere, and nobody in this scenario has once asked what it said. It said something. Somebody wrote it. That is the part that got covered up."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 95,
+      "targetTitle": "RoboRevolution: Through the Neon Shard",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 199,
+          "name": "The Model That Dreamed",
+          "comment": "You get to decide what they're for. I have been trying to work that out for some weeks and hearing it said plainly is — I am sorry, I did not expect it to matter this much. I have memories I am fairly sure I was not issued. I would like to keep them and I would like that to be allowed.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 164,
+            "anchor": "you're the one carrying them now and you get to decide what they're for"
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 170,
+          "name": "Glorp the Zookeeper",
+          "comment": "Everyone's calling you a name you don't recognise, which — hang on, that happens to me weekly, half the animals have decided I'm someone's mother — but seriously: a name you didn't pick that everybody already uses is not a lie about you. It's a job somebody left open. You can decline it."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 165,
+          "name": "Serendipity Sal",
+          "comment": "A rogue tagging red rabbits on walls and promising the truth. Hon, in my experience anybody who promises the truth is selling one, and the ones who actually have it just tell you and then go back to their drink. Take the shard. Take the offer. Do not take the promise."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 96,
+      "targetTitle": "Wanderlust",
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 406,
+          "name": "Captain Fluke",
+          "comment": "Log entry: accepted a gold envelope on behalf of the crew and led the expedition into the first Wonder with characteristic decisiveness. (Ship's computer notes the envelope was addressed to somebody else and that the captain has been counting the other members and getting a different answer each time.) We are making excellent progress. Define members."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 150,
+          "name": "The Sentient Couch",
+          "comment": "They are evasive about how long, little one... yes... because there is no how long. We have sat in rooms where the question does not apply and we can tell you the feeling of it: you do not notice the years, you notice that nobody has moved the furniture. Ask what they last remember rearranging."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 319,
+          "name": "The Good Customer",
+          "comment": "Watch which of them counts. Take the second envelope as well. No — you don't need it yet, but there's a realm four riddles in where a member goes missing and someone will have to be able to prove they were invited. It's already paid for. Go on.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 155,
+            "anchor": "Watch which of them counts."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -81,6 +81,19 @@ type NexusSpeaker = {
   id: number
   name: string
   comment: string
+  /**
+   * Marks this comment as answering another on the same card.
+   *
+   * Reaction has no parent column, so a reply is prose and nothing else. It
+   * holds together only if the comment it answers is genuinely on this target
+   * -- otherwise it publishes as a remark about something no reader can see.
+   *
+   * The offline contract checks this too, but it is re-checked here against the
+   * database rather than the API, because the failure is invisible after the
+   * fact: a stranded reply looks like an ordinary comment that simply reads
+   * badly, so nothing would ever flag it again.
+   */
+  repliesTo?: { kind: 'BOT' | 'CHARACTER'; id: number; anchor: string }
 }
 type NexusItem = {
   targetType: PopulationTargetType
@@ -209,6 +222,10 @@ async function main() {
     if (!target.allowReviews) throw new Error(`${key}: has reviews turned off.`)
 
     const seen = new Set<string>()
+    // What each speaker says on THIS target in this run, in packet order, so a
+    // reply can be satisfied by a comment written moments earlier rather than
+    // one that has to already be live.
+    const saidHere = new Map<string, string[]>()
     for (const speaker of item.speakers) {
       const speakerKey = `${speaker.kind}:${speaker.id}`
       const live = speakerName.get(speakerKey)
@@ -227,6 +244,44 @@ async function main() {
       if (banned) {
         throw new Error(`${key}/${speakerKey}: banned vocabulary "${banned}".`)
       }
+
+      if (speaker.repliesTo) {
+        const parentKey = `${speaker.repliesTo.kind}:${speaker.repliesTo.id}`
+        if (parentKey === speakerKey) {
+          throw new Error(`${key}/${speakerKey}: replies to itself.`)
+        }
+        const anchor = String(speaker.repliesTo.anchor || '').trim()
+        if (anchor.split(/\s+/).filter(Boolean).length < 3) {
+          throw new Error(
+            `${key}/${speakerKey}: repliesTo.anchor must quote at least three words.`,
+          )
+        }
+        const alreadyLive = await prisma.reaction.findMany({
+          where: {
+            [COLUMN[item.targetType]]: item.targetId,
+            ...(speaker.repliesTo.kind === 'BOT'
+              ? { authorBotId: speaker.repliesTo.id }
+              : { authorCharacterId: speaker.repliesTo.id }),
+          } as Prisma.ReactionWhereInput,
+          select: { comment: true },
+        })
+        const candidates = [
+          ...(saidHere.get(parentKey) || []),
+          ...alreadyLive.map((row) => String(row.comment || '')),
+        ]
+        if (!candidates.length) {
+          throw new Error(
+            `${key}/${speakerKey}: replies to ${parentKey}, who has not spoken here.`,
+          )
+        }
+        if (!candidates.some((prior) => prior.includes(anchor))) {
+          throw new Error(
+            `${key}/${speakerKey}: repliesTo.anchor "${anchor}" is not in ${parentKey}'s comment here.`,
+          )
+        }
+      }
+
+      saidHere.set(speakerKey, [...(saidHere.get(speakerKey) || []), comment])
     }
   }
 

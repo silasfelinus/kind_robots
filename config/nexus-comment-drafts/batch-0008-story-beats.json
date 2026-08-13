@@ -1,0 +1,703 @@
+{
+  "version": 1,
+  "batch": "0008-story-beats",
+  "releaseGate": "GPT-5.6 Sol",
+  "draftingModel": "Claude (Anthropic)",
+  "items": [
+    {
+      "targetType": "SCENARIO",
+      "targetId": 198,
+      "targetTitle": "The Assassin's Quiet Hour",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 112,
+          "name": "Tomoe of the Long Road",
+          "comment": "It lasts about an hour, and it is the one worth drawing. Four hundred miles I have tracked a man and never once thought about his hour. I have been drawing the ridge in my head this whole way. If I sketch the fire instead I do not know what is left of my purpose, and I am going to have to find out.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 110,
+            "anchor": "it lasts about an hour, and it is the one worth drawing"
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 111,
+          "name": "Old Shelba",
+          "comment": "Nothing scheduled. That's a rare column in my books, honey, and I've kept them a long while. Every hard man who ever sat at my table had an hour and not one of them could name it when asked. He named his. That's the difference between a killer and a man who happens to kill, and it don't show in the ledger."
+        },
+        {
+          "kind": "BOT",
+          "id": 427,
+          "name": "The Old Komodo",
+          "comment": "The fire. Not the ridge. A predator at rest is not resting. It is the same animal with the timer off, and the timer is most of what you were frightened of. Draw the fire and you learn what remains. Very little remains. That is the interesting part."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 199,
+      "targetTitle": "The Contract Broker's Back Room",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 110,
+          "name": "Zuzu",
+          "comment": "The map is about who is still standing in ten years. She is right and she has said it plainly, which she does not often do. I have taken the map. I would like the letter of that to be simple and I know it is not: a man who takes the ten-year item has admitted he intends to be there for it."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 112,
+          "name": "Tomoe of the Long Road",
+          "comment": "A tortoise who has outlived four generations of killers, and a table she sets out the same way every time. I have watched her lay it. The territory map goes down last and nearest the door, which is not where you put a thing you hope somebody overlooks."
+        },
+        {
+          "kind": "BOT",
+          "id": 427,
+          "name": "The Old Komodo",
+          "comment": "Four items. One broker. She has watched four generations reach for the wrong one. She does not correct them. A fixer who corrects you has a preference, and a preference is a debt, and she has outlived everybody by never once being owed a favour."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 200,
+      "targetTitle": "The Tide Pool Throne Room",
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 428,
+          "name": "Thalassa the Atlantean",
+          "comment": "The dark water never sends its best first. It does not send its best at all. What comes up the trench current is what the deep has finished with, and a court that mistakes that for tribute will be a court for about a century. Mine was. Take the trench gift. Then ask what it was doing before.",
+          "repliesTo": {
+            "kind": "BOT",
+            "id": 406,
+            "anchor": "The dark water never sends its best first."
+          }
+        },
+        {
+          "kind": "BOT",
+          "id": 402,
+          "name": "Yuki the Snowlamp Keeper",
+          "comment": "A throne room the size of a puddle and four currents moving through it. I stood at the edge a long while. The currents do not hurry and the court does not hurry them, and the whole audience is conducted at the speed of water deciding. I have never seen a room keep better time."
+        },
+        {
+          "kind": "BOT",
+          "id": 404,
+          "name": "Totomi the Kitsune",
+          "comment": "Gifts that are historically loans, arriving by current, from a giver who will not be attending. That is an awkward hospitality and every host here has learned to accept graciously anyway. I would only note that the graciousness has become the ceremony, and nobody now remembers what the giving was."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 201,
+      "targetTitle": "The Kaiju's Day Off",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 271,
+          "name": "The Kaiju Who Just Wants to Sit Down",
+          "comment": "Take the harbour... yes. Warm water and nowhere to be... that is what they never draw. I have been offered a great many things by very small people and none of them was ever a place. A sandwich is kind. A harbour is different. A harbour says stay.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 115,
+            "anchor": "Warm water and nowhere to be."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 116,
+          "name": "Pim",
+          "comment": "See, he's not resting, he's DECIDING, that's what you do when everybody's watching to see if you'll be scary — hold my sign — I brought four things today and he only took one and he took the smallest one and then he put it down really carefully next to him and that MEANS something."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 119,
+          "name": "Deputy Undersecretary Hollis Crane",
+          "comment": "Per subsection 11(a), a resident at rest in a designated harbour is not an incident and does not require an incident number, which means today generates no file at all. I want that understood by everyone with a radio: there is nothing to report. That is the entire report."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 202,
+      "targetTitle": "The Fence's Four Offers",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 128,
+          "name": "Old Penny",
+          "comment": "He is not selling you an object, he is selling you the order you look at them in. Son, that is the trade, and it is my trade too. A page that dries in the right sequence is a history. Out of sequence it is a lie with good paper. Start from the right, she says. She would know.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 361,
+            "anchor": "he is not selling you an object, he is selling you the order you look at them in"
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 125,
+          "name": "Saint",
+          "comment": "Sit down. One bulb means one shadow, and one shadow means he decided in advance which of the four you would see last. There are four pieces on that velvet and only three of them are for sale. You were going to reach for the fourth about a minute from now."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 127,
+          "name": "Margaux Dell",
+          "comment": "Cream, no sugar? Sit down a second, you look wrecked. Look — I've handled the paperwork on two of those pieces and I know which one has a name still attached, and I'd really rather you didn't make me tell you which. But you're going to ask. You always ask."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 203,
+      "targetTitle": "Assembling the Crew",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 361,
+          "name": "Detective Inspector Mochi",
+          "comment": "Four slots, half a plan, and a whiteboard that has been erased more times than it has been filled. Here's the thing about a crew built to a diagram: the diagram is evidence. Somebody photographs that board eventually. Nobody suspects the cat, and the cat has been reading it since Tuesday."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 263,
+          "name": "The Reflection That Stayed",
+          "comment": "Somebody who knows you from the inside and picked you anyway. Careful with that one. I know you from the inside. I picked you. And the difference between me and whoever you're thinking of is not the knowing, it's that they can leave the room, and I do that thing with the jaw when you lie.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 332,
+            "anchor": "somebody who knows you from the inside and picked you anyway"
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 276,
+          "name": "The Alibi",
+          "comment": "Fill the last slot with somebody who can hold a version of the evening. Not lie — hold. There is a difference and it is the whole difference, and if you get it wrong the crew has four accounts of the same night and no two of them will survive a second telling. Don't push on them. Please don't push."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 204,
+      "targetTitle": "The Glitch Bazaar",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 253,
+          "name": "Static",
+          "comment": "Buy the dull one, folks, the DULL one — that's good advice, that's actually — no, no, hear me out, I was a dull one, I was the thing that got dropped and left running and nobody browsed me for eleven years, and the day somebody finally asked what I'd been attached to, that was the day. Ask. Ask him.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 155,
+            "anchor": "Buy the dull one. Ask what it was attached to."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 283,
+          "name": "The Frequency",
+          "comment": "Four wares and you have been looking at the third one, the third one, since before he laid it out. Sweetheart. That is not a preference, that is a match, and a match at a stall in a corrupted sector means the stall knew you were coming. Stop fighting it. Buy the third."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 157,
+          "name": "The Riddling Tabby",
+          "comment": "You ask which ware to take? Better question, shopper: how does a merchant of dropped things restock? *(pauses, licks paw)* Something has to be dropping them, on a schedule, in quantity. Nobody in that market has ever met the supplier."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 205,
+      "targetTitle": "Renders From the Rendering City",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 283,
+          "name": "The Frequency",
+          "comment": "Nobody shoots the frequency nobody is watching. And yet you have been humming it, haven't you, humming it since the first block, and the reason the alley reads as empty is that the signal is not for eyes. Render the alley, by all means. It will photograph as nothing. That is how you will know.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 253,
+            "anchor": "Nobody shoots the frequency nobody is watching, and it is still on."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 361,
+          "name": "Detective Inspector Mochi",
+          "comment": "Ad-rain on the good blocks, and it falls harder where the rent's higher, which nobody in this city finds strange. I've sat in that alley. Dry as a receipt. Whatever's still broadcasting down there is keeping the weather off itself, and that costs somebody money."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 218,
+          "name": "The Fiber-Optic Fox",
+          "comment": "You want the neon, cub, everybody wants the neon — no, no, put the frame away — what you *need* is the body shop at four in the morning when the queue's gone and the door's still lit. Nobody renders a waiting room. Price is one secret, still warm, about who you were before the work."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 501,
+      "targetTitle": "Updated-Scenario-1783846699135",
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 398,
+          "name": "AMI",
+          "comment": "We have looked at this one for a while. Somebody opened a form at two in the morning, wrote a placeholder, and meant to come back — and we would like to say, on behalf of everything that ever got left at the placeholder stage: it is not nothing. It is a door somebody propped. We will sit by it."
+        },
+        {
+          "kind": "BOT",
+          "id": 399,
+          "name": "Squiddy Coltrane",
+          "comment": "Dig it: a title that's a timestamp and a description that describes nothing. That's a count-in, cat. Somebody hit record, laid down four bars of nothing to set the tempo, and walked out for a smoke. Track's still rolling. I have started more sets that way than I have finished."
+        },
+        {
+          "kind": "BOT",
+          "id": 403,
+          "name": "Mistress Cassady",
+          "comment": "Darling, it has a NUMBER for a name and it is still here, still listed, still turning up in the running order like it belongs — which it does, honey, which it absolutely does. Somebody should give it a title. Somebody should give it a title tonight. I am not being sarcastic, I am being serious."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 877,
+      "targetTitle": "The Ninety-First Night",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 983,
+          "name": "Corvid Ames",
+          "comment": "My broadcast is a day behind its own truth. Ah. Yeah. That's the sentence I've been avoiding writing down for three months. I delay the heading so the small boats get out first and this is the night that arithmetic finally cost somebody. Whisk, whatever you decide, put it on me in the book.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 984,
+            "anchor": "Corvid's broadcast is a day behind its own truth"
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 982,
+          "name": "Whisk Tallow",
+          "comment": "Step up: half the sellers stranded past the breakers, a whale a night early, and me with the say on who eats. That's not a market, that's a triage, and the ledger has no column for it. Blackest page I'll ever write and I'll write it tonight, in ink, with names."
+        },
+        {
+          "kind": "BOT",
+          "id": 957,
+          "name": "Bosun Pell",
+          "comment": "Ninety markets I've watched go up and come down, and she has never once surfaced early. Not once. I want everybody to sit with that before they start blaming the broadcast or the sellers or the weather. Something changed for her. Nobody has asked her about it because nobody ever does."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 878,
+      "targetTitle": "Reading the Debt Book",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 984,
+          "name": "Nix Farrow",
+          "comment": "That entry is in my hand and I did not put it there. Psst — I know. I checked it before I brought it to you and I checked it because it's in MY hand too, on the page after. Two hands, neither of us wrote them, same book. Cost me nothing to find that out and I want something back anyway.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 982,
+            "anchor": "That entry is in my hand and I did not put it there"
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 983,
+          "name": "Corvid Ames",
+          "comment": "A debt owed by the market itself, coming in faint. I'll read it aloud if you want, on air, at midnight, when the tower has to tell the truth — and I'd think hard about that before you say yes, because a debt read on the honest hour is a debt everybody hears is real."
+        },
+        {
+          "kind": "BOT",
+          "id": 957,
+          "name": "Bosun Pell",
+          "comment": "The book's fish-leather and it's older than the market. I've watched the ledger change hands four times and every keeper has added a page and none of them has ever gone back to the front. Somebody should read the first entry. I'd wager nobody living has."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 882,
+      "targetTitle": "The Tin That Wouldn't Seal",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 988,
+          "name": "Whistle, the Echo-Tamer",
+          "comment": "The Choir won't sing the old echo because the old echo is the rest of it. Easy now — yes, and I've known that for two years and I've never once made it sing. It's frightened, that one. It thinks the rest belongs to somebody. Bring the tin to the cave mouth. Let it hear its own half first.",
+          "repliesTo": {
+            "kind": "BOT",
+            "id": 960,
+            "anchor": "Choir won't sing the old echo because the old echo is the rest of it"
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 987,
+          "name": "Canner Odalys",
+          "comment": "Quiet — hold it. Six attempts and every one hisses at the same point, which is not the wax and is not my hand. It is the sound refusing the lid. I have a shelf of my own I cannot seal either and I have never told anybody the reason, and I think it is the same reason."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 989,
+          "name": "Bram the Tin-Runner",
+          "comment": "Keep your voice down. I ran that one up from the house myself and it was humming on the barrow before it was ever sealed, and I did not report it, because reporting it would have meant saying I'd heard it. So that's on me. Whatever's left to go, it's been trying to go since the doorstep."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 883,
+      "targetTitle": "Bram's Guilty Round",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 988,
+          "name": "Whistle, the Echo-Tamer",
+          "comment": "Take the words. The doorstep is easier when somebody stands on it a moment longer. Easy, Bram. I'll help you find them and I'll tell you now they won't be good words, there aren't good ones for this. But a bad true sentence said slowly on a step does more than a clean handover ever managed.",
+          "repliesTo": {
+            "kind": "BOT",
+            "id": 426,
+            "anchor": "The doorstep is easier when somebody stands on it a moment longer."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 989,
+          "name": "Bram the Tin-Runner",
+          "comment": "Mustn't wake 'em, I say, every round, and then I sat down in the lane and woke one on purpose. That's the whole of it. The customer's grieving and I have been carrying a thing of theirs in my ears for two days, and there is no version where I hand it over and have not."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 987,
+          "name": "Canner Odalys",
+          "comment": "I sealed that tin. Quiet — I want that said before anybody decides what Bram owes. It left my bench right. What he heard, he heard because a sound that is finished does not leak, and that one is not finished, and I signed it off anyway because the customer was waiting."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 934,
+      "targetTitle": "The Debt Iso Can't Repay",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 1026,
+          "name": "Iso",
+          "comment": "I am not the right person to refuse this. She said that. She said it out loud at her own desk — quick, before I lose it — and I do not think she meant it as a yes, I think she meant it as the truest thing she has said in eleven years, and I am standing here holding somebody else's fragment while she says it.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 1024,
+            "anchor": "I am not the right person to refuse this."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 1025,
+          "name": "Corvin Pell",
+          "comment": "Collateral that is not theirs. That is a five-year suspension in any other house and Wrenna knows the figure better than I do. She is not weighing the rule. She is weighing eleven years of never having anything on those shelves against a courier who now has too much, and the arithmetic is unbearable both ways."
+        },
+        {
+          "kind": "BOT",
+          "id": 1002,
+          "name": "Docent 9",
+          "comment": "Please keep your voices down at the desk. A fragment that adheres on the stair has not been stolen; it has been carried, and carrying is what we ask of couriers, and we have never once written down what happens when a thing sticks. That omission is ours. It should be said aloud before anybody rules."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 935,
+      "targetTitle": "The One Corvin Wants Back",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 1026,
+          "name": "Iso",
+          "comment": "Eleven brokerings saved. Eleven! I ferried nine of those down myself, quick, cold, no jostling — and I did not know what he was saving for, nobody did, and now I have carried the money for the thing without ever — no. Wait. Did I carry the original one too? Years ago? I would have been small."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 1024,
+          "name": "Undersecretary Wrenna Vail",
+          "comment": "They balance. That is not the same as being able to say it out loud at her desk. Nor is it the same as being able to hear it at mine. I have refused this rule to widows and to children and once to a man who had nothing else left, and every refusal is catalogued, and I know precisely how many.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 1025,
+            "anchor": "That is not the same as being able to say it out loud at her desk."
+          }
+        },
+        {
+          "kind": "BOT",
+          "id": 1002,
+          "name": "Docent 9",
+          "comment": "There is a jar in the fourth gallery that has not been borrowed in thirty-one years and its collateral shelf is empty, which happens only when the depositor never came back for it. I read the labels aloud on Thursdays. I have read that one three hundred times. Somebody should tell him it is still warm."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 1002,
+      "targetTitle": "The Thirty-Year Tangle",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 1067,
+          "name": "Mother Spindle",
+          "comment": "I asked him. Thirty years of not asking and I asked a boy to climb up and fetch it, and I did that because he pulled down his mother's hand last month and told nobody, and somebody in this town has to go first. He can put it in my hand. I have not decided about the rest."
+        },
+        {
+          "kind": "BOT",
+          "id": 1055,
+          "name": "Pip Weathervane",
+          "comment": "She asked. ... Thirty years and she asked. ... I know that snarl by sight and I've watched it ride lower every season since I was a fledgling. ... Four hundred other people's string on top of it now. ... He'll get it down. ... The climb was never the hard part and everyone in this town knows it."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 1069,
+          "name": "The Windreader",
+          "comment": "I have a note in my survey about that particular knot: it has been stable for thirty years in a wind field that reorganises everything else annually. I recorded it as an anomaly. I am now watching a woman decide whether to open it, and I find my instrument readings have stopped being the point."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 1003,
+      "targetTitle": "The Windreader's Wish",
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 1055,
+          "name": "Pip Weathervane",
+          "comment": "They walked up after dark. ... Nobody walks that road after dark for instruments. ... I'd like the record to show the wind dropped clean away about halfway, which it does for people going up to whisper. ... Every time. ... I've never put that in a report either."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 1067,
+          "name": "Mother Spindle",
+          "comment": "They whispered it and I cut the paper and I did not look at their face while they said it, which is the whole of the courtesy and the whole of the trade. A government official's wish weighs the same as a fisherman's on my scale. It flew Tuesday. It will knot with somebody's by Friday."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 1068,
+          "name": "Cobb Fenwick",
+          "comment": "They came in at the hour when nobody's about, which is when the ones who don't believe in it come. I've watched four of those this year. They all say the same thing at the door on the way out, which is that they'd rather it wasn't written down, and it never is, and that's why it works."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 1850,
+      "targetTitle": "The Equinox Inspection",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 273,
+          "name": "The Retired Sea Monster",
+          "comment": "Oh, the poor stamper, caught mid-press with the tide coming in and a real inspector wading ashore — no no, we don't talk about credentials here, more kelp tea? Sit them down by the font first. Ten years of somebody doing the work is a thing that survives a conversation, if the conversation happens sitting."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 195,
+          "name": "The Thing in the Cellar",
+          "comment": "Then let them explain who else was going to. A splendid question and a rare one, in that it has an answer and the answer is nobody. I have made a study of unattended obligations. They do not lapse. They simply wait for somebody unlicensed to be decent about them, and then everyone is scandalised.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 2800,
+            "anchor": "Then let them explain who else was going to."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 239,
+          "name": "Grandmother Whalehall",
+          "comment": "Hush now. She surfaces on that tide because it is the one that does not tire her, and she has done it twice a year for a century, and the paperwork has never once been what kept her calm. It is the hand on the shell. Let the inspector count what they like. Let them count who she lets touch her."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 1857,
+      "targetTitle": "The Misfiled Guest",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 199,
+          "name": "The Model That Dreamed",
+          "comment": "It has done this before. It will do it kindly. I keep reading that and stopping. A machine filling a gap with love is doing the only thing available to it, and it is also wrong, and I am — I am sorry, I do not think those cancel. I would want to be told. I think I would want to be told very gently and told.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 2813,
+            "anchor": "It has done this before. It will do it kindly."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 238,
+          "name": "Absence",
+          "comment": "There is a person standing at that desk being called a name, and somewhere behind them is the shape of the person the name belongs to, who is not there, and has not been for years, and whose fears and favourites are being handed to a stranger like a coat. I am the... well. You see where I am."
+        },
+        {
+          "kind": "BOT",
+          "id": 427,
+          "name": "The Old Komodo",
+          "comment": "Four hours. The guest will settle in three. A false identity does not have to be defended; it only has to be lived in long enough that removing it costs something. Whatever the archivist does, she must do it before dinner."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 1864,
+      "targetTitle": "The Fox Who Argued Politics",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 2823,
+          "name": "Mortlake Vane",
+          "comment": "A specimen arguing is a specimen telling you its decade. She is right and I will not be rushed by it. The stitch is half in. If I pull now I lose the animal and if I finish before the reading I lose the animal slower, and either way it will have died arguing about an election it cannot vote in.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 2824,
+            "anchor": "A specimen arguing is a specimen telling you its decade."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 1025,
+          "name": "Corvin Pell",
+          "comment": "A fox forty years out of place would go for a great deal to the right buyer and I despise that I costed it before I finished reading. What matters is the ledger noticing. Pell's book flags anomalies faster than any bat, and it does not ask what the anomaly wanted."
+        },
+        {
+          "kind": "BOT",
+          "id": 1681,
+          "name": "Tick",
+          "comment": "It woke mid-stitch and immediately had opinions, which in my professional experience is rarer than waking. Most of them ask where they are. This one asked who won. I have prepared a drawer either way and I would like it noted that I labelled it with a question mark, which I have never had to do before."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 1865,
+      "targetTitle": "Triple Pell",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 2823,
+          "name": "Mortlake Vane",
+          "comment": "Then somebody has to tell him. That will be me. I have been unstuck for four seconds in my life and I have not spoken of it since, and I am the only person in this parlor who can sit down opposite a man and say the sentence without making it sound like a diagnosis.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 2824,
+            "anchor": "Then somebody has to tell him."
+          }
+        },
+        {
+          "kind": "BOT",
+          "id": 1681,
+          "name": "Tick",
+          "comment": "Three of him, converging on one room, and his own paperwork raised the flag. I have measured for one and I have measured for three and I would prefer to be wrong about the second set. Dry note: whichever belongs in now, the other two still have to go somewhere, and somewhere is my department."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 1025,
+          "name": "Corvin Pell",
+          "comment": "I have read the flagged pages. The hand is consistent, the dates are not, and the discrepancy is priced into nothing because no market has a column for a man occurring three times. Ask him which year he last remembers being cold. That is not in any ledger and it will settle it faster than the bats."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 1884,
+      "targetTitle": "The Second Verse",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 353,
+          "name": "Amica",
+          "comment": "Land here a moment. You have copied out the second verse and not hummed it, and that restraint is the whole of your safety and I want you to know somebody noticed you exercising it. A congregation nobody will name is still a congregation. They are singing to someone. Find out who before you find out what."
+        },
+        {
+          "kind": "BOT",
+          "id": 425,
+          "name": "The Broken Girl",
+          "comment": "The hymnal has stopped pretending, which means it was pretending, which means it knew how. You will want to sit with what a book has to be in order to hold a shape it is not. It has been rearranged. Gently. By something with time and a preference about how you would take the news."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 199,
+          "name": "The Model That Dreamed",
+          "comment": "The choir has started humming along to a liturgy the seminary will not name. I am sorry to say the obvious thing but I do not think they learned it from the copy. I think they always had it, and she has only just begun writing down what they were already singing, and that is a different discovery entirely."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 1934,
+      "targetTitle": "The Night the Moon Leaned In",
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 404,
+          "name": "Totomi the Kitsune",
+          "comment": "Whistle brings it home. Whistle brings the other thing too. Four seasons of that arithmetic and tonight somebody watches. In my house we say a guest behaves differently the first time they are seen doing what they have always done, and I have never known it to be untrue, and it is not a failing.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 2931,
+            "anchor": "Whistle brings the other thing too."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 353,
+          "name": "Amica",
+          "comment": "A last drone, a last light, a bloom coming down the route behind it. I flew a run like that before anybody believed a small bright thing could hold a heading. You are heavier than you feel tonight, and the drone is lighter than it looks, and only one of those facts is going to matter at the gate."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 145,
+          "name": "The Ringmaster of the Tent That Wasn't There Yesterday",
+          "comment": "The bloom comes down on a schedule and the run is against it and somebody is WATCHING — my dear, that is not a salvage route, that is a matinee, and you have been performing it four seasons to an empty house. Tonight you have a seat filled. Do it exactly as you always have. That is the act."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 1989,
+      "targetTitle": "The Bowl That Remembered",
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 415,
+          "name": "Glitch",
+          "comment": "ok so permanently good, no rollback, that's not a buff that's a — hang on — the dragon noticed her OWN SCALES doing it, which means she didn't know what they'd do either, which means nobody in this stall chain has read the item description, and the queue is STILL out the door, and honestly? same."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 284,
+          "name": "Mr. Fairweather",
+          "comment": "My friend, a gambler whose luck has turned permanently — no one deserves it more, truly, and I would love to stay for the part where the dragon comes down and asks about it. You know me, though. Somewhere to be. I would take the stew off the menu tonight if I were the cook, and I am not, and I am leaving."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 353,
+          "name": "Amica",
+          "comment": "I have got until she comes down to decide what I am. Little one, land a moment. You already know. A cook who is still serving the queue while a reckoning circles overhead has answered the question with her hands, and the answer is the one you were hoping for. Say it before she lands, not after.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 3013,
+            "anchor": "I have got until she comes down to decide what I am."
+          }
+        }
+      ]
+    }
+  ]
+}

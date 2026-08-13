@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "batch": "scenarios-877-2177",
+  "releaseGate": "GPT-5.6 Sol",
+  "draftingModel": "Claude Code",
+  "assignments": [
+    {"kind":"SCENARIO_CHARACTER","scenarioId":877,"scenarioTitle":"The Ninety-First Night","characterId":984,"characterName":"Nix Farrow","why":"the market coming up a night early is recorded in this character's own book, in a hand that is not theirs; they are inside the scenario, not adjacent to it"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":878,"scenarioTitle":"Reading the Debt Book","characterId":982,"characterName":"Whisk Tallow","why":"the debt entry is in this character's hand and they did not write it; the scenario is them being asked for a second reading"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":878,"scenarioTitle":"Reading the Debt Book","characterId":984,"characterName":"Nix Farrow","why":"the kid who wants a second pair of eyes on the ledger keeps the other book in the same market"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":934,"scenarioTitle":"The Debt Iso Can't Repay","characterId":1024,"characterName":"Undersecretary Wrenna Vail","why":"she keeps everything on those shelves and has nothing of her own there, which is why refusing this loan falls to her and why she says she is the wrong person for it"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":935,"scenarioTitle":"The One Corvin Wants Back","characterId":1025,"characterName":"Corvin Pell","why":"the scenario is named for Corvin and is his eleven brokerings against one door; he is the situation"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":935,"scenarioTitle":"The One Corvin Wants Back","characterId":1024,"characterName":"Undersecretary Wrenna Vail","why":"the rule he needs bent has never been bent for anybody, and she is the one at the desk who would have to bend it"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":1002,"scenarioTitle":"The Thirty-Year Tangle","characterId":1068,"characterName":"Cobb Fenwick","why":"thirty years of her never asking, and this scenario is the asking; he goes up, brings it down, and does not want to be standing there"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":1003,"scenarioTitle":"The Windreader's Wish","characterId":1069,"characterName":"The Windreader","why":"the scenario is named for this character and is a week of their instruments ending at a kite-maker's door after dark"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":1003,"scenarioTitle":"The Windreader's Wish","characterId":1068,"characterName":"Cobb Fenwick","why":"the workshop the Windreader walks to after dark belongs to somebody, and the two scenarios share the same Dreams"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":1850,"scenarioTitle":"The Equinox Inspection","characterId":2800,"characterName":"Bramble Osei","why":"ten years of stamps they had no right to press, and the real inspector arriving mid-stamp; the scenario has no other centre"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":1857,"scenarioTitle":"The Misfiled Guest","characterId":2813,"characterName":"Odalys Kade","why":"the guest is standing there believing a machine that loves them and this character has four hours; the clock is theirs"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":1864,"scenarioTitle":"The Fox Who Argued Politics","characterId":2824,"characterName":"Fen Corrigan","why":"a specimen waking mid-stitch and arguing an election forty years out is this character's bench and their problem"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":1865,"scenarioTitle":"Triple Pell","characterId":2824,"characterName":"Fen Corrigan","why":"dusk and dawn both, a clean chorus, and somebody who knows the bats will name which one is standing in the room"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":1865,"scenarioTitle":"Triple Pell","characterId":1025,"characterName":"Corvin Pell","why":"the scenario is three years of Pell at once and his own ledger is what flagged it; he has to be in the room saying nothing"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":1884,"scenarioTitle":"The Second Verse","characterId":2853,"characterName":"Perrin Voss","why":"they copied out the second verse and did not hum it; the hymnal has stopped pretending and they are the one holding it"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":1934,"scenarioTitle":"The Night the Moon Leaned In","characterId":2931,"characterName":"Grudge Fenrik","why":"last drone, last light, and four seasons of the same arithmetic; tonight is the night somebody watches them choose"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":1989,"scenarioTitle":"The Bowl That Remembered","characterId":3013,"characterName":"Rook Calloway","why":"the queue is out the door and they have until she comes down to decide what they are; the scenario is their deadline"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":2050,"scenarioTitle":"The Ring That Wasn't Grown Yet","characterId":3104,"characterName":"Vex Thistlewick","why":"best find of their career and worst news aboard, and the choice to rub it before the official log gets it is theirs to make"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":2095,"scenarioTitle":"What the Hull Remembers","characterId":3175,"characterName":"Coral Vey","why":"enough grafts taken to know an echo from a stubborn fact, and this scar keeps regrowing along the same seam; they are the one following it down"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":2174,"scenarioTitle":"The Unfinished Note","characterId":3291,"characterName":"Thess Marrow","why":"their mother's last note sung by the friend they were told they invented; the whole scenario is which of those two things is true"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":2175,"scenarioTitle":"The Vote That Grew Teeth","characterId":3292,"characterName":"Bailiff Ashorn","why":"they touched the ballot too and remember a third thing, which is the reason checking their own recollection twice is the scenario"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":2176,"scenarioTitle":"What's Cooking at Spur Nine","characterId":3293,"characterName":"Marlow Fenn","why":"nineteen months of zero and a silent relief kitchen; they know exactly what the quiet costs, which is why the report is theirs"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":2177,"scenarioTitle":"The Grounding Order","characterId":3294,"characterName":"Corra Finnwake","why":"grounded by a council that does not exist yet, with entry sixty-two in a logbook they did not write; the scenario is their logbook"}
+  ]
+}

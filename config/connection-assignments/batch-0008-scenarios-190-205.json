@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "batch": "scenarios-190-205",
+  "releaseGate": "GPT-5.6 Sol",
+  "draftingModel": "Claude Code",
+  "assignments": [
+    {"kind":"SCENARIO_CHARACTER","scenarioId":190,"scenarioTitle":"The Lost-and-Found of Lost Time","characterId":352,"characterName":"The Cartographer of Dreams","why":"Chrononauts; a depot for the edited-out sits at a border with nothing on the other side, which is a mapping problem"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":190,"scenarioTitle":"The Lost-and-Found of Lost Time","characterId":293,"characterName":"Nostalgia","why":"Chrononauts, and a collection of minutes and people that time shed is exactly what this character keeps"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":190,"scenarioTitle":"The Lost-and-Found of Lost Time","characterId":197,"characterName":"The Time-Office Agent","why":"Time Travel; somebody official has to have signed off on each of those edits"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":191,"scenarioTitle":"Self-Portraits by a Thing Learning to See","characterId":199,"characterName":"The Model That Dreamed","why":"Artificial Intelligence, and a newborn intelligence given a renderer and asked to depict itself is this character's first morning"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":191,"scenarioTitle":"Self-Portraits by a Thing Learning to See","characterId":329,"characterName":"The Considerate AI","why":"Artificial Intelligence; four attempts at a self-portrait need somebody in the room who will not laugh at the third one"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":191,"scenarioTitle":"Self-Portraits by a Thing Learning to See","characterId":268,"characterName":"Glitch-in-Residence","why":"Artificial Intelligence, and the interesting portrait is always the one where the rendering went wrong on purpose"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":192,"scenarioTitle":"The Onboarding Sequence","characterId":162,"characterName":"The Algorithm","why":"Artificial Intelligence; four initialization choices that run for the life of the system is what this character grew out of"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":192,"scenarioTitle":"The Onboarding Sequence","characterId":329,"characterName":"The Considerate AI","why":"Artificial Intelligence, and a first-boot setup is where being careful is still possible"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":192,"scenarioTitle":"The Onboarding Sequence","characterId":199,"characterName":"The Model That Dreamed","why":"Artificial Intelligence; a just-woken system being walked through its options has already had one preference nobody configured"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":193,"scenarioTitle":"The Villain's Lair, Open House","characterId":364,"characterName":"The Big Bad Who Lost a Bet","why":"Villain Era, and a dark lord staging the lair before selling it is precisely the indignity this character is built around"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":193,"scenarioTitle":"The Villain's Lair, Open House","characterId":148,"characterName":"Number Two","why":"Villain Era; a lair is sold or lost on whether the henchfolk quarters are decent, and this character has stood in four of them"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":193,"scenarioTitle":"The Villain's Lair, Open House","characterId":143,"characterName":"Grenidan","why":"Villain Era, and somebody has to be viewing; a buyer is as much of this scene as the seller"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":194,"scenarioTitle":"Staffing the Evil Org Chart","characterId":144,"characterName":"Vexa Thornes","why":"Villain Era; she filled four roles with applause and has been alone in a tower since, which is the lesson this scenario is offering"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":194,"scenarioTitle":"Staffing the Evil Org Chart","characterId":148,"characterName":"Number Two","why":"Villain Era, and the second chair on a dark-empire org chart is this character's entire position and grievance"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":194,"scenarioTitle":"Staffing the Evil Org Chart","characterId":248,"characterName":"The Understudy for the Final Boss","why":"Villain Era; four open roles is four people waiting to be needed, and one of them has been waiting longest"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":195,"scenarioTitle":"Backstage at the Show That Knows You","characterId":275,"characterName":"The Intermission","why":"Circus, and the wing corridor between doors is where this character lives by definition"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":195,"scenarioTitle":"Backstage at the Show That Knows You","characterId":360,"characterName":"The Encore","why":"Circus; a show that knows you is one that has already decided it is not finished with you"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":195,"scenarioTitle":"Backstage at the Show That Knows You","characterId":245,"characterName":"Mx. Eleven-Fingers","why":"Circus, and the ringmaster giving somebody the run of backstage is a thing the acts will have opinions about"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":196,"scenarioTitle":"The Greenhouse at the End of the World","characterId":249,"characterName":"Compost","why":"EcoCore; never more beautiful at the end is not irony, it is simply what a thing does, and this character says so without flinching"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":196,"scenarioTitle":"The Greenhouse at the End of the World","characterId":359,"characterName":"The Understory","why":"EcoCore, and the last greenhouse of a dying green world is mostly what grew in underneath while nobody managed it"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":196,"scenarioTitle":"The Greenhouse at the End of the World","characterId":321,"characterName":"Captain Verdance","why":"EcoCore; somebody kept this one alive to the end and that is a post, not an accident"},
+    {"kind":"SCENARIO_DREAM","scenarioId":196,"scenarioTitle":"The Greenhouse at the End of the World","dreamId":37,"dreamTitle":"The Lantern Greenhouse","why":"a warm glasshouse where brass robots tend glowing plants is what a last greenhouse becomes if somebody keeps the lanterns lit"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":197,"scenarioTitle":"What Grows From the Caretaker's Pockets","characterId":321,"characterName":"Captain Verdance","why":"EcoCore, and being named Caretaker by a living world is an appointment this character has already accepted once"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":197,"scenarioTitle":"What Grows From the Caretaker's Pockets","characterId":259,"characterName":"The Migration","why":"EcoCore; four offerings each becoming something different is departure rather than gift"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":197,"scenarioTitle":"What Grows From the Caretaker's Pockets","characterId":249,"characterName":"Compost","why":"EcoCore, and things the soil put in your pockets came from something the soil had finished with"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":198,"scenarioTitle":"The Assassin's Quiet Hour","characterId":110,"characterName":"Zuzu","why":"the scenario is four glimpses of Zuzu off-duty and Zuzu is already cast in its Dream; only the Scenario link was missing"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":198,"scenarioTitle":"The Assassin's Quiet Hour","characterId":231,"characterName":"The Eucalyptus Teahouse Master","why":"a man at a fire with nothing scheduled still ends up somewhere that serves tea; this is where he goes"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":198,"scenarioTitle":"The Assassin's Quiet Hour","characterId":113,"characterName":"The Smiling Magpie","why":"already cast in the Dream, and an hour off-duty is only private until somebody who enjoys watching turns up"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":199,"scenarioTitle":"The Contract Broker's Back Room","characterId":111,"characterName":"Old Shelba","why":"the scenario's broker is a tortoise who has outlived four generations of killers, and this is that tortoise"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":199,"scenarioTitle":"The Contract Broker's Back Room","characterId":110,"characterName":"Zuzu","why":"the scenario names the broker as Zuzu's; both are already cast in the same Dream"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":199,"scenarioTitle":"The Contract Broker's Back Room","characterId":355,"characterName":"Zuzu's Last Name","why":"four items on the green felt, and one of them is a contract with a name on it that has not been served yet"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":200,"scenarioTitle":"The Tide Pool Throne Room","characterId":227,"characterName":"The Tiny Diplomat of the Tide Pool","why":"the scenario is a summons to the deep's own court, and this character is the tide pool's diplomat; the court is theirs"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":200,"scenarioTitle":"The Tide Pool Throne Room","characterId":120,"characterName":"Maren the Anemone Heir","why":"a throne room needs an heir, and this one is written for exactly this water"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":200,"scenarioTitle":"The Tide Pool Throne Room","characterId":239,"characterName":"Grandmother Whalehall","why":"The Big Blue; four currents bearing gifts should include one from somebody old enough to be owed something"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":201,"scenarioTitle":"The Kaiju's Day Off","characterId":271,"characterName":"The Kaiju Who Just Wants to Sit Down","why":"the scenario is a colossus that only wants to exist today, which is this character's entire premise"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":201,"scenarioTitle":"The Kaiju's Day Off","characterId":331,"characterName":"The Kaiju Who Found a Valley","why":"KaijuCore, and the one who found somewhere quiet is who you would spend a day off with"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":201,"scenarioTitle":"The Kaiju's Day Off","characterId":115,"characterName":"Old Salt","why":"Kaiju; not every waking is a rampage, and somebody who has been around long enough should be the one to say so"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":201,"scenarioTitle":"The Kaiju's Day Off","characterId":116,"characterName":"Pim","why":"Kaiju, and a tiny world that keeps offering the colossus things needs somebody small doing the offering"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":202,"scenarioTitle":"The Fence's Four Offers","characterId":361,"characterName":"Detective Inspector Mochi","why":"Noir; a fence who arranges his table too neatly is selling you the order you look in, and somebody should notice that"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":202,"scenarioTitle":"The Fence's Four Offers","characterId":284,"characterName":"Mr. Fairweather","why":"crimeCore, and the best fence in the city needs a supplier who is present exactly as long as it suits him"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":202,"scenarioTitle":"The Fence's Four Offers","characterId":276,"characterName":"The Alibi","why":"crimeCore; four pieces on black velvet each came from a night somebody has an account of"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":203,"scenarioTitle":"Assembling the Crew","characterId":332,"characterName":"The Reflection That Came Back","why":"crimeCore, and the last slot should go to somebody who knows you from the inside and picked you anyway"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":203,"scenarioTitle":"Assembling the Crew","characterId":276,"characterName":"The Alibi","why":"crimeCore; a half-drawn plan needs the member whose whole contribution is where everyone will have been"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":203,"scenarioTitle":"Assembling the Crew","characterId":263,"characterName":"The Reflection That Stayed","why":"crimeCore, and a whiteboard with four slots is the moment before somebody gets left behind"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":204,"scenarioTitle":"The Glitch Bazaar","characterId":218,"characterName":"The Fiber-Optic Fox","why":"the scenario's vendor is a fox with too many tails of fiber-optic; this character is that fox"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":204,"scenarioTitle":"The Glitch Bazaar","characterId":253,"characterName":"Static","why":"FutureCore, and a market selling the things reality dropped is stocked entirely from dead channels"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":204,"scenarioTitle":"The Glitch Bazaar","characterId":160,"characterName":"Cog-7 'Rabbit'","why":"Cyberpunk; the corrupted sectors are where somebody who lives in the seams does their shopping"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":205,"scenarioTitle":"Renders From the Rendering City","characterId":253,"characterName":"Static","why":"Neon Noir; everybody photographs the ad-rain and nobody photographs the dead channel, which is where this character lives"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":205,"scenarioTitle":"Renders From the Rendering City","characterId":283,"characterName":"The Frequency","why":"FutureCore, and a metropolis caught in four moments is four signals arriving at once"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":205,"scenarioTitle":"Renders From the Rendering City","characterId":160,"characterName":"Cog-7 'Rabbit'","why":"Cyberpunk; a rooftop garden above a neon city is where somebody who tags walls goes to be unwatched"}
+  ]
+}

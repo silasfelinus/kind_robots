@@ -403,6 +403,238 @@
    "dreamId": 37,
    "dreamTitle": "The Lantern Greenhouse",
    "why": "cast in the Scenario \"The Convenience Store Loyalty Card\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 137,
+   "characterName": "Quiet Deputy Sull",
+   "dreamId": 39,
+   "dreamTitle": "Gallowsun Junction",
+   "why": "cast in the Scenario \"Wanted, Dead or Stranger\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 136,
+   "characterName": "The Iron Pacific",
+   "dreamId": 39,
+   "dreamTitle": "Gallowsun Junction",
+   "why": "cast in the Scenario \"The Crossroads Trading Post\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 134,
+   "characterName": "Reverend Two-Shadows",
+   "dreamId": 39,
+   "dreamTitle": "Gallowsun Junction",
+   "why": "cast in the Scenario \"The Crossroads Trading Post\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 984,
+   "characterName": "Nix Farrow",
+   "dreamId": 2142,
+   "dreamTitle": "The Static Lighthouse",
+   "why": "cast in the Scenario \"The Ninety-First Night\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 982,
+   "characterName": "Whisk Tallow",
+   "dreamId": 2142,
+   "dreamTitle": "The Static Lighthouse",
+   "why": "cast in the Scenario \"Reading the Debt Book\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 1024,
+   "characterName": "Undersecretary Wrenna Vail",
+   "dreamId": 2332,
+   "dreamTitle": "The Marrow Stacks",
+   "why": "cast in the Scenario \"The Debt Iso Can't Repay\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 1024,
+   "characterName": "Undersecretary Wrenna Vail",
+   "dreamId": 2331,
+   "dreamTitle": "The Molting Yard",
+   "why": "cast in the Scenario \"The Debt Iso Can't Repay\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 1025,
+   "characterName": "Corvin Pell",
+   "dreamId": 2332,
+   "dreamTitle": "The Marrow Stacks",
+   "why": "cast in the Scenario \"The One Corvin Wants Back\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 1025,
+   "characterName": "Corvin Pell",
+   "dreamId": 2331,
+   "dreamTitle": "The Molting Yard",
+   "why": "cast in the Scenario \"The One Corvin Wants Back\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 1068,
+   "characterName": "Cobb Fenwick",
+   "dreamId": 2621,
+   "dreamTitle": "The Spindle Workshop",
+   "why": "cast in the Scenario \"The Thirty-Year Tangle\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 1068,
+   "characterName": "Cobb Fenwick",
+   "dreamId": 2622,
+   "dreamTitle": "The Tangle",
+   "why": "cast in the Scenario \"The Thirty-Year Tangle\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 1069,
+   "characterName": "The Windreader",
+   "dreamId": 2621,
+   "dreamTitle": "The Spindle Workshop",
+   "why": "cast in the Scenario \"The Windreader's Wish\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 1069,
+   "characterName": "The Windreader",
+   "dreamId": 2622,
+   "dreamTitle": "The Tangle",
+   "why": "cast in the Scenario \"The Windreader's Wish\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 2800,
+   "characterName": "Bramble Osei",
+   "dreamId": 4967,
+   "dreamTitle": "The Reef Cathedral of Her Spine",
+   "why": "cast in the Scenario \"The Equinox Inspection\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 2813,
+   "characterName": "Odalys Kade",
+   "dreamId": 4993,
+   "dreamTitle": "The Card Catalog Annex",
+   "why": "cast in the Scenario \"The Misfiled Guest\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 2824,
+   "characterName": "Fen Corrigan",
+   "dreamId": 5008,
+   "dreamTitle": "The Loft Exchange",
+   "why": "cast in the Scenario \"The Fox Who Argued Politics\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 2824,
+   "characterName": "Fen Corrigan",
+   "dreamId": 5007,
+   "dreamTitle": "The Reliquary Parlor",
+   "why": "cast in the Scenario \"The Fox Who Argued Politics\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 1025,
+   "characterName": "Corvin Pell",
+   "dreamId": 5006,
+   "dreamTitle": "Stitch & Echo",
+   "why": "cast in the Scenario \"Triple Pell\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 1025,
+   "characterName": "Corvin Pell",
+   "dreamId": 5008,
+   "dreamTitle": "The Loft Exchange",
+   "why": "cast in the Scenario \"Triple Pell\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 1025,
+   "characterName": "Corvin Pell",
+   "dreamId": 5007,
+   "dreamTitle": "The Reliquary Parlor",
+   "why": "cast in the Scenario \"Triple Pell\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 2853,
+   "characterName": "Perrin Voss",
+   "dreamId": 5046,
+   "dreamTitle": "The Sunken Cantata",
+   "why": "cast in the Scenario \"The Second Verse\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 2931,
+   "characterName": "Grudge Fenrik",
+   "dreamId": 5153,
+   "dreamTitle": "The Sporeline Reclamation Yard",
+   "why": "cast in the Scenario \"The Night the Moon Leaned In\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 3013,
+   "characterName": "Rook Calloway",
+   "dreamId": 5263,
+   "dreamTitle": "Mercado de la Fortuna",
+   "why": "cast in the Scenario \"The Bowl That Remembered\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 3104,
+   "characterName": "Vex Thistlewick",
+   "dreamId": 5385,
+   "dreamTitle": "The Hollow Reliquary",
+   "why": "cast in the Scenario \"The Ring That Wasn't Grown Yet\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 3175,
+   "characterName": "Coral Vey",
+   "dreamId": 5482,
+   "dreamTitle": "The Regrowth Yards",
+   "why": "cast in the Scenario \"What the Hull Remembers\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 3291,
+   "characterName": "Thess Marrow",
+   "dreamId": 5637,
+   "dreamTitle": "The Drowned Overture",
+   "why": "cast in the Scenario \"The Unfinished Note\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 3292,
+   "characterName": "Bailiff Ashorn",
+   "dreamId": 5639,
+   "dreamTitle": "The Vinehorn Archive",
+   "why": "cast in the Scenario \"The Vote That Grew Teeth\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 3293,
+   "characterName": "Marlow Fenn",
+   "dreamId": 5641,
+   "dreamTitle": "Quarantine Spur Nine",
+   "why": "cast in the Scenario \"What's Cooking at Spur Nine\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 3294,
+   "characterName": "Corra Finnwake",
+   "dreamId": 5643,
+   "dreamTitle": "The Crystal Spire Strand",
+   "why": "cast in the Scenario \"The Grounding Order\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
   }
  ]
 }

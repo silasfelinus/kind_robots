@@ -355,23 +355,64 @@ async function main() {
       `Payload carries ${payload.length} targets; production has ${eligibleTargets.length} eligible.`,
     )
   }
+
+  // Targets are matched BY KEY, not by position.
+  //
+  // This lane originally matched by position, the way the #1769 facet lane does,
+  // and the first production dry run rejected the whole corpus for it: the
+  // packets were written against 496 eligible targets and production had grown
+  // to 505 by the time it ran. The daily dream cycle adds objects every day, so
+  // that will keep happening.
+  //
+  // Position matching is not merely inconvenient here, it is dangerous. The
+  // order is type rank then numeric id, so nine new Characters do not append at
+  // the end -- they push every Dream, Scenario and Project down by nine, and a
+  // payload applied by position would attach each of those comments to a
+  // different object, all of them plausible and all of them wrong.
+  //
+  // The key is already in every packet item and every id is re-checked against
+  // live rows below, so keying loses no safety. It gains the property that
+  // matters for a catalog somebody is still adding to: a target the corpus has
+  // never heard of is simply undrafted, rather than an off-by-nine.
+  const eligibleByKey = new Map(
+    eligibleTargets.map((target) => [
+      populationTargetKey(target.type, target.id),
+      target,
+    ]),
+  )
+  const seenKeys = new Set<string>()
+  const publishTargets: typeof eligibleTargets = []
+
+  for (const [index, item] of payload.entries()) {
+    const target = eligibleByKey.get(item.key)
+    if (!target) {
+      throw new Error(
+        `Payload[${index}] targets ${item.key}, which is not an eligible production row (missing, private, or reviews-off).`,
+      )
+    }
+    if (seenKeys.has(item.key)) {
+      throw new Error(`Payload[${index}]: ${item.key} appears twice.`)
+    }
+    seenKeys.add(item.key)
+    publishTargets.push(target)
+  }
+
   if (eligibleDeclared !== null && eligibleDeclared !== eligibleTargets.length) {
-    throw new Error(
-      `Packets were written against ${eligibleDeclared} eligible targets; production now has ${eligibleTargets.length}. The list moved -- re-export before publishing.`,
+    console.log(
+      'POPULATION_LIST_GREW',
+      JSON.stringify({
+        writtenAgainst: eligibleDeclared,
+        productionNow: eligibleTargets.length,
+        note: 'matched by key, so the new rows are simply undrafted',
+      }),
     )
   }
 
-  const publishTargets = eligibleTargets.slice(0, payload.length)
   const authored = new Map<string, string[]>()
 
   for (const [index, target] of publishTargets.entries()) {
-    const item = payload[index]
+    const item = payload[index]!
     const key = populationTargetKey(target.type, target.id)
-    if (!item || item.key !== key) {
-      throw new Error(
-        `Payload order drift at ${index}: expected ${key}, got ${item?.key || 'missing'}.`,
-      )
-    }
 
     const shape = populationShapeFor(target.type)
     if (item.shape !== shape) {

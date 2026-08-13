@@ -1,0 +1,129 @@
+name: Apply Storybook t-010 opening rollback patch
+
+on:
+  push:
+    branches:
+      - worker/storybook-t010-seed-notice-20260813-8af3
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: worker/storybook-t010-seed-notice-20260813-8af3
+          fetch-depth: 0
+
+      - name: Apply bounded Storybook opening rollback
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          store_path = Path('stores/storybookStore.ts')
+          store = store_path.read_text()
+          old = '''  async function beginStory(input: StorybookStartInput): Promise<boolean> {
+            if (!input.premise.trim() || isWeaving.value) return false
+            const createdAt = nowIso()
+            const bible = buildBible(input)
+            session.value = {
+              id: makeId(),
+              userId: userStore.authenticatedUserId,
+              bible,
+              beats: [],
+              branchHistory: [],
+              consequences: [],
+              inventory: [],
+              stateVersion: 1,
+              status: 'active',
+              createdAt,
+              updatedAt: createdAt,
+            }
+            persist()
+
+            return weaveBeat(
+              `${PERSONA}\\n\\nSTORY BIBLE\\n${biblePrompt(bible)}\\n\\nWrite the opening scene. Establish an immediate image, introduce the most relevant cast member or force, and end with one consequential question.`,
+            )
+          }
+          '''
+          new = '''  async function beginStory(input: StorybookStartInput): Promise<boolean> {
+            if (!input.premise.trim() || isWeaving.value) return false
+            const createdAt = nowIso()
+            const bible = buildBible(input)
+            session.value = {
+              id: makeId(),
+              userId: userStore.authenticatedUserId,
+              bible,
+              beats: [],
+              branchHistory: [],
+              consequences: [],
+              inventory: [],
+              stateVersion: 1,
+              status: 'active',
+              createdAt,
+              updatedAt: createdAt,
+            }
+            persist()
+
+            const openingWove = await weaveBeat(
+              `${PERSONA}\\n\\nSTORY BIBLE\\n${biblePrompt(bible)}\\n\\nWrite the opening scene. Establish an immediate image, introduce the most relevant cast member or force, and end with one consequential question.`,
+            )
+            if (!openingWove) {
+              // Keep the setup draft and generation error visible so the reader can
+              // retry instead of being stranded inside an empty active session.
+              session.value = null
+              persist()
+            }
+            return openingWove
+          }
+          '''
+          if old not in store:
+              raise SystemExit('expected beginStory block not found; refusing to patch')
+          store_path.write_text(store.replace(old, new, 1))
+
+          contract_path = Path('utils/scripts/verifyStorybookStudio.mjs')
+          contract = contract_path.read_text()
+          needle = '''assert.ok(
+            !store.includes('useConductorStore'),
+            'Storybook store must not treat roadmap tasks as story state',
+          )
+
+          '''
+          addition = '''assert.ok(
+            !store.includes('useConductorStore'),
+            'Storybook store must not treat roadmap tasks as story state',
+          )
+
+          const beginStoryBlock = store.slice(
+            store.indexOf('async function beginStory'),
+            store.indexOf('async function answerCurrentBeat'),
+          )
+          includesAll(storePath, ['const openingWove = await weaveBeat'])
+          assert.match(
+            beginStoryBlock,
+            /if \(!openingWove\)[\\s\\S]*session\\.value = null[\\s\\S]*persist\\(\\)[\\s\\S]*return openingWove/,
+            'Storybook must roll back a failed opening beat so setup remains retryable',
+          )
+
+          '''
+          if needle not in contract:
+              raise SystemExit('expected Storybook contract anchor not found; refusing to patch')
+          contract_path.write_text(contract.replace(needle, addition, 1))
+          PY
+
+          rm .github/workflows/worker-storybook-t010-patch.yml
+          git diff --check
+          node utils/scripts/verifyStorybookStudio.mjs
+
+      - name: Commit bounded patch
+        shell: bash
+        run: |
+          git config user.name "Conductor Worker"
+          git config user.email "actions@users.noreply.github.com"
+          git add stores/storybookStore.ts utils/scripts/verifyStorybookStudio.mjs .github/workflows/worker-storybook-t010-patch.yml
+          git diff --cached --exit-code && exit 1 || true
+          git commit -m "fix: rollback failed Storybook opening"
+          git push origin HEAD:worker/storybook-t010-seed-notice-20260813-8af3

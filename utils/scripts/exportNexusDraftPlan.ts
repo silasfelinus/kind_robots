@@ -32,7 +32,10 @@
 // character in thirty reads as the only character.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
-import { rankCommentSpeakers } from './../../utils/comments/commentCasting'
+import {
+  rankCommentSpeakers,
+  type CommentSpeakerCandidate,
+} from './../../utils/comments/commentCasting'
 import { scoreSpeakerPool } from './../../utils/comments/commentSignals'
 import {
   buildVoiceEvidenceIndex,
@@ -103,7 +106,7 @@ const get = createFetcher(baseUrl)
  * already chosen are removed and the ranker is called again. Same weights, same
  * reasons, same order it would have produced with a larger limit.
  */
-function rankMany<T extends { kind: 'BOT' | 'CHARACTER'; id: number }>(
+function rankMany<T extends CommentSpeakerCandidate>(
   profile: Parameters<typeof rankCommentSpeakers>[0],
   candidates: T[],
   want: number,
@@ -115,7 +118,7 @@ function rankMany<T extends { kind: 'BOT' | 'CHARACTER'; id: number }>(
     if (!remaining.length) break
     const round = rankCommentSpeakers(
       profile,
-      remaining as Parameters<typeof rankCommentSpeakers>[1],
+      remaining,
       Math.min(3, want - out.length),
     )
     if (!round.length) break

@@ -35,9 +35,29 @@ CI or production jobs that execute migrations must provide `MIGRATION_DATABASE_U
 
 ### Applying migrations on deploy
 
-`docker-compose.yml` defines a one-shot `migrate` service that runs `node scripts/prisma-migrate-deploy.mjs` and exits. The app declares `depends_on: migrate: condition: service_completed_successfully`, so `docker compose up -d` migrates first and the app never starts against a schema that was not applied. `migrate deploy` applies pending migrations only — it never resets, drops, or generates, and re-running it is a no-op.
+**Production is Unraid, and Unraid's Force Update does not migrate.** The site is served by the `KindRobots` container, created from an Unraid Docker template and running `ghcr.io/silasfelinus/kind_robots:latest`. Updating it means Force Update in the Unraid UI, which pulls the image and recreates the container. Nothing in that path runs a migration, so it has to be done alongside.
 
-Set `MIGRATION_DATABASE_URL` to the `kindrobot_migrate` credential in the deploying shell or in the compose `.env`. It is deliberately **not** read from the application env file, and compose fails loudly if it is unset: a deploy that cannot migrate should stop rather than quietly serve old schema.
+Migrate from the image you are about to serve, then Force Update:
+
+```bash
+docker pull ghcr.io/silasfelinus/kind_robots:latest
+
+docker run --rm --network cafepurr \
+  --env-file /mnt/user/appdata/kind_robots/.env \
+  -e MIGRATION_DATABASE_URL='<kindrobot_migrate URL>' \
+  ghcr.io/silasfelinus/kind_robots:latest \
+  node scripts/prisma-migrate-deploy.mjs
+```
+
+Pull first. Migrating from `:latest` and then Force Updating to `:latest` is what keeps the schema and the code that will serve it the same build.
+
+`migrate deploy` applies pending migrations only — it never resets, drops, or generates, and re-running it is a no-op, so it is safe to run before every update whether or not anything is pending.
+
+#### Do not use docker compose on Alexandria
+
+`docker-compose.yml` also defines a one-shot `migrate` service the app is gated behind, and that gate is real — but it only fires on `docker compose up`, which is **not** how this host deploys. Running compose there creates a second container that fights `KindRobots` for port 3009 and fails to bind. The compose path is for development and for any host that does deploy that way; on Alexandria, use the two steps above.
+
+Set `MIGRATION_DATABASE_URL` to the `kindrobot_migrate` credential in the deploying shell. It is deliberately **not** read from the application env file.
 
 This keeps the boundary rather than bending it. The rule is that schema-write capability must not sit in the *long-running* application container; a container whose entire lifetime is the migration is the same shape as a CI job. Do not move `MIGRATION_DATABASE_URL` into the `kind-robots` service to simplify the file — that hands a permanently-running web process the ability to drop tables, and `utils/scripts/verifyMigrateOnDeploy.ts` fails the build if you do.
 

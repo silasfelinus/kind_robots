@@ -174,8 +174,8 @@ async function main() {
 
         if (words < 4 || words > 120) flag(`${where} ${sKey}`, `${words} words`)
         if (text.length > 1200) flag(`${where} ${sKey}`, 'over 1200 characters')
-        const banned = text.match(BANNED)
-        if (banned) flag(`${where} ${sKey}`, `banned vocabulary "${banned[0]}"`)
+        const banned = text.match(BANNED)?.[0]
+        if (banned) flag(`${where} ${sKey}`, `banned vocabulary "${banned}"`)
 
         for (const sample of voiceIndex.get(sKey)?.samples || []) {
           const overlap = sharedShingle(text, sample.text)

@@ -178,8 +178,10 @@ async function main() {
       const words = comment.split(/\s+/).filter(Boolean).length
       if (words < 4 || words > 120) throw new Error(`${key}/${speakerKey}: ${words} words.`)
       if (comment.length > 1200) throw new Error(`${key}/${speakerKey}: over 1200 chars.`)
-      const banned = comment.match(BANNED_REVIEW_LANGUAGE)
-      if (banned) throw new Error(`${key}/${speakerKey}: banned vocabulary "${banned[0]}".`)
+      const banned = comment.match(BANNED_REVIEW_LANGUAGE)?.[0]
+      if (banned) {
+        throw new Error(`${key}/${speakerKey}: banned vocabulary "${banned}".`)
+      }
     }
   }
 

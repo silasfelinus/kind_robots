@@ -85,6 +85,8 @@ type Packet = {
   items: PacketItem[]
 }
 
+const DRY_RUN = process.argv.includes('--dry-run')
+
 const root = process.cwd()
 const draftsDir = join(root, 'config', 'population-comment-drafts')
 const voiceIndex = buildVoiceEvidenceIndex(archivedVoiceRecords)
@@ -417,6 +419,28 @@ async function main() {
       publisher,
     }),
   )
+
+  // Every check above reads production and writes nothing, so a dry run is the
+  // real pre-flight rather than a simulation of one: it proves the packets agree
+  // with live state, then stops on the line before the first insert.
+  if (DRY_RUN) {
+    const wouldPublish = publishTargets.filter(
+      (target) => !existing.has(populationTargetKey(target.type, target.id)),
+    )
+    console.log(
+      'POPULATION_DRY_RUN',
+      JSON.stringify({
+        validated: publishTargets.length,
+        wouldPublishTargets: wouldPublish.length,
+        wouldPublishComments: wouldPublish.reduce((sum, target) => {
+          const index = publishTargets.indexOf(target)
+          return sum + (payload[index]?.speakers.length || 0)
+        }, 0),
+        wouldSkipTargets: publishTargets.length - wouldPublish.length,
+      }),
+    )
+    return
+  }
 
   let publishedTargets = 0
   let publishedComments = 0

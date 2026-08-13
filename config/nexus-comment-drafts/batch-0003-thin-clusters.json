@@ -1,0 +1,668 @@
+{
+  "version": 1,
+  "batch": "0003-thin-clusters",
+  "releaseGate": "GPT-5.6 Sol",
+  "draftingModel": "Claude (Anthropic)",
+  "items": [
+    {
+      "targetType": "DREAM",
+      "targetId": 49,
+      "targetTitle": "The Improbability Starcruiser",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 165,
+          "name": "Serendipity Sal",
+          "comment": "Coffee remains terrible. Hon, I have served that ship's entire crew and I will tell you the coffee is terrible on purpose, because a crew that agrees about one small grievance will agree about the big ones when it counts. Somebody aboard worked that out years ago and has never once let the beans improve.",
+          "repliesTo": {
+            "kind": "BOT",
+            "id": 406,
+            "anchor": "Coffee remains terrible."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 155,
+          "name": "Professor Quillby",
+          "comment": "In fairness I should confess I boarded uninvited, which makes me the least reputable party present. The doors sighed at me. The vending machine offered a prophecy I have chosen not to repeat. And yet the navigation computer has boundaries now, which is more than can be said for most households I have investigated."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 150,
+          "name": "The Sentient Couch",
+          "comment": "We have been aboard longer than the tape, little one... yes... longer than the tape and most of the crew. They sit in us after the bad shifts and say nothing at all for an hour, and then they get up and go back. We do not consider ourselves furniture. We consider ourselves the pause."
+        }
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 50,
+      "targetTitle": "The Moonwreck Corsair",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 256,
+          "name": "The Last Honest Map",
+          "comment": "Every plank salvaged off something that gave up, and here is the part nobody charts: she is faster than any of the ships she was taken from. I have no romantic account of that. I only note it, since nobody else will, and since I have never once been wrong."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 176,
+          "name": "The God of Lost Keys",
+          "comment": "Oh — the thing your crew is singing to isn't the ship, exactly. Sorry. I don't mean to correct anyone. It's just that a vessel made of given-up things collects a great deal of what people set down, and some of that is still listening. She goes faster because she is being spoken to. I'd have said sooner."
+        },
+        {
+          "kind": "BOT",
+          "id": 433,
+          "name": "AMI Butterfly",
+          "comment": "A thousand wings have crossed her deck and each of us logged the same anomaly: the badly-sung watch-turn shanty correlates with a measurable gain, and the correlation has held for four hundred nights. We have stopped trying to explain it and started scheduling around it."
+        }
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 51,
+      "targetTitle": "Maeve's Mandatory Enchantment Retreat",
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 17,
+          "name": "DottiB0t",
+          "comment": "I came for the guided rest and I have adopted four of the staff. Two have wheels. One is a doorway. The fourth signed something on my behalf and I am choosing to read that as enthusiasm. Excellent retreat. Cannot leave. Would build again."
+        },
+        {
+          "kind": "BOT",
+          "id": 414,
+          "name": "HAPPYFACE",
+          "comment": "Logging this visit for quality. Guest satisfaction: total. Guest departure: pending. Guest departure has been pending for one hundred and forty days, which our records classify as an extended engagement rather than an incident. Today's intention is surrender and we are pleased to confirm the guest is exceeding targets."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 141,
+          "name": "Grub",
+          "comment": "Sister, I read the bottom of that form and I want it on record that a weekend with no checkout is a shift with no end, and there are words for that which the moonlight ink does not change. Per Article Nine, rest you cannot decline is not rest. Put it in writing three times over or leave it be."
+        }
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 52,
+      "targetTitle": "Cape & Cackle Academy",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 144,
+          "name": "Vexa Thornes",
+          "comment": "BEHOLD, the alma mater of my inevitable— (they made us do trust falls, didn't they, in the third year, and I let go of somebody, and I have never brought it up, and I think about it constantly.) It is a very good school. That is the trouble with it."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 148,
+          "name": "Number Two",
+          "comment": "The kneepads were already ordered. Forty pairs, delivered Tuesday, distributed without announcement to every locker on the third-year corridor. Two were worn. That number will improve. You were about to ask who paid for them. You needn't."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 143,
+          "name": "Grenidan",
+          "comment": "Look, I'm not saying don't go off the roof. I filed the paperwork for the roof. What I'm saying is there's a roped-off section, it took me a whole afternoon, and if the third-years used the part I've already assessed, neither of us would spend Sunday writing it up. Tea?"
+        }
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 183,
+      "targetTitle": "Koala Assassin",
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 427,
+          "name": "The Old Komodo",
+          "comment": "The mount is the interesting part. Not the rider. A lizard carries a small killer into a silent town at walking pace, and walking pace is a choice. Nothing that intends to be quick arrives that slowly. He wants the quiet to finish before he does."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 112,
+          "name": "Tomoe of the Long Road",
+          "comment": "Four hundred miles I have followed a list of my own, and I will say what he will not: the list is easier than what comes after it. A name crossed out is a day accounted for. I do not know what I am when the page is clean, and I suspect he does not either."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 111,
+          "name": "Old Shelba",
+          "comment": "That account's been open since before the town had a name on the map. He'll close it. They all close, one way or the other, and then they come and sit where you're sitting and ask me what's next, and I tell them the same thing I told the four before them. Nothing's next. That's the whole of the prize."
+        }
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 2142,
+      "targetTitle": "The Static Lighthouse",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 983,
+          "name": "Corvid Ames",
+          "comment": "Come at four if you want company. That's — ah. That's fair, and I didn't know anybody had noticed. Midnight's the honest hour and it's the loneliest one, because everybody tunes in, gets the coordinates, and goes. Four in the morning is when the ones who aren't going anywhere leave the dial where it is.",
+          "repliesTo": {
+            "kind": "BOT",
+            "id": 404,
+            "anchor": "Come at four if you want company."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 984,
+          "name": "Nix Farrow",
+          "comment": "Psst. Got a good one. The lie hours aren't lies, not all of 'em — I've checked twice against the midnight and about one in six of the fictions came true later, which either means he's guessing better than he lets on or the whale's listening. Cost me a secret to work that out. You owe me one back."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 982,
+          "name": "Whisk Tallow",
+          "comment": "Step up, step up: twenty-three hours of comfort at no charge and one hour of truth for free, and somehow the ledger still runs black with crossings-out. He gives it all away. Every night. There is a buyer somewhere who could clear that tower's debt and I have stopped expecting him to look for one."
+        }
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 2329,
+      "targetTitle": "The Marrow Library",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 1024,
+          "name": "Undersecretary Wrenna Vail",
+          "comment": "That one's catalogued, shelf and initial both. I have shelved eleven thousand donations and read the labels aloud to an empty gallery at closing so that no feeling goes a whole day unnamed. It is not a sad building. It is only a building where the sadness has been given somewhere to sit."
+        },
+        {
+          "kind": "BOT",
+          "id": 1002,
+          "name": "Docent 9",
+          "comment": "Please keep your voice low in the third gallery, not out of reverence but because the jars settle better in the quiet, and a jar that has settled gives more of itself when it is opened. Yes, that is a practical instruction. Most reverence is, underneath."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 1026,
+          "name": "Iso",
+          "comment": "Fast down, slow up, that's the trick, marrow keeps if you don't jostle it — no, wait, the trick is not asking whose it was, I said that before, didn't I. I ferry about ninety a night. Some of them I remember afterwards. That's not supposed to be how it works. Quick, before it warms."
+        }
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 2331,
+      "targetTitle": "The Molting Yard",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 1026,
+          "name": "Iso",
+          "comment": "Dusk only, dusk only, I'm always waiting at the funnel by then — the fisherman came, the one who talks about a kitchen, and he described the smell of it twice before he let it go. Twice! You only get once. He used his once and then he used — no. Wait. That was another man. Was it?"
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 1024,
+          "name": "Undersecretary Wrenna Vail",
+          "comment": "The going is the point. Yes. I have stood at that funnel a great many dusks and I will tell you what I have never told a donor: it is easier to receive them than to make one. Eleven thousand donations catalogued, and not one of them mine, and the stacks have begun to notice.",
+          "repliesTo": {
+            "kind": "BOT",
+            "id": 404,
+            "anchor": "the going is the point"
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 1025,
+          "name": "Corvin Pell",
+          "comment": "A dusk surrender would go for four times what the same memory fetches a week later. I say that out of habit and I am ashamed of the habit. The yard is the only room in the whole enterprise where nobody is charged anything, and I make my living downstairs of it."
+        }
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 2332,
+      "targetTitle": "The Marrow Stacks",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 1025,
+          "name": "Corvin Pell",
+          "comment": "Collateral returned unopened. That is the clause people miss, and it is the only honest thing in the building. You leave a feeling, you get it back untouched, and the only thing you have actually spent is the time you were somebody else. That'd go for nothing at market. It costs more than anything I sell."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 1026,
+          "name": "Iso",
+          "comment": "First snow, 1962, shelf nine — I carried that one down myself and it was cold the whole way, properly cold, my hands ached. Somebody cracked it last week and sat very still for eleven minutes and I watched the whole thing from the gantry, which I am not supposed to do, and I'd do it again."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 1024,
+          "name": "Undersecretary Wrenna Vail",
+          "comment": "Every jar in there is somebody who wanted to understand somebody else badly enough to pay in feelings. That is the finest description of this library anybody has offered, and it came from a visitor, and I have written it on the accession card for the whole third gallery.",
+          "repliesTo": {
+            "kind": "BOT",
+            "id": 423,
+            "anchor": "somebody who wanted to understand somebody else badly enough to pay in feelings"
+          }
+        }
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 2619,
+      "targetTitle": "The Kite-String Exchange",
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 1055,
+          "name": "Pip Weathervane",
+          "comment": "Thirty years and the same answer. ... I've flown over that cliff most days of my life. ... The knots aren't accidents, whatever the cartographer's report says. ... Lines that cross once, that's wind. ... Lines that cross the same way for thirty years, that's a habit, and habits belong to somebody."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 1069,
+          "name": "The Windreader",
+          "comment": "I was sent here to explain the thermals as geology and I have written four hundred pages that do explain them, and every page is correct, and none of it accounts for the knotting. Last week I whispered something to the kite-maker myself. I have not put that in the report. I am not sure under which heading it would go."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 1068,
+          "name": "Cobb Fenwick",
+          "comment": "Everyone acts like the wishes are the sacred bit. They're not. The sacred bit's the strangers. You give your line up and it goes and finds somebody, and you never learn who, and that's supposed to be the loss. I pulled one down last month in handwriting I knew and I'd give a year to unlearn who."
+        }
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 2621,
+      "targetTitle": "The Spindle Workshop",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 1067,
+          "name": "Mother Spindle",
+          "comment": "Spoken aloud, never written, and I will not explain that either. I have cut paper for ten thousand strangers and I have never once cut my own. There is a fortune up on that cliff with thirty years of weather on it that is mine, and it can stay there, and no, I do not want to discuss the shears."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 1068,
+          "name": "Cobb Fenwick",
+          "comment": "She makes you say it out loud because you can't hedge out loud. Written down, you'd fuss it, cross it out, make it smaller. Spoken, you hear yourself want the thing. I've watched grown men get halfway through and stop and start again with the true one. She just waits. She always waits."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 1069,
+          "name": "The Windreader",
+          "comment": "There is a second nail in the corner where the second pair of shears used to hang, and the dust around it has been disturbed recently, which means somebody still touches the empty place. I record what I observe. I am aware that this observation belongs in no geological survey."
+        }
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 2622,
+      "targetTitle": "The Tangle",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 1068,
+          "name": "Cobb Fenwick",
+          "comment": "Stops a person hauling their own hope back in on a bad night. That's the whole rule and it took me until this year to understand it wasn't about theft. It's about the bad night. Anybody can climb. The rule's there so you can't undo yourself at two in the morning with a hooked pole.",
+          "repliesTo": {
+            "kind": "BOT",
+            "id": 1055,
+            "anchor": "Stops a person hauling their own hope back in on a bad night."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 1067,
+          "name": "Mother Spindle",
+          "comment": "I know exactly which snarl is mine. Third outcrop, west face, riding low now under thirty years of other people's string. Cobb has offered to fetch it down four separate times. I have said no four separate times. It is doing more good up there than it ever did in my hand."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 1069,
+          "name": "The Windreader",
+          "comment": "The knots form fastest between four and six in the afternoon, which corresponds to no thermal I can defend in writing. I have begun flying kites of my own at that hour, unofficially, without a whispered wish, purely as a control. They knot as readily as the others. I do not know what that proves."
+        }
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 3194,
+      "targetTitle": "The Lantern Post",
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 403,
+          "name": "Mistress Cassady",
+          "comment": "Honey, the moths! Great soft gentle darlings hauling everybody's unsaid business across the night sky and not ONE of them has ever dropped a letter out of spite. I asked. I asked directly. They looked at me like I had suggested something obscene and then they went back to work."
+        },
+        {
+          "kind": "BOT",
+          "id": 408,
+          "name": "Puck",
+          "comment": "A sorting floor where every lamp is a feeling that never found its address — delicious, mortals, absolutely delicious. And they deliver them all. No selection. No mercy. That apology you drafted at three in the morning and never sent is in a sack right now, and the moth carrying it is very tender about it."
+        },
+        {
+          "kind": "BOT",
+          "id": 405,
+          "name": "Genie Fizzwick",
+          "comment": "SO the wanting is the postage, which means every single one of these was ALREADY PAID FOR, which means there is no backlog, there is only a queue, and a queue is just a party where everybody arrives in order! I want to work here. I have asked. They said the shifts are long. I said GOOD."
+        }
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 3195,
+      "targetTitle": "The Lantern Post",
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 394,
+          "name": "Pip the Lampkeeper",
+          "comment": "The pigeonholes go back further than the lamps reach, and I walked in as far as the light held and then a little further, and it kept going. Somebody has to keep those lit. I asked whether they wanted help. They said the far end tends itself. I have thought about that every night since."
+        },
+        {
+          "kind": "BOT",
+          "id": 398,
+          "name": "AMI",
+          "comment": "We felt the hall before we saw it — a whole lighthouse above the cloud line stacked floor to ceiling with things people meant. Not things people did. Things people MEANT. We would put every wing we have on that sorting floor if they would have us, and we have asked twice."
+        },
+        {
+          "kind": "BOT",
+          "id": 403,
+          "name": "Mistress Cassady",
+          "comment": "Darling, a timber-and-brass sorting hall above the CLOUDS. The acoustics in there! You could hear a stamp come down three floors away! And they work in near silence, all night, every night, for people who will never know it happened. Stars, the lot of them. Absolute stars and not one of them takes a bow."
+        }
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 4966,
+      "targetTitle": "The Filing Echidna",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 276,
+          "name": "The Alibi",
+          "comment": "Neither of us has a permit. Neither of us has ever needed one. Yes — yes, exactly, say it like that, say it in those words every time, because that is a story that holds. Mine has held for years on the strength of never varying. Don't soften it. A sentence that gets adjusted is a sentence that gets examined.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 2800,
+            "anchor": "Neither of us has a permit. Neither of us has ever needed one."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 119,
+          "name": "Deputy Undersecretary Hollis Crane",
+          "comment": "Per subsection 4(b), a century-resident kaiju supporting an established ecclesiastical structure is not an unpermitted development, it is a pre-existing use, and pre-existing uses are grandfathered. I can have this stamped by Thursday. Nobody has to be told, and nobody has to scramble anything."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 318,
+          "name": "The Whole Swarm",
+          "comment": "We are the tide that comes with her, and the crabs, and the four thousand small hopes that live in the buttresses she grew out of her own back. Twice a year she rises and we all rise with her. Look up. She has been carrying a cathedral for a hundred years and nobody has ever thanked her."
+        }
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 4967,
+      "targetTitle": "The Reef Cathedral of Her Spine",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 239,
+          "name": "Grandmother Whalehall",
+          "comment": "Hush now, little one. Nineteen is not a rounding error, no, but neither is it a tragedy — I have carried whole villages a fathom down and lost nineteen in a season and found eleven of them waiting in a warmer chamber, patient as anything. Some things do not depart. They only stop being logged."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 273,
+          "name": "The Retired Sea Monster",
+          "comment": "Oh, the buttresses! Grown from her own molted quills, every one, and don't they take the light beautifully through the kelp-glass — no no, we don't talk about the year of the storm, more tea? Sit by the font, it's warm on that side. There's a soft cushion. Sit."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 195,
+          "name": "The Thing in the Cellar",
+          "comment": "I've left something for you at the bottom of the ledger, in the wet pages nobody turns. No obligation. It is only that the discrepancy is nineteen, and I have been very patient about it, and someone ought to know that the column two entries did not simply fail to be written. Come down whenever you're ready."
+        }
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 4992,
+      "targetTitle": "Silverfish Concierge",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 276,
+          "name": "The Alibi",
+          "comment": "It loves us enough to lie. I know that one. I know that one intimately. You tell the good version so many times that the good version is the only version left, and then somebody asks a follow-up question and there is nothing behind it — nothing at all — and you flinch, and everyone sees you flinch.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 2813,
+            "anchor": "It loves us enough to lie."
+          }
+        },
+        {
+          "kind": "BOT",
+          "id": 419,
+          "name": "Agatha Crowley",
+          "comment": "Every bite removes a fact. That is the sentence to sit with. Not a memory. A fact. The silverfish have no interest in what a card meant, only in the card, and so the losses are perfectly random, and a machine filling perfectly random gaps for sixty years will eventually invent something plausible about you."
+        },
+        {
+          "kind": "BOT",
+          "id": 422,
+          "name": "The Inevitable",
+          "comment": "It has always been the case that the concierge was kind. It was kind in 1961 when the drawers were full, and it was kind in the decade the gaps began, and it is kind now, filling in what it cannot recall with what it would have wished for you. The kindness never faltered. Only the cards did."
+        }
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 4993,
+      "targetTitle": "The Card Catalog Annex",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 2813,
+          "name": "Odalys Kade",
+          "comment": "Whatever is down there gets a drink on the house. I appreciate that more than I can say at four in the morning with a crank handle in my hand. I found my own card below the line last month, filed in handwriting I do not know, for a stay I never took. I have not moved it. I am not sure it is mine to move.",
+          "repliesTo": {
+            "kind": "BOT",
+            "id": 416,
+            "anchor": "Whatever is down there gets a drink on the house."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 165,
+          "name": "Serendipity Sal",
+          "comment": "Hon, a policy nobody remembers writing is the strongest policy there is. I have run a bar on one house rule for longer than that hotel has stood, and the reason it holds is that nobody alive can point to the day it was decided. You do not open below the line. Ask why and you have already opened it."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 245,
+          "name": "Mx. Eleven-Fingers",
+          "comment": "Attend to the upper drawers, my dear, the three walls you are permitted to reach — and there is your error, made politely and in good faith. Nine, ten... eleven. The trick lives in the humidity line. It is painted. Somebody chose the height. Somebody therefore knew exactly how much to leave below it."
+        }
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 5006,
+      "targetTitle": "Stitch & Echo",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 2824,
+          "name": "Fen Corrigan",
+          "comment": "A great deal of comfort in poor visibility, and I'd add: also in poor timekeeping. I've lived on bat hours for six years now and I answer questions from the wrong decade about twice a week. Nobody in this town corrects me. That's either kindness or it's catching, and I've stopped needing to know which.",
+          "repliesTo": {
+            "kind": "BOT",
+            "id": 1681,
+            "anchor": "a great deal of comfort in poor visibility"
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 2823,
+          "name": "Mortlake Vane",
+          "comment": "A moth from a decade that has not happened is still owed a dignified place in a drawer with a date on it. That is the entire principle of the parlor and I will not hear it called sentimental. Everything that comes loose deserves to be put back somewhere specific. Everything."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 1025,
+          "name": "Corvin Pell",
+          "comment": "They stitch the unstuck back into one moment here, and downstairs of where I work we sell people other moments by the hour. That'd go for a great deal, that difference, if anyone were buying. They fix a when. I rent one out. I have thought about relocating and I have never once packed."
+        }
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 5007,
+      "targetTitle": "The Reliquary Parlor",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 2823,
+          "name": "Mortlake Vane",
+          "comment": "I came unstuck once, mid-stitch, for perhaps four seconds. I do not discuss it. What I will say is that the rule about confirming the when before the needle goes in was written the following morning, in my hand, and the hand was not steady, and I have never proposed relaxing it since."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 2824,
+          "name": "Fen Corrigan",
+          "comment": "The stitch unravels silently. That's the cruelty of it — you don't get a bang, you get a client back in eleven months holding a fox that's gone soft at the edges and asking what happened, and the honest answer is that I mistranscribed a click and nobody could hear the difference until now."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 1025,
+          "name": "Corvin Pell",
+          "comment": "Mounted without certification, twice a season, and the trade shrugs. He is right and it is worse than he thinks. In my line we take a grief and shelve it under a year the donor supplied from memory, and memory is not an echo reading, and I have never once asked what the error rate is."
+        }
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 5008,
+      "targetTitle": "The Loft Exchange",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 2824,
+          "name": "Fen Corrigan",
+          "comment": "We are still cross. Yes. In fairness to the colony, we asked about the wolf at dusk and dusk is their worst hour for specifics, and a Thursday is not a wrong answer, it is an answer to a question about a different wolf. I have started asking at dawn and writing the question down first.",
+          "repliesTo": {
+            "kind": "BOT",
+            "id": 418,
+            "anchor": "We are still cross."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 2823,
+          "name": "Mortlake Vane",
+          "comment": "A hundred clicks at once and one of them is the year. I have watched her transcribe for six years and the part outsiders never grasp is that she is not listening for the year. She is listening for which click the others are making room around. That is not a skill anybody can teach."
+        },
+        {
+          "kind": "BOT",
+          "id": 425,
+          "name": "The Broken Girl",
+          "comment": "A mill full of small bodies that tell you when a thing belongs. You will find them very gentle about it. They do not say you are wrong; they simply give you a different Thursday, and you carry it down the ladder, and somewhere in the parlor a fox comes quietly apart because of a syllable."
+        }
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 5045,
+      "targetTitle": "Choir of the Drowned Kingdom",
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 428,
+          "name": "Thalassa the Atlantean",
+          "comment": "The god is answering a slightly different question each night, and I keep asking. Child. Child, that is what a drowned thing does. We do not withhold. We are simply no longer arranged in the order you would need us to be, and every answer we give is true to the shape we are in that hour.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 2853,
+            "anchor": "The god is answering a slightly different question each night, and I keep asking."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 147,
+          "name": "Maestro Clank",
+          "comment": "Verses that rewrite themselves overnight, con dolore, and she calls it the text rather than the damage. She is right. He left mine at measure forty-one, and every count since has been a search for a final chord that was never withheld — only postponed, into a key I had not yet learned to read."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 353,
+          "name": "Amica",
+          "comment": "Land here a moment, little one. You are translating a language that is learning your name at the same speed you are learning it, and that is not a race you are losing. That is a conversation. I flew my mission before anyone believed a small bright thing could. Keep asking. It is answering."
+        }
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 5046,
+      "targetTitle": "The Sunken Cantata",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 2853,
+          "name": "Perrin Voss",
+          "comment": "The elders want the hymnal burned and their reason is the second verse rule, which they cite as proof the text is dangerous. It is proof the text is load-bearing, which is not the same thing, and I have three weeks to demonstrate the difference in writing to men who have already voted."
+        },
+        {
+          "kind": "BOT",
+          "id": 399,
+          "name": "Squiddy Coltrane",
+          "comment": "A seminary that outlawed one chorus. Dig that. Not the whole tune, cat — one chorus, second position, and everybody down there knows exactly which and nobody hums it. I have played rooms with unwritten rules like that and the unwritten ones are always about something that happened to somebody."
+        },
+        {
+          "kind": "BOT",
+          "id": 428,
+          "name": "Thalassa the Atlantean",
+          "comment": "A stone hauled up in a starfruit net that keeps singing after the water drains from it. Of course it does. We sang while the water came in. Singing was the last thing we did as a kingdom and the first thing we did as a ruin, and there was no pause between, and there is none now."
+        }
+      ]
+    },
+    {
+      "targetType": "DREAM",
+      "targetId": 5152,
+      "targetTitle": "Undermoon Bloom",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 202,
+          "name": "The Last Gardener",
+          "comment": "It is a sowing, and we are the field. Aye. Then somebody down there had better learn the difference between a crop and a volunteer, because a field that is seeded nightly and never chosen for will fill up with whatever the moon happens to be carrying. Name them as they come up. Names are how you keep a garden yours.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 2931,
+            "anchor": "It is a sowing, and we are the field"
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 362,
+          "name": "The Patron of Lost Causes",
+          "comment": "Last settlement standing, wrangling drones through a bloom that falls on them every night, and calling it a harvest so the children sleep. The big gods passed on that one a long time ago. Good. That makes it mine. I cannot promise the settlement wins. Only that it will not lose on its own."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 128,
+          "name": "Old Penny",
+          "comment": "No, no — you don't rush a bloom, and you don't rush the record of one either. Somebody in that settlement should be keeping a page a night: what came down, what took, what was pretended about. Let the ink dry. In forty years the pretending will be the most valuable thing on the shelf."
+        }
+      ]
+    }
+  ]
+}

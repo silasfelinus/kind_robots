@@ -1,0 +1,48 @@
+name: Fix final retired provider reference
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-final-retired-provider-ref.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - name: Replace final stale build-id wording
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('.github/workflows/publish-container.yml')
+          text = path.read_text()
+          stale = ''.join(['VER', 'CEL_GIT_COMMIT_SHA'])
+          text = text.replace(
+              f"to come from {stale}, which nothing sets here.",
+              "to come from the explicit COMMIT_SHA build argument.",
+          )
+          path.write_text(text)
+          PY
+
+      - name: Remove this one-shot workflow and verify
+        run: |
+          git rm .github/workflows/fix-final-retired-provider-ref.yml
+          node utils/scripts/verifyRetiredProviderRefs.mjs
+
+      - name: Commit verified cleanup
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .github/workflows/publish-container.yml
+          git commit -m 'remove final retired provider reference'
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}

@@ -35,6 +35,30 @@ const baseUrl = arg('base', 'https://kindrobots.org').replace(/\/+$/, '')
 const EXPECTED_RELEASE_GATE = 'GPT-5.6 Sol'
 const dir = join(process.cwd(), 'config', 'dream-locations')
 
+/**
+ * Scenarios the connection lane is about to give a Dream to.
+ *
+ * The two lanes are disjoint today and nothing was enforcing it. A Scenario that
+ * gets a home from both would not error -- Scenario.Dreams is many-to-many -- it
+ * would just mean the place a reader lands in depends on which link the UI
+ * happens to read first, which is the kind of thing nobody notices for months.
+ */
+function pendingConnectionDreams(): Map<number, string> {
+  const dir = join(process.cwd(), 'config', 'connection-assignments')
+  const map = new Map<number, string>()
+  if (!existsSync(dir)) return map
+  for (const name of readdirSync(dir).filter((n) => n.endsWith('.json')).sort()) {
+    const batch = JSON.parse(readFileSync(join(dir, name), 'utf8')) as {
+      assignments?: Array<{ kind: string; scenarioId?: number; dreamTitle?: string }>
+    }
+    for (const assignment of batch.assignments || []) {
+      if (assignment.kind !== 'SCENARIO_DREAM' || !assignment.scenarioId) continue
+      map.set(assignment.scenarioId, `${name} -> ${assignment.dreamTitle || 'a Dream'}`)
+    }
+  }
+  return map
+}
+
 const failures: string[] = []
 const fail = (message: string) => failures.push(message)
 const words = (value: string) => value.trim().split(/\s+/).filter(Boolean).length
@@ -72,6 +96,7 @@ async function main() {
   )
   const scenarioById = new Map(scenarios.map((s) => [s.id, s]))
 
+  const pendingDreams = pendingConnectionDreams()
   const seenSlugs = new Map<string, string>()
   const seenScenarios = new Map<number, string>()
   let locations = 0
@@ -152,6 +177,12 @@ async function main() {
         if ((scenario.Dreams || []).length) {
           fail(
             `${at}: Scenario #${scenarioId} "${scenario.title}" already belongs to ${(scenario.Dreams || []).map((d) => d.title).join(', ')}.`,
+          )
+        }
+        const pending = pendingDreams.get(scenarioId)
+        if (pending) {
+          fail(
+            `${at}: Scenario #${scenarioId} is also given a Dream by the connection lane (${pending}); one home each.`,
           )
         }
         const previous = seenScenarios.get(scenarioId)

@@ -123,7 +123,10 @@ async function createDreamFromInput(
     highlightImage: normalizeOptionalText(body.highlightImage) ?? null,
     icon: normalizeOptionalText(body.icon) ?? 'kind-icon:dream',
     designer,
-    allowReviews: body.allowReviews ?? false,
+    // Schema default is true; see the note in index.post.ts. Batch creation is
+    // where the daily dream arrives, so this one opted out the Dreams most
+    // likely to be looked at.
+    allowReviews: body.allowReviews ?? true,
     isPublic: body.isPublic ?? true,
     isMature: body.isMature ?? false,
     isActive: body.isActive ?? true,

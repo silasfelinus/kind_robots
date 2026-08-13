@@ -36,6 +36,7 @@ const OWNED_TARGETS = [
   'character',
   'dream',
   'facet',
+  'project',
   'prompt',
   'resource',
   'reward',

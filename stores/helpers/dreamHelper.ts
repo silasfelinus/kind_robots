@@ -299,6 +299,11 @@ export function buildDreamPayload(dream: Partial<Dream>): Partial<Dream> {
     isPublic: dream.isPublic ?? true,
     isMature: dream.isMature ?? false,
     isActive: dream.isActive ?? true,
+    // Carried explicitly alongside the other owner flags. It used to be absent
+    // here, so it only reached the API by surviving a spread in
+    // buildMutationBody -- which worked, but meant the one owner control that
+    // governs comments was the only flag not stated in the payload builder.
+    allowReviews: dream.allowReviews ?? true,
     artImageId: dream.artImageId ?? null,
     artCollectionId: dream.artCollectionId ?? null,
   }

@@ -6,7 +6,11 @@ import type {
   ReactionType,
   Reaction_reactionCategory,
 } from '~/prisma/generated/prisma/client'
-import { KARMA_REF_TARGET_COLUMNS, type KarmaRefType } from '~/utils/karmaRefTypes'
+import {
+  KARMA_REF_TARGET_COLUMNS,
+  type KarmaRefTargetColumn,
+  type KarmaRefType,
+} from '~/utils/karmaRefTypes'
 import { performFetch, handleError } from './utils'
 import { useAchievementStore } from './achievementStore'
 import { useUserStore } from './userStore'
@@ -32,6 +36,7 @@ export const reactionCategories: ReactionCategoryEnum[] = [
   'DREAM',
   'FACET',
   'MESSAGE',
+  'PROJECT',
   'PROMPT',
   'RESOURCE',
   'REWARD',
@@ -46,19 +51,13 @@ export type ReactionTargetType = KarmaRefType
 
 type ReactionFetchKey = `${ReactionTargetType}:${number}`
 
-type ReactionTargetIdKey =
-  | 'artImageId'
-  | 'artCollectionId'
-  | 'botId'
-  | 'characterId'
-  | 'chatId'
-  | 'dreamId'
-  | 'facetId'
-  | 'promptId'
-  | 'resourceId'
-  | 'rewardId'
-  | 'scenarioId'
-  | 'themeId'
+// Was a hand-written union of the same twelve strings KARMA_REF_TARGET_COLUMNS
+// already spells out -- the exact duplication that module was created to end.
+// Adding `project` broke it, because targetIdKeyMap is typed
+// Record<ReactionTargetType, ReactionTargetIdKey> and the map had grown a value
+// the union did not know about. Aliasing means the next target cannot half-land
+// here again.
+type ReactionTargetIdKey = KarmaRefTargetColumn
 
 type AddReactionPayload = {
   reactionType: ReactionTypeEnum
@@ -72,6 +71,7 @@ type AddReactionPayload = {
   chatId?: number | null
   dreamId?: number | null
   facetId?: number | null
+  projectId?: number | null
   promptId?: number | null
   resourceId?: number | null
   rewardId?: number | null

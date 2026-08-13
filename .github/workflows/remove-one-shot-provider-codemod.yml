@@ -1,0 +1,33 @@
+name: Remove one-shot provider codemod scaffolding
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/remove-one-shot-provider-codemod.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - name: Remove temporary codemod files
+        run: |
+          git rm -f \
+            .github/workflows/one-shot-retired-provider-codemod.yml \
+            .github/workflows/remove-one-shot-provider-codemod.yml \
+            scripts/retire-provider-literals.mjs \
+            scripts/retire-provider-literals-v2.mjs
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'remove one-shot provider codemod scaffolding'
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}

@@ -410,6 +410,12 @@ jobs:
       - name: Model Builder batchSetField confirmed-success guard contract
         run: npm run test:model-builder-batch-set-field-confirmed-success-guard
 
+      - name: Model Builder confirmed-outcome-before-toast meta-guard checker self-test
+        run: npm run test:model-builder-confirmed-outcome-guard-selftest
+
+      - name: Model Builder confirmed-outcome-before-toast meta-guard contract
+        run: npm run test:model-builder-confirmed-outcome-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

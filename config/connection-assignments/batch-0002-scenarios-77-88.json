@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "batch": "scenarios-77-88",
+  "releaseGate": "GPT-5.6 Sol",
+  "draftingModel": "Claude Code",
+  "assignments": [
+    {"kind":"SCENARIO_CHARACTER","scenarioId":77,"scenarioTitle":"My Boss is a Gorgon: Greek Mythology Personal Assistant Simulator","characterId":172,"characterName":"Medusa","why":"the scenario is about being Medusa's personal assistant and her genre is Mythic Workplace; this is her office"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":77,"scenarioTitle":"My Boss is a Gorgon: Greek Mythology Personal Assistant Simulator","characterId":244,"characterName":"The Footnote","why":"Weird Capitalism, and Tartarus HR runs on the clause nobody read at the bottom of the contract"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":77,"scenarioTitle":"My Boss is a Gorgon: Greek Mythology Personal Assistant Simulator","characterId":252,"characterName":"The Retired Chosen One","why":"MythCore; somebody at the eternal watercooler has already had the prophecy and is now just employed"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":77,"scenarioTitle":"My Boss is a Gorgon: Greek Mythology Personal Assistant Simulator","characterId":255,"characterName":"Mx. Quorum","why":"oddCore, and a Mount Olympus boardroom is a meeting that needs somebody counting who is actually present"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":78,"scenarioTitle":"I'm a 200-Foot Kaiju and I'm Hungry","characterId":271,"characterName":"The Kaiju Who Just Wants to Sit Down","why":"KaijuCore, and the funniest possible neighbour for a starving kaiju is one who has lost interest in rampaging"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":78,"scenarioTitle":"I'm a 200-Foot Kaiju and I'm Hungry","characterId":331,"characterName":"The Kaiju Who Found a Valley","why":"KaijuCore; one of them found somewhere quiet and the other is eating a city, which is the whole argument"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":78,"scenarioTitle":"I'm a 200-Foot Kaiju and I'm Hungry","characterId":119,"characterName":"Deputy Undersecretary Hollis Crane","why":"speaks the scenario's own language of kaiju and monster, and somebody in government has to file about the buffet"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":79,"scenarioTitle":"God Simulator","characterId":327,"characterName":"The Apprentice to Nobody","why":"MythCore, and a brand-new deity with no mentor is exactly who this character has been waiting to not be taught by"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":79,"scenarioTitle":"God Simulator","characterId":267,"characterName":"The Committee for the Stars","why":"MythCore; a sandbox universe still has to get its miracles approved by somebody"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":79,"scenarioTitle":"God Simulator","characterId":274,"characterName":"Placebo","why":"MythCore, and a complaint department in heaven is where the question of whether the miracle worked gets awkward"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":79,"scenarioTitle":"God Simulator","characterId":252,"characterName":"The Retired Chosen One","why":"MythCore; the worshipper who already did the destiny and has notes for the new management"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":80,"scenarioTitle":"Madame Luxoria's Super Deathtrap Dungeon of Ultimate Fatal Destiny","characterId":142,"characterName":"Madame Luxoria","why":"the scenario is named for her and her genre is Gauntlet Spectacle; this coliseum is hers"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":80,"scenarioTitle":"Madame Luxoria's Super Deathtrap Dungeon of Ultimate Fatal Destiny","characterId":281,"characterName":"Applause","why":"Circus, and an arena built into a scheming labyrinth is powered by the roar of the crowd rather than the traps"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":80,"scenarioTitle":"Madame Luxoria's Super Deathtrap Dungeon of Ultimate Fatal Destiny","characterId":275,"characterName":"The Intermission","why":"Circus; the spectator's pit needs the pause between rounds to be somebody"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":80,"scenarioTitle":"Madame Luxoria's Super Deathtrap Dungeon of Ultimate Fatal Destiny","characterId":248,"characterName":"The Understudy for the Final Boss","why":"Villain Era, and the forge of champions is where the understudy waits to be needed"},
+    {"kind":"SCENARIO_DREAM","scenarioId":80,"scenarioTitle":"Madame Luxoria's Super Deathtrap Dungeon of Ultimate Fatal Destiny","dreamId":40,"dreamTitle":"The Infernal Circuit","why":"a lava-lit arena where horned machine spirits forge spells from distortion and bad decisions is the same venue as an infernal cauldron and a champion's forge"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":81,"scenarioTitle":"Cartoon Crossroads","characterId":214,"characterName":"The Sentient Sketchbook","why":"the scenario lists a Sentient Sketchbook Prison among its locations and this character's genre is Surreal Horror; it is already in the setting"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":81,"scenarioTitle":"Cartoon Crossroads","characterId":320,"characterName":"Doodle","why":"WeirdCore, and a place where ink-stained characters rule wants the one who is delighted by all of it"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":81,"scenarioTitle":"Cartoon Crossroads","characterId":277,"characterName":"The Editor","why":"WeirdCore; slapstick turning sinister is a question of what got cut and who decided"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":81,"scenarioTitle":"Cartoon Crossroads","characterId":238,"characterName":"Absence","why":"WeirdCore, and an abandoned carnival of broken animatronics is mostly defined by what is no longer running"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":82,"scenarioTitle":"404 DreamGlitch","characterId":151,"characterName":"Mirror Dorothy","why":"named in the scenario and her genre is Dreampunk Noir; a city where dying respawns you is her exact register"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":82,"scenarioTitle":"404 DreamGlitch","characterId":253,"characterName":"Static","why":"FutureCore, and a corrupted file labelled home.exe is the kind of signal this character is made of"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":82,"scenarioTitle":"404 DreamGlitch","characterId":263,"characterName":"The Reflection That Stayed","why":"crimeCore; a neon temple of lost avatars is full of the versions that did not leave with their owners"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":82,"scenarioTitle":"404 DreamGlitch","characterId":272,"characterName":"Margin","why":"WeirdCore, and a memory smuggler works entirely in what did not make it into the file"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":83,"scenarioTitle":"Mythic Frontier","characterId":213,"characterName":"The Stranger Who Posts the Bounties","why":"Weird West, and a warrant posted by the dragon it names is this character's whole business"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":83,"scenarioTitle":"Mythic Frontier","characterId":221,"characterName":"The Ghost in the Saloon","why":"Weird West; the scenario opens on a ghostly saloon of forgotten heroes and somebody is already sitting in it"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":83,"scenarioTitle":"Mythic Frontier","characterId":209,"characterName":"The Crossroads Coyote","why":"Weird West, and a frontier where myths run the land trades through whoever sets the terms at the crossroads"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":83,"scenarioTitle":"Mythic Frontier","characterId":135,"characterName":"Dust Annie","why":"Weird West; a bounty hunter with a dead partner needs somebody out there who knew them both"},
+    {"kind":"SCENARIO_DREAM","scenarioId":83,"scenarioTitle":"Mythic Frontier","dreamId":39,"dreamTitle":"Gallowsun Junction","why":"a rail town where saloon mirrors show futures and every street leads to a bargain nobody remembers is the frontier this hunt crosses"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":84,"scenarioTitle":"Chrono Nexus: The Collapse of Time","characterId":232,"characterName":"The Soldier Out of Time","why":"Time Travel, and a Roman legionary yelling in a collapsing present is the situation this character already lives in"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":84,"scenarioTitle":"Chrono Nexus: The Collapse of Time","characterId":197,"characterName":"The Time-Office Agent","why":"Time Travel; reality unspooling is somebody's caseload before it is anybody's adventure"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":84,"scenarioTitle":"Chrono Nexus: The Collapse of Time","characterId":241,"characterName":"Tomorrow-Aiko","why":"Chrononauts, and a device that is the only one still working needs somebody from the end of the story holding it"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":84,"scenarioTitle":"Chrono Nexus: The Collapse of Time","characterId":352,"characterName":"The Cartographer of Dreams","why":"Chrononauts; when the rifts open, what borders what stops being obvious and becomes the job"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":85,"scenarioTitle":"Abyssal Awakening: Secrets of the Sunken World","characterId":205,"characterName":"Captain Mara Vey","why":"Deep-Sea Horror, and the scenario turns on a captain who is not mapping the trench but returning to it"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":85,"scenarioTitle":"Abyssal Awakening: Secrets of the Sunken World","characterId":124,"characterName":"The Leviathan That Knows Your Name","why":"Deep-Sea Horror; the trenches of ancient leviathans should contain the one that has already learned who you are"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":85,"scenarioTitle":"Abyssal Awakening: Secrets of the Sunken World","characterId":291,"characterName":"Threshold","why":"EldritchCore, and forty thousand feet down is where the line between diving and arriving gets crossed"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":85,"scenarioTitle":"Abyssal Awakening: Secrets of the Sunken World","characterId":280,"characterName":"The Collector of Lasts","why":"EldritchCore; a sunken library is a room full of final copies, which is this character's whole appetite"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":86,"scenarioTitle":"Space Couch","characterId":150,"characterName":"The Sentient Couch","why":"the scenario is a couch that had other plans and this character is a sentient couch; there is no closer fit in the catalog"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":86,"scenarioTitle":"Space Couch","characterId":256,"characterName":"The Last Honest Map","why":"Space Adventures, and somebody rocketing through a nebula in pyjamas needs one thing aboard that will not lie about where they are"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":86,"scenarioTitle":"Space Couch","characterId":251,"characterName":"Ampersand","why":"WeirdCore; a cosmic library of forgotten memes runs on whatever keeps joining one thing to the next"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":87,"scenarioTitle":"Paws for Thought: The Curious Case of the Talking Tabby","characterId":155,"characterName":"Professor Quillby","why":"Cozy Mystery, and the scenario opens with a badger in a monocle hiring you; the detail and the character match exactly"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":87,"scenarioTitle":"Paws for Thought: The Curious Case of the Talking Tabby","characterId":157,"characterName":"The Riddling Tabby","why":"Cozy Mystery and the title's talking tabby; a witness who answers in riddles is the case itself"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":87,"scenarioTitle":"Paws for Thought: The Curious Case of the Talking Tabby","characterId":324,"characterName":"Sir Reginald Pemberton III","why":"Animal Protagonists, and a hidden Animal Council hall needs its oldest and most formal member"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":87,"scenarioTitle":"Paws for Thought: The Curious Case of the Talking Tabby","characterId":178,"characterName":"The Tortoise of the Tea Shop","why":"the enchanted forest tea shop is one of the scenario's own locations and this is who keeps one"},
+    {"kind":"SCENARIO_DREAM","scenarioId":87,"scenarioTitle":"Paws for Thought: The Curious Case of the Talking Tabby","dreamId":37,"dreamTitle":"The Lantern Greenhouse","why":"a warm glasshouse between a dream and a garden, where every doorway leads to a different story, is where a council of animals could meet without humans finding it"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":88,"scenarioTitle":"Kitchen Catastrophe: Time-Traveling Chef Extraordinaire","characterId":198,"characterName":"Chef Bellamy Crisp","why":"the character's genre is literally Culinary Time Travel and the scenario is a time-travelling chef; this is the same premise"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":88,"scenarioTitle":"Kitchen Catastrophe: Time-Traveling Chef Extraordinaire","characterId":197,"characterName":"The Time-Office Agent","why":"Time Travel, and a sauce that moves people between centuries is going to generate paperwork somewhere"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":88,"scenarioTitle":"Kitchen Catastrophe: Time-Traveling Chef Extraordinaire","characterId":293,"characterName":"Nostalgia","why":"Chrononauts; a Viking mead hall and a molecular gastronomy lab are the same meal remembered differently"}
+  ]
+}

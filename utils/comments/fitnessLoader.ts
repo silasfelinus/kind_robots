@@ -21,6 +21,25 @@ export type LoadedInventory = Inventory & {
   dreamFacetIds: Map<number, number[]>
 }
 
+/**
+ * The Dream list endpoint, asked for all of them.
+ *
+ * `/api/dreams` defaults to a `take` of 48 and there are 75. Every tool in this
+ * lane fetched the bare path and therefore validated against a truncated
+ * catalog, which produced one real false positive: the connection contract
+ * refused four assignments with "Dream #50 does not exist in production" when
+ * Dream 50 was simply row 49.
+ *
+ * That failure was fail-closed and got caught. The dangerous one was silent:
+ * verifyDreamLocations checks new slugs and titles against this list, so a new
+ * location colliding with an existing Dream past row 48 would have been created
+ * as a duplicate world. (Checked after the fact -- none of the sixteen
+ * collided.)
+ *
+ * Characters, Scenarios and Bots return everything by default; only Dreams cap.
+ */
+const ALL_DREAMS = '/api/dreams?take=1000'
+
 export function createFetcher(baseUrl: string) {
   return async function get<T>(path: string): Promise<T> {
     for (let attempt = 0; attempt < 4; attempt += 1) {
@@ -80,7 +99,7 @@ export async function loadFitnessInventory(
 
   const [characters, dreamList, scenarios] = await Promise.all([
     get<CharacterRow[]>('/api/characters'),
-    get<DreamRow[]>('/api/dreams'),
+    get<DreamRow[]>(ALL_DREAMS),
     get<ScenarioRow[]>('/api/scenarios'),
   ])
 

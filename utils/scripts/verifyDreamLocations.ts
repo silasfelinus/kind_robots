@@ -26,6 +26,25 @@ import {
 } from '@/utils/comments/dreamLocations'
 import { createFetcher } from '@/utils/comments/fitnessLoader'
 
+/**
+ * The Dream list endpoint, asked for all of them.
+ *
+ * `/api/dreams` defaults to a `take` of 48 and there are 75. Every tool in this
+ * lane fetched the bare path and therefore validated against a truncated
+ * catalog, which produced one real false positive: the connection contract
+ * refused four assignments with "Dream #50 does not exist in production" when
+ * Dream 50 was simply row 49.
+ *
+ * That failure was fail-closed and got caught. The dangerous one was silent:
+ * verifyDreamLocations checks new slugs and titles against this list, so a new
+ * location colliding with an existing Dream past row 48 would have been created
+ * as a duplicate world. (Checked after the fact -- none of the sixteen
+ * collided.)
+ *
+ * Characters, Scenarios and Bots return everything by default; only Dreams cap.
+ */
+const ALL_DREAMS = '/api/dreams?take=1000'
+
 function arg(name: string, fallback = ''): string {
   const hit = process.argv.find((value) => value.startsWith(`--${name}=`))
   return hit ? hit.slice(name.length + 3) : fallback
@@ -76,7 +95,7 @@ async function main() {
 
   const get = createFetcher(baseUrl)
   const [dreams, scenarios] = await Promise.all([
-    get<Array<{ id: number; title: string; slug?: string | null }>>('/api/dreams'),
+    get<Array<{ id: number; title: string; slug?: string | null }>>(ALL_DREAMS),
     get<
       Array<{
         id: number
@@ -121,9 +140,11 @@ async function main() {
       if (!slugLooksValid(location.slug || '')) {
         fail(`${at}: slug is not kebab-case.`)
       }
-      if (liveSlugs.has(String(location.slug).toLowerCase())) {
-        fail(`${at}: slug already exists in production.`)
-      }
+      // A slug that already exists is this location, already created. The
+      // publisher adopts by slug rather than recreating, so a re-run is safe --
+      // and a contract that refuses what the publisher handles correctly just
+      // makes the lane un-rerunnable after its first success.
+      const alreadyCreated = liveSlugs.has(String(location.slug).toLowerCase())
       const previousSlug = seenSlugs.get(location.slug)
       if (previousSlug) fail(`${at}: slug duplicates ${previousSlug}.`)
       else seenSlugs.set(location.slug, at)
@@ -131,7 +152,7 @@ async function main() {
       const titleKey = String(location.title || '').trim().toLowerCase()
       if (!titleKey) fail(`${at}: no title.`)
       const clash = liveTitles.get(titleKey)
-      if (clash) {
+      if (clash && !alreadyCreated) {
         fail(`${at}: title "${location.title}" is already Dream #${clash.id}.`)
       }
 
@@ -174,9 +195,13 @@ async function main() {
         if (scenario.isPublic === false || scenario.isActive === false) {
           fail(`${at}: Scenario #${scenarioId} is not public/active.`)
         }
-        if ((scenario.Dreams || []).length) {
+        // Belonging to THIS location is the lane having already run. Belonging
+        // to a different one is the double-homing this check exists to stop.
+        const homes = scenario.Dreams || []
+        const elsewhere = homes.filter((d) => d.title !== location.title)
+        if (elsewhere.length) {
           fail(
-            `${at}: Scenario #${scenarioId} "${scenario.title}" already belongs to ${(scenario.Dreams || []).map((d) => d.title).join(', ')}.`,
+            `${at}: Scenario #${scenarioId} "${scenario.title}" already belongs to ${elsewhere.map((d) => d.title).join(', ')}.`,
           )
         }
         const pending = pendingDreams.get(scenarioId)

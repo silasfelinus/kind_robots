@@ -68,6 +68,17 @@ assert.ok(
   'Storybook store must not treat roadmap tasks as story state',
 )
 
+const beginStoryBlock = store.slice(
+  store.indexOf('async function beginStory'),
+  store.indexOf('async function answerCurrentBeat'),
+)
+includesAll(storePath, ['const openingWove = await weaveBeat'])
+assert.match(
+  beginStoryBlock,
+  /if \(!openingWove\)[\s\S]*session\.value = null[\s\S]*persist\(\)[\s\S]*return openingWove/,
+  'Storybook must roll back a failed opening beat so setup remains retryable',
+)
+
 includesAll('components/narrative/narrative-ingredient-multi-picker.vue', [
   '<NarrativeIngredientCard',
   'maxSelections',

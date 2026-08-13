@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "batch": "scenarios-176-189",
+  "releaseGate": "GPT-5.6 Sol",
+  "draftingModel": "Claude Code",
+  "assignments": [
+    {"kind":"SCENARIO_CHARACTER","scenarioId":156,"scenarioTitle":"The Lost & Found Window","characterId":152,"characterName":"The Cardigan Heron","why":"the scenario's clerk is described as a heron in a cardigan; I missed this on the first pass and it is the closest match in the catalog"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":176,"scenarioTitle":"The Crossroads Trading Post","characterId":209,"characterName":"The Crossroads Coyote","why":"the trading post is run by a coyote in a duster where four trails meet; this character is the crossroads coyote"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":176,"scenarioTitle":"The Crossroads Trading Post","characterId":136,"characterName":"The Iron Pacific","why":"Weird West, and a post where four trails meet is a junction; something has to be running through it"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":176,"scenarioTitle":"The Crossroads Trading Post","characterId":134,"characterName":"Reverend Two-Shadows","why":"Weird West; goods that leave as something different than they came is a transaction somebody ought to be blessing or condemning"},
+    {"kind":"SCENARIO_DREAM","scenarioId":176,"scenarioTitle":"The Crossroads Trading Post","dreamId":39,"dreamTitle":"Gallowsun Junction","why":"the town where every dusty street leads to a bargain nobody remembers making is where this counter sits"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":177,"scenarioTitle":"Portraits From the Other Side of the Leash","characterId":215,"characterName":"The Octopus in the Study","why":"animals as they see themselves; an octopus who has taken over a study has a very particular self-portrait in mind"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":177,"scenarioTitle":"Portraits From the Other Side of the Leash","characterId":219,"characterName":"The Stag Who Holds Court","why":"a subject who already holds court will not sit for the version a human expected, which is the whole exhibition"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":177,"scenarioTitle":"Portraits From the Other Side of the Leash","characterId":210,"characterName":"The Crow Who Collects","why":"Animal Protagonists, and a collector is the one subject who will want to bring props to the sitting"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":177,"scenarioTitle":"Portraits From the Other Side of the Leash","characterId":294,"characterName":"The Apex Pet","why":"the title is about the other side of the leash and this character has been on both ends of one"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":178,"scenarioTitle":"The Annual Report","characterId":279,"characterName":"Quota","why":"Weird Capitalism; a shareholder meeting rendered as cosmic horror is a slide with a number on it that nobody in the room chose"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":178,"scenarioTitle":"The Annual Report","characterId":292,"characterName":"The Pied Investor","why":"Weird Capitalism, and OverCorp's shareholders should include the one who will be collecting later"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":178,"scenarioTitle":"The Annual Report","characterId":244,"characterName":"The Footnote","why":"Weird Capitalism; every annual report's actual content is at the bottom in smaller type"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":179,"scenarioTitle":"The Stowaway Manifest","characterId":285,"characterName":"The Cartographer of Wrong Turns","why":"Space Opera, and four life-signs the manifest does not admit to is a very tidy piece of route-drawing by somebody"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":179,"scenarioTitle":"The Stowaway Manifest","characterId":167,"characterName":"The Navigator Who Came Back Wrong","why":"Space Opera; a hold with one route through it needs somebody who has been counted wrong on a manifest themselves"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":179,"scenarioTitle":"The Stowaway Manifest","characterId":256,"characterName":"The Last Honest Map","why":"Space Adventures, and a ship whose paperwork is lying wants the one thing aboard that cannot"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":180,"scenarioTitle":"The Night Shift Regulars","characterId":250,"characterName":"The Customer Who Buys One of Everything","why":"oddCore; customers who only exist after midnight is this character's natural hour and habit"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":180,"scenarioTitle":"The Night Shift Regulars","characterId":257,"characterName":"Coincidence, Freelance","why":"oddCore, and three in the morning is when the same four people keep turning up without arranging it"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":180,"scenarioTitle":"The Night Shift Regulars","characterId":240,"characterName":"The Cubit","why":"oddCore; a regular whose measurements are slightly wrong is exactly who you notice under a buzzing light"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":181,"scenarioTitle":"The Complaints Department","characterId":255,"characterName":"Mx. Quorum","why":"oddCore, and a back office sorting reality's clerical errors decides nothing without knowing who is present"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":181,"scenarioTitle":"The Complaints Department","characterId":270,"characterName":"Echo, Returns Department","why":"the returns desk and the complaints desk are two windows of the same office"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":181,"scenarioTitle":"The Complaints Department","characterId":286,"characterName":"Backlog","why":"oddCore; four items in the inbox today is a number that has been four for a while, which is the character"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":182,"scenarioTitle":"Illustrations for a Storybook That Bites","characterId":278,"characterName":"Sweet Tooth","why":"Fractured Fairy Tales, and plates drawn by somebody who knew the real endings is a book she would be in"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":182,"scenarioTitle":"Illustrations for a Storybook That Bites","characterId":287,"characterName":"The Gardener of Teeth","why":"Fractured Fairy Tales; a storybook that bites has to have grown the teeth somewhere"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":182,"scenarioTitle":"Illustrations for a Storybook That Bites","characterId":193,"characterName":"The Godmother With Too Many Teeth","why":"the uninvited guest at the christening is the plate this scenario is really about"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":183,"scenarioTitle":"What the Tide Leaves on the Black Rock","characterId":280,"characterName":"The Collector of Lasts","why":"EldritchCore, and four things the water will take back by noon is a shelf of last chances, which is the appetite exactly"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":183,"scenarioTitle":"What the Tide Leaves on the Black Rock","characterId":291,"characterName":"Threshold","why":"Folk Horror; a haunted shore is a line the tide redraws twice a day"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":183,"scenarioTitle":"What the Tide Leaves on the Black Rock","characterId":194,"characterName":"The Lighthouse Keeper","why":"the black rock is where the lighthouse stands, and somebody walks that shore every morning by profession"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":184,"scenarioTitle":"The Thing in the Cellar Wants to Negotiate","characterId":195,"characterName":"The Thing in the Cellar","why":"the scenario is named for this character and is entirely its offer; the link is the premise"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":184,"scenarioTitle":"The Thing in the Cellar Wants to Negotiate","characterId":254,"characterName":"The Polite Plague","why":"EldritchCore, and something that has never once come up the steps uninvited is negotiating by the same manners"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":184,"scenarioTitle":"The Thing in the Cellar Wants to Negotiate","characterId":296,"characterName":"The Generous Ghost","why":"a house you inherited comes with more than one occupant, and one of them leaves things without asking for anything"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":185,"scenarioTitle":"The Iconography of New Gods","characterId":264,"characterName":"Professor Petrichor","why":"MythCore, and deities still figuring out their own symbols should be painted a weather rather than a fixed icon"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":185,"scenarioTitle":"The Iconography of New Gods","characterId":176,"characterName":"The God of Lost Keys","why":"MythCore; a freshly-risen deity of a small domain is precisely who a temple commission would overlook and should not"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":185,"scenarioTitle":"The Iconography of New Gods","characterId":216,"characterName":"The Navigator of the Last Bus","why":"a god of the late route is new enough to still be deciding what its symbol is"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":186,"scenarioTitle":"Office Hours on Olympus","characterId":267,"characterName":"The Committee for the Stars","why":"MythCore; walk-in hours for mortal petitions is a queue, and a committee is what a pantheon becomes when it schedules one"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":186,"scenarioTitle":"Office Hours on Olympus","characterId":327,"characterName":"The Apprentice to Nobody","why":"MythCore, and the four gods available today all have somebody fetching their coffee who is not being taught anything"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":186,"scenarioTitle":"Office Hours on Olympus","characterId":247,"characterName":"Querent","why":"MythCore; somebody has to be next in the queue, and this character is the asking"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":187,"scenarioTitle":"The Warm Window on a Cold Street","characterId":363,"characterName":"The Save Point","why":"CozyCore, and a warm window seen from outside and ached toward is the exact feeling of a place that will keep you"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":187,"scenarioTitle":"The Warm Window on a Cold Street","characterId":269,"characterName":"The Last Customer","why":"CozyCore; one of those four glowing windows is a shop about to close, with one person still inside"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":187,"scenarioTitle":"The Warm Window on a Cold Street","characterId":326,"characterName":"Brunch","why":"CozyCore, and warmth on a winter street is a meal somebody is already laying out behind the glass"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":188,"scenarioTitle":"The Lost Mitten Bureau","characterId":152,"characterName":"The Cardigan Heron","why":"the bureau's clerk is a knitting capybara and the lost-and-found window's clerk is a heron in a cardigan; these two offices work the same counter"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":188,"scenarioTitle":"The Lost Mitten Bureau","characterId":363,"characterName":"The Save Point","why":"CozyCore, and an office reuniting small lost things with whoever needs them is the kindest possible mechanic"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":188,"scenarioTitle":"The Lost Mitten Bureau","characterId":296,"characterName":"The Generous Ghost","why":"CozyCore; a shelf of singles nobody has come back for wants somebody who gives without being asked"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":189,"scenarioTitle":"Postcards From When","characterId":293,"characterName":"Nostalgia","why":"Chrononauts, and a drawer of postcards from eras that had no postal service is this character's entire filing system"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":189,"scenarioTitle":"Postcards From When","characterId":262,"characterName":"Deadline","why":"Chrononauts; each card still arrived and each still has a date, which is the only thing that matters here"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":189,"scenarioTitle":"Postcards From When","characterId":197,"characterName":"The Time-Office Agent","why":"Time Travel, and mail crossing centuries is somebody's caseload whether they want it or not"}
+  ]
+}

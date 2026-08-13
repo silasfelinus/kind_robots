@@ -1,11 +1,12 @@
 // /utils/narrativeArtProfiles.ts
 //
-// Storybook creates stories. Taskmaster uses stories to finish tasks.
-// Neither experience asks the user to configure image-generation internals.
-// Product code selects one of these centralized profiles and derives the prompt
-// from narrative state, Facets, characters, locations, and the target surface.
+// Storybook creates stories. Taskmaster uses stories to finish tasks. Da Vinci
+// narrates a branching life. None of these experiences ask the user to
+// configure image-generation internals. Product code selects one of these
+// centralized profiles and derives the prompt from narrative state, Facets,
+// characters, locations, and the target surface.
 
-export type NarrativeProduct = 'storybook' | 'taskmaster'
+export type NarrativeProduct = 'storybook' | 'taskmaster' | 'davinci'
 
 export type NarrativeArtMoment =
   | 'opening'
@@ -75,6 +76,22 @@ export const NARRATIVE_ART_PROFILES: Record<
     defaultSurface: 'scene-landscape',
     styleDirective:
       'adventurous quest-board illustration, clear objective-focused composition, playful stakes, practical visual readability, polished storybook finish',
+    negativePrompt: SHARED_NEGATIVE_PROMPT,
+  },
+  davinci: {
+    key: 'davinci-narrative-krea4',
+    product: 'davinci',
+    engine: 'krea2',
+    steps: 4,
+    cfg: 1,
+    sampler: 'euler',
+    scheduler: 'simple',
+    denoise: 1,
+    designer: 'davinci-auto-narrator',
+    projectSlug: 'davinci',
+    defaultSurface: 'scene-landscape',
+    styleDirective:
+      'painterly single-life biographical illustration, one Renaissance-workshop-inflected scene, expressive protagonist, coherent visual continuity across the same life',
     negativePrompt: SHARED_NEGATIVE_PROMPT,
   },
 }

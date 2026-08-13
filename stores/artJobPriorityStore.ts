@@ -3,8 +3,13 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { performFetch } from '@/stores/utils'
 import { useArtJobStore, type ArtJobRecord } from '@/stores/artJobStore'
-
-const FRONT_OF_QUEUE_PRIORITY = 100
+// Shared with the endpoint that validates them (utils/artJobPriority.ts) so the
+// dashboard cannot offer a value the API rejects.
+import {
+  BACK_OF_QUEUE_PRIORITY,
+  FRONT_OF_QUEUE_PRIORITY,
+  NORMAL_QUEUE_PRIORITY,
+} from '@/utils/artJobPriority'
 
 export const useArtJobPriorityStore = defineStore('artJobPriorityStore', () => {
   const prioritizingJobIds = ref<number[]>([])
@@ -46,7 +51,13 @@ export const useArtJobPriorityStore = defineStore('artJobPriorityStore', () => {
   }
 
   function returnToNormal(id: number): Promise<boolean> {
-    return setPriority(id, 0)
+    return setPriority(id, NORMAL_QUEUE_PRIORITY)
+  }
+
+  // Below every bulk lane in use, so a demoted job loses to the existing
+  // backlog instead of landing in the middle of it.
+  function sendToBack(id: number): Promise<boolean> {
+    return setPriority(id, BACK_OF_QUEUE_PRIORITY)
   }
 
   return {
@@ -55,5 +66,6 @@ export const useArtJobPriorityStore = defineStore('artJobPriorityStore', () => {
     setPriority,
     moveToFront,
     returnToNormal,
+    sendToBack,
   }
 })

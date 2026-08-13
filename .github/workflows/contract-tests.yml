@@ -368,6 +368,12 @@ jobs:
       - name: Model Builder cancel-run poll guard contract
         run: npm run test:model-builder-cancel-run-poll-guard
 
+      - name: Model Builder pushItem error-scope guard checker self-test
+        run: npm run test:model-builder-pushitem-error-scope-guard-selftest
+
+      - name: Model Builder pushItem error-scope guard contract
+        run: npm run test:model-builder-pushitem-error-scope-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

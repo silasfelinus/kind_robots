@@ -25,93 +25,47 @@ jobs:
 
           store_path = Path('stores/storybookStore.ts')
           store = store_path.read_text()
-          old = '''  async function beginStory(input: StorybookStartInput): Promise<boolean> {
-            if (!input.premise.trim() || isWeaving.value) return false
-            const createdAt = nowIso()
-            const bible = buildBible(input)
-            session.value = {
-              id: makeId(),
-              userId: userStore.authenticatedUserId,
-              bible,
-              beats: [],
-              branchHistory: [],
-              consequences: [],
-              inventory: [],
-              stateVersion: 1,
-              status: 'active',
-              createdAt,
-              updatedAt: createdAt,
-            }
-            persist()
-
-            return weaveBeat(
-              `${PERSONA}\\n\\nSTORY BIBLE\\n${biblePrompt(bible)}\\n\\nWrite the opening scene. Establish an immediate image, introduce the most relevant cast member or force, and end with one consequential question.`,
-            )
-          }
-          '''
-          new = '''  async function beginStory(input: StorybookStartInput): Promise<boolean> {
-            if (!input.premise.trim() || isWeaving.value) return false
-            const createdAt = nowIso()
-            const bible = buildBible(input)
-            session.value = {
-              id: makeId(),
-              userId: userStore.authenticatedUserId,
-              bible,
-              beats: [],
-              branchHistory: [],
-              consequences: [],
-              inventory: [],
-              stateVersion: 1,
-              status: 'active',
-              createdAt,
-              updatedAt: createdAt,
-            }
-            persist()
-
-            const openingWove = await weaveBeat(
-              `${PERSONA}\\n\\nSTORY BIBLE\\n${biblePrompt(bible)}\\n\\nWrite the opening scene. Establish an immediate image, introduce the most relevant cast member or force, and end with one consequential question.`,
-            )
+          begin_start = store.index('  async function beginStory(input: StorybookStartInput): Promise<boolean> {')
+          begin_end = store.index('\n  async function answerCurrentBeat', begin_start)
+          block = store[begin_start:begin_end]
+          call_start = block.index('    return weaveBeat(\n')
+          call_end = block.index('\n    )', call_start) + len('\n    )')
+          call = block[call_start:call_end]
+          replacement = call.replace('    return weaveBeat(', '    const openingWove = await weaveBeat(', 1)
+          replacement += '''
             if (!openingWove) {
               // Keep the setup draft and generation error visible so the reader can
               // retry instead of being stranded inside an empty active session.
               session.value = null
               persist()
             }
-            return openingWove
-          }
-          '''
-          if old not in store:
-              raise SystemExit('expected beginStory block not found; refusing to patch')
-          store_path.write_text(store.replace(old, new, 1))
+            return openingWove'''
+          block = block[:call_start] + replacement + block[call_end:]
+          store_path.write_text(store[:begin_start] + block + store[begin_end:])
 
           contract_path = Path('utils/scripts/verifyStorybookStudio.mjs')
           contract = contract_path.read_text()
-          needle = '''assert.ok(
+          anchor = """assert.ok(
             !store.includes('useConductorStore'),
             'Storybook store must not treat roadmap tasks as story state',
           )
 
-          '''
-          addition = '''assert.ok(
-            !store.includes('useConductorStore'),
-            'Storybook store must not treat roadmap tasks as story state',
-          )
-
-          const beginStoryBlock = store.slice(
+          """
+          addition = anchor + r"""const beginStoryBlock = store.slice(
             store.indexOf('async function beginStory'),
             store.indexOf('async function answerCurrentBeat'),
           )
           includesAll(storePath, ['const openingWove = await weaveBeat'])
           assert.match(
             beginStoryBlock,
-            /if \(!openingWove\)[\\s\\S]*session\\.value = null[\\s\\S]*persist\\(\\)[\\s\\S]*return openingWove/,
+            /if \(!openingWove\)[\s\S]*session\.value = null[\s\S]*persist\(\)[\s\S]*return openingWove/,
             'Storybook must roll back a failed opening beat so setup remains retryable',
           )
 
-          '''
-          if needle not in contract:
+          """
+          if anchor not in contract:
               raise SystemExit('expected Storybook contract anchor not found; refusing to patch')
-          contract_path.write_text(contract.replace(needle, addition, 1))
+          contract_path.write_text(contract.replace(anchor, addition, 1))
           PY
 
           rm .github/workflows/worker-storybook-t010-patch.yml

@@ -875,6 +875,18 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     const item = findItem(itemId)
     if (!item || !state.run) return false
 
+    // Captured up front so every status message this call ever surfaces --
+    // success, the two mid-flight discard cases, and the catch block -- is
+    // scoped to the run it was drafting for, mirroring generateItemAsset/
+    // pollAsyncArtJob/commitItem/pushItem/batchPushItems (see
+    // setStatusForRun's own doc comment). draftText spans a real network
+    // round-trip; without this, a draft started against this run but landing
+    // after the user has since navigated to (or started) a DIFFERENT run via
+    // resetRun/resetAll/openRun pops a misleading "Drafted ..." success (or
+    // "was edited/approved while drafting" discard) toast in that other
+    // run's banner, about an item that isn't even part of what's on screen.
+    const runId = state.run.id
+
     const targetModel = resolveTargetModel(
       item.action,
       item.outputKey,
@@ -958,7 +970,8 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
             ? item.fieldsDraft
             : item.promptDraft
       if (liveValue !== current) {
-        setStatus(
+        setStatusForRun(
+          runId,
           'error',
           `${item.label} was edited while drafting — draft discarded to avoid overwriting your changes.`,
         )
@@ -977,7 +990,8 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       // called from behind the UI's editable gate, which is true for a
       // synchronous @change edit but not for this async draft's completion).
       if (!isStageEditable(item, stageForDraftField(field))) {
-        setStatus(
+        setStatusForRun(
+          runId,
           'error',
           `${item.label} was approved while drafting — draft discarded to avoid overwriting the approved content.`,
         )
@@ -990,7 +1004,8 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       else if (field === 'fields') updateFields(itemId, value)
       else updatePrompt(itemId, value)
 
-      setStatus(
+      setStatusForRun(
+        runId,
         'success',
         `Drafted ${field === 'artPrompt' ? 'prompt' : field} for ${item.label}.`,
       )
@@ -999,7 +1014,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       handleError(error, 'drafting model builder text')
       const message =
         error instanceof Error ? error.message : 'Draft request failed.'
-      setStatus('error', message)
+      setStatusForRun(runId, 'error', message)
       return false
     } finally {
       draftingFieldSingleton.release(draftKey)

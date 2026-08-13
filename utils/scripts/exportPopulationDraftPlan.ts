@@ -29,6 +29,12 @@ import {
   type ArchivedVoiceRecord,
 } from './../../utils/comments/voiceEvidence'
 import { characterVoiceSeeds } from './../../stores/seeds/characterVoices'
+import { withFacetAttributes } from './../../utils/comments/facetAttributeMatch'
+import {
+  buildCastingIndex,
+  connectionsFor,
+  type CastTier,
+} from './../../utils/comments/populationCasting'
 import {
   isEligiblePopulationRow,
   orderPopulationTargets,
@@ -243,11 +249,23 @@ function targetProfile(
   }
 }
 
+async function getAllFacets(): Promise<PopulationRow[]> {
+  const all: PopulationRow[] = []
+  for (let skip = 0; skip < 5000; skip += 250) {
+    const page = await getRows(`/api/facets?take=250&skip=${skip}`)
+    all.push(...page)
+    if (page.length < 250) break
+  }
+  return all
+}
+
 async function main() {
-  const [targets, characters, bots] = await Promise.all([
+  const [targets, characters, bots, dreams, facets] = await Promise.all([
     loadEligibleTargets(),
     getRows('/api/characters'),
     getRows('/api/bots?page=1&pageSize=200'),
+    getRows('/api/dreams'),
+    getAllFacets(),
   ])
 
   if (from < 0 || from >= targets.length) {
@@ -256,11 +274,41 @@ async function main() {
     )
   }
 
-  const pool = [
-    ...characters.map(characterProfile),
-    ...bots.map(botProfile),
-  ]
+  // Characters carry facet attributes so a scenario built from "Circus" can
+  // reach whoever actually IS circus, rather than whoever happened to use the
+  // word. Same group-scoped matcher the facet lane uses.
+  const pool = withFacetAttributes(
+    [...characters.map(characterProfile), ...bots.map(botProfile)],
+    facets.map((row) => ({
+      id: Number(row.id),
+      title: text(row.title) || null,
+      groupKey: text(row.groupKey) || null,
+      groupLabel: text(row.groupLabel) || null,
+      aliases: (row.aliases as string[] | string | null) ?? null,
+    })),
+  )
   const poolByKey = new Map(pool.map((entry) => [speakerKey(entry), entry]))
+
+  // facetId -> characters carrying it, inverted from the matcher above.
+  const facetCharacters = new Map<number, number[]>()
+  for (const entry of pool) {
+    if (entry.kind !== 'CHARACTER') continue
+    for (const facetId of entry.facetIds || []) {
+      facetCharacters.set(facetId, [
+        ...(facetCharacters.get(facetId) || []),
+        entry.id,
+      ])
+    }
+  }
+
+  const castingIndex = buildCastingIndex({
+    characters,
+    bots,
+    dreams,
+    scenarios: await getRows(ENDPOINTS.SCENARIO),
+    facetCharacters,
+  })
+  const tierCounts = new Map<CastTier, number>()
 
   const evidence = buildVoiceEvidenceIndex(loadArchive())
   const { all: castCounts, visits } = priorCastCounts()
@@ -296,13 +344,46 @@ async function main() {
     // already carry their signals. Handing it a raw pool sorts by pool order at
     // score 0 and casts the same speaker on every target.
     const scored = scoreSpeakerPool(profile, pool, { evidence, castCounts })
+    // Connection is a GATE, not a weight: only speakers actually tied to this
+    // object may speak on it. Affinity then picks among them. An empty allow
+    // list means no rule reached anybody, and the whole pool is back in play --
+    // reported as `unconnected` rather than dressed up as a connection.
+    const connection = connectionsFor(target.type, target.row, castingIndex)
+    const allowed = new Set(
+      connection.allowed.map((ref) => speakerKey(ref)),
+    )
+
     // An object may not be its own visitor, and a speaker who has already
     // toured `visitCap` objects steps aside so somebody else gets a turn.
-    const eligible = scored.filter((entry) => {
+    const gate = (entry: { kind: 'BOT' | 'CHARACTER'; id: number }) => {
       const key = speakerKey(entry)
       if (self && key === speakerKey(self)) return false
+      if (allowed.size && !allowed.has(key)) return false
       return (visits.get(key) || 0) < visitCap
-    })
+    }
+
+    let eligible = scored.filter(gate)
+    let tier = connection.tier
+    // The cap must never starve a target of its only connected speakers. If
+    // every connected candidate is already at their limit, let them through
+    // again rather than casting a stranger -- a real connection said twice is
+    // better than a plausible one said once.
+    if (!eligible.length && allowed.size) {
+      eligible = scored.filter((entry) => {
+        const key = speakerKey(entry)
+        if (self && key === speakerKey(self)) return false
+        return allowed.has(key)
+      })
+    }
+    if (!eligible.length) {
+      tier = 'unconnected'
+      eligible = scored.filter((entry) => {
+        const key = speakerKey(entry)
+        if (self && key === speakerKey(self)) return false
+        return (visits.get(key) || 0) < visitCap
+      })
+    }
+    tierCounts.set(tier, (tierCounts.get(tier) || 0) + 1)
     const cast = rankCommentSpeakers(profile, eligible, visitorCount)
     for (const speaker of cast) {
       const key = speakerKey(speaker)
@@ -316,6 +397,7 @@ async function main() {
       title: profile.title,
       type: target.type,
       shape,
+      castTier: tier,
       category: profile.category,
       description: profile.description,
       flavorText: profile.flavorText,
@@ -342,8 +424,16 @@ async function main() {
     })
   }
 
+  function reportTiers() {
+    const parts = [...tierCounts.entries()]
+      .sort((left, right) => right[1] - left[1])
+      .map(([tier, n]) => `${tier} ${n}`)
+    console.log(`Cast by connection: ${parts.join(', ')}.`)
+  }
+
   if (jsonOut) {
     writeFileSync(resolve(root, jsonOut), `${JSON.stringify(plan, null, 2)}\n`, 'utf8')
+    reportTiers()
     console.log(`Wrote ${plan.length} planned target(s) to ${jsonOut}.`)
     return
   }
@@ -372,6 +462,7 @@ async function main() {
     }
     console.log('')
   }
+  reportTiers()
   console.log(
     `${plan.length} target(s), indices ${from}..${from + plan.length - 1} of ${targets.length}.`,
   )

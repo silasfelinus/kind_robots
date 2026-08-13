@@ -40,4 +40,5 @@ jobs:
       - run: npx tsx utils/scripts/verifyPartialPublishPrefix.ts
       - run: npx tsx utils/scripts/verifyCommentDraftQuality.ts
       - run: npx tsx utils/scripts/verifyPopulationDraftQuality.ts
+      - run: npx tsx utils/scripts/verifyPopulationCasting.ts
       - run: npx tsx utils/scripts/verifyReactionTargetCoverage.ts

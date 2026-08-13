@@ -59,6 +59,12 @@ jobs:
       - name: Verify final Facet catalog directives
         run: npx tsx utils/scripts/verifyFacetCatalogDirectives.ts
 
+      # Curation creates MOOD rows; the directives step asserts none remain.
+      # Without this the disagreement only surfaces sixteen minutes into a
+      # production maintenance run, after the delete step has already committed.
+      - name: Verify curated MOOD definitions have a migration
+        run: npx tsx utils/scripts/verifyFacetCurationMoodPolicy.ts
+
       - name: Verify retired Facet cleanup and artwork queue
         run: npx tsx utils/scripts/verifyFacetCatalogMaintenance.ts
 

@@ -43,7 +43,11 @@ const RANDOM_KEY_TAXONOMIES: Record<string, FacetTaxonomy[]> = {
   theme: ['THEME'],
   style: ['STYLE'],
   palette: ['COLOR'],
-  mood: ['MOOD'],
+  // MOOD is empty by policy -- the directives migrate narrative tone to THEME
+  // and assert no MOOD profiles remain. A `{mood}` placeholder pointed at the
+  // old taxonomy resolves to nothing at all, so it reads THEME, which is where
+  // those rows now live.
+  mood: ['THEME'],
   setting: ['SETTING'],
   core: ['CORE'],
   artDirection: ['ART_DIRECTION', 'PROMPT_ENHANCEMENT'],

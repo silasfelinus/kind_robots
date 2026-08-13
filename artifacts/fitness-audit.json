@@ -4,8 +4,8 @@
     "characters": 227,
     "dreams": 48,
     "scenarios": 116,
-    "facets": 1591,
-    "genreFacets": 160,
+    "facets": 1604,
+    "genreFacets": 171,
     "characterFacetLinks": 724
   },
   "gaps": {
@@ -1711,94 +1711,9 @@
     ],
     "charactersWithoutAnyGenre": [
       {
-        "id": 86,
-        "name": "Brine",
-        "genreText": "Surreal Aquatic Comedy"
-      },
-      {
-        "id": 110,
-        "name": "Zuzu",
-        "genreText": "Weird Western"
-      },
-      {
-        "id": 111,
-        "name": "Old Shelba",
-        "genreText": "Weird Western"
-      },
-      {
-        "id": 112,
-        "name": "Tomoe of the Long Road",
-        "genreText": "Weird Western"
-      },
-      {
-        "id": 113,
-        "name": "The Smiling Magpie",
-        "genreText": "Weird Western"
-      },
-      {
-        "id": 114,
-        "name": "Marrow",
-        "genreText": "Weird Western"
-      },
-      {
-        "id": 120,
-        "name": "Maren the Anemone Heir",
-        "genreText": "Surreal Aquatic"
-      },
-      {
-        "id": 121,
-        "name": "Pebble",
-        "genreText": "Surreal Aquatic"
-      },
-      {
-        "id": 122,
-        "name": "Lord Vance of the Abyssal Court",
-        "genreText": "Surreal Aquatic"
-      },
-      {
-        "id": 123,
-        "name": "Professor Coil",
-        "genreText": "Surreal Aquatic"
-      },
-      {
-        "id": 124,
-        "name": "The Leviathan That Knows Your Name",
-        "genreText": "Deep-Sea Horror"
-      },
-      {
-        "id": 130,
-        "name": "Mortimer Vance",
-        "genreText": "Undead Glamour"
-      },
-      {
         "id": 131,
         "name": "Scustodian Bray",
         "genreText": "Undead Bureaucracy"
-      },
-      {
-        "id": 132,
-        "name": "Biscuit",
-        "genreText": "Cozy Undead"
-      },
-      {
-        "id": 133,
-        "name": "The Widow Marrowlace",
-        "genreText": "Undead Glamour"
-      },
-      {
-        "id": 138,
-        "name": "Penny Wrecker",
-        "genreText": "Office Satire"
-      },
-      {
-        "id": 139,
-        "name": "The Form That Bites",
-        "genreText": "Cosmic Bureaucracy"
-      },
-      {
-        "id": 140,
-        "name": "Devorah Kell",
-        "genreText": "Office Satire"
       },
       {
         "id": 141,
@@ -1811,34 +1726,14 @@
         "genreText": "Gauntlet Spectacle"
       },
       {
-        "id": 145,
-        "name": "The Ringmaster of the Tent That Wasn't There Yesterday",
-        "genreText": "Dark Circus"
-      },
-      {
-        "id": 146,
-        "name": "Pirouette",
-        "genreText": "Dark Circus"
-      },
-      {
         "id": 147,
         "name": "Maestro Clank",
         "genreText": "Gothic Mechanical"
       },
       {
-        "id": 149,
-        "name": "The Mirror Menagerie Keeper",
-        "genreText": "Dark Circus"
-      },
-      {
         "id": 151,
         "name": "Mirror Dorothy",
         "genreText": "Dreampunk Noir"
-      },
-      {
-        "id": 152,
-        "name": "The Cardigan Heron",
-        "genreText": "Magic Realism"
       },
       {
         "id": 153,
@@ -1874,21 +1769,6 @@
         "id": 164,
         "name": "Pixel",
         "genreText": "Meta Sci-Fi"
-      },
-      {
-        "id": 165,
-        "name": "Serendipity Sal",
-        "genreText": "Sci-Fi Comedy"
-      },
-      {
-        "id": 168,
-        "name": "Boss the Janitor",
-        "genreText": "Sci-Fi Comedy"
-      },
-      {
-        "id": 170,
-        "name": "Glorp the Zookeeper",
-        "genreText": "Sci-Fi Comedy"
       },
       {
         "id": 172,
@@ -1931,84 +1811,14 @@
         "genreText": "Culinary Time Travel"
       },
       {
-        "id": 199,
-        "name": "The Model That Dreamed",
-        "genreText": "Gentle Sci-Fi"
-      },
-      {
-        "id": 200,
-        "name": "BB-Hope",
-        "genreText": "Gentle Sci-Fi"
-      },
-      {
-        "id": 201,
-        "name": "The Daisy Who Saw It Start",
-        "genreText": "Eco-Fantasy"
-      },
-      {
-        "id": 202,
-        "name": "The Last Gardener",
-        "genreText": "Eco-Fantasy"
-      },
-      {
-        "id": 203,
-        "name": "The Caretaker of the Living Soil",
-        "genreText": "Eco-Fantasy"
-      },
-      {
         "id": 204,
         "name": "The Mirror Dorothy You Trust",
         "genreText": "Dreampunk Noir"
       },
       {
-        "id": 205,
-        "name": "Captain Mara Vey",
-        "genreText": "Deep-Sea Horror"
-      },
-      {
-        "id": 206,
-        "name": "The Sea Anemone Who Will Take Over the World",
-        "genreText": "Absurdist Strategy"
-      },
-      {
-        "id": 208,
-        "name": "Dewy the Dugong",
-        "genreText": "Absurdist Strategy"
-      },
-      {
-        "id": 210,
-        "name": "The Crow Who Collects",
-        "genreText": "Animal Interiority"
-      },
-      {
-        "id": 211,
-        "name": "The Many-Eyed Manager",
-        "genreText": "Cosmic Bureaucracy"
-      },
-      {
-        "id": 212,
-        "name": "Granny Hexwood",
-        "genreText": "Cozy Undead"
-      },
-      {
         "id": 214,
         "name": "The Sentient Sketchbook",
         "genreText": "Surreal Horror"
-      },
-      {
-        "id": 215,
-        "name": "The Octopus in the Study",
-        "genreText": "Animal Interiority"
-      },
-      {
-        "id": 217,
-        "name": "The Overqualified Candidate",
-        "genreText": "Heist"
-      },
-      {
-        "id": 219,
-        "name": "The Stag Who Holds Court",
-        "genreText": "Animal Interiority"
       },
       {
         "id": 223,
@@ -2021,16 +1831,6 @@
         "genreText": "Puzzle Fantasy"
       },
       {
-        "id": 225,
-        "name": "Hex the Necromancer",
-        "genreText": "Cozy Undead"
-      },
-      {
-        "id": 226,
-        "name": "The Aerialist With No Wire",
-        "genreText": "Dark Circus"
-      },
-      {
         "id": 227,
         "name": "The Tiny Diplomat of the Tide Pool",
         "genreText": "Underwater Court"
@@ -2041,64 +1841,9 @@
         "genreText": "Gothic Mechanical"
       },
       {
-        "id": 229,
-        "name": "The Pollinator Choir",
-        "genreText": "Eco-Fantasy"
-      },
-      {
-        "id": 230,
-        "name": "The Heron's Misfiled Person",
-        "genreText": "Magic Realism"
-      },
-      {
-        "id": 231,
-        "name": "The Eucalyptus Teahouse Master",
-        "genreText": "Weird Western"
-      },
-      {
-        "id": 235,
-        "name": "The Disaster With Potential",
-        "genreText": "Heist"
-      },
-      {
-        "id": 236,
-        "name": "The Reanimation Counter's Best Work",
-        "genreText": "Undead Glamour"
-      },
-      {
-        "id": 242,
-        "name": "Load-Bearing Lumen",
-        "genreText": "Hopepunk"
-      },
-      {
         "id": 243,
         "name": "Recursion",
         "genreText": "Meta"
-      },
-      {
-        "id": 260,
-        "name": "Patch",
-        "genreText": "Hopepunk"
-      },
-      {
-        "id": 317,
-        "name": "First Responder",
-        "genreText": "Hopepunk"
-      },
-      {
-        "id": 318,
-        "name": "The Whole Swarm",
-        "genreText": "Hopepunk"
-      },
-      {
-        "id": 333,
-        "name": "The Keeper of the Net",
-        "genreText": "Hopepunk"
-      },
-      {
-        "id": 353,
-        "name": "Amica",
-        "genreText": "Hopepunk"
       },
       {
         "id": 354,
@@ -2149,21 +1894,6 @@
         "id": 989,
         "name": "Bram the Tin-Runner",
         "genreText": "Tin & Echo"
-      },
-      {
-        "id": 1024,
-        "name": "Undersecretary Wrenna Vail",
-        "genreText": "Elegiac Wonder"
-      },
-      {
-        "id": 1025,
-        "name": "Corvin Pell",
-        "genreText": "Elegiac Wonder"
-      },
-      {
-        "id": 1026,
-        "name": "Iso",
-        "genreText": "Elegiac Wonder"
       },
       {
         "id": 1067,
@@ -3949,14 +3679,6 @@
         ]
       },
       {
-        "id": 1895,
-        "title": "Heist Fiction",
-        "aliases": [
-          "heist-fiction",
-          "Heist Genre"
-        ]
-      },
-      {
         "id": 1896,
         "title": "Japanese Folkloric Fantasy",
         "aliases": [
@@ -3981,32 +3703,8 @@
     ],
     "unresolvedVocabulary": [
       {
-        "count": 13,
-        "sample": "Weird Western"
-      },
-      {
-        "count": 9,
-        "sample": "Eco-Fantasy"
-      },
-      {
         "count": 7,
         "sample": "adventure"
-      },
-      {
-        "count": 6,
-        "sample": "Dark Circus"
-      },
-      {
-        "count": 6,
-        "sample": "Heist"
-      },
-      {
-        "count": 6,
-        "sample": "Hopepunk"
-      },
-      {
-        "count": 5,
-        "sample": "Sci-Fi Comedy"
       },
       {
         "count": 5,
@@ -4018,31 +3716,11 @@
       },
       {
         "count": 5,
-        "sample": "Elegiac Wonder"
-      },
-      {
-        "count": 5,
         "sample": "Wind-Fortune"
       },
       {
         "count": 5,
         "sample": "Stitch & Echo"
-      },
-      {
-        "count": 4,
-        "sample": "Surreal Aquatic"
-      },
-      {
-        "count": 4,
-        "sample": "Undead Glamour"
-      },
-      {
-        "count": 4,
-        "sample": "Gentle Sci-Fi"
-      },
-      {
-        "count": 4,
-        "sample": "Animal Interiority"
       },
       {
         "count": 4,
@@ -4054,27 +3732,7 @@
       },
       {
         "count": 3,
-        "sample": "Deep-Sea Horror"
-      },
-      {
-        "count": 3,
-        "sample": "Cozy Undead"
-      },
-      {
-        "count": 3,
-        "sample": "Office Satire"
-      },
-      {
-        "count": 3,
-        "sample": "Cosmic Bureaucracy"
-      },
-      {
-        "count": 3,
         "sample": "Workplace Satire"
-      },
-      {
-        "count": 3,
-        "sample": "Magic Realism"
       },
       {
         "count": 3,
@@ -4091,10 +3749,6 @@
       {
         "count": 3,
         "sample": "Surreal Horror"
-      },
-      {
-        "count": 3,
-        "sample": "Absurdist Strategy"
       },
       {
         "count": 3,
@@ -4255,10 +3909,6 @@
       {
         "count": 2,
         "sample": "crime"
-      },
-      {
-        "count": 1,
-        "sample": "Surreal Aquatic Comedy"
       },
       {
         "count": 1,
@@ -5617,6 +5267,66 @@
           "inner": {
             "id": 766,
             "title": "Fantasy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 2058,
+            "title": "Eco-Fantasy"
+          },
+          "inner": {
+            "id": 766,
+            "title": "Fantasy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 2061,
+            "title": "Sci-Fi Comedy"
+          },
+          "inner": {
+            "id": 767,
+            "title": "Sci-Fi"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 2061,
+            "title": "Sci-Fi Comedy"
+          },
+          "inner": {
+            "id": 1635,
+            "title": "Comedy"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 2062,
+            "title": "Deep-Sea Horror"
+          },
+          "inner": {
+            "id": 1634,
+            "title": "Horror"
+          },
+          "taxonomy": "GENRE"
+        },
+        {
+          "kind": "containment",
+          "outer": {
+            "id": 2065,
+            "title": "Gentle Sci-Fi"
+          },
+          "inner": {
+            "id": 767,
+            "title": "Sci-Fi"
           },
           "taxonomy": "GENRE"
         },

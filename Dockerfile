@@ -65,6 +65,14 @@ COPY --from=build --chown=node:node /app/prisma.config.ts ./prisma.config.ts
 COPY --from=build /app/node_modules/@img/sharp-libvips-linux-x64/lib/ /usr/local/lib/
 RUN ldconfig && test -e /usr/local/lib/libvips-cpp.so.8.17.3
 
+# node:24-bookworm-slim ships without openssl, so the Prisma CLI cannot detect a
+# version and warns that it is "Defaulting to openssl-1.1.x" -- a guess, in the
+# image that now runs production migrations. Installing it lets Prisma pick the
+# right query engine rather than hoping.
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+
 RUN ln -s /app/.output/public /app/public
 
 USER node

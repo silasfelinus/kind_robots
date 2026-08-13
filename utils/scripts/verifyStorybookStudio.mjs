@@ -68,6 +68,9 @@ assert.ok(
   'Storybook store must not treat roadmap tasks as story state',
 )
 
+// Opening generation is the only beat created before the reader has any
+// recovery control. A failed first weave must return to the saved setup draft
+// instead of leaving an active zero-beat session that cannot continue.
 const beginStoryBlock = store.slice(
   store.indexOf('async function beginStory'),
   store.indexOf('async function answerCurrentBeat'),

@@ -713,6 +713,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import {
   BRAINSTORM_MAX_RESULTS,
@@ -811,6 +812,8 @@ const starterPremises = [
   },
 ] as const
 
+const route = useRoute()
+const router = useRouter()
 const store = useBrainstormStore()
 const {
   premise,
@@ -998,8 +1001,54 @@ const persistenceErrorHeading = computed(() => {
   return 'Saved work hit a snag'
 })
 
+/*
+ * ARRIVING WITH A SOURCE ALREADY CHOSEN (brainstorm/t-013).
+ *
+ * Mirrors storybook-page.vue's seedFromQuery(): a source object elsewhere in
+ * the app (today, a Character's "Brainstorm variations" button) can launch
+ * straight into a grounded session instead of making the user find and pick
+ * it again in the "Ground it in a Kind Robots object" panel. Generic over
+ * modelType -- any adapter registered in brainstormSourceAdapters.ts works
+ * here, not just Character, so a future Dream/Scenario/Reward entry point
+ * (brainstorm/t-014, t-019) needs no change to this function.
+ *
+ * Seeds on top of the restored session (called after initializeSession), and
+ * clears the consumed query keys immediately so a reload/bookmark/share
+ * doesn't silently re-seed after the user has moved the session on.
+ */
+function seedFromQuery(): void {
+  const single = (value: unknown): string | null => {
+    const raw = Array.isArray(value) ? value[0] : value
+    return typeof raw === 'string' && raw ? raw : null
+  }
+
+  const modelType = single(route.query.source)
+  const rawId = single(route.query.sourceId)
+  const id = rawId ? Number(rawId) : NaN
+  const intent = single(route.query.intent)
+
+  if (modelType && Number.isInteger(id) && id > 0) {
+    store.setSource({ modelType, id, ...(intent ? { intent } : {}) })
+  }
+
+  // Prefill the premise from intent only when the composer is still empty --
+  // never clobber a premise the user (or the restored session) already has.
+  if (intent && !premise.value.trim()) {
+    store.setPremise(intent)
+  }
+
+  const consumed = ['source', 'sourceId', 'intent']
+  if (!consumed.some((key) => route.query[key])) return
+
+  const query = Object.fromEntries(
+    Object.entries(route.query).filter(([key]) => !consumed.includes(key)),
+  )
+  void router.replace({ query })
+}
+
 onMounted(() => {
   store.initializeSession()
+  seedFromQuery()
 })
 
 function returnTypeSelected(id: BrainstormReturnTypeId): boolean {

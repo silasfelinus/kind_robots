@@ -1,0 +1,43 @@
+name: Brainstorm Object-Entry Links Contract
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/brainstorm-object-entry-links-contract.yml'
+      - 'components/brainstorm/**'
+      - 'components/characters/character-manager.vue'
+      - 'utils/scripts/verifyBrainstormObjectEntryLinks.mjs'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/brainstorm-object-entry-links-contract.yml'
+      - 'components/brainstorm/**'
+      - 'components/characters/character-manager.vue'
+      - 'utils/scripts/verifyBrainstormObjectEntryLinks.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: brainstorm-object-entry-links-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    name: Character -> Brainstorm object-entry contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Verify Brainstorm object-entry links
+        run: node utils/scripts/verifyBrainstormObjectEntryLinks.mjs

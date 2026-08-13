@@ -258,6 +258,41 @@ assert.match(replacement.userPrompt, /Replacement task:/)
 assert.match(replacement.userPrompt, /Dark humor ×1/)
 assert.match(replacement.userPrompt, /Too familiar\. Find a stranger mechanism\./)
 
+const ungrounded = buildBrainstormPrompts({
+  premise: 'Invent art-prompt variations for this character',
+  count: 4,
+  mode: 'freeform',
+  source: { modelType: 'character', id: 42 },
+})
+assert.doesNotMatch(
+  ungrounded.userPrompt,
+  /Grounded in this Kind Robots object/,
+  'a source ref alone (no resolved context) must not add a grounding block',
+)
+
+const grounded = buildBrainstormPrompts(
+  {
+    premise: 'Invent art-prompt variations for this character',
+    count: 4,
+    mode: 'freeform',
+    source: { modelType: 'character', id: 42 },
+  },
+  'Character: Ami (honorific: butterfly guide). Traits: species: butterfly-person. Voice: personality: cheerful and curious.',
+)
+assert.match(grounded.userPrompt, /Grounded in this Kind Robots object/)
+assert.match(grounded.userPrompt, /Ami \(honorific: butterfly guide\)/)
+assert.match(grounded.userPrompt, /do not contradict them, rename the subject/)
+
+const groundedBlank = buildBrainstormPrompts(
+  { premise: 'Invent something', count: 2, source: null },
+  '   ',
+)
+assert.doesNotMatch(
+  groundedBlank.userPrompt,
+  /Grounded in this Kind Robots object/,
+  'blank/whitespace-only context must not add an empty grounding block',
+)
+
 const branch = buildBrainstormPrompts({
   premise: 'Invent stage deaths for a cartoonish improv game',
   count: 1,
@@ -331,6 +366,16 @@ assert.match(endpoint, /normalizedReturnTypes\(body\.returnTypes, batchShape, co
 assert.match(endpoint, /manaGate\(event/)
 assert.match(endpoint, /parseBrainstormProviderOutput\(raw, request\.count, request\)/)
 assert.match(endpoint, /errorHandler\(error\)/)
+assert.match(
+  endpoint,
+  /resolveBrainstormSourceContext\(\s*\n?\s*request\.source,\s*\n?\s*viewer,?\s*\n?\s*\)/,
+  'the source ref must be resolved server-side (with the authenticated viewer, for the canView check) before prompts are built',
+)
+assert.match(
+  endpoint,
+  /buildBrainstormPrompts\(\s*\n?\s*request,\s*\n?\s*sourceContext,?\s*\n?\s*\)/,
+  'the resolved source context must actually reach buildBrainstormPrompts',
+)
 assert.doesNotMatch(endpoint, /body\.server\?\.baseUrl/)
 assert.doesNotMatch(endpoint, /body\.server\?\.endpointPath/)
 

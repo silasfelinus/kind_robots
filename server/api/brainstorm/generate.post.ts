@@ -37,6 +37,7 @@ import type {
 } from '../../utils/suggest/suggestTypes'
 import { parseBrainstormProviderOutput } from '../../utils/brainstorm/brainstormParser'
 import { buildBrainstormPrompts } from '../../utils/brainstorm/brainstormPrompt'
+import { resolveBrainstormSourceContext } from '../../utils/brainstorm/brainstormSourceContext'
 import {
   brainstormProviderApiKey,
   callBrainstormProvider,
@@ -325,7 +326,14 @@ export default defineEventHandler(async (event) => {
     })
 
     const config = useRuntimeConfig()
-    const { systemPrompt, userPrompt } = buildBrainstormPrompts(request)
+    const sourceContext = await resolveBrainstormSourceContext(
+      request.source,
+      viewer,
+    )
+    const { systemPrompt, userPrompt } = buildBrainstormPrompts(
+      request,
+      sourceContext,
+    )
 
     console.log('[brainstorm:generate]', {
       provider,
@@ -335,6 +343,7 @@ export default defineEventHandler(async (event) => {
       mode: request.mode,
       batchShape: request.batchShape,
       returnTypes: request.returnTypes,
+      grounded: Boolean(sourceContext),
       replacement: Boolean(request.replaceCandidateId),
       branch: Boolean(request.parentCandidateId),
     })

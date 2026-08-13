@@ -22,6 +22,15 @@
             <Icon name="kind-icon:book-open" class="size-4" />
             <span class="hidden sm:inline">Start a story with this</span>
           </button>
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm rounded-xl"
+            title="Brainstorm variations grounded in this Character"
+            @click="startBrainstormWithCharacter"
+          >
+            <Icon name="kind-icon:brain" class="size-4" />
+            <span class="hidden sm:inline">Brainstorm variations</span>
+          </button>
         </div>
         <character-interact class="h-full min-h-0 flex-1 overflow-hidden" />
       </div>
@@ -94,6 +103,19 @@ function startStoryWithCharacter(): void {
   const slug = characterStore.selectedCharacter?.slug
   if (!slug) return
   void navigateTo({ path: '/storybook', query: { character: slug } })
+}
+
+function startBrainstormWithCharacter(): void {
+  const character = characterStore.selectedCharacter
+  if (!character?.id) return
+  void navigateTo({
+    path: '/brainstorm',
+    query: {
+      source: 'character',
+      sourceId: String(character.id),
+      intent: `Generate art-prompt, situation, and dialogue-hook variations for ${character.name || 'this Character'} that preserve their canonical traits.`,
+    },
+  })
 }
 
 async function refreshManagerData() {

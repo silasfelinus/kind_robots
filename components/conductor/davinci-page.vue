@@ -163,7 +163,7 @@
                instead of a transparent fallback. -->
           <div
             v-else-if="narrationError"
-            class="flex flex-col items-center gap-3 rounded-2xl border border-warning/40 bg-warning/5 p-6 text-center"
+            class="flex flex-col items-center gap-3 rounded-2xl border border-warning/40 bg-warning/10 p-6 text-center"
           >
             <Icon name="kind-icon:warning" class="size-8 text-warning/70" />
             <p class="text-sm text-base-content/70">

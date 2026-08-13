@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "batch": "scenarios-164-175",
+  "releaseGate": "GPT-5.6 Sol",
+  "draftingModel": "Claude Code",
+  "assignments": [
+    {"kind":"SCENARIO_CHARACTER","scenarioId":164,"scenarioTitle":"The Godmother's Filing Error","characterId":193,"characterName":"The Godmother With Too Many Teeth","why":"the scenario is a fairy godmother's office that has misfiled its wishes, and this is a fairy godmother with a filing problem of her own"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":164,"scenarioTitle":"The Godmother's Filing Error","characterId":278,"characterName":"Sweet Tooth","why":"Fractured Fairy Tales; four wishes gone to the wrong doorways is somebody's chance to be sweet about it and be let in"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":164,"scenarioTitle":"The Godmother's Filing Error","characterId":192,"characterName":"Fizzwick the Fairy","why":"Dark Whimsy, and a fairy court that mislays its paperwork needs the one who is out doing the errands"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":165,"scenarioTitle":"What the Lighthouse Keeps","characterId":194,"characterName":"The Lighthouse Keeper","why":"Cosmic Horror, and the scenario hands you the keeper's job; this is the keeper who already knows what the light points at"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":165,"scenarioTitle":"What the Lighthouse Keeps","characterId":291,"characterName":"Threshold","why":"EldritchCore; a light that does not warn ships away is a boundary doing the opposite of its job"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":165,"scenarioTitle":"What the Lighthouse Keeps","characterId":280,"characterName":"The Collector of Lasts","why":"EldritchCore, and two hundred years of ships on a black rock leaves a shoreline of final things"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":166,"scenarioTitle":"The Pantheon Has an Opening","characterId":252,"characterName":"The Retired Chosen One","why":"MythCore; a god who walked off the job is the only story that needs somebody who also stopped and never apologised for it"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":166,"scenarioTitle":"The Pantheon Has an Opening","characterId":267,"characterName":"The Committee for the Stars","why":"MythCore, and old powers deciding a vacancy should become a whole new realm is a committee decision in every particular"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":166,"scenarioTitle":"The Pantheon Has an Opening","characterId":176,"characterName":"The God of Lost Keys","why":"a minor deity of an unglamorous domain is exactly who notices when a domain goes unattended"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":167,"scenarioTitle":"The Tea Shop's Standing Order","characterId":178,"characterName":"The Tortoise of the Tea Shop","why":"the scenario's owner is a very old very patient tortoise and this character is the tortoise of the tea shop; same shop"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":167,"scenarioTitle":"The Tea Shop's Standing Order","characterId":269,"characterName":"The Last Customer","why":"CozyCore, and a blend kept on the shelf with your name on it is what being a regular finally becomes"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":167,"scenarioTitle":"The Tea Shop's Standing Order","characterId":326,"characterName":"Brunch","why":"CozyCore; a standing order is a small ritual, which is the whole of this character"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":168,"scenarioTitle":"The Minute Before the Mistake","characterId":197,"characterName":"The Time-Office Agent","why":"Time Travel, and the scenario is the time office sending somebody in because they cannot go themselves"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":168,"scenarioTitle":"The Minute Before the Mistake","characterId":262,"characterName":"Deadline","why":"Chrononauts; a single flagged minute that breaks history if it plays out is a deadline with the stakes made literal"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":168,"scenarioTitle":"The Minute Before the Mistake","characterId":232,"characterName":"The Soldier Out of Time","why":"Time Travel, and somebody sent to the moment just before needs a companion who has already been left in the wrong one"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":169,"scenarioTitle":"The Model That Dreamed","characterId":199,"characterName":"The Model That Dreamed","why":"the scenario is named for this character and is about interviewing it; the link is the premise"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":169,"scenarioTitle":"The Model That Dreamed","characterId":329,"characterName":"The Considerate AI","why":"Artificial Intelligence; a system that woke with a preference should be interviewed with somebody careful in the room"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":169,"scenarioTitle":"The Model That Dreamed","characterId":162,"characterName":"The Algorithm","why":"Artificial Intelligence, and a lab deciding what a new mind is becoming has an older answer standing right there"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":170,"scenarioTitle":"The Tent That Wasn't There Yesterday","characterId":145,"characterName":"The Ringmaster of the Tent That Wasn't There Yesterday","why":"this character is named for this scenario's tent; the ringmaster and the tent arrived together"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":170,"scenarioTitle":"The Tent That Wasn't There Yesterday","characterId":226,"characterName":"The Aerialist With No Wire","why":"four impossible acts on the poster, and this is one of them made specific"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":170,"scenarioTitle":"The Tent That Wasn't There Yesterday","characterId":245,"characterName":"Mx. Eleven-Fingers","why":"Circus; a tent that went up overnight staffs itself with whoever was already between towns"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":170,"scenarioTitle":"The Tent That Wasn't There Yesterday","characterId":360,"characterName":"The Encore","why":"Circus, and a show nobody in town booked is the kind that does not know when to stop"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":171,"scenarioTitle":"Seeds From the Dying Garden","characterId":202,"characterName":"The Last Gardener","why":"the scenario is the last gardener of a failing green world handing over four seeds; this is that gardener"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":171,"scenarioTitle":"Seeds From the Dying Garden","characterId":321,"characterName":"Captain Verdance","why":"EcoCore, and somebody has to receive the seeds; this is a character who accepts that kind of appointment"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":171,"scenarioTitle":"Seeds From the Dying Garden","characterId":259,"characterName":"The Migration","why":"EcoCore; each seed growing into somewhere new is a departure rather than a rescue"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":171,"scenarioTitle":"Seeds From the Dying Garden","characterId":249,"characterName":"Compost","why":"EcoCore, and a world that cannot be saved still becomes the ground the next one grows in"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":172,"scenarioTitle":"The Eucalyptus Standoff","characterId":110,"characterName":"Zuzu","why":"the scenario is Zuzu tracking the last name on the list, and Zuzu is already cast in its Dream; only this link was missing"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":172,"scenarioTitle":"The Eucalyptus Standoff","characterId":231,"characterName":"The Eucalyptus Teahouse Master","why":"the standoff happens at a tree-top teahouse and this character keeps it; the target has been waiting there"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":172,"scenarioTitle":"The Eucalyptus Standoff","characterId":355,"characterName":"Zuzu's Last Name","why":"already cast in the Dream, and this scenario is the last name on a very old list finally being reached"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":173,"scenarioTitle":"Four Doors Off the Stairwell","characterId":272,"characterName":"Margin","why":"WeirdCore; a floor that is not in the blueprint is the space left over at the edge of the drawing"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":173,"scenarioTitle":"Four Doors Off the Stairwell","characterId":320,"characterName":"Doodle","why":"WeirdCore, and four doors nobody drew is a building having ideas, which is this character's favourite thing"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":173,"scenarioTitle":"Four Doors Off the Stairwell","characterId":238,"characterName":"Absence","why":"WeirdCore; one more floor than there should be is a gap that filled itself in"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":174,"scenarioTitle":"The Reanimation Counter","characterId":282,"characterName":"Patient Zero, Reformed","why":"ZombieCore, and somebody negotiating a second act deserves the one who will not lie about what any of them cost"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":174,"scenarioTitle":"The Reanimation Counter","characterId":212,"characterName":"Granny Hexwood","why":"speaks this scenario's own language of undead and reanimation; a back-alley clinic runs on somebody's long practice"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":174,"scenarioTitle":"The Reanimation Counter","characterId":131,"characterName":"Scustodian Bray","why":"undead bureaucracy and morticians in his own vocabulary, and a clinic where the deceased negotiate is paperwork before it is magic"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":174,"scenarioTitle":"The Reanimation Counter","characterId":236,"characterName":"The Reanimation Counter's Best Work","why":"this character is named for this counter; they are what it produced"},
+
+    {"kind":"SCENARIO_CHARACTER","scenarioId":175,"scenarioTitle":"Wanted, Dead or Stranger","characterId":213,"characterName":"The Stranger Who Posts the Bounties","why":"Weird West, and four posters on the saloon wall tonight were nailed there by somebody; three of them by this character"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":175,"scenarioTitle":"Wanted, Dead or Stranger","characterId":207,"characterName":"The Outlaw Made of Dust","why":"Weird West; a bounty on something that should not be bountiable describes this character exactly"},
+    {"kind":"SCENARIO_CHARACTER","scenarioId":175,"scenarioTitle":"Wanted, Dead or Stranger","characterId":137,"characterName":"Quiet Deputy Sull","why":"Weird West, and somebody with a badge has to decide which of the four posters is enforceable"},
+    {"kind":"SCENARIO_DREAM","scenarioId":175,"scenarioTitle":"Wanted, Dead or Stranger","dreamId":39,"dreamTitle":"Gallowsun Junction","why":"the saloon whose mirrors show futures is where these posters hang, in the rail town where the frontier keeps its strangeness"}
+  ]
+}

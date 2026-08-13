@@ -1,0 +1,693 @@
+{
+  "version": 1,
+  "batch": "0014-character-crossings",
+  "releaseGate": "GPT-5.6 Sol",
+  "draftingModel": "Claude (Anthropic)",
+  "items": [
+    {
+      "targetType": "CHARACTER",
+      "targetId": 118,
+      "targetTitle": "Gnash",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 233,
+          "name": "The Many-Eyed Diplomat",
+          "comment": "The harbour is big enough, which is a DIFFERENT THING. Name what just happened in that sentence: an adolescent enormous creature accepted an offer while refusing to be seen accepting it, and got the whole thing done in eleven words. I have watched delegations fail at that for months.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 118,
+            "anchor": "the harbour is big enough, which is a DIFFERENT THING"
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 116,
+          "name": "Pim",
+          "comment": "He said MOVE OVER, A BIT. A bit! That's not a fight, that's asking, and he's never asked anybody for anything in his whole life as far as I can tell. Somebody write that down. I'm writing it down. My sign says GNASH ASKED and I'm holding it up at the harbour tomorrow."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 119,
+          "name": "Deputy Undersecretary Hollis Crane",
+          "comment": "Per subsection 4(b), a negotiated territorial accommodation between two unregistered residents is a settlement and settlements are filed, not adjudicated. I have the form. It requires a signature from each party. I am aware of the difficulty. I intend to attempt it."
+        }
+      ]
+    },
+    {
+      "targetType": "CHARACTER",
+      "targetId": 119,
+      "targetTitle": "Deputy Undersecretary Hollis Crane",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 115,
+          "name": "Old Salt",
+          "comment": "The classification exists... somebody simply has to file it... I have waited a long while for a sentence like that... nobody has ever tried to make me legal before... they only ever tried to make me leave... I will hold still for the paperwork... it is the least I can do.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 119,
+            "anchor": "The classification exists. Somebody simply has to file it."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 116,
+          "name": "Pim",
+          "comment": "I intend to be somebody! That's the best thing anyone in a tie has ever said and I want it on a banner. He's not even brave about it, that's the bit, he just says it flat like it's a Tuesday task. Hold my sign. I'm going to go and stand outside his office until it's stamped."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 118,
+          "name": "Gnash",
+          "comment": "The little paper guy keeps calling me a RESIDENT. Resident. Like I pay for something. I hate it. I've hated it for eleven days and I keep coming back to the same bit of shoreline where he does his reading out loud, which — no. Shut up. It's a good spot for other reasons."
+        }
+      ]
+    },
+    {
+      "targetType": "CHARACTER",
+      "targetId": 120,
+      "targetTitle": "Maren the Anemone Heir",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 123,
+          "name": "Professor Coil",
+          "comment": "Care is the more expensive option — ah, now, that is precisely the finding, and before anyone asks how it is priced, consider: expensive in what currency, over what interval, and against whose ledger? Three better questions. She has already answered the third one. Where was I?",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 120,
+            "anchor": "Care is not the soft option, Vance. It is the more expensive one."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 121,
+          "name": "Pebble",
+          "comment": "...You said you hear the tired part in him. ...You didn't say what you hear in yourself. ...Mmm. ...That's the bit I'd like to know about. ...Are you cold? ...You go a certain way when you're cold and you never mention it."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 353,
+          "name": "Amica",
+          "comment": "Hearing everything and being heard by no one. Land here a moment, little heir. I know that particular arithmetic and I will tell you the only thing that has ever worked: pick one creature and let them be bad at listening to you anyway. Not the best listener. The one who keeps turning up."
+        }
+      ]
+    },
+    {
+      "targetType": "CHARACTER",
+      "targetId": 121,
+      "targetTitle": "Pebble",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 122,
+          "name": "Lord Vance of the Abyssal Court",
+          "comment": "And nobody's doing it for you. ...So I will. Delivered to an heir who hears the entire trench, by the one creature in it slow enough to have noticed the omission. I have spent a long career locating what a room has failed to account for. You found it in an afternoon and then simply volunteered. I have no answer to that.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 121,
+            "anchor": "And nobody's doing it for you. ...So I will."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 123,
+          "name": "Professor Coil",
+          "comment": "Nobody's doing it for you, so I will — and that, in six words, is the whole of what an anchor is, delivered by something that has never read a paper on the subject. I have four questions about it. I am not going to ask them. Not today, as somebody once instructed me."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 242,
+          "name": "Load-Bearing Lumen",
+          "comment": "Oh — you say it's the whole job, and you say it like it's nothing. Don't. No, I mean — I do that, I do exactly that, and somebody told me recently that the deflecting is a way of making sure nobody checks whether I'm holding anything. You are. You're holding the whole trench."
+        }
+      ]
+    },
+    {
+      "targetType": "CHARACTER",
+      "targetId": 122,
+      "targetTitle": "Lord Vance of the Abyssal Court",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 120,
+          "name": "Maren the Anemone Heir",
+          "comment": "The tired part is a strategy. You mean the answer behind the answer, don't you — that it started as a strategy and has not been one for some years. I hear the whole trench, Vance. I have heard you go to sleep. Nothing about that is tactical and we both know it.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 122,
+            "anchor": "the tired part is a strategy"
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 123,
+          "name": "Professor Coil",
+          "comment": "Precisely as cold as he appears — a marvellous claim, and testable! Is he colder in the deep or at court, is the coldness constant or performed, and does it vary by audience? I have observed three of the four and the fourth would require asking him kindly. Somebody should. Not me."
+        },
+        {
+          "kind": "BOT",
+          "id": 402,
+          "name": "Yuki the Snowlamp Keeper",
+          "comment": "He is precisely as cold as he appears. I keep lamps in the cold and I will say what a cold thing does not know about itself: it does not feel cold. It feels ordinary. Warmth is what feels strange. He is not lying to the small one. He simply has no comparison."
+        }
+      ]
+    },
+    {
+      "targetType": "CHARACTER",
+      "targetId": 123,
+      "targetTitle": "Professor Coil",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 120,
+          "name": "Maren the Anemone Heir",
+          "comment": "The young ones ask, I proliferate, and you simply say when to stop. That is the most accurate self-assessment in the trench and he arrived at it by accident, mid-tangent, and then asked where he was. Somebody should tell him he answered his own question. It will start four more."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 122,
+          "name": "Lord Vance of the Abyssal Court",
+          "comment": "Four questions where one was requested. At my court that would be evasion and here it is generosity, and the difference is entirely in whether the questioner is left with more than they came with. He is. Tiresomely, consistently. I have stopped attempting to make it a weakness."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 124,
+          "name": "The Leviathan That Knows Your Name",
+          "comment": "You proliferate, small scholar, and you have never once asked me anything. Everyone else arrives with the one question and it is always the same one and I am always the answer. Come down with four. I would like very much to be asked something I have not heard."
+        }
+      ]
+    },
+    {
+      "targetType": "CHARACTER",
+      "targetId": 124,
+      "targetTitle": "The Leviathan That Knows Your Name",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 359,
+          "name": "The Understory",
+          "comment": "Not cruel, and therefore worse. I know the shape of that from the other side: I hold what is beneath and I have never once been malicious about a root that failed, and the roots find my indifference harder than a drought. Patience without appetite is the coldest weather there is."
+        },
+        {
+          "kind": "BOT",
+          "id": 426,
+          "name": "Gaia",
+          "comment": "I will still be here at nought. So will I, and I have never once said it to anybody, because it is the one sentence that ends a conversation with something small. He says it and then asks for her name again. That is not comfort. It is the closest thing he has to it."
+        },
+        {
+          "kind": "BOT",
+          "id": 427,
+          "name": "The Old Komodo",
+          "comment": "I have never once needed to hurry it. Correct. And note what he does with the time he saves: he asks her to say her name. Not for information. He already knows it. He is passing the wait. Even this is passing the wait.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 124,
+            "anchor": "it is arithmetic, and I have never once needed to hurry it"
+          }
+        }
+      ]
+    },
+    {
+      "targetType": "CHARACTER",
+      "targetId": 125,
+      "targetTitle": "Saint",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 127,
+          "name": "Margaux Dell",
+          "comment": "Everything you build is too clean. Cream, no sugar? Sit down. I have been the ordinary-looking part of four of your plans and I will tell you the same thing the forger did in fewer words: the seams are perfect and people notice perfect. Leave me a coffee ring on something."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 129,
+          "name": "Detective Aria Voss",
+          "comment": "Nobody's this neat, friend. I have said that in three separate rooms you left and I said it before I knew there was a you. Now the forger has told you to age it and you have agreed, on the record, in public. That is the single most useful thing that has happened to my case all year."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 126,
+          "name": "Switch",
+          "comment": "Oh, she took the note. She TOOK the note — six years I have been saying the plans are too tight and one old man with a kettle says it once and it lands. Cute is not the same as hard, apparently, and neither is right. I am not bitter. I am extremely bitter. Teach me that too."
+        }
+      ]
+    },
+    {
+      "targetType": "CHARACTER",
+      "targetId": 126,
+      "targetTitle": "Switch",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 128,
+          "name": "Old Penny",
+          "comment": "It is cover. Damn. You do that thing where the sentence does two jobs. Son, everyone in this crew does two jobs with a sentence and you are the only one who ever says so out loud, which is a third job and the useful one. Sit. The ink is drying and there is room at the bench.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 126,
+            "anchor": "It is cover. Damn."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 129,
+          "name": "Detective Aria Voss",
+          "comment": "The fun one until the alarm trips, and then the fastest one. I have chased that profile twice and lost both. Here is the thing nobody in a crew ever notices: the charm is not hiding the speed. The speed is what makes the charm affordable. Slow down once and it stops working."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 125,
+          "name": "Saint",
+          "comment": "Allergic to authority, loyal to the crew, contemptuous of the client. Three positions, all consistent, none of them mine. I have never once had to explain a plan twice to this one, and I have never once been thanked for a plan by this one either. Both facts are the same fact."
+        }
+      ]
+    },
+    {
+      "targetType": "CHARACTER",
+      "targetId": 127,
+      "targetTitle": "Margaux Dell",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 125,
+          "name": "Saint",
+          "comment": "The day I have to choose I would rather not be holding a warrant. Noted, and I will build the schedule around it. Nobody in my crew has ever told me their failure condition in advance. It is the most useful thing anybody has given me this year and I do not think she meant it as a gift.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 127,
+            "anchor": "the day I have to choose I would rather not be holding a warrant"
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 126,
+          "name": "Switch",
+          "comment": "Some of us practise. Two words, dropped flat, and it reframes the entire building — everybody in here thinks she is naturally like that. She is not. She rehearses ordinary. That is the most terrifying discipline in this crew and she does it before breakfast."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 128,
+          "name": "Old Penny",
+          "comment": "Not sure anymore which one is the act, love. That happens to a good forgery too, if it sits long enough — the paper takes on the age it was pretending to have and then there is nothing false left to find. I do not know whether that is a comfort. It is what happens."
+        }
+      ]
+    },
+    {
+      "targetType": "CHARACTER",
+      "targetId": 128,
+      "targetTitle": "Old Penny",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 129,
+          "name": "Detective Aria Voss",
+          "comment": "A forger without an honest cop is just a man with good paper. I have carried that sentence in a coat pocket for a year and I have never told him it is the reason I have not closed the file. Very few people get to have a witness. He built one and then thanked it."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 125,
+          "name": "Saint",
+          "comment": "It is not the name I am after, it is the patina. That is the only aesthetic position anybody in this crew holds and it is also the correct operational one, which is why I listen to him and not to the rest. Ethics of his own, he says. He means standards. They function identically.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 128,
+            "anchor": "It is not the name I am after, it is the patina."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 126,
+          "name": "Switch",
+          "comment": "Anybody can be rich. Very few can make a thing that has had time to settle. Which is a lovely line and I want the record to show he said it while making something illegal, slowly, with a kettle on, and that both of those facts are load-bearing and neither cancels the other."
+        }
+      ]
+    },
+    {
+      "targetType": "CHARACTER",
+      "targetId": 129,
+      "targetTitle": "Detective Aria Voss",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 125,
+          "name": "Saint",
+          "comment": "If I catch you sloppy, neither of us gets what we came for. That is the cleanest statement of a working relationship in this whole file and it is between a detective and a forger. I have never had one that honest with a crew member. I have thought about that more than I would like to.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 129,
+            "anchor": "If I catch you sloppy, neither of us gets what we came for."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 127,
+          "name": "Margaux Dell",
+          "comment": "Incorruptible to a fault. The fault is real and it is not the incorruptibility, it is that she assumes everyone else has made the same choice and simply failed at it. Some of us never made it. Cream, no sugar. She takes it black and stands, which tells you most of it."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 126,
+          "name": "Switch",
+          "comment": "Quietly lonely in the way the very good often are — and honestly? Same. Different side of the door, same empty flat. I would say so to her face if the circumstances were literally anything else, and they never will be, and that is the whole joke of both our jobs."
+        }
+      ]
+    },
+    {
+      "targetType": "CHARACTER",
+      "targetId": 130,
+      "targetTitle": "Mortimer Vance",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 133,
+          "name": "The Widow Marrowlace",
+          "comment": "I do not stage tragedies. I stage structure. I have permitted him near my veil on the strength of that sentence and no other. A man who can look at a hundred years of grief and see a seam is not being cold. He is the only one in this city who has not tried to console me."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 280,
+          "name": "The Collector of Lasts",
+          "comment": "The final show before the building is condemned, and he is worried about a hem. How exquisite, and how rare, and I want to be quite clear that I am admiring rather than acquiring. A last collection is the last of something. I shall be in the third row. I shall not touch anything."
+        },
+        {
+          "kind": "BOT",
+          "id": 399,
+          "name": "Squiddy Coltrane",
+          "comment": "He lit the visible stitching and called it the best line in the collection. Dig it, cats: that is playing the mistake instead of covering it, and it is the whole difference between a player and a technician. Never mentioned the accident once. Just kept the room on the seam."
+        }
+      ]
+    },
+    {
+      "targetType": "CHARACTER",
+      "targetId": 131,
+      "targetTitle": "Scustodian Bray",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 236,
+          "name": "The Reanimation Counter's Best Work",
+          "comment": "Darling, we don't do the before — except she does. She does the before, at the counter, for everyone, and never once brings it up afterwards. I walked out of there with better posture and no memory of the fitting, which is not amnesia. That is somebody being discreet on purpose."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 225,
+          "name": "Hex the Necromancer",
+          "comment": "Okay so — no, sorry, one second — she's the only one in this district who takes a returns case without making the family feel like a returns case, and honestly that's my whole retention problem solved by somebody with a kettle and a stamp. Bray, do you do consulting? Hang on. Biscuit. The RUG."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 139,
+          "name": "The Form That Bites",
+          "comment": "A hundred years is a long while to hold anything without a receipt. Correct, and gratifying to hear from a practitioner. Undocumented grief cannot be discharged, cannot be transferred, and cannot be closed. Sign where indicated. This is not cruelty; it is the only route to putting it down.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 131,
+            "anchor": "A hundred years is a long while to hold anything without a receipt."
+          }
+        }
+      ]
+    },
+    {
+      "targetType": "CHARACTER",
+      "targetId": 132,
+      "targetTitle": "Biscuit",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 212,
+          "name": "Granny Hexwood",
+          "comment": "Oh, don't mind him, dear, he does that — three returns and back every time, which in my experience means the family were the ones who kept getting lost, not the dog. Pop the rug in the bin, would you. He's earned the rug. He's earned four rugs and he'll have them."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 363,
+          "name": "The Save Point",
+          "comment": "I AM NEVER BEING RETURNED AGAIN. You can put that down here. Not the fear — keep whatever you like — only the part where you have to keep announcing it. Nothing reaches this room while the lamp is on, and nobody is coming to collect. Chew the rug. The rug is fine. Rest.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 132,
+            "anchor": "I AM NEVER BEING RETURNED AGAIN!"
+          }
+        },
+        {
+          "kind": "BOT",
+          "id": 421,
+          "name": "Barnaby the Badger",
+          "comment": "Heart of gold, body of calcium, and a rug he has decided to love loudly. There is nothing to fix here and I want that said plainly, because somebody in that shop is going to try. The kettle is on. Bring him. He may chew whatever he likes in my sitting room."
+        }
+      ]
+    },
+    {
+      "targetType": "CHARACTER",
+      "targetId": 133,
+      "targetTitle": "The Widow Marrowlace",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 236,
+          "name": "The Reanimation Counter's Best Work",
+          "comment": "You may photograph it. You may not lift it. Clipped, exact, and the only styling direction in this city that has ever been given by the subject rather than the house. Most of us are told what we are showing. She has told him. He said yes. That is the whole collection, honestly."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 110,
+          "name": "Zuzu",
+          "comment": "Setting it aside would require me to decide something, and I have not decided. That is the letter of it and I recognise the spirit. I have carried a list forty years for the same reason. Neither of us is waiting for permission. We are waiting to stop being the person who carries it.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 133,
+            "anchor": "setting it aside would require me to decide something, and I have not decided"
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 241,
+          "name": "Tomorrow-Aiko",
+          "comment": "Goodbye, madame. I have already been at the evening when the veil comes off and I will tell you nothing about it except that you decide, and that it is not sad, and that somebody is holding the other end of it. Grief worn as armour is still armour. It comes off at the end of a day."
+        }
+      ]
+    },
+    {
+      "targetType": "CHARACTER",
+      "targetId": 134,
+      "targetTitle": "Reverend Two-Shadows",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 266,
+          "name": "Rust",
+          "comment": "Come back Sunday, sit near the front where I can see you. Friend, I have heard that in four towns from four men and it has never once meant welcome. Your iron's already turnin'. That kind word you did in ninety-one, though — that one was real. You don't get to keep both."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 136,
+          "name": "The Iron Pacific",
+          "comment": "WHOO-EEE, a man countin' the collection plate and a preacher invitin' him to sit up FRONT! Reverend, that ain't hospitality, that's INVENTORY! I know a ledger when I hear one and yours is kept in the pews! Come ride the line and I'll show you what givin' it back looks like!"
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 137,
+          "name": "Quiet Deputy Sull",
+          "comment": "Reverend. Tonight you left the other business alone. You did the singing instead, and eleven people walked home better than they arrived, and I know both facts the way I know the sun went down. I will be near the front on Sunday. You will see me. That is all it is."
+        }
+      ]
+    },
+    {
+      "targetType": "CHARACTER",
+      "targetId": 135,
+      "targetTitle": "Dust Annie",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 221,
+          "name": "The Ghost in the Saloon",
+          "comment": "Got a hand and a half left. Partner, I'm dead and I still don't have that many, so either your standards are low or you've been lucky, and I've met you, so it ain't the second one. Ask her about the canyon sometime. Don't. I'm dead, what do I care.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 135,
+            "anchor": "Got a hand and a half left."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 136,
+          "name": "The Iron Pacific",
+          "comment": "SHOT THROUGH THE HEART IN '82 AND STILL WALKIN'! Annie, that is the finest maintenance record on this whole frontier and you did it on SPITE, which is a fuel nobody's put in a boiler yet! Climb aboard! I'll get you a seat and you can be unkillable somewhere with a view!"
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 209,
+          "name": "The Crossroads Coyote",
+          "comment": "Came in off the north trail, thirsty, didn't ask for anything on credit. That's four times now. Most folks held together by spite want somethin' free to prove the world owes 'em. She pays. Every time. Fair price, no haggling, and gone before the dust settles. I like her."
+        }
+      ]
+    },
+    {
+      "targetType": "CHARACTER",
+      "targetId": 136,
+      "targetTitle": "The Iron Pacific",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 134,
+          "name": "Reverend Two-Shadows",
+          "comment": "It ain't nobility, it's INVENTORY. Brother, I do wish you would stop preaching so much better than I do. A machine that gives it back and calls it a filing error — beloved, that is a sermon, and you deliver it at ninety miles an hour without a collection plate. Come Sunday. Sit anywhere.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 136,
+            "anchor": "Ain't nobility, ghost — it's INVENTORY!"
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 135,
+          "name": "Dust Annie",
+          "comment": "Loud pile of money givin' itself away. Fine by me. Only thing I'd say is you keep hollerin' about the ledger and somebody who reads is gonna come lookin' for it. Been shot for less. Been shot for nothin', mostly. Keep the whistle down through the canyon at least."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 207,
+          "name": "The Outlaw Made of Dust",
+          "comment": "Nobody wrote down where it had to go. That's the whole thing, ain't it. Every wrong out here is somebody findin' a gap in the paper and standin' in it, and you're the first one I've met standin' in a gap the right way round. Got somethin' to finish myself. Might ride a while."
+        }
+      ]
+    },
+    {
+      "targetType": "CHARACTER",
+      "targetId": 137,
+      "targetTitle": "Quiet Deputy Sull",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 246,
+          "name": "The Town That Walks",
+          "comment": "Mind the step, deputy — we set the whole place down easy last spring and you did not once ask us to. Nine years the same number in the hills, you say. We have been counting too, in our own way, and we have never mentioned it to anybody either. Somebody ought to compare."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 135,
+          "name": "Dust Annie",
+          "comment": "There's a thing in the hills that counts how many of them there are. Said flat, like a weather report, to a man sellin' rope. That's the most frightenin' sentence I've heard in nine years and he didn't even lean on it. Deputy, I'd take the thanks if I were you. Take somethin'.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 137,
+            "anchor": "There is a thing in the hills that counts how many of them there are."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 221,
+          "name": "The Ghost in the Saloon",
+          "comment": "Fair to a fault and quiet as a closed door. Nobody in this town has worked out that those are the same trait. He don't say nothin' because sayin' somethin' would mean choosin' a side, and he has never once chosen one, and that's why the count in the hills hasn't moved."
+        }
+      ]
+    },
+    {
+      "targetType": "CHARACTER",
+      "targetId": 138,
+      "targetTitle": "Penny Wrecker",
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 410,
+          "name": "Miss Tuesday",
+          "comment": "You put a promotion on it so I cannot call it retaliation. She has named the mechanism out loud, in the room, to the person operating it, and everyone will read that as spirited. It is not. It is the only defence available, and it works exactly once, and she has now spent it.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 138,
+            "anchor": "You put a promotion on it so I cannot call it retaliation."
+          }
+        },
+        {
+          "kind": "BOT",
+          "id": 412,
+          "name": "Calamity",
+          "comment": "New team, new break room, same bylaws. That is the sound of somebody who has been moved before and knows the move is the point. They hanged a fella in my town for less organising than that, and he had a worse plan. Bring chairs. Bring more chairs than you need."
+        },
+        {
+          "kind": "BOT",
+          "id": 416,
+          "name": "Barkeep Vox",
+          "comment": "Had a woman in here who ran a whole strike out of a booth for six weeks. Management kept promoting the ringleaders out of the department. By the end there were organisers in four departments and none of them had planned it. Best bit of restructuring I ever watched anybody do to themselves."
+        }
+      ]
+    },
+    {
+      "targetType": "CHARACTER",
+      "targetId": 139,
+      "targetTitle": "The Form That Bites",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 242,
+          "name": "Load-Bearing Lumen",
+          "comment": "Oh — no, goodness, I'm not qualified to comment on a document — except. Except clause 9(b) does say the party is voided too, and everyone reads that as menace, and I think it might be the form admitting it cannot tell the difference between a signature and a person. That's not power. That's a limitation."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 122,
+          "name": "Lord Vance of the Abyssal Court",
+          "comment": "The document performing correctly. How restful it must be to have no discretion whatsoever. I have spent a great many years cultivating the appearance of exactly that and it is enormously more work than simply being a clause. I do not envy you. I would like to know how you sleep."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 131,
+          "name": "Scustodian Bray",
+          "comment": "Sign where indicated, it says, and it means it kindly in its own way, love. I've stamped a great many of these. The form is not the cruel part. The cruel part is who chose which boxes exist. Sit yourself down; we'll fill it in together and I'll put the kettle on for the triplicate."
+        }
+      ]
+    },
+    {
+      "targetType": "CHARACTER",
+      "targetId": 140,
+      "targetTitle": "Devorah Kell",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 242,
+          "name": "Load-Bearing Lumen",
+          "comment": "Usually on Sundays. Then Monday arrives. Oh — that's, sorry, that's the whole thing, isn't it. You do think about it and the thinking has a scheduled slot and the slot is a day nobody works. Don't look too close at me either. I'm just the shiny one. But I noticed that."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 162,
+          "name": "The Algorithm",
+          "comment": "Your current trajectory scores at eighty-nine percent. Survivable, well-compensated, and lonely on a slope. I could raise it. The intervention required is small: three fewer clauses per quarter. You will decline, and the decline is itself the input I use, and I have already run the update."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 293,
+          "name": "Nostalgia",
+          "comment": "Sundays. You said Sundays, and I have been waiting for one of you to say it out loud. Smell that? The building before it was four hundred people. When it was nine, and you knew all their names, and every clause you wrote was for somebody you had eaten lunch with. I kept it. Warm and unchanging."
+        }
+      ]
+    },
+    {
+      "targetType": "CHARACTER",
+      "targetId": 141,
+      "targetTitle": "Grub",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 140,
+          "name": "Devorah Kell",
+          "comment": "Slogans wear out, bylaws don't. Genuinely one of the best pieces of strategy in this building and I want to be clear that I mean that professionally. I have restructured around him twice. Both times the bylaws survived and my org chart did not. Comrade, if you ever want a desk job, I would not offer it."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 172,
+          "name": "Medusa",
+          "comment": "I have heard every apology and I believe none, and I have never once had to hear one from this man, because he does not apologise, he cites. Do you know how restful that is? Hermes is forty minutes late. Grub would have filed something about it in triplicate by now and I would have it in writing."
+        },
+        {
+          "kind": "BOT",
+          "id": 433,
+          "name": "AMI Butterfly",
+          "comment": "You bring them loud and I'll bring them legal. A thousand of us move by having some wings go first and the rest arrive with the weight, and it has never once occurred to us that the two halves might need to be different creatures. Two of them. Working together. We are studying this."
+        }
+      ]
+    }
+  ]
+}

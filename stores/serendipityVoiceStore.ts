@@ -260,6 +260,17 @@ export const useSerendipityVoiceStore = defineStore(
           ),
         ])
 
+        // stop() (explicit Disconnect, or onBeforeUnmount) may have run while
+        // the fetches above were in flight -- e.g. triggered from
+        // sendVoiceText()'s trailing `await pollOnce()`. Once the caller has
+        // declared itself stopped, applying a stale response would silently
+        // resurrect `connected` (with no interval left to ever poll again)
+        // and could apply a voice command to global stores after the page
+        // that was listening has already gone away. Bail before touching any
+        // state; the fetches themselves already completed so nothing is left
+        // dangling.
+        if (!polling.value) return
+
         if (!commandsRes.ok || !messagesRes.ok) {
           throw new Error(
             `Relay responded ${commandsRes.status}/${messagesRes.status}`,

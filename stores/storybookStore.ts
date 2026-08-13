@@ -801,6 +801,25 @@ export const useStorybookStore = defineStore('storybookStore', () => {
     const active = session.value
     const beat = currentBeat.value
     const clean = answerText.trim()
+    // Audited (storybook/t-020, kaizen from t-010/#1846): every branch here is
+    // structurally unreachable through the composer, so a silent `false` never
+    // reaches a reader with no explanation.
+    //   !active / !beat  -- narrative-response-composer only renders behind
+    //     `v-if="store.session && !store.isComplete"`, and `session.value` and
+    //     its first beat are both written inside the same synchronous span as
+    //     `isWeaving.value = true` (beginStory -> weaveBeat), so there is no
+    //     paint where the composer is visible, enabled, and beat-less.
+    //   !clean -- the composer's own submit() already trims and rejects an
+    //     empty/whitespace-only value before ever emitting `submit`.
+    //   beat.answer / isWeaving.value -- both flip inside the same synchronous
+    //     block that starts weaveBeat, before any `await`. The composer's
+    //     `disabled`/`loading` props mirror those two flags, and the HTML spec
+    //     drains Vue's reactive (microtask) render queue before the next click
+    //     or keydown task can run submit() again, so a double-submit is
+    //     rejected by the composer itself, not by this guard.
+    // If a future change moves session/beat creation off this synchronous
+    // path, or adds another caller that skips the composer, this guard can
+    // become reachable again -- give it a user-facing message at that point.
     if (!active || !beat || beat.answer || !clean || isWeaving.value)
       return false
 

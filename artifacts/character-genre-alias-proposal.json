@@ -4,7 +4,6 @@
   "source": "https://kindrobots.org /api/characters + /api/facets",
   "why": "Character.genre is free text. 110 of 227 values resolve to a Facet in the genre-ish groups (genre, curated-genre, scenario-genre, cultural-genre, house-genre, punk); 117 do not. Silas, 2026-08-13: 'we should have caught weird west and wired western being identical, they should be one genre with an alias.' Casting characters at each other by genre is only as good as this resolution.",
   "method": "Exact match on normalized title and existing aliases. Fuzzy matching was tried and REJECTED -- it proposed Hopepunk -> Hellpunk at 0.75 and Eco-Fantasy -> Epic Fantasy at 0.87, both wrong, and docs/facet-catalog-curation-policy.md is explicit that near synonyms must not be forced into aliases because it erases a useful shade of meaning. Everything below was checked by hand.",
-
   "safeAliases": [
     {
       "genre": "Weird Western",
@@ -39,33 +38,109 @@
       "note": "Same concept, catalog spells it long."
     }
   ],
-
   "needsNewFacet": [
-    { "genre": "Hopepunk", "characters": 6, "note": "Genuinely absent. Solarpunk #807 exists and is adjacent, not the same -- Hopepunk is a stance, Solarpunk is a setting. The policy's near-synonym rule says make a facet, not an alias." },
-    { "genre": "Surreal Aquatic", "characters": 4, "note": "No catalog equivalent." },
-    { "genre": "Dark Circus", "characters": 4, "note": "Circus #16 exists. 'Dark Circus' is a shade of it, and the policy prefers a RELATED link or a recipe over collapsing the two." },
-    { "genre": "Eco-Fantasy", "characters": 4, "note": "Eco-Fiction #779 and EcoCore #17 both exist and neither is fantasy. Do not alias -- fuzzy matching wanted 'Epic Fantasy', which is a different genre entirely." },
-    { "genre": "Meta", "characters": 4, "note": "Too broad to place without a human call." },
-    { "genre": "Undead Glamour", "characters": 3 },
-    { "genre": "Cozy Undead", "characters": 3, "note": "Fuzzy matching offered 'Cosmic Dread'. It is not that." },
-    { "genre": "Sci-Fi Comedy", "characters": 3 },
-    { "genre": "Animal Interiority", "characters": 3 },
-    { "genre": "Elegiac Wonder", "characters": 3 },
-    { "genre": "Deep-Sea Horror", "characters": 2 },
-    { "genre": "Office Satire", "characters": 2, "note": "Office Thriller #1681 exists; satire and thriller are not interchangeable." },
-    { "genre": "Cosmic Bureaucracy", "characters": 2, "note": "Alien Bureaucracy #1668 is close but specifically alien." },
-    { "genre": "Gentle Sci-Fi", "characters": 2 },
-    { "genre": "Absurdist Strategy", "characters": 2 }
+    {
+      "genre": "Hopepunk",
+      "characters": 6,
+      "note": "Genuinely absent. Solarpunk #807 exists and is adjacent, not the same -- Hopepunk is a stance, Solarpunk is a setting. The policy's near-synonym rule says make a facet, not an alias."
+    },
+    {
+      "genre": "Surreal Aquatic",
+      "characters": 4,
+      "note": "No catalog equivalent."
+    },
+    {
+      "genre": "Dark Circus",
+      "characters": 4,
+      "note": "Circus #16 exists. 'Dark Circus' is a shade of it, and the policy prefers a RELATED link or a recipe over collapsing the two."
+    },
+    {
+      "genre": "Eco-Fantasy",
+      "characters": 4,
+      "note": "Eco-Fiction #779 and EcoCore #17 both exist and neither is fantasy. Do not alias -- fuzzy matching wanted 'Epic Fantasy', which is a different genre entirely."
+    },
+    {
+      "genre": "Meta",
+      "characters": 4,
+      "note": "Too broad to place without a human call."
+    },
+    {
+      "genre": "Undead Glamour",
+      "characters": 3
+    },
+    {
+      "genre": "Cozy Undead",
+      "characters": 3,
+      "note": "Fuzzy matching offered 'Cosmic Dread'. It is not that."
+    },
+    {
+      "genre": "Sci-Fi Comedy",
+      "characters": 3
+    },
+    {
+      "genre": "Animal Interiority",
+      "characters": 3
+    },
+    {
+      "genre": "Elegiac Wonder",
+      "characters": 3
+    },
+    {
+      "genre": "Deep-Sea Horror",
+      "characters": 2
+    },
+    {
+      "genre": "Office Satire",
+      "characters": 2,
+      "note": "Office Thriller #1681 exists; satire and thriller are not interchangeable."
+    },
+    {
+      "genre": "Cosmic Bureaucracy",
+      "characters": 2,
+      "note": "Alien Bureaucracy #1668 is close but specifically alien."
+    },
+    {
+      "genre": "Gentle Sci-Fi",
+      "characters": 2
+    },
+    {
+      "genre": "Absurdist Strategy",
+      "characters": 2
+    }
   ],
-
   "probablyADreamNotAGenre": {
     "note": "Some characters carry what reads as a Dream vibe in `genre`. Verified exactly: 7 characters have a genre string that IS a live Dream title. Six of those seven are ALREADY linked to that Dream, so this is not a large pool of recoverable links -- it is a naming habit. Listed so the pattern is on record, not as a migration.",
     "confirmedDreamTitles": [
-      { "genre": "Stitch & Echo", "characters": 3, "dreamId": 5006, "alreadyLinked": 3 },
-      { "genre": "Koala Assassin", "characters": 1, "dreamId": 183, "alreadyLinked": 1 },
-      { "genre": "Undermoon Bloom", "characters": 1, "dreamId": 5152, "alreadyLinked": 1 },
-      { "genre": "The Lucky Ladle", "characters": 1, "dreamId": 5262, "alreadyLinked": 1 },
-      { "genre": "The Spire That Remembers", "characters": 1, "dreamId": 5384, "alreadyLinked": 0 }
+      {
+        "genre": "Stitch & Echo",
+        "characters": 3,
+        "dreamId": 5006,
+        "alreadyLinked": 3
+      },
+      {
+        "genre": "Koala Assassin",
+        "characters": 1,
+        "dreamId": 183,
+        "alreadyLinked": 1
+      },
+      {
+        "genre": "Undermoon Bloom",
+        "characters": 1,
+        "dreamId": 5152,
+        "alreadyLinked": 1
+      },
+      {
+        "genre": "The Lucky Ladle",
+        "characters": 1,
+        "dreamId": 5262,
+        "alreadyLinked": 1
+      },
+      {
+        "genre": "The Spire That Remembers",
+        "characters": 1,
+        "dreamId": 5384,
+        "alreadyLinked": 0
+      }
     ],
     "unmatchedButDreamShaped": [
       "Tin & Echo",
@@ -74,7 +149,6 @@
     ],
     "unmatchedNote": "These read like Dream vibes but match no live Dream title. They may belong to Dreams that are not public, or they may simply be moods. Not asserted either way."
   },
-
   "characterDreamLinkFindings": {
     "question": "Silas: 'I wonder if we've failed to track a connection that should have been made. Most of our characters were built with a dream in mind.'",
     "answer": "No hidden data. Checked three ways.",
@@ -82,6 +156,56 @@
     "dreamsWithZeroCharacters": 32,
     "dreamsTotal": 48,
     "listEndpointCap": "/api/dreams includes Characters with take: 3, so the list under-reports. Probing every Dream's _count showed the cap hid exactly 4 links -- it was not the explanation.",
-    "conclusion": "Linking Characters to Dreams is authoring work, not a repair. There is nothing to recover."
+    "conclusion": "Linking Characters to Dreams is authoring work, not a repair. There is nothing to recover.",
+    "correction": "Silas, 2026-08-13: 'We created characters based on scenarios, not the dreams themselves.' Checked the three pairs he named -- they are BOT<->DREAM, not Character<->Scenario: Calamity (bot 412) / Gallowsun Junction (dream 39), Squiddy Coltrane (bot 399) / The Cthulian Jam Band Festival (dream 42), Puck (bot 408) / Maeve's Mandatory Enchantment Retreat (dream 51). Two of the three are ALREADY linked. Only Calamity <-> Gallowsun Junction is missing; that dream currently lists The Stationmaster instead. Bot<->Dream links total 17 across 48 dreams and are in reasonable shape. Scenarios carry ZERO Characters (0 of 116), which is the real gap."
+  },
+  "status": "APPLIED as facet curation batch 2026-08-13-character-genre-vocabulary-01 in utils/seeds/facetCatalogCuration.ts. Runs via the facet-catalog-maintenance workflow, which owns the database session; this repo has no direct DB access.",
+  "appliedChanges": {
+    "aliasesAdded": [
+      {
+        "facetId": 3,
+        "title": "Weird West",
+        "alias": "Weird Western",
+        "characters": 6
+      },
+      {
+        "facetId": 785,
+        "title": "Magical Realism",
+        "alias": "Magic Realism",
+        "characters": 2
+      },
+      {
+        "facetId": 1895,
+        "title": "Heist Fiction",
+        "alias": "Heist",
+        "characters": 2
+      },
+      {
+        "facetId": 16,
+        "title": "Circus",
+        "alias": "Dark Circus",
+        "characters": 4,
+        "note": "Moved from needsNewFacet to an alias: Circus already absorbs Dark Carnival, Carnival Punk and Circuscore, so Dark Circus belongs with them."
+      }
+    ],
+    "aliasRejected": [
+      {
+        "proposed": "Cyberpunk",
+        "ontoFacetId": 1891,
+        "reason": "Facet #1403 is already TITLED Cyberpunk in the style group. An art style and a narrative genre are different things; claiming the bare word would make the string ambiguous and shadow a legitimate Facet. The two characters saying Cyberpunk resolve to the style row, which still groups them for casting."
+      }
+    ],
+    "facetsCreated": 13,
+    "notCreated": [
+      {
+        "genre": "Meta",
+        "characters": 4,
+        "reason": "Too broad to place without a human call."
+      },
+      {
+        "genre": "Stitch & Echo / Tin & Echo / Wind-Fortune / Borrowed-Light Bittersweet",
+        "reason": "Dream-shaped, not genres. Belong as Character<->Dream or Character<->Scenario links, not catalog vocabulary."
+      }
+    ]
   }
 }

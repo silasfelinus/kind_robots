@@ -151,6 +151,33 @@ const settingTransform = (
   relations,
 })
 
+
+/**
+ * Alias-only curation: add spellings to a Facet that already exists, without
+ * moving it. `ensures` upserts the whole profile, so groupKey, groupLabel and
+ * randomWeight have to restate what the row already carries -- otherwise
+ * "add an alias" silently reclassifies the Facet or changes how often random
+ * generation picks it. Each call below was read off the live row first.
+ */
+const aliasOnly = (
+  slug: string,
+  title: string,
+  groupKey: string,
+  groupLabel: string,
+  randomWeight: number,
+  aliases: readonly string[],
+): CuratedFacetDefinition => ({
+  slug,
+  title,
+  taxonomy: 'GENRE',
+  canonicalValue: title,
+  groupKey,
+  groupLabel,
+  isRandomizable: true,
+  randomWeight,
+  aliases,
+})
+
 export const FACET_CURATION_BATCHES = [
   {
     id: '2026-08-01-genre-structure-01',
@@ -493,5 +520,80 @@ export const FACET_CURATION_BATCHES = [
         randomWeight: 0.5,
       },
     ],
+  },
+  {
+    id: '2026-08-13-character-genre-vocabulary-01',
+    title: 'Absorb free-text Character genres into the catalog',
+    // WHY
+    // ---
+    // Character.genre is free text, and 117 of 227 values resolved to nothing
+    // in the catalog -- so characters written in the same genre could not see
+    // each other when casting comments. Silas, 2026-08-13: "we should have
+    // caught weird west and wired western being identical, they should be one
+    // genre with an alias."
+    //
+    // Fuzzy matching was tried to automate this and REJECTED: it proposed
+    // Hopepunk -> Hellpunk at 0.75 and Eco-Fantasy -> Epic Fantasy at 0.87,
+    // both wrong. docs/facet-catalog-curation-policy.md is explicit that near
+    // synonyms must not be forced into aliases because it erases a useful shade
+    // of meaning. Every entry here was checked by hand against the live row.
+    ensures: [
+      // --- aliases onto rows that already exist, profiles preserved verbatim
+      //
+      // The case Silas named: 11 characters say "Weird West", 6 say "Weird
+      // Western", and today they are strangers.
+      aliasOnly('weird-west', 'Weird West', 'genre', 'Genres', 1, [
+        'Weird Western',
+      ]),
+      aliasOnly('magical-realism', 'Magical Realism', 'genre', 'Genres', 1, [
+        'Magic Realism',
+      ]),
+      // 'Cyberpunk' was proposed as an alias onto Cyberpunk Fiction #1891 and
+      // is deliberately NOT here: Facet #1403 is already TITLED 'Cyberpunk' in
+      // the style group. An art style and a narrative genre are different
+      // things, and claiming the bare word for the genre row would make the
+      // string ambiguous and quietly shadow a legitimate Facet. The two
+      // characters who say 'Cyberpunk' resolve to the style row, which still
+      // groups them together for casting.
+      aliasOnly(
+        'heist-fiction',
+        'Heist Fiction',
+        'curated-genre',
+        'Curated Genres',
+        1.5,
+        ['Heist'],
+      ),
+      // Circus already absorbs Dark Carnival, Carnival Punk and Circuscore, so
+      // Dark Circus belongs with them rather than as a rival row.
+      aliasOnly('circus', 'Circus', 'genre', 'Genres', 1.5, ['Dark Circus']),
+
+      // --- genuinely absent, so a Facet rather than an alias
+      //
+      // Hopepunk is the clearest: nothing in the catalog covers it. Solarpunk
+      // is adjacent and not the same -- Hopepunk is a stance, Solarpunk is a
+      // setting -- and the policy's near-synonym rule says make the row.
+      genre('hopepunk', 'Hopepunk', ['Hope Punk']),
+      genre('surreal-aquatic', 'Surreal Aquatic', ['Surreal Aquatic Comedy']),
+      // Eco-Fiction #779 exists and is not fantasy; the fuzzy pass wanted to
+      // fold this into Epic Fantasy, which is a different genre entirely.
+      genre('eco-fantasy', 'Eco-Fantasy', ['Ecological Fantasy']),
+      genre('undead-glamour', 'Undead Glamour'),
+      genre('cozy-undead', 'Cozy Undead'),
+      genre('sci-fi-comedy', 'Sci-Fi Comedy', ['Science Fiction Comedy']),
+      genre('deep-sea-horror', 'Deep-Sea Horror', ['Deep Sea Horror']),
+      // Office Thriller #1681 exists; satire and thriller are not
+      // interchangeable, so this is a sibling, not an alias.
+      genre('office-satire', 'Office Satire'),
+      // Alien Bureaucracy #1668 is close but specifically alien.
+      genre('cosmic-bureaucracy', 'Cosmic Bureaucracy'),
+      genre('gentle-sci-fi', 'Gentle Sci-Fi', ['Gentle Science Fiction']),
+      genre('absurdist-strategy', 'Absurdist Strategy'),
+
+      // --- not genres at all; they are what the story is ABOUT or how it feels
+      theme('animal-interiority', 'Animal Interiority'),
+      mood('elegiac-wonder', 'Elegiac Wonder'),
+    ],
+    transforms: [],
+    weights: [],
   },
 ] as const satisfies readonly FacetCurationBatch[]

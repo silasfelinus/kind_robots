@@ -5,7 +5,7 @@ import { errorHandler } from '../../../utils/error'
 import { requireMachineUser } from '../../../utils/authGuard'
 
 const SLUG_PATTERN = /^[a-z0-9][a-z0-9_-]*$/
-const ALLOWED_PRODUCTS = new Set(['storybook', 'taskmaster'])
+const ALLOWED_PRODUCTS = new Set(['storybook', 'taskmaster', 'davinci'])
 const ALLOWED_MOMENTS = new Set([
   'opening',
   'chapter',

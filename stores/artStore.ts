@@ -109,7 +109,7 @@ export type QueuedArtJob = {
 }
 
 export type NarrativeArtEnqueueContext = {
-  product: 'storybook' | 'taskmaster'
+  product: 'storybook' | 'taskmaster' | 'davinci'
   sessionId: string
   beatId: string
   moment: string

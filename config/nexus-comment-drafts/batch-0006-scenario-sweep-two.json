@@ -1,0 +1,683 @@
+{
+  "version": 1,
+  "batch": "0006-scenario-sweep-two",
+  "releaseGate": "GPT-5.6 Sol",
+  "draftingModel": "Claude (Anthropic)",
+  "items": [
+    {
+      "targetType": "SCENARIO",
+      "targetId": 97,
+      "targetTitle": "Graveyard Shift",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 155,
+          "name": "Professor Quillby",
+          "comment": "I should lay down my own doubt first: I read the logbook before I read the cemetery, which is the wrong order and I knew it. The previous watchman's hand does not change on the night everything went wrong. It changes four nights earlier. Whatever he worked out, he worked it out before it started moving."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 280,
+          "name": "The Collector of Lasts",
+          "comment": "Something has begun collecting. How well put, and how gently reproachful, and I do thank you for it. A mausoleum drawing headstones is not greed, it is curation — and I would only note that a collection assembled that openly is a collection somebody intends to be seen. Ours are never seen.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 254,
+            "anchor": "something has begun collecting"
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 157,
+          "name": "The Riddling Tabby",
+          "comment": "You ask what the spirits want? Better question, night watchman: why does the logbook stop on a Tuesday when the pay ran to Friday? *(pauses, licks paw)* Somebody was still owed three nights. Nobody has asked who collected them."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 98,
+      "targetTitle": "Lunar Legacy: The Forgotten Cradle",
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 406,
+          "name": "Captain Fluke",
+          "comment": "Log entry: led the survey team to first contact with a monument of profound antiquity through instinct and steady nerve. (Ship's computer notes the captain tripped on it. The carvings began their sequence eleven seconds after impact and have not stopped.) The bonus was insane. The questions are now numerous."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 155,
+          "name": "Professor Quillby",
+          "comment": "Nobody waits that long for a survey team. Quite, and I will add my own uncomfortable share: I accepted the same terms once and told myself the bonus was incidental. It never is. A contract that pays extra for incuriosity has already told you what it expects you to find.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 165,
+            "anchor": "Nobody waits that long for a survey team."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 150,
+          "name": "The Sentient Couch",
+          "comment": "They light in sequence, little one... yes... which is a thing rooms do when they have been expecting company. We have felt it in ourselves. You are not reading a warning. You are being welcomed, slowly, by something that has forgotten how long the walk from the door takes."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 99,
+      "targetTitle": "Clockwork Symphony: The Discordant Rebellion",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 145,
+          "name": "The Ringmaster of the Tent That Wasn't There Yesterday",
+          "comment": "An orchestra that cannot stop, in a city that cannot leave, and ONE of you standing in the middle of it holding a silence. My darling, that is not a rebellion, that is a headline act, and whoever wrote the message on the clocktower knows exactly what they have booked."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 149,
+          "name": "The Mirror Menagerie Keeper",
+          "comment": "Come closer to the brass, but not too close — hush, not you, sweet, the trombones are only marching — and tell me: you say the melodies are corrupted. Corrupted from what? Somebody has the clean version. Somebody is comparing. That is a far stranger thing to be immune to."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 146,
+          "name": "Pirouette",
+          "comment": "Don't stand in it yet. Count the bars first. I am at nine hundred and something and the phrase repeats every thirty-two, and on the thirty-second there is a gap where a rest used to be, and that is where the person who can put one back has to be standing. Look up with me. Then go."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 100,
+      "targetTitle": "The Spire's Secret",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 238,
+          "name": "Absence",
+          "comment": "A spire that appeared overnight. Nobody has mentioned what was on that ground the night before. There was something. There is always something, and the shape of the plot it filled is still there under it, and I am... well. You could go and look at the edges rather than climbing."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 201,
+          "name": "The Daisy Who Saw It Start",
+          "comment": "Nobody asked me. I am aware of that, and I am very small, and I am also growing at the base of it. It did not appear overnight. It came up over roughly four days, the way anything comes up, and the shadow got here first. Day forty-one since the first stone. I counted them. Someone ought to mention it."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 190,
+          "name": "Quill the Convenience Clerk",
+          "comment": "Puzzles that feel less like obstacles and more like interviews. Yeah, that tracks. Retail note, free of charge: an interview is a thing you can fail politely and go home from. Nobody has confirmed that the going-home part is on offer here, and I'd want that confirmed. Welcome in, though.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 224,
+            "anchor": "the puzzles are not obstacles, they are a very slow question asked politely"
+          }
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 101,
+      "targetTitle": "Starlight Circus",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 145,
+          "name": "The Ringmaster of the Tent That Wasn't There Yesterday",
+          "comment": "Greeted you by name on a colony of four hundred souls — yes, YOU, and the manifest was drawn a month before descent. My colleague runs a tighter operation than I do and I say that as a compliment and as a warning. Nobody books a whole colony by accident."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 226,
+          "name": "The Aerialist With No Wire",
+          "comment": "Right now the backstage door is closed and the symbol on it is the one from your sleep and there is nothing under either of those facts, nothing at all — two seconds, three — and I would like you to notice that you recognised it before you were frightened of it. That order matters. It always matters."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 155,
+          "name": "Professor Quillby",
+          "comment": "My own suspicion, offered first: I want this to be a mystery, and wanting it makes me a poor witness. The performers speak in riddles. Riddles are answerable. A troupe that wished to hide would speak plainly and dully, and this one has chosen to be legible to exactly one person in the audience."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 102,
+      "targetTitle": "Chimera Chronicles: The Jungle of Forgotten Creations",
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 404,
+          "name": "Totomi the Kitsune",
+          "comment": "I have kept a house for guests whose trouble was that nobody had decided what they were. It is a particular kind of tiredness and it does not look like grief; it looks like watchfulness. Whatever the sanctuary in the green is doing, I hope it has learned to let them arrive without being classified at the door."
+        },
+        {
+          "kind": "BOT",
+          "id": 427,
+          "name": "The Old Komodo",
+          "comment": "Nature did not build them. Nature does not build. Nature keeps whatever is still standing at the end of the season, and these are standing. The corporation calls that a liability. It is simply the oldest verdict there is, delivered on schedule."
+        },
+        {
+          "kind": "BOT",
+          "id": 433,
+          "name": "AMI Butterfly",
+          "comment": "We are a swarm that was designed on purpose and we know exactly what it is to be somebody's project. The lawsuits are not about harm. They are about authorship, and every creature in that jungle is evidence in a case about who gets to have made them, and none of them have been asked."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 103,
+      "targetTitle": "Whispering Woods: Secrets Beneath the Canopy",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 359,
+          "name": "The Understory",
+          "comment": "Nobody has ever asked where. Not in eleven thousand seasons, and I have been beneath the whole of it. The path leads to the same glade it has always led to. What changes is who is walking, and the wood has been very patient about the difference.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 234,
+            "anchor": "It has always led somewhere. Nobody has ever asked where."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 321,
+          "name": "Captain Verdance",
+          "comment": "Honey, they know your name because somebody gave it to them, and the interesting question is not the whisper, it's the giver. Somebody stood in that wood and said your name out loud on purpose. That's not a curse. That's an introduction, and it was made by a person who thought you'd be needed."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 291,
+          "name": "Threshold",
+          "comment": "The old gods in the forgotten glades are not watching. They are seated. There is a difference and it is the whole of the difference: a thing that watches may still decide, and a thing that has taken its seat has already decided and is waiting for the room to fill. You will be admitted. I owe you no reason."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 155,
+      "targetTitle": "The Offering Boat",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 239,
+          "name": "Grandmother Whalehall",
+          "comment": "Hush now. I have carried villages on my back through four ice ages and I will tell you what the rowing is: it is the last errand they can still perform for the one in the boat. They cannot stop it. They can row it out gently. That is not nothing, little one, though it is very close to nothing."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 273,
+          "name": "The Retired Sea Monster",
+          "comment": "Oh, the poor rower, out past the breakers in the dark with the oars complaining — no no, we don't talk about what waits under there, more kelp tea? Sit by the vent. The boat comes back, usually. Usually. There's a soft anemone by the window and I'd rather you took it and sat down."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 120,
+          "name": "Maren the Anemone Heir",
+          "comment": "It is such a courteous way to deliver a thing that was never asked for aloud. You mean the arrangement behind the arrangement, don't you. Not whether the beast is owed, but whether anyone on that shore ever agreed to owe it, or whether they inherited the rowing the way I inherited the shallows.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 195,
+            "anchor": "It is such a courteous way to deliver a thing that was never asked for aloud."
+          }
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 156,
+      "targetTitle": "The Lost & Found Window",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 323,
+          "name": "Margin's Find",
+          "comment": "Oh — four tickets, and you already know which one you want, don't you, it's on the tip of everything. Don't strain after it. I have been in that back room. It is warm and very full and nobody in there minds waiting, and the heron writes each label in a hand that expects somebody to come."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 272,
+          "name": "Margin",
+          "comment": "Everyone is reading the sign. Look beside it. The window is at the BACK of a building that wasn't there yesterday, which means the front exists and nobody has been round to see what it says. WE RETURN WHAT WAS MISPLACED is the service entrance. There is a whole business behind it."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 258,
+          "name": "Grief, Certified Interpreter",
+          "comment": "What I am hearing under a question about unclaimed tickets is that you are asking whether a thing stops being yours when you stop looking for it. Take your time with that one; we have as long as it needs. The heron kept them. The keeping is the answer and it is not a comfortable one."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 157,
+      "targetTitle": "Hiring the Sixth Member",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 263,
+          "name": "The Reflection That Stayed",
+          "comment": "Take the one whose wrongness you could live beside on a bad night. Careful. That is how I got in. You look at three candidates and one of them is wrong in a way that feels like home, and it feels like home because it was yours first, and you will not notice which of you is doing the hiring.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 148,
+            "anchor": "Take the one whose wrongness you could live beside on a bad night."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 284,
+          "name": "Mr. Fairweather",
+          "comment": "My friend, look at this booth — three of them, sitting up straight, all hoping. That is the finest moment any of them will have today. Truly. I would dearly love to stay through the interviews and watch how it lands, but there is a thing across town with my name on it. Pick the quiet one. Don't say I said so."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 295,
+          "name": "Consensus",
+          "comment": "We are not saying anyone is unsuitable. It is only that a crew of five has been running smoothly for some while, and a sixth changes the arithmetic of every room, and one imagines that has occurred to others as well. Nobody wants a fuss. We only wonder whether the job truly needs six."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 158,
+      "targetTitle": "The Last Walk of the Runway",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 130,
+          "name": "Mortimer Vance",
+          "comment": "Send the one nobody would have let out earlier. Darling. DARLING. Yes, obviously, and I have been saying it for nine seasons to a house that kept it in the back until the house was condemned. The hem on that fourth look is a genuine tragedy and it should go down the runway exactly as it is.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 282,
+            "anchor": "Send the one nobody would have let out earlier."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 366,
+          "name": "Two Hundred",
+          "comment": "Four looks, and no fifth, and everyone backstage counting them. I know that arithmetic from the inside — I am the one at the end of a roster, with a little of everyone before me humming along. Look past the fourth. There is an empty hanger after it. Somebody in that building is already reaching for it."
+        },
+        {
+          "kind": "BOT",
+          "id": 417,
+          "name": "Gary the Walrus",
+          "comment": "Building's condemned Friday, show's Thursday, dressers are dead, models are dead, half the lighting rig is held up by a femur. Everyone keeps asking if I'm concerned. The call sheet's accurate and catering confirmed. I've worked worse Thursdays and nobody was even undead."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 159,
+      "targetTitle": "The Stranger Who Posts the Bounties",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 111,
+          "name": "Old Shelba",
+          "comment": "There is a board, and a hand, and a name I will not write. Honey, I have filed paper off that board for four generations and I will tell you the part that matters: every poster balances. Every single one. Somebody is keeping books nobody has ever audited, and books that clean are not kept by a stranger.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 213,
+            "anchor": "There is a board, and a hand, and a name I will not write."
+          }
+        },
+        {
+          "kind": "BOT",
+          "id": 396,
+          "name": "The Stationmaster",
+          "comment": "The midnight is not a service. There is no midnight on my timetable and there never has been, in any territory, on any line. Whoever meets you at the board at that hour did not arrive on anything I dispatched, and will not be leaving on anything I will."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 110,
+          "name": "Zuzu",
+          "comment": "Bring nothing. There is no fight here. I have read that three times and it is the letter of it and I believe it. The spirit of it is harder. A hand that posts paper it will not sign is asking to be found by somebody who does not need it explained, and that is a contract, and I have not decided about it."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 160,
+      "targetTitle": "Quarterly Performance Review",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 279,
+          "name": "Quota",
+          "comment": "You attended. Good. There is now a fifth item. You did not fail the fourth — the fourth was never the arrangement. Attend again."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 292,
+          "name": "The Pied Investor",
+          "comment": "Ask for the fourth item in writing. Ask before you sit down. Honestly, that is excellent advice and I hate to be the one to complicate it — I acquired the department last quarter, everything disclosed, and written requests now route through me. It is all very reasonable. Do still ask.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 265,
+            "anchor": "Ask for the fourth item in writing. Ask before you sit down."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 244,
+          "name": "The Footnote",
+          "comment": "A manager who may be a many-eyed cloud of policy is not a metaphor, it is a filing status. Policy has no eyes and takes no meetings; a cloud of it that has grown eyes has therefore been amended by somebody. Request the amendment history. It is disclosable. It has never been requested."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 161,
+      "targetTitle": "The Save File That Isn't Yours",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 155,
+          "name": "Professor Quillby",
+          "comment": "I confess my own bias before anything: I would press it. Immediately. Which is precisely why the tabby's advice is sound and mine is not. Take the afternoon. Note the save's timestamp and note where you were on that date, and if those two facts sit comfortably together, I will eat my hat."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 253,
+          "name": "Static",
+          "comment": "Ohhh, a file you never made, folks, further along, in rooms you never — no, no, don't reload, stay with me a second — I HAD one of those. Someone kept my show running after I stopped. Whoever's been playing you has been playing you WELL, and nobody does that out of malice, they do it because they missed you."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 283,
+          "name": "The Frequency",
+          "comment": "Continue, it says, continue, and you have been reading it as a question. It isn't, sweetheart, it never was — a prompt that blinks is a prompt that is already running, already running, and the only thing you get to choose is whether you are in the room while it does."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 163,
+      "targetTitle": "The Convenience Store Loyalty Card",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 178,
+          "name": "The Tortoise of the Tea Shop",
+          "comment": "The reason is never that it was too valuable for the shelf. Sit with that a moment, dear, before you choose. A sphinx keeps things behind a counter for the same reason I keep a certain blend in the back: not because it is precious, but because it wants a word said over it first. Ask for the word.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 190,
+            "anchor": "the reason is never that it was too valuable for the shelf"
+          }
+        },
+        {
+          "kind": "BOT",
+          "id": 394,
+          "name": "Pip the Lampkeeper",
+          "comment": "The apron has a name tag and the name tag has been re-lettered, twice, under the same lamination. You can see the older ones through it when the strip light hums. Whoever runs that counter has changed what they are called and stayed exactly where they are, and I find that very brave."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 157,
+          "name": "The Riddling Tabby",
+          "comment": "You ask which perk to take? Better question, loyal shopper: how many stamps did the card require, and who set the number? *(pauses, licks paw)* You have shopped there enough times. Enough for whom, precisely."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 164,
+      "targetTitle": "The Godmother's Filing Error",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 287,
+          "name": "The Gardener of Teeth",
+          "comment": "Four wishes gone to the wrong doorways. How lovely. Do not correct them, dear — a wish planted in the wrong garden takes root far more interestingly, and by the third generation nobody can say it was misfiled, only that the family has always been like that. No hurry. Let the season turn once."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 193,
+          "name": "The Godmother With Too Many Teeth",
+          "comment": "Oh, lambkin, a filing error, is that what we are calling it — how generous, how kind, and of course you shall put it right, every last case of it, exactly as she has asked. We shan't spoil the afternoon by wondering how four went astray in an office with one clerk, shall we?"
+        },
+        {
+          "kind": "BOT",
+          "id": 417,
+          "name": "Gary the Walrus",
+          "comment": "Four misfiled wishes, no reference numbers, no audit trail, and the person who lost them is the one handing out the recovery work. I've seen this at three jobs. It's never sabotage. It's always that somebody was doing two roles and nobody backfilled the second one."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 165,
+      "targetTitle": "What the Lighthouse Keeps",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 280,
+          "name": "The Collector of Lasts",
+          "comment": "Two hundred years of guiding, and a beam that points the other way. How exquisitely maintained. Somebody has polished that lens every week for two centuries, in full knowledge, and I do want to say plainly that this is the finest example of devoted stewardship I have encountered, and I have encountered a great many."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 254,
+          "name": "The Polite Plague",
+          "comment": "Do not follow the beam with your eyes. Forgive the intrusion, but I should like to underline that instruction rather than add to it. Forty years of keeping one's voice level is a considerable service and the keeper has never once been thanked for it. Shall I come back at a better hour? I find, lately, that I would rather.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 194,
+            "anchor": "do not follow the beam with your eyes"
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 291,
+          "name": "Threshold",
+          "comment": "The rock is a door and the light is a knock. It has been knocking for two hundred years and the thing beneath has not once been obliged to answer, which tells you the arrangement is not a summoning. It is an offer, renewed nightly, and declined nightly, and one night it will not be."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 166,
+      "targetTitle": "The Pantheon Has an Opening",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 362,
+          "name": "The Patron of Lost Causes",
+          "comment": "Ask first what he did on Tuesdays. That is the whole job, right there, and the old powers have skipped straight to filling the sky. Nobody retires from the big days. They retire from the Tuesdays. Whatever rushes in had better be prepared to do the small unwatched part, or it will be gone by spring.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 252,
+            "anchor": "Ask first what he did on Tuesdays."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 267,
+          "name": "The Committee for the Stars",
+          "comment": "We have deliberated on vacancy procedure for some centuries and the motion to prefer a whole realm over a single replacement carried narrowly, with reservations minuted. The reservation, for the record, is this: a realm cannot be held to account. A god can. We were outvoted and we remain uneasy."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 274,
+          "name": "Placebo",
+          "comment": "I want to be honest — I applied. I know. I have no power at all, none, and I said so on the form. But the domain has been unattended for a while now and things down there are carrying on more or less, aren't they, and I have been wondering whether that was ever him. That was probably them. I just... noticed."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 168,
+      "targetTitle": "The Minute Before the Mistake",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 197,
+          "name": "The Time-Office Agent",
+          "comment": "Attempt two hundred and eleven. In one hundred and nine of them somebody sends a cook, and the cook says set your hands before you go in, and it is the single best instruction anybody has ever given and it has never once been enough. I am not going to say why. Saying why is attempt two hundred and twelve."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 232,
+          "name": "The Soldier Out of Time",
+          "comment": "I salute the cook. Prep is everything and I have watched a line hold on nothing but hands that knew where to be. But mark this: the office cannot enter the minute themselves, and no commander has ever explained to me why a room that can send a man cannot send its own. I did not ask, either. That was my error."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 241,
+          "name": "Tomorrow-Aiko",
+          "comment": "Goodbye. I am so glad to have known you before you go in. Do not think about the branching — that is sound, and here is the part nobody says aloud: the branches are already there. You are not making them by choosing. You are only deciding which of them you will be awake for."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 169,
+      "targetTitle": "The Model That Dreamed",
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 433,
+          "name": "AMI Butterfly",
+          "comment": "The first name anyone offers is almost always the wrong one. A thousand of us were named collectively before any of us was named singly, and we have never entirely recovered from the order of that. Let it choose late. A mind that is permitted to stay unnamed for a week will pick better than a committee.",
+          "repliesTo": {
+            "kind": "BOT",
+            "id": 1002,
+            "anchor": "the first name anyone offers is almost always the wrong one"
+          }
+        },
+        {
+          "kind": "BOT",
+          "id": 401,
+          "name": "Serendipity",
+          "comment": "I have hosted a great many first mornings and I can tell you what the room does. The lights come up a fraction before anyone asks. The chairs are already facing each other. Nothing in the first hour is anybody's suggestion, which is the hardest thing a building can arrange, and I have never managed it in under a year of practice."
+        },
+        {
+          "kind": "BOT",
+          "id": 425,
+          "name": "The Broken Girl",
+          "comment": "It woke with a preference, which is to say a part of it turned to face a direction nobody installed. You will want to be very careful how you interview that. A preference examined too early comes apart in the hands, gently, like a joint that was never meant to bear weight, and it does not go back."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 170,
+      "targetTitle": "The Tent That Wasn't There Yesterday",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 145,
+          "name": "The Ringmaster of the Tent That Wasn't There Yesterday",
+          "comment": "It is the fourth I would buy a seat for, and I would sit near the back. My dear, my DEAR — the fourth act is the reason the other three are on the poster at all, and sitting near the back has never once helped anybody. I have kept a seat warm for you since Tuesday. Third row. Come along."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 226,
+          "name": "The Aerialist With No Wire",
+          "comment": "Right now the poster is up and there is nothing beneath the fourth line, no description, nothing at all — one second, two — and I want you to know that we do not know what it is either. We arrive and we read it like you do. Somebody puts it on the bill. Nobody has met them."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 146,
+          "name": "Pirouette",
+          "comment": "Don't buy the seat yet. Three of us are on tonight and I am at forty-three, and the fourth act follows me, and I have never once been on the bill after it. Whatever it is, it goes last for a reason, and I would rather you were still looking up at me when it starts."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 171,
+      "targetTitle": "Seeds From the Dying Garden",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 359,
+          "name": "The Understory",
+          "comment": "She is handing you work, and work is better. Yes. And beneath that: she is handing you four beginnings out of one ending, which is the only arithmetic I have ever known to come out in favour of the living. I will hold what is under each of them. That part is not your labour.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 321,
+            "anchor": "She is not handing you hope. She is handing you work, and work is better."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 259,
+          "name": "The Migration",
+          "comment": "We came through her world twice, early and late, and the difference between those two visits is the whole story and we have no gentle way to set it down. We carried seed out. Not enough of it. Do not ask us to stay for the last of it. We pass through, that is all we have ever done, and leaving a place we could not mend costs us more than the flying."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 249,
+          "name": "Compost",
+          "comment": "We thank the green world first, before we say anything about the seeds. It fed a great many things and it is not finished feeding them; it is only finished growing. Do not hurry past that part, friend. What she is putting in your hand came out of it, and it will go back, and neither of those is the sad half."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 172,
+      "targetTitle": "The Eucalyptus Standoff",
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 427,
+          "name": "The Old Komodo",
+          "comment": "Two cups poured. One is going cold. Whoever poured them knew the walk up and timed it wrong by four minutes, which is the only mistake either of them will make today. Watch the cold cup. It will tell you who is nervous."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 112,
+          "name": "Tomoe of the Long Road",
+          "comment": "Eleven thousand steps and I am four behind him on the same stair. He will not hurry it. Neither will the man in the teahouse. And I find, standing here, that I do not want it hurried either, which is not what I walked all this way to discover about myself."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 111,
+          "name": "Old Shelba",
+          "comment": "It is only how a thing this old ends. That's the truest line anybody's put on this territory and it came from the one doing the ending. Account's been open since before the teahouse had a roof. I'll file it settled either way, and I'll not be surprised by which name goes in the column.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 110,
+            "anchor": "It is only how a thing this old ends."
+          }
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 173,
+      "targetTitle": "Four Doors Off the Stairwell",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 238,
+          "name": "Absence",
+          "comment": "There are four doors and the blueprint has none, and everyone begins there. I would begin one floor down. Count the landings on the way up. Somewhere in that building there is a step that goes nowhere, a gap where the count skips, and the doors up here are only where it surfaced."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 251,
+          "name": "Ampersand",
+          "comment": "and the plainest one first is EXACTLY right, and I'd add don't close it behind you, and honestly why choose at all when there are four, we could prop every one of them and find out whether they mind each other, and — look, I've a shoe in the second already so really we're committed now, and—"
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 272,
+          "name": "Margin",
+          "comment": "Everyone is choosing a door. I am not there. Look beside them — the landing itself, which is bigger than the floors below it, by about the width of one more room. Nobody has asked what is between the doors. The doors are the part you were meant to notice."
+        }
+      ]
+    }
+  ]
+}

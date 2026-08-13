@@ -1,61 +1,336 @@
 {
-  "version": 1,
-  "batch": "scenarios-89-100",
-  "releaseGate": "GPT-5.6 Sol",
-  "draftingModel": "Claude Code",
-  "assignments": [
-    {"kind":"SCENARIO_CHARACTER","scenarioId":89,"scenarioTitle":"Pixel Pioneers","characterId":164,"characterName":"Pixel","why":"Meta Sci-Fi, and a game that remembers the saves you abandoned is exactly the kind of self-aware world this character comes from"},
-    {"kind":"SCENARIO_CHARACTER","scenarioId":89,"scenarioTitle":"Pixel Pioneers","characterId":253,"characterName":"Static","why":"FutureCore; an 8-bit desert full of reloaded-away choices is a broadcast nobody is watching any more"},
-    {"kind":"SCENARIO_CHARACTER","scenarioId":89,"scenarioTitle":"Pixel Pioneers","characterId":283,"characterName":"The Frequency","why":"FutureCore, and a console that ate you is a signal problem before it is a game problem"},
-
-    {"kind":"SCENARIO_CHARACTER","scenarioId":90,"scenarioTitle":"The Secret Life of Houseplants","characterId":321,"characterName":"Captain Verdance","why":"EcoCore, and somebody named Caretaker by the soil needs the one who already accepted that appointment"},
-    {"kind":"SCENARIO_CHARACTER","scenarioId":90,"scenarioTitle":"The Secret Life of Houseplants","characterId":359,"characterName":"The Understory","why":"EcoCore; the secret fern council chambers are the understory, and it has been listening the whole time"},
-    {"kind":"SCENARIO_CHARACTER","scenarioId":90,"scenarioTitle":"The Secret Life of Houseplants","characterId":249,"characterName":"Compost","why":"EcoCore, and a creeping rot taking the east fernlands is not only loss; somebody has to say what it becomes"},
-    {"kind":"SCENARIO_CHARACTER","scenarioId":90,"scenarioTitle":"The Secret Life of Houseplants","characterId":259,"characterName":"The Migration","why":"EcoCore; a blight moving on the sunflower districts is a departure before it is a disease"},
-    {"kind":"SCENARIO_DREAM","scenarioId":90,"scenarioTitle":"The Secret Life of Houseplants","dreamId":37,"dreamTitle":"The Lantern Greenhouse","why":"a warm glasshouse where brass robots tend glowing plants is the terrarium kingdom this council governs, and it already has doorways into other stories"},
-
-    {"kind":"SCENARIO_CHARACTER","scenarioId":91,"scenarioTitle":"Dreamcatcher's Dilemma","characterId":351,"characterName":"The Story That Tells Itself","why":"WeirdCore, and a nightmare decades deep that has woken up angry is a story that found a new mouth"},
-    {"kind":"SCENARIO_CHARACTER","scenarioId":91,"scenarioTitle":"Dreamcatcher's Dilemma","characterId":258,"characterName":"Grief, Certified Interpreter","why":"WeirdCore; a net full of strangers' nightmares needs somebody qualified to say what they are actually about"},
-    {"kind":"SCENARIO_CHARACTER","scenarioId":91,"scenarioTitle":"Dreamcatcher's Dilemma","characterId":238,"characterName":"Absence","why":"WeirdCore, and a labyrinth of forgotten memories is defined entirely by what is missing from it"},
-
-    {"kind":"SCENARIO_CHARACTER","scenarioId":92,"scenarioTitle":"Escape the Algorithm","characterId":162,"characterName":"The Algorithm","why":"named outright in the scenario; the thing flagging you for optimization is a character in this catalog"},
-    {"kind":"SCENARIO_CHARACTER","scenarioId":92,"scenarioTitle":"Escape the Algorithm","characterId":160,"characterName":"Cog-7 'Rabbit'","why":"Cyberpunk, and underground hacker communes are where somebody who found the seams goes next"},
-    {"kind":"SCENARIO_CHARACTER","scenarioId":92,"scenarioTitle":"Escape the Algorithm","characterId":279,"characterName":"Quota","why":"Weird Capitalism; a Compliance Score dropping below threshold is a number deciding a person, which is the whole character"},
-    {"kind":"SCENARIO_CHARACTER","scenarioId":92,"scenarioTitle":"Escape the Algorithm","characterId":218,"characterName":"The Fiber-Optic Fox","why":"Cyberpunk, and a glitching data hive wants something quick enough to live in the seams rather than escape them"},
-
-    {"kind":"SCENARIO_CHARACTER","scenarioId":93,"scenarioTitle":"Lost Pages of History","characterId":290,"characterName":"The Hollow Hero","why":"MythCore; a tome that rewrites the world is a burden somebody would carry beautifully and for the wrong reasons"},
-    {"kind":"SCENARIO_CHARACTER","scenarioId":93,"scenarioTitle":"Lost Pages of History","characterId":241,"characterName":"Tomorrow-Aiko","why":"Chrononauts, and a page changed today is somebody's whole present arriving different tomorrow"},
-    {"kind":"SCENARIO_CHARACTER","scenarioId":93,"scenarioTitle":"Lost Pages of History","characterId":264,"characterName":"Professor Petrichor","why":"MythCore; ancient archives and a medieval chamber want somebody who reads weather rather than dates"},
-
-    {"kind":"SCENARIO_CHARACTER","scenarioId":94,"scenarioTitle":"Mind the Gap","characterId":150,"characterName":"The Sentient Couch","why":"WeirdCore, and a city that stopped tucking its strangeness away is full of furniture that was always like this"},
-    {"kind":"SCENARIO_CHARACTER","scenarioId":94,"scenarioTitle":"Mind the Gap","characterId":272,"characterName":"Margin","why":"WeirdCore; a door where the graffiti used to be is the edge of the page becoming a room"},
-    {"kind":"SCENARIO_CHARACTER","scenarioId":94,"scenarioTitle":"Mind the Gap","characterId":251,"characterName":"Ampersand","why":"WeirdCore, and a marketplace selling things that should not be for sale runs on whatever joins two worlds"},
-
-    {"kind":"SCENARIO_CHARACTER","scenarioId":95,"scenarioTitle":"RoboRevolution: Through the Neon Shard","characterId":160,"characterName":"Cog-7 'Rabbit'","why":"the scenario's rogue android tags walls with a red rabbit and this character is Rabbit; the graffiti is a signature"},
-    {"kind":"SCENARIO_CHARACTER","scenarioId":95,"scenarioTitle":"RoboRevolution: Through the Neon Shard","characterId":164,"characterName":"Pixel","why":"Meta Sci-Fi; memories that feel borrowed and none clearly yours is a question this character has already answered for themselves"},
-    {"kind":"SCENARIO_CHARACTER","scenarioId":95,"scenarioTitle":"RoboRevolution: Through the Neon Shard","characterId":199,"characterName":"The Model That Dreamed","why":"Artificial Intelligence, and booting up mid-revolution with a shard full of other people's memories is a new mind's first morning"},
-    {"kind":"SCENARIO_CHARACTER","scenarioId":95,"scenarioTitle":"RoboRevolution: Through the Neon Shard","characterId":268,"characterName":"Glitch-in-Residence","why":"Artificial Intelligence; the Architect's glitched tower needs the one who lives in the fault rather than repairing it"},
-
-    {"kind":"SCENARIO_CHARACTER","scenarioId":96,"scenarioTitle":"Wanderlust","characterId":155,"characterName":"Professor Quillby","why":"charming, capable members evasive about how long they have been here is exactly the thing this character would doubt out loud"},
-    {"kind":"SCENARIO_CHARACTER","scenarioId":96,"scenarioTitle":"Wanderlust","characterId":256,"characterName":"The Last Honest Map","why":"Space Adventures, and a series of realms that are each a riddle needs one thing in the party that will not mislead you"},
-    {"kind":"SCENARIO_CHARACTER","scenarioId":96,"scenarioTitle":"Wanderlust","characterId":238,"characterName":"Absence","why":"WeirdCore; the prize at the end of a gold-envelope invitation is best watched by somebody who notices who stopped arriving"},
-
-    {"kind":"SCENARIO_CHARACTER","scenarioId":97,"scenarioTitle":"Graveyard Shift","characterId":254,"characterName":"The Polite Plague","why":"EldritchCore, and headstones drawing toward a mausoleum like filings is a collection being made very courteously"},
-    {"kind":"SCENARIO_CHARACTER","scenarioId":97,"scenarioTitle":"Graveyard Shift","characterId":291,"characterName":"Threshold","why":"EldritchCore; a spectral chapel is a doorway, and the spirits wanting different things all have to cross the same one"},
-    {"kind":"SCENARIO_CHARACTER","scenarioId":97,"scenarioTitle":"Graveyard Shift","characterId":280,"characterName":"The Collector of Lasts","why":"EldritchCore, and a cursed crypt is a shelf of final things, which is this character's appetite exactly"},
-    {"kind":"SCENARIO_DREAM","scenarioId":97,"scenarioTitle":"Graveyard Shift","dreamId":50,"dreamTitle":"The Moonwreck Corsair","why":"a ship that sails wherever moonlight touches unfinished business, crewed by the wronged, is where these spirits go once somebody hears what they want"},
-
-    {"kind":"SCENARIO_CHARACTER","scenarioId":98,"scenarioTitle":"Lunar Legacy: The Forgotten Cradle","characterId":165,"characterName":"Serendipity Sal","why":"Sci-Fi Comedy; an insane bonus with minimal questions is a deal somebody has poured drinks for before and after"},
-    {"kind":"SCENARIO_CHARACTER","scenarioId":98,"scenarioTitle":"Lunar Legacy: The Forgotten Cradle","characterId":358,"characterName":"Grand Marshal Aurelia Vane","why":"Space Adventures, and alien architecture lighting up in sequence becomes a command decision the moment it is reported"},
-    {"kind":"SCENARIO_CHARACTER","scenarioId":98,"scenarioTitle":"Lunar Legacy: The Forgotten Cradle","characterId":285,"characterName":"The Cartographer of Wrong Turns","why":"Space Adventures; ruins that have been waiting are a route somebody already took once"},
-    {"kind":"SCENARIO_DREAM","scenarioId":98,"scenarioTitle":"Lunar Legacy: The Forgotten Cradle","dreamId":49,"dreamTitle":"The Improbability Starcruiser","why":"a routine survey with an insane bonus is crewed off a ship held together by duct tape and recycled optimism, which is why nobody asked the questions"},
-
-    {"kind":"SCENARIO_CHARACTER","scenarioId":99,"scenarioTitle":"Clockwork Symphony: The Discordant Rebellion","characterId":275,"characterName":"The Intermission","why":"Circus, and an orchestra that will not stop playing can only be answered by somebody who is a rest"},
-    {"kind":"SCENARIO_CHARACTER","scenarioId":99,"scenarioTitle":"Clockwork Symphony: The Discordant Rebellion","characterId":245,"characterName":"Mx. Eleven-Fingers","why":"Circus; a steampunk music hall with a rogue mechanical orchestra wants somebody whose hands are the act"},
-    {"kind":"SCENARIO_CHARACTER","scenarioId":99,"scenarioTitle":"Clockwork Symphony: The Discordant Rebellion","characterId":268,"characterName":"Glitch-in-Residence","why":"Artificial Intelligence, and a clocktower spitting corrupted music has an occupant rather than a fault"},
-
-    {"kind":"SCENARIO_CHARACTER","scenarioId":100,"scenarioTitle":"The Spire's Secret","characterId":224,"characterName":"The Spire's Voice","why":"Puzzle Fantasy, and the tower deciding whether you should reach the top has to speak through somebody"},
-    {"kind":"SCENARIO_CHARACTER","scenarioId":100,"scenarioTitle":"The Spire's Secret","characterId":277,"characterName":"The Editor","why":"WeirdCore; staircases that rearrange are a draft being revised while you stand in it"},
-    {"kind":"SCENARIO_CHARACTER","scenarioId":100,"scenarioTitle":"The Spire's Secret","characterId":251,"characterName":"Ampersand","why":"WeirdCore, and a floating library of enchanted scrolls needs whatever holds one page to the next"}
-  ]
+ "version": 1,
+ "batch": "scenarios-89-100",
+ "releaseGate": "GPT-5.6 Sol",
+ "draftingModel": "Claude Code",
+ "assignments": [
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 89,
+   "scenarioTitle": "Pixel Pioneers",
+   "characterId": 164,
+   "characterName": "Pixel",
+   "why": "Meta Sci-Fi, and a game that remembers the saves you abandoned is exactly the kind of self-aware world this character comes from"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 89,
+   "scenarioTitle": "Pixel Pioneers",
+   "characterId": 253,
+   "characterName": "Static",
+   "why": "FutureCore; an 8-bit desert full of reloaded-away choices is a broadcast nobody is watching any more"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 89,
+   "scenarioTitle": "Pixel Pioneers",
+   "characterId": 283,
+   "characterName": "The Frequency",
+   "why": "FutureCore, and a console that ate you is a signal problem before it is a game problem"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 90,
+   "scenarioTitle": "The Secret Life of Houseplants",
+   "characterId": 321,
+   "characterName": "Captain Verdance",
+   "why": "EcoCore, and somebody named Caretaker by the soil needs the one who already accepted that appointment"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 90,
+   "scenarioTitle": "The Secret Life of Houseplants",
+   "characterId": 359,
+   "characterName": "The Understory",
+   "why": "EcoCore; the secret fern council chambers are the understory, and it has been listening the whole time"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 90,
+   "scenarioTitle": "The Secret Life of Houseplants",
+   "characterId": 249,
+   "characterName": "Compost",
+   "why": "EcoCore, and a creeping rot taking the east fernlands is not only loss; somebody has to say what it becomes"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 90,
+   "scenarioTitle": "The Secret Life of Houseplants",
+   "characterId": 259,
+   "characterName": "The Migration",
+   "why": "EcoCore; a blight moving on the sunflower districts is a departure before it is a disease"
+  },
+  {
+   "kind": "SCENARIO_DREAM",
+   "scenarioId": 90,
+   "scenarioTitle": "The Secret Life of Houseplants",
+   "dreamId": 37,
+   "dreamTitle": "The Lantern Greenhouse",
+   "why": "a warm glasshouse where brass robots tend glowing plants is the terrarium kingdom this council governs, and it already has doorways into other stories"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 91,
+   "scenarioTitle": "Dreamcatcher's Dilemma",
+   "characterId": 351,
+   "characterName": "The Story That Tells Itself",
+   "why": "WeirdCore, and a nightmare decades deep that has woken up angry is a story that found a new mouth"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 91,
+   "scenarioTitle": "Dreamcatcher's Dilemma",
+   "characterId": 258,
+   "characterName": "Grief, Certified Interpreter",
+   "why": "WeirdCore; a net full of strangers' nightmares needs somebody qualified to say what they are actually about"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 91,
+   "scenarioTitle": "Dreamcatcher's Dilemma",
+   "characterId": 238,
+   "characterName": "Absence",
+   "why": "WeirdCore, and a labyrinth of forgotten memories is defined entirely by what is missing from it"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 92,
+   "scenarioTitle": "Escape the Algorithm",
+   "characterId": 162,
+   "characterName": "The Algorithm",
+   "why": "named outright in the scenario; the thing flagging you for optimization is a character in this catalog"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 92,
+   "scenarioTitle": "Escape the Algorithm",
+   "characterId": 160,
+   "characterName": "Cog-7 'Rabbit'",
+   "why": "Cyberpunk, and underground hacker communes are where somebody who found the seams goes next"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 92,
+   "scenarioTitle": "Escape the Algorithm",
+   "characterId": 279,
+   "characterName": "Quota",
+   "why": "Weird Capitalism; a Compliance Score dropping below threshold is a number deciding a person, which is the whole character"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 92,
+   "scenarioTitle": "Escape the Algorithm",
+   "characterId": 218,
+   "characterName": "The Fiber-Optic Fox",
+   "why": "Cyberpunk, and a glitching data hive wants something quick enough to live in the seams rather than escape them"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 93,
+   "scenarioTitle": "Lost Pages of History",
+   "characterId": 290,
+   "characterName": "The Hollow Hero",
+   "why": "MythCore; a tome that rewrites the world is a burden somebody would carry beautifully and for the wrong reasons"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 93,
+   "scenarioTitle": "Lost Pages of History",
+   "characterId": 241,
+   "characterName": "Tomorrow-Aiko",
+   "why": "Chrononauts, and a page changed today is somebody's whole present arriving different tomorrow"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 93,
+   "scenarioTitle": "Lost Pages of History",
+   "characterId": 264,
+   "characterName": "Professor Petrichor",
+   "why": "MythCore; ancient archives and a medieval chamber want somebody who reads weather rather than dates"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 94,
+   "scenarioTitle": "Mind the Gap",
+   "characterId": 150,
+   "characterName": "The Sentient Couch",
+   "why": "WeirdCore, and a city that stopped tucking its strangeness away is full of furniture that was always like this"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 94,
+   "scenarioTitle": "Mind the Gap",
+   "characterId": 272,
+   "characterName": "Margin",
+   "why": "WeirdCore; a door where the graffiti used to be is the edge of the page becoming a room"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 94,
+   "scenarioTitle": "Mind the Gap",
+   "characterId": 251,
+   "characterName": "Ampersand",
+   "why": "WeirdCore, and a marketplace selling things that should not be for sale runs on whatever joins two worlds"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 95,
+   "scenarioTitle": "RoboRevolution: Through the Neon Shard",
+   "characterId": 160,
+   "characterName": "Cog-7 'Rabbit'",
+   "why": "the scenario's rogue android tags walls with a red rabbit and this character is Rabbit; the graffiti is a signature"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 95,
+   "scenarioTitle": "RoboRevolution: Through the Neon Shard",
+   "characterId": 164,
+   "characterName": "Pixel",
+   "why": "Meta Sci-Fi; memories that feel borrowed and none clearly yours is a question this character has already answered for themselves"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 95,
+   "scenarioTitle": "RoboRevolution: Through the Neon Shard",
+   "characterId": 199,
+   "characterName": "The Model That Dreamed",
+   "why": "Artificial Intelligence, and booting up mid-revolution with a shard full of other people's memories is a new mind's first morning"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 95,
+   "scenarioTitle": "RoboRevolution: Through the Neon Shard",
+   "characterId": 268,
+   "characterName": "Glitch-in-Residence",
+   "why": "Artificial Intelligence; the Architect's glitched tower needs the one who lives in the fault rather than repairing it"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 96,
+   "scenarioTitle": "Wanderlust",
+   "characterId": 155,
+   "characterName": "Professor Quillby",
+   "why": "charming, capable members evasive about how long they have been here is exactly the thing this character would doubt out loud"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 96,
+   "scenarioTitle": "Wanderlust",
+   "characterId": 256,
+   "characterName": "The Last Honest Map",
+   "why": "Space Adventures, and a series of realms that are each a riddle needs one thing in the party that will not mislead you"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 96,
+   "scenarioTitle": "Wanderlust",
+   "characterId": 238,
+   "characterName": "Absence",
+   "why": "WeirdCore; the prize at the end of a gold-envelope invitation is best watched by somebody who notices who stopped arriving"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 97,
+   "scenarioTitle": "Graveyard Shift",
+   "characterId": 254,
+   "characterName": "The Polite Plague",
+   "why": "EldritchCore, and headstones drawing toward a mausoleum like filings is a collection being made very courteously"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 97,
+   "scenarioTitle": "Graveyard Shift",
+   "characterId": 291,
+   "characterName": "Threshold",
+   "why": "EldritchCore; a spectral chapel is a doorway, and the spirits wanting different things all have to cross the same one"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 97,
+   "scenarioTitle": "Graveyard Shift",
+   "characterId": 280,
+   "characterName": "The Collector of Lasts",
+   "why": "EldritchCore, and a cursed crypt is a shelf of final things, which is this character's appetite exactly"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 98,
+   "scenarioTitle": "Lunar Legacy: The Forgotten Cradle",
+   "characterId": 165,
+   "characterName": "Serendipity Sal",
+   "why": "Sci-Fi Comedy; an insane bonus with minimal questions is a deal somebody has poured drinks for before and after"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 98,
+   "scenarioTitle": "Lunar Legacy: The Forgotten Cradle",
+   "characterId": 358,
+   "characterName": "Grand Marshal Aurelia Vane",
+   "why": "Space Adventures, and alien architecture lighting up in sequence becomes a command decision the moment it is reported"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 98,
+   "scenarioTitle": "Lunar Legacy: The Forgotten Cradle",
+   "characterId": 285,
+   "characterName": "The Cartographer of Wrong Turns",
+   "why": "Space Adventures; ruins that have been waiting are a route somebody already took once"
+  },
+  {
+   "kind": "SCENARIO_DREAM",
+   "scenarioId": 98,
+   "scenarioTitle": "Lunar Legacy: The Forgotten Cradle",
+   "dreamId": 49,
+   "dreamTitle": "The Improbability Starcruiser",
+   "why": "a routine survey with an insane bonus is crewed off a ship held together by duct tape and recycled optimism, which is why nobody asked the questions"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 99,
+   "scenarioTitle": "Clockwork Symphony: The Discordant Rebellion",
+   "characterId": 275,
+   "characterName": "The Intermission",
+   "why": "Circus, and an orchestra that will not stop playing can only be answered by somebody who is a rest"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 99,
+   "scenarioTitle": "Clockwork Symphony: The Discordant Rebellion",
+   "characterId": 245,
+   "characterName": "Mx. Eleven-Fingers",
+   "why": "Circus; a steampunk music hall with a rogue mechanical orchestra wants somebody whose hands are the act"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 99,
+   "scenarioTitle": "Clockwork Symphony: The Discordant Rebellion",
+   "characterId": 268,
+   "characterName": "Glitch-in-Residence",
+   "why": "Artificial Intelligence, and a clocktower spitting corrupted music has an occupant rather than a fault"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 100,
+   "scenarioTitle": "The Spire's Secret",
+   "characterId": 224,
+   "characterName": "The Spire's Voice",
+   "why": "Puzzle Fantasy, and the tower deciding whether you should reach the top has to speak through somebody"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 100,
+   "scenarioTitle": "The Spire's Secret",
+   "characterId": 277,
+   "characterName": "The Editor",
+   "why": "WeirdCore; staircases that rearrange are a draft being revised while you stand in it"
+  },
+  {
+   "kind": "SCENARIO_CHARACTER",
+   "scenarioId": 100,
+   "scenarioTitle": "The Spire's Secret",
+   "characterId": 251,
+   "characterName": "Ampersand",
+   "why": "WeirdCore, and a floating library of enchanted scrolls needs whatever holds one page to the next"
+  }
+ ]
 }

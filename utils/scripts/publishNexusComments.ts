@@ -110,13 +110,26 @@ async function loadTargets(items: readonly NexusItem[]) {
     idsByType.set(item.targetType, list)
   }
   const common = { id: true, isPublic: true, allowReviews: true } as const
-  const [bots, characters, dreams, scenarios, projects] = await Promise.all([
-    prisma.bot.findMany({ where: { id: { in: idsByType.get('BOT') || [] } }, select: { ...common, name: true } }),
-    prisma.character.findMany({ where: { id: { in: idsByType.get('CHARACTER') || [] } }, select: { ...common, name: true, isActive: true } }),
-    prisma.dream.findMany({ where: { id: { in: idsByType.get('DREAM') || [] } }, select: { ...common, title: true, isActive: true } }),
-    prisma.scenario.findMany({ where: { id: { in: idsByType.get('SCENARIO') || [] } }, select: { ...common, title: true, isActive: true } }),
-    prisma.project.findMany({ where: { id: { in: idsByType.get('PROJECT') || [] } }, select: { ...common, title: true } }),
-  ])
+  // Whole tables, filtered in memory. A large `WHERE id IN (...)` hung the
+  // connection lane's dry run for fourteen minutes through ProxySQL; these
+  // tables are small enough that reading them all is the cheap option.
+  const keep = (type: PopulationTargetType) =>
+    new Set(idsByType.get(type) || [])
+  const [allBots, allCharacters, allDreams, allScenarios, allProjects] =
+    await Promise.all([
+      prisma.bot.findMany({ select: { ...common, name: true } }),
+      prisma.character.findMany({ select: { ...common, name: true, isActive: true } }),
+      prisma.dream.findMany({ select: { ...common, title: true, isActive: true } }),
+      prisma.scenario.findMany({ select: { ...common, title: true, isActive: true } }),
+      prisma.project.findMany({ select: { ...common, title: true } }),
+    ])
+  const botKeep = keep('BOT')
+  const characterKeep = keep('CHARACTER')
+  const bots = allBots.filter((row) => botKeep.has(row.id))
+  const characters = allCharacters.filter((row) => characterKeep.has(row.id))
+  const dreams = allDreams.filter((row) => keep('DREAM').has(row.id))
+  const scenarios = allScenarios.filter((row) => keep('SCENARIO').has(row.id))
+  const projects = allProjects.filter((row) => keep('PROJECT').has(row.id))
   const map = new Map<string, { isPublic: boolean; allowReviews: boolean; isActive?: boolean; label: string }>()
   const put = (type: PopulationTargetType, rows: Array<Record<string, unknown>>, labelKey: string) => {
     for (const row of rows) {
@@ -148,10 +161,16 @@ async function main() {
   // resolves would publish correctly under the wrong name.
   const botIds = [...new Set(items.flatMap((i) => i.speakers.filter((s) => s.kind === 'BOT').map((s) => s.id)))]
   const characterIds = [...new Set(items.flatMap((i) => i.speakers.filter((s) => s.kind === 'CHARACTER').map((s) => s.id)))]
-  const [speakerBots, speakerCharacters] = await Promise.all([
-    prisma.bot.findMany({ where: { id: { in: botIds } }, select: { id: true, name: true } }),
-    prisma.character.findMany({ where: { id: { in: characterIds } }, select: { id: true, name: true } }),
+  const botIdSet = new Set(botIds)
+  const characterIdSet = new Set(characterIds)
+  const [everyBot, everyCharacter] = await Promise.all([
+    prisma.bot.findMany({ select: { id: true, name: true } }),
+    prisma.character.findMany({ select: { id: true, name: true } }),
   ])
+  const speakerBots = everyBot.filter((row) => botIdSet.has(row.id))
+  const speakerCharacters = everyCharacter.filter((row) =>
+    characterIdSet.has(row.id),
+  )
   const speakerName = new Map<string, string>()
   for (const row of speakerBots) speakerName.set(`BOT:${row.id}`, row.name)
   for (const row of speakerCharacters) speakerName.set(`CHARACTER:${row.id}`, row.name)

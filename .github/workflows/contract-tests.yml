@@ -377,6 +377,12 @@ jobs:
       - name: Model Builder pushItem error-scope guard contract
         run: npm run test:model-builder-pushitem-error-scope-guard
 
+      - name: Model Builder draftText status-scope guard checker self-test
+        run: npm run test:model-builder-draft-status-scope-guard-selftest
+
+      - name: Model Builder draftText status-scope guard contract
+        run: npm run test:model-builder-draft-status-scope-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

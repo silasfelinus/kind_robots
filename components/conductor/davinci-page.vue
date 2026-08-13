@@ -231,9 +231,19 @@
 
           <!-- The run may be ended any time after chapter 3 (narration-layer
                spec): enough chapters for a meaningful spread of dimensions.
-               The narrator never decides when a life ends — the player does. -->
+               The narrator never decides when a life ends — the player does.
+               Excluded while narrationError is set: narrateChapter() clears
+               aiChapter (making currentChapter null) *before* the request
+               that then fails, so without the narrationError exclusion
+               `!currentChapter` reads true during a narration failure too —
+               stacking this "See your ending" panel underneath the
+               narration-error retry panel with the misleading "Your
+               chapters are told" copy, even at chapter 1 with zero recorded
+               choices. -->
           <div
-            v-if="!narrating && (canEndRun || !currentChapter)"
+            v-if="
+              !narrating && !narrationError && (canEndRun || !currentChapter)
+            "
             class="flex flex-col items-center gap-3 rounded-2xl border border-primary/30 bg-primary/5 p-6 text-center"
           >
             <Icon name="kind-icon:trophy" class="size-8 text-primary/70" />

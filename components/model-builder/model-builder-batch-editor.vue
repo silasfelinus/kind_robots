@@ -51,7 +51,7 @@
         <button
           type="button"
           class="btn btn-xs rounded-lg"
-          :disabled="batching"
+          :disabled="anyBatching"
           @click="draftAll('pitch')"
         >
           <Icon name="kind-icon:sparkles" class="h-3.5 w-3.5" />
@@ -61,7 +61,7 @@
           v-if="!isAsset"
           type="button"
           class="btn btn-xs rounded-lg"
-          :disabled="batching"
+          :disabled="anyBatching"
           @click="draftAll('fields')"
         >
           <Icon name="kind-icon:sparkles" class="h-3.5 w-3.5" />
@@ -71,7 +71,7 @@
           v-if="wantArt"
           type="button"
           class="btn btn-xs rounded-lg"
-          :disabled="batching"
+          :disabled="anyBatching"
           @click="draftAll('artPrompt')"
         >
           <Icon name="kind-icon:sparkles" class="h-3.5 w-3.5" />
@@ -80,7 +80,7 @@
         <button
           type="button"
           class="btn btn-xs btn-ghost rounded-lg"
-          :disabled="batching"
+          :disabled="anyBatching"
           @click="
             store.batchApproveStage(group.outputKey, 'FIELDS_AND_PROMPTS')
           "
@@ -91,7 +91,7 @@
         <button
           type="button"
           class="btn btn-xs btn-primary rounded-lg"
-          :disabled="batching"
+          :disabled="anyBatching"
           :title="autoBuildGroupTitle"
           @click="store.batchAutoBuild(group.outputKey)"
         >
@@ -154,7 +154,7 @@
           <button
             type="button"
             class="btn btn-xs rounded-lg"
-            :disabled="batching || !batchValues[field.key]"
+            :disabled="anyBatching || !batchValues[field.key]"
             :aria-label="`Apply ${field.label} to all ${group.items.length} items`"
             @click="applyField(field.key)"
           >
@@ -214,6 +214,32 @@ const group = computed(() =>
   store.itemGroups.find((entry) => entry.outputKey === props.outputKey),
 )
 const batching = computed(() => store.batchingOutputKey === props.outputKey)
+
+// batchingOutputSingleton (modelBuilderStore.ts) is a single store-wide slot,
+// not one per group -- see createOwnedSingleton's own doc comment: claiming
+// it is an unconditional overwrite, so it's only reliable as "who owns the
+// spinner right now," never as a lock that blocks a second claim. This
+// component is keyed by outputKey (progress-matrix.vue's
+// `:key="selectedItem.outputKey"`, from t-029's earlier batch-editor-key
+// fix), and row clicks that change the selected item/group are never
+// disabled -- so switching to a different quantity group while this group's
+// batchDraftField/batchSetField/batchAutoBuild is still running unmounts
+// this instance and mounts a fresh one for the new group, whose own
+// `batching` (scoped to ITS OWN outputKey) reads false even though the old
+// group's operation is still in flight. Every action button used to gate
+// only on that narrow `batching`, so the new group's buttons stayed
+// clickable and could kick off a second, fully concurrent batch operation --
+// racing draftText's shared draftingField singleton, defeating
+// batchDraftField's "sequentially, so we don't hammer the text server"
+// design, and letting the two operations' unscoped setStatus() completion
+// toasts silently clobber each other. Mirrors item-panel.vue's
+// isAnyDraftInFlight (gates every field's controls on ANY draft being in
+// flight, not just the matching one) -- gate every action button here on
+// ANY batch operation being in flight anywhere in the run, not just this
+// group, so a second one can't start until the first actually finishes.
+// `batching` above stays narrow on purpose -- it only drives this group's
+// own header spinner.
+const anyBatching = computed(() => store.batchingOutputKey !== null)
 const isAsset = computed(() => group.value?.action === 'ASSET_ONLY')
 const wantArt = computed(
   () => store.includeArt && group.value?.generation === 'image',

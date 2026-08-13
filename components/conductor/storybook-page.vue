@@ -944,7 +944,16 @@ async function beginStory() {
 
 async function submitAnswer(value: string) {
   answerInput.value = ''
-  await store.answerCurrentBeat(value)
+  const wove = await store.answerCurrentBeat(value)
+  // answerCurrentBeat's own rollback (see verifyStorybookAnswerRollbackGuard)
+  // restores store consistency on a failed weaveBeat call, but it can't
+  // restore the composer's local text -- without this, the reader's answer
+  // is optimistically cleared above and then silently lost, forcing them to
+  // recall and retype it from scratch on retry. weaveBeat always sets
+  // errorMessage on a real failure, so checking it (not just `!wove`) avoids
+  // repopulating the box when answerCurrentBeat's own no-op guard rejected
+  // the submission before ever calling weaveBeat.
+  if (!wove && store.errorMessage) answerInput.value = value
 }
 
 function startAnother() {

@@ -51,7 +51,7 @@ import {
 const PUBLISHER_USER_ID = 1
 const EXPECTED_RELEASE_GATE = 'GPT-5.6 Sol'
 const BANNED_REVIEW_LANGUAGE =
-  /\b(component|wonderlab|museum|exhibit|star rating|rating|review|implementation|usability)\b/i
+  /\b(components?|wonderlabs?|museums?|exhibits?|star ratings?|ratings?|reviews?|implementations?|usability)\b/i
 
 const CATEGORY: Record<PopulationTargetType, Reaction_reactionCategory> = {
   BOT: Reaction_reactionCategory.BOT,

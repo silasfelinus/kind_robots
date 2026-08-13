@@ -38,7 +38,7 @@ import {
 } from './../../utils/comments/populationTargets'
 
 const BANNED_REVIEW_LANGUAGE =
-  /\b(component|wonderlab|museum|exhibit|star rating|rating|review|implementation|usability)\b/i
+  /\b(components?|wonderlabs?|museums?|exhibits?|star ratings?|ratings?|reviews?|implementations?|usability)\b/i
 
 type DraftSpeaker = {
   kind: 'BOT' | 'CHARACTER'

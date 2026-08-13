@@ -38,7 +38,7 @@ import { characterVoiceSeeds } from './../../stores/seeds/characterVoices'
 // are reacting to an object in character, not filing a review of it, and the
 // museum vocabulary is a specific hangover from WonderLab.
 const BANNED_REVIEW_LANGUAGE =
-  /\b(component|wonderlab|museum|exhibit|star rating|rating|review|implementation|usability)\b/i
+  /\b(components?|wonderlabs?|museums?|exhibits?|star ratings?|ratings?|reviews?|implementations?|usability)\b/i
 
 const SPEAKERS_PER_SHAPE: Record<string, number> = {
   SOLO: 1,

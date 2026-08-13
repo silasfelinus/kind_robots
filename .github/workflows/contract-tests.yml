@@ -227,6 +227,12 @@ jobs:
       - name: Da Vinci dimension-tone guard
         run: npm run test:davinci-dimension-tone-guard
 
+      - name: Serendipity Voice poll guard self-test
+        run: npm run test:serendipity-voice-poll-guard-selftest
+
+      - name: Serendipity Voice poll guard
+        run: npm run test:serendipity-voice-poll-guard
+
       - name: Pack manifest validator self-test
         run: npm run test:pack-manifest
 

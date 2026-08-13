@@ -1,3 +1,25 @@
+# The image CI publishes, not one built on the box.
+#
+# Both services previously carried `build: context: .` and `image:
+# kind-robots:local`, so `docker compose up` compiled from whatever the local
+# checkout happened to be. publish-container.yml was pushing to GHCR on every
+# merge and nothing ever consumed it -- the two halves of the deploy did not
+# join up, and what ran in production was not what CI had built or tested.
+#
+# Deploying is now `docker compose pull && docker compose up -d`.
+#
+# The anchor is load-bearing: migrate and kind-robots must be the SAME image.
+# Migrating with one build and serving with another is how a schema arrives that
+# the running code does not expect, and it would be invisible until something
+# broke at runtime.
+#
+# Pin a rollback with KIND_ROBOTS_IMAGE — every build is also tagged sha-<short>:
+#   KIND_ROBOTS_IMAGE=ghcr.io/silasfelinus/kind_robots:sha-1a2b3c4 docker compose up -d
+#
+# GHCR may require `docker login ghcr.io` on this host with a token that can
+# read packages, if the package is not public.
+x-kind-robots-image: &kind-robots-image ${KIND_ROBOTS_IMAGE:-ghcr.io/silasfelinus/kind_robots:latest}
+
 services:
   # Applies pending migrations, then exits. The app will not start until this
   # has completed successfully, so schema and code move together instead of the
@@ -13,10 +35,7 @@ services:
   # `migrate deploy` applies pending migrations only. It never resets, never
   # drops, and never generates. Re-running it is a no-op.
   migrate:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: kind-robots:local
+    image: *kind-robots-image
     container_name: kind-robots-migrate
     restart: "no"
     env_file:
@@ -31,10 +50,7 @@ services:
       - cafepurr
 
   kind-robots:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: kind-robots:local
+    image: *kind-robots-image
     container_name: kind-robots
     restart: unless-stopped
     depends_on:

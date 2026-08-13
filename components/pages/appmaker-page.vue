@@ -209,7 +209,21 @@ const slugPreview = computed(() =>
 
 const slugError = computed(() => {
   const candidate = form.slug.trim().toLowerCase() || slugPreview.value
-  if (!candidate || SLUG_RE.test(candidate)) return ''
+  // An empty candidate is only "not yet an error" while the title itself is
+  // still empty (the Create button is separately disabled by !form.title in
+  // that case). Once the title is non-empty but reduces to nothing after
+  // slugify (e.g. "###", "---", pure emoji/punctuation) — and the slug field
+  // is also empty — there is no usable slug to submit. Treating that as "no
+  // error" let the Create button stay enabled and every SLUG_RE.test('')
+  // guard below fall through silently, so submission always reached the
+  // server just to bounce off its mirrored SLUG_RE check instead of being
+  // caught here as intended.
+  if (!candidate) {
+    return form.title.trim()
+      ? 'Enter a slug — the title has no letters or digits to build one from.'
+      : ''
+  }
+  if (SLUG_RE.test(candidate)) return ''
   return 'Slug must be kebab-case: start with a letter, then letters/digits/hyphens.'
 })
 

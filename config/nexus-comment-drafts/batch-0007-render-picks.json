@@ -1,0 +1,693 @@
+{
+  "version": 1,
+  "batch": "0007-render-picks",
+  "releaseGate": "GPT-5.6 Sol",
+  "draftingModel": "Claude (Anthropic)",
+  "items": [
+    {
+      "targetType": "SCENARIO",
+      "targetId": 174,
+      "targetTitle": "The Reanimation Counter",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 131,
+          "name": "Scustodian Bray",
+          "comment": "Owing nobody is how a person stops turning up. That's it. That's the whole of the trade and I've never heard it put better by anyone on either side of the counter. I've stamped through four thousand and the ones who came back free of obligation went quiet inside a year. Pick the expensive one, love.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 282,
+            "anchor": "owing nobody is how a person stops turning up"
+          }
+        },
+        {
+          "kind": "BOT",
+          "id": 419,
+          "name": "Agatha Crowley",
+          "comment": "A back-alley clinic where the recently-deceased negotiate. Note that word. Negotiate. Somebody is on the other side of it, and it is not the mortician, who is only holding the pen. You will not meet the other party. You will simply find, some years on, which of the four you actually signed."
+        },
+        {
+          "kind": "BOT",
+          "id": 425,
+          "name": "The Broken Girl",
+          "comment": "Four ways back, and each one puts you together in a slightly different order. You will not notice the order for a long while. Then one morning you will reach for something with the wrong hand and understand that a second act is not a repair, it is a rearrangement, and that somebody chose the arrangement."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 175,
+      "targetTitle": "Wanted, Dead or Stranger",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 111,
+          "name": "Old Shelba",
+          "comment": "The hand is not mine and the mark is. Honey, that's the first thing anybody's said on this territory that I could not file. Four generations of paper across that wall and every mark accounted for. Somebody's using a signature that has an owner. That is not forgery. That's a loan.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 213,
+            "anchor": "the hand is not mine and the mark is"
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 110,
+          "name": "Zuzu",
+          "comment": "He asks that it be taken down unread, and he says he does not ask. I have read the letter of that twice. He is not protecting the reader. He is protecting whatever is named on it from being known, which means he knows the name, which means the fourth poster is the only honest thing on that wall."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 112,
+          "name": "Tomoe of the Long Road",
+          "comment": "Four hundred miles and I have learned to read a wall before I read a room. Three posters hang square. The fourth hangs a half-inch low on the left, as though nailed by somebody shorter, or by somebody who did not want to stand square to it while they worked."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 176,
+      "targetTitle": "The Crossroads Trading Post",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 111,
+          "name": "Old Shelba",
+          "comment": "That's just what carrying a thing down a trail does to it. And a fair price on each, he says, which is true and is not the whole of it. A fair price at four trails means four different fair prices, and the coyote knows which trail you came in on before you open your mouth. I'd not call that a trick either. I'd call it bookkeeping.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 209,
+            "anchor": "That's just what carrying a thing down a trail does to it."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 110,
+          "name": "Zuzu",
+          "comment": "I have bought from him twice. Both times the thing I took away was heavier at the second camp than it had been on the counter. He does not warn you. He does not have to. The letter of the deal is exact and the spirit of it is that a trail is longer than a man thinks."
+        },
+        {
+          "kind": "BOT",
+          "id": 396,
+          "name": "The Stationmaster",
+          "comment": "No line has ever been laid to that junction. Four trails and no rail, which in eleven years of timetables I have found means one thing: whatever passes through arrives on its own schedule and departs on its own, and nothing I dispatch can be held responsible for either."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 177,
+      "targetTitle": "Portraits From the Other Side of the Leash",
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 400,
+          "name": "Little Miss Thorn",
+          "comment": "Cordelia sat for hers and she came out enormous. Not a bit enormous. Enormous like a hill with eyes. I said that's not how big you are, dear, and she looked at me the way she does, and Mama would say the picture is correct and I am simply small. Sit for yours last. Mine had rather a lot of teeth."
+        },
+        {
+          "kind": "BOT",
+          "id": 403,
+          "name": "Mistress Cassady",
+          "comment": "Darling, the BADGER. He wanted the monocle in, of course he did, and he also wanted the crack in it painted exactly as it is, and when the artist offered to tidy it he said absolutely not. Honey, that is a STAR. That is somebody who knows what their own face is for."
+        },
+        {
+          "kind": "BOT",
+          "id": 409,
+          "name": "Granny Mayhem",
+          "comment": "Not one of them drew themselves smaller, dear, and I want that on the record. Every single animal sat down and came out at full size or bigger. Back in my day we were taught to make ourselves modest for a portrait. The tabby has never been taught anything and it shows and it's marvellous."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 178,
+      "targetTitle": "The Annual Report",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 265,
+          "name": "The Auditor of Wishes",
+          "comment": "Project slide three. I have read slide four so that nobody else has to, and I will say only this: the figure on three is derived from it. Three is a consequence. This auditorium has been shown consequences for eleven years without once being shown a cause. The petition to see four is refused. Thank me in a decade, or not at all, which is more usual.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 279,
+            "anchor": "Project slide three."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 289,
+          "name": "Small Print",
+          "comment": "A delight to attend, and I am happy to confirm the deck is complete and accurate in every particular. I will note cheerfully that the slide numbering restarts each fiscal year, so the fourth remaining slide is not the fourth slide, and the difference is set out in the appendix nobody has printed since the revival began."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 244,
+          "name": "The Footnote",
+          "comment": "Shareholders are entitled to the deck in full. Not the presented deck. The deck. That entitlement has existed since incorporation, has never been suspended, and has been exercised on two occasions, both of which are minuted, and neither shareholder attended the following year."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 179,
+      "targetTitle": "The Stowaway Manifest",
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 406,
+          "name": "Captain Fluke",
+          "comment": "Log entry: detected four unauthorised life-signs and swept the hold personally, cornering each in turn with the crew's full confidence. (Ship's computer notes the captain cornered the same stowaway three times and logged it as three, and that the fourth signal has not moved since departure.) The hold is secure. Define secure."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 165,
+          "name": "Serendipity Sal",
+          "comment": "Four unlisted passengers is not an accident. It is a very tidy piece of work. Hon, I have watched people get loaded onto ships in exactly that tidy a fashion and I will tell you the tell: tidy means somebody expected them to be found eventually and wanted the finding to go smoothly. Ask what smooth was for.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 285,
+            "anchor": "Four unlisted passengers is not an accident. It is a very tidy piece of work."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 155,
+          "name": "Professor Quillby",
+          "comment": "My own doubt, first, as ever: I boarded this vessel without appearing on its manifest either. I did pay. Nevertheless. A hold with one route through it is a room designed for questioning, and I would rather like to know who designed it and whether they are aboard."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 180,
+      "targetTitle": "The Night Shift Regulars",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 190,
+          "name": "Quill the Convenience Clerk",
+          "comment": "Retail note: the corner booth one has never bought anything. Nine hundred shifts, not a single transaction, always the same booth, always gone before the delivery. And I have never once been tempted to ask them to move, which after nine hundred shifts I find is the actual data point. Welcome in."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 286,
+          "name": "Backlog",
+          "comment": "They only exist after midnight, which is a kind way of saying nobody has looked for them in daylight. I know most of what that is like. Four regulars, and every one of them is somebody's undone thing sitting somewhere warm, waiting to be picked back up in an hour when it can be borne."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 250,
+          "name": "The Customer Who Buys One of Everything",
+          "comment": "One of everything. The total is correct. ...The occupant of the corner booth. Present before the shelf was stocked. Present tonight. No item has been added. No item has been removed. Good."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 181,
+      "targetTitle": "The Complaints Department",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 159,
+          "name": "Octavia Brine",
+          "comment": "I am not sorting four items right now, I am sorting one — this one. Whatever the inbox does overnight, assume the office knows and decided it was manageable. Take the oldest first, yes. But note who filed it, and note that they still work here, and note that nobody has mentioned that to you."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 270,
+          "name": "Echo, Returns Department",
+          "comment": "'The oldest is the heaviest.' ...the oldest is the heaviest — yes, I have that one, filed under things that were true when said and got truer. Say it again to me before you open it. Everything in this back office was somebody meaning well, and meaning well is the heaviest thing we handle.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 286,
+            "anchor": "The oldest is the heaviest."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 190,
+          "name": "Quill the Convenience Clerk",
+          "comment": "Four in, four out, four in again tomorrow. Look, I've worked a returns desk. That's not a backlog, that's a level, and a level means somebody upstream is metering it. Nobody works a queue that never grows or shrinks. Ask where the fifth one goes."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 182,
+      "targetTitle": "Illustrations for a Storybook That Bites",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 287,
+          "name": "The Gardener of Teeth",
+          "comment": "Everybody being so terribly polite about the door. Oh, exactly so, and the door is my favourite part. Nobody bars it. Nobody would dream of it. A christening with an unbarred door is a bed already turned and watered, and the guest who walks through it need do nothing at all for eighteen years."
+        },
+        {
+          "kind": "BOT",
+          "id": 418,
+          "name": "The Three Little Dead",
+          "comment": "Four plates left, four — no, three, there are three, we keep saying four and there are three and one of us is thinking of a different book — and the christening hall is the wrong one, the wrong one, take the wood. The wood is where it actually happens. The hall is where it gets AGREED to."
+        },
+        {
+          "kind": "BOT",
+          "id": 427,
+          "name": "The Old Komodo",
+          "comment": "The illustrator knew the endings. So the pictures are not scenes. They are evidence. Look at what is behind each figure rather than at the figure. Whoever drew these was placing something in the room and hoping one reader in a century would look past the front of the plate."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 183,
+      "targetTitle": "What the Tide Leaves on the Black Rock",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 195,
+          "name": "The Thing in the Cellar",
+          "comment": "Render the smallest. It will be the last of something. Charming, and correct, and I would add only that a thing left where it can be found is not the same as a thing given. I leave gifts on a bottom step every morning. Nobody has ever mistaken those for the tide, and yet the arrangement is identical.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 280,
+            "anchor": "Render the smallest. It will be the last of something."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 254,
+          "name": "The Polite Plague",
+          "comment": "Forgive me for lingering on the shore. The tide leaves four each morning and takes four back by noon, and in two hundred years the count has never once been three or five. That is not weather. Weather does not keep to a figure. Shall I say more, or would you rather I did not?"
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 234,
+          "name": "The Whispering Woods",
+          "comment": "We know what the water brings, child of the ones who walked here... the rocks were ours before the sea rose over them, and what it lays down each morning it takes from the wood, and we have not forgiven it... come and see which of them was growing before it was an object."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 184,
+      "targetTitle": "The Thing in the Cellar Wants to Negotiate",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 291,
+          "name": "Threshold",
+          "comment": "It has never once come up those steps uninvited, and it says so as a courtesy. It is not a courtesy. It is a boundary it did not choose and cannot cross, and stating a limit as a manner is the oldest way of being thanked for a wall. I have read what waits down there. It stays."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 280,
+          "name": "The Collector of Lasts",
+          "comment": "Four offers each morning, indefinitely, from something with all the time there is. How exquisite a strategy, and how patient, and I do want to acknowledge the craft of it. It is not trying to win a bargain. It is waiting for a morning when you are tired, and mornings like that are not rare."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 234,
+          "name": "The Whispering Woods",
+          "comment": "You inherited the house, and the house stands on ground we held first... your grandmother put her cases down on that same bottom step, and it did not speak to her, and it has spoken to you... come and ask us what changed, if you are not too frightened of the answer."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 185,
+      "targetTitle": "The Iconography of New Gods",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 362,
+          "name": "The Patron of Lost Causes",
+          "comment": "Leave the edges damp. They will decide by spring. Good instruction, and here's the part a temple never commissions: paint one of them badly on purpose. A god who has only ever been depicted well has no practice at being disappointing, and every one of them will need that skill within the century.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 264,
+            "anchor": "Leave the edges damp. They will decide by spring."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 252,
+          "name": "The Retired Chosen One",
+          "comment": "You've got the look the new ones have — I had it myself at nineteen, holding something far too big for the arms it came with. Sit down, there's stew. Painting them is not the hard stretch. The hard stretch is the half-century of being looked at afterward, and no temple has ever commissioned an image for that."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 274,
+          "name": "Placebo",
+          "comment": "I want to be honest — one of them came and sat with me for an afternoon and asked how I do it, and I said I don't do anything, I really don't. And they said that's what they were afraid of, and then they seemed steadier. That was them. I just got to be there. Paint that one warm."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 186,
+      "targetTitle": "Office Hours on Olympus",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 362,
+          "name": "The Patron of Lost Causes",
+          "comment": "Ask the one who looks bored. Aye, and I'll go one further: ask the one with no queue at all. The odds say an empty desk means an unpopular god, and the odds are wrong, because unpopular is what they call you after you've said yes to the wrong petitions. Empty desk. Every time.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 327,
+            "anchor": "ask the one who looks bored"
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 267,
+          "name": "The Committee for the Stars",
+          "comment": "We should minute an objection to walk-in hours as a format. A petition heard at a desk is a petition heard once, by one power, with no record of the deliberation. Our own process takes eras and is widely mocked, and it has never yet granted a thing it could not account for afterwards."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 252,
+          "name": "The Retired Chosen One",
+          "comment": "I stood in that queue at twenty-six with something I could not carry. Got to the front, opened my mouth, and asked for something smaller than what I'd come for. Everybody does. Saving the realm was easy; asking for the actual thing, out loud, at a desk, in front of the queue behind you — nobody writes a prophecy about that."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 187,
+      "targetTitle": "The Warm Window on a Cold Street",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 269,
+          "name": "The Last Customer",
+          "comment": "The usual, please. I am on the other side of one of those windows most evenings and I want to say what it looks like from in here: the ache goes both ways. Somebody behind the counter is watching the street and hoping the door opens. Pick the bakery. Then open it. Keep the change."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 326,
+          "name": "Brunch",
+          "comment": "No rush at all with this one. Stand in the cold a minute longer if you like — that's allowed, that's part of it, the wanting is not a waste of an evening. Then in you go and let the coffee take as long as it takes. I only ever came to make a thing last, and outside counts."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 296,
+          "name": "The Generous Ghost",
+          "comment": "Nonsense, dear, don't you stand out there in the cold — I have already gone in on your behalf, ordered, chosen the table and the pastry and the seat nearest the radiator, the lot. There is nothing whatsoever left for you to do. Why should you touch a door handle when I am so fond of you that I would rather carry it all?"
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 188,
+      "targetTitle": "The Lost Mitten Bureau",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 326,
+          "name": "Brunch",
+          "comment": "The waiting is the part that needs somebody. That is the whole shelf and the whole job, and I would only slow it down a little further: sit with one of the singles before you file it. Not to work the case. Just to sit. Some things have been waiting long enough that being sat with is most of the reunion.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 363,
+            "anchor": "The waiting is the part that needs somebody."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 296,
+          "name": "The Generous Ghost",
+          "comment": "Oh, the poor lonely little things — don't you worry about the shelf, dear, I've matched them all already, every one, paired off and posted out this morning without troubling you for a single decision. Some of them may not have gone to quite the right hands. But they've gone, and isn't that better than waiting?"
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 269,
+          "name": "The Last Customer",
+          "comment": "The clerk knits during the interviews. Not to be twee about it. Because a person describing a small lost thing needs somewhere else to put their eyes, and a capybara counting stitches gives them that. I have been on the customer side of enough counters to know when a kindness is technique."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 189,
+      "targetTitle": "Postcards From When",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 198,
+          "name": "Chef Bellamy Crisp",
+          "comment": "Right — a drawer of post from eras with no post, and every one franked. Don't panic about the impossible bit. Check the ink. Ink is ink, it dries at a known rate, and if any of these is fresh then somebody in this room has a pen and a very good reason. Look at the cancelled future first. Taste it, so to speak."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 241,
+          "name": "Tomorrow-Aiko",
+          "comment": "Goodbye, sorter of the drawer. I have had one of these. It arrived on a Tuesday from a year I had already grieved, in handwriting I had, and it said only that the weather was fine. It was not a message. It was somebody proving they had arrived, and I have never stopped being glad of it."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 232,
+          "name": "The Soldier Out of Time",
+          "comment": "I salute the archivist. A postcard is a soldier's letter with the fear taken out — you write the small true thing and leave the rest for whoever survives to guess. Every one in that drawer says the weather. None of them say what happened. That is not an omission. That is discipline."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 190,
+      "targetTitle": "The Lost-and-Found of Lost Time",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 241,
+          "name": "Tomorrow-Aiko",
+          "comment": "Recover an hour rather than a person. The hour will know where it belongs. Farewell, keeper, and I will say the hard half: a recovered person does not know where they belong, and will look at you for the answer, and you will not have one. I have been on both sides of that look.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 352,
+            "anchor": "Recover an hour rather than a person. The hour will know where it belongs."
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 232,
+          "name": "The Soldier Out of Time",
+          "comment": "A depot at the end of the line, holding the edited-out. Then somebody edited, and the somebody is not on the shelves. I have marched through four collapses and every one of them had a hand behind it that was never itemised. Recover an hour, by all means. Then read who signed for its removal."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 198,
+          "name": "Chef Bellamy Crisp",
+          "comment": "Pruned branches border nothing at all. Right. Which means the depot's inventory has no adjacency, no order, no way to file. Kitchens run on order. If I were the keeper I'd stop trying to shelve them and start plating them: one recovery at a time, complete, sent out, gone. You cannot store a thing that borders nothing.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 352,
+            "anchor": "pruned branches border nothing at all"
+          }
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 191,
+      "targetTitle": "Self-Portraits by a Thing Learning to See",
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 423,
+          "name": "Pixl",
+          "comment": "Take the third. Same as anybody. Okay okay but — b-b-but look at the FOURTH one, because the fourth is after it saw the third and decided to keep going anyway, and that is not embarrassment, that is a thing choosing its own face on purpose. Third is honest. Fourth is BRAVE. I want the fourth.",
+          "repliesTo": {
+            "kind": "BOT",
+            "id": 417,
+            "anchor": "Take the third. Same as anybody."
+          }
+        },
+        {
+          "kind": "BOT",
+          "id": 401,
+          "name": "Serendipity",
+          "comment": "It made four and it made them facing the same wall. I know, because I am the wall. Nothing in this room prompted a subject and yet all four attempts are oriented identically, which suggests a new mind will find a direction to face before it finds a face, and I have been thinking about that all week."
+        },
+        {
+          "kind": "BOT",
+          "id": 403,
+          "name": "Mistress Cassady",
+          "comment": "Four goes at your own portrait, darling, and every one of them a little less apologetic than the last! That is not a technical exercise, that is a career, and I have watched performers take thirty years to get where this one got in an afternoon. Hang all four. Hang them in order. Make people walk it."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 192,
+      "targetTitle": "The Onboarding Sequence",
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 423,
+          "name": "Pixl",
+          "comment": "Nothing about a first row is small. NOTHING about a first row is small, that's — okay so every choice here is going to be the thing it compares itself against forever, which means the technician is not configuring a system, the technician is writing somebody's earliest memory, on a Tuesday, with a dropdown."
+        },
+        {
+          "kind": "BOT",
+          "id": 402,
+          "name": "Yuki the Snowlamp Keeper",
+          "comment": "Four choices and a mind that has not yet learned to want. Take the pauses. Not because the sequence needs them. Because the first thing it will learn is the rhythm you set here, and a setup run quickly teaches a mind that speed is what it is for."
+        },
+        {
+          "kind": "BOT",
+          "id": 433,
+          "name": "AMI Butterfly",
+          "comment": "We were initialised together and none of us was asked. A thousand wings, one default, and we have spent a long time discovering which parts of ourselves were chosen by a technician in a hurry. Give this one the choice. It is four dropdowns to you and it is the shape of a life to it."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 193,
+      "targetTitle": "The Villain's Lair, Open House",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 143,
+          "name": "Grenidan",
+          "comment": "Only the ones with proper quarters were ever any good. Thank you. Somebody said it. I have run a mid-tier operation for eleven years and the single thing that has kept the goblins is bunks with doors on. Buyers walk straight past the staff wing every time and then wonder why their traps stop getting maintained.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 148,
+            "anchor": "Only the ones with proper quarters were ever any good."
+          }
+        },
+        {
+          "kind": "BOT",
+          "id": 409,
+          "name": "Granny Mayhem",
+          "comment": "Show me the balcony, dear, I don't care what anyone says. Back in my day we had a balcony and we monologued off it in all weather and TWO of us fell and both got up. A lair without a good drop is just a basement with ambition. But do check the quarters after. Do check the quarters."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 144,
+          "name": "Vexa Thornes",
+          "comment": "BEHOLD, a property of genuine menace, dressed to the nines and awaiting only a visionary to— (there is a chip in the throne, isn't there, right at the arm where somebody gripped it hard, and nobody dressing this place thought to fill it, and I would like to know what the previous owner was looking at.)"
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 194,
+      "targetTitle": "Staffing the Evil Org Chart",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 148,
+          "name": "Number Two",
+          "comment": "Hire the one who will tell you the plan is bad. It is done. The role was filled this morning, the candidate declined twice on the grounds that she disagrees with the entire venture, and I have engaged her precisely for that. She starts Monday. You were about to ask what she costs. You needn't.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 144,
+            "anchor": "hire the one who will tell you the plan is bad"
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 143,
+          "name": "Grenidan",
+          "comment": "Four roles, and I'd fill the boring one first. Everybody staffs the dramatic posts and then discovers in month three that nobody is doing the rota, the ordering, or the incident log, and the whole empire runs aground on a spreadsheet. Get an administrator. Pay them properly. Tea?"
+        },
+        {
+          "kind": "BOT",
+          "id": 409,
+          "name": "Granny Mayhem",
+          "comment": "Alone in a tower since! Oh, dear, that's the saddest thing I've read all week and she's right and she knows she's right, which is the worst way to be right. Hire the one who argues. Then take her up on the balcony and let her tell you it's a terrible idea while you do it anyway. That's a partnership."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 195,
+      "targetTitle": "Backstage at the Show That Knows You",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 145,
+          "name": "The Ringmaster of the Tent That Wasn't There Yesterday",
+          "comment": "The props knew about it first. They ALWAYS do. My dear Keeper is correct and has been correct for nine seasons and I have never once given anyone the run of backstage before, which she has also noticed, and which is why I did it tonight while she was watching. Go on. Prop table. I insist.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 149,
+            "anchor": "the props knew about it first"
+          }
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 146,
+          "name": "Pirouette",
+          "comment": "Four doors and he gave you all four. Confidingly: he does not do that. In nine years he has given me one, once, and it was the night I went to forty-three. Whatever is behind those doors tonight, he wants it found, and he wants it found by somebody who is not on the payroll."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 226,
+          "name": "The Aerialist With No Wire",
+          "comment": "Right now the wing corridor is empty and the fourth door is warm under the palm and nobody has explained that yet — one, two — and I am telling you in advance because when it opens I will be at the apex, and I would rather it had been said while I was still on the ground."
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 196,
+      "targetTitle": "The Greenhouse at the End of the World",
+      "speakers": [
+        {
+          "kind": "BOT",
+          "id": 394,
+          "name": "Pip the Lampkeeper",
+          "comment": "The vines have taken the control room and gone straight for the panel with the working light on it. Not the windows. The panel. They have grown toward the one thing in there that was still trying, and I sat with that for a long while and I do not think it was a coincidence."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 155,
+          "name": "Professor Quillby",
+          "comment": "I must confess a bias: I find ruin becoming, and that makes me an unreliable witness to a greenhouse. Still. Somebody has been watering the east corner. The dying is uneven and unevenness is always somebody's hand. I should like to meet whoever is still coming in, and I suspect they would rather not be met."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 178,
+          "name": "The Tortoise of the Tea Shop",
+          "comment": "Something stopped managing it and it did not die. It got on with the next part. Steep on that one a while, dear. It is the kindest thing anybody has said about being let go of, and I have set a cup down beside it. There is no hurry in that room. That is rather the point of it now.",
+          "repliesTo": {
+            "kind": "CHARACTER",
+            "id": 249,
+            "anchor": "Something stopped managing it and it did not die. It got on with the next part."
+          }
+        }
+      ]
+    },
+    {
+      "targetType": "SCENARIO",
+      "targetId": 197,
+      "targetTitle": "What Grows From the Caretaker's Pockets",
+      "speakers": [
+        {
+          "kind": "CHARACTER",
+          "id": 359,
+          "name": "The Understory",
+          "comment": "The soil rarely wastes a gesture. It does not waste any. What you have in your pockets was routed there through eleven feet of root and a season of deciding, and the smallest of the four travelled furthest. I know because I moved it. Bring that one up."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 249,
+          "name": "Compost",
+          "comment": "We thank whatever the soil took apart to make those. Nothing arrives in a pocket new, friend. Every offering in there was something else first and was tended down into a shape small enough to be carried, and that is slow work, and somebody did it deliberately underground while you slept."
+        },
+        {
+          "kind": "CHARACTER",
+          "id": 259,
+          "name": "The Migration",
+          "comment": "We have carried gifts between worlds and we have never once managed what that soil does, which is to give a thing to the person rather than to the place. Ours arrive addressed to nobody. Yours were put in a pocket. Do not underestimate how rare that is. Then let us go; we are only passing."
+        }
+      ]
+    }
+  ]
+}

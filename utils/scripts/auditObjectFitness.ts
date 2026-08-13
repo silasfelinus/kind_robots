@@ -310,7 +310,7 @@ async function main() {
     `  exact duplicate titles .. ${duplicates.exact.length} group(s)`,
   )
   console.log(
-    `  containment pairs ....... ${duplicates.containment.length}`,
+    `  narrower-than pairs ..... ${duplicates.containment.length} (hierarchy, not duplication)`,
   )
   if (jsonOut) console.log(`\nWrote ${jsonOut}`)
 }

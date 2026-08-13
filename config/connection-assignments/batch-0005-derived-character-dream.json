@@ -1,0 +1,904 @@
+{
+ "version": 1,
+ "batch": "derived-character-dream",
+ "releaseGate": "GPT-5.6 Sol",
+ "draftingModel": "Claude Code",
+ "assignments": [
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 282,
+   "characterName": "Patient Zero, Reformed",
+   "dreamId": 46,
+   "dreamTitle": "Mistress Cassady’s Spooktakular Monster Drag Party",
+   "why": "cast in the Scenario \"Zombie Fashion Runway\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 245,
+   "characterName": "Mx. Eleven-Fingers",
+   "dreamId": 46,
+   "dreamTitle": "Mistress Cassady’s Spooktakular Monster Drag Party",
+   "why": "cast in the Scenario \"Zombie Fashion Runway\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 281,
+   "characterName": "Applause",
+   "dreamId": 46,
+   "dreamTitle": "Mistress Cassady’s Spooktakular Monster Drag Party",
+   "why": "cast in the Scenario \"Zombie Fashion Runway\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 165,
+   "characterName": "Serendipity Sal",
+   "dreamId": 49,
+   "dreamTitle": "The Improbability Starcruiser",
+   "why": "cast in the Scenario \"Serendipity\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 256,
+   "characterName": "The Last Honest Map",
+   "dreamId": 49,
+   "dreamTitle": "The Improbability Starcruiser",
+   "why": "cast in the Scenario \"Serendipity\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 285,
+   "characterName": "The Cartographer of Wrong Turns",
+   "dreamId": 49,
+   "dreamTitle": "The Improbability Starcruiser",
+   "why": "cast in the Scenario \"Serendipity\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 358,
+   "characterName": "Grand Marshal Aurelia Vane",
+   "dreamId": 49,
+   "dreamTitle": "The Improbability Starcruiser",
+   "why": "cast in the Scenario \"Serendipity\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 261,
+   "characterName": "The Understudy Sun",
+   "dreamId": 49,
+   "dreamTitle": "The Improbability Starcruiser",
+   "why": "cast in the Scenario \"Serendipity\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 254,
+   "characterName": "The Polite Plague",
+   "dreamId": 42,
+   "dreamTitle": "The Cthulian Jam Band Festival",
+   "why": "cast in the Scenario \"Cthulhu for President\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 289,
+   "characterName": "Small Print",
+   "dreamId": 42,
+   "dreamTitle": "The Cthulian Jam Band Festival",
+   "why": "cast in the Scenario \"Cthulhu for President\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 271,
+   "characterName": "The Kaiju Who Just Wants to Sit Down",
+   "dreamId": 42,
+   "dreamTitle": "The Cthulian Jam Band Festival",
+   "why": "cast in the Scenario \"Cthulhu for President\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 276,
+   "characterName": "The Alibi",
+   "dreamId": 49,
+   "dreamTitle": "The Improbability Starcruiser",
+   "why": "cast in the Scenario \"Space Casino\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 284,
+   "characterName": "Mr. Fairweather",
+   "dreamId": 49,
+   "dreamTitle": "The Improbability Starcruiser",
+   "why": "cast in the Scenario \"Space Casino\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 263,
+   "characterName": "The Reflection That Stayed",
+   "dreamId": 49,
+   "dreamTitle": "The Improbability Starcruiser",
+   "why": "cast in the Scenario \"Space Casino\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 110,
+   "characterName": "Zuzu",
+   "dreamId": 39,
+   "dreamTitle": "Gallowsun Junction",
+   "why": "cast in the Scenario \"Zuzu, Koala Assassin\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 112,
+   "characterName": "Tomoe of the Long Road",
+   "dreamId": 39,
+   "dreamTitle": "Gallowsun Junction",
+   "why": "cast in the Scenario \"Zuzu, Koala Assassin\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 111,
+   "characterName": "Old Shelba",
+   "dreamId": 39,
+   "dreamTitle": "Gallowsun Junction",
+   "why": "cast in the Scenario \"Zuzu, Koala Assassin\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 113,
+   "characterName": "The Smiling Magpie",
+   "dreamId": 39,
+   "dreamTitle": "Gallowsun Junction",
+   "why": "cast in the Scenario \"Zuzu, Koala Assassin\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 248,
+   "characterName": "The Understudy for the Final Boss",
+   "dreamId": 52,
+   "dreamTitle": "Cape & Cackle Academy",
+   "why": "cast in the Scenario \"Why Do People Keep Attacking My Dungeon?\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 148,
+   "characterName": "Number Two",
+   "dreamId": 52,
+   "dreamTitle": "Cape & Cackle Academy",
+   "why": "cast in the Scenario \"Why Do People Keep Attacking My Dungeon?\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 295,
+   "characterName": "Consensus",
+   "dreamId": 52,
+   "dreamTitle": "Cape & Cackle Academy",
+   "why": "cast in the Scenario \"Why Do People Keep Attacking My Dungeon?\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 143,
+   "characterName": "Grenidan",
+   "dreamId": 52,
+   "dreamTitle": "Cape & Cackle Academy",
+   "why": "cast in the Scenario \"It's My Birthday So I Kidnapped a Princess and Today We're Getting Married\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 144,
+   "characterName": "Vexa Thornes",
+   "dreamId": 52,
+   "dreamTitle": "Cape & Cackle Academy",
+   "why": "cast in the Scenario \"It's My Birthday So I Kidnapped a Princess and Today We're Getting Married\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 278,
+   "characterName": "Sweet Tooth",
+   "dreamId": 52,
+   "dreamTitle": "Cape & Cackle Academy",
+   "why": "cast in the Scenario \"It's My Birthday So I Kidnapped a Princess and Today We're Getting Married\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 255,
+   "characterName": "Mx. Quorum",
+   "dreamId": 49,
+   "dreamTitle": "The Improbability Starcruiser",
+   "why": "cast in the Scenario \"Alien Zookeeper\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 294,
+   "characterName": "The Apex Pet",
+   "dreamId": 49,
+   "dreamTitle": "The Improbability Starcruiser",
+   "why": "cast in the Scenario \"Alien Zookeeper\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 190,
+   "characterName": "Quill the Convenience Clerk",
+   "dreamId": 37,
+   "dreamTitle": "The Lantern Greenhouse",
+   "why": "cast in the Scenario \"Fantasy Convenience Store Employee\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 250,
+   "characterName": "The Customer Who Buys One of Everything",
+   "dreamId": 37,
+   "dreamTitle": "The Lantern Greenhouse",
+   "why": "cast in the Scenario \"Fantasy Convenience Store Employee\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 269,
+   "characterName": "The Last Customer",
+   "dreamId": 37,
+   "dreamTitle": "The Lantern Greenhouse",
+   "why": "cast in the Scenario \"Fantasy Convenience Store Employee\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 142,
+   "characterName": "Madame Luxoria",
+   "dreamId": 40,
+   "dreamTitle": "The Infernal Circuit",
+   "why": "cast in the Scenario \"Madame Luxoria's Super Deathtrap Dungeon of Ultimate Fatal Destiny\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 281,
+   "characterName": "Applause",
+   "dreamId": 40,
+   "dreamTitle": "The Infernal Circuit",
+   "why": "cast in the Scenario \"Madame Luxoria's Super Deathtrap Dungeon of Ultimate Fatal Destiny\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 275,
+   "characterName": "The Intermission",
+   "dreamId": 40,
+   "dreamTitle": "The Infernal Circuit",
+   "why": "cast in the Scenario \"Madame Luxoria's Super Deathtrap Dungeon of Ultimate Fatal Destiny\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 248,
+   "characterName": "The Understudy for the Final Boss",
+   "dreamId": 40,
+   "dreamTitle": "The Infernal Circuit",
+   "why": "cast in the Scenario \"Madame Luxoria's Super Deathtrap Dungeon of Ultimate Fatal Destiny\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 213,
+   "characterName": "The Stranger Who Posts the Bounties",
+   "dreamId": 39,
+   "dreamTitle": "Gallowsun Junction",
+   "why": "cast in the Scenario \"Mythic Frontier\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 221,
+   "characterName": "The Ghost in the Saloon",
+   "dreamId": 39,
+   "dreamTitle": "Gallowsun Junction",
+   "why": "cast in the Scenario \"Mythic Frontier\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 209,
+   "characterName": "The Crossroads Coyote",
+   "dreamId": 39,
+   "dreamTitle": "Gallowsun Junction",
+   "why": "cast in the Scenario \"Mythic Frontier\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 135,
+   "characterName": "Dust Annie",
+   "dreamId": 39,
+   "dreamTitle": "Gallowsun Junction",
+   "why": "cast in the Scenario \"Mythic Frontier\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 150,
+   "characterName": "The Sentient Couch",
+   "dreamId": 49,
+   "dreamTitle": "The Improbability Starcruiser",
+   "why": "cast in the Scenario \"Space Couch\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 251,
+   "characterName": "Ampersand",
+   "dreamId": 49,
+   "dreamTitle": "The Improbability Starcruiser",
+   "why": "cast in the Scenario \"Space Couch\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 155,
+   "characterName": "Professor Quillby",
+   "dreamId": 37,
+   "dreamTitle": "The Lantern Greenhouse",
+   "why": "cast in the Scenario \"Paws for Thought: The Curious Case of the Talking Tabby\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 157,
+   "characterName": "The Riddling Tabby",
+   "dreamId": 37,
+   "dreamTitle": "The Lantern Greenhouse",
+   "why": "cast in the Scenario \"Paws for Thought: The Curious Case of the Talking Tabby\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 324,
+   "characterName": "Sir Reginald Pemberton III",
+   "dreamId": 37,
+   "dreamTitle": "The Lantern Greenhouse",
+   "why": "cast in the Scenario \"Paws for Thought: The Curious Case of the Talking Tabby\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 178,
+   "characterName": "The Tortoise of the Tea Shop",
+   "dreamId": 37,
+   "dreamTitle": "The Lantern Greenhouse",
+   "why": "cast in the Scenario \"Paws for Thought: The Curious Case of the Talking Tabby\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 321,
+   "characterName": "Captain Verdance",
+   "dreamId": 37,
+   "dreamTitle": "The Lantern Greenhouse",
+   "why": "cast in the Scenario \"The Secret Life of Houseplants\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 359,
+   "characterName": "The Understory",
+   "dreamId": 37,
+   "dreamTitle": "The Lantern Greenhouse",
+   "why": "cast in the Scenario \"The Secret Life of Houseplants\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 249,
+   "characterName": "Compost",
+   "dreamId": 37,
+   "dreamTitle": "The Lantern Greenhouse",
+   "why": "cast in the Scenario \"The Secret Life of Houseplants\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 259,
+   "characterName": "The Migration",
+   "dreamId": 37,
+   "dreamTitle": "The Lantern Greenhouse",
+   "why": "cast in the Scenario \"The Secret Life of Houseplants\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 155,
+   "characterName": "Professor Quillby",
+   "dreamId": 49,
+   "dreamTitle": "The Improbability Starcruiser",
+   "why": "cast in the Scenario \"Wanderlust\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 238,
+   "characterName": "Absence",
+   "dreamId": 49,
+   "dreamTitle": "The Improbability Starcruiser",
+   "why": "cast in the Scenario \"Wanderlust\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 254,
+   "characterName": "The Polite Plague",
+   "dreamId": 50,
+   "dreamTitle": "The Moonwreck Corsair",
+   "why": "cast in the Scenario \"Graveyard Shift\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 291,
+   "characterName": "Threshold",
+   "dreamId": 50,
+   "dreamTitle": "The Moonwreck Corsair",
+   "why": "cast in the Scenario \"Graveyard Shift\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 280,
+   "characterName": "The Collector of Lasts",
+   "dreamId": 50,
+   "dreamTitle": "The Moonwreck Corsair",
+   "why": "cast in the Scenario \"Graveyard Shift\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 195,
+   "characterName": "The Thing in the Cellar",
+   "dreamId": 4967,
+   "dreamTitle": "The Reef Cathedral of Her Spine",
+   "why": "cast in the Scenario \"The Offering Boat\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 273,
+   "characterName": "The Retired Sea Monster",
+   "dreamId": 4967,
+   "dreamTitle": "The Reef Cathedral of Her Spine",
+   "why": "cast in the Scenario \"The Offering Boat\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 239,
+   "characterName": "Grandmother Whalehall",
+   "dreamId": 4967,
+   "dreamTitle": "The Reef Cathedral of Her Spine",
+   "why": "cast in the Scenario \"The Offering Boat\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 207,
+   "characterName": "The Outlaw Made of Dust",
+   "dreamId": 39,
+   "dreamTitle": "Gallowsun Junction",
+   "why": "cast in the Scenario \"The Stranger Who Posts the Bounties\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 167,
+   "characterName": "The Navigator Who Came Back Wrong",
+   "dreamId": 49,
+   "dreamTitle": "The Improbability Starcruiser",
+   "why": "cast in the Scenario \"Last Call at the Edge of Known Space\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 223,
+   "characterName": "The Skywhale",
+   "dreamId": 49,
+   "dreamTitle": "The Improbability Starcruiser",
+   "why": "cast in the Scenario \"Last Call at the Edge of Known Space\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 220,
+   "characterName": "The Loyal Roommate",
+   "dreamId": 37,
+   "dreamTitle": "The Lantern Greenhouse",
+   "why": "cast in the Scenario \"The Convenience Store Loyalty Card\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 137,
+   "characterName": "Quiet Deputy Sull",
+   "dreamId": 39,
+   "dreamTitle": "Gallowsun Junction",
+   "why": "cast in the Scenario \"Wanted, Dead or Stranger\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 136,
+   "characterName": "The Iron Pacific",
+   "dreamId": 39,
+   "dreamTitle": "Gallowsun Junction",
+   "why": "cast in the Scenario \"The Crossroads Trading Post\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 134,
+   "characterName": "Reverend Two-Shadows",
+   "dreamId": 39,
+   "dreamTitle": "Gallowsun Junction",
+   "why": "cast in the Scenario \"The Crossroads Trading Post\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 364,
+   "characterName": "The Big Bad Who Lost a Bet",
+   "dreamId": 52,
+   "dreamTitle": "Cape & Cackle Academy",
+   "why": "cast in the Scenario \"The Villain's Lair, Open House\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 984,
+   "characterName": "Nix Farrow",
+   "dreamId": 2142,
+   "dreamTitle": "The Static Lighthouse",
+   "why": "cast in the Scenario \"The Ninety-First Night\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 982,
+   "characterName": "Whisk Tallow",
+   "dreamId": 2142,
+   "dreamTitle": "The Static Lighthouse",
+   "why": "cast in the Scenario \"Reading the Debt Book\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 1024,
+   "characterName": "Undersecretary Wrenna Vail",
+   "dreamId": 2332,
+   "dreamTitle": "The Marrow Stacks",
+   "why": "cast in the Scenario \"The Debt Iso Can't Repay\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 1024,
+   "characterName": "Undersecretary Wrenna Vail",
+   "dreamId": 2331,
+   "dreamTitle": "The Molting Yard",
+   "why": "cast in the Scenario \"The Debt Iso Can't Repay\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 1025,
+   "characterName": "Corvin Pell",
+   "dreamId": 2332,
+   "dreamTitle": "The Marrow Stacks",
+   "why": "cast in the Scenario \"The One Corvin Wants Back\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 1025,
+   "characterName": "Corvin Pell",
+   "dreamId": 2331,
+   "dreamTitle": "The Molting Yard",
+   "why": "cast in the Scenario \"The One Corvin Wants Back\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 1068,
+   "characterName": "Cobb Fenwick",
+   "dreamId": 2621,
+   "dreamTitle": "The Spindle Workshop",
+   "why": "cast in the Scenario \"The Thirty-Year Tangle\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 1068,
+   "characterName": "Cobb Fenwick",
+   "dreamId": 2622,
+   "dreamTitle": "The Tangle",
+   "why": "cast in the Scenario \"The Thirty-Year Tangle\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 1069,
+   "characterName": "The Windreader",
+   "dreamId": 2621,
+   "dreamTitle": "The Spindle Workshop",
+   "why": "cast in the Scenario \"The Windreader's Wish\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 1069,
+   "characterName": "The Windreader",
+   "dreamId": 2622,
+   "dreamTitle": "The Tangle",
+   "why": "cast in the Scenario \"The Windreader's Wish\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 2800,
+   "characterName": "Bramble Osei",
+   "dreamId": 4967,
+   "dreamTitle": "The Reef Cathedral of Her Spine",
+   "why": "cast in the Scenario \"The Equinox Inspection\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 2813,
+   "characterName": "Odalys Kade",
+   "dreamId": 4993,
+   "dreamTitle": "The Card Catalog Annex",
+   "why": "cast in the Scenario \"The Misfiled Guest\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 2824,
+   "characterName": "Fen Corrigan",
+   "dreamId": 5008,
+   "dreamTitle": "The Loft Exchange",
+   "why": "cast in the Scenario \"The Fox Who Argued Politics\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 2824,
+   "characterName": "Fen Corrigan",
+   "dreamId": 5007,
+   "dreamTitle": "The Reliquary Parlor",
+   "why": "cast in the Scenario \"The Fox Who Argued Politics\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 1025,
+   "characterName": "Corvin Pell",
+   "dreamId": 5006,
+   "dreamTitle": "Stitch & Echo",
+   "why": "cast in the Scenario \"Triple Pell\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 1025,
+   "characterName": "Corvin Pell",
+   "dreamId": 5008,
+   "dreamTitle": "The Loft Exchange",
+   "why": "cast in the Scenario \"Triple Pell\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 1025,
+   "characterName": "Corvin Pell",
+   "dreamId": 5007,
+   "dreamTitle": "The Reliquary Parlor",
+   "why": "cast in the Scenario \"Triple Pell\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 2853,
+   "characterName": "Perrin Voss",
+   "dreamId": 5046,
+   "dreamTitle": "The Sunken Cantata",
+   "why": "cast in the Scenario \"The Second Verse\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 2931,
+   "characterName": "Grudge Fenrik",
+   "dreamId": 5153,
+   "dreamTitle": "The Sporeline Reclamation Yard",
+   "why": "cast in the Scenario \"The Night the Moon Leaned In\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 3013,
+   "characterName": "Rook Calloway",
+   "dreamId": 5263,
+   "dreamTitle": "Mercado de la Fortuna",
+   "why": "cast in the Scenario \"The Bowl That Remembered\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 3104,
+   "characterName": "Vex Thistlewick",
+   "dreamId": 5385,
+   "dreamTitle": "The Hollow Reliquary",
+   "why": "cast in the Scenario \"The Ring That Wasn't Grown Yet\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 3175,
+   "characterName": "Coral Vey",
+   "dreamId": 5482,
+   "dreamTitle": "The Regrowth Yards",
+   "why": "cast in the Scenario \"What the Hull Remembers\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 3291,
+   "characterName": "Thess Marrow",
+   "dreamId": 5637,
+   "dreamTitle": "The Drowned Overture",
+   "why": "cast in the Scenario \"The Unfinished Note\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 3292,
+   "characterName": "Bailiff Ashorn",
+   "dreamId": 5639,
+   "dreamTitle": "The Vinehorn Archive",
+   "why": "cast in the Scenario \"The Vote That Grew Teeth\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 3293,
+   "characterName": "Marlow Fenn",
+   "dreamId": 5641,
+   "dreamTitle": "Quarantine Spur Nine",
+   "why": "cast in the Scenario \"What's Cooking at Spur Nine\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 3294,
+   "characterName": "Corra Finnwake",
+   "dreamId": 5643,
+   "dreamTitle": "The Crystal Spire Strand",
+   "why": "cast in the Scenario \"The Grounding Order\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 1026,
+   "characterName": "Iso",
+   "dreamId": 2332,
+   "dreamTitle": "The Marrow Stacks",
+   "why": "cast in the Scenario \"The Debt Iso Can't Repay\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 1026,
+   "characterName": "Iso",
+   "dreamId": 2331,
+   "dreamTitle": "The Molting Yard",
+   "why": "cast in the Scenario \"The Debt Iso Can't Repay\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 983,
+   "characterName": "Corvid Ames",
+   "dreamId": 2142,
+   "dreamTitle": "The Static Lighthouse",
+   "why": "cast in the Scenario \"The Ninety-First Night\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 2825,
+   "characterName": "Bailiff Pell",
+   "dreamId": 5008,
+   "dreamTitle": "The Loft Exchange",
+   "why": "cast in the Scenario \"Triple Pell\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 2825,
+   "characterName": "Bailiff Pell",
+   "dreamId": 5007,
+   "dreamTitle": "The Reliquary Parlor",
+   "why": "cast in the Scenario \"Triple Pell\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 2823,
+   "characterName": "Mortlake Vane",
+   "dreamId": 5008,
+   "dreamTitle": "The Loft Exchange",
+   "why": "cast in the Scenario \"The Fox Who Argued Politics\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 2823,
+   "characterName": "Mortlake Vane",
+   "dreamId": 5007,
+   "dreamTitle": "The Reliquary Parlor",
+   "why": "cast in the Scenario \"The Fox Who Argued Politics\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 1067,
+   "characterName": "Mother Spindle",
+   "dreamId": 2621,
+   "dreamTitle": "The Spindle Workshop",
+   "why": "cast in the Scenario \"The Thirty-Year Tangle\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 1067,
+   "characterName": "Mother Spindle",
+   "dreamId": 2622,
+   "dreamTitle": "The Tangle",
+   "why": "cast in the Scenario \"The Thirty-Year Tangle\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 170,
+   "characterName": "Glorp the Zookeeper",
+   "dreamId": 49,
+   "dreamTitle": "The Improbability Starcruiser",
+   "why": "cast in the Scenario \"Alien Zookeeper\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 333,
+   "characterName": "The Keeper of the Net",
+   "dreamId": 49,
+   "dreamTitle": "The Improbability Starcruiser",
+   "why": "cast in the Scenario \"Alien Zookeeper\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 191,
+   "characterName": "The Sphinx in an Apron",
+   "dreamId": 37,
+   "dreamTitle": "The Lantern Greenhouse",
+   "why": "cast in the Scenario \"The Convenience Store Loyalty Card\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 168,
+   "characterName": "Boss the Janitor",
+   "dreamId": 49,
+   "dreamTitle": "The Improbability Starcruiser",
+   "why": "cast in the Scenario \"Serendipity\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 322,
+   "characterName": "The Understudy Sun, On",
+   "dreamId": 49,
+   "dreamTitle": "The Improbability Starcruiser",
+   "why": "cast in the Scenario \"Space Casino\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 325,
+   "characterName": "The Last Honest Map, Read",
+   "dreamId": 49,
+   "dreamTitle": "The Improbability Starcruiser",
+   "why": "cast in the Scenario \"Lunar Legacy: The Forgotten Cradle\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 222,
+   "characterName": "The Griffin With the Deed",
+   "dreamId": 39,
+   "dreamTitle": "Gallowsun Junction",
+   "why": "cast in the Scenario \"Mythic Frontier\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 114,
+   "characterName": "Marrow",
+   "dreamId": 39,
+   "dreamTitle": "Gallowsun Junction",
+   "why": "cast in the Scenario \"Mythic Frontier\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 266,
+   "characterName": "Rust",
+   "dreamId": 39,
+   "dreamTitle": "Gallowsun Junction",
+   "why": "cast in the Scenario \"Wanted, Dead or Stranger\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 246,
+   "characterName": "The Town That Walks",
+   "dreamId": 39,
+   "dreamTitle": "Gallowsun Junction",
+   "why": "cast in the Scenario \"The Crossroads Trading Post\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 229,
+   "characterName": "The Pollinator Choir",
+   "dreamId": 37,
+   "dreamTitle": "The Lantern Greenhouse",
+   "why": "cast in the Scenario \"The Greenhouse at the End of the World\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 317,
+   "characterName": "First Responder",
+   "dreamId": 37,
+   "dreamTitle": "The Lantern Greenhouse",
+   "why": "cast in the Scenario \"The Secret Life of Houseplants\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 318,
+   "characterName": "The Whole Swarm",
+   "dreamId": 37,
+   "dreamTitle": "The Lantern Greenhouse",
+   "why": "cast in the Scenario \"The Secret Life of Houseplants\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  },
+  {
+   "kind": "CHARACTER_DREAM",
+   "characterId": 288,
+   "characterName": "The Understudy Who Stopped Waiting",
+   "dreamId": 52,
+   "dreamTitle": "Cape & Cackle Academy",
+   "why": "cast in the Scenario \"Why Do People Keep Attacking My Dungeon?\", which belongs to this Dream; a character who plays a scene in a world lives in that world"
+  }
+ ]
+}

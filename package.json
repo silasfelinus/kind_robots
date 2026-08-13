@@ -28,6 +28,8 @@
     "test:population-quality": "tsx utils/scripts/verifyPopulationDraftQuality.ts",
     "test:population-casting": "tsx utils/scripts/verifyPopulationCasting.ts",
     "test:connections": "tsx utils/scripts/verifyConnectionAssignments.ts",
+    "test:dream-locations": "tsx utils/scripts/verifyDreamLocations.ts",
+    "test:nexus-comments": "tsx utils/scripts/verifyNexusComments.ts",
     "audit:fitness": "tsx utils/scripts/auditObjectFitness.ts",
     "test:migrate-on-deploy": "tsx utils/scripts/verifyMigrateOnDeploy.ts",
     "test:facet-aliases": "tsx utils/scripts/verifyFacetAliases.ts",

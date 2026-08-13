@@ -583,7 +583,7 @@ export const FACET_CURATION_BATCHES = [
       genre('deep-sea-horror', 'Deep-Sea Horror', ['Deep Sea Horror']),
       // Office Thriller #1681 exists; satire and thriller are not
       // interchangeable, so this is a sibling, not an alias.
-      genre('office-satire', 'Office Satire'),
+      genre('office-satire', 'Office Satire', ['Workplace Satire']),
       // Alien Bureaucracy #1668 is close but specifically alien.
       genre('cosmic-bureaucracy', 'Cosmic Bureaucracy'),
       genre('gentle-sci-fi', 'Gentle Sci-Fi', ['Gentle Science Fiction']),
@@ -592,6 +592,51 @@ export const FACET_CURATION_BATCHES = [
       // --- not genres at all; they are what the story is ABOUT or how it feels
       theme('animal-interiority', 'Animal Interiority'),
       mood('elegiac-wonder', 'Elegiac Wonder'),
+    ],
+    transforms: [],
+    weights: [],
+  },
+  {
+    id: '2026-08-13-character-genre-vocabulary-02',
+    title: 'Second sweep: what the fitness audit surfaced',
+    // WHY
+    // ---
+    // audit:fitness counts every free-text genre string the catalog cannot
+    // resolve. The first batch was written from the Character rows alone; this
+    // one adds what the Scenario rows contributed, plus two aliases that retire
+    // an orphan row apiece.
+    //
+    // The audit also reported vocabulary that is deliberately NOT here:
+    //   'Tin & Echo', 'Stitch & Echo' and 'Wind-Fortune' appear five times each
+    //   in genre fields and are Dream titles, not genres -- somebody typed the
+    //   world's name where the genre goes. Aliasing them onto anything would
+    //   make the catalog agree with a typo.
+    //   'adventure', 'ensemble', 'exploration', 'identity', 'warmth' are the
+    //   tail ends of comma lists like "sci-fi comedy, adventure, ensemble".
+    //   Several are real themes and deserve rows, but not as GENRE, and not
+    //   before deciding which taxonomy each belongs in.
+    ensures: [
+      // Metafiction #833 exists and nothing in the catalog uses it. Four
+      // characters say 'Meta'. That is an orphan row and its own audience
+      // failing to find each other over a spelling.
+      aliasOnly('metafiction', 'Metafiction', 'genre', 'Genres', 1, ['Meta']),
+      // CozyCore #12 already carries the aesthetic; three rows say just 'Cozy'.
+      aliasOnly('cozycore', 'CozyCore', 'genre', 'Genres', 1, ['Cozy']),
+
+      // Cozy Fantasy has a row and Cozy Mystery does not, so the two characters
+      // written as cozy-mystery detectives cannot currently see each other.
+      genre('cozy-mystery', 'Cozy Mystery'),
+      // Not Psychological Horror #820 and not WeirdCore: this is the register
+      // where the wrongness is visual and goes unexplained.
+      genre('surreal-horror', 'Surreal Horror'),
+      genre('undead-bureaucracy', 'Undead Bureaucracy'),
+      genre('gothic-mechanical', 'Gothic Mechanical'),
+      // Three orphan rows already narrow this -- Post-Human Dystopia,
+      // Dystopian Romance, Vaporwave Dystopia -- and nothing holds the plain
+      // word all three are specialisations of.
+      genre('dystopia', 'Dystopia'),
+
+      mood('borrowed-light-bittersweet', 'Borrowed-Light Bittersweet'),
     ],
     transforms: [],
     weights: [],

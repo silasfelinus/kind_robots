@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "batch": "remaining-scenario-dreams",
+  "releaseGate": "GPT-5.6 Sol",
+  "draftingModel": "Claude Code",
+  "assignments": [
+    {"kind":"SCENARIO_DREAM","scenarioId":71,"scenarioTitle":"Why Do People Keep Attacking My Dungeon?","dreamId":52,"dreamTitle":"Cape & Cackle Academy","why":"a mid-tier dungeon owner managing staff between trap rebuilds is where the Academy's graduates end up, and the workplace satire is the same joke told later"},
+    {"kind":"SCENARIO_DREAM","scenarioId":73,"scenarioTitle":"It's My Birthday So I Kidnapped a Princess and Today We're Getting Married","dreamId":52,"dreamTitle":"Cape & Cackle Academy","why":"a villain whose romantic plan nobody talked them out of is exactly what an academy for villainy fails to teach against"},
+    {"kind":"SCENARIO_DREAM","scenarioId":193,"scenarioTitle":"The Villain's Lair, Open House","dreamId":52,"dreamTitle":"Cape & Cackle Academy","why":"lairs come onto the market when their owners graduate, retire or lose a bet, and the Academy is the institution that produces all three"},
+    {"kind":"SCENARIO_DREAM","scenarioId":194,"scenarioTitle":"Staffing the Evil Org Chart","dreamId":52,"dreamTitle":"Cape & Cackle Academy","why":"four open roles on a dark-empire org chart is a recruitment fair, and this is the school it recruits from"},
+
+    {"kind":"SCENARIO_DREAM","scenarioId":86,"scenarioTitle":"Space Couch","dreamId":49,"dreamTitle":"The Improbability Starcruiser","why":"a ship whose doors sigh and whose vents complain is the only vessel that would let a couch file a flight plan"},
+    {"kind":"SCENARIO_DREAM","scenarioId":96,"scenarioTitle":"Wanderlust","dreamId":49,"dreamTitle":"The Improbability Starcruiser","why":"a crew that looks nothing like the recruitment posters is who the gold envelope actually picks, and each realm is another improbable stop"},
+    {"kind":"SCENARIO_DREAM","scenarioId":179,"scenarioTitle":"The Stowaway Manifest","dreamId":49,"dreamTitle":"The Improbability Starcruiser","why":"four life-signs the manifest does not admit to is a very Starcruiser problem: the ship is held together by mutual respect and nobody counted"}
+  ]
+}

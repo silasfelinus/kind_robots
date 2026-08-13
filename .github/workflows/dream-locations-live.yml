@@ -1,0 +1,97 @@
+name: Dream Locations Live
+
+# Creates new LOCATION Dreams and links the Scenarios that had nowhere to happen.
+#
+# This is the only fitness-pass lane that CREATES rows rather than joining
+# existing ones, so it is the one that can leave a mess. The publisher is
+# idempotent on slug -- an existing Dream is adopted, not recreated -- and links
+# with `connect` only, never `set`. Nothing here deletes or unpublishes.
+#
+# Required repository Actions secrets:
+#   DATABASE_URL
+#   DATABASE_SSL_CA_BASE64 or DATABASE_SSL_CA
+#   TS_OAUTH_CLIENT_ID
+#   TS_OAUTH_SECRET
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type CREATE to write the new locations to production'
+        required: true
+        default: ''
+      dry_run:
+        description: 'Validate against live state and stop before the first write'
+        type: boolean
+        default: false
+
+concurrency:
+  group: dream-locations-live
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_SSL_CA_BASE64: ${{ secrets.DATABASE_SSL_CA_BASE64 }}
+      DATABASE_SSL_CA: ${{ secrets.DATABASE_SSL_CA }}
+    steps:
+      - name: Require the typed confirmation
+        run: |
+          if [ "${{ inputs.confirm }}" != "CREATE" ]; then
+            echo "::error::confirm must be exactly CREATE. Got: '${{ inputs.confirm }}'"
+            exit 1
+          fi
+
+      - name: Require production DB lane
+        env:
+          TS_OAUTH_CLIENT_ID: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          TS_OAUTH_SECRET: ${{ secrets.TS_OAUTH_SECRET }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::DATABASE_URL is empty. Add it as a REPOSITORY ACTIONS SECRET."
+            exit 1
+          fi
+          if [ -z "$TS_OAUTH_CLIENT_ID" ] || [ -z "$TS_OAUTH_SECRET" ]; then
+            echo "::error::Tailscale OAuth secrets are empty."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      # Offline, before the tailnet opens. Catches a taken slug, a duplicate
+      # title, a Scenario that already has a Dream, and a description that has
+      # drifted out of house style -- all of which are cheap here and cost a
+      # whole production run to discover on the other side.
+      - name: Verify locations against live state
+        run: npm run test:dream-locations
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Create the locations
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            npx tsx utils/scripts/publishDreamLocations.ts --dry-run
+          else
+            npx tsx utils/scripts/publishDreamLocations.ts
+          fi

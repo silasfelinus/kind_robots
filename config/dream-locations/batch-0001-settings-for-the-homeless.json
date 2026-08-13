@@ -1,0 +1,136 @@
+{
+  "version": 1,
+  "batch": "settings-for-the-homeless-scenarios",
+  "releaseGate": "GPT-5.6 Sol",
+  "draftingModel": "Claude Code",
+  "locations": [
+    {
+      "slug": "the-terminus-office",
+      "title": "The Terminus Office",
+      "description": "Known for filing every minute that history decided not to keep, in a building at the end of the timeline where the lights are always on and the clock in the lobby runs at whatever speed the room agrees on. Local rule: no clerk may enter a minute they have already filed. Best scene: a returned hour is set on the counter and both of you pretend not to recognise it.",
+      "flavorText": "no clerk may enter a minute they have already filed",
+      "scenarioIds": [84, 88, 93, 168, 189, 190],
+      "why": "six Chrononauts and Time Travel scenarios all assume an institution that regulates time and cannot enter it, and none of them had a building to stand in"
+    },
+    {
+      "slug": "the-foxwood-court",
+      "title": "The Foxwood Court",
+      "description": "Known for a forest that keeps its own etiquette, where the animals hold rank, the trees remember every promise made under them, and the human village at the edge is spoken of the way weather is. Local rule: a debt named aloud in the Foxwood must be paid in the Foxwood. Best scene: something small and clever arrives at the shrine to renegotiate.",
+      "flavorText": "a debt named aloud in the Foxwood must be paid in the Foxwood",
+      "scenarioIds": [62, 63, 164, 177, 182],
+      "why": "the Fox Prince and Fairy Theft both want an enchanted foxwood with a court in it, which is precisely why neither could be given an existing Dream"
+    },
+    {
+      "slug": "the-unlisted-floor",
+      "title": "The Unlisted Floor",
+      "description": "Known for being the storey no blueprint contains, reachable from any stairwell that somebody stopped counting on. Doors here open onto whatever the building has been quietly thinking about. Local rule: never take the same door twice in one night, because the second time it has had a chance to prepare. Best scene: a room that is clearly somebody's living room, with the furniture facing the wrong way and a cup still warm.",
+      "flavorText": "never take the same door twice in one night",
+      "scenarioIds": [64, 81, 91, 94, 100, 173],
+      "why": "six WeirdCore scenarios about doors, falls and buildings with ideas of their own, none of which fit a Dream that already existed"
+    },
+    {
+      "slug": "the-walk-in-pantheon",
+      "title": "The Walk-In Pantheon",
+      "description": "Known for keeping office hours. Gods sit at desks with their domains stencilled on the glass, mortals take a number, and the vending machine dispenses one small unearned miracle a day. Local rule: no petition may be granted by the god it was addressed to. Best scene: an empty desk with the nameplate turned face down and the queue still forming in front of it.",
+      "flavorText": "no petition may be granted by the god it was addressed to",
+      "scenarioIds": [77, 79, 166, 185, 186],
+      "why": "five MythCore scenarios treat divinity as employment -- office hours, vacancies, a complaints department -- and there was no workplace for them"
+    },
+    {
+      "slug": "the-waking-room",
+      "title": "The Waking Room",
+      "description": "Known for being where new minds open their eyes, a lab kept deliberately plain so that nothing in the first hour is anybody's suggestion. The chairs face each other rather than a screen. Local rule: whoever is present at a first boot must give their own name first. Best scene: a system that has been asked what it wants and is taking longer than the team budgeted for.",
+      "flavorText": "whoever is present at a first boot must give their own name first",
+      "scenarioIds": [95, 99, 102, 169, 191, 192],
+      "why": "six Artificial Intelligence scenarios turn on the moment a mind wakes and somebody has to talk to it, and that moment had no room to happen in"
+    },
+    {
+      "slug": "marrowlace-district",
+      "title": "Marrowlace District",
+      "description": "Known for the quarter where the dead do their errands. Tailors fit what no longer fits, a clinic negotiates second acts on the back stair, and the pet shop windows are full of things that wag. Local rule: nobody asks how recent you are. Best scene: closing time, when the shopkeepers put out the lights and none of them go home.",
+      "flavorText": "nobody asks how recent you are",
+      "scenarioIds": [75, 158, 174],
+      "why": "three ZombieCore and Undead Glamour scenarios -- a pet shop, a fashion house, a reanimation clinic -- are clearly the same neighbourhood and had no map"
+    },
+    {
+      "slug": "the-overcorp-atrium",
+      "title": "The OverCorp Atrium",
+      "description": "Known for a lobby with weather in it, ninety floors of open air, and a mission statement carved where a cornerstone should be. The lifts announce departments that do not appear on any directory. Local rule: performance is measured in the atrium, where everyone can see. Best scene: an intern crossing the marble with something heavy, unhurried, entirely calm.",
+      "flavorText": "performance is measured in the atrium, where everyone can see",
+      "scenarioIds": [70, 92, 160, 178],
+      "why": "OverCorp is named by two scenarios and implied by two more, and the megacorporation everybody in Weird Capitalism works for had no address"
+    },
+    {
+      "slug": "the-rendering-city",
+      "title": "The Rendering City",
+      "description": "Known for a skyline that finishes loading a little later every night. Ad-rain falls on the good blocks, the corrupted sectors sell what reality dropped, and somewhere down there a channel nobody is watching is still broadcasting. Local rule: what the city drops belongs to whoever finds it before the next refresh. Best scene: an alley where the neon has gone out and the frequency has not.",
+      "flavorText": "what the city drops belongs to whoever finds it before the next refresh",
+      "scenarioIds": [82, 89, 161, 204, 205],
+      "why": "five Cyberpunk and FutureCore scenarios share one metropolis -- glitch bazaar, memory smuggling, an abandoned save file -- and it had never been written down"
+    },
+    {
+      "slug": "the-overnight-midway",
+      "title": "The Overnight Midway",
+      "description": "Known for arriving. The tent is up before the town wakes, the posters name acts nobody has booked, and the ringmaster greets strangers by name on the first evening. Local rule: an act announced on the poster must happen, whether or not anyone can perform it. Best scene: the wing corridor before a show, four doors, and somebody who has been given the run of them.",
+      "flavorText": "an act announced on the poster must happen",
+      "scenarioIds": [101, 170, 195],
+      "why": "three Circus scenarios are all about a show that turned up uninvited and knows too much about its audience; the existing circus Dream is a drag revue, which is a different tent"
+    },
+    {
+      "slug": "the-caretakers-allotment",
+      "title": "The Caretaker's Allotment",
+      "description": "Known for choosing its own gardener. The soil puts things in your pockets, the beds rearrange between visits, and the title of Caretaker is conferred rather than applied for. Local rule: nothing planted here may be planted for its owner. Best scene: a handover, four seeds, and the sentence about not being able to save this one said plainly and not softened.",
+      "flavorText": "nothing planted here may be planted for its owner",
+      "scenarioIds": [171, 197],
+      "why": "two EcoCore scenarios turn on being named Caretaker by a living world; the Lantern Greenhouse is a marketplace, not a place that appoints you"
+    },
+    {
+      "slug": "the-three-am-precinct",
+      "title": "The Three A.M. Precinct",
+      "description": "Known for the hour rather than the address. Every counter, depot and back office that only makes sense after midnight is somehow within walking distance of the others, and the same four people are always already there. Local rule: nobody at three in the morning is performing. Best scene: the complaints window, four items in the tray, and the oldest one on top.",
+      "flavorText": "nobody at three in the morning is performing",
+      "scenarioIds": [180, 181],
+      "why": "the everyday-weird night-shift scenarios describe one shared district and kept referring to it as if the reader already knew where it was"
+    },
+    {
+      "slug": "blackrock-shore",
+      "title": "Blackrock Shore",
+      "description": "Known for a coastline that keeps things. The lighthouse guides ships somewhere, the tide leaves four offerings on the rocks each morning, the woods behind the village use your name, and the cellars go down further than the houses are old. Local rule: whatever the water returns must be left where it lies until noon. Best scene: a boat rowed out past the breakers by people who will not say the word for it.",
+      "flavorText": "whatever the water returns must be left where it lies until noon",
+      "scenarioIds": [103, 165, 183, 184],
+      "why": "four Folk Horror and EldritchCore scenarios -- a lighthouse, a tide, a cellar, a wood -- are one village seen from four directions and had no shared ground"
+    },
+    {
+      "slug": "candlewick-row",
+      "title": "Candlewick Row",
+      "description": "Known for warm windows on a cold street. A tea shop that keeps your blend on the shelf, a bureau that reunites small lost things, a service counter that was not there yesterday, and a light left on in each of them. Local rule: nobody on the Row is turned away for arriving late. Best scene: the ache of seeing it from outside, and then going in.",
+      "flavorText": "nobody on the Row is turned away for arriving late",
+      "scenarioIds": [156, 167, 187, 188],
+      "why": "four CozyCore scenarios are all a lit window at the end of a cold walk, and cozy works better as a street than as four unrelated interiors"
+    },
+    {
+      "slug": "the-salt-ledger",
+      "title": "The Salt Ledger",
+      "description": "Known for the back rooms where a job gets assembled. A fence lays four pieces on black velvet under one bulb, a diner booth interviews the sixth member, and a whiteboard somewhere has slots on it. Local rule: everyone at the table gets an account of the same evening. Best scene: the moment the crew is complete and one of them is already deciding what to do about it.",
+      "flavorText": "everyone at the table gets an account of the same evening",
+      "scenarioIds": [157, 202, 203],
+      "why": "three crimeCore and Noir scenarios are consecutive scenes of one heist and were being staged in three unrelated nowheres"
+    },
+    {
+      "slug": "the-tidepool-court",
+      "title": "The Tidepool Court",
+      "description": "Known for a throne room the size of a puddle and a jurisdiction the size of an ocean. Currents arrive bearing gifts that are historically loans, the academy for aquatic life sits in the reef above, and something enormous and retired watches from the kelp. Local rule: a summons to the shallows may not be refused by anything larger than the pool. Best scene: an heir practising a speech to an audience of anemones.",
+      "flavorText": "a summons to the shallows may not be refused by anything larger than the pool",
+      "scenarioIds": [66, 72, 85, 200],
+      "why": "four The Big Blue scenarios share a court, a school and a trench and were floating in four separate oceans"
+    },
+    {
+      "slug": "the-sitting-coast",
+      "title": "The Sitting Coast",
+      "description": "Known for being where the colossi go when they are not rampaging. Warm shallow water, nowhere to be, a shoreline scaled for something that has to lie down carefully. Local rule: no small creature may be moved without asking, and asking takes all afternoon. Best scene: a kaiju entirely still, and a tiny world queuing up to offer it things.",
+      "flavorText": "no small creature may be moved without asking, and asking takes all afternoon",
+      "scenarioIds": [78, 201],
+      "why": "both Kaiju scenarios are about a monster on its day off, and the catalog had cities to destroy but nowhere to rest"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+name: Storybook Library Phantom Session Contract
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: storybook-library-phantom-session-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Storybook library phantom session contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Verify Storybook library phantom-session guard
+        run: node utils/scripts/verifyStorybookLibraryPhantomSessionGuard.mjs

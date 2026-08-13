@@ -94,6 +94,19 @@ export function createStorybookLibraryController(bridge: StorybookLibraryBridge)
   }
 
   function upsert(value: StorybookSession): void {
+    // A session with no beats yet is either an opening generation still in
+    // flight or one storybookStore just rolled back to null after the
+    // opening `weaveBeat` call failed (see the beginStory soft-lock fix).
+    // The `watch(bridge.getSession(), ...)` below fires on both the
+    // pre-generation reassignment (session.value = { beats: [], ... }) and
+    // the post-failure rollback (session.value = null, previous = that same
+    // blank session), so without this guard every failed or interrupted
+    // opening generation permanently archives an empty, unopenable
+    // "Untitled story" into the reader's recent-stories library. Skipping a
+    // zero-beat session here is safe for every legitimate caller --
+    // duplicateStory/restartStory/archiveCurrent only ever upsert a session
+    // that has already woven at least its opening beat.
+    if (!value.beats.length) return
     const copy = cloneSession(value)
     library.value = [
       copy,

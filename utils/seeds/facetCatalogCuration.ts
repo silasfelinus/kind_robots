@@ -80,6 +80,26 @@ const theme = (
   aliases,
 })
 
+/**
+ * MOOD, which the catalog policy has abolished. Use with care.
+ *
+ * applyFacetCatalogDirectives ends the maintenance run with a hard
+ * post-condition: zero MOOD profiles may remain. Curation runs BEFORE it in the
+ * same serialized session, so a mood() definition here creates a row that the
+ * later step must then migrate -- and it only migrates the four slugs listed in
+ * its NARRATIVE_TONES constant. Anything else survives, the count comes back
+ * non-zero, and the whole run exits 1 sixteen minutes in.
+ *
+ * That is exactly what happened on 2026-08-13 (run 31703186995): a genre-
+ * vocabulary batch added mood('elegiac-wonder'), which is not a narrative tone
+ * the directives know about, and the run failed on "Expected zero MOOD
+ * profiles, found 1." Note that the throw comes AFTER the deletion step, so the
+ * historical shells were removed and only the exit code looked like a rollback.
+ *
+ * So: a mood() definition is only valid if its slug is also in NARRATIVE_TONES.
+ * verifyFacetCurationMoodPolicy.ts enforces that pairing at commit time. If you
+ * are reaching for this to classify how a story FEELS, you want theme().
+ */
 const mood = (
   slug: string,
   title: string,
@@ -591,7 +611,12 @@ export const FACET_CURATION_BATCHES = [
 
       // --- not genres at all; they are what the story is ABOUT or how it feels
       theme('animal-interiority', 'Animal Interiority'),
-      mood('elegiac-wonder', 'Elegiac Wonder'),
+      // THEME, not MOOD. The catalog policy is "no global MOOD Facets remain;
+      // art atmosphere is ART_DIRECTION, story tone is THEME", and
+      // applyFacetCatalogDirectives enforces it with a hard post-condition.
+      // This arrived as a free-text GENRE string -- how a story feels -- so
+      // THEME is where it belongs. See the note on the mood() helper.
+      theme('elegiac-wonder', 'Elegiac Wonder'),
     ],
     transforms: [],
     weights: [],
@@ -636,7 +661,10 @@ export const FACET_CURATION_BATCHES = [
       // word all three are specialisations of.
       genre('dystopia', 'Dystopia'),
 
-      mood('borrowed-light-bittersweet', 'Borrowed-Light Bittersweet'),
+      // THEME for the same reason as elegiac-wonder above. This one had not
+      // been applied yet, so it never reached production -- but it was queued
+      // to fail the identical zero-MOOD post-condition on the next run.
+      theme('borrowed-light-bittersweet', 'Borrowed-Light Bittersweet'),
     ],
     transforms: [],
     weights: [],

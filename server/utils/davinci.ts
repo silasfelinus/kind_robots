@@ -9,6 +9,7 @@
 // '1' = pass. Do not reorder without migrating the seeded endings.
 
 import prisma from './prisma'
+import { LifeArtSceneType } from '~/prisma/generated/prisma/client'
 import {
   DAVINCI_DIMENSIONS,
   resolveOutcomeKey,
@@ -457,7 +458,9 @@ export async function recordLifeChoice(
   })
 }
 
-// Loads a run with its stats, choices, and (if resolved) ending — for resume.
+// Loads a run with its stats, choices, contextual art, and (if resolved)
+// ending — for resume. Art is included so a resumed run redisplays chapter
+// and ending illustrations already attached, without a second round trip.
 export async function getLifeRunForUser(lifeRunId: number, userId: number) {
   const run = await prisma.lifeRun.findUnique({
     where: { id: lifeRunId },
@@ -465,6 +468,17 @@ export async function getLifeRunForUser(lifeRunId: number, userId: number) {
       Stats: { orderBy: { key: 'asc' } },
       Choices: { orderBy: [{ chapter: 'asc' }, { id: 'asc' }] },
       Ending: true,
+      Art: {
+        orderBy: [{ chapter: 'asc' }, { id: 'asc' }],
+        select: {
+          id: true,
+          chapter: true,
+          sceneType: true,
+          prompt: true,
+          artImageId: true,
+          ArtImage: { select: { imagePath: true, path: true } },
+        },
+      },
     },
   })
   if (!run) throw withStatusCode(`LifeRun ${lifeRunId} does not exist.`, 404)
@@ -475,4 +489,80 @@ export async function getLifeRunForUser(lifeRunId: number, userId: number) {
     )
   }
   return run
+}
+
+export interface AttachLifeRunArtInput {
+  chapter?: number | null
+  sceneType: string
+  prompt: string
+  artImageId: number
+}
+
+// Persists a LifeRunArt row once a queued illustration for this run resolves
+// to a real ArtImage. The narrator only ever *proposes* an artPrompt (see
+// server/utils/davinciNarration.ts); this is the one place that turns a
+// resolved image into durable contextual art, reusing the shared
+// enqueue/entityArt art pipeline's output rather than a parallel store.
+// Idempotent per (lifeRunId, chapter, sceneType): a resumed run that recovers
+// or retries the same art job updates the existing row instead of duplicating
+// it, since LifeRunArt has no unique constraint on that triple.
+export async function attachLifeRunArt(
+  lifeRunId: number,
+  userId: number,
+  input: AttachLifeRunArtInput,
+) {
+  const validSceneTypes = Object.values(LifeArtSceneType) as string[]
+  if (!validSceneTypes.includes(input.sceneType)) {
+    throw withStatusCode(
+      `sceneType must be one of ${validSceneTypes.join(', ')}.`,
+      400,
+    )
+  }
+  const sceneType = input.sceneType as LifeArtSceneType
+  const chapter =
+    input.chapter === null || input.chapter === undefined
+      ? null
+      : Number(input.chapter)
+  if (chapter !== null && (!Number.isInteger(chapter) || chapter <= 0)) {
+    throw withStatusCode('chapter must be a positive integer or null.', 400)
+  }
+  const prompt = input.prompt?.trim()
+  if (!prompt) throw withStatusCode('prompt is required.', 400)
+  const artImageId = Number(input.artImageId)
+  if (!Number.isInteger(artImageId) || artImageId <= 0) {
+    throw withStatusCode('artImageId must be a positive integer.', 400)
+  }
+
+  const run = await prisma.lifeRun.findUnique({ where: { id: lifeRunId } })
+  if (!run) throw withStatusCode(`LifeRun ${lifeRunId} does not exist.`, 404)
+  if (run.userId !== userId) {
+    throw withStatusCode(
+      'LifeRun does not belong to the authenticated user.',
+      403,
+    )
+  }
+
+  const artImage = await prisma.artImage.findUnique({
+    where: { id: artImageId },
+  })
+  if (!artImage) {
+    throw withStatusCode(`ArtImage ${artImageId} does not exist.`, 404)
+  }
+
+  const existing = await prisma.lifeRunArt.findFirst({
+    where: { lifeRunId, chapter, sceneType },
+  })
+
+  if (existing) {
+    return prisma.lifeRunArt.update({
+      where: { id: existing.id },
+      data: { artImageId, prompt },
+      include: { ArtImage: { select: { imagePath: true, path: true } } },
+    })
+  }
+
+  return prisma.lifeRunArt.create({
+    data: { lifeRunId, chapter, sceneType, prompt, artImageId },
+    include: { ArtImage: { select: { imagePath: true, path: true } } },
+  })
 }

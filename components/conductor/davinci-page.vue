@@ -196,6 +196,12 @@
             <h4 v-if="currentChapter.title" class="text-base font-black">
               {{ currentChapter.title }}
             </h4>
+            <NarrativeArtStatus
+              v-if="currentChapterArt"
+              :art="currentChapterArt"
+              :label="`Illustration for chapter ${chapterIndex}`"
+              @retry="retryCurrentChapterArt"
+            />
             <p
               class="whitespace-pre-line text-sm leading-relaxed text-base-content/75"
             >
@@ -265,6 +271,13 @@
             {{ endingData.victoryType }}
           </span>
           <h4 class="text-xl font-black">{{ endingData.title }}</h4>
+          <NarrativeArtStatus
+            v-if="endingArt"
+            class="w-full max-w-md"
+            :art="endingArt"
+            :label="`Illustration for how ${run?.protagonistName || 'this life'} ended`"
+            @retry="retryEndingArt"
+          />
           <p class="max-w-md text-sm text-base-content/70">
             {{ endingData.summary }}
           </p>
@@ -317,6 +330,8 @@ import { performFetch } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'
 import type { ProjectFrontConfig } from '@/components/conductor/projectFront'
 import { useAchievementStore } from '@/stores/achievementStore'
+import { createNarrativeArtJobsController } from '@/stores/helpers/narrativeArtJobsHelper'
+import type { NarrativeArtJobState } from '@/utils/narrativeArtJobs'
 
 // Mirrors server/utils/davinci.ts DAVINCI_DIMENSIONS — bit order is a
 // display concern here (the server owns the real resolve math), but keeping
@@ -509,6 +524,16 @@ interface LifeEndingData {
   summary: string
   victoryType: 'VICTORY' | 'FAILURE' | 'MIXED' | 'SECRET'
 }
+// Mirrors the LifeRunArt row shape server/utils/davinci.ts's getLifeRunForUser
+// returns, joined with just enough ArtImage to resolve a display path.
+interface LifeRunArtRow {
+  id: number
+  chapter: number | null
+  sceneType: string
+  prompt: string
+  artImageId: number
+  ArtImage: { imagePath: string | null; path: string | null } | null
+}
 interface LifeRunRecord {
   id: number
   title: string
@@ -518,6 +543,7 @@ interface LifeRunRecord {
   Stats: LifeStatRow[]
   Choices: LifeChoiceRow[]
   Ending: LifeEndingData | null
+  Art?: LifeRunArtRow[]
 }
 interface ChoiceResponseData {
   stats: LifeStatRow[]
@@ -581,6 +607,19 @@ const narrationError = ref('')
 const narratorName = ref('')
 const aiChapter = ref<ActiveChapter | null>(null)
 
+// Contextual in-run art (davinci/t-020). The narrator proposes an artPrompt
+// per chapter and the resolve screen synthesizes one for the ending; both are
+// requested through the same shared /api/art/enqueue narrativeContext
+// pipeline Storybook and Taskmaster already use (product: 'davinci'), then
+// persisted as a LifeRunArt row once the queued job resolves to a real
+// ArtImage — see server/utils/davinci.ts's attachLifeRunArt. Reading/choosing
+// never blocks on this: chapterArt/endingArt render a pending/skeleton state
+// via <NarrativeArtStatus> until the illustration is ready.
+const narrativeArtJobs = createNarrativeArtJobsController()
+const chapterArt = ref<Record<number, NarrativeArtJobState>>({})
+const endingArt = ref<NarrativeArtJobState | null>(null)
+const lastArtPrompt = ref<string | null>(null)
+
 const chapterIndex = computed(() => playedCount.value + 1)
 
 const curatedChapter = computed<ActiveChapter | null>(() => {
@@ -603,6 +642,22 @@ const canEndRun = computed(
   () => playedCount.value >= MIN_CHAPTERS_BEFORE_ENDING,
 )
 
+const currentChapterArt = computed<NarrativeArtJobState | undefined>(
+  () => chapterArt.value[chapterIndex.value],
+)
+
+function retryCurrentChapterArt() {
+  const chapter = chapterIndex.value
+  const art = chapterArt.value[chapter]
+  if (!art) return
+  narrativeArtJobs.retry(art, (next) => updateChapterArt(chapter, next))
+}
+
+function retryEndingArt() {
+  if (!endingArt.value) return
+  narrativeArtJobs.retry(endingArt.value, updateEndingArt)
+}
+
 function statsToMap(stats: LifeStatRow[]): Record<string, number> {
   const map: Record<string, number> = {}
   for (const stat of stats) map[stat.key] = stat.value
@@ -622,6 +677,119 @@ function victoryBadgeClass(type: LifeEndingData['victoryType']) {
   }
 }
 
+// Best-effort: the illustration is decorative, so a failed attach never
+// surfaces an error to the player — the run keeps working either way.
+async function persistLifeRunArt(
+  chapter: number | null,
+  sceneType: 'THRESHOLD' | 'ENDING',
+  prompt: string,
+  artImageId: number,
+) {
+  if (!run.value) return
+  await performFetch(`/api/davinci/runs/${run.value.id}/art`, {
+    method: 'POST',
+    body: JSON.stringify({ chapter, sceneType, prompt, artImageId }),
+  }).catch(() => null)
+}
+
+function updateChapterArt(chapter: number, art: NarrativeArtJobState) {
+  const wasDone = chapterArt.value[chapter]?.status === 'done'
+  chapterArt.value = { ...chapterArt.value, [chapter]: art }
+  if (!wasDone && art.status === 'done' && art.artImageId) {
+    void persistLifeRunArt(
+      chapter,
+      'THRESHOLD',
+      art.promptString,
+      art.artImageId,
+    )
+  }
+}
+
+function updateEndingArt(art: NarrativeArtJobState) {
+  const wasDone = endingArt.value?.status === 'done'
+  endingArt.value = art
+  if (!wasDone && art.status === 'done' && art.artImageId) {
+    void persistLifeRunArt(null, 'ENDING', art.promptString, art.artImageId)
+  }
+}
+
+// Chapter-transition art (sceneType THRESHOLD): requested once per chapter,
+// the moment the narrator proposes a non-null artPrompt for it. Skipped for
+// chapters that already have art (a resumed run's hydrated rows, or a
+// duplicate narrate() call for the same chapter).
+function requestChapterArt(chapter: number, artPrompt: string) {
+  if (!run.value || chapterArt.value[chapter]) return
+  void narrativeArtJobs.enqueue(
+    {
+      product: 'davinci',
+      sessionId: `davinci-run-${run.value.id}`,
+      beatId: `chapter-${chapter}`,
+      moment: 'chapter',
+      narrative: artPrompt,
+      title: run.value.protagonistName || run.value.title,
+    },
+    (art) => updateChapterArt(chapter, art),
+  )
+}
+
+// Ending art (sceneType ENDING): a personalized illustration of this specific
+// run's outcome, distinct from the shared per-outcomeKey ending art seeded by
+// scripts/generate_davinci_endings.py. Prefers the narrator's last proposed
+// artPrompt (the freshest visual detail for how this life was trending);
+// falls back to a synthesized prompt from the ending itself when no chapter
+// ever proposed one (e.g. the curated fallback pool, which has no narrator).
+function requestEndingArt() {
+  if (!run.value || !endingData.value || endingArt.value) return
+  const ending = endingData.value
+  const artPrompt =
+    lastArtPrompt.value ||
+    `The moment this life resolved: ${ending.title} — ${ending.summary}`
+  void narrativeArtJobs.enqueue(
+    {
+      product: 'davinci',
+      sessionId: `davinci-run-${run.value.id}`,
+      beatId: `ending-${run.value.id}`,
+      moment: 'finale',
+      narrative: artPrompt,
+      title: run.value.protagonistName || run.value.title,
+      objective: ending.title,
+    },
+    updateEndingArt,
+  )
+}
+
+// Rehydrates already-attached LifeRunArt rows into displayable, terminal
+// ('done') job states — no polling needed, the image is already resolved.
+function hydrateArtFromRun(data: LifeRunRecord) {
+  chapterArt.value = {}
+  endingArt.value = null
+  const timestamp = new Date().toISOString()
+  for (const row of data.Art ?? []) {
+    const imagePath = row.ArtImage?.imagePath || row.ArtImage?.path || null
+    const state: NarrativeArtJobState = {
+      dedupeKey: `davinci:${data.id}:${row.sceneType}:${row.chapter ?? 'ending'}:${row.id}`,
+      product: 'davinci',
+      sessionId: `davinci-run-${data.id}`,
+      beatId: row.chapter ? `chapter-${row.chapter}` : `ending-${data.id}`,
+      moment: row.sceneType === 'ENDING' ? 'finale' : 'chapter',
+      surface: 'scene-landscape',
+      profileKey: 'davinci-narrative-krea4',
+      promptString: row.prompt,
+      status: 'done',
+      artImageId: row.artImageId,
+      imagePath,
+      error: null,
+      requestedAt: timestamp,
+      updatedAt: timestamp,
+    }
+    if (row.sceneType === 'ENDING') {
+      endingArt.value = state
+    } else if (row.chapter) {
+      chapterArt.value[row.chapter] = state
+    }
+  }
+}
+
 async function resumeRun(id: number) {
   phase.value = 'loading'
   const response = await performFetch<LifeRunRecord>(`/api/davinci/runs/${id}`)
@@ -634,10 +802,12 @@ async function resumeRun(id: number) {
   run.value = response.data
   statMap.value = statsToMap(response.data.Stats || [])
   playedCount.value = response.data.Choices?.length ?? 0
+  hydrateArtFromRun(response.data)
 
   if (response.data.status === 'COMPLETE' && response.data.Ending) {
     endingData.value = response.data.Ending
     phase.value = 'ending'
+    requestEndingArt()
   } else {
     phase.value = 'playing'
     if (narrationMode.value === 'ai') await narrateChapter()
@@ -709,6 +879,11 @@ async function narrateChapter() {
       effects: choice.effects,
     })),
     milestoneCandidate: response.data.milestoneCandidate,
+  }
+
+  if (response.data.artPrompt) {
+    lastArtPrompt.value = response.data.artPrompt
+    requestChapterArt(response.data.chapter, response.data.artPrompt)
   }
 }
 
@@ -790,6 +965,9 @@ function playAgain() {
   narrationMode.value = 'ai'
   narrationError.value = ''
   aiChapter.value = null
+  chapterArt.value = {}
+  endingArt.value = null
+  lastArtPrompt.value = null
   phase.value = 'start'
 }
 
@@ -870,8 +1048,9 @@ const config: ProjectFrontConfig = {
       'Life-run schema (runs, choices, stats, endings, achievements)',
       'Da Vinci API surface',
       'Playable run UI',
+      'Contextual chapter and ending art',
     ],
-    next: ['Achievement gallery', 'Generated art per chapter'],
+    next: ['Achievement gallery'],
   },
 }
 </script>

@@ -60,7 +60,7 @@ type EnqueueEngine =
 type JsonRecord = Record<string, unknown>
 
 type NarrativeEnqueueContext = {
-  product: 'storybook' | 'taskmaster'
+  product: 'storybook' | 'taskmaster' | 'davinci'
   sessionId: string
   beatId: string
   moment: string
@@ -184,7 +184,11 @@ function narrativeRequest(
     'finale',
   ])
 
-  if (product !== 'storybook' && product !== 'taskmaster') {
+  if (
+    product !== 'storybook' &&
+    product !== 'taskmaster' &&
+    product !== 'davinci'
+  ) {
     throw createError({
       statusCode: 400,
       message: 'Invalid narrative product.',

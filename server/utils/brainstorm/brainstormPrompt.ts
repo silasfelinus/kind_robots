@@ -120,6 +120,7 @@ function assortmentInstructions(
 
 export function buildBrainstormPrompts(
   request: BrainstormGenerateRequest,
+  sourceContext?: string | null,
 ): BrainstormPrompts {
   const systemPrompt = [
     'You are Brainstorm, a creative divergence engine for humans.',
@@ -155,6 +156,14 @@ export function buildBrainstormPrompts(
     `Premise: ${request.premise.trim()}`,
     `Generate exactly ${request.count} distinct candidate${request.count === 1 ? '' : 's'}.`,
   ]
+
+  if (sourceContext?.trim()) {
+    lines.push(
+      '',
+      'Grounded in this Kind Robots object. Preserve these canonical traits -- do not contradict them, rename the subject, or drift it into a generic archetype:',
+      sourceContext.trim(),
+    )
+  }
 
   if (request.constraints?.trim()) {
     lines.push(`Constraints: ${request.constraints.trim()}`)

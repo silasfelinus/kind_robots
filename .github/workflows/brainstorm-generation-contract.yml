@@ -11,6 +11,7 @@ on:
       - 'server/api/suggest.post.ts'
       - 'types/brainstorm.ts'
       - 'utils/scripts/verifyBrainstormGeneration.ts'
+      - 'utils/scripts/verifyBrainstormSourceContext.ts'
   pull_request:
     branches: [main]
     paths:
@@ -21,6 +22,7 @@ on:
       - 'server/api/suggest.post.ts'
       - 'types/brainstorm.ts'
       - 'utils/scripts/verifyBrainstormGeneration.ts'
+      - 'utils/scripts/verifyBrainstormSourceContext.ts'
   workflow_dispatch:
 
 permissions:
@@ -51,3 +53,6 @@ jobs:
 
       - name: Verify Brainstorm generation contract
         run: npx tsx utils/scripts/verifyBrainstormGeneration.ts
+
+      - name: Verify Brainstorm source context contract
+        run: npx tsx utils/scripts/verifyBrainstormSourceContext.ts

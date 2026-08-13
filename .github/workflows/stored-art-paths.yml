@@ -56,7 +56,7 @@ jobs:
           TS_OAUTH_SECRET: ${{ secrets.TS_OAUTH_SECRET }}
         run: |
           if [ -z "$DATABASE_URL" ]; then
-            echo "::error::DATABASE_URL is empty. Add it as a REPOSITORY ACTIONS SECRET (repo Settings → Secrets and variables → Actions). Vercel env vars and .env files do not resolve here."
+            echo "::error::DATABASE_URL is empty. Add it as a REPOSITORY ACTIONS SECRET (repo Settings → Secrets and variables → Actions). Runtime env vars and .env files do not resolve here."
             exit 1
           fi
           if [ -z "$TS_OAUTH_CLIENT_ID" ] || [ -z "$TS_OAUTH_SECRET" ]; then

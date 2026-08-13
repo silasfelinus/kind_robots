@@ -102,6 +102,52 @@ assert.match(
   'an unset credential must fail the deploy loudly rather than skipping migrations -- silently serving un-migrated schema is the failure this whole service exists to end',
 )
 
+// ------------------------------------------- the box runs what CI built
+//
+// Both services carried `build: context: .` and `image: kind-robots:local`,
+// so the host compiled from whatever its checkout happened to be while
+// publish-container.yml pushed to GHCR and nothing consumed it. What ran in
+// production was not what CI had built or tested.
+
+for (const [name, block] of [
+  ['migrate', migrateService!],
+  ['kind-robots', appService!],
+] as const) {
+  assert.doesNotMatch(
+    block,
+    /^\s{4}build:/m,
+    `the ${name} service declares build:. The deployed image must come from the registry, or the host silently compiles its own and diverges from what CI built and tested.`,
+  )
+}
+
+// Same image for both, enforced by a YAML anchor rather than two strings that
+// have to be kept in step. Migrating with one build and serving another is how
+// a schema arrives that the running code does not expect, and nothing surfaces
+// it until something breaks at runtime.
+const images = [...compose.matchAll(/^ {4}image:\s*(.+)$/gm)].map((match) =>
+  (match[1] as string).trim(),
+)
+assert.equal(
+  images.length,
+  2,
+  `expected exactly two service images, found ${images.length}`,
+)
+assert.equal(
+  images[0],
+  images[1],
+  'migrate and the app must reference the identical image; a divergence migrates with one build and serves another',
+)
+assert.match(
+  images[0]!,
+  /^\*/,
+  'both services must share one YAML anchor rather than repeating the reference, so they cannot drift apart in a later edit',
+)
+assert.match(
+  compose,
+  /^x-kind-robots-image:\s*&kind-robots-image\s+\$\{KIND_ROBOTS_IMAGE:-ghcr\.io\//m,
+  'the anchor must default to the GHCR image CI publishes, and stay overridable so a sha- tag can be pinned for rollback',
+)
+
 console.log(
   'Migrate-on-deploy verified: runtime image carries prisma/, scripts/ and prisma.config.ts; app gated on a one-shot migrate; credential scoped to it.',
 )

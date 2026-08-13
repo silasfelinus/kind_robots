@@ -1,70 +1,37 @@
-name: Nightly fallback snapshot & backup
+name: Nightly fallback snapshot
 
-# Two independent nightly jobs:
+# Fetches public content from the database and commits it into stores/fallback/.
+# This lets the app serve read-only galleries even when the database is down.
 #
-#   snapshot — dumps public rows (per-model field allowlists, isPublic only)
-#     to stores/fallback/*.json and commits the result. Git history becomes a
-#     rolling, versioned record of public content, and every deploy ships
-#     with yesterday's data baked in for database-outage fallback.
+# The workflow intentionally runs OUTSIDE the production deployment path. It
+# joins the tailnet, reads the public rows, writes deterministic JSON, and opens
+# a PR only when the snapshot changed. No production database writes occur.
 #
-#   dump — full mysqldump for disaster recovery, encrypted with
-#     BACKUP_PASSPHRASE before upload. Skipped (with a warning) if the
-#     passphrase secret is missing: artifacts on a public repo are
-#     downloadable by anyone, so a plaintext dump must never be uploaded.
-#
-# The database lives on a home Unraid box that is not reachable from
-# GitHub-hosted runner IPs, so both jobs join the Tailscale tailnet as an
-# ephemeral node for the duration of the run and reach MariaDB over it.
-#
-# Required secrets (repository Actions secrets: Settings → Secrets and
-# variables → Actions → New repository secret):
-#   DATABASE_URL         mysql://user:pass@host:port/db — host must be the
-#                        Unraid machine's tailnet address (MagicDNS name or
-#                        100.x.y.z IP), NOT its public hostname
-#   DATABASE_SSL_CA_BASE64  base64-encoded PEM of the CA that signed ProxySQL's
-#                        server certificate. ProxySQL now ENFORCES TLS, so both
-#                        the Prisma snapshot script and the mysqldump backup
-#                        must present a CA-verified TLS connection or the DB
-#                        rejects them with "Access denied ... SSL is required".
-#                        Same secret the app runtime and prisma-migrate-deploy
-#                        already use. (DATABASE_SSL_CA, raw PEM, is also honored
-#                        by the snapshot script as a fallback.)
-#   BACKUP_PASSPHRASE    symmetric key for the encrypted dump
-#   TS_OAUTH_CLIENT_ID   Tailscale OAuth client (scope: Auth Keys, with
-#   TS_OAUTH_SECRET      tag:ci) — admin console → Settings → OAuth clients.
-#                        The tailnet ACL must define the tag, e.g.
-#                        "tagOwners": { "tag:ci": ["autogroup:admin"] }
-#
-# MariaDB must also accept tailnet connections: the container's 3306 mapped
-# on the Unraid host is reachable at the host's tailnet IP as long as
-# Tailscale runs on the host; the DB user's allowed host must cover the
-# tailnet source (e.g. '%' or '100.64.0.0/10' addresses).
-#
-# Restore a dump:
-#   openssl enc -d -aes-256-cbc -pbkdf2 -in dump.sql.gz.enc -pass env:BACKUP_PASSPHRASE | gunzip | mysql ...
+# Required repository Actions secrets:
+#   DATABASE_URL
+#   DATABASE_SSL_CA_BASE64 or DATABASE_SSL_CA
+#   TS_OAUTH_CLIENT_ID
+#   TS_OAUTH_SECRET
 
 on:
   schedule:
-    - cron: '17 9 * * *' # daily, 09:17 UTC ≈ 1:17am Pacific
+    - cron: '17 11 * * *' # daily, 11:17 UTC ≈ 3:17am Pacific
   workflow_dispatch:
 
 concurrency:
   group: fallback-snapshot
   cancel-in-progress: false
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   snapshot:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    timeout-minutes: 30
     env:
-      # prisma.config.ts resolves DATABASE_URL at config-load time, so every
-      # prisma-adjacent step needs it — not just the snapshot script.
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      # ProxySQL enforces TLS: the snapshot script's SSL-aware adapter (shared
-      # with server/utils/prisma.ts) reads this CA to complete the handshake.
-      # Both forms the runtime accepts are forwarded — set EITHER one:
-      # DATABASE_SSL_CA_BASE64 (base64 of the PEM) or DATABASE_SSL_CA (raw PEM).
       DATABASE_SSL_CA_BASE64: ${{ secrets.DATABASE_SSL_CA_BASE64 }}
       DATABASE_SSL_CA: ${{ secrets.DATABASE_SSL_CA }}
     steps:
@@ -74,20 +41,17 @@ jobs:
           TS_OAUTH_SECRET: ${{ secrets.TS_OAUTH_SECRET }}
         run: |
           if [ -z "$DATABASE_URL" ]; then
-            echo "::error::DATABASE_URL is empty. Add it as a REPOSITORY ACTIONS SECRET: repo Settings → Secrets and variables → Actions → 'New repository secret'. (Vercel env vars, .env files, Codespaces/Dependabot secrets, and Actions *variables* do not resolve here.)"
+            echo "::error::DATABASE_URL is empty. Add it as a REPOSITORY ACTIONS SECRET (Settings → Secrets and variables → Actions). Runtime env files, Codespaces/Dependabot secrets, and Actions variables do not resolve here."
             exit 1
           fi
           if [ -z "$TS_OAUTH_CLIENT_ID" ] || [ -z "$TS_OAUTH_SECRET" ]; then
-            echo "::error::TS_OAUTH_CLIENT_ID / TS_OAUTH_SECRET are empty. Create a Tailscale OAuth client (admin console → Settings → OAuth clients, scope 'Auth Keys' with tag:ci) and add both as repository Actions secrets."
+            echo "::error::TS_OAUTH_CLIENT_ID / TS_OAUTH_SECRET are empty. The database is not reachable from GitHub runner IPs without joining the tailnet."
             exit 1
           fi
           if [ -z "$DATABASE_SSL_CA_BASE64" ] && [ -z "$DATABASE_SSL_CA" ]; then
-            echo "::warning::No database CA secret is set (DATABASE_SSL_CA_BASE64 / DATABASE_SSL_CA are both empty). ProxySQL enforces TLS and the Prisma snapshot needs an explicit CA, so it will fail with 'Access denied ... SSL is required'. Add the ProxySQL CA as a repository Actions secret — the same CA the app runtime and prisma-migrate-deploy use."
+            echo "::warning::No database CA secret set. ProxySQL enforces TLS, so this run will likely fail with 'Access denied ... SSL is required'."
           fi
 
-      # No explicit ref: scheduled runs check out main (the default branch),
-      # while a workflow_dispatch on a branch tests that branch's script.
-      # Only main runs are allowed to commit (guard on the commit step).
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
@@ -103,9 +67,6 @@ jobs:
       - name: Generate Prisma client
         run: npx prisma generate
 
-      # Join the tailnet as an ephemeral node (auto-removed after the run).
-      # Placed after the npm/prisma steps so the tailnet session stays as
-      # short as possible — only the probe and snapshot steps need it.
       - name: Connect to Tailscale
         uses: tailscale/github-action@v3
         with:
@@ -113,225 +74,74 @@ jobs:
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
 
-      # Diagnoses connectivity without leaking infrastructure into public
-      # logs: prints only record counts, error codes, and timings — never the
-      # host or any address.
-      - name: Connectivity probe
-        continue-on-error: true
+      - name: Generate fallback snapshot
+        run: npm run snapshot:fallback
+
+      - name: Verify generated fallback files
         run: |
-          node - <<'EOF'
-          const net = require('net')
-          const dns = require('dns/promises')
-          const url = new URL(process.env.DATABASE_URL)
-          const host = url.hostname
-          const port = Number(url.port || 3306)
-          const probe = (opts, label) =>
-            new Promise((resolve) => {
-              const t0 = Date.now()
-              let settled = false
-              const done = (msg) => {
-                if (settled) return
-                settled = true
-                console.log(label, msg, `${Date.now() - t0}ms`)
-                try { s.destroy() } catch {}
-                resolve()
-              }
-              const s = net.connect({ host, port, ...opts })
-              s.once('connect', () => done('CONNECTED'))
-              s.once('error', (e) =>
-                done('ERROR ' + (e.code || (e.errors && e.errors.map((x) => x.code).join(',')) || e.constructor.name)),
-              )
-              setTimeout(() => done('TIMEOUT'), 12000)
-            })
-          ;(async () => {
-            // Booleans only — enough to tell "still pointing at the public
-            // host" apart from "tailnet address but the node is unreachable".
-            console.log('host is a .ts.net MagicDNS name:', host.endsWith('.ts.net'))
-            const inCgnat = (ip) => {
-              const [a, b] = ip.split('.').map(Number)
-              return a === 100 && b >= 64 && b <= 127
-            }
-            try {
-              const addrs = await dns.resolve4(host)
-              console.log('A records:', addrs.length, '| all tailnet (100.64/10):', addrs.every(inCgnat))
-            } catch (e) { console.log('A lookup error:', e.code) }
-            try { console.log('AAAA records:', (await dns.resolve6(host)).length) }
-            catch (e) { console.log('AAAA lookup error:', e.code) }
-            await probe({ family: 4 }, 'connect ipv4:')
-            await probe({ family: 6 }, 'connect ipv6:')
-            await probe({}, 'connect default:')
-            await probe({ autoSelectFamily: false }, 'connect noAutoSelect:')
-          })()
-          EOF
+          set -euo pipefail
+          test -f stores/fallback/bots.json
+          test -f stores/fallback/characters.json
+          test -f stores/fallback/dreams.json
+          test -f stores/fallback/facets.json
+          test -f stores/fallback/prompts.json
+          test -f stores/fallback/rewards.json
+          test -f stores/fallback/scenarios.json
+          test -f stores/fallback/smart-icons.json
+          test -f stores/fallback/metadata.json
+          node - <<'NODE'
+          const fs = require('node:fs')
+          const path = require('node:path')
+          const dir = path.resolve('stores/fallback')
+          const files = fs.readdirSync(dir).filter((file) => file.endsWith('.json'))
+          for (const file of files) {
+            JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'))
+          }
+          console.log(`Validated ${files.length} fallback JSON file(s).`)
+          NODE
 
-          sudo apt-get install -y -q mysql-client >/dev/null 2>&1 || true
-          DB_USER="$(bash scripts/parse-mysql-url.sh "$DATABASE_URL" user)"
-          export MYSQL_PWD="$(bash scripts/parse-mysql-url.sh "$DATABASE_URL" password)"
-          DB_HOST="$(bash scripts/parse-mysql-url.sh "$DATABASE_URL" host)"
-          DB_PORT="$(bash scripts/parse-mysql-url.sh "$DATABASE_URL" port)"
-
-          # ProxySQL enforces TLS, so the CLI must present the CA too. VERIFY_CA
-          # validates the server cert against the CA without checking the
-          # hostname — the DB host is a tailnet IP/MagicDNS name that need not
-          # appear in the cert's SAN. CA written 0600 and removed on step exit.
-          # Accept either secret form (base64 preferred, raw PEM fallback).
-          MYSQL_SSL_OPTS=()
-          CA_FILE=""
-          if [ -n "$DATABASE_SSL_CA_BASE64" ]; then
-            CA_FILE="$(mktemp)"
-            printf '%s' "$DATABASE_SSL_CA_BASE64" | base64 -d > "$CA_FILE"
-          elif [ -n "$DATABASE_SSL_CA" ]; then
-            CA_FILE="$(mktemp)"
-            printf '%b' "$DATABASE_SSL_CA" > "$CA_FILE"
-          fi
-          if [ -n "$CA_FILE" ]; then
-            trap 'rm -f "$CA_FILE"' EXIT
-            MYSQL_SSL_OPTS=(--ssl-mode=VERIFY_CA "--ssl-ca=$CA_FILE")
-          fi
-          if command -v tailscale >/dev/null 2>&1; then
-            if tailscale ping -c 2 --timeout 3s "$DB_HOST" >/dev/null 2>&1; then
-              echo "tailscale ping: ok"
-            else
-              echo "tailscale ping: fail (host is not a reachable tailnet node)"
-            fi
-            # Counts and booleans only: is the DB host even a peer in the
-            # tailnet this runner joined, and does Tailscale think it is
-            # online? Distinguishes wrong-tailnet/wrong-IP from node-offline.
-            tailscale status --json | jq --arg h "$DB_HOST" '
-              {
-                "tailnet peers": (.Peer | length),
-                "db host is a peer": ([.Peer[]? | select((.TailscaleIPs[]? == $h) or (.DNSName | startswith($h + ".")))] | length > 0),
-                "peer reports online": ([.Peer[]? | select((.TailscaleIPs[]? == $h) or (.DNSName | startswith($h + ".")))] | first | .Online)
-              }'
-          fi
-
-          if mysql --connect-timeout=12 "${MYSQL_SSL_OPTS[@]}" -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" -e 'SELECT 1' >/dev/null 2>&1; then
-            echo "mysql CLI: ok"
-          else
-            echo "mysql CLI: fail (exit $?)"
-          fi
-
-      - name: Write fallback snapshots
-        run: npx tsx utils/scripts/snapshotFallback.ts
-
-      - name: Commit snapshots if changed
-        if: github.ref == 'refs/heads/main'
+      - name: Check for snapshot changes
+        id: changes
         run: |
           if git diff --quiet -- stores/fallback; then
-            echo "No snapshot changes today."
-            exit 0
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Fallback snapshot unchanged."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git diff --stat -- stores/fallback
           fi
-          git config user.name "kind-robots-snapshot[bot]"
-          git config user.email "snapshot-bot@users.noreply.github.com"
+
+      - name: Create snapshot branch
+        if: steps.changes.outputs.changed == 'true'
+        id: branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          branch="bot/fallback-snapshot-$(date -u +%Y%m%d)"
+          echo "name=$branch" >> "$GITHUB_OUTPUT"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$branch"
           git add stores/fallback
-          git commit -m "chore: nightly public-content fallback snapshot"
-          git push origin main
+          git commit -m "chore: refresh fallback snapshot"
+          git push --force-with-lease origin "$branch"
 
-  dump:
-    runs-on: ubuntu-latest
-    # Serialized after snapshot: when both jobs hit the database at the same
-    # time from different runner IPs, the host drops new TCP connections for
-    # one of them (anti-flood behavior on the DB host — confirmed by a probe
-    # where even the mysql CLI timed out while a concurrent dump ran).
-    needs: snapshot
-    if: always()
-    steps:
-      - name: Check for passphrase
-        id: gate
+      - name: Open or update snapshot PR
+        if: steps.changes.outputs.changed == 'true'
         env:
-          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ steps.branch.outputs.name }}
         run: |
-          if [ -z "$BACKUP_PASSPHRASE" ]; then
-            echo "::warning::BACKUP_PASSPHRASE secret is not set — skipping database dump (refusing to upload plaintext)."
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          set -euo pipefail
+          existing="$(gh pr list --base main --head "$BRANCH" --state open --json number --jq '.[0].number // empty')"
+          if [ -n "$existing" ]; then
+            echo "Snapshot PR #$existing already exists; branch updated."
           else
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
+            gh pr create \
+              --base main \
+              --head "$BRANCH" \
+              --title "chore: refresh fallback snapshot" \
+              --body "Automated nightly refresh of stores/fallback from the current public Kind Robots catalog. Read-only database export; no production writes."
           fi
-
-      - name: Checkout
-        if: steps.gate.outputs.enabled == 'true'
-        uses: actions/checkout@v4
-
-      - name: Connect to Tailscale
-        if: steps.gate.outputs.enabled == 'true'
-        uses: tailscale/github-action@v3
-        with:
-          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
-          tags: tag:ci
-
-      - name: Install mysql client
-        if: steps.gate.outputs.enabled == 'true'
-        run: sudo apt-get update -q && sudo apt-get install -y -q mysql-client
-
-      - name: Dump and encrypt database
-        if: steps.gate.outputs.enabled == 'true'
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
-          # ProxySQL enforces TLS — mysqldump must present the CA (see snapshot).
-          DATABASE_SSL_CA_BASE64: ${{ secrets.DATABASE_SSL_CA_BASE64 }}
-          DATABASE_SSL_CA: ${{ secrets.DATABASE_SSL_CA }}
-        run: |
-          # Without pipefail a failed mysqldump still exits 0 through the
-          # gzip|openssl pipeline and uploads a ~200-byte encrypted-empty
-          # artifact that looks like a backup.
-          set -o pipefail
-
-          # Parse mysql://user:pass@host:port/db (query string ignored)
-          DB_USER="$(bash scripts/parse-mysql-url.sh "$DATABASE_URL" user)"
-          export MYSQL_PWD="$(bash scripts/parse-mysql-url.sh "$DATABASE_URL" password)"
-          DB_HOST="$(bash scripts/parse-mysql-url.sh "$DATABASE_URL" host)"
-          DB_PORT="$(bash scripts/parse-mysql-url.sh "$DATABASE_URL" port)"
-          DB_NAME="$(bash scripts/parse-mysql-url.sh "$DATABASE_URL" name)"
-
-          # ProxySQL enforces TLS. VERIFY_CA checks the server cert against the
-          # CA without hostname verification (the host is a tailnet IP/MagicDNS
-          # name that need not be in the cert SAN). CA file is 0600 and removed
-          # on step exit. Accept either secret form (base64 preferred, raw PEM
-          # fallback). Without a CA, mysqldump still negotiates opportunistic
-          # (unverified) TLS by default, which ProxySQL accepts — so add the CA
-          # to upgrade this to a verified connection.
-          MYSQL_SSL_OPTS=()
-          CA_FILE=""
-          if [ -n "$DATABASE_SSL_CA_BASE64" ]; then
-            CA_FILE="$(mktemp)"
-            printf '%s' "$DATABASE_SSL_CA_BASE64" | base64 -d > "$CA_FILE"
-          elif [ -n "$DATABASE_SSL_CA" ]; then
-            CA_FILE="$(mktemp)"
-            printf '%b' "$DATABASE_SSL_CA" > "$CA_FILE"
-          fi
-          if [ -n "$CA_FILE" ]; then
-            trap 'rm -f "$CA_FILE"' EXIT
-            MYSQL_SSL_OPTS=(--ssl-mode=VERIFY_CA "--ssl-ca=$CA_FILE")
-          else
-            echo "::warning::No database CA secret is set — mysqldump will use unverified opportunistic TLS. Add DATABASE_SSL_CA_BASE64 (or DATABASE_SSL_CA) to verify the ProxySQL certificate."
-          fi
-
-          # --column-statistics=0: the runner's MySQL 8 mysqldump queries
-          # information_schema.COLUMN_STATISTICS, which MariaDB doesn't have.
-          mysqldump \
-            --host="$DB_HOST" --port="$DB_PORT" --user="$DB_USER" \
-            "${MYSQL_SSL_OPTS[@]}" \
-            --single-transaction --skip-lock-tables --routines --triggers \
-            --column-statistics=0 \
-            "$DB_NAME" \
-            | gzip \
-            | openssl enc -aes-256-cbc -pbkdf2 -pass env:BACKUP_PASSPHRASE \
-            > dump.sql.gz.enc
-
-          ls -lh dump.sql.gz.enc
-
-          size=$(stat -c%s dump.sql.gz.enc)
-          if [ "$size" -lt 10240 ]; then
-            echo "::error::dump.sql.gz.enc is only ${size} bytes — mysqldump produced no data."
-            exit 1
-          fi
-
-      - name: Upload encrypted dump
-        if: steps.gate.outputs.enabled == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: db-backup-${{ github.run_id }}
-          path: dump.sql.gz.enc
-          retention-days: 30

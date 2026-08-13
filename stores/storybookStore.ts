@@ -785,9 +785,16 @@ export const useStorybookStore = defineStore('storybookStore', () => {
     }
     persist()
 
-    return weaveBeat(
+    const openingWove = await weaveBeat(
       `${PERSONA}\n\nSTORY BIBLE\n${biblePrompt(bible)}\n\nWrite the opening scene. Establish an immediate image, introduce the most relevant cast member or force, and end with one consequential question.`,
     )
+    if (!openingWove) {
+      // Keep the setup draft and generation error visible so the reader can
+      // retry instead of being stranded inside an empty active session.
+      session.value = null
+      persist()
+    }
+    return openingWove
   }
 
   async function answerCurrentBeat(answerText: string): Promise<boolean> {

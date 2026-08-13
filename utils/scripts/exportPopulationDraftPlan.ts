@@ -16,11 +16,7 @@
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { rankCommentSpeakers } from './../../utils/comments/commentCasting'
-import {
-  scoreSpeakerPool,
-  type SignalSpeakerProfile,
-  type SignalTargetProfile,
-} from './../../utils/comments/commentSignals'
+import { scoreSpeakerPool } from './../../utils/comments/commentSignals'
 import {
   buildVoiceEvidenceIndex,
   selectVoiceSamples,
@@ -29,6 +25,12 @@ import {
   type ArchivedVoiceRecord,
 } from './../../utils/comments/voiceEvidence'
 import { characterVoiceSeeds } from './../../stores/seeds/characterVoices'
+import {
+  botProfile,
+  characterProfile,
+  targetProfile,
+  POPULATION_ENDPOINTS,
+} from './../../utils/comments/populationProfiles'
 import { withFacetAttributes } from './../../utils/comments/facetAttributeMatch'
 import {
   buildCastingIndex,
@@ -42,10 +44,8 @@ import {
   populationShapeFor,
   populationSpeakerCount,
   populationTargetKey,
-  populationTargetTitle,
   POPULATION_TARGET_TYPES,
   type PopulationRow,
-  type PopulationTargetType,
 } from './../../utils/comments/populationTargets'
 
 function arg(name: string, fallback: string): string {
@@ -80,18 +80,10 @@ async function getRows(path: string): Promise<PopulationRow[]> {
   return Array.isArray(body) ? body : body.data || []
 }
 
-const ENDPOINTS: Record<PopulationTargetType, string> = {
-  BOT: '/api/bots?page=1&pageSize=200',
-  CHARACTER: '/api/characters',
-  DREAM: '/api/dreams',
-  SCENARIO: '/api/scenarios',
-  PROJECT: '/api/projects',
-}
-
 async function loadEligibleTargets() {
   const pages = await Promise.all(
     POPULATION_TARGET_TYPES.map(async (type) => {
-      const rows = await getRows(ENDPOINTS[type])
+      const rows = await getRows(POPULATION_ENDPOINTS[type])
       return rows
         .filter((row) => isEligiblePopulationRow(type, row))
         .map((row) => ({ type, id: Number(row.id), row }))
@@ -160,95 +152,6 @@ function priorCastCounts(): {
   return { all, visits }
 }
 
-function characterProfile(row: PopulationRow): SignalSpeakerProfile {
-  return {
-    kind: 'CHARACTER',
-    id: Number(row.id),
-    name: String(row.name),
-    personality: text(row.personality) || null,
-    voice: text(row.voice) || null,
-    sampleResponse: text(row.sampleResponse) || null,
-    quirks: text(row.quirks) || null,
-    drive: text(row.drive) || null,
-    backstory: text(row.backstory) || null,
-    role: text(row.role) || null,
-    title: text(row.title) || null,
-    alignment: text(row.alignment) || null,
-    characterClass: text(row.class) || null,
-    species: text(row.species) || null,
-    genre: text(row.genre) || null,
-  }
-}
-
-function botProfile(row: PopulationRow): SignalSpeakerProfile {
-  return {
-    kind: 'BOT',
-    id: Number(row.id),
-    name: String(row.name),
-    personality: text(row.personality) || null,
-    botIntro: text(row.botIntro) || null,
-    narrativeVoice: text(row.narrativeVoice) || null,
-    sampleResponse: text(row.sampleResponse) || null,
-    tagline: text(row.tagline) || null,
-    subtitle: text(row.subtitle) || null,
-    description: text(row.description) || null,
-    botType: text(row.BotType) || null,
-  }
-}
-
-/** What a speaker is reacting TO, per target type. */
-function targetProfile(
-  type: PopulationTargetType,
-  row: PopulationRow,
-): SignalTargetProfile {
-  const base = {
-    id: Number(row.id),
-    title: populationTargetTitle(type, row),
-  }
-  switch (type) {
-    case 'BOT':
-      return {
-        ...base,
-        type: 'REWARD',
-        description: text(row.botIntro) || text(row.description) || null,
-        flavorText: text(row.tagline) || text(row.subtitle) || null,
-        category: text(row.BotType),
-      }
-    case 'CHARACTER':
-      return {
-        ...base,
-        type: 'REWARD',
-        description: text(row.personality) || text(row.backstory) || null,
-        flavorText: text(row.drive) || text(row.quirks) || null,
-        category: [text(row.role), text(row.class)].filter(Boolean).join(' '),
-      }
-    case 'DREAM':
-      return {
-        ...base,
-        type: 'REWARD',
-        description: text(row.pitch) || text(row.description) || null,
-        flavorText: text(row.flavorText) || null,
-        category: text(row.dreamType),
-      }
-    case 'SCENARIO':
-      return {
-        ...base,
-        type: 'REWARD',
-        description: text(row.description) || text(row.intro) || null,
-        flavorText: text(row.locations) || null,
-        category: text(row.genres),
-      }
-    case 'PROJECT':
-      return {
-        ...base,
-        type: 'REWARD',
-        description: text(row.description) || text(row.pitch) || null,
-        flavorText: text(row.flavorText) || null,
-        category: text(row.projectType) || text(row.status),
-      }
-  }
-}
-
 async function getAllFacets(): Promise<PopulationRow[]> {
   const all: PopulationRow[] = []
   for (let skip = 0; skip < 5000; skip += 250) {
@@ -264,7 +167,7 @@ async function main() {
     loadEligibleTargets(),
     getRows('/api/characters'),
     getRows('/api/bots?page=1&pageSize=200'),
-    getRows('/api/dreams'),
+    getRows(POPULATION_ENDPOINTS.DREAM),
     getAllFacets(),
   ])
 
@@ -305,7 +208,7 @@ async function main() {
     characters,
     bots,
     dreams,
-    scenarios: await getRows(ENDPOINTS.SCENARIO),
+    scenarios: await getRows(POPULATION_ENDPOINTS.SCENARIO),
     facetCharacters,
   })
   const tierCounts = new Map<CastTier, number>()

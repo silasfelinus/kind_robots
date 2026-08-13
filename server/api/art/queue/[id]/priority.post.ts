@@ -1,19 +1,23 @@
 // /server/api/art/queue/[id]/priority.post.ts
 //
 // Admin action: change the priority of a pending ArtJob. The relay already
-// claims runnable work by priority DESC, id ASC, so raising a job here moves it
-// ahead of normal-priority work without rewriting timestamps or duplicating it.
+// claims runnable work by priority DESC, id ASC, so setting a job here moves it
+// ahead of — or behind — other work without rewriting timestamps or duplicating
+// it. The accepted range and its rationale live in utils/artJobPriority.ts;
+// notably the floor is negative, because the bulk lanes queue below 0 and a
+// demotion has to be able to reach them.
 import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
 import prisma from '../../../../utils/prisma'
 import { errorHandler } from '../../../../utils/error'
 import { requireMachineUser } from '../../../../utils/authGuard'
+import {
+  describeArtJobPriorityChange,
+  parseArtJobPriority,
+} from '~/utils/artJobPriority'
 
 type PriorityBody = {
   priority?: number | null
 }
-
-const MIN_PRIORITY = 0
-const MAX_PRIORITY = 1000
 
 export default defineEventHandler(async (event) => {
   try {
@@ -32,19 +36,16 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'Invalid job id.' })
     }
 
-    const body = (await readBody(event).catch(() => null)) as PriorityBody | null
-    const priority = Number(body?.priority)
+    const body = (await readBody(event).catch(
+      () => null,
+    )) as PriorityBody | null
+    const parsed = parseArtJobPriority(body?.priority)
 
-    if (
-      !Number.isInteger(priority) ||
-      priority < MIN_PRIORITY ||
-      priority > MAX_PRIORITY
-    ) {
-      throw createError({
-        statusCode: 400,
-        message: `Priority must be an integer from ${MIN_PRIORITY} to ${MAX_PRIORITY}.`,
-      })
+    if (!parsed.ok) {
+      throw createError({ statusCode: 400, message: parsed.message })
     }
+
+    const priority = parsed.priority
 
     const job = await prisma.artJob.findUnique({ where: { id } })
 
@@ -66,10 +67,7 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      message:
-        priority > 0
-          ? `Job ${id} moved ahead with priority ${priority}.`
-          : `Job ${id} returned to normal priority.`,
+      message: describeArtJobPriorityChange(id, priority),
       data: { job: updated },
       statusCode: 200,
     }

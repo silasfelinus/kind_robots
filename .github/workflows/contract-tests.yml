@@ -46,6 +46,9 @@ jobs:
       - name: ArtJob sampler repair contract
         run: npm run test:artjob-sampler-repair
 
+      - name: ArtJob priority bounds contract
+        run: npm run test:artjob-priority-bounds
+
       - name: Comfy-only generation contract
         run: npm run test:comfy-only-generation
 

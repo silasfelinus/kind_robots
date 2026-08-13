@@ -1,23 +1,16 @@
 // /utils/scripts/verifyDeployWaitNoOp.ts
 //
-// Regression test for scripts/check-deploy-noop.mjs -- the check
-// .github/workflows/cypress.yml's "Wait for deploy to go live" step uses
-// alongside scripts/check-deploy-ancestry.sh. scripts/vercel-ignore-build.mjs
-// (Vercel's ignoreCommand) skips building a production deployment when every
-// file a push changed is deploy-inert (cypress/, docs/, *.test.ts, etc — see
-// scripts/lib/deployIgnorePaths.mjs). When that happens, production keeps
-// serving the previous commit forever and the deploy-wait step's other two
-// checks (exact match, "live supersedes target") both wait for a deployment
-// Vercel already decided not to build, timing out (see kind-robots
-// roadmap.yaml for the incident this fixed -- a test-only fix PR's Cypress
-// re-run couldn't go green because production never redeployed it).
+// Regression test for scripts/check-deploy-noop.mjs, the check
+// .github/workflows/cypress.yml uses alongside scripts/check-deploy-ancestry.sh
+// while waiting for a production image. A target whose changes are entirely
+// deploy-inert may never need its own image, so the wait must accept that case
+// instead of timing out.
 //
-// This exercises the exact same script -- not a reimplementation -- against
-// the accept path (live precedes target, only deploy-inert files changed),
-// two reject paths (a real app file changed; live is a non-ancestor sibling
-// commit even though its diff would otherwise qualify), and the
-// unknown-commit edge case, entirely in a hermetic temp git repo with no
-// network calls.
+// This exercises the exact same script, not a reimplementation, against the
+// accept path (live precedes target, only deploy-inert files changed), two
+// reject paths (a real app file changed; live is a non-ancestor sibling commit
+// even though its diff would otherwise qualify), and the unknown-commit edge
+// case, entirely in a hermetic temp git repo with no network calls.
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
@@ -66,10 +59,7 @@ try {
 
   const liveSha = writeAndCommit(repo, 'server/api/seed.ts', 'export const seed = true\n', 'seed commit (this is "live")')
 
-  // Accept path: every file changed since "live" is deploy-inert (a Cypress
-  // spec and a docs file), matching scripts/lib/deployIgnorePaths.mjs's
-  // predicate -- Vercel's ignoreCommand would skip this build, so the live
-  // deployment already reflects TARGET_SHA.
+  // Accept path: every file changed since "live" is deploy-inert.
   writeAndCommit(repo, 'cypress/e2e/api/example.cy.ts', 'describe("noop", () => {})\n', 'test-only change')
   const inertTargetSha = writeAndCommit(repo, 'docs/notes.md', '# notes\n', 'docs-only change')
   assert.equal(
@@ -78,8 +68,7 @@ try {
     `expected TARGET_SHA ${inertTargetSha} to be ACCEPTED: every file changed since live ${liveSha} is deploy-inert`,
   )
 
-  // Reject path: a real app file changed alongside the inert ones -- Vercel
-  // would build this commit, so it is not yet "live" until it actually is.
+  // Reject path: a real app file changed alongside the inert ones.
   const deployableTargetSha = writeAndCommit(repo, 'server/api/foo.ts', 'export const foo = 1\n', 'real app change')
   assert.equal(
     checkNoOp(repo, liveSha, deployableTargetSha),
@@ -87,10 +76,7 @@ try {
     `expected TARGET_SHA ${deployableTargetSha} to be REJECTED: server/api/foo.ts is a deployable change`,
   )
 
-  // Reject path: "live" is a sibling-branch commit that never precedes
-  // target, even though every file it would diff against target is
-  // deploy-inert-shaped. Ancestry must be checked first, not inferred from
-  // the diff alone.
+  // Reject path: "live" is a sibling-branch commit that never precedes target.
   git(repo, 'checkout', '--quiet', '-b', 'sibling-branch', liveSha)
   const siblingLiveSha = writeAndCommit(
     repo,
@@ -104,8 +90,7 @@ try {
     `expected TARGET_SHA ${inertTargetSha} to be REJECTED against sibling-branch commit ${siblingLiveSha} (no ancestor relationship)`,
   )
 
-  // Unknown-commit edge case: "live" isn't a commit this checkout has ever
-  // seen. Must reject rather than throw an uncaught error.
+  // Unknown-commit edge case: "live" isn't a commit this checkout has seen.
   const unknownSha = '0'.repeat(40)
   assert.equal(
     checkNoOp(repo, unknownSha, inertTargetSha),

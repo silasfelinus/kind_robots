@@ -185,7 +185,7 @@ const failed = results.filter((r) => !r.ok)
 console.log(
   failed.length === 0
     ? '\nAll cells passed. If production still fails, the difference is the ' +
-        'network path (Vercel→ProxySQL TLS) — rerun with the TLS options from ' +
+        'network path (retired serverless host→ProxySQL TLS) — rerun with the TLS options from ' +
         'server/utils/prisma.ts.'
     : `\n${failed.length} cell(s) failed. If the direct-to-MariaDB run also fails, ` +
         'this is a pure driver/adapter bug (check prisma/prisma and ' +

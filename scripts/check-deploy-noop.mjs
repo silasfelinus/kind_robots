@@ -4,24 +4,20 @@
 // Shared by .github/workflows/cypress.yml's "Wait for deploy to go live"
 // step and utils/scripts/verifyDeployWaitNoOp.ts's regression test.
 //
-// scripts/vercel-ignore-build.mjs (Vercel's ignoreCommand) intentionally
-// skips a production deployment when a push's changes are all within paths
-// that never affect the running app (cypress/, docs/, *.test.ts, etc — see
-// scripts/lib/deployIgnorePaths.mjs). When that happens, production keeps
-// serving whatever commit was already live and will NEVER serve TARGET_SHA
-// as its own deployment — the deploy-wait step's exact-match and
-// superseding-commit checks (scripts/check-deploy-ancestry.sh) both wait for
-// a deployment that Vercel already decided not to build, and time out.
+// Production may legitimately keep serving an older image when every change
+// since it is deploy-inert (cypress/, docs/, *.test.ts, etc; see
+// scripts/lib/deployIgnorePaths.mjs). In that case waiting for TARGET_SHA to
+// appear as its own production image would time out even though the running
+// application is unaffected.
 //
 // This script recognizes that case: exits 0 (accept) when <live_sha> is an
 // ancestor of <target_sha> AND every file that changed between them is a
-// deploy-inert path per the exact same predicate Vercel's ignoreCommand
-// uses. Exits 1 (reject) otherwise, including when <live_sha> isn't known to
-// this checkout or isn't an ancestor of <target_sha>.
+// deploy-inert path. Exits 1 (reject) otherwise, including when <live_sha>
+// isn't known to this checkout or isn't an ancestor of <target_sha>.
 //
 // Callers are responsible for fetching/deepening the checkout first so
-// <live_sha> is resolvable when it should be — this script does no network
-// I/O, which is what keeps it hermetic and fast to test.
+// <live_sha> is resolvable when it should be. This script does no network I/O,
+// which keeps it hermetic and fast to test.
 import { spawnSync } from 'node:child_process'
 import { isIgnoredPath } from './lib/deployIgnorePaths.mjs'
 
@@ -70,7 +66,7 @@ if (deployableFiles.length > 0) {
 
 console.log(
   `[deploy-noop] Accepted: every file changed between ${liveSha} and ${targetSha} ` +
-    `(${changedFiles.length} total) is deploy-inert -- Vercel's ignoreCommand will never ` +
-    'build this commit on its own, so the live deployment already reflects it.',
+    `(${changedFiles.length} total) is deploy-inert, so the live application already ` +
+    'reflects the relevant runtime state.',
 )
 process.exit(0)

@@ -4,12 +4,13 @@
 //
 // The known-failed-migration repair (scripts/repair-known-prisma-migrations.mjs)
 // runs a short sequence of idempotent, existence-guarded statements against
-// ProxySQL during `npm run vercel-build`. ProxySQL can drop a backend/frontend
-// connection mid-sequence (observed as MariaDB SQLState 08S01 / errno 45009,
-// "socket has unexpectedly been closed"), or temporarily refuse a new session
-// when the shared application user reaches max_user_connections. Both fail the
-// whole production deploy even though nothing is logically wrong. Because every
-// repair step is idempotent, reconnecting and re-running the repair is safe.
+// ProxySQL during the explicit production migration lane. ProxySQL can drop a
+// backend/frontend connection mid-sequence (observed as MariaDB SQLState 08S01 /
+// errno 45009, "socket has unexpectedly been closed"), or temporarily refuse a
+// new session when the shared application user reaches max_user_connections.
+// Both fail the migration run even though nothing is logically wrong. Because
+// every repair step is idempotent, reconnecting and re-running the repair is
+// safe.
 
 /**
  * Classifies whether an error is a transient *connection* failure that is safe

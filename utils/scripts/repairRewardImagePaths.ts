@@ -4,7 +4,7 @@
 // HTML app shell instead of art.
 //
 // WHAT IS WRONG. Every stored Reward.imagePath begins `/rewards/...`. The real
-// files live one level down, under `/images/rewards/...`, which Vercel 307s to
+// files live one level down, under `/images/rewards/...`, which the retired host redirected to
 // the media host. Measured against production on 2026-08-04:
 //
 //     227  rewards with an imagePath

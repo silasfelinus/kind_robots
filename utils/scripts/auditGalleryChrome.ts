@@ -24,7 +24,7 @@
 // top of the scroll container to the top of the first card. That number is the
 // budget, and it is the only one that answers the question actually asked.
 //
-//   npx tsx utils/scripts/auditGalleryChrome.ts --base https://<preview>.vercel.app
+//   npx tsx utils/scripts/auditGalleryChrome.ts --base https://<preview-host>
 //   npx tsx utils/scripts/auditGalleryChrome.ts --base http://localhost:3000 --strict
 //
 // `--strict` exits 1 when a route exceeds MAX_CHROME_FRACTION of the viewport

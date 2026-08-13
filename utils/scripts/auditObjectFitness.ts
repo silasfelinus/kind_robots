@@ -35,6 +35,8 @@ function arg(name: string, fallback = ''): string {
   return hit ? hit.slice(name.length + 3) : fallback
 }
 
+const flag = (name: string) => process.argv.includes(`--${name}`)
+
 const baseUrl = arg('base', 'https://kindrobots.org').replace(/\/+$/, '')
 const jsonOut = arg('json', 'artifacts/fitness-audit.json')
 /** A Scenario with fewer than this many Characters reads as unpopulated. */
@@ -119,6 +121,15 @@ function duplicateCandidates(inventory: LoadedInventory) {
 
   return { exact, containment }
 }
+
+const named = (row: { id: number; name: string }) => ({
+  id: row.id,
+  name: row.name,
+})
+const titled = (row: { id: number; title: string }) => ({
+  id: row.id,
+  title: row.title,
+})
 
 async function main() {
   const inventory = await loadFitnessInventory(baseUrl)
@@ -216,19 +227,32 @@ async function main() {
       genreFacets: genreFacets.length,
       characterFacetLinks: inventory.characterFacets.length,
     },
+    // Gap lists name the objects and nothing else. Embedding the whole record
+    // made the artifact 385KB of mostly-repeated inventory, which buries the one
+    // thing the file is for: the list of names somebody has to go and fix.
     gaps: {
-      charactersWithoutDream: characters.filter((c) => !c.dreamIds.length),
-      charactersWithoutScenario: characters.filter((c) => !c.scenarioIds.length),
-      charactersWithoutAnyGenre: characters.filter(
-        (c) => !c.genreResolved.length && !c.genreFacetLinks.length,
-      ),
-      scenariosWithoutDream: scenarios.filter((s) => !s.dreamIds.length),
-      scenariosWithThinCast: scenarios.filter(
-        (s) => s.characterIds.length < THIN_CAST,
-      ),
-      scenariosWithoutFacet: scenarios.filter((s) => !s.facetIds.length),
-      dreamsWithoutCast: dreams.filter((d) => !d.characterIds.length),
-      dreamsWithoutScenario: dreams.filter((d) => !d.scenarioIds.length),
+      charactersWithoutDream: characters
+        .filter((c) => !c.dreamIds.length)
+        .map(named),
+      charactersWithoutScenario: characters
+        .filter((c) => !c.scenarioIds.length)
+        .map(named),
+      charactersWithoutAnyGenre: characters
+        .filter((c) => !c.genreResolved.length && !c.genreFacetLinks.length)
+        .map((c) => ({ id: c.id, name: c.name, genreText: c.genreText })),
+      scenariosWithoutDream: scenarios
+        .filter((s) => !s.dreamIds.length)
+        .map(titled),
+      scenariosWithThinCast: scenarios
+        .filter((s) => s.characterIds.length < THIN_CAST)
+        .map(titled),
+      scenariosWithoutFacet: scenarios
+        .filter((s) => !s.facetIds.length)
+        .map(titled),
+      dreamsWithoutCast: dreams.filter((d) => !d.characterIds.length).map(titled),
+      dreamsWithoutScenario: dreams
+        .filter((d) => !d.scenarioIds.length)
+        .map(titled),
     },
     facetHealth: {
       orphanGenres,
@@ -237,7 +261,17 @@ async function main() {
       ),
       duplicates,
     },
-    inventory: { characters, dreams, scenarios },
+  }
+
+  // The full per-object inventory is 27k lines of data that is one command away
+  // from being regenerated, so it is opt-in rather than committed by default.
+  // The gap lists above are the finding; the inventory is just the working set.
+  if (flag('with-inventory')) {
+    ;(report as Record<string, unknown>).inventory = {
+      characters,
+      dreams,
+      scenarios,
+    }
   }
 
   if (jsonOut) {

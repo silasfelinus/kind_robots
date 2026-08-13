@@ -27,6 +27,8 @@
     "test:comment-quality": "tsx utils/scripts/verifyCommentDraftQuality.ts",
     "test:population-quality": "tsx utils/scripts/verifyPopulationDraftQuality.ts",
     "test:population-casting": "tsx utils/scripts/verifyPopulationCasting.ts",
+    "test:connections": "tsx utils/scripts/verifyConnectionAssignments.ts",
+    "audit:fitness": "tsx utils/scripts/auditObjectFitness.ts",
     "test:migrate-on-deploy": "tsx utils/scripts/verifyMigrateOnDeploy.ts",
     "test:facet-aliases": "tsx utils/scripts/verifyFacetAliases.ts",
     "test:facet-catalog": "prisma validate && tsx utils/scripts/verifyFacetCatalogCutover.ts && tsx utils/scripts/verifyFacetCanonicalMerges.ts && tsx utils/scripts/verifyDailyDreamFacets.ts",

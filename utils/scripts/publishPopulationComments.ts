@@ -167,9 +167,39 @@ const SELECT_COMMON = {
   allowReviews: true,
 } as const
 
+/**
+ * Run thunks one at a time, returning results in order.
+ *
+ * Tuple-typed on purpose: a plain `Array<() => Promise<T>>` collapses five
+ * differently-shaped queries into one union and every destructured name comes
+ * back wrong.
+ */
+async function serial<T extends readonly (() => Promise<unknown>)[]>(
+  thunks: [...T],
+): Promise<{ [K in keyof T]: Awaited<ReturnType<T[K]>> }> {
+  const out: unknown[] = []
+  for (const thunk of thunks) out.push(await thunk())
+  return out as { [K in keyof T]: Awaited<ReturnType<T[K]>> }
+}
+
+// EVERY DATABASE READ IN THIS FILE IS SERIALIZED, DELIBERATELY.
+//
+// Four lanes hung indefinitely on their first query from a CI runner while
+// production itself stayed healthy, and a database + ProxySQL reboot did not
+// clear it. The one job that has always worked against this database is
+// `run_facet_catalog_maintenance`, whose own step is named "Run serialized
+// Facet catalog maintenance" -- it opens one connection and keeps it.
+//
+// The hanging lanes all opened their reads with Promise.all: this one fanned
+// out to roughly nine concurrent queries before doing anything. If the CI
+// user's connection allowance is small, a parallel fan-out does not fail, it
+// waits -- forever, with no error to report.
+//
+// So: one query at a time. It costs a few seconds when healthy, which is
+// nothing against a lane that cannot run at all.
 async function loadEligibleTargets() {
-  const [bots, characters, dreams, scenarios, projects] = await Promise.all([
-    prisma.bot.findMany({
+  const [bots, characters, dreams, scenarios, projects] = await serial([
+    () => prisma.bot.findMany({
       select: {
         ...SELECT_COMMON,
         name: true,
@@ -180,7 +210,7 @@ async function loadEligibleTargets() {
         subtitle: true,
       },
     }),
-    prisma.character.findMany({
+    () => prisma.character.findMany({
       select: {
         ...SELECT_COMMON,
         name: true,
@@ -191,7 +221,7 @@ async function loadEligibleTargets() {
         role: true,
       },
     }),
-    prisma.dream.findMany({
+    () => prisma.dream.findMany({
       select: {
         ...SELECT_COMMON,
         isActive: true,
@@ -201,7 +231,7 @@ async function loadEligibleTargets() {
         flavorText: true,
       },
     }),
-    prisma.scenario.findMany({
+    () => prisma.scenario.findMany({
       select: {
         ...SELECT_COMMON,
         isActive: true,
@@ -211,7 +241,7 @@ async function loadEligibleTargets() {
         genres: true,
       },
     }),
-    prisma.project.findMany({
+    () => prisma.project.findMany({
       select: {
         ...SELECT_COMMON,
         isActive: true,
@@ -271,11 +301,12 @@ async function loadExistingTargets(): Promise<Set<string>> {
 }
 
 async function loadAuthorDirectory() {
-  const [bots, characters] = await Promise.all([
-    prisma.bot.findMany({ select: { id: true, name: true, sampleResponse: true } }),
-    prisma.character.findMany({
-      select: { id: true, name: true, sampleResponse: true },
-    }),
+  const [bots, characters] = await serial([
+    () => prisma.bot.findMany({ select: { id: true, name: true, sampleResponse: true } }),
+    () =>
+      prisma.character.findMany({
+        select: { id: true, name: true, sampleResponse: true },
+      }),
   ])
   const map = new Map<string, { name: string; sampleResponse: string | null }>()
   for (const bot of bots) {
@@ -337,14 +368,15 @@ function validateFreshness(
 
 async function main() {
   const { items: payload, eligibleDeclared } = loadPayload()
-  const [eligibleTargets, authors, existing, publisher] = await Promise.all([
-    loadEligibleTargets(),
-    loadAuthorDirectory(),
-    loadExistingTargets(),
-    prisma.user.findUnique({
-      where: { id: PUBLISHER_USER_ID },
-      select: { id: true, username: true },
-    }),
+  const [eligibleTargets, authors, existing, publisher] = await serial([
+    () => loadEligibleTargets(),
+    () => loadAuthorDirectory(),
+    () => loadExistingTargets(),
+    () =>
+      prisma.user.findUnique({
+        where: { id: PUBLISHER_USER_ID },
+        select: { id: true, username: true },
+      }),
   ])
 
   if (!publisher) {

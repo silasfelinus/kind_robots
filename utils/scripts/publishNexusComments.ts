@@ -33,6 +33,28 @@ import {
   type PopulationTargetType,
 } from '@/utils/comments/populationTargets'
 
+/**
+ * Run thunks one at a time, returning results in order.
+ *
+ * Serialized deliberately: four lanes hung indefinitely on their first query
+ * from a CI runner while production stayed healthy, and a database + ProxySQL
+ * reboot did not clear it. The one job that has always worked against this
+ * database is run_facet_catalog_maintenance, whose own step is named "Run
+ * serialized Facet catalog maintenance". Every hanging lane opened its reads
+ * with Promise.all. If the CI user's connection allowance is small, a parallel
+ * fan-out does not fail -- it waits, forever, with nothing to report.
+ *
+ * Tuple-typed because a plain array collapses differently-shaped queries into
+ * one union and every destructured name comes back wrong.
+ */
+async function serial<T extends readonly (() => Promise<unknown>)[]>(
+  thunks: [...T],
+): Promise<{ [K in keyof T]: Awaited<ReturnType<T[K]>> }> {
+  const out: unknown[] = []
+  for (const thunk of thunks) out.push(await thunk())
+  return out as { [K in keyof T]: Awaited<ReturnType<T[K]>> }
+}
+
 const DRY_RUN = process.argv.includes('--dry-run')
 const PUBLISHER_USER_ID = 1
 const EXPECTED_RELEASE_GATE = 'GPT-5.6 Sol'
@@ -116,12 +138,12 @@ async function loadTargets(items: readonly NexusItem[]) {
   const keep = (type: PopulationTargetType) =>
     new Set(idsByType.get(type) || [])
   const [allBots, allCharacters, allDreams, allScenarios, allProjects] =
-    await Promise.all([
-      prisma.bot.findMany({ select: { ...common, name: true } }),
-      prisma.character.findMany({ select: { ...common, name: true, isActive: true } }),
-      prisma.dream.findMany({ select: { ...common, title: true, isActive: true } }),
-      prisma.scenario.findMany({ select: { ...common, title: true, isActive: true } }),
-      prisma.project.findMany({ select: { ...common, title: true } }),
+    await serial([
+      () => prisma.bot.findMany({ select: { ...common, name: true } }),
+      () => prisma.character.findMany({ select: { ...common, name: true, isActive: true } }),
+      () => prisma.dream.findMany({ select: { ...common, title: true, isActive: true } }),
+      () => prisma.scenario.findMany({ select: { ...common, title: true, isActive: true } }),
+      () => prisma.project.findMany({ select: { ...common, title: true } }),
     ])
   const botKeep = keep('BOT')
   const characterKeep = keep('CHARACTER')
@@ -151,9 +173,13 @@ async function loadTargets(items: readonly NexusItem[]) {
 
 async function main() {
   const items = loadItems()
-  const [targets, publisher] = await Promise.all([
-    loadTargets(items),
-    prisma.user.findUnique({ where: { id: PUBLISHER_USER_ID }, select: { id: true, username: true } }),
+  const [targets, publisher] = await serial([
+    () => loadTargets(items),
+    () =>
+      prisma.user.findUnique({
+        where: { id: PUBLISHER_USER_ID },
+        select: { id: true, username: true },
+      }),
   ])
   if (!publisher) throw new Error(`Publisher user #${PUBLISHER_USER_ID} does not exist.`)
 
@@ -163,9 +189,9 @@ async function main() {
   const characterIds = [...new Set(items.flatMap((i) => i.speakers.filter((s) => s.kind === 'CHARACTER').map((s) => s.id)))]
   const botIdSet = new Set(botIds)
   const characterIdSet = new Set(characterIds)
-  const [everyBot, everyCharacter] = await Promise.all([
-    prisma.bot.findMany({ select: { id: true, name: true } }),
-    prisma.character.findMany({ select: { id: true, name: true } }),
+  const [everyBot, everyCharacter] = await serial([
+    () => prisma.bot.findMany({ select: { id: true, name: true } }),
+    () => prisma.character.findMany({ select: { id: true, name: true } }),
   ])
   const speakerBots = everyBot.filter((row) => botIdSet.has(row.id))
   const speakerCharacters = everyCharacter.filter((row) =>

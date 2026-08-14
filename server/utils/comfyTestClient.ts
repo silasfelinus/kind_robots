@@ -13,6 +13,7 @@
 import { createError } from 'h3'
 import type { Server } from '~/prisma/generated/prisma/client'
 import { getServerEndpoint } from './serverResolver'
+import { fluxDualClipLoaderNode } from './fluxTextEncoders'
 
 export type ComfyWorkflow = Record<string, ComfyWorkflowNode>
 
@@ -234,19 +235,11 @@ function buildSchnellSmokeWorkflow(input: {
 }): ComfyWorkflow {
   const samplerSeed = resolveSeed(input.seed)
   const wildcardSeed = resolveSeed(-1)
-  const prompt = input.prompt.trim() || 'a friendly test robot, clean concept art'
+  const prompt =
+    input.prompt.trim() || 'a friendly test robot, clean concept art'
 
   return {
-    '4': {
-      inputs: {
-        clip_name1: 't5xxl_fp8_e4m3fn_scaled.safetensors',
-        clip_name2: 'clip_l.safetensors',
-        type: 'flux',
-        device: 'default',
-      },
-      class_type: 'DualCLIPLoader',
-      _meta: { title: 'DualCLIPLoader' },
-    },
+    '4': fluxDualClipLoaderNode(),
     '6': {
       inputs: { width: input.width, height: input.height, batch_size: 1 },
       class_type: 'EmptyLatentImage',

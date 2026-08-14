@@ -4,6 +4,7 @@ import { errorHandler } from '../../utils/error'
 import { getServerEndpoint, resolveServer } from '../../utils/serverResolver'
 import type { Server } from '~/prisma/generated/prisma/client'
 import { authAndGate } from '../../utils/comfyGate'
+import { fluxDualClipLoaderNode } from '../../utils/fluxTextEncoders'
 
 type CharacterSheetRequest = {
   serverId?: number | null
@@ -273,18 +274,7 @@ function buildCharacterSheetWorkflow(input: {
   const negativePrompt = input.negativePrompt.trim()
 
   return {
-    '4': {
-      inputs: {
-        clip_name1: 't5xxl_fp8_e4m3fn_scaled.safetensors',
-        clip_name2: 'clip_l.safetensors',
-        type: 'flux',
-        device: 'default',
-      },
-      class_type: 'DualCLIPLoader',
-      _meta: {
-        title: 'DualCLIPLoader',
-      },
-    },
+    '4': fluxDualClipLoaderNode(),
     '6': {
       inputs: {
         width: input.width,

@@ -4,6 +4,7 @@ import type { Server } from '~/prisma/generated/prisma/client'
 import { errorHandler } from '../../../utils/error'
 import { getServerEndpoint, resolveServer } from '../../../utils/serverResolver'
 import { authAndGate } from '../../../utils/comfyGate'
+import { fluxDualClipLoaderNode } from '../../../utils/fluxTextEncoders'
 
 type KombineGenerateRequest = {
   serverId?: number | null
@@ -372,17 +373,7 @@ function buildKombineWorkflow(input: {
         title: 'ReferenceLatent',
       },
     },
-    '196': {
-      inputs: {
-        clip_name1: 't5xxl_fp8_e4m3fn_scaled.safetensors',
-        clip_name2: 'clip_l.safetensors',
-        type: 'flux',
-      },
-      class_type: 'DualCLIPLoaderGGUF',
-      _meta: {
-        title: 'DualCLIPLoader (GGUF)',
-      },
-    },
+    '196': fluxDualClipLoaderNode(),
     '197': {
       inputs: {
         unet_name: 'flux1-kontext-dev-Q5_K_M.gguf',

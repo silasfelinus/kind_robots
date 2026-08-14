@@ -12,6 +12,11 @@
 // default. The two graphs are structurally different, and the differences are
 // exactly what a careless edit would flatten, so they are pinned here.
 import assert from 'node:assert/strict'
+import type {
+  ComfyWorkflow,
+  ComfyWorkflowNode,
+  WanImageToVideoInput,
+} from '../../server/api/comfy/wan/utils/imageToVideoWorkflow'
 import {
   buildWanImageToVideoWorkflow,
   resolveWanMode,
@@ -20,7 +25,7 @@ import {
   WAN_VAE,
 } from '../../server/api/comfy/wan/utils/imageToVideoWorkflow'
 
-const base = {
+const base: WanImageToVideoInput = {
   prompt: 'a cat',
   negativePrompt: 'blurry',
   firstImageName: 'a.png',
@@ -28,10 +33,26 @@ const base = {
   height: 480,
   duration: 5,
   frameRate: 16,
-} as Parameters<typeof buildWanImageToVideoWorkflow>[0]
+}
 
-const node = (wf: Record<string, any>, cls: string) =>
-  Object.values(wf).find((n: any) => n?.class_type === cls) as any
+function nodesOfClass(wf: ComfyWorkflow, cls: string): ComfyWorkflowNode[] {
+  return Object.values(wf).filter((n) => n?.class_type === cls)
+}
+
+function maybeNode(
+  wf: ComfyWorkflow,
+  cls: string,
+): ComfyWorkflowNode | undefined {
+  return nodesOfClass(wf, cls)[0]
+}
+
+/** The node of this class, asserted present so callers can read `.inputs`. */
+function node(wf: ComfyWorkflow, cls: string): Required<ComfyWorkflowNode> {
+  const found = maybeNode(wf, cls)
+  assert.ok(found, `expected a ${cls} node`)
+  assert.ok(found.inputs, `${cls} must carry inputs`)
+  return found as Required<ComfyWorkflowNode>
+}
 
 // --- mode selection ---------------------------------------------------------
 
@@ -56,7 +77,7 @@ assert.equal(
 
 // --- TI2V graph -------------------------------------------------------------
 
-const ti2v = buildWanImageToVideoWorkflow(base) as Record<string, any>
+const ti2v = buildWanImageToVideoWorkflow(base)
 
 assert.equal(node(ti2v, 'UNETLoader').inputs.unet_name, WAN_TI2V_UNET)
 assert.equal(
@@ -64,16 +85,18 @@ assert.equal(
   WAN_TI2V_VAE,
   'the 5B TI2V model is trained against the 2.2 VAE, not the 2.1 VAE',
 )
-assert.ok(node(ti2v, 'Wan22ImageToVideoLatent'), 'TI2V uses the latent node')
-assert.equal(node(ti2v, 'WanImageToVideo'), undefined)
+assert.ok(
+  maybeNode(ti2v, 'Wan22ImageToVideoLatent'),
+  'TI2V uses the latent node',
+)
+assert.equal(maybeNode(ti2v, 'WanImageToVideo'), undefined)
 assert.equal(
-  node(ti2v, 'KSamplerAdvanced'),
+  maybeNode(ti2v, 'KSamplerAdvanced'),
   undefined,
   'no expert handover, so no two-stage sampler',
 )
 
 const sampler = node(ti2v, 'KSampler')
-assert.ok(sampler, 'TI2V samples in one pass')
 // The load-bearing wiring difference. WanImageToVideo returns
 // (positive, negative, latent) and the A14B graph routes conditioning THROUGH
 // it. Wan22ImageToVideoLatent returns a LATENT only -- confirmed against the
@@ -97,35 +120,26 @@ for (const key of ['vae', 'width', 'height', 'length', 'batch_size']) {
 const ti2vLora = buildWanImageToVideoWorkflow({
   ...base,
   loraName: 'x.safetensors',
-}) as Record<string, any>
-const loraNodes = Object.values(ti2vLora).filter(
-  (n: any) => n?.class_type === 'LoraLoaderModelOnly',
-)
+})
+const loraNodes = nodesOfClass(ti2vLora, 'LoraLoaderModelOnly')
 assert.equal(loraNodes.length, 1, 'TI2V has a single model to patch')
 assert.deepEqual(node(ti2vLora, 'KSampler').inputs.model, ['lora', 0])
 
 // --- A14B graph is untouched ------------------------------------------------
 
-const a14b = buildWanImageToVideoWorkflow({
-  ...base,
-  mode: 'a14b',
-}) as Record<string, any>
+const a14b = buildWanImageToVideoWorkflow({ ...base, mode: 'a14b' })
 
-const unets = Object.values(a14b).filter(
-  (n: any) => n?.class_type === 'UNETLoader',
-)
+const unets = nodesOfClass(a14b, 'UNETLoader')
 assert.equal(unets.length, 2, 'the quality mode keeps both experts')
 assert.equal(node(a14b, 'VAELoader').inputs.vae_name, WAN_VAE)
-assert.ok(node(a14b, 'WanImageToVideo'))
-const advanced = Object.values(a14b).filter(
-  (n: any) => n?.class_type === 'KSamplerAdvanced',
-)
+assert.ok(maybeNode(a14b, 'WanImageToVideo'))
+const advanced = nodesOfClass(a14b, 'KSamplerAdvanced')
 assert.equal(advanced.length, 2, 'high-noise then low-noise')
 
 const a14bLast = buildWanImageToVideoWorkflow({
   ...base,
   lastImageName: 'z.png',
-}) as Record<string, any>
+})
 assert.deepEqual(node(a14bLast, 'WanImageToVideo').inputs.end_image, [
   'img_last',
   0,

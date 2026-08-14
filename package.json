@@ -247,7 +247,8 @@
     "test:no-shadowed-content-routes": "tsx utils/scripts/verifyNoShadowedContentRoutes.ts",
     "flag:mature-resources": "tsx utils/scripts/flagMatureResources.ts",
     "test:mature-terms": "tsx utils/scripts/flagMatureResources.ts --self-test",
-    "test:artjob-priority-bounds": "tsx utils/scripts/verifyArtJobPriorityBounds.ts"
+    "test:artjob-priority-bounds": "tsx utils/scripts/verifyArtJobPriorityBounds.ts",
+    "test:wan-i2v-modes": "tsx utils/scripts/verifyWanI2vModes.ts"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.1.0",

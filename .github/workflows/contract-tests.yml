@@ -52,6 +52,9 @@ jobs:
       - name: Comfy-only generation contract
         run: npm run test:comfy-only-generation
 
+      - name: WAN image-to-video mode contract
+        run: npm run test:wan-i2v-modes
+
       - name: Channel content contract
         run: npm run test:channel-content
 

@@ -86,10 +86,11 @@ export function patchComfyWorkflow(
   // would overwrite the random seed the builder just picked and quietly pin the
   // route to one image per Comfy install.
   const seed = resolveSdxlSeed(input.seed)
-  const steps = input.steps ?? 20
-  const cfg = input.cfgValue || 3
-  const sampler = normalizeComfySampler(input.sampler)
   const checkpoint = input.checkpoint || ''
+  const profile = sdxlSamplerProfile(checkpoint)
+  const steps = input.steps ?? profile.steps
+  const cfg = input.cfgValue || profile.cfg
+  const sampler = normalizeComfySampler(input.sampler)
 
   for (const node of Object.values(workflow)) {
     if (!node?.inputs) continue
@@ -161,6 +162,69 @@ export type SdxlImg2ImgInput = {
   filenamePrefix?: string | null
 }
 
+// The checkpoint used when a caller names none. This was
+// 'v1-5-pruned-emaonly.safetensors' -- SD 1.5, in the SDXL builder. Not a VRAM
+// problem: a caller that omitted the checkpoint silently rendered at 1.5
+// quality through an SDXL graph, and nothing failed loudly enough to notice.
+//
+// dreamshaper XL is this system's own designated SDXL: the first entry in
+// stores/seeds/validCheckpoints.ts, the example in components/model/add-model.vue,
+// and confirmed present in the live Resource catalog (SDXL, isMature false).
+//
+// Note it is a Turbo/DPM++SDE model, trained for roughly 4-8 steps, while this
+// builder's KSampler defaults to `steps ?? 20` at cfg 3. That pairing is
+// tolerable but not ideal; the step default is deliberately left alone here
+// because it applies to explicitly-chosen checkpoints too, and narrowing it
+// would change behaviour for callers who are not using this fallback.
+export const DEFAULT_SDXL_CHECKPOINT =
+  'SDXL/dreamshaperXL_v21TurboDPMSDE.safetensors'
+
+// Turbo / Lightning / Hyper / LCM checkpoints are distilled to converge in a
+// handful of steps at very low guidance. Running one at 20 steps and cfg 3
+// wastes most of the compute and overcooks the result; running a standard SDXL
+// checkpoint at 8 steps leaves it undercooked. The right defaults are a
+// property of the checkpoint, not a global.
+//
+// This was already half-known here: buildSdxlImg2ImgWorkflow hardcoded 8 steps
+// / cfg 2 / dpmpp_sde / karras -- the exact dreamshaper Turbo DPM++SDE profile
+// -- while the txt2img paths used 20 / 3. So img2img was right for turbo and
+// wrong for everything else, and txt2img the reverse.
+//
+// Detection is by filename because that is how these variants are published and
+// how they arrive in the Resource catalog (dreamshaperXL_v21TurboDPMSDE,
+// RealitiesEdgeXLLIGHTNING_TURBOV7). An explicit caller value always wins --
+// these set the default only.
+const DISTILLED_CHECKPOINT_PATTERN = /(turbo|lightning|lcm|hyper)/i
+
+export type SdxlSamplerProfile = {
+  steps: number
+  cfg: number
+  sampler: string
+  scheduler: string
+}
+
+export const SDXL_DISTILLED_PROFILE: SdxlSamplerProfile = {
+  steps: 8,
+  cfg: 2,
+  sampler: 'dpmpp_sde',
+  scheduler: 'karras',
+}
+
+export const SDXL_STANDARD_PROFILE: SdxlSamplerProfile = {
+  steps: 20,
+  cfg: 3,
+  sampler: 'euler',
+  scheduler: 'normal',
+}
+
+export function sdxlSamplerProfile(
+  checkpoint?: string | null,
+): SdxlSamplerProfile {
+  return DISTILLED_CHECKPOINT_PATTERN.test(String(checkpoint || ''))
+    ? SDXL_DISTILLED_PROFILE
+    : SDXL_STANDARD_PROFILE
+}
+
 export const DEFAULT_SDXL_IMG2IMG_ORIGINAL_WEIGHT = 0.35
 const MIN_SDXL_IMG2IMG_DENOISE = 0.15
 
@@ -174,6 +238,11 @@ export function buildSdxlImg2ImgWorkflow(input: SdxlImg2ImgInput): {
   denoise: number
 } {
   const seed = resolveSdxlSeed(input.seed)
+  // Deliberately NOT profiled by checkpoint, unlike the txt2img paths. This
+  // runs at reduced denoise, so the KSampler executes steps x denoise -- the
+  // low nominal count is a property of the operation, not of a distilled
+  // checkpoint, and these exact numbers are pinned by
+  // utils/scripts/verifyComfyOnlyGeneration.ts as this builder's contract.
   const steps = input.steps ?? 8
   const cfg = input.cfgValue || 2
   const sampler = input.sampler
@@ -314,6 +383,11 @@ export function buildDefaultComfyWorkflow({
   // install: re-running a job returned the same image, and "generate another
   // preview" was a no-op you could not see was a no-op.
   const resolvedSeed = resolveSdxlSeed(seed)
+  // Resolve the checkpoint BEFORE profiling it: the fallback is a Turbo model,
+  // so a caller who names no checkpoint must also get turbo sampler defaults.
+  // Profiling `checkpoint` directly would have left the fallback at 20 steps.
+  const resolvedCheckpoint = checkpoint || DEFAULT_SDXL_CHECKPOINT
+  const profile = sdxlSamplerProfile(resolvedCheckpoint)
   const style = (loraName || '').trim()
   const strength =
     typeof loraStrength === 'number' && Number.isFinite(loraStrength)
@@ -328,7 +402,7 @@ export function buildDefaultComfyWorkflow({
     '1': {
       class_type: 'CheckpointLoaderSimple',
       inputs: {
-        ckpt_name: checkpoint || 'v1-5-pruned-emaonly.safetensors',
+        ckpt_name: resolvedCheckpoint,
       },
     },
     '2': {
@@ -363,10 +437,12 @@ export function buildDefaultComfyWorkflow({
       class_type: 'KSampler',
       inputs: {
         seed: resolvedSeed,
-        steps: steps ?? 20,
-        cfg: cfgValue || 3,
-        sampler_name: normalizeComfySampler(sampler),
-        scheduler: 'normal',
+        steps: steps ?? profile.steps,
+        cfg: cfgValue || profile.cfg,
+        sampler_name: sampler
+          ? normalizeComfySampler(sampler)
+          : profile.sampler,
+        scheduler: profile.scheduler,
         denoise: 1,
         model: modelSource,
         positive: ['2', 0],

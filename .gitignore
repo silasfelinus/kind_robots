@@ -35,3 +35,6 @@ kindblank_*.sql
 /public/wonderlab-components.json
 /utils/generated/wonderLabSourceEvidence.ts
 /config/comment-backfill-live-batches.json
+
+# Claude Code harness state (background-agent worktree isolation, etc.) -- never repo content
+.claude/

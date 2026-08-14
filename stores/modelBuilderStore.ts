@@ -1958,21 +1958,40 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
 
   // --- run history ----------------------------------------------------------
 
+  // fetchRuns() re-fires on every mount of model-builder-run-history.vue
+  // (onMounted) and on its "Refresh" button — unlike loadSources(), which
+  // guards the identical class of race with `requestedType`, this had no
+  // request-scoping at all. Toggling History closed then open again (a
+  // normal double-click, not exotic timing) starts a second call while the
+  // first is still in flight; nothing here stopped the FIRST call's response
+  // from landing after the second's and unconditionally overwriting
+  // state.runs with its older snapshot — silently resurrecting a run the
+  // user cancelled in between (cancelRun's own `state.runs = state.runs.
+  // filter(...)` gets clobbered), losing one created in between, or just
+  // flipping loadingRuns back to false while the newer, still-in-flight call
+  // is the one that should own that spinner. Captured a request ticket, same
+  // pattern as loadSources' requestedType, so a stale response is discarded
+  // instead of applied.
+  let fetchRunsRequestId = 0
+
   async function fetchRuns(): Promise<void> {
+    const requestId = ++fetchRunsRequestId
     state.loadingRuns = true
     try {
       const response = await performFetch<ServerRun[]>(
         '/api/model-builder/runs?take=50',
       )
+      if (fetchRunsRequestId !== requestId) return
       if (response.success && Array.isArray(response.data)) {
         state.runs = response.data.map(adaptRun)
       } else if (!response.success) {
         setStatus('error', response.message || 'Failed to load run history.')
       }
     } catch (error) {
+      if (fetchRunsRequestId !== requestId) return
       handleError(error, 'loading run history')
     } finally {
-      state.loadingRuns = false
+      if (fetchRunsRequestId === requestId) state.loadingRuns = false
     }
   }
 

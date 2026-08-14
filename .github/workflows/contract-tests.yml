@@ -446,6 +446,12 @@ jobs:
       - name: Model Builder recordArtifact success guard contract
         run: npm run test:model-builder-record-artifact-success-guard
 
+      - name: Model Builder fetchRuns staleness guard checker self-test
+        run: npm run test:model-builder-fetch-runs-staleness-guard-selftest
+
+      - name: Model Builder fetchRuns staleness guard contract
+        run: npm run test:model-builder-fetch-runs-staleness-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

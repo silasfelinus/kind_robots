@@ -221,6 +221,8 @@
     "test:model-builder-confirmed-outcome-guard": "tsx utils/scripts/verifyModelBuilderConfirmedOutcomeGuard.ts",
     "test:model-builder-batch-any-in-flight-guard-selftest": "tsx utils/scripts/verifyModelBuilderBatchAnyInFlightGuard.test.ts",
     "test:model-builder-batch-any-in-flight-guard": "tsx utils/scripts/verifyModelBuilderBatchAnyInFlightGuard.ts",
+    "test:model-builder-async-enqueue-cancelled-run-guard-selftest": "tsx utils/scripts/verifyModelBuilderAsyncEnqueueCancelledRunGuard.test.ts",
+    "test:model-builder-async-enqueue-cancelled-run-guard": "tsx utils/scripts/verifyModelBuilderAsyncEnqueueCancelledRunGuard.ts",
     "test:kontext-mask-forwarding": "tsx utils/scripts/verifyKontextMaskForwarding.ts",
     "test:pod-vendor-client-selftest": "tsx utils/scripts/verifyPodVendorClient.test.ts",
     "test:mana-gate-on-behalf-of-target": "tsx utils/scripts/verifyManaGateOnBehalfOfTarget.ts",

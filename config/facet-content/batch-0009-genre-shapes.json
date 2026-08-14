@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "taxonomy": "GENRE",
+  "note": "Five GENRE rows the catalog audit holds for title SHAPE rather than for missing content. Two rules are involved. subject-shaped-genre fires on a title ENDING in a subject noun (mythology, folklore) -- the catalog's own convention pairs a qualifier with a genre word, as in the existing 'Asian Fantasy' and 'African Mythpunk', so these adopt that shape. parenthetical-genre and composite-genre fire on titles that read as sealed recipes; 'One Thousand and One Nights Fantasy' trips composite only because the rule sees the 'and' inside a proper name, and the commoner English title for the same collection avoids it cleanly. Every previous name is carried as an alias, so nothing that referenced them breaks.",
+  "entries": [
+    {
+      "facetId": 780,
+      "title": "Cli-Fi (Climate Fiction)",
+      "newTitle": "Climate Fiction",
+      "aliases": [
+        "Cli-Fi",
+        "Cli-Fi (Climate Fiction)"
+      ],
+      "taxonomy": "GENRE",
+      "description": "Speculative work in which a changing climate is the situation rather than the backdrop. Migration, scarcity, adaptation and who bears the cost."
+    },
+    {
+      "facetId": 836,
+      "title": "Celtic Mythology",
+      "newTitle": "Celtic Fantasy",
+      "aliases": [
+        "Celtic Mythology"
+      ],
+      "taxonomy": "GENRE",
+      "description": "Fantasy grounded in Irish, Scottish, Welsh, Manx, Cornish and Breton mythic traditions. Pair with a specific people, cycle or region whenever the source is known."
+    },
+    {
+      "facetId": 1887,
+      "title": "Folklore",
+      "newTitle": "Folk Fantasy",
+      "aliases": [
+        "Folklore"
+      ],
+      "taxonomy": "GENRE",
+      "description": "Fantasy built from oral tradition rather than invented cosmology: tales retold, warnings kept, and the bargain that everyone in the village already understands."
+    },
+    {
+      "facetId": 1653,
+      "title": "Heist Mythology",
+      "newTitle": "Mythic Heist",
+      "aliases": [
+        "Heist Mythology"
+      ],
+      "taxonomy": "GENRE",
+      "description": "A crew assembled against something of legendary scale. The score is mythic, the planning is procedural, and the tension comes from holding both registers at once."
+    },
+    {
+      "facetId": 843,
+      "title": "One Thousand and One Nights Fantasy",
+      "newTitle": "Arabian Nights Fantasy",
+      "aliases": [
+        "One Thousand and One Nights Fantasy",
+        "One Thousand and One Nights"
+      ],
+      "taxonomy": "GENRE",
+      "description": "Fantasy drawing on the frame-tale tradition of the Arabian Nights: nested stories, bargains struck with the powerful, and survival through narrative itself."
+    }
+  ]
+}

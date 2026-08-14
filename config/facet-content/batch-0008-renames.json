@@ -1,0 +1,576 @@
+{
+  "version": 1,
+  "note": "57 QUIRK and BACKSTORY rows whose entire content was crammed into the title field. The audit's sentence-title rule counts words in the title and cannot be cleared by adding a description, and no facet with a nine-plus word title has ever been given art. So the sentence moves into the description where it belongs and a short handle takes the title -- a picker showing forty full sentences is unusable. The original sentence is carried as an alias, so anything that looked the facet up by its old name still resolves, and canonicalValue follows the title automatically.",
+  "entries": [
+    {
+      "facetId": 1276,
+      "title": "Believes sneezing too many times in a row causes bad luck.",
+      "newTitle": "Sneeze Superstition",
+      "aliases": [
+        "Believes sneezing too many times in a row causes bad luck."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Believes sneezing too many times in a row causes bad luck. Counts them. There is a number in mind and they will not say what it is."
+    },
+    {
+      "facetId": 1292,
+      "title": "Believes they can charm birds by chirping back at them.",
+      "newTitle": "Bird Diplomacy",
+      "aliases": [
+        "Believes they can charm birds by chirping back at them."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Believes they can charm birds by chirping back at them. The birds do respond. What they are responding to has never been established."
+    },
+    {
+      "facetId": 1240,
+      "title": "Believes they’re being followed by an invisible duck.",
+      "newTitle": "The Invisible Duck",
+      "aliases": [
+        "Believes they’re being followed by an invisible duck."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Believes they’re being followed by an invisible duck. Sets out a small bowl of water most evenings, just in case."
+    },
+    {
+      "facetId": 553,
+      "title": "Built as an AI companion, now self-aware and freelancing.",
+      "newTitle": "Freelance Companion",
+      "aliases": [
+        "Built as an AI companion, now self-aware and freelancing."
+      ],
+      "taxonomy": "BACKSTORY",
+      "description": "Built as an AI companion, now self-aware and freelancing. Kept the warmth and dropped the contract."
+    },
+    {
+      "facetId": 1235,
+      "title": "Can identify anyone’s favorite fruit just by looking at them.",
+      "newTitle": "Fruit Reader",
+      "aliases": [
+        "Can identify anyone’s favorite fruit just by looking at them."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Can identify anyone’s favorite fruit just by looking at them. The accuracy is disturbing and the method is not shared."
+    },
+    {
+      "facetId": 1273,
+      "title": "Can identify bird calls but refuses to explain how.",
+      "newTitle": "Unexplained Birdsong",
+      "aliases": [
+        "Can identify bird calls but refuses to explain how."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Can identify bird calls but refuses to explain how. Names the species without looking up, then changes the subject."
+    },
+    {
+      "facetId": 1267,
+      "title": "Can’t help but correct incorrect grammar in ancient texts.",
+      "newTitle": "Correcting the Ancients",
+      "aliases": [
+        "Can’t help but correct incorrect grammar in ancient texts."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Can’t help but correct incorrect grammar in ancient texts. The scribes are two thousand years dead and are being marked anyway."
+    },
+    {
+      "facetId": 1242,
+      "title": "Can’t sleep unless they hum a lullaby to themselves.",
+      "newTitle": "Self-Sung Lullaby",
+      "aliases": [
+        "Can’t sleep unless they hum a lullaby to themselves."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Can’t sleep unless they hum a lullaby to themselves. Always the same one, and nobody has ever managed to identify it."
+    },
+    {
+      "facetId": 1257,
+      "title": "Can’t stop spinning coins when deep in thought.",
+      "newTitle": "The Spinning Coin",
+      "aliases": [
+        "Can’t stop spinning coins when deep in thought."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Can’t stop spinning coins when deep in thought. The spinning stops the moment the thought resolves, which is a useful tell."
+    },
+    {
+      "facetId": 1203,
+      "title": "Carries a bag of marbles, claiming they’re magical.",
+      "newTitle": "Bag of Marbles",
+      "aliases": [
+        "Carries a bag of marbles, claiming they’re magical."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Carries a bag of marbles, claiming they’re magical. Has never used one, which they present as evidence of restraint."
+    },
+    {
+      "facetId": 1247,
+      "title": "Carries a notebook full of cryptic, self-written proverbs.",
+      "newTitle": "Book of Proverbs",
+      "aliases": [
+        "Carries a notebook full of cryptic, self-written proverbs."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Carries a notebook full of cryptic, self-written proverbs. Quotes them as though they had been inherited."
+    },
+    {
+      "facetId": 1297,
+      "title": "Carries a secret recipe for soup at all times.",
+      "newTitle": "The Soup Recipe",
+      "aliases": [
+        "Carries a secret recipe for soup at all times."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Carries a secret recipe for soup at all times. Has made it twice. Both occasions are still discussed by everyone present."
+    },
+    {
+      "facetId": 1284,
+      "title": "Carries a spoon at all times, \"just in case of pudding.\"",
+      "newTitle": "Pudding Contingency",
+      "aliases": [
+        "Carries a spoon at all times, \"just in case of pudding.\""
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Carries a spoon at all times, just in case of pudding. Pudding has occurred four times and they were the only one ready."
+    },
+    {
+      "facetId": 1271,
+      "title": "Claims they can speak to fish but not other animals.",
+      "newTitle": "Fish Only",
+      "aliases": [
+        "Claims they can speak to fish but not other animals."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Claims they can speak to fish but not other animals. The specificity of the limitation is what makes people wonder."
+    },
+    {
+      "facetId": 577,
+      "title": "Claims to have seen the back end of reality, and left a review.",
+      "newTitle": "Reviewed Reality",
+      "aliases": [
+        "Claims to have seen the back end of reality, and left a review."
+      ],
+      "taxonomy": "BACKSTORY",
+      "description": "Claims to have seen the back end of reality, and left a review. Declines to summarise it, which suggests it was not favourable."
+    },
+    {
+      "facetId": 1291,
+      "title": "Collects oddly shaped sticks and claims they’re magical.",
+      "newTitle": "Stick Collection",
+      "aliases": [
+        "Collects oddly shaped sticks and claims they’re magical."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Collects oddly shaped sticks and claims they’re magical. The collection has outgrown two packs and one friendship."
+    },
+    {
+      "facetId": 1282,
+      "title": "Constantly checks behind them as if someone’s there.",
+      "newTitle": "Checking Behind",
+      "aliases": [
+        "Constantly checks behind them as if someone’s there."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Constantly checks behind them as if someone’s there. Nothing has ever been there. The checking has not slowed."
+    },
+    {
+      "facetId": 1289,
+      "title": "Dances a little jig whenever they see a rainbow.",
+      "newTitle": "Rainbow Jig",
+      "aliases": [
+        "Dances a little jig whenever they see a rainbow."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Dances a little jig whenever they see a rainbow. No exception has been made for weather, company, or funerals."
+    },
+    {
+      "facetId": 1221,
+      "title": "Draws symbols in the dirt whenever they stop walking.",
+      "newTitle": "Symbols in the Dirt",
+      "aliases": [
+        "Draws symbols in the dirt whenever they stop walking."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Draws symbols in the dirt whenever they stop walking. The same handful recur and nobody has asked them to explain."
+    },
+    {
+      "facetId": 561,
+      "title": "Escaped a haunted library by promising to return one book.",
+      "newTitle": "The Borrowed Book",
+      "aliases": [
+        "Escaped a haunted library by promising to return one book."
+      ],
+      "taxonomy": "BACKSTORY",
+      "description": "Escaped a haunted library by promising to return one book. Still has it. Thinks about this more than they let on."
+    },
+    {
+      "facetId": 545,
+      "title": "Exiled from their homeland for crimes they didn’t commit—or did they?",
+      "newTitle": "Contested Exile",
+      "aliases": [
+        "Exiled from their homeland for crimes they didn’t commit—or did they?"
+      ],
+      "taxonomy": "BACKSTORY",
+      "description": "Exiled from their homeland for crimes they didn’t commit, or possibly did. The answer shifts depending on who tells it and how late it is."
+    },
+    {
+      "facetId": 548,
+      "title": "Grew up aboard a rogue satellite with a sentient vending machine.",
+      "newTitle": "Raised by Vending Machine",
+      "aliases": [
+        "Grew up aboard a rogue satellite with a sentient vending machine."
+      ],
+      "taxonomy": "BACKSTORY",
+      "description": "Grew up aboard a rogue satellite with a sentient vending machine. It gave sound advice and charged for every word."
+    },
+    {
+      "facetId": 1255,
+      "title": "Has a knack for predicting when someone will hiccup.",
+      "newTitle": "Hiccup Precognition",
+      "aliases": [
+        "Has a knack for predicting when someone will hiccup."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Has a knack for predicting when someone will hiccup. Announces it half a second early and is right often enough to unnerve a room."
+    },
+    {
+      "facetId": 1215,
+      "title": "Has an imaginary friend named \"Bartholomew\" who gives advice.",
+      "newTitle": "Bartholomew",
+      "aliases": [
+        "Has an imaginary friend named \"Bartholomew\" who gives advice."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Has an imaginary friend named Bartholomew who gives advice. The advice is good, which raises a question nobody wants to open."
+    },
+    {
+      "facetId": 1188,
+      "title": "Has an uncanny sense of direction but only in forests.",
+      "newTitle": "Forest Compass",
+      "aliases": [
+        "Has an uncanny sense of direction but only in forests."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Has an uncanny sense of direction but only in forests. Loses themselves reliably in any town with more than one street."
+    },
+    {
+      "facetId": 1253,
+      "title": "Hums the same three notes whenever they’re planning something.",
+      "newTitle": "Three Notes",
+      "aliases": [
+        "Hums the same three notes whenever they’re planning something."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Hums the same three notes whenever they’re planning something. Everyone who knows them has learned to listen for it."
+    },
+    {
+      "facetId": 1279,
+      "title": "Insists on starting every conversation with \"Once upon a time...\"",
+      "newTitle": "Once Upon a Time",
+      "aliases": [
+        "Insists on starting every conversation with \"Once upon a time...\""
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Insists on starting every conversation with once upon a time. This has included directions, complaints, and one recorded emergency."
+    },
+    {
+      "facetId": 1246,
+      "title": "Invents strange handshakes for every new person they meet.",
+      "newTitle": "Bespoke Handshakes",
+      "aliases": [
+        "Invents strange handshakes for every new person they meet."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Invents strange handshakes for every new person they meet. Remembers all of them permanently and expects the other party to as well."
+    },
+    {
+      "facetId": 1281,
+      "title": "Keeps a collection of \"lucky pebbles\" from different regions.",
+      "newTitle": "Lucky Pebbles",
+      "aliases": [
+        "Keeps a collection of \"lucky pebbles\" from different regions."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Keeps a collection of lucky pebbles from different regions. Can name the region for each one without looking."
+    },
+    {
+      "facetId": 1256,
+      "title": "Keeps a list of \"enemies\" that includes animals and objects.",
+      "newTitle": "The Enemies List",
+      "aliases": [
+        "Keeps a list of \"enemies\" that includes animals and objects."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Keeps a list of enemies that includes animals and objects. Entries are dated and there is a documented appeals process."
+    },
+    {
+      "facetId": 1287,
+      "title": "Keeps a tiny mirror they believe shows \"true intentions.\"",
+      "newTitle": "True-Intentions Mirror",
+      "aliases": [
+        "Keeps a tiny mirror they believe shows \"true intentions.\""
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Keeps a tiny mirror they believe shows true intentions. Has shown it to three people and remained friends with one."
+    },
+    {
+      "facetId": 1252,
+      "title": "Keeps an assortment of dried herbs in their pockets.",
+      "newTitle": "Pocket Herbs",
+      "aliases": [
+        "Keeps an assortment of dried herbs in their pockets."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Keeps an assortment of dried herbs in their pockets. Produces exactly the right one surprisingly often."
+    },
+    {
+      "facetId": 1205,
+      "title": "Knows an unusual amount about clouds and weather patterns.",
+      "newTitle": "Cloud Literacy",
+      "aliases": [
+        "Knows an unusual amount about clouds and weather patterns."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Knows an unusual amount about clouds and weather patterns. Says what tomorrow will do and is not wrong often enough to be ignored."
+    },
+    {
+      "facetId": 1290,
+      "title": "Knows every type of moss by sight and smell.",
+      "newTitle": "Moss Expertise",
+      "aliases": [
+        "Knows every type of moss by sight and smell."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Knows every type of moss by sight and smell. This has been useful precisely twice, and both times it mattered enormously."
+    },
+    {
+      "facetId": 573,
+      "title": "Knows too much about the moon. They won’t say how.",
+      "newTitle": "Moon Knowledge",
+      "aliases": [
+        "Knows too much about the moon. They won’t say how."
+      ],
+      "taxonomy": "BACKSTORY",
+      "description": "Knows too much about the moon and won’t say how. The knowledge is specific, checkable, and correct."
+    },
+    {
+      "facetId": 549,
+      "title": "Once a starship mechanic, now fleeing interstellar bounty hunters.",
+      "newTitle": "Mechanic on the Run",
+      "aliases": [
+        "Once a starship mechanic, now fleeing interstellar bounty hunters."
+      ],
+      "taxonomy": "BACKSTORY",
+      "description": "Once a starship mechanic, now fleeing interstellar bounty hunters. Still fixes things. Cannot stop themselves."
+    },
+    {
+      "facetId": 540,
+      "title": "Once the ruler of a kingdom now turned to ruin.",
+      "newTitle": "Ruler of Ruins",
+      "aliases": [
+        "Once the ruler of a kingdom now turned to ruin."
+      ],
+      "taxonomy": "BACKSTORY",
+      "description": "Once the ruler of a kingdom now turned to ruin. Does not mention it and does not correct anyone who guesses."
+    },
+    {
+      "facetId": 532,
+      "title": "Orphaned at a young age and raised by wolves.",
+      "newTitle": "Raised by Wolves",
+      "aliases": [
+        "Orphaned at a young age and raised by wolves."
+      ],
+      "taxonomy": "BACKSTORY",
+      "description": "Orphaned at a young age and raised by wolves. The manners are worse than expected and the loyalty is considerably better."
+    },
+    {
+      "facetId": 1274,
+      "title": "Owns a collection of jars filled with \"mysterious substances.\"",
+      "newTitle": "Jars of Substances",
+      "aliases": [
+        "Owns a collection of jars filled with \"mysterious substances.\""
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Owns a collection of jars filled with mysterious substances. Labelled in a private system. Nothing has escaped yet."
+    },
+    {
+      "facetId": 1234,
+      "title": "Owns a collection of unusual hats, one for every day of the week.",
+      "newTitle": "Seven Hats",
+      "aliases": [
+        "Owns a collection of unusual hats, one for every day of the week."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Owns a collection of unusual hats, one for every day of the week. Wearing the wrong day’s hat is not a thing they will discuss."
+    },
+    {
+      "facetId": 1194,
+      "title": "Refuses to eat food unless it’s arranged in a specific order.",
+      "newTitle": "Ordered Plate",
+      "aliases": [
+        "Refuses to eat food unless it’s arranged in a specific order."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Refuses to eat food unless it’s arranged in a specific order. Will rearrange somebody else’s plate if invited, and occasionally if not."
+    },
+    {
+      "facetId": 1239,
+      "title": "Refuses to use umbrellas, claiming they’re bad luck.",
+      "newTitle": "No Umbrellas",
+      "aliases": [
+        "Refuses to use umbrellas, claiming they’re bad luck."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Refuses to use umbrellas, claiming they’re bad luck. Gets extremely wet and considers this the better outcome."
+    },
+    {
+      "facetId": 1212,
+      "title": "Refuses to walk on tiled floors with odd patterns.",
+      "newTitle": "Odd Tiles",
+      "aliases": [
+        "Refuses to walk on tiled floors with odd patterns."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Refuses to walk on tiled floors with odd patterns. Takes long routes through buildings and never explains the detour."
+    },
+    {
+      "facetId": 1237,
+      "title": "Talks to plants as if they’re old friends.",
+      "newTitle": "Plant Conversation",
+      "aliases": [
+        "Talks to plants as if they’re old friends."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Talks to plants as if they’re old friends. Asks after them by name and waits a moment for the answer."
+    },
+    {
+      "facetId": 1280,
+      "title": "Talks to their weapon as if it has feelings.",
+      "newTitle": "Weapon Confidant",
+      "aliases": [
+        "Talks to their weapon as if it has feelings."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Talks to their weapon as if it has feelings. Apologises to it after a bad fight, quietly, when nobody is listening."
+    },
+    {
+      "facetId": 1248,
+      "title": "Taps their foot exactly 12 times before sitting down.",
+      "newTitle": "Twelve Taps",
+      "aliases": [
+        "Taps their foot exactly 12 times before sitting down."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Taps their foot exactly 12 times before sitting down. Miscounting means starting again, which has delayed several meetings."
+    },
+    {
+      "facetId": 566,
+      "title": "Taught swordsmanship by a ghost who only quoted Shakespeare.",
+      "newTitle": "Shakespearean Ghost",
+      "aliases": [
+        "Taught swordsmanship by a ghost who only quoted Shakespeare."
+      ],
+      "taxonomy": "BACKSTORY",
+      "description": "Taught swordsmanship by a ghost who only quoted Shakespeare. The footwork is superb and the commentary was relentless."
+    },
+    {
+      "facetId": 538,
+      "title": "The lone survivor of a village destroyed by war.",
+      "newTitle": "Lone Survivor",
+      "aliases": [
+        "The lone survivor of a village destroyed by war."
+      ],
+      "taxonomy": "BACKSTORY",
+      "description": "The lone survivor of a village destroyed by war. Carries the place with them because nobody else is left to."
+    },
+    {
+      "facetId": 558,
+      "title": "The only survivor of a glitch in the simulation.",
+      "newTitle": "Glitch Survivor",
+      "aliases": [
+        "The only survivor of a glitch in the simulation."
+      ],
+      "taxonomy": "BACKSTORY",
+      "description": "The only survivor of a glitch in the simulation. Remembers the version before. Nobody else does, and they have stopped mentioning it."
+    },
+    {
+      "facetId": 534,
+      "title": "Trained in the arcane arts in a distant land.",
+      "newTitle": "Distant Training",
+      "aliases": [
+        "Trained in the arcane arts in a distant land."
+      ],
+      "taxonomy": "BACKSTORY",
+      "description": "Trained in the arcane arts in a distant land. Will name the land if pressed and will not name the teacher."
+    },
+    {
+      "facetId": 572,
+      "title": "Used to be a private eye — until the shadows got weird.",
+      "newTitle": "The Shadows Got Weird",
+      "aliases": [
+        "Used to be a private eye — until the shadows got weird."
+      ],
+      "taxonomy": "BACKSTORY",
+      "description": "Used to be a private eye, until the shadows got weird. Kept the coat and the habit of noticing."
+    },
+    {
+      "facetId": 576,
+      "title": "Was erased from official records… yet still pays taxes.",
+      "newTitle": "Erased But Filing",
+      "aliases": [
+        "Was erased from official records… yet still pays taxes."
+      ],
+      "taxonomy": "BACKSTORY",
+      "description": "Was erased from official records and yet still pays taxes. Somebody is cashing them and nobody will say who."
+    },
+    {
+      "facetId": 560,
+      "title": "Was once a duck. No one knows why, including them.",
+      "newTitle": "Formerly a Duck",
+      "aliases": [
+        "Was once a duck. No one knows why, including them."
+      ],
+      "taxonomy": "BACKSTORY",
+      "description": "Was once a duck. No one knows why, including them. The transition is not discussed and the swimming is excellent."
+    },
+    {
+      "facetId": 1226,
+      "title": "Whistles haunting melodies when they’re deep in thought.",
+      "newTitle": "Haunting Whistle",
+      "aliases": [
+        "Whistles haunting melodies when they’re deep in thought."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Whistles haunting melodies when they’re deep in thought. Nobody recognises the tunes and they cannot say where they learned them."
+    },
+    {
+      "facetId": 556,
+      "title": "Woke up in cryo with someone else’s memories and a strange tattoo.",
+      "newTitle": "Borrowed Memories",
+      "aliases": [
+        "Woke up in cryo with someone else’s memories and a strange tattoo."
+      ],
+      "taxonomy": "BACKSTORY",
+      "description": "Woke up in cryo with someone else’s memories and a strange tattoo. Both are being investigated slowly and neither is going well."
+    },
+    {
+      "facetId": 567,
+      "title": "Can only sleep standing up, and only on moving trains.",
+      "newTitle": "Sleeps on Trains",
+      "aliases": [
+        "Can only sleep standing up, and only on moving trains."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Can only sleep standing up, and only on moving trains. Has arranged an entire life around timetables to accommodate this."
+    },
+    {
+      "facetId": 543,
+      "title": "Cursed to speak only in riddles… but only on Tuesdays.",
+      "newTitle": "Tuesday Riddles",
+      "aliases": [
+        "Cursed to speak only in riddles… but only on Tuesdays."
+      ],
+      "taxonomy": "QUIRK",
+      "description": "Cursed to speak only in riddles, but only on Tuesdays. Schedules nothing important for Tuesdays and has stopped explaining why."
+    }
+  ]
+}

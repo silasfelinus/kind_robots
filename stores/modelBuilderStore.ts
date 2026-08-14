@@ -1031,15 +1031,45 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
 
   // --- GENERATE_ASSETS: reuse the existing art generator --------------------
 
+  // Persists a GENERATE_ASSETS candidate as a durable ModelBuildArtifact row —
+  // this is what adaptItem's imagePath (Artifacts[last]?.promotedPath ??
+  // draftPath) reconstructs from on the NEXT resume/reload, independent of
+  // item.artImageId (which is written separately, straight onto the item, by
+  // the pushItem call right after this one). performFetch never rejects for
+  // an HTTP-level failure — a validation error, assertArtImageAttachable's
+  // 403, or a 409 from assertRunWritable if the run was cancelled mid-request
+  // — it always *resolves* with `{ success: false }` (see its own doc comment:
+  // "honor both fields so a body-level failure is never reported as a
+  // successful fetch"). This function's try/catch never actually caught that:
+  // it awaited performFetch without ever checking `.success`, so ANY failure
+  // of this POST was silently discarded with no error surfaced anywhere and
+  // no retry. Both call sites proceed straight to marking the stage 'ready'
+  // and popping a "Generated a candidate" success toast regardless — so the
+  // user sees success while the durable Artifact row (and the imagePath a
+  // later resume/reload reconstructs from it) was simply never written.
+  // Concrete repro: generate a candidate for an item, have this POST fail for
+  // any reason (a transient DB error is enough — no cancellation needed),
+  // approve GENERATE_ASSETS ("Keep this asset" still shows the just-rendered
+  // thumbnail from local state), then reload the page — the stage is still
+  // 'approved' and item.artImageId is still set (commit still works off it),
+  // but item.imagePath comes back null because adaptItem has no Artifact row
+  // to read it from, so the approved candidate silently loses its preview
+  // image with no error ever having been shown. Fixed by checking `.success`
+  // and reporting a real failure the same run-scoped way every other action
+  // in this file does (mirrors pushItem/batchPushItems); setStatusForRun
+  // already no-ops if the run isn't the one currently on screen, so this
+  // still stays silent for a run the user has since cancelled or left.
   async function recordArtifact(
     item: BuildItem,
     image: { id: number; imagePath?: string | null },
     output: BuildOutputConfig | undefined,
     prompt: string,
     dims: { width: number; height: number },
+    runId: string,
   ): Promise<void> {
-    try {
-      await performFetch(`/api/model-builder/items/${item.id}/artifacts`, {
+    const result = await performFetch(
+      `/api/model-builder/items/${item.id}/artifacts`,
+      {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1052,9 +1082,15 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
           draftPath: image.imagePath ?? null,
           reviewState: 'PENDING',
         }),
-      })
-    } catch (error) {
-      handleError(error, 'recording build artifact')
+      },
+    )
+    if (!result.success) {
+      setStatusForRun(
+        runId,
+        'error',
+        result.message ||
+          `Generated a candidate for ${item.label}, but recording it failed — it may not survive a reload.`,
+      )
     }
   }
 
@@ -1140,7 +1176,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       item.imagePath = image.imagePath ?? null
       finishGenerateAssets(item, { status: 'ready' })
 
-      await recordArtifact(item, image, output, prompt, dims)
+      await recordArtifact(item, image, output, prompt, dims, runId)
       pushItem(item, {
         stageStatuses: item.stages,
         artImageId: item.artImageId,
@@ -1273,7 +1309,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       item.imagePath = image.imagePath ?? null
       finishGenerateAssets(item, { status: 'ready' })
 
-      await recordArtifact(item, image, output, prompt, dims)
+      await recordArtifact(item, image, output, prompt, dims, runId)
       pushItem(item, {
         stageStatuses: item.stages,
         artImageId: item.artImageId,

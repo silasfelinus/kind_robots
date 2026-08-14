@@ -161,6 +161,23 @@ export type SdxlImg2ImgInput = {
   filenamePrefix?: string | null
 }
 
+// The checkpoint used when a caller names none. This was
+// 'v1-5-pruned-emaonly.safetensors' -- SD 1.5, in the SDXL builder. Not a VRAM
+// problem: a caller that omitted the checkpoint silently rendered at 1.5
+// quality through an SDXL graph, and nothing failed loudly enough to notice.
+//
+// dreamshaper XL is this system's own designated SDXL: the first entry in
+// stores/seeds/validCheckpoints.ts, the example in components/model/add-model.vue,
+// and confirmed present in the live Resource catalog (SDXL, isMature false).
+//
+// Note it is a Turbo/DPM++SDE model, trained for roughly 4-8 steps, while this
+// builder's KSampler defaults to `steps ?? 20` at cfg 3. That pairing is
+// tolerable but not ideal; the step default is deliberately left alone here
+// because it applies to explicitly-chosen checkpoints too, and narrowing it
+// would change behaviour for callers who are not using this fallback.
+export const DEFAULT_SDXL_CHECKPOINT =
+  'SDXL/dreamshaperXL_v21TurboDPMSDE.safetensors'
+
 export const DEFAULT_SDXL_IMG2IMG_ORIGINAL_WEIGHT = 0.35
 const MIN_SDXL_IMG2IMG_DENOISE = 0.15
 
@@ -328,7 +345,7 @@ export function buildDefaultComfyWorkflow({
     '1': {
       class_type: 'CheckpointLoaderSimple',
       inputs: {
-        ckpt_name: checkpoint || 'v1-5-pruned-emaonly.safetensors',
+        ckpt_name: checkpoint || DEFAULT_SDXL_CHECKPOINT,
       },
     },
     '2': {

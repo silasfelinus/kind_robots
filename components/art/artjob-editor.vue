@@ -55,10 +55,7 @@
               </span>
             </label>
 
-            <art-facet-selector
-              v-model="facetIds"
-              label="ArtJob Facets"
-            />
+            <art-facet-selector v-model="facetIds" label="ArtJob Facets" />
 
             <label class="flex flex-col gap-1 text-sm">
               <span class="font-semibold">Negative prompt</span>
@@ -192,10 +189,10 @@
               </span>
             </label>
 
-            <details class="rounded-2xl border border-base-300 bg-base-200/40 p-3">
-              <summary
-                class="cursor-pointer text-sm font-semibold select-none"
-              >
+            <details
+              class="rounded-2xl border border-base-300 bg-base-200/40 p-3"
+            >
+              <summary class="cursor-pointer text-sm font-semibold select-none">
                 Raw job JSON
               </summary>
               <button
@@ -292,7 +289,11 @@
                 </span>
                 <span
                   class="badge badge-sm rounded-2xl"
-                  :class="form.isPublic ? 'badge-success badge-outline' : 'badge-neutral'"
+                  :class="
+                    form.isPublic
+                      ? 'badge-success badge-outline'
+                      : 'badge-neutral'
+                  "
                 >
                   {{ form.isPublic ? 'Public' : 'Private' }}
                 </span>
@@ -469,7 +470,11 @@ const enginePresets: Preset[] = [
     value: 'sdxl',
     label: 'Comfy checkpoint workflow',
     hint: 'Traditional checkpoint workflow with broad compatibility.',
-    checkpoint: 'v1-5-pruned-emaonly.safetensors',
+    // Matches DEFAULT_SDXL_CHECKPOINT in
+    // server/api/comfy/sdxl/utils/workflow.ts. Both were
+    // 'v1-5-pruned-emaonly.safetensors' -- SD 1.5 offered as the default for an
+    // SDXL workflow, so the preset silently produced 1.5-quality output.
+    checkpoint: 'SDXL/dreamshaperXL_v21TurboDPMSDE.safetensors',
     steps: '20',
     cfg: '3',
     guidance: '',
@@ -806,8 +811,7 @@ async function save(): Promise<void> {
 
   const options = {
     refreshSeed: !form.seed.trim(),
-    preset:
-      isVideoJob.value || preset.value === 'keep' ? null : preset.value,
+    preset: isVideoJob.value || preset.value === 'keep' ? null : preset.value,
     overrides,
   }
   let success = false

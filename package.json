@@ -230,6 +230,8 @@
     "test:model-builder-fetch-runs-staleness-guard": "tsx utils/scripts/verifyModelBuilderFetchRunsStalenessGuard.ts",
     "test:model-builder-open-run-request-guard-selftest": "tsx utils/scripts/verifyModelBuilderOpenRunRequestGuard.test.ts",
     "test:model-builder-open-run-request-guard": "tsx utils/scripts/verifyModelBuilderOpenRunRequestGuard.ts",
+    "test:model-builder-async-fetch-staleness-coverage-selftest": "tsx utils/scripts/verifyModelBuilderAsyncFetchStalenessCoverage.test.ts",
+    "test:model-builder-async-fetch-staleness-coverage": "tsx utils/scripts/verifyModelBuilderAsyncFetchStalenessCoverage.ts",
     "test:kontext-mask-forwarding": "tsx utils/scripts/verifyKontextMaskForwarding.ts",
     "test:pod-vendor-client-selftest": "tsx utils/scripts/verifyPodVendorClient.test.ts",
     "test:mana-gate-on-behalf-of-target": "tsx utils/scripts/verifyManaGateOnBehalfOfTarget.ts",

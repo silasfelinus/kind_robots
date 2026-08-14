@@ -4,6 +4,7 @@
     class="flex min-w-0 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200/30"
   >
     <div
+      v-if="job.status === 'DONE'"
       class="relative flex aspect-[4/3] min-h-52 w-full items-center justify-center overflow-hidden bg-base-100"
     >
       <a
@@ -91,6 +92,34 @@
     </div>
 
     <div class="flex min-w-0 flex-1 flex-col gap-3 p-3">
+      <div
+        v-if="job.status !== 'DONE'"
+        class="flex flex-wrap items-center justify-between gap-2"
+      >
+        <div class="flex flex-wrap gap-1">
+          <span class="badge badge-neutral badge-sm rounded-2xl font-mono">
+            #{{ job.id }}
+          </span>
+          <span
+            class="badge badge-sm rounded-2xl"
+            :class="jobStatusClass(job.status)"
+          >
+            {{ job.status }}
+          </span>
+        </div>
+        <div class="flex flex-wrap justify-end gap-1">
+          <span class="badge badge-outline badge-sm rounded-2xl">
+            {{ job.engine }}
+          </span>
+          <span
+            v-if="job.priority > 0"
+            class="badge badge-accent badge-sm rounded-2xl"
+          >
+            Priority {{ job.priority }}
+          </span>
+        </div>
+      </div>
+
       <div class="min-w-0">
         <div class="flex flex-wrap items-start justify-between gap-2">
           <div class="min-w-0 flex-1">

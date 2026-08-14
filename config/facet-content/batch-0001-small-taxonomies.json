@@ -1,0 +1,316 @@
+{
+  "version": 1,
+  "note": "Catalog content for Facets the audit holds out of art generation for carrying nothing but a title. Voice matched to the rows that already have descriptions: dry, specific, present tense, and a turn in the second or third sentence. No 'A type of ...' openers -- the taxonomy column already says what kind of thing it is.",
+  "entries": [
+    {
+      "facetId": 1571,
+      "title": "Mentor",
+      "taxonomy": "ROLE",
+      "description": "Knows the answer and will not simply hand it over. Depending on the day, this reads as wisdom or as the single most infuriating habit a person can have."
+    },
+
+    {
+      "facetId": 1883,
+      "title": "Abandoned",
+      "taxonomy": "THEME",
+      "description": "Places and people left behind, and whatever kept living there afterward. The absence is the subject rather than the setting.",
+      "flavorText": "Someone meant to come back."
+    },
+    {
+      "facetId": 1463,
+      "title": "Dreams",
+      "taxonomy": "THEME",
+      "description": "Logic that only holds while you are inside it. Rooms connect wrongly, faces change mid-sentence, and the urgency never names what it is urgent about."
+    },
+    {
+      "facetId": 1465,
+      "title": "Nightmares",
+      "taxonomy": "THEME",
+      "description": "The same machinery as a dream, but aimed. What it wants is for you to keep looking at it.",
+      "flavorText": "You know how this one goes. That has never once helped."
+    },
+    {
+      "facetId": 1879,
+      "title": "Tender",
+      "taxonomy": "THEME",
+      "description": "Care handled carefully. Small gestures, lowered voices, and the specific risk of being gentle somewhere it might not be returned."
+    },
+
+    {
+      "facetId": 535,
+      "title": "A former thief seeking redemption.",
+      "taxonomy": "BACKSTORY",
+      "description": "The skills did not leave when the intention changed. Every honest door still shows them exactly where the lock is weak."
+    },
+    {
+      "facetId": 541,
+      "title": "A wanderer with no memory of their past.",
+      "taxonomy": "BACKSTORY",
+      "description": "Everything before a particular morning is simply missing. They have stopped asking about it and started walking instead."
+    },
+    {
+      "facetId": 551,
+      "title": "Clone #47 — the one who finally asked \"why?\"",
+      "taxonomy": "BACKSTORY",
+      "description": "Forty-six of them did not ask. The question had been sitting there the entire time. Nobody had picked it up.",
+      "flavorText": "Numbers one through forty-six are still working."
+    },
+    {
+      "facetId": 580,
+      "title": "Once decoded a message hidden in the rain.",
+      "taxonomy": "BACKSTORY",
+      "description": "It turned out to be addressed to them. They have never repeated what it said, and the weather has been notably polite ever since."
+    },
+    {
+      "facetId": 570,
+      "title": "Was legally adopted by a forest.",
+      "taxonomy": "BACKSTORY",
+      "description": "The paperwork was filed by nobody and holds up regardless. The forest has proven a strict guardian and a fair one."
+    },
+    {
+      "facetId": 564,
+      "title": "Won a cursed lottery — prize pending.",
+      "taxonomy": "BACKSTORY",
+      "description": "The numbers came up. The prize remains on its way. Everyone involved has quietly stopped describing this as good news."
+    },
+
+    {
+      "facetId": 1622,
+      "title": "Demi",
+      "taxonomy": "GENDER",
+      "description": "Partially one thing, and the remainder is its own answer rather than a gap. The prefix is doing honest work."
+    },
+    {
+      "facetId": 1623,
+      "title": "Intersex",
+      "taxonomy": "GENDER",
+      "description": "Bodies vary more than the forms have ever allowed for, and always have. The paperwork is the thing that needs updating."
+    },
+    {
+      "facetId": 1628,
+      "title": "Neutrois",
+      "taxonomy": "GENDER",
+      "description": "Neutral by intent rather than by absence. A settled place of its own, not the space between two other places."
+    },
+    {
+      "facetId": 1625,
+      "title": "Pangender",
+      "taxonomy": "GENDER",
+      "description": "All of it, held at once. This is capacity rather than indecision, and the distinction matters to the person holding it."
+    },
+    {
+      "facetId": 1629,
+      "title": "Xenogender",
+      "taxonomy": "GENDER",
+      "description": "Described using things the existing vocabulary does not cover: colour, season, creature, texture, weather. Borrowed words that fit better than the official ones."
+    },
+    {
+      "facetId": 1627,
+      "title": "Androgynous",
+      "taxonomy": "GENDER",
+      "description": "Reads both ways at once and lets the room resolve it. The room frequently does not, which is fine.",
+      "flavorText": "The pause before someone picks a pronoun is not their problem."
+    },
+    {
+      "facetId": 1626,
+      "title": "Genderqueer",
+      "taxonomy": "GENDER",
+      "description": "Outside the two offered options and comfortable there. The question was the problem, not the answer."
+    },
+    {
+      "facetId": 1624,
+      "title": "Questioning",
+      "taxonomy": "GENDER",
+      "description": "Currently unresolved and fully entitled to be. Notes are being taken. No deadline has been set and none applies."
+    },
+    {
+      "facetId": 1621,
+      "title": "Two Spirit",
+      "taxonomy": "GENDER",
+      "description": "An Indigenous identity carrying its own histories, roles and communities. Not a translation of anything, and not a term for outsiders to borrow."
+    },
+
+    {
+      "facetId": 945,
+      "title": "Alien Biologist",
+      "taxonomy": "OCCUPATION",
+      "description": "Cataloguing something that does not fit the taxonomy. Delighted about this. Arguably should be more alarmed than they are."
+    },
+    {
+      "facetId": 953,
+      "title": "Amazonian Scout",
+      "taxonomy": "OCCUPATION",
+      "description": "Reads the canopy the way other people read street signs. Has not been lost since childhood, and that once was on purpose."
+    },
+    {
+      "facetId": 954,
+      "title": "Banana Wrangler",
+      "taxonomy": "OCCUPATION",
+      "description": "A genuine posting with a genuine hazard rating. The bananas do not cooperate. People stopped asking follow-up questions years ago.",
+      "flavorText": "Do not ask about the incident."
+    },
+    {
+      "facetId": 952,
+      "title": "Cactus Wrangler",
+      "taxonomy": "OCCUPATION",
+      "description": "Moves things that do not wish to be moved and have a direct way of saying so. Thick gloves. Longer patience."
+    },
+    {
+      "facetId": 943,
+      "title": "Cybernetic Hacker",
+      "taxonomy": "OCCUPATION",
+      "description": "Half the intrusion happens inside their own skull. The wetware is the exploit, and they made peace with that a while ago."
+    },
+    {
+      "facetId": 1550,
+      "title": "Engineer",
+      "taxonomy": "OCCUPATION",
+      "description": "Something is holding. They know precisely which part and precisely how long. Nobody else needs that information yet."
+    },
+    {
+      "facetId": 1551,
+      "title": "Hacker",
+      "taxonomy": "OCCUPATION",
+      "description": "Already inside, and has been for some time. Currently reading the access logs about themselves with professional interest."
+    },
+    {
+      "facetId": 948,
+      "title": "Nanotech Engineer",
+      "taxonomy": "OCCUPATION",
+      "description": "Works at a scale nobody can watch. The results arrive later and all at once, which looks like magic from every other seat in the room."
+    },
+    {
+      "facetId": 1549,
+      "title": "Pilot",
+      "taxonomy": "OCCUPATION",
+      "description": "Hands relaxed, eyes doing all the work. Conditions outside the cockpit are considerably worse than their expression suggests."
+    },
+    {
+      "facetId": 944,
+      "title": "Starship Pilot",
+      "taxonomy": "OCCUPATION",
+      "description": "Threading something enormous through something narrow. Has done it before and would rather not specify how many of those times nearly went badly."
+    },
+
+    {
+      "facetId": 1800,
+      "title": "Atompunk",
+      "taxonomy": "STYLE",
+      "description": "Mid-century atomic optimism. Chrome fins, ray guns, and a fallout shelter sold as a lifestyle upgrade."
+    },
+    {
+      "facetId": 1814,
+      "title": "Bonepunk",
+      "taxonomy": "STYLE",
+      "description": "Technology grown rather than built. Ivory gears, vertebrae scaffolding, machinery that remembers being alive."
+    },
+    {
+      "facetId": 1801,
+      "title": "Clockpunk",
+      "taxonomy": "STYLE",
+      "description": "Renaissance gearwork. Brass escapements, wound springs, and the sketches in the margin actually got built."
+    },
+    {
+      "facetId": 1808,
+      "title": "Desertpunk",
+      "taxonomy": "STYLE",
+      "description": "Sun-bleached survival. Sand-scoured plating, water kept as currency, every surface wrapped against the glare."
+    },
+    {
+      "facetId": 1434,
+      "title": "Doodlecore",
+      "taxonomy": "STYLE",
+      "description": "Ballpoint margins and the back of a receipt. Drawn fast, drawn badly, drawn with total conviction."
+    },
+    {
+      "facetId": 1420,
+      "title": "Etching",
+      "taxonomy": "STYLE",
+      "description": "Fine lines cut into metal and printed in dense black. Every shadow is built from hatching; nothing is shaded softly."
+    },
+    {
+      "facetId": 1414,
+      "title": "Graffiti",
+      "taxonomy": "STYLE",
+      "description": "Aerosol, hard outlines, and letterforms that argue with each other. Made on a wall that was never consulted."
+    },
+    {
+      "facetId": 1805,
+      "title": "Hellpunk",
+      "taxonomy": "STYLE",
+      "description": "Infernal industry. Brimstone smokestacks, chained machinery, damnation reorganised into a supply chain."
+    },
+    {
+      "facetId": 1810,
+      "title": "Junkpunk",
+      "taxonomy": "STYLE",
+      "description": "Assembled entirely from what was thrown out. Nothing matches, every join is visible, and it works. Mostly."
+    },
+    {
+      "facetId": 1419,
+      "title": "Manga",
+      "taxonomy": "STYLE",
+      "description": "Japanese comic linework. Screentone instead of shading, speed lines instead of blur, expressions turned well past realism."
+    },
+    {
+      "facetId": 1812,
+      "title": "Neonpunk",
+      "taxonomy": "STYLE",
+      "description": "Saturated night. Electric pinks and cyans, everything wet enough to reflect them, and no daylight anywhere in frame."
+    },
+    {
+      "facetId": 1807,
+      "title": "Oceanpunk",
+      "taxonomy": "STYLE",
+      "description": "Salt-corroded engineering. Ship hulls repurposed into streets, diving rigs kept running past their rating, everything faintly barnacled."
+    },
+    {
+      "facetId": 1813,
+      "title": "Pastelpunk",
+      "taxonomy": "STYLE",
+      "description": "Rebellion in soft colours. A cotton-candy palette doing something genuinely unsettling and refusing to raise its voice about it."
+    },
+    {
+      "facetId": 1818,
+      "title": "Rococopunk",
+      "taxonomy": "STYLE",
+      "description": "Ornament carried well past the point of sense. Gilt curls, powdered wigs, and a working engine concealed inside a music box."
+    },
+    {
+      "facetId": 1809,
+      "title": "Snowpunk",
+      "taxonomy": "STYLE",
+      "description": "Cold-weather engineering. Furs layered over brass, breath fogging the instrument panel, ice forming in the gears faster than anyone can clear it."
+    },
+    {
+      "facetId": 1819,
+      "title": "Stonepunk",
+      "taxonomy": "STYLE",
+      "description": "Invention at the stone age. Flint mechanisms, log rollers, and technology that was chipped into shape rather than machined."
+    },
+    {
+      "facetId": 1406,
+      "title": "Surrealist",
+      "taxonomy": "STYLE",
+      "description": "Dream logic rendered precisely. Impossible arrangements painted with the flat confidence of a still life, so the eye accepts them before the mind objects."
+    },
+    {
+      "facetId": 1815,
+      "title": "Teapunk",
+      "taxonomy": "STYLE",
+      "description": "Steam's genteel cousin. Porcelain fittings, copper kettles, and machinery that stops entirely for the afternoon."
+    },
+    {
+      "facetId": 1816,
+      "title": "Vaporpunk",
+      "taxonomy": "STYLE",
+      "description": "Sun-bleached digital nostalgia. Marble busts, gridded horizons, and the specific pink of a shopping mall that closed decades ago."
+    },
+    {
+      "facetId": 1405,
+      "title": "Watercolor",
+      "taxonomy": "STYLE",
+      "description": "Pigment moving in water and permitted to do so. Soft blooms, paper texture showing through, edges that let go where they want to."
+    }
+  ]
+}

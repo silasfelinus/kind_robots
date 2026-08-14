@@ -1,0 +1,697 @@
+{
+  "version": 1,
+  "taxonomy": "PERSONALITY",
+  "note": "115 trait words, many of them near-synonyms, so each description has to earn its own angle: Calm is a pulse that does not move, Coolheaded is processing that does not degrade, Relaxed is a high threshold. Matched to existing rows like Altruistic, which show the trait through behavior and then turn.",
+  "entries": [
+    {
+      "facetId": 1034,
+      "title": "Aggressive",
+      "taxonomy": "PERSONALITY",
+      "description": "Arrives at conflict early and does not wait to confirm it was necessary. Occasionally this is exactly what the moment required."
+    },
+    {
+      "facetId": 961,
+      "title": "Ambitious",
+      "taxonomy": "PERSONALITY",
+      "description": "Wants the next thing before finishing this one. The wanting is genuine and does not switch off at home."
+    },
+    {
+      "facetId": 1115,
+      "title": "Ambivalent",
+      "taxonomy": "PERSONALITY",
+      "description": "Holds both positions fully and will not collapse them for anyone's convenience. Mistaken for indecision by people in a hurry."
+    },
+    {
+      "facetId": 1025,
+      "title": "Arrogant",
+      "taxonomy": "PERSONALITY",
+      "description": "Correct often enough to have stopped checking. The checking is the part everyone actually misses."
+    },
+    {
+      "facetId": 1120,
+      "title": "Brooding",
+      "taxonomy": "PERSONALITY",
+      "description": "Processing something at length and in private. Will surface with a conclusion nobody watched them reach."
+    },
+    {
+      "facetId": 1106,
+      "title": "Bubbly",
+      "taxonomy": "PERSONALITY",
+      "description": "Runs at a temperature the room has to adjust to. The energy is real and costs more than it appears to."
+    },
+    {
+      "facetId": 1033,
+      "title": "Calm",
+      "taxonomy": "PERSONALITY",
+      "description": "The pulse does not move when the situation does. Invaluable in a crisis and unnerving in an argument."
+    },
+    {
+      "facetId": 1090,
+      "title": "Carefree",
+      "taxonomy": "PERSONALITY",
+      "description": "Genuinely not carrying it. Looks like luck from outside and is mostly a decision, repeated daily."
+    },
+    {
+      "facetId": 1107,
+      "title": "Caring",
+      "taxonomy": "PERSONALITY",
+      "description": "Notices what somebody needs before they say it, then provides it without announcing that they noticed."
+    },
+    {
+      "facetId": 977,
+      "title": "Charming",
+      "taxonomy": "PERSONALITY",
+      "description": "Makes the other person feel interesting, which is a skill rather than a trick. Works on people who know exactly what it is."
+    },
+    {
+      "facetId": 1098,
+      "title": "Cheerful",
+      "taxonomy": "PERSONALITY",
+      "description": "Chooses the better reading of an ambiguous situation. Has been wrong about this and remains undeterred."
+    },
+    {
+      "facetId": 975,
+      "title": "Cold",
+      "taxonomy": "PERSONALITY",
+      "description": "Feels it and declines to display it. People read the surface and get the temperature wrong every single time."
+    },
+    {
+      "facetId": 990,
+      "title": "Confident",
+      "taxonomy": "PERSONALITY",
+      "description": "Acts before consensus arrives. Sometimes that is leadership and sometimes it is only being first."
+    },
+    {
+      "facetId": 1091,
+      "title": "Coolheaded",
+      "taxonomy": "PERSONALITY",
+      "description": "Thinks at the same speed under pressure as without it. Not calm exactly; the processing simply does not degrade."
+    },
+    {
+      "facetId": 968,
+      "title": "Cynical",
+      "taxonomy": "PERSONALITY",
+      "description": "Assumes the interested motive and is right often enough to keep the habit. Quietly disappointed by every exception."
+    },
+    {
+      "facetId": 1119,
+      "title": "Daring",
+      "taxonomy": "PERSONALITY",
+      "description": "Takes the shot with the odds visible and unimproved. Knows the number and goes regardless."
+    },
+    {
+      "facetId": 998,
+      "title": "Deceptive",
+      "taxonomy": "PERSONALITY",
+      "description": "Tells the truth in an order that produces a false picture. Technically accurate throughout, which is the craft of it."
+    },
+    {
+      "facetId": 1108,
+      "title": "Demanding",
+      "taxonomy": "PERSONALITY",
+      "description": "Sets a bar and will not lower it for comfort. Holds themselves to the same one, which is why anybody stays."
+    },
+    {
+      "facetId": 1069,
+      "title": "Detached",
+      "taxonomy": "PERSONALITY",
+      "description": "Present, participating, and standing slightly outside it. Reports on their own life like a third party."
+    },
+    {
+      "facetId": 1004,
+      "title": "Dreamy",
+      "taxonomy": "PERSONALITY",
+      "description": "Half the attention is somewhere better. The other half is still more than most people bring."
+    },
+    {
+      "facetId": 1000,
+      "title": "Eccentric",
+      "taxonomy": "PERSONALITY",
+      "description": "Solved a set of ordinary problems in ways nobody else considered, then kept the solutions."
+    },
+    {
+      "facetId": 1072,
+      "title": "Euphoric",
+      "taxonomy": "PERSONALITY",
+      "description": "Lit up well past the occasion. Wonderful company, and slightly alarming to anyone tracking the descent."
+    },
+    {
+      "facetId": 1046,
+      "title": "Fearless",
+      "taxonomy": "PERSONALITY",
+      "description": "The fear signal does not arrive. This is a genuine advantage and a well-documented liability."
+    },
+    {
+      "facetId": 1050,
+      "title": "Friendly",
+      "taxonomy": "PERSONALITY",
+      "description": "Opens toward strangers by default. That default has cost them and has not been revised."
+    },
+    {
+      "facetId": 1102,
+      "title": "Gloomy",
+      "taxonomy": "PERSONALITY",
+      "description": "Expects the weather to turn and is usually right. Carries the umbrella everyone else ends up borrowing."
+    },
+    {
+      "facetId": 1022,
+      "title": "Greedy",
+      "taxonomy": "PERSONALITY",
+      "description": "The amount that would be enough keeps moving. They have noticed this and have not stopped."
+    },
+    {
+      "facetId": 1116,
+      "title": "Gregarious",
+      "taxonomy": "PERSONALITY",
+      "description": "Refuels in company and empties out alone, which is the opposite of how most people are wired."
+    },
+    {
+      "facetId": 1096,
+      "title": "Grumpy",
+      "taxonomy": "PERSONALITY",
+      "description": "Objects loudly and helps anyway. The objecting is not a preview of the answer."
+    },
+    {
+      "facetId": 1052,
+      "title": "Hostile",
+      "taxonomy": "PERSONALITY",
+      "description": "Treats the room as opposition until proven otherwise. Proof is accepted; it is rarely offered."
+    },
+    {
+      "facetId": 1092,
+      "title": "Hotheaded",
+      "taxonomy": "PERSONALITY",
+      "description": "Reaches the ceiling in seconds and comes down almost as fast. Everyone else takes longer to recover than they do."
+    },
+    {
+      "facetId": 1023,
+      "title": "Humble",
+      "taxonomy": "PERSONALITY",
+      "description": "Has the credentials and declines to lead with them. Discovering this later is the moment people start trusting them."
+    },
+    {
+      "facetId": 985,
+      "title": "Impatient",
+      "taxonomy": "PERSONALITY",
+      "description": "Sees the end of the process from the start and resents every step standing between."
+    },
+    {
+      "facetId": 1060,
+      "title": "Innocent",
+      "taxonomy": "PERSONALITY",
+      "description": "Has not yet been given a reason. Not naive; simply working from a fair sample."
+    },
+    {
+      "facetId": 1114,
+      "title": "Jovial",
+      "taxonomy": "PERSONALITY",
+      "description": "Enlarges the room. Laughs first and loudest and means it, which is the part that makes it work."
+    },
+    {
+      "facetId": 1014,
+      "title": "Lazy",
+      "taxonomy": "PERSONALITY",
+      "description": "Finds the shortest path with real skill, then spends the time saved on nothing in particular."
+    },
+    {
+      "facetId": 1088,
+      "title": "Meticulous",
+      "taxonomy": "PERSONALITY",
+      "description": "Checks the thing nobody checks. Slow at the start and never slow at the end."
+    },
+    {
+      "facetId": 1097,
+      "title": "Moody",
+      "taxonomy": "PERSONALITY",
+      "description": "The weather is internal and moves fast. Everyone learns to read it and nobody learns to predict it."
+    },
+    {
+      "facetId": 1078,
+      "title": "Obedient",
+      "taxonomy": "PERSONALITY",
+      "description": "Follows the instruction completely, including the parts the instructor has forgotten giving."
+    },
+    {
+      "facetId": 1058,
+      "title": "Paranoid",
+      "taxonomy": "PERSONALITY",
+      "description": "Models the worst version and prepares for it. Has been right twice, which was enough to settle the matter."
+    },
+    {
+      "facetId": 982,
+      "title": "Patient",
+      "taxonomy": "PERSONALITY",
+      "description": "Waits without the waiting costing them anything. Reads as serenity and is closer to stamina."
+    },
+    {
+      "facetId": 1008,
+      "title": "Polite",
+      "taxonomy": "PERSONALITY",
+      "description": "Maintains the form regardless of provocation. The form is armor, and everyone can tell when it thickens."
+    },
+    {
+      "facetId": 1103,
+      "title": "Quirky",
+      "taxonomy": "PERSONALITY",
+      "description": "The angle is genuinely theirs rather than assembled. Cannot be performed, though it has been attempted."
+    },
+    {
+      "facetId": 1055,
+      "title": "Realistic",
+      "taxonomy": "PERSONALITY",
+      "description": "Names the constraint out loud while everyone else is still hoping. Unpopular early and quoted later."
+    },
+    {
+      "facetId": 1077,
+      "title": "Rebellious",
+      "taxonomy": "PERSONALITY",
+      "description": "Tests whether the rule is load-bearing. Frequently it is not, and occasionally the discovery is expensive."
+    },
+    {
+      "facetId": 1104,
+      "title": "Relaxed",
+      "taxonomy": "PERSONALITY",
+      "description": "Nothing is urgent until it demonstrably is. The threshold is high and, so far, correctly calibrated."
+    },
+    {
+      "facetId": 1122,
+      "title": "Resilient",
+      "taxonomy": "PERSONALITY",
+      "description": "Takes the hit and is functional the next morning. The recovery is not effortless; it is simply reliable."
+    },
+    {
+      "facetId": 1039,
+      "title": "Romantic",
+      "taxonomy": "PERSONALITY",
+      "description": "Reads the world for meaning rather than mechanics. This produces poetry and disappointment in roughly equal amounts."
+    },
+    {
+      "facetId": 1010,
+      "title": "Rude",
+      "taxonomy": "PERSONALITY",
+      "description": "Skips the softening entirely. The information is accurate and arrives without any packaging at all."
+    },
+    {
+      "facetId": 1113,
+      "title": "Scheming",
+      "taxonomy": "PERSONALITY",
+      "description": "Several moves ahead and enjoying it. The plan usually works and is rarely as necessary as the planning implied."
+    },
+    {
+      "facetId": 996,
+      "title": "Selfish",
+      "taxonomy": "PERSONALITY",
+      "description": "Weighs their own interest first and does not pretend otherwise. The honesty makes it both worse and easier."
+    },
+    {
+      "facetId": 1086,
+      "title": "Sensitive",
+      "taxonomy": "PERSONALITY",
+      "description": "Registers the shift in a room before anyone names it. Receives far more signal than is comfortable to carry."
+    },
+    {
+      "facetId": 993,
+      "title": "Shy",
+      "taxonomy": "PERSONALITY",
+      "description": "Wants the connection and cannot get the first sentence out. The wanting is the part people miss."
+    },
+    {
+      "facetId": 1095,
+      "title": "Skeptical",
+      "taxonomy": "PERSONALITY",
+      "description": "Asks for the evidence, accepts it when it arrives, and is genuinely pleased to be convinced."
+    },
+    {
+      "facetId": 1083,
+      "title": "Tactful",
+      "taxonomy": "PERSONALITY",
+      "description": "Says the difficult thing in the form the listener can actually hear. Costs them time and gets it heard."
+    },
+    {
+      "facetId": 1089,
+      "title": "Theatrical",
+      "taxonomy": "PERSONALITY",
+      "description": "Plays every scene to the back row. Life is not larger for them, it is simply scaled correctly."
+    },
+    {
+      "facetId": 1048,
+      "title": "Timid",
+      "taxonomy": "PERSONALITY",
+      "description": "Hesitates at the threshold, then goes through more often than anybody gives them credit for."
+    },
+    {
+      "facetId": 1125,
+      "title": "Unyielding",
+      "taxonomy": "PERSONALITY",
+      "description": "Does not move once the position is taken. A virtue and a structural problem, depending on the week."
+    },
+    {
+      "facetId": 1057,
+      "title": "Visionary",
+      "taxonomy": "PERSONALITY",
+      "description": "Sees the finished thing before the first step exists and struggles to explain the middle."
+    },
+    {
+      "facetId": 1070,
+      "title": "Whimsical",
+      "taxonomy": "PERSONALITY",
+      "description": "Follows the odd idea to find out where it goes. Roughly one in five arrives somewhere worth the trip."
+    },
+    {
+      "facetId": 1065,
+      "title": "Wise",
+      "taxonomy": "PERSONALITY",
+      "description": "Has made the mistake already and would rather you did not. Will let you anyway if that is the only route."
+    },
+    {
+      "facetId": 1733,
+      "title": "Adaptable",
+      "taxonomy": "PERSONALITY",
+      "description": "Reshapes to the situation without treating it as a loss. Whatever they were doing before is negotiable."
+    },
+    {
+      "facetId": 986,
+      "title": "Adventurous",
+      "taxonomy": "PERSONALITY",
+      "description": "Prefers the unfamiliar version of any option. The known one remains available and is rarely chosen."
+    },
+    {
+      "facetId": 1714,
+      "title": "Aloof",
+      "taxonomy": "PERSONALITY",
+      "description": "Keeps a distance that is deliberate rather than defensive. Comes closer on their own schedule and nobody else's."
+    },
+    {
+      "facetId": 1015,
+      "title": "Analytical",
+      "taxonomy": "PERSONALITY",
+      "description": "Breaks the thing into parts before responding to it. Slower to react and considerably harder to fool."
+    },
+    {
+      "facetId": 1735,
+      "title": "Anxious",
+      "taxonomy": "PERSONALITY",
+      "description": "Runs every branch of what might happen. Exhausting to be, and occasionally the reason nothing went wrong."
+    },
+    {
+      "facetId": 1715,
+      "title": "Awkward",
+      "taxonomy": "PERSONALITY",
+      "description": "Misses the timing by a fraction, consistently. Everything else about them is worth the fraction."
+    },
+    {
+      "facetId": 1105,
+      "title": "Bold",
+      "taxonomy": "PERSONALITY",
+      "description": "States the position first and loudest, before knowing how the room intends to take it."
+    },
+    {
+      "facetId": 1738,
+      "title": "Buoyant",
+      "taxonomy": "PERSONALITY",
+      "description": "Returns to the surface regardless of what pushed them under. The mechanism is not understood, including by them."
+    },
+    {
+      "facetId": 978,
+      "title": "Calculating",
+      "taxonomy": "PERSONALITY",
+      "description": "Runs the numbers on situations most people feel their way through. The numbers are usually right."
+    },
+    {
+      "facetId": 989,
+      "title": "Cautious",
+      "taxonomy": "PERSONALITY",
+      "description": "Checks the footing before committing weight. Slower to arrive and considerably more likely to arrive."
+    },
+    {
+      "facetId": 1112,
+      "title": "Compassionate",
+      "taxonomy": "PERSONALITY",
+      "description": "Sits with somebody's difficulty without needing to solve it, which is rarer and harder than solving it."
+    },
+    {
+      "facetId": 1111,
+      "title": "Considerate",
+      "taxonomy": "PERSONALITY",
+      "description": "Accounts for the other person's constraints before proposing anything. The accounting happens silently."
+    },
+    {
+      "facetId": 1748,
+      "title": "Consistent",
+      "taxonomy": "PERSONALITY",
+      "description": "The same on a bad day. Unremarkable until you need it, at which point it is the only thing that matters."
+    },
+    {
+      "facetId": 1041,
+      "title": "Creative",
+      "taxonomy": "PERSONALITY",
+      "description": "Connects two things nobody had put together. Produces a great deal of nonsense on the way and does not mind."
+    },
+    {
+      "facetId": 1728,
+      "title": "Earnest",
+      "taxonomy": "PERSONALITY",
+      "description": "Means it, plainly, with no irony held in reserve. Disarms people who arrived prepared for a different conversation."
+    },
+    {
+      "facetId": 972,
+      "title": "Empathetic",
+      "taxonomy": "PERSONALITY",
+      "description": "Feels the other person's state rather than inferring it. Accurate, and not switchable."
+    },
+    {
+      "facetId": 1756,
+      "title": "Excessive",
+      "taxonomy": "PERSONALITY",
+      "description": "Does more than the situation requires, every time. Occasionally that is exactly right and nobody can predict which times."
+    },
+    {
+      "facetId": 1727,
+      "title": "Excitable",
+      "taxonomy": "PERSONALITY",
+      "description": "Goes from nothing to everything with no visible ramp. The enthusiasm is contagious and briefly overwhelming."
+    },
+    {
+      "facetId": 1110,
+      "title": "Flexible",
+      "taxonomy": "PERSONALITY",
+      "description": "Holds the goal firmly and the method loosely. Confused for indecision by anyone watching only the method."
+    },
+    {
+      "facetId": 1744,
+      "title": "Focused",
+      "taxonomy": "PERSONALITY",
+      "description": "Everything outside the task stops existing. Extraordinary output, and somebody else has to remind them to eat."
+    },
+    {
+      "facetId": 1036,
+      "title": "Gentle",
+      "taxonomy": "PERSONALITY",
+      "description": "Handles people and objects as though they might be fragile, which most of them turn out to be."
+    },
+    {
+      "facetId": 1012,
+      "title": "Hardworking",
+      "taxonomy": "PERSONALITY",
+      "description": "Keeps going after the interesting part ends. That is the entire distinction, and it is a large one."
+    },
+    {
+      "facetId": 970,
+      "title": "Idealistic",
+      "taxonomy": "PERSONALITY",
+      "description": "Holds a standard the world has not met yet. Disappointed constantly and has not lowered it once."
+    },
+    {
+      "facetId": 981,
+      "title": "Impulsive",
+      "taxonomy": "PERSONALITY",
+      "description": "Acts on the first instinct and sorts the consequences afterward. The instinct is right more often than the method deserves."
+    },
+    {
+      "facetId": 1093,
+      "title": "Indifferent",
+      "taxonomy": "PERSONALITY",
+      "description": "Genuinely has no preference, which people persistently read as a hidden one."
+    },
+    {
+      "facetId": 1121,
+      "title": "Industrious",
+      "taxonomy": "PERSONALITY",
+      "description": "Always mid-project. Rest gets scheduled and then treated as another task to complete properly."
+    },
+    {
+      "facetId": 1087,
+      "title": "Insensitive",
+      "taxonomy": "PERSONALITY",
+      "description": "Misses the signal entirely rather than ignoring it. The distinction matters to them and rarely to anybody else."
+    },
+    {
+      "facetId": 1101,
+      "title": "Intense",
+      "taxonomy": "PERSONALITY",
+      "description": "Full weight on everything, small things included. Exhausting in bulk and unmatched in a crisis."
+    },
+    {
+      "facetId": 1739,
+      "title": "Irreverent",
+      "taxonomy": "PERSONALITY",
+      "description": "Declines to treat anything as sitting above a joke. Aimed upward far more often than down, which is the saving detail."
+    },
+    {
+      "facetId": 1755,
+      "title": "Measured",
+      "taxonomy": "PERSONALITY",
+      "description": "Speaks after thinking rather than during. The pause reads as hesitation and is not."
+    },
+    {
+      "facetId": 1747,
+      "title": "Mercurial",
+      "taxonomy": "PERSONALITY",
+      "description": "Changes without warning and without contradiction. Both versions were entirely sincere at the time."
+    },
+    {
+      "facetId": 1718,
+      "title": "Methodical",
+      "taxonomy": "PERSONALITY",
+      "description": "Follows the order even when a shortcut is visible. Finishes later and has to redo nothing."
+    },
+    {
+      "facetId": 1716,
+      "title": "Mysterious",
+      "taxonomy": "PERSONALITY",
+      "description": "Withholds without lying. People fill the gap themselves and then blame them for whatever they put in it."
+    },
+    {
+      "facetId": 1749,
+      "title": "Nostalgic",
+      "taxonomy": "PERSONALITY",
+      "description": "Measures now against one specific then. The then has been quietly edited and they know it."
+    },
+    {
+      "facetId": 1730,
+      "title": "Nurturing",
+      "taxonomy": "PERSONALITY",
+      "description": "Builds the conditions other people grow in, then steps back before the credit arrives."
+    },
+    {
+      "facetId": 1027,
+      "title": "Playful",
+      "taxonomy": "PERSONALITY",
+      "description": "Turns the task into a game and finishes faster that way. Nobody believes this until they watch it happen."
+    },
+    {
+      "facetId": 1745,
+      "title": "Poetic",
+      "taxonomy": "PERSONALITY",
+      "description": "Reaches for the image rather than the explanation. Sometimes clearer, always slower."
+    },
+    {
+      "facetId": 1044,
+      "title": "Practical",
+      "taxonomy": "PERSONALITY",
+      "description": "Asks what will actually work here, with these materials, today."
+    },
+    {
+      "facetId": 1003,
+      "title": "Pragmatic",
+      "taxonomy": "PERSONALITY",
+      "description": "Trades the ideal outcome for the achievable one without mourning it. Gets more done and sleeps fine."
+    },
+    {
+      "facetId": 1099,
+      "title": "Predictable",
+      "taxonomy": "PERSONALITY",
+      "description": "You know what they will do. This has been used against them and is still why people rely on them."
+    },
+    {
+      "facetId": 1734,
+      "title": "Principled",
+      "taxonomy": "PERSONALITY",
+      "description": "Has lines and will pay for them. The paying happens quietly and does not get mentioned afterward."
+    },
+    {
+      "facetId": 1746,
+      "title": "Prosaic",
+      "taxonomy": "PERSONALITY",
+      "description": "Says the plain version. No ornament, no lift, and nothing lost on the way across."
+    },
+    {
+      "facetId": 960,
+      "title": "Reserved",
+      "taxonomy": "PERSONALITY",
+      "description": "Holds most of it back by default. Whatever does come out was selected rather than leaked."
+    },
+    {
+      "facetId": 1094,
+      "title": "Resourceful",
+      "taxonomy": "PERSONALITY",
+      "description": "Solves it with what is already in the room. The solution is rarely elegant and is always in time."
+    },
+    {
+      "facetId": 1740,
+      "title": "Reverent",
+      "taxonomy": "PERSONALITY",
+      "description": "Treats certain things as genuinely serious without performing the seriousness."
+    },
+    {
+      "facetId": 1030,
+      "title": "Serious",
+      "taxonomy": "PERSONALITY",
+      "description": "Weighs a matter properly before responding to it. Funny in private, which surprises people."
+    },
+    {
+      "facetId": 1722,
+      "title": "Sincere",
+      "taxonomy": "PERSONALITY",
+      "description": "The stated reason is the actual reason. Takes people a while to stop hunting for the other one."
+    },
+    {
+      "facetId": 957,
+      "title": "Stoic",
+      "taxonomy": "PERSONALITY",
+      "description": "Carries it without commentary. Not unaffected, simply unwilling to make it the room's problem."
+    },
+    {
+      "facetId": 1109,
+      "title": "Stubborn",
+      "taxonomy": "PERSONALITY",
+      "description": "Will not be moved by pressure and can occasionally be moved by argument. That distinction is everything."
+    },
+    {
+      "facetId": 1753,
+      "title": "Tactical",
+      "taxonomy": "PERSONALITY",
+      "description": "Thinks in positions and sequences. Plays the current move for the sake of the one after it."
+    },
+    {
+      "facetId": 1725,
+      "title": "Terse",
+      "taxonomy": "PERSONALITY",
+      "description": "Uses the fewest words that carry it. Nothing is missing; it is simply not padded."
+    },
+    {
+      "facetId": 1100,
+      "title": "Unpredictable",
+      "taxonomy": "PERSONALITY",
+      "description": "A pattern exists and nobody has found it. Including, on some days, them."
+    },
+    {
+      "facetId": 1724,
+      "title": "Verbose",
+      "taxonomy": "PERSONALITY",
+      "description": "Takes the long way round and picks up things worth having. The point arrives eventually and arrives well supplied."
+    },
+    {
+      "facetId": 1713,
+      "title": "Warm",
+      "taxonomy": "PERSONALITY",
+      "description": "Makes people feel welcome with no effort and no agenda. The absence of agenda is what they actually notice."
+    },
+    {
+      "facetId": 1723,
+      "title": "Witty",
+      "taxonomy": "PERSONALITY",
+      "description": "Finds the angle fast and says it before the moment closes. Occasionally at somebody's expense and usually not."
+    }
+  ]
+}

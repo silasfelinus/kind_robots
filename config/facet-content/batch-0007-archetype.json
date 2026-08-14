@@ -1,0 +1,715 @@
+{
+  "version": 1,
+  "taxonomy": "ARCHETYPE",
+  "note": "Matched to the ARCHETYPE rows that already carry descriptions -- Bard: 'Technically a weapon. The paperwork classifies them as entertainment.' Institutional deadpan, or a scene with the implication left standing. The silly ones are played straight, which is the only way they work.",
+  "entries": [
+    {
+      "facetId": 519,
+      "title": "Arcanist",
+      "taxonomy": "ARCHETYPE",
+      "description": "Studies magic as a discipline rather than a gift. Cites sources. Holds firm opinions about people who improvise."
+    },
+    {
+      "facetId": 516,
+      "title": "Archivist",
+      "taxonomy": "ARCHETYPE",
+      "description": "Knows where everything is and what it cost to keep. Guards the collection from fire, damp, and enthusiasm."
+    },
+    {
+      "facetId": 522,
+      "title": "Astronomer",
+      "taxonomy": "ARCHETYPE",
+      "description": "Watches something that will not change within their lifetime and takes notes regardless. Patient past the point most people call reasonable."
+    },
+    {
+      "facetId": 385,
+      "title": "Barbarian",
+      "taxonomy": "ARCHETYPE",
+      "description": "Solves the problem directly. The direct solution is frequently correct and is never the one the council voted for."
+    },
+    {
+      "facetId": 412,
+      "title": "Corsair",
+      "taxonomy": "ARCHETYPE",
+      "description": "Licensed piracy, with paperwork. The letter of marque makes it legal and changes nothing at all about the boarding."
+    },
+    {
+      "facetId": 451,
+      "title": "Doomcaller",
+      "taxonomy": "ARCHETYPE",
+      "description": "Announces what is coming, accurately, to a room that would rather not hear it. Rarely thanked and rarely wrong."
+    },
+    {
+      "facetId": 458,
+      "title": "Falconer",
+      "taxonomy": "ARCHETYPE",
+      "description": "Trains something that could leave at any moment and returns because the arrangement suits it. That is the entire art."
+    },
+    {
+      "facetId": 496,
+      "title": "Gladiator",
+      "taxonomy": "ARCHETYPE",
+      "description": "Fights for an audience that decides the ending. Skill is survival and the crowd is the real opponent."
+    },
+    {
+      "facetId": 405,
+      "title": "Inventor",
+      "taxonomy": "ARCHETYPE",
+      "description": "Builds the thing before establishing whether it should exist. The demonstration usually settles that question one way or the other."
+    },
+    {
+      "facetId": 464,
+      "title": "Lionheart",
+      "taxonomy": "ARCHETYPE",
+      "description": "Stands in front. Not the strongest in the line and reliably the first one into it."
+    },
+    {
+      "facetId": 380,
+      "title": "Mage",
+      "taxonomy": "ARCHETYPE",
+      "description": "Formal training, structured casting, and a working theory. The theory is the reason the results repeat."
+    },
+    {
+      "facetId": 416,
+      "title": "Mechanist",
+      "taxonomy": "ARCHETYPE",
+      "description": "Understands the machine as a system rather than a pile of parts. Repairs the cause instead of the symptom."
+    },
+    {
+      "facetId": 467,
+      "title": "Ninja",
+      "taxonomy": "ARCHETYPE",
+      "description": "Success is measured in absence. Anything a witness saw counts as a partial failure."
+    },
+    {
+      "facetId": 430,
+      "title": "Runesmith",
+      "taxonomy": "ARCHETYPE",
+      "description": "Cuts marks into metal that keep working long after. One bad stroke and the whole piece is decorative."
+    },
+    {
+      "facetId": 466,
+      "title": "Samurai",
+      "taxonomy": "ARCHETYPE",
+      "description": "Bound by a code that costs more than it protects, and follows it precisely for exactly that reason."
+    },
+    {
+      "facetId": 391,
+      "title": "Sorcerer",
+      "taxonomy": "ARCHETYPE",
+      "description": "The power arrived unearned and has to be lived with. No curriculum exists for it and one is badly needed."
+    },
+    {
+      "facetId": 432,
+      "title": "Soulbinder",
+      "taxonomy": "ARCHETYPE",
+      "description": "Negotiates with things that used to be people. Those negotiations are binding on both sides."
+    },
+    {
+      "facetId": 417,
+      "title": "Spellblade",
+      "taxonomy": "ARCHETYPE",
+      "description": "Neither discipline is a hobby. Casts mid-swing and stopped explaining how some years ago."
+    },
+    {
+      "facetId": 479,
+      "title": "Tidecaller",
+      "taxonomy": "ARCHETYPE",
+      "description": "Asks the water for something and is sometimes refused. The refusals are more instructive than the successes."
+    },
+    {
+      "facetId": 413,
+      "title": "Tinker",
+      "taxonomy": "ARCHETYPE",
+      "description": "Improves things that were working fine. About half the improvements hold; the other half are thoroughly documented."
+    },
+    {
+      "facetId": 453,
+      "title": "Voidwalker",
+      "taxonomy": "ARCHETYPE",
+      "description": "Steps through somewhere that is not anywhere and arrives elsewhere. Comes back slightly colder each time."
+    },
+    {
+      "facetId": 506,
+      "title": "Accordion Bard",
+      "taxonomy": "ARCHETYPE",
+      "description": "Chose the instrument nobody else would carry. It is loud, it is heavy, and it fills a room without assistance."
+    },
+    {
+      "facetId": 406,
+      "title": "Airship Captain",
+      "taxonomy": "ARCHETYPE",
+      "description": "Commands something buoyant, fragile, and full of people. Weather is the enemy and the crew is the argument."
+    },
+    {
+      "facetId": 489,
+      "title": "Astral Warden",
+      "taxonomy": "ARCHETYPE",
+      "description": "Patrols the space between places. Whatever is being kept out has never been described in writing."
+    },
+    {
+      "facetId": 469,
+      "title": "Aztec Priest",
+      "taxonomy": "ARCHETYPE",
+      "description": "Keeps a calendar that governs everything and reads the obligations in it correctly. Those obligations are not negotiable."
+    },
+    {
+      "facetId": 494,
+      "title": "Barbecue Berserker",
+      "taxonomy": "ARCHETYPE",
+      "description": "Rage channelled into a twelve-hour cook. The fury is genuine, the timing is exact, and the result is outstanding."
+    },
+    {
+      "facetId": 421,
+      "title": "Battledancer",
+      "taxonomy": "ARCHETYPE",
+      "description": "Fights in a form that reads as choreography right up until it connects. The rhythm is the defense."
+    },
+    {
+      "facetId": 459,
+      "title": "Bear Shaman",
+      "taxonomy": "ARCHETYPE",
+      "description": "Borrows something from the bear and gives something back. The exchange is not symbolic."
+    },
+    {
+      "facetId": 425,
+      "title": "Beastmaster",
+      "taxonomy": "ARCHETYPE",
+      "description": "Commands nothing whatsoever. Asks well, consistently, and has been answered often enough to build a reputation on it."
+    },
+    {
+      "facetId": 423,
+      "title": "Blood Mage",
+      "taxonomy": "ARCHETYPE",
+      "description": "The cost comes out of the caster. That keeps the spell list short and every entry on it serious."
+    },
+    {
+      "facetId": 452,
+      "title": "Bloodborne Hunter",
+      "taxonomy": "ARCHETYPE",
+      "description": "Hunts the thing they are slowly becoming. The clock is internal and nobody else can read it."
+    },
+    {
+      "facetId": 492,
+      "title": "Brewmaster Monk",
+      "taxonomy": "ARCHETYPE",
+      "description": "Discipline, patience, and fermentation. All three take precisely as long as they take."
+    },
+    {
+      "facetId": 503,
+      "title": "Bubble Mage",
+      "taxonomy": "ARCHETYPE",
+      "description": "Everything they make is beautiful, weightless and temporary. They know this. That is the practice."
+    },
+    {
+      "facetId": 530,
+      "title": "Bubble Rider",
+      "taxonomy": "ARCHETYPE",
+      "description": "Travels by something that could pop. Has calculated the risk, accepted it, and is having an excellent time."
+    },
+    {
+      "facetId": 525,
+      "title": "Candy Wizard",
+      "taxonomy": "ARCHETYPE",
+      "description": "Sugar as a functioning magical substrate. The spells work and every one of them is somewhat sticky."
+    },
+    {
+      "facetId": 470,
+      "title": "Celtic Warden",
+      "taxonomy": "ARCHETYPE",
+      "description": "Keeps the old boundaries, the ones marked by stones rather than maps. Knows which fields not to cross."
+    },
+    {
+      "facetId": 497,
+      "title": "Centaur Archer",
+      "taxonomy": "ARCHETYPE",
+      "description": "Fires from a moving platform that is also their legs. The accuracy is unfair and everybody has said so."
+    },
+    {
+      "facetId": 484,
+      "title": "Chaos Architect",
+      "taxonomy": "ARCHETYPE",
+      "description": "Designs systems that fail interestingly. The failure is the specification rather than a defect in it."
+    },
+    {
+      "facetId": 445,
+      "title": "Cheese Bard",
+      "taxonomy": "ARCHETYPE",
+      "description": "Committed entirely to a bit that stopped being a bit years ago. The scholarship is real now."
+    },
+    {
+      "facetId": 493,
+      "title": "Chocolatier Alchemist",
+      "taxonomy": "ARCHETYPE",
+      "description": "Temperature, timing, and transformation. Only one of those three will forgive an error."
+    },
+    {
+      "facetId": 433,
+      "title": "Chronomancer",
+      "taxonomy": "ARCHETYPE",
+      "description": "Moves through time in small, expensive increments. Keeps a ledger of everything already spent."
+    },
+    {
+      "facetId": 408,
+      "title": "Clockwork Knight",
+      "taxonomy": "ARCHETYPE",
+      "description": "Wound each morning and dependable until it runs down. Knows the hour of that and plans around it."
+    },
+    {
+      "facetId": 526,
+      "title": "Cloud Jumper",
+      "taxonomy": "ARCHETYPE",
+      "description": "Crosses the sky by treating it as ground. Whether this works gets decided fresh every time."
+    },
+    {
+      "facetId": 523,
+      "title": "Codebreaker",
+      "taxonomy": "ARCHETYPE",
+      "description": "Sits with the same page for weeks. The answer arrives whole, at an inconvenient hour, and looks obvious afterward."
+    },
+    {
+      "facetId": 480,
+      "title": "Coral Guardian",
+      "taxonomy": "ARCHETYPE",
+      "description": "Defends something that grows at a millimetre a year. Patience is not a virtue here, it is the job description."
+    },
+    {
+      "facetId": 514,
+      "title": "Crystal Mage",
+      "taxonomy": "ARCHETYPE",
+      "description": "Stores power in lattice and draws it back cleanly. The storage is the innovation; spending it is easy."
+    },
+    {
+      "facetId": 1536,
+      "title": "Cultist",
+      "taxonomy": "ARCHETYPE",
+      "description": "Belongs to something and has stopped auditing what. The belonging is genuine and covers a great deal of ground."
+    },
+    {
+      "facetId": 472,
+      "title": "Desert Nomad",
+      "taxonomy": "ARCHETYPE",
+      "description": "Carries water, route knowledge, and nothing else. Everything owned has been justified against its own weight."
+    },
+    {
+      "facetId": 463,
+      "title": "Dragon Rider",
+      "taxonomy": "ARCHETYPE",
+      "description": "The dragon consented. That consent is renewed daily and neither party treats it as settled."
+    },
+    {
+      "facetId": 483,
+      "title": "Dreamweaver",
+      "taxonomy": "ARCHETYPE",
+      "description": "Builds inside somebody else's sleep. Leaves before waking and does not always leave nothing behind."
+    },
+    {
+      "facetId": 448,
+      "title": "Duck Whisperer",
+      "taxonomy": "ARCHETYPE",
+      "description": "The ducks listen. Nobody has established why and the ducks are not discussing it."
+    },
+    {
+      "facetId": 510,
+      "title": "Earth Warden",
+      "taxonomy": "ARCHETYPE",
+      "description": "Moves stone slowly and permanently. Every change made will outlast the argument that prompted it."
+    },
+    {
+      "facetId": 487,
+      "title": "Echo Knight",
+      "taxonomy": "ARCHETYPE",
+      "description": "Fights alongside a version of themselves half a second behind. The coordination took years."
+    },
+    {
+      "facetId": 428,
+      "title": "Elementalist",
+      "taxonomy": "ARCHETYPE",
+      "description": "Fluent in all four and master of none, which is a deliberate trade and a deeply unpopular one."
+    },
+    {
+      "facetId": 454,
+      "title": "Ethereal Assassin",
+      "taxonomy": "ARCHETYPE",
+      "description": "Passes through the wall, the guard, and the lock. The approach was never the difficult part."
+    },
+    {
+      "facetId": 528,
+      "title": "Fairy Tailor",
+      "taxonomy": "ARCHETYPE",
+      "description": "Works at a scale requiring instruments nobody sells. Every commission is bespoke out of necessity."
+    },
+    {
+      "facetId": 488,
+      "title": "Fate Spinner",
+      "taxonomy": "ARCHETYPE",
+      "description": "Adjusts the thread by small amounts. Large adjustments are possible and have gone badly enough to stop."
+    },
+    {
+      "facetId": 508,
+      "title": "Fire Dancer",
+      "taxonomy": "ARCHETYPE",
+      "description": "Close enough to burn, deliberately, in time. The margin is the performance."
+    },
+    {
+      "facetId": 465,
+      "title": "Foxfire Mage",
+      "taxonomy": "ARCHETYPE",
+      "description": "Cold light that leads travellers off the path. Insists this is not the intent and has not altered the spell."
+    },
+    {
+      "facetId": 414,
+      "title": "Gentleman Duelist",
+      "taxonomy": "ARCHETYPE",
+      "description": "Impeccable manners and a settled question of honour. The manners are not a softening of the duel."
+    },
+    {
+      "facetId": 449,
+      "title": "Gravewalker",
+      "taxonomy": "ARCHETYPE",
+      "description": "Comfortable where others are not. The dead are consistent company and rarely ask for anything."
+    },
+    {
+      "facetId": 500,
+      "title": "Harpy Huntress",
+      "taxonomy": "ARCHETYPE",
+      "description": "Hunts from above and screams first. The scream is tactical and everyone underestimates it exactly once."
+    },
+    {
+      "facetId": 509,
+      "title": "Ice Sculptor",
+      "taxonomy": "ARCHETYPE",
+      "description": "Makes something extraordinary that is already leaving. Photographs are the only archive there will be."
+    },
+    {
+      "facetId": 507,
+      "title": "Inflatable Warrior",
+      "taxonomy": "ARCHETYPE",
+      "description": "Cannot be cut, cannot be crushed, and can absolutely be popped. Fights accordingly."
+    },
+    {
+      "facetId": 477,
+      "title": "Kraken Whisperer",
+      "taxonomy": "ARCHETYPE",
+      "description": "Maintains a working relationship with something enormous. The relationship is one-sided in a direction nobody expects."
+    },
+    {
+      "facetId": 520,
+      "title": "Language Bard",
+      "taxonomy": "ARCHETYPE",
+      "description": "Wins arguments in whichever tongue disadvantages the opponent. Picks up a new one every port."
+    },
+    {
+      "facetId": 515,
+      "title": "Lava Surfer",
+      "taxonomy": "ARCHETYPE",
+      "description": "Rides something that would end them on contact. The board is the whole technology and it is proprietary."
+    },
+    {
+      "facetId": 443,
+      "title": "Librarian of Doom",
+      "taxonomy": "ARCHETYPE",
+      "description": "The catalogue is complete. Several entries should not be requested and are shelved accordingly."
+    },
+    {
+      "facetId": 512,
+      "title": "Lightning Striker",
+      "taxonomy": "ARCHETYPE",
+      "description": "Arrives before the sound does. The advantage lasts exactly one exchange and is usually enough."
+    },
+    {
+      "facetId": 485,
+      "title": "Luck Manipulator",
+      "taxonomy": "ARCHETYPE",
+      "description": "Adjusts probability slightly and constantly. Nothing is ever provably their doing, which is the entire point."
+    },
+    {
+      "facetId": 529,
+      "title": "Marionette Master",
+      "taxonomy": "ARCHETYPE",
+      "description": "Controls from above by thread. The puppets are excellent and audiences watch the hands regardless."
+    },
+    {
+      "facetId": 521,
+      "title": "Mathemagician",
+      "taxonomy": "ARCHETYPE",
+      "description": "The proof is the spell. An error on line four means something in the room catches fire."
+    },
+    {
+      "facetId": 400,
+      "title": "Mech Operator",
+      "taxonomy": "ARCHETYPE",
+      "description": "Wears a building and moves it like a body. The calibration is personal and cannot be handed over."
+    },
+    {
+      "facetId": 1535,
+      "title": "Medium",
+      "taxonomy": "ARCHETYPE",
+      "description": "Relays what is said, including the parts nobody wanted relayed. Accuracy is the only service on offer."
+    },
+    {
+      "facetId": 501,
+      "title": "Medusa Enchantress",
+      "taxonomy": "ARCHETYPE",
+      "description": "The gaze works. Social occasions have been redesigned around this fact from both directions."
+    },
+    {
+      "facetId": 476,
+      "title": "Merfolk Warrior",
+      "taxonomy": "ARCHETYPE",
+      "description": "Fights in three dimensions against opponents thinking in two. The outcome is decided before the first blow."
+    },
+    {
+      "facetId": 504,
+      "title": "Mime Assassin",
+      "taxonomy": "ARCHETYPE",
+      "description": "Silent, precise, and impossible to describe to a witness. Nobody ever believes the report."
+    },
+    {
+      "facetId": 498,
+      "title": "Minotaur Warrior",
+      "taxonomy": "ARCHETYPE",
+      "description": "Built for close quarters and a corridor. Fights where the space favours them and declines to leave it."
+    },
+    {
+      "facetId": 471,
+      "title": "Mongolian Archer",
+      "taxonomy": "ARCHETYPE",
+      "description": "Shoots at full gallop and hits. Practised from an age most people cannot remember reaching."
+    },
+    {
+      "facetId": 441,
+      "title": "Mushroom Druid",
+      "taxonomy": "ARCHETYPE",
+      "description": "Tends a network rather than a garden. What looks like separate organisms is one long conversation."
+    },
+    {
+      "facetId": 389,
+      "title": "Necromancer",
+      "taxonomy": "ARCHETYPE",
+      "description": "Raises the dead and observes the paperwork of it. The ethics are contested; the technique is not."
+    },
+    {
+      "facetId": 450,
+      "title": "Night Stalker",
+      "taxonomy": "ARCHETYPE",
+      "description": "Sees perfectly at the hour everybody else is guessing. The advantage is total and expires at dawn."
+    },
+    {
+      "facetId": 1534,
+      "title": "Occultist",
+      "taxonomy": "ARCHETYPE",
+      "description": "Studies what the institutions declined to catalogue. The reading list is short and difficult to obtain."
+    },
+    {
+      "facetId": 490,
+      "title": "Pastry Chef Mage",
+      "taxonomy": "ARCHETYPE",
+      "description": "Precision, heat and structure, cast as spellwork. The whole thing collapses if the fold is wrong."
+    },
+    {
+      "facetId": 518,
+      "title": "Philosopher",
+      "taxonomy": "ARCHETYPE",
+      "description": "Asks the question that unsettles the room, then keeps sitting there. Not trying to be difficult."
+    },
+    {
+      "facetId": 495,
+      "title": "Pie Archer",
+      "taxonomy": "ARCHETYPE",
+      "description": "The trajectory is calculated properly. The projectile is a pie. Both facts are taken entirely seriously."
+    },
+    {
+      "facetId": 447,
+      "title": "Pillow Fighter",
+      "taxonomy": "ARCHETYPE",
+      "description": "Full commitment, no lasting damage, and a rules set everybody agreed to in advance."
+    },
+    {
+      "facetId": 475,
+      "title": "Pirate Captain",
+      "taxonomy": "ARCHETYPE",
+      "description": "Elected by the crew and removable by them. Authority is conditional here and everyone knows the terms."
+    },
+    {
+      "facetId": 486,
+      "title": "Portal Walker",
+      "taxonomy": "ARCHETYPE",
+      "description": "Opens the door and steps through. Closing it behind them is a discipline learned the hard way."
+    },
+    {
+      "facetId": 527,
+      "title": "Rainbow Archer",
+      "taxonomy": "ARCHETYPE",
+      "description": "Every shot leaves a coloured trail, which is beautiful and tactically catastrophic."
+    },
+    {
+      "facetId": 482,
+      "title": "Reality Bender",
+      "taxonomy": "ARCHETYPE",
+      "description": "Adjusts the local rules and hopes they hold. Occasionally something else adjusts back."
+    },
+    {
+      "facetId": 502,
+      "title": "Rubber Chicken Knight",
+      "taxonomy": "ARCHETYPE",
+      "description": "The heraldry is absurd and the swordsmanship is not. Opponents learn these two facts in that order."
+    },
+    {
+      "facetId": 517,
+      "title": "Rune Scholar",
+      "taxonomy": "ARCHETYPE",
+      "description": "Reads the marks rather than cutting them. Has translated several things that were meant to stay sealed."
+    },
+    {
+      "facetId": 478,
+      "title": "Sailor of the Abyss",
+      "taxonomy": "ARCHETYPE",
+      "description": "Crews something that goes down rather than across. The depth is the voyage."
+    },
+    {
+      "facetId": 499,
+      "title": "Satyr Bard",
+      "taxonomy": "ARCHETYPE",
+      "description": "Plays until the room forgets it intended to leave. This has consequences and none of them are surprises."
+    },
+    {
+      "facetId": 461,
+      "title": "Scorpion Knight",
+      "taxonomy": "ARCHETYPE",
+      "description": "Armored, patient, and armed at the back rather than the front. Waits to be approached."
+    },
+    {
+      "facetId": 474,
+      "title": "Sea Witch",
+      "taxonomy": "ARCHETYPE",
+      "description": "Trades in exact terms and honours them exactly. The disappointment is always in what the customer failed to specify."
+    },
+    {
+      "facetId": 419,
+      "title": "Shadow Monk",
+      "taxonomy": "ARCHETYPE",
+      "description": "Discipline practised in darkness until darkness stopped being a limitation. Strikes, and is already elsewhere."
+    },
+    {
+      "facetId": 456,
+      "title": "Shadowblade",
+      "taxonomy": "ARCHETYPE",
+      "description": "Kills from the dark and leaves no scene behind. What separates them from an assassin is that this one likes the dark."
+    },
+    {
+      "facetId": 481,
+      "title": "Shark Tamer",
+      "taxonomy": "ARCHETYPE",
+      "description": "Not tamed, exactly. An understanding, renegotiated in the water, every single time."
+    },
+    {
+      "facetId": 462,
+      "title": "Snake Charmer",
+      "taxonomy": "ARCHETYPE",
+      "description": "The snake is not charmed and is watching the instrument. Both parties know this and continue anyway."
+    },
+    {
+      "facetId": 395,
+      "title": "Space Marine",
+      "taxonomy": "ARCHETYPE",
+      "description": "Drops into hostile atmosphere in armor built for it. Doctrine covers everything, and covers it well."
+    },
+    {
+      "facetId": 491,
+      "title": "Spaghetti Sorcerer",
+      "taxonomy": "ARCHETYPE",
+      "description": "Casts in strands. The spell tangles, the tangle holds, and untangling it later is somebody else's problem."
+    },
+    {
+      "facetId": 460,
+      "title": "Spider Weaver",
+      "taxonomy": "ARCHETYPE",
+      "description": "Builds the structure and then waits inside it. The waiting is the skilled part."
+    },
+    {
+      "facetId": 411,
+      "title": "Steam Alchemist",
+      "taxonomy": "ARCHETYPE",
+      "description": "Pressure, reaction and containment. Two of those are reliable on any given morning."
+    },
+    {
+      "facetId": 513,
+      "title": "Storm Herald",
+      "taxonomy": "ARCHETYPE",
+      "description": "Announces the weather and, on disputed occasions, brings it. Nobody has managed to separate the two."
+    },
+    {
+      "facetId": 436,
+      "title": "Stormcaller",
+      "taxonomy": "ARCHETYPE",
+      "description": "Calls it and then stands inside it. Control is partial and has always been partial."
+    },
+    {
+      "facetId": 438,
+      "title": "Tea Wizard",
+      "taxonomy": "ARCHETYPE",
+      "description": "The infusion is the casting. Timing, temperature and leaf are all load-bearing and none of them may be rushed."
+    },
+    {
+      "facetId": 473,
+      "title": "Tibetan Monk",
+      "taxonomy": "ARCHETYPE",
+      "description": "Trained in a tradition with its own long lineage and its own reasons. Practice is daily and unhurried."
+    },
+    {
+      "facetId": 401,
+      "title": "Time Traveler",
+      "taxonomy": "ARCHETYPE",
+      "description": "Knows how this ends and cannot say so. Every conversation runs on two levels for them and one for you."
+    },
+    {
+      "facetId": 505,
+      "title": "Toast Wizard",
+      "taxonomy": "ARCHETYPE",
+      "description": "Heat applied to bread as a magical discipline. Deeply unserious and technically flawless."
+    },
+    {
+      "facetId": 524,
+      "title": "Toy Soldier",
+      "taxonomy": "ARCHETYPE",
+      "description": "Follows orders given a long time ago by somebody no longer present. Still holding the position."
+    },
+    {
+      "facetId": 440,
+      "title": "Unicorn Rider",
+      "taxonomy": "ARCHETYPE",
+      "description": "Was chosen rather than choosing. The criteria have never been published and cannot be studied for."
+    },
+    {
+      "facetId": 468,
+      "title": "Viking Berserker",
+      "taxonomy": "ARCHETYPE",
+      "description": "Goes somewhere else during the fight and returns afterward. Remembers little and gets told a great deal."
+    },
+    {
+      "facetId": 402,
+      "title": "Void Mage",
+      "taxonomy": "ARCHETYPE",
+      "description": "Casts with absence rather than force. The results are difficult to describe and easy to recognise."
+    },
+    {
+      "facetId": 511,
+      "title": "Wind Runner",
+      "taxonomy": "ARCHETYPE",
+      "description": "Faster than anything on foot has a right to be. Stopping was the part that took longest to learn."
+    },
+    {
+      "facetId": 457,
+      "title": "Wolf Tamer",
+      "taxonomy": "ARCHETYPE",
+      "description": "Joined the pack rather than commanding it. Rank within it is earned and is periodically reviewed."
+    },
+    {
+      "facetId": 455,
+      "title": "Wraithbinder",
+      "taxonomy": "ARCHETYPE",
+      "description": "Ties something restless to a place or an object. The binding holds for as long as the terms are honoured."
+    }
+  ]
+}

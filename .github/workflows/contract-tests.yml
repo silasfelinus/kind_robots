@@ -434,6 +434,12 @@ jobs:
       - name: Model Builder batch any-in-flight guard contract
         run: npm run test:model-builder-batch-any-in-flight-guard
 
+      - name: Model Builder async-enqueue cancelled-run guard checker self-test
+        run: npm run test:model-builder-async-enqueue-cancelled-run-guard-selftest
+
+      - name: Model Builder async-enqueue cancelled-run guard contract
+        run: npm run test:model-builder-async-enqueue-cancelled-run-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

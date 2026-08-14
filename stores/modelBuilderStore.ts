@@ -1349,6 +1349,16 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       )
       return true
     } catch (error) {
+      // Mirror generateItemAsset's identical guard, missing here until now:
+      // prepareArtGenerator/enqueueCurrentArt is a network round-trip the
+      // user can cancel this exact run during. Without this check, an
+      // enqueue that fails after cancellation still calls the global
+      // handleError() (an app-wide error banner, per its own doc comment --
+      // not scoped to any run) and rewrites the detached item's stage for a
+      // run the user already told the app to abandon, instead of quietly
+      // no-opping the way its synchronous sibling does.
+      if (cancelledRunIds.has(runId)) return false
+
       handleError(error, 'queueing model builder asset')
       item.error =
         error instanceof Error ? error.message : 'Failed to queue generation.'

@@ -34,7 +34,25 @@ import { join } from 'node:path'
 type Entry = {
   facetId: number
   slug?: string
+  /** The title as it stands in the live catalog. Checked before any write. */
   title: string
+  /**
+   * A replacement title, for rows whose whole content was crammed into the
+   * title field.
+   *
+   * 57 QUIRK and BACKSTORY rows are held by the audit's `sentence-title` rule,
+   * which counts words in the title and cannot be cleared by adding a
+   * description. `Believes they're being followed by an invisible duck.` is a
+   * fine quirk and a terrible name for one; a picker showing forty of those is
+   * unusable, and no facet with a nine-plus word title has ever been given art.
+   *
+   * So the sentence moves into the description where it belongs and a short
+   * handle takes the title. `aliases` carries the original sentence, so anything
+   * that looked the facet up by its old name still resolves. canonicalValue
+   * follows the title automatically -- see server/utils/facetProfileInput.ts.
+   */
+  newTitle?: string
+  aliases?: string[]
   taxonomy: string
   description: string
   flavorText?: string
@@ -96,8 +114,14 @@ async function liveFacets(): Promise<Map<number, Record<string, unknown>>> {
 }
 
 async function patch(entry: Entry): Promise<void> {
-  const payload: Record<string, string> = { description: entry.description }
+  const payload: Record<string, unknown> = { description: entry.description }
   if (entry.flavorText) payload.flavorText = entry.flavorText
+  if (entry.newTitle) {
+    payload.title = entry.newTitle
+    // Keep the original sentence reachable as an alias. The endpoint also
+    // preserves the old slug as an alias on its own.
+    payload.aliases = entry.aliases?.length ? entry.aliases : [entry.title]
+  }
   const response = await fetch(`${base}/api/facets/${entry.facetId}`, {
     method: 'PATCH',
     headers: {
@@ -133,14 +157,22 @@ async function main(): Promise<void> {
       continue
     }
     // A batch keyed on the wrong id would write a wolf's description onto a
-    // teapot, and nothing downstream would ever flag it.
-    if (clean(row.title) !== clean(entry.title)) {
+    // teapot, and nothing downstream would ever flag it. A row already carrying
+    // this entry's newTitle is a re-run of an applied rename, not drift.
+    const liveTitle = clean(row.title)
+    const applied = Boolean(entry.newTitle) && liveTitle === clean(entry.newTitle)
+    if (!applied && liveTitle !== clean(entry.title)) {
       drifted.push(
-        `#${entry.facetId}: batch says "${entry.title}", live says "${clean(row.title)}"`,
+        `#${entry.facetId}: batch says "${entry.title}", live says "${liveTitle}"`,
       )
       continue
     }
-    if (clean(row.description) && !FORCE) {
+    // "Already has a description" is the right skip for a writing pass and the
+    // wrong one for a rename: #843 carried a description and still needed its
+    // title fixed, so the guard has to ask whether the RENAME is outstanding
+    // too, not just whether the prose slot is full.
+    const renamePending = Boolean(entry.newTitle) && !applied
+    if (clean(row.description) && !renamePending && !FORCE) {
       alreadyWritten.push(`#${entry.facetId} "${entry.title}"`)
       continue
     }

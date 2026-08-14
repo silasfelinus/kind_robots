@@ -51,18 +51,6 @@
       </div>
 
       <div
-        v-if="repairMessage"
-        class="rounded-2xl border p-3 text-sm"
-        :class="
-          repairPreview?.unresolvedCount
-            ? 'border-warning/40 bg-warning/10'
-            : 'border-success/40 bg-success/10'
-        "
-      >
-        {{ repairMessage }}
-      </div>
-
-      <div
         v-if="stats?.oldestPending"
         class="rounded-2xl border border-warning/40 bg-warning/10 p-3 text-xs text-warning-content"
       >
@@ -230,27 +218,6 @@
                 Showing {{ pageStart }}–{{ pageEnd }} of
                 {{ artJobStore.jobTotalCount }}
               </span>
-              <button
-                type="button"
-                class="btn btn-secondary btn-xs rounded-2xl"
-                :disabled="artJobStore.repairingWeakPrompts"
-                @click="previewWeakPromptRepair"
-              >
-                <span
-                  v-if="artJobStore.repairingWeakPrompts"
-                  class="loading loading-spinner loading-xs"
-                />
-                Find bad prompts
-              </button>
-              <button
-                v-if="repairPreview?.repairedCount"
-                type="button"
-                class="btn btn-warning btn-xs rounded-2xl"
-                :disabled="artJobStore.repairingWeakPrompts"
-                @click="runWeakPromptRepair"
-              >
-                Repair & queue {{ repairPreview.repairedCount }}
-              </button>
             </div>
 
             <div class="flex flex-wrap gap-1">
@@ -387,7 +354,6 @@
       :job="editorJob"
       :action="editorAction"
       @close="editorJob = null"
-      @saved="repairPreview = null"
     />
 
     <datalist id="artjob-page-size-presets">
@@ -405,7 +371,6 @@ import {
   type ArtJobRecord,
   type ArtJobStatus,
   type UptimeSample,
-  type WeakPromptRepairResult,
 } from '@/stores/artJobStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
@@ -422,8 +387,6 @@ const pageSizeInput = ref('20')
 const pageInput = ref('1')
 const editorJob = ref<ArtJobRecord | null>(null)
 const editorAction = ref<EditorAction>('EDIT')
-const repairPreview = ref<WeakPromptRepairResult | null>(null)
-const repairMessage = ref('')
 const refreshingServerIds = ref<number[]>([])
 const removingServerIds = ref<number[]>([])
 
@@ -568,7 +531,6 @@ function openEditor(job: ArtJobRecord, action: EditorAction): void {
 }
 
 async function changeStatus(status: ArtJobStatus | 'ALL'): Promise<void> {
-  repairPreview.value = null
   await artJobStore.fetchJobs(status, 1)
 }
 
@@ -580,27 +542,6 @@ async function applyPageSize(): Promise<void> {
 async function applyPage(): Promise<void> {
   const page = Number(pageInput.value)
   await artJobStore.setJobPage(Number.isFinite(page) ? page : 1)
-}
-
-async function previewWeakPromptRepair(): Promise<void> {
-  repairMessage.value = ''
-  repairPreview.value = await artJobStore.repairWeakPrompts(true)
-  if (!repairPreview.value) return
-  repairMessage.value = `Scanned ${repairPreview.value.scannedCount} jobs: ${repairPreview.value.repairedCount} can be repaired automatically; ${repairPreview.value.unresolvedCount} need a human prompt.`
-}
-
-async function runWeakPromptRepair(): Promise<void> {
-  const count = repairPreview.value?.repairedCount ?? 0
-  if (!count) return
-  const confirmed = window.confirm(
-    `Repair and queue ${count} weak-prompt ArtJobs? Completed generic renders will use overwrite retries when they have a linked ArtImage.`,
-  )
-  if (!confirmed) return
-
-  const result = await artJobStore.repairWeakPrompts(false)
-  repairPreview.value = result
-  if (!result) return
-  repairMessage.value = `Repaired ${result.repairedCount} jobs. ${result.unresolvedCount} remain unresolved and were not guessed.`
 }
 
 function onWindowChange(): void {

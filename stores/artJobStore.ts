@@ -8,7 +8,11 @@ import type { ArtImageSource } from '~/utils/artImageSource'
 import { resolveMaturityPrivacy } from '~/utils/maturityPrivacy'
 
 export type ArtJobStatus =
-  'PENDING' | 'RUNNING' | 'DONE' | 'FAILED' | 'CANCELLED'
+  | 'PENDING'
+  | 'RUNNING'
+  | 'DONE'
+  | 'FAILED'
+  | 'CANCELLED'
 
 export type ArtJobRetryMode = 'NEW_OUTPUT' | 'OVERWRITE'
 
@@ -91,28 +95,6 @@ export type BulkReenqueueResult = {
   failedSourceJobIds: number[]
   createdJobIds: number[]
   refreshSeed: boolean
-}
-
-export type WeakPromptRepairResult = {
-  dryRun: boolean
-  scannedCount: number
-  repairedCount: number
-  unresolvedCount: number
-  repaired: Array<{
-    jobId: number
-    status: string
-    prompt: string
-    referencedArtImageId: number | null
-    action: string
-    replacementJobId?: number
-  }>
-  unresolved: Array<{
-    jobId: number
-    status: string
-    weakPrompt: string
-    reasons: string[]
-    referencedArtImageId: number | null
-  }>
 }
 
 export type QueueStats = {
@@ -202,7 +184,6 @@ type ArtJobState = {
   retryingJobIds: number[]
   editingJobIds: number[]
   reenqueueingFailedJobs: boolean
-  repairingWeakPrompts: boolean
   queuePaused: boolean
   queuePausedBy: string | null
   togglingQueuePause: boolean
@@ -249,7 +230,6 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     retryingJobIds: [],
     editingJobIds: [],
     reenqueueingFailedJobs: false,
-    repairingWeakPrompts: false,
     queuePaused: false,
     queuePausedBy: null,
     togglingQueuePause: false,
@@ -654,39 +634,6 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     }
   }
 
-  async function repairWeakPrompts(
-    dryRun = false,
-    limit = 5000,
-  ): Promise<WeakPromptRepairResult | null> {
-    if (state.repairingWeakPrompts) return null
-    state.repairingWeakPrompts = true
-    state.error = null
-
-    try {
-      const res = await performFetch<WeakPromptRepairResult>(
-        '/api/art/queue/repair-weak-prompts',
-        {
-          method: 'POST',
-          body: JSON.stringify({ dryRun, limit }),
-        },
-        0,
-        120_000,
-      )
-
-      if (res.success && res.data) {
-        if (!dryRun) {
-          await refreshMutationViews()
-        }
-        return res.data
-      }
-
-      state.error = res.message || 'Failed to repair weak ArtJob prompts.'
-      return null
-    } finally {
-      state.repairingWeakPrompts = false
-    }
-  }
-
   async function refreshAll(): Promise<void> {
     state.error = null
     await Promise.all([
@@ -716,7 +663,6 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     editJob,
     reenqueueJob,
     reenqueueFailedJobs,
-    repairWeakPrompts,
     fetchQueueControl,
     setQueuePaused,
     refreshAll,

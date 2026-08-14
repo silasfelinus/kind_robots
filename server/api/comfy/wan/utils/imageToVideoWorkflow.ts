@@ -76,7 +76,34 @@ export const WAN_HIGH_NOISE_UNET =
   'wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors'
 export const WAN_LOW_NOISE_UNET =
   'wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors'
-export const WAN_CLIP = 'umt5_xxl_fp8_e4m3fn_scaled.safetensors'
+// WAN's text encoder is umT5-XXL. The fp8 safetensors build is 6.27 GB; the
+// Q5_K_M GGUF already sitting in the same folder is 3.86 GB, so this is 2.41 GB
+// of a 12 GB card recovered for the two 14B unets that follow it -- the same
+// win as the Flux T5 switch (see server/utils/fluxTextEncoders.ts), on the
+// other encoder family. Point WAN_CLIP_ENCODER at a .safetensors to go back;
+// the loader class follows the extension.
+export const WAN_CLIP =
+  (process.env.WAN_CLIP_ENCODER || '').trim() || 'umt5-xxl-encoder-Q5_K_M.gguf'
+
+export function wanClipIsGguf(): boolean {
+  return WAN_CLIP.toLowerCase().endsWith('.gguf')
+}
+
+/**
+ * CLIPLoaderGGUF does not declare a `device` input, so it is emitted only on
+ * the safetensors path -- an undeclared input risks a submit-time validation
+ * rejection, the same failure class as an unlisted lora_name.
+ */
+export function wanClipLoaderNode() {
+  const gguf = wanClipIsGguf()
+  const inputs: Record<string, unknown> = { clip_name: WAN_CLIP, type: 'wan' }
+  if (!gguf) inputs.device = 'default'
+  return {
+    inputs,
+    class_type: gguf ? 'CLIPLoaderGGUF' : 'CLIPLoader',
+    _meta: { title: gguf ? 'Load CLIP (GGUF)' : 'Load CLIP' },
+  }
+}
 export const WAN_VAE = 'wan_2.1_vae.safetensors'
 
 function resolveSeed(seed?: number | null): number {
@@ -130,11 +157,7 @@ export function buildWanImageToVideoWorkflow(
       class_type: 'UNETLoader',
       _meta: { title: 'Load Diffusion Model (Low Noise)' },
     },
-    clip: {
-      inputs: { clip_name: WAN_CLIP, type: 'wan', device: 'default' },
-      class_type: 'CLIPLoader',
-      _meta: { title: 'Load CLIP' },
-    },
+    clip: wanClipLoaderNode(),
     vae: {
       inputs: { vae_name: WAN_VAE },
       class_type: 'VAELoader',
@@ -271,7 +294,8 @@ export function buildWanImageToVideoWorkflow(
       format: normalizeVideoOutputFormat(input.outputFormat),
       imagesRef: ['decode', 0],
       fps: frameRate,
-      filenamePrefix: input.filenamePrefix ?? 'video/kindrobots_wan_image2video',
+      filenamePrefix:
+        input.filenamePrefix ?? 'video/kindrobots_wan_image2video',
     }),
   )
 

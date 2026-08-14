@@ -221,6 +221,12 @@ jobs:
       - name: Conductor roadmap progress parity contract
         run: npm run test:conductor-progress-parity
 
+      - name: AppMaker slug-candidate guard self-test
+        run: npm run test:appmaker-slug-candidate-guard-selftest
+
+      - name: AppMaker slug-candidate guard
+        run: npm run test:appmaker-slug-candidate-guard
+
       - name: Da Vinci narration bounds contract
         run: npm run test:davinci-narration
 

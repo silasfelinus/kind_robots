@@ -257,6 +257,12 @@ jobs:
       - name: Serendipity Voice poll guard
         run: npm run test:serendipity-voice-poll-guard
 
+      - name: Serendipity Voice cursor-reset guard self-test
+        run: npm run test:serendipity-voice-cursor-reset-selftest
+
+      - name: Serendipity Voice cursor-reset guard
+        run: npm run test:serendipity-voice-cursor-reset
+
       - name: Pack manifest validator self-test
         run: npm run test:pack-manifest
 

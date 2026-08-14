@@ -475,12 +475,16 @@ const enginePresets: Preset[] = [
     // 'v1-5-pruned-emaonly.safetensors' -- SD 1.5 offered as the default for an
     // SDXL workflow, so the preset silently produced 1.5-quality output.
     checkpoint: 'SDXL/dreamshaperXL_v21TurboDPMSDE.safetensors',
-    steps: '20',
-    cfg: '3',
+    // Matches SDXL_DISTILLED_PROFILE in
+    // server/api/comfy/sdxl/utils/workflow.ts. dreamshaper XL is a Turbo
+    // DPM++SDE model: 20 steps at cfg 3 with euler/normal wasted most of the
+    // compute and overcooked the result.
+    steps: '8',
+    cfg: '2',
     guidance: '',
     denoise: '1',
-    sampler: 'euler',
-    scheduler: 'normal',
+    sampler: 'dpmpp_sde',
+    scheduler: 'karras',
   },
 ]
 

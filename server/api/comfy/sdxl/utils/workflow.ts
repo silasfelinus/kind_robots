@@ -86,10 +86,11 @@ export function patchComfyWorkflow(
   // would overwrite the random seed the builder just picked and quietly pin the
   // route to one image per Comfy install.
   const seed = resolveSdxlSeed(input.seed)
-  const steps = input.steps ?? 20
-  const cfg = input.cfgValue || 3
-  const sampler = normalizeComfySampler(input.sampler)
   const checkpoint = input.checkpoint || ''
+  const profile = sdxlSamplerProfile(checkpoint)
+  const steps = input.steps ?? profile.steps
+  const cfg = input.cfgValue || profile.cfg
+  const sampler = normalizeComfySampler(input.sampler)
 
   for (const node of Object.values(workflow)) {
     if (!node?.inputs) continue
@@ -178,6 +179,52 @@ export type SdxlImg2ImgInput = {
 export const DEFAULT_SDXL_CHECKPOINT =
   'SDXL/dreamshaperXL_v21TurboDPMSDE.safetensors'
 
+// Turbo / Lightning / Hyper / LCM checkpoints are distilled to converge in a
+// handful of steps at very low guidance. Running one at 20 steps and cfg 3
+// wastes most of the compute and overcooks the result; running a standard SDXL
+// checkpoint at 8 steps leaves it undercooked. The right defaults are a
+// property of the checkpoint, not a global.
+//
+// This was already half-known here: buildSdxlImg2ImgWorkflow hardcoded 8 steps
+// / cfg 2 / dpmpp_sde / karras -- the exact dreamshaper Turbo DPM++SDE profile
+// -- while the txt2img paths used 20 / 3. So img2img was right for turbo and
+// wrong for everything else, and txt2img the reverse.
+//
+// Detection is by filename because that is how these variants are published and
+// how they arrive in the Resource catalog (dreamshaperXL_v21TurboDPMSDE,
+// RealitiesEdgeXLLIGHTNING_TURBOV7). An explicit caller value always wins --
+// these set the default only.
+const DISTILLED_CHECKPOINT_PATTERN = /(turbo|lightning|lcm|hyper)/i
+
+export type SdxlSamplerProfile = {
+  steps: number
+  cfg: number
+  sampler: string
+  scheduler: string
+}
+
+export const SDXL_DISTILLED_PROFILE: SdxlSamplerProfile = {
+  steps: 8,
+  cfg: 2,
+  sampler: 'dpmpp_sde',
+  scheduler: 'karras',
+}
+
+export const SDXL_STANDARD_PROFILE: SdxlSamplerProfile = {
+  steps: 20,
+  cfg: 3,
+  sampler: 'euler',
+  scheduler: 'normal',
+}
+
+export function sdxlSamplerProfile(
+  checkpoint?: string | null,
+): SdxlSamplerProfile {
+  return DISTILLED_CHECKPOINT_PATTERN.test(String(checkpoint || ''))
+    ? SDXL_DISTILLED_PROFILE
+    : SDXL_STANDARD_PROFILE
+}
+
 export const DEFAULT_SDXL_IMG2IMG_ORIGINAL_WEIGHT = 0.35
 const MIN_SDXL_IMG2IMG_DENOISE = 0.15
 
@@ -191,12 +238,16 @@ export function buildSdxlImg2ImgWorkflow(input: SdxlImg2ImgInput): {
   denoise: number
 } {
   const seed = resolveSdxlSeed(input.seed)
-  const steps = input.steps ?? 8
-  const cfg = input.cfgValue || 2
+  // Profiled from the checkpoint rather than assumed turbo: this path used to
+  // hardcode the distilled numbers, so a standard SDXL checkpoint rendered at
+  // 8 steps and came out undercooked.
+  const img2imgProfile = sdxlSamplerProfile(input.checkpoint)
+  const steps = input.steps ?? img2imgProfile.steps
+  const cfg = input.cfgValue || img2imgProfile.cfg
   const sampler = input.sampler
     ? normalizeComfySampler(input.sampler)
-    : 'dpmpp_sde'
-  const scheduler = input.scheduler?.trim() || 'karras'
+    : img2imgProfile.sampler
+  const scheduler = input.scheduler?.trim() || img2imgProfile.scheduler
   const checkpoint = input.checkpoint?.trim()
 
   if (!checkpoint) {
@@ -331,6 +382,11 @@ export function buildDefaultComfyWorkflow({
   // install: re-running a job returned the same image, and "generate another
   // preview" was a no-op you could not see was a no-op.
   const resolvedSeed = resolveSdxlSeed(seed)
+  // Resolve the checkpoint BEFORE profiling it: the fallback is a Turbo model,
+  // so a caller who names no checkpoint must also get turbo sampler defaults.
+  // Profiling `checkpoint` directly would have left the fallback at 20 steps.
+  const resolvedCheckpoint = checkpoint || DEFAULT_SDXL_CHECKPOINT
+  const profile = sdxlSamplerProfile(resolvedCheckpoint)
   const style = (loraName || '').trim()
   const strength =
     typeof loraStrength === 'number' && Number.isFinite(loraStrength)
@@ -345,7 +401,7 @@ export function buildDefaultComfyWorkflow({
     '1': {
       class_type: 'CheckpointLoaderSimple',
       inputs: {
-        ckpt_name: checkpoint || DEFAULT_SDXL_CHECKPOINT,
+        ckpt_name: resolvedCheckpoint,
       },
     },
     '2': {
@@ -380,10 +436,12 @@ export function buildDefaultComfyWorkflow({
       class_type: 'KSampler',
       inputs: {
         seed: resolvedSeed,
-        steps: steps ?? 20,
-        cfg: cfgValue || 3,
-        sampler_name: normalizeComfySampler(sampler),
-        scheduler: 'normal',
+        steps: steps ?? profile.steps,
+        cfg: cfgValue || profile.cfg,
+        sampler_name: sampler
+          ? normalizeComfySampler(sampler)
+          : profile.sampler,
+        scheduler: profile.scheduler,
         denoise: 1,
         model: modelSource,
         positive: ['2', 0],

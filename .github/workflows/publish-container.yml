@@ -26,7 +26,15 @@ jobs:
   build-and-publish:
     name: Build production image
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # Not a required status check for merge -- this only validates the image still
+    # builds (and, on push to main, publishes it). Typical duration is ~9 minutes;
+    # 30 minutes let a genuine hang run silently in the background well past when
+    # merge already fired on the required checks (kaizen from model-builder/t-029,
+    # kind_robots PR #1882, 2026-08-14: every required check on #1882 was green by
+    # 06:04:19Z but this job was still running past its typical duration when the
+    # merge fired at 06:04:54Z). Tightened so a hang surfaces as a clear CI failure
+    # instead of dangling -- still generous headroom over the ~9-minute norm.
+    timeout-minutes: 15
     permissions:
       contents: read
       packages: write

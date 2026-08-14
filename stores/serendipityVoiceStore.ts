@@ -90,7 +90,16 @@ export const useSerendipityVoiceStore = defineStore(
     }
 
     function setRelayBaseUrl(url: string): void {
-      relayBaseUrl.value = url.trim().replace(/\/+$/, '') || DEFAULT_RELAY_URL
+      const next = url.trim().replace(/\/+$/, '') || DEFAULT_RELAY_URL
+      // A different relay instance never shares the old one's command/message
+      // id space -- keeping a stale cursor here means every future /api/commands
+      // and /api/messages poll sends `since=<a value the new relay may never
+      // reach>`, so the server-side filter silently drops everything forever.
+      if (next !== relayBaseUrl.value) {
+        commandCursor.value = 0
+        messageCursor.value = 0
+      }
+      relayBaseUrl.value = next
       if (isClient())
         window.localStorage.setItem(RELAY_URL_KEY, relayBaseUrl.value)
     }
@@ -307,6 +316,15 @@ export const useSerendipityVoiceStore = defineStore(
     function start(): void {
       if (!isClient() || polling.value) return
       loadRelayUrl()
+      // The relay is documented as an in-memory dev seam (see header comment)
+      // that is expected to be restarted often -- a restart resets its
+      // command/message log back to id 0. Reset the cursors on every fresh
+      // connect so a relay restart between sessions can't leave the client
+      // holding a cursor value the new relay session will never reach, which
+      // would otherwise make every future command/message poll come back
+      // silently empty (connected with no error, but nothing ever arrives).
+      commandCursor.value = 0
+      messageCursor.value = 0
       polling.value = true
       void pollOnce()
       pollTimer.value = setInterval(() => void pollOnce(), POLL_INTERVAL_MS)

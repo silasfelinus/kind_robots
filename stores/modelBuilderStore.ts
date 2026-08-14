@@ -1995,7 +1995,27 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     }
   }
 
+  // openRun's fallback fetch (below) had no request-scoping at all -- unlike
+  // fetchRuns() and loadSources(), which each guard this identical class of
+  // bug (an async list/record fetch whose response can land out of order) by
+  // capturing a ticket up front and discarding any response that arrives
+  // after state has moved on. The run-history "Open" button has no in-flight
+  // guard of its own (only cancellingRunId disables it), so a user can click
+  // Open on run A -- not yet in state.runs, so this falls through to the
+  // network fetch -- then, before it resolves, click Open on run B. If B is
+  // already cached (or becomes the active run) it resolves synchronously, but
+  // A's slower response can still land afterward and unconditionally
+  // overwrite state.run with the WRONG run -- silently discarding the user's
+  // actual last click. Fixed with the same monotonic-ticket pattern as
+  // fetchRunsRequestId: captured at the very top of every call (so a newer
+  // call -- sync or async -- always invalidates an older call's pending
+  // fetch), and checked before applying the response in both the success and
+  // catch branches.
+  let openRunRequestId = 0
+
   async function openRun(runId: string): Promise<void> {
+    const requestId = ++openRunRequestId
+
     // Reopening the run that's already active must not swap in a fresh object:
     // fetchRuns()/the fallback fetch below both rebuild items via adaptRun/adaptItem,
     // which reset the client-only artJobId/queueState fields to null. Replacing
@@ -2021,6 +2041,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       const response = await performFetch<ServerRun>(
         `/api/model-builder/runs/${runId}`,
       )
+      if (openRunRequestId !== requestId) return
       if (response.success && response.data) {
         state.run = adaptRun(response.data)
         state.sourceType = state.run.sourceType
@@ -2031,6 +2052,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         setStatus('error', response.message || 'Failed to open run.')
       }
     } catch (error) {
+      if (openRunRequestId !== requestId) return
       handleError(error, 'opening build run')
     }
   }

@@ -1,0 +1,307 @@
+{
+  "version": 1,
+  "taxonomy": "GENRE",
+  "note": "Matched to the GENRE rows that already carry descriptions, which run longer and more taxonomic than the rest of the catalog -- what the genre does, what its discipline is, and where to pair it.",
+  "entries": [
+    {
+      "facetId": 786,
+      "title": "Absurdist Comedy",
+      "taxonomy": "GENRE",
+      "description": "Humour drawn from a universe that does not cohere. Rules change without notice, characters respond reasonably to unreasonable conditions, and the joke is the gap between the two."
+    },
+    {
+      "facetId": 809,
+      "title": "AI Utopia",
+      "taxonomy": "GENRE",
+      "description": "Futures in which artificial minds succeeded at governance and the resulting comfort is genuine. Tension comes from what was traded away for it, not from a machine turning hostile."
+    },
+    {
+      "facetId": 812,
+      "title": "Alien Invasion",
+      "taxonomy": "GENRE",
+      "description": "First contact conducted as an act of force. Scope runs from a single town to an occupied planet, and the strongest versions care about what the invaded population becomes."
+    },
+    {
+      "facetId": 781,
+      "title": "Alternate History",
+      "taxonomy": "GENRE",
+      "description": "One documented divergence, followed rigorously. The discipline is in the consequences: what industry, borders and ordinary life look like several decades downstream."
+    },
+    {
+      "facetId": 808,
+      "title": "Astrobiological Adventure",
+      "taxonomy": "GENRE",
+      "description": "Exploration driven by the search for life rather than territory. Discovery is procedural, the biology is both antagonist and prize, and the crew are specialists rather than soldiers."
+    },
+    {
+      "facetId": 803,
+      "title": "Crime Noir",
+      "taxonomy": "GENRE",
+      "description": "Crime told from inside the moral compromise. Rain, debt, and a protagonist who solves the case and is not improved by having solved it."
+    },
+    {
+      "facetId": 777,
+      "title": "Dark Academia",
+      "taxonomy": "GENRE",
+      "description": "Institutions of learning as sites of obsession. Old libraries, closed friendships, a subject pursued well past the point of health, and something the faculty already knew."
+    },
+    {
+      "facetId": 820,
+      "title": "Dark Fairy Tale",
+      "taxonomy": "GENRE",
+      "description": "Folk structure with the consequences put back. The bargain is real, the woods are not a metaphor, and the ending is earned rather than granted."
+    },
+    {
+      "facetId": 788,
+      "title": "Dreamlike Surrealism",
+      "taxonomy": "GENRE",
+      "description": "Narrative organised by association rather than causality. Transitions go unexplained and stay internally consistent, and the reader is expected to keep up rather than be caught up."
+    },
+    {
+      "facetId": 800,
+      "title": "Dystopian Romance",
+      "taxonomy": "GENRE",
+      "description": "Intimacy conducted under a system built to prevent it. The relationship is the act of resistance and the setting supplies the cost."
+    },
+    {
+      "facetId": 817,
+      "title": "Epic Fantasy",
+      "taxonomy": "GENRE",
+      "description": "Secondary worlds at continental scale, with invented history, multiple cultures, and stakes that reach the shape of the world itself. Long-form by nature."
+    },
+    {
+      "facetId": 831,
+      "title": "Epistolary Fiction",
+      "taxonomy": "GENRE",
+      "description": "Told entirely through documents: letters, logs, transcripts, recovered messages. The gaps between documents carry as much weight as the documents do."
+    },
+    {
+      "facetId": 829,
+      "title": "Fantasy Noir",
+      "taxonomy": "GENRE",
+      "description": "Investigation in a world where magic works. The magic never solves the case; it supplies people with new ways to lie."
+    },
+    {
+      "facetId": 819,
+      "title": "Gaslamp Fantasy",
+      "taxonomy": "GENRE",
+      "description": "A nineteenth-century industrial setting with the supernatural treated as an open fact. Gas light, calling cards, and societies that convene after dark."
+    },
+    {
+      "facetId": 794,
+      "title": "Grimdark Fantasy",
+      "taxonomy": "GENRE",
+      "description": "Fantasy with the reassurance stripped out. Institutions act in self-interest, violence leaves damage that persists, and heroism is expensive and rarely rewarded."
+    },
+    {
+      "facetId": 818,
+      "title": "Heroic Fantasy",
+      "taxonomy": "GENRE",
+      "description": "Individual champions against defined threats, at a scale one person can carry. Older and tighter than epic fantasy, and more interested in a single sword than a map."
+    },
+    {
+      "facetId": 825,
+      "title": "Historical Fantasy",
+      "taxonomy": "GENRE",
+      "description": "A real researched period with the supernatural present and integrated. The history constrains the magic rather than merely decorating it."
+    },
+    {
+      "facetId": 826,
+      "title": "Horror Fantasy",
+      "taxonomy": "GENRE",
+      "description": "Invented worlds where the fantastic is a source of dread rather than wonder. The rules exist and are learnable, and learning them too late is the plot."
+    },
+    {
+      "facetId": 837,
+      "title": "Indigenous Futurism",
+      "taxonomy": "GENRE",
+      "description": "Futures authored from Indigenous perspectives, with continuity, sovereignty and land at the centre. Pair with the specific nation or tradition whenever the source is known."
+    },
+    {
+      "facetId": 832,
+      "title": "Interactive Fiction",
+      "taxonomy": "GENRE",
+      "description": "Narrative in which the reader's choices determine what happens next. Structure is branching or state-driven, and rereading is part of the form rather than a failure of it."
+    },
+    {
+      "facetId": 839,
+      "title": "Latin American Magical Realism",
+      "taxonomy": "GENRE",
+      "description": "Realist narrative in which the impossible is reported plainly and nobody in the story finds it remarkable. Rooted in specific regional literary traditions rather than a general mood."
+    },
+    {
+      "facetId": 798,
+      "title": "Lovecraftian Horror",
+      "taxonomy": "GENRE",
+      "description": "Dread built from scale and indifference. Knowledge is the hazard, the antagonist has no interest in humanity, and the protagonist's mind is what stands to be lost."
+    },
+    {
+      "facetId": 810,
+      "title": "Martian Colonization",
+      "taxonomy": "GENRE",
+      "description": "The particular engineering and politics of settling Mars. Dust, radiation, supply lag, and the question of whose law applies at that distance."
+    },
+    {
+      "facetId": 823,
+      "title": "Medieval Fantasy",
+      "taxonomy": "GENRE",
+      "description": "The default castle-and-village register, with feudal structure, guilds and a technology ceiling. Familiar enough to build on without stopping to explain."
+    },
+    {
+      "facetId": 789,
+      "title": "Monster Romance",
+      "taxonomy": "GENRE",
+      "description": "Attraction across the species line, taken seriously by the text. The monstrousness is not resolved by the ending, which is generally the entire point."
+    },
+    {
+      "facetId": 830,
+      "title": "Musical Adventure",
+      "taxonomy": "GENRE",
+      "description": "Story in which performance drives the plot rather than pausing it. Numbers advance the action and the score belongs to the world."
+    },
+    {
+      "facetId": 828,
+      "title": "Mystery Sci-Fi",
+      "taxonomy": "GENRE",
+      "description": "An investigation whose solution depends on the speculative element. The technology or biology is the clue, and fair play requires establishing it early."
+    },
+    {
+      "facetId": 796,
+      "title": "Noir Thriller",
+      "taxonomy": "GENRE",
+      "description": "Pace and paranoia in place of deduction. The protagonist is running, the conspiracy is wider than expected, and the win condition is survival."
+    },
+    {
+      "facetId": 838,
+      "title": "Nordic Noir",
+      "taxonomy": "GENRE",
+      "description": "Crime in a cold, procedural, socially observant register. Endless light or none at all, institutional detail, and a bleakness that is cultural rather than stylistic."
+    },
+    {
+      "facetId": 787,
+      "title": "Pirate Adventure",
+      "taxonomy": "GENRE",
+      "description": "Ships, articles, and stolen freedom. The crew is a chosen society with its own written law, and the sea is the only authority that enforces anything."
+    },
+    {
+      "facetId": 797,
+      "title": "Post-Human Dystopia",
+      "taxonomy": "GENRE",
+      "description": "After the species altered itself. What remains has continuity with humanity and does not share its interests, and the setting is the argument."
+    },
+    {
+      "facetId": 801,
+      "title": "Psychological Horror",
+      "taxonomy": "GENRE",
+      "description": "The threat is internal, or at least unverifiable. Reliability of perception is the mechanism, and the reader is placed inside the doubt rather than outside it."
+    },
+    {
+      "facetId": 783,
+      "title": "Retro-Futurism",
+      "taxonomy": "GENRE",
+      "description": "The future as an earlier era pictured it. Fins, valves, atomic optimism, and the particular poignancy of a tomorrow that never showed up."
+    },
+    {
+      "facetId": 824,
+      "title": "Science Fantasy",
+      "taxonomy": "GENRE",
+      "description": "Both toolkits at once, unapologetically. Starships and sorcery share one world and the text declines to rank them."
+    },
+    {
+      "facetId": 827,
+      "title": "Science Romance",
+      "taxonomy": "GENRE",
+      "description": "The older name for speculative adventure, from before the genre settled. Extraordinary voyages, scientific wonder, and a nineteenth-century sense of what might be possible."
+    },
+    {
+      "facetId": 792,
+      "title": "Space Pirates",
+      "taxonomy": "GENRE",
+      "description": "Piracy relocated to the shipping lanes between worlds. Boarding actions, contested salvage, and jurisdictions stretched too thin to enforce anything."
+    },
+    {
+      "facetId": 813,
+      "title": "Techno-Thriller",
+      "taxonomy": "GENRE",
+      "description": "Near-future tension built on hardware that works as specified. Competence is the pleasure and procedure is the plot."
+    },
+    {
+      "facetId": 782,
+      "title": "Time Travel",
+      "taxonomy": "GENRE",
+      "description": "Movement through time as the central mechanism, with a stated model of how paradox behaves. That model is the genre's real content."
+    },
+    {
+      "facetId": 799,
+      "title": "Vampire Gothic",
+      "taxonomy": "GENRE",
+      "description": "The vampire in its inherited setting: old houses, older bloodlines, hunger dressed up as courtesy. Sensual, mannered, and fundamentally about power."
+    },
+    {
+      "facetId": 821,
+      "title": "Weird Fantasy",
+      "taxonomy": "GENRE",
+      "description": "Invented worlds that refuse the familiar template. Biology, economics and geography are strange on purpose, and the strangeness is load-bearing."
+    },
+    {
+      "facetId": 805,
+      "title": "Biopunk",
+      "taxonomy": "GENRE",
+      "description": "Genetic engineering as street technology. Bodies modified in back rooms, corporations that own sequences, and consequences carried in the flesh."
+    },
+    {
+      "facetId": 2093,
+      "title": "Dystopia",
+      "taxonomy": "GENRE",
+      "description": "A society organised around one controlling premise, followed to its conclusion. The reader watches the system working exactly as designed, which is the horror."
+    },
+    {
+      "facetId": 2056,
+      "title": "Hopepunk",
+      "taxonomy": "GENRE",
+      "description": "Deliberate resistance to grimdark. Kindness as a repeated political act, cooperation as strategy, and the fight continuing without any guarantee of winning."
+    },
+    {
+      "facetId": 1869,
+      "title": "Isekai",
+      "taxonomy": "GENRE",
+      "description": "A protagonist transported into another world and required to function there. Knowledge from the prior world is the advantage; homesickness is the price."
+    },
+    {
+      "facetId": 806,
+      "title": "Nanopunk",
+      "taxonomy": "GENRE",
+      "description": "Molecular machines as ambient infrastructure. Everything is programmable at a scale nobody can observe, and trust becomes the scarce resource."
+    },
+    {
+      "facetId": 1881,
+      "title": "Noir",
+      "taxonomy": "GENRE",
+      "description": "The register itself: moral fog, doomed decisions, and a city that shapes the people inside it. Applies well beyond crime."
+    },
+    {
+      "facetId": 1888,
+      "title": "Pastoral",
+      "taxonomy": "GENRE",
+      "description": "Rural life rendered as an ideal, the labour softened and the seasons brought forward. The tension almost always arrives from outside."
+    },
+    {
+      "facetId": 1873,
+      "title": "Shonen",
+      "taxonomy": "GENRE",
+      "description": "Serialized adventure for a young audience, built on escalating challenge, training, rivalry and earned friendship. The structure is the appeal."
+    },
+    {
+      "facetId": 772,
+      "title": "Thriller",
+      "taxonomy": "GENRE",
+      "description": "Sustained forward pressure with a clock running. Stakes are personal and immediate, and the reader is kept deliberately ahead of or behind the protagonist."
+    },
+    {
+      "facetId": 774,
+      "title": "Western",
+      "taxonomy": "GENRE",
+      "description": "Frontier as moral setting: thin law, contested land, and violence as the instrument at hand. The genre is about what settlement costs."
+    }
+  ]
+}

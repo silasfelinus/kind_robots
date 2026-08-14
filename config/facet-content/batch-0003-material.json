@@ -1,0 +1,601 @@
+{
+  "version": 1,
+  "taxonomy": "MATERIAL",
+  "note": "MATERIAL had no descriptions anywhere in the catalog, so these set the register: treat each substance as real, give it one working property and one consequence of that property. Written to be useful to a smith and to an image model at the same time.",
+  "entries": [
+    {
+      "facetId": 845,
+      "title": "Adamantium",
+      "taxonomy": "MATERIAL",
+      "description": "Does not bend, does not break, does not care. Working it at all requires a tool that was never supposed to exist."
+    },
+    {
+      "facetId": 927,
+      "title": "Amberlight",
+      "taxonomy": "MATERIAL",
+      "description": "Fossilised light, set solid. Warm in the hand, and whatever was caught inside is still faintly moving."
+    },
+    {
+      "facetId": 866,
+      "title": "Angelite",
+      "taxonomy": "MATERIAL",
+      "description": "Pale blue and unnervingly calm. Smiths report the whole workshop goes quiet while it is on the bench."
+    },
+    {
+      "facetId": 908,
+      "title": "Ashglass",
+      "taxonomy": "MATERIAL",
+      "description": "Fused from what a fire left behind. Holds an edge and a grudge in roughly equal measure."
+    },
+    {
+      "facetId": 897,
+      "title": "Bloodstone",
+      "taxonomy": "MATERIAL",
+      "description": "Dark green shot through with red. Old medicine swore by it; old soldiers carried it regardless of the medicine."
+    },
+    {
+      "facetId": 899,
+      "title": "Cloudstone",
+      "taxonomy": "MATERIAL",
+      "description": "Weighs almost nothing and holds its shape anyway. Falls slower than it should, which unsettles everyone the first time."
+    },
+    {
+      "facetId": 940,
+      "title": "Cryolite",
+      "taxonomy": "MATERIAL",
+      "description": "Melts at a temperature that makes no sense for a stone, and takes whatever it was packed with down alongside it."
+    },
+    {
+      "facetId": 928,
+      "title": "Dreamcloth",
+      "taxonomy": "MATERIAL",
+      "description": "Woven by someone while asleep. The pattern is never twice the same and nobody has photographed it successfully."
+    },
+    {
+      "facetId": 915,
+      "title": "Fulgurite",
+      "taxonomy": "MATERIAL",
+      "description": "Sand struck by lightning and frozen mid-decision. Hollow, branching, and far too fragile for what made it."
+    },
+    {
+      "facetId": 876,
+      "title": "Glowstone",
+      "taxonomy": "MATERIAL",
+      "description": "Gives off a steady light with no source anyone can locate. Does not dim, does not warm, does not explain."
+    },
+    {
+      "facetId": 936,
+      "title": "Hexstone",
+      "taxonomy": "MATERIAL",
+      "description": "Six-sided all the way through, however it is broken. Carvers find this convenient and faintly rude."
+    },
+    {
+      "facetId": 907,
+      "title": "Ironwood",
+      "taxonomy": "MATERIAL",
+      "description": "Blunts the saw and sinks in water. Every joint cut from it outlasts the person who cut it."
+    },
+    {
+      "facetId": 848,
+      "title": "Moonstone",
+      "taxonomy": "MATERIAL",
+      "description": "Sheens blue when turned, and only when turned. Sits inert on a shelf, which is precisely why it is worn instead."
+    },
+    {
+      "facetId": 844,
+      "title": "Mythril",
+      "taxonomy": "MATERIAL",
+      "description": "Light enough to forget you are wearing it, strong enough that forgetting is safe. Ruinously scarce for exactly that reason."
+    },
+    {
+      "facetId": 847,
+      "title": "Obsidian",
+      "taxonomy": "MATERIAL",
+      "description": "Volcanic glass with an edge finer than steel and no patience whatsoever for being dropped."
+    },
+    {
+      "facetId": 901,
+      "title": "Runestone",
+      "taxonomy": "MATERIAL",
+      "description": "Takes a carved mark and keeps it working long after the carver stopped. Chips badly if the mark was wrong."
+    },
+    {
+      "facetId": 938,
+      "title": "Shadewood",
+      "taxonomy": "MATERIAL",
+      "description": "Grew somewhere the light never reached. Dark the whole way through and noticeably cool to the touch."
+    },
+    {
+      "facetId": 849,
+      "title": "Starsteel",
+      "taxonomy": "MATERIAL",
+      "description": "Fell before it was ever forged. Holds a temper nothing terrestrial can match and rings at a pitch nobody enjoys."
+    },
+    {
+      "facetId": 933,
+      "title": "Stormglass",
+      "taxonomy": "MATERIAL",
+      "description": "Clouds over before the weather arrives, reliably enough that sailors trusted it over the sky itself."
+    },
+    {
+      "facetId": 931,
+      "title": "Tanglewood",
+      "taxonomy": "MATERIAL",
+      "description": "Grain running in every direction at once. Impossible to split cleanly and correspondingly difficult to break."
+    },
+    {
+      "facetId": 914,
+      "title": "Timeglass",
+      "taxonomy": "MATERIAL",
+      "description": "Anything seen through it is running slightly behind. Useful for study and genuinely dangerous for aiming."
+    },
+    {
+      "facetId": 880,
+      "title": "Titanite",
+      "taxonomy": "MATERIAL",
+      "description": "Wedge-shaped crystals with more fire than a diamond and considerably less sense about being struck."
+    },
+    {
+      "facetId": 900,
+      "title": "Voidsteel",
+      "taxonomy": "MATERIAL",
+      "description": "Absorbs light and returns none of it. Edges made from this are hard to see and consequently hard to avoid."
+    },
+    {
+      "facetId": 852,
+      "title": "Aether Silk",
+      "taxonomy": "MATERIAL",
+      "description": "Spun from the medium itself. Registers nothing on the scale and still catches on a breeze."
+    },
+    {
+      "facetId": 896,
+      "title": "Ancient Marble",
+      "taxonomy": "MATERIAL",
+      "description": "Quarried before anybody kept records. Takes a polish that modern stone simply will not hold."
+    },
+    {
+      "facetId": 930,
+      "title": "Arcane Silver",
+      "taxonomy": "MATERIAL",
+      "description": "Tarnishes toward a pattern rather than a stain. Jewellers still argue about whether that counts as damage."
+    },
+    {
+      "facetId": 869,
+      "title": "Astral Ore",
+      "taxonomy": "MATERIAL",
+      "description": "Mined from something that was never a planet. Hums faintly whenever two pieces are brought near each other."
+    },
+    {
+      "facetId": 871,
+      "title": "Bio-metal",
+      "taxonomy": "MATERIAL",
+      "description": "Grows rather than being cast, and closes a scratch given a week and something to eat."
+    },
+    {
+      "facetId": 902,
+      "title": "Blaze Ore",
+      "taxonomy": "MATERIAL",
+      "description": "Warm out of the ground and warmer once worked. Storage is a genuine engineering problem rather than a precaution."
+    },
+    {
+      "facetId": 886,
+      "title": "Bone Glass",
+      "taxonomy": "MATERIAL",
+      "description": "Fired from ash and calcium into something translucent. Beautiful, and everybody knows exactly what it was."
+    },
+    {
+      "facetId": 903,
+      "title": "Charged Crystal",
+      "taxonomy": "MATERIAL",
+      "description": "Holds a current indefinitely and releases all of it the moment it cracks. Anyone experienced handles it with tongs."
+    },
+    {
+      "facetId": 935,
+      "title": "Chimeric Thread",
+      "taxonomy": "MATERIAL",
+      "description": "Three fibres that should not spin together, spun together. The resulting cloth behaves like none of the three."
+    },
+    {
+      "facetId": 862,
+      "title": "Chrono Dust",
+      "taxonomy": "MATERIAL",
+      "description": "Settles slower than it falls. A pinch in an hourglass makes the hour noticeably longer for everyone in the room."
+    },
+    {
+      "facetId": 921,
+      "title": "Cosmic Ice",
+      "taxonomy": "MATERIAL",
+      "description": "Never melted because it never once got the chance. Colder than ice has any business being, and it does not sweat."
+    },
+    {
+      "facetId": 912,
+      "title": "Crimson Coral",
+      "taxonomy": "MATERIAL",
+      "description": "Grown slowly in deep water and red the whole way through. Cutting it ends the growth permanently."
+    },
+    {
+      "facetId": 884,
+      "title": "Cryo Iron",
+      "taxonomy": "MATERIAL",
+      "description": "Stays below freezing inside a furnace. Smiths work it with heated tools, backwards from every instinct they have."
+    },
+    {
+      "facetId": 870,
+      "title": "Cursed Iron",
+      "taxonomy": "MATERIAL",
+      "description": "Perfectly ordinary metal that keeps arriving in the wrong hands at the worst hour. The metallurgy checks out completely."
+    },
+    {
+      "facetId": 926,
+      "title": "Cursed Velvet",
+      "taxonomy": "MATERIAL",
+      "description": "Rich, heavy, and warm in a room that is not. Nobody who owns a bolt can recall buying it."
+    },
+    {
+      "facetId": 893,
+      "title": "Dark Matter Thread",
+      "taxonomy": "MATERIAL",
+      "description": "Has mass and declines to interact with anything else. Sewing it requires a needle that also declines."
+    },
+    {
+      "facetId": 865,
+      "title": "Demonic Bone",
+      "taxonomy": "MATERIAL",
+      "description": "Denser than it looks and still faintly warm. Carves beautifully. Carvers report unusual dreams afterward."
+    },
+    {
+      "facetId": 846,
+      "title": "Dragon Scale",
+      "taxonomy": "MATERIAL",
+      "description": "Overlaps into armor that shrugs off flame because it grew up in flame. Each plate outlasts the smith who set it."
+    },
+    {
+      "facetId": 925,
+      "title": "Dragonbone Porcelain",
+      "taxonomy": "MATERIAL",
+      "description": "Ground bone fired into something you can read a page through. Fragile in the hand and unbreakable in reputation."
+    },
+    {
+      "facetId": 913,
+      "title": "Echo Crystal",
+      "taxonomy": "MATERIAL",
+      "description": "Returns a sound minutes after receiving it. Rooms lined with the stuff get used for confession and for interrogation."
+    },
+    {
+      "facetId": 875,
+      "title": "Eclipse Stone",
+      "taxonomy": "MATERIAL",
+      "description": "Dark with a bright rim that does not move regardless of the light. Every polisher has tried to remove it."
+    },
+    {
+      "facetId": 904,
+      "title": "Eldritch Thread",
+      "taxonomy": "MATERIAL",
+      "description": "Measures differently depending on when it is measured. Tailors work fast and pointedly do not check twice."
+    },
+    {
+      "facetId": 867,
+      "title": "Enchanted Bark",
+      "taxonomy": "MATERIAL",
+      "description": "Peeled without harming the tree, which carries on producing it. The arrangement predates the forest's current shape."
+    },
+    {
+      "facetId": 859,
+      "title": "Ethereal Mist",
+      "taxonomy": "MATERIAL",
+      "description": "Treated as a material by people who insist that it is one. Holds a shape for exactly as long as it is watched."
+    },
+    {
+      "facetId": 878,
+      "title": "Fire Opal",
+      "taxonomy": "MATERIAL",
+      "description": "Orange and alive with internal light. Cracks if it dries out, so it has to be worn rather than stored."
+    },
+    {
+      "facetId": 895,
+      "title": "Frostbite Alloy",
+      "taxonomy": "MATERIAL",
+      "description": "Pulls heat out of whatever touches it. Excellent for blades, poor for handles, and fatal for gloves."
+    },
+    {
+      "facetId": 889,
+      "title": "Galactic Granite",
+      "taxonomy": "MATERIAL",
+      "description": "Speckled the way a night sky is, and the speckles are not minerals. Nobody has yet agreed what they are."
+    },
+    {
+      "facetId": 892,
+      "title": "Ghost Iron",
+      "taxonomy": "MATERIAL",
+      "description": "Weighs correctly and passes straight through cloth. Blacksmiths who work it tend to stop taking commissions."
+    },
+    {
+      "facetId": 855,
+      "title": "Glacial Shard",
+      "taxonomy": "MATERIAL",
+      "description": "Compressed over centuries into something harder than rock. Still ice, and still holding air from the year it formed."
+    },
+    {
+      "facetId": 924,
+      "title": "Heavensteel",
+      "taxonomy": "MATERIAL",
+      "description": "Forged somewhere with better light. Takes an edge that will not dull and reflects more than is actually in the room."
+    },
+    {
+      "facetId": 879,
+      "title": "Hollow Steel",
+      "taxonomy": "MATERIAL",
+      "description": "Full strength at a third of the weight, because most of it is deliberate absence. Rings like a bell when struck."
+    },
+    {
+      "facetId": 920,
+      "title": "Infernal Brimstone",
+      "taxonomy": "MATERIAL",
+      "description": "Yellow, acrid, and never entirely cool. Useful, and every single use smells the same afterward."
+    },
+    {
+      "facetId": 877,
+      "title": "Liquid Gold",
+      "taxonomy": "MATERIAL",
+      "description": "Stays liquid at room temperature and stays gold throughout. Kept in glass, poured for effect, never actually spent."
+    },
+    {
+      "facetId": 868,
+      "title": "Living Wood",
+      "taxonomy": "MATERIAL",
+      "description": "Cut and still growing. A door made from it will want trimming every spring for the rest of its life."
+    },
+    {
+      "facetId": 883,
+      "title": "Lunar Resin",
+      "taxonomy": "MATERIAL",
+      "description": "Hardens only in darkness. Workshops that use it have no windows and no explanation ready for visitors."
+    },
+    {
+      "facetId": 888,
+      "title": "Magic-infused Clay",
+      "taxonomy": "MATERIAL",
+      "description": "Takes a shape and remembers it. Fired or not, it will return to that shape given long enough alone."
+    },
+    {
+      "facetId": 932,
+      "title": "Mirror Alloy",
+      "taxonomy": "MATERIAL",
+      "description": "Polishes to a reflection with no distortion at any angle. The absence of distortion is the part people find unsettling."
+    },
+    {
+      "facetId": 911,
+      "title": "Molten Core",
+      "taxonomy": "MATERIAL",
+      "description": "Never solidifies. Kept in containment, used sparingly, and blamed for most workshop fires in the district."
+    },
+    {
+      "facetId": 941,
+      "title": "Moonlit Granite",
+      "taxonomy": "MATERIAL",
+      "description": "Grey by day and faintly luminous after dark, which makes it standard for anything meant to be found at night."
+    },
+    {
+      "facetId": 858,
+      "title": "Nano-carbon",
+      "taxonomy": "MATERIAL",
+      "description": "A lattice engineered a molecule at a time. Stronger than steel, thinner than paper, and impossible to repair in the field."
+    },
+    {
+      "facetId": 863,
+      "title": "Nebula Thread",
+      "taxonomy": "MATERIAL",
+      "description": "Dyed by something enormous and very far away. Every bolt is unique and no two dyers can match one."
+    },
+    {
+      "facetId": 934,
+      "title": "Nether Ore",
+      "taxonomy": "MATERIAL",
+      "description": "Comes up from below the levels anybody maps. Smelts reluctantly and stains the crucible permanently."
+    },
+    {
+      "facetId": 939,
+      "title": "Oblivion Alloy",
+      "taxonomy": "MATERIAL",
+      "description": "Objects made from it are difficult to remember afterward. Inventories get kept in duplicate for that reason alone."
+    },
+    {
+      "facetId": 923,
+      "title": "Phantom Glass",
+      "taxonomy": "MATERIAL",
+      "description": "Transparent from one side and simply absent from the other. Windows of it have caused several arguments about direction."
+    },
+    {
+      "facetId": 860,
+      "title": "Phoenix Feather",
+      "taxonomy": "MATERIAL",
+      "description": "Survives its own burning and comes out weighing the same. Quills cut from it never once need trimming."
+    },
+    {
+      "facetId": 853,
+      "title": "Plasma Alloy",
+      "taxonomy": "MATERIAL",
+      "description": "Metal held just short of becoming something else. Conducts everything and tolerates almost nothing."
+    },
+    {
+      "facetId": 894,
+      "title": "Platinum Filigree",
+      "taxonomy": "MATERIAL",
+      "description": "Drawn to a thread and worked into patterns finer than the eye resolves. The work gets measured in months."
+    },
+    {
+      "facetId": 929,
+      "title": "Prismarine Shard",
+      "taxonomy": "MATERIAL",
+      "description": "Sea-green and shifting, wet even when dry. Underwater construction depends on it because nothing else behaves the same."
+    },
+    {
+      "facetId": 861,
+      "title": "Prismatic Ore",
+      "taxonomy": "MATERIAL",
+      "description": "Splits every light that enters into its parts. Mining it by lamp is reportedly overwhelming."
+    },
+    {
+      "facetId": 919,
+      "title": "Pulse Metal",
+      "taxonomy": "MATERIAL",
+      "description": "Expands and contracts on a slow rhythm. Any fitting made from it has to be designed around the beat."
+    },
+    {
+      "facetId": 854,
+      "title": "Pyroclastic Rock",
+      "taxonomy": "MATERIAL",
+      "description": "Cooled from a cloud that outran everything in its path. Porous, light, and still carrying the shape of that hurry."
+    },
+    {
+      "facetId": 850,
+      "title": "Quantum Fiber",
+      "taxonomy": "MATERIAL",
+      "description": "Measurably in two places until examined. Rope made from it is reliable only while nobody watches the far end."
+    },
+    {
+      "facetId": 887,
+      "title": "Radiant Amber",
+      "taxonomy": "MATERIAL",
+      "description": "Fossil resin that kept the light along with the insect. Warms the hand and lights a small room unaided."
+    },
+    {
+      "facetId": 922,
+      "title": "Radiant Silk",
+      "taxonomy": "MATERIAL",
+      "description": "Woven fine enough to scatter light forward. Worn by people who want to be seen and cannot say so aloud."
+    },
+    {
+      "facetId": 918,
+      "title": "Shadow Oak",
+      "taxonomy": "MATERIAL",
+      "description": "Timber from trees grown under permanent overcast. Dense, dark, and it takes a stain the way nothing else does."
+    },
+    {
+      "facetId": 864,
+      "title": "Shadow Weave",
+      "taxonomy": "MATERIAL",
+      "description": "Cloth that reads as a gap rather than a garment. Tailors work it by touch, because looking does not help."
+    },
+    {
+      "facetId": 882,
+      "title": "Shimmer Cloth",
+      "taxonomy": "MATERIAL",
+      "description": "Changes colour with the angle and never settles on one. Photographs badly, which has only ever increased demand."
+    },
+    {
+      "facetId": 942,
+      "title": "Solar Flame",
+      "taxonomy": "MATERIAL",
+      "description": "Captured at the source and still burning. Nothing else gives that light and nothing else is as difficult to insure."
+    },
+    {
+      "facetId": 857,
+      "title": "Solar Glass",
+      "taxonomy": "MATERIAL",
+      "description": "Takes light in all day and gives it back all night, on a curve nobody has managed to flatten."
+    },
+    {
+      "facetId": 905,
+      "title": "Soul Sand",
+      "taxonomy": "MATERIAL",
+      "description": "Slows anything crossing it, sound included. Walking on it takes twice as long and feels considerably longer than that."
+    },
+    {
+      "facetId": 909,
+      "title": "Specter Silk",
+      "taxonomy": "MATERIAL",
+      "description": "Spun by something nobody has ever seen at work. Weighs nothing and holds a knot indefinitely."
+    },
+    {
+      "facetId": 898,
+      "title": "Spectral Quartz",
+      "taxonomy": "MATERIAL",
+      "description": "Clear until it is turned, at which point it briefly shows something that was in the room earlier."
+    },
+    {
+      "facetId": 891,
+      "title": "Spire Crystal",
+      "taxonomy": "MATERIAL",
+      "description": "Grows upward in single columns and refuses to branch. Architects have built whole districts on that reliability."
+    },
+    {
+      "facetId": 910,
+      "title": "Starfire Iron",
+      "taxonomy": "MATERIAL",
+      "description": "Retains the heat of its arrival and has not cooled since. Forges get built around a single ingot."
+    },
+    {
+      "facetId": 937,
+      "title": "Starfruit Fiber",
+      "taxonomy": "MATERIAL",
+      "description": "Stripped from a plant that only sets fruit under clear skies. Strong, faintly sweet, and seasonal in a way industry hates."
+    },
+    {
+      "facetId": 885,
+      "title": "Starlight Powder",
+      "taxonomy": "MATERIAL",
+      "description": "Ground from something that fell. A pinch lights a page, a spoonful lights a hall, and neither can be put out."
+    },
+    {
+      "facetId": 874,
+      "title": "Storm Weave",
+      "taxonomy": "MATERIAL",
+      "description": "Cloth carrying a static charge it never loses. Raises hair across the room and keeps the wearer perfectly dry."
+    },
+    {
+      "facetId": 906,
+      "title": "Temporal Resin",
+      "taxonomy": "MATERIAL",
+      "description": "Sets at its own pace and disregards the clock entirely. A joint sealed with it may cure in an hour or in a decade."
+    },
+    {
+      "facetId": 856,
+      "title": "Thunderstone",
+      "taxonomy": "MATERIAL",
+      "description": "Cracked open, it discharges once and is ordinary ever after. Miners treat it as a single-use decision."
+    },
+    {
+      "facetId": 916,
+      "title": "Tidal Pearl",
+      "taxonomy": "MATERIAL",
+      "description": "Grows on a lunar cycle and bands accordingly. Reading the bands gives you the year it started."
+    },
+    {
+      "facetId": 873,
+      "title": "Venom Glass",
+      "taxonomy": "MATERIAL",
+      "description": "Poured with the toxin still in it. Beautiful, edged, and never used for drinking vessels by anyone informed."
+    },
+    {
+      "facetId": 851,
+      "title": "Void Crystal",
+      "taxonomy": "MATERIAL",
+      "description": "Clear, and containing nothing at all, aggressively. Instruments near it read low across the board."
+    },
+    {
+      "facetId": 881,
+      "title": "Vortex Gem",
+      "taxonomy": "MATERIAL",
+      "description": "The inclusion inside is turning and has not stopped. Everyone who has watched it for long advises against doing so."
+    },
+    {
+      "facetId": 872,
+      "title": "Warped Stone",
+      "taxonomy": "MATERIAL",
+      "description": "Refuses to sit level on any surface. Masons compensate by building the entire wall to its opinion."
+    },
+    {
+      "facetId": 890,
+      "title": "Warped Velvet",
+      "taxonomy": "MATERIAL",
+      "description": "The nap runs in directions that change while unobserved. Upholsterers charge extra and explain why at length."
+    },
+    {
+      "facetId": 917,
+      "title": "Whisperwood",
+      "taxonomy": "MATERIAL",
+      "description": "Carries sound along the grain for a considerable distance. Walls built from it are never used for private rooms."
+    }
+  ]
+}

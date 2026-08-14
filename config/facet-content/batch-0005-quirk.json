@@ -1,0 +1,367 @@
+{
+  "version": 1,
+  "taxonomy": "QUIRK",
+  "note": "QUIRK titles are already full sentences, so a description that restates the behavior adds nothing. Each of these supplies the why, the cost, or the consequence instead -- matched to the existing rows, e.g. Allergies: 'The world contains substances that have opinions about this entity.'",
+  "entries": [
+    {
+      "facetId": 1249,
+      "title": "Always leaves a breadcrumb trail wherever they go.",
+      "taxonomy": "QUIRK",
+      "description": "Not for finding the way back. For proving they were there, to somebody who has not arrived yet."
+    },
+    {
+      "facetId": 1185,
+      "title": "Always speaks in riddles.",
+      "taxonomy": "QUIRK",
+      "description": "Direct answers are available and have been ruled out. The listener is expected to earn it, every single time."
+    },
+    {
+      "facetId": 1302,
+      "title": "Always starts conversations by quoting obscure poetry.",
+      "taxonomy": "QUIRK",
+      "description": "The opener is a filter. Anyone who recognises the line is worth continuing with; anyone who does not gets it explained."
+    },
+    {
+      "facetId": 1214,
+      "title": "Always wears mismatched socks intentionally.",
+      "taxonomy": "QUIRK",
+      "description": "The mismatch is curated. There is a correct way to be wrong about this and getting it wrong twice would defeat the purpose."
+    },
+    {
+      "facetId": 1304,
+      "title": "Believes staring contests determine trustworthiness.",
+      "taxonomy": "QUIRK",
+      "description": "Holds the gaze well past comfort and draws real conclusions from the result. Those conclusions have been right often enough to continue."
+    },
+    {
+      "facetId": 1251,
+      "title": "Believes that certain colors bring them good luck.",
+      "taxonomy": "QUIRK",
+      "description": "The list is specific, private, and has been revised exactly once. That revision is not discussed."
+    },
+    {
+      "facetId": 1231,
+      "title": "Believes that sneezing wards off evil spirits.",
+      "taxonomy": "QUIRK",
+      "description": "Treats every sneeze as a small service performed for the room. Says nothing, expects no thanks, considers the matter handled."
+    },
+    {
+      "facetId": 1198,
+      "title": "Believes their shadow is plotting against them.",
+      "taxonomy": "QUIRK",
+      "description": "Keeps it in view at all times. It has never done anything, which is exactly what a patient conspirator would arrange."
+    },
+    {
+      "facetId": 1299,
+      "title": "Can juggle but only uses fruits.",
+      "taxonomy": "QUIRK",
+      "description": "Balls were available and have been declined. The stakes are lower with fruit and considerably funnier when it goes wrong."
+    },
+    {
+      "facetId": 1209,
+      "title": "Can mimic the sound of any animal perfectly.",
+      "taxonomy": "QUIRK",
+      "description": "Convincing enough to fool the animal. This has caused problems nobody anticipated and none of them have been repeated."
+    },
+    {
+      "facetId": 1190,
+      "title": "Can’t resist counting things aloud.",
+      "taxonomy": "QUIRK",
+      "description": "Loses the thread of a conversation to a staircase, a row of windows, a bowl of anything. Resumes without acknowledging the gap."
+    },
+    {
+      "facetId": 1228,
+      "title": "Can’t resist making puns in dire situations.",
+      "taxonomy": "QUIRK",
+      "description": "The timing is not accidental. Something in them insists on lowering the temperature, and it has occasionally worked."
+    },
+    {
+      "facetId": 1277,
+      "title": "Carries a candle everywhere \"just in case.\"",
+      "taxonomy": "QUIRK",
+      "description": "The case has arrived twice. Both times everyone else was extremely glad about the candle and said so out loud."
+    },
+    {
+      "facetId": 1261,
+      "title": "Carries a compass but never uses it.",
+      "taxonomy": "QUIRK",
+      "description": "Knows where north is without it. Carries one because a person who might need a compass is a person with somewhere to go."
+    },
+    {
+      "facetId": 1238,
+      "title": "Carries a pocket full of acorns for \"emergencies.\"",
+      "taxonomy": "QUIRK",
+      "description": "No emergency has yet required an acorn. This is not treated as evidence against the practice."
+    },
+    {
+      "facetId": 1294,
+      "title": "Carries an empty journal for \"recording important events.\"",
+      "taxonomy": "QUIRK",
+      "description": "Nothing has qualified yet. The standard is high on purpose, and the blank pages are the point rather than a failure."
+    },
+    {
+      "facetId": 1192,
+      "title": "Collects buttons from every town they visit.",
+      "taxonomy": "QUIRK",
+      "description": "One per town, chosen rather than found. The collection is a map that only they can read."
+    },
+    {
+      "facetId": 1259,
+      "title": "Collects feathers and treats them as treasure.",
+      "taxonomy": "QUIRK",
+      "description": "Sorted, named, and stored with more care than most people give currency. The valuation is internally consistent."
+    },
+    {
+      "facetId": 1265,
+      "title": "Compulsively organizes objects by size.",
+      "taxonomy": "QUIRK",
+      "description": "Hands move before the decision does. Other people's shelves are a source of quiet, ongoing suffering."
+    },
+    {
+      "facetId": 1217,
+      "title": "Constantly names inanimate objects.",
+      "taxonomy": "QUIRK",
+      "description": "The kettle has a name and a temperament. Anyone who mocks this gets corrected gently and at considerable length."
+    },
+    {
+      "facetId": 1296,
+      "title": "Constantly sketches \"the same recurring dream.\"",
+      "taxonomy": "QUIRK",
+      "description": "The drawing changes slightly each time, which means either the dream is moving or the hand is. Neither answer is comforting."
+    },
+    {
+      "facetId": 1236,
+      "title": "Doodles elaborate maps of imaginary lands.",
+      "taxonomy": "QUIRK",
+      "description": "Coastlines, trade routes, and a scale bar. The lands are not real and the geography is nonetheless consistent."
+    },
+    {
+      "facetId": 1206,
+      "title": "Gets distracted by shiny objects mid-conversation.",
+      "taxonomy": "QUIRK",
+      "description": "Mid-sentence, gone. Returns with no memory of the sentence and total recall of the object."
+    },
+    {
+      "facetId": 1283,
+      "title": "Gives names to every stray cat they encounter.",
+      "taxonomy": "QUIRK",
+      "description": "The names stick, at least on their side of the arrangement. Several of the cats have started answering to them."
+    },
+    {
+      "facetId": 1230,
+      "title": "Has a pet rock they insist is sentient.",
+      "taxonomy": "QUIRK",
+      "description": "Presents no evidence and requires none. The rock has been consulted on major decisions and has not yet been wrong."
+    },
+    {
+      "facetId": 1263,
+      "title": "Has a strong aversion to mirrors.",
+      "taxonomy": "QUIRK",
+      "description": "Will cross a room to avoid one. There is a reason, and nobody has ever asked in a way that deserved to hear it."
+    },
+    {
+      "facetId": 1254,
+      "title": "Has a superstition about only stepping on cracks.",
+      "taxonomy": "QUIRK",
+      "description": "On the cracks, deliberately, which inverts the usual arrangement. Nobody has asked what happens if they miss one."
+    },
+    {
+      "facetId": 1278,
+      "title": "Has a superstition about wearing mismatched gloves.",
+      "taxonomy": "QUIRK",
+      "description": "Matching gloves are considered an unnecessary risk. The specifics of that risk have never been made public."
+    },
+    {
+      "facetId": 1270,
+      "title": "Has trained themselves to remember everything in rhyme.",
+      "taxonomy": "QUIRK",
+      "description": "Everything important is stored as verse. Recall is flawless and the retrieval is audible from the next room."
+    },
+    {
+      "facetId": 1262,
+      "title": "Invents elaborate backstories for people they meet.",
+      "taxonomy": "QUIRK",
+      "description": "Full histories assigned inside a minute of meeting. Occasionally checked against reality, and the accuracy rate is unsettling."
+    },
+    {
+      "facetId": 1286,
+      "title": "Invents riddles for strangers and expects answers.",
+      "taxonomy": "QUIRK",
+      "description": "Poses it, waits, and does not fill the silence. The waiting is the part people remember afterward."
+    },
+    {
+      "facetId": 1243,
+      "title": "Is a professional finger snapper, complete with routines.",
+      "taxonomy": "QUIRK",
+      "description": "There are routines. There is a warm-up. Against every reasonable expectation it is genuinely impressive to watch."
+    },
+    {
+      "facetId": 1295,
+      "title": "Keeps an invisible \"force field\" around themselves.",
+      "taxonomy": "QUIRK",
+      "description": "Maintains a precise personal radius and adjusts it for the room. Everyone senses the boundary without being told where it sits."
+    },
+    {
+      "facetId": 1301,
+      "title": "Knows an absurd amount of facts about frogs.",
+      "taxonomy": "QUIRK",
+      "description": "Unprompted, endless, and correct. The frogs have done nothing to earn this and would not understand it if they had."
+    },
+    {
+      "facetId": 1260,
+      "title": "Knows an absurd amount of trivia about cheese.",
+      "taxonomy": "QUIRK",
+      "description": "Regional, historical, and entirely unsolicited. Has ruined at least one dinner party and measurably improved two others."
+    },
+    {
+      "facetId": 1266,
+      "title": "Laughs at their own jokes before finishing them.",
+      "taxonomy": "QUIRK",
+      "description": "The joke rarely arrives intact. The laugh is good enough that the room usually joins in regardless."
+    },
+    {
+      "facetId": 1195,
+      "title": "Laughs uncontrollably at the mention of pickles.",
+      "taxonomy": "QUIRK",
+      "description": "No explanation has ever been offered. The reaction is immediate, total, and has survived every attempt to suppress it."
+    },
+    {
+      "facetId": 1303,
+      "title": "Leaves cryptic notes in bottles wherever they go.",
+      "taxonomy": "QUIRK",
+      "description": "Writes to nobody in particular and means every word. Somewhere out there is a person quietly collecting them."
+    },
+    {
+      "facetId": 1245,
+      "title": "Obsessed with finding \"the perfect stick.\"",
+      "taxonomy": "QUIRK",
+      "description": "Has held thousands and kept none. The search is the relationship; finding it would end something."
+    },
+    {
+      "facetId": 1199,
+      "title": "Only communicates through song when nervous.",
+      "taxonomy": "QUIRK",
+      "description": "The nerves route through the singing instead of the speech. It is disarming, which is presumably why it survived this long."
+    },
+    {
+      "facetId": 1222,
+      "title": "Only drinks tea that’s been stirred counterclockwise.",
+      "taxonomy": "QUIRK",
+      "description": "The direction matters. Anyone who stirs it the other way is quietly never asked to make tea again."
+    },
+    {
+      "facetId": 1300,
+      "title": "Only eats foods in alphabetical order.",
+      "taxonomy": "QUIRK",
+      "description": "Plans the whole plate before touching any of it. A dessert beginning with A has caused genuine difficulty."
+    },
+    {
+      "facetId": 1258,
+      "title": "Only walks in the shadows, avoiding direct sunlight.",
+      "taxonomy": "QUIRK",
+      "description": "Moves along the shaded side of everything. Not a condition and not an aversion, simply a route that has always been theirs."
+    },
+    {
+      "facetId": 1264,
+      "title": "Only wears boots, even in formal settings.",
+      "taxonomy": "QUIRK",
+      "description": "The boots are polished. The boots are appropriate. Everyone else's opinion on the boots has been noted and set aside."
+    },
+    {
+      "facetId": 1285,
+      "title": "Refuses to cross bridges without whistling a tune.",
+      "taxonomy": "QUIRK",
+      "description": "Always the same tune. Whether it works has never been tested, and testing it is not on the table."
+    },
+    {
+      "facetId": 1269,
+      "title": "Refuses to sit on chairs with cushions.",
+      "taxonomy": "QUIRK",
+      "description": "Takes the hard one by choice and stays comfortable long after everyone in the soft ones has started shifting."
+    },
+    {
+      "facetId": 1244,
+      "title": "Refuses to touch books with even page numbers.",
+      "taxonomy": "QUIRK",
+      "description": "Turns two at a time when it comes to it. Has read a great many books and can tell you nothing about half of them."
+    },
+    {
+      "facetId": 1305,
+      "title": "Refuses to touch objects made of copper.",
+      "taxonomy": "QUIRK",
+      "description": "Coins get handled through a sleeve. Nobody has established what copper did, and asking has never produced a straight answer."
+    },
+    {
+      "facetId": 1293,
+      "title": "Sniffs books to judge their \"character.\"",
+      "taxonomy": "QUIRK",
+      "description": "Judges a book before reading a word of it, and is right more often than the method has any right to be."
+    },
+    {
+      "facetId": 1288,
+      "title": "Sprinkles salt around their bed before sleeping.",
+      "taxonomy": "QUIRK",
+      "description": "A thin unbroken line, checked before lying down. Sleeps extremely well, which complicates any argument against the practice."
+    },
+    {
+      "facetId": 1250,
+      "title": "Takes \"invisible notes\" with a pretend quill.",
+      "taxonomy": "QUIRK",
+      "description": "The quill is not there. The notes are apparently detailed, and they have been quoted back accurately more than once."
+    },
+    {
+      "facetId": 1298,
+      "title": "Talks to doors before opening them.",
+      "taxonomy": "QUIRK",
+      "description": "A short greeting first. Considers it basic manners toward something that spends all day letting people through."
+    },
+    {
+      "facetId": 1220,
+      "title": "Terrified of butterflies but loves moths.",
+      "taxonomy": "QUIRK",
+      "description": "The distinction is absolute and the reasoning is unavailable. Moths are welcome to land wherever they like."
+    },
+    {
+      "facetId": 1275,
+      "title": "Uses completely nonsensical phrases as insults.",
+      "taxonomy": "QUIRK",
+      "description": "Invented on the spot and landing regardless. Nobody has managed to be properly offended and nobody has managed not to be."
+    },
+    {
+      "facetId": 1268,
+      "title": "Uses overly dramatic hand gestures for mundane tasks.",
+      "taxonomy": "QUIRK",
+      "description": "Fetches a glass of water like a curtain call. Nothing is small when they do it, which is exhausting and slightly wonderful."
+    },
+    {
+      "facetId": 1241,
+      "title": "Wears a scarf year-round, even in summer.",
+      "taxonomy": "QUIRK",
+      "description": "Summer changes nothing at all. The scarf is load-bearing in a way that has never been explained to anybody."
+    },
+    {
+      "facetId": 1306,
+      "title": "Wears mismatched earrings to \"confuse the spirits.\"",
+      "taxonomy": "QUIRK",
+      "description": "The asymmetry is the working part. Spirits are said to find it disorienting, and no spirit has yet complained."
+    },
+    {
+      "facetId": 1308,
+      "title": "Whispers to the moon before going to sleep.",
+      "taxonomy": "QUIRK",
+      "description": "A short report, delivered quietly, every night. The moon has never replied and the reports have never stopped."
+    },
+    {
+      "facetId": 1272,
+      "title": "Writes letters to fictional characters.",
+      "taxonomy": "QUIRK",
+      "description": "Sealed, addressed, and kept in a drawer. Some of them are apologies, which is the part that stays with you."
+    },
+    {
+      "facetId": 1200,
+      "title": "Writes poetry on any available surface.",
+      "taxonomy": "QUIRK",
+      "description": "Receipts, walls, the fog on a window. The impulse does not wait for paper and never has."
+    }
+  ]
+}

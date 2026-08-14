@@ -1,10 +1,11 @@
 // /server/utils/artJobRetry.ts
-import {
-  parseArtJobPayload,
-  type ArtJobPayloadRecord,
-} from './artJobPayload'
+import { parseArtJobPayload, type ArtJobPayloadRecord } from './artJobPayload'
 import { ltxFrameCount } from '../api/comfy/ltx/utils/imageToVideoWorkflow'
 import { wanFrameCount } from '../api/comfy/wan/utils/imageToVideoWorkflow'
+import {
+  fluxDualClipLoaderNode,
+  isFluxDualClipLoader,
+} from './fluxTextEncoders'
 
 export type ArtJobRetryMode = 'NEW_OUTPUT' | 'OVERWRITE'
 
@@ -14,8 +15,11 @@ export const ART_JOB_RETRY_MODES = new Set<ArtJobRetryMode>([
 ])
 
 const SEED_KEYS = new Set(['seed', 'noise_seed'])
-const CURRENT_FLUX_T5 = 't5xxl_fp8_e4m3fn_scaled.safetensors'
-const CURRENT_FLUX_CLIP_L = 'clip_l.safetensors'
+// Sourced from fluxTextEncoders so a retry cannot put back an encoder the
+// builders no longer emit. Until 2026-08-13 these were separate literals, so
+// changing the builders alone would have held only until a job was retried --
+// this normalizer would have rewritten it to the fp8 T5, intermittently, and
+// looked like the GGUF switch failing to stick.
 
 function asRecord(value: unknown): ArtJobPayloadRecord {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
@@ -187,7 +191,8 @@ function normalizeLegacyComfyWorkflow(
       classType === 'PrimitiveStringMultiline' &&
       stringValue(meta.title).toLowerCase() === 'prompt'
     ) {
-      const prompt = stringValue(inputs.value) || stringValue(payload.promptString)
+      const prompt =
+        stringValue(inputs.value) || stringValue(payload.promptString)
       if (prompt) {
         meta.prompt = prompt
         record._meta = meta
@@ -207,12 +212,18 @@ function normalizeLegacyComfyWorkflow(
     }
 
     if (
-      classType === 'DualCLIPLoader' &&
+      isFluxDualClipLoader(classType) &&
       stringValue(inputs.type).toLowerCase() === 'flux'
     ) {
-      inputs.clip_name1 = CURRENT_FLUX_T5
-      inputs.clip_name2 = CURRENT_FLUX_CLIP_L
-      record.inputs = inputs
+      // Rebuild the whole node, not just the names: the loader CLASS follows
+      // the encoder file (GGUF vs safetensors), so rewriting names alone could
+      // leave a .gguf on the stock DualCLIPLoader.
+      const loader = fluxDualClipLoaderNode()
+      record.class_type = loader.class_type
+      record.inputs = { ...inputs, ...loader.inputs }
+      if (!('device' in loader.inputs))
+        delete (record.inputs as Record<string, unknown>).device
+      record._meta = loader._meta
     }
   }
 
@@ -271,8 +282,7 @@ export function applyArtJobOverrides(
       ['frame_rate', 'fps'],
     )
   const currentDuration = num(video.durationSeconds)
-  const nextFps =
-    fpsOverride !== null ? clamp(fpsOverride, 1, 60) : currentFps
+  const nextFps = fpsOverride !== null ? clamp(fpsOverride, 1, 60) : currentFps
   const nextDuration =
     durationOverride !== null
       ? clamp(durationOverride, 0.25, 30)
@@ -312,8 +322,7 @@ export function applyArtJobOverrides(
 
       if (
         nextFrames !== null &&
-        (classType === 'LTXVImgToVideo' ||
-          classType === 'WanImageToVideo') &&
+        (classType === 'LTXVImgToVideo' || classType === 'WanImageToVideo') &&
         'length' in inputs
       ) {
         inputs.length = nextFrames

@@ -4,6 +4,8 @@
 // Mirrors the graph in ../generate.post.ts (kept private there); the direct
 // route and this builder should be deduped in a later pass.
 
+import { fluxDualClipLoaderNode } from '../../../../utils/fluxTextEncoders'
+
 export type ComfyWorkflow = Record<string, ComfyWorkflowNode>
 
 export type ComfyWorkflowNode = {
@@ -131,16 +133,7 @@ export function buildKontextWorkflow(
       class_type: 'VAELoader',
       _meta: { title: 'Load VAE' },
     },
-    '11': {
-      inputs: {
-        clip_name1: 't5xxl_fp8_e4m3fn_scaled.safetensors',
-        clip_name2: 'clip_l.safetensors',
-        type: 'flux',
-        device: 'default',
-      },
-      class_type: 'DualCLIPLoader',
-      _meta: { title: 'DualCLIPLoader' },
-    },
+    '11': fluxDualClipLoaderNode(),
     '13': {
       inputs: {
         noise: ['25', 0],
@@ -266,7 +259,6 @@ export function buildKontextWorkflow(
       class_type: 'LoraLoaderModelOnly',
       _meta: { title: 'Style LoRA' },
     }
-
     ;(workflow['30']!.inputs as Record<string, unknown>).model = ['61', 0]
   }
 

@@ -5,6 +5,8 @@
 // (/api/art/enqueue) build the exact same Comfy graph. The direct route keeps
 // the networking/polling; this module owns only the workflow shape + defaults.
 
+import { fluxDualClipLoaderNode } from '../../../../utils/fluxTextEncoders'
+
 export type ComfyWorkflow = Record<string, ComfyWorkflowNode>
 
 export type ComfyWorkflowNode = {
@@ -81,18 +83,7 @@ export function buildFluxWorkflow(input: {
   const prompt = input.prompt.trim() || defaultFluxPrompt
 
   return {
-    '4': {
-      inputs: {
-        clip_name1: 't5xxl_fp8_e4m3fn_scaled.safetensors',
-        clip_name2: 'clip_l.safetensors',
-        type: 'flux',
-        device: 'default',
-      },
-      class_type: 'DualCLIPLoader',
-      _meta: {
-        title: 'DualCLIPLoader',
-      },
-    },
+    '4': fluxDualClipLoaderNode(),
     '6': {
       inputs: {
         width: input.width,

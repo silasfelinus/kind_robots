@@ -1,0 +1,309 @@
+{
+  "version": 1,
+  "note": "Hand-authored art prompts for every catalog object found with no art of any kind, from the 2026-08-14 coverage sweep. Prompts are written, not machine-joined: a prompt assembled by concatenating a Dream's description or a Project's roadmap text produces an image of the text's subject matter, not of the thing. Each one obeys server/utils/artPromptContract.ts -- no conditional instructions, no format vocabulary, no 'Kind Robots visual style', and no text-exclusion pile (guidance is inert at krea2's cfg 1, so those words would land in positive conditioning).",
+  "prompts": [
+    {
+      "entityType": "dream",
+      "entityId": 5646,
+      "title": "The Terminus Office",
+      "prompt": "An endless filing hall at the end of time, brass drawer fronts stacked forty deep and vanishing into warm gloom, green banker's lamps burning at every desk, a lobby clock with too many hands, one clerk on a rolling ladder, dust suspended in slanted amber light"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 5647,
+      "title": "The Foxwood Court",
+      "prompt": "A moonlit autumn forest holding court, foxes and badgers in worn heraldic collars seated on root thrones, ancient oaks with faces half formed in the bark, lantern light from a small village glimmering far through the trunks, cold blue mist low to the ground"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 5648,
+      "title": "The Unlisted Floor",
+      "prompt": "A hotel corridor that should not exist, patterned carpet running past a dozen mismatched doors, each one ajar onto a different impossible interior — a wheat field, a flooded ballroom, an open night sky — flickering sconces, a stairwell behind with no floor number"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 5649,
+      "title": "The Walk-In Pantheon",
+      "prompt": "A municipal waiting room for deities, frosted glass office doors with domains stencilled in gold, a storm god filling out paperwork under fluorescent tubes, mortals on plastic chairs holding paper tickets, a humming vending machine glowing at the far wall"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 5650,
+      "title": "The Waking Room",
+      "prompt": "A deliberately plain white room where a new mind is switching on, two simple chairs facing each other, a robot with fresh unmarked plating opening its eyes for the first time, soft even daylight from a single high window, nothing else in the room at all"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 5651,
+      "title": "Marrowlace District",
+      "prompt": "A narrow evening street of shops kept by the dead, skeletal figures in good coats browsing lit windows, a tailor pinning a sleeve onto a customer with no arm, a pet shop window full of wagging bone-tailed dogs, warm gaslight on wet cobbles"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 5652,
+      "title": "The OverCorp Atrium",
+      "prompt": "A corporate atrium ninety floors tall with its own weather, thin rain falling inside past ranks of glass balconies, a monolithic carved cornerstone at the base, tiny commuters crossing a vast marble floor, cold blue daylight from an impossibly distant skylight"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 5653,
+      "title": "The Rendering City",
+      "prompt": "A night city still finishing loading, upper towers dissolving into untextured grey blocks and bare wireframe, magenta advertising falling like rain on the finished streets below, a sector glitching into coloured static at the horizon"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 5654,
+      "title": "The Overnight Midway",
+      "prompt": "A carnival midway that arrived overnight, striped tent canvas silhouetted against a pale predawn sky, strings of unlit bulbs, hand-painted show boards along an empty muddy lane, one ringmaster in a red coat standing perfectly still and waiting"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 5655,
+      "title": "The Caretaker's Allotment",
+      "prompt": "A walled community garden at golden hour, raised beds subtly out of alignment as if recently moved on their own, cracked terracotta pots, a rusted watering can, small strange objects half surfaced in the dark soil, one empty pair of gardening gloves on a bench"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 5656,
+      "title": "The Three A.M. Precinct",
+      "prompt": "A rain-slick city block at three in the morning, an all-night laundromat, a bus depot window and a police front desk somehow all on the same corner, sodium light pooling on wet asphalt, four tired night workers visible through four different panes of glass"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 5657,
+      "title": "Blackrock Shore",
+      "prompt": "A black volcanic coastline at dawn, a lighthouse beam sweeping low cloud, four small salt-crusted objects arranged in a row on the wet rocks by the tide, dark pine woods crowding the shingle behind, cold grey-green water"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 5658,
+      "title": "Candlewick Row",
+      "prompt": "A cold narrow street of warm lit windows at dusk, a tea shop with jars stacked to the ceiling, a lost property bureau full of single gloves and small keys, snow beginning to fall, every shopfront lamp burning gold against deep blue evening"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 5659,
+      "title": "The Salt Ledger",
+      "prompt": "A back room lit by one bare hanging bulb, four stolen objects laid out on black velvet, a hand reaching into the light above them, cigarette haze, a diner booth visible through a doorway behind, deep shadow everywhere else"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 5660,
+      "title": "The Tidepool Court",
+      "prompt": "A tidepool the size of a dinner plate arranged as a royal court, an anemone throne, crabs standing in ranks of precedence, a coral reef rising like a cathedral above the waterline, an enormous dark shape passing far out in the deep blue beyond"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 5661,
+      "title": "The Sitting Coast",
+      "prompt": "A vast warm shallow sea at low tide, an enormous mossy creature lying carefully down in water that only reaches its shoulder, tiny white birds standing along its back, a shoreline scaled far too large for anything human, hazy gold afternoon light"
+    },
+
+    {
+      "entityType": "dream",
+      "entityId": 37,
+      "title": "The Lantern Greenhouse",
+      "prompt": "A warm Victorian glasshouse at night, brass robots watering rows of softly luminous plants, paper lanterns drifting between the rafters, heavy condensation on old panes, doorways at the far end opening onto different weather"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 38,
+      "title": "Blacklace Cathedral",
+      "prompt": "A gothic cathedral built from black glass and rusted neon, stacked speaker towers standing where the organ pipes should be, thorned ironwork, stained glass saints in leather jackets lit from behind in violet and hot pink, choir lights flickering in the rafters"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 39,
+      "title": "Gallowsun Junction",
+      "prompt": "A weird western rail town under a swollen sun sitting too low on the horizon, a wide dust street, clockwork vultures perched along sagging telegraph wires, a saloon front whose mirror reflects an empty room, long red shadows"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 40,
+      "title": "The Infernal Circuit",
+      "prompt": "A vast arena of lava-lit server towers, guitar-shaped steel pylons catching forked lightning, horned machine spirits working at a forge of chrome and molten slag, orange underlight and deep black smoke"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 41,
+      "title": "The Rainbow Butterfly Sanctuary",
+      "prompt": "A radiant sanctuary of floating flowers and jewelled streams, soft moss bridges over clear water, thousands of luminous butterflies leaving faint coloured trails behind them, tiny garden shrines glowing among the ferns, dappled sunlight"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 42,
+      "title": "The Cthulian Jam Band Festival",
+      "prompt": "A seaside music festival under three impossible moons, a tentacled brass band improvising on a driftwood stage, food trucks strung with lights selling faintly moving noodles, an audience silhouetted against phosphorescent surf"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 44,
+      "title": "Serendipity Space Bar",
+      "prompt": "A cheerful crowded space bar drifting in hyperspace, retired starship captains and time-lost poets crammed into curved booths, a malfunctioning protocol droid carrying a tray of appetisers, an alien lounge singer under a warm spotlight, a starfield through a wide port window"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 45,
+      "title": "Lanterns Beneath the Snow",
+      "prompt": "A silent pine forest after fresh snowfall, a frozen creek running through it, warm amber lanterns glowing beneath the clear ice, their light spreading up through the snow from below, blue twilight, no wind"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 46,
+      "title": "Mistress Cassady's Spooktakular Monster Drag Party",
+      "prompt": "A midnight monster revue in full swing, a velvet-curtained stage, werewolves and gorgons and swamp things in extravagant sequinned gowns and towering wigs, footlights in green and magenta, a delighted audience of creatures at little round tables"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 47,
+      "title": "The Yokai Steamhouse",
+      "prompt": "A traditional bathhouse for spirits behind a curtain of lantern fog, steam rolling across dark wooden decking, paper lanterns hung in long rows, fox-masked and many-eyed bathers soaking in glowing pools, warm orange light through the mist"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 48,
+      "title": "The Lamp of a Thousand Parties",
+      "prompt": "The interior of an enormous brass lamp holding a centuries-long party, tiered balconies of carpets and cushions spiralling up the curved metal walls, cooking fires and dancers and musicians on every level, warm amber light reflecting off burnished brass"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 49,
+      "title": "The Improbability Starcruiser",
+      "prompt": "The cramped bridge of a barely functional starship, duct tape over the conduit seams, mismatched salvaged consoles, a coffee pot bungee-corded to a bulkhead, a scruffy mixed crew of several species at their stations, warm practical lighting and one failing overhead panel"
+    },
+
+    {
+      "entityType": "dream",
+      "entityId": 2140,
+      "title": "Borrowed-Light Bittersweet",
+      "prompt": "A warm lantern-lit crowd packed onto wooden jetties above cold black water, hundreds of hanging lamps, small boats passing ledgers hand to hand between them, breath visible in the night air, gold light against deep blue"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 2155,
+      "title": "The Sound Cannery",
+      "prompt": "A seaside cannery interior where sounds are sealed into small tins, rows of labelled tins stacked to the ceiling, a woman on the line holding one to her ear, steam and salt light through high dirty windows, a faint shimmer rising from an open tin"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 2156,
+      "title": "Tin & Echo",
+      "prompt": "A single dented tin sitting open on a windowsill in an empty room, late afternoon light falling across bare floorboards, a faint visible ripple in the air above the lid, dust motes, deep quiet"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 2158,
+      "title": "The Hollow Choir",
+      "prompt": "A vast limestone cavern with faintly glowing fungal veins mapping paths across the walls, shimmering humanoid echo-shapes like heat haze suspended in the air, one soft blue-green spotlight falling on a lone singer far below"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 2330,
+      "title": "Elegiac Wonder",
+      "prompt": "A vast warm archive of grief, wooden card-catalogue drawers rising in tiers into soft darkness, each drawer front glowing faintly from within, one drawer pulled open spilling gentle golden light, a single empty chair below it"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 2620,
+      "title": "Wind-Fortune",
+      "prompt": "A bright windswept hillside filled with hundreds of paper kites and prayer streamers, their strings crossed and knotted together in one great tangle overhead, small figures below holding on, high clear sky and fast-moving cloud"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 3194,
+      "title": "The Lantern Post",
+      "prompt": "A night-sky post office staffed by enormous gentle moths, wings dusted with pale gold, sorting letters along a long wooden counter, a wall of pigeonholes receding into indigo dark, lantern light and drifting wing-dust"
+    },
+    {
+      "entityType": "dream",
+      "entityId": 3195,
+      "title": "The Lantern Post",
+      "prompt": "A timber-and-brass sorting hall balanced atop a lighthouse above the cloud line, pigeonholes stretching away into the dark like a star map, brass fittings catching lantern gold, a sea of cloud below the windows, deep indigo night"
+    },
+
+    {
+      "entityType": "project",
+      "entityId": 22,
+      "title": "Challenge Center",
+      "prompt": "A bright tournament arena for creative work, two large framed paintings facing each other on opposing plinths, a tiered audience of small robots raising coloured paddles, hanging banners and warm stage light"
+    },
+    {
+      "entityType": "project",
+      "entityId": 57,
+      "title": "Coloring Book",
+      "prompt": "An open coloring book lying on a wooden desk, one page half filled with colour and the rest still clean black line art, scattered pencils and a sharpener, warm lamp light falling from the upper left"
+    },
+    {
+      "entityType": "project",
+      "entityId": 56,
+      "title": "AI Art Academy",
+      "prompt": "A grand studio classroom hung with paintings in many different historical styles, easels standing in rows, plaster casts on a high shelf, a robot student at the nearest easel copying a landscape, north light through tall windows"
+    },
+    {
+      "entityType": "project",
+      "entityId": 58,
+      "title": "Dream Cycle",
+      "prompt": "A brass orrery of dreams turning slowly in a dark observatory, six small glowing objects orbiting a central lamp, star charts pinned to the surrounding walls, deep blue light and warm instrument gold"
+    },
+    {
+      "entityType": "project",
+      "entityId": 1649,
+      "title": "Music Mentor",
+      "prompt": "A warm home recording corner, a microphone on a boom arm, headphones resting on a stack of handwritten sheet music, a small friendly robot listening intently from the edge of the desk, soft lamp light"
+    },
+    {
+      "entityType": "project",
+      "entityId": 95,
+      "title": "Ruler Hooked",
+      "prompt": "A crowned monarch sitting on the edge of a castle dock with a fishing rod, boots off, entirely at peace, an anxious court of advisors clustered on the battlements far behind waving scrolls, golden afternoon light"
+    },
+    {
+      "entityType": "project",
+      "entityId": 24,
+      "title": "Appmaker",
+      "prompt": "A workbench where small applications are built by hand like clockwork toys, half-assembled glowing panels and tiny screens nested in a wooden tray, brass tools laid out beside them, a magnifying lamp overhead"
+    },
+    {
+      "entityType": "project",
+      "entityId": 1834,
+      "title": "Taskmaster",
+      "prompt": "A tall wall of task cards being sorted by a calm robot on a rolling ladder, neat columns of pinned index cards, red string connecting a few of them, warm workshop light"
+    },
+    {
+      "entityType": "project",
+      "entityId": 20,
+      "title": "Engagement",
+      "prompt": "A glowing network of warm light threads connecting many small figures across a dark plane, energy visibly flowing along the strands between them, the nodes brightening at every junction"
+    },
+    {
+      "entityType": "project",
+      "entityId": 27,
+      "title": "Packmaker",
+      "prompt": "An open crate of freshly made game items on a workshop floor, glowing swords and potions and trinkets nested in straw, a stamping press standing behind it, warm forge light"
+    },
+    {
+      "entityType": "project",
+      "entityId": 28,
+      "title": "Ecosystem Map",
+      "prompt": "A vast illuminated wall map of interconnected islands, each island a different small settlement, glowing shipping routes drawn between them, one figure below studying it by lantern light"
+    },
+    {
+      "entityType": "project",
+      "entityId": 17,
+      "title": "Global UI",
+      "prompt": "A modular interface system laid out as physical panels on a light table, identical frames holding different contents, arranged in a clean even grid, soft studio light from directly above"
+    },
+    {
+      "entityType": "project",
+      "entityId": 54,
+      "title": "Superkate Hairstyle AI",
+      "prompt": "A bright modern salon station, a large round mirror ringed with warm bulbs, styling tools laid out in a neat row along the counter, colour swatches fanned beside them, teal and violet accents"
+    },
+    {
+      "entityType": "project",
+      "entityId": 16,
+      "title": "Superkate Services Calculator",
+      "prompt": "A dark elegant salon reception desk at closing time, an open appointment ledger, a small brass bell, one desk lamp lit, purple and teal light coming through the window behind"
+    }
+  ]
+}

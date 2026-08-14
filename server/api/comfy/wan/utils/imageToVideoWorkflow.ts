@@ -50,7 +50,11 @@ export type WanImageToVideoInput = {
   loraStrength?: number | null
   // Fraction of the total steps handled by the high-noise expert before the
   // low-noise expert takes over (0–1). Defaults to WAN_DEFAULT_BOUNDARY.
+  // Ignored in ti2v mode, which has no second expert to hand over to.
   boundary?: number | null
+  // 'ti2v' (default) fits the card; 'a14b' is the slower high-quality pair.
+  // Omitted, a last-frame request selects 'a14b' -- see resolveWanMode.
+  mode?: WanImageToVideoMode | null
   filenamePrefix?: string | null
   outputFormat?: VideoOutputFormat | string | null
 }
@@ -106,6 +110,49 @@ export function wanClipLoaderNode() {
 }
 export const WAN_VAE = 'wan_2.1_vae.safetensors'
 
+// WAN 2.2 ships two image-to-video paths, and this box can only afford one of
+// them interactively. Measured on the render host (12 GB card):
+//
+//   A14B  wan2.2_i2v_high_noise_14B_fp8   14 GB  } one resident at a time,
+//         wan2.2_i2v_low_noise_14B_fp8    14 GB  } still over the card
+//   TI2V  wan2.2_ti2v_5B_fp16            9.4 GB
+//
+// A14B does not fit in VRAM, so ComfyUI offloads to system RAM and the render
+// becomes an overnight job. It completes, and Silas rates the quality highly --
+// it is a batch mode, not a broken one, and is kept exactly as it was.
+//
+// TI2V-5B is WAN's own answer for consumer cards and is what a caller should
+// get by default. It is a different graph, not a different filename: one unet
+// instead of the high/low expert pair, no boundary split, the 2.2 VAE rather
+// than the 2.1 VAE, and Wan22ImageToVideoLatent in place of WanImageToVideo.
+export const WAN_TI2V_UNET = 'wan2.2_ti2v_5B_fp16.safetensors'
+
+// The 5B TI2V model uses the 2.2 VAE. The A14B pair uses the 2.1 VAE -- these
+// are not interchangeable, which is why both files exist on the box.
+export const WAN_TI2V_VAE = 'wan2.2_vae.safetensors'
+
+export type WanImageToVideoMode = 'ti2v' | 'a14b'
+
+export const WAN_DEFAULT_MODE: WanImageToVideoMode =
+  (process.env.WAN_I2V_MODE || '').trim() === 'a14b' ? 'a14b' : 'ti2v'
+
+/**
+ * Which graph to build.
+ *
+ * An explicit mode wins. Otherwise a request that pins the final frame selects
+ * A14B automatically: Wan22ImageToVideoLatent declares only an optional
+ * `start_image` and has no `end_image` input, so first-last-frame is a
+ * capability TI2V structurally does not have. Silently dropping the last frame
+ * would be worse than spending the extra time.
+ */
+export function resolveWanMode(
+  input: Pick<WanImageToVideoInput, 'mode' | 'lastImageName'>,
+): WanImageToVideoMode {
+  if (input.mode === 'a14b' || input.mode === 'ti2v') return input.mode
+  if (input.lastImageName?.trim()) return 'a14b'
+  return WAN_DEFAULT_MODE
+}
+
 function resolveSeed(seed?: number | null): number {
   if (typeof seed === 'number' && Number.isFinite(seed) && seed >= 0) {
     return Math.floor(seed)
@@ -143,6 +190,20 @@ export function buildWanImageToVideoWorkflow(
   const scheduler = input.scheduler ?? WAN_DEFAULT_SCHEDULER
   const split = boundaryStep(steps, input.boundary ?? WAN_DEFAULT_BOUNDARY)
   const hasLastFrame = Boolean(input.lastImageName)
+
+  if (resolveWanMode(input) === 'ti2v') {
+    return buildWanTi2vWorkflow(input, {
+      seed,
+      width,
+      height,
+      frameRate,
+      length,
+      steps,
+      cfg,
+      samplerName,
+      scheduler,
+    })
+  }
 
   const workflow: ComfyWorkflow = {
     // --- Loaders ------------------------------------------------------------
@@ -288,6 +349,144 @@ export function buildWanImageToVideoWorkflow(
     class_type: 'VAEDecode',
     _meta: { title: 'VAE Decode' },
   }
+  Object.assign(
+    workflow,
+    buildVideoOutputNodes({
+      format: normalizeVideoOutputFormat(input.outputFormat),
+      imagesRef: ['decode', 0],
+      fps: frameRate,
+      filenamePrefix:
+        input.filenamePrefix ?? 'video/kindrobots_wan_image2video',
+    }),
+  )
+
+  return workflow
+}
+
+type WanDerived = {
+  seed: number
+  width: number
+  height: number
+  frameRate: number
+  length: number
+  steps: number
+  cfg: number
+  samplerName: string
+  scheduler: string
+}
+
+/**
+ * WAN 2.2 TI2V-5B: one 9.4 GB unet that fits the card, against the A14B pair's
+ * 14 GB-at-a-time that does not.
+ *
+ * Structurally different from the A14B graph, not just differently named:
+ *
+ *   - one UNETLoader, so one optional LoRA rather than a matched pair
+ *   - one KSampler, because there is no second expert to hand a partially
+ *     denoised latent to -- `boundary` has no meaning here
+ *   - the 2.2 VAE, which is what the 5B model was trained against
+ *   - Wan22ImageToVideoLatent, whose signature (confirmed against the render
+ *     host's /object_info) is vae/width/height/length/batch_size with an
+ *     OPTIONAL start_image, returning a LATENT and nothing else
+ *
+ * That last point is the one worth reading twice. WanImageToVideo returns
+ * (positive, negative, latent) and the A14B graph wires conditioning THROUGH
+ * it. Wan22ImageToVideoLatent returns a latent only, so conditioning runs
+ * straight from CLIPTextEncode into the sampler. Copying the A14B wiring here
+ * would reference outputs that do not exist.
+ *
+ * It also has no end_image input, which is why resolveWanMode sends any
+ * last-frame request to A14B rather than quietly dropping the last frame.
+ */
+function buildWanTi2vWorkflow(
+  input: WanImageToVideoInput,
+  derived: WanDerived,
+): ComfyWorkflow {
+  const { seed, width, height, frameRate, length, steps, cfg } = derived
+  const { samplerName, scheduler } = derived
+
+  const workflow: ComfyWorkflow = {
+    unet: {
+      inputs: { unet_name: WAN_TI2V_UNET, weight_dtype: 'default' },
+      class_type: 'UNETLoader',
+      _meta: { title: 'Load Diffusion Model (TI2V 5B)' },
+    },
+    clip: wanClipLoaderNode(),
+    vae: {
+      inputs: { vae_name: WAN_TI2V_VAE },
+      class_type: 'VAELoader',
+      _meta: { title: 'Load VAE (WAN 2.2)' },
+    },
+    positive: {
+      inputs: { text: input.prompt, clip: ['clip', 0] },
+      class_type: 'CLIPTextEncode',
+      _meta: { title: 'CLIP Text Encode Positive' },
+    },
+    negative: {
+      inputs: { text: input.negativePrompt, clip: ['clip', 0] },
+      class_type: 'CLIPTextEncode',
+      _meta: { title: 'CLIP Text Encode Negative' },
+    },
+    img_first: {
+      inputs: { image: input.firstImageName },
+      class_type: 'LoadImage',
+      _meta: { title: 'Load First Image' },
+    },
+  }
+
+  let modelRef: [string, number] = ['unet', 0]
+  const loraName = input.loraName?.trim()
+  if (loraName) {
+    workflow['lora'] = {
+      inputs: {
+        lora_name: loraName,
+        strength_model: input.loraStrength ?? 1,
+        model: modelRef,
+      },
+      class_type: 'LoraLoaderModelOnly',
+      _meta: { title: 'Load Selected WAN LoRA' },
+    }
+    modelRef = ['lora', 0]
+  }
+
+  workflow['latent'] = {
+    inputs: {
+      vae: ['vae', 0],
+      width,
+      height,
+      length,
+      batch_size: 1,
+      start_image: ['img_first', 0],
+    },
+    class_type: 'Wan22ImageToVideoLatent',
+    _meta: { title: 'WAN 2.2 Image To Video Latent' },
+  }
+
+  workflow['sampler'] = {
+    inputs: {
+      seed,
+      steps,
+      cfg,
+      sampler_name: samplerName,
+      scheduler,
+      denoise: 1,
+      model: modelRef,
+      // Straight from the encoders: this graph's latent node emits no
+      // conditioning to route through.
+      positive: ['positive', 0],
+      negative: ['negative', 0],
+      latent_image: ['latent', 0],
+    },
+    class_type: 'KSampler',
+    _meta: { title: 'KSampler (TI2V)' },
+  }
+
+  workflow['decode'] = {
+    inputs: { samples: ['sampler', 0], vae: ['vae', 0] },
+    class_type: 'VAEDecode',
+    _meta: { title: 'VAE Decode' },
+  }
+
   Object.assign(
     workflow,
     buildVideoOutputNodes({

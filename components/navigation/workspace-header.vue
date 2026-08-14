@@ -72,7 +72,27 @@
       <div
         class="flex h-10 min-h-10 min-w-0 flex-1 items-stretch rounded-xl border border-base-300 bg-base-100 shadow-sm sm:h-11 sm:min-h-11 xl:h-14 xl:min-h-14"
       >
-        <channel-select seamless class="min-w-0 shrink" />
+        <!--
+          CAPPED, not just shrinkable. `shrink` alone only says channel-select
+          MAY give up room -- it says nothing about how MUCH, and tab-select's
+          `flex-1` starts from a 0% basis (see tab-select.vue), so under the
+          flexbox shrink algorithm a zero-basis sibling absorbs none of an
+          overflow: channel-select keeps its full preferred width and
+          tab-select is left with whatever is left over, down to nothing.
+
+          Confirmed on kindrobots.org's phone audit (responsive-layout-audit,
+          2026-08-12 through 2026-08-14, 30+ consecutive scheduled failures):
+          "Sanctuary" -- at 9 characters the longest of the five channel
+          labels (Home/Plan/Play/Admin/Sanctuary) -- rendered in full while
+          every Sanctuary tab (About, Cart, Giving, Mermaids, Privacy) was
+          crushed to a 32px sliver right next to it. `max-w-[45%]` is a
+          ceiling, not a width: the four short labels already sit well under
+          it and are unaffected; only a label that would otherwise claim more
+          than its fair share of the shell gets truncated first, which is
+          what guarantees tab-select a usable floor instead of whatever crumb
+          is left.
+        -->
+        <channel-select seamless class="min-w-0 shrink max-w-[45%]" />
 
         <div
           v-if="resolvedChannel && resolvedTabs.length"

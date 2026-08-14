@@ -440,6 +440,12 @@ jobs:
       - name: Model Builder async-enqueue cancelled-run guard contract
         run: npm run test:model-builder-async-enqueue-cancelled-run-guard
 
+      - name: Model Builder recordArtifact success guard checker self-test
+        run: npm run test:model-builder-record-artifact-success-guard-selftest
+
+      - name: Model Builder recordArtifact success guard contract
+        run: npm run test:model-builder-record-artifact-success-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

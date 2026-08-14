@@ -24,6 +24,15 @@
   gated to 2+ years of data; rides along on the existing loadStats() call --
   stats.get.ts's new yearComparison field is unfiltered by the active year,
   same as the years list.
+  §4's remaining three items (media-watchlist/t-006, re-audited 2026-08-14):
+  "By media type" horizontal bar chart and "Top starred" (top 5) both had
+  their data (countByType, topStarred) already returned by stats.get.ts but
+  never surfaced in the UI at all; "By month" sparkline reused the same
+  countByMonth breakdown the "most active month" line already read, just
+  rendered as 12 relative-height bars instead of reduced to a single max.
+  Plain DaisyUI <progress> bars / CSS height percentages, no charting
+  library, matching the rest of this codebase's bar-visual convention (see
+  image-upload.vue's upload progress bar).
 -->
 <template>
   <section class="flex flex-col gap-4">
@@ -142,6 +151,92 @@
         </div>
       </div>
 
+      <!-- By media type / by month / top starred (BROWSE-UX.md §4) -->
+      <div
+        v-if="stats && (mediaTypeBreakdown.length || stats.topStarred.length)"
+        class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-4 rounded-3xl border border-base-300 bg-base-100 p-4"
+      >
+        <div v-if="mediaTypeBreakdown.length" class="flex flex-col gap-2">
+          <p class="text-xs font-semibold uppercase text-base-content/50">
+            By media type
+          </p>
+          <div
+            v-for="row in mediaTypeBreakdown"
+            :key="row.label"
+            class="flex items-center gap-2"
+          >
+            <span class="w-20 shrink-0 text-xs text-base-content/60">{{
+              row.label
+            }}</span>
+            <progress
+              class="progress progress-primary h-2 w-full"
+              :value="row.count"
+              :max="mediaTypeMax"
+            />
+            <span class="w-6 shrink-0 text-right text-xs text-base-content/50">
+              {{ row.count }}
+            </span>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <p
+            v-if="monthBreakdown.length"
+            class="text-xs font-semibold uppercase text-base-content/50"
+          >
+            By month
+          </p>
+          <div
+            v-if="monthBreakdown.length"
+            class="flex h-16 items-end gap-1"
+            role="img"
+            :aria-label="`Entries by month: ${monthBreakdown.map((row) => `${row.label} ${row.count}`).join(', ')}`"
+          >
+            <div
+              v-for="row in monthBreakdown"
+              :key="row.value"
+              class="flex flex-1 flex-col items-center gap-0.5"
+              :title="`${row.label}: ${row.count}`"
+            >
+              <div
+                class="w-full rounded-t"
+                :class="row.count === 0 ? 'bg-base-300' : 'bg-primary/70'"
+                :style="{
+                  height: `${Math.max(2, (row.count / monthMax) * 100)}%`,
+                }"
+              />
+              <span class="text-[10px] text-base-content/40">{{
+                row.label[0]
+              }}</span>
+            </div>
+          </div>
+
+          <template v-if="stats.topStarred.length">
+            <p
+              class="mt-2 text-xs font-semibold uppercase text-base-content/50"
+            >
+              Top starred
+            </p>
+            <ul class="flex flex-col gap-1">
+              <li
+                v-for="top in stats.topStarred"
+                :key="top.id"
+                class="flex items-center gap-1.5 text-xs text-base-content/70"
+              >
+                <Icon
+                  name="kind-icon:star"
+                  class="size-3 shrink-0 text-warning"
+                />
+                <span class="truncate">{{ top.title }}</span>
+                <span class="ml-auto shrink-0 text-base-content/40">{{
+                  top.year
+                }}</span>
+              </li>
+            </ul>
+          </template>
+        </div>
+      </div>
+
       <!-- Year-over-year comparison (BROWSE-UX.md §4) -->
       <div
         v-if="stats && showYearComparison"
@@ -173,7 +268,7 @@
                 :key="row.year"
                 class="text-right"
               >
-                {{ countForChipGroup(row, chip.group) }}
+                {{ countForChipGroup(row.countByType, chip.group) }}
               </td>
             </tr>
             <tr class="font-semibold">
@@ -482,10 +577,19 @@ type YearComparisonRow = {
   mostWatchedMonth: { month: number; count: number } | null
 }
 
+type TopStarredEntry = {
+  id: number
+  title: string
+  mediaType: MediaType
+  year: number
+}
+
 type MediaEntryStats = {
   years: number[]
   totalCount: number
+  countByType: Record<string, number>
   starredCount: number
+  topStarred: TopStarredEntry[]
   countByMonth: Record<string, number>
   audiobookHours: number
   pagesRead: number
@@ -648,11 +752,50 @@ function handleEntryUpdated(updated: MediaEntryDetail) {
   }
 }
 
-// Sums a year-comparison row's per-type counts across a chip's full group
-// (e.g. TV chip = TV + ANIME), same fold-in as expandActiveTypes() below.
-function countForChipGroup(row: YearComparisonRow, group: MediaType[]): number {
-  return group.reduce((sum, type) => sum + (row.countByType[type] ?? 0), 0)
+// Sums a per-type count map across a chip's full group (e.g. TV chip = TV +
+// ANIME), same fold-in as expandActiveTypes() below. Shared by the
+// year-comparison table (per-year countByType) and the all-time "By media
+// type" breakdown (top-level countByType) -- both are plain
+// Record<string, number> shapes.
+function countForChipGroup(
+  countByType: Record<string, number>,
+  group: MediaType[],
+): number {
+  return group.reduce((sum, type) => sum + (countByType[type] ?? 0), 0)
 }
+
+// "By media type" horizontal bar chart (BROWSE-UX.md §4). countByType comes
+// back all-time (or year-filtered via the active `?year=`), same source as
+// the year-comparison table's per-year breakdown -- just folded through the
+// chip groups and sorted so the biggest bar reads first.
+const mediaTypeBreakdown = computed(() => {
+  const counts = stats.value?.countByType
+  if (!counts) return []
+  return MEDIA_TYPE_CHIPS.map((chip) => ({
+    label: chip.label,
+    count: countForChipGroup(counts, chip.group),
+  }))
+    .filter((row) => row.count > 0)
+    .sort((a, b) => b.count - a.count)
+})
+const mediaTypeMax = computed(() =>
+  Math.max(1, ...mediaTypeBreakdown.value.map((row) => row.count)),
+)
+
+// "By month" sparkline (BROWSE-UX.md §4) -- same countByMonth breakdown that
+// already powers the "most active month" line and the Month filter chips,
+// just rendered as 12 relative-height bars instead of picked down to a max.
+const monthBreakdown = computed(() => {
+  const counts = stats.value?.countByMonth
+  if (!counts) return []
+  return MONTH_LABELS.map((month) => ({
+    ...month,
+    count: counts[String(month.value)] ?? 0,
+  }))
+})
+const monthMax = computed(() =>
+  Math.max(1, ...monthBreakdown.value.map((row) => row.count)),
+)
 
 function toggleType(type: MediaType) {
   const next = new Set(activeTypes.value)

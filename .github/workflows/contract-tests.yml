@@ -458,6 +458,12 @@ jobs:
       - name: Model Builder openRun request guard contract
         run: npm run test:model-builder-open-run-request-guard
 
+      - name: Model Builder async-fetch staleness coverage checker self-test
+        run: npm run test:model-builder-async-fetch-staleness-coverage-selftest
+
+      - name: Model Builder async-fetch staleness coverage contract
+        run: npm run test:model-builder-async-fetch-staleness-coverage
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

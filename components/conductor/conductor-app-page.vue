@@ -1,6 +1,10 @@
 <!-- /components/conductor/conductor-app-page.vue -->
 <template>
-  <project-front-page class="kr-surface" slug="conductor-app" :fallback="config">
+  <project-front-page
+    class="kr-surface"
+    slug="conductor-app"
+    :fallback="config"
+  >
     <template #interactive>
       <section
         class="flex flex-col items-start gap-3 rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm"
@@ -75,7 +79,7 @@ const nextTasks = computed(() =>
 const config: ProjectFrontConfig = {
   slug: 'conductor-app',
   title: 'Conductor App',
-  channelKey: 'conductor',
+  channelKey: 'plan',
   tabKey: 'conductor-app',
   icon: 'kind-icon:external-link',
   tagline: 'Steer the swarm from your pocket.',

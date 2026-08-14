@@ -36,6 +36,7 @@
     "test:migrate-on-deploy": "tsx utils/scripts/verifyMigrateOnDeploy.ts",
     "test:facet-aliases": "tsx utils/scripts/verifyFacetAliases.ts",
     "audit:art-coverage": "tsx utils/scripts/auditEntityArtCoverage.ts",
+    "test:facet-content": "tsx utils/scripts/verifyFacetContentQuality.ts",
     "test:facet-catalog": "prisma validate && tsx utils/scripts/verifyFacetCatalogCutover.ts && tsx utils/scripts/verifyFacetCanonicalMerges.ts && tsx utils/scripts/verifyDailyDreamFacets.ts && tsx utils/scripts/verifyFacetCurationMoodPolicy.ts",
     "test:facet-closure": "tsx utils/scripts/verifyFacetClosure.ts",
     "test:facet-gallery": "tsx utils/scripts/verifyFacetGallery.ts",

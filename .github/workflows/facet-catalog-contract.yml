@@ -65,6 +65,12 @@ jobs:
       - name: Verify curated MOOD definitions have a migration
         run: npx tsx utils/scripts/verifyFacetCurationMoodPolicy.ts
 
+      # 565 authored descriptions is more prose than anyone re-reads. The
+      # failure modes only show up in bulk: one sentence shape repeated a
+      # hundred times, a description restating its own title, filler.
+      - name: Verify authored Facet catalog content
+        run: npm run test:facet-content
+
       - name: Verify retired Facet cleanup and artwork queue
         run: npx tsx utils/scripts/verifyFacetCatalogMaintenance.ts
 

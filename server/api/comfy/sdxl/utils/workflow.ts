@@ -238,16 +238,17 @@ export function buildSdxlImg2ImgWorkflow(input: SdxlImg2ImgInput): {
   denoise: number
 } {
   const seed = resolveSdxlSeed(input.seed)
-  // Profiled from the checkpoint rather than assumed turbo: this path used to
-  // hardcode the distilled numbers, so a standard SDXL checkpoint rendered at
-  // 8 steps and came out undercooked.
-  const img2imgProfile = sdxlSamplerProfile(input.checkpoint)
-  const steps = input.steps ?? img2imgProfile.steps
-  const cfg = input.cfgValue || img2imgProfile.cfg
+  // Deliberately NOT profiled by checkpoint, unlike the txt2img paths. This
+  // runs at reduced denoise, so the KSampler executes steps x denoise -- the
+  // low nominal count is a property of the operation, not of a distilled
+  // checkpoint, and these exact numbers are pinned by
+  // utils/scripts/verifyComfyOnlyGeneration.ts as this builder's contract.
+  const steps = input.steps ?? 8
+  const cfg = input.cfgValue || 2
   const sampler = input.sampler
     ? normalizeComfySampler(input.sampler)
-    : img2imgProfile.sampler
-  const scheduler = input.scheduler?.trim() || img2imgProfile.scheduler
+    : 'dpmpp_sde'
+  const scheduler = input.scheduler?.trim() || 'karras'
   const checkpoint = input.checkpoint?.trim()
 
   if (!checkpoint) {

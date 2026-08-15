@@ -9,8 +9,6 @@ import type { ProjectFrontConfig } from '@/components/conductor/projectFront'
 const config: ProjectFrontConfig = {
   slug: 'humboldt-scoop-cms',
   title: 'Humboldt Scoop CMS',
-  channelKey: 'conductor',
-  tabKey: 'scoop-cms',
   icon: 'kind-icon:heart',
   tagline: 'The back office behind the tidy yards.',
   description:

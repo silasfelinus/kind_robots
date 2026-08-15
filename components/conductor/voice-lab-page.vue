@@ -194,8 +194,6 @@ const ADAPTERS = [
 const config: ProjectFrontConfig = {
   slug: 'alexa-integration',
   title: 'Voice Lab',
-  channelKey: 'wonder',
-  tabKey: 'voice-lab',
   icon: 'kind-icon:microphone',
   tagline: 'Kind Robots, out loud.',
   description:

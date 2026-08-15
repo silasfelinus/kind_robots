@@ -27,8 +27,6 @@ import type { ProjectFrontConfig } from '@/components/conductor/projectFront'
 const config: ProjectFrontConfig = {
   slug: 'coloring-book',
   title: 'Coloring Book',
-  channelKey: 'art',
-  tabKey: 'coloring',
   icon: 'kind-icon:paintbrush',
   tagline: 'Build, review, pair, package, and color three living books.',
   description:

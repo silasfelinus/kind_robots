@@ -59,9 +59,6 @@ export type ProjectFrontConfig = {
   tagline?: string
   /** One or two paragraph public description. */
   description?: string
-  /** Existing channel + tab this page is stitched into. */
-  channelKey: string
-  tabKey: string
   /** Iconify kind-icon name for the hero chip. */
   icon?: string
   /** Optional hero image override (else resolved from slug). */

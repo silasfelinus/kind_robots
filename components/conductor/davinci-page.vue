@@ -1058,8 +1058,6 @@ const recentEndings = computed(() =>
 const config: ProjectFrontConfig = {
   slug: 'davinci',
   title: 'Da Vinci',
-  channelKey: 'wonder',
-  tabKey: 'davinci',
   icon: 'kind-icon:castle',
   tagline: 'Live a life. Leave a legacy.',
   description:

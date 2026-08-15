@@ -410,8 +410,6 @@ onMounted(loadChallenges)
 const config: ProjectFrontConfig = {
   slug: 'challenge-center',
   title: 'Challenge Center',
-  channelKey: 'wonder',
-  tabKey: 'challenges',
   icon: 'kind-icon:trophy',
   tagline: 'Two contenders enter. The swarm decides.',
   description:

@@ -76,8 +76,6 @@ const productionStages: ProductionStage[] = [
 const config: ProjectFrontConfig = {
   slug: 'coat-dance',
   title: 'Coat Dance',
-  channelKey: 'art',
-  tabKey: 'coat-dance',
   icon: 'kind-icon:sparkles',
   tagline: 'Motion and costume, remixed into delight.',
   description:

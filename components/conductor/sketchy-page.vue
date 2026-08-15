@@ -127,8 +127,6 @@ const activeSample = computed(() => samplesByTier[activeTier.value])
 const config: ProjectFrontConfig = {
   slug: 'sketchy',
   title: 'Sketchy',
-  channelKey: 'wonder',
-  tabKey: 'sketchy',
   icon: 'kind-icon:pencil',
   tagline: 'Show up, fill the page, get a little better.',
   description:

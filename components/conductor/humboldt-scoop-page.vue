@@ -9,8 +9,6 @@ import type { ProjectFrontConfig } from '@/components/conductor/projectFront'
 const config: ProjectFrontConfig = {
   slug: 'humboldt-scoop',
   title: 'The Humboldt Scoop',
-  channelKey: 'wonder',
-  tabKey: 'humboldt-scoop',
   icon: 'kind-icon:heart',
   tagline: 'Small business, big heart, tidy yards.',
   description:

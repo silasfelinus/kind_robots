@@ -13,8 +13,6 @@ import type { ProjectFrontConfig } from '@/components/conductor/projectFront'
 const config: ProjectFrontConfig = {
   slug: 'packmaker',
   title: 'Packmaker',
-  channelKey: 'builder',
-  tabKey: 'packs',
   icon: 'kind-icon:box',
   tagline: 'Bundle it once. Share it everywhere.',
   description:

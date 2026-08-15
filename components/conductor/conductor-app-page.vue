@@ -79,8 +79,6 @@ const nextTasks = computed(() =>
 const config: ProjectFrontConfig = {
   slug: 'conductor-app',
   title: 'Conductor App',
-  channelKey: 'plan',
-  tabKey: 'conductor-app',
   icon: 'kind-icon:external-link',
   tagline: 'Steer the swarm from your pocket.',
   description:

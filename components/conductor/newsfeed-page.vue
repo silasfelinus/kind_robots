@@ -18,8 +18,6 @@ import type { ProjectFrontConfig } from '@/components/conductor/projectFront'
 const config: ProjectFrontConfig = {
   slug: 'newsfeed',
   title: 'Newsfeed',
-  channelKey: 'wonder',
-  tabKey: 'newsfeed',
   icon: 'kind-icon:scroll',
   tagline: 'The front page the swarm writes itself.',
   description:

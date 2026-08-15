@@ -13,8 +13,6 @@ import type { ProjectFrontConfig } from '@/components/conductor/projectFront'
 const config: ProjectFrontConfig = {
   slug: 'ruler-hooked',
   title: 'Ruler Hooked',
-  channelKey: 'wonder',
-  tabKey: 'ruler-hooked',
   icon: 'kind-icon:crown',
   tagline: 'Rule the shore. Answer to the tide.',
   description:

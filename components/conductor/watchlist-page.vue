@@ -13,8 +13,6 @@ import type { ProjectFrontConfig } from '@/components/conductor/projectFront'
 const config: ProjectFrontConfig = {
   slug: 'media-watchlist',
   title: 'Media Watchlist',
-  channelKey: 'wonder',
-  tabKey: 'watchlist',
   icon: 'kind-icon:movie',
   tagline: 'Everything you meant to watch, in one honest list.',
   description:

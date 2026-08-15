@@ -8,6 +8,7 @@ import {
   assertRunAccess,
   assertRunWritable,
   getItemId,
+  mergeStageStatusChanges,
   prepareItemUpdate,
   type ItemPatchBody,
 } from '../runs/index'
@@ -44,7 +45,7 @@ export default defineEventHandler(async (event) => {
     if (body.artImageId !== undefined) {
       await assertArtImageAttachable(body.artImageId, auth.user.id, auth.isAdmin)
     }
-    const { data, revision } = prepareItemUpdate(
+    const { data, revision, stageStatusChanges } = prepareItemUpdate(
       existing,
       body,
       auth.user.username ?? String(auth.user.id),
@@ -55,6 +56,23 @@ export default defineEventHandler(async (event) => {
         await tx.modelBuildRevision.create({
           data: { itemId: id, ...revision },
         })
+      }
+      // Re-read stageStatuses immediately before the write rather than
+      // trusting the request-start `existing` snapshot: another request
+      // (a concurrent single-item PATCH, batch PATCH, or commit) can change
+      // OTHER stage keys in the window between that read and this write.
+      // stageStatusChanges only carries the keys THIS request actually
+      // intends to change (see prepareItemUpdate/diffStageStatusChanges),
+      // merged onto whatever is live right now — never onto the stale copy.
+      if (stageStatusChanges) {
+        const fresh = await tx.modelBuildItem.findUnique({
+          where: { id },
+          select: { stageStatuses: true },
+        })
+        data.stageStatuses = mergeStageStatusChanges(
+          fresh?.stageStatuses,
+          stageStatusChanges,
+        )
       }
       return tx.modelBuildItem.update({
         where: { id },

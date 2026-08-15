@@ -13,6 +13,7 @@ import { requireApiUser } from '~/server/utils/authGuard'
 import {
   assertRunAccess,
   assertRunWritable,
+  mergeStageStatusChanges,
   prepareItemUpdate,
   type ItemPatchBody,
 } from '../runs/index'
@@ -62,6 +63,9 @@ export default defineEventHandler(async (event) => {
       id: number
       data: Prisma.ModelBuildItemUncheckedUpdateInput
       revision: ReturnType<typeof prepareItemUpdate>['revision']
+      stageStatusChanges: ReturnType<
+        typeof prepareItemUpdate
+      >['stageStatusChanges']
     }> = []
 
     for (const entry of entries) {
@@ -106,8 +110,12 @@ export default defineEventHandler(async (event) => {
 
         const { id: _omit, ...fields } = entry
         void _omit
-        const { data, revision } = prepareItemUpdate(existing, fields, actor)
-        applied.push({ id, data, revision })
+        const { data, revision, stageStatusChanges } = prepareItemUpdate(
+          existing,
+          fields,
+          actor,
+        )
+        applied.push({ id, data, revision, stageStatusChanges })
         results.push({ id, success: true, message: 'Queued.', statusCode: 200 })
       } catch (error: unknown) {
         const handled = errorHandler(error)
@@ -124,11 +132,29 @@ export default defineEventHandler(async (event) => {
     if (applied.length) {
       const updatedById = await prisma.$transaction(async (tx) => {
         const byId = new Map<number, unknown>()
-        for (const { id, data, revision } of applied) {
+        for (const { id, data, revision, stageStatusChanges } of applied) {
           if (revision) {
             await tx.modelBuildRevision.create({
               data: { itemId: id, ...revision },
             })
+          }
+          // Re-read stageStatuses immediately before this entry's own write —
+          // see the identical merge in items/[id].patch.ts for why. The gap
+          // this closes is larger here than the single-item route: every
+          // entry above already did its own findUnique + attachability await
+          // before this transaction even started, so a same-item concurrent
+          // write (e.g. an async art job's pushItem landing mid-batch) has a
+          // real window to land in between this batch's `existing` reads and
+          // its actual writes.
+          if (stageStatusChanges) {
+            const fresh = await tx.modelBuildItem.findUnique({
+              where: { id },
+              select: { stageStatuses: true },
+            })
+            data.stageStatuses = mergeStageStatusChanges(
+              fresh?.stageStatuses,
+              stageStatusChanges,
+            )
           }
           const item = await tx.modelBuildItem.update({
             where: { id },

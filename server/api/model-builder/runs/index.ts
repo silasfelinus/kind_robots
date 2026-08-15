@@ -172,6 +172,65 @@ export type PreparedItemUpdate = {
     previousPayload: string
     nextPayload: string
   } | null
+  // Present only when the request's stageStatuses differs from the item as it
+  // stood when this request was validated (`existing`) — the specific stage
+  // keys that changed, not the whole blob. `data` deliberately does NOT carry
+  // a `stageStatuses` write: the caller must merge these keys onto a *fresh*
+  // read of the item immediately before its own transaction write (see
+  // mergeStageStatusChanges below) rather than writing this object directly,
+  // or a concurrent write to a stage this request never touched gets clobbered.
+  stageStatusChanges: Record<string, unknown> | null
+}
+
+// The client always sends item.stages in full — every stage key, including
+// ones this particular action didn't touch — because that's simply what its
+// local reactive state looks like at click time (mirrors every other
+// stageStatuses payload in modelBuilderStore.ts: pushItem, batchPushItems,
+// recordArtifact's callers). Writing that whole blob straight to the DB
+// column (the pre-fix behavior here) silently discards any OTHER stage key
+// a concurrent request changed in the window between this request's
+// `existing` read and its own eventual write — the exact class of bug
+// commit.post.ts's stageStatuses merge (see its own header comment) already
+// fixes for the COMMIT key specifically. Generalizes the same fix to every
+// PATCH-driven stage-status write: diff the request against its own
+// `existing` snapshot to find which keys it actually intends to change, then
+// (in the caller, right before the real write) merge only those keys onto
+// whatever is currently in the DB — never the stale `existing` copy.
+export function diffStageStatusChanges(
+  existingRaw: unknown,
+  requestedRaw: string,
+): Record<string, unknown> | null {
+  const existingStages = parseStoredJson<Record<string, unknown>>(
+    existingRaw,
+    {},
+  )
+  const requestedStages = parseStoredJson<Record<string, unknown>>(
+    requestedRaw,
+    {},
+  )
+  const changes: Record<string, unknown> = {}
+  for (const key of Object.keys(requestedStages)) {
+    if (
+      JSON.stringify(requestedStages[key]) !==
+      JSON.stringify(existingStages[key])
+    ) {
+      changes[key] = requestedStages[key]
+    }
+  }
+  return Object.keys(changes).length ? changes : null
+}
+
+// Applies a stage-status diff (from diffStageStatusChanges) onto a freshly
+// read stageStatuses value. Callers must fetch `currentRaw` immediately
+// before the write this feeds, not reuse any earlier-in-the-request snapshot
+// — see PreparedItemUpdate.stageStatusChanges' doc comment for why.
+export function mergeStageStatusChanges(
+  currentRaw: unknown,
+  changes: Record<string, unknown> | null,
+): string | undefined {
+  if (!changes) return undefined
+  const current = parseStoredJson<Record<string, unknown>>(currentRaw, {})
+  return JSON.stringify({ ...current, ...changes })
 }
 
 // A stage's content is only safe to overwrite while it is workable — ready,
@@ -235,9 +294,18 @@ export function prepareItemUpdate(
 ): PreparedItemUpdate {
   const data: Prisma.ModelBuildItemUncheckedUpdateInput = {}
 
+  let stageStatusChanges: Record<string, unknown> | null = null
   if (body.stageStatuses !== undefined && body.stageStatuses !== null) {
     const stageStatuses = normalizeJson(body.stageStatuses)
-    if (typeof stageStatuses === 'string') data.stageStatuses = stageStatuses
+    // Deliberately not assigned straight onto `data.stageStatuses` here — see
+    // PreparedItemUpdate.stageStatusChanges' doc comment. The caller merges
+    // these changed keys onto a fresh read at write time instead.
+    if (typeof stageStatuses === 'string') {
+      stageStatusChanges = diffStageStatusChanges(
+        existing.stageStatuses,
+        stageStatuses,
+      )
+    }
   }
   if (body.pitch !== undefined) {
     assertContentStageEditable(existing.stageStatuses, 'PITCH', 'Pitch')
@@ -284,7 +352,7 @@ export function prepareItemUpdate(
     body.promptDraft !== undefined ||
     body.relationshipDraft !== undefined
 
-  if (!contentChanged) return { data, revision: null }
+  if (!contentChanged) return { data, revision: null, stageStatusChanges }
 
   const stageLabel =
     typeof body.stage === 'string' ? body.stage.slice(0, 48) : 'EDIT'
@@ -298,11 +366,20 @@ export function prepareItemUpdate(
     stageStatuses: existing.stageStatuses,
     relationshipDraft: existing.relationshipDraft,
   })
+  // Audit-record only, not the live write — mergeStageStatusChanges applied
+  // against this same request's own `existing` snapshot documents what this
+  // request intended to change, same base as previousPayload above. The
+  // actual DB write (see mergeStageStatusChanges call sites in the PATCH
+  // routes) merges stageStatusChanges onto a fresh read at write time
+  // instead, which is deliberately allowed to differ from this record when a
+  // concurrent request also touched stageStatuses in between.
   const nextPayload = JSON.stringify({
     pitch: data.pitch ?? existing.pitch,
     fieldsDraft: data.fieldsDraft ?? existing.fieldsDraft,
     promptDraft: data.promptDraft ?? existing.promptDraft,
-    stageStatuses: data.stageStatuses ?? existing.stageStatuses,
+    stageStatuses:
+      mergeStageStatusChanges(existing.stageStatuses, stageStatusChanges) ??
+      existing.stageStatuses,
     relationshipDraft: data.relationshipDraft ?? existing.relationshipDraft,
   })
 
@@ -315,5 +392,6 @@ export function prepareItemUpdate(
       previousPayload,
       nextPayload,
     },
+    stageStatusChanges,
   }
 }

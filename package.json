@@ -196,6 +196,8 @@
     "test:model-builder-commit-name-field-guard": "tsx utils/scripts/verifyModelBuilderCommitNameFieldGuard.ts",
     "test:model-builder-commit-stale-snapshot-guard-selftest": "tsx utils/scripts/verifyModelBuilderCommitStaleSnapshotGuard.test.ts",
     "test:model-builder-commit-stale-snapshot-guard": "tsx utils/scripts/verifyModelBuilderCommitStaleSnapshotGuard.ts",
+    "test:model-builder-patch-stale-stage-status-guard-selftest": "tsx utils/scripts/verifyModelBuilderPatchStaleStageStatusGuard.test.ts",
+    "test:model-builder-patch-stale-stage-status-guard": "tsx utils/scripts/verifyModelBuilderPatchStaleStageStatusGuard.ts",
     "test:model-builder-reset-all-guard-selftest": "tsx utils/scripts/verifyModelBuilderResetAllGuard.test.ts",
     "test:model-builder-reset-all-guard": "tsx utils/scripts/verifyModelBuilderResetAllGuard.ts",
     "test:model-builder-reset-run-guard-selftest": "tsx utils/scripts/verifyModelBuilderResetRunGuard.test.ts",

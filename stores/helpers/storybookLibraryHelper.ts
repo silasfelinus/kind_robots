@@ -4,6 +4,7 @@ import type {
   StorybookBible,
   StorybookSession,
   StorybookStartInput,
+  StorybookStateDelta,
 } from '@/stores/storybookStore'
 
 export type StorybookLibraryExport = {
@@ -25,6 +26,19 @@ function makeId(): string {
     : `storybook-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
 }
 
+// Mirrors storybookStore.ts's own emptyStateDelta() -- duplicated locally
+// rather than imported, the same way nowIso()/makeId() above are, since this
+// helper module is what storybookStore.ts imports and a reverse import would
+// be circular.
+function emptyStateDelta(): StorybookStateDelta {
+  return {
+    consequences: [],
+    relationshipShifts: [],
+    inventoryAdd: [],
+    inventoryRemove: [],
+  }
+}
+
 function cloneSession(value: StorybookSession): StorybookSession {
   const copy = JSON.parse(JSON.stringify(value)) as StorybookSession
   return {
@@ -33,7 +47,17 @@ function cloneSession(value: StorybookSession): StorybookSession {
       ...copy.bible,
       rewards: Array.isArray(copy.bible?.rewards) ? copy.bible.rewards : [],
     },
-    beats: Array.isArray(copy.beats) ? copy.beats : [],
+    // Every library read/write funnels through this one function -- backfill
+    // a beat missing `stateDelta` the same way storybookStore.ts's own
+    // normalizeRestoredSession() already does on the localStorage-restore
+    // path, so a session saved before this field existed (or by a future
+    // schema change) can't reach a consumer as `undefined.consequences`.
+    beats: Array.isArray(copy.beats)
+      ? copy.beats.map((beat) => ({
+          ...beat,
+          stateDelta: beat.stateDelta ?? emptyStateDelta(),
+        }))
+      : [],
     branchHistory: Array.isArray(copy.branchHistory) ? copy.branchHistory : [],
     consequences: Array.isArray(copy.consequences) ? copy.consequences : [],
     inventory: Array.isArray(copy.inventory) ? copy.inventory : [],
@@ -153,8 +177,18 @@ export function createStorybookLibraryController(bridge: StorybookLibraryBridge)
   }
 
   function openStory(sessionId: string): boolean {
-    const found = findStory(sessionId)
-    if (!found || bridge.isWeaving()) return false
+    if (bridge.isWeaving()) return false
+    // Prefer the live in-memory session over the archived library snapshot
+    // when the requested id is already the active one -- the same sourcing
+    // duplicateStory()/restartStory() below use. No reachable window was
+    // found where the archive actually lags the live session (the library's
+    // deep watcher archives every mutation via a microtask that always
+    // flushes before the next click can be dispatched), but this keeps all
+    // three sibling functions sourcing identically rather than leaving
+    // openStory() as the one exception.
+    const current = bridge.getSession()
+    const found = current?.id === sessionId ? current : findStory(sessionId)
+    if (!found) return false
     bridge.setSession(cloneSession(found))
     bridge.resumeNarrativeArtJobs()
     return true

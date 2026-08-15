@@ -22,47 +22,19 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { extractTsFunctionBody } from './lib/extractTsFunctionBody.mjs'
 
 const HELPER_PATH = 'stores/helpers/storybookLibraryHelper.ts'
 const FN_NAME = 'restartInput'
 
-function extractFunctionBody(content, name) {
-  const signaturePattern = new RegExp(`^function ${name}\\s*\\(`, 'm')
-  const match = signaturePattern.exec(content)
-  if (!match) {
-    throw new Error(
-      `Could not find \`function ${name}(\` in ${HELPER_PATH} -- has it ` +
-        'been renamed, removed, or inlined? If so, this guard (and the ' +
-        'dropped-Scenario-on-restart bug it protects against) needs to move ' +
-        'with it.',
-    )
-  }
-
-  const parenOpen = match.index + match[0].length - 1
-  let parenDepth = 0
-  let i = parenOpen
-  for (; i < content.length; i++) {
-    if (content[i] === '(') parenDepth++
-    else if (content[i] === ')') {
-      parenDepth--
-      if (parenDepth === 0) break
-    }
-  }
-  const braceOpen = content.indexOf('{', i)
-  let braceDepth = 0
-  let j = braceOpen
-  for (; j < content.length; j++) {
-    if (content[j] === '{') braceDepth++
-    else if (content[j] === '}') {
-      braceDepth--
-      if (braceDepth === 0) break
-    }
-  }
-  return content.slice(braceOpen, j + 1)
-}
-
 const content = readFileSync(resolve(process.cwd(), HELPER_PATH), 'utf8')
-const body = extractFunctionBody(content, FN_NAME)
+const body = extractTsFunctionBody(content, FN_NAME, {
+  path: HELPER_PATH,
+  notFoundHint:
+    'has it been renamed, removed, or inlined? If so, this guard (and the ' +
+    'dropped-Scenario-on-restart bug it protects against) needs to move ' +
+    'with it.',
+})
 
 assert.ok(
   /scenario:\s*bible\.scenario/.test(body),

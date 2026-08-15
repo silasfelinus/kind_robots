@@ -21,46 +21,18 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { extractTsFunctionBody } from './lib/extractTsFunctionBody.mjs'
 
 const COMPONENT_PATH = 'components/conductor/storybook-page.vue'
 const FN_NAME = 'submitAnswer'
 
-function extractFunctionBody(content, name) {
-  const signaturePattern = new RegExp(`^async function ${name}\\s*\\(`, 'm')
-  const match = signaturePattern.exec(content)
-  if (!match) {
-    throw new Error(
-      `Could not find \`async function ${name}(\` in ${COMPONENT_PATH} -- ` +
-        'has it been renamed, removed, or inlined? If so, this guard (and ' +
-        'the lost-answer bug it protects against) needs to move with it.',
-    )
-  }
-
-  const parenOpen = match.index + match[0].length - 1
-  let parenDepth = 0
-  let i = parenOpen
-  for (; i < content.length; i++) {
-    if (content[i] === '(') parenDepth++
-    else if (content[i] === ')') {
-      parenDepth--
-      if (parenDepth === 0) break
-    }
-  }
-  const braceOpen = content.indexOf('{', i)
-  let braceDepth = 0
-  let j = braceOpen
-  for (; j < content.length; j++) {
-    if (content[j] === '{') braceDepth++
-    else if (content[j] === '}') {
-      braceDepth--
-      if (braceDepth === 0) break
-    }
-  }
-  return content.slice(braceOpen, j + 1)
-}
-
 const content = readFileSync(resolve(process.cwd(), COMPONENT_PATH), 'utf8')
-const body = extractFunctionBody(content, FN_NAME)
+const body = extractTsFunctionBody(content, FN_NAME, {
+  path: COMPONENT_PATH,
+  notFoundHint:
+    'has it been renamed, removed, or inlined? If so, this guard (and the ' +
+    'lost-answer bug it protects against) needs to move with it.',
+})
 
 const required = [
   [

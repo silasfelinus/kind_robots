@@ -21,42 +21,18 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { extractTsFunctionBody } from './lib/extractTsFunctionBody.mjs'
 
 const STORE_PATH = 'stores/storybookStore.ts'
 const HELPER_PATH = 'stores/helpers/storybookLibraryHelper.ts'
 
 function extractFunctionBody(content, name, path) {
-  const signaturePattern = new RegExp(`^\\s*function ${name}\\s*\\(`, 'm')
-  const match = signaturePattern.exec(content)
-  if (!match) {
-    throw new Error(
-      `Could not find \`function ${name}(\` in ${path} -- has it been ` +
-        'renamed, removed, or inlined? If so, this guard (and the ' +
-        'dropped-field bug it protects against) needs to move with it.',
-    )
-  }
-
-  const parenOpen = match.index + match[0].length - 1
-  let parenDepth = 0
-  let i = parenOpen
-  for (; i < content.length; i++) {
-    if (content[i] === '(') parenDepth++
-    else if (content[i] === ')') {
-      parenDepth--
-      if (parenDepth === 0) break
-    }
-  }
-  const braceOpen = content.indexOf('{', i)
-  let braceDepth = 0
-  let j = braceOpen
-  for (; j < content.length; j++) {
-    if (content[j] === '{') braceDepth++
-    else if (content[j] === '}') {
-      braceDepth--
-      if (braceDepth === 0) break
-    }
-  }
-  return content.slice(braceOpen, j + 1)
+  return extractTsFunctionBody(content, name, {
+    path,
+    notFoundHint:
+      'has it been renamed, removed, or inlined? If so, this guard (and ' +
+      'the dropped-field bug it protects against) needs to move with it.',
+  })
 }
 
 // Fields buildBible() actually consumes off `input` -- every `input.<field>`

@@ -55,7 +55,23 @@
       v-if="modes.length || $slots.toolbar || pageCount > 1"
       class="sticky top-0 z-20 -mx-1 flex shrink-0 flex-wrap items-center gap-1 bg-(--kr-surface-sunken) px-1 py-1 backdrop-blur"
     >
-      <div v-if="$slots.toolbar" class="min-w-0 flex-1">
+      <!--
+        interface-vision/t-117: this was `min-w-0 flex-1` (flex-basis 0%), the
+        same shape as #1890's channel-select/tab-select bug. flex-wrap decides
+        whether an item fits the current line using its HYPOTHETICAL main
+        size, which for a flex-basis:0 item is always 0 -- so the browser
+        never sees this slot as "too big" and never wraps it to its own line.
+        Instead every pixel the toolbar's own filters (type toggle, status
+        select, search box) couldn't fit landed on this div via min-w-0,
+        which crushed it to a few px wide on /bots once the pager (`shrink-0`,
+        so it never gives ground) and the mode buttons were also on the line.
+        `flex-auto` (basis: auto) makes the hypothetical size the slot's real
+        content width, so when it doesn't fit next to the pager/modes it
+        wraps to a second line -- which `flex-wrap` on the bar above already
+        intended -- instead of being squeezed in place. min-w-0 stays so it
+        can still shrink normally on lines where it fits.
+      -->
+      <div v-if="$slots.toolbar" class="min-w-0 flex-auto">
         <slot name="toolbar" />
       </div>
 

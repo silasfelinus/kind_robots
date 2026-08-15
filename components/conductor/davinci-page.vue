@@ -145,12 +145,24 @@
             </div>
           </div>
 
-          <!-- Narrator is composing this chapter -->
+          <!-- Narrator is composing this chapter. role="status"/aria-live
+               match every comparable busy indicator elsewhere in the app
+               (academy-manager.vue, model-builder-manager.vue,
+               model-builder-run-history.vue, narrative-response-composer.vue,
+               kr-chat-window.vue, watchlist-browse.vue,
+               narrative-ingredient-picker.vue) -- this was the one busy state
+               in davinci-page.vue left as a purely visual spinner with no
+               announcement to assistive tech. -->
           <div
             v-if="narrating"
+            role="status"
+            aria-live="polite"
             class="flex flex-col items-center gap-3 rounded-2xl border border-base-300 bg-base-200/40 p-8 text-center"
           >
-            <span class="loading loading-dots loading-lg text-primary/70" />
+            <span
+              class="loading loading-dots loading-lg text-primary/70"
+              aria-hidden="true"
+            />
             <p class="text-xs font-semibold text-base-content/50">
               {{ narratorName || 'The narrator' }} is writing chapter
               {{ chapterIndex }}…

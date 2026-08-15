@@ -410,22 +410,44 @@ async function syncFacetProfileUpdate(
     throw createError({ statusCode: 404, message: `Facet #${id} not found.` })
 
   const requestedTaxonomy = facetFields(fields).taxonomy
-  const fallbackTaxonomy = normalizeFacetTaxonomy(
-    existingProfile?.taxonomy,
-    'OTHER',
-  )
-  const taxonomy = requestedTaxonomy ?? fallbackTaxonomy
 
+  // Two UPDATE-type build runs can target the same existing Facet at once
+  // (nothing serializes runs by sourceId -- see runs/index.post.ts). If both
+  // reach COMMIT while `existingProfile` is still null for both reads, a
+  // plain create-if-missing here lets the second transaction's
+  // facetProfile.create() throw a `facetId` unique-constraint violation,
+  // which aborts this *entire* commit transaction -- rolling back the
+  // sibling tx.facet.update() above along with it, and surfacing as an
+  // opaque 500 to whichever request loses the race. facetProfile.upsert()
+  // resolves the create-vs-update decision atomically at the database (a
+  // single INSERT ... ON DUPLICATE KEY UPDATE on MySQL), so the loser
+  // applies its own intended taxonomy as an update instead of crashing.
   if (!existingProfile) {
-    const profile = buildFacetProfileCreateData(
+    const taxonomy = requestedTaxonomy ?? 'OTHER'
+    const createData = buildFacetProfileCreateData(
       { taxonomy },
       { title: facet.title, taxonomy },
     )
-    await tx.facetProfile.create({ data: { facetId: id, ...profile } })
-  } else if (requestedTaxonomy) {
+    await tx.facetProfile.upsert({
+      where: { facetId: id },
+      create: { facetId: id, ...createData },
+      update: requestedTaxonomy
+        ? buildFacetProfileUpdateData(
+            { taxonomy: requestedTaxonomy },
+            { title: facet.title, taxonomy },
+          )
+        : {},
+    })
+    return
+  }
+
+  if (requestedTaxonomy) {
     const profile = buildFacetProfileUpdateData(
       { taxonomy: requestedTaxonomy },
-      { title: facet.title, taxonomy: fallbackTaxonomy },
+      {
+        title: facet.title,
+        taxonomy: normalizeFacetTaxonomy(existingProfile.taxonomy, 'OTHER'),
+      },
     )
     await tx.facetProfile.update({ where: { facetId: id }, data: profile })
   }

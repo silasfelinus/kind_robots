@@ -59,6 +59,13 @@ async function main(): Promise<void> {
   requireText(files.commit, text.commit, 'syncFacetProfileUpdate(tx, id, fields)')
   forbidText(files.commit, text.commit, 'import type { FacetKind')
   forbidText(files.commit, text.commit, "pickChoice<FacetKind>(fields, 'Facet', 'kind')")
+  /* t-029: two UPDATE-type build runs can target the same existing Facet at
+     once (nothing serializes runs by sourceId). A plain create-if-missing on
+     FacetProfile races on its `facetId` unique key and aborts the whole
+     commit transaction for the loser. facetProfile.upsert() resolves
+     create-vs-update atomically at the database instead of crashing. */
+  requireText(files.commit, text.commit, 'await tx.facetProfile.upsert({')
+  forbidText(files.commit, text.commit, 'await tx.facetProfile.create({ data: { facetId: id')
 
   requireText(files.characterSync, text.characterSync, "backstory: ['BACKSTORY']")
   requireText(files.characterSync, text.characterSync, "quirks: ['QUIRK']")

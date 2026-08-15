@@ -241,8 +241,9 @@
             </p>
           </div>
 
-          <!-- The run may be ended any time after chapter 3 (narration-layer
-               spec): enough chapters for a meaningful spread of dimensions.
+          <!-- The run may be ended any time after chapter 6 (raised from 3,
+               davinci/t-024: simulation-backed, see MIN_CHAPTERS_BEFORE_ENDING
+               above) -- enough chapters for a meaningful spread of dimensions.
                The narrator never decides when a life ends — the player does.
                Excluded while narrationError is set: narrateChapter() clears
                aiChapter (making currentChapter null) *before* the request
@@ -604,8 +605,21 @@ interface ActiveChapter {
 // after a narration failure, or the run has no narrator available.
 type NarrationMode = 'ai' | 'curated'
 
-// A run can be ended any time after this many recorded chapters.
-const MIN_CHAPTERS_BEFORE_ENDING = 3
+// A run can be ended any time after this many recorded chapters. Raised from
+// 3 to 6 (davinci/t-024): each choice only ever touches 2-3 of the 10
+// dimensions (davinciNarration.ts's system prompt), so a Monte Carlo
+// simulation of the actual production constants (10k+ runs, matching
+// touch-count and NARRATION_EFFECT_MIN/MAX distributions) found that at
+// chapter 3 an average of 4.2/10 dimensions had never been touched at all --
+// guaranteed-fail regardless of anything the player chose, not a real
+// decision. At chapter 6 that drops to ~1.8/10, giving a real spread of
+// dimensions a chance to move before the player can lock in an ending. The
+// simulation also found the +-2 swing (NARRATION_EFFECT_MIN/MAX) is NOT the
+// actual driver of early lock-in: DAVINCI_PASS_VALUE is 1, so any single
+// nonzero positive touch already crosses the pass threshold regardless of
+// whether the max swing is 1 or 2 -- narrowing the swing changes magnitude,
+// not how early a dimension's pass/fail state gets decided. Left unchanged.
+const MIN_CHAPTERS_BEFORE_ENDING = 6
 
 const STORAGE_KEY = 'davinci-active-life-run-id'
 

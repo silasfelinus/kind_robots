@@ -60,6 +60,15 @@ function restartInput(bible: StorybookBible) {
     location: bible.location,
     facets: bible.facets,
     rewards: bible.rewards,
+    // A Scenario-framed story ("the plot thread ... every other ingredient
+    // bends it", storybookStore.ts) must restart with the same frame it
+    // began with. `scenario` is optional on StorybookStartInput, so leaving
+    // it off here type-checked fine while silently downgrading every
+    // restarted Scenario story into a freeform one: `beginStory` builds a
+    // fresh bible from exactly this object, and `undefined` there means the
+    // new bible.scenario is unset and the reader's chosen frame is gone with
+    // no error surfaced anywhere.
+    scenario: bible.scenario,
     notes: bible.notes,
   }
 }

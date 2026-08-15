@@ -100,7 +100,7 @@ export function checkResolvePanelGuard(content: string): string[] {
   if (!condition.includes('canEndRun')) {
     errors.push(
       "The resolve/ending panel's v-if condition no longer references " +
-        '`canEndRun` -- has the "end any time after chapter 3" rule been ' +
+        '`canEndRun` -- has the "end any time after chapter 6" rule been ' +
         'dropped?',
     )
   }

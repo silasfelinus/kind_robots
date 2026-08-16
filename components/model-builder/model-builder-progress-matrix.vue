@@ -274,10 +274,21 @@ const showBatch = computed(() => (selectedGroup.value?.items.length ?? 0) > 1)
 // leave this reading a failure that's no longer true. Mirrors the store's
 // own runProgress.failed and model-builder-batch-editor.vue's identical
 // helper -- all three must agree on what counts as "failed right now".
+//
+// item.error is also checked, not just lastAutoBuildOutcome (model-builder/
+// t-029): lastAutoBuildOutcome is session-only client state -- adaptItem
+// never restores it on resume/reopen/reload, by design, since it means
+// "what this session's auto-build pass just did." item.error is the
+// persisted signal (server column, now actually written -- see
+// generateItemAsset/generateItemAssetAsync/pollAsyncArtJob/commitItem's own
+// pushItem calls in modelBuilderStore.ts) meant to survive exactly that.
+// Without this OR, the warning badge and its tooltip silently disappeared
+// the moment a failed run was reopened from History or the page reloaded,
+// even though the item was still stuck exactly where it failed.
 function autoBuildFailed(item: BuildItem): boolean {
   return (
     item.stages.COMMIT.status !== 'approved' &&
-    item.lastAutoBuildOutcome === 'failed'
+    (item.lastAutoBuildOutcome === 'failed' || Boolean(item.error))
   )
 }
 

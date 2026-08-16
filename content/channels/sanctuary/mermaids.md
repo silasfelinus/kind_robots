@@ -11,6 +11,7 @@ description: Explore the Mermaids of Venice project, its world, art, and externa
 icon: kind-icon:mermaid
 route: /mermaids
 sort: 20
+requiredRole: ADMIN
 ---
 
 A public-facing creative project living in the community and mission wing.

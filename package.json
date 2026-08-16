@@ -91,6 +91,8 @@
     "test:serendipity-voice-poll-guard": "tsx utils/scripts/verifySerendipityVoicePollGuard.ts",
     "test:serendipity-voice-cursor-reset-selftest": "tsx utils/scripts/verifySerendipityVoiceCursorReset.test.ts",
     "test:serendipity-voice-cursor-reset": "tsx utils/scripts/verifySerendipityVoiceCursorReset.ts",
+    "test:serendipity-voice-action-guard-selftest": "tsx utils/scripts/verifySerendipityVoiceActionGuard.test.ts",
+    "test:serendipity-voice-action-guard": "tsx utils/scripts/verifySerendipityVoiceActionGuard.ts",
     "test:achievement-store": "tsx utils/scripts/verifyAchievementStoreFetchSafety.ts",
     "test:achievement-catalog": "tsx utils/scripts/verifyDatabaseRetry.ts && tsx utils/scripts/verifyAchievementArtJobDedupe.ts && tsx utils/scripts/verifyAchievementCatalog.ts",
     "seed:achievements": "tsx scripts/seed_achievements.ts",

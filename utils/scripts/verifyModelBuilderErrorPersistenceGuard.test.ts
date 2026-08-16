@@ -1,14 +1,15 @@
 // /utils/scripts/verifyModelBuilderErrorPersistenceGuard.test.ts
 //
 // Regression test for checkErrorPersistenceGuard() in
-// verifyModelBuilderErrorPersistenceGuard.ts (model-builder/t-029).
-// Exercises the real check against synthetic store-shaped fixtures covering:
-// the pre-fix shape (item.error set locally in all four target functions
-// but never pushed to the server), the fixed shape (each function pushes it
-// somewhere -- mirroring the real store's mix of a dedicated
+// verifyModelBuilderErrorPersistenceGuard.ts (model-builder/t-029;
+// draftText added to TARGET_FUNCTIONS in model-builder/t-045). Exercises the
+// real check against synthetic store-shaped fixtures covering: the pre-fix
+// shape (item.error set locally in all five target functions but never
+// pushed to the server), the fixed shape (each function pushes it somewhere
+// -- mirroring the real store's mix of a dedicated
 // `pushItem(item, { error: ... })` call and one piggybacked onto an
 // existing success-path payload alongside other keys), a partially-fixed
-// shape (only some functions fixed), and all four target functions absent.
+// shape (only some functions fixed), and all five target functions absent.
 import assert from 'node:assert/strict'
 
 import { checkErrorPersistenceGuard } from './verifyModelBuilderErrorPersistenceGuard.js'
@@ -59,6 +60,20 @@ const BUGGY_FIXTURE = `
     } catch (error) {
       item.error = error instanceof Error ? error.message : 'Commit failed.'
       finishCommit(item, { status: 'ready', note: item.error })
+      return false
+    }
+  }
+
+  async function draftText(itemId: string, field: DraftField): Promise<boolean> {
+    const item = findItem(itemId)
+    try {
+      const result = await performFetch('/api/suggest', {})
+      updatePitch(itemId, result.data.value)
+      return true
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Draft request failed.'
+      item.error = message
+      setStatusForRun(runId, 'error', message)
       return false
     }
   }
@@ -126,6 +141,21 @@ const FIXED_FIXTURE = `
       return false
     }
   }
+
+  async function draftText(itemId: string, field: DraftField): Promise<boolean> {
+    const item = findItem(itemId)
+    try {
+      const result = await performFetch('/api/suggest', {})
+      updatePitch(itemId, result.data.value)
+      return true
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Draft request failed.'
+      item.error = message
+      setStatusForRun(runId, 'error', message)
+      pushItem(item, { error: item.error })
+      return false
+    }
+  }
 `
 
 const PARTIALLY_FIXED_FIXTURE = `
@@ -162,6 +192,17 @@ const PARTIALLY_FIXED_FIXTURE = `
       return false
     }
   }
+
+  async function draftText(itemId: string, field: DraftField): Promise<boolean> {
+    try {
+      updatePitch(itemId, 'value')
+      return true
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Draft request failed.'
+      item.error = message
+      return false
+    }
+  }
 `
 
 const MISSING_FIXTURE = `
@@ -175,9 +216,9 @@ const MISSING_FIXTURE = `
 const buggyErrors = checkErrorPersistenceGuard(BUGGY_FIXTURE)
 assert.equal(
   buggyErrors.length,
-  4,
+  5,
   'expected the pre-fix shape (item.error set but never pushed, in all ' +
-    `four functions) to raise 4 errors, got ${buggyErrors.length}: ` +
+    `five functions) to raise 5 errors, got ${buggyErrors.length}: ` +
     JSON.stringify(buggyErrors),
 )
 
@@ -191,25 +232,27 @@ assert.equal(
 const partialErrors = checkErrorPersistenceGuard(PARTIALLY_FIXED_FIXTURE)
 assert.equal(
   partialErrors.length,
-  2,
-  'expected pollAsyncArtJob (never pushes) and generateItemAssetAsync ' +
-    `(never pushes) to be flagged, got ${partialErrors.length}: ` +
+  3,
+  'expected pollAsyncArtJob (never pushes), generateItemAssetAsync (never ' +
+    `pushes), and draftText (never pushes) to be flagged, got ${partialErrors.length}: ` +
     JSON.stringify(partialErrors),
 )
 assert.ok(partialErrors.some((e) => e.includes('pollAsyncArtJob')))
 assert.ok(partialErrors.some((e) => e.includes('generateItemAssetAsync')))
+assert.ok(partialErrors.some((e) => e.includes('draftText')))
 
 const missingErrors = checkErrorPersistenceGuard(MISSING_FIXTURE)
 assert.equal(
   missingErrors.length,
-  4,
-  'expected 4 "function not found" violations when all target functions are absent',
+  5,
+  'expected 5 "function not found" violations when all target functions are absent',
 )
 for (const name of [
   'generateItemAsset',
   'generateItemAssetAsync',
   'pollAsyncArtJob',
   'commitItem',
+  'draftText',
 ]) {
   assert.ok(
     missingErrors.some((e) => e.includes(name)),
@@ -219,7 +262,7 @@ for (const name of [
 
 console.log(
   'Model Builder item.error persistence guard checker verified: flags ' +
-    'item.error set-but-never-pushed in each of the four target ' +
-    'functions independently, clears the fixed shape, and flags all four ' +
+    'item.error set-but-never-pushed in each of the five target ' +
+    'functions independently, clears the fixed shape, and flags all five ' +
     'target functions being absent.',
 )

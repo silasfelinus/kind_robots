@@ -20,6 +20,7 @@ import { assertArtImageAttachable } from '../../relations'
 import {
   CREATE_TARGETS,
   fieldSpecFor,
+  parseFieldLines as splitFieldBlob,
 } from '~/stores/helpers/modelBuilderFields'
 import { BUILD_STAGES } from '~/stores/helpers/modelBuilderRecipes'
 import { syncCharacterFacetsInTransaction } from '~/server/utils/characterFacetSync'
@@ -70,17 +71,24 @@ const NUMERIC_FIELDS: Partial<Record<SourceType, Set<string>>> = {
   Scenario: new Set(['difficulty']),
 }
 
+// Delegates the actual line-splitting to the shared, schema-aware splitter
+// in modelBuilderFields.ts (used by the client too) rather than maintaining
+// a second hand-written copy of the same "key: value" parsing here -- two
+// copies of this exact logic previously drifted in lockstep only by luck,
+// and neither one preserved a multi-line prose value past its first line
+// (see parseFieldLines' doc comment there for the full story). modelType is
+// the item's own resolved target model (CREATE_TARGETS[outputKey] for
+// CREATE, the run's sourceType for UPDATE/ASSET_ONLY) so a stray colon
+// inside prose text isn't mistaken for a new field boundary.
 function parseFieldLines(
   raw: string | null | undefined,
+  modelType: SourceType,
 ): Record<string, string> {
   const map: Record<string, string> = {}
   if (!raw) return map
-  for (const line of raw.split('\n')) {
-    const idx = line.indexOf(':')
-    if (idx === -1) continue
-    const key = line.slice(0, idx).trim().toLowerCase()
-    const value = line.slice(idx + 1).trim()
-    if (key && value) map[key] = value
+  for (const { key, value } of splitFieldBlob(raw, modelType)) {
+    const normalizedKey = key.toLowerCase()
+    if (normalizedKey && value) map[normalizedKey] = value
   }
   return map
 }
@@ -759,7 +767,15 @@ export default defineEventHandler(async (event) => {
     }
     const sourceId = item.Run.sourceId
     const text = (item.pitch || item.fieldsDraft || '').trim()
-    const fieldMap = parseFieldLines(item.fieldsDraft)
+    // ASSET_ONLY/UPDATE write onto the run's own source record; CREATE writes
+    // a different, mapped target model instead (see the `plan` branches
+    // below). Resolved here too so the FIELDS_AND_PROMPTS blob is split
+    // against the model it's actually destined for.
+    const fieldModelType: SourceType =
+      item.action === 'CREATE'
+        ? (CREATE_TARGETS[item.outputKey] ?? sourceType)
+        : sourceType
+    const fieldMap = parseFieldLines(item.fieldsDraft, fieldModelType)
     // Every CREATE target's field spec declares a required 'name' or 'title'
     // line (see MODEL_FIELDS in modelBuilderFields.ts) that the batch editor
     // and per-item panel both surface as the record's actual name/title. Honor

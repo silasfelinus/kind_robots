@@ -1884,7 +1884,10 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       // Skip items whose FIELDS_AND_PROMPTS is already approved/locked — see
       // isStageEditable's doc comment.
       if (!isStageEditable(item, 'FIELDS_AND_PROMPTS')) continue
-      const next = setFieldLine(item.fieldsDraft, fieldKey, value)
+      const modelType = state.run
+        ? resolveTargetModel(item.action, item.outputKey, state.run.sourceType)
+        : undefined
+      const next = setFieldLine(item.fieldsDraft, fieldKey, value, modelType)
       if (next === item.fieldsDraft) continue
       item.fieldsDraft = next
       markDownstreamStale(item, 'FIELDS_AND_PROMPTS')

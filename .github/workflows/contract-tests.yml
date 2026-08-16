@@ -503,6 +503,12 @@ jobs:
       - name: Model Builder auto-build outcome-persistence guard contract
         run: npm run test:model-builder-auto-build-outcome-persistence-guard
 
+      - name: Model Builder field-blob continuation guard self-test
+        run: npm run test:model-builder-field-blob-continuation-guard-selftest
+
+      - name: Model Builder field-blob continuation guard contract
+        run: npm run test:model-builder-field-blob-continuation-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

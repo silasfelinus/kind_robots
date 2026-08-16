@@ -85,6 +85,8 @@
     "test:davinci-resolve-panel-guard": "tsx utils/scripts/verifyDaVinciResolvePanelGuard.ts",
     "test:davinci-narrating-status-guard-selftest": "tsx utils/scripts/verifyDaVinciNarratingStatusGuard.test.ts",
     "test:davinci-narrating-status-guard": "tsx utils/scripts/verifyDaVinciNarratingStatusGuard.ts",
+    "test:davinci-resuming-status-guard-selftest": "tsx utils/scripts/verifyDaVinciResumingStatusGuard.test.ts",
+    "test:davinci-resuming-status-guard": "tsx utils/scripts/verifyDaVinciResumingStatusGuard.ts",
     "test:serendipity-voice-poll-guard-selftest": "tsx utils/scripts/verifySerendipityVoicePollGuard.test.ts",
     "test:serendipity-voice-poll-guard": "tsx utils/scripts/verifySerendipityVoicePollGuard.ts",
     "test:serendipity-voice-cursor-reset-selftest": "tsx utils/scripts/verifySerendipityVoiceCursorReset.test.ts",

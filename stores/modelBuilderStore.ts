@@ -52,6 +52,21 @@ export type StageStatus =
   | 'rejected' // user rejected — needs a redo
   | 'stale' // an upstream edit invalidated this stage
 
+// 'skipped' means auto-build never attempted the item this call because
+// another in-flight action (itself or a manual single-stage action) owns
+// it right now -- the item is still buildable, just not yet. 'failed'
+// means auto-build attempted a stage and it did not succeed (or the item
+// isn't eligible, e.g. asset-only with art off). Exported (and mirrored onto
+// BuildItem.lastAutoBuildOutcome below) so both the aggregate tallies in
+// autoBuildRun/batchAutoBuild AND the per-item UI (model-builder-progress-
+// matrix.vue) can tell a busy-but-fine item apart from a broken one, and a
+// broken item apart from one that simply hasn't been attempted yet (t-029:
+// previously this was only visible per-item inside item.error, which several
+// of autoBuildItem's own 'failed' branches — an empty AI draft, a stage gone
+// stale mid-run, an ineligible asset-only item — never set, and a run-wide
+// scan had no per-item signal at all short of opening each item's panel).
+export type AutoBuildOutcome = 'committed' | 'skipped' | 'failed'
+
 export interface StageState {
   status: StageStatus
   note?: string
@@ -86,6 +101,17 @@ export interface BuildItem {
   targetType: string | null
   targetId: number | null
   error: string | null
+  // Outcome of this item's most recent pass through autoBuildRun() or
+  // batchAutoBuild() (not the single-item "Auto" button in
+  // model-builder-item-panel.vue -- that button's own panel already shows
+  // the failure directly, so it doesn't need to write here too). null before
+  // any run/batch has touched this item. Ephemeral -- not persisted
+  // server-side, like queueState/artJobId; a page refresh drops it, which is
+  // fine since it only describes "what just happened in this session's last
+  // pass," not durable item state. UI should prefer the item's own current
+  // stage status (e.g. COMMIT approved) over a stale 'failed' here when the
+  // two disagree — see model-builder-progress-matrix.vue's autoBuildFailed.
+  lastAutoBuildOutcome: AutoBuildOutcome | null
 }
 
 export interface BuildRun {
@@ -311,6 +337,7 @@ function adaptItem(server: ServerItem): BuildItem {
     targetType: server.targetType ?? null,
     targetId: server.targetId ?? null,
     error: server.error ?? null,
+    lastAutoBuildOutcome: null,
   }
 }
 
@@ -432,12 +459,23 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   )
 
   const runProgress = computed(() => {
-    if (!state.run) return { total: 0, committed: 0 }
+    if (!state.run) return { total: 0, committed: 0, failed: 0 }
     const total = state.run.items.length
     const committed = state.run.items.filter(
       (item) => item.stages.COMMIT.status === 'approved',
     ).length
-    return { total, committed }
+    // Committed always wins over a stale 'failed' outcome — an item can
+    // fail once, then get fixed and committed by hand without ever going
+    // through autoBuildItem again (e.g. the single-stage "Execute commit"
+    // button), which would otherwise leave lastAutoBuildOutcome pointing at
+    // a failure that's no longer true. Mirrors model-builder-progress-
+    // matrix.vue's autoBuildFailed, which the same logic must agree with.
+    const failed = state.run.items.filter(
+      (item) =>
+        item.stages.COMMIT.status !== 'approved' &&
+        item.lastAutoBuildOutcome === 'failed',
+    ).length
+    return { total, committed, failed }
   })
 
   function setStatus(tone: 'success' | 'error', message: string): void {
@@ -1521,14 +1559,9 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     state.includeArt = typeof value === 'boolean' ? value : !state.includeArt
   }
 
-  // 'skipped' means auto-build never attempted the item this call because
-  // another in-flight action (itself or a manual single-stage action) owns
-  // it right now -- the item is still buildable, just not yet. 'failed'
-  // means auto-build attempted a stage and it did not succeed (or the item
-  // isn't eligible, e.g. asset-only with art off). Callers that tally
-  // progress across many items (autoBuildRun, batchAutoBuild) need this
-  // distinction so a busy-but-fine item doesn't read the same as a broken one.
-  type AutoBuildOutcome = 'committed' | 'skipped' | 'failed'
+  // AutoBuildOutcome is declared near StageStatus (top of file) and exported
+  // — autoBuildRun/batchAutoBuild below now also mirror it per-item onto
+  // BuildItem.lastAutoBuildOutcome, not just tally it into their own summary.
 
   // Mirrors model-builder-item-panel.vue's per-item isManualActionInFlight
   // computed (generating / queued / committing / drafting any field) so a
@@ -1693,9 +1726,23 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         if (state.run?.id !== runId) return
         if (item.stages.COMMIT.status === 'approved') {
           committed++
+          // Already committed before this pass touched it -- not routed
+          // through autoBuildItem, so it wouldn't otherwise get a fresh
+          // 'committed' outcome and could keep showing a stale 'failed'
+          // badge from an earlier attempt.
+          item.lastAutoBuildOutcome = 'committed'
           continue
         }
         const outcome = await autoBuildItem(item.id)
+        // Mirrored onto the item itself (not just tallied into this run's
+        // aggregate counters) so model-builder-progress-matrix.vue's
+        // per-item badge has something to read after the run finishes --
+        // previously the only per-item failure signal was item.error, which
+        // several of autoBuildItem's own 'failed' branches (an empty AI
+        // draft, a stage gone stale mid-run, an ineligible asset-only item)
+        // never set, and there was no per-item signal at all short of
+        // opening each item's own panel (t-029).
+        item.lastAutoBuildOutcome = outcome
         if (outcome === 'committed') committed++
         else if (outcome === 'skipped') skipped++
         else failed++
@@ -1889,9 +1936,17 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       for (const item of items) {
         if (item.stages.COMMIT.status === 'approved') {
           committed++
+          // See autoBuildRun's identical branch: keep the badge from
+          // showing a stale 'failed' for an item already committed before
+          // this pass reached it.
+          item.lastAutoBuildOutcome = 'committed'
           continue
         }
         const outcome = await autoBuildItem(item.id)
+        // See autoBuildRun's identical line -- mirrors the outcome onto the
+        // item itself for model-builder-progress-matrix.vue's per-item
+        // badge and model-builder-batch-editor.vue's own per-item badge.
+        item.lastAutoBuildOutcome = outcome
         if (outcome === 'committed') committed++
         else if (outcome === 'skipped') skipped++
         else failed++

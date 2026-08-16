@@ -242,6 +242,8 @@
     "test:model-builder-commit-asset-attachable-guard": "tsx utils/scripts/verifyModelBuilderCommitAssetAttachableGuard.ts",
     "test:model-builder-auto-build-failed-summary-guard-selftest": "tsx utils/scripts/verifyModelBuilderAutoBuildFailedSummaryGuard.test.ts",
     "test:model-builder-auto-build-failed-summary-guard": "tsx utils/scripts/verifyModelBuilderAutoBuildFailedSummaryGuard.ts",
+    "test:model-builder-auto-build-outcome-persistence-guard-selftest": "tsx utils/scripts/verifyModelBuilderAutoBuildOutcomePersistenceGuard.test.ts",
+    "test:model-builder-auto-build-outcome-persistence-guard": "tsx utils/scripts/verifyModelBuilderAutoBuildOutcomePersistenceGuard.ts",
     "test:kontext-mask-forwarding": "tsx utils/scripts/verifyKontextMaskForwarding.ts",
     "test:pod-vendor-client-selftest": "tsx utils/scripts/verifyPodVendorClient.test.ts",
     "test:mana-gate-on-behalf-of-target": "tsx utils/scripts/verifyManaGateOnBehalfOfTarget.ts",

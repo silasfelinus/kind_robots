@@ -491,6 +491,12 @@ jobs:
       - name: Model Builder commit asset-attachable guard contract
         run: npm run test:model-builder-commit-asset-attachable-guard
 
+      - name: Model Builder auto-build failed-summary guard checker self-test
+        run: npm run test:model-builder-auto-build-failed-summary-guard-selftest
+
+      - name: Model Builder auto-build failed-summary guard contract
+        run: npm run test:model-builder-auto-build-failed-summary-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

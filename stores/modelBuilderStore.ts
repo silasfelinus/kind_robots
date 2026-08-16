@@ -1687,6 +1687,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     const items = [...state.run.items]
     let committed = 0
     let skipped = 0
+    let failed = 0
     try {
       for (const item of items) {
         if (state.run?.id !== runId) return
@@ -1697,14 +1698,30 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         const outcome = await autoBuildItem(item.id)
         if (outcome === 'committed') committed++
         else if (outcome === 'skipped') skipped++
+        else failed++
       }
       if (state.run?.id === runId) {
+        // A 'failed' outcome (a rejected commit — e.g. the ASSET_ONLY
+        // attachability re-check in commit.post.ts firing because the
+        // ArtImage's owner changed its visibility mid-run — a draft that
+        // came back empty, or any other real error autoBuildItem's own
+        // per-stage branches surface) is neither 'committed' nor 'skipped',
+        // so committed + skipped alone can undercount items.length with no
+        // explanation. Unconditionally reporting 'success' here (the
+        // pre-fix behavior) papered over that gap twice over: the count
+        // silently didn't add up, and this final call clobbers whatever
+        // 'error' tone an earlier failed item in this same loop already set
+        // via setStatus/setStatusForRun, replacing it with a misleading
+        // green banner. Surface failures in both the tone and the count.
         const skippedNote = skipped
           ? ` (${skipped} skipped — manual action in progress, retry after it finishes)`
           : ''
+        const failedNote = failed
+          ? ` (${failed} failed — see the item's own error for details)`
+          : ''
         setStatus(
-          'success',
-          `Auto-build finished: ${committed}/${items.length} committed${skippedNote}.`,
+          failed ? 'error' : 'success',
+          `Auto-build finished: ${committed}/${items.length} committed${failedNote}${skippedNote}.`,
         )
       }
     } finally {
@@ -1867,6 +1884,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     clearStatus()
     let committed = 0
     let skipped = 0
+    let failed = 0
     try {
       for (const item of items) {
         if (item.stages.COMMIT.status === 'approved') {
@@ -1876,13 +1894,23 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         const outcome = await autoBuildItem(item.id)
         if (outcome === 'committed') committed++
         else if (outcome === 'skipped') skipped++
+        else failed++
       }
+      // Same gap as autoBuildRun's identical summary (see its doc comment):
+      // a 'failed' outcome is neither committed nor skipped, so it must be
+      // counted and reflected in the tone here too, or a rejected commit
+      // (e.g. the ASSET_ONLY attachability re-check) inside this group
+      // reports as an unconditional green "success" with an unexplained gap
+      // between committed+skipped and items.length.
       const skippedNote = skipped
         ? ` (${skipped} skipped — manual action in progress, retry after it finishes)`
         : ''
+      const failedNote = failed
+        ? ` (${failed} failed — see the item's own error for details)`
+        : ''
       setStatus(
-        'success',
-        `Auto-built ${committed}/${items.length} in this group${skippedNote}.`,
+        failed ? 'error' : 'success',
+        `Auto-built ${committed}/${items.length} in this group${failedNote}${skippedNote}.`,
       )
     } finally {
       batchingOutputSingleton.release(outputKey)

@@ -920,14 +920,27 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     pushItem(item, { stageStatuses: item.stages }, { stage: stageKey })
   }
 
+  // error: null (both locally and in the pushed payload) on all three setters
+  // below (model-builder/t-029 cycle 7 left this out of updatePitch/
+  // updateFields/updatePrompt deliberately to keep that fix surgical --
+  // model-builder/t-045 revisits it). markDownstreamStale already invalidates
+  // every downstream stage's approval the moment any of these fire, so a
+  // prior item.error -- whether from a failed AI draft (draftText's own
+  // catch block routes its success back through these same setters, see
+  // below), a failed GENERATE_ASSETS render, or a failed COMMIT -- describes
+  // a stage that no longer reflects what's now stored and has to be redone
+  // anyway. Clearing here uniformly (manual edit or AI draft alike) also
+  // avoids a confusing asymmetry where an AI-redrafted fix clears the item's
+  // error banner but retyping the identical fix by hand does not.
   function updatePitch(itemId: string, value: string): void {
     const item = findItem(itemId)
     if (!item) return
     item.pitch = value
+    item.error = null
     markDownstreamStale(item, 'PITCH')
     pushItem(
       item,
-      { stageStatuses: item.stages, pitch: item.pitch },
+      { stageStatuses: item.stages, pitch: item.pitch, error: null },
       { stage: 'PITCH', reason: 'edited pitch' },
     )
   }
@@ -936,10 +949,15 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     const item = findItem(itemId)
     if (!item) return
     item.fieldsDraft = value
+    item.error = null
     markDownstreamStale(item, 'FIELDS_AND_PROMPTS')
     pushItem(
       item,
-      { stageStatuses: item.stages, fieldsDraft: item.fieldsDraft },
+      {
+        stageStatuses: item.stages,
+        fieldsDraft: item.fieldsDraft,
+        error: null,
+      },
       { stage: 'FIELDS_AND_PROMPTS', reason: 'edited fields' },
     )
   }
@@ -948,10 +966,15 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     const item = findItem(itemId)
     if (!item) return
     item.promptDraft = value
+    item.error = null
     markDownstreamStale(item, 'FIELDS_AND_PROMPTS')
     pushItem(
       item,
-      { stageStatuses: item.stages, promptDraft: item.promptDraft },
+      {
+        stageStatuses: item.stages,
+        promptDraft: item.promptDraft,
+        error: null,
+      },
       { stage: 'FIELDS_AND_PROMPTS', reason: 'edited prompt' },
     )
   }
@@ -1114,7 +1137,28 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       handleError(error, 'drafting model builder text')
       const message =
         error instanceof Error ? error.message : 'Draft request failed.'
+      // Bug (model-builder/t-045): draftText is autoBuildItem's very first
+      // step (PITCH, then FIELDS_AND_PROMPTS) and so is the most-likely-to-
+      // fire failure path of the whole run, but unlike generateItemAsset/
+      // generateItemAssetAsync/pollAsyncArtJob/commitItem (fixed for this in
+      // model-builder/t-029 cycle 7 -- see
+      // verifyModelBuilderErrorPersistenceGuard.ts's doc comment) it never
+      // touched item.error at all, only this transient setStatusForRun
+      // toast. adaptItem always rebuilds a fresh item from `server.error ??
+      // null` on resume/reopen/reload, so an empty/failed AI draft had no
+      // trace left anywhere -- not the item-panel.vue error banner, not the
+      // per-item "failed" badge in model-builder-progress-matrix.vue /
+      // model-builder-batch-editor.vue -- the instant the toast dismissed,
+      // even though the item was still stuck exactly where it failed. The
+      // two mid-flight discard branches above (edited/approved while
+      // drafting) deliberately do NOT set item.error, mirroring
+      // generateItemAsset's/pollAsyncArtJob's own "already approved" race
+      // guards, which don't push item.error either -- those are the draft
+      // request succeeding but being correctly discarded, not a genuine
+      // unresolved failure.
+      item.error = message
       setStatusForRun(runId, 'error', message)
+      pushItem(item, { error: item.error })
       return false
     } finally {
       draftingFieldSingleton.release(draftKey)

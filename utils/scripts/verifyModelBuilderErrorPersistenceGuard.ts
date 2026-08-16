@@ -25,6 +25,13 @@
 // refactor that drops ALL such calls from a function fails loudly; the
 // finer-grained "does every failure branch push" property is exercised by
 // this guard's own self-test fixtures instead.
+//
+// model-builder/t-045 added draftText to TARGET_FUNCTIONS: it's
+// autoBuildItem's very first step and so the most-likely-to-fire failure
+// path of a whole run, but was left out of the original t-029 cycle 7 sweep
+// entirely -- it only ever surfaced a transient setStatusForRun toast, never
+// touching item.error at all, so an empty/failed AI draft left no trace once
+// the toast dismissed.
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -41,6 +48,7 @@ const TARGET_FUNCTIONS = [
   'generateItemAssetAsync',
   'pollAsyncArtJob',
   'commitItem',
+  'draftText',
 ] as const
 
 // A pushItem(...) call whose object-literal payload includes `error` as a
@@ -104,9 +112,10 @@ function main(): void {
   console.log(
     'Model Builder item.error persistence guard contract passed: ' +
       'generateItemAsset(), generateItemAssetAsync(), pollAsyncArtJob(), ' +
-      'and commitItem() all push item.error to the server, so a real ' +
-      'failure (and the badge/banner reading it) survives resume/reopen/' +
-      'reload instead of only ever existing in local reactive state.',
+      'commitItem(), and draftText() all push item.error to the server, ' +
+      'so a real failure (and the badge/banner reading it) survives ' +
+      'resume/reopen/reload instead of only ever existing in local ' +
+      'reactive state.',
   )
 }
 

@@ -21,7 +21,15 @@
 // assertRunWritable() call from any one of the four routes with nothing
 // failing except a live end-to-end test this sandbox can't run.
 //
-// This asserts the textual shape stays in place: each of the four routes
+// runs/[id].patch.ts (the run's own status route) was deliberately left out
+// of that original set -- the client only ever sends {status: 'CANCELLED'}
+// through it, so the gap was never live-reachable via the UI -- but two
+// later t-029 bug-hunt cycles flagged the omission as worth closing anyway
+// for defense-in-depth, since it's the one write-capable model-builder route
+// that *doesn't* refuse further writes to an already-CANCELLED run. Closed
+// as a deliberate kaizen rather than deferring a third time.
+//
+// This asserts the textual shape stays in place: each of the five routes
 // calls assertRunWritable(<run>) immediately after assertRunAccess(<run>,
 // auth.user) for the same run reference -- deliberately scoped to this one
 // bug shape, mirroring verifyModelBuilderItemPatchStageGuard.ts's and
@@ -67,6 +75,10 @@ const ROUTES: RouteCheck[] = [
   {
     relativePath: 'server/api/model-builder/items/[id]/commit.post.ts',
     runVar: 'item.Run',
+  },
+  {
+    relativePath: 'server/api/model-builder/runs/[id].patch.ts',
+    runVar: 'existing',
   },
 ]
 
@@ -147,11 +159,12 @@ function main(): void {
   }
 
   console.log(
-    'Model Builder required guard contracts passed: all four write-capable ' +
-      'item routes refuse writes to CANCELLED runs, async completion cannot ' +
-      'persist after run cancellation, finished renders cannot replace ' +
-      'already-approved assets, and item PATCH writes cannot bypass ' +
-      'server-stored stage review gates.',
+    'Model Builder required guard contracts passed: all five write-capable ' +
+      'routes (four item routes plus the run status route) refuse writes to ' +
+      'CANCELLED runs, async completion cannot persist after run ' +
+      'cancellation, finished renders cannot replace already-approved ' +
+      'assets, and item PATCH writes cannot bypass server-stored stage ' +
+      'review gates.',
   )
 }
 

@@ -1,16 +1,18 @@
 // /utils/scripts/verifyModelBuilderRunWritableGuard.test.ts
 //
 // Regression test for checkRunWritableGuard() in
-// verifyModelBuilderRunWritableGuard.ts (model-builder/t-039). Exercises the
-// real check against synthetic route-shaped fixtures covering: the pre-fix
-// shape (assertRunAccess present, assertRunWritable missing entirely -- the
-// exact gap PR #1239 closed), the fixed shape (assertRunWritable immediately
+// verifyModelBuilderRunWritableGuard.ts (model-builder/t-039, extended by a
+// later t-029 cycle to also cover runs/[id].patch.ts). Exercises the real
+// check against synthetic route-shaped fixtures covering: the pre-fix shape
+// (assertRunAccess present, assertRunWritable missing entirely -- the exact
+// gap PR #1239 closed), the fixed shape (assertRunWritable immediately
 // follows assertRunAccess for the same run reference), a reordered shape
 // (assertRunWritable present but before assertRunAccess, which this guard
 // still flags since the anchor is "immediately after"), and assertRunAccess
-// itself being absent entirely. Runs each fixture against two different
-// runVar shapes (existing.Run and item.Run) to confirm the dot-escaping in
-// the generated regex works for either.
+// itself being absent entirely. Runs each fixture against three different
+// runVar shapes (existing.Run, item.Run, and bare existing -- runs/[id].patch.ts
+// reads the run's own status directly, not through a relation) to confirm
+// the dot-escaping in the generated regex works for all of them.
 import assert from 'node:assert/strict'
 
 import { checkRunWritableGuard } from './verifyModelBuilderRunWritableGuard.js'
@@ -23,6 +25,11 @@ const EXISTING_ROUTE = {
 const ITEM_ROUTE = {
   relativePath: 'server/api/model-builder/items/[id]/commit.post.ts',
   runVar: 'item.Run',
+}
+
+const RUN_ROUTE = {
+  relativePath: 'server/api/model-builder/runs/[id].patch.ts',
+  runVar: 'existing',
 }
 
 function buggyFixture(runVar: string): string {
@@ -86,7 +93,7 @@ export default defineEventHandler(async (event) => {
 })
 `
 
-for (const route of [EXISTING_ROUTE, ITEM_ROUTE]) {
+for (const route of [EXISTING_ROUTE, ITEM_ROUTE, RUN_ROUTE]) {
   const buggyErrors = checkRunWritableGuard(buggyFixture(route.runVar), route)
   assert.equal(
     buggyErrors.length,
@@ -136,5 +143,5 @@ console.log(
     'shape (assertRunAccess present, assertRunWritable missing), a ' +
     'reordered shape (assertRunWritable before assertRunAccess), clears the ' +
     'fully-fixed shape, and flags assertRunAccess being absent entirely -- ' +
-    'for both existing.Run and item.Run runVar shapes.',
+    'for existing.Run, item.Run, and bare existing runVar shapes.',
 )

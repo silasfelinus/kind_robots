@@ -37,11 +37,24 @@
           </NuxtLink>
         </div>
 
-        <!-- Resuming an existing run -->
+        <!-- Resuming an existing run. Purely visual animate-pulse skeleton
+             with no role/aria-live/text carried no announcement to
+             assistive tech -- the exact gap slice 4 fixed for the
+             narrating busy state below, left unfixed here because this is
+             a different busy state (page-load resume, not chapter
+             narration). Matches model-builder-manager.vue's identical
+             `resumingRun` state (role="status" + aria-live="polite" +
+             visible/sr-only text), and academy-manager.vue's
+             `isLoadingManager` state, which both cover comparable "we're
+             restoring something on load" moments the same way. -->
         <div
           v-else-if="phase === 'loading'"
+          role="status"
+          aria-live="polite"
           class="h-40 animate-pulse rounded-2xl border border-base-300 bg-base-200"
-        />
+        >
+          <span class="sr-only">Resuming your life…</span>
+        </div>
 
         <!-- Start a new life -->
         <form

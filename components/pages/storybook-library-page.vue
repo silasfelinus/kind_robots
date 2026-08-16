@@ -277,7 +277,24 @@ onMounted(() => {
   storyStore.restoreFromLocalStorage()
   storyStore.initializeLibrary()
   const directId = queryStoryId()
-  if (directId) storyStore.openStory(directId)
+  // Only call openStory() when it would actually SWITCH sessions. On a plain
+  // reload mid-story, restoreFromLocalStorage() above already restored the
+  // live session, and updateStoryQuery() keeps ?story= in sync with it while
+  // playing -- so directId equals storyStore.session.id on every ordinary
+  // refresh, not just some rare cross-story navigation. Calling openStory()
+  // anyway re-clones the just-restored session and, critically, invokes
+  // resumeNarrativeArtJobs() a SECOND time on top of the one
+  // restoreFromLocalStorage() already performed. For any beat whose art job
+  // enqueue never reached the server before the reload (status still
+  // 'queueing', no jobId yet -- a real window between the optimistic status
+  // update and the resolved POST), both resume() calls independently find no
+  // existing job and independently submit one, generating and billing two
+  // illustrations for a single beat. The watcher below already guards the
+  // same call this way (`value === storyStore.session?.id`); mount just
+  // never matched it.
+  if (directId && directId !== storyStore.session?.id) {
+    storyStore.openStory(directId)
+  }
   libraryOpen.value = !storyStore.session && storyStore.recentStories.length > 0
   if (storyStore.session && !directId) updateStoryQuery(storyStore.session.id)
 })

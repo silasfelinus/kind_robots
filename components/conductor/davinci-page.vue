@@ -233,18 +233,30 @@
             >
               {{ currentChapter.narrative }}
             </p>
-            <div class="flex flex-col gap-2">
-              <button
-                v-for="choice in currentChapter.choices"
-                :key="choice.label"
-                type="button"
-                class="btn btn-outline btn-sm h-auto min-h-8 justify-start whitespace-normal rounded-xl py-1.5 text-left normal-case"
-                :disabled="submitting"
-                @click="chooseOption(choice)"
-              >
-                {{ choice.label }}
-              </button>
-            </div>
+            <!-- Was a hand-rolled v-for of plain btn-outline buttons -- the
+                 fourth duplicate of exactly the pick-one-option list
+                 kr-choice-list.vue was built to unify (its own doc comment:
+                 "replaces at least three separate implementations of the
+                 same idea"). The duplication cost real accessibility
+                 coverage: no role="group"/aria-label tying the options
+                 together as one choice set, and none of the
+                 focus-visible/motion-reduce/disabled:pointer-events-none
+                 guards every other narrative surface's choice list gets for
+                 free (kr-narrator-stage, workspace-narrator,
+                 narrative-response-composer, kr-chat-window,
+                 scenario-story, taskmaster-page). show-index left false to
+                 match every current live caller and this page's own
+                 existing plain-button look, rather than also opting into
+                 the numbered "storybook gesture" badge as an unrelated
+                 visual change in the same pass. -->
+            <kr-choice-list
+              layout="stack"
+              label="Choices for this chapter"
+              :choices="currentChapterChoices"
+              :disabled="submitting"
+              :show-index="false"
+              @select="chooseOptionByKey"
+            />
             <p
               v-if="currentChapter.milestoneCandidate"
               class="text-[0.65rem] italic text-base-content/40"
@@ -369,6 +381,7 @@ import type { ProjectFrontConfig } from '@/components/conductor/projectFront'
 import { useAchievementStore } from '@/stores/achievementStore'
 import { createNarrativeArtJobsController } from '@/stores/helpers/narrativeArtJobsHelper'
 import type { NarrativeArtJobState } from '@/utils/narrativeArtJobs'
+import type { NarrativeChoice } from '@/components/narrative/kr-choice-list.vue'
 
 // Mirrors server/utils/davinci.ts DAVINCI_DIMENSIONS — bit order is a
 // display concern here (the server owns the real resolve math), but keeping
@@ -962,6 +975,25 @@ function useCuratedChapters() {
   narrationMode.value = 'curated'
   narrationError.value = ''
   aiChapter.value = null
+}
+
+// Adapter for kr-choice-list, which speaks {key,label,hint,icon} rather
+// than this project's own LifeChoiceOption shape. Chapter choice labels are
+// already relied on as a unique key (the original hand-rolled v-for used
+// `choice.label` as its :key too), so reusing that as the NarrativeChoice
+// key needs no extra id plumbing.
+const currentChapterChoices = computed<NarrativeChoice[]>(() =>
+  (currentChapter.value?.choices ?? []).map((choice) => ({
+    key: choice.label,
+    label: choice.label,
+  })),
+)
+
+function chooseOptionByKey(choice: NarrativeChoice) {
+  const original = currentChapter.value?.choices.find(
+    (candidate) => candidate.label === choice.key,
+  )
+  if (original) void chooseOption(original)
 }
 
 async function chooseOption(choice: LifeChoiceOption) {

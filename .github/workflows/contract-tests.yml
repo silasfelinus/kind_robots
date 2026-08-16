@@ -269,6 +269,12 @@ jobs:
       - name: Da Vinci resuming-status guard
         run: npm run test:davinci-resuming-status-guard
 
+      - name: Da Vinci choice-list guard self-test
+        run: npm run test:davinci-choice-list-guard-selftest
+
+      - name: Da Vinci choice-list guard
+        run: npm run test:davinci-choice-list-guard
+
       - name: Serendipity Voice poll guard self-test
         run: npm run test:serendipity-voice-poll-guard-selftest
 

@@ -233,10 +233,26 @@ const fleet = computed<FleetApp[]>(() =>
       (candidate) => candidate.slug === slug,
     )
     const tasks = project?.tasks ?? []
+    // scripts/new_app.py seeds every scaffolded app's roadmap.yaml with
+    // milestones/tasks up front, so `tasks.length === 0` is essentially
+    // never true for a real, registry-tracked app — it only happens in the
+    // brief/degraded window before conductorStore has this project's data
+    // at all. That made the old `tasks.length === 0 ? 'Freshly
+    // scaffolded.' : ''` check backwards in practice: every successfully
+    // tracked app showed a permanently blank description, and the "Freshly
+    // scaffolded." message only ever appeared when the project lookup
+    // *failed*. Prefer the project's real one-line description (`goal`,
+    // falling back to `notesFromSilas` — new_app.py always seeds the
+    // latter, even if just its "Define what this app is before building."
+    // placeholder) so the card shows something meaningful once the app is
+    // actually tracked, and reserve "Freshly scaffolded." for when there is
+    // truly no project data yet.
+    const description = project?.goal || project?.notesFromSilas || ''
     return {
       slug,
       title: project?.name || titleize(slug),
-      description: tasks.length === 0 ? 'Freshly scaffolded.' : '',
+      description:
+        description || (tasks.length === 0 ? 'Freshly scaffolded.' : ''),
       taskDone: tasks.filter((task) => task.status === 'done').length,
       taskTotal: tasks.length,
       needsHuman: tasks.filter((task) => task.status === 'needs-human').length,

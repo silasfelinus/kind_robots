@@ -307,10 +307,17 @@ function approvedCount(item: BuildItem): number {
 // "Execute commit" button can fix and commit an item without ever going back
 // through autoBuildItem, which would otherwise leave this reading a failure
 // that's no longer true.
+//
+// item.error is also checked (model-builder/t-029, mirrors model-builder-
+// progress-matrix.vue's identical helper, which both must keep agreeing
+// with): lastAutoBuildOutcome is session-only and never restored on resume,
+// while item.error is the persisted signal that survives it -- see
+// modelBuilderStore.ts's generateItemAsset/generateItemAssetAsync/
+// pollAsyncArtJob/commitItem pushItem calls.
 function autoBuildFailed(item: BuildItem): boolean {
   return (
     item.stages.COMMIT.status !== 'approved' &&
-    item.lastAutoBuildOutcome === 'failed'
+    (item.lastAutoBuildOutcome === 'failed' || Boolean(item.error))
   )
 }
 

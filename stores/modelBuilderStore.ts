@@ -518,11 +518,16 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     // through autoBuildItem again (e.g. the single-stage "Execute commit"
     // button), which would otherwise leave lastAutoBuildOutcome pointing at
     // a failure that's no longer true. Mirrors model-builder-progress-
-    // matrix.vue's autoBuildFailed, which the same logic must agree with.
+    // matrix.vue's autoBuildFailed, which the same logic must agree with --
+    // including the item.error OR (model-builder/t-029): lastAutoBuildOutcome
+    // is session-only and never restored on resume/reopen/reload, so without
+    // also honoring the persisted item.error signal, this count silently
+    // dropped to 0 for a run reopened from History even when items were
+    // still genuinely stuck failed.
     const failed = state.run.items.filter(
       (item) =>
         item.stages.COMMIT.status !== 'approved' &&
-        item.lastAutoBuildOutcome === 'failed',
+        (item.lastAutoBuildOutcome === 'failed' || Boolean(item.error)),
     ).length
     return { total, committed, failed }
   })
@@ -1192,6 +1197,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       item.error = `${item.generation} generation is not wired into the front-end slice yet.`
       item.stages.GENERATE_ASSETS = { status: 'ready', note: item.error }
       setStatus('error', item.error)
+      pushItem(item, { error: item.error })
       return false
     }
 
@@ -1199,6 +1205,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     if (!prompt) {
       item.error = 'Add a prompt in Fields & Prompts before generating.'
       setStatus('error', item.error)
+      pushItem(item, { error: item.error })
       return false
     }
 
@@ -1264,9 +1271,14 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       finishGenerateAssets(item, { status: 'ready' })
 
       await recordArtifact(item, image, output, prompt, dims, runId)
+      // error: null clears any error a previous failed attempt on this same
+      // item persisted (see the catch block below) -- otherwise a resolved
+      // problem's stale message would resurface on the next resume/reload,
+      // right alongside the freshly-generated candidate.
       pushItem(item, {
         stageStatuses: item.stages,
         artImageId: item.artImageId,
+        error: null,
       })
 
       // Gated by setStatusForRun, not a plain setStatus: the user may have
@@ -1292,6 +1304,21 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       item.error = error instanceof Error ? error.message : 'Generation failed.'
       finishGenerateAssets(item, { status: 'ready', note: item.error })
       setStatusForRun(runId, 'error', item.error)
+      // Bug (model-builder/t-029): item.error is a real, server-writable
+      // `ModelBuildItem.error` column (server/api/model-builder/runs/
+      // index.ts's ItemPatchBody accepts it), and item-panel.vue's error
+      // banner (`v-if="item.error"`) reads it -- but every failure branch in
+      // this file used to only mutate the local reactive item, never push
+      // it. adaptItem always rebuilds from `server.error ?? null` on
+      // resume/reopen/reload (see normalizeStages'/adaptRun's own doc
+      // comments for the identical class of bug with stageStatuses/
+      // sourceSnapshot), so a real, still-unresolved failure -- and the
+      // per-item "failed" badge in model-builder-progress-matrix.vue /
+      // model-builder-batch-editor.vue, which also keys off this item's
+      // error text -- silently vanished the moment the page reloaded or the
+      // run was reopened from History, even though nothing about the item
+      // had actually been fixed.
+      pushItem(item, { error: item.error })
       return false
     } finally {
       // state.generatingItemId is a store-wide singleton (not per-item, unlike
@@ -1363,6 +1390,9 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         item.error = result.message || `Art job ${jobId} did not complete.`
         finishGenerateAssets(item, { status: 'ready', note: item.error })
         setStatusForRun(runId, 'error', item.error)
+        // See generateItemAsset's identical pushItem — this async sibling's
+        // failure was silently local-only for the same reason.
+        pushItem(item, { error: item.error })
         return
       }
 
@@ -1397,9 +1427,11 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       finishGenerateAssets(item, { status: 'ready' })
 
       await recordArtifact(item, image, output, prompt, dims, runId)
+      // error: null — see generateItemAsset's identical success-path clear.
       pushItem(item, {
         stageStatuses: item.stages,
         artImageId: item.artImageId,
+        error: null,
       })
 
       // Gated by setStatusForRun -- see its doc comment (same reasoning as
@@ -1425,6 +1457,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       item.error = `${item.generation} generation is not wired into the front-end slice yet.`
       item.stages.GENERATE_ASSETS = { status: 'ready', note: item.error }
       setStatus('error', item.error)
+      pushItem(item, { error: item.error })
       return false
     }
 
@@ -1432,6 +1465,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     if (!prompt) {
       item.error = 'Add a prompt in Fields & Prompts before generating.'
       setStatus('error', item.error)
+      pushItem(item, { error: item.error })
       return false
     }
 
@@ -1489,6 +1523,9 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       item.queueState = null
       item.artJobId = null
       setStatusForRun(runId, 'error', item.error)
+      // See generateItemAsset's identical pushItem — this enqueue failure
+      // was silently local-only for the same reason.
+      pushItem(item, { error: item.error })
       return false
     }
   }
@@ -1577,6 +1614,14 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         item.targetType = target.type
         item.targetId = target.id
       }
+      // Clears any error a previous failed commit attempt on this item
+      // persisted (see the catch block below) -- the server already durably
+      // committed the target above, so a stale message from an earlier,
+      // now-irrelevant failure must not resurface on the next resume/reload
+      // right next to "Committed → ...". This is the item's only client PATCH
+      // on a successful commit; stageStatuses/targetId/targetType are written
+      // authoritatively by the commit POST itself.
+      pushItem(item, { error: null })
       // Gated by setStatusForRun -- see its doc comment. The commit itself
       // already durably landed server-side regardless; this only suppresses
       // a misleading "committed" toast if the user has since navigated away
@@ -1596,6 +1641,15 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       item.error = error instanceof Error ? error.message : 'Commit failed.'
       finishCommit(item, { status: 'ready', note: item.error })
       setStatusForRun(runId, 'error', item.error)
+      // Bug (model-builder/t-029): see generateItemAsset's identical
+      // pushItem/doc comment -- item.error is a real server column
+      // (ModelBuildItem.error) that this catch block used to only mutate
+      // locally, so a genuine, unresolved commit failure (and the per-item
+      // "failed" badge in model-builder-progress-matrix.vue /
+      // model-builder-batch-editor.vue, which also reads this item's error
+      // text) silently vanished the instant the page reloaded or the run
+      // was reopened from Run History.
+      pushItem(item, { error: item.error })
       return false
     } finally {
       committingItemSingleton.release(item.id)

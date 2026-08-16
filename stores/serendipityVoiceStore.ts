@@ -216,6 +216,26 @@ export const useSerendipityVoiceStore = defineStore(
         return
       }
 
+      // 'set' and 'draft' are only meaningful for the theme/art targets
+      // (VoiceBusCommand's action union is shared across all targets). An
+      // animation command carrying one of them falls outside every branch
+      // below -- without this guard it would resolve an effect id, skip the
+      // on/off/toggle toggle entirely (nothing actually changes), then still
+      // fall through to the unconditional setSurfacePlacement() call and the
+      // default-to-"on" verb, reporting a false "Applied: <effect> on." to
+      // the feed and the voice ack even though no effect state changed.
+      if (
+        command.action !== 'on' &&
+        command.action !== 'off' &&
+        command.action !== 'toggle'
+      ) {
+        pushLocalMessage(
+          'system',
+          `Ignored unsupported animation action: ${command.action}`,
+        )
+        return
+      }
+
       const effectId = resolveEffectId(command)
       if (!effectId) {
         const message = `Could not match animation "${command.effect ?? command.effectId ?? 'unknown'}".`

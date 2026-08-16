@@ -33,6 +33,24 @@
 // deliberately scoped to these three functions/bugs, mirroring this
 // project's other narrow textual guards over a general-purpose static
 // analyzer.
+//
+// Extended (alexa-integration/t-021) with a second, related contract:
+// checkSerendipityVoiceErrorReportingGuard() below. t-015/t-020 covered
+// action/target *mismatches* (a command that should never have reached this
+// function). This extension covers the two "the command reached the right
+// function, but the requested effect/theme doesn't exist" branches, which
+// are a distinct failure mode with their own false-success risk:
+//   - applyCommand(): resolveEffectId() returning null for an unmatched
+//     spoken effect name (e.g. "turn on qwerty").
+//   - applyThemeCommand(): themeStore.setActiveTheme() resolving with
+//     result.success === false for an unknown theme name.
+// Both branches were read fresh against the live store and are currently
+// correct (early `return` after the no-match report; a proper if/success
+// else/failure split with postAck() gated inside the success arm only) --
+// this guard exists so a future edit that quietly drops the early return,
+// the lastError/pushLocalMessage report, or the postAck() gating cannot
+// reintroduce a false "Applied"/"is now X" acknowledgement the way t-015's
+// and t-020's bugs did for the mismatched-action case.
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -209,9 +227,218 @@ export function checkSerendipityVoiceActionGuard(content: string): string[] {
   return errors
 }
 
+// Searches `text` for `pattern` starting at `fromIndex`, returning an index
+// relative to the start of `text` (not `fromIndex`) so callers can compare
+// it directly against other absolute-in-`text` indices. -1 if `fromIndex`
+// is itself -1 (the anchor it depends on was never found) or no match.
+function searchAfter(text: string, pattern: RegExp, fromIndex: number): number {
+  if (fromIndex < 0) return -1
+  const relative = text.slice(fromIndex).search(pattern)
+  return relative === -1 ? -1 : relative + fromIndex
+}
+
+// Checks the "requested effect/theme doesn't exist" no-match branches of
+// applyCommand() and applyThemeCommand() -- see the file-header addendum
+// above (alexa-integration/t-021) for what these protect against.
+export function checkSerendipityVoiceErrorReportingGuard(
+  content: string,
+): string[] {
+  const errors: string[] = []
+
+  // --- applyCommand(): resolveEffectId() returning null ---
+  const commandBody = extractFunctionSource(content, 'applyCommand')
+  if (!commandBody) {
+    errors.push(
+      'Could not find a function named applyCommand() -- has it been ' +
+        'renamed, removed, or restructured? If so, this guard (and the ' +
+        'unmatched-effect error-reporting contract it protects) needs to ' +
+        'move with it.',
+    )
+  } else {
+    const resolveIndex = commandBody.search(
+      /const effectId = resolveEffectId\(command\)/,
+    )
+    if (resolveIndex === -1) {
+      errors.push(
+        'applyCommand() no longer resolves `const effectId = ' +
+          'resolveEffectId(command)` -- has the animation-resolution shape ' +
+          'changed? This guard assumes that structure to locate the ' +
+          'no-match branch.',
+      )
+    } else {
+      const guardIndex = searchAfter(
+        commandBody,
+        /if\s*\(\s*!effectId\s*\)\s*\{/,
+        resolveIndex,
+      )
+      const activeIndex = searchAfter(
+        commandBody,
+        /animationStore\.isScreenEffectActive\(effectId\)/,
+        resolveIndex,
+      )
+
+      if (guardIndex === -1) {
+        errors.push(
+          'applyCommand() no longer contains `if (!effectId) { ... }` ' +
+            'right after resolving the effect id -- without it, a spoken ' +
+            'effect resolveEffectId() cannot match falls through with ' +
+            'effectId === null into isScreenEffectActive()/' +
+            'toggleScreenEffect() instead of reporting "Could not match ' +
+            'animation ...".',
+        )
+      } else if (activeIndex !== -1 && guardIndex >= activeIndex) {
+        errors.push(
+          "applyCommand()'s `if (!effectId)` guard runs after " +
+            'isScreenEffectActive(effectId) instead of before it -- it ' +
+            'must gate the null-effectId case before that value is used.',
+        )
+      } else {
+        const returnIndex = searchAfter(commandBody, /\breturn\b/, guardIndex)
+        const lastErrorIndex = searchAfter(
+          commandBody,
+          /lastError\.value\s*=/,
+          guardIndex,
+        )
+        const pushMessageIndex = searchAfter(
+          commandBody,
+          /pushLocalMessage\(/,
+          guardIndex,
+        )
+        const boundary = activeIndex === -1 ? commandBody.length : activeIndex
+
+        if (returnIndex === -1 || returnIndex >= boundary) {
+          errors.push(
+            "applyCommand()'s no-match branch no longer returns before " +
+              'isScreenEffectActive(effectId) runs -- without an early ' +
+              'return, a null effectId would still fall through to the ' +
+              'toggle/placement/ack logic below it.',
+          )
+        }
+        if (lastErrorIndex === -1 || lastErrorIndex >= boundary) {
+          errors.push(
+            "applyCommand()'s no-match branch no longer sets " +
+              'lastError.value -- a spoken effect that cannot be matched ' +
+              'would report nothing to lastError, silently hiding the ' +
+              'failure from any UI that surfaces it.',
+          )
+        }
+        if (pushMessageIndex === -1 || pushMessageIndex >= boundary) {
+          errors.push(
+            "applyCommand()'s no-match branch no longer calls " +
+              'pushLocalMessage() -- a spoken effect that cannot be ' +
+              'matched would report nothing to the message feed.',
+          )
+        }
+        const postAckIndex = searchAfter(commandBody, /postAck\(/, guardIndex)
+        if (postAckIndex !== -1 && postAckIndex < boundary) {
+          errors.push(
+            "applyCommand()'s no-match branch calls postAck() -- a " +
+              'spoken effect that could not be matched must not send a ' +
+              'false "effect is now on/off" acknowledgement back to the ' +
+              'voice assistant.',
+          )
+        }
+      }
+    }
+  }
+
+  // --- applyThemeCommand(): setActiveTheme() resolving with success: false ---
+  const themeBody = extractFunctionSource(content, 'applyThemeCommand')
+  if (!themeBody) {
+    errors.push(
+      'Could not find a function named applyThemeCommand() -- has it been ' +
+        'renamed, removed, or restructured? If so, this guard (and the ' +
+        'unknown-theme error-reporting contract it protects) needs to move ' +
+        'with it.',
+    )
+  } else {
+    const thenIndex = themeBody.search(
+      /setActiveTheme\(theme\)\.then\(\s*\(result\)\s*=>\s*\{/,
+    )
+    if (thenIndex === -1) {
+      errors.push(
+        'applyThemeCommand() no longer calls ' +
+          'themeStore.setActiveTheme(theme).then((result) => { ... }) -- ' +
+          'has the theme-application shape changed? This guard assumes ' +
+          'that structure to locate the success/failure branches.',
+      )
+    } else {
+      const successIndex = searchAfter(
+        themeBody,
+        /if\s*\(\s*result\.success\s*\)\s*\{/,
+        thenIndex,
+      )
+      if (successIndex === -1) {
+        errors.push(
+          'applyThemeCommand() no longer branches on ' +
+            '`if (result.success)` -- without it, a failed ' +
+            'setActiveTheme() call (unknown theme) has no distinct ' +
+            'success/failure path to report through.',
+        )
+      } else {
+        const elseIndex = searchAfter(themeBody, /\}\s*else\s*\{/, successIndex)
+        if (elseIndex === -1) {
+          errors.push(
+            'applyThemeCommand() no longer has an `else` branch after ' +
+              '`if (result.success)` -- without it, a failed ' +
+              'setActiveTheme() call (unknown theme) reports nothing at ' +
+              'all instead of the "Unknown theme ..." message.',
+          )
+        } else {
+          const lastErrorIndex = searchAfter(
+            themeBody,
+            /lastError\.value\s*=/,
+            elseIndex,
+          )
+          const pushMessageIndex = searchAfter(
+            themeBody,
+            /pushLocalMessage\(/,
+            elseIndex,
+          )
+          if (lastErrorIndex === -1) {
+            errors.push(
+              "applyThemeCommand()'s failure branch no longer sets " +
+                'lastError.value -- an unknown/rejected theme would ' +
+                'report nothing to lastError.',
+            )
+          }
+          if (pushMessageIndex === -1) {
+            errors.push(
+              "applyThemeCommand()'s failure branch no longer calls " +
+                'pushLocalMessage() -- an unknown/rejected theme would ' +
+                'report nothing to the message feed.',
+            )
+          }
+        }
+
+        const postAckIndex = searchAfter(themeBody, /postAck\(/, successIndex)
+        if (postAckIndex === -1) {
+          errors.push(
+            "applyThemeCommand()'s success branch no longer calls " +
+              'postAck() -- this guard expects the voice-ack call to stay ' +
+              'gated inside `if (result.success)` so it can tell the ' +
+              'success and failure branches apart.',
+          )
+        } else if (elseIndex !== -1 && postAckIndex >= elseIndex) {
+          errors.push(
+            'applyThemeCommand() calls postAck() outside the ' +
+              '`if (result.success)` branch -- an unknown/rejected theme ' +
+              'must not send a false "theme is now X" acknowledgement back ' +
+              'to the voice assistant.',
+          )
+        }
+      }
+    }
+  }
+
+  return errors
+}
+
 function main(): void {
   const content = readFileSync(STORE_PATH, 'utf8')
-  const errors = checkSerendipityVoiceActionGuard(content)
+  const actionErrors = checkSerendipityVoiceActionGuard(content)
+  const errorReportingErrors = checkSerendipityVoiceErrorReportingGuard(content)
+  const errors = [...actionErrors, ...errorReportingErrors]
 
   if (errors.length) {
     console.error(
@@ -227,7 +454,9 @@ function main(): void {
     'Serendipity Voice action guard contract passed: applyCommand(), ' +
       'applyThemeCommand(), and applyArtCommand() all reject action values ' +
       "that don't apply to their target instead of silently reporting a " +
-      'false "applied" message.',
+      'false "applied" message, and the unmatched-effect/unknown-theme ' +
+      'no-match branches still report failure (not a false success) before ' +
+      'returning.',
   )
 }
 

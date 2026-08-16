@@ -10,7 +10,10 @@
 // prevent), and a missing-function fixture.
 import assert from 'node:assert/strict'
 
-import { checkSerendipityVoiceActionGuard } from './verifySerendipityVoiceActionGuard.js'
+import {
+  checkSerendipityVoiceActionGuard,
+  checkSerendipityVoiceErrorReportingGuard,
+} from './verifySerendipityVoiceActionGuard.js'
 
 const ANIMATION_ACTION_GUARD = `if (
         command.action !== 'on' &&
@@ -157,6 +160,200 @@ const THEME_GUARD_TOO_LATE = `
     }
   `
 
+// --- Fixtures for checkSerendipityVoiceErrorReportingGuard() (t-021) ---
+// Distinct from the fixtures above: these exercise the "the command reached
+// the right function, but the requested effect/theme doesn't exist"
+// no-match branches, not the target/action-mismatch guards.
+
+function errorReportingFixture(opts: {
+  noMatchBranch: string
+  successPostAck: string
+  themeFailureBranch: string
+}): string {
+  return `
+    function applyCommand(command: VoiceBusCommand): void {
+      const effectId = resolveEffectId(command)
+      ${opts.noMatchBranch}
+
+      const active = animationStore.isScreenEffectActive(effectId)
+      if (command.action === 'on' && !active) animationStore.toggleScreenEffect(effectId)
+
+      void postAck(\`Serendipity view: \${effectId} is now on.\`)
+    }
+
+    function applyThemeCommand(command: VoiceBusCommand): void {
+      const theme = (command.theme ?? '').trim()
+
+      void themeStore.setActiveTheme(theme).then((result) => {
+        if (result.success) {
+          lastAppliedText.value = \`theme → \${theme}\`
+          pushLocalMessage('system', \`Applied: theme set to \${theme}.\`)
+          ${opts.successPostAck}
+        } ${opts.themeFailureBranch}
+      })
+    }
+  `
+}
+
+const NO_MATCH_FIXED = `if (!effectId) {
+        const message = \`Could not match animation "\${command.effect ?? command.effectId ?? 'unknown'}".\`
+        lastError.value = message
+        pushLocalMessage('system', message)
+        return
+      }`
+
+const NO_MATCH_MISSING_RETURN = `if (!effectId) {
+        const message = \`Could not match animation "\${command.effect ?? command.effectId ?? 'unknown'}".\`
+        lastError.value = message
+        pushLocalMessage('system', message)
+      }`
+
+const NO_MATCH_MISSING_LASTERROR = `if (!effectId) {
+        const message = \`Could not match animation "\${command.effect ?? command.effectId ?? 'unknown'}".\`
+        pushLocalMessage('system', message)
+        return
+      }`
+
+const NO_MATCH_FALSE_ACK = `if (!effectId) {
+        const message = \`Could not match animation "\${command.effect ?? command.effectId ?? 'unknown'}".\`
+        lastError.value = message
+        pushLocalMessage('system', message)
+        void postAck('Serendipity view: effect is now on.')
+        return
+      }`
+
+const SUCCESS_POSTACK = `void postAck(\`Serendipity view: theme is now \${theme}.\`)`
+
+const THEME_FAILURE_FIXED = `else {
+          const message = result.message ?? \`Unknown theme "\${theme}".\`
+          lastError.value = message
+          pushLocalMessage('system', message)
+        }`
+
+const THEME_FAILURE_MISSING_LASTERROR = `else {
+          const message = result.message ?? \`Unknown theme "\${theme}".\`
+          pushLocalMessage('system', message)
+        }`
+
+const THEME_FAILURE_FALSE_ACK = `else {
+          const message = result.message ?? \`Unknown theme "\${theme}".\`
+          lastError.value = message
+          pushLocalMessage('system', message)
+          void postAck(\`Serendipity view: theme is now \${theme}.\`)
+        }`
+
+const FIXED_ERROR_REPORTING = errorReportingFixture({
+  noMatchBranch: NO_MATCH_FIXED,
+  successPostAck: SUCCESS_POSTACK,
+  themeFailureBranch: THEME_FAILURE_FIXED,
+})
+
+const NO_MATCH_MISSING_RETURN_FIXTURE = errorReportingFixture({
+  noMatchBranch: NO_MATCH_MISSING_RETURN,
+  successPostAck: SUCCESS_POSTACK,
+  themeFailureBranch: THEME_FAILURE_FIXED,
+})
+
+const NO_MATCH_MISSING_LASTERROR_FIXTURE = errorReportingFixture({
+  noMatchBranch: NO_MATCH_MISSING_LASTERROR,
+  successPostAck: SUCCESS_POSTACK,
+  themeFailureBranch: THEME_FAILURE_FIXED,
+})
+
+const NO_MATCH_FALSE_ACK_FIXTURE = errorReportingFixture({
+  noMatchBranch: NO_MATCH_FALSE_ACK,
+  successPostAck: SUCCESS_POSTACK,
+  themeFailureBranch: THEME_FAILURE_FIXED,
+})
+
+const THEME_MISSING_ELSE_FIXTURE = errorReportingFixture({
+  noMatchBranch: NO_MATCH_FIXED,
+  successPostAck: SUCCESS_POSTACK,
+  themeFailureBranch: '',
+})
+
+const THEME_MISSING_LASTERROR_FIXTURE = errorReportingFixture({
+  noMatchBranch: NO_MATCH_FIXED,
+  successPostAck: SUCCESS_POSTACK,
+  themeFailureBranch: THEME_FAILURE_MISSING_LASTERROR,
+})
+
+const THEME_FALSE_ACK_FIXTURE = errorReportingFixture({
+  noMatchBranch: NO_MATCH_FIXED,
+  successPostAck: '',
+  themeFailureBranch: THEME_FAILURE_FALSE_ACK,
+})
+
+function runErrorReportingSelfTest(): void {
+  const fixedErrors = checkSerendipityVoiceErrorReportingGuard(
+    FIXED_ERROR_REPORTING,
+  )
+  assert.deepEqual(
+    fixedErrors,
+    [],
+    `expected the fixed error-reporting fixture to pass, got: ${JSON.stringify(fixedErrors)}`,
+  )
+
+  const missingReturnErrors = checkSerendipityVoiceErrorReportingGuard(
+    NO_MATCH_MISSING_RETURN_FIXTURE,
+  )
+  assert.equal(missingReturnErrors.length, 1)
+  assert.ok(/no longer returns/.test(missingReturnErrors[0]!))
+
+  const missingLastErrorErrors = checkSerendipityVoiceErrorReportingGuard(
+    NO_MATCH_MISSING_LASTERROR_FIXTURE,
+  )
+  assert.equal(missingLastErrorErrors.length, 1)
+  assert.ok(/no longer sets lastError\.value/.test(missingLastErrorErrors[0]!))
+
+  const falseAckErrors = checkSerendipityVoiceErrorReportingGuard(
+    NO_MATCH_FALSE_ACK_FIXTURE,
+  )
+  assert.equal(falseAckErrors.length, 1)
+  assert.ok(/calls postAck\(\)/.test(falseAckErrors[0]!))
+
+  const missingElseErrors = checkSerendipityVoiceErrorReportingGuard(
+    THEME_MISSING_ELSE_FIXTURE,
+  )
+  assert.equal(missingElseErrors.length, 1)
+  assert.ok(/no longer has an `else` branch/.test(missingElseErrors[0]!))
+
+  const themeMissingLastErrorErrors = checkSerendipityVoiceErrorReportingGuard(
+    THEME_MISSING_LASTERROR_FIXTURE,
+  )
+  assert.equal(themeMissingLastErrorErrors.length, 1)
+  assert.ok(
+    /failure branch no longer sets lastError\.value/.test(
+      themeMissingLastErrorErrors[0]!,
+    ),
+  )
+
+  const themeFalseAckErrors = checkSerendipityVoiceErrorReportingGuard(
+    THEME_FALSE_ACK_FIXTURE,
+  )
+  assert.equal(themeFalseAckErrors.length, 1)
+  assert.ok(
+    /calls postAck\(\) outside the `if \(result\.success\)` branch/.test(
+      themeFalseAckErrors[0]!,
+    ),
+  )
+
+  const missingFnErrors = checkSerendipityVoiceErrorReportingGuard(
+    'function someOtherFunction(): void {}',
+  )
+  assert.equal(missingFnErrors.length, 2)
+  assert.ok(
+    missingFnErrors.every((e) => /Could not find a function named/.test(e)),
+  )
+
+  console.log(
+    'Serendipity Voice error-reporting guard self-test passed: the ' +
+      'unmatched-effect and unknown-theme no-match branches still fail ' +
+      'correctly (report + early return / no false ack) across all tested ' +
+      'regressions, and the fixed fixture passes clean.',
+  )
+}
+
 function run(): void {
   const fixedErrors = checkSerendipityVoiceActionGuard(FIXED)
   assert.deepEqual(
@@ -210,3 +407,4 @@ function run(): void {
 }
 
 run()
+runErrorReportingSelfTest()

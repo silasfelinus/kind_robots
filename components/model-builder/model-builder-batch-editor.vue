@@ -182,7 +182,15 @@
           >
             {{ item.label }}
           </span>
-          <span class="badge badge-xs" :class="commitBadge(item)">
+          <span
+            class="badge badge-xs"
+            :class="commitBadge(item)"
+            :title="
+              autoBuildFailed(item)
+                ? (item.error ?? 'Auto-build failed for this item.')
+                : undefined
+            "
+          >
             {{ itemStageSummary(item) }}
           </span>
           <button
@@ -292,15 +300,29 @@ function approvedCount(item: BuildItem): number {
   ).length
 }
 
+// A failed auto-build reverts its stage back to 'ready' (see autoBuildItem's
+// per-stage branches in modelBuilderStore.ts) -- indistinguishable from an
+// item that was simply never attempted, unless lastAutoBuildOutcome is also
+// checked. Committed always wins over a stale 'failed': the single-item
+// "Execute commit" button can fix and commit an item without ever going back
+// through autoBuildItem, which would otherwise leave this reading a failure
+// that's no longer true.
+function autoBuildFailed(item: BuildItem): boolean {
+  return (
+    item.stages.COMMIT.status !== 'approved' &&
+    item.lastAutoBuildOutcome === 'failed'
+  )
+}
+
 function itemStageSummary(item: BuildItem): string {
-  return item.stages.COMMIT.status === 'approved'
-    ? 'committed'
-    : `${approvedCount(item)}/4`
+  if (item.stages.COMMIT.status === 'approved') return 'committed'
+  if (autoBuildFailed(item)) return 'failed'
+  return `${approvedCount(item)}/4`
 }
 
 function commitBadge(item: BuildItem): string {
-  return item.stages.COMMIT.status === 'approved'
-    ? 'badge-success'
-    : 'badge-ghost'
+  if (item.stages.COMMIT.status === 'approved') return 'badge-success'
+  if (autoBuildFailed(item)) return 'badge-error'
+  return 'badge-ghost'
 }
 </script>

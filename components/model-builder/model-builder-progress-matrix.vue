@@ -5,9 +5,19 @@
       <div>
         <h3 class="text-base font-black text-base-content">3. Build run</h3>
         <p class="mt-1 text-xs text-base-content/60">
-          <span class="font-bold text-base-content">{{ run?.sourceLabel }}</span>
-          · {{ recipeLabel }} ·
-          {{ store.runProgress.committed }}/{{ store.runProgress.total }} committed
+          <span class="font-bold text-base-content">{{
+            run?.sourceLabel
+          }}</span>
+          · {{ recipeLabel }} · {{ store.runProgress.committed }}/{{
+            store.runProgress.total
+          }}
+          committed
+          <span
+            v-if="store.runProgress.failed"
+            class="font-semibold text-error"
+          >
+            · {{ store.runProgress.failed }} failed
+          </span>
         </p>
       </div>
       <div class="flex shrink-0 items-center gap-1">
@@ -101,12 +111,23 @@
             <td class="max-w-[10rem] p-0 text-xs font-semibold">
               <button
                 type="button"
-                class="w-full truncate rounded-lg px-3 py-2 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary"
+                class="flex w-full items-center gap-1 truncate rounded-lg px-3 py-2 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary"
                 :aria-pressed="item.id === selectedItemId"
-                :aria-label="`Select ${item.label}`"
+                :aria-label="
+                  autoBuildFailed(item)
+                    ? `Select ${item.label} — auto-build failed for this item`
+                    : `Select ${item.label}`
+                "
                 @click.stop="selectedItemId = item.id"
               >
-                {{ item.label }}
+                <Icon
+                  v-if="autoBuildFailed(item)"
+                  name="kind-icon:warning"
+                  class="h-3 w-3 shrink-0 text-error"
+                  :title="item.error ?? 'Auto-build failed for this item.'"
+                  aria-hidden="true"
+                />
+                <span class="truncate">{{ item.label }}</span>
               </button>
             </td>
             <td
@@ -160,7 +181,7 @@
 import { computed, ref } from 'vue'
 import { useModelBuilderStore } from '@/stores/modelBuilderStore'
 import { BUILD_STAGES, getRecipe } from '@/stores/helpers/modelBuilderRecipes'
-import type { StageStatus } from '@/stores/modelBuilderStore'
+import type { BuildItem, StageStatus } from '@/stores/modelBuilderStore'
 
 const store = useModelBuilderStore()
 const stages = BUILD_STAGES
@@ -243,6 +264,22 @@ const selectedGroup = computed(() =>
   ),
 )
 const showBatch = computed(() => (selectedGroup.value?.items.length ?? 0) > 1)
+
+// A failed auto-build reverts its stage back to 'ready' (see autoBuildItem's
+// per-stage branches in modelBuilderStore.ts) -- indistinguishable in the
+// matrix below from an item that was simply never attempted, unless
+// lastAutoBuildOutcome is also checked. Committed always wins over a stale
+// 'failed': the single-item "Execute commit" button can fix and commit an
+// item without ever going back through autoBuildItem, which would otherwise
+// leave this reading a failure that's no longer true. Mirrors the store's
+// own runProgress.failed and model-builder-batch-editor.vue's identical
+// helper -- all three must agree on what counts as "failed right now".
+function autoBuildFailed(item: BuildItem): boolean {
+  return (
+    item.stages.COMMIT.status !== 'approved' &&
+    item.lastAutoBuildOutcome === 'failed'
+  )
+}
 
 function statusClass(status: StageStatus): string {
   switch (status) {

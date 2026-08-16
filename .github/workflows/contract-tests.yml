@@ -485,6 +485,12 @@ jobs:
       - name: Model Builder async-fetch staleness coverage contract
         run: npm run test:model-builder-async-fetch-staleness-coverage
 
+      - name: Model Builder commit asset-attachable guard checker self-test
+        run: npm run test:model-builder-commit-asset-attachable-guard-selftest
+
+      - name: Model Builder commit asset-attachable guard contract
+        run: npm run test:model-builder-commit-asset-attachable-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

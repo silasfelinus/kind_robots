@@ -16,6 +16,7 @@ import {
   getItemId,
   parseStoredJson,
 } from '../../runs/index'
+import { assertArtImageAttachable } from '../../relations'
 import {
   CREATE_TARGETS,
   fieldSpecFor,
@@ -893,6 +894,25 @@ export default defineEventHandler(async (event) => {
     let target: CommitTarget
     try {
       if (plan.action === 'ASSET_ONLY') {
+        // assertArtImageAttachable was already checked once, when this
+        // artImageId was first attached to the item (items/[id].patch.ts,
+        // items/batch.patch.ts) — but an item can sit approved for an
+        // arbitrary stretch between that attach and this COMMIT (nothing
+        // requires committing right away). If the ArtImage's owner flips it
+        // private (or an admin/owner action changes who may attach it) in
+        // that window, the earlier check no longer reflects reality, and
+        // promoteAsset below writes the FK onto the source record's
+        // canonical art link regardless — exactly the "surfaces a private
+        // ArtImage through another record's canonical art" outcome
+        // relations.ts's own header comment says this guard exists to
+        // prevent. Re-checking here, immediately before the privileged
+        // write, closes that gap the same way this route already re-reads
+        // stageStatuses immediately before its own final write below.
+        await assertArtImageAttachable(
+          plan.value,
+          auth.user.id,
+          syncOptions.isAdmin,
+        )
         await promoteAsset(sourceType, sourceId, plan.value)
         target = { type: sourceType, id: sourceId, created: false }
       } else if (plan.action === 'UPDATE') {

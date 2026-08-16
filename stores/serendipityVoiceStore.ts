@@ -154,6 +154,22 @@ export const useSerendipityVoiceStore = defineStore(
     }
 
     function applyThemeCommand(command: VoiceBusCommand): void {
+      // 'on' / 'off' / 'toggle' / 'clear' are only meaningful for the
+      // animation target (VoiceBusCommand's action union is shared across
+      // every target). A theme command only ever means "set the active
+      // theme" -- without this guard, a mis-targeted on/off/toggle/clear
+      // command carrying a stale/leftover `command.theme` value would still
+      // fall through to setActiveTheme() below and report a false "Applied:
+      // theme set to X" even though the action itself made no sense for
+      // this target.
+      if (command.action !== 'set') {
+        pushLocalMessage(
+          'system',
+          `Ignored unsupported theme action: ${command.action}`,
+        )
+        return
+      }
+
       const theme = (command.theme ?? '').trim()
       if (!theme) {
         pushLocalMessage('system', 'Theme command had no theme name.')
@@ -174,6 +190,18 @@ export const useSerendipityVoiceStore = defineStore(
     }
 
     function applyArtCommand(command: VoiceBusCommand): void {
+      // Only 'draft' is meaningful for the art target -- 'on' / 'off' /
+      // 'toggle' / 'clear' / 'set' would otherwise still fall through and
+      // push a spurious art-draft entry (and a false "Art draft received"
+      // report) regardless of what the action actually meant.
+      if (command.action !== 'draft') {
+        pushLocalMessage(
+          'system',
+          `Ignored unsupported art action: ${command.action}`,
+        )
+        return
+      }
+
       // Draft only: surface the request for review. Never generate or publish.
       const request: VoiceArtRequest = {
         id: command.id,

@@ -1,19 +1,65 @@
 // /utils/scripts/verifySerendipityVoiceActionGuard.test.ts
 //
 // Regression test for checkSerendipityVoiceActionGuard() in
-// verifySerendipityVoiceActionGuard.ts (alexa-integration/t-015). Exercises
-// the real check against synthetic applyCommand()-shaped fixtures covering:
-// the pre-fix shape (no action guard at all), the fixed shape (the guard
-// sits between the 'clear' handling and resolveEffectId()), a misplaced-
-// guard regression (the check exists but after resolveEffectId() has
-// already run, too late to stop the animationStore lookup from proceeding
-// on an unsupported action), and a missing-function fixture.
+// verifySerendipityVoiceActionGuard.ts (alexa-integration/t-015, extended by
+// t-020). Exercises the real check against synthetic fixtures for all three
+// target functions -- applyCommand() (animation), applyThemeCommand()
+// (theme), and applyArtCommand() (art) -- covering: the fixed shape (guard
+// present, correctly placed), a missing-guard regression, a misplaced-guard
+// regression (guard exists but after the state mutation it's meant to
+// prevent), and a missing-function fixture.
 import assert from 'node:assert/strict'
 
 import { checkSerendipityVoiceActionGuard } from './verifySerendipityVoiceActionGuard.js'
 
-function fixture(opts: { actionGuard: string }): string {
+const ANIMATION_ACTION_GUARD = `if (
+        command.action !== 'on' &&
+        command.action !== 'off' &&
+        command.action !== 'toggle'
+      ) {
+        pushLocalMessage('system', \`Ignored unsupported animation action: \${command.action}\`)
+        return
+      }`
+
+const THEME_ACTION_GUARD = `if (command.action !== 'set') {
+        pushLocalMessage('system', \`Ignored unsupported theme action: \${command.action}\`)
+        return
+      }`
+
+const ART_ACTION_GUARD = `if (command.action !== 'draft') {
+        pushLocalMessage('system', \`Ignored unsupported art action: \${command.action}\`)
+        return
+      }`
+
+function fixture(opts: {
+  animationGuard: string
+  themeGuard: string
+  artGuard: string
+}): string {
   return `
+    function applyThemeCommand(command: VoiceBusCommand): void {
+      ${opts.themeGuard}
+
+      const theme = (command.theme ?? '').trim()
+      if (!theme) {
+        return
+      }
+
+      void themeStore.setActiveTheme(theme).then((result) => {
+        if (result.success) {
+          pushLocalMessage('system', \`Applied: theme set to \${theme}.\`)
+        }
+      })
+    }
+
+    function applyArtCommand(command: VoiceBusCommand): void {
+      ${opts.artGuard}
+
+      const request = { id: command.id, prompt: command.prompt ?? command.spokenText, at: command.at }
+      artRequests.value.push(request)
+      pushLocalMessage('system', \`Art draft received: \${request.prompt}\`)
+    }
+
     function applyCommand(command: VoiceBusCommand): void {
       if (command.target === 'theme') {
         applyThemeCommand(command)
@@ -38,7 +84,7 @@ function fixture(opts: { actionGuard: string }): string {
         return
       }
 
-      ${opts.actionGuard}
+      ${opts.animationGuard}
 
       const effectId = resolveEffectId(command)
       if (!effectId) {
@@ -57,24 +103,43 @@ function fixture(opts: { actionGuard: string }): string {
   `
 }
 
-const ACTION_GUARD = `if (
-        command.action !== 'on' &&
-        command.action !== 'off' &&
-        command.action !== 'toggle'
-      ) {
-        pushLocalMessage('system', \`Ignored unsupported animation action: \${command.action}\`)
-        return
-      }`
+const FIXED = fixture({
+  animationGuard: ANIMATION_ACTION_GUARD,
+  themeGuard: THEME_ACTION_GUARD,
+  artGuard: ART_ACTION_GUARD,
+})
 
-const FIXED = fixture({ actionGuard: ACTION_GUARD })
+// Pre-fix: no action guard at all on any of the three functions.
+const ALL_BUGGY = fixture({ animationGuard: '', themeGuard: '', artGuard: '' })
 
-// Pre-fix: no action guard at all -- a command with action 'set' or 'draft'
-// targeting 'animation' falls through to a false "applied" message.
-const BUGGY = fixture({ actionGuard: '' })
+// Only the animation guard (t-015's original fix) is present -- t-020's gap:
+// theme/art never got the equivalent treatment.
+const THEME_ART_BUGGY = fixture({
+  animationGuard: ANIMATION_ACTION_GUARD,
+  themeGuard: '',
+  artGuard: '',
+})
 
-// Misplaced regression: the guard exists, but after resolveEffectId() and
-// the animationStore lookups have already run instead of before them.
-const GUARD_TOO_LATE = `
+// Misplaced regression: applyThemeCommand()'s guard exists, but after
+// setActiveTheme() has already been called instead of before it.
+const THEME_GUARD_TOO_LATE = `
+    function applyThemeCommand(command: VoiceBusCommand): void {
+      const theme = (command.theme ?? '').trim()
+      void themeStore.setActiveTheme(theme).then((result) => {
+        if (result.success) {
+          pushLocalMessage('system', \`Applied: theme set to \${theme}.\`)
+        }
+      })
+
+      ${THEME_ACTION_GUARD}
+    }
+
+    function applyArtCommand(command: VoiceBusCommand): void {
+      ${ART_ACTION_GUARD}
+      const request = { id: command.id, prompt: command.prompt ?? command.spokenText, at: command.at }
+      artRequests.value.push(request)
+    }
+
     function applyCommand(command: VoiceBusCommand): void {
       if (command.target !== 'animation') {
         pushLocalMessage('system', \`Ignored unsupported command target: \${command.target}\`)
@@ -86,15 +151,9 @@ const GUARD_TOO_LATE = `
         return
       }
 
+      ${ANIMATION_ACTION_GUARD}
+
       const effectId = resolveEffectId(command)
-      if (!effectId) {
-        return
-      }
-
-      ${ACTION_GUARD}
-
-      const active = animationStore.isScreenEffectActive(effectId)
-      if (command.action === 'on' && !active) animationStore.toggleScreenEffect(effectId)
     }
   `
 
@@ -106,32 +165,47 @@ function run(): void {
     `expected the fixed fixture to pass, got: ${JSON.stringify(fixedErrors)}`,
   )
 
-  const buggyErrors = checkSerendipityVoiceActionGuard(BUGGY)
+  const allBuggyErrors = checkSerendipityVoiceActionGuard(ALL_BUGGY)
   assert.equal(
-    buggyErrors.length,
-    1,
-    `expected the pre-fix fixture (no action guard) to fail once, got: ${JSON.stringify(buggyErrors)}`,
+    allBuggyErrors.length,
+    3,
+    `expected all three pre-fix fixtures to fail once each, got: ${JSON.stringify(allBuggyErrors)}`,
   )
-  assert.ok(/no longer rejects command\.action values/.test(buggyErrors[0]!))
 
-  const tooLateErrors = checkSerendipityVoiceActionGuard(GUARD_TOO_LATE)
+  const themeArtBuggyErrors = checkSerendipityVoiceActionGuard(THEME_ART_BUGGY)
   assert.equal(
-    tooLateErrors.length,
-    1,
-    `expected a guard placed after resolveEffectId() to fail once, got: ${JSON.stringify(tooLateErrors)}`,
+    themeArtBuggyErrors.length,
+    2,
+    `expected only the theme/art fixtures to fail, got: ${JSON.stringify(themeArtBuggyErrors)}`,
   )
-  assert.ok(/not between/.test(tooLateErrors[0]!))
+  assert.ok(
+    themeArtBuggyErrors.every((e) =>
+      /applyThemeCommand|applyArtCommand/.test(e),
+    ),
+  )
+
+  const themeTooLateErrors =
+    checkSerendipityVoiceActionGuard(THEME_GUARD_TOO_LATE)
+  assert.equal(
+    themeTooLateErrors.length,
+    1,
+    `expected the misplaced theme guard to fail once, got: ${JSON.stringify(themeTooLateErrors)}`,
+  )
+  assert.ok(/not before/.test(themeTooLateErrors[0]!))
 
   const missingFnErrors = checkSerendipityVoiceActionGuard(
     'function someOtherFunction(): void {}',
   )
-  assert.equal(missingFnErrors.length, 1)
-  assert.ok(/Could not find a function named/.test(missingFnErrors[0]!))
+  assert.equal(missingFnErrors.length, 3)
+  assert.ok(
+    missingFnErrors.every((e) => /Could not find a function named/.test(e)),
+  )
 
   console.log(
-    'Serendipity Voice action guard self-test passed: buggy fixture fails, ' +
-      'fixed fixture passes, a too-late-guard fixture fails, missing-' +
-      'function fixture fails clearly.',
+    'Serendipity Voice action guard self-test passed: buggy fixtures fail, ' +
+      'the fixed fixture passes, a misplaced-guard fixture fails, and a ' +
+      'missing-function fixture fails clearly for all three target ' +
+      'functions.',
   )
 }
 

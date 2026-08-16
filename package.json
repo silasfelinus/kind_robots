@@ -25,6 +25,8 @@
     "test:app-base-url": "tsx utils/scripts/verifyAppBaseUrl.ts",
     "test:appmaker-slug-candidate-guard-selftest": "tsx utils/scripts/verifyAppmakerSlugCandidateGuard.test.ts",
     "test:appmaker-slug-candidate-guard": "tsx utils/scripts/verifyAppmakerSlugCandidateGuard.ts",
+    "test:appmaker-fleet-description-guard-selftest": "tsx utils/scripts/verifyAppmakerFleetDescriptionGuard.test.ts",
+    "test:appmaker-fleet-description-guard": "tsx utils/scripts/verifyAppmakerFleetDescriptionGuard.ts",
     "test:comment-prefix": "tsx utils/scripts/verifyPartialPublishPrefix.ts",
     "test:comment-quality": "tsx utils/scripts/verifyCommentDraftQuality.ts",
     "test:population-quality": "tsx utils/scripts/verifyPopulationDraftQuality.ts",

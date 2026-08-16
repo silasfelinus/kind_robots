@@ -230,6 +230,12 @@ jobs:
       - name: AppMaker slug-candidate guard
         run: npm run test:appmaker-slug-candidate-guard
 
+      - name: AppMaker fleet-description guard self-test
+        run: npm run test:appmaker-fleet-description-guard-selftest
+
+      - name: AppMaker fleet-description guard
+        run: npm run test:appmaker-fleet-description-guard
+
       - name: Da Vinci narration bounds contract
         run: npm run test:davinci-narration
 

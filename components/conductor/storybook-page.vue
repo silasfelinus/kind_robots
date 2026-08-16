@@ -732,7 +732,17 @@ const setupSteps = [
 const characterOptions = computed<NarrativeIngredientOption[]>(() =>
   characterStore.characters.map((character) => ({
     id: character.id,
-    slug: `character-${character.id}`,
+    // Match the real Character slug when one exists -- the same field
+    // character-manager.vue's "Start a story with this character" link
+    // reads (`?character=<slug>`) via seedFromQuery() below. scenarioOptions,
+    // locationOptions, facetOptions and rewardOptions all already key off
+    // their entity's own slug this way; a synthetic `character-${id}` slug
+    // here was the one outlier, so a Character deep link never matched an
+    // option's slug and the character silently never joined the cast (while
+    // quietly consuming one of the 5 max cast selections with an orphaned,
+    // never-displayed-as-selected entry). Falls back to the synthetic id
+    // form only for the rare character with no slug of its own.
+    slug: character.slug || `character-${character.id}`,
     title: character.name || `Character ${character.id}`,
     description:
       character.presentation || character.personality || character.backstory,

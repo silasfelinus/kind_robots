@@ -274,12 +274,49 @@ function freshStages(): Record<BuildStageKey, StageState> {
   return stages
 }
 
+// ModelBuildItem.stageStatuses and ModelBuildRun.sourceSnapshot are both
+// plain `String @db.LongText` columns, not native Prisma Json columns (see
+// utils/scripts/verifyNoPrismaJsonCast.ts) -- every server route writes them
+// with JSON.stringify and reads them back with parseStoredJson (server/api/
+// model-builder/runs/index.ts). A value that has round-tripped through any
+// /api/model-builder/* GET/POST response is therefore always a JSON *string*
+// on the client, never an already-parsed object. Parse defensively: accept a
+// string (the real shape) or an object (defensive only -- nothing produces
+// this today), and fall back to null/default on anything else, including
+// malformed JSON.
+function parseJsonValue(raw: unknown): unknown {
+  if (typeof raw !== 'string') return raw
+  try {
+    return JSON.parse(raw)
+  } catch {
+    return null
+  }
+}
+
 // Coerce a persisted stageStatuses JSON blob back into a complete stage map,
 // filling any missing gate with a locked default.
+//
+// Bug (found by inspection, model-builder/t-029): this used to gate on
+// `typeof raw === 'object'` alone, which is never true for `raw` sourced from
+// the server (see parseJsonValue's comment above) -- so every call from
+// adaptItem below silently discarded the real stageStatuses and returned the
+// fresh-item default (PITCH ready, everything else locked) instead. This
+// stayed invisible for the run that actually did the approving: approveStage/
+// pushItem/etc. all mutate the SAME long-lived state.run object in place, so
+// optimistic local state kept showing the right thing right up until the
+// object was rebuilt from a fresh server read. Concrete repro (pre-fix):
+// approve PITCH, refresh the page (or close the tab and reopen the same run
+// from Run History) -- resumeRun()/openRun()/fetchRuns() all re-fetch and
+// rebuild via adaptItem, and the just-approved PITCH stage (along with any
+// other approved or even fully committed stage) silently reverted to
+// 'ready'/'locked' in the UI, while the item's own targetId/targetType/
+// artImageId (typed columns, unaffected by this bug) still correctly showed
+// "Committed" -- a self-contradicting item panel with no error ever raised.
 function normalizeStages(raw: unknown): Record<BuildStageKey, StageState> {
   const stages = freshStages()
-  if (raw && typeof raw === 'object') {
-    const source = raw as Record<string, StageState>
+  const parsed = parseJsonValue(raw)
+  if (parsed && typeof parsed === 'object') {
+    const source = parsed as Record<string, StageState>
     for (const stage of BUILD_STAGES) {
       const value = source[stage.key]
       if (value && typeof value.status === 'string') {
@@ -348,10 +385,22 @@ function adaptRun(server: ServerRun): BuildRun {
     sourceType: server.sourceType as SourceTypeKey,
     sourceId: server.sourceId,
     sourceLabel: server.sourceLabel ?? '',
-    sourceSnapshot:
-      server.sourceSnapshot && typeof server.sourceSnapshot === 'object'
-        ? (server.sourceSnapshot as Record<string, unknown>)
-        : null,
+    // See parseJsonValue's doc comment: server.sourceSnapshot is a JSON
+    // string, not an already-parsed object, on every response from the
+    // server. model-builder-progress-matrix.vue's `source` computed falls
+    // back to store.selectedSource specifically so this snapshot "survives
+    // resume" (its own comment) -- but store.selectedSource is only ever set
+    // by an in-session selectSource() call and is never restored on
+    // resume/reopen, so before this fix the fallback masked the break only
+    // for the run that had just been created; resuming a run (or opening one
+    // from Run History) always showed a blank "Source context" card, with no
+    // error, for a value the run's own creation had genuinely captured.
+    sourceSnapshot: (() => {
+      const parsed = parseJsonValue(server.sourceSnapshot)
+      return parsed && typeof parsed === 'object'
+        ? (parsed as Record<string, unknown>)
+        : null
+    })(),
     recipeKey: server.recipeKey as RecipeKey,
     items: Array.isArray(server.Items) ? server.Items.map(adaptItem) : [],
   }

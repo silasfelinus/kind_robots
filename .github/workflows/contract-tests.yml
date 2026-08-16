@@ -509,6 +509,12 @@ jobs:
       - name: Model Builder field-blob continuation guard contract
         run: npm run test:model-builder-field-blob-continuation-guard
 
+      - name: Model Builder stage-status JSON-parse guard self-test
+        run: npm run test:model-builder-stage-status-json-parse-guard-selftest
+
+      - name: Model Builder stage-status JSON-parse guard contract
+        run: npm run test:model-builder-stage-status-json-parse-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

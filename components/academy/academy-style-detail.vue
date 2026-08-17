@@ -234,8 +234,8 @@
               class="group grid min-h-32 grid-cols-[72px_minmax(0,1fr)] overflow-hidden rounded-2xl border border-base-300 bg-base-200/35"
             >
               <div class="flex items-center justify-center border-r border-base-300 bg-base-200">
-                <div class="flex h-12 w-12 items-center justify-center rounded-full bg-base-100 shadow-inner">
-                  <Icon name="kind-icon:user" class="h-6 w-6 text-base-content/30" aria-hidden="true" />
+                <div class="flex h-12 w-12 items-center justify-center rounded-full bg-base-100 text-xl font-black text-base-content/30 shadow-inner" aria-hidden="true">
+                  {{ artist.name.slice(0, 1) }}
                 </div>
               </div>
               <div class="flex min-w-0 flex-col justify-center p-3">
@@ -249,10 +249,6 @@
               </div>
             </div>
           </div>
-
-          <p class="mt-4 rounded-2xl border border-dashed border-base-300 px-3 py-2 text-xs leading-relaxed text-base-content/50">
-            Artist portrait slots are now part of this visual section; the next asset pass can replace the neutral portrait frames with verified public-domain portraits without redesigning the lesson again.
-          </p>
         </section>
       </div>
 

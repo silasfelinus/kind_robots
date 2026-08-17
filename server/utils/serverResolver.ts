@@ -95,32 +95,48 @@ export function getServerHealthEndpoint(
   return joinUrl(baseUrl, server.endpointPath)
 }
 
-function capabilityWhere(
+// Pure, DB-free mapping from capability to the server types allowed to serve
+// it. Exported so the routing table itself can be unit-tested without a
+// Prisma connection (see utils/scripts/verifyServerCapabilityRouting.ts).
+// `null` means "no serverType restriction" (capabilityWhere returns `{}`).
+export function getCapabilityServerTypes(
   capability?: ResolveServerCapability,
-): Prisma.ServerWhereInput {
+): ServerType[] | null {
   if (capability === 'art') {
-    return {
-      serverType: {
-        in: ['A1111', 'COMFY', 'OPENAI'] as ServerType[],
-      },
-    }
+    return ['A1111', 'COMFY', 'OPENAI']
   }
 
   if (capability === 'comfy') {
-    return {
-      serverType: 'COMFY' as ServerType,
-    }
+    return ['COMFY']
   }
 
   if (capability === 'chat' || capability === 'text') {
-    return {
-      serverType: {
-        in: ['OPENAI', 'ANTHROPIC', 'CUSTOM'] as ServerType[],
-      },
-    }
+    // Every server type with a working text-generation request path. OLLAMA
+    // has a real, working native chat route (server/api/chats/ollama/
+    // stream.post.ts) — excluding it here silently broke resolution for any
+    // Ollama server (explicit serverId/serverName/preferredTextServerId
+    // included, since they all AND against this same where-clause) even
+    // though the route itself worked. Fixed for text-generation/t-003.
+    return ['OPENAI', 'ANTHROPIC', 'OLLAMA', 'CUSTOM']
   }
 
-  return {}
+  return null
+}
+
+function capabilityWhere(
+  capability?: ResolveServerCapability,
+): Prisma.ServerWhereInput {
+  const serverTypes = getCapabilityServerTypes(capability)
+
+  if (!serverTypes) {
+    return {}
+  }
+
+  if (serverTypes.length === 1) {
+    return { serverType: serverTypes[0] }
+  }
+
+  return { serverType: { in: serverTypes } }
 }
 
 function visibilityWhere(userId?: number | null): Prisma.ServerWhereInput {

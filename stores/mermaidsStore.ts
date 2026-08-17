@@ -1,8 +1,12 @@
 import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { useUserStore } from '@/stores/userStore'
+import { performFetch } from '@/stores/utils'
 
-const STORAGE_KEY = 'kindrobots:mermaids-page-draft:v1'
+const LEGACY_STORAGE_KEY = 'kindrobots:mermaids-page-draft:v1'
+const PROJECT_KEY = 'mermaids-of-venice'
+const PAGE_KEY = 'landing'
+const CONTENT_ENDPOINT = `/api/admin/project-page-content/${PROJECT_KEY}?page=${PAGE_KEY}`
 const SAVE_DELAY_MS = 450
 
 export type MermaidsPageDraft = {
@@ -16,6 +20,15 @@ export type MermaidsPageDraft = {
   personalNote: string
   aiNoteHeading: string
   aiNote: string
+}
+
+type ProjectPageContentResponse = {
+  projectId: number
+  projectKey: string
+  pageKey: string
+  content: string | null
+  updatedAt: string | null
+  updatedById: number | null
 }
 
 export const MERMAIDS_PAGE_DEFAULTS: Readonly<MermaidsPageDraft> = {
@@ -53,49 +66,140 @@ function normalizeDraft(value: unknown): MermaidsPageDraft {
   return defaults
 }
 
+function parseDraft(serialized: string): MermaidsPageDraft {
+  return normalizeDraft(JSON.parse(serialized))
+}
+
+function readLegacyDraft(): MermaidsPageDraft | null {
+  if (!import.meta.client) return null
+  try {
+    const serialized = window.localStorage.getItem(LEGACY_STORAGE_KEY)
+    return serialized ? parseDraft(serialized) : null
+  } catch {
+    return null
+  }
+}
+
+function removeLegacyDraft(): void {
+  if (!import.meta.client) return
+  try {
+    window.localStorage.removeItem(LEGACY_STORAGE_KEY)
+  } catch {
+    // A browser refusing localStorage cleanup is harmless once the server copy exists.
+  }
+}
+
 export const useMermaidsStore = defineStore('mermaidsStore', () => {
   const userStore = useUserStore()
   const draft = ref<MermaidsPageDraft>(freshDefaults())
   const loaded = ref(false)
+  const loading = ref(false)
   const saving = ref(false)
   const savedAt = ref<Date | null>(null)
   const lastError = ref<string | null>(null)
   let saveTimer: ReturnType<typeof setTimeout> | null = null
 
   const saveStatus = computed(() => {
+    if (loading.value) return 'Loading site copy…'
     if (lastError.value) return lastError.value
-    if (saving.value) return 'Saving draft…'
-    if (savedAt.value) return `Saved ${savedAt.value.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`
-    return 'Draft not saved yet'
+    if (saving.value) return 'Saving to site…'
+    if (savedAt.value) {
+      return `Saved site-wide ${savedAt.value.toLocaleTimeString([], {
+        hour: 'numeric',
+        minute: '2-digit',
+      })}`
+    }
+    if (loaded.value) return 'Site copy ready'
+    return 'Waiting for site copy…'
   })
 
-  function loadDraft(): void {
-    if (loaded.value || !import.meta.client) return
+  async function persistDraft(): Promise<boolean> {
+    if (!import.meta.client || !userStore.isAdmin || !loaded.value) return false
 
-    lastError.value = null
+    saving.value = true
     try {
-      const stored = window.localStorage.getItem(STORAGE_KEY)
-      if (stored) draft.value = normalizeDraft(JSON.parse(stored))
-      loaded.value = true
+      const response = await performFetch<ProjectPageContentResponse>(
+        CONTENT_ENDPOINT,
+        {
+          method: 'PUT',
+          cache: 'no-store',
+          body: JSON.stringify({ content: JSON.stringify(draft.value) }),
+        },
+      )
+
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Could not save the Mermaids page.')
+      }
+
+      savedAt.value = response.data.updatedAt
+        ? new Date(response.data.updatedAt)
+        : new Date()
+      lastError.value = null
+      removeLegacyDraft()
+      return true
     } catch (error) {
-      loaded.value = true
       lastError.value =
-        error instanceof Error ? error.message : 'Could not load the Mermaids draft.'
+        error instanceof Error
+          ? `Save failed: ${error.message}`
+          : 'Save failed: could not update the Mermaids page.'
+      return false
+    } finally {
+      saving.value = false
     }
   }
 
-  function saveDraft(): void {
-    if (!import.meta.client || !userStore.isAdmin) return
+  async function loadDraft(force = false): Promise<void> {
+    if ((!force && loaded.value) || loading.value || !import.meta.client) return
+    if (!userStore.isAdmin) return
+
+    loading.value = true
+    lastError.value = null
+    if (saveTimer) {
+      clearTimeout(saveTimer)
+      saveTimer = null
+    }
 
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(draft.value))
-      savedAt.value = new Date()
-      lastError.value = null
+      const response = await performFetch<ProjectPageContentResponse>(
+        CONTENT_ENDPOINT,
+        { cache: 'no-store' },
+      )
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Could not load the Mermaids page.')
+      }
+
+      if (response.data.content) {
+        try {
+          draft.value = parseDraft(response.data.content)
+        } catch {
+          throw new Error('The saved Mermaids page copy is not valid JSON.')
+        }
+        loaded.value = true
+        savedAt.value = response.data.updatedAt
+          ? new Date(response.data.updatedAt)
+          : null
+        removeLegacyDraft()
+        return
+      }
+
+      // PR #1920 briefly stored the writing desk only in this browser. If that
+      // draft exists and no server copy exists yet, promote it once so the user
+      // does not lose work during the migration to durable site content.
+      const legacyDraft = readLegacyDraft()
+      draft.value = legacyDraft ?? freshDefaults()
+      loaded.value = true
+
+      if (legacyDraft) {
+        await persistDraft()
+      }
     } catch (error) {
+      loaded.value = false
       lastError.value =
-        error instanceof Error ? error.message : 'Could not save the Mermaids draft.'
+        error instanceof Error
+          ? `Load failed: ${error.message}`
+          : 'Load failed: could not fetch the Mermaids page.'
     } finally {
-      saving.value = false
+      loading.value = false
     }
   }
 
@@ -103,26 +207,32 @@ export const useMermaidsStore = defineStore('mermaidsStore', () => {
     if (!loaded.value || !import.meta.client || !userStore.isAdmin) return
     if (saveTimer) clearTimeout(saveTimer)
     saving.value = true
-    saveTimer = setTimeout(saveDraft, SAVE_DELAY_MS)
+    saveTimer = setTimeout(() => {
+      saveTimer = null
+      void persistDraft()
+    }, SAVE_DELAY_MS)
   }
 
   function resetDraft(): void {
-    if (!userStore.isAdmin) return
+    if (!userStore.isAdmin || !loaded.value) return
     draft.value = freshDefaults()
-    scheduleSave()
   }
 
-  watch(draft, scheduleSave, { deep: true })
+  // Synchronous flush keeps server hydration from being mistaken for a user
+  // edit: loadDraft assigns draft while `loaded` is still false, so only actual
+  // post-load edits enter the autosave debounce.
+  watch(draft, scheduleSave, { deep: true, flush: 'sync' })
 
   return {
     draft,
     loaded,
+    loading,
     saving,
     savedAt,
     lastError,
     saveStatus,
     loadDraft,
-    saveDraft,
+    saveDraft: persistDraft,
     resetDraft,
   }
 })

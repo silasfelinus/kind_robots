@@ -1,14 +1,16 @@
 // /server/api/chats/ollama/stream.post.ts
-import {
-  createError,
-  defineEventHandler,
-  readBody,
-  setHeader,
-  type H3Event,
-} from 'h3'
+import { createError, defineEventHandler, readBody } from 'h3'
 import { getServerEndpoint, resolveServer } from '../../../utils/serverResolver'
 import { manaGate } from '../../../utils/manaGate'
 import { requireApiUser } from '../../../utils/authGuard'
+import { estimateTextCostUsd } from '../../../utils/manaCost'
+import {
+  buildChatRefId,
+  buildTextServerAuthHeaders,
+  getErrorStatusCode,
+  sendMeteredStream,
+  setStreamHeaders,
+} from '../../../utils/textProviderService'
 
 type OllamaStreamBody = {
   prompt?: string
@@ -24,12 +26,6 @@ type OllamaStreamBody = {
   serverName?: string | null
   chatId?: number | string | null
   useOwnResource?: boolean
-}
-
-type StreamManaResult = {
-  balance: number
-  charged: number
-  free: boolean
 }
 
 export default defineEventHandler(async (event) => {
@@ -50,7 +46,7 @@ export default defineEventHandler(async (event) => {
 
     const gate = await manaGate(event, {
       kind: 'text',
-      estCostUsd: estimateOllamaTextCostUsd({
+      estCostUsd: estimateTextCostUsd({
         model,
         maxTokens,
       }),
@@ -96,7 +92,7 @@ export default defineEventHandler(async (event) => {
 
     const upstream = await fetch(endpoint, {
       method: 'POST',
-      headers: buildServerHeaders(server),
+      headers: buildTextServerAuthHeaders(server),
       body: JSON.stringify(payload),
     })
 
@@ -111,9 +107,10 @@ export default defineEventHandler(async (event) => {
 
     setStreamHeaders(event, 'application/x-ndjson')
 
-    return sendMeteredStream(event, upstream.body, async () => {
-      const refId = body.chatId ? `chat:${body.chatId}` : `ollama:${Date.now()}`
-      const { balance } = await gate.commit(refId)
+    return sendMeteredStream(event, upstream.body, 'ollama', async () => {
+      const { balance } = await gate.commit(
+        buildChatRefId('ollama', body.chatId),
+      )
 
       return {
         balance,
@@ -156,104 +153,4 @@ function normalizeOllamaChatEndpoint(url: string): string {
   }
 
   return `${cleanUrl}/api/chat`
-}
-
-function buildServerHeaders(server: {
-  apiKey?: string | null
-  apiKeyName?: string | null
-  authType?: string | null
-}): HeadersInit {
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  }
-
-  const token = server.apiKey?.trim()
-
-  if (!token || server.authType === 'NONE') {
-    return headers
-  }
-
-  if (server.authType === 'BEARER') {
-    headers.Authorization = token.startsWith('Bearer ')
-      ? token
-      : `Bearer ${token}`
-
-    return headers
-  }
-
-  if (server.authType === 'HEADER' || server.authType === 'API_KEY') {
-    headers[server.apiKeyName || 'X-API-Key'] = token
-    return headers
-  }
-
-  return headers
-}
-
-function setStreamHeaders(event: H3Event, contentType: string) {
-  setHeader(event, 'Content-Type', contentType)
-  setHeader(event, 'Cache-Control', 'no-cache, no-transform')
-  setHeader(event, 'Connection', 'keep-alive')
-  setHeader(event, 'X-Accel-Buffering', 'no')
-}
-
-function sendMeteredStream(
-  event: H3Event,
-  body: ReadableStream<Uint8Array>,
-  onComplete: () => Promise<StreamManaResult>,
-) {
-  const reader = body.getReader()
-  const res = event.node.res
-
-  const pump = async () => {
-    try {
-      while (true) {
-        const { done, value } = await reader.read()
-
-        if (done) break
-
-        res.write(value)
-      }
-
-      const mana = await onComplete()
-
-      res.write(
-        `event: mana\ndata: ${JSON.stringify({
-          mana,
-        })}\n\n`,
-      )
-    } catch (err) {
-      console.error('[ollama stream pump] error:', err)
-
-      res.write(
-        `event: error\ndata: ${JSON.stringify({
-          message:
-            err instanceof Error ? err.message : 'Streaming response failed.',
-        })}\n\n`,
-      )
-    } finally {
-      res.end()
-    }
-  }
-
-  pump()
-
-  return new Promise(() => {})
-}
-
-function estimateOllamaTextCostUsd(input: {
-  model: string
-  maxTokens: number
-}): number {
-  const maxTokens = Math.max(1, input.maxTokens)
-
-  return (maxTokens / 1_000_000) * 1
-}
-
-function getErrorStatusCode(error: unknown) {
-  return typeof error === 'object' &&
-    error !== null &&
-    'statusCode' in error &&
-    typeof error.statusCode === 'number'
-    ? error.statusCode
-    : 500
 }

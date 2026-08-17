@@ -173,6 +173,9 @@ jobs:
       - name: Workflow pipefail contract
         run: npm run test:workflow-pipefail
 
+      - name: Nightly workflow schema/config contract
+        run: npm run test:nightly-workflows
+
       - name: Deploy-wait ancestry check contract
         run: npm run test:deploy-wait-ancestry
 

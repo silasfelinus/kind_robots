@@ -1,12 +1,11 @@
 // /server/utils/serverResolver.ts
-import type {
-  Prisma,
-  Server,
-  ServerType,
-} from '~/prisma/generated/prisma/client'
+import type { Prisma, Server } from '~/prisma/generated/prisma/client'
 import prisma from './prisma'
+import {
+  getCapabilityServerTypes,
+  type ResolveServerCapability,
+} from './serverCapabilities'
 
-type ResolveServerCapability = 'art' | 'text' | 'chat' | 'comfy'
 export type ServerEndpointTransport = 'browser' | 'backend'
 
 interface ResolveServerInput {
@@ -98,29 +97,17 @@ export function getServerHealthEndpoint(
 function capabilityWhere(
   capability?: ResolveServerCapability,
 ): Prisma.ServerWhereInput {
-  if (capability === 'art') {
-    return {
-      serverType: {
-        in: ['A1111', 'COMFY', 'OPENAI'] as ServerType[],
-      },
-    }
+  const serverTypes = getCapabilityServerTypes(capability)
+
+  if (!serverTypes) {
+    return {}
   }
 
-  if (capability === 'comfy') {
-    return {
-      serverType: 'COMFY' as ServerType,
-    }
+  if (serverTypes.length === 1) {
+    return { serverType: serverTypes[0] }
   }
 
-  if (capability === 'chat' || capability === 'text') {
-    return {
-      serverType: {
-        in: ['OPENAI', 'ANTHROPIC', 'CUSTOM'] as ServerType[],
-      },
-    }
-  }
-
-  return {}
+  return { serverType: { in: serverTypes } }
 }
 
 function visibilityWhere(userId?: number | null): Prisma.ServerWhereInput {

@@ -262,6 +262,7 @@
     "test:pod-vendor-client-selftest": "tsx utils/scripts/verifyPodVendorClient.test.ts",
     "test:mana-gate-on-behalf-of-target": "tsx utils/scripts/verifyManaGateOnBehalfOfTarget.ts",
     "test:text-provider-service": "tsx utils/scripts/verifyTextProviderService.ts",
+    "test:server-capability-routing": "tsx utils/scripts/verifyServerCapabilityRouting.ts",
     "components:manifest": "node utils/scripts/create-component-json.mjs",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",

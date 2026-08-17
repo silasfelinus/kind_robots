@@ -554,6 +554,9 @@ jobs:
       - name: Text-provider-service shared mechanics contract
         run: npm run test:text-provider-service
 
+      - name: Server capability routing contract
+        run: npm run test:server-capability-routing
+
       - name: Animation catalog contract
         run: npm run test:animation-catalog
 

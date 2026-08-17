@@ -1,37 +1,75 @@
-<!-- /components/content/pages/mermaids-page.vue -->
 <template>
-  <div class="kr-unbound flex flex-col items-center gap-4 bg-(--kr-surface) px-4 py-6">
+  <div class="kr-unbound flex flex-col items-center bg-(--kr-surface) px-4 py-6">
     <div class="w-full max-w-3xl">
-      <!-- Hero -->
       <div
-        class="relative mb-6 overflow-hidden rounded-2xl border border-base-300 shadow-lg"
+        v-if="userStore.isAdmin"
+        class="sticky top-3 z-30 mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100/95 p-3 shadow-lg backdrop-blur"
       >
-        <img
-          src="/images/artcollections/mermaids-of-venice/mermaids-of-venice-inspiration-01.webp"
-          alt="Mermaids gliding through the submerged streets of a moonlit Venice"
-          class="h-56 w-full object-cover sm:h-72"
-        />
-        <div
-          class="absolute inset-0 flex flex-col justify-end bg-linear-to-t from-base-300/95 via-base-300/40 to-transparent p-5"
-        >
-          <p class="text-3xl font-black text-base-content sm:text-4xl">
-            Mermaids of Venice
-          </p>
-          <p class="text-sm font-semibold text-base-content/80 sm:text-base">
-            A subversive tale of gods and street performers — by Silas Knight
-          </p>
+        <div class="join">
+          <button
+            type="button"
+            class="btn btn-sm join-item"
+            :class="visitorPreview ? 'btn-ghost' : 'btn-primary'"
+            @click="visitorPreview = false"
+          >
+            Writing mode
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm join-item"
+            :class="visitorPreview ? 'btn-primary' : 'btn-ghost'"
+            @click="visitorPreview = true"
+          >
+            Visitor preview
+          </button>
         </div>
+        <p class="text-xs text-base-content/60">
+          {{ editing ? `${saveStatus} · autosaved on this device` : 'Edit controls hidden' }}
+        </p>
       </div>
 
-      <!-- The book -->
-      <div
-        class="kr-panel mb-4 flex flex-col gap-5 p-5 sm:flex-row"
+      <header
+        class="relative mb-6 overflow-hidden rounded-3xl border border-base-300 bg-linear-to-br from-primary/18 via-base-100 to-secondary/16 shadow-lg"
       >
+        <div class="grid gap-6 p-6 sm:grid-cols-[1fr_auto] sm:items-center sm:p-8">
+          <div class="min-w-0">
+            <template v-if="editing">
+              <input
+                v-model="draft.heroTitle"
+                aria-label="Page title"
+                class="input input-bordered mb-3 w-full text-2xl font-black sm:text-3xl"
+              />
+              <textarea
+                v-model="draft.heroSubtitle"
+                aria-label="Page subtitle"
+                class="textarea textarea-bordered min-h-20 w-full text-sm font-semibold sm:text-base"
+              />
+            </template>
+            <template v-else>
+              <h1 class="text-3xl font-black text-base-content sm:text-4xl">
+                {{ draft.heroTitle }}
+              </h1>
+              <p class="mt-2 text-sm font-semibold text-base-content/75 sm:text-base">
+                {{ draft.heroSubtitle }}
+              </p>
+            </template>
+          </div>
+
+          <img
+            src="/images/utility/mermaids/mermaids1.jpg"
+            alt="Mermaids of Venice book cover"
+            class="mx-auto w-36 rounded-xl shadow-xl sm:mx-0 sm:w-44"
+          />
+        </div>
+      </header>
+
+      <section class="kr-panel mb-4 flex flex-col gap-5 p-5 sm:flex-row">
         <img
           src="/images/utility/mermaids/mermaids1.jpg"
-          alt="Mermaids of Venice book cover"
+          alt="Mermaids of Venice novel"
           class="mx-auto w-40 shrink-0 self-start rounded-xl shadow-md sm:mx-0"
         />
+
         <div class="flex min-w-0 flex-1 flex-col gap-3">
           <div class="flex items-center gap-3">
             <span
@@ -39,18 +77,28 @@
             >
               <Icon name="kind-icon:book" class="h-5 w-5" />
             </span>
+            <input
+              v-if="editing"
+              v-model="draft.bookHeading"
+              aria-label="Book section heading"
+              class="input input-bordered w-full font-black uppercase tracking-wider"
+            />
             <h2
+              v-else
               class="text-base font-black uppercase tracking-wider text-base-content"
             >
-              The Book
+              {{ draft.bookHeading }}
             </h2>
           </div>
 
-          <p class="text-sm leading-relaxed text-base-content/70">
-            In the canals and campos of Venice, old gods get by the way anyone
-            does — busking, bargaining, and performing for a crowd that no
-            longer believes in them. Six years in the writing, edited by the
-            author's own hand.
+          <textarea
+            v-if="editing"
+            v-model="draft.bookDescription"
+            aria-label="Book description"
+            class="textarea textarea-bordered min-h-36 w-full text-sm leading-relaxed"
+          />
+          <p v-else class="whitespace-pre-line text-sm leading-relaxed text-base-content/70">
+            {{ draft.bookDescription }}
           </p>
 
           <div class="mt-1 flex flex-wrap items-center gap-2">
@@ -61,28 +109,32 @@
               class="btn btn-primary btn-sm rounded-2xl"
             >
               <Icon name="kind-icon:external-link" class="h-4 w-4" />
-              Paperback on Amazon
+              {{ draft.amazonLabel }}
             </a>
+            <input
+              v-if="editing"
+              v-model="draft.amazonLabel"
+              aria-label="Amazon button label"
+              class="input input-bordered input-sm min-w-48 flex-1"
+            />
           </div>
 
           <mermaids-pdf-purchase />
 
-          <p class="text-xs text-base-content/50">
-            Signed copies appear in the Kind Robots giftshop when the tide is
-            right.
+          <textarea
+            v-if="editing"
+            v-model="draft.signedCopiesNote"
+            aria-label="Signed copies note"
+            class="textarea textarea-bordered min-h-20 w-full text-xs"
+          />
+          <p v-else class="whitespace-pre-line text-xs text-base-content/50">
+            {{ draft.signedCopiesNote }}
           </p>
         </div>
-      </div>
+      </section>
 
-      <!--
-        PERSONAL NOTE PLACEHOLDER
-        Silas writes this section himself (conductor: mermaids-of-venice t-002).
-        Filled with lorem ipsum at Silas's own direction ("just lorem ipsum it
-        for now") while he writes the real note. Replace the paragraph below
-        with his note, verbatim, and remove the "coming soon" styling.
-      -->
-      <div
-        class="mb-4 rounded-2xl border border-dashed border-base-300 bg-base-100 p-5 shadow-sm"
+      <section
+        class="mb-4 rounded-2xl border border-base-300 bg-base-100 p-5 shadow-sm"
       >
         <div class="mb-3 flex items-center gap-3">
           <span
@@ -90,57 +142,78 @@
           >
             <Icon name="kind-icon:hand-heart" class="h-5 w-5" />
           </span>
+          <input
+            v-if="editing"
+            v-model="draft.personalNoteHeading"
+            aria-label="Personal note heading"
+            class="input input-bordered w-full font-black uppercase tracking-wider"
+          />
           <h2
+            v-else
             class="text-base font-black uppercase tracking-wider text-base-content"
           >
-            A Note From Silas
+            {{ draft.personalNoteHeading }}
           </h2>
         </div>
-        <p class="text-sm italic leading-relaxed text-base-content/50">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-          ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat — Silas's real note will replace
-          this placeholder soon.
-        </p>
-      </div>
 
-      <!-- The AI disclosure — the only AI-written words on this page -->
-      <div class="kr-panel p-5">
+        <textarea
+          v-if="editing"
+          v-model="draft.personalNote"
+          aria-label="Personal note"
+          class="textarea textarea-bordered min-h-64 w-full text-sm leading-relaxed"
+          placeholder="Write your note here."
+        />
+        <p v-else class="whitespace-pre-line text-sm leading-relaxed text-base-content/70">
+          {{ draft.personalNote }}
+        </p>
+      </section>
+
+      <section class="kr-panel p-5">
         <div class="mb-3 flex items-center gap-3">
           <span
             class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/12 text-accent"
           >
             <Icon name="kind-icon:robot-color" class="h-5 w-5" />
           </span>
+          <input
+            v-if="editing"
+            v-model="draft.aiNoteHeading"
+            aria-label="AI disclosure heading"
+            class="input input-bordered w-full font-black uppercase tracking-wider"
+          />
           <h2
+            v-else
             class="text-base font-black uppercase tracking-wider text-base-content"
           >
-            A Note About AI (Written by One)
+            {{ draft.aiNoteHeading }}
           </h2>
         </div>
-        <p class="text-sm leading-relaxed text-base-content/70">
-          No AI was used to write this book — other than the words that make up
-          this paragraph. Every other sentence was hand-carved by one stubborn
-          human across six years of drafts, which makes this paragraph the only
-          artificial thing on the premises. It is aware of the irony: a machine
-          vouching for the authenticity of a story about gods passing themselves
-          off as street performers. Originality is a strange gate to keep. But
-          somebody has to stand on this side of it and wave you through to the
-          real thing.
-        </p>
-      </div>
 
-      <ProjectGalleryStrip
-        collection-label="mermaids-of-venice"
-        title="Inspiration gallery"
-        class="mt-4"
-      />
+        <textarea
+          v-if="editing"
+          v-model="draft.aiNote"
+          aria-label="AI disclosure"
+          class="textarea textarea-bordered min-h-56 w-full text-sm leading-relaxed"
+        />
+        <p v-else class="whitespace-pre-line text-sm leading-relaxed text-base-content/70">
+          {{ draft.aiNote }}
+        </p>
+      </section>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// Static landing page — deliberately no AI features, stores, or chat surfaces.
-// The book's front end stays human (conductor: mermaids-of-venice roadmap).
+import { computed, onMounted, ref } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useMermaidsStore } from '@/stores/mermaidsStore'
+import { useUserStore } from '@/stores/userStore'
+
+const mermaidsStore = useMermaidsStore()
+const userStore = useUserStore()
+const { draft, saveStatus } = storeToRefs(mermaidsStore)
+const visitorPreview = ref(false)
+const editing = computed(() => userStore.isAdmin && !visitorPreview.value)
+
+onMounted(() => mermaidsStore.loadDraft())
 </script>

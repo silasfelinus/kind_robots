@@ -265,6 +265,7 @@
     "test:server-capability-routing": "tsx utils/scripts/verifyServerCapabilityRouting.ts",
     "test:server-uptime-default-scope": "tsx utils/scripts/verifyServerUptimeDefaultScope.ts",
     "test:text-generation-dispatch": "tsx utils/scripts/verifyTextGenerationDispatch.ts",
+    "test:network-safety": "tsx utils/scripts/verifyNetworkSafety.ts",
     "components:manifest": "node utils/scripts/create-component-json.mjs",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",

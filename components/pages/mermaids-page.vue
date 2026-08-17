@@ -24,8 +24,24 @@
           </button>
         </div>
         <p class="text-xs text-base-content/60">
-          {{ editing ? `${saveStatus} · autosaved on this device` : 'Edit controls hidden' }}
+          {{ visitorPreview ? 'Edit controls hidden' : saveStatus }}
         </p>
+      </div>
+
+      <div
+        v-if="userStore.isAdmin && lastError && !loaded"
+        class="alert alert-error mb-4"
+        role="alert"
+      >
+        <Icon name="kind-icon:warning" class="h-5 w-5" />
+        <span class="flex-1">{{ lastError }}</span>
+        <button
+          type="button"
+          class="btn btn-sm"
+          @click="mermaidsStore.loadDraft(true)"
+        >
+          Retry load
+        </button>
       </div>
 
       <header
@@ -211,9 +227,11 @@ import { useUserStore } from '@/stores/userStore'
 
 const mermaidsStore = useMermaidsStore()
 const userStore = useUserStore()
-const { draft, saveStatus } = storeToRefs(mermaidsStore)
+const { draft, loaded, lastError, saveStatus } = storeToRefs(mermaidsStore)
 const visitorPreview = ref(false)
-const editing = computed(() => userStore.isAdmin && !visitorPreview.value)
+const editing = computed(
+  () => userStore.isAdmin && loaded.value && !visitorPreview.value,
+)
 
-onMounted(() => mermaidsStore.loadDraft())
+onMounted(() => void mermaidsStore.loadDraft())
 </script>

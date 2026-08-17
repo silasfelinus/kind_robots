@@ -9,9 +9,7 @@
           <Icon name="kind-icon:palette" class="h-4 w-4" aria-hidden="true" />
           Browse the collection
         </p>
-        <h2 class="mt-2 text-2xl font-black text-base-content sm:text-3xl">
-          Style Gallery
-        </h2>
+        <h2 class="mt-2 text-2xl font-black text-base-content sm:text-3xl">Style Gallery</h2>
         <p class="mt-1 text-sm leading-relaxed text-base-content/65">
           Start with the image. Open whatever catches your eye, learn how to recognize it, then remix your own source in that visual language.
         </p>
@@ -19,11 +17,7 @@
 
       <div class="flex w-full flex-col gap-2 lg:w-auto lg:items-end">
         <div class="flex flex-wrap items-center gap-2">
-          <div
-            class="join"
-            role="group"
-            aria-label="Filter Academy lessons by progress"
-          >
+          <div class="join" role="group" aria-label="Filter Academy lessons by progress">
             <button
               v-for="option in lessonFilterOptions"
               :key="option.value"
@@ -39,14 +33,8 @@
           </div>
 
           <div class="flex min-w-0 flex-1 items-center gap-2 lg:flex-none">
-            <label
-              class="input input-bordered input-sm flex min-w-0 flex-1 items-center gap-1.5 bg-base-100 lg:w-72"
-            >
-              <Icon
-                name="kind-icon:search"
-                class="h-3.5 w-3.5 shrink-0 text-base-content/40"
-                aria-hidden="true"
-              />
+            <label class="input input-bordered input-sm flex min-w-0 flex-1 items-center gap-1.5 bg-base-100 lg:w-72">
+              <Icon name="kind-icon:search" class="h-3.5 w-3.5 shrink-0 text-base-content/40" aria-hidden="true" />
               <input
                 ref="searchInputRef"
                 v-model="searchQuery"
@@ -75,10 +63,8 @@
       </div>
     </header>
 
-    <div
-      class="grid gap-3 rounded-3xl border border-base-300 bg-base-100 p-4 shadow-sm sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:p-5"
-    >
-      <div class="min-w-0">
+    <div class="flex flex-wrap items-center gap-3 rounded-3xl border border-base-300 bg-base-100 p-4 shadow-sm sm:p-5">
+      <div class="min-w-[min(100%,20rem)] flex-1">
         <div class="flex items-center justify-between gap-3">
           <div>
             <p class="text-sm font-black text-base-content">{{ progressHeadline }}</p>
@@ -117,24 +103,16 @@
       />
     </div>
 
-    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,13rem),1fr))] gap-3">
       <button
         v-for="style in filteredStyles"
         :key="style.slug"
         :ref="(el) => setGridRef(style.slug, el)"
         type="button"
         class="group relative aspect-[4/5] min-w-0 overflow-hidden rounded-3xl border-2 bg-base-200 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-        :class="
-          expandedSlug === style.slug
-            ? 'border-primary shadow-lg shadow-primary/20'
-            : 'border-base-300 hover:border-primary/55'
-        "
+        :class="expandedSlug === style.slug ? 'border-primary shadow-lg shadow-primary/20' : 'border-base-300 hover:border-primary/55'"
         :aria-expanded="expandedSlug === style.slug"
-        :aria-controls="
-          expandedSlug === style.slug
-            ? `academy-style-detail-${style.slug}`
-            : undefined
-        "
+        :aria-controls="expandedSlug === style.slug ? `academy-style-detail-${style.slug}` : undefined"
         @click="expandedSlug = expandedSlug === style.slug ? null : style.slug"
       >
         <img
@@ -169,19 +147,13 @@
           <p class="text-base font-black leading-tight text-white drop-shadow sm:text-lg">
             {{ style.name }}
           </p>
-          <p class="mt-1 truncate text-[0.68rem] font-semibold text-white/65">
-            {{ style.region }}
-          </p>
+          <p class="mt-1 truncate text-[0.68rem] font-semibold text-white/65">{{ style.region }}</p>
           <p class="mt-2 line-clamp-2 text-xs leading-relaxed text-white/78">
             {{ style.recognitionCues[0] }}
           </p>
           <div class="mt-3 flex items-center gap-1 text-[0.68rem] font-black uppercase tracking-wide text-white/90">
             Open lesson
-            <Icon
-              name="kind-icon:arrow-right"
-              class="h-3.5 w-3.5 transition-transform group-hover:translate-x-1"
-              aria-hidden="true"
-            />
+            <Icon name="kind-icon:arrow-right" class="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" aria-hidden="true" />
           </div>
         </div>
       </button>
@@ -191,11 +163,7 @@
       v-if="!filteredStyles.length"
       class="flex min-h-40 flex-col items-center justify-center rounded-3xl border border-base-300 bg-base-100 px-4 text-center shadow-sm"
     >
-      <Icon
-        :name="emptyStateIcon"
-        class="h-8 w-8 text-base-content/20"
-        aria-hidden="true"
-      />
+      <Icon :name="emptyStateIcon" class="h-8 w-8 text-base-content/20" aria-hidden="true" />
       <p class="mt-2 text-sm text-base-content/45">{{ emptyStateMessage }}</p>
       <button
         v-if="searchQuery || lessonFilter !== 'all'"
@@ -313,11 +281,7 @@ const expandedStyle = computed<AcademyStyle | null>(() => {
 })
 
 const nextLesson = computed<AcademyStyle | null>(() => {
-  return (
-    academyStore.timeline.find(
-      (style) => !academyStore.viewedLessons.includes(style.slug),
-    ) ?? null
-  )
+  return academyStore.timeline.find((style) => !academyStore.viewedLessons.includes(style.slug)) ?? null
 })
 
 const progressPercent = computed(() => {
@@ -334,12 +298,8 @@ const progressHeadline = computed(() => {
 })
 
 const progressMessage = computed(() => {
-  if (!academyStore.timeline.length) {
-    return 'The Academy is gathering its lesson collection.'
-  }
-  if (!nextLesson.value) {
-    return 'You explored every lesson. Revisit any movement whenever inspiration gets suspiciously quiet.'
-  }
+  if (!academyStore.timeline.length) return 'The Academy is gathering its lesson collection.'
+  if (!nextLesson.value) return 'You explored every lesson. Revisit any movement whenever inspiration gets suspiciously quiet.'
   return `Up next: ${nextLesson.value.name} · ${nextLesson.value.era}`
 })
 
@@ -390,11 +350,9 @@ const emptyStateMessage = computed(() => {
   if (lessonFilter.value === 'new' && !searchQuery.value) {
     return 'You explored every lesson. Art history officially fears you now.'
   }
-
   if (lessonFilter.value === 'explored' && !searchQuery.value) {
     return 'No explored lessons yet. Open one and your progress will appear here.'
   }
-
   return `No styles match “${searchQuery.value}”. Try a broader search or reset the filters.`
 })
 </script>

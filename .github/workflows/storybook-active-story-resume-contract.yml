@@ -1,0 +1,34 @@
+name: Storybook Active Story Resume Contract
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: storybook-active-story-resume-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Storybook active story resume contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Verify Storybook active story resume guard
+        run: npx tsx utils/scripts/verifyStorybookActiveStoryResumeGuard.ts

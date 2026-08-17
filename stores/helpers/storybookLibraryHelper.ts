@@ -189,6 +189,23 @@ export function createStorybookLibraryController(bridge: StorybookLibraryBridge)
     const current = bridge.getSession()
     const found = current?.id === sessionId ? current : findStory(sessionId)
     if (!found) return false
+    // Already the active session -- stop here rather than re-cloning and
+    // calling resumeNarrativeArtJobs() again. storybook-library-page.vue's
+    // onMounted() and its route.query.story watcher both already guard their
+    // own calls into this function with an `=== storyStore.session?.id`
+    // check for exactly this reason, but this function is the one place
+    // every caller funnels through -- including the "Resume"/"Open" button
+    // on the CURRENT story's own card in the Recent Stories panel, which is
+    // visible and clickable while that story is actively playing (upsert()
+    // archives the live session into the library on every mutation). That
+    // click had no such guard and reached this same fall-through: a second
+    // resumeNarrativeArtJobs() call for a beat whose art enqueue is still in
+    // the narrow status:'queueing'/no-jobId window (the real gap between the
+    // optimistic status write and the resolved POST) independently finds no
+    // existing job and independently submits one, billing two illustrations
+    // for a single beat. Guarding here protects every caller at once instead
+    // of relying on each new one to remember to check first.
+    if (current?.id === sessionId) return true
     bridge.setSession(cloneSession(found))
     bridge.resumeNarrativeArtJobs()
     return true

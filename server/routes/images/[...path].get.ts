@@ -23,6 +23,51 @@ const CONTENT_TYPES: Record<string, string> = {
   '.webp': 'image/webp',
 }
 
+const DEFAULT_MEDIA_ORIGIN = 'https://media.acrocatranch.com'
+const REMOTE_FALLBACK_PREFIXES = ['academy/', 'dashboard-tabs/academy/']
+const REMOTE_FALLBACK_TIMEOUT_MS = 15_000
+
+function remoteFallbackUrl(relativePath: string): string | null {
+  if (!REMOTE_FALLBACK_PREFIXES.some((prefix) => relativePath.startsWith(prefix))) {
+    return null
+  }
+
+  const mediaOrigin = (
+    process.env.MEDIA_ORIGIN?.trim() || DEFAULT_MEDIA_ORIGIN
+  ).replace(/\/+$/, '')
+  const encodedPath = relativePath
+    .split('/')
+    .map((segment) => encodeURIComponent(segment))
+    .join('/')
+
+  return `${mediaOrigin}/images/${encodedPath}`
+}
+
+async function fetchRemoteFallback(relativePath: string): Promise<Response | null> {
+  const url = remoteFallbackUrl(relativePath)
+  if (!url) return null
+
+  try {
+    const response = await fetch(url, {
+      redirect: 'follow',
+      signal: AbortSignal.timeout(REMOTE_FALLBACK_TIMEOUT_MS),
+    })
+    if (!response.ok) return null
+
+    const headers = new Headers(response.headers)
+    headers.set('Cache-Control', 'public, max-age=3600')
+    headers.set('X-Content-Type-Options', 'nosniff')
+
+    return new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers,
+    })
+  } catch {
+    return null
+  }
+}
+
 export default defineEventHandler(async (event) => {
   const rawPath = getRouterParam(event, 'path') || ''
 
@@ -50,6 +95,9 @@ export default defineEventHandler(async (event) => {
   try {
     fileStat = await stat(filePath)
   } catch {
+    const fallbackResponse = await fetchRemoteFallback(relativePath)
+    if (fallbackResponse) return fallbackResponse
+
     throw createError({ statusCode: 404, statusMessage: 'Image not found' })
   }
 

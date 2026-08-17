@@ -408,6 +408,7 @@ export const ModelName = {
   ModelBuildItem: 'ModelBuildItem',
   ModelBuildArtifact: 'ModelBuildArtifact',
   ModelBuildRevision: 'ModelBuildRevision',
+  ProjectPageContent: 'ProjectPageContent',
   ArtImage: 'ArtImage',
   ArtCollection: 'ArtCollection',
   Bot: 'Bot',
@@ -495,7 +496,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
+    modelProps: "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1222,6 +1223,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ModelBuildRevisionCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ModelBuildRevisionCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProjectPageContent: {
+      payload: Prisma.$ProjectPageContentPayload<ExtArgs>
+      fields: Prisma.ProjectPageContentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProjectPageContentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPageContentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProjectPageContentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPageContentPayload>
+        }
+        findFirst: {
+          args: Prisma.ProjectPageContentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPageContentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProjectPageContentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPageContentPayload>
+        }
+        findMany: {
+          args: Prisma.ProjectPageContentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPageContentPayload>[]
+        }
+        create: {
+          args: Prisma.ProjectPageContentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPageContentPayload>
+        }
+        createMany: {
+          args: Prisma.ProjectPageContentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ProjectPageContentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPageContentPayload>
+        }
+        update: {
+          args: Prisma.ProjectPageContentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPageContentPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProjectPageContentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProjectPageContentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ProjectPageContentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectPageContentPayload>
+        }
+        aggregate: {
+          args: Prisma.ProjectPageContentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProjectPageContent>
+        }
+        groupBy: {
+          args: Prisma.ProjectPageContentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectPageContentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProjectPageContentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectPageContentCountAggregateOutputType> | number
         }
       }
     }
@@ -6223,6 +6290,19 @@ export const ModelBuildRevisionScalarFieldEnum = {
 export type ModelBuildRevisionScalarFieldEnum = (typeof ModelBuildRevisionScalarFieldEnum)[keyof typeof ModelBuildRevisionScalarFieldEnum]
 
 
+export const ProjectPageContentScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  projectId: 'projectId',
+  pageKey: 'pageKey',
+  content: 'content',
+  updatedById: 'updatedById'
+} as const
+
+export type ProjectPageContentScalarFieldEnum = (typeof ProjectPageContentScalarFieldEnum)[keyof typeof ProjectPageContentScalarFieldEnum]
+
+
 export const ArtImageScalarFieldEnum = {
   id: 'id',
   imageData: 'imageData',
@@ -7863,6 +7943,14 @@ export const ModelBuildRevisionOrderByRelevanceFieldEnum = {
 export type ModelBuildRevisionOrderByRelevanceFieldEnum = (typeof ModelBuildRevisionOrderByRelevanceFieldEnum)[keyof typeof ModelBuildRevisionOrderByRelevanceFieldEnum]
 
 
+export const ProjectPageContentOrderByRelevanceFieldEnum = {
+  pageKey: 'pageKey',
+  content: 'content'
+} as const
+
+export type ProjectPageContentOrderByRelevanceFieldEnum = (typeof ProjectPageContentOrderByRelevanceFieldEnum)[keyof typeof ProjectPageContentOrderByRelevanceFieldEnum]
+
+
 export const ArtImageOrderByRelevanceFieldEnum = {
   imageData: 'imageData',
   fileName: 'fileName',
@@ -9259,6 +9347,7 @@ export type GlobalOmitConfig = {
   modelBuildItem?: Prisma.ModelBuildItemOmit
   modelBuildArtifact?: Prisma.ModelBuildArtifactOmit
   modelBuildRevision?: Prisma.ModelBuildRevisionOmit
+  projectPageContent?: Prisma.ProjectPageContentOmit
   artImage?: Prisma.ArtImageOmit
   artCollection?: Prisma.ArtCollectionOmit
   bot?: Prisma.BotOmit

@@ -118,6 +118,16 @@ export type ModelBuildArtifact = Prisma.ModelBuildArtifactModel
  */
 export type ModelBuildRevision = Prisma.ModelBuildRevisionModel
 /**
+ * Model ProjectPageContent
+ * Durable editable presentation copy for Project-owned pages. `projectId` and
+ * `updatedById` intentionally remain ownership/audit scalars rather than adding
+ * more back-relations to the already-large Project/User models. API routes
+ * validate the Project and authenticated editor before reading or writing.
+ * Structured page payloads are serialized JSON in LongText, matching the repo's
+ * existing durable payload convention.
+ */
+export type ProjectPageContent = Prisma.ProjectPageContentModel
+/**
  * Model ArtImage
  * ArtImage is meant to be grabbed as needed, to avoid data bloat. The primary element is imageData
  */

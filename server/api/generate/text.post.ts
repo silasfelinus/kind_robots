@@ -18,8 +18,11 @@ import { estimateTextCostUsd } from '../../utils/manaCost'
 import {
   assertProviderApiKey,
   buildChatRefId,
+  buildCloudProviderAuthHeaders,
   buildTextServerAuthHeaders,
   getErrorStatusCode,
+  getRuntimeAnthropicKey,
+  getRuntimeOpenAiKey,
   resolveApiKeyPrecedence,
   sendMeteredStream,
   setStreamHeaders,
@@ -289,36 +292,11 @@ async function buildUpstreamAuth(input: {
           : undefined,
   })
 
-  const headers: Record<string, string> =
-    provider === 'anthropic'
-      ? {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-        }
-      : {
-          'Content-Type': 'application/json',
-          Authorization: apiKey.startsWith('Bearer ')
-            ? apiKey
-            : `Bearer ${apiKey}`,
-        }
+  const headers = buildCloudProviderAuthHeaders(provider, apiKey)
 
   return {
     headers,
     apiKeyPrefix: apiKey.slice(0, provider === 'anthropic' ? 8 : 6),
     apiKeyLength: apiKey.length,
   }
-}
-
-function getRuntimeOpenAiKey(config: ReturnType<typeof useRuntimeConfig>) {
-  return String(config.openaiApiKey || process.env.OPENAI_API_KEY || '').trim()
-}
-
-function getRuntimeAnthropicKey(config: ReturnType<typeof useRuntimeConfig>) {
-  return String(
-    config.anthropicApiKey ||
-      process.env.ANTHROPIC_API_KEY ||
-      process.env.CLAUDE_API_KEY ||
-      '',
-  ).trim()
 }

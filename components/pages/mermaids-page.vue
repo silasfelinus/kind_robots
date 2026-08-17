@@ -46,9 +46,9 @@
               />
             </template>
             <template v-else>
-              <h1 class="text-3xl font-black text-base-content sm:text-4xl">
+              <h2 class="text-3xl font-black text-base-content sm:text-4xl">
                 {{ draft.heroTitle }}
-              </h1>
+              </h2>
               <p class="mt-2 text-sm font-semibold text-base-content/75 sm:text-base">
                 {{ draft.heroSubtitle }}
               </p>

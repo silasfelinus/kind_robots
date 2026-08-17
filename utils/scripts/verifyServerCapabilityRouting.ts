@@ -1,17 +1,21 @@
 // /utils/scripts/verifyServerCapabilityRouting.ts
 //
-// Regression guard for text-generation/t-003: server/utils/serverResolver.ts's
-// getCapabilityServerTypes() decides which Server.serverType values are even
-// eligible to serve a given capability, via a where-clause every resolveServer()
-// path ANDs against -- explicit serverId, explicit serverName, and
+// Regression guard for text-generation/t-003: server/utils/
+// serverCapabilities.ts's getCapabilityServerTypes() decides which
+// Server.serverType values are even eligible to serve a given capability,
+// via a where-clause every serverResolver.ts resolveServer() path ANDs
+// against -- explicit serverId, explicit serverName, and
 // preferredArtServerId/preferredTextServerId lookups alike. Before this fix,
 // 'text'/'chat' excluded OLLAMA, which silently broke resolution for every
 // Ollama server (including one picked by explicit id/name/preference) even
 // though server/api/chats/ollama/stream.post.ts's own request path already
-// worked end-to-end. This is a pure, DB-free function, so it's covered
-// directly rather than through Prisma-backed resolveServer() callers.
+// worked end-to-end. getCapabilityServerTypes() lives in its own Prisma-free
+// module specifically so it can be imported here directly -- importing it
+// via serverResolver.ts would transitively pull in ./prisma, which throws at
+// module-load time without a DATABASE_URL (this CI job intentionally has
+// none set).
 import assert from 'node:assert/strict'
-import { getCapabilityServerTypes } from '../../server/utils/serverResolver'
+import { getCapabilityServerTypes } from '../../server/utils/serverCapabilities'
 
 let failures = 0
 

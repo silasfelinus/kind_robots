@@ -1,12 +1,11 @@
 // /server/utils/serverResolver.ts
-import type {
-  Prisma,
-  Server,
-  ServerType,
-} from '~/prisma/generated/prisma/client'
+import type { Prisma, Server } from '~/prisma/generated/prisma/client'
 import prisma from './prisma'
+import {
+  getCapabilityServerTypes,
+  type ResolveServerCapability,
+} from './serverCapabilities'
 
-type ResolveServerCapability = 'art' | 'text' | 'chat' | 'comfy'
 export type ServerEndpointTransport = 'browser' | 'backend'
 
 interface ResolveServerInput {
@@ -93,34 +92,6 @@ export function getServerHealthEndpoint(
   }
 
   return joinUrl(baseUrl, server.endpointPath)
-}
-
-// Pure, DB-free mapping from capability to the server types allowed to serve
-// it. Exported so the routing table itself can be unit-tested without a
-// Prisma connection (see utils/scripts/verifyServerCapabilityRouting.ts).
-// `null` means "no serverType restriction" (capabilityWhere returns `{}`).
-export function getCapabilityServerTypes(
-  capability?: ResolveServerCapability,
-): ServerType[] | null {
-  if (capability === 'art') {
-    return ['A1111', 'COMFY', 'OPENAI']
-  }
-
-  if (capability === 'comfy') {
-    return ['COMFY']
-  }
-
-  if (capability === 'chat' || capability === 'text') {
-    // Every server type with a working text-generation request path. OLLAMA
-    // has a real, working native chat route (server/api/chats/ollama/
-    // stream.post.ts) — excluding it here silently broke resolution for any
-    // Ollama server (explicit serverId/serverName/preferredTextServerId
-    // included, since they all AND against this same where-clause) even
-    // though the route itself worked. Fixed for text-generation/t-003.
-    return ['OPENAI', 'ANTHROPIC', 'OLLAMA', 'CUSTOM']
-  }
-
-  return null
 }
 
 function capabilityWhere(

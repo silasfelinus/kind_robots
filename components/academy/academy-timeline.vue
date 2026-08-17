@@ -2,7 +2,7 @@
 <template>
   <section class="mx-auto flex w-full max-w-[1600px] flex-col gap-5">
     <header
-      class="grid overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-sm lg:grid-cols-[minmax(0,0.9fr)_minmax(420px,1.1fr)]"
+      class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,30rem),1fr))] overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-sm"
     >
       <div class="flex flex-col justify-center gap-4 p-5 sm:p-7">
         <div class="flex items-center gap-2 text-primary">
@@ -69,24 +69,18 @@
           Each image opens into a lesson, gallery wall, and remix path.
         </p>
       </div>
-      <p class="text-xs font-semibold text-base-content/45">
-        Earliest → latest
-      </p>
+      <p class="text-xs font-semibold text-base-content/45">Earliest → latest</p>
     </div>
 
     <ol
-      class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
+      class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-4"
       aria-label="Art history timeline lessons"
     >
       <li
         v-for="(style, index) in academyStore.timeline"
         :key="style.slug"
         class="min-w-0"
-        :class="
-          expandedSlug === style.slug
-            ? 'col-span-full'
-            : timelineCardSpan(index)
-        "
+        :class="expandedSlug === style.slug ? 'col-span-full' : ''"
       >
         <button
           v-if="expandedSlug !== style.slug"
@@ -189,10 +183,6 @@ const heroStyles = computed(() => {
     (style): style is NonNullable<typeof style> => Boolean(style),
   )
 })
-
-function timelineCardSpan(index: number) {
-  return index % 11 === 0 ? 'xl:col-span-2' : ''
-}
 
 function timelineImageAspect(index: number) {
   if (index % 11 === 0) return 'aspect-[16/9]'

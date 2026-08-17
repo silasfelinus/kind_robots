@@ -102,22 +102,6 @@ const CONTRACT = `Create one standalone environment illustration to be used as a
 
 const HOUSE_AESTHETIC = `Painted storybook-illustration style with cinematic depth, warm inviting light, soft atmospheric haze in the distance, and rich but unfussy detail.`
 
-/**
- * The house aesthetic is a children's-picture-book register, and it is right
- * for almost every page here. It is wrong for `mermaids`, which fronts Silas's
- * novel — "Mermaids of Venice: a subversive tale of gods and street
- * performers", six years of work for adult readers.
- *
- * Silas, 2026-08-08, on the first batch: *"I don't have a problem with those,
- * only the ones that linked to mermaids because it was specifically for an
- * adult audience."* The acute problem there was the casting clause — the mobile
- * and tablet backdrops came back lined with small children and toy robots,
- * which is not art for that book. Removing the cast is necessary and not
- * sufficient: "friendly, playful, warm inviting light" would still render a
- * kids' game menu behind an adult novel.
- */
-const NOVEL_AESTHETIC = `Painted in the manner of a literary book jacket: oil-like brushwork, restrained and moody, deep shadow with a narrow shaft of cold light, muted desaturated colour with one low ember accent, weathered and lived-in surfaces, unsentimental. Adult in register — not whimsical, not cute, not a children's picture book.`
-
 const NEGATIVE_PROMPT = `text, caption, lettering, signage, logo, watermark, signature, border, frame, panel, collage, grid, contact sheet, ui mockup, interface elements, buttons, strong central subject, centered portrait, close-up face, busy cluttered centre, high-contrast centre, harsh clutter, photorealism, low detail, blurry, jpeg artifacts`
 
 type PageSeed = {
@@ -125,12 +109,7 @@ type PageSeed = {
   title: string
   /** The setting. Written to survive all three framings. */
   scene: string
-  /**
-   * Replaces HOUSE_AESTHETIC for this page only. For pages whose content sits
-   * in a different register than the rest of the app — today that is `mermaids`
-   * and its adult novel. It cannot reach CONTRACT, so an override can restyle a
-   * backdrop but never un-scenery it or put people back in.
-   */
+  /** Replaces HOUSE_AESTHETIC when a page needs a different visual register. */
   aesthetic?: string
 }
 
@@ -407,17 +386,6 @@ const PAGES: PageSeed[] = [
     title: 'Memory — The Card Hall',
     scene:
       'A hall of face-down cards floating in neat ranks, a few flipped to show tiny glowing scenes, candlelight. Playful concentration.',
-  },
-  {
-    page: 'mermaids',
-    title: 'Mermaids — The Lagoon',
-    // Grounded in the page's own frontmatter — room "Mermaids of Venice",
-    // subtitle "A subversive tale of gods and street performers" — rather than
-    // the generic lagoon the first batch used. A backdrop for a novel should
-    // look like that novel.
-    scene:
-      'A Venetian back canal after midnight, black water lying flat between old stone walls streaked with salt and algae. A low bridge, a shuttered doorway half a step above the waterline, a moored boat knocking against its post. One lamp burns somewhere out of frame and lays a long cold reflection down the water. Drifting sea-fog, wet stone, a few pale fish holding still under the surface.',
-    aesthetic: NOVEL_AESTHETIC,
   },
   {
     page: 'messages',

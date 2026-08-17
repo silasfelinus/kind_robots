@@ -560,6 +560,9 @@ jobs:
       - name: Server uptime default-scope contract
         run: npm run test:server-uptime-default-scope
 
+      - name: Text-generation dispatch contract
+        run: npm run test:text-generation-dispatch
+
       - name: Animation catalog contract
         run: npm run test:animation-catalog
 

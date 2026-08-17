@@ -557,6 +557,9 @@ jobs:
       - name: Server capability routing contract
         run: npm run test:server-capability-routing
 
+      - name: Server uptime default-scope contract
+        run: npm run test:server-uptime-default-scope
+
       - name: Animation catalog contract
         run: npm run test:animation-catalog
 

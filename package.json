@@ -263,6 +263,7 @@
     "test:mana-gate-on-behalf-of-target": "tsx utils/scripts/verifyManaGateOnBehalfOfTarget.ts",
     "test:text-provider-service": "tsx utils/scripts/verifyTextProviderService.ts",
     "test:server-capability-routing": "tsx utils/scripts/verifyServerCapabilityRouting.ts",
+    "test:server-uptime-default-scope": "tsx utils/scripts/verifyServerUptimeDefaultScope.ts",
     "components:manifest": "node utils/scripts/create-component-json.mjs",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",

@@ -42,6 +42,7 @@
           :show-close="false"
           :show-remix-button="false"
           :allow-mark-viewed="false"
+          compact
         />
 
         <div

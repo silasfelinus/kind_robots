@@ -1,8 +1,43 @@
 <!-- /components/academy/academy-style-detail.vue -->
 <template>
-  <article class="mx-auto flex w-full max-w-[1500px] flex-col gap-5">
+  <article
+    class="mx-auto flex w-full flex-col gap-5"
+    :class="compact ? 'max-w-none' : 'max-w-[1500px]'"
+  >
     <section
-      v-if="lesson.previewImageSrc"
+      v-if="compact"
+      class="overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-sm"
+    >
+      <div v-if="lesson.previewImageSrc" class="relative aspect-[16/9] overflow-hidden bg-base-200">
+        <img
+          :src="lesson.previewImageSrc"
+          :alt="`${lesson.name} visual style study`"
+          class="h-full w-full object-cover"
+        />
+        <div class="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent" />
+        <div class="absolute inset-x-0 bottom-0 p-4 text-white">
+          <p class="text-lg font-black leading-tight">{{ lesson.name }}</p>
+          <p class="mt-1 text-xs text-white/70">{{ lesson.era }} · {{ lesson.region }}</p>
+        </div>
+      </div>
+      <div class="flex flex-col gap-3 p-4">
+        <p class="line-clamp-4 text-sm leading-relaxed text-base-content/70">
+          {{ lesson.keyIdeas }}
+        </p>
+        <div class="flex flex-wrap gap-1.5">
+          <span
+            v-for="cue in lesson.recognitionCues.slice(0, 3)"
+            :key="cue"
+            class="badge badge-ghost h-auto max-w-full whitespace-normal py-1 text-left text-[0.65rem] leading-snug"
+          >
+            {{ cue }}
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <section
+      v-else-if="lesson.previewImageSrc"
       class="relative min-h-[320px] overflow-hidden rounded-3xl border border-base-300 bg-base-300 shadow-xl sm:min-h-[400px] lg:min-h-[480px]"
     >
       <img
@@ -102,7 +137,7 @@
     </header>
 
     <section
-      v-if="lesson.exampleWorks?.length"
+      v-if="!compact && lesson.exampleWorks?.length"
       class="rounded-3xl border border-base-300 bg-base-100 p-4 shadow-sm sm:p-5"
     >
       <div class="mb-4 flex flex-wrap items-end justify-between gap-2">
@@ -153,7 +188,10 @@
       </div>
     </section>
 
-    <div class="grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)] xl:items-start">
+    <div
+      v-if="!compact"
+      class="grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)] xl:items-start"
+    >
       <div class="flex min-w-0 flex-col gap-5">
         <section class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6">
           <p class="flex items-center gap-1.5 text-xs font-black uppercase tracking-[0.16em] text-primary">
@@ -297,14 +335,10 @@
 <script setup lang="ts">
 // Reused in three contexts, each passing a different showClose/showRemixButton
 // subset — check all three before changing a prop's default or meaning:
-//   - academy-timeline.vue: default props (close+remix shown), expanded list item
+//   - academy-timeline.vue: default props (close+remix shown), expanded gallery item
 //   - academy-styles-browser.vue: default props (close+remix shown), grid detail panel
-//   - academy-remix.vue: showClose=false, showRemixButton=false, allowMarkViewed=false
-//     — read-only style summary in the Remix Studio sidebar, where remixing is
-//     already the page's primary action (a stray showRemixButton no-op button
-//     here was PR #301's bug); allowMarkViewed=false stops incidental style
-//     preview clicks from inflating the Timeline/Gallery "explored" progress,
-//     which is meant to reflect deliberate lesson-reading, not style browsing
+//   - academy-remix.vue: compact=true, showClose=false, showRemixButton=false,
+//     allowMarkViewed=false — image-led read-only style summary beside Remix Studio
 import { computed, onMounted } from 'vue'
 import { useAcademyStore } from '@/stores/academyStore'
 import type { AcademyStyle } from '@/stores/seeds/academyStyles'
@@ -315,11 +349,13 @@ const props = withDefaults(
     showClose?: boolean
     showRemixButton?: boolean
     allowMarkViewed?: boolean
+    compact?: boolean
   }>(),
   {
     showClose: true,
     showRemixButton: true,
     allowMarkViewed: true,
+    compact: false,
   },
 )
 

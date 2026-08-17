@@ -1,26 +1,24 @@
 // /server/api/server/uptime.get.ts
 //
-// Admin uptime report for art-generation servers. Aggregates the
+// Admin uptime report for art- and text-generation servers. Aggregates the
 // ServerHealthCheck time-series into per-server uptime % + a recent sample
 // series (for sparklines) over a configurable window. Powers the Uptime panel
 // of the ArtJob admin dashboard.
 //
-// Query: ?window=<hours> (default 24, max 720) ?serverType=COMFY|A1111
+// Defaults to every server type in getUptimeDefaultServerTypes()
+// (A1111/COMFY/OPENAI/ANTHROPIC/OLLAMA/CUSTOM, text-generation/t-007) so a
+// text-capable server's health is visible without a manual override.
+// Query: ?window=<hours> (default 24, max 720)
+//        ?serverType=A1111|COMFY|OPENAI|ANTHROPIC|OLLAMA|CUSTOM
 //        ?samples=<n> (recent samples per server, default 60, max 500)
 import { defineEventHandler, getQuery } from 'h3'
 import type { Prisma, ServerType } from '~/prisma/generated/prisma/client'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { requireAdminApiUser } from '../../utils/authGuard'
+import { getUptimeDefaultServerTypes } from '../../utils/serverUptimeScope'
 
-const SERVER_TYPES = new Set<ServerType>([
-  'A1111',
-  'COMFY',
-  'OPENAI',
-  'ANTHROPIC',
-  'OLLAMA',
-  'CUSTOM',
-])
+const SERVER_TYPES = new Set<ServerType>(getUptimeDefaultServerTypes())
 
 export default defineEventHandler(async (event) => {
   try {
@@ -32,7 +30,7 @@ export default defineEventHandler(async (event) => {
     const since = new Date(Date.now() - windowHours * 3_600_000)
 
     const serverWhere: Prisma.ServerWhereInput = {
-      serverType: { in: ['A1111', 'COMFY'] },
+      serverType: { in: getUptimeDefaultServerTypes() },
     }
 
     const requestedType = String(query.serverType || '').toUpperCase()

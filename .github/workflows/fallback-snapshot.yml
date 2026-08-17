@@ -47,6 +47,13 @@ on:
   schedule:
     - cron: '17 9 * * *' # daily, 09:17 UTC ≈ 1:17am Pacific
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fallback-snapshot.yml'
+      - 'utils/scripts/snapshotFallback.ts'
+      - 'prisma/schema.prisma'
+      - 'prisma.config.ts'
 
 concurrency:
   group: fallback-snapshot

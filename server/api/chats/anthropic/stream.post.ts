@@ -7,7 +7,9 @@ import { estimateTextCostUsd } from '../../../utils/manaCost'
 import {
   assertProviderApiKey,
   buildChatRefId,
+  buildCloudProviderAuthHeaders,
   getErrorStatusCode,
+  getRuntimeAnthropicKey,
   resolveApiKeyPrecedence,
   resolveOptionalTextServer,
   sendMeteredStream,
@@ -100,11 +102,7 @@ export default defineEventHandler(async (event) => {
 
     const upstream = await fetch(endpoint, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-      },
+      headers: buildCloudProviderAuthHeaders('anthropic', apiKey),
       body: JSON.stringify(payload),
     })
 
@@ -154,15 +152,6 @@ function normalizeMessages(body: AnthropicStreamBody) {
       content: body.prompt ?? '',
     },
   ]
-}
-
-function getRuntimeAnthropicKey(config: ReturnType<typeof useRuntimeConfig>) {
-  return String(
-    config.anthropicApiKey ||
-      process.env.ANTHROPIC_API_KEY ||
-      process.env.CLAUDE_API_KEY ||
-      '',
-  ).trim()
 }
 
 function getAnthropicEndpoint(server: Server | null) {

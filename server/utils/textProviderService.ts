@@ -135,6 +135,61 @@ export function buildTextServerAuthHeaders(server: {
   return headers
 }
 
+/** Resolves the system/runtime-config OpenAI key -- the lowest-precedence
+ * input to `resolveApiKeyPrecedence` for the OpenAI cloud path. Was
+ * previously three byte-identical copies (chats/openai/stream.post.ts,
+ * chats/anthropic/stream.post.ts's Anthropic counterpart, and
+ * generate/text.post.ts) before text-generation/t-008 consolidated them. */
+export function getRuntimeOpenAiKey(
+  config: ReturnType<typeof useRuntimeConfig>,
+): string {
+  return String(config.openaiApiKey || process.env.OPENAI_API_KEY || '').trim()
+}
+
+/** Anthropic counterpart to `getRuntimeOpenAiKey` -- see that function's doc
+ * comment. */
+export function getRuntimeAnthropicKey(
+  config: ReturnType<typeof useRuntimeConfig>,
+): string {
+  return String(
+    config.anthropicApiKey ||
+      process.env.ANTHROPIC_API_KEY ||
+      process.env.CLAUDE_API_KEY ||
+      '',
+  ).trim()
+}
+
+export type CloudTextProvider = 'openai' | 'anthropic'
+
+/**
+ * Auth-header construction for the two direct cloud provider dialects:
+ * OpenAI-style `Authorization: Bearer <key>`, and Anthropic's `x-api-key` +
+ * pinned `anthropic-version`. Shared by the legacy `chats/openai` and
+ * `chats/anthropic` streaming routes and the unified `generate/text`
+ * endpoint's OpenAI/Anthropic branches -- previously three independently-
+ * maintained copies of the same two-branch dialect switch
+ * (text-generation/t-008, kaizen from t-001/t-003/t-004). Ollama servers use
+ * `buildTextServerAuthHeaders` instead -- their auth shape is generic per
+ * `Server.authType`, not a single provider key convention.
+ */
+export function buildCloudProviderAuthHeaders(
+  provider: CloudTextProvider,
+  apiKey: string,
+): Record<string, string> {
+  if (provider === 'anthropic') {
+    return {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+    }
+  }
+
+  return {
+    'Content-Type': 'application/json',
+    Authorization: apiKey.startsWith('Bearer ') ? apiKey : `Bearer ${apiKey}`,
+  }
+}
+
 export function setStreamHeaders(event: H3Event, contentType: string): void {
   setHeader(event, 'Content-Type', contentType)
   setHeader(event, 'Cache-Control', 'no-cache, no-transform')

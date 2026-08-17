@@ -14,8 +14,11 @@ import assert from 'node:assert/strict'
 import {
   assertProviderApiKey,
   buildChatRefId,
+  buildCloudProviderAuthHeaders,
   buildTextServerAuthHeaders,
   getErrorStatusCode,
+  getRuntimeAnthropicKey,
+  getRuntimeOpenAiKey,
   resolveApiKeyPrecedence,
 } from '../../server/utils/textProviderService'
 
@@ -142,6 +145,91 @@ check('API_KEY authType defaults to X-API-Key when apiKeyName is unset', () => {
 
   assert.equal(headers['X-API-Key'], 'secret-token')
 })
+
+// -- buildCloudProviderAuthHeaders ---------------------------------------------
+// text-generation/t-008: the shared dialect switch behind both the legacy
+// chats/openai + chats/anthropic streaming routes' fetch headers and
+// generate/text.post.ts's buildUpstreamAuth for those same two providers.
+
+check('openai dialect sets a Bearer Authorization header', () => {
+  const headers = buildCloudProviderAuthHeaders('openai', 'sk-real-key')
+
+  assert.equal(headers['Content-Type'], 'application/json')
+  assert.equal(headers.Authorization, 'Bearer sk-real-key')
+  assert.equal('x-api-key' in headers, false)
+})
+
+check(
+  'openai dialect does not double-prefix an already-Bearer-prefixed key',
+  () => {
+    const headers = buildCloudProviderAuthHeaders(
+      'openai',
+      'Bearer sk-real-key',
+    )
+
+    assert.equal(headers.Authorization, 'Bearer sk-real-key')
+  },
+)
+
+check(
+  'anthropic dialect sets x-api-key and a pinned anthropic-version, no Authorization',
+  () => {
+    const headers = buildCloudProviderAuthHeaders('anthropic', 'sk-ant-key')
+
+    assert.equal(headers['Content-Type'], 'application/json')
+    assert.equal(headers['x-api-key'], 'sk-ant-key')
+    assert.equal(headers['anthropic-version'], '2023-06-01')
+    assert.equal('Authorization' in headers, false)
+  },
+)
+
+// -- getRuntimeOpenAiKey / getRuntimeAnthropicKey ------------------------------
+
+check('getRuntimeOpenAiKey prefers runtimeConfig over the env var', () => {
+  const prevEnv = process.env.OPENAI_API_KEY
+  process.env.OPENAI_API_KEY = 'sk-env'
+
+  try {
+    assert.equal(
+      getRuntimeOpenAiKey({ openaiApiKey: 'sk-config' } as never),
+      'sk-config',
+    )
+  } finally {
+    if (prevEnv === undefined) delete process.env.OPENAI_API_KEY
+    else process.env.OPENAI_API_KEY = prevEnv
+  }
+})
+
+check('getRuntimeOpenAiKey falls back to OPENAI_API_KEY and trims it', () => {
+  const prevEnv = process.env.OPENAI_API_KEY
+  process.env.OPENAI_API_KEY = '  sk-env  '
+
+  try {
+    assert.equal(getRuntimeOpenAiKey({} as never), 'sk-env')
+  } finally {
+    if (prevEnv === undefined) delete process.env.OPENAI_API_KEY
+    else process.env.OPENAI_API_KEY = prevEnv
+  }
+})
+
+check(
+  'getRuntimeAnthropicKey falls back to CLAUDE_API_KEY when ANTHROPIC_API_KEY is unset',
+  () => {
+    const prevAnthropic = process.env.ANTHROPIC_API_KEY
+    const prevClaude = process.env.CLAUDE_API_KEY
+    delete process.env.ANTHROPIC_API_KEY
+    process.env.CLAUDE_API_KEY = 'sk-ant-claude-env'
+
+    try {
+      assert.equal(getRuntimeAnthropicKey({} as never), 'sk-ant-claude-env')
+    } finally {
+      if (prevAnthropic === undefined) delete process.env.ANTHROPIC_API_KEY
+      else process.env.ANTHROPIC_API_KEY = prevAnthropic
+      if (prevClaude === undefined) delete process.env.CLAUDE_API_KEY
+      else process.env.CLAUDE_API_KEY = prevClaude
+    }
+  },
+)
 
 // -- buildChatRefId -----------------------------------------------------------
 

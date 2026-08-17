@@ -7,7 +7,9 @@ import { estimateTextCostUsd } from '../../../utils/manaCost'
 import {
   assertProviderApiKey,
   buildChatRefId,
+  buildCloudProviderAuthHeaders,
   getErrorStatusCode,
+  getRuntimeOpenAiKey,
   resolveApiKeyPrecedence,
   resolveOptionalTextServer,
   sendMeteredStream,
@@ -103,12 +105,7 @@ export default defineEventHandler(async (event) => {
 
     const upstream = await fetch(endpoint, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: apiKey.startsWith('Bearer ')
-          ? apiKey
-          : `Bearer ${apiKey}`,
-      },
+      headers: buildCloudProviderAuthHeaders('openai', apiKey),
       body: JSON.stringify(payload),
     })
 
@@ -159,10 +156,6 @@ function normalizeMessages(body: OpenAiStreamBody) {
       content: body.prompt ?? '',
     },
   ]
-}
-
-function getRuntimeOpenAiKey(config: ReturnType<typeof useRuntimeConfig>) {
-  return String(config.openaiApiKey || process.env.OPENAI_API_KEY || '').trim()
 }
 
 function getOpenAiCompatibleEndpoint(server: Server | null) {

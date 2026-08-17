@@ -153,9 +153,7 @@
         </p>
       </div>
 
-      <div
-        class="grid auto-rows-[170px] gap-3 sm:grid-cols-2 sm:auto-rows-[220px] lg:grid-cols-3"
-      >
+      <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] auto-rows-[220px] gap-3">
         <a
           v-for="(work, index) in lesson.exampleWorks"
           :key="work.imageSrc"
@@ -163,7 +161,7 @@
           target="_blank"
           rel="noopener noreferrer"
           class="group relative overflow-hidden rounded-2xl border border-base-300 bg-base-200 shadow-sm"
-          :class="index === 0 && lesson.exampleWorks.length > 1 ? 'sm:row-span-2 lg:col-span-2' : ''"
+          :class="index === 0 && lesson.exampleWorks.length > 1 ? 'row-span-2' : ''"
           :title="`${work.workTitle} — public-domain source page`"
         >
           <img
@@ -190,7 +188,7 @@
 
     <div
       v-if="!compact"
-      class="grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)] xl:items-start"
+      class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,24rem),1fr))] items-start gap-5"
     >
       <div class="flex min-w-0 flex-col gap-5">
         <section class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6">
@@ -370,10 +368,6 @@ const isViewed = computed(() => {
   return academyStore.viewedLessons.includes(props.lesson.slug)
 })
 
-// Per-style failure-mode text (ai-art-academy/t-025, backfilled from
-// conductor's docs/teaching-notes.md §3). Falls back to the original
-// mode-level generic note for any style not yet backfilled (e.g. a
-// newly-added movement whose teaching notes haven't landed here yet).
 const tryItFailureLabel = computed(() => 'Watch for:')
 
 const tryItFailureFallbackNote = computed(() => {

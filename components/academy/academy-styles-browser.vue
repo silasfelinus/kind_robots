@@ -118,7 +118,7 @@
         <img
           v-if="style.previewImageSrc"
           :src="style.previewImageSrc"
-          :alt="`${style.name} style preview`"
+          alt=""
           loading="lazy"
           class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />

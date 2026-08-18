@@ -233,6 +233,8 @@
     "test:model-builder-draft-status-scope-guard": "tsx utils/scripts/verifyModelBuilderDraftStatusScopeGuard.ts",
     "test:model-builder-batch-set-field-confirmed-success-guard-selftest": "tsx utils/scripts/verifyModelBuilderBatchSetFieldConfirmedSuccessGuard.test.ts",
     "test:model-builder-batch-set-field-confirmed-success-guard": "tsx utils/scripts/verifyModelBuilderBatchSetFieldConfirmedSuccessGuard.ts",
+    "test:model-builder-batch-approve-stage-confirmed-success-guard-selftest": "tsx utils/scripts/verifyModelBuilderBatchApproveStageConfirmedSuccessGuard.test.ts",
+    "test:model-builder-batch-approve-stage-confirmed-success-guard": "tsx utils/scripts/verifyModelBuilderBatchApproveStageConfirmedSuccessGuard.ts",
     "test:model-builder-confirmed-outcome-guard-selftest": "tsx utils/scripts/verifyModelBuilderConfirmedOutcomeGuard.test.ts",
     "test:model-builder-confirmed-outcome-guard": "tsx utils/scripts/verifyModelBuilderConfirmedOutcomeGuard.ts",
     "test:model-builder-batch-any-in-flight-guard-selftest": "tsx utils/scripts/verifyModelBuilderBatchAnyInFlightGuard.test.ts",

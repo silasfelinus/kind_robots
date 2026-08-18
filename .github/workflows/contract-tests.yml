@@ -278,6 +278,12 @@ jobs:
       - name: Da Vinci choice-list guard
         run: npm run test:davinci-choice-list-guard
 
+      - name: Da Vinci dimension-group guard self-test
+        run: npm run test:davinci-dimension-group-guard-selftest
+
+      - name: Da Vinci dimension-group guard
+        run: npm run test:davinci-dimension-group-guard
+
       - name: Serendipity Voice poll guard self-test
         run: npm run test:serendipity-voice-poll-guard-selftest
 

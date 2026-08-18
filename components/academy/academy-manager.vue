@@ -1,6 +1,6 @@
 <!-- /components/academy/academy-manager.vue -->
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
+  <section class="flex h-full min-h-0 w-full flex-col overflow-hidden bg-base-200 text-base-content">
     <!--
       Timeline and Style Gallery render purely off academyStore's static seed
       data (hydrated synchronously in onMounted below) — they never need

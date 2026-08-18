@@ -137,7 +137,22 @@
             </button>
           </div>
 
-          <div class="grid grid-cols-5 gap-2 sm:grid-cols-10">
+          <!-- Ten individually-meaningful stat pills with no wrapping
+               role/aria-label tying them together as one set -- the same gap
+               kr-choice-list.vue's own doc comment (and this file's own
+               choice-list fix, slice 6) was written to close for the chapter
+               choices, now present here instead. Matches the established
+               convention for exactly this shape (a grid/row of individually
+               meaningful items grouped by role="group" + aria-label) already
+               used by kr-choice-list.vue itself, narrative-role-assigner.vue's
+               protagonist/antagonist lists, brainstorm-manager.vue's
+               direction/shape rows, and this project's own sibling
+               storybook-page.vue setup-progress nav. -->
+          <div
+            class="grid grid-cols-5 gap-2 sm:grid-cols-10"
+            role="group"
+            aria-label="Life dimensions"
+          >
             <div
               v-for="dim in DAVINCI_DIMENSIONS"
               :key="dim"

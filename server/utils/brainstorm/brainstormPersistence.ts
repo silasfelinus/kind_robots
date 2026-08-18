@@ -1,7 +1,9 @@
 import { createError } from 'h3'
 import {
+  BRAINSTORM_DEFAULT_OUTPUT_DOMAIN,
   BRAINSTORM_MAX_RESULTS,
   BRAINSTORM_MIN_RESULTS,
+  BRAINSTORM_OUTPUT_DOMAINS,
   BRAINSTORM_RETURN_TYPES,
 } from '../../../types/brainstorm'
 import type {
@@ -10,6 +12,7 @@ import type {
   BrainstormCandidate,
   BrainstormCandidateRevision,
   BrainstormGenerateRequest,
+  BrainstormOutputDomainId,
   BrainstormReturnTypeId,
   BrainstormReturnTypeRequest,
   BrainstormSavedSession,
@@ -33,6 +36,14 @@ const MAX_SERIALIZED_META = 64_000
 const RETURN_TYPE_IDS = new Set<BrainstormReturnTypeId>(
   BRAINSTORM_RETURN_TYPES.map((entry) => entry.id),
 )
+const OUTPUT_DOMAIN_IDS = new Set<BrainstormOutputDomainId>(
+  BRAINSTORM_OUTPUT_DOMAINS.map((entry) => entry.id),
+)
+
+function normalizedOutputDomain(value: unknown): BrainstormOutputDomainId {
+  const id = optionalText(value, 40) as BrainstormOutputDomainId
+  return OUTPUT_DOMAIN_IDS.has(id) ? id : BRAINSTORM_DEFAULT_OUTPUT_DOMAIN
+}
 const REVISION_REASONS = new Set([
   'generated',
   'edited',
@@ -66,6 +77,7 @@ export type BrainstormStoredSessionRow = {
   constraints: string | null
   examples: string | null
   mode: string
+  outputDomain: string
   batchShape: string
   returnTypes: string | null
   source: string | null
@@ -247,6 +259,7 @@ function normalizeGenerateRequest(value: unknown): BrainstormGenerateRequest {
     constraints: optionalText(record.constraints, MAX_CONSTRAINT_LENGTH),
     examples: normalizeExamples(record.examples),
     mode: optionalText(record.mode, 80) || 'freeform',
+    outputDomain: normalizedOutputDomain(record.outputDomain),
     batchShape: record.batchShape === 'assortment' ? 'assortment' : 'focused',
     returnTypes: normalizeReturnTypes(record.returnTypes),
     source: normalizeSource(record.source),
@@ -340,6 +353,7 @@ function normalizeSnapshot(value: unknown): BrainstormSessionSnapshot {
     constraints: optionalText(record.constraints, MAX_CONSTRAINT_LENGTH),
     examples: normalizeExamples(record.examples),
     mode: optionalText(record.mode, 80) || 'freeform',
+    outputDomain: normalizedOutputDomain(record.outputDomain),
     batchShape,
     returnTypes: normalizeReturnTypes(record.returnTypes),
     source: normalizeSource(record.source),
@@ -379,6 +393,7 @@ export function brainstormSessionData(
     constraints: snapshot.constraints || null,
     examples: JSON.stringify(snapshot.examples),
     mode: snapshot.mode,
+    outputDomain: snapshot.outputDomain,
     batchShape: snapshot.batchShape,
     returnTypes: JSON.stringify(snapshot.returnTypes),
     source: snapshot.source ? JSON.stringify(snapshot.source) : null,
@@ -451,6 +466,7 @@ export function storedBrainstormSession(
       constraints: row.constraints || '',
       examples: parseJson<string[]>(row.examples, []),
       mode: row.mode || 'freeform',
+      outputDomain: normalizedOutputDomain(row.outputDomain),
       batchShape: row.batchShape === 'assortment' ? 'assortment' : 'focused',
       returnTypes: parseJson<BrainstormReturnTypeRequest[]>(row.returnTypes, []),
       source: parseJson<BrainstormSourceRef | null>(row.source, null),

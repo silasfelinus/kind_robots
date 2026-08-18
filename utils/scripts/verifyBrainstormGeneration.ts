@@ -92,6 +92,59 @@ assert.match(prompts.userPrompt, /Batch shape: FOCUSED/)
 assert.doesNotMatch(prompts.userPrompt, /Creative direction:/)
 assert.doesNotMatch(prompts.systemPrompt, /Haunted Fitness Tracker|Misfortune Cookies/i)
 assert.doesNotMatch(prompts.userPrompt, /Haunted Fitness Tracker|Misfortune Cookies/i)
+assert.doesNotMatch(
+  prompts.systemPrompt,
+  /ART PROMPT mode/,
+  'the default (no outputDomain, i.e. "ideas") request must never trigger art-prompt framing',
+)
+
+// conductor brainstorm/t-015: art-prompt output domain.
+const artPrompts = buildBrainstormPrompts({
+  premise: 'A clockwork librarian who is terrified of overdue books',
+  count: 6,
+  mode: 'freeform',
+  outputDomain: 'art-prompts',
+  source: null,
+})
+assert.match(artPrompts.systemPrompt, /ART PROMPT mode/)
+assert.match(
+  artPrompts.systemPrompt,
+  /not to generate, request, or enqueue any image yourself/i,
+  'art-prompt mode must explicitly disclaim enqueuing an actual image -- this task only ships the text mode',
+)
+assert.match(
+  artPrompts.systemPrompt,
+  /composition.*subject.*action.*environment.*visual direction/i,
+)
+assert.match(
+  artPrompts.systemPrompt,
+  /no two candidates may share the same combination/i,
+)
+assert.match(
+  artPrompts.systemPrompt,
+  /Never describe the act of generating, rendering, requesting, or enqueuing an image/i,
+)
+assert.match(
+  artPrompts.systemPrompt,
+  /a "text" field holding the complete image-generation prompt/i,
+)
+assert.doesNotMatch(
+  artPrompts.systemPrompt,
+  /enlarge the human idea-space/i,
+  'art-prompt mode must replace the ideas-domain framing sentence, not just append to it',
+)
+
+const artPromptsIdeaDefault = buildBrainstormPrompts({
+  premise: 'Invent terrible ice cream flavors',
+  count: 4,
+  mode: 'freeform',
+  source: null,
+})
+assert.doesNotMatch(
+  artPromptsIdeaDefault.systemPrompt,
+  /ready-to-use TEXT PROMPT for an image generator/,
+  'omitting outputDomain entirely must behave exactly like the explicit "ideas" default',
+)
 
 const darkerFunny = buildBrainstormPrompts({
   premise: 'Invent family-friendly improv scenes with cartoon peril',
@@ -363,6 +416,11 @@ assert.match(endpoint, /assertBackendProviderAccess\(provider, server, viewer\)/
 assert.match(endpoint, /\['BROWSER', 'TAILSCALE', 'LOCAL'\]/)
 assert.match(endpoint, /!server\.isPublic &&[\s\S]*?!server\.isOfficial &&[\s\S]*?!server\.isDefault/)
 assert.match(endpoint, /normalizedReturnTypes\(body\.returnTypes, batchShape, count\)/)
+assert.match(
+  endpoint,
+  /normalizedOutputDomain\(body\.outputDomain\)/,
+  'the endpoint must normalize/validate outputDomain server-side rather than trusting the client value directly',
+)
 assert.match(endpoint, /manaGate\(event/)
 assert.match(endpoint, /parseBrainstormProviderOutput\(raw, request\.count, request\)/)
 assert.match(endpoint, /errorHandler\(error\)/)

@@ -49,10 +49,36 @@
         />
       </div>
 
+      <div class="mt-4" data-testid="brainstorm-output-domain">
+        <div class="flex flex-wrap items-baseline justify-between gap-2">
+          <p class="text-xs font-black uppercase tracking-[0.12em] text-base-content/55">
+            Output
+          </p>
+        </div>
+        <div class="mt-2 flex flex-wrap gap-2" role="group" aria-label="Output domain">
+          <button
+            v-for="domain in BRAINSTORM_OUTPUT_DOMAINS"
+            :key="domain.id"
+            type="button"
+            class="btn btn-sm h-auto min-h-9 rounded-full px-3 py-2"
+            :class="outputDomain === domain.id ? 'btn-primary' : 'btn-ghost border border-base-content/10 bg-base-100'"
+            :aria-pressed="outputDomain === domain.id"
+            :disabled="isGenerating"
+            :data-testid="`brainstorm-output-domain-${domain.id}`"
+            @click="store.setOutputDomain(domain.id)"
+          >
+            {{ domain.label }}
+          </button>
+        </div>
+        <p class="mt-2 max-w-3xl text-xs leading-5 text-base-content/55">
+          {{ BRAINSTORM_OUTPUT_DOMAINS.find((domain) => domain.id === outputDomain)?.description }}
+        </p>
+      </div>
+
       <div class="mt-4 flex flex-wrap items-end gap-3">
         <div>
           <label for="brainstorm-count" class="text-xs font-black uppercase tracking-[0.12em] text-base-content/55">
-            Ideas
+            {{ isArtPromptDomain ? 'Prompts' : 'Ideas' }}
           </label>
           <input
             id="brainstorm-count"
@@ -73,7 +99,7 @@
           data-testid="brainstorm-generate"
         >
           <span v-if="isBatchGenerating" class="loading loading-spinner loading-sm" aria-hidden="true" />
-          {{ isBatchGenerating ? 'Brainstorming…' : activeCandidates.length ? 'Fresh batch' : 'Generate ideas' }}
+          {{ isBatchGenerating ? 'Brainstorming…' : activeCandidates.length ? 'Fresh batch' : (isArtPromptDomain ? 'Generate art prompts' : 'Generate ideas') }}
         </button>
 
         <p class="max-w-xl text-xs leading-5 text-base-content/50">
@@ -717,10 +743,12 @@ import { useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import {
   BRAINSTORM_MAX_RESULTS,
+  BRAINSTORM_OUTPUT_DOMAINS,
   BRAINSTORM_RETURN_TYPES,
 } from '@/types/brainstorm'
 import type {
   BrainstormCandidate,
+  BrainstormOutputDomainId,
   BrainstormReturnTypeId,
 } from '@/types/brainstorm'
 import { useBrainstormStore } from '@/stores/brainstormStore'
@@ -805,10 +833,10 @@ const starterPremises = [
   {
     label: 'Visual directions',
     teaser: 'Different compositions, not adjective swaps.',
-    premise:
-      'Give me eight visually distinct portrait concepts for a clockwork librarian who is terrified of overdue books.',
+    premise: 'A clockwork librarian who is terrified of overdue books.',
     mode: 'stranger',
     batchShape: 'focused',
+    outputDomain: 'art-prompts',
   },
 ] as const
 
@@ -821,6 +849,7 @@ const {
   constraints,
   examples,
   mode,
+  outputDomain,
   batchShape,
   returnTypes,
   activeCandidates,
@@ -957,6 +986,9 @@ const activeCreativeDirection = computed(
   () => creativeDirections.find((direction) => direction.id === mode.value) || creativeDirections[0],
 )
 
+// conductor brainstorm/t-015: art-prompt output domain toggle.
+const isArtPromptDomain = computed(() => outputDomain.value === 'art-prompts')
+
 const responseMixSummary = computed(() => {
   if (batchShape.value === 'focused') return 'Focused'
   if (!returnTypes.value.length) return 'Assortment · adaptive'
@@ -1068,6 +1100,9 @@ function applyStarter(starter: (typeof starterPremises)[number]): void {
   store.setPremise(starter.premise)
   store.setMode(starter.mode)
   store.setBatchShape(starter.batchShape)
+  store.setOutputDomain(
+    ('outputDomain' in starter ? starter.outputDomain : 'ideas') as BrainstormOutputDomainId,
+  )
 }
 
 function candidateBusyAction(candidateId: string): 'regenerate' | 'branch' | null {

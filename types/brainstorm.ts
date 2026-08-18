@@ -2,6 +2,33 @@ export const BRAINSTORM_MIN_RESULTS = 1
 export const BRAINSTORM_MAX_RESULTS = 24
 export const BRAINSTORM_DEFAULT_RESULTS = 8
 
+// conductor brainstorm/t-015: a second output domain alongside the default
+// idea-generation one. Orthogonal to `mode` (the creative-direction style
+// knob, e.g. 'stranger'/'darker-funnier') -- outputDomain instead changes
+// WHAT KIND of thing each candidate's "text" field actually is. 'ideas' is
+// the existing default (a concept/premise/joke); 'art-prompts' asks for a
+// ready-to-use text prompt for an image generator instead, with explicit
+// composition/subject/action/environment/visual-direction diversity. This
+// only changes text output -- it never enqueues or requests an actual image
+// (see brainstorm/t-015's roadmap note: "Candidate cards gain an explicit
+// optional 'Generate art' action only after this text mode is solid").
+export const BRAINSTORM_OUTPUT_DOMAINS = [
+  {
+    id: 'ideas',
+    label: 'Ideas',
+    description: 'General creative divergence: concepts, jokes, plans, and premises.',
+  },
+  {
+    id: 'art-prompts',
+    label: 'Art prompts',
+    description:
+      'Text-only image-generation prompts with composition, subject, action, environment, and visual-direction diversity across the batch.',
+  },
+] as const
+
+export type BrainstormOutputDomainId = (typeof BRAINSTORM_OUTPUT_DOMAINS)[number]['id']
+export const BRAINSTORM_DEFAULT_OUTPUT_DOMAIN: BrainstormOutputDomainId = 'ideas'
+
 export const BRAINSTORM_RETURN_TYPES = [
   {
     id: 'dark-humor',
@@ -143,6 +170,7 @@ export type BrainstormGenerateRequest = {
   constraints?: string
   examples?: string[]
   mode?: string
+  outputDomain?: BrainstormOutputDomainId
   batchShape?: BrainstormBatchShape
   returnTypes?: BrainstormReturnTypeRequest[]
   source?: BrainstormSourceRef | null
@@ -195,6 +223,7 @@ export type BrainstormSessionSnapshot = {
   constraints: string
   examples: string[]
   mode: string
+  outputDomain: BrainstormOutputDomainId
   batchShape: BrainstormBatchShape
   returnTypes: BrainstormReturnTypeRequest[]
   source: BrainstormSourceRef | null

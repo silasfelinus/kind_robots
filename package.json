@@ -93,6 +93,8 @@
     "test:davinci-choice-list-guard": "tsx utils/scripts/verifyDaVinciChoiceListGuard.ts",
     "test:davinci-dimension-group-guard-selftest": "tsx utils/scripts/verifyDaVinciDimensionGroupGuard.test.ts",
     "test:davinci-dimension-group-guard": "tsx utils/scripts/verifyDaVinciDimensionGroupGuard.ts",
+    "test:davinci-narration-error-role-guard-selftest": "tsx utils/scripts/verifyDaVinciNarrationErrorRoleGuard.test.ts",
+    "test:davinci-narration-error-role-guard": "tsx utils/scripts/verifyDaVinciNarrationErrorRoleGuard.ts",
     "test:serendipity-voice-poll-guard-selftest": "tsx utils/scripts/verifySerendipityVoicePollGuard.test.ts",
     "test:serendipity-voice-poll-guard": "tsx utils/scripts/verifySerendipityVoicePollGuard.ts",
     "test:serendipity-voice-cursor-reset-selftest": "tsx utils/scripts/verifySerendipityVoiceCursorReset.test.ts",

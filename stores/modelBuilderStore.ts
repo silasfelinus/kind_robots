@@ -2061,15 +2061,62 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     }
   }
 
-  // Approve a stage for every (unlocked) item in a group at once.
-  function batchApproveStage(outputKey: string, stageKey: BuildStageKey): void {
-    let approved = 0
+  // Approve a stage for every (unlocked) item in a group at once. Persists
+  // the whole group in a single batch request rather than N per-item
+  // PATCHes, and reports success only once that request actually confirms it
+  // -- mirrors batchSetField (see its own doc comment for the identical
+  // race). The pre-fix shape called the single-item approveStage (whose own
+  // pushItem is a fire-and-forget background PATCH) in a loop and
+  // unconditionally showed an "Approved N items." success toast the instant
+  // the loop finished, before any of those N background writes had actually
+  // resolved. That's fine for a fire-and-forget action reporting on
+  // separately-confirmed local work (e.g. generateItemAsset's toast reports
+  // the *render* succeeding, with pushItem persisting it alongside) -- but
+  // "approved" has no meaning other than "persisted": there's no separate
+  // local accomplishment being confirmed the way a rendered asset is. A
+  // concurrent run cancellation (or any other server-side rejection, e.g.
+  // assertRunWritable) during that loop could pop a false "Approved N
+  // items." success toast, immediately followed by pushItem's own
+  // unrelated-looking "Failed to save changes." error moments later -- with
+  // every item's local stageStatuses already optimistically flipped to
+  // 'approved' either way, same as batchSetField's pre-fix bug.
+  async function batchApproveStage(
+    outputKey: string,
+    stageKey: BuildStageKey,
+  ): Promise<void> {
+    const entries: Array<{
+      item: BuildItem
+      payload: Record<string, unknown>
+      meta?: { stage?: string; reason?: string }
+    }> = []
     for (const item of groupItems(outputKey)) {
       if (item.stages[stageKey].status === 'locked') continue
-      approveStage(item.id, stageKey)
-      approved++
+      item.stages[stageKey] = { status: 'approved' }
+      const next = BUILD_STAGES[stageIndex(stageKey) + 1]
+      if (next && item.stages[next.key].status === 'locked') {
+        item.stages[next.key] = { status: 'ready' }
+      }
+      entries.push({
+        item,
+        payload: { stageStatuses: item.stages },
+        meta: { stage: stageKey },
+      })
     }
-    setStatus('success', `Approved ${stageKey} for ${approved} items.`)
+    batchingOutputSingleton.claim(outputKey)
+    try {
+      const ok = await batchPushItems(entries)
+      // On failure, batchPushItems already surfaced the real error via
+      // setStatusForRun -- reporting a blanket "success" here too would be
+      // actively misleading.
+      if (ok) {
+        setStatus(
+          'success',
+          `Approved ${stageKey} for ${entries.length} items.`,
+        )
+      }
+    } finally {
+      batchingOutputSingleton.release(outputKey)
+    }
   }
 
   // Auto-build (draft → generate → commit with defaults) every not-yet-committed

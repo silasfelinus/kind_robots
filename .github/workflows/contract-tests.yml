@@ -563,6 +563,12 @@ jobs:
       - name: Model Builder item.error persistence guard contract
         run: npm run test:model-builder-error-persistence-guard
 
+      - name: Model Builder batch partial-failure revert guard self-test
+        run: npm run test:model-builder-batch-partial-failure-revert-guard-selftest
+
+      - name: Model Builder batch partial-failure revert guard contract
+        run: npm run test:model-builder-batch-partial-failure-revert-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

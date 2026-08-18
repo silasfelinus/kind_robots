@@ -142,6 +142,16 @@ interface OutputSelection {
   quantity: number
 }
 
+// batchPushItems' return shape. Named (rather than an inline `Promise<{ ... }>`
+// object-literal return type) so this store's own verifyModelBuilder*Guard.ts
+// scripts -- which locate a function's body by scanning for the first '{'
+// after its parameter list's closing ')' -- land on the real body brace
+// instead of the object type literal's own braces.
+interface BatchPushOutcome {
+  ok: boolean
+  failedIds: Set<string>
+}
+
 interface ModelBuilderState {
   step: BuilderStep
   sourceType: SourceTypeKey | null
@@ -774,18 +784,33 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   // Background persistence of a whole group edit in one round-trip. Callers
   // mutate local state first (optimistic) and pass only the changed fields per
   // item, same contract as pushItem — this just collapses N per-item PATCH
-  // requests into a single batch request. Returns whether the write actually
-  // succeeded, so a caller that summarizes its own outcome (batchSetField) can
-  // await the real result instead of assuming success the instant the request
-  // is issued.
+  // requests into a single batch request. Returns the real, confirmed outcome
+  // -- both an overall `ok` (true only when every entry persisted) and the
+  // per-item `failedIds` -- so a caller that summarizes its own outcome
+  // (batchSetField, batchApproveStage) can await the real result instead of
+  // assuming success the instant the request is issued.
+  //
+  // failedIds matters beyond the summary toast: items/batch.patch.ts validates
+  // and applies each entry independently (a single failing entry does not
+  // abort the others -- see its own header comment), so a batch can come back
+  // as a *partial* failure (HTTP 207: some entries updated, some rejected,
+  // e.g. by a concurrent edit that made one item's stage no longer editable
+  // server-side). Every entry's item was already mutated optimistically
+  // before this call was made, for every entry, not just the ones that end up
+  // persisting -- treating a partial failure as "all failed" would falsely
+  // discard entries that DID persist, and treating it as an opaque failure
+  // with no detail leaves the entries that were actually rejected still
+  // showing their optimistic change locally forever, with no sign that write
+  // never landed. Returning exactly which ids failed lets the caller revert
+  // only those.
   function batchPushItems(
     entries: Array<{
       item: BuildItem
       payload: Record<string, unknown>
       meta?: { stage?: string; reason?: string }
     }>,
-  ): Promise<boolean> {
-    if (!entries.length) return Promise.resolve(true)
+  ): Promise<BatchPushOutcome> {
+    if (!entries.length) return Promise.resolve({ ok: true, failedIds: new Set() })
     const runId = state.run?.id
     return performFetch('/api/model-builder/items/batch', {
       method: 'PATCH',
@@ -799,23 +824,51 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       }),
     })
       .then((response) => {
-        if (!response.success) {
-          if (runId) {
-            setStatusForRun(
-              runId,
-              'error',
-              response.message || 'Failed to save changes.',
-            )
+        if (response.success) return { ok: true, failedIds: new Set<string>() }
+
+        // Distinguish a total failure (rejected before any entry was even
+        // evaluated -- bad auth, a malformed body -- so response.data carries
+        // no per-entry breakdown) from a partial one (response.data is the
+        // per-entry `{ id, success }[]` items/batch.patch.ts always returns
+        // once it reaches its per-entry loop). Only the latter can tell which
+        // specific ids actually failed; fall back to treating every entry as
+        // failed when that detail isn't available, rather than guessing any
+        // of them landed.
+        const perItem = Array.isArray(response.data)
+          ? (response.data as unknown[])
+          : null
+        const failedIds = new Set<string>()
+        if (perItem) {
+          for (const result of perItem) {
+            if (
+              result &&
+              typeof result === 'object' &&
+              'id' in result &&
+              (result as { success?: unknown }).success !== true
+            ) {
+              failedIds.add(String((result as { id: unknown }).id))
+            }
           }
-          return false
+        } else {
+          for (const { item } of entries) failedIds.add(item.id)
         }
-        return true
+
+        if (runId) {
+          setStatusForRun(
+            runId,
+            'error',
+            response.message || 'Failed to save changes.',
+          )
+        }
+        return { ok: false, failedIds }
       })
       .catch((error) => {
         // Same reasoning as pushItem's catch above: mirror the success:false
         // branch's run-scoping instead of unconditionally calling
         // handleError, so a rejected batch write doesn't pop a global error
-        // banner for a run the user has cancelled or moved away from.
+        // banner for a run the user has cancelled or moved away from. A
+        // rejected request never reached the server at all, so every entry
+        // is unconfirmed.
         if (runId) {
           setStatusForRun(
             runId,
@@ -825,7 +878,10 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
               : 'Failed to save changes.',
           )
         }
-        return false
+        return {
+          ok: false,
+          failedIds: new Set(entries.map(({ item }) => item.id)),
+        }
       })
   }
 
@@ -2016,6 +2072,20 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   // unscoped-looking "Failed to save changes." -- while every item's local
   // fieldsDraft/stageStatuses had already been optimistically changed with no
   // indication of which items, if any, never actually persisted.
+  //
+  // Bug (model-builder/t-029 cycle 9): that last part -- "no indication of
+  // which items never actually persisted" -- was more than a messaging gap.
+  // items/batch.patch.ts validates and applies every entry independently (a
+  // single failing entry does not abort the others), so a real-world failure
+  // here is usually *partial*: most items persist, one or two are rejected
+  // (e.g. a concurrent edit made that item's FIELDS_AND_PROMPTS no longer
+  // editable server-side by the time this batch reached it). Every entry's
+  // item was already mutated optimistically before the request was sent, and
+  // this used to leave ALL of them, including the rejected ones, showing
+  // their new fieldsDraft/stageStatuses forever -- the UI kept claiming a
+  // field was set to a value that was never actually written, with nothing
+  // short of a full reload to reveal the discrepancy. batchPushItems now
+  // reports exactly which ids failed so only those get reverted below.
   async function batchSetField(
     outputKey: string,
     fieldKey: string,
@@ -2027,6 +2097,13 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       payload: Record<string, unknown>
       meta?: { stage?: string; reason?: string }
     }> = []
+    // Snapshotted before each item's optimistic mutation below so a
+    // server-rejected entry can be reverted to exactly what it held before
+    // this call, instead of keeping an edit that never actually persisted.
+    const previous = new Map<
+      string,
+      { fieldsDraft: string; stages: BuildItem['stages'] }
+    >()
     for (const item of items) {
       // Skip items whose FIELDS_AND_PROMPTS is already approved/locked — see
       // isStageEditable's doc comment.
@@ -2036,6 +2113,10 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         : undefined
       const next = setFieldLine(item.fieldsDraft, fieldKey, value, modelType)
       if (next === item.fieldsDraft) continue
+      previous.set(item.id, {
+        fieldsDraft: item.fieldsDraft,
+        stages: item.stages,
+      })
       item.fieldsDraft = next
       markDownstreamStale(item, 'FIELDS_AND_PROMPTS')
       entries.push({
@@ -2046,7 +2127,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     }
     batchingOutputSingleton.claim(outputKey)
     try {
-      const ok = await batchPushItems(entries)
+      const { ok, failedIds } = await batchPushItems(entries)
       // On failure, batchPushItems already surfaced the real error via
       // setStatusForRun -- reporting a blanket "success" here too would be
       // actively misleading.
@@ -2055,6 +2136,18 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
           'success',
           `Set ${fieldKey} on ${entries.length}/${items.length} items.`,
         )
+      } else if (failedIds.size) {
+        // Revert exactly the entries the server rejected -- see this
+        // function's own doc comment and batchPushItems' for why a partial
+        // failure must not leave those items showing an unpersisted edit.
+        for (const entry of entries) {
+          if (!failedIds.has(entry.item.id)) continue
+          const prior = previous.get(entry.item.id)
+          if (prior) {
+            entry.item.fieldsDraft = prior.fieldsDraft
+            entry.item.stages = prior.stages
+          }
+        }
       }
     } finally {
       batchingOutputSingleton.release(outputKey)
@@ -2080,6 +2173,16 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   // unrelated-looking "Failed to save changes." error moments later -- with
   // every item's local stageStatuses already optimistically flipped to
   // 'approved' either way, same as batchSetField's pre-fix bug.
+  //
+  // Bug (model-builder/t-029 cycle 9): fixing the toast (this function
+  // already did, per the paragraph above) left a second, quieter half of the
+  // same bug in place -- see batchPushItems' and batchSetField's own doc
+  // comments for the full picture. A *partial* server-side rejection (one
+  // item's stage is no longer approvable by the time this batch reaches it,
+  // the rest persist fine) used to leave every item, including the rejected
+  // one, showing 'approved' locally forever: the toast stopped lying, but the
+  // badge kept lying. batchPushItems now reports exactly which ids failed so
+  // only those get reverted below.
   async function batchApproveStage(
     outputKey: string,
     stageKey: BuildStageKey,
@@ -2089,8 +2192,14 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       payload: Record<string, unknown>
       meta?: { stage?: string; reason?: string }
     }> = []
+    // Snapshotted before each item's optimistic mutation below so a
+    // server-rejected entry can be reverted to exactly the stages it held
+    // before this call, instead of keeping an approval that never actually
+    // persisted.
+    const previousStages = new Map<string, BuildItem['stages']>()
     for (const item of groupItems(outputKey)) {
       if (item.stages[stageKey].status === 'locked') continue
+      previousStages.set(item.id, { ...item.stages })
       item.stages[stageKey] = { status: 'approved' }
       const next = BUILD_STAGES[stageIndex(stageKey) + 1]
       if (next && item.stages[next.key].status === 'locked') {
@@ -2104,7 +2213,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     }
     batchingOutputSingleton.claim(outputKey)
     try {
-      const ok = await batchPushItems(entries)
+      const { ok, failedIds } = await batchPushItems(entries)
       // On failure, batchPushItems already surfaced the real error via
       // setStatusForRun -- reporting a blanket "success" here too would be
       // actively misleading.
@@ -2113,6 +2222,15 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
           'success',
           `Approved ${stageKey} for ${entries.length} items.`,
         )
+      } else if (failedIds.size) {
+        // Revert exactly the entries the server rejected -- see this
+        // function's own doc comment and batchPushItems' for why a partial
+        // failure must not leave those items showing an unpersisted approval.
+        for (const entry of entries) {
+          if (!failedIds.has(entry.item.id)) continue
+          const previous = previousStages.get(entry.item.id)
+          if (previous) entry.item.stages = previous
+        }
       }
     } finally {
       batchingOutputSingleton.release(outputKey)

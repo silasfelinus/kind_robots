@@ -314,6 +314,9 @@ jobs:
       - name: Brainstorm source adapter contract
         run: npm run test:brainstorm-source-adapters
 
+      - name: Brainstorm source context contract
+        run: npm run test:brainstorm-source-context
+
       - name: mysql:// URL parser contract
         run: npm run test:parse-mysql-url
 

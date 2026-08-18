@@ -50,6 +50,12 @@
         </dt>
         <dd>{{ entry.year }}</dd>
       </div>
+      <div v-if="rewatchLabel">
+        <dt class="text-xs font-semibold uppercase text-base-content/45">
+          Rewatch
+        </dt>
+        <dd>{{ rewatchLabel }}</dd>
+      </div>
       <div class="col-span-2">
         <dt class="text-xs font-semibold uppercase text-base-content/45">
           Rating
@@ -225,6 +231,7 @@ export type MediaEntryDetail = {
   review: string | null
   reviewPublic: boolean
   rating: number | null
+  rewatch: number | null
   externalId: string | null
   externalUrl: string | null
 }
@@ -304,6 +311,21 @@ const consumedLabel = computed(() => {
     { month: 'long' },
   )
   return props.entry.watchedDay ? `${month} ${props.entry.watchedDay}` : month
+})
+
+// `rewatch` is the total watch count the source marked for this entry (e.g.
+// "x2" -> 2); it only exists on rows where the source explicitly noted a
+// repeat viewing, so 1 never appears here (see BROWSE-UX.md schema note).
+const rewatchLabel = computed(() => {
+  const count = props.entry.rewatch
+  if (!count || count < 2) return ''
+  const suffix =
+    count % 10 === 2 && count % 100 !== 12
+      ? 'nd'
+      : count % 10 === 3 && count % 100 !== 13
+        ? 'rd'
+        : 'th'
+  return `${count}${suffix} viewing`
 })
 
 let autoSaveTimer: ReturnType<typeof setTimeout> | undefined

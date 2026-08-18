@@ -13,8 +13,17 @@
         <div class="min-w-[min(100%,28rem)] flex-1">
           <div
             class="mb-2 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-primary"
+            data-testid="brainstorm-persona-badge"
           >
-            <span aria-hidden="true">🧠</span>
+            <img
+              v-if="persona?.avatarImage && !personaAvatarFailed"
+              :src="persona.avatarImage"
+              :alt="persona.name"
+              class="h-4 w-4 rounded-full object-cover"
+              loading="lazy"
+              @error="personaAvatarFailed = true"
+            />
+            <span v-else aria-hidden="true">🧠</span>
             Brainstorm
           </div>
           <h2 class="text-2xl font-black tracking-tight text-base-content sm:text-3xl">
@@ -23,6 +32,13 @@
           <p class="mt-2 max-w-3xl text-sm leading-6 text-base-content/65">
             Give Brainstorm a premise, problem, joke setup, art target, or half-formed thought.
             It will propose a batch. You keep the sparks and bully the beige ones into doing better.
+          </p>
+          <p
+            v-if="persona?.tagline"
+            class="mt-1 text-xs italic text-base-content/45"
+            data-testid="brainstorm-persona-tagline"
+          >
+            {{ persona.tagline }}
           </p>
         </div>
 
@@ -761,6 +777,8 @@ import type {
   BrainstormSourceDisplay,
   BrainstormSourceOption,
 } from '@/stores/helpers/brainstormSourceAdapters'
+import { useBotStore } from '@/stores/botStore'
+import type { Bot } from '~/prisma/generated/prisma/client'
 
 const creativeDirections = [
   {
@@ -1078,9 +1096,37 @@ function seedFromQuery(): void {
   void router.replace({ query })
 }
 
+// Purely decorative persona flourish (brainstorm/t-018): the historical
+// Brainstorm bot persona survives in the live Bot table (slug
+// "brainstorm-bot") with modern generated avatar/tagline art. Showing it here
+// is soft flavor only -- generation never reads `persona` and works
+// identically whether this bot exists, is renamed, or fails to load.
+const botStore = useBotStore()
+const persona = ref<Bot | null>(null)
+const personaAvatarFailed = ref(false)
+
+async function loadBrainstormPersona(): Promise<void> {
+  try {
+    const bots = await botStore.fetchBots()
+    persona.value =
+      bots.find(
+        (bot) =>
+          bot.slug === 'brainstorm-bot' &&
+          bot.isPublic !== false &&
+          bot.isActive !== false &&
+          !bot.underConstruction,
+      ) ?? null
+  } catch {
+    // Decorative only -- a failed/blocked bot fetch must never affect the
+    // generation workbench, so it silently falls back to no persona flair.
+    persona.value = null
+  }
+}
+
 onMounted(() => {
   store.initializeSession()
   seedFromQuery()
+  void loadBrainstormPersona()
 })
 
 function returnTypeSelected(id: BrainstormReturnTypeId): boolean {

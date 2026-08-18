@@ -15,6 +15,13 @@ const migration = readFileSync(
   resolve(root, 'prisma/migrations/20260810122000_add_brainstorm_persistence/migration.sql'),
   'utf8',
 )
+const outputDomainMigration = readFileSync(
+  resolve(
+    root,
+    'prisma/migrations/20260818190000_add_brainstorm_output_domain/migration.sql',
+  ),
+  'utf8',
+)
 const listRoute = readFileSync(
   resolve(root, 'server/api/brainstorm/sessions/index.get.ts'),
   'utf8',
@@ -49,6 +56,18 @@ assert.doesNotMatch(
   'Brainstorm persistence migration must remain additive-only',
 )
 
+// conductor brainstorm/t-015: art-prompt output domain column.
+assert.match(schema, /outputDomain\s+String\s+@default\("ideas"\)/)
+assert.match(
+  outputDomainMigration,
+  /ALTER TABLE `BrainstormSession` ADD COLUMN `outputDomain`/,
+)
+assert.doesNotMatch(
+  outputDomainMigration,
+  /DROP\s+(?:TABLE|COLUMN|DATABASE)|TRUNCATE|DELETE\s+FROM|UPDATE\s+`|INSERT\s+INTO|RENAME\s+(?:TABLE|COLUMN)|CHANGE\s+COLUMN|MODIFY\s+COLUMN/i,
+  'the outputDomain migration must remain additive-only',
+)
+
 for (const route of [listRoute, createRoute, getRoute, putRoute]) {
   assert.match(route, /requireApiUser\(event\)/)
   assert.match(route, /errorHandler\(error\)/)
@@ -70,6 +89,7 @@ const saveRequest = normalizeBrainstormSessionSaveRequest({
     constraints: 'Keep each seed short.',
     examples: ['Pralines and Glass'],
     mode: 'darker-funnier',
+    outputDomain: 'art-prompts',
     batchShape: 'assortment',
     returnTypes: [
       { id: 'dark-humor', count: 1 },
@@ -151,6 +171,7 @@ const saveRequest = normalizeBrainstormSessionSaveRequest({
           constraints: 'Keep each seed short.',
           examples: ['Pralines and Glass'],
           mode: 'darker-funnier',
+          outputDomain: 'art-prompts',
           batchShape: 'assortment',
           returnTypes: [
             { id: 'dark-humor', count: 1 },
@@ -167,6 +188,7 @@ const saveRequest = normalizeBrainstormSessionSaveRequest({
 })
 
 assert.equal(saveRequest.name, 'Pralines and Glass Lab')
+assert.equal(saveRequest.snapshot.outputDomain, 'art-prompts')
 assert.equal(saveRequest.snapshot.candidates.length, 2)
 assert.equal(saveRequest.snapshot.candidates[0]?.status, 'kept')
 assert.equal(saveRequest.snapshot.candidates[0]?.revisions.length, 2)
@@ -178,6 +200,7 @@ assert.equal(
 const sessionData = brainstormSessionData(17, saveRequest)
 const candidateRows = brainstormCandidateCreateData(saveRequest.snapshot.candidates)
 assert.equal(sessionData.userId, 17)
+assert.equal(sessionData.outputDomain, 'art-prompts')
 assert.equal(candidateRows[0]?.clientId, 'candidate-a')
 assert.equal(candidateRows[1]?.parentClientId, 'candidate-a')
 assert.equal(candidateRows[1]?.position, 1)
@@ -192,6 +215,7 @@ const storedRow: BrainstormStoredSessionRow = {
   constraints: sessionData.constraints,
   examples: sessionData.examples,
   mode: sessionData.mode,
+  outputDomain: sessionData.outputDomain,
   batchShape: sessionData.batchShape,
   returnTypes: sessionData.returnTypes,
   source: sessionData.source,
@@ -220,6 +244,21 @@ assert.equal(
 assert.deepEqual(reopened.snapshot.returnTypes, saveRequest.snapshot.returnTypes)
 assert.deepEqual(reopened.snapshot.source, saveRequest.snapshot.source)
 assert.equal(reopened.snapshot.activeBatchId, 'batch-a')
+assert.equal(
+  reopened.snapshot.outputDomain,
+  'art-prompts',
+  'outputDomain must round-trip through save -> stored row -> reopened snapshot',
+)
+
+// A row saved before this column existed (or an unrecognized value) must
+// degrade to the default domain, never throw or surface an invalid id.
+const legacyRow: BrainstormStoredSessionRow = { ...storedRow, outputDomain: '' }
+assert.equal(storedBrainstormSession(legacyRow).snapshot.outputDomain, 'ideas')
+const corruptRow: BrainstormStoredSessionRow = {
+  ...storedRow,
+  outputDomain: 'not-a-real-domain',
+}
+assert.equal(storedBrainstormSession(corruptRow).snapshot.outputDomain, 'ideas')
 
 assert.throws(
   () =>

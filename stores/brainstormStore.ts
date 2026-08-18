@@ -3,9 +3,11 @@ import { defineStore } from 'pinia'
 import { useServerStore } from '@/stores/serverStore'
 import { performFetch } from '@/stores/utils'
 import {
+  BRAINSTORM_DEFAULT_OUTPUT_DOMAIN,
   BRAINSTORM_DEFAULT_RESULTS,
   BRAINSTORM_MAX_RESULTS,
   BRAINSTORM_MIN_RESULTS,
+  BRAINSTORM_OUTPUT_DOMAINS,
   BRAINSTORM_RETURN_TYPES,
 } from '@/types/brainstorm'
 import type {
@@ -22,6 +24,7 @@ import type {
   BrainstormGeneratePayload,
   BrainstormGenerateRequest,
   BrainstormGenerationState,
+  BrainstormOutputDomainId,
   BrainstormPersistenceState,
   BrainstormReferenceCandidate,
   BrainstormReturnTypeId,
@@ -84,6 +87,15 @@ function clampResultCount(value: unknown): number {
 
 function normalizeBatchShape(value: unknown): BrainstormBatchShape {
   return value === 'assortment' ? 'assortment' : 'focused'
+}
+
+const OUTPUT_DOMAIN_IDS = new Set(
+  BRAINSTORM_OUTPUT_DOMAINS.map((entry) => entry.id),
+)
+
+function normalizeOutputDomain(value: unknown): BrainstormOutputDomainId {
+  const id = cleanText(value) as BrainstormOutputDomainId
+  return OUTPUT_DOMAIN_IDS.has(id) ? id : BRAINSTORM_DEFAULT_OUTPUT_DOMAIN
 }
 
 function normalizeReturnTypeId(value: unknown): BrainstormReturnTypeId | null {
@@ -303,6 +315,7 @@ function normalizeStoredBatch(value: unknown): BrainstormBatch | null {
     constraints: cleanMultilineText(requestRecord.constraints),
     examples: cleanExamples(requestRecord.examples),
     mode: cleanText(requestRecord.mode) || 'freeform',
+    outputDomain: normalizeOutputDomain(requestRecord.outputDomain),
     batchShape: normalizeBatchShape(requestRecord.batchShape),
     returnTypes: normalizeReturnTypes(requestRecord.returnTypes),
     source: normalizeSourceRef(requestRecord.source),
@@ -326,6 +339,7 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
   const constraints = ref('')
   const examples = ref<string[]>([])
   const mode = ref('freeform')
+  const outputDomain = ref<BrainstormOutputDomainId>(BRAINSTORM_DEFAULT_OUTPUT_DOMAIN)
   const batchShape = ref<BrainstormBatchShape>('focused')
   const returnTypes = ref<BrainstormReturnTypeRequest[]>([])
   const source = ref<BrainstormSourceRef | null>(null)
@@ -428,6 +442,7 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
       constraints: constraints.value,
       examples: examples.value,
       mode: mode.value,
+      outputDomain: outputDomain.value,
       batchShape: batchShape.value,
       returnTypes: returnTypes.value,
       source: source.value,
@@ -504,6 +519,7 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
       constraints.value = cleanMultilineText(parsed.constraints)
       examples.value = cleanExamples(parsed.examples)
       mode.value = cleanText(parsed.mode) || 'freeform'
+      outputDomain.value = normalizeOutputDomain(parsed.outputDomain)
       batchShape.value = restoredShape
       returnTypes.value = restoredReturnTypes
       source.value = normalizeSourceRef(parsed.source)
@@ -587,6 +603,10 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
 
   function setMode(value: string): void {
     mode.value = cleanText(value) || 'freeform'
+  }
+
+  function setOutputDomain(value: BrainstormOutputDomainId): void {
+    outputDomain.value = normalizeOutputDomain(value)
   }
 
   function setBatchShape(value: BrainstormBatchShape): void {
@@ -938,6 +958,7 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
       constraints: cleanMultilineText(constraints.value),
       examples: cleanExamples(examples.value),
       mode: cleanText(mode.value) || 'freeform',
+      outputDomain: outputDomain.value,
       batchShape: shape,
       returnTypes: shape === 'assortment' ? normalizeReturnTypes(returnTypes.value) : [],
       source: source.value,
@@ -963,6 +984,7 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
         originalRequest?.constraints || cleanMultilineText(constraints.value),
       examples: originalRequest?.examples || cleanExamples(examples.value),
       mode: originalRequest?.mode || cleanText(mode.value) || 'freeform',
+      outputDomain: originalRequest?.outputDomain ?? outputDomain.value,
       batchShape: returnType ? 'assortment' : 'focused',
       returnTypes: returnType ? [{ id: returnType, count: 1 }] : [],
       source: originalRequest?.source ?? source.value,
@@ -1217,6 +1239,7 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     constraints.value = ''
     examples.value = []
     mode.value = 'freeform'
+    outputDomain.value = BRAINSTORM_DEFAULT_OUTPUT_DOMAIN
     batchShape.value = 'focused'
     returnTypes.value = []
     source.value = null
@@ -1242,6 +1265,7 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
         constraints: constraints.value,
         examples: examples.value,
         mode: mode.value,
+        outputDomain: outputDomain.value,
         batchShape: batchShape.value,
         returnTypes: returnTypes.value,
         source: source.value,
@@ -1266,6 +1290,7 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     constraints,
     examples,
     mode,
+    outputDomain,
     batchShape,
     returnTypes,
     source,
@@ -1302,6 +1327,7 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     setExamples,
     setExamplesFromText,
     setMode,
+    setOutputDomain,
     setBatchShape,
     toggleReturnType,
     setReturnTypeCount,

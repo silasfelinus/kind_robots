@@ -14,6 +14,7 @@ model BrainstormSession {
   constraints     String?              @db.LongText
   examples        String?              @db.LongText
   mode            String               @default("freeform") @db.VarChar(80)
+  outputDomain    String               @default("ideas") @db.VarChar(40)
   batchShape      String               @default("focused") @db.VarChar(32)
   returnTypes     String?              @db.LongText
   source          String?              @db.LongText

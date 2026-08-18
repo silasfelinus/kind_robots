@@ -51,6 +51,18 @@
 // the lastError/pushLocalMessage report, or the postAck() gating cannot
 // reintroduce a false "Applied"/"is now X" acknowledgement the way t-015's
 // and t-020's bugs did for the mismatched-action case.
+//
+// Extended again (alexa-integration/t-015, 2026-08-18 cycle) with a third,
+// distinct contract: checkSerendipityVoiceArtAckGuard() below. The two
+// contracts above are both about *false* acknowledgements. This one is the
+// opposite gap: a *missing* one. Every other successful command target
+// (clear, animation on/off/toggle, theme set) calls postAck() so the voice
+// side gets a spoken confirmation; applyArtCommand()'s success path pushed
+// the draft and a local feed message but never called postAck() at all, so
+// a spoken "generate art of X" request that fully succeeded still got no
+// acknowledgement back through the relay. Fixed by calling postAck() the
+// same way the other three success paths do; this guard keeps a future edit
+// from silently dropping that call again.
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -434,11 +446,56 @@ export function checkSerendipityVoiceErrorReportingGuard(
   return errors
 }
 
+// Checks the "successful command, but no voice acknowledgement" gap --
+// see the file-header addendum above (alexa-integration/t-015, 2026-08-18
+// cycle) for what this protects against. Distinct from both guards above:
+// those catch a *false* postAck(); this one catches a *missing* one on
+// applyArtCommand()'s only success path.
+export function checkSerendipityVoiceArtAckGuard(content: string): string[] {
+  const errors: string[] = []
+
+  const artBody = extractFunctionSource(content, 'applyArtCommand')
+  if (!artBody) {
+    errors.push(
+      'Could not find a function named applyArtCommand() -- has it been ' +
+        'renamed, removed, or restructured? If so, this guard (and the ' +
+        'missing-acknowledgement contract it protects) needs to move with ' +
+        'it.',
+    )
+    return errors
+  }
+
+  const pushIndex = artBody.search(/artRequests\.value\.push\(request\)/)
+  if (pushIndex === -1) {
+    errors.push(
+      'applyArtCommand() no longer contains `artRequests.value.push(' +
+        'request)` -- has the draft-recording shape changed? This guard ' +
+        'assumes that structure to locate the success path.',
+    )
+    return errors
+  }
+
+  const postAckIndex = searchAfter(artBody, /postAck\(/, pushIndex)
+  if (postAckIndex === -1) {
+    errors.push(
+      "applyArtCommand()'s success path no longer calls postAck() -- " +
+        'every other successful command target (clear, animation on/off/' +
+        'toggle, theme set) acknowledges back through the relay so the ' +
+        'voice side can confirm; a successful art draft must too, or a ' +
+        'spoken "generate art of X" request that fully succeeded gets no ' +
+        'acknowledgement at all.',
+    )
+  }
+
+  return errors
+}
+
 function main(): void {
   const content = readFileSync(STORE_PATH, 'utf8')
   const actionErrors = checkSerendipityVoiceActionGuard(content)
   const errorReportingErrors = checkSerendipityVoiceErrorReportingGuard(content)
-  const errors = [...actionErrors, ...errorReportingErrors]
+  const artAckErrors = checkSerendipityVoiceArtAckGuard(content)
+  const errors = [...actionErrors, ...errorReportingErrors, ...artAckErrors]
 
   if (errors.length) {
     console.error(
@@ -454,9 +511,10 @@ function main(): void {
     'Serendipity Voice action guard contract passed: applyCommand(), ' +
       'applyThemeCommand(), and applyArtCommand() all reject action values ' +
       "that don't apply to their target instead of silently reporting a " +
-      'false "applied" message, and the unmatched-effect/unknown-theme ' +
+      'false "applied" message, the unmatched-effect/unknown-theme ' +
       'no-match branches still report failure (not a false success) before ' +
-      'returning.',
+      "returning, and applyArtCommand()'s success path still acknowledges " +
+      'back through the relay like every other successful command target.',
   )
 }
 

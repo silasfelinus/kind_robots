@@ -203,6 +203,11 @@ export const useSerendipityVoiceStore = defineStore(
       }
 
       // Draft only: surface the request for review. Never generate or publish.
+      // Every other successful command target (clear, animation on/off/
+      // toggle, theme set) sends postAck() so the voice side gets a spoken
+      // confirmation -- a successful art draft did not, leaving a spoken
+      // "generate art of X" request with no acknowledgement at all even
+      // though it landed. Ack it the same way the other targets do.
       const request: VoiceArtRequest = {
         id: command.id,
         prompt: command.prompt ?? command.spokenText,
@@ -215,6 +220,9 @@ export const useSerendipityVoiceStore = defineStore(
       artRequests.value.push(request)
       lastAppliedText.value = `art draft: ${request.prompt}`
       pushLocalMessage('system', `Art draft received: ${request.prompt}`)
+      void postAck(
+        `Serendipity view: art draft received for "${request.prompt}".`,
+      )
     }
 
     function applyCommand(command: VoiceBusCommand): void {

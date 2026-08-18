@@ -581,6 +581,12 @@ jobs:
       - name: Model Builder single-item revert guard contract
         run: npm run test:model-builder-single-item-revert-guard
 
+      - name: Model Builder error callout role guard self-test
+        run: npm run test:model-builder-error-callout-role-guard-selftest
+
+      - name: Model Builder error callout role guard contract
+        run: npm run test:model-builder-error-callout-role-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

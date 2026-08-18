@@ -178,12 +178,37 @@ const router = useRouter()
 const libraryOpen = ref(false)
 const restartArmed = ref(false)
 
+// storybook-page.vue's seedFromQuery() (child, mounted first) treats these as
+// one-shot: it consumes them into the setup draft, then strips them with its
+// own router.replace() so a reload, bookmark, or share never silently re-adds
+// the ingredient. That replace() races this component's own onMounted
+// (parent, mounted second, same synchronous tick) whenever it also calls
+// updateStoryQuery() -- e.g. arriving at `/storybook?character=<slug>` while
+// a previous session is still active in localStorage, exactly the case
+// seedFromQuery's own comment describes ("a link never destroys a story
+// someone was already assembling"). Neither router.replace() has resolved
+// when the second one is built, so updateStoryQuery()'s `{ ...route.query }`
+// still carries the stale, not-yet-stripped ingredient key, and its
+// navigation -- issued after seedFromQuery's -- wins: the ingredient key
+// resurfaces in the URL alongside `story=`, undoing the one-shot consumption
+// seedFromQuery just performed. Stripping these keys here too, on every query
+// rewrite this component makes, closes the race regardless of ordering.
+const SEED_QUERY_KEYS = new Set([
+  'scenario',
+  'location',
+  'character',
+  'facet',
+  'reward',
+])
+
 function queryStoryId(): string | null {
   return typeof route.query.story === 'string' ? route.query.story : null
 }
 
 function updateStoryQuery(sessionId: string | null): void {
-  const query = { ...route.query }
+  const query = Object.fromEntries(
+    Object.entries(route.query).filter(([key]) => !SEED_QUERY_KEYS.has(key)),
+  )
   if (sessionId) query.story = sessionId
   else delete query.story
   void router.replace({ query })

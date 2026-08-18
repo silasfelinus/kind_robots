@@ -12,6 +12,7 @@ import assert from 'node:assert/strict'
 
 import {
   checkSerendipityVoiceActionGuard,
+  checkSerendipityVoiceArtAckGuard,
   checkSerendipityVoiceErrorReportingGuard,
 } from './verifySerendipityVoiceActionGuard.js'
 
@@ -354,6 +355,58 @@ function runErrorReportingSelfTest(): void {
   )
 }
 
+// --- Fixtures for checkSerendipityVoiceArtAckGuard() (t-015, 2026-08-18) ---
+// Distinct from all fixtures above: this exercises the "success path never
+// acknowledges" gap on applyArtCommand(), not action/target mismatches or
+// false-success no-match branches.
+
+function artAckFixture(successAck: string): string {
+  return `
+    function applyArtCommand(command: VoiceBusCommand): void {
+      if (command.action !== 'draft') {
+        pushLocalMessage('system', \`Ignored unsupported art action: \${command.action}\`)
+        return
+      }
+
+      const request = { id: command.id, prompt: command.prompt ?? command.spokenText, at: command.at }
+      artRequests.value.push(request)
+      lastAppliedText.value = \`art draft: \${request.prompt}\`
+      pushLocalMessage('system', \`Art draft received: \${request.prompt}\`)
+      ${successAck}
+    }
+  `
+}
+
+const ART_ACK_FIXED = artAckFixture(
+  'void postAck(`Serendipity view: art draft received for "${request.prompt}".`)',
+)
+const ART_ACK_MISSING = artAckFixture('')
+
+function runArtAckSelfTest(): void {
+  const fixedErrors = checkSerendipityVoiceArtAckGuard(ART_ACK_FIXED)
+  assert.deepEqual(
+    fixedErrors,
+    [],
+    `expected the fixed art-ack fixture to pass, got: ${JSON.stringify(fixedErrors)}`,
+  )
+
+  const missingErrors = checkSerendipityVoiceArtAckGuard(ART_ACK_MISSING)
+  assert.equal(missingErrors.length, 1)
+  assert.ok(/no longer calls postAck\(\)/.test(missingErrors[0]!))
+
+  const missingFnErrors = checkSerendipityVoiceArtAckGuard(
+    'function someOtherFunction(): void {}',
+  )
+  assert.equal(missingFnErrors.length, 1)
+  assert.ok(/Could not find a function named/.test(missingFnErrors[0]!))
+
+  console.log(
+    'Serendipity Voice art-ack guard self-test passed: a successful art ' +
+      'draft that never calls postAck() fails, the fixed fixture passes, ' +
+      'and a missing-function fixture fails clearly.',
+  )
+}
+
 function run(): void {
   const fixedErrors = checkSerendipityVoiceActionGuard(FIXED)
   assert.deepEqual(
@@ -408,3 +461,4 @@ function run(): void {
 
 run()
 runErrorReportingSelfTest()
+runArtAckSelfTest()

@@ -742,10 +742,25 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   // Background persistence of a single item. Callers mutate local state first
   // (optimistic) and pass only the changed fields; a draft change also carries
   // stage metadata so the server records a revision.
+  //
+  // onFailure (model-builder/t-029 cycle 10): invoked once, synchronously,
+  // when the PATCH genuinely fails -- either a `{success:false}` response or
+  // a rejected promise -- so the caller can revert exactly the optimistic
+  // mutation it made before this call, mirroring batchApproveStage/
+  // batchSetField's own pre-mutation-snapshot pattern (cycle 9) at
+  // single-item scope. Before this, a failed single-item PATCH already
+  // surfaced an error toast via setStatusForRun below, but the item itself
+  // (approved badge, edited pitch/fields/prompt text, stage statuses) kept
+  // showing the unpersisted optimistic change until a full reload rebuilt it
+  // from the server's real (unchanged) state -- the same "review gate lying
+  // about what's actually stored" class of bug this codebase treats as real
+  // everywhere else it's found. onFailure is optional and additive: callers
+  // that don't pass one keep today's toast-only behavior unchanged.
   function pushItem(
     item: BuildItem,
     payload: Record<string, unknown>,
     meta?: { stage?: string; reason?: string },
+    onFailure?: () => void,
   ): void {
     const runId = state.run?.id
     performFetch(`/api/model-builder/items/${item.id}`, {
@@ -754,12 +769,15 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       body: JSON.stringify({ ...payload, ...meta }),
     })
       .then((response) => {
-        if (!response.success && runId) {
-          setStatusForRun(
-            runId,
-            'error',
-            response.message || 'Failed to save changes.',
-          )
+        if (!response.success) {
+          onFailure?.()
+          if (runId) {
+            setStatusForRun(
+              runId,
+              'error',
+              response.message || 'Failed to save changes.',
+            )
+          }
         }
       })
       .catch((error) => {
@@ -769,6 +787,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         // elsewhere shouldn't pop a global error banner for a run that's no
         // longer on screen. setStatusForRun already no-ops unless state.run
         // still matches the run this write belonged to.
+        onFailure?.()
         if (runId) {
           setStatusForRun(
             runId,
@@ -947,12 +966,19 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   function approveStage(itemId: string, stageKey: BuildStageKey): void {
     const item = findItem(itemId)
     if (!item) return
+    // Snapshotted before the optimistic mutation below so a failed PATCH can
+    // revert to exactly what this item held before this call, instead of
+    // leaving an approval that was never actually persisted (see pushItem's
+    // onFailure doc comment).
+    const previousStages = { ...item.stages }
     item.stages[stageKey] = { status: 'approved' }
     const next = BUILD_STAGES[stageIndex(stageKey) + 1]
     if (next && item.stages[next.key].status === 'locked') {
       item.stages[next.key] = { status: 'ready' }
     }
-    pushItem(item, { stageStatuses: item.stages }, { stage: stageKey })
+    pushItem(item, { stageStatuses: item.stages }, { stage: stageKey }, () => {
+      item.stages = previousStages
+    })
   }
 
   function rejectStage(
@@ -962,18 +988,24 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   ): void {
     const item = findItem(itemId)
     if (!item) return
+    const previousStages = { ...item.stages }
     item.stages[stageKey] = { status: 'rejected', note }
     markDownstreamStale(item, stageKey)
-    pushItem(item, { stageStatuses: item.stages }, { stage: stageKey })
+    pushItem(item, { stageStatuses: item.stages }, { stage: stageKey }, () => {
+      item.stages = previousStages
+    })
   }
 
   // Reopen a stale/approved stage for editing and invalidate downstream.
   function reopenStage(itemId: string, stageKey: BuildStageKey): void {
     const item = findItem(itemId)
     if (!item) return
+    const previousStages = { ...item.stages }
     item.stages[stageKey] = { status: 'ready' }
     markDownstreamStale(item, stageKey)
-    pushItem(item, { stageStatuses: item.stages }, { stage: stageKey })
+    pushItem(item, { stageStatuses: item.stages }, { stage: stageKey }, () => {
+      item.stages = previousStages
+    })
   }
 
   // error: null (both locally and in the pushed payload) on all three setters
@@ -991,6 +1023,12 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   function updatePitch(itemId: string, value: string): void {
     const item = findItem(itemId)
     if (!item) return
+    // Snapshotted before the optimistic mutation below so a failed PATCH can
+    // revert to exactly what this item held before this call (see pushItem's
+    // onFailure doc comment).
+    const previousPitch = item.pitch
+    const previousError = item.error
+    const previousStages = { ...item.stages }
     item.pitch = value
     item.error = null
     markDownstreamStale(item, 'PITCH')
@@ -998,12 +1036,20 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       item,
       { stageStatuses: item.stages, pitch: item.pitch, error: null },
       { stage: 'PITCH', reason: 'edited pitch' },
+      () => {
+        item.pitch = previousPitch
+        item.error = previousError
+        item.stages = previousStages
+      },
     )
   }
 
   function updateFields(itemId: string, value: string): void {
     const item = findItem(itemId)
     if (!item) return
+    const previousFieldsDraft = item.fieldsDraft
+    const previousError = item.error
+    const previousStages = { ...item.stages }
     item.fieldsDraft = value
     item.error = null
     markDownstreamStale(item, 'FIELDS_AND_PROMPTS')
@@ -1015,12 +1061,20 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         error: null,
       },
       { stage: 'FIELDS_AND_PROMPTS', reason: 'edited fields' },
+      () => {
+        item.fieldsDraft = previousFieldsDraft
+        item.error = previousError
+        item.stages = previousStages
+      },
     )
   }
 
   function updatePrompt(itemId: string, value: string): void {
     const item = findItem(itemId)
     if (!item) return
+    const previousPromptDraft = item.promptDraft
+    const previousError = item.error
+    const previousStages = { ...item.stages }
     item.promptDraft = value
     item.error = null
     markDownstreamStale(item, 'FIELDS_AND_PROMPTS')
@@ -1032,6 +1086,11 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         error: null,
       },
       { stage: 'FIELDS_AND_PROMPTS', reason: 'edited prompt' },
+      () => {
+        item.promptDraft = previousPromptDraft
+        item.error = previousError
+        item.stages = previousStages
+      },
     )
   }
 

@@ -575,6 +575,12 @@ jobs:
       - name: Model Builder batch partial-failure revert guard contract
         run: npm run test:model-builder-batch-partial-failure-revert-guard
 
+      - name: Model Builder single-item revert guard self-test
+        run: npm run test:model-builder-single-item-revert-guard-selftest
+
+      - name: Model Builder single-item revert guard contract
+        run: npm run test:model-builder-single-item-revert-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

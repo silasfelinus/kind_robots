@@ -92,9 +92,14 @@ assert.ok(
   constDeclarationMatch,
   `Could not find \`const SEED_QUERY_KEYS = [...]\` in ${PAGE_PATH}.`,
 )
+// Index via optional chaining (with a nullish fallback) even though the
+// assert.ok above already guarantees constDeclarationMatch is truthy here --
+// this repo's capture-group-guards contract requires every capture-group
+// index to be syntactically guarded at the point of use, not just asserted
+// earlier in the file.
 const declaredKeys = new Set(
   Array.from(
-    constDeclarationMatch[1].matchAll(/'([^']+)'|"([^"]+)"/g),
+    constDeclarationMatch?.[1]?.matchAll(/'([^']+)'|"([^"]+)"/g) ?? [],
     (m) => m[1] ?? m[2],
   ),
 )

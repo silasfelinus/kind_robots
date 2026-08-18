@@ -75,7 +75,7 @@ export function checkSingleItemRevertGuard(content: string): string[] {
     )
   } else {
     const signatureMatch = PUSHITEM_SIGNATURE.exec(content)
-    if (!signatureMatch || !ONFAILURE_PARAM.test(signatureMatch[1]!)) {
+    if (!ONFAILURE_PARAM.test(signatureMatch?.[1] ?? '')) {
       errors.push(
         'pushItem() no longer declares an `onFailure?: () => void` ' +
           'parameter -- without it, none of its callers have a way to ' +

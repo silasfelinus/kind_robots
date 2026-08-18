@@ -219,14 +219,36 @@ export function createStorybookLibraryController(bridge: StorybookLibraryBridge)
     const beats = duplicate.beats.map((beat) => {
       const beatId = makeId()
       beatIds.set(beat.id, beatId)
+      // Only 'queueing' (enqueue()'s synchronous pre-submit state, no jobId
+      // assigned yet) has to be dropped to `undefined` here -- every other
+      // status is safe to carry forward rekeyed to the duplicate's own ids.
+      // This used to drop every non-'done' status, which silently and
+      // permanently lost a duplicate's illustration state for a beat whose
+      // art was still 'queued'/'rendering' or had previously 'failed': the
+      // Duplicate button is enabled the moment isWeaving() goes false, long
+      // before that beat's background art job resolves, so this is routine
+      // to hit, not an edge case. NarrativeArtStatus renders nothing at all
+      // when `art` is unset (`v-if="art"`) and retryBeatArt() requires a
+      // truthy `beat.art`, so the duplicate was left with no image, no busy
+      // indicator, and no retry affordance for that beat, forever.
+      // 'queued'/'rendering'/'failed'/'cancelled' all already carry a real
+      // `jobId` (or are terminal with none pending), so rekeying their ids is
+      // safe: resume() polls purely by jobId with no re-submission, and
+      // retry() always submits a fresh job scoped to whatever ids are
+      // present. 'queueing' is the one case with no jobId yet -- the real
+      // gap between the optimistic status write and the resolved POST -- so
+      // rekeying it would send the duplicate's later recovery GET query
+      // looking for a job filed under the ORIGINAL's ids and find nothing,
+      // falling through to `submit()` and billing a second illustration for
+      // one beat. Dropping it here, as before, keeps that window safe.
       const art =
-        beat.art?.status === 'done'
+        beat.art && beat.art.status !== 'queueing'
           ? {
               ...beat.art,
               sessionId,
               beatId,
               dedupeKey: [beat.art.product, sessionId, beatId, beat.art.moment].join(':'),
-              jobId: undefined,
+              jobId: beat.art.status === 'done' ? undefined : beat.art.jobId,
               updatedAt: createdAt,
             }
           : undefined

@@ -527,6 +527,15 @@
               >
                 <Icon name="kind-icon:star" class="size-3" />{{ entry.rating }}
               </span>
+              <span
+                v-if="entry.rewatch && entry.rewatch >= 2"
+                class="badge badge-ghost badge-sm gap-0.5 rounded-lg"
+                :title="`Watched ${entry.rewatch}x`"
+              >
+                <Icon name="kind-icon:history" class="size-3" />{{
+                  entry.rewatch
+                }}x
+              </span>
               <span class="badge badge-ghost badge-sm rounded-lg">{{
                 entry.mediaType
               }}</span>

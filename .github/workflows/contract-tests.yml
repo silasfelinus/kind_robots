@@ -284,6 +284,12 @@ jobs:
       - name: Da Vinci dimension-group guard
         run: npm run test:davinci-dimension-group-guard
 
+      - name: Da Vinci narration-error role guard self-test
+        run: npm run test:davinci-narration-error-role-guard-selftest
+
+      - name: Da Vinci narration-error role guard
+        run: npm run test:davinci-narration-error-role-guard
+
       - name: Serendipity Voice poll guard self-test
         run: npm run test:serendipity-voice-poll-guard-selftest
 

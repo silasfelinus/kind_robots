@@ -200,9 +200,18 @@
           <!-- Narration failed. Per the narration-layer spec a broken chapter
                surfaces a visible retry rather than a silently fabricated one,
                so the curated pool is offered as an explicit, labelled choice
-               instead of a transparent fallback. -->
+               instead of a transparent fallback. role="alert" matches every
+               other warning/error-toned callout with a retry action in the
+               app -- academy-manager.vue's kr-note-error block is the
+               closest structural match (same tinted-callout + retry-button
+               shape, same role="alert"), and this file's own errorMessage
+               callout above already carries it. This was the one
+               warning-toned block in davinci-page.vue with no role/aria
+               semantics at all, left uncovered even after slice 2 fixed its
+               color tone. -->
           <div
             v-else-if="narrationError"
+            role="alert"
             class="flex flex-col items-center gap-3 rounded-2xl border border-warning/40 bg-warning/10 p-6 text-center"
           >
             <Icon name="kind-icon:warning" class="size-8 text-warning/70" />

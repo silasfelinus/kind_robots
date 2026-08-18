@@ -25,6 +25,7 @@
 
     <p
       v-if="item.error"
+      role="alert"
       class="rounded-lg bg-error/10 px-2 py-1 text-xs font-semibold text-error"
     >
       {{ item.error }}

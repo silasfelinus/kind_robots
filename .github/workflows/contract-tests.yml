@@ -629,6 +629,9 @@ jobs:
       - name: Mana-gate on-behalf-of target authorization contract
         run: npm run test:mana-gate-on-behalf-of-target
 
+      - name: Mana generation attribution contract
+        run: npm run test:mana-attribution
+
       - name: Text-provider-service shared mechanics contract
         run: npm run test:text-provider-service
 

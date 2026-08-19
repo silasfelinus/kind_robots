@@ -750,9 +750,30 @@ model ManaTransaction {
   provider     String?
   costUsd      Float?
   reversedById Int?
-  User         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // kind-economy/t-007: which object (if any) seeded this generation, and
+  // who created it. sourceId is an unenforced cross-reference (same
+  // informal polymorphic-id pattern as Grant.subjectId above) -- validate
+  // sourceType/sourceId together in the application layer
+  // (server/utils/manaAttribution.ts), not via FK. creatorUserId is
+  // similarly left as a plain scalar, matching this model's existing
+  // reversedById convention, rather than adding a second named relation to
+  // User for one denormalized lookup column.
+  //
+  // NULL creatorUserId (no source, an unresolvable source, or a
+  // deleted/system-owned object) means the creator-share of any future
+  // RevenueSplit (t-008) falls through to the mission share, per the
+  // kind-economy design brief -- never to the platform. isSelfAttribution
+  // records when the resolved creator IS the spending user; whether that
+  // still earns a creator-share is t-021's policy call, not decided here.
+  sourceType        ManaAttributionSource?
+  sourceId          Int?
+  creatorUserId     Int?
+  isSelfAttribution Boolean                @default(false)
+  User              User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
+  @@index([creatorUserId])
+  @@index([sourceType, sourceId])
 }
 
 /// digital-storefront v1 catalog entry (SPEC.md §3, digital-storefront/t-011 step 1).
@@ -2185,6 +2206,26 @@ enum ManaResource {
   MANA
   TOKENS
   EARNED
+}
+
+/// kind-economy/t-007: the inventory of object types that can seed a paid
+/// generation (server/utils/manaAttribution.ts owns resolving each to its
+/// owning/creating user). Matches the design brief's "Scenario, Bot,
+/// Character, Facet, Pitch, art/Media, packs" list plus Reward and Dream
+/// (both also carry a plain `userId` owner and are already resolvable
+/// brainstorm source refs). Extend this enum -- and its OWNER_LOOKUP entry
+/// -- when a new seedable object type needs attribution; nothing else
+/// should hand-roll a second lookup.
+enum ManaAttributionSource {
+  BOT
+  CHARACTER
+  FACET
+  SCENARIO
+  PITCH
+  ART
+  PACK
+  REWARD
+  DREAM
 }
 
 enum ScenarioOutputType {

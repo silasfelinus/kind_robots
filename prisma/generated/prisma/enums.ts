@@ -162,6 +162,21 @@ export const ManaResource = {
 export type ManaResource = (typeof ManaResource)[keyof typeof ManaResource]
 
 
+export const ManaAttributionSource = {
+  BOT: 'BOT',
+  CHARACTER: 'CHARACTER',
+  FACET: 'FACET',
+  SCENARIO: 'SCENARIO',
+  PITCH: 'PITCH',
+  ART: 'ART',
+  PACK: 'PACK',
+  REWARD: 'REWARD',
+  DREAM: 'DREAM'
+} as const
+
+export type ManaAttributionSource = (typeof ManaAttributionSource)[keyof typeof ManaAttributionSource]
+
+
 export const ScenarioOutputType = {
   STORY: 'STORY',
   ART: 'ART',

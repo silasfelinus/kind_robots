@@ -6799,7 +6799,11 @@ export const ManaTransactionScalarFieldEnum = {
   note: 'note',
   provider: 'provider',
   costUsd: 'costUsd',
-  reversedById: 'reversedById'
+  reversedById: 'reversedById',
+  sourceType: 'sourceType',
+  sourceId: 'sourceId',
+  creatorUserId: 'creatorUserId',
+  isSelfAttribution: 'isSelfAttribution'
 } as const
 
 export type ManaTransactionScalarFieldEnum = (typeof ManaTransactionScalarFieldEnum)[keyof typeof ManaTransactionScalarFieldEnum]
@@ -8894,6 +8898,13 @@ export type EnumManaReasonFieldRefInput<$PrismaModel> = FieldRefInputType<$Prism
  * Reference to a field of type 'ManaResource'
  */
 export type EnumManaResourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ManaResource'>
+    
+
+
+/**
+ * Reference to a field of type 'ManaAttributionSource'
+ */
+export type EnumManaAttributionSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ManaAttributionSource'>
     
 
 

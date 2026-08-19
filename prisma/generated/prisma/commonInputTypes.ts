@@ -505,6 +505,13 @@ export type FloatNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedFloatNullableFilter<$PrismaModel> | number | null
 }
 
+export type EnumManaAttributionSourceNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.ManaAttributionSource | Prisma.EnumManaAttributionSourceFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ManaAttributionSource[] | null
+  notIn?: $Enums.ManaAttributionSource[] | null
+  not?: Prisma.NestedEnumManaAttributionSourceNullableFilter<$PrismaModel> | $Enums.ManaAttributionSource | null
+}
+
 export type EnumManaReasonWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.ManaReason | Prisma.EnumManaReasonFieldRefInput<$PrismaModel>
   in?: $Enums.ManaReason[]
@@ -539,6 +546,16 @@ export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
   _sum?: Prisma.NestedFloatNullableFilter<$PrismaModel>
   _min?: Prisma.NestedFloatNullableFilter<$PrismaModel>
   _max?: Prisma.NestedFloatNullableFilter<$PrismaModel>
+}
+
+export type EnumManaAttributionSourceNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ManaAttributionSource | Prisma.EnumManaAttributionSourceFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ManaAttributionSource[] | null
+  notIn?: $Enums.ManaAttributionSource[] | null
+  not?: Prisma.NestedEnumManaAttributionSourceNullableWithAggregatesFilter<$PrismaModel> | $Enums.ManaAttributionSource | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumManaAttributionSourceNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumManaAttributionSourceNullableFilter<$PrismaModel>
 }
 
 export type EnumProductTypeFilter<$PrismaModel = never> = {
@@ -1768,6 +1785,13 @@ export type NestedEnumManaResourceFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumManaResourceFilter<$PrismaModel> | $Enums.ManaResource
 }
 
+export type NestedEnumManaAttributionSourceNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.ManaAttributionSource | Prisma.EnumManaAttributionSourceFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ManaAttributionSource[] | null
+  notIn?: $Enums.ManaAttributionSource[] | null
+  not?: Prisma.NestedEnumManaAttributionSourceNullableFilter<$PrismaModel> | $Enums.ManaAttributionSource | null
+}
+
 export type NestedEnumManaReasonWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.ManaReason | Prisma.EnumManaReasonFieldRefInput<$PrismaModel>
   in?: $Enums.ManaReason[]
@@ -1802,6 +1826,16 @@ export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
   _sum?: Prisma.NestedFloatNullableFilter<$PrismaModel>
   _min?: Prisma.NestedFloatNullableFilter<$PrismaModel>
   _max?: Prisma.NestedFloatNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumManaAttributionSourceNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ManaAttributionSource | Prisma.EnumManaAttributionSourceFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ManaAttributionSource[] | null
+  notIn?: $Enums.ManaAttributionSource[] | null
+  not?: Prisma.NestedEnumManaAttributionSourceNullableWithAggregatesFilter<$PrismaModel> | $Enums.ManaAttributionSource | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumManaAttributionSourceNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumManaAttributionSourceNullableFilter<$PrismaModel>
 }
 
 export type NestedEnumProductTypeFilter<$PrismaModel = never> = {

@@ -2,6 +2,8 @@
 import { applyMana, usdToMana } from './mana'
 import type { Role } from '~/prisma/generated/prisma/client'
 import { userIsAdmin, userHasRole } from './authUser'
+import { resolveManaAttribution } from './manaAttribution'
+import type { ManaSource } from './manaAttribution'
 
 type Plan = 'community' | 'byok' | 'local' | 'family'
 
@@ -21,9 +23,20 @@ export async function chargeForGeneration(opts: {
   plan: Plan // resolved by your server-selection logic
   estCostUsd: number // your estimate from model + tokens
   refId: string
+  // kind-economy/t-007: the object that seeded this generation, if the
+  // caller knows one -- same contract as manaGate's `source` input. See
+  // server/utils/manaAttribution.ts for resolution/fallback rules.
+  source?: ManaSource | null
 }) {
-  const { user, kind, plan, estCostUsd, refId } = opts
+  const { user, kind, plan, estCostUsd, refId, source } = opts
   const reason = kind === 'art' ? 'GENERATION_ART' : 'GENERATION_TEXT'
+  const attribution = await resolveManaAttribution(source, user.id)
+  const attributionFields = {
+    sourceType: attribution.source?.type ?? null,
+    sourceId: attribution.source?.id ?? null,
+    creatorUserId: attribution.creatorUserId,
+    isSelfAttribution: attribution.isSelfAttribution,
+  }
 
   // FAMILY: free on admin token, logged at zero for visibility
   if (userHasRole(user, 'FAMILY') || plan === 'family') {
@@ -36,6 +49,7 @@ export async function chargeForGeneration(opts: {
       provider: 'admin',
       costUsd: 0,
       note: 'family-free',
+      ...attributionFields,
     })
     return { charged: 0, useAdminToken: true }
   }
@@ -51,6 +65,7 @@ export async function chargeForGeneration(opts: {
       provider: plan,
       costUsd: 0,
       note: 'byo-resource',
+      ...attributionFields,
     })
     return { charged: 0, useAdminToken: false }
   }
@@ -65,6 +80,7 @@ export async function chargeForGeneration(opts: {
     refId,
     provider: 'community',
     costUsd: estCostUsd,
+    ...attributionFields,
   })
 
   // ADMIN: refund immediately so the test shows real cost but doesn't drain

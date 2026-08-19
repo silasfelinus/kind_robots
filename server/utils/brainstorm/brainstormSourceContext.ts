@@ -132,6 +132,23 @@ const SOURCE_CONTEXT_RESOLVERS: Record<
   scenario: scenarioContext,
 }
 
+// kind-economy/t-007: which of the modelTypes above also map onto a
+// ManaAttributionSource, for crediting the object's creator when a
+// brainstorm generation was grounded in it (server/api/brainstorm/generate.post.ts
+// passes this into manaGate's `source` alongside the context lookup above --
+// two uses of the same BrainstormSourceRef, not two separate resolutions).
+// Deliberately a plain data map, not derived from SOURCE_CONTEXT_RESOLVERS's
+// keys: the two registries answer different questions (can we ground a
+// prompt in this? vs. does this type have a creator to attribute?) and will
+// diverge the moment a groundable type without single ownership shows up.
+export const BRAINSTORM_SOURCE_ATTRIBUTION_TYPE: Partial<
+  Record<string, 'CHARACTER' | 'SCENARIO' | 'DREAM'>
+> = {
+  character: 'CHARACTER',
+  scenario: 'SCENARIO',
+  dream: 'DREAM',
+}
+
 /**
  * Resolve a BrainstormSourceRef into prompt-ready context text, or null when
  * there's nothing to ground (no source, unregistered modelType, not found,

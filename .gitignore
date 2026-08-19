@@ -30,6 +30,7 @@ prisma/migrations_old/*.sql
 kindblank_*.sql
 .vercel
 .env*
+!.env.example
 /public/images/**
 !/public/images/.gitkeep
 /public/wonderlab-components.json

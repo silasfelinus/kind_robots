@@ -1871,11 +1871,33 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     const wantArt = state.includeArt && item.generation === 'image'
 
     // An ASSET_ONLY item is nothing but its art — can't auto-build without it.
+    //
+    // Bug (model-builder/t-029, cycle 20): wantArt requires BOTH
+    // state.includeArt AND item.generation === 'image', so this branch fires
+    // for two genuinely different reasons that need two different messages.
+    // When generation IS 'image' and only includeArt is off, "enable art" is
+    // real, actionable advice — toggle it on the recipe step and retry. But
+    // several ASSET_ONLY outputs use a generation kind this front-end slice
+    // has never wired a generator for at all: 'plan' (photo-shoot-plan,
+    // video-shot-list, commercial-treatment, launch-plan — the last one
+    // defaultOn: true, so every default Marketing Deck run creates one) and
+    // 'three-d' (three-d-reference, reward-3d) — see model-builder-item-
+    // panel.vue's own GENERATE_ASSETS section, which shows exactly this
+    // explanation in place of a generate button. For those items,
+    // item.generation is never 'image', so wantArt can never become true no
+    // matter what includeArt is set to — "enable art" describes an action
+    // that cannot possibly fix the item. Clicking Auto on one (or letting
+    // Auto-build all/group reach it) before this fix left the user with a
+    // wrong, unhelpful instruction and no clue the generation kind itself is
+    // simply unimplemented yet, rather than something they mis-configured.
     if (isAsset && !wantArt) {
-      setStatus(
-        'error',
-        `${item.label} is asset-only — enable art to auto-build it.`,
-      )
+      const message =
+        item.generation === 'image'
+          ? `${item.label} is asset-only — enable art to auto-build it.`
+          : `${item.label}: ${item.generation} generation is not yet wired ` +
+            `into this front-end slice, so it can't be auto-built or ` +
+            `committed yet.`
+      setStatus('error', message)
       return 'failed'
     }
 

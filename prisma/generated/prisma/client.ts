@@ -259,6 +259,45 @@ export type Achievement = Prisma.AchievementModel
  */
 export type ManaTransaction = Prisma.ManaTransactionModel
 /**
+ * Model RevenueSplit
+ * kind-economy/t-008: one append-only row per paid (TOKENS-funded) spend,
+ * recording how its gross USD-cent value split into off-the-top costs and
+ * the three net shares (platform / mission / creator). Immutable, matching
+ * ManaTransaction's reversedById correction pattern: a correction is a NEW
+ * row with reversedById pointing at the row it corrects -- never an edit or
+ * delete of an existing row. A MANA-funded (free-pool) spend never gets a
+ * row here; see server/utils/manaGate.ts for where rows are created.
+ * 
+ * BASIS (Silas, 2026-08-19, verbatim): "Profit share should be net. Not
+ * gross." -- paymentProcessingFeeCents and providerCostCents come off the
+ * top of grossCents FIRST; only what remains (net) is split three ways.
+ * See server/utils/revenueSplit.ts (computeRevenueSplit) for the exact,
+ * property-tested rounding rule and the payment-processing-fee policy.
+ * 
+ * providerCostCents is copied from ManaTransaction.costUsd, which is
+ * ALWAYS a pre-generation ESTIMATE (estCostUsd) -- verified across every
+ * gate.commit() call site in server/: none ever passes a `providerCostUsd`
+ * that differs from the estimate (economy/mana/charge.post.ts passes
+ * estCostUsd back as providerCostUsd, i.e. the same number). There is no
+ * reconciliation against a real provider bill anywhere in this codebase
+ * today. Treat this column as "estimated provider cost at generation
+ * time," never as ground truth, until a real billing-reconciliation job
+ * exists to correct it (via a reversedById correction row, same as any
+ * other fix).
+ * 
+ * A NULL creatorUserId means the creator-share falls through to the
+ * mission share, never to the platform (matches
+ * ManaTransaction.creatorUserId's documented fallback). isSelfAttribution
+ * is copied from the same source row for auditability; whether
+ * self-attribution disqualifies a payout is kind-economy/t-021's
+ * still-undecided policy call, not decided by this table.
+ * 
+ * A spend whose off-the-top costs meet or exceed its gross produces a
+ * zero-margin row: all three shares are 0 (never negative), and the
+ * shortfall is carried in roundingRemainderCents instead.
+ */
+export type RevenueSplit = Prisma.RevenueSplitModel
+/**
  * Model Product
  * digital-storefront v1 catalog entry (SPEC.md §3, digital-storefront/t-011 step 1).
  * Trusted server-side price source — replaces the imported

@@ -333,6 +333,7 @@ export type ManaTransactionWhereInput = {
   creatorUserId?: Prisma.IntNullableFilter<"ManaTransaction"> | number | null
   isSelfAttribution?: Prisma.BoolFilter<"ManaTransaction"> | boolean
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  RevenueSplit?: Prisma.XOR<Prisma.RevenueSplitNullableScalarRelationFilter, Prisma.RevenueSplitWhereInput> | null
 }
 
 export type ManaTransactionOrderByWithRelationInput = {
@@ -353,6 +354,7 @@ export type ManaTransactionOrderByWithRelationInput = {
   creatorUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   isSelfAttribution?: Prisma.SortOrder
   User?: Prisma.UserOrderByWithRelationInput
+  RevenueSplit?: Prisma.RevenueSplitOrderByWithRelationInput
   _relevance?: Prisma.ManaTransactionOrderByRelevanceInput
 }
 
@@ -377,6 +379,7 @@ export type ManaTransactionWhereUniqueInput = Prisma.AtLeast<{
   creatorUserId?: Prisma.IntNullableFilter<"ManaTransaction"> | number | null
   isSelfAttribution?: Prisma.BoolFilter<"ManaTransaction"> | boolean
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  RevenueSplit?: Prisma.XOR<Prisma.RevenueSplitNullableScalarRelationFilter, Prisma.RevenueSplitWhereInput> | null
 }, "id">
 
 export type ManaTransactionOrderByWithAggregationInput = {
@@ -441,6 +444,7 @@ export type ManaTransactionCreateInput = {
   creatorUserId?: number | null
   isSelfAttribution?: boolean
   User: Prisma.UserCreateNestedOneWithoutManaTransactionsInput
+  RevenueSplit?: Prisma.RevenueSplitCreateNestedOneWithoutManaTransactionInput
 }
 
 export type ManaTransactionUncheckedCreateInput = {
@@ -460,6 +464,7 @@ export type ManaTransactionUncheckedCreateInput = {
   sourceId?: number | null
   creatorUserId?: number | null
   isSelfAttribution?: boolean
+  RevenueSplit?: Prisma.RevenueSplitUncheckedCreateNestedOneWithoutManaTransactionInput
 }
 
 export type ManaTransactionUpdateInput = {
@@ -478,6 +483,7 @@ export type ManaTransactionUpdateInput = {
   creatorUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isSelfAttribution?: Prisma.BoolFieldUpdateOperationsInput | boolean
   User?: Prisma.UserUpdateOneRequiredWithoutManaTransactionsNestedInput
+  RevenueSplit?: Prisma.RevenueSplitUpdateOneWithoutManaTransactionNestedInput
 }
 
 export type ManaTransactionUncheckedUpdateInput = {
@@ -497,6 +503,7 @@ export type ManaTransactionUncheckedUpdateInput = {
   sourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   creatorUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isSelfAttribution?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  RevenueSplit?: Prisma.RevenueSplitUncheckedUpdateOneWithoutManaTransactionNestedInput
 }
 
 export type ManaTransactionCreateManyInput = {
@@ -639,6 +646,11 @@ export type ManaTransactionSumOrderByAggregateInput = {
   creatorUserId?: Prisma.SortOrder
 }
 
+export type ManaTransactionScalarRelationFilter = {
+  is?: Prisma.ManaTransactionWhereInput
+  isNot?: Prisma.ManaTransactionWhereInput
+}
+
 export type ManaTransactionListRelationFilter = {
   every?: Prisma.ManaTransactionWhereInput
   some?: Prisma.ManaTransactionWhereInput
@@ -667,6 +679,20 @@ export type NullableFloatFieldUpdateOperationsInput = {
 
 export type NullableEnumManaAttributionSourceFieldUpdateOperationsInput = {
   set?: $Enums.ManaAttributionSource | null
+}
+
+export type ManaTransactionCreateNestedOneWithoutRevenueSplitInput = {
+  create?: Prisma.XOR<Prisma.ManaTransactionCreateWithoutRevenueSplitInput, Prisma.ManaTransactionUncheckedCreateWithoutRevenueSplitInput>
+  connectOrCreate?: Prisma.ManaTransactionCreateOrConnectWithoutRevenueSplitInput
+  connect?: Prisma.ManaTransactionWhereUniqueInput
+}
+
+export type ManaTransactionUpdateOneRequiredWithoutRevenueSplitNestedInput = {
+  create?: Prisma.XOR<Prisma.ManaTransactionCreateWithoutRevenueSplitInput, Prisma.ManaTransactionUncheckedCreateWithoutRevenueSplitInput>
+  connectOrCreate?: Prisma.ManaTransactionCreateOrConnectWithoutRevenueSplitInput
+  upsert?: Prisma.ManaTransactionUpsertWithoutRevenueSplitInput
+  connect?: Prisma.ManaTransactionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ManaTransactionUpdateToOneWithWhereWithoutRevenueSplitInput, Prisma.ManaTransactionUpdateWithoutRevenueSplitInput>, Prisma.ManaTransactionUncheckedUpdateWithoutRevenueSplitInput>
 }
 
 export type ManaTransactionCreateNestedManyWithoutUserInput = {
@@ -711,6 +737,96 @@ export type ManaTransactionUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.ManaTransactionScalarWhereInput | Prisma.ManaTransactionScalarWhereInput[]
 }
 
+export type ManaTransactionCreateWithoutRevenueSplitInput = {
+  createdAt?: Date | string
+  amount: number
+  reason: $Enums.ManaReason
+  balanceAfter: number
+  resource?: $Enums.ManaResource
+  refId?: string | null
+  note?: string | null
+  provider?: string | null
+  costUsd?: number | null
+  reversedById?: number | null
+  sourceType?: $Enums.ManaAttributionSource | null
+  sourceId?: number | null
+  creatorUserId?: number | null
+  isSelfAttribution?: boolean
+  User: Prisma.UserCreateNestedOneWithoutManaTransactionsInput
+}
+
+export type ManaTransactionUncheckedCreateWithoutRevenueSplitInput = {
+  id?: number
+  createdAt?: Date | string
+  userId: number
+  amount: number
+  reason: $Enums.ManaReason
+  balanceAfter: number
+  resource?: $Enums.ManaResource
+  refId?: string | null
+  note?: string | null
+  provider?: string | null
+  costUsd?: number | null
+  reversedById?: number | null
+  sourceType?: $Enums.ManaAttributionSource | null
+  sourceId?: number | null
+  creatorUserId?: number | null
+  isSelfAttribution?: boolean
+}
+
+export type ManaTransactionCreateOrConnectWithoutRevenueSplitInput = {
+  where: Prisma.ManaTransactionWhereUniqueInput
+  create: Prisma.XOR<Prisma.ManaTransactionCreateWithoutRevenueSplitInput, Prisma.ManaTransactionUncheckedCreateWithoutRevenueSplitInput>
+}
+
+export type ManaTransactionUpsertWithoutRevenueSplitInput = {
+  update: Prisma.XOR<Prisma.ManaTransactionUpdateWithoutRevenueSplitInput, Prisma.ManaTransactionUncheckedUpdateWithoutRevenueSplitInput>
+  create: Prisma.XOR<Prisma.ManaTransactionCreateWithoutRevenueSplitInput, Prisma.ManaTransactionUncheckedCreateWithoutRevenueSplitInput>
+  where?: Prisma.ManaTransactionWhereInput
+}
+
+export type ManaTransactionUpdateToOneWithWhereWithoutRevenueSplitInput = {
+  where?: Prisma.ManaTransactionWhereInput
+  data: Prisma.XOR<Prisma.ManaTransactionUpdateWithoutRevenueSplitInput, Prisma.ManaTransactionUncheckedUpdateWithoutRevenueSplitInput>
+}
+
+export type ManaTransactionUpdateWithoutRevenueSplitInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  amount?: Prisma.IntFieldUpdateOperationsInput | number
+  reason?: Prisma.EnumManaReasonFieldUpdateOperationsInput | $Enums.ManaReason
+  balanceAfter?: Prisma.IntFieldUpdateOperationsInput | number
+  resource?: Prisma.EnumManaResourceFieldUpdateOperationsInput | $Enums.ManaResource
+  refId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  costUsd?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reversedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceType?: Prisma.NullableEnumManaAttributionSourceFieldUpdateOperationsInput | $Enums.ManaAttributionSource | null
+  sourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creatorUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isSelfAttribution?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  User?: Prisma.UserUpdateOneRequiredWithoutManaTransactionsNestedInput
+}
+
+export type ManaTransactionUncheckedUpdateWithoutRevenueSplitInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  amount?: Prisma.IntFieldUpdateOperationsInput | number
+  reason?: Prisma.EnumManaReasonFieldUpdateOperationsInput | $Enums.ManaReason
+  balanceAfter?: Prisma.IntFieldUpdateOperationsInput | number
+  resource?: Prisma.EnumManaResourceFieldUpdateOperationsInput | $Enums.ManaResource
+  refId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  costUsd?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reversedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceType?: Prisma.NullableEnumManaAttributionSourceFieldUpdateOperationsInput | $Enums.ManaAttributionSource | null
+  sourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creatorUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isSelfAttribution?: Prisma.BoolFieldUpdateOperationsInput | boolean
+}
+
 export type ManaTransactionCreateWithoutUserInput = {
   createdAt?: Date | string
   amount: number
@@ -726,6 +842,7 @@ export type ManaTransactionCreateWithoutUserInput = {
   sourceId?: number | null
   creatorUserId?: number | null
   isSelfAttribution?: boolean
+  RevenueSplit?: Prisma.RevenueSplitCreateNestedOneWithoutManaTransactionInput
 }
 
 export type ManaTransactionUncheckedCreateWithoutUserInput = {
@@ -744,6 +861,7 @@ export type ManaTransactionUncheckedCreateWithoutUserInput = {
   sourceId?: number | null
   creatorUserId?: number | null
   isSelfAttribution?: boolean
+  RevenueSplit?: Prisma.RevenueSplitUncheckedCreateNestedOneWithoutManaTransactionInput
 }
 
 export type ManaTransactionCreateOrConnectWithoutUserInput = {
@@ -827,6 +945,7 @@ export type ManaTransactionUpdateWithoutUserInput = {
   sourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   creatorUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isSelfAttribution?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  RevenueSplit?: Prisma.RevenueSplitUpdateOneWithoutManaTransactionNestedInput
 }
 
 export type ManaTransactionUncheckedUpdateWithoutUserInput = {
@@ -845,6 +964,7 @@ export type ManaTransactionUncheckedUpdateWithoutUserInput = {
   sourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   creatorUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isSelfAttribution?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  RevenueSplit?: Prisma.RevenueSplitUncheckedUpdateOneWithoutManaTransactionNestedInput
 }
 
 export type ManaTransactionUncheckedUpdateManyWithoutUserInput = {
@@ -885,6 +1005,7 @@ export type ManaTransactionSelect<ExtArgs extends runtime.Types.Extensions.Inter
   creatorUserId?: boolean
   isSelfAttribution?: boolean
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  RevenueSplit?: boolean | Prisma.ManaTransaction$RevenueSplitArgs<ExtArgs>
 }, ExtArgs["result"]["manaTransaction"]>
 
 
@@ -911,12 +1032,14 @@ export type ManaTransactionSelectScalar = {
 export type ManaTransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "userId" | "amount" | "reason" | "balanceAfter" | "resource" | "refId" | "note" | "provider" | "costUsd" | "reversedById" | "sourceType" | "sourceId" | "creatorUserId" | "isSelfAttribution", ExtArgs["result"]["manaTransaction"]>
 export type ManaTransactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  RevenueSplit?: boolean | Prisma.ManaTransaction$RevenueSplitArgs<ExtArgs>
 }
 
 export type $ManaTransactionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ManaTransaction"
   objects: {
     User: Prisma.$UserPayload<ExtArgs>
+    RevenueSplit: Prisma.$RevenueSplitPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1276,6 +1399,7 @@ readonly fields: ManaTransactionFieldRefs;
 export interface Prisma__ManaTransactionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   User<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  RevenueSplit<T extends Prisma.ManaTransaction$RevenueSplitArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ManaTransaction$RevenueSplitArgs<ExtArgs>>): Prisma.Prisma__RevenueSplitClient<runtime.Types.Result.GetResult<Prisma.$RevenueSplitPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1666,6 +1790,25 @@ export type ManaTransactionDeleteManyArgs<ExtArgs extends runtime.Types.Extensio
    * Limit how many ManaTransactions to delete.
    */
   limit?: number
+}
+
+/**
+ * ManaTransaction.RevenueSplit
+ */
+export type ManaTransaction$RevenueSplitArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RevenueSplit
+   */
+  select?: Prisma.RevenueSplitSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RevenueSplit
+   */
+  omit?: Prisma.RevenueSplitOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RevenueSplitInclude<ExtArgs> | null
+  where?: Prisma.RevenueSplitWhereInput
 }
 
 /**

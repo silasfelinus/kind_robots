@@ -432,6 +432,7 @@ export const ModelName = {
   Log: 'Log',
   Achievement: 'Achievement',
   ManaTransaction: 'ManaTransaction',
+  RevenueSplit: 'RevenueSplit',
   Product: 'Product',
   Order: 'Order',
   OrderItem: 'OrderItem',
@@ -496,7 +497,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
+    modelProps: "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2807,6 +2808,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ManaTransactionCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ManaTransactionCountAggregateOutputType> | number
+        }
+      }
+    }
+    RevenueSplit: {
+      payload: Prisma.$RevenueSplitPayload<ExtArgs>
+      fields: Prisma.RevenueSplitFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RevenueSplitFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevenueSplitPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RevenueSplitFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevenueSplitPayload>
+        }
+        findFirst: {
+          args: Prisma.RevenueSplitFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevenueSplitPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RevenueSplitFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevenueSplitPayload>
+        }
+        findMany: {
+          args: Prisma.RevenueSplitFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevenueSplitPayload>[]
+        }
+        create: {
+          args: Prisma.RevenueSplitCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevenueSplitPayload>
+        }
+        createMany: {
+          args: Prisma.RevenueSplitCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.RevenueSplitDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevenueSplitPayload>
+        }
+        update: {
+          args: Prisma.RevenueSplitUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevenueSplitPayload>
+        }
+        deleteMany: {
+          args: Prisma.RevenueSplitDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RevenueSplitUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.RevenueSplitUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RevenueSplitPayload>
+        }
+        aggregate: {
+          args: Prisma.RevenueSplitAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRevenueSplit>
+        }
+        groupBy: {
+          args: Prisma.RevenueSplitGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RevenueSplitGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RevenueSplitCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RevenueSplitCountAggregateOutputType> | number
         }
       }
     }
@@ -6809,6 +6876,27 @@ export const ManaTransactionScalarFieldEnum = {
 export type ManaTransactionScalarFieldEnum = (typeof ManaTransactionScalarFieldEnum)[keyof typeof ManaTransactionScalarFieldEnum]
 
 
+export const RevenueSplitScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  manaTransactionId: 'manaTransactionId',
+  userId: 'userId',
+  creatorUserId: 'creatorUserId',
+  isSelfAttribution: 'isSelfAttribution',
+  grossCents: 'grossCents',
+  paymentProcessingFeeCents: 'paymentProcessingFeeCents',
+  providerCostCents: 'providerCostCents',
+  platformShareCents: 'platformShareCents',
+  missionShareCents: 'missionShareCents',
+  creatorShareCents: 'creatorShareCents',
+  roundingRemainderCents: 'roundingRemainderCents',
+  reversedById: 'reversedById',
+  note: 'note'
+} as const
+
+export type RevenueSplitScalarFieldEnum = (typeof RevenueSplitScalarFieldEnum)[keyof typeof RevenueSplitScalarFieldEnum]
+
+
 export const ProductScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -8222,6 +8310,13 @@ export const ManaTransactionOrderByRelevanceFieldEnum = {
 export type ManaTransactionOrderByRelevanceFieldEnum = (typeof ManaTransactionOrderByRelevanceFieldEnum)[keyof typeof ManaTransactionOrderByRelevanceFieldEnum]
 
 
+export const RevenueSplitOrderByRelevanceFieldEnum = {
+  note: 'note'
+} as const
+
+export type RevenueSplitOrderByRelevanceFieldEnum = (typeof RevenueSplitOrderByRelevanceFieldEnum)[keyof typeof RevenueSplitOrderByRelevanceFieldEnum]
+
+
 export const ProductOrderByRelevanceFieldEnum = {
   slug: 'slug',
   title: 'title',
@@ -9394,6 +9489,7 @@ export type GlobalOmitConfig = {
   log?: Prisma.LogOmit
   achievement?: Prisma.AchievementOmit
   manaTransaction?: Prisma.ManaTransactionOmit
+  revenueSplit?: Prisma.RevenueSplitOmit
   product?: Prisma.ProductOmit
   order?: Prisma.OrderOmit
   orderItem?: Prisma.OrderItemOmit

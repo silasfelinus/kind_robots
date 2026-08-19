@@ -6,6 +6,16 @@
 //   - authenticates ONCE (requireMachineUser), no internal self-HTTP hop
 //   - needs NO checkpoint (flux loads a GGUF unet, not an SDXL checkpoint)
 // Safe to run repeatedly / in CI.
+//
+// kind-economy/t-027: this is a REAL generation on real Comfy hardware, not a
+// read-only check -- despite the "test" name, any authenticated user could
+// previously hit it and spend GPU time for free with no mana charge. Rather
+// than start charging mana here (which would contradict the "no mana
+// charged" smoke-test contract CI and the relay rely on), it's restricted to
+// admin/server-key callers only, the same admin-or-server-key gate already
+// used by the other internal-verification/re-run routes in this codebase
+// (art/queue/[id]/reenqueue.post.ts, art/queue/reenqueue-failed.post.ts,
+// art/queue/[id]/trainer-redo.post.ts).
 import { createError, defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../../../utils/error'
 import { requireMachineUser } from '../../../utils/authGuard'
@@ -45,6 +55,13 @@ export default defineEventHandler(async (event) => {
     }
 
     const auth = await requireMachineUser(event)
+    if (!auth.isAdmin && !auth.isServerKey) {
+      throw createError({
+        statusCode: 403,
+        message: 'Admin access required to run the Comfy smoke test.',
+      })
+    }
+
     const server = await resolveServer({
       userId: auth.user.id,
       serverId: body.serverId ?? null,

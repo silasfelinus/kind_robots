@@ -86,6 +86,7 @@ export const ModelName = {
   Log: 'Log',
   Achievement: 'Achievement',
   ManaTransaction: 'ManaTransaction',
+  RevenueSplit: 'RevenueSplit',
   Product: 'Product',
   Order: 'Order',
   OrderItem: 'OrderItem',
@@ -877,6 +878,27 @@ export const ManaTransactionScalarFieldEnum = {
 } as const
 
 export type ManaTransactionScalarFieldEnum = (typeof ManaTransactionScalarFieldEnum)[keyof typeof ManaTransactionScalarFieldEnum]
+
+
+export const RevenueSplitScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  manaTransactionId: 'manaTransactionId',
+  userId: 'userId',
+  creatorUserId: 'creatorUserId',
+  isSelfAttribution: 'isSelfAttribution',
+  grossCents: 'grossCents',
+  paymentProcessingFeeCents: 'paymentProcessingFeeCents',
+  providerCostCents: 'providerCostCents',
+  platformShareCents: 'platformShareCents',
+  missionShareCents: 'missionShareCents',
+  creatorShareCents: 'creatorShareCents',
+  roundingRemainderCents: 'roundingRemainderCents',
+  reversedById: 'reversedById',
+  note: 'note'
+} as const
+
+export type RevenueSplitScalarFieldEnum = (typeof RevenueSplitScalarFieldEnum)[keyof typeof RevenueSplitScalarFieldEnum]
 
 
 export const ProductScalarFieldEnum = {
@@ -2290,6 +2312,13 @@ export const ManaTransactionOrderByRelevanceFieldEnum = {
 } as const
 
 export type ManaTransactionOrderByRelevanceFieldEnum = (typeof ManaTransactionOrderByRelevanceFieldEnum)[keyof typeof ManaTransactionOrderByRelevanceFieldEnum]
+
+
+export const RevenueSplitOrderByRelevanceFieldEnum = {
+  note: 'note'
+} as const
+
+export type RevenueSplitOrderByRelevanceFieldEnum = (typeof RevenueSplitOrderByRelevanceFieldEnum)[keyof typeof RevenueSplitOrderByRelevanceFieldEnum]
 
 
 export const ProductOrderByRelevanceFieldEnum = {

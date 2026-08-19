@@ -9,6 +9,12 @@ import { resolveManaGateTarget } from './manaGateTarget'
 import { resolveSpendResource } from './manaSpendResolution'
 import { resolveManaAttribution } from './manaAttribution'
 import type { ManaSource } from './manaAttribution'
+import {
+  computeRevenueSplit,
+  computePaymentProcessingFeeCents,
+  tokensToGrossCents,
+  usdToCents,
+} from './revenueSplit'
 
 type ManaGateKind = 'text' | 'art' | 'video' | 'model' | 'free'
 
@@ -162,6 +168,8 @@ export async function manaGate(
       // request, applyMana's in-transaction re-check throws 402 rather than
       // let this go negative -- it does NOT retry against the other pool,
       // matching the "pick one pool, no partial split" rule above.
+      const resolvedCostUsd = providerCostUsd ?? input.estCostUsd
+
       const result = await applyMana({
         userId: user.id,
         amount: -cost,
@@ -173,12 +181,67 @@ export async function manaGate(
           input.kind === 'free' ? 'ADJUSTMENT' : REASON_BY_KIND[input.kind],
         resource: fundedBy,
         refId,
-        costUsd: providerCostUsd ?? input.estCostUsd,
+        costUsd: resolvedCostUsd,
         sourceType: attribution.source?.type ?? null,
         sourceId: attribution.source?.id ?? null,
         creatorUserId: attribution.creatorUserId,
         isSelfAttribution: attribution.isSelfAttribution,
       })
+
+      // kind-economy/t-008: append an immutable RevenueSplit row for every
+      // TOKENS-funded (paid) spend -- see server/utils/revenueSplit.ts for
+      // the split math and server/utils/mana.ts / prisma/schema.prisma's
+      // RevenueSplit model doc for the accounting policy. A MANA-funded
+      // (free-pool) spend must NEVER get a row here -- mana is the free
+      // pool the paid ledger doesn't apply to (kind-economy/t-006).
+      //
+      // Written as a separate write immediately after applyMana's own
+      // transaction, not inside it: applyMana() already opened (or joined)
+      // its own transaction and has committed by the time it returns here,
+      // and RevenueSplit derivation only needs that already-committed
+      // ManaTransaction's id/costUsd -- it doesn't need to participate in
+      // the same debit transaction. A failure in this step would leave a
+      // real (committed) debit with no corresponding ledger row rather than
+      // rolling the debit back; that gap is judged acceptable for this
+      // task (better to charge correctly and log loudly than to risk
+      // failing a user's paid generation over ledger bookkeeping) but is
+      // exactly the kind of drift a future reconciliation job should scan
+      // for (a TOKENS ManaTransaction with no RevenueSplit row).
+      if (fundedBy === 'TOKENS') {
+        try {
+          const grossCents = tokensToGrossCents(cost)
+          const paymentProcessingFeeCents =
+            computePaymentProcessingFeeCents(grossCents)
+          const providerCostCents = usdToCents(resolvedCostUsd)
+          const split = computeRevenueSplit({
+            grossCents,
+            paymentProcessingFeeCents,
+            providerCostCents,
+          })
+
+          await prisma.revenueSplit.create({
+            data: {
+              manaTransactionId: result.txnId,
+              userId: user.id,
+              creatorUserId: attribution.creatorUserId,
+              isSelfAttribution: attribution.isSelfAttribution,
+              grossCents,
+              paymentProcessingFeeCents,
+              providerCostCents,
+              platformShareCents: split.platformShareCents,
+              missionShareCents: split.missionShareCents,
+              creatorShareCents: split.creatorShareCents,
+              roundingRemainderCents: split.roundingRemainderCents,
+            },
+          })
+        } catch (error) {
+          console.error(
+            '[manaGate] failed to write RevenueSplit row for TOKENS-funded ManaTransaction',
+            result.txnId,
+            error,
+          )
+        }
+      }
 
       return {
         balance: result.balance,

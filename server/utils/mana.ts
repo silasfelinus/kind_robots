@@ -5,6 +5,7 @@ import type {
   ManaReason,
   ManaResource,
 } from '~/prisma/generated/prisma/client'
+import { PEG_USD_PER_MANA } from './revenueSplit'
 
 // prisma is $extends()-wrapped (see server/utils/prisma.ts), so its
 // $transaction callback's tx param has extended InternalArgs that don't
@@ -15,8 +16,14 @@ type TransactionClient = Parameters<
   Parameters<typeof prisma.$transaction>[0]
 >[0]
 
-const PEG_USD_PER_MANA = 0.001
-
+// kind-economy/t-008: PEG_USD_PER_MANA now lives in server/utils/revenueSplit.ts
+// (a prisma-free module, unlike this one) and is imported above for local
+// use, so this module still has exactly one place that reads the literal
+// peg value, not two. Not re-exported from here too -- Nuxt's server/utils
+// auto-import registry warns on the same exported name resolving from two
+// files ("Duplicated imports"), so anything else that needs the constant
+// should import it from revenueSplit.ts directly, matching mana.ts's own
+// import above.
 export function usdToMana(usd: number) {
   return Math.max(1, Math.ceil(usd / PEG_USD_PER_MANA))
 }

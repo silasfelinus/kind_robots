@@ -173,31 +173,48 @@
             </div>
           </div>
 
-          <!-- Narrator is composing this chapter. role="status"/aria-live
-               match every comparable busy indicator elsewhere in the app
-               (academy-manager.vue, model-builder-manager.vue,
-               model-builder-run-history.vue, narrative-response-composer.vue,
-               kr-chat-window.vue, watchlist-browse.vue,
-               narrative-ingredient-picker.vue) -- this was the one busy state
-               in davinci-page.vue left as a purely visual spinner with no
-               announcement to assistive tech. -->
-          <div
-            v-if="narrating"
-            role="status"
-            aria-live="polite"
-            class="flex flex-col items-center gap-3 rounded-2xl border border-base-300 bg-base-200/40 p-8 text-center"
-          >
-            <span
-              class="loading loading-dots loading-lg text-primary/70"
-              aria-hidden="true"
-            />
-            <p class="text-xs font-semibold text-base-content/50">
-              {{ narratorName || 'The narrator' }} is writing chapter
-              {{ chapterIndex }}…
-            </p>
-          </div>
+          <!-- Wraps every block that swaps in/out as narrating/narrationError/
+               currentChapter change (busy, error, chapter, and the "See your
+               ending" resolve panel below). Clicking a choice inside the
+               chapter block, or "Try again"/"Play the written chapters
+               instead" inside the error block, unmounts whichever block held
+               the clicked button via this v-if/v-else-if chain -- the exact
+               focus-loss shape model-builder-manager.vue's own `mainContent`
+               region already documents and fixes ("several buttons *inside*
+               the current step's own component change store.step, unmounting
+               that whole component ... with nothing moving focus anywhere
+               afterward, so the browser drops it to <body>"). tabindex="-1"
+               lets this region receive focus programmatically without
+               joining the normal Tab order, mirroring that same `<main
+               ref="mainContent" tabindex="-1">` pattern; the paired watch
+               below restores focus here once a click from inside this region
+               causes the visible block to change. -->
+          <div ref="chapterRegion" tabindex="-1" aria-label="Current chapter">
+            <!-- Narrator is composing this chapter. role="status"/aria-live
+                 match every comparable busy indicator elsewhere in the app
+                 (academy-manager.vue, model-builder-manager.vue,
+                 model-builder-run-history.vue, narrative-response-composer.vue,
+                 kr-chat-window.vue, watchlist-browse.vue,
+                 narrative-ingredient-picker.vue) -- this was the one busy
+                 state in davinci-page.vue left as a purely visual spinner
+                 with no announcement to assistive tech. -->
+            <div
+              v-if="narrating"
+              role="status"
+              aria-live="polite"
+              class="flex flex-col items-center gap-3 rounded-2xl border border-base-300 bg-base-200/40 p-8 text-center"
+            >
+              <span
+                class="loading loading-dots loading-lg text-primary/70"
+                aria-hidden="true"
+              />
+              <p class="text-xs font-semibold text-base-content/50">
+                {{ narratorName || 'The narrator' }} is writing chapter
+                {{ chapterIndex }}…
+              </p>
+            </div>
 
-          <!-- Narration failed. Per the narration-layer spec a broken chapter
+            <!-- Narration failed. Per the narration-layer spec a broken chapter
                surfaces a visible retry rather than a silently fabricated one,
                so the curated pool is offered as an explicit, labelled choice
                instead of a transparent fallback. role="alert" matches every
@@ -209,55 +226,55 @@
                warning-toned block in davinci-page.vue with no role/aria
                semantics at all, left uncovered even after slice 2 fixed its
                color tone. -->
-          <div
-            v-else-if="narrationError"
-            role="alert"
-            class="flex flex-col items-center gap-3 rounded-2xl border border-warning/40 bg-warning/10 p-6 text-center"
-          >
-            <Icon name="kind-icon:warning" class="size-8 text-warning/70" />
-            <p class="text-sm text-base-content/70">
-              The narrator is having trouble with this chapter.
-            </p>
-            <p class="text-xs text-base-content/50">{{ narrationError }}</p>
-            <div class="flex flex-wrap justify-center gap-2">
-              <button
-                type="button"
-                class="btn btn-primary btn-sm gap-1.5 rounded-xl"
-                :disabled="narrating"
-                @click="narrateChapter()"
-              >
-                <Icon name="kind-icon:refresh" class="size-4" />
-                Try again
-              </button>
-              <button
-                type="button"
-                class="btn btn-outline btn-sm rounded-xl"
-                @click="useCuratedChapters"
-              >
-                Play the written chapters instead
-              </button>
-            </div>
-          </div>
-
-          <div
-            v-else-if="currentChapter"
-            class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200/40 p-4"
-          >
-            <h4 v-if="currentChapter.title" class="text-base font-black">
-              {{ currentChapter.title }}
-            </h4>
-            <NarrativeArtStatus
-              v-if="currentChapterArt"
-              :art="currentChapterArt"
-              :label="`Illustration for chapter ${chapterIndex}`"
-              @retry="retryCurrentChapterArt"
-            />
-            <p
-              class="whitespace-pre-line text-sm leading-relaxed text-base-content/75"
+            <div
+              v-else-if="narrationError"
+              role="alert"
+              class="flex flex-col items-center gap-3 rounded-2xl border border-warning/40 bg-warning/10 p-6 text-center"
             >
-              {{ currentChapter.narrative }}
-            </p>
-            <!-- Was a hand-rolled v-for of plain btn-outline buttons -- the
+              <Icon name="kind-icon:warning" class="size-8 text-warning/70" />
+              <p class="text-sm text-base-content/70">
+                The narrator is having trouble with this chapter.
+              </p>
+              <p class="text-xs text-base-content/50">{{ narrationError }}</p>
+              <div class="flex flex-wrap justify-center gap-2">
+                <button
+                  type="button"
+                  class="btn btn-primary btn-sm gap-1.5 rounded-xl"
+                  :disabled="narrating"
+                  @click="narrateChapter()"
+                >
+                  <Icon name="kind-icon:refresh" class="size-4" />
+                  Try again
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm rounded-xl"
+                  @click="useCuratedChapters"
+                >
+                  Play the written chapters instead
+                </button>
+              </div>
+            </div>
+
+            <div
+              v-else-if="currentChapter"
+              class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200/40 p-4"
+            >
+              <h4 v-if="currentChapter.title" class="text-base font-black">
+                {{ currentChapter.title }}
+              </h4>
+              <NarrativeArtStatus
+                v-if="currentChapterArt"
+                :art="currentChapterArt"
+                :label="`Illustration for chapter ${chapterIndex}`"
+                @retry="retryCurrentChapterArt"
+              />
+              <p
+                class="whitespace-pre-line text-sm leading-relaxed text-base-content/75"
+              >
+                {{ currentChapter.narrative }}
+              </p>
+              <!-- Was a hand-rolled v-for of plain btn-outline buttons -- the
                  fourth duplicate of exactly the pick-one-option list
                  kr-choice-list.vue was built to unify (its own doc comment:
                  "replaces at least three separate implementations of the
@@ -273,24 +290,24 @@
                  existing plain-button look, rather than also opting into
                  the numbered "storybook gesture" badge as an unrelated
                  visual change in the same pass. -->
-            <kr-choice-list
-              layout="stack"
-              label="Choices for this chapter"
-              :choices="currentChapterChoices"
-              :disabled="submitting"
-              :show-index="false"
-              @select="chooseOptionByKey"
-            />
-            <p
-              v-if="currentChapter.milestoneCandidate"
-              class="text-[0.65rem] italic text-base-content/40"
-            >
-              This life seems headed toward
-              {{ currentChapter.milestoneCandidate }}.
-            </p>
-          </div>
+              <kr-choice-list
+                layout="stack"
+                label="Choices for this chapter"
+                :choices="currentChapterChoices"
+                :disabled="submitting"
+                :show-index="false"
+                @select="chooseOptionByKey"
+              />
+              <p
+                v-if="currentChapter.milestoneCandidate"
+                class="text-[0.65rem] italic text-base-content/40"
+              >
+                This life seems headed toward
+                {{ currentChapter.milestoneCandidate }}.
+              </p>
+            </div>
 
-          <!-- The run may be ended any time after chapter 6 (raised from 3,
+            <!-- The run may be ended any time after chapter 6 (raised from 3,
                davinci/t-024: simulation-backed, see MIN_CHAPTERS_BEFORE_ENDING
                above) -- enough chapters for a meaningful spread of dimensions.
                The narrator never decides when a life ends — the player does.
@@ -302,33 +319,34 @@
                narration-error retry panel with the misleading "Your
                chapters are told" copy, even at chapter 1 with zero recorded
                choices. -->
-          <div
-            v-if="
-              !narrating && !narrationError && (canEndRun || !currentChapter)
-            "
-            class="flex flex-col items-center gap-3 rounded-2xl border border-primary/30 bg-primary/5 p-6 text-center"
-          >
-            <Icon name="kind-icon:trophy" class="size-8 text-primary/70" />
-            <p class="text-sm text-base-content/70">
-              {{
-                currentChapter
-                  ? 'You can keep living, or draw the line here and see what it all added up to.'
-                  : "Your chapters are told. It's time to see how this life resolves."
-              }}
-            </p>
-            <button
-              type="button"
-              class="btn btn-primary btn-sm gap-1.5 rounded-xl"
-              :disabled="submitting"
-              @click="resolveLife"
+            <div
+              v-if="
+                !narrating && !narrationError && (canEndRun || !currentChapter)
+              "
+              class="flex flex-col items-center gap-3 rounded-2xl border border-primary/30 bg-primary/5 p-6 text-center"
             >
-              <span
-                v-if="submitting"
-                class="loading loading-spinner loading-sm"
-              />
-              <Icon v-else name="kind-icon:trophy" class="size-4" />
-              See your ending
-            </button>
+              <Icon name="kind-icon:trophy" class="size-8 text-primary/70" />
+              <p class="text-sm text-base-content/70">
+                {{
+                  currentChapter
+                    ? 'You can keep living, or draw the line here and see what it all added up to.'
+                    : "Your chapters are told. It's time to see how this life resolves."
+                }}
+              </p>
+              <button
+                type="button"
+                class="btn btn-primary btn-sm gap-1.5 rounded-xl"
+                :disabled="submitting"
+                @click="resolveLife"
+              >
+                <span
+                  v-if="submitting"
+                  class="loading loading-spinner loading-sm"
+                />
+                <Icon v-else name="kind-icon:trophy" class="size-4" />
+                See your ending
+              </button>
+            </div>
           </div>
         </div>
 
@@ -398,7 +416,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { performFetch } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'
 import type { ProjectFrontConfig } from '@/components/conductor/projectFront'
@@ -693,6 +711,12 @@ const narrating = ref(false)
 const narrationError = ref('')
 const narratorName = ref('')
 const aiChapter = ref<ActiveChapter | null>(null)
+// The region wrapping the narrating/narrationError/currentChapter/resolve
+// blocks (template) -- tabindex="-1" so it can receive focus
+// programmatically without joining the normal Tab order. See the paired
+// watch below and the template comment on this element for the bug this
+// closes.
+const chapterRegion = ref<HTMLElement | null>(null)
 
 // Contextual in-run art (davinci/t-020). The narrator proposes an artPrompt
 // per chapter and the resolve screen synthesizes one for the ending; both are
@@ -727,6 +751,35 @@ const currentChapter = computed<ActiveChapter | null>(() =>
 
 const canEndRun = computed(
   () => playedCount.value >= MIN_CHAPTERS_BEFORE_ENDING,
+)
+
+// Mirrors model-builder-manager.vue's `mainContent`/`store.step` watcher:
+// choosing an option, retrying a failed narration, or switching to the
+// curated pool all click a button that lives *inside* one of the
+// narrating/narrationError/currentChapter blocks above and then flip which
+// of those blocks is showing via the v-if/v-else-if chain, unmounting the
+// clicked button along with the block that held it. Nothing moved focus
+// afterward, so it fell back to <body> -- a keyboard or screen-reader user
+// had to re-discover the new chapter (or the busy/error state) from the top
+// of the page after every single choice, the core interaction loop of this
+// whole product. Checking `chapterRegion.value?.contains(document.activeElement)`
+// at watch time (before Vue patches the DOM, so activeElement is still
+// whatever was focused at the moment of the click) tells an in-region click
+// apart from anything else that could theoretically change these three refs
+// (e.g. a future caller flipping narrationMode) without moving focus itself.
+watch(
+  () =>
+    [
+      narrating.value,
+      narrationError.value,
+      Boolean(currentChapter.value),
+    ] as const,
+  () => {
+    if (!chapterRegion.value?.contains(document.activeElement)) return
+    void nextTick(() => {
+      chapterRegion.value?.focus()
+    })
+  },
 )
 
 const currentChapterArt = computed<NarrativeArtJobState | undefined>(

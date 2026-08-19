@@ -245,6 +245,12 @@ jobs:
       - name: AppMaker fleet-description guard
         run: npm run test:appmaker-fleet-description-guard
 
+      - name: AppMaker scaffold-collision guard self-test
+        run: npm run test:appmaker-scaffold-collision-guard-selftest
+
+      - name: AppMaker scaffold-collision guard
+        run: npm run test:appmaker-scaffold-collision-guard
+
       - name: Da Vinci narration bounds contract
         run: npm run test:davinci-narration
 

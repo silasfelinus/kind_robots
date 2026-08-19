@@ -670,7 +670,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useDreamStore } from '@/stores/dreamStore'
 import { useFacetStore } from '@/stores/facetStore'
@@ -704,6 +704,22 @@ const setupStep = ref(0)
 const furthestStep = ref(0)
 const answerInput = ref('')
 const newStoryArmed = ref(false)
+
+// A "Discard this tale?" arm is a confirmation for THIS session, not a
+// standing state. storybook-library-page.vue can swap the active session out
+// from under it -- opening a different story, duplicating, or restarting all
+// change `store.session.id` without this component's own startAnother() ever
+// running. Without this reset, the next session renders straight into the
+// armed, warning-colored button (never the plain "New story" one), so a
+// single click that looks like a first press instead discards that session
+// immediately, with no confirmation ever given for the story actually on
+// screen.
+watch(
+  () => store.session?.id ?? null,
+  () => {
+    newStoryArmed.value = false
+  },
+)
 
 /*
  * Beats persist as one record per scene (narration plus the reader's reply);

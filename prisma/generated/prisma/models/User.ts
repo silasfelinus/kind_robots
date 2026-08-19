@@ -822,6 +822,7 @@ export type UserWhereInput = {
   LifeRuns?: Prisma.LifeRunListRelationFilter
   Logs?: Prisma.LogListRelationFilter
   ManaTransactions?: Prisma.ManaTransactionListRelationFilter
+  MissionRemittances?: Prisma.MissionRemittanceListRelationFilter
   ActedNotifications?: Prisma.NotificationListRelationFilter
   Notifications?: Prisma.NotificationListRelationFilter
   PitchSheets?: Prisma.PitchSheetListRelationFilter
@@ -943,6 +944,7 @@ export type UserOrderByWithRelationInput = {
   LifeRuns?: Prisma.LifeRunOrderByRelationAggregateInput
   Logs?: Prisma.LogOrderByRelationAggregateInput
   ManaTransactions?: Prisma.ManaTransactionOrderByRelationAggregateInput
+  MissionRemittances?: Prisma.MissionRemittanceOrderByRelationAggregateInput
   ActedNotifications?: Prisma.NotificationOrderByRelationAggregateInput
   Notifications?: Prisma.NotificationOrderByRelationAggregateInput
   PitchSheets?: Prisma.PitchSheetOrderByRelationAggregateInput
@@ -1068,6 +1070,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   LifeRuns?: Prisma.LifeRunListRelationFilter
   Logs?: Prisma.LogListRelationFilter
   ManaTransactions?: Prisma.ManaTransactionListRelationFilter
+  MissionRemittances?: Prisma.MissionRemittanceListRelationFilter
   ActedNotifications?: Prisma.NotificationListRelationFilter
   Notifications?: Prisma.NotificationListRelationFilter
   PitchSheets?: Prisma.PitchSheetListRelationFilter
@@ -1345,6 +1348,7 @@ export type UserCreateInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -1466,6 +1470,7 @@ export type UserUncheckedCreateInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -1584,6 +1589,7 @@ export type UserUpdateInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -1705,6 +1711,7 @@ export type UserUncheckedUpdateInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -2436,6 +2443,20 @@ export type UserUpdateOneRequiredWithoutManaTransactionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutManaTransactionsInput, Prisma.UserUpdateWithoutManaTransactionsInput>, Prisma.UserUncheckedUpdateWithoutManaTransactionsInput>
 }
 
+export type UserCreateNestedOneWithoutMissionRemittancesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMissionRemittancesInput, Prisma.UserUncheckedCreateWithoutMissionRemittancesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMissionRemittancesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutMissionRemittancesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMissionRemittancesInput, Prisma.UserUncheckedCreateWithoutMissionRemittancesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMissionRemittancesInput
+  upsert?: Prisma.UserUpsertWithoutMissionRemittancesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMissionRemittancesInput, Prisma.UserUpdateWithoutMissionRemittancesInput>, Prisma.UserUncheckedUpdateWithoutMissionRemittancesInput>
+}
+
 export type UserCreateNestedOneWithoutOrdersInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutOrdersInput, Prisma.UserUncheckedCreateWithoutOrdersInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutOrdersInput
@@ -3054,6 +3075,7 @@ export type UserCreateWithoutArtImagesInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -3174,6 +3196,7 @@ export type UserUncheckedCreateWithoutArtImagesInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -3297,6 +3320,7 @@ export type UserCreateWithoutArtImageInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -3416,6 +3440,7 @@ export type UserUncheckedCreateWithoutArtImageInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -3554,6 +3579,7 @@ export type UserUpdateWithoutArtImagesInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -3674,6 +3700,7 @@ export type UserUncheckedUpdateWithoutArtImagesInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -3885,6 +3912,7 @@ export type UserCreateWithoutArtCollectionsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -4005,6 +4033,7 @@ export type UserUncheckedCreateWithoutArtCollectionsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -4138,6 +4167,7 @@ export type UserUpdateWithoutArtCollectionsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -4258,6 +4288,7 @@ export type UserUncheckedUpdateWithoutArtCollectionsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -4375,6 +4406,7 @@ export type UserCreateWithoutBotsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -4495,6 +4527,7 @@ export type UserUncheckedCreateWithoutBotsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -4628,6 +4661,7 @@ export type UserUpdateWithoutBotsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -4748,6 +4782,7 @@ export type UserUncheckedUpdateWithoutBotsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -4865,6 +4900,7 @@ export type UserCreateWithoutCharactersInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -4985,6 +5021,7 @@ export type UserUncheckedCreateWithoutCharactersInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -5118,6 +5155,7 @@ export type UserUpdateWithoutCharactersInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -5238,6 +5276,7 @@ export type UserUncheckedUpdateWithoutCharactersInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -5355,6 +5394,7 @@ export type UserCreateWithoutChatsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -5475,6 +5515,7 @@ export type UserUncheckedCreateWithoutChatsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -5608,6 +5649,7 @@ export type UserUpdateWithoutChatsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -5728,6 +5770,7 @@ export type UserUncheckedUpdateWithoutChatsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -5845,6 +5888,7 @@ export type UserCreateWithoutDreamsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -5965,6 +6009,7 @@ export type UserUncheckedCreateWithoutDreamsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -6098,6 +6143,7 @@ export type UserUpdateWithoutDreamsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -6218,6 +6264,7 @@ export type UserUncheckedUpdateWithoutDreamsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -6336,6 +6383,7 @@ export type UserCreateWithoutProjectsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -6456,6 +6504,7 @@ export type UserUncheckedCreateWithoutProjectsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -6589,6 +6638,7 @@ export type UserUpdateWithoutProjectsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -6709,6 +6759,7 @@ export type UserUncheckedUpdateWithoutProjectsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -6825,6 +6876,7 @@ export type UserCreateWithoutFacetsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -6945,6 +6997,7 @@ export type UserUncheckedCreateWithoutFacetsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -7078,6 +7131,7 @@ export type UserUpdateWithoutFacetsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -7198,6 +7252,7 @@ export type UserUncheckedUpdateWithoutFacetsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -7315,6 +7370,7 @@ export type UserCreateWithoutLogsInput = {
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -7435,6 +7491,7 @@ export type UserUncheckedCreateWithoutLogsInput = {
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -7568,6 +7625,7 @@ export type UserUpdateWithoutLogsInput = {
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -7688,6 +7746,7 @@ export type UserUncheckedUpdateWithoutLogsInput = {
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -7805,6 +7864,7 @@ export type UserCreateWithoutManaTransactionsInput = {
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -7925,6 +7985,7 @@ export type UserUncheckedCreateWithoutManaTransactionsInput = {
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -8058,6 +8119,7 @@ export type UserUpdateWithoutManaTransactionsInput = {
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -8178,6 +8240,501 @@ export type UserUncheckedUpdateWithoutManaTransactionsInput = {
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
+  Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  ReferredBy?: Prisma.ReferralUncheckedUpdateOneWithoutReferredNestedInput
+  ReferralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
+  RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
+  UserRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
+  GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+}
+
+export type UserCreateWithoutMissionRemittancesInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  tokens?: number
+  earnedTokens?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  isGuest?: boolean
+  lastManaRefill?: Date | string | null
+  manaCap?: number
+  signupBonusGiven?: boolean
+  referralCode?: string | null
+  allowFriendRequests?: boolean
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  listInDirectory?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterConfirmedAt?: Date | string | null
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  restrictedAt?: Date | string | null
+  restrictedById?: number | null
+  restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
+  Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
+  Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
+  Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogCreateNestedManyWithoutUserInput
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
+  Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  ReferredBy?: Prisma.ReferralCreateNestedOneWithoutReferredInput
+  ReferralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
+  RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
+  RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
+  UserRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
+  GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+}
+
+export type UserUncheckedCreateWithoutMissionRemittancesInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  tokens?: number
+  earnedTokens?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  artImageId?: number | null
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  isGuest?: boolean
+  lastManaRefill?: Date | string | null
+  manaCap?: number
+  signupBonusGiven?: boolean
+  referralCode?: string | null
+  allowFriendRequests?: boolean
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  listInDirectory?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterConfirmedAt?: Date | string | null
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  restrictedAt?: Date | string | null
+  restrictedById?: number | null
+  restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
+  Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
+  Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
+  Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
+  Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  ReferredBy?: Prisma.ReferralUncheckedCreateNestedOneWithoutReferredInput
+  ReferralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
+  RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
+  UserRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
+  GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+}
+
+export type UserCreateOrConnectWithoutMissionRemittancesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutMissionRemittancesInput, Prisma.UserUncheckedCreateWithoutMissionRemittancesInput>
+}
+
+export type UserUpsertWithoutMissionRemittancesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutMissionRemittancesInput, Prisma.UserUncheckedUpdateWithoutMissionRemittancesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutMissionRemittancesInput, Prisma.UserUncheckedCreateWithoutMissionRemittancesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutMissionRemittancesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutMissionRemittancesInput, Prisma.UserUncheckedUpdateWithoutMissionRemittancesInput>
+}
+
+export type UserUpdateWithoutMissionRemittancesInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
+  Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
+  Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
+  Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
+  Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  ReferredBy?: Prisma.ReferralUpdateOneWithoutReferredNestedInput
+  ReferralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
+  RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
+  RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
+  UserRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
+  GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+}
+
+export type UserUncheckedUpdateWithoutMissionRemittancesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
+  Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
+  Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -8295,6 +8852,7 @@ export type UserCreateWithoutOrdersInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -8415,6 +8973,7 @@ export type UserUncheckedCreateWithoutOrdersInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -8548,6 +9107,7 @@ export type UserUpdateWithoutOrdersInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -8668,6 +9228,7 @@ export type UserUncheckedUpdateWithoutOrdersInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -8785,6 +9346,7 @@ export type UserCreateWithoutEntitlementsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -8905,6 +9467,7 @@ export type UserUncheckedCreateWithoutEntitlementsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -9038,6 +9601,7 @@ export type UserUpdateWithoutEntitlementsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -9158,6 +9722,7 @@ export type UserUncheckedUpdateWithoutEntitlementsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -9276,6 +9841,7 @@ export type UserCreateWithoutGrantsGivenInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -9396,6 +9962,7 @@ export type UserUncheckedCreateWithoutGrantsGivenInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -9518,6 +10085,7 @@ export type UserCreateWithoutGrantsReceivedInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -9638,6 +10206,7 @@ export type UserUncheckedCreateWithoutGrantsReceivedInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -9771,6 +10340,7 @@ export type UserUpdateWithoutGrantsGivenInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -9891,6 +10461,7 @@ export type UserUncheckedUpdateWithoutGrantsGivenInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -10019,6 +10590,7 @@ export type UserUpdateWithoutGrantsReceivedInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -10139,6 +10711,7 @@ export type UserUncheckedUpdateWithoutGrantsReceivedInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -10256,6 +10829,7 @@ export type UserCreateWithoutPacksOwnedInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -10376,6 +10950,7 @@ export type UserUncheckedCreateWithoutPacksOwnedInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -10509,6 +11084,7 @@ export type UserUpdateWithoutPacksOwnedInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -10629,6 +11205,7 @@ export type UserUncheckedUpdateWithoutPacksOwnedInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -10745,6 +11322,7 @@ export type UserCreateWithoutAchievementsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -10865,6 +11443,7 @@ export type UserUncheckedCreateWithoutAchievementsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -10998,6 +11577,7 @@ export type UserUpdateWithoutAchievementsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -11118,6 +11698,7 @@ export type UserUncheckedUpdateWithoutAchievementsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -11236,6 +11817,7 @@ export type UserCreateWithoutPitchSheetsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
@@ -11356,6 +11938,7 @@ export type UserUncheckedCreateWithoutPitchSheetsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
@@ -11489,6 +12072,7 @@ export type UserUpdateWithoutPitchSheetsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
@@ -11609,6 +12193,7 @@ export type UserUncheckedUpdateWithoutPitchSheetsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
@@ -11726,6 +12311,7 @@ export type UserCreateWithoutClaimedPromptsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -11846,6 +12432,7 @@ export type UserUncheckedCreateWithoutClaimedPromptsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -11968,6 +12555,7 @@ export type UserCreateWithoutPromptsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -12088,6 +12676,7 @@ export type UserUncheckedCreateWithoutPromptsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -12221,6 +12810,7 @@ export type UserUpdateWithoutClaimedPromptsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -12341,6 +12931,7 @@ export type UserUncheckedUpdateWithoutClaimedPromptsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -12469,6 +13060,7 @@ export type UserUpdateWithoutPromptsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -12589,6 +13181,7 @@ export type UserUncheckedUpdateWithoutPromptsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -12706,6 +13299,7 @@ export type UserCreateWithoutReactionsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -12826,6 +13420,7 @@ export type UserUncheckedCreateWithoutReactionsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -12959,6 +13554,7 @@ export type UserUpdateWithoutReactionsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -13079,6 +13675,7 @@ export type UserUncheckedUpdateWithoutReactionsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -13196,6 +13793,7 @@ export type UserCreateWithoutResourcesInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -13316,6 +13914,7 @@ export type UserUncheckedCreateWithoutResourcesInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -13449,6 +14048,7 @@ export type UserUpdateWithoutResourcesInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -13569,6 +14169,7 @@ export type UserUncheckedUpdateWithoutResourcesInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -13686,6 +14287,7 @@ export type UserCreateWithoutRewardsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -13806,6 +14408,7 @@ export type UserUncheckedCreateWithoutRewardsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -13939,6 +14542,7 @@ export type UserUpdateWithoutRewardsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -14059,6 +14663,7 @@ export type UserUncheckedUpdateWithoutRewardsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -14176,6 +14781,7 @@ export type UserCreateWithoutScenariosInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -14296,6 +14902,7 @@ export type UserUncheckedCreateWithoutScenariosInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -14429,6 +15036,7 @@ export type UserUpdateWithoutScenariosInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -14549,6 +15157,7 @@ export type UserUncheckedUpdateWithoutScenariosInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -14666,6 +15275,7 @@ export type UserCreateWithoutServersInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -14786,6 +15396,7 @@ export type UserUncheckedCreateWithoutServersInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -14919,6 +15530,7 @@ export type UserUpdateWithoutServersInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -15039,6 +15651,7 @@ export type UserUncheckedUpdateWithoutServersInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -15156,6 +15769,7 @@ export type UserCreateWithoutSmartIconsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -15276,6 +15890,7 @@ export type UserUncheckedCreateWithoutSmartIconsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -15409,6 +16024,7 @@ export type UserUpdateWithoutSmartIconsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -15529,6 +16145,7 @@ export type UserUncheckedUpdateWithoutSmartIconsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -15646,6 +16263,7 @@ export type UserCreateWithoutThemesInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -15766,6 +16384,7 @@ export type UserUncheckedCreateWithoutThemesInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -15899,6 +16518,7 @@ export type UserUpdateWithoutThemesInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -16019,6 +16639,7 @@ export type UserUncheckedUpdateWithoutThemesInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -16136,6 +16757,7 @@ export type UserCreateWithoutStylistClientsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -16256,6 +16878,7 @@ export type UserUncheckedCreateWithoutStylistClientsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -16389,6 +17012,7 @@ export type UserUpdateWithoutStylistClientsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -16509,6 +17133,7 @@ export type UserUncheckedUpdateWithoutStylistClientsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -16626,6 +17251,7 @@ export type UserCreateWithoutStylistAppointmentsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -16746,6 +17372,7 @@ export type UserUncheckedCreateWithoutStylistAppointmentsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -16879,6 +17506,7 @@ export type UserUpdateWithoutStylistAppointmentsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -16999,6 +17627,7 @@ export type UserUncheckedUpdateWithoutStylistAppointmentsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -17115,6 +17744,7 @@ export type UserCreateWithoutArtJobsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -17235,6 +17865,7 @@ export type UserUncheckedCreateWithoutArtJobsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -17368,6 +17999,7 @@ export type UserUpdateWithoutArtJobsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -17488,6 +18120,7 @@ export type UserUncheckedUpdateWithoutArtJobsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -17605,6 +18238,7 @@ export type UserCreateWithoutKarmaTransactionsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -17725,6 +18359,7 @@ export type UserUncheckedCreateWithoutKarmaTransactionsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -17858,6 +18493,7 @@ export type UserUpdateWithoutKarmaTransactionsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -17978,6 +18614,7 @@ export type UserUncheckedUpdateWithoutKarmaTransactionsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -18096,6 +18733,7 @@ export type UserCreateWithoutReferredByInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -18216,6 +18854,7 @@ export type UserUncheckedCreateWithoutReferredByInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -18338,6 +18977,7 @@ export type UserCreateWithoutReferralsMadeInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -18458,6 +19098,7 @@ export type UserUncheckedCreateWithoutReferralsMadeInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -18591,6 +19232,7 @@ export type UserUpdateWithoutReferredByInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -18711,6 +19353,7 @@ export type UserUncheckedUpdateWithoutReferredByInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -18839,6 +19482,7 @@ export type UserUpdateWithoutReferralsMadeInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -18959,6 +19603,7 @@ export type UserUncheckedUpdateWithoutReferralsMadeInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -19076,6 +19721,7 @@ export type UserCreateWithoutRelationsReceivedInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -19196,6 +19842,7 @@ export type UserUncheckedCreateWithoutRelationsReceivedInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -19318,6 +19965,7 @@ export type UserCreateWithoutRelationsOwnedInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -19438,6 +20086,7 @@ export type UserUncheckedCreateWithoutRelationsOwnedInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -19571,6 +20220,7 @@ export type UserUpdateWithoutRelationsReceivedInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -19691,6 +20341,7 @@ export type UserUncheckedUpdateWithoutRelationsReceivedInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -19819,6 +20470,7 @@ export type UserUpdateWithoutRelationsOwnedInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -19939,6 +20591,7 @@ export type UserUncheckedUpdateWithoutRelationsOwnedInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -20056,6 +20709,7 @@ export type UserCreateWithoutUserRolesInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -20176,6 +20830,7 @@ export type UserUncheckedCreateWithoutUserRolesInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -20309,6 +20964,7 @@ export type UserUpdateWithoutUserRolesInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -20429,6 +21085,7 @@ export type UserUncheckedUpdateWithoutUserRolesInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -20545,6 +21202,7 @@ export type UserCreateWithoutChallengesInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -20665,6 +21323,7 @@ export type UserUncheckedCreateWithoutChallengesInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -20798,6 +21457,7 @@ export type UserUpdateWithoutChallengesInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -20918,6 +21578,7 @@ export type UserUncheckedUpdateWithoutChallengesInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -21035,6 +21696,7 @@ export type UserCreateWithoutLifeRunsInput = {
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -21155,6 +21817,7 @@ export type UserUncheckedCreateWithoutLifeRunsInput = {
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -21288,6 +21951,7 @@ export type UserUpdateWithoutLifeRunsInput = {
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -21408,6 +22072,7 @@ export type UserUncheckedUpdateWithoutLifeRunsInput = {
   LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -21525,6 +22190,7 @@ export type UserCreateWithoutLifeAchievementUnlocksInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -21645,6 +22311,7 @@ export type UserUncheckedCreateWithoutLifeAchievementUnlocksInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -21778,6 +22445,7 @@ export type UserUpdateWithoutLifeAchievementUnlocksInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -21898,6 +22566,7 @@ export type UserUncheckedUpdateWithoutLifeAchievementUnlocksInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -22015,6 +22684,7 @@ export type UserCreateWithoutAuthTokensInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -22135,6 +22805,7 @@ export type UserUncheckedCreateWithoutAuthTokensInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -22268,6 +22939,7 @@ export type UserUpdateWithoutAuthTokensInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -22388,6 +23060,7 @@ export type UserUncheckedUpdateWithoutAuthTokensInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -22505,6 +23178,7 @@ export type UserCreateWithoutConversationsInInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -22625,6 +23299,7 @@ export type UserUncheckedCreateWithoutConversationsInInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -22758,6 +23433,7 @@ export type UserUpdateWithoutConversationsInInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -22878,6 +23554,7 @@ export type UserUncheckedUpdateWithoutConversationsInInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -22995,6 +23672,7 @@ export type UserCreateWithoutSentMessagesInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -23115,6 +23793,7 @@ export type UserUncheckedCreateWithoutSentMessagesInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -23248,6 +23927,7 @@ export type UserUpdateWithoutSentMessagesInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -23368,6 +24048,7 @@ export type UserUncheckedUpdateWithoutSentMessagesInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -23486,6 +24167,7 @@ export type UserCreateWithoutActedNotificationsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
@@ -23606,6 +24288,7 @@ export type UserUncheckedCreateWithoutActedNotificationsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
@@ -23728,6 +24411,7 @@ export type UserCreateWithoutNotificationsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
   Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
@@ -23848,6 +24532,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
   Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
@@ -23981,6 +24666,7 @@ export type UserUpdateWithoutActedNotificationsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
@@ -24101,6 +24787,7 @@ export type UserUncheckedUpdateWithoutActedNotificationsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
@@ -24229,6 +24916,7 @@ export type UserUpdateWithoutNotificationsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
   Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
@@ -24349,6 +25037,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
   Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
@@ -24465,6 +25154,7 @@ export type UserCreateWithoutGithubInstallationsInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -24585,6 +25275,7 @@ export type UserUncheckedCreateWithoutGithubInstallationsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -24718,6 +25409,7 @@ export type UserUpdateWithoutGithubInstallationsInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -24838,6 +25530,7 @@ export type UserUncheckedUpdateWithoutGithubInstallationsInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -24955,6 +25648,7 @@ export type UserCreateWithoutAppReposInput = {
   LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
@@ -25075,6 +25769,7 @@ export type UserUncheckedCreateWithoutAppReposInput = {
   LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
   Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
   ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
   PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
@@ -25208,6 +25903,7 @@ export type UserUpdateWithoutAppReposInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -25328,6 +26024,7 @@ export type UserUncheckedUpdateWithoutAppReposInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -25520,6 +26217,7 @@ export type UserUpdateWithoutArtImageInput = {
   LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
@@ -25639,6 +26337,7 @@ export type UserUncheckedUpdateWithoutArtImageInput = {
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
   ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
@@ -25766,6 +26465,7 @@ export type UserCountOutputType = {
   LifeRuns: number
   Logs: number
   ManaTransactions: number
+  MissionRemittances: number
   ActedNotifications: number
   Notifications: number
   PitchSheets: number
@@ -25813,6 +26513,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   LifeRuns?: boolean | UserCountOutputTypeCountLifeRunsArgs
   Logs?: boolean | UserCountOutputTypeCountLogsArgs
   ManaTransactions?: boolean | UserCountOutputTypeCountManaTransactionsArgs
+  MissionRemittances?: boolean | UserCountOutputTypeCountMissionRemittancesArgs
   ActedNotifications?: boolean | UserCountOutputTypeCountActedNotificationsArgs
   Notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
   PitchSheets?: boolean | UserCountOutputTypeCountPitchSheetsArgs
@@ -25999,6 +26700,13 @@ export type UserCountOutputTypeCountLogsArgs<ExtArgs extends runtime.Types.Exten
  */
 export type UserCountOutputTypeCountManaTransactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ManaTransactionWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountMissionRemittancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MissionRemittanceWhereInput
 }
 
 /**
@@ -26251,6 +26959,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   LifeRuns?: boolean | Prisma.User$LifeRunsArgs<ExtArgs>
   Logs?: boolean | Prisma.User$LogsArgs<ExtArgs>
   ManaTransactions?: boolean | Prisma.User$ManaTransactionsArgs<ExtArgs>
+  MissionRemittances?: boolean | Prisma.User$MissionRemittancesArgs<ExtArgs>
   ActedNotifications?: boolean | Prisma.User$ActedNotificationsArgs<ExtArgs>
   Notifications?: boolean | Prisma.User$NotificationsArgs<ExtArgs>
   PitchSheets?: boolean | Prisma.User$PitchSheetsArgs<ExtArgs>
@@ -26379,6 +27088,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   LifeRuns?: boolean | Prisma.User$LifeRunsArgs<ExtArgs>
   Logs?: boolean | Prisma.User$LogsArgs<ExtArgs>
   ManaTransactions?: boolean | Prisma.User$ManaTransactionsArgs<ExtArgs>
+  MissionRemittances?: boolean | Prisma.User$MissionRemittancesArgs<ExtArgs>
   ActedNotifications?: boolean | Prisma.User$ActedNotificationsArgs<ExtArgs>
   Notifications?: boolean | Prisma.User$NotificationsArgs<ExtArgs>
   PitchSheets?: boolean | Prisma.User$PitchSheetsArgs<ExtArgs>
@@ -26431,6 +27141,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     LifeRuns: Prisma.$LifeRunPayload<ExtArgs>[]
     Logs: Prisma.$LogPayload<ExtArgs>[]
     ManaTransactions: Prisma.$ManaTransactionPayload<ExtArgs>[]
+    MissionRemittances: Prisma.$MissionRemittancePayload<ExtArgs>[]
     ActedNotifications: Prisma.$NotificationPayload<ExtArgs>[]
     Notifications: Prisma.$NotificationPayload<ExtArgs>[]
     PitchSheets: Prisma.$PitchSheetPayload<ExtArgs>[]
@@ -26891,6 +27602,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   LifeRuns<T extends Prisma.User$LifeRunsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$LifeRunsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LifeRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Logs<T extends Prisma.User$LogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$LogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ManaTransactions<T extends Prisma.User$ManaTransactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ManaTransactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ManaTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  MissionRemittances<T extends Prisma.User$MissionRemittancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$MissionRemittancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MissionRemittancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ActedNotifications<T extends Prisma.User$ActedNotificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ActedNotificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Notifications<T extends Prisma.User$NotificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$NotificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   PitchSheets<T extends Prisma.User$PitchSheetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$PitchSheetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PitchSheetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -27889,6 +28601,30 @@ export type User$ManaTransactionsArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.ManaTransactionScalarFieldEnum | Prisma.ManaTransactionScalarFieldEnum[]
+}
+
+/**
+ * User.MissionRemittances
+ */
+export type User$MissionRemittancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MissionRemittance
+   */
+  select?: Prisma.MissionRemittanceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MissionRemittance
+   */
+  omit?: Prisma.MissionRemittanceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MissionRemittanceInclude<ExtArgs> | null
+  where?: Prisma.MissionRemittanceWhereInput
+  orderBy?: Prisma.MissionRemittanceOrderByWithRelationInput | Prisma.MissionRemittanceOrderByWithRelationInput[]
+  cursor?: Prisma.MissionRemittanceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MissionRemittanceScalarFieldEnum | Prisma.MissionRemittanceScalarFieldEnum[]
 }
 
 /**

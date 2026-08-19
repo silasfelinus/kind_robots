@@ -434,6 +434,7 @@ export const ModelName = {
   ManaTransaction: 'ManaTransaction',
   RevenueSplit: 'RevenueSplit',
   SocialPostDraft: 'SocialPostDraft',
+  MissionRemittance: 'MissionRemittance',
   Product: 'Product',
   Order: 'Order',
   OrderItem: 'OrderItem',
@@ -498,7 +499,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
+    modelProps: "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2941,6 +2942,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.SocialPostDraftCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.SocialPostDraftCountAggregateOutputType> | number
+        }
+      }
+    }
+    MissionRemittance: {
+      payload: Prisma.$MissionRemittancePayload<ExtArgs>
+      fields: Prisma.MissionRemittanceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MissionRemittanceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MissionRemittancePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MissionRemittanceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MissionRemittancePayload>
+        }
+        findFirst: {
+          args: Prisma.MissionRemittanceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MissionRemittancePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MissionRemittanceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MissionRemittancePayload>
+        }
+        findMany: {
+          args: Prisma.MissionRemittanceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MissionRemittancePayload>[]
+        }
+        create: {
+          args: Prisma.MissionRemittanceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MissionRemittancePayload>
+        }
+        createMany: {
+          args: Prisma.MissionRemittanceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.MissionRemittanceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MissionRemittancePayload>
+        }
+        update: {
+          args: Prisma.MissionRemittanceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MissionRemittancePayload>
+        }
+        deleteMany: {
+          args: Prisma.MissionRemittanceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MissionRemittanceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.MissionRemittanceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MissionRemittancePayload>
+        }
+        aggregate: {
+          args: Prisma.MissionRemittanceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMissionRemittance>
+        }
+        groupBy: {
+          args: Prisma.MissionRemittanceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MissionRemittanceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MissionRemittanceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MissionRemittanceCountAggregateOutputType> | number
         }
       }
     }
@@ -6982,6 +7049,18 @@ export const SocialPostDraftScalarFieldEnum = {
 export type SocialPostDraftScalarFieldEnum = (typeof SocialPostDraftScalarFieldEnum)[keyof typeof SocialPostDraftScalarFieldEnum]
 
 
+export const MissionRemittanceScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  amountCents: 'amountCents',
+  remittedById: 'remittedById',
+  note: 'note',
+  reference: 'reference'
+} as const
+
+export type MissionRemittanceScalarFieldEnum = (typeof MissionRemittanceScalarFieldEnum)[keyof typeof MissionRemittanceScalarFieldEnum]
+
+
 export const ProductScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -8411,6 +8490,14 @@ export const SocialPostDraftOrderByRelevanceFieldEnum = {
 export type SocialPostDraftOrderByRelevanceFieldEnum = (typeof SocialPostDraftOrderByRelevanceFieldEnum)[keyof typeof SocialPostDraftOrderByRelevanceFieldEnum]
 
 
+export const MissionRemittanceOrderByRelevanceFieldEnum = {
+  note: 'note',
+  reference: 'reference'
+} as const
+
+export type MissionRemittanceOrderByRelevanceFieldEnum = (typeof MissionRemittanceOrderByRelevanceFieldEnum)[keyof typeof MissionRemittanceOrderByRelevanceFieldEnum]
+
+
 export const ProductOrderByRelevanceFieldEnum = {
   slug: 'slug',
   title: 'title',
@@ -9599,6 +9686,7 @@ export type GlobalOmitConfig = {
   manaTransaction?: Prisma.ManaTransactionOmit
   revenueSplit?: Prisma.RevenueSplitOmit
   socialPostDraft?: Prisma.SocialPostDraftOmit
+  missionRemittance?: Prisma.MissionRemittanceOmit
   product?: Prisma.ProductOmit
   order?: Prisma.OrderOmit
   orderItem?: Prisma.OrderItemOmit

@@ -297,6 +297,23 @@ export type RevenueSplit = Prisma.RevenueSplitModel
  */
 export type SocialPostDraft = Prisma.SocialPostDraftModel
 /**
+ * Model MissionRemittance
+ * kind-economy/t-010: admin-only, append-only log of REAL-WORLD remittance
+ * events -- Silas manually recording that he already sent money to the
+ * mission-share destination (e.g. the Against Malaria Foundation) OUTSIDE
+ * this app. This table does not move any money itself and touches no
+ * payment processor; it exists purely so the accrued/remitted/outstanding
+ * figures on the mission-share dashboard (server/utils/missionAccrual.ts)
+ * are computable at all -- there was no prior mechanism anywhere in this
+ * codebase to record that a remittance happened (grepped clean at the time
+ * this was added). Rows are never edited or deleted -- correcting a bad
+ * entry means logging a new row, same append-only discipline as
+ * RevenueSplit and ManaTransaction, just without a reversedById pointer
+ * since there is no "wrong" remittance to supersede, only a ledger of what
+ * actually left the door.
+ */
+export type MissionRemittance = Prisma.MissionRemittanceModel
+/**
  * Model Product
  * digital-storefront v1 catalog entry (SPEC.md §3, digital-storefront/t-011 step 1).
  * Trusted server-side price source — replaces the imported

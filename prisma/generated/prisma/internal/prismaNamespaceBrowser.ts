@@ -88,6 +88,7 @@ export const ModelName = {
   ManaTransaction: 'ManaTransaction',
   RevenueSplit: 'RevenueSplit',
   SocialPostDraft: 'SocialPostDraft',
+  MissionRemittance: 'MissionRemittance',
   Product: 'Product',
   Order: 'Order',
   OrderItem: 'OrderItem',
@@ -918,6 +919,18 @@ export const SocialPostDraftScalarFieldEnum = {
 } as const
 
 export type SocialPostDraftScalarFieldEnum = (typeof SocialPostDraftScalarFieldEnum)[keyof typeof SocialPostDraftScalarFieldEnum]
+
+
+export const MissionRemittanceScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  amountCents: 'amountCents',
+  remittedById: 'remittedById',
+  note: 'note',
+  reference: 'reference'
+} as const
+
+export type MissionRemittanceScalarFieldEnum = (typeof MissionRemittanceScalarFieldEnum)[keyof typeof MissionRemittanceScalarFieldEnum]
 
 
 export const ProductScalarFieldEnum = {
@@ -2347,6 +2360,14 @@ export const SocialPostDraftOrderByRelevanceFieldEnum = {
 } as const
 
 export type SocialPostDraftOrderByRelevanceFieldEnum = (typeof SocialPostDraftOrderByRelevanceFieldEnum)[keyof typeof SocialPostDraftOrderByRelevanceFieldEnum]
+
+
+export const MissionRemittanceOrderByRelevanceFieldEnum = {
+  note: 'note',
+  reference: 'reference'
+} as const
+
+export type MissionRemittanceOrderByRelevanceFieldEnum = (typeof MissionRemittanceOrderByRelevanceFieldEnum)[keyof typeof MissionRemittanceOrderByRelevanceFieldEnum]
 
 
 export const ProductOrderByRelevanceFieldEnum = {

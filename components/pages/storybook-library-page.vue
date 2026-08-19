@@ -286,6 +286,15 @@ function formatStoryDate(value: string): string {
 watch(
   () => storyStore.session?.id ?? null,
   (sessionId) => {
+    // A "Restart from the beginning?" arm is a confirmation for THIS session,
+    // not a standing state. Opening a different story, duplicating,
+    // restarting, or starting a new one all swap the active session out from
+    // under an armed-but-unconfirmed button -- without this reset, the next
+    // session renders straight into the armed, warning-colored button (never
+    // the plain "Restart" one), so a single click that looks like a first
+    // press instead fires the destructive restart immediately, with no
+    // confirmation ever given for the story actually on screen.
+    restartArmed.value = false
     if (sessionId !== queryStoryId()) updateStoryQuery(sessionId)
   },
 )

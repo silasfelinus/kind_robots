@@ -34,7 +34,7 @@
         :disabled="disabled || loading"
         :aria-describedby="hint ? hintId : undefined"
         @input="updateValue"
-        @keydown.enter.exact.prevent="submit()"
+        @keydown.enter.exact="handleEnterKeydown"
       />
       <button
         type="submit"
@@ -115,6 +115,18 @@ watch(
 
 function updateValue(event: Event) {
   emit('update:modelValue', (event.target as HTMLTextAreaElement).value)
+}
+
+// IME composition (Japanese/Chinese/Korean input, among others) confirms a
+// composed candidate with its own Enter press, which the browser still
+// delivers as a `keydown` for the Enter key. `event.isComposing` is true for
+// that confirming press, so we must neither preventDefault() (the browser
+// needs the keystroke to finalize the composition) nor submit() -- doing
+// either hijacks composition and fires a premature, unfinished response.
+function handleEnterKeydown(event: KeyboardEvent) {
+  if (event.isComposing) return
+  event.preventDefault()
+  submit()
 }
 
 function submit(value = props.modelValue) {

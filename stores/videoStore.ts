@@ -10,6 +10,7 @@ import { defineStore } from 'pinia'
 import { reactive, computed } from 'vue'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
+import { artJobRetryNotice } from '@/utils/artJobRetryNotice'
 import type {
   VideoEngine,
   VideoOutputFormat,
@@ -46,6 +47,11 @@ type QueuedJob = {
   status: 'PENDING' | 'RUNNING' | 'DONE' | 'FAILED' | 'CANCELLED'
   artImageId?: number | null
   error?: string | null
+  // How many times the relay has taken this job and reported back. The queue
+  // retries a failed job by returning it to PENDING (see
+  // server/api/art/queue/[id]/complete.post.ts), so a job on attempt 2 is
+  // indistinguishable from a fresh one without this.
+  attempts?: number | null
 }
 
 const POLL_MS = 5_000
@@ -59,7 +65,9 @@ function sleep(ms: number): Promise<void> {
 // mp4/webm are real video containers (render as <video>).
 const IMAGE_CLIP_TYPES = new Set(['webp', 'gif'])
 
-export function isImageClipFileType(fileType: string | null | undefined): boolean {
+export function isImageClipFileType(
+  fileType: string | null | undefined,
+): boolean {
   return IMAGE_CLIP_TYPES.has((fileType || '').toLowerCase())
 }
 
@@ -98,6 +106,15 @@ export const useVideoStore = defineStore('videoStore', () => {
     artImageId: null as number | null,
     message: '',
     error: '',
+    // The error the LAST failed attempt reported, while the queue is still
+    // retrying. Distinct from `error`, which is fatal and ends the run: this
+    // one rides alongside a live spinner, because the job really is still
+    // going. Without it a job that has already failed twice looks exactly like
+    // one that just got queued -- which is how a ComfyUI rejection could spin
+    // a wheel for minutes saying "processing" while the ArtJob row already
+    // held the whole diagnosis (2026-08-19, LTX webp animation).
+    attemptError: '',
+    attempts: 0,
     loop: true,
   })
 
@@ -116,6 +133,8 @@ export const useVideoStore = defineStore('videoStore', () => {
     state.artImageId = null
     state.message = ''
     state.error = ''
+    state.attemptError = ''
+    state.attempts = 0
   }
 
   async function enqueue(params: GenerateVideoParams): Promise<number> {
@@ -178,15 +197,39 @@ export const useVideoStore = defineStore('videoStore', () => {
         return job
       }
 
+      // A failed attempt returns the job to PENDING with its error recorded,
+      // so `error` on a non-terminal job is the last attempt's failure and the
+      // queue is about to try again. Report it now rather than at the terminal
+      // state -- three attempts is minutes of silence otherwise, and the
+      // failure is usually the same one every time.
+      const notice = artJobRetryNotice(job)
+      if (notice) {
+        state.attempts = notice.attempts
+        state.attemptError = notice.error
+      }
+
       if (job?.status === 'RUNNING') {
         state.status = 'rendering'
-        state.message = 'The studio engine is rendering your clip…'
+        state.message = state.attemptError
+          ? `Retrying after attempt ${state.attempts} failed — rendering…`
+          : 'The studio engine is rendering your clip…'
       } else if (job?.status === 'PENDING') {
         state.status = 'queued'
-        state.message = 'Queued — waiting for the studio engine to pick it up…'
+        state.message = state.attemptError
+          ? `Attempt ${state.attempts} failed — waiting for the studio engine to retry…`
+          : 'Queued — waiting for the studio engine to pick it up…'
       }
 
       await sleep(POLL_MS)
+    }
+
+    // "Still catching up" is only true if nothing has gone wrong yet. A job
+    // that has been failing and retrying for twenty minutes is not catching
+    // up, and telling the user to sit tight sends them back to the same wheel.
+    if (state.attemptError) {
+      throw new Error(
+        `Still retrying after ${state.attempts} failed attempt(s): ${state.attemptError}`,
+      )
     }
 
     throw new Error(

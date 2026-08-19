@@ -3,22 +3,40 @@ import { defineStore } from 'pinia'
 import { useServerStore } from '@/stores/serverStore'
 import { performFetch } from '@/stores/utils'
 import {
+  applyCandidateEdit,
+  applyCandidateRegeneration,
+  applyCandidateRevisionRestore,
+  applyCandidateStatus,
+  classifyError,
+  cleanExamples,
+  cleanMultilineText,
+  cleanText,
+  clampResultCount,
+  computeBranchOrigin,
+  normalizeBatchShape,
+  normalizeGeneratedCandidates,
+  normalizeOutputDomain,
+  normalizeReturnTypeId,
+  normalizeReturnTypes,
+  normalizeSourceRef,
+  normalizeStoredBatch,
+  normalizeStoredCandidate,
+  nowIso,
+  RETURN_TYPE_IDS,
+} from '@/stores/helpers/brainstormCandidateLifecycle'
+import {
   BRAINSTORM_DEFAULT_OUTPUT_DOMAIN,
   BRAINSTORM_DEFAULT_RESULTS,
   BRAINSTORM_MAX_RESULTS,
   BRAINSTORM_MIN_RESULTS,
-  BRAINSTORM_OUTPUT_DOMAINS,
-  BRAINSTORM_RETURN_TYPES,
 } from '@/types/brainstorm'
 import type {
   BrainstormBatch,
   BrainstormBatchShape,
-  BrainstormBranchOrigin,
   BrainstormCandidate,
   BrainstormCandidateRevision,
   BrainstormCandidateStatus,
   BrainstormError,
-  BrainstormErrorKind,
   BrainstormGenerateData,
   BrainstormGeneratedCandidate,
   BrainstormGeneratePayload,
@@ -38,20 +56,21 @@ import type {
   BrainstormSourceRef,
 } from '@/types/brainstorm'
 
+// conductor brainstorm/t-021: the pure normalization and candidate
+// state-transition logic that used to live in this file (nowIso through
+// computeBranchOrigin) now lives in
+// stores/helpers/brainstormCandidateLifecycle.ts, imported above, so it can
+// be exercised by a plain-Node test without pulling in Pinia/useServerStore.
+// See that file's header comment for why. Nothing below this point changed
+// behavior; only where the pure half of it is defined.
+
 const STORAGE_KEY = 'kindrobots:brainstorm-session:v1'
 const SAVED_LINK_STORAGE_KEY = 'kindrobots:brainstorm-saved-link:v1'
 const STORAGE_VERSION = 1 as const
 const GENERATION_TIMEOUT_MS = 60_000
 const PERSISTENCE_TIMEOUT_MS = 30_000
-const RETURN_TYPE_IDS = new Set<BrainstormReturnTypeId>(
-  BRAINSTORM_RETURN_TYPES.map((entry) => entry.id),
-)
 
 let localIdSequence = 0
-
-function nowIso(): string {
-  return new Date().toISOString()
-}
 
 function createLocalId(prefix: 'batch' | 'candidate'): string {
   localIdSequence += 1
@@ -59,278 +78,14 @@ function createLocalId(prefix: 'batch' | 'candidate'): string {
   return `${prefix}-${uuid || `${Date.now()}-${localIdSequence}`}`
 }
 
-function cleanText(value: unknown): string {
-  return typeof value === 'string' ? value.replace(/\s+/g, ' ').trim() : ''
-}
-
-function cleanMultilineText(value: unknown): string {
-  return typeof value === 'string' ? value.trim() : ''
-}
-
-function cleanExamples(values: unknown): string[] {
-  if (!Array.isArray(values)) return []
-
-  return values
-    .map((value) => cleanMultilineText(value))
-    .filter((value, index, all) => value && all.indexOf(value) === index)
-    .slice(0, 20)
-}
-
-function clampResultCount(value: unknown): number {
-  const parsed = Number(value)
-  if (!Number.isFinite(parsed)) return BRAINSTORM_DEFAULT_RESULTS
-  return Math.min(
-    BRAINSTORM_MAX_RESULTS,
-    Math.max(BRAINSTORM_MIN_RESULTS, Math.round(parsed)),
-  )
-}
-
-function normalizeBatchShape(value: unknown): BrainstormBatchShape {
-  return value === 'assortment' ? 'assortment' : 'focused'
-}
-
-const OUTPUT_DOMAIN_IDS = new Set(
-  BRAINSTORM_OUTPUT_DOMAINS.map((entry) => entry.id),
-)
-
-function normalizeOutputDomain(value: unknown): BrainstormOutputDomainId {
-  const id = cleanText(value) as BrainstormOutputDomainId
-  return OUTPUT_DOMAIN_IDS.has(id) ? id : BRAINSTORM_DEFAULT_OUTPUT_DOMAIN
-}
-
-function normalizeReturnTypeId(value: unknown): BrainstormReturnTypeId | null {
-  const id = cleanText(value) as BrainstormReturnTypeId
-  return RETURN_TYPE_IDS.has(id) ? id : null
-}
-
-function normalizeReturnTypes(value: unknown): BrainstormReturnTypeRequest[] {
-  if (!Array.isArray(value)) return []
-
-  const result: BrainstormReturnTypeRequest[] = []
-  const seen = new Set<BrainstormReturnTypeId>()
-
-  for (const raw of value) {
-    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) continue
-    const record = raw as Record<string, unknown>
-    const id = normalizeReturnTypeId(record.id)
-    if (!id || seen.has(id)) continue
-
-    const parsedCount = Number(record.count)
-    const count =
-      Number.isInteger(parsedCount) && parsedCount > 0
-        ? Math.min(BRAINSTORM_MAX_RESULTS, parsedCount)
-        : undefined
-
-    result.push({ id, ...(count ? { count } : {}) })
-    seen.add(id)
-  }
-
-  return result
-}
-
-function minimumResultCountForMix(entries: BrainstormReturnTypeRequest[]): number {
+function minimumResultCountForMix(
+  entries: BrainstormReturnTypeRequest[],
+): number {
   if (!entries.length) return BRAINSTORM_MIN_RESULTS
   return Math.min(
     BRAINSTORM_MAX_RESULTS,
     entries.reduce((total, entry) => total + (entry.count ?? 1), 0),
   )
-}
-
-function normalizeGeneratedCandidates(
-  value: unknown,
-  expectedCount: number,
-): BrainstormGeneratedCandidate[] | null {
-  if (!Array.isArray(value)) return null
-
-  const candidates: BrainstormGeneratedCandidate[] = []
-  const seen = new Set<string>()
-
-  for (const raw of value) {
-    if (!raw || typeof raw !== 'object') return null
-
-    const record = raw as Record<string, unknown>
-    const text = cleanMultilineText(record.text)
-    const title = cleanText(record.title)
-    const returnType = normalizeReturnTypeId(record.returnType)
-
-    if (!text) return null
-
-    const duplicateKey = text.toLocaleLowerCase().replace(/\s+/g, ' ').trim()
-    if (seen.has(duplicateKey)) return null
-    seen.add(duplicateKey)
-
-    candidates.push({
-      text,
-      ...(title ? { title } : {}),
-      ...(returnType ? { returnType } : {}),
-    })
-  }
-
-  return candidates.length === expectedCount ? candidates : null
-}
-
-function normalizeSourceRef(value: unknown): BrainstormSourceRef | null {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
-
-  const record = value as Record<string, unknown>
-  const modelType = cleanText(record.modelType)
-  const id = Number(record.id)
-  const slug = cleanText(record.slug)
-  const intent = cleanMultilineText(record.intent)
-
-  if (!modelType) return null
-
-  return {
-    modelType,
-    ...(Number.isInteger(id) && id > 0 ? { id } : {}),
-    ...(slug ? { slug } : {}),
-    ...(intent ? { intent } : {}),
-  }
-}
-
-function normalizeRevision(value: unknown): BrainstormCandidateRevision | null {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
-
-  const record = value as Record<string, unknown>
-  const text = cleanMultilineText(record.text)
-  const title = cleanText(record.title)
-  const createdAt = cleanText(record.createdAt)
-  const reason = record.reason
-  const returnType = normalizeReturnTypeId(record.returnType)
-
-  if (
-    !text ||
-    !createdAt ||
-    !['generated', 'edited', 'regenerated', 'branched', 'restored'].includes(String(reason))
-  ) {
-    return null
-  }
-
-  return {
-    text,
-    createdAt,
-    reason: reason as BrainstormCandidateRevision['reason'],
-    ...(title ? { title } : {}),
-    returnType,
-  }
-}
-
-function normalizeBranchOrigin(value: unknown): BrainstormBranchOrigin | null {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
-  const record = value as Record<string, unknown>
-  const candidateId = cleanText(record.candidateId)
-  const revisionIndex = Number(record.revisionIndex)
-  const title = cleanText(record.title)
-  const text = cleanMultilineText(record.text)
-
-  if (!candidateId || !text || !Number.isInteger(revisionIndex) || revisionIndex < 0) {
-    return null
-  }
-
-  return {
-    candidateId,
-    revisionIndex,
-    ...(title ? { title } : {}),
-    text,
-  }
-}
-
-function normalizeStoredCandidate(value: unknown): BrainstormCandidate | null {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
-
-  const record = value as Record<string, unknown>
-  const id = cleanText(record.id)
-  const batchId = cleanText(record.batchId)
-  const text = cleanMultilineText(record.text)
-  const title = cleanText(record.title)
-  const feedback = cleanMultilineText(record.feedback)
-  const parentId = cleanText(record.parentId)
-  const status = record.status
-
-  if (
-    !id ||
-    !batchId ||
-    !text ||
-    !['pending', 'kept', 'rejected'].includes(String(status))
-  ) {
-    return null
-  }
-
-  const revisions = Array.isArray(record.revisions)
-    ? record.revisions
-        .map((revision) => normalizeRevision(revision))
-        .filter((revision): revision is BrainstormCandidateRevision => Boolean(revision))
-    : []
-
-  const meta =
-    record.meta && typeof record.meta === 'object' && !Array.isArray(record.meta)
-      ? (record.meta as Record<string, unknown>)
-      : {}
-  const source = normalizeSourceRef(meta.source)
-  const returnType = normalizeReturnTypeId(meta.returnType)
-  const branchOrigin = normalizeBranchOrigin(meta.branchOrigin)
-
-  return {
-    id,
-    batchId,
-    title,
-    text,
-    status: status as BrainstormCandidateStatus,
-    feedback,
-    edited: record.edited === true,
-    parentId: parentId || null,
-    revisions:
-      revisions.length > 0
-        ? revisions
-        : [{ title, text, createdAt: nowIso(), reason: 'generated', returnType }],
-    meta: {
-      source,
-      returnType,
-      branchOrigin,
-    },
-  }
-}
-
-function normalizeStoredBatch(value: unknown): BrainstormBatch | null {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
-
-  const record = value as Record<string, unknown>
-  const id = cleanText(record.id)
-  const createdAt = cleanText(record.createdAt)
-  const premise = cleanMultilineText(record.premise)
-  const candidateIds = Array.isArray(record.candidateIds)
-    ? record.candidateIds.map((value) => cleanText(value)).filter(Boolean)
-    : []
-
-  if (!id || !createdAt || !premise || candidateIds.length === 0) return null
-
-  const requestRecord =
-    record.request && typeof record.request === 'object'
-      ? (record.request as Record<string, unknown>)
-      : {}
-
-  const request: BrainstormGenerateRequest = {
-    premise: cleanMultilineText(requestRecord.premise) || premise,
-    count: clampResultCount(requestRecord.count),
-    constraints: cleanMultilineText(requestRecord.constraints),
-    examples: cleanExamples(requestRecord.examples),
-    mode: cleanText(requestRecord.mode) || 'freeform',
-    outputDomain: normalizeOutputDomain(requestRecord.outputDomain),
-    batchShape: normalizeBatchShape(requestRecord.batchShape),
-    returnTypes: normalizeReturnTypes(requestRecord.returnTypes),
-    source: normalizeSourceRef(requestRecord.source),
-  }
-
-  return { id, createdAt, premise, request, candidateIds }
-}
-
-function classifyError(status: number | undefined): BrainstormErrorKind {
-  if (status === 401) return 'auth'
-  if (status === 402) return 'mana'
-  if (status === 408) return 'network'
-  if (status === 404 || status === 503) return 'server'
-  if (status && status >= 500) return 'provider'
-  return 'network'
 }
 
 export const useBrainstormStore = defineStore('brainstormStore', () => {
@@ -339,7 +94,9 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
   const constraints = ref('')
   const examples = ref<string[]>([])
   const mode = ref('freeform')
-  const outputDomain = ref<BrainstormOutputDomainId>(BRAINSTORM_DEFAULT_OUTPUT_DOMAIN)
+  const outputDomain = ref<BrainstormOutputDomainId>(
+    BRAINSTORM_DEFAULT_OUTPUT_DOMAIN,
+  )
   const batchShape = ref<BrainstormBatchShape>('focused')
   const returnTypes = ref<BrainstormReturnTypeRequest[]>([])
   const source = ref<BrainstormSourceRef | null>(null)
@@ -380,7 +137,9 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
 
     return batch.candidateIds
       .map((candidateId) => byId.get(candidateId))
-      .filter((candidate): candidate is BrainstormCandidate => Boolean(candidate))
+      .filter((candidate): candidate is BrainstormCandidate =>
+        Boolean(candidate),
+      )
   })
 
   const keptCandidates = computed(() =>
@@ -395,11 +154,15 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
   )
 
   const rejectedCandidates = computed(() =>
-    activeCandidates.value.filter((candidate) => candidate.status === 'rejected'),
+    activeCandidates.value.filter(
+      (candidate) => candidate.status === 'rejected',
+    ),
   )
 
   const pendingCandidates = computed(() =>
-    activeCandidates.value.filter((candidate) => candidate.status === 'pending'),
+    activeCandidates.value.filter(
+      (candidate) => candidate.status === 'pending',
+    ),
   )
 
   const minimumMixResults = computed(() =>
@@ -408,11 +171,11 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
       : BRAINSTORM_MIN_RESULTS,
   )
 
-  const isGenerating = computed(
-    () => generationState.value === 'generating',
-  )
+  const isGenerating = computed(() => generationState.value === 'generating')
   const isPersisting = computed(
-    () => persistenceState.value === 'loading' || persistenceState.value === 'saving',
+    () =>
+      persistenceState.value === 'loading' ||
+      persistenceState.value === 'saving',
   )
 
   const canGenerate = computed(
@@ -423,7 +186,10 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
   )
 
   const canSaveSession = computed(
-    () => Boolean(premise.value.trim()) && Boolean(sessionName.value.trim()) && !isPersisting.value,
+    () =>
+      Boolean(premise.value.trim()) &&
+      Boolean(sessionName.value.trim()) &&
+      !isPersisting.value,
   )
 
   const suggestedSessionName = computed(() => {
@@ -469,7 +235,10 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
       if (savedSessionId.value && sessionName.value.trim()) {
         localStorage.setItem(
           SAVED_LINK_STORAGE_KEY,
-          JSON.stringify({ id: savedSessionId.value, name: sessionName.value.trim() }),
+          JSON.stringify({
+            id: savedSessionId.value,
+            name: sessionName.value.trim(),
+          }),
         )
       } else {
         localStorage.removeItem(SAVED_LINK_STORAGE_KEY)
@@ -487,7 +256,9 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
       const restoredCandidates = Array.isArray(parsed.candidates)
         ? parsed.candidates
             .map((candidate) => normalizeStoredCandidate(candidate))
-            .filter((candidate): candidate is BrainstormCandidate => Boolean(candidate))
+            .filter((candidate): candidate is BrainstormCandidate =>
+              Boolean(candidate),
+            )
         : []
       const restoredCandidateIds = new Set(
         restoredCandidates.map((candidate) => candidate.id),
@@ -515,7 +286,10 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
           : BRAINSTORM_MIN_RESULTS
 
       premise.value = cleanMultilineText(parsed.premise)
-      resultCount.value = Math.max(clampResultCount(parsed.resultCount), restoredMinimum)
+      resultCount.value = Math.max(
+        clampResultCount(parsed.resultCount),
+        restoredMinimum,
+      )
       constraints.value = cleanMultilineText(parsed.constraints)
       examples.value = cleanExamples(parsed.examples)
       mode.value = cleanText(parsed.mode) || 'freeform'
@@ -622,7 +396,10 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     ensureMixFits()
   }
 
-  function setReturnTypeCount(id: BrainstormReturnTypeId, value: number | null): void {
+  function setReturnTypeCount(
+    id: BrainstormReturnTypeId,
+    value: number | null,
+  ): void {
     const entry = returnTypes.value.find((candidate) => candidate.id === id)
     if (!entry) return
 
@@ -706,8 +483,7 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     const candidate = findCandidate(candidateId)
     if (!candidate) return false
 
-    candidate.status = status
-    if (status === 'kept') candidate.feedback = ''
+    applyCandidateStatus(candidate, status)
     return true
   }
 
@@ -737,25 +513,7 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     const candidate = findCandidate(candidateId)
     if (!candidate) return false
 
-    const nextTitle =
-      patch.title === undefined ? candidate.title : cleanText(patch.title)
-    const nextText =
-      patch.text === undefined ? candidate.text : cleanMultilineText(patch.text)
-
-    if (!nextText) return false
-    if (nextTitle === candidate.title && nextText === candidate.text) return true
-
-    candidate.title = nextTitle
-    candidate.text = nextText
-    candidate.edited = true
-    candidate.revisions.push({
-      ...(nextTitle ? { title: nextTitle } : {}),
-      text: nextText,
-      createdAt: nowIso(),
-      reason: 'edited',
-      returnType: candidate.meta.returnType ?? null,
-    })
-    return true
+    return applyCandidateEdit(candidate, patch)
   }
 
   function restoreCandidateRevision(
@@ -764,37 +522,8 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
   ): boolean {
     const candidate = findCandidate(candidateId)
     if (!candidate) return false
-    if (!Number.isInteger(revisionIndex) || revisionIndex < 0) return false
 
-    const revision = candidate.revisions[revisionIndex]
-    if (!revision) return false
-
-    const nextTitle = cleanText(revision.title)
-    const nextText = cleanMultilineText(revision.text)
-    if (!nextText) return false
-
-    const nextReturnType =
-      normalizeReturnTypeId(revision.returnType) ?? candidate.meta.returnType ?? null
-    if (
-      nextTitle === candidate.title &&
-      nextText === candidate.text &&
-      nextReturnType === (candidate.meta.returnType ?? null)
-    ) {
-      return true
-    }
-
-    candidate.title = nextTitle
-    candidate.text = nextText
-    candidate.meta.returnType = nextReturnType
-    candidate.edited = true
-    candidate.revisions.push({
-      ...(nextTitle ? { title: nextTitle } : {}),
-      text: nextText,
-      createdAt: nowIso(),
-      reason: 'restored',
-      returnType: nextReturnType,
-    })
-    return true
+    return applyCandidateRevisionRestore(candidate, revisionIndex)
   }
 
   function removeCandidate(candidateId: string): boolean {
@@ -807,7 +536,9 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     for (const batch of batches.value) {
       batch.candidateIds = batch.candidateIds.filter((id) => id !== candidateId)
     }
-    batches.value = batches.value.filter((batch) => batch.candidateIds.length > 0)
+    batches.value = batches.value.filter(
+      (batch) => batch.candidateIds.length > 0,
+    )
 
     if (
       activeBatchId.value &&
@@ -886,26 +617,7 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     const candidate = findCandidate(candidateId)
     if (!candidate) return false
 
-    const title = cleanText(generated.title)
-    const text = cleanMultilineText(generated.text)
-    if (!text) return false
-
-    const returnType =
-      normalizeReturnTypeId(generated.returnType) ?? candidate.meta.returnType ?? null
-    candidate.title = title
-    candidate.text = text
-    candidate.status = 'pending'
-    candidate.feedback = ''
-    candidate.edited = false
-    candidate.meta.returnType = returnType
-    candidate.revisions.push({
-      ...(title ? { title } : {}),
-      text,
-      createdAt: nowIso(),
-      reason: 'regenerated',
-      returnType,
-    })
-    return true
+    return applyCandidateRegeneration(candidate, generated)
   }
 
   function appendBranchCandidate(
@@ -921,13 +633,9 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
       'branched',
       parent.id,
     )
-    if (!child.meta.returnType) child.meta.returnType = parent.meta.returnType ?? null
-    child.meta.branchOrigin = {
-      candidateId: parent.id,
-      revisionIndex: Math.max(0, parent.revisions.length - 1),
-      ...(parent.title ? { title: parent.title } : {}),
-      text: parent.text,
-    }
+    if (!child.meta.returnType)
+      child.meta.returnType = parent.meta.returnType ?? null
+    child.meta.branchOrigin = computeBranchOrigin(parent)
     candidates.value.push(child)
 
     const parentIndex = batch.candidateIds.indexOf(parent.id)
@@ -960,7 +668,8 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
       mode: cleanText(mode.value) || 'freeform',
       outputDomain: outputDomain.value,
       batchShape: shape,
-      returnTypes: shape === 'assortment' ? normalizeReturnTypes(returnTypes.value) : [],
+      returnTypes:
+        shape === 'assortment' ? normalizeReturnTypes(returnTypes.value) : [],
       source: source.value,
     }
   }
@@ -978,7 +687,9 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
 
     return {
       premise:
-        originalRequest?.premise || cleanMultilineText(premise.value) || candidate.text,
+        originalRequest?.premise ||
+        cleanMultilineText(premise.value) ||
+        candidate.text,
       count: 1,
       constraints:
         originalRequest?.constraints || cleanMultilineText(constraints.value),
@@ -1119,7 +830,9 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
   }
 
   function upsertSavedSummary(summary: BrainstormSavedSessionSummary): void {
-    const index = savedSessions.value.findIndex((entry) => entry.id === summary.id)
+    const index = savedSessions.value.findIndex(
+      (entry) => entry.id === summary.id,
+    )
     if (index >= 0) savedSessions.value.splice(index, 1, summary)
     else savedSessions.value.unshift(summary)
     savedSessions.value.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
@@ -1221,7 +934,10 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
 
     const saved = result.data.session
     if (!restoreSession(JSON.stringify(saved.snapshot))) {
-      setPersistenceFailure(500, 'The saved Brainstorm session could not be restored safely.')
+      setPersistenceFailure(
+        500,
+        'The saved Brainstorm session could not be restored safely.',
+      )
       return false
     }
 

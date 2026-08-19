@@ -37,9 +37,14 @@
       </nav>
 
       <button
+        ref="historyToggleButton"
         type="button"
         class="btn btn-xs btn-ghost ml-auto h-7 min-h-7 rounded-xl px-2"
-        :class="showHistory ? 'text-primary' : 'text-base-content/60 hover:text-primary'"
+        :class="
+          showHistory
+            ? 'text-primary'
+            : 'text-base-content/60 hover:text-primary'
+        "
         :disabled="store.startingRun || resumingRun"
         aria-label="Toggle run history"
         :aria-pressed="showHistory"
@@ -99,12 +104,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useModelBuilderStore } from '@/stores/modelBuilderStore'
 
 const store = useModelBuilderStore()
 const showHistory = ref(false)
 const resumingRun = ref(true)
+const historyToggleButton = ref<HTMLButtonElement | null>(null)
 
 const crumbs = computed(() => [
   { step: 'source' as const, label: 'Source', enabled: true },
@@ -122,6 +128,27 @@ onMounted(async () => {
   } finally {
     resumingRun.value = false
   }
+})
+
+// The run-history panel (model-builder-run-history.vue) can close itself
+// from a button *inside* the panel -- "Open" on a run or "New run" both emit
+// `close` (see their own click handlers) rather than going back through the
+// header's own toggle button below. That inside button unmounts along with
+// the whole panel, and since nothing here ever moves focus anywhere else,
+// the browser drops it to <body> -- keyboard/screen-reader users lose their
+// place entirely and have to tab in again from the very top of the page,
+// instead of picking back up at the control that reopened the step they're
+// now looking at. Restoring focus to the toggle button itself (whether the
+// panel closed via that same button, a harmless no-op re-focus, or via one
+// of the inside buttons, the actual gap) keeps keyboard navigation anchored
+// to a sensible, discoverable spot. Mirrors academy-timeline.vue's
+// closeLesson() -- nextTick() then ref.value?.focus() -- for the identical
+// close-from-inside-the-panel shape.
+watch(showHistory, (isOpen) => {
+  if (isOpen) return
+  nextTick(() => {
+    historyToggleButton.value?.focus()
+  })
 })
 </script>
 

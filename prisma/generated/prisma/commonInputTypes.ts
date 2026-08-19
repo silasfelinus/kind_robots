@@ -558,6 +558,57 @@ export type EnumManaAttributionSourceNullableWithAggregatesFilter<$PrismaModel =
   _max?: Prisma.NestedEnumManaAttributionSourceNullableFilter<$PrismaModel>
 }
 
+export type EnumSocialPlatformFilter<$PrismaModel = never> = {
+  equals?: $Enums.SocialPlatform | Prisma.EnumSocialPlatformFieldRefInput<$PrismaModel>
+  in?: $Enums.SocialPlatform[]
+  notIn?: $Enums.SocialPlatform[]
+  not?: Prisma.NestedEnumSocialPlatformFilter<$PrismaModel> | $Enums.SocialPlatform
+}
+
+export type EnumManaAttributionSourceFilter<$PrismaModel = never> = {
+  equals?: $Enums.ManaAttributionSource | Prisma.EnumManaAttributionSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.ManaAttributionSource[]
+  notIn?: $Enums.ManaAttributionSource[]
+  not?: Prisma.NestedEnumManaAttributionSourceFilter<$PrismaModel> | $Enums.ManaAttributionSource
+}
+
+export type EnumSocialPostDraftStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.SocialPostDraftStatus | Prisma.EnumSocialPostDraftStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SocialPostDraftStatus[]
+  notIn?: $Enums.SocialPostDraftStatus[]
+  not?: Prisma.NestedEnumSocialPostDraftStatusFilter<$PrismaModel> | $Enums.SocialPostDraftStatus
+}
+
+export type EnumSocialPlatformWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SocialPlatform | Prisma.EnumSocialPlatformFieldRefInput<$PrismaModel>
+  in?: $Enums.SocialPlatform[]
+  notIn?: $Enums.SocialPlatform[]
+  not?: Prisma.NestedEnumSocialPlatformWithAggregatesFilter<$PrismaModel> | $Enums.SocialPlatform
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSocialPlatformFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSocialPlatformFilter<$PrismaModel>
+}
+
+export type EnumManaAttributionSourceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ManaAttributionSource | Prisma.EnumManaAttributionSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.ManaAttributionSource[]
+  notIn?: $Enums.ManaAttributionSource[]
+  not?: Prisma.NestedEnumManaAttributionSourceWithAggregatesFilter<$PrismaModel> | $Enums.ManaAttributionSource
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumManaAttributionSourceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumManaAttributionSourceFilter<$PrismaModel>
+}
+
+export type EnumSocialPostDraftStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SocialPostDraftStatus | Prisma.EnumSocialPostDraftStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SocialPostDraftStatus[]
+  notIn?: $Enums.SocialPostDraftStatus[]
+  not?: Prisma.NestedEnumSocialPostDraftStatusWithAggregatesFilter<$PrismaModel> | $Enums.SocialPostDraftStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSocialPostDraftStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSocialPostDraftStatusFilter<$PrismaModel>
+}
+
 export type EnumProductTypeFilter<$PrismaModel = never> = {
   equals?: $Enums.ProductType | Prisma.EnumProductTypeFieldRefInput<$PrismaModel>
   in?: $Enums.ProductType[]
@@ -1836,6 +1887,57 @@ export type NestedEnumManaAttributionSourceNullableWithAggregatesFilter<$PrismaM
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedEnumManaAttributionSourceNullableFilter<$PrismaModel>
   _max?: Prisma.NestedEnumManaAttributionSourceNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumSocialPlatformFilter<$PrismaModel = never> = {
+  equals?: $Enums.SocialPlatform | Prisma.EnumSocialPlatformFieldRefInput<$PrismaModel>
+  in?: $Enums.SocialPlatform[]
+  notIn?: $Enums.SocialPlatform[]
+  not?: Prisma.NestedEnumSocialPlatformFilter<$PrismaModel> | $Enums.SocialPlatform
+}
+
+export type NestedEnumManaAttributionSourceFilter<$PrismaModel = never> = {
+  equals?: $Enums.ManaAttributionSource | Prisma.EnumManaAttributionSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.ManaAttributionSource[]
+  notIn?: $Enums.ManaAttributionSource[]
+  not?: Prisma.NestedEnumManaAttributionSourceFilter<$PrismaModel> | $Enums.ManaAttributionSource
+}
+
+export type NestedEnumSocialPostDraftStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.SocialPostDraftStatus | Prisma.EnumSocialPostDraftStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SocialPostDraftStatus[]
+  notIn?: $Enums.SocialPostDraftStatus[]
+  not?: Prisma.NestedEnumSocialPostDraftStatusFilter<$PrismaModel> | $Enums.SocialPostDraftStatus
+}
+
+export type NestedEnumSocialPlatformWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SocialPlatform | Prisma.EnumSocialPlatformFieldRefInput<$PrismaModel>
+  in?: $Enums.SocialPlatform[]
+  notIn?: $Enums.SocialPlatform[]
+  not?: Prisma.NestedEnumSocialPlatformWithAggregatesFilter<$PrismaModel> | $Enums.SocialPlatform
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSocialPlatformFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSocialPlatformFilter<$PrismaModel>
+}
+
+export type NestedEnumManaAttributionSourceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ManaAttributionSource | Prisma.EnumManaAttributionSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.ManaAttributionSource[]
+  notIn?: $Enums.ManaAttributionSource[]
+  not?: Prisma.NestedEnumManaAttributionSourceWithAggregatesFilter<$PrismaModel> | $Enums.ManaAttributionSource
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumManaAttributionSourceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumManaAttributionSourceFilter<$PrismaModel>
+}
+
+export type NestedEnumSocialPostDraftStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SocialPostDraftStatus | Prisma.EnumSocialPostDraftStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SocialPostDraftStatus[]
+  notIn?: $Enums.SocialPostDraftStatus[]
+  not?: Prisma.NestedEnumSocialPostDraftStatusWithAggregatesFilter<$PrismaModel> | $Enums.SocialPostDraftStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSocialPostDraftStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSocialPostDraftStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumProductTypeFilter<$PrismaModel = never> = {

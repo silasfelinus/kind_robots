@@ -87,6 +87,7 @@ export const ModelName = {
   Achievement: 'Achievement',
   ManaTransaction: 'ManaTransaction',
   RevenueSplit: 'RevenueSplit',
+  SocialPostDraft: 'SocialPostDraft',
   Product: 'Product',
   Order: 'Order',
   OrderItem: 'OrderItem',
@@ -899,6 +900,24 @@ export const RevenueSplitScalarFieldEnum = {
 } as const
 
 export type RevenueSplitScalarFieldEnum = (typeof RevenueSplitScalarFieldEnum)[keyof typeof RevenueSplitScalarFieldEnum]
+
+
+export const SocialPostDraftScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  platform: 'platform',
+  sourceType: 'sourceType',
+  sourceId: 'sourceId',
+  bodyText: 'bodyText',
+  disclosureLabel: 'disclosureLabel',
+  mediaUrl: 'mediaUrl',
+  status: 'status',
+  reviewedBy: 'reviewedBy',
+  reviewedAt: 'reviewedAt'
+} as const
+
+export type SocialPostDraftScalarFieldEnum = (typeof SocialPostDraftScalarFieldEnum)[keyof typeof SocialPostDraftScalarFieldEnum]
 
 
 export const ProductScalarFieldEnum = {
@@ -2319,6 +2338,15 @@ export const RevenueSplitOrderByRelevanceFieldEnum = {
 } as const
 
 export type RevenueSplitOrderByRelevanceFieldEnum = (typeof RevenueSplitOrderByRelevanceFieldEnum)[keyof typeof RevenueSplitOrderByRelevanceFieldEnum]
+
+
+export const SocialPostDraftOrderByRelevanceFieldEnum = {
+  bodyText: 'bodyText',
+  disclosureLabel: 'disclosureLabel',
+  mediaUrl: 'mediaUrl'
+} as const
+
+export type SocialPostDraftOrderByRelevanceFieldEnum = (typeof SocialPostDraftOrderByRelevanceFieldEnum)[keyof typeof SocialPostDraftOrderByRelevanceFieldEnum]
 
 
 export const ProductOrderByRelevanceFieldEnum = {

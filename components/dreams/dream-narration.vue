@@ -16,6 +16,17 @@
 
         <div class="flex shrink-0 flex-wrap gap-2">
           <button
+            v-if="locationStorySlug"
+            type="button"
+            class="btn btn-primary btn-sm rounded-xl"
+            title="Start a Storybook story seeded with this Location"
+            @click="startStoryWithLocation"
+          >
+            <Icon name="kind-icon:book-open" class="h-4 w-4" />
+            <span class="hidden sm:inline">Start a story with this</span>
+          </button>
+
+          <button
             type="button"
             class="btn btn-ghost btn-sm rounded-xl"
             @click="backToGallery"
@@ -179,6 +190,29 @@ const dreamTitle = computed(
   () => dreamStore.selectedDream?.title || 'No Dream Selected',
 )
 const selectedSummary = computed(() => dreamStore.selectedDreamSummary)
+
+/**
+ * Storybook's seedFromQuery() already reads ?location= into
+ * draft.locationSlug (components/conductor/storybook-page.vue), but unlike
+ * Character, Reward, Scenario and Facet -- each a first-class model with its
+ * own detail surface and "Start a story with this" CTA -- a LOCATION Dream
+ * has no dedicated component of its own. Its only detail surface is this
+ * generic dream-narration workspace, so that is where the matching CTA has
+ * to live. Gated to dreamType === 'LOCATION' so every other Dream type
+ * (ART, BRAINSTORM, PITCH, WISH, ...) -- none of which Storybook's
+ * seedFromQuery() has a query key for -- keeps rendering none of this.
+ */
+const locationStorySlug = computed(() => {
+  const dream = dreamStore.selectedDream
+  if (!dream || dream.dreamType !== 'LOCATION') return ''
+  return dream.slug || ''
+})
+
+function startStoryWithLocation(): void {
+  const slug = locationStorySlug.value
+  if (!slug) return
+  void navigateTo({ path: '/storybook', query: { location: slug } })
+}
 
 watch(
   () => dreamStore.selectedDream?.id,

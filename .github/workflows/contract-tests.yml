@@ -266,6 +266,12 @@ jobs:
       - name: Da Vinci resolve-panel guard
         run: npm run test:davinci-resolve-panel-guard
 
+      - name: Video retry-notice guard self-test
+        run: npm run test:video-retry-notice-selftest
+
+      - name: Video retry-notice guard
+        run: npm run test:video-retry-notice
+
       - name: Da Vinci narrating-status guard self-test
         run: npm run test:davinci-narrating-status-guard-selftest
 

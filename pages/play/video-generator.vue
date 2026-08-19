@@ -317,6 +317,22 @@
           </span>
         </div>
 
+        <!-- A failed attempt returns the job to the queue rather than ending
+             it, so this rides alongside the spinner: the run is still live,
+             but it has already failed at least once and the user should see
+             why instead of watching a wheel. Suppressed once the run ends,
+             where the fatal alert below says the same thing. -->
+        <div
+          v-if="videoStore.state.attemptError && videoStore.isBusy"
+          class="alert alert-warning text-sm"
+          role="status"
+        >
+          <span>
+            Attempt {{ videoStore.state.attempts }} failed, retrying:
+            {{ videoStore.state.attemptError }}
+          </span>
+        </div>
+
         <div
           v-if="videoStore.state.error"
           class="alert alert-error text-sm"

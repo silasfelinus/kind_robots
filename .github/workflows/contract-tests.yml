@@ -266,6 +266,12 @@ jobs:
       - name: Da Vinci resolve-panel guard
         run: npm run test:davinci-resolve-panel-guard
 
+      - name: Migration drift check self-test
+        run: npm run test:migration-drift-check-selftest
+
+      - name: Migration drift check contract
+        run: npm run test:migration-drift-check
+
       - name: Video retry-notice guard self-test
         run: npm run test:video-retry-notice-selftest
 

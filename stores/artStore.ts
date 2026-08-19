@@ -91,12 +91,7 @@ function validateImagePrompt(prompt: string): {
 }
 
 export type ArtImageGenerationEngine =
-  | 'a1111'
-  | 'comfy'
-  | 'flux'
-  | 'krea2'
-  | 'kontext'
-  | 'openai'
+  'a1111' | 'comfy' | 'flux' | 'flux2' | 'krea2' | 'kontext' | 'openai'
 
 export type ArtImageGenerationTransport = 'browser' | 'backend'
 
@@ -114,6 +109,12 @@ export type NarrativeArtEnqueueContext = {
   beatId: string
   moment: string
   dedupeKey: string
+}
+
+export type ArtLoraSelection = {
+  resourceId?: number | null
+  name?: string | null
+  strength?: number | null
 }
 
 export interface GenerateArtData {
@@ -139,6 +140,10 @@ export interface GenerateArtData {
   loraName?: string | null
   loraStrength?: number | null
   loraResourceIds?: number[] | null
+  // Stacked LoRAs, applied in order, each with its own strength. The singular
+  // pair above still travels (set to the first link) so provenance readers and
+  // the ArtJob editor's style-LoRA override keep working.
+  loras?: ArtLoraSelection[] | null
   sampler?: string
   scheduler?: string
   steps?: number
@@ -159,6 +164,10 @@ export interface GenerateArtData {
   engine?: ArtImageGenerationEngine
   transport?: ArtImageGenerationTransport
   workflow?: Record<string, unknown> | null
+  // Flux ships as two models behind one engine. Without this the enqueue route
+  // falls back to `dev` (30 steps), so a caller asking for schnell silently got
+  // the slow model -- see buildFluxWorkflowFromRequest.
+  variant?: 'dev' | 'schnell' | null
 
   width?: number | null
   height?: number | null
@@ -1696,7 +1705,12 @@ export const useArtStore = defineStore('artStore', () => {
   ): boolean {
     if (engine === 'a1111') return server.serverType === 'A1111'
     if (engine === 'openai') return server.serverType === 'OPENAI'
-    if (engine === 'comfy' || engine === 'krea2') {
+    // krea2 and flux2 build their model into the workflow, so any Comfy server
+    // can run them -- unlike flux/kontext, which need the matching model family
+    // installed. /api/art/enqueue has accepted flux2 since FLUX.2 Klein landed;
+    // this predicate simply had not been told about it, so an explicit flux2
+    // request silently fell through to the plain `comfy` lane.
+    if (engine === 'comfy' || engine === 'krea2' || engine === 'flux2') {
       return server.serverType === 'COMFY'
     }
     if (engine === 'flux') {
@@ -1996,6 +2010,9 @@ export const useArtStore = defineStore('artStore', () => {
       comfy: '/api/comfy/sdxl/generate',
       flux: '/api/comfy/flux/generate',
       krea2: '/api/art/enqueue',
+      // Like krea2, FLUX.2 Klein exists only as a workflow builder consumed by
+      // the enqueue route -- there is no synchronous /api/comfy/flux2/generate.
+      flux2: '/api/art/enqueue',
       kontext: '/api/comfy/kontext/generate',
       openai: '/api/chats/openai/images/generate',
     }
@@ -2295,6 +2312,7 @@ export const useArtStore = defineStore('artStore', () => {
       loraName: artData?.loraName ?? null,
       loraStrength: artData?.loraStrength ?? null,
       loraResourceIds: artData?.loraResourceIds ?? null,
+      loras: artData?.loras ?? state.artForm.loras ?? null,
       sampler:
         artData?.sampler ||
         state.artForm.sampler ||
@@ -2327,6 +2345,7 @@ export const useArtStore = defineStore('artStore', () => {
       engine,
       transport: artData?.transport ?? state.artForm.transport ?? undefined,
       workflow: artData?.workflow ?? state.artForm.workflow ?? null,
+      variant: artData?.variant ?? state.artForm.variant ?? null,
       width: artData?.width ?? state.artForm.width ?? null,
       height: artData?.height ?? state.artForm.height ?? null,
       guidance: artData?.guidance ?? state.artForm.guidance ?? null,
@@ -2742,6 +2761,10 @@ export const useArtStore = defineStore('artStore', () => {
     showMature,
     generationServers,
     generationCollections,
+    // Exposed so the generator can say "this server cannot run that lane"
+    // rather than letting getArtImageGenerationEngine quietly substitute a
+    // different one and render something the settings panel never described.
+    canServerRunEngine: serverCanUseEngine,
     activeGenerationServer,
     selectedCheckpointName,
     selectedSamplerName,

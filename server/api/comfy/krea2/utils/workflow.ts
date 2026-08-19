@@ -13,6 +13,7 @@ import {
   buildSimpleCheckpointWorkflow,
   type ComfyWorkflow,
 } from '../../utils/simpleCheckpointWorkflow'
+import type { LoraSelectionInput } from '../../utils/loraChain'
 
 export const KREA2_UNET_LOADER: 'UNETLoader' | 'UnetLoaderGGUF' =
   'UnetLoaderGGUF'
@@ -40,6 +41,7 @@ export function buildKrea2WorkflowFromRequest(input: {
   denoise?: number | null
   loraName?: string | null
   loraStrength?: number | null
+  loras?: LoraSelectionInput[] | null
 }): { workflow: ComfyWorkflow; seed: number } {
   return buildSimpleCheckpointWorkflow({
     prompt: input.prompt?.trim() || '',
@@ -60,5 +62,6 @@ export function buildKrea2WorkflowFromRequest(input: {
     filenamePrefix: 'kindrobots_krea2',
     loraName: input.loraName ?? null,
     loraStrength: input.loraStrength ?? null,
+    loras: input.loras ?? null,
   })
 }

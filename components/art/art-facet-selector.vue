@@ -6,7 +6,8 @@
       <div class="min-w-0 flex-1">
         <h3 class="text-sm font-bold">{{ label }}</h3>
         <p v-if="!compact" class="text-xs text-base-content/50">
-          Canonical creative direction recorded on the ArtJob and finished image.
+          Canonical creative direction recorded on the ArtJob and finished
+          image.
         </p>
       </div>
       <button
@@ -70,7 +71,9 @@
           >
             <Icon name="kind-icon:tag" class="size-3" />
             {{ group.label }}
-            <span class="font-semibold text-base-content/25">{{ group.facets.length }}</span>
+            <span class="font-semibold text-base-content/25">{{
+              group.facets.length
+            }}</span>
           </div>
           <div
             v-for="facet in group.facets"
@@ -87,7 +90,11 @@
                 class="size-full object-cover"
                 loading="lazy"
               />
-              <Icon v-else :name="facet.icon || 'kind-icon:tag'" class="size-4" />
+              <Icon
+                v-else
+                :name="facet.icon || 'kind-icon:tag'"
+                class="size-4"
+              />
             </span>
             <button
               type="button"
@@ -95,7 +102,9 @@
               :disabled="selectedSet.has(facet.id)"
               @click="addFacet(facet.id)"
             >
-              <span class="block truncate text-sm font-semibold">{{ facet.title }}</span>
+              <span class="block truncate text-sm font-semibold">{{
+                facet.title
+              }}</span>
               <span
                 v-if="facet.groupLabel"
                 class="block truncate text-[11px] text-base-content/45"
@@ -130,7 +139,11 @@
           </div>
         </template>
         <p v-if="!hasResults" class="px-3 py-3 text-xs text-base-content/45">
-          {{ search.trim() ? 'No matching canonical Facet.' : 'No Facets available yet.' }}
+          {{
+            search.trim()
+              ? 'No matching canonical Facet.'
+              : 'No Facets available yet.'
+          }}
         </p>
       </div>
     </div>
@@ -142,13 +155,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import {
   useFacetCatalogStore,
   type FacetCatalogEntry,
   type FacetTaxonomy,
 } from '@/stores/facetCatalogStore'
 import { useFacetArtRequestStore } from '@/stores/facetArtRequestStore'
+import { useUserStore } from '@/stores/userStore'
 import { normalizeFacetLookupKey } from '@/utils/facetAliases'
 import { resolveEntityArtwork } from '@/utils/artImageSrc'
 
@@ -172,11 +186,13 @@ const emit = defineEmits<{
 
 const catalog = useFacetCatalogStore()
 const artRequests = useFacetArtRequestStore()
+const userStore = useUserStore()
 const search = ref('')
 const open = ref(false)
 const requestMessage = ref('')
 const requestMessageClass = ref('text-success')
 const selectedSet = computed(() => new Set(props.modelValue))
+const showMature = computed(() => userStore.showMature)
 const allowedTaxonomies = computed(() =>
   props.taxonomies?.length ? new Set(props.taxonomies) : null,
 )
@@ -188,13 +204,32 @@ const selectedFacets = computed(() => {
     .filter((entry): entry is FacetCatalogEntry => Boolean(entry))
 })
 
+// Turning mature content off must also drop mature Facets already staged --
+// otherwise they stay invisible in the chip row and still ride to the ArtJob.
+watch([showMature, () => catalog.entries.length], () => {
+  if (showMature.value || !catalog.loaded) return
+  const hidden = new Set(
+    catalog.entries.filter((entry) => entry.isMature).map((entry) => entry.id),
+  )
+  if (!props.modelValue.some((id) => hidden.has(id))) return
+  emitValue(props.modelValue.filter((id) => !hidden.has(id)))
+})
+
 const activeSearch = computed(() => normalizeFacetLookupKey(search.value))
 
 const matches = computed(() => {
   const needle = activeSearch.value
   return catalog.entries.filter((facet) => {
     if (!facet.isActive) return false
-    if (allowedTaxonomies.value && !allowedTaxonomies.value.has(facet.taxonomy)) {
+    // The account-level maturity choice governs Facets the same way it governs
+    // checkpoints and LoRAs. The catalog is fetched complete and SHARED with
+    // character/reward/scenario builders, so the gate is applied here rather
+    // than by refetching -- narrowing the fetch would starve those surfaces.
+    if (!showMature.value && facet.isMature) return false
+    if (
+      allowedTaxonomies.value &&
+      !allowedTaxonomies.value.has(facet.taxonomy)
+    ) {
       return false
     }
     if (!needle) return true
@@ -244,7 +279,10 @@ onMounted(async () => {
 function emitValue(ids: number[]): void {
   emit(
     'update:modelValue',
-    [...new Set(ids.filter((id) => Number.isInteger(id) && id > 0))].slice(0, 50),
+    [...new Set(ids.filter((id) => Number.isInteger(id) && id > 0))].slice(
+      0,
+      50,
+    ),
   )
 }
 

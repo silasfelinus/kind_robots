@@ -5,6 +5,12 @@
 // queue-based enqueue endpoint (/api/art/enqueue) build the same Comfy graph
 // and apply prompt/seed/sampler overrides identically.
 
+import {
+  appendModelClipLoraChain,
+  normalizeLoraSelections,
+  type LoraSelectionInput,
+} from '../../utils/loraChain'
+
 export type ComfyWorkflow = Record<string, ComfyWorkflowNode>
 
 export type ComfyWorkflowNode = {
@@ -24,6 +30,8 @@ export type ComfyWorkflowInput = {
   /** Optional style LoRA, same shape the img2img builder takes. */
   loraName?: string | null
   loraStrength?: number | null
+  /** Multiple stacked LoRAs, applied in order. Supersedes the pair above. */
+  loras?: LoraSelectionInput[] | null
   width?: number | null
   height?: number | null
   filenamePrefix?: string | null
@@ -159,6 +167,7 @@ export type SdxlImg2ImgInput = {
   denoise?: number | null
   loraName?: string | null
   loraStrength?: number | null
+  loras?: LoraSelectionInput[] | null
   filenamePrefix?: string | null
 }
 
@@ -269,15 +278,8 @@ export function buildSdxlImg2ImgWorkflow(input: SdxlImg2ImgInput): {
         ? Math.min(1, Math.max(MIN_SDXL_IMG2IMG_DENOISE, input.denoise))
         : 1 - DEFAULT_SDXL_IMG2IMG_ORIGINAL_WEIGHT
 
-  const loraName = input.loraName?.trim() || ''
-  const loraStrength =
-    typeof input.loraStrength === 'number' &&
-    Number.isFinite(input.loraStrength)
-      ? input.loraStrength
-      : 1
-
-  const modelSource: [string, number] = loraName ? ['10', 0] : ['1', 0]
-  const clipSource: [string, number] = loraName ? ['10', 1] : ['1', 1]
+  const modelSource: [string, number] = ['1', 0]
+  const clipSource: [string, number] = ['1', 1]
 
   const workflow: ComfyWorkflow = {
     '1': {
@@ -336,19 +338,16 @@ export function buildSdxlImg2ImgWorkflow(input: SdxlImg2ImgInput): {
     },
   }
 
-  if (loraName) {
-    workflow['10'] = {
-      class_type: 'LoraLoader',
-      inputs: {
-        model: ['1', 0],
-        clip: ['1', 1],
-        lora_name: loraName,
-        strength_model: loraStrength,
-        strength_clip: loraStrength,
-      },
-      _meta: { title: 'Style LoRA' },
-    }
-  }
+  const chained = appendModelClipLoraChain(workflow, {
+    loras: normalizeLoraSelections(input),
+    model: modelSource,
+    clip: clipSource,
+    startId: 10,
+  })
+
+  workflow['6']!.inputs!.model = chained.model
+  workflow['2']!.inputs!.clip = chained.clip
+  workflow['3']!.inputs!.clip = chained.clip
 
   return { workflow, seed, denoise }
 }
@@ -373,6 +372,7 @@ export function buildDefaultComfyWorkflow({
   sampler,
   loraName,
   loraStrength,
+  loras,
   width,
   height,
   filenamePrefix,
@@ -388,15 +388,11 @@ export function buildDefaultComfyWorkflow({
   // Profiling `checkpoint` directly would have left the fallback at 20 steps.
   const resolvedCheckpoint = checkpoint || DEFAULT_SDXL_CHECKPOINT
   const profile = sdxlSamplerProfile(resolvedCheckpoint)
-  const style = (loraName || '').trim()
-  const strength =
-    typeof loraStrength === 'number' && Number.isFinite(loraStrength)
-      ? loraStrength
-      : 1
-  // With a LoRA in the graph, model and CLIP come off the LoraLoader instead of
-  // the checkpoint — same wiring as buildSdxlImg2ImgWorkflow.
-  const modelSource: [string, number] = style ? ['10', 0] : ['1', 0]
-  const clipSource: [string, number] = style ? ['10', 1] : ['1', 1]
+  // Wired to the bare checkpoint here and re-pointed at the tail of the LoRA
+  // chain below. Resolving the refs up front (as this used to) cannot express a
+  // chain, because the tail's node id depends on how many links there are.
+  const modelSource: [string, number] = ['1', 0]
+  const clipSource: [string, number] = ['1', 1]
 
   const workflow: ComfyWorkflow = {
     '1': {
@@ -466,19 +462,18 @@ export function buildDefaultComfyWorkflow({
     },
   }
 
-  if (style) {
-    workflow['10'] = {
-      class_type: 'LoraLoader',
-      inputs: {
-        model: ['1', 0],
-        clip: ['1', 1],
-        lora_name: style,
-        strength_model: strength,
-        strength_clip: strength,
-      },
-      _meta: { title: 'Style LoRA' },
-    }
-  }
+  // Model AND CLIP run through the chain: an SDXL LoRA's trigger tokens are
+  // only recognised by a text encoder reading the LoRA's CLIP.
+  const chained = appendModelClipLoraChain(workflow, {
+    loras: normalizeLoraSelections({ loras, loraName, loraStrength }),
+    model: modelSource,
+    clip: clipSource,
+    startId: 10,
+  })
+
+  workflow['5']!.inputs!.model = chained.model
+  workflow['2']!.inputs!.clip = chained.clip
+  workflow['3']!.inputs!.clip = chained.clip
 
   return workflow
 }

@@ -878,6 +878,48 @@ model RevenueSplit {
   @@index([creatorUserId])
 }
 
+/// kind-economy/t-010: admin-only, append-only log of REAL-WORLD remittance
+/// events -- Silas manually recording that he already sent money to the
+/// mission-share destination (e.g. the Against Malaria Foundation) OUTSIDE
+/// this app. This table does not move any money itself and touches no
+/// payment processor; it exists purely so the accrued/remitted/outstanding
+/// figures on the mission-share dashboard (server/utils/missionAccrual.ts)
+/// are computable at all -- there was no prior mechanism anywhere in this
+/// codebase to record that a remittance happened (grepped clean at the time
+/// this was added). Rows are never edited or deleted -- correcting a bad
+/// entry means logging a new row, same append-only discipline as
+/// RevenueSplit and ManaTransaction, just without a reversedById pointer
+/// since there is no "wrong" remittance to supersede, only a ledger of what
+/// actually left the door.
+model MissionRemittance {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+
+  /// Positive integer number of US-cents actually sent to the fundraiser.
+  /// Validated positive at the application layer (server/utils/
+  /// missionAccrual.ts's validateMissionRemittanceInput) -- not a DB CHECK
+  /// constraint, matching this schema's existing convention of validating
+  /// sign/shape in application code (see RevenueSplit's shares).
+  amountCents Int
+
+  /// The admin who logged this entry. Always required -- every remittance
+  /// row is created via requireAdminApiUser, never anonymously.
+  remittedById Int
+  RemittedBy   User @relation(fields: [remittedById], references: [id])
+
+  /// Free-text description of what this remittance was -- e.g. a
+  /// transaction reference or "Against Malaria Foundation direct donation,
+  /// receipt #...".
+  note String @db.Text
+
+  /// Optional external receipt/confirmation id, for cross-referencing the
+  /// real-world donation record.
+  reference String? @db.VarChar(255)
+
+  @@index([remittedById])
+  @@index([createdAt])
+}
+
 /// digital-storefront v1 catalog entry (SPEC.md §3, digital-storefront/t-011 step 1).
 /// Trusted server-side price source — replaces the imported
 /// stores/seeds/cartItems.ts array in checkout.post.ts. metadata is a
@@ -1631,6 +1673,7 @@ model User {
   LifeRuns               LifeRun[]
   Logs                   Log[]
   ManaTransactions       ManaTransaction[]
+  MissionRemittances     MissionRemittance[]
   ActedNotifications     Notification[]            @relation("NotificationActor")
   Notifications          Notification[]            @relation("NotificationRecipient")
   PitchSheets            PitchSheet[]

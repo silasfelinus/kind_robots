@@ -87,6 +87,7 @@ export const ModelName = {
   Achievement: 'Achievement',
   ManaTransaction: 'ManaTransaction',
   RevenueSplit: 'RevenueSplit',
+  MissionRemittance: 'MissionRemittance',
   Product: 'Product',
   Order: 'Order',
   OrderItem: 'OrderItem',
@@ -899,6 +900,18 @@ export const RevenueSplitScalarFieldEnum = {
 } as const
 
 export type RevenueSplitScalarFieldEnum = (typeof RevenueSplitScalarFieldEnum)[keyof typeof RevenueSplitScalarFieldEnum]
+
+
+export const MissionRemittanceScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  amountCents: 'amountCents',
+  remittedById: 'remittedById',
+  note: 'note',
+  reference: 'reference'
+} as const
+
+export type MissionRemittanceScalarFieldEnum = (typeof MissionRemittanceScalarFieldEnum)[keyof typeof MissionRemittanceScalarFieldEnum]
 
 
 export const ProductScalarFieldEnum = {
@@ -2319,6 +2332,14 @@ export const RevenueSplitOrderByRelevanceFieldEnum = {
 } as const
 
 export type RevenueSplitOrderByRelevanceFieldEnum = (typeof RevenueSplitOrderByRelevanceFieldEnum)[keyof typeof RevenueSplitOrderByRelevanceFieldEnum]
+
+
+export const MissionRemittanceOrderByRelevanceFieldEnum = {
+  note: 'note',
+  reference: 'reference'
+} as const
+
+export type MissionRemittanceOrderByRelevanceFieldEnum = (typeof MissionRemittanceOrderByRelevanceFieldEnum)[keyof typeof MissionRemittanceOrderByRelevanceFieldEnum]
 
 
 export const ProductOrderByRelevanceFieldEnum = {

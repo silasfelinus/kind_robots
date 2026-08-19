@@ -611,6 +611,12 @@ jobs:
       - name: Model Builder step-content focus guard contract
         run: npm run test:model-builder-step-content-focus-guard
 
+      - name: Model Builder source loading announcement guard self-test
+        run: npm run test:model-builder-source-loading-announcement-guard-selftest
+
+      - name: Model Builder source loading announcement guard contract
+        run: npm run test:model-builder-source-loading-announcement-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

@@ -71,8 +71,11 @@
       <div
         v-else-if="store.loadingSources"
         class="flex h-full min-h-32 items-center justify-center gap-2 text-sm text-base-content/60"
+        role="status"
+        aria-live="polite"
+        aria-busy="true"
       >
-        <span class="loading loading-dots loading-md" />
+        <span class="loading loading-dots loading-md" aria-hidden="true" />
         Loading {{ activeType?.plural.toLowerCase() }}…
       </div>
 

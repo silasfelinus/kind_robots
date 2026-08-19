@@ -280,6 +280,8 @@
     "test:model-builder-history-close-focus-guard": "tsx utils/scripts/verifyModelBuilderHistoryCloseFocusGuard.ts",
     "test:model-builder-step-content-focus-guard-selftest": "tsx utils/scripts/verifyModelBuilderStepContentFocusGuard.test.ts",
     "test:model-builder-step-content-focus-guard": "tsx utils/scripts/verifyModelBuilderStepContentFocusGuard.ts",
+    "test:model-builder-source-loading-announcement-guard-selftest": "tsx utils/scripts/verifyModelBuilderSourceLoadingAnnouncementGuard.test.ts",
+    "test:model-builder-source-loading-announcement-guard": "tsx utils/scripts/verifyModelBuilderSourceLoadingAnnouncementGuard.ts",
     "test:kontext-mask-forwarding": "tsx utils/scripts/verifyKontextMaskForwarding.ts",
     "test:pod-vendor-client-selftest": "tsx utils/scripts/verifyPodVendorClient.test.ts",
     "test:mana-gate-on-behalf-of-target": "tsx utils/scripts/verifyManaGateOnBehalfOfTarget.ts",

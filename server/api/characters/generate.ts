@@ -1,21 +1,11 @@
 //server/api/characters/generate.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import { errorHandler } from '../../utils/error'
-import { validateApiKey } from '../../utils/validateKey'
+import { authAndTextGate } from '../../utils/textGate'
 
 export default defineEventHandler(async (event) => {
   try {
     console.log('[API] Received request to /generate endpoint')
-    console.log('[API] Validating API Key...')
-
-    // Validate API Key
-    const { isValid } = await validateApiKey(event)
-    if (!isValid) {
-      console.warn('[API] Invalid or expired token')
-      event.node.res.statusCode = 401
-      return { success: false, message: 'Invalid or expired token.' }
-    }
-    console.log('[API] API Key validated successfully')
 
     // Parse request body
     console.log('[API] Parsing request body...')
@@ -64,6 +54,20 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Auth + mana gate (kind-economy/t-027). This route always calls OpenAI
+    // with the SERVER's own OPENAI_API_KEY -- there is no per-request server
+    // selection / BYOK key here, so authAndTextGate (validates the caller via
+    // requireMachineUser, then charges mana for a text generation) is the
+    // right-sized wrapper, same primitive chats/openai/stream.post.ts and
+    // generate/text.post.ts build on. Admins, FAMILY-role users, and
+    // own-resource/BYOK callers are still exempted -- that logic lives in
+    // manaGate.isFreeGeneration and is untouched here.
+    const gate = await authAndTextGate(event, {
+      model: 'gpt-4',
+      maxTokens: 1000,
+      provider: 'openai',
+    })
+
     // Prepare content for API
     const promptIntro =
       instructions || 'Upgrade the given character fields creatively.'
@@ -72,9 +76,9 @@ export default defineEventHandler(async (event) => {
 
     const content = `
       ${promptIntro}
-      Character: 
+      Character:
       ${promptCharacter}
-      
+
       Fields to upgrade: ${promptFields}
     `
 
@@ -146,11 +150,20 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const { balance } = await gate.commit(
+      `character-generate:${character?.id ?? 'draft'}:${Date.now()}`,
+    )
+
     console.log('[API] Successfully generated character updates')
     return {
       success: true,
       message: 'Character updated successfully.',
       data: updatedCharacter,
+      mana: {
+        balance,
+        charged: gate.cost,
+        free: gate.free,
+      },
     }
   } catch (error) {
     console.error('[API] Error in /generate handler:', error)

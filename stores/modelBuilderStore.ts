@@ -2094,6 +2094,20 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     batchingOutputSingleton.claim(outputKey)
     clearStatus()
     let drafted = 0
+    // Bug (model-builder/t-029 cycle 12): unlike every sibling batch entry
+    // point (batchAutoBuild/autoBuildRun tally a `failed` outcome and flip
+    // tone to 'error' -- see verifyModelBuilderAutoBuildFailedSummaryGuard's
+    // doc comment; batchSetField/batchApproveStage rely on batchPushItems'
+    // own error toast when `ok` is false), this loop only ever counted
+    // `drafted` and then unconditionally reported tone 'success' once it
+    // finished -- even when EVERY item in the group failed to draft (e.g.
+    // the text server is down). draftText already sets a real 'error'
+    // status via setStatusForRun on each failed item, but this function's
+    // own final setStatus call ran after the loop and clobbered that with a
+    // green "Drafted 0/N items." banner, exactly the same clobbered-error
+    // shape the auto-build guard above exists to prevent. Track failures and
+    // switch tone the same way autoBuildRun/batchAutoBuild do.
+    let failed = 0
     try {
       for (const item of items) {
         // Skip items whose stage is already approved/locked — see
@@ -2108,9 +2122,13 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         if (opts?.onlyEmpty && current.trim()) continue
         const ok = await draftText(item.id, field)
         if (ok) drafted++
+        else failed++
       }
       const label = field === 'artPrompt' ? 'prompt' : field
-      setStatus('success', `Drafted ${label} for ${drafted}/${items.length} items.`)
+      setStatus(
+        failed ? 'error' : 'success',
+        `Drafted ${label} for ${drafted}/${items.length} items.`,
+      )
     } finally {
       batchingOutputSingleton.release(outputKey)
     }

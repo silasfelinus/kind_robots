@@ -467,6 +467,12 @@ jobs:
       - name: Model Builder batch-editor key guard contract
         run: npm run test:model-builder-batch-editor-key-guard
 
+      - name: Model Builder batch-editor pre-fill guard checker self-test
+        run: npm run test:model-builder-batch-prefill-guard-selftest
+
+      - name: Model Builder batch-editor pre-fill guard contract
+        run: npm run test:model-builder-batch-prefill-guard
+
       - name: Model Builder ASSET_ONLY approval guard checker self-test
         run: npm run test:model-builder-asset-only-approval-guard-selftest
 

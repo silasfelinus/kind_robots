@@ -12,18 +12,19 @@
 //       than a bespoke brainstorm-specific endpoint, and
 //   (b) search that entity type for a picker UI.
 //
-// Start with Character and Dream -- the two entity types Brainstorm already
-// has typed hooks into (BrainstormSourceRef.modelType is a free string, but
-// these two are the only ones with real adapters so far). Scenario, Reward,
-// Bot, Project, and Prompt can each register a BrainstormSourceAdapter the
-// same way, with no new API surface and no bespoke endpoint -- just another
-// entry in BRAINSTORM_SOURCE_ADAPTERS backed by that entity's existing store.
+// Started with Character and Dream (BrainstormSourceRef.modelType is a free
+// string; these were the first two with real adapters). Scenario joined them
+// in brainstorm/t-014. Reward, Bot, Project, and Prompt can each register a
+// BrainstormSourceAdapter the same way, with no new API surface and no
+// bespoke endpoint -- just another entry in BRAINSTORM_SOURCE_ADAPTERS
+// backed by that entity's existing store.
 //
 // The store-agnostic dispatch/fallback logic lives in
 // brainstormSourceAdapterKit.ts (no Pinia imports, unit-testable with plain
 // tsx) and is re-exported here bound to the real registry below.
 import { useCharacterStore } from '@/stores/characterStore'
 import { useDreamStore } from '@/stores/dreamStore'
+import { useScenarioStore } from '@/stores/scenarioStore'
 import { resolveArtImageSrc } from '@/utils/artImageSrc'
 import {
   fetchFreshSourceRows,
@@ -146,6 +147,51 @@ const dreamAdapter: BrainstormSourceAdapter = {
   },
 }
 
+const scenarioAdapter: BrainstormSourceAdapter = {
+  modelType: 'scenario',
+  label: 'Scenario',
+  async resolve(ref) {
+    if (!ref.id) return null
+    const store = useScenarioStore()
+    // force=true for the same reason characterAdapter forces its fetch: a
+    // cached/localStorage Scenario can predate an auth transition.
+    const scenario = await store.fetchScenarioById(ref.id, true)
+    if (!scenario) return null
+
+    return {
+      modelType: 'scenario',
+      id: scenario.id,
+      title: scenario.title || `Scenario #${scenario.id}`,
+      subtitle: scenario.locations || scenario.tier || undefined,
+      thumbnailUrl: scenario.imagePath || null,
+    }
+  },
+  async search(query) {
+    const store = useScenarioStore()
+    // Same fail-closed contract as characterAdapter/dreamAdapter: a failed
+    // fresh fetch must never fall back to searching a possibly-stale cache.
+    const freshScenarios = await fetchFreshSourceRows(
+      () => store.fetchScenarios(true),
+      () => Boolean(store.lastError),
+    )
+
+    return freshScenarios
+      .filter((scenario) =>
+        matchesQuery(
+          [scenario.title, scenario.locations, scenario.tier, scenario.group],
+          query,
+        ),
+      )
+      .slice(0, SEARCH_RESULT_LIMIT)
+      .map((scenario) => ({
+        modelType: 'scenario',
+        id: scenario.id,
+        title: scenario.title || `Scenario #${scenario.id}`,
+        subtitle: scenario.locations || undefined,
+      }))
+  },
+}
+
 /** The adapter registry. Keys are lowercase modelType strings. */
 export const BRAINSTORM_SOURCE_ADAPTERS: Record<
   string,
@@ -153,6 +199,7 @@ export const BRAINSTORM_SOURCE_ADAPTERS: Record<
 > = {
   character: characterAdapter,
   dream: dreamAdapter,
+  scenario: scenarioAdapter,
 }
 
 export function listBrainstormSourceAdapters(): BrainstormSourceAdapter[] {

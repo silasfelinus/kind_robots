@@ -136,6 +136,12 @@ jobs:
       - name: Maturity and privacy generation contract
         run: npx tsx utils/scripts/verifyMaturityPrivacyContract.ts
 
+      - name: Art generator preset contract
+        run: npm run test:art-generator-presets
+
+      - name: LoRA chain contract
+        run: npm run test:lora-chain
+
       - name: Dream store fetch merge contract
         run: npx tsx utils/scripts/verifyDreamStoreFetchMerge.ts
 
@@ -172,6 +178,9 @@ jobs:
 
       - name: Workflow pipefail contract
         run: npm run test:workflow-pipefail
+
+      - name: Nightly workflow schema/config contract
+        run: npm run test:nightly-workflows
 
       - name: Deploy-wait ancestry check contract
         run: npm run test:deploy-wait-ancestry
@@ -230,6 +239,12 @@ jobs:
       - name: AppMaker slug-candidate guard
         run: npm run test:appmaker-slug-candidate-guard
 
+      - name: AppMaker fleet-description guard self-test
+        run: npm run test:appmaker-fleet-description-guard-selftest
+
+      - name: AppMaker fleet-description guard
+        run: npm run test:appmaker-fleet-description-guard
+
       - name: Da Vinci narration bounds contract
         run: npm run test:davinci-narration
 
@@ -257,6 +272,30 @@ jobs:
       - name: Da Vinci narrating-status guard
         run: npm run test:davinci-narrating-status-guard
 
+      - name: Da Vinci resuming-status guard self-test
+        run: npm run test:davinci-resuming-status-guard-selftest
+
+      - name: Da Vinci resuming-status guard
+        run: npm run test:davinci-resuming-status-guard
+
+      - name: Da Vinci choice-list guard self-test
+        run: npm run test:davinci-choice-list-guard-selftest
+
+      - name: Da Vinci choice-list guard
+        run: npm run test:davinci-choice-list-guard
+
+      - name: Da Vinci dimension-group guard self-test
+        run: npm run test:davinci-dimension-group-guard-selftest
+
+      - name: Da Vinci dimension-group guard
+        run: npm run test:davinci-dimension-group-guard
+
+      - name: Da Vinci narration-error role guard self-test
+        run: npm run test:davinci-narration-error-role-guard-selftest
+
+      - name: Da Vinci narration-error role guard
+        run: npm run test:davinci-narration-error-role-guard
+
       - name: Serendipity Voice poll guard self-test
         run: npm run test:serendipity-voice-poll-guard-selftest
 
@@ -269,6 +308,12 @@ jobs:
       - name: Serendipity Voice cursor-reset guard
         run: npm run test:serendipity-voice-cursor-reset
 
+      - name: Serendipity Voice action guard self-test
+        run: npm run test:serendipity-voice-action-guard-selftest
+
+      - name: Serendipity Voice action guard
+        run: npm run test:serendipity-voice-action-guard
+
       - name: Pack manifest validator self-test
         run: npm run test:pack-manifest
 
@@ -280,6 +325,9 @@ jobs:
 
       - name: Brainstorm source adapter contract
         run: npm run test:brainstorm-source-adapters
+
+      - name: Brainstorm source context contract
+        run: npm run test:brainstorm-source-context
 
       - name: mysql:// URL parser contract
         run: npm run test:parse-mysql-url
@@ -437,11 +485,23 @@ jobs:
       - name: Model Builder draftText status-scope guard contract
         run: npm run test:model-builder-draft-status-scope-guard
 
+      - name: Model Builder batch-group status-scope guard checker self-test
+        run: npm run test:model-builder-batch-group-status-scope-guard-selftest
+
+      - name: Model Builder batch-group status-scope guard contract
+        run: npm run test:model-builder-batch-group-status-scope-guard
+
       - name: Model Builder batchSetField confirmed-success guard checker self-test
         run: npm run test:model-builder-batch-set-field-confirmed-success-guard-selftest
 
       - name: Model Builder batchSetField confirmed-success guard contract
         run: npm run test:model-builder-batch-set-field-confirmed-success-guard
+
+      - name: Model Builder batchApproveStage confirmed-success guard checker self-test
+        run: npm run test:model-builder-batch-approve-stage-confirmed-success-guard-selftest
+
+      - name: Model Builder batchApproveStage confirmed-success guard contract
+        run: npm run test:model-builder-batch-approve-stage-confirmed-success-guard
 
       - name: Model Builder confirmed-outcome-before-toast meta-guard checker self-test
         run: npm run test:model-builder-confirmed-outcome-guard-selftest
@@ -485,11 +545,95 @@ jobs:
       - name: Model Builder async-fetch staleness coverage contract
         run: npm run test:model-builder-async-fetch-staleness-coverage
 
+      - name: Model Builder commit asset-attachable guard checker self-test
+        run: npm run test:model-builder-commit-asset-attachable-guard-selftest
+
+      - name: Model Builder commit asset-attachable guard contract
+        run: npm run test:model-builder-commit-asset-attachable-guard
+
+      - name: Model Builder auto-build failed-summary guard checker self-test
+        run: npm run test:model-builder-auto-build-failed-summary-guard-selftest
+
+      - name: Model Builder auto-build failed-summary guard contract
+        run: npm run test:model-builder-auto-build-failed-summary-guard
+
+      - name: Model Builder auto-build outcome-persistence guard checker self-test
+        run: npm run test:model-builder-auto-build-outcome-persistence-guard-selftest
+
+      - name: Model Builder auto-build outcome-persistence guard contract
+        run: npm run test:model-builder-auto-build-outcome-persistence-guard
+
+      - name: Model Builder field-blob continuation guard self-test
+        run: npm run test:model-builder-field-blob-continuation-guard-selftest
+
+      - name: Model Builder field-blob continuation guard contract
+        run: npm run test:model-builder-field-blob-continuation-guard
+
+      - name: Model Builder stage-status JSON-parse guard self-test
+        run: npm run test:model-builder-stage-status-json-parse-guard-selftest
+
+      - name: Model Builder stage-status JSON-parse guard contract
+        run: npm run test:model-builder-stage-status-json-parse-guard
+
+      - name: Model Builder item.error persistence guard self-test
+        run: npm run test:model-builder-error-persistence-guard-selftest
+
+      - name: Model Builder item.error persistence guard contract
+        run: npm run test:model-builder-error-persistence-guard
+
+      - name: Model Builder batch partial-failure revert guard self-test
+        run: npm run test:model-builder-batch-partial-failure-revert-guard-selftest
+
+      - name: Model Builder batch partial-failure revert guard contract
+        run: npm run test:model-builder-batch-partial-failure-revert-guard
+
+      - name: Model Builder single-item revert guard self-test
+        run: npm run test:model-builder-single-item-revert-guard-selftest
+
+      - name: Model Builder single-item revert guard contract
+        run: npm run test:model-builder-single-item-revert-guard
+
+      - name: Model Builder error callout role guard self-test
+        run: npm run test:model-builder-error-callout-role-guard-selftest
+
+      - name: Model Builder error callout role guard contract
+        run: npm run test:model-builder-error-callout-role-guard
+
+      - name: Model Builder history-close focus guard self-test
+        run: npm run test:model-builder-history-close-focus-guard-selftest
+
+      - name: Model Builder history-close focus guard contract
+        run: npm run test:model-builder-history-close-focus-guard
+
+      - name: Model Builder step-content focus guard self-test
+        run: npm run test:model-builder-step-content-focus-guard-selftest
+
+      - name: Model Builder step-content focus guard contract
+        run: npm run test:model-builder-step-content-focus-guard
+
+      - name: Model Builder source loading announcement guard self-test
+        run: npm run test:model-builder-source-loading-announcement-guard-selftest
+
+      - name: Model Builder source loading announcement guard contract
+        run: npm run test:model-builder-source-loading-announcement-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 
       - name: Mana-gate on-behalf-of target authorization contract
         run: npm run test:mana-gate-on-behalf-of-target
+
+      - name: Text-provider-service shared mechanics contract
+        run: npm run test:text-provider-service
+
+      - name: Server capability routing contract
+        run: npm run test:server-capability-routing
+
+      - name: Server uptime default-scope contract
+        run: npm run test:server-uptime-default-scope
+
+      - name: Text-generation dispatch contract
+        run: npm run test:text-generation-dispatch
 
       - name: Animation catalog contract
         run: npm run test:animation-catalog

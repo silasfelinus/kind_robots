@@ -1,0 +1,19 @@
+/// Durable editable presentation copy for Project-owned pages. `projectId` and
+/// `updatedById` intentionally remain ownership/audit scalars rather than adding
+/// more back-relations to the already-large Project/User models. API routes
+/// validate the Project and authenticated editor before reading or writing.
+/// Structured page payloads are serialized JSON in LongText, matching the repo's
+/// existing durable payload convention.
+model ProjectPageContent {
+  id          Int       @id @default(autoincrement())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime? @default(now()) @updatedAt
+  projectId   Int
+  pageKey     String    @db.VarChar(128)
+  content     String    @db.LongText
+  updatedById Int?
+
+  @@unique([projectId, pageKey])
+  @@index([projectId])
+  @@index([updatedById])
+}

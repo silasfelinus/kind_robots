@@ -34,8 +34,13 @@ includesAll(helperPath, [
   'const beatIds = new Map<string, string>()',
   'const beatId = makeId()',
   "dedupeKey: [beat.art.product, sessionId, beatId, beat.art.moment].join(':')",
-  'jobId: undefined',
-  "beat.art?.status === 'done'",
+  // storybook/t-010 (verifyStorybookDuplicateArtCarryoverGuard): a duplicate
+  // used to carry forward only a `status === 'done'` illustration, silently
+  // and permanently dropping any queued/rendering/failed one instead. The
+  // fixed shape carries every status except the unresolved 'queueing' gap
+  // forward, clearing `jobId` only once an illustration is actually done.
+  "jobId: beat.art.status === 'done' ? undefined : beat.art.jobId",
+  "beat.art && beat.art.status !== 'queueing'",
   'branchHistory: duplicate.branchHistory.map',
   'consequences: duplicate.consequences.map',
   'inventory: duplicate.inventory.map',

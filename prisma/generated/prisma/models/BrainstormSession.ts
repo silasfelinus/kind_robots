@@ -53,6 +53,7 @@ export type BrainstormSessionMinAggregateOutputType = {
   constraints: string | null
   examples: string | null
   mode: string | null
+  outputDomain: string | null
   batchShape: string | null
   returnTypes: string | null
   source: string | null
@@ -73,6 +74,7 @@ export type BrainstormSessionMaxAggregateOutputType = {
   constraints: string | null
   examples: string | null
   mode: string | null
+  outputDomain: string | null
   batchShape: string | null
   returnTypes: string | null
   source: string | null
@@ -93,6 +95,7 @@ export type BrainstormSessionCountAggregateOutputType = {
   constraints: number
   examples: number
   mode: number
+  outputDomain: number
   batchShape: number
   returnTypes: number
   source: number
@@ -127,6 +130,7 @@ export type BrainstormSessionMinAggregateInputType = {
   constraints?: true
   examples?: true
   mode?: true
+  outputDomain?: true
   batchShape?: true
   returnTypes?: true
   source?: true
@@ -147,6 +151,7 @@ export type BrainstormSessionMaxAggregateInputType = {
   constraints?: true
   examples?: true
   mode?: true
+  outputDomain?: true
   batchShape?: true
   returnTypes?: true
   source?: true
@@ -167,6 +172,7 @@ export type BrainstormSessionCountAggregateInputType = {
   constraints?: true
   examples?: true
   mode?: true
+  outputDomain?: true
   batchShape?: true
   returnTypes?: true
   source?: true
@@ -274,6 +280,7 @@ export type BrainstormSessionGroupByOutputType = {
   constraints: string | null
   examples: string | null
   mode: string
+  outputDomain: string
   batchShape: string
   returnTypes: string | null
   source: string | null
@@ -317,6 +324,7 @@ export type BrainstormSessionWhereInput = {
   constraints?: Prisma.StringNullableFilter<"BrainstormSession"> | string | null
   examples?: Prisma.StringNullableFilter<"BrainstormSession"> | string | null
   mode?: Prisma.StringFilter<"BrainstormSession"> | string
+  outputDomain?: Prisma.StringFilter<"BrainstormSession"> | string
   batchShape?: Prisma.StringFilter<"BrainstormSession"> | string
   returnTypes?: Prisma.StringNullableFilter<"BrainstormSession"> | string | null
   source?: Prisma.StringNullableFilter<"BrainstormSession"> | string | null
@@ -338,6 +346,7 @@ export type BrainstormSessionOrderByWithRelationInput = {
   constraints?: Prisma.SortOrderInput | Prisma.SortOrder
   examples?: Prisma.SortOrderInput | Prisma.SortOrder
   mode?: Prisma.SortOrder
+  outputDomain?: Prisma.SortOrder
   batchShape?: Prisma.SortOrder
   returnTypes?: Prisma.SortOrderInput | Prisma.SortOrder
   source?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -363,6 +372,7 @@ export type BrainstormSessionWhereUniqueInput = Prisma.AtLeast<{
   constraints?: Prisma.StringNullableFilter<"BrainstormSession"> | string | null
   examples?: Prisma.StringNullableFilter<"BrainstormSession"> | string | null
   mode?: Prisma.StringFilter<"BrainstormSession"> | string
+  outputDomain?: Prisma.StringFilter<"BrainstormSession"> | string
   batchShape?: Prisma.StringFilter<"BrainstormSession"> | string
   returnTypes?: Prisma.StringNullableFilter<"BrainstormSession"> | string | null
   source?: Prisma.StringNullableFilter<"BrainstormSession"> | string | null
@@ -384,6 +394,7 @@ export type BrainstormSessionOrderByWithAggregationInput = {
   constraints?: Prisma.SortOrderInput | Prisma.SortOrder
   examples?: Prisma.SortOrderInput | Prisma.SortOrder
   mode?: Prisma.SortOrder
+  outputDomain?: Prisma.SortOrder
   batchShape?: Prisma.SortOrder
   returnTypes?: Prisma.SortOrderInput | Prisma.SortOrder
   source?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -412,6 +423,7 @@ export type BrainstormSessionScalarWhereWithAggregatesInput = {
   constraints?: Prisma.StringNullableWithAggregatesFilter<"BrainstormSession"> | string | null
   examples?: Prisma.StringNullableWithAggregatesFilter<"BrainstormSession"> | string | null
   mode?: Prisma.StringWithAggregatesFilter<"BrainstormSession"> | string
+  outputDomain?: Prisma.StringWithAggregatesFilter<"BrainstormSession"> | string
   batchShape?: Prisma.StringWithAggregatesFilter<"BrainstormSession"> | string
   returnTypes?: Prisma.StringNullableWithAggregatesFilter<"BrainstormSession"> | string | null
   source?: Prisma.StringNullableWithAggregatesFilter<"BrainstormSession"> | string | null
@@ -431,6 +443,7 @@ export type BrainstormSessionCreateInput = {
   constraints?: string | null
   examples?: string | null
   mode?: string
+  outputDomain?: string
   batchShape?: string
   returnTypes?: string | null
   source?: string | null
@@ -452,6 +465,7 @@ export type BrainstormSessionUncheckedCreateInput = {
   constraints?: string | null
   examples?: string | null
   mode?: string
+  outputDomain?: string
   batchShape?: string
   returnTypes?: string | null
   source?: string | null
@@ -472,6 +486,7 @@ export type BrainstormSessionUpdateInput = {
   constraints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mode?: Prisma.StringFieldUpdateOperationsInput | string
+  outputDomain?: Prisma.StringFieldUpdateOperationsInput | string
   batchShape?: Prisma.StringFieldUpdateOperationsInput | string
   returnTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -493,6 +508,7 @@ export type BrainstormSessionUncheckedUpdateInput = {
   constraints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mode?: Prisma.StringFieldUpdateOperationsInput | string
+  outputDomain?: Prisma.StringFieldUpdateOperationsInput | string
   batchShape?: Prisma.StringFieldUpdateOperationsInput | string
   returnTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -514,6 +530,7 @@ export type BrainstormSessionCreateManyInput = {
   constraints?: string | null
   examples?: string | null
   mode?: string
+  outputDomain?: string
   batchShape?: string
   returnTypes?: string | null
   source?: string | null
@@ -533,6 +550,7 @@ export type BrainstormSessionUpdateManyMutationInput = {
   constraints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mode?: Prisma.StringFieldUpdateOperationsInput | string
+  outputDomain?: Prisma.StringFieldUpdateOperationsInput | string
   batchShape?: Prisma.StringFieldUpdateOperationsInput | string
   returnTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -553,6 +571,7 @@ export type BrainstormSessionUncheckedUpdateManyInput = {
   constraints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mode?: Prisma.StringFieldUpdateOperationsInput | string
+  outputDomain?: Prisma.StringFieldUpdateOperationsInput | string
   batchShape?: Prisma.StringFieldUpdateOperationsInput | string
   returnTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -579,6 +598,7 @@ export type BrainstormSessionCountOrderByAggregateInput = {
   constraints?: Prisma.SortOrder
   examples?: Prisma.SortOrder
   mode?: Prisma.SortOrder
+  outputDomain?: Prisma.SortOrder
   batchShape?: Prisma.SortOrder
   returnTypes?: Prisma.SortOrder
   source?: Prisma.SortOrder
@@ -605,6 +625,7 @@ export type BrainstormSessionMaxOrderByAggregateInput = {
   constraints?: Prisma.SortOrder
   examples?: Prisma.SortOrder
   mode?: Prisma.SortOrder
+  outputDomain?: Prisma.SortOrder
   batchShape?: Prisma.SortOrder
   returnTypes?: Prisma.SortOrder
   source?: Prisma.SortOrder
@@ -625,6 +646,7 @@ export type BrainstormSessionMinOrderByAggregateInput = {
   constraints?: Prisma.SortOrder
   examples?: Prisma.SortOrder
   mode?: Prisma.SortOrder
+  outputDomain?: Prisma.SortOrder
   batchShape?: Prisma.SortOrder
   returnTypes?: Prisma.SortOrder
   source?: Prisma.SortOrder
@@ -697,6 +719,7 @@ export type BrainstormSessionCreateWithoutCandidatesInput = {
   constraints?: string | null
   examples?: string | null
   mode?: string
+  outputDomain?: string
   batchShape?: string
   returnTypes?: string | null
   source?: string | null
@@ -717,6 +740,7 @@ export type BrainstormSessionUncheckedCreateWithoutCandidatesInput = {
   constraints?: string | null
   examples?: string | null
   mode?: string
+  outputDomain?: string
   batchShape?: string
   returnTypes?: string | null
   source?: string | null
@@ -752,6 +776,7 @@ export type BrainstormSessionUpdateWithoutCandidatesInput = {
   constraints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mode?: Prisma.StringFieldUpdateOperationsInput | string
+  outputDomain?: Prisma.StringFieldUpdateOperationsInput | string
   batchShape?: Prisma.StringFieldUpdateOperationsInput | string
   returnTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -772,6 +797,7 @@ export type BrainstormSessionUncheckedUpdateWithoutCandidatesInput = {
   constraints?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mode?: Prisma.StringFieldUpdateOperationsInput | string
+  outputDomain?: Prisma.StringFieldUpdateOperationsInput | string
   batchShape?: Prisma.StringFieldUpdateOperationsInput | string
   returnTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -823,6 +849,7 @@ export type BrainstormSessionSelect<ExtArgs extends runtime.Types.Extensions.Int
   constraints?: boolean
   examples?: boolean
   mode?: boolean
+  outputDomain?: boolean
   batchShape?: boolean
   returnTypes?: boolean
   source?: boolean
@@ -847,6 +874,7 @@ export type BrainstormSessionSelectScalar = {
   constraints?: boolean
   examples?: boolean
   mode?: boolean
+  outputDomain?: boolean
   batchShape?: boolean
   returnTypes?: boolean
   source?: boolean
@@ -856,7 +884,7 @@ export type BrainstormSessionSelectScalar = {
   isActive?: boolean
 }
 
-export type BrainstormSessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "userId" | "name" | "premise" | "resultCount" | "constraints" | "examples" | "mode" | "batchShape" | "returnTypes" | "source" | "batches" | "activeBatchId" | "lastGeneratedAt" | "isActive", ExtArgs["result"]["brainstormSession"]>
+export type BrainstormSessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "userId" | "name" | "premise" | "resultCount" | "constraints" | "examples" | "mode" | "outputDomain" | "batchShape" | "returnTypes" | "source" | "batches" | "activeBatchId" | "lastGeneratedAt" | "isActive", ExtArgs["result"]["brainstormSession"]>
 export type BrainstormSessionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Candidates?: boolean | Prisma.BrainstormSession$CandidatesArgs<ExtArgs>
   _count?: boolean | Prisma.BrainstormSessionCountOutputTypeDefaultArgs<ExtArgs>
@@ -878,6 +906,7 @@ export type $BrainstormSessionPayload<ExtArgs extends runtime.Types.Extensions.I
     constraints: string | null
     examples: string | null
     mode: string
+    outputDomain: string
     batchShape: string
     returnTypes: string | null
     source: string | null
@@ -1265,6 +1294,7 @@ export interface BrainstormSessionFieldRefs {
   readonly constraints: Prisma.FieldRef<"BrainstormSession", 'String'>
   readonly examples: Prisma.FieldRef<"BrainstormSession", 'String'>
   readonly mode: Prisma.FieldRef<"BrainstormSession", 'String'>
+  readonly outputDomain: Prisma.FieldRef<"BrainstormSession", 'String'>
   readonly batchShape: Prisma.FieldRef<"BrainstormSession", 'String'>
   readonly returnTypes: Prisma.FieldRef<"BrainstormSession", 'String'>
   readonly source: Prisma.FieldRef<"BrainstormSession", 'String'>

@@ -2,10 +2,11 @@
 //
 // Regression guard for conductor brainstorm/t-012's adapter dispatch/fallback
 // logic (stores/helpers/brainstormSourceAdapterKit.ts). Exercises it in
-// isolation via injected fake adapters -- the real character/dream adapters
-// (brainstormSourceAdapters.ts) call Pinia stores that need a live Nuxt
-// runtime, which this test intentionally never touches; the kit module has
-// no such dependency, which is exactly why the split exists.
+// isolation via injected fake adapters -- the real character/dream/scenario
+// adapters (brainstormSourceAdapters.ts, the last added in brainstorm/t-014)
+// call Pinia stores that need a live Nuxt runtime, which this test
+// intentionally never touches; the kit module has no such dependency, which
+// is exactly why the split exists.
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 
@@ -198,6 +199,30 @@ async function main() {
     'Brainstorm source search must never return cached Character or Dream lists directly.',
   )
 
+  // conductor brainstorm/t-014: Scenario as the second lightweight adapter
+  // added beyond Character/Dream. Same force-revalidate and fail-closed
+  // search discipline applies -- a cached/localStorage Scenario can predate
+  // an auth transition exactly like a cached Character or Dream can.
+  assert.ok(
+    adapterSource.includes('scenario: scenarioAdapter'),
+    'the client-side adapter registry must register a scenario entry',
+  )
+  assert.ok(
+    adapterSource.includes('store.fetchScenarioById(ref.id, true)'),
+    'scenarioAdapter.resolve must force a fresh Scenario fetch (force=true) ' +
+      'so a stale cached row cannot bypass canView after an auth transition.',
+  )
+  assert.ok(
+    adapterSource.includes('() => store.fetchScenarios(true)') &&
+      adapterSource.includes('return freshScenarios'),
+    'scenarioAdapter.search must force a fresh Scenario list fetch and search ' +
+      'only the fail-closed fresh result.',
+  )
+  assert.ok(
+    !adapterSource.includes('return store.scenarios'),
+    'Brainstorm source search must never return the cached Scenario list directly.',
+  )
+
   // The source watcher in brainstorm-manager.vue must guard against a
   // slower, superseded resolve overwriting a later selection or resurrecting
   // a removed source -- request-identity/token invalidation, not just a
@@ -256,9 +281,9 @@ async function main() {
     'Brainstorm source adapter registry verified: case-insensitive lookup, ' +
       'successful resolve passthrough, missing-row and unregistered-modelType ' +
       'fallbacks, thrown-adapter recovery, search dispatch/filtering, the ' +
-      'Character adapter force-revalidate contract, fail-closed fresh source ' +
-      "searches, and the source watcher's and runSourceSearch's request-identity " +
-      'invalidation contracts (brainstorm/t-012).',
+      'Character/Scenario adapter force-revalidate contracts, fail-closed fresh ' +
+      "source searches, and the source watcher's and runSourceSearch's " +
+      'request-identity invalidation contracts (brainstorm/t-012, t-014).',
   )
 }
 

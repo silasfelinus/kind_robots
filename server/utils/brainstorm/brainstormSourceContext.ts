@@ -9,9 +9,10 @@
 // picker just showed what you'd picked). This resolves a ref into a compact,
 // privacy-checked trait summary the prompt can actually use.
 //
-// Only Character is wired today. Dream and further entity types are
-// brainstorm/t-014's scope ("Ship Dream-aware brainstorming and expand
-// adapter coverage") -- add a resolver to SOURCE_CONTEXT_RESOLVERS below and
+// conductor brainstorm/t-014: added dreamContext and scenarioContext,
+// following the identical fetch-minimal-select -> canView -> formatXContext
+// shape as characterContext below. Reward, Bot, Project, and Prompt remain
+// documented candidates for the next entity type -- add a resolver here and
 // resolveBrainstormSourceContext picks it up with no other change needed,
 // same "just another registry entry" shape as
 // stores/helpers/brainstormSourceAdapters.ts.
@@ -24,7 +25,11 @@ import prisma from '../prisma'
 import { canView } from '../contentAccess'
 import type { AuthUser } from '../authUser'
 import type { BrainstormSourceRef } from '../../../types/brainstorm'
-import { formatCharacterContext } from './brainstormSourceContextKit'
+import {
+  formatCharacterContext,
+  formatDreamContext,
+  formatScenarioContext,
+} from './brainstormSourceContextKit'
 
 async function characterContext(
   id: number,
@@ -40,6 +45,79 @@ async function characterContext(
   return formatCharacterContext(character)
 }
 
+async function dreamContext(
+  id: number,
+  viewer: AuthUser | null,
+): Promise<string | null> {
+  const dream = await prisma.dream.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      title: true,
+      dreamType: true,
+      description: true,
+      pitch: true,
+      flavorText: true,
+      artPrompt: true,
+      isPublic: true,
+      userId: true,
+      packId: true,
+      Characters: { select: { name: true }, take: 6 },
+      Rewards: { select: { name: true, rewardType: true }, take: 6 },
+      Scenarios: {
+        select: {
+          title: true,
+          description: true,
+          locations: true,
+          tier: true,
+          difficulty: true,
+        },
+        take: 6,
+      },
+    },
+  })
+  if (!dream) return null
+  // Same authorization the dreams/:id.get route's assertDreamAccess applies
+  // for the "view" action (owner, admin, or isPublic) -- a ref the requesting
+  // user cannot view must never leak Dream/Scenario/Reward/Character details
+  // into a generation prompt just because they happened to know its id. The
+  // route's additional PACK-grant fallback (digital-storefront/t-004) is not
+  // replicated here -- a PACK-only-gated Dream simply degrades to ungrounded
+  // generation, never a leak.
+  if (!(await canView(dream, null, viewer))) return null
+
+  return formatDreamContext(dream)
+}
+
+async function scenarioContext(
+  id: number,
+  viewer: AuthUser | null,
+): Promise<string | null> {
+  const scenario = await prisma.scenario.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      locations: true,
+      tier: true,
+      difficulty: true,
+      genres: true,
+      isPublic: true,
+      userId: true,
+      Characters: { select: { name: true }, take: 6 },
+    },
+  })
+  if (!scenario) return null
+  // The scenarios/:id.get route itself applies no record-level view check
+  // today (only its linked Facets are visibility-filtered) -- revalidate
+  // independently here rather than inherit that gap, matching every other
+  // resolver in this registry.
+  if (!(await canView(scenario, null, viewer))) return null
+
+  return formatScenarioContext(scenario)
+}
+
 type BrainstormSourceContextResolver = (
   id: number,
   viewer: AuthUser | null,
@@ -50,6 +128,8 @@ const SOURCE_CONTEXT_RESOLVERS: Record<
   BrainstormSourceContextResolver
 > = {
   character: characterContext,
+  dream: dreamContext,
+  scenario: scenarioContext,
 }
 
 /**

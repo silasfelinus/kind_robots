@@ -1,112 +1,85 @@
 <!-- /components/academy/academy-styles-browser.vue -->
 <template>
-  <section class="flex flex-col gap-4">
+  <section class="mx-auto flex w-full max-w-[1600px] flex-col gap-4">
     <header
-      class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-200 p-4"
+      class="flex flex-col gap-4 rounded-3xl border border-base-300 bg-base-100 p-4 shadow-sm sm:p-5 lg:flex-row lg:items-end lg:justify-between"
     >
-      <div class="flex min-w-0 flex-col gap-1">
-        <h2
-          class="flex items-center gap-2 text-base font-black text-base-content"
-        >
-          <Icon
-            name="kind-icon:palette"
-            class="h-5 w-5 text-primary"
-            aria-hidden="true"
-          />
-          Style Gallery
-        </h2>
-        <p class="text-sm text-base-content/70">
-          Every style the Academy teaches. Open a lesson, learn to spot it, then
-          remix your own image in it.
+      <div class="min-w-0 max-w-2xl">
+        <p class="flex items-center gap-1.5 text-xs font-black uppercase tracking-[0.16em] text-primary">
+          <Icon name="kind-icon:palette" class="h-4 w-4" aria-hidden="true" />
+          Browse the collection
+        </p>
+        <h2 class="mt-2 text-2xl font-black text-base-content sm:text-3xl">Style Gallery</h2>
+        <p class="mt-1 text-sm leading-relaxed text-base-content/65">
+          Start with the image. Open whatever catches your eye, learn how to recognize it, then remix your own source in that visual language.
         </p>
       </div>
 
-      <div class="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
-        <div
-          class="join"
-          role="group"
-          aria-label="Filter Academy lessons by progress"
-        >
-          <button
-            v-for="option in lessonFilterOptions"
-            :key="option.value"
-            type="button"
-            class="btn btn-sm join-item"
-            :class="lessonFilter === option.value ? 'btn-primary' : 'btn-ghost'"
-            :aria-pressed="lessonFilter === option.value"
-            @click="lessonFilter = option.value"
-          >
-            <Icon :name="option.icon" class="h-3.5 w-3.5" aria-hidden="true" />
-            {{ option.label }}
-          </button>
+      <div class="flex w-full flex-col gap-2 lg:w-auto lg:items-end">
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="join" role="group" aria-label="Filter Academy lessons by progress">
+            <button
+              v-for="option in lessonFilterOptions"
+              :key="option.value"
+              type="button"
+              class="btn btn-sm join-item"
+              :class="lessonFilter === option.value ? 'btn-primary' : 'btn-ghost'"
+              :aria-pressed="lessonFilter === option.value"
+              @click="lessonFilter = option.value"
+            >
+              <Icon :name="option.icon" class="h-3.5 w-3.5" aria-hidden="true" />
+              {{ option.label }}
+            </button>
+          </div>
+
+          <div class="flex min-w-0 flex-1 items-center gap-2 lg:flex-none">
+            <label class="input input-bordered input-sm flex min-w-0 flex-1 items-center gap-1.5 bg-base-100 lg:w-72">
+              <Icon name="kind-icon:search" class="h-3.5 w-3.5 shrink-0 text-base-content/40" aria-hidden="true" />
+              <input
+                ref="searchInputRef"
+                v-model="searchQuery"
+                type="search"
+                class="min-w-0 flex-1 bg-transparent"
+                placeholder="Search styles, artists, eras…"
+                aria-label="Search Academy styles"
+              />
+            </label>
+            <button
+              v-if="searchQuery"
+              type="button"
+              class="btn btn-circle btn-ghost btn-sm shrink-0"
+              aria-label="Clear style search"
+              title="Clear search"
+              @click="clearSearch"
+            >
+              <Icon name="mdi:close" class="h-4 w-4" aria-hidden="true" />
+            </button>
+          </div>
         </div>
 
-        <div class="flex w-full items-center gap-2 sm:w-auto">
-          <label
-            class="input input-bordered input-sm flex min-w-0 flex-1 items-center gap-1.5 bg-base-100 sm:w-64"
-          >
-            <Icon
-              name="kind-icon:search"
-              class="h-3.5 w-3.5 shrink-0 text-base-content/40"
-              aria-hidden="true"
-            />
-            <input
-              ref="searchInputRef"
-              v-model="searchQuery"
-              type="search"
-              class="min-w-0 flex-1 bg-transparent"
-              placeholder="Search styles…"
-              aria-label="Search Academy styles"
-            />
-          </label>
-          <button
-            v-if="searchQuery"
-            type="button"
-            class="btn btn-circle btn-ghost btn-sm shrink-0"
-            aria-label="Clear style search"
-            title="Clear search"
-            @click="clearSearch"
-          >
-            <Icon name="mdi:close" class="h-4 w-4" aria-hidden="true" />
-          </button>
-        </div>
-
-        <p
-          class="text-xs font-semibold text-base-content/50"
-          aria-live="polite"
-        >
+        <p class="text-xs font-semibold text-base-content/50" aria-live="polite">
           {{ resultSummary }}
         </p>
       </div>
     </header>
 
-    <div
-      class="flex flex-col gap-3 kr-panel-flat p-4 sm:flex-row sm:items-center sm:justify-between"
-    >
-      <div class="min-w-0 flex-1">
+    <div class="flex flex-wrap items-center gap-3 rounded-3xl border border-base-300 bg-base-100 p-4 shadow-sm sm:p-5">
+      <div class="min-w-[min(100%,20rem)] flex-1">
         <div class="flex items-center justify-between gap-3">
-          <p class="text-sm font-bold text-base-content">
-            {{ progressHeadline }}
-          </p>
-          <span class="text-xs font-semibold text-base-content/50">
-            {{ progressPercent }}%
-          </span>
+          <div>
+            <p class="text-sm font-black text-base-content">{{ progressHeadline }}</p>
+            <p class="mt-0.5 text-xs text-base-content/55">{{ progressMessage }}</p>
+          </div>
+          <span class="text-sm font-black text-primary">{{ progressPercent }}%</span>
         </div>
         <progress
-          class="progress progress-primary mt-2 w-full"
+          class="progress progress-primary mt-3 w-full"
           :value="academyStore.viewedLessons.length"
           :max="academyStore.timeline.length || 1"
           :aria-label="`${academyStore.viewedLessons.length} of ${academyStore.timeline.length} Academy lessons explored`"
         />
-        <p class="mt-1 text-xs text-base-content/60">
-          {{ progressMessage }}
-        </p>
       </div>
-      <button
-        type="button"
-        class="btn btn-primary btn-sm shrink-0"
-        @click="openNextLesson"
-      >
+      <button type="button" class="btn btn-primary btn-sm rounded-2xl" @click="openNextLesson">
         <Icon
           :name="nextLesson ? 'kind-icon:arrow-right' : 'kind-icon:refresh'"
           class="h-4 w-4"
@@ -120,6 +93,7 @@
       v-if="expandedStyle"
       :id="`academy-style-detail-${expandedStyle.slug}`"
       ref="detailPanelRef"
+      class="py-1"
     >
       <academy-style-detail
         :key="expandedStyle.slug"
@@ -129,90 +103,68 @@
       />
     </div>
 
-    <div
-      class="grid gap-3"
-      style="
-        grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
-      "
-    >
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,13rem),1fr))] gap-3">
       <button
         v-for="style in filteredStyles"
         :key="style.slug"
         :ref="(el) => setGridRef(style.slug, el)"
         type="button"
-        class="group flex flex-col gap-2 rounded-2xl border-2 p-4 text-left transition-all duration-150"
-        :class="
-          expandedSlug === style.slug
-            ? 'border-primary shadow-md shadow-primary/20'
-            : 'border-base-300 bg-base-100 hover:border-primary/50 hover:shadow-sm'
-        "
+        class="group relative aspect-[4/5] min-w-0 overflow-hidden rounded-3xl border-2 bg-base-200 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        :class="expandedSlug === style.slug ? 'border-primary shadow-lg shadow-primary/20' : 'border-base-300 hover:border-primary/55'"
         :aria-expanded="expandedSlug === style.slug"
-        :aria-controls="
-          expandedSlug === style.slug
-            ? `academy-style-detail-${style.slug}`
-            : undefined
-        "
+        :aria-controls="expandedSlug === style.slug ? `academy-style-detail-${style.slug}` : undefined"
         @click="expandedSlug = expandedSlug === style.slug ? null : style.slug"
       >
-        <div
+        <img
           v-if="style.previewImageSrc"
-          class="relative -mx-4 -mt-4 w-[calc(100%+2rem)] overflow-hidden rounded-t-xl"
-          style="aspect-ratio: 16 / 9"
+          :src="style.previewImageSrc"
+          alt=""
+          loading="lazy"
+          class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+        <div v-else class="absolute inset-0 flex items-center justify-center bg-base-200">
+          <Icon name="kind-icon:gallery" class="h-10 w-10 text-base-content/20" />
+        </div>
+
+        <div class="absolute inset-0 bg-linear-to-t from-black/90 via-black/10 to-black/10" />
+
+        <div class="absolute left-2.5 top-2.5 flex max-w-[calc(100%-3rem)] flex-wrap gap-1">
+          <span class="badge border-0 bg-black/45 text-[0.6rem] font-bold text-white backdrop-blur">
+            {{ style.era }}
+          </span>
+        </div>
+
+        <div
+          v-if="academyStore.viewedLessons.includes(style.slug)"
+          class="absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-success text-success-content shadow-md"
+          title="Lesson explored"
         >
-          <img
-            :src="style.previewImageSrc"
-            alt=""
-            loading="lazy"
-            class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
-          />
-          <template v-if="academyStore.viewedLessons.includes(style.slug)">
-            <Icon
-              name="kind-icon:check"
-              class="absolute right-1.5 top-1.5 h-4 w-4 rounded-full bg-base-100/80 p-0.5 text-success"
-              aria-hidden="true"
-            />
-            <span class="sr-only">Lesson explored</span>
-          </template>
+          <Icon name="kind-icon:check" class="h-3.5 w-3.5" aria-hidden="true" />
+          <span class="sr-only">Lesson explored</span>
         </div>
-        <div v-else class="flex items-center justify-between gap-2">
-          <span class="text-2xl leading-none" aria-hidden="true">🏛️</span>
-          <template v-if="academyStore.viewedLessons.includes(style.slug)">
-            <Icon
-              name="kind-icon:check"
-              class="h-4 w-4 text-success"
-              aria-hidden="true"
-            />
-            <span class="sr-only">Lesson explored</span>
-          </template>
-        </div>
-        <div class="flex flex-col">
-          <span
-            class="text-sm font-black text-base-content group-hover:text-primary"
-          >
+
+        <div class="absolute inset-x-0 bottom-0 p-3 sm:p-4">
+          <p class="text-base font-black leading-tight text-white drop-shadow sm:text-lg">
             {{ style.name }}
-          </span>
-          <span class="text-xs text-base-content/50">
-            {{ style.era }} · {{ style.region }}
-          </span>
+          </p>
+          <p class="mt-1 truncate text-[0.68rem] font-semibold text-white/65">{{ style.region }}</p>
+          <p class="mt-2 line-clamp-2 text-xs leading-relaxed text-white/78">
+            {{ style.recognitionCues[0] }}
+          </p>
+          <div class="mt-3 flex items-center gap-1 text-[0.68rem] font-black uppercase tracking-wide text-white/90">
+            Open lesson
+            <Icon name="kind-icon:arrow-right" class="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+          </div>
         </div>
-        <p class="line-clamp-2 text-xs leading-relaxed text-base-content/60">
-          {{ style.keyIdeas }}
-        </p>
       </button>
     </div>
 
     <div
       v-if="!filteredStyles.length"
-      class="flex min-h-28 flex-col items-center justify-center rounded-2xl border border-base-300 bg-base-200/60 px-4 text-center"
+      class="flex min-h-40 flex-col items-center justify-center rounded-3xl border border-base-300 bg-base-100 px-4 text-center shadow-sm"
     >
-      <Icon
-        :name="emptyStateIcon"
-        class="h-8 w-8 text-base-content/20"
-        aria-hidden="true"
-      />
-      <p class="mt-1 text-xs text-base-content/40">
-        {{ emptyStateMessage }}
-      </p>
+      <Icon :name="emptyStateIcon" class="h-8 w-8 text-base-content/20" aria-hidden="true" />
+      <p class="mt-2 text-sm text-base-content/45">{{ emptyStateMessage }}</p>
       <button
         v-if="searchQuery || lessonFilter !== 'all'"
         type="button"
@@ -265,19 +217,13 @@ const lessonFilterOptions: Array<{
 watch(expandedSlug, (slug) => {
   if (!slug) return
   nextTick(() => {
-    detailPanelRef.value?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'nearest',
-    })
+    detailPanelRef.value?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   })
 })
 
 const gridRefs = new Map<string, HTMLButtonElement>()
 
-function setGridRef(
-  slug: string,
-  el: Element | ComponentPublicInstance | null,
-) {
+function setGridRef(slug: string, el: Element | ComponentPublicInstance | null) {
   if (el instanceof HTMLButtonElement) {
     gridRefs.set(slug, el)
   } else {
@@ -308,8 +254,7 @@ function resetFilters() {
 function openNextLesson() {
   searchQuery.value = ''
   lessonFilter.value = 'all'
-  expandedSlug.value =
-    nextLesson.value?.slug ?? academyStore.timeline[0]?.slug ?? null
+  expandedSlug.value = nextLesson.value?.slug ?? academyStore.timeline[0]?.slug ?? null
 }
 
 function onKeydown(event: KeyboardEvent) {
@@ -332,18 +277,11 @@ onBeforeUnmount(() => {
 
 const expandedStyle = computed<AcademyStyle | null>(() => {
   if (!expandedSlug.value) return null
-  return (
-    academyStore.styles.find((style) => style.slug === expandedSlug.value) ??
-    null
-  )
+  return academyStore.styles.find((style) => style.slug === expandedSlug.value) ?? null
 })
 
 const nextLesson = computed<AcademyStyle | null>(() => {
-  return (
-    academyStore.timeline.find(
-      (style) => !academyStore.viewedLessons.includes(style.slug),
-    ) ?? null
-  )
+  return academyStore.timeline.find((style) => !academyStore.viewedLessons.includes(style.slug)) ?? null
 })
 
 const progressPercent = computed(() => {
@@ -360,12 +298,8 @@ const progressHeadline = computed(() => {
 })
 
 const progressMessage = computed(() => {
-  if (!academyStore.timeline.length) {
-    return 'The Academy is gathering its lesson collection.'
-  }
-  if (!nextLesson.value) {
-    return 'You explored every lesson. Revisit any movement whenever inspiration gets suspiciously quiet.'
-  }
+  if (!academyStore.timeline.length) return 'The Academy is gathering its lesson collection.'
+  if (!nextLesson.value) return 'You explored every lesson. Revisit any movement whenever inspiration gets suspiciously quiet.'
   return `Up next: ${nextLesson.value.name} · ${nextLesson.value.era}`
 })
 
@@ -416,11 +350,9 @@ const emptyStateMessage = computed(() => {
   if (lessonFilter.value === 'new' && !searchQuery.value) {
     return 'You explored every lesson. Art history officially fears you now.'
   }
-
   if (lessonFilter.value === 'explored' && !searchQuery.value) {
     return 'No explored lessons yet. Open one and your progress will appear here.'
   }
-
   return `No styles match “${searchQuery.value}”. Try a broader search or reset the filters.`
 })
 </script>

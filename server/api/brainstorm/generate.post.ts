@@ -8,14 +8,17 @@ import type {
   BrainstormBatchShape,
   BrainstormGeneratePayload,
   BrainstormGenerateRequest,
+  BrainstormOutputDomainId,
   BrainstormReferenceCandidate,
   BrainstormReturnTypeId,
   BrainstormReturnTypeRequest,
   BrainstormSourceRef,
 } from '../../../types/brainstorm'
 import {
+  BRAINSTORM_DEFAULT_OUTPUT_DOMAIN,
   BRAINSTORM_MAX_RESULTS,
   BRAINSTORM_MIN_RESULTS,
+  BRAINSTORM_OUTPUT_DOMAINS,
   BRAINSTORM_RETURN_TYPES,
 } from '../../../types/brainstorm'
 import { errorHandler } from '../../utils/error'
@@ -52,6 +55,14 @@ const MAX_FEEDBACK_LENGTH = 4_000
 const RETURN_TYPE_IDS = new Set<BrainstormReturnTypeId>(
   BRAINSTORM_RETURN_TYPES.map((entry) => entry.id),
 )
+const OUTPUT_DOMAIN_IDS = new Set<BrainstormOutputDomainId>(
+  BRAINSTORM_OUTPUT_DOMAINS.map((entry) => entry.id),
+)
+
+function normalizedOutputDomain(value: unknown): BrainstormOutputDomainId {
+  const id = optionalText(value, 40) as BrainstormOutputDomainId | undefined
+  return id && OUTPUT_DOMAIN_IDS.has(id) ? id : BRAINSTORM_DEFAULT_OUTPUT_DOMAIN
+}
 
 function requiredText(value: unknown, label: string, maxLength: number): string {
   const text = typeof value === 'string' ? value.trim() : ''
@@ -191,6 +202,7 @@ function normalizeRequest(body: BrainstormGeneratePayload): BrainstormGenerateRe
     constraints: optionalText(body.constraints, MAX_CONSTRAINT_LENGTH),
     examples: normalizedExamples(body.examples),
     mode: optionalText(body.mode, MAX_MODE_LENGTH) || 'freeform',
+    outputDomain: normalizedOutputDomain(body.outputDomain),
     batchShape,
     returnTypes: normalizedReturnTypes(body.returnTypes, batchShape, count),
     source: normalizedSource(body.source),
@@ -341,6 +353,7 @@ export default defineEventHandler(async (event) => {
       serverId: server.id,
       count: request.count,
       mode: request.mode,
+      outputDomain: request.outputDomain,
       batchShape: request.batchShape,
       returnTypes: request.returnTypes,
       grounded: Boolean(sourceContext),

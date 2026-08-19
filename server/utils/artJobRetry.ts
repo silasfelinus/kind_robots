@@ -363,10 +363,20 @@ export function applyArtJobOverrides(
       // distilled acceleration LoRA), so those are skipped and keep their
       // pinned filename. Every WAN/kontext/flux "Selected"/"Style" LoRA node
       // is repointed at the new file (WAN applies it to both expert passes).
+      //
+      // EXCEPT a stacked chain. `loraName` is a SINGULAR override, so on a job
+      // built with several LoRAs it would set every link to the same file --
+      // three copies of one style instead of the three the job asked for.
+      // loraChain.ts stamps each link with `krLoraIndex`, so a chain takes the
+      // override on its first link only. Nodes without the marker (WAN's two
+      // expert passes, anything built before chaining) are unaffected.
+      const chainIndex = meta.krLoraIndex
+      const isChainedLink = typeof chainIndex === 'number'
       if (
         loraName &&
         LORA_NODE_TYPES.has(classType) &&
         'lora_name' in inputs &&
+        (!isChainedLink || chainIndex === 0) &&
         !String(meta.title || '')
           .toLowerCase()
           .includes('required')
@@ -408,7 +418,10 @@ export function applyArtJobOverrides(
     // read (or provenance recompute) reflects the swapped style LoRA.
     const resources = asRecord(payload.resources)
     if (Array.isArray(resources.loraNames) && resources.loraNames.length > 0) {
-      resources.loraNames = [loraName]
+      // Replace the FIRST entry rather than the whole list: on a stacked job
+      // the workflow swap above only moved link one, so flattening the metadata
+      // to a single name would misreport the other links as gone.
+      resources.loraNames = [loraName, ...resources.loraNames.slice(1)]
       payload.resources = resources
     }
   }

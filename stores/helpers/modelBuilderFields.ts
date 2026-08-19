@@ -249,33 +249,107 @@ export interface FieldLine {
   value: string
 }
 
-export function parseFieldLines(blob: string): FieldLine[] {
-  return blob
-    .split('\n')
-    .map((line): FieldLine | null => {
-      const idx = line.indexOf(':')
-      if (idx === -1) return null
-      const key = line.slice(0, idx).trim()
-      if (!key) return null
-      return { key, value: line.slice(idx + 1).trim() }
-    })
-    .filter((line): line is FieldLine => line !== null)
+// Whether `line` opens a new "key: value" field. When `modelType` is given,
+// only a key present in that model's own field spec counts as a field start
+// -- so a stray colon inside a multi-line prose value (e.g. "Note: it was
+// raining." as the second sentence of a backstory) can't be mistaken for a
+// new field. When `modelType` is omitted, any non-empty key before the first
+// colon counts (the old, fully-generic behavior).
+function isFieldStart(
+  line: string,
+  knownKeys: Set<string> | null,
+): { key: string; rest: string } | null {
+  const idx = line.indexOf(':')
+  if (idx === -1) return null
+  const key = line.slice(0, idx).trim()
+  if (!key) return null
+  if (knownKeys && !knownKeys.has(key)) return null
+  return { key, rest: line.slice(idx + 1).trim() }
 }
 
-export function readFieldLine(blob: string, key: string): string {
-  return parseFieldLines(blob).find((line) => line.key === key)?.value ?? ''
+function knownKeysFor(modelType?: string): Set<string> | null {
+  if (!modelType) return null
+  const spec = fieldSpecFor(modelType)
+  return spec.length ? new Set(spec.map((field) => field.key)) : null
 }
 
-export function setFieldLine(blob: string, key: string, value: string): string {
-  const lines = blob.split('\n')
+// Splits a FIELDS_AND_PROMPTS blob ("key: value" lines, one per field) into
+// structured lines. A line that doesn't open a recognized field is treated
+// as a continuation of the previous field's value rather than being dropped.
+//
+// This matters because several fields are declared `prose: true` (backstory,
+// personality, quirks, description, effect, flavorText, botIntro, userIntro,
+// prompt, pitch, goal, intros -- see MODEL_FIELDS above) specifically to
+// allow long, multi-paragraph text (commit.post.ts's own pickText() allows
+// up to 20000 chars for these). A user typing a paragraph break, or an AI
+// draft that wraps onto a second line, previously had every line after the
+// first silently discarded on the very next parse -- including at COMMIT
+// time (server/api/model-builder/items/[id]/commit.post.ts parses this same
+// blob into the typed columns it writes), so the committed record ended up
+// permanently missing everything past the first line with no error shown.
+// The commit preview panel shows the raw, un-parsed blob (correct, full
+// text) right up until the moment of commit, which made the truncation
+// invisible until after the record already existed.
+export function parseFieldLines(blob: string, modelType?: string): FieldLine[] {
+  const knownKeys = knownKeysFor(modelType)
+  const lines: FieldLine[] = []
+  for (const rawLine of blob.split('\n')) {
+    const start = isFieldStart(rawLine, knownKeys)
+    if (start) {
+      lines.push({ key: start.key, value: start.rest })
+      continue
+    }
+    const previous = lines[lines.length - 1]
+    if (!previous) continue
+    const continuation = rawLine.trim()
+    if (!continuation) continue
+    previous.value = previous.value
+      ? `${previous.value}\n${continuation}`
+      : continuation
+  }
+  return lines
+}
+
+export function readFieldLine(
+  blob: string,
+  key: string,
+  modelType?: string,
+): string {
+  return (
+    parseFieldLines(blob, modelType).find((line) => line.key === key)?.value ??
+    ''
+  )
+}
+
+export function setFieldLine(
+  blob: string,
+  key: string,
+  value: string,
+  modelType?: string,
+): string {
+  const knownKeys = knownKeysFor(modelType)
+  const rawLines = blob.split('\n')
+  const next: string[] = []
   let found = false
-  const next = lines.map((line) => {
-    const idx = line.indexOf(':')
-    if (idx === -1) return line
-    if (line.slice(0, idx).trim() !== key) return line
-    found = true
-    return `${key}: ${value}`
-  })
+  let i = 0
+  while (i < rawLines.length) {
+    const line = rawLines[i]!
+    const start = isFieldStart(line, knownKeys)
+    if (start && start.key === key) {
+      found = true
+      next.push(`${key}: ${value}`)
+      i += 1
+      // Also consume this field's own existing continuation lines, or the
+      // old value's trailing paragraphs would bleed in right after the
+      // replacement.
+      while (i < rawLines.length && !isFieldStart(rawLines[i]!, knownKeys)) {
+        i += 1
+      }
+      continue
+    }
+    next.push(line)
+    i += 1
+  }
   if (!found) {
     const last = next[next.length - 1]
     if (last !== undefined && last.trim() === '') next.pop()

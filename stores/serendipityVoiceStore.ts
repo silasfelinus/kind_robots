@@ -154,6 +154,22 @@ export const useSerendipityVoiceStore = defineStore(
     }
 
     function applyThemeCommand(command: VoiceBusCommand): void {
+      // 'on' / 'off' / 'toggle' / 'clear' are only meaningful for the
+      // animation target (VoiceBusCommand's action union is shared across
+      // every target). A theme command only ever means "set the active
+      // theme" -- without this guard, a mis-targeted on/off/toggle/clear
+      // command carrying a stale/leftover `command.theme` value would still
+      // fall through to setActiveTheme() below and report a false "Applied:
+      // theme set to X" even though the action itself made no sense for
+      // this target.
+      if (command.action !== 'set') {
+        pushLocalMessage(
+          'system',
+          `Ignored unsupported theme action: ${command.action}`,
+        )
+        return
+      }
+
       const theme = (command.theme ?? '').trim()
       if (!theme) {
         pushLocalMessage('system', 'Theme command had no theme name.')
@@ -174,7 +190,24 @@ export const useSerendipityVoiceStore = defineStore(
     }
 
     function applyArtCommand(command: VoiceBusCommand): void {
+      // Only 'draft' is meaningful for the art target -- 'on' / 'off' /
+      // 'toggle' / 'clear' / 'set' would otherwise still fall through and
+      // push a spurious art-draft entry (and a false "Art draft received"
+      // report) regardless of what the action actually meant.
+      if (command.action !== 'draft') {
+        pushLocalMessage(
+          'system',
+          `Ignored unsupported art action: ${command.action}`,
+        )
+        return
+      }
+
       // Draft only: surface the request for review. Never generate or publish.
+      // Every other successful command target (clear, animation on/off/
+      // toggle, theme set) sends postAck() so the voice side gets a spoken
+      // confirmation -- a successful art draft did not, leaving a spoken
+      // "generate art of X" request with no acknowledgement at all even
+      // though it landed. Ack it the same way the other targets do.
       const request: VoiceArtRequest = {
         id: command.id,
         prompt: command.prompt ?? command.spokenText,
@@ -187,6 +220,9 @@ export const useSerendipityVoiceStore = defineStore(
       artRequests.value.push(request)
       lastAppliedText.value = `art draft: ${request.prompt}`
       pushLocalMessage('system', `Art draft received: ${request.prompt}`)
+      void postAck(
+        `Serendipity view: art draft received for "${request.prompt}".`,
+      )
     }
 
     function applyCommand(command: VoiceBusCommand): void {
@@ -213,6 +249,26 @@ export const useSerendipityVoiceStore = defineStore(
         lastAppliedText.value = 'Cleared all animations'
         pushLocalMessage('system', 'Applied: cleared all animations.')
         void postAck('Serendipity view: cleared all animations.')
+        return
+      }
+
+      // 'set' and 'draft' are only meaningful for the theme/art targets
+      // (VoiceBusCommand's action union is shared across all targets). An
+      // animation command carrying one of them falls outside every branch
+      // below -- without this guard it would resolve an effect id, skip the
+      // on/off/toggle toggle entirely (nothing actually changes), then still
+      // fall through to the unconditional setSurfacePlacement() call and the
+      // default-to-"on" verb, reporting a false "Applied: <effect> on." to
+      // the feed and the voice ack even though no effect state changed.
+      if (
+        command.action !== 'on' &&
+        command.action !== 'off' &&
+        command.action !== 'toggle'
+      ) {
+        pushLocalMessage(
+          'system',
+          `Ignored unsupported animation action: ${command.action}`,
+        )
         return
       }
 

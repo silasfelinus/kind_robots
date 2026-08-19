@@ -206,6 +206,19 @@ export default defineNuxtConfig({
   // and precache only the small, stable install chrome.
   pwa: {
     registerType: 'autoUpdate',
+    // ruler-hooked/t-015: `installPrompt` gates the entire custom-install-flow
+    // block in @vite-pwa/nuxt's client plugin (dist/runtime/plugins/
+    // pwa.client.js) -- without it set, `beforeinstallprompt` is never
+    // listened for and `$pwa.showInstallPrompt` / `$pwa.install()` are
+    // permanently inert no-ops, regardless of the VitePwaManifest fix from
+    // ai-art-academy/t-062+t-063. Turning it on is what makes the shared
+    // `usePWA()` composable's install affordance usable anywhere in the app;
+    // ruler-hooked-page.vue is the first (and so far only) place that wires
+    // up UI for it. String value names the localStorage key the module uses
+    // to remember a user's "don't ask again" dismissal.
+    client: {
+      installPrompt: 'kr-pwa-install-dismissed',
+    },
     manifest: {
       name: 'Kind Robots',
       short_name: 'Kind Robots',
@@ -235,6 +248,35 @@ export default defineNuxtConfig({
         'favicon.ico',
       ],
       navigateFallback: null,
+      // ruler-hooked/t-015: the game already plays fully offline once loaded
+      // (its state lives in localStorage, see components/ruler-hooked) --
+      // the gap was the *document* itself not surviving an offline reload.
+      // Nitro doesn't put long-lived cache headers on SSR HTML the way it
+      // does on hashed build output, so a hard reload with no network fails
+      // even after a first visit. Cache just this one route's rendered
+      // document (network-first, so a return visit still gets fresh content
+      // when online) rather than widening the install-chrome-only precache
+      // policy above -- see that budget note for why the rest of the site
+      // stays install-only. This does not attempt to cover client-side SPA
+      // navigation *into* the route from elsewhere while offline, only a
+      // full reload/open of a URL that has been fully loaded before.
+      runtimeCaching: [
+        {
+          urlPattern: /^https?:\/\/[^/]+\/plan\/projects\/ruler-hooked\/?$/,
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'ruler-hooked-document',
+            networkTimeoutSeconds: 3,
+            expiration: {
+              maxEntries: 1,
+              maxAgeSeconds: 60 * 60 * 24 * 30,
+            },
+            cacheableResponse: {
+              statuses: [0, 200],
+            },
+          },
+        },
+      ],
     },
   },
 

@@ -929,7 +929,7 @@ const galleryImages = computed<ArtImage[]>(() => {
 })
 
 // ArtImage.path is not always a URL: upload flows across the app (this
-// component, image-upload.vue, art-maker.vue, add-bot/-character/-reward/
+// component, image-upload.vue, add-bot/-character/-reward/
 // -scenario.vue) write bracketed metadata tags like '[UploadedImage]' into
 // it instead, since imagePath is the real path and is only populated
 // outside production (see server/utils/UploadArtImage.ts). Treating one of

@@ -1,27 +1,129 @@
 <!-- /components/academy/academy-style-detail.vue -->
 <template>
-  <article class="flex flex-col gap-4 kr-panel-flat p-4">
-    <header class="flex flex-wrap items-start justify-between gap-2">
-      <div class="flex min-w-0 flex-col gap-1">
+  <article
+    class="mx-auto flex w-full flex-col gap-5"
+    :class="compact ? 'max-w-none' : 'max-w-[1500px]'"
+  >
+    <section
+      v-if="compact"
+      class="overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-sm"
+    >
+      <div v-if="lesson.previewImageSrc" class="relative aspect-[16/9] overflow-hidden bg-base-200">
+        <img
+          :src="lesson.previewImageSrc"
+          :alt="`${lesson.name} visual style study`"
+          class="h-full w-full object-cover"
+        />
+        <div class="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent" />
+        <div class="absolute inset-x-0 bottom-0 p-4 text-white">
+          <p class="text-lg font-black leading-tight">{{ lesson.name }}</p>
+          <p class="mt-1 text-xs text-white/70">{{ lesson.era }} · {{ lesson.region }}</p>
+        </div>
+      </div>
+      <div class="flex flex-col gap-3 p-4">
+        <p class="line-clamp-4 text-sm leading-relaxed text-base-content/70">
+          {{ lesson.keyIdeas }}
+        </p>
+        <div class="flex flex-wrap gap-1.5">
+          <span
+            v-for="cue in lesson.recognitionCues.slice(0, 3)"
+            :key="cue"
+            class="badge badge-ghost h-auto max-w-full whitespace-normal py-1 text-left text-[0.65rem] leading-snug"
+          >
+            {{ cue }}
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <section
+      v-else-if="lesson.previewImageSrc"
+      class="relative min-h-[320px] overflow-hidden rounded-3xl border border-base-300 bg-base-300 shadow-xl sm:min-h-[400px] lg:min-h-[480px]"
+    >
+      <img
+        :src="lesson.previewImageSrc"
+        :alt="`${lesson.name} visual style study`"
+        class="absolute inset-0 h-full w-full object-cover"
+      />
+      <div class="absolute inset-0 bg-linear-to-t from-black/90 via-black/25 to-black/10" />
+
+      <button
+        v-if="showClose"
+        type="button"
+        class="btn btn-circle btn-sm absolute right-4 top-4 z-10 border-white/30 bg-black/35 text-white backdrop-blur hover:bg-black/55"
+        title="Close lesson"
+        aria-label="Close lesson"
+        @click="emit('close')"
+      >
+        <Icon name="mdi:close" class="h-4 w-4" />
+      </button>
+
+      <div class="absolute inset-x-0 bottom-0 flex flex-col gap-4 p-5 text-white sm:p-7 lg:p-9">
         <div class="flex flex-wrap items-center gap-2">
-          <span class="text-2xl leading-none" aria-hidden="true">🏛️</span>
-          <h3 class="text-lg font-black text-base-content">
-            {{ lesson.name }}
-          </h3>
-          <span class="badge badge-primary badge-sm font-bold">
+          <span class="badge border-0 bg-primary text-primary-content font-bold">
             {{ lesson.era }}
           </span>
+          <span class="badge border-white/25 bg-black/30 text-white backdrop-blur">
+            {{ lesson.region }}
+          </span>
+          <span
+            v-if="isViewed"
+            class="badge border-0 bg-success text-success-content font-bold"
+          >
+            <Icon name="kind-icon:check" class="mr-1 h-3.5 w-3.5" />
+            Explored
+          </span>
+        </div>
+
+        <div class="max-w-4xl">
+          <p class="mb-2 text-xs font-black uppercase tracking-[0.18em] text-white/65">
+            Enter the movement
+          </p>
+          <h3 class="text-3xl font-black leading-none drop-shadow sm:text-4xl lg:text-5xl">
+            {{ lesson.name }}
+          </h3>
+          <p class="mt-3 line-clamp-3 max-w-3xl text-sm leading-relaxed text-white/85 sm:text-base">
+            {{ lesson.keyIdeas }}
+          </p>
+        </div>
+
+        <div v-if="showRemixButton" class="flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="btn btn-primary rounded-2xl border-0 font-black shadow-lg shadow-black/30"
+            @click="emit('remix', lesson.slug)"
+          >
+            <Icon name="kind-icon:magic" class="h-5 w-5" />
+            Remix in {{ lesson.name }}
+          </button>
+          <a
+            v-if="lesson.exampleWorks?.[0]"
+            :href="lesson.exampleWorks[0].sourceUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn rounded-2xl border-white/30 bg-black/35 text-white backdrop-blur hover:bg-black/55"
+          >
+            <Icon name="kind-icon:gallery" class="h-4 w-4" />
+            View a real work
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <header
+      v-else
+      class="flex flex-wrap items-start justify-between gap-3 rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm"
+    >
+      <div class="flex min-w-0 flex-col gap-2">
+        <div class="flex flex-wrap items-center gap-2">
+          <h3 class="text-2xl font-black text-base-content">{{ lesson.name }}</h3>
+          <span class="badge badge-primary badge-sm font-bold">{{ lesson.era }}</span>
           <span class="badge badge-ghost badge-sm">{{ lesson.region }}</span>
         </div>
-        <p
-          v-if="isViewed"
-          class="flex items-center gap-1 text-xs font-semibold text-success"
-        >
-          <Icon name="kind-icon:check" class="h-3.5 w-3.5" />
-          Lesson explored
+        <p class="max-w-3xl text-sm leading-relaxed text-base-content/75">
+          {{ lesson.keyIdeas }}
         </p>
       </div>
-
       <button
         v-if="showClose"
         type="button"
@@ -34,172 +136,203 @@
       </button>
     </header>
 
-    <p class="text-sm leading-relaxed text-base-content/80">
-      {{ lesson.keyIdeas }}
-    </p>
-
-    <div class="rounded-xl border border-base-300 bg-base-200/60 p-3">
-      <p
-        class="mb-2 flex items-center gap-1.5 text-xs font-black uppercase tracking-wide text-base-content/60"
-      >
-        <Icon name="kind-icon:search" class="h-3.5 w-3.5" />
-        How to spot it
-      </p>
-      <ul class="flex flex-col gap-1.5">
-        <li
-          v-for="cue in lesson.recognitionCues"
-          :key="cue"
-          class="flex items-start gap-2 text-sm text-base-content/80"
-        >
-          <span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-          {{ cue }}
-        </li>
-      </ul>
-    </div>
-
-    <div class="flex flex-col gap-2">
-      <p
-        class="flex items-center gap-1.5 text-xs font-black uppercase tracking-wide text-base-content/60"
-      >
-        <Icon name="kind-icon:user" class="h-3.5 w-3.5" />
-        Meet the masters
-      </p>
-      <div class="grid gap-2 sm:grid-cols-2">
-        <div
-          v-for="artist in lesson.artists"
-          :key="artist.name"
-          class="rounded-xl border border-base-300 bg-base-200/40 px-3 py-2"
-        >
-          <p class="text-sm font-bold text-base-content">
-            {{ artist.name }}
-            <span class="ml-1 text-xs font-normal text-base-content/50">
-              {{ artist.years }}
-            </span>
+    <section
+      v-if="!compact && lesson.exampleWorks?.length"
+      class="rounded-3xl border border-base-300 bg-base-100 p-4 shadow-sm sm:p-5"
+    >
+      <div class="mb-4 flex flex-wrap items-end justify-between gap-2">
+        <div>
+          <p class="flex items-center gap-1.5 text-xs font-black uppercase tracking-[0.16em] text-primary">
+            <Icon name="kind-icon:gallery" class="h-4 w-4" />
+            Gallery wall
           </p>
-          <p class="text-xs leading-relaxed text-base-content/70">
-            {{ artist.note }}
-          </p>
+          <h4 class="mt-1 text-xl font-black text-base-content">Look before you read</h4>
         </div>
+        <p class="max-w-xl text-xs leading-relaxed text-base-content/55">
+          These are real historical works with provenance links. Open any image to visit its source collection.
+        </p>
       </div>
-    </div>
 
-    <div v-if="lesson.exampleWorks?.length" class="flex flex-col gap-2">
-      <p
-        class="flex items-center gap-1.5 text-xs font-black uppercase tracking-wide text-base-content/60"
-      >
-        <Icon name="kind-icon:gallery" class="h-3.5 w-3.5" />
-        Example works
-      </p>
-      <div class="grid gap-2 sm:grid-cols-2">
+      <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] auto-rows-[220px] gap-3">
         <a
-          v-for="work in lesson.exampleWorks"
+          v-for="(work, index) in lesson.exampleWorks"
           :key="work.imageSrc"
           :href="work.sourceUrl"
           target="_blank"
           rel="noopener noreferrer"
-          class="group relative overflow-hidden rounded-xl border border-base-300 bg-base-200/40"
+          class="group relative overflow-hidden rounded-2xl border border-base-300 bg-base-200 shadow-sm"
+          :class="index === 0 && lesson.exampleWorks.length > 1 ? 'row-span-2' : ''"
           :title="`${work.workTitle} — public-domain source page`"
         >
           <img
             :src="work.imageSrc"
             :alt="`${work.workTitle} by ${work.artist}`"
             loading="lazy"
-            class="aspect-[4/3] w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
-          <div
-            class="absolute inset-x-0 bottom-0 bg-linear-to-t from-base-300/90 to-transparent px-2 pb-1.5 pt-6"
-          >
-            <p class="truncate text-xs font-bold text-base-content">
+          <div class="absolute inset-0 bg-linear-to-t from-black/85 via-black/5 to-transparent" />
+          <div class="absolute inset-x-0 bottom-0 p-3 text-white sm:p-4">
+            <p class="text-sm font-black leading-tight drop-shadow sm:text-base">
               {{ work.workTitle }}
             </p>
-            <p class="truncate text-[0.65rem] text-base-content/70">
-              {{ work.artist }} · {{ work.year }} · {{ work.collection }}
+            <p class="mt-1 text-xs text-white/75">
+              {{ work.artist }} · {{ work.year }}
+            </p>
+            <p class="mt-0.5 truncate text-[0.65rem] text-white/55">
+              {{ work.collection }}
             </p>
           </div>
         </a>
       </div>
-    </div>
+    </section>
 
-    <div class="rounded-xl border border-base-300 bg-base-200/60 p-3">
-      <p
-        class="mb-2 flex items-center gap-1.5 text-xs font-black uppercase tracking-wide text-base-content/60"
-      >
-        <Icon name="kind-icon:flask" class="h-3.5 w-3.5" />
-        Try it
-      </p>
-      <p class="mb-2 text-sm leading-relaxed text-base-content/80">
-        {{ lesson.remix.template }}
-      </p>
-      <p class="mb-1 text-xs font-bold text-base-content/70">What to expect</p>
-      <p class="mb-2 text-xs leading-relaxed text-base-content/60">
-        The remix should keep hold of the cues above — especially
-        {{ lesson.recognitionCues[0]?.toLowerCase() }}. If it just looks like a
-        generic old painting, the style didn't fully take.
-      </p>
-      <p class="mb-1 text-xs font-bold text-base-content/70">
-        {{ tryItFailureLabel }}
-      </p>
-      <p class="mb-2 text-xs leading-relaxed text-base-content/60">
-        {{ tryItFailureNote }}
-      </p>
-      <p
-        class="flex items-start gap-1.5 text-xs leading-relaxed text-base-content/60"
-      >
-        <Icon
-          name="kind-icon:refresh"
-          class="mt-0.5 h-3.5 w-3.5 shrink-0 text-base-content/40"
-        />
-        Not quite right? Try a different starter image, tweak the instruction
-        above, or adjust the style strength — then remix again.
-      </p>
-    </div>
+    <div
+      v-if="!compact"
+      class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,24rem),1fr))] items-start gap-5"
+    >
+      <div class="flex min-w-0 flex-col gap-5">
+        <section class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6">
+          <p class="flex items-center gap-1.5 text-xs font-black uppercase tracking-[0.16em] text-primary">
+            <Icon name="kind-icon:search" class="h-4 w-4" />
+            How to spot it
+          </p>
+          <h4 class="mt-2 text-xl font-black text-base-content">Train your eye</h4>
+          <div class="mt-4 grid gap-3 sm:grid-cols-2">
+            <div
+              v-for="(cue, index) in lesson.recognitionCues"
+              :key="cue"
+              class="flex items-start gap-3 rounded-2xl border border-base-300 bg-base-200/45 p-3"
+            >
+              <span
+                class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-black text-primary"
+              >
+                {{ index + 1 }}
+              </span>
+              <p class="text-sm leading-relaxed text-base-content/78">{{ cue }}</p>
+            </div>
+          </div>
+        </section>
 
-    <div class="rounded-xl border border-base-300 bg-base-200/60 p-3">
-      <p
-        class="mb-2 flex items-center gap-1.5 text-xs font-black uppercase tracking-wide text-base-content/60"
-      >
-        <Icon name="kind-icon:chat" class="h-3.5 w-3.5" />
-        Reflect
-      </p>
-      <ul class="flex flex-col gap-1.5">
-        <li
-          v-for="prompt in reflectPrompts"
-          :key="prompt"
-          class="flex items-start gap-2 text-sm text-base-content/80"
-        >
-          <Icon
-            name="kind-icon:question"
-            class="mt-0.5 h-3.5 w-3.5 shrink-0 text-base-content/40"
-          />
-          {{ prompt }}
-        </li>
-      </ul>
-    </div>
+        <section class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6">
+          <div class="flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <p class="flex items-center gap-1.5 text-xs font-black uppercase tracking-[0.16em] text-secondary">
+                <Icon name="kind-icon:user" class="h-4 w-4" />
+                Meet the masters
+              </p>
+              <h4 class="mt-2 text-xl font-black text-base-content">People behind the movement</h4>
+            </div>
+            <span class="text-xs text-base-content/45">
+              {{ lesson.artists.length }} featured {{ lesson.artists.length === 1 ? 'artist' : 'artists' }}
+            </span>
+          </div>
 
-    <footer v-if="showRemixButton" class="flex flex-wrap items-center gap-2">
-      <button
-        type="button"
-        class="btn btn-primary flex-1 rounded-2xl font-black shadow-lg shadow-primary/20 hover:-translate-y-0.5 hover:shadow-primary/30 active:translate-y-0"
-        @click="emit('remix', lesson.slug)"
-      >
-        <Icon name="kind-icon:magic" class="h-5 w-5" />
-        Remix an image in {{ lesson.name }}
-      </button>
-    </footer>
+          <div class="mt-4 grid gap-3 sm:grid-cols-2">
+            <div
+              v-for="artist in lesson.artists"
+              :key="artist.name"
+              class="group grid min-h-32 grid-cols-[72px_minmax(0,1fr)] overflow-hidden rounded-2xl border border-base-300 bg-base-200/35"
+            >
+              <div class="flex items-center justify-center border-r border-base-300 bg-base-200">
+                <div class="flex h-12 w-12 items-center justify-center rounded-full bg-base-100 text-xl font-black text-base-content/30 shadow-inner" aria-hidden="true">
+                  {{ artist.name.slice(0, 1) }}
+                </div>
+              </div>
+              <div class="flex min-w-0 flex-col justify-center p-3">
+                <p class="text-base font-black leading-tight text-base-content">
+                  {{ artist.name }}
+                </p>
+                <p class="mt-0.5 text-xs font-semibold text-primary/80">{{ artist.years }}</p>
+                <p class="mt-2 line-clamp-3 text-xs leading-relaxed text-base-content/65">
+                  {{ artist.note }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <aside class="flex min-w-0 flex-col gap-5 xl:sticky xl:top-3">
+        <section class="overflow-hidden rounded-3xl border border-primary/25 bg-primary/5 shadow-sm">
+          <div class="border-b border-primary/15 bg-primary/10 p-5">
+            <p class="flex items-center gap-1.5 text-xs font-black uppercase tracking-[0.16em] text-primary">
+              <Icon name="kind-icon:flask" class="h-4 w-4" />
+              Try it
+            </p>
+            <h4 class="mt-2 text-2xl font-black leading-tight text-base-content">
+              Turn the lesson into an image
+            </h4>
+          </div>
+
+          <div class="flex flex-col gap-4 p-5">
+            <div>
+              <p class="text-xs font-black uppercase tracking-wide text-base-content/45">Remix instruction</p>
+              <p class="mt-1 text-sm leading-relaxed text-base-content/80">
+                {{ lesson.remix.template }}
+              </p>
+            </div>
+
+            <div class="rounded-2xl bg-base-100/70 p-3">
+              <p class="text-xs font-bold text-base-content/70">What to expect</p>
+              <p class="mt-1 text-xs leading-relaxed text-base-content/60">
+                The remix should keep hold of the cues above, especially
+                {{ lesson.recognitionCues[0]?.toLowerCase() }}. If it just looks like a generic old painting, the style did not fully take.
+              </p>
+            </div>
+
+            <div class="rounded-2xl bg-base-100/70 p-3">
+              <p class="text-xs font-bold text-base-content/70">{{ tryItFailureLabel }}</p>
+              <p class="mt-1 text-xs leading-relaxed text-base-content/60">
+                {{ tryItFailureNote }}
+              </p>
+            </div>
+
+            <p class="flex items-start gap-2 text-xs leading-relaxed text-base-content/55">
+              <Icon name="kind-icon:refresh" class="mt-0.5 h-4 w-4 shrink-0" />
+              Not quite right? Try a different source image, tweak the instruction, or adjust the style strength and remix again.
+            </p>
+
+            <button
+              v-if="showRemixButton"
+              type="button"
+              class="btn btn-primary w-full rounded-2xl font-black shadow-lg shadow-primary/20"
+              @click="emit('remix', lesson.slug)"
+            >
+              <Icon name="kind-icon:magic" class="h-5 w-5" />
+              Open Remix Studio
+            </button>
+          </div>
+        </section>
+
+        <section class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm">
+          <p class="flex items-center gap-1.5 text-xs font-black uppercase tracking-[0.16em] text-base-content/45">
+            <Icon name="kind-icon:chat" class="h-4 w-4" />
+            Reflect
+          </p>
+          <h4 class="mt-2 text-lg font-black text-base-content">Look again after you remix</h4>
+          <ul class="mt-3 flex flex-col gap-2">
+            <li
+              v-for="prompt in reflectPrompts"
+              :key="prompt"
+              class="flex items-start gap-2 rounded-xl bg-base-200/45 p-3 text-sm leading-relaxed text-base-content/75"
+            >
+              <Icon name="kind-icon:question" class="mt-0.5 h-4 w-4 shrink-0 text-primary/60" />
+              {{ prompt }}
+            </li>
+          </ul>
+        </section>
+      </aside>
+    </div>
   </article>
 </template>
 
 <script setup lang="ts">
 // Reused in three contexts, each passing a different showClose/showRemixButton
 // subset — check all three before changing a prop's default or meaning:
-//   - academy-timeline.vue: default props (close+remix shown), expanded list item
+//   - academy-timeline.vue: default props (close+remix shown), expanded gallery item
 //   - academy-styles-browser.vue: default props (close+remix shown), grid detail panel
-//   - academy-remix.vue: showClose=false, showRemixButton=false, allowMarkViewed=false
-//     — read-only style summary in the Remix Studio sidebar, where remixing is
-//     already the page's primary action (a stray showRemixButton no-op button
-//     here was PR #301's bug); allowMarkViewed=false stops incidental style
-//     preview clicks from inflating the Timeline/Gallery "explored" progress,
-//     which is meant to reflect deliberate lesson-reading, not style browsing
+//   - academy-remix.vue: compact=true, showClose=false, showRemixButton=false,
+//     allowMarkViewed=false — image-led read-only style summary beside Remix Studio
 import { computed, onMounted } from 'vue'
 import { useAcademyStore } from '@/stores/academyStore'
 import type { AcademyStyle } from '@/stores/seeds/academyStyles'
@@ -210,11 +343,13 @@ const props = withDefaults(
     showClose?: boolean
     showRemixButton?: boolean
     allowMarkViewed?: boolean
+    compact?: boolean
   }>(),
   {
     showClose: true,
     showRemixButton: true,
     allowMarkViewed: true,
+    compact: false,
   },
 )
 
@@ -229,10 +364,6 @@ const isViewed = computed(() => {
   return academyStore.viewedLessons.includes(props.lesson.slug)
 })
 
-// Per-style failure-mode text (ai-art-academy/t-025, backfilled from
-// conductor's docs/teaching-notes.md §3). Falls back to the original
-// mode-level generic note for any style not yet backfilled (e.g. a
-// newly-added movement whose teaching notes haven't landed here yet).
 const tryItFailureLabel = computed(() => 'Watch for:')
 
 const tryItFailureFallbackNote = computed(() => {

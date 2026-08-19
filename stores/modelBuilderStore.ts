@@ -52,6 +52,21 @@ export type StageStatus =
   | 'rejected' // user rejected — needs a redo
   | 'stale' // an upstream edit invalidated this stage
 
+// 'skipped' means auto-build never attempted the item this call because
+// another in-flight action (itself or a manual single-stage action) owns
+// it right now -- the item is still buildable, just not yet. 'failed'
+// means auto-build attempted a stage and it did not succeed (or the item
+// isn't eligible, e.g. asset-only with art off). Exported (and mirrored onto
+// BuildItem.lastAutoBuildOutcome below) so both the aggregate tallies in
+// autoBuildRun/batchAutoBuild AND the per-item UI (model-builder-progress-
+// matrix.vue) can tell a busy-but-fine item apart from a broken one, and a
+// broken item apart from one that simply hasn't been attempted yet (t-029:
+// previously this was only visible per-item inside item.error, which several
+// of autoBuildItem's own 'failed' branches — an empty AI draft, a stage gone
+// stale mid-run, an ineligible asset-only item — never set, and a run-wide
+// scan had no per-item signal at all short of opening each item's panel).
+export type AutoBuildOutcome = 'committed' | 'skipped' | 'failed'
+
 export interface StageState {
   status: StageStatus
   note?: string
@@ -86,6 +101,17 @@ export interface BuildItem {
   targetType: string | null
   targetId: number | null
   error: string | null
+  // Outcome of this item's most recent pass through autoBuildRun() or
+  // batchAutoBuild() (not the single-item "Auto" button in
+  // model-builder-item-panel.vue -- that button's own panel already shows
+  // the failure directly, so it doesn't need to write here too). null before
+  // any run/batch has touched this item. Ephemeral -- not persisted
+  // server-side, like queueState/artJobId; a page refresh drops it, which is
+  // fine since it only describes "what just happened in this session's last
+  // pass," not durable item state. UI should prefer the item's own current
+  // stage status (e.g. COMMIT approved) over a stale 'failed' here when the
+  // two disagree — see model-builder-progress-matrix.vue's autoBuildFailed.
+  lastAutoBuildOutcome: AutoBuildOutcome | null
 }
 
 export interface BuildRun {
@@ -114,6 +140,16 @@ export interface BuildItemGroup {
 interface OutputSelection {
   on: boolean
   quantity: number
+}
+
+// batchPushItems' return shape. Named (rather than an inline `Promise<{ ... }>`
+// object-literal return type) so this store's own verifyModelBuilder*Guard.ts
+// scripts -- which locate a function's body by scanning for the first '{'
+// after its parameter list's closing ')' -- land on the real body brace
+// instead of the object type literal's own braces.
+interface BatchPushOutcome {
+  ok: boolean
+  failedIds: Set<string>
 }
 
 interface ModelBuilderState {
@@ -248,12 +284,49 @@ function freshStages(): Record<BuildStageKey, StageState> {
   return stages
 }
 
+// ModelBuildItem.stageStatuses and ModelBuildRun.sourceSnapshot are both
+// plain `String @db.LongText` columns, not native Prisma Json columns (see
+// utils/scripts/verifyNoPrismaJsonCast.ts) -- every server route writes them
+// with JSON.stringify and reads them back with parseStoredJson (server/api/
+// model-builder/runs/index.ts). A value that has round-tripped through any
+// /api/model-builder/* GET/POST response is therefore always a JSON *string*
+// on the client, never an already-parsed object. Parse defensively: accept a
+// string (the real shape) or an object (defensive only -- nothing produces
+// this today), and fall back to null/default on anything else, including
+// malformed JSON.
+function parseJsonValue(raw: unknown): unknown {
+  if (typeof raw !== 'string') return raw
+  try {
+    return JSON.parse(raw)
+  } catch {
+    return null
+  }
+}
+
 // Coerce a persisted stageStatuses JSON blob back into a complete stage map,
 // filling any missing gate with a locked default.
+//
+// Bug (found by inspection, model-builder/t-029): this used to gate on
+// `typeof raw === 'object'` alone, which is never true for `raw` sourced from
+// the server (see parseJsonValue's comment above) -- so every call from
+// adaptItem below silently discarded the real stageStatuses and returned the
+// fresh-item default (PITCH ready, everything else locked) instead. This
+// stayed invisible for the run that actually did the approving: approveStage/
+// pushItem/etc. all mutate the SAME long-lived state.run object in place, so
+// optimistic local state kept showing the right thing right up until the
+// object was rebuilt from a fresh server read. Concrete repro (pre-fix):
+// approve PITCH, refresh the page (or close the tab and reopen the same run
+// from Run History) -- resumeRun()/openRun()/fetchRuns() all re-fetch and
+// rebuild via adaptItem, and the just-approved PITCH stage (along with any
+// other approved or even fully committed stage) silently reverted to
+// 'ready'/'locked' in the UI, while the item's own targetId/targetType/
+// artImageId (typed columns, unaffected by this bug) still correctly showed
+// "Committed" -- a self-contradicting item panel with no error ever raised.
 function normalizeStages(raw: unknown): Record<BuildStageKey, StageState> {
   const stages = freshStages()
-  if (raw && typeof raw === 'object') {
-    const source = raw as Record<string, StageState>
+  const parsed = parseJsonValue(raw)
+  if (parsed && typeof parsed === 'object') {
+    const source = parsed as Record<string, StageState>
     for (const stage of BUILD_STAGES) {
       const value = source[stage.key]
       if (value && typeof value.status === 'string') {
@@ -311,6 +384,7 @@ function adaptItem(server: ServerItem): BuildItem {
     targetType: server.targetType ?? null,
     targetId: server.targetId ?? null,
     error: server.error ?? null,
+    lastAutoBuildOutcome: null,
   }
 }
 
@@ -321,10 +395,22 @@ function adaptRun(server: ServerRun): BuildRun {
     sourceType: server.sourceType as SourceTypeKey,
     sourceId: server.sourceId,
     sourceLabel: server.sourceLabel ?? '',
-    sourceSnapshot:
-      server.sourceSnapshot && typeof server.sourceSnapshot === 'object'
-        ? (server.sourceSnapshot as Record<string, unknown>)
-        : null,
+    // See parseJsonValue's doc comment: server.sourceSnapshot is a JSON
+    // string, not an already-parsed object, on every response from the
+    // server. model-builder-progress-matrix.vue's `source` computed falls
+    // back to store.selectedSource specifically so this snapshot "survives
+    // resume" (its own comment) -- but store.selectedSource is only ever set
+    // by an in-session selectSource() call and is never restored on
+    // resume/reopen, so before this fix the fallback masked the break only
+    // for the run that had just been created; resuming a run (or opening one
+    // from Run History) always showed a blank "Source context" card, with no
+    // error, for a value the run's own creation had genuinely captured.
+    sourceSnapshot: (() => {
+      const parsed = parseJsonValue(server.sourceSnapshot)
+      return parsed && typeof parsed === 'object'
+        ? (parsed as Record<string, unknown>)
+        : null
+    })(),
     recipeKey: server.recipeKey as RecipeKey,
     items: Array.isArray(server.Items) ? server.Items.map(adaptItem) : [],
   }
@@ -432,12 +518,28 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   )
 
   const runProgress = computed(() => {
-    if (!state.run) return { total: 0, committed: 0 }
+    if (!state.run) return { total: 0, committed: 0, failed: 0 }
     const total = state.run.items.length
     const committed = state.run.items.filter(
       (item) => item.stages.COMMIT.status === 'approved',
     ).length
-    return { total, committed }
+    // Committed always wins over a stale 'failed' outcome — an item can
+    // fail once, then get fixed and committed by hand without ever going
+    // through autoBuildItem again (e.g. the single-stage "Execute commit"
+    // button), which would otherwise leave lastAutoBuildOutcome pointing at
+    // a failure that's no longer true. Mirrors model-builder-progress-
+    // matrix.vue's autoBuildFailed, which the same logic must agree with --
+    // including the item.error OR (model-builder/t-029): lastAutoBuildOutcome
+    // is session-only and never restored on resume/reopen/reload, so without
+    // also honoring the persisted item.error signal, this count silently
+    // dropped to 0 for a run reopened from History even when items were
+    // still genuinely stuck failed.
+    const failed = state.run.items.filter(
+      (item) =>
+        item.stages.COMMIT.status !== 'approved' &&
+        (item.lastAutoBuildOutcome === 'failed' || Boolean(item.error)),
+    ).length
+    return { total, committed, failed }
   })
 
   function setStatus(tone: 'success' | 'error', message: string): void {
@@ -640,10 +742,25 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   // Background persistence of a single item. Callers mutate local state first
   // (optimistic) and pass only the changed fields; a draft change also carries
   // stage metadata so the server records a revision.
+  //
+  // onFailure (model-builder/t-029 cycle 10): invoked once, synchronously,
+  // when the PATCH genuinely fails -- either a `{success:false}` response or
+  // a rejected promise -- so the caller can revert exactly the optimistic
+  // mutation it made before this call, mirroring batchApproveStage/
+  // batchSetField's own pre-mutation-snapshot pattern (cycle 9) at
+  // single-item scope. Before this, a failed single-item PATCH already
+  // surfaced an error toast via setStatusForRun below, but the item itself
+  // (approved badge, edited pitch/fields/prompt text, stage statuses) kept
+  // showing the unpersisted optimistic change until a full reload rebuilt it
+  // from the server's real (unchanged) state -- the same "review gate lying
+  // about what's actually stored" class of bug this codebase treats as real
+  // everywhere else it's found. onFailure is optional and additive: callers
+  // that don't pass one keep today's toast-only behavior unchanged.
   function pushItem(
     item: BuildItem,
     payload: Record<string, unknown>,
     meta?: { stage?: string; reason?: string },
+    onFailure?: () => void,
   ): void {
     const runId = state.run?.id
     performFetch(`/api/model-builder/items/${item.id}`, {
@@ -652,12 +769,15 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       body: JSON.stringify({ ...payload, ...meta }),
     })
       .then((response) => {
-        if (!response.success && runId) {
-          setStatusForRun(
-            runId,
-            'error',
-            response.message || 'Failed to save changes.',
-          )
+        if (!response.success) {
+          onFailure?.()
+          if (runId) {
+            setStatusForRun(
+              runId,
+              'error',
+              response.message || 'Failed to save changes.',
+            )
+          }
         }
       })
       .catch((error) => {
@@ -667,6 +787,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         // elsewhere shouldn't pop a global error banner for a run that's no
         // longer on screen. setStatusForRun already no-ops unless state.run
         // still matches the run this write belonged to.
+        onFailure?.()
         if (runId) {
           setStatusForRun(
             runId,
@@ -682,18 +803,33 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   // Background persistence of a whole group edit in one round-trip. Callers
   // mutate local state first (optimistic) and pass only the changed fields per
   // item, same contract as pushItem — this just collapses N per-item PATCH
-  // requests into a single batch request. Returns whether the write actually
-  // succeeded, so a caller that summarizes its own outcome (batchSetField) can
-  // await the real result instead of assuming success the instant the request
-  // is issued.
+  // requests into a single batch request. Returns the real, confirmed outcome
+  // -- both an overall `ok` (true only when every entry persisted) and the
+  // per-item `failedIds` -- so a caller that summarizes its own outcome
+  // (batchSetField, batchApproveStage) can await the real result instead of
+  // assuming success the instant the request is issued.
+  //
+  // failedIds matters beyond the summary toast: items/batch.patch.ts validates
+  // and applies each entry independently (a single failing entry does not
+  // abort the others -- see its own header comment), so a batch can come back
+  // as a *partial* failure (HTTP 207: some entries updated, some rejected,
+  // e.g. by a concurrent edit that made one item's stage no longer editable
+  // server-side). Every entry's item was already mutated optimistically
+  // before this call was made, for every entry, not just the ones that end up
+  // persisting -- treating a partial failure as "all failed" would falsely
+  // discard entries that DID persist, and treating it as an opaque failure
+  // with no detail leaves the entries that were actually rejected still
+  // showing their optimistic change locally forever, with no sign that write
+  // never landed. Returning exactly which ids failed lets the caller revert
+  // only those.
   function batchPushItems(
     entries: Array<{
       item: BuildItem
       payload: Record<string, unknown>
       meta?: { stage?: string; reason?: string }
     }>,
-  ): Promise<boolean> {
-    if (!entries.length) return Promise.resolve(true)
+  ): Promise<BatchPushOutcome> {
+    if (!entries.length) return Promise.resolve({ ok: true, failedIds: new Set() })
     const runId = state.run?.id
     return performFetch('/api/model-builder/items/batch', {
       method: 'PATCH',
@@ -707,23 +843,51 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       }),
     })
       .then((response) => {
-        if (!response.success) {
-          if (runId) {
-            setStatusForRun(
-              runId,
-              'error',
-              response.message || 'Failed to save changes.',
-            )
+        if (response.success) return { ok: true, failedIds: new Set<string>() }
+
+        // Distinguish a total failure (rejected before any entry was even
+        // evaluated -- bad auth, a malformed body -- so response.data carries
+        // no per-entry breakdown) from a partial one (response.data is the
+        // per-entry `{ id, success }[]` items/batch.patch.ts always returns
+        // once it reaches its per-entry loop). Only the latter can tell which
+        // specific ids actually failed; fall back to treating every entry as
+        // failed when that detail isn't available, rather than guessing any
+        // of them landed.
+        const perItem = Array.isArray(response.data)
+          ? (response.data as unknown[])
+          : null
+        const failedIds = new Set<string>()
+        if (perItem) {
+          for (const result of perItem) {
+            if (
+              result &&
+              typeof result === 'object' &&
+              'id' in result &&
+              (result as { success?: unknown }).success !== true
+            ) {
+              failedIds.add(String((result as { id: unknown }).id))
+            }
           }
-          return false
+        } else {
+          for (const { item } of entries) failedIds.add(item.id)
         }
-        return true
+
+        if (runId) {
+          setStatusForRun(
+            runId,
+            'error',
+            response.message || 'Failed to save changes.',
+          )
+        }
+        return { ok: false, failedIds }
       })
       .catch((error) => {
         // Same reasoning as pushItem's catch above: mirror the success:false
         // branch's run-scoping instead of unconditionally calling
         // handleError, so a rejected batch write doesn't pop a global error
-        // banner for a run the user has cancelled or moved away from.
+        // banner for a run the user has cancelled or moved away from. A
+        // rejected request never reached the server at all, so every entry
+        // is unconfirmed.
         if (runId) {
           setStatusForRun(
             runId,
@@ -733,7 +897,10 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
               : 'Failed to save changes.',
           )
         }
-        return false
+        return {
+          ok: false,
+          failedIds: new Set(entries.map(({ item }) => item.id)),
+        }
       })
   }
 
@@ -799,12 +966,19 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   function approveStage(itemId: string, stageKey: BuildStageKey): void {
     const item = findItem(itemId)
     if (!item) return
+    // Snapshotted before the optimistic mutation below so a failed PATCH can
+    // revert to exactly what this item held before this call, instead of
+    // leaving an approval that was never actually persisted (see pushItem's
+    // onFailure doc comment).
+    const previousStages = { ...item.stages }
     item.stages[stageKey] = { status: 'approved' }
     const next = BUILD_STAGES[stageIndex(stageKey) + 1]
     if (next && item.stages[next.key].status === 'locked') {
       item.stages[next.key] = { status: 'ready' }
     }
-    pushItem(item, { stageStatuses: item.stages }, { stage: stageKey })
+    pushItem(item, { stageStatuses: item.stages }, { stage: stageKey }, () => {
+      item.stages = previousStages
+    })
   }
 
   function rejectStage(
@@ -814,53 +988,109 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   ): void {
     const item = findItem(itemId)
     if (!item) return
+    const previousStages = { ...item.stages }
     item.stages[stageKey] = { status: 'rejected', note }
     markDownstreamStale(item, stageKey)
-    pushItem(item, { stageStatuses: item.stages }, { stage: stageKey })
+    pushItem(item, { stageStatuses: item.stages }, { stage: stageKey }, () => {
+      item.stages = previousStages
+    })
   }
 
   // Reopen a stale/approved stage for editing and invalidate downstream.
   function reopenStage(itemId: string, stageKey: BuildStageKey): void {
     const item = findItem(itemId)
     if (!item) return
+    const previousStages = { ...item.stages }
     item.stages[stageKey] = { status: 'ready' }
     markDownstreamStale(item, stageKey)
-    pushItem(item, { stageStatuses: item.stages }, { stage: stageKey })
+    pushItem(item, { stageStatuses: item.stages }, { stage: stageKey }, () => {
+      item.stages = previousStages
+    })
   }
 
+  // error: null (both locally and in the pushed payload) on all three setters
+  // below (model-builder/t-029 cycle 7 left this out of updatePitch/
+  // updateFields/updatePrompt deliberately to keep that fix surgical --
+  // model-builder/t-045 revisits it). markDownstreamStale already invalidates
+  // every downstream stage's approval the moment any of these fire, so a
+  // prior item.error -- whether from a failed AI draft (draftText's own
+  // catch block routes its success back through these same setters, see
+  // below), a failed GENERATE_ASSETS render, or a failed COMMIT -- describes
+  // a stage that no longer reflects what's now stored and has to be redone
+  // anyway. Clearing here uniformly (manual edit or AI draft alike) also
+  // avoids a confusing asymmetry where an AI-redrafted fix clears the item's
+  // error banner but retyping the identical fix by hand does not.
   function updatePitch(itemId: string, value: string): void {
     const item = findItem(itemId)
     if (!item) return
+    // Snapshotted before the optimistic mutation below so a failed PATCH can
+    // revert to exactly what this item held before this call (see pushItem's
+    // onFailure doc comment).
+    const previousPitch = item.pitch
+    const previousError = item.error
+    const previousStages = { ...item.stages }
     item.pitch = value
+    item.error = null
     markDownstreamStale(item, 'PITCH')
     pushItem(
       item,
-      { stageStatuses: item.stages, pitch: item.pitch },
+      { stageStatuses: item.stages, pitch: item.pitch, error: null },
       { stage: 'PITCH', reason: 'edited pitch' },
+      () => {
+        item.pitch = previousPitch
+        item.error = previousError
+        item.stages = previousStages
+      },
     )
   }
 
   function updateFields(itemId: string, value: string): void {
     const item = findItem(itemId)
     if (!item) return
+    const previousFieldsDraft = item.fieldsDraft
+    const previousError = item.error
+    const previousStages = { ...item.stages }
     item.fieldsDraft = value
+    item.error = null
     markDownstreamStale(item, 'FIELDS_AND_PROMPTS')
     pushItem(
       item,
-      { stageStatuses: item.stages, fieldsDraft: item.fieldsDraft },
+      {
+        stageStatuses: item.stages,
+        fieldsDraft: item.fieldsDraft,
+        error: null,
+      },
       { stage: 'FIELDS_AND_PROMPTS', reason: 'edited fields' },
+      () => {
+        item.fieldsDraft = previousFieldsDraft
+        item.error = previousError
+        item.stages = previousStages
+      },
     )
   }
 
   function updatePrompt(itemId: string, value: string): void {
     const item = findItem(itemId)
     if (!item) return
+    const previousPromptDraft = item.promptDraft
+    const previousError = item.error
+    const previousStages = { ...item.stages }
     item.promptDraft = value
+    item.error = null
     markDownstreamStale(item, 'FIELDS_AND_PROMPTS')
     pushItem(
       item,
-      { stageStatuses: item.stages, promptDraft: item.promptDraft },
+      {
+        stageStatuses: item.stages,
+        promptDraft: item.promptDraft,
+        error: null,
+      },
       { stage: 'FIELDS_AND_PROMPTS', reason: 'edited prompt' },
+      () => {
+        item.promptDraft = previousPromptDraft
+        item.error = previousError
+        item.stages = previousStages
+      },
     )
   }
 
@@ -1022,7 +1252,28 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       handleError(error, 'drafting model builder text')
       const message =
         error instanceof Error ? error.message : 'Draft request failed.'
+      // Bug (model-builder/t-045): draftText is autoBuildItem's very first
+      // step (PITCH, then FIELDS_AND_PROMPTS) and so is the most-likely-to-
+      // fire failure path of the whole run, but unlike generateItemAsset/
+      // generateItemAssetAsync/pollAsyncArtJob/commitItem (fixed for this in
+      // model-builder/t-029 cycle 7 -- see
+      // verifyModelBuilderErrorPersistenceGuard.ts's doc comment) it never
+      // touched item.error at all, only this transient setStatusForRun
+      // toast. adaptItem always rebuilds a fresh item from `server.error ??
+      // null` on resume/reopen/reload, so an empty/failed AI draft had no
+      // trace left anywhere -- not the item-panel.vue error banner, not the
+      // per-item "failed" badge in model-builder-progress-matrix.vue /
+      // model-builder-batch-editor.vue -- the instant the toast dismissed,
+      // even though the item was still stuck exactly where it failed. The
+      // two mid-flight discard branches above (edited/approved while
+      // drafting) deliberately do NOT set item.error, mirroring
+      // generateItemAsset's/pollAsyncArtJob's own "already approved" race
+      // guards, which don't push item.error either -- those are the draft
+      // request succeeding but being correctly discarded, not a genuine
+      // unresolved failure.
+      item.error = message
       setStatusForRun(runId, 'error', message)
+      pushItem(item, { error: item.error })
       return false
     } finally {
       draftingFieldSingleton.release(draftKey)
@@ -1105,6 +1356,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       item.error = `${item.generation} generation is not wired into the front-end slice yet.`
       item.stages.GENERATE_ASSETS = { status: 'ready', note: item.error }
       setStatus('error', item.error)
+      pushItem(item, { error: item.error })
       return false
     }
 
@@ -1112,6 +1364,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     if (!prompt) {
       item.error = 'Add a prompt in Fields & Prompts before generating.'
       setStatus('error', item.error)
+      pushItem(item, { error: item.error })
       return false
     }
 
@@ -1177,9 +1430,14 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       finishGenerateAssets(item, { status: 'ready' })
 
       await recordArtifact(item, image, output, prompt, dims, runId)
+      // error: null clears any error a previous failed attempt on this same
+      // item persisted (see the catch block below) -- otherwise a resolved
+      // problem's stale message would resurface on the next resume/reload,
+      // right alongside the freshly-generated candidate.
       pushItem(item, {
         stageStatuses: item.stages,
         artImageId: item.artImageId,
+        error: null,
       })
 
       // Gated by setStatusForRun, not a plain setStatus: the user may have
@@ -1205,6 +1463,21 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       item.error = error instanceof Error ? error.message : 'Generation failed.'
       finishGenerateAssets(item, { status: 'ready', note: item.error })
       setStatusForRun(runId, 'error', item.error)
+      // Bug (model-builder/t-029): item.error is a real, server-writable
+      // `ModelBuildItem.error` column (server/api/model-builder/runs/
+      // index.ts's ItemPatchBody accepts it), and item-panel.vue's error
+      // banner (`v-if="item.error"`) reads it -- but every failure branch in
+      // this file used to only mutate the local reactive item, never push
+      // it. adaptItem always rebuilds from `server.error ?? null` on
+      // resume/reopen/reload (see normalizeStages'/adaptRun's own doc
+      // comments for the identical class of bug with stageStatuses/
+      // sourceSnapshot), so a real, still-unresolved failure -- and the
+      // per-item "failed" badge in model-builder-progress-matrix.vue /
+      // model-builder-batch-editor.vue, which also keys off this item's
+      // error text -- silently vanished the moment the page reloaded or the
+      // run was reopened from History, even though nothing about the item
+      // had actually been fixed.
+      pushItem(item, { error: item.error })
       return false
     } finally {
       // state.generatingItemId is a store-wide singleton (not per-item, unlike
@@ -1276,6 +1549,9 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         item.error = result.message || `Art job ${jobId} did not complete.`
         finishGenerateAssets(item, { status: 'ready', note: item.error })
         setStatusForRun(runId, 'error', item.error)
+        // See generateItemAsset's identical pushItem — this async sibling's
+        // failure was silently local-only for the same reason.
+        pushItem(item, { error: item.error })
         return
       }
 
@@ -1310,9 +1586,11 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       finishGenerateAssets(item, { status: 'ready' })
 
       await recordArtifact(item, image, output, prompt, dims, runId)
+      // error: null — see generateItemAsset's identical success-path clear.
       pushItem(item, {
         stageStatuses: item.stages,
         artImageId: item.artImageId,
+        error: null,
       })
 
       // Gated by setStatusForRun -- see its doc comment (same reasoning as
@@ -1338,6 +1616,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       item.error = `${item.generation} generation is not wired into the front-end slice yet.`
       item.stages.GENERATE_ASSETS = { status: 'ready', note: item.error }
       setStatus('error', item.error)
+      pushItem(item, { error: item.error })
       return false
     }
 
@@ -1345,6 +1624,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     if (!prompt) {
       item.error = 'Add a prompt in Fields & Prompts before generating.'
       setStatus('error', item.error)
+      pushItem(item, { error: item.error })
       return false
     }
 
@@ -1402,6 +1682,9 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       item.queueState = null
       item.artJobId = null
       setStatusForRun(runId, 'error', item.error)
+      // See generateItemAsset's identical pushItem — this enqueue failure
+      // was silently local-only for the same reason.
+      pushItem(item, { error: item.error })
       return false
     }
   }
@@ -1490,6 +1773,14 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         item.targetType = target.type
         item.targetId = target.id
       }
+      // Clears any error a previous failed commit attempt on this item
+      // persisted (see the catch block below) -- the server already durably
+      // committed the target above, so a stale message from an earlier,
+      // now-irrelevant failure must not resurface on the next resume/reload
+      // right next to "Committed → ...". This is the item's only client PATCH
+      // on a successful commit; stageStatuses/targetId/targetType are written
+      // authoritatively by the commit POST itself.
+      pushItem(item, { error: null })
       // Gated by setStatusForRun -- see its doc comment. The commit itself
       // already durably landed server-side regardless; this only suppresses
       // a misleading "committed" toast if the user has since navigated away
@@ -1509,6 +1800,15 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       item.error = error instanceof Error ? error.message : 'Commit failed.'
       finishCommit(item, { status: 'ready', note: item.error })
       setStatusForRun(runId, 'error', item.error)
+      // Bug (model-builder/t-029): see generateItemAsset's identical
+      // pushItem/doc comment -- item.error is a real server column
+      // (ModelBuildItem.error) that this catch block used to only mutate
+      // locally, so a genuine, unresolved commit failure (and the per-item
+      // "failed" badge in model-builder-progress-matrix.vue /
+      // model-builder-batch-editor.vue, which also reads this item's error
+      // text) silently vanished the instant the page reloaded or the run
+      // was reopened from Run History.
+      pushItem(item, { error: item.error })
       return false
     } finally {
       committingItemSingleton.release(item.id)
@@ -1521,14 +1821,9 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     state.includeArt = typeof value === 'boolean' ? value : !state.includeArt
   }
 
-  // 'skipped' means auto-build never attempted the item this call because
-  // another in-flight action (itself or a manual single-stage action) owns
-  // it right now -- the item is still buildable, just not yet. 'failed'
-  // means auto-build attempted a stage and it did not succeed (or the item
-  // isn't eligible, e.g. asset-only with art off). Callers that tally
-  // progress across many items (autoBuildRun, batchAutoBuild) need this
-  // distinction so a busy-but-fine item doesn't read the same as a broken one.
-  type AutoBuildOutcome = 'committed' | 'skipped' | 'failed'
+  // AutoBuildOutcome is declared near StageStatus (top of file) and exported
+  // — autoBuildRun/batchAutoBuild below now also mirror it per-item onto
+  // BuildItem.lastAutoBuildOutcome, not just tally it into their own summary.
 
   // Mirrors model-builder-item-panel.vue's per-item isManualActionInFlight
   // computed (generating / queued / committing / drafting any field) so a
@@ -1687,24 +1982,55 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     const items = [...state.run.items]
     let committed = 0
     let skipped = 0
+    let failed = 0
     try {
       for (const item of items) {
         if (state.run?.id !== runId) return
         if (item.stages.COMMIT.status === 'approved') {
           committed++
+          // Already committed before this pass touched it -- not routed
+          // through autoBuildItem, so it wouldn't otherwise get a fresh
+          // 'committed' outcome and could keep showing a stale 'failed'
+          // badge from an earlier attempt.
+          item.lastAutoBuildOutcome = 'committed'
           continue
         }
         const outcome = await autoBuildItem(item.id)
+        // Mirrored onto the item itself (not just tallied into this run's
+        // aggregate counters) so model-builder-progress-matrix.vue's
+        // per-item badge has something to read after the run finishes --
+        // previously the only per-item failure signal was item.error, which
+        // several of autoBuildItem's own 'failed' branches (an empty AI
+        // draft, a stage gone stale mid-run, an ineligible asset-only item)
+        // never set, and there was no per-item signal at all short of
+        // opening each item's own panel (t-029).
+        item.lastAutoBuildOutcome = outcome
         if (outcome === 'committed') committed++
         else if (outcome === 'skipped') skipped++
+        else failed++
       }
       if (state.run?.id === runId) {
+        // A 'failed' outcome (a rejected commit — e.g. the ASSET_ONLY
+        // attachability re-check in commit.post.ts firing because the
+        // ArtImage's owner changed its visibility mid-run — a draft that
+        // came back empty, or any other real error autoBuildItem's own
+        // per-stage branches surface) is neither 'committed' nor 'skipped',
+        // so committed + skipped alone can undercount items.length with no
+        // explanation. Unconditionally reporting 'success' here (the
+        // pre-fix behavior) papered over that gap twice over: the count
+        // silently didn't add up, and this final call clobbers whatever
+        // 'error' tone an earlier failed item in this same loop already set
+        // via setStatus/setStatusForRun, replacing it with a misleading
+        // green banner. Surface failures in both the tone and the count.
         const skippedNote = skipped
           ? ` (${skipped} skipped — manual action in progress, retry after it finishes)`
           : ''
+        const failedNote = failed
+          ? ` (${failed} failed — see the item's own error for details)`
+          : ''
         setStatus(
-          'success',
-          `Auto-build finished: ${committed}/${items.length} committed${skippedNote}.`,
+          failed ? 'error' : 'success',
+          `Auto-build finished: ${committed}/${items.length} committed${failedNote}${skippedNote}.`,
         )
       }
     } finally {
@@ -1764,10 +2090,42 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   ): Promise<void> {
     const items = groupItems(outputKey)
     if (!items.length) return
+    // Bug (model-builder/t-029 cycle 13): unlike every single-item async
+    // entry point that spans a real network round-trip (draftText itself --
+    // see verifyModelBuilderDraftStatusScopeGuard's doc comment --
+    // generateItemAsset, generateItemAssetAsync, commitItem, pushItem,
+    // batchPushItems) and unlike this function's own whole-run sibling
+    // autoBuildRun, this loop's final completion toast was a bare, unscoped
+    // setStatus, with no runId capture at all. batchDraftField awaits
+    // draftText once per item in the group -- easily seconds of real work
+    // for a multi-item quantity group -- long enough for the user to switch
+    // to (or start) a different run via History before it finishes. Every
+    // per-item draftText call already scopes ITS OWN status messages
+    // correctly via setStatusForRun, so no per-item toast leaks -- but this
+    // function's own summary ran unconditionally after the loop regardless
+    // of which run was on screen by then, popping a misleading "Drafted
+    // X/N items." banner over whatever OTHER run the user has since
+    // switched to, about a group that isn't even part of what's on screen.
+    // Captured up front, mirroring autoBuildRun's own runId capture.
+    const runId = state.run?.id
     const stageKey = stageForDraftField(field)
     batchingOutputSingleton.claim(outputKey)
     clearStatus()
     let drafted = 0
+    // Bug (model-builder/t-029 cycle 12): unlike every sibling batch entry
+    // point (batchAutoBuild/autoBuildRun tally a `failed` outcome and flip
+    // tone to 'error' -- see verifyModelBuilderAutoBuildFailedSummaryGuard's
+    // doc comment; batchSetField/batchApproveStage rely on batchPushItems'
+    // own error toast when `ok` is false), this loop only ever counted
+    // `drafted` and then unconditionally reported tone 'success' once it
+    // finished -- even when EVERY item in the group failed to draft (e.g.
+    // the text server is down). draftText already sets a real 'error'
+    // status via setStatusForRun on each failed item, but this function's
+    // own final setStatus call ran after the loop and clobbered that with a
+    // green "Drafted 0/N items." banner, exactly the same clobbered-error
+    // shape the auto-build guard above exists to prevent. Track failures and
+    // switch tone the same way autoBuildRun/batchAutoBuild do.
+    let failed = 0
     try {
       for (const item of items) {
         // Skip items whose stage is already approved/locked — see
@@ -1782,9 +2140,16 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         if (opts?.onlyEmpty && current.trim()) continue
         const ok = await draftText(item.id, field)
         if (ok) drafted++
+        else failed++
       }
       const label = field === 'artPrompt' ? 'prompt' : field
-      setStatus('success', `Drafted ${label} for ${drafted}/${items.length} items.`)
+      if (runId) {
+        setStatusForRun(
+          runId,
+          failed ? 'error' : 'success',
+          `Drafted ${label} for ${drafted}/${items.length} items.`,
+        )
+      }
     } finally {
       batchingOutputSingleton.release(outputKey)
     }
@@ -1805,23 +2170,63 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   // unscoped-looking "Failed to save changes." -- while every item's local
   // fieldsDraft/stageStatuses had already been optimistically changed with no
   // indication of which items, if any, never actually persisted.
+  //
+  // Bug (model-builder/t-029 cycle 9): that last part -- "no indication of
+  // which items never actually persisted" -- was more than a messaging gap.
+  // items/batch.patch.ts validates and applies every entry independently (a
+  // single failing entry does not abort the others), so a real-world failure
+  // here is usually *partial*: most items persist, one or two are rejected
+  // (e.g. a concurrent edit made that item's FIELDS_AND_PROMPTS no longer
+  // editable server-side by the time this batch reached it). Every entry's
+  // item was already mutated optimistically before the request was sent, and
+  // this used to leave ALL of them, including the rejected ones, showing
+  // their new fieldsDraft/stageStatuses forever -- the UI kept claiming a
+  // field was set to a value that was never actually written, with nothing
+  // short of a full reload to reveal the discrepancy. batchPushItems now
+  // reports exactly which ids failed so only those get reverted below.
   async function batchSetField(
     outputKey: string,
     fieldKey: string,
     value: string,
   ): Promise<void> {
+    // Bug (model-builder/t-029 cycle 13): captured up front, mirroring
+    // draftText/generateItemAsset/commitItem/pushItem/batchPushItems (see
+    // verifyModelBuilderDraftStatusScopeGuard's doc comment for the full
+    // shape of this bug class). batchPushItems below is a real network
+    // round-trip the user can switch runs during via History; batchPushItems
+    // itself already scopes its own failure toast through setStatusForRun,
+    // but this function's own success toast was a bare, unscoped setStatus
+    // with no runId at all -- so a batch field-set that resolves after the
+    // user has switched to (or started) a different run pops a misleading
+    // "Set ... on N/M items." success banner over whatever OTHER run is now
+    // on screen, about a group that isn't even part of what's on screen.
+    const runId = state.run?.id
     const items = groupItems(outputKey)
     const entries: Array<{
       item: BuildItem
       payload: Record<string, unknown>
       meta?: { stage?: string; reason?: string }
     }> = []
+    // Snapshotted before each item's optimistic mutation below so a
+    // server-rejected entry can be reverted to exactly what it held before
+    // this call, instead of keeping an edit that never actually persisted.
+    const previous = new Map<
+      string,
+      { fieldsDraft: string; stages: BuildItem['stages'] }
+    >()
     for (const item of items) {
       // Skip items whose FIELDS_AND_PROMPTS is already approved/locked — see
       // isStageEditable's doc comment.
       if (!isStageEditable(item, 'FIELDS_AND_PROMPTS')) continue
-      const next = setFieldLine(item.fieldsDraft, fieldKey, value)
+      const modelType = state.run
+        ? resolveTargetModel(item.action, item.outputKey, state.run.sourceType)
+        : undefined
+      const next = setFieldLine(item.fieldsDraft, fieldKey, value, modelType)
       if (next === item.fieldsDraft) continue
+      previous.set(item.id, {
+        fieldsDraft: item.fieldsDraft,
+        stages: item.stages,
+      })
       item.fieldsDraft = next
       markDownstreamStale(item, 'FIELDS_AND_PROMPTS')
       entries.push({
@@ -1832,30 +2237,126 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     }
     batchingOutputSingleton.claim(outputKey)
     try {
-      const ok = await batchPushItems(entries)
+      const { ok, failedIds } = await batchPushItems(entries)
       // On failure, batchPushItems already surfaced the real error via
       // setStatusForRun -- reporting a blanket "success" here too would be
       // actively misleading.
       if (ok) {
-        setStatus(
-          'success',
-          `Set ${fieldKey} on ${entries.length}/${items.length} items.`,
-        )
+        if (runId) {
+          setStatusForRun(
+            runId,
+            'success',
+            `Set ${fieldKey} on ${entries.length}/${items.length} items.`,
+          )
+        }
+      } else if (failedIds.size) {
+        // Revert exactly the entries the server rejected -- see this
+        // function's own doc comment and batchPushItems' for why a partial
+        // failure must not leave those items showing an unpersisted edit.
+        for (const entry of entries) {
+          if (!failedIds.has(entry.item.id)) continue
+          const prior = previous.get(entry.item.id)
+          if (prior) {
+            entry.item.fieldsDraft = prior.fieldsDraft
+            entry.item.stages = prior.stages
+          }
+        }
       }
     } finally {
       batchingOutputSingleton.release(outputKey)
     }
   }
 
-  // Approve a stage for every (unlocked) item in a group at once.
-  function batchApproveStage(outputKey: string, stageKey: BuildStageKey): void {
-    let approved = 0
+  // Approve a stage for every (unlocked) item in a group at once. Persists
+  // the whole group in a single batch request rather than N per-item
+  // PATCHes, and reports success only once that request actually confirms it
+  // -- mirrors batchSetField (see its own doc comment for the identical
+  // race). The pre-fix shape called the single-item approveStage (whose own
+  // pushItem is a fire-and-forget background PATCH) in a loop and
+  // unconditionally showed an "Approved N items." success toast the instant
+  // the loop finished, before any of those N background writes had actually
+  // resolved. That's fine for a fire-and-forget action reporting on
+  // separately-confirmed local work (e.g. generateItemAsset's toast reports
+  // the *render* succeeding, with pushItem persisting it alongside) -- but
+  // "approved" has no meaning other than "persisted": there's no separate
+  // local accomplishment being confirmed the way a rendered asset is. A
+  // concurrent run cancellation (or any other server-side rejection, e.g.
+  // assertRunWritable) during that loop could pop a false "Approved N
+  // items." success toast, immediately followed by pushItem's own
+  // unrelated-looking "Failed to save changes." error moments later -- with
+  // every item's local stageStatuses already optimistically flipped to
+  // 'approved' either way, same as batchSetField's pre-fix bug.
+  //
+  // Bug (model-builder/t-029 cycle 9): fixing the toast (this function
+  // already did, per the paragraph above) left a second, quieter half of the
+  // same bug in place -- see batchPushItems' and batchSetField's own doc
+  // comments for the full picture. A *partial* server-side rejection (one
+  // item's stage is no longer approvable by the time this batch reaches it,
+  // the rest persist fine) used to leave every item, including the rejected
+  // one, showing 'approved' locally forever: the toast stopped lying, but the
+  // badge kept lying. batchPushItems now reports exactly which ids failed so
+  // only those get reverted below.
+  async function batchApproveStage(
+    outputKey: string,
+    stageKey: BuildStageKey,
+  ): Promise<void> {
+    // Bug (model-builder/t-029 cycle 13): captured up front, same as
+    // batchSetField's identical fix (see its own doc comment) -- the
+    // batchPushItems() await below is a real network round-trip the user can
+    // switch runs during via History, and this function's success toast was
+    // a bare, unscoped setStatus with no runId at all.
+    const runId = state.run?.id
+    const entries: Array<{
+      item: BuildItem
+      payload: Record<string, unknown>
+      meta?: { stage?: string; reason?: string }
+    }> = []
+    // Snapshotted before each item's optimistic mutation below so a
+    // server-rejected entry can be reverted to exactly the stages it held
+    // before this call, instead of keeping an approval that never actually
+    // persisted.
+    const previousStages = new Map<string, BuildItem['stages']>()
     for (const item of groupItems(outputKey)) {
       if (item.stages[stageKey].status === 'locked') continue
-      approveStage(item.id, stageKey)
-      approved++
+      previousStages.set(item.id, { ...item.stages })
+      item.stages[stageKey] = { status: 'approved' }
+      const next = BUILD_STAGES[stageIndex(stageKey) + 1]
+      if (next && item.stages[next.key].status === 'locked') {
+        item.stages[next.key] = { status: 'ready' }
+      }
+      entries.push({
+        item,
+        payload: { stageStatuses: item.stages },
+        meta: { stage: stageKey },
+      })
     }
-    setStatus('success', `Approved ${stageKey} for ${approved} items.`)
+    batchingOutputSingleton.claim(outputKey)
+    try {
+      const { ok, failedIds } = await batchPushItems(entries)
+      // On failure, batchPushItems already surfaced the real error via
+      // setStatusForRun -- reporting a blanket "success" here too would be
+      // actively misleading.
+      if (ok) {
+        if (runId) {
+          setStatusForRun(
+            runId,
+            'success',
+            `Approved ${stageKey} for ${entries.length} items.`,
+          )
+        }
+      } else if (failedIds.size) {
+        // Revert exactly the entries the server rejected -- see this
+        // function's own doc comment and batchPushItems' for why a partial
+        // failure must not leave those items showing an unpersisted approval.
+        for (const entry of entries) {
+          if (!failedIds.has(entry.item.id)) continue
+          const previous = previousStages.get(entry.item.id)
+          if (previous) entry.item.stages = previous
+        }
+      }
+    } finally {
+      batchingOutputSingleton.release(outputKey)
+    }
   }
 
   // Auto-build (draft → generate → commit with defaults) every not-yet-committed
@@ -1863,27 +2364,74 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   async function batchAutoBuild(outputKey: string): Promise<void> {
     const items = groupItems(outputKey)
     if (!items.length) return
+    // Bug (model-builder/t-029 cycle 13): captured up front, exactly
+    // mirroring autoBuildRun's own runId capture and its doc comment just
+    // below (same file) -- autoBuildRun already guards both its per-item
+    // loop and its final summary against the user switching to (or
+    // starting) a different run via History mid-pass, but this function,
+    // despite looping the same way over the same multi-step autoBuildItem()
+    // calls for potentially many items in a group, never captured a runId
+    // at all: its final summary was a bare, unscoped setStatus that ran
+    // unconditionally regardless of which run was on screen by the time the
+    // group finished. A "Auto-build group" pass on Run A left running while
+    // the user opens History and switches to Run B pops this stale
+    // completion toast -- "Auto-built X/N in this group (Y failed...)" --
+    // over Run B's banner once Run A's abandoned pass finally finishes,
+    // about a group that isn't even part of what's on screen. `items.length`
+    // being non-zero already implies state.run was non-null when
+    // groupItems() read it, but that's not visible to the type checker
+    // through the intervening function call, so this stays optional
+    // (mirroring batchDraftField/batchSetField/batchApproveStage's own
+    // identical `state.run?.id` capture) rather than a non-null assertion.
+    const runId = state.run?.id
     batchingOutputSingleton.claim(outputKey)
     clearStatus()
     let committed = 0
     let skipped = 0
+    let failed = 0
     try {
       for (const item of items) {
+        // See autoBuildRun's identical guard: stop walking this group the
+        // instant the user has switched away from the run it belongs to,
+        // rather than continuing to await autoBuildItem() calls that can
+        // now only fail fast (findItem() won't find this item in whatever
+        // OTHER run is now active).
+        if (state.run?.id !== runId) return
         if (item.stages.COMMIT.status === 'approved') {
           committed++
+          // See autoBuildRun's identical branch: keep the badge from
+          // showing a stale 'failed' for an item already committed before
+          // this pass reached it.
+          item.lastAutoBuildOutcome = 'committed'
           continue
         }
         const outcome = await autoBuildItem(item.id)
+        // See autoBuildRun's identical line -- mirrors the outcome onto the
+        // item itself for model-builder-progress-matrix.vue's per-item
+        // badge and model-builder-batch-editor.vue's own per-item badge.
+        item.lastAutoBuildOutcome = outcome
         if (outcome === 'committed') committed++
         else if (outcome === 'skipped') skipped++
+        else failed++
       }
+      // Same gap as autoBuildRun's identical summary (see its doc comment):
+      // a 'failed' outcome is neither committed nor skipped, so it must be
+      // counted and reflected in the tone here too, or a rejected commit
+      // (e.g. the ASSET_ONLY attachability re-check) inside this group
+      // reports as an unconditional green "success" with an unexplained gap
+      // between committed+skipped and items.length.
       const skippedNote = skipped
         ? ` (${skipped} skipped — manual action in progress, retry after it finishes)`
         : ''
-      setStatus(
-        'success',
-        `Auto-built ${committed}/${items.length} in this group${skippedNote}.`,
-      )
+      const failedNote = failed
+        ? ` (${failed} failed — see the item's own error for details)`
+        : ''
+      if (state.run?.id === runId) {
+        setStatus(
+          failed ? 'error' : 'success',
+          `Auto-built ${committed}/${items.length} in this group${failedNote}${skippedNote}.`,
+        )
+      }
     } finally {
       batchingOutputSingleton.release(outputKey)
     }

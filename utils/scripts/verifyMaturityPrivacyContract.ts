@@ -54,10 +54,45 @@ assert.ok(videoLoraPicker.includes('<maturity-toggle'))
 assert.ok(videoLoraPicker.includes('resourceStore.visibleLoras'))
 assert.ok(!videoLoraPicker.includes('artStore.showMature'))
 
-const artMaker = readFileSync('components/art/art-maker.vue', 'utf8')
-assert.ok(artMaker.includes('label="Mature checkpoint models"'))
-assert.ok(artMaker.includes('checkpointStore.visibleCheckpoints'))
-assert.ok(!artMaker.includes('artStore.showMature'))
+// Repointed 2026-08-18: art-maker.vue was replaced by art-generator.vue, which
+// draws ONE maturity toggle for the whole surface instead of art-maker's three
+// (a checkpoint-filter toggle, a bare Mature output toggle, and a Public
+// toggle). The gate is unchanged and asserted harder: the single account-level
+// toggle governs checkpoints, LoRAs, AND Facets, while the OUTPUT maturity of
+// the generated image is set through content-visibility-controls, which keeps
+// mature work private by default.
+const artGenerator = readFileSync('components/art/art-generator.vue', 'utf8')
+assert.ok(artGenerator.includes('<maturity-toggle'))
+assert.ok(artGenerator.includes('label="Mature content"'))
+assert.ok(
+  artGenerator.match(/<maturity-toggle/g)?.length === 1,
+  'the generator must draw exactly one maturity toggle',
+)
+assert.ok(artGenerator.includes('checkpointStore.visibleCheckpoints'))
+assert.ok(artGenerator.includes('resourceStore.visibleLoras'))
+assert.ok(artGenerator.includes('<content-visibility-controls'))
+assert.ok(artGenerator.includes('v-model:is-mature="outputIsMature"'))
+assert.ok(artGenerator.includes('v-model:is-public="outputIsPublic"'))
+assert.ok(!artGenerator.includes('artStore.showMature'))
+
+const artLoraPicker = readFileSync('components/art/art-lora-picker.vue', 'utf8')
+assert.ok(artLoraPicker.includes('resourceStore.visibleLoras'))
+assert.ok(!artLoraPicker.includes('artStore.showMature'))
+
+// The third surface the single toggle now governs. The Facet catalog is fetched
+// complete and shared with the character/reward/scenario builders, so the gate
+// is a filter in the picker rather than a narrowed fetch -- and staged mature
+// Facets are dropped when the toggle goes off, so nothing invisible rides along.
+const artFacetSelector = readFileSync(
+  'components/art/art-facet-selector.vue',
+  'utf8',
+)
+assert.ok(artFacetSelector.includes('userStore.showMature'))
+assert.ok(
+  artFacetSelector.includes(
+    'if (!showMature.value && facet.isMature) return false',
+  ),
+)
 
 // lora-gallery and model-gallery were retired 2026-08-05 (unmounted, see the
 // retirement commit) along with their cards. The maturity gate still applies to

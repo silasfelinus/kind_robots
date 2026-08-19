@@ -9,6 +9,7 @@ import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
 import {
   assertRunAccess,
+  assertRunWritable,
   getRunId,
   modelBuildStatuses,
   normalizeJson,
@@ -30,13 +31,23 @@ export default defineEventHandler(async (event) => {
 
     const existing = await prisma.modelBuildRun.findUnique({
       where: { id },
-      select: { id: true, userId: true },
+      select: { id: true, userId: true, status: true },
     })
     if (!existing) {
       event.node.res.statusCode = 404
       return { success: false, message: 'Build run not found.', statusCode: 404 }
     }
+    // Defense-in-depth (model-builder/t-029 kaizen, deferred twice before this
+    // cycle): the client only ever sends {status: 'CANCELLED'} through this
+    // route today, which is why a missing check here was never a *live*
+    // exploit -- but this is the run's own status route, the natural place a
+    // future "resume" feature would land a status write, and every other
+    // write-capable model-builder route already refuses once the run is
+    // CANCELLED. Checking existing.status (read before this update, not the
+    // value the client is trying to set) means the CANCEL action itself still
+    // succeeds -- it only blocks writes to a run that is *already* CANCELLED.
     assertRunAccess(existing, auth.user)
+    assertRunWritable(existing)
 
     const body = await readBody<RunPatchBody>(event)
     const data: Prisma.ModelBuildRunUncheckedUpdateInput = {}

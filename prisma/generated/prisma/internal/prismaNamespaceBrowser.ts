@@ -62,6 +62,7 @@ export const ModelName = {
   ModelBuildItem: 'ModelBuildItem',
   ModelBuildArtifact: 'ModelBuildArtifact',
   ModelBuildRevision: 'ModelBuildRevision',
+  ProjectPageContent: 'ProjectPageContent',
   ArtImage: 'ArtImage',
   ArtCollection: 'ArtCollection',
   Bot: 'Bot',
@@ -163,6 +164,7 @@ export const BrainstormSessionScalarFieldEnum = {
   constraints: 'constraints',
   examples: 'examples',
   mode: 'mode',
+  outputDomain: 'outputDomain',
   batchShape: 'batchShape',
   returnTypes: 'returnTypes',
   source: 'source',
@@ -357,6 +359,19 @@ export const ModelBuildRevisionScalarFieldEnum = {
 } as const
 
 export type ModelBuildRevisionScalarFieldEnum = (typeof ModelBuildRevisionScalarFieldEnum)[keyof typeof ModelBuildRevisionScalarFieldEnum]
+
+
+export const ProjectPageContentScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  projectId: 'projectId',
+  pageKey: 'pageKey',
+  content: 'content',
+  updatedById: 'updatedById'
+} as const
+
+export type ProjectPageContentScalarFieldEnum = (typeof ProjectPageContentScalarFieldEnum)[keyof typeof ProjectPageContentScalarFieldEnum]
 
 
 export const ArtImageScalarFieldEnum = {
@@ -1876,6 +1891,7 @@ export const BrainstormSessionOrderByRelevanceFieldEnum = {
   constraints: 'constraints',
   examples: 'examples',
   mode: 'mode',
+  outputDomain: 'outputDomain',
   batchShape: 'batchShape',
   returnTypes: 'returnTypes',
   source: 'source',
@@ -2000,6 +2016,14 @@ export const ModelBuildRevisionOrderByRelevanceFieldEnum = {
 } as const
 
 export type ModelBuildRevisionOrderByRelevanceFieldEnum = (typeof ModelBuildRevisionOrderByRelevanceFieldEnum)[keyof typeof ModelBuildRevisionOrderByRelevanceFieldEnum]
+
+
+export const ProjectPageContentOrderByRelevanceFieldEnum = {
+  pageKey: 'pageKey',
+  content: 'content'
+} as const
+
+export type ProjectPageContentOrderByRelevanceFieldEnum = (typeof ProjectPageContentOrderByRelevanceFieldEnum)[keyof typeof ProjectPageContentOrderByRelevanceFieldEnum]
 
 
 export const ArtImageOrderByRelevanceFieldEnum = {

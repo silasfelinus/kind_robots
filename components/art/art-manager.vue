@@ -45,7 +45,9 @@
     <section
       v-else
       class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-      @click.capture="activeTab === 'artjob' ? handleArtJobImageClick($event) : undefined"
+      @click.capture="
+        activeTab === 'artjob' ? handleArtJobImageClick($event) : undefined
+      "
     >
       <div
         :class="
@@ -54,7 +56,7 @@
             : 'kr-scroll p-3'
         "
       >
-        <art-maker
+        <art-generator
           v-if="activeTab === 'generate'"
           class="min-h-full w-full"
         />
@@ -147,18 +149,14 @@
             class="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-3"
           >
             <artjob-failed-page-requeue class="shrink-0" />
-            <artjob-queue-browser
-              class="min-h-0 flex-1 overflow-hidden"
-            />
+            <artjob-queue-browser class="min-h-0 flex-1 overflow-hidden" />
           </div>
 
           <div
             v-show="artJobWorkspaceTab === 'trainer'"
             class="min-h-0 flex-1 overflow-hidden p-3"
           >
-            <artjob-feedback-manager
-              class="h-full min-h-0 overflow-hidden"
-            />
+            <artjob-feedback-manager class="h-full min-h-0 overflow-hidden" />
           </div>
         </template>
 

@@ -35,6 +35,23 @@
 // would be. A light textual check is kept alongside it for the one thing
 // behavioral testing can't see -- whether commit.post.ts still delegates to
 // the shared splitter instead of re-inlining its own copy.
+//
+// Extended (model-builder/t-029, cycle 18) to cover a second way this same
+// pair of functions silently dropped user content: field-key matching was
+// case-sensitive against MODEL_FIELDS' lowerCamelCase keys ('name', 'class',
+// 'rewardType', ...), but nothing in the FIELDS_AND_PROMPTS textarea tells a
+// user typing a field by hand to match that exact casing -- every other
+// place the same key surfaces (field.label in the batch editor, e.g. "Name",
+// "Class") is capitalized. "Name: Aria" typed by hand failed the
+// case-sensitive check, so it wasn't recognized as a field start -- and
+// being typically the FIRST line, there was no `previous` field yet to
+// append it to as a continuation, so it (and everything cascading after it)
+// was dropped outright, same as the original continuation bug this guard
+// already protects, just reached through a case mismatch instead of a
+// missing colon. Fixed by matching knownKeys case-insensitively and emitting
+// the canonical spec-cased key, so parseFieldLines/readFieldLine/
+// setFieldLine and commit.post.ts's own `.toLowerCase()` field lookups all
+// agree regardless of how the field was originally typed.
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -148,6 +165,66 @@ export function checkFieldBlobContinuation(): string[] {
     )
   }
 
+  // A user typing field keys with natural capitalization ("Name:", "Class:",
+  // "Personality:") -- rather than MODEL_FIELDS' own lowerCamelCase keys --
+  // must still be recognized, not silently dropped. This is the exact same
+  // "typed by hand into a free-text textarea with no format enforcement"
+  // path as the multi-line/stray-colon cases above, just varying case
+  // instead of structure.
+  const mixedCase =
+    'Name: Aria Nightshade\nClass: Warrior\nPersonality: stoic, guarded'
+  const mixedParsed = parseFieldLines(mixedCase, 'Character')
+  const mixedByKey = new Map(mixedParsed.map((line) => [line.key, line.value]))
+  if (mixedByKey.get('name') !== 'Aria Nightshade') {
+    errors.push(
+      'parseFieldLines() drops or misparses a field typed with natural ' +
+        'capitalization ("Name:" against the spec key "name") -- expected ' +
+        `"name" to equal "Aria Nightshade", got ${JSON.stringify(mixedParsed)}.`,
+    )
+  }
+  if (mixedByKey.get('class') !== 'Warrior') {
+    errors.push(
+      'parseFieldLines() drops or misparses "Class:" against the spec key ' +
+        `"class" -- got ${JSON.stringify(mixedParsed)}.`,
+    )
+  }
+  if (mixedByKey.get('personality') !== 'stoic, guarded') {
+    errors.push(
+      'parseFieldLines() drops or misparses "Personality:" against the ' +
+        `spec key "personality" -- got ${JSON.stringify(mixedParsed)}.`,
+    )
+  }
+
+  // readFieldLine/setFieldLine take a canonical key from the caller (e.g.
+  // batchSetField's field.key) -- they must still find a field the user
+  // typed in a different case, not treat it as absent and append a
+  // duplicate.
+  const mixedCaseReadBack = readFieldLine(mixedCase, 'name', 'Character')
+  if (mixedCaseReadBack !== 'Aria Nightshade') {
+    errors.push(
+      'readFieldLine() does not find "Name:" when asked for the canonical ' +
+        `key "name" -- got ${JSON.stringify(mixedCaseReadBack)}.`,
+    )
+  }
+  const mixedCaseReplaced = setFieldLine(
+    mixedCase,
+    'name',
+    'Corvin Ashwood',
+    'Character',
+  )
+  const mixedCaseReplacedParsed = parseFieldLines(
+    mixedCaseReplaced,
+    'Character',
+  )
+  if (
+    mixedCaseReplacedParsed.filter((line) => line.key === 'name').length !== 1
+  ) {
+    errors.push(
+      'setFieldLine() appended a duplicate "name" field instead of ' +
+        `replacing the one typed as "Name:" -- got ${JSON.stringify(mixedCaseReplacedParsed)}.`,
+    )
+  }
+
   return errors
 }
 
@@ -193,9 +270,11 @@ function main(): void {
 
   console.log(
     'Model Builder field-blob continuation guard passed: multi-line prose ' +
-      'values in the FIELDS_AND_PROMPTS blob survive parseFieldLines/' +
-      'readFieldLine/setFieldLine round-trips, and commit.post.ts delegates ' +
-      'to the shared splitter instead of a hand-rolled duplicate.',
+      'values and naturally-capitalized field keys ("Name:" against the ' +
+      'spec key "name") in the FIELDS_AND_PROMPTS blob survive ' +
+      'parseFieldLines/readFieldLine/setFieldLine round-trips, and ' +
+      'commit.post.ts delegates to the shared splitter instead of a ' +
+      'hand-rolled duplicate.',
   )
 }
 

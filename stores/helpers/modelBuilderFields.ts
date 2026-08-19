@@ -255,22 +255,50 @@ export interface FieldLine {
 // raining." as the second sentence of a backstory) can't be mistaken for a
 // new field. When `modelType` is omitted, any non-empty key before the first
 // colon counts (the old, fully-generic behavior).
+//
+// Matched case-insensitively against the spec (model-builder/t-029, cycle
+// 18): MODEL_FIELDS' own keys are lowerCamelCase ('name', 'rewardType', ...),
+// but nothing about the FIELDS_AND_PROMPTS textarea tells a user typing a
+// field by hand to match that exact casing -- every other place the same key
+// surfaces (field.label in the batch editor, e.g. "Name", "Class") is
+// capitalized, which is exactly what someone free-typing "Name: Aria" would
+// reach for. Before this fix, "Name:" failed the case-sensitive knownKeys
+// check, so it wasn't a recognized field start -- and since it's typically
+// also the FIRST line of the blob, `previous` in parseFieldLines' loop below
+// is still unset, so the line (and often every line after it, cascading the
+// same miss) was silently dropped rather than merely mis-parsed. A record
+// committed from such a blob came out with blank/default fields and no error
+// anywhere -- the exact "silent data loss" class this file's continuation
+// fix (see parseFieldLines' own doc comment) already exists to prevent, just
+// reached through a case mismatch instead of a missing colon. Returning the
+// canonical spec-cased key (not the user's raw casing) keeps every
+// downstream consumer -- commit.post.ts's own `.toLowerCase()` lookups,
+// which already tolerated this, and readFieldLine/setFieldLine's direct
+// `line.key === key` comparisons against a caller-supplied canonical key,
+// which did not -- working consistently regardless of how the field was
+// originally typed.
 function isFieldStart(
   line: string,
-  knownKeys: Set<string> | null,
+  knownKeys: Map<string, string> | null,
 ): { key: string; rest: string } | null {
   const idx = line.indexOf(':')
   if (idx === -1) return null
-  const key = line.slice(0, idx).trim()
-  if (!key) return null
-  if (knownKeys && !knownKeys.has(key)) return null
-  return { key, rest: line.slice(idx + 1).trim() }
+  const rawKey = line.slice(0, idx).trim()
+  if (!rawKey) return null
+  if (knownKeys) {
+    const canonicalKey = knownKeys.get(rawKey.toLowerCase())
+    if (!canonicalKey) return null
+    return { key: canonicalKey, rest: line.slice(idx + 1).trim() }
+  }
+  return { key: rawKey, rest: line.slice(idx + 1).trim() }
 }
 
-function knownKeysFor(modelType?: string): Set<string> | null {
+function knownKeysFor(modelType?: string): Map<string, string> | null {
   if (!modelType) return null
   const spec = fieldSpecFor(modelType)
-  return spec.length ? new Set(spec.map((field) => field.key)) : null
+  return spec.length
+    ? new Map(spec.map((field) => [field.key.toLowerCase(), field.key]))
+    : null
 }
 
 // Splits a FIELDS_AND_PROMPTS blob ("key: value" lines, one per field) into

@@ -52,6 +52,8 @@
     "test:relay-agent-registry": "tsx utils/scripts/verifyRelayAgentRegistry.ts",
     "test:video-retry-notice-selftest": "tsx utils/scripts/verifyVideoRetryNotice.test.ts",
     "test:video-retry-notice": "tsx utils/scripts/verifyVideoRetryNotice.ts",
+    "test:migration-drift-check-selftest": "tsx utils/scripts/verifyMigrationDriftCheck.test.ts",
+    "test:migration-drift-check": "tsx utils/scripts/verifyMigrationDriftCheck.ts",
     "test:seed-challenges": "tsx scripts/seed_challenges.ts",
     "test:seed-contenders": "tsx scripts/seed_contenders.ts",
     "dev": "nuxt dev --host",

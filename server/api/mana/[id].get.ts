@@ -39,7 +39,13 @@ export default defineEventHandler(async (event) => {
 
     const walletUser = await prisma.user.findUnique({
       where: { id },
-      select: { mana: true, manaCap: true, lastManaRefill: true },
+      select: {
+        mana: true,
+        manaCap: true,
+        lastManaRefill: true,
+        tokens: true,
+        earnedTokens: true,
+      },
     })
     if (!walletUser) {
       throw createError({
@@ -61,6 +67,12 @@ export default defineEventHandler(async (event) => {
         balance: walletUser.mana,
         cap: walletUser.manaCap,
         lastRefill: walletUser.lastManaRefill?.toISOString() ?? null,
+        // kind-economy/t-006: the paid + creator-payout balances. Added so
+        // the wallet UI (mana-wallet.vue) can show what a purchase actually
+        // credited instead of silently reading a `balance` that no longer
+        // reflects it.
+        tokens: walletUser.tokens,
+        earnedTokens: walletUser.earnedTokens,
         transactions,
       },
       statusCode: 200,

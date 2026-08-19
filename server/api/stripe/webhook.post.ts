@@ -27,6 +27,13 @@ function getStripeClient() {
 
 // Stripe's signature verification IS the auth for this route — the caller is
 // Stripe itself, not a logged-in user, so no validateApiKey/requireApiUser guard.
+//
+// kind-economy/t-006: this is the ONE place real money currently becomes
+// balance. applyMana's reason: 'PURCHASE' now defaults to resource: 'TOKENS'
+// (see REASON_RESOURCE in server/utils/mana.ts), so this credits the paid
+// token pool, not free mana, going forward -- metadata/variable names below
+// still say "mana"/"manaAmount" because that's the existing Stripe session
+// metadata contract set by topup.post.ts; renaming it is out of scope here.
 async function handleManaTopup(session: Stripe.Checkout.Session) {
   const userId = Number(session.metadata?.userId)
   const manaAmount = Number(session.metadata?.manaAmount)
@@ -62,11 +69,11 @@ async function handleManaTopup(session: Stripe.Checkout.Session) {
     refId: session.id,
     provider: 'stripe',
     costUsd: (session.amount_total ?? 0) / 100,
-    note: 'Mana top-up via Stripe checkout',
+    note: 'Token top-up via Stripe checkout',
   })
 
   console.log(
-    `💰 Credited ${manaAmount} mana to user ${userId} (session ${session.id})`,
+    `💰 Credited ${manaAmount} tokens to user ${userId} (session ${session.id})`,
   )
 }
 
@@ -521,7 +528,9 @@ async function handleGiftshopCartPurchase(session: Stripe.Checkout.Session) {
       if (catalogEntry.type === 'tokens') {
         // Real fulfillment, not just an audit record -- unlike donation/POD,
         // "100 Boost Tokens" has nothing else that represents ownership, so
-        // if mana isn't credited here the user paid real money for nothing.
+        // if tokens aren't credited here the user paid real money for
+        // nothing. kind-economy/t-006: reason 'PURCHASE' defaults to
+        // resource: 'TOKENS' (real money -> paid pool, never free mana).
         // Passed the same `tx` so this commits atomically with the Order/
         // OrderItem above rather than opening its own transaction.
         const manaAmount = usdToMana(catalogEntry.price) * quantity

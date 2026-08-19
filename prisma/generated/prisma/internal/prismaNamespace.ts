@@ -6794,6 +6794,7 @@ export const ManaTransactionScalarFieldEnum = {
   amount: 'amount',
   reason: 'reason',
   balanceAfter: 'balanceAfter',
+  resource: 'resource',
   refId: 'refId',
   note: 'note',
   provider: 'provider',
@@ -7283,6 +7284,8 @@ export const UserScalarFieldEnum = {
   password: 'password',
   karma: 'karma',
   mana: 'mana',
+  tokens: 'tokens',
+  earnedTokens: 'earnedTokens',
   clickRecord: 'clickRecord',
   matchRecord: 'matchRecord',
   showMature: 'showMature',
@@ -8884,6 +8887,13 @@ export type EnumExpressionKindFieldRefInput<$PrismaModel> = FieldRefInputType<$P
  * Reference to a field of type 'ManaReason'
  */
 export type EnumManaReasonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ManaReason'>
+    
+
+
+/**
+ * Reference to a field of type 'ManaResource'
+ */
+export type EnumManaResourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ManaResource'>
     
 
 

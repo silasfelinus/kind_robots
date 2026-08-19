@@ -1,9 +1,10 @@
 <!-- /components/giftshop/credit-purchase.vue -->
 <template>
   <div class="p-6 bg-base-200 rounded-2xl shadow-md text-center">
-    <h2 class="text-2xl font-bold text-primary mb-4">Buy Mana</h2>
+    <h2 class="text-2xl font-bold text-primary mb-4">Buy Tokens</h2>
     <p class="mb-6 text-lg text-gray-500">
-      Top up your mana balance to generate more AI-powered content.
+      Top up your token balance to generate more AI-powered content. Tokens are
+      spent before your free mana.
     </p>
 
     <!-- Pricing Options -->
@@ -38,10 +39,13 @@ const error = ref('')
 
 // Mirrors the trusted server-side tiers in server/api/stripe/topup.post.ts —
 // the server re-validates tierId and prices; this list is display-only.
+// kind-economy/t-006: these purchases credit the `tokens` pool, not `mana`
+// (see server/utils/mana.ts REASON_RESOURCE); copy updated accordingly, the
+// tier ids/variable names are left as-is to match the server-side contract.
 const manaTopupTiers = [
-  { id: 'small', label: 'Small mana top-up', priceUsd: 5 },
-  { id: 'medium', label: 'Medium mana top-up', priceUsd: 10 },
-  { id: 'large', label: 'Large mana top-up', priceUsd: 25 },
+  { id: 'small', label: 'Small token top-up', priceUsd: 5 },
+  { id: 'medium', label: 'Medium token top-up', priceUsd: 10 },
+  { id: 'large', label: 'Large token top-up', priceUsd: 25 },
 ]
 
 const purchaseMana = async (tierId: string) => {
@@ -50,7 +54,7 @@ const purchaseMana = async (tierId: string) => {
   try {
     const result = await cartStore.topup(tierId)
     if (!result.success) {
-      error.value = result.message || 'Mana top-up failed. Please try again.'
+      error.value = result.message || 'Token top-up failed. Please try again.'
     }
     // On success, cartStore.topup redirects the browser to Stripe Checkout.
   } finally {

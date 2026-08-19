@@ -27,6 +27,12 @@ export const useManaStore = defineStore('manaStore', () => {
 
   // Balance mirrors userStore.user.mana — single source of truth stays on the user.
   const balance = computed(() => userStore.user?.mana ?? 0)
+  // kind-economy/t-006: the paid resource (Stripe purchases land here, not
+  // in `mana` — see server/utils/mana.ts REASON_RESOURCE) and the
+  // creator-payout-eligible balance. Both mirror userStore.user for the
+  // same reason `balance` does.
+  const tokens = computed(() => userStore.user?.tokens ?? 0)
+  const earnedTokens = computed(() => userStore.user?.earnedTokens ?? 0)
   const isFamily = computed(() => userStore.role === 'FAMILY')
   const isGuest = computed(() => userStore.isGuest)
 
@@ -62,6 +68,8 @@ export const useManaStore = defineStore('manaStore', () => {
         balance: number
         cap: number
         lastRefill: string | null
+        tokens: number
+        earnedTokens: number
         transactions: ManaTxn[]
       }>(`/api/mana/${id}`)
 
@@ -69,7 +77,11 @@ export const useManaStore = defineStore('manaStore', () => {
         cap.value = res.data.cap
         lastRefill.value = res.data.lastRefill
         transactions.value = res.data.transactions
-        if (userStore.user) userStore.user.mana = res.data.balance
+        if (userStore.user) {
+          userStore.user.mana = res.data.balance
+          userStore.user.tokens = res.data.tokens
+          userStore.user.earnedTokens = res.data.earnedTokens
+        }
       } else {
         error.value = res.message || 'Failed to load mana.'
       }
@@ -95,6 +107,8 @@ export const useManaStore = defineStore('manaStore', () => {
     loading,
     error,
     balance,
+    tokens,
+    earnedTokens,
     isFamily,
     isGuest,
     nextRefillMs,

@@ -733,18 +733,24 @@ model Achievement {
 }
 
 model ManaTransaction {
-  id           Int        @id @default(autoincrement())
-  createdAt    DateTime   @default(now())
+  id           Int          @id @default(autoincrement())
+  createdAt    DateTime     @default(now())
   userId       Int
   amount       Int
   reason       ManaReason
   balanceAfter Int
+  // kind-economy/t-006: which resource pool this row actually affected.
+  // Defaults to MANA so every pre-existing row (all of which, before this
+  // task, only ever touched the single `User.mana` field) reads correctly
+  // with no backfill. `balanceAfter` reflects the post-transaction balance
+  // of THIS resource, not necessarily `User.mana`.
+  resource     ManaResource @default(MANA)
   refId        String?
-  note         String?    @db.Text
+  note         String?      @db.Text
   provider     String?
   costUsd      Float?
   reversedById Int?
-  User         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  User         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
 }
@@ -1427,6 +1433,17 @@ model User {
   password               String?                   @db.Text
   karma                  Int                       @default(0)
   mana                   Int                       @default(0)
+  // kind-economy/t-006: the paid resource. Credited only by real Stripe
+  // payment (PURCHASE / SUBSCRIPTION_GRANT reasons), never by a free grant.
+  // Spendable on generation (applyMana/manaGate try tokens first, falling
+  // back to `mana` -- see server/utils/manaGate.ts) but this is the ONLY
+  // balance future creator-attribution (t-007/t-008) may ever credit from.
+  tokens                 Int                       @default(0)
+  // kind-economy/t-006: the creator-payout-eligible balance, credited from
+  // someone else's paid (tokens) spend. This task only adds the column --
+  // no crediting logic is wired here (t-007/t-008), and nothing in this
+  // task treats it as spendable on generation or refundable via Stripe.
+  earnedTokens           Int                       @default(0)
   clickRecord            Int?                      @default(0)
   matchRecord            Int?                      @default(0)
   showMature             Boolean                   @default(false)
@@ -2156,6 +2173,18 @@ enum ManaReason {
   KARMA_CONVERSION
   ADJUSTMENT
   ACHIEVEMENT_CONFIRMED
+}
+
+/// kind-economy/t-006: the two-resource split. MANA is the free, given-away
+/// pool (never purchased, never withdrawable). TOKENS is the paid resource,
+/// credited only by real money (PURCHASE / SUBSCRIPTION_GRANT) and the only
+/// pool future creator-attribution may ever credit from. EARNED is the
+/// creator-payout-eligible balance (t-007/t-008 wires the crediting logic;
+/// this task only adds the column/enum value).
+enum ManaResource {
+  MANA
+  TOKENS
+  EARNED
 }
 
 enum ScenarioOutputType {

@@ -77,6 +77,23 @@
         </div>
       </div>
 
+      <!-- kind-economy/t-006: purchased tokens are a separate pool from free
+           mana above -- Stripe top-ups credit here, not the mana balance, so
+           this card is what actually moves right after a purchase. -->
+      <div
+        class="rounded-2xl border border-secondary/20 bg-base-100 shadow-lg p-6 space-y-1"
+      >
+        <div class="text-sm text-base-content/60">Purchased tokens</div>
+        <div class="text-3xl font-extrabold text-secondary tabular-nums">
+          {{ manaStore.tokens }}
+        </div>
+        <p class="text-xs text-base-content/50">
+          Credited by top-ups. Generations spend tokens first, then fall back to
+          free mana above. Not withdrawable — that's a Stripe refund, not a
+          payout.
+        </p>
+      </div>
+
       <!-- BYO hint -->
       <div class="rounded-xl bg-base-200 p-4 text-sm text-base-content/70">
         💡 Using your own API key or local server? Those generations are free —

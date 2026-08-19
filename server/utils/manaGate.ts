@@ -4,8 +4,9 @@ import prisma from './prisma'
 import { requireApiUser } from './authGuard'
 import { userIsAdmin, userRoles } from './authUser'
 import { applyMana } from './mana'
-import type { ManaReason } from './mana'
+import type { ManaReason, ManaResource } from './mana'
 import { resolveManaGateTarget } from './manaGateTarget'
+import { resolveSpendResource } from './manaSpendResolution'
 
 type ManaGateKind = 'text' | 'art' | 'video' | 'model' | 'free'
 
@@ -30,14 +31,20 @@ type ManaGateResult = {
   user: {
     id: number
     mana: number | null
+    tokens: number | null
     Role?: string | null
   }
   cost: number
   free: boolean
+  // kind-economy/t-006: which pool `cost` will actually be drawn from if
+  // committed -- 'TOKENS' when the user's paid balance alone covers it,
+  // 'MANA' as the fallback (preserves pre-split "any balance that covers
+  // the cost works" behavior), or null when cost is 0 (nothing is spent).
+  fundedBy: ManaResource | null
   commit: (
     refId: string,
     providerCostUsd?: number,
-  ) => Promise<{ balance: number }>
+  ) => Promise<{ balance: number; resource: ManaResource | null }>
 }
 
 const MANA_PER_USD = 1000
@@ -70,6 +77,7 @@ export async function manaGate(
     select: {
       id: true,
       mana: true,
+      tokens: true,
       Role: true,
     },
   })
@@ -100,39 +108,58 @@ export async function manaGate(
     ? 0
     : Math.max(1, Math.ceil((input.estCostUsd ?? 0.001) * MANA_PER_USD))
 
-  const balance = user.mana ?? 0
+  const tokenBalance = user.tokens ?? 0
+  const manaBalance = user.mana ?? 0
 
-  if (cost > 0 && balance < cost) {
+  const resolved = resolveSpendResource({ cost, tokenBalance, manaBalance })
+  if (!resolved.ok) {
     throw createError({
       statusCode: 402,
-      message: `Not enough mana. Required: ${cost}, available: ${balance}.`,
+      message: `Not enough mana or tokens. Required: ${cost}, available: ${tokenBalance} tokens + ${manaBalance} mana.`,
     })
   }
+  const fundedBy = resolved.fundedBy
 
   return {
     user,
     cost,
     free,
+    fundedBy,
     commit: async (refId: string, providerCostUsd?: number) => {
-      if (cost <= 0) {
+      // fundedBy is only ever null when cost <= 0 (see resolution above --
+      // cost > 0 either sets fundedBy or throws 402), so this is the free
+      // path: nothing to debit, return the unchanged mana balance as before.
+      if (cost <= 0 || !fundedBy) {
         return {
-          balance,
+          balance: manaBalance,
+          resource: null,
         }
       }
 
       // Atomic debit + ManaTransaction ledger row (applyMana re-checks the
       // balance inside the transaction, closing the check-then-spend race).
+      // `allowNegative` stays false: if the pool selected above (based on a
+      // slightly-stale read) has since been spent down by a concurrent
+      // request, applyMana's in-transaction re-check throws 402 rather than
+      // let this go negative -- it does NOT retry against the other pool,
+      // matching the "pick one pool, no partial split" rule above.
       const result = await applyMana({
         userId: user.id,
         amount: -cost,
+        // input.kind === 'free' here is unreachable in practice (isFreeGeneration
+        // forces cost to 0 for 'free', which returns above before this call), but
+        // REASON_BY_KIND has no 'free' entry, so this ternary is kept for type
+        // safety. `resource` is always passed explicitly regardless of reason.
         reason:
           input.kind === 'free' ? 'ADJUSTMENT' : REASON_BY_KIND[input.kind],
+        resource: fundedBy,
         refId,
         costUsd: providerCostUsd ?? input.estCostUsd,
       })
 
       return {
         balance: result.balance,
+        resource: result.resource,
       }
     },
   }

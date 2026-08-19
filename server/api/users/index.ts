@@ -91,6 +91,8 @@ export async function fetchUsers(): Promise<{
           showMature: true,
           karma: true,
           mana: true,
+          tokens: true,
+          earnedTokens: true,
           clickRecord: true,
           matchRecord: true,
           artImageId: true,

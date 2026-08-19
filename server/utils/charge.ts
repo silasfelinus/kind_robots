@@ -5,6 +5,15 @@ import { userIsAdmin, userHasRole } from './authUser'
 
 type Plan = 'community' | 'byok' | 'local' | 'family'
 
+// NOTE (kind-economy/t-006 audit): grepping the whole server tree finds no
+// caller of chargeForGeneration -- server/utils/manaGate.ts is the actual
+// spend chokepoint every route uses (see generationMana.ts). This function
+// predates and is not part of the tokens/mana split; the `resource: 'MANA'`
+// below only preserves its pre-existing behavior (debiting a single pool,
+// same as before this task) in case it's ever wired up. If it IS wired up
+// later, it should be reworked to use manaGate's tokens-then-mana-fallback
+// resolution instead of hardcoding MANA.
+//
 // Decide how this generation is billed before doing work.
 export async function chargeForGeneration(opts: {
   user: { id: number; Role: Role }
@@ -22,6 +31,7 @@ export async function chargeForGeneration(opts: {
       userId: user.id,
       amount: 0,
       reason,
+      resource: 'MANA',
       refId,
       provider: 'admin',
       costUsd: 0,
@@ -36,6 +46,7 @@ export async function chargeForGeneration(opts: {
       userId: user.id,
       amount: 0,
       reason,
+      resource: 'MANA',
       refId,
       provider: plan,
       costUsd: 0,
@@ -50,6 +61,7 @@ export async function chargeForGeneration(opts: {
     userId: user.id,
     amount: -cost,
     reason,
+    resource: 'MANA',
     refId,
     provider: 'community',
     costUsd: estCostUsd,
@@ -61,6 +73,7 @@ export async function chargeForGeneration(opts: {
       userId: user.id,
       amount: cost,
       reason: 'ADMIN_REFUND',
+      resource: 'MANA',
       refId,
       note: `auto-refund for ${refId}`,
     })

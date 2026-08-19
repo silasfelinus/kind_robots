@@ -153,6 +153,15 @@ export const ManaReason = {
 export type ManaReason = (typeof ManaReason)[keyof typeof ManaReason]
 
 
+export const ManaResource = {
+  MANA: 'MANA',
+  TOKENS: 'TOKENS',
+  EARNED: 'EARNED'
+} as const
+
+export type ManaResource = (typeof ManaResource)[keyof typeof ManaResource]
+
+
 export const ScenarioOutputType = {
   STORY: 'STORY',
   ART: 'ART',

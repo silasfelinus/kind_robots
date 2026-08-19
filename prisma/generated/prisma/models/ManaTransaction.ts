@@ -51,6 +51,7 @@ export type ManaTransactionMinAggregateOutputType = {
   amount: number | null
   reason: $Enums.ManaReason | null
   balanceAfter: number | null
+  resource: $Enums.ManaResource | null
   refId: string | null
   note: string | null
   provider: string | null
@@ -65,6 +66,7 @@ export type ManaTransactionMaxAggregateOutputType = {
   amount: number | null
   reason: $Enums.ManaReason | null
   balanceAfter: number | null
+  resource: $Enums.ManaResource | null
   refId: string | null
   note: string | null
   provider: string | null
@@ -79,6 +81,7 @@ export type ManaTransactionCountAggregateOutputType = {
   amount: number
   reason: number
   balanceAfter: number
+  resource: number
   refId: number
   note: number
   provider: number
@@ -113,6 +116,7 @@ export type ManaTransactionMinAggregateInputType = {
   amount?: true
   reason?: true
   balanceAfter?: true
+  resource?: true
   refId?: true
   note?: true
   provider?: true
@@ -127,6 +131,7 @@ export type ManaTransactionMaxAggregateInputType = {
   amount?: true
   reason?: true
   balanceAfter?: true
+  resource?: true
   refId?: true
   note?: true
   provider?: true
@@ -141,6 +146,7 @@ export type ManaTransactionCountAggregateInputType = {
   amount?: true
   reason?: true
   balanceAfter?: true
+  resource?: true
   refId?: true
   note?: true
   provider?: true
@@ -242,6 +248,7 @@ export type ManaTransactionGroupByOutputType = {
   amount: number
   reason: $Enums.ManaReason
   balanceAfter: number
+  resource: $Enums.ManaResource
   refId: string | null
   note: string | null
   provider: string | null
@@ -279,6 +286,7 @@ export type ManaTransactionWhereInput = {
   amount?: Prisma.IntFilter<"ManaTransaction"> | number
   reason?: Prisma.EnumManaReasonFilter<"ManaTransaction"> | $Enums.ManaReason
   balanceAfter?: Prisma.IntFilter<"ManaTransaction"> | number
+  resource?: Prisma.EnumManaResourceFilter<"ManaTransaction"> | $Enums.ManaResource
   refId?: Prisma.StringNullableFilter<"ManaTransaction"> | string | null
   note?: Prisma.StringNullableFilter<"ManaTransaction"> | string | null
   provider?: Prisma.StringNullableFilter<"ManaTransaction"> | string | null
@@ -294,6 +302,7 @@ export type ManaTransactionOrderByWithRelationInput = {
   amount?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   balanceAfter?: Prisma.SortOrder
+  resource?: Prisma.SortOrder
   refId?: Prisma.SortOrderInput | Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   provider?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -313,6 +322,7 @@ export type ManaTransactionWhereUniqueInput = Prisma.AtLeast<{
   amount?: Prisma.IntFilter<"ManaTransaction"> | number
   reason?: Prisma.EnumManaReasonFilter<"ManaTransaction"> | $Enums.ManaReason
   balanceAfter?: Prisma.IntFilter<"ManaTransaction"> | number
+  resource?: Prisma.EnumManaResourceFilter<"ManaTransaction"> | $Enums.ManaResource
   refId?: Prisma.StringNullableFilter<"ManaTransaction"> | string | null
   note?: Prisma.StringNullableFilter<"ManaTransaction"> | string | null
   provider?: Prisma.StringNullableFilter<"ManaTransaction"> | string | null
@@ -328,6 +338,7 @@ export type ManaTransactionOrderByWithAggregationInput = {
   amount?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   balanceAfter?: Prisma.SortOrder
+  resource?: Prisma.SortOrder
   refId?: Prisma.SortOrderInput | Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   provider?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -350,6 +361,7 @@ export type ManaTransactionScalarWhereWithAggregatesInput = {
   amount?: Prisma.IntWithAggregatesFilter<"ManaTransaction"> | number
   reason?: Prisma.EnumManaReasonWithAggregatesFilter<"ManaTransaction"> | $Enums.ManaReason
   balanceAfter?: Prisma.IntWithAggregatesFilter<"ManaTransaction"> | number
+  resource?: Prisma.EnumManaResourceWithAggregatesFilter<"ManaTransaction"> | $Enums.ManaResource
   refId?: Prisma.StringNullableWithAggregatesFilter<"ManaTransaction"> | string | null
   note?: Prisma.StringNullableWithAggregatesFilter<"ManaTransaction"> | string | null
   provider?: Prisma.StringNullableWithAggregatesFilter<"ManaTransaction"> | string | null
@@ -362,6 +374,7 @@ export type ManaTransactionCreateInput = {
   amount: number
   reason: $Enums.ManaReason
   balanceAfter: number
+  resource?: $Enums.ManaResource
   refId?: string | null
   note?: string | null
   provider?: string | null
@@ -377,6 +390,7 @@ export type ManaTransactionUncheckedCreateInput = {
   amount: number
   reason: $Enums.ManaReason
   balanceAfter: number
+  resource?: $Enums.ManaResource
   refId?: string | null
   note?: string | null
   provider?: string | null
@@ -389,6 +403,7 @@ export type ManaTransactionUpdateInput = {
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   reason?: Prisma.EnumManaReasonFieldUpdateOperationsInput | $Enums.ManaReason
   balanceAfter?: Prisma.IntFieldUpdateOperationsInput | number
+  resource?: Prisma.EnumManaResourceFieldUpdateOperationsInput | $Enums.ManaResource
   refId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -404,6 +419,7 @@ export type ManaTransactionUncheckedUpdateInput = {
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   reason?: Prisma.EnumManaReasonFieldUpdateOperationsInput | $Enums.ManaReason
   balanceAfter?: Prisma.IntFieldUpdateOperationsInput | number
+  resource?: Prisma.EnumManaResourceFieldUpdateOperationsInput | $Enums.ManaResource
   refId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -418,6 +434,7 @@ export type ManaTransactionCreateManyInput = {
   amount: number
   reason: $Enums.ManaReason
   balanceAfter: number
+  resource?: $Enums.ManaResource
   refId?: string | null
   note?: string | null
   provider?: string | null
@@ -430,6 +447,7 @@ export type ManaTransactionUpdateManyMutationInput = {
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   reason?: Prisma.EnumManaReasonFieldUpdateOperationsInput | $Enums.ManaReason
   balanceAfter?: Prisma.IntFieldUpdateOperationsInput | number
+  resource?: Prisma.EnumManaResourceFieldUpdateOperationsInput | $Enums.ManaResource
   refId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -444,6 +462,7 @@ export type ManaTransactionUncheckedUpdateManyInput = {
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   reason?: Prisma.EnumManaReasonFieldUpdateOperationsInput | $Enums.ManaReason
   balanceAfter?: Prisma.IntFieldUpdateOperationsInput | number
+  resource?: Prisma.EnumManaResourceFieldUpdateOperationsInput | $Enums.ManaResource
   refId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -464,6 +483,7 @@ export type ManaTransactionCountOrderByAggregateInput = {
   amount?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   balanceAfter?: Prisma.SortOrder
+  resource?: Prisma.SortOrder
   refId?: Prisma.SortOrder
   note?: Prisma.SortOrder
   provider?: Prisma.SortOrder
@@ -487,6 +507,7 @@ export type ManaTransactionMaxOrderByAggregateInput = {
   amount?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   balanceAfter?: Prisma.SortOrder
+  resource?: Prisma.SortOrder
   refId?: Prisma.SortOrder
   note?: Prisma.SortOrder
   provider?: Prisma.SortOrder
@@ -501,6 +522,7 @@ export type ManaTransactionMinOrderByAggregateInput = {
   amount?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   balanceAfter?: Prisma.SortOrder
+  resource?: Prisma.SortOrder
   refId?: Prisma.SortOrder
   note?: Prisma.SortOrder
   provider?: Prisma.SortOrder
@@ -529,6 +551,10 @@ export type ManaTransactionOrderByRelationAggregateInput = {
 
 export type EnumManaReasonFieldUpdateOperationsInput = {
   set?: $Enums.ManaReason
+}
+
+export type EnumManaResourceFieldUpdateOperationsInput = {
+  set?: $Enums.ManaResource
 }
 
 export type NullableFloatFieldUpdateOperationsInput = {
@@ -586,6 +612,7 @@ export type ManaTransactionCreateWithoutUserInput = {
   amount: number
   reason: $Enums.ManaReason
   balanceAfter: number
+  resource?: $Enums.ManaResource
   refId?: string | null
   note?: string | null
   provider?: string | null
@@ -599,6 +626,7 @@ export type ManaTransactionUncheckedCreateWithoutUserInput = {
   amount: number
   reason: $Enums.ManaReason
   balanceAfter: number
+  resource?: $Enums.ManaResource
   refId?: string | null
   note?: string | null
   provider?: string | null
@@ -642,6 +670,7 @@ export type ManaTransactionScalarWhereInput = {
   amount?: Prisma.IntFilter<"ManaTransaction"> | number
   reason?: Prisma.EnumManaReasonFilter<"ManaTransaction"> | $Enums.ManaReason
   balanceAfter?: Prisma.IntFilter<"ManaTransaction"> | number
+  resource?: Prisma.EnumManaResourceFilter<"ManaTransaction"> | $Enums.ManaResource
   refId?: Prisma.StringNullableFilter<"ManaTransaction"> | string | null
   note?: Prisma.StringNullableFilter<"ManaTransaction"> | string | null
   provider?: Prisma.StringNullableFilter<"ManaTransaction"> | string | null
@@ -655,6 +684,7 @@ export type ManaTransactionCreateManyUserInput = {
   amount: number
   reason: $Enums.ManaReason
   balanceAfter: number
+  resource?: $Enums.ManaResource
   refId?: string | null
   note?: string | null
   provider?: string | null
@@ -667,6 +697,7 @@ export type ManaTransactionUpdateWithoutUserInput = {
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   reason?: Prisma.EnumManaReasonFieldUpdateOperationsInput | $Enums.ManaReason
   balanceAfter?: Prisma.IntFieldUpdateOperationsInput | number
+  resource?: Prisma.EnumManaResourceFieldUpdateOperationsInput | $Enums.ManaResource
   refId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -680,6 +711,7 @@ export type ManaTransactionUncheckedUpdateWithoutUserInput = {
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   reason?: Prisma.EnumManaReasonFieldUpdateOperationsInput | $Enums.ManaReason
   balanceAfter?: Prisma.IntFieldUpdateOperationsInput | number
+  resource?: Prisma.EnumManaResourceFieldUpdateOperationsInput | $Enums.ManaResource
   refId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -693,6 +725,7 @@ export type ManaTransactionUncheckedUpdateManyWithoutUserInput = {
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   reason?: Prisma.EnumManaReasonFieldUpdateOperationsInput | $Enums.ManaReason
   balanceAfter?: Prisma.IntFieldUpdateOperationsInput | number
+  resource?: Prisma.EnumManaResourceFieldUpdateOperationsInput | $Enums.ManaResource
   refId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -709,6 +742,7 @@ export type ManaTransactionSelect<ExtArgs extends runtime.Types.Extensions.Inter
   amount?: boolean
   reason?: boolean
   balanceAfter?: boolean
+  resource?: boolean
   refId?: boolean
   note?: boolean
   provider?: boolean
@@ -726,6 +760,7 @@ export type ManaTransactionSelectScalar = {
   amount?: boolean
   reason?: boolean
   balanceAfter?: boolean
+  resource?: boolean
   refId?: boolean
   note?: boolean
   provider?: boolean
@@ -733,7 +768,7 @@ export type ManaTransactionSelectScalar = {
   reversedById?: boolean
 }
 
-export type ManaTransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "userId" | "amount" | "reason" | "balanceAfter" | "refId" | "note" | "provider" | "costUsd" | "reversedById", ExtArgs["result"]["manaTransaction"]>
+export type ManaTransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "userId" | "amount" | "reason" | "balanceAfter" | "resource" | "refId" | "note" | "provider" | "costUsd" | "reversedById", ExtArgs["result"]["manaTransaction"]>
 export type ManaTransactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -750,6 +785,7 @@ export type $ManaTransactionPayload<ExtArgs extends runtime.Types.Extensions.Int
     amount: number
     reason: $Enums.ManaReason
     balanceAfter: number
+    resource: $Enums.ManaResource
     refId: string | null
     note: string | null
     provider: string | null
@@ -1131,6 +1167,7 @@ export interface ManaTransactionFieldRefs {
   readonly amount: Prisma.FieldRef<"ManaTransaction", 'Int'>
   readonly reason: Prisma.FieldRef<"ManaTransaction", 'ManaReason'>
   readonly balanceAfter: Prisma.FieldRef<"ManaTransaction", 'Int'>
+  readonly resource: Prisma.FieldRef<"ManaTransaction", 'ManaResource'>
   readonly refId: Prisma.FieldRef<"ManaTransaction", 'String'>
   readonly note: Prisma.FieldRef<"ManaTransaction", 'String'>
   readonly provider: Prisma.FieldRef<"ManaTransaction", 'String'>

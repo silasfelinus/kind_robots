@@ -107,10 +107,7 @@
       {{ artStore.generationMessage }}
     </div>
 
-    <div
-      v-if="showResult && resultImage"
-      class="kr-panel-flat p-3"
-    >
+    <div v-if="showResult && resultImage" class="kr-panel-flat p-3">
       <image-card :art-image="resultImage" />
     </div>
   </section>
@@ -215,7 +212,8 @@ const selectedSpecificServer = computed<Server | null>(() => {
 
 const displayServer = computed<Server | null>(() => {
   if (serverChoice.value === 'default') return defaultServer.value
-  if (serverChoice.value.startsWith('server:')) return selectedSpecificServer.value
+  if (serverChoice.value.startsWith('server:'))
+    return selectedSpecificServer.value
   return artStore.activeGenerationServer || defaultServer.value || null
 })
 
@@ -272,15 +270,18 @@ const usesOwnServer = computed(() => {
 const canAfford = computed(() => {
   if (manaStore.isFamily) return true
   if (usesOwnServer.value) return true
-  return manaStore.balance > 0
+  // kind-economy/t-006: the server spends tokens first, falling back to
+  // mana (see server/utils/manaGate.ts) -- a user can generate as long as
+  // EITHER pool has balance, not just mana.
+  return manaStore.balance > 0 || manaStore.tokens > 0
 })
 
 const canClick = computed(() => {
   return Boolean(
     artStore.canGenerateArt &&
-      !artStore.isGenerating &&
-      canAfford.value &&
-      hasServerChoices.value,
+    !artStore.isGenerating &&
+    canAfford.value &&
+    hasServerChoices.value,
   )
 })
 
@@ -288,7 +289,8 @@ watch(
   () => artStore.artForm.serverId,
   (serverId) => {
     if (!serverId) {
-      if (serverChoice.value.startsWith('server:')) serverChoice.value = 'default'
+      if (serverChoice.value.startsWith('server:'))
+        serverChoice.value = 'default'
       return
     }
     serverChoice.value = getSpecificServerValue(serverId)
@@ -296,7 +298,10 @@ watch(
 )
 
 onMounted(async () => {
-  await Promise.all([artStore.prepareArtGenerator(), artFacetDraft.initialize()])
+  await Promise.all([
+    artStore.prepareArtGenerator(),
+    artFacetDraft.initialize(),
+  ])
   if (artStore.artForm.serverId) {
     serverChoice.value = getSpecificServerValue(artStore.artForm.serverId)
   }

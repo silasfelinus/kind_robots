@@ -3,7 +3,10 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { User } from '~/prisma/generated/prisma/client'
 import { performFetch, handleError } from './utils'
-import { createEarnedKarmaTracker, type KarmaEarnedRow } from './helpers/earnedKarmaHelper'
+import {
+  createEarnedKarmaTracker,
+  type KarmaEarnedRow,
+} from './helpers/earnedKarmaHelper'
 import type { KarmaRefType } from '@/utils/karmaRefTypes'
 import { mergeRecordsById } from './helpers/recordMerge'
 import { useAchievementStore } from './achievementStore'
@@ -122,6 +125,11 @@ export const useUserStore = defineStore('userStore', () => {
   const username = computed(() => user.value?.username ?? 'Kind Guest')
   const karma = computed(() => user.value?.karma ?? 0)
   const mana = computed(() => user.value?.mana ?? 0)
+  // kind-economy/t-006: the paid resource and the creator-payout-eligible
+  // balance, split out from `mana` (free/given-away). See
+  // server/utils/mana.ts for the resource-vs-reason routing.
+  const tokens = computed(() => user.value?.tokens ?? 0)
+  const earnedTokens = computed(() => user.value?.earnedTokens ?? 0)
   // `role` stays the PRIMARY/display role -- it is what labels and the
   // single-valued `requiredRole` in content frontmatter compare against.
   // Capability questions must go through `roles`/isAdmin/isFamily instead,
@@ -144,7 +152,9 @@ export const useUserStore = defineStore('userStore', () => {
   // when they are also an ADMIN. Mirrors the server's effectiveShowMature so the
   // UI does not offer content the API will refuse.
   const showMature = computed(() => effectiveShowMature(user.value))
-  const isMaturityRestricted = computed(() => clientIsMaturityRestricted(user.value))
+  const isMaturityRestricted = computed(() =>
+    clientIsMaturityRestricted(user.value),
+  )
   const matchRecord = computed(() => user.value?.matchRecord ?? 0)
   const clickRecord = computed(() => user.value?.clickRecord ?? 0)
 
@@ -901,6 +911,8 @@ export const useUserStore = defineStore('userStore', () => {
     username,
     karma,
     mana,
+    tokens,
+    earnedTokens,
     role,
     roles,
     isAdmin,

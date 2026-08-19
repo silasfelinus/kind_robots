@@ -23,11 +23,14 @@ function getStripeClient() {
 }
 
 // Trusted server-side tiers — client only ever sends a tier id, never a price,
-// so a tampered request body can't buy mana below its real USD cost.
+// so a tampered request body can't buy tokens below its real USD cost.
+// kind-economy/t-006: these credit the `tokens` pool (see handleManaTopup in
+// server/api/stripe/webhook.post.ts), not free `mana` -- labels updated to
+// match; ids/metadata keys left as-is (see that file for why).
 export const MANA_TOPUP_TIERS = [
-  { id: 'small', priceUsd: 5, label: 'Small mana top-up' },
-  { id: 'medium', priceUsd: 10, label: 'Medium mana top-up' },
-  { id: 'large', priceUsd: 25, label: 'Large mana top-up' },
+  { id: 'small', priceUsd: 5, label: 'Small token top-up' },
+  { id: 'medium', priceUsd: 10, label: 'Medium token top-up' },
+  { id: 'large', priceUsd: 25, label: 'Large token top-up' },
 ] as const
 
 export default defineEventHandler(async (event) => {
@@ -65,7 +68,7 @@ export default defineEventHandler(async (event) => {
             currency: 'usd',
             product_data: {
               name: tier.label,
-              description: `${manaAmount} mana`,
+              description: `${manaAmount} tokens`,
             },
             unit_amount: Math.round(tier.priceUsd * 100), // cents
           },

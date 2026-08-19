@@ -33,6 +33,8 @@ export default defineEventHandler(async (event) => {
           Role: true,
           karma: true,
           mana: true,
+          tokens: true,
+          earnedTokens: true,
           customIcons: true,
           smartBar: true,
           hiddenServerIds: true,

@@ -31,6 +31,8 @@ export type UserAvgAggregateOutputType = {
   questPoints: number | null
   karma: number | null
   mana: number | null
+  tokens: number | null
+  earnedTokens: number | null
   clickRecord: number | null
   matchRecord: number | null
   artImageId: number | null
@@ -45,6 +47,8 @@ export type UserSumAggregateOutputType = {
   questPoints: number | null
   karma: number | null
   mana: number | null
+  tokens: number | null
+  earnedTokens: number | null
   clickRecord: number | null
   matchRecord: number | null
   artImageId: number | null
@@ -83,6 +87,8 @@ export type UserMinAggregateOutputType = {
   password: string | null
   karma: number | null
   mana: number | null
+  tokens: number | null
+  earnedTokens: number | null
   clickRecord: number | null
   matchRecord: number | null
   showMature: boolean | null
@@ -156,6 +162,8 @@ export type UserMaxAggregateOutputType = {
   password: string | null
   karma: number | null
   mana: number | null
+  tokens: number | null
+  earnedTokens: number | null
   clickRecord: number | null
   matchRecord: number | null
   showMature: boolean | null
@@ -229,6 +237,8 @@ export type UserCountAggregateOutputType = {
   password: number
   karma: number
   mana: number
+  tokens: number
+  earnedTokens: number
   clickRecord: number
   matchRecord: number
   showMature: number
@@ -280,6 +290,8 @@ export type UserAvgAggregateInputType = {
   questPoints?: true
   karma?: true
   mana?: true
+  tokens?: true
+  earnedTokens?: true
   clickRecord?: true
   matchRecord?: true
   artImageId?: true
@@ -294,6 +306,8 @@ export type UserSumAggregateInputType = {
   questPoints?: true
   karma?: true
   mana?: true
+  tokens?: true
+  earnedTokens?: true
   clickRecord?: true
   matchRecord?: true
   artImageId?: true
@@ -332,6 +346,8 @@ export type UserMinAggregateInputType = {
   password?: true
   karma?: true
   mana?: true
+  tokens?: true
+  earnedTokens?: true
   clickRecord?: true
   matchRecord?: true
   showMature?: true
@@ -405,6 +421,8 @@ export type UserMaxAggregateInputType = {
   password?: true
   karma?: true
   mana?: true
+  tokens?: true
+  earnedTokens?: true
   clickRecord?: true
   matchRecord?: true
   showMature?: true
@@ -478,6 +496,8 @@ export type UserCountAggregateInputType = {
   password?: true
   karma?: true
   mana?: true
+  tokens?: true
+  earnedTokens?: true
   clickRecord?: true
   matchRecord?: true
   showMature?: true
@@ -638,6 +658,8 @@ export type UserGroupByOutputType = {
   password: string | null
   karma: number
   mana: number
+  tokens: number
+  earnedTokens: number
   clickRecord: number | null
   matchRecord: number | null
   showMature: boolean
@@ -734,6 +756,8 @@ export type UserWhereInput = {
   password?: Prisma.StringNullableFilter<"User"> | string | null
   karma?: Prisma.IntFilter<"User"> | number
   mana?: Prisma.IntFilter<"User"> | number
+  tokens?: Prisma.IntFilter<"User"> | number
+  earnedTokens?: Prisma.IntFilter<"User"> | number
   clickRecord?: Prisma.IntNullableFilter<"User"> | number | null
   matchRecord?: Prisma.IntNullableFilter<"User"> | number | null
   showMature?: Prisma.BoolFilter<"User"> | boolean
@@ -853,6 +877,8 @@ export type UserOrderByWithRelationInput = {
   password?: Prisma.SortOrderInput | Prisma.SortOrder
   karma?: Prisma.SortOrder
   mana?: Prisma.SortOrder
+  tokens?: Prisma.SortOrder
+  earnedTokens?: Prisma.SortOrder
   clickRecord?: Prisma.SortOrderInput | Prisma.SortOrder
   matchRecord?: Prisma.SortOrderInput | Prisma.SortOrder
   showMature?: Prisma.SortOrder
@@ -977,6 +1003,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   password?: Prisma.StringNullableFilter<"User"> | string | null
   karma?: Prisma.IntFilter<"User"> | number
   mana?: Prisma.IntFilter<"User"> | number
+  tokens?: Prisma.IntFilter<"User"> | number
+  earnedTokens?: Prisma.IntFilter<"User"> | number
   clickRecord?: Prisma.IntNullableFilter<"User"> | number | null
   matchRecord?: Prisma.IntNullableFilter<"User"> | number | null
   showMature?: Prisma.BoolFilter<"User"> | boolean
@@ -1095,6 +1123,8 @@ export type UserOrderByWithAggregationInput = {
   password?: Prisma.SortOrderInput | Prisma.SortOrder
   karma?: Prisma.SortOrder
   mana?: Prisma.SortOrder
+  tokens?: Prisma.SortOrder
+  earnedTokens?: Prisma.SortOrder
   clickRecord?: Prisma.SortOrderInput | Prisma.SortOrder
   matchRecord?: Prisma.SortOrderInput | Prisma.SortOrder
   showMature?: Prisma.SortOrder
@@ -1176,6 +1206,8 @@ export type UserScalarWhereWithAggregatesInput = {
   password?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   karma?: Prisma.IntWithAggregatesFilter<"User"> | number
   mana?: Prisma.IntWithAggregatesFilter<"User"> | number
+  tokens?: Prisma.IntWithAggregatesFilter<"User"> | number
+  earnedTokens?: Prisma.IntWithAggregatesFilter<"User"> | number
   clickRecord?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
   matchRecord?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
   showMature?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
@@ -1248,6 +1280,8 @@ export type UserCreateInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -1366,6 +1400,8 @@ export type UserUncheckedCreateInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -1483,6 +1519,8 @@ export type UserUpdateInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1601,6 +1639,8 @@ export type UserUncheckedUpdateInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1719,6 +1759,8 @@ export type UserCreateManyInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -1791,6 +1833,8 @@ export type UserUpdateManyMutationInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1863,6 +1907,8 @@ export type UserUncheckedUpdateManyInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1962,6 +2008,8 @@ export type UserCountOrderByAggregateInput = {
   password?: Prisma.SortOrder
   karma?: Prisma.SortOrder
   mana?: Prisma.SortOrder
+  tokens?: Prisma.SortOrder
+  earnedTokens?: Prisma.SortOrder
   clickRecord?: Prisma.SortOrder
   matchRecord?: Prisma.SortOrder
   showMature?: Prisma.SortOrder
@@ -2011,6 +2059,8 @@ export type UserAvgOrderByAggregateInput = {
   questPoints?: Prisma.SortOrder
   karma?: Prisma.SortOrder
   mana?: Prisma.SortOrder
+  tokens?: Prisma.SortOrder
+  earnedTokens?: Prisma.SortOrder
   clickRecord?: Prisma.SortOrder
   matchRecord?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
@@ -2049,6 +2099,8 @@ export type UserMaxOrderByAggregateInput = {
   password?: Prisma.SortOrder
   karma?: Prisma.SortOrder
   mana?: Prisma.SortOrder
+  tokens?: Prisma.SortOrder
+  earnedTokens?: Prisma.SortOrder
   clickRecord?: Prisma.SortOrder
   matchRecord?: Prisma.SortOrder
   showMature?: Prisma.SortOrder
@@ -2122,6 +2174,8 @@ export type UserMinOrderByAggregateInput = {
   password?: Prisma.SortOrder
   karma?: Prisma.SortOrder
   mana?: Prisma.SortOrder
+  tokens?: Prisma.SortOrder
+  earnedTokens?: Prisma.SortOrder
   clickRecord?: Prisma.SortOrder
   matchRecord?: Prisma.SortOrder
   showMature?: Prisma.SortOrder
@@ -2171,6 +2225,8 @@ export type UserSumOrderByAggregateInput = {
   questPoints?: Prisma.SortOrder
   karma?: Prisma.SortOrder
   mana?: Prisma.SortOrder
+  tokens?: Prisma.SortOrder
+  earnedTokens?: Prisma.SortOrder
   clickRecord?: Prisma.SortOrder
   matchRecord?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
@@ -2934,6 +2990,8 @@ export type UserCreateWithoutArtImagesInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -3051,6 +3109,8 @@ export type UserUncheckedCreateWithoutArtImagesInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -3172,6 +3232,8 @@ export type UserCreateWithoutArtImageInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -3289,6 +3351,8 @@ export type UserUncheckedCreateWithoutArtImageInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -3426,6 +3490,8 @@ export type UserUpdateWithoutArtImagesInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3543,6 +3609,8 @@ export type UserUncheckedUpdateWithoutArtImagesInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3679,6 +3747,8 @@ export type UserScalarWhereInput = {
   password?: Prisma.StringNullableFilter<"User"> | string | null
   karma?: Prisma.IntFilter<"User"> | number
   mana?: Prisma.IntFilter<"User"> | number
+  tokens?: Prisma.IntFilter<"User"> | number
+  earnedTokens?: Prisma.IntFilter<"User"> | number
   clickRecord?: Prisma.IntNullableFilter<"User"> | number | null
   matchRecord?: Prisma.IntNullableFilter<"User"> | number | null
   showMature?: Prisma.BoolFilter<"User"> | boolean
@@ -3751,6 +3821,8 @@ export type UserCreateWithoutArtCollectionsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -3868,6 +3940,8 @@ export type UserUncheckedCreateWithoutArtCollectionsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -4000,6 +4074,8 @@ export type UserUpdateWithoutArtCollectionsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4117,6 +4193,8 @@ export type UserUncheckedUpdateWithoutArtCollectionsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4233,6 +4311,8 @@ export type UserCreateWithoutBotsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -4350,6 +4430,8 @@ export type UserUncheckedCreateWithoutBotsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -4482,6 +4564,8 @@ export type UserUpdateWithoutBotsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4599,6 +4683,8 @@ export type UserUncheckedUpdateWithoutBotsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4715,6 +4801,8 @@ export type UserCreateWithoutCharactersInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -4832,6 +4920,8 @@ export type UserUncheckedCreateWithoutCharactersInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -4964,6 +5054,8 @@ export type UserUpdateWithoutCharactersInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5081,6 +5173,8 @@ export type UserUncheckedUpdateWithoutCharactersInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5197,6 +5291,8 @@ export type UserCreateWithoutChatsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -5314,6 +5410,8 @@ export type UserUncheckedCreateWithoutChatsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -5446,6 +5544,8 @@ export type UserUpdateWithoutChatsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5563,6 +5663,8 @@ export type UserUncheckedUpdateWithoutChatsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5679,6 +5781,8 @@ export type UserCreateWithoutDreamsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -5796,6 +5900,8 @@ export type UserUncheckedCreateWithoutDreamsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -5928,6 +6034,8 @@ export type UserUpdateWithoutDreamsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6045,6 +6153,8 @@ export type UserUncheckedUpdateWithoutDreamsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6161,6 +6271,8 @@ export type UserCreateWithoutProjectsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -6278,6 +6390,8 @@ export type UserUncheckedCreateWithoutProjectsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -6410,6 +6524,8 @@ export type UserUpdateWithoutProjectsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6527,6 +6643,8 @@ export type UserUncheckedUpdateWithoutProjectsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -6643,6 +6761,8 @@ export type UserCreateWithoutFacetsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -6760,6 +6880,8 @@ export type UserUncheckedCreateWithoutFacetsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -6892,6 +7014,8 @@ export type UserUpdateWithoutFacetsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7009,6 +7133,8 @@ export type UserUncheckedUpdateWithoutFacetsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7125,6 +7251,8 @@ export type UserCreateWithoutLogsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -7242,6 +7370,8 @@ export type UserUncheckedCreateWithoutLogsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -7374,6 +7504,8 @@ export type UserUpdateWithoutLogsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7491,6 +7623,8 @@ export type UserUncheckedUpdateWithoutLogsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7607,6 +7741,8 @@ export type UserCreateWithoutManaTransactionsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -7724,6 +7860,8 @@ export type UserUncheckedCreateWithoutManaTransactionsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -7856,6 +7994,8 @@ export type UserUpdateWithoutManaTransactionsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -7973,6 +8113,8 @@ export type UserUncheckedUpdateWithoutManaTransactionsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8089,6 +8231,8 @@ export type UserCreateWithoutOrdersInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -8206,6 +8350,8 @@ export type UserUncheckedCreateWithoutOrdersInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -8338,6 +8484,8 @@ export type UserUpdateWithoutOrdersInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8455,6 +8603,8 @@ export type UserUncheckedUpdateWithoutOrdersInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8571,6 +8721,8 @@ export type UserCreateWithoutEntitlementsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -8688,6 +8840,8 @@ export type UserUncheckedCreateWithoutEntitlementsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -8820,6 +8974,8 @@ export type UserUpdateWithoutEntitlementsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -8937,6 +9093,8 @@ export type UserUncheckedUpdateWithoutEntitlementsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -9053,6 +9211,8 @@ export type UserCreateWithoutGrantsGivenInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -9170,6 +9330,8 @@ export type UserUncheckedCreateWithoutGrantsGivenInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -9291,6 +9453,8 @@ export type UserCreateWithoutGrantsReceivedInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -9408,6 +9572,8 @@ export type UserUncheckedCreateWithoutGrantsReceivedInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -9540,6 +9706,8 @@ export type UserUpdateWithoutGrantsGivenInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -9657,6 +9825,8 @@ export type UserUncheckedUpdateWithoutGrantsGivenInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -9784,6 +9954,8 @@ export type UserUpdateWithoutGrantsReceivedInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -9901,6 +10073,8 @@ export type UserUncheckedUpdateWithoutGrantsReceivedInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -10017,6 +10191,8 @@ export type UserCreateWithoutPacksOwnedInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -10134,6 +10310,8 @@ export type UserUncheckedCreateWithoutPacksOwnedInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -10266,6 +10444,8 @@ export type UserUpdateWithoutPacksOwnedInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -10383,6 +10563,8 @@ export type UserUncheckedUpdateWithoutPacksOwnedInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -10499,6 +10681,8 @@ export type UserCreateWithoutAchievementsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -10616,6 +10800,8 @@ export type UserUncheckedCreateWithoutAchievementsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -10748,6 +10934,8 @@ export type UserUpdateWithoutAchievementsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -10865,6 +11053,8 @@ export type UserUncheckedUpdateWithoutAchievementsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -10981,6 +11171,8 @@ export type UserCreateWithoutPitchSheetsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -11098,6 +11290,8 @@ export type UserUncheckedCreateWithoutPitchSheetsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -11230,6 +11424,8 @@ export type UserUpdateWithoutPitchSheetsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -11347,6 +11543,8 @@ export type UserUncheckedUpdateWithoutPitchSheetsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -11463,6 +11661,8 @@ export type UserCreateWithoutClaimedPromptsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -11580,6 +11780,8 @@ export type UserUncheckedCreateWithoutClaimedPromptsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -11701,6 +11903,8 @@ export type UserCreateWithoutPromptsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -11818,6 +12022,8 @@ export type UserUncheckedCreateWithoutPromptsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -11950,6 +12156,8 @@ export type UserUpdateWithoutClaimedPromptsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -12067,6 +12275,8 @@ export type UserUncheckedUpdateWithoutClaimedPromptsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -12194,6 +12404,8 @@ export type UserUpdateWithoutPromptsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -12311,6 +12523,8 @@ export type UserUncheckedUpdateWithoutPromptsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -12427,6 +12641,8 @@ export type UserCreateWithoutReactionsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -12544,6 +12760,8 @@ export type UserUncheckedCreateWithoutReactionsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -12676,6 +12894,8 @@ export type UserUpdateWithoutReactionsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -12793,6 +13013,8 @@ export type UserUncheckedUpdateWithoutReactionsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -12909,6 +13131,8 @@ export type UserCreateWithoutResourcesInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -13026,6 +13250,8 @@ export type UserUncheckedCreateWithoutResourcesInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -13158,6 +13384,8 @@ export type UserUpdateWithoutResourcesInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -13275,6 +13503,8 @@ export type UserUncheckedUpdateWithoutResourcesInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -13391,6 +13621,8 @@ export type UserCreateWithoutRewardsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -13508,6 +13740,8 @@ export type UserUncheckedCreateWithoutRewardsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -13640,6 +13874,8 @@ export type UserUpdateWithoutRewardsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -13757,6 +13993,8 @@ export type UserUncheckedUpdateWithoutRewardsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -13873,6 +14111,8 @@ export type UserCreateWithoutScenariosInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -13990,6 +14230,8 @@ export type UserUncheckedCreateWithoutScenariosInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -14122,6 +14364,8 @@ export type UserUpdateWithoutScenariosInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -14239,6 +14483,8 @@ export type UserUncheckedUpdateWithoutScenariosInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -14355,6 +14601,8 @@ export type UserCreateWithoutServersInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -14472,6 +14720,8 @@ export type UserUncheckedCreateWithoutServersInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -14604,6 +14854,8 @@ export type UserUpdateWithoutServersInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -14721,6 +14973,8 @@ export type UserUncheckedUpdateWithoutServersInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -14837,6 +15091,8 @@ export type UserCreateWithoutSmartIconsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -14954,6 +15210,8 @@ export type UserUncheckedCreateWithoutSmartIconsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -15086,6 +15344,8 @@ export type UserUpdateWithoutSmartIconsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -15203,6 +15463,8 @@ export type UserUncheckedUpdateWithoutSmartIconsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -15319,6 +15581,8 @@ export type UserCreateWithoutThemesInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -15436,6 +15700,8 @@ export type UserUncheckedCreateWithoutThemesInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -15568,6 +15834,8 @@ export type UserUpdateWithoutThemesInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -15685,6 +15953,8 @@ export type UserUncheckedUpdateWithoutThemesInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -15801,6 +16071,8 @@ export type UserCreateWithoutStylistClientsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -15918,6 +16190,8 @@ export type UserUncheckedCreateWithoutStylistClientsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -16050,6 +16324,8 @@ export type UserUpdateWithoutStylistClientsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -16167,6 +16443,8 @@ export type UserUncheckedUpdateWithoutStylistClientsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -16283,6 +16561,8 @@ export type UserCreateWithoutStylistAppointmentsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -16400,6 +16680,8 @@ export type UserUncheckedCreateWithoutStylistAppointmentsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -16532,6 +16814,8 @@ export type UserUpdateWithoutStylistAppointmentsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -16649,6 +16933,8 @@ export type UserUncheckedUpdateWithoutStylistAppointmentsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -16765,6 +17051,8 @@ export type UserCreateWithoutArtJobsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -16882,6 +17170,8 @@ export type UserUncheckedCreateWithoutArtJobsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -17014,6 +17304,8 @@ export type UserUpdateWithoutArtJobsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -17131,6 +17423,8 @@ export type UserUncheckedUpdateWithoutArtJobsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -17247,6 +17541,8 @@ export type UserCreateWithoutKarmaTransactionsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -17364,6 +17660,8 @@ export type UserUncheckedCreateWithoutKarmaTransactionsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -17496,6 +17794,8 @@ export type UserUpdateWithoutKarmaTransactionsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -17613,6 +17913,8 @@ export type UserUncheckedUpdateWithoutKarmaTransactionsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -17729,6 +18031,8 @@ export type UserCreateWithoutReferredByInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -17846,6 +18150,8 @@ export type UserUncheckedCreateWithoutReferredByInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -17967,6 +18273,8 @@ export type UserCreateWithoutReferralsMadeInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -18084,6 +18392,8 @@ export type UserUncheckedCreateWithoutReferralsMadeInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -18216,6 +18526,8 @@ export type UserUpdateWithoutReferredByInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -18333,6 +18645,8 @@ export type UserUncheckedUpdateWithoutReferredByInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -18460,6 +18774,8 @@ export type UserUpdateWithoutReferralsMadeInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -18577,6 +18893,8 @@ export type UserUncheckedUpdateWithoutReferralsMadeInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -18693,6 +19011,8 @@ export type UserCreateWithoutRelationsReceivedInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -18810,6 +19130,8 @@ export type UserUncheckedCreateWithoutRelationsReceivedInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -18931,6 +19253,8 @@ export type UserCreateWithoutRelationsOwnedInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -19048,6 +19372,8 @@ export type UserUncheckedCreateWithoutRelationsOwnedInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -19180,6 +19506,8 @@ export type UserUpdateWithoutRelationsReceivedInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -19297,6 +19625,8 @@ export type UserUncheckedUpdateWithoutRelationsReceivedInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -19424,6 +19754,8 @@ export type UserUpdateWithoutRelationsOwnedInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -19541,6 +19873,8 @@ export type UserUncheckedUpdateWithoutRelationsOwnedInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -19657,6 +19991,8 @@ export type UserCreateWithoutUserRolesInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -19774,6 +20110,8 @@ export type UserUncheckedCreateWithoutUserRolesInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -19906,6 +20244,8 @@ export type UserUpdateWithoutUserRolesInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -20023,6 +20363,8 @@ export type UserUncheckedUpdateWithoutUserRolesInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -20139,6 +20481,8 @@ export type UserCreateWithoutChallengesInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -20256,6 +20600,8 @@ export type UserUncheckedCreateWithoutChallengesInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -20388,6 +20734,8 @@ export type UserUpdateWithoutChallengesInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -20505,6 +20853,8 @@ export type UserUncheckedUpdateWithoutChallengesInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -20621,6 +20971,8 @@ export type UserCreateWithoutLifeRunsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -20738,6 +21090,8 @@ export type UserUncheckedCreateWithoutLifeRunsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -20870,6 +21224,8 @@ export type UserUpdateWithoutLifeRunsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -20987,6 +21343,8 @@ export type UserUncheckedUpdateWithoutLifeRunsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -21103,6 +21461,8 @@ export type UserCreateWithoutLifeAchievementUnlocksInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -21220,6 +21580,8 @@ export type UserUncheckedCreateWithoutLifeAchievementUnlocksInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -21352,6 +21714,8 @@ export type UserUpdateWithoutLifeAchievementUnlocksInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -21469,6 +21833,8 @@ export type UserUncheckedUpdateWithoutLifeAchievementUnlocksInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -21585,6 +21951,8 @@ export type UserCreateWithoutAuthTokensInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -21702,6 +22070,8 @@ export type UserUncheckedCreateWithoutAuthTokensInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -21834,6 +22204,8 @@ export type UserUpdateWithoutAuthTokensInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -21951,6 +22323,8 @@ export type UserUncheckedUpdateWithoutAuthTokensInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -22067,6 +22441,8 @@ export type UserCreateWithoutConversationsInInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -22184,6 +22560,8 @@ export type UserUncheckedCreateWithoutConversationsInInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -22316,6 +22694,8 @@ export type UserUpdateWithoutConversationsInInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -22433,6 +22813,8 @@ export type UserUncheckedUpdateWithoutConversationsInInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -22549,6 +22931,8 @@ export type UserCreateWithoutSentMessagesInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -22666,6 +23050,8 @@ export type UserUncheckedCreateWithoutSentMessagesInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -22798,6 +23184,8 @@ export type UserUpdateWithoutSentMessagesInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -22915,6 +23303,8 @@ export type UserUncheckedUpdateWithoutSentMessagesInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -23031,6 +23421,8 @@ export type UserCreateWithoutActedNotificationsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -23148,6 +23540,8 @@ export type UserUncheckedCreateWithoutActedNotificationsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -23269,6 +23663,8 @@ export type UserCreateWithoutNotificationsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -23386,6 +23782,8 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -23518,6 +23916,8 @@ export type UserUpdateWithoutActedNotificationsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -23635,6 +24035,8 @@ export type UserUncheckedUpdateWithoutActedNotificationsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -23762,6 +24164,8 @@ export type UserUpdateWithoutNotificationsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -23879,6 +24283,8 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -23995,6 +24401,8 @@ export type UserCreateWithoutGithubInstallationsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -24112,6 +24520,8 @@ export type UserUncheckedCreateWithoutGithubInstallationsInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -24244,6 +24654,8 @@ export type UserUpdateWithoutGithubInstallationsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -24361,6 +24773,8 @@ export type UserUncheckedUpdateWithoutGithubInstallationsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -24477,6 +24891,8 @@ export type UserCreateWithoutAppReposInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -24594,6 +25010,8 @@ export type UserUncheckedCreateWithoutAppReposInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -24726,6 +25144,8 @@ export type UserUpdateWithoutAppReposInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -24843,6 +25263,8 @@ export type UserUncheckedUpdateWithoutAppReposInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -24960,6 +25382,8 @@ export type UserCreateManyArtImageInput = {
   password?: string | null
   karma?: number
   mana?: number
+  tokens?: number
+  earnedTokens?: number
   clickRecord?: number | null
   matchRecord?: number | null
   showMature?: boolean
@@ -25031,6 +25455,8 @@ export type UserUpdateWithoutArtImageInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -25148,6 +25574,8 @@ export type UserUncheckedUpdateWithoutArtImageInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -25265,6 +25693,8 @@ export type UserUncheckedUpdateManyWithoutArtImageInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   karma?: Prisma.IntFieldUpdateOperationsInput | number
   mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
   clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -25755,6 +26185,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   password?: boolean
   karma?: boolean
   mana?: boolean
+  tokens?: boolean
+  earnedTokens?: boolean
   clickRecord?: boolean
   matchRecord?: boolean
   showMature?: boolean
@@ -25877,6 +26309,8 @@ export type UserSelectScalar = {
   password?: boolean
   karma?: boolean
   mana?: boolean
+  tokens?: boolean
+  earnedTokens?: boolean
   clickRecord?: boolean
   matchRecord?: boolean
   showMature?: boolean
@@ -25921,7 +26355,7 @@ export type UserSelectScalar = {
   introDismissedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "username" | "email" | "questPoints" | "emailVerified" | "name" | "address1" | "address2" | "avatarImage" | "bio" | "birthday" | "city" | "country" | "discordUrl" | "facebookUrl" | "instagramUrl" | "kindrobotsUrl" | "languages" | "phone" | "state" | "timezone" | "twitterUrl" | "apiKey" | "password" | "karma" | "mana" | "clickRecord" | "matchRecord" | "showMature" | "Role" | "artImageId" | "token" | "designerName" | "googleEmail" | "googleId" | "blockList" | "isPublic" | "smartBar" | "customIcons" | "isMember" | "preferredArtServerId" | "preferredTextServerId" | "memberUntil" | "stripeCustomerId" | "stripeSubscriptionId" | "artModels" | "lastReward" | "textModels" | "vibes" | "hiddenServerIds" | "isActive" | "artPrompt" | "isGuest" | "lastManaRefill" | "manaCap" | "signupBonusGiven" | "referralCode" | "allowFriendRequests" | "brevoContactId" | "isRestricted" | "listInDirectory" | "messagePolicy" | "newsletterConfirmedAt" | "newsletterFrequency" | "restrictedAt" | "restrictedById" | "restrictedReason" | "introDismissedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "username" | "email" | "questPoints" | "emailVerified" | "name" | "address1" | "address2" | "avatarImage" | "bio" | "birthday" | "city" | "country" | "discordUrl" | "facebookUrl" | "instagramUrl" | "kindrobotsUrl" | "languages" | "phone" | "state" | "timezone" | "twitterUrl" | "apiKey" | "password" | "karma" | "mana" | "tokens" | "earnedTokens" | "clickRecord" | "matchRecord" | "showMature" | "Role" | "artImageId" | "token" | "designerName" | "googleEmail" | "googleId" | "blockList" | "isPublic" | "smartBar" | "customIcons" | "isMember" | "preferredArtServerId" | "preferredTextServerId" | "memberUntil" | "stripeCustomerId" | "stripeSubscriptionId" | "artModels" | "lastReward" | "textModels" | "vibes" | "hiddenServerIds" | "isActive" | "artPrompt" | "isGuest" | "lastManaRefill" | "manaCap" | "signupBonusGiven" | "referralCode" | "allowFriendRequests" | "brevoContactId" | "isRestricted" | "listInDirectory" | "messagePolicy" | "newsletterConfirmedAt" | "newsletterFrequency" | "restrictedAt" | "restrictedById" | "restrictedReason" | "introDismissedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Achievements?: boolean | Prisma.User$AchievementsArgs<ExtArgs>
   AppRepos?: boolean | Prisma.User$AppReposArgs<ExtArgs>
@@ -26051,6 +26485,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     password: string | null
     karma: number
     mana: number
+    tokens: number
+    earnedTokens: number
     clickRecord: number | null
     matchRecord: number | null
     showMature: boolean
@@ -26536,6 +26972,8 @@ export interface UserFieldRefs {
   readonly password: Prisma.FieldRef<"User", 'String'>
   readonly karma: Prisma.FieldRef<"User", 'Int'>
   readonly mana: Prisma.FieldRef<"User", 'Int'>
+  readonly tokens: Prisma.FieldRef<"User", 'Int'>
+  readonly earnedTokens: Prisma.FieldRef<"User", 'Int'>
   readonly clickRecord: Prisma.FieldRef<"User", 'Int'>
   readonly matchRecord: Prisma.FieldRef<"User", 'Int'>
   readonly showMature: Prisma.FieldRef<"User", 'Boolean'>

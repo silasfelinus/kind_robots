@@ -5,20 +5,20 @@
       <div class="min-w-0">
         <h3 class="flex items-center gap-2 text-sm font-bold">
           <Icon name="kind-icon:sparkles" class="size-4 text-secondary" />
-          LoRA <span class="font-normal opacity-50">(optional)</span>
+          LoRAs <span class="font-normal opacity-50">(optional)</span>
         </h3>
         <p class="mt-0.5 text-xs text-base-content/55">
-          One LoRA per job — the Comfy workflows wire a single LoraLoader, and
-          the queue rejects more than one.
+          Stack up to {{ MAX_LORAS_PER_JOB }}. They apply in the order below —
+          later ones layer on top of earlier ones.
         </p>
       </div>
       <button
-        v-if="modelValue"
+        v-if="modelValue.length"
         type="button"
         class="btn btn-ghost btn-xs rounded-xl"
-        @click="select(null)"
+        @click="emitValue([])"
       >
-        Clear
+        Clear all
       </button>
     </div>
 
@@ -27,10 +27,107 @@
       class="rounded-xl border border-dashed border-base-300 bg-base-200/50 p-3 text-xs text-base-content/60"
     >
       {{ engineLabel }} builds its model into the workflow and ignores LoRAs.
-      Switch to a preset that supports one to use this.
+      Switch to a preset that supports them to use this.
     </p>
 
     <template v-else>
+      <!-- Selected stack, in apply order -->
+      <ol v-if="selected.length" class="space-y-2">
+        <li
+          v-for="(entry, index) in selected"
+          :key="entry.resourceId"
+          class="rounded-xl border border-secondary/40 bg-secondary/5 p-2"
+        >
+          <div class="flex items-start gap-2">
+            <span
+              class="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md bg-secondary text-[0.65rem] font-black text-secondary-content"
+              :title="`Applied ${ordinal(index)}`"
+            >
+              {{ index + 1 }}
+            </span>
+
+            <span class="min-w-0 flex-1">
+              <span class="block truncate text-sm font-semibold">
+                {{ loraLabel(entry.resource) }}
+              </span>
+              <span
+                class="block truncate text-[11px] text-base-content/50"
+                :title="entry.resource.localPath || ''"
+              >
+                {{ entry.resource.localPath }}
+              </span>
+            </span>
+
+            <span class="flex shrink-0 items-center gap-0.5">
+              <button
+                type="button"
+                class="btn btn-ghost btn-xs btn-square"
+                :disabled="index === 0"
+                :aria-label="`Move ${loraLabel(entry.resource)} earlier`"
+                @click="move(index, -1)"
+              >
+                <Icon name="kind-icon:chevron-up" class="size-3.5" />
+              </button>
+              <button
+                type="button"
+                class="btn btn-ghost btn-xs btn-square"
+                :disabled="index === selected.length - 1"
+                :aria-label="`Move ${loraLabel(entry.resource)} later`"
+                @click="move(index, 1)"
+              >
+                <Icon name="kind-icon:chevron-down" class="size-3.5" />
+              </button>
+              <button
+                type="button"
+                class="btn btn-ghost btn-xs btn-square text-error"
+                :aria-label="`Remove ${loraLabel(entry.resource)}`"
+                @click="remove(entry.resourceId)"
+              >
+                <Icon name="kind-icon:close" class="size-3.5" />
+              </button>
+            </span>
+          </div>
+
+          <div class="mt-1.5 flex flex-wrap items-center gap-2 pl-7">
+            <span class="text-[11px] font-bold text-base-content/60">
+              Strength
+            </span>
+            <input
+              :value="entry.strength"
+              type="range"
+              min="0"
+              max="2"
+              step="0.05"
+              class="range range-secondary range-xs min-w-32 flex-1"
+              :aria-label="`${loraLabel(entry.resource)} strength`"
+              @input="setStrength(entry.resourceId, $event)"
+            />
+            <input
+              :value="entry.strength"
+              type="number"
+              min="0"
+              max="2"
+              step="0.05"
+              class="input input-bordered input-xs w-20 rounded-lg"
+              :aria-label="`${loraLabel(entry.resource)} strength value`"
+              @input="setStrength(entry.resourceId, $event)"
+            />
+          </div>
+
+          <p
+            v-if="!entry.resource.localPath"
+            class="mt-1 pl-7 text-[11px] text-error"
+          >
+            No localPath — ComfyUI cannot load this one.
+          </p>
+        </li>
+      </ol>
+
+      <p v-if="atCapacity" class="text-xs font-semibold text-warning">
+        That is the maximum of {{ MAX_LORAS_PER_JOB }}. Remove one to add
+        another.
+      </p>
+
       <div
         v-if="resourceStore.isLoading && !resourceStore.hasLoaded"
         class="flex min-h-24 items-center justify-center rounded-xl bg-base-200"
@@ -54,7 +151,7 @@
           placeholder="Search LoRAs by name, path, or trigger word…"
         />
 
-        <div class="max-h-72 overflow-y-auto overscroll-contain pr-1">
+        <div class="max-h-64 overflow-y-auto overscroll-contain pr-1">
           <div
             class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] gap-2"
           >
@@ -62,14 +159,15 @@
               v-for="entry in visibleLoras"
               :key="entry.resource.id"
               type="button"
-              class="flex gap-2 overflow-hidden rounded-xl border p-2 text-left transition"
+              class="flex gap-2 overflow-hidden rounded-xl border p-2 text-left transition disabled:opacity-40"
               :class="
-                modelValue === entry.resource.id
-                  ? 'border-secondary bg-secondary/10 ring-2 ring-secondary/20'
+                isSelected(entry.resource.id)
+                  ? 'border-secondary bg-secondary/10'
                   : 'border-base-300 bg-base-100 hover:border-secondary/60'
               "
-              :aria-pressed="modelValue === entry.resource.id"
-              @click="select(entry.resource.id)"
+              :aria-pressed="isSelected(entry.resource.id)"
+              :disabled="atCapacity && !isSelected(entry.resource.id)"
+              @click="toggle(entry.resource.id)"
             >
               <span
                 class="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-base-200"
@@ -102,18 +200,16 @@
                   </span>
                 </span>
 
-                <span class="flex flex-wrap items-center gap-1">
-                  <span
-                    class="badge badge-xs rounded-lg"
-                    :class="entry.rank > 0 ? 'badge-secondary' : 'badge-ghost'"
-                    :title="
-                      entry.rank > 0
-                        ? `Ranked compatible with ${engineLabel}`
-                        : `Not tagged for ${engineLabel} — it may not load`
-                    "
-                  >
-                    {{ entry.resource.supportedServer }}
-                  </span>
+                <span
+                  class="badge badge-xs rounded-lg"
+                  :class="entry.rank > 0 ? 'badge-secondary' : 'badge-ghost'"
+                  :title="
+                    entry.rank > 0
+                      ? `Ranked compatible with ${engineLabel}`
+                      : `Not tagged for ${engineLabel} — it may not load`
+                  "
+                >
+                  {{ entry.resource.supportedServer }}
                 </span>
 
                 <span
@@ -133,44 +229,6 @@
         >
           No LoRA matches “{{ search.trim() }}”.
         </p>
-
-        <div
-          v-if="selectedLora"
-          class="flex flex-wrap items-end gap-2 rounded-xl bg-base-200 p-3"
-        >
-          <label class="min-w-40 flex-1 space-y-1">
-            <span class="text-xs font-bold">
-              Strength · {{ clampedStrength.toFixed(2) }}
-            </span>
-            <input
-              :value="clampedStrength"
-              type="range"
-              min="0"
-              max="2"
-              step="0.05"
-              class="range range-secondary range-xs w-full"
-              @input="onStrength"
-            />
-          </label>
-          <input
-            :value="clampedStrength"
-            type="number"
-            min="0"
-            max="2"
-            step="0.05"
-            class="input input-bordered input-sm w-24 rounded-xl"
-            aria-label="LoRA strength"
-            @input="onStrength"
-          />
-        </div>
-
-        <p
-          v-if="selectedLora && !selectedLora.localPath"
-          class="text-xs text-error"
-        >
-          This Resource has no localPath, so ComfyUI cannot load it. Pick
-          another, or fill in its path from the Resources manager.
-        </p>
       </template>
     </template>
   </section>
@@ -184,6 +242,7 @@ import {
   engineProfile,
   type ArtGeneratorEngine,
 } from '@/utils/artGeneratorPresets'
+import { MAX_LORAS_PER_JOB } from '@/utils/loraLimits'
 
 type PreviewArtImage = {
   imagePath?: string | null
@@ -193,19 +252,19 @@ type PreviewArtImage = {
 
 type LoraResource = Resource & { ArtImage?: PreviewArtImage | null }
 
-const props = withDefaults(
-  defineProps<{
-    /** Resource id of the selected LoRA, or null. */
-    modelValue: number | null
-    strength?: number
-    engine: ArtGeneratorEngine
-  }>(),
-  { strength: 1 },
-)
+/** One link of the chain: which Resource, and how hard it is applied. */
+export type LoraPick = {
+  resourceId: number
+  strength: number
+}
+
+const props = defineProps<{
+  modelValue: LoraPick[]
+  engine: ArtGeneratorEngine
+}>()
 
 const emit = defineEmits<{
-  'update:modelValue': [value: number | null]
-  'update:strength': [value: number]
+  'update:modelValue': [value: LoraPick[]]
 }>()
 
 const resourceStore = useResourceStore()
@@ -214,6 +273,7 @@ const search = ref('')
 const profile = computed(() => engineProfile(props.engine))
 const supported = computed(() => profile.value.supports.lora)
 const engineLabel = computed(() => profile.value.label)
+const atCapacity = computed(() => props.modelValue.length >= MAX_LORAS_PER_JOB)
 
 // Mirrors compatibilityRank() in server/utils/artLoraResource.ts. Nothing is
 // HIDDEN by rank -- the enqueue route only hard-blocks incompatible LoRAs on
@@ -250,6 +310,11 @@ const rankedLoras = computed(() => {
     )
 })
 
+const byId = computed(
+  () =>
+    new Map(rankedLoras.value.map(({ resource }) => [resource.id, resource])),
+)
+
 const visibleLoras = computed(() => {
   const needle = search.value.trim().toLowerCase()
   if (!needle) return rankedLoras.value
@@ -267,46 +332,82 @@ const visibleLoras = computed(() => {
   })
 })
 
-const selectedLora = computed<LoraResource | null>(() => {
-  if (!props.modelValue) return null
-  return (
-    rankedLoras.value.find(({ resource }) => resource.id === props.modelValue)
-      ?.resource ?? null
-  )
+/** The picks that still resolve to a visible Resource, in apply order. */
+const selected = computed(() => {
+  return props.modelValue
+    .map((pick) => {
+      const resource = byId.value.get(pick.resourceId)
+      return resource
+        ? { resourceId: pick.resourceId, strength: pick.strength, resource }
+        : null
+    })
+    .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
 })
-
-const clampedStrength = computed(() => clampStrength(props.strength))
 
 onMounted(async () => {
   if (!resourceStore.hasLoaded) await resourceStore.getResources()
 })
 
-// A LoRA that leaves the visible set -- the maturity toggle was turned off, or
-// the account lost access -- must not stay silently attached to the next job.
+// A pick that leaves the visible set -- the maturity toggle went off, or the
+// account lost access -- must not stay silently attached to the next job.
 watch([rankedLoras, supported], () => {
   if (!resourceStore.hasLoaded) return
-  if (props.modelValue && (!supported.value || !selectedLora.value)) {
-    emit('update:modelValue', null)
+  if (!props.modelValue.length) return
+
+  if (!supported.value) {
+    emitValue([])
+    return
   }
+
+  const survivors = props.modelValue.filter((pick) =>
+    byId.value.has(pick.resourceId),
+  )
+  if (survivors.length !== props.modelValue.length) emitValue(survivors)
 })
 
-function select(resourceId: number | null): void {
-  emit(
-    'update:modelValue',
-    resourceId && props.modelValue !== resourceId ? resourceId : null,
+function emitValue(picks: LoraPick[]): void {
+  emit('update:modelValue', picks.slice(0, MAX_LORAS_PER_JOB))
+}
+
+function isSelected(resourceId: number): boolean {
+  return props.modelValue.some((pick) => pick.resourceId === resourceId)
+}
+
+function toggle(resourceId: number): void {
+  if (isSelected(resourceId)) {
+    remove(resourceId)
+    return
+  }
+  if (atCapacity.value) return
+  emitValue([...props.modelValue, { resourceId, strength: 1 }])
+}
+
+function remove(resourceId: number): void {
+  emitValue(props.modelValue.filter((pick) => pick.resourceId !== resourceId))
+}
+
+function move(index: number, offset: number): void {
+  const next = [...props.modelValue]
+  const target = index + offset
+  if (target < 0 || target >= next.length) return
+  const [moved] = next.splice(index, 1)
+  if (moved) next.splice(target, 0, moved)
+  emitValue(next)
+}
+
+function setStrength(resourceId: number, event: Event): void {
+  const raw = Number((event.target as HTMLInputElement).value)
+  const strength = Number.isFinite(raw) ? Math.min(2, Math.max(0, raw)) : 1
+  emitValue(
+    props.modelValue.map((pick) =>
+      pick.resourceId === resourceId ? { ...pick, strength } : pick,
+    ),
   )
 }
 
-function clampStrength(value: unknown): number {
-  const parsed = Number(value)
-  if (!Number.isFinite(parsed)) return 1
-  return Math.min(2, Math.max(0, parsed))
-}
-
-function onStrength(event: Event): void {
-  emit(
-    'update:strength',
-    clampStrength((event.target as HTMLInputElement).value),
+function ordinal(index: number): string {
+  return (
+    ['first', 'second', 'third', 'fourth', 'fifth', 'sixth'][index] ?? 'next'
   )
 }
 

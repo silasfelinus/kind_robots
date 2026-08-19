@@ -5,6 +5,11 @@
 // route and this builder should be deduped in a later pass.
 
 import { fluxDualClipLoaderNode } from '../../../../utils/fluxTextEncoders'
+import {
+  appendModelOnlyLoraChain,
+  normalizeLoraSelections,
+  type LoraSelectionInput,
+} from '../../utils/loraChain'
 
 export type ComfyWorkflow = Record<string, ComfyWorkflowNode>
 
@@ -52,6 +57,8 @@ export type KontextWorkflowInput = {
   // now this only ever reached the graph as inert `<lora:...>` prompt text.
   loraName?: string | null
   loraStrength?: number | null
+  // Multiple stacked LoRAs, applied in order. Supersedes the pair above.
+  loras?: LoraSelectionInput[] | null
 }
 
 export const DEFAULT_KONTEXT_WIDTH = 1024
@@ -247,19 +254,14 @@ export function buildKontextWorkflow(
   //     LoraLoaderModelOnly pattern in simpleCheckpointWorkflow.ts /
   //     imageToVideoWorkflow.ts. No-op (base graph unchanged) when no LoRA is
   //     requested, so prompt-only styles keep their existing behavior. ---
-  const loraName = input.loraName?.trim() || ''
-  if (loraName) {
-    workflow['61'] = {
-      inputs: {
-        model: ['59', 0],
-        lora_name: loraName,
-        strength_model:
-          typeof input.loraStrength === 'number' ? input.loraStrength : 1.0,
-      },
-      class_type: 'LoraLoaderModelOnly',
-      _meta: { title: 'Style LoRA' },
-    }
-    ;(workflow['30']!.inputs as Record<string, unknown>).model = ['61', 0]
+  const loras = normalizeLoraSelections(input)
+  if (loras.length) {
+    const model = appendModelOnlyLoraChain(workflow, {
+      loras,
+      model: ['59', 0],
+      startId: 61,
+    })
+    ;(workflow['30']!.inputs as Record<string, unknown>).model = model
   }
 
   // --- img2img init: start from the encoded source photo (node 39) so the

@@ -10,6 +10,12 @@
 // negatives are live wherever cfg > 1, and merely inert (not silently wired to
 // the positive node, the Flux.1 path's bug) at the cfg-1 distilled settings.
 
+import {
+  appendModelOnlyLoraChain,
+  normalizeLoraSelections,
+  type LoraSelectionInput,
+} from './loraChain'
+
 export type ComfyWorkflow = Record<string, ComfyWorkflowNode>
 
 export type ComfyWorkflowNode = {
@@ -47,6 +53,8 @@ export type SimpleCheckpointInput = {
   // Optional model-only style LoRA (comic/ink/lineart) for the inked look.
   loraName?: string | null
   loraStrength?: number | null
+  // Multiple stacked LoRAs, applied in order. Supersedes the pair above.
+  loras?: LoraSelectionInput[] | null
 }
 
 export function buildSimpleCheckpointWorkflow(input: SimpleCheckpointInput): {
@@ -54,12 +62,16 @@ export function buildSimpleCheckpointWorkflow(input: SimpleCheckpointInput): {
   seed: number
 } {
   const seed = resolveComfySeed(input.seed)
-  const text = input.prompt.trim() || 'a beautiful, richly detailed illustration'
+  const text =
+    input.prompt.trim() || 'a beautiful, richly detailed illustration'
 
   const loaderInputs: Record<string, unknown> =
     input.unetLoader === 'UnetLoaderGGUF'
       ? { unet_name: input.unetName }
-      : { unet_name: input.unetName, weight_dtype: input.unetDtype ?? 'default' }
+      : {
+          unet_name: input.unetName,
+          weight_dtype: input.unetDtype ?? 'default',
+        }
 
   const workflow: ComfyWorkflow = {
     '1': {
@@ -124,24 +136,24 @@ export function buildSimpleCheckpointWorkflow(input: SimpleCheckpointInput): {
     },
   }
 
-  if (input.loraName) {
-    workflow['10'] = {
-      inputs: {
-        model: ['1', 0],
-        lora_name: input.loraName,
-        strength_model:
-          typeof input.loraStrength === 'number' ? input.loraStrength : 1.0,
-      },
-      class_type: 'LoraLoaderModelOnly',
-      _meta: { title: 'Style LoRA' },
-    }
+  const loras = normalizeLoraSelections(input)
+  if (loras.length) {
+    // Route the sampler's model through the chain; CLIP stays on the encoder,
+    // which is the whole reason these lanes use LoraLoaderModelOnly -- their
+    // CLIP comes from a separate CLIPLoader, not from the diffusion model.
+    const model = appendModelOnlyLoraChain(workflow, {
+      loras,
+      model: ['1', 0],
+      startId: 10,
+    })
 
-    // Route the sampler's model through the LoRA; CLIP stays on the encoder.
     const sampler = workflow['7']
     if (!sampler?.inputs) {
-      throw new Error('KSampler node is missing from the simple checkpoint workflow.')
+      throw new Error(
+        'KSampler node is missing from the simple checkpoint workflow.',
+      )
     }
-    sampler.inputs.model = ['10', 0]
+    sampler.inputs.model = model
   }
 
   return { workflow, seed }

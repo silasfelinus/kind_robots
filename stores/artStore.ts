@@ -111,6 +111,12 @@ export type NarrativeArtEnqueueContext = {
   dedupeKey: string
 }
 
+export type ArtLoraSelection = {
+  resourceId?: number | null
+  name?: string | null
+  strength?: number | null
+}
+
 export interface GenerateArtData {
   promptString: string
   prompt?: string
@@ -134,6 +140,10 @@ export interface GenerateArtData {
   loraName?: string | null
   loraStrength?: number | null
   loraResourceIds?: number[] | null
+  // Stacked LoRAs, applied in order, each with its own strength. The singular
+  // pair above still travels (set to the first link) so provenance readers and
+  // the ArtJob editor's style-LoRA override keep working.
+  loras?: ArtLoraSelection[] | null
   sampler?: string
   scheduler?: string
   steps?: number
@@ -2302,6 +2312,7 @@ export const useArtStore = defineStore('artStore', () => {
       loraName: artData?.loraName ?? null,
       loraStrength: artData?.loraStrength ?? null,
       loraResourceIds: artData?.loraResourceIds ?? null,
+      loras: artData?.loras ?? state.artForm.loras ?? null,
       sampler:
         artData?.sampler ||
         state.artForm.sampler ||

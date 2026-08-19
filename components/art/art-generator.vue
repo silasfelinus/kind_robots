@@ -294,11 +294,7 @@
             </p>
           </section>
 
-          <art-lora-picker
-            v-model="loraResourceId"
-            v-model:strength="loraStrength"
-            :engine="activePreset.engine"
-          />
+          <art-lora-picker v-model="loraPicks" :engine="activePreset.engine" />
 
           <section class="kr-panel-flat p-4">
             <h2
@@ -576,6 +572,7 @@ import { useRandomStore } from '@/stores/randomStore'
 import { useResourceStore } from '@/stores/resourceStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
+import type { LoraPick } from '@/components/art/art-lora-picker.vue'
 import {
   ART_GENERATOR_PRESETS,
   CHECKPOINT_FAMILY_LABELS,
@@ -710,16 +707,28 @@ const facetIds = computed<number[]>({
   set: (ids) => artFacetDraft.setSelectedIds(ids),
 })
 
-// ── LoRA ────────────────────────────────────────────────────────────────────
-// The picker speaks Resource ids; the enqueue route resolves an id to its
-// localPath for the resource-aware lanes. The named-checkpoint lane is not
-// resource-resolved, so loraName is written alongside the id and both travel.
+// ── LoRAs ───────────────────────────────────────────────────────────────────
+// The picker speaks Resource ids and order; the form carries the resolved
+// shape. Each entry gets BOTH an id and a localPath: the resource-aware lanes
+// resolve the id server-side, while the named-checkpoint lane is not
+// resource-resolved and takes the path verbatim. The singular loraName/
+// loraStrength pair mirrors the first link so provenance and the ArtJob
+// editor's style-LoRA override keep seeing something coherent.
 
-const loraResourceId = computed<number | null>({
-  get: () => artStore.artForm.loraResourceIds?.[0] ?? null,
-  set: (resourceId) => {
-    if (!resourceId) {
+const loraPicks = computed<LoraPick[]>({
+  get: () =>
+    (artStore.artForm.loras ?? [])
+      .map((lora) => ({
+        resourceId: Number(lora.resourceId),
+        strength: typeof lora.strength === 'number' ? lora.strength : 1,
+      }))
+      .filter(
+        (pick) => Number.isInteger(pick.resourceId) && pick.resourceId > 0,
+      ),
+  set: (picks) => {
+    if (!picks.length) {
       artStore.setArtForm({
+        loras: null,
         loraResourceIds: null,
         loraName: null,
         loraStrength: null,
@@ -727,21 +736,22 @@ const loraResourceId = computed<number | null>({
       return
     }
 
-    const resource = resourceStore.visibleLoras.find(
-      (entry) => entry.id === resourceId,
-    )
+    const loras = picks.map((pick) => ({
+      resourceId: pick.resourceId,
+      name:
+        resourceStore.visibleLoras
+          .find((entry) => entry.id === pick.resourceId)
+          ?.localPath?.trim() || null,
+      strength: pick.strength,
+    }))
 
     artStore.setArtForm({
-      loraResourceIds: [resourceId],
-      loraName: resource?.localPath?.trim() || null,
-      loraStrength: artStore.artForm.loraStrength ?? 1,
+      loras,
+      loraResourceIds: loras.map((lora) => lora.resourceId),
+      loraName: loras[0]?.name ?? null,
+      loraStrength: loras[0]?.strength ?? null,
     })
   },
-})
-
-const loraStrength = computed<number>({
-  get: () => artStore.artForm.loraStrength ?? 1,
-  set: (value) => artStore.setArtForm({ loraStrength: value }),
 })
 
 // ── Checkpoints ─────────────────────────────────────────────────────────────
@@ -931,7 +941,13 @@ const readinessSummary = computed(() => {
   if (activeProfile.value.supports.checkpoint && checkpointName.value) {
     parts.push(checkpointName.value)
   }
-  if (loraResourceId.value) parts.push('+ LoRA')
+  if (loraPicks.value.length) {
+    parts.push(
+      loraPicks.value.length === 1
+        ? '+ 1 LoRA'
+        : `+ ${loraPicks.value.length} LoRAs`,
+    )
+  }
   if (facetIds.value.length) parts.push(`${facetIds.value.length} Facets`)
   return parts.join(' · ')
 })

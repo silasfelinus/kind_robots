@@ -91,6 +91,12 @@ type ArtEnqueueRequest = {
   jsonPrompt?: Record<string, unknown> | unknown[] | null
   loraName?: string | null
   loraStrength?: number | null
+  /** Stacked LoRAs, applied in order. Supersedes the singular pair above. */
+  loras?: Array<{
+    resourceId?: number | null
+    name?: string | null
+    strength?: number | null
+  }> | null
   checkpointResourceId?: number | null
   loraResourceIds?: number[] | null
   designer?: string | null
@@ -443,7 +449,7 @@ export default defineEventHandler(async (event) => {
           : null,
       loraResourceIds: resolvedLora.resourceIds,
       checkpointName: resolvedBody.checkpoint?.trim() || null,
-      loraNames: resolvedLora.resourceName ? [resolvedLora.resourceName] : [],
+      loraNames: resolvedLora.resourceNames,
     }
     if (
       provenanceResources.checkpointResourceId ||
@@ -546,6 +552,7 @@ function buildJobPayload(
       denoise: body.denoise ?? null,
       loraName: body.loraName ?? null,
       loraStrength: body.loraStrength ?? null,
+      loras: body.loras ?? null,
     })
     return { jobEngine: 'COMFY', payload: { workflow, promptString, save } }
   }
@@ -565,6 +572,7 @@ function buildJobPayload(
       denoise: body.denoise ?? null,
       loraName: body.loraName ?? null,
       loraStrength: body.loraStrength ?? null,
+      loras: body.loras ?? null,
     })
     return { jobEngine: 'COMFY', payload: { workflow, promptString, save } }
   }
@@ -596,6 +604,7 @@ function buildJobPayload(
       denoise: body.denoise ?? null,
       loraName: body.loraName ?? null,
       loraStrength: body.loraStrength ?? null,
+      loras: body.loras ?? null,
     })
     return {
       jobEngine: 'COMFY',
@@ -634,6 +643,7 @@ function buildJobPayload(
       denoise: body.denoise ?? null,
       loraName: body.loraName ?? null,
       loraStrength: body.loraStrength ?? null,
+      loras: body.loras ?? null,
     })
     return {
       jobEngine: 'COMFY',
@@ -661,6 +671,7 @@ function buildJobPayload(
     sampler: body.sampler ?? null,
     loraName: body.loraName ?? null,
     loraStrength: body.loraStrength ?? null,
+    loras: body.loras ?? null,
     width: body.width ?? null,
     height: body.height ?? null,
   })

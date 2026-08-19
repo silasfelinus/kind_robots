@@ -139,6 +139,9 @@ jobs:
       - name: Art generator preset contract
         run: npm run test:art-generator-presets
 
+      - name: LoRA chain contract
+        run: npm run test:lora-chain
+
       - name: Dream store fetch merge contract
         run: npx tsx utils/scripts/verifyDreamStoreFetchMerge.ts
 

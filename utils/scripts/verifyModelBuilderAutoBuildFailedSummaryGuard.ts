@@ -20,6 +20,15 @@
 // exact surfaces that walk an item through every stage — including COMMIT —
 // without a human reviewing each step, so a failure there most needs to be
 // reported accurately.
+//
+// Extended (model-builder/t-029 cycle 12) to cover batchDraftField() too --
+// the exact same clobbered-tone shape, just with `drafted`/`failed` in place
+// of `committed`/`skipped`/`failed`: a fully- or partially-failed AI drafting
+// pass across a group (e.g. the text server is down) still reported a plain
+// green "Drafted 0/N items." banner, clobbering the real 'error' status
+// draftText already set per failed item via setStatusForRun. Folded into
+// this same generic guard rather than a new file since the guard was already
+// written to check an arbitrary list of TARGET_FUNCTIONS for this one shape.
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -31,12 +40,17 @@ const repositoryRoot = resolve(scriptDirectory, '../..')
 
 const STORE_PATH = join(repositoryRoot, 'stores/modelBuilderStore.ts')
 
-const TARGET_FUNCTIONS = ['autoBuildRun', 'batchAutoBuild'] as const
+const TARGET_FUNCTIONS = [
+  'autoBuildRun',
+  'batchAutoBuild',
+  'batchDraftField',
+] as const
 
 // Checks the fix's exact shape against the full source text of a file
-// containing `autoBuildRun`/`batchAutoBuild`-named functions. Exported
-// (rather than only exercised via main()) so the self-test below can run it
-// against synthetic buggy/fixed fixtures without touching the real store file.
+// containing `autoBuildRun`/`batchAutoBuild`/`batchDraftField`-named
+// functions. Exported (rather than only exercised via main()) so the
+// self-test below can run it against synthetic buggy/fixed fixtures without
+// touching the real store file.
 export function checkAutoBuildFailedSummaryGuard(content: string): string[] {
   const errors: string[] = []
 
@@ -56,10 +70,10 @@ export function checkAutoBuildFailedSummaryGuard(content: string): string[] {
     const tracksFailed = /\bfailed\s*\+\+/.test(fn.body)
     if (!tracksFailed) {
       errors.push(
-        `${name}() does not tally a 'failed' outcome from autoBuildItem() ` +
-          'into its own counter (expected a `failed++` alongside `committed++`' +
-          ' / `skipped++`). Without it, a rejected commit is invisible in ' +
-          "this function's final summary.",
+        `${name}() does not tally a 'failed' outcome into its own counter ` +
+          '(expected a `failed++` alongside its other outcome counters). ' +
+          "Without it, a real failure is invisible in this function's " +
+          'final summary.',
       )
       continue
     }
@@ -107,8 +121,9 @@ function main(): void {
 
   console.log(
     'Model Builder auto-build failed-summary guard contract passed: ' +
-      'autoBuildRun() and batchAutoBuild() both tally failed outcomes and ' +
-      'report them (with an error tone) in their final summary.',
+      'autoBuildRun(), batchAutoBuild(), and batchDraftField() all tally ' +
+      'failed outcomes and report them (with an error tone) in their ' +
+      'final summary.',
   )
 }
 

@@ -400,6 +400,12 @@ const PAGES: PageSeed[] = [
       "A sculptor's shop of wire armatures, clay maquettes and calipers, north light through dusty glass. Constructive and hands-on.",
   },
   {
+    page: 'mission-accrual',
+    title: 'Mission Accrual — The Reconciliation Desk',
+    scene:
+      "A quiet back-office desk with two neat ledgers side by side under a banker's lamp, one column of coins stacked and counted, a second smaller stack visibly sent out through an open letter slot in the wall. Careful, honest bookkeeping — nothing showy, everything accounted for.",
+  },
+  {
     page: 'mural',
     title: 'Mural — The Long Wall',
     scene:

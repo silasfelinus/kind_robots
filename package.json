@@ -27,6 +27,7 @@
     "test:mana-resource-split": "tsx utils/scripts/verifyManaResourceSplit.test.ts",
     "test:mana-attribution": "tsx utils/scripts/verifyManaAttribution.test.ts",
     "test:revenue-split": "tsx utils/scripts/verifyRevenueSplit.test.ts",
+    "test:creator-earnings": "tsx utils/scripts/verifyCreatorEarnings.test.ts",
     "test:appmaker-slug-candidate-guard": "tsx utils/scripts/verifyAppmakerSlugCandidateGuard.ts",
     "test:appmaker-fleet-description-guard-selftest": "tsx utils/scripts/verifyAppmakerFleetDescriptionGuard.test.ts",
     "test:appmaker-fleet-description-guard": "tsx utils/scripts/verifyAppmakerFleetDescriptionGuard.ts",

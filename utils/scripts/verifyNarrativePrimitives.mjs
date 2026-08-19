@@ -49,7 +49,8 @@ includesAll('utils/narrativeTurns.ts', [
 
 includesAll('components/narrative/narrative-response-composer.vue', [
   ':choices="optionChoices"',
-  '@keydown.enter.exact.prevent="submit()"',
+  '@keydown.enter.exact="handleEnterKeydown"',
+  'event.isComposing',
   "emit('submit', text)",
 ])
 

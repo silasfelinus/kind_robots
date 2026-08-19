@@ -124,7 +124,7 @@ const cards = ref([
   {
     title: 'VISION',
     icon: 'kind-icon:eye',
-    content: `🤖👋 We're here to bridge the AI/Human divide and foster harmonious coexistence. Our mission is to empower the world with modern tools, raise funds for our anti-malaria fundraiser, and generate revenue (and social buzz) for our content creators through sales from our gift shop of print-on-demand literature and art. Together, we can help each other make a difference with mutually compatible goals! 💪🌍`,
+    content: `🤖👋 We're here to bridge the AI/Human divide and foster harmonious coexistence. Our mission is to empower the world with modern tools, raise funds for our anti-malaria fundraiser, and eventually generate revenue (and social buzz) for our content creators through sales from our gift shop of print-on-demand literature and art. Together, we can help each other make a difference with mutually compatible goals! 💪🌍`,
   },
   {
     title: 'VALUES',

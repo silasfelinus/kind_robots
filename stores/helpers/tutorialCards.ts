@@ -68,9 +68,10 @@ export const EARNING_CHANNELS = [
 export type EarningChannelKey = (typeof EARNING_CHANNELS)[number]
 
 export const CREATOR_EARNINGS_MESSAGE =
-  'When people spend paid tokens on something you made, you earn a share. ' +
-  'Paid usage is split three ways - Kind Robots, the anti-malaria fundraiser, ' +
-  'and you. Build something people love, and the swarm pays you back.'
+  "Paid tokens aren't live yet, but when they are, spending on something you " +
+  'made will earn you a share. The plan: paid usage split three ways - Kind ' +
+  'Robots, the anti-malaria fundraiser, and you. Build something people love, ' +
+  'and the swarm will pay you back.'
 
 export function isEarningChannel(key: string): key is EarningChannelKey {
   return (EARNING_CHANNELS as readonly string[]).includes(key)

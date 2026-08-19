@@ -599,6 +599,12 @@ jobs:
       - name: Model Builder error callout role guard contract
         run: npm run test:model-builder-error-callout-role-guard
 
+      - name: Model Builder history-close focus guard self-test
+        run: npm run test:model-builder-history-close-focus-guard-selftest
+
+      - name: Model Builder history-close focus guard contract
+        run: npm run test:model-builder-history-close-focus-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

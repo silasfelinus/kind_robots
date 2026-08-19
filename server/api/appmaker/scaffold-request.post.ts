@@ -8,6 +8,7 @@ import { errorHandler } from '@/server/utils/error'
 import { requireApiUser } from '@/server/utils/authGuard'
 import { enforceProjectCap } from '@/server/utils/projectCap'
 import { userIsAdmin, userRoles } from '@/server/utils/authUser'
+import { conductorList } from '~/server/utils/conductor-github'
 
 const SLUG_RE = /^[a-z][a-z0-9-]{1,40}$/
 
@@ -56,11 +57,14 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const slug = body.slug?.trim() ? body.slug.trim().toLowerCase() : slugify(title)
+    const slug = body.slug?.trim()
+      ? body.slug.trim().toLowerCase()
+      : slugify(title)
     if (!SLUG_RE.test(slug)) {
       throw createError({
         statusCode: 400,
-        message: 'slug must be kebab-case: start with a letter, then letters/digits/hyphens.',
+        message:
+          'slug must be kebab-case: start with a letter, then letters/digits/hyphens.',
       })
     }
 
@@ -71,7 +75,7 @@ export default defineEventHandler(async (event) => {
         message: 'description must be 1000 characters or fewer.',
       })
     }
-    const [existingProject, existingDream] = await Promise.all([
+    const [existingProject, existingDream, scaffoldedApps] = await Promise.all([
       prisma.project.findFirst({
         where: { OR: [{ slug }, { conductorSlug: slug }] },
         select: { id: true },
@@ -80,10 +84,30 @@ export default defineEventHandler(async (event) => {
         where: { slug },
         select: { id: true },
       }),
+      conductorList('apps'),
     ])
 
-    if (existingProject || existingDream) {
-      throw createError({ statusCode: 409, message: `Slug '${slug}' is already taken.` })
+    // apps.get.ts treats a `dir` entry under conductor's apps/ folder as the
+    // source of truth for "already scaffolded". Several apps (e.g.
+    // apps/storybook, apps/wishmaster) were scaffolded directly by an agent
+    // before this self-serve flow existed and never got a matching Project
+    // row, so the existingProject/existingDream checks above miss them
+    // entirely. Without this, a request for a colliding slug would succeed
+    // here (201, Todo filed), but the Worker cycle's
+    // `scripts/new_app.py <slug>` invocation refuses to run over an
+    // existing apps/<slug>/ folder and fails -- silently, since nothing
+    // ever reports that failure back through this endpoint or the AppMaker
+    // UI, leaving the user's Project row (and one of their
+    // FREE_PROJECT_LIMIT slots) permanently orphaned.
+    const alreadyScaffolded = (scaffoldedApps ?? []).some(
+      (entry) => entry.type === 'dir' && entry.name === slug,
+    )
+
+    if (existingProject || existingDream || alreadyScaffolded) {
+      throw createError({
+        statusCode: 409,
+        message: `Slug '${slug}' is already taken.`,
+      })
     }
 
     const isAdmin = userIsAdmin(user)

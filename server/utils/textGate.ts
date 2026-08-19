@@ -2,12 +2,16 @@
 import type { H3Event } from 'h3'
 import { manaGate } from './manaGate'
 import { requireMachineUser } from './authGuard'
+import type { ManaSource } from './manaAttribution'
 
 type TextGateInput = {
   model?: string | null
   maxTokens?: number | null
   serverId?: number | null
   provider?: string | null
+  // kind-economy/t-007: the object this text generation is about/seeded by,
+  // when the caller knows one -- passed straight through to manaGate.
+  source?: ManaSource | null
 }
 
 type TextGateResult = {
@@ -42,6 +46,7 @@ export async function authAndTextGate(
       provider: input.provider,
     }),
     serverId: input.serverId ?? null,
+    source: input.source ?? null,
   })
 
   return {

@@ -33,6 +33,8 @@ export type ManaTransactionAvgAggregateOutputType = {
   balanceAfter: number | null
   costUsd: number | null
   reversedById: number | null
+  sourceId: number | null
+  creatorUserId: number | null
 }
 
 export type ManaTransactionSumAggregateOutputType = {
@@ -42,6 +44,8 @@ export type ManaTransactionSumAggregateOutputType = {
   balanceAfter: number | null
   costUsd: number | null
   reversedById: number | null
+  sourceId: number | null
+  creatorUserId: number | null
 }
 
 export type ManaTransactionMinAggregateOutputType = {
@@ -57,6 +61,10 @@ export type ManaTransactionMinAggregateOutputType = {
   provider: string | null
   costUsd: number | null
   reversedById: number | null
+  sourceType: $Enums.ManaAttributionSource | null
+  sourceId: number | null
+  creatorUserId: number | null
+  isSelfAttribution: boolean | null
 }
 
 export type ManaTransactionMaxAggregateOutputType = {
@@ -72,6 +80,10 @@ export type ManaTransactionMaxAggregateOutputType = {
   provider: string | null
   costUsd: number | null
   reversedById: number | null
+  sourceType: $Enums.ManaAttributionSource | null
+  sourceId: number | null
+  creatorUserId: number | null
+  isSelfAttribution: boolean | null
 }
 
 export type ManaTransactionCountAggregateOutputType = {
@@ -87,6 +99,10 @@ export type ManaTransactionCountAggregateOutputType = {
   provider: number
   costUsd: number
   reversedById: number
+  sourceType: number
+  sourceId: number
+  creatorUserId: number
+  isSelfAttribution: number
   _all: number
 }
 
@@ -98,6 +114,8 @@ export type ManaTransactionAvgAggregateInputType = {
   balanceAfter?: true
   costUsd?: true
   reversedById?: true
+  sourceId?: true
+  creatorUserId?: true
 }
 
 export type ManaTransactionSumAggregateInputType = {
@@ -107,6 +125,8 @@ export type ManaTransactionSumAggregateInputType = {
   balanceAfter?: true
   costUsd?: true
   reversedById?: true
+  sourceId?: true
+  creatorUserId?: true
 }
 
 export type ManaTransactionMinAggregateInputType = {
@@ -122,6 +142,10 @@ export type ManaTransactionMinAggregateInputType = {
   provider?: true
   costUsd?: true
   reversedById?: true
+  sourceType?: true
+  sourceId?: true
+  creatorUserId?: true
+  isSelfAttribution?: true
 }
 
 export type ManaTransactionMaxAggregateInputType = {
@@ -137,6 +161,10 @@ export type ManaTransactionMaxAggregateInputType = {
   provider?: true
   costUsd?: true
   reversedById?: true
+  sourceType?: true
+  sourceId?: true
+  creatorUserId?: true
+  isSelfAttribution?: true
 }
 
 export type ManaTransactionCountAggregateInputType = {
@@ -152,6 +180,10 @@ export type ManaTransactionCountAggregateInputType = {
   provider?: true
   costUsd?: true
   reversedById?: true
+  sourceType?: true
+  sourceId?: true
+  creatorUserId?: true
+  isSelfAttribution?: true
   _all?: true
 }
 
@@ -254,6 +286,10 @@ export type ManaTransactionGroupByOutputType = {
   provider: string | null
   costUsd: number | null
   reversedById: number | null
+  sourceType: $Enums.ManaAttributionSource | null
+  sourceId: number | null
+  creatorUserId: number | null
+  isSelfAttribution: boolean
   _count: ManaTransactionCountAggregateOutputType | null
   _avg: ManaTransactionAvgAggregateOutputType | null
   _sum: ManaTransactionSumAggregateOutputType | null
@@ -292,6 +328,10 @@ export type ManaTransactionWhereInput = {
   provider?: Prisma.StringNullableFilter<"ManaTransaction"> | string | null
   costUsd?: Prisma.FloatNullableFilter<"ManaTransaction"> | number | null
   reversedById?: Prisma.IntNullableFilter<"ManaTransaction"> | number | null
+  sourceType?: Prisma.EnumManaAttributionSourceNullableFilter<"ManaTransaction"> | $Enums.ManaAttributionSource | null
+  sourceId?: Prisma.IntNullableFilter<"ManaTransaction"> | number | null
+  creatorUserId?: Prisma.IntNullableFilter<"ManaTransaction"> | number | null
+  isSelfAttribution?: Prisma.BoolFilter<"ManaTransaction"> | boolean
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
@@ -308,6 +348,10 @@ export type ManaTransactionOrderByWithRelationInput = {
   provider?: Prisma.SortOrderInput | Prisma.SortOrder
   costUsd?: Prisma.SortOrderInput | Prisma.SortOrder
   reversedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceType?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceId?: Prisma.SortOrderInput | Prisma.SortOrder
+  creatorUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  isSelfAttribution?: Prisma.SortOrder
   User?: Prisma.UserOrderByWithRelationInput
   _relevance?: Prisma.ManaTransactionOrderByRelevanceInput
 }
@@ -328,6 +372,10 @@ export type ManaTransactionWhereUniqueInput = Prisma.AtLeast<{
   provider?: Prisma.StringNullableFilter<"ManaTransaction"> | string | null
   costUsd?: Prisma.FloatNullableFilter<"ManaTransaction"> | number | null
   reversedById?: Prisma.IntNullableFilter<"ManaTransaction"> | number | null
+  sourceType?: Prisma.EnumManaAttributionSourceNullableFilter<"ManaTransaction"> | $Enums.ManaAttributionSource | null
+  sourceId?: Prisma.IntNullableFilter<"ManaTransaction"> | number | null
+  creatorUserId?: Prisma.IntNullableFilter<"ManaTransaction"> | number | null
+  isSelfAttribution?: Prisma.BoolFilter<"ManaTransaction"> | boolean
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id">
 
@@ -344,6 +392,10 @@ export type ManaTransactionOrderByWithAggregationInput = {
   provider?: Prisma.SortOrderInput | Prisma.SortOrder
   costUsd?: Prisma.SortOrderInput | Prisma.SortOrder
   reversedById?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceType?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceId?: Prisma.SortOrderInput | Prisma.SortOrder
+  creatorUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  isSelfAttribution?: Prisma.SortOrder
   _count?: Prisma.ManaTransactionCountOrderByAggregateInput
   _avg?: Prisma.ManaTransactionAvgOrderByAggregateInput
   _max?: Prisma.ManaTransactionMaxOrderByAggregateInput
@@ -367,6 +419,10 @@ export type ManaTransactionScalarWhereWithAggregatesInput = {
   provider?: Prisma.StringNullableWithAggregatesFilter<"ManaTransaction"> | string | null
   costUsd?: Prisma.FloatNullableWithAggregatesFilter<"ManaTransaction"> | number | null
   reversedById?: Prisma.IntNullableWithAggregatesFilter<"ManaTransaction"> | number | null
+  sourceType?: Prisma.EnumManaAttributionSourceNullableWithAggregatesFilter<"ManaTransaction"> | $Enums.ManaAttributionSource | null
+  sourceId?: Prisma.IntNullableWithAggregatesFilter<"ManaTransaction"> | number | null
+  creatorUserId?: Prisma.IntNullableWithAggregatesFilter<"ManaTransaction"> | number | null
+  isSelfAttribution?: Prisma.BoolWithAggregatesFilter<"ManaTransaction"> | boolean
 }
 
 export type ManaTransactionCreateInput = {
@@ -380,6 +436,10 @@ export type ManaTransactionCreateInput = {
   provider?: string | null
   costUsd?: number | null
   reversedById?: number | null
+  sourceType?: $Enums.ManaAttributionSource | null
+  sourceId?: number | null
+  creatorUserId?: number | null
+  isSelfAttribution?: boolean
   User: Prisma.UserCreateNestedOneWithoutManaTransactionsInput
 }
 
@@ -396,6 +456,10 @@ export type ManaTransactionUncheckedCreateInput = {
   provider?: string | null
   costUsd?: number | null
   reversedById?: number | null
+  sourceType?: $Enums.ManaAttributionSource | null
+  sourceId?: number | null
+  creatorUserId?: number | null
+  isSelfAttribution?: boolean
 }
 
 export type ManaTransactionUpdateInput = {
@@ -409,6 +473,10 @@ export type ManaTransactionUpdateInput = {
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costUsd?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   reversedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceType?: Prisma.NullableEnumManaAttributionSourceFieldUpdateOperationsInput | $Enums.ManaAttributionSource | null
+  sourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creatorUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isSelfAttribution?: Prisma.BoolFieldUpdateOperationsInput | boolean
   User?: Prisma.UserUpdateOneRequiredWithoutManaTransactionsNestedInput
 }
 
@@ -425,6 +493,10 @@ export type ManaTransactionUncheckedUpdateInput = {
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costUsd?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   reversedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceType?: Prisma.NullableEnumManaAttributionSourceFieldUpdateOperationsInput | $Enums.ManaAttributionSource | null
+  sourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creatorUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isSelfAttribution?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type ManaTransactionCreateManyInput = {
@@ -440,6 +512,10 @@ export type ManaTransactionCreateManyInput = {
   provider?: string | null
   costUsd?: number | null
   reversedById?: number | null
+  sourceType?: $Enums.ManaAttributionSource | null
+  sourceId?: number | null
+  creatorUserId?: number | null
+  isSelfAttribution?: boolean
 }
 
 export type ManaTransactionUpdateManyMutationInput = {
@@ -453,6 +529,10 @@ export type ManaTransactionUpdateManyMutationInput = {
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costUsd?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   reversedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceType?: Prisma.NullableEnumManaAttributionSourceFieldUpdateOperationsInput | $Enums.ManaAttributionSource | null
+  sourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creatorUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isSelfAttribution?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type ManaTransactionUncheckedUpdateManyInput = {
@@ -468,6 +548,10 @@ export type ManaTransactionUncheckedUpdateManyInput = {
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costUsd?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   reversedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceType?: Prisma.NullableEnumManaAttributionSourceFieldUpdateOperationsInput | $Enums.ManaAttributionSource | null
+  sourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creatorUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isSelfAttribution?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type ManaTransactionOrderByRelevanceInput = {
@@ -489,6 +573,10 @@ export type ManaTransactionCountOrderByAggregateInput = {
   provider?: Prisma.SortOrder
   costUsd?: Prisma.SortOrder
   reversedById?: Prisma.SortOrder
+  sourceType?: Prisma.SortOrder
+  sourceId?: Prisma.SortOrder
+  creatorUserId?: Prisma.SortOrder
+  isSelfAttribution?: Prisma.SortOrder
 }
 
 export type ManaTransactionAvgOrderByAggregateInput = {
@@ -498,6 +586,8 @@ export type ManaTransactionAvgOrderByAggregateInput = {
   balanceAfter?: Prisma.SortOrder
   costUsd?: Prisma.SortOrder
   reversedById?: Prisma.SortOrder
+  sourceId?: Prisma.SortOrder
+  creatorUserId?: Prisma.SortOrder
 }
 
 export type ManaTransactionMaxOrderByAggregateInput = {
@@ -513,6 +603,10 @@ export type ManaTransactionMaxOrderByAggregateInput = {
   provider?: Prisma.SortOrder
   costUsd?: Prisma.SortOrder
   reversedById?: Prisma.SortOrder
+  sourceType?: Prisma.SortOrder
+  sourceId?: Prisma.SortOrder
+  creatorUserId?: Prisma.SortOrder
+  isSelfAttribution?: Prisma.SortOrder
 }
 
 export type ManaTransactionMinOrderByAggregateInput = {
@@ -528,6 +622,10 @@ export type ManaTransactionMinOrderByAggregateInput = {
   provider?: Prisma.SortOrder
   costUsd?: Prisma.SortOrder
   reversedById?: Prisma.SortOrder
+  sourceType?: Prisma.SortOrder
+  sourceId?: Prisma.SortOrder
+  creatorUserId?: Prisma.SortOrder
+  isSelfAttribution?: Prisma.SortOrder
 }
 
 export type ManaTransactionSumOrderByAggregateInput = {
@@ -537,6 +635,8 @@ export type ManaTransactionSumOrderByAggregateInput = {
   balanceAfter?: Prisma.SortOrder
   costUsd?: Prisma.SortOrder
   reversedById?: Prisma.SortOrder
+  sourceId?: Prisma.SortOrder
+  creatorUserId?: Prisma.SortOrder
 }
 
 export type ManaTransactionListRelationFilter = {
@@ -563,6 +663,10 @@ export type NullableFloatFieldUpdateOperationsInput = {
   decrement?: number
   multiply?: number
   divide?: number
+}
+
+export type NullableEnumManaAttributionSourceFieldUpdateOperationsInput = {
+  set?: $Enums.ManaAttributionSource | null
 }
 
 export type ManaTransactionCreateNestedManyWithoutUserInput = {
@@ -618,6 +722,10 @@ export type ManaTransactionCreateWithoutUserInput = {
   provider?: string | null
   costUsd?: number | null
   reversedById?: number | null
+  sourceType?: $Enums.ManaAttributionSource | null
+  sourceId?: number | null
+  creatorUserId?: number | null
+  isSelfAttribution?: boolean
 }
 
 export type ManaTransactionUncheckedCreateWithoutUserInput = {
@@ -632,6 +740,10 @@ export type ManaTransactionUncheckedCreateWithoutUserInput = {
   provider?: string | null
   costUsd?: number | null
   reversedById?: number | null
+  sourceType?: $Enums.ManaAttributionSource | null
+  sourceId?: number | null
+  creatorUserId?: number | null
+  isSelfAttribution?: boolean
 }
 
 export type ManaTransactionCreateOrConnectWithoutUserInput = {
@@ -676,6 +788,10 @@ export type ManaTransactionScalarWhereInput = {
   provider?: Prisma.StringNullableFilter<"ManaTransaction"> | string | null
   costUsd?: Prisma.FloatNullableFilter<"ManaTransaction"> | number | null
   reversedById?: Prisma.IntNullableFilter<"ManaTransaction"> | number | null
+  sourceType?: Prisma.EnumManaAttributionSourceNullableFilter<"ManaTransaction"> | $Enums.ManaAttributionSource | null
+  sourceId?: Prisma.IntNullableFilter<"ManaTransaction"> | number | null
+  creatorUserId?: Prisma.IntNullableFilter<"ManaTransaction"> | number | null
+  isSelfAttribution?: Prisma.BoolFilter<"ManaTransaction"> | boolean
 }
 
 export type ManaTransactionCreateManyUserInput = {
@@ -690,6 +806,10 @@ export type ManaTransactionCreateManyUserInput = {
   provider?: string | null
   costUsd?: number | null
   reversedById?: number | null
+  sourceType?: $Enums.ManaAttributionSource | null
+  sourceId?: number | null
+  creatorUserId?: number | null
+  isSelfAttribution?: boolean
 }
 
 export type ManaTransactionUpdateWithoutUserInput = {
@@ -703,6 +823,10 @@ export type ManaTransactionUpdateWithoutUserInput = {
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costUsd?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   reversedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceType?: Prisma.NullableEnumManaAttributionSourceFieldUpdateOperationsInput | $Enums.ManaAttributionSource | null
+  sourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creatorUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isSelfAttribution?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type ManaTransactionUncheckedUpdateWithoutUserInput = {
@@ -717,6 +841,10 @@ export type ManaTransactionUncheckedUpdateWithoutUserInput = {
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costUsd?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   reversedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceType?: Prisma.NullableEnumManaAttributionSourceFieldUpdateOperationsInput | $Enums.ManaAttributionSource | null
+  sourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creatorUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isSelfAttribution?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type ManaTransactionUncheckedUpdateManyWithoutUserInput = {
@@ -731,6 +859,10 @@ export type ManaTransactionUncheckedUpdateManyWithoutUserInput = {
   provider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costUsd?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   reversedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceType?: Prisma.NullableEnumManaAttributionSourceFieldUpdateOperationsInput | $Enums.ManaAttributionSource | null
+  sourceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  creatorUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isSelfAttribution?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 
@@ -748,6 +880,10 @@ export type ManaTransactionSelect<ExtArgs extends runtime.Types.Extensions.Inter
   provider?: boolean
   costUsd?: boolean
   reversedById?: boolean
+  sourceType?: boolean
+  sourceId?: boolean
+  creatorUserId?: boolean
+  isSelfAttribution?: boolean
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["manaTransaction"]>
 
@@ -766,9 +902,13 @@ export type ManaTransactionSelectScalar = {
   provider?: boolean
   costUsd?: boolean
   reversedById?: boolean
+  sourceType?: boolean
+  sourceId?: boolean
+  creatorUserId?: boolean
+  isSelfAttribution?: boolean
 }
 
-export type ManaTransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "userId" | "amount" | "reason" | "balanceAfter" | "resource" | "refId" | "note" | "provider" | "costUsd" | "reversedById", ExtArgs["result"]["manaTransaction"]>
+export type ManaTransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "userId" | "amount" | "reason" | "balanceAfter" | "resource" | "refId" | "note" | "provider" | "costUsd" | "reversedById" | "sourceType" | "sourceId" | "creatorUserId" | "isSelfAttribution", ExtArgs["result"]["manaTransaction"]>
 export type ManaTransactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -791,6 +931,10 @@ export type $ManaTransactionPayload<ExtArgs extends runtime.Types.Extensions.Int
     provider: string | null
     costUsd: number | null
     reversedById: number | null
+    sourceType: $Enums.ManaAttributionSource | null
+    sourceId: number | null
+    creatorUserId: number | null
+    isSelfAttribution: boolean
   }, ExtArgs["result"]["manaTransaction"]>
   composites: {}
 }
@@ -1173,6 +1317,10 @@ export interface ManaTransactionFieldRefs {
   readonly provider: Prisma.FieldRef<"ManaTransaction", 'String'>
   readonly costUsd: Prisma.FieldRef<"ManaTransaction", 'Float'>
   readonly reversedById: Prisma.FieldRef<"ManaTransaction", 'Int'>
+  readonly sourceType: Prisma.FieldRef<"ManaTransaction", 'ManaAttributionSource'>
+  readonly sourceId: Prisma.FieldRef<"ManaTransaction", 'Int'>
+  readonly creatorUserId: Prisma.FieldRef<"ManaTransaction", 'Int'>
+  readonly isSelfAttribution: Prisma.FieldRef<"ManaTransaction", 'Boolean'>
 }
     
 

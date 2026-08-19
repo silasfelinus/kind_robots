@@ -1,6 +1,10 @@
 // /server/utils/mana.ts
 import { prisma } from './prisma'
-import type { ManaReason, ManaResource } from '~/prisma/generated/prisma/client'
+import type {
+  ManaAttributionSource,
+  ManaReason,
+  ManaResource,
+} from '~/prisma/generated/prisma/client'
 
 // prisma is $extends()-wrapped (see server/utils/prisma.ts), so its
 // $transaction callback's tx param has extended InternalArgs that don't
@@ -86,6 +90,16 @@ export async function applyMana(opts: {
   costUsd?: number
   allowNegative?: boolean
   tx?: TransactionClient
+  // kind-economy/t-007: which object (if any) seeded this generation and
+  // who created it -- see server/utils/manaAttribution.ts for how a caller
+  // resolves these from a ManaSource before calling applyMana. Left as
+  // three independent optional fields (not a nested object) so a caller
+  // that only knows the resolved creatorUserId (no live source ref to
+  // report) can still pass that much without inventing a fake source.
+  sourceType?: ManaAttributionSource | null
+  sourceId?: number | null
+  creatorUserId?: number | null
+  isSelfAttribution?: boolean
 }) {
   const resource = resolveManaResource(opts.reason, opts.resource)
   const field = FIELD_BY_RESOURCE[resource]
@@ -118,6 +132,10 @@ export async function applyMana(opts: {
         note: opts.note,
         provider: opts.provider,
         costUsd: opts.costUsd,
+        sourceType: opts.sourceType ?? null,
+        sourceId: opts.sourceId ?? null,
+        creatorUserId: opts.creatorUserId ?? null,
+        isSelfAttribution: opts.isSelfAttribution ?? false,
       },
     })
     return { balance: next, resource, txnId: txn.id }

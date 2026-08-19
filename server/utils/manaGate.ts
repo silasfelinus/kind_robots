@@ -7,6 +7,8 @@ import { applyMana } from './mana'
 import type { ManaReason, ManaResource } from './mana'
 import { resolveManaGateTarget } from './manaGateTarget'
 import { resolveSpendResource } from './manaSpendResolution'
+import { resolveManaAttribution } from './manaAttribution'
+import type { ManaSource } from './manaAttribution'
 
 type ManaGateKind = 'text' | 'art' | 'video' | 'model' | 'free'
 
@@ -25,6 +27,15 @@ type ManaGateInput = {
   // infrastructure. Ignored (falls back to the caller's own id) unless the
   // caller authenticates as a server key -- see resolveManaGateTarget.
   targetUserId?: number | null
+  // kind-economy/t-007: the object (Bot, Character, Facet, Scenario,
+  // PitchSheet, ArtImage, Pack, Reward, or Dream) that seeded this
+  // generation, when the caller knows one. Optional -- most entry points
+  // today have no single seed object (a freeform prompt, a from-scratch art
+  // gen) and omitting this is correct for them, not a gap to fill in. When
+  // set, manaGate resolves the creator via resolveManaAttribution() and
+  // writes it onto the committed ManaTransaction row -- see
+  // server/utils/manaAttribution.ts for the fallback/self-attribution rules.
+  source?: ManaSource | null
 }
 
 type ManaGateResult = {
@@ -120,6 +131,14 @@ export async function manaGate(
   }
   const fundedBy = resolved.fundedBy
 
+  // kind-economy/t-007: resolve who (if anyone) seeded this generation
+  // before committing, so a resolver failure surfaces at gate time rather
+  // than silently vanishing inside commit()'s later transaction. Resolved
+  // against targetUserId -- the account actually being spent from, which is
+  // the correct "is this self-attribution" comparison even on an
+  // on-behalf-of machine-caller charge.
+  const attribution = await resolveManaAttribution(input.source, targetUserId)
+
   return {
     user,
     cost,
@@ -155,6 +174,10 @@ export async function manaGate(
         resource: fundedBy,
         refId,
         costUsd: providerCostUsd ?? input.estCostUsd,
+        sourceType: attribution.source?.type ?? null,
+        sourceId: attribution.source?.id ?? null,
+        creatorUserId: attribution.creatorUserId,
+        isSelfAttribution: attribution.isSelfAttribution,
       })
 
       return {

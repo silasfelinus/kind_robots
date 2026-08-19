@@ -62,10 +62,17 @@ export default defineEventHandler(async (event) => {
     // generate/text.post.ts build on. Admins, FAMILY-role users, and
     // own-resource/BYOK callers are still exempted -- that logic lives in
     // manaGate.isFreeGeneration and is untouched here.
+    // kind-economy/t-007: attribute the spend to the Character's creator
+    // when this is an upgrade of an existing, saved Character (it carries
+    // its own id) rather than a fresh, not-yet-created one -- the latter has
+    // no creator to attribute yet at generation time.
+    const characterId = typeof character.id === 'number' ? character.id : null
+
     const gate = await authAndTextGate(event, {
       model: 'gpt-4',
       maxTokens: 1000,
       provider: 'openai',
+      source: characterId ? { type: 'CHARACTER', id: characterId } : null,
     })
 
     // Prepare content for API

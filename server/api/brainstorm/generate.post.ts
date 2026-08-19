@@ -40,7 +40,10 @@ import type {
 } from '../../utils/suggest/suggestTypes'
 import { parseBrainstormProviderOutput } from '../../utils/brainstorm/brainstormParser'
 import { buildBrainstormPrompts } from '../../utils/brainstorm/brainstormPrompt'
-import { resolveBrainstormSourceContext } from '../../utils/brainstorm/brainstormSourceContext'
+import {
+  BRAINSTORM_SOURCE_ATTRIBUTION_TYPE,
+  resolveBrainstormSourceContext,
+} from '../../utils/brainstorm/brainstormSourceContext'
 import {
   brainstormProviderApiKey,
   callBrainstormProvider,
@@ -64,7 +67,11 @@ function normalizedOutputDomain(value: unknown): BrainstormOutputDomainId {
   return id && OUTPUT_DOMAIN_IDS.has(id) ? id : BRAINSTORM_DEFAULT_OUTPUT_DOMAIN
 }
 
-function requiredText(value: unknown, label: string, maxLength: number): string {
+function requiredText(
+  value: unknown,
+  label: string,
+  maxLength: number,
+): string {
   const text = typeof value === 'string' ? value.trim() : ''
   if (!text) {
     throw createError({ statusCode: 400, message: `${label} is required.` })
@@ -192,7 +199,9 @@ function normalizedReturnTypes(
   return result
 }
 
-function normalizeRequest(body: BrainstormGeneratePayload): BrainstormGenerateRequest {
+function normalizeRequest(
+  body: BrainstormGeneratePayload,
+): BrainstormGenerateRequest {
   const count = requestedCount(body.count)
   const batchShape = normalizedBatchShape(body.batchShape)
 
@@ -331,10 +340,25 @@ export default defineEventHandler(async (event) => {
     const model = resolveSuggestModel(provider, server.model)
     const maxTokens = completionBudget(request.count)
 
+    // kind-economy/t-007: attribute this generation to the creator of the
+    // Character/Scenario/Dream it was grounded in, when it was grounded in
+    // one -- same BrainstormSourceRef resolveBrainstormSourceContext below
+    // uses for prompt grounding, just mapped to an attribution type instead
+    // of a context string.
+    const attributionType = request.source?.modelType
+      ? BRAINSTORM_SOURCE_ATTRIBUTION_TYPE[
+          request.source.modelType.toLowerCase()
+        ]
+      : undefined
+
     const gate = await manaGate(event, {
       kind: 'text',
       estCostUsd: estimateTextCostUsd({ model, maxTokens }),
       serverId: server.id,
+      source:
+        attributionType && request.source?.id
+          ? { type: attributionType, id: request.source.id }
+          : null,
     })
 
     const config = useRuntimeConfig()
@@ -373,7 +397,10 @@ export default defineEventHandler(async (event) => {
       }),
       baseUrl:
         provider === 'ollama'
-          ? str(server.baseUrl, str(config.ollamaBaseUrl, 'http://localhost:11434'))
+          ? str(
+              server.baseUrl,
+              str(config.ollamaBaseUrl, 'http://localhost:11434'),
+            )
           : provider === 'openai_compatible'
             ? str(server.baseUrl)
             : undefined,
@@ -386,7 +413,8 @@ export default defineEventHandler(async (event) => {
     if (!raw.trim()) {
       throw createError({
         statusCode: 502,
-        message: 'The selected text server returned an empty Brainstorm response.',
+        message:
+          'The selected text server returned an empty Brainstorm response.',
       })
     }
 

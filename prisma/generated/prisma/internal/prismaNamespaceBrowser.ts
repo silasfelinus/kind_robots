@@ -869,7 +869,11 @@ export const ManaTransactionScalarFieldEnum = {
   note: 'note',
   provider: 'provider',
   costUsd: 'costUsd',
-  reversedById: 'reversedById'
+  reversedById: 'reversedById',
+  sourceType: 'sourceType',
+  sourceId: 'sourceId',
+  creatorUserId: 'creatorUserId',
+  isSelfAttribution: 'isSelfAttribution'
 } as const
 
 export type ManaTransactionScalarFieldEnum = (typeof ManaTransactionScalarFieldEnum)[keyof typeof ManaTransactionScalarFieldEnum]

@@ -2090,6 +2090,24 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   ): Promise<void> {
     const items = groupItems(outputKey)
     if (!items.length) return
+    // Bug (model-builder/t-029 cycle 13): unlike every single-item async
+    // entry point that spans a real network round-trip (draftText itself --
+    // see verifyModelBuilderDraftStatusScopeGuard's doc comment --
+    // generateItemAsset, generateItemAssetAsync, commitItem, pushItem,
+    // batchPushItems) and unlike this function's own whole-run sibling
+    // autoBuildRun, this loop's final completion toast was a bare, unscoped
+    // setStatus, with no runId capture at all. batchDraftField awaits
+    // draftText once per item in the group -- easily seconds of real work
+    // for a multi-item quantity group -- long enough for the user to switch
+    // to (or start) a different run via History before it finishes. Every
+    // per-item draftText call already scopes ITS OWN status messages
+    // correctly via setStatusForRun, so no per-item toast leaks -- but this
+    // function's own summary ran unconditionally after the loop regardless
+    // of which run was on screen by then, popping a misleading "Drafted
+    // X/N items." banner over whatever OTHER run the user has since
+    // switched to, about a group that isn't even part of what's on screen.
+    // Captured up front, mirroring autoBuildRun's own runId capture.
+    const runId = state.run?.id
     const stageKey = stageForDraftField(field)
     batchingOutputSingleton.claim(outputKey)
     clearStatus()
@@ -2125,10 +2143,13 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         else failed++
       }
       const label = field === 'artPrompt' ? 'prompt' : field
-      setStatus(
-        failed ? 'error' : 'success',
-        `Drafted ${label} for ${drafted}/${items.length} items.`,
-      )
+      if (runId) {
+        setStatusForRun(
+          runId,
+          failed ? 'error' : 'success',
+          `Drafted ${label} for ${drafted}/${items.length} items.`,
+        )
+      }
     } finally {
       batchingOutputSingleton.release(outputKey)
     }
@@ -2168,6 +2189,18 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     fieldKey: string,
     value: string,
   ): Promise<void> {
+    // Bug (model-builder/t-029 cycle 13): captured up front, mirroring
+    // draftText/generateItemAsset/commitItem/pushItem/batchPushItems (see
+    // verifyModelBuilderDraftStatusScopeGuard's doc comment for the full
+    // shape of this bug class). batchPushItems below is a real network
+    // round-trip the user can switch runs during via History; batchPushItems
+    // itself already scopes its own failure toast through setStatusForRun,
+    // but this function's own success toast was a bare, unscoped setStatus
+    // with no runId at all -- so a batch field-set that resolves after the
+    // user has switched to (or started) a different run pops a misleading
+    // "Set ... on N/M items." success banner over whatever OTHER run is now
+    // on screen, about a group that isn't even part of what's on screen.
+    const runId = state.run?.id
     const items = groupItems(outputKey)
     const entries: Array<{
       item: BuildItem
@@ -2209,10 +2242,13 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       // setStatusForRun -- reporting a blanket "success" here too would be
       // actively misleading.
       if (ok) {
-        setStatus(
-          'success',
-          `Set ${fieldKey} on ${entries.length}/${items.length} items.`,
-        )
+        if (runId) {
+          setStatusForRun(
+            runId,
+            'success',
+            `Set ${fieldKey} on ${entries.length}/${items.length} items.`,
+          )
+        }
       } else if (failedIds.size) {
         // Revert exactly the entries the server rejected -- see this
         // function's own doc comment and batchPushItems' for why a partial
@@ -2264,6 +2300,12 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     outputKey: string,
     stageKey: BuildStageKey,
   ): Promise<void> {
+    // Bug (model-builder/t-029 cycle 13): captured up front, same as
+    // batchSetField's identical fix (see its own doc comment) -- the
+    // batchPushItems() await below is a real network round-trip the user can
+    // switch runs during via History, and this function's success toast was
+    // a bare, unscoped setStatus with no runId at all.
+    const runId = state.run?.id
     const entries: Array<{
       item: BuildItem
       payload: Record<string, unknown>
@@ -2295,10 +2337,13 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       // setStatusForRun -- reporting a blanket "success" here too would be
       // actively misleading.
       if (ok) {
-        setStatus(
-          'success',
-          `Approved ${stageKey} for ${entries.length} items.`,
-        )
+        if (runId) {
+          setStatusForRun(
+            runId,
+            'success',
+            `Approved ${stageKey} for ${entries.length} items.`,
+          )
+        }
       } else if (failedIds.size) {
         // Revert exactly the entries the server rejected -- see this
         // function's own doc comment and batchPushItems' for why a partial
@@ -2319,6 +2364,26 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   async function batchAutoBuild(outputKey: string): Promise<void> {
     const items = groupItems(outputKey)
     if (!items.length) return
+    // Bug (model-builder/t-029 cycle 13): captured up front, exactly
+    // mirroring autoBuildRun's own runId capture and its doc comment just
+    // below (same file) -- autoBuildRun already guards both its per-item
+    // loop and its final summary against the user switching to (or
+    // starting) a different run via History mid-pass, but this function,
+    // despite looping the same way over the same multi-step autoBuildItem()
+    // calls for potentially many items in a group, never captured a runId
+    // at all: its final summary was a bare, unscoped setStatus that ran
+    // unconditionally regardless of which run was on screen by the time the
+    // group finished. A "Auto-build group" pass on Run A left running while
+    // the user opens History and switches to Run B pops this stale
+    // completion toast -- "Auto-built X/N in this group (Y failed...)" --
+    // over Run B's banner once Run A's abandoned pass finally finishes,
+    // about a group that isn't even part of what's on screen. `items.length`
+    // being non-zero already implies state.run was non-null when
+    // groupItems() read it, but that's not visible to the type checker
+    // through the intervening function call, so this stays optional
+    // (mirroring batchDraftField/batchSetField/batchApproveStage's own
+    // identical `state.run?.id` capture) rather than a non-null assertion.
+    const runId = state.run?.id
     batchingOutputSingleton.claim(outputKey)
     clearStatus()
     let committed = 0
@@ -2326,6 +2391,12 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     let failed = 0
     try {
       for (const item of items) {
+        // See autoBuildRun's identical guard: stop walking this group the
+        // instant the user has switched away from the run it belongs to,
+        // rather than continuing to await autoBuildItem() calls that can
+        // now only fail fast (findItem() won't find this item in whatever
+        // OTHER run is now active).
+        if (state.run?.id !== runId) return
         if (item.stages.COMMIT.status === 'approved') {
           committed++
           // See autoBuildRun's identical branch: keep the badge from
@@ -2355,10 +2426,12 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       const failedNote = failed
         ? ` (${failed} failed — see the item's own error for details)`
         : ''
-      setStatus(
-        failed ? 'error' : 'success',
-        `Auto-built ${committed}/${items.length} in this group${failedNote}${skippedNote}.`,
-      )
+      if (state.run?.id === runId) {
+        setStatus(
+          failed ? 'error' : 'success',
+          `Auto-built ${committed}/${items.length} in this group${failedNote}${skippedNote}.`,
+        )
+      }
     } finally {
       batchingOutputSingleton.release(outputKey)
     }

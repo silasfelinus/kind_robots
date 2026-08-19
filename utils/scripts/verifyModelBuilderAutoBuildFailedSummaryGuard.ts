@@ -29,6 +29,16 @@
 // draftText already set per failed item via setStatusForRun. Folded into
 // this same generic guard rather than a new file since the guard was already
 // written to check an arbitrary list of TARGET_FUNCTIONS for this one shape.
+//
+// Extended again (model-builder/t-029 cycle 13, see
+// verifyModelBuilderBatchGroupStatusScopeGuard's own doc comment for the
+// full bug): batchDraftField's own final summary call changed shape from
+// the bare `setStatus(tone, message)` this guard originally expected to
+// `setStatusForRun(runId, tone, message)` -- a *different*, orthogonal fix
+// (scoping the toast to the run it belongs to) that this guard's regex
+// wasn't written to recognize. The tone-reflects-failure check below now
+// accepts either call shape, reading the tone argument from whichever
+// position it actually falls in.
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -78,13 +88,22 @@ export function checkAutoBuildFailedSummaryGuard(content: string): string[] {
       continue
     }
 
-    const finalSetStatusMatch = fn.body.match(
-      /setStatus\(\s*([\s\S]*?),\s*`[^`]*`\s*,?\s*\)/,
+    // Prefer the run-scoped shape (setStatusForRun(runId, tone, message)) --
+    // its tone argument is the second parameter, after runId -- and fall
+    // back to the plain setStatus(tone, message) shape for a function that
+    // hasn't been migrated to run-scoping. Either is an acceptable home for
+    // the final summary; this guard only cares whether ITS tone reflects a
+    // tallied failure.
+    const finalSetStatusForRunMatch = fn.body.match(
+      /setStatusForRun\(\s*[^,]+,\s*([\s\S]*?),\s*`[^`]*`\s*,?\s*\)/,
     )
+    const finalSetStatusMatch =
+      finalSetStatusForRunMatch ??
+      fn.body.match(/setStatus\(\s*([\s\S]*?),\s*`[^`]*`\s*,?\s*\)/)
     if (!finalSetStatusMatch) {
       errors.push(
-        `${name}() does not appear to call setStatus(...) with its final ` +
-          'summary message.',
+        `${name}() does not appear to call setStatus(...)/setStatusForRun(...) ` +
+          'with its final summary message.',
       )
       continue
     }

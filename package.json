@@ -241,6 +241,8 @@
     "test:model-builder-batch-editor-key-guard": "tsx utils/scripts/verifyModelBuilderBatchEditorKeyGuard.ts",
     "test:model-builder-batch-prefill-guard-selftest": "tsx utils/scripts/verifyModelBuilderBatchPrefillGuard.test.ts",
     "test:model-builder-batch-prefill-guard": "tsx utils/scripts/verifyModelBuilderBatchPrefillGuard.ts",
+    "test:model-builder-auto-build-asset-only-message-guard-selftest": "tsx utils/scripts/verifyModelBuilderAutoBuildAssetOnlyMessageGuard.test.ts",
+    "test:model-builder-auto-build-asset-only-message-guard": "tsx utils/scripts/verifyModelBuilderAutoBuildAssetOnlyMessageGuard.ts",
     "test:model-builder-asset-only-approval-guard-selftest": "tsx utils/scripts/verifyModelBuilderAssetOnlyApprovalGuard.test.ts",
     "test:model-builder-asset-only-approval-guard": "tsx utils/scripts/verifyModelBuilderAssetOnlyApprovalGuard.ts",
     "test:model-builder-auto-build-approval-race-guard-selftest": "tsx utils/scripts/verifyModelBuilderAutoBuildApprovalRaceGuard.test.ts",

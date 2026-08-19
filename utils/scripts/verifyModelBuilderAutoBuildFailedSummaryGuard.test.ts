@@ -2,11 +2,15 @@
 //
 // Regression test for checkAutoBuildFailedSummaryGuard() in
 // verifyModelBuilderAutoBuildFailedSummaryGuard.ts (model-builder/t-029,
-// extended cycle 12 to also cover batchDraftField()). Exercises the real
+// extended cycle 12 to also cover batchDraftField(), extended cycle 13 for
+// the setStatusForRun(runId, tone, message) call shape). Exercises the real
 // check against synthetic store-shaped fixtures covering: the pre-fix shape
 // (failed outcomes never tallied, tone always 'success'), the fixed shape
-// (all three functions), a shape that tallies `failed` but never reflects it
-// in the tone, and all target functions being absent entirely.
+// (all three functions, with batchDraftField using the real
+// setStatusForRun(runId, ...) shape it was migrated to in cycle 13), a shape
+// that tallies `failed` but never reflects it in the tone (both the bare
+// setStatus and the setStatusForRun call shapes), and all target functions
+// being absent entirely.
 import assert from 'node:assert/strict'
 
 import { checkAutoBuildFailedSummaryGuard } from './verifyModelBuilderAutoBuildFailedSummaryGuard.js'
@@ -113,6 +117,7 @@ const FIXED_FIXTURE = `
 
   async function batchDraftField(outputKey: string, field: DraftField): Promise<void> {
     const items = groupItems(outputKey)
+    const runId = state.run?.id
     let drafted = 0
     let failed = 0
     try {
@@ -121,10 +126,13 @@ const FIXED_FIXTURE = `
         if (ok) drafted++
         else failed++
       }
-      setStatus(
-        failed ? 'error' : 'success',
-        \`Drafted \${field} for \${drafted}/\${items.length} items.\`,
-      )
+      if (runId) {
+        setStatusForRun(
+          runId,
+          failed ? 'error' : 'success',
+          \`Drafted \${field} for \${drafted}/\${items.length} items.\`,
+        )
+      }
     } finally {
       batchingOutputSingleton.release(outputKey)
     }
@@ -176,6 +184,7 @@ const TALLIED_BUT_TONE_IGNORED_FIXTURE = `
 
   async function batchDraftField(outputKey: string, field: DraftField): Promise<void> {
     const items = groupItems(outputKey)
+    const runId = state.run?.id
     let drafted = 0
     let failed = 0
     try {
@@ -184,10 +193,13 @@ const TALLIED_BUT_TONE_IGNORED_FIXTURE = `
         if (ok) drafted++
         else failed++
       }
-      setStatus(
-        'success',
-        \`Drafted \${field} for \${drafted}/\${items.length} items.\`,
-      )
+      if (runId) {
+        setStatusForRun(
+          runId,
+          'success',
+          \`Drafted \${field} for \${drafted}/\${items.length} items.\`,
+        )
+      }
     } finally {
       batchingOutputSingleton.release(outputKey)
     }

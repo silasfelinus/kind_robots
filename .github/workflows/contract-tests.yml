@@ -485,6 +485,12 @@ jobs:
       - name: Model Builder draftText status-scope guard contract
         run: npm run test:model-builder-draft-status-scope-guard
 
+      - name: Model Builder batch-group status-scope guard checker self-test
+        run: npm run test:model-builder-batch-group-status-scope-guard-selftest
+
+      - name: Model Builder batch-group status-scope guard contract
+        run: npm run test:model-builder-batch-group-status-scope-guard
+
       - name: Model Builder batchSetField confirmed-success guard checker self-test
         run: npm run test:model-builder-batch-set-field-confirmed-success-guard-selftest
 

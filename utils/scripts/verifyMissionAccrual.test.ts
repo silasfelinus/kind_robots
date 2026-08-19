@@ -17,6 +17,7 @@ import assert from 'node:assert/strict'
 import {
   summarizeMissionAccrual,
   validateMissionRemittanceInput,
+  checkMissionRemittanceReconciliation,
   type MissionAccrualRow,
 } from '../../server/utils/missionAccrual.js'
 import {
@@ -224,6 +225,35 @@ for (const badNote of ['', '   ', null, undefined]) {
 
 console.log(
   '✅ validateMissionRemittanceInput: accepts clean input, trims/limits reference, rejects non-positive/non-integer amounts and empty notes',
+)
+
+// --- checkMissionRemittanceReconciliation (kind-economy/t-016) -------------
+// The two failure modes the task asks for: remitting less than accrued
+// (the promise is broken) and double-remitting the same period (the money
+// is gone twice). Both collapse onto the sign of outstandingCents.
+
+{
+  assert.deepEqual(checkMissionRemittanceReconciliation(0), {
+    status: 'reconciled',
+  })
+}
+
+{
+  assert.deepEqual(checkMissionRemittanceReconciliation(1250), {
+    status: 'under-remitted',
+    shortfallCents: 1250,
+  })
+}
+
+{
+  assert.deepEqual(checkMissionRemittanceReconciliation(-500), {
+    status: 'over-remitted',
+    overageCents: 500,
+  })
+}
+
+console.log(
+  '✅ checkMissionRemittanceReconciliation: reconciled at zero, flags under-remitted (positive outstanding) and over-remitted/possible-double-remit (negative outstanding) with the correct magnitude',
 )
 
 console.log('✅ verifyMissionAccrual: all assertions passed')

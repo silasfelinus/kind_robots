@@ -544,6 +544,12 @@ const PAGES: PageSeed[] = [
       'A counting house of brass scales, coin trays and a ledger under a green-shaded lamp, warm wood. Trustworthy and precise.',
   },
   {
+    page: 'creator-earnings',
+    title: 'Creator Earnings — The Tally Loft',
+    scene:
+      'A tally loft above a workshop floor: shelves of small labelled dishes each holding a handful of glowing tokens, an open ledger book catching lamplight on a slanted desk, taut strings running up from a few dishes to miniature models — a little robot, a book, a mask, a paintbrush — suspended from the rafters overhead. Warm brass fittings, motes of light drifting up from the tokens. Precise and quietly rewarding — a place where what you made is being counted, not yet paid out.',
+  },
+  {
     page: 'watchlist',
     title: 'Watchlist — The Screening Room',
     scene:

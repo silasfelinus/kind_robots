@@ -23,7 +23,7 @@ import {
   BRAINSTORM_MIN_RESULTS,
   BRAINSTORM_OUTPUT_DOMAINS,
   BRAINSTORM_RETURN_TYPES,
-} from '@/types/brainstorm'
+} from '../../types/brainstorm'
 import type {
   BrainstormBatch,
   BrainstormBatchShape,
@@ -38,7 +38,7 @@ import type {
   BrainstormReturnTypeId,
   BrainstormReturnTypeRequest,
   BrainstormSourceRef,
-} from '@/types/brainstorm'
+} from '../../types/brainstorm'
 
 export function nowIso(): string {
   return new Date().toISOString()

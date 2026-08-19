@@ -98,7 +98,23 @@ export function checkRunsIndexNoBlindOverwrite(content: string): string[] {
 
 // Checks a PATCH route file: it must call mergeStageStatusChanges with a
 // value read via a fresh `findUnique` (not the request-start snapshot),
-// immediately before a `tx.modelBuildItem.update(` write.
+// before a `tx.modelBuildItem.update(` write.
+//
+// Not a fixed character-distance window (model-builder/t-029, cycle 17):
+// the earlier version of this check required `findUnique` and
+// `stageStatuses: true` to appear within 400 characters before the merge
+// assignment, which was true when this fix first landed but broke the
+// moment legitimate per-write validation grew that gap -- e.g. the
+// contentStageChecks re-validation this same cycle added between the fresh
+// read and the merge, to close the sibling staleness bug in
+// assertContentStageEditable (see verifyModelBuilderItemPatchStageGuard.ts).
+// Checked instead as three distance-independent invariants: (1) the merge's
+// own first argument text isn't `existing.stageStatuses` (the literal
+// regression signal), (2) a `findUnique(...)` selecting `stageStatuses:
+// true` appears anywhere before the merge, and (3) no
+// `tx.modelBuildItem.update(` write happens between that read and the
+// merge -- i.e. the read genuinely precedes this write, however much
+// validation now sits in between.
 export function checkPatchRouteFreshMerge(
   content: string,
   label: string,
@@ -115,22 +131,38 @@ export function checkPatchRouteFreshMerge(
     return errors
   }
 
-  // A `findUnique` selecting stageStatuses must appear shortly before the
-  // merge call (the fresh read this merge is supposed to be based on).
-  const precedingSlice = content.slice(
-    Math.max(0, mergeIndex - 400),
-    mergeIndex,
-  )
-  if (
-    !precedingSlice.includes('findUnique') ||
-    !precedingSlice.includes('stageStatuses: true')
-  ) {
+  const argStart = mergeIndex + MERGE_ASSIGNMENT.length
+  const argEnd = content.indexOf(',', argStart)
+  const firstArg = content
+    .slice(argStart, argEnd === -1 ? argStart + 120 : argEnd)
+    .trim()
+  if (/\bexisting\b/.test(firstArg)) {
     errors.push(
-      `${label} calls mergeStageStatusChanges(...) but no nearby ` +
+      `${label} calls mergeStageStatusChanges(${firstArg}, ...) -- its first ` +
+        'argument references `existing`, the stale request-start snapshot, ' +
+        'instead of a value read fresh immediately before this write.',
+    )
+  }
+
+  const beforeMerge = content.slice(0, mergeIndex)
+  const findUniqueIndex = beforeMerge.lastIndexOf('findUnique')
+  const stageTrueIndex = beforeMerge.lastIndexOf('stageStatuses: true')
+  if (findUniqueIndex === -1 || stageTrueIndex < findUniqueIndex) {
+    errors.push(
+      `${label} calls mergeStageStatusChanges(...) but no ` +
         '`findUnique({ ... select: { stageStatuses: true } })` precedes it -- ' +
         'the merge must be based on a value read immediately before the ' +
         'write, not an older snapshot.',
     )
+  } else {
+    const lastWriteIndex = beforeMerge.lastIndexOf('tx.modelBuildItem.update(')
+    if (lastWriteIndex > findUniqueIndex) {
+      errors.push(
+        `${label} writes the item (tx.modelBuildItem.update(...)) before ` +
+          'its own stageStatuses fresh-read/merge -- the read (and merge) ' +
+          'must happen before any write, not after.',
+      )
+    }
   }
 
   // The merge assignment must itself land before the actual DB write it

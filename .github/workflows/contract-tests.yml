@@ -425,6 +425,12 @@ jobs:
       - name: Model Builder PATCH stale stage-status guard contract
         run: npm run test:model-builder-patch-stale-stage-status-guard
 
+      - name: Model Builder content-stage freshness guard checker self-test
+        run: npm run test:model-builder-content-stage-freshness-guard-selftest
+
+      - name: Model Builder content-stage freshness guard contract
+        run: npm run test:model-builder-content-stage-freshness-guard
+
       - name: Model Builder resetAll guard checker self-test
         run: npm run test:model-builder-reset-all-guard-selftest
 

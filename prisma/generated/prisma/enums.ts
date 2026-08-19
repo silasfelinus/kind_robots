@@ -68,6 +68,23 @@ export const ModelBuildReviewState = {
 export type ModelBuildReviewState = (typeof ModelBuildReviewState)[keyof typeof ModelBuildReviewState]
 
 
+export const SocialPlatform = {
+  BLUESKY: 'BLUESKY',
+  INSTAGRAM: 'INSTAGRAM'
+} as const
+
+export type SocialPlatform = (typeof SocialPlatform)[keyof typeof SocialPlatform]
+
+
+export const SocialPostDraftStatus = {
+  DRAFT: 'DRAFT',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
+} as const
+
+export type SocialPostDraftStatus = (typeof SocialPostDraftStatus)[keyof typeof SocialPostDraftStatus]
+
+
 export const DownloadSource = {
   CIVITAI: 'CIVITAI',
   CIVARCHIVE: 'CIVARCHIVE',

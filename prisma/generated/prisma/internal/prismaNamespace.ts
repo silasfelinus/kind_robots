@@ -433,6 +433,7 @@ export const ModelName = {
   Achievement: 'Achievement',
   ManaTransaction: 'ManaTransaction',
   RevenueSplit: 'RevenueSplit',
+  SocialPostDraft: 'SocialPostDraft',
   MissionRemittance: 'MissionRemittance',
   Product: 'Product',
   Order: 'Order',
@@ -498,7 +499,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
+    modelProps: "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2875,6 +2876,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.RevenueSplitCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.RevenueSplitCountAggregateOutputType> | number
+        }
+      }
+    }
+    SocialPostDraft: {
+      payload: Prisma.$SocialPostDraftPayload<ExtArgs>
+      fields: Prisma.SocialPostDraftFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SocialPostDraftFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostDraftPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SocialPostDraftFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostDraftPayload>
+        }
+        findFirst: {
+          args: Prisma.SocialPostDraftFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostDraftPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SocialPostDraftFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostDraftPayload>
+        }
+        findMany: {
+          args: Prisma.SocialPostDraftFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostDraftPayload>[]
+        }
+        create: {
+          args: Prisma.SocialPostDraftCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostDraftPayload>
+        }
+        createMany: {
+          args: Prisma.SocialPostDraftCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.SocialPostDraftDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostDraftPayload>
+        }
+        update: {
+          args: Prisma.SocialPostDraftUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostDraftPayload>
+        }
+        deleteMany: {
+          args: Prisma.SocialPostDraftDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SocialPostDraftUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.SocialPostDraftUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SocialPostDraftPayload>
+        }
+        aggregate: {
+          args: Prisma.SocialPostDraftAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSocialPostDraft>
+        }
+        groupBy: {
+          args: Prisma.SocialPostDraftGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SocialPostDraftGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SocialPostDraftCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SocialPostDraftCountAggregateOutputType> | number
         }
       }
     }
@@ -6964,6 +7031,24 @@ export const RevenueSplitScalarFieldEnum = {
 export type RevenueSplitScalarFieldEnum = (typeof RevenueSplitScalarFieldEnum)[keyof typeof RevenueSplitScalarFieldEnum]
 
 
+export const SocialPostDraftScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  platform: 'platform',
+  sourceType: 'sourceType',
+  sourceId: 'sourceId',
+  bodyText: 'bodyText',
+  disclosureLabel: 'disclosureLabel',
+  mediaUrl: 'mediaUrl',
+  status: 'status',
+  reviewedBy: 'reviewedBy',
+  reviewedAt: 'reviewedAt'
+} as const
+
+export type SocialPostDraftScalarFieldEnum = (typeof SocialPostDraftScalarFieldEnum)[keyof typeof SocialPostDraftScalarFieldEnum]
+
+
 export const MissionRemittanceScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -8396,6 +8481,15 @@ export const RevenueSplitOrderByRelevanceFieldEnum = {
 export type RevenueSplitOrderByRelevanceFieldEnum = (typeof RevenueSplitOrderByRelevanceFieldEnum)[keyof typeof RevenueSplitOrderByRelevanceFieldEnum]
 
 
+export const SocialPostDraftOrderByRelevanceFieldEnum = {
+  bodyText: 'bodyText',
+  disclosureLabel: 'disclosureLabel',
+  mediaUrl: 'mediaUrl'
+} as const
+
+export type SocialPostDraftOrderByRelevanceFieldEnum = (typeof SocialPostDraftOrderByRelevanceFieldEnum)[keyof typeof SocialPostDraftOrderByRelevanceFieldEnum]
+
+
 export const MissionRemittanceOrderByRelevanceFieldEnum = {
   note: 'note',
   reference: 'reference'
@@ -9091,6 +9185,20 @@ export type EnumManaAttributionSourceFieldRefInput<$PrismaModel> = FieldRefInput
 
 
 /**
+ * Reference to a field of type 'SocialPlatform'
+ */
+export type EnumSocialPlatformFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SocialPlatform'>
+    
+
+
+/**
+ * Reference to a field of type 'SocialPostDraftStatus'
+ */
+export type EnumSocialPostDraftStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SocialPostDraftStatus'>
+    
+
+
+/**
  * Reference to a field of type 'ProductType'
  */
 export type EnumProductTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductType'>
@@ -9577,6 +9685,7 @@ export type GlobalOmitConfig = {
   achievement?: Prisma.AchievementOmit
   manaTransaction?: Prisma.ManaTransactionOmit
   revenueSplit?: Prisma.RevenueSplitOmit
+  socialPostDraft?: Prisma.SocialPostDraftOmit
   missionRemittance?: Prisma.MissionRemittanceOmit
   product?: Prisma.ProductOmit
   order?: Prisma.OrderOmit

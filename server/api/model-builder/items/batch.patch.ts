@@ -11,6 +11,7 @@ import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
 import {
+  assertContentStageEditable,
   assertRunAccess,
   assertRunWritable,
   mergeStageStatusChanges,
@@ -66,6 +67,9 @@ export default defineEventHandler(async (event) => {
       stageStatusChanges: ReturnType<
         typeof prepareItemUpdate
       >['stageStatusChanges']
+      contentStageChecks: ReturnType<
+        typeof prepareItemUpdate
+      >['contentStageChecks']
     }> = []
 
     for (const entry of entries) {
@@ -110,12 +114,15 @@ export default defineEventHandler(async (event) => {
 
         const { id: _omit, ...fields } = entry
         void _omit
-        const { data, revision, stageStatusChanges } = prepareItemUpdate(
-          existing,
-          fields,
-          actor,
-        )
-        applied.push({ id, data, revision, stageStatusChanges })
+        const { data, revision, stageStatusChanges, contentStageChecks } =
+          prepareItemUpdate(existing, fields, actor)
+        applied.push({
+          id,
+          data,
+          revision,
+          stageStatusChanges,
+          contentStageChecks,
+        })
         results.push({ id, success: true, message: 'Queued.', statusCode: 200 })
       } catch (error: unknown) {
         const handled = errorHandler(error)
@@ -132,12 +139,13 @@ export default defineEventHandler(async (event) => {
     if (applied.length) {
       const updatedById = await prisma.$transaction(async (tx) => {
         const byId = new Map<number, unknown>()
-        for (const { id, data, revision, stageStatusChanges } of applied) {
-          if (revision) {
-            await tx.modelBuildRevision.create({
-              data: { itemId: id, ...revision },
-            })
-          }
+        for (const {
+          id,
+          data,
+          revision,
+          stageStatusChanges,
+          contentStageChecks,
+        } of applied) {
           // Re-read stageStatuses immediately before this entry's own write —
           // see the identical merge in items/[id].patch.ts for why. The gap
           // this closes is larger here than the single-item route: every
@@ -146,11 +154,48 @@ export default defineEventHandler(async (event) => {
           // write (e.g. an async art job's pushItem landing mid-batch) has a
           // real window to land in between this batch's `existing` reads and
           // its actual writes.
-          if (stageStatusChanges) {
-            const fresh = await tx.modelBuildItem.findUnique({
-              where: { id },
-              select: { stageStatuses: true },
+          const fresh =
+            stageStatusChanges || contentStageChecks.length
+              ? await tx.modelBuildItem.findUnique({
+                  where: { id },
+                  select: { stageStatuses: true },
+                })
+              : null
+
+          // Re-run prepareItemUpdate's content-editable gate against that
+          // same fresh read (model-builder/t-029) — its own eager check only
+          // ever saw the per-entry `existing` read taken before this shared
+          // transaction opened, so a concurrent approveStage for this same
+          // item landing in between is invisible to it. Caught per-entry
+          // (rather than left to abort the whole transaction) so one item's
+          // stage having moved on doesn't revert every other entry in the
+          // same batch — matching this route's own "single failing entry
+          // does not abort the others" contract.
+          try {
+            for (const { stageKey, fieldLabel } of contentStageChecks) {
+              assertContentStageEditable(
+                fresh?.stageStatuses,
+                stageKey,
+                fieldLabel,
+              )
+            }
+          } catch (error: unknown) {
+            const handled = errorHandler(error)
+            const result = results.find((entry) => entry.id === id)
+            if (result) {
+              result.success = false
+              result.message = handled.message || `Failed to update item ${id}.`
+              result.statusCode = handled.statusCode || 500
+            }
+            continue
+          }
+
+          if (revision) {
+            await tx.modelBuildRevision.create({
+              data: { itemId: id, ...revision },
             })
+          }
+          if (stageStatusChanges) {
             data.stageStatuses = mergeStageStatusChanges(
               fresh?.stageStatuses,
               stageStatusChanges,

@@ -5,6 +5,7 @@ import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
 import {
+  assertContentStageEditable,
   assertRunAccess,
   assertRunWritable,
   getItemId,
@@ -45,18 +46,14 @@ export default defineEventHandler(async (event) => {
     if (body.artImageId !== undefined) {
       await assertArtImageAttachable(body.artImageId, auth.user.id, auth.isAdmin)
     }
-    const { data, revision, stageStatusChanges } = prepareItemUpdate(
-      existing,
-      body,
-      auth.user.username ?? String(auth.user.id),
-    )
+    const { data, revision, stageStatusChanges, contentStageChecks } =
+      prepareItemUpdate(
+        existing,
+        body,
+        auth.user.username ?? String(auth.user.id),
+      )
 
     const item = await prisma.$transaction(async (tx) => {
-      if (revision) {
-        await tx.modelBuildRevision.create({
-          data: { itemId: id, ...revision },
-        })
-      }
       // Re-read stageStatuses immediately before the write rather than
       // trusting the request-start `existing` snapshot: another request
       // (a concurrent single-item PATCH, batch PATCH, or commit) can change
@@ -64,11 +61,32 @@ export default defineEventHandler(async (event) => {
       // stageStatusChanges only carries the keys THIS request actually
       // intends to change (see prepareItemUpdate/diffStageStatusChanges),
       // merged onto whatever is live right now — never onto the stale copy.
-      if (stageStatusChanges) {
-        const fresh = await tx.modelBuildItem.findUnique({
-          where: { id },
-          select: { stageStatuses: true },
+      //
+      // contentStageChecks re-runs prepareItemUpdate's own gate a second
+      // time against this same fresh read (model-builder/t-029): that first
+      // check only ever saw `existing`, read once at request start, before
+      // readBody/artImageId validation even ran, let alone this transaction
+      // opening. A concurrent approveStage (which writes only stageStatuses,
+      // never content) landing in that window is invisible to the eager
+      // check — this closes it, throwing (and rolling back the transaction)
+      // if the stage this request is about to write into is no longer
+      // ready/stale/rejected by the time the write actually happens.
+      const fresh =
+        stageStatusChanges || contentStageChecks.length
+          ? await tx.modelBuildItem.findUnique({
+              where: { id },
+              select: { stageStatuses: true },
+            })
+          : null
+      for (const { stageKey, fieldLabel } of contentStageChecks) {
+        assertContentStageEditable(fresh?.stageStatuses, stageKey, fieldLabel)
+      }
+      if (revision) {
+        await tx.modelBuildRevision.create({
+          data: { itemId: id, ...revision },
         })
+      }
+      if (stageStatusChanges) {
         data.stageStatuses = mergeStageStatusChanges(
           fresh?.stageStatuses,
           stageStatusChanges,

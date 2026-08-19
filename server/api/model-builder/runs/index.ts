@@ -180,6 +180,20 @@ export type PreparedItemUpdate = {
   // mergeStageStatusChanges below) rather than writing this object directly,
   // or a concurrent write to a stage this request never touched gets clobbered.
   stageStatusChanges: Record<string, unknown> | null
+  // Every assertContentStageEditable(existing.stageStatuses, ...) call this
+  // invocation performed, so the caller can re-run the identical check a
+  // second time against a value read immediately before the write (model-
+  // builder/t-029): the check above only ever sees `existing`, a single
+  // findUnique done once at request start, before readBody/artImageId
+  // validation/the transaction even open. A concurrent request that changes
+  // this same stage's status (most plainly: approveStage, which writes only
+  // stageStatuses, never pitch/fieldsDraft/promptDraft/artImageId) can land
+  // in the window between that read and this request's own write — the
+  // eager check above then okays a content write against a status that is
+  // no longer current, silently overwriting an approved stage's content
+  // while its badge keeps showing 'approved', exactly the outcome this gate
+  // exists to prevent. Empty when this request touched no gated field.
+  contentStageChecks: Array<{ stageKey: ContentStageKey; fieldLabel: string }>
 }
 
 // The client always sends item.stages in full — every stage key, including
@@ -257,9 +271,16 @@ export function mergeStageStatusChanges(
 // 'approved' for the old, actually-reviewed image.
 const CONTENT_STAGE_EDITABLE_STATUSES = new Set(['ready', 'stale', 'rejected'])
 
-function assertContentStageEditable(
+export type ContentStageKey = 'PITCH' | 'FIELDS_AND_PROMPTS' | 'GENERATE_ASSETS'
+
+// Exported so callers can re-run this exact check a second time, against a
+// freshly-read stageStatuses value immediately before their write — see
+// PreparedItemUpdate.contentStageChecks' doc comment for why the single
+// check performed inside prepareItemUpdate below (against the request-start
+// `existing` snapshot) is not sufficient on its own.
+export function assertContentStageEditable(
   stageStatuses: unknown,
-  stageKey: 'PITCH' | 'FIELDS_AND_PROMPTS' | 'GENERATE_ASSETS',
+  stageKey: ContentStageKey,
   fieldLabel: string,
 ): void {
   const stages = parseStoredJson<Record<string, { status?: string }>>(
@@ -293,6 +314,7 @@ export function prepareItemUpdate(
   actor: string,
 ): PreparedItemUpdate {
   const data: Prisma.ModelBuildItemUncheckedUpdateInput = {}
+  const contentStageChecks: PreparedItemUpdate['contentStageChecks'] = []
 
   let stageStatusChanges: Record<string, unknown> | null = null
   if (body.stageStatuses !== undefined && body.stageStatuses !== null) {
@@ -309,6 +331,7 @@ export function prepareItemUpdate(
   }
   if (body.pitch !== undefined) {
     assertContentStageEditable(existing.stageStatuses, 'PITCH', 'Pitch')
+    contentStageChecks.push({ stageKey: 'PITCH', fieldLabel: 'Pitch' })
     data.pitch = normalizeText(body.pitch)
   }
   if (body.fieldsDraft !== undefined) {
@@ -317,6 +340,10 @@ export function prepareItemUpdate(
       'FIELDS_AND_PROMPTS',
       'Fields',
     )
+    contentStageChecks.push({
+      stageKey: 'FIELDS_AND_PROMPTS',
+      fieldLabel: 'Fields',
+    })
     data.fieldsDraft = normalizeText(body.fieldsDraft)
   }
   if (body.promptDraft !== undefined) {
@@ -325,6 +352,10 @@ export function prepareItemUpdate(
       'FIELDS_AND_PROMPTS',
       'Prompt',
     )
+    contentStageChecks.push({
+      stageKey: 'FIELDS_AND_PROMPTS',
+      fieldLabel: 'Prompt',
+    })
     data.promptDraft = normalizeText(body.promptDraft)
   }
   const relationshipDraft = normalizeJson(body.relationshipDraft)
@@ -339,6 +370,10 @@ export function prepareItemUpdate(
       'GENERATE_ASSETS',
       'Art image',
     )
+    contentStageChecks.push({
+      stageKey: 'GENERATE_ASSETS',
+      fieldLabel: 'Art image',
+    })
     data.artImageId = normalizeNullableId(body.artImageId)
   }
   if (body.targetType !== undefined)
@@ -352,7 +387,8 @@ export function prepareItemUpdate(
     body.promptDraft !== undefined ||
     body.relationshipDraft !== undefined
 
-  if (!contentChanged) return { data, revision: null, stageStatusChanges }
+  if (!contentChanged)
+    return { data, revision: null, stageStatusChanges, contentStageChecks }
 
   const stageLabel =
     typeof body.stage === 'string' ? body.stage.slice(0, 48) : 'EDIT'
@@ -393,5 +429,6 @@ export function prepareItemUpdate(
       nextPayload,
     },
     stageStatusChanges,
+    contentStageChecks,
   }
 }

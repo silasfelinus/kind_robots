@@ -107,6 +107,14 @@
           </article>
         </section>
 
+        <section
+          class="rounded-2xl border p-4 text-sm"
+          :class="reconciliationBannerClass"
+        >
+          <p class="font-bold">{{ reconciliationHeadline }}</p>
+          <p class="mt-1 text-xs opacity-80">{{ reconciliationDetail }}</p>
+        </section>
+
         <section class="space-y-3">
           <div class="flex items-center justify-between">
             <h2
@@ -234,6 +242,45 @@ const data = computed(() => store.data)
 const externalDonationCents = EXTERNAL_DIRECT_DONATION_CENTS
 const externalDonationAsOf = EXTERNAL_DIRECT_DONATION_AS_OF
 const externalDonationUrl = EXTERNAL_DIRECT_DONATION_URL
+
+// Reconciliation banner -- kind-economy/t-016. Mirrors
+// server/utils/missionAccrual.ts's checkMissionRemittanceReconciliation:
+// reconciled (outstanding == 0), under-remitted (promise broken, still
+// owed), or over-remitted (likely a duplicate/double remittance).
+const reconciliation = computed(() => data.value?.reconciliation ?? null)
+
+const reconciliationBannerClass = computed(() => {
+  switch (reconciliation.value?.status) {
+    case 'under-remitted':
+      return 'border-warning/40 bg-warning/10 text-base-content/85'
+    case 'over-remitted':
+      return 'border-error/40 bg-error/10 text-base-content/85'
+    default:
+      return 'border-success/30 bg-success/10 text-base-content/85'
+  }
+})
+
+const reconciliationHeadline = computed(() => {
+  const r = reconciliation.value
+  if (!r || r.status === 'reconciled') {
+    return '✅ Reconciled — outstanding is $0.00.'
+  }
+  if (r.status === 'under-remitted') {
+    return `⚠️ Under-remitted by ${formatUsdCents(r.shortfallCents)}.`
+  }
+  return `⚠️ Over-remitted by ${formatUsdCents(r.overageCents)}.`
+})
+
+const reconciliationDetail = computed(() => {
+  const r = reconciliation.value
+  if (!r || r.status === 'reconciled') {
+    return 'The last logged remittance covered exactly what had accrued at the time. Nothing owed right now.'
+  }
+  if (r.status === 'under-remitted') {
+    return 'The mission share promised to the fundraiser has not fully gone out yet. Send the outstanding amount and log it to bring this back to zero.'
+  }
+  return 'More has been logged as remitted than has accrued. Check for a duplicate remittance entry (same donation logged twice) or a typo’d amount before assuming this is correct.'
+})
 
 const form = reactive({
   amountUsd: '',

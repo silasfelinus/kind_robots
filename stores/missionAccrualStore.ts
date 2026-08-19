@@ -33,11 +33,17 @@ export type MissionRemittanceRow = {
   reference: string | null
 }
 
+export type MissionRemittanceReconciliation =
+  | { status: 'reconciled' }
+  | { status: 'under-remitted'; shortfallCents: number }
+  | { status: 'over-remitted'; overageCents: number }
+
 export type MissionAccrualData = {
   accrual: MissionAccrualSummary
   remittances: MissionRemittanceRow[]
   remittedTotalCents: number
   outstandingCents: number
+  reconciliation: MissionRemittanceReconciliation
 }
 
 export type LogRemittanceInput = {

@@ -98,6 +98,43 @@ export function summarizeMissionAccrual(
 }
 
 // ---------------------------------------------------------------------------
+// Reconciliation check -- pure, unit-testable (kind-economy/t-016)
+//
+// Because every remittance is meant to bring the running outstanding
+// balance back to exactly zero (there is no per-period bucketing on
+// MissionRemittance rows -- see the runbook at
+// conductor/projects/kind-economy/docs/mission-remittance-runbook.md), the
+// two failure modes the task asks for collapse onto the sign of
+// outstandingCents immediately after a remittance is logged:
+//   outstanding == 0  -> reconciled: this remittance covered exactly what
+//                        had accrued, no more, no less.
+//   outstanding  > 0  -> under-remitted: the remittance was smaller than
+//                        what had accrued -- the "a third of what you pay
+//                        buys nets" promise is broken for the shortfall.
+//   outstanding  < 0  -> over-remitted: the remittance exceeded what had
+//                        accrued -- most likely a duplicate/double
+//                        remittance for a period already covered, or a
+//                        typo'd amount. The money is gone twice from
+//                        Silas's perspective even though the ledger still
+//                        balances honestly (it just balances negative).
+// ---------------------------------------------------------------------------
+
+export type MissionRemittanceReconciliation =
+  | { status: 'reconciled' }
+  | { status: 'under-remitted'; shortfallCents: number }
+  | { status: 'over-remitted'; overageCents: number }
+
+export function checkMissionRemittanceReconciliation(
+  outstandingCents: number,
+): MissionRemittanceReconciliation {
+  if (outstandingCents === 0) return { status: 'reconciled' }
+  if (outstandingCents > 0) {
+    return { status: 'under-remitted', shortfallCents: outstandingCents }
+  }
+  return { status: 'over-remitted', overageCents: -outstandingCents }
+}
+
+// ---------------------------------------------------------------------------
 // Remittance validation -- pure, unit-testable
 // ---------------------------------------------------------------------------
 
@@ -166,6 +203,7 @@ export type MissionAccrualData = {
   remittances: MissionRemittanceRow[]
   remittedTotalCents: number
   outstandingCents: number
+  reconciliation: MissionRemittanceReconciliation
 }
 
 /**
@@ -231,12 +269,14 @@ export async function getMissionAccrualData(
     (sum, row) => sum + row.amountCents,
     0,
   )
+  const outstandingCents = accrual.totalCents - remittedTotalCents
 
   return {
     accrual,
     remittances,
     remittedTotalCents,
-    outstandingCents: accrual.totalCents - remittedTotalCents,
+    outstandingCents,
+    reconciliation: checkMissionRemittanceReconciliation(outstandingCents),
   }
 }
 

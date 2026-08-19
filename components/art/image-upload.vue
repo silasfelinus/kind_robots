@@ -543,7 +543,7 @@ const props = withDefaults(defineProps<{ showModelConnect?: boolean }>(), {
 })
 
 // Consumers that only wire uploadStore.setTarget() (no per-image applyImage
-// callback -- e.g. art-maker.vue's remix-upload disclosure) have no other
+// callback -- e.g. the Styler tab's source-image panel) have no other
 // way to learn a batch actually produced images: this component previously
 // had no defineEmits at all, so `@uploaded="..."` on <image-upload> anywhere
 // in the app was silently dead code -- the listener was simply never called.
@@ -730,7 +730,7 @@ function clearQueue() {
   message.value = ''
   error.value = ''
   // Only relevant when the model-connect UI is actually shown -- every other
-  // caller (Academy Style Lab, art-maker, art-builder, add-bot/-character/
+  // caller (Academy Style Lab, art-builder, add-bot/-character/
   // -reward/-scenario, avatar-picker, ...) renders with showModelConnect
   // false/default and never lets the visitor touch connectedModelType, so
   // clearing it unconditionally was silently deselecting whatever bot/

@@ -239,9 +239,31 @@ assert.ok(
 )
 assert.deepEqual(sampler(withoutLora).model, ['1', 0])
 
-// ── No site-building path may choose A1111 ──────────────────────────────────
+// ── The enqueue route must actually HAND the lane its LoRA ──────────────────
+//
+// buildDefaultComfyWorkflow has taken loraName/loraStrength/width/height since
+// the Resource-preview work above, but /api/art/enqueue's `comfy` branch called
+// it without them. The builder test above passed the whole time; the route
+// still dropped every LoRA a user picked in the generator and rendered the bare
+// checkpoint -- exactly the "plausible image of the wrong thing" that section
+// exists to prevent. Assert the call site, not just the builder.
 
 const enqueue = code('server/api/art/enqueue.post.ts')
+const comfyLane = enqueue.slice(enqueue.indexOf('buildDefaultComfyWorkflow({'))
+for (const field of [
+  'loraName: body.loraName',
+  'loraStrength: body.loraStrength',
+  'width: body.width',
+  'height: body.height',
+]) {
+  assert.ok(
+    comfyLane.includes(field),
+    `the enqueue comfy lane must forward ${field.split(':')[0]} to the workflow builder`,
+  )
+}
+
+// ── No site-building path may choose A1111 ──────────────────────────────────
+
 assert.ok(
   enqueue.includes("const DEFAULT_ENQUEUE_ENGINE: EnqueueEngine = 'krea2'"),
   'the enqueue default engine must be krea2',

@@ -14,6 +14,7 @@ import {
   checkSerendipityVoiceActionGuard,
   checkSerendipityVoiceArtAckGuard,
   checkSerendipityVoiceErrorReportingGuard,
+  checkSerendipityVoiceToggleOffSurfacePlacementGuard,
 } from './verifySerendipityVoiceActionGuard.js'
 
 const ANIMATION_ACTION_GUARD = `if (
@@ -407,6 +408,122 @@ function runArtAckSelfTest(): void {
   )
 }
 
+// --- Fixtures for checkSerendipityVoiceToggleOffSurfacePlacementGuard()
+// (t-015, 2026-08-19 cycle) ---
+// Distinct from every fixture above: this exercises the surface-placement
+// gate that follows the on/off/toggle branch, not action/target mismatches,
+// false no-match successes, or a missing acknowledgement.
+
+function togglePlacementFixture(opts: {
+  toggleBranch: string
+  placementGate: string
+}): string {
+  return `
+    function applyCommand(command: VoiceBusCommand): void {
+      if (command.target !== 'animation') {
+        pushLocalMessage('system', \`Ignored unsupported command target: \${command.target}\`)
+        return
+      }
+
+      const effectId = resolveEffectId(command)
+      if (!effectId) {
+        return
+      }
+
+      const active = animationStore.isScreenEffectActive(effectId)
+      if (command.action === 'on' && !active) animationStore.toggleScreenEffect(effectId)
+      else if (command.action === 'off' && active) animationStore.toggleScreenEffect(effectId)
+      ${opts.toggleBranch}
+
+      ${opts.placementGate}
+    }
+  `
+}
+
+const TOGGLE_BRANCH_FIXED = `else if (command.action === 'toggle')
+        animationStore.toggleScreenEffect(effectId)`
+
+// Pre-fix (alexa-integration/t-015's original 2026-08-18 cycle shape): gates
+// setSurfacePlacement() on the literal action string, so a 'toggle' that
+// flips an active effect off still forces its fx region to front placement.
+const PLACEMENT_GATE_BUGGY_LITERAL_OFF = `if (command.action !== 'off') {
+        animationStore.setSurfacePlacement(normalizeRegion(command.surface), 'front')
+      }`
+
+// Fixed: gates on the effect's actual resulting state instead.
+const PLACEMENT_GATE_FIXED = `const isNowActive = animationStore.isScreenEffectActive(effectId)
+      if (isNowActive) {
+        animationStore.setSurfacePlacement(normalizeRegion(command.surface), 'front')
+      }`
+
+// Hypothetical future regression: the re-check is dropped entirely and
+// setSurfacePlacement() runs unconditionally -- no literal-action check
+// either, just a different way to reintroduce the same false-front-placement
+// bug (and worse, for the literal 'off' case too).
+const PLACEMENT_GATE_UNCONDITIONAL = `animationStore.setSurfacePlacement(normalizeRegion(command.surface), 'front')`
+
+const TOGGLE_PLACEMENT_FIXED = togglePlacementFixture({
+  toggleBranch: TOGGLE_BRANCH_FIXED,
+  placementGate: PLACEMENT_GATE_FIXED,
+})
+
+const TOGGLE_PLACEMENT_BUGGY = togglePlacementFixture({
+  toggleBranch: TOGGLE_BRANCH_FIXED,
+  placementGate: PLACEMENT_GATE_BUGGY_LITERAL_OFF,
+})
+
+const TOGGLE_PLACEMENT_UNCONDITIONAL = togglePlacementFixture({
+  toggleBranch: TOGGLE_BRANCH_FIXED,
+  placementGate: PLACEMENT_GATE_UNCONDITIONAL,
+})
+
+function runToggleOffSurfacePlacementSelfTest(): void {
+  const fixedErrors = checkSerendipityVoiceToggleOffSurfacePlacementGuard(
+    TOGGLE_PLACEMENT_FIXED,
+  )
+  assert.deepEqual(
+    fixedErrors,
+    [],
+    `expected the fixed toggle-placement fixture to pass, got: ${JSON.stringify(fixedErrors)}`,
+  )
+
+  const buggyErrors = checkSerendipityVoiceToggleOffSurfacePlacementGuard(
+    TOGGLE_PLACEMENT_BUGGY,
+  )
+  assert.equal(
+    buggyErrors.length,
+    2,
+    `expected the literal-'off' buggy fixture to fail twice (buggy gate + missing recheck), got: ${JSON.stringify(buggyErrors)}`,
+  )
+  assert.ok(buggyErrors.some((e) => /still gates setSurfacePlacement/.test(e)))
+  assert.ok(buggyErrors.some((e) => /no longer re-checks/.test(e)))
+
+  const unconditionalErrors =
+    checkSerendipityVoiceToggleOffSurfacePlacementGuard(
+      TOGGLE_PLACEMENT_UNCONDITIONAL,
+    )
+  assert.equal(
+    unconditionalErrors.length,
+    1,
+    `expected the unconditional-placement fixture to fail once, got: ${JSON.stringify(unconditionalErrors)}`,
+  )
+  assert.ok(/no longer re-checks/.test(unconditionalErrors[0]!))
+
+  const missingFnErrors = checkSerendipityVoiceToggleOffSurfacePlacementGuard(
+    'function someOtherFunction(): void {}',
+  )
+  assert.equal(missingFnErrors.length, 1)
+  assert.ok(/Could not find a function named/.test(missingFnErrors[0]!))
+
+  console.log(
+    'Serendipity Voice toggle-off surface-placement guard self-test ' +
+      'passed: the literal-action buggy fixture fails on both the gate and ' +
+      'the missing recheck, an unconditional-placement regression fails on ' +
+      'the missing recheck, the fixed fixture passes, and a ' +
+      'missing-function fixture fails clearly.',
+  )
+}
+
 function run(): void {
   const fixedErrors = checkSerendipityVoiceActionGuard(FIXED)
   assert.deepEqual(
@@ -462,3 +579,4 @@ function run(): void {
 run()
 runErrorReportingSelfTest()
 runArtAckSelfTest()
+runToggleOffSurfacePlacementSelfTest()

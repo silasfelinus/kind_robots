@@ -288,7 +288,15 @@ export const useSerendipityVoiceStore = defineStore(
       else if (command.action === 'toggle')
         animationStore.toggleScreenEffect(effectId)
 
-      if (command.action !== 'off') {
+      // Gate on the effect's actual resulting state, not the literal action
+      // string -- a 'toggle' that flips an active effect off ends up just
+      // as inactive as a literal 'off', and forcing its fx region to front
+      // placement anyway would bring a now-empty region to the front for
+      // no reason. Only the literal 'off' case was excluded before; only
+      // bring the region forward when the effect is actually visible
+      // afterward.
+      const isNowActive = animationStore.isScreenEffectActive(effectId)
+      if (isNowActive) {
         animationStore.setSurfacePlacement(
           normalizeRegion(command.surface),
           'front',

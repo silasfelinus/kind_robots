@@ -63,6 +63,20 @@
 // acknowledgement back through the relay. Fixed by calling postAck() the
 // same way the other three success paths do; this guard keeps a future edit
 // from silently dropping that call again.
+//
+// Extended a fourth time (alexa-integration/t-015, 2026-08-19 cycle) with
+// checkSerendipityVoiceToggleOffSurfacePlacementGuard() below -- a kaizen
+// lead filed by the prior cycle. applyCommand()'s animation branch gated its
+// setSurfacePlacement(region, 'front') call on `command.action !== 'off'`,
+// i.e. the literal spoken action string, not on whether the effect actually
+// ended up active. A 'toggle' command that flipped an already-active effect
+// off ends up exactly as inactive as a literal 'off' does, but the literal
+// check let it fall through and still force that fx region to front
+// placement -- bringing a now-empty region to the front for no reason,
+// something the literal-'off' path never did. Fixed by re-checking
+// isScreenEffectActive(effectId) *after* the on/off/toggle branch runs and
+// gating setSurfacePlacement() on that resulting boolean instead of the
+// action string, so 'toggle'-to-off is treated the same as literal 'off'.
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -490,12 +504,124 @@ export function checkSerendipityVoiceArtAckGuard(content: string): string[] {
   return errors
 }
 
+// Checks the "toggle-to-off still forces front placement" gap -- see the
+// file-header addendum above (alexa-integration/t-015, 2026-08-19 cycle) for
+// what this protects against. Distinct from every guard above: those cover
+// mismatched actions, false no-match successes, and a missing
+// acknowledgement; this one covers a surface-placement side effect that
+// fires on the wrong condition (the literal action string) instead of the
+// effect's actual resulting active state.
+export function checkSerendipityVoiceToggleOffSurfacePlacementGuard(
+  content: string,
+): string[] {
+  const errors: string[] = []
+
+  const commandBody = extractFunctionSource(content, 'applyCommand')
+  if (!commandBody) {
+    errors.push(
+      'Could not find a function named applyCommand() -- has it been ' +
+        'renamed, removed, or restructured? If so, this guard (and the ' +
+        'toggle-to-off surface-placement contract it protects) needs to ' +
+        'move with it.',
+    )
+    return errors
+  }
+
+  const toggleBranchIndex = commandBody.search(
+    /else if\s*\(\s*command\.action\s*===\s*'toggle'\s*\)\s*\n?\s*animationStore\.toggleScreenEffect\(effectId\)/,
+  )
+  if (toggleBranchIndex === -1) {
+    errors.push(
+      'applyCommand() no longer contains the `else if (command.action === ' +
+        "'toggle') animationStore.toggleScreenEffect(effectId)` branch -- " +
+        'has the on/off/toggle dispatch shape changed? This guard assumes ' +
+        'that structure to locate the surface-placement gate that follows ' +
+        'it.',
+    )
+    return errors
+  }
+
+  const placementCallIndex = searchAfter(
+    commandBody,
+    /animationStore\.setSurfacePlacement\(/,
+    toggleBranchIndex,
+  )
+  if (placementCallIndex === -1) {
+    errors.push(
+      'applyCommand() no longer calls animationStore.setSurfacePlacement() ' +
+        'after the on/off/toggle branch -- has the fx-region-placement step ' +
+        'been removed or restructured? This guard assumes that call exists ' +
+        'so it can check what gates it.',
+    )
+    return errors
+  }
+
+  const gateWindow = commandBody.slice(toggleBranchIndex, placementCallIndex)
+
+  const buggyLiteralOffGate =
+    /if\s*\(\s*command\.action\s*!==\s*'off'\s*\)\s*\{/.test(gateWindow)
+  if (buggyLiteralOffGate) {
+    errors.push(
+      'applyCommand() still gates setSurfacePlacement() on ' +
+        "`command.action !== 'off'` -- the literal action string, not the " +
+        "effect's actual resulting state. A 'toggle' command that flips an " +
+        'already-active effect off ends up exactly as inactive as a ' +
+        "literal 'off' does, but this gate lets it fall through and still " +
+        'force that fx region to front placement, bringing a now-empty ' +
+        'region to the front for no reason.',
+    )
+  }
+
+  const recheckIndex = searchAfter(
+    commandBody,
+    /animationStore\.isScreenEffectActive\(effectId\)/,
+    toggleBranchIndex,
+  )
+  if (recheckIndex === -1 || recheckIndex >= placementCallIndex) {
+    errors.push(
+      'applyCommand() no longer re-checks ' +
+        'animationStore.isScreenEffectActive(effectId) after the ' +
+        'on/off/toggle branch and before setSurfacePlacement() -- without ' +
+        "re-checking the effect's actual resulting state, the placement " +
+        'gate has nothing but the literal action string to key off of, ' +
+        'reintroducing the toggle-to-off false-front-placement bug.',
+    )
+  } else {
+    const placementGuardIndex = searchAfter(
+      commandBody,
+      /if\s*\(\s*isNowActive\s*\)\s*\{/,
+      recheckIndex,
+    )
+    if (
+      placementGuardIndex === -1 ||
+      placementGuardIndex >= placementCallIndex
+    ) {
+      errors.push(
+        'applyCommand() re-checks isScreenEffectActive(effectId) but does ' +
+          'not gate setSurfacePlacement() on `if (isNowActive)` right ' +
+          'before the call -- the rechecked state must actually drive the ' +
+          'gate, not just sit unused alongside the old literal-action ' +
+          'check.',
+      )
+    }
+  }
+
+  return errors
+}
+
 function main(): void {
   const content = readFileSync(STORE_PATH, 'utf8')
   const actionErrors = checkSerendipityVoiceActionGuard(content)
   const errorReportingErrors = checkSerendipityVoiceErrorReportingGuard(content)
   const artAckErrors = checkSerendipityVoiceArtAckGuard(content)
-  const errors = [...actionErrors, ...errorReportingErrors, ...artAckErrors]
+  const toggleOffPlacementErrors =
+    checkSerendipityVoiceToggleOffSurfacePlacementGuard(content)
+  const errors = [
+    ...actionErrors,
+    ...errorReportingErrors,
+    ...artAckErrors,
+    ...toggleOffPlacementErrors,
+  ]
 
   if (errors.length) {
     console.error(
@@ -513,8 +639,11 @@ function main(): void {
       "that don't apply to their target instead of silently reporting a " +
       'false "applied" message, the unmatched-effect/unknown-theme ' +
       'no-match branches still report failure (not a false success) before ' +
-      "returning, and applyArtCommand()'s success path still acknowledges " +
-      'back through the relay like every other successful command target.',
+      "returning, applyArtCommand()'s success path still acknowledges back " +
+      'through the relay like every other successful command target, and ' +
+      "applyCommand()'s surface-placement gate keys off the effect's " +
+      'actual resulting active state rather than the literal action ' +
+      'string, so a toggle-to-off is treated the same as a literal off.',
   )
 }
 

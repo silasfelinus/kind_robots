@@ -208,10 +208,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useModelBuilderStore } from '@/stores/modelBuilderStore'
 import type { BuildItem, DraftField } from '@/stores/modelBuilderStore'
-import { fieldSpecFor } from '@/stores/helpers/modelBuilderFields'
+import {
+  fieldSpecFor,
+  readFieldLine,
+} from '@/stores/helpers/modelBuilderFields'
 
 const props = defineProps<{ outputKey: string }>()
 const emit = defineEmits<{ (e: 'select-item', itemId: string): void }>()
@@ -275,6 +278,36 @@ const autoBuildGroupTitle = computed(() =>
 
 const onlyEmpty = ref(false)
 const batchValues = reactive<Record<string, string>>({})
+
+// Pre-populate "Set a field on all N" with the group's existing shared value
+// (model-builder/t-029, cycle 19 -- suggested lead from cycle 18): every
+// item's fieldsDraft already carries a "key: value" blob (seeded by
+// defaultFieldsTemplate, drafted by AI, or previously set by this very
+// panel), but readFieldLine -- the helper written to read exactly that --
+// was never called here, so this panel always started blank even when every
+// item in the group already agreed on a value. Only pre-fills a field when
+// EVERY item holds the identical non-empty value; any disagreement
+// (including one item that was individually edited away from the rest)
+// leaves the input blank, same as before this fix, so a stale majority
+// value is never silently offered over a real per-item difference. Runs
+// once on mount only -- this component remounts on outputKey change (see
+// model-builder-progress-matrix.vue's `:key="selectedItem.outputKey"` and
+// verifyModelBuilderBatchEditorKeyGuard.ts), so there's no stale-group case
+// to re-derive for, and re-running after the user starts editing would
+// clobber an in-progress edit with the original shared value.
+onMounted(() => {
+  const currentGroup = group.value
+  if (!currentGroup) return
+  for (const field of fields.value) {
+    const values = currentGroup.items.map((item) =>
+      readFieldLine(item.fieldsDraft, field.key, currentGroup.targetModel),
+    )
+    const [first, ...rest] = values
+    if (first && rest.every((value) => value === first)) {
+      batchValues[field.key] = first
+    }
+  }
+})
 
 function batchFieldId(key: string): string {
   return `model-builder-batch-${props.outputKey}-${key}`

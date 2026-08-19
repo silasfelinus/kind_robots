@@ -80,7 +80,12 @@
       </div>
     </Transition>
 
-    <main class="flex min-h-0 flex-1 flex-col overflow-y-auto p-2 sm:p-3">
+    <main
+      ref="mainContent"
+      tabindex="-1"
+      aria-label="Model Builder step content"
+      class="flex min-h-0 flex-1 flex-col overflow-y-auto p-2 sm:p-3"
+    >
       <div
         v-if="resumingRun"
         class="flex min-h-32 flex-1 items-center justify-center gap-2 text-sm text-base-content/60"
@@ -111,6 +116,7 @@ const store = useModelBuilderStore()
 const showHistory = ref(false)
 const resumingRun = ref(true)
 const historyToggleButton = ref<HTMLButtonElement | null>(null)
+const mainContent = ref<HTMLElement | null>(null)
 
 const crumbs = computed(() => [
   { step: 'source' as const, label: 'Source', enabled: true },
@@ -150,6 +156,46 @@ watch(showHistory, (isOpen) => {
     historyToggleButton.value?.focus()
   })
 })
+
+// The same focus-loss shape as the watcher above, one level down: several
+// buttons *inside* the current step's own component change store.step,
+// unmounting that whole component (and the clicked button with it) via the
+// v-if/v-else-if chain above -- model-builder-progress-matrix.vue's "New
+// run" (store.resetRun()), model-builder-recipe-selector.vue's "Change
+// source" (store.goToStep('source')), and model-builder-source-picker.vue's
+// record buttons (store.selectSource()) all mutate step synchronously, with
+// nothing moving focus anywhere afterward, so the browser drops it to
+// <body> exactly like the history-panel case. The header's own crumb nav
+// buttons also change store.step, but they live in <header>, which never
+// unmounts across a step change -- a crumb click keeps focus right where it
+// already correctly was, and must stay untouched, so this can't just watch
+// store.step unconditionally the way the showHistory watch above does.
+// Checking `mainContent.value?.contains(document.activeElement)` at watch
+// time (before Vue patches the DOM for the new step, so activeElement is
+// still whatever was focused at the moment of the click that changed step)
+// tells the two shapes apart: true only when the control that changed the
+// step was itself inside <main> -- the step content about to be replaced --
+// never for a crumb click, which lives outside it. <main> carries
+// tabindex="-1" so it can receive focus programmatically without joining
+// the normal Tab order, and it never unmounts across any step or the
+// history-panel toggle, so it's always a safe landing spot.
+//
+// This can fire in the same tick as the showHistory watch above (e.g.
+// "New run" inside model-builder-run-history.vue calls store.resetRun()
+// then emits `close`, changing both step and showHistory at once) -- both
+// watchers' nextTick callbacks then run in registration order, so this one
+// (registered second) wins and focus lands on the newly-shown step's
+// content, which is the more useful outcome of the two when the step
+// itself actually changed.
+watch(
+  () => store.step,
+  () => {
+    if (!mainContent.value?.contains(document.activeElement)) return
+    nextTick(() => {
+      mainContent.value?.focus()
+    })
+  },
+)
 </script>
 
 <style scoped>

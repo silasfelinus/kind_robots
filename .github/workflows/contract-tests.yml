@@ -605,6 +605,12 @@ jobs:
       - name: Model Builder history-close focus guard contract
         run: npm run test:model-builder-history-close-focus-guard
 
+      - name: Model Builder step-content focus guard self-test
+        run: npm run test:model-builder-step-content-focus-guard-selftest
+
+      - name: Model Builder step-content focus guard contract
+        run: npm run test:model-builder-step-content-focus-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

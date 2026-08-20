@@ -3,9 +3,8 @@
     <div class="kr-scroll mx-auto max-w-5xl space-y-6 p-6">
       <header class="space-y-1">
         <p class="text-sm opacity-70">
-          Animate a still into a short clip. Pick a first image (and an optional
-          end image), describe the motion, set the length, and queue it to the
-          Comfy studio engine.
+          Animate a still into a short clip. Presets choose sensible studio
+          settings, while every generation control remains editable.
         </p>
       </header>
 
@@ -14,7 +13,6 @@
         account's mana.
       </div>
 
-      <!-- Engine selector -->
       <section class="space-y-2">
         <label class="font-semibold">Engine</label>
         <div class="flex gap-2">
@@ -32,10 +30,17 @@
         <p class="text-xs opacity-60">{{ activeEngine.hint }}</p>
       </section>
 
-      <!-- Generation presets -->
       <section class="space-y-2">
-        <label class="font-semibold">Preset</label>
-        <div class="grid gap-2 sm:grid-cols-3">
+        <div class="flex items-center justify-between gap-3">
+          <label class="font-semibold">Preset</label>
+          <span
+            v-if="videoPresetId === defaultPreset.id"
+            class="badge badge-accent badge-sm"
+          >
+            Studio default
+          </span>
+        </div>
+        <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           <button
             type="button"
             class="btn h-auto min-h-0 justify-start py-3 text-left"
@@ -45,7 +50,7 @@
             <span class="flex flex-col items-start">
               <span class="font-semibold">Custom</span>
               <span class="text-xs font-normal opacity-70">
-                Keep the manual controls below.
+                Keep the current values and tune them manually.
               </span>
             </span>
           </button>
@@ -57,8 +62,16 @@
             :class="videoPresetId === preset.id ? 'btn-accent' : 'btn-outline'"
             @click="selectVideoPreset(preset.id)"
           >
-            <span class="flex flex-col items-start">
-              <span class="font-semibold">{{ preset.label }}</span>
+            <span class="flex flex-col items-start gap-1">
+              <span class="flex items-center gap-2 font-semibold">
+                {{ preset.label }}
+                <span
+                  v-if="preset.id === defaultPreset.id"
+                  class="badge badge-xs badge-accent"
+                >
+                  default
+                </span>
+              </span>
               <span class="text-xs font-normal opacity-70">
                 {{ preset.description }}
               </span>
@@ -66,19 +79,17 @@
           </button>
         </div>
         <p class="text-xs opacity-60">
-          Presets fill the editable controls below; changing a value still
-          overrides the preset for this render.
+          Presets fill the controls below. Any value can still be changed for
+          this render.
         </p>
       </section>
 
-      <!-- Images -->
       <section class="grid gap-4 md:grid-cols-2">
-        <!-- First image (required) -->
         <div class="space-y-2 rounded-lg border border-base-300 p-3">
           <div class="flex items-center justify-between">
-            <label class="font-semibold"
-              >First image <span class="text-error">*</span></label
-            >
+            <label class="font-semibold">
+              First image <span class="text-error">*</span>
+            </label>
             <button
               type="button"
               class="btn btn-xs btn-outline"
@@ -100,6 +111,7 @@
             <img
               :src="firstImage"
               class="max-h-full max-w-full object-contain"
+              alt="First video frame"
             />
             <button
               type="button"
@@ -115,11 +127,10 @@
           </p>
         </div>
 
-        <!-- Second image (optional) -->
         <div class="space-y-2 rounded-lg border border-base-300 p-3">
-          <label class="font-semibold"
-            >End image <span class="opacity-50">(optional)</span></label
-          >
+          <label class="font-semibold">
+            End image <span class="opacity-50">(optional)</span>
+          </label>
           <input
             type="file"
             accept="image/*"
@@ -133,6 +144,7 @@
             <img
               :src="secondImage"
               class="max-h-full max-w-full object-contain"
+              alt="Last video frame"
             />
             <button
               type="button"
@@ -149,7 +161,6 @@
         </div>
       </section>
 
-      <!-- Prompt -->
       <section class="space-y-2">
         <div class="flex items-center justify-between">
           <label class="font-semibold">Motion prompt</label>
@@ -192,10 +203,9 @@
         :disabled="videoStore.isBusy"
       />
 
-      <!-- Output format -->
       <section class="space-y-2">
         <label class="font-semibold">Output format</label>
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2">
           <button
             v-for="opt in outputFormats"
             :key="opt.value"
@@ -210,7 +220,6 @@
         <p class="text-xs opacity-60">{{ activeOutputFormat.hint }}</p>
       </section>
 
-      <!-- Controls -->
       <section class="grid gap-4 sm:grid-cols-3">
         <div class="space-y-1">
           <label class="text-sm font-semibold">Time (seconds)</label>
@@ -242,20 +251,20 @@
               type="checkbox"
               class="toggle toggle-accent"
             />
-            <span class="text-sm opacity-70">{{
-              loop ? 'Seamless loop' : 'Play once'
-            }}</span>
+            <span class="text-sm opacity-70">
+              {{ loop ? 'Seamless loop' : 'Play once' }}
+            </span>
           </label>
         </div>
       </section>
 
       <details class="text-sm">
         <summary class="cursor-pointer opacity-70">
-          Advanced (size &amp; seed)
+          Advanced quality &amp; size
         </summary>
-        <div class="mt-2 grid gap-4 sm:grid-cols-3">
+        <div class="mt-2 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div class="space-y-1">
-            <label class="text-sm">Width</label>
+            <label class="text-sm">Output width</label>
             <input
               v-model.number="width"
               type="number"
@@ -266,7 +275,7 @@
             />
           </div>
           <div class="space-y-1">
-            <label class="text-sm">Height</label>
+            <label class="text-sm">Output height</label>
             <input
               v-model.number="height"
               type="number"
@@ -275,6 +284,18 @@
               step="8"
               class="input input-bordered input-sm w-full"
             />
+          </div>
+          <div class="space-y-1">
+            <label class="text-sm">LTX render scale</label>
+            <select
+              v-model.number="renderScale"
+              class="select select-bordered select-sm w-full"
+              :disabled="engine !== 'ltx'"
+            >
+              <option :value="0.5">50% + latent refine</option>
+              <option :value="0.75">75% + latent refine</option>
+              <option :value="1">100% direct</option>
+            </select>
           </div>
           <div class="space-y-1">
             <label class="text-sm">Seed (blank = random)</label>
@@ -286,13 +307,25 @@
             />
           </div>
         </div>
-        <p class="mt-1 text-xs opacity-50">
-          Estimated frames: {{ estimatedFrames }} ({{ durationSeconds }}s ×
-          {{ fps }}fps)
-        </p>
+        <div class="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-xs opacity-60">
+          <span>Frames: {{ estimatedFrames }}</span>
+          <span>Output: {{ width }}×{{ height }}</span>
+          <span v-if="engine === 'ltx'">
+            First pass: {{ renderWidth }}×{{ renderHeight }}
+          </span>
+        </div>
       </details>
 
-      <!-- Generate -->
+      <div class="alert text-sm" :class="runtimeAlertClass" role="status">
+        <div class="space-y-1">
+          <p class="font-semibold">{{ runtimeTitle }}</p>
+          <p>{{ runtimeMessage }}</p>
+          <p v-if="selectedPreset?.runtimeHint" class="text-xs opacity-75">
+            {{ selectedPreset.runtimeHint }}
+          </p>
+        </div>
+      </div>
+
       <section class="space-y-3">
         <button
           type="button"
@@ -317,11 +350,6 @@
           </span>
         </div>
 
-        <!-- A failed attempt returns the job to the queue rather than ending
-             it, so this rides alongside the spinner: the run is still live,
-             but it has already failed at least once and the user should see
-             why instead of watching a wheel. Suppressed once the run ends,
-             where the fatal alert below says the same thing. -->
         <div
           v-if="videoStore.state.attemptError && videoStore.isBusy"
           class="alert alert-warning text-sm"
@@ -342,7 +370,6 @@
         </div>
       </section>
 
-      <!-- Result -->
       <section v-if="videoStore.state.videoSrc" class="space-y-2">
         <h2 class="font-semibold">Result</h2>
         <img
@@ -378,71 +405,60 @@ import { computed, ref } from 'vue'
 import { useVideoStore } from '@/stores/videoStore'
 import { useUserStore } from '@/stores/userStore'
 import {
+  estimateVideoRuntimeTier,
+  getDefaultVideoPreset,
   getVideoPreset,
   getVideoPresetsForEngine,
+  runtimeTierMessage,
+  videoFrameCount,
   type VideoEngine,
   type VideoOutputFormat,
   type VideoPresetId,
 } from '@/utils/videoPresets'
 
 const LOGO_SRC = '/images/kindlogo_new.webp'
-
-// The launch-gif test case: animate the feminine robot on the right.
 const WINK_PRESET =
   'The feminine kind robot on the right winks one eye and breaks into a warm, playful grin. Subtle head tilt, sparkling eyes, smooth natural motion, charming and friendly. The rest of the logo stays still.'
 
 const videoStore = useVideoStore()
 const userStore = useUserStore()
-
 const isLoggedIn = computed(() => userStore.isLoggedIn)
 
 const engines = [
   {
     value: 'ltx' as const,
     label: 'LTX',
-    hint: 'LTX 2.3 — fast, expressive motion. Great default for short gifs.',
+    hint: 'LTX 2.3 — expressive motion with a 12 GB-aware default and optional full-resolution quality mode.',
   },
   {
     value: 'wan' as const,
     label: 'WAN',
-    hint: 'WAN 2.x — smooth image-to-video, supports first→last frame morphs.',
+    hint: 'WAN 2.x — smooth image-to-video and first→last frame morphs.',
   },
 ]
-
-const engine = ref<VideoEngine>('ltx')
-const videoPresetId = ref<VideoPresetId | ''>('')
-const activeEngine = computed(
-  () => engines.find((e) => e.value === engine.value) ?? engines[0]!,
-)
-const availableVideoPresets = computed(() =>
-  getVideoPresetsForEngine(engine.value),
-)
 
 const outputFormats = [
   {
     value: 'webp' as const,
     label: 'WebP',
-    hint: 'Animated image, loops natively — smallest file, best default for web display (e.g. a randomized loading animation).',
+    hint: 'Animated image, loops natively — smallest file and best default for short web clips.',
   },
   {
     value: 'mp4' as const,
     label: 'MP4',
-    hint: 'Real video container — best for longer or more complex motion, plays with controls.',
+    hint: 'Real video container — best for longer or more complex motion.',
   },
   {
     value: 'webm' as const,
     label: 'WebM',
-    hint: 'Real video container, open codec — similar use case to MP4.',
+    hint: 'Open video container with a similar use case to MP4.',
   },
 ]
 
-const outputFormat = ref<VideoOutputFormat>('webp')
-const activeOutputFormat = computed(
-  () =>
-    outputFormats.find((f) => f.value === outputFormat.value) ??
-    outputFormats[0]!,
-)
-
+const initialPreset = getDefaultVideoPreset('ltx')
+const engine = ref<VideoEngine>('ltx')
+const videoPresetId = ref<VideoPresetId | ''>(initialPreset.id)
+const outputFormat = ref<VideoOutputFormat>(initialPreset.outputFormat)
 const firstImage = ref('')
 const secondImage = ref('')
 const prompt = ref(WINK_PRESET)
@@ -451,53 +467,125 @@ const loraResourceId = ref<number | null>(null)
 const loraStrength = ref(1)
 const isMature = ref(false)
 const isPublic = ref(true)
-const durationSeconds = ref(4)
-const fps = ref(24)
-const loop = ref(true)
-const width = ref<number | null>(null)
-const height = ref<number | null>(null)
+const durationSeconds = ref(initialPreset.durationSeconds)
+const fps = ref(initialPreset.fps)
+const loop = ref(initialPreset.loop)
+const width = ref(initialPreset.width)
+const height = ref(initialPreset.height)
+const renderScale = ref(initialPreset.renderScale)
+const latentUpscaleModel = ref<string | null>(initialPreset.latentUpscaleModel)
+const refineSampler = ref<string | null>(initialPreset.refineSampler)
+const refineSigmas = ref<string | null>(initialPreset.refineSigmas)
 const seedInput = ref<number | string>('')
 
-const estimatedFrames = computed(() =>
-  Math.max(2, Math.round((durationSeconds.value || 0) * (fps.value || 0)) + 1),
+const activeEngine = computed(
+  () => engines.find((item) => item.value === engine.value) ?? engines[0]!,
 )
-
+const activeOutputFormat = computed(
+  () =>
+    outputFormats.find((item) => item.value === outputFormat.value) ??
+    outputFormats[0]!,
+)
+const availableVideoPresets = computed(() =>
+  getVideoPresetsForEngine(engine.value),
+)
+const defaultPreset = computed(() => getDefaultVideoPreset(engine.value))
+const selectedPreset = computed(() => getVideoPreset(videoPresetId.value))
+const estimatedFrames = computed(() =>
+  videoFrameCount(durationSeconds.value || 0, fps.value || 0),
+)
+const renderWidth = computed(() =>
+  Math.max(64, Math.round((width.value * renderScale.value) / 8) * 8),
+)
+const renderHeight = computed(() =>
+  Math.max(64, Math.round((height.value * renderScale.value) / 8) * 8),
+)
+const runtimeTier = computed(() =>
+  estimateVideoRuntimeTier({
+    engine: engine.value,
+    width: width.value,
+    height: height.value,
+    durationSeconds: durationSeconds.value,
+    fps: fps.value,
+    renderScale: engine.value === 'ltx' ? renderScale.value : 1,
+    latentUpscaleModel:
+      engine.value === 'ltx' && renderScale.value < 1
+        ? latentUpscaleModel.value
+        : null,
+  }),
+)
+const runtimeMessage = computed(() => runtimeTierMessage(runtimeTier.value))
+const runtimeTitle = computed(() => {
+  if (runtimeTier.value === 'quick') return 'Quick render profile'
+  if (runtimeTier.value === 'balanced') return '12 GB-friendly render profile'
+  if (runtimeTier.value === 'slow') return 'Slow render warning'
+  return 'Very slow render warning'
+})
+const runtimeAlertClass = computed(() =>
+  runtimeTier.value === 'slow' || runtimeTier.value === 'very-slow'
+    ? 'alert-warning'
+    : 'alert-info',
+)
+const timeoutSeconds = computed(() => {
+  const tierTimeout = {
+    quick: 3_600,
+    balanced: 5_400,
+    slow: 10_800,
+    'very-slow': 14_400,
+  }[runtimeTier.value]
+  return Math.max(selectedPreset.value?.timeoutSeconds ?? 0, tierTimeout)
+})
 const downloadFilename = computed(
   () => `kindrobots-clip.${videoStore.state.fileType || outputFormat.value}`,
 )
-
 const canGenerate = computed(
   () =>
     isLoggedIn.value &&
     !videoStore.isBusy &&
     !!firstImage.value &&
-    !!prompt.value.trim(),
+    !!prompt.value.trim() &&
+    width.value >= 64 &&
+    height.value >= 64 &&
+    durationSeconds.value > 0 &&
+    fps.value > 0,
 )
-
 const generateLabel = computed(() => {
   if (videoStore.state.status === 'queued') return 'Queued…'
   if (videoStore.state.status === 'rendering') return 'Rendering…'
+  if (runtimeTier.value === 'very-slow') {
+    return `Generate ${engine.value.toUpperCase()} clip — very slow`
+  }
+  if (runtimeTier.value === 'slow') {
+    return `Generate ${engine.value.toUpperCase()} clip — slow`
+  }
   return `Generate ${engine.value.toUpperCase()} clip`
 })
 
-function selectEngine(nextEngine: VideoEngine): void {
-  engine.value = nextEngine
-  videoPresetId.value = ''
-}
-
-function selectVideoPreset(nextPresetId: VideoPresetId | ''): void {
-  videoPresetId.value = nextPresetId
-  if (!nextPresetId) return
-
-  const preset = getVideoPreset(nextPresetId)
-  if (!preset || preset.engine !== engine.value) return
-
+function applyPreset(preset: NonNullable<ReturnType<typeof getVideoPreset>>): void {
+  videoPresetId.value = preset.id
   width.value = preset.width
   height.value = preset.height
   durationSeconds.value = preset.durationSeconds
   fps.value = preset.fps
   loop.value = preset.loop
   outputFormat.value = preset.outputFormat
+  renderScale.value = preset.renderScale
+  latentUpscaleModel.value = preset.latentUpscaleModel
+  refineSampler.value = preset.refineSampler
+  refineSigmas.value = preset.refineSigmas
+}
+
+function selectEngine(nextEngine: VideoEngine): void {
+  engine.value = nextEngine
+  applyPreset(getDefaultVideoPreset(nextEngine))
+}
+
+function selectVideoPreset(nextPresetId: VideoPresetId | ''): void {
+  videoPresetId.value = nextPresetId
+  if (!nextPresetId) return
+  const preset = getVideoPreset(nextPresetId)
+  if (!preset || preset.engine !== engine.value) return
+  applyPreset(preset)
 }
 
 function fileToDataUrl(file: File): Promise<string> {
@@ -518,21 +606,14 @@ async function onFileChange(event: Event, slot: 'first' | 'second') {
   else secondImage.value = dataUrl
 }
 
-// Fetch the bundled logo and inline it as a data URL so it enqueues like any
-// uploaded image.
 async function useLogoAsFirst() {
   try {
     const res = await fetch(LOGO_SRC)
     const blob = await res.blob()
-    firstImage.value = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onload = () => resolve(String(reader.result))
-      reader.onerror = () => reject(reader.error)
-      reader.readAsDataURL(blob)
-    })
+    firstImage.value = await fileToDataUrl(
+      new File([blob], 'kindlogo_new.webp', { type: blob.type }),
+    )
   } catch {
-    // Fall back to the path; the enqueue endpoint also accepts data URLs only,
-    // so surface a friendly hint if the fetch failed.
     videoStore.state.error =
       'Could not load the logo image. Try uploading it manually.'
   }
@@ -545,6 +626,10 @@ async function generate() {
     seedInput.value === '' || seedInput.value === null
       ? null
       : Number(seedInput.value)
+  const shouldUpscale =
+    engine.value === 'ltx' &&
+    renderScale.value < 1 &&
+    Boolean(latentUpscaleModel.value)
 
   await videoStore.generate({
     engine: engine.value,
@@ -560,6 +645,11 @@ async function generate() {
     height: height.value,
     seed,
     outputFormat: outputFormat.value,
+    renderScale: engine.value === 'ltx' ? renderScale.value : 1,
+    latentUpscaleModel: shouldUpscale ? latentUpscaleModel.value : null,
+    refineSampler: shouldUpscale ? refineSampler.value : null,
+    refineSigmas: shouldUpscale ? refineSigmas.value : null,
+    timeoutSeconds: timeoutSeconds.value,
     loraResourceIds: loraResourceId.value ? [loraResourceId.value] : undefined,
     loraStrength: loraResourceId.value ? loraStrength.value : undefined,
     isMature: isMature.value,

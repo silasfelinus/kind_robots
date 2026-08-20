@@ -18,19 +18,11 @@ import {
 import {
   buildLtxImageToVideoWorkflow,
   ltxFrameCount,
-  LTX_DEFAULT_WIDTH,
-  LTX_DEFAULT_HEIGHT,
-  LTX_DEFAULT_DURATION,
-  LTX_DEFAULT_FRAME_RATE,
 } from '../comfy/ltx/utils/imageToVideoWorkflow'
 import { normalizeVideoOutputFormat } from '../comfy/utils/videoOutput'
 import {
   buildWanImageToVideoWorkflow,
   wanFrameCount,
-  WAN_DEFAULT_WIDTH,
-  WAN_DEFAULT_HEIGHT,
-  WAN_DEFAULT_DURATION,
-  WAN_DEFAULT_FRAME_RATE,
 } from '../comfy/wan/utils/imageToVideoWorkflow'
 import { assertArtPromptContract } from '../../utils/artPromptContract'
 import {
@@ -91,7 +83,6 @@ type ArtEnqueueRequest = {
   jsonPrompt?: Record<string, unknown> | unknown[] | null
   loraName?: string | null
   loraStrength?: number | null
-  /** Stacked LoRAs, applied in order. Supersedes the singular pair above. */
   loras?: Array<{
     resourceId?: number | null
     name?: string | null
@@ -114,8 +105,13 @@ type ArtEnqueueRequest = {
   fps?: number | null
   frameRate?: number | null
   loop?: boolean | null
-  // 'webp' (default) | 'mp4' | 'webm' — see server/api/comfy/utils/videoOutput.
   outputFormat?: string | null
+  presetId?: string | null
+  renderScale?: number | null
+  latentUpscaleModel?: string | null
+  refineSampler?: string | null
+  refineSigmas?: string | null
+  timeoutSeconds?: number | null
   workflow?: Record<string, unknown> | null
   entityArt?: EntityArtRequest | null
 }
@@ -141,8 +137,6 @@ const ENGINE_ALIASES: Record<string, EnqueueEngine> = {
   'sdxl-image': 'sdxl-img2img',
 }
 const VIDEO_ENGINES = new Set<EnqueueEngine>(['ltx', 'wan'])
-const DEFAULT_VIDEO_NEGATIVE =
-  'low quality, blurry, distorted, jittery, flickering, watermark, text, logo'
 const GATE_ENGINE: Record<
   EnqueueEngine,
   'comfy' | 'flux' | 'kontext' | 'ltx' | 'wan'
@@ -158,11 +152,8 @@ const GATE_ENGINE: Record<
   wan: 'wan',
 }
 const SLUG_PATTERN = /^[a-z0-9][a-z0-9_-]*$/
-
-// The relay claims work by priority DESC, id ASC. /api/art/queue/[id]/priority
-// caps at 1000; 100 sits above bulk creation (0 and below) without pinning the
-// ceiling, so a genuine emergency can still be pushed past a redo.
 const DEFAULT_ENQUEUE_PRIORITY = 100
+const DEFAULT_ENQUEUE_ENGINE: EnqueueEngine = 'krea2'
 
 function asRecord(value: unknown): JsonRecord {
   return value && typeof value === 'object' && !Array.isArray(value)
@@ -195,10 +186,7 @@ function narrativeRequest(
     product !== 'taskmaster' &&
     product !== 'davinci'
   ) {
-    throw createError({
-      statusCode: 400,
-      message: 'Invalid narrative product.',
-    })
+    throw createError({ statusCode: 400, message: 'Invalid narrative product.' })
   }
   if (!sessionId || sessionId.length > 160 || !beatId || beatId.length > 160) {
     throw createError({
@@ -207,10 +195,7 @@ function narrativeRequest(
     })
   }
   if (!allowedMoments.has(moment)) {
-    throw createError({
-      statusCode: 400,
-      message: 'Invalid narrative art moment.',
-    })
+    throw createError({ statusCode: 400, message: 'Invalid narrative art moment.' })
   }
 
   const expectedKey = [product, sessionId, beatId, moment].join(':')
@@ -221,13 +206,7 @@ function narrativeRequest(
     })
   }
 
-  return {
-    product,
-    sessionId,
-    beatId,
-    moment,
-    dedupeKey,
-  }
+  return { product, sessionId, beatId, moment, dedupeKey }
 }
 
 function facetRequest(body: ArtEnqueueRequest | null): {
@@ -244,16 +223,6 @@ function facetRequest(body: ArtEnqueueRequest | null): {
     ).trim(),
   }
 }
-
-// Silas, 2026-08-09: "Nothing should be running a1111. We support it as in
-// users can add an a1111 server, but it's not used by me to build the site. We
-// are 100% comfy at this point ... comfy should generally be the default."
-//
-// So `a1111` stays a VALID engine — a user who has added their own Automatic1111
-// server can still ask for it by name — but it is no longer what you get by
-// saying nothing. An omitted engine now means krea2: Comfy, cfg 1, 8 steps,
-// random seed (server/api/comfy/krea2/utils/workflow.ts).
-const DEFAULT_ENQUEUE_ENGINE: EnqueueEngine = 'krea2'
 
 function normalizeEngine(value: unknown): EnqueueEngine {
   const raw = String(value || DEFAULT_ENQUEUE_ENGINE).toLowerCase()
@@ -342,10 +311,7 @@ export default defineEventHandler(async (event) => {
 
     const bodyWithEntityArt: ArtEnqueueRequest | null =
       entityArt?.sourceImageBase64
-        ? {
-            ...(body ?? {}),
-            sourceImageBase64: entityArt.sourceImageBase64,
-          }
+        ? { ...(body ?? {}), sourceImageBase64: entityArt.sourceImageBase64 }
         : body
 
     if (narrativeContext) {
@@ -410,10 +376,6 @@ export default defineEventHandler(async (event) => {
       facets,
     )
 
-    // Gate the FULL composed prompt — after entity context and Facet direction
-    // are folded in — because that is the string the model actually sees. Facet
-    // artPrompts and entity context are just as capable of smuggling in a
-    // conditional or a format noun as the caller's own text.
     assertArtPromptContract({
       prompt: promptString,
       engine,
@@ -421,13 +383,6 @@ export default defineEventHandler(async (event) => {
       cfg: resolvedBody.cfg ?? null,
     })
 
-    // Everything that reaches this endpoint is interactive or corrective: the
-    // entity art workbench redoing a bad image, a narrative beat a player is
-    // waiting on, a repair pass replacing art that is live and wrong. Bulk
-    // creation (the facet catalog, daily-dream builds) goes through
-    // /api/art/queue from Conductor and sits at 0 or below. Redoing bad art
-    // should outrank making new art, so this defaults to the top of the range
-    // rather than the middle of it. An explicit body.priority still wins.
     const priority = Number.isInteger(resolvedBody.priority)
       ? Number(resolvedBody.priority)
       : DEFAULT_ENQUEUE_PRIORITY
@@ -656,11 +611,6 @@ function buildJobPayload(
     }
   }
 
-  // The named-checkpoint lane. buildDefaultComfyWorkflow has always accepted a
-  // LoRA and a canvas size -- this call site simply never passed them, so a
-  // LoRA chosen in the generator was dropped on the floor and every render came
-  // out at the workflow's built-in dimensions. The sibling lanes (krea2, flux2,
-  // kontext, sdxl-img2img) all forward these; this one now does too.
   const workflow = buildDefaultComfyWorkflow({
     prompt: promptString,
     negativePrompt: body.negativePrompt ?? '',
@@ -690,28 +640,28 @@ function normalizeVideoImage(raw: string, slot: 'first' | 'last'): QueuedImage {
   }
 }
 
-function resolveVideoFrames(
-  engine: EnqueueEngine,
-  body: ArtEnqueueRequest | null | undefined,
+function requireVideoNumber(
+  value: number | null | undefined,
+  field: string,
+  min: number,
+  max: number,
 ): number {
-  const fps = clampNumber(
-    body?.fps ?? body?.frameRate,
-    engine === 'wan' ? WAN_DEFAULT_FRAME_RATE : LTX_DEFAULT_FRAME_RATE,
-    1,
-    60,
-  )
-  const duration = clampNumber(
-    body?.durationSeconds,
-    engine === 'wan' ? WAN_DEFAULT_DURATION : LTX_DEFAULT_DURATION,
-    0.25,
-    30,
-  )
-  return engine === 'wan'
-    ? wanFrameCount(duration, fps)
-    : ltxFrameCount(duration, fps)
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    throw createError({
+      statusCode: 400,
+      message: `Video generation requires numeric "${field}".`,
+    })
+  }
+  if (value < min || value > max) {
+    throw createError({
+      statusCode: 400,
+      message: `Video "${field}" must be between ${min} and ${max}.`,
+    })
+  }
+  return value
 }
 
-function clampNumber(
+function clampOptionalNumber(
   value: number | null | undefined,
   fallback: number,
   min: number,
@@ -722,40 +672,61 @@ function clampNumber(
   return Math.min(max, Math.max(min, numberValue))
 }
 
+function resolveVideoFrames(
+  engine: EnqueueEngine,
+  body: ArtEnqueueRequest | null | undefined,
+): number {
+  const fps = requireVideoNumber(body?.fps ?? body?.frameRate, 'fps', 1, 60)
+  const duration = requireVideoNumber(
+    body?.durationSeconds,
+    'durationSeconds',
+    0.25,
+    30,
+  )
+  return engine === 'wan'
+    ? wanFrameCount(duration, fps)
+    : ltxFrameCount(duration, fps)
+}
+
 function buildVideoJobPayload(
   engine: 'ltx' | 'wan',
   ctx: { body: ArtEnqueueRequest; promptString: string; save: SaveBlock },
 ): { jobEngine: 'COMFY'; payload: Record<string, unknown> } {
   const { body, promptString, save } = ctx
   const isWan = engine === 'wan'
-  const width = clampNumber(
-    body.width,
-    isWan ? WAN_DEFAULT_WIDTH : LTX_DEFAULT_WIDTH,
-    64,
-    2048,
-  )
-  const height = clampNumber(
-    body.height,
-    isWan ? WAN_DEFAULT_HEIGHT : LTX_DEFAULT_HEIGHT,
-    64,
-    2048,
-  )
-  const frameRate = clampNumber(
-    body.fps ?? body.frameRate,
-    isWan ? WAN_DEFAULT_FRAME_RATE : LTX_DEFAULT_FRAME_RATE,
-    1,
-    60,
-  )
-  const duration = clampNumber(
+  const width = requireVideoNumber(body.width, 'width', 64, 2048)
+  const height = requireVideoNumber(body.height, 'height', 64, 2048)
+  const frameRate = requireVideoNumber(body.fps ?? body.frameRate, 'fps', 1, 60)
+  const duration = requireVideoNumber(
     body.durationSeconds,
-    isWan ? WAN_DEFAULT_DURATION : LTX_DEFAULT_DURATION,
+    'durationSeconds',
     0.25,
     30,
   )
-  const negativePrompt = body.negativePrompt?.trim() || DEFAULT_VIDEO_NEGATIVE
+
+  if (typeof body.loop !== 'boolean') {
+    throw createError({
+      statusCode: 400,
+      message: 'Video generation requires boolean "loop".',
+    })
+  }
+  if (!body.outputFormat?.trim()) {
+    throw createError({
+      statusCode: 400,
+      message: 'Video generation requires "outputFormat".',
+    })
+  }
+  if (body.negativePrompt == null) {
+    throw createError({
+      statusCode: 400,
+      message: 'Video generation requires explicit "negativePrompt" (empty is allowed).',
+    })
+  }
+
+  const negativePrompt = body.negativePrompt.trim()
   const loraName = body.loraName?.trim() || null
   const loraStrength = loraName
-    ? clampNumber(body.loraStrength, 1, -2, 2)
+    ? clampOptionalNumber(body.loraStrength, 1, -2, 2)
     : null
   const images: QueuedImage[] = []
   let firstImageName: string | null = null
@@ -778,11 +749,35 @@ function buildVideoJobPayload(
     })
   }
 
-  const loop = Boolean(body.loop)
+  const loop = body.loop
   const outputFormat = normalizeVideoOutputFormat(body.outputFormat)
   const frames = isWan
     ? wanFrameCount(duration, frameRate)
     : ltxFrameCount(duration, frameRate)
+  const renderScale = isWan
+    ? 1
+    : requireVideoNumber(body.renderScale, 'renderScale', 0.25, 1)
+  const latentUpscaleModel = body.latentUpscaleModel?.trim() || null
+  const refineSampler = body.refineSampler?.trim() || null
+  const refineSigmas = body.refineSigmas?.trim() || null
+  const timeoutSeconds =
+    body.timeoutSeconds == null
+      ? null
+      : requireVideoNumber(body.timeoutSeconds, 'timeoutSeconds', 60, 86_400)
+  const presetId = body.presetId?.trim() || null
+
+  if (
+    !isWan &&
+    renderScale < 1 &&
+    (!latentUpscaleModel || !refineSampler || !refineSigmas)
+  ) {
+    throw createError({
+      statusCode: 400,
+      message:
+        'LTX renderScale below 1 requires latentUpscaleModel, refineSampler, and refineSigmas.',
+    })
+  }
+
   const workflow = isWan
     ? buildWanImageToVideoWorkflow({
         prompt: promptString,
@@ -818,7 +813,14 @@ function buildVideoJobPayload(
         styleLoraName: loraName,
         styleLoraStrength: loraStrength,
         outputFormat,
+        renderScale,
+        latentUpscaleModel,
+        refineSampler,
+        refineSigmas,
       })
+
+  const renderWidth = Math.max(64, Math.round((width * renderScale) / 8) * 8)
+  const renderHeight = Math.max(64, Math.round((height * renderScale) / 8) * 8)
 
   return {
     jobEngine: 'COMFY',
@@ -827,14 +829,20 @@ function buildVideoJobPayload(
       promptString,
       images,
       media: 'video',
+      timeoutSeconds,
       video: {
         model: engine,
+        presetId,
         loop,
         fps: frameRate,
         durationSeconds: duration,
         frames,
         width,
         height,
+        renderScale,
+        renderWidth,
+        renderHeight,
+        latentUpscaleModel,
         hasFirstImage: Boolean(firstImageName),
         hasLastImage: Boolean(lastImageName),
         hasLora: Boolean(loraName),

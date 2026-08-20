@@ -24,18 +24,22 @@ export interface GenerateVideoParams {
   presetId?: VideoPresetId | null
   promptString: string
   negativePrompt?: string
-  // Base64 data URLs (or raw base64). First is required, second optional.
   firstImageBase64: string
   secondImageBase64?: string | null
   durationSeconds: number
   fps: number
   loop: boolean
-  width?: number | null
-  height?: number | null
+  width: number
+  height: number
   seed?: number | null
   loraResourceIds?: number[]
   loraStrength?: number | null
-  outputFormat?: VideoOutputFormat
+  outputFormat: VideoOutputFormat
+  renderScale?: number | null
+  latentUpscaleModel?: string | null
+  refineSampler?: string | null
+  refineSigmas?: string | null
+  timeoutSeconds?: number | null
   isPublic?: boolean
   isMature?: boolean
   designer?: string | null
@@ -47,22 +51,15 @@ type QueuedJob = {
   status: 'PENDING' | 'RUNNING' | 'DONE' | 'FAILED' | 'CANCELLED'
   artImageId?: number | null
   error?: string | null
-  // How many times the relay has taken this job and reported back. The queue
-  // retries a failed job by returning it to PENDING (see
-  // server/api/art/queue/[id]/complete.post.ts), so a job on attempt 2 is
-  // indistinguishable from a fresh one without this.
   attempts?: number | null
 }
 
 const POLL_MS = 5_000
-const TIMEOUT_MS = 20 * 60_000
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-// webp/gif clips are animated *images* (render as <img>, loop natively);
-// mp4/webm are real video containers (render as <video>).
 const IMAGE_CLIP_TYPES = new Set(['webp', 'gif'])
 
 export function isImageClipFileType(
@@ -71,10 +68,6 @@ export function isImageClipFileType(
   return IMAGE_CLIP_TYPES.has((fileType || '').toLowerCase())
 }
 
-// Resolve a finished ArtImage (fileType webp/gif/mp4/webm) into a playable
-// src. Handles inline base64 clips and stored paths, same shape as
-// artImageToSrc but clip-aware (data:video/... , data:image/... , and
-// /video/... or /image/... paths).
 function artImageToVideoSrc(image: ArtImage | null | undefined): string {
   if (!image) return ''
   const fileType = (image.fileType || 'mp4').toLowerCase()
@@ -106,13 +99,6 @@ export const useVideoStore = defineStore('videoStore', () => {
     artImageId: null as number | null,
     message: '',
     error: '',
-    // The error the LAST failed attempt reported, while the queue is still
-    // retrying. Distinct from `error`, which is fatal and ends the run: this
-    // one rides alongside a live spinner, because the job really is still
-    // going. Without it a job that has already failed twice looks exactly like
-    // one that just got queued -- which is how a ComfyUI rejection could spin
-    // a wheel for minutes saying "processing" while the ArtJob row already
-    // held the whole diagnosis (2026-08-19, LTX webp animation).
     attemptError: '',
     attempts: 0,
     loop: true,
@@ -122,7 +108,6 @@ export const useVideoStore = defineStore('videoStore', () => {
     () => state.status === 'queued' || state.status === 'rendering',
   )
 
-  // webp/gif clips render as <img> (loop natively); mp4/webm render as <video>.
   const resultIsImage = computed(() => isImageClipFileType(state.fileType))
 
   function reset(): void {
@@ -142,20 +127,25 @@ export const useVideoStore = defineStore('videoStore', () => {
       engine: params.engine,
       presetId: params.presetId ?? undefined,
       promptString: params.promptString,
-      negativePrompt: params.negativePrompt ?? undefined,
+      negativePrompt: params.negativePrompt ?? '',
       firstImageBase64: params.firstImageBase64,
       secondImageBase64: params.secondImageBase64 ?? undefined,
       durationSeconds: params.durationSeconds,
       fps: params.fps,
       loop: params.loop,
-      width: params.width ?? undefined,
-      height: params.height ?? undefined,
+      width: params.width,
+      height: params.height,
       seed: params.seed ?? undefined,
       loraResourceIds: params.loraResourceIds?.length
         ? params.loraResourceIds
         : undefined,
       loraStrength: params.loraStrength ?? undefined,
-      outputFormat: params.outputFormat ?? undefined,
+      outputFormat: params.outputFormat,
+      renderScale: params.renderScale ?? undefined,
+      latentUpscaleModel: params.latentUpscaleModel ?? undefined,
+      refineSampler: params.refineSampler ?? undefined,
+      refineSigmas: params.refineSigmas ?? undefined,
+      timeoutSeconds: params.timeoutSeconds ?? undefined,
       isPublic: params.isPublic ?? true,
       isMature: params.isMature ?? false,
       designer: params.designer ?? undefined,
@@ -177,9 +167,7 @@ export const useVideoStore = defineStore('videoStore', () => {
   }
 
   async function waitForJob(jobId: number): Promise<QueuedJob> {
-    const startedAt = Date.now()
-
-    while (Date.now() - startedAt < TIMEOUT_MS) {
+    while (true) {
       const res = await performFetch<{ job: QueuedJob }>(
         `/api/art/queue/${jobId}`,
         { method: 'GET' },
@@ -197,11 +185,6 @@ export const useVideoStore = defineStore('videoStore', () => {
         return job
       }
 
-      // A failed attempt returns the job to PENDING with its error recorded,
-      // so `error` on a non-terminal job is the last attempt's failure and the
-      // queue is about to try again. Report it now rather than at the terminal
-      // state -- three attempts is minutes of silence otherwise, and the
-      // failure is usually the same one every time.
       const notice = artJobRetryNotice(job)
       if (notice) {
         state.attempts = notice.attempts
@@ -222,19 +205,6 @@ export const useVideoStore = defineStore('videoStore', () => {
 
       await sleep(POLL_MS)
     }
-
-    // "Still catching up" is only true if nothing has gone wrong yet. A job
-    // that has been failing and retrying for twenty minutes is not catching
-    // up, and telling the user to sit tight sends them back to the same wheel.
-    if (state.attemptError) {
-      throw new Error(
-        `Still retrying after ${state.attempts} failed attempt(s): ${state.attemptError}`,
-      )
-    }
-
-    throw new Error(
-      'The studio engine is still catching up. The job stays queued and its clip will appear once rendering finishes — no need to resubmit.',
-    )
   }
 
   async function loadVideo(artImageId: number): Promise<void> {
@@ -253,8 +223,6 @@ export const useVideoStore = defineStore('videoStore', () => {
     state.fileType = (res.data.fileType || '').toLowerCase()
   }
 
-  // Full orchestration: enqueue → poll → resolve. Sets status/error along the
-  // way so the page can bind directly to the store.
   async function generate(params: GenerateVideoParams): Promise<void> {
     reset()
     state.status = 'queued'

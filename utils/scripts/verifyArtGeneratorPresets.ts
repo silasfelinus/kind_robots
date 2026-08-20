@@ -157,6 +157,19 @@ assert.ok(sharedButton.includes('presetSettings'))
 assert.ok(sharedButton.includes("server.serverType === 'COMFY'"))
 assert.ok(!/OPENAI|A1111|ANTHROPIC/.test(sharedButton))
 
+const artStore = readFileSync('stores/artStore.ts', 'utf8')
+assert.ok(artStore.includes('defaultPresetSettings'))
+assert.ok(artStore.includes('PRODUCT_DEFAULT_ART_SETTINGS'))
+assert.ok(!artStore.includes('ART_QUEUE_TIMEOUT_MS'))
+assert.ok(
+  !/steps:\s*25[\s\S]{0,120}cfg:\s*7/.test(artStore),
+  'the shared art form must not fall back to the legacy 25-step / CFG 7 product defaults',
+)
+assert.ok(
+  !artStore.includes("selectGenerationSampler('Euler a')"),
+  'the shared art store must not inject the legacy A1111 sampler into Comfy generation',
+)
+
 const bench = readFileSync('stores/buildBenchStore.ts', 'utf8')
 assert.ok(bench.includes("presetId: 'krea2-turbo'"))
 assert.ok(bench.includes("presetId: 'sdxl-distilled'"))
@@ -164,5 +177,5 @@ assert.ok(bench.includes('defaultsFromPreset'))
 assert.ok(!bench.includes('POLL_TIMEOUT_MS'))
 
 console.log(
-  'Art generation quality contract OK: presets are product-owned, primary/shared generators use the canonical profile registry, and server workflow fallbacks remain compatibility-only.',
+  'Art generation quality contract OK: presets are product-owned, shared generation uses the canonical profile registry, and browser polling follows durable ArtJobs until terminal state.',
 )

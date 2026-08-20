@@ -437,6 +437,12 @@ jobs:
       - name: Model Builder commit stale-snapshot guard contract
         run: npm run test:model-builder-commit-stale-snapshot-guard
 
+      - name: Model Builder commit target-persistence guard checker self-test
+        run: npm run test:model-builder-commit-target-persistence-guard-selftest
+
+      - name: Model Builder commit target-persistence guard contract
+        run: npm run test:model-builder-commit-target-persistence-guard
+
       - name: Model Builder PATCH stale stage-status guard checker self-test
         run: npm run test:model-builder-patch-stale-stage-status-guard-selftest
 

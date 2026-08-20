@@ -157,7 +157,13 @@ export const SOURCE_TYPES: SourceTypeConfig[] = [
     icon: 'kind-icon:robot',
     endpoint: '/api/bots',
     titleField: 'name',
-    subtitleField: 'botType',
+    // 'BotType' (capital B) -- matches Bot.BotType in prisma/schema.prisma.
+    // A lowercase 'botType' silently resolves to undefined on every record
+    // (model-builder/t-029 cycle 22): subtitle() in model-builder-source-
+    // picker.vue does a plain `record[field]` lookup with no type check
+    // against the schema, so a case mismatch renders a permanently blank
+    // Grid/List subtitle line instead of erroring anywhere.
+    subtitleField: 'BotType',
     defaultRecipe: 'character-deck',
     recipes: ['character-deck', 'art-upgrade'],
     blurb: 'Character deck with expressions, transitions, and an art upgrade.',
@@ -173,7 +179,13 @@ export const SOURCE_TYPES: SourceTypeConfig[] = [
     icon: 'kind-icon:gem',
     endpoint: '/api/facets',
     titleField: 'title',
-    subtitleField: 'kind',
+    // 'taxonomy', not 'kind' -- Facet.kind was dropped from the schema in
+    // t-072 (see server/utils/facetAssignments.ts); /api/facets now returns
+    // a hydrated FacetSummary with a computed `taxonomy` field instead. The
+    // stale 'kind' silently resolved to undefined on every record
+    // (model-builder/t-029 cycle 22), same failure mode as Bot's
+    // subtitleField above -- a permanently blank Grid/List subtitle line.
+    subtitleField: 'taxonomy',
     defaultRecipe: 'art-upgrade',
     recipes: ['art-upgrade'],
     blurb: 'Art upgrade only — Facets are reusable tags/attributes, not a relationship-expansion source.',

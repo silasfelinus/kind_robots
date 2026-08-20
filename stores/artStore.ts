@@ -31,6 +31,10 @@ import {
   modelNamesMatch,
   parseA1111GenerationInfo,
 } from '~/stores/helpers/serverHelper'
+import {
+  DEFAULT_ART_PRESET_ID,
+  defaultPresetSettings,
+} from '@/utils/artGeneratorPresets'
 
 type ApiResponse<T> = {
   success: boolean
@@ -95,7 +99,6 @@ export type ArtImageGenerationEngine =
 
 export type ArtImageGenerationTransport = 'browser' | 'backend'
 
-// Shape of a job polled from GET /api/art/queue/:id.
 export type QueuedArtJob = {
   id: number
   status: 'PENDING' | 'RUNNING' | 'DONE' | 'FAILED' | 'CANCELLED'
@@ -133,16 +136,10 @@ export interface GenerateArtData {
   userId?: number | null
 
   checkpoint?: string
-  // Resource-backed selection. `checkpoint`/`loraName` are the names the engine
-  // renders with; the *ResourceId fields let the finished ArtImage link back to
-  // the Resource rows it used (provenance — see resourceProvenance.ts).
   checkpointResourceId?: number | null
   loraName?: string | null
   loraStrength?: number | null
   loraResourceIds?: number[] | null
-  // Stacked LoRAs, applied in order, each with its own strength. The singular
-  // pair above still travels (set to the first link) so provenance readers and
-  // the ArtJob editor's style-LoRA override keep working.
   loras?: ArtLoraSelection[] | null
   sampler?: string
   scheduler?: string
@@ -164,10 +161,8 @@ export interface GenerateArtData {
   engine?: ArtImageGenerationEngine
   transport?: ArtImageGenerationTransport
   workflow?: Record<string, unknown> | null
-  // Flux ships as two models behind one engine. Without this the enqueue route
-  // falls back to `dev` (30 steps), so a caller asking for schnell silently got
-  // the slow model -- see buildFluxWorkflowFromRequest.
   variant?: 'dev' | 'schnell' | null
+  presetId?: string | null
 
   width?: number | null
   height?: number | null
@@ -250,9 +245,25 @@ type ArtStoreState = {
   generationMessageTone: 'success' | 'error'
   lastGeneratedArtImage: ArtImage | null
   selectedGenerationCollectionId: number | null
-  // Async ArtJob queue state for the in-flight generation (enqueue → poll).
   queueState: 'queued' | 'rendering' | null
   currentJobId: number | null
+}
+
+const PRODUCT_DEFAULT_ART_SETTINGS = defaultPresetSettings()
+
+function productDefaultArtForm(): Partial<GenerateArtData> {
+  return {
+    presetId: DEFAULT_ART_PRESET_ID,
+    engine: PRODUCT_DEFAULT_ART_SETTINGS.engine,
+    steps: PRODUCT_DEFAULT_ART_SETTINGS.steps,
+    cfg: PRODUCT_DEFAULT_ART_SETTINGS.cfg,
+    sampler: PRODUCT_DEFAULT_ART_SETTINGS.sampler ?? undefined,
+    scheduler: PRODUCT_DEFAULT_ART_SETTINGS.scheduler ?? undefined,
+    width: PRODUCT_DEFAULT_ART_SETTINGS.width,
+    height: PRODUCT_DEFAULT_ART_SETTINGS.height,
+    guidance: PRODUCT_DEFAULT_ART_SETTINGS.guidance,
+    variant: PRODUCT_DEFAULT_ART_SETTINGS.variant,
+  }
 }
 
 const isClient = typeof window !== 'undefined'
@@ -262,7 +273,6 @@ const fetchAllArtImagesPromise = ref<Promise<ArtImage[]> | null>(null)
 
 function safeGetLocalStorage(key: string): string | null {
   if (!isClient) return null
-
   try {
     return localStorage.getItem(key)
   } catch {
@@ -272,7 +282,6 @@ function safeGetLocalStorage(key: string): string | null {
 
 function safeSetLocalStorage(key: string, value: string): void {
   if (!isClient) return
-
   try {
     localStorage.setItem(key, value)
   } catch {}
@@ -280,7 +289,6 @@ function safeSetLocalStorage(key: string, value: string): void {
 
 function safeParseArtImages(raw: string | null): ArtImage[] {
   if (!raw) return []
-
   try {
     const parsed = JSON.parse(raw)
     return Array.isArray(parsed) ? (parsed as ArtImage[]) : []
@@ -304,17 +312,10 @@ function sanitizeArtImage(image: ArtImage): ArtImage {
 }
 
 function stripHeavyImageFields(image: ArtImage): ArtImage {
-  return {
-    ...image,
-    imageData: null,
-    thumbnailData: null,
-  }
+  return { ...image, imageData: null, thumbnailData: null }
 }
 
-function limitByNewestId<T extends { id: number }>(
-  items: T[],
-  limit: number,
-): T[] {
+function limitByNewestId<T extends { id: number }>(items: T[], limit: number): T[] {
   return [...items].sort((a, b) => b.id - a.id).slice(0, limit)
 }
 
@@ -326,10 +327,7 @@ function isValidId(value: unknown): value is number {
   return Number.isInteger(value) && Number(value) > 0
 }
 
-function mergeUniqueArtImages(
-  existing: ArtImage[],
-  incoming: ArtImage[],
-): ArtImage[] {
+function mergeUniqueArtImages(existing: ArtImage[], incoming: ArtImage[]): ArtImage[] {
   return mergeArtImageRecords(existing, incoming)
     .map((image) => image as ArtImage)
     .sort(sortNewestArtImages)
@@ -366,17 +364,14 @@ export const useArtStore = defineStore('artStore', () => {
       pitch: '',
       userId: null,
       checkpoint: '',
-      sampler: '',
-      steps: 25,
       designer: '',
-      cfg: 7,
       cfgHalf: false,
       isMature: false,
       isPublic: true,
       seed: null,
       serverId: null,
       serverName: null,
-      engine: undefined,
+      ...productDefaultArtForm(),
     },
   })
 
@@ -390,9 +385,7 @@ export const useArtStore = defineStore('artStore', () => {
   const hoverArtImage = ref<ArtImage | null>(null)
   const initializing = ref(false)
   const initializePromise = ref<Promise<void> | null>(null)
-  const artImageRequestMap = ref<Record<number, Promise<ArtImage | undefined>>>(
-    {},
-  )
+  const artImageRequestMap = ref<Record<number, Promise<ArtImage | undefined>>>({})
 
   function getCollectionStore() {
     return useCollectionStore()
@@ -403,17 +396,11 @@ export const useArtStore = defineStore('artStore', () => {
   const currentImagePath = computed(() => {
     const image = state.currentArtImage as
       (ArtImage & { imageData?: string | null; path?: string | null }) | null
-
-    // Path-first: render from the stored path when present, fall back to inline
-    // base64 only for pathless (e.g. freshly uploaded) art.
     return resolveArtImageSrc(image)
   })
 
   const generatedArtImageCount = computed(() => state.generatedArtImages.length)
-
-  const imageById = computed(() => {
-    return new Map(state.artImages.map((image) => [image.id, image]))
-  })
+  const imageById = computed(() => new Map(state.artImages.map((image) => [image.id, image])))
 
   function isUserComfyServer(server: Server): boolean {
     if (!server.isActive) return false
@@ -421,53 +408,30 @@ export const useArtStore = defineStore('artStore', () => {
     if (server.isOfficial) return false
     if (server.category === 'official') return false
     if (server.userId === 9) return false
-
     return true
   }
 
   function findKontextServer(preferredServerId?: number | null): Server | null {
-    const servers = Array.isArray(serverStore.servers)
-      ? (serverStore.servers as Server[])
-      : []
-
+    const servers = Array.isArray(serverStore.servers) ? (serverStore.servers as Server[]) : []
     if (preferredServerId) {
-      const explicitServer =
-        serverStore.getServerById(preferredServerId) ?? null
-
-      if (explicitServer && isUserComfyServer(explicitServer)) {
-        return explicitServer
-      }
+      const explicitServer = serverStore.getServerById(preferredServerId) ?? null
+      if (explicitServer && isUserComfyServer(explicitServer)) return explicitServer
     }
-
     const activeServer = serverStore.activeArtServer
-
-    if (activeServer && isUserComfyServer(activeServer)) {
-      return activeServer
-    }
-
-    const ownedServer = servers.find((server) => {
-      return server.userId === userStore.userId && isUserComfyServer(server)
-    })
-
+    if (activeServer && isUserComfyServer(activeServer)) return activeServer
+    const ownedServer = servers.find(
+      (server) => server.userId === userStore.userId && isUserComfyServer(server),
+    )
     if (ownedServer) return ownedServer
-
     return servers.find(isUserComfyServer) || null
   }
 
-  const publicArtImages = computed(() => {
-    return state.artImages.filter((image) => image.isPublic)
-  })
+  const publicArtImages = computed(() => state.artImages.filter((image) => image.isPublic))
+  const matureArtImages = computed(() => state.artImages.filter((image) => image.isMature))
+  const safeArtImages = computed(() => state.artImages.filter((image) => !image.isMature))
 
-  const matureArtImages = computed(() => {
-    return state.artImages.filter((image) => image.isMature)
-  })
-
-  const safeArtImages = computed(() => {
-    return state.artImages.filter((image) => !image.isMature)
-  })
-
-  const unlinkedArtImages = computed(() => {
-    return state.artImages.filter((image) => {
+  const unlinkedArtImages = computed(() =>
+    state.artImages.filter((image) => {
       const record = image as ArtImage & Record<string, unknown>
       return (
         !record.botId &&
@@ -479,33 +443,24 @@ export const useArtStore = defineStore('artStore', () => {
         !record.characterId &&
         !record.butterflyId
       )
-    })
-  })
+    }),
+  )
 
-  const showMature = computed(() => {
-    return userStore.user?.showMature ?? userStore.showMature ?? false
-  })
+  const showMature = computed(() => userStore.user?.showMature ?? userStore.showMature ?? false)
 
   const generationServers = computed<Server[]>(() => {
-    const servers = Array.isArray(serverStore.servers)
-      ? (serverStore.servers as Server[])
-      : []
-
+    const servers = Array.isArray(serverStore.servers) ? (serverStore.servers as Server[]) : []
     return servers.filter((server) => {
       if (!server.isActive) return false
-
       return (
         server.serverType === 'A1111' ||
         server.serverType === 'COMFY' ||
-        (server.serverType === 'OPENAI' &&
-          serverSupportsModelFamily(server, 'openai-image'))
+        (server.serverType === 'OPENAI' && serverSupportsModelFamily(server, 'openai-image'))
       )
     })
   })
 
-  const activeGenerationServer = computed<Server | null>(() => {
-    return resolveArtServer(state.artForm)
-  })
+  const activeGenerationServer = computed<Server | null>(() => resolveArtServer(state.artForm))
 
   const selectedCheckpointName = computed(() => {
     const checkpointStore = useCheckpointStore()
@@ -522,7 +477,8 @@ export const useArtStore = defineStore('artStore', () => {
     return (
       state.artForm.sampler ||
       checkpointStore.selectedSampler?.name ||
-      'Euler a'
+      PRODUCT_DEFAULT_ART_SETTINGS.sampler ||
+      ''
     )
   })
 
@@ -531,7 +487,6 @@ export const useArtStore = defineStore('artStore', () => {
     const collections = Array.isArray(collectionStore.collections)
       ? collectionStore.collections
       : []
-
     return collections.filter((collection: ArtCollection) => {
       if (collection.isMature && !showMature.value) return false
       if (collection.userId === userStore.userId) return true
@@ -539,30 +494,25 @@ export const useArtStore = defineStore('artStore', () => {
     })
   })
 
-  const finalPromptString = computed(() => {
-    return (
-      promptStore.promptField?.trim() ||
-      getPromptString.value?.trim() ||
-      state.artForm.promptString?.trim() ||
-      ''
-    )
-  })
+  const finalPromptString = computed(() =>
+    promptStore.promptField?.trim() ||
+    getPromptString.value?.trim() ||
+    state.artForm.promptString?.trim() ||
+    '',
+  )
 
-  const canGenerateArt = computed(() => {
-    return Boolean(
+  const canGenerateArt = computed(() =>
+    Boolean(
       !state.loading &&
-      !state.isGenerating &&
-      finalPromptString.value &&
-      (state.artForm.engine === 'openai' ||
-        state.artForm.engine === 'kontext' ||
-        activeGenerationServer.value),
-    )
-  })
+        !state.isGenerating &&
+        finalPromptString.value &&
+        (state.artForm.engine === 'openai' ||
+          state.artForm.engine === 'kontext' ||
+          activeGenerationServer.value),
+    ),
+  )
 
-  function setGenerationMessage(
-    tone: 'success' | 'error',
-    message: string,
-  ): void {
+  function setGenerationMessage(tone: 'success' | 'error', message: string): void {
     state.generationMessageTone = tone
     state.generationMessage = message
   }
@@ -577,18 +527,13 @@ export const useArtStore = defineStore('artStore', () => {
 
   function selectGenerationServer(serverId: number | null): void {
     const server = serverId ? serverStore.getServerById(serverId) : null
-
-    setArtForm({
-      serverId,
-      serverName: server ? getServerLabel(server) : null,
-    })
+    setArtForm({ serverId, serverName: server ? getServerLabel(server) : null })
   }
 
   function selectGenerationCheckpoint(name: string): void {
     const checkpoint = name.trim()
     const checkpointStore = useCheckpointStore()
     if (!checkpoint) return
-
     checkpointStore.selectCheckpointByName(checkpoint)
     setArtForm({ checkpoint })
   }
@@ -597,23 +542,19 @@ export const useArtStore = defineStore('artStore', () => {
     const checkpointStore = useCheckpointStore()
     const sampler = name.trim()
     if (!sampler) return
-
     checkpointStore.selectSamplerByName(sampler)
     setArtForm({ sampler })
   }
 
   function selectGenerationCollection(collectionId: number | null): void {
     const collectionStore = getCollectionStore()
-
     state.selectedGenerationCollectionId = collectionId
     setArtForm({ artCollectionId: collectionId })
-
     if (!collectionId) {
       collectionStore.currentCollection = null
       collectionStore.clearSelectedCollections?.()
       return
     }
-
     collectionStore.setCurrentCollection(collectionId)
     collectionStore.setSelectedCollectionIds([collectionId])
   }
@@ -621,7 +562,6 @@ export const useArtStore = defineStore('artStore', () => {
   async function prepareArtGenerator(): Promise<ApiResponse<true>> {
     state.loading = true
     clearGenerationMessage()
-
     try {
       await Promise.all([
         initialize({
@@ -635,48 +575,26 @@ export const useArtStore = defineStore('artStore', () => {
           : serverStore.initialize({ fetchRemote: true }),
         ensureCollectionsReady(),
       ])
-
-      if (!state.artForm.sampler) {
-        selectGenerationSampler('Euler a')
-      }
-
       if (!state.artForm.userId) {
         setArtForm({
           userId: userStore.authenticatedUserId,
-          designer:
-            userStore.username || userStore.user?.username || 'Kind Designer',
+          designer: userStore.username || userStore.user?.username || 'Kind Designer',
         })
       }
-
-      return {
-        success: true,
-        data: true,
-        message: 'Art generator ready.',
-      }
+      return { success: true, data: true, message: 'Art generator ready.' }
     } catch (error) {
       const message =
-        error instanceof Error
-          ? error.message
-          : 'Failed to load image generator.'
-
+        error instanceof Error ? error.message : 'Failed to load image generator.'
       handleError(error, 'preparing art generator')
       setError(error, message)
       setGenerationMessage('error', message)
-
-      return {
-        success: false,
-        message,
-      }
+      return { success: false, message }
     } finally {
       state.loading = false
     }
   }
 
-  // Shared by generateCurrentArt (synchronous) and enqueueCurrentArt (queue-only)
-  // so the "current form + overrides" merge logic can't drift between the two.
-  function mergeCurrentArtOverrides(
-    overrides: Partial<GenerateArtData>,
-  ): GenerateArtData {
+  function mergeCurrentArtOverrides(overrides: Partial<GenerateArtData>): GenerateArtData {
     return {
       ...state.artForm,
       ...overrides,
@@ -700,8 +618,8 @@ export const useArtStore = defineStore('artStore', () => {
       sampler:
         overrides.sampler ||
         selectedSamplerName.value ||
-        state.artForm.sampler ||
-        'Euler a',
+        PRODUCT_DEFAULT_ART_SETTINGS.sampler ||
+        '',
     }
   }
 
@@ -709,28 +627,16 @@ export const useArtStore = defineStore('artStore', () => {
     overrides: Partial<GenerateArtData> = {},
   ): Promise<ApiResponse<ArtImage>> {
     clearGenerationMessage()
-
     const result = await generateArt(mergeCurrentArtOverrides(overrides))
-
     if (!result.success) {
       setGenerationMessage('error', result.message || 'Generation failed.')
       return result
     }
-
-    if (result.data) {
-      state.lastGeneratedArtImage = result.data
-    }
-
+    if (result.data) state.lastGeneratedArtImage = result.data
     setGenerationMessage('success', result.message || 'Image generated.')
-
     return result
   }
 
-  // Queue-only counterpart to generateCurrentArt: enqueues via the ArtJob
-  // queue and returns immediately with a jobId instead of awaiting the
-  // render. Callers that want per-item queued/rendering/done state (e.g.
-  // Model Builder's async generation path) poll getArtJobStatus(jobId) and
-  // call finalizeQueuedArtImage once it reports DONE.
   async function enqueueCurrentArt(
     overrides: Partial<GenerateArtData> = {},
   ): Promise<{
@@ -746,30 +652,22 @@ export const useArtStore = defineStore('artStore', () => {
   const getPromptString = computed<string>(() => {
     const baseSelections = Object.entries(state.artListSelections)
       .filter(
-        ([key]) =>
-          !key.startsWith('__') && !randomStore.supportedKeys.includes(key),
+        ([key]) => !key.startsWith('__') && !randomStore.supportedKeys.includes(key),
       )
       .flatMap(([, values]) => values)
-
     const prettySelections = state.artListSelections.__pretty__ || []
     const randomSelections = Object.values(
       randomStore.randomSelections as Record<string, string>,
     )
     const typedPrompt = promptStore.promptField?.trim() || ''
-
-    return [
-      ...baseSelections,
-      ...prettySelections,
-      ...randomSelections,
-      typedPrompt,
-    ]
+    return [...baseSelections, ...prettySelections, ...randomSelections, typedPrompt]
       .filter(Boolean)
       .join(', ')
   })
 
-  const getNegativePromptString = computed<string>(() => {
-    return (state.artListSelections.__negative__ || []).join(', ')
-  })
+  const getNegativePromptString = computed<string>(() =>
+    (state.artListSelections.__negative__ || []).join(', '),
+  )
 
   function setError(error: unknown, fallback: string): void {
     state.error = error instanceof Error ? error.message : fallback
@@ -784,24 +682,19 @@ export const useArtStore = defineStore('artStore', () => {
   }
 
   function persistArtImages(): void {
-    const trimmed = limitByNewestId(state.artImages, maxStoredImages).map(
-      stripHeavyImageFields,
-    )
-
+    const trimmed = limitByNewestId(state.artImages, maxStoredImages).map(stripHeavyImageFields)
     safeSetLocalStorage(artImagesStorageKey, JSON.stringify(trimmed))
   }
 
   function hydrateFromLocalStorage(options: { hydrateImages?: boolean } = {}) {
     if (options.hydrateImages === false) return
-
-    state.artImages = safeParseArtImages(
-      safeGetLocalStorage(artImagesStorageKey),
-    ).sort(sortNewestArtImages)
+    state.artImages = safeParseArtImages(safeGetLocalStorage(artImagesStorageKey)).sort(
+      sortNewestArtImages,
+    )
   }
 
   function addOrUpdateArtImages(images: ArtImage[]): void {
     if (!images.length) return
-
     state.artImages = mergeUniqueArtImages(
       state.artImages,
       images.map(sanitizeArtImage),
@@ -815,10 +708,7 @@ export const useArtStore = defineStore('artStore', () => {
   }
 
   function setArtForm(updates: Partial<GenerateArtData>): void {
-    state.artForm = {
-      ...state.artForm,
-      ...updates,
-    }
+    state.artForm = { ...state.artForm, ...updates }
   }
 
   function resetArtForm(overrides: Partial<GenerateArtData> = {}): void {
@@ -827,12 +717,8 @@ export const useArtStore = defineStore('artStore', () => {
       negativePrompt: '',
       pitch: '',
       userId: userStore.authenticatedUserId,
-      engine: undefined,
       checkpoint: '',
-      sampler: '',
-      steps: 25,
       designer: userStore.username || userStore.user?.username || '',
-      cfg: 7,
       cfgHalf: false,
       isMature: false,
       isPublic: true,
@@ -841,6 +727,7 @@ export const useArtStore = defineStore('artStore', () => {
       serverName: null,
       generationRequirement: undefined,
       serverSelectionMode: 'default',
+      ...productDefaultArtForm(),
       ...overrides,
     }
   }
@@ -864,39 +751,26 @@ export const useArtStore = defineStore('artStore', () => {
       .join(', ')
   }
 
-  async function initialize(
-    options: ArtStoreInitializeOptions = {},
-  ): Promise<void> {
+  async function initialize(options: ArtStoreInitializeOptions = {}): Promise<void> {
     const shouldFetchRemote = Boolean(options.fetchRemote)
     const shouldInitializeServers = options.initializeServerStore === true
     const shouldInitializeCollections = Boolean(options.initializeCollections)
-
     if (state.isInitialized && !options.force && !shouldFetchRemote) return
-
-    if (initializePromise.value && !options.force) {
-      return initializePromise.value
-    }
+    if (initializePromise.value && !options.force) return initializePromise.value
 
     initializePromise.value = (async () => {
       state.loading = true
       initializing.value = true
-
       try {
         clearError()
-
         hydrateFromLocalStorage({ hydrateImages: options.hydrateImages })
-
         if (shouldInitializeServers) {
           await serverStore.initialize({
             fetchRemote: shouldFetchRemote,
             force: Boolean(options.force),
           })
         }
-
-        if (shouldInitializeCollections) {
-          await ensureCollectionsReady()
-        }
-
+        if (shouldInitializeCollections) await ensureCollectionsReady()
         if (shouldFetchRemote) {
           await fetchAllArtImages({
             force: Boolean(options.force),
@@ -905,11 +779,7 @@ export const useArtStore = defineStore('artStore', () => {
             includeDreams: false,
           })
         }
-
-        if (!state.artForm.userId) {
-          resetArtForm(state.artForm)
-        }
-
+        if (!state.artForm.userId) resetArtForm(state.artForm)
         state.isInitialized = true
       } catch (error) {
         handleError(error, 'initializing art image store')
@@ -921,27 +791,15 @@ export const useArtStore = defineStore('artStore', () => {
         initializePromise.value = null
       }
     })()
-
     return initializePromise.value
   }
 
   function buildArtImageQuery(options: ArtImageFetchOptions = {}): string {
     const params = new URLSearchParams()
-
-    if (options.includeImageData) {
-      params.set('includeImageData', 'true')
-    }
-
-    if (options.includeThumbnailData) {
-      params.set('includeThumbnailData', 'true')
-    }
-
-    if (options.includeDreams) {
-      params.set('includeDreams', 'true')
-    }
-
+    if (options.includeImageData) params.set('includeImageData', 'true')
+    if (options.includeThumbnailData) params.set('includeThumbnailData', 'true')
+    if (options.includeDreams) params.set('includeDreams', 'true')
     const query = params.toString()
-
     return query ? `?${query}` : ''
   }
 
@@ -950,29 +808,21 @@ export const useArtStore = defineStore('artStore', () => {
     options: ArtImageFetchOptions = {},
   ): image is ArtImage {
     if (!image) return false
-
     const withOptionalData = image as ArtImage & {
       imageData?: string | null
       thumbnailData?: string | null
       Dreams?: unknown[]
     }
-
     if (options.includeImageData && !withOptionalData.imageData) return false
-
     if (
       options.includeThumbnailData &&
       typeof withOptionalData.thumbnailData === 'undefined'
     ) {
       return false
     }
-
-    if (
-      options.includeDreams &&
-      typeof withOptionalData.Dreams === 'undefined'
-    ) {
+    if (options.includeDreams && typeof withOptionalData.Dreams === 'undefined') {
       return false
     }
-
     return true
   }
 
@@ -985,33 +835,21 @@ export const useArtStore = defineStore('artStore', () => {
       includeThumbnailData: false,
       includeDreams: false,
     }
-
-    if (!listOptions.force && state.artImages.length) {
-      return state.artImages
-    }
-
+    if (!listOptions.force && state.artImages.length) return state.artImages
     if (fetchAllArtImagesPromise.value && !listOptions.force) {
       return fetchAllArtImagesPromise.value
     }
-
     fetchAllArtImagesPromise.value = (async () => {
       state.loading = true
-
       try {
         clearError()
-
         const query = buildArtImageQuery(listOptions)
-        const response = await performFetch<ArtImage[]>(
-          `/api/art/image${query}`,
-        )
-
+        const response = await performFetch<ArtImage[]>(`/api/art/image${query}`)
         if (!response.success || !response.data) {
           throw new Error(response.message || 'Failed to fetch art images.')
         }
-
         addOrUpdateArtImages(response.data.map(stripHeavyImageFields))
         state.totalArtImageCount = state.artImages.length
-
         return state.artImages
       } catch (error) {
         handleError(error, 'fetching art images')
@@ -1022,32 +860,22 @@ export const useArtStore = defineStore('artStore', () => {
         fetchAllArtImagesPromise.value = null
       }
     })()
-
     return fetchAllArtImagesPromise.value
   }
 
-  async function loadArtImagesInChunks(
-    ids: number[],
-    chunkSize = 20,
-  ): Promise<void> {
-    const uniqueIds = [...new Set(ids)].filter((id) => {
-      return isValidId(id) && !state.artImages.some((image) => image.id === id)
-    })
-
+  async function loadArtImagesInChunks(ids: number[], chunkSize = 20): Promise<void> {
+    const uniqueIds = [...new Set(ids)].filter(
+      (id) => isValidId(id) && !state.artImages.some((image) => image.id === id),
+    )
     if (!uniqueIds.length) return
-
     const chunks = Array.from(
       { length: Math.ceil(uniqueIds.length / chunkSize) },
       (_, index) => uniqueIds.slice(index * chunkSize, (index + 1) * chunkSize),
     )
-
     for (const chunk of chunks) {
       try {
         const images = await getArtImagesByIds(chunk)
-
-        if (images?.length) {
-          addOrUpdateArtImages(images)
-        }
+        if (images?.length) addOrUpdateArtImages(images)
       } catch (error) {
         handleError(error, 'loading art images in chunks')
       }
@@ -1059,41 +887,27 @@ export const useArtStore = defineStore('artStore', () => {
     options: ArtImageFetchOptions = {},
   ): Promise<ArtImage | undefined> {
     const imageId = Number(id)
-
     if (!isValidId(imageId)) {
       setError('Invalid art image ID.', 'Invalid art image ID.')
       return undefined
     }
-
     const cached = imageById.value.get(imageId)
-
-    if (!options.force && cachedImageSatisfiesOptions(cached, options)) {
-      return cached
-    }
-
+    if (!options.force && cachedImageSatisfiesOptions(cached, options)) return cached
     const existingRequest = artImageRequestMap.value[imageId]
-
-    if (existingRequest && !options.force) {
-      return existingRequest
-    }
+    if (existingRequest && !options.force) return existingRequest
 
     artImageRequestMap.value[imageId] = (async () => {
       try {
         clearError()
-
         const query = buildArtImageQuery(options)
         const response = await performFetch<ArtImage>(
           `/api/art/image/${imageId}${query}`,
         )
-
         if (response.success && response.data) {
           addOrUpdateArtImages([response.data])
           return response.data
         }
-
-        throw new Error(
-          response.message || `Failed to fetch art image ${imageId}.`,
-        )
+        throw new Error(response.message || `Failed to fetch art image ${imageId}.`)
       } catch (error) {
         handleError(error, 'fetching single art image')
         setError(error, `Failed to fetch art image ${imageId}.`)
@@ -1102,53 +916,22 @@ export const useArtStore = defineStore('artStore', () => {
         delete artImageRequestMap.value[imageId]
       }
     })()
-
     return artImageRequestMap.value[imageId]
   }
 
-  async function createArtImage(
-    input: ArtImageCreateInput,
-  ): Promise<ApiResponse<ArtImage>> {
+  async function createArtImage(input: ArtImageCreateInput): Promise<ApiResponse<ArtImage>> {
     try {
       clearError()
-
-      const payload: ArtImageCreateInput = {
-        imageData: input.imageData,
-        thumbnailData: input.thumbnailData,
-        fileName: input.fileName,
-        fileType: input.fileType,
-        imagePath: input.imagePath,
-        path: input.path,
-        promptString: input.promptString,
-        artPrompt: input.artPrompt,
-        negativePrompt: input.negativePrompt,
-        checkpoint: input.checkpoint,
-        sampler: input.sampler,
-        seed: input.seed,
-        steps: input.steps,
-        cfg: input.cfg,
-        cfgHalf: input.cfgHalf,
-        designer: input.designer,
-        genres: input.genres,
-        isPublic: input.isPublic,
-        isMature: input.isMature,
-        isActive: input.isActive,
-        serverName: input.serverName,
-        serverUrl: input.serverUrl,
-      }
-
+      const payload: ArtImageCreateInput = { ...input }
       const response = await performFetch<ArtImage>('/api/art/image', {
         method: 'POST',
         body: JSON.stringify(payload),
         headers: { 'Content-Type': 'application/json' },
       })
-
       if (!response.success || !response.data) {
         throw new Error(response.message || 'Failed to create art image.')
       }
-
       addOrUpdateArtImages([response.data])
-
       let created = imageById.value.get(response.data.id) ?? response.data
       if (input.imageData || input.thumbnailData) {
         created =
@@ -1158,24 +941,14 @@ export const useArtStore = defineStore('artStore', () => {
             includeThumbnailData: Boolean(input.thumbnailData),
           })) ?? created
       }
-
       state.currentArtImage = created
-
-      return {
-        success: true,
-        data: created,
-        message: response.message || 'Art image created.',
-      }
+      return { success: true, data: created, message: response.message || 'Art image created.' }
     } catch (error) {
       handleError(error, 'creating art image')
       setError(error, 'Failed to create art image.')
-
       return {
         success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : 'Failed to create art image.',
+        message: error instanceof Error ? error.message : 'Failed to create art image.',
       }
     }
   }
@@ -1186,19 +959,15 @@ export const useArtStore = defineStore('artStore', () => {
   ): Promise<ApiResponse<ArtImage>> {
     try {
       clearError()
-
       const response = await performFetch<ArtImage>(`/api/art/image/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(updates),
         headers: { 'Content-Type': 'application/json' },
       })
-
       if (!response.success || !response.data) {
         throw new Error(response.message || 'Failed to update art image.')
       }
-
       addOrUpdateArtImages([response.data])
-
       let updated = imageById.value.get(id) ?? response.data
       if (updates.imageData || updates.thumbnailData) {
         updated =
@@ -1208,26 +977,14 @@ export const useArtStore = defineStore('artStore', () => {
             includeThumbnailData: Boolean(updates.thumbnailData),
           })) ?? updated
       }
-
-      if (state.currentArtImage?.id === id) {
-        state.currentArtImage = updated
-      }
-
-      return {
-        success: true,
-        data: updated,
-        message: response.message || 'Art image updated.',
-      }
+      if (state.currentArtImage?.id === id) state.currentArtImage = updated
+      return { success: true, data: updated, message: response.message || 'Art image updated.' }
     } catch (error) {
       handleError(error, 'updating art image')
       setError(error, 'Failed to update art image.')
-
       return {
         success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : 'Failed to update art image.',
+        message: error instanceof Error ? error.message : 'Failed to update art image.',
       }
     }
   }
@@ -1238,7 +995,6 @@ export const useArtStore = defineStore('artStore', () => {
   ): Promise<ApiResponse<ArtImage>> {
     try {
       clearError()
-
       const response = await performFetch<ArtImage>(
         `/api/art/image/connections/${id}`,
         {
@@ -1247,17 +1003,11 @@ export const useArtStore = defineStore('artStore', () => {
           headers: { 'Content-Type': 'application/json' },
         },
       )
-
       if (!response.success || !response.data) {
         throw new Error(response.message || 'Failed to update art image links.')
       }
-
       addOrUpdateArtImages([response.data])
-
-      if (state.currentArtImage?.id === id) {
-        state.currentArtImage = response.data
-      }
-
+      if (state.currentArtImage?.id === id) state.currentArtImage = response.data
       return {
         success: true,
         data: response.data,
@@ -1266,13 +1016,9 @@ export const useArtStore = defineStore('artStore', () => {
     } catch (error) {
       handleError(error, 'updating art image links')
       setError(error, 'Failed to update art image links.')
-
       return {
         success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : 'Failed to update art image links.',
+        message: error instanceof Error ? error.message : 'Failed to update art image links.',
       }
     }
   }
@@ -1280,24 +1026,11 @@ export const useArtStore = defineStore('artStore', () => {
   async function deleteArtImage(id: number): Promise<boolean> {
     try {
       clearError()
-
-      const response = await performFetch(`/api/art/image/${id}`, {
-        method: 'DELETE',
-      })
-
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to delete art image.')
-      }
-
+      const response = await performFetch(`/api/art/image/${id}`, { method: 'DELETE' })
+      if (!response.success) throw new Error(response.message || 'Failed to delete art image.')
       state.artImages = state.artImages.filter((image) => image.id !== id)
-      state.generatedArtImages = state.generatedArtImages.filter(
-        (image) => image.id !== id,
-      )
-
-      if (state.currentArtImage?.id === id) {
-        deselectArtImage()
-      }
-
+      state.generatedArtImages = state.generatedArtImages.filter((image) => image.id !== id)
+      if (state.currentArtImage?.id === id) deselectArtImage()
       persistArtImages()
       return true
     } catch (error) {
@@ -1312,48 +1045,30 @@ export const useArtStore = defineStore('artStore', () => {
   ): Promise<{ success: boolean; message: string; data?: ArtImage }> {
     try {
       clearError()
-
       const response = await performFetch<ArtImage>('/api/art/upload', {
         method: 'POST',
         body: formData,
       })
-
       if (!response.success || !response.data) {
         throw new Error(response.message || 'Failed to upload image.')
       }
-
       addOrUpdateArtImages([stripHeavyImageFields(response.data)])
       state.currentArtImage = response.data
-
-      return {
-        success: true,
-        message: response.message || 'Image uploaded.',
-        data: response.data,
-      }
+      return { success: true, message: response.message || 'Image uploaded.', data: response.data }
     } catch (error) {
       handleError(error, 'uploading image')
-      const message =
-        error instanceof Error ? error.message : 'Failed to upload image.'
+      const message = error instanceof Error ? error.message : 'Failed to upload image.'
       setError(error, message)
-
-      return {
-        success: false,
-        message,
-      }
+      return { success: false, message }
     }
   }
 
-  async function selectArtImageRecord(
-    artImageRecord: ArtImage,
-  ): Promise<ApiResponse<ArtImage>> {
+  async function selectArtImageRecord(artImageRecord: ArtImage): Promise<ApiResponse<ArtImage>> {
     state.loading = true
-
     try {
       clearError()
-
       state.currentArtImage = artImageRecord
       addOrUpdateArtImages([artImageRecord])
-
       return {
         success: true,
         message: `Selected art image #${artImageRecord.id}.`,
@@ -1362,13 +1077,9 @@ export const useArtStore = defineStore('artStore', () => {
     } catch (error) {
       handleError(error, 'selecting art image record')
       setError(error, 'Failed to select art image.')
-
       return {
         success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : 'Failed to select art image.',
+        message: error instanceof Error ? error.message : 'Failed to select art image.',
       }
     } finally {
       state.loading = false
@@ -1377,41 +1088,21 @@ export const useArtStore = defineStore('artStore', () => {
 
   async function selectArtImage(id: number): Promise<ApiResponse<ArtImage>> {
     state.loading = true
-
     try {
       clearError()
-
       const imageId = Number(id)
-
-      if (!isValidId(imageId)) {
-        throw new Error('Invalid art image ID.')
-      }
-
+      if (!isValidId(imageId)) throw new Error('Invalid art image ID.')
       const localImage = state.artImages.find((image) => image.id === imageId)
-
-      if (localImage) {
-        return await selectArtImageRecord(localImage)
-      }
-
-      const image = await getArtImageById(imageId, {
-        includeImageData: true,
-      })
-
-      if (!image) {
-        throw new Error(`Art image #${imageId} was not found.`)
-      }
-
+      if (localImage) return await selectArtImageRecord(localImage)
+      const image = await getArtImageById(imageId, { includeImageData: true })
+      if (!image) throw new Error(`Art image #${imageId} was not found.`)
       return await selectArtImageRecord(image)
     } catch (error) {
       handleError(error, 'selecting art image')
       setError(error, 'There was trouble finding that art image.')
-
       return {
         success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : 'There was trouble finding that art image.',
+        message: error instanceof Error ? error.message : 'There was trouble finding that art image.',
       }
     } finally {
       state.loading = false
@@ -1421,44 +1112,29 @@ export const useArtStore = defineStore('artStore', () => {
   function deselectArtImage(): void {
     state.currentArtImage = null
     setHoverArtImage(null)
-
     if (state.previousArtTab) {
       navStore.setDashboardTab('art', state.previousArtTab)
       state.previousArtTab = null
     }
   }
 
-  async function fetchArtImageForDisplay(
-    id: number,
-  ): Promise<ArtImage | undefined> {
-    return await getArtImageById(id, {
-      includeImageData: true,
-    })
+  async function fetchArtImageForDisplay(id: number): Promise<ArtImage | undefined> {
+    return await getArtImageById(id, { includeImageData: true })
   }
 
-  async function fetchArtImageThumbnail(
-    id: number,
-  ): Promise<ArtImage | undefined> {
-    return await getArtImageById(id, {
-      includeThumbnailData: true,
-    })
+  async function fetchArtImageThumbnail(id: number): Promise<ArtImage | undefined> {
+    return await getArtImageById(id, { includeThumbnailData: true })
   }
 
-  async function fetchArtImageWithDreams(
-    id: number,
-  ): Promise<ArtImage | undefined> {
-    return await getArtImageById(id, {
-      includeDreams: true,
-    })
+  async function fetchArtImageWithDreams(id: number): Promise<ArtImage | undefined> {
+    return await getArtImageById(id, { includeDreams: true })
   }
 
   async function addArtImageToCollection(
     collectionId: number,
     artImageId: number,
   ): Promise<ApiResponse<ArtImage>> {
-    return await updateArtImageConnections(artImageId, {
-      artCollectionIds: [collectionId],
-    })
+    return await updateArtImageConnections(artImageId, { artCollectionIds: [collectionId] })
   }
 
   async function removeArtImageFromCollection(
@@ -1476,21 +1152,10 @@ export const useArtStore = defineStore('artStore', () => {
 
   function getArtImageGenerationEndpointPath(server: Server): string {
     const endpointPath = server.endpointPath || '/sdapi/v1/txt2img'
-
     if (server.serverType !== 'A1111') return endpointPath
-
-    if (endpointPath.endsWith('/sdapi/v1/txt2img')) {
-      return endpointPath
-    }
-
-    if (endpointPath.endsWith('/sdapi/v1')) {
-      return `${endpointPath}/txt2img`
-    }
-
-    if (endpointPath.endsWith('/sdapi')) {
-      return `${endpointPath}/v1/txt2img`
-    }
-
+    if (endpointPath.endsWith('/sdapi/v1/txt2img')) return endpointPath
+    if (endpointPath.endsWith('/sdapi/v1')) return `${endpointPath}/txt2img`
+    if (endpointPath.endsWith('/sdapi')) return `${endpointPath}/v1/txt2img`
     return '/sdapi/v1/txt2img'
   }
 
@@ -1499,21 +1164,17 @@ export const useArtStore = defineStore('artStore', () => {
       Accept: 'application/json, text/plain, */*',
       'Content-Type': 'application/json',
     }
-
     if (!server.apiKey) return headers
-
     if (server.authType === 'BEARER') {
       headers.Authorization = server.apiKey.startsWith('Bearer ')
         ? server.apiKey
         : `Bearer ${server.apiKey}`
       return headers
     }
-
     if (server.authType === 'HEADER' || server.authType === 'API_KEY') {
       headers[server.apiKeyName || 'X-API-Key'] = server.apiKey
       return headers
     }
-
     return headers
   }
 
@@ -1555,9 +1216,7 @@ export const useArtStore = defineStore('artStore', () => {
     modelFamily: ArtGenerationModelFamily = 'any',
   ): boolean {
     if (modelFamily === 'any') return true
-
     const searchText = normalizeServerSearchText(server)
-
     if (modelFamily === 'sdxl') {
       return (
         server.serverType === 'A1111' ||
@@ -1565,15 +1224,12 @@ export const useArtStore = defineStore('artStore', () => {
         searchText.includes('stable diffusion xl')
       )
     }
-
     if (modelFamily === 'flux') {
       return server.serverType === 'COMFY' && searchText.includes('flux')
     }
-
     if (modelFamily === 'kontext') {
       return server.serverType === 'COMFY' && searchText.includes('kontext')
     }
-
     if (modelFamily === 'openai-image') {
       return (
         server.serverType === 'OPENAI' &&
@@ -1583,7 +1239,6 @@ export const useArtStore = defineStore('artStore', () => {
           searchText.includes('gpt-image'))
       )
     }
-
     return false
   }
 
@@ -1592,14 +1247,9 @@ export const useArtStore = defineStore('artStore', () => {
     requirement: ArtGenerationRequirement = {},
   ): server is Server {
     if (!isUsableGenerationServer(server)) return false
-
     const provider = requirement.provider ?? 'any'
     const modelFamily = requirement.modelFamily ?? 'any'
-
-    if (provider !== 'any' && getServerProvider(server) !== provider) {
-      return false
-    }
-
+    if (provider !== 'any' && getServerProvider(server) !== provider) return false
     return serverSupportsModelFamily(server, modelFamily)
   }
 
@@ -1608,31 +1258,19 @@ export const useArtStore = defineStore('artStore', () => {
     return serverStore.getServerById(serverId) ?? null
   }
 
-  function getGenerationRequirement(
-    data: GenerateArtData,
-  ): ArtGenerationRequirement {
+  function getGenerationRequirement(data: GenerateArtData): ArtGenerationRequirement {
     if (data.generationRequirement) return data.generationRequirement
-
-    if (data.engine === 'flux') {
-      return { provider: 'comfy', modelFamily: 'flux' }
-    }
-
-    if (data.engine === 'kontext') {
-      return { provider: 'comfy', modelFamily: 'kontext' }
-    }
-
-    if (data.engine === 'openai') {
-      return { provider: 'openai', modelFamily: 'openai-image' }
-    }
-
-    if (data.engine === 'a1111') {
-      return { provider: 'a1111', modelFamily: 'sdxl' }
-    }
-
-    if (data.engine === 'comfy' || data.engine === 'krea2') {
+    if (data.engine === 'flux') return { provider: 'comfy', modelFamily: 'flux' }
+    if (data.engine === 'kontext') return { provider: 'comfy', modelFamily: 'kontext' }
+    if (data.engine === 'openai') return { provider: 'openai', modelFamily: 'openai-image' }
+    if (data.engine === 'a1111') return { provider: 'a1111', modelFamily: 'sdxl' }
+    if (
+      data.engine === 'comfy' ||
+      data.engine === 'krea2' ||
+      data.engine === 'flux2'
+    ) {
       return { provider: 'comfy' }
     }
-
     return { provider: 'any', modelFamily: 'any' }
   }
 
@@ -1644,88 +1282,55 @@ export const useArtStore = defineStore('artStore', () => {
     const requirement = getGenerationRequirement(data)
     const selectionMode = data.serverSelectionMode ?? 'default'
     const explicitServer = getServerByOptionalId(data.serverId)
-
     if (
       selectionMode === 'specific' &&
       serverMatchesGenerationRequirement(explicitServer, requirement)
     ) {
       return explicitServer
     }
-
-    if (selectionMode === 'specific') {
-      return null
-    }
-
+    if (selectionMode === 'specific') return null
     if (selectionMode === 'default') {
       const activeServer = serverStore.activeArtServer
-
-      if (serverMatchesGenerationRequirement(activeServer, requirement)) {
-        return activeServer
-      }
+      if (serverMatchesGenerationRequirement(activeServer, requirement)) return activeServer
     }
-
-    const ownedServer = getCandidateGenerationServers().find((server) => {
-      return (
+    const ownedServer = getCandidateGenerationServers().find(
+      (server) =>
         server.userId === userStore.userId &&
-        serverMatchesGenerationRequirement(server, requirement)
-      )
-    })
-
+        serverMatchesGenerationRequirement(server, requirement),
+    )
     if (ownedServer) return ownedServer
-
-    const publicServer = getCandidateGenerationServers().find((server) => {
-      return (
-        Boolean(server.isPublic) &&
-        serverMatchesGenerationRequirement(server, requirement)
-      )
-    })
-
+    const publicServer = getCandidateGenerationServers().find(
+      (server) =>
+        Boolean(server.isPublic) && serverMatchesGenerationRequirement(server, requirement),
+    )
     if (publicServer) return publicServer
-
     return (
-      getCandidateGenerationServers().find((server) => {
-        return serverMatchesGenerationRequirement(server, requirement)
-      }) ?? null
+      getCandidateGenerationServers().find((server) =>
+        serverMatchesGenerationRequirement(server, requirement),
+      ) ?? null
     )
   }
 
   function getSelectedArtServer(data: GenerateArtData): Server | null {
     const selectedServer = resolveArtServer(data)
-
     if (!selectedServer && data.engine !== 'kontext') {
       throw new Error('No compatible image generation server is available.')
     }
-
     return selectedServer
   }
 
-  function serverCanUseEngine(
-    server: Server,
-    engine: ArtImageGenerationEngine,
-  ): boolean {
+  function serverCanUseEngine(server: Server, engine: ArtImageGenerationEngine): boolean {
     if (engine === 'a1111') return server.serverType === 'A1111'
     if (engine === 'openai') return server.serverType === 'OPENAI'
-    // krea2 and flux2 build their model into the workflow, so any Comfy server
-    // can run them -- unlike flux/kontext, which need the matching model family
-    // installed. /api/art/enqueue has accepted flux2 since FLUX.2 Klein landed;
-    // this predicate simply had not been told about it, so an explicit flux2
-    // request silently fell through to the plain `comfy` lane.
     if (engine === 'comfy' || engine === 'krea2' || engine === 'flux2') {
       return server.serverType === 'COMFY'
     }
     if (engine === 'flux') {
-      return (
-        server.serverType === 'COMFY' &&
-        serverSupportsModelFamily(server, 'flux')
-      )
+      return server.serverType === 'COMFY' && serverSupportsModelFamily(server, 'flux')
     }
     if (engine === 'kontext') {
-      return (
-        server.serverType === 'COMFY' &&
-        serverSupportsModelFamily(server, 'kontext')
-      )
+      return server.serverType === 'COMFY' && serverSupportsModelFamily(server, 'kontext')
     }
-
     return false
   }
 
@@ -1733,23 +1338,12 @@ export const useArtStore = defineStore('artStore', () => {
     server: Server,
     data?: GenerateArtData,
   ): ArtImageGenerationEngine {
-    if (data?.engine && serverCanUseEngine(server, data.engine)) {
-      return data.engine
-    }
-
+    if (data?.engine && serverCanUseEngine(server, data.engine)) return data.engine
     const modelFamily = data?.generationRequirement?.modelFamily
-
-    if (modelFamily === 'flux' && serverSupportsModelFamily(server, 'flux')) {
-      return 'flux'
-    }
-
-    if (
-      modelFamily === 'kontext' &&
-      serverSupportsModelFamily(server, 'kontext')
-    ) {
+    if (modelFamily === 'flux' && serverSupportsModelFamily(server, 'flux')) return 'flux'
+    if (modelFamily === 'kontext' && serverSupportsModelFamily(server, 'kontext')) {
       return 'kontext'
     }
-
     if (
       modelFamily === 'openai-image' &&
       server.serverType === 'OPENAI' &&
@@ -1757,17 +1351,13 @@ export const useArtStore = defineStore('artStore', () => {
     ) {
       return 'openai'
     }
-
     if (server.serverType === 'A1111') return 'a1111'
-
     if (server.serverType === 'COMFY') {
       if (serverSupportsModelFamily(server, 'flux')) return 'flux'
       if (serverSupportsModelFamily(server, 'kontext')) return 'kontext'
       return 'comfy'
     }
-
     if (server.serverType === 'OPENAI') return 'openai'
-
     throw new Error(
       `Server "${server.title}" is ${server.serverType}. This generator supports A1111, Comfy, Krea, Flux, Kontext, and OpenAI image routes.`,
     )
@@ -1778,7 +1368,6 @@ export const useArtStore = defineStore('artStore', () => {
     data?: GenerateArtData,
   ): ArtImageGenerationTransport {
     if (data?.transport) return data.transport
-
     if (
       server.accessMode === 'BROWSER' ||
       server.accessMode === 'LOCAL' ||
@@ -1786,7 +1375,6 @@ export const useArtStore = defineStore('artStore', () => {
     ) {
       return 'browser'
     }
-
     return 'backend'
   }
 
@@ -1794,10 +1382,7 @@ export const useArtStore = defineStore('artStore', () => {
     server: Server,
     data?: GenerateArtData,
   ): ArtImageGenerationRoute {
-    if (!server.isActive) {
-      throw new Error(`Server "${server.title}" is not active.`)
-    }
-
+    if (!server.isActive) throw new Error(`Server "${server.title}" is not active.`)
     return {
       engine: getArtImageGenerationEngine(server, data),
       transport: getArtImageGenerationTransport(server, data),
@@ -1809,47 +1394,29 @@ export const useArtStore = defineStore('artStore', () => {
     form: GenerateArtData,
   ): Promise<string> {
     const checkpointStore = useCheckpointStore()
-
     if (server.serverType !== 'A1111') {
       throw new Error(
         `Server "${server.title}" is ${server.serverType}. Browser A1111 generation only supports A1111 or Forge-compatible servers.`,
       )
     }
-
     const endpointPath = getArtImageGenerationEndpointPath(server)
-
     if (!endpointPath.includes('/sdapi/v1/txt2img')) {
       throw new Error(
         `Server "${server.title}" endpoint does not look like an A1111 txt2img endpoint: ${endpointPath}`,
       )
     }
-
-    const cleanPrompt =
-      typeof form.promptString === 'string' ? form.promptString.trim() : ''
-
-    if (!cleanPrompt) {
-      throw new Error('Cannot generate an image without a prompt.')
-    }
-
-    const cleanCheckpoint =
-      typeof form.checkpoint === 'string' ? form.checkpoint.trim() : ''
-
+    const cleanPrompt = typeof form.promptString === 'string' ? form.promptString.trim() : ''
+    if (!cleanPrompt) throw new Error('Cannot generate an image without a prompt.')
+    const cleanCheckpoint = typeof form.checkpoint === 'string' ? form.checkpoint.trim() : ''
     const selectedCheckpointName =
       checkpointStore.selectedCheckpoint?.name ||
       checkpointStore.selectedCheckpoint?.customLabel ||
       ''
-
     const requestedCheckpoint = cleanCheckpoint || selectedCheckpointName
-
     if (!requestedCheckpoint) {
-      throw new Error(
-        'Cannot generate an image without a selected checkpoint. Pick a model first.',
-      )
+      throw new Error('Cannot generate an image without a selected checkpoint. Pick a model first.')
     }
-
-    const sampler =
-      form.sampler || checkpointStore.selectedSampler?.name || 'Euler a'
-
+    const sampler = form.sampler || checkpointStore.selectedSampler?.name || 'Euler a'
     const requestBody: Record<string, unknown> = {
       prompt: cleanPrompt,
       negative_prompt: form.negativePrompt || ' ',
@@ -1860,46 +1427,33 @@ export const useArtStore = defineStore('artStore', () => {
       height: form.height ?? 1024,
       sampler_index: sampler,
       user: form.designer || 'kindguest',
-      override_settings: {
-        sd_model_checkpoint: requestedCheckpoint,
-      },
+      override_settings: { sd_model_checkpoint: requestedCheckpoint },
       override_settings_restore_afterwards: true,
     }
-
     const response = await serverStore.requestServer(server, endpointPath, {
       method: 'POST',
       headers: getClientServerHeaders(server),
       body: JSON.stringify(requestBody),
     })
-
     if (!response.ok) {
       const message = await parseServerErrorResponse(response)
-
       throw new Error(
         `Browser image generation failed: ${response.status} ${response.statusText}${message ? ` - ${message}` : ''}`,
       )
     }
-
     const generationData = await response.json()
-
     if (!Array.isArray(generationData.images) || !generationData.images[0]) {
       throw new Error('Browser image generation returned no image.')
     }
-
     const generationInfo = parseA1111GenerationInfo(generationData.info)
-
     const generationReport = checkpointStore.recordA1111GenerationStatus({
       server,
       selectedCheckpoint: selectedCheckpointName,
       requestedCheckpoint,
       info: generationData.info,
     })
-
     const actualGenerationModel =
-      generationInfo.sd_model_name ||
-      generationReport.actualGenerationModel ||
-      ''
-
+      generationInfo.sd_model_name || generationReport.actualGenerationModel || ''
     if (
       requestedCheckpoint &&
       actualGenerationModel &&
@@ -1909,25 +1463,21 @@ export const useArtStore = defineStore('artStore', () => {
         `Safety check failed. Requested "${requestedCheckpoint}", but A1111 reported "${actualGenerationModel}".`,
       )
     }
-
     if (!actualGenerationModel) {
       throw new Error(
-        `Safety check failed. A1111 generated an image but did not report which model was used.`,
+        'Safety check failed. A1111 generated an image but did not report which model was used.',
       )
     }
-
     return generationData.images[0]
   }
 
   async function parseServerErrorResponse(response: Response): Promise<string> {
     try {
       const contentType = response.headers.get('content-type') || ''
-
       if (contentType.includes('application/json')) {
         const errorData = await response.json()
         return stringifyServerError(errorData)
       }
-
       return await response.text()
     } catch {
       return response.statusText
@@ -1936,34 +1486,24 @@ export const useArtStore = defineStore('artStore', () => {
 
   function stringifyServerError(errorData: unknown): string {
     if (!errorData) return ''
-
     if (typeof errorData === 'string') return errorData
-
     if (typeof errorData === 'object') {
       const data = errorData as Record<string, unknown>
-
       const error = data.error
       const message = data.message
       const detail = data.detail
       const statusMessage = data.statusMessage
       const statusText = data.statusText
-
       if (typeof error === 'string') return error
       if (typeof message === 'string') return message
       if (typeof detail === 'string') return detail
       if (typeof statusMessage === 'string') return statusMessage
       if (typeof statusText === 'string') return statusText
-
       if (Array.isArray(detail)) {
-        return detail
-          .map((entry) => stringifyServerError(entry))
-          .filter(Boolean)
-          .join('; ')
+        return detail.map((entry) => stringifyServerError(entry)).filter(Boolean).join('; ')
       }
-
       return JSON.stringify(data)
     }
-
     return String(errorData)
   }
 
@@ -1980,25 +1520,17 @@ export const useArtStore = defineStore('artStore', () => {
       3,
       120_000,
     )
-
     if (!response.success || !response.data) {
-      throw new Error(
-        response.message || 'Failed to save browser-generated image.',
-      )
+      throw new Error(response.message || 'Failed to save browser-generated image.')
     }
-
     addOrUpdateArtImages([response.data])
     const hydrated = await getArtImageById(response.data.id, {
       force: true,
       includeImageData: true,
     })
-
     if (!hydrated) {
-      throw new Error(
-        `ArtImage #${response.data.id} was saved but its media could not be loaded.`,
-      )
+      throw new Error(`ArtImage #${response.data.id} was saved but its media could not be loaded.`)
     }
-
     return hydrated
   }
 
@@ -2010,30 +1542,24 @@ export const useArtStore = defineStore('artStore', () => {
       comfy: '/api/comfy/sdxl/generate',
       flux: '/api/comfy/flux/generate',
       krea2: '/api/art/enqueue',
-      // Like krea2, FLUX.2 Klein exists only as a workflow builder consumed by
-      // the enqueue route -- there is no synchronous /api/comfy/flux2/generate.
       flux2: '/api/art/enqueue',
       kontext: '/api/comfy/kontext/generate',
       openai: '/api/chats/openai/images/generate',
     }
-
     return endpoints[engine]
   }
 
-  // /stores/artStore.ts
   function buildBackendGenerationPayload(
     data: GenerateArtData,
     engine: ArtImageGenerationEngine,
   ): Record<string, unknown> {
     const payload: Record<string, unknown> = { ...data }
-
     if (engine === 'kontext') {
       const imageData = data.sourceImageBase64
         ? data.sourceImageBase64.startsWith('data:image/')
           ? data.sourceImageBase64
           : `data:image/png;base64,${data.sourceImageBase64}`
         : null
-
       return {
         serverId: data.serverId ?? null,
         serverName: data.serverName ?? null,
@@ -2048,27 +1574,15 @@ export const useArtStore = defineStore('artStore', () => {
         denoise: data.denoise ?? null,
       }
     }
-
     if (engine === 'flux') {
-      return {
-        ...payload,
-        prompt: data.promptString,
-        variant: data.workflow ? undefined : 'dev',
-      }
+      return { ...payload, prompt: data.promptString, variant: data.variant ?? 'dev' }
     }
-
     if (engine === 'openai') {
-      return {
-        ...payload,
-        prompt: data.promptString,
-        model: 'gpt-image-2',
-      }
+      return { ...payload, prompt: data.promptString, model: 'gpt-image-2' }
     }
-
     return payload
   }
 
-  // /stores/artStore.ts
   type KontextGenerationResult = {
     imageData?: string
     filename?: string
@@ -2080,10 +1594,7 @@ export const useArtStore = defineStore('artStore', () => {
     baseUrl?: string | null
     promptId?: string | null
     queuePosition?: number | null
-    mana?: {
-      balance?: number
-      charged?: number
-    }
+    mana?: { balance?: number; charged?: number }
   }
 
   async function generateBackendArtImage(
@@ -2092,7 +1603,6 @@ export const useArtStore = defineStore('artStore', () => {
   ): Promise<ArtImage> {
     const endpoint = getBackendArtImageGenerationEndpoint(engine)
     const payload = buildBackendGenerationPayload(data, engine)
-
     if (engine === 'kontext') {
       const response = await performFetch<KontextGenerationResult>(
         endpoint,
@@ -2104,15 +1614,12 @@ export const useArtStore = defineStore('artStore', () => {
         3,
         180_000,
       )
-
       if (!response.success || !response.data?.imageData) {
         throw new Error(response.message || 'Failed to generate Kontext image.')
       }
-
       const imageBase64 = response.data.imageData.includes(',')
         ? (response.data.imageData.split(',')[1] ?? '')
         : response.data.imageData
-
       return await saveBrowserGeneratedArtImage({
         ...data,
         serverId: response.data.serverId ?? data.serverId ?? null,
@@ -2120,7 +1627,6 @@ export const useArtStore = defineStore('artStore', () => {
         imageBase64,
       })
     }
-
     const response = await performFetch<ArtImage>(
       endpoint,
       {
@@ -2131,22 +1637,13 @@ export const useArtStore = defineStore('artStore', () => {
       3,
       180_000,
     )
-
     if (!response.success || !response.data) {
       throw new Error(response.message || 'Failed to generate image.')
     }
-
     return response.data
   }
 
-  // ---------------------------------------------------------------------------
-  // Durable ArtJob queue path (the default for every engine except OpenAI).
-  // Enqueue via /api/art/enqueue, poll /api/art/queue/:id until the home relay
-  // renders + completes the job, then load the resulting ArtImage. Mirrors the
-  // pattern in stores/stylistStore.ts.
-  // ---------------------------------------------------------------------------
   const ART_QUEUE_POLL_MS = 5_000
-  const ART_QUEUE_TIMEOUT_MS = 10 * 60_000
 
   function queueSleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms))
@@ -2166,27 +1663,21 @@ export const useArtStore = defineStore('artStore', () => {
       2,
       60_000,
     )
-
     if (!response.success || !response.data?.jobId) {
       throw new Error(response.message || 'Failed to queue art job.')
     }
-
     return response.data.jobId
   }
 
   async function waitForQueuedArtJob(jobId: number): Promise<QueuedArtJob> {
-    const startedAt = Date.now()
-
-    while (Date.now() - startedAt < ART_QUEUE_TIMEOUT_MS) {
+    while (true) {
       const response = await performFetch<{ job: QueuedArtJob }>(
         `/api/art/queue/${jobId}`,
         { method: 'GET' },
         2,
         20_000,
       )
-
       const job = response.success ? response.data?.job : null
-
       if (
         job?.status === 'DONE' ||
         job?.status === 'FAILED' ||
@@ -2194,58 +1685,36 @@ export const useArtStore = defineStore('artStore', () => {
       ) {
         return job
       }
-
-      // Surface "queued" vs "rendering" so the button can tell whether the
-      // home relay has claimed the job yet.
       if (job?.status === 'PENDING' || job?.status === 'RUNNING') {
         state.queueState = job.status === 'RUNNING' ? 'rendering' : 'queued'
       }
-
       await queueSleep(ART_QUEUE_POLL_MS)
     }
-
-    throw new Error(
-      'The studio engine is still catching up. The job stays queued and its image will appear once the engine finishes — no need to resubmit.',
-    )
   }
 
-  // Enqueue an ArtJob, wait for the relay to render it, then load the finished
-  // ArtImage (with image data) so callers get the same ArtImage the synchronous
-  // path used to return inline.
   async function enqueueAndRenderArtImage(
     data: GenerateArtData,
     engine: ArtImageGenerationEngine,
   ): Promise<ArtImage> {
     state.queueState = 'queued'
-
     const jobId = await enqueueArtJob(data, engine)
     state.currentJobId = jobId
-
     const job = await waitForQueuedArtJob(jobId)
-
     if (job.status !== 'DONE' || !job.artImageId) {
-      throw new Error(
-        job.error || `Art job ${jobId} ${job.status.toLowerCase()}.`,
-      )
+      throw new Error(job.error || `Art job ${jobId} ${job.status.toLowerCase()}.`)
     }
-
     const image = await getArtImageById(job.artImageId, {
       force: true,
       includeImageData: true,
     })
-
     if (!image) {
-      throw new Error(
-        `Art job ${jobId} finished but its image (${job.artImageId}) could not be loaded.`,
-      )
+      throw new Error(`Art job ${jobId} finished but its image (${job.artImageId}) could not be loaded.`)
     }
-
     return image
   }
 
   async function ensureCollectionsReady(): Promise<void> {
     const collectionStore = getCollectionStore()
-
     if (collectionStore.collections?.length) return
     await collectionStore.fetchCollections?.()
   }
@@ -2253,10 +1722,7 @@ export const useArtStore = defineStore('artStore', () => {
   function buildGenerateArtData(artData?: GenerateArtData): GenerateArtData {
     const checkpointStore = useCheckpointStore()
     const userId = userStore.authenticatedUserId
-    if (!userId) {
-      throw new Error('A signed-in user is required to generate art')
-    }
-
+    if (!userId) throw new Error('A signed-in user is required to generate art')
     const basePrompt =
       artData?.promptString ||
       artData?.artPrompt ||
@@ -2264,28 +1730,15 @@ export const useArtStore = defineStore('artStore', () => {
       getPromptString.value ||
       promptStore.promptField ||
       getArtListAddonPrompt()
-
     const promptString = promptStore
       .processPromptPlaceholders(basePrompt.trim())
       .replace(/\s+/g, ' ')
-
-    const engine = artData?.engine ?? state.artForm.engine ?? undefined
-
+    const engine =
+      artData?.engine ?? state.artForm.engine ?? PRODUCT_DEFAULT_ART_SETTINGS.engine
     const explicitServerIdProvided =
-      artData !== undefined &&
-      Object.prototype.hasOwnProperty.call(artData, 'serverId')
-
+      artData !== undefined && Object.prototype.hasOwnProperty.call(artData, 'serverId')
     const explicitServerNameProvided =
-      artData !== undefined &&
-      Object.prototype.hasOwnProperty.call(artData, 'serverName')
-
-    const kontextServer =
-      engine === 'kontext' && !explicitServerIdProvided
-        ? findKontextServer()
-        : engine === 'kontext' && typeof artData?.serverId === 'number'
-          ? findKontextServer(artData.serverId)
-          : null
-
+      artData !== undefined && Object.prototype.hasOwnProperty.call(artData, 'serverName')
     return {
       promptString,
       negativePrompt:
@@ -2294,20 +1747,14 @@ export const useArtStore = defineStore('artStore', () => {
         getNegativePromptString.value,
       pitch: artData?.pitch || promptStore.extractPitch(basePrompt),
       userId,
-      artCollectionId:
-        artData?.artCollectionId ?? state.artForm.artCollectionId ?? null,
+      artCollectionId: artData?.artCollectionId ?? state.artForm.artCollectionId ?? null,
       collectionLabel:
-        artData?.collectionLabel ??
-        artData?.collection ??
-        state.artForm.collectionLabel,
+        artData?.collectionLabel ?? artData?.collection ?? state.artForm.collectionLabel,
       checkpoint:
         artData?.checkpoint ||
         state.artForm.checkpoint ||
         checkpointStore.selectedCheckpoint?.name ||
         '',
-      // Resource-backed selection carried through for provenance (#937). Pulled
-      // straight from the caller so the finished ArtImage links to the exact
-      // checkpoint + LoRA Resources it used.
       checkpointResourceId: artData?.checkpointResourceId ?? null,
       loraName: artData?.loraName ?? null,
       loraStrength: artData?.loraStrength ?? null,
@@ -2317,46 +1764,55 @@ export const useArtStore = defineStore('artStore', () => {
         artData?.sampler ||
         state.artForm.sampler ||
         checkpointStore.selectedSampler?.name ||
+        PRODUCT_DEFAULT_ART_SETTINGS.sampler ||
         '',
-      scheduler: artData?.scheduler ?? state.artForm.scheduler,
-      steps: artData?.steps ?? state.artForm.steps ?? 25,
+      scheduler:
+        artData?.scheduler ??
+        state.artForm.scheduler ??
+        PRODUCT_DEFAULT_ART_SETTINGS.scheduler ??
+        undefined,
+      steps:
+        artData?.steps ?? state.artForm.steps ?? PRODUCT_DEFAULT_ART_SETTINGS.steps,
       designer:
         artData?.designer ||
         state.artForm.designer ||
         userStore.username ||
         userStore.user?.username ||
         'Kind Designer',
-      cfg: artData?.cfg ?? state.artForm.cfg ?? 7,
+      cfg: artData?.cfg ?? state.artForm.cfg ?? PRODUCT_DEFAULT_ART_SETTINGS.cfg,
       cfgHalf: artData?.cfgHalf ?? state.artForm.cfgHalf ?? false,
       isMature: artData?.isMature ?? state.artForm.isMature ?? false,
       isPublic: artData?.isPublic ?? state.artForm.isPublic ?? true,
       seed: artData?.seed ?? state.artForm.seed ?? null,
       serverId: explicitServerIdProvided ? (artData?.serverId ?? null) : null,
-
-      serverName: explicitServerNameProvided
-        ? (artData?.serverName ?? null)
-        : null,
+      serverName: explicitServerNameProvided ? (artData?.serverName ?? null) : null,
       projectSlug: artData?.projectSlug ?? state.artForm.projectSlug ?? null,
       narrativeContext:
         artData?.narrativeContext ?? state.artForm.narrativeContext ?? null,
-
       generationRequirement:
         artData?.generationRequirement ?? state.artForm.generationRequirement,
       engine,
       transport: artData?.transport ?? state.artForm.transport ?? undefined,
       workflow: artData?.workflow ?? state.artForm.workflow ?? null,
-      variant: artData?.variant ?? state.artForm.variant ?? null,
-      width: artData?.width ?? state.artForm.width ?? null,
-      height: artData?.height ?? state.artForm.height ?? null,
-      guidance: artData?.guidance ?? state.artForm.guidance ?? null,
+      variant:
+        artData?.variant ??
+        state.artForm.variant ??
+        PRODUCT_DEFAULT_ART_SETTINGS.variant,
+      presetId: artData?.presetId ?? state.artForm.presetId ?? DEFAULT_ART_PRESET_ID,
+      width:
+        artData?.width ?? state.artForm.width ?? PRODUCT_DEFAULT_ART_SETTINGS.width,
+      height:
+        artData?.height ?? state.artForm.height ?? PRODUCT_DEFAULT_ART_SETTINGS.height,
+      guidance:
+        artData?.guidance ??
+        state.artForm.guidance ??
+        PRODUCT_DEFAULT_ART_SETTINGS.guidance,
       denoise: artData?.denoise ?? state.artForm.denoise ?? null,
       strength: artData?.strength ?? state.artForm.strength ?? null,
-      sourceImageId:
-        artData?.sourceImageId ?? state.artForm.sourceImageId ?? null,
+      sourceImageId: artData?.sourceImageId ?? state.artForm.sourceImageId ?? null,
       sourceImageBase64:
         artData?.sourceImageBase64 ?? state.artForm.sourceImageBase64 ?? null,
-      maskImageBase64:
-        artData?.maskImageBase64 ?? state.artForm.maskImageBase64 ?? null,
+      maskImageBase64: artData?.maskImageBase64 ?? state.artForm.maskImageBase64 ?? null,
     }
   }
 
@@ -2366,51 +1822,30 @@ export const useArtStore = defineStore('artStore', () => {
     selectedCollectionId?: number | null,
   ): Promise<void> {
     await ensureCollectionsReady()
-
     const collectionStore = getCollectionStore()
-    const generatedCollection =
-      await collectionStore.getOrCreateGeneratedArtCollection(userId)
-
+    const generatedCollection = await collectionStore.getOrCreateGeneratedArtCollection(userId)
     if (generatedCollection?.id) {
       await addArtImageToCollection(generatedCollection.id, image.id)
     }
-
     const activeCollectionId =
       selectedCollectionId ?? collectionStore.currentCollection?.id ?? null
-
     if (activeCollectionId && activeCollectionId !== generatedCollection?.id) {
       await addArtImageToCollection(activeCollectionId, image.id)
     }
-
     if (isClient) {
-      safeSetLocalStorage(
-        'collections',
-        JSON.stringify(collectionStore.collections),
-      )
+      safeSetLocalStorage('collections', JSON.stringify(collectionStore.collections))
     }
   }
 
-  // Resolves the server + generation route for an already-built GenerateArtData
-  // (server selection, hosted-Kontext fallback, sync-vs-queue routing). Shared
-  // by generateArt (awaits the render) and enqueueArtGeneration (returns after
-  // enqueueing) so the routing rules can't drift between the two paths.
   async function resolveArtGenerationRoute(data: GenerateArtData): Promise<{
     data: GenerateArtData
     engine: ArtImageGenerationEngine
     synchronous: boolean
   }> {
     const server = getSelectedArtServer(data)
-
     const resolvedData: GenerateArtData = server
-      ? {
-          ...data,
-          serverId: server.id,
-          serverName: getServerLabel(server),
-        }
+      ? { ...data, serverId: server.id, serverName: getServerLabel(server) }
       : data
-
-    // Hosted Kontext (no explicit server): route through the ArtJob queue so
-    // the home relay renders it, same as every other engine.
     if (resolvedData.engine === 'kontext' && !server) {
       return {
         data: { ...data, serverId: null, serverName: null, engine: 'kontext' },
@@ -2418,28 +1853,15 @@ export const useArtStore = defineStore('artStore', () => {
         synchronous: false,
       }
     }
-
-    if (!server) {
-      throw new Error('No active image generation server selected.')
-    }
-
+    if (!server) throw new Error('No active image generation server selected.')
     const route = getArtImageGenerationRoute(server, resolvedData)
-
     return {
       data: { ...resolvedData, engine: route.engine },
-      // OpenAI runs on the backend directly (no home relay needed), so it
-      // stays synchronous. Every other engine goes through the durable
-      // ArtJob queue.
       engine: route.engine,
       synchronous: route.engine === 'openai',
     }
   }
 
-  // Validates + resolves a generation request and enqueues it via the ArtJob
-  // queue, returning the jobId immediately instead of awaiting the render.
-  // Mirrors generateArt's guest-promotion and validation steps but stops
-  // short of generateBackendArtImage/enqueueAndRenderArtImage. Callers poll
-  // getArtJobStatus(jobId) and finish with finalizeQueuedArtImage.
   async function enqueueArtGeneration(artData?: GenerateArtData): Promise<{
     success: boolean
     jobId?: number
@@ -2452,10 +1874,7 @@ export const useArtStore = defineStore('artStore', () => {
       artData?.prompt?.trim() ||
       finalPromptString.value ||
       ''
-    if (!previewPrompt) {
-      return { success: false, message: 'Image prompt is empty.' }
-    }
-
+    if (!previewPrompt) return { success: false, message: 'Image prompt is empty.' }
     if (userStore.isGuest) {
       const promo = await userStore.ensureRealUser()
       if (!promo.success) {
@@ -2468,30 +1887,21 @@ export const useArtStore = defineStore('artStore', () => {
       }
       void useManaStore().fetch()
     }
-
     try {
       clearError()
-
       const data = buildGenerateArtData(artData)
       const promptValidation = validateImagePrompt(data.promptString)
-
       if (!promptValidation.success) {
         return {
           success: false,
           message: promptValidation.message || 'Invalid image prompt.',
         }
       }
-
       const resolved = await resolveArtGenerationRoute(data)
-
       if (resolved.synchronous) {
-        throw new Error(
-          'This engine generates synchronously and cannot be queued.',
-        )
+        throw new Error('This engine generates synchronously and cannot be queued.')
       }
-
       const jobId = await enqueueArtJob(resolved.data, resolved.engine)
-
       return { success: true, jobId, data: resolved.data }
     } catch (error) {
       handleError(error, 'queueing image generation')
@@ -2502,10 +1912,6 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
-  // Single-shot status check (no polling loop, no shared queueState mutation)
-  // so callers that track multiple concurrent jobs — e.g. Model Builder, one
-  // per build item — can poll independently without stomping on the
-  // interactive generator's global state.queueState/currentJobId.
   async function getArtJobStatus(jobId: number): Promise<QueuedArtJob | null> {
     const response = await performFetch<{ job: QueuedArtJob }>(
       `/api/art/queue/${jobId}`,
@@ -2513,38 +1919,27 @@ export const useArtStore = defineStore('artStore', () => {
       2,
       20_000,
     )
-
     return response.success ? (response.data?.job ?? null) : null
   }
 
-  // Loads the finished ArtImage for a DONE job and applies it (collections,
-  // achievements, generation message) — the same completion generateArt runs
-  // inline. Callers own their own polling loop and call this once a
-  // getArtJobStatus() poll reports a terminal status.
   async function finalizeQueuedArtImage(
     job: QueuedArtJob,
     data: GenerateArtData,
   ): Promise<ApiResponse<ArtImage>> {
     try {
       if (job.status !== 'DONE' || !job.artImageId) {
-        throw new Error(
-          job.error || `Art job ${job.id} ${job.status.toLowerCase()}.`,
-        )
+        throw new Error(job.error || `Art job ${job.id} ${job.status.toLowerCase()}.`)
       }
-
       const image = await getArtImageById(job.artImageId, {
         force: true,
         includeImageData: true,
       })
-
       if (!image) {
         throw new Error(
           `Art job ${job.id} finished but its image (${job.artImageId}) could not be loaded.`,
         )
       }
-
       await applyGeneratedArtImage(image, data)
-
       return {
         success: true,
         data: image,
@@ -2558,20 +1953,14 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
-  async function generateArt(
-    artData?: GenerateArtData,
-  ): Promise<ApiResponse<ArtImage>> {
-    // Cheap pre-check so we don't create an account for an empty submit.
+  async function generateArt(artData?: GenerateArtData): Promise<ApiResponse<ArtImage>> {
     const previewPrompt =
       artData?.promptString?.trim() ||
       artData?.artPrompt?.trim() ||
       artData?.prompt?.trim() ||
       finalPromptString.value ||
       ''
-    if (!previewPrompt) {
-      return { success: false, message: 'Image prompt is empty.' }
-    }
-
+    if (!previewPrompt) return { success: false, message: 'Image prompt is empty.' }
     if (userStore.isGuest) {
       const promo = await userStore.ensureRealUser()
       if (!promo.success) {
@@ -2582,42 +1971,27 @@ export const useArtStore = defineStore('artStore', () => {
             'We could not set up your account for generating. Please try again.',
         }
       }
-      // Land the signup bonus + real balance before we charge.
       void useManaStore().fetch()
     }
-
     state.loading = true
     state.isGenerating = true
     clearGenerationMessage()
-
-    animationStore.startGeneration({
-      surfaces: {
-        page: { front: true },
-      },
-    })
-
+    animationStore.startGeneration({ surfaces: { page: { front: true } } })
     try {
       clearError()
-
       const data = buildGenerateArtData(artData)
-
       const promptValidation = validateImagePrompt(data.promptString)
-
       if (!promptValidation.success) {
         return {
           success: false,
           message: promptValidation.message || 'Invalid image prompt.',
         }
       }
-
       const resolved = await resolveArtGenerationRoute(data)
-
       const image = resolved.synchronous
         ? await generateBackendArtImage(resolved.data, 'openai')
         : await enqueueAndRenderArtImage(resolved.data, resolved.engine)
-
       await applyGeneratedArtImage(image, resolved.data)
-
       return {
         success: true,
         data: image,
@@ -2626,15 +2000,9 @@ export const useArtStore = defineStore('artStore', () => {
     } catch (error) {
       handleError(error, 'generating image')
       setError(error, 'Failed to generate image.')
-
       const message = error instanceof Error ? error.message : 'Unknown error'
-
       setGenerationMessage('error', message)
-
-      return {
-        success: false,
-        message,
-      }
+      return { success: false, message }
     } finally {
       state.loading = false
       state.isGenerating = false
@@ -2644,37 +2012,18 @@ export const useArtStore = defineStore('artStore', () => {
     }
   }
 
-  // Shared tail for a freshly generated image: cache it, track it as the
-  // latest generation, and link it into the selected collections.
   async function applyGeneratedArtImage(
     image: ArtImage,
     data: GenerateArtData,
   ): Promise<void> {
     addOrUpdateArtImages([image])
-
-    state.generatedArtImages = mergeUniqueArtImages(state.generatedArtImages, [
-      image,
-    ])
-
+    state.generatedArtImages = mergeUniqueArtImages(state.generatedArtImages, [image])
     state.currentArtImage = image
     state.lastGeneratedArtImage = image
-
     const ownerId = userStore.authenticatedUserId
-    if (!ownerId) {
-      throw new Error('The generated image has no authenticated owner.')
-    }
-
-    await addGeneratedArtImageToCollections(
-      image,
-      ownerId,
-      data.artCollectionId,
-    )
-
+    if (!ownerId) throw new Error('The generated image has no authenticated owner.')
+    await addGeneratedArtImageToCollections(image, ownerId, data.artCollectionId)
     setGenerationMessage('success', 'Image created and added to collections.')
-
-    // Achievements: "ArtMaker" on the first image, "Prolific Painter" at 10.
-    // generatedArtImages is this session's generated set, so the count is a
-    // best-effort lower bound; reward dedupe keeps it safe.
     const achievementStore = useAchievementStore()
     void achievementStore.rewardAchievementByCode('artmaker')
     if (state.generatedArtImages.length >= 10) {
@@ -2689,18 +2038,8 @@ export const useArtStore = defineStore('artStore', () => {
 
   return {
     ...toRefs(state),
-
     hoverArtImage,
     initializing,
-    /*
-     * Promise refs are deliberately NOT returned. In a Pinia setup store a
-     * returned ref becomes state, Nuxt serializes state into the SSR payload
-     * with devalue, and devalue cannot stringify a Promise -- which returned
-     * 500 on every page of the site. They stay private; re-entrancy is
-     * unaffected because the functions return the promise VALUE to callers.
-     * Guarded by utils/scripts/verifyNoPromiseInStoreState.ts.
-     */
-
     hasCachedImages,
     currentImagePath,
     generatedArtImageCount,
@@ -2712,42 +2051,34 @@ export const useArtStore = defineStore('artStore', () => {
     safeArtImages,
     unlinkedArtImages,
     artListPresets,
-
     initialize,
     resetInitialization,
     hydrateFromLocalStorage,
-
     fetchAllArtImages,
     loadArtImagesInChunks,
-
     selectArtImage,
     selectArtImageRecord,
     deselectArtImage,
     setHoverArtImage,
-
     setArtForm,
     resetArtForm,
     updateArtListSelection,
     clearArtListSelections,
     getArtListAddonPrompt,
-
     generateArt,
     generateImageFromBrowserServer,
     enqueueCurrentArt,
     enqueueArtGeneration,
     getArtJobStatus,
     finalizeQueuedArtImage,
-
     uploadImage,
     deleteArtImage,
     addOrUpdateArtImages,
     setArtImageList,
-
     getArtImagesByIds,
     getArtImageById,
     getCachedArtImageById,
     getOrFetchArtImageById,
-
     addArtImageToCollection,
     removeArtImageFromCollection,
     preloadArtwork,
@@ -2757,20 +2088,15 @@ export const useArtStore = defineStore('artStore', () => {
     updateArtImage,
     createArtImage,
     fetchArtImageWithDreams,
-
     showMature,
     generationServers,
     generationCollections,
-    // Exposed so the generator can say "this server cannot run that lane"
-    // rather than letting getArtImageGenerationEngine quietly substitute a
-    // different one and render something the settings panel never described.
     canServerRunEngine: serverCanUseEngine,
     activeGenerationServer,
     selectedCheckpointName,
     selectedSamplerName,
     finalPromptString,
     canGenerateArt,
-
     setGenerationMessage,
     clearGenerationMessage,
     selectGenerationServer,

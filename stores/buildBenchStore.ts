@@ -4,17 +4,16 @@
 // side is a full build (engine + prompt + settings). "Run both" enqueues two
 // ArtJobs (reusing /api/art/enqueue + every engine), polls them, and shows the
 // renders side by side so you can eyeball and pick a winner. A clone button
-// copies one side's whole config onto the other so you can vary a single knob
-// (e.g. clone A->B, then double B's steps, or swap B's engine to Flux.2).
+// copies one side's whole config onto the other so you can vary a single knob.
 //
-// Local-first: bench state + saved matchups persist to localStorage; the two
-// rendered images are real ArtImages in the gallery. No new backend — this is a
-// thin driver over the existing enqueue/queue/image endpoints.
+// The bench is intentionally experimental, but each engine starts from the
+// same product-owned quality profile used by the primary image generator.
 import { defineStore } from 'pinia'
 import { reactive } from 'vue'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 import { resolveArtImageSource } from '~/utils/artImageSource'
 import { performFetch } from '@/stores/utils'
+import { getPreset, presetSettings } from '@/utils/artGeneratorPresets'
 
 export type BenchSide = 'A' | 'B'
 export type BenchEngineKey = 'krea2' | 'flux2' | 'sdxl' | 'flux'
@@ -23,17 +22,60 @@ export interface BenchEngineDef {
   key: BenchEngineKey
   label: string
   hint: string
-  defaults: { steps: number; cfg: number; guidance: number; sampler: string; scheduler: string }
+  presetId: string
+  defaults: {
+    steps: number
+    cfg: number
+    guidance: number
+    sampler: string
+    scheduler: string
+    width: number
+    height: number
+  }
 }
 
-// The engines the bench can pit against each other. `key` is sent as the enqueue
-// `engine` (sdxl is aliased to the comfy graph server-side). Defaults auto-fill
-// each engine's native cadence when you switch.
+function defaultsFromPreset(presetId: string): BenchEngineDef['defaults'] {
+  const settings = presetSettings(getPreset(presetId))
+  return {
+    steps: settings.steps,
+    cfg: settings.cfg,
+    guidance: settings.guidance ?? 0,
+    sampler: settings.sampler ?? 'euler',
+    scheduler: settings.scheduler ?? 'normal',
+    width: settings.width,
+    height: settings.height,
+  }
+}
+
 export const BENCH_ENGINES: BenchEngineDef[] = [
-  { key: 'krea2', label: 'Krea 2 Turbo', hint: '8-step, illustration/creative', defaults: { steps: 8, cfg: 1, guidance: 3.5, sampler: 'euler', scheduler: 'simple' } },
-  { key: 'flux2', label: 'Flux.2 Klein', hint: '4-step, structured/JSON', defaults: { steps: 4, cfg: 1, guidance: 3.5, sampler: 'euler', scheduler: 'simple' } },
-  { key: 'sdxl', label: 'SDXL', hint: 'big LoRA ecosystem, cfg matters', defaults: { steps: 25, cfg: 6, guidance: 3.5, sampler: 'euler', scheduler: 'normal' } },
-  { key: 'flux', label: 'Flux dev', hint: '30-step, the old default', defaults: { steps: 30, cfg: 1, guidance: 3.5, sampler: 'euler', scheduler: 'beta' } },
+  {
+    key: 'krea2',
+    label: 'Krea 2 Turbo',
+    hint: 'House default, fast illustration/creative lane',
+    presetId: 'krea2-turbo',
+    defaults: defaultsFromPreset('krea2-turbo'),
+  },
+  {
+    key: 'flux2',
+    label: 'Flux.2 Klein',
+    hint: 'Fast structured/JSON lane',
+    presetId: 'flux2-klein',
+    defaults: defaultsFromPreset('flux2-klein'),
+  },
+  {
+    key: 'sdxl',
+    label: 'SDXL Turbo',
+    hint: 'Checkpoint lane, aligned with the current Turbo fallback',
+    presetId: 'sdxl-distilled',
+    defaults: defaultsFromPreset('sdxl-distilled'),
+  },
+  {
+    key: 'flux',
+    label: 'Flux dev',
+    hint: 'Slow quality lane',
+    presetId: 'flux-dev',
+    defaults: defaultsFromPreset('flux-dev'),
+  },
 ]
 
 export interface BuildConfig {
@@ -43,7 +85,7 @@ export interface BuildConfig {
   steps: number
   cfg: number
   guidance: number
-  seed: number | null // null = random (server assigns; recorded on the result)
+  seed: number | null
   width: number
   height: number
   sampler: string
@@ -88,11 +130,9 @@ interface BuildBenchState {
 
 const STORAGE_KEY = 'kr_build_bench_v1'
 const POLL_MS = 5_000
-const POLL_TIMEOUT_MS = 20 * 60_000 // krea first-load on a small box is slow
-const BENCH_PRIORITY = 100 // jump the shared queue so bench renders come fast
+const BENCH_PRIORITY = 100
 
 function engineDef(key: BenchEngineKey): BenchEngineDef {
-  // BENCH_ENGINES is a fixed, non-empty module-level literal.
   return BENCH_ENGINES.find((e) => e.key === key) ?? BENCH_ENGINES[0]!
 }
 
@@ -106,8 +146,8 @@ function freshConfig(engine: BenchEngineKey): BuildConfig {
     cfg: d.cfg,
     guidance: d.guidance,
     seed: null,
-    width: 1024,
-    height: 1536,
+    width: d.width,
+    height: d.height,
     sampler: d.sampler,
     scheduler: d.scheduler,
     loraName: '',
@@ -116,7 +156,15 @@ function freshConfig(engine: BenchEngineKey): BuildConfig {
 }
 
 function freshResult(): BuildResult {
-  return { status: 'idle', jobId: null, artImageId: null, src: '', seed: null, error: null, elapsedMs: null }
+  return {
+    status: 'idle',
+    jobId: null,
+    artImageId: null,
+    src: '',
+    seed: null,
+    error: null,
+    elapsedMs: null,
+  }
 }
 
 function clone<T>(value: T): T {
@@ -140,10 +188,14 @@ export const useBuildBenchStore = defineStore('buildBenchStore', () => {
     try {
       window.localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ buildA: state.buildA, buildB: state.buildB, saved: state.saved }),
+        JSON.stringify({
+          buildA: state.buildA,
+          buildB: state.buildB,
+          saved: state.saved,
+        }),
       )
     } catch {
-      /* storage full / unavailable — non-fatal */
+      /* Local bench persistence is optional. */
     }
   }
 
@@ -157,20 +209,18 @@ export const useBuildBenchStore = defineStore('buildBenchStore', () => {
       if (parsed.buildB) Object.assign(state.buildB, parsed.buildB)
       if (Array.isArray(parsed.saved)) state.saved = parsed.saved
     } catch {
-      /* ignore corrupt storage */
+      /* Ignore corrupt local bench state and start fresh. */
     }
   }
 
   function configOf(side: BenchSide): BuildConfig {
     return side === 'A' ? state.buildA : state.buildB
   }
+
   function resultOf(side: BenchSide): BuildResult {
     return side === 'A' ? state.resultA : state.resultB
   }
 
-  // Switching engine auto-fills that engine's native step/cfg/sampler cadence
-  // (only the fields the user hasn't obviously customized are worth resetting;
-  // here we reset the cadence fields so a fresh engine behaves as designed).
   function setEngine(side: BenchSide, engine: BenchEngineKey): void {
     const cfg = configOf(side)
     const d = engineDef(engine).defaults
@@ -180,11 +230,11 @@ export const useBuildBenchStore = defineStore('buildBenchStore', () => {
     cfg.guidance = d.guidance
     cfg.sampler = d.sampler
     cfg.scheduler = d.scheduler
+    cfg.width = d.width
+    cfg.height = d.height
     persist()
   }
 
-  // Clone one side's ENTIRE build onto the other — the controlled-comparison
-  // move: copy, then change a single knob on the target.
   function cloneTo(from: BenchSide): void {
     const to: BenchSide = from === 'A' ? 'B' : 'A'
     const source = clone(configOf(from))
@@ -207,16 +257,17 @@ export const useBuildBenchStore = defineStore('buildBenchStore', () => {
     persist()
   }
 
-  // --- enqueue + poll + load, mirroring stores/artStore.ts's queue path -------
   function enqueueBody(cfg: BuildConfig): Record<string, unknown> {
+    const def = engineDef(cfg.engine)
     return {
       engine: cfg.engine,
+      presetId: def.presetId,
       promptString: cfg.prompt.trim(),
       negativePrompt: cfg.negativePrompt.trim() || null,
       steps: cfg.steps,
       cfg: cfg.cfg,
       guidance: cfg.guidance,
-      seed: cfg.seed, // null -> server randomizes and bakes a concrete seed
+      seed: cfg.seed,
       width: cfg.width,
       height: cfg.height,
       sampler: cfg.sampler || null,
@@ -232,30 +283,45 @@ export const useBuildBenchStore = defineStore('buildBenchStore', () => {
 
   async function pollJob(
     jobId: number,
-  ): Promise<{ status: string; artImageId: number | null; error: string | null; seed: number | null }> {
-    const started = Date.now()
-    while (Date.now() - started < POLL_TIMEOUT_MS) {
+  ): Promise<{
+    status: string
+    artImageId: number | null
+    error: string | null
+    seed: number | null
+  }> {
+    while (true) {
       const res = await performFetch<{
         job: { status: string; artImageId: number | null; error: string | null }
       }>(`/api/art/queue/${jobId}`, { method: 'GET' }, 2, 20_000)
       const job = res.success ? res.data?.job : null
       if (job && ['DONE', 'FAILED', 'CANCELLED'].includes(job.status)) {
-        return { status: job.status, artImageId: job.artImageId ?? null, error: job.error ?? null, seed: null }
+        return {
+          status: job.status,
+          artImageId: job.artImageId ?? null,
+          error: job.error ?? null,
+          seed: null,
+        }
       }
-      await new Promise((r) => setTimeout(r, POLL_MS))
+      await new Promise((resolve) => setTimeout(resolve, POLL_MS))
     }
-    throw new Error('Timed out waiting for the render (the job stays queued; its image will still land).')
   }
 
-  async function loadImage(artImageId: number): Promise<{ src: string; seed: number | null }> {
+  async function loadImage(
+    artImageId: number,
+  ): Promise<{ src: string; seed: number | null }> {
     const res = await performFetch<ArtImage & { seed?: number | null }>(
       `/api/art/image/${artImageId}?includeImageData=true`,
       { method: 'GET' },
       1,
       30_000,
     )
-    if (!res.success || !res.data) throw new Error('Rendered image could not be loaded.')
-    return { src: resolveArtImageSource(res.data).src, seed: res.data.seed ?? null }
+    if (!res.success || !res.data) {
+      throw new Error('Rendered image could not be loaded.')
+    }
+    return {
+      src: resolveArtImageSource(res.data).src,
+      seed: res.data.seed ?? null,
+    }
   }
 
   async function runSide(side: BenchSide): Promise<void> {
@@ -269,7 +335,6 @@ export const useBuildBenchStore = defineStore('buildBenchStore', () => {
     result.status = 'queued'
     if (side === 'A') state.resultA = result
     else state.resultB = result
-    // clearing the winner whenever a render (re)starts keeps the pick honest
     state.winner = null
 
     const startedAt = Date.now()
@@ -280,7 +345,9 @@ export const useBuildBenchStore = defineStore('buildBenchStore', () => {
         2,
         60_000,
       )
-      if (!enq.success || !enq.data?.jobId) throw new Error(enq.message || 'Enqueue failed.')
+      if (!enq.success || !enq.data?.jobId) {
+        throw new Error(enq.message || 'Enqueue failed.')
+      }
       result.jobId = enq.data.jobId
       result.status = 'rendering'
 

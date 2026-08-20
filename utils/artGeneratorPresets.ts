@@ -1,43 +1,27 @@
 // /utils/artGeneratorPresets.ts
 //
-// One table describing what the art generator can actually ask ComfyUI to do.
+// Product-owned image generation quality profiles.
 //
-// Silas, 2026-08-09: "any (all) gen tasks should be comfy, and comfy should
-// generally be the default." Every engine below is a Comfy lane; OpenAI images
-// and A1111 are deliberately absent (an A1111 server a user adds is still
-// reachable through /api/art/generate, it is just not something the generator
-// offers to pick).
+// The UI/store chooses one of these profiles, resolves it to explicit values,
+// and sends those values with the ArtJob. Server workflow builders may retain
+// defensive fallbacks for legacy/script callers, but those fallbacks are not
+// the product source of truth and must not silently redefine these profiles.
 //
-// WHY A CAPABILITY MATRIX AND NOT JUST DEFAULT NUMBERS. The old generator drew
-// a checkpoint dropdown, a sampler dropdown, and a steps box and implied all
-// three reached the renderer. They mostly did not: server/api/art/enqueue.post.ts
-// only forwards `checkpoint` on the `comfy` lane -- krea2, flux2, and flux build
-// their model into the workflow -- and only krea2/flux2/comfy carry a LoRA. A
-// control that silently does nothing is worse than a missing one, so the
-// generator reads `supports` here and hides (rather than fakes) what the chosen
-// lane ignores.
-//
-// Every number below is the server's own default, imported in spirit from:
-//   server/api/comfy/krea2/utils/workflow.ts   (8 steps, cfg 1, euler/simple)
-//   server/api/comfy/flux2/utils/workflow.ts   (4 steps, cfg 1, euler/simple)
-//   server/api/comfy/flux/utils/workflow.ts    (dev 30/schnell 8, euler/beta)
-//   server/api/comfy/sdxl/utils/workflow.ts    (distilled 8/2, standard 20/3)
-// Keep them in sync -- utils/scripts/verifyArtGeneratorPresets.ts asserts it.
+// Every engine below is a Comfy lane. OpenAI images and A1111 are deliberately
+// absent from the primary generator profile catalog.
 
 export type ArtGeneratorEngine = 'krea2' | 'flux2' | 'flux' | 'comfy'
 
 export type FluxVariant = 'dev' | 'schnell'
+export type ArtRuntimeClass = 'fast' | 'standard' | 'slow'
 
 export type ArtEngineSupport = {
-  /** The `checkpoint` field reaches the workflow (only the named-checkpoint lane). */
   checkpoint: boolean
-  /** `loraName` / `loraStrength` reach a LoraLoader node. */
   lora: boolean
   negativePrompt: boolean
   sampler: boolean
   scheduler: boolean
   size: boolean
-  /** Flux's separate CFG-distilled guidance value. */
   guidance: boolean
 }
 
@@ -46,6 +30,7 @@ export type ArtEngineProfile = {
   label: string
   blurb: string
   supports: ArtEngineSupport
+  negativePromptNote?: string
 }
 
 export const ART_ENGINE_PROFILES: Record<ArtGeneratorEngine, ArtEngineProfile> =
@@ -64,6 +49,8 @@ export const ART_ENGINE_PROFILES: Record<ArtGeneratorEngine, ArtEngineProfile> =
         size: true,
         guidance: false,
       },
+      negativePromptNote:
+        'At the default CFG 1, negative conditioning has little to no effect. Raise CFG only when you intentionally want it active.',
     },
     flux2: {
       engine: 'flux2',
@@ -78,6 +65,8 @@ export const ART_ENGINE_PROFILES: Record<ArtGeneratorEngine, ArtEngineProfile> =
         size: true,
         guidance: false,
       },
+      negativePromptNote:
+        'At the default CFG 1, negative conditioning has little to no effect. Raise CFG only when you intentionally want it active.',
     },
     flux: {
       engine: 'flux',
@@ -87,7 +76,7 @@ export const ART_ENGINE_PROFILES: Record<ArtGeneratorEngine, ArtEngineProfile> =
       supports: {
         checkpoint: false,
         lora: false,
-        negativePrompt: true,
+        negativePrompt: false,
         sampler: true,
         scheduler: true,
         size: true,
@@ -98,7 +87,7 @@ export const ART_ENGINE_PROFILES: Record<ArtGeneratorEngine, ArtEngineProfile> =
       engine: 'comfy',
       label: 'SDXL checkpoint',
       blurb:
-        'The only lane that renders a checkpoint you choose. Takes a LoRA on top of it.',
+        'The lane for a checkpoint you choose. Takes a LoRA on top of it and supports real negative conditioning.',
       supports: {
         checkpoint: true,
         lora: true,
@@ -124,10 +113,7 @@ export type ArtGeneratorPreset = {
   height: number
   guidance: number | null
   variant: FluxVariant | null
-  /**
-   * Checkpoint families this preset is the sensible default for. Empty means
-   * the preset does not care (its engine ignores the checkpoint anyway).
-   */
+  runtimeClass: ArtRuntimeClass
   families: CheckpointFamily[]
 }
 
@@ -135,7 +121,7 @@ export const ART_GENERATOR_PRESETS: ArtGeneratorPreset[] = [
   {
     id: 'krea2-turbo',
     label: 'Krea 2 · Fast',
-    blurb: '8 steps, cfg 1. What you get when you say nothing.',
+    blurb: '8 steps, cfg 1. The standard Kind Robots image-generation default.',
     engine: 'krea2',
     steps: 8,
     cfg: 1,
@@ -145,6 +131,7 @@ export const ART_GENERATOR_PRESETS: ArtGeneratorPreset[] = [
     height: 1024,
     guidance: null,
     variant: null,
+    runtimeClass: 'fast',
     families: [],
   },
   {
@@ -160,6 +147,7 @@ export const ART_GENERATOR_PRESETS: ArtGeneratorPreset[] = [
     height: 1024,
     guidance: null,
     variant: null,
+    runtimeClass: 'standard',
     families: [],
   },
   {
@@ -175,6 +163,7 @@ export const ART_GENERATOR_PRESETS: ArtGeneratorPreset[] = [
     height: 1024,
     guidance: null,
     variant: null,
+    runtimeClass: 'fast',
     families: [],
   },
   {
@@ -190,6 +179,7 @@ export const ART_GENERATOR_PRESETS: ArtGeneratorPreset[] = [
     height: 1024,
     guidance: 4,
     variant: 'schnell',
+    runtimeClass: 'standard',
     families: [],
   },
   {
@@ -205,6 +195,7 @@ export const ART_GENERATOR_PRESETS: ArtGeneratorPreset[] = [
     height: 1024,
     guidance: 3.5,
     variant: 'dev',
+    runtimeClass: 'slow',
     families: [],
   },
   {
@@ -221,6 +212,7 @@ export const ART_GENERATOR_PRESETS: ArtGeneratorPreset[] = [
     height: 1024,
     guidance: null,
     variant: null,
+    runtimeClass: 'fast',
     families: ['sdxl-distilled', 'pony'],
   },
   {
@@ -236,6 +228,7 @@ export const ART_GENERATOR_PRESETS: ArtGeneratorPreset[] = [
     height: 1024,
     guidance: null,
     variant: null,
+    runtimeClass: 'standard',
     families: ['sdxl', 'sd15', 'archive', 'unknown'],
   },
 ]
@@ -243,7 +236,12 @@ export const ART_GENERATOR_PRESETS: ArtGeneratorPreset[] = [
 export const DEFAULT_ART_PRESET_ID = 'krea2-turbo'
 
 export type CheckpointFamily =
-  'sdxl' | 'sdxl-distilled' | 'pony' | 'sd15' | 'archive' | 'unknown'
+  | 'sdxl'
+  | 'sdxl-distilled'
+  | 'pony'
+  | 'sd15'
+  | 'archive'
+  | 'unknown'
 
 export const CHECKPOINT_FAMILY_LABELS: Record<CheckpointFamily, string> = {
   sdxl: 'SDXL',
@@ -254,9 +252,6 @@ export const CHECKPOINT_FAMILY_LABELS: Record<CheckpointFamily, string> = {
   unknown: 'Unrecognised',
 }
 
-// Mirrors DISTILLED_CHECKPOINT_PATTERN in server/api/comfy/sdxl/utils/workflow.ts.
-// The server profiles by the same words, so the numbers the panel shows are the
-// numbers the render will actually use when the caller leaves them alone.
 const DISTILLED_PATTERN = /(turbo|lightning|lcm|hyper)/i
 
 export type CheckpointLike = {
@@ -293,7 +288,6 @@ export function detectCheckpointFamily(
   return 'unknown'
 }
 
-/** The preset that best matches a checkpoint, for the named-checkpoint lane. */
 export function presetForCheckpoint(
   checkpoint: CheckpointLike | null | undefined,
 ): ArtGeneratorPreset {
@@ -321,7 +315,6 @@ export function engineProfile(engine: ArtGeneratorEngine): ArtEngineProfile {
   return ART_ENGINE_PROFILES[engine]
 }
 
-/** Settings a preset writes into the art form when it is applied. */
 export type PresetSettings = {
   engine: ArtGeneratorEngine
   steps: number
@@ -346,4 +339,8 @@ export function presetSettings(preset: ArtGeneratorPreset): PresetSettings {
     guidance: preset.guidance,
     variant: preset.variant,
   }
+}
+
+export function defaultPresetSettings(): PresetSettings {
+  return presetSettings(getPreset(DEFAULT_ART_PRESET_ID))
 }

@@ -281,6 +281,8 @@
     "test:model-builder-batch-any-in-flight-guard": "tsx utils/scripts/verifyModelBuilderBatchAnyInFlightGuard.ts",
     "test:model-builder-async-enqueue-cancelled-run-guard-selftest": "tsx utils/scripts/verifyModelBuilderAsyncEnqueueCancelledRunGuard.test.ts",
     "test:model-builder-async-enqueue-cancelled-run-guard": "tsx utils/scripts/verifyModelBuilderAsyncEnqueueCancelledRunGuard.ts",
+    "test:model-builder-async-enqueue-success-cancelled-run-guard-selftest": "tsx utils/scripts/verifyModelBuilderAsyncEnqueueSuccessCancelledRunGuard.test.ts",
+    "test:model-builder-async-enqueue-success-cancelled-run-guard": "tsx utils/scripts/verifyModelBuilderAsyncEnqueueSuccessCancelledRunGuard.ts",
     "test:model-builder-record-artifact-success-guard-selftest": "tsx utils/scripts/verifyModelBuilderRecordArtifactSuccessGuard.test.ts",
     "test:model-builder-record-artifact-success-guard": "tsx utils/scripts/verifyModelBuilderRecordArtifactSuccessGuard.ts",
     "test:model-builder-fetch-runs-staleness-guard-selftest": "tsx utils/scripts/verifyModelBuilderFetchRunsStalenessGuard.test.ts",

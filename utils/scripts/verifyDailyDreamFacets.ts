@@ -1,6 +1,8 @@
 // /utils/scripts/verifyDailyDreamFacets.ts
 import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
+import type { DailyDreamBlueprint } from '../../server/utils/dailyDreamFacetBlueprint'
+import { diversifyDailyDreamNames } from '../../server/utils/dailyDreamNameDiversity'
 import { containsCode } from './lib/sourceText'
 
 const root = process.cwd()
@@ -25,12 +27,178 @@ function forbidText(path: string, text: string, value: string): void {
   }
 }
 
+function nameShape(name: string): string {
+  const words = name.trim().split(/\s+/)
+  if (words.length === 1) return 'mononym'
+  if (/^[A-Z]\.\s/.test(name)) return 'initial'
+  if (
+    /^(Captain|Chef|Detective|Archivist|Courier|Doctor|Professor|Pilot|Caretaker|Inspector|Quartermaster|Engineer|Keeper|Guide|Clerk|Mechanic|Ranger|Steward)\s/.test(
+      name,
+    )
+  ) {
+    return 'title'
+  }
+  if (/\b(at|of|from)\b/i.test(name)) return 'byname'
+  return 'grounded'
+}
+
+function sampleCharacter(
+  name: string,
+): DailyDreamBlueprint['characters'][number] {
+  return {
+    name,
+    species: 'Human',
+    characterClass: 'Pilot',
+    role: null,
+    alignment: 'Neutral',
+    personality: 'curious',
+    quirks: 'keeps a brass key',
+    backstory: `${name} arrived yesterday and already knows the shortcut.`,
+    artPrompt: `${name}, curious pilot, expressive full character design`,
+    facets: [],
+  }
+}
+
+function sampleBlueprint(): DailyDreamBlueprint {
+  return {
+    dateKey: '2026-08-20',
+    title: 'Naming Contract Dream',
+    slug: 'daily-dream-2026-08-20-1-naming-contract-dream',
+    description:
+      'Mira Voss, Orlo Oddwick, and Vesper Moonspoon compare maps. Nim Starling narrates.',
+    pitch:
+      'Nim Starling asks Mira Voss to find Orlo Oddwick before Vesper Moonspoon reaches the station.',
+    flavorText: 'A deterministic naming fixture.',
+    artPrompt:
+      'Mira Voss, Orlo Oddwick, and Vesper Moonspoon in an ensemble scene. Nim Starling narrates.',
+    facets: [],
+    narrator: {
+      name: 'Nim Starling',
+      botType: 'Story Bot',
+      personality: 'wry',
+      voice: 'Nim Starling narrates in a wry register',
+      artPrompt: 'Nim Starling, expressive mascot bot design',
+      facets: [],
+    },
+    locations: [],
+    characters: [
+      sampleCharacter('Mira Voss'),
+      sampleCharacter('Orlo Oddwick'),
+      sampleCharacter('Vesper Moonspoon'),
+    ],
+    rewards: [],
+  }
+}
+
+function duplicateNameBlueprint(): DailyDreamBlueprint {
+  const blueprint = sampleBlueprint()
+  const repeated = 'Mira Voss'
+  return {
+    ...blueprint,
+    description: `${repeated}, ${repeated}, and ${repeated} compare maps. ${repeated} narrates.`,
+    pitch: `${repeated} asks ${repeated} to find the station.`,
+    artPrompt: `${repeated}, ${repeated}, and ${repeated} in an ensemble scene. ${repeated} narrates.`,
+    narrator: blueprint.narrator
+      ? {
+          ...blueprint.narrator,
+          name: repeated,
+          voice: `${repeated} narrates in a wry register`,
+          artPrompt: `${repeated}, expressive mascot bot design`,
+        }
+      : null,
+    characters: [
+      sampleCharacter(repeated),
+      sampleCharacter(repeated),
+      sampleCharacter(repeated),
+    ],
+  }
+}
+
+function personNames(blueprint: DailyDreamBlueprint): string[] {
+  return [
+    blueprint.narrator?.name,
+    ...blueprint.characters.map((character) => character.name),
+  ].filter((name): name is string => Boolean(name))
+}
+
+function verifyNameDiversityBehavior(): void {
+  const options = { dateKey: '2026-08-20', userId: 1 }
+  const first = diversifyDailyDreamNames(sampleBlueprint(), options)
+  const second = diversifyDailyDreamNames(sampleBlueprint(), options)
+  if (JSON.stringify(first) !== JSON.stringify(second)) {
+    throw new Error(
+      'Daily Dream diversified names must remain date-seed deterministic.',
+    )
+  }
+
+  const names = personNames(first)
+  if (new Set(names).size !== names.length) {
+    throw new Error(
+      'Daily Dream narrator and character names must be unique within a bundle.',
+    )
+  }
+
+  const shapes = new Set(names.map(nameShape))
+  if (shapes.size !== names.length) {
+    throw new Error(
+      `Daily Dream naming structures must rotate within a bundle; got ${names.join(', ')}.`,
+    )
+  }
+
+  const serialized = JSON.stringify(first)
+  for (const oldName of [
+    'Nim Starling',
+    'Mira Voss',
+    'Orlo Oddwick',
+    'Vesper Moonspoon',
+  ]) {
+    if (serialized.includes(oldName)) {
+      throw new Error(
+        `Daily Dream name replacement left stale prose/art reference: ${oldName}`,
+      )
+    }
+  }
+
+  const duplicates = diversifyDailyDreamNames(duplicateNameBlueprint(), options)
+  const duplicateNames = personNames(duplicates)
+  if (new Set(duplicateNames).size !== duplicateNames.length) {
+    throw new Error(
+      'Duplicate legacy placeholder names must still become distinct identities.',
+    )
+  }
+  if (
+    duplicates.description.includes('Mira Voss') ||
+    duplicates.pitch.includes('Mira Voss') ||
+    duplicates.artPrompt.includes('Mira Voss')
+  ) {
+    throw new Error(
+      'Duplicate legacy placeholder names must be replaced throughout Dream prose.',
+    )
+  }
+  for (const name of duplicateNames) {
+    if (!duplicates.description.includes(name)) {
+      throw new Error(
+        `Diversified identity ${name} is missing from duplicate-name description.`,
+      )
+    }
+  }
+
+  const nextDay = diversifyDailyDreamNames(sampleBlueprint(), {
+    dateKey: '2026-08-21',
+    userId: 1,
+  })
+  if (JSON.stringify(nextDay) === JSON.stringify(first)) {
+    throw new Error('Daily Dream naming must vary across date seeds.')
+  }
+}
+
 async function main(): Promise<void> {
   const files = {
     schema: 'prisma/facet-catalog.prisma',
     migration:
       'prisma/migrations/20260726061000_reward_facet_daily_dream/migration.sql',
     blueprint: 'server/utils/dailyDreamFacetBlueprint.ts',
+    nameDiversity: 'server/utils/dailyDreamNameDiversity.ts',
     endpoint: 'server/api/dreams/daily.post.ts',
     dailyStore: 'stores/dailyDreamStore.ts',
     generator: 'components/dreams/daily-dream-generator.vue',
@@ -109,6 +277,14 @@ async function main(): Promise<void> {
   // came to be built with an empty atmosphere and nobody noticed. Re-adding the
   // pick would restore the silence, not the facet.
   forbidText(files.blueprint, text.blueprint, "one('MOOD')")
+
+  requireText(files.nameDiversity, text.nameDiversity, 'NAME_STYLE_POOLS')
+  requireText(files.nameDiversity, text.nameDiversity, 'pickUniqueName')
+  requireText(files.nameDiversity, text.nameDiversity, 'replaceSequence')
+  requireText(files.endpoint, text.endpoint, 'const rawBlueprint =')
+  requireText(files.endpoint, text.endpoint, 'diversifyDailyDreamNames(rawBlueprint')
+  requireText(files.endpoint, text.endpoint, 'return rawBlueprint')
+  verifyNameDiversityBehavior()
 
   requireText(files.endpoint, text.endpoint, 'validDateKey(dateKey)')
   requireText(files.endpoint, text.endpoint, 'rewardType: reward.rewardType')

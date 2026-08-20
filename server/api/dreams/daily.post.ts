@@ -8,6 +8,7 @@ import {
   buildDailyDreamFacetBlueprint,
   type DailyDreamBlueprint,
 } from '~/server/utils/dailyDreamFacetBlueprint'
+import { diversifyDailyDreamNames } from '~/server/utils/dailyDreamNameDiversity'
 import { effectiveShowMature } from '~/server/utils/contentAccess'
 
 type DailyDreamRequest = {
@@ -62,7 +63,7 @@ export default defineEventHandler(async (event) => {
       includeMature: Boolean(body?.isMature && effectiveShowMature(auth.user)),
       dateKey,
     }
-    const blueprint = await buildDailyDreamFacetBlueprint({
+    const rawBlueprint = await buildDailyDreamFacetBlueprint({
       ...blueprintOptions,
       characterCount: requestedCharacterCount,
       rewardCount: requestedRewardCount,
@@ -70,7 +71,7 @@ export default defineEventHandler(async (event) => {
 
     const loadExisting = () =>
       prisma.dream.findFirst({
-        where: { slug: blueprint.slug, userId: auth.user.id, isActive: true },
+        where: { slug: rawBlueprint.slug, userId: auth.user.id, isActive: true },
         include: dailyDreamInclude,
       })
 
@@ -84,7 +85,7 @@ export default defineEventHandler(async (event) => {
         characterCount === requestedCharacterCount &&
         rewardCount === requestedRewardCount
       ) {
-        return blueprint
+        return rawBlueprint
       }
       return buildDailyDreamFacetBlueprint({
         ...blueprintOptions,
@@ -107,6 +108,10 @@ export default defineEventHandler(async (event) => {
       }
     }
 
+    const blueprint = diversifyDailyDreamNames(rawBlueprint, {
+      userId: auth.user.id,
+      dateKey,
+    })
     const isPublic = body?.isPublic ?? false
     const isMature = Boolean(body?.isMature && effectiveShowMature(auth.user))
 
@@ -229,12 +234,16 @@ export default defineEventHandler(async (event) => {
       ) {
         const raced = await loadExisting()
         if (raced) {
+          const racedBlueprint = diversifyDailyDreamNames(
+            await blueprintForExisting(raced),
+            { userId: auth.user.id, dateKey },
+          )
           return {
             success: true,
             message: `Daily Dream for ${dateKey} already exists.`,
             data: {
               dream: raced,
-              blueprint: await blueprintForExisting(raced),
+              blueprint: racedBlueprint,
               reused: true,
             },
             statusCode: 200,

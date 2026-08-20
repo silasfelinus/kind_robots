@@ -24,7 +24,7 @@
         <button
           type="button"
           class="btn btn-xs btn-primary rounded-xl"
-          :disabled="store.autoBuilding"
+          :disabled="autoBuildAllDisabled"
           :title="autoBuildAllTitle"
           @click="store.autoBuildRun()"
         >
@@ -200,13 +200,31 @@ const busyCount = computed(
     run.value?.items.filter((item) => store.isItemManualActionInFlight(item.id))
       .length ?? 0,
 )
-const autoBuildAllTitle = computed(() =>
-  busyCount.value
-    ? `${busyCount.value} item${busyCount.value === 1 ? '' : 's'} in this run ` +
-      `${busyCount.value === 1 ? 'has' : 'have'} a manual action in progress ` +
-      'right now and will be skipped this pass -- retry after it finishes.'
-    : 'Draft, generate, and commit every item automatically',
+// Bug (model-builder/t-029, cycle 25): this button only ever disabled on
+// store.autoBuilding (a second whole-run auto-build), never on
+// store.batchingOutputKey -- so a group batch operation running from
+// model-builder-batch-editor.vue (Draft pitches/fields/prompts, Approve
+// fields, or Auto-build group) left this button clickable, letting the user
+// start a second, fully concurrent walk over the same run's items. See
+// modelBuilderStore.ts's isRunOperationInFlight doc comment for the full
+// race this caused.
+const batchInProgress = computed(() => store.batchingOutputKey !== null)
+const autoBuildAllDisabled = computed(
+  () => store.autoBuilding || batchInProgress.value,
 )
+const autoBuildAllTitle = computed(() => {
+  if (batchInProgress.value) {
+    return (
+      'A batch group operation is already running for this run -- wait ' +
+      'for it to finish before Auto-build all.'
+    )
+  }
+  return busyCount.value
+    ? `${busyCount.value} item${busyCount.value === 1 ? '' : 's'} in this run ` +
+        `${busyCount.value === 1 ? 'has' : 'have'} a manual action in progress ` +
+        'right now and will be skipped this pass -- retry after it finishes.'
+    : 'Draft, generate, and commit every item automatically'
+})
 
 // The source record we're building from — snapshot survives resume; fall back to
 // the freshly-picked record.

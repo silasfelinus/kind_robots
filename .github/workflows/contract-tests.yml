@@ -491,6 +491,12 @@ jobs:
       - name: Model Builder auto-build asset-only message guard contract
         run: npm run test:model-builder-auto-build-asset-only-message-guard
 
+      - name: Model Builder auto-build/batch mutual-exclusion guard checker self-test
+        run: npm run test:model-builder-auto-build-batch-exclusion-guard-selftest
+
+      - name: Model Builder auto-build/batch mutual-exclusion guard contract
+        run: npm run test:model-builder-auto-build-batch-exclusion-guard
+
       - name: Model Builder ASSET_ONLY approval guard checker self-test
         run: npm run test:model-builder-asset-only-approval-guard-selftest
 

@@ -221,6 +221,8 @@
     "test:model-builder-auto-build-draft-gate": "tsx utils/scripts/verifyModelBuilderAutoBuildDraftGate.ts",
     "test:model-builder-item-patch-stage-guard-selftest": "tsx utils/scripts/verifyModelBuilderItemPatchStageGuard.test.ts",
     "test:model-builder-item-patch-stage-guard": "tsx utils/scripts/verifyModelBuilderItemPatchStageGuard.ts",
+    "test:model-builder-artifact-stage-guard-selftest": "tsx utils/scripts/verifyModelBuilderArtifactStageGuard.test.ts",
+    "test:model-builder-artifact-stage-guard": "tsx utils/scripts/verifyModelBuilderArtifactStageGuard.ts",
     "test:model-builder-run-writable-guard-selftest": "tsx utils/scripts/verifyModelBuilderRunWritableGuard.test.ts",
     "test:model-builder-run-writable-guard": "tsx utils/scripts/verifyModelBuilderRunWritableGuard.ts",
     "test:model-builder-open-run-identity-guard-selftest": "tsx utils/scripts/verifyModelBuilderOpenRunIdentityGuard.test.ts",

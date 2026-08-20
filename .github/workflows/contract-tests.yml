@@ -707,6 +707,12 @@ jobs:
       - name: Model Builder item-patch stage guard contract
         run: npm run test:model-builder-item-patch-stage-guard
 
+      - name: Model Builder artifact-stage guard self-test
+        run: npm run test:model-builder-artifact-stage-guard-selftest
+
+      - name: Model Builder artifact-stage guard contract
+        run: npm run test:model-builder-artifact-stage-guard
+
       - name: Model Builder contract-tests coverage guard self-test
         run: npm run test:model-builder-contract-tests-coverage-guard-selftest
 

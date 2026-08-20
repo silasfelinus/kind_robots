@@ -229,6 +229,8 @@
     "test:model-builder-commit-name-field-guard": "tsx utils/scripts/verifyModelBuilderCommitNameFieldGuard.ts",
     "test:model-builder-commit-stale-snapshot-guard-selftest": "tsx utils/scripts/verifyModelBuilderCommitStaleSnapshotGuard.test.ts",
     "test:model-builder-commit-stale-snapshot-guard": "tsx utils/scripts/verifyModelBuilderCommitStaleSnapshotGuard.ts",
+    "test:model-builder-commit-target-persistence-guard-selftest": "tsx utils/scripts/verifyModelBuilderCommitTargetPersistenceGuard.test.ts",
+    "test:model-builder-commit-target-persistence-guard": "tsx utils/scripts/verifyModelBuilderCommitTargetPersistenceGuard.ts",
     "test:model-builder-patch-stale-stage-status-guard-selftest": "tsx utils/scripts/verifyModelBuilderPatchStaleStageStatusGuard.test.ts",
     "test:model-builder-patch-stale-stage-status-guard": "tsx utils/scripts/verifyModelBuilderPatchStaleStageStatusGuard.ts",
     "test:model-builder-content-stage-freshness-guard-selftest": "tsx utils/scripts/verifyModelBuilderContentStageFreshnessGuard.test.ts",

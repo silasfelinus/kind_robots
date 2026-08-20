@@ -979,6 +979,31 @@ export default defineEventHandler(async (event) => {
       throw writeError
     }
 
+    // Durably persist targetType/targetId in their own minimal write
+    // immediately after the primary write succeeds, separate from the
+    // slower stageStatuses re-read/merge/write below. Without this, a
+    // failure in that later step (e.g. a DB blip) would leave the item
+    // permanently claimed -- idempotencyKey is already set above, and must
+    // stay set so a retry can't redo the primary write and duplicate it --
+    // but with targetType/targetId still null, orphaning the record this
+    // commit already produced: every future "already committed" response
+    // (both branches above) would report `target: null` forever with no
+    // way to recover it. This write's own failure isn't caught/reset either,
+    // for the same reason -- the primary write already happened and must
+    // not be repeated.
+    target = await prisma.modelBuildItem
+      .update({
+        where: { id },
+        data: { targetType: target.type, targetId: target.id },
+        select: { targetType: true, targetId: true },
+      })
+      .then((row) => ({
+        type: row.targetType as SourceType,
+        id: row.targetId as number,
+        created: target.created,
+        linked: target.linked,
+      }))
+
     // Re-read stageStatuses immediately before this final write rather than
     // reusing the request-start `item` snapshot: the write above (promote /
     // update / create+link) can be a slow, multi-step transaction, and
@@ -987,6 +1012,8 @@ export default defineEventHandler(async (event) => {
     // stageStatuses blob from a stale snapshot would silently clobber that
     // concurrent edit -- restoring stages to 'approved' that the user just
     // reopened -- so merge the COMMIT key into the current DB value instead.
+    // targetType/targetId are already durably persisted above, so this write
+    // only needs to carry stageStatuses.
     const latest = await prisma.modelBuildItem.findUnique({
       where: { id },
       select: { stageStatuses: true },
@@ -1003,8 +1030,6 @@ export default defineEventHandler(async (event) => {
     const updated = await prisma.modelBuildItem.update({
       where: { id },
       data: {
-        targetType: target.type,
-        targetId: target.id,
         stageStatuses: JSON.stringify(stages),
       },
       include: {

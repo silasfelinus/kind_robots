@@ -683,6 +683,30 @@ jobs:
       - name: Model Builder source-field guard contract
         run: npm run test:model-builder-source-field-guard
 
+      - name: Model Builder approved-asset guard self-test
+        run: npm run test:model-builder-approved-asset-guard-selftest
+
+      - name: Model Builder approved-asset guard contract
+        run: npm run test:model-builder-approved-asset-guard
+
+      - name: Model Builder cancelled-run guard self-test
+        run: npm run test:model-builder-cancelled-run-guard-selftest
+
+      - name: Model Builder cancelled-run guard contract
+        run: npm run test:model-builder-cancelled-run-guard
+
+      - name: Model Builder item-patch stage guard self-test
+        run: npm run test:model-builder-item-patch-stage-guard-selftest
+
+      - name: Model Builder item-patch stage guard contract
+        run: npm run test:model-builder-item-patch-stage-guard
+
+      - name: Model Builder contract-tests coverage guard self-test
+        run: npm run test:model-builder-contract-tests-coverage-guard-selftest
+
+      - name: Model Builder contract-tests coverage guard contract
+        run: npm run test:model-builder-contract-tests-coverage-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

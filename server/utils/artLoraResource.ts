@@ -31,6 +31,8 @@ type LoraResourceRecord = {
   civitaiUrl: string | null
   huggingUrl: string | null
   supportedServer: SupportedServer
+  defaultTrigger: string | null
+  triggerWords: string | null
 }
 
 const LORA_TYPES = [ResourceType.LORA, ResourceType.LYCORIS]
@@ -41,12 +43,15 @@ const RESOURCE_RESOLVED_ENGINES = new Set([
   'ltx',
   'wan',
   'sdxl-img2img',
-  // Added with LoRA support on the named-checkpoint lane. Until then this lane
-  // could not carry a LoRA at all (enqueue.post.ts built its workflow without
-  // one), so nothing existed to break -- and leaving it out would have meant the
-  // ONE lane where a LoRA is picked by Resource id could not resolve that id,
-  // forcing the browser to send a filesystem path and be right about it.
   'comfy',
+])
+const STRICT_COMPATIBILITY_ENGINES = new Set([
+  'kontext',
+  'krea2',
+  'flux2',
+  'ltx',
+  'wan',
+  'sdxl-img2img',
 ])
 
 function normalizeText(value: unknown): string {
@@ -158,8 +163,18 @@ function compatibilityRank(
     if (resource.supportedServer === SupportedServer.SDXL) return 30
     if (resource.supportedServer === SupportedServer.COMFY) return 15
     if (resource.supportedServer === SupportedServer.GENERIC) return 10
-    // SD15 LoRAs are a different architecture and won't load on an SDXL
-    // checkpoint, so they stay rank 0 (blocked by the strict check below).
+  }
+
+  // The named-checkpoint lane can host either SDXL or SD1.5 checkpoints. The
+  // browser has enough checkpoint metadata to filter that distinction exactly;
+  // the server only knows the Resource class here, so it accepts both families
+  // plus explicitly generic Comfy LoRAs and leaves cross-family prevention to
+  // the checkpoint-aware picker.
+  if (engine === 'comfy') {
+    if (resource.supportedServer === SupportedServer.COMFY) return 20
+    if (resource.supportedServer === SupportedServer.SDXL) return 15
+    if (resource.supportedServer === SupportedServer.SD15) return 15
+    if (resource.supportedServer === SupportedServer.GENERIC) return 10
   }
 
   if (engine === 'ltx') {
@@ -209,11 +224,6 @@ type LoraRequest = {
   strength: number
 }
 
-/**
- * Flatten a request's LoRA fields into an ordered list of asks. The multi form
- * wins outright when present; otherwise the legacy singular pair becomes a
- * one-entry list, so every downstream path sees the same shape.
- */
 function readLoraRequests(body: LoraAwareEnqueueBody): LoraRequest[] {
   const requests: LoraRequest[] = []
 
@@ -250,8 +260,6 @@ function readLoraRequests(body: LoraAwareEnqueueBody): LoraRequest[] {
     }
   }
 
-  // Same Resource twice would silently double its strength rather than error,
-  // so the first ask wins and the duplicate is dropped.
   const seen = new Set<string>()
   return requests
     .filter((request) => {
@@ -265,6 +273,40 @@ function readLoraRequests(body: LoraAwareEnqueueBody): LoraRequest[] {
     .slice(0, MAX_LORAS_PER_JOB)
 }
 
+function triggerTerms(resource: LoraResourceRecord): string[] {
+  const preferred = String(resource.defaultTrigger || '').trim()
+  if (preferred) return [preferred]
+  return String(resource.triggerWords || '')
+    .split(/[,;\n]+/)
+    .map((value) => value.trim())
+    .filter(Boolean)
+}
+
+function appendResolvedTriggers(
+  body: LoraAwareEnqueueBody,
+  resources: LoraResourceRecord[],
+): string | null {
+  const base = String(
+    body.basePromptString || body.promptString || body.artPrompt || body.prompt || '',
+  ).trim()
+  if (!base) return null
+
+  const seen = new Set<string>()
+  const haystack = base.toLowerCase()
+  const additions: string[] = []
+
+  for (const resource of resources) {
+    for (const term of triggerTerms(resource)) {
+      const key = term.toLowerCase()
+      if (!key || seen.has(key) || haystack.includes(key)) continue
+      seen.add(key)
+      additions.push(term)
+    }
+  }
+
+  return additions.length ? [base, ...additions].join(', ') : base
+}
+
 export async function resolveEnqueueLoraResource(input: {
   body: LoraAwareEnqueueBody
   engine: string
@@ -273,9 +315,7 @@ export async function resolveEnqueueLoraResource(input: {
 }): Promise<{
   body: LoraAwareEnqueueBody
   resourceIds: number[]
-  /** Engine-facing paths, in apply order. */
   resourceNames: string[]
-  /** First resolved path. Kept for callers that only record one. */
   resourceName: string | null
 }> {
   const normalizedBody: LoraAwareEnqueueBody = {
@@ -293,9 +333,6 @@ export async function resolveEnqueueLoraResource(input: {
     }
   }
 
-  // Lanes outside RESOURCE_RESOLVED_ENGINES take engine-facing paths verbatim
-  // -- there is no Resource lookup to do -- but they still get the normalized
-  // list so a chain reaches their workflow builder.
   if (!RESOURCE_RESOLVED_ENGINES.has(input.engine)) {
     const named = requests.filter((request) => Boolean(request.name))
     return {
@@ -330,9 +367,10 @@ export async function resolveEnqueueLoraResource(input: {
     civitaiUrl: true,
     huggingUrl: true,
     supportedServer: true,
+    defaultTrigger: true,
+    triggerWords: true,
   } as const
 
-  // One query for the whole chain rather than one per link.
   const candidates = await prisma.resource.findMany({
     where: {
       AND: [{ isActive: true, resourceType: { in: LORA_TYPES } }, visibility],
@@ -366,9 +404,7 @@ export async function resolveEnqueueLoraResource(input: {
     }
 
     if (
-      (input.engine === 'ltx' ||
-        input.engine === 'wan' ||
-        input.engine === 'sdxl-img2img') &&
+      STRICT_COMPATIBILITY_ENGINES.has(input.engine) &&
       compatibilityRank(resource, input.engine) === 0
     ) {
       throw createError({
@@ -388,9 +424,6 @@ export async function resolveEnqueueLoraResource(input: {
     resolved.push({ resource, strength: request.strength })
   }
 
-  // Two different asks can land on the same Resource (an id and a name for the
-  // same file). Collapse them here, after resolution, for the same reason
-  // readLoraRequests dedupes before it.
   const seenIds = new Set<number>()
   const unique = resolved.filter(({ resource }) => {
     if (seenIds.has(resource.id)) return false
@@ -402,14 +435,16 @@ export async function resolveEnqueueLoraResource(input: {
     name: String(resource.localPath || '').trim(),
     strength,
   }))
+  const basePromptString = appendResolvedTriggers(
+    normalizedBody,
+    unique.map(({ resource }) => resource),
+  )
 
   return {
     body: {
       ...normalizedBody,
+      ...(basePromptString ? { basePromptString } : {}),
       loras,
-      // The singular pair still carries the FIRST link, so provenance readers,
-      // the ArtJob editor's style-LoRA override, and any caller that never
-      // learned about chaining keep seeing something coherent.
       loraName: loras[0]?.name ?? null,
       loraStrength: loras[0]?.strength ?? null,
       loraResourceIds: unique.map(({ resource }) => resource.id),

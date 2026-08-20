@@ -8,18 +8,28 @@
           LoRAs <span class="font-normal opacity-50">(optional)</span>
         </h3>
         <p class="mt-0.5 text-xs text-base-content/55">
-          Stack up to {{ MAX_LORAS_PER_JOB }}. They apply in the order below —
-          later ones layer on top of earlier ones.
+          Stack up to {{ MAX_LORAS_PER_JOB }} compatible LoRAs. They apply in
+          order, and trigger words are added to the render prompt automatically.
         </p>
       </div>
-      <button
-        v-if="modelValue.length"
-        type="button"
-        class="btn btn-ghost btn-xs rounded-xl"
-        @click="emitValue([])"
-      >
-        Clear all
-      </button>
+      <div class="flex flex-wrap items-center gap-1">
+        <button
+          v-if="rankedLoras.length"
+          type="button"
+          class="btn btn-ghost btn-xs rounded-xl"
+          @click="expanded = !expanded"
+        >
+          {{ expanded ? 'Comfortable height' : 'Expand browser' }}
+        </button>
+        <button
+          v-if="modelValue.length"
+          type="button"
+          class="btn btn-ghost btn-xs rounded-xl"
+          @click="emitValue([])"
+        >
+          Clear all
+        </button>
+      </div>
     </div>
 
     <p
@@ -31,7 +41,6 @@
     </p>
 
     <template v-else>
-      <!-- Selected stack, in apply order -->
       <ol v-if="selected.length" class="space-y-2">
         <li
           v-for="(entry, index) in selected"
@@ -55,6 +64,12 @@
                 :title="entry.resource.localPath || ''"
               >
                 {{ entry.resource.localPath }}
+              </span>
+              <span
+                v-if="triggerWords(entry.resource)"
+                class="mt-0.5 line-clamp-2 block text-[11px] text-base-content/55"
+              >
+                Trigger: {{ triggerWords(entry.resource) }}
               </span>
             </span>
 
@@ -113,13 +128,6 @@
               @input="setStrength(entry.resourceId, $event)"
             />
           </div>
-
-          <p
-            v-if="!entry.resource.localPath"
-            class="mt-1 pl-7 text-[11px] text-error"
-          >
-            No localPath — ComfyUI cannot load this one.
-          </p>
         </li>
       </ol>
 
@@ -139,8 +147,9 @@
         v-else-if="!rankedLoras.length"
         class="rounded-xl border border-dashed border-base-300 bg-base-200/50 p-3 text-center text-xs text-base-content/60"
       >
-        No LoRA Resources are available to you yet. Add one from Discover, or
-        turn on mature content above if the one you want is flagged 18+.
+        No compatible LoRA Resources are available for {{ compatibilityLabel }}.
+        Switch the model/checkpoint, add a compatible Resource, or enable mature
+        content if the one you expect is flagged 18+.
       </p>
 
       <template v-else>
@@ -148,10 +157,13 @@
           v-model="search"
           type="search"
           class="input input-bordered input-sm w-full rounded-xl bg-base-200"
-          placeholder="Search LoRAs by name, path, or trigger word…"
+          placeholder="Search compatible LoRAs by name, path, or trigger word…"
         />
 
-        <div class="max-h-64 overflow-y-auto overscroll-contain pr-1">
+        <div
+          class="overflow-y-auto overscroll-contain pr-1"
+          :class="expanded ? 'max-h-none' : 'max-h-[32rem]'"
+        >
           <div
             class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] gap-2"
           >
@@ -200,15 +212,7 @@
                   </span>
                 </span>
 
-                <span
-                  class="badge badge-xs rounded-lg"
-                  :class="entry.rank > 0 ? 'badge-secondary' : 'badge-ghost'"
-                  :title="
-                    entry.rank > 0
-                      ? `Ranked compatible with ${engineLabel}`
-                      : `Not tagged for ${engineLabel} — it may not load`
-                  "
-                >
+                <span class="badge badge-secondary badge-xs rounded-lg">
                   {{ entry.resource.supportedServer }}
                 </span>
 
@@ -216,7 +220,7 @@
                   v-if="triggerWords(entry.resource)"
                   class="line-clamp-2 block text-[11px] text-base-content/55"
                 >
-                  {{ triggerWords(entry.resource) }}
+                  Trigger: {{ triggerWords(entry.resource) }}
                 </span>
               </span>
             </button>
@@ -227,7 +231,7 @@
           v-if="search.trim() && !visibleLoras.length"
           class="text-xs text-base-content/50"
         >
-          No LoRA matches “{{ search.trim() }}”.
+          No compatible LoRA matches “{{ search.trim() }}”.
         </p>
       </template>
     </template>
@@ -237,12 +241,21 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import type { Resource } from '~/prisma/generated/prisma/client'
+import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useResourceStore } from '@/stores/resourceStore'
 import {
+  CHECKPOINT_FAMILY_LABELS,
+  detectCheckpointFamily,
   engineProfile,
   type ArtGeneratorEngine,
+  type CheckpointFamily,
 } from '@/utils/artGeneratorPresets'
 import { MAX_LORAS_PER_JOB } from '@/utils/loraLimits'
+import {
+  artLoraCompatibilityRank,
+  loraTriggerTerms,
+  type LoraPick,
+} from '@/utils/loraSelection'
 
 type PreviewArtImage = {
   imagePath?: string | null
@@ -252,15 +265,12 @@ type PreviewArtImage = {
 
 type LoraResource = Resource & { ArtImage?: PreviewArtImage | null }
 
-/** One link of the chain: which Resource, and how hard it is applied. */
-export type LoraPick = {
-  resourceId: number
-  strength: number
-}
+export type { LoraPick }
 
 const props = defineProps<{
   modelValue: LoraPick[]
   engine: ArtGeneratorEngine
+  checkpointFamily?: CheckpointFamily
 }>()
 
 const emit = defineEmits<{
@@ -268,41 +278,36 @@ const emit = defineEmits<{
 }>()
 
 const resourceStore = useResourceStore()
+const checkpointStore = useCheckpointStore()
 const search = ref('')
+const expanded = ref(false)
 
 const profile = computed(() => engineProfile(props.engine))
 const supported = computed(() => profile.value.supports.lora)
 const engineLabel = computed(() => profile.value.label)
 const atCapacity = computed(() => props.modelValue.length >= MAX_LORAS_PER_JOB)
-
-// Mirrors compatibilityRank() in server/utils/artLoraResource.ts. Nothing is
-// HIDDEN by rank -- the enqueue route only hard-blocks incompatible LoRAs on
-// the video and img2img lanes -- but a LoRA the server would rank at zero gets
-// a plain badge instead of a confident one.
-function rankFor(resource: LoraResource): number {
-  const supportedServer = String(resource.supportedServer || '')
-
-  if (props.engine === 'krea2' || props.engine === 'flux2') {
-    if (supportedServer === 'FLUX') return 30
-    if (supportedServer === 'KONTEXT') return 20
-    if (supportedServer === 'GENERIC') return 10
-    return 0
-  }
-
-  if (props.engine === 'comfy') {
-    if (supportedServer === 'SDXL') return 30
-    if (supportedServer === 'COMFY') return 15
-    if (supportedServer === 'GENERIC') return 10
-    return 0
-  }
-
-  return 0
-}
+const effectiveCheckpointFamily = computed<CheckpointFamily>(() =>
+  props.checkpointFamily ?? detectCheckpointFamily(checkpointStore.selectedCheckpoint),
+)
+const compatibilityLabel = computed(() => {
+  if (props.engine !== 'comfy') return engineLabel.value
+  return `${CHECKPOINT_FAMILY_LABELS[effectiveCheckpointFamily.value]} checkpoint`
+})
 
 const rankedLoras = computed(() => {
+  if (!supported.value) return []
+
   return (resourceStore.visibleLoras as LoraResource[])
     .filter((resource) => Boolean(resource.localPath?.trim()))
-    .map((resource) => ({ resource, rank: rankFor(resource) }))
+    .map((resource) => ({
+      resource,
+      rank: artLoraCompatibilityRank(
+        resource,
+        props.engine,
+        effectiveCheckpointFamily.value,
+      ),
+    }))
+    .filter((entry) => entry.rank > 0)
     .sort(
       (a, b) =>
         b.rank - a.rank ||
@@ -332,7 +337,6 @@ const visibleLoras = computed(() => {
   })
 })
 
-/** The picks that still resolve to a visible Resource, in apply order. */
 const selected = computed(() => {
   return props.modelValue
     .map((pick) => {
@@ -348,22 +352,22 @@ onMounted(async () => {
   if (!resourceStore.hasLoaded) await resourceStore.getResources()
 })
 
-// A pick that leaves the visible set -- the maturity toggle went off, or the
-// account lost access -- must not stay silently attached to the next job.
-watch([rankedLoras, supported], () => {
-  if (!resourceStore.hasLoaded) return
-  if (!props.modelValue.length) return
+watch(
+  [rankedLoras, supported, effectiveCheckpointFamily, () => props.engine],
+  () => {
+    if (!resourceStore.hasLoaded || !props.modelValue.length) return
 
-  if (!supported.value) {
-    emitValue([])
-    return
-  }
+    if (!supported.value) {
+      emitValue([])
+      return
+    }
 
-  const survivors = props.modelValue.filter((pick) =>
-    byId.value.has(pick.resourceId),
-  )
-  if (survivors.length !== props.modelValue.length) emitValue(survivors)
-})
+    const survivors = props.modelValue.filter((pick) =>
+      byId.value.has(pick.resourceId),
+    )
+    if (survivors.length !== props.modelValue.length) emitValue(survivors)
+  },
+)
 
 function emitValue(picks: LoraPick[]): void {
   emit('update:modelValue', picks.slice(0, MAX_LORAS_PER_JOB))
@@ -416,7 +420,7 @@ function loraLabel(resource: LoraResource): string {
 }
 
 function triggerWords(resource: LoraResource): string {
-  return (resource.defaultTrigger || resource.triggerWords || '').trim()
+  return loraTriggerTerms(resource).join(', ')
 }
 
 function previewImage(resource: LoraResource): string {

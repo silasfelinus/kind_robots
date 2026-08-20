@@ -1,6 +1,6 @@
 <template>
   <div class="kr-surface">
-    <div class="kr-scroll mx-auto max-w-5xl space-y-6 p-6">
+    <div class="kr-scroll mx-auto max-w-7xl space-y-6 p-6">
       <header class="space-y-1">
         <p class="text-sm opacity-70">
           Animate a still into a short clip. Presets choose sensible studio
@@ -191,11 +191,7 @@
         </details>
       </section>
 
-      <video-lora-picker
-        v-model="loraResourceId"
-        v-model:strength="loraStrength"
-        :engine="engine"
-      />
+      <video-lora-picker v-model="loraPicks" :engine="engine" />
 
       <content-visibility-controls
         v-model:is-mature="isMature"
@@ -402,8 +398,13 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useResourceStore } from '@/stores/resourceStore'
 import { useVideoStore } from '@/stores/videoStore'
 import { useUserStore } from '@/stores/userStore'
+import {
+  promptWithLoraTriggers,
+  type LoraPick,
+} from '@/utils/loraSelection'
 import {
   estimateVideoRuntimeTier,
   getDefaultVideoPreset,
@@ -422,6 +423,7 @@ const WINK_PRESET =
 
 const videoStore = useVideoStore()
 const userStore = useUserStore()
+const resourceStore = useResourceStore()
 const isLoggedIn = computed(() => userStore.isLoggedIn)
 
 const engines = [
@@ -463,8 +465,7 @@ const firstImage = ref('')
 const secondImage = ref('')
 const prompt = ref(WINK_PRESET)
 const negativePrompt = ref('')
-const loraResourceId = ref<number | null>(null)
-const loraStrength = ref(1)
+const loraPicks = ref<LoraPick[]>([])
 const isMature = ref(false)
 const isPublic = ref(true)
 const durationSeconds = ref(initialPreset.durationSeconds)
@@ -630,11 +631,16 @@ async function generate() {
     engine.value === 'ltx' &&
     renderScale.value < 1 &&
     Boolean(latentUpscaleModel.value)
+  const effectivePrompt = promptWithLoraTriggers(
+    prompt.value,
+    loraPicks.value,
+    resourceStore.visibleLoras,
+  )
 
   await videoStore.generate({
     engine: engine.value,
     presetId: videoPresetId.value || null,
-    promptString: prompt.value.trim(),
+    promptString: effectivePrompt,
     negativePrompt: negativePrompt.value.trim() || undefined,
     firstImageBase64: firstImage.value,
     secondImageBase64: secondImage.value || null,
@@ -650,8 +656,7 @@ async function generate() {
     refineSampler: shouldUpscale ? refineSampler.value : null,
     refineSigmas: shouldUpscale ? refineSigmas.value : null,
     timeoutSeconds: timeoutSeconds.value,
-    loraResourceIds: loraResourceId.value ? [loraResourceId.value] : undefined,
-    loraStrength: loraResourceId.value ? loraStrength.value : undefined,
+    loras: loraPicks.value,
     isMature: isMature.value,
     isPublic: isPublic.value,
   })

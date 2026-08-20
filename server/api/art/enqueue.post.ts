@@ -20,6 +20,7 @@ import {
   ltxFrameCount,
 } from '../comfy/ltx/utils/imageToVideoWorkflow'
 import { normalizeVideoOutputFormat } from '../comfy/utils/videoOutput'
+import { applyVideoLoraChain } from '../comfy/utils/videoLoraChain'
 import {
   buildWanImageToVideoWorkflow,
   wanFrameCount,
@@ -661,17 +662,6 @@ function requireVideoNumber(
   return value
 }
 
-function clampOptionalNumber(
-  value: number | null | undefined,
-  fallback: number,
-  min: number,
-  max: number,
-): number {
-  const numberValue =
-    typeof value === 'number' && Number.isFinite(value) ? value : fallback
-  return Math.min(max, Math.max(min, numberValue))
-}
-
 function resolveVideoFrames(
   engine: EnqueueEngine,
   body: ArtEnqueueRequest | null | undefined,
@@ -724,10 +714,6 @@ function buildVideoJobPayload(
   }
 
   const negativePrompt = body.negativePrompt.trim()
-  const loraName = body.loraName?.trim() || null
-  const loraStrength = loraName
-    ? clampOptionalNumber(body.loraStrength, 1, -2, 2)
-    : null
   const images: QueuedImage[] = []
   let firstImageName: string | null = null
   let lastImageName: string | null = null
@@ -793,8 +779,6 @@ function buildVideoJobPayload(
         cfg: body.cfg ?? null,
         sampler: body.sampler ?? null,
         scheduler: body.scheduler ?? null,
-        loraName,
-        loraStrength,
         outputFormat,
       })
     : buildLtxImageToVideoWorkflow({
@@ -810,14 +794,18 @@ function buildVideoJobPayload(
         steps: body.steps ?? null,
         cfg: body.cfg ?? null,
         sampler: body.sampler ?? null,
-        styleLoraName: loraName,
-        styleLoraStrength: loraStrength,
         outputFormat,
         renderScale,
         latentUpscaleModel,
         refineSampler,
         refineSigmas,
       })
+
+  const videoLoras = applyVideoLoraChain(workflow, engine, {
+    loras: body.loras,
+    loraName: body.loraName,
+    loraStrength: body.loraStrength,
+  })
 
   const renderWidth = Math.max(64, Math.round((width * renderScale) / 8) * 8)
   const renderHeight = Math.max(64, Math.round((height * renderScale) / 8) * 8)
@@ -845,8 +833,9 @@ function buildVideoJobPayload(
         latentUpscaleModel,
         hasFirstImage: Boolean(firstImageName),
         hasLastImage: Boolean(lastImageName),
-        hasLora: Boolean(loraName),
-        loraStrength,
+        hasLora: videoLoras.length > 0,
+        loraCount: videoLoras.length,
+        loraStrengths: videoLoras.map((lora) => lora.strength),
         outputFormat,
       },
       save,

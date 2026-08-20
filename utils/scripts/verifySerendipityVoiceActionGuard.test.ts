@@ -14,6 +14,7 @@ import {
   checkSerendipityVoiceActionGuard,
   checkSerendipityVoiceArtAckGuard,
   checkSerendipityVoiceErrorReportingGuard,
+  checkSerendipityVoiceRedundantOnSurfacePlacementGuard,
   checkSerendipityVoiceToggleOffSurfacePlacementGuard,
 } from './verifySerendipityVoiceActionGuard.js'
 
@@ -524,6 +525,138 @@ function runToggleOffSurfacePlacementSelfTest(): void {
   )
 }
 
+// --- Fixtures for checkSerendipityVoiceRedundantOnSurfacePlacementGuard()
+// (t-015, 2026-08-20 cycle) ---
+// Distinct from the toggle-off fixtures above: those exercise the gate's
+// *condition* (literal action string vs. resulting state); these exercise
+// whether the gate also requires an actual state *transition*, not just a
+// resulting state that happens to already hold.
+
+function redundantOnPlacementFixture(opts: {
+  toggleBranches: string
+  placementGate: string
+}): string {
+  return `
+    function applyCommand(command: VoiceBusCommand): void {
+      if (command.target !== 'animation') {
+        pushLocalMessage('system', \`Ignored unsupported command target: \${command.target}\`)
+        return
+      }
+
+      const effectId = resolveEffectId(command)
+      if (!effectId) {
+        return
+      }
+
+      const active = animationStore.isScreenEffectActive(effectId)
+      let stateChanged = false
+      ${opts.toggleBranches}
+
+      const isNowActive = animationStore.isScreenEffectActive(effectId)
+      ${opts.placementGate}
+    }
+  `
+}
+
+// Fixed: every on/off/toggle branch tracks whether it actually toggled the
+// effect, and the placement gate requires both that transition and the
+// resulting active state.
+const TOGGLE_BRANCHES_STATE_TRACKED = `if (command.action === 'on' && !active) {
+        animationStore.toggleScreenEffect(effectId)
+        stateChanged = true
+      } else if (command.action === 'off' && active) {
+        animationStore.toggleScreenEffect(effectId)
+        stateChanged = true
+      } else if (command.action === 'toggle') {
+        animationStore.toggleScreenEffect(effectId)
+        stateChanged = true
+      }`
+
+const PLACEMENT_GATE_STATE_CHANGE_FIXED = `if (stateChanged && isNowActive) {
+        animationStore.setSurfacePlacement(normalizeRegion(command.surface), 'front')
+      }`
+
+// Pre-fix (t-020's shape, before this t-015 2026-08-20 extension): no branch
+// tracks a transition at all, and the gate keys only off the resulting
+// active state -- so a redundant "turn X on" while X is already active (and
+// manually placed 'behind' via screen-fx.vue's Coverage Zones panel) still
+// forces the region to 'front' even though nothing changed.
+const TOGGLE_BRANCHES_NO_TRACKING = `if (command.action === 'on' && !active) animationStore.toggleScreenEffect(effectId)
+      else if (command.action === 'off' && active) animationStore.toggleScreenEffect(effectId)
+      else if (command.action === 'toggle') animationStore.toggleScreenEffect(effectId)`
+
+const PLACEMENT_GATE_ISNOWACTIVE_ONLY = `if (isNowActive) {
+        animationStore.setSurfacePlacement(normalizeRegion(command.surface), 'front')
+      }`
+
+const REDUNDANT_ON_PLACEMENT_FIXED = redundantOnPlacementFixture({
+  toggleBranches: TOGGLE_BRANCHES_STATE_TRACKED,
+  placementGate: PLACEMENT_GATE_STATE_CHANGE_FIXED,
+})
+
+const REDUNDANT_ON_PLACEMENT_BUGGY = redundantOnPlacementFixture({
+  toggleBranches: TOGGLE_BRANCHES_NO_TRACKING,
+  placementGate: PLACEMENT_GATE_ISNOWACTIVE_ONLY,
+})
+
+// Partial regression: stateChanged is tracked (so the tracking check
+// passes), but the gate was never updated to actually use it -- a plausible
+// half-applied edit that would silently reintroduce the same bug.
+const REDUNDANT_ON_PLACEMENT_PARTIAL_REGRESSION = redundantOnPlacementFixture({
+  toggleBranches: TOGGLE_BRANCHES_STATE_TRACKED,
+  placementGate: PLACEMENT_GATE_ISNOWACTIVE_ONLY,
+})
+
+function runRedundantOnSurfacePlacementSelfTest(): void {
+  const fixedErrors = checkSerendipityVoiceRedundantOnSurfacePlacementGuard(
+    REDUNDANT_ON_PLACEMENT_FIXED,
+  )
+  assert.deepEqual(
+    fixedErrors,
+    [],
+    `expected the fixed redundant-on fixture to pass, got: ${JSON.stringify(fixedErrors)}`,
+  )
+
+  const buggyErrors = checkSerendipityVoiceRedundantOnSurfacePlacementGuard(
+    REDUNDANT_ON_PLACEMENT_BUGGY,
+  )
+  assert.equal(
+    buggyErrors.length,
+    2,
+    `expected the untracked pre-fix fixture to fail twice (no tracking + no gate use), got: ${JSON.stringify(buggyErrors)}`,
+  )
+  assert.ok(
+    buggyErrors.some((e) => /no longer sets a `stateChanged = true`/.test(e)),
+  )
+  assert.ok(
+    buggyErrors.some((e) => /no longer gates setSurfacePlacement/.test(e)),
+  )
+
+  const partialErrors = checkSerendipityVoiceRedundantOnSurfacePlacementGuard(
+    REDUNDANT_ON_PLACEMENT_PARTIAL_REGRESSION,
+  )
+  assert.equal(
+    partialErrors.length,
+    1,
+    `expected the tracked-but-unused fixture to fail once, got: ${JSON.stringify(partialErrors)}`,
+  )
+  assert.ok(/no longer gates setSurfacePlacement/.test(partialErrors[0]!))
+
+  const missingFnErrors = checkSerendipityVoiceRedundantOnSurfacePlacementGuard(
+    'function someOtherFunction(): void {}',
+  )
+  assert.equal(missingFnErrors.length, 1)
+  assert.ok(/Could not find a function named/.test(missingFnErrors[0]!))
+
+  console.log(
+    'Serendipity Voice redundant-on surface-placement guard self-test ' +
+      'passed: the untracked pre-fix fixture fails on both the missing ' +
+      'tracking and the missing gate use, a tracked-but-unused-gate partial ' +
+      'regression fails once, the fixed fixture passes, and a ' +
+      'missing-function fixture fails clearly.',
+  )
+}
+
 function run(): void {
   const fixedErrors = checkSerendipityVoiceActionGuard(FIXED)
   assert.deepEqual(
@@ -580,3 +713,4 @@ run()
 runErrorReportingSelfTest()
 runArtAckSelfTest()
 runToggleOffSurfacePlacementSelfTest()
+runRedundantOnSurfacePlacementSelfTest()

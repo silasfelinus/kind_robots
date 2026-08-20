@@ -203,7 +203,7 @@ export function diversifyDailyDreamNames(
   ]
   const pitchOrder = [
     ...(narratorAssignment ? [narratorAssignment] : []),
-    ...(characterAssignments[0] ? [characterAssignments[0]] : []),
+    ...characterAssignments,
   ]
 
   return {

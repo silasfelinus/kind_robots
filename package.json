@@ -239,6 +239,8 @@
     "test:model-builder-reset-run-guard": "tsx utils/scripts/verifyModelBuilderResetRunGuard.ts",
     "test:model-builder-stale-asset-approval-guard-selftest": "tsx utils/scripts/verifyModelBuilderStaleAssetApprovalGuard.test.ts",
     "test:model-builder-stale-asset-approval-guard": "tsx utils/scripts/verifyModelBuilderStaleAssetApprovalGuard.ts",
+    "test:model-builder-stale-selection-on-reopen-guard-selftest": "tsx utils/scripts/verifyModelBuilderStaleSelectionOnReopenGuard.test.ts",
+    "test:model-builder-stale-selection-on-reopen-guard": "tsx utils/scripts/verifyModelBuilderStaleSelectionOnReopenGuard.ts",
     "test:model-builder-batch-editor-key-guard-selftest": "tsx utils/scripts/verifyModelBuilderBatchEditorKeyGuard.test.ts",
     "test:model-builder-batch-editor-key-guard": "tsx utils/scripts/verifyModelBuilderBatchEditorKeyGuard.ts",
     "test:model-builder-batch-prefill-guard-selftest": "tsx utils/scripts/verifyModelBuilderBatchPrefillGuard.test.ts",

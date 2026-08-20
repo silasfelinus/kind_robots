@@ -11,6 +11,7 @@ import { reactive, computed } from 'vue'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
 import { artJobRetryNotice } from '@/utils/artJobRetryNotice'
+import type { LoraPick } from '@/utils/loraSelection'
 import type {
   VideoEngine,
   VideoOutputFormat,
@@ -32,8 +33,7 @@ export interface GenerateVideoParams {
   width: number
   height: number
   seed?: number | null
-  loraResourceIds?: number[]
-  loraStrength?: number | null
+  loras?: LoraPick[]
   outputFormat: VideoOutputFormat
   renderScale?: number | null
   latentUpscaleModel?: string | null
@@ -136,10 +136,12 @@ export const useVideoStore = defineStore('videoStore', () => {
       width: params.width,
       height: params.height,
       seed: params.seed ?? undefined,
-      loraResourceIds: params.loraResourceIds?.length
-        ? params.loraResourceIds
+      loras: params.loras?.length
+        ? params.loras.map((lora) => ({
+            resourceId: lora.resourceId,
+            strength: lora.strength,
+          }))
         : undefined,
-      loraStrength: params.loraStrength ?? undefined,
       outputFormat: params.outputFormat,
       renderScale: params.renderScale ?? undefined,
       latentUpscaleModel: params.latentUpscaleModel ?? undefined,

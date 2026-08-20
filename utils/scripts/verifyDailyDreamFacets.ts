@@ -38,12 +38,14 @@ function nameShape(name: string): string {
   ) {
     return 'title'
   }
-  if (/\b(the|at|of|from|behind)\b/i.test(name)) return 'byname'
+  if (/\b(at|of|from)\b/i.test(name)) return 'byname'
   return 'grounded'
 }
 
-function sampleBlueprint(): DailyDreamBlueprint {
-  const character = (name: string): DailyDreamBlueprint['characters'][number] => ({
+function sampleCharacter(
+  name: string,
+): DailyDreamBlueprint['characters'][number] {
+  return {
     name,
     species: 'Human',
     characterClass: 'Pilot',
@@ -54,19 +56,21 @@ function sampleBlueprint(): DailyDreamBlueprint {
     backstory: `${name} arrived yesterday and already knows the shortcut.`,
     artPrompt: `${name}, curious pilot, expressive full character design`,
     facets: [],
-  })
+  }
+}
 
+function sampleBlueprint(): DailyDreamBlueprint {
   return {
     dateKey: '2026-08-20',
     title: 'Naming Contract Dream',
     slug: 'daily-dream-2026-08-20-1-naming-contract-dream',
     description:
-      'Nim Starling narrates while Mira Voss, Orlo Oddwick, and Vesper Moonspoon compare maps.',
+      'Mira Voss, Orlo Oddwick, and Vesper Moonspoon compare maps. Nim Starling narrates.',
     pitch:
       'Nim Starling asks Mira Voss to find Orlo Oddwick before Vesper Moonspoon reaches the station.',
     flavorText: 'A deterministic naming fixture.',
     artPrompt:
-      'Nim Starling with Mira Voss, Orlo Oddwick, and Vesper Moonspoon in an ensemble scene.',
+      'Mira Voss, Orlo Oddwick, and Vesper Moonspoon in an ensemble scene. Nim Starling narrates.',
     facets: [],
     narrator: {
       name: 'Nim Starling',
@@ -78,12 +82,43 @@ function sampleBlueprint(): DailyDreamBlueprint {
     },
     locations: [],
     characters: [
-      character('Mira Voss'),
-      character('Orlo Oddwick'),
-      character('Vesper Moonspoon'),
+      sampleCharacter('Mira Voss'),
+      sampleCharacter('Orlo Oddwick'),
+      sampleCharacter('Vesper Moonspoon'),
     ],
     rewards: [],
   }
+}
+
+function duplicateNameBlueprint(): DailyDreamBlueprint {
+  const blueprint = sampleBlueprint()
+  const repeated = 'Mira Voss'
+  return {
+    ...blueprint,
+    description: `${repeated}, ${repeated}, and ${repeated} compare maps. ${repeated} narrates.`,
+    pitch: `${repeated} asks ${repeated} to find the station.`,
+    artPrompt: `${repeated}, ${repeated}, and ${repeated} in an ensemble scene. ${repeated} narrates.`,
+    narrator: blueprint.narrator
+      ? {
+          ...blueprint.narrator,
+          name: repeated,
+          voice: `${repeated} narrates in a wry register`,
+          artPrompt: `${repeated}, expressive mascot bot design`,
+        }
+      : null,
+    characters: [
+      sampleCharacter(repeated),
+      sampleCharacter(repeated),
+      sampleCharacter(repeated),
+    ],
+  }
+}
+
+function personNames(blueprint: DailyDreamBlueprint): string[] {
+  return [
+    blueprint.narrator?.name,
+    ...blueprint.characters.map((character) => character.name),
+  ].filter((name): name is string => Boolean(name))
 }
 
 function verifyNameDiversityBehavior(): void {
@@ -91,15 +126,16 @@ function verifyNameDiversityBehavior(): void {
   const first = diversifyDailyDreamNames(sampleBlueprint(), options)
   const second = diversifyDailyDreamNames(sampleBlueprint(), options)
   if (JSON.stringify(first) !== JSON.stringify(second)) {
-    throw new Error('Daily Dream diversified names must remain date-seed deterministic.')
+    throw new Error(
+      'Daily Dream diversified names must remain date-seed deterministic.',
+    )
   }
 
-  const names = [
-    first.narrator?.name,
-    ...first.characters.map((character) => character.name),
-  ].filter((name): name is string => Boolean(name))
+  const names = personNames(first)
   if (new Set(names).size !== names.length) {
-    throw new Error('Daily Dream narrator and character names must be unique within a bundle.')
+    throw new Error(
+      'Daily Dream narrator and character names must be unique within a bundle.',
+    )
   }
 
   const shapes = new Set(names.map(nameShape))
@@ -119,6 +155,30 @@ function verifyNameDiversityBehavior(): void {
     if (serialized.includes(oldName)) {
       throw new Error(
         `Daily Dream name replacement left stale prose/art reference: ${oldName}`,
+      )
+    }
+  }
+
+  const duplicates = diversifyDailyDreamNames(duplicateNameBlueprint(), options)
+  const duplicateNames = personNames(duplicates)
+  if (new Set(duplicateNames).size !== duplicateNames.length) {
+    throw new Error(
+      'Duplicate legacy placeholder names must still become distinct identities.',
+    )
+  }
+  if (
+    duplicates.description.includes('Mira Voss') ||
+    duplicates.pitch.includes('Mira Voss') ||
+    duplicates.artPrompt.includes('Mira Voss')
+  ) {
+    throw new Error(
+      'Duplicate legacy placeholder names must be replaced throughout Dream prose.',
+    )
+  }
+  for (const name of duplicateNames) {
+    if (!duplicates.description.includes(name)) {
+      throw new Error(
+        `Diversified identity ${name} is missing from duplicate-name description.`,
       )
     }
   }
@@ -220,10 +280,10 @@ async function main(): Promise<void> {
 
   requireText(files.nameDiversity, text.nameDiversity, 'NAME_STYLE_POOLS')
   requireText(files.nameDiversity, text.nameDiversity, 'pickUniqueName')
-  requireText(files.nameDiversity, text.nameDiversity, 'replaceNames')
-  requireText(files.endpoint, text.endpoint, 'diversifyDailyDreamNames')
-  requireText(files.endpoint, text.endpoint, 'const buildBlueprint = async')
-  requireText(files.endpoint, text.endpoint, 'return buildBlueprint(characterCount, rewardCount)')
+  requireText(files.nameDiversity, text.nameDiversity, 'replaceSequence')
+  requireText(files.endpoint, text.endpoint, 'const rawBlueprint =')
+  requireText(files.endpoint, text.endpoint, 'diversifyDailyDreamNames(rawBlueprint')
+  requireText(files.endpoint, text.endpoint, 'return rawBlueprint')
   verifyNameDiversityBehavior()
 
   requireText(files.endpoint, text.endpoint, 'validDateKey(dateKey)')

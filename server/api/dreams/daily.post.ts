@@ -8,6 +8,7 @@ import {
   buildDailyDreamFacetBlueprint,
   type DailyDreamBlueprint,
 } from '~/server/utils/dailyDreamFacetBlueprint'
+import { diversifyDailyDreamNames } from '~/server/utils/dailyDreamNameDiversity'
 import { effectiveShowMature } from '~/server/utils/contentAccess'
 
 type DailyDreamRequest = {
@@ -62,11 +63,19 @@ export default defineEventHandler(async (event) => {
       includeMature: Boolean(body?.isMature && effectiveShowMature(auth.user)),
       dateKey,
     }
-    const blueprint = await buildDailyDreamFacetBlueprint({
-      ...blueprintOptions,
-      characterCount: requestedCharacterCount,
-      rewardCount: requestedRewardCount,
-    })
+    const buildBlueprint = async (characterCount: number, rewardCount: number) =>
+      diversifyDailyDreamNames(
+        await buildDailyDreamFacetBlueprint({
+          ...blueprintOptions,
+          characterCount,
+          rewardCount,
+        }),
+        { userId: auth.user.id, dateKey },
+      )
+    const blueprint = await buildBlueprint(
+      requestedCharacterCount,
+      requestedRewardCount,
+    )
 
     const loadExisting = () =>
       prisma.dream.findFirst({
@@ -86,11 +95,7 @@ export default defineEventHandler(async (event) => {
       ) {
         return blueprint
       }
-      return buildDailyDreamFacetBlueprint({
-        ...blueprintOptions,
-        characterCount,
-        rewardCount,
-      })
+      return buildBlueprint(characterCount, rewardCount)
     }
 
     const existing = await loadExisting()

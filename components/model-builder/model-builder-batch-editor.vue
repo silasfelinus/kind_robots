@@ -51,7 +51,7 @@
         <button
           type="button"
           class="btn btn-xs rounded-lg"
-          :disabled="anyBatching"
+          :disabled="anyBatching || store.autoBuilding"
           @click="draftAll('pitch')"
         >
           <Icon name="kind-icon:sparkles" class="h-3.5 w-3.5" />
@@ -61,7 +61,7 @@
           v-if="!isAsset"
           type="button"
           class="btn btn-xs rounded-lg"
-          :disabled="anyBatching"
+          :disabled="anyBatching || store.autoBuilding"
           @click="draftAll('fields')"
         >
           <Icon name="kind-icon:sparkles" class="h-3.5 w-3.5" />
@@ -71,7 +71,7 @@
           v-if="wantArt"
           type="button"
           class="btn btn-xs rounded-lg"
-          :disabled="anyBatching"
+          :disabled="anyBatching || store.autoBuilding"
           @click="draftAll('artPrompt')"
         >
           <Icon name="kind-icon:sparkles" class="h-3.5 w-3.5" />
@@ -80,7 +80,7 @@
         <button
           type="button"
           class="btn btn-xs btn-ghost rounded-lg"
-          :disabled="anyBatching"
+          :disabled="anyBatching || store.autoBuilding"
           @click="
             store.batchApproveStage(group.outputKey, 'FIELDS_AND_PROMPTS')
           "
@@ -91,7 +91,7 @@
         <button
           type="button"
           class="btn btn-xs btn-primary rounded-lg"
-          :disabled="anyBatching"
+          :disabled="anyBatching || store.autoBuilding"
           :title="autoBuildGroupTitle"
           @click="store.batchAutoBuild(group.outputKey)"
         >
@@ -154,7 +154,9 @@
           <button
             type="button"
             class="btn btn-xs rounded-lg"
-            :disabled="anyBatching || !batchValues[field.key]"
+            :disabled="
+              anyBatching || store.autoBuilding || !batchValues[field.key]
+            "
             :aria-label="`Apply ${field.label} to all ${group.items.length} items`"
             @click="applyField(field.key)"
           >
@@ -251,6 +253,26 @@ const batching = computed(() => store.batchingOutputKey === props.outputKey)
 // `batching` above stays narrow on purpose -- it only drives this group's
 // own header spinner.
 const anyBatching = computed(() => store.batchingOutputKey !== null)
+
+// Bug (model-builder/t-029, cycle 25): every `:disabled` above used to check
+// only `anyBatching` -- ANY group's batch operation -- never
+// `store.autoBuilding`, the SEPARATE store-wide flag model-builder-progress-
+// matrix.vue's "Auto-build all" sets. Clicking "Auto-build all" while this
+// group's own batch controls were still enabled let the user start a
+// second, fully concurrent walk over the same run's items: autoBuildRun's
+// per-item loop and a batch action here (e.g. "Auto-build group" on a
+// DIFFERENT group, or even this same one) both drive items through
+// draftText/generateItemAsset/commitItem, so two items in the same run
+// could end up mid-generate/mid-commit at the same instant via two
+// independent orchestration passes -- the same race class `anyBatching`
+// itself exists to prevent for two batch operations, just never extended to
+// this sibling whole-run entry point. See modelBuilderStore.ts's
+// isRunOperationInFlight doc comment. Added inline (`anyBatching ||
+// store.autoBuilding`) at each `:disabled` rather than folded into
+// `anyBatching`'s own definition so
+// verifyModelBuilderBatchAnyInFlightGuard.ts's existing exact-text check on
+// that computed's definition (a DIFFERENT, already-shipped regression
+// guard) keeps passing unchanged.
 const isAsset = computed(() => group.value?.action === 'ASSET_ONLY')
 const wantArt = computed(
   () => store.includeArt && group.value?.generation === 'image',

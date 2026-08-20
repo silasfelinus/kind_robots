@@ -1840,6 +1840,33 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     )
   }
 
+  // Bug (model-builder/t-029, cycle 25): autoBuildRun (whole-run) and the
+  // batch group operations below (batchDraftField/batchSetField/
+  // batchApproveStage/batchAutoBuild) each track their own "in flight" flag
+  // -- state.autoBuilding vs state.batchingOutputKey -- and neither checked
+  // the other before this fix, at either the store-function level or the UI
+  // button level (model-builder-progress-matrix.vue's "Auto-build all" only
+  // disabled on store.autoBuilding; model-builder-batch-editor.vue's
+  // anyBatching only disabled on store.batchingOutputKey). A user could
+  // click "Auto-build all" while a group's "Auto-build group" (or any other
+  // batch action) was still running for that same run, or the reverse, and
+  // both entry points loop over the run's items sequentially, awaiting each
+  // item's own draftText/generateItemAsset/commitItem calls in turn --
+  // starting two of these loops at once lets them interleave, so two
+  // different items in the SAME run can end up mid-generate/mid-commit at
+  // the same instant via two independent orchestration passes. That's
+  // exactly the race class isItemManualActionInFlight and every batch
+  // button's own anyBatching gate exist to prevent for a single item or a
+  // single group -- it just never got extended to cover these two sibling
+  // whole-run/group entry points recognizing each other. (autoBuildItem's
+  // own autoBuildingItemSingleton only protects the exact same item id from
+  // double-processing at a given instant, and only weakly -- see
+  // createOwnedSingleton's doc comment -- it does nothing for two
+  // *different* items being driven by two concurrent loops.)
+  function isRunOperationInFlight(): boolean {
+    return state.autoBuilding || state.batchingOutputKey !== null
+  }
+
   // Run one item through every gate automatically with sensible defaults: draft
   // what's empty, generate art only when wanted, and commit. "Create directly"
   // for CREATE/UPDATE items when art is off. Returns the outcome so batch/run
@@ -1986,7 +2013,10 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
 
   // Auto-build every not-yet-committed item in the run, in order.
   async function autoBuildRun(): Promise<void> {
-    if (!state.run || state.autoBuilding) return
+    // See isRunOperationInFlight's doc comment (model-builder/t-029, cycle
+    // 25) -- a group batch operation already running for this run must
+    // block a whole-run auto-build too, not just a second whole-run one.
+    if (!state.run || isRunOperationInFlight()) return
     state.autoBuilding = true
     clearStatus()
 
@@ -2112,6 +2142,10 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   ): Promise<void> {
     const items = groupItems(outputKey)
     if (!items.length) return
+    // See isRunOperationInFlight's doc comment (model-builder/t-029, cycle
+    // 25) -- a whole-run auto-build already in progress must block a group
+    // batch operation too, not just a second group batch operation.
+    if (state.autoBuilding) return
     // Bug (model-builder/t-029 cycle 13): unlike every single-item async
     // entry point that spans a real network round-trip (draftText itself --
     // see verifyModelBuilderDraftStatusScopeGuard's doc comment --
@@ -2211,6 +2245,10 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     fieldKey: string,
     value: string,
   ): Promise<void> {
+    // See isRunOperationInFlight's doc comment (model-builder/t-029, cycle
+    // 25) -- a whole-run auto-build already in progress must block a group
+    // batch operation too, not just a second group batch operation.
+    if (state.autoBuilding) return
     // Bug (model-builder/t-029 cycle 13): captured up front, mirroring
     // draftText/generateItemAsset/commitItem/pushItem/batchPushItems (see
     // verifyModelBuilderDraftStatusScopeGuard's doc comment for the full
@@ -2322,6 +2360,10 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     outputKey: string,
     stageKey: BuildStageKey,
   ): Promise<void> {
+    // See isRunOperationInFlight's doc comment (model-builder/t-029, cycle
+    // 25) -- a whole-run auto-build already in progress must block a group
+    // batch operation too, not just a second group batch operation.
+    if (state.autoBuilding) return
     // Bug (model-builder/t-029 cycle 13): captured up front, same as
     // batchSetField's identical fix (see its own doc comment) -- the
     // batchPushItems() await below is a real network round-trip the user can
@@ -2386,6 +2428,10 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   async function batchAutoBuild(outputKey: string): Promise<void> {
     const items = groupItems(outputKey)
     if (!items.length) return
+    // See isRunOperationInFlight's doc comment (model-builder/t-029, cycle
+    // 25) -- a whole-run auto-build already in progress must block a group
+    // batch operation too, not just a second group batch operation.
+    if (state.autoBuilding) return
     // Bug (model-builder/t-029 cycle 13): captured up front, exactly
     // mirroring autoBuildRun's own runId capture and its doc comment just
     // below (same file) -- autoBuildRun already guards both its per-item

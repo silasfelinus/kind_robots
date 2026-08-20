@@ -1,18 +1,4 @@
 // /server/api/comfy/ltx/utils/imageToVideoWorkflow.ts
-//
-// LTX image-to-video ComfyUI workflow builder for the queue path.
-//
-// Mirrors the loader/sampler stack of the synchronous text2video route
-// (../text2Video.post.ts) — same checkpoint, text encoder, LoRA, VAE, sigmas —
-// but swaps the empty latent for image-conditioned latents so the motion starts
-// from a supplied still. A first image is required; an optional second image is
-// pinned to the final frame (first→last keyframe interpolation) via LTXVAddGuide.
-//
-// The workflow references its input images by NAME only. The enqueue endpoint
-// puts the actual base64 in the ArtJob payload's `images: [{ name, imageData }]`
-// array; the home relay uploads those to Comfy before running the graph, so the
-// LoadImage nodes resolve. This is the same contract the kontext queue path uses.
-
 import {
   buildVideoOutputNodes,
   normalizeVideoOutputFormat,
@@ -31,11 +17,9 @@ export type LtxImageToVideoInput = {
   prompt: string
   negativePrompt: string
   firstImageName: string
-  // When present, pinned to the final frame so the clip morphs first → last.
   lastImageName?: string | null
   width: number
   height: number
-  // Length of the clip in seconds; combined with frameRate to derive frames.
   duration: number
   frameRate: number
   seed?: number | null
@@ -43,9 +27,7 @@ export type LtxImageToVideoInput = {
   cfg?: number | null
   sampler?: string | null
   sigmas?: string | null
-  // Strength for LTX's required distilled acceleration LoRA.
   loraStrength?: number | null
-  // Optional user-selected Resource LoRA, applied after the required LTX LoRA.
   styleLoraName?: string | null
   styleLoraStrength?: number | null
   tileSize?: number | null
@@ -54,10 +36,12 @@ export type LtxImageToVideoInput = {
   temporalOverlap?: number | null
   filenamePrefix?: string | null
   outputFormat?: VideoOutputFormat | string | null
+  renderScale?: number | null
+  latentUpscaleModel?: string | null
+  refineSampler?: string | null
+  refineSigmas?: string | null
 }
 
-// Defaults match the proven text2video route so a queued clip renders with the
-// same look the synchronous path produces.
 export const LTX_DEFAULT_WIDTH = 1280
 export const LTX_DEFAULT_HEIGHT = 720
 export const LTX_DEFAULT_DURATION = 6
@@ -76,13 +60,18 @@ function resolveSeed(seed?: number | null): number {
   if (typeof seed === 'number' && Number.isFinite(seed) && seed >= 0) {
     return Math.floor(seed)
   }
-
   return Math.floor(Math.random() * 2_147_483_647)
 }
 
-// Frame count LTX expects: whole frames across the duration, +1 for the anchor
-// frame — matches the `duration * frameRate + 1` expression the text2video graph
-// computes on-device.
+function clampRenderScale(value?: number | null): number {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return 1
+  return Math.min(1, Math.max(0.25, value))
+}
+
+function scaledDimension(value: number, scale: number): number {
+  return Math.max(64, Math.round((value * scale) / 8) * 8)
+}
+
 export function ltxFrameCount(duration: number, frameRate: number): number {
   const frames = Math.round(duration * frameRate) + 1
   return Math.max(2, frames)
@@ -97,9 +86,26 @@ export function buildLtxImageToVideoWorkflow(
   const frameRate = input.frameRate
   const length = ltxFrameCount(input.duration, frameRate)
   const hasLastFrame = Boolean(input.lastImageName)
+  const renderScale = clampRenderScale(input.renderScale)
+  const renderWidth = scaledDimension(width, renderScale)
+  const renderHeight = scaledDimension(height, renderScale)
+  const wantsUpscale = renderScale < 1
+  const latentUpscaleModel = input.latentUpscaleModel?.trim() || null
+  const refineSampler = input.refineSampler?.trim() || null
+  const refineSigmas = input.refineSigmas?.trim() || null
+
+  if (wantsUpscale && !latentUpscaleModel) {
+    throw new Error(
+      'LTX renderScale below 1 requires latentUpscaleModel so output dimensions remain explicit.',
+    )
+  }
+  if (wantsUpscale && (!refineSampler || !refineSigmas)) {
+    throw new Error(
+      'LTX latent upscale requires refineSampler and refineSigmas for the post-upscale refinement pass.',
+    )
+  }
 
   const workflow: ComfyWorkflow = {
-    // --- Loaders ------------------------------------------------------------
     '317': {
       inputs: { ckpt_name: LTX_CHECKPOINT },
       class_type: 'CheckpointLoaderSimple',
@@ -123,8 +129,6 @@ export function buildLtxImageToVideoWorkflow(
       class_type: 'LoraLoaderModelOnly',
       _meta: { title: 'Load Required LTX Distilled LoRA' },
     },
-
-    // --- Prompt conditioning -----------------------------------------------
     '319': {
       inputs: { value: input.prompt },
       class_type: 'PrimitiveStringMultiline',
@@ -149,9 +153,6 @@ export function buildLtxImageToVideoWorkflow(
       class_type: 'LTXVConditioning',
       _meta: { title: 'LTXVConditioning' },
     },
-
-    // --- Image conditioning (the i2v part) ---------------------------------
-    // First frame: load the still, encode it, and seed the video latent from it.
     img_first: {
       inputs: { image: input.firstImageName },
       class_type: 'LoadImage',
@@ -168,15 +169,14 @@ export function buildLtxImageToVideoWorkflow(
       class_type: 'ImageScale',
       _meta: { title: 'Resize First Image' },
     },
-    // LTXVImgToVideo bakes the start frame into the latent + conditioning.
     ltxv_i2v: {
       inputs: {
         positive: ['307', 0],
         negative: ['307', 1],
         vae: ['317', 2],
         image: ['img_scale', 0],
-        width,
-        height,
+        width: renderWidth,
+        height: renderHeight,
         length,
         batch_size: 1,
         strength: 1,
@@ -189,7 +189,7 @@ export function buildLtxImageToVideoWorkflow(
   let sampledModelRef: [string, number] = ['293', 0]
   const styleLoraName = input.styleLoraName?.trim()
   if (styleLoraName) {
-    workflow['video_lora'] = {
+    workflow.video_lora = {
       inputs: {
         lora_name: styleLoraName,
         strength_model: input.styleLoraStrength ?? 1,
@@ -201,20 +201,17 @@ export function buildLtxImageToVideoWorkflow(
     sampledModelRef = ['video_lora', 0]
   }
 
-  // Node ids that feed the sampler. Default: straight off LTXVImgToVideo.
   let positiveRef: [string, number] = ['ltxv_i2v', 0]
   let negativeRef: [string, number] = ['ltxv_i2v', 1]
   let latentRef: [string, number] = ['ltxv_i2v', 2]
 
   if (hasLastFrame) {
-    // Optional end frame: pin the second still to the final frame index so the
-    // motion resolves onto it. LTXVAddGuide threads through conditioning+latent.
-    workflow['img_last'] = {
+    workflow.img_last = {
       inputs: { image: input.lastImageName as string },
       class_type: 'LoadImage',
       _meta: { title: 'Load Last Image' },
     }
-    workflow['img_last_scale'] = {
+    workflow.img_last_scale = {
       inputs: {
         image: ['img_last', 0],
         upscale_method: 'lanczos',
@@ -225,14 +222,13 @@ export function buildLtxImageToVideoWorkflow(
       class_type: 'ImageScale',
       _meta: { title: 'Resize Last Image' },
     }
-    workflow['ltxv_guide'] = {
+    workflow.ltxv_guide = {
       inputs: {
         positive: ['ltxv_i2v', 0],
         negative: ['ltxv_i2v', 1],
         vae: ['317', 2],
         latent: ['ltxv_i2v', 2],
         image: ['img_last_scale', 0],
-        // -1 targets the final frame of the clip.
         frame_idx: -1,
         strength: 1,
       },
@@ -244,7 +240,6 @@ export function buildLtxImageToVideoWorkflow(
     latentRef = ['ltxv_guide', 2]
   }
 
-  // --- Sampling ------------------------------------------------------------
   workflow['286'] = {
     inputs: { noise_seed: seed },
     class_type: 'RandomNoise',
@@ -282,19 +277,119 @@ export function buildLtxImageToVideoWorkflow(
     _meta: { title: 'SamplerCustomAdvanced' },
   }
 
-  // --- Decode + encode video ----------------------------------------------
+  let finalLatentRef: [string, number] = ['291', 0]
+
+  if (wantsUpscale) {
+    workflow.ltx_crop_guides = {
+      inputs: {
+        positive: positiveRef,
+        negative: negativeRef,
+        latent: ['291', 0],
+      },
+      class_type: 'LTXVCropGuides',
+      _meta: { title: 'LTXV Crop Guides For Upscale' },
+    }
+    workflow.ltx_upscale_model = {
+      inputs: { model_name: latentUpscaleModel as string },
+      class_type: 'LatentUpscaleModelLoader',
+      _meta: { title: 'Load LTX Latent Upscale Model' },
+    }
+    workflow.ltx_upscale = {
+      inputs: {
+        samples: ['291', 0],
+        upscale_model: ['ltx_upscale_model', 0],
+        vae: ['317', 2],
+      },
+      class_type: 'LTXVLatentUpsampler',
+      _meta: { title: 'LTXV Latent Upsampler' },
+    }
+    workflow.ltx_recondition = {
+      inputs: {
+        strength: 1,
+        bypass: false,
+        vae: ['317', 2],
+        image: ['img_scale', 0],
+        latent: ['ltx_upscale', 0],
+      },
+      class_type: 'LTXVImgToVideoInplace',
+      _meta: { title: 'Reapply First Frame After Upscale' },
+    }
+
+    let refinePositiveRef: [string, number] = ['ltx_crop_guides', 0]
+    let refineNegativeRef: [string, number] = ['ltx_crop_guides', 1]
+    let refineLatentRef: [string, number] = ['ltx_recondition', 0]
+
+    if (hasLastFrame) {
+      workflow.ltx_refine_last_guide = {
+        inputs: {
+          positive: refinePositiveRef,
+          negative: refineNegativeRef,
+          vae: ['317', 2],
+          latent: refineLatentRef,
+          image: ['img_last_scale', 0],
+          frame_idx: -1,
+          strength: 1,
+        },
+        class_type: 'LTXVAddGuide',
+        _meta: { title: 'Reapply End Frame After Upscale' },
+      }
+      refinePositiveRef = ['ltx_refine_last_guide', 0]
+      refineNegativeRef = ['ltx_refine_last_guide', 1]
+      refineLatentRef = ['ltx_refine_last_guide', 2]
+    }
+
+    workflow.ltx_refine_noise = {
+      inputs: { noise_seed: (seed + 1) % 2_147_483_647 },
+      class_type: 'RandomNoise',
+      _meta: { title: 'Refinement Noise' },
+    }
+    workflow.ltx_refine_sampler = {
+      inputs: { sampler_name: refineSampler as string },
+      class_type: 'KSamplerSelect',
+      _meta: { title: 'Refinement Sampler' },
+    }
+    workflow.ltx_refine_sigmas = {
+      inputs: { sigmas: refineSigmas as string },
+      class_type: 'ManualSigmas',
+      _meta: { title: 'Refinement Sigmas' },
+    }
+    workflow.ltx_refine_guider = {
+      inputs: {
+        cfg: input.cfg ?? LTX_DEFAULT_CFG,
+        model: sampledModelRef,
+        positive: refinePositiveRef,
+        negative: refineNegativeRef,
+      },
+      class_type: 'CFGGuider',
+      _meta: { title: 'Refinement CFG Guider' },
+    }
+    workflow.ltx_refine_sample = {
+      inputs: {
+        noise: ['ltx_refine_noise', 0],
+        guider: ['ltx_refine_guider', 0],
+        sampler: ['ltx_refine_sampler', 0],
+        sigmas: ['ltx_refine_sigmas', 0],
+        latent_image: refineLatentRef,
+      },
+      class_type: 'SamplerCustomAdvanced',
+      _meta: { title: 'Post-upscale Refinement' },
+    }
+    finalLatentRef = ['ltx_refine_sample', 0]
+  }
+
   workflow['316'] = {
     inputs: {
       tile_size: input.tileSize ?? 768,
       overlap: input.tileOverlap ?? 64,
       temporal_size: input.temporalSize ?? 4096,
       temporal_overlap: input.temporalOverlap ?? 4,
-      samples: ['291', 0],
+      samples: finalLatentRef,
       vae: ['317', 2],
     },
     class_type: 'VAEDecodeTiled',
     _meta: { title: 'VAE Decode Tiled' },
   }
+
   Object.assign(
     workflow,
     buildVideoOutputNodes({

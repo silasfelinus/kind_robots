@@ -87,9 +87,13 @@ includesAll(artStorePath, [
   'projectSlug?: string | null',
   'narrativeContext?: NarrativeArtEnqueueContext | null',
   "krea2: '/api/art/enqueue'",
-  'scheduler: artData?.scheduler',
   'artData?.narrativeContext',
 ])
+assert.ok(
+  artStore.includes('artData?.scheduler') &&
+    artStore.includes('state.artForm.scheduler'),
+  'Narrative generation must keep forwarding caller/store scheduler values regardless of formatting',
+)
 
 for (const engine of ['comfy', 'krea2', 'flux2']) {
   assert.ok(

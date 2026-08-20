@@ -77,6 +77,27 @@
 // isScreenEffectActive(effectId) *after* the on/off/toggle branch runs and
 // gating setSurfacePlacement() on that resulting boolean instead of the
 // action string, so 'toggle'-to-off is treated the same as literal 'off'.
+//
+// Extended a fifth time (alexa-integration/t-015, 2026-08-20 cycle) with
+// checkSerendipityVoiceRedundantOnSurfacePlacementGuard() below -- the
+// t-021 cycle's own kaizen lead, left as an open question rather than a
+// confirmed bug: "applyCommand()'s 'on' branch always runs
+// setSurfacePlacement(region, 'front') regardless of whether the effect was
+// already active and already placed 'behind' from an earlier command...
+// worth confirming this is intentional... vs. investigating whether a
+// 'behind'-placement command path exists that this would fight against."
+// It does: components/screenfx/screen-fx.vue's "Coverage zones" panel lets a
+// user manually set any region's placement to 'behind' via
+// animationStore.setSurfacePlacement() directly, independent of voice
+// commands. Confirmed the bug: gating setSurfacePlacement() on the effect's
+// resulting active state alone (isNowActive, the t-020 fix above) still
+// forced 'front' on a redundant "turn X on" while X was already active --
+// the command caused no actual state transition, so it had no reason to
+// touch placement at all. Fixed by tracking whether the on/off/toggle
+// branch actually toggled the effect (stateChanged) and requiring both
+// stateChanged and isNowActive before calling setSurfacePlacement(), so an
+// idempotent repeat of an already-applied action no longer clobbers a
+// user's manual 'behind' placement for that region.
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -528,7 +549,7 @@ export function checkSerendipityVoiceToggleOffSurfacePlacementGuard(
   }
 
   const toggleBranchIndex = commandBody.search(
-    /else if\s*\(\s*command\.action\s*===\s*'toggle'\s*\)\s*\n?\s*animationStore\.toggleScreenEffect\(effectId\)/,
+    /else if\s*\(\s*command\.action\s*===\s*'toggle'\s*\)\s*\{?\s*\n?\s*animationStore\.toggleScreenEffect\(effectId\)/,
   )
   if (toggleBranchIndex === -1) {
     errors.push(
@@ -587,9 +608,14 @@ export function checkSerendipityVoiceToggleOffSurfacePlacementGuard(
         'reintroducing the toggle-to-off false-front-placement bug.',
     )
   } else {
+    // Accepts either `if (isNowActive) {` (this check's own original
+    // shape) or `if (stateChanged && isNowActive) {` (the t-015 2026-08-20
+    // extension below, checkSerendipityVoiceRedundantOnSurfacePlacementGuard,
+    // which further requires an actual state transition) -- either way,
+    // isNowActive must still be part of what drives the gate.
     const placementGuardIndex = searchAfter(
       commandBody,
-      /if\s*\(\s*isNowActive\s*\)\s*\{/,
+      /if\s*\(\s*(?:stateChanged\s*&&\s*)?isNowActive\s*\)\s*\{/,
       recheckIndex,
     )
     if (
@@ -598,12 +624,98 @@ export function checkSerendipityVoiceToggleOffSurfacePlacementGuard(
     ) {
       errors.push(
         'applyCommand() re-checks isScreenEffectActive(effectId) but does ' +
-          'not gate setSurfacePlacement() on `if (isNowActive)` right ' +
-          'before the call -- the rechecked state must actually drive the ' +
-          'gate, not just sit unused alongside the old literal-action ' +
-          'check.',
+          'not gate setSurfacePlacement() on `if (isNowActive)` (optionally ' +
+          'combined with `stateChanged &&`) right before the call -- the ' +
+          'rechecked state must actually drive the gate, not just sit ' +
+          'unused alongside the old literal-action check.',
       )
     }
+  }
+
+  return errors
+}
+
+// Checks the "redundant on/off/toggle still forces placement" gap -- see
+// the file-header addendum above (alexa-integration/t-015, 2026-08-20
+// cycle) for what this protects against. Distinct from the guard above:
+// that one covers the placement gate keying off the wrong *condition*
+// (literal action string vs. resulting state); this one covers the gate
+// still firing on a command that caused no state *transition* at all.
+export function checkSerendipityVoiceRedundantOnSurfacePlacementGuard(
+  content: string,
+): string[] {
+  const errors: string[] = []
+
+  const commandBody = extractFunctionSource(content, 'applyCommand')
+  if (!commandBody) {
+    errors.push(
+      'Could not find a function named applyCommand() -- has it been ' +
+        'renamed, removed, or restructured? If so, this guard (and the ' +
+        'redundant-action surface-placement contract it protects) needs ' +
+        'to move with it.',
+    )
+    return errors
+  }
+
+  const onBranchIndex = commandBody.search(
+    /if\s*\(\s*command\.action\s*===\s*'on'\s*&&\s*!active\s*\)\s*\{?/,
+  )
+  if (onBranchIndex === -1) {
+    errors.push(
+      "applyCommand() no longer contains the `if (command.action === 'on' " +
+        '&& !active)` branch -- has the on/off/toggle dispatch shape ' +
+        'changed? This guard assumes that structure to locate the ' +
+        'state-change tracking it protects.',
+    )
+    return errors
+  }
+
+  const placementCallIndex = searchAfter(
+    commandBody,
+    /animationStore\.setSurfacePlacement\(/,
+    onBranchIndex,
+  )
+  if (placementCallIndex === -1) {
+    errors.push(
+      'applyCommand() no longer calls animationStore.setSurfacePlacement() ' +
+        'after the on/off/toggle branch -- has the fx-region-placement step ' +
+        'been removed or restructured? This guard assumes that call exists ' +
+        'so it can check what gates it.',
+    )
+    return errors
+  }
+
+  const gateWindow = commandBody.slice(onBranchIndex, placementCallIndex)
+
+  if (!/stateChanged\s*=\s*true/.test(gateWindow)) {
+    errors.push(
+      'applyCommand() no longer sets a `stateChanged = true` flag inside ' +
+        'the on/off/toggle branches -- without tracking whether this ' +
+        'command actually toggled the effect, the placement gate cannot ' +
+        'tell a real state transition apart from a redundant repeat of an ' +
+        'already-applied action.',
+    )
+  }
+
+  const placementGateIndex = commandBody.search(
+    /if\s*\(\s*stateChanged\s*&&\s*isNowActive\s*\)\s*\{/,
+  )
+  if (placementGateIndex === -1) {
+    errors.push(
+      'applyCommand() no longer gates setSurfacePlacement() on ' +
+        '`if (stateChanged && isNowActive)` -- gating on isNowActive alone ' +
+        "still forces the fx region to 'front' on a redundant \"turn X " +
+        'on" while X was already active there, silently clobbering a ' +
+        "region a user manually placed 'behind' via the Coverage Zones " +
+        'panel (screen-fx.vue) even though the command caused no actual ' +
+        'state change.',
+    )
+  } else if (placementGateIndex >= placementCallIndex) {
+    errors.push(
+      'applyCommand() contains the `stateChanged && isNowActive` gate, but ' +
+        'not immediately before the setSurfacePlacement() call it must ' +
+        'guard -- it needs to directly gate that call.',
+    )
   }
 
   return errors
@@ -616,11 +728,14 @@ function main(): void {
   const artAckErrors = checkSerendipityVoiceArtAckGuard(content)
   const toggleOffPlacementErrors =
     checkSerendipityVoiceToggleOffSurfacePlacementGuard(content)
+  const redundantOnPlacementErrors =
+    checkSerendipityVoiceRedundantOnSurfacePlacementGuard(content)
   const errors = [
     ...actionErrors,
     ...errorReportingErrors,
     ...artAckErrors,
     ...toggleOffPlacementErrors,
+    ...redundantOnPlacementErrors,
   ]
 
   if (errors.length) {
@@ -640,10 +755,13 @@ function main(): void {
       'false "applied" message, the unmatched-effect/unknown-theme ' +
       'no-match branches still report failure (not a false success) before ' +
       "returning, applyArtCommand()'s success path still acknowledges back " +
-      'through the relay like every other successful command target, and ' +
+      'through the relay like every other successful command target, ' +
       "applyCommand()'s surface-placement gate keys off the effect's " +
       'actual resulting active state rather than the literal action ' +
-      'string, so a toggle-to-off is treated the same as a literal off.',
+      'string, so a toggle-to-off is treated the same as a literal off, ' +
+      'and that gate also requires an actual state transition, so a ' +
+      'redundant repeat of an already-applied on/off/toggle no longer ' +
+      "clobbers a region's manually-set placement.",
   )
 }
 

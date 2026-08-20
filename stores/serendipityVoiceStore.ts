@@ -281,22 +281,33 @@ export const useSerendipityVoiceStore = defineStore(
       }
 
       const active = animationStore.isScreenEffectActive(effectId)
-      if (command.action === 'on' && !active)
+      let stateChanged = false
+      if (command.action === 'on' && !active) {
         animationStore.toggleScreenEffect(effectId)
-      else if (command.action === 'off' && active)
+        stateChanged = true
+      } else if (command.action === 'off' && active) {
         animationStore.toggleScreenEffect(effectId)
-      else if (command.action === 'toggle')
+        stateChanged = true
+      } else if (command.action === 'toggle') {
         animationStore.toggleScreenEffect(effectId)
+        stateChanged = true
+      }
 
-      // Gate on the effect's actual resulting state, not the literal action
-      // string -- a 'toggle' that flips an active effect off ends up just
-      // as inactive as a literal 'off', and forcing its fx region to front
-      // placement anyway would bring a now-empty region to the front for
-      // no reason. Only the literal 'off' case was excluded before; only
-      // bring the region forward when the effect is actually visible
-      // afterward.
+      // Gate on whether this command actually changed the effect's active
+      // state, not just its resulting state. Gating on resulting state
+      // alone (isNowActive) still forced the region to 'front' on a
+      // redundant "turn X on" while X was already on -- e.g. after a user
+      // manually placed that region 'behind' via the Coverage Zones panel
+      // (screen-fx.vue's per-region setSurfacePlacement() control), a
+      // repeated "on" voice command for an effect already active there
+      // would silently re-home the whole region to 'front' with no user
+      // intent to move it. A 'toggle' that flips an active effect off ends
+      // up just as inactive as a literal 'off', and forcing its fx region
+      // to front placement anyway would bring a now-empty region to the
+      // front for no reason -- so also require the effect to actually be
+      // active afterward.
       const isNowActive = animationStore.isScreenEffectActive(effectId)
-      if (isNowActive) {
+      if (stateChanged && isNowActive) {
         animationStore.setSurfacePlacement(
           normalizeRegion(command.surface),
           'front',

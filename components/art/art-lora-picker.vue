@@ -241,10 +241,12 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import type { Resource } from '~/prisma/generated/prisma/client'
+import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useResourceStore } from '@/stores/resourceStore'
 import {
-  engineProfile,
   CHECKPOINT_FAMILY_LABELS,
+  detectCheckpointFamily,
+  engineProfile,
   type ArtGeneratorEngine,
   type CheckpointFamily,
 } from '@/utils/artGeneratorPresets'
@@ -265,20 +267,18 @@ type LoraResource = Resource & { ArtImage?: PreviewArtImage | null }
 
 export type { LoraPick }
 
-const props = withDefaults(
-  defineProps<{
-    modelValue: LoraPick[]
-    engine: ArtGeneratorEngine
-    checkpointFamily?: CheckpointFamily
-  }>(),
-  { checkpointFamily: 'unknown' },
-)
+const props = defineProps<{
+  modelValue: LoraPick[]
+  engine: ArtGeneratorEngine
+  checkpointFamily?: CheckpointFamily
+}>()
 
 const emit = defineEmits<{
   'update:modelValue': [value: LoraPick[]]
 }>()
 
 const resourceStore = useResourceStore()
+const checkpointStore = useCheckpointStore()
 const search = ref('')
 const expanded = ref(false)
 
@@ -286,9 +286,12 @@ const profile = computed(() => engineProfile(props.engine))
 const supported = computed(() => profile.value.supports.lora)
 const engineLabel = computed(() => profile.value.label)
 const atCapacity = computed(() => props.modelValue.length >= MAX_LORAS_PER_JOB)
+const effectiveCheckpointFamily = computed<CheckpointFamily>(() =>
+  props.checkpointFamily ?? detectCheckpointFamily(checkpointStore.selectedCheckpoint),
+)
 const compatibilityLabel = computed(() => {
   if (props.engine !== 'comfy') return engineLabel.value
-  return `${CHECKPOINT_FAMILY_LABELS[props.checkpointFamily]} checkpoint`
+  return `${CHECKPOINT_FAMILY_LABELS[effectiveCheckpointFamily.value]} checkpoint`
 })
 
 const rankedLoras = computed(() => {
@@ -301,7 +304,7 @@ const rankedLoras = computed(() => {
       rank: artLoraCompatibilityRank(
         resource,
         props.engine,
-        props.checkpointFamily,
+        effectiveCheckpointFamily.value,
       ),
     }))
     .filter((entry) => entry.rank > 0)
@@ -349,11 +352,8 @@ onMounted(async () => {
   if (!resourceStore.hasLoaded) await resourceStore.getResources()
 })
 
-// Model/checkpoint family changes are strict. A selected SDXL LoRA is removed
-// immediately when the user switches to an SD1.5 checkpoint instead of being
-// carried into a graph that cannot load it.
 watch(
-  [rankedLoras, supported, () => props.checkpointFamily, () => props.engine],
+  [rankedLoras, supported, effectiveCheckpointFamily, () => props.engine],
   () => {
     if (!resourceStore.hasLoaded || !props.modelValue.length) return
 

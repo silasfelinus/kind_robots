@@ -1,11 +1,12 @@
 // /utils/scripts/verifyModelBuilderItemPatchStageGuard.test.ts
 //
 // Regression test for checkItemPatchStageGuard() in
-// verifyModelBuilderItemPatchStageGuard.ts (model-builder/t-029). Exercises
-// the real check against synthetic route-shaped fixtures covering: the
-// pre-fix shape (no assertContentStageEditable calls -- the exact bug found
-// by manual read-through), the fixed shape (a guard call ahead of each
-// content-field assignment, including artImageId/GENERATE_ASSETS), a
+// verifyModelBuilderItemPatchStageGuard.ts (model-builder/t-029, cycle 21
+// adds relationshipDraft). Exercises the real check against synthetic
+// route-shaped fixtures covering: the pre-fix shape (no
+// assertContentStageEditable calls -- the exact bug found by manual
+// read-through), the fixed shape (a guard call ahead of each content-field
+// assignment, including relationshipDraft and artImageId/GENERATE_ASSETS), a
 // partially-fixed shape (only PITCH guarded), and the function being absent
 // entirely.
 import assert from 'node:assert/strict'
@@ -29,6 +30,9 @@ export function prepareItemUpdate(
     data.fieldsDraft = normalizeText(body.fieldsDraft)
   if (body.promptDraft !== undefined)
     data.promptDraft = normalizeText(body.promptDraft)
+  const relationshipDraft = normalizeJson(body.relationshipDraft)
+  if (relationshipDraft !== undefined)
+    data.relationshipDraft = relationshipDraft
   if (body.artImageId !== undefined)
     data.artImageId = normalizeNullableId(body.artImageId)
 
@@ -68,6 +72,16 @@ export function prepareItemUpdate(
     )
     data.promptDraft = normalizeText(body.promptDraft)
   }
+  if (body.relationshipDraft !== undefined) {
+    assertContentStageEditable(
+      existing.stageStatuses,
+      'FIELDS_AND_PROMPTS',
+      'Relationships',
+    )
+  }
+  const relationshipDraft = normalizeJson(body.relationshipDraft)
+  if (relationshipDraft !== undefined)
+    data.relationshipDraft = relationshipDraft
   if (body.artImageId !== undefined) {
     assertContentStageEditable(
       existing.stageStatuses,
@@ -97,6 +111,9 @@ export function prepareItemUpdate(
     data.fieldsDraft = normalizeText(body.fieldsDraft)
   if (body.promptDraft !== undefined)
     data.promptDraft = normalizeText(body.promptDraft)
+  const relationshipDraft = normalizeJson(body.relationshipDraft)
+  if (relationshipDraft !== undefined)
+    data.relationshipDraft = relationshipDraft
   if (body.artImageId !== undefined)
     data.artImageId = normalizeNullableId(body.artImageId)
 
@@ -113,14 +130,15 @@ export function getRunId(event: H3Event): number {
 const buggyErrors = checkItemPatchStageGuard(BUGGY_FIXTURE)
 assert.equal(
   buggyErrors.length,
-  4,
-  `expected the pre-fix shape (no guard calls at all) to raise 4 errors ` +
-    `(pitch, fieldsDraft, promptDraft, artImageId), got ${buggyErrors.length}: ` +
+  5,
+  `expected the pre-fix shape (no guard calls at all) to raise 5 errors ` +
+    `(pitch, fieldsDraft, promptDraft, relationshipDraft, artImageId), got ${buggyErrors.length}: ` +
     JSON.stringify(buggyErrors),
 )
 assert.ok(buggyErrors.some((e) => e.includes("'PITCH'")))
 assert.ok(buggyErrors.some((e) => e.includes('body.fieldsDraft')))
 assert.ok(buggyErrors.some((e) => e.includes('body.promptDraft')))
+assert.ok(buggyErrors.some((e) => e.includes('data.relationshipDraft')))
 assert.ok(buggyErrors.some((e) => e.includes('body.artImageId')))
 assert.ok(buggyErrors.some((e) => e.includes("'GENERATE_ASSETS'")))
 
@@ -134,14 +152,15 @@ assert.equal(
 const partialErrors = checkItemPatchStageGuard(PARTIAL_FIXTURE)
 assert.equal(
   partialErrors.length,
-  3,
+  4,
   `expected the partially-fixed shape (PITCH guarded, FIELDS_AND_PROMPTS ` +
-    `and GENERATE_ASSETS not) to raise 3 errors, got ${partialErrors.length}: ` +
+    `and GENERATE_ASSETS not) to raise 4 errors, got ${partialErrors.length}: ` +
     JSON.stringify(partialErrors),
 )
 assert.ok(
   partialErrors.some((e) => e.includes('body.fieldsDraft')) &&
-    partialErrors.some((e) => e.includes('body.promptDraft')),
+    partialErrors.some((e) => e.includes('body.promptDraft')) &&
+    partialErrors.some((e) => e.includes('data.relationshipDraft')),
 )
 assert.ok(partialErrors.some((e) => e.includes('body.artImageId')))
 assert.ok(!partialErrors.some((e) => e.includes("'PITCH'")))
@@ -156,7 +175,8 @@ assert.ok(missingFnErrors[0]!.includes('prepareItemUpdate'))
 
 console.log(
   'Model Builder item-patch stage guard checker verified: flags the pre-fix ' +
-    'shape (no server-side stage gate on content edits), a partially-fixed ' +
-    'shape (only PITCH guarded), clears the fully-fixed shape, and flags ' +
-    'prepareItemUpdate being absent entirely.',
+    'shape (no server-side stage gate on content edits, including ' +
+    'relationshipDraft), a partially-fixed shape (only PITCH guarded), ' +
+    'clears the fully-fixed shape, and flags prepareItemUpdate being absent ' +
+    'entirely.',
 )

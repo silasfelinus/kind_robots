@@ -28,15 +28,27 @@
 // (verifyModelBuilderApprovedAssetGuard.ts's generateItemAsset/
 // pollAsyncArtJob checks) only ever run inside the store, never here.
 //
+// relationshipDraft (model-builder/t-029 cycle 21) had the identical gap:
+// unlike pitch/fieldsDraft/promptDraft/artImageId, it was applied
+// unconditionally with no assertContentStageEditable call at all -- dead in
+// practice today (no client code sends body.relationshipDraft, confirmed via
+// grep across modelBuilderStore.ts and every model-builder .vue component),
+// but a defense-in-depth gap on a real, writable DB column that the moment
+// any future feature starts sending it would silently reopen the same
+// already-'approved'-content-overwrite hole this file exists to guard
+// against. Gated it under FIELDS_AND_PROMPTS, same bucket as fieldsDraft/
+// promptDraft, since it sits in the schema alongside them.
+//
 // This asserts the textual shape of the fix stays in place: prepareItemUpdate
 // calls assertContentStageEditable(existing.stageStatuses, 'PITCH', ...)
 // before assigning data.pitch, assertContentStageEditable(existing.
-// stageStatuses, 'FIELDS_AND_PROMPTS', ...) before assigning both
-// data.fieldsDraft and data.promptDraft, and assertContentStageEditable(
-// existing.stageStatuses, 'GENERATE_ASSETS', ...) before assigning
-// data.artImageId -- deliberately scoped to this one function/bug shape,
-// mirroring verifyModelBuilderCommitCancelledRunGuard.ts's preference for
-// explicit, narrow textual checks over a general-purpose static analyzer.
+// stageStatuses, 'FIELDS_AND_PROMPTS', ...) before assigning each of
+// data.fieldsDraft, data.promptDraft, and data.relationshipDraft, and
+// assertContentStageEditable(existing.stageStatuses, 'GENERATE_ASSETS', ...)
+// before assigning data.artImageId -- deliberately scoped to this one
+// function/bug shape, mirroring verifyModelBuilderCommitCancelledRunGuard.ts's
+// preference for explicit, narrow textual checks over a general-purpose
+// static analyzer.
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -72,6 +84,11 @@ const GATES: GateCheck[] = [
   {
     field: 'promptDraft',
     assignment: 'data.promptDraft = normalizeText(body.promptDraft)',
+    stageKey: 'FIELDS_AND_PROMPTS',
+  },
+  {
+    field: 'relationshipDraft',
+    assignment: 'data.relationshipDraft = relationshipDraft',
     stageKey: 'FIELDS_AND_PROMPTS',
   },
   {
@@ -189,9 +206,9 @@ function main(): void {
 
   console.log(
     `Model Builder item-patch stage guard contract passed: ${FN_NAME}() ` +
-      'refuses to overwrite pitch/fieldsDraft/promptDraft/artImageId while ' +
-      "their stage is not ready/stale/rejected, per the item's server-stored " +
-      'stage status.',
+      'refuses to overwrite pitch/fieldsDraft/promptDraft/relationshipDraft/' +
+      'artImageId while their stage is not ready/stale/rejected, per the ' +
+      "item's server-stored stage status.",
   )
 }
 

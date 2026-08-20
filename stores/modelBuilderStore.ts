@@ -1424,6 +1424,18 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         return false
       }
 
+      // Snapshotted before the optimistic mutation below (mirrors approveStage/
+      // rejectStage/reopenStage) so a PATCH rejected by the server-side
+      // GENERATE_ASSETS stage gate can revert local state instead of leaving
+      // it silently diverged. That rejection is reachable here specifically:
+      // the 'approved' check just above only sees THIS tab's own in-memory
+      // stage, so a different tab approving the stage in the gap between that
+      // check and this PATCH landing (or an artifacts.post.ts write already
+      // rejected the same way, model-builder/t-029 cycle 28) still slips past
+      // it locally, even though the server correctly rejects the PATCH.
+      const previousArtImageId = item.artImageId
+      const previousImagePath = item.imagePath
+      const previousStages = { ...item.stages }
       const image = result.data as { id: number; imagePath?: string | null }
       item.artImageId = image.id
       item.imagePath = image.imagePath ?? null
@@ -1434,11 +1446,20 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       // item persisted (see the catch block below) -- otherwise a resolved
       // problem's stale message would resurface on the next resume/reload,
       // right alongside the freshly-generated candidate.
-      pushItem(item, {
-        stageStatuses: item.stages,
-        artImageId: item.artImageId,
-        error: null,
-      })
+      pushItem(
+        item,
+        {
+          stageStatuses: item.stages,
+          artImageId: item.artImageId,
+          error: null,
+        },
+        undefined,
+        () => {
+          item.artImageId = previousArtImageId
+          item.imagePath = previousImagePath
+          item.stages = previousStages
+        },
+      )
 
       // Gated by setStatusForRun, not a plain setStatus: the user may have
       // navigated away to (or started) a different run via resetRun/resetAll/
@@ -1580,6 +1601,11 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         return
       }
 
+      // Snapshotted for the same revert-on-rejected-PATCH reason as
+      // generateItemAsset's identical snapshot just above its own mutation.
+      const previousArtImageId = item.artImageId
+      const previousImagePath = item.imagePath
+      const previousStages = { ...item.stages }
       const image = result.data as { id: number; imagePath?: string | null }
       item.artImageId = image.id
       item.imagePath = image.imagePath ?? null
@@ -1587,11 +1613,20 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
 
       await recordArtifact(item, image, output, prompt, dims, runId)
       // error: null — see generateItemAsset's identical success-path clear.
-      pushItem(item, {
-        stageStatuses: item.stages,
-        artImageId: item.artImageId,
-        error: null,
-      })
+      pushItem(
+        item,
+        {
+          stageStatuses: item.stages,
+          artImageId: item.artImageId,
+          error: null,
+        },
+        undefined,
+        () => {
+          item.artImageId = previousArtImageId
+          item.imagePath = previousImagePath
+          item.stages = previousStages
+        },
+      )
 
       // Gated by setStatusForRun -- see its doc comment (same reasoning as
       // generateItemAsset's identical success-path gate above it).

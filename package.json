@@ -109,6 +109,8 @@
     "test:davinci-narration-error-role-guard": "tsx utils/scripts/verifyDaVinciNarrationErrorRoleGuard.ts",
     "test:davinci-chapter-focus-guard-selftest": "tsx utils/scripts/verifyDaVinciChapterFocusGuard.test.ts",
     "test:davinci-chapter-focus-guard": "tsx utils/scripts/verifyDaVinciChapterFocusGuard.ts",
+    "test:davinci-phase-focus-guard-selftest": "tsx utils/scripts/verifyDaVinciPhaseFocusGuard.test.ts",
+    "test:davinci-phase-focus-guard": "tsx utils/scripts/verifyDaVinciPhaseFocusGuard.ts",
     "test:serendipity-voice-poll-guard-selftest": "tsx utils/scripts/verifySerendipityVoicePollGuard.test.ts",
     "test:serendipity-voice-poll-guard": "tsx utils/scripts/verifySerendipityVoicePollGuard.ts",
     "test:serendipity-voice-cursor-reset-selftest": "tsx utils/scripts/verifySerendipityVoiceCursorReset.test.ts",

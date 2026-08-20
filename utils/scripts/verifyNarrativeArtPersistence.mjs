@@ -29,6 +29,7 @@ const taskPagePath = 'components/pages/taskmaster-page.vue'
 
 const profiles = source(profilesPath)
 const controller = source(controllerPath)
+const artStore = source(artStorePath)
 const storyStore = source(storyStorePath)
 const taskStore = source(taskStorePath)
 
@@ -85,12 +86,21 @@ includesAll(artStorePath, [
   'scheduler?: string',
   'projectSlug?: string | null',
   'narrativeContext?: NarrativeArtEnqueueContext | null',
-  "data.engine === 'comfy' || data.engine === 'krea2'",
-  "engine === 'comfy' || engine === 'krea2'",
   "krea2: '/api/art/enqueue'",
   'scheduler: artData?.scheduler',
   'artData?.narrativeContext',
 ])
+
+for (const engine of ['comfy', 'krea2', 'flux2']) {
+  assert.ok(
+    artStore.includes(`data.engine === '${engine}'`),
+    `${engine} requests must be recognized as Comfy-native generation requirements`,
+  )
+  assert.ok(
+    artStore.includes(`engine === '${engine}'`),
+    `${engine} must remain a supported Comfy-native execution lane`,
+  )
+}
 
 includesAll(enqueuePath, [
   'NarrativeEnqueueContext',
@@ -158,19 +168,8 @@ assert.ok(
   'Narrative text generation must not wait for scene art rendering',
 )
 
-/*
- * Per-beat art chrome used to hang off narrative-transcript.vue, which knew
- * what a NarrativeArtJobState was. Its replacement, kr-chat-window, is
- * deliberately domain-free so it can also serve bot chats and the Dreams dock —
- * so the art assertion moved to where the knowledge actually lives: the shared
- * beat->turn adapter (which turn owns the illustration) and the two pages
- * (which render it). Pinning `art` on the presentational component again would
- * re-couple it to one product's session shape.
- */
 includesAll(turnsPath, [
   'beatIdFromTurnId',
-  // Null for the reader's own turn is load-bearing: without it every scene's
-  // illustration would render twice, once beside the answer.
   'null for anything else',
 ])
 includesAll(statusPath, [

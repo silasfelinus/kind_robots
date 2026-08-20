@@ -194,7 +194,9 @@ export const useBuildBenchStore = defineStore('buildBenchStore', () => {
           saved: state.saved,
         }),
       )
-    } catch {}
+    } catch {
+      /* Local bench persistence is optional. */
+    }
   }
 
   function hydrate(): void {
@@ -206,7 +208,9 @@ export const useBuildBenchStore = defineStore('buildBenchStore', () => {
       if (parsed.buildA) Object.assign(state.buildA, parsed.buildA)
       if (parsed.buildB) Object.assign(state.buildB, parsed.buildB)
       if (Array.isArray(parsed.saved)) state.saved = parsed.saved
-    } catch {}
+    } catch {
+      /* Ignore corrupt local bench state and start fresh. */
+    }
   }
 
   function configOf(side: BenchSide): BuildConfig {

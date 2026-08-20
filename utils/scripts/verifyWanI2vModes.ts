@@ -1,16 +1,5 @@
-// Contract test for the two WAN image-to-video graphs.
-//
-// WAN 2.2 ships two i2v paths and this render box (12 GB card) can only afford
-// one interactively. Measured sizes on the host:
-//
-//   A14B  wan2.2_i2v_high_noise_14B_fp8   14 GB  } one resident at a time,
-//         wan2.2_i2v_low_noise_14B_fp8    14 GB  } still over the card
-//   TI2V  wan2.2_ti2v_5B_fp16            9.4 GB
-//
-// A14B does not fit, so ComfyUI offloads and the render becomes an overnight
-// job -- slow, not broken, and explicitly kept as the quality mode. TI2V is the
-// default. The two graphs are structurally different, and the differences are
-// exactly what a careless edit would flatten, so they are pinned here.
+// Contract test for the two WAN image-to-video graphs and the shared video
+// LoRA adapter layered on top of them.
 import assert from 'node:assert/strict'
 import type {
   ComfyWorkflow,
@@ -24,6 +13,11 @@ import {
   WAN_TI2V_VAE,
   WAN_VAE,
 } from '../../server/api/comfy/wan/utils/imageToVideoWorkflow'
+import { applyVideoLoraChain } from '../../server/api/comfy/utils/videoLoraChain'
+import {
+  promptWithLoraTriggers,
+  videoLoraCompatible,
+} from '../loraSelection'
 
 const base: WanImageToVideoInput = {
   prompt: 'a cat',
@@ -46,12 +40,38 @@ function maybeNode(
   return nodesOfClass(wf, cls)[0]
 }
 
-/** The node of this class, asserted present so callers can read `.inputs`. */
 function node(wf: ComfyWorkflow, cls: string): Required<ComfyWorkflowNode> {
   const found = maybeNode(wf, cls)
   assert.ok(found, `expected a ${cls} node`)
   assert.ok(found.inputs, `${cls} must carry inputs`)
   return found as Required<ComfyWorkflowNode>
+}
+
+function nodeById(wf: ComfyWorkflow, id: string): Required<ComfyWorkflowNode> {
+  const found = wf[id]
+  assert.ok(found?.inputs, `expected workflow node ${id}`)
+  return found as Required<ComfyWorkflowNode>
+}
+
+function assertModelChain(
+  wf: ComfyWorkflow,
+  start: unknown,
+  expectedNames: string[],
+  rootId: string,
+): void {
+  const walked: string[] = []
+  let ref = start as [string, number]
+
+  for (let index = 0; index < expectedNames.length; index += 1) {
+    assert.ok(Array.isArray(ref), 'model chain must use node references')
+    const current = nodeById(wf, ref[0])
+    assert.equal(current.class_type, 'LoraLoaderModelOnly')
+    walked.unshift(String(current.inputs.lora_name))
+    ref = current.inputs.model as [string, number]
+  }
+
+  assert.deepEqual(walked, expectedNames)
+  assert.deepEqual(ref, [rootId, 0], 'LoRA chain must terminate at its base model')
 }
 
 // --- mode selection ---------------------------------------------------------
@@ -69,9 +89,6 @@ assert.equal(
 assert.equal(
   resolveWanMode({ ...base, lastImageName: 'z.png' }),
   'a14b',
-  // Wan22ImageToVideoLatent declares only an optional start_image and has no
-  // end_image, so TI2V cannot honour a last frame. Routing to A14B costs time;
-  // silently dropping the pinned final frame would cost the user the feature.
   'a last-frame request must select the only graph that can do it',
 )
 
@@ -85,47 +102,49 @@ assert.equal(
   WAN_TI2V_VAE,
   'the 5B TI2V model is trained against the 2.2 VAE, not the 2.1 VAE',
 )
-assert.ok(
-  maybeNode(ti2v, 'Wan22ImageToVideoLatent'),
-  'TI2V uses the latent node',
-)
+assert.ok(maybeNode(ti2v, 'Wan22ImageToVideoLatent'))
 assert.equal(maybeNode(ti2v, 'WanImageToVideo'), undefined)
-assert.equal(
-  maybeNode(ti2v, 'KSamplerAdvanced'),
-  undefined,
-  'no expert handover, so no two-stage sampler',
-)
+assert.equal(maybeNode(ti2v, 'KSamplerAdvanced'), undefined)
 
 const sampler = node(ti2v, 'KSampler')
-// The load-bearing wiring difference. WanImageToVideo returns
-// (positive, negative, latent) and the A14B graph routes conditioning THROUGH
-// it. Wan22ImageToVideoLatent returns a LATENT only -- confirmed against the
-// host's /object_info -- so conditioning must come straight off the encoders.
-// Copying A14B's wiring here would reference outputs that do not exist.
 assert.deepEqual(sampler.inputs.positive, ['positive', 0])
 assert.deepEqual(sampler.inputs.negative, ['negative', 0])
 assert.deepEqual(sampler.inputs.latent_image, ['latent', 0])
 
 const latent = node(ti2v, 'Wan22ImageToVideoLatent')
 assert.deepEqual(latent.inputs.start_image, ['img_first', 0])
-assert.ok(
-  !('end_image' in latent.inputs),
-  'the node declares no end_image; emitting one would be rejected at submit',
-)
+assert.ok(!('end_image' in latent.inputs))
 for (const key of ['vae', 'width', 'height', 'length', 'batch_size']) {
   assert.ok(key in latent.inputs, `Wan22ImageToVideoLatent requires ${key}`)
 }
 
-// One unet means one LoRA, not the A14B matched pair.
+// Legacy direct-builder support remains one LoRA for backwards compatibility.
 const ti2vLora = buildWanImageToVideoWorkflow({
   ...base,
   loraName: 'x.safetensors',
 })
 const loraNodes = nodesOfClass(ti2vLora, 'LoraLoaderModelOnly')
-assert.equal(loraNodes.length, 1, 'TI2V has a single model to patch')
+assert.equal(loraNodes.length, 1, 'TI2V legacy input still patches one model')
 assert.deepEqual(node(ti2vLora, 'KSampler').inputs.model, ['lora', 0])
 
-// --- A14B graph is untouched ------------------------------------------------
+// The queue-facing adapter is the multi-LoRA path. Every selected LoRA must be
+// in the sampler's model chain, in order and with independent strengths.
+const wanLoras = [
+  { name: 'motion-one.safetensors', strength: 0.8 },
+  { name: 'motion-two.safetensors', strength: 1.15 },
+  { name: 'motion-three.safetensors', strength: 0.45 },
+]
+const ti2vStack = buildWanImageToVideoWorkflow(base)
+const appliedTi2v = applyVideoLoraChain(ti2vStack, 'wan', { loras: wanLoras })
+assert.deepEqual(appliedTi2v, wanLoras)
+assertModelChain(
+  ti2vStack,
+  node(ti2vStack, 'KSampler').inputs.model,
+  wanLoras.map((lora) => lora.name),
+  'unet',
+)
+
+// --- A14B graph -------------------------------------------------------------
 
 const a14b = buildWanImageToVideoWorkflow({ ...base, mode: 'a14b' })
 
@@ -145,7 +164,100 @@ assert.deepEqual(node(a14bLast, 'WanImageToVideo').inputs.end_image, [
   0,
 ])
 
+// A14B has two experts. The same ordered user stack must patch BOTH model paths.
+const a14bStack = buildWanImageToVideoWorkflow({ ...base, mode: 'a14b' })
+applyVideoLoraChain(a14bStack, 'wan', { loras: wanLoras })
+assertModelChain(
+  a14bStack,
+  nodeById(a14bStack, 'sampler_high').inputs.model,
+  wanLoras.map((lora) => lora.name),
+  'unet_high',
+)
+assertModelChain(
+  a14bStack,
+  nodeById(a14bStack, 'sampler_low').inputs.model,
+  wanLoras.map((lora) => lora.name),
+  'unet_low',
+)
+
+// LTX always keeps its hidden required distilled LoRA first, then chains the
+// user's style/motion stack after node 293. Both main and refinement guiders
+// must read the final user-LoRA model reference.
+const ltxSynthetic: ComfyWorkflow = {
+  '293': {
+    class_type: 'LoraLoaderModelOnly',
+    inputs: {
+      model: ['292', 0],
+      lora_name: 'ltx-required-distilled.safetensors',
+      strength_model: 0.5,
+    },
+    _meta: { title: 'Required Distilled LoRA' },
+  },
+  '315': {
+    class_type: 'CFGGuider',
+    inputs: { model: ['293', 0] },
+  },
+  ltx_refine_guider: {
+    class_type: 'CFGGuider',
+    inputs: { model: ['293', 0] },
+  },
+}
+applyVideoLoraChain(ltxSynthetic, 'ltx', { loras: wanLoras })
+assert.equal(
+  nodeById(ltxSynthetic, '293').inputs.lora_name,
+  'ltx-required-distilled.safetensors',
+  'the hidden required LTX LoRA is not replaced by the user stack',
+)
+assertModelChain(
+  ltxSynthetic,
+  nodeById(ltxSynthetic, '315').inputs.model,
+  wanLoras.map((lora) => lora.name),
+  '293',
+)
+assert.deepEqual(
+  nodeById(ltxSynthetic, '315').inputs.model,
+  nodeById(ltxSynthetic, 'ltx_refine_guider').inputs.model,
+  'main and refinement passes must use the same final styled LTX model',
+)
+
+// --- compatibility and triggers --------------------------------------------
+
+const wanResource = {
+  id: 1,
+  supportedServer: 'WAN',
+  defaultTrigger: 'cinematic camera orbit',
+  triggerWords: 'orbit, dolly',
+}
+const ltxResource = { id: 2, supportedServer: 'LTX' }
+const genericResource = { id: 3, supportedServer: 'GENERIC' }
+assert.equal(videoLoraCompatible(wanResource, 'wan'), true)
+assert.equal(videoLoraCompatible(wanResource, 'ltx'), false)
+assert.equal(videoLoraCompatible(ltxResource, 'wan'), false)
+assert.equal(videoLoraCompatible(genericResource, 'wan'), true)
+assert.equal(videoLoraCompatible(genericResource, 'ltx'), true)
+
+assert.equal(
+  promptWithLoraTriggers(
+    'A robot turns toward camera',
+    [{ resourceId: 1, strength: 1 }],
+    [wanResource],
+  ),
+  'A robot turns toward camera, cinematic camera orbit',
+  'the preferred trigger is appended to the effective render prompt',
+)
+assert.equal(
+  promptWithLoraTriggers(
+    'A robot, cinematic camera orbit',
+    [{ resourceId: 1, strength: 1 }],
+    [wanResource],
+  ),
+  'A robot, cinematic camera orbit',
+  'trigger decoration is idempotent',
+)
+
 console.log(
-  'WAN i2v mode contract OK: ti2v default (5B/2.2 VAE/single sampler), ' +
-    'a14b on request or last-frame, conditioning wired per graph.',
+  'WAN/video LoRA contract OK: TI2V and A14B retain their graph shapes, ' +
+    'ordered user LoRA stacks reach every sampler model path, LTX keeps its ' +
+    'required distilled LoRA, WAN/LTX compatibility stays distinct, and ' +
+    'trigger words are added idempotently.',
 )

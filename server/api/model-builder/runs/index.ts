@@ -358,6 +358,17 @@ export function prepareItemUpdate(
     })
     data.promptDraft = normalizeText(body.promptDraft)
   }
+  if (body.relationshipDraft !== undefined) {
+    assertContentStageEditable(
+      existing.stageStatuses,
+      'FIELDS_AND_PROMPTS',
+      'Relationships',
+    )
+    contentStageChecks.push({
+      stageKey: 'FIELDS_AND_PROMPTS',
+      fieldLabel: 'Relationships',
+    })
+  }
   const relationshipDraft = normalizeJson(body.relationshipDraft)
   if (relationshipDraft !== undefined)
     data.relationshipDraft = relationshipDraft

@@ -1688,6 +1688,21 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         throw new Error(enqueued.message || 'Failed to queue generation.')
       }
 
+      // enqueueCurrentArt is the same class of network round-trip the catch
+      // block below already guards (its own comment: "missing here until
+      // now") -- but that guard only covers the *failure* path. The user can
+      // just as easily cancel this exact run while the enqueue is in flight
+      // and have it come back successfully: without this check, this
+      // function would unconditionally arm item.artJobId with the new jobId
+      // and start pollAsyncArtJob for an item cancelRun() already cleared
+      // (or never saw, if the run wasn't the active one) -- re-arming a poll
+      // for a run the user just told us to abandon. pollAsyncArtJob's own
+      // cancelledRunIds check (model-builder/t-029) does stop it from ever
+      // persisting a candidate, but only after minutes of pointless 5s
+      // polling against a detached item nothing displays. Mirrors
+      // generateItemAsset's identical guard on its own network round-trip.
+      if (cancelledRunIds.has(runId)) return false
+
       item.artJobId = enqueued.jobId
       void pollAsyncArtJob(
         item,

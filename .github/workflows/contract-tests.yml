@@ -587,6 +587,12 @@ jobs:
       - name: Model Builder async-enqueue cancelled-run guard contract
         run: npm run test:model-builder-async-enqueue-cancelled-run-guard
 
+      - name: Model Builder async-enqueue success cancelled-run guard checker self-test
+        run: npm run test:model-builder-async-enqueue-success-cancelled-run-guard-selftest
+
+      - name: Model Builder async-enqueue success cancelled-run guard contract
+        run: npm run test:model-builder-async-enqueue-success-cancelled-run-guard
+
       - name: Model Builder recordArtifact success guard checker self-test
         run: npm run test:model-builder-record-artifact-success-guard-selftest
 

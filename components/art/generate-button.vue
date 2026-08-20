@@ -122,6 +122,11 @@ import { useArtFacetDraftStore } from '@/stores/artFacetDraftStore'
 import { useManaStore } from '@/stores/manaStore'
 import { useUserStore } from '@/stores/userStore'
 import { useServerStore } from '@/stores/serverStore'
+import {
+  DEFAULT_ART_PRESET_ID,
+  getPreset,
+  presetSettings,
+} from '@/utils/artGeneratorPresets'
 
 type ServerChoice = 'default' | 'any' | `server:${number}`
 
@@ -137,6 +142,7 @@ const props = withDefaults(
     compact?: boolean
     showResult?: boolean
     showMessage?: boolean
+    presetId?: string
     overrides?: Partial<GenerateArtData>
   }>(),
   {
@@ -146,6 +152,7 @@ const props = withDefaults(
     compact: false,
     showResult: true,
     showMessage: true,
+    presetId: DEFAULT_ART_PRESET_ID,
     overrides: () => ({}),
   },
 )
@@ -176,12 +183,15 @@ const busyText = computed(() => {
 
 const serverOptions = computed<Server[]>(() => {
   return Array.isArray(artStore.generationServers)
-    ? [...artStore.generationServers]
+    ? [...artStore.generationServers].filter(
+        (server) => server.isActive && server.serverType === 'COMFY',
+      )
     : []
 })
 
 const defaultServer = computed<Server | null>(() => {
-  return serverStore.activeArtServer || null
+  const server = serverStore.activeArtServer || null
+  return server?.isActive && server.serverType === 'COMFY' ? server : null
 })
 
 const defaultServerId = computed(() => defaultServer.value?.id ?? null)
@@ -207,22 +217,24 @@ const selectedSpecificServerId = computed<number | null>(() => {
 const selectedSpecificServer = computed<Server | null>(() => {
   const id = selectedSpecificServerId.value
   if (!id) return null
-  return serverStore.getServerById(id) || null
+  const server = serverStore.getServerById(id) || null
+  return server?.isActive && server.serverType === 'COMFY' ? server : null
 })
 
 const displayServer = computed<Server | null>(() => {
   if (serverChoice.value === 'default') return defaultServer.value
   if (serverChoice.value.startsWith('server:'))
     return selectedSpecificServer.value
-  return artStore.activeGenerationServer || defaultServer.value || null
+  const active = artStore.activeGenerationServer || defaultServer.value || null
+  return active?.serverType === 'COMFY' ? active : defaultServer.value
 })
 
 const billingServer = computed<Server | null>(() => {
-  return displayServer.value || artStore.activeGenerationServer || null
+  return displayServer.value || defaultServer.value || null
 })
 
 const defaultServerOptionLabel = computed(() => {
-  if (!defaultServer.value) return 'Default Image Server'
+  if (!defaultServer.value) return 'Default Comfy Server'
   return `Default: ${getServerDisplayLabel(defaultServer.value)}`
 })
 
@@ -240,23 +252,23 @@ const selectionBadgeClass = computed(() => {
 
 const selectionSummary = computed(() => {
   if (serverChoice.value === 'any') {
-    return 'Whatever compatible image server is available'
+    return 'Whatever compatible Comfy server is available'
   }
   const server = displayServer.value
-  if (!server) return 'No image server selected'
+  if (!server) return 'No Comfy server selected'
   return getServerDisplayLabel(server)
 })
 
 const selectionDetail = computed(() => {
   if (serverChoice.value === 'default') {
     return defaultServer.value
-      ? 'Uses your preferred image server. Change this in Server Connections.'
-      : 'No preferred image server is currently saved.'
+      ? 'Uses your preferred Comfy server. Change this in Server Connections.'
+      : 'No preferred Comfy server is currently saved.'
   }
   if (serverChoice.value === 'any') {
-    return 'The art store will pick the best compatible server for this request.'
+    return 'The art store will pick a compatible Comfy server for this request.'
   }
-  return 'Uses this server for this generation only.'
+  return 'Uses this Comfy server for this generation only.'
 })
 
 const usesOwnServer = computed(() => {
@@ -270,18 +282,15 @@ const usesOwnServer = computed(() => {
 const canAfford = computed(() => {
   if (manaStore.isFamily) return true
   if (usesOwnServer.value) return true
-  // kind-economy/t-006: the server spends tokens first, falling back to
-  // mana (see server/utils/manaGate.ts) -- a user can generate as long as
-  // EITHER pool has balance, not just mana.
   return manaStore.balance > 0 || manaStore.tokens > 0
 })
 
 const canClick = computed(() => {
   return Boolean(
     artStore.canGenerateArt &&
-    !artStore.isGenerating &&
-    canAfford.value &&
-    hasServerChoices.value,
+      !artStore.isGenerating &&
+      canAfford.value &&
+      hasServerChoices.value,
   )
 })
 
@@ -311,17 +320,9 @@ function getSpecificServerValue(serverId: number): ServerChoice {
   return `server:${serverId}`
 }
 
-function getServerEngineLabel(server: Server): string {
-  if (server.serverType === 'OPENAI') return 'OpenAI Images'
-  if (server.serverType === 'COMFY') return 'Comfy'
-  if (server.serverType === 'A1111') return 'Stable Diffusion'
-  if (server.serverType === 'ANTHROPIC') return 'Anthropic'
-  return 'Image'
-}
-
 function getServerDisplayLabel(server: Server): string {
   const title = server.label || server.title || `Server #${server.id}`
-  return `${title} · ${getServerEngineLabel(server)}`
+  return `${title} · Comfy`
 }
 
 function handleServerChoiceChange() {
@@ -357,12 +358,31 @@ function buildCleanRoutingOverrides(): Pick<
   }
 }
 
+function buildPresetOverrides(): GenerateArtDataWithRouting {
+  const preset = getPreset(props.presetId)
+  const settings = presetSettings(preset)
+  return {
+    engine: settings.engine,
+    steps: settings.steps,
+    cfg: settings.cfg,
+    sampler: settings.sampler ?? undefined,
+    scheduler: settings.scheduler ?? undefined,
+    width: settings.width,
+    height: settings.height,
+    guidance: settings.guidance,
+    variant: settings.variant,
+    presetId: preset.id,
+  }
+}
+
 function buildGenerationOverrides(): GenerateArtDataWithRouting {
+  const preset = buildPresetOverrides()
   const cleanRouting = buildCleanRoutingOverrides()
   let routed: GenerateArtDataWithRouting
 
   if (serverChoice.value === 'default') {
     routed = {
+      ...preset,
       ...props.overrides,
       ...cleanRouting,
       serverId: null,
@@ -371,6 +391,7 @@ function buildGenerationOverrides(): GenerateArtDataWithRouting {
     }
   } else if (serverChoice.value === 'any') {
     routed = {
+      ...preset,
       ...props.overrides,
       ...cleanRouting,
       serverId: null,
@@ -380,6 +401,7 @@ function buildGenerationOverrides(): GenerateArtDataWithRouting {
   } else {
     const server = selectedSpecificServer.value
     routed = {
+      ...preset,
       ...props.overrides,
       ...cleanRouting,
       serverId: server?.id ?? null,

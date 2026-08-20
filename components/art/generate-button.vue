@@ -132,6 +132,7 @@ type ServerChoice = 'default' | 'any' | `server:${number}`
 
 type GenerateArtDataWithRouting = Partial<GenerateArtData> & {
   serverSelectionMode?: 'default' | 'any' | 'specific'
+  presetId?: string | null
 }
 
 const props = withDefaults(

@@ -47,7 +47,10 @@
       hidden-text="Mature video LoRAs are hidden from this selector."
     />
 
-    <ol v-if="selected.length" class="grid gap-2 md:grid-cols-2">
+    <ol
+      v-if="selected.length"
+      class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,22rem),1fr))] gap-2"
+    >
       <li
         v-for="(entry, index) in selected"
         :key="entry.resourceId"
@@ -308,7 +311,10 @@ const compatibleResources = computed<VideoLoraResource[]>(() =>
 )
 
 const byId = computed(
-  () => new Map(compatibleResources.value.map((resource) => [resource.id, resource])),
+  () =>
+    new Map(
+      compatibleResources.value.map((resource) => [resource.id, resource]),
+    ),
 )
 
 const selected = computed(() =>
@@ -347,7 +353,9 @@ onMounted(async () => {
 // never remains silently attached when the user switches to LTX, and vice versa.
 watch([() => props.engine, compatibleResources], () => {
   if (!resourceStore.hasLoaded || !props.modelValue.length) return
-  const survivors = props.modelValue.filter((pick) => byId.value.has(pick.resourceId))
+  const survivors = props.modelValue.filter((pick) =>
+    byId.value.has(pick.resourceId),
+  )
   if (survivors.length !== props.modelValue.length) emitValue(survivors)
 })
 

@@ -467,6 +467,12 @@ jobs:
       - name: Model Builder stale-asset approval guard contract
         run: npm run test:model-builder-stale-asset-approval-guard
 
+      - name: Model Builder stale-selection-on-reopen guard checker self-test
+        run: npm run test:model-builder-stale-selection-on-reopen-guard-selftest
+
+      - name: Model Builder stale-selection-on-reopen guard contract
+        run: npm run test:model-builder-stale-selection-on-reopen-guard
+
       - name: Model Builder batch-editor key guard checker self-test
         run: npm run test:model-builder-batch-editor-key-guard-selftest
 

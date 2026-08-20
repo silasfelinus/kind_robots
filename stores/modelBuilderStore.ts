@@ -2517,6 +2517,32 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
           state.run = adaptRun(data)
           state.sourceType = data.sourceType as SourceTypeKey
           state.recipeKey = data.recipeKey as RecipeKey
+          // state.selectedSource/state.selections are never restored here --
+          // only selectSource()/selectRecipe() populate them, and this branch
+          // adopts a *different* run's sourceType/recipeKey without going
+          // through either (model-builder/t-029 cycle 24). Leaving a stale
+          // selectedSource/selections combo from an earlier in-session
+          // selectSource() call in place (rather than clearing it) is the
+          // actual bug: the header's "Recipe" crumb is enabled by
+          // `Boolean(store.selectedSource)` alone, so a stale non-null
+          // selectedSource makes it clickable, and model-builder-recipe-
+          // selector.vue would then render this *new* recipeKey's outputs
+          // against the *old* selections object -- their output keys don't
+          // overlap across recipes, so every checkbox reads unchecked while
+          // the footer's "N outputs selected" count still reflects the old
+          // recipe's leftover `on` entries, and `canStartRun` (which only
+          // checks selectedSource/recipeKey/selectedOutputCount, not whether
+          // the outputs it's counting actually belong to the current recipe)
+          // reads true -- so "Start build run" renders enabled and silently
+          // no-ops when clicked, since startRun()'s own selections lookup by
+          // the new recipe's output keys finds nothing and its itemsPayload
+          // ends up empty. Clearing both here keeps the crumb correctly
+          // disabled until the user makes a real in-session source/recipe
+          // choice again, exactly matching adaptRun's own comment that
+          // selectedSource "is only ever set by an in-session selectSource()
+          // call and is never restored on resume/reopen".
+          state.selectedSource = null
+          state.selections = {}
           state.step = 'run'
           setActiveRunId(data.id)
         }
@@ -2602,6 +2628,13 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       state.run = cached
       state.sourceType = cached.sourceType
       state.recipeKey = cached.recipeKey
+      // See the matching reset in resumeRun()'s "adopt a different run"
+      // branch (model-builder/t-029 cycle 24) for why selectedSource/
+      // selections must be cleared, not left stale, whenever sourceType/
+      // recipeKey are adopted from a run instead of selectSource()/
+      // selectRecipe() -- opening a run from History is exactly that path.
+      state.selectedSource = null
+      state.selections = {}
       state.step = 'run'
       setActiveRunId(Number(runId))
       return
@@ -2616,6 +2649,9 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         state.run = adaptRun(response.data)
         state.sourceType = state.run.sourceType
         state.recipeKey = state.run.recipeKey
+        // See the comment on the cached branch above.
+        state.selectedSource = null
+        state.selections = {}
         state.step = 'run'
         setActiveRunId(response.data.id)
       } else if (!response.success) {

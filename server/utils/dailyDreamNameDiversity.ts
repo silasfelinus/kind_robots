@@ -123,6 +123,11 @@ const NAME_STYLE_POOLS = [
   BYNAMES,
 ] as const
 
+type NameAssignment = {
+  before: string
+  after: string
+}
+
 function hashSeed(input: string): number {
   let hash = 2166136261
   for (let index = 0; index < input.length; index++) {
@@ -159,15 +164,21 @@ function pickUniqueName(options: {
   return fallback
 }
 
-function replaceNames(
+function replaceFirst(text: string, assignment: NameAssignment): string {
+  const index = text.indexOf(assignment.before)
+  if (index < 0) return text
+  return `${text.slice(0, index)}${assignment.after}${text.slice(index + assignment.before.length)}`
+}
+
+function replaceAll(text: string, assignment: NameAssignment): string {
+  return text.split(assignment.before).join(assignment.after)
+}
+
+function replaceSequence(
   text: string,
-  replacements: ReadonlyMap<string, string>,
+  assignments: readonly NameAssignment[],
 ): string {
-  let result = text
-  for (const [before, after] of replacements) {
-    result = result.split(before).join(after)
-  }
-  return result
+  return assignments.reduce(replaceFirst, text)
 }
 
 export function diversifyDailyDreamNames(
@@ -175,60 +186,65 @@ export function diversifyDailyDreamNames(
   options: { dateKey: string; userId: number },
 ): DailyDreamBlueprint {
   const used = new Set<string>()
-  const replacements = new Map<string, string>()
   let slot = 0
-
-  if (blueprint.narrator) {
-    replacements.set(
-      blueprint.narrator.name,
-      pickUniqueName({ ...options, slot, used }),
-    )
-    slot += 1
-  }
-
-  for (const character of blueprint.characters) {
-    replacements.set(
-      character.name,
-      pickUniqueName({ ...options, slot, used }),
-    )
-    slot += 1
-  }
-
-  const rewrite = (text: string) => replaceNames(text, replacements)
+  const narratorAssignment: NameAssignment | null = blueprint.narrator
+    ? {
+        before: blueprint.narrator.name,
+        after: pickUniqueName({ ...options, slot: slot++, used }),
+      }
+    : null
+  const characterAssignments = blueprint.characters.map((character) => ({
+    before: character.name,
+    after: pickUniqueName({ ...options, slot: slot++, used }),
+  }))
+  const descriptionOrder = [
+    ...characterAssignments,
+    ...(narratorAssignment ? [narratorAssignment] : []),
+  ]
+  const pitchOrder = [
+    ...(narratorAssignment ? [narratorAssignment] : []),
+    ...(characterAssignments[0] ? [characterAssignments[0]] : []),
+  ]
 
   return {
     ...blueprint,
-    description: rewrite(blueprint.description),
-    pitch: rewrite(blueprint.pitch),
-    flavorText: rewrite(blueprint.flavorText),
-    artPrompt: rewrite(blueprint.artPrompt),
-    narrator: blueprint.narrator
-      ? {
-          ...blueprint.narrator,
-          name:
-            replacements.get(blueprint.narrator.name) ?? blueprint.narrator.name,
-          voice: rewrite(blueprint.narrator.voice),
-          artPrompt: rewrite(blueprint.narrator.artPrompt),
-        }
-      : null,
+    description: replaceSequence(blueprint.description, descriptionOrder),
+    pitch: replaceSequence(blueprint.pitch, pitchOrder),
+    flavorText: replaceSequence(blueprint.flavorText, descriptionOrder),
+    artPrompt: replaceSequence(blueprint.artPrompt, descriptionOrder),
+    narrator:
+      blueprint.narrator && narratorAssignment
+        ? {
+            ...blueprint.narrator,
+            name: narratorAssignment.after,
+            voice: replaceAll(blueprint.narrator.voice, narratorAssignment),
+            artPrompt: replaceAll(
+              blueprint.narrator.artPrompt,
+              narratorAssignment,
+            ),
+          }
+        : null,
     locations: blueprint.locations.map((location) => ({
       ...location,
-      description: rewrite(location.description),
+      description: replaceSequence(location.description, descriptionOrder),
     })),
-    characters: blueprint.characters.map((character) => ({
-      ...character,
-      name: replacements.get(character.name) ?? character.name,
-      personality: rewrite(character.personality),
-      quirks: rewrite(character.quirks),
-      backstory: rewrite(character.backstory),
-      artPrompt: rewrite(character.artPrompt),
-    })),
+    characters: blueprint.characters.map((character, index) => {
+      const assignment = characterAssignments[index]!
+      return {
+        ...character,
+        name: assignment.after,
+        personality: replaceAll(character.personality, assignment),
+        quirks: replaceAll(character.quirks, assignment),
+        backstory: replaceAll(character.backstory, assignment),
+        artPrompt: replaceAll(character.artPrompt, assignment),
+      }
+    }),
     rewards: blueprint.rewards.map((reward) => ({
       ...reward,
-      description: rewrite(reward.description),
-      effect: rewrite(reward.effect),
-      flavorText: rewrite(reward.flavorText),
-      artPrompt: rewrite(reward.artPrompt),
+      description: replaceSequence(reward.description, descriptionOrder),
+      effect: replaceSequence(reward.effect, descriptionOrder),
+      flavorText: replaceSequence(reward.flavorText, descriptionOrder),
+      artPrompt: replaceSequence(reward.artPrompt, descriptionOrder),
     })),
   }
 }

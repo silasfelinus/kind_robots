@@ -127,7 +127,7 @@ export const useVideoStore = defineStore('videoStore', () => {
       engine: params.engine,
       presetId: params.presetId ?? undefined,
       promptString: params.promptString,
-      negativePrompt: params.negativePrompt ?? undefined,
+      negativePrompt: params.negativePrompt ?? '',
       firstImageBase64: params.firstImageBase64,
       secondImageBase64: params.secondImageBase64 ?? undefined,
       durationSeconds: params.durationSeconds,

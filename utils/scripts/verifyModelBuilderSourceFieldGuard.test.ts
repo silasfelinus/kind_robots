@@ -7,13 +7,22 @@
 // dropped 'kind' column), the fixed shape, a titleField typo, and a
 // hydrated-summary field that's legitimately absent from the raw Facet
 // model but present on FacetSummary's own computed additions.
+//
+// Cycle 31 adds coverage for findSourceFieldTypeProblems() and its two new
+// helpers (extractScalarFieldTypes, extractEnumNames): a field can exist
+// (pass every check above) yet still be unrenderable, e.g. Scenario's real
+// subtitleField 'difficulty' is a Prisma `Int?` column that model-builder-
+// source-picker.vue's pre-fix subtitle() silently discarded.
 import assert from 'node:assert/strict'
 
 import {
+  extractEnumNames,
   extractFacetSummaryExtraFields,
   extractScalarFieldNames,
+  extractScalarFieldTypes,
   extractSourceFieldEntries,
   findSourceFieldProblems,
+  findSourceFieldTypeProblems,
 } from './verifyModelBuilderSourceFieldGuard.js'
 
 const SCHEMA_FIXTURE = `
@@ -31,6 +40,19 @@ model Facet {
   title     String  @db.VarChar(255)
   imagePath String? @db.Text
   User      User?   @relation(fields: [userId], references: [id])
+}
+
+model Scenario {
+  id         Int      @id @default(autoincrement())
+  title      String   @db.VarChar(255)
+  difficulty Int?
+  isActive   Boolean  @default(true)
+  outputType ScenarioType @default(STORY)
+}
+
+enum ScenarioType {
+  STORY
+  QUEST
 }
 `
 
@@ -93,6 +115,62 @@ export const SOURCE_TYPES: SourceTypeConfig[] = [
     titleField: 'nam',
     subtitleField: 'BotType',
     defaultRecipe: 'character-deck',
+  },
+]
+`
+
+// The real, live shape (model-builder/t-029, cycle 31): 'difficulty' is a
+// real Scenario column (findSourceFieldProblems sees no problem here), an
+// `Int?`, not a String -- must clear the type check now that subtitle()
+// renders finite numbers too.
+const SCENARIO_TYPE_INT_RECIPES_FIXTURE = `
+export const SOURCE_TYPES: SourceTypeConfig[] = [
+  {
+    key: 'Scenario',
+    label: 'Scenario',
+    titleField: 'title',
+    subtitleField: 'difficulty',
+    defaultRecipe: 'art-upgrade',
+  },
+]
+`
+
+// A String subtitleField clears the type check.
+const SCENARIO_TYPE_FIXED_RECIPES_FIXTURE = `
+export const SOURCE_TYPES: SourceTypeConfig[] = [
+  {
+    key: 'Scenario',
+    label: 'Scenario',
+    titleField: 'title',
+    subtitleField: 'title',
+    defaultRecipe: 'art-upgrade',
+  },
+]
+`
+
+// A genuinely non-renderable column (Boolean) must still be flagged.
+const SCENARIO_BOOLEAN_RECIPES_FIXTURE = `
+export const SOURCE_TYPES: SourceTypeConfig[] = [
+  {
+    key: 'Scenario',
+    label: 'Scenario',
+    titleField: 'title',
+    subtitleField: 'isActive',
+    defaultRecipe: 'art-upgrade',
+  },
+]
+`
+
+// A Prisma enum column (transports as a JSON string) must clear the check,
+// same as a real String column.
+const SCENARIO_ENUM_RECIPES_FIXTURE = `
+export const SOURCE_TYPES: SourceTypeConfig[] = [
+  {
+    key: 'Scenario',
+    label: 'Scenario',
+    titleField: 'title',
+    subtitleField: 'outputType',
+    defaultRecipe: 'art-upgrade',
   },
 ]
 `
@@ -190,10 +268,104 @@ assert.equal(
 assert.equal(titleTypoProblems[0]!.which, 'titleField')
 assert.equal(titleTypoProblems[0]!.field, 'nam')
 
+// --- extractScalarFieldTypes / extractEnumNames -----------------------------
+
+const scenarioTypes = extractScalarFieldTypes(SCHEMA_FIXTURE, 'Scenario')
+assert.equal(scenarioTypes.title, 'String')
+assert.equal(scenarioTypes.difficulty, 'Int')
+assert.equal(scenarioTypes.isActive, 'Boolean')
+assert.equal(scenarioTypes.outputType, 'ScenarioType')
+
+const enumNames = extractEnumNames(SCHEMA_FIXTURE)
+assert.ok(
+  enumNames.has('ScenarioType'),
+  `expected ScenarioType to be recognized as an enum, got: ${JSON.stringify([...enumNames])}`,
+)
+
+// --- findSourceFieldTypeProblems ---------------------------------------------
+
+// Int is renderable (model-builder-source-picker.vue's subtitle() was fixed
+// this same cycle to also stringify finite numbers) -- Scenario's real
+// subtitleField 'difficulty' must clear the type check post-fix, exactly
+// matching the live SOURCE_TYPES config this guard runs against in CI.
+const scenarioIntProblems = findSourceFieldTypeProblems(
+  SCHEMA_FIXTURE,
+  SCENARIO_TYPE_INT_RECIPES_FIXTURE,
+)
+assert.equal(
+  scenarioIntProblems.length,
+  0,
+  "expected Scenario's Int subtitleField 'difficulty' to raise no type " +
+    `problems now that the renderer handles numbers, got ` +
+    `${scenarioIntProblems.length}: ${JSON.stringify(scenarioIntProblems)}`,
+)
+
+const scenarioStringProblems = findSourceFieldTypeProblems(
+  SCHEMA_FIXTURE,
+  SCENARIO_TYPE_FIXED_RECIPES_FIXTURE,
+)
+assert.equal(
+  scenarioStringProblems.length,
+  0,
+  `expected a String subtitleField to raise no type problems, got: ` +
+    JSON.stringify(scenarioStringProblems),
+)
+
+const scenarioBooleanProblems = findSourceFieldTypeProblems(
+  SCHEMA_FIXTURE,
+  SCENARIO_BOOLEAN_RECIPES_FIXTURE,
+)
+assert.equal(
+  scenarioBooleanProblems.length,
+  1,
+  'expected a Boolean subtitleField to raise 1 type problem, got ' +
+    `${scenarioBooleanProblems.length}: ${JSON.stringify(scenarioBooleanProblems)}`,
+)
+assert.equal(scenarioBooleanProblems[0]!.fieldType, 'Boolean')
+
+const scenarioEnumProblems = findSourceFieldTypeProblems(
+  SCHEMA_FIXTURE,
+  SCENARIO_ENUM_RECIPES_FIXTURE,
+)
+assert.equal(
+  scenarioEnumProblems.length,
+  0,
+  'expected an enum subtitleField (transports as a string) to raise no ' +
+    `type problems, got: ${JSON.stringify(scenarioEnumProblems)}`,
+)
+
+// A field that doesn't exist at all is findSourceFieldProblems' job, not
+// this one's -- must not double-report the same root cause.
+const titleTypoTypeProblems = findSourceFieldTypeProblems(
+  SCHEMA_FIXTURE,
+  TITLE_FIELD_TYPO_FIXTURE,
+)
+assert.equal(
+  titleTypoTypeProblems.length,
+  0,
+  'expected a nonexistent field to raise 0 type problems (existence is ' +
+    `findSourceFieldProblems' job), got: ${JSON.stringify(titleTypoTypeProblems)}`,
+)
+
+// Facet is skipped entirely (hydrated summary, no raw schema column to
+// type-check) -- must not throw even though the fixture Facet model has no
+// 'kind'/'taxonomy' field at all.
+const facetTypeProblems = findSourceFieldTypeProblems(
+  SCHEMA_FIXTURE,
+  FIXED_RECIPES_FIXTURE,
+)
+assert.equal(
+  facetTypeProblems.length,
+  0,
+  `expected Facet to be skipped by the type check, got: ${JSON.stringify(facetTypeProblems)}`,
+)
+
 console.log(
   'Model Builder source-field guard checker verified: finds Bot.BotType ' +
     'and Facet.imagePath as real scalar fields, excludes relation fields, ' +
     "parses FacetSummary's hydrated additions, flags the pre-fix " +
-    'wrong-case/dropped-column shape, clears the fixed shape, and flags a ' +
-    'titleField typo.',
+    'wrong-case/dropped-column shape, clears the fixed shape, flags a ' +
+    'titleField typo, and (cycle 31) flags a real field whose Prisma type ' +
+    "(Boolean) the renderer can't turn into text while clearing " +
+    'renderable String/Int/enum-typed fields and skipping Facet entirely.',
 )

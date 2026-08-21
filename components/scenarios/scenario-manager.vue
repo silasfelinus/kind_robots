@@ -25,6 +25,15 @@
             <Icon name="kind-icon:book-open" class="size-4" />
             <span class="hidden sm:inline">Start a story with this</span>
           </button>
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm rounded-xl"
+            title="Brainstorm variations grounded in this Scenario"
+            @click="startBrainstormWithScenario"
+          >
+            <Icon name="kind-icon:brain" class="size-4" />
+            <span class="hidden sm:inline">Brainstorm variations</span>
+          </button>
         </div>
         <scenario-interact class="h-full min-h-0 flex-1 overflow-hidden" />
       </div>
@@ -116,6 +125,19 @@ function startStoryWithScenario(): void {
   const slug = scenarioStore.selectedScenario?.slug
   if (!slug) return
   void navigateTo({ path: '/storybook', query: { scenario: slug } })
+}
+
+function startBrainstormWithScenario(): void {
+  const scenario = scenarioStore.selectedScenario
+  if (!scenario?.id) return
+  void navigateTo({
+    path: '/brainstorm',
+    query: {
+      source: 'scenario',
+      sourceId: String(scenario.id),
+      intent: `Generate premise, plot-twist, and setting variations for "${scenario.title || 'this Scenario'}" that preserve its canonical tone.`,
+    },
+  })
 }
 
 async function loadManagerData(force = false) {

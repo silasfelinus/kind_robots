@@ -4,6 +4,7 @@ import { getServerEndpoint } from '../../../utils/serverResolver'
 import { manaGate } from '../../../utils/manaGate'
 import { requireApiUser } from '../../../utils/authGuard'
 import { estimateTextCostUsd } from '../../../utils/manaCost'
+import { safeFetch } from '../../../utils/safeFetch'
 import {
   assertProviderApiKey,
   buildChatRefId,
@@ -35,6 +36,10 @@ type AnthropicStreamBody = {
 }
 
 export default defineEventHandler(async (event) => {
+  // text-generation/t-005 -- see generate/text.post.ts's identical comment.
+  const abortController = new AbortController()
+  event.node.req.on('close', () => abortController.abort())
+
   try {
     const body = await readBody<AnthropicStreamBody>(event)
     const config = useRuntimeConfig()
@@ -100,11 +105,15 @@ export default defineEventHandler(async (event) => {
       bodyHasUserApiKey: Boolean(body.userApiKey),
     })
 
-    const upstream = await fetch(endpoint, {
-      method: 'POST',
-      headers: buildCloudProviderAuthHeaders('anthropic', apiKey),
-      body: JSON.stringify(payload),
-    })
+    const upstream = await safeFetch(
+      endpoint,
+      {
+        method: 'POST',
+        headers: buildCloudProviderAuthHeaders('anthropic', apiKey),
+        body: JSON.stringify(payload),
+      },
+      { signal: abortController.signal },
+    )
 
     if (!upstream.ok || !upstream.body) {
       const errText = await upstream.text().catch(() => '')
@@ -117,17 +126,23 @@ export default defineEventHandler(async (event) => {
 
     setStreamHeaders(event, 'text/event-stream')
 
-    return sendMeteredStream(event, upstream.body, 'anthropic', async () => {
-      const { balance } = await gate.commit(
-        buildChatRefId('anthropic', body.chatId),
-      )
+    return sendMeteredStream(
+      event,
+      upstream.body,
+      'anthropic',
+      async () => {
+        const { balance } = await gate.commit(
+          buildChatRefId('anthropic', body.chatId),
+        )
 
-      return {
-        balance,
-        charged: gate.cost,
-        free: gate.free,
-      }
-    })
+        return {
+          balance,
+          charged: gate.cost,
+          free: gate.free,
+        }
+      },
+      { abortController },
+    )
   } catch (error) {
     const statusCode = getErrorStatusCode(error)
     const message = error instanceof Error ? error.message : 'Unknown error'

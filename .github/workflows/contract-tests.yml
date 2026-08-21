@@ -806,6 +806,9 @@ jobs:
       - name: Text-generation dispatch contract
         run: npm run test:text-generation-dispatch
 
+      - name: Network safety (SSRF boundary) contract
+        run: npm run test:network-safety
+
       - name: Animation catalog contract
         run: npm run test:animation-catalog
 

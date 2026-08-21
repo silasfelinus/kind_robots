@@ -21,8 +21,13 @@
 // local per-route estimator, per the text-generation BRIEF.md's success
 // criteria ("exactly one cost-estimation code path is used for text
 // generation, not four").
+import { Buffer } from 'node:buffer'
 import { createError, setHeader, type H3Event } from 'h3'
 import type { Server } from '~/prisma/generated/prisma/client'
+import {
+  DEFAULT_IDLE_TIMEOUT_MS,
+  DEFAULT_MAX_RESPONSE_BYTES,
+} from './networkSafety'
 
 export type TextStreamManaResult = {
   balance: number
@@ -197,28 +202,95 @@ export function setStreamHeaders(event: H3Event, contentType: string): void {
   setHeader(event, 'X-Accel-Buffering', 'no')
 }
 
+export type SendMeteredStreamOptions = {
+  /** Total bytes relayed before the pump aborts the upstream stream and
+   * surfaces an `event: error` frame -- caps how much an upstream server
+   * (private/self-hosted, so not necessarily well-behaved) can make this
+   * process buffer/relay for one request. */
+  maxBytes?: number
+  /** Aborts the pump if no chunk arrives from upstream within this window --
+   * an upstream that accepts the connection but never sends (or stalls
+   * mid-stream) would otherwise hold the response open indefinitely. */
+  idleTimeoutMs?: number
+  /** Aborted when the pump gives up for any reason (idle timeout, size cap,
+   * client disconnect) so the upstream connection this controller's signal
+   * was given to (see `safeFetch`'s `signal` option) actually tears down
+   * instead of continuing to run/bill on the provider side unread. */
+  abortController?: AbortController
+}
+
+async function readChunkWithTimeout(
+  reader: ReadableStreamDefaultReader<Uint8Array>,
+  idleTimeoutMs: number,
+): Promise<ReadableStreamReadResult<Uint8Array>> {
+  let timer: ReturnType<typeof setTimeout>
+
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(
+      () =>
+        reject(
+          new Error(`Upstream response idle for over ${idleTimeoutMs}ms.`),
+        ),
+      idleTimeoutMs,
+    )
+  })
+
+  try {
+    return await Promise.race([reader.read(), timeout])
+  } finally {
+    clearTimeout(timer!)
+  }
+}
+
 /**
  * Relays the upstream byte stream to the client as-is, then appends the
  * synthetic `event: mana` trailer frame (or `event: error` if the pump or
  * `onComplete` -- the mana-gate commit -- throws). Identical across all three
  * routes today except for the console.error log label, which callers pass in
  * as `logLabel` so the failure is still attributable to its route.
+ *
+ * Enforces a response-size cap and a per-chunk idle timeout (text-generation
+ * /t-005), and tears down the upstream request if the client disconnects
+ * mid-stream (`event.node.req`'s `close` event) rather than continuing to
+ * relay/bill for a response nobody is reading.
  */
 export function sendMeteredStream(
   event: H3Event,
   body: ReadableStream<Uint8Array>,
   logLabel: string,
   onComplete: () => Promise<TextStreamManaResult>,
+  options: SendMeteredStreamOptions = {},
 ): Promise<never> {
   const reader = body.getReader()
   const res = event.node.res
+  const maxBytes = options.maxBytes ?? DEFAULT_MAX_RESPONSE_BYTES
+  const idleTimeoutMs = options.idleTimeoutMs ?? DEFAULT_IDLE_TIMEOUT_MS
+  let bytesReceived = 0
+
+  const onClientDisconnect = () => {
+    options.abortController?.abort()
+    reader.cancel().catch(() => {})
+  }
+
+  event.node.req.on('close', onClientDisconnect)
 
   const pump = async () => {
     try {
       while (true) {
-        const { done, value } = await reader.read()
+        const { done, value } = await readChunkWithTimeout(
+          reader,
+          idleTimeoutMs,
+        )
 
         if (done) break
+
+        bytesReceived += value.byteLength
+
+        if (bytesReceived > maxBytes) {
+          throw new Error(
+            `Upstream ${logLabel} response exceeded ${maxBytes} bytes; aborted.`,
+          )
+        }
 
         res.write(value)
       }
@@ -232,6 +304,8 @@ export function sendMeteredStream(
       )
     } catch (err) {
       console.error(`[${logLabel} stream pump] error:`, err)
+      options.abortController?.abort()
+      reader.cancel().catch(() => {})
 
       res.write(
         `event: error\ndata: ${JSON.stringify({
@@ -240,6 +314,7 @@ export function sendMeteredStream(
         })}\n\n`,
       )
     } finally {
+      event.node.req.off('close', onClientDisconnect)
       res.end()
     }
   }
@@ -247,6 +322,48 @@ export function sendMeteredStream(
   pump()
 
   return new Promise(() => {})
+}
+
+/**
+ * Reads a one-shot (non-streaming) upstream JSON response with the same
+ * response-size cap `sendMeteredStream` enforces for streaming responses --
+ * `response.json()` alone has no size limit and would happily buffer an
+ * unbounded body before parsing.
+ */
+export async function readJsonWithSizeCap(
+  response: Response,
+  maxBytes: number = DEFAULT_MAX_RESPONSE_BYTES,
+): Promise<unknown> {
+  if (!response.body) {
+    return response.json()
+  }
+
+  const reader = response.body.getReader()
+  const chunks: Uint8Array[] = []
+  let total = 0
+
+  while (true) {
+    const { done, value } = await reader.read()
+
+    if (done) break
+
+    total += value.byteLength
+
+    if (total > maxBytes) {
+      await reader.cancel().catch(() => {})
+
+      throw createError({
+        statusCode: 502,
+        message: `Upstream response exceeded ${maxBytes} bytes.`,
+      })
+    }
+
+    chunks.push(value)
+  }
+
+  const combined = Buffer.concat(chunks.map((chunk) => Buffer.from(chunk)))
+
+  return JSON.parse(combined.toString('utf-8'))
 }
 
 export function getErrorStatusCode(error: unknown): number {

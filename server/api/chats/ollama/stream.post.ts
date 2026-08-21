@@ -4,6 +4,7 @@ import { getServerEndpoint, resolveServer } from '../../../utils/serverResolver'
 import { manaGate } from '../../../utils/manaGate'
 import { requireApiUser } from '../../../utils/authGuard'
 import { estimateTextCostUsd } from '../../../utils/manaCost'
+import { safeFetch } from '../../../utils/safeFetch'
 import {
   buildChatRefId,
   buildTextServerAuthHeaders,
@@ -29,6 +30,10 @@ type OllamaStreamBody = {
 }
 
 export default defineEventHandler(async (event) => {
+  // text-generation/t-005 -- see generate/text.post.ts's identical comment.
+  const abortController = new AbortController()
+  event.node.req.on('close', () => abortController.abort())
+
   try {
     const body = await readBody<OllamaStreamBody>(event)
     const config = useRuntimeConfig()
@@ -57,6 +62,13 @@ export default defineEventHandler(async (event) => {
     const resolvedEndpoint = getServerEndpoint(server)
     const fallbackBaseUrl = String(config.ollamaBaseUrl || '').trim()
     const baseUrl = resolvedEndpoint || fallbackBaseUrl
+    // text-generation/t-005 -- `resolvedEndpoint` comes from a DB-stored
+    // `Server.baseUrl`, settable by any authenticated user (see
+    // networkSafety.ts's module doc), so loopback stays blocked for it.
+    // `fallbackBaseUrl` is `config.ollamaBaseUrl`, an operator-set env var
+    // (nuxt.config.ts defaults it to `http://localhost:11434`) -- not
+    // attacker-influenced, so loopback is allowed only on this path.
+    const usingOperatorFallback = !resolvedEndpoint
 
     if (!baseUrl) {
       throw createError({
@@ -90,11 +102,15 @@ export default defineEventHandler(async (event) => {
       free: gate.free,
     })
 
-    const upstream = await fetch(endpoint, {
-      method: 'POST',
-      headers: buildTextServerAuthHeaders(server),
-      body: JSON.stringify(payload),
-    })
+    const upstream = await safeFetch(
+      endpoint,
+      {
+        method: 'POST',
+        headers: buildTextServerAuthHeaders(server),
+        body: JSON.stringify(payload),
+      },
+      { signal: abortController.signal, allowLoopback: usingOperatorFallback },
+    )
 
     if (!upstream.ok || !upstream.body) {
       const errText = await upstream.text().catch(() => '')
@@ -107,17 +123,23 @@ export default defineEventHandler(async (event) => {
 
     setStreamHeaders(event, 'application/x-ndjson')
 
-    return sendMeteredStream(event, upstream.body, 'ollama', async () => {
-      const { balance } = await gate.commit(
-        buildChatRefId('ollama', body.chatId),
-      )
+    return sendMeteredStream(
+      event,
+      upstream.body,
+      'ollama',
+      async () => {
+        const { balance } = await gate.commit(
+          buildChatRefId('ollama', body.chatId),
+        )
 
-      return {
-        balance,
-        charged: gate.cost,
-        free: gate.free,
-      }
-    })
+        return {
+          balance,
+          charged: gate.cost,
+          free: gate.free,
+        }
+      },
+      { abortController },
+    )
   } catch (error) {
     const statusCode = getErrorStatusCode(error)
     const message = error instanceof Error ? error.message : 'Unknown error'

@@ -15,6 +15,7 @@ import { createError, defineEventHandler, readBody } from 'h3'
 import { manaGate } from '../../utils/manaGate'
 import { requireApiUser } from '../../utils/authGuard'
 import { estimateTextCostUsd } from '../../utils/manaCost'
+import { safeFetch } from '../../utils/safeFetch'
 import {
   assertProviderApiKey,
   buildChatRefId,
@@ -23,6 +24,7 @@ import {
   getErrorStatusCode,
   getRuntimeAnthropicKey,
   getRuntimeOpenAiKey,
+  readJsonWithSizeCap,
   resolveApiKeyPrecedence,
   sendMeteredStream,
   setStreamHeaders,
@@ -65,6 +67,15 @@ type GenerateTextBody = {
 }
 
 export default defineEventHandler(async (event) => {
+  // text-generation/t-005 -- tied to `safeFetch`'s `signal` option so a
+  // client that disconnects (navigates away, clicks "stop") tears down the
+  // in-flight upstream request instead of running/billing to completion
+  // unread. `sendMeteredStream` also registers its own `close` listener on
+  // this same controller for the streaming branch below; both calling
+  // `.abort()` is harmless (idempotent).
+  const abortController = new AbortController()
+  event.node.req.on('close', () => abortController.abort())
+
   try {
     const body = await readBody<GenerateTextBody>(event)
     const config = useRuntimeConfig()
@@ -141,11 +152,15 @@ export default defineEventHandler(async (event) => {
       providerKeyLength: apiKeyLength,
     })
 
-    const upstream = await fetch(endpoint, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(payload),
-    })
+    const upstream = await safeFetch(
+      endpoint,
+      {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload),
+      },
+      { signal: abortController.signal },
+    )
 
     if (!upstream.ok || (stream && !upstream.body)) {
       const errText = await upstream.text().catch(() => '')
@@ -164,14 +179,20 @@ export default defineEventHandler(async (event) => {
         provider === 'ollama' ? 'application/x-ndjson' : 'text/event-stream',
       )
 
-      return sendMeteredStream(event, upstream.body!, provider, async () => {
-        const { balance } = await gate.commit(refId)
+      return sendMeteredStream(
+        event,
+        upstream.body!,
+        provider,
+        async () => {
+          const { balance } = await gate.commit(refId)
 
-        return { balance, charged: gate.cost, free: gate.free }
-      })
+          return { balance, charged: gate.cost, free: gate.free }
+        },
+        { abortController },
+      )
     }
 
-    const raw = await upstream.json()
+    const raw = await readJsonWithSizeCap(upstream)
     const normalized = parseGenerationResponse(provider, raw)
     const { balance } = await gate.commit(refId)
 

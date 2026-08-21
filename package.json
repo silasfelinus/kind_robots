@@ -289,6 +289,8 @@
     "test:model-builder-fetch-runs-staleness-guard": "tsx utils/scripts/verifyModelBuilderFetchRunsStalenessGuard.ts",
     "test:model-builder-open-run-request-guard-selftest": "tsx utils/scripts/verifyModelBuilderOpenRunRequestGuard.test.ts",
     "test:model-builder-open-run-request-guard": "tsx utils/scripts/verifyModelBuilderOpenRunRequestGuard.ts",
+    "test:model-builder-open-run-cancelled-guard-selftest": "tsx utils/scripts/verifyModelBuilderOpenRunCancelledGuard.test.ts",
+    "test:model-builder-open-run-cancelled-guard": "tsx utils/scripts/verifyModelBuilderOpenRunCancelledGuard.ts",
     "test:model-builder-async-fetch-staleness-coverage-selftest": "tsx utils/scripts/verifyModelBuilderAsyncFetchStalenessCoverage.test.ts",
     "test:model-builder-async-fetch-staleness-coverage": "tsx utils/scripts/verifyModelBuilderAsyncFetchStalenessCoverage.ts",
     "test:model-builder-commit-asset-attachable-guard-selftest": "tsx utils/scripts/verifyModelBuilderCommitAssetAttachableGuard.test.ts",

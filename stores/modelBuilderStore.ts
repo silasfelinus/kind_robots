@@ -1525,6 +1525,19 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   // generateItemAsset as the synchronous "art first, interactively" option.
 
   const ASYNC_ART_POLL_MS = 5_000
+  // getArtJobStatus returns null for BOTH "job not started yet" and "the
+  // status fetch itself failed" (performFetch never throws -- a network
+  // blip, an expired session's 401, the store-wide circuit breaker being
+  // open, or a genuine 404 all collapse to the same null). Before this fix,
+  // pollAsyncArtJob treated every null identically to a real PENDING status,
+  // so a *persistent* fetch failure (e.g. the user's JWT expiring mid-render)
+  // looped forever every ASYNC_ART_POLL_MS with no retry cap, no timeout, and
+  // no error ever surfaced -- the item sat at "queued" indefinitely with
+  // nothing to tell the user (or the server) anything was wrong, even if the
+  // underlying ArtJob had long since finished. This caps consecutive fetch
+  // failures before falling through to the same error-recovery path already
+  // used a few lines below for a genuine terminal job failure.
+  const MAX_CONSECUTIVE_POLL_FAILURES = 6 // ~30s of failed status checks
 
   async function pollAsyncArtJob(
     item: BuildItem,
@@ -1536,6 +1549,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     runId: string,
   ): Promise<void> {
     const artStore = useArtStore()
+    let consecutivePollFailures = 0
 
     // If another call re-queues this item (or the item is dropped from the
     // run), item.artJobId will no longer match — stop, the newer poll (or
@@ -1545,8 +1559,33 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
 
       if (item.artJobId !== jobId) return
 
-      if (!job || job.status === 'PENDING' || job.status === 'RUNNING') {
-        item.queueState = job?.status === 'RUNNING' ? 'rendering' : 'queued'
+      if (!job) {
+        consecutivePollFailures += 1
+        if (consecutivePollFailures < MAX_CONSECUTIVE_POLL_FAILURES) {
+          item.queueState = 'queued'
+          finishGenerateAssets(item, {
+            status: 'in-progress',
+            note: item.queueState,
+          })
+          await new Promise((resolve) => setTimeout(resolve, ASYNC_ART_POLL_MS))
+          continue
+        }
+        // Too many consecutive failed status checks to keep treating this as
+        // "still queued" -- fall through to the same terminal-failure
+        // handling used below for a genuine DONE/FAILED job, so the item
+        // doesn't sit stuck at "queued" forever with no error surfaced.
+        item.artJobId = null
+        item.queueState = null
+        item.error = `Lost track of art job ${jobId} after ${consecutivePollFailures} failed status checks.`
+        finishGenerateAssets(item, { status: 'ready', note: item.error })
+        setStatusForRun(runId, 'error', item.error)
+        pushItem(item, { error: item.error })
+        return
+      }
+      consecutivePollFailures = 0
+
+      if (job.status === 'PENDING' || job.status === 'RUNNING') {
+        item.queueState = job.status === 'RUNNING' ? 'rendering' : 'queued'
         finishGenerateAssets(item, {
           status: 'in-progress',
           note: item.queueState,

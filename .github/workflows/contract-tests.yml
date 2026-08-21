@@ -443,6 +443,12 @@ jobs:
       - name: Model Builder commit name-width guard contract
         run: npm run test:model-builder-commit-name-width-guard
 
+      - name: Model Builder async poll-failure guard checker self-test
+        run: npm run test:model-builder-async-poll-failure-guard-selftest
+
+      - name: Model Builder async poll-failure guard contract
+        run: npm run test:model-builder-async-poll-failure-guard
+
       - name: Model Builder Dream-type choices guard checker self-test
         run: npm run test:model-builder-dream-type-choices-guard-selftest
 

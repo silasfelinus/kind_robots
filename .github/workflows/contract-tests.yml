@@ -461,6 +461,18 @@ jobs:
       - name: Video job poll-failure guard contract
         run: npm run test:video-job-poll-failure-guard
 
+      - name: Build Bench poll-failure guard checker self-test
+        run: npm run test:build-bench-poll-failure-guard-selftest
+
+      - name: Build Bench poll-failure guard contract
+        run: npm run test:build-bench-poll-failure-guard
+
+      - name: Brainstorm art poll-failure guard checker self-test
+        run: npm run test:brainstorm-art-poll-failure-guard-selftest
+
+      - name: Brainstorm art poll-failure guard contract
+        run: npm run test:brainstorm-art-poll-failure-guard
+
       - name: Model Builder Dream-type choices guard checker self-test
         run: npm run test:model-builder-dream-type-choices-guard-selftest
 

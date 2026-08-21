@@ -891,6 +891,7 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
   }
 
   const ART_JOB_POLL_MS = 5_000
+  const MAX_CONSECUTIVE_ART_JOB_POLL_FAILURES = 6 // ~30s of failed status checks
 
   function artQueueSleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms))
@@ -974,13 +975,42 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
         if (enqueued.data) generateData = enqueued.data
       }
 
+      // getArtJobStatus() resolves to `null` for BOTH "job not started yet"
+      // and "the status fetch itself failed" (it never throws -- a network
+      // blip, an expired session's 401, the store-wide circuit breaker being
+      // open, or a genuine 404 all collapse to the same null). Before this
+      // fix, that null fell through to the same "keep polling" branch as a
+      // genuine PENDING status with no retry cap and no timeout, so a
+      // *persistent* fetch failure left this loop's awaited promise never
+      // resolving or rejecting -- the enclosing try/catch/finally never ran,
+      // so the candidate sat "generating" forever with nothing surfaced to
+      // the user. Caps consecutive non-terminal outcomes (null or PENDING)
+      // before giving up, mirroring the sibling fix already applied to
+      // artStore.ts's waitForQueuedArtJob, modelBuilderStore.ts's
+      // pollAsyncArtJob, videoStore.ts's waitForJob, and
+      // buildBenchStore.ts's pollJob.
+      let consecutivePollFailures = 0
       while (true) {
         const job = await artStore.getArtJobStatus(jobId)
-        if (!job || job.status === 'PENDING') {
+        if (!job) {
+          consecutivePollFailures += 1
+          if (
+            consecutivePollFailures >= MAX_CONSECUTIVE_ART_JOB_POLL_FAILURES
+          ) {
+            throw new Error(
+              `Lost track of art job ${jobId} after ${consecutivePollFailures} failed status checks.`,
+            )
+          }
+          await artQueueSleep(ART_JOB_POLL_MS)
+          continue
+        }
+        if (job.status === 'PENDING') {
+          consecutivePollFailures = 0
           await artQueueSleep(ART_JOB_POLL_MS)
           continue
         }
         if (job.status === 'RUNNING') {
+          consecutivePollFailures = 0
           markCandidateArtProcessing(candidate)
           await artQueueSleep(ART_JOB_POLL_MS)
           continue

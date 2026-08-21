@@ -293,6 +293,23 @@ export function createStorybookLibraryController(bridge: StorybookLibraryBridge)
     const duplicate = remapDuplicate(source)
     upsert(duplicate)
     bridge.setSession(duplicate)
+    // remapDuplicate() deliberately carries a 'queued'/'rendering' beat's real
+    // jobId forward onto the duplicate (rekeyed identity, same jobId -- see
+    // its own comment: "resume() polls purely by jobId with no
+    // re-submission"). But setSession() alone never starts that polling --
+    // openStory() and restoreFromLocalStorage() both call
+    // resumeNarrativeArtJobs() right after swapping the active session in for
+    // exactly this reason, and duplicateStory() was the one caller of
+    // setSession() that didn't. Without it, a beat duplicated while its
+    // illustration was still in flight (routine: the Duplicate button enables
+    // the moment isWeaving() goes false, long before that beat's background
+    // art job resolves) never gets polled again on the new duplicate session
+    // -- NarrativeArtStatus is left showing "queued"/"rendering" forever,
+    // with no retry affordance (retry only appears once a job fails), even
+    // though the real job keeps rendering server-side. Only an unrelated page
+    // reload (which re-runs resumeNarrativeArtJobs() via
+    // restoreFromLocalStorage()) would ever pick it back up.
+    bridge.resumeNarrativeArtJobs()
     return duplicate.id
   }
 

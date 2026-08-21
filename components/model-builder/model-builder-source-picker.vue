@@ -264,11 +264,27 @@ const activeType = computed(() =>
   store.sourceType ? getSourceType(store.sourceType) : undefined,
 )
 
+// Bug (model-builder/t-029, cycle 31): this only ever rendered a string
+// value, but not every SOURCE_TYPES subtitleField is a string column --
+// Scenario's is 'difficulty' (Prisma `Int?`, see prisma/schema.prisma),
+// which transports over JSON as a genuine number, not a string. The field
+// exists and is exactly what was intended (cycle 22's own
+// verifyModelBuilderSourceFieldGuard.ts only checks that the named field is
+// a real property, never its type), so `typeof value === 'string'` silently
+// discarded it -- every Scenario record's Grid/List secondary line has been
+// permanently blank since Scenario was added as a source type, the same
+// user-visible failure mode cycle 22 fixed for Bot/Facet, just reached
+// through a type mismatch instead of a stale/miscased field name. Rendering
+// finite numbers too (Prisma enum columns like Dream.dreamType/
+// Reward.rewardType already worked here -- they transport as plain JSON
+// strings) fixes Scenario without touching which field it points at.
 function subtitle(record: SourceRecord): string {
   const field = activeType.value?.subtitleField
   if (!field) return ''
   const value = record[field]
-  return typeof value === 'string' ? value : ''
+  if (typeof value === 'string') return value
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value)
+  return ''
 }
 
 // Resolve a record's existing art for the source thumbnail, checking the common

@@ -29,6 +29,21 @@
 // computed additions, parsed from the FacetSummary type in
 // server/utils/facetAssignments.ts so a future summary-shape change keeps
 // this guard honest without a hand-maintained duplicate field list.
+//
+// Extended cycle 31 with a second, narrower check (findSourceFieldTypeProblems):
+// a field can be real (pass everything above) yet still render permanently
+// blank if its Prisma type isn't one sourceLabel()/subtitle() can turn into
+// text -- found by inspection: Scenario's subtitleField is 'difficulty',
+// which is a real column (`difficulty Int?`), but both renderers only ever
+// checked `typeof value === 'string'`, so the JS number every Scenario
+// record's difficulty transports as was silently discarded -- the same
+// user-visible "permanently blank Grid/List subtitle" outcome as the
+// wrong-name bugs above, just reached through a type mismatch on an
+// otherwise-correct field name instead. Fixed both model-builder-source-
+// picker.vue's subtitle() (now also renders finite numbers) and added this
+// second check so a future SOURCE_TYPES entry pointed at a column whose
+// runtime value the renderer still can't handle (Boolean/DateTime/Json/
+// BigInt/Bytes/Decimal) fails the same way a nonexistent field already does.
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -49,6 +64,19 @@ const FACET_ASSIGNMENTS_PATH = join(
 // Facet's list endpoint hydrates a computed summary rather than returning a
 // raw Facet row -- see FACET_ASSIGNMENTS_PATH's FacetSummary type.
 const HYDRATED_SUMMARY_SOURCE_TYPES = new Set(['Facet'])
+
+// Base Prisma scalar types model-builder-source-picker.vue's sourceLabel()/
+// subtitle() can actually turn into visible text (cycle 31): both do a plain
+// `typeof value === 'string' | 'number'` check on the JSON-transported
+// value. String is the obvious case; Int/Float genuinely round-trip as JS
+// numbers. Everything else Prisma can declare on a scalar column --
+// Boolean, DateTime, Json, BigInt, Bytes, Decimal -- is a real column
+// findSourceFieldProblems above happily accepts (it exists!) but whose
+// runtime value that pair of typeof checks silently discards. Prisma enum
+// types are handled separately in findSourceFieldTypeProblems below (they
+// transport as strings, but aren't named here since enum names vary and
+// live in the schema's own `enum` blocks, not this fixed base-type list).
+const RENDERABLE_SCALAR_TYPES = new Set(['String', 'Int', 'Float'])
 
 export interface SourceFieldEntry {
   key: string
@@ -139,6 +167,47 @@ export function extractScalarFieldNames(
   return names
 }
 
+// Field name -> declared Prisma type (nullable `?` stripped) for the same
+// scalar columns extractScalarFieldNames above finds -- added cycle 31 to
+// support findSourceFieldTypeProblems below, which needs to know not just
+// THAT a named field exists but WHAT type it is.
+export function extractScalarFieldTypes(
+  schemaContent: string,
+  modelName: string,
+): Record<string, string> {
+  const block = findModelBlock(schemaContent, modelName)
+  if (!block) {
+    throw new Error(
+      `Could not find model ${modelName} in prisma/schema.prisma -- has it ` +
+        'been renamed?',
+    )
+  }
+  const types: Record<string, string> = {}
+  for (const line of block.split('\n')) {
+    const match = line.match(/^\s*(\w+)\s+([\w[\].?]+)(.*)$/)
+    if (!match) continue
+    const [, fieldName, rawType, rest] = match
+    if (!fieldName || !rawType) continue
+    if (rawType.endsWith('[]')) continue // list relation
+    if (rest && rest.includes('@relation')) continue // single relation object
+    types[fieldName] = rawType.replace(/\?$/, '')
+  }
+  return types
+}
+
+// Every `enum X { ... }` name declared in the schema. A Prisma enum column
+// (e.g. Dream.dreamType: DreamType, Reward.rewardType: RewardType) still
+// transports as a plain JSON string at runtime -- the enum only constrains
+// which strings are valid -- so it renders in model-builder-source-picker.vue
+// exactly as well as a real String column does.
+export function extractEnumNames(schemaContent: string): Set<string> {
+  const names = new Set<string>()
+  for (const match of schemaContent.matchAll(/^enum\s+(\w+)\s*\{/gm)) {
+    names.add(match[1]!)
+  }
+  return names
+}
+
 // The computed fields hydrateFacetSummaries adds on top of the raw scalar
 // Facet columns -- parsed from FacetSummary's own `& { ... }` type literal
 // so a future summary-shape change (a field renamed or removed) keeps this
@@ -202,6 +271,59 @@ export function findSourceFieldProblems(
   return problems
 }
 
+export interface SourceFieldTypeProblem {
+  key: string
+  field: string
+  which: 'titleField' | 'subtitleField'
+  fieldType: string
+}
+
+// Complements findSourceFieldProblems above: that function only asks "does
+// this field exist?" -- it happily accepts Scenario's subtitleField:
+// 'difficulty' since Scenario.difficulty is a real column
+// (prisma/schema.prisma: `difficulty Int?`). This asks the second question
+// (model-builder/t-029, cycle 31): "is the renderer that reads it able to
+// turn its runtime value into visible text?" A field that exists but is
+// e.g. Boolean/DateTime/Json/BigInt/Bytes/Decimal passes the existence
+// check yet still renders permanently blank, exactly like a missing field
+// does -- see model-builder-source-picker.vue's subtitle()/store.sourceLabel().
+// Skips HYDRATED_SUMMARY_SOURCE_TYPES (Facet): its list endpoint returns a
+// computed FacetSummary, not raw Prisma columns, so there's no schema column
+// type to check here -- findSourceFieldProblems' allowedFields check (which
+// already covers FacetSummary's computed fields) is all that applies to it.
+export function findSourceFieldTypeProblems(
+  schemaContent: string,
+  recipesFileContent: string,
+): SourceFieldTypeProblem[] {
+  const entries = extractSourceFieldEntries(recipesFileContent)
+  const enumNames = extractEnumNames(schemaContent)
+  const problems: SourceFieldTypeProblem[] = []
+
+  for (const entry of entries) {
+    if (HYDRATED_SUMMARY_SOURCE_TYPES.has(entry.key)) continue
+    const fieldTypes = extractScalarFieldTypes(schemaContent, entry.key)
+
+    const checks: Array<['titleField' | 'subtitleField', string | undefined]> =
+      [
+        ['titleField', entry.titleField],
+        ['subtitleField', entry.subtitleField],
+      ]
+    for (const [which, field] of checks) {
+      if (!field) continue
+      const fieldType = fieldTypes[field]
+      // A field that doesn't exist at all is findSourceFieldProblems' job to
+      // report, not this one's -- avoid a redundant/misleading second
+      // problem for the exact same root cause.
+      if (!fieldType) continue
+      if (RENDERABLE_SCALAR_TYPES.has(fieldType) || enumNames.has(fieldType))
+        continue
+      problems.push({ key: entry.key, field, which, fieldType })
+    }
+  }
+
+  return problems
+}
+
 function main(): void {
   const schemaContent = readFileSync(SCHEMA_PATH, 'utf8')
   const recipesFileContent = readFileSync(MODEL_BUILDER_RECIPES_PATH, 'utf8')
@@ -211,6 +333,11 @@ function main(): void {
     schemaContent,
     recipesFileContent,
     facetAssignmentsContent,
+  )
+
+  const typeProblems = findSourceFieldTypeProblems(
+    schemaContent,
+    recipesFileContent,
   )
 
   if (problems.length) {
@@ -233,10 +360,30 @@ function main(): void {
     return
   }
 
+  if (typeProblems.length) {
+    console.error(
+      `Model Builder source-field contract failed: ${typeProblems.length} ` +
+        'SOURCE_TYPES entry(s) in stores/helpers/modelBuilderRecipes.ts ' +
+        'name a field that exists but whose Prisma type ' +
+        "model-builder-source-picker.vue's renderer can't turn into text:",
+    )
+    for (const problem of typeProblems) {
+      console.error(
+        `- ${problem.key}.${problem.which} = '${problem.field}' is a ` +
+          `${problem.fieldType} column -- model-builder-source-picker.vue's ` +
+          `${problem.which === 'titleField' ? 'store.sourceLabel()' : 'subtitle()'} ` +
+          `only renders String/Int/Float/enum values, so this will silently ` +
+          `render blank for every ${problem.key} record.`,
+      )
+    }
+    process.exitCode = 1
+    return
+  }
+
   console.log(
     'Model Builder source-field contract passed: every SOURCE_TYPES ' +
-      'titleField/subtitleField names a real property of what its source ' +
-      "type's list endpoint actually returns.",
+      'titleField/subtitleField names a real, renderable property of what ' +
+      "its source type's list endpoint actually returns.",
   )
 }
 

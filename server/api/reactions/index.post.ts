@@ -55,6 +55,10 @@ const REACTION_CREATE_FIELDS = new Set([
 
 const validReactionTypes = Object.values(ReactionType)
 const validReactionCategories = Object.values(Reaction_reactionCategory)
+// Raw request strings, not enum members -- BUTTERFLY is no longer a
+// Reaction_reactionCategory (20260821230000_retire_butterfly_reaction_target)
+// but a client can still post the word, and a named 400 beats falling through
+// to the generic "invalid category" path.
 const retiredReactionCategories = new Set<string>(['BUTTERFLY', 'COMPONENT'])
 
 const reactionCategoryAliases: Record<string, Reaction_reactionCategory> = {
@@ -238,8 +242,10 @@ function getExpectedTargetField(
     // @@unique([userId, challengeSubmissionId]) makes it one row per user --
     // a vote, not a comment thread.
     [Reaction_reactionCategory.CHALLENGE_SUBMISSION]: null,
-    // Retired earlier in the request by retiredReactionCategories.
-    [Reaction_reactionCategory.BUTTERFLY]: null,
+    // Retired earlier in the request by retiredReactionCategories. BUTTERFLY
+    // used to need an entry here too; it left the enum in
+    // 20260821230000_retire_butterfly_reaction_target, so naming it now would
+    // not compile.
     [Reaction_reactionCategory.COMPONENT]: null,
   }
 

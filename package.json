@@ -237,6 +237,8 @@
     "test:model-builder-async-poll-failure-guard": "tsx utils/scripts/verifyModelBuilderAsyncPollFailureGuard.ts",
     "test:art-queue-poll-failure-guard-selftest": "tsx utils/scripts/verifyArtQueuePollFailureGuard.test.ts",
     "test:art-queue-poll-failure-guard": "tsx utils/scripts/verifyArtQueuePollFailureGuard.ts",
+    "test:video-job-poll-failure-guard-selftest": "tsx utils/scripts/verifyVideoJobPollFailureGuard.test.ts",
+    "test:video-job-poll-failure-guard": "tsx utils/scripts/verifyVideoJobPollFailureGuard.ts",
     "test:model-builder-dream-type-choices-guard-selftest": "tsx utils/scripts/verifyModelBuilderDreamTypeChoicesGuard.test.ts",
     "test:model-builder-dream-type-choices-guard": "tsx utils/scripts/verifyModelBuilderDreamTypeChoicesGuard.ts",
     "test:model-builder-commit-stale-snapshot-guard-selftest": "tsx utils/scripts/verifyModelBuilderCommitStaleSnapshotGuard.test.ts",

@@ -455,6 +455,12 @@ jobs:
       - name: Art queue poll-failure guard contract
         run: npm run test:art-queue-poll-failure-guard
 
+      - name: Video job poll-failure guard checker self-test
+        run: npm run test:video-job-poll-failure-guard-selftest
+
+      - name: Video job poll-failure guard contract
+        run: npm run test:video-job-poll-failure-guard
+
       - name: Model Builder Dream-type choices guard checker self-test
         run: npm run test:model-builder-dream-type-choices-guard-selftest
 

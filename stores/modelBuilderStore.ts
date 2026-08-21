@@ -1517,9 +1517,13 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
 
   // --- GENERATE_ASSETS (async): queue via ArtJob, poll per item -------------
   //
-  // generateItemAsset above blocks the whole call on the render (up to
-  // ART_QUEUE_TIMEOUT_MS). This is the "normal" async path from the roadmap
-  // note: enqueue, store the jobId on the item, poll independently so
+  // generateItemAsset above blocks the whole call on the render via
+  // artStore's waitForQueuedArtJob, which gives up after
+  // MAX_CONSECUTIVE_QUEUE_POLL_FAILURES consecutive failed status checks but
+  // otherwise polls for as long as the job stays PENDING/RUNNING -- there is
+  // no separate overall wall-clock timeout constant. This is the "normal"
+  // async path from the roadmap note: enqueue, store the jobId on the item,
+  // poll independently so
   // multiple items can be in flight at once with their own queued/rendering
   // state, and promote the image once the job finishes. Keeps
   // generateItemAsset as the synchronous "art first, interactively" option.

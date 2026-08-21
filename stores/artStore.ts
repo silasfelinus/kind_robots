@@ -1690,7 +1690,23 @@ export const useArtStore = defineStore('artStore', () => {
     return response.data.jobId
   }
 
+  // getArtJobStatus's own fetch (mirrored inline here rather than reused, so
+  // this loop controls its own retry/timeout budget) returns a null job for
+  // BOTH "job not started yet" and "the status fetch itself failed"
+  // (performFetch never throws -- a network blip, an expired session's 401,
+  // the store-wide circuit breaker being open, or a genuine 404 all collapse
+  // to the same null). Before this fix, that null fell through to the same
+  // "keep polling" branch as a genuine PENDING/RUNNING status with no retry
+  // cap and no timeout, so a *persistent* fetch failure (e.g. the user's JWT
+  // expiring mid-render) looped forever every ART_QUEUE_POLL_MS -- this
+  // await never resolved or rejected, so generateArt's own try/catch never
+  // ran and the caller was left awaiting indefinitely with nothing surfaced.
+  // Caps consecutive failed status checks before giving up, matching the
+  // sibling fix already applied to modelBuilderStore.ts's pollAsyncArtJob.
+  const MAX_CONSECUTIVE_QUEUE_POLL_FAILURES = 6 // ~30s of failed status checks
+
   async function waitForQueuedArtJob(jobId: number): Promise<QueuedArtJob> {
+    let consecutivePollFailures = 0
     while (true) {
       const response = await performFetch<{ job: QueuedArtJob }>(
         `/api/art/queue/${jobId}`,
@@ -1708,6 +1724,14 @@ export const useArtStore = defineStore('artStore', () => {
       }
       if (job?.status === 'PENDING' || job?.status === 'RUNNING') {
         state.queueState = job.status === 'RUNNING' ? 'rendering' : 'queued'
+        consecutivePollFailures = 0
+      } else {
+        consecutivePollFailures += 1
+        if (consecutivePollFailures >= MAX_CONSECUTIVE_QUEUE_POLL_FAILURES) {
+          throw new Error(
+            `Lost track of art job ${jobId} after ${consecutivePollFailures} failed status checks.`,
+          )
+        }
       }
       await queueSleep(ART_QUEUE_POLL_MS)
     }

@@ -110,7 +110,7 @@ assert.ok(
     'has it been renamed or restructured?',
 )
 assert.ok(
-  startNewStoryMatch[1].includes('newStoryArmed.value = false'),
+  (startNewStoryMatch?.[1] ?? '').includes('newStoryArmed.value = false'),
   `${LIBRARY_PAGE_PATH}'s startNewStory() must reset ` +
     "`newStoryArmed.value = false` (matching restartCurrent()'s own " +
     'reset of `restartArmed`), so the button returns to its unarmed state ' +

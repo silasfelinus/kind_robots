@@ -163,7 +163,8 @@ export function extractProseFields(
       const obj = fieldMatch[0]
       if (!/prose:\s*true/.test(obj)) continue
       const keyMatch = obj.match(/key:\s*'(\w+)'/)
-      if (keyMatch) proseKeys.push(keyMatch[1]!)
+      if (!keyMatch) continue
+      proseKeys.push(keyMatch[1]!)
     }
     result[match[1]!] = proseKeys
   })
@@ -174,7 +175,8 @@ export function extractProseFields(
 
 function findModelBlock(schema: string, modelName: string): string | null {
   const match = schema.match(new RegExp(`^model\\s+${modelName}\\s*\\{`, 'm'))
-  if (!match || match.index === undefined) return null
+  if (!match) return null
+  if (match.index === undefined) return null
   const start = match.index + match[0].length
   const end = schema.indexOf('\n}', start)
   if (end === -1) return null
@@ -198,7 +200,8 @@ export function extractVarCharWidths(
   const widths: Record<string, number> = {}
   for (const line of block.split('\n')) {
     const match = line.match(/^\s*(\w+)\s+\S+.*@db\.VarChar\((\d+)\)/)
-    if (match) widths[match[1]!] = Number(match[2]!)
+    if (!match) continue
+    widths[match[1]!] = Number(match[2]!)
   }
   return widths
 }

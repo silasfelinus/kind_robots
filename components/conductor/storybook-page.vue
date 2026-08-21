@@ -242,7 +242,7 @@
             :loading="characterStore.loading || characterStore.isInitializing"
             :error="characterStore.error"
             :initial-limit="9"
-            :max-selections="5"
+            :max-selections="MAX_CAST_SELECTIONS"
           />
 
           <!-- Roles live next to the cast picker rather than in the review
@@ -305,7 +305,7 @@
             :loading="facetStore.loading"
             :error="facetStore.error"
             :initial-limit="9"
-            :max-selections="5"
+            :max-selections="MAX_FACET_SELECTIONS"
           />
 
           <NarrativeIngredientMultiPicker
@@ -317,7 +317,7 @@
             :loading="rewardStore.isLoading || rewardStore.isInitializing"
             :error="rewardStore.error"
             :initial-limit="9"
-            :max-selections="3"
+            :max-selections="MAX_REWARD_SELECTIONS"
           />
 
           <div class="kr-panel-flat space-y-2 p-3">
@@ -705,6 +705,14 @@ const furthestStep = ref(0)
 const answerInput = ref('')
 const newStoryArmed = ref(false)
 
+// Shared with the matching :max-selections prop on each picker below, and
+// with seedFromQuery()'s addOnce() cap check further down -- one source of
+// truth so the enforced cap can't drift between what the picker's own UI
+// disables and what a deep link is allowed to push past it.
+const MAX_CAST_SELECTIONS = 5
+const MAX_FACET_SELECTIONS = 5
+const MAX_REWARD_SELECTIONS = 3
+
 // A "Discard this tale?" arm is a confirmation for THIS session, not a
 // standing state. storybook-library-page.vue can swap the active session out
 // from under it -- opening a different story, duplicating, or restarting all
@@ -1011,17 +1019,23 @@ function seedFromQuery(): void {
     const raw = Array.isArray(value) ? value[0] : value
     return typeof raw === 'string' && raw ? raw : null
   }
-  const addOnce = (list: string[], slug: string | null) => {
-    if (slug && !list.includes(slug)) list.push(slug)
+  // Bounded the same way NarrativeIngredientMultiPicker's own toggle() bounds
+  // a click: a deep link is just another way an ingredient joins the list, so
+  // it must respect the same cap the picker enforces in its UI (max param
+  // matches each field's :max-selections above), not silently push the draft
+  // past what the picker -- and beginStory()'s resulting story bible -- were
+  // ever meant to carry.
+  const addOnce = (list: string[], slug: string | null, max: number) => {
+    if (slug && !list.includes(slug) && list.length < max) list.push(slug)
   }
 
   const scenario = single(route.query.scenario)
   if (scenario) draft.scenarioSlug = scenario
   const location = single(route.query.location)
   if (location) draft.locationSlug = location
-  addOnce(draft.castSlugs, single(route.query.character))
-  addOnce(draft.facetSlugs, single(route.query.facet))
-  addOnce(draft.rewardSlugs, single(route.query.reward))
+  addOnce(draft.castSlugs, single(route.query.character), MAX_CAST_SELECTIONS)
+  addOnce(draft.facetSlugs, single(route.query.facet), MAX_FACET_SELECTIONS)
+  addOnce(draft.rewardSlugs, single(route.query.reward), MAX_REWARD_SELECTIONS)
 
   const consumed = ['scenario', 'location', 'character', 'facet', 'reward']
   if (!consumed.some((key) => route.query[key])) return

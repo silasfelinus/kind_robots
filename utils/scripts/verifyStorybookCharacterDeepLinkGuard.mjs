@@ -88,7 +88,11 @@ const seedFromQueryBody = extractTsFunctionBody(pageContent, 'seedFromQuery', {
     'move with it.',
 })
 assert.ok(
-  /addOnce\(draft\.castSlugs,\s*single\(route\.query\.character\)\)/.test(
+  // Not anchored to an exact closing paren -- storybook/t-010 cycle 25 added
+  // a third `max` argument (the cast cap) to addOnce() for an unrelated
+  // fix, and this contract only cares that `route.query.character` still
+  // feeds `draft.castSlugs`, not how many other arguments addOnce() takes.
+  /addOnce\(draft\.castSlugs,\s*single\(route\.query\.character\)/.test(
     seedFromQueryBody,
   ),
   `seedFromQuery() in ${PAGE_PATH} must still push \`route.query.character\` ` +

@@ -51,7 +51,16 @@ const categories = enumBlock
   .map((line) => line.trim())
   .filter((line) => /^[A-Z_]+$/.test(line))
 
-assert.ok(categories.length >= 17, `expected the full category enum, saw ${categories.length}`)
+// A floor, not a count: it exists so a regex that silently matched an empty or
+// truncated block cannot pass this file trivially. The real constraint is the
+// exhaustiveness loop below. Lower it only when a value is deliberately
+// retired from the enum -- 17 -> 16 when BUTTERFLY went in
+// 20260821230000_retire_butterfly_reaction_target -- never to make a failure
+// go away.
+assert.ok(
+  categories.length >= 16,
+  `expected the full category enum, saw ${categories.length}`,
+)
 
 const mapBlock = routeSource.match(
   /const map: Record<\s*Reaction_reactionCategory,\s*ExpectedTargetField\s*> = \{([\s\S]*?)\n {2}\}/,

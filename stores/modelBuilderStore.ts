@@ -117,6 +117,12 @@ export interface BuildItem {
 export interface BuildRun {
   id: string
   createdAt: string
+  // Server-authoritative run status (DRAFT/ACTIVE/COMPLETED/CANCELLED). Kept
+  // on every cached BuildRun (not just the freshly-fetched ServerRun it came
+  // from) so openRun() can tell a run in state.runs is already CANCELLED
+  // without a network round trip -- see openRun's own doc comment for why
+  // that check matters.
+  status: string
   sourceType: SourceTypeKey
   sourceId: number
   sourceLabel: string
@@ -392,6 +398,7 @@ function adaptRun(server: ServerRun): BuildRun {
   return {
     id: String(server.id),
     createdAt: server.createdAt,
+    status: server.status ?? 'ACTIVE',
     sourceType: server.sourceType as SourceTypeKey,
     sourceId: server.sourceId,
     sourceLabel: server.sourceLabel ?? '',
@@ -2762,6 +2769,31 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   // catch branches.
   let openRunRequestId = 0
 
+  // Bug (model-builder/t-029 cycle 32): unlike resumeRun() -- which explicitly
+  // checks `status !== 'CANCELLED'` on its remembered-run-id fetch and forgets
+  // the id when it fails, specifically "so we don't keep resuming a dead run
+  // into a read-only 409 trap" (see resumeRun's own comment) -- openRun() had
+  // no equivalent check on either of its paths. A CANCELLED run is normally
+  // excluded from state.runs (fetchRuns()'s default query filters
+  // `status: { not: 'CANCELLED' } }`), but that list goes stale the moment a
+  // run is cancelled from *elsewhere* -- another browser tab, another device,
+  // or simply a concurrent fetchRuns()/cancelRun() in this same tab that
+  // finishes after the click. The cached branch then reopened that stale
+  // CANCELLED entry directly with no status check at all (state.runs didn't
+  // even retain a status field to check), and the network-fetch fallback
+  // branch fetched the live record -- which DOES carry the real status -- and
+  // still ignored it. Either path leaves state.run pointing at a run that
+  // *looks* like a normal, fully interactive run: every stage-mutating action
+  // optimistically updates local state, then the background PATCH/POST 409s
+  // server-side on assertRunWritable's cancelled check, exactly the "read-only
+  // 409 trap" resumeRun's own fix was written to avoid.
+  //
+  // Fixed by carrying `status` on every cached BuildRun (see adaptRun) so the
+  // cached branch can skip a stale CANCELLED entry instead of opening it, and
+  // by treating the fetch fallback's own response the same way resumeRun
+  // treats its remembered-id fetch: a CANCELLED result is refused, the stale
+  // entry (if any) is dropped from state.runs, and an error is surfaced
+  // instead of silently opening a dead run.
   async function openRun(runId: string): Promise<void> {
     const requestId = ++openRunRequestId
 
@@ -2777,7 +2809,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     }
 
     const cached = state.runs.find((entry) => entry.id === runId)
-    if (cached) {
+    if (cached && cached.status !== 'CANCELLED') {
       state.run = cached
       state.sourceType = cached.sourceType
       state.recipeKey = cached.recipeKey
@@ -2799,6 +2831,17 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       )
       if (openRunRequestId !== requestId) return
       if (response.success && response.data) {
+        if (response.data.status === 'CANCELLED') {
+          // See this function's own doc comment. Drop the stale entry (if
+          // this run was the `cached` one above, it's CANCELLED and must not
+          // linger in state.runs either) instead of opening a dead run.
+          state.runs = state.runs.filter((entry) => entry.id !== runId)
+          setStatus(
+            'error',
+            'This run was cancelled and can no longer be opened.',
+          )
+          return
+        }
         state.run = adaptRun(response.data)
         state.sourceType = state.run.sourceType
         state.recipeKey = state.run.recipeKey

@@ -611,6 +611,12 @@ jobs:
       - name: Model Builder openRun request guard contract
         run: npm run test:model-builder-open-run-request-guard
 
+      - name: Model Builder openRun cancelled-run guard checker self-test
+        run: npm run test:model-builder-open-run-cancelled-guard-selftest
+
+      - name: Model Builder openRun cancelled-run guard contract
+        run: npm run test:model-builder-open-run-cancelled-guard
+
       - name: Model Builder async-fetch staleness coverage checker self-test
         run: npm run test:model-builder-async-fetch-staleness-coverage-selftest
 

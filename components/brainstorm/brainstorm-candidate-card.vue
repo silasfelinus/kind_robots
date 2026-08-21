@@ -152,13 +152,26 @@
       </a>
     </div>
 
+    <p
+      v-if="artFailed"
+      class="kr-note kr-note-error mt-3 text-xs"
+      data-testid="brainstorm-candidate-art-error"
+    >
+      Art generation failed{{ artError ? `: ${artError}` : '.' }} Select for art
+      and try again.
+    </p>
+
     <details
       v-if="candidate.meta.branchOrigin"
       class="mt-4 rounded-2xl border border-secondary/15 bg-secondary/5 p-3"
       data-testid="brainstorm-branch-lineage"
     >
-      <summary class="cursor-pointer select-none text-xs font-black uppercase tracking-[0.12em] text-secondary/80">
-        Branch lineage · parent v{{ candidate.meta.branchOrigin.revisionIndex + 1 }}
+      <summary
+        class="cursor-pointer select-none text-xs font-black uppercase tracking-[0.12em] text-secondary/80"
+      >
+        Branch lineage · parent v{{
+          candidate.meta.branchOrigin.revisionIndex + 1
+        }}
       </summary>
       <div class="mt-3 text-xs leading-5 text-base-content/65">
         <div class="flex flex-wrap items-center gap-2">
@@ -172,9 +185,13 @@
           >
             Jump to parent
           </a>
-          <span v-else class="text-base-content/40">Parent no longer in this batch</span>
+          <span v-else class="text-base-content/40"
+            >Parent no longer in this batch</span
+          >
         </div>
-        <p class="mt-2 max-h-24 overflow-auto whitespace-pre-wrap break-words rounded-xl bg-base-100/75 p-2">
+        <p
+          class="mt-2 max-h-24 overflow-auto whitespace-pre-wrap break-words rounded-xl bg-base-100/75 p-2"
+        >
           {{ candidate.meta.branchOrigin.text }}
         </p>
       </div>
@@ -185,7 +202,9 @@
       class="mt-4 rounded-2xl border border-base-content/10 bg-base-200/35 p-3"
       data-testid="brainstorm-revision-history"
     >
-      <summary class="cursor-pointer select-none text-xs font-black uppercase tracking-[0.12em] text-base-content/60">
+      <summary
+        class="cursor-pointer select-none text-xs font-black uppercase tracking-[0.12em] text-base-content/60"
+      >
         History · {{ candidate.revisions.length }} versions
       </summary>
       <div class="mt-3 flex flex-col gap-2">
@@ -195,14 +214,23 @@
           class="rounded-xl border border-base-content/8 bg-base-100/80 p-3"
         >
           <div class="flex flex-wrap items-center gap-2 text-[0.7rem]">
-            <span class="font-black text-base-content/75">v{{ entry.index + 1 }}</span>
-            <span class="rounded-full bg-base-200 px-2 py-0.5 font-bold text-base-content/55">
+            <span class="font-black text-base-content/75"
+              >v{{ entry.index + 1 }}</span
+            >
+            <span
+              class="rounded-full bg-base-200 px-2 py-0.5 font-bold text-base-content/55"
+            >
               {{ revisionReasonLabel(entry.revision.reason) }}
             </span>
-            <span v-if="revisionReturnTypeLabel(entry.revision.returnType)" class="text-accent">
+            <span
+              v-if="revisionReturnTypeLabel(entry.revision.returnType)"
+              class="text-accent"
+            >
               {{ revisionReturnTypeLabel(entry.revision.returnType) }}
             </span>
-            <span class="text-base-content/35">{{ formatRevisionTime(entry.revision.createdAt) }}</span>
+            <span class="text-base-content/35">{{
+              formatRevisionTime(entry.revision.createdAt)
+            }}</span>
             <span
               v-if="entry.current"
               class="ml-auto rounded-full bg-primary/10 px-2 py-0.5 font-black text-primary"
@@ -210,10 +238,15 @@
               current
             </span>
           </div>
-          <p v-if="entry.revision.title" class="mt-2 text-xs font-black text-base-content/75">
+          <p
+            v-if="entry.revision.title"
+            class="mt-2 text-xs font-black text-base-content/75"
+          >
             {{ entry.revision.title }}
           </p>
-          <p class="mt-1 max-h-20 overflow-auto whitespace-pre-wrap break-words text-xs leading-5 text-base-content/60">
+          <p
+            class="mt-1 max-h-20 overflow-auto whitespace-pre-wrap break-words text-xs leading-5 text-base-content/60"
+          >
             {{ entry.revision.text }}
           </p>
           <div v-if="!entry.current" class="mt-2 flex justify-end">
@@ -229,7 +262,8 @@
         </div>
       </div>
       <p class="mt-2 text-[0.7rem] leading-5 text-base-content/40">
-        Restoring is non-destructive. The restored text becomes a new version instead of deleting later work.
+        Restoring is non-destructive. The restored text becomes a new version
+        instead of deleting later work.
       </p>
     </details>
 
@@ -254,7 +288,9 @@
       />
     </div>
 
-    <footer class="mt-4 flex flex-wrap items-center gap-2 border-t border-base-content/8 pt-4">
+    <footer
+      class="mt-4 flex flex-wrap items-center gap-2 border-t border-base-content/8 pt-4"
+    >
       <button
         type="button"
         class="btn btn-sm"
@@ -292,7 +328,10 @@
           :disabled="disabled"
           @click="regenerate"
         >
-          <span v-if="busy && busyAction === 'regenerate'" class="loading loading-spinner loading-xs" />
+          <span
+            v-if="busy && busyAction === 'regenerate'"
+            class="loading loading-spinner loading-xs"
+          />
           Regenerate
         </button>
         <button
@@ -301,7 +340,10 @@
           :disabled="disabled"
           @click="branch"
         >
-          <span v-if="busy && busyAction === 'branch'" class="loading loading-spinner loading-xs" />
+          <span
+            v-if="busy && busyAction === 'branch'"
+            class="loading loading-spinner loading-xs"
+          />
           More like this
         </button>
       </div>
@@ -389,6 +431,16 @@ const artBusy = computed(
   () => Boolean(props.busy) && props.busyAction === 'art',
 )
 const artImageIds = computed(() => props.candidate.meta.art?.imageIds ?? [])
+// brainstorm/t-017: meta.art.status/error persist past a page reload, unlike
+// artBusy (this session's own in-flight generation flag) -- so a failed
+// attempt from an earlier session stays visible instead of silently looking
+// identical to "art never requested." Only surfaced once nothing in *this*
+// session is actively generating, so a live retry's spinner takes priority
+// over the stale error it's in the middle of replacing.
+const artFailed = computed(
+  () => !artBusy.value && props.candidate.meta.art?.status === 'failed',
+)
+const artError = computed(() => props.candidate.meta.art?.error || null)
 
 const returnType = computed(() =>
   BRAINSTORM_RETURN_TYPES.find(
@@ -396,7 +448,9 @@ const returnType = computed(() =>
   ),
 )
 const returnTypeLabel = computed(() => returnType.value?.label || '')
-const returnTypeDescription = computed(() => returnType.value?.description || '')
+const returnTypeDescription = computed(
+  () => returnType.value?.description || '',
+)
 
 const revisionEntries = computed(() =>
   props.candidate.revisions
@@ -427,10 +481,15 @@ function revisionReturnTypeLabel(
   returnTypeId: BrainstormReturnTypeId | null | undefined,
 ): string {
   if (!returnTypeId) return ''
-  return BRAINSTORM_RETURN_TYPES.find((entry) => entry.id === returnTypeId)?.label || ''
+  return (
+    BRAINSTORM_RETURN_TYPES.find((entry) => entry.id === returnTypeId)?.label ||
+    ''
+  )
 }
 
-function formatRevisionTime(value: BrainstormCandidateRevision['createdAt']): string {
+function formatRevisionTime(
+  value: BrainstormCandidateRevision['createdAt'],
+): string {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return ''
   return new Intl.DateTimeFormat(undefined, {

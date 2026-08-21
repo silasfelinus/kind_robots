@@ -34,6 +34,7 @@ import type {
   BrainstormBranchOrigin,
   BrainstormCandidate,
   BrainstormCandidateArtMeta,
+  BrainstormCandidateArtStatus,
   BrainstormCandidateRevision,
   BrainstormCandidateStatus,
   BrainstormErrorKind,
@@ -195,6 +196,22 @@ function normalizePositiveIntArray(value: unknown): number[] {
  * and drops everything else -- silently wiping meta.art on a page reload
  * before the user explicitly saves the session to the server.
  */
+const ART_STATUS_VALUES: BrainstormCandidateArtStatus[] = [
+  'queued',
+  'processing',
+  'delivered',
+  'failed',
+]
+
+function normalizeArtStatus(
+  value: unknown,
+): BrainstormCandidateArtStatus | undefined {
+  return typeof value === 'string' &&
+    (ART_STATUS_VALUES as string[]).includes(value)
+    ? (value as BrainstormCandidateArtStatus)
+    : undefined
+}
+
 export function normalizeCandidateArtMeta(
   value: unknown,
 ): BrainstormCandidateArtMeta | undefined {
@@ -204,11 +221,20 @@ export function normalizeCandidateArtMeta(
   const record = value as Record<string, unknown>
   const jobIds = normalizePositiveIntArray(record.jobIds)
   const imageIds = normalizePositiveIntArray(record.imageIds)
-  if (!jobIds.length && !imageIds.length) return undefined
-  return { jobIds, imageIds }
+  const status = normalizeArtStatus(record.status)
+  const error = typeof record.error === 'string' ? record.error : undefined
+  if (!jobIds.length && !imageIds.length && !status && !error) {
+    return undefined
+  }
+  return { jobIds, imageIds, status, error }
 }
 
-/** Appends a newly queued ArtJob id to a candidate's art tracking, in place. */
+/**
+ * Appends a newly queued ArtJob id to a candidate's art tracking, in place,
+ * and marks the candidate `queued` -- the state a page reload should see
+ * while polling has not yet observed the job as RUNNING (brainstorm/t-017).
+ * Clears any error left over from a prior failed attempt.
+ */
 export function recordCandidateArtJob(
   candidate: BrainstormCandidate,
   jobId: number,
@@ -216,10 +242,31 @@ export function recordCandidateArtJob(
   if (!Number.isInteger(jobId) || jobId <= 0) return
   const art = candidate.meta.art ?? { jobIds: [], imageIds: [] }
   if (!art.jobIds.includes(jobId)) art.jobIds = [...art.jobIds, jobId]
+  art.status = 'queued'
+  art.error = undefined
   candidate.meta.art = art
 }
 
-/** Appends a resolved ArtImage id to a candidate's art tracking, in place. */
+/**
+ * Marks a candidate's art tracking as actively rendering (the job moved from
+ * PENDING to RUNNING). Distinct from `queued` so a resumed poll after a page
+ * reload can tell the two apart even though neither has a delivered image
+ * yet (brainstorm/t-017).
+ */
+export function markCandidateArtProcessing(
+  candidate: BrainstormCandidate,
+): void {
+  const art = candidate.meta.art
+  if (!art) return
+  art.status = 'processing'
+  candidate.meta.art = art
+}
+
+/**
+ * Appends a resolved, verified ArtImage id to a candidate's art tracking, in
+ * place, and marks it `delivered`. Clears any error left over from a prior
+ * failed attempt on this same candidate.
+ */
 export function recordCandidateArtImage(
   candidate: BrainstormCandidate,
   imageId: number,
@@ -227,6 +274,24 @@ export function recordCandidateArtImage(
   if (!Number.isInteger(imageId) || imageId <= 0) return
   const art = candidate.meta.art ?? { jobIds: [], imageIds: [] }
   if (!art.imageIds.includes(imageId)) art.imageIds = [...art.imageIds, imageId]
+  art.status = 'delivered'
+  art.error = undefined
+  candidate.meta.art = art
+}
+
+/**
+ * Records that the most recent art generation attempt for this candidate
+ * ended in failure, in place. Keeps `jobIds`/`imageIds` untouched (a prior
+ * delivered image, if any, is not a failure) so the card can keep showing
+ * whatever art already delivered alongside the new error (brainstorm/t-017).
+ */
+export function recordCandidateArtFailure(
+  candidate: BrainstormCandidate,
+  message: string,
+): void {
+  const art = candidate.meta.art ?? { jobIds: [], imageIds: [] }
+  art.status = 'failed'
+  art.error = message
   candidate.meta.art = art
 }
 

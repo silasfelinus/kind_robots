@@ -7,6 +7,7 @@ on:
       - '.github/workflows/brainstorm-object-entry-links-contract.yml'
       - 'components/brainstorm/**'
       - 'components/characters/character-manager.vue'
+      - 'components/scenarios/scenario-manager.vue'
       - 'utils/scripts/verifyBrainstormObjectEntryLinks.mjs'
   pull_request:
     branches: [main]
@@ -14,6 +15,7 @@ on:
       - '.github/workflows/brainstorm-object-entry-links-contract.yml'
       - 'components/brainstorm/**'
       - 'components/characters/character-manager.vue'
+      - 'components/scenarios/scenario-manager.vue'
       - 'utils/scripts/verifyBrainstormObjectEntryLinks.mjs'
   workflow_dispatch:
 
@@ -26,7 +28,7 @@ concurrency:
 
 jobs:
   contract:
-    name: Character -> Brainstorm object-entry contract
+    name: Character/Scenario -> Brainstorm object-entry contract
     runs-on: ubuntu-latest
     timeout-minutes: 5
 

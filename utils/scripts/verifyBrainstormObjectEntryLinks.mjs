@@ -29,6 +29,7 @@ function includesAll(path, values) {
 }
 
 const characterManagerPath = 'components/characters/character-manager.vue'
+const scenarioManagerPath = 'components/scenarios/scenario-manager.vue'
 const brainstormManagerPath = 'components/brainstorm/brainstorm-manager.vue'
 
 includesAll(characterManagerPath, [
@@ -37,6 +38,17 @@ includesAll(characterManagerPath, [
   "path: '/brainstorm'",
   "source: 'character'",
   'sourceId: String(character.id)',
+])
+
+// brainstorm/t-027: Scenario is the second surface to wire into the same
+// seedFromQuery() contract -- its BRAINSTORM_SOURCE_ADAPTERS entry already
+// existed (brainstorm/t-014) with no UI entry point driving traffic to it.
+includesAll(scenarioManagerPath, [
+  'startBrainstormWithScenario',
+  '@click="startBrainstormWithScenario"',
+  "path: '/brainstorm'",
+  "source: 'scenario'",
+  'sourceId: String(scenario.id)',
 ])
 
 includesAll(brainstormManagerPath, [

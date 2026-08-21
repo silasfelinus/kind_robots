@@ -684,6 +684,76 @@
     </div>
 
     <div
+      v-if="keptCandidates.length"
+      class="kr-panel-flat flex flex-wrap items-center justify-between gap-3 border border-secondary/20 bg-secondary/5 p-3"
+      data-testid="brainstorm-art-batch"
+    >
+      <div class="min-w-0">
+        <p
+          class="text-xs font-black uppercase tracking-[0.14em] text-secondary/80"
+        >
+          Generate art
+        </p>
+        <p class="mt-1 text-sm text-base-content/65">
+          {{ selectedForArtCount }} of {{ keptCandidates.length }} kept idea{{
+            keptCandidates.length === 1 ? '' : 's'
+          }}
+          selected · Krea 2
+        </p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm"
+          :disabled="!selectedForArtCount || isGeneratingArt"
+          @click="store.clearArtSelection()"
+        >
+          Clear selection
+        </button>
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm gap-1.5"
+          :disabled="!selectedForArtCount || isGeneratingArt"
+          data-testid="brainstorm-generate-art"
+          @click="generateArt"
+        >
+          <span
+            v-if="isGeneratingArt"
+            class="loading loading-spinner loading-xs"
+          />
+          <Icon v-else name="kind-icon:sparkles" class="h-4 w-4" />
+          {{
+            isGeneratingArt
+              ? artProgressLabel
+              : `Generate art for ${selectedForArtCount} selected`
+          }}
+        </button>
+      </div>
+    </div>
+
+    <div
+      v-if="artGenerationError"
+      class="alert border border-error/25 bg-error/10 text-base-content"
+      role="alert"
+      data-testid="brainstorm-art-error"
+    >
+      <span aria-hidden="true">⚠</span>
+      <div class="min-w-0 flex-1">
+        <p class="font-black">Art generation hit a snag</p>
+        <p class="mt-1 break-words text-sm opacity-80">
+          {{ artGenerationError.message }}
+        </p>
+      </div>
+      <button
+        type="button"
+        class="btn btn-ghost btn-sm"
+        @click="store.clearArtGenerationError()"
+      >
+        Dismiss
+      </button>
+    </div>
+
+    <div
       v-if="activeCandidates.length"
       class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))] items-start gap-4"
       data-testid="brainstorm-candidates"
@@ -694,8 +764,9 @@
         :candidate="candidate"
         :parent-candidate="parentCandidateFor(candidate)"
         :disabled="isGenerating"
-        :busy="generationTargetId === candidate.id"
+        :busy="isCandidateBusy(candidate.id)"
         :busy-action="candidateBusyAction(candidate.id)"
+        :selected-for-art="store.isSelectedForArt(candidate.id)"
         @keep="keepCandidate(candidate.id)"
         @reject="rejectCandidate(candidate.id)"
         @reset="resetCandidate(candidate.id)"
@@ -705,6 +776,7 @@
         @restore-revision="restoreRevision(candidate.id, $event)"
         @regenerate="regenerate(candidate.id)"
         @branch="branch(candidate.id)"
+        @toggle-art-selection="store.toggleArtSelection(candidate.id)"
       />
     </div>
 
@@ -891,6 +963,11 @@ const {
   canSaveSession,
   suggestedSessionName,
   source,
+  selectedForArtCandidates,
+  artGenerationState,
+  artGenerationError,
+  artGenerationProgress,
+  artGeneratingCandidateIds,
 } = storeToRefs(store)
 
 const pendingCandidateAction = ref<{
@@ -1026,6 +1103,21 @@ const selectedKeptCandidates = computed(() =>
 
 const skeletonCount = computed(() => Math.min(resultCount.value, 6))
 
+// brainstorm/t-016: batch art generation from explicitly selected kept
+// candidates.
+const isGeneratingArt = computed(
+  () => artGenerationState.value === 'generating',
+)
+const selectedForArtCount = computed(
+  () => selectedForArtCandidates.value.length,
+)
+const artProgressLabel = computed(() => {
+  const progress = artGenerationProgress.value
+  return progress
+    ? `Generating ${progress.completed}/${progress.total}…`
+    : 'Generating…'
+})
+
 const errorHeading = computed(() => {
   switch (generationError.value?.kind) {
     case 'auth':
@@ -1151,10 +1243,20 @@ function applyStarter(starter: (typeof starterPremises)[number]): void {
   )
 }
 
-function candidateBusyAction(candidateId: string): 'regenerate' | 'branch' | null {
-  return pendingCandidateAction.value?.id === candidateId
-    ? pendingCandidateAction.value.action
-    : null
+function candidateBusyAction(
+  candidateId: string,
+): 'regenerate' | 'branch' | 'art' | null {
+  if (pendingCandidateAction.value?.id === candidateId) {
+    return pendingCandidateAction.value.action
+  }
+  return artGeneratingCandidateIds.value.includes(candidateId) ? 'art' : null
+}
+
+function isCandidateBusy(candidateId: string): boolean {
+  return (
+    generationTargetId.value === candidateId ||
+    artGeneratingCandidateIds.value.includes(candidateId)
+  )
 }
 
 function parentCandidateFor(candidate: BrainstormCandidate): BrainstormCandidate | null {
@@ -1301,5 +1403,10 @@ async function branch(candidateId: string): Promise<void> {
   } finally {
     pendingCandidateAction.value = null
   }
+}
+
+async function generateArt(): Promise<void> {
+  if (isGeneratingArt.value || !selectedForArtCount.value) return
+  await store.generateArtForSelected()
 }
 </script>

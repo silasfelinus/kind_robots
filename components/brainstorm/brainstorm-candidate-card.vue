@@ -34,6 +34,27 @@
           >
             edited
           </span>
+          <label
+            v-if="candidate.status === 'kept'"
+            class="flex cursor-pointer items-center gap-1.5 rounded-full bg-secondary/10 px-2.5 py-1 text-[0.68rem] font-bold text-secondary"
+            data-testid="brainstorm-art-select"
+          >
+            <input
+              type="checkbox"
+              class="checkbox checkbox-xs checkbox-secondary"
+              :checked="selectedForArt"
+              :disabled="disabled || artBusy"
+              @change="emit('toggleArtSelection')"
+            />
+            Select for art
+          </label>
+          <span
+            v-if="artBusy"
+            class="flex items-center gap-1 rounded-full bg-secondary/10 px-2.5 py-1 text-[0.68rem] font-bold text-secondary"
+          >
+            <span class="loading loading-spinner loading-xs" />
+            Generating art…
+          </span>
         </div>
 
         <template v-if="editing">
@@ -107,6 +128,28 @@
       >
         {{ candidate.text }}
       </p>
+    </div>
+
+    <div
+      v-if="artImageIds.length"
+      class="mt-3 flex flex-wrap gap-2"
+      data-testid="brainstorm-candidate-art"
+    >
+      <a
+        v-for="imageId in artImageIds"
+        :key="imageId"
+        :href="`/api/art/images/${imageId}/file`"
+        target="_blank"
+        rel="noopener"
+        class="block size-16 shrink-0 overflow-hidden rounded-lg border border-base-300"
+      >
+        <img
+          :src="`/api/art/images/${imageId}/file`"
+          :alt="`Generated art for ${candidate.title || 'this candidate'}`"
+          class="size-full object-cover"
+          loading="lazy"
+        />
+      </a>
     </div>
 
     <details
@@ -281,7 +324,8 @@ const props = defineProps<{
   parentCandidate?: BrainstormCandidate | null
   disabled?: boolean
   busy?: boolean
-  busyAction?: 'regenerate' | 'branch' | null
+  busyAction?: 'regenerate' | 'branch' | 'art' | null
+  selectedForArt?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -294,6 +338,7 @@ const emit = defineEmits<{
   restoreRevision: [revisionIndex: number]
   edit: [patch: { title: string; text: string }]
   feedback: [value: string]
+  toggleArtSelection: []
 }>()
 
 const editing = ref(false)
@@ -339,6 +384,11 @@ const statusBadgeClass = computed(() => {
   if (props.candidate.status === 'rejected') return 'bg-error/12 text-error'
   return 'bg-primary/10 text-primary'
 })
+
+const artBusy = computed(
+  () => Boolean(props.busy) && props.busyAction === 'art',
+)
+const artImageIds = computed(() => props.candidate.meta.art?.imageIds ?? [])
 
 const returnType = computed(() =>
   BRAINSTORM_RETURN_TYPES.find(

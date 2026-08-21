@@ -17,6 +17,10 @@
 // brainstormStore.ts imports everything it still needs from here; nothing
 // about its own behavior changes, only where the pure half of it lives.
 import {
+  artContextRules,
+  artSlotFraming,
+} from '../../utils/entityArtPromptFraming'
+import {
   BRAINSTORM_DEFAULT_OUTPUT_DOMAIN,
   BRAINSTORM_DEFAULT_RESULTS,
   BRAINSTORM_MAX_RESULTS,
@@ -29,6 +33,7 @@ import type {
   BrainstormBatchShape,
   BrainstormBranchOrigin,
   BrainstormCandidate,
+  BrainstormCandidateArtMeta,
   BrainstormCandidateRevision,
   BrainstormCandidateStatus,
   BrainstormErrorKind,
@@ -165,6 +170,107 @@ export function normalizeGeneratedCandidates(
   return candidates.length === expectedCount ? candidates : null
 }
 
+function normalizePositiveIntArray(value: unknown): number[] {
+  if (!Array.isArray(value)) return []
+  const seen = new Set<number>()
+  const result: number[] = []
+  for (const raw of value) {
+    const id = Number(raw)
+    if (Number.isInteger(id) && id > 0 && !seen.has(id)) {
+      seen.add(id)
+      result.push(id)
+    }
+  }
+  return result
+}
+
+/**
+ * brainstorm/t-016: a candidate's linkage to its generated ArtJobs/ArtImages
+ * (BrainstormCandidateArtMeta) round-trips through the *server* save path
+ * generically -- brainstormPersistence.ts's normalizeCandidate keeps the
+ * whole `meta` object as-is. It does NOT round-trip through this module's
+ * own normalizeStoredCandidate (the browser localStorage autosave path)
+ * without this explicit normalizer, since that function otherwise only lifts
+ * out the specific sub-fields it knows about (source/returnType/branchOrigin)
+ * and drops everything else -- silently wiping meta.art on a page reload
+ * before the user explicitly saves the session to the server.
+ */
+export function normalizeCandidateArtMeta(
+  value: unknown,
+): BrainstormCandidateArtMeta | undefined {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return undefined
+  }
+  const record = value as Record<string, unknown>
+  const jobIds = normalizePositiveIntArray(record.jobIds)
+  const imageIds = normalizePositiveIntArray(record.imageIds)
+  if (!jobIds.length && !imageIds.length) return undefined
+  return { jobIds, imageIds }
+}
+
+/** Appends a newly queued ArtJob id to a candidate's art tracking, in place. */
+export function recordCandidateArtJob(
+  candidate: BrainstormCandidate,
+  jobId: number,
+): void {
+  if (!Number.isInteger(jobId) || jobId <= 0) return
+  const art = candidate.meta.art ?? { jobIds: [], imageIds: [] }
+  if (!art.jobIds.includes(jobId)) art.jobIds = [...art.jobIds, jobId]
+  candidate.meta.art = art
+}
+
+/** Appends a resolved ArtImage id to a candidate's art tracking, in place. */
+export function recordCandidateArtImage(
+  candidate: BrainstormCandidate,
+  imageId: number,
+): void {
+  if (!Number.isInteger(imageId) || imageId <= 0) return
+  const art = candidate.meta.art ?? { jobIds: [], imageIds: [] }
+  if (!art.imageIds.includes(imageId)) art.imageIds = [...art.imageIds, imageId]
+  candidate.meta.art = art
+}
+
+/**
+ * brainstorm/t-016: frames a candidate's title/text as an image-generation
+ * prompt, following the house convention set by
+ * server/utils/entityArt.ts's buildEntityArtPrompt -- primary direction
+ * first, then a geometry-only (not format-noun) composition instruction via
+ * artSlotFraming, then the shared trailing rules via artContextRules. Unlike
+ * the entity version there is no fixed slot size (Brainstorm art isn't
+ * filling a UI card/hero/icon), so artSlotFraming is called with no
+ * width/height, which it already treats as "a single balanced composition".
+ *
+ * When outputDomain is 'art-prompts' the candidate's own text was generated
+ * BY Brainstorm specifically as a ready-to-use image prompt (see
+ * BRAINSTORM_OUTPUT_DOMAINS's description in types/brainstorm.ts) -- wrapping
+ * it in more framing language would dilute a prompt that is already
+ * purpose-built, so only the optional title is folded in.
+ */
+export function buildBrainstormArtPrompt(
+  candidate: { title: string; text: string },
+  outputDomain: BrainstormOutputDomainId,
+): string {
+  const heading = candidate.title
+    ? `${candidate.title}: ${candidate.text}`
+    : candidate.text
+  const trimmedHeading = heading.trim()
+
+  if (outputDomain === 'art-prompts') {
+    return trimmedHeading.slice(0, 4000)
+  }
+
+  const prompt = [
+    trimmedHeading,
+    '',
+    `Compose this as ${artSlotFraming({ label: '', width: 0, height: 0 })} illustrating the idea above.`,
+    ...artContextRules('idea'),
+  ]
+    .filter(Boolean)
+    .join('\n')
+
+  return prompt.slice(0, 4000)
+}
+
 export function normalizeSourceRef(value: unknown): BrainstormSourceRef | null {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null
 
@@ -282,6 +388,7 @@ export function normalizeStoredCandidate(
   const source = normalizeSourceRef(meta.source)
   const returnType = normalizeReturnTypeId(meta.returnType)
   const branchOrigin = normalizeBranchOrigin(meta.branchOrigin)
+  const art = normalizeCandidateArtMeta(meta.art)
 
   return {
     id,
@@ -308,6 +415,7 @@ export function normalizeStoredCandidate(
       source,
       returnType,
       branchOrigin,
+      ...(art ? { art } : {}),
     },
   }
 }

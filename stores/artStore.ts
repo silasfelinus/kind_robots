@@ -114,6 +114,26 @@ export type NarrativeArtEnqueueContext = {
   dedupeKey: string
 }
 
+// brainstorm/t-016: a separate, narrower context shape rather than widening
+// NarrativeArtEnqueueContext's product union -- that type's beatId/moment/
+// dedupeKey fields exist for narrative-beat dedup (Storybook/Taskmaster/
+// Da Vinci), which Brainstorm has no equivalent of: every "Generate art"
+// click is an explicit, distinct user action, not something that needs
+// idempotent re-triggering protection. sessionId is the durable saved
+// BrainstormSession id (null until the working session has been saved at
+// least once) and source mirrors BrainstormSourceRef, kept structurally
+// separate so this file doesn't need to import types/brainstorm.ts.
+export type BrainstormArtEnqueueContext = {
+  product: 'brainstorm'
+  candidateId: string
+  sessionId: number | null
+  source?: {
+    modelType: string
+    id?: number | null
+    slug?: string | null
+  } | null
+}
+
 export type ArtLoraSelection = {
   resourceId?: number | null
   name?: string | null
@@ -157,6 +177,7 @@ export interface GenerateArtData {
   serverName?: string | null
   projectSlug?: string | null
   narrativeContext?: NarrativeArtEnqueueContext | null
+  brainstormContext?: BrainstormArtEnqueueContext | null
 
   engine?: ArtImageGenerationEngine
   transport?: ArtImageGenerationTransport
@@ -1789,6 +1810,10 @@ export const useArtStore = defineStore('artStore', () => {
       projectSlug: artData?.projectSlug ?? state.artForm.projectSlug ?? null,
       narrativeContext:
         artData?.narrativeContext ?? state.artForm.narrativeContext ?? null,
+      brainstormContext:
+        artData?.brainstormContext ??
+        state.artForm.brainstormContext ??
+        null,
       generationRequirement:
         artData?.generationRequirement ?? state.artForm.generationRequirement,
       engine,

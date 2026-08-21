@@ -46,18 +46,21 @@ export type MigrationDriftReport = {
    */
   pending: string[]
   /**
-   * Recorded in `_prisma_migrations` but never finished, or rolled back. A
-   * subset of the same problem with a different remedy -- see
-   * scripts/repair-known-prisma-migrations.mjs, which the deploy wrapper runs.
+   * Recorded in `_prisma_migrations` but never successfully completed. Prisma
+   * can retain an older failed/rolled-back attempt next to a later successful
+   * attempt with the same migration name; that recovered migration is healthy.
    */
   failed: string[]
   /**
    * Applied to the database but absent from this build. Harmless to queries
-   * (the columns exist, this code just doesn't use them) but it means the
+   * (the columns exist, this code just doesn't use them) but it can mean the
    * running image is older than the schema -- worth knowing during a rollback.
+   * Pre-squash history intentionally replaced by the current squash is omitted.
    */
   ahead: string[]
 }
+
+const SQUASH_MIGRATION = '00000000000000_squashed'
 
 function isApplied(row: AppliedMigrationRow): boolean {
   const finished = row.finished_at
@@ -79,25 +82,49 @@ export function compareMigrations(
   applied: readonly AppliedMigrationRow[],
 ): MigrationDriftReport {
   const appliedNames = new Set<string>()
-  const failed: string[] = []
+  const failedAttemptNames = new Set<string>()
 
   for (const row of applied) {
     const name = (row?.migration_name || '').trim()
     if (!name) continue
     if (isApplied(row)) {
       appliedNames.add(name)
-    } else if (!failed.includes(name)) {
-      failed.push(name)
+    } else {
+      failedAttemptNames.add(name)
     }
   }
+
+  // Prisma keeps historical attempts. Once any row for a migration name has
+  // completed successfully, an older failed/rolled-back row is history rather
+  // than current drift.
+  const failed = [...failedAttemptNames]
+    .filter((name) => !appliedNames.has(name))
+    .sort()
 
   const diskNames = onDisk.map((name) => name.trim()).filter(Boolean)
   const diskSet = new Set(diskNames)
 
+  let ahead = [...appliedNames].filter((name) => !diskSet.has(name))
+
+  // A production database can legitimately retain every pre-squash migration
+  // row after the current build replaces that history with one squashed marker.
+  // If both sides agree that the squash itself was applied, only absent applied
+  // migrations at or after the first post-squash migration can represent a
+  // genuinely newer schema (for example, a rollback to an older image).
+  if (diskSet.has(SQUASH_MIGRATION) && appliedNames.has(SQUASH_MIGRATION)) {
+    const firstPostSquash = diskNames
+      .filter((name) => name !== SQUASH_MIGRATION)
+      .sort()[0]
+
+    if (firstPostSquash) {
+      ahead = ahead.filter((name) => name >= firstPostSquash)
+    }
+  }
+
   return {
     pending: diskNames.filter((name) => !appliedNames.has(name)).sort(),
-    failed: failed.sort(),
-    ahead: [...appliedNames].filter((name) => !diskSet.has(name)).sort(),
+    failed,
+    ahead: ahead.sort(),
   }
 }
 
@@ -124,8 +151,8 @@ export function describeMigrationDrift(report: MigrationDriftReport): string {
 
   if (report.failed.length) {
     parts.push(
-      `${report.failed.length} migration(s) are recorded as started but not ` +
-        `finished (or were rolled back): ${report.failed.join(', ')}.`,
+      `${report.failed.length} migration(s) are recorded without any ` +
+        `successful completion: ${report.failed.join(', ')}.`,
     )
   }
 

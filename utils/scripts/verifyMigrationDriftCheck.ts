@@ -108,6 +108,25 @@ export function checkDriftBehaviour(): string[] {
     assert.deepEqual(report.failed, ['20260819120000_b'])
   })
 
+  check('a later successful retry clears an older failed attempt', () => {
+    // Prisma stores retry attempts as separate rows with the same name. The
+    // Alexandria database has several old rolled-back rows followed by a later
+    // successful row; those recovered migrations must not keep warning forever.
+    const report = compareMigrations(
+      ['20260819120000_b'],
+      [
+        applied('20260819120000_b', {
+          finished_at: null,
+          rolled_back_at: new Date('2026-08-19T00:30:00Z'),
+        }),
+        applied('20260819120000_b'),
+      ],
+    )
+    assert.deepEqual(report.pending, [])
+    assert.deepEqual(report.failed, [])
+    assert.equal(hasMigrationDrift(report), false)
+  })
+
   check('a database ahead of the build is reported separately', () => {
     // Rollback shape: the schema has moved on, this image has not. Queries
     // still work, so it must not read as the dangerous direction.
@@ -122,6 +141,39 @@ export function checkDriftBehaviour(): string[] {
       false,
       'being behind the database is not a runtime hazard and must not read as one',
     )
+  })
+
+  check('pre-squash migration history is not reported as database-ahead drift', () => {
+    const report = compareMigrations(
+      [
+        '00000000000000_squashed',
+        '20260717103700_first_post_squash',
+        '20260819120000_current',
+      ],
+      [
+        applied('00000000000000_baseline'),
+        applied('20260714210000_last_legacy'),
+        applied('00000000000000_squashed'),
+        applied('20260717103700_first_post_squash'),
+        applied('20260819120000_current'),
+      ],
+    )
+    assert.deepEqual(report.pending, [])
+    assert.deepEqual(report.failed, [])
+    assert.deepEqual(report.ahead, [])
+  })
+
+  check('a genuinely newer post-squash migration is still reported as ahead', () => {
+    const report = compareMigrations(
+      ['00000000000000_squashed', '20260717103700_current'],
+      [
+        applied('00000000000000_baseline'),
+        applied('00000000000000_squashed'),
+        applied('20260717103700_current'),
+        applied('20260820000000_future'),
+      ],
+    )
+    assert.deepEqual(report.ahead, ['20260820000000_future'])
   })
 
   check('an empty database reports every migration as pending', () => {

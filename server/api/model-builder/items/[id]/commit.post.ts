@@ -95,6 +95,29 @@ const LONG_TEXT_FIELDS: Partial<Record<SourceType, Set<string>>> = {
 const NUMERIC_FIELDS: Partial<Record<SourceType, Set<string>>> = {
   Scenario: new Set(['difficulty']),
 }
+// name/title column widths per live CREATE target (prisma/schema.prisma).
+// The record name/title is never `prose`-classified in MODEL_FIELDS, so it
+// falls outside pickText/SHORT_TEXT_MAX entirely -- this file previously
+// applied one flat 255-char cap to every target regardless of its actual
+// column width. That overshoots Scenario.title, which is `String` with no
+// `@db.VarChar` override and therefore Prisma's MySQL default of
+// VARCHAR(191) NOT NULL (confirmed in
+// prisma/migrations/00000000000000_squashed/migration.sql). A Scenario
+// title of 192-255 chars -- reachable via the batch editor's "Set a field
+// on all N" or the per-item fieldsDraft textarea, neither of which has a
+// maxlength -- passed the old cap untouched and failed the whole commit
+// transaction at INSERT time ("Data too long for column 'title'" in MySQL
+// strict mode, or a silent truncation otherwise): the same drift class
+// SHORT_TEXT_MAX exists to prevent (cycle 33), just reached through a field
+// that classification never covers. Character/Reward/Bot.name are all
+// VARCHAR(256), so 255 remains correct for them; 255 stays the fallback for
+// any future CREATE_TARGETS entry not listed here.
+const NAME_MAX: Partial<Record<SourceType, number>> = {
+  Character: 256,
+  Reward: 256,
+  Bot: 256,
+  Scenario: 191,
+}
 
 // Delegates the actual line-splitting to the shared, schema-aware splitter
 // in modelBuilderFields.ts (used by the client too) rather than maintaining
@@ -818,14 +841,15 @@ export default defineEventHandler(async (event) => {
     // and per-item panel both surface as the record's actual name/title. Honor
     // whatever the user (or AI drafter) put there before falling back to the
     // pitch's first line -- otherwise a deliberately-typed name is silently
-    // discarded in favor of pitch text on commit.
+    // discarded in favor of pitch text on commit. The cap is per-target width
+    // (NAME_MAX) rather than one flat number -- see NAME_MAX's comment.
     const name = (
       fieldMap.name ||
       fieldMap.title ||
       item.pitch?.split('\n')[0]?.trim() ||
       item.label ||
       'Untitled'
-    ).slice(0, 255)
+    ).slice(0, NAME_MAX[fieldModelType] ?? 255)
 
     if (item.idempotencyKey) {
       return {

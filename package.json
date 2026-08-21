@@ -231,6 +231,8 @@
     "test:model-builder-commit-name-field-guard": "tsx utils/scripts/verifyModelBuilderCommitNameFieldGuard.ts",
     "test:model-builder-commit-text-truncation-guard-selftest": "tsx utils/scripts/verifyModelBuilderCommitTextTruncationGuard.test.ts",
     "test:model-builder-commit-text-truncation-guard": "tsx utils/scripts/verifyModelBuilderCommitTextTruncationGuard.ts",
+    "test:model-builder-commit-name-width-guard-selftest": "tsx utils/scripts/verifyModelBuilderCommitNameWidthGuard.test.ts",
+    "test:model-builder-commit-name-width-guard": "tsx utils/scripts/verifyModelBuilderCommitNameWidthGuard.ts",
     "test:model-builder-dream-type-choices-guard-selftest": "tsx utils/scripts/verifyModelBuilderDreamTypeChoicesGuard.test.ts",
     "test:model-builder-dream-type-choices-guard": "tsx utils/scripts/verifyModelBuilderDreamTypeChoicesGuard.ts",
     "test:model-builder-commit-stale-snapshot-guard-selftest": "tsx utils/scripts/verifyModelBuilderCommitStaleSnapshotGuard.test.ts",

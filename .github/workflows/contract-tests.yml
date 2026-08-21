@@ -437,6 +437,12 @@ jobs:
       - name: Model Builder commit text-truncation guard contract
         run: npm run test:model-builder-commit-text-truncation-guard
 
+      - name: Model Builder commit name-width guard checker self-test
+        run: npm run test:model-builder-commit-name-width-guard-selftest
+
+      - name: Model Builder commit name-width guard contract
+        run: npm run test:model-builder-commit-name-width-guard
+
       - name: Model Builder Dream-type choices guard checker self-test
         run: npm run test:model-builder-dream-type-choices-guard-selftest
 

@@ -205,6 +205,23 @@
         />
         Public
       </label>
+      <!--
+        Facet has carried allowReviews since it was created, but no surface
+        could set it (server/api/facets/[id].patch.ts already accepted the
+        field), so a Facet owner who wanted comments off had no way to say so.
+        Rendered as a form checkbox rather than ui/allow-reviews-toggle.vue
+        because this editor saves a whole FacetProfileForm on submit, while
+        that component is a save-on-click button for the edit surfaces that
+        PATCH one field at a time.
+      -->
+      <label class="flex items-center gap-2">
+        <input
+          v-model="form.allowReviews"
+          type="checkbox"
+          class="toggle toggle-accent toggle-xs"
+        />
+        Allow reviews
+      </label>
       <label class="flex items-center gap-2">
         <input
           v-model="form.isMature"

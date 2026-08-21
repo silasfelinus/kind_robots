@@ -40,12 +40,19 @@ export const KARMA_REF_TYPES = [
   'theme',
 ] as const
 
-// Reaction also carries `challengeSubmissionId`, and it does not belong here:
-// ChallengeSubmission has no userId/isPublic pair, so it has no audience to
-// inherit, and Reaction's @@unique([userId, challengeSubmissionId]) makes it
-// one row per user per submission -- a vote, not a comment thread. Giving it
-// review threads is therefore a schema decision (drop that constraint, and
-// pick an audience to inherit), not an addition to this list.
+// Reaction also carries `challengeSubmissionId`, and it does not belong here.
+// This is now a settled product decision, not an open gap: Silas, 2026-08-21,
+// "lets just kill any expectation of reviews for challenge center, it's become
+// much more a theoretical tool for me, not for public sharing." The Challenge
+// Center is a private authoring tool, so its submissions are not a public
+// surface and do not take review threads. Do not add it here.
+//
+// The mechanics already matched that decision, which is why it was never a
+// bug: ChallengeSubmission has no userId/isPublic pair, so there is no audience
+// for canViewReactionsOn() to inherit, and Reaction's
+// @@unique([userId, challengeSubmissionId]) allows one row per user per
+// submission -- a vote, not a thread. The column and that constraint stay; only
+// the expectation of reviews on top of them is retired.
 //
 // `butterflyId` used to be documented here as the other exclusion: an orphan
 // column left behind by the retired Butterfly project, with no model and no

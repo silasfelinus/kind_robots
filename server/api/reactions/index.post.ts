@@ -237,10 +237,14 @@ function getExpectedTargetField(
     // lookup, so accepting one would write an untargeted row. Give them a
     // target field before removing them from this list.
     //
-    // CHALLENGE_SUBMISSION stays null deliberately: ChallengeSubmission has no
+    // CHALLENGE_SUBMISSION stays null permanently. Silas, 2026-08-21, retired
+    // the expectation of reviews on the Challenge Center outright -- it is a
+    // private authoring tool, not a public sharing surface -- so unlike the
+    // paragraph above, this one is not waiting on a target field and must not
+    // be given one. The mechanics already agreed: ChallengeSubmission has no
     // userId/isPublic pair to check, and Reaction's
     // @@unique([userId, challengeSubmissionId]) makes it one row per user --
-    // a vote, not a comment thread.
+    // a vote, not a comment thread. See utils/karmaRefTypes.ts.
     [Reaction_reactionCategory.CHALLENGE_SUBMISSION]: null,
     // Retired earlier in the request by retiredReactionCategories. BUTTERFLY
     // used to need an entry here too; it left the enum in

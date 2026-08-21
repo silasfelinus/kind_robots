@@ -2237,6 +2237,43 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         // Skip items whose stage is already approved/locked — see
         // isStageEditable's doc comment.
         if (!isStageEditable(item, stageKey)) continue
+        // Bug (model-builder/t-029, cycle 30): a per-item manual action
+        // already in flight for this exact item was not excluded here --
+        // most concretely commitItem(), which sets
+        // item.stages.COMMIT = { status: 'in-progress' } locally *before*
+        // its own await and never itself persists that transient marker (it
+        // relies entirely on the server's own commit.post.ts write to
+        // resolve it; see finishCommit's doc comment). draftText below
+        // routes a successful draft through updatePitch/updateFields/
+        // updatePrompt, and every one of those calls pushItem with
+        // `stageStatuses: item.stages` -- the item's FULL current stage map,
+        // including whatever OTHER stage's transient 'in-progress' marker
+        // happens to be set at that instant. The server's diff-then-merge
+        // stage-status logic (diffStageStatusChanges/mergeStageStatusChanges
+        // in server/api/model-builder/runs/index.ts) can't tell a
+        // genuinely-intended change apart from a stale local-only marker
+        // leaking through, so it gets diffed against the server's real value
+        // and, if different, persisted -- if this write's own transaction
+        // happens to land AFTER commit.post.ts's dedicated fresh-read/merge
+        // final write (cycle 27), it silently reverts a just-committed
+        // item's COMMIT status from 'approved' back to a permanently-stuck
+        // 'in-progress' that nothing will ever resolve, even though
+        // targetType/targetId (written durably and separately, also cycle
+        // 27) still correctly point at the committed record -- the same
+        // "review gate lying about what's actually stored" class of bug this
+        // codebase treats as real everywhere else. model-builder-progress-
+        // matrix.vue renders model-builder-batch-editor.vue and model-
+        // builder-item-panel.vue side by side for the SAME selected item's
+        // group, so this is reachable in a single tab with no clock race:
+        // select an item, click "Execute commit" in the item panel, then
+        // immediately click "Draft pitches" (or any other batch action) in
+        // the batch editor for that same group while the commit POST is
+        // still in flight. Skip any item a manual single-item action already
+        // owns, mirroring autoBuildItem's own identical guard for the exact
+        // same reason. batchSetField/batchApproveStage carry the identical
+        // fix for the same reason -- see their own shorter cross-reference
+        // comments.
+        if (isItemManualActionInFlight(item.id)) continue
         const current =
           field === 'pitch'
             ? item.pitch
@@ -2328,6 +2365,13 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       // Skip items whose FIELDS_AND_PROMPTS is already approved/locked — see
       // isStageEditable's doc comment.
       if (!isStageEditable(item, 'FIELDS_AND_PROMPTS')) continue
+      // Bug (model-builder/t-029, cycle 30): skip an item a manual
+      // single-item action (most concretely commitItem()) already owns --
+      // see batchDraftField's identical check for the full shape of this
+      // race (a stale local-only 'in-progress' marker for another stage
+      // leaking into this call's `stageStatuses: item.stages` payload and
+      // potentially clobbering the server's real, just-written status).
+      if (isItemManualActionInFlight(item.id)) continue
       const modelType = state.run
         ? resolveTargetModel(item.action, item.outputKey, state.run.sourceType)
         : undefined
@@ -2432,6 +2476,19 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     const previousStages = new Map<string, BuildItem['stages']>()
     for (const item of groupItems(outputKey)) {
       if (item.stages[stageKey].status === 'locked') continue
+      // Bug (model-builder/t-029, cycle 30): skip an item a manual
+      // single-item action (most concretely commitItem()) already owns --
+      // see batchDraftField's identical check for the full shape of this
+      // race (a stale local-only 'in-progress' marker for another stage
+      // leaking into this call's `stageStatuses: item.stages` payload and
+      // potentially clobbering the server's real, just-written status). This
+      // matters even more here than in batchSetField/batchDraftField: this
+      // function writes `stageStatuses: item.stages` for EVERY unlocked
+      // item regardless of whether stageKey's own status actually changes,
+      // so a committing item's stray 'in-progress' COMMIT marker would
+      // otherwise be forwarded even when this batch call has nothing genuine
+      // to persist for that item at all.
+      if (isItemManualActionInFlight(item.id)) continue
       previousStages.set(item.id, { ...item.stages })
       item.stages[stageKey] = { status: 'approved' }
       const next = BUILD_STAGES[stageIndex(stageKey) + 1]

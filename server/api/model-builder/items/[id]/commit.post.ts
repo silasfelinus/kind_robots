@@ -56,9 +56,34 @@ function isSourceType(value: string): value is SourceType {
 
 const LONG_TEXT_MAX = 20000
 const DEFAULT_TEXT_MAX = 256
+// Explicit per-field caps for columns narrower than LONG_TEXT_MAX/
+// DEFAULT_TEXT_MAX -- checked first in pickText below regardless of a
+// field's `prose`/LONG_TEXT_FIELDS classification (model-builder/t-029,
+// cycle 33): every one of these fields maps to a bounded VarChar column in
+// prisma/schema.prisma, so its cap here must match that column's declared
+// width, not the prose-text default of 20000 chars.
 const SHORT_TEXT_MAX: Partial<Record<SourceType, Record<string, number>>> = {
   Character: { class: 764, species: 764 },
-  Bot: { subtitle: 764 },
+  // description/personality/botIntro/userIntro/prompt: Bot.description and
+  // Bot.personality are VarChar(764); Bot.botIntro is VarChar(3000) and
+  // NOT NULL; Bot.userIntro and Bot.prompt are VarChar(764) and NOT NULL.
+  // All five are marked `prose: true` (or, for personality, simply lacked
+  // any override) in MODEL_FIELDS.Bot, which -- before this fix -- let
+  // pickText's isLongText branch return LONG_TEXT_MAX (20000) unconditionally
+  // for the four prose ones, or the generic DEFAULT_TEXT_MAX (256) for
+  // personality, both silently ignoring the real column width. Committing an
+  // AI-drafted or user-typed value past these caps risked either a silent
+  // MySQL truncation or a "Data too long for column" write failure on the
+  // three NOT NULL columns -- for a live, reachable path: Bot is a real
+  // CREATE target via the expand-narrator-bot/expand-manager-bot outputs.
+  Bot: {
+    subtitle: 764,
+    description: 764,
+    personality: 764,
+    botIntro: 3000,
+    userIntro: 764,
+    prompt: 764,
+  },
   Reward: { flavorText: 512, collection: 764 },
   Dream: { flavorText: 512 },
 }
@@ -135,9 +160,21 @@ function pickText(
   const isLongText =
     fieldSpecFor(type).find((field) => field.key === key)?.prose ||
     LONG_TEXT_FIELDS[type]?.has(key)
-  const maxLen = isLongText
-    ? LONG_TEXT_MAX
-    : (SHORT_TEXT_MAX[type]?.[key] ?? DEFAULT_TEXT_MAX)
+  // SHORT_TEXT_MAX is checked FIRST, unconditionally -- not only when
+  // `!isLongText` (model-builder/t-029, cycle 33). Before this fix, a field
+  // marked `prose: true` (or listed in LONG_TEXT_FIELDS) always took the
+  // isLongText branch and got LONG_TEXT_MAX (20000) regardless of any
+  // SHORT_TEXT_MAX entry for it, silently making that entry dead code. That
+  // exact gap left Reward.flavorText and Dream.flavorText -- both real
+  // VarChar(512) columns, both marked prose: true, both already listed in
+  // SHORT_TEXT_MAX at 512 -- free to accept up to 20000 characters at
+  // commit time, risking a silent MySQL truncation or a "Data too long for
+  // column" write failure. An explicit SHORT_TEXT_MAX entry is a narrower,
+  // more specific fact about the real schema column than the generic
+  // prose/long-text classification, so it must win regardless of that flag.
+  const maxLen =
+    SHORT_TEXT_MAX[type]?.[key] ??
+    (isLongText ? LONG_TEXT_MAX : DEFAULT_TEXT_MAX)
   return trimmed.length > maxLen ? trimmed.slice(0, maxLen) : trimmed
 }
 

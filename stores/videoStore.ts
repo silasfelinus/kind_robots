@@ -168,7 +168,23 @@ export const useVideoStore = defineStore('videoStore', () => {
     return res.data.jobId
   }
 
+  // `res.success` is false for BOTH "job not started yet" and "the status
+  // fetch itself failed" (performFetch never throws -- a network blip, an
+  // expired session's 401, the store-wide circuit breaker being open, or a
+  // genuine 404 all collapse to the same `job: null`). Before this fix, that
+  // null fell through to the same "keep polling" path as a genuine
+  // PENDING/RUNNING status with no retry cap and no timeout, so a
+  // *persistent* fetch failure (e.g. the user's JWT expiring mid-render)
+  // looped forever every POLL_MS -- this await never resolved or rejected,
+  // so generate()'s own try/catch never ran and the caller was left awaiting
+  // indefinitely with nothing surfaced. Caps consecutive failed status
+  // checks before giving up, mirroring the sibling fix already applied to
+  // artStore.ts's waitForQueuedArtJob and modelBuilderStore.ts's
+  // pollAsyncArtJob.
+  const MAX_CONSECUTIVE_POLL_FAILURES = 6 // ~30s of failed status checks
+
   async function waitForJob(jobId: number): Promise<QueuedJob> {
+    let consecutivePollFailures = 0
     while (true) {
       const res = await performFetch<{ job: QueuedJob }>(
         `/api/art/queue/${jobId}`,
@@ -185,6 +201,17 @@ export const useVideoStore = defineStore('videoStore', () => {
         job?.status === 'CANCELLED'
       ) {
         return job
+      }
+
+      if (job?.status === 'RUNNING' || job?.status === 'PENDING') {
+        consecutivePollFailures = 0
+      } else {
+        consecutivePollFailures += 1
+        if (consecutivePollFailures >= MAX_CONSECUTIVE_POLL_FAILURES) {
+          throw new Error(
+            `Lost track of video job ${jobId} after ${consecutivePollFailures} failed status checks.`,
+          )
+        }
       }
 
       const notice = artJobRetryNotice(job)

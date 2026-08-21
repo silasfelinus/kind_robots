@@ -1,6 +1,7 @@
 import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { useArtStore } from '@/stores/artStore'
+import type { GenerateArtData } from '@/stores/artStore'
 import { useServerStore } from '@/stores/serverStore'
 import { performFetch } from '@/stores/utils'
 import {
@@ -23,7 +24,9 @@ import {
   normalizeSourceRef,
   normalizeStoredBatch,
   normalizeStoredCandidate,
+  markCandidateArtProcessing,
   nowIso,
+  recordCandidateArtFailure,
   recordCandidateArtImage,
   recordCandidateArtJob,
   RETURN_TYPE_IDS,
@@ -905,6 +908,23 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
    * without that store's run-cancellation apparatus -- Brainstorm has no
    * equivalent of a model-builder "run" to cancel out from under a job, so a
    * plain per-candidate async task awaited via Promise.all is sufficient.
+   *
+   * brainstorm/t-017: two follow-ons on top of the above.
+   *   1. Retry-safe resume -- if this candidate's meta.art already carries a
+   *      `queued`/`processing` status (an earlier attempt's poll loop never
+   *      saw a terminal status, e.g. a page reload interrupted it), reuse
+   *      that job's id instead of enqueueing a duplicate ArtJob for the same
+   *      candidate. Only a genuinely new attempt (no art yet, or the last one
+   *      ended `delivered`/`failed`) enqueues fresh.
+   *   2. Verified delivery -- a DONE status with an artImageId attached is
+   *      not itself proof the image exists and loads. Route the terminal job
+   *      through artStore.finalizeQueuedArtImage the same way
+   *      modelBuilderStore.ts's pollAsyncArtJob does: it re-fetches the
+   *      ArtImage record (so a DONE job whose image row never actually
+   *      landed surfaces as a failure here, not a silently-broken thumbnail
+   *      later) and attaches it through the same collection semantics every
+   *      other art-generation surface uses, rather than Brainstorm inventing
+   *      its own image storage.
    */
   async function generateArtForCandidate(
     candidate: BrainstormCandidate,
@@ -916,53 +936,74 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     ]
     try {
       const prompt = buildBrainstormArtPrompt(candidate, outputDomain.value)
-      const enqueued = await artStore.enqueueArtGeneration({
-        promptString: prompt,
-        engine: 'krea2',
-        isPublic: false,
-        isMature: false,
-        brainstormContext: {
-          product: 'brainstorm',
-          candidateId: candidate.id,
-          sessionId: savedSessionId.value,
-          source: candidate.meta.source ?? source.value ?? null,
-        },
-      })
+      const existingArt = candidate.meta.art
+      const resumableJobId =
+        existingArt?.status === 'queued' || existingArt?.status === 'processing'
+          ? (existingArt.jobIds[existingArt.jobIds.length - 1] ?? null)
+          : null
 
-      if (!enqueued.success || !enqueued.jobId) {
-        return {
-          success: false,
-          message:
+      let jobId: number
+      let generateData: GenerateArtData = { promptString: prompt }
+
+      if (resumableJobId != null) {
+        jobId = resumableJobId
+      } else {
+        const enqueued = await artStore.enqueueArtGeneration({
+          promptString: prompt,
+          engine: 'krea2',
+          isPublic: false,
+          isMature: false,
+          brainstormContext: {
+            product: 'brainstorm',
+            candidateId: candidate.id,
+            sessionId: savedSessionId.value,
+            source: candidate.meta.source ?? source.value ?? null,
+          },
+        })
+
+        if (!enqueued.success || !enqueued.jobId) {
+          const message =
             enqueued.message ||
-            `"${candidate.title || candidate.text.slice(0, 40)}" failed to queue.`,
+            `"${candidate.title || candidate.text.slice(0, 40)}" failed to queue.`
+          recordCandidateArtFailure(candidate, message)
+          return { success: false, message }
         }
+
+        recordCandidateArtJob(candidate, enqueued.jobId)
+        jobId = enqueued.jobId
+        if (enqueued.data) generateData = enqueued.data
       }
 
-      recordCandidateArtJob(candidate, enqueued.jobId)
-
       while (true) {
-        const job = await artStore.getArtJobStatus(enqueued.jobId)
-        if (!job || job.status === 'PENDING' || job.status === 'RUNNING') {
+        const job = await artStore.getArtJobStatus(jobId)
+        if (!job || job.status === 'PENDING') {
           await artQueueSleep(ART_JOB_POLL_MS)
           continue
         }
-        if (job.status !== 'DONE' || !job.artImageId) {
-          return {
-            success: false,
-            message:
-              job.error ||
-              `ArtJob ${enqueued.jobId} ended as ${job.status.toLowerCase()}.`,
-          }
+        if (job.status === 'RUNNING') {
+          markCandidateArtProcessing(candidate)
+          await artQueueSleep(ART_JOB_POLL_MS)
+          continue
         }
-        recordCandidateArtImage(candidate, job.artImageId)
+
+        const finalized = await artStore.finalizeQueuedArtImage(
+          job,
+          generateData,
+        )
+        if (!finalized.success || !finalized.data) {
+          const message =
+            finalized.message || `ArtJob ${jobId} did not complete.`
+          recordCandidateArtFailure(candidate, message)
+          return { success: false, message }
+        }
+        recordCandidateArtImage(candidate, finalized.data.id)
         return { success: true }
       }
     } catch (error) {
-      return {
-        success: false,
-        message:
-          error instanceof Error ? error.message : 'Art generation failed.',
-      }
+      const message =
+        error instanceof Error ? error.message : 'Art generation failed.'
+      recordCandidateArtFailure(candidate, message)
+      return { success: false, message }
     } finally {
       artGeneratingCandidateIds.value = artGeneratingCandidateIds.value.filter(
         (id) => id !== candidate.id,

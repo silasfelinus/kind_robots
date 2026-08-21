@@ -16,7 +16,8 @@ export const BRAINSTORM_OUTPUT_DOMAINS = [
   {
     id: 'ideas',
     label: 'Ideas',
-    description: 'General creative divergence: concepts, jokes, plans, and premises.',
+    description:
+      'General creative divergence: concepts, jokes, plans, and premises.',
   },
   {
     id: 'art-prompts',
@@ -26,53 +27,64 @@ export const BRAINSTORM_OUTPUT_DOMAINS = [
   },
 ] as const
 
-export type BrainstormOutputDomainId = (typeof BRAINSTORM_OUTPUT_DOMAINS)[number]['id']
-export const BRAINSTORM_DEFAULT_OUTPUT_DOMAIN: BrainstormOutputDomainId = 'ideas'
+export type BrainstormOutputDomainId =
+  (typeof BRAINSTORM_OUTPUT_DOMAINS)[number]['id']
+export const BRAINSTORM_DEFAULT_OUTPUT_DOMAIN: BrainstormOutputDomainId =
+  'ideas'
 
 export const BRAINSTORM_RETURN_TYPES = [
   {
     id: 'dark-humor',
     label: 'Dark humor',
-    description: 'Gallows humor, irony, cartoon peril, and darker comic premises where allowed.',
+    description:
+      'Gallows humor, irony, cartoon peril, and darker comic premises where allowed.',
   },
   {
     id: 'pun',
     label: 'Pun / wordplay',
-    description: 'Language-driven ideas with an actual premise, not just a word swapped into a title.',
+    description:
+      'Language-driven ideas with an actual premise, not just a word swapped into a title.',
   },
   {
     id: 'dad-joke',
     label: 'Dad joke',
-    description: 'Earnest groaners, literal misunderstandings, and proudly obvious comic machinery.',
+    description:
+      'Earnest groaners, literal misunderstandings, and proudly obvious comic machinery.',
   },
   {
     id: 'dry-observation',
     label: 'Dry observation',
-    description: 'Underplayed, deadpan, or sharply observed responses that trust the premise.',
+    description:
+      'Underplayed, deadpan, or sharply observed responses that trust the premise.',
   },
   {
     id: 'absurd-escalation',
     label: 'Absurd escalation',
-    description: 'Take one coherent mechanism farther until the consequences become delightfully unreasonable.',
+    description:
+      'Take one coherent mechanism farther until the consequences become delightfully unreasonable.',
   },
   {
     id: 'practical',
     label: 'Practical',
-    description: 'Useful, buildable, or actionable answers that still avoid the obvious first draft.',
+    description:
+      'Useful, buildable, or actionable answers that still avoid the obvious first draft.',
   },
   {
     id: 'inversion',
     label: 'Inversion',
-    description: 'Reverse a role, assumption, incentive, cause, or expected outcome.',
+    description:
+      'Reverse a role, assumption, incentive, cause, or expected outcome.',
   },
   {
     id: 'left-field',
     label: 'Left field',
-    description: 'A surprising but premise-connected angle that changes the mechanism rather than adding random nouns.',
+    description:
+      'A surprising but premise-connected angle that changes the mechanism rather than adding random nouns.',
   },
 ] as const
 
-export type BrainstormReturnTypeId = (typeof BRAINSTORM_RETURN_TYPES)[number]['id']
+export type BrainstormReturnTypeId =
+  (typeof BRAINSTORM_RETURN_TYPES)[number]['id']
 export type BrainstormBatchShape = 'focused' | 'assortment'
 
 export type BrainstormReturnTypeRequest = {
@@ -83,24 +95,13 @@ export type BrainstormReturnTypeRequest = {
 export type BrainstormCandidateStatus = 'pending' | 'kept' | 'rejected'
 
 export type BrainstormRevisionReason =
-  | 'generated'
-  | 'edited'
-  | 'regenerated'
-  | 'branched'
-  | 'restored'
+  'generated' | 'edited' | 'regenerated' | 'branched' | 'restored'
 
 export type BrainstormGenerationState =
-  | 'idle'
-  | 'generating'
-  | 'success'
-  | 'error'
+  'idle' | 'generating' | 'success' | 'error'
 
 export type BrainstormPersistenceState =
-  | 'idle'
-  | 'loading'
-  | 'saving'
-  | 'success'
-  | 'error'
+  'idle' | 'loading' | 'saving' | 'success' | 'error'
 
 export type BrainstormErrorKind =
   | 'validation'
@@ -133,9 +134,19 @@ export type BrainstormBranchOrigin = {
   text: string
 }
 
+// status/error persist the outcome of the most recent art generation attempt
+// on the candidate itself (not just in-memory store state), so a page reload
+// mid-generation can tell "still queued, resume polling" apart from "the last
+// attempt failed" instead of silently looking identical to "never started"
+// (brainstorm/t-017).
+export type BrainstormCandidateArtStatus =
+  'queued' | 'processing' | 'delivered' | 'failed'
+
 export type BrainstormCandidateArtMeta = {
   jobIds: number[]
   imageIds: number[]
+  status?: BrainstormCandidateArtStatus
+  error?: string | null
 }
 
 export type BrainstormCandidateMeta = {

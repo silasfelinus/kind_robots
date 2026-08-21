@@ -68,12 +68,23 @@
           </button>
 
           <button
+            v-if="!newStoryArmed"
             type="button"
             class="btn btn-primary btn-sm rounded-xl"
             :disabled="storyStore.isWeaving"
-            @click="startNewStory"
+            @click="newStoryArmed = true"
           >
             <Icon name="kind-icon:plus" class="size-4" /> New story
+          </button>
+          <button
+            v-else
+            type="button"
+            class="btn btn-warning btn-sm rounded-xl"
+            :disabled="storyStore.isWeaving"
+            @click="startNewStory"
+            @blur="newStoryArmed = false"
+          >
+            <Icon name="kind-icon:alert" class="size-4" /> Discard this tale?
           </button>
         </template>
       </div>
@@ -177,6 +188,7 @@ const router = useRouter()
 
 const libraryOpen = ref(false)
 const restartArmed = ref(false)
+const newStoryArmed = ref(false)
 
 // storybook-page.vue's seedFromQuery() (child, mounted first) treats these as
 // one-shot: it consumes them into the setup draft, then strips them with its
@@ -266,6 +278,7 @@ function downloadStory(
 
 function startNewStory(): void {
   if (storyStore.isWeaving) return
+  newStoryArmed.value = false
   storyStore.archiveCurrent()
   storyStore.resetSession()
   libraryOpen.value = false
@@ -286,15 +299,17 @@ function formatStoryDate(value: string): string {
 watch(
   () => storyStore.session?.id ?? null,
   (sessionId) => {
-    // A "Restart from the beginning?" arm is a confirmation for THIS session,
-    // not a standing state. Opening a different story, duplicating,
-    // restarting, or starting a new one all swap the active session out from
-    // under an armed-but-unconfirmed button -- without this reset, the next
-    // session renders straight into the armed, warning-colored button (never
-    // the plain "Restart" one), so a single click that looks like a first
-    // press instead fires the destructive restart immediately, with no
-    // confirmation ever given for the story actually on screen.
+    // A "Restart from the beginning?" / "Discard this tale?" arm is a
+    // confirmation for THIS session, not a standing state. Opening a
+    // different story, duplicating, restarting, or starting a new one all
+    // swap the active session out from under an armed-but-unconfirmed
+    // button -- without this reset, the next session renders straight into
+    // the armed, warning-colored button (never the plain "Restart"/"New
+    // story" one), so a single click that looks like a first press instead
+    // fires the destructive action immediately, with no confirmation ever
+    // given for the story actually on screen.
     restartArmed.value = false
+    newStoryArmed.value = false
     if (sessionId !== queryStoryId()) updateStoryQuery(sessionId)
   },
 )

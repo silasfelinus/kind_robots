@@ -1,0 +1,30 @@
+name: Storybook Library New Story Confirm Contract
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: storybook-library-new-story-confirm-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Storybook library New story confirm contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Verify Storybook library "New story" confirm guard
+        run: node utils/scripts/verifyStorybookLibraryNewStoryConfirmGuard.mjs

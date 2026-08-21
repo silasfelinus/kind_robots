@@ -1,5 +1,6 @@
 import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
+import { useArtStore } from '@/stores/artStore'
 import { useServerStore } from '@/stores/serverStore'
 import { performFetch } from '@/stores/utils'
 import {
@@ -7,6 +8,7 @@ import {
   applyCandidateRegeneration,
   applyCandidateRevisionRestore,
   applyCandidateStatus,
+  buildBrainstormArtPrompt,
   classifyError,
   cleanExamples,
   cleanMultilineText,
@@ -22,6 +24,8 @@ import {
   normalizeStoredBatch,
   normalizeStoredCandidate,
   nowIso,
+  recordCandidateArtImage,
+  recordCandidateArtJob,
   RETURN_TYPE_IDS,
 } from '@/stores/helpers/brainstormCandidateLifecycle'
 import {
@@ -110,6 +114,20 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
   const generationTargetId = ref<string | null>(null)
   const lastGeneratedAt = ref<string | null>(null)
 
+  // brainstorm/t-016: explicit selected-candidate art generation. Selection
+  // is deliberately kept out of BrainstormCandidate/meta -- it is a
+  // this-session UI concern (which kept candidates to render art for right
+  // now), not durable creative state worth persisting through save/load the
+  // way meta.art (the resulting job/image linkage) is.
+  const artSelectionIds = ref<string[]>([])
+  const artGenerationState = ref<'idle' | 'generating'>('idle')
+  const artGenerationError = ref<BrainstormError | null>(null)
+  const artGenerationProgress = ref<{
+    total: number
+    completed: number
+  } | null>(null)
+  const artGeneratingCandidateIds = ref<string[]>([])
+
   const savedSessionId = ref<number | null>(null)
   const sessionName = ref('')
   const savedSessions = ref<BrainstormSavedSessionSummary[]>([])
@@ -156,6 +174,17 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
   const rejectedCandidates = computed(() =>
     activeCandidates.value.filter(
       (candidate) => candidate.status === 'rejected',
+    ),
+  )
+
+  // brainstorm/t-016: selection is restricted to kept candidates -- the ones
+  // the user has already curated -- both here and in toggleArtSelection, so
+  // stale/orphaned selection ids (a candidate later un-kept, edited into
+  // rejection, or removed) simply drop out of this list without needing
+  // explicit pruning of artSelectionIds itself.
+  const selectedForArtCandidates = computed(() =>
+    keptCandidates.value.filter((candidate) =>
+      artSelectionIds.value.includes(candidate.id),
     ),
   )
 
@@ -829,6 +858,182 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     return Boolean(appendBranchCandidate(candidate, generated[0]))
   }
 
+  function isSelectedForArt(candidateId: string): boolean {
+    return artSelectionIds.value.includes(candidateId)
+  }
+
+  // Selection is restricted to kept candidates (see selectedForArtCandidates'
+  // comment) -- a non-kept id is refused here rather than merely filtered
+  // later, so a candidate that was never kept can never even enter the list.
+  function toggleArtSelection(candidateId: string): boolean {
+    const candidate = findCandidate(candidateId)
+    if (!candidate || candidate.status !== 'kept') return false
+
+    const index = artSelectionIds.value.indexOf(candidateId)
+    if (index >= 0) artSelectionIds.value.splice(index, 1)
+    else artSelectionIds.value.push(candidateId)
+    return true
+  }
+
+  function clearArtSelection(): void {
+    artSelectionIds.value = []
+  }
+
+  function clearArtGenerationError(): void {
+    artGenerationError.value = null
+  }
+
+  function isGeneratingArtFor(candidateId: string): boolean {
+    return artGeneratingCandidateIds.value.includes(candidateId)
+  }
+
+  const ART_JOB_POLL_MS = 5_000
+
+  function artQueueSleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms))
+  }
+
+  /**
+   * Enqueues one ArtJob for `candidate` through the normal
+   * POST /api/art/enqueue pipeline (via artStore.enqueueArtGeneration, so
+   * mana gating/server resolution/checkpoint defaults all go through the
+   * same path every other product uses), records the returned job id onto
+   * candidate.meta.art.jobIds immediately, then polls until the job resolves
+   * and records the resulting image id onto meta.art.imageIds. Mirrors
+   * modelBuilderStore.ts's generateItemAssetAsync/pollAsyncArtJob split
+   * (enqueue returns fast, a separate poll loop resolves the image) but
+   * without that store's run-cancellation apparatus -- Brainstorm has no
+   * equivalent of a model-builder "run" to cancel out from under a job, so a
+   * plain per-candidate async task awaited via Promise.all is sufficient.
+   */
+  async function generateArtForCandidate(
+    candidate: BrainstormCandidate,
+  ): Promise<{ success: boolean; message?: string }> {
+    const artStore = useArtStore()
+    artGeneratingCandidateIds.value = [
+      ...artGeneratingCandidateIds.value,
+      candidate.id,
+    ]
+    try {
+      const prompt = buildBrainstormArtPrompt(candidate, outputDomain.value)
+      const enqueued = await artStore.enqueueArtGeneration({
+        promptString: prompt,
+        engine: 'krea2',
+        isPublic: false,
+        isMature: false,
+        brainstormContext: {
+          product: 'brainstorm',
+          candidateId: candidate.id,
+          sessionId: savedSessionId.value,
+          source: candidate.meta.source ?? source.value ?? null,
+        },
+      })
+
+      if (!enqueued.success || !enqueued.jobId) {
+        return {
+          success: false,
+          message:
+            enqueued.message ||
+            `"${candidate.title || candidate.text.slice(0, 40)}" failed to queue.`,
+        }
+      }
+
+      recordCandidateArtJob(candidate, enqueued.jobId)
+
+      while (true) {
+        const job = await artStore.getArtJobStatus(enqueued.jobId)
+        if (!job || job.status === 'PENDING' || job.status === 'RUNNING') {
+          await artQueueSleep(ART_JOB_POLL_MS)
+          continue
+        }
+        if (job.status !== 'DONE' || !job.artImageId) {
+          return {
+            success: false,
+            message:
+              job.error ||
+              `ArtJob ${enqueued.jobId} ended as ${job.status.toLowerCase()}.`,
+          }
+        }
+        recordCandidateArtImage(candidate, job.artImageId)
+        return { success: true }
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message:
+          error instanceof Error ? error.message : 'Art generation failed.',
+      }
+    } finally {
+      artGeneratingCandidateIds.value = artGeneratingCandidateIds.value.filter(
+        (id) => id !== candidate.id,
+      )
+    }
+  }
+
+  /**
+   * The explicit, user-initiated batch action: one ArtJob per currently
+   * selected (kept + toggled) candidate, run concurrently. Per brainstorm/
+   * t-016's note, this is intentionally the only way art generation fires --
+   * nothing here runs automatically off text generation, keep/reject, or
+   * session load.
+   */
+  async function generateArtForSelected(): Promise<boolean> {
+    const targets = selectedForArtCandidates.value
+    if (!targets.length || artGenerationState.value === 'generating') {
+      return false
+    }
+
+    clearArtGenerationError()
+    artGenerationState.value = 'generating'
+    artGenerationProgress.value = { total: targets.length, completed: 0 }
+
+    const failures: string[] = []
+    let succeeded = 0
+
+    await Promise.all(
+      targets.map(async (candidate) => {
+        const result = await generateArtForCandidate(candidate)
+        if (result.success) succeeded += 1
+        else if (result.message) failures.push(result.message)
+        if (artGenerationProgress.value) {
+          artGenerationProgress.value = {
+            ...artGenerationProgress.value,
+            completed: artGenerationProgress.value.completed + 1,
+          }
+        }
+      }),
+    )
+
+    artGenerationState.value = 'idle'
+    artGenerationProgress.value = null
+    clearArtSelection()
+
+    if (failures.length) {
+      const firstFailure = failures[0] ?? 'Art generation failed.'
+      artGenerationError.value = {
+        kind: 'provider',
+        message:
+          failures.length === targets.length
+            ? firstFailure
+            : `${failures.length} of ${targets.length} art jobs failed. ${firstFailure}`,
+        status: null,
+      }
+    }
+
+    // Durable persistence (brainstorm/t-016): the local session snapshot
+    // already picks up meta.art via the existing deep watch -> persistSession
+    // -> localStorage autosave (candidates are mutated in place above, not
+    // replaced). Once a session has been saved to the server at least once,
+    // also push the new job/image linkage there so it survives a reload from
+    // a different browser/device, not just this one's localStorage. Fire and
+    // forget: a save failure here surfaces through the existing persistence
+    // error banner, and should not turn a successful art generation into a
+    // reported failure.
+    if (savedSessionId.value) void saveCurrentSession()
+
+    return succeeded > 0
+  }
+
   function upsertSavedSummary(summary: BrainstormSavedSessionSummary): void {
     const index = savedSessions.value.findIndex(
       (entry) => entry.id === summary.id,
@@ -1017,6 +1222,11 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     generationError,
     generationTargetId,
     lastGeneratedAt,
+    artSelectionIds,
+    artGenerationState,
+    artGenerationError,
+    artGenerationProgress,
+    artGeneratingCandidateIds,
     savedSessionId,
     sessionName,
     savedSessions,
@@ -1030,6 +1240,7 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     allKeptCandidates,
     rejectedCandidates,
     pendingCandidates,
+    selectedForArtCandidates,
     minimumMixResults,
     isGenerating,
     isPersisting,
@@ -1065,6 +1276,12 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     generateBatch,
     regenerateCandidate,
     branchCandidate,
+    isSelectedForArt,
+    toggleArtSelection,
+    clearArtSelection,
+    clearArtGenerationError,
+    isGeneratingArtFor,
+    generateArtForSelected,
     loadSavedSessions,
     saveCurrentSession,
     openSavedSession,

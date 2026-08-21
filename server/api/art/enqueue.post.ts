@@ -60,6 +60,24 @@ type NarrativeEnqueueContext = {
   dedupeKey: string
 }
 
+// brainstorm/t-016: kept separate from NarrativeEnqueueContext rather than
+// widening its product union -- that shape's beatId/moment/dedupeKey exist
+// for narrative-beat dedup (see narrativeRequest below), which Brainstorm
+// candidates have no equivalent of. This is provenance-only: it never gates
+// or deduplicates the request, it just gets tagged onto the ArtJob payload
+// (mirrors how entityArt/narrativeContext do the same) so the job stays
+// traceable back to its BrainstormSession/candidate/source.
+type BrainstormEnqueueContext = {
+  product: 'brainstorm'
+  candidateId: string
+  sessionId: number | null
+  source?: {
+    modelType: string
+    id?: number | null
+    slug?: string | null
+  } | null
+}
+
 type ArtEnqueueRequest = {
   engine?: string | null
   promptString?: string | null
@@ -99,6 +117,7 @@ type ArtEnqueueRequest = {
   projectSlug?: string | null
   priority?: number | null
   narrativeContext?: NarrativeEnqueueContext | null
+  brainstormContext?: BrainstormEnqueueContext | null
   sourceImageBase64?: string | null
   firstImageBase64?: string | null
   secondImageBase64?: string | null
@@ -210,6 +229,41 @@ function narrativeRequest(
   return { product, sessionId, beatId, moment, dedupeKey }
 }
 
+function brainstormRequest(
+  body: ArtEnqueueRequest | null,
+): BrainstormEnqueueContext | null {
+  const raw = asRecord(body?.brainstormContext)
+  if (!Object.keys(raw).length) return null
+
+  const candidateId = String(raw.candidateId || '').trim()
+  if (!candidateId || candidateId.length > 200) {
+    throw createError({
+      statusCode: 400,
+      message: 'Invalid Brainstorm candidate id.',
+    })
+  }
+
+  const rawSessionId = Number(raw.sessionId)
+  const sessionId =
+    Number.isInteger(rawSessionId) && rawSessionId > 0 ? rawSessionId : null
+
+  const rawSource = asRecord(raw.source)
+  const sourceModelType = String(rawSource.modelType || '').trim()
+  const source = sourceModelType
+    ? {
+        modelType: sourceModelType.slice(0, 80),
+        ...(Number.isInteger(Number(rawSource.id)) && Number(rawSource.id) > 0
+          ? { id: Number(rawSource.id) }
+          : {}),
+        ...(typeof rawSource.slug === 'string' && rawSource.slug.trim()
+          ? { slug: rawSource.slug.trim().slice(0, 160) }
+          : {}),
+      }
+    : null
+
+  return { product: 'brainstorm', candidateId, sessionId, source }
+}
+
 function facetRequest(body: ArtEnqueueRequest | null): {
   facetIds: number[]
   basePromptString: string
@@ -269,6 +323,7 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'Invalid projectSlug.' })
     }
     const narrativeContext = narrativeRequest(body)
+    const brainstormContext = brainstormRequest(body)
 
     const videoFrames = VIDEO_ENGINES.has(engine)
       ? resolveVideoFrames(engine, body)
@@ -395,6 +450,7 @@ export default defineEventHandler(async (event) => {
     })
     applyArtFacetsToPayload(payload, contextualBasePrompt, facets)
     if (narrativeContext) payload.narrativeContext = narrativeContext
+    if (brainstormContext) payload.brainstormContext = brainstormContext
     if (entityArt) payload.entityArt = entityArt.metadata
 
     const provenanceResources = {

@@ -431,6 +431,12 @@ jobs:
       - name: Model Builder commit name/title field guard contract
         run: npm run test:model-builder-commit-name-field-guard
 
+      - name: Model Builder commit text-truncation guard checker self-test
+        run: npm run test:model-builder-commit-text-truncation-guard-selftest
+
+      - name: Model Builder commit text-truncation guard contract
+        run: npm run test:model-builder-commit-text-truncation-guard
+
       - name: Model Builder commit stale-snapshot guard checker self-test
         run: npm run test:model-builder-commit-stale-snapshot-guard-selftest
 

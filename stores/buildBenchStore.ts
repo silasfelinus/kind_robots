@@ -281,14 +281,27 @@ export const useBuildBenchStore = defineStore('buildBenchStore', () => {
     }
   }
 
-  async function pollJob(
-    jobId: number,
-  ): Promise<{
+  // `res.success` is false for BOTH "job not started yet" and "the status
+  // fetch itself failed" (performFetch never throws -- a network blip, an
+  // expired session's 401, the store-wide circuit breaker being open, or a
+  // genuine 404 all collapse to the same `job: null`). Before this fix, that
+  // null fell through to the same "keep polling" path as a genuine
+  // PENDING/RUNNING status with no retry cap and no timeout, so a
+  // *persistent* fetch failure looped forever every POLL_MS -- this await
+  // never resolved or rejected, so runSide's own try/catch never ran and the
+  // bench side sat at 'rendering' forever with nothing surfaced. Caps
+  // consecutive failed status checks before giving up, mirroring the sibling
+  // fix already applied to artStore.ts's waitForQueuedArtJob,
+  // modelBuilderStore.ts's pollAsyncArtJob, and videoStore.ts's waitForJob.
+  const MAX_CONSECUTIVE_POLL_FAILURES = 6 // ~30s of failed status checks
+
+  async function pollJob(jobId: number): Promise<{
     status: string
     artImageId: number | null
     error: string | null
     seed: number | null
   }> {
+    let consecutivePollFailures = 0
     while (true) {
       const res = await performFetch<{
         job: { status: string; artImageId: number | null; error: string | null }
@@ -302,6 +315,18 @@ export const useBuildBenchStore = defineStore('buildBenchStore', () => {
           seed: null,
         }
       }
+
+      if (job && ['PENDING', 'RUNNING'].includes(job.status)) {
+        consecutivePollFailures = 0
+      } else {
+        consecutivePollFailures += 1
+        if (consecutivePollFailures >= MAX_CONSECUTIVE_POLL_FAILURES) {
+          throw new Error(
+            `Lost track of Build Bench job ${jobId} after ${consecutivePollFailures} failed status checks.`,
+          )
+        }
+      }
+
       await new Promise((resolve) => setTimeout(resolve, POLL_MS))
     }
   }

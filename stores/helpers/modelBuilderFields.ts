@@ -6,6 +6,7 @@
 // *Cards). Used to auto-fill the FIELDS stage and to ground AI drafting so a
 // created record comes out complete and specific (a Reward gets a real
 // type/rarity/effect) instead of a generic sentence.
+import { CREATABLE_DREAM_TYPES } from '@/stores/helpers/dreamHelper'
 import type { SourceTypeKey } from '@/stores/helpers/modelBuilderRecipes'
 import { DAISY_CARD_THEMES } from '@/utils/entityTheme'
 
@@ -22,16 +23,15 @@ export interface ModelFieldSpec {
 const RARITY = ['COMMON', 'UNCOMMON', 'RARE', 'EPIC', 'LEGENDARY', 'MYTHIC']
 const REWARD_TYPES = ['ITEM', 'PET', 'SKILL', 'POWER', 'MAGIC', 'FAVOR']
 const BOT_TYPES = ['CHATBOT', 'PROMPTBOT', 'ARTBOT']
-const DREAM_TYPES = [
-  'ART',
-  'BRAINSTORM',
-  'CHARACTER',
-  'REWARD',
-  'SCENARIO',
-  'LOCATION',
-  'PITCH',
-  'WISH',
-]
+// Sourced from dreamHelper.ts's CREATABLE_DREAM_TYPES (model-builder/t-029,
+// cycle 34) rather than a hand-duplicated literal list -- a prior
+// hand-duplicated copy here silently omitted PROMPTBOT and NARRATOR, both
+// real, user-creatable DreamType values dreamHelper.ts already treats as
+// normal. Currently zero live impact (Dream is not a CREATE_TARGETS output,
+// so this choices list only backs an as-yet-unreachable dreamType field
+// spec) but importing the canonical list instead of re-typing it removes the
+// drift class entirely rather than just patching this one instance of it.
+const DREAM_TYPES: string[] = [...CREATABLE_DREAM_TYPES]
 
 // Facet.kind is a compatibility column. Model Builder accepts the authoritative
 // FacetProfile taxonomy and the commit route derives kind internally.

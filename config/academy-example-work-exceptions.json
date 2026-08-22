@@ -1,72 +1,32 @@
 [
   {
-    "slug": "song-dynasty-landscape",
-    "reason": "No CC0/PD-Mark/Open-Access-Terms image located yet for a Song-attributed monumental landscape within this pass's search effort. Not policy-excluded -- tracked for future sourcing.",
-    "followUpTask": "ai-art-academy/t-074"
-  },
-  {
-    "slug": "persian-miniature",
-    "reason": "No CC0/PD-Mark/Open-Access-Terms image located yet for a Bihzad-circle or Safavid-workshop folio within this pass's search effort. Not policy-excluded -- tracked for future sourcing.",
-    "followUpTask": "ai-art-academy/t-074"
-  },
-  {
     "slug": "suprematism",
-    "reason": "Malevich's Suprematist canvases are held by institutions (State Russian Museum, Stedelijk) whose open-access terms were not verified this pass; prior sessions found several early-20th-century European modernists rights-restricted (ARS/VG Bild-Kunst) despite public-domain age. Not policy-excluded -- needs a per-work rights check before sourcing.",
+    "reason": "t-074 pass (2026-08-22): checked Cleveland Museum of Art Open Access (CC0) and the Met Collection API directly. CMA holds only one Malevich work (First Kestner Portfolio Proun -- actually an El Lissitzky print misfiled under the query) and it is share_license_status: Copyrighted (ARS). The Met has no Malevich paintings at all in its public collection. Malevich's major Suprematist canvases remain concentrated at the State Russian Museum, Stedelijk Amsterdam, and MoMA, none of which offer a CC0/PD-Mark/Open-Access-Terms grant for his work. Not policy-excluded -- needs a source institution not yet checked (e.g. Van Abbemuseum, Khardzhiev collection holders) or a Wikimedia Commons PD-Art-tagged reproduction with a verifiable rationale.",
     "followUpTask": "ai-art-academy/t-074"
   },
   {
     "slug": "american-regionalism",
-    "reason": "Both named artists' works (Grant Wood incl. American Gothic, John Steuart Curry) came back is_public_domain: false via the Art Institute of Chicago's own API this pass, despite both artists passing the death-date prong -- likely a rights-society digitization restriction distinct from copyright status. Not policy-excluded -- needs a different source institution.",
-    "followUpTask": "ai-art-academy/t-074"
-  },
-  {
-    "slug": "mughal-miniature",
-    "reason": "No CC0/PD-Mark/Open-Access-Terms image located yet for a Basawan/Bichitr-attributed or anonymous Akbar/Jahangir-era folio within this pass's search effort. Not policy-excluded -- tracked for future sourcing.",
-    "followUpTask": "ai-art-academy/t-074"
-  },
-  {
-    "slug": "vienna-secession",
-    "reason": "Klimt's Golden Phase works are managed by the Belvedere (Vienna) and rights-society partners; digitization license was not verified this pass. Not policy-excluded -- needs a per-work rights check before sourcing.",
-    "followUpTask": "ai-art-academy/t-074"
-  },
-  {
-    "slug": "joseon-genre-painting",
-    "reason": "No CC0/PD-Mark/Open-Access-Terms image located yet for a Kim Hong-do or Sin Yun-bok work within this pass's search effort (National Museum of Korea licensing not verified). Not policy-excluded -- tracked for future sourcing.",
-    "followUpTask": "ai-art-academy/t-074"
-  },
-  {
-    "slug": "the-nabis",
-    "reason": "No CC0/PD-Mark/Open-Access-Terms image located yet for a Sérusier, Vuillard, or Denis pre-1930 work within this pass's search effort. Not policy-excluded -- tracked for future sourcing.",
+    "reason": "t-074 pass (2026-08-22): re-checked beyond AIC. Cleveland Museum of Art holds Grant Wood and John Steuart Curry works but every one returned is share_license_status: Copyrighted, not CC0 -- the same digitization-rights-management pattern flagged at AIC, now confirmed at a second institution. Thomas Hart Benton (the third major Regionalist) fails the death-date prong outright (d. 1975, does not clear the 1956 cutoff). Not policy-excluded -- the movement's two cutoff-eligible named artists (Wood d.1942, Curry d.1946) do not currently have an open-access-licensed image at any institution checked so far (AIC, CMA); Smithsonian American Art Museum's open-access program has not yet been checked directly (its search API returned only library catalog records, not artwork records, in this pass) and is the next lead.",
     "followUpTask": "ai-art-academy/t-074"
   },
   {
     "slug": "precisionism",
-    "reason": "No CC0/PD-Mark/Open-Access-Terms image located yet for Charles Demuth, the lesson's sole 1956-cutoff-eligible named artist, within this pass's search effort. Not policy-excluded -- tracked for future sourcing.",
-    "followUpTask": "ai-art-academy/t-074"
-  },
-  {
-    "slug": "italian-futurism",
-    "reason": "No CC0/PD-Mark/Open-Access-Terms image located yet for Umberto Boccioni, the lesson's sole 1956-cutoff-eligible named artist, within this pass's search effort (most Boccioni holdings are MoMA/rights-managed). Not policy-excluded -- tracked for future sourcing.",
+    "reason": "t-074 pass (2026-08-22): found real CC0 Charles Demuth works at Cleveland Museum of Art (Amaryllis, 1923; Dancing Sailors, 1917) -- the lesson's sole cutoff-eligible named artist. Deliberately not used: neither is visually representative of the movement's defining industrial-geometric subject matter (factories, silos, bridges, machinery) that the lesson's own recognitionCues and failureMode are built around -- Amaryllis is a botanical still life and Dancing Sailors is a figural watercolor. Demuth's canonical industrial Precisionist works (e.g. My Egypt) are held by the Whitney Museum, which is not an open-access institution. Not policy-excluded -- a licensing match exists but a visually-representative one does not yet; worth a further per-institution check (Cleveland's remaining 2 Demuth works are Copyrighted; PAFA, Columbus Museum of Art not yet checked) before settling for a non-representative image.",
     "followUpTask": "ai-art-academy/t-074"
   },
   {
     "slug": "fauvism",
-    "reason": "No pre-1930 Matisse or Derain work with an accepted open-access license located this pass; major Fauvist holdings (MoMA, Musee d'Orsay) commonly rights-manage Matisse reproductions via Succession H. Matisse even though the artist passes the death-date prong. Not policy-excluded -- needs a per-work rights check before sourcing.",
+    "reason": "t-074 pass (2026-08-22): checked all three named artists (Matisse, Derain, Dufy) at both Cleveland Museum of Art and the Met. CMA: all Matisse/Derain/Dufy works returned are Copyrighted. Met: an isPublicDomain=true search surfaced a handful of Matisse/Derain object-record matches, but every actual Matisse and Derain painting/sculpture record checked individually is isPublicDomain: false (the true positives were unrelated objects incidentally matching the query text) -- confirms the pattern already flagged: Succession H. Matisse and comparable rights-society claims restrict reproduction of pre-1930 Fauvist-period work at major open-access institutions despite the artists clearing the death-date prong. Not policy-excluded -- needs a source institution not yet checked (Musee d'Orsay does not offer CC0; Getty Open Content or Rijksmuseum Rijksstudio not yet checked for Fauvist-period holdings).",
     "followUpTask": "ai-art-academy/t-074"
   },
   {
     "slug": "heidelberg-school",
-    "reason": "No CC0/PD-Mark/Open-Access-Terms image located yet for Tom Roberts, Arthur Streeton, or Frederick McCubbin within this pass's search effort (National Gallery of Australia / AGNSW open-access terms not verified). Not policy-excluded -- tracked for future sourcing.",
+    "reason": "t-074 pass (2026-08-22): Cleveland Museum of Art and Smithsonian Open Access both returned zero results for Tom Roberts, Arthur Streeton, and Frederick McCubbin -- unsurprising, since the Heidelberg School's holdings are concentrated in Australian institutions (National Gallery of Australia, Art Gallery of NSW, National Gallery of Victoria) that were not reachable with the open-access-API tooling used this pass. Not policy-excluded -- tracked for future sourcing via an Australian-institution-specific check (NGV and AGNSW both publish some open-license images; NGA's Open Access policy was not verified this pass) or a Wikimedia Commons PD-Art search.",
     "followUpTask": "ai-art-academy/t-074"
   },
   {
-    "slug": "ethiopian-icon-painting",
-    "reason": "No CC0/PD-Mark/Open-Access-Terms image located yet for a Fre Seyon-workshop or anonymous Solomonic-era icon within this pass's search effort. Not policy-excluded -- tracked for future sourcing.",
-    "followUpTask": "ai-art-academy/t-074"
-  },
-  {
-    "slug": "rajput-painting",
-    "reason": "No CC0/PD-Mark/Open-Access-Terms image located yet for an anonymous Mewar/Kishangarh/Bundi-school work within this pass's search effort. Not policy-excluded -- tracked for future sourcing.",
+    "slug": "joseon-genre-painting",
+    "reason": "t-074 pass (2026-08-22): Cleveland Museum of Art's own collection returned zero direct hits for Kim Hong-do or Sin Yun-bok by name; a broader 'Joseon genre painting' query returned mostly unrelated modern/contemporary Korean works. CMA does hold other CC0 Korean works (e.g. Books and Scholars' Accoutrements, Yi Taek-gyun) but none by the lesson's two named genre-painting masters. National Museum of Korea licensing was not verified this pass (no open API reachable with the tooling used). Not policy-excluded -- tracked for future sourcing.",
     "followUpTask": "ai-art-academy/t-074"
   }
 ]

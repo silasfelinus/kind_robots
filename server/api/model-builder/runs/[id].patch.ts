@@ -1,9 +1,6 @@
 // /server/api/model-builder/runs/[id].patch.ts
 import { defineEventHandler, readBody } from 'h3'
-import type {
-  ModelBuildStatus,
-  Prisma,
-} from '~/prisma/generated/prisma/client'
+import type { ModelBuildStatus, Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
@@ -35,7 +32,11 @@ export default defineEventHandler(async (event) => {
     })
     if (!existing) {
       event.node.res.statusCode = 404
-      return { success: false, message: 'Build run not found.', statusCode: 404 }
+      return {
+        success: false,
+        message: 'Build run not found.',
+        statusCode: 404,
+      }
     }
     // Defense-in-depth (model-builder/t-029 kaizen, deferred twice before this
     // cycle): the client only ever sends {status: 'CANCELLED'} through this
@@ -58,7 +59,18 @@ export default defineEventHandler(async (event) => {
       if (status === 'CANCELLED') data.cancelledAt = new Date()
     }
     if (body.sourceLabel !== undefined)
-      data.sourceLabel = normalizeText(body.sourceLabel)
+      // sourceLabel is `@db.VarChar(255)` (prisma/model-builder.prisma). The
+      // run CREATE route (runs/index.post.ts) already truncates it to 255
+      // chars, but this route -- the only other place a client can set it --
+      // called normalizeText with no cap at all (model-builder/t-029, cycle
+      // 45): a value over 255 chars reached Prisma unchecked and MySQL
+      // would reject the write with a raw "Data too long for column" error
+      // (strict mode; a silent truncation otherwise), an opaque 500 instead
+      // of a clean 400.
+      data.sourceLabel = normalizeText(body.sourceLabel, {
+        maxLength: 255,
+        field: 'Source label',
+      })
     const selections = normalizeJson(body.selections)
     if (selections !== undefined) data.selections = selections
     const usageInfo = normalizeJson(body.usageInfo)

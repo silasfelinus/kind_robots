@@ -452,6 +452,12 @@ jobs:
       - name: Model Builder commit name-width guard contract
         run: npm run test:model-builder-commit-name-width-guard
 
+      - name: Model Builder patch text-cap guard checker self-test
+        run: npm run test:model-builder-patch-text-cap-guard-selftest
+
+      - name: Model Builder patch text-cap guard contract
+        run: npm run test:model-builder-patch-text-cap-guard
+
       - name: Model Builder async poll-failure guard checker self-test
         run: npm run test:model-builder-async-poll-failure-guard-selftest
 

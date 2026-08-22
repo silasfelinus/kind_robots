@@ -73,17 +73,17 @@ interface GateCheck {
 const GATES: GateCheck[] = [
   {
     field: 'pitch',
-    assignment: 'data.pitch = normalizeText(body.pitch)',
+    assignment: 'data.pitch = normalizeText(body.pitch,',
     stageKey: 'PITCH',
   },
   {
     field: 'fieldsDraft',
-    assignment: 'data.fieldsDraft = normalizeText(body.fieldsDraft)',
+    assignment: 'data.fieldsDraft = normalizeText(body.fieldsDraft,',
     stageKey: 'FIELDS_AND_PROMPTS',
   },
   {
     field: 'promptDraft',
-    assignment: 'data.promptDraft = normalizeText(body.promptDraft)',
+    assignment: 'data.promptDraft = normalizeText(body.promptDraft,',
     stageKey: 'FIELDS_AND_PROMPTS',
   },
   {

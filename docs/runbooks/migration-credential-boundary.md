@@ -41,7 +41,7 @@ Migrate from the image you are about to serve, then Force Update:
 
 ```bash
 cd /mnt/user/appdata/kind_robots
-set -a; . /mnt/user/pc/kindrobots-db-migrate/kindrobots-db-migrate.env; set +a
+set -a; . ./.secrets/kindrobots-db-migrate.env; set +a
 
 docker pull ghcr.io/silasfelinus/kind_robots:latest
 
@@ -75,7 +75,7 @@ That contract also pins the runtime image carrying `prisma/`, `scripts/` and `pr
 `MIGRATION_DATABASE_URL` is written by `scripts/provision-migrate-db-lane.sh` to a mode-600 handoff file, by default:
 
 ```text
-/mnt/user/pc/kindrobots-db-migrate/kindrobots-db-migrate.env
+<repo>/.secrets/kindrobots-db-migrate.env
 ```
 
 Source that in the deploying shell (`set -a; . <file>; set +a`) rather than retyping a URL. If the file does not exist, or the credential in it no longer authenticates, run the provisioner — it creates or reconciles the lane in **both** MariaDB and ProxySQL and verifies authentication end to end:
@@ -92,7 +92,7 @@ bash scripts/provision-migrate-db-lane.sh --apply
 Read the history directly instead — no TLS plumbing, no Prisma:
 
 ```bash
-set -a; . /mnt/user/pc/kindrobots-db-migrate/kindrobots-db-migrate.env; set +a
+set -a; . ./.secrets/kindrobots-db-migrate.env; set +a
 
 docker run --rm --network cafepurr -e MYSQL_PWD="$MIGRATE_DB_PASSWORD" mariadb:11.4 \
   mariadb -h "$PUBLIC_PROXYSQL_HOST" -P "$PUBLIC_PROXYSQL_PORT" -u "$MIGRATE_DB_USER" \
@@ -129,7 +129,7 @@ docker run --rm --network cafepurr --env-file .env -e MIGRATION_DATABASE_URL \
 Still supported, from a repo checkout with dependencies installed. Pass a plain `mysql://` URL with no SSL parameters — the wrapper adds them:
 
 ```bash
-set -a; . /mnt/user/pc/kindrobots-db-migrate/kindrobots-db-migrate.env; set +a
+set -a; . ./.secrets/kindrobots-db-migrate.env; set +a
 DATABASE_SSL_CA_BASE64="$(grep -m1 '^DATABASE_SSL_CA_BASE64=' .env | cut -d= -f2- | tr -d '\042\047')" \
   node scripts/prisma-migrate-deploy.mjs
 ```

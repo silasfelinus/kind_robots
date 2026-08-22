@@ -4,7 +4,13 @@
 
 set -Eeuo pipefail
 
-OUTPUT_FILE="${OUTPUT_FILE:-/mnt/user/pc/kindrobots-db-agent/kindrobots-db-agent.env}"
+# Credential handoff lives beside the checkout, not on /mnt/user/pc --
+# that share is a primary thoroughfare for ordinary folders and is the
+# wrong place for a mode-600 secret. Resolved from this script's own
+# location so it does not depend on the caller's working directory.
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SECRETS_DIR="${SECRETS_DIR:-$REPO_ROOT/.secrets}"
+OUTPUT_FILE="${OUTPUT_FILE:-$SECRETS_DIR/kindrobots-db-agent.env}"
 AGENT_CLIENT_CONNECTION_LIMIT="${AGENT_CLIENT_CONNECTION_LIMIT:-3}"
 AGENT_CLIENT_MINIMUM_IDLE="${AGENT_CLIENT_MINIMUM_IDLE:-0}"
 AGENT_CLIENT_IDLE_TIMEOUT_SECONDS="${AGENT_CLIENT_IDLE_TIMEOUT_SECONDS:-30}"

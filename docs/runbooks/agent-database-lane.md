@@ -63,10 +63,14 @@ The apply step:
 Default handoff path:
 
 ```text
-/mnt/user/pc/kindrobots-db-agent/kindrobots-db-agent.env
+<repo>/.secrets/kindrobots-db-agent.env
 ```
 
 The directory is mode 700 and the file is mode 600. Do not paste the file into chat, issues, PRs, logs, or source control.
+
+`.secrets/` is resolved from the script's own location, so it lands beside the checkout regardless of the caller's working directory, and `SECRETS_DIR` overrides it. This replaced `/mnt/user/pc/kindrobots-db-agent/` on 2026-08-21: that share is a primary thoroughfare for ordinary folders and is the wrong place for a mode-600 secret (Silas, *"not a folder I want as general access"*).
+
+Living inside the repo is only safe because `.gitignore` ignores the **whole `.secrets/` directory**, not just `*.env`. That distinction matters: alongside the credential these scripts write a `<name>-before-<timestamp>.txt` snapshot of prior ProxySQL/MariaDB state, and `.txt` matches none of the env rules. If you relocate this directory, carry the ignore rule with it.
 
 After provisioning, tune the finished URL for coding-agent processes:
 

@@ -970,6 +970,33 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     })
   }
 
+  // clearStatus() immediately before each pushItem() call below (model-builder/
+  // t-029, cycle 42, found by inspection): the global status banner
+  // (state.statusMessage/statusTone, rendered in model-builder-manager.vue)
+  // is only ever cleared by clearStatus(), which every OTHER action that
+  // calls pushItem/batchPushItems already invokes at the start of its own
+  // fresh attempt -- generateItemAsset, generateItemAssetAsync, commitItem,
+  // draftText, autoBuildRun, batchDraftField, and batchAutoBuild all do this
+  // (see e.g. generateItemAsset's own `clearStatus()` right before its try
+  // block). pushItem's onFailure branch calls setStatusForRun(runId, 'error',
+  // ...) on a rejected PATCH, but its success branch does nothing at all --
+  // there is no corresponding "clear the stale error" step anywhere in
+  // approveStage/rejectStage/reopenStage/updatePitch/updateFields/
+  // updatePrompt themselves. Concrete repro: click "Approve pitch" while a
+  // transient PATCH failure pops "Failed to save changes." in the banner
+  // (approveStage's own onFailure reverts the stage locally, correctly) --
+  // then click "Approve pitch" again and have it succeed this time. Nothing
+  // in this file ever clears that banner: the same stale "Failed to save
+  // changes." text keeps showing, now describing a save that actually
+  // succeeded, until some unrelated LATER action (generateItemAsset,
+  // commitItem, draftText, autoBuildRun, or a batch action) happens to call
+  // clearStatus()/setStatus() of its own accord -- exactly the "indicator
+  // lying about what's actually stored" class of bug this codebase treats as
+  // real everywhere else it's found, just reached through the global status
+  // banner instead of a per-item field. Fixed by clearing the banner right
+  // before each of these functions' own pushItem() call, mirroring where
+  // every other pushItem/batchPushItems caller already places its own
+  // clearStatus().
   function approveStage(itemId: string, stageKey: BuildStageKey): void {
     const item = findItem(itemId)
     if (!item) return
@@ -983,6 +1010,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     if (next && item.stages[next.key].status === 'locked') {
       item.stages[next.key] = { status: 'ready' }
     }
+    clearStatus()
     pushItem(item, { stageStatuses: item.stages }, { stage: stageKey }, () => {
       item.stages = previousStages
     })
@@ -998,6 +1026,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     const previousStages = { ...item.stages }
     item.stages[stageKey] = { status: 'rejected', note }
     markDownstreamStale(item, stageKey)
+    clearStatus()
     pushItem(item, { stageStatuses: item.stages }, { stage: stageKey }, () => {
       item.stages = previousStages
     })
@@ -1010,6 +1039,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     const previousStages = { ...item.stages }
     item.stages[stageKey] = { status: 'ready' }
     markDownstreamStale(item, stageKey)
+    clearStatus()
     pushItem(item, { stageStatuses: item.stages }, { stage: stageKey }, () => {
       item.stages = previousStages
     })
@@ -1070,6 +1100,13 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     item.error = null
     item.lastAutoBuildOutcome = null
     markDownstreamStale(item, 'PITCH')
+    // See the doc comment above approveStage (model-builder/t-029, cycle 42)
+    // for the full shape of this fix -- every other pushItem/batchPushItems
+    // caller already clears the global status banner right before its own
+    // call; this setter (and updateFields/updatePrompt below) didn't, so a
+    // stale "Failed to save changes." banner from an earlier failed edit
+    // outlived a subsequent successful one.
+    clearStatus()
     pushItem(
       item,
       { stageStatuses: item.stages, pitch: item.pitch, error: null },
@@ -1094,6 +1131,9 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     item.error = null
     item.lastAutoBuildOutcome = null
     markDownstreamStale(item, 'FIELDS_AND_PROMPTS')
+    // See updatePitch's identical clearStatus() (model-builder/t-029,
+    // cycle 42).
+    clearStatus()
     pushItem(
       item,
       {
@@ -1122,6 +1162,9 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     item.error = null
     item.lastAutoBuildOutcome = null
     markDownstreamStale(item, 'FIELDS_AND_PROMPTS')
+    // See updatePitch's identical clearStatus() (model-builder/t-029,
+    // cycle 42).
+    clearStatus()
     pushItem(
       item,
       {
@@ -2498,6 +2541,12 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       })
     }
     batchingOutputSingleton.claim(outputKey)
+    // See approveStage's doc comment (model-builder/t-029, cycle 42) -- every
+    // other batchPushItems caller (batchDraftField, batchAutoBuild) already
+    // clears the global status banner right before starting its own fresh
+    // attempt; this one didn't, so a stale "Failed to save changes." banner
+    // from an earlier failed batch edit outlived a subsequent successful one.
+    clearStatus()
     try {
       const { ok, failedIds } = await batchPushItems(entries)
       // On failure, batchPushItems already surfaced the real error via
@@ -2610,6 +2659,9 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       })
     }
     batchingOutputSingleton.claim(outputKey)
+    // See batchSetField's identical clearStatus() (model-builder/t-029,
+    // cycle 42).
+    clearStatus()
     try {
       const { ok, failedIds } = await batchPushItems(entries)
       // On failure, batchPushItems already surfaced the real error via

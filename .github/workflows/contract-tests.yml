@@ -704,6 +704,12 @@ jobs:
       - name: Model Builder auto-build outcome-clear guard contract
         run: npm run test:model-builder-auto-build-outcome-clear-guard
 
+      - name: Model Builder stale status-banner clear guard checker self-test
+        run: npm run test:model-builder-stale-status-clear-guard-selftest
+
+      - name: Model Builder stale status-banner clear guard contract
+        run: npm run test:model-builder-stale-status-clear-guard
+
       - name: Model Builder field-blob continuation guard self-test
         run: npm run test:model-builder-field-blob-continuation-guard-selftest
 

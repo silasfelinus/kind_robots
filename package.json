@@ -320,6 +320,8 @@
     "test:model-builder-auto-build-outcome-persistence-guard": "tsx utils/scripts/verifyModelBuilderAutoBuildOutcomePersistenceGuard.ts",
     "test:model-builder-auto-build-outcome-clear-guard-selftest": "tsx utils/scripts/verifyModelBuilderAutoBuildOutcomeClearGuard.test.ts",
     "test:model-builder-auto-build-outcome-clear-guard": "tsx utils/scripts/verifyModelBuilderAutoBuildOutcomeClearGuard.ts",
+    "test:model-builder-stale-status-clear-guard-selftest": "tsx utils/scripts/verifyModelBuilderStaleStatusClearGuard.test.ts",
+    "test:model-builder-stale-status-clear-guard": "tsx utils/scripts/verifyModelBuilderStaleStatusClearGuard.ts",
     "test:model-builder-field-blob-continuation-guard-selftest": "tsx utils/scripts/verifyModelBuilderFieldBlobContinuationGuard.test.ts",
     "test:model-builder-field-blob-continuation-guard": "tsx utils/scripts/verifyModelBuilderFieldBlobContinuationGuard.ts",
     "test:model-builder-stage-status-json-parse-guard-selftest": "tsx utils/scripts/verifyModelBuilderStageStatusJsonParseGuard.test.ts",

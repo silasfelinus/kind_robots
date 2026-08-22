@@ -4,7 +4,7 @@ import type { ModelBuildAction } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
-import { runInclude } from './index'
+import { MAX_DRAFT_TEXT_LENGTH, runInclude } from './index'
 
 const actions = new Set<ModelBuildAction>(['CREATE', 'UPDATE', 'ASSET_ONLY'])
 
@@ -112,7 +112,12 @@ export default defineEventHandler(async (event) => {
     // at another user's Bot/Character/Dream/etc. and overwrite it on commit
     // (audit P6 CRITICAL). This also constrains sourceType to the models the
     // commit path can actually target.
-    await assertSourceOwnership(sourceType, sourceId, auth.user.id, auth.isAdmin)
+    await assertSourceOwnership(
+      sourceType,
+      sourceId,
+      auth.user.id,
+      auth.isAdmin,
+    )
 
     if (!Array.isArray(body.items) || body.items.length === 0) {
       throw createError({
@@ -122,7 +127,11 @@ export default defineEventHandler(async (event) => {
     }
 
     const items = (body.items as RunItemInput[]).map((item, index) => {
-      const outputKey = requiredString(item.outputKey, `items[${index}].outputKey`, 64)
+      const outputKey = requiredString(
+        item.outputKey,
+        `items[${index}].outputKey`,
+        64,
+      )
       const generation = requiredString(
         item.generation,
         `items[${index}].generation`,
@@ -137,13 +146,32 @@ export default defineEventHandler(async (event) => {
           : {},
       )
 
-      const text = (value: unknown): string | null =>
-        typeof value === 'string' && value.trim() ? value : null
+      // pitch/fieldsDraft/promptDraft are `@db.Text` (prisma/model-builder.prisma,
+      // 65,535-byte MySQL TEXT limit). The item PATCH path (prepareItemUpdate in
+      // ./index) already caps these at MAX_DRAFT_TEXT_LENGTH via normalizeText,
+      // throwing a clean 400 -- but this CREATE route's own `items` mapping had
+      // no cap at all (model-builder/t-029, cycle 46), so a run created with an
+      // oversized draft in its initial payload would sail through here uncapped
+      // and only get caught later, on the first PATCH that re-saves the same
+      // field. Reusing the same constant keeps the two routes from drifting.
+      const text = (
+        value: unknown,
+        index: number,
+        field: string,
+      ): string | null => {
+        if (typeof value !== 'string' || !value.trim()) return null
+        if (value.length > MAX_DRAFT_TEXT_LENGTH) {
+          throw createError({
+            statusCode: 400,
+            message: `"items[${index}].${field}" must be ${MAX_DRAFT_TEXT_LENGTH} characters or fewer.`,
+          })
+        }
+        return value
+      }
 
       return {
         outputKey,
-        label:
-          typeof item.label === 'string' ? item.label.slice(0, 255) : null,
+        label: typeof item.label === 'string' ? item.label.slice(0, 255) : null,
         action,
         generation,
         quantityIndex:
@@ -152,9 +180,9 @@ export default defineEventHandler(async (event) => {
             ? Number(item.quantityIndex)
             : 0,
         stageStatuses,
-        pitch: text(item.pitch),
-        fieldsDraft: text(item.fieldsDraft),
-        promptDraft: text(item.promptDraft),
+        pitch: text(item.pitch, index, 'pitch'),
+        fieldsDraft: text(item.fieldsDraft, index, 'fieldsDraft'),
+        promptDraft: text(item.promptDraft, index, 'promptDraft'),
       }
     })
 

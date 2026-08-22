@@ -2,26 +2,6 @@
   <section
     class="kr-surface rounded-2xl border border-base-300 bg-(--kr-surface) p-3"
   >
-    <!--
-      ONE ROW, and it is the shell's own.
-
-      This page opened with FOUR stacked bands before a single project card: an
-      identity/count header, a filter `<nav>`, a full-width `<details>` bar
-      whose entire job was to say "+ Create a Project", and then kr-gallery's
-      Cards/Heroes/Icons bar. Silas, 2026-08-07: "we're still sitting at three
-      rows when one row is desired."
-
-      Everything now rides kr-gallery's `#toolbar` slot, which exists so a
-      gallery's controls share the mode bar's line instead of stacking above it
-      (reward-gallery and icon-gallery use it the same way). Counts, status
-      filters, Create and Refresh sit on that one line.
-
-      The identity band is GONE rather than shrunk: the app's tab strip
-      directly above already reads "Projects" in a highlighted tab, so a second
-      "Projects" heading was a full row spent restating the navigation.
-
-      The create FORM still expands below on demand; only its summary bar died.
-    -->
     <section
       v-if="createOpen"
       class="shrink-0 rounded-xl border border-base-300 bg-base-100"
@@ -41,7 +21,7 @@
           <label class="form-control sm:col-span-2">
             <span class="label-text text-xs">
               Slug
-              <span class="opacity-60">(used as the project's URL/id)</span>
+              <span class="opacity-60">(project URL and Conductor key)</span>
             </span>
             <input
               ref="slugInputRef"
@@ -57,8 +37,8 @@
               {{ slugError }}
             </span>
             <span v-else class="label-text-alt mt-1 opacity-60">
-              Auto-filled from the title; edit it here if you'd rather choose
-              your own.
+              Auto-filled from the title. Conductor will own lifecycle and
+              roadmap progress after the project is scaffolded.
             </span>
           </label>
           <label class="form-control sm:col-span-2">
@@ -68,36 +48,6 @@
               class="textarea textarea-bordered min-h-20 rounded-xl"
               placeholder="What is this project?"
             />
-          </label>
-          <label class="form-control">
-            <span class="label-text text-xs">Status</span>
-            <select
-              v-model="createForm.status"
-              class="select select-bordered select-sm rounded-xl"
-            >
-              <option
-                v-for="option in PROJECT_STATUSES"
-                :key="option"
-                :value="option"
-              >
-                {{ statusLabel(option) }}
-              </option>
-            </select>
-          </label>
-          <label class="form-control">
-            <span class="label-text text-xs">Priority</span>
-            <select
-              v-model="createForm.priority"
-              class="select select-bordered select-sm rounded-xl"
-            >
-              <option
-                v-for="option in PROJECT_PRIORITIES"
-                :key="option"
-                :value="option"
-              >
-                {{ option }}
-              </option>
-            </select>
           </label>
         </div>
         <button
@@ -128,10 +78,11 @@
           <button
             v-for="item in driftItems.slice(0, 8)"
             :key="item.id"
-            class="mt-1 block w-full truncate text-left hover:text-primary"
+            class="mt-1 block w-full text-left hover:text-primary"
             @click="open(item)"
           >
-            {{ item.title }}: {{ item.dbStatus }} → {{ item.status }}
+            <span class="break-words">{{ item.title }}</span>:
+            {{ item.dbStatus }} → {{ item.status }}
           </button>
         </div>
         <div v-if="conductorOnly.length" class="rounded-lg bg-base-100/80 p-2">
@@ -139,17 +90,17 @@
           <p
             v-for="project in conductorOnly.slice(0, 8)"
             :key="project.slug"
-            class="mt-1 truncate"
+            class="mt-1 break-words"
           >
             {{ project.name || project.slug }}
           </p>
         </div>
         <div v-if="databaseOnly.length" class="rounded-lg bg-base-100/80 p-2">
-          <b>Database-only</b>
+          <b>Database-only draft</b>
           <p
             v-for="item in databaseOnly.slice(0, 8)"
             :key="item.id"
-            class="mt-1 truncate"
+            class="mt-1 break-words"
           >
             {{ item.title }}
           </p>
@@ -191,22 +142,6 @@
         @open="(item) => open(item as Item)"
       >
         <template #toolbar>
-          <!--
-            FILTERS ONLY, NO STANDING COUNTS. This row opened with "44",
-            "23 shown", "1 sync", "10 blocked" and then the filter buttons that
-            carry those same numbers. Silas, 2026-08-07: "none of those need to
-            be said, they are just duplicates of the same outputs better done as
-            toggles to actually select the appropriate group right after it."
-
-            The total is `All 44`. The shown count is whichever filter is lit.
-            So both badges are deleted rather than restyled -- a number that a
-            control beside it already reports is clutter with a word on it.
-
-            Sync and Blocked survive because they are NOT duplicates: neither is
-            a project status, so no filter button carries them. They become
-            toggles in the same group, styled and sized like the filters, so
-            they read as "another way to narrow this" rather than as a readout.
-          -->
           <div class="flex flex-wrap items-center gap-1">
             <button
               v-for="option in filters"
@@ -218,13 +153,9 @@
             >
               <Icon :name="option.icon" class="size-3" />
               <span class="hidden sm:inline">{{ option.label }}</span>
-              <span class="badge badge-xs">{{
-                filterCount(option.value)
-              }}</span>
+              <span class="badge badge-xs">{{ filterCount(option.value) }}</span>
             </button>
 
-            <!-- Sync and Blocked sit with the filters, not ahead of them: they
-                 narrow the view the same way, they just are not statuses. -->
             <button
               v-if="syncIssueCount"
               class="btn btn-xs gap-1 rounded-xl"
@@ -271,12 +202,131 @@
           </div>
         </template>
 
-        <template #item-trailing="{ item }">
-          <span
-            class="badge badge-xs"
-            :class="priorityClass((item as Item).priority)"
-            >{{ (item as Item).priority }}</span
+        <template #item="{ item, mode, artSrc, open: openItem }">
+          <button
+            v-if="mode === 'icons'"
+            type="button"
+            class="group flex min-w-0 items-center gap-3 rounded-2xl border border-(--kr-surface-border) bg-(--kr-surface) p-3 text-left transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg"
+            @click="openItem"
           >
+            <div
+              class="relative size-20 shrink-0 overflow-hidden rounded-xl bg-base-200"
+            >
+              <div
+                class="absolute inset-0 flex items-center justify-center bg-linear-to-br from-base-200 to-base-300 text-base-content/35"
+              >
+                <Icon name="kind-icon:image" class="size-8" />
+              </div>
+              <img
+                v-if="artSrc"
+                :src="artSrc"
+                :alt="(item as Item).title"
+                class="absolute inset-0 size-full object-cover transition duration-300 group-hover:scale-105"
+                @error="hideBrokenImage"
+              />
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="mb-1 flex flex-wrap items-center gap-1">
+                <span
+                  v-for="badge in (item as Item).badges"
+                  :key="badge.label"
+                  class="badge badge-xs"
+                  :class="badge.class"
+                >
+                  {{ badge.label }}
+                </span>
+                <span
+                  class="badge badge-xs"
+                  :class="priorityClass((item as Item).priority)"
+                >
+                  {{ (item as Item).priority }}
+                </span>
+              </div>
+              <h2 class="break-words font-black leading-tight">
+                {{ (item as Item).title }}
+              </h2>
+              <p class="mt-1 line-clamp-2 text-xs text-base-content/60">
+                {{ (item as Item).description }}
+              </p>
+              <p class="mt-2 text-[0.68rem] font-semibold text-base-content/45">
+                {{ (item as Item).meta }}
+              </p>
+              <progress
+                class="progress progress-primary mt-1 h-1 w-full"
+                :value="(item as Item).progressPercent"
+                max="100"
+              />
+            </div>
+          </button>
+
+          <button
+            v-else
+            type="button"
+            class="group overflow-hidden rounded-2xl border border-(--kr-surface-border) bg-(--kr-surface) text-left transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg"
+            @click="openItem"
+          >
+            <div
+              class="relative overflow-hidden bg-base-200"
+              :class="mode === 'cards' ? 'aspect-[2/3]' : 'aspect-video'"
+            >
+              <div
+                class="absolute inset-0 flex items-center justify-center bg-linear-to-br from-base-200 to-base-300 text-base-content/35"
+              >
+                <Icon name="kind-icon:image" class="size-10" />
+              </div>
+              <img
+                v-if="artSrc"
+                :src="artSrc"
+                :alt="(item as Item).title"
+                class="absolute inset-0 size-full object-cover transition duration-500 group-hover:scale-105"
+                @error="hideBrokenImage"
+              />
+              <div
+                class="absolute inset-0 bg-linear-to-t from-base-300/80 via-transparent to-transparent"
+              />
+              <div class="absolute left-2 top-2 flex flex-wrap gap-1">
+                <span
+                  v-for="badge in (item as Item).badges"
+                  :key="badge.label"
+                  class="badge badge-xs"
+                  :class="badge.class"
+                >
+                  {{ badge.label }}
+                </span>
+              </div>
+              <img
+                v-if="(item as Item).icon"
+                :src="(item as Item).icon"
+                alt=""
+                class="absolute bottom-2 left-2 size-11 rounded-xl border border-white/25 object-cover shadow"
+                @error="hideBrokenImage"
+              />
+            </div>
+            <div class="space-y-1.5 p-3">
+              <div class="flex items-start gap-2">
+                <h2 class="min-w-0 flex-1 break-words font-black leading-tight">
+                  {{ (item as Item).title }}
+                </h2>
+                <span
+                  class="badge badge-xs shrink-0"
+                  :class="priorityClass((item as Item).priority)"
+                >
+                  {{ (item as Item).priority }}
+                </span>
+              </div>
+              <p class="line-clamp-2 text-xs text-base-content/60">
+                {{ (item as Item).description }}
+              </p>
+              <p class="text-[0.68rem] font-semibold text-base-content/45">
+                {{ (item as Item).meta }}
+              </p>
+              <progress
+                class="progress progress-primary h-1 w-full"
+                :value="(item as Item).progressPercent"
+                max="100"
+              />
+            </div>
+          </button>
         </template>
       </kr-gallery>
     </main>
@@ -296,7 +346,6 @@ import {
   type ProjectWithRelations,
 } from '@/stores/projectStore'
 import { usePageStore } from '@/stores/pageStore'
-import { useTodoStore } from '@/stores/todoStore'
 import { useGalleryPreferenceStore } from '@/stores/galleryPreferenceStore'
 import type { BuilderCard } from '@/stores/helpers/builderCards'
 import { IS_GALLERY_MODE, type GalleryMode } from '@/utils/galleryVocabulary'
@@ -305,8 +354,13 @@ import { slugify } from '@/utils/slugify'
 const IMG_BASE =
   'https://raw.githubusercontent.com/silasfelinus/conductor/main/projects/images'
 type Status =
-  'ACTIVE' | 'CONTINUOUS' | 'PAUSED' | 'DONE' | 'BRAINSTORM' | 'ARCHIVED'
-type Filter = Status | 'ALL'
+  | 'ACTIVE'
+  | 'CONTINUOUS'
+  | 'PAUSED'
+  | 'DONE'
+  | 'BRAINSTORM'
+  | 'ARCHIVED'
+type Filter = Exclude<Status, 'BRAINSTORM'> | 'ALL'
 type Item = {
   id: number
   slug: string
@@ -330,7 +384,10 @@ type Item = {
   drift: boolean
   hasConductor: boolean
 }
-type BlockedTask = ConductorTask & { projectSlug: string; projectTitle: string }
+type BlockedTask = ConductorTask & {
+  projectSlug: string
+  projectTitle: string
+}
 
 const GALLERY_KEY = 'conductor-project-gallery'
 const filters = [
@@ -346,17 +403,15 @@ const filters = [
     label: 'Completed',
     icon: 'kind-icon:check-circle',
   },
-  { value: 'BRAINSTORM' as const, label: 'Ideas', icon: 'kind-icon:lightbulb' },
   { value: 'ARCHIVED' as const, label: 'Archived', icon: 'kind-icon:archive' },
   { value: 'ALL' as const, label: 'All', icon: 'kind-icon:cards' },
 ]
 const IS_FILTER = (value: string): value is Filter =>
-  filters.some((entry) => entry.value === value) || value === 'ALL'
+  filters.some((entry) => entry.value === value)
 
 const projects = useProjectStore()
 const conductor = useConductorStore()
 const page = usePageStore()
-const todos = useTodoStore()
 const galleryPrefs = useGalleryPreferenceStore()
 const galleryMode = computed({
   get: () =>
@@ -375,57 +430,24 @@ const filter = computed({
 })
 const showSync = ref(false)
 const showBlocked = ref(false)
-const PROJECT_STATUSES = filters
-  .map((entry) => entry.value)
-  .filter((value): value is Status => value !== 'ALL')
-const PROJECT_PRIORITIES: ProjectPriorityLevel[] = ['LOW', 'NORMAL', 'HIGH']
 const createOpen = ref(false)
 const createError = ref('')
-const createForm = ref<{
-  title: string
-  slug: string
-  description: string
-  status: Status
-  priority: ProjectPriorityLevel
-}>({
-  title: '',
-  slug: '',
-  description: '',
-  status: 'BRAINSTORM',
-  priority: 'NORMAL',
-})
-// Slug auto-derives from the title until the user edits it directly — once
-// they've typed into the slug field themselves, title changes stop
-// overwriting their choice.
+const createForm = ref({ title: '', slug: '', description: '' })
 const slugTouched = ref(false)
 const slugInputRef = ref<HTMLInputElement | null>(null)
-// `/api/projects` (server/api/projects/index.ts's normalizeSlug) lowercases,
-// collapses non-alphanumerics to single hyphens, and trims edge hyphens
-// server-side too — mirrored here so the field previews exactly what will
-// be sent rather than drifting from the route's own rule.
 const slugError = computed(() => {
-  // Don't flash "required" before the user has typed anything — the slug
-  // stays derived-but-empty until a title exists to derive it from.
-  if (!createForm.value.title.trim() && !createForm.value.slug.trim()) {
-    return ''
-  }
+  if (!createForm.value.title.trim() && !createForm.value.slug.trim()) return ''
   return createForm.value.slug.trim()
     ? ''
-    : 'A slug is required — it becomes the project URL and conductor directory name.'
+    : 'A slug is required. It becomes the project URL and Conductor directory name.'
 })
 
 function onTitleInput() {
-  if (slugTouched.value) return
-  createForm.value.slug = slugify(createForm.value.title)
+  if (!slugTouched.value) createForm.value.slug = slugify(createForm.value.title)
 }
 
 function onSlugInput() {
   slugTouched.value = true
-  // Light-touch while typing: lowercase and drop disallowed characters, but
-  // don't collapse repeat/edge hyphens yet — full slugify() runs on blur and
-  // again before submit. Doing the full normalize on every keystroke would
-  // strip a hyphen the instant it's typed (it's trailing until the next
-  // character lands), making "my-project" impossible to type by hand.
   createForm.value.slug = createForm.value.slug
     .toLowerCase()
     .replace(/[^a-z0-9-]/g, '')
@@ -434,9 +456,14 @@ function onSlugInput() {
 function onSlugBlur() {
   createForm.value.slug = slugify(createForm.value.slug)
 }
+
+function hideBrokenImage(event: Event) {
+  const target = event.currentTarget
+  if (target instanceof HTMLImageElement) target.remove()
+}
+
 const loading = computed(() => projects.loading || conductor.pending)
 const error = computed(() => projects.error || conductor.error || '')
-
 const conductorBySlug = computed(
   () => new Map(conductor.projects.map((project) => [project.slug, project])),
 )
@@ -457,7 +484,8 @@ function image(
   const slug = slugFor(record)
   const direct =
     variant === 'icon'
-      ? record.imagePath ||
+      ? record.iconPath ||
+        record.imagePath ||
         record.ArtImage?.imagePath ||
         record.ArtCollection?.imagePath
       : variant === 'card'
@@ -469,8 +497,9 @@ function image(
       : variant === 'card'
         ? source?.cardPath
         : source?.heroPath
-  if (!direct || canonical(direct, slug, variant))
+  if (!direct || canonical(direct, slug, variant)) {
     return remote || `${IMG_BASE}/${slug}-${variant}.webp`
+  }
   return revision(
     direct,
     record.updatedAt ? new Date(record.updatedAt).getTime() : 0,
@@ -481,7 +510,7 @@ const statusLabel = (value: Status) =>
   value === 'DONE'
     ? 'Completed'
     : value === 'BRAINSTORM'
-      ? 'Idea'
+      ? 'Draft'
       : value.charAt(0) + value.slice(1).toLowerCase()
 const statusClass = (value: Status) =>
   value === 'DONE'
@@ -493,7 +522,7 @@ const statusClass = (value: Status) =>
         : value === 'ARCHIVED'
           ? 'badge-ghost'
           : value === 'BRAINSTORM'
-            ? 'badge-secondary'
+            ? 'badge-neutral'
             : 'badge-primary'
 const priorityClass = (value: ProjectPriorityLevel) =>
   value === 'HIGH'
@@ -517,9 +546,9 @@ function toItem(record: ProjectWithRelations): Item {
   const progress = source?.progress ?? (status === 'DONE' ? 100 : 0)
   const drift = Boolean(
     source &&
-    (record.status !== status ||
-      record.priority !== priority ||
-      record.isActive !== (status !== 'ARCHIVED')),
+      (record.status !== status ||
+        record.priority !== priority ||
+        record.isActive !== (status !== 'ARCHIVED')),
   )
   const metaParts = [`${progress}%`, `${done}/${total} done`]
   if (blocked) metaParts.push(`${blocked} blocked`)
@@ -650,6 +679,7 @@ watch(
 onMounted(async () => {
   await load(true)
 })
+
 const load = (force: boolean) =>
   Promise.all([
     projects.fetchProjects(
@@ -657,13 +687,14 @@ const load = (force: boolean) =>
       force,
     ),
     conductor.fetchProjects(force),
-    todos.hasLoaded ? todos.fetchTodos(force) : Promise.resolve(),
   ])
 const refresh = () => load(true)
+
 async function open(item: Item) {
   await projects.fetchProject(item.id)
   page.setWorkspaceCardKey(item.slug)
 }
+
 async function openSlug(slug: string) {
   const item = allItems.value.find((entry) => entry.slug === slug)
   if (item) await open(item)
@@ -677,7 +708,7 @@ async function createProject(): Promise<void> {
   createForm.value.slug = slug
   if (!slug) {
     createError.value =
-      'A slug is required — it becomes the project URL and conductor directory name.'
+      'A slug is required. It becomes the project URL and Conductor directory name.'
     return
   }
   try {
@@ -685,36 +716,23 @@ async function createProject(): Promise<void> {
       title,
       slug,
       description: createForm.value.description.trim() || null,
-      status: createForm.value.status,
-      priority: createForm.value.priority,
     })
-    createForm.value = {
-      title: '',
-      slug: '',
-      description: '',
-      status: 'BRAINSTORM',
-      priority: 'NORMAL',
-    }
+    createForm.value = { title: '', slug: '', description: '' }
     slugTouched.value = false
     createOpen.value = false
     page.setWorkspaceCardKey(slugFor(created))
-  } catch (error) {
+  } catch (cause) {
     const statusCode =
-      error instanceof Error
-        ? (error as Error & { statusCode?: number }).statusCode
+      cause instanceof Error
+        ? (cause as Error & { statusCode?: number }).statusCode
         : undefined
     if (statusCode === 409) {
-      // The generic Prisma-unique-constraint message ("Record already
-      // exists.") doesn't tell the user what to do. `slug` is the only
-      // field this form submits that a Project uniquely constrains, so a
-      // 409 here always means the slug is taken — point them straight at
-      // the field that fixes it instead.
-      createError.value = `The slug "${slug}" is already taken — try a different one below.`
+      createError.value = `The slug "${slug}" is already taken. Try a different one below.`
       slugTouched.value = true
       slugInputRef.value?.focus()
     } else {
       createError.value =
-        error instanceof Error ? error.message : 'Project could not be created.'
+        cause instanceof Error ? cause.message : 'Project could not be created.'
     }
   }
 }

@@ -297,6 +297,21 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       "Often keeps the source photo's naturalistic lighting and cast shadows instead of flat monochrome ink tonality, and leaves the subject at its original scale rather than dwarfed by a towering peak — lean on the remix template's explicit 'no cast shadows' and 'tiny travelers dwarfed by scale' to keep the mountain's cosmological hierarchy intact.",
+    exampleWorks: [
+      {
+        workTitle: 'Old Trees, Level Distance',
+        artist: 'Guo Xi',
+        artistDied: 1090,
+        year: 'ca. 1080',
+        collection: 'The Metropolitan Museum of Art',
+        accessionId: '1981.276',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/39668',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+        imageSrc:
+          '/images/academy/examples/old-trees-level-distance-1981-276.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -464,6 +479,22 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       "Easily reverts to Western linear perspective and cast shadows, since most training data assumes them by default — lean on the remix template's explicit 'no Western perspective or cast shadow' and push the dense floral or geometric border to keep the miniature's flat, ornamental logic intact.",
+    exampleWorks: [
+      {
+        workTitle:
+          'Left Side of a Double-Page Album Folio: Outside a Royal Encampment',
+        artist: 'Style of Bihzad',
+        artistDied: 1535,
+        year: 'c. 1485',
+        collection: 'The Cleveland Museum of Art',
+        accessionId: '1944.490.a',
+        sourceUrl: 'https://www.clevelandart.org/art/1944.490.a',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.clevelandart.org/open-access',
+        imageSrc:
+          '/images/academy/examples/outside-a-royal-encampment-1944-490-a.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -1594,6 +1625,21 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       'Risks collapsing into a generic "Indo-Persian miniature" filter indistinguishable from Persian Miniature Painting — lean on stippled naturalistic faces, atmospheric haze, and sparing local gold to keep the two movements visually distinct',
+    exampleWorks: [
+      {
+        workTitle: 'Portrait of Raja Jagat Singh of Nurpur (reigned 1618–46)',
+        artist: 'Attributed to Bichitr',
+        artistDied: 1650,
+        year: 'probably 1619',
+        collection: 'The Cleveland Museum of Art',
+        accessionId: '2013.324',
+        sourceUrl: 'https://www.clevelandart.org/art/2013.324',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.clevelandart.org/open-access',
+        imageSrc:
+          '/images/academy/examples/portrait-of-raja-jagat-singh-of-nurpur-2013-324.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -1673,6 +1719,20 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       'Model may gild everything uniformly and lose the defining contrast between flat ornament and naturalistic face/hands; lean on fine naturalistic detail in the face and hands set against the abstract gold pattern to keep the face legible rather than dissolved into pattern',
+    exampleWorks: [
+      {
+        workTitle: 'Hermine Gallia',
+        artist: 'Gustav Klimt',
+        artistDied: 1918,
+        year: 'c. 1904',
+        collection: 'The Cleveland Museum of Art',
+        accessionId: '1972.312',
+        sourceUrl: 'https://www.clevelandart.org/art/1972.312',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.clevelandart.org/open-access',
+        imageSrc: '/images/academy/examples/hermine-gallia-1972-312.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -1754,6 +1814,20 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       'Instead of a coherent decorative motif like art-nouveau\'s whiplash line or vienna-secession\'s gold ornament, the model must invent wallpaper/textile pattern where the source photo has none; likely defaults to a generic "flat vector-art"/cartoon filter that flattens color without adding pattern — lean on the remix template\'s explicit "textiles, wallpaper, foliage, or architectural patterns organize the composition" to check pattern is actually present',
+    exampleWorks: [
+      {
+        workTitle: 'The Orange Christ',
+        artist: 'Maurice Denis',
+        artistDied: 1943,
+        year: '1889',
+        collection: 'The Cleveland Museum of Art',
+        accessionId: '2020.107',
+        sourceUrl: 'https://www.clevelandart.org/art/2020.107',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.clevelandart.org/open-access',
+        imageSrc: '/images/academy/examples/the-orange-christ-2020-107.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -2016,6 +2090,21 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       'Likely collapses into either a static faceted image (losing the motion) or a generic photographic motion-blur filter (losing the constructed force-line/facet structure); lean on the remix template\'s explicit "overlapping, semi-transparent repetitions" and "sharp diagonal force lines" to check for constructed dynamism rather than a blur effect, and discuss the movement\'s later alignment with Fascism and the manifesto\'s glorification of violence honestly rather than teaching speed/machinery worship as neutral',
+    exampleWorks: [
+      {
+        workTitle: 'Unique Forms of Continuity in Space',
+        artist: 'Umberto Boccioni',
+        artistDied: 1916,
+        year: '1913, cast 1950',
+        collection: 'The Metropolitan Museum of Art',
+        accessionId: '1990.38.3',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/485540',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+        imageSrc:
+          '/images/academy/examples/unique-forms-of-continuity-in-space-1990-38-3.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -2453,6 +2542,21 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       'Can collapse into a generic Byzantine Mosaic look since both share hieratic frontality and flat symbolic color; lean on the remix template\'s explicit wide-open frontal "reversal gaze" eyes and the red-ochre/gold/blue-green palette to keep Ethiopian icon painting visually distinct from its Byzantine source tradition.',
+    exampleWorks: [
+      {
+        workTitle: 'Diptych with Twelve Apostles & St. Paul',
+        artist: 'Workshop or Circle of Wäldä Maryam',
+        artistDied: 1725,
+        year: 'c. 1700',
+        collection: 'The Cleveland Museum of Art',
+        accessionId: '2023.4',
+        sourceUrl: 'https://www.clevelandart.org/art/2023.4',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.clevelandart.org/open-access',
+        imageSrc:
+          '/images/academy/examples/diptych-with-twelve-apostles-and-st-paul-2023-4.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -2537,11 +2641,27 @@ export const academyStyles: AcademyStyle[] = [
       {
         name: 'Nihal Chand',
         years: 'fl. c. 1735–1757',
-        note: 'The Kishangarh school\'s most celebrated later painter, credited with the "Bani Thani" portrait type; named for historical context only, since this lesson\'s Kishangarh example work predates his documented activity.',
+        note: 'The Kishangarh school\'s most celebrated later painter, credited with the "Bani Thani" portrait type; named for historical context only, since this lesson\'s verified example work is a Mewar-school painting predating his Kishangarh career.',
       },
     ],
     failureMode:
       "Risks drifting toward Mughal Miniature's naturalistic modeling and atmospheric depth instead of Rajput's flat saturated color fields; lean on the remix template's explicit 'flat fields of intensely saturated red, yellow, and blue' and 'architecture and landscape flattened into decorative pattern' phrasing to keep the two Indian court traditions visually distinct.",
+    exampleWorks: [
+      {
+        workTitle:
+          'Krishna and Radha in a Bower: Page from a Dispersed Gita Govinda',
+        artist: 'Sahibdin',
+        artistDied: 1655,
+        year: 'ca. 1665',
+        collection: 'The Metropolitan Museum of Art',
+        accessionId: '1988.103',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/38027',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+        imageSrc:
+          '/images/academy/examples/krishna-and-radha-in-a-bower-1988-103.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:

@@ -1,0 +1,34 @@
+/* /assets/css/conductor-feedback.css
+ * Conductor's save/sync feedback sits on top of project art and translucent
+ * surfaces. Status-colored text alone disappears into that background, so the
+ * feedback gets its own opaque status chip instead of relying on foreground
+ * color for contrast.
+ */
+
+.kr-toolbar > span.text-error,
+.kr-surface
+  div:has(> select > option[value='HIGH'])
+  > span.self-center.text-xs.text-error {
+  border: 1px solid var(--color-error);
+  border-radius: var(--radius-field);
+  background: var(--color-error);
+  color: var(--color-error-content);
+  padding: 0.25rem 0.5rem;
+  font-weight: 700;
+  box-shadow: 0 0.25rem 0.75rem
+    color-mix(in oklch, var(--color-error) 22%, transparent);
+}
+
+.kr-toolbar > span.text-success,
+.kr-surface
+  div:has(> select > option[value='HIGH'])
+  > span.self-center.text-xs.text-success {
+  border: 1px solid var(--color-success);
+  border-radius: var(--radius-field);
+  background: var(--color-success);
+  color: var(--color-success-content);
+  padding: 0.25rem 0.5rem;
+  font-weight: 700;
+  box-shadow: 0 0.25rem 0.75rem
+    color-mix(in oklch, var(--color-success) 22%, transparent);
+}

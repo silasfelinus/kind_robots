@@ -335,6 +335,7 @@ export const useStorybookStore = defineStore('storybookStore', () => {
   const session = ref<StorybookSession | null>(null)
   const isWeaving = ref(false)
   const errorMessage = ref('')
+  let restoredFromStorage = false
 
   const mode = ref<StorybookMode>(DEFAULT_STORYBOOK_MODE)
   let modeHydrated = false
@@ -423,7 +424,27 @@ export const useStorybookStore = defineStore('storybookStore', () => {
   }
 
   function restoreFromLocalStorage() {
-    if (typeof localStorage === 'undefined') return
+    // Guarded the same way hydrateStorybookMode() guards itself with
+    // modeHydrated, and for the same reason: content/storybook.md mounts
+    // `:storybook-library-page`, which renders `<StorybookPage />` as a
+    // child, so BOTH components' onMounted() call this in the same page
+    // load -- the child's first, then the parent's, same synchronous tick
+    // (see verifyStorybookSeedQueryRaceGuard's own header comment for the
+    // mount-order proof). The child's onMounted also runs seedFromQuery()
+    // right after this call, mutating setupDraft in place to seed an
+    // ingredient from the URL (e.g. `?character=<slug>`). That mutation only
+    // schedules persist() -- the deep watch on setupDraft -- as a microtask,
+    // which does not flush until after both onMounted hooks return. So
+    // without this guard, the parent's redundant second call re-reads the
+    // *pre-seed* draft still sitting in localStorage and overwrites
+    // setupDraft.value with it, silently discarding the just-seeded
+    // ingredient on every visit where the reader has ever saved a setup
+    // draft before (routine, since the draft persists continuously while
+    // the setup form is open). Restoring once per app session is correct
+    // regardless of mount order: nothing outside this tab can change
+    // localStorage's Storybook keys while it is open.
+    if (restoredFromStorage || typeof localStorage === 'undefined') return
+    restoredFromStorage = true
     hydrateStorybookMode()
     try {
       const draftRaw = localStorage.getItem(DRAFT_STORAGE_KEY)

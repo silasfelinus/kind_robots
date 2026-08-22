@@ -1,0 +1,72 @@
+[
+  {
+    "slug": "song-dynasty-landscape",
+    "reason": "No CC0/PD-Mark/Open-Access-Terms image located yet for a Song-attributed monumental landscape within this pass's search effort. Not policy-excluded -- tracked for future sourcing.",
+    "followUpTask": "ai-art-academy/t-074"
+  },
+  {
+    "slug": "persian-miniature",
+    "reason": "No CC0/PD-Mark/Open-Access-Terms image located yet for a Bihzad-circle or Safavid-workshop folio within this pass's search effort. Not policy-excluded -- tracked for future sourcing.",
+    "followUpTask": "ai-art-academy/t-074"
+  },
+  {
+    "slug": "suprematism",
+    "reason": "Malevich's Suprematist canvases are held by institutions (State Russian Museum, Stedelijk) whose open-access terms were not verified this pass; prior sessions found several early-20th-century European modernists rights-restricted (ARS/VG Bild-Kunst) despite public-domain age. Not policy-excluded -- needs a per-work rights check before sourcing.",
+    "followUpTask": "ai-art-academy/t-074"
+  },
+  {
+    "slug": "american-regionalism",
+    "reason": "Both named artists' works (Grant Wood incl. American Gothic, John Steuart Curry) came back is_public_domain: false via the Art Institute of Chicago's own API this pass, despite both artists passing the death-date prong -- likely a rights-society digitization restriction distinct from copyright status. Not policy-excluded -- needs a different source institution.",
+    "followUpTask": "ai-art-academy/t-074"
+  },
+  {
+    "slug": "mughal-miniature",
+    "reason": "No CC0/PD-Mark/Open-Access-Terms image located yet for a Basawan/Bichitr-attributed or anonymous Akbar/Jahangir-era folio within this pass's search effort. Not policy-excluded -- tracked for future sourcing.",
+    "followUpTask": "ai-art-academy/t-074"
+  },
+  {
+    "slug": "vienna-secession",
+    "reason": "Klimt's Golden Phase works are managed by the Belvedere (Vienna) and rights-society partners; digitization license was not verified this pass. Not policy-excluded -- needs a per-work rights check before sourcing.",
+    "followUpTask": "ai-art-academy/t-074"
+  },
+  {
+    "slug": "joseon-genre-painting",
+    "reason": "No CC0/PD-Mark/Open-Access-Terms image located yet for a Kim Hong-do or Sin Yun-bok work within this pass's search effort (National Museum of Korea licensing not verified). Not policy-excluded -- tracked for future sourcing.",
+    "followUpTask": "ai-art-academy/t-074"
+  },
+  {
+    "slug": "the-nabis",
+    "reason": "No CC0/PD-Mark/Open-Access-Terms image located yet for a Sérusier, Vuillard, or Denis pre-1930 work within this pass's search effort. Not policy-excluded -- tracked for future sourcing.",
+    "followUpTask": "ai-art-academy/t-074"
+  },
+  {
+    "slug": "precisionism",
+    "reason": "No CC0/PD-Mark/Open-Access-Terms image located yet for Charles Demuth, the lesson's sole 1956-cutoff-eligible named artist, within this pass's search effort. Not policy-excluded -- tracked for future sourcing.",
+    "followUpTask": "ai-art-academy/t-074"
+  },
+  {
+    "slug": "italian-futurism",
+    "reason": "No CC0/PD-Mark/Open-Access-Terms image located yet for Umberto Boccioni, the lesson's sole 1956-cutoff-eligible named artist, within this pass's search effort (most Boccioni holdings are MoMA/rights-managed). Not policy-excluded -- tracked for future sourcing.",
+    "followUpTask": "ai-art-academy/t-074"
+  },
+  {
+    "slug": "fauvism",
+    "reason": "No pre-1930 Matisse or Derain work with an accepted open-access license located this pass; major Fauvist holdings (MoMA, Musee d'Orsay) commonly rights-manage Matisse reproductions via Succession H. Matisse even though the artist passes the death-date prong. Not policy-excluded -- needs a per-work rights check before sourcing.",
+    "followUpTask": "ai-art-academy/t-074"
+  },
+  {
+    "slug": "heidelberg-school",
+    "reason": "No CC0/PD-Mark/Open-Access-Terms image located yet for Tom Roberts, Arthur Streeton, or Frederick McCubbin within this pass's search effort (National Gallery of Australia / AGNSW open-access terms not verified). Not policy-excluded -- tracked for future sourcing.",
+    "followUpTask": "ai-art-academy/t-074"
+  },
+  {
+    "slug": "ethiopian-icon-painting",
+    "reason": "No CC0/PD-Mark/Open-Access-Terms image located yet for a Fre Seyon-workshop or anonymous Solomonic-era icon within this pass's search effort. Not policy-excluded -- tracked for future sourcing.",
+    "followUpTask": "ai-art-academy/t-074"
+  },
+  {
+    "slug": "rajput-painting",
+    "reason": "No CC0/PD-Mark/Open-Access-Terms image located yet for an anonymous Mewar/Kishangarh/Bundi-school work within this pass's search effort. Not policy-excluded -- tracked for future sourcing.",
+    "followUpTask": "ai-art-academy/t-074"
+  }
+]

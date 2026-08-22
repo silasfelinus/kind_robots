@@ -1132,6 +1132,22 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       'Under-cooks toward a lightly-graded photo if the prompt underweights brushwork/palette — lean on "gestural," "murky," "low-key lighting"',
+    exampleWorks: [
+      {
+        workTitle: 'Love of Winter',
+        artist: 'George Bellows',
+        artistDied: 1925,
+        year: '1914',
+        collection: 'Art Institute of Chicago',
+        accessionId: '1914.1018',
+        sourceUrl:
+          'https://commons.wikimedia.org/wiki/File:George_Wesley_Bellows_-_Love_of_Winter_-_1914.1018_-_Art_Institute_of_Chicago.jpg',
+        license: 'PD-Mark',
+        licenseTermsUrl:
+          'https://commons.wikimedia.org/wiki/Commons:Reusing_content_outside_Wikimedia',
+        imageSrc: '/images/academy/examples/love-of-winter-1914-1018.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -1482,6 +1498,21 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       'The most photorealistic style in the curriculum, so the likeliest failure is a generic "vintage photo" filter that skips the actual signature; lean on the oversized almond eyes, visible encaustic ridge texture, flat dark background, and absence of cast shadow to keep it distinct from realism/renaissance portraiture',
+    exampleWorks: [
+      {
+        workTitle: 'Portrait of a Youth with a Surgical Cut in one Eye',
+        artist: 'Anonymous Fayum painters',
+        artistDied: 230,
+        year: 'A.D. 190–210',
+        collection: 'The Metropolitan Museum of Art',
+        accessionId: '09.181.4',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/547768',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+        imageSrc:
+          '/images/academy/examples/portrait-of-a-youth-with-a-surgical-cut-09-181-4.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -1638,6 +1669,21 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       'Likely fails toward a generic "dramatic sky filter" over the photo\'s existing composition rather than the movement\'s real structure; lean on the remix template\'s explicit "tiny figures for scale" and "shadowed foreground opening toward luminous golden light" to check those staged compositional roles are actually present, and discuss the Manifest Destiny/Indigenous-erasure framing honestly rather than teaching the beauty alone',
+    exampleWorks: [
+      {
+        workTitle:
+          'View from Mount Holyoke, Northampton, Massachusetts, after a Thunderstorm—The Oxbow',
+        artist: 'Thomas Cole',
+        artistDied: 1848,
+        year: '1836',
+        collection: 'The Metropolitan Museum of Art',
+        accessionId: '08.228',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/10497',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+        imageSrc: '/images/academy/examples/the-oxbow-08-228.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -1712,6 +1758,20 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       'Likely under-cooks toward a generic "old oil painting" filter with warm varnish tone rather than the movement\'s actual saturated jewel color and hyper-detailed hair/fabric/foliage; lean on the remix template\'s explicit "saturated jewel-toned color" to keep it vivid rather than sepia-toned, and discuss how symbolic objects (not incidental still-life) drive the composition',
+    exampleWorks: [
+      {
+        workTitle: 'Portia',
+        artist: 'Sir John Everett Millais',
+        artistDied: 1896,
+        year: '1886',
+        collection: 'The Metropolitan Museum of Art',
+        accessionId: '06.1328',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/437092',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+        imageSrc: '/images/academy/examples/portia-06-1328.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -1754,6 +1814,20 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       'The model must invent a plausible botanical/animal repeat where the source photo has none while keeping visible "hand-process" texture; likely fails toward a generic flat decorative-pattern filter that skips block-print/embroidery/joinery texture — lean on the remix template\'s explicit "visible craft structure" and "natural materials," and discuss the movement\'s affordability contradiction (dignified-labor ideals vs. expensive handmade objects) honestly',
+    exampleWorks: [
+      {
+        workTitle: 'Honeysuckle',
+        artist: 'William Morris',
+        artistDied: 1896,
+        year: 'design registered 1876, printed 1876–77',
+        collection: 'The Metropolitan Museum of Art',
+        accessionId: '30.95.46a–f',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/222341',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+        imageSrc: '/images/academy/examples/honeysuckle-30-95-46a-f.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -1817,6 +1891,21 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       'Likely collapses into a generic "hieroglyphics wallpaper" pattern that scatters symbol-like marks across the background without committing to the figure-level grammar, or drifts toward Fayum Mummy Portraits\' naturalistic modeling; lean on composite ("twisted") perspective on any human figure, stacked horizontal registers, hierarchical scale, and flat unmodeled color fill with firm outlines to keep the two Egypt-adjacent styles distinct',
+    exampleWorks: [
+      {
+        workTitle: 'Book of the Dead for the Chantress of Amun, Nauny',
+        artist: 'Anonymous Egyptian scribes and painters',
+        artistDied: -1000,
+        year: 'ca. 1050 BCE',
+        collection: 'The Metropolitan Museum of Art',
+        accessionId: '30.3.31',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/548344',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+        imageSrc:
+          '/images/academy/examples/book-of-the-dead-for-the-chantress-of-amun-nauny-30-3-31.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -1892,6 +1981,20 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       "Likely stays too crisp and multi-toned, reading as a slightly muted photo rather than a unified single-tone glaze; lean on the remix template's explicit 'single dominant harmony' and 'blurred edges toward near-silhouette' to push it past Hudson River School's sharp detail and toward Tonalism's soft, remembered quality.",
+    exampleWorks: [
+      {
+        workTitle: 'Peace and Plenty',
+        artist: 'George Inness',
+        artistDied: 1894,
+        year: '1865',
+        collection: 'The Metropolitan Museum of Art',
+        accessionId: '94.27',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/11232',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+        imageSrc: '/images/academy/examples/peace-and-plenty-94-27.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -1934,6 +2037,21 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       "Risks drifting toward Impressionism's broken, high-key color instead of Barbizon's more tonally unified, controlled brushwork, or toward an idealized academic finish instead of humble direct observation; lean on the remix template's explicit 'muted, earthy palette' and 'no academic or mythological staging' to keep the plain, dignified rural subject intact.",
+    exampleWorks: [
+      {
+        workTitle: "A Woman Gathering Faggots at Ville-d'Avray",
+        artist: 'Camille Corot',
+        artistDied: 1875,
+        year: 'ca. 1871–74',
+        collection: 'The Metropolitan Museum of Art',
+        accessionId: '17.120.225',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/435990',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+        imageSrc:
+          '/images/academy/examples/a-woman-gathering-faggots-at-ville-davray-17-120-225.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -1976,6 +2094,21 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       "Easily keeps visible brushwork or a dramatic sky like Hudson River School, or blurs into Tonalism's soft near-silhouette mood, instead of Luminism's own smooth, almost-invisible finish and mirror-still water; lean on the remix template's explicit 'extremely smooth, near-invisible brushwork' and 'hushed and motionless' phrasing to hold the distinction between all three American landscape lessons.",
+    exampleWorks: [
+      {
+        workTitle: 'Stage Fort across Gloucester Harbor',
+        artist: 'Fitz Henry Lane',
+        artistDied: 1865,
+        year: '1862',
+        collection: 'The Metropolitan Museum of Art',
+        accessionId: '1978.203',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/11396',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+        imageSrc:
+          '/images/academy/examples/stage-fort-across-gloucester-harbor-1978-203.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -2060,6 +2193,20 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       "Risks tipping into Italian Baroque's swirling theatrical motion or Dutch Baroque's cozy domestic warmth instead of Spanish Golden Age's frozen, austere gravity; lean on the remix template's explicit 'single strong light source against a near-black ground' and 'minimal ornament' to keep the stillness and restraint.",
+    exampleWorks: [
+      {
+        workTitle: 'Juan de Pareja',
+        artist: 'Diego Velázquez',
+        artistDied: 1660,
+        year: '1650',
+        collection: 'The Metropolitan Museum of Art',
+        accessionId: '1971.86',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/437869',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+        imageSrc: '/images/academy/examples/juan-de-pareja-1971-86.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -2102,6 +2249,21 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       "Likely under-cooks toward a generic High Renaissance portrait instead of committing to Mannerism's deliberate elongation and artifice; lean on the remix template's explicit 'elongated figures in artificial, twisting poses' and 'cool porcelain-smooth skin' phrasing to push past Renaissance naturalism rather than settle for it.",
+    exampleWorks: [
+      {
+        workTitle: 'Portrait of a Young Man',
+        artist: 'Agnolo Bronzino',
+        artistDied: 1572,
+        year: '1530s',
+        collection: 'The Metropolitan Museum of Art',
+        accessionId: '29.100.16',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/435802',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+        imageSrc:
+          '/images/academy/examples/portrait-of-a-young-man-29-100-16.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:
@@ -2176,6 +2338,21 @@ export const academyStyles: AcademyStyle[] = [
     ],
     failureMode:
       "Likely collapses into a generic Ukiyo-e print look or a flat gold-leaf decorative filter, skipping the tarashikomi pooled-ink technique that makes Rinpa distinct; lean on the remix template's explicit 'pooled ink-and-color edges' and 'asymmetrical cropped arrangement' phrasing to keep the brushed, one-of-a-kind quality Ukiyo-e's woodblock printmaking doesn't have.",
+    exampleWorks: [
+      {
+        workTitle: 'Irises at Yatsuhashi (Eight Bridges)',
+        artist: 'Ogata Kōrin',
+        artistDied: 1716,
+        year: 'after 1709',
+        collection: 'The Metropolitan Museum of Art',
+        accessionId: '53.7.1, .2',
+        sourceUrl: 'https://www.metmuseum.org/art/collection/search/39664',
+        license: 'CC0',
+        licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+        imageSrc:
+          '/images/academy/examples/irises-at-yatsuhashi-eight-bridges-53-7-1-2.jpg',
+      },
+    ],
     remix: {
       mode: 'prompt',
       template:

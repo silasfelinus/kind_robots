@@ -262,6 +262,8 @@
     "test:model-builder-commit-target-persistence-guard": "tsx utils/scripts/verifyModelBuilderCommitTargetPersistenceGuard.ts",
     "test:model-builder-patch-stale-stage-status-guard-selftest": "tsx utils/scripts/verifyModelBuilderPatchStaleStageStatusGuard.test.ts",
     "test:model-builder-patch-stale-stage-status-guard": "tsx utils/scripts/verifyModelBuilderPatchStaleStageStatusGuard.ts",
+    "test:model-builder-commit-stale-gate-guard-selftest": "tsx utils/scripts/verifyModelBuilderCommitStaleGateGuard.test.ts",
+    "test:model-builder-commit-stale-gate-guard": "tsx utils/scripts/verifyModelBuilderCommitStaleGateGuard.ts",
     "test:model-builder-content-stage-freshness-guard-selftest": "tsx utils/scripts/verifyModelBuilderContentStageFreshnessGuard.test.ts",
     "test:model-builder-content-stage-freshness-guard": "tsx utils/scripts/verifyModelBuilderContentStageFreshnessGuard.ts",
     "test:model-builder-reset-all-guard-selftest": "tsx utils/scripts/verifyModelBuilderResetAllGuard.test.ts",

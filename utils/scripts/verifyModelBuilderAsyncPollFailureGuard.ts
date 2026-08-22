@@ -85,10 +85,55 @@ export function extractPollAsyncArtJobBody(content: string): string | null {
   // message) can't desync the brace-depth count -- the same class of bug
   // verifyCaptureGroupGuards.ts's afterCaptureCallClose already guards
   // against for regex literals.
+  //
+  // Bug (model-builder/t-029, cycle 41, found by inspection while verifying
+  // an unrelated fix): this used to skip only string/template literals, not
+  // `//` line comments or `/* */` block comments -- but this file's own
+  // comments are full of ordinary English contractions ("doesn't", "isn't",
+  // "can't", "it's" ...), and a lone apostrophe inside a `//` comment reads
+  // to this scanner exactly like an opening single-quoted string literal. It
+  // then swallows everything up to the NEXT apostrophe anywhere in the file
+  // (there is no shortage of them) as if it were still inside that "string",
+  // silently eating real braces along the way and desyncing the depth
+  // count. On the pre-fix version of this file, that miscount happened to
+  // still reach depth 0 at SOME later point deep inside a completely
+  // different function (batchDraftField's own success-toast string, far
+  // past pollAsyncArtJob/generateItemAssetAsync/commitItem/autoBuildItem/
+  // autoBuildRun) -- so `body` was never null and every substantive check
+  // below still passed, but only because the real `if (!job) {...}` pattern
+  // it was supposed to verify happened to be included as a small part of a
+  // vastly over-captured region, not because the extraction was actually
+  // correct. Editing any code between pollAsyncArtJob and that coincidental
+  // stopping point (a normal, unrelated change elsewhere in the file) could
+  // shift where the miscounted depth happens to land -- including all the
+  // way past the end of the file, which turns a silent false-positive into
+  // a hard, misleading "Could not find `async function pollAsyncArtJob(`"
+  // failure for a function that is right there, unchanged. Skipping
+  // comments before the quote check closes the hole at its root instead of
+  // patching around wherever it next happens to surface.
   let depth = 0
   let i = bodyOpen
   for (; i < content.length; i++) {
     const char = content[i]
+    const next = content[i + 1]
+
+    if (char === '/' && next === '/') {
+      i += 2
+      while (i < content.length && content[i] !== '\n') i += 1
+      continue
+    }
+
+    if (char === '/' && next === '*') {
+      i += 2
+      while (
+        i < content.length &&
+        !(content[i] === '*' && content[i + 1] === '/')
+      ) {
+        i += 1
+      }
+      i += 1 // land on the '/' of '*/'; the loop's own i++ steps past it
+      continue
+    }
 
     if (char === "'" || char === '"' || char === '`') {
       i += 1

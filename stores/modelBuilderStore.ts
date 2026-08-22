@@ -1027,6 +1027,35 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   // anyway. Clearing here uniformly (manual edit or AI draft alike) also
   // avoids a confusing asymmetry where an AI-redrafted fix clears the item's
   // error banner but retyping the identical fix by hand does not.
+  //
+  // Bug (model-builder/t-029, cycle 41, found by inspection): item.error
+  // being cleared here was never mirrored onto item.lastAutoBuildOutcome,
+  // which model-builder-progress-matrix.vue's and model-builder-batch-
+  // editor.vue's own autoBuildFailed() also OR into the same "failed" badge
+  // (see verifyModelBuilderAutoBuildOutcomePersistenceGuard.ts's doc comment
+  // for why that field exists). lastAutoBuildOutcome is written ONLY by
+  // autoBuildRun()/batchAutoBuild() and is never cleared anywhere else in
+  // this file -- not here, not by generateItemAsset/generateItemAssetAsync's
+  // own optimistic `item.error = null` at the start of a fresh attempt, not
+  // by commitItem's identical optimistic clear. Concrete repro: run
+  // "Auto-build all" on a run where one item's FIELDS_AND_PROMPTS AI draft
+  // fails (a transient text-server hiccup is enough) -- autoBuildRun sets
+  // that item's lastAutoBuildOutcome = 'failed' and item.error to the
+  // failure message, and the row in model-builder-progress-matrix.vue shows
+  // the red warning icon with a "failed" summary badge, correctly. The user
+  // then opens the item and either types the fields by hand or clicks
+  // "Draft with AI" again and it succeeds this time -- either path routes
+  // through updateFields (draftText's own success path calls it too), which
+  // clears item.error (and the item panel's error banner correctly
+  // disappears) but left lastAutoBuildOutcome sitting at 'failed' with
+  // nothing to ever clear it short of a full COMMIT or another whole
+  // auto-build/batch pass. The progress-matrix row and batch-editor badge
+  // kept flashing "failed" with the warning icon for an item the user was
+  // actively, successfully fixing -- exactly the "badge lying about what's
+  // actually stored" class of bug this codebase treats as real everywhere
+  // else it's found, just reached through the newer lastAutoBuildOutcome
+  // field instead of stageStatuses/error itself. Snapshotted and reverted
+  // alongside item.error on a failed PATCH, for the same reason.
   function updatePitch(itemId: string, value: string): void {
     const item = findItem(itemId)
     if (!item) return
@@ -1035,9 +1064,11 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     // onFailure doc comment).
     const previousPitch = item.pitch
     const previousError = item.error
+    const previousLastAutoBuildOutcome = item.lastAutoBuildOutcome
     const previousStages = { ...item.stages }
     item.pitch = value
     item.error = null
+    item.lastAutoBuildOutcome = null
     markDownstreamStale(item, 'PITCH')
     pushItem(
       item,
@@ -1046,6 +1077,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       () => {
         item.pitch = previousPitch
         item.error = previousError
+        item.lastAutoBuildOutcome = previousLastAutoBuildOutcome
         item.stages = previousStages
       },
     )
@@ -1056,9 +1088,11 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     if (!item) return
     const previousFieldsDraft = item.fieldsDraft
     const previousError = item.error
+    const previousLastAutoBuildOutcome = item.lastAutoBuildOutcome
     const previousStages = { ...item.stages }
     item.fieldsDraft = value
     item.error = null
+    item.lastAutoBuildOutcome = null
     markDownstreamStale(item, 'FIELDS_AND_PROMPTS')
     pushItem(
       item,
@@ -1071,6 +1105,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       () => {
         item.fieldsDraft = previousFieldsDraft
         item.error = previousError
+        item.lastAutoBuildOutcome = previousLastAutoBuildOutcome
         item.stages = previousStages
       },
     )
@@ -1081,9 +1116,11 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     if (!item) return
     const previousPromptDraft = item.promptDraft
     const previousError = item.error
+    const previousLastAutoBuildOutcome = item.lastAutoBuildOutcome
     const previousStages = { ...item.stages }
     item.promptDraft = value
     item.error = null
+    item.lastAutoBuildOutcome = null
     markDownstreamStale(item, 'FIELDS_AND_PROMPTS')
     pushItem(
       item,
@@ -1096,6 +1133,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       () => {
         item.promptDraft = previousPromptDraft
         item.error = previousError
+        item.lastAutoBuildOutcome = previousLastAutoBuildOutcome
         item.stages = previousStages
       },
     )
@@ -1381,6 +1419,13 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
 
     generatingItemSingleton.claim(item.id)
     item.error = null
+    // See updatePitch's doc comment (model-builder/t-029, cycle 41) for the
+    // full shape of this bug -- a fresh generate/regenerate attempt already
+    // optimistically clears item.error, so it must clear the stale
+    // lastAutoBuildOutcome the same way, or the progress-matrix/batch-editor
+    // "failed" badge keeps flashing for an item the user is actively
+    // re-rendering right now.
+    item.lastAutoBuildOutcome = null
     item.stages.GENERATE_ASSETS = { status: 'in-progress' }
     clearStatus()
 
@@ -1718,6 +1763,10 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     const artStore = useArtStore()
 
     item.error = null
+    // See generateItemAsset's identical clear (model-builder/t-029, cycle
+    // 41) -- a fresh queued attempt must clear the stale 'failed' outcome
+    // the same way it already clears the stale error.
+    item.lastAutoBuildOutcome = null
     item.queueState = 'queued'
     item.stages.GENERATE_ASSETS = { status: 'in-progress', note: 'queued' }
     clearStatus()
@@ -1836,6 +1885,15 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
 
     committingItemSingleton.claim(item.id)
     item.error = null
+    // See generateItemAsset's identical clear (model-builder/t-029, cycle
+    // 41) -- a fresh commit attempt must clear the stale 'failed' outcome
+    // the same way it already clears the stale error. Not strictly required
+    // for COMMIT itself (autoBuildFailed's own COMMIT-approved gate already
+    // clears the badge on a successful commit regardless), but keeps the
+    // invariant -- "an in-flight retry never shows a stale failed badge" --
+    // uniform across every stage instead of leaving COMMIT as a silent
+    // exception.
+    item.lastAutoBuildOutcome = null
     item.stages.COMMIT = { status: 'in-progress' }
     clearStatus()
 

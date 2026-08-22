@@ -170,6 +170,9 @@ jobs:
       - name: Academy style gallery disclosure contract
         run: npm run test:academy-style-gallery-disclosure
 
+      - name: Academy failureMode coverage contract
+        run: npm run test:academy-failuremode-coverage
+
       - name: Navigation route access contract
         run: npx tsx utils/scripts/verifyNavigationRouteAccess.ts
 

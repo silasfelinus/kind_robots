@@ -536,6 +536,12 @@ jobs:
       - name: Model Builder commit stale-gate guard contract
         run: npm run test:model-builder-commit-stale-gate-guard
 
+      - name: Model Builder item-panel Auto run-in-flight guard checker self-test
+        run: npm run test:model-builder-item-panel-auto-run-guard-selftest
+
+      - name: Model Builder item-panel Auto run-in-flight guard contract
+        run: npm run test:model-builder-item-panel-auto-run-guard
+
       - name: Model Builder content-stage freshness guard checker self-test
         run: npm run test:model-builder-content-stage-freshness-guard-selftest
 

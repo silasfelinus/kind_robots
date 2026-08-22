@@ -495,7 +495,9 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
 
   function sourceLabel(record: SourceRecord | null): string {
     if (!record) return ''
-    const config = state.sourceType ? getSourceType(state.sourceType) : undefined
+    const config = state.sourceType
+      ? getSourceType(state.sourceType)
+      : undefined
     const field = config?.titleField ?? 'title'
     const value = record[field] ?? record.title ?? record.name ?? record.slug
     return typeof value === 'string' && value.trim() ? value : `#${record.id}`
@@ -506,22 +508,24 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   )
 
   const recipeOutputs = computed<BuildOutputConfig[]>(() =>
-    state.recipeKey ? getOutputsForRecipe(state.recipeKey, state.sourceType) : [],
+    state.recipeKey
+      ? getOutputsForRecipe(state.recipeKey, state.sourceType)
+      : [],
   )
 
   const selectedOutputCount = computed(
     () =>
-      Object.values(state.selections).filter((selection) => selection.on).length,
+      Object.values(state.selections).filter((selection) => selection.on)
+        .length,
   )
 
-  const canStartRun = computed(
-    () =>
-      Boolean(
-        state.selectedSource &&
-          state.recipeKey &&
-          selectedOutputCount.value > 0 &&
-          !state.startingRun,
-      ),
+  const canStartRun = computed(() =>
+    Boolean(
+      state.selectedSource &&
+      state.recipeKey &&
+      selectedOutputCount.value > 0 &&
+      !state.startingRun,
+    ),
   )
 
   const runProgress = computed(() => {
@@ -592,7 +596,9 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   }
 
   async function loadSources(): Promise<void> {
-    const config = state.sourceType ? getSourceType(state.sourceType) : undefined
+    const config = state.sourceType
+      ? getSourceType(state.sourceType)
+      : undefined
     if (!config) return
 
     // state.sourceType can change while this fetch is in flight (rapid
@@ -618,7 +624,9 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       if (state.sourceType !== requestedType) return
       handleError(error, `loading ${config.plural.toLowerCase()}`)
       state.sourcesError =
-        error instanceof Error ? error.message : `Failed to load ${config.plural}.`
+        error instanceof Error
+          ? error.message
+          : `Failed to load ${config.plural}.`
       state.sources = []
     } finally {
       if (state.sourceType === requestedType) state.loadingSources = false
@@ -627,7 +635,9 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
 
   function selectSource(record: SourceRecord): void {
     state.selectedSource = record
-    const config = state.sourceType ? getSourceType(state.sourceType) : undefined
+    const config = state.sourceType
+      ? getSourceType(state.sourceType)
+      : undefined
     if (config) selectRecipe(config.defaultRecipe)
     state.step = 'recipe'
   }
@@ -655,7 +665,10 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   function setOutputQuantity(key: string, quantity: number): void {
     const selection = state.selections[key]
     if (!selection) return
-    selection.quantity = Math.max(1, Math.min(MAX_BATCH, Math.floor(quantity) || 1))
+    selection.quantity = Math.max(
+      1,
+      Math.min(MAX_BATCH, Math.floor(quantity) || 1),
+    )
   }
 
   // --- step 3: create the durable run --------------------------------------
@@ -706,19 +719,22 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     clearStatus()
 
     try {
-      const response = await performFetch<ServerRun>('/api/model-builder/runs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sourceType: state.sourceType,
-          sourceId: state.selectedSource.id,
-          sourceLabel: sourceLabel(state.selectedSource),
-          sourceSnapshot: state.selectedSource,
-          recipeKey: state.recipeKey,
-          selections: state.selections,
-          items: itemsPayload,
-        }),
-      })
+      const response = await performFetch<ServerRun>(
+        '/api/model-builder/runs',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sourceType: state.sourceType,
+            sourceId: state.selectedSource.id,
+            sourceLabel: sourceLabel(state.selectedSource),
+            sourceSnapshot: state.selectedSource,
+            recipeKey: state.recipeKey,
+            selections: state.selections,
+            items: itemsPayload,
+          }),
+        },
+      )
 
       if (!response.success || !response.data) {
         throw new Error(response.message || 'Failed to start build run.')
@@ -799,9 +815,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
           setStatusForRun(
             runId,
             'error',
-            error instanceof Error
-              ? error.message
-              : 'Failed to save changes.',
+            error instanceof Error ? error.message : 'Failed to save changes.',
           )
         }
       })
@@ -836,7 +850,8 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       meta?: { stage?: string; reason?: string }
     }>,
   ): Promise<BatchPushOutcome> {
-    if (!entries.length) return Promise.resolve({ ok: true, failedIds: new Set() })
+    if (!entries.length)
+      return Promise.resolve({ ok: true, failedIds: new Set() })
     const runId = state.run?.id
     return performFetch('/api/model-builder/items/batch', {
       method: 'PATCH',
@@ -899,9 +914,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
           setStatusForRun(
             runId,
             'error',
-            error instanceof Error
-              ? error.message
-              : 'Failed to save changes.',
+            error instanceof Error ? error.message : 'Failed to save changes.',
           )
         }
         return {
@@ -955,7 +968,10 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
 
   // Stale-invalidation: editing an upstream stage marks every downstream stage
   // stale (unless still locked). Commit is always downstream of everything.
-  function markDownstreamStale(item: BuildItem, fromStage: BuildStageKey): void {
+  function markDownstreamStale(
+    item: BuildItem,
+    fromStage: BuildStageKey,
+  ): void {
     const from = stageIndex(fromStage)
     BUILD_STAGES.forEach((stage, index) => {
       if (index <= from) return
@@ -1946,7 +1962,11 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         target?: CommitTarget | null
       }>(
         `/api/model-builder/items/${item.id}/commit`,
-        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' },
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: '{}',
+        },
         1,
         60_000,
       )
@@ -1968,7 +1988,9 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       const target = response.data?.target ?? null
       finishCommit(item, {
         status: 'approved',
-        note: target ? `Committed → ${target.type} #${target.id}` : 'Committed.',
+        note: target
+          ? `Committed → ${target.type} #${target.id}`
+          : 'Committed.',
       })
       if (target) {
         item.targetType = target.type
@@ -2808,7 +2830,11 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         const response = await performFetch<ServerRun[]>(
           '/api/model-builder/runs?take=1',
         )
-        if (response.success && Array.isArray(response.data) && response.data.length) {
+        if (
+          response.success &&
+          Array.isArray(response.data) &&
+          response.data.length
+        ) {
           data = response.data[0]
         }
       }
@@ -3014,14 +3040,11 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
 
   async function cancelRun(runId: string): Promise<void> {
     try {
-      const response = await performFetch(
-        `/api/model-builder/runs/${runId}`,
-        {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: 'CANCELLED' }),
-        },
-      )
+      const response = await performFetch(`/api/model-builder/runs/${runId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'CANCELLED' }),
+      })
       if (!response.success) {
         setStatus('error', response.message || 'Failed to cancel run.')
         return

@@ -1,9 +1,6 @@
 <!-- /components/model-builder/model-builder-item-panel.vue -->
 <template>
-  <div
-    v-if="item"
-    class="flex min-h-0 flex-1 flex-col gap-2 kr-panel-flat p-3"
-  >
+  <div v-if="item" class="flex min-h-0 flex-1 flex-col gap-2 kr-panel-flat p-3">
     <div class="flex items-center gap-2">
       <h4 class="text-sm font-black text-base-content">{{ item.label }}</h4>
       <span class="badge badge-sm badge-ghost">{{ item.action }}</span>
@@ -57,7 +54,10 @@
           title="Draft this pitch with AI"
           @click="draft('pitch')"
         >
-          <span v-if="isDrafting('pitch')" class="loading loading-dots loading-xs" />
+          <span
+            v-if="isDrafting('pitch')"
+            class="loading loading-dots loading-xs"
+          />
           <template v-else>
             <Icon name="kind-icon:magic" class="h-3.5 w-3.5" />
             Draft with AI
@@ -88,8 +88,13 @@
     <section class="rounded-xl border border-base-300 p-2.5">
       <div class="mb-1.5 flex items-center gap-2">
         <Icon name="kind-icon:list" class="h-4 w-4 text-primary" />
-        <span class="text-xs font-bold uppercase tracking-wide">Fields &amp; Prompts</span>
-        <span class="badge badge-xs ml-auto" :class="badgeFor('FIELDS_AND_PROMPTS')">
+        <span class="text-xs font-bold uppercase tracking-wide"
+          >Fields &amp; Prompts</span
+        >
+        <span
+          class="badge badge-xs ml-auto"
+          :class="badgeFor('FIELDS_AND_PROMPTS')"
+        >
           {{ item.stages.FIELDS_AND_PROMPTS.status }}
         </span>
       </div>
@@ -105,7 +110,10 @@
           title="Draft the schema fields and relationships with AI"
           @click="draft('fields')"
         >
-          <span v-if="isDrafting('fields')" class="loading loading-dots loading-xs" />
+          <span
+            v-if="isDrafting('fields')"
+            class="loading loading-dots loading-xs"
+          />
           <template v-else>
             <Icon name="kind-icon:magic" class="h-3 w-3" />
             Draft
@@ -132,7 +140,10 @@
           title="Draft the generation prompt with AI"
           @click="draft('artPrompt')"
         >
-          <span v-if="isDrafting('artPrompt')" class="loading loading-dots loading-xs" />
+          <span
+            v-if="isDrafting('artPrompt')"
+            class="loading loading-dots loading-xs"
+          />
           <template v-else>
             <Icon name="kind-icon:magic" class="h-3 w-3" />
             Draft
@@ -173,8 +184,13 @@
     <section class="rounded-xl border border-base-300 p-2.5">
       <div class="mb-1.5 flex items-center gap-2">
         <Icon name="kind-icon:sparkles" class="h-4 w-4 text-primary" />
-        <span class="text-xs font-bold uppercase tracking-wide">Generate Assets</span>
-        <span class="badge badge-xs ml-auto" :class="badgeFor('GENERATE_ASSETS')">
+        <span class="text-xs font-bold uppercase tracking-wide"
+          >Generate Assets</span
+        >
+        <span
+          class="badge badge-xs ml-auto"
+          :class="badgeFor('GENERATE_ASSETS')"
+        >
           {{ item.stages.GENERATE_ASSETS.status }}
         </span>
       </div>
@@ -204,23 +220,33 @@
           <button
             type="button"
             class="btn btn-sm btn-primary flex-1 rounded-xl"
-            :disabled="!isEditable('GENERATE_ASSETS') || isGenerating || isQueued"
-            :title="item.imagePath ? 'Regenerate candidate' : 'Generate candidate'"
+            :disabled="
+              !isEditable('GENERATE_ASSETS') || isGenerating || isQueued
+            "
+            :title="
+              item.imagePath ? 'Regenerate candidate' : 'Generate candidate'
+            "
             @click="store.generateItemAsset(item.id)"
           >
             <span v-if="isGenerating" class="loading loading-dots loading-sm" />
             <template v-else>
               <Icon name="kind-icon:sparkles" class="h-4 w-4" />
-              {{ item.imagePath ? 'Regenerate candidate' : 'Generate candidate' }}
+              {{
+                item.imagePath ? 'Regenerate candidate' : 'Generate candidate'
+              }}
             </template>
           </button>
           <button
             type="button"
             class="btn btn-sm btn-outline btn-primary rounded-xl"
-            :disabled="!isEditable('GENERATE_ASSETS') || isGenerating || isQueued"
+            :disabled="
+              !isEditable('GENERATE_ASSETS') || isGenerating || isQueued
+            "
             title="Queue generation and keep working — polls in the background, no need to wait here."
             :aria-label="
-              item.imagePath ? 'Queue regeneration in background' : 'Queue generation in background'
+              item.imagePath
+                ? 'Queue regeneration in background'
+                : 'Queue generation in background'
             "
             @click="store.generateItemAssetAsync(item.id)"
           >
@@ -308,14 +334,19 @@
           :disabled="
             isLocked('COMMIT') ||
             item.stages.COMMIT.status === 'approved' ||
-            isCommitting
+            isCommitting ||
+            isCommitBlocked
           "
-          title="Execute commit"
+          :title="commitButtonTitle"
           @click="store.commitItem(item.id)"
         >
           <span v-if="isCommitting" class="loading loading-dots loading-xs" />
           <template v-else>
-            {{ item.stages.COMMIT.status === 'approved' ? 'Committed' : 'Execute commit' }}
+            {{
+              item.stages.COMMIT.status === 'approved'
+                ? 'Committed'
+                : 'Execute commit'
+            }}
           </template>
         </button>
       </div>
@@ -327,6 +358,7 @@
 import { computed, ref, watch } from 'vue'
 import { useModelBuilderStore } from '@/stores/modelBuilderStore'
 import type { DraftField } from '@/stores/modelBuilderStore'
+import { BUILD_STAGES } from '@/stores/helpers/modelBuilderRecipes'
 import type { BuildStageKey } from '@/stores/helpers/modelBuilderRecipes'
 
 const props = defineProps<{ itemId: string }>()
@@ -445,6 +477,50 @@ const canApproveAssets = computed(() => {
   if (item.value.action === 'ASSET_ONLY') return Boolean(item.value.artImageId)
   return true
 })
+
+// Bug (model-builder/t-029, cycle 50): the Execute-commit button previously
+// disabled only on isLocked('COMMIT') || approved || isCommitting -- it
+// stayed clickable while COMMIT.status === 'stale' (an upstream edit
+// reopened an earlier stage after this item had already been ready/approved
+// to commit -- see markDownstreamStale). server/api/model-builder/items/
+// [id]/commit.post.ts independently requires every OTHER stage to be
+// status === 'approved' before committing (dryRun aside), so a stale-commit
+// click was previously a guaranteed round-trip to that 400, with the caught
+// error resetting COMMIT to 'ready' via finishCommit -- silently discarding
+// the accurate "an upstream stage still needs to be redone" signal the
+// 'stale' badge was showing (the same "badge lying about what's actually
+// stored" class of bug this file's updatePitch/updateFields/updatePrompt
+// comment above already treats as real).
+//
+// The fix must NOT simply add `item.stages.COMMIT.status === 'stale'` to
+// the disabled list: 'stale' is COMMIT's only recovery path in this store.
+// approveStage's "unlock the next stage" branch only flips a *locked* next
+// stage to 'ready' (`if (next && item.stages[next.key].status === 'locked')
+// ...`) -- it never un-stales one, so once COMMIT goes 'stale' there is no
+// other code path that ever moves it back to 'ready'/'approved' short of a
+// commitItem() call itself succeeding. Disabling on status === 'stale'
+// verbatim would permanently soft-lock the item: re-approving the upstream
+// stage that caused the staleness would leave COMMIT stuck at 'stale'
+// forever with no enabled button left to clear it.
+//
+// Mirroring the server's own gate instead -- every other stage must be
+// 'approved' -- closes the guaranteed-400 round-trip without that soft-lock:
+// the button re-enables the instant the real prerequisite is satisfied,
+// regardless of whether COMMIT's own badge still reads 'stale' or 'ready'.
+const commitBlockedStage = computed(() => {
+  if (!item.value) return undefined
+  const stages = item.value.stages
+  return BUILD_STAGES.find(
+    (stage) =>
+      stage.key !== 'COMMIT' && stages[stage.key].status !== 'approved',
+  )
+})
+const isCommitBlocked = computed(() => Boolean(commitBlockedStage.value))
+const commitButtonTitle = computed(() =>
+  commitBlockedStage.value
+    ? `${commitBlockedStage.value.label} must be approved before committing.`
+    : 'Execute commit',
+)
 
 function isLocked(stage: BuildStageKey): boolean {
   const status = item.value?.stages[stage].status

@@ -1,16 +1,29 @@
 // /server/utils/conductor-github.ts
 // Shared helpers for reading/writing files in silasfelinus/conductor via GitHub API.
-// Requires GITHUB_TOKEN in Vercel environment variables.
+//
+// Production is self-hosted from a prebuilt GHCR image. `GITHUB_TOKEN` is loaded
+// into the running container by docker-compose's env_file, while Nuxt runtime
+// config defaults are serialized when that image is built. Read the live Node
+// environment first so a runtime-only secret is not mistaken for a missing one;
+// keep runtimeConfig as the development / NUXT_GITHUB_TOKEN fallback.
 
 export interface ConductorFile {
   sha: string
   content: string
 }
 
+function conductorGithubToken(): string {
+  const runtimeToken = useRuntimeConfig().githubToken
+  return (
+    process.env.GITHUB_TOKEN ||
+    (typeof runtimeToken === 'string' ? runtimeToken : '')
+  ).trim()
+}
+
 export async function conductorGet(
   path: string,
 ): Promise<ConductorFile | null> {
-  const { githubToken } = useRuntimeConfig()
+  const githubToken = conductorGithubToken()
 
   const headers: Record<string, string> = {
     Accept: 'application/vnd.github.v3+json',
@@ -48,13 +61,13 @@ export async function conductorPut(
   message: string,
   existingSha?: string,
 ): Promise<void> {
-  const { githubToken } = useRuntimeConfig()
+  const githubToken = conductorGithubToken()
 
   if (!githubToken) {
     throw createError({
       statusCode: 503,
       statusMessage:
-        'GITHUB_TOKEN is not configured. Add it to Vercel environment variables.',
+        'GitHub write access is not configured on this Kind Robots server. Set GITHUB_TOKEN in the runtime environment.',
     })
   }
 
@@ -97,7 +110,7 @@ export interface ConductorDirEntry {
 export async function conductorList(
   path: string,
 ): Promise<ConductorDirEntry[] | null> {
-  const { githubToken } = useRuntimeConfig()
+  const githubToken = conductorGithubToken()
 
   const headers: Record<string, string> = {
     Accept: 'application/vnd.github.v3+json',

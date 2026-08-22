@@ -1,3 +1,4 @@
+import '~/assets/css/conductor-feedback.css'
 import { computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useConductorStore } from '@/stores/conductorStore'

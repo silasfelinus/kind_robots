@@ -15,10 +15,49 @@
 // case for model knowledge. LoRA upgrades land via the conductor
 // style-lora-registry evaluation (ai-art-academy t-003/t-004).
 
+/**
+ * A real, rights-checked likeness of a named curriculum artist for the
+ * "Meet the masters" gallery (ai-art-academy/t-072). Never a generated
+ * likeness — a self-portrait, a documented portrait/photograph by someone
+ * else, or a portrait sculpture/medallion. `artist`/`artistDied` describe
+ * whoever MADE this image (the public-domain check per
+ * PUBLIC-DOMAIN-POLICY.md §1.3 applies to the image's creator, not
+ * necessarily the person depicted) — `depicts` names the curriculum artist
+ * shown, which the UI matches against AcademyArtist.name. Image files live
+ * under public/images/academy/artists/, tracked the same
+ * pending-until-media-sync way as AcademyExampleWork (see
+ * config/academy-artist-portraits-pending.json).
+ */
+export interface AcademyArtistPortrait {
+  workTitle: string
+  /** The curriculum artist shown — must match the owning AcademyArtist.name. */
+  depicts: string
+  /** Self-portrait vs. a likeness made by someone else. */
+  kind: 'self-portrait' | 'portrait' | 'photograph' | 'sculpture'
+  /** Who made this image (self for a self-portrait). */
+  artist: string
+  /** Year the image's creator died — the §1.3 prong-1 public-domain check. */
+  artistDied: number
+  year: string
+  collection: string
+  accessionId: string
+  sourceUrl: string
+  license: 'CC0' | 'PD-Mark' | 'Open-Access-Terms'
+  licenseTermsUrl: string
+  /** Path under /images/academy/artists/{file}, served from public/. */
+  imageSrc: string
+}
+
 export interface AcademyArtist {
   name: string
   years: string
   note: string
+  /**
+   * A real, verified portrait/photograph/sculpture of this named artist —
+   * ai-art-academy/t-072. Coverage is intentionally partial: never a
+   * generated likeness in this field, only a verified image or nothing.
+   */
+  portrait?: AcademyArtistPortrait
 }
 
 /**
@@ -354,6 +393,20 @@ export const academyStyles: AcademyStyle[] = [
         name: 'Raphael',
         years: '1483–1520',
         note: 'The great harmonizer — clarity, sweetness, and perfect composition.',
+        portrait: {
+          workTitle: 'Raphael',
+          depicts: 'Raphael',
+          kind: 'portrait',
+          artist: 'Wenceslaus Hollar',
+          artistDied: 1677,
+          year: '1651 (posthumous print)',
+          collection: 'The Metropolitan Museum of Art',
+          accessionId: '24.63.512',
+          sourceUrl: 'https://www.metmuseum.org/art/collection/search/361524',
+          license: 'CC0',
+          licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+          imageSrc: '/images/academy/artists/raphael-portrait-24-63-512.jpg',
+        },
       },
     ],
     failureMode:
@@ -508,6 +561,21 @@ export const academyStyles: AcademyStyle[] = [
         name: 'Rembrandt van Rijn',
         years: '1606–1669',
         note: 'Turned chiaroscuro inward — light as psychology.',
+        portrait: {
+          workTitle: 'Self-Portrait',
+          depicts: 'Rembrandt van Rijn',
+          kind: 'self-portrait',
+          artist: 'Rembrandt van Rijn',
+          artistDied: 1669,
+          year: '1660',
+          collection: 'The Metropolitan Museum of Art',
+          accessionId: '14.40.618',
+          sourceUrl: 'https://www.metmuseum.org/art/collection/search/437397',
+          license: 'CC0',
+          licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+          imageSrc:
+            '/images/academy/artists/rembrandt-van-rijn-self-portrait-14-40-618.jpg',
+        },
       },
       {
         name: 'Artemisia Gentileschi',
@@ -570,6 +638,21 @@ export const academyStyles: AcademyStyle[] = [
         name: 'Jean-Honoré Fragonard',
         years: '1732–1806',
         note: 'The most dazzling brush of late Rococo, whose flickering strokes turn silk and leaves into pure sparkle.',
+        portrait: {
+          workTitle: 'Portrait of Jean Honoré Fragonard',
+          depicts: 'Jean-Honoré Fragonard',
+          kind: 'portrait',
+          artist: 'Charles Louis François Le Carpentier',
+          artistDied: 1822,
+          year: '1808',
+          collection: 'The Metropolitan Museum of Art',
+          accessionId: '2015.493.1',
+          sourceUrl: 'https://www.metmuseum.org/art/collection/search/690287',
+          license: 'CC0',
+          licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+          imageSrc:
+            '/images/academy/artists/jean-honore-fragonard-portrait-2015-493-1.jpg',
+        },
       },
       {
         name: 'Jean-Baptiste-Siméon Chardin',
@@ -629,6 +712,21 @@ export const academyStyles: AcademyStyle[] = [
         name: 'Antonio Canova',
         years: '1757–1822',
         note: 'The age’s greatest sculptor, whose marble figures combine antique cool with tender softness.',
+        portrait: {
+          workTitle: 'Portrait of Antonio Canova',
+          depicts: 'Antonio Canova',
+          kind: 'sculpture',
+          artist: 'Francesco Putinati',
+          artistDied: 1848,
+          year: 'ca. 1822',
+          collection: 'The Metropolitan Museum of Art',
+          accessionId: '67.219.2',
+          sourceUrl: 'https://www.metmuseum.org/art/collection/search/204810',
+          license: 'CC0',
+          licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+          imageSrc:
+            '/images/academy/artists/antonio-canova-portrait-67-219-2.jpg',
+        },
       },
       {
         name: 'Angelica Kauffman',
@@ -782,6 +880,21 @@ export const academyStyles: AcademyStyle[] = [
         name: 'Jean-François Millet',
         years: '1814–1875',
         note: 'Gave farm labor the gravity of scripture.',
+        portrait: {
+          workTitle: 'Jean-François Millet',
+          depicts: 'Jean-François Millet',
+          kind: 'photograph',
+          artist: 'Nadar',
+          artistDied: 1910,
+          year: '1856–58',
+          collection: 'The Metropolitan Museum of Art',
+          accessionId: '2013.159.46',
+          sourceUrl: 'https://www.metmuseum.org/art/collection/search/306329',
+          license: 'CC0',
+          licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+          imageSrc:
+            '/images/academy/artists/jean-francois-millet-photograph-2013-159-46.jpg',
+        },
       },
     ],
     failureMode:
@@ -883,6 +996,21 @@ export const academyStyles: AcademyStyle[] = [
         name: 'Vincent van Gogh',
         years: '1853–1890',
         note: 'Starry swirls and sunflowers — emotion made visible in paint.',
+        portrait: {
+          workTitle: 'Self-Portrait with a Straw Hat',
+          depicts: 'Vincent van Gogh',
+          kind: 'self-portrait',
+          artist: 'Vincent van Gogh',
+          artistDied: 1890,
+          year: '1887',
+          collection: 'The Metropolitan Museum of Art',
+          accessionId: '67.187.70a',
+          sourceUrl: 'https://www.metmuseum.org/art/collection/search/436532',
+          license: 'CC0',
+          licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+          imageSrc:
+            '/images/academy/artists/vincent-van-gogh-self-portrait-67-187-70a.jpg',
+        },
       },
       {
         name: 'Georges Seurat',
@@ -1655,6 +1783,20 @@ export const academyStyles: AcademyStyle[] = [
         name: 'Thomas Cole',
         years: '1801–1848',
         note: 'Founder of the movement, combining observed American scenery with allegory, historical cycles, and warnings about unchecked development.',
+        portrait: {
+          workTitle: 'Thomas Cole',
+          depicts: 'Thomas Cole',
+          kind: 'sculpture',
+          artist: 'Henry Kirke Brown',
+          artistDied: 1886,
+          year: 'by 1850',
+          collection: 'The Metropolitan Museum of Art',
+          accessionId: '95.8.1',
+          sourceUrl: 'https://www.metmuseum.org/art/collection/search/10238',
+          license: 'CC0',
+          licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+          imageSrc: '/images/academy/artists/thomas-cole-bust-95-8-1.jpg',
+        },
       },
       {
         name: 'Frederic Edwin Church',
@@ -1749,6 +1891,21 @@ export const academyStyles: AcademyStyle[] = [
         name: 'William Holman Hunt',
         years: '1827–1910',
         note: 'Co-founder; the most doctrinally committed member, painting directly from nature (including expeditions to the Holy Land) in pursuit of literal truth-to-detail.',
+        portrait: {
+          workTitle: 'William Holman Hunt',
+          depicts: 'William Holman Hunt',
+          kind: 'photograph',
+          artist: 'David Wilkie Wynfield',
+          artistDied: 1887,
+          year: '1863',
+          collection: 'The Metropolitan Museum of Art',
+          accessionId: '2013.464',
+          sourceUrl: 'https://www.metmuseum.org/art/collection/search/307108',
+          license: 'CC0',
+          licenseTermsUrl: 'https://www.metmuseum.org/policies/image-resources',
+          imageSrc:
+            '/images/academy/artists/william-holman-hunt-photograph-2013-464.jpg',
+        },
       },
       {
         name: 'Dante Gabriel Rossetti',

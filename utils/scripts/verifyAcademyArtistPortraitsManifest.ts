@@ -26,6 +26,7 @@
 
 import { readFile } from 'node:fs/promises'
 import { academyStyles } from '../../stores/seeds/academyStyles'
+import { summarizeCoverage } from './academyCoverageContract'
 import { validateProvenanceRecord } from './academyProvenanceSchema'
 import {
   imageSrcToMediaPath,
@@ -232,10 +233,7 @@ async function main(): Promise<void> {
     return
   }
 
-  const pct =
-    namedArtistCount === 0
-      ? 100
-      : Math.round((portraitCount / namedArtistCount) * 100)
+  const { pct } = summarizeCoverage(namedArtistCount, portraitCount)
   const zeroCoverageStyles = styleCoverage.filter(
     (s) => s.withPortrait === 0,
   ).length

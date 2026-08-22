@@ -170,6 +170,9 @@ jobs:
         shell: bash
         run: npm run test:academy-examples-manifest 2>&1 | tee academy-examples-contract.txt
 
+      - name: Academy artist-portraits manifest provenance contract
+        run: npm run test:academy-artist-portraits-manifest
+
       - name: Academy style gallery disclosure contract
         run: npm run test:academy-style-gallery-disclosure
 

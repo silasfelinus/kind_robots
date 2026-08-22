@@ -233,7 +233,25 @@
               :key="artist.name"
               class="group grid min-h-32 grid-cols-[72px_minmax(0,1fr)] overflow-hidden rounded-2xl border border-base-300 bg-base-200/35"
             >
-              <div class="flex items-center justify-center border-r border-base-300 bg-base-200">
+              <a
+                v-if="artist.portrait"
+                :href="artist.portrait.sourceUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex items-center justify-center overflow-hidden border-r border-base-300 bg-base-200"
+                :title="`${artist.portrait.workTitle} — public-domain source page`"
+              >
+                <img
+                  :src="artist.portrait.imageSrc"
+                  :alt="artistPortraitAlt(artist)"
+                  loading="lazy"
+                  class="h-full w-full object-cover"
+                />
+              </a>
+              <div
+                v-else
+                class="flex items-center justify-center border-r border-base-300 bg-base-200"
+              >
                 <div class="flex h-12 w-12 items-center justify-center rounded-full bg-base-100 text-xl font-black text-base-content/30 shadow-inner" aria-hidden="true">
                   {{ artist.name.slice(0, 1) }}
                 </div>
@@ -245,6 +263,9 @@
                 <p class="mt-0.5 text-xs font-semibold text-primary/80">{{ artist.years }}</p>
                 <p class="mt-2 line-clamp-3 text-xs leading-relaxed text-base-content/65">
                   {{ artist.note }}
+                </p>
+                <p v-if="artist.portrait" class="mt-1.5 truncate text-[0.65rem] text-base-content/45">
+                  {{ artist.portrait.workTitle }} · {{ artist.portrait.collection }}
                 </p>
               </div>
             </div>
@@ -335,7 +356,7 @@
 //     allowMarkViewed=false — image-led read-only style summary beside Remix Studio
 import { computed, onMounted } from 'vue'
 import { useAcademyStore } from '@/stores/academyStore'
-import type { AcademyStyle } from '@/stores/seeds/academyStyles'
+import type { AcademyArtist, AcademyStyle } from '@/stores/seeds/academyStyles'
 
 const props = withDefaults(
   defineProps<{
@@ -363,6 +384,22 @@ const academyStore = useAcademyStore()
 const isViewed = computed(() => {
   return academyStore.viewedLessons.includes(props.lesson.slug)
 })
+
+// Accessibility (ai-art-academy/t-072 acceptance criterion 8): alt text must
+// distinguish a self-portrait/photograph/sculpture of the artist from an
+// artwork BY that artist, so screen-reader users don't mistake a likeness
+// for an example of the style itself.
+function artistPortraitAlt(artist: AcademyArtist): string {
+  const portrait = artist.portrait
+  if (!portrait) return ''
+  const kindLabel: Record<typeof portrait.kind, string> = {
+    'self-portrait': `Self-portrait of ${artist.name}`,
+    portrait: `Portrait of ${artist.name} by ${portrait.artist}`,
+    photograph: `Photograph of ${artist.name} by ${portrait.artist}`,
+    sculpture: `Sculpted portrait of ${artist.name} by ${portrait.artist}`,
+  }
+  return `${kindLabel[portrait.kind]}, ${portrait.year}, ${portrait.collection}`
+}
 
 const tryItFailureLabel = computed(() => 'Watch for:')
 

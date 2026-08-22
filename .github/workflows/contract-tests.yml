@@ -49,6 +49,9 @@ jobs:
       - name: ArtJob priority bounds contract
         run: npm run test:artjob-priority-bounds
 
+      - name: Art failure-signature grouping contract
+        run: npm run test:art-failure-signature
+
       - name: Comfy-only generation contract
         run: npm run test:comfy-only-generation
 

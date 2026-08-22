@@ -13,6 +13,7 @@ import { defineEventHandler, getQuery } from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { requireAdminApiUser } from '../../../utils/authGuard'
+import { groupArtFailuresBySignature } from '../../../utils/artFailureSignature'
 
 // Mirror claim.post.ts STALE_CLAIM_MINUTES: a RUNNING job whose claim is older
 // than this is considered stuck (its relay likely died mid-render).
@@ -34,7 +35,9 @@ export default defineEventHandler(async (event) => {
     const query = getQuery(event)
     const windowHours = Math.min(Math.max(Number(query.window) || 24, 1), 720)
     const summaryOnly = ['1', 'true', 'yes'].includes(
-      String(query.summary || '').trim().toLowerCase(),
+      String(query.summary || '')
+        .trim()
+        .toLowerCase(),
     )
     const since = new Date(Date.now() - windowHours * 3_600_000)
     const staleBefore = new Date(Date.now() - STALE_CLAIM_MINUTES * 60_000)
@@ -78,6 +81,11 @@ export default defineEventHandler(async (event) => {
           staleRunningCount,
           staleRunning: [],
           recentFailed: [],
+          // Additive summary layer (ai-art-academy/t-073): empty here since
+          // recentFailed itself is empty in summary mode -- same shape as
+          // the full mode below so consumers don't need a mode-specific
+          // branch to read it.
+          failuresBySignature: [],
           imagesCreatedInWindow: 0,
           imagesByServer: [],
         },
@@ -166,6 +174,12 @@ export default defineEventHandler(async (event) => {
         staleRunningCount: staleRunning.length,
         staleRunning,
         recentFailed,
+        // Additive summary layer (ai-art-academy/t-073): the same
+        // `recentFailed` sample above, grouped by normalized error
+        // signature and then by projectSlug, so "is MY project's queue
+        // clean" is a glance instead of a manual scan of the raw array.
+        // `recentFailed` itself is untouched -- raw detail stays available.
+        failuresBySignature: groupArtFailuresBySignature(recentFailed),
         imagesCreatedInWindow: imagesInWindow,
         imagesByServer: imagesByServer.map((group) => ({
           serverName: group.serverName,

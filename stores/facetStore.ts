@@ -24,6 +24,7 @@ export type FacetWithAliases = Pick<
   | 'artCollectionId'
   | 'userId'
   | 'isPublic'
+  | 'allowReviews'
   | 'isMature'
   | 'isActive'
 > & {
@@ -77,6 +78,7 @@ export type FacetCreateInput = {
   artCollectionId?: number | null
   aliases?: string[]
   isPublic?: boolean
+  allowReviews?: boolean
   isMature?: boolean
 }
 

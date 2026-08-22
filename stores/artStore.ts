@@ -451,22 +451,6 @@ export const useArtStore = defineStore('artStore', () => {
   const matureArtImages = computed(() => state.artImages.filter((image) => image.isMature))
   const safeArtImages = computed(() => state.artImages.filter((image) => !image.isMature))
 
-  const unlinkedArtImages = computed(() =>
-    state.artImages.filter((image) => {
-      const record = image as ArtImage & Record<string, unknown>
-      return (
-        !record.botId &&
-        !record.componentId &&
-        !record.achievementId &&
-        !record.resourceId &&
-        !record.rewardId &&
-        !record.chatId &&
-        !record.characterId &&
-        !record.butterflyId
-      )
-    }),
-  )
-
   const showMature = computed(() => userStore.user?.showMature ?? userStore.showMature ?? false)
 
   const generationServers = computed<Server[]>(() => {
@@ -2098,7 +2082,6 @@ export const useArtStore = defineStore('artStore', () => {
     publicArtImages,
     matureArtImages,
     safeArtImages,
-    unlinkedArtImages,
     artListPresets,
     initialize,
     resetInitialization,

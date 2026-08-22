@@ -45,6 +45,7 @@ type FacetCreateBody = {
   artImageId?: unknown
   artCollectionId?: unknown
   isPublic?: unknown
+  allowReviews?: unknown
   isMature?: unknown
   aliases?: unknown
 }
@@ -164,6 +165,10 @@ export default defineEventHandler(async (event) => {
         artImageId,
         artCollectionId,
         isPublic: body.isPublic !== false,
+        // Matches the schema default (true) when omitted, and mirrors
+        // [id].patch.ts, which has accepted this field all along -- without it
+        // a Facet created with reviews off silently came back on.
+        allowReviews: body.allowReviews !== false,
         isMature: body.isMature === true,
         isActive: true,
       }

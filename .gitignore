@@ -31,6 +31,14 @@ kindblank_*.sql
 .vercel
 .env*
 !.env.example
+
+# Database credential handoff written by scripts/provision-*-db-lane.sh.
+# The whole directory, not just *.env: those scripts also drop a
+# "<name>-before-<timestamp>.txt" snapshot of prior state beside the
+# credential, and .txt is matched by none of the env rules above. Ignoring the
+# directory is what makes it safe for these files to live beside the checkout
+# instead of on /mnt/user/pc.
+.secrets/
 /public/images/**
 !/public/images/.gitkeep
 /public/wonderlab-components.json

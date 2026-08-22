@@ -25,6 +25,7 @@ export type FacetProfileForm = {
   isRandomizable: boolean
   artRequired: boolean
   isPublic: boolean
+  allowReviews: boolean
   isMature: boolean
 }
 
@@ -49,6 +50,7 @@ export function blankFacetProfileForm(): FacetProfileForm {
     isRandomizable: true,
     artRequired: true,
     isPublic: true,
+    allowReviews: true,
     isMature: false,
   }
 }
@@ -74,6 +76,7 @@ export function facetToProfileForm(facet: FacetWithAliases): FacetProfileForm {
     isRandomizable: facet.isRandomizable,
     artRequired: facet.artRequired,
     isPublic: facet.isPublic,
+    allowReviews: facet.allowReviews,
     isMature: facet.isMature,
   }
 }
@@ -128,6 +131,7 @@ export function facetProfilePayload(form: FacetProfileForm): FacetCreateInput {
     isRandomizable: form.isRandomizable,
     artRequired: form.artRequired,
     isPublic: form.isPublic,
+    allowReviews: form.allowReviews,
     isMature: form.isMature,
   }
 }

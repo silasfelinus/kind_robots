@@ -40,19 +40,29 @@ export const KARMA_REF_TYPES = [
   'theme',
 ] as const
 
-// Reaction also carries `butterflyId` and `challengeSubmissionId`, and neither
-// belongs here:
+// Reaction also carries `challengeSubmissionId`, and it does not belong here.
+// This is now a settled product decision, not an open gap: Silas, 2026-08-21,
+// "lets just kill any expectation of reviews for challenge center, it's become
+// much more a theoretical tool for me, not for public sharing." The Challenge
+// Center is a private authoring tool, so its submissions are not a public
+// surface and do not take review threads. Do not add it here.
 //
-//   butterflyId is an orphan column. There is no Butterfly model and no
-//   relation on Reaction -- it survives only in the generated client. Adding it
-//   would name a target that cannot be resolved.
+// The mechanics already matched that decision, which is why it was never a
+// bug: ChallengeSubmission has no userId/isPublic pair, so there is no audience
+// for canViewReactionsOn() to inherit, and Reaction's
+// @@unique([userId, challengeSubmissionId]) allows one row per user per
+// submission -- a vote, not a thread. The column and that constraint stay; only
+// the expectation of reviews on top of them is retired.
 //
-//   ChallengeSubmission has no userId/isPublic pair, so it has no audience to
-//   inherit, and Reaction's @@unique([userId, challengeSubmissionId]) makes it
-//   one row per user per submission -- a vote, not a comment thread.
+// `butterflyId` used to be documented here as the other exclusion: an orphan
+// column left behind by the retired Butterfly project, with no model and no
+// relation, surviving only in the generated client. It is gone as of
+// 20260821230000_retire_butterfly_reaction_target, so there is no longer a
+// dead target to warn about. The decorative butterfly swarm is client-side
+// animation and never touched this table.
 //
 // Both were previously filed as "reaction targets missing from this list."
-// They are not gaps; they are a dead column and a different mechanism.
+// Neither was a gap.
 
 export type KarmaRefType = (typeof KARMA_REF_TYPES)[number]
 

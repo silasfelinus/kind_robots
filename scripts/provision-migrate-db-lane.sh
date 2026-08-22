@@ -19,7 +19,8 @@
 #   MIGRATE_BACKEND_MAX=4
 #   PUBLIC_PROXYSQL_HOST=acrocatranch.com
 #   PUBLIC_PROXYSQL_PORT=5544
-#   OUTPUT_FILE=/mnt/user/pc/kindrobots-db-migrate/kindrobots-db-migrate.env
+#   SECRETS_DIR=<repo>/.secrets
+#   OUTPUT_FILE=<repo>/.secrets/kindrobots-db-migrate.env
 #   MIGRATE_DB_PASSWORD=...            # reuse an existing password instead of generating
 #   ROTATE_PASSWORD=1                  # generate a new password even if one is known
 #   STRICT_PRIVILEGES=1                # REVOKE first, then grant only the set below
@@ -72,7 +73,13 @@ MIGRATE_FRONTEND_MAX="${MIGRATE_FRONTEND_MAX:-8}"
 MIGRATE_BACKEND_MAX="${MIGRATE_BACKEND_MAX:-4}"
 PUBLIC_PROXYSQL_HOST="${PUBLIC_PROXYSQL_HOST:-acrocatranch.com}"
 PUBLIC_PROXYSQL_PORT="${PUBLIC_PROXYSQL_PORT:-5544}"
-OUTPUT_FILE="${OUTPUT_FILE:-/mnt/user/pc/kindrobots-db-migrate/kindrobots-db-migrate.env}"
+# Credential handoff lives beside the checkout, not on /mnt/user/pc --
+# that share is a primary thoroughfare for ordinary folders and is the
+# wrong place for a mode-600 secret. Resolved from this script's own
+# location so it does not depend on the caller's working directory.
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SECRETS_DIR="${SECRETS_DIR:-$REPO_ROOT/.secrets}"
+OUTPUT_FILE="${OUTPUT_FILE:-$SECRETS_DIR/kindrobots-db-migrate.env}"
 ROTATE_PASSWORD="${ROTATE_PASSWORD:-0}"
 STRICT_PRIVILEGES="${STRICT_PRIVILEGES:-0}"
 

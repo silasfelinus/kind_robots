@@ -1331,7 +1331,6 @@ model Reaction {
   chatId                Int?
   dreamId               Int?
   artCollectionId       Int?
-  butterflyId           Int?
   characterId           Int?
   scenarioId            Int?
   themeId               Int?
@@ -1372,7 +1371,6 @@ model Reaction {
   @@index([artImageId], map: "Reaction_artImageId_fkey")
   @@index([artCollectionId], map: "Reaction_artCollectionId_fkey")
   @@index([botId], map: "Reaction_botId_fkey")
-  @@index([butterflyId], map: "Reaction_butterflyId_fkey")
   @@index([characterId], map: "Reaction_characterId_fkey")
   @@index([chatId], map: "Reaction_chatId_fkey")
   @@index([dreamId], map: "Reaction_dreamId_fkey")
@@ -1976,8 +1974,10 @@ model Referral {
 /// Directed relationship between two users with a typed role.
 /// One row per (userId, relatedUserId, type). Symmetric types (FRIEND) are
 /// normalized in the app layer so a single row represents the mutual link.
-/// Follows the ButterflyRecord/AchievementRecord pattern (explicit join model,
-/// not implicit M2M) so we can attach status + timestamps + future metadata.
+/// Follows the AchievementRecord pattern (explicit join model, not implicit
+/// M2M) so we can attach status + timestamps + future metadata. This used to
+/// cite ButterflyRecord alongside it; that model is long gone, so the comment
+/// was pointing at nothing.
 model UserRelation {
   id            Int            @id @default(autoincrement())
   createdAt     DateTime       @default(now())
@@ -2644,7 +2644,6 @@ enum Reaction_reactionCategory {
   ART_IMAGE
   ART_COLLECTION
   BOT
-  BUTTERFLY
   CHALLENGE_SUBMISSION
   CHARACTER
   CHAT_EXCHANGE

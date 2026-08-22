@@ -152,6 +152,32 @@ Do not raise `kindrobot.max_connections` before identifying the client source.
 ProxySQL is already proving that it can multiplex 200 frontend sessions over a
 40-connection backend pool.
 
+### The four-hour transaction timeouts are deliberate — do not "fix" them
+
+A census shows both of these at `14400000` ms:
+
+```text
+mysql-max_transaction_time        14400000
+mysql-max_transaction_idle_time   14400000
+```
+
+Four hours looks alarming next to `mysql-wait_timeout` at ten minutes, and it
+has been flagged as a smell more than once. It is intentional. Kind Robots
+queues long ComfyUI video generations on hardware that is deliberately run near
+its limit (12 GB VRAM, 24 GB system RAM), and a single generation can hold its
+work well past any ordinary web-request budget. A shorter ceiling would have
+ProxySQL kill legitimate in-flight generation work and surface it as a database
+error far from its real cause.
+
+So: a long-running transaction on this deployment is not automatically evidence
+of a leak. Before treating one as stuck, check whether it belongs to the art or
+video generation path. `Active_Transactions` in the census is the number to
+watch — the ceiling only matters once something is actually sitting against it,
+and at the 2026-08-21 census it was `0`.
+
+If a genuine leak ever does need bounding, lower it for the lane that leaks
+rather than globally, so the generation path keeps its headroom.
+
 ## Durable topology
 
 The desired steady state is:

@@ -451,28 +451,6 @@ export const useArtStore = defineStore('artStore', () => {
   const matureArtImages = computed(() => state.artImages.filter((image) => image.isMature))
   const safeArtImages = computed(() => state.artImages.filter((image) => !image.isMature))
 
-  const unlinkedArtImages = computed(() =>
-    state.artImages.filter((image) => {
-      // FIXME: none of these columns exist on ArtImage, which carries only
-      // userId, checkpointResourceId and serverId. Each read is `undefined`,
-      // so every clause is vacuously true and this computed returns every
-      // image rather than the unlinked ones. Left as-is here because fixing it
-      // means deciding what "unlinked" should actually mean; `butterflyId` is
-      // dropped only because the column it named is gone as of
-      // 20260821230000_retire_butterfly_reaction_target.
-      const record = image as ArtImage & Record<string, unknown>
-      return (
-        !record.botId &&
-        !record.componentId &&
-        !record.achievementId &&
-        !record.resourceId &&
-        !record.rewardId &&
-        !record.chatId &&
-        !record.characterId
-      )
-    }),
-  )
-
   const showMature = computed(() => userStore.user?.showMature ?? userStore.showMature ?? false)
 
   const generationServers = computed<Server[]>(() => {
@@ -2104,7 +2082,6 @@ export const useArtStore = defineStore('artStore', () => {
     publicArtImages,
     matureArtImages,
     safeArtImages,
-    unlinkedArtImages,
     artListPresets,
     initialize,
     resetInitialization,

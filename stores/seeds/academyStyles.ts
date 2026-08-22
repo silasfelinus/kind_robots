@@ -256,6 +256,8 @@ export const academyStyles: AcademyStyle[] = [
         note: 'Known for austere winter and river scenes; his handscroll format shows the same monumental idiom unrolling horizontally rather than in a single vertical view.',
       },
     ],
+    failureMode:
+      "Often keeps the source photo's naturalistic lighting and cast shadows instead of flat monochrome ink tonality, and leaves the subject at its original scale rather than dwarfed by a towering peak — lean on the remix template's explicit 'no cast shadows' and 'tiny travelers dwarfed by scale' to keep the mountain's cosmological hierarchy intact.",
     remix: {
       mode: 'prompt',
       template:
@@ -407,6 +409,8 @@ export const academyStyles: AcademyStyle[] = [
         note: "Director of Shah Ismail's Tabriz workshop and first project director of the Shahnameh of Shah Tahmasp, known for dense, imaginative compositions.",
       },
     ],
+    failureMode:
+      "Easily reverts to Western linear perspective and cast shadows, since most training data assumes them by default — lean on the remix template's explicit 'no Western perspective or cast shadow' and push the dense floral or geometric border to keep the miniature's flat, ornamental logic intact.",
     remix: {
       mode: 'prompt',
       template:
@@ -1886,6 +1890,8 @@ export const academyStyles: AcademyStyle[] = [
         note: "The movement's central figure and this lesson's sole verified generation-style anchor; Dwight Tryon, Ralph Albert Blakelock, and J. Francis Murphy are also commonly cited Tonalists but have no rights-verified example work in this curriculum yet.",
       },
     ],
+    failureMode:
+      "Likely stays too crisp and multi-toned, reading as a slightly muted photo rather than a unified single-tone glaze; lean on the remix template's explicit 'single dominant harmony' and 'blurred edges toward near-silhouette' to push it past Hudson River School's sharp detail and toward Tonalism's soft, remembered quality.",
     remix: {
       mode: 'prompt',
       template:
@@ -1926,6 +1932,8 @@ export const academyStyles: AcademyStyle[] = [
         note: "Extended Barbizon's plein-air practice along the rivers of northern France, working increasingly from a studio boat; among the most direct influences cited by the early Impressionists.",
       },
     ],
+    failureMode:
+      "Risks drifting toward Impressionism's broken, high-key color instead of Barbizon's more tonally unified, controlled brushwork, or toward an idealized academic finish instead of humble direct observation; lean on the remix template's explicit 'muted, earthy palette' and 'no academic or mythological staging' to keep the plain, dignified rural subject intact.",
     remix: {
       mode: 'prompt',
       template:
@@ -1966,6 +1974,8 @@ export const academyStyles: AcademyStyle[] = [
         note: 'Painted calm inland lake and shoreline scenes (Lake George, Newport) with the same smooth, light-precise handling.',
       },
     ],
+    failureMode:
+      "Easily keeps visible brushwork or a dramatic sky like Hudson River School, or blurs into Tonalism's soft near-silhouette mood, instead of Luminism's own smooth, almost-invisible finish and mirror-still water; lean on the remix template's explicit 'extremely smooth, near-invisible brushwork' and 'hushed and motionless' phrasing to hold the distinction between all three American landscape lessons.",
     remix: {
       mode: 'prompt',
       template:
@@ -2006,6 +2016,8 @@ export const academyStyles: AcademyStyle[] = [
         note: 'Brought a narrative, often melancholic sensibility to bush-settler subjects, frequently in a looser, more textured brushwork than Roberts or Streeton.',
       },
     ],
+    failureMode:
+      "Can collapse into generic French Impressionist color and brushwork, losing the specific high-key blue-and-gold Australian light and dusty bush subject; lean on the remix template's explicit 'harsh direct Australian sunlight' and 'dusty ochre-and-olive bush' phrasing, and discuss the movement's settler-nationalist framing honestly rather than teaching the light alone — the same treatment this curriculum gives Hudson River School's Manifest Destiny undertone.",
     remix: {
       mode: 'prompt',
       template:
@@ -2046,6 +2058,8 @@ export const academyStyles: AcademyStyle[] = [
         note: "Softened the mode's austerity in the second half of the century with tender, warmly lit devotional scenes and genre paintings of Seville's street children.",
       },
     ],
+    failureMode:
+      "Risks tipping into Italian Baroque's swirling theatrical motion or Dutch Baroque's cozy domestic warmth instead of Spanish Golden Age's frozen, austere gravity; lean on the remix template's explicit 'single strong light source against a near-black ground' and 'minimal ornament' to keep the stillness and restraint.",
     remix: {
       mode: 'prompt',
       template:
@@ -2086,6 +2100,8 @@ export const academyStyles: AcademyStyle[] = [
         note: "A leading pupil of Raphael who carried Roman Mannerism's crowded, elegant figure groups into large-scale religious painting.",
       },
     ],
+    failureMode:
+      "Likely under-cooks toward a generic High Renaissance portrait instead of committing to Mannerism's deliberate elongation and artifice; lean on the remix template's explicit 'elongated figures in artificial, twisting poses' and 'cool porcelain-smooth skin' phrasing to push past Renaissance naturalism rather than settle for it.",
     remix: {
       mode: 'prompt',
       template:
@@ -2116,6 +2132,8 @@ export const academyStyles: AcademyStyle[] = [
         note: 'The earliest Ethiopian icon painter identifiable by name and the presumed source of a recognizable workshop style; named for historical context only, since this lesson\'s example works are catalogued as "Follower of Fre Seyon" or anonymous rather than by his own verified hand.',
       },
     ],
+    failureMode:
+      'Can collapse into a generic Byzantine Mosaic look since both share hieratic frontality and flat symbolic color; lean on the remix template\'s explicit wide-open frontal "reversal gaze" eyes and the red-ochre/gold/blue-green palette to keep Ethiopian icon painting visually distinct from its Byzantine source tradition.',
     remix: {
       mode: 'prompt',
       template:
@@ -2156,6 +2174,8 @@ export const academyStyles: AcademyStyle[] = [
         note: "Hōitsu's leading pupil, whose sharper, more graphic botanical forms mark the tradition's latest phase taught here.",
       },
     ],
+    failureMode:
+      "Likely collapses into a generic Ukiyo-e print look or a flat gold-leaf decorative filter, skipping the tarashikomi pooled-ink technique that makes Rinpa distinct; lean on the remix template's explicit 'pooled ink-and-color edges' and 'asymmetrical cropped arrangement' phrasing to keep the brushed, one-of-a-kind quality Ukiyo-e's woodblock printmaking doesn't have.",
     remix: {
       mode: 'prompt',
       template:
@@ -2186,6 +2206,8 @@ export const academyStyles: AcademyStyle[] = [
         note: 'The Kishangarh school\'s most celebrated later painter, credited with the "Bani Thani" portrait type; named for historical context only, since this lesson\'s Kishangarh example work predates his documented activity.',
       },
     ],
+    failureMode:
+      "Risks drifting toward Mughal Miniature's naturalistic modeling and atmospheric depth instead of Rajput's flat saturated color fields; lean on the remix template's explicit 'flat fields of intensely saturated red, yellow, and blue' and 'architecture and landscape flattened into decorative pattern' phrasing to keep the two Indian court traditions visually distinct.",
     remix: {
       mode: 'prompt',
       template:

@@ -6,7 +6,17 @@ import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { conductorList } from '~/server/utils/conductor-github'
 
-const SCAFFOLD_TITLE_RE = /^Scaffold new app '([a-z0-9-]+)'/
+// Two self-serve flows file a scaffold Todo: scaffold-request.post.ts (the
+// monorepo apps/<slug>/ flow, "Scaffold new app '<slug>' ...") and
+// github/create-app.post.ts (the external-repo GitHub-integration flow,
+// appmaker/t-009, "Scaffold external app '<slug>' via AppMaker GitHub
+// integration"). This route only ever recognized the first pattern — the
+// `startsWith` filter below excluded every external-repo Todo before it even
+// reached the regex, so a request filed through create-app.post.ts (already
+// API-reachable with no front-end wired up yet, per t-012's 2026-08-21 cycle)
+// would never appear in the "Being built" pending list: a real, open Todo
+// waiting for the next Worker cycle, silently invisible to the requester.
+const SCAFFOLD_TITLE_RE = /^Scaffold (?:new|external) app '([a-z0-9-]+)'/
 
 export default defineEventHandler(async () => {
   try {
@@ -20,7 +30,10 @@ export default defineEventHandler(async () => {
       where: {
         status: 'OPEN',
         category: 'AGENT',
-        title: { startsWith: "Scaffold new app '" },
+        OR: [
+          { title: { startsWith: "Scaffold new app '" } },
+          { title: { startsWith: "Scaffold external app '" } },
+        ],
       },
       select: {
         title: true,

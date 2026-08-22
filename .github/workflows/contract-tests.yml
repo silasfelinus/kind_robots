@@ -260,6 +260,12 @@ jobs:
       - name: AppMaker scaffold-collision guard
         run: npm run test:appmaker-scaffold-collision-guard
 
+      - name: AppMaker pending-scaffold-pattern guard self-test
+        run: npm run test:appmaker-pending-scaffold-pattern-guard-selftest
+
+      - name: AppMaker pending-scaffold-pattern guard
+        run: npm run test:appmaker-pending-scaffold-pattern-guard
+
       - name: Da Vinci narration bounds contract
         run: npm run test:davinci-narration
 

@@ -25,11 +25,11 @@ export function prepareItemUpdate(
     const stageStatuses = normalizeJson(body.stageStatuses)
     if (typeof stageStatuses === 'string') data.stageStatuses = stageStatuses
   }
-  if (body.pitch !== undefined) data.pitch = normalizeText(body.pitch)
+  if (body.pitch !== undefined) data.pitch = normalizeText(body.pitch, { maxLength: 20000 })
   if (body.fieldsDraft !== undefined)
-    data.fieldsDraft = normalizeText(body.fieldsDraft)
+    data.fieldsDraft = normalizeText(body.fieldsDraft, { maxLength: 20000 })
   if (body.promptDraft !== undefined)
-    data.promptDraft = normalizeText(body.promptDraft)
+    data.promptDraft = normalizeText(body.promptDraft, { maxLength: 20000 })
   const relationshipDraft = normalizeJson(body.relationshipDraft)
   if (relationshipDraft !== undefined)
     data.relationshipDraft = relationshipDraft
@@ -54,7 +54,7 @@ export function prepareItemUpdate(
   }
   if (body.pitch !== undefined) {
     assertContentStageEditable(existing.stageStatuses, 'PITCH', 'Pitch')
-    data.pitch = normalizeText(body.pitch)
+    data.pitch = normalizeText(body.pitch, { maxLength: 20000 })
   }
   if (body.fieldsDraft !== undefined) {
     assertContentStageEditable(
@@ -62,7 +62,7 @@ export function prepareItemUpdate(
       'FIELDS_AND_PROMPTS',
       'Fields',
     )
-    data.fieldsDraft = normalizeText(body.fieldsDraft)
+    data.fieldsDraft = normalizeText(body.fieldsDraft, { maxLength: 20000 })
   }
   if (body.promptDraft !== undefined) {
     assertContentStageEditable(
@@ -70,7 +70,7 @@ export function prepareItemUpdate(
       'FIELDS_AND_PROMPTS',
       'Prompt',
     )
-    data.promptDraft = normalizeText(body.promptDraft)
+    data.promptDraft = normalizeText(body.promptDraft, { maxLength: 20000 })
   }
   if (body.relationshipDraft !== undefined) {
     assertContentStageEditable(
@@ -105,12 +105,12 @@ export function prepareItemUpdate(
 
   if (body.pitch !== undefined) {
     assertContentStageEditable(existing.stageStatuses, 'PITCH', 'Pitch')
-    data.pitch = normalizeText(body.pitch)
+    data.pitch = normalizeText(body.pitch, { maxLength: 20000 })
   }
   if (body.fieldsDraft !== undefined)
-    data.fieldsDraft = normalizeText(body.fieldsDraft)
+    data.fieldsDraft = normalizeText(body.fieldsDraft, { maxLength: 20000 })
   if (body.promptDraft !== undefined)
-    data.promptDraft = normalizeText(body.promptDraft)
+    data.promptDraft = normalizeText(body.promptDraft, { maxLength: 20000 })
   const relationshipDraft = normalizeJson(body.relationshipDraft)
   if (relationshipDraft !== undefined)
     data.relationshipDraft = relationshipDraft

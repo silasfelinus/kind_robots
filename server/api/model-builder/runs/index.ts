@@ -84,11 +84,34 @@ export function assertRunWritable(run: { status: ModelBuildStatus }): void {
   }
 }
 
-export function normalizeText(value: unknown): string | null | undefined {
+// `maxLength`/`field` are optional so existing unbounded callers keep their
+// current behavior, but every caller writing into a fixed-width DB column
+// (VarChar) MUST pass one — without it, a value longer than the column
+// allows reaches Prisma unchecked and MySQL rejects the write with a raw
+// "Data too long for column 'N'" error (strict mode; a silent truncation
+// otherwise), which surfaces as an opaque 500 instead of the clean 400
+// every sibling field already returns (model-builder/t-029, cycle 45):
+// `label`/`generation`/`outputKey`/`recipeVersion`/`stage`/`reason` are all
+// validated with an explicit cap
+// via requiredString or `.slice(0, N)`, but `sourceLabel` on the run PATCH
+// route (runs/[id].patch.ts), and `staleReason`/`targetType` on the item
+// PATCH routes, called this function with no cap at all — even though the
+// run CREATE route (runs/index.post.ts) already truncates `sourceLabel` to
+// 255 chars, so the same field was validated on create and not on update.
+export function normalizeText(
+  value: unknown,
+  opts?: { maxLength?: number; field?: string },
+): string | null | undefined {
   if (value === undefined) return undefined
   if (value === null) return null
   if (typeof value !== 'string') {
     throw createError({ statusCode: 400, message: 'Expected a text value.' })
+  }
+  if (opts?.maxLength !== undefined && value.length > opts.maxLength) {
+    throw createError({
+      statusCode: 400,
+      message: `"${opts.field ?? 'value'}" must be ${opts.maxLength} characters or fewer.`,
+    })
   }
   return value
 }
@@ -273,6 +296,20 @@ const CONTENT_STAGE_EDITABLE_STATUSES = new Set(['ready', 'stale', 'rejected'])
 
 export type ContentStageKey = 'PITCH' | 'FIELDS_AND_PROMPTS' | 'GENERATE_ASSETS'
 
+// pitch/fieldsDraft/promptDraft are `@db.Text` (prisma/model-builder.prisma)
+// -- MySQL TEXT, a real 65,535-*byte* limit (not unbounded the way Postgres
+// TEXT is), so an oversized multi-byte value can still trip the same "Data
+// too long for column" write failure the VarChar fields above risk, just at
+// a much higher character count for typical text. Capped at the application
+// layer (model-builder/t-029, cycle 45) so a runaway AI draft response or a
+// direct API call can't wedge an arbitrarily large blob into an item's
+// editable content. Matches commit.post.ts's own LONG_TEXT_MAX (20000) --
+// the cap its pickText() already applies to this same content at commit
+// time (see verifyModelBuilderCommitTextTruncationGuard.ts) -- rather than
+// picking an independent number, so a draft can never grow past what commit
+// would keep anyway.
+export const MAX_DRAFT_TEXT_LENGTH = 20_000
+
 // Exported so callers can re-run this exact check a second time, against a
 // freshly-read stageStatuses value immediately before their write — see
 // PreparedItemUpdate.contentStageChecks' doc comment for why the single
@@ -332,7 +369,10 @@ export function prepareItemUpdate(
   if (body.pitch !== undefined) {
     assertContentStageEditable(existing.stageStatuses, 'PITCH', 'Pitch')
     contentStageChecks.push({ stageKey: 'PITCH', fieldLabel: 'Pitch' })
-    data.pitch = normalizeText(body.pitch)
+    data.pitch = normalizeText(body.pitch, {
+      maxLength: MAX_DRAFT_TEXT_LENGTH,
+      field: 'Pitch',
+    })
   }
   if (body.fieldsDraft !== undefined) {
     assertContentStageEditable(
@@ -344,7 +384,10 @@ export function prepareItemUpdate(
       stageKey: 'FIELDS_AND_PROMPTS',
       fieldLabel: 'Fields',
     })
-    data.fieldsDraft = normalizeText(body.fieldsDraft)
+    data.fieldsDraft = normalizeText(body.fieldsDraft, {
+      maxLength: MAX_DRAFT_TEXT_LENGTH,
+      field: 'Fields',
+    })
   }
   if (body.promptDraft !== undefined) {
     assertContentStageEditable(
@@ -356,7 +399,10 @@ export function prepareItemUpdate(
       stageKey: 'FIELDS_AND_PROMPTS',
       fieldLabel: 'Prompt',
     })
-    data.promptDraft = normalizeText(body.promptDraft)
+    data.promptDraft = normalizeText(body.promptDraft, {
+      maxLength: MAX_DRAFT_TEXT_LENGTH,
+      field: 'Prompt',
+    })
   }
   if (body.relationshipDraft !== undefined) {
     assertContentStageEditable(
@@ -373,7 +419,16 @@ export function prepareItemUpdate(
   if (relationshipDraft !== undefined)
     data.relationshipDraft = relationshipDraft
   if (body.staleReason !== undefined)
-    data.staleReason = normalizeText(body.staleReason)
+    // staleReason is `@db.VarChar(255)` -- capped so an oversized value gets
+    // a clean 400 here instead of reaching Prisma unchecked and failing at
+    // the DB with a raw "Data too long for column" error (model-builder/
+    // t-029, cycle 45).
+    data.staleReason = normalizeText(body.staleReason, {
+      maxLength: 255,
+      field: 'Stale reason',
+    })
+  // error is `@db.Text` -- an unbounded column; no cap needed here, this is
+  // server-set diagnostic text, not user-authored content.
   if (body.error !== undefined) data.error = normalizeText(body.error)
   if (body.artImageId !== undefined) {
     assertContentStageEditable(
@@ -388,7 +443,18 @@ export function prepareItemUpdate(
     data.artImageId = normalizeNullableId(body.artImageId)
   }
   if (body.targetType !== undefined)
-    data.targetType = normalizeText(body.targetType)
+    // targetType is `@db.VarChar(64)`. The only client-writable route into
+    // prepareItemUpdate (items/[id].patch.ts, items/batch.patch.ts) already
+    // rejects any request body carrying targetType before it ever reaches
+    // here (patch-policy.ts's assertItemPatchFieldsAreClientWritable) --
+    // this branch is currently dead for client input, reached only if a
+    // future caller of prepareItemUpdate skips that check. Capped anyway,
+    // matching this same file's other defense-in-depth checks (see
+    // assertRunWritable's doc comment), so that stays true if it changes.
+    data.targetType = normalizeText(body.targetType, {
+      maxLength: 64,
+      field: 'Target type',
+    })
   if (body.targetId !== undefined)
     data.targetId = normalizeNullableId(body.targetId)
 

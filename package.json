@@ -238,6 +238,8 @@
     "test:model-builder-commit-name-width-guard": "tsx utils/scripts/verifyModelBuilderCommitNameWidthGuard.ts",
     "test:model-builder-patch-text-cap-guard-selftest": "tsx utils/scripts/verifyModelBuilderPatchTextCapGuard.test.ts",
     "test:model-builder-patch-text-cap-guard": "tsx utils/scripts/verifyModelBuilderPatchTextCapGuard.ts",
+    "test:model-builder-run-create-text-cap-guard-selftest": "tsx utils/scripts/verifyModelBuilderRunCreateTextCapGuard.test.ts",
+    "test:model-builder-run-create-text-cap-guard": "tsx utils/scripts/verifyModelBuilderRunCreateTextCapGuard.ts",
     "test:model-builder-async-poll-failure-guard-selftest": "tsx utils/scripts/verifyModelBuilderAsyncPollFailureGuard.test.ts",
     "test:model-builder-async-poll-failure-guard": "tsx utils/scripts/verifyModelBuilderAsyncPollFailureGuard.ts",
     "test:art-queue-poll-failure-guard-selftest": "tsx utils/scripts/verifyArtQueuePollFailureGuard.test.ts",

@@ -458,6 +458,12 @@ jobs:
       - name: Model Builder patch text-cap guard contract
         run: npm run test:model-builder-patch-text-cap-guard
 
+      - name: Model Builder run-create text-cap guard checker self-test
+        run: npm run test:model-builder-run-create-text-cap-guard-selftest
+
+      - name: Model Builder run-create text-cap guard contract
+        run: npm run test:model-builder-run-create-text-cap-guard
+
       - name: Model Builder async poll-failure guard checker self-test
         run: npm run test:model-builder-async-poll-failure-guard-selftest
 

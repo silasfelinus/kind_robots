@@ -737,6 +737,22 @@ const narrating = ref(false)
 const narrationError = ref('')
 const narratorName = ref('')
 const aiChapter = ref<ActiveChapter | null>(null)
+// narrateChapter() is called from resumeRun(), startLife(), and
+// chooseOption() -- but nothing stopped a PRIOR call's response from landing
+// after a NEWER one. "Abandon this life" is only disabled by `submitting`,
+// which chooseOption() already clears before its own narrateChapter() call
+// begins, so a player can abandon a run while its post-choice narration
+// request is still in flight, then immediately start (or resume) a
+// different run before the old response resolves. Without this ticket, that
+// stale response would silently overwrite aiChapter/narratorName with the
+// abandoned run's chapter, and requestChapterArt() would then attach the
+// abandoned run's art job to the *new* run's id (run.value.id has already
+// moved on by the time the stale response lands) via
+// POST /api/davinci/runs/{id}/art -- corrupting the new run's art, not just
+// a stale UI flash. Same pattern as modelBuilderStore.ts's
+// fetchRunsRequestId/loadSources' requestedType: capture a ticket per call,
+// discard any response whose ticket no longer matches the latest one.
+let narrateChapterRequestId = 0
 // The region wrapping the narrating/narrationError/currentChapter/resolve
 // blocks (template) -- tabindex="-1" so it can receive focus
 // programmatically without joining the normal Tab order. See the paired
@@ -1061,6 +1077,7 @@ async function startLife() {
 // chooseOption() posts it to /choices.
 async function narrateChapter() {
   if (!run.value) return
+  const requestId = ++narrateChapterRequestId
   narrating.value = true
   narrationError.value = ''
   aiChapter.value = null
@@ -1072,6 +1089,11 @@ async function narrateChapter() {
       body: JSON.stringify({ chapter: chapterIndex.value }),
     },
   )
+
+  // A newer narrateChapter() call has since started (abandon-and-restart,
+  // or any other overlap) -- that call owns `narrating`/`aiChapter` now, so
+  // this response is discarded rather than applied.
+  if (narrateChapterRequestId !== requestId) return
 
   narrating.value = false
 

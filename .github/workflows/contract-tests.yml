@@ -341,6 +341,12 @@ jobs:
       - name: Da Vinci phase-focus guard
         run: npm run test:davinci-phase-focus-guard
 
+      - name: Da Vinci narrate-stale-response guard self-test
+        run: npm run test:davinci-narrate-stale-response-guard-selftest
+
+      - name: Da Vinci narrate-stale-response guard
+        run: npm run test:davinci-narrate-stale-response-guard
+
       - name: Serendipity Voice poll guard self-test
         run: npm run test:serendipity-voice-poll-guard-selftest
 

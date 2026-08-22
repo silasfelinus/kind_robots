@@ -8,8 +8,10 @@
       <button
         type="button"
         class="btn btn-xs btn-ghost ml-auto gap-1 rounded-lg text-primary"
-        :disabled="isAutoBuilding || isManualActionInFlight"
-        title="Draft, generate, and commit this item automatically"
+        :disabled="
+          isAutoBuilding || isManualActionInFlight || runOperationInFlight
+        "
+        :title="autoButtonTitle"
         @click="store.autoBuildItem(item.id)"
       >
         <span v-if="isAutoBuilding" class="loading loading-dots loading-xs" />
@@ -431,6 +433,36 @@ const isManualActionInFlight = computed(
     isQueued.value ||
     isCommitting.value ||
     isAnyDraftInFlight.value,
+)
+
+// Bug (model-builder/t-029, cycle 51): this panel's own single-item "Auto"
+// button was the one entry point cycle 25's isRunOperationInFlight fix
+// never reached. autoBuildItem() (the exact function this button calls) is
+// also the function autoBuildRun() and batchAutoBuild() call internally for
+// every item they walk -- it has no store.autoBuilding/batchingOutputKey
+// check of its own, by design, since those callers legitimately invoke it
+// while their own flag is already true. That leaves the two whole-run/group
+// entry points to police each other (which cycle 25 fixed, on both
+// model-builder-progress-matrix.vue's "Auto-build all" and this project's
+// model-builder-batch-editor.vue's group buttons) and leaves this panel's
+// own button as the unguarded third path in. isManualActionInFlight above
+// only reads THIS item's own generating/queued/committing/drafting flags --
+// none of which are set for an item an in-progress run/batch loop hasn't
+// reached yet -- so clicking Auto here on a not-yet-processed item started
+// a second, fully concurrent autoBuildItem() call racing the run/batch
+// loop's own eventual call for the very same item, exactly the
+// "two different items in the same run mid-generate/mid-commit at once"
+// class isRunOperationInFlight exists to prevent. Mirrors
+// modelBuilderStore.ts's own isRunOperationInFlight (not called directly --
+// it's not exported -- so the same two flags it checks are read here).
+const runOperationInFlight = computed(
+  () => store.autoBuilding || store.batchingOutputKey !== null,
+)
+const autoButtonTitle = computed(() =>
+  runOperationInFlight.value
+    ? 'A run or batch auto-build is already in progress -- wait for it to ' +
+      'finish before auto-building this item on its own.'
+    : 'Draft, generate, and commit this item automatically',
 )
 
 function draft(field: DraftField): void {

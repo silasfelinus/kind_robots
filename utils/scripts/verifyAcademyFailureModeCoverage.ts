@@ -15,6 +15,7 @@
 // Run: npm run test:academy-failuremode-coverage
 
 import { academyStyles } from '../../stores/seeds/academyStyles'
+import { summarizeCoverage } from './academyCoverageContract'
 
 // Slugs intentionally left on the generic mode-level fallback, with why.
 // Empty today (t-071 brought coverage to 47/47) — add an entry here only
@@ -43,9 +44,10 @@ function main(): void {
     (slug) => !(slug in DOCUMENTED_FALLBACK_EXCEPTIONS),
   )
 
-  const total = academyStyles.length
-  const covered = total - missing.length
-  const pct = total === 0 ? 100 : Math.round((covered / total) * 100)
+  const { total, covered, pct } = summarizeCoverage(
+    academyStyles.length,
+    academyStyles.length - missing.length,
+  )
 
   if (trulyMissing.length || undocumentedExceptions.length) {
     console.error(

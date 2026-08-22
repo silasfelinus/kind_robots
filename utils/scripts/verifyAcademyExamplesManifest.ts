@@ -26,6 +26,10 @@
 
 import { readFile } from 'node:fs/promises'
 import { academyStyles } from '../../stores/seeds/academyStyles'
+import {
+  findStaleExceptionSlugs,
+  loadExceptionsFile,
+} from './academyCoverageContract'
 import { validateProvenanceRecord } from './academyProvenanceSchema'
 import {
   imageSrcToMediaPath,
@@ -225,43 +229,14 @@ async function main(): Promise<void> {
   // seedImageSrcByMovement above) or a named, reasoned exception below --
   // never silently neither, which is exactly how the 21/21-vs-47-style drift
   // this task fixes went undetected.
-  let rawExceptions: unknown
-  try {
-    rawExceptions = JSON.parse(await readFile(exceptionsUrl, 'utf8'))
-  } catch (error) {
-    errors.push(
-      `academy-example-work-exceptions.json is not valid JSON — ${
-        error instanceof Error ? error.message : String(error)
-      }`,
+  const { bySlug: exceptionsBySlug, errors: exceptionsErrors } =
+    await loadExceptionsFile<ExampleWorkException>(
+      exceptionsUrl,
+      'academy-example-work-exceptions.json',
+      isExampleWorkException,
     )
-    rawExceptions = []
-  }
+  errors.push(...exceptionsErrors)
 
-  if (!Array.isArray(rawExceptions)) {
-    errors.push(
-      `academy-example-work-exceptions.json must be a JSON array, got ${typeof rawExceptions}`,
-    )
-    rawExceptions = []
-  }
-
-  const exceptionsBySlug = new Map<string, ExampleWorkException>()
-  for (const [index, candidate] of (rawExceptions as unknown[]).entries()) {
-    if (!isExampleWorkException(candidate)) {
-      errors.push(
-        `academy-example-work-exceptions.json entry #${index}: must have non-empty string "slug", "reason", and "followUpTask" fields`,
-      )
-      continue
-    }
-    if (exceptionsBySlug.has(candidate.slug)) {
-      errors.push(
-        `academy-example-work-exceptions.json: duplicate exception entry for "${candidate.slug}"`,
-      )
-      continue
-    }
-    exceptionsBySlug.set(candidate.slug, candidate)
-  }
-
-  const canonicalSlugs = new Set(academyStyles.map((style) => style.slug))
   let coveredCount = 0
   let exceptedCount = 0
   for (const style of academyStyles) {
@@ -289,12 +264,10 @@ async function main(): Promise<void> {
   // Exceptions naming a style that no longer exists in academyStyles.ts are
   // stale bookkeeping, not a real gap -- flag so they get cleaned up rather
   // than silently accumulating.
-  for (const slug of exceptionsBySlug.keys()) {
-    if (!canonicalSlugs.has(slug)) {
-      errors.push(
-        `academy-example-work-exceptions.json: "${slug}" is not a current academyStyles.ts slug — remove the stale exception`,
-      )
-    }
+  for (const slug of findStaleExceptionSlugs(exceptionsBySlug)) {
+    errors.push(
+      `academy-example-work-exceptions.json: "${slug}" is not a current academyStyles.ts slug — remove the stale exception`,
+    )
   }
 
   if (errors.length) {

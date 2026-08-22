@@ -11,6 +11,17 @@
 // Set MEDIA_ROOT for a filesystem-backed availability check, or set
 // MEDIA_VERIFY_ASSETS=1 to verify the public origin with HEAD requests.
 //
+// ai-art-academy/t-070: the denominator for coverage is the FULL canonical
+// academyStyles.ts slug list, not just however many styles happen to carry an
+// exampleWorks entry today. Historical t-013 correctly reached 21/21 for the
+// movement cohort that existed when it closed, but the curriculum later grew
+// to 47 styles and that denominator was never re-checked -- 26 styles sat
+// with no example-art strip, undetected, for roughly a month. Every canonical
+// style must now resolve to either (a) an exampleWorks entry (covered by the
+// checks above) or (b) a named, reasoned entry in
+// config/academy-example-work-exceptions.json (an explicit, tracked gap --
+// never a silent one). A style with neither fails the contract below.
+//
 // Run: npm run test:academy-examples-manifest
 
 import { readFile } from 'node:fs/promises'
@@ -29,12 +40,35 @@ const pendingManifestUrl = new URL(
   '../../config/academy-example-manifest-pending.json',
   import.meta.url,
 )
+const exceptionsUrl = new URL(
+  '../../config/academy-example-work-exceptions.json',
+  import.meta.url,
+)
 const manifestSource = mediaSourceDescription(manifestRelativePath)
 const verifyAssets =
   Boolean(process.env.MEDIA_ROOT?.trim()) ||
   process.env.MEDIA_VERIFY_ASSETS === '1'
 
 const REQUIRED_OWN_STRING_FIELDS = ['movement', 'file'] as const
+
+interface ExampleWorkException {
+  slug: string
+  reason: string
+  followUpTask: string
+}
+
+function isExampleWorkException(value: unknown): value is ExampleWorkException {
+  if (!value || typeof value !== 'object') return false
+  const record = value as Record<string, unknown>
+  return (
+    typeof record.slug === 'string' &&
+    record.slug.trim() !== '' &&
+    typeof record.reason === 'string' &&
+    record.reason.trim() !== '' &&
+    typeof record.followUpTask === 'string' &&
+    record.followUpTask.trim() !== ''
+  )
+}
 
 async function main(): Promise<void> {
   const raw = await readMediaText(manifestRelativePath)
@@ -122,7 +156,10 @@ async function main(): Promise<void> {
             `${record.movement}: appears in both the media manifest and pending supplement; remove the pending entry after media sync`,
           )
         } else {
-          manifestImageSrcByMovement.set(record.movement, `/images/${mediaPath}`)
+          manifestImageSrcByMovement.set(
+            record.movement,
+            `/images/${mediaPath}`,
+          )
         }
       }
     } catch (error) {
@@ -183,6 +220,83 @@ async function main(): Promise<void> {
     }
   }
 
+  // ai-art-academy/t-070: full-denominator coverage check. Every canonical
+  // style must resolve to either an exampleWorks entry (already tracked in
+  // seedImageSrcByMovement above) or a named, reasoned exception below --
+  // never silently neither, which is exactly how the 21/21-vs-47-style drift
+  // this task fixes went undetected.
+  let rawExceptions: unknown
+  try {
+    rawExceptions = JSON.parse(await readFile(exceptionsUrl, 'utf8'))
+  } catch (error) {
+    errors.push(
+      `academy-example-work-exceptions.json is not valid JSON — ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    )
+    rawExceptions = []
+  }
+
+  if (!Array.isArray(rawExceptions)) {
+    errors.push(
+      `academy-example-work-exceptions.json must be a JSON array, got ${typeof rawExceptions}`,
+    )
+    rawExceptions = []
+  }
+
+  const exceptionsBySlug = new Map<string, ExampleWorkException>()
+  for (const [index, candidate] of (rawExceptions as unknown[]).entries()) {
+    if (!isExampleWorkException(candidate)) {
+      errors.push(
+        `academy-example-work-exceptions.json entry #${index}: must have non-empty string "slug", "reason", and "followUpTask" fields`,
+      )
+      continue
+    }
+    if (exceptionsBySlug.has(candidate.slug)) {
+      errors.push(
+        `academy-example-work-exceptions.json: duplicate exception entry for "${candidate.slug}"`,
+      )
+      continue
+    }
+    exceptionsBySlug.set(candidate.slug, candidate)
+  }
+
+  const canonicalSlugs = new Set(academyStyles.map((style) => style.slug))
+  let coveredCount = 0
+  let exceptedCount = 0
+  for (const style of academyStyles) {
+    const hasExampleWork = seedImageSrcByMovement.has(style.slug)
+    const exception = exceptionsBySlug.get(style.slug)
+
+    if (hasExampleWork && exception) {
+      errors.push(
+        `${style.slug}: has both an exampleWorks entry and an exceptions-file entry — remove the now-stale exception`,
+      )
+    } else if (hasExampleWork) {
+      coveredCount += 1
+    } else if (exception) {
+      exceptedCount += 1
+    } else {
+      errors.push(
+        `${style.slug}: has no exampleWorks entry and no explicit entry in ` +
+          'config/academy-example-work-exceptions.json — every canonical ' +
+          'style must have either real coverage or a named, reasoned, ' +
+          'tracked exception (ai-art-academy/t-070 acceptance criterion 5)',
+      )
+    }
+  }
+
+  // Exceptions naming a style that no longer exists in academyStyles.ts are
+  // stale bookkeeping, not a real gap -- flag so they get cleaned up rather
+  // than silently accumulating.
+  for (const slug of exceptionsBySlug.keys()) {
+    if (!canonicalSlugs.has(slug)) {
+      errors.push(
+        `academy-example-work-exceptions.json: "${slug}" is not a current academyStyles.ts slug — remove the stale exception`,
+      )
+    }
+  }
+
   if (errors.length) {
     console.error(
       `Academy examples manifest contract failed with ${errors.length} error(s):`,
@@ -197,6 +311,9 @@ async function main(): Promise<void> {
     : ' (media availability check skipped; set MEDIA_VERIFY_ASSETS=1 to enable)'
   console.log(
     `Academy examples manifest contract passed: ${combinedEntries.length} entries validated from ${manifestSource} plus ${pendingEntries.length} pending media entr${pendingEntries.length === 1 ? 'y' : 'ies'} against PUBLIC-DOMAIN-POLICY.md §3 and cross-checked against academyStyles.ts${availabilityNote}.`,
+  )
+  console.log(
+    `Full-denominator coverage: ${coveredCount}/${academyStyles.length} canonical styles have an exampleWorks entry, ${exceptedCount} have an explicit tracked exception, 0 undocumented gaps.`,
   )
 }
 

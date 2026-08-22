@@ -35,6 +35,8 @@
     "test:appmaker-fleet-description-guard": "tsx utils/scripts/verifyAppmakerFleetDescriptionGuard.ts",
     "test:appmaker-scaffold-collision-guard-selftest": "tsx utils/scripts/verifyAppmakerScaffoldCollisionGuard.test.ts",
     "test:appmaker-scaffold-collision-guard": "tsx utils/scripts/verifyAppmakerScaffoldCollisionGuard.ts",
+    "test:appmaker-pending-scaffold-pattern-guard-selftest": "tsx utils/scripts/verifyAppmakerPendingScaffoldPatternGuard.test.ts",
+    "test:appmaker-pending-scaffold-pattern-guard": "tsx utils/scripts/verifyAppmakerPendingScaffoldPatternGuard.ts",
     "test:comment-prefix": "tsx utils/scripts/verifyPartialPublishPrefix.ts",
     "test:comment-quality": "tsx utils/scripts/verifyCommentDraftQuality.ts",
     "test:population-quality": "tsx utils/scripts/verifyPopulationDraftQuality.ts",

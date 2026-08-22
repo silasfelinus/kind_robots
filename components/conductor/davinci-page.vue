@@ -853,15 +853,20 @@ const currentChapterArt = computed<NarrativeArtJobState | undefined>(
 )
 
 function retryCurrentChapterArt() {
+  if (!run.value) return
+  const runId = run.value.id
   const chapter = chapterIndex.value
   const art = chapterArt.value[chapter]
   if (!art) return
-  narrativeArtJobs.retry(art, (next) => updateChapterArt(chapter, next))
+  narrativeArtJobs.retry(art, (next) => updateChapterArt(runId, chapter, next))
 }
 
 function retryEndingArt() {
-  if (!endingArt.value) return
-  narrativeArtJobs.retry(endingArt.value, updateEndingArt)
+  if (!run.value || !endingArt.value) return
+  const runId = run.value.id
+  narrativeArtJobs.retry(endingArt.value, (next) =>
+    updateEndingArt(runId, next),
+  )
 }
 
 function statsToMap(stats: LifeStatRow[]): Record<string, number> {
@@ -919,7 +924,29 @@ async function persistLifeRunArt(
   }).catch(() => null)
 }
 
-function updateChapterArt(chapter: number, art: NarrativeArtJobState) {
+// `runId` is the id of the run that was active when this art job was
+// *enqueued* (requestChapterArt/retryCurrentChapterArt below), not whatever
+// run happens to be active when the job's poll callback fires. Art jobs can
+// take minutes to resolve and nothing here cancels the poll on
+// abandon/restart (narrativeArtJobsHelper's poll timers are keyed by
+// dedupeKey, independent of this component's refs) -- so a player who
+// abandons a run and starts or resumes a *different* one before the old
+// job resolves would otherwise have the stale callback fire against the
+// new run's state instead. `chapterArt` is keyed only by chapter number
+// (1, 2, 3...), which resets to 1 for every new run, so the stale result
+// would silently overwrite the new run's own chapter art, and
+// persistLifeRunArt reads `run.value.id` at call time -- attaching the
+// abandoned run's illustration to the new run's LifeRunArt row server-side.
+// Discarding any result whose captured runId no longer matches the active
+// run mirrors narrateChapter()'s requestId guard (davinci/t-021 slice 12)
+// for the same "stale async result lands after the player has moved on"
+// shape, applied to the art-attachment path instead of narration text.
+function updateChapterArt(
+  runId: number,
+  chapter: number,
+  art: NarrativeArtJobState,
+) {
+  if (run.value?.id !== runId) return
   const wasDone = chapterArt.value[chapter]?.status === 'done'
   chapterArt.value = { ...chapterArt.value, [chapter]: art }
   if (!wasDone && art.status === 'done' && art.artImageId) {
@@ -932,7 +959,14 @@ function updateChapterArt(chapter: number, art: NarrativeArtJobState) {
   }
 }
 
-function updateEndingArt(art: NarrativeArtJobState) {
+// Same guard as updateChapterArt above, for the single ending-art slot.
+// Without it, a stale abandoned-run callback landing after a new run is
+// already playing would also block requestEndingArt() for the *new* run
+// once it resolves: requestEndingArt() no-ops when `endingArt.value` is
+// already set, so the leaked stale value would silently suppress the new
+// run's own ending illustration in addition to mis-attributing art server-side.
+function updateEndingArt(runId: number, art: NarrativeArtJobState) {
+  if (run.value?.id !== runId) return
   const wasDone = endingArt.value?.status === 'done'
   endingArt.value = art
   if (!wasDone && art.status === 'done' && art.artImageId) {
@@ -946,6 +980,7 @@ function updateEndingArt(art: NarrativeArtJobState) {
 // duplicate narrate() call for the same chapter).
 function requestChapterArt(chapter: number, artPrompt: string) {
   if (!run.value || chapterArt.value[chapter]) return
+  const runId = run.value.id
   void narrativeArtJobs.enqueue(
     {
       product: 'davinci',
@@ -955,7 +990,7 @@ function requestChapterArt(chapter: number, artPrompt: string) {
       narrative: artPrompt,
       title: run.value.protagonistName || run.value.title,
     },
-    (art) => updateChapterArt(chapter, art),
+    (art) => updateChapterArt(runId, chapter, art),
   )
 }
 
@@ -967,6 +1002,7 @@ function requestChapterArt(chapter: number, artPrompt: string) {
 // ever proposed one (e.g. the curated fallback pool, which has no narrator).
 function requestEndingArt() {
   if (!run.value || !endingData.value || endingArt.value) return
+  const runId = run.value.id
   const ending = endingData.value
   const artPrompt =
     lastArtPrompt.value ||
@@ -981,7 +1017,7 @@ function requestEndingArt() {
       title: run.value.protagonistName || run.value.title,
       objective: ending.title,
     },
-    updateEndingArt,
+    (art) => updateEndingArt(runId, art),
   )
 }
 

@@ -78,7 +78,7 @@ expectContains('components/pages/conductor-page.vue', [
   ':collection-slides="projectCollectionSlides"',
 ])
 
-expectContains('components/pages/conductor-project-detail-page.vue', [
+expectContains('components/conductor/project-detail.vue', [
   'class="project-art-compact !p-2"',
   'height: 20vh;',
   'v-model="projectTaskText"',
@@ -90,7 +90,7 @@ expectContains('components/pages/conductor-project-detail-page.vue', [
   'Roadmap',
 ])
 
-expectOmits('components/pages/conductor-project-detail-page.vue', [
+expectOmits('components/conductor/project-detail.vue', [
   'Feature Wishlist',
   'projectTaskTitle',
   'projectTaskDescription',
@@ -99,8 +99,8 @@ expectOmits('components/pages/conductor-project-detail-page.vue', [
 ])
 
 expectContains('components/pages/conductor-manager.vue', [
-  '<ConductorProjectDetailPage',
-  ':slug="projectSlug"',
+  '<TabScrollRegion v-else-if="projectSlug">',
+  '<ProjectDetail :slug="projectSlug" />',
 ])
 
 expectContains('plugins/workspace-sheet-hero.client.ts', [

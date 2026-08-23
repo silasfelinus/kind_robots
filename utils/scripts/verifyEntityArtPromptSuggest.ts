@@ -53,15 +53,15 @@ expectContains('server/api/suggest.post.ts', [
   "builder === 'art-asset'",
   'resolveArtModelContext',
   'buildSuggestUserPrompt',
+  "import {\n  getRuntimeAnthropicKey,\n  getRuntimeOpenAiKey,\n} from '../utils/textProviderService'",
+  'getRuntimeAnthropicKey(config)',
+  'getRuntimeOpenAiKey(config)',
 ])
 
-expectContains('server/utils/suggest/sheets/artAssetSuggest.ts', [
-  "builder: 'art-asset'",
-  'Write one production-ready image-generation prompt',
-  'Return exactly one prompt paragraph',
-  "variant === 'icon'",
-  "variant === 'card'",
-  "variant === 'hero'",
+expectContains('server/utils/textProviderService.ts', [
+  "config.openaiApiKey || process.env.OPENAI_API_KEY || ''",
+  'config.anthropicApiKey ||',
+  'process.env.ANTHROPIC_API_KEY ||',
 ])
 
 expectContains('components/art/entity-art-manager.vue', [

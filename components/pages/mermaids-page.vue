@@ -150,7 +150,7 @@
       </section>
 
       <section
-        class="mb-4 rounded-2xl border border-base-300 bg-base-100 p-5 shadow-sm"
+        class="mb-4 kr-panel-flat p-5 shadow-sm"
       >
         <div class="mb-3 flex items-center gap-3">
           <span

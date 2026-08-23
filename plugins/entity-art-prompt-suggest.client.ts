@@ -1,4 +1,6 @@
 import { suggestArtAssetPrompt } from '@/stores/helpers/artAssetSuggest'
+import { usePageStore } from '@/stores/pageStore'
+import { useProjectStore } from '@/stores/projectStore'
 import {
   normalizeArtModelType,
   type ArtModelRef,
@@ -34,8 +36,16 @@ type ManagerContext = {
   slots: EntityArtSlot[]
 }
 
+type PageStore = ReturnType<typeof usePageStore>
+type ProjectStore = ReturnType<typeof useProjectStore>
+
 const BUTTON_MARKER = 'data-entity-art-prompt-suggest'
 const attached = new WeakSet<HTMLTextAreaElement>()
+const PROJECT_ART_SLOTS: EntityArtSlot[] = [
+  { field: 'heroPath', label: 'Hero', width: 1280, height: 720 },
+  { field: 'cardPath', label: 'Card', width: 512, height: 768 },
+  { field: 'imagePath', label: 'Icon', width: 256, height: 256 },
+]
 
 function cleanString(value: unknown): string {
   return typeof value === 'string' ? value.replace(/\s+/g, ' ').trim() : ''
@@ -126,6 +136,7 @@ function managerContextFromPage(element: HTMLElement): ManagerContext | null {
       ...(id ? { id } : {}),
       ...(slug ? { slug } : {}),
       title:
+        cleanString(context?.dataset.artSubject) ||
         cleanString(document.querySelector('h1')?.textContent) ||
         cleanString(document.title),
     },
@@ -133,12 +144,43 @@ function managerContextFromPage(element: HTMLElement): ManagerContext | null {
   }
 }
 
-function managerContext(element: HTMLElement): ManagerContext | null {
+function managerContextFromWorkspaceProject(
+  element: HTMLElement,
+  pageStore: PageStore,
+  projectStore: ProjectStore,
+): ManagerContext | null {
+  if (!element.closest('.project-art-compact')) return null
+
+  const workspaceSlug = cleanString(pageStore.workspaceCardKey)
+  if (!workspaceSlug) return null
+  const project = projectStore.projectForSlug(workspaceSlug)
+  if (!project) return null
+
+  const slug = cleanString(
+    project.conductorSlug || project.slug || workspaceSlug,
+  )
+  return {
+    entityType: 'project',
+    entity: {
+      id: project.id,
+      ...(slug ? { slug } : {}),
+      title: project.title,
+    },
+    slots: PROJECT_ART_SLOTS,
+  }
+}
+
+function managerContext(
+  element: HTMLElement,
+  pageStore: PageStore,
+  projectStore: ProjectStore,
+): ManagerContext | null {
   const section = element.closest<HTMLElement>('section')
   return (
     managerContextFromVue(element) ||
     (section ? managerContextFromVue(section) : null) ||
-    managerContextFromPage(element)
+    managerContextFromPage(element) ||
+    managerContextFromWorkspaceProject(element, pageStore, projectStore)
   )
 }
 
@@ -219,7 +261,11 @@ function setTextareaValue(textarea: HTMLTextAreaElement, value: string): void {
   textarea.dispatchEvent(new Event('change', { bubbles: true }))
 }
 
-function addSuggestButton(textarea: HTMLTextAreaElement): void {
+function addSuggestButton(
+  textarea: HTMLTextAreaElement,
+  pageStore: PageStore,
+  projectStore: ProjectStore,
+): void {
   if (attached.has(textarea)) return
   const form = textarea.closest<HTMLFormElement>('form')
   if (!form) return
@@ -243,7 +289,7 @@ function addSuggestButton(textarea: HTMLTextAreaElement): void {
 
   button.addEventListener('click', async () => {
     if (button.dataset.loading === 'true') return
-    const context = managerContext(textarea)
+    const context = managerContext(textarea, pageStore, projectStore)
     if (!context) {
       button.textContent = 'Could not identify record'
       window.setTimeout(() => {
@@ -314,25 +360,36 @@ function addSuggestButton(textarea: HTMLTextAreaElement): void {
   })
 }
 
-function scanForEntityArtPrompts(root: ParentNode = document): void {
+function scanForEntityArtPrompts(
+  root: ParentNode,
+  pageStore: PageStore,
+  projectStore: ProjectStore,
+): void {
   for (const textarea of root.querySelectorAll<HTMLTextAreaElement>(
     'textarea[maxlength="5000"]',
   )) {
-    addSuggestButton(textarea)
+    addSuggestButton(textarea, pageStore, projectStore)
   }
 }
 
 export default defineNuxtPlugin((nuxtApp) => {
+  const pageStore = usePageStore()
+  const projectStore = useProjectStore()
+
   nuxtApp.hook('app:mounted', () => {
-    scanForEntityArtPrompts()
+    scanForEntityArtPrompts(document, pageStore, projectStore)
     const observer = new MutationObserver((records) => {
       for (const record of records) {
         for (const node of record.addedNodes) {
           if (!(node instanceof Element)) continue
           if (node.matches('textarea[maxlength="5000"]')) {
-            addSuggestButton(node as HTMLTextAreaElement)
+            addSuggestButton(
+              node as HTMLTextAreaElement,
+              pageStore,
+              projectStore,
+            )
           }
-          scanForEntityArtPrompts(node)
+          scanForEntityArtPrompts(node, pageStore, projectStore)
         }
       }
     })

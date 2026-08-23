@@ -176,7 +176,7 @@
       @close="clearArtPreview"
     >
       <div
-        class="modal-box flex h-[92vh] w-[96vw] max-w-7xl flex-col rounded-2xl border border-base-300 bg-base-100 p-3"
+        class="modal-box flex h-[92vh] w-[96vw] max-w-7xl flex-col kr-panel-flat p-3"
       >
         <div class="flex items-center justify-between gap-3 px-1 pb-3">
           <div class="min-w-0">

@@ -366,6 +366,8 @@
     "test:model-builder-draft-source-snapshot-guard": "tsx utils/scripts/verifyModelBuilderDraftSourceSnapshotGuard.ts",
     "test:model-builder-run-swap-singleton-leak-guard-selftest": "tsx utils/scripts/verifyModelBuilderRunSwapSingletonLeakGuard.test.ts",
     "test:model-builder-run-swap-singleton-leak-guard": "tsx utils/scripts/verifyModelBuilderRunSwapSingletonLeakGuard.ts",
+    "test:model-builder-resume-run-request-guard-selftest": "tsx utils/scripts/verifyModelBuilderResumeRunRequestGuard.test.ts",
+    "test:model-builder-resume-run-request-guard": "tsx utils/scripts/verifyModelBuilderResumeRunRequestGuard.ts",
     "test:storybook-active-story-resume-guard": "npx tsx utils/scripts/verifyStorybookActiveStoryResumeGuard.ts",
     "test:storybook-answer-input-preservation-guard": "node utils/scripts/verifyStorybookAnswerInputPreservationGuard.mjs",
     "test:storybook-answer-rollback-guard": "node utils/scripts/verifyStorybookAnswerRollbackGuard.mjs",

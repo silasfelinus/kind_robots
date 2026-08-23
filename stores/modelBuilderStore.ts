@@ -2828,7 +2828,29 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
 
   // Resume the most recent run: the remembered run id if still present, else the
   // newest non-cancelled run for this user. Silent on failure (e.g. signed out).
+  //
+  // resumeRun() only ever fires from model-builder-manager.vue's onMounted --
+  // but that component remounts on every navigation away from and back to the
+  // Model Builder page (no keep-alive anywhere in this app; see this file's
+  // comment above on the "adopt a different run" branch), and unmounting a
+  // component does not cancel its in-flight promises. Navigate away, then
+  // back before the first mount's resumeRun() resolves, and TWO calls race
+  // against the same store singleton -- the second (from the new mount) can
+  // finish first and unblock the UI (model-builder-manager.vue's
+  // `resumingRun` gate only tracks its OWN call), letting the user start a
+  // genuinely different run (resetRun()/openRun()) before the first, now
+  // very stale, call finally resolves. Without a ticket, that stale call's
+  // `data` -- fetched for whatever run WAS remembered/latest back when it
+  // started -- lands on top of the user's new run: same "different run"
+  // branch below, same unconditional clobber of state.run and the in-flight
+  // singletons, as the very race openRun()/fetchRuns()/loadSources() are
+  // each guarded against (model-builder/t-029 cycle 59; flagged but not yet
+  // traced by cycle 58). Guarded the same way: a monotonic ticket captured up
+  // front, checked after each of the two sequential performFetch calls.
+  let resumeRunRequestId = 0
+
   async function resumeRun(): Promise<void> {
+    const requestId = ++resumeRunRequestId
     try {
       const remembered = safeGet(runIdKey)
       let data: ServerRun | undefined
@@ -2837,6 +2859,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         const response = await performFetch<ServerRun>(
           `/api/model-builder/runs/${remembered}`,
         )
+        if (resumeRunRequestId !== requestId) return
         if (
           response.success &&
           response.data &&
@@ -2856,6 +2879,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         const response = await performFetch<ServerRun[]>(
           '/api/model-builder/runs?take=1',
         )
+        if (resumeRunRequestId !== requestId) return
         if (
           response.success &&
           Array.isArray(response.data) &&

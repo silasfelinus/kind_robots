@@ -866,6 +866,12 @@ jobs:
       - name: Model Builder run-swap singleton-leak guard contract
         run: npm run test:model-builder-run-swap-singleton-leak-guard
 
+      - name: Model Builder resumeRun request guard checker self-test
+        run: npm run test:model-builder-resume-run-request-guard-selftest
+
+      - name: Model Builder resumeRun request guard contract
+        run: npm run test:model-builder-resume-run-request-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

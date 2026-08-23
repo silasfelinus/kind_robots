@@ -15,8 +15,15 @@ function expectContains(path: string, needles: string[]): void {
 
 expectContains('plugins/entity-art-prompt-suggest.client.ts', [
   "import { suggestArtAssetPrompt } from '@/stores/helpers/artAssetSuggest'",
+  "import { usePageStore } from '@/stores/pageStore'",
+  "import { useProjectStore } from '@/stores/projectStore'",
   '✨ Suggest prompt',
   'managerContextFromVue',
+  'managerContextFromWorkspaceProject',
+  "element.closest('.project-art-compact')",
+  'projectStore.projectForSlug(workspaceSlug)',
+  "entityType: 'project'",
+  "{ field: 'heroPath', label: 'Hero', width: 1280, height: 720 }",
   'entityRef: entityRef(context)',
   'current: textarea.value',
   'variantForSlot',

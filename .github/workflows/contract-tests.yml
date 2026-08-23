@@ -854,6 +854,12 @@ jobs:
       - name: Model Builder batch busy-item exclusion guard contract
         run: npm run test:model-builder-batch-busy-item-exclusion-guard
 
+      - name: Model Builder draft source-snapshot guard self-test
+        run: npm run test:model-builder-draft-source-snapshot-guard-selftest
+
+      - name: Model Builder draft source-snapshot guard contract
+        run: npm run test:model-builder-draft-source-snapshot-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

@@ -1280,7 +1280,21 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
               expectedFields: fieldsBrief(targetModel),
               pitch: item.pitch,
               fields: item.fieldsDraft,
-              source: state.selectedSource ?? undefined,
+              // state.selectedSource is only ever set by an in-session
+              // selectSource() call and is deliberately nulled on resume
+              // (see adaptRun's/resumeRun's own comments, model-builder/
+              // t-029 cycle 24) -- so after resuming a run (a reload, or
+              // reopening one from Run History), this was always undefined
+              // and the suggest sheet's whole canon-grounding block
+              // (name/class/species/personality/backstory/etc., see
+              // modelBuilderSuggest.ts's buildSourceContext) silently
+              // vanished from every AI draft request, with no error, no
+              // matter how well-populated the record actually was. Fall
+              // back to the run's persisted sourceSnapshot first, matching
+              // model-builder-progress-matrix.vue's identical `source`
+              // computed precedence for the same resume-survival reason.
+              source:
+                state.run.sourceSnapshot ?? state.selectedSource ?? undefined,
             },
             extra: {
               // The registered 'model-builder' suggest sheet owns the per-field

@@ -121,9 +121,9 @@ export default defineEventHandler(async (event) => {
       maxTokens,
       apiKey:
         provider === 'anthropic'
-          ? getRuntimeAnthropicKey(config)
+          ? str(config.anthropicApiKey, getRuntimeAnthropicKey(config))
           : provider === 'openai'
-            ? getRuntimeOpenAiKey(config)
+            ? str(config.openaiApiKey, getRuntimeOpenAiKey(config))
             : undefined,
       baseUrl:
         provider === 'ollama'

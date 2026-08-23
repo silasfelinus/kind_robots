@@ -191,6 +191,8 @@ export default defineNuxtPlugin(() => {
       return brainstormProfile(activeCard.value, activeProject.value)
     }
 
+    if (activeProject.value) return null
+
     return profileFromProject(
       activeKey.value,
       activeCard.value,

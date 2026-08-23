@@ -18,6 +18,17 @@ function expectContains(path: string, needles: string[]): void {
   }
 }
 
+function expectOmits(path: string, needles: string[]): void {
+  const source = read(path)
+  for (const needle of needles) {
+    if (source.includes(needle)) {
+      throw new Error(
+        `${path} still contains superseded project-detail UI: ${needle}`,
+      )
+    }
+  }
+}
+
 expectContains('components/art/entity-art-manager.vue', [
   "generationEngine.value = mode === 'recreate' ? 'krea2' : 'sdxl-img2img'",
   '<option value="kontext">Kontext edit</option>',
@@ -49,11 +60,6 @@ expectContains('server/utils/entityArt.ts', [
   'entityArtHistoryPrefix',
 ])
 
-// interface-vision/t-026: conductor-art-gallery.vue's bespoke Project carousel
-// was deleted in favor of this one canonical component. Project now adopts it
-// directly (entity-type="project") with an extra collection-carousel panel.
-// The shared manager also owns the touch/pointer loop so canonical variants,
-// preserved inspirations, and collection images behave the same on every caller.
 expectContains('components/art/entity-art-manager.vue', [
   'Queued as ArtJob',
   'startPolling(activeJobId)',
@@ -70,6 +76,35 @@ expectContains('components/art/entity-art-manager.vue', [
 expectContains('components/pages/conductor-page.vue', [
   'entity-type="project"',
   ':collection-slides="projectCollectionSlides"',
+])
+
+expectContains('components/conductor/project-detail.vue', [
+  'class="project-art-compact !p-2"',
+  'height: 20vh;',
+  'v-model="projectTaskText"',
+  'taskStatusSummary(selectedProject)',
+  '<progress',
+  'Project Profile',
+  'Project Notes',
+  'Milestones',
+  'Roadmap',
+])
+
+expectOmits('components/conductor/project-detail.vue', [
+  'Feature Wishlist',
+  'projectTaskTitle',
+  'projectTaskDescription',
+  'DESIRED_FEATURE',
+  'min-h-[200px]',
+])
+
+expectContains('components/pages/conductor-manager.vue', [
+  '<TabScrollRegion v-else-if="projectSlug">',
+  '<ProjectDetail :slug="projectSlug" />',
+])
+
+expectContains('plugins/workspace-sheet-hero.client.ts', [
+  'if (activeProject.value) return null',
 ])
 
 const entityArtManagerSource = read('components/art/entity-art-manager.vue')
@@ -91,7 +126,6 @@ expectContains('server/api/art/enqueue.post.ts', [
   'entityArt?.sourceImageBase64',
 ])
 
-// Relay/server completion is the durable contract; no browser process is required.
 expectContains('server/api/art/queue/[id]/complete.post.ts', [
   'applyEntityArtCompletion',
   'readEntityArtMetadata',
@@ -108,24 +142,6 @@ expectContains('components/pages/conductor-project-gallery-page.vue', [
   'await load(true)',
 ])
 
-/*
- * EACH SURFACE MUST REACH THE ART MANAGER -- NOT NECESSARILY MOUNT IT ITSELF.
- *
- * This used to assert that `<EntityArtManager` appeared literally in each
- * *-interact.vue. That held while the interacts were monoliths, and went red
- * the moment three of them became routers: character, scenario and reward each
- * moved their working surface into a *-workspace.vue, taking the art manager
- * one hop down with it. The art slots had not been dropped -- the check simply
- * could not see past a filename.
- *
- * Same lesson the narrative-kit counter and the route-gallery contract each
- * learned separately, which is why the walk now lives in componentGraph.ts
- * instead of being written a fourth time. A surface satisfies this if anything
- * it transitively renders mounts the manager.
- *
- * Still element-level: `<EntityArtManager` must open a tag in a template, so a
- * type import or a stray mention in a comment does not score a tick.
- */
 const graph = buildComponentGraph(resolve(process.cwd(), 'components'))
 
 for (const path of [
@@ -133,9 +149,6 @@ for (const path of [
   'components/characters/character-interact.vue',
   'components/scenarios/scenario-interact.vue',
   'components/rewards/reward-interact.vue',
-  // The Facet art slots moved with the editor when facet-manager's Library
-  // grid was retired: editing one Facet now lives in facet-interact's detail
-  // slot rather than expanding inside a grid cell.
   'components/facets/facet-editor.vue',
 ]) {
   const reaches = graph.reaches(path, (source) =>

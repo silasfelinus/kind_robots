@@ -79,7 +79,13 @@ expectContains('components/pages/conductor-page.vue', [
 ])
 
 expectContains('components/conductor/project-detail.vue', [
-  'class="project-art-compact !p-2"',
+  'class="project-detail-primary grid shrink-0 gap-2 xl:grid-cols-[minmax(0,3fr)_minmax(22rem,2fr)] xl:items-start"',
+  'class="project-art-compact min-w-0 !p-2"',
+  'data-project-profile',
+  'data-project-composer',
+  'data-project-roadmap',
+  'data-project-milestones',
+  'data-project-notes',
   'height: 20vh;',
   'v-model="projectTaskText"',
   'taskStatusSummary(selectedProject)',
@@ -89,6 +95,52 @@ expectContains('components/conductor/project-detail.vue', [
   'Milestones',
   'Roadmap',
 ])
+
+const projectDetailSource = read('components/conductor/project-detail.vue')
+const projectDetailOrder = [
+  'class="project-art-compact min-w-0 !p-2"',
+  'data-project-profile',
+  'data-project-composer',
+  'data-project-roadmap',
+  'data-project-milestones',
+  'data-project-notes',
+].map((needle) => projectDetailSource.indexOf(needle))
+
+if (
+  projectDetailOrder.some((index) => index < 0) ||
+  projectDetailOrder.some(
+    (index, position) => position > 0 && index <= projectDetailOrder[position - 1]!,
+  )
+) {
+  throw new Error(
+    'Project detail must order art, profile, composer, open roadmap, milestones, then notes.',
+  )
+}
+
+if (
+  !/<details\s+v-if="selectedProject\?\.tasks\.length"\s+open[\s\S]*?data-project-roadmap/.test(
+    projectDetailSource,
+  )
+) {
+  throw new Error('Project roadmap must be an expandable container open by default.')
+}
+
+for (const marker of ['data-project-milestones', 'data-project-notes']) {
+  const markerIndex = projectDetailSource.indexOf(marker)
+  const detailsStart = projectDetailSource.lastIndexOf('<details', markerIndex)
+  const detailsEnd = projectDetailSource.indexOf('>', markerIndex)
+  if (
+    detailsStart < 0 ||
+    detailsEnd < 0 ||
+    /\sopen(?:\s|>)/.test(projectDetailSource.slice(detailsStart, detailsEnd + 1))
+  ) {
+    throw new Error(`${marker} must remain collapsed by default.`)
+  }
+}
+
+if (!/<section class="kr-panel-flat overflow-hidden" data-project-profile>/.test(projectDetailSource)) {
+  throw new Error('Project Profile must stay always open rather than returning to a disclosure.')
+}
 
 expectOmits('components/conductor/project-detail.vue', [
   'Feature Wishlist',

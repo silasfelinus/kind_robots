@@ -12,9 +12,14 @@
           isAutoBuilding || isManualActionInFlight || runOperationInFlight
         "
         :title="autoButtonTitle"
+        :aria-busy="isAutoBuilding"
         @click="store.autoBuildItem(item.id)"
       >
-        <span v-if="isAutoBuilding" class="loading loading-dots loading-xs" />
+        <span
+          v-if="isAutoBuilding"
+          class="loading loading-dots loading-xs"
+          aria-hidden="true"
+        />
         <template v-else>
           <Icon name="kind-icon:bolt" class="h-3.5 w-3.5" />
           Auto
@@ -54,11 +59,13 @@
           class="btn btn-xs btn-ghost mr-auto gap-1 rounded-lg text-secondary"
           :disabled="isAnyDraftInFlight"
           title="Draft this pitch with AI"
+          :aria-busy="isDrafting('pitch')"
           @click="draft('pitch')"
         >
           <span
             v-if="isDrafting('pitch')"
             class="loading loading-dots loading-xs"
+            aria-hidden="true"
           />
           <template v-else>
             <Icon name="kind-icon:magic" class="h-3.5 w-3.5" />
@@ -110,11 +117,13 @@
           class="btn btn-ghost btn-xs h-5 min-h-5 gap-1 rounded-md px-1.5 text-[10px] text-secondary"
           :disabled="isAnyDraftInFlight"
           title="Draft the schema fields and relationships with AI"
+          :aria-busy="isDrafting('fields')"
           @click="draft('fields')"
         >
           <span
             v-if="isDrafting('fields')"
             class="loading loading-dots loading-xs"
+            aria-hidden="true"
           />
           <template v-else>
             <Icon name="kind-icon:magic" class="h-3 w-3" />
@@ -140,11 +149,13 @@
           class="btn btn-ghost btn-xs h-5 min-h-5 gap-1 rounded-md px-1.5 text-[10px] text-secondary"
           :disabled="isAnyDraftInFlight"
           title="Draft the generation prompt with AI"
+          :aria-busy="isDrafting('artPrompt')"
           @click="draft('artPrompt')"
         >
           <span
             v-if="isDrafting('artPrompt')"
             class="loading loading-dots loading-xs"
+            aria-hidden="true"
           />
           <template v-else>
             <Icon name="kind-icon:magic" class="h-3 w-3" />
@@ -228,9 +239,14 @@
             :title="
               item.imagePath ? 'Regenerate candidate' : 'Generate candidate'
             "
+            :aria-busy="isGenerating"
             @click="store.generateItemAsset(item.id)"
           >
-            <span v-if="isGenerating" class="loading loading-dots loading-sm" />
+            <span
+              v-if="isGenerating"
+              class="loading loading-dots loading-sm"
+              aria-hidden="true"
+            />
             <template v-else>
               <Icon name="kind-icon:sparkles" class="h-4 w-4" />
               {{
@@ -259,8 +275,11 @@
         <div
           v-if="isQueued"
           class="mt-1.5 flex items-center gap-1.5 rounded-lg bg-base-200 px-2 py-1 text-xs text-base-content/70"
+          role="status"
+          aria-live="polite"
+          aria-busy="true"
         >
-          <span class="loading loading-dots loading-xs" />
+          <span class="loading loading-dots loading-xs" aria-hidden="true" />
           {{ item.queueState === 'rendering' ? 'Rendering…' : 'Queued…' }}
         </div>
       </template>
@@ -340,9 +359,14 @@
             isCommitBlocked
           "
           :title="commitButtonTitle"
+          :aria-busy="isCommitting"
           @click="store.commitItem(item.id)"
         >
-          <span v-if="isCommitting" class="loading loading-dots loading-xs" />
+          <span
+            v-if="isCommitting"
+            class="loading loading-dots loading-xs"
+            aria-hidden="true"
+          />
           <template v-else>
             {{
               item.stages.COMMIT.status === 'approved'

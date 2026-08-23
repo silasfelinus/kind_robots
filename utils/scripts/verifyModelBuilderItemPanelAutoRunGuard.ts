@@ -48,9 +48,13 @@ const RUN_OPERATION_IN_FLIGHT_DEF =
 // The Auto button is the only `@click="store.autoBuildItem(item.id)"` call
 // in this file -- find its `:disabled="..."` attribute specifically, rather
 // than scanning every `:disabled` in the file (most of which correctly have
-// nothing to do with this race).
+// nothing to do with this race). An optional `:aria-busy="..."` line
+// (model-builder/t-029 cycle 62's accessibility fix) is allowed between
+// `:title` and `@click` -- it's a separate, unrelated attribute that landed
+// between this guard's two anchors without changing the shape this guard
+// actually checks.
 const AUTO_BUTTON_PATTERN =
-  /:disabled="([^"]*)"\s*\n\s*:title="[^"]*"\s*\n\s*@click="store\.autoBuildItem\(item\.id\)"/
+  /:disabled="([^"]*)"\s*\n\s*:title="[^"]*"\s*\n\s*(?::aria-busy="[^"]*"\s*\n\s*)?@click="store\.autoBuildItem\(item\.id\)"/
 
 export function checkItemPanelAutoRunGuard(content: string): string[] {
   const errors: string[] = []

@@ -56,6 +56,58 @@
             selectedProject.name || selectedProject.slug
           }}</span>
         </span>
+
+        <!-- Project presentation flags are intentionally compact here. They are
+             useful settings, but not project-management content. -->
+        <template v-if="userStore.isAdmin && selectedProject && linkedProject">
+          <span class="mx-0.5 h-3.5 w-px shrink-0 bg-base-content/10" />
+          <button
+            type="button"
+            class="btn btn-circle btn-ghost btn-xs"
+            :class="linkedProject.isPublic ? 'text-success' : 'text-base-content/35'"
+            :title="linkedProject.isPublic ? 'Public project' : 'Private project'"
+            :aria-label="linkedProject.isPublic ? 'Make project private' : 'Make project public'"
+            :disabled="projectSaving"
+            @click="patchProject({ isPublic: !linkedProject.isPublic })"
+          >
+            <Icon
+              :name="linkedProject.isPublic ? 'kind-icon:eye' : 'kind-icon:eye-off'"
+              class="size-3.5"
+            />
+          </button>
+          <button
+            type="button"
+            class="btn btn-circle btn-ghost btn-xs"
+            :class="linkedProject.isMature ? 'text-warning' : 'text-base-content/35'"
+            :title="linkedProject.isMature ? 'Mature content' : 'Safe content'"
+            :aria-label="linkedProject.isMature ? 'Mark project safe' : 'Mark project mature'"
+            :disabled="projectSaving"
+            @click="patchProject({ isMature: !linkedProject.isMature })"
+          >
+            <Icon name="kind-icon:warning" class="size-3.5" />
+          </button>
+          <button
+            type="button"
+            class="btn btn-circle btn-ghost btn-xs"
+            :class="linkedProject.allowReviews ? 'text-success' : 'text-base-content/35'"
+            :title="linkedProject.allowReviews ? 'Reviews on' : 'Reviews off'"
+            :aria-label="linkedProject.allowReviews ? 'Turn reviews off' : 'Turn reviews on'"
+            :disabled="projectSaving"
+            @click="patchProject({ allowReviews: !linkedProject.allowReviews })"
+          >
+            <Icon name="kind-icon:comment" class="size-3.5" />
+          </button>
+          <span
+            v-if="projectSaving"
+            class="loading loading-spinner loading-xs text-primary"
+          />
+          <span
+            v-else-if="projectSaveMessage"
+            class="text-[0.62rem] font-semibold"
+            :class="projectSaveError ? 'text-error' : 'text-success'"
+            >{{ projectSaveError ? 'save failed' : 'saved' }}</span
+          >
+        </template>
       </div>
 
       <!-- Non-admin project count -->
@@ -113,9 +165,6 @@
           >{{ syncMessage }}</span
         >
       </template>
-
-      <!-- Kaizen philosophy popup -->
-      <KaizenPopup />
 
       <!-- Refresh + timestamp (admin) -->
       <template v-if="userStore.isAdmin">
@@ -195,7 +244,7 @@
           <!-- TASKS -->
           <div v-if="viewMode === 'tasks'" class="flex flex-col gap-4 pb-4">
             <form
-              class="kr-panel-flat p-4 space-y-3"
+              class="kr-panel-flat space-y-3 p-4"
               @submit.prevent="submitNewTodo"
             >
               <h4
@@ -215,9 +264,7 @@
                 :placeholder="
                   newTodoCategory === 'AGENT'
                     ? 'Context for the agent — project name, specific instructions, relevant files...'
-                    : newTodoCategory === 'KAIZEN'
-                      ? 'What improvement do you want to make?'
-                      : 'What do you need to do?'
+                    : 'What do you need to do?'
                 "
                 class="textarea textarea-bordered w-full rounded-xl text-sm leading-relaxed"
                 rows="3"
@@ -229,7 +276,6 @@
                   class="select select-bordered select-sm rounded-xl"
                 >
                   <option value="AGENT">🤖 Agent Task</option>
-                  <option value="KAIZEN">✨ Kaizen</option>
                   <option value="HONEYDO">🍯 Honey Do</option>
                 </select>
                 <select
@@ -282,20 +328,6 @@
                     v-if="todoStore.serendipityAgentTodos.length"
                     class="badge badge-xs badge-secondary"
                     >{{ todoStore.serendipityAgentTodos.length }}</span
-                  >
-                </button>
-                <button
-                  type="button"
-                  role="tab"
-                  class="tab gap-1 text-xs"
-                  :class="taskTab === 'KAIZEN' ? 'tab-active' : ''"
-                  @click="taskTab = 'KAIZEN'"
-                >
-                  ✨ Kaizen
-                  <span
-                    v-if="todoStore.kaizenTodos.length"
-                    class="badge badge-xs badge-secondary"
-                    >{{ todoStore.kaizenTodos.length }}</span
                   >
                 </button>
                 <button
@@ -413,11 +445,6 @@
                       v-else-if="todo.priority === 'LOW'"
                       class="badge badge-ghost badge-xs shrink-0"
                       >🟢 low</span
-                    >
-                    <span
-                      v-if="todoFilter !== 'OPEN' && todo.category === 'KAIZEN'"
-                      class="badge badge-secondary badge-xs shrink-0"
-                      >✨ kaizen</span
                     >
                     <span
                       v-if="todoStore.isSerendipityAgentTodo(todo)"
@@ -580,80 +607,68 @@
               </span>
             </div>
 
-            <div
-              v-if="linkedProject"
-              class="kr-panel-flat flex shrink-0 flex-wrap items-center gap-2 px-3 py-2.5"
-            >
-              <div class="mr-auto min-w-52 flex-1">
-                <p
-                  class="text-[0.68rem] font-bold uppercase tracking-wide text-base-content/45"
-                >
-                  Kind Robots presentation
-                </p>
-                <p class="text-xs text-base-content/45">
-                  Lifecycle, coordination priority, roadmap progress, milestones,
-                  and roadmap tasks come from Conductor.
-                </p>
-              </div>
-              <button
-                type="button"
-                class="btn btn-sm gap-1.5 rounded-xl"
-                :class="
-                  linkedProject.isPublic
-                    ? 'btn-success'
-                    : 'btn-ghost border border-base-300'
-                "
-                :disabled="projectSaving"
-                @click="patchProject({ isPublic: !linkedProject.isPublic })"
+            <!-- PROJECT TASK / COMMENT CREATION -->
+            <div v-if="linkedProject" class="kr-panel-flat shrink-0 p-4">
+              <h4
+                class="text-xs font-bold uppercase tracking-wide text-base-content/50"
               >
-                <Icon
-                  :name="
-                    linkedProject.isPublic
-                      ? 'kind-icon:eye'
-                      : 'kind-icon:eye-off'
-                  "
-                  class="size-3.5"
+                Add task / comment
+              </h4>
+              <p class="mb-3 mt-1 text-xs text-base-content/40">
+                Agent items are picked up asynchronously by the project worker.
+                Honey-dos stay human-facing; feature ideas stay in this project's wishlist.
+              </p>
+              <form class="space-y-2" @submit.prevent="submitProjectTask">
+                <input
+                  v-model="projectTaskTitle"
+                  type="text"
+                  placeholder="What needs doing?"
+                  class="input input-bordered w-full rounded-xl text-sm"
+                  :disabled="projectTaskSubmitting"
                 />
-                {{ linkedProject.isPublic ? 'Public' : 'Private' }}
-              </button>
-              <button
-                type="button"
-                class="btn btn-sm gap-1.5 rounded-xl"
-                :class="
-                  linkedProject.isMature
-                    ? 'btn-warning'
-                    : 'btn-ghost border border-base-300'
-                "
-                :disabled="projectSaving"
-                @click="patchProject({ isMature: !linkedProject.isMature })"
-              >
-                <Icon name="kind-icon:warning" class="size-3.5" />{{
-                  linkedProject.isMature ? 'Mature' : 'Safe'
-                }}
-              </button>
-              <allow-reviews-toggle
-                :allow-reviews="Boolean(linkedProject.allowReviews)"
-                :saving="projectSaving"
-                @toggle="
-                  patchProject({ allowReviews: !linkedProject.allowReviews })
-                "
-              />
-              <span
-                v-if="projectSaving"
-                class="loading loading-spinner loading-xs self-center text-primary"
-              />
-              <span
-                v-if="projectSaveMessage"
-                class="self-center text-xs"
-                :class="projectSaveError ? 'text-error' : 'text-success'"
-                >{{ projectSaveMessage }}</span
-              >
+                <textarea
+                  v-model="projectTaskDescription"
+                  placeholder="Comment or context for the project agent..."
+                  class="textarea textarea-bordered w-full rounded-xl text-sm"
+                  rows="2"
+                  :disabled="projectTaskSubmitting"
+                />
+                <div class="flex flex-wrap items-center gap-2">
+                  <select
+                    v-model="projectTaskCategory"
+                    class="select select-bordered select-sm rounded-xl"
+                  >
+                    <option value="AGENT">🤖 Agent Task / Comment</option>
+                    <option value="HONEYDO">🍯 Honey Do</option>
+                    <option value="DESIRED_FEATURE">⭐ Feature Idea</option>
+                  </select>
+                  <select
+                    v-model="projectTaskPriority"
+                    class="select select-bordered select-sm rounded-xl"
+                  >
+                    <option value="HIGH">🔴 High</option>
+                    <option value="NORMAL">🟡 Normal</option>
+                    <option value="LOW">🟢 Low</option>
+                  </select>
+                  <button
+                    type="submit"
+                    class="btn btn-primary btn-sm ml-auto rounded-xl"
+                    :disabled="!projectTaskTitle.trim() || projectTaskSubmitting"
+                  >
+                    <span
+                      v-if="projectTaskSubmitting"
+                      class="loading loading-spinner loading-xs"
+                    />
+                    Add
+                  </button>
+                </div>
+              </form>
             </div>
 
             <div
               class="grid shrink-0 gap-4 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]"
             >
-              <div v-if="linkedProject" class="space-y-3 kr-panel-flat p-4">
+              <div v-if="linkedProject" class="kr-panel-flat space-y-3 p-4">
                 <div class="flex flex-wrap items-center gap-2">
                   <Icon name="kind-icon:dream" class="size-4 text-primary" />
                   <h4
@@ -693,36 +708,6 @@
                     :value="linkedProject.description ?? ''"
                     :disabled="projectSaving"
                     @blur="autosave('description', $event)"
-                  />
-                </div>
-                <div class="form-control">
-                  <label class="label py-0.5"
-                    ><span class="label-text text-xs font-semibold"
-                      >Intent / Pitch</span
-                    ></label
-                  >
-                  <textarea
-                    class="textarea textarea-bordered rounded-xl text-sm leading-relaxed"
-                    rows="6"
-                    placeholder="Core constraint or north star"
-                    :value="linkedProject.pitch ?? ''"
-                    :disabled="projectSaving"
-                    @blur="autosave('pitch', $event)"
-                  />
-                </div>
-                <div class="form-control">
-                  <label class="label py-0.5"
-                    ><span class="label-text text-xs font-semibold"
-                      >Flavor Text</span
-                    ></label
-                  >
-                  <input
-                    type="text"
-                    class="input input-bordered rounded-xl text-sm"
-                    placeholder="Short tagline"
-                    :value="linkedProject.flavorText ?? ''"
-                    :disabled="projectSaving"
-                    @blur="autosave('flavorText', $event)"
                   />
                 </div>
                 <div class="grid gap-3 sm:grid-cols-2">
@@ -822,79 +807,111 @@
               />
             </div>
 
-            <!-- PROJECT ASSISTANT -->
-            <div v-if="linkedProject" class="shrink-0">
-              <ConductorProjectChat
-                :project-id="linkedProject.id"
-                :project-title="linkedProject.title || selectedProject.slug"
-                :project-context="projectContextText"
-              />
-            </div>
-
-            <div
+            <details
               v-if="selectedProject.notesFromSilas"
-              class="shrink-0 rounded-2xl border border-info/30 bg-info/5 p-4 text-sm text-base-content/80"
+              class="group kr-panel-flat shrink-0 overflow-hidden"
             >
-              <p
-                class="mb-1 text-xs font-bold uppercase tracking-wide text-info/70"
+              <summary
+                class="flex cursor-pointer list-none items-center gap-2 px-4 py-3 marker:content-none"
               >
-                Notes from Silas
-              </p>
-              {{ selectedProject.notesFromSilas }}
-            </div>
-
-            <div class="grid min-h-0 gap-4 sm:grid-cols-2">
-              <div v-if="selectedProject.milestones.length">
-                <h4
-                  class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50"
+                <Icon
+                  name="kind-icon:chevron-right"
+                  class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
+                />
+                <Icon name="kind-icon:document" class="size-4 text-info" />
+                <span
+                  class="text-xs font-bold uppercase tracking-wide text-base-content/60"
+                  >Project Notes</span
                 >
-                  Milestones
-                </h4>
-                <div class="space-y-2">
+                <span class="ml-auto text-xs text-base-content/35">Conductor</span>
+              </summary>
+              <div
+                class="whitespace-pre-wrap border-t border-base-300/70 px-4 py-3 text-sm leading-relaxed text-base-content/75"
+              >
+                {{ selectedProject.notesFromSilas }}
+              </div>
+            </details>
+
+            <!-- Milestones and roadmap are deliberately stacked disclosures.
+                 Uneven lists no longer leave a dead column beside the longer one. -->
+            <details
+              v-if="selectedProject.milestones.length"
+              class="group kr-panel-flat shrink-0 overflow-hidden"
+            >
+              <summary
+                class="flex cursor-pointer list-none items-center gap-2 px-4 py-3 marker:content-none"
+              >
+                <Icon
+                  name="kind-icon:chevron-right"
+                  class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
+                />
+                <span
+                  class="text-xs font-bold uppercase tracking-wide text-base-content/60"
+                  >Milestones</span
+                >
+                <span class="badge badge-ghost badge-xs ml-auto">
+                  {{ selectedProject.milestones.length }}
+                </span>
+              </summary>
+              <div class="space-y-2 border-t border-base-300/70 p-3">
+                <div
+                  v-for="milestone in selectedProject.milestones"
+                  :key="milestone.id"
+                  class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
+                >
                   <div
-                    v-for="milestone in selectedProject.milestones"
-                    :key="milestone.id"
-                    class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
+                    class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border"
+                    :class="milestoneIconClass(milestone.status)"
                   >
-                    <div
-                      class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border"
-                      :class="milestoneIconClass(milestone.status)"
-                    >
-                      <Icon
-                        :name="milestoneIcon(milestone.status)"
-                        class="size-3.5"
-                      />
-                    </div>
-                    <div class="min-w-0 flex-1">
-                      <p class="break-words text-sm font-semibold leading-snug">
-                        {{ milestone.title }}
-                      </p>
-                      <p class="text-xs text-base-content/50">
-                        weight {{ milestone.weight }}
-                        <span
-                          v-if="milestoneTaskCounts.get(milestone.id)?.total"
-                          >&middot;
-                          {{ milestoneTaskCounts.get(milestone.id)?.done }}/{{
-                            milestoneTaskCounts.get(milestone.id)?.total
-                          }}
-                          done</span
-                        >
-                      </p>
-                    </div>
-                    <span
-                      class="badge badge-sm shrink-0"
-                      :class="milestoneBadgeClass(milestone.status)"
-                      >{{ milestone.status }}</span
-                    >
+                    <Icon
+                      :name="milestoneIcon(milestone.status)"
+                      class="size-3.5"
+                    />
                   </div>
+                  <div class="min-w-0 flex-1">
+                    <p class="break-words text-sm font-semibold leading-snug">
+                      {{ milestone.title }}
+                    </p>
+                    <p class="text-xs text-base-content/50">
+                      weight {{ milestone.weight }}
+                      <span v-if="milestoneTaskCounts.get(milestone.id)?.total"
+                        >&middot;
+                        {{ milestoneTaskCounts.get(milestone.id)?.done }}/{{
+                          milestoneTaskCounts.get(milestone.id)?.total
+                        }}
+                        done</span
+                      >
+                    </p>
+                  </div>
+                  <span
+                    class="badge badge-sm shrink-0"
+                    :class="milestoneBadgeClass(milestone.status)"
+                    >{{ milestone.status }}</span
+                  >
                 </div>
               </div>
-              <div v-if="selectedProject.tasks.length">
-                <h4
-                  class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50"
+            </details>
+
+            <details
+              v-if="selectedProject.tasks.length"
+              class="group kr-panel-flat shrink-0 overflow-hidden"
+            >
+              <summary
+                class="flex cursor-pointer list-none items-center gap-2 px-4 py-3 marker:content-none"
+              >
+                <Icon
+                  name="kind-icon:chevron-right"
+                  class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
+                />
+                <span
+                  class="text-xs font-bold uppercase tracking-wide text-base-content/60"
+                  >Roadmap</span
                 >
-                  Roadmap Tasks ({{ selectedProject.tasks.length }})
-                </h4>
+                <span class="badge badge-ghost badge-xs ml-auto">
+                  {{ selectedProject.tasks.length }} tasks
+                </span>
+              </summary>
+              <div class="border-t border-base-300/70 p-3">
                 <div class="space-y-2">
                   <div
                     v-for="task in activeTasks"
@@ -1036,154 +1053,12 @@
                   </details>
                 </div>
               </div>
-            </div>
+            </details>
 
-            <!-- PROJECT TASK CREATION (t-002) -->
-            <div v-if="linkedProject" class="shrink-0 kr-panel-flat p-4">
-              <h4
-                class="text-xs font-bold uppercase tracking-wide text-base-content/50"
-              >
-                Add Kind Robots Task
-              </h4>
-              <p class="mb-3 mt-1 text-xs text-base-content/40">
-                This creates a project-linked Kind Robots Todo. The roadmap
-                tasks above remain Conductor-owned.
-              </p>
-              <form class="space-y-2" @submit.prevent="submitProjectTask">
-                <input
-                  v-model="projectTaskTitle"
-                  type="text"
-                  placeholder="What needs doing?"
-                  class="input input-bordered w-full rounded-xl text-sm"
-                  :disabled="projectTaskSubmitting"
-                />
-                <textarea
-                  v-model="projectTaskDescription"
-                  placeholder="Optional context..."
-                  class="textarea textarea-bordered w-full rounded-xl text-sm"
-                  rows="2"
-                  :disabled="projectTaskSubmitting"
-                />
-                <div class="flex flex-wrap items-center gap-2">
-                  <select
-                    v-model="projectTaskCategory"
-                    class="select select-bordered select-sm rounded-xl"
-                  >
-                    <option value="AGENT">🤖 Agent Task</option>
-                    <option value="KAIZEN">✨ Kaizen</option>
-                    <option value="HONEYDO">🍯 Honey Do</option>
-                    <option value="DESIRED_FEATURE">⭐ Feature Idea</option>
-                  </select>
-                  <select
-                    v-model="projectTaskPriority"
-                    class="select select-bordered select-sm rounded-xl"
-                  >
-                    <option value="HIGH">🔴 High</option>
-                    <option value="NORMAL">🟡 Normal</option>
-                    <option value="LOW">🟢 Low</option>
-                  </select>
-                  <button
-                    type="submit"
-                    class="btn btn-primary btn-sm ml-auto rounded-xl"
-                    :disabled="
-                      !projectTaskTitle.trim() || projectTaskSubmitting
-                    "
-                  >
-                    <span
-                      v-if="projectTaskSubmitting"
-                      class="loading loading-spinner loading-xs"
-                    />
-                    Add Task
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            <!-- KAIZEN + POLISH PROMPT (t-004, t-006) -->
+            <!-- DESIRED FEATURES (creation lives in the top task/comment composer) -->
             <div
               v-if="linkedProject"
-              class="shrink-0 space-y-3 rounded-2xl border border-secondary/30 bg-secondary/5 p-4"
-            >
-              <div class="flex items-center gap-2">
-                <Icon name="kind-icon:sparkles" class="size-4 text-secondary" />
-                <h4
-                  class="text-xs font-bold uppercase tracking-wide text-secondary/70"
-                >
-                  Kaizen — Improvements
-                </h4>
-              </div>
-              <div v-if="projectKaizens.length" class="space-y-2">
-                <div
-                  v-for="kaizen in projectKaizens"
-                  :key="kaizen.id"
-                  class="flex items-start gap-2 rounded-xl border border-secondary/20 bg-base-100 px-3 py-2"
-                >
-                  <Icon
-                    name="kind-icon:sparkles"
-                    class="mt-0.5 size-3.5 shrink-0 text-secondary/50"
-                  />
-                  <div class="min-w-0 flex-1">
-                    <p class="text-sm leading-snug">{{ kaizen.title }}</p>
-                    <p
-                      v-if="kaizen.description"
-                      class="mt-0.5 text-xs text-base-content/50"
-                    >
-                      {{ kaizen.description }}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    class="btn btn-ghost btn-xs rounded-lg text-success"
-                    :disabled="todoStore.loading"
-                    @click="todoStore.updateTodo(kaizen.id, { status: 'DONE' })"
-                  >
-                    done
-                  </button>
-                </div>
-              </div>
-              <p v-else class="text-xs text-base-content/40">
-                No active kaizens for this project.
-              </p>
-              <form
-                class="flex flex-col gap-2"
-                @submit.prevent="submitPolishPrompt"
-              >
-                <label class="label py-0"
-                  ><span
-                    class="label-text text-xs font-semibold text-secondary/80"
-                    >How can I make this look better?</span
-                  ></label
-                >
-                <div class="flex gap-2">
-                  <input
-                    v-model="polishPrompt"
-                    type="text"
-                    placeholder="Any visual or UX idea for this project..."
-                    class="input input-bordered input-sm flex-1 rounded-xl text-sm"
-                    :disabled="polishSubmitting"
-                  />
-                  <button
-                    type="submit"
-                    class="btn btn-secondary btn-sm rounded-xl"
-                    :disabled="!polishPrompt.trim() || polishSubmitting"
-                  >
-                    <span
-                      v-if="polishSubmitting"
-                      class="loading loading-spinner loading-xs"
-                    />
-                    <Icon v-else name="kind-icon:sparkles" class="size-3.5" />
-                  </button>
-                </div>
-                <p v-if="polishMessage" class="text-xs text-success">
-                  {{ polishMessage }}
-                </p>
-              </form>
-            </div>
-
-            <!-- DESIRED FEATURES (t-007) -->
-            <div
-              v-if="linkedProject"
-              class="shrink-0 space-y-3 kr-panel-flat p-4"
+              class="kr-panel-flat shrink-0 space-y-3 p-4"
             >
               <div class="flex items-center gap-2">
                 <Icon name="kind-icon:check" class="size-4 text-primary" />
@@ -1258,28 +1133,8 @@
                 </div>
               </div>
               <p v-else class="text-xs text-base-content/40">
-                No feature ideas yet.
+                No feature ideas yet. Add one from the task / comment panel above.
               </p>
-              <form class="flex gap-2" @submit.prevent="addDesiredFeature">
-                <input
-                  v-model="newFeatureTitle"
-                  type="text"
-                  placeholder="New feature idea..."
-                  class="input input-bordered input-sm flex-1 rounded-xl text-sm"
-                  :disabled="newFeatureSubmitting"
-                />
-                <button
-                  type="submit"
-                  class="btn btn-outline btn-sm rounded-xl"
-                  :disabled="!newFeatureTitle.trim() || newFeatureSubmitting"
-                >
-                  <span
-                    v-if="newFeatureSubmitting"
-                    class="loading loading-spinner loading-xs"
-                  />
-                  Add
-                </button>
-              </form>
             </div>
           </div>
         </div>
@@ -1313,15 +1168,11 @@ import type { BuilderCard } from '@/stores/helpers/builderCards'
 import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
 import { IS_GALLERY_MODE, type GalleryMode } from '@/utils/galleryVocabulary'
 import EntityArtManager from '@/components/art/entity-art-manager.vue'
-import ConductorProjectChat from '@/components/conductor/conductor-project-chat.vue'
-import KaizenPopup from '@/components/conductor/kaizen-popup.vue'
 import SnapshotModeBanner from '@/components/navigation/snapshot-mode-banner.vue'
 
 type ProjectPatch = {
   description?: string | null
-  pitch?: string | null
   goal?: string | null
-  flavorText?: string | null
   liveUrl?: string | null
   repoUrl?: string | null
   isPublic?: boolean
@@ -1351,7 +1202,7 @@ const projectGalleryItems = computed<GalleryItem[]>(() =>
   projectStore.publicProjects.map((project) => ({
     id: project.id,
     title: project.title,
-    description: project.flavorText || '',
+    description: project.description || '',
     icon: projectIconPath(project.slug),
     card: projectCardPath(project.slug),
     hero: projectHeroPath(project.slug),
@@ -1373,7 +1224,7 @@ const newTodoPriority = ref<ProjectPriorityLevel>('NORMAL')
 const newTodoCategory = ref<TodoCategory>('AGENT')
 const todoFilter = ref<'OPEN' | 'DONE' | 'ARCHIVED'>('OPEN')
 const todoFilterOptions = ['OPEN', 'DONE', 'ARCHIVED'] as const
-const taskTab = ref<'AGENT' | 'SERENDIPITY' | 'KAIZEN' | 'HONEYDO'>('AGENT')
+const taskTab = ref<'AGENT' | 'SERENDIPITY' | 'HONEYDO'>('AGENT')
 
 let saveMessageTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -1515,12 +1366,14 @@ const filteredTodos = computed(() => {
   switch (taskTab.value) {
     case 'SERENDIPITY':
       return todoStore.serendipityAgentTodos
-    case 'KAIZEN':
-      return todoStore.kaizenTodos
     case 'HONEYDO':
       return todoStore.honeyDoTodos
     default:
-      return todoStore.regularAgentTodos
+      // Keep legacy KAIZEN rows reachable without preserving a dedicated
+      // Kaizen concept in the workspace UI.
+      return [...todoStore.regularAgentTodos, ...todoStore.kaizenTodos].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      )
   }
 })
 
@@ -1574,41 +1427,6 @@ const projectCollectionSlides = computed(() => {
       label: `Collection ${index + 1}`,
     }))
     .filter((slide) => Boolean(slide.src))
-})
-
-// Compact project state handed to the Project Assistant as system context.
-const projectContextText = computed(() => {
-  const project = selectedProject.value
-  const record = linkedProject.value
-  if (!project || !record) return ''
-
-  const lines: string[] = [
-    `Project: ${record.title || project.slug} (${project.kind}, ${project.progress}% complete)`,
-  ]
-  if (record.goal) lines.push(`Goal (100% looks like): ${record.goal}`)
-  if (record.pitch) lines.push(`Pitch: ${record.pitch}`)
-  if (record.description) lines.push(`Description: ${record.description}`)
-  if (project.milestones.length)
-    lines.push(
-      `Milestones: ${project.milestones
-        .map((milestone) => `${milestone.title} (${milestone.status})`)
-        .join('; ')}`,
-    )
-  if (project.notesFromSilas)
-    lines.push(`Notes from Silas: ${project.notesFromSilas}`)
-
-  const summary = taskStatusSummary(project)
-    .map(([status, count]) => `${count} ${status}`)
-    .join(', ')
-  if (summary) lines.push(`Tasks: ${summary}`)
-
-  const needsHuman = project.tasks
-    .filter((task) => task.status === 'needs-human')
-    .map((task) => `- ${task.id}: ${task.title}`)
-  if (needsHuman.length)
-    lines.push(`Waiting on a human decision:\n${needsHuman.join('\n')}`)
-
-  return lines.join('\n')
 })
 
 // Banner art failure flags — reset whenever the selected project changes so a
@@ -2032,29 +1850,12 @@ function milestoneBadgeClass(status: string) {
   return 'badge-ghost'
 }
 
-// Project-scoped task creation (t-002)
+// Project-scoped task/comment creation.
 const projectTaskTitle = ref('')
 const projectTaskDescription = ref('')
 const projectTaskCategory = ref<TodoCategory>('AGENT')
 const projectTaskPriority = ref<ProjectPriorityLevel>('NORMAL')
 const projectTaskSubmitting = ref(false)
-
-// Kaizen / polish prompt (t-004, t-006)
-const polishPrompt = ref('')
-const polishSubmitting = ref(false)
-const polishMessage = ref('')
-
-// Desired features (t-007)
-const newFeatureTitle = ref('')
-const newFeatureSubmitting = ref(false)
-
-const projectKaizens = computed(() => {
-  if (!linkedProject.value) return []
-  return todoStore.openTodos.filter(
-    (todo) =>
-      todo.projectId === linkedProject.value?.id && todo.category === 'KAIZEN',
-  )
-})
 
 const projectFeatures = computed(() => {
   if (!linkedProject.value) return []
@@ -2076,15 +1877,32 @@ watch(
 )
 
 async function submitProjectTask() {
-  if (!linkedProject.value || !projectTaskTitle.value.trim()) return
+  if (
+    !linkedProject.value ||
+    !selectedProject.value ||
+    !projectTaskTitle.value.trim()
+  )
+    return
+
   projectTaskSubmitting.value = true
   try {
+    const userContext = projectTaskDescription.value.trim()
+    const description =
+      projectTaskCategory.value === 'AGENT'
+        ? [`Project: ${selectedProject.value.slug}`, userContext]
+            .filter(Boolean)
+            .join('\n\n')
+        : userContext || null
+
     await todoStore.createTodo({
       title: projectTaskTitle.value.trim(),
-      description: projectTaskDescription.value.trim() || null,
+      description,
       category: projectTaskCategory.value,
       priority: projectTaskPriority.value,
       projectId: linkedProject.value.id,
+      ...(projectTaskCategory.value === 'DESIRED_FEATURE'
+        ? { order: projectFeatures.value.length }
+        : {}),
     })
     projectTaskTitle.value = ''
     projectTaskDescription.value = ''
@@ -2092,45 +1910,6 @@ async function submitProjectTask() {
     projectTaskPriority.value = 'NORMAL'
   } finally {
     projectTaskSubmitting.value = false
-  }
-}
-
-async function submitPolishPrompt() {
-  if (!linkedProject.value || !polishPrompt.value.trim()) return
-  polishSubmitting.value = true
-  polishMessage.value = ''
-  try {
-    await todoStore.createTodo({
-      title: polishPrompt.value.trim(),
-      category: 'KAIZEN',
-      priority: 'NORMAL',
-      projectId: linkedProject.value.id,
-    })
-    polishPrompt.value = ''
-    polishMessage.value = 'Kaizen logged!'
-    setTimeout(() => {
-      polishMessage.value = ''
-    }, 3000)
-  } finally {
-    polishSubmitting.value = false
-  }
-}
-
-async function addDesiredFeature() {
-  if (!linkedProject.value || !newFeatureTitle.value.trim()) return
-  newFeatureSubmitting.value = true
-  try {
-    await todoStore.createTodo({
-      title: newFeatureTitle.value.trim(),
-      category: 'DESIRED_FEATURE',
-      priority: 'NORMAL',
-      projectId: linkedProject.value.id,
-      order: projectFeatures.value.length,
-    })
-    newFeatureTitle.value = ''
-    await todoStore.fetchProjectTodos(linkedProject.value.id)
-  } finally {
-    newFeatureSubmitting.value = false
   }
 }
 

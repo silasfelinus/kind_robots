@@ -355,6 +355,49 @@ for (const model of CORE_MODELS) {
 }
 ok(`${CORE_MODELS.length} core objects carry all four art variants`)
 
+/* ------------------------------------------------------------------ *
+ * 7. kr-gallery's built-in renderer must implement the same vocabulary.
+ * ------------------------------------------------------------------ */
+const sharedGallery = stripComments(
+  await readFile('components/gallery/kr-gallery.vue', 'utf8'),
+)
+const projectGallery = stripComments(
+  await readFile('components/pages/conductor-project-gallery-page.vue', 'utf8'),
+)
+
+if (!sharedGallery.includes(`v-if="mode === 'icons'"`)) {
+  fail(
+    'kr-gallery has no dedicated Icons branch. Icons are a text-forward row, not a centered mini-card.',
+  )
+}
+if (!sharedGallery.includes('size-16 shrink-0')) {
+  fail(
+    'kr-gallery Icons mode no longer reserves a small fixed square intro image before the text.',
+  )
+}
+if (
+  !sharedGallery.includes(
+    `:class="mode === 'cards' ? 'aspect-2/3' : 'aspect-video'"`,
+  )
+) {
+  fail(
+    'kr-gallery built-in Cards/Heroes geometry drifted. Cards must be 2:3 portrait and Heroes 16:9.',
+  )
+}
+if (/<h2[^>]*\btruncate\b/.test(sharedGallery)) {
+  fail(
+    'kr-gallery truncates a built-in item title. Gallery titles must wrap so the shared renderer does not silently discard names.',
+  )
+}
+if (/<template\s+#item(?:=|\s|>)/.test(projectGallery)) {
+  fail(
+    'conductor-project-gallery-page.vue reintroduced a bespoke item renderer. Projects fit GalleryItem and must exercise the shared renderer so gallery geometry cannot drift separately again.',
+  )
+}
+if (!failures.length) {
+  ok('kr-gallery built-in Cards/Heroes/Icons renderer follows the shared vocabulary')
+}
+
 /* ------------------------------------------------------------------ */
 
 for (const note of notes) console.log(note)
@@ -367,5 +410,6 @@ if (failures.length) {
 
 console.log(
   '\nGallery consistency contract passed: grids size to their container, cards ' +
-    'follow the gallery mode, and every mode bar is wired to something.',
+    'follow the gallery mode, built-in rendering matches the shared vocabulary, ' +
+    'and every mode bar is wired to something.',
 )

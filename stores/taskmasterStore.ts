@@ -3,7 +3,7 @@
 // behind an explicit per-item Apply action; conductor roadmap YAML is read-only.
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import { createNarrativeArtJobsController } from '@/stores/helpers/narrativeArtJobsHelper'
+import { createPersistedNarrativeArtJobsController } from '@/stores/helpers/persistedNarrativeArtJobsHelper'
 import { useChatStore } from '@/stores/chatStore'
 import { useConductorStore } from '@/stores/conductorStore'
 import { useProjectStore } from '@/stores/projectStore'
@@ -179,7 +179,7 @@ export const useTaskmasterStore = defineStore('taskmasterStore', () => {
   const projectStore = useProjectStore()
   const todoStore = useTodoStore()
   const userStore = useUserStore()
-  const narrativeArtJobs = createNarrativeArtJobsController()
+  const narrativeArtJobs = createPersistedNarrativeArtJobsController()
 
   const session = ref<TaskmasterSession | null>(null)
   const isWeaving = ref(false)
@@ -630,10 +630,14 @@ export const useTaskmasterStore = defineStore('taskmasterStore', () => {
   }
 
   function resumeNarrativeArtJobs(): void {
-    for (const beat of session.value?.beats ?? []) {
-      if (!beat.art) continue
-      narrativeArtJobs.resume(beat.art, (art) => updateBeatArt(beat.id, art))
-    }
+    // davinci/t-025: shared resume-all-cached-entries wiring (see
+    // persistedNarrativeArtJobsHelper.ts) -- beats already ride inside this
+    // store's own persisted session JSON, so this only needs the resume
+    // loop, not the helper's cache read/write.
+    narrativeArtJobs.resumeEntries(
+      (session.value?.beats ?? []).map((beat) => [beat.id, beat.art] as const),
+      (beatId, art) => updateBeatArt(beatId, art),
+    )
   }
 
   function retryBeatArt(beatId: string): void {

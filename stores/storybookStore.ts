@@ -3,7 +3,7 @@
 // task write-back behavior; the two products share presentation only.
 import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
-import { createNarrativeArtJobsController } from '@/stores/helpers/narrativeArtJobsHelper'
+import { createPersistedNarrativeArtJobsController } from '@/stores/helpers/persistedNarrativeArtJobsHelper'
 import { createStorybookLibraryController } from '@/stores/helpers/storybookLibraryHelper'
 import { useChatStore } from '@/stores/chatStore'
 import { useUserStore } from '@/stores/userStore'
@@ -329,7 +329,7 @@ function normalizeRestoredSession(value: StorybookSession): StorybookSession {
 export const useStorybookStore = defineStore('storybookStore', () => {
   const chatStore = useChatStore()
   const userStore = useUserStore()
-  const narrativeArtJobs = createNarrativeArtJobsController()
+  const narrativeArtJobs = createPersistedNarrativeArtJobsController()
 
   const setupDraft = ref<StorybookSetupDraft>(defaultDraft())
   const session = ref<StorybookSession | null>(null)
@@ -507,10 +507,14 @@ export const useStorybookStore = defineStore('storybookStore', () => {
   }
 
   function resumeNarrativeArtJobs(): void {
-    for (const beat of session.value?.beats ?? []) {
-      if (!beat.art) continue
-      narrativeArtJobs.resume(beat.art, (art) => updateBeatArt(beat.id, art))
-    }
+    // davinci/t-025: shared resume-all-cached-entries wiring (see
+    // persistedNarrativeArtJobsHelper.ts) -- beats already ride inside this
+    // store's own persisted session JSON, so this only needs the resume
+    // loop, not the helper's cache read/write.
+    narrativeArtJobs.resumeEntries(
+      (session.value?.beats ?? []).map((beat) => [beat.id, beat.art] as const),
+      (beatId, art) => updateBeatArt(beatId, art),
+    )
   }
 
   function retryBeatArt(beatId: string): void {

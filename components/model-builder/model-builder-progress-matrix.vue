@@ -26,9 +26,14 @@
           class="btn btn-xs btn-primary rounded-xl"
           :disabled="autoBuildAllDisabled"
           :title="autoBuildAllTitle"
+          :aria-busy="store.autoBuilding"
           @click="store.autoBuildRun()"
         >
-          <span v-if="store.autoBuilding" class="loading loading-dots loading-xs" />
+          <span
+            v-if="store.autoBuilding"
+            class="loading loading-dots loading-xs"
+            aria-hidden="true"
+          />
           <template v-else>
             <Icon name="kind-icon:bolt" class="h-3.5 w-3.5" />
             Auto-build all

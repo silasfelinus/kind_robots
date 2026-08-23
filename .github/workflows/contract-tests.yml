@@ -860,6 +860,12 @@ jobs:
       - name: Model Builder draft source-snapshot guard contract
         run: npm run test:model-builder-draft-source-snapshot-guard
 
+      - name: Model Builder run-swap singleton-leak guard self-test
+        run: npm run test:model-builder-run-swap-singleton-leak-guard-selftest
+
+      - name: Model Builder run-swap singleton-leak guard contract
+        run: npm run test:model-builder-run-swap-singleton-leak-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

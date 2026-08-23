@@ -201,133 +201,6 @@
             </button>
           </div>
         </template>
-
-        <template #item="{ item, mode, artSrc, open: openItem }">
-          <button
-            v-if="mode === 'icons'"
-            type="button"
-            class="group flex min-w-0 items-center gap-3 rounded-2xl border border-(--kr-surface-border) bg-(--kr-surface) p-3 text-left transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg"
-            @click="openItem"
-          >
-            <div
-              class="relative size-20 shrink-0 overflow-hidden rounded-xl bg-base-200"
-            >
-              <div
-                class="absolute inset-0 flex items-center justify-center bg-linear-to-br from-base-200 to-base-300 text-base-content/35"
-              >
-                <Icon name="kind-icon:image" class="size-8" />
-              </div>
-              <img
-                v-if="artSrc"
-                :src="artSrc"
-                :alt="(item as Item).title"
-                class="absolute inset-0 size-full object-cover transition duration-300 group-hover:scale-105"
-                @error="hideBrokenImage"
-              />
-            </div>
-            <div class="min-w-0 flex-1">
-              <div class="mb-1 flex flex-wrap items-center gap-1">
-                <span
-                  v-for="badge in (item as Item).badges"
-                  :key="badge.label"
-                  class="badge badge-xs"
-                  :class="badge.class"
-                >
-                  {{ badge.label }}
-                </span>
-                <span
-                  class="badge badge-xs"
-                  :class="priorityClass((item as Item).priority)"
-                >
-                  {{ (item as Item).priority }}
-                </span>
-              </div>
-              <h2 class="break-words font-black leading-tight">
-                {{ (item as Item).title }}
-              </h2>
-              <p class="mt-1 line-clamp-2 text-xs text-base-content/60">
-                {{ (item as Item).description }}
-              </p>
-              <p class="mt-2 text-[0.68rem] font-semibold text-base-content/45">
-                {{ (item as Item).meta }}
-              </p>
-              <progress
-                class="progress progress-primary mt-1 h-1 w-full"
-                :value="(item as Item).progressPercent"
-                max="100"
-              />
-            </div>
-          </button>
-
-          <button
-            v-else
-            type="button"
-            class="group overflow-hidden rounded-2xl border border-(--kr-surface-border) bg-(--kr-surface) text-left transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg"
-            @click="openItem"
-          >
-            <div
-              class="relative overflow-hidden bg-base-200"
-              :class="mode === 'cards' ? 'aspect-[2/3]' : 'aspect-video'"
-            >
-              <div
-                class="absolute inset-0 flex items-center justify-center bg-linear-to-br from-base-200 to-base-300 text-base-content/35"
-              >
-                <Icon name="kind-icon:image" class="size-10" />
-              </div>
-              <img
-                v-if="artSrc"
-                :src="artSrc"
-                :alt="(item as Item).title"
-                class="absolute inset-0 size-full object-cover transition duration-500 group-hover:scale-105"
-                @error="hideBrokenImage"
-              />
-              <div
-                class="absolute inset-0 bg-linear-to-t from-base-300/80 via-transparent to-transparent"
-              />
-              <div class="absolute left-2 top-2 flex flex-wrap gap-1">
-                <span
-                  v-for="badge in (item as Item).badges"
-                  :key="badge.label"
-                  class="badge badge-xs"
-                  :class="badge.class"
-                >
-                  {{ badge.label }}
-                </span>
-              </div>
-              <img
-                v-if="(item as Item).icon"
-                :src="(item as Item).icon"
-                alt=""
-                class="absolute bottom-2 left-2 size-11 rounded-xl border border-white/25 object-cover shadow"
-                @error="hideBrokenImage"
-              />
-            </div>
-            <div class="space-y-1.5 p-3">
-              <div class="flex items-start gap-2">
-                <h2 class="min-w-0 flex-1 break-words font-black leading-tight">
-                  {{ (item as Item).title }}
-                </h2>
-                <span
-                  class="badge badge-xs shrink-0"
-                  :class="priorityClass((item as Item).priority)"
-                >
-                  {{ (item as Item).priority }}
-                </span>
-              </div>
-              <p class="line-clamp-2 text-xs text-base-content/60">
-                {{ (item as Item).description }}
-              </p>
-              <p class="text-[0.68rem] font-semibold text-base-content/45">
-                {{ (item as Item).meta }}
-              </p>
-              <progress
-                class="progress progress-primary h-1 w-full"
-                :value="(item as Item).progressPercent"
-                max="100"
-              />
-            </div>
-          </button>
-        </template>
       </kr-gallery>
     </main>
   </section>
@@ -457,11 +330,6 @@ function onSlugBlur() {
   createForm.value.slug = slugify(createForm.value.slug)
 }
 
-function hideBrokenImage(event: Event) {
-  const target = event.currentTarget
-  if (target instanceof HTMLImageElement) target.remove()
-}
-
 const loading = computed(() => projects.loading || conductor.pending)
 const error = computed(() => projects.error || conductor.error || '')
 const conductorBySlug = computed(
@@ -553,7 +421,10 @@ function toItem(record: ProjectWithRelations): Item {
   const metaParts = [`${progress}%`, `${done}/${total} done`]
   if (blocked) metaParts.push(`${blocked} blocked`)
   if (needsHuman) metaParts.push(`${needsHuman} need you`)
-  const badges = [{ label: statusLabel(status), class: statusClass(status) }]
+  const badges = [
+    { label: statusLabel(status), class: statusClass(status) },
+    { label: priority, class: priorityClass(priority) },
+  ]
   if (drift) badges.push({ label: 'drift', class: 'badge-warning' })
   return {
     id: record.id,

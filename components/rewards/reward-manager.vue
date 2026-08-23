@@ -9,7 +9,23 @@
     @refresh="refreshManagerData"
   >
     <template #rewards>
-      <reward-interact class="h-full min-h-0 flex-1 overflow-hidden" />
+      <div class="flex h-full min-h-0 flex-1 flex-col gap-2">
+        <div
+          v-if="rewardStore.selectedReward"
+          class="flex shrink-0 justify-end"
+        >
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm rounded-xl"
+            title="Brainstorm variations grounded in this Reward"
+            @click="startBrainstormWithReward"
+          >
+            <Icon name="kind-icon:brain" class="size-4" />
+            <span class="hidden sm:inline">Brainstorm variations</span>
+          </button>
+        </div>
+        <reward-interact class="h-full min-h-0 flex-1 overflow-hidden" />
+      </div>
     </template>
 
     <template #add>
@@ -59,6 +75,19 @@ async function refreshManagerData() {
 
 function goToRewards() {
   navStore.setDashboardTab(dashboardKey, 'rewards')
+}
+
+function startBrainstormWithReward(): void {
+  const reward = rewardStore.selectedReward
+  if (!reward?.id) return
+  void navigateTo({
+    path: '/brainstorm',
+    query: {
+      source: 'reward',
+      sourceId: String(reward.id),
+      intent: `Generate variations for the Reward "${reward.name || 'this Reward'}" that preserve its effect and tone.`,
+    },
+  })
 }
 
 async function handleRewardSaved() {

@@ -14,16 +14,17 @@
 //
 // Started with Character and Dream (BrainstormSourceRef.modelType is a free
 // string; these were the first two with real adapters). Scenario joined them
-// in brainstorm/t-014. Reward, Bot, Project, and Prompt can each register a
-// BrainstormSourceAdapter the same way, with no new API surface and no
-// bespoke endpoint -- just another entry in BRAINSTORM_SOURCE_ADAPTERS
-// backed by that entity's existing store.
+// in brainstorm/t-014, Reward in brainstorm/t-028. Bot, Project, and Prompt
+// can each register a BrainstormSourceAdapter the same way, with no new API
+// surface and no bespoke endpoint -- just another entry in
+// BRAINSTORM_SOURCE_ADAPTERS backed by that entity's existing store.
 //
 // The store-agnostic dispatch/fallback logic lives in
 // brainstormSourceAdapterKit.ts (no Pinia imports, unit-testable with plain
 // tsx) and is re-exported here bound to the real registry below.
 import { useCharacterStore } from '@/stores/characterStore'
 import { useDreamStore } from '@/stores/dreamStore'
+import { useRewardStore } from '@/stores/rewardStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { resolveArtImageSrc } from '@/utils/artImageSrc'
 import {
@@ -192,6 +193,54 @@ const scenarioAdapter: BrainstormSourceAdapter = {
   },
 }
 
+const rewardAdapter: BrainstormSourceAdapter = {
+  modelType: 'reward',
+  label: 'Reward',
+  async resolve(ref) {
+    if (!ref.id) return null
+    const store = useRewardStore()
+    // fetchRewardById has no force param (unlike character/scenario) -- it
+    // already serves a cached row from store.rewards before hitting the
+    // network, which is fine here since Reward carries no view-permission
+    // gate the way Character/Scenario's canView check does.
+    const reward = await store.fetchRewardById(ref.id)
+    if (!reward) return null
+
+    return {
+      modelType: 'reward',
+      id: reward.id,
+      title: reward.name || `Reward #${reward.id}`,
+      subtitle: reward.description || reward.flavorText || undefined,
+      thumbnailUrl: reward.imagePath || null,
+    }
+  },
+  async search(query) {
+    const store = useRewardStore()
+    // Same fail-closed contract as characterAdapter/dreamAdapter/
+    // scenarioAdapter: a failed fresh fetch must never fall back to
+    // searching a possibly-stale cache.
+    const freshRewards = await fetchFreshSourceRows(
+      () => store.fetchRewards(true),
+      () => Boolean(store.error),
+    )
+
+    return freshRewards
+      .filter((reward) =>
+        matchesQuery(
+          [reward.name, reward.description, reward.flavorText],
+          query,
+        ),
+      )
+      .slice(0, SEARCH_RESULT_LIMIT)
+      .map((reward) => ({
+        modelType: 'reward',
+        id: reward.id,
+        title: reward.name || `Reward #${reward.id}`,
+        subtitle: reward.description || undefined,
+      }))
+  },
+}
+
 /** The adapter registry. Keys are lowercase modelType strings. */
 export const BRAINSTORM_SOURCE_ADAPTERS: Record<
   string,
@@ -200,6 +249,7 @@ export const BRAINSTORM_SOURCE_ADAPTERS: Record<
   character: characterAdapter,
   dream: dreamAdapter,
   scenario: scenarioAdapter,
+  reward: rewardAdapter,
 }
 
 export function listBrainstormSourceAdapters(): BrainstormSourceAdapter[] {

@@ -1,5 +1,5 @@
 <template>
-  <section class="flex min-h-0 flex-col gap-2 pb-2">
+  <section class="project-detail-shell flex min-h-0 flex-col gap-2 pb-2">
     <div
       class="kr-toolbar flex-wrap rounded-xl border border-base-300/70 bg-(--kr-surface-raised)/90 px-2.5 py-1.5"
     >
@@ -107,7 +107,7 @@
 
     <div
       v-if="linkedProject"
-      class="project-detail-primary grid shrink-0 gap-2 xl:grid-cols-[minmax(0,3fr)_minmax(22rem,2fr)] xl:items-start"
+      class="project-detail-primary grid shrink-0 gap-2"
     >
       <EntityArtManager
         class="project-art-compact min-w-0 !p-2"
@@ -126,7 +126,7 @@
             </span>
             <span class="ml-auto text-[0.65rem] text-base-content/35">saves on blur</span>
           </header>
-          <div class="grid gap-2 p-3 sm:grid-cols-2">
+          <div class="project-profile-fields grid gap-2 p-3">
             <div class="form-control min-w-0">
               <label class="label py-0.5">
                 <span class="label-text text-xs font-semibold">Goal</span>
@@ -767,6 +767,26 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.project-detail-shell {
+  container-type: inline-size;
+}
+
+.project-detail-primary,
+.project-profile-fields {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@container (min-width: 72rem) {
+  .project-detail-primary {
+    grid-template-columns: minmax(0, 3fr) minmax(22rem, 2fr);
+    align-items: start;
+  }
+
+  .project-profile-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 :deep(.project-art-compact header p),
 :deep(.project-art-compact header .badge),
 :deep(.project-art-compact .mt-2.flex.flex-wrap.justify-center) {

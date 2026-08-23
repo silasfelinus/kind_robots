@@ -1,6 +1,7 @@
 import { suggestArtAssetPrompt } from '@/stores/helpers/artAssetSuggest'
 import { usePageStore } from '@/stores/pageStore'
 import { useProjectStore } from '@/stores/projectStore'
+import { useScenarioStore } from '@/stores/scenarioStore'
 import {
   normalizeArtModelType,
   type ArtModelRef,
@@ -38,6 +39,7 @@ type ManagerContext = {
 
 type PageStore = ReturnType<typeof usePageStore>
 type ProjectStore = ReturnType<typeof useProjectStore>
+type ScenarioStore = ReturnType<typeof useScenarioStore>
 
 const BUTTON_MARKER = 'data-entity-art-prompt-suggest'
 const attached = new WeakSet<HTMLTextAreaElement>()
@@ -45,6 +47,12 @@ const PROJECT_ART_SLOTS: EntityArtSlot[] = [
   { field: 'heroPath', label: 'Hero', width: 1280, height: 720 },
   { field: 'cardPath', label: 'Card', width: 512, height: 768 },
   { field: 'imagePath', label: 'Icon', width: 256, height: 256 },
+]
+const SCENARIO_ART_SLOTS: EntityArtSlot[] = [
+  { field: 'imagePath', label: 'Scenario image', width: 1536, height: 864 },
+  { field: 'iconPath', label: 'Icon', width: 256, height: 256 },
+  { field: 'cardPath', label: 'Card', width: 512, height: 768 },
+  { field: 'heroPath', label: 'Hero', width: 1280, height: 720 },
 ]
 
 function cleanString(value: unknown): string {
@@ -106,7 +114,13 @@ function pathModelReference(): {
     const identifier = cleanString(segments[index + 1])
     const id = positiveInteger(identifier)
     const slug = !id && identifier ? identifier : undefined
-    if (id || slug) return { entityType, ...(id ? { id } : {}), ...(slug ? { slug } : {}) }
+    if (id || slug) {
+      return {
+        entityType,
+        ...(id ? { id } : {}),
+        ...(slug ? { slug } : {}),
+      }
+    }
   }
 
   return null
@@ -118,15 +132,18 @@ function managerContextFromPage(element: HTMLElement): ManagerContext | null {
     '[data-art-model], [data-model-id], [data-model-slug]',
   )
   const entityType =
-    normalizeArtModelType(context?.dataset.artModel || context?.dataset.modelType) ||
-    pathRef?.entityType
+    normalizeArtModelType(
+      context?.dataset.artModel || context?.dataset.modelType,
+    ) || pathRef?.entityType
   if (!entityType) return null
 
   const id = positiveInteger(
     context?.dataset.modelId || context?.dataset.artModelId || pathRef?.id,
   )
   const slug = cleanString(
-    context?.dataset.modelSlug || context?.dataset.artModelSlug || pathRef?.slug,
+    context?.dataset.modelSlug ||
+      context?.dataset.artModelSlug ||
+      pathRef?.slug,
   )
   if (!id && !slug) return null
 
@@ -170,17 +187,57 @@ function managerContextFromWorkspaceProject(
   }
 }
 
+function managerEntityTypeFromChrome(
+  element: HTMLElement,
+): ArtModelType | null {
+  const section = element.closest<HTMLElement>('section')
+  const header = section?.querySelector<HTMLElement>(':scope > header')
+  if (!header) return null
+
+  for (const badge of header.querySelectorAll<HTMLElement>('.badge')) {
+    const entityType = normalizeArtModelType(badge.textContent)
+    if (entityType) return entityType
+  }
+  return null
+}
+
+function managerContextFromSelectedScenario(
+  element: HTMLElement,
+  scenarioStore: ScenarioStore,
+): ManagerContext | null {
+  if (managerEntityTypeFromChrome(element) !== 'scenario') return null
+
+  const scenario = scenarioStore.selectedScenario
+  if (!scenario) return null
+
+  const id = positiveInteger(scenario.id)
+  const slug = cleanString(scenario.slug)
+  if (!id && !slug) return null
+
+  return {
+    entityType: 'scenario',
+    entity: {
+      ...(id ? { id } : {}),
+      ...(slug ? { slug } : {}),
+      title: scenario.title,
+    },
+    slots: SCENARIO_ART_SLOTS,
+  }
+}
+
 function managerContext(
   element: HTMLElement,
   pageStore: PageStore,
   projectStore: ProjectStore,
+  scenarioStore: ScenarioStore,
 ): ManagerContext | null {
   const section = element.closest<HTMLElement>('section')
   return (
     managerContextFromVue(element) ||
     (section ? managerContextFromVue(section) : null) ||
     managerContextFromPage(element) ||
-    managerContextFromWorkspaceProject(element, pageStore, projectStore)
+    managerContextFromWorkspaceProject(element, pageStore, projectStore) ||
+    managerContextFromSelectedScenario(element, scenarioStore)
   )
 }
 
@@ -265,6 +322,7 @@ function addSuggestButton(
   textarea: HTMLTextAreaElement,
   pageStore: PageStore,
   projectStore: ProjectStore,
+  scenarioStore: ScenarioStore,
 ): void {
   if (attached.has(textarea)) return
   const form = textarea.closest<HTMLFormElement>('form')
@@ -289,7 +347,12 @@ function addSuggestButton(
 
   button.addEventListener('click', async () => {
     if (button.dataset.loading === 'true') return
-    const context = managerContext(textarea, pageStore, projectStore)
+    const context = managerContext(
+      textarea,
+      pageStore,
+      projectStore,
+      scenarioStore,
+    )
     if (!context) {
       button.textContent = 'Could not identify record'
       window.setTimeout(() => {
@@ -338,7 +401,6 @@ function addSuggestButton(
         maxTokens: variant === 'icon' ? 300 : 500,
       })
 
-      if (!suggestion) throw new Error('The suggestion endpoint returned no prompt.')
       setTextareaValue(textarea, suggestion)
       textarea.focus()
       button.textContent = 'Prompt suggested ✓'
@@ -346,13 +408,14 @@ function addSuggestButton(
         button.textContent = initialLabel
       }, 1800)
     } catch (error) {
-      button.textContent = 'Suggestion failed'
-      button.title =
-        error instanceof Error ? error.message : 'Prompt suggestion failed.'
+      const detail =
+        error instanceof Error ? cleanString(error.message).slice(0, 72) : ''
+      button.textContent = detail ? `Suggestion failed · ${detail}` : 'Suggestion failed'
+      button.title = detail || 'Prompt suggestion failed.'
       window.setTimeout(() => {
         button.textContent = initialLabel
         button.title = 'Generate an editable art prompt from the canonical record'
-      }, 2600)
+      }, 5000)
     } finally {
       button.dataset.loading = 'false'
       button.disabled = textarea.disabled
@@ -364,20 +427,22 @@ function scanForEntityArtPrompts(
   root: ParentNode,
   pageStore: PageStore,
   projectStore: ProjectStore,
+  scenarioStore: ScenarioStore,
 ): void {
   for (const textarea of root.querySelectorAll<HTMLTextAreaElement>(
     'textarea[maxlength="5000"]',
   )) {
-    addSuggestButton(textarea, pageStore, projectStore)
+    addSuggestButton(textarea, pageStore, projectStore, scenarioStore)
   }
 }
 
 export default defineNuxtPlugin((nuxtApp) => {
   const pageStore = usePageStore()
   const projectStore = useProjectStore()
+  const scenarioStore = useScenarioStore()
 
   nuxtApp.hook('app:mounted', () => {
-    scanForEntityArtPrompts(document, pageStore, projectStore)
+    scanForEntityArtPrompts(document, pageStore, projectStore, scenarioStore)
     const observer = new MutationObserver((records) => {
       for (const record of records) {
         for (const node of record.addedNodes) {
@@ -387,9 +452,15 @@ export default defineNuxtPlugin((nuxtApp) => {
               node as HTMLTextAreaElement,
               pageStore,
               projectStore,
+              scenarioStore,
             )
           }
-          scanForEntityArtPrompts(node, pageStore, projectStore)
+          scanForEntityArtPrompts(
+            node,
+            pageStore,
+            projectStore,
+            scenarioStore,
+          )
         }
       }
     })

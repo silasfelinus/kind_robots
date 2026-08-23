@@ -16,7 +16,6 @@ on:
       - 'stores/dailyDreamArchiveStore.ts'
       - 'server/api/dreams/daily-archive.get.ts'
       - 'plugins/entity-art-prompt-suggest.client.ts'
-      - 'plugins/project-art-prompt-suggest.client.ts'
       - 'stores/helpers/artAssetSuggest.ts'
       - 'server/api/suggest.post.ts'
       - 'server/utils/suggest/sheets/artAssetSuggest.ts'

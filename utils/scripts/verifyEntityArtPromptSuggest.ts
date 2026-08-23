@@ -17,9 +17,15 @@ expectContains('plugins/entity-art-prompt-suggest.client.ts', [
   "import { suggestArtAssetPrompt } from '@/stores/helpers/artAssetSuggest'",
   "import { usePageStore } from '@/stores/pageStore'",
   "import { useProjectStore } from '@/stores/projectStore'",
+  "import { useScenarioStore } from '@/stores/scenarioStore'",
   '✨ Suggest prompt',
   'managerContextFromVue',
   'managerContextFromWorkspaceProject',
+  'managerContextFromSelectedScenario',
+  'managerEntityTypeFromChrome',
+  "managerEntityTypeFromChrome(element) !== 'scenario'",
+  'scenarioStore.selectedScenario',
+  "{ field: 'imagePath', label: 'Scenario image', width: 1536, height: 864 }",
   "element.closest('.project-art-compact')",
   'projectStore.projectForSlug(workspaceSlug)',
   "entityType: 'project'",
@@ -38,6 +44,9 @@ expectContains('stores/helpers/artAssetSuggest.ts', [
   "stepKey: 'model-art'",
   '/api/suggest',
   'entityRef: input.entityRef',
+  'await serverStore.initialize({ fetchRemote: true })',
+  "throw new Error(result.message || 'Prompt suggestion failed.')",
+  "throw new Error('The suggestion model returned no prompt.')",
 ])
 
 expectContains('server/api/suggest.post.ts', [

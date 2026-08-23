@@ -178,7 +178,7 @@
         </span>
         <span class="ml-auto text-[0.65rem] text-base-content/35">saves on blur</span>
       </summary>
-      <div class="grid gap-3 border-t border-base-300/70 p-3 lg:grid-cols-2">
+      <div class="grid gap-3 border-t border-base-300/70 p-3">
         <div class="form-control">
           <label class="label py-0.5">
             <span class="label-text text-xs font-semibold">Goal</span>
@@ -766,8 +766,26 @@ onBeforeUnmount(() => {
 <style scoped>
 :deep(.project-art-compact header p),
 :deep(.project-art-compact header .badge),
-:deep(.project-art-compact .mt-3.grid.gap-3),
 :deep(.project-art-compact .mt-2.flex.flex-wrap.justify-center) {
+  display: none;
+}
+
+:deep(.project-art-compact:has(.group.relative.mt-3.min-h-40) .mt-3.grid.gap-3) {
+  display: none;
+}
+
+:deep(.project-art-compact .mt-3.grid.gap-3) {
+  margin-top: 0.5rem;
+}
+
+:deep(.project-art-compact .mt-3.grid.gap-3 > div) {
+  height: 20vh;
+  min-height: 8rem;
+  max-height: 12rem;
+  aspect-ratio: auto !important;
+}
+
+:deep(.project-art-compact .mt-3.grid.gap-3 aside) {
   display: none;
 }
 

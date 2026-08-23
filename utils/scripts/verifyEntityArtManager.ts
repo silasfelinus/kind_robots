@@ -51,15 +51,20 @@ expectContains('server/utils/entityArt.ts', [
 
 // interface-vision/t-026: conductor-art-gallery.vue's bespoke Project carousel
 // was deleted in favor of this one canonical component. Project now adopts it
-// directly (entity-type="project") with an extra collection-carousel panel
-// that only mounts when a caller passes collectionSlides.
+// directly (entity-type="project") with an extra collection-carousel panel.
+// The shared manager also owns the touch/pointer loop so canonical variants,
+// preserved inspirations, and collection images behave the same on every caller.
 expectContains('components/art/entity-art-manager.vue', [
   'Queued as ArtJob',
   'startPolling(activeJobId)',
   '`/api/art/entities/${props.entityType}/${props.entity.id}/replace`',
   'collectionSlides',
-  'hasCarousel',
   'carouselSlides',
+  'for (const item of history.value)',
+  'const hasCarousel = computed(() => carouselSlides.value.length > 1)',
+  '@pointerdown="beginCarouselSwipe"',
+  '@pointerup="endCarouselSwipe"',
+  'stepCarousel(delta < 0 ? 1 : -1)',
 ])
 
 expectContains('components/pages/conductor-page.vue', [

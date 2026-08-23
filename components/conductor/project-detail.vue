@@ -1,5 +1,5 @@
 <template>
-  <section class="flex min-h-0 flex-col gap-2 pb-2">
+  <section class="project-detail-shell flex min-h-0 flex-col gap-2 pb-2">
     <div
       class="kr-toolbar flex-wrap rounded-xl border border-base-300/70 bg-(--kr-surface-raised)/90 px-2.5 py-1.5"
     >
@@ -105,215 +105,139 @@
       </button>
     </div>
 
-    <EntityArtManager
+    <div
       v-if="linkedProject"
-      class="project-art-compact !p-2"
-      entity-type="project"
-      :entity="linkedProject"
-      :collection-slides="projectCollectionSlides"
-      :slots="projectArtSlots"
-    />
-
-    <form
-      v-if="linkedProject"
-      class="kr-panel-flat flex shrink-0 flex-wrap items-end gap-2 p-3"
-      @submit.prevent="submitProjectTask"
+      class="project-detail-primary grid shrink-0 gap-2"
     >
-      <label class="min-w-60 flex-1">
-        <span class="mb-1 block text-[0.65rem] font-bold uppercase tracking-wide text-base-content/50">
-          Add task / comment
-        </span>
-        <textarea
-          v-model="projectTaskText"
-          placeholder="Tell the project worker what you need…"
-          class="textarea textarea-bordered min-h-16 w-full rounded-xl text-sm leading-relaxed"
-          rows="2"
-          :disabled="projectTaskSubmitting"
-        />
-      </label>
-      <select
-        v-model="projectTaskCategory"
-        class="select select-bordered select-sm rounded-xl"
-        :disabled="projectTaskSubmitting"
-      >
-        <option value="AGENT">🤖 Agent / comment</option>
-        <option value="HONEYDO">🍯 Honey Do</option>
-      </select>
-      <select
-        v-model="projectTaskPriority"
-        class="select select-bordered select-sm rounded-xl"
-        :disabled="projectTaskSubmitting"
-      >
-        <option value="HIGH">🔴 High</option>
-        <option value="NORMAL">🟡 Normal</option>
-        <option value="LOW">🟢 Low</option>
-      </select>
-      <button
-        type="submit"
-        class="btn btn-primary btn-sm rounded-xl"
-        :disabled="!projectTaskText.trim() || projectTaskSubmitting"
-      >
-        <span
-          v-if="projectTaskSubmitting"
-          class="loading loading-spinner loading-xs"
-        />
-        Add
-      </button>
-    </form>
+      <EntityArtManager
+        class="project-art-compact min-w-0 !p-2"
+        entity-type="project"
+        :entity="linkedProject"
+        :collection-slides="projectCollectionSlides"
+        :slots="projectArtSlots"
+      />
 
-    <details
-      v-if="linkedProject"
-      class="group kr-panel-flat shrink-0 overflow-hidden"
-    >
-      <summary
-        class="flex cursor-pointer list-none items-center gap-2 px-3 py-2.5 marker:content-none"
-      >
-        <Icon
-          name="kind-icon:chevron-right"
-          class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
-        />
-        <Icon name="kind-icon:dream" class="size-4 text-primary" />
-        <span class="text-xs font-bold uppercase tracking-wide text-base-content/60">
-          Project Profile
-        </span>
-        <span class="ml-auto text-[0.65rem] text-base-content/35">saves on blur</span>
-      </summary>
-      <div class="grid gap-3 border-t border-base-300/70 p-3">
-        <div class="form-control">
-          <label class="label py-0.5">
-            <span class="label-text text-xs font-semibold">Goal</span>
-          </label>
-          <textarea
-            class="textarea textarea-bordered rounded-xl text-sm leading-relaxed"
-            rows="2"
-            placeholder="What does 100% look like?"
-            :value="linkedProject.goal ?? ''"
-            :disabled="projectSaving"
-            @blur="autosave('goal', $event)"
-          />
-        </div>
-        <div class="form-control">
-          <label class="label py-0.5">
-            <span class="label-text text-xs font-semibold">Description</span>
-          </label>
-          <textarea
-            class="textarea textarea-bordered rounded-xl text-sm leading-relaxed"
-            rows="3"
-            placeholder="What is this project?"
-            :value="linkedProject.description ?? ''"
-            :disabled="projectSaving"
-            @blur="autosave('description', $event)"
-          />
-        </div>
-        <div class="form-control">
-          <label class="label py-0.5">
-            <span class="label-text text-xs font-semibold">Live URL</span>
-          </label>
-          <input
-            type="url"
-            class="input input-bordered input-sm rounded-xl text-sm"
-            placeholder="https://…"
-            :value="linkedProject.liveUrl ?? ''"
-            :disabled="projectSaving"
-            @blur="autosave('liveUrl', $event)"
-          />
-        </div>
-        <div class="form-control">
-          <label class="label py-0.5">
-            <span class="label-text text-xs font-semibold">Repo URL</span>
-          </label>
-          <input
-            type="url"
-            class="input input-bordered input-sm rounded-xl text-sm"
-            placeholder="https://github.com/…"
-            :value="linkedProject.repoUrl ?? ''"
-            :disabled="projectSaving"
-            @blur="autosave('repoUrl', $event)"
-          />
-        </div>
-      </div>
-    </details>
+      <div class="flex min-w-0 flex-col gap-2">
+        <section class="kr-panel-flat overflow-hidden" data-project-profile>
+          <header class="flex items-center gap-2 border-b border-base-300/70 px-3 py-2">
+            <Icon name="kind-icon:dream" class="size-4 text-primary" />
+            <span class="text-xs font-bold uppercase tracking-wide text-base-content/60">
+              Project Profile
+            </span>
+            <span class="ml-auto text-[0.65rem] text-base-content/35">saves on blur</span>
+          </header>
+          <div class="project-profile-fields grid gap-2 p-3">
+            <div class="form-control min-w-0">
+              <label class="label py-0.5">
+                <span class="label-text text-xs font-semibold">Goal</span>
+              </label>
+              <textarea
+                class="textarea textarea-bordered min-h-16 w-full rounded-xl text-sm leading-relaxed"
+                rows="2"
+                placeholder="What does 100% look like?"
+                :value="linkedProject.goal ?? ''"
+                :disabled="projectSaving"
+                @blur="autosave('goal', $event)"
+              />
+            </div>
+            <div class="form-control min-w-0">
+              <label class="label py-0.5">
+                <span class="label-text text-xs font-semibold">Description</span>
+              </label>
+              <textarea
+                class="textarea textarea-bordered min-h-16 w-full rounded-xl text-sm leading-relaxed"
+                rows="2"
+                placeholder="What is this project?"
+                :value="linkedProject.description ?? ''"
+                :disabled="projectSaving"
+                @blur="autosave('description', $event)"
+              />
+            </div>
+            <div class="form-control min-w-0">
+              <label class="label py-0.5">
+                <span class="label-text text-xs font-semibold">Live URL</span>
+              </label>
+              <input
+                type="url"
+                class="input input-bordered input-sm w-full rounded-xl text-sm"
+                placeholder="https://…"
+                :value="linkedProject.liveUrl ?? ''"
+                :disabled="projectSaving"
+                @blur="autosave('liveUrl', $event)"
+              />
+            </div>
+            <div class="form-control min-w-0">
+              <label class="label py-0.5">
+                <span class="label-text text-xs font-semibold">Repo URL</span>
+              </label>
+              <input
+                type="url"
+                class="input input-bordered input-sm w-full rounded-xl text-sm"
+                placeholder="https://github.com/…"
+                :value="linkedProject.repoUrl ?? ''"
+                :disabled="projectSaving"
+                @blur="autosave('repoUrl', $event)"
+              />
+            </div>
+          </div>
+        </section>
 
-    <details
-      v-if="selectedProject?.notesFromSilas"
-      class="group kr-panel-flat shrink-0 overflow-hidden"
-    >
-      <summary
-        class="flex cursor-pointer list-none items-center gap-2 px-3 py-2.5 marker:content-none"
-      >
-        <Icon
-          name="kind-icon:chevron-right"
-          class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
-        />
-        <Icon name="kind-icon:document" class="size-4 text-info" />
-        <span class="text-xs font-bold uppercase tracking-wide text-base-content/60">
-          Project Notes
-        </span>
-        <span class="ml-auto text-xs text-base-content/35">Conductor</span>
-      </summary>
-      <div
-        class="whitespace-pre-wrap border-t border-base-300/70 px-4 py-3 text-sm leading-relaxed text-base-content/75"
-      >
-        {{ selectedProject.notesFromSilas }}
-      </div>
-    </details>
-
-    <details
-      v-if="selectedProject?.milestones.length"
-      class="group kr-panel-flat shrink-0 overflow-hidden"
-    >
-      <summary
-        class="flex cursor-pointer list-none items-center gap-2 px-3 py-2.5 marker:content-none"
-      >
-        <Icon
-          name="kind-icon:chevron-right"
-          class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
-        />
-        <span class="text-xs font-bold uppercase tracking-wide text-base-content/60">
-          Milestones
-        </span>
-        <span class="badge badge-ghost badge-xs ml-auto">
-          {{ selectedProject.milestones.length }}
-        </span>
-      </summary>
-      <div class="space-y-2 border-t border-base-300/70 p-3">
-        <div
-          v-for="milestone in selectedProject.milestones"
-          :key="milestone.id"
-          class="flex items-center gap-3 rounded-xl border border-base-300 bg-base-200 px-3 py-2"
+        <form
+          class="kr-panel-flat flex flex-col gap-2 p-3"
+          data-project-composer
+          @submit.prevent="submitProjectTask"
         >
-          <div
-            class="flex size-6 shrink-0 items-center justify-center rounded-full border"
-            :class="milestoneIconClass(milestone.status)"
-          >
-            <Icon :name="milestoneIcon(milestone.status)" class="size-3" />
+          <label class="min-w-0">
+            <span class="mb-1 block text-[0.65rem] font-bold uppercase tracking-wide text-base-content/50">
+              Add task / comment
+            </span>
+            <textarea
+              v-model="projectTaskText"
+              placeholder="Tell the project worker what you need…"
+              class="textarea textarea-bordered min-h-16 w-full rounded-xl text-sm leading-relaxed"
+              rows="2"
+              :disabled="projectTaskSubmitting"
+            />
+          </label>
+          <div class="flex flex-wrap items-center gap-2">
+            <select
+              v-model="projectTaskCategory"
+              class="select select-bordered select-sm min-w-40 flex-1 rounded-xl"
+              :disabled="projectTaskSubmitting"
+            >
+              <option value="AGENT">🤖 Agent / comment</option>
+              <option value="HONEYDO">🍯 Honey Do</option>
+            </select>
+            <select
+              v-model="projectTaskPriority"
+              class="select select-bordered select-sm min-w-32 flex-1 rounded-xl"
+              :disabled="projectTaskSubmitting"
+            >
+              <option value="HIGH">🔴 High</option>
+              <option value="NORMAL">🟡 Normal</option>
+              <option value="LOW">🟢 Low</option>
+            </select>
+            <button
+              type="submit"
+              class="btn btn-primary btn-sm rounded-xl"
+              :disabled="!projectTaskText.trim() || projectTaskSubmitting"
+            >
+              <span
+                v-if="projectTaskSubmitting"
+                class="loading loading-spinner loading-xs"
+              />
+              Add
+            </button>
           </div>
-          <div class="min-w-0 flex-1">
-            <p class="break-words text-sm font-semibold leading-snug">
-              {{ milestone.title }}
-            </p>
-            <p class="text-xs text-base-content/50">
-              <span v-if="milestoneTaskCounts.get(milestone.id)?.total">
-                {{ milestoneTaskCounts.get(milestone.id)?.done }}/{{
-                  milestoneTaskCounts.get(milestone.id)?.total
-                }} done
-              </span>
-              <span v-else>weight {{ milestone.weight }}</span>
-            </p>
-          </div>
-          <span
-            class="badge badge-sm shrink-0"
-            :class="milestoneBadgeClass(milestone.status)"
-          >
-            {{ milestone.status }}
-          </span>
-        </div>
+        </form>
       </div>
-    </details>
+    </div>
 
     <details
       v-if="selectedProject?.tasks.length"
+      open
       class="group kr-panel-flat shrink-0 overflow-hidden"
+      data-project-roadmap
     >
       <summary
         class="flex cursor-pointer list-none items-center gap-2 px-3 py-2.5 marker:content-none"
@@ -415,6 +339,85 @@
             </div>
           </div>
         </details>
+      </div>
+    </details>
+
+    <details
+      v-if="selectedProject?.milestones.length"
+      class="group kr-panel-flat shrink-0 overflow-hidden"
+      data-project-milestones
+    >
+      <summary
+        class="flex cursor-pointer list-none items-center gap-2 px-3 py-2.5 marker:content-none"
+      >
+        <Icon
+          name="kind-icon:chevron-right"
+          class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
+        />
+        <span class="text-xs font-bold uppercase tracking-wide text-base-content/60">
+          Milestones
+        </span>
+        <span class="badge badge-ghost badge-xs ml-auto">
+          {{ selectedProject.milestones.length }}
+        </span>
+      </summary>
+      <div class="space-y-2 border-t border-base-300/70 p-3">
+        <div
+          v-for="milestone in selectedProject.milestones"
+          :key="milestone.id"
+          class="flex items-center gap-3 rounded-xl border border-base-300 bg-base-200 px-3 py-2"
+        >
+          <div
+            class="flex size-6 shrink-0 items-center justify-center rounded-full border"
+            :class="milestoneIconClass(milestone.status)"
+          >
+            <Icon :name="milestoneIcon(milestone.status)" class="size-3" />
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="break-words text-sm font-semibold leading-snug">
+              {{ milestone.title }}
+            </p>
+            <p class="text-xs text-base-content/50">
+              <span v-if="milestoneTaskCounts.get(milestone.id)?.total">
+                {{ milestoneTaskCounts.get(milestone.id)?.done }}/{{
+                  milestoneTaskCounts.get(milestone.id)?.total
+                }} done
+              </span>
+              <span v-else>weight {{ milestone.weight }}</span>
+            </p>
+          </div>
+          <span
+            class="badge badge-sm shrink-0"
+            :class="milestoneBadgeClass(milestone.status)"
+          >
+            {{ milestone.status }}
+          </span>
+        </div>
+      </div>
+    </details>
+
+    <details
+      v-if="selectedProject?.notesFromSilas"
+      class="group kr-panel-flat shrink-0 overflow-hidden"
+      data-project-notes
+    >
+      <summary
+        class="flex cursor-pointer list-none items-center gap-2 px-3 py-2.5 marker:content-none"
+      >
+        <Icon
+          name="kind-icon:chevron-right"
+          class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
+        />
+        <Icon name="kind-icon:document" class="size-4 text-info" />
+        <span class="text-xs font-bold uppercase tracking-wide text-base-content/60">
+          Project Notes
+        </span>
+        <span class="ml-auto text-xs text-base-content/35">Conductor</span>
+      </summary>
+      <div
+        class="whitespace-pre-wrap border-t border-base-300/70 px-4 py-3 text-sm leading-relaxed text-base-content/75"
+      >
+        {{ selectedProject.notesFromSilas }}
       </div>
     </details>
   </section>
@@ -764,6 +767,26 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.project-detail-shell {
+  container-type: inline-size;
+}
+
+.project-detail-primary,
+.project-profile-fields {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@container (min-width: 72rem) {
+  .project-detail-primary {
+    grid-template-columns: minmax(0, 3fr) minmax(22rem, 2fr);
+    align-items: start;
+  }
+
+  .project-profile-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 :deep(.project-art-compact header p),
 :deep(.project-art-compact header .badge),
 :deep(.project-art-compact .mt-2.flex.flex-wrap.justify-center) {

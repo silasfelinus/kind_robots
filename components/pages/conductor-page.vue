@@ -52,7 +52,7 @@
             :alt="selectedProject.name"
             class="size-4 shrink-0 rounded-sm object-cover"
           />
-          <span class="truncate text-xs font-bold">{{
+          <span class="min-w-0 break-words text-xs font-bold leading-tight">{{
             selectedProject.name || selectedProject.slug
           }}</span>
         </span>
@@ -478,7 +478,7 @@
           <!-- PROJECT DETAIL -->
           <div v-else-if="selectedProject" class="flex flex-col gap-4 pb-4">
             <div
-              class="relative min-h-[180px] overflow-hidden rounded-2xl sm:min-h-[220px] xl:min-h-[260px]"
+              class="relative min-h-[200px] overflow-hidden rounded-2xl sm:min-h-[240px] xl:min-h-[280px]"
             >
               <div
                 class="absolute inset-0"
@@ -492,66 +492,79 @@
                 @error="heroFailed = true"
               />
               <div
-                class="absolute inset-0 bg-linear-to-t from-base-300/90 via-base-300/30 to-transparent"
+                class="absolute inset-0 bg-linear-to-t from-base-300/95 via-base-300/45 to-transparent"
               />
-              <div class="absolute inset-x-0 bottom-0 flex items-end gap-4 p-4">
-                <div
-                  class="relative size-14 shrink-0 overflow-hidden rounded-2xl border-2 border-white/20 shadow-xl"
-                >
-                  <img
-                    v-if="!iconFailed"
-                    :src="projectIconPath(selectedProject.slug)"
-                    :alt="selectedProject.name"
-                    class="h-full w-full object-cover"
-                    @error="iconFailed = true"
-                  />
+              <div class="absolute inset-x-0 bottom-0 p-4">
+                <div class="flex items-end gap-4">
                   <div
-                    v-else
-                    class="flex h-full w-full items-center justify-center"
-                    :class="kindIconClass(selectedProject.kind)"
+                    class="relative size-14 shrink-0 overflow-hidden rounded-2xl border-2 border-white/20 shadow-xl"
                   >
-                    <Icon
-                      :name="kindIcon(selectedProject.kind)"
-                      class="size-7"
+                    <img
+                      v-if="!iconFailed"
+                      :src="projectIconPath(selectedProject.slug)"
+                      :alt="selectedProject.name"
+                      class="h-full w-full object-cover"
+                      @error="iconFailed = true"
                     />
+                    <div
+                      v-else
+                      class="flex h-full w-full items-center justify-center"
+                      :class="kindIconClass(selectedProject.kind)"
+                    >
+                      <Icon
+                        :name="kindIcon(selectedProject.kind)"
+                        class="size-7"
+                      />
+                    </div>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <div class="mb-1.5 flex flex-wrap items-center gap-1.5">
+                      <span
+                        v-if="linkedProject?.status === 'BRAINSTORM'"
+                        class="badge badge-neutral badge-sm"
+                        >draft</span
+                      >
+                      <span
+                        v-else
+                        class="badge badge-sm"
+                        :class="kindBadgeClass(selectedProject.kind)"
+                        >{{ selectedProject.kind }}</span
+                      >
+                      <span
+                        v-if="selectedProject.conductorStatus"
+                        class="badge badge-sm"
+                        :class="lifecycleBadgeClass(selectedProject.conductorStatus)"
+                        >{{ selectedProject.conductorStatus }}</span
+                      >
+                      <span
+                        v-if="selectedProject.conductorPriority"
+                        class="badge badge-sm"
+                        :class="priorityBadgeClass(selectedProject.conductorPriority)"
+                        >{{ selectedProject.conductorPriority }} priority</span
+                      >
+                    </div>
+                    <h3 class="break-words text-xl font-black leading-tight sm:text-2xl">
+                      {{
+                        linkedProject?.title ||
+                        selectedProject.name ||
+                        selectedProject.slug
+                      }}
+                    </h3>
+                    <div class="mt-2 flex items-center gap-2">
+                      <progress
+                        class="progress progress-primary h-1.5 min-w-20 flex-1"
+                        :value="selectedProject.progress"
+                        max="100"
+                      />
+                      <span class="text-xs font-bold text-base-content/70"
+                        >{{ selectedProject.progress }}%</span
+                      >
+                    </div>
+                    <p class="mt-1 text-xs text-base-content/60">
+                      {{ selectedProject.tasks.length }} roadmap tasks
+                    </p>
                   </div>
                 </div>
-                <div class="min-w-0 flex-1">
-                  <h3 class="truncate text-xl font-black leading-tight">
-                    {{
-                      linkedProject?.title ||
-                      selectedProject.name ||
-                      selectedProject.slug
-                    }}
-                  </h3>
-                  <p class="text-xs text-base-content/60">
-                    {{ selectedProject.progress }}% complete &middot;
-                    {{ selectedProject.tasks.length }} tasks
-                  </p>
-                </div>
-                <span
-                  v-if="linkedProject?.status === 'BRAINSTORM'"
-                  class="badge badge-secondary badge-sm shrink-0"
-                  >brainstorm</span
-                >
-                <span
-                  v-else
-                  class="badge badge-sm shrink-0"
-                  :class="kindBadgeClass(selectedProject.kind)"
-                  >{{ selectedProject.kind }}</span
-                >
-                <span
-                  v-if="selectedProject.conductorStatus"
-                  class="badge badge-sm shrink-0"
-                  :class="
-                    selectedProject.conductorStatus === 'continuous'
-                      ? 'badge-accent'
-                      : selectedProject.conductorStatus === 'active'
-                        ? 'badge-success'
-                        : 'badge-ghost'
-                  "
-                  >{{ selectedProject.conductorStatus }}</span
-                >
               </div>
             </div>
 
@@ -569,36 +582,19 @@
 
             <div
               v-if="linkedProject"
-              class="flex shrink-0 flex-wrap items-center gap-2"
+              class="kr-panel-flat flex shrink-0 flex-wrap items-center gap-2 px-3 py-2.5"
             >
-              <select
-                class="select select-bordered select-sm rounded-xl font-bold"
-                :class="
-                  prioritySelectClass(
-                    linkedProject.priority as ProjectPriorityLevel,
-                  )
-                "
-                :value="linkedProject.priority"
-                :disabled="projectSaving"
-                @change="handlePriorityChange"
-              >
-                <option value="HIGH">🔴 HIGH</option>
-                <option value="NORMAL">🟡 NORMAL</option>
-                <option value="LOW">🟢 LOW</option>
-              </select>
-              <select
-                class="select select-bordered select-sm rounded-xl text-xs font-semibold"
-                :value="linkedProject.status"
-                :disabled="projectSaving"
-                @change="handleProjectStatusChange"
-              >
-                <option value="ACTIVE">ACTIVE</option>
-                <option value="CONTINUOUS">CONTINUOUS</option>
-                <option value="PAUSED">PAUSED</option>
-                <option value="BRAINSTORM">BRAINSTORM</option>
-                <option value="DONE">DONE</option>
-                <option value="ARCHIVED">ARCHIVED</option>
-              </select>
+              <div class="mr-auto min-w-52 flex-1">
+                <p
+                  class="text-[0.68rem] font-bold uppercase tracking-wide text-base-content/45"
+                >
+                  Kind Robots presentation
+                </p>
+                <p class="text-xs text-base-content/45">
+                  Lifecycle, coordination priority, roadmap progress, milestones,
+                  and roadmap tasks come from Conductor.
+                </p>
+              </div>
               <button
                 type="button"
                 class="btn btn-sm gap-1.5 rounded-xl"
@@ -658,15 +654,15 @@
               class="grid shrink-0 gap-4 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]"
             >
               <div v-if="linkedProject" class="space-y-3 kr-panel-flat p-4">
-                <div class="flex items-center gap-2">
+                <div class="flex flex-wrap items-center gap-2">
                   <Icon name="kind-icon:dream" class="size-4 text-primary" />
                   <h4
                     class="text-xs font-bold uppercase tracking-wide text-base-content/60"
                   >
-                    Project Intent
+                    Project Profile
                   </h4>
                   <span class="ml-auto text-xs text-base-content/30"
-                    >Click any field to edit — saves on blur</span
+                    >Kind Robots-owned fields · saves on blur</span
                   >
                 </div>
                 <div class="form-control">
@@ -870,7 +866,7 @@
                       />
                     </div>
                     <div class="min-w-0 flex-1">
-                      <p class="truncate text-sm font-semibold">
+                      <p class="break-words text-sm font-semibold leading-snug">
                         {{ milestone.title }}
                       </p>
                       <p class="text-xs text-base-content/50">
@@ -897,7 +893,7 @@
                 <h4
                   class="mb-2 text-xs font-bold uppercase tracking-wide text-base-content/50"
                 >
-                  Tasks ({{ selectedProject.tasks.length }})
+                  Roadmap Tasks ({{ selectedProject.tasks.length }})
                 </h4>
                 <div class="space-y-2">
                   <div
@@ -913,7 +909,7 @@
                         <Icon :name="taskIcon(task.status)" class="size-3" />
                       </div>
                       <div class="min-w-0 flex-1">
-                        <p class="text-sm font-semibold leading-snug">
+                        <p class="break-words text-sm font-semibold leading-snug">
                           {{ task.title }}
                         </p>
                         <div
@@ -992,14 +988,16 @@
                     class="group rounded-2xl border border-base-300 bg-base-200/50"
                   >
                     <summary
-                      class="flex cursor-pointer list-none items-center gap-2 px-4 py-2 text-xs font-semibold text-base-content/50 marker:content-none"
+                      class="flex cursor-pointer list-none items-start gap-2 px-4 py-2 text-xs font-semibold text-base-content/50 marker:content-none"
                     >
                       <Icon
                         name="kind-icon:chevron-right"
-                        class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
+                        class="mt-0.5 size-3.5 shrink-0 transition-transform group-open:rotate-90"
                       />
-                      <span class="truncate">{{ group.title }}</span>
-                      <span class="text-base-content/40"
+                      <span class="min-w-0 flex-1 break-words">{{
+                        group.title
+                      }}</span>
+                      <span class="shrink-0 text-base-content/40"
                         >&middot; Completed ({{ group.tasks.length }})</span
                       >
                     </summary>
@@ -1015,7 +1013,7 @@
                         />
                         <div class="min-w-0 flex-1">
                           <p
-                            class="truncate text-xs font-medium text-base-content/70"
+                            class="break-words text-xs font-medium leading-snug text-base-content/70"
                           >
                             {{ task.title }}
                           </p>
@@ -1043,10 +1041,14 @@
             <!-- PROJECT TASK CREATION (t-002) -->
             <div v-if="linkedProject" class="shrink-0 kr-panel-flat p-4">
               <h4
-                class="mb-3 text-xs font-bold uppercase tracking-wide text-base-content/50"
+                class="text-xs font-bold uppercase tracking-wide text-base-content/50"
               >
-                Add Task to This Project
+                Add Kind Robots Task
               </h4>
+              <p class="mb-3 mt-1 text-xs text-base-content/40">
+                This creates a project-linked Kind Robots Todo. The roadmap
+                tasks above remain Conductor-owned.
+              </p>
               <form class="space-y-2" @submit.prevent="submitProjectTask">
                 <input
                   v-model="projectTaskTitle"
@@ -1315,9 +1317,6 @@ import ConductorProjectChat from '@/components/conductor/conductor-project-chat.
 import KaizenPopup from '@/components/conductor/kaizen-popup.vue'
 import SnapshotModeBanner from '@/components/navigation/snapshot-mode-banner.vue'
 
-type ProjectStatus =
-  'ACTIVE' | 'CONTINUOUS' | 'PAUSED' | 'DONE' | 'ARCHIVED' | 'BRAINSTORM'
-
 type ProjectPatch = {
   description?: string | null
   pitch?: string | null
@@ -1328,8 +1327,6 @@ type ProjectPatch = {
   isPublic?: boolean
   isMature?: boolean
   allowReviews?: boolean
-  status?: ProjectStatus
-  priority?: ProjectPriorityLevel
 }
 
 const userStore = useUserStore()
@@ -1480,11 +1477,17 @@ const sortedActiveProjects = computed(() =>
       LOW: 2,
     }
     const pa =
+      (a.priority as ProjectPriorityLevel | undefined) ??
       (projectRecordForSlug(a.slug)?.priority as
-        ProjectPriorityLevel | undefined) ?? 'NORMAL'
+        | ProjectPriorityLevel
+        | undefined) ??
+      'NORMAL'
     const pb =
+      (b.priority as ProjectPriorityLevel | undefined) ??
       (projectRecordForSlug(b.slug)?.priority as
-        ProjectPriorityLevel | undefined) ?? 'NORMAL'
+        | ProjectPriorityLevel
+        | undefined) ??
+      'NORMAL'
     return (order[pa] ?? 1) - (order[pb] ?? 1)
   }),
 )
@@ -1690,11 +1693,6 @@ const workspaceCards = computed<BuilderCard[]>(() => {
   return result
 })
 
-async function setPriority(priority: ProjectPriorityLevel) {
-  if (!linkedProject.value) return
-  await patchProject({ priority })
-}
-
 async function autosave(field: keyof ProjectPatch, event: FocusEvent) {
   if (!linkedProject.value) return
   const el = event.target as HTMLInputElement | HTMLTextAreaElement | null
@@ -1856,18 +1854,6 @@ async function patchProject(patch: ProjectPatch) {
   }
 }
 
-function handleProjectStatusChange(event: Event) {
-  const target = event.target as HTMLSelectElement | null
-  if (!target) return
-  patchProject({ status: target.value as ProjectStatus })
-}
-
-function handlePriorityChange(event: Event) {
-  const target = event.target as HTMLSelectElement | null
-  if (!target) return
-  setPriority(target.value as ProjectPriorityLevel)
-}
-
 const statusOrder = [
   'done',
   'review',
@@ -1937,10 +1923,18 @@ const milestoneTaskCounts = computed(() => {
   return counts
 })
 
-function prioritySelectClass(priority: ProjectPriorityLevel): string {
-  if (priority === 'HIGH') return 'border-error/50 text-error'
-  if (priority === 'LOW') return 'border-success/50 text-success'
-  return 'border-warning/50 text-warning'
+function lifecycleBadgeClass(status: string): string {
+  if (status === 'active') return 'badge-success'
+  if (status === 'continuous') return 'badge-accent'
+  if (status === 'paused') return 'badge-warning'
+  if (status === 'finished') return 'badge-success'
+  return 'badge-ghost'
+}
+
+function priorityBadgeClass(priority: string): string {
+  if (priority === 'urgent' || priority === 'high') return 'badge-error'
+  if (priority === 'low') return 'badge-ghost'
+  return 'badge-warning'
 }
 
 function kindIcon(kind: string) {

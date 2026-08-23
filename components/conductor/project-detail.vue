@@ -13,7 +13,7 @@
       </button>
       <Icon name="kind-icon:folder" class="size-3.5 shrink-0 text-primary/70" />
       <span class="min-w-0 max-w-48 truncate text-xs font-bold sm:max-w-none">
-        {{ linkedProject?.title || selectedProject?.name || slug }}
+        {{ linkedProject?.title || selectedProject?.name || props.slug }}
       </span>
 
       <template v-if="userStore.isAdmin && linkedProject">
@@ -484,6 +484,9 @@ function projectRecordToConductor(project: ProjectWithRelations): ConductorProje
     milestones: [],
     tasks: [],
     progress: project.status === 'DONE' ? 100 : 0,
+    imagePath: project.imagePath || '',
+    cardPath: project.cardPath || '',
+    heroPath: project.heroPath || '',
   }
 }
 

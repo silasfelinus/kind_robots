@@ -79,13 +79,17 @@ expectContains('components/pages/conductor-page.vue', [
 ])
 
 expectContains('components/conductor/project-detail.vue', [
-  'class="project-detail-primary grid shrink-0 gap-2 xl:grid-cols-[minmax(0,3fr)_minmax(22rem,2fr)] xl:items-start"',
+  'class="project-detail-shell flex min-h-0 flex-col gap-2 pb-2"',
+  'class="project-detail-primary grid shrink-0 gap-2"',
+  'class="project-profile-fields grid gap-2 p-3"',
   'class="project-art-compact min-w-0 !p-2"',
   'data-project-profile',
   'data-project-composer',
   'data-project-roadmap',
   'data-project-milestones',
   'data-project-notes',
+  '@container (min-width: 72rem)',
+  'grid-template-columns: minmax(0, 3fr) minmax(22rem, 2fr);',
   'height: 20vh;',
   'v-model="projectTaskText"',
   'taskStatusSummary(selectedProject)',
@@ -148,6 +152,8 @@ expectOmits('components/conductor/project-detail.vue', [
   'projectTaskDescription',
   'DESIRED_FEATURE',
   'min-h-[200px]',
+  'sm:grid-cols-2',
+  'xl:grid-cols-',
 ])
 
 expectContains('components/pages/conductor-manager.vue', [

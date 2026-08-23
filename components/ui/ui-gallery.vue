@@ -372,25 +372,17 @@
           :density="demoGalleryDensity"
           empty-label="specimens"
           @update:mode="demoGalleryMode = $event"
-        >
-          <template #item="{ item, mode }">
-            <div class="flex flex-col gap-1 kr-panel-flat p-3">
-              <span class="text-smart-heading font-black">{{
-                item.title
-              }}</span>
-              <span class="text-smart-compact opacity-70">
-                {{ item.description }}
-              </span>
-              <span class="badge badge-ghost badge-sm w-fit">{{ mode }}</span>
-            </div>
-          </template>
-        </kr-gallery>
+        />
 
         <p class="text-smart-compact mt-2 opacity-70">
           The Cards / Heroes / Icons bar is the shell's, and it is sticky inside
           whichever ancestor scrolls. Swap modes above and the grid changes with
           it -- each mode is a different MODE_GRID_CLASS, container-responsive
-          rather than viewport-keyed.
+          rather than viewport-keyed. No <code class="font-mono">#item</code>
+          override here on purpose -- this demo now renders the shared built-in
+          item template directly, so it documents the real Cards/Heroes/Icons
+          contract every other gallery gets by default instead of a bespoke
+          stand-in for it.
         </p>
       </section>
 

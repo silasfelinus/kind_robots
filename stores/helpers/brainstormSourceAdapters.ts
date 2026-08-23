@@ -14,14 +14,15 @@
 //
 // Started with Character and Dream (BrainstormSourceRef.modelType is a free
 // string; these were the first two with real adapters). Scenario joined them
-// in brainstorm/t-014, Reward in brainstorm/t-028. Bot, Project, and Prompt
-// can each register a BrainstormSourceAdapter the same way, with no new API
-// surface and no bespoke endpoint -- just another entry in
-// BRAINSTORM_SOURCE_ADAPTERS backed by that entity's existing store.
+// in brainstorm/t-014, Reward in brainstorm/t-028, Bot in brainstorm/t-029.
+// Project and Prompt can each register a BrainstormSourceAdapter the same
+// way, with no new API surface and no bespoke endpoint -- just another entry
+// in BRAINSTORM_SOURCE_ADAPTERS backed by that entity's existing store.
 //
 // The store-agnostic dispatch/fallback logic lives in
 // brainstormSourceAdapterKit.ts (no Pinia imports, unit-testable with plain
 // tsx) and is re-exported here bound to the real registry below.
+import { useBotStore } from '@/stores/botStore'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useDreamStore } from '@/stores/dreamStore'
 import { useRewardStore } from '@/stores/rewardStore'
@@ -241,6 +242,54 @@ const rewardAdapter: BrainstormSourceAdapter = {
   },
 }
 
+const botAdapter: BrainstormSourceAdapter = {
+  modelType: 'bot',
+  label: 'Bot',
+  async resolve(ref) {
+    if (!ref.id) return null
+    const store = useBotStore()
+    // loadBotById has no force param -- like rewardAdapter, it serves a
+    // cached row from store.bots before hitting the network, which is fine
+    // here since Bot carries no view-permission gate the way
+    // Character/Scenario's canView check does.
+    const bot = await store.loadBotById(ref.id)
+    if (!bot) return null
+
+    return {
+      modelType: 'bot',
+      id: bot.id,
+      title: bot.name || `Bot #${bot.id}`,
+      subtitle: bot.subtitle || bot.tagline || bot.description || undefined,
+      thumbnailUrl: bot.avatarImage || bot.imagePath || null,
+    }
+  },
+  async search(query) {
+    const store = useBotStore()
+    // Same fail-closed contract as characterAdapter/dreamAdapter/
+    // scenarioAdapter/rewardAdapter: a failed fresh fetch must never fall
+    // back to searching a possibly-stale cache.
+    const freshBots = await fetchFreshSourceRows(
+      () => store.fetchBots(true),
+      () => Boolean(store.error),
+    )
+
+    return freshBots
+      .filter((bot) =>
+        matchesQuery(
+          [bot.name, bot.subtitle, bot.tagline, bot.description],
+          query,
+        ),
+      )
+      .slice(0, SEARCH_RESULT_LIMIT)
+      .map((bot) => ({
+        modelType: 'bot',
+        id: bot.id,
+        title: bot.name || `Bot #${bot.id}`,
+        subtitle: bot.subtitle || bot.tagline || undefined,
+      }))
+  },
+}
+
 /** The adapter registry. Keys are lowercase modelType strings. */
 export const BRAINSTORM_SOURCE_ADAPTERS: Record<
   string,
@@ -250,6 +299,7 @@ export const BRAINSTORM_SOURCE_ADAPTERS: Record<
   dream: dreamAdapter,
   scenario: scenarioAdapter,
   reward: rewardAdapter,
+  bot: botAdapter,
 }
 
 export function listBrainstormSourceAdapters(): BrainstormSourceAdapter[] {

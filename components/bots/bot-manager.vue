@@ -9,7 +9,20 @@
     @refresh="refreshManagerData"
   >
     <template #bots>
-      <bot-interact class="h-full min-h-0 flex-1 overflow-hidden" />
+      <div class="flex h-full min-h-0 flex-1 flex-col gap-2">
+        <div v-if="botStore.selectedBot" class="flex shrink-0 justify-end">
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm rounded-xl"
+            title="Brainstorm variations grounded in this Bot"
+            @click="startBrainstormWithBot"
+          >
+            <Icon name="kind-icon:brain" class="size-4" />
+            <span class="hidden sm:inline">Brainstorm variations</span>
+          </button>
+        </div>
+        <bot-interact class="h-full min-h-0 flex-1 overflow-hidden" />
+      </div>
     </template>
 
     <template #forge>
@@ -77,6 +90,19 @@ async function refreshManagerData() {
 
 function goToBots() {
   navStore.setDashboardTab(dashboardKey, 'bots')
+}
+
+function startBrainstormWithBot(): void {
+  const bot = botStore.selectedBot
+  if (!bot?.id) return
+  void navigateTo({
+    path: '/brainstorm',
+    query: {
+      source: 'bot',
+      sourceId: String(bot.id),
+      intent: `Generate variations for the Bot "${bot.name || 'this Bot'}" that preserve its personality and voice.`,
+    },
+  })
 }
 
 async function handleBotSaved() {

@@ -183,10 +183,24 @@ export const useTaskmasterStore = defineStore('taskmasterStore', () => {
 
   const session = ref<TaskmasterSession | null>(null)
   const isWeaving = ref(false)
+  /*
+   * The chat row THIS session's in-flight `weaveBeat` is streaming into.
+   * chatStore.pendingText/pendingChatId is a single shared singleton across
+   * every `generateText` caller, and Storybook's own weaveBeat calls the
+   * same store -- neither call is cancelled on navigation, so a reader who
+   * leaves Taskmaster mid-scene and answers a Storybook beat before
+   * Taskmaster's call resolves can end up with `streamingText` showing
+   * Storybook's prose (or going blank while Taskmaster is still streaming,
+   * if Storybook's call happens to finish and clear the singleton first).
+   * Tracking our own chat id and reading it via chatStore.chatText() keeps
+   * this session's streaming text scoped to its own call regardless of what
+   * else is concurrently generating.
+   */
+  const weavingChatId = ref<number | null>(null)
   const errorMessage = ref('')
 
   const streamingText = computed(() =>
-    isWeaving.value ? chatStore.pendingText : '',
+    isWeaving.value ? chatStore.chatText(weavingChatId.value) : '',
   )
 
   const currentBeat = computed(
@@ -818,12 +832,17 @@ The protagonist is ready to finish this session. Resolve the fictional threads, 
     if (!active) return false
 
     isWeaving.value = true
+    weavingChatId.value = null
     errorMessage.value = ''
     try {
-      const result = await chatStore.generateText({
-        prompt,
-        isPublic: false,
-      })
+      const result = await chatStore.generateText(
+        { prompt, isPublic: false },
+        {
+          onChatId: (chatId) => {
+            weavingChatId.value = chatId
+          },
+        },
+      )
       if (!result.success || !result.data) {
         errorMessage.value =
           result.message || 'The quest thread slipped away. Try again.'
@@ -871,6 +890,7 @@ The protagonist is ready to finish this session. Resolve the fictional threads, 
       return false
     } finally {
       isWeaving.value = false
+      weavingChatId.value = null
     }
   }
 

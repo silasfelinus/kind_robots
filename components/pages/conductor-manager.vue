@@ -8,10 +8,9 @@
       v-else-if="pageStore.workspaceCardKey === 'brainstorm'"
     />
     <ConductorProjectGalleryPage v-else-if="showConductorGallery" />
-    <ConductorProjectDetailPage
-      v-else-if="projectSlug"
-      :slug="projectSlug"
-    />
+    <TabScrollRegion v-else-if="projectSlug">
+      <ProjectDetail :slug="projectSlug" />
+    </TabScrollRegion>
     <ConductorPage v-else />
   </div>
 </template>
@@ -19,7 +18,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import AppmakerPage from '@/components/pages/appmaker-page.vue'
-import ConductorProjectDetailPage from '@/components/pages/conductor-project-detail-page.vue'
+import ProjectDetail from '@/components/conductor/project-detail.vue'
 import ConductorProjectGalleryPage from '@/components/pages/conductor-project-gallery-page.vue'
 import ConductorPage from '@/components/pages/conductor-page.vue'
 import ConductorPitchManager from '@/components/pages/conductor-pitch-manager.vue'

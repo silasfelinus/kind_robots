@@ -117,6 +117,8 @@
     "test:davinci-narrate-stale-response-guard": "tsx utils/scripts/verifyDaVinciNarrateStaleResponseGuard.ts",
     "test:davinci-art-run-guard-selftest": "tsx utils/scripts/verifyDaVinciArtRunGuard.test.ts",
     "test:davinci-art-run-guard": "tsx utils/scripts/verifyDaVinciArtRunGuard.ts",
+    "test:davinci-art-resume-guard-selftest": "tsx utils/scripts/verifyDaVinciArtResumeGuard.test.ts",
+    "test:davinci-art-resume-guard": "tsx utils/scripts/verifyDaVinciArtResumeGuard.ts",
     "test:serendipity-voice-poll-guard-selftest": "tsx utils/scripts/verifySerendipityVoicePollGuard.test.ts",
     "test:serendipity-voice-poll-guard": "tsx utils/scripts/verifySerendipityVoicePollGuard.ts",
     "test:serendipity-voice-cursor-reset-selftest": "tsx utils/scripts/verifySerendipityVoiceCursorReset.test.ts",

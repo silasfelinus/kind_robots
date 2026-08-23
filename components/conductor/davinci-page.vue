@@ -716,6 +716,13 @@ type NarrationMode = 'ai' | 'curated'
 const MIN_CHAPTERS_BEFORE_ENDING = 6
 
 const STORAGE_KEY = 'davinci-active-life-run-id'
+// Client-only cache of the active run's in-flight art job states (davinci/t-021
+// slice 14). See the doc comment on persistArtJobs()/resumePendingArtJobs()
+// below for the bug this closes: unlike storybookStore's beats, a queued or
+// rendering LifeRunArt job has no server-side row until it reaches 'done'
+// (persistLifeRunArt only fires on a done poll result), so hydrateArtFromRun()
+// alone can never see it -- this key is what lets a reload find it again.
+const ART_JOBS_STORAGE_KEY = 'davinci-active-life-run-art-jobs'
 
 const userStore = useUserStore()
 const achievementStore = useAchievementStore()
@@ -949,6 +956,7 @@ function updateChapterArt(
   if (run.value?.id !== runId) return
   const wasDone = chapterArt.value[chapter]?.status === 'done'
   chapterArt.value = { ...chapterArt.value, [chapter]: art }
+  persistArtJobs()
   if (!wasDone && art.status === 'done' && art.artImageId) {
     void persistLifeRunArt(
       chapter,
@@ -969,8 +977,82 @@ function updateEndingArt(runId: number, art: NarrativeArtJobState) {
   if (run.value?.id !== runId) return
   const wasDone = endingArt.value?.status === 'done'
   endingArt.value = art
+  persistArtJobs()
   if (!wasDone && art.status === 'done' && art.artImageId) {
     void persistLifeRunArt(null, 'ENDING', art.promptString, art.artImageId)
+  }
+}
+
+// Everything narrativeArtJobsHelper's poll/submit path knows about the active
+// run's art jobs lives only in the chapterArt/endingArt refs above -- a
+// queued or rendering job has no server row until persistLifeRunArt() fires
+// on a 'done' result. A page reload (or any remount: closing the tab,
+// navigating away and back) wipes those refs along with the rest of this
+// component's setup-scoped state, and hydrateArtFromRun() below only ever
+// rebuilds *terminal* 'done' states from the server's LifeRunArt rows -- so a
+// job that was still queued/rendering (or had already failed, with its retry
+// button showing) at the moment of reload was previously lost outright: no
+// busy indicator, no retry button, and nothing left holding its dedupeKey or
+// jobId to reconnect polling, even though the backend job could still be
+// running or have already finished with an orphaned ArtImage never attached
+// to the run. Best-effort and non-blocking, same as persistLifeRunArt --
+// losing this cache (private browsing, a cleared storage, JSON.stringify
+// somehow throwing) only means a slower reconnect on reload, not a broken run.
+function persistArtJobs() {
+  if (!run.value) return
+  try {
+    localStorage.setItem(
+      ART_JOBS_STORAGE_KEY,
+      JSON.stringify({
+        runId: run.value.id,
+        chapterArt: chapterArt.value,
+        endingArt: endingArt.value,
+      }),
+    )
+  } catch {
+    // best-effort cache -- see the doc comment above.
+  }
+}
+
+// The other half of persistArtJobs() above: called once per resumeRun(),
+// right after hydrateArtFromRun() has rebuilt whatever terminal art the
+// server already knows about. Reuses narrativeArtJobsHelper's own resume()
+// (already relied on for exactly this by storybookStore's
+// resumeNarrativeArtJobs()) rather than re-deriving its recover-or-resubmit
+// logic here -- resume() itself no-ops for a 'done'/'failed'/'cancelled'
+// state, so it is safe to call unconditionally for every cached entry the
+// server hydration didn't already cover. Seeding chapterArt/endingArt via
+// updateChapterArt()/updateEndingArt() first (rather than leaving the UI
+// blank until the first poll response) also restores a failed job's retry
+// button immediately, not just a still-in-flight job's busy indicator.
+function resumePendingArtJobs(runId: number) {
+  let cached: {
+    runId?: number
+    chapterArt?: Record<string, NarrativeArtJobState>
+    endingArt?: NarrativeArtJobState | null
+  } | null = null
+  try {
+    const raw = localStorage.getItem(ART_JOBS_STORAGE_KEY)
+    cached = raw ? JSON.parse(raw) : null
+  } catch {
+    cached = null
+  }
+  if (!cached || cached.runId !== runId) return
+
+  for (const [key, state] of Object.entries(cached.chapterArt ?? {})) {
+    const chapter = Number(key)
+    if (!state || !chapter || chapterArt.value[chapter]) continue
+    updateChapterArt(runId, chapter, state)
+    narrativeArtJobs.resume(state, (art) =>
+      updateChapterArt(runId, chapter, art),
+    )
+  }
+
+  if (cached.endingArt && !endingArt.value) {
+    updateEndingArt(runId, cached.endingArt)
+    narrativeArtJobs.resume(cached.endingArt, (art) =>
+      updateEndingArt(runId, art),
+    )
   }
 }
 
@@ -1066,6 +1148,7 @@ async function resumeRun(id: number) {
   statMap.value = statsToMap(response.data.Stats || [])
   playedCount.value = response.data.Choices?.length ?? 0
   hydrateArtFromRun(response.data)
+  resumePendingArtJobs(response.data.id)
 
   if (response.data.status === 'COMPLETE' && response.data.Ending) {
     endingData.value = response.data.Ending
@@ -1242,6 +1325,7 @@ async function resolveLife() {
 
 function playAgain() {
   localStorage.removeItem(STORAGE_KEY)
+  localStorage.removeItem(ART_JOBS_STORAGE_KEY)
   run.value = null
   statMap.value = {}
   playedCount.value = 0

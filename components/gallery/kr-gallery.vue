@@ -230,117 +230,179 @@
         />
       </template>
 
-      <button
-        v-for="item in pagedItems"
-        v-else
-        :key="item.id"
-        type="button"
-        :data-theme="themed ? itemTheme(item) : undefined"
-        class="group overflow-hidden rounded-2xl border border-(--kr-surface-border) bg-(--kr-surface) text-left transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg"
-        @click="emit('open', item)"
-      >
-        <div class="relative overflow-hidden" :class="imageWrapClass">
-          <img
-            v-if="artSrc(item)"
-            :src="artSrc(item)"
-            :alt="item.title"
-            class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
-            @error="onArtError(artSrc(item))"
-          />
-          <!-- Art-absent placeholder. Without this an unillustrated row renders
-               <img src="">, which browsers treat as "reload the current page"
-               and paint as a broken image. Galleries whose rows are routinely
-               unillustrated (facets, where art is queued rather than required)
-               could not adopt this shell at all until it degraded properly.
-
-               It now also covers art that is PRESENT but fails to load, which
-               is a different failure with the same remedy: a broken <img>
-               paints its alt text inside the layout box where the art should
-               be, so a card whose art 404s renders its title sprawling across
-               the artwork area. That is interface-vision t-069 -- reported as
-               "description text renders over the card art", reproduced against
-               production 2026-08-03, and invisible to source review because
-               nothing in the markup is wrong. It only exists while art is
-               missing, which right now is common: art is still generating. -->
-          <div
-            v-else
-            class="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-linear-to-br from-base-200 to-base-300 text-base-content/40"
-          >
-            <Icon
-              :name="item.placeholderIcon || 'kind-icon:image'"
-              class="size-8"
-            />
-            <span
-              v-if="item.placeholderLabel"
-              class="text-[10px] uppercase tracking-wide"
-            >
-              {{ item.placeholderLabel }}
-            </span>
-          </div>
-          <div
-            class="absolute inset-0 bg-linear-to-t from-base-300/90 via-transparent to-transparent"
-          />
-          <div
-            v-if="item.badges?.length"
-            class="absolute left-2 top-2 flex gap-1"
-          >
-            <span
-              v-for="badge in item.badges"
-              :key="badge.label"
-              class="badge badge-xs"
-              :class="badge.class"
-            >
-              {{ badge.label }}
-            </span>
-          </div>
-          <!-- The corner icon puck. Same failed-source guard as the art above:
-               alt="" means a missing file paints no TEXT, but it still paints a
-               broken-image box, which is the small broken glyph left on
-               /conductor after the main-art fix landed (the CI audit found
-               exactly one, interface-vision-icon.webp, missing from the
-               conductor repo). A decorative icon that will not load should
-               simply not render. -->
-          <img
-            v-if="mode !== 'icons' && item.icon && !failedArt.has(item.icon)"
-            :src="item.icon"
-            alt=""
-            class="absolute bottom-2 left-2 size-11 rounded-xl border border-white/25 object-cover shadow"
-            @error="onArtError(item.icon)"
-          />
-        </div>
-        <div class="p-3" :class="mode === 'icons' ? 'text-center' : ''">
-          <div
-            class="flex items-start gap-2"
-            :class="mode === 'icons' ? 'justify-center' : ''"
-          >
-            <div class="min-w-0 flex-1">
-              <h2 class="truncate font-black">{{ item.title }}</h2>
-              <p
-                v-if="mode !== 'icons' && item.description"
-                class="line-clamp-2 text-xs text-base-content/55"
-              >
-                {{ item.description }}
-              </p>
-            </div>
-            <slot name="item-trailing" :item="item" />
-          </div>
-          <p
-            v-if="mode !== 'icons' && item.meta"
-            class="mt-2 text-xs text-base-content/45"
-          >
-            {{ item.meta }}
-          </p>
-          <div
-            v-if="mode !== 'icons' && item.progressPercent !== undefined"
-            class="mt-1.5 h-1 overflow-hidden rounded-full bg-base-content/10"
+      <template v-else>
+        <template v-for="item in pagedItems" :key="item.id">
+          <button
+            v-if="mode === 'icons'"
+            type="button"
+            :data-theme="themed ? itemTheme(item) : undefined"
+            class="group flex min-w-0 items-center gap-3 rounded-2xl border border-(--kr-surface-border) bg-(--kr-surface) p-3 text-left transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg"
+            @click="emit('open', item)"
           >
             <div
-              class="h-full bg-primary"
-              :style="{ width: `${item.progressPercent}%` }"
-            />
-          </div>
-        </div>
-      </button>
+              class="relative size-16 shrink-0 overflow-hidden rounded-xl bg-(--kr-surface-sunken)"
+            >
+              <img
+                v-if="artSrc(item)"
+                :src="artSrc(item)"
+                :alt="item.title"
+                class="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                @error="onArtError(artSrc(item))"
+              />
+              <div
+                v-else
+                class="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-linear-to-br from-base-200 to-base-300 text-base-content/40"
+              >
+                <Icon
+                  :name="item.placeholderIcon || 'kind-icon:image'"
+                  class="size-7"
+                />
+                <span
+                  v-if="item.placeholderLabel"
+                  class="text-[9px] uppercase tracking-wide"
+                >
+                  {{ item.placeholderLabel }}
+                </span>
+              </div>
+            </div>
+
+            <div class="min-w-0 flex-1">
+              <div
+                v-if="item.badges?.length"
+                class="mb-1 flex flex-wrap gap-1"
+              >
+                <span
+                  v-for="badge in item.badges"
+                  :key="badge.label"
+                  class="badge badge-xs"
+                  :class="badge.class"
+                >
+                  {{ badge.label }}
+                </span>
+              </div>
+
+              <div class="flex items-start gap-2">
+                <div class="min-w-0 flex-1">
+                  <h2 class="break-words font-black leading-tight">
+                    {{ item.title }}
+                  </h2>
+                  <p
+                    v-if="item.description"
+                    class="mt-0.5 line-clamp-2 text-xs text-base-content/55"
+                  >
+                    {{ item.description }}
+                  </p>
+                </div>
+                <slot name="item-trailing" :item="item" />
+              </div>
+
+              <p
+                v-if="item.meta"
+                class="mt-1.5 text-xs text-base-content/45"
+              >
+                {{ item.meta }}
+              </p>
+              <div
+                v-if="item.progressPercent !== undefined"
+                class="mt-1.5 h-1 overflow-hidden rounded-full bg-base-content/10"
+              >
+                <div
+                  class="h-full bg-primary"
+                  :style="{ width: `${item.progressPercent}%` }"
+                />
+              </div>
+            </div>
+          </button>
+
+          <button
+            v-else
+            type="button"
+            :data-theme="themed ? itemTheme(item) : undefined"
+            class="group overflow-hidden rounded-2xl border border-(--kr-surface-border) bg-(--kr-surface) text-left transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg"
+            @click="emit('open', item)"
+          >
+            <div
+              class="relative overflow-hidden bg-(--kr-surface-sunken)"
+              :class="mode === 'cards' ? 'aspect-2/3' : 'aspect-video'"
+            >
+              <img
+                v-if="artSrc(item)"
+                :src="artSrc(item)"
+                :alt="item.title"
+                class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                @error="onArtError(artSrc(item))"
+              />
+              <div
+                v-else
+                class="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-linear-to-br from-base-200 to-base-300 text-base-content/40"
+              >
+                <Icon
+                  :name="item.placeholderIcon || 'kind-icon:image'"
+                  class="size-8"
+                />
+                <span
+                  v-if="item.placeholderLabel"
+                  class="text-[10px] uppercase tracking-wide"
+                >
+                  {{ item.placeholderLabel }}
+                </span>
+              </div>
+              <div
+                class="absolute inset-0 bg-linear-to-t from-base-300/90 via-transparent to-transparent"
+              />
+              <div
+                v-if="item.badges?.length"
+                class="absolute left-2 top-2 flex flex-wrap gap-1"
+              >
+                <span
+                  v-for="badge in item.badges"
+                  :key="badge.label"
+                  class="badge badge-xs"
+                  :class="badge.class"
+                >
+                  {{ badge.label }}
+                </span>
+              </div>
+              <img
+                v-if="item.icon && !failedArt.has(item.icon)"
+                :src="item.icon"
+                alt=""
+                class="absolute bottom-2 left-2 size-11 rounded-xl border border-white/25 object-cover shadow"
+                @error="onArtError(item.icon)"
+              />
+            </div>
+
+            <div class="p-3">
+              <div class="flex items-start gap-2">
+                <div class="min-w-0 flex-1">
+                  <h2 class="break-words font-black leading-tight">
+                    {{ item.title }}
+                  </h2>
+                  <p
+                    v-if="item.description"
+                    class="line-clamp-2 text-xs text-base-content/55"
+                  >
+                    {{ item.description }}
+                  </p>
+                </div>
+                <slot name="item-trailing" :item="item" />
+              </div>
+              <p v-if="item.meta" class="mt-2 text-xs text-base-content/45">
+                {{ item.meta }}
+              </p>
+              <div
+                v-if="item.progressPercent !== undefined"
+                class="mt-1.5 h-1 overflow-hidden rounded-full bg-base-content/10"
+              >
+                <div
+                  class="h-full bg-primary"
+                  :style="{ width: `${item.progressPercent}%` }"
+                />
+              </div>
+            </div>
+          </button>
+        </template>
+      </template>
     </section>
   </div>
 </template>
@@ -517,13 +579,6 @@ const pageRangeLabel = computed(() => {
   return `${first}–${last} of ${total}`
 })
 
-const imageWrapClass = computed(() =>
-  props.mode === 'heroes'
-    ? 'min-h-64'
-    : props.mode === 'icons'
-      ? 'mx-auto mt-3 size-24 rounded-2xl'
-      : 'aspect-[4/3]',
-)
 const modeVariant = computed<ArtVariant>(() => MODE_VARIANT[props.mode])
 
 /**

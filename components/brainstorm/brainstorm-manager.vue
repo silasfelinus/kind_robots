@@ -1,6 +1,6 @@
 <template>
   <section
-    class="mx-auto flex w-full max-w-7xl flex-col gap-4 px-1 pb-8 sm:gap-5 sm:px-2"
+    class="kr-container-wide flex flex-col gap-4 px-1 pb-8 sm:gap-5 sm:px-2"
     aria-label="Brainstorm idea workbench"
     data-testid="brainstorm-manager"
   >

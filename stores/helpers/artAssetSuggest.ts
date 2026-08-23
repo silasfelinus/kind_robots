@@ -44,6 +44,8 @@ export async function suggestArtAssetPrompt(
   input: ArtAssetSuggestionInput,
 ): Promise<string> {
   const serverStore = useServerStore()
+  await serverStore.initialize({ fetchRemote: true })
+
   const activeServer = serverStore.activeTextServer
   const server = activeServer
     ? {
@@ -81,5 +83,14 @@ export async function suggestArtAssetPrompt(
     30000,
   )
 
-  return result.success ? cleanString(result.data?.value) : ''
+  if (!result.success) {
+    throw new Error(result.message || 'Prompt suggestion failed.')
+  }
+
+  const value = cleanString(result.data?.value)
+  if (!value) {
+    throw new Error('The suggestion model returned no prompt.')
+  }
+
+  return value
 }

@@ -110,6 +110,21 @@ export interface GenerateTextData {
 
 type StreamResponseOptions = Omit<GenerateTextData, 'prompt'>
 
+/**
+ * Fired synchronously once `generateText` has created its chat row and is
+ * about to start streaming into it -- before the function's own `await`
+ * settles. Lets a caller capture the concrete chat id it owns instead of
+ * relying on the module-level `pendingChatId` singleton, which two
+ * concurrent `generateText` calls (Storybook and Taskmaster both call it
+ * from the same shared chatStore) would otherwise race: whichever call's
+ * chat was created last wins the singleton while it streams, and whichever
+ * call's `finally` runs first unconditionally nulls it out from under a
+ * still-streaming sibling call. See `chatText()` below for the read side.
+ */
+type GenerateTextHooks = {
+  onChatId?: (chatId: number) => void
+}
+
 type GenerateTextResult = {
   chat: Chat
   text: string
@@ -477,6 +492,29 @@ export const useChatStore = defineStore('chatStore', () => {
   })
 
   const pendingText = computed(() => pendingChat.value?.botResponse ?? '')
+
+  /**
+   * The live `botResponse` for a specific chat id, independent of the
+   * `pendingChatId` singleton above.
+   *
+   * `pendingChatId`/`pendingChat`/`pendingText` reflect whichever
+   * `generateText` call most recently started -- fine for a single active
+   * caller, but storybookStore and taskmasterStore each call
+   * `chatStore.generateText()` from their own `weaveBeat`, and neither
+   * cancels its in-flight call on navigation. If both happen to be
+   * streaming at once (e.g. the reader leaves Storybook mid-scene and
+   * answers a Taskmaster beat before Storybook's own call resolves), the
+   * singleton can point at the WRONG caller's chat, or get nulled by
+   * whichever call's `finally` happens to run first -- surfacing one
+   * product's streaming prose inside the other's transcript, or blanking a
+   * still-streaming one back to the loading state. Callers that captured
+   * their own chat id via `generateText`'s `onChatId` hook should read it
+   * through here instead.
+   */
+  function chatText(chatId: number | null): string {
+    if (chatId === null) return ''
+    return chats.value.find((chat) => chat.id === chatId)?.botResponse ?? ''
+  }
 
   function setGenerationMessage(
     tone: 'success' | 'error',
@@ -1332,6 +1370,7 @@ export const useChatStore = defineStore('chatStore', () => {
 
   async function generateText(
     data: Partial<GenerateTextData> = {},
+    hooks: GenerateTextHooks = {},
   ): Promise<ApiResponse<GenerateTextResult>> {
     const prompt = data.prompt?.trim() || state.textForm.prompt.trim()
     const promptValidation = validateTextPrompt(prompt)
@@ -1398,6 +1437,7 @@ export const useChatStore = defineStore('chatStore', () => {
       const newChat = await createChat(chatPayload)
       chats.value.push(newChat)
       pendingChatId.value = newChat.id
+      hooks.onChatId?.(newChat.id)
       refreshUnreadMessages()
       saveToLocalStorage()
 
@@ -1753,6 +1793,7 @@ export const useChatStore = defineStore('chatStore', () => {
     pendingChatId,
     pendingChat,
     pendingText,
+    chatText,
     /*
      * initializePromise is deliberately NOT returned.
      *

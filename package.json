@@ -362,6 +362,8 @@
     "test:model-builder-contract-tests-coverage-guard": "tsx utils/scripts/verifyModelBuilderContractTestsCoverageGuard.ts",
     "test:model-builder-batch-busy-item-exclusion-guard-selftest": "tsx utils/scripts/verifyModelBuilderBatchBusyItemExclusionGuard.test.ts",
     "test:model-builder-batch-busy-item-exclusion-guard": "tsx utils/scripts/verifyModelBuilderBatchBusyItemExclusionGuard.ts",
+    "test:model-builder-draft-source-snapshot-guard-selftest": "tsx utils/scripts/verifyModelBuilderDraftSourceSnapshotGuard.test.ts",
+    "test:model-builder-draft-source-snapshot-guard": "tsx utils/scripts/verifyModelBuilderDraftSourceSnapshotGuard.ts",
     "test:storybook-active-story-resume-guard": "npx tsx utils/scripts/verifyStorybookActiveStoryResumeGuard.ts",
     "test:storybook-answer-input-preservation-guard": "node utils/scripts/verifyStorybookAnswerInputPreservationGuard.mjs",
     "test:storybook-answer-rollback-guard": "node utils/scripts/verifyStorybookAnswerRollbackGuard.mjs",

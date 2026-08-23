@@ -447,7 +447,7 @@ import { performFetch } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'
 import type { ProjectFrontConfig } from '@/components/conductor/projectFront'
 import { useAchievementStore } from '@/stores/achievementStore'
-import { createNarrativeArtJobsController } from '@/stores/helpers/narrativeArtJobsHelper'
+import { createPersistedNarrativeArtJobsController } from '@/stores/helpers/persistedNarrativeArtJobsHelper'
 import type { NarrativeArtJobState } from '@/utils/narrativeArtJobs'
 import type { NarrativeChoice } from '@/components/narrative/kr-choice-list.vue'
 
@@ -780,7 +780,7 @@ const phaseRegion = ref<HTMLElement | null>(null)
 // ArtImage — see server/utils/davinci.ts's attachLifeRunArt. Reading/choosing
 // never blocks on this: chapterArt/endingArt render a pending/skeleton state
 // via <NarrativeArtStatus> until the illustration is ready.
-const narrativeArtJobs = createNarrativeArtJobsController()
+const narrativeArtJobs = createPersistedNarrativeArtJobsController()
 const chapterArt = ref<Record<number, NarrativeArtJobState>>({})
 const endingArt = ref<NarrativeArtJobState | null>(null)
 const lastArtPrompt = ref<string | null>(null)
@@ -998,20 +998,14 @@ function updateEndingArt(runId: number, art: NarrativeArtJobState) {
 // to the run. Best-effort and non-blocking, same as persistLifeRunArt --
 // losing this cache (private browsing, a cleared storage, JSON.stringify
 // somehow throwing) only means a slower reconnect on reload, not a broken run.
+// The read/write mechanics are shared with storybookStore.ts's equivalent
+// pattern via persistedNarrativeArtJobsHelper.ts (davinci/t-025).
 function persistArtJobs() {
   if (!run.value) return
-  try {
-    localStorage.setItem(
-      ART_JOBS_STORAGE_KEY,
-      JSON.stringify({
-        runId: run.value.id,
-        chapterArt: chapterArt.value,
-        endingArt: endingArt.value,
-      }),
-    )
-  } catch {
-    // best-effort cache -- see the doc comment above.
-  }
+  narrativeArtJobs.writeCache(ART_JOBS_STORAGE_KEY, run.value.id, {
+    chapterArt: chapterArt.value,
+    endingArt: endingArt.value,
+  })
 }
 
 // The other half of persistArtJobs() above: called once per resumeRun(),
@@ -1026,18 +1020,11 @@ function persistArtJobs() {
 // blank until the first poll response) also restores a failed job's retry
 // button immediately, not just a still-in-flight job's busy indicator.
 function resumePendingArtJobs(runId: number) {
-  let cached: {
-    runId?: number
+  const cached = narrativeArtJobs.readCache<{
     chapterArt?: Record<string, NarrativeArtJobState>
     endingArt?: NarrativeArtJobState | null
-  } | null = null
-  try {
-    const raw = localStorage.getItem(ART_JOBS_STORAGE_KEY)
-    cached = raw ? JSON.parse(raw) : null
-  } catch {
-    cached = null
-  }
-  if (!cached || cached.runId !== runId) return
+  }>(ART_JOBS_STORAGE_KEY, runId)
+  if (!cached) return
 
   for (const [key, state] of Object.entries(cached.chapterArt ?? {})) {
     const chapter = Number(key)

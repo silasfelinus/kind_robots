@@ -1,7 +1,9 @@
 // /utils/scripts/verifyDaVinciArtResumeGuard.test.ts
 //
 // Regression test for checkArtResumeGuard() in verifyDaVinciArtResumeGuard.ts
-// (davinci/t-021 slice 14). Exercises the real check against synthetic
+// (davinci/t-021 slice 14; cache read/write moved to
+// createPersistedNarrativeArtJobsController()'s readCache()/writeCache() in
+// davinci/t-025). Exercises the real check against synthetic
 // component-shaped fixtures covering: the fixed shape (both update
 // functions persist, resumePendingArtJobs() reads the cache and resumes
 // both slots while seeding chapterArt first, resumeRun() calls it after
@@ -35,11 +37,10 @@ function updateEndingArt(runId: number, art: NarrativeArtJobState) {
 
 function persistArtJobs() {
   if (!run.value) return
-  localStorage.setItem(ART_JOBS_STORAGE_KEY, JSON.stringify({
-    runId: run.value.id,
+  narrativeArtJobs.writeCache(ART_JOBS_STORAGE_KEY, run.value.id, {
     chapterArt: chapterArt.value,
     endingArt: endingArt.value,
-  }))
+  })
 }
 
 function resumePendingArtJobs(runId: number) {
@@ -87,9 +88,11 @@ const FIXED_ARGS = {
   updateChapterPersist: 'persistArtJobs()',
   updateEndingPersist: 'persistArtJobs()',
   resumePendingBody: `
-    const raw = localStorage.getItem(ART_JOBS_STORAGE_KEY)
-    const cached = raw ? JSON.parse(raw) : null
-    if (!cached || cached.runId !== runId) return
+    const cached = narrativeArtJobs.readCache<{
+      chapterArt?: Record<string, NarrativeArtJobState>
+      endingArt?: NarrativeArtJobState | null
+    }>(ART_JOBS_STORAGE_KEY, runId)
+    if (!cached) return
     for (const [key, state] of Object.entries(cached.chapterArt ?? {})) {
       const chapter = Number(key)
       updateChapterArt(runId, chapter, state)
@@ -157,9 +160,11 @@ function run(): void {
     fixture({
       ...FIXED_ARGS,
       resumePendingBody: `
-        const raw = localStorage.getItem(ART_JOBS_STORAGE_KEY)
-        const cached = raw ? JSON.parse(raw) : null
-        if (!cached || cached.runId !== runId) return
+        const cached = narrativeArtJobs.readCache<{
+          chapterArt?: Record<string, NarrativeArtJobState>
+          endingArt?: NarrativeArtJobState | null
+        }>(ART_JOBS_STORAGE_KEY, runId)
+        if (!cached) return
         for (const [key, state] of Object.entries(cached.chapterArt ?? {})) {
           const chapter = Number(key)
           updateChapterArt(runId, chapter, state)
@@ -178,9 +183,11 @@ function run(): void {
     fixture({
       ...FIXED_ARGS,
       resumePendingBody: `
-        const raw = localStorage.getItem(ART_JOBS_STORAGE_KEY)
-        const cached = raw ? JSON.parse(raw) : null
-        if (!cached || cached.runId !== runId) return
+        const cached = narrativeArtJobs.readCache<{
+          chapterArt?: Record<string, NarrativeArtJobState>
+          endingArt?: NarrativeArtJobState | null
+        }>(ART_JOBS_STORAGE_KEY, runId)
+        if (!cached) return
         for (const [key, state] of Object.entries(cached.chapterArt ?? {})) {
           const chapter = Number(key)
           narrativeArtJobs.resume(state, (art) => updateChapterArt(runId, chapter, art))

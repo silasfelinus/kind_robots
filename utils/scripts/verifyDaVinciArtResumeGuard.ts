@@ -29,13 +29,22 @@
 // hydrateArtFromRun() to seed back and reconnect anything the server
 // hydration didn't already cover.
 //
+// davinci/t-025: persistArtJobs()/resumePendingArtJobs() now read/write that
+// cache through createPersistedNarrativeArtJobsController()'s writeCache()/
+// readCache() (persistedNarrativeArtJobsHelper.ts) instead of calling
+// localStorage directly -- the same controller storybookStore.ts's
+// resumeNarrativeArtJobs() uses for its resume loop -- but the function
+// names, the ART_JOBS_STORAGE_KEY cache key, and the seed-then-resume shape
+// this guard protects are unchanged.
+//
 // This asserts the textual shape of the fix stays in place: both update
 // functions persist on every call, resumePendingArtJobs() reads the cache
-// and calls narrativeArtJobs.resume() for both the chapter and ending slots,
-// resumeRun() calls it after hydrating from the server, and playAgain()
-// clears the cache along with the existing active-run-id key. Deliberately
-// scoped via narrow textual checks, mirroring this project's other guards
-// over a general-purpose static analyzer (see verifyDaVinciDimensionToneGuard.ts).
+// via readCache() and calls narrativeArtJobs.resume() for both the chapter
+// and ending slots, resumeRun() calls it after hydrating from the server,
+// and playAgain() clears the cache along with the existing active-run-id
+// key. Deliberately scoped via narrow textual checks, mirroring this
+// project's other guards over a general-purpose static analyzer (see
+// verifyDaVinciDimensionToneGuard.ts).
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -112,13 +121,13 @@ export function checkArtResumeGuard(content: string): string[] {
     )
   } else {
     if (
-      !/localStorage\.getItem\(\s*ART_JOBS_STORAGE_KEY\s*\)/.test(
+      !/narrativeArtJobs\.readCache[\s\S]*?\(\s*ART_JOBS_STORAGE_KEY\s*,/.test(
         resumePendingArtJobs,
       )
     ) {
       errors.push(
-        'resumePendingArtJobs() no longer reads ART_JOBS_STORAGE_KEY from ' +
-          'localStorage -- it has nothing to resume from.',
+        'resumePendingArtJobs() no longer reads ART_JOBS_STORAGE_KEY via ' +
+          'narrativeArtJobs.readCache() -- it has nothing to resume from.',
       )
     }
     const chapterResumeCount = (

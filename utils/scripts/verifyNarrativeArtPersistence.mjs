@@ -156,10 +156,15 @@ assert.ok(
 for (const storePath of [storyStorePath, taskStorePath]) {
   includesAll(storePath, [
     'art?: NarrativeArtJobState',
-    'createNarrativeArtJobsController()',
+    // davinci/t-025: both stores now share
+    // createPersistedNarrativeArtJobsController() (which itself wraps
+    // createNarrativeArtJobsController()) instead of calling the bare
+    // controller factory directly.
+    'createPersistedNarrativeArtJobsController()',
     'updateBeatArt',
     'requestBeatArt',
     'resumeNarrativeArtJobs',
+    'resumeEntries',
     'retryBeatArt',
     "? 'finale'",
     "? 'opening'",

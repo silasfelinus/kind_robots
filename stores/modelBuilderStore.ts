@@ -740,6 +740,18 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         throw new Error(response.message || 'Failed to start build run.')
       }
 
+      // Same store-wide "who's in flight" singletons resetRun/resetAll clear
+      // (see resetRun's comment) -- a brand-new run replacing the old one is
+      // the identical "abandon this run's in-flight work" moment, just
+      // reached via Change-source/the Source crumb + Start build run instead
+      // of the explicit New-run controls, so it leaked the same stale-busy-
+      // indicator bug through a third path (model-builder/t-029 cycle 57).
+      state.generatingItemId = null
+      state.committingItemId = null
+      state.autoBuilding = false
+      state.autoBuildingItemId = null
+      state.batchingOutputKey = null
+      draftingField.value = null
       state.run = adaptRun(response.data)
       setActiveRunId(response.data.id)
       state.step = 'run'
@@ -2867,6 +2879,18 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
           state.step = 'run'
           setActiveRunId(data.id)
         } else {
+          // Same store-wide "who's in flight" singletons resetRun/resetAll
+          // clear (see resetRun's comment) -- adopting a different run here
+          // (a remount picking up a different remembered/latest run) is the
+          // identical "abandon this run's in-flight work" moment, leaking
+          // the same stale-busy-indicator bug through yet another path
+          // (model-builder/t-029 cycle 57).
+          state.generatingItemId = null
+          state.committingItemId = null
+          state.autoBuilding = false
+          state.autoBuildingItemId = null
+          state.batchingOutputKey = null
+          draftingField.value = null
           state.run = adaptRun(data)
           state.sourceType = data.sourceType as SourceTypeKey
           state.recipeKey = data.recipeKey as RecipeKey
@@ -3003,6 +3027,17 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
 
     const cached = state.runs.find((entry) => entry.id === runId)
     if (cached && cached.status !== 'CANCELLED') {
+      // Same store-wide "who's in flight" singletons resetRun/resetAll
+      // clear (see resetRun's comment) -- swapping to a different, already-
+      // cached run here is the identical "abandon this run's in-flight
+      // work" moment, leaking the same stale-busy-indicator bug through
+      // yet another path (model-builder/t-029 cycle 57).
+      state.generatingItemId = null
+      state.committingItemId = null
+      state.autoBuilding = false
+      state.autoBuildingItemId = null
+      state.batchingOutputKey = null
+      draftingField.value = null
       state.run = cached
       state.sourceType = cached.sourceType
       state.recipeKey = cached.recipeKey
@@ -3035,10 +3070,16 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
           )
           return
         }
+        // See the comment on the cached branch above.
+        state.generatingItemId = null
+        state.committingItemId = null
+        state.autoBuilding = false
+        state.autoBuildingItemId = null
+        state.batchingOutputKey = null
+        draftingField.value = null
         state.run = adaptRun(response.data)
         state.sourceType = state.run.sourceType
         state.recipeKey = state.run.recipeKey
-        // See the comment on the cached branch above.
         state.selectedSource = null
         state.selections = {}
         state.step = 'run'

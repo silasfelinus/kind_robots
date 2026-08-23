@@ -12,6 +12,10 @@ import {
   resolveSuggestModel,
   str,
 } from '../utils/suggest/suggestProviders'
+import {
+  getRuntimeAnthropicKey,
+  getRuntimeOpenAiKey,
+} from '../utils/textProviderService'
 import type { SuggestBody } from '../utils/suggest/suggestTypes'
 
 type SuggestServerLike = {
@@ -117,9 +121,9 @@ export default defineEventHandler(async (event) => {
       maxTokens,
       apiKey:
         provider === 'anthropic'
-          ? str(config.anthropicApiKey)
+          ? getRuntimeAnthropicKey(config)
           : provider === 'openai'
-            ? str(config.openaiApiKey)
+            ? getRuntimeOpenAiKey(config)
             : undefined,
       baseUrl:
         provider === 'ollama'

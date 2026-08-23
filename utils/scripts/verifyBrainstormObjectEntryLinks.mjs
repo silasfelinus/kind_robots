@@ -30,6 +30,7 @@ function includesAll(path, values) {
 
 const characterManagerPath = 'components/characters/character-manager.vue'
 const scenarioManagerPath = 'components/scenarios/scenario-manager.vue'
+const rewardManagerPath = 'components/rewards/reward-manager.vue'
 const brainstormManagerPath = 'components/brainstorm/brainstorm-manager.vue'
 
 includesAll(characterManagerPath, [
@@ -51,6 +52,18 @@ includesAll(scenarioManagerPath, [
   'sourceId: String(scenario.id)',
 ])
 
+// brainstorm/t-028: Reward is the third surface wired into the same
+// seedFromQuery() contract -- its BRAINSTORM_SOURCE_ADAPTERS entry (this
+// task) ships alongside its own gated CTA, unlike Scenario's adapter/CTA
+// gap in t-027.
+includesAll(rewardManagerPath, [
+  'startBrainstormWithReward',
+  '@click="startBrainstormWithReward"',
+  "path: '/brainstorm'",
+  "source: 'reward'",
+  'sourceId: String(reward.id)',
+])
+
 includesAll(brainstormManagerPath, [
   'function seedFromQuery',
   'seedFromQuery()',
@@ -62,7 +75,8 @@ includesAll(brainstormManagerPath, [
 ])
 
 console.log(
-  'Brainstorm object-entry links contract passed: Character can launch a ' +
-    'Brainstorm session grounded in itself, and Brainstorm still seeds its ' +
-    'source and premise from the source/sourceId/intent query keys.',
+  'Brainstorm object-entry links contract passed: Character, Scenario, and ' +
+    'Reward can each launch a Brainstorm session grounded in themselves, ' +
+    'and Brainstorm still seeds its source and premise from the ' +
+    'source/sourceId/intent query keys.',
 )

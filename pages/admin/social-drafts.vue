@@ -1,6 +1,6 @@
 <template>
   <main class="kr-surface h-full min-h-0 overflow-hidden">
-    <div class="kr-scroll mx-auto w-full max-w-7xl space-y-4 p-4 md:p-6">
+    <div class="kr-scroll kr-container-wide space-y-4 p-4 md:p-6">
       <header
         class="kr-toolbar flex flex-wrap items-start justify-between gap-4"
       >

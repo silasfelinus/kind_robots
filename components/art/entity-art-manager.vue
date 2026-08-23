@@ -137,26 +137,36 @@
 
     <div
       v-if="hasCarousel"
-      class="group relative mt-3 min-h-40 overflow-hidden rounded-xl border border-dashed border-primary/40 bg-primary/5"
+      class="group relative mt-3 min-h-40 touch-pan-y select-none overflow-hidden rounded-xl border border-dashed border-primary/40 bg-primary/5"
       @mouseenter="carouselPaused = true"
       @mouseleave="carouselPaused = false"
+      @pointerdown="beginCarouselSwipe"
+      @pointerup="endCarouselSwipe"
+      @pointercancel="cancelCarouselSwipe"
     >
       <Transition name="entity-carousel-fade">
         <img
           :key="activeCarouselSlide.src"
           :src="activeCarouselSlide.src"
           :alt="activeCarouselSlide.label"
+          draggable="false"
           class="absolute inset-0 size-full object-cover"
         />
       </Transition>
       <div
-        class="absolute inset-x-0 top-0 flex flex-wrap items-center gap-2 bg-linear-to-b from-base-300/90 to-transparent p-2"
+        class="pointer-events-none absolute inset-x-0 top-0 flex flex-wrap items-center gap-2 bg-linear-to-b from-base-300/90 to-transparent p-2"
       >
         <Icon name="kind-icon:image" class="size-3.5 text-secondary" />
         <span
           class="text-xs font-bold uppercase tracking-wide text-base-content/60"
         >
-          Artwork &amp; collection
+          Artwork &amp; inspirations
+        </span>
+        <span
+          v-if="history.length"
+          class="badge badge-info badge-xs"
+        >
+          {{ history.length }} inspiration{{ history.length === 1 ? '' : 's' }}
         </span>
         <span
           v-if="collectionSlides.length"
@@ -169,7 +179,7 @@
         </span>
       </div>
       <div
-        class="absolute inset-x-0 bottom-0 bg-linear-to-t from-base-300/90 to-transparent p-2 pt-8"
+        class="pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-base-300/90 to-transparent p-2 pt-8"
       >
         <span
           class="badge badge-sm border-0 bg-base-100/85 font-semibold backdrop-blur"
@@ -180,16 +190,18 @@
       <template v-if="carouselSlides.length > 1">
         <button
           type="button"
-          class="btn btn-circle btn-sm absolute left-2 top-1/2 -translate-y-1/2 border-0 bg-base-100/70 opacity-0 shadow group-hover:opacity-100"
+          class="btn btn-circle btn-sm absolute left-2 top-1/2 -translate-y-1/2 border-0 bg-base-100/70 opacity-80 shadow sm:opacity-0 sm:group-hover:opacity-100"
           aria-label="Previous image"
+          @pointerdown.stop
           @click="stepCarousel(-1)"
         >
           <Icon name="kind-icon:chevron-left" class="size-4" />
         </button>
         <button
           type="button"
-          class="btn btn-circle btn-sm absolute right-2 top-1/2 -translate-y-1/2 border-0 bg-base-100/70 opacity-0 shadow group-hover:opacity-100"
+          class="btn btn-circle btn-sm absolute right-2 top-1/2 -translate-y-1/2 border-0 bg-base-100/70 opacity-80 shadow sm:opacity-0 sm:group-hover:opacity-100"
           aria-label="Next image"
+          @pointerdown.stop
           @click="stepCarousel(1)"
         >
           <Icon name="kind-icon:chevron-right" class="size-4" />
@@ -541,9 +553,9 @@ const props = withDefaults(
     slots: EntityArtSlot[]
     canEdit?: boolean
     /**
-     * Extra read-only slides (e.g. a linked ArtCollection) to autoplay
-     * alongside this entity's own Hero/Card/Icon art. Omit to keep the
-     * plain single-image + history layout every other entity type uses.
+     * Extra read-only slides (e.g. a linked ArtCollection). Canonical entity
+     * slots and preserved inspiration history are also part of the same
+     * swipeable artwork loop.
      */
     collectionSlides?: CollectionSlide[]
   }>(),
@@ -581,10 +593,10 @@ let pollTimer: ReturnType<typeof setTimeout> | null = null
 let activeJobId: number | null = null
 let stopped = false
 
-const hasCarousel = computed(() => props.collectionSlides.length > 0)
 const carouselIndex = ref(0)
 const carouselPaused = ref(false)
 let carouselTimer: ReturnType<typeof setInterval> | null = null
+let swipeStartX: number | null = null
 
 const entityLabel = computed(() =>
   props.entityType.charAt(0).toUpperCase() + props.entityType.slice(1),
@@ -726,11 +738,19 @@ const carouselSlides = computed<CarouselSlide[]>(() => {
     out.push({ src, label, field })
   }
   for (const slot of props.slots) push(slotSrc(slot.field), slot.label, slot.field)
+  for (const item of history.value) {
+    push(
+      historySrc(item),
+      `Inspiration · ${item.fieldLabel || item.fileName || `Image ${item.id}`}`,
+      item.field,
+    )
+  }
   for (const slide of props.collectionSlides) {
     push(normalizeSrc(slide.src), slide.label)
   }
   return out
 })
+const hasCarousel = computed(() => carouselSlides.value.length > 1)
 const activeCarouselSlide = computed<CarouselSlide>(
   () =>
     carouselSlides.value[carouselIndex.value] ??
@@ -742,6 +762,26 @@ function stepCarousel(direction: number) {
   if (count) {
     carouselIndex.value = (carouselIndex.value + direction + count) % count
   }
+}
+
+function beginCarouselSwipe(event: PointerEvent) {
+  if (event.pointerType === 'mouse' && event.button !== 0) return
+  swipeStartX = event.clientX
+  carouselPaused.value = true
+}
+
+function endCarouselSwipe(event: PointerEvent) {
+  if (swipeStartX === null) return
+  const delta = event.clientX - swipeStartX
+  swipeStartX = null
+  carouselPaused.value = false
+  if (Math.abs(delta) < 40) return
+  stepCarousel(delta < 0 ? 1 : -1)
+}
+
+function cancelCarouselSwipe() {
+  swipeStartX = null
+  carouselPaused.value = false
 }
 
 function selectCarouselSlide(index: number) {
@@ -994,6 +1034,7 @@ watch(
     currentFailed.value = false
     history.value = []
     carouselIndex.value = 0
+    cancelCarouselSwipe()
     closeForms()
     try {
       await fetchEntityArt(true)

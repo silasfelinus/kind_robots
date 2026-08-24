@@ -5,14 +5,9 @@ import { attachCompletedArtImageToCollections } from './generatedArtCollections'
 import path from 'node:path'
 import fs from 'node:fs/promises'
 
-type SaveImageOptions = {
-  deferGeneratedCollection?: boolean
-}
-
 export async function saveImage(
   base64Image: string,
   userId: number,
-  options: SaveImageOptions = {},
 ): Promise<{ id: number; fileName: string }> {
   try {
     const timestamp = Date.now()
@@ -30,16 +25,15 @@ export async function saveImage(
       },
     })
 
-    // Direct synchronous generators finish at saveImage, so they receive the
-    // same canonical Generated Art membership as durable ArtJobs. The relay's
-    // /api/art/save-generated staging upload defers this until queue completion,
-    // where requested/entity collections are applied transactionally too.
-    if (!options.deferGeneratedCollection) {
-      await attachCompletedArtImageToCollections(prisma, {
-        artImageId: savedImage.id,
-        userId,
-      })
-    }
+    // saveImage is the common persistence seam for finished generated pixels:
+    // direct A1111/SDXL/OpenAI renders, browser-side Kontext saves, and relay
+    // ArtJob uploads. Give every generated ArtImage a canonical DB collection
+    // immediately. Durable ArtJob completion then idempotently adds any
+    // explicit or entity-context collections in its completion transaction.
+    await attachCompletedArtImageToCollections(prisma, {
+      artImageId: savedImage.id,
+      userId,
+    })
 
     // Optionally save to the configured local filesystem in development.
     if (!isProduction) {

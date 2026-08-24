@@ -126,11 +126,16 @@ For tab `{tab}` in channel `{channel}`:
    front-end wiring above does NOT set it). Set `liveUrl` (the route),
    `channelKey` (`{channel}`), and `tabKey` (`{tab}`) on the project's
    `Project` row so it's launchable from Conductor and resolvable by the
-   placement resolver. Declaratively: add `liveUrl`/`channelKey`/`tabKey` to the
-   project's entry in `conductor/project-overrides.yaml` (or its
-   `roadmap.yaml`), and `conductor/scripts/sync_projects.py` upserts them via
-   `PATCH /api/projects/{slug}`. (The `/api/projects` POST/PATCH already accept
-   these fields; nothing else sends them.)
+   placement resolver. Kind Robots owns these presentation fields directly —
+   add the entry to `utils/projectPlacements.ts`'s `PROJECT_PLACEMENTS` map
+   (the canonical source) and `PATCH /api/projects/{id}` to set them on the
+   live row. A matching `liveUrl`/`channelKey`/`tabKey` block in conductor's
+   `project-overrides.yaml` is an informational mirror kept in sync by hand
+   for agents reading that file — `conductor/scripts/sync_projects.py` (now a
+   compatibility shim over `sync_kind_robots_projection.py`) is a one-way,
+   commit-stamped projection sender for coordination state and does not push
+   these fields; editing `project-overrides.yaml` alone does not change
+   anything in kind_robots.
 
 ## Recipe C — new channel (Silas approval required)
 

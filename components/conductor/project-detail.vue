@@ -94,6 +94,16 @@
         {{ projectSaveError ? 'save failed' : 'saved' }}
       </span>
       <button
+        v-if="linkedProject"
+        type="button"
+        class="btn btn-ghost btn-xs rounded-lg"
+        title="Brainstorm variations grounded in this Project"
+        aria-label="Brainstorm variations grounded in this Project"
+        @click="startBrainstormWithProject"
+      >
+        <Icon name="kind-icon:brain" class="size-3.5" />
+      </button>
+      <button
         type="button"
         class="btn btn-ghost btn-xs rounded-lg"
         :disabled="refreshing"
@@ -706,6 +716,19 @@ async function refreshProject() {
   } finally {
     refreshing.value = false
   }
+}
+
+function startBrainstormWithProject(): void {
+  const project = linkedProject.value
+  if (!project?.id) return
+  void navigateTo({
+    path: '/brainstorm',
+    query: {
+      source: 'project',
+      sourceId: String(project.id),
+      intent: `Generate variations for the Project "${project.title || 'this Project'}" that preserve its goal and direction.`,
+    },
+  })
 }
 
 async function submitProjectTask() {

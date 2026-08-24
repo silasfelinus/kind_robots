@@ -14,10 +14,11 @@
 //
 // Started with Character and Dream (BrainstormSourceRef.modelType is a free
 // string; these were the first two with real adapters). Scenario joined them
-// in brainstorm/t-014, Reward in brainstorm/t-028, Bot in brainstorm/t-029.
-// Project and Prompt can each register a BrainstormSourceAdapter the same
-// way, with no new API surface and no bespoke endpoint -- just another entry
-// in BRAINSTORM_SOURCE_ADAPTERS backed by that entity's existing store.
+// in brainstorm/t-014, Reward in brainstorm/t-028, Bot in brainstorm/t-029,
+// Project in brainstorm/t-030. Prompt can register a BrainstormSourceAdapter
+// the same way, with no new API surface and no bespoke endpoint -- just
+// another entry in BRAINSTORM_SOURCE_ADAPTERS backed by that entity's
+// existing store.
 //
 // The store-agnostic dispatch/fallback logic lives in
 // brainstormSourceAdapterKit.ts (no Pinia imports, unit-testable with plain
@@ -25,6 +26,7 @@
 import { useBotStore } from '@/stores/botStore'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useDreamStore } from '@/stores/dreamStore'
+import { useProjectStore } from '@/stores/projectStore'
 import { useRewardStore } from '@/stores/rewardStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { resolveArtImageSrc } from '@/utils/artImageSrc'
@@ -290,6 +292,61 @@ const botAdapter: BrainstormSourceAdapter = {
   },
 }
 
+const projectAdapter: BrainstormSourceAdapter = {
+  modelType: 'project',
+  label: 'Project',
+  async resolve(ref) {
+    if (!ref.id) return null
+    const store = useProjectStore()
+    // fetchProject throws (rather than resolving falsy) when the id can't be
+    // found, unlike the other stores' fetch-by-id helpers -- catch it here so
+    // this adapter still honors the "null if it can't be found" contract.
+    try {
+      const project = await store.fetchProject(ref.id)
+      if (!project) return null
+
+      return {
+        modelType: 'project',
+        id: project.id,
+        title: project.title || `Project #${project.id}`,
+        subtitle:
+          project.goal || project.pitch || project.flavorText || undefined,
+        thumbnailUrl: project.imagePath || null,
+      }
+    } catch {
+      return null
+    }
+  },
+  async search(query) {
+    const store = useProjectStore()
+    // Same fail-closed contract as the other adapters: a failed fresh fetch
+    // must never fall back to searching a possibly-stale cache. Includes
+    // inactive/mature projects, matching refreshProject()'s own broad fetch
+    // in components/conductor/project-detail.vue -- Brainstorm variations
+    // should be reachable from any Project, not just the public/active ones.
+    const freshProjects = await fetchFreshSourceRows(
+      () =>
+        store.fetchProjects(
+          { includeInactive: true, includeMature: true },
+          true,
+        ),
+      () => Boolean(store.error),
+    )
+
+    return freshProjects
+      .filter((project) =>
+        matchesQuery([project.title, project.goal, project.pitch], query),
+      )
+      .slice(0, SEARCH_RESULT_LIMIT)
+      .map((project) => ({
+        modelType: 'project',
+        id: project.id,
+        title: project.title || `Project #${project.id}`,
+        subtitle: project.goal || undefined,
+      }))
+  },
+}
+
 /** The adapter registry. Keys are lowercase modelType strings. */
 export const BRAINSTORM_SOURCE_ADAPTERS: Record<
   string,
@@ -300,6 +357,7 @@ export const BRAINSTORM_SOURCE_ADAPTERS: Record<
   scenario: scenarioAdapter,
   reward: rewardAdapter,
   bot: botAdapter,
+  project: projectAdapter,
 }
 
 export function listBrainstormSourceAdapters(): BrainstormSourceAdapter[] {

@@ -9,6 +9,8 @@ on:
       - 'components/characters/character-manager.vue'
       - 'components/scenarios/scenario-manager.vue'
       - 'components/rewards/reward-manager.vue'
+      - 'components/bots/bot-manager.vue'
+      - 'components/conductor/project-detail.vue'
       - 'utils/scripts/verifyBrainstormObjectEntryLinks.mjs'
   pull_request:
     branches: [main]
@@ -18,6 +20,8 @@ on:
       - 'components/characters/character-manager.vue'
       - 'components/scenarios/scenario-manager.vue'
       - 'components/rewards/reward-manager.vue'
+      - 'components/bots/bot-manager.vue'
+      - 'components/conductor/project-detail.vue'
       - 'utils/scripts/verifyBrainstormObjectEntryLinks.mjs'
   workflow_dispatch:
 

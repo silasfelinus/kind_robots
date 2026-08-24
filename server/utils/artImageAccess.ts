@@ -109,7 +109,7 @@ export function buildArtImageWhere({
 
 export function buildArtImageSelect(
   query: Record<string, QueryValue> = {},
-): Prisma.ArtImageSelect {
+) {
   const includeImageData = readBoolean(query.includeImageData, false)
   const includeThumbnailData = readBoolean(query.includeThumbnailData, false)
 
@@ -140,5 +140,5 @@ export function buildArtImageSelect(
     serverUrl: true,
     imageData: includeImageData,
     thumbnailData: includeThumbnailData,
-  }
+  } satisfies Prisma.ArtImageSelect
 }

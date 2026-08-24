@@ -3,6 +3,7 @@ import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { getOptionalApiUser } from '../../utils/authGuard'
 import { canView, viewablePackIds } from '../../utils/contentAccess'
+import { characterBrowseSelect } from './selects'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -58,11 +59,18 @@ export default defineEventHandler(async (event) => {
           }
         : { isPublic: true }
 
-    const data = await prisma.character.findMany({ where })
+    // The complete catalog is text-first/card-first. Long-form Character detail
+    // is loaded explicitly from /api/characters/:id when a caller opens,
+    // selects, edits, clones, or stages a Character.
+    const data = await prisma.character.findMany({
+      where,
+      select: characterBrowseSelect,
+      orderBy: { name: 'asc' },
+    })
 
     return {
       success: true,
-      message: 'All viewable characters fetched successfully.',
+      message: 'All viewable character browse records fetched successfully.',
       data,
       statusCode: 200,
     }

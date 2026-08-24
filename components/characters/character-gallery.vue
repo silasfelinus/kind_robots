@@ -276,7 +276,7 @@
           </div>
 
           <div
-            v-if="characterStore.characters.length > 0"
+            v-if="characterStore.browseCharacters.length > 0"
             class="mt-3 flex flex-wrap justify-center gap-2 text-xs"
           >
             <span class="badge badge-ghost">
@@ -376,7 +376,10 @@ import { computed, onMounted, ref } from 'vue'
 import type { Character } from '~/prisma/generated/prisma/client'
 import type { GalleryItem } from '@/components/gallery/kr-gallery.vue'
 import { MODE_VARIANT, type GalleryMode } from '@/utils/galleryVocabulary'
-import { useCharacterStore } from '@/stores/characterStore'
+import {
+  useCharacterStore,
+  type CharacterBrowse,
+} from '@/stores/characterStore'
 import { useUserStore } from '@/stores/userStore'
 
 type GalleryVariant = 'dashboard' | 'row' | 'dropdown'
@@ -528,8 +531,8 @@ const canCloneSelected = computed(() => {
   return Boolean(props.allowClone && selectedCharacter.value?.id)
 })
 
-const galleryCharacters = computed<Character[]>(() => {
-  let characters = characterStore.characters ?? []
+const galleryCharacters = computed<CharacterBrowse[]>(() => {
+  let characters = characterStore.browseCharacters ?? []
 
   if (!userStore.isAdmin && currentUserId.value !== null) {
     characters = characters.filter((character) => {
@@ -600,7 +603,7 @@ const characterCardProps = computed(() => ({
   imageFit: 'contain' as const,
 }))
 
-const filteredCharacters = computed<Character[]>(() => {
+const filteredCharacters = computed<CharacterBrowse[]>(() => {
   let characters = galleryCharacters.value
 
   if (selectedGenre.value !== 'all') {
@@ -629,7 +632,7 @@ const { earnedKarma: earnedKarmaByCharacterId } = userStore.trackEarnedKarma(
 )
 
 const exclusionSummary = computed(() => {
-  const allCharacters = characterStore.characters ?? []
+  const allCharacters = characterStore.browseCharacters ?? []
   const currentId = currentUserId.value
   const query = searchQuery.value.trim().toLowerCase()
 
@@ -680,11 +683,11 @@ const exclusionSummary = computed(() => {
 })
 
 const emptyStateTitle = computed(() => {
-  if (characterStore.characters.length === 0) {
+  if (characterStore.browseCharacters.length === 0) {
     return 'No characters loaded.'
   }
 
-  return `${characterStore.characters.length} characters loaded, but none match this gallery.`
+  return `${characterStore.browseCharacters.length} characters loaded, but none match this gallery.`
 })
 
 const emptyStateDetails = computed(() => {
@@ -721,7 +724,7 @@ const emptyStateDetails = computed(() => {
     )
   }
 
-  if (reasons.length === 0 && characterStore.characters.length > 0) {
+  if (reasons.length === 0 && characterStore.browseCharacters.length > 0) {
     reasons.push(
       'Characters are loaded, but the visible list is empty. Check whether the store data uses unexpected values for isPublic, isMature, genre, or userId.',
     )
@@ -736,7 +739,7 @@ onMounted(async () => {
   }
 })
 
-function characterMatchesSearch(character: Character, query: string) {
+function characterMatchesSearch(character: CharacterBrowse, query: string) {
   const haystack = [
     character.name,
     character.honorific,
@@ -748,12 +751,9 @@ function characterMatchesSearch(character: Character, query: string) {
     character.presentation,
     character.genre,
     character.alignment,
-    character.personality,
-    character.backstory,
-    character.achievements,
-    character.quirks,
-    character.drive,
-    character.artPrompt,
+    character.designer,
+    character.slug,
+    character.theme,
   ]
     .filter(Boolean)
     .join(' ')
@@ -762,7 +762,7 @@ function characterMatchesSearch(character: Character, query: string) {
   return haystack.includes(query)
 }
 
-function getCharacterTitle(character: Character) {
+function getCharacterTitle(character: Character | CharacterBrowse) {
   if (character.name && character.honorific) {
     return `${character.name} the ${character.honorific}`
   }
@@ -774,7 +774,8 @@ async function refreshCharacters(force = false) {
   isLoading.value = true
 
   try {
-    const shouldForceFetch = force || characterStore.characters.length === 0
+    const shouldForceFetch =
+      force || characterStore.browseCharacters.length === 0
 
     await characterStore.initialize({
       force: shouldForceFetch,
@@ -791,13 +792,17 @@ async function refreshCharacters(force = false) {
  * now, so the gallery owns the consequence -- which is what lets a picker
  * variant interpret the same click differently.
  */
-function openCharacter(id: number) {
+async function openCharacter(id: number) {
   if (isDropdownMode.value) {
-    void characterStore.selectCharacter(id)
+    await characterStore.selectCharacter(id)
     return
   }
 
-  infoCharacterId.value = id
+  // The catalog row is intentionally lightweight. Hydrate the real Character
+  // before opening the info back so biography/reviews/actions never see a
+  // partial record masquerading as full detail.
+  const detail = await characterStore.fetchCharacterById(id)
+  if (detail) infoCharacterId.value = id
 }
 
 /* Interact LEAVES: the chat surface is a working space, not a panel. */

@@ -1169,7 +1169,6 @@ export const ReactionScalarFieldEnum = {
   chatId: 'chatId',
   dreamId: 'dreamId',
   artCollectionId: 'artCollectionId',
-  butterflyId: 'butterflyId',
   characterId: 'characterId',
   scenarioId: 'scenarioId',
   themeId: 'themeId',

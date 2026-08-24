@@ -25,6 +25,9 @@ const gallery = read('components/gallery/kr-gallery.vue')
 const dreamListRoute = read('server/api/dreams/index.get.ts')
 const scenarioListRoute = read('server/api/scenarios/index.get.ts')
 const scenarioDetailRoute = read('server/api/scenarios/[id].get.ts')
+const rewardListRoute = read('server/api/rewards/index.get.ts')
+const rewardModel = read('server/api/rewards/index.ts')
+const rewardCard = read('components/rewards/reward-card.vue')
 
 for (const token of [
   '<kr-viewport-gate @hydrate="hydrateSlotItem(item.id)">',
@@ -146,11 +149,78 @@ for (const token of [
   )
 }
 
+forbidText(
+  rewardListRoute,
+  "import { rewardInclude } from './'",
+  'Reward list must not import the rich Reward relation graph',
+)
+forbidText(
+  rewardListRoute,
+  'include: rewardInclude',
+  'Reward list must return scalar browse records instead of hydrating every relation',
+)
+
+for (const token of [
+  'ArtImage: true',
+  'Characters: true',
+  'Dreams: true',
+  'Reactions: true',
+  'User: {',
+]) {
+  forbidText(
+    rewardListRoute,
+    token,
+    `Reward list must not inline catalog-wide relation payload: ${token}`,
+  )
+}
+
+const rewardDetailInclude = between(
+  rewardModel,
+  'export const rewardInclude = {',
+  '\n} satisfies Prisma.RewardInclude',
+)
+
+for (const token of [
+  'ArtImage: true',
+  'Characters: true',
+  'Dreams: true',
+  'Reactions: true',
+  'User: {',
+]) {
+  requireText(
+    rewardDetailInclude,
+    token,
+    `Reward detail model must retain rich relation hydration: ${token}`,
+  )
+}
+
+const fetchRewardDetail = between(
+  rewardModel,
+  'export async function fetchRewardById(',
+  '\n}\n\nexport async function fetchRewardBySlug',
+)
+requireText(
+  fetchRewardDetail,
+  'include: rewardInclude',
+  'Reward by-id detail fetch must keep the rich relation graph',
+)
+
+requireText(
+  rewardCard,
+  'if (!props.reward.artImageId || !props.showImage || embeddedArtImage.value)',
+  'Reward cards must keep lazy ArtImage fallback when browse rows omit embedded ArtImage',
+)
+requireText(
+  rewardCard,
+  'artImage.value = await fetchArtImageById(props.reward.artImageId)',
+  'Reward cards must hydrate ArtImage by id only when the mounted card needs it',
+)
+
 if (failures.length) {
   for (const failure of failures) console.error(`FAIL - ${failure}`)
   process.exit(1)
 }
 
 console.log(
-  'ok - galleries expose complete text-first indexes, defer custom card setup, and keep Dream/Scenario browse relationships lightweight without losing detail endpoints',
+  'ok - galleries expose complete text-first indexes, defer custom card setup, and keep Dream/Scenario/Reward browse payloads lightweight without losing rich detail hydration',
 )

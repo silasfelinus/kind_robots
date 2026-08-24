@@ -1,7 +1,6 @@
 // /server/api/rewards/index.get.ts
 import { defineEventHandler } from 'h3'
 import prisma from '../../utils/prisma'
-import { rewardInclude } from './'
 import { errorHandler } from '../../utils/error'
 import { getOptionalApiUser } from '../../utils/authGuard'
 import { viewablePackIds } from '../../utils/contentAccess'
@@ -25,12 +24,16 @@ export default defineEventHandler(async (event) => {
           }
         : { isPublic: true }
 
+    // Gallery/search/edit callers consume Reward scalars only. Do not hydrate
+    // ArtImage, Characters, Dreams, Reactions, or User for every catalog row;
+    // rich relation graphs remain available through /api/rewards/:id.
+    // reward-card already resolves art lazily from artImageId when its card is
+    // mounted near the viewport by kr-gallery's progressive slot hydration.
     const data = await prisma.reward.findMany({
       where: {
         isActive: true,
         ...visibility,
       },
-      include: rewardInclude,
       orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
     })
 

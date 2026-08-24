@@ -266,17 +266,17 @@ for (const token of [
 requireText(
   saveImageHelper,
   'attachCompletedArtImageToCollections(prisma, {',
-  'direct synchronous generated art must join canonical Generated Art server-side',
+  'every generated image saved through saveImage must join canonical Generated Art server-side',
 )
-requireText(
+forbidText(
   saveImageHelper,
-  'if (!options.deferGeneratedCollection)',
-  'saveImage must expose a queue-staging defer switch',
+  'deferGeneratedCollection',
+  'the shared generated-image save seam must not let callers silently bypass Generated Art membership',
 )
 requireText(
   saveGeneratedRoute,
-  '{ deferGeneratedCollection: true }',
-  'ArtJob staging uploads must defer Generated Art assignment until completion',
+  'const savedImage = await saveImage(',
+  'shared save-generated persistence must continue through canonical Generated Art assignment',
 )
 for (const [source, label] of [
   [a1111GenerateRoute, 'A1111 direct generation'],
@@ -314,5 +314,5 @@ if (failures.length) {
 }
 
 console.log(
-  'ok - galleries render full lightweight indexes; Art Gallery is DB-collection-first; queued, synchronous, entity-context, and Daily Dream generation preserve canonical collection membership',
+  'ok - galleries render full lightweight indexes; Art Gallery is DB-collection-first; queued, direct, entity-context, and Daily Dream generation preserve canonical collection membership',
 )

@@ -113,13 +113,11 @@ type StreamResponseOptions = Omit<GenerateTextData, 'prompt'>
 /**
  * Fired synchronously once `generateText` has created its chat row and is
  * about to start streaming into it -- before the function's own `await`
- * settles. Lets a caller capture the concrete chat id it owns instead of
- * relying on the module-level `pendingChatId` singleton, which two
+ * settles. Lets a caller capture the concrete chat id it owns, since two
  * concurrent `generateText` calls (Storybook and Taskmaster both call it
- * from the same shared chatStore) would otherwise race: whichever call's
- * chat was created last wins the singleton while it streams, and whichever
- * call's `finally` runs first unconditionally nulls it out from under a
- * still-streaming sibling call. See `chatText()` below for the read side.
+ * from the same shared chatStore) stream independently and neither should
+ * assume it is the only in-flight call. See `chatText()` below for the
+ * read side.
  */
 type GenerateTextHooks = {
   onChatId?: (chatId: number) => void
@@ -282,12 +280,6 @@ export const useChatStore = defineStore('chatStore', () => {
   const selectedChat = ref<Chat | null>(null)
   const selectedRecipientId = ref<number | null>(null)
   const isInitialized = ref(false)
-
-  // Set to the chat's id while generateText is streaming its response, and
-  // cleared once the stream settles (success or failure). Lets streaming
-  // consumers (e.g. Serendipity) reference the in-flight chat directly
-  // instead of assuming it is always the last entry in `chats`.
-  const pendingChatId = ref<number | null>(null)
 
   const initializePromise = ref<Promise<void> | null>(null)
   const fetchChatsPromise = ref<Promise<void> | null>(null)
@@ -486,30 +478,19 @@ export const useChatStore = defineStore('chatStore', () => {
     return Boolean(!state.isGenerating && state.textForm.prompt.trim())
   })
 
-  const pendingChat = computed<Chat | null>(() => {
-    if (pendingChatId.value === null) return null
-    return chats.value.find((chat) => chat.id === pendingChatId.value) ?? null
-  })
-
-  const pendingText = computed(() => pendingChat.value?.botResponse ?? '')
-
   /**
-   * The live `botResponse` for a specific chat id, independent of the
-   * `pendingChatId` singleton above.
+   * The live `botResponse` for a specific chat id.
    *
-   * `pendingChatId`/`pendingChat`/`pendingText` reflect whichever
-   * `generateText` call most recently started -- fine for a single active
-   * caller, but storybookStore and taskmasterStore each call
-   * `chatStore.generateText()` from their own `weaveBeat`, and neither
-   * cancels its in-flight call on navigation. If both happen to be
-   * streaming at once (e.g. the reader leaves Storybook mid-scene and
-   * answers a Taskmaster beat before Storybook's own call resolves), the
-   * singleton can point at the WRONG caller's chat, or get nulled by
-   * whichever call's `finally` happens to run first -- surfacing one
-   * product's streaming prose inside the other's transcript, or blanking a
-   * still-streaming one back to the loading state. Callers that captured
-   * their own chat id via `generateText`'s `onChatId` hook should read it
-   * through here instead.
+   * storybookStore and taskmasterStore each call `chatStore.generateText()`
+   * from their own `weaveBeat`, and neither cancels its in-flight call on
+   * navigation. If both happen to be streaming at once (e.g. the reader
+   * leaves Storybook mid-scene and answers a Taskmaster beat before
+   * Storybook's own call resolves), a caller that assumed there was only
+   * ever one in-flight chat could read the WRONG caller's text, or see it
+   * blanked out by whichever call's `finally` happens to run first --
+   * surfacing one product's streaming prose inside the other's transcript.
+   * Callers must capture their own chat id via `generateText`'s `onChatId`
+   * hook and read it through here, scoped to that id.
    */
   function chatText(chatId: number | null): string {
     if (chatId === null) return ''
@@ -1436,7 +1417,6 @@ export const useChatStore = defineStore('chatStore', () => {
 
       const newChat = await createChat(chatPayload)
       chats.value.push(newChat)
-      pendingChatId.value = newChat.id
       hooks.onChatId?.(newChat.id)
       refreshUnreadMessages()
       saveToLocalStorage()
@@ -1470,7 +1450,6 @@ export const useChatStore = defineStore('chatStore', () => {
       }
     } finally {
       state.isGenerating = false
-      pendingChatId.value = null
     }
   }
 
@@ -1790,9 +1769,6 @@ export const useChatStore = defineStore('chatStore', () => {
     selectedChat,
     selectedRecipientId,
     isInitialized,
-    pendingChatId,
-    pendingChat,
-    pendingText,
     chatText,
     /*
      * initializePromise is deliberately NOT returned.

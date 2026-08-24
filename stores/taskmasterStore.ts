@@ -185,16 +185,14 @@ export const useTaskmasterStore = defineStore('taskmasterStore', () => {
   const isWeaving = ref(false)
   /*
    * The chat row THIS session's in-flight `weaveBeat` is streaming into.
-   * chatStore.pendingText/pendingChatId is a single shared singleton across
-   * every `generateText` caller, and Storybook's own weaveBeat calls the
-   * same store -- neither call is cancelled on navigation, so a reader who
-   * leaves Taskmaster mid-scene and answers a Storybook beat before
-   * Taskmaster's call resolves can end up with `streamingText` showing
-   * Storybook's prose (or going blank while Taskmaster is still streaming,
-   * if Storybook's call happens to finish and clear the singleton first).
-   * Tracking our own chat id and reading it via chatStore.chatText() keeps
-   * this session's streaming text scoped to its own call regardless of what
-   * else is concurrently generating.
+   * Storybook's own weaveBeat calls the same shared chatStore, and neither
+   * call is cancelled on navigation, so a reader who leaves Taskmaster
+   * mid-scene and answers a Storybook beat before Taskmaster's call
+   * resolves could otherwise end up with `streamingText` showing
+   * Storybook's prose (or going blank while Taskmaster is still
+   * streaming). Tracking our own chat id and reading it via
+   * chatStore.chatText() keeps this session's streaming text scoped to its
+   * own call regardless of what else is concurrently generating.
    */
   const weavingChatId = ref<number | null>(null)
   const errorMessage = ref('')

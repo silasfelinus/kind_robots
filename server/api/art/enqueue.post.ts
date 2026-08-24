@@ -5,6 +5,10 @@ import { errorHandler } from '../../utils/error'
 import { authAndGate } from '../../utils/comfyGate'
 import { resolveEnqueueLoraResource } from '../../utils/artLoraResource'
 import {
+  assertOwnedActiveArtCollectionIds,
+  normalizeRequestedArtCollectionIds,
+} from '../../utils/generatedArtCollections'
+import {
   buildDefaultComfyWorkflow,
   buildSdxlImg2ImgWorkflow,
 } from '../comfy/sdxl/utils/workflow'
@@ -115,6 +119,8 @@ type ArtEnqueueRequest = {
   serverId?: number | null
   serverName?: string | null
   projectSlug?: string | null
+  artCollectionId?: number | null
+  artCollectionIds?: number[] | null
   priority?: number | null
   narrativeContext?: NarrativeEnqueueContext | null
   brainstormContext?: BrainstormEnqueueContext | null
@@ -140,6 +146,7 @@ type SaveBlock = {
   isPublic: boolean
   isMature: boolean
   designer: string | null
+  artCollectionIds: number[]
 }
 
 type QueuedImage = { name: string; imageData: string }
@@ -337,6 +344,11 @@ export default defineEventHandler(async (event) => {
       serverId: body?.serverId ?? null,
     })
     const isAdmin = gate.isAdmin
+    const requestedArtCollectionIds = await assertOwnedActiveArtCollectionIds(
+      prisma,
+      normalizeRequestedArtCollectionIds(body),
+      gate.user.id,
+    )
     const entityArt = body?.entityArt
       ? await prepareEntityArtEnqueue(event, prisma, body.entityArt, {
           user: { id: gate.user.id },
@@ -424,6 +436,7 @@ export default defineEventHandler(async (event) => {
       isPublic: resolvedBody.isPublic ?? true,
       isMature: resolvedBody.isMature ?? false,
       designer: resolvedBody.designer?.trim() || null,
+      artCollectionIds: requestedArtCollectionIds,
     }
     const previewPayload: Record<string, unknown> = {}
     const promptString = applyArtFacetsToPayload(

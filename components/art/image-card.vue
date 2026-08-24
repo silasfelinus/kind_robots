@@ -58,9 +58,9 @@
       </button>
     </template>
 
-    <!-- ── Image area ─────────────────────────────────────────────────── -->
     <div
       v-if="showImage"
+      ref="imageArea"
       :class="[
         'relative flex w-full items-center justify-center overflow-hidden rounded-xl border border-base-300 bg-base-200',
         imageAspectClass,
@@ -73,18 +73,16 @@
         <span class="loading loading-spinner loading-lg text-primary" />
       </div>
 
-      <img
+      <kr-deferred-image
         v-else
         :key="imageKey"
         :src="resolvedImageSource"
         :alt="imageAltText"
         class="h-full w-full object-cover transition-transform hover:scale-105"
-        :loading="imageLoadingMode"
-        decoding="async"
+        :eager="!deferLoadUntilVisible && imageLoadingMode === 'eager'"
         @error="handleImageError"
       />
 
-      <!-- Minimal status overlay — only show data-source badge in debug mode -->
       <div
         v-if="showDebug"
         class="absolute left-1.5 top-1.5 flex flex-wrap gap-1"
@@ -100,7 +98,6 @@
         <span v-else class="badge badge-error badge-xs">none</span>
       </div>
 
-      <!-- Mature / visibility badges — only when selected -->
       <div
         v-if="selected && size !== 'xs'"
         class="absolute left-1.5 top-1.5 flex flex-wrap gap-1"
@@ -113,7 +110,6 @@
         >
       </div>
 
-      <!-- Selected indicator -->
       <div
         v-if="selected"
         class="absolute bottom-1.5 right-1.5 rounded-full bg-primary p-1.5 text-primary-content shadow-lg shadow-primary/40"
@@ -121,9 +117,6 @@
         <Icon name="kind-icon:check" class="h-3 w-3" />
       </div>
 
-      <!-- Retry — always available on a failed load, not just in debug mode,
-           so a transient network/URL hiccup doesn't permanently pin the card
-           to the fallback image with no recovery path for real users. -->
       <button
         v-if="imageLoadFailed"
         class="absolute bottom-1.5 left-1.5 rounded-full bg-warning px-2 py-0.5 text-xs font-bold text-warning-content shadow"
@@ -135,9 +128,7 @@
       </button>
     </div>
 
-    <!-- ── Text content ──────────────────────────────────────────────── -->
     <div v-if="size !== 'xs'" class="flex min-w-0 flex-1 flex-col gap-1.5">
-      <!-- Prompt title -->
       <div v-if="showPrompt" class="min-w-0">
         <h2
           :class="[
@@ -163,7 +154,6 @@
         </p>
       </div>
 
-      <!-- Image status section (verbose) — only when showImageStatus AND selected -->
       <div
         v-if="showImageStatus && selected"
         class="rounded-xl border border-base-300 bg-base-100 p-2 text-xs"
@@ -195,7 +185,6 @@
         </div>
       </div>
 
-      <!-- Meta badges — only on md/lg -->
       <div
         v-if="showMeta && (size === 'md' || size === 'lg')"
         class="flex flex-wrap gap-1"
@@ -222,7 +211,6 @@
         </span>
       </div>
 
-      <!-- Generation meta grid — only on lg when explicitly requested -->
       <div
         v-if="showGenerationMeta && size === 'lg'"
         class="grid grid-cols-2 gap-2 rounded-xl border border-base-300 bg-base-100 p-2 text-xs"
@@ -283,7 +271,6 @@
         </div>
       </div>
 
-      <!-- Select button -->
       <div v-if="showSelectButton" class="mt-auto pt-1">
         <button
           class="btn btn-xs w-full rounded-lg"
@@ -296,7 +283,6 @@
         </button>
       </div>
 
-      <!-- Debug -->
       <details
         v-if="showDebug"
         class="rounded-xl border border-base-300 bg-base-100 p-2"
@@ -314,10 +300,10 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/art/image-card.vue
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 import { useArtStore } from '@/stores/artStore'
+import { observeViewportHydration } from '@/utils/viewportHydration'
 
 const props = withDefaults(
   defineProps<{
@@ -340,10 +326,8 @@ const props = withDefaults(
     allowCopyPrompt?: boolean
     allowColoringPage?: boolean
     autoLoadImage?: boolean
+    deferLoadUntilVisible?: boolean
     fallbackImage?: string
-    /** Total karma this image has earned from reactions/creation (see
-     *  server/api/economy/karma-earned.post.ts). Omit/undefined renders no
-     *  badge — see components/wonderlab/reactable-card.vue. */
     earnedKarma?: number | null
   }>(),
   {
@@ -365,6 +349,7 @@ const props = withDefaults(
     allowCopyPrompt: true,
     allowColoringPage: true,
     autoLoadImage: true,
+    deferLoadUntilVisible: true,
     fallbackImage: '/images/backtree.webp',
     earnedKarma: undefined,
   },
@@ -379,10 +364,12 @@ const emit = defineEmits<{
 }>()
 
 const artStore = useArtStore()
-
+const imageArea = ref<HTMLElement>()
 const localImage = ref<ArtImage | null>(props.artImage)
 const loadingImage = ref(false)
 const imageLoadFailed = ref(false)
+let mounted = false
+let stopObservingFullImage: (() => void) | null = null
 
 const runtimeConfig = useRuntimeConfig()
 
@@ -404,8 +391,6 @@ const appUrl = computed(() => {
 
 const displayImage = computed(() => localImage.value || props.artImage)
 
-// One-tap deep link to the Coloring Page Maker with this image preselected as
-// the source (art-styler reads ?imageId and loads it).
 function makeColoringPage() {
   void navigateTo(`/coloring-page?imageId=${displayImage.value.id}`)
 }
@@ -425,7 +410,6 @@ const imageLoadingMode = computed<'eager' | 'lazy'>(() =>
   props.compact || props.size === 'xs' ? 'eager' : 'lazy',
 )
 
-// Size → aspect/height class
 const imageAspectClass = computed(() => {
   switch (props.size) {
     case 'xs':
@@ -492,14 +476,30 @@ const debugImage = computed(() => ({
   loadingImage: loadingImage.value,
 }))
 
+function scheduleFullImageLoad(): void {
+  stopObservingFullImage?.()
+  stopObservingFullImage = null
+
+  if (!props.autoLoadImage || !shouldFetchFullImage(props.artImage)) return
+
+  if (!props.deferLoadUntilVisible) {
+    void loadFullImage()
+    return
+  }
+
+  if (!mounted || !imageArea.value) return
+  stopObservingFullImage = observeViewportHydration(imageArea.value, () => {
+    stopObservingFullImage = null
+    void loadFullImage()
+  })
+}
+
 watch(
-  () => props.artImage.id,
-  async () => {
+  () => [props.artImage.id, props.autoLoadImage, props.deferLoadUntilVisible],
+  () => {
     localImage.value = props.artImage
     imageLoadFailed.value = false
-    if (props.autoLoadImage && shouldFetchFullImage(props.artImage)) {
-      await loadFullImage()
-    }
+    scheduleFullImageLoad()
   },
   { immediate: true },
 )
@@ -518,8 +518,20 @@ watch(
         null,
     }
     imageLoadFailed.value = false
+    scheduleFullImageLoad()
   },
 )
+
+onMounted(() => {
+  mounted = true
+  scheduleFullImageLoad()
+})
+
+onBeforeUnmount(() => {
+  mounted = false
+  stopObservingFullImage?.()
+  stopObservingFullImage = null
+})
 
 async function loadFullImage() {
   imageLoadFailed.value = false
@@ -556,8 +568,6 @@ function shouldFetchFullImage(image: ArtImage) {
 }
 
 function shouldPreferImagePath(image: ArtImage) {
-  // Path-first: a real stored path (imagePath/path) wins over inline base64.
-  // A bare fileName is NOT a real path here, so it can't preempt usable base64.
   const realPath =
     image.imagePath?.trim() ||
     (image as { path?: string | null }).path?.trim() ||

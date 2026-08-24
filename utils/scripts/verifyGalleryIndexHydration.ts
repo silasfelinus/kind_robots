@@ -312,16 +312,38 @@ for (const token of [
   )
 }
 
-for (const functionName of [
-  'async function selectCharacter(',
-  'async function startEditingCharacter(',
-  'async function startCloningCharacter(',
-]) {
-  const body = between(characterStore, functionName, '\n  }\n')
+const characterDetailConsumers = [
+  {
+    label: 'selectCharacter',
+    body: between(
+      characterStore,
+      'async function selectCharacter(',
+      '\n\n  function deselectCharacter',
+    ),
+  },
+  {
+    label: 'startEditingCharacter',
+    body: between(
+      characterStore,
+      'async function startEditingCharacter(',
+      '\n\n  async function startCloningCharacter',
+    ),
+  },
+  {
+    label: 'startCloningCharacter',
+    body: between(
+      characterStore,
+      'async function startCloningCharacter(',
+      '\n\n  async function updateArtImagePath',
+    ),
+  },
+]
+
+for (const consumer of characterDetailConsumers) {
   requireText(
-    body,
+    consumer.body,
     'fetchCharacterById(characterId)',
-    `${functionName} must hydrate full Character detail before use`,
+    `${consumer.label} must hydrate full Character detail before use`,
   )
 }
 

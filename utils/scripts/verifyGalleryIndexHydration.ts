@@ -14,8 +14,17 @@ function forbidText(source: string, text: string, message: string): void {
   if (source.includes(text)) failures.push(message)
 }
 
+function between(source: string, start: string, end: string): string {
+  const startIndex = source.indexOf(start)
+  if (startIndex < 0) return ''
+  const endIndex = source.indexOf(end, startIndex + start.length)
+  return endIndex < 0 ? source.slice(startIndex) : source.slice(startIndex, endIndex)
+}
+
 const gallery = read('components/gallery/kr-gallery.vue')
 const dreamListRoute = read('server/api/dreams/index.get.ts')
+const scenarioListRoute = read('server/api/scenarios/index.get.ts')
+const scenarioDetailRoute = read('server/api/scenarios/[id].get.ts')
 
 for (const token of [
   '<kr-viewport-gate @hydrate="hydrateSlotItem(item.id)">',
@@ -61,11 +70,87 @@ requireText(
   'Dream relationship browsing must receive every attached collection id',
 )
 
+requireText(
+  scenarioListRoute,
+  'const characterBrowseSelect = {',
+  'Scenario list must declare a dedicated lightweight Character relation shape',
+)
+requireText(
+  scenarioListRoute,
+  'Characters: {\n          select: characterBrowseSelect,',
+  'Scenario list must use the lightweight Character relation shape',
+)
+
+const scenarioCharacterBrowse = between(
+  scenarioListRoute,
+  'const characterBrowseSelect = {',
+  '\n}\n\nfunction facetVisibilityWhere',
+)
+
+for (const token of [
+  'id: true',
+  'name: true',
+  'class: true',
+  'species: true',
+  'genre: true',
+  'imagePath: true',
+  'isPublic: true',
+  'artImageId: true',
+]) {
+  requireText(
+    scenarioCharacterBrowse,
+    token,
+    `Scenario browse Characters must retain card/search field: ${token}`,
+  )
+}
+
+for (const token of [
+  'backstory: true',
+  'drive: true',
+  'quirks: true',
+  'personality: true',
+  'presentation: true',
+  'artPrompt: true',
+  'charm: true',
+  'empathy: true',
+  'grace: true',
+  'luck: true',
+  'might: true',
+  'wits: true',
+]) {
+  forbidText(
+    scenarioCharacterBrowse,
+    token,
+    `Scenario list must leave heavy Character detail to /api/scenarios/:id: ${token}`,
+  )
+}
+
+const scenarioCharacterDetail = between(
+  scenarioDetailRoute,
+  'const characterSelect = {',
+  '\n}\n\nfunction facetVisibilityWhere',
+)
+
+for (const token of [
+  'backstory: true',
+  'personality: true',
+  'presentation: true',
+  'artPrompt: true',
+  'charm: true',
+  'wits: true',
+]) {
+  requireText(
+    scenarioCharacterDetail,
+    token,
+    `Scenario detail endpoint must retain rich Character hydration: ${token}`,
+  )
+}
+
 if (failures.length) {
   for (const failure of failures) console.error(`FAIL - ${failure}`)
   process.exit(1)
 }
 
 console.log(
-  'ok - galleries expose the complete text-first index, defer custom card setup near viewport, and Dream browsing is complete without inline image blobs',
+  'ok - galleries expose complete text-first indexes, defer custom card setup, and keep Dream/Scenario browse relationships lightweight without losing detail endpoints',
 )

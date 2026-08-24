@@ -255,7 +255,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, type CSSProperties } from 'vue'
 import { resolveEntityTheme } from '@/utils/entityTheme'
 import {
   resolveArtVariantSrc,
@@ -324,7 +324,7 @@ const gridClass = computed(() =>
     : MODE_GRID_CLASS[props.mode],
 )
 
-const itemVisibilityStyle = computed(() => ({
+const itemVisibilityStyle = computed<CSSProperties>(() => ({
   contentVisibility: 'auto',
   containIntrinsicSize:
     props.mode === 'icons'

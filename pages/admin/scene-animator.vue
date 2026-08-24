@@ -6,7 +6,7 @@
           <p class="text-xs font-black uppercase tracking-widest text-primary">
             Admin production
           </p>
-          <h1 class="mt-1 text-3xl font-black">Scene Animator</h1>
+          <p class="mt-1 text-3xl font-black">Scene Animator</p>
           <p class="mt-2 text-sm text-base-content/65">
             Point Kind Robots at a folder of still scenes and let the existing Comfy video
             queue bring each one to life. No shot-by-shot prompt writing required.

@@ -23,26 +23,37 @@ type DreamListQuery = {
   rewardId?: string
 }
 
+// Browse responses carry only path/id metadata for art. Pathless legacy rows are
+// hydrated by DreamCard only after its kr-gallery item enters the shared viewport
+// window, so the full index never has to ship inline image bytes.
 const artImageCardSelect = {
   id: true,
   imagePath: true,
   path: true,
   fileName: true,
-  thumbnailData: true,
 } satisfies Prisma.ArtImageSelect
+
+const collectionPreviewSelect = {
+  id: true,
+  label: true,
+  imagePath: true,
+  description: true,
+  artPrompt: true,
+  ArtImages: {
+    take: 1,
+    orderBy: {
+      updatedAt: 'desc',
+    },
+    select: artImageCardSelect,
+  },
+} satisfies Prisma.ArtCollectionSelect
 
 const dreamListInclude = {
   ArtImage: {
     select: artImageCardSelect,
   },
   ArtCollection: {
-    select: {
-      id: true,
-      label: true,
-      imagePath: true,
-      description: true,
-      artPrompt: true,
-    },
+    select: collectionPreviewSelect,
   },
   ArtImages: {
     take: 1,
@@ -51,22 +62,10 @@ const dreamListInclude = {
     },
     select: artImageCardSelect,
   },
+  // Relationship galleries need every attached collection id to decide whether
+  // two Dreams are connected. Each collection still carries only one preview.
   ArtCollections: {
-    take: 1,
-    select: {
-      id: true,
-      label: true,
-      imagePath: true,
-      description: true,
-      artPrompt: true,
-      ArtImages: {
-        take: 1,
-        orderBy: {
-          updatedAt: 'desc',
-        },
-        select: artImageCardSelect,
-      },
-    },
+    select: collectionPreviewSelect,
   },
   Bots: {
     where: {
@@ -87,15 +86,19 @@ const dreamListInclude = {
       isPublic: true,
     },
   },
+  // These relation records are deliberately narrow, but complete. The old
+  // `take: 3` caps made Connected/Available and client-side search incorrect
+  // for Dreams with more than three scenarios, cast members, or rewards.
   Scenarios: {
     where: {
       isActive: true,
     },
-    take: 3,
     select: {
       id: true,
       title: true,
       description: true,
+      locations: true,
+      genres: true,
       imagePath: true,
       difficulty: true,
       tier: true,
@@ -109,15 +112,16 @@ const dreamListInclude = {
     where: {
       isActive: true,
     },
-    take: 3,
     select: {
       id: true,
       name: true,
       slug: true,
+      honorific: true,
       title: true,
       role: true,
       species: true,
       class: true,
+      genre: true,
       imagePath: true,
       artImageId: true,
       isActive: true,
@@ -128,11 +132,11 @@ const dreamListInclude = {
     where: {
       isActive: true,
     },
-    take: 3,
     select: {
       id: true,
       name: true,
       slug: true,
+      description: true,
       rewardType: true,
       rarity: true,
       imagePath: true,
@@ -157,9 +161,16 @@ const dreamListInclude = {
   },
 } satisfies Prisma.DreamInclude
 
-function normalizeLimit(value: unknown, fallback = 48, max = 200): number {
-  const parsed = Number(value)
+/**
+ * No `take` means the caller wants the complete lightweight browse index.
+ * Explicit slices remain bounded so picker/search consumers can still ask for
+ * a small window without turning an accidental huge value into an expensive
+ * query.
+ */
+function normalizeLimit(value: unknown, fallback = 48, max = 200): number | undefined {
+  if (value === undefined || value === null || value === '') return undefined
 
+  const parsed = Number(value)
   if (!Number.isInteger(parsed) || parsed <= 0) return fallback
 
   return Math.min(parsed, max)
@@ -376,7 +387,7 @@ export default defineEventHandler(async (event) => {
     const [dreams, count] = await Promise.all([
       prisma.dream.findMany({
         where,
-        take,
+        ...(take === undefined ? {} : { take }),
         skip,
         orderBy: {
           updatedAt: 'desc',

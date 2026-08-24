@@ -21,6 +21,9 @@ const viewport = read('utils/viewportHydration.ts')
 const artPlate = read('components/narrative/kr-art-plate.vue')
 const facets = read('components/facets/facet-gallery.vue')
 const artGallery = read('components/art/art-gallery.vue')
+const collectionCard = read('components/art/collection-card.vue')
+const browseStore = read('stores/artCollectionBrowseStore.ts')
+const unsortedRoute = read('server/api/art/collection/unsorted.get.ts')
 const imageCard = read('components/art/image-card.vue')
 const resourceCard = read('components/resources/resource-card.vue')
 const checkpointCard = read('components/servers/checkpoint-card.vue')
@@ -136,11 +139,75 @@ forbidText(
   'stylist gallery must not eagerly fetch every authenticated photo blob',
 )
 
+for (const token of [
+  'folderGroups',
+  'folderCollections',
+  'fetchFolderCollections',
+  'syncActiveFolder',
+  'syncFolderCollection',
+  'isSyncingFolder',
+  'folderUrlToArtImage',
+  'isFolder',
+]) {
+  forbidText(
+    artGallery,
+    token,
+    `art gallery browsing must not derive collections from folders: ${token}`,
+  )
+}
+forbidText(
+  artGallery,
+  'fetchAllArtImages(',
+  'art gallery first-layer collection browsing must not load the complete art index',
+)
+for (const token of ['summary: true', 'includeImages: true', 'imageLimit: 1']) {
+  requireText(
+    artGallery,
+    token,
+    `art gallery must keep collection-first summary loading: ${token}`,
+  )
+}
+requireText(
+  artGallery,
+  'browseStore.fetchCollectionDetail',
+  'opening a saved collection must fetch only that collection detail',
+)
+requireText(
+  artGallery,
+  'browseStore.fetchUnsortedSummary',
+  'art gallery must derive Unsorted through the DB browse query',
+)
+requireText(
+  browseStore,
+  '`/api/art/collection/${id}`',
+  'collection browse store must fetch one collection at a time',
+)
+requireText(
+  browseStore,
+  '/api/art/collection/unsorted',
+  'collection browse store must use the DB-derived Unsorted endpoint',
+)
+requireText(
+  unsortedRoute,
+  'ArtCollections: { none: {} }',
+  'Unsorted must mean ArtImages with no ArtCollection relation in the database',
+)
+requireText(
+  unsortedRoute,
+  'getArtImageAccessContext',
+  'Unsorted must reuse normal art visibility and maturity policy',
+)
+requireText(
+  collectionCard,
+  'artImageCount',
+  'collection cards must display authoritative summary counts rather than preview-array length',
+)
+
 if (failures.length) {
   for (const failure of failures) console.error(`FAIL - ${failure}`)
   process.exit(1)
 }
 
 console.log(
-  'ok - galleries render full lightweight indexes and hydrate images near the viewport',
+  'ok - galleries render full lightweight indexes; Art Gallery is DB-collection-first and hydrates images on demand',
 )

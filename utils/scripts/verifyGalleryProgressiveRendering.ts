@@ -14,6 +14,16 @@ function forbidText(source: string, text: string, message: string): void {
   if (source.includes(text)) failures.push(message)
 }
 
+function requireCount(
+  source: string,
+  text: string,
+  minimum: number,
+  message: string,
+): void {
+  const count = source.split(text).length - 1
+  if (count < minimum) failures.push(`${message} (found ${count}, need ${minimum})`)
+}
+
 const gallery = read('components/gallery/kr-gallery.vue')
 const deferredImage = read('components/gallery/kr-deferred-image.vue')
 const viewportGate = read('components/gallery/kr-viewport-gate.vue')
@@ -29,6 +39,10 @@ const resourceCard = read('components/resources/resource-card.vue')
 const checkpointCard = read('components/servers/checkpoint-card.vue')
 const achievementCard = read('components/achievements/earned-achievement-card.vue')
 const stylistGallery = read('components/art/stylist-client-gallery.vue')
+const enqueueRoute = read('server/api/art/enqueue.post.ts')
+const completionRoute = read('server/api/art/queue/[id]/complete.post.ts')
+const generatedCollections = read('server/utils/generatedArtCollections.ts')
+const dailyDreamRoute = read('server/api/dreams/daily.post.ts')
 
 for (const token of [
   'pageSize',
@@ -203,11 +217,65 @@ requireText(
   'collection cards must display authoritative summary counts rather than preview-array length',
 )
 
+for (const token of [
+  'artCollectionId?: number | null',
+  'artCollectionIds?: number[] | null',
+  'normalizeRequestedArtCollectionIds(body)',
+  'assertOwnedActiveArtCollectionIds(',
+  'artCollectionIds: requestedArtCollectionIds',
+]) {
+  requireText(
+    enqueueRoute,
+    token,
+    `ArtJob enqueue must preserve validated collection intent: ${token}`,
+  )
+}
+requireCount(
+  completionRoute,
+  'attachCompletedArtImageToCollections(tx, {',
+  2,
+  'normal and overwrite ArtJob completion must both assign canonical collections',
+)
+requireText(
+  completionRoute,
+  'completedCollectionIds',
+  'ArtJob completion must report the collections applied to finished art',
+)
+for (const token of [
+  'ensureGeneratedArtCollectionId(',
+  'ArtCollections: {',
+  'Characters: { some: { id: metadata.entityId } }',
+  'Rewards: { some: { id: metadata.entityId } }',
+  'Scenarios: { some: { id: metadata.entityId } }',
+  'narratorId: metadata.entityId',
+  'metadata.entityType === \'project\'',
+  'metadata.entityType === \'facet\'',
+]) {
+  requireText(
+    generatedCollections,
+    token,
+    `generated art collection assignment must retain entity-context coverage: ${token}`,
+  )
+}
+for (const token of [
+  'const collection = await tx.artCollection.create({',
+  'artCollectionId: collection.id',
+  'ArtCollections: { connect: { id: collection.id } }',
+  'ensureExistingArtCollection(existing)',
+  'ensureExistingArtCollection(raced)',
+]) {
+  requireText(
+    dailyDreamRoute,
+    token,
+    `Daily Dream must create or repair its canonical ArtCollection: ${token}`,
+  )
+}
+
 if (failures.length) {
   for (const failure of failures) console.error(`FAIL - ${failure}`)
   process.exit(1)
 }
 
 console.log(
-  'ok - galleries render full lightweight indexes; Art Gallery is DB-collection-first and hydrates images on demand',
+  'ok - galleries render full lightweight indexes; Art Gallery is DB-collection-first; completed generation and Daily Dreams preserve canonical collection membership',
 )

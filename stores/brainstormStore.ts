@@ -1,5 +1,6 @@
 import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
+import type { Character } from '~/prisma/generated/prisma/client'
 import { useArtStore } from '@/stores/artStore'
 import type { GenerateArtData } from '@/stores/artStore'
 import { useServerStore } from '@/stores/serverStore'
@@ -861,6 +862,56 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     return Boolean(appendBranchCandidate(candidate, generated[0]))
   }
 
+  // brainstorm/t-031: promote a kept candidate into a real Character record.
+  // No entity-to-entity promotion in this app is currently wired to a UI
+  // element (promptStore.promoteToDream and dreamStore.promotePromptToDream
+  // both exist but are dead code, called from nowhere) -- this is the first
+  // one that actually is. Character's entityArt.ts model holds one scalar
+  // artImageId per art slot, while a candidate's meta.art.imageIds is an
+  // array (a candidate can accumulate more than one delivered generation
+  // across regenerate/retry cycles) -- imageIds is append-only
+  // (recordCandidateArtImage in brainstormCandidateLifecycle.ts always does
+  // `[...art.imageIds, imageId]`), so the last entry is the most recently
+  // delivered image and is what gets promoted; earlier deliveries for the
+  // same candidate are not carried over, matching the same "pick one primary
+  // image" trade-off entityArt.ts already makes for every other entity.
+  async function promoteCandidateToCharacter(
+    candidateId: string,
+  ): Promise<{ success: boolean; message: string; data?: Character }> {
+    const candidate = findCandidate(candidateId)
+    if (!candidate) {
+      return { success: false, message: 'Candidate not found.' }
+    }
+
+    const imageIds = candidate.meta.art?.imageIds ?? []
+    const artImageId = imageIds.length
+      ? imageIds[imageIds.length - 1]
+      : undefined
+
+    const { useCharacterStore } = await import('@/stores/characterStore')
+    const characterStore = useCharacterStore()
+
+    const created = await characterStore.createCharacter({
+      name: candidate.title || 'Untitled Character',
+      title: candidate.title || undefined,
+      backstory: candidate.text || undefined,
+      artImageId,
+    })
+
+    if (!created) {
+      return {
+        success: false,
+        message: 'Failed to promote candidate to a Character.',
+      }
+    }
+
+    return {
+      success: true,
+      message: `Promoted "${candidate.title}" to a new Character.`,
+      data: created,
+    }
+  }
+
   function isSelectedForArt(candidateId: string): boolean {
     return artSelectionIds.value.includes(candidateId)
   }
@@ -1347,6 +1398,7 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     generateBatch,
     regenerateCandidate,
     branchCandidate,
+    promoteCandidateToCharacter,
     isSelectedForArt,
     toggleArtSelection,
     clearArtSelection,

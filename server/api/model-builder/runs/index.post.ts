@@ -169,15 +169,19 @@ export default defineEventHandler(async (event) => {
         return value
       }
 
+      // Computed once and reused below (model-builder/t-029, cycle 52 noted
+      // this as a non-bug worth cleaning up: the prior form called
+      // Number(item.quantityIndex) three times for one value).
+      const quantityIndex = Number(item.quantityIndex)
+
       return {
         outputKey,
         label: typeof item.label === 'string' ? item.label.slice(0, 255) : null,
         action,
         generation,
         quantityIndex:
-          Number.isInteger(Number(item.quantityIndex)) &&
-          Number(item.quantityIndex) >= 0
-            ? Number(item.quantityIndex)
+          Number.isInteger(quantityIndex) && quantityIndex >= 0
+            ? quantityIndex
             : 0,
         stageStatuses,
         pitch: text(item.pitch, index, 'pitch'),

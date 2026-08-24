@@ -75,6 +75,39 @@ async function main() {
       `all ${DAVINCI_DIMENSIONS.length} dimensions got a LifeStat row (${stats.length})`,
     )
 
+    console.log('2b. duplicate choice on the same chapter is idempotent')
+    const statsBeforeDuplicate = await prisma.lifeStat.findMany({
+      where: { lifeRunId: run.id },
+      orderBy: { key: 'asc' },
+    })
+    const duplicateEffects = Object.fromEntries(
+      DAVINCI_DIMENSIONS.map((dimension) => [dimension, 1]),
+    )
+    const duplicate = await recordLifeChoice(run.id, user.id, {
+      chapter: 1,
+      prompt: 'Test prompt (resubmitted, e.g. a second open tab)',
+      choiceText: 'A different choice than the first',
+      effects: duplicateEffects,
+    })
+    check(
+      duplicate.choice.id === choice.id,
+      'resubmitting chapter 1 returns the original LifeChoice, not a new row',
+    )
+    check(
+      duplicate.stats.every((stat) => {
+        const before = statsBeforeDuplicate.find((s) => s.key === stat.key)
+        return before?.value === stat.value
+      }),
+      'resubmitting chapter 1 does not re-apply effects to LifeStat',
+    )
+    const choiceRowCount = await prisma.lifeChoice.count({
+      where: { lifeRunId: run.id, chapter: 1 },
+    })
+    check(
+      choiceRowCount === 1,
+      `exactly one LifeChoice row exists for chapter 1 (got ${choiceRowCount})`,
+    )
+
     console.log('3. resolve')
     const expectedOutcomeKey = resolveOutcomeKey(
       Object.fromEntries(stats.map((stat) => [stat.key, stat.value])),

@@ -11,6 +11,7 @@ const card = readFileSync(
   resolve(root, 'components/brainstorm/brainstorm-candidate-card.vue'),
   'utf8',
 )
+const store = readFileSync(resolve(root, 'stores/brainstormStore.ts'), 'utf8')
 const content = readFileSync(resolve(root, 'content/brainstorm.md'), 'utf8')
 
 assert.match(content, /:brainstorm-manager/)
@@ -20,6 +21,8 @@ assert.match(manager, /useBrainstormStore\(\)/)
 assert.match(manager, /store\.generateBatch\(\)/)
 assert.match(manager, /store\.regenerateCandidate\(candidateId\)/)
 assert.match(manager, /store\.branchCandidate\(candidateId\)/)
+assert.match(manager, /store\.promoteCandidateToCharacter\(candidateId\)/)
+assert.match(manager, /@promote="promoteCandidate\(candidate\.id\)"/)
 assert.match(manager, /store\.restoreCandidateRevision\(candidateId, revisionIndex\)/)
 assert.match(manager, /store\.saveCurrentSession\(\)/)
 assert.match(manager, /store\.loadSavedSessions\(\)/)
@@ -104,6 +107,9 @@ assert.match(card, /emit\('reset'\)/)
 assert.match(card, /emit\('edit'/)
 assert.match(card, /emit\('regenerate'\)/)
 assert.match(card, /emit\('branch'\)/)
+assert.match(card, /emit\('promote'\)/)
+assert.match(card, /data-testid="brainstorm-promote-to-character"/)
+assert.match(card, /Promote to Character/)
 assert.match(card, /More like this/)
 assert.match(card, /Regenerate/)
 assert.match(card, /Save edit/)
@@ -112,5 +118,39 @@ assert.match(card, /What missed\?/)
 assert.match(card, /Delete candidate/)
 assert.doesNotMatch(card, /useBrainstormStore|\$fetch\(|performFetch\(|localStorage/)
 assert.doesNotMatch(card, /(?:sm|md|lg|xl):grid-cols-/)
+
+// The promote button is only offered on kept candidates -- guard against it
+// silently regaining visibility on pending/rejected ones.
+assert.match(
+  card,
+  /v-if="candidate\.status === 'kept'"\s*\n\s*type="button"\s*\n\s*class="btn btn-outline btn-sm"\s*\n\s*data-testid="brainstorm-promote-to-character"/,
+  'the "Promote to Character" button must stay gated to kept candidates only',
+)
+
+// brainstorm/t-031: assert the promotion path actually carries
+// meta.art.imageIds' most recent entry across as a single scalar artImageId
+// -- not the whole array (Character's entityArt.ts model holds one art id
+// per slot) and not silently dropped. Deliberately narrow, matching this
+// file's own style: a source-text check, not a runtime mock of Pinia.
+assert.match(
+  store,
+  /const imageIds = candidate\.meta\.art\?\.imageIds \?\? \[\]/,
+  'promoteCandidateToCharacter must read candidate.meta.art.imageIds',
+)
+assert.match(
+  store,
+  /const artImageId = imageIds\.length\s*\n\s*\? imageIds\[imageIds\.length - 1\]\s*\n\s*: undefined/,
+  'promoteCandidateToCharacter must pick a single scalar artImageId (the most recently delivered image) out of the array, not pass the array through',
+)
+assert.match(
+  store,
+  /await import\('@\/stores\/characterStore'\)/,
+  "promoteCandidateToCharacter must dynamically import characterStore (avoids a static circular import, matching promptStore.promoteToDream's precedent)",
+)
+assert.match(
+  store,
+  /characterStore\.createCharacter\(\{[\s\S]*?artImageId,?\s*\}\)/,
+  'promoteCandidateToCharacter must pass artImageId through to characterStore.createCharacter',
+)
 
 console.log('Brainstorm workbench contract passed.')

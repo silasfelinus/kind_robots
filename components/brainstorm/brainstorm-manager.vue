@@ -776,6 +776,7 @@
         @restore-revision="restoreRevision(candidate.id, $event)"
         @regenerate="regenerate(candidate.id)"
         @branch="branch(candidate.id)"
+        @promote="promoteCandidate(candidate.id)"
         @toggle-art-selection="store.toggleArtSelection(candidate.id)"
       />
     </div>
@@ -972,7 +973,7 @@ const {
 
 const pendingCandidateAction = ref<{
   id: string
-  action: 'regenerate' | 'branch'
+  action: 'regenerate' | 'branch' | 'promote'
 } | null>(null)
 
 // Kept ideas are selected for copy/export by default; deselect individual
@@ -1245,7 +1246,7 @@ function applyStarter(starter: (typeof starterPremises)[number]): void {
 
 function candidateBusyAction(
   candidateId: string,
-): 'regenerate' | 'branch' | 'art' | null {
+): 'regenerate' | 'branch' | 'promote' | 'art' | null {
   if (pendingCandidateAction.value?.id === candidateId) {
     return pendingCandidateAction.value.action
   }
@@ -1255,6 +1256,7 @@ function candidateBusyAction(
 function isCandidateBusy(candidateId: string): boolean {
   return (
     generationTargetId.value === candidateId ||
+    pendingCandidateAction.value?.id === candidateId ||
     artGeneratingCandidateIds.value.includes(candidateId)
   )
 }
@@ -1400,6 +1402,16 @@ async function branch(candidateId: string): Promise<void> {
   pendingCandidateAction.value = { id: candidateId, action: 'branch' }
   try {
     await store.branchCandidate(candidateId)
+  } finally {
+    pendingCandidateAction.value = null
+  }
+}
+
+async function promoteCandidate(candidateId: string): Promise<void> {
+  pendingCandidateAction.value = { id: candidateId, action: 'promote' }
+  try {
+    const result = await store.promoteCandidateToCharacter(candidateId)
+    showKeptExportMessage(result.message)
   } finally {
     pendingCandidateAction.value = null
   }

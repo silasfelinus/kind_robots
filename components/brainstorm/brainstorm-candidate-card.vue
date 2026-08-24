@@ -346,6 +346,20 @@
           />
           More like this
         </button>
+        <button
+          v-if="candidate.status === 'kept'"
+          type="button"
+          class="btn btn-outline btn-sm"
+          data-testid="brainstorm-promote-to-character"
+          :disabled="disabled"
+          @click="promote"
+        >
+          <span
+            v-if="busy && busyAction === 'promote'"
+            class="loading loading-spinner loading-xs"
+          />
+          Promote to Character
+        </button>
       </div>
     </footer>
   </article>
@@ -366,7 +380,7 @@ const props = defineProps<{
   parentCandidate?: BrainstormCandidate | null
   disabled?: boolean
   busy?: boolean
-  busyAction?: 'regenerate' | 'branch' | 'art' | null
+  busyAction?: 'regenerate' | 'branch' | 'promote' | 'art' | null
   selectedForArt?: boolean
 }>()
 
@@ -377,6 +391,7 @@ const emit = defineEmits<{
   delete: []
   regenerate: []
   branch: []
+  promote: []
   restoreRevision: [revisionIndex: number]
   edit: [patch: { title: string; text: string }]
   feedback: [value: string]
@@ -541,5 +556,9 @@ function regenerate(): void {
 function branch(): void {
   emitFeedback()
   emit('branch')
+}
+
+function promote(): void {
+  emit('promote')
 }
 </script>

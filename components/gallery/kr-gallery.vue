@@ -63,13 +63,72 @@
           :style="itemVisibilityStyle"
           data-kr-gallery-item
         >
-          <slot
-            name="item"
-            :item="item"
-            :mode="mode"
-            :art-src="artSrc(item)"
-            :open="() => emit('open', item)"
-          />
+          <!--
+            A custom card can have setup hooks, watchers, store reads, and API
+            fallbacks that CSS `content-visibility` cannot suppress. Keep the
+            full lightweight text index in the DOM immediately, but do not
+            instantiate the custom component until the pooled viewport observer
+            says this item is near enough to matter. The 1800px overscan lives
+            in viewportHydration.ts and is shared with deferred images.
+          -->
+          <kr-viewport-gate @hydrate="hydrateSlotItem(item.id)">
+            <slot
+              v-if="hydratedSlotItems.has(item.id)"
+              name="item"
+              :item="item"
+              :mode="mode"
+              :art-src="artSrc(item)"
+              :open="() => emit('open', item)"
+            />
+
+            <div
+              v-else
+              class="overflow-hidden rounded-2xl border border-(--kr-surface-border) bg-(--kr-surface)"
+              :class="slotPlaceholderClass"
+              data-kr-gallery-placeholder
+            >
+              <div
+                v-if="mode !== 'icons'"
+                class="bg-(--kr-surface-sunken)"
+                :class="mode === 'heroes' ? 'aspect-video' : 'aspect-2/3'"
+                aria-hidden="true"
+              />
+
+              <div
+                class="min-w-0"
+                :class="mode === 'icons' ? 'p-3' : 'p-3'"
+              >
+                <div
+                  v-if="item.badges?.length"
+                  class="mb-1 flex flex-wrap gap-1"
+                >
+                  <span
+                    v-for="badge in item.badges"
+                    :key="badge.label"
+                    class="badge badge-xs"
+                    :class="badge.class"
+                  >
+                    {{ badge.label }}
+                  </span>
+                </div>
+                <h2 class="break-words font-black leading-tight">
+                  {{ item.title }}
+                </h2>
+                <p
+                  v-if="item.description"
+                  class="mt-0.5 line-clamp-2 text-xs text-base-content/55"
+                >
+                  {{ item.description }}
+                </p>
+                <p
+                  v-if="item.meta"
+                  class="mt-1.5 text-xs text-base-content/45"
+                >
+                  {{ item.meta }}
+                </p>
+              </div>
+            </div>
+          </kr-viewport-gate>
         </div>
       </template>
 
@@ -334,8 +393,22 @@ const itemVisibilityStyle = computed<CSSProperties>(() => ({
         : 'auto 24rem',
 }))
 
+const slotPlaceholderClass = computed(() =>
+  props.mode === 'icons'
+    ? 'min-h-20'
+    : props.mode === 'heroes'
+      ? 'min-h-56'
+      : 'min-h-96',
+)
+
 const modeVariant = computed<ArtVariant>(() => MODE_VARIANT[props.mode])
 const failedArt = ref(new Set<string>())
+const hydratedSlotItems = ref(new Set<string | number>())
+
+function hydrateSlotItem(id: string | number): void {
+  if (hydratedSlotItems.value.has(id)) return
+  hydratedSlotItems.value = new Set(hydratedSlotItems.value).add(id)
+}
 
 function artSrc(item: GalleryItem): string {
   const src = displayImage(item)

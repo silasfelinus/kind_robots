@@ -13,8 +13,10 @@ on:
       - 'components/resources/resource-card.vue'
       - 'components/servers/checkpoint-card.vue'
       - 'components/achievements/earned-achievement-card.vue'
+      - 'server/api/dreams/index.get.ts'
       - 'utils/viewportHydration.ts'
       - 'utils/scripts/verifyGalleryProgressiveRendering.ts'
+      - 'utils/scripts/verifyGalleryIndexHydration.ts'
       - '.github/workflows/gallery-progressive-rendering-contract.yml'
   pull_request:
     branches: [main]
@@ -28,8 +30,10 @@ on:
       - 'components/resources/resource-card.vue'
       - 'components/servers/checkpoint-card.vue'
       - 'components/achievements/earned-achievement-card.vue'
+      - 'server/api/dreams/index.get.ts'
       - 'utils/viewportHydration.ts'
       - 'utils/scripts/verifyGalleryProgressiveRendering.ts'
+      - 'utils/scripts/verifyGalleryIndexHydration.ts'
       - '.github/workflows/gallery-progressive-rendering-contract.yml'
   workflow_dispatch:
 
@@ -59,3 +63,6 @@ jobs:
 
       - name: Verify gallery progressive rendering
         run: npx tsx utils/scripts/verifyGalleryProgressiveRendering.ts
+
+      - name: Verify complete gallery index hydration
+        run: npx tsx utils/scripts/verifyGalleryIndexHydration.ts

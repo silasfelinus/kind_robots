@@ -295,16 +295,17 @@ requireText(
   'legacy Prompt generation must not create Unsorted generated ArtImages while it remains callable',
 )
 for (const token of [
-  'const collection = await tx.artCollection.create({',
+  'const collection = await ensureDailyDreamCollection(tx, {',
   'artCollectionId: collection.id',
   'ArtCollections: { connect: { id: collection.id } }',
   'ensureExistingArtCollection(existing)',
   'ensureExistingArtCollection(raced)',
+  'existing.userId !== input.userId',
 ]) {
   requireText(
     dailyDreamRoute,
     token,
-    `Daily Dream must create or repair its canonical ArtCollection: ${token}`,
+    `Daily Dream must create or repair its owned canonical ArtCollection: ${token}`,
   )
 }
 

@@ -1,15 +1,19 @@
 import { createError } from 'h3'
-import type {
-  Prisma,
-  PrismaClient,
-} from '~/prisma/generated/prisma/client'
+import type { Prisma } from '~/prisma/generated/prisma/client'
 import type { EntityArtMetadata } from '~/server/utils/entityArt'
 
-type ArtCollectionDb = PrismaClient | Prisma.TransactionClient
+type ArtCollectionDb = Pick<
+  Prisma.TransactionClient,
+  'artCollection' | 'artImage' | 'dream' | 'facet' | 'project' | 'user'
+>
 
 type CollectionIdInput = {
   artCollectionId?: number | null
   artCollectionIds?: number[] | null
+}
+
+function asArtCollectionDb(db: unknown): ArtCollectionDb {
+  return db as ArtCollectionDb
 }
 
 function positiveId(value: unknown): number | null {
@@ -57,13 +61,14 @@ export function normalizeRequestedArtCollectionIds(
 }
 
 export async function assertOwnedActiveArtCollectionIds(
-  db: ArtCollectionDb,
+  db: unknown,
   ids: number[],
   userId: number,
 ): Promise<number[]> {
   if (!ids.length) return []
 
-  const rows = await db.artCollection.findMany({
+  const database = asArtCollectionDb(db)
+  const rows = await database.artCollection.findMany({
     where: {
       id: { in: ids },
       userId,
@@ -97,12 +102,13 @@ async function generatedCollectionLabel(
 }
 
 export async function ensureGeneratedArtCollectionId(
-  db: ArtCollectionDb,
+  db: unknown,
   userId: number,
 ): Promise<number> {
-  const preferredLabel = await generatedCollectionLabel(db, userId)
+  const database = asArtCollectionDb(db)
+  const preferredLabel = await generatedCollectionLabel(database, userId)
   const labels = [...new Set([preferredLabel, 'Generated Art'])]
-  const existing = await db.artCollection.findFirst({
+  const existing = await database.artCollection.findFirst({
     where: {
       userId,
       isActive: true,
@@ -115,7 +121,7 @@ export async function ensureGeneratedArtCollectionId(
   if (existing) return existing.id
 
   const slug = `generated-art-u${userId}`
-  const collision = await db.artCollection.findUnique({
+  const collision = await database.artCollection.findUnique({
     where: { slug },
     select: { id: true, userId: true },
   })
@@ -127,7 +133,7 @@ export async function ensureGeneratedArtCollectionId(
     })
   }
 
-  const collection = await db.artCollection.upsert({
+  const collection = await database.artCollection.upsert({
     where: { slug },
     update: {
       isActive: true,
@@ -247,7 +253,7 @@ async function resolveEntityPrimaryCollectionIds(
 }
 
 export async function attachCompletedArtImageToCollections(
-  db: ArtCollectionDb,
+  db: unknown,
   input: {
     artImageId: number
     userId: number
@@ -255,13 +261,14 @@ export async function attachCompletedArtImageToCollections(
     entityArt?: EntityArtMetadata | null
   },
 ): Promise<number[]> {
+  const database = asArtCollectionDb(db)
   const generatedCollectionId = await ensureGeneratedArtCollectionId(
-    db,
+    database,
     input.userId,
   )
 
   const requestedRows = input.requestedCollectionIds?.length
-    ? await db.artCollection.findMany({
+    ? await database.artCollection.findMany({
         where: {
           id: { in: input.requestedCollectionIds },
           userId: input.userId,
@@ -271,11 +278,11 @@ export async function attachCompletedArtImageToCollections(
       })
     : []
   const entityCollectionIds = await resolveEntityPrimaryCollectionIds(
-    db,
+    database,
     input.entityArt ?? null,
   )
   const entityRows = entityCollectionIds.length
-    ? await db.artCollection.findMany({
+    ? await database.artCollection.findMany({
         where: {
           id: { in: entityCollectionIds },
           userId: input.userId,
@@ -291,7 +298,7 @@ export async function attachCompletedArtImageToCollections(
   ]
   const uniqueIds = [...new Set(collectionIds)]
 
-  await db.artImage.update({
+  await database.artImage.update({
     where: { id: input.artImageId },
     data: {
       ArtCollections: {

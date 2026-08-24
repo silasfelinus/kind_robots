@@ -223,6 +223,13 @@ model Character {
   wits                 Rarity                 @default(COMMON)
   gender               String?                @db.VarChar(256)
   slug                 String?                @unique @db.VarChar(255)
+  /// cthulhuquarium/t-032: tank-capacity weight for this species when placed as
+  /// AquariumStock. Consumed against Aquarium.sizeCap (weighed pool, distinct
+  /// from the counted setSlotsCap -- see SYSTEMS.md "Capacity: two pools, two
+  /// units"). Required going forward; existing rows default to the smallest
+  /// unit so nothing is retroactively over its cap. [v1 placeholder -- actual
+  /// per-species values are a data/authoring pass, not this migration's job.]
+  size                 Int                    @default(1)
   ChallengeSubmissions ChallengeSubmission[]
   ArtImage             ArtImage?              @relation(fields: [artImageId], references: [id])
   User                 User?                  @relation(fields: [userId], references: [id])
@@ -243,6 +250,9 @@ model Character {
   /// cthulhuquarium/t-007: fish species stocked into a tank. AquariumStock
   /// references this Character row rather than duplicating species data.
   AquariumStock        AquariumStock[]
+  /// cthulhuquarium/t-032: the Ichthyonomicon -- one row per user per species
+  /// ever owned, surviving a sell/rotation cycle. See AquariumCodexEntry.
+  AquariumCodexEntries AquariumCodexEntry[]
 
   @@index([userId], map: "Character_userId_fkey")
   @@index([isPublic])
@@ -1743,6 +1753,7 @@ model User {
   Achievements           AchievementRecord[]
   AppRepos               AppRepo[]
   Aquariums              Aquarium[]
+  AquariumCodexEntries   AquariumCodexEntry[]
   ArtCollections         ArtCollection[]
   ArtImages              ArtImage[]                @relation("ArtImageCreator")
   ArtJobs                ArtJob[]
@@ -2308,36 +2319,137 @@ model Aquarium {
   createdAt     DateTime        @default(now())
   updatedAt     DateTime?       @default(now()) @updatedAt
   userId        Int
-  slug          String          @unique @db.VarChar(255)
+  /// cthulhuquarium/t-032: was globally @unique, which collides the moment a
+  /// second user picks the same tank name (e.g. "my-tank"). Slugs only need
+  /// to be unique per owner -- see the @@unique([userId, slug]) below.
+  slug          String          @db.VarChar(255)
   title         String          @db.VarChar(255)
   coins         Int             @default(0)
   backgroundKey String?         @db.VarChar(255)
   isPublic      Boolean         @default(false)
   lastTickAt    DateTime?
+  /// cthulhuquarium/t-032: counted set-piece slots (SYSTEMS.md "Capacity: two
+  /// pools, two units"). Starts at three per SYSTEMS.md; a tank upgrade raises
+  /// this alongside sizeCap. Distinct pool from fish capacity -- do not sum
+  /// with sizeCap.
+  setSlotsCap   Int             @default(3)
+  /// cthulhuquarium/t-032: weighed fish capacity, measured against the sum of
+  /// placed AquariumStock's Character.size. [v1 placeholder -- economy.yaml
+  /// predates this two-pool split (it was written for a single shared-pool
+  /// model Silas later superseded) and does not yet carry a tuned starting
+  /// value; this default is a starting-point guess for a future balance pass,
+  /// not a confirmed number.]
+  sizeCap       Int             @default(10)
+  /// cthulhuquarium/t-032 item 5 (t-027 dependency): tank-wide debris level,
+  /// settled server-side like hunger. 0 = spotless.
+  debrisLevel   Int             @default(0)
+  lastCleanedAt DateTime?
   User          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   Stock         AquariumStock[]
   Events        AquariumEvent[]
+  Sets          AquariumSet[]
 
+  @@unique([userId, slug])
   @@index([userId])
   @@index([isPublic])
 }
 
 /// One fish (Character row) placed in one Aquarium. hunger/mood are the live
 /// play-loop state; placedAt lets the UI order a tank by arrival.
+///
+/// cthulhuquarium/t-032: the bible (Character) describes species; this table
+/// contains individuals. Two goldfish are the same Character row and
+/// different AquariumStock rows -- hidden stats and parentage live here,
+/// never on Character, so the bible stays a catalogue rather than a save
+/// file. See SYSTEMS.md "Genetics: hidden stats, breeding, and secret
+/// evolutions".
 model AquariumStock {
-  id          Int       @id @default(autoincrement())
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime? @default(now()) @updatedAt
-  aquariumId  Int
-  characterId Int
-  nickname    String?   @db.VarChar(255)
-  hunger      Int       @default(100)
-  mood        String?   @db.VarChar(64)
-  placedAt    DateTime  @default(now())
-  Aquarium    Aquarium  @relation(fields: [aquariumId], references: [id], onDelete: Cascade)
-  Character   Character @relation(fields: [characterId], references: [id])
+  id                 Int             @id @default(autoincrement())
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime?       @default(now()) @updatedAt
+  aquariumId         Int
+  characterId        Int
+  nickname           String?         @db.VarChar(255)
+  hunger             Int             @default(100)
+  mood               String?         @db.VarChar(64)
+  placedAt           DateTime        @default(now())
+  /// Hidden rolled individual stats, mirroring Character's six public Rarity
+  /// stats (charm/empathy/grace/luck/might/wits) but numeric and per-fish
+  /// rather than per-species. Null until rolled (t-029: rolled on acquisition
+  /// or hatch, and must CONVERGE toward the better parent on breeding rather
+  /// than reroll -- see SYSTEMS.md's four genetics rules). [v1 placeholder --
+  /// no roll range/formula is fixed by this migration; t-029 owns that.]
+  statCharm          Int?
+  statEmpathy        Int?
+  statGrace          Int?
+  statLuck           Int?
+  statMight          Int?
+  statWits           Int?
+  /// Parentage for breeding (t-029). Nullable/SetNull: breeding never
+  /// consumes the parents (progress never degrades), and selling or losing a
+  /// parent must not cascade-delete its offspring's own record.
+  parentAId          Int?
+  parentBId          Int?
+  Aquarium           Aquarium        @relation(fields: [aquariumId], references: [id], onDelete: Cascade)
+  Character          Character       @relation(fields: [characterId], references: [id])
+  ParentA            AquariumStock?  @relation("AquariumStockParentA", fields: [parentAId], references: [id], onDelete: SetNull)
+  ParentB            AquariumStock?  @relation("AquariumStockParentB", fields: [parentBId], references: [id], onDelete: SetNull)
+  OffspringAsParentA AquariumStock[] @relation("AquariumStockParentA")
+  OffspringAsParentB AquariumStock[] @relation("AquariumStockParentB")
 
   @@index([aquariumId])
+  @@index([characterId])
+  @@index([parentAId])
+  @@index([parentBId])
+}
+
+/// cthulhuquarium/t-032 item 3: a set piece equipped in one Aquarium, counted
+/// against Aquarium.setSlotsCap -- a distinct pool from fish (AquariumStock),
+/// which is weighed by size instead of counted. `kind` keys into
+/// projects/cthulhuquarium/data/economy.yaml's `set_pieces` catalogue (e.g.
+/// "extra_species_slot", "debris_skimmer") -- free-form string rather than an
+/// enum so a new set piece is a data commit, same convention as
+/// AquariumEvent.kind.
+model AquariumSet {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  aquariumId Int
+  kind       String   @db.VarChar(64)
+  equippedAt DateTime @default(now())
+  Aquarium   Aquarium @relation(fields: [aquariumId], references: [id], onDelete: Cascade)
+
+  @@index([aquariumId])
+  @@index([kind])
+}
+
+/// cthulhuquarium/t-032 item 4: the Ichthyonomicon. One row per user per
+/// species ever bought or raised, whether or not currently owned -- survives
+/// a sell. This is the record that makes t-030's rotating shop and sell-back
+/// safe (rotation governs discovery, not access; anything in this table is
+/// re-orderable). Append/update-only in spirit: t-030/t-031 create a row on
+/// first acquisition and update bestStat* when a better individual is seen,
+/// never delete one. See SYSTEMS.md "The shop rotates; the book is forever"
+/// and "The Ichthyonomicon".
+model AquariumCodexEntry {
+  id              Int       @id @default(autoincrement())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime? @default(now()) @updatedAt
+  userId          Int
+  characterId     Int
+  firstAcquiredAt DateTime  @default(now())
+  /// Best individual stats ever seen of this species, owned or not -- the
+  /// book's own record, independent of any single AquariumStock row.
+  bestStatCharm   Int?
+  bestStatEmpathy Int?
+  bestStatGrace   Int?
+  bestStatLuck    Int?
+  bestStatMight   Int?
+  bestStatWits    Int?
+  User            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Character       Character @relation(fields: [characterId], references: [id])
+
+  @@unique([userId, characterId])
+  @@index([userId])
   @@index([characterId])
 }
 

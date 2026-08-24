@@ -478,6 +478,8 @@ export const ModelName = {
   LifeRunArt: 'LifeRunArt',
   Aquarium: 'Aquarium',
   AquariumStock: 'AquariumStock',
+  AquariumSet: 'AquariumSet',
+  AquariumCodexEntry: 'AquariumCodexEntry',
   AquariumEvent: 'AquariumEvent',
   AuthToken: 'AuthToken',
   Conversation: 'Conversation',
@@ -502,7 +504,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumEvent" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
+    modelProps: "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumCodexEntry" | "aquariumEvent" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -5852,6 +5854,138 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    AquariumSet: {
+      payload: Prisma.$AquariumSetPayload<ExtArgs>
+      fields: Prisma.AquariumSetFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AquariumSetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AquariumSetPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AquariumSetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AquariumSetPayload>
+        }
+        findFirst: {
+          args: Prisma.AquariumSetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AquariumSetPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AquariumSetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AquariumSetPayload>
+        }
+        findMany: {
+          args: Prisma.AquariumSetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AquariumSetPayload>[]
+        }
+        create: {
+          args: Prisma.AquariumSetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AquariumSetPayload>
+        }
+        createMany: {
+          args: Prisma.AquariumSetCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.AquariumSetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AquariumSetPayload>
+        }
+        update: {
+          args: Prisma.AquariumSetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AquariumSetPayload>
+        }
+        deleteMany: {
+          args: Prisma.AquariumSetDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AquariumSetUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.AquariumSetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AquariumSetPayload>
+        }
+        aggregate: {
+          args: Prisma.AquariumSetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAquariumSet>
+        }
+        groupBy: {
+          args: Prisma.AquariumSetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AquariumSetGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AquariumSetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AquariumSetCountAggregateOutputType> | number
+        }
+      }
+    }
+    AquariumCodexEntry: {
+      payload: Prisma.$AquariumCodexEntryPayload<ExtArgs>
+      fields: Prisma.AquariumCodexEntryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AquariumCodexEntryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AquariumCodexEntryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AquariumCodexEntryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AquariumCodexEntryPayload>
+        }
+        findFirst: {
+          args: Prisma.AquariumCodexEntryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AquariumCodexEntryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AquariumCodexEntryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AquariumCodexEntryPayload>
+        }
+        findMany: {
+          args: Prisma.AquariumCodexEntryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AquariumCodexEntryPayload>[]
+        }
+        create: {
+          args: Prisma.AquariumCodexEntryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AquariumCodexEntryPayload>
+        }
+        createMany: {
+          args: Prisma.AquariumCodexEntryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.AquariumCodexEntryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AquariumCodexEntryPayload>
+        }
+        update: {
+          args: Prisma.AquariumCodexEntryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AquariumCodexEntryPayload>
+        }
+        deleteMany: {
+          args: Prisma.AquariumCodexEntryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AquariumCodexEntryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.AquariumCodexEntryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AquariumCodexEntryPayload>
+        }
+        aggregate: {
+          args: Prisma.AquariumCodexEntryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAquariumCodexEntry>
+        }
+        groupBy: {
+          args: Prisma.AquariumCodexEntryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AquariumCodexEntryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AquariumCodexEntryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AquariumCodexEntryCountAggregateOutputType> | number
+        }
+      }
+    }
     AquariumEvent: {
       payload: Prisma.$AquariumEventPayload<ExtArgs>
       fields: Prisma.AquariumEventFieldRefs
@@ -6862,6 +6996,7 @@ export const CharacterScalarFieldEnum = {
   wits: 'wits',
   gender: 'gender',
   slug: 'slug',
+  size: 'size',
   theme: 'theme'
 } as const
 
@@ -8136,7 +8271,11 @@ export const AquariumScalarFieldEnum = {
   coins: 'coins',
   backgroundKey: 'backgroundKey',
   isPublic: 'isPublic',
-  lastTickAt: 'lastTickAt'
+  lastTickAt: 'lastTickAt',
+  setSlotsCap: 'setSlotsCap',
+  sizeCap: 'sizeCap',
+  debrisLevel: 'debrisLevel',
+  lastCleanedAt: 'lastCleanedAt'
 } as const
 
 export type AquariumScalarFieldEnum = (typeof AquariumScalarFieldEnum)[keyof typeof AquariumScalarFieldEnum]
@@ -8151,10 +8290,47 @@ export const AquariumStockScalarFieldEnum = {
   nickname: 'nickname',
   hunger: 'hunger',
   mood: 'mood',
-  placedAt: 'placedAt'
+  placedAt: 'placedAt',
+  statCharm: 'statCharm',
+  statEmpathy: 'statEmpathy',
+  statGrace: 'statGrace',
+  statLuck: 'statLuck',
+  statMight: 'statMight',
+  statWits: 'statWits',
+  parentAId: 'parentAId',
+  parentBId: 'parentBId'
 } as const
 
 export type AquariumStockScalarFieldEnum = (typeof AquariumStockScalarFieldEnum)[keyof typeof AquariumStockScalarFieldEnum]
+
+
+export const AquariumSetScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  aquariumId: 'aquariumId',
+  kind: 'kind',
+  equippedAt: 'equippedAt'
+} as const
+
+export type AquariumSetScalarFieldEnum = (typeof AquariumSetScalarFieldEnum)[keyof typeof AquariumSetScalarFieldEnum]
+
+
+export const AquariumCodexEntryScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  characterId: 'characterId',
+  firstAcquiredAt: 'firstAcquiredAt',
+  bestStatCharm: 'bestStatCharm',
+  bestStatEmpathy: 'bestStatEmpathy',
+  bestStatGrace: 'bestStatGrace',
+  bestStatLuck: 'bestStatLuck',
+  bestStatMight: 'bestStatMight',
+  bestStatWits: 'bestStatWits'
+} as const
+
+export type AquariumCodexEntryScalarFieldEnum = (typeof AquariumCodexEntryScalarFieldEnum)[keyof typeof AquariumCodexEntryScalarFieldEnum]
 
 
 export const AquariumEventScalarFieldEnum = {
@@ -9221,6 +9397,13 @@ export const AquariumStockOrderByRelevanceFieldEnum = {
 export type AquariumStockOrderByRelevanceFieldEnum = (typeof AquariumStockOrderByRelevanceFieldEnum)[keyof typeof AquariumStockOrderByRelevanceFieldEnum]
 
 
+export const AquariumSetOrderByRelevanceFieldEnum = {
+  kind: 'kind'
+} as const
+
+export type AquariumSetOrderByRelevanceFieldEnum = (typeof AquariumSetOrderByRelevanceFieldEnum)[keyof typeof AquariumSetOrderByRelevanceFieldEnum]
+
+
 export const AquariumEventOrderByRelevanceFieldEnum = {
   kind: 'kind',
   payload: 'payload'
@@ -9997,6 +10180,8 @@ export type GlobalOmitConfig = {
   lifeRunArt?: Prisma.LifeRunArtOmit
   aquarium?: Prisma.AquariumOmit
   aquariumStock?: Prisma.AquariumStockOmit
+  aquariumSet?: Prisma.AquariumSetOmit
+  aquariumCodexEntry?: Prisma.AquariumCodexEntryOmit
   aquariumEvent?: Prisma.AquariumEventOmit
   authToken?: Prisma.AuthTokenOmit
   conversation?: Prisma.ConversationOmit

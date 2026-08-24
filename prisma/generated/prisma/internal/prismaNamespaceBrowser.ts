@@ -132,6 +132,8 @@ export const ModelName = {
   LifeRunArt: 'LifeRunArt',
   Aquarium: 'Aquarium',
   AquariumStock: 'AquariumStock',
+  AquariumSet: 'AquariumSet',
+  AquariumCodexEntry: 'AquariumCodexEntry',
   AquariumEvent: 'AquariumEvent',
   AuthToken: 'AuthToken',
   Conversation: 'Conversation',
@@ -536,6 +538,7 @@ export const CharacterScalarFieldEnum = {
   wits: 'wits',
   gender: 'gender',
   slug: 'slug',
+  size: 'size',
   theme: 'theme'
 } as const
 
@@ -1810,7 +1813,11 @@ export const AquariumScalarFieldEnum = {
   coins: 'coins',
   backgroundKey: 'backgroundKey',
   isPublic: 'isPublic',
-  lastTickAt: 'lastTickAt'
+  lastTickAt: 'lastTickAt',
+  setSlotsCap: 'setSlotsCap',
+  sizeCap: 'sizeCap',
+  debrisLevel: 'debrisLevel',
+  lastCleanedAt: 'lastCleanedAt'
 } as const
 
 export type AquariumScalarFieldEnum = (typeof AquariumScalarFieldEnum)[keyof typeof AquariumScalarFieldEnum]
@@ -1825,10 +1832,47 @@ export const AquariumStockScalarFieldEnum = {
   nickname: 'nickname',
   hunger: 'hunger',
   mood: 'mood',
-  placedAt: 'placedAt'
+  placedAt: 'placedAt',
+  statCharm: 'statCharm',
+  statEmpathy: 'statEmpathy',
+  statGrace: 'statGrace',
+  statLuck: 'statLuck',
+  statMight: 'statMight',
+  statWits: 'statWits',
+  parentAId: 'parentAId',
+  parentBId: 'parentBId'
 } as const
 
 export type AquariumStockScalarFieldEnum = (typeof AquariumStockScalarFieldEnum)[keyof typeof AquariumStockScalarFieldEnum]
+
+
+export const AquariumSetScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  aquariumId: 'aquariumId',
+  kind: 'kind',
+  equippedAt: 'equippedAt'
+} as const
+
+export type AquariumSetScalarFieldEnum = (typeof AquariumSetScalarFieldEnum)[keyof typeof AquariumSetScalarFieldEnum]
+
+
+export const AquariumCodexEntryScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  characterId: 'characterId',
+  firstAcquiredAt: 'firstAcquiredAt',
+  bestStatCharm: 'bestStatCharm',
+  bestStatEmpathy: 'bestStatEmpathy',
+  bestStatGrace: 'bestStatGrace',
+  bestStatLuck: 'bestStatLuck',
+  bestStatMight: 'bestStatMight',
+  bestStatWits: 'bestStatWits'
+} as const
+
+export type AquariumCodexEntryScalarFieldEnum = (typeof AquariumCodexEntryScalarFieldEnum)[keyof typeof AquariumCodexEntryScalarFieldEnum]
 
 
 export const AquariumEventScalarFieldEnum = {
@@ -2893,6 +2937,13 @@ export const AquariumStockOrderByRelevanceFieldEnum = {
 } as const
 
 export type AquariumStockOrderByRelevanceFieldEnum = (typeof AquariumStockOrderByRelevanceFieldEnum)[keyof typeof AquariumStockOrderByRelevanceFieldEnum]
+
+
+export const AquariumSetOrderByRelevanceFieldEnum = {
+  kind: 'kind'
+} as const
+
+export type AquariumSetOrderByRelevanceFieldEnum = (typeof AquariumSetOrderByRelevanceFieldEnum)[keyof typeof AquariumSetOrderByRelevanceFieldEnum]
 
 
 export const AquariumEventOrderByRelevanceFieldEnum = {

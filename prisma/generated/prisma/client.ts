@@ -633,8 +633,38 @@ export type Aquarium = Prisma.AquariumModel
  * Model AquariumStock
  * One fish (Character row) placed in one Aquarium. hunger/mood are the live
  * play-loop state; placedAt lets the UI order a tank by arrival.
+ * 
+ * cthulhuquarium/t-032: the bible (Character) describes species; this table
+ * contains individuals. Two goldfish are the same Character row and
+ * different AquariumStock rows -- hidden stats and parentage live here,
+ * never on Character, so the bible stays a catalogue rather than a save
+ * file. See SYSTEMS.md "Genetics: hidden stats, breeding, and secret
+ * evolutions".
  */
 export type AquariumStock = Prisma.AquariumStockModel
+/**
+ * Model AquariumSet
+ * cthulhuquarium/t-032 item 3: a set piece equipped in one Aquarium, counted
+ * against Aquarium.setSlotsCap -- a distinct pool from fish (AquariumStock),
+ * which is weighed by size instead of counted. `kind` keys into
+ * projects/cthulhuquarium/data/economy.yaml's `set_pieces` catalogue (e.g.
+ * "extra_species_slot", "debris_skimmer") -- free-form string rather than an
+ * enum so a new set piece is a data commit, same convention as
+ * AquariumEvent.kind.
+ */
+export type AquariumSet = Prisma.AquariumSetModel
+/**
+ * Model AquariumCodexEntry
+ * cthulhuquarium/t-032 item 4: the Ichthyonomicon. One row per user per
+ * species ever bought or raised, whether or not currently owned -- survives
+ * a sell. This is the record that makes t-030's rotating shop and sell-back
+ * safe (rotation governs discovery, not access; anything in this table is
+ * re-orderable). Append/update-only in spirit: t-030/t-031 create a row on
+ * first acquisition and update bestStat* when a better individual is seen,
+ * never delete one. See SYSTEMS.md "The shop rotates; the book is forever"
+ * and "The Ichthyonomicon".
+ */
+export type AquariumCodexEntry = Prisma.AquariumCodexEntryModel
 /**
  * Model AquariumEvent
  * Append-only audit trail for one Aquarium: feeds, purchases, rare

@@ -29,6 +29,8 @@ type DailyDreamCollectionInput = {
   isMature: boolean
 }
 
+type DailyDreamCollectionDb = Pick<Prisma.TransactionClient, 'artCollection'>
+
 const DATE_KEY = /^\d{4}-\d{2}-\d{2}$/
 
 function normalizeCount(value: unknown, fallback: number): number {
@@ -88,10 +90,11 @@ export default defineEventHandler(async (event) => {
       })
 
     async function ensureDailyDreamCollection(
-      tx: Prisma.TransactionClient,
+      tx: unknown,
       input: DailyDreamCollectionInput,
     ): Promise<{ id: number }> {
-      const existing = await tx.artCollection.findUnique({
+      const database = tx as DailyDreamCollectionDb
+      const existing = await database.artCollection.findUnique({
         where: { slug: input.slug },
         select: { id: true, userId: true, isActive: true },
       })
@@ -105,7 +108,7 @@ export default defineEventHandler(async (event) => {
         }
 
         if (!existing.isActive) {
-          return tx.artCollection.update({
+          return database.artCollection.update({
             where: { id: existing.id },
             data: { isActive: true },
             select: { id: true },
@@ -115,7 +118,7 @@ export default defineEventHandler(async (event) => {
         return { id: existing.id }
       }
 
-      return tx.artCollection.create({
+      return database.artCollection.create({
         data: {
           label: input.label,
           slug: input.slug,

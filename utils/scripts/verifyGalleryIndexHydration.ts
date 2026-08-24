@@ -47,7 +47,7 @@ forbidText(
 )
 forbidText(
   dreamListRoute,
-  'take: 3',
+  'take: 3,\n',
   'Dream browse relationships must not be truncated to three records',
 )
 requireText(

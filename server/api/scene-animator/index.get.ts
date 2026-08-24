@@ -41,7 +41,7 @@ function resolveConfig(query: Record<string, unknown>): SceneAnimatorRenderConfi
     engine,
     presetId: preset.id,
     durationSeconds,
-    fps: preset.frameRate,
+    fps: preset.fps,
     width: preset.width,
     height: preset.height,
     outputFormat: preset.outputFormat,

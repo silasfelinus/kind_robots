@@ -274,10 +274,20 @@ export async function attachCompletedArtImageToCollections(
     db,
     input.entityArt ?? null,
   )
+  const entityRows = entityCollectionIds.length
+    ? await db.artCollection.findMany({
+        where: {
+          id: { in: entityCollectionIds },
+          userId: input.userId,
+          isActive: true,
+        },
+        select: { id: true },
+      })
+    : []
   const collectionIds = [
     generatedCollectionId,
     ...requestedRows.map((row) => row.id),
-    ...entityCollectionIds,
+    ...entityRows.map((row) => row.id),
   ]
   const uniqueIds = [...new Set(collectionIds)]
 

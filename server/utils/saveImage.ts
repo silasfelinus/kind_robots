@@ -1,12 +1,18 @@
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from './error'
 import { getImageStorageRoot } from './imageStorageRoot'
+import { attachCompletedArtImageToCollections } from './generatedArtCollections'
 import path from 'node:path'
 import fs from 'node:fs/promises'
+
+type SaveImageOptions = {
+  deferGeneratedCollection?: boolean
+}
 
 export async function saveImage(
   base64Image: string,
   userId: number,
+  options: SaveImageOptions = {},
 ): Promise<{ id: number; fileName: string }> {
   try {
     const timestamp = Date.now()
@@ -23,6 +29,17 @@ export async function saveImage(
         userId,
       },
     })
+
+    // Direct synchronous generators finish at saveImage, so they receive the
+    // same canonical Generated Art membership as durable ArtJobs. The relay's
+    // /api/art/save-generated staging upload defers this until queue completion,
+    // where requested/entity collections are applied transactionally too.
+    if (!options.deferGeneratedCollection) {
+      await attachCompletedArtImageToCollections(prisma, {
+        artImageId: savedImage.id,
+        userId,
+      })
+    }
 
     // Optionally save to the configured local filesystem in development.
     if (!isProduction) {

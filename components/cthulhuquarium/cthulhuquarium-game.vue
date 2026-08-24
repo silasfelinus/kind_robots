@@ -67,9 +67,10 @@
       />
 
       <p class="text-xs opacity-60">
-        Click the drifting motes for coins. Fed occupants pay out on their own;
-        hungry ones stop. Progress saves in this browser only — a real
-        account-backed tank arrives with the aquarium API.
+        Click the drifting motes for coins. Feed buys something live and drops
+        it in. Fed occupants pay out on their own; hungry ones stop, but nothing
+        you have earned is ever lost. Progress saves in this browser only — a
+        real account-backed tank arrives with the aquarium API.
       </p>
 
       <div class="flex flex-col gap-2">
@@ -149,14 +150,18 @@ type Swimmer = {
 }
 
 type Mote = { x: number; y: number; drift: number; born: number }
-type Pellet = { x: number; y: number }
+/* The food is ALIVE (Silas, 2026-08-24) -- "our fish food should be wriggling". It is
+   livestock bought by the handful, not a pellet: it squirms on the way down and stops
+   when eaten. `phase` drives the wriggle, `lean` gives each one its own bias so a
+   handful never moves in unison. */
+type FeedCreature = { x: number; y: number; phase: number; lean: number }
 
 const store = useCthulhuquariumStore()
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 
 const swimmers = ref<Swimmer[]>([])
 const motes = ref<Mote[]>([])
-const pellets = ref<Pellet[]>([])
+const feed = ref<FeedCreature[]>([])
 
 let frame = 0
 let lastFrameAt = 0
@@ -257,11 +262,21 @@ function render(context: CanvasRenderingContext2D) {
   context.closePath()
   context.fill()
 
-  for (const pellet of pellets.value) {
-    context.fillStyle = 'rgba(214, 178, 122, 0.9)'
+  for (const creature of feed.value) {
+    // Three segments hinged off a shared phase: enough to read as something
+    // struggling, cheap enough to draw a handful of at 60fps.
+    context.strokeStyle = 'rgba(226, 196, 148, 0.92)'
+    context.lineWidth = 2.4
+    context.lineCap = 'round'
     context.beginPath()
-    context.arc(pellet.x, pellet.y, 3, 0, Math.PI * 2)
-    context.fill()
+    for (let segment = 0; segment <= 3; segment += 1) {
+      const bend = Math.sin(creature.phase + segment * 0.9) * 2.6
+      const x = creature.x + bend + creature.lean * segment
+      const y = creature.y + segment * 2.4
+      if (segment === 0) context.moveTo(x, y)
+      else context.lineTo(x, y)
+    }
+    context.stroke()
   }
 
   for (const swimmer of swimmers.value) {
@@ -287,7 +302,7 @@ function step(delta: number) {
   syncSwimmers()
 
   for (const swimmer of swimmers.value) {
-    const target = pellets.value[0]
+    const target = feed.value[0]
     if (target) {
       // Fish path toward food rather than ignoring it — the feed button has to
       // visibly do something or nobody presses it twice.
@@ -306,12 +321,16 @@ function step(delta: number) {
     }
   }
 
-  pellets.value = pellets.value.filter((pellet) => {
-    pellet.y += FOOD_FALL_SPEED * delta
+  feed.value = feed.value.filter((creature) => {
+    creature.y += FOOD_FALL_SPEED * delta
+    // It struggles the whole way down, and drifts slightly as it does.
+    creature.phase += delta * 9
+    creature.x += Math.sin(creature.phase * 0.7) * 6 * delta
     const eaten = swimmers.value.some(
-      (swimmer) => Math.hypot(swimmer.x - pellet.x, swimmer.y - pellet.y) < 14,
+      (swimmer) =>
+        Math.hypot(swimmer.x - creature.x, swimmer.y - creature.y) < 14,
     )
-    return !eaten && pellet.y < STAGE_HEIGHT - 8
+    return !eaten && creature.y < STAGE_HEIGHT - 8
   })
 
   sinceMote += delta
@@ -366,9 +385,11 @@ function onCanvasClick(event: MouseEvent) {
 
 function onFeed() {
   if (!store.feed()) return
-  pellets.value.push({
+  feed.value.push({
     x: 60 + Math.random() * (STAGE_WIDTH - 120),
     y: 12,
+    phase: Math.random() * Math.PI * 2,
+    lean: (Math.random() - 0.5) * 1.6,
   })
 }
 

@@ -42,6 +42,12 @@ const stylistGallery = read('components/art/stylist-client-gallery.vue')
 const enqueueRoute = read('server/api/art/enqueue.post.ts')
 const completionRoute = read('server/api/art/queue/[id]/complete.post.ts')
 const generatedCollections = read('server/utils/generatedArtCollections.ts')
+const saveImageHelper = read('server/utils/saveImage.ts')
+const saveGeneratedRoute = read('server/api/art/save-generated.post.ts')
+const a1111GenerateRoute = read('server/api/art/generate.post.ts')
+const sdxlGenerateRoute = read('server/api/comfy/sdxl/generate.post.ts')
+const openAiGenerateRoute = read('server/api/chats/openai/images/generate.post.ts')
+const legacyPromptGenerateRoute = read('server/api/prompts/generate.post.ts')
 const dailyDreamRoute = read('server/api/dreams/daily.post.ts')
 
 for (const token of [
@@ -257,6 +263,37 @@ for (const token of [
     `generated art collection assignment must retain entity-context coverage: ${token}`,
   )
 }
+requireText(
+  saveImageHelper,
+  'attachCompletedArtImageToCollections(prisma, {',
+  'direct synchronous generated art must join canonical Generated Art server-side',
+)
+requireText(
+  saveImageHelper,
+  'if (!options.deferGeneratedCollection)',
+  'saveImage must expose a queue-staging defer switch',
+)
+requireText(
+  saveGeneratedRoute,
+  '{ deferGeneratedCollection: true }',
+  'ArtJob staging uploads must defer Generated Art assignment until completion',
+)
+for (const [source, label] of [
+  [a1111GenerateRoute, 'A1111 direct generation'],
+  [sdxlGenerateRoute, 'SDXL direct generation'],
+  [openAiGenerateRoute, 'OpenAI direct generation'],
+] as const) {
+  requireText(
+    source,
+    'saveImage(',
+    `${label} must continue through the canonical generated-image save helper`,
+  )
+}
+requireText(
+  legacyPromptGenerateRoute,
+  'attachCompletedArtImageToCollections(prisma, {',
+  'legacy Prompt generation must not create Unsorted generated ArtImages while it remains callable',
+)
 for (const token of [
   'const collection = await tx.artCollection.create({',
   'artCollectionId: collection.id',
@@ -277,5 +314,5 @@ if (failures.length) {
 }
 
 console.log(
-  'ok - galleries render full lightweight indexes; Art Gallery is DB-collection-first; completed generation and Daily Dreams preserve canonical collection membership',
+  'ok - galleries render full lightweight indexes; Art Gallery is DB-collection-first; queued, synchronous, entity-context, and Daily Dream generation preserve canonical collection membership',
 )

@@ -126,7 +126,7 @@
             {{ visibleGroups.length }} collections
           </span>
           <span class="badge badge-ghost badge-sm">
-            {{ visibleImageCount }} images
+            {{ totalImageCount }} images
           </span>
           <span v-if="activeGroup" class="badge badge-primary badge-sm">
             {{ filteredActiveImages.length }} in view
@@ -191,6 +191,9 @@
               :compact="viewSize === 'xs' || viewSize === 'sm'"
               :show-stats="false"
               :show-select-button="false"
+              :show-reaction="group.id > 0"
+              :allow-edit="group.id > 0"
+              :allow-delete="group.id > 0"
               :show-mature="showMature"
               :size="viewSize"
               :preview-art-image="getPreviewImage(group)"
@@ -206,9 +209,7 @@
           class="flex items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-3 py-2"
         >
           <Icon
-            :name="
-              activeGroup.isVirtual ? 'kind-icon:archive' : 'kind-icon:folder'
-            "
+            :name="activeGroup.isVirtual ? 'kind-icon:archive' : 'kind-icon:folder'"
             class="h-4 w-4 shrink-0 text-primary"
           />
           <h3 class="min-w-0 truncate text-sm font-black text-base-content">
@@ -220,33 +221,11 @@
           >
             Unsorted
           </span>
-          <span
-            v-else-if="activeGroup.isFolder"
-            class="badge badge-outline badge-sm shrink-0"
-          >
-            Folder
-          </span>
           <span class="badge badge-primary badge-sm shrink-0">
             {{ filteredActiveImages.length }}
           </span>
           <button
-            v-if="activeGroup.isFolder"
-            class="btn btn-secondary btn-xs ml-auto rounded-lg"
-            type="button"
-            :disabled="isSyncingFolder"
-            title="Create a saved collection from this folder's images"
-            @click="syncActiveFolder"
-          >
-            <span
-              v-if="isSyncingFolder"
-              class="loading loading-spinner loading-xs"
-            />
-            <Icon v-else name="kind-icon:plus" class="h-3.5 w-3.5" />
-            Sync to collection
-          </button>
-          <button
-            class="btn btn-ghost btn-xs rounded-lg"
-            :class="{ 'ml-auto': !activeGroup.isFolder }"
+            class="btn btn-ghost btn-xs ml-auto rounded-lg"
             type="button"
             @click="clearActiveGroup"
           >
@@ -534,14 +513,14 @@
         collections
       </span>
       <span>
-        <span class="font-bold text-base-content">
-          {{ artStore.artImages.length }}
-        </span>
+        <span class="font-bold text-base-content">{{ totalImageCount }}</span>
         images
       </span>
-      <span>
-        <span class="font-bold text-base-content">{{ visibleImageCount }}</span>
-        visible
+      <span v-if="activeGroup">
+        <span class="font-bold text-base-content">
+          {{ filteredActiveImages.length }}
+        </span>
+        shown
       </span>
       <span
         v-if="activeGroup"
@@ -564,6 +543,10 @@ import {
   type GalleryDensity,
 } from '@/utils/galleryVocabulary'
 import { useArtStore } from '@/stores/artStore'
+import {
+  useArtCollectionBrowseStore,
+  type BrowseArtCollection,
+} from '@/stores/artCollectionBrowseStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { ErrorType, useErrorStore } from '@/stores/errorStore'
 import { useUserStore } from '@/stores/userStore'
@@ -571,10 +554,8 @@ import { useUserStore } from '@/stores/userStore'
 type BatchFlagValue = 'keep' | 'true' | 'false'
 type ViewSize = GalleryDensity
 
-type GalleryCollection = ArtCollection & {
-  artImages?: ArtImage[]
-  ArtImages?: ArtImage[]
-  images?: ArtImage[]
+type GalleryCollection = BrowseArtCollection & {
+  art?: ArtImage[]
 }
 
 type GalleryGroup = {
@@ -586,8 +567,8 @@ type GalleryGroup = {
   isPublic: boolean
   isMature: boolean
   isVirtual: boolean
-  isFolder?: boolean
-  slug?: string | null
+  imageCount: number
+  previewArtImage: ArtImage | null
   images: ArtImage[]
   collection: GalleryCollection
 }
@@ -605,6 +586,7 @@ const props = withDefaults(
 
 const SIZE_OPTIONS = GALLERY_DENSITIES
 const artStore = useArtStore()
+const browseStore = useArtCollectionBrowseStore()
 const collectionStore = useCollectionStore()
 const errorStore = useErrorStore()
 const userStore = useUserStore()
@@ -624,7 +606,7 @@ const hydratedImages = ref<Record<number, ArtImage>>({})
 const activeGroupKey = ref<string | null>(null)
 const selectedImageForOverlay = ref<ArtImage | null>(null)
 const viewSize = ref<ViewSize>('md')
-const isSyncingFolder = ref(false)
+const galleryReady = ref(false)
 
 const selectedImageIdSet = computed(() => new Set(selectedImageIds.value))
 
@@ -646,47 +628,34 @@ const selectedBatchCollectionId = computed(() => {
   return Number.isFinite(id) && id > 0 ? id : null
 })
 
-const activeGroup = computed(() => {
-  if (!activeGroupKey.value) return null
-  return (
-    visibleGroups.value.find((group) => group.key === activeGroupKey.value) ||
-    collectionGroups.value.find((group) => group.key === activeGroupKey.value) ||
-    null
-  )
-})
-
-const headerSummary = computed(() => {
-  if (activeGroup.value) {
-    return `${filteredActiveImages.value.length} images — click to open`
-  }
-  return `${visibleGroups.value.length} collections · ${visibleImageCount.value} images`
-})
-
 const collectionGroups = computed<GalleryGroup[]>(() => {
   const groups = collectionStore.collections
     .map(normalizeCollectionGroup)
     .sort((a, b) => a.title.localeCompare(b.title))
 
-  const assignedImageIds = new Set<number>()
-  for (const group of groups) {
-    for (const image of group.images) assignedImageIds.add(image.id)
-  }
+  if (props.dropdownMode) return groups
 
-  const unassignedImages = artStore.artImages
+  const summary = browseStore.unsortedSummary
+  if (!summary.count && !browseStore.unsortedImages.length) return groups
+
+  const fullImages = browseStore.unsortedImages
     .map((image) => hydratedImages.value[image.id] || image)
-    .filter((image) => !assignedImageIds.has(image.id))
     .sort((a, b) => b.id - a.id)
-
-  const unassignedCollection = makePseudoCollection({
+  const preview = summary.previewArtImage
+    ? hydratedImages.value[summary.previewArtImage.id] || summary.previewArtImage
+    : null
+  const images = fullImages.length ? fullImages : preview ? [preview] : []
+  const collection = makePseudoCollection({
     id: -1,
     title: 'Unsorted',
     description: 'Images not currently assigned to a collection.',
-    images: unassignedImages,
+    images,
+    imageCount: summary.count,
+    previewArtImage: preview,
   })
 
   return [
     ...groups,
-    ...folderGroups.value,
     {
       key: 'collection-unsorted',
       id: -1,
@@ -696,61 +665,37 @@ const collectionGroups = computed<GalleryGroup[]>(() => {
       isPublic: false,
       isMature: false,
       isVirtual: true,
-      images: unassignedImages,
-      collection: unassignedCollection,
+      imageCount: summary.count,
+      previewArtImage: preview,
+      images,
+      collection,
     },
   ]
 })
 
-const folderGroups = computed<GalleryGroup[]>(() => {
-  const dbSlugs = new Set(
-    collectionStore.collections
-      .map((collection) => (collection.slug || '').toLowerCase())
-      .filter(Boolean),
-  )
-
-  return collectionStore.folderCollections
-    .filter((folder) => folder.slug && !dbSlugs.has(folder.slug.toLowerCase()))
-    .map((folder) => {
-      const title = labelFromSlug(folder.slug)
-      const images = folder.images.map((url, index) =>
-        folderUrlToArtImage(url, folder.slug, index),
-      )
-      const collection = makePseudoCollection({
-        id: -(2_000_000 + hashSlug(folder.slug)),
-        title,
-        description: `Folder collection from public/images/${folder.slug}/.`,
-        images,
-      })
-      return {
-        key: `folder-${folder.slug}`,
-        id: collection.id,
-        title,
-        description:
-          'Folder collection — not yet synced to a saved collection.',
-        userId: currentUserId.value ?? null,
-        isPublic: true,
-        isMature: false,
-        isVirtual: false,
-        isFolder: true,
-        slug: folder.slug,
-        images,
-        collection,
-      }
-    })
-    .sort((a, b) => a.title.localeCompare(b.title))
-})
-
 const visibleGroups = computed<GalleryGroup[]>(() => {
   const query = searchQuery.value.trim().toLowerCase()
-  return collectionGroups.value
-    .map((group) => filterGroup(group, query))
-    .filter((group) => {
-      if (!showMature.value && group.isMature) return false
-      if (!group.images.length && query) return false
-      if (!group.images.length && group.isVirtual) return false
-      return true
-    })
+  return collectionGroups.value.filter((group) => {
+    if (!showMature.value && group.isMature) return false
+    if (query && !searchableGroupText(group).includes(query)) return false
+    return true
+  })
+})
+
+const activeGroup = computed(() => {
+  if (!activeGroupKey.value) return null
+  return (
+    collectionGroups.value.find(
+      (group) => group.key === activeGroupKey.value,
+    ) || null
+  )
+})
+
+const headerSummary = computed(() => {
+  if (activeGroup.value) {
+    return `${filteredActiveImages.value.length} images — click to open`
+  }
+  return `${visibleGroups.value.length} collections · ${totalImageCount.value} images`
 })
 
 const groupByKey = computed(
@@ -787,8 +732,8 @@ const imageById = computed(
     new Map(filteredActiveImages.value.map((image) => [image.id, image])),
 )
 
-const visibleImageCount = computed(() =>
-  visibleGroups.value.reduce((sum, group) => sum + group.images.length, 0),
+const totalImageCount = computed(
+  () => Number(browseStore.unsortedSummary.totalCount) || 0,
 )
 
 const mutableCollectionGroups = computed(() =>
@@ -830,6 +775,15 @@ watch(viewSize, (value) => {
   }
 })
 
+watch(showMature, async (value) => {
+  if (!galleryReady.value) return
+  browseStore.invalidateUnsorted()
+  await browseStore.fetchUnsortedSummary(true, value)
+  if (activeGroupKey.value === 'collection-unsorted') {
+    await browseStore.fetchUnsortedImages(true, value)
+  }
+})
+
 onMounted(async () => {
   showMature.value = Boolean(userStore.user?.showMature ?? userStore.showMature)
   if (typeof localStorage !== 'undefined') {
@@ -837,6 +791,7 @@ onMounted(async () => {
     if (stored && IS_GALLERY_DENSITY(stored)) viewSize.value = stored
   }
   await initializeGallery()
+  galleryReady.value = true
 })
 
 function toggleBulkSelect() {
@@ -906,16 +861,13 @@ async function refreshGallery() {
   hydratedImages.value = {}
 
   try {
+    const activeKey = activeGroupKey.value
+    browseStore.invalidateAll()
     await Promise.all([
-      fetchCollectionsSafely(true),
-      props.dropdownMode
-        ? Promise.resolve()
-        : artStore.fetchAllArtImages({
-            force: true,
-            includeImageData: false,
-            includeThumbnailData: false,
-          }),
+      fetchCollectionSummaries(true),
+      browseStore.fetchUnsortedSummary(true, showMature.value),
     ])
+    if (activeKey) await loadGroupData(activeKey, true)
     void refreshEarnedKarma()
     successMessage.value = 'Gallery refreshed.'
   } catch (error) {
@@ -934,9 +886,10 @@ async function initializeGallery() {
   hydratedImages.value = {}
 
   try {
-    await fetchCollectionsSafely(false)
-    await fetchFolderCollectionsSafely()
-    if (!props.dropdownMode) await fetchArtImagesSafely()
+    await Promise.all([
+      fetchCollectionSummaries(false),
+      browseStore.fetchUnsortedSummary(false, showMature.value),
+    ])
   } catch (error) {
     const message = getErrorMessage(error, 'Gallery failed to initialize.')
     errorMessage.value = message
@@ -946,62 +899,67 @@ async function initializeGallery() {
   }
 }
 
-async function fetchCollectionsSafely(force = false) {
+async function fetchCollectionSummaries(force = false) {
   if (typeof collectionStore.fetchCollections !== 'function') return
-  await collectionStore.fetchCollections(force)
-}
-
-async function fetchFolderCollectionsSafely() {
-  if (typeof collectionStore.fetchFolderCollections !== 'function') return
-  try {
-    await collectionStore.fetchFolderCollections(false)
-  } catch {
-    return
-  }
-}
-
-async function fetchArtImagesSafely(force = false) {
-  if (typeof artStore.fetchAllArtImages !== 'function') return
-  const shouldForce = force || artStore.artImages.length === 0
-  await artStore.fetchAllArtImages({
-    force: shouldForce,
-    includeImageData: false,
-    includeThumbnailData: false,
+  await collectionStore.fetchCollections(force, {
+    summary: true,
+    includeImages: true,
+    imageLimit: 1,
   })
 }
 
-async function syncActiveFolder() {
-  const group = activeGroup.value
-  if (!group?.isFolder || !group.slug) return
-
-  isSyncingFolder.value = true
-  errorMessage.value = ''
-  successMessage.value = ''
-
-  try {
-    const result = await collectionStore.syncFolderCollection(group.slug)
-    successMessage.value = result.created
-      ? `Synced ${result.created} image(s) into "${group.slug}".`
-      : `"${group.slug}" is already up to date.`
-
-    const synced = collectionStore.collections.find(
-      (collection) =>
-        (collection.slug || '').toLowerCase() === group.slug!.toLowerCase(),
-    )
-    activeGroupKey.value = synced ? `collection-${synced.id}` : null
-  } catch (error) {
-    errorMessage.value = getErrorMessage(
-      error,
-      'Failed to sync folder collection.',
-    )
-  } finally {
-    isSyncingFolder.value = false
+async function loadGroupData(key: string, force = false): Promise<void> {
+  if (key === 'collection-unsorted') {
+    await browseStore.fetchUnsortedImages(force, showMature.value)
+    return
   }
+
+  const group = collectionGroups.value.find((entry) => entry.key === key)
+  if (!group || group.id <= 0) return
+  const detail = await browseStore.fetchCollectionDetail(group.id, force)
+  if (!detail) throw new Error(`Failed to load "${group.title}".`)
+}
+
+async function refreshBrowseData(): Promise<void> {
+  const activeKey = activeGroupKey.value
+  browseStore.invalidateAll()
+  await Promise.all([
+    fetchCollectionSummaries(true),
+    browseStore.fetchUnsortedSummary(true, showMature.value),
+  ])
+  if (activeKey) await loadGroupData(activeKey, true)
 }
 
 function normalizeCollectionGroup(collection: ArtCollection): GalleryGroup {
-  const media = collection as GalleryCollection
-  const images = getCollectionImages(media)
+  const summary = collection as GalleryCollection
+  const detail = browseStore.collectionDetails[collection.id] ?? summary
+  const detailImages = getCollectionImages(detail)
+  const explicitCount = Number(
+    summary.artImageCount ?? summary._count?.ArtImages,
+  )
+  const imageCount =
+    Number.isInteger(explicitCount) && explicitCount >= 0
+      ? explicitCount
+      : detailImages.length
+  const preview = summary.previewArtImage
+    ? hydratedImages.value[summary.previewArtImage.id] || summary.previewArtImage
+    : detailImages[0] ?? null
+  const hasDetail = Boolean(browseStore.collectionDetails[collection.id])
+  const images = hasDetail
+    ? detailImages
+    : preview
+      ? [preview]
+      : detailImages
+  const displayCollection = {
+    ...detail,
+    artImageCount: imageCount,
+    previewArtImage: preview,
+    art: images,
+    artImages: images,
+    ArtImages: images,
+    images,
+  } as GalleryCollection
+
   return {
     key: `collection-${collection.id}`,
     id: collection.id,
@@ -1011,8 +969,10 @@ function normalizeCollectionGroup(collection: ArtCollection): GalleryGroup {
     isPublic: Boolean(collection.isPublic),
     isMature: Boolean(collection.isMature),
     isVirtual: false,
+    imageCount,
+    previewArtImage: preview,
     images,
-    collection: { ...media, artImages: images, ArtImages: images, images },
+    collection: displayCollection,
   }
 }
 
@@ -1033,6 +993,8 @@ function makePseudoCollection(input: {
   title: string
   description: string
   images: ArtImage[]
+  imageCount: number
+  previewArtImage: ArtImage | null
 }): GalleryCollection {
   return {
     id: input.id,
@@ -1046,50 +1008,23 @@ function makePseudoCollection(input: {
     artPrompt: null,
     description: input.description,
     username: null,
-    art: [],
+    art: input.images,
+    artImageCount: input.imageCount,
+    previewArtImage: input.previewArtImage,
     artImages: input.images,
     ArtImages: input.images,
     images: input.images,
   } as GalleryCollection
 }
 
-function filterGroup(group: GalleryGroup, query: string): GalleryGroup {
-  const matureSafeImages = group.images.filter(
-    (image) => showMature.value || !image.isMature,
-  )
-  const baseGroup = {
-    ...group,
-    images: matureSafeImages,
-    collection: {
-      ...group.collection,
-      artImages: matureSafeImages,
-      ArtImages: matureSafeImages,
-      images: matureSafeImages,
-    },
-  }
-  if (!query) return baseGroup
-  if (searchableGroupText(group).includes(query)) return baseGroup
-  const images = matureSafeImages.filter((image) =>
-    searchableImageText(image).includes(query),
-  )
-  return {
-    ...baseGroup,
-    images,
-    collection: {
-      ...baseGroup.collection,
-      artImages: images,
-      ArtImages: images,
-      images,
-    },
-  }
-}
-
 function getPreviewImage(group: GalleryGroup): ArtImage | null {
-  const images = group.images.filter(
-    (image) => showMature.value || !image.isMature,
+  const preview = group.previewArtImage
+  if (preview && (showMature.value || !preview.isMature)) {
+    return hydratedImages.value[preview.id] || preview
+  }
+  const image = group.images.find(
+    (entry) => showMature.value || !entry.isMature,
   )
-  if (!images.length) return null
-  const image = images[Math.abs(group.id) % images.length] ?? images[0] ?? null
   return image ? hydratedImages.value[image.id] || image : null
 }
 
@@ -1104,19 +1039,30 @@ async function selectGroup(key: string) {
     return
   }
 
-  activeGroupKey.value = key
-  if (group.id > 0) {
-    collectionStore.setCurrentCollection(group.id)
-    collectionStore.setSelectedCollectionIds([group.id])
-  } else {
-    collectionStore.setCurrentCollection(null)
-    collectionStore.setSelectedCollectionIds([])
+  isLoading.value = true
+  errorMessage.value = ''
+  try {
+    await loadGroupData(key)
+    activeGroupKey.value = key
+    searchQuery.value = ''
+    if (group.id > 0) {
+      collectionStore.setCurrentCollection(group.id)
+      collectionStore.setSelectedCollectionIds([group.id])
+    } else {
+      collectionStore.setCurrentCollection(null)
+      collectionStore.setSelectedCollectionIds([])
+    }
+  } catch (error) {
+    errorMessage.value = getErrorMessage(error, 'Failed to open collection.')
+  } finally {
+    isLoading.value = false
   }
 }
 
 function clearActiveGroup() {
   activeGroupKey.value = null
   selectedImageForOverlay.value = null
+  searchQuery.value = ''
 }
 
 async function selectImage(image: ArtImage) {
@@ -1179,7 +1125,7 @@ async function addSelectedToCollection() {
       }
     },
   )
-  await fetchCollectionsSafely(true)
+  await refreshBrowseData()
 }
 
 async function removeSelectedFromCollection() {
@@ -1202,7 +1148,7 @@ async function removeSelectedFromCollection() {
       }
     },
   )
-  await fetchCollectionsSafely(true)
+  await refreshBrowseData()
 }
 
 async function removeSelectedFromActiveCollection() {
@@ -1235,7 +1181,7 @@ async function applySelectedImageFlags() {
       }
     },
   )
-  await fetchCollectionsSafely(true)
+  await refreshBrowseData()
 }
 
 async function deleteSelectedImages() {
@@ -1266,7 +1212,7 @@ async function deleteSelectedImages() {
     }
     selectedImageIds.value = []
     successMessage.value = `Deleted ${ids.length} image${ids.length === 1 ? '' : 's'}.`
-    await fetchCollectionsSafely(true)
+    await refreshBrowseData()
   } catch (error) {
     const message = getErrorMessage(error, 'Failed to delete selected images.')
     errorMessage.value = message
@@ -1274,38 +1220,6 @@ async function deleteSelectedImages() {
   } finally {
     isBatchWorking.value = false
   }
-}
-
-function labelFromSlug(slug: string): string {
-  return slug
-    .split(/[-_]/)
-    .filter(Boolean)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ')
-}
-
-function hashSlug(slug: string): number {
-  let hash = 0
-  for (let index = 0; index < slug.length; index++) {
-    hash = (hash * 31 + slug.charCodeAt(index)) % 100000
-  }
-  return hash
-}
-
-function folderUrlToArtImage(
-  url: string,
-  slug: string,
-  index: number,
-): ArtImage {
-  return {
-    id: -(1_000_000 + hashSlug(slug) * 1000 + index),
-    imagePath: url,
-    path: url,
-    fileName: url.split('/').pop() || url,
-    isPublic: true,
-    isMature: false,
-    userId: currentUserId.value ?? null,
-  } as unknown as ArtImage
 }
 
 async function runLimited<T>(
@@ -1327,15 +1241,15 @@ async function runLimited<T>(
   await Promise.all(runners)
 }
 
-function handleCollectionCreated() {
+async function handleCollectionCreated() {
   successMessage.value = 'Collection created.'
-  void fetchCollectionsSafely()
+  await refreshBrowseData()
 }
 
-function handleCollectionDeleted(id: number) {
+async function handleCollectionDeleted(id: number) {
   successMessage.value = `Collection #${id} deleted.`
   if (activeGroup.value?.id === id) clearActiveGroup()
-  void fetchCollectionsSafely()
+  await refreshBrowseData()
 }
 
 async function handleImageDeleted(imageId: number) {
@@ -1352,6 +1266,7 @@ async function handleImageDeleted(imageId: number) {
     delete next[imageId]
     hydratedImages.value = next
     successMessage.value = `Image #${imageId} deleted.`
+    await refreshBrowseData()
   } else {
     errorMessage.value = `Failed to delete image #${imageId}.`
   }
@@ -1368,11 +1283,12 @@ function searchableGroupText(group: GalleryGroup): string {
     group.id,
     group.title,
     group.description,
+    group.imageCount,
     group.isVirtual ? 'unsorted' : '',
     group.isPublic ? 'public' : 'private',
     group.isMature ? 'mature' : '',
   ]
-    .filter(Boolean)
+    .filter((value) => value !== null && value !== undefined)
     .join(' ')
     .toLowerCase()
 }

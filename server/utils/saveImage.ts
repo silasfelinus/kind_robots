@@ -1,6 +1,7 @@
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from './error'
 import { getImageStorageRoot } from './imageStorageRoot'
+import { attachCompletedArtImageToCollections } from './generatedArtCollections'
 import path from 'node:path'
 import fs from 'node:fs/promises'
 
@@ -22,6 +23,16 @@ export async function saveImage(
         fileName: fileName ?? 'Kind Image', // Ensure fileName is never null
         userId,
       },
+    })
+
+    // saveImage is the common persistence seam for finished generated pixels:
+    // direct A1111/SDXL/OpenAI renders, browser-side Kontext saves, and relay
+    // ArtJob uploads. Give every generated ArtImage a canonical DB collection
+    // immediately. Durable ArtJob completion then idempotently adds any
+    // explicit or entity-context collections in its completion transaction.
+    await attachCompletedArtImageToCollections(prisma, {
+      artImageId: savedImage.id,
+      userId,
     })
 
     // Optionally save to the configured local filesystem in development.

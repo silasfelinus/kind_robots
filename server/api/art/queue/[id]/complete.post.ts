@@ -42,6 +42,7 @@ import {
   applyEntityArtCompletion,
   readEntityArtMetadata,
 } from '../../../../utils/entityArt'
+import { attachCompletedArtImageToCollections } from '../../../../utils/generatedArtCollections'
 import { offloadArtImageBytes } from '../../../../utils/artImageOffload'
 
 const MAX_ATTEMPTS = 3
@@ -106,6 +107,15 @@ function readSavePolicy(payload: unknown): {
       ? { designer: save.designer.trim() }
       : {}),
   }
+}
+
+function readRequestedCollectionIds(payload: unknown): number[] {
+  const save = asRecord(parseArtJobPayload(payload).save)
+  if (!Array.isArray(save.artCollectionIds)) return []
+
+  return [...new Set(save.artCollectionIds)]
+    .map((value) => Number(value))
+    .filter((value) => Number.isInteger(value) && value > 0)
 }
 
 function assertUploadedPrompt(payload: unknown, image: ArtImage): void {
@@ -266,6 +276,7 @@ export default defineEventHandler(async (event) => {
     let replacedArtImageId: number | null = null
     let completionTrace: Record<string, unknown> | null = null
     let completedFacetIds: number[] = []
+    let completedCollectionIds: number[] = []
     let completedEntityArt: Record<string, unknown> | null = null
 
     if (body.success) {
@@ -295,6 +306,8 @@ export default defineEventHandler(async (event) => {
       )
       const retry = readRetry(job.payload)
       const savePolicy = readSavePolicy(job.payload)
+      const requestedCollectionIds = readRequestedCollectionIds(job.payload)
+      const entityArtMetadata = readEntityArtMetadata(tracedPayload)
       const workflowSeed = extractWorkflowSeed(job.payload)
 
       if (retry?.mode === 'OVERWRITE') {
@@ -390,6 +403,13 @@ export default defineEventHandler(async (event) => {
             })
           }
 
+          const collectionIds = await attachCompletedArtImageToCollections(tx, {
+            artImageId: targetArtImageId,
+            userId: job.userId,
+            requestedCollectionIds,
+            entityArt: entityArtMetadata,
+          })
+
           const completed = await tx.artJob.update({
             where: { id },
             data: {
@@ -404,13 +424,20 @@ export default defineEventHandler(async (event) => {
 
           await tx.artImage.delete({ where: { id: uploadedArtImageId } })
 
-          return { completed, archivedId: archived.id, facetIds, entityArt }
+          return {
+            completed,
+            archivedId: archived.id,
+            facetIds,
+            collectionIds,
+            entityArt,
+          }
         })
 
         updated = result.completed
         archivedArtImageId = result.archivedId
         replacedArtImageId = targetArtImageId
         completedFacetIds = result.facetIds
+        completedCollectionIds = result.collectionIds
         completedEntityArt = result.entityArt
       } else {
         const normalResult = await prisma.$transaction(async (tx) => {
@@ -471,6 +498,13 @@ export default defineEventHandler(async (event) => {
             })
           }
 
+          const collectionIds = await attachCompletedArtImageToCollections(tx, {
+            artImageId: uploadedArtImageId,
+            userId: job.userId,
+            requestedCollectionIds,
+            entityArt: entityArtMetadata,
+          })
+
           const completed = await tx.artJob.update({
             where: { id },
             data: {
@@ -481,11 +515,12 @@ export default defineEventHandler(async (event) => {
             },
           })
 
-          return { completed, facetIds, entityArt }
+          return { completed, facetIds, collectionIds, entityArt }
         })
 
         updated = normalResult.completed
         completedFacetIds = normalResult.facetIds
+        completedCollectionIds = normalResult.collectionIds
         completedEntityArt = normalResult.entityArt
       }
     } else {
@@ -542,6 +577,7 @@ export default defineEventHandler(async (event) => {
         archivedArtImageId,
         completionTrace,
         completedFacetIds,
+        completedCollectionIds,
         completedEntityArt,
         offloadedImagePaths: offloaded,
       },

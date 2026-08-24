@@ -1,5 +1,5 @@
 // /server/api/scenarios/index.get.ts
-import { defineEventHandler, getQuery } from 'h3'
+import { defineEventHandler } from 'h3'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
@@ -20,6 +20,9 @@ const dreamSelect = {
   icon: true,
 }
 
+// The list endpoint is a browse surface. Keep enough Character data for
+// Scenario search and the compact selected-cast cards, but leave biography,
+// prompts and stats to /api/scenarios/:id.
 const characterBrowseSelect = {
   id: true,
   name: true,
@@ -29,36 +32,8 @@ const characterBrowseSelect = {
   class: true,
   species: true,
   genre: true,
-}
-
-const characterDetailSelect = {
-  id: true,
-  name: true,
-  honorific: true,
-  title: true,
-  role: true,
-  class: true,
-  species: true,
-  gender: true,
-  alignment: true,
-  genre: true,
-  backstory: true,
-  drive: true,
-  quirks: true,
-  personality: true,
-  presentation: true,
-  artPrompt: true,
   imagePath: true,
-  designer: true,
   isPublic: true,
-  isMature: true,
-  isActive: true,
-  charm: true,
-  empathy: true,
-  grace: true,
-  luck: true,
-  might: true,
-  wits: true,
   artImageId: true,
 }
 
@@ -76,6 +51,11 @@ function facetVisibilityWhere(options: {
   return where
 }
 
+/*
+ * Sorted by taxonomy, not the dropped legacy `kind` column (t-072). taxonomy is
+ * the authoritative grouping and FacetSummary already carries it, so this is
+ * the same ordering by a name that still exists.
+ */
 function sortFacets(facets: FacetSummary[]): FacetSummary[] {
   return [...facets].sort((a, b) =>
     a.taxonomy === b.taxonomy
@@ -87,17 +67,10 @@ function sortFacets(facets: FacetSummary[]): FacetSummary[] {
 export default defineEventHandler(async (event) => {
   try {
     const auth = await getOptionalApiUser(event)
-    const query = getQuery(event)
-    const browse = ['1', 'true'].includes(
-      String(query.browse ?? '').trim().toLowerCase(),
-    )
     const facetWhere = facetVisibilityWhere({
       userId: auth?.user.id ?? null,
       isAdmin: auth?.isAdmin ?? false,
     })
-    const characterSelect = browse
-      ? characterBrowseSelect
-      : characterDetailSelect
 
     const rows = await prisma.scenario.findMany({
       include: {
@@ -106,7 +79,7 @@ export default defineEventHandler(async (event) => {
           orderBy: { title: 'asc' },
         },
         Characters: {
-          select: characterSelect,
+          select: characterBrowseSelect,
           orderBy: { name: 'asc' },
         },
         FacetLinks: {
@@ -153,9 +126,7 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      message: browse
-        ? 'Scenario browse index fetched successfully.'
-        : 'All scenarios fetched successfully.',
+      message: 'All scenarios fetched successfully.',
       data,
       statusCode: 200,
     }

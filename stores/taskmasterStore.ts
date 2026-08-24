@@ -560,10 +560,42 @@ export const useTaskmasterStore = defineStore('taskmasterStore', () => {
 
   function saveToLocalStorage() {
     if (typeof localStorage === 'undefined') return
-    if (session.value) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(session.value))
-    } else {
-      localStorage.removeItem(STORAGE_KEY)
+    try {
+      if (session.value) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(session.value))
+      } else {
+        localStorage.removeItem(STORAGE_KEY)
+      }
+    } catch {
+      // Private browsing and storage quotas should not break the quest.
+      //
+      // This was the one unguarded localStorage writer left in the narrative
+      // family -- storybookStore.ts's persist(), storybookLibraryHelper.ts's
+      // persistLibrary(), and persistedNarrativeArtJobsHelper.ts's
+      // writeLocalStorage() all already swallow a failed write for exactly
+      // this reason, and this store is otherwise byte-for-byte Storybook's
+      // shape (see verifyNarrativeArtPersistence.mjs's lockstep assertions).
+      // A `setItem` that throws QuotaExceededError -- routine once a long
+      // quest's beats have grown the serialized session, and immediate in a
+      // Safari private window -- propagated straight out of every call site:
+      //   - updateBeatArt(), the art-job update callback, is invoked from
+      //     narrativeArtJobsHelper's `void poll(...)`/`void submit(...)` with
+      //     no catch of their own, so the throw both became an unhandled
+      //     rejection and killed that beat's poll loop -- the illustration
+      //     then never resolved, with no failure state and so no retry
+      //     affordance (NarrativeArtStatus only offers retry on 'failed').
+      //   - answerCurrentBeat(), prepareQuest(), startQuest() and
+      //     resetSession() are all called from taskmaster-page.vue without a
+      //     `.catch()`, so the throw surfaced as an unhandled rejection
+      //     instead of the store's own errorMessage.
+      //   - weaveBeat()'s call sits inside its try/catch, so a throw there
+      //     was caught -- but only after `active.beats.push(beat)` had
+      //     already committed the beat in memory, so it returned false and
+      //     showed a raw browser quota string for a beat that had in fact
+      //     been woven, and skipped that beat's requestBeatArt() entirely.
+      // Losing the persisted copy degrades to "this quest doesn't survive a
+      // reload," which is the same trade Storybook already accepted; taking
+      // the whole in-memory session down with it was never intended.
     }
   }
 

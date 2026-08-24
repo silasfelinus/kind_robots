@@ -177,6 +177,26 @@ assert.ok(
   'Narrative text generation must not wait for scene art rendering',
 )
 
+// A failed localStorage write must never take the in-memory session down with
+// it. Both stores persist on every beat/answer/art-status transition, and
+// updateBeatArt() in particular runs as narrativeArtJobsHelper's uncaught
+// `void poll(...)` callback -- a throw there kills that beat's poll loop and
+// leaves the illustration stuck with no retry affordance. Storybook has
+// guarded this since it was written; Taskmaster went unguarded until
+// storybook/t-010 cycle 36.
+for (const [label, storeSource, writer] of [
+  ['Storybook', storyStore, 'function persist()'],
+  ['Taskmaster', taskStore, 'function saveToLocalStorage()'],
+]) {
+  const start = storeSource.indexOf(writer)
+  assert.ok(start >= 0, `${label} must keep its localStorage writer`)
+  const body = storeSource.slice(start, storeSource.indexOf('\n  }', start))
+  assert.ok(
+    body.includes('localStorage.setItem') && body.includes('} catch {'),
+    `${label}'s localStorage writer must swallow a failed write (private browsing / quota) rather than throwing into its callers`,
+  )
+}
+
 includesAll(turnsPath, [
   'beatIdFromTurnId',
   'null for anything else',

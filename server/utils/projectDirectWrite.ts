@@ -80,17 +80,52 @@ function workerUserId(): number {
   return Number.isInteger(raw) && raw > 0 ? raw : 1
 }
 
+/**
+ * The handoff an agent picks up out of the Todo queue when someone creates a
+ * Project here. It is the ONLY signal Conductor gets that a new project exists —
+ * `sync_kind_robots_projection.py` pushes Conductor -> Kind Robots and never reads
+ * back, so nothing else carries a Kind-Robots-authored project across.
+ *
+ * That makes the pitch text load-bearing. This used to send the slug and nothing
+ * else, so an agent claiming the todo knew a project existed but not what it was
+ * for, and had to already know to go read the Project row. Cthulhuquarium
+ * (Project 2112, 2026-08-24) is the case that surfaced it: its scaffold todo was
+ * closed while no `projects/cthulhuquarium/` ever appeared in Conductor, and the
+ * whole pitch — the part that makes the project scaffoldable — was sitting in
+ * `description` and `goal` where the todo never looked.
+ */
 export function projectScaffoldTodoContent(input: {
   conductorSlug: string
   projectId: number
   requesterUserId: number
+  title?: string | null
+  description?: string | null
+  goal?: string | null
+  pitch?: string | null
+  repoUrl?: string | null
 }) {
   const title = `Scaffold conductor project for ${input.conductorSlug}`
+  const detail = (label: string, value?: string | null) =>
+    value && value.trim() ? [`${label}:`, value.trim(), ''] : []
+
   const description = [
     `New Project created by Kind Robots user ${input.requesterUserId} with slug '${input.conductorSlug}'.`,
-    `Create projects/${input.conductorSlug}/roadmap.yaml with at least one ready task.`,
     `Project ${input.projectId} already exists in Kind Robots; do not create another.`,
-  ].join('\n')
+    '',
+    `Scaffold it in the conductor repo:`,
+    `  python scripts/intake.py ${input.conductorSlug} --kind software`,
+    `Then write projects/${input.conductorSlug}/roadmap.yaml with at least one ready`,
+    `task and projects/${input.conductorSlug}/DESIGN-BRIEF.md from the pitch below.`,
+    `Do not close this todo until that directory exists on conductor's main branch.`,
+    '',
+    ...detail('Title', input.title),
+    ...detail('Goal', input.goal),
+    ...detail('Description', input.description),
+    ...detail('Pitch', input.pitch),
+    ...detail('Repo', input.repoUrl),
+  ]
+    .join('\n')
+    .trimEnd()
 
   return { title, description }
 }

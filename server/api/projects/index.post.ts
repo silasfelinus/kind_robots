@@ -77,6 +77,13 @@ async function createProjectWithScaffoldTodo(
         conductorSlug,
         projectId: project.id,
         requesterUserId,
+        // Carry the pitch across: this todo is Conductor's only view of a
+        // project created here, so a slug on its own is not a briefable handoff.
+        title: data.title,
+        description: data.description,
+        goal: data.goal,
+        pitch: data.pitch,
+        repoUrl: data.repoUrl,
       })
 
       await tx.todo.create({
@@ -146,9 +153,7 @@ export default defineEventHandler(async (event) => {
       ? (body.priority as ProjectPriority)
       : 'NORMAL'
     const isActive =
-      typeof body.isActive === 'boolean'
-        ? body.isActive
-        : status !== 'ARCHIVED'
+      typeof body.isActive === 'boolean' ? body.isActive : status !== 'ARCHIVED'
 
     if (isActive && (status === 'ACTIVE' || status === 'PAUSED')) {
       await enforceProjectCap({

@@ -72,6 +72,11 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'davinci',
     route: '/play/davinci',
   },
+  cthulhuquarium: {
+    channelKey: 'play',
+    tabKey: 'aquarium',
+    route: '/play/aquarium',
+  },
   'media-watchlist': {
     channelKey: 'plan',
     tabKey: 'watchlist',

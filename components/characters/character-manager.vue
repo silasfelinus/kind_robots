@@ -62,7 +62,7 @@ const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
 
 const managerSummary = computed(() => {
-  const count = characterStore.characters.length
+  const count = characterStore.browseCharacters.length
 
   return `${count} character${count === 1 ? '' : 's'} loaded.`
 })

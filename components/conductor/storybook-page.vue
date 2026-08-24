@@ -237,7 +237,7 @@
             v-model="store.setupDraft.castSlugs"
             :items="characterOptions"
             label="Characters"
-            helper="Existing character art and personality travel into the story bible."
+            helper="Existing character art and identity travel into the story bible."
             empty-state="No characters are available yet. Storybook can still invent a cast from the premise."
             :loading="characterStore.loading || characterStore.isInitializing"
             :error="characterStore.error"
@@ -705,7 +705,7 @@ const furthestStep = ref(0)
 const answerInput = ref('')
 const newStoryArmed = ref(false)
 
-// Shared with the matching :max-selections prop on each picker below, and
+// Shared with the matching :max-selections prop on each picker above, and
 // with seedFromQuery()'s addOnce() cap check further down -- one source of
 // truth so the enforced cap can't drift between what the picker's own UI
 // disables and what a deep link is allowed to push past it.
@@ -754,7 +754,7 @@ const setupSteps = [
 ]
 
 const characterOptions = computed<NarrativeIngredientOption[]>(() =>
-  characterStore.characters.map((character) => ({
+  characterStore.browseCharacters.map((character) => ({
     id: character.id,
     // Match the real Character slug when one exists -- the same field
     // character-manager.vue's "Start a story with this character" link
@@ -768,8 +768,7 @@ const characterOptions = computed<NarrativeIngredientOption[]>(() =>
     // form only for the rare character with no slug of its own.
     slug: character.slug || `character-${character.id}`,
     title: character.name || `Character ${character.id}`,
-    description:
-      character.presentation || character.personality || character.backstory,
+    description: character.presentation || character.role || character.class,
     flavorText: [character.species, character.class, character.genre]
       .filter(Boolean)
       .join(' · '),

@@ -28,6 +28,15 @@ const scenarioDetailRoute = read('server/api/scenarios/[id].get.ts')
 const rewardListRoute = read('server/api/rewards/index.get.ts')
 const rewardModel = read('server/api/rewards/index.ts')
 const rewardCard = read('components/rewards/reward-card.vue')
+const characterListRoute = read('server/api/characters/index.get.ts')
+const characterDetailRoute = read('server/api/characters/[id].get.ts')
+const characterSelects = read('server/api/characters/selects.ts')
+const characterStore = read('stores/characterStore.ts')
+const characterGallery = read('components/characters/character-gallery.vue')
+const characterCard = read('components/characters/character-card.vue')
+const storybookPage = read('components/conductor/storybook-page.vue')
+const stageSlot = read('components/stages/stage-slot.vue')
+const stageStore = read('stores/stageStore.ts')
 
 for (const token of [
   '<kr-viewport-gate @hydrate="hydrateSlotItem(item.id)">',
@@ -216,11 +225,225 @@ requireText(
   'Reward cards must hydrate ArtImage by id only when the mounted card needs it',
 )
 
+// Character Gallery has a deliberately stricter browse/detail seam because the
+// model contains several long authored text fields and Stage uses those fields
+// to construct prompts. The catalog stays complete but lightweight; rich detail
+// is cached only for Characters the user actually opens/edits/casts.
+requireText(
+  characterListRoute,
+  "import { characterBrowseSelect } from './selects'",
+  'Character list route must import the dedicated browse select',
+)
+requireText(
+  characterListRoute,
+  'select: characterBrowseSelect',
+  'Character list route must query only the dedicated browse shape',
+)
+
+const characterBrowseSelect = between(
+  characterSelects,
+  'export const characterBrowseSelect = {',
+  '\n} satisfies Prisma.CharacterSelect',
+)
+for (const token of [
+  'id: true',
+  'name: true',
+  'class: true',
+  'species: true',
+  'genre: true',
+  'artImageId: true',
+  'cardArtImageId: true',
+  'heroArtImageId: true',
+  'iconArtImageId: true',
+  'imagePath: true',
+  'cardPath: true',
+  'heroPath: true',
+  'iconPath: true',
+  'isPublic: true',
+  'isMature: true',
+  'isActive: true',
+  'presentation: true',
+  'role: true',
+  'slug: true',
+]) {
+  requireText(
+    characterBrowseSelect,
+    token,
+    `Character browse catalog must retain card/filter field: ${token}`,
+  )
+}
+
+for (const token of [
+  'achievements: true',
+  'backstory: true',
+  'drive: true',
+  'quirks: true',
+  'artPrompt: true',
+  'personality: true',
+  'sampleResponse: true',
+  'voice: true',
+]) {
+  forbidText(
+    characterBrowseSelect,
+    token,
+    `Character catalog must leave long-form detail behind the by-id route: ${token}`,
+  )
+}
+
+requireText(
+  characterDetailRoute,
+  'prisma.character.findUnique({ where: { id } })',
+  'Character by-id endpoint must continue returning full scalar detail',
+)
+
+for (const token of [
+  'const browseCharacters = ref<CharacterBrowse[]>([])',
+  'const characters = ref<Character[]>([])',
+  "await performFetch<CharacterBrowse[]>('/api/characters')",
+  'browseCharacters.value = response.data.slice().sort(sortCharacters)',
+  'const response = await performFetch<Character>(',
+  '`/api/characters/${characterId}`',
+  'return upsertCharacter(response.data)',
+]) {
+  requireText(
+    characterStore,
+    token,
+    `Character store must keep browse and rich-detail caches separate: ${token}`,
+  )
+}
+
+const characterDetailConsumers = [
+  {
+    label: 'selectCharacter',
+    body: between(
+      characterStore,
+      'async function selectCharacter(',
+      '\n\n  function deselectCharacter',
+    ),
+  },
+  {
+    label: 'startEditingCharacter',
+    body: between(
+      characterStore,
+      'async function startEditingCharacter(',
+      '\n\n  async function startCloningCharacter',
+    ),
+  },
+  {
+    label: 'startCloningCharacter',
+    body: between(
+      characterStore,
+      'async function startCloningCharacter(',
+      '\n\n  async function updateArtImagePath',
+    ),
+  },
+]
+
+for (const consumer of characterDetailConsumers) {
+  requireText(
+    consumer.body,
+    'fetchCharacterById(characterId)',
+    `${consumer.label} must hydrate full Character detail before use`,
+  )
+}
+
+for (const token of [
+  'characterStore.browseCharacters ?? []',
+  'computed<CharacterBrowse[]>',
+  'await characterStore.fetchCharacterById(id)',
+  'characterStore.characters.find(',
+]) {
+  requireText(
+    characterGallery,
+    token,
+    `Character Gallery must browse lightweight rows but hydrate rich info backs: ${token}`,
+  )
+}
+for (const token of [
+  'character.personality,',
+  'character.backstory,',
+  'character.achievements,',
+  'character.quirks,',
+  'character.drive,',
+  'character.artPrompt,',
+]) {
+  forbidText(
+    between(
+      characterGallery,
+      'function characterMatchesSearch(',
+      '\n}\n\nfunction getCharacterTitle',
+    ),
+    token,
+    `Character catalog search must not depend on omitted long-form field: ${token}`,
+  )
+}
+
+requireText(
+  characterCard,
+  'type CharacterCardRecord = CharacterBrowse &',
+  'Character card prop must accept the explicit browse record shape',
+)
+requireText(
+  characterCard,
+  'const richCharacter = computed(',
+  'Character card must resolve optional rich detail separately from browse props',
+)
+
+requireText(
+  storybookPage,
+  'characterStore.browseCharacters.map((character) => ({',
+  'Storybook cast picker must use lightweight Character browse rows',
+)
+forbidText(
+  between(
+    storybookPage,
+    'const characterOptions = computed<NarrativeIngredientOption[]>(() =>',
+    '\n\n/*\n * Scenarios as story FRAMES.',
+  ),
+  'character.personality',
+  'Storybook Character picker must not require rich personality detail for every catalog row',
+)
+forbidText(
+  between(
+    storybookPage,
+    'const characterOptions = computed<NarrativeIngredientOption[]>(() =>',
+    '\n\n/*\n * Scenarios as story FRAMES.',
+  ),
+  'character.backstory',
+  'Storybook Character picker must not require rich backstory detail for every catalog row',
+)
+
+for (const token of [
+  'const availableCharacters = computed<CharacterBrowse[]>(() =>',
+  'characterStore.browseCharacters.length',
+  'void characterStore.initialize({',
+  'fetchRemote: true,',
+]) {
+  requireText(
+    stageSlot,
+    token,
+    `Stage cast picker must use and refresh the lightweight Character catalog: ${token}`,
+  )
+}
+
+for (const token of [
+  'async function ensureCastCharacterDetails(): Promise<void>',
+  'ids.map((id) => characterStore.fetchCharacterById(id))',
+  'await ensureCastCharacterDetails()',
+  'return (characterStore.characters || []).find(',
+]) {
+  requireText(
+    stageStore,
+    token,
+    `Stage prompt path must hydrate and read rich Character detail: ${token}`,
+  )
+}
+
 if (failures.length) {
   for (const failure of failures) console.error(`FAIL - ${failure}`)
   process.exit(1)
 }
 
 console.log(
-  'ok - galleries expose complete text-first indexes, defer custom card setup, and keep Dream/Scenario/Reward browse payloads lightweight without losing rich detail hydration',
+  'ok - galleries expose complete text-first indexes, defer custom card setup, and keep Dream/Scenario/Reward/Character browse payloads lightweight without losing rich detail hydration',
 )

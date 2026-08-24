@@ -86,12 +86,7 @@
           v-if="showDescription"
           class="line-clamp-3 text-sm leading-relaxed text-base-content/70"
         >
-          {{
-            character.presentation ||
-            character.personality ||
-            character.backstory ||
-            'No story yet.'
-          }}
+          {{ descriptionText }}
         </p>
 
         <div v-if="showStats" class="grid grid-cols-3 gap-2 kr-panel-flat p-2">
@@ -139,17 +134,17 @@
         </div>
 
         <div
-          v-if="activeMode === 'chat' && showInlineInteract"
+          v-if="activeMode === 'chat' && showInlineInteract && richCharacter"
           class="kr-panel-flat p-3"
         >
-          <weird-chat :character="character" />
+          <weird-chat :character="richCharacter" />
         </div>
 
         <div
-          v-if="activeMode === 'adventure' && showInlineInteract"
+          v-if="activeMode === 'adventure' && showInlineInteract && richCharacter"
           class="kr-panel-flat p-3"
         >
-          <weird-card :character="character" />
+          <weird-card :character="richCharacter" />
         </div>
 
         <details v-if="showDebug" class="kr-panel-flat p-2">
@@ -175,10 +170,15 @@ import type { Character } from '~/prisma/generated/prisma/client'
 import { useArtStore, type ArtImage } from '@/stores/artStore'
 import { resolveArtImageSrc, type ArtVariant } from '@/utils/artImageSrc'
 import type { EntityCardChip } from '@/components/gallery/kr-entity-card-body.vue'
-import { useCharacterStore } from '@/stores/characterStore'
+import {
+  useCharacterStore,
+  type CharacterBrowse,
+} from '@/stores/characterStore'
 import { useUserStore } from '@/stores/userStore'
 
 type CharacterMode = 'chat' | 'adventure'
+type CharacterCardRecord = CharacterBrowse &
+  Partial<Pick<Character, 'personality' | 'backstory'>>
 
 const CHARACTER_FALLBACK_IMAGES = [
   '/images/characters/fallbacks/alien-01.webp',
@@ -191,7 +191,7 @@ const CHARACTER_FALLBACK_IMAGES = [
 
 const props = withDefaults(
   defineProps<{
-    character: Character
+    character: CharacterCardRecord
     selected?: boolean
     isSelected?: boolean
     compact?: boolean
@@ -260,6 +260,23 @@ const artStore = useArtStore()
 
 const artImage = ref<ArtImage | null>(null)
 const activeMode = ref<CharacterMode | null>(null)
+
+const richCharacter = computed(
+  () =>
+    characterStore.characters.find(
+      (character) => character.id === props.character.id,
+    ) ?? null,
+)
+
+const descriptionText = computed(
+  () =>
+    props.character.presentation ||
+    props.character.personality ||
+    props.character.backstory ||
+    richCharacter.value?.personality ||
+    richCharacter.value?.backstory ||
+    'No story yet.',
+)
 
 const activeSelected = computed(() => {
   return (
@@ -382,6 +399,10 @@ function toggleMode(mode: CharacterMode) {
 
   if (activeMode.value === 'adventure') {
     emit('adventure', props.character.id)
+  }
+
+  if (activeMode.value && props.showInlineInteract && !richCharacter.value) {
+    void characterStore.fetchCharacterById(props.character.id)
   }
 }
 

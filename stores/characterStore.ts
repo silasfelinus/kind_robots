@@ -8,10 +8,7 @@ import {
   loadSnapshot,
   markSnapshotActive,
 } from '@/stores/helpers/snapshotLoader'
-import {
-  mergeDefinedRecord,
-  reconcileRecordsById,
-} from '@/stores/helpers/recordMerge'
+import { mergeDefinedRecord } from '@/stores/helpers/recordMerge'
 import { useArtStore } from '@/stores/artStore'
 import { useUserStore } from '@/stores/userStore'
 import { useGeneratorStore } from '@/stores/generatorStore'
@@ -30,6 +27,47 @@ type CharacterSaveResult = {
   message: string
   data?: Character | null
 }
+
+export type CharacterBrowse = Pick<
+  Character,
+  | 'id'
+  | 'name'
+  | 'alignment'
+  | 'experience'
+  | 'level'
+  | 'class'
+  | 'species'
+  | 'genre'
+  | 'artImageId'
+  | 'cardArtImageId'
+  | 'heroArtImageId'
+  | 'iconArtImageId'
+  | 'isPublic'
+  | 'userId'
+  | 'packId'
+  | 'honorific'
+  | 'imagePath'
+  | 'icon'
+  | 'iconPath'
+  | 'cardPath'
+  | 'heroPath'
+  | 'allowReviews'
+  | 'designer'
+  | 'isMature'
+  | 'isActive'
+  | 'charm'
+  | 'empathy'
+  | 'grace'
+  | 'luck'
+  | 'might'
+  | 'presentation'
+  | 'role'
+  | 'title'
+  | 'wits'
+  | 'gender'
+  | 'slug'
+  | 'theme'
+>
 
 const charactersStorageKey = 'characters'
 const characterFormStorageKey = 'characterForm'
@@ -118,26 +156,70 @@ function safeParseObject<T>(raw: string | null, fallback: T): T {
   }
 }
 
-function safeParseCharacterArray(raw: string | null): Character[] {
+function safeParseCharacterBrowseArray(raw: string | null): CharacterBrowse[] {
   if (!raw) return []
 
   try {
     const parsed = JSON.parse(raw)
-    return Array.isArray(parsed) ? (parsed as Character[]) : []
+    return Array.isArray(parsed)
+      ? (parsed as Character[]).map(toCharacterBrowse)
+      : []
   } catch {
     return []
   }
 }
 
-function sortCharacters(a: Character, b: Character): number {
+function sortCharacters<T extends Pick<Character, 'name'>>(a: T, b: T): number {
   const aName = a.name || ''
   const bName = b.name || ''
 
   return aName.localeCompare(bName)
 }
 
+function toCharacterBrowse(character: Character): CharacterBrowse {
+  return {
+    id: character.id,
+    name: character.name,
+    alignment: character.alignment,
+    experience: character.experience,
+    level: character.level,
+    class: character.class,
+    species: character.species,
+    genre: character.genre,
+    artImageId: character.artImageId,
+    cardArtImageId: character.cardArtImageId,
+    heroArtImageId: character.heroArtImageId,
+    iconArtImageId: character.iconArtImageId,
+    isPublic: character.isPublic,
+    userId: character.userId,
+    packId: character.packId,
+    honorific: character.honorific,
+    imagePath: character.imagePath,
+    icon: character.icon,
+    iconPath: character.iconPath,
+    cardPath: character.cardPath,
+    heroPath: character.heroPath,
+    allowReviews: character.allowReviews,
+    designer: character.designer,
+    isMature: character.isMature,
+    isActive: character.isActive,
+    charm: character.charm,
+    empathy: character.empathy,
+    grace: character.grace,
+    luck: character.luck,
+    might: character.might,
+    presentation: character.presentation,
+    role: character.role,
+    title: character.title,
+    wits: character.wits,
+    gender: character.gender,
+    slug: character.slug,
+    theme: character.theme,
+  }
+}
+
 function normalizeCharacterId(
-  input: number | string | Character | null | undefined,
+  input: number | string | Character | CharacterBrowse | null | undefined,
 ) {
   if (typeof input === 'number') return Number.isInteger(input) ? input : 0
 
@@ -155,6 +237,10 @@ function normalizeCharacterId(
 }
 
 export const useCharacterStore = defineStore('characterStore', () => {
+  // The complete lightweight catalog. Gallery/picker consumers should use this.
+  const browseCharacters = ref<CharacterBrowse[]>([])
+  // Rich by-id detail cache only. Interaction/edit/clone/Stage prompt consumers
+  // use this cache through fetchCharacterById/selectCharacter.
   const characters = ref<Character[]>([])
   const usingSnapshot = ref(false)
   const selectedCharacter = ref<Character | null>(null)
@@ -173,7 +259,11 @@ export const useCharacterStore = defineStore('characterStore', () => {
   const lastError = ref<string | null>(null)
 
   const initializePromise = ref<Promise<void> | null>(null)
-  const fetchPromise = ref<Promise<Character[]> | null>(null)
+  const fetchPromise = ref<Promise<CharacterBrowse[]> | null>(null)
+  const fetchCharacterByIdPromises = new Map<
+    number,
+    Promise<Character | null>
+  >()
   const fetchCharacterRewardsPromises = ref<Record<number, Promise<unknown[]>>>(
     {},
   )
@@ -252,7 +342,10 @@ export const useCharacterStore = defineStore('characterStore', () => {
   }
 
   function syncToLocalStorage() {
-    safeSetLocalStorage(charactersStorageKey, JSON.stringify(characters.value))
+    safeSetLocalStorage(
+      charactersStorageKey,
+      JSON.stringify(browseCharacters.value),
+    )
     safeSetLocalStorage(
       characterFormStorageKey,
       JSON.stringify(characterForm.value),
@@ -273,7 +366,7 @@ export const useCharacterStore = defineStore('characterStore', () => {
   }
 
   function loadFromLocalStorage() {
-    characters.value = safeParseCharacterArray(
+    browseCharacters.value = safeParseCharacterBrowseArray(
       safeGetLocalStorage(charactersStorageKey),
     ).sort(sortCharacters)
 
@@ -281,6 +374,7 @@ export const useCharacterStore = defineStore('characterStore', () => {
       safeGetLocalStorage(selectedCharacterStorageKey),
       null,
     )
+    characters.value = selectedCharacter.value ? [selectedCharacter.value] : []
 
     characterForm.value = safeParseObject<Partial<Character>>(
       safeGetLocalStorage(characterFormStorageKey),
@@ -300,7 +394,7 @@ export const useCharacterStore = defineStore('characterStore', () => {
       Boolean(options.fetchRemote) &&
       (Boolean(options.force) ||
         !hasLoaded.value ||
-        characters.value.length === 0)
+        browseCharacters.value.length === 0)
 
     if (isInitialized.value && !options.force && !shouldFetchRemote) return
 
@@ -317,15 +411,17 @@ export const useCharacterStore = defineStore('characterStore', () => {
           loadFromLocalStorage()
         }
 
-        // First visit (or cleared storage): paint from the nightly snapshot
-        // so the page has real characters even if the database is down. The
-        // next successful fetchCharacters replaces these rows and clears the
-        // flag (its cache guard keys off hasLoaded, which stays false here).
-        if (characters.value.length === 0) {
+        // First visit (or cleared storage): paint a lightweight catalog from the
+        // nightly snapshot so the page still has real characters if the database
+        // is down. Rich detail stays out of the catalog and is fetched by id when
+        // interaction/editing/Stage actually needs it.
+        if (browseCharacters.value.length === 0) {
           const snapshotRows = await loadSnapshot<Character>('characters')
 
-          if (snapshotRows.length && characters.value.length === 0) {
-            characters.value = snapshotRows.slice().sort(sortCharacters)
+          if (snapshotRows.length && browseCharacters.value.length === 0) {
+            browseCharacters.value = snapshotRows
+              .map(toCharacterBrowse)
+              .sort(sortCharacters)
             usingSnapshot.value = true
             markSnapshotActive('characters', true)
           }
@@ -365,10 +461,10 @@ export const useCharacterStore = defineStore('characterStore', () => {
     return initializePromise.value
   }
 
-  async function fetchCharacters(force = false): Promise<Character[]> {
+  async function fetchCharacters(force = false): Promise<CharacterBrowse[]> {
     if (fetchPromise.value) return fetchPromise.value
     if (!force && hasLoaded.value) {
-      return characters.value
+      return browseCharacters.value
     }
 
     fetchPromise.value = (async () => {
@@ -377,19 +473,20 @@ export const useCharacterStore = defineStore('characterStore', () => {
       try {
         clearError()
 
-        const response = await performFetch<Character[]>('/api/characters')
+        const response =
+          await performFetch<CharacterBrowse[]>('/api/characters')
 
         if (response.success && response.data) {
-          characters.value = reconcileRecordsById(
-            characters.value,
-            response.data,
-          ).sort(sortCharacters)
+          // The list endpoint is authoritative and intentionally lightweight.
+          // Replace it rather than merging richer legacy/localStorage fields
+          // back into browse rows.
+          browseCharacters.value = response.data.slice().sort(sortCharacters)
           hasLoaded.value = true
           usingSnapshot.value = false
           markSnapshotActive('characters', false)
           syncToLocalStorage()
 
-          return characters.value
+          return browseCharacters.value
         }
 
         throw new Error(response.message || 'Failed to fetch characters')
@@ -397,7 +494,7 @@ export const useCharacterStore = defineStore('characterStore', () => {
         handleError(error, 'fetching characters')
         setLastError(error, 'Failed to fetch characters')
 
-        return characters.value
+        return browseCharacters.value
       } finally {
         loading.value = false
         fetchPromise.value = null
@@ -420,33 +517,43 @@ export const useCharacterStore = defineStore('characterStore', () => {
       if (existing) return existing
     }
 
-    try {
-      clearError()
+    const existingRequest = fetchCharacterByIdPromises.get(characterId)
+    if (existingRequest && !force) return existingRequest
 
-      const response = await performFetch<Character>(
-        `/api/characters/${characterId}`,
-      )
+    const request = (async (): Promise<Character | null> => {
+      try {
+        clearError()
 
-      if (response.success && response.data) {
-        return upsertCharacter(response.data)
+        const response = await performFetch<Character>(
+          `/api/characters/${characterId}`,
+        )
+
+        if (response.success && response.data) {
+          return upsertCharacter(response.data)
+        }
+
+        throw new Error(response.message || 'Failed to fetch character')
+      } catch (error) {
+        handleError(error, 'fetching character by ID')
+        setLastError(error, 'Failed to fetch character')
+        return null
+      } finally {
+        fetchCharacterByIdPromises.delete(characterId)
       }
+    })()
 
-      throw new Error(response.message || 'Failed to fetch character')
-    } catch (error) {
-      handleError(error, 'fetching character')
-      setLastError(error, 'Failed to fetch character')
-      return null
-    }
+    fetchCharacterByIdPromises.set(characterId, request)
+    return request
   }
 
-  async function selectCharacter(input: number | string | Character) {
+  async function selectCharacter(
+    input: number | string | Character | CharacterBrowse,
+  ) {
     const characterId = normalizeCharacterId(input)
 
     if (!characterId) return null
 
-    const found =
-      characters.value.find((character) => character.id === characterId) ??
-      (await fetchCharacterById(characterId))
+    const found = await fetchCharacterById(characterId)
 
     if (!found) return null
 
@@ -476,7 +583,9 @@ export const useCharacterStore = defineStore('characterStore', () => {
     syncToLocalStorage()
   }
 
-  async function startEditingCharacter(input?: number | string | Character) {
+  async function startEditingCharacter(
+    input?: number | string | Character | CharacterBrowse,
+  ) {
     const characterId = normalizeCharacterId(input ?? selectedCharacter.value)
 
     if (!characterId) {
@@ -484,9 +593,7 @@ export const useCharacterStore = defineStore('characterStore', () => {
       return null
     }
 
-    const character =
-      characters.value.find((entry) => entry.id === characterId) ??
-      (await fetchCharacterById(characterId))
+    const character = await fetchCharacterById(characterId)
 
     if (!character) {
       setLastError(
@@ -505,16 +612,14 @@ export const useCharacterStore = defineStore('characterStore', () => {
   }
 
   async function startCloningCharacter(
-    input: number | string | Character,
+    input: number | string | Character | CharacterBrowse,
     overrides: Partial<Character> = {},
   ) {
     const characterId = normalizeCharacterId(input)
 
     if (!characterId) return null
 
-    const source =
-      characters.value.find((entry) => entry.id === characterId) ??
-      (await fetchCharacterById(characterId))
+    const source = await fetchCharacterById(characterId)
 
     if (!source) {
       setLastError(
@@ -577,29 +682,44 @@ export const useCharacterStore = defineStore('characterStore', () => {
   }
 
   function upsertCharacter(character: Character): Character {
-    const index = characters.value.findIndex(
+    const detailIndex = characters.value.findIndex(
       (entry) => entry.id === character.id,
     )
-    const existing =
+    const existingDetail =
       selectedCharacter.value?.id === character.id
         ? selectedCharacter.value
-        : index >= 0
-          ? characters.value[index]
+        : detailIndex >= 0
+          ? characters.value[detailIndex]
           : undefined
-    const merged = mergeDefinedRecord(existing, character)
+    const mergedDetail = mergeDefinedRecord(existingDetail, character)
 
-    if (index >= 0) {
-      characters.value.splice(index, 1, merged)
+    if (detailIndex >= 0) {
+      characters.value.splice(detailIndex, 1, mergedDetail)
     } else {
-      characters.value.push(merged)
-    }
-
-    if (selectedCharacter.value?.id === merged.id) {
-      selectedCharacter.value = merged
+      characters.value.push(mergedDetail)
     }
     characters.value.sort(sortCharacters)
+
+    const browse = toCharacterBrowse(mergedDetail)
+    const browseIndex = browseCharacters.value.findIndex(
+      (entry) => entry.id === browse.id,
+    )
+    if (browseIndex >= 0) {
+      browseCharacters.value.splice(
+        browseIndex,
+        1,
+        mergeDefinedRecord(browseCharacters.value[browseIndex], browse),
+      )
+    } else {
+      browseCharacters.value.push(browse)
+    }
+    browseCharacters.value.sort(sortCharacters)
+
+    if (selectedCharacter.value?.id === mergedDetail.id) {
+      selectedCharacter.value = mergedDetail
+    }
     syncToLocalStorage()
-    return merged
+    return mergedDetail
   }
 
   async function saveCharacter(): Promise<CharacterSaveResult> {
@@ -705,6 +825,9 @@ export const useCharacterStore = defineStore('characterStore', () => {
 
       if (response.success) {
         characters.value = characters.value.filter(
+          (character) => character.id !== id,
+        )
+        browseCharacters.value = browseCharacters.value.filter(
           (character) => character.id !== id,
         )
 
@@ -896,12 +1019,14 @@ export const useCharacterStore = defineStore('characterStore', () => {
     isInitializing.value = false
     initializePromise.value = null
     fetchPromise.value = null
+    fetchCharacterByIdPromises.clear()
     fetchCharacterRewardsPromises.value = {}
     hasLoaded.value = false
     lastError.value = null
   }
 
   return {
+    browseCharacters,
     characters,
     usingSnapshot,
     selectedCharacter,

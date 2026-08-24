@@ -45,9 +45,9 @@
         >
           <option value="">Cast someone…</option>
 
-          <optgroup v-if="characters.length" label="Characters">
+          <optgroup v-if="availableCharacters.length" label="Characters">
             <option
-              v-for="character in characters"
+              v-for="character in availableCharacters"
               :key="`c-${character.id}`"
               :value="`character:${character.id}`"
             >
@@ -98,14 +98,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import type { Bot, Character } from '~/prisma/generated/prisma/client'
+import { computed, onMounted } from 'vue'
+import type { Bot } from '~/prisma/generated/prisma/client'
 import type { CastSlot } from '@/stores/helpers/stageHelper'
 import type { StagePerformer } from '@/stores/helpers/stageCards'
+import {
+  useCharacterStore,
+  type CharacterBrowse,
+} from '@/stores/characterStore'
 
 const props = defineProps<{
   slot: CastSlot
-  characters: Character[]
+  /** Legacy parent input. The canonical cast picker source is the browse store. */
+  characters?: CharacterBrowse[]
   bots: Bot[]
   performers?: StagePerformer[]
   removable: boolean
@@ -121,14 +126,22 @@ const emit = defineEmits<{
   requestTemporary: [slotId: string, roleKey: string]
 }>()
 
+const characterStore = useCharacterStore()
+
+const availableCharacters = computed<CharacterBrowse[]>(() =>
+  characterStore.browseCharacters.length
+    ? characterStore.browseCharacters
+    : props.characters ?? [],
+)
+
 const isFilled = computed<boolean>(() => {
   return props.slot.participantId != null || props.slot.temporary != null
 })
 
-const filledParticipant = computed<Character | Bot | null>(() => {
+const filledParticipant = computed<CharacterBrowse | Bot | null>(() => {
   if (props.slot.participantType === 'character' && props.slot.participantId) {
     return (
-      props.characters.find(
+      availableCharacters.value.find(
         (character) => character.id === props.slot.participantId,
       ) ?? null
     )
@@ -251,4 +264,11 @@ function onPick(event: Event): void {
 
   resetSelect(target)
 }
+
+onMounted(() => {
+  void characterStore.initialize({
+    fetchRemote: true,
+    createDefaultForm: false,
+  })
+})
 </script>

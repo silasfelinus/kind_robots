@@ -35,6 +35,8 @@ function validDateKey(value: string): boolean {
 }
 
 const dailyDreamInclude = {
+  ArtCollection: true,
+  ArtCollections: true,
   Characters: true,
   Rewards: true,
   FacetLinks: { include: { Facet: true } },
@@ -75,6 +77,54 @@ export default defineEventHandler(async (event) => {
         include: dailyDreamInclude,
       })
 
+    async function ensureExistingArtCollection(
+      existing: Awaited<ReturnType<typeof loadExisting>>,
+    ) {
+      if (!existing || existing.artCollectionId) return existing
+
+      const collectionSlug = `${existing.slug || rawBlueprint.slug}-art`
+      return prisma.$transaction(async (tx) => {
+        const current = await tx.dream.findUnique({
+          where: { id: existing.id },
+          select: { artCollectionId: true },
+        })
+
+        if (!current) return null
+
+        if (current.artCollectionId) {
+          return tx.dream.findUnique({
+            where: { id: existing.id },
+            include: dailyDreamInclude,
+          })
+        }
+
+        const collection = await tx.artCollection.upsert({
+          where: { slug: collectionSlug },
+          update: {},
+          create: {
+            label: `${existing.title} Art`,
+            slug: collectionSlug,
+            description: `Artwork for the Daily Dream ${existing.title} (${dateKey}).`,
+            artPrompt: existing.artPrompt,
+            userId: auth.user.id,
+            isPublic: existing.isPublic,
+            isMature: existing.isMature,
+            isActive: true,
+          },
+          select: { id: true },
+        })
+
+        return tx.dream.update({
+          where: { id: existing.id },
+          data: {
+            artCollectionId: collection.id,
+            ArtCollections: { connect: { id: collection.id } },
+          },
+          include: dailyDreamInclude,
+        })
+      })
+    }
+
     async function blueprintForExisting(existing: {
       Characters: unknown[]
       Rewards: unknown[]
@@ -96,11 +146,12 @@ export default defineEventHandler(async (event) => {
 
     const existing = await loadExisting()
     if (existing) {
+      const withCollection = await ensureExistingArtCollection(existing)
       return {
         success: true,
         message: `Daily Dream for ${dateKey} already exists.`,
         data: {
-          dream: existing,
+          dream: withCollection || existing,
           blueprint: await blueprintForExisting(existing),
           reused: true,
         },
@@ -118,6 +169,20 @@ export default defineEventHandler(async (event) => {
     let created
     try {
       created = await prisma.$transaction(async (tx) => {
+        const collection = await tx.artCollection.create({
+          data: {
+            label: `${blueprint.title} Art`,
+            slug: `${blueprint.slug}-art`,
+            description: `Artwork for the Daily Dream ${blueprint.title} (${dateKey}).`,
+            artPrompt: blueprint.artPrompt,
+            userId: auth.user.id,
+            isPublic,
+            isMature,
+            isActive: true,
+          },
+          select: { id: true },
+        })
+
         const dream = await tx.dream.create({
           data: {
             title: blueprint.title,
@@ -133,6 +198,8 @@ export default defineEventHandler(async (event) => {
             isPublic,
             isMature,
             isActive: true,
+            artCollectionId: collection.id,
+            ArtCollections: { connect: { id: collection.id } },
           },
         })
 
@@ -225,7 +292,12 @@ export default defineEventHandler(async (event) => {
           include: dailyDreamInclude,
         })
 
-        return { dream: connected, characterIds, rewardIds }
+        return {
+          dream: connected,
+          characterIds,
+          rewardIds,
+          artCollectionId: collection.id,
+        }
       })
     } catch (cause) {
       if (
@@ -234,6 +306,7 @@ export default defineEventHandler(async (event) => {
       ) {
         const raced = await loadExisting()
         if (raced) {
+          const withCollection = await ensureExistingArtCollection(raced)
           const racedBlueprint = diversifyDailyDreamNames(
             await blueprintForExisting(raced),
             { userId: auth.user.id, dateKey },
@@ -242,7 +315,7 @@ export default defineEventHandler(async (event) => {
             success: true,
             message: `Daily Dream for ${dateKey} already exists.`,
             data: {
-              dream: raced,
+              dream: withCollection || raced,
               blueprint: racedBlueprint,
               reused: true,
             },

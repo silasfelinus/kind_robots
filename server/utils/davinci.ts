@@ -421,6 +421,29 @@ export async function recordLifeChoice(
       )
     }
 
+    // Idempotency guard: exactly one LifeChoice is ever meant to exist per
+    // (lifeRunId, chapter) — the front end derives chapterIndex from
+    // playedCount and only advances it after a choice lands (davinci-page.vue),
+    // so a second submission for an already-recorded chapter is always a
+    // duplicate, never a legitimate second choice. Without this guard, two
+    // browser tabs open on the same run (or a client retry after a dropped
+    // response) would each create their own LifeChoice row and double-apply
+    // `effects` via the increment upsert below, silently corrupting stats and
+    // duplicating narrative history. Re-derive and return the already-recorded
+    // result instead of writing again — same "read back, don't recompute"
+    // idempotency shape as resolveCompletedLifeRun's COMPLETE-run guard above.
+    const existingChoice = await tx.lifeChoice.findFirst({
+      where: { lifeRunId, chapter: input.chapter },
+      orderBy: { id: 'asc' },
+    })
+    if (existingChoice) {
+      const stats = await tx.lifeStat.findMany({
+        where: { lifeRunId },
+        orderBy: { key: 'asc' },
+      })
+      return { choice: existingChoice, stats }
+    }
+
     const choice = await tx.lifeChoice.create({
       data: {
         lifeRunId,

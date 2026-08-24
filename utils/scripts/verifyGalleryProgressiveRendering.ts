@@ -22,6 +22,7 @@ const facets = read('components/facets/facet-gallery.vue')
 const artGallery = read('components/art/art-gallery.vue')
 const imageCard = read('components/art/image-card.vue')
 const resourceCard = read('components/resources/resource-card.vue')
+const checkpointCard = read('components/servers/checkpoint-card.vue')
 
 for (const token of [
   'pageSize',
@@ -74,16 +75,13 @@ requireText(
   'const callbacks = new WeakMap',
   'viewport hydration must pool callbacks behind one observer',
 )
-requireText(
-  artPlate,
-  '<kr-deferred-image',
-  'shared entity art plates must defer their image sources',
-)
-requireText(
-  resourceCard,
-  '<kr-deferred-image',
-  'resource gallery cards must not assign thousands of preview sources up front',
-)
+for (const [source, message] of [
+  [artPlate, 'shared entity art plates must defer their image sources'],
+  [resourceCard, 'resource gallery cards must defer preview image sources'],
+  [checkpointCard, 'checkpoint gallery cards must defer preview image sources'],
+] as const) {
+  requireText(source, '<kr-deferred-image', message)
+}
 
 for (const token of ['const PAGE =', 'showMore(', ':page-size=']) {
   forbidText(facets, token, `facet gallery must not restore client windowing: ${token}`)

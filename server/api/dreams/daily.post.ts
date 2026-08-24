@@ -19,6 +19,16 @@ type DailyDreamRequest = {
   isMature?: boolean | null
 }
 
+type DailyDreamCollectionInput = {
+  slug: string
+  label: string
+  description: string
+  artPrompt: string | null
+  userId: number
+  isPublic: boolean
+  isMature: boolean
+}
+
 const DATE_KEY = /^\d{4}-\d{2}-\d{2}$/
 
 function normalizeCount(value: unknown, fallback: number): number {
@@ -77,6 +87,49 @@ export default defineEventHandler(async (event) => {
         include: dailyDreamInclude,
       })
 
+    async function ensureDailyDreamCollection(
+      tx: Prisma.TransactionClient,
+      input: DailyDreamCollectionInput,
+    ): Promise<{ id: number }> {
+      const existing = await tx.artCollection.findUnique({
+        where: { slug: input.slug },
+        select: { id: true, userId: true, isActive: true },
+      })
+
+      if (existing) {
+        if (existing.userId !== input.userId) {
+          throw createError({
+            statusCode: 409,
+            message: `Daily Dream collection key ${input.slug} is already owned by another user.`,
+          })
+        }
+
+        if (!existing.isActive) {
+          return tx.artCollection.update({
+            where: { id: existing.id },
+            data: { isActive: true },
+            select: { id: true },
+          })
+        }
+
+        return { id: existing.id }
+      }
+
+      return tx.artCollection.create({
+        data: {
+          label: input.label,
+          slug: input.slug,
+          description: input.description,
+          artPrompt: input.artPrompt,
+          userId: input.userId,
+          isPublic: input.isPublic,
+          isMature: input.isMature,
+          isActive: true,
+        },
+        select: { id: true },
+      })
+    }
+
     async function ensureExistingArtCollection(
       existing: Awaited<ReturnType<typeof loadExisting>>,
     ) {
@@ -98,20 +151,14 @@ export default defineEventHandler(async (event) => {
           })
         }
 
-        const collection = await tx.artCollection.upsert({
-          where: { slug: collectionSlug },
-          update: {},
-          create: {
-            label: `${existing.title} Art`,
-            slug: collectionSlug,
-            description: `Artwork for the Daily Dream ${existing.title} (${dateKey}).`,
-            artPrompt: existing.artPrompt,
-            userId: auth.user.id,
-            isPublic: existing.isPublic,
-            isMature: existing.isMature,
-            isActive: true,
-          },
-          select: { id: true },
+        const collection = await ensureDailyDreamCollection(tx, {
+          slug: collectionSlug,
+          label: `${existing.title} Art`,
+          description: `Artwork for the Daily Dream ${existing.title} (${dateKey}).`,
+          artPrompt: existing.artPrompt,
+          userId: auth.user.id,
+          isPublic: existing.isPublic,
+          isMature: existing.isMature,
         })
 
         return tx.dream.update({
@@ -169,18 +216,14 @@ export default defineEventHandler(async (event) => {
     let created
     try {
       created = await prisma.$transaction(async (tx) => {
-        const collection = await tx.artCollection.create({
-          data: {
-            label: `${blueprint.title} Art`,
-            slug: `${blueprint.slug}-art`,
-            description: `Artwork for the Daily Dream ${blueprint.title} (${dateKey}).`,
-            artPrompt: blueprint.artPrompt,
-            userId: auth.user.id,
-            isPublic,
-            isMature,
-            isActive: true,
-          },
-          select: { id: true },
+        const collection = await ensureDailyDreamCollection(tx, {
+          slug: `${blueprint.slug}-art`,
+          label: `${blueprint.title} Art`,
+          description: `Artwork for the Daily Dream ${blueprint.title} (${dateKey}).`,
+          artPrompt: blueprint.artPrompt,
+          userId: auth.user.id,
+          isPublic,
+          isMature,
         })
 
         const dream = await tx.dream.create({

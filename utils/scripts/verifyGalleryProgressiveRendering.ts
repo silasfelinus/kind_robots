@@ -21,6 +21,7 @@ const artPlate = read('components/narrative/kr-art-plate.vue')
 const facets = read('components/facets/facet-gallery.vue')
 const artGallery = read('components/art/art-gallery.vue')
 const imageCard = read('components/art/image-card.vue')
+const resourceCard = read('components/resources/resource-card.vue')
 
 for (const token of [
   'pageSize',
@@ -78,6 +79,11 @@ requireText(
   '<kr-deferred-image',
   'shared entity art plates must defer their image sources',
 )
+requireText(
+  resourceCard,
+  '<kr-deferred-image',
+  'resource gallery cards must not assign thousands of preview sources up front',
+)
 
 for (const token of ['const PAGE =', 'showMore(', ':page-size=']) {
   forbidText(facets, token, `facet gallery must not restore client windowing: ${token}`)
@@ -126,4 +132,6 @@ if (failures.length) {
   process.exit(1)
 }
 
-console.log('ok - galleries render full lightweight indexes and hydrate images near the viewport')
+console.log(
+  'ok - galleries render full lightweight indexes and hydrate images near the viewport',
+)

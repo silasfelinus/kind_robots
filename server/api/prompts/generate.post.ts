@@ -14,6 +14,7 @@ import { validateApiKey } from '../../utils/validateKey'
 import { resolveServer, getServerEndpoint } from '../../utils/serverResolver'
 import { awardKarma } from '../../utils/karma'
 import { userIsAdmin } from '../../utils/authUser'
+import { attachCompletedArtImageToCollections } from '../../utils/generatedArtCollections'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -118,6 +119,14 @@ export default defineEventHandler(async (event) => {
         isPublic: prompt.isPublic,
         isMature: prompt.isMature,
       },
+    })
+
+    // Even this deprecated synchronous path must obey the current generated-art
+    // invariant while it remains callable: finished generated pixels belong to
+    // the user's canonical Generated Art collection rather than Unsorted.
+    await attachCompletedArtImageToCollections(prisma, {
+      artImageId: artImage.id,
+      userId: user.id,
     })
 
     await prisma.prompt.update({

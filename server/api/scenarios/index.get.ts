@@ -20,7 +20,10 @@ const dreamSelect = {
   icon: true,
 }
 
-const characterSelect = {
+// Browse/search only needs enough Character identity to describe who is in a
+// Scenario. Backstory, personality, presentation, art prompts, stats and the
+// rest belong to /api/scenarios/:id after the Scenario is actually opened.
+const characterBrowseSelect = {
   id: true,
   name: true,
   honorific: true,
@@ -28,27 +31,7 @@ const characterSelect = {
   role: true,
   class: true,
   species: true,
-  gender: true,
-  alignment: true,
   genre: true,
-  backstory: true,
-  drive: true,
-  quirks: true,
-  personality: true,
-  presentation: true,
-  artPrompt: true,
-  imagePath: true,
-  designer: true,
-  isPublic: true,
-  isMature: true,
-  isActive: true,
-  charm: true,
-  empathy: true,
-  grace: true,
-  luck: true,
-  might: true,
-  wits: true,
-  artImageId: true,
 }
 
 function facetVisibilityWhere(options: {
@@ -87,13 +70,39 @@ export default defineEventHandler(async (event) => {
     })
 
     const rows = await prisma.scenario.findMany({
-      include: {
+      select: {
+        // Complete browse/card/search shape. Detail-only authoring/story fields
+        // (artPrompt, secretNotes, difficulty, group, tier, cast, outputType)
+        // intentionally hydrate through /api/scenarios/:id instead.
+        id: true,
+        title: true,
+        description: true,
+        intros: true,
+        userId: true,
+        artImageId: true,
+        cardArtImageId: true,
+        heroArtImageId: true,
+        iconArtImageId: true,
+        imagePath: true,
+        icon: true,
+        iconPath: true,
+        cardPath: true,
+        heroPath: true,
+        allowReviews: true,
+        locations: true,
+        genres: true,
+        inspirations: true,
+        isMature: true,
+        isPublic: true,
+        isActive: true,
+        slug: true,
+        theme: true,
         Dreams: {
           select: dreamSelect,
           orderBy: { title: 'asc' },
         },
         Characters: {
-          select: characterSelect,
+          select: characterBrowseSelect,
           orderBy: { name: 'asc' },
         },
         FacetLinks: {

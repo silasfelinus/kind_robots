@@ -17,8 +17,10 @@ import type * as Prisma from "../internal/prismaNamespace"
  * Directed relationship between two users with a typed role.
  * One row per (userId, relatedUserId, type). Symmetric types (FRIEND) are
  * normalized in the app layer so a single row represents the mutual link.
- * Follows the ButterflyRecord/AchievementRecord pattern (explicit join model,
- * not implicit M2M) so we can attach status + timestamps + future metadata.
+ * Follows the AchievementRecord pattern (explicit join model, not implicit
+ * M2M) so we can attach status + timestamps + future metadata. This used to
+ * cite ButterflyRecord alongside it; that model is long gone, so the comment
+ * was pointing at nothing.
  */
 export type UserRelationModel = runtime.Types.Result.DefaultSelection<Prisma.$UserRelationPayload>
 

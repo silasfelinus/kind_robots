@@ -1,0 +1,53 @@
+name: Gallery Progressive Rendering Contract
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'components/gallery/**'
+      - 'components/narrative/kr-art-plate.vue'
+      - 'components/facets/facet-gallery.vue'
+      - 'components/art/art-gallery.vue'
+      - 'components/art/image-card.vue'
+      - 'utils/viewportHydration.ts'
+      - 'utils/scripts/verifyGalleryProgressiveRendering.ts'
+      - '.github/workflows/gallery-progressive-rendering-contract.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'components/gallery/**'
+      - 'components/narrative/kr-art-plate.vue'
+      - 'components/facets/facet-gallery.vue'
+      - 'components/art/art-gallery.vue'
+      - 'components/art/image-card.vue'
+      - 'utils/viewportHydration.ts'
+      - 'utils/scripts/verifyGalleryProgressiveRendering.ts'
+      - '.github/workflows/gallery-progressive-rendering-contract.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: gallery-progressive-rendering-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Progressive rendering
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Verify gallery progressive rendering
+        run: npx tsx utils/scripts/verifyGalleryProgressiveRendering.ts

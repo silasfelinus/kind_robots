@@ -1,6 +1,5 @@
 import { getQuery, type H3Event } from 'h3'
 import type { Prisma } from '~/prisma/generated/prisma/client'
-import prisma from '~/server/utils/prisma'
 import { validateApiKey } from '~/server/utils/validateKey'
 import { userRoles } from '~/server/utils/authUser'
 import { isMaturityRestricted } from '~/server/utils/contentAccess'
@@ -110,7 +109,7 @@ export function buildArtImageWhere({
 
 export function buildArtImageSelect(
   query: Record<string, QueryValue> = {},
-): Prisma.Args<typeof prisma.artImage, 'findMany'>['select'] {
+): Prisma.ArtImageSelect {
   const includeImageData = readBoolean(query.includeImageData, false)
   const includeThumbnailData = readBoolean(query.includeThumbnailData, false)
 

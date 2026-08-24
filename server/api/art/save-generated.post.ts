@@ -144,10 +144,6 @@ export default defineEventHandler(async (event) => {
     const savedImage = await saveImage(
       requestData.imageBase64,
       validatedData.userId ?? user.id,
-      // This is a staging upload for a durable ArtJob. Collection assignment
-      // belongs to /queue/:id/complete so requested and entity-context
-      // collections are committed atomically with successful completion.
-      { deferGeneratedCollection: true },
     )
 
     if (!savedImage.id) {

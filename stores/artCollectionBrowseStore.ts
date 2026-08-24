@@ -67,8 +67,8 @@ export const useArtCollectionBrowseStore = defineStore(
     >()
     let unsortedSummaryRequest: Promise<UnsortedArtSummary> | null = null
     let unsortedImagesRequest: Promise<ArtImage[]> | null = null
-    let unsortedSummaryLoaded = false
-    let unsortedImagesLoaded = false
+    let unsortedSummaryMatureMode: boolean | null = null
+    let unsortedImagesMatureMode: boolean | null = null
 
     const artStore = useArtStore()
 
@@ -126,7 +126,9 @@ export const useArtCollectionBrowseStore = defineStore(
       force = false,
       showMature = false,
     ): Promise<UnsortedArtSummary> {
-      if (!force && unsortedSummaryLoaded) return unsortedSummary.value
+      if (!force && unsortedSummaryMatureMode === showMature) {
+        return unsortedSummary.value
+      }
       if (!force && unsortedSummaryRequest) return unsortedSummaryRequest
 
       unsortedSummaryRequest = (async () => {
@@ -146,7 +148,7 @@ export const useArtCollectionBrowseStore = defineStore(
             totalCount: Number(response.data.totalCount) || 0,
             previewArtImage: response.data.previewArtImage ?? null,
           }
-          unsortedSummaryLoaded = true
+          unsortedSummaryMatureMode = showMature
 
           if (unsortedSummary.value.previewArtImage) {
             artStore.addOrUpdateArtImages([
@@ -170,7 +172,9 @@ export const useArtCollectionBrowseStore = defineStore(
       force = false,
       showMature = false,
     ): Promise<ArtImage[]> {
-      if (!force && unsortedImagesLoaded) return unsortedImages.value
+      if (!force && unsortedImagesMatureMode === showMature) {
+        return unsortedImages.value
+      }
       if (!force && unsortedImagesRequest) return unsortedImagesRequest
 
       unsortedImagesRequest = (async () => {
@@ -187,7 +191,7 @@ export const useArtCollectionBrowseStore = defineStore(
           }
 
           unsortedImages.value = response.data
-          unsortedImagesLoaded = true
+          unsortedImagesMatureMode = showMature
           if (response.data.length) artStore.addOrUpdateArtImages(response.data)
           return unsortedImages.value
         } catch (error) {
@@ -215,8 +219,8 @@ export const useArtCollectionBrowseStore = defineStore(
     }
 
     function invalidateUnsorted(): void {
-      unsortedSummaryLoaded = false
-      unsortedImagesLoaded = false
+      unsortedSummaryMatureMode = null
+      unsortedImagesMatureMode = null
       unsortedSummary.value = { ...EMPTY_UNSORTED_SUMMARY }
       unsortedImages.value = []
     }

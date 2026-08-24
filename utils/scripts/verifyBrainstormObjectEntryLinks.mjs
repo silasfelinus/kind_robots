@@ -32,6 +32,7 @@ const characterManagerPath = 'components/characters/character-manager.vue'
 const scenarioManagerPath = 'components/scenarios/scenario-manager.vue'
 const rewardManagerPath = 'components/rewards/reward-manager.vue'
 const botManagerPath = 'components/bots/bot-manager.vue'
+const projectDetailPath = 'components/conductor/project-detail.vue'
 const brainstormManagerPath = 'components/brainstorm/brainstorm-manager.vue'
 
 includesAll(characterManagerPath, [
@@ -77,6 +78,18 @@ includesAll(botManagerPath, [
   'sourceId: String(bot.id)',
 ])
 
+// brainstorm/t-030: Project is the fifth surface wired into the same
+// seedFromQuery() contract, following the same adapter/CTA pair Reward and
+// Bot shipped (BRAINSTORM_SOURCE_ADAPTERS entry + a gated CTA in the same
+// PR).
+includesAll(projectDetailPath, [
+  'startBrainstormWithProject',
+  '@click="startBrainstormWithProject"',
+  "path: '/brainstorm'",
+  "source: 'project'",
+  'sourceId: String(project.id)',
+])
+
 includesAll(brainstormManagerPath, [
   'function seedFromQuery',
   'seedFromQuery()',
@@ -89,7 +102,7 @@ includesAll(brainstormManagerPath, [
 
 console.log(
   'Brainstorm object-entry links contract passed: Character, Scenario, ' +
-    'Reward, and Bot can each launch a Brainstorm session grounded in ' +
-    'themselves, and Brainstorm still seeds its source and premise from ' +
+    'Reward, Bot, and Project can each launch a Brainstorm session grounded ' +
+    'in themselves, and Brainstorm still seeds its source and premise from ' +
     'the source/sourceId/intent query keys.',
 )

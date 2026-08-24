@@ -599,6 +599,28 @@ export type LifeAchievementUnlock = Prisma.LifeAchievementUnlockModel
  */
 export type LifeRunArt = Prisma.LifeRunArtModel
 /**
+ * Model Aquarium
+ * cthulhuquarium/t-007: a player's persistent tank. Fish species are
+ * Character rows -- AquariumStock references them, never duplicates them.
+ * See projects/cthulhuquarium/roadmap.yaml and DESIGN-BRIEF.md in conductor.
+ */
+export type Aquarium = Prisma.AquariumModel
+/**
+ * Model AquariumStock
+ * One fish (Character row) placed in one Aquarium. hunger/mood are the live
+ * play-loop state; placedAt lets the UI order a tank by arrival.
+ */
+export type AquariumStock = Prisma.AquariumStockModel
+/**
+ * Model AquariumEvent
+ * Append-only audit trail for one Aquarium: feeds, purchases, rare
+ * experiences, and anything else the future leaderboard/balance pass needs
+ * to read back. `kind` is a free-form string tag rather than an enum so new
+ * event types are a data commit, not a migration (cthulhuquarium/t-004's
+ * data-driven-economy convention).
+ */
+export type AquariumEvent = Prisma.AquariumEventModel
+/**
  * Model AuthToken
  * 
  */

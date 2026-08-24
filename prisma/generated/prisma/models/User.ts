@@ -802,6 +802,7 @@ export type UserWhereInput = {
   introDismissedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   Achievements?: Prisma.AchievementRecordListRelationFilter
   AppRepos?: Prisma.AppRepoListRelationFilter
+  Aquariums?: Prisma.AquariumListRelationFilter
   ArtCollections?: Prisma.ArtCollectionListRelationFilter
   ArtImages?: Prisma.ArtImageListRelationFilter
   ArtJobs?: Prisma.ArtJobListRelationFilter
@@ -924,6 +925,7 @@ export type UserOrderByWithRelationInput = {
   introDismissedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   Achievements?: Prisma.AchievementRecordOrderByRelationAggregateInput
   AppRepos?: Prisma.AppRepoOrderByRelationAggregateInput
+  Aquariums?: Prisma.AquariumOrderByRelationAggregateInput
   ArtCollections?: Prisma.ArtCollectionOrderByRelationAggregateInput
   ArtImages?: Prisma.ArtImageOrderByRelationAggregateInput
   ArtJobs?: Prisma.ArtJobOrderByRelationAggregateInput
@@ -1050,6 +1052,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   introDismissedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   Achievements?: Prisma.AchievementRecordListRelationFilter
   AppRepos?: Prisma.AppRepoListRelationFilter
+  Aquariums?: Prisma.AquariumListRelationFilter
   ArtCollections?: Prisma.ArtCollectionListRelationFilter
   ArtImages?: Prisma.ArtImageListRelationFilter
   ArtJobs?: Prisma.ArtJobListRelationFilter
@@ -1328,6 +1331,7 @@ export type UserCreateInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -1450,6 +1454,7 @@ export type UserUncheckedCreateInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -1569,6 +1574,7 @@ export type UserUpdateInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -1691,6 +1697,7 @@ export type UserUncheckedUpdateInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -2883,6 +2890,20 @@ export type UserUpdateOneRequiredWithoutLifeAchievementUnlocksNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutLifeAchievementUnlocksInput, Prisma.UserUpdateWithoutLifeAchievementUnlocksInput>, Prisma.UserUncheckedUpdateWithoutLifeAchievementUnlocksInput>
 }
 
+export type UserCreateNestedOneWithoutAquariumsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAquariumsInput, Prisma.UserUncheckedCreateWithoutAquariumsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAquariumsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutAquariumsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAquariumsInput, Prisma.UserUncheckedCreateWithoutAquariumsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAquariumsInput
+  upsert?: Prisma.UserUpsertWithoutAquariumsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAquariumsInput, Prisma.UserUpdateWithoutAquariumsInput>, Prisma.UserUncheckedUpdateWithoutAquariumsInput>
+}
+
 export type UserCreateNestedOneWithoutAuthTokensInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutAuthTokensInput, Prisma.UserUncheckedCreateWithoutAuthTokensInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutAuthTokensInput
@@ -3056,6 +3077,7 @@ export type UserCreateWithoutArtImagesInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
@@ -3177,6 +3199,7 @@ export type UserUncheckedCreateWithoutArtImagesInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
@@ -3300,6 +3323,7 @@ export type UserCreateWithoutArtImageInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -3420,6 +3444,7 @@ export type UserUncheckedCreateWithoutArtImageInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -3560,6 +3585,7 @@ export type UserUpdateWithoutArtImagesInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
@@ -3681,6 +3707,7 @@ export type UserUncheckedUpdateWithoutArtImagesInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -3893,6 +3920,7 @@ export type UserCreateWithoutArtCollectionsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
   AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
@@ -4014,6 +4042,7 @@ export type UserUncheckedCreateWithoutArtCollectionsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
   AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
@@ -4148,6 +4177,7 @@ export type UserUpdateWithoutArtCollectionsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
   AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
@@ -4269,6 +4299,7 @@ export type UserUncheckedUpdateWithoutArtCollectionsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
   AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -4387,6 +4418,7 @@ export type UserCreateWithoutBotsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -4508,6 +4540,7 @@ export type UserUncheckedCreateWithoutBotsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -4642,6 +4675,7 @@ export type UserUpdateWithoutBotsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -4763,6 +4797,7 @@ export type UserUncheckedUpdateWithoutBotsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -4881,6 +4916,7 @@ export type UserCreateWithoutCharactersInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -5002,6 +5038,7 @@ export type UserUncheckedCreateWithoutCharactersInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -5136,6 +5173,7 @@ export type UserUpdateWithoutCharactersInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -5257,6 +5295,7 @@ export type UserUncheckedUpdateWithoutCharactersInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -5375,6 +5414,7 @@ export type UserCreateWithoutChatsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -5496,6 +5536,7 @@ export type UserUncheckedCreateWithoutChatsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -5630,6 +5671,7 @@ export type UserUpdateWithoutChatsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -5751,6 +5793,7 @@ export type UserUncheckedUpdateWithoutChatsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -5869,6 +5912,7 @@ export type UserCreateWithoutDreamsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -5990,6 +6034,7 @@ export type UserUncheckedCreateWithoutDreamsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -6124,6 +6169,7 @@ export type UserUpdateWithoutDreamsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -6245,6 +6291,7 @@ export type UserUncheckedUpdateWithoutDreamsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -6363,6 +6410,7 @@ export type UserCreateWithoutProjectsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -6484,6 +6532,7 @@ export type UserUncheckedCreateWithoutProjectsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -6618,6 +6667,7 @@ export type UserUpdateWithoutProjectsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -6739,6 +6789,7 @@ export type UserUncheckedUpdateWithoutProjectsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -6857,6 +6908,7 @@ export type UserCreateWithoutFacetsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -6978,6 +7030,7 @@ export type UserUncheckedCreateWithoutFacetsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -7112,6 +7165,7 @@ export type UserUpdateWithoutFacetsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -7233,6 +7287,7 @@ export type UserUncheckedUpdateWithoutFacetsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -7351,6 +7406,7 @@ export type UserCreateWithoutLogsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -7472,6 +7528,7 @@ export type UserUncheckedCreateWithoutLogsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -7606,6 +7663,7 @@ export type UserUpdateWithoutLogsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -7727,6 +7785,7 @@ export type UserUncheckedUpdateWithoutLogsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -7845,6 +7904,7 @@ export type UserCreateWithoutManaTransactionsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -7966,6 +8026,7 @@ export type UserUncheckedCreateWithoutManaTransactionsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -8100,6 +8161,7 @@ export type UserUpdateWithoutManaTransactionsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -8221,6 +8283,7 @@ export type UserUncheckedUpdateWithoutManaTransactionsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -8339,6 +8402,7 @@ export type UserCreateWithoutMissionRemittancesInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -8460,6 +8524,7 @@ export type UserUncheckedCreateWithoutMissionRemittancesInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -8594,6 +8659,7 @@ export type UserUpdateWithoutMissionRemittancesInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -8715,6 +8781,7 @@ export type UserUncheckedUpdateWithoutMissionRemittancesInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -8833,6 +8900,7 @@ export type UserCreateWithoutOrdersInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -8954,6 +9022,7 @@ export type UserUncheckedCreateWithoutOrdersInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -9088,6 +9157,7 @@ export type UserUpdateWithoutOrdersInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -9209,6 +9279,7 @@ export type UserUncheckedUpdateWithoutOrdersInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -9327,6 +9398,7 @@ export type UserCreateWithoutEntitlementsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -9448,6 +9520,7 @@ export type UserUncheckedCreateWithoutEntitlementsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -9582,6 +9655,7 @@ export type UserUpdateWithoutEntitlementsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -9703,6 +9777,7 @@ export type UserUncheckedUpdateWithoutEntitlementsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -9821,6 +9896,7 @@ export type UserCreateWithoutGrantsGivenInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -9942,6 +10018,7 @@ export type UserUncheckedCreateWithoutGrantsGivenInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -10065,6 +10142,7 @@ export type UserCreateWithoutGrantsReceivedInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -10186,6 +10264,7 @@ export type UserUncheckedCreateWithoutGrantsReceivedInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -10320,6 +10399,7 @@ export type UserUpdateWithoutGrantsGivenInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -10441,6 +10521,7 @@ export type UserUncheckedUpdateWithoutGrantsGivenInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -10570,6 +10651,7 @@ export type UserUpdateWithoutGrantsReceivedInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -10691,6 +10773,7 @@ export type UserUncheckedUpdateWithoutGrantsReceivedInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -10809,6 +10892,7 @@ export type UserCreateWithoutPacksOwnedInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -10930,6 +11014,7 @@ export type UserUncheckedCreateWithoutPacksOwnedInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -11064,6 +11149,7 @@ export type UserUpdateWithoutPacksOwnedInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -11185,6 +11271,7 @@ export type UserUncheckedUpdateWithoutPacksOwnedInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -11302,6 +11389,7 @@ export type UserCreateWithoutAchievementsInput = {
   restrictedReason?: string | null
   introDismissedAt?: Date | string | null
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -11423,6 +11511,7 @@ export type UserUncheckedCreateWithoutAchievementsInput = {
   restrictedReason?: string | null
   introDismissedAt?: Date | string | null
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -11557,6 +11646,7 @@ export type UserUpdateWithoutAchievementsInput = {
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -11678,6 +11768,7 @@ export type UserUncheckedUpdateWithoutAchievementsInput = {
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -11797,6 +11888,7 @@ export type UserCreateWithoutPitchSheetsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -11918,6 +12010,7 @@ export type UserUncheckedCreateWithoutPitchSheetsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -12052,6 +12145,7 @@ export type UserUpdateWithoutPitchSheetsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -12173,6 +12267,7 @@ export type UserUncheckedUpdateWithoutPitchSheetsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -12291,6 +12386,7 @@ export type UserCreateWithoutClaimedPromptsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -12412,6 +12508,7 @@ export type UserUncheckedCreateWithoutClaimedPromptsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -12535,6 +12632,7 @@ export type UserCreateWithoutPromptsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -12656,6 +12754,7 @@ export type UserUncheckedCreateWithoutPromptsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -12790,6 +12889,7 @@ export type UserUpdateWithoutClaimedPromptsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -12911,6 +13011,7 @@ export type UserUncheckedUpdateWithoutClaimedPromptsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -13040,6 +13141,7 @@ export type UserUpdateWithoutPromptsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -13161,6 +13263,7 @@ export type UserUncheckedUpdateWithoutPromptsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -13279,6 +13382,7 @@ export type UserCreateWithoutReactionsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -13400,6 +13504,7 @@ export type UserUncheckedCreateWithoutReactionsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -13534,6 +13639,7 @@ export type UserUpdateWithoutReactionsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -13655,6 +13761,7 @@ export type UserUncheckedUpdateWithoutReactionsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -13773,6 +13880,7 @@ export type UserCreateWithoutResourcesInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -13894,6 +14002,7 @@ export type UserUncheckedCreateWithoutResourcesInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -14028,6 +14137,7 @@ export type UserUpdateWithoutResourcesInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -14149,6 +14259,7 @@ export type UserUncheckedUpdateWithoutResourcesInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -14267,6 +14378,7 @@ export type UserCreateWithoutRewardsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -14388,6 +14500,7 @@ export type UserUncheckedCreateWithoutRewardsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -14522,6 +14635,7 @@ export type UserUpdateWithoutRewardsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -14643,6 +14757,7 @@ export type UserUncheckedUpdateWithoutRewardsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -14761,6 +14876,7 @@ export type UserCreateWithoutScenariosInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -14882,6 +14998,7 @@ export type UserUncheckedCreateWithoutScenariosInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -15016,6 +15133,7 @@ export type UserUpdateWithoutScenariosInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -15137,6 +15255,7 @@ export type UserUncheckedUpdateWithoutScenariosInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -15255,6 +15374,7 @@ export type UserCreateWithoutServersInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -15376,6 +15496,7 @@ export type UserUncheckedCreateWithoutServersInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -15510,6 +15631,7 @@ export type UserUpdateWithoutServersInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -15631,6 +15753,7 @@ export type UserUncheckedUpdateWithoutServersInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -15749,6 +15872,7 @@ export type UserCreateWithoutSmartIconsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -15870,6 +15994,7 @@ export type UserUncheckedCreateWithoutSmartIconsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -16004,6 +16129,7 @@ export type UserUpdateWithoutSmartIconsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -16125,6 +16251,7 @@ export type UserUncheckedUpdateWithoutSmartIconsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -16243,6 +16370,7 @@ export type UserCreateWithoutThemesInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -16364,6 +16492,7 @@ export type UserUncheckedCreateWithoutThemesInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -16498,6 +16627,7 @@ export type UserUpdateWithoutThemesInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -16619,6 +16749,7 @@ export type UserUncheckedUpdateWithoutThemesInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -16737,6 +16868,7 @@ export type UserCreateWithoutStylistClientsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -16858,6 +16990,7 @@ export type UserUncheckedCreateWithoutStylistClientsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -16992,6 +17125,7 @@ export type UserUpdateWithoutStylistClientsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -17113,6 +17247,7 @@ export type UserUncheckedUpdateWithoutStylistClientsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -17231,6 +17366,7 @@ export type UserCreateWithoutStylistAppointmentsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -17352,6 +17488,7 @@ export type UserUncheckedCreateWithoutStylistAppointmentsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -17486,6 +17623,7 @@ export type UserUpdateWithoutStylistAppointmentsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -17607,6 +17745,7 @@ export type UserUncheckedUpdateWithoutStylistAppointmentsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -17725,6 +17864,7 @@ export type UserCreateWithoutArtJobsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
@@ -17846,6 +17986,7 @@ export type UserUncheckedCreateWithoutArtJobsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
@@ -17980,6 +18121,7 @@ export type UserUpdateWithoutArtJobsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
@@ -18101,6 +18243,7 @@ export type UserUncheckedUpdateWithoutArtJobsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
@@ -18219,6 +18362,7 @@ export type UserCreateWithoutKarmaTransactionsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -18340,6 +18484,7 @@ export type UserUncheckedCreateWithoutKarmaTransactionsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -18474,6 +18619,7 @@ export type UserUpdateWithoutKarmaTransactionsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -18595,6 +18741,7 @@ export type UserUncheckedUpdateWithoutKarmaTransactionsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -18713,6 +18860,7 @@ export type UserCreateWithoutReferredByInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -18834,6 +18982,7 @@ export type UserUncheckedCreateWithoutReferredByInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -18957,6 +19106,7 @@ export type UserCreateWithoutReferralsMadeInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -19078,6 +19228,7 @@ export type UserUncheckedCreateWithoutReferralsMadeInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -19212,6 +19363,7 @@ export type UserUpdateWithoutReferredByInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -19333,6 +19485,7 @@ export type UserUncheckedUpdateWithoutReferredByInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -19462,6 +19615,7 @@ export type UserUpdateWithoutReferralsMadeInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -19583,6 +19737,7 @@ export type UserUncheckedUpdateWithoutReferralsMadeInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -19701,6 +19856,7 @@ export type UserCreateWithoutRelationsReceivedInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -19822,6 +19978,7 @@ export type UserUncheckedCreateWithoutRelationsReceivedInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -19945,6 +20102,7 @@ export type UserCreateWithoutRelationsOwnedInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -20066,6 +20224,7 @@ export type UserUncheckedCreateWithoutRelationsOwnedInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -20200,6 +20359,7 @@ export type UserUpdateWithoutRelationsReceivedInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -20321,6 +20481,7 @@ export type UserUncheckedUpdateWithoutRelationsReceivedInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -20450,6 +20611,7 @@ export type UserUpdateWithoutRelationsOwnedInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -20571,6 +20733,7 @@ export type UserUncheckedUpdateWithoutRelationsOwnedInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -20689,6 +20852,7 @@ export type UserCreateWithoutUserRolesInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -20810,6 +20974,7 @@ export type UserUncheckedCreateWithoutUserRolesInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -20944,6 +21109,7 @@ export type UserUpdateWithoutUserRolesInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -21065,6 +21231,7 @@ export type UserUncheckedUpdateWithoutUserRolesInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -21183,6 +21350,7 @@ export type UserCreateWithoutChallengesInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -21304,6 +21472,7 @@ export type UserUncheckedCreateWithoutChallengesInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -21438,6 +21607,7 @@ export type UserUpdateWithoutChallengesInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -21559,6 +21729,7 @@ export type UserUncheckedUpdateWithoutChallengesInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -21677,6 +21848,7 @@ export type UserCreateWithoutLifeRunsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -21798,6 +21970,7 @@ export type UserUncheckedCreateWithoutLifeRunsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -21932,6 +22105,7 @@ export type UserUpdateWithoutLifeRunsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -22053,6 +22227,7 @@ export type UserUncheckedUpdateWithoutLifeRunsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -22171,6 +22346,7 @@ export type UserCreateWithoutLifeAchievementUnlocksInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -22292,6 +22468,7 @@ export type UserUncheckedCreateWithoutLifeAchievementUnlocksInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -22426,6 +22603,7 @@ export type UserUpdateWithoutLifeAchievementUnlocksInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -22547,6 +22725,7 @@ export type UserUncheckedUpdateWithoutLifeAchievementUnlocksInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -22563,6 +22742,504 @@ export type UserUncheckedUpdateWithoutLifeAchievementUnlocksInput = {
   GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
   KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
   Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
+  Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  ReferredBy?: Prisma.ReferralUncheckedUpdateOneWithoutReferredNestedInput
+  ReferralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
+  RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
+  UserRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
+  GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+}
+
+export type UserCreateWithoutAquariumsInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  tokens?: number
+  earnedTokens?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  isGuest?: boolean
+  lastManaRefill?: Date | string | null
+  manaCap?: number
+  signupBonusGiven?: boolean
+  referralCode?: string | null
+  allowFriendRequests?: boolean
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  listInDirectory?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterConfirmedAt?: Date | string | null
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  restrictedAt?: Date | string | null
+  restrictedById?: number | null
+  restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
+  Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
+  Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
+  Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogCreateNestedManyWithoutUserInput
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
+  Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  ReferredBy?: Prisma.ReferralCreateNestedOneWithoutReferredInput
+  ReferralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
+  RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
+  RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
+  UserRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
+  GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+}
+
+export type UserUncheckedCreateWithoutAquariumsInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  tokens?: number
+  earnedTokens?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  artImageId?: number | null
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  isGuest?: boolean
+  lastManaRefill?: Date | string | null
+  manaCap?: number
+  signupBonusGiven?: boolean
+  referralCode?: string | null
+  allowFriendRequests?: boolean
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  listInDirectory?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterConfirmedAt?: Date | string | null
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  restrictedAt?: Date | string | null
+  restrictedById?: number | null
+  restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
+  Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
+  Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
+  Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
+  Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  ReferredBy?: Prisma.ReferralUncheckedCreateNestedOneWithoutReferredInput
+  ReferralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
+  RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
+  UserRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
+  GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+}
+
+export type UserCreateOrConnectWithoutAquariumsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAquariumsInput, Prisma.UserUncheckedCreateWithoutAquariumsInput>
+}
+
+export type UserUpsertWithoutAquariumsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAquariumsInput, Prisma.UserUncheckedUpdateWithoutAquariumsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAquariumsInput, Prisma.UserUncheckedCreateWithoutAquariumsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAquariumsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAquariumsInput, Prisma.UserUncheckedUpdateWithoutAquariumsInput>
+}
+
+export type UserUpdateWithoutAquariumsInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
+  Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
+  Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
+  Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
+  Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  ReferredBy?: Prisma.ReferralUpdateOneWithoutReferredNestedInput
+  ReferralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
+  RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
+  RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
+  UserRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
+  GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAquariumsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
+  Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
+  Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
   Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
   ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
@@ -22665,6 +23342,7 @@ export type UserCreateWithoutAuthTokensInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -22786,6 +23464,7 @@ export type UserUncheckedCreateWithoutAuthTokensInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -22920,6 +23599,7 @@ export type UserUpdateWithoutAuthTokensInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -23041,6 +23721,7 @@ export type UserUncheckedUpdateWithoutAuthTokensInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -23159,6 +23840,7 @@ export type UserCreateWithoutConversationsInInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -23280,6 +23962,7 @@ export type UserUncheckedCreateWithoutConversationsInInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -23414,6 +24097,7 @@ export type UserUpdateWithoutConversationsInInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -23535,6 +24219,7 @@ export type UserUncheckedUpdateWithoutConversationsInInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -23653,6 +24338,7 @@ export type UserCreateWithoutSentMessagesInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -23774,6 +24460,7 @@ export type UserUncheckedCreateWithoutSentMessagesInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -23908,6 +24595,7 @@ export type UserUpdateWithoutSentMessagesInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -24029,6 +24717,7 @@ export type UserUncheckedUpdateWithoutSentMessagesInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -24147,6 +24836,7 @@ export type UserCreateWithoutActedNotificationsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -24268,6 +24958,7 @@ export type UserUncheckedCreateWithoutActedNotificationsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -24391,6 +25082,7 @@ export type UserCreateWithoutNotificationsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -24512,6 +25204,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -24646,6 +25339,7 @@ export type UserUpdateWithoutActedNotificationsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -24767,6 +25461,7 @@ export type UserUncheckedUpdateWithoutActedNotificationsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -24896,6 +25591,7 @@ export type UserUpdateWithoutNotificationsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -25017,6 +25713,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -25135,6 +25832,7 @@ export type UserCreateWithoutGithubInstallationsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -25256,6 +25954,7 @@ export type UserUncheckedCreateWithoutGithubInstallationsInput = {
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
   AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -25390,6 +26089,7 @@ export type UserUpdateWithoutGithubInstallationsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -25511,6 +26211,7 @@ export type UserUncheckedUpdateWithoutGithubInstallationsInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -25628,6 +26329,7 @@ export type UserCreateWithoutAppReposInput = {
   restrictedReason?: string | null
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
@@ -25749,6 +26451,7 @@ export type UserUncheckedCreateWithoutAppReposInput = {
   restrictedReason?: string | null
   introDismissedAt?: Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
   ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
   ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
@@ -25883,6 +26586,7 @@ export type UserUpdateWithoutAppReposInput = {
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -26004,6 +26708,7 @@ export type UserUncheckedUpdateWithoutAppReposInput = {
   restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -26197,6 +26902,7 @@ export type UserUpdateWithoutArtImageInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
@@ -26317,6 +27023,7 @@ export type UserUncheckedUpdateWithoutArtImageInput = {
   introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -26445,6 +27152,7 @@ export type UserUncheckedUpdateManyWithoutArtImageInput = {
 export type UserCountOutputType = {
   Achievements: number
   AppRepos: number
+  Aquariums: number
   ArtCollections: number
   ArtImages: number
   ArtJobs: number
@@ -26493,6 +27201,7 @@ export type UserCountOutputType = {
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Achievements?: boolean | UserCountOutputTypeCountAchievementsArgs
   AppRepos?: boolean | UserCountOutputTypeCountAppReposArgs
+  Aquariums?: boolean | UserCountOutputTypeCountAquariumsArgs
   ArtCollections?: boolean | UserCountOutputTypeCountArtCollectionsArgs
   ArtImages?: boolean | UserCountOutputTypeCountArtImagesArgs
   ArtJobs?: boolean | UserCountOutputTypeCountArtJobsArgs
@@ -26560,6 +27269,13 @@ export type UserCountOutputTypeCountAchievementsArgs<ExtArgs extends runtime.Typ
  */
 export type UserCountOutputTypeCountAppReposArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.AppRepoWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountAquariumsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AquariumWhereInput
 }
 
 /**
@@ -26939,6 +27655,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   introDismissedAt?: boolean
   Achievements?: boolean | Prisma.User$AchievementsArgs<ExtArgs>
   AppRepos?: boolean | Prisma.User$AppReposArgs<ExtArgs>
+  Aquariums?: boolean | Prisma.User$AquariumsArgs<ExtArgs>
   ArtCollections?: boolean | Prisma.User$ArtCollectionsArgs<ExtArgs>
   ArtImages?: boolean | Prisma.User$ArtImagesArgs<ExtArgs>
   ArtJobs?: boolean | Prisma.User$ArtJobsArgs<ExtArgs>
@@ -27068,6 +27785,7 @@ export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = run
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Achievements?: boolean | Prisma.User$AchievementsArgs<ExtArgs>
   AppRepos?: boolean | Prisma.User$AppReposArgs<ExtArgs>
+  Aquariums?: boolean | Prisma.User$AquariumsArgs<ExtArgs>
   ArtCollections?: boolean | Prisma.User$ArtCollectionsArgs<ExtArgs>
   ArtImages?: boolean | Prisma.User$ArtImagesArgs<ExtArgs>
   ArtJobs?: boolean | Prisma.User$ArtJobsArgs<ExtArgs>
@@ -27121,6 +27839,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   objects: {
     Achievements: Prisma.$AchievementRecordPayload<ExtArgs>[]
     AppRepos: Prisma.$AppRepoPayload<ExtArgs>[]
+    Aquariums: Prisma.$AquariumPayload<ExtArgs>[]
     ArtCollections: Prisma.$ArtCollectionPayload<ExtArgs>[]
     ArtImages: Prisma.$ArtImagePayload<ExtArgs>[]
     ArtJobs: Prisma.$ArtJobPayload<ExtArgs>[]
@@ -27582,6 +28301,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   readonly [Symbol.toStringTag]: "PrismaPromise"
   Achievements<T extends Prisma.User$AchievementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$AchievementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AchievementRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   AppRepos<T extends Prisma.User$AppReposArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$AppReposArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AppRepoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Aquariums<T extends Prisma.User$AquariumsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$AquariumsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AquariumPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ArtCollections<T extends Prisma.User$ArtCollectionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ArtCollectionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtCollectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ArtImages<T extends Prisma.User$ArtImagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ArtImagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ArtJobs<T extends Prisma.User$ArtJobsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ArtJobsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ArtJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -28121,6 +28841,30 @@ export type User$AppReposArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.AppRepoScalarFieldEnum | Prisma.AppRepoScalarFieldEnum[]
+}
+
+/**
+ * User.Aquariums
+ */
+export type User$AquariumsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Aquarium
+   */
+  select?: Prisma.AquariumSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Aquarium
+   */
+  omit?: Prisma.AquariumOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AquariumInclude<ExtArgs> | null
+  where?: Prisma.AquariumWhereInput
+  orderBy?: Prisma.AquariumOrderByWithRelationInput | Prisma.AquariumOrderByWithRelationInput[]
+  cursor?: Prisma.AquariumWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AquariumScalarFieldEnum | Prisma.AquariumScalarFieldEnum[]
 }
 
 /**

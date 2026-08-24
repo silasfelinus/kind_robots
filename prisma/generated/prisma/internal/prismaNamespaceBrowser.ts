@@ -130,6 +130,9 @@ export const ModelName = {
   LifeAchievement: 'LifeAchievement',
   LifeAchievementUnlock: 'LifeAchievementUnlock',
   LifeRunArt: 'LifeRunArt',
+  Aquarium: 'Aquarium',
+  AquariumStock: 'AquariumStock',
+  AquariumEvent: 'AquariumEvent',
   AuthToken: 'AuthToken',
   Conversation: 'Conversation',
   ConversationParticipant: 'ConversationParticipant',
@@ -1797,6 +1800,48 @@ export const LifeRunArtScalarFieldEnum = {
 export type LifeRunArtScalarFieldEnum = (typeof LifeRunArtScalarFieldEnum)[keyof typeof LifeRunArtScalarFieldEnum]
 
 
+export const AquariumScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  slug: 'slug',
+  title: 'title',
+  coins: 'coins',
+  backgroundKey: 'backgroundKey',
+  isPublic: 'isPublic',
+  lastTickAt: 'lastTickAt'
+} as const
+
+export type AquariumScalarFieldEnum = (typeof AquariumScalarFieldEnum)[keyof typeof AquariumScalarFieldEnum]
+
+
+export const AquariumStockScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  aquariumId: 'aquariumId',
+  characterId: 'characterId',
+  nickname: 'nickname',
+  hunger: 'hunger',
+  mood: 'mood',
+  placedAt: 'placedAt'
+} as const
+
+export type AquariumStockScalarFieldEnum = (typeof AquariumStockScalarFieldEnum)[keyof typeof AquariumStockScalarFieldEnum]
+
+
+export const AquariumEventScalarFieldEnum = {
+  id: 'id',
+  aquariumId: 'aquariumId',
+  kind: 'kind',
+  payload: 'payload',
+  occurredAt: 'occurredAt'
+} as const
+
+export type AquariumEventScalarFieldEnum = (typeof AquariumEventScalarFieldEnum)[keyof typeof AquariumEventScalarFieldEnum]
+
+
 export const AuthTokenScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -2831,6 +2876,31 @@ export const LifeRunArtOrderByRelevanceFieldEnum = {
 } as const
 
 export type LifeRunArtOrderByRelevanceFieldEnum = (typeof LifeRunArtOrderByRelevanceFieldEnum)[keyof typeof LifeRunArtOrderByRelevanceFieldEnum]
+
+
+export const AquariumOrderByRelevanceFieldEnum = {
+  slug: 'slug',
+  title: 'title',
+  backgroundKey: 'backgroundKey'
+} as const
+
+export type AquariumOrderByRelevanceFieldEnum = (typeof AquariumOrderByRelevanceFieldEnum)[keyof typeof AquariumOrderByRelevanceFieldEnum]
+
+
+export const AquariumStockOrderByRelevanceFieldEnum = {
+  nickname: 'nickname',
+  mood: 'mood'
+} as const
+
+export type AquariumStockOrderByRelevanceFieldEnum = (typeof AquariumStockOrderByRelevanceFieldEnum)[keyof typeof AquariumStockOrderByRelevanceFieldEnum]
+
+
+export const AquariumEventOrderByRelevanceFieldEnum = {
+  kind: 'kind',
+  payload: 'payload'
+} as const
+
+export type AquariumEventOrderByRelevanceFieldEnum = (typeof AquariumEventOrderByRelevanceFieldEnum)[keyof typeof AquariumEventOrderByRelevanceFieldEnum]
 
 
 export const AuthTokenOrderByRelevanceFieldEnum = {

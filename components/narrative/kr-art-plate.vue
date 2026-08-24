@@ -18,7 +18,7 @@
   <figure
     :class="['relative overflow-hidden bg-base-300', frameClass, aspectClass]"
   >
-    <img
+    <kr-deferred-image
       v-if="src"
       :src="src"
       :alt="alt"
@@ -29,7 +29,7 @@
           ? 'transition-transform duration-300 group-hover:scale-105'
           : '',
       ]"
-      :loading="eager ? 'eager' : 'lazy'"
+      :eager="eager"
       @error="onError"
     />
 

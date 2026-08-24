@@ -52,6 +52,11 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'animation-manager',
     route: '/build/animation-manager',
   },
+  'scene-animator': {
+    channelKey: 'admin',
+    tabKey: 'scene-animator',
+    route: '/admin/scene-animator',
+  },
   storybook: {
     channelKey: 'play',
     tabKey: 'storybook',

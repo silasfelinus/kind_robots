@@ -88,16 +88,6 @@ export default defineEventHandler(async (event) => {
     },
     orderBy: { createdAt: 'desc' },
     take: 1000,
-    include: {
-      ArtImage: {
-        select: {
-          id: true,
-          imagePath: true,
-          fileType: true,
-          isMature: true,
-        },
-      },
-    },
   })
 
   const latestByKey = new Map<string, (typeof jobs)[number]>()
@@ -113,11 +103,27 @@ export default defineEventHandler(async (event) => {
     latestByKey.set(context.dedupeKey, job)
   }
 
+  // ArtJob has no declared relation to ArtImage (only a plain `artImageId`
+  // int column), so the result image has to be batch-fetched separately
+  // rather than `include`d.
+  const resultImageIds = [...new Set(
+    [...latestByKey.values()]
+      .map((job) => job.artImageId)
+      .filter((id): id is number => id != null),
+  )]
+  const resultImages = resultImageIds.length
+    ? await prisma.artImage.findMany({
+        where: { id: { in: resultImageIds } },
+        select: { id: true, imagePath: true, fileType: true, isMature: true },
+      })
+    : []
+  const resultImageById = new Map(resultImages.map((image) => [image.id, image]))
+
   const configKey = sceneAnimatorConfigKey(config)
   const rows = sources.map((source) => {
     const dedupeKey = sceneAnimatorDedupeKey(source.hash, config)
     const job = latestByKey.get(dedupeKey)
-    const result = job?.ArtImage ?? null
+    const result = job?.artImageId != null ? (resultImageById.get(job.artImageId) ?? null) : null
     return {
       name: source.name,
       bytes: source.bytes,

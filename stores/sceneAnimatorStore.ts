@@ -105,7 +105,7 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
   const selectedFolder = ref('')
   const engine = ref<VideoEngine>('wan')
   const presetId = ref<VideoPresetId>(defaultPreset.id)
-  const durationSeconds = ref(defaultPreset.durationSeconds)
+  const durationSeconds = ref<number>(defaultPreset.durationSeconds)
   const isMature = ref(false)
   const configKey = ref('')
   const sourcePreviewUrls = ref<Record<string, string>>({})
@@ -243,8 +243,9 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
       durationSeconds.value = response.data.config.durationSeconds
       isMature.value = response.data.config.isMature
 
-      if (response.data.selectedFolder === null && response.data.folders.length) {
-        selectedFolder.value = response.data.folders[0].name
+      const firstFolder = response.data.selectedFolder === null ? response.data.folders[0] : null
+      if (firstFolder) {
+        selectedFolder.value = firstFolder.name
         loading.value = false
         return load(selectedFolder.value)
       }

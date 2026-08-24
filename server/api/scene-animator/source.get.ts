@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
   )
 
   setHeader(event, 'Content-Type', source.mime)
-  setHeader(event, 'Content-Length', String(source.bytes.length))
+  setHeader(event, 'Content-Length', source.bytes.length)
   setHeader(event, 'Cache-Control', 'private, max-age=60')
   setHeader(event, 'ETag', `"${source.hash}"`)
   return source.bytes

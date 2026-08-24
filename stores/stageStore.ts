@@ -125,6 +125,9 @@ export const useStageStore = defineStore('stageStore', () => {
     if (!stage) return []
 
     const lookup = {
+      // Stage prompt blurbs intentionally use rich Character detail. The
+      // lightweight gallery/cast catalog lives in browseCharacters; this array
+      // is the small by-id detail cache hydrated by ensureCastCharacterDetails.
       findCharacter: (id: number) => {
         return (characterStore.characters || []).find(
           (character) => character.id === id,
@@ -166,6 +169,24 @@ export const useStageStore = defineStore('stageStore', () => {
 
   function clearError(): void {
     lastError.value = null
+  }
+
+  async function ensureCastCharacterDetails(): Promise<void> {
+    const ids = Array.from(
+      new Set(
+        cast.value.flatMap((slot) =>
+          slot.participantType === 'character' && slot.participantId
+            ? [slot.participantId]
+            : [],
+        ),
+      ),
+    )
+
+    if (!ids.length) return
+
+    await Promise.all(
+      ids.map((id) => characterStore.fetchCharacterById(id)),
+    )
   }
 
   function getUtilityCard(id: string): StageUtilityCard | undefined {
@@ -239,6 +260,10 @@ export const useStageStore = defineStore('stageStore', () => {
     slot.participantId = characterId
     slot.temporary = null
     persist()
+
+    // Start warming the rich prompt detail as soon as a lightweight catalog
+    // row is cast. start/generateNextTurn still await it as a correctness gate.
+    void characterStore.fetchCharacterById(characterId)
   }
 
   function assignBot(slotId: string, botId: number): void {
@@ -339,6 +364,7 @@ export const useStageStore = defineStore('stageStore', () => {
     if (!stage) return
 
     clearError()
+    await ensureCastCharacterDetails()
 
     transcript.value = []
     turnIndex.value = 0
@@ -390,6 +416,7 @@ export const useStageStore = defineStore('stageStore', () => {
     }
 
     isPaused.value = false
+    await ensureCastCharacterDetails()
 
     await runLoop()
   }
@@ -405,6 +432,9 @@ export const useStageStore = defineStore('stageStore', () => {
 
     if (!stage) return
 
+    // Restored sessions and direct "next turn" calls bypass start(), so this is
+    // the final correctness gate before stageHelper reads biography/personality.
+    await ensureCastCharacterDetails()
     const resolved = resolvedCast.value
 
     if (!resolved.length) return
@@ -628,6 +658,10 @@ export const useStageStore = defineStore('stageStore', () => {
     customOpening.value = snapshot.customOpening
     showTitle.value = snapshot.showTitle
     showTopic.value = snapshot.showTopic
+
+    // Warm restored Character slots without making hydration async. Any turn
+    // still awaits the same detail gate before prompt construction.
+    void ensureCastCharacterDetails()
   }
 
   return {

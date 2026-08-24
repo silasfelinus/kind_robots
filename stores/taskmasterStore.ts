@@ -600,11 +600,24 @@ export const useTaskmasterStore = defineStore('taskmasterStore', () => {
   }
 
   function restoreFromLocalStorage() {
+    // Storybook's equivalent (storybookStore.restoreFromLocalStorage()) reads
+    // localStorage.getItem() inside its try because content/storybook.md
+    // double-mounts it (storybook-library-page.vue wraps StorybookPage as a
+    // child, both onMounted() hooks call restoreFromLocalStorage() in the
+    // same tick), so it also carries a one-time `restoredFromStorage` guard
+    // ahead of any localStorage access. Taskmaster has no such wrapper today
+    // -- content/taskmaster.md mounts `:taskmaster-page` as the only call
+    // site, so the `!session.value` check below is this function's only
+    // real guard and is sufficient for that single mount. Still move the
+    // read itself inside the try: a bare getItem() outside any try, unlike
+    // Storybook's, would throw straight out of onMounted() if localStorage
+    // access itself failed (private-browsing/storage-disabled edge cases),
+    // instead of degrading the same way the JSON.parse() below already does.
     if (typeof localStorage === 'undefined' || session.value) return
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return
 
     try {
+      const raw = localStorage.getItem(STORAGE_KEY)
+      if (!raw) return
       const restored = JSON.parse(raw) as TaskmasterSession
       if (!Array.isArray(restored.checkpoints)) {
         restored.checkpoints = restored.seed.taskTitle

@@ -240,6 +240,9 @@ model Character {
   /// Optional daisyUI theme this record's card wears. NULL falls back to a
   /// stable id-derived pick -- see resolveEntityTheme in utils/entityTheme.ts.
   theme                String?                @db.VarChar(764)
+  /// cthulhuquarium/t-007: fish species stocked into a tank. AquariumStock
+  /// references this Character row rather than duplicating species data.
+  AquariumStock        AquariumStock[]
 
   @@index([userId], map: "Character_userId_fkey")
   @@index([isPublic])
@@ -1739,6 +1742,7 @@ model User {
   introDismissedAt       DateTime?
   Achievements           AchievementRecord[]
   AppRepos               AppRepo[]
+  Aquariums              Aquarium[]
   ArtCollections         ArtCollection[]
   ArtImages              ArtImage[]                @relation("ArtImageCreator")
   ArtJobs                ArtJob[]
@@ -2294,6 +2298,65 @@ model LifeRunArt {
   @@index([artImageId])
   @@index([sceneType])
   @@index([chapter])
+}
+
+/// cthulhuquarium/t-007: a player's persistent tank. Fish species are
+/// Character rows -- AquariumStock references them, never duplicates them.
+/// See projects/cthulhuquarium/roadmap.yaml and DESIGN-BRIEF.md in conductor.
+model Aquarium {
+  id            Int             @id @default(autoincrement())
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime?       @default(now()) @updatedAt
+  userId        Int
+  slug          String          @unique @db.VarChar(255)
+  title         String          @db.VarChar(255)
+  coins         Int             @default(0)
+  backgroundKey String?         @db.VarChar(255)
+  isPublic      Boolean         @default(false)
+  lastTickAt    DateTime?
+  User          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Stock         AquariumStock[]
+  Events        AquariumEvent[]
+
+  @@index([userId])
+  @@index([isPublic])
+}
+
+/// One fish (Character row) placed in one Aquarium. hunger/mood are the live
+/// play-loop state; placedAt lets the UI order a tank by arrival.
+model AquariumStock {
+  id          Int       @id @default(autoincrement())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime? @default(now()) @updatedAt
+  aquariumId  Int
+  characterId Int
+  nickname    String?   @db.VarChar(255)
+  hunger      Int       @default(100)
+  mood        String?   @db.VarChar(64)
+  placedAt    DateTime  @default(now())
+  Aquarium    Aquarium  @relation(fields: [aquariumId], references: [id], onDelete: Cascade)
+  Character   Character @relation(fields: [characterId], references: [id])
+
+  @@index([aquariumId])
+  @@index([characterId])
+}
+
+/// Append-only audit trail for one Aquarium: feeds, purchases, rare
+/// experiences, and anything else the future leaderboard/balance pass needs
+/// to read back. `kind` is a free-form string tag rather than an enum so new
+/// event types are a data commit, not a migration (cthulhuquarium/t-004's
+/// data-driven-economy convention).
+model AquariumEvent {
+  id         Int      @id @default(autoincrement())
+  aquariumId Int
+  kind       String   @db.VarChar(64)
+  payload    String?  @db.LongText
+  occurredAt DateTime @default(now())
+  Aquarium   Aquarium @relation(fields: [aquariumId], references: [id], onDelete: Cascade)
+
+  @@index([aquariumId])
+  @@index([kind])
+  @@index([occurredAt])
 }
 
 model AuthToken {

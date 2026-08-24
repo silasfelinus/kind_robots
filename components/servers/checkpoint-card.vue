@@ -18,12 +18,11 @@
         imageHeightClass,
       ]"
     >
-      <img
+      <kr-deferred-image
         v-if="imageSource && !isHiddenMature"
         :src="imageSource"
         :alt="checkpointLabel"
         class="h-full w-full object-cover transition-transform group-hover:scale-105"
-        loading="lazy"
       />
 
       <div
@@ -35,7 +34,6 @@
             :name="isHiddenMature ? 'kind-icon:lock' : normalizedFallbackIcon"
             class="h-10 w-10"
           />
-
           <span class="text-xs font-bold">
             {{ isHiddenMature ? 'Mature hidden' : 'No preview' }}
           </span>
@@ -49,7 +47,6 @@
         >
           Active
         </span>
-
         <span
           v-if="checkpoint.isMature && showMatureBadge"
           class="badge badge-warning badge-sm"
@@ -88,23 +85,18 @@
         <span v-if="checkpointLocalPath" class="badge badge-outline badge-sm">
           Local
         </span>
-
         <span v-if="checkpoint.artImageId" class="badge badge-ghost badge-sm">
           Preview
         </span>
-
         <span v-if="checkpoint.userId" class="badge badge-primary badge-sm">
           User
         </span>
-
         <span class="badge badge-secondary badge-sm">
           {{ compatibilityLabel }}
         </span>
-
         <span v-if="!isCompatible" class="badge badge-error badge-sm">
           incompatible
         </span>
-
         <span
           v-if="checkpointGeneration"
           class="badge badge-secondary badge-sm"
@@ -134,13 +126,13 @@
       <summary class="cursor-pointer text-xs font-bold text-base-content/70">
         Debug
       </summary>
-
       <pre class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70">{{
         JSON.stringify(checkpoint, null, 2)
       }}</pre>
     </details>
   </reactable-card>
 </template>
+
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Resource } from '@/stores/resourceStore'
@@ -212,41 +204,32 @@ const emit = defineEmits<{
 const checkpointStore = useCheckpointStore()
 const serverStore = useServerStore()
 
-const activeServer = computed(() => {
-  return serverStore.activeArtServer || serverStore.currentServer
-})
-
-const checkpointName = computed(() => {
-  return safeText(props.checkpoint.name).trim()
-})
-
-const checkpointDescription = computed(() => {
-  return safeText(props.checkpoint.description).trim()
-})
-
-const checkpointLocalPath = computed(() => {
-  return safeText(props.checkpoint.localPath).trim()
-})
-
-const checkpointGeneration = computed(() => {
-  return safeText(props.checkpoint.generation).trim()
-})
-
-const compatibilityLabel = computed(() => {
-  return getResourceCompatibilityLabel(props.checkpoint)
-})
-const isCompatible = computed(() => {
-  return isResourceCompatibleWithServer(props.checkpoint, activeServer.value)
-})
-
-const normalizedFallbackIcon = computed(() => {
-  return safeText(props.fallbackIcon).trim() || 'kind-icon:image'
-})
+const activeServer = computed(
+  () => serverStore.activeArtServer || serverStore.currentServer,
+)
+const checkpointName = computed(() => safeText(props.checkpoint.name).trim())
+const checkpointDescription = computed(() =>
+  safeText(props.checkpoint.description).trim(),
+)
+const checkpointLocalPath = computed(() =>
+  safeText(props.checkpoint.localPath).trim(),
+)
+const checkpointGeneration = computed(() =>
+  safeText(props.checkpoint.generation).trim(),
+)
+const compatibilityLabel = computed(() =>
+  getResourceCompatibilityLabel(props.checkpoint),
+)
+const isCompatible = computed(() =>
+  isResourceCompatibleWithServer(props.checkpoint, activeServer.value),
+)
+const normalizedFallbackIcon = computed(
+  () => safeText(props.fallbackIcon).trim() || 'kind-icon:image',
+)
 
 const isActive = computed(() => {
   const selectedId = Number(checkpointStore.selectedCheckpoint?.id)
   const checkpointId = Number(props.checkpoint.id)
-
   if (
     Number.isInteger(selectedId) &&
     selectedId > 0 &&
@@ -258,77 +241,57 @@ const isActive = computed(() => {
 
   const selectedName = safeText(checkpointStore.selectedCheckpoint?.name).trim()
   const currentApiModel = safeText(checkpointStore.currentApiModel).trim()
-
   return Boolean(
     checkpointName.value &&
-    (selectedName === checkpointName.value ||
-      currentApiModel === checkpointName.value),
+      (selectedName === checkpointName.value ||
+        currentApiModel === checkpointName.value),
   )
 })
 
-const isHiddenMature = computed(() => {
-  return Boolean(props.checkpoint.isMature && !props.showMature)
-})
-
+const isHiddenMature = computed(() =>
+  Boolean(props.checkpoint.isMature && !props.showMature),
+)
 const reactionTargetId = computed(() => {
   const id = Number(props.checkpoint.id)
-
   return Number.isInteger(id) && id > 0 ? id : 0
 })
-
-const canReact = computed(() => {
-  return Boolean(props.showReaction && reactionTargetId.value > 0)
-})
-
-const canSelect = computed(() => {
-  return Boolean(
+const canReact = computed(() =>
+  Boolean(props.showReaction && reactionTargetId.value > 0),
+)
+const canSelect = computed(() =>
+  Boolean(
     props.allowSelect &&
-    checkpointName.value &&
-    !isHiddenMature.value &&
-    isCompatible.value,
-  )
-})
-
+      checkpointName.value &&
+      !isHiddenMature.value &&
+      isCompatible.value,
+  ),
+)
 const checkpointLabel = computed(() => {
   if (isHiddenMature.value) return 'Hidden Checkpoint'
-
   return (
     safeText(props.checkpoint.customLabel).trim() ||
     checkpointName.value ||
     'Unnamed Checkpoint'
   )
 })
-
 const imageSource = computed(() => {
   const path =
     safeText(props.checkpoint.MediaPath).trim() ||
     safeText(props.fallbackImage).trim()
-
   if (!path || isHiddenMature.value) return ''
-
   if (!props.cacheBuster) return path
-
   const separator = path.includes('?') ? '&' : '?'
   return `${path}${separator}t=${props.cacheBuster}`
 })
 
 function safeText(value: unknown): string {
   if (typeof value === 'string') return value
-  if (typeof value === 'number' || typeof value === 'boolean') {
-    return String(value)
-  }
-
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value)
   return ''
 }
 
-/*
- * Emit only. This card had no emits at all and called
- * checkpointStore.selectCheckpointByName() directly, so a parent could
- * neither intercept the choice nor reuse the card as a picker.
- */
 function selectCheckpoint() {
   if (!canSelect.value) return
-
   emit('open', checkpointName.value)
 }
 </script>

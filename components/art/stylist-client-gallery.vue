@@ -13,10 +13,6 @@
         </option>
       </select>
 
-      <!-- The upload form used to sit open BELOW this row on every client, so
-           a gallery you came to look at opened with a form you did not ask for.
-           Same treatment as Projects' Create: a toggle here, the form when
-           asked. -->
       <button
         type="button"
         class="btn btn-xs gap-1 rounded-xl"
@@ -95,10 +91,7 @@
     <p v-if="error" class="mb-3 rounded-xl bg-error/10 p-2 text-xs text-error">
       {{ error }}
     </p>
-    <!-- The shared shell owns the grid, the mode bar, and the loading and
-         empty states. The photo card stays bespoke: these are stylist client
-         photos with folder/kind badges and a primary flag, not entity art, so
-         the #item slot replaces kr-gallery's default card outright. -->
+
     <kr-gallery
       :items="galleryItems"
       :mode="galleryMode"
@@ -107,57 +100,67 @@
       @update:mode="galleryMode = $event"
     >
       <template #item="{ item }">
-        <article
-          v-if="photoById.get(Number(item.id))"
-          class="overflow-hidden rounded-xl border border-base-300 bg-base-100"
-        >
-          <div class="relative aspect-square bg-base-300">
-            <img
-              v-if="photoUrls[Number(item.id)]"
-              :src="photoUrls[Number(item.id)]"
-              :alt="
-                photoById.get(Number(item.id))!.caption ||
-                `${client.name} ${photoById.get(Number(item.id))!.kind}`
-              "
-              class="h-full w-full object-cover"
-            />
-            <span
-              v-if="photoById.get(Number(item.id))!.isPrimary"
-              class="badge badge-primary badge-sm absolute left-2 top-2"
-              >Primary</span
-            >
-          </div>
-          <div class="flex flex-col gap-1 p-2">
-            <div class="flex flex-wrap gap-1">
-              <span class="badge badge-outline badge-xs">{{
-                photoById.get(Number(item.id))!.folder
-              }}</span>
-              <span class="badge badge-ghost badge-xs">{{
-                photoById.get(Number(item.id))!.kind
-              }}</span>
-            </div>
-            <p class="min-h-8 text-xs text-base-content/65">
-              {{ photoById.get(Number(item.id))!.caption || 'No caption' }}
-            </p>
-            <div class="flex flex-wrap gap-1">
-              <button
-                v-if="!photoById.get(Number(item.id))!.isPrimary"
-                type="button"
-                class="btn btn-primary btn-xs"
-                @click="setPrimary(Number(item.id))"
+        <kr-viewport-gate @hydrate="hydratePhoto(Number(item.id))">
+          <article
+            v-if="photoById.get(Number(item.id))"
+            class="overflow-hidden rounded-xl border border-base-300 bg-base-100"
+          >
+            <div class="relative aspect-square bg-base-300">
+              <img
+                v-if="photoUrls[Number(item.id)]"
+                :src="photoUrls[Number(item.id)]"
+                :alt="
+                  photoById.get(Number(item.id))!.caption ||
+                  `${client.name} ${photoById.get(Number(item.id))!.kind}`
+                "
+                class="h-full w-full object-cover"
+                decoding="async"
+              />
+              <div
+                v-else
+                class="flex h-full w-full items-center justify-center text-base-content/30"
               >
-                Set primary
-              </button>
-              <button
-                type="button"
-                class="btn btn-ghost btn-xs text-error"
-                @click="removePhoto(Number(item.id))"
+                <Icon name="kind-icon:image" class="size-8" />
+              </div>
+              <span
+                v-if="photoById.get(Number(item.id))!.isPrimary"
+                class="badge badge-primary badge-sm absolute left-2 top-2"
               >
-                Delete
-              </button>
+                Primary
+              </span>
             </div>
-          </div>
-        </article>
+            <div class="flex flex-col gap-1 p-2">
+              <div class="flex flex-wrap gap-1">
+                <span class="badge badge-outline badge-xs">
+                  {{ photoById.get(Number(item.id))!.folder }}
+                </span>
+                <span class="badge badge-ghost badge-xs">
+                  {{ photoById.get(Number(item.id))!.kind }}
+                </span>
+              </div>
+              <p class="min-h-8 text-xs text-base-content/65">
+                {{ photoById.get(Number(item.id))!.caption || 'No caption' }}
+              </p>
+              <div class="flex flex-wrap gap-1">
+                <button
+                  v-if="!photoById.get(Number(item.id))!.isPrimary"
+                  type="button"
+                  class="btn btn-primary btn-xs"
+                  @click="setPrimary(Number(item.id))"
+                >
+                  Set primary
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-xs text-error"
+                  @click="removePhoto(Number(item.id))"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </article>
+        </kr-viewport-gate>
       </template>
 
       <template #empty>
@@ -179,20 +182,8 @@ import { useUserStore } from '@/stores/userStore'
 
 const props = defineProps<{ client: SuperkateCustomer }>()
 const emit = defineEmits<{ changed: [] }>()
-
-const galleryMode = ref<GalleryMode>('cards')
-
-const galleryItems = computed<GalleryItem[]>(() =>
-  filteredPhotos.value.map((photo) => ({
-    id: photo.id,
-    title: photo.caption || `${photo.folder} · ${photo.kind}`,
-  })),
-)
-
-const photoById = computed(
-  () => new Map(filteredPhotos.value.map((photo) => [photo.id, photo])),
-)
 const userStore = useUserStore()
+const galleryMode = ref<GalleryMode>('cards')
 
 type GalleryPhoto = {
   id: number
@@ -222,6 +213,15 @@ const filteredPhotos = computed(() =>
     ? photos.value.filter((photo) => photo.folder === folderFilter.value)
     : photos.value,
 )
+const galleryItems = computed<GalleryItem[]>(() =>
+  filteredPhotos.value.map((photo) => ({
+    id: photo.id,
+    title: photo.caption || `${photo.folder} · ${photo.kind}`,
+  })),
+)
+const photoById = computed(
+  () => new Map(filteredPhotos.value.map((photo) => [photo.id, photo])),
+)
 
 function revoke(id: number) {
   const url = photoUrls[id]
@@ -230,13 +230,18 @@ function revoke(id: number) {
 }
 
 async function loadBlob(photo: GalleryPhoto) {
+  if (photoUrls[photo.id]) return
   const token = userStore.token || userStore.user?.token || ''
   const response = await fetch(photo.imageUrl, {
     headers: token ? { Authorization: `Bearer ${token}` } : undefined,
   })
-  if (!response.ok) return
-  revoke(photo.id)
+  if (!response.ok || photoUrls[photo.id]) return
   photoUrls[photo.id] = URL.createObjectURL(await response.blob())
+}
+
+function hydratePhoto(photoId: number) {
+  const photo = photoById.value.get(photoId)
+  if (photo) void loadBlob(photo)
 }
 
 async function loadGallery() {
@@ -259,7 +264,6 @@ async function loadGallery() {
     if (!ids.has(Number(id))) revoke(Number(id))
   })
   photos.value = next
-  await Promise.all(next.map(loadBlob))
   loading.value = false
 }
 
@@ -297,8 +301,9 @@ async function setPrimary(photoId: number) {
     `/api/stylist/client/${props.client.id}/photo/${photoId}`,
     { method: 'PATCH', body: JSON.stringify({ isPrimary: true }) },
   )
-  if (!response.success)
+  if (!response.success) {
     error.value = response.message || 'Could not select primary photo.'
+  }
   await loadGallery()
   emit('changed')
 }
@@ -309,8 +314,9 @@ async function removePhoto(photoId: number) {
     `/api/stylist/client/${props.client.id}/photo/${photoId}`,
     { method: 'DELETE' },
   )
-  if (!response.success)
+  if (!response.success) {
     error.value = response.message || 'Could not delete photo.'
+  }
   await loadGallery()
   emit('changed')
 }

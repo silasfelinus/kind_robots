@@ -3,12 +3,10 @@
   <section
     class="flex h-full min-h-0 w-full flex-col gap-2 rounded-2xl bg-base-300 p-2"
   >
-    <!-- ── Header ─────────────────────────────────────────────────────── -->
     <header
       v-if="showHeader"
       class="shrink-0 rounded-xl border border-base-300 bg-base-200 px-3 py-2"
     >
-      <!-- Title + controls row -->
       <div class="flex items-center gap-2">
         <Icon name="kind-icon:gallery" class="h-5 w-5 shrink-0 text-primary" />
         <h2 class="min-w-0 truncate text-base font-black text-base-content">
@@ -23,7 +21,6 @@
         <div class="flex-1" />
 
         <div class="flex shrink-0 items-center gap-1">
-          <!-- Size toggle -->
           <div class="flex overflow-hidden rounded-lg border border-base-300">
             <button
               v-for="s in SIZE_OPTIONS"
@@ -55,6 +52,7 @@
           </button>
 
           <button
+            v-if="activeGroup"
             class="btn btn-xs rounded-lg"
             :class="bulkSelectEnabled ? 'btn-primary' : 'btn-ghost'"
             type="button"
@@ -92,7 +90,6 @@
         </div>
       </div>
 
-      <!-- Search + filters row -->
       <div class="mt-2 flex items-center gap-2">
         <label
           class="input input-bordered input-xs flex-1 flex items-center gap-1.5 bg-base-100 pr-2"
@@ -122,60 +119,22 @@
           />
         </label>
 
-        <select
-          v-if="!activeGroup"
-          v-model.number="folderPageSize"
-          class="select select-bordered select-xs bg-base-100"
-          title="Collections per page"
-        >
-          <option :value="12">12</option>
-          <option :value="24">24</option>
-          <option :value="36">36</option>
-          <option :value="48">48</option>
-        </select>
-
-        <select
-          v-else
-          v-model.number="imagePageSize"
-          class="select select-bordered select-xs bg-base-100"
-          title="Images per page"
-        >
-          <option :value="12">12</option>
-          <option :value="24">24</option>
-          <option :value="48">48</option>
-          <option :value="96">96</option>
-        </select>
-
-        <!-- The counts, on the filter line rather than a line of their own.
-             This header ran THREE rows -- title+controls, search+filters, and a
-             row holding nothing but these four badges. Badges are short and the
-             filter row has slack at the end, so they ride along; `ml-auto`
-             pushes them right and they wrap only when the row genuinely runs
-             out of width. -->
         <span
           class="ml-auto hidden flex-wrap items-center gap-1.5 text-xs text-base-content/50 sm:flex"
         >
-          <span class="badge badge-ghost badge-sm"
-            >{{ visibleGroups.length }} collections</span
-          >
-          <span class="badge badge-ghost badge-sm"
-            >{{ visibleImageCount }} images</span
-          >
-          <span v-if="activeGroup" class="badge badge-primary badge-sm"
-            >{{ activeGroup.images.length }} in view</span
-          >
-          <span
-            v-if="isHydratingImages"
-            class="badge badge-info badge-sm gap-1"
-          >
-            <span class="loading loading-spinner loading-xs" />
-            Loading
+          <span class="badge badge-ghost badge-sm">
+            {{ visibleGroups.length }} collections
+          </span>
+          <span class="badge badge-ghost badge-sm">
+            {{ visibleImageCount }} images
+          </span>
+          <span v-if="activeGroup" class="badge badge-primary badge-sm">
+            {{ filteredActiveImages.length }} in view
           </span>
         </span>
       </div>
     </header>
 
-    <!-- ── Alerts ──────────────────────────────────────────────────────── -->
     <div
       v-if="errorMessage"
       class="shrink-0 flex items-center gap-2 rounded-xl border border-error/40 bg-error/10 px-3 py-2 text-xs font-semibold text-error"
@@ -192,7 +151,6 @@
       {{ successMessage }}
     </div>
 
-    <!-- ── Loading ─────────────────────────────────────────────────────── -->
     <div
       v-if="isLoading"
       class="flex min-h-56 flex-1 items-center justify-center rounded-xl bg-base-200"
@@ -200,45 +158,50 @@
       <span class="loading loading-spinner loading-lg text-primary" />
     </div>
 
-    <!-- ── Content ─────────────────────────────────────────────────────── -->
     <section
       v-else
       class="relative min-h-0 flex-1 overflow-auto rounded-xl bg-base-200 p-2"
     >
-      <!-- Empty (folder view) -->
       <div
         v-if="!activeGroup && visibleGroups.length === 0"
         class="flex min-h-56 flex-col items-center justify-center rounded-xl border border-base-300 bg-base-100 p-6 text-center text-base-content/60"
       >
         <Icon name="kind-icon:folder" class="h-12 w-12 text-primary" />
-        <p class="mt-2 text-lg font-black text-base-content">
-          Nothing to show.
-        </p>
+        <p class="mt-2 text-lg font-black text-base-content">Nothing to show.</p>
         <p class="text-sm">No collections match the current filters.</p>
       </div>
 
-      <!-- Collection grid — clicking a card auto-enters it (no Open button needed) -->
-      <div v-else-if="!activeGroup" class="grid gap-2" :class="folderGridClass">
-        <collection-card
-          v-for="group in pagedGroups"
-          :key="group.key"
-          :collection="group.collection"
-          :selected="activeGroupKey === group.key"
-          :earned-karma="earnedKarmaByCollectionId[group.id]"
-          :compact="viewSize === 'xs' || viewSize === 'sm'"
-          :show-stats="false"
-          :show-select-button="false"
-          :show-mature="showMature"
-          :size="viewSize"
-          :preview-art-image="getPreviewImage(group)"
-          @open="selectGroup(group.key)"
-          @delete="handleCollectionDeleted"
-        />
-      </div>
+      <kr-gallery
+        v-else-if="!activeGroup"
+        :items="collectionGalleryItems"
+        :modes="[]"
+        :density="viewSize"
+        empty-label="collections"
+      >
+        <template #item="{ item }">
+          <template
+            v-for="group in [groupByKey.get(String(item.id))]"
+            :key="group?.key ?? item.id"
+          >
+            <collection-card
+              v-if="group"
+              :collection="group.collection"
+              :selected="activeGroupKey === group.key"
+              :earned-karma="earnedKarmaByCollectionId[group.id]"
+              :compact="viewSize === 'xs' || viewSize === 'sm'"
+              :show-stats="false"
+              :show-select-button="false"
+              :show-mature="showMature"
+              :size="viewSize"
+              :preview-art-image="getPreviewImage(group)"
+              @open="selectGroup(group.key)"
+              @delete="handleCollectionDeleted"
+            />
+          </template>
+        </template>
+      </kr-gallery>
 
-      <!-- Image view -->
       <div v-else class="flex min-h-0 flex-col gap-2">
-        <!-- Collection info bar -->
         <div
           class="flex items-center gap-2 rounded-xl border border-base-300 bg-base-100 px-3 py-2"
         >
@@ -254,16 +217,18 @@
           <span
             v-if="activeGroup.isVirtual"
             class="badge badge-accent badge-sm shrink-0"
-            >Unsorted</span
           >
+            Unsorted
+          </span>
           <span
             v-else-if="activeGroup.isFolder"
             class="badge badge-outline badge-sm shrink-0"
-            >Folder</span
           >
-          <span class="badge badge-primary badge-sm shrink-0">{{
-            filteredActiveImages.length
-          }}</span>
+            Folder
+          </span>
+          <span class="badge badge-primary badge-sm shrink-0">
+            {{ filteredActiveImages.length }}
+          </span>
           <button
             v-if="activeGroup.isFolder"
             class="btn btn-secondary btn-xs ml-auto rounded-lg"
@@ -298,16 +263,6 @@
             <span class="badge badge-primary badge-sm">
               {{ selectedImageCount }} selected
             </span>
-
-            <button
-              class="btn btn-xs rounded-xl"
-              type="button"
-              :disabled="isBatchWorking"
-              @click="selectPagedImages"
-            >
-              <Icon name="kind-icon:checklist" class="h-3.5 w-3.5" />
-              Select page
-            </button>
 
             <button
               class="btn btn-xs rounded-xl"
@@ -444,34 +399,13 @@
           </div>
         </div>
 
-        <!--
-          The shared shell owns the grid, the density and the empty state;
-          image-card stays the card, and pagination, filters and the collection
-          sidebar stay with this component.
-
-          `:modes="[]"` hides the mode bar on purpose. This gallery's control is
-          the xs/sm/md/lg size picker in its own header, which now drives
-          `density`; a second row of Cards/Heroes/Icons buttons would be two
-          pickers steering one grid.
-        -->
-        <!-- page-size 0: art-gallery pages itself. `galleryItems` is built
-             from pagedActiveImages, and its page size is a user control
-             (imagePageSize), so letting the shell page again would slice a
-             page into pages. -->
         <kr-gallery
           :items="galleryItems"
-          :page-size="0"
           :modes="[]"
           :density="viewSize"
           empty-label="art images"
         >
           <template #item="{ item }">
-            <!--
-              Vue has no v-let, so a single-element v-for is how a slot binds
-              its record to a template local. Earned rather than stylistic: the
-              card below makes ~15 references to `image`, and without the local
-              every one of them becomes imageById.get(Number(item.id))!.
-            -->
             <template
               v-for="image in [imageById.get(Number(item.id))]"
               :key="image?.id ?? item.id"
@@ -521,9 +455,11 @@
                   :show-select-button="false"
                   :allow-delete="canModifyImage(image) && !bulkSelectEnabled"
                   :allow-edit="false"
-                  :auto-load-image="false"
+                  :auto-load-image="true"
+                  :defer-load-until-visible="true"
                   :size="viewSize"
                   :earned-karma="earnedKarmaByImageId[image.id]"
+                  @loaded="handleImageLoaded"
                   @open="handleImageCardClick"
                   @delete="handleImageDeleted"
                 />
@@ -545,7 +481,6 @@
         </kr-gallery>
       </div>
 
-      <!-- Image overlay -->
       <div
         v-if="selectedImageForOverlay"
         class="fixed inset-0 z-50 flex items-center justify-center bg-base-300/80 p-3 backdrop-blur-sm"
@@ -589,79 +524,36 @@
       </div>
     </section>
 
-    <!-- ── Pagination (bottom) ─────────────────────────────────────────── -->
-    <div
-      v-if="currentPageCount > 1"
-      class="shrink-0 flex items-center justify-center gap-2 rounded-xl bg-base-200 px-3 py-1.5"
-    >
-      <button
-        class="btn btn-ghost btn-xs rounded-xl gap-1"
-        type="button"
-        :disabled="currentPage === 0"
-        @click="currentPage--"
-      >
-        <Icon name="kind-icon:arrow-left" class="h-3.5 w-3.5" />
-        Prev
-      </button>
-
-      <!-- Page number pills -->
-      <div class="flex items-center gap-1">
-        <button
-          v-for="p in pageRange"
-          :key="p"
-          class="btn btn-xs rounded-lg min-w-8"
-          :class="p === currentPage ? 'btn-primary' : 'btn-ghost'"
-          type="button"
-          @click="currentPage = p"
-        >
-          {{ p + 1 }}
-        </button>
-      </div>
-
-      <button
-        class="btn btn-ghost btn-xs rounded-xl gap-1"
-        type="button"
-        :disabled="currentPage >= currentPageCount - 1"
-        @click="currentPage++"
-      >
-        Next
-        <Icon name="kind-icon:arrow-right" class="h-3.5 w-3.5" />
-      </button>
-    </div>
-
-    <!-- ── Footer ─────────────────────────────────────────────────────── -->
     <footer
       class="shrink-0 flex items-center gap-3 rounded-xl border border-base-300 bg-base-200/80 px-3 py-2 text-xs text-base-content/50"
     >
-      <span
-        ><span class="font-bold text-base-content">{{
-          collectionStore.collections.length
-        }}</span>
-        collections</span
-      >
-      <span
-        ><span class="font-bold text-base-content">{{
-          artStore.artImages.length
-        }}</span>
-        images</span
-      >
-      <span
-        ><span class="font-bold text-base-content">{{
-          visibleImageCount
-        }}</span>
-        visible</span
-      >
+      <span>
+        <span class="font-bold text-base-content">
+          {{ collectionStore.collections.length }}
+        </span>
+        collections
+      </span>
+      <span>
+        <span class="font-bold text-base-content">
+          {{ artStore.artImages.length }}
+        </span>
+        images
+      </span>
+      <span>
+        <span class="font-bold text-base-content">{{ visibleImageCount }}</span>
+        visible
+      </span>
       <span
         v-if="activeGroup"
         class="ml-auto truncate font-bold text-primary"
-        >{{ activeGroup.title }}</span
       >
+        {{ activeGroup.title }}
+      </span>
     </footer>
   </section>
 </template>
 
 <script setup lang="ts">
-// /components/content/art/art-gallery.vue
 import { computed, onMounted, ref, watch } from 'vue'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
@@ -677,274 +569,27 @@ import { ErrorType, useErrorStore } from '@/stores/errorStore'
 import { useUserStore } from '@/stores/userStore'
 
 type BatchFlagValue = 'keep' | 'true' | 'false'
-
-const bulkSelectEnabled = ref(false)
-const selectedImageIds = ref<number[]>([])
-const batchCollectionId = ref<number | null>(null)
-const batchIsPublic = ref<BatchFlagValue>('keep')
-const batchIsMature = ref<BatchFlagValue>('keep')
-const isBatchWorking = ref(false)
-
-const selectedImageIdSet = computed(() => new Set(selectedImageIds.value))
-
-const selectedImages = computed(() => {
-  const ids = selectedImageIdSet.value
-  return filteredActiveImages.value
-    .map((image) => hydratedImages.value[image.id] || image)
-    .filter((image) => ids.has(image.id))
-})
-
-const selectedImageCount = computed(() => selectedImageIds.value.length)
-
-const mutableCollectionGroups = computed(() =>
-  collectionGroups.value.filter((group) => {
-    if (group.id <= 0) return false
-    if (userStore.isAdmin) return true
-    return Number(group.userId) === Number(currentUserId.value)
-  }),
-)
-
-const canBatchModifyImages = computed(() => {
-  if (!selectedImages.value.length) return false
-  return selectedImages.value.every((image) => canModifyImage(image))
-})
-
-const selectedBatchCollectionId = computed(() => {
-  const id = Number(batchCollectionId.value)
-  return Number.isFinite(id) && id > 0 ? id : null
-})
-
-function toggleBulkSelect() {
-  bulkSelectEnabled.value = !bulkSelectEnabled.value
-
-  if (!bulkSelectEnabled.value) {
-    selectedImageIds.value = []
-    batchCollectionId.value = null
-    batchIsPublic.value = 'keep'
-    batchIsMature.value = 'keep'
-  }
-}
-
-function isImageSelected(imageId: number): boolean {
-  return selectedImageIdSet.value.has(imageId)
-}
-
-function toggleImageSelection(image: ArtImage) {
-  const id = Number(image.id)
-  if (!Number.isFinite(id) || id <= 0) return
-
-  if (selectedImageIdSet.value.has(id)) {
-    selectedImageIds.value = selectedImageIds.value.filter(
-      (entry) => entry !== id,
-    )
-    return
-  }
-
-  selectedImageIds.value = [...selectedImageIds.value, id]
-}
-
-function selectPagedImages() {
-  const ids = pagedActiveImages.value
-    .filter((image) => canModifyImage(image))
-    .map((image) => image.id)
-
-  selectedImageIds.value = [...new Set([...selectedImageIds.value, ...ids])]
-}
-
-function selectAllFilteredImages() {
-  const ids = filteredActiveImages.value
-    .filter((image) => canModifyImage(image))
-    .map((image) => image.id)
-
-  selectedImageIds.value = [...new Set(ids)]
-}
-
-function clearImageSelection() {
-  selectedImageIds.value = []
-}
-
-/*
- * image-card emits an id now rather than the record. Everything downstream
- * here still wants the ArtImage, so this resolves it once at the boundary --
- * the pagination and hydration maps are the authority on which record an id
- * refers to, not the card.
- */
-async function handleImageCardClick(id: number) {
-  const image =
-    hydratedImages.value[id] ||
-    pagedActiveImages.value.find((entry) => entry.id === id)
-
-  if (!image) return
-
-  if (bulkSelectEnabled.value) {
-    toggleImageSelection(image)
-    return
-  }
-
-  await selectImage(image)
-}
-
-async function runBatchAction(
-  label: string,
-  worker: (image: ArtImage) => Promise<void>,
-) {
-  if (!selectedImages.value.length) return
-
-  errorMessage.value = ''
-  successMessage.value = ''
-  isBatchWorking.value = true
-
-  try {
-    await runLimited(selectedImages.value, 4, worker)
-    successMessage.value = label
-  } catch (error) {
-    const message = getErrorMessage(error, 'Batch action failed.')
-    errorMessage.value = message
-    errorStore.setError(ErrorType.NETWORK_ERROR, message)
-  } finally {
-    isBatchWorking.value = false
-  }
-}
-
-async function addSelectedToCollection() {
-  const collectionId = selectedBatchCollectionId.value
-
-  if (!collectionId) {
-    errorMessage.value = 'Pick a collection first.'
-    return
-  }
-
-  await runBatchAction(
-    `Added ${selectedImageCount.value} image${selectedImageCount.value === 1 ? '' : 's'} to collection.`,
-    async (image) => {
-      const result = await artStore.updateArtImageConnections(image.id, {
-        artCollectionIds: [collectionId],
-      })
-
-      if (!result.success) {
-        throw new Error(result.message || `Failed to add image #${image.id}.`)
-      }
-    },
-  )
-
-  await fetchCollectionsSafely(true)
-}
-
-async function removeSelectedFromCollection() {
-  const collectionId = selectedBatchCollectionId.value
-
-  if (!collectionId) {
-    errorMessage.value = 'Pick a collection first.'
-    return
-  }
-
-  await runBatchAction(
-    `Removed ${selectedImageCount.value} image${selectedImageCount.value === 1 ? '' : 's'} from collection.`,
-    async (image) => {
-      const result = await artStore.updateArtImageConnections(image.id, {
-        disconnectArtCollectionIds: [collectionId],
-      })
-
-      if (!result.success) {
-        throw new Error(
-          result.message || `Failed to remove image #${image.id}.`,
-        )
-      }
-    },
-  )
-
-  await fetchCollectionsSafely(true)
-}
-
-async function removeSelectedFromActiveCollection() {
-  if (!activeGroup.value || activeGroup.value.id <= 0) return
-
-  batchCollectionId.value = activeGroup.value.id
-  await removeSelectedFromCollection()
-}
-
-async function applySelectedImageFlags() {
-  const updates: Partial<ArtImage> = {}
-
-  if (batchIsPublic.value !== 'keep') {
-    updates.isPublic = batchIsPublic.value === 'true'
-  }
-
-  if (batchIsMature.value !== 'keep') {
-    updates.isMature = batchIsMature.value === 'true'
-  }
-
-  if (!Object.keys(updates).length) {
-    errorMessage.value = 'Choose at least one field to update.'
-    return
-  }
-
-  await runBatchAction(
-    `Updated ${selectedImageCount.value} image${selectedImageCount.value === 1 ? '' : 's'}.`,
-    async (image) => {
-      const result = await artStore.updateArtImage(image.id, updates)
-
-      if (!result.success) {
-        throw new Error(
-          result.message || `Failed to update image #${image.id}.`,
-        )
-      }
-    },
-  )
-
-  await fetchCollectionsSafely(true)
-}
-
-async function deleteSelectedImages() {
-  if (!canBatchModifyImages.value) return
-
-  const ids = [...selectedImageIds.value]
-  const confirmed = window.confirm(
-    `Delete ${ids.length} selected image${ids.length === 1 ? '' : 's'}? This cannot be undone.`,
-  )
-
-  if (!confirmed) return
-
-  errorMessage.value = ''
-  successMessage.value = ''
-  isBatchWorking.value = true
-
-  try {
-    await runLimited(ids, 3, async (imageId) => {
-      const deleted = await artStore.deleteArtImage(imageId)
-
-      if (!deleted) {
-        throw new Error(`Failed to delete image #${imageId}.`)
-      }
-
-      const next = { ...hydratedImages.value }
-      delete next[imageId]
-      hydratedImages.value = next
-    })
-
-    if (
-      selectedImageForOverlay.value &&
-      ids.includes(selectedImageForOverlay.value.id)
-    ) {
-      selectedImageForOverlay.value = null
-    }
-
-    selectedImageIds.value = []
-    successMessage.value = `Deleted ${ids.length} image${ids.length === 1 ? '' : 's'}.`
-    await fetchCollectionsSafely(true)
-  } catch (error) {
-    const message = getErrorMessage(error, 'Failed to delete selected images.')
-    errorMessage.value = message
-    errorStore.setError(ErrorType.NETWORK_ERROR, message)
-  } finally {
-    isBatchWorking.value = false
-  }
-}
+type ViewSize = GalleryDensity
 
 type GalleryCollection = ArtCollection & {
   artImages?: ArtImage[]
   ArtImages?: ArtImage[]
   images?: ArtImage[]
+}
+
+type GalleryGroup = {
+  key: string
+  id: number
+  title: string
+  description: string
+  userId: number | null
+  isPublic: boolean
+  isMature: boolean
+  isVirtual: boolean
+  isFolder?: boolean
+  slug?: string | null
+  images: ArtImage[]
+  collection: GalleryCollection
 }
 
 const props = withDefaults(
@@ -958,87 +603,62 @@ const props = withDefaults(
   },
 )
 
-type GalleryGroup = {
-  key: string
-  id: number
-  title: string
-  description: string
-  userId: number | null
-  isPublic: boolean
-  isMature: boolean
-  isVirtual: boolean
-  // Folder-derived collection (public/images/{slug}/) not yet saved to the DB.
-  isFolder?: boolean
-  slug?: string | null
-  images: ArtImage[]
-  collection: GalleryCollection
-}
-
-/*
- * The size picker is now the shared GalleryDensity axis -- same four values and
- * the same labels it always had, but the grid comes from DENSITY_GRID_CLASS via
- * kr-gallery instead of the viewport-keyed switch this file used to carry.
- */
-type ViewSize = GalleryDensity
-
 const SIZE_OPTIONS = GALLERY_DENSITIES
-
 const artStore = useArtStore()
 const collectionStore = useCollectionStore()
 const errorStore = useErrorStore()
 const userStore = useUserStore()
 
+const bulkSelectEnabled = ref(false)
+const selectedImageIds = ref<number[]>([])
+const batchCollectionId = ref<number | null>(null)
+const batchIsPublic = ref<BatchFlagValue>('keep')
+const batchIsMature = ref<BatchFlagValue>('keep')
+const isBatchWorking = ref(false)
 const isLoading = ref(false)
-const isHydratingImages = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
 const searchQuery = ref('')
 const showMature = ref(false)
-const folderPage = ref(0)
-const imagePage = ref(0)
-const folderPageSize = ref(24) // default 24
-const imagePageSize = ref(24)
 const hydratedImages = ref<Record<number, ArtImage>>({})
 const activeGroupKey = ref<string | null>(null)
 const selectedImageForOverlay = ref<ArtImage | null>(null)
 const viewSize = ref<ViewSize>('md')
 const isSyncingFolder = ref(false)
 
-// ── Grid classes ──────────────────────────────────────────────────────────────
-const folderGridClass = computed(() => {
-  switch (viewSize.value) {
-    case 'xs':
-      return 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 xl:grid-cols-7 2xl:grid-cols-8'
-    case 'sm':
-      return 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-7'
-    case 'lg':
-      return 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4'
-    default:
-      return 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6'
-  }
-})
-
-// The image grid moved to DENSITY_GRID_CLASS -- see the kr-gallery below. The
-// folder grid above stays local because folders are not on the shared shell.
-
-// ── Computed ──────────────────────────────────────────────────────────────────
+const selectedImageIdSet = computed(() => new Set(selectedImageIds.value))
 
 const currentUserId = computed(
   () => userStore.userId ?? userStore.user?.id ?? null,
 )
 
+const selectedImages = computed(() => {
+  const ids = selectedImageIdSet.value
+  return filteredActiveImages.value
+    .map((image) => hydratedImages.value[image.id] || image)
+    .filter((image) => ids.has(image.id))
+})
+
+const selectedImageCount = computed(() => selectedImageIds.value.length)
+
+const selectedBatchCollectionId = computed(() => {
+  const id = Number(batchCollectionId.value)
+  return Number.isFinite(id) && id > 0 ? id : null
+})
+
 const activeGroup = computed(() => {
   if (!activeGroupKey.value) return null
   return (
-    visibleGroups.value.find((g) => g.key === activeGroupKey.value) ||
-    collectionGroups.value.find((g) => g.key === activeGroupKey.value) ||
+    visibleGroups.value.find((group) => group.key === activeGroupKey.value) ||
+    collectionGroups.value.find((group) => group.key === activeGroupKey.value) ||
     null
   )
 })
 
 const headerSummary = computed(() => {
-  if (activeGroup.value)
-    return `${activeGroup.value.images.length} images — click to open`
+  if (activeGroup.value) {
+    return `${filteredActiveImages.value.length} images — click to open`
+  }
   return `${visibleGroups.value.length} collections · ${visibleImageCount.value} images`
 })
 
@@ -1081,46 +701,6 @@ const collectionGroups = computed<GalleryGroup[]>(() => {
     },
   ]
 })
-
-// ── Folder-derived collections ─────────────────────────────────────────────
-// A folder under public/images/ whose name matches a slug IS that slug's
-// collection. The store fetches these from /api/art/collection/folders; here
-// they become read-only gallery groups (skipping any slug that already exists
-// as a DB collection) with a "Sync to collection" action to materialize them.
-
-function labelFromSlug(slug: string): string {
-  return slug
-    .split(/[-_]/)
-    .filter(Boolean)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ')
-}
-
-// Deterministic negative id so synthetic folder images have a stable :key
-// across recomputes and never collide with real (positive) ArtImage ids.
-function hashSlug(slug: string): number {
-  let hash = 0
-  for (let i = 0; i < slug.length; i++) {
-    hash = (hash * 31 + slug.charCodeAt(i)) % 100000
-  }
-  return hash
-}
-
-function folderUrlToArtImage(
-  url: string,
-  slug: string,
-  index: number,
-): ArtImage {
-  return {
-    id: -(1_000_000 + hashSlug(slug) * 1000 + index),
-    imagePath: url,
-    path: url,
-    fileName: url.split('/').pop() || url,
-    isPublic: true,
-    isMature: false,
-    userId: currentUserId.value ?? null,
-  } as unknown as ArtImage
-}
 
 const folderGroups = computed<GalleryGroup[]>(() => {
   const dbSlugs = new Set(
@@ -1173,6 +753,18 @@ const visibleGroups = computed<GalleryGroup[]>(() => {
     })
 })
 
+const groupByKey = computed(
+  () => new Map(visibleGroups.value.map((group) => [group.key, group])),
+)
+
+const collectionGalleryItems = computed<GalleryItem[]>(() =>
+  visibleGroups.value.map((group) => ({
+    id: group.key,
+    title: group.title,
+    description: group.description,
+  })),
+)
+
 const filteredActiveImages = computed(() => {
   if (!activeGroup.value) return []
   const query = searchQuery.value.trim().toLowerCase()
@@ -1181,22 +773,131 @@ const filteredActiveImages = computed(() => {
     .filter((image) => !query || searchableImageText(image).includes(query))
 })
 
-const visibleImageCount = computed(() =>
-  visibleGroups.value.reduce((sum, g) => sum + g.images.length, 0),
+const galleryItems = computed<GalleryItem[]>(() =>
+  filteredActiveImages.value.map((image) => ({
+    id: image.id,
+    title: image.promptString || image.artPrompt || `Image ${image.id}`,
+    description: image.artPrompt || undefined,
+    source: image,
+  })),
 )
 
-const currentPage = computed({
-  get() {
-    return activeGroup.value ? imagePage.value : folderPage.value
-  },
-  set(value: number) {
-    if (activeGroup.value) {
-      imagePage.value = value
-      return
-    }
-    folderPage.value = value
-  },
+const imageById = computed(
+  () =>
+    new Map(filteredActiveImages.value.map((image) => [image.id, image])),
+)
+
+const visibleImageCount = computed(() =>
+  visibleGroups.value.reduce((sum, group) => sum + group.images.length, 0),
+)
+
+const mutableCollectionGroups = computed(() =>
+  collectionGroups.value.filter((group) => {
+    if (group.id <= 0) return false
+    if (userStore.isAdmin) return true
+    return Number(group.userId) === Number(currentUserId.value)
+  }),
+)
+
+const canBatchModifyImages = computed(() => {
+  if (!selectedImages.value.length) return false
+  return selectedImages.value.every((image) => canModifyImage(image))
 })
+
+const { earnedKarma: earnedKarmaByImageId, refresh: refreshEarnedKarma } =
+  userStore.trackEarnedKarma('artImage', () =>
+    filteredActiveImages.value.map((image) => image.id),
+  )
+
+const { earnedKarma: earnedKarmaByCollectionId } = userStore.trackEarnedKarma(
+  'artCollection',
+  () =>
+    visibleGroups.value
+      .filter((group) => !group.isVirtual && group.id > 0)
+      .map((group) => group.id),
+)
+
+watch(activeGroupKey, () => {
+  selectedImageForOverlay.value = null
+  selectedImageIds.value = []
+  bulkSelectEnabled.value = false
+  batchCollectionId.value = null
+})
+
+watch(viewSize, (value) => {
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('galleryViewSize', value)
+  }
+})
+
+onMounted(async () => {
+  showMature.value = Boolean(userStore.user?.showMature ?? userStore.showMature)
+  if (typeof localStorage !== 'undefined') {
+    const stored = localStorage.getItem('galleryViewSize')
+    if (stored && IS_GALLERY_DENSITY(stored)) viewSize.value = stored
+  }
+  await initializeGallery()
+})
+
+function toggleBulkSelect() {
+  bulkSelectEnabled.value = !bulkSelectEnabled.value
+  if (!bulkSelectEnabled.value) {
+    selectedImageIds.value = []
+    batchCollectionId.value = null
+    batchIsPublic.value = 'keep'
+    batchIsMature.value = 'keep'
+  }
+}
+
+function isImageSelected(imageId: number): boolean {
+  return selectedImageIdSet.value.has(imageId)
+}
+
+function toggleImageSelection(image: ArtImage) {
+  const id = Number(image.id)
+  if (!Number.isFinite(id) || id <= 0) return
+
+  if (selectedImageIdSet.value.has(id)) {
+    selectedImageIds.value = selectedImageIds.value.filter(
+      (entry) => entry !== id,
+    )
+    return
+  }
+
+  selectedImageIds.value = [...selectedImageIds.value, id]
+}
+
+function selectAllFilteredImages() {
+  const ids = filteredActiveImages.value
+    .filter((image) => canModifyImage(image))
+    .map((image) => image.id)
+  selectedImageIds.value = [...new Set(ids)]
+}
+
+function clearImageSelection() {
+  selectedImageIds.value = []
+}
+
+function handleImageLoaded(image: ArtImage) {
+  hydratedImages.value = {
+    ...hydratedImages.value,
+    [image.id]: image,
+  }
+}
+
+async function handleImageCardClick(id: number) {
+  const image =
+    hydratedImages.value[id] ||
+    filteredActiveImages.value.find((entry) => entry.id === id)
+  if (!image) return
+
+  if (bulkSelectEnabled.value) {
+    toggleImageSelection(image)
+    return
+  }
+
+  await selectImage(image)
+}
 
 async function refreshGallery() {
   isLoading.value = true
@@ -1215,9 +916,7 @@ async function refreshGallery() {
             includeThumbnailData: false,
           }),
     ])
-
     void refreshEarnedKarma()
-    await hydrateVisibleImages()
     successMessage.value = 'Gallery refreshed.'
   } catch (error) {
     const message = getErrorMessage(error, 'Gallery failed to refresh.')
@@ -1228,113 +927,6 @@ async function refreshGallery() {
   }
 }
 
-const currentPageCount = computed(() => {
-  if (activeGroup.value) {
-    return Math.max(
-      1,
-      Math.ceil(filteredActiveImages.value.length / imagePageSize.value),
-    )
-  }
-  return Math.max(
-    1,
-    Math.ceil(visibleGroups.value.length / folderPageSize.value),
-  )
-})
-
-// Compact page range: max 7 page pills, ellipsis-free for simplicity
-const pageRange = computed(() => {
-  const total = currentPageCount.value
-  const current = currentPage.value
-  if (total <= 7) return Array.from({ length: total }, (_, i) => i)
-  const start = Math.max(0, Math.min(current - 3, total - 7))
-  return Array.from({ length: Math.min(7, total) }, (_, i) => start + i)
-})
-
-const pagedGroups = computed(() => {
-  const start = folderPage.value * folderPageSize.value
-  return visibleGroups.value.slice(start, start + folderPageSize.value)
-})
-
-const pagedActiveImages = computed(() => {
-  const start = imagePage.value * imagePageSize.value
-  return filteredActiveImages.value.slice(start, start + imagePageSize.value)
-})
-
-/*
- * The current page as GalleryItems. Only the page, not the whole filtered set:
- * pagination stays this component's job, and kr-gallery renders exactly what it
- * is handed.
- *
- * `title`/`description` are filled for correctness even though the item slot
- * draws the card -- an item that lies about itself is a trap for the next
- * caller who drops the slot.
- */
-const galleryItems = computed<GalleryItem[]>(() =>
-  pagedActiveImages.value.map((image) => ({
-    id: image.id,
-    // ArtImage has no title column; the prompt is what a human reads it by.
-    title: image.promptString || image.artPrompt || `Image ${image.id}`,
-    description: image.artPrompt || undefined,
-    source: image,
-  })),
-)
-
-const imageById = computed(
-  () => new Map(pagedActiveImages.value.map((image) => [image.id, image])),
-)
-
-// ── Watchers ──────────────────────────────────────────────────────────────────
-
-watch([searchQuery, showMature, folderPageSize], () => {
-  folderPage.value = 0
-  imagePage.value = 0
-})
-
-watch(imagePageSize, () => {
-  imagePage.value = 0
-})
-
-watch(activeGroupKey, async () => {
-  imagePage.value = 0
-  selectedImageForOverlay.value = null
-  selectedImageIds.value = []
-  bulkSelectEnabled.value = false
-  batchCollectionId.value = null
-  await hydrateVisibleImages()
-})
-
-watch(
-  () => [
-    activeGroupKey.value,
-    imagePage.value,
-    imagePageSize.value,
-    searchQuery.value,
-    showMature.value,
-  ],
-  async () => {
-    await hydrateVisibleImages()
-  },
-)
-
-watch(viewSize, (val) => {
-  if (typeof localStorage !== 'undefined')
-    localStorage.setItem('galleryViewSize', val)
-})
-
-// ── Lifecycle ─────────────────────────────────────────────────────────────────
-
-onMounted(async () => {
-  showMature.value = Boolean(userStore.user?.showMature ?? userStore.showMature)
-  if (typeof localStorage !== 'undefined') {
-    // A stored value is untrusted input, so it goes through the vocabulary's
-    // own guard rather than a hand-repeated list that can drift from the enum.
-    const stored = localStorage.getItem('galleryViewSize')
-    if (stored && IS_GALLERY_DENSITY(stored)) viewSize.value = stored
-  }
-  await initializeGallery()
-})
-
-// ── Actions ───────────────────────────────────────────────────────────────────
 async function initializeGallery() {
   isLoading.value = true
   errorMessage.value = ''
@@ -1344,12 +936,7 @@ async function initializeGallery() {
   try {
     await fetchCollectionsSafely(false)
     await fetchFolderCollectionsSafely()
-
-    if (!props.dropdownMode) {
-      await fetchArtImagesSafely()
-    }
-
-    await hydrateVisibleImages()
+    if (!props.dropdownMode) await fetchArtImagesSafely()
   } catch (error) {
     const message = getErrorMessage(error, 'Gallery failed to initialize.')
     errorMessage.value = message
@@ -1369,9 +956,18 @@ async function fetchFolderCollectionsSafely() {
   try {
     await collectionStore.fetchFolderCollections(false)
   } catch {
-    // Folder collections are a non-critical enhancement over the DB
-    // collections; a failure here must not break the gallery.
+    return
   }
+}
+
+async function fetchArtImagesSafely(force = false) {
+  if (typeof artStore.fetchAllArtImages !== 'function') return
+  const shouldForce = force || artStore.artImages.length === 0
+  await artStore.fetchAllArtImages({
+    force: shouldForce,
+    includeImageData: false,
+    includeThumbnailData: false,
+  })
 }
 
 async function syncActiveFolder() {
@@ -1388,14 +984,11 @@ async function syncActiveFolder() {
       ? `Synced ${result.created} image(s) into "${group.slug}".`
       : `"${group.slug}" is already up to date.`
 
-    // The folder is now a saved collection; jump to it (folderGroups drops it
-    // automatically now that a matching DB slug exists).
     const synced = collectionStore.collections.find(
       (collection) =>
         (collection.slug || '').toLowerCase() === group.slug!.toLowerCase(),
     )
     activeGroupKey.value = synced ? `collection-${synced.id}` : null
-    await hydrateVisibleImages()
   } catch (error) {
     errorMessage.value = getErrorMessage(
       error,
@@ -1404,20 +997,6 @@ async function syncActiveFolder() {
   } finally {
     isSyncingFolder.value = false
   }
-}
-
-async function fetchArtImagesSafely(force = false) {
-  if (typeof artStore.fetchAllArtImages !== 'function') return
-
-  // Force a fetch when the cache is empty so the Unsorted group can populate,
-  // even if a prior (e.g. dropdown-mode) pass left artImages untouched.
-  const shouldForce = force || artStore.artImages.length === 0
-
-  await artStore.fetchAllArtImages({
-    force: shouldForce,
-    includeImageData: false,
-    includeThumbnailData: false,
-  })
 }
 
 function normalizeCollectionGroup(collection: ArtCollection): GalleryGroup {
@@ -1526,7 +1105,6 @@ async function selectGroup(key: string) {
   }
 
   activeGroupKey.value = key
-
   if (group.id > 0) {
     collectionStore.setCurrentCollection(group.id)
     collectionStore.setSelectedCollectionIds([group.id])
@@ -1539,7 +1117,6 @@ async function selectGroup(key: string) {
 function clearActiveGroup() {
   activeGroupKey.value = null
   selectedImageForOverlay.value = null
-  imagePage.value = 0
 }
 
 async function selectImage(image: ArtImage) {
@@ -1557,63 +1134,178 @@ async function selectImage(image: ArtImage) {
 
 function clearSelectedImage() {
   selectedImageForOverlay.value = null
-  if (typeof artStore.deselectArtImage === 'function')
+  if (typeof artStore.deselectArtImage === 'function') {
     artStore.deselectArtImage()
-}
-
-// interface-vision/t-046 scoping, t-066 implementation: earned karma is
-// fetched for the current visible PAGE only (not the whole gallery), the same
-// "fetch on the rendered page, not every filter keystroke" rule as
-// hydrateVisibleImages. The earned-karma tracker watches that id list itself, so the
-// page/filter watch below no longer has to call refresh by hand; the explicit
-// Refresh button still does, because karma can change while the ids do not.
-const { earnedKarma: earnedKarmaByImageId, refresh: refreshEarnedKarma } =
-  userStore.trackEarnedKarma('artImage', () => pagedActiveImages.value.map((i) => i.id))
-
-// Collections earn karma the same way images do (reaction-category
-// ART_COLLECTION). Virtual groups — "Unsorted" and the folder-derived ones —
-// are excluded: they share the sentinel id -1 and have no ArtCollection row to
-// attribute karma to, so batching them would spend request slots on a lookup
-// that can only ever return 0.
-const { earnedKarma: earnedKarmaByCollectionId } = userStore.trackEarnedKarma(
-  'artCollection',
-  () =>
-    pagedGroups.value
-      .filter((group) => !group.isVirtual && group.id > 0)
-      .map((group) => group.id),
-)
-
-async function hydrateVisibleImages() {
-  const imagesNeedingData = pagedActiveImages.value.filter(shouldHydrateImage)
-  if (!imagesNeedingData.length) return
-  isHydratingImages.value = true
-  try {
-    await runLimited(imagesNeedingData, 4, async (image) => {
-      const fetched = await artStore.getArtImageById(image.id, {
-        includeImageData: true,
-        includeThumbnailData: true,
-      })
-      if (fetched)
-        hydratedImages.value = {
-          ...hydratedImages.value,
-          [fetched.id]: fetched,
-        }
-    })
-  } catch (error) {
-    const message = getErrorMessage(error, 'Some images could not be loaded.')
-    errorMessage.value = message
-    errorStore.setError(ErrorType.NETWORK_ERROR, message)
-  } finally {
-    isHydratingImages.value = false
   }
 }
 
-function shouldHydrateImage(image: ArtImage): boolean {
-  if (hydratedImages.value[image.id]) return false
-  if ((image as ArtImage & { imageData?: string | null }).imageData)
-    return false
-  if (image.imagePath) return false
-  return true
+async function runBatchAction(
+  label: string,
+  worker: (image: ArtImage) => Promise<void>,
+) {
+  if (!selectedImages.value.length) return
+
+  errorMessage.value = ''
+  successMessage.value = ''
+  isBatchWorking.value = true
+
+  try {
+    await runLimited(selectedImages.value, 4, worker)
+    successMessage.value = label
+  } catch (error) {
+    const message = getErrorMessage(error, 'Batch action failed.')
+    errorMessage.value = message
+    errorStore.setError(ErrorType.NETWORK_ERROR, message)
+  } finally {
+    isBatchWorking.value = false
+  }
+}
+
+async function addSelectedToCollection() {
+  const collectionId = selectedBatchCollectionId.value
+  if (!collectionId) {
+    errorMessage.value = 'Pick a collection first.'
+    return
+  }
+
+  await runBatchAction(
+    `Added ${selectedImageCount.value} image${selectedImageCount.value === 1 ? '' : 's'} to collection.`,
+    async (image) => {
+      const result = await artStore.updateArtImageConnections(image.id, {
+        artCollectionIds: [collectionId],
+      })
+      if (!result.success) {
+        throw new Error(result.message || `Failed to add image #${image.id}.`)
+      }
+    },
+  )
+  await fetchCollectionsSafely(true)
+}
+
+async function removeSelectedFromCollection() {
+  const collectionId = selectedBatchCollectionId.value
+  if (!collectionId) {
+    errorMessage.value = 'Pick a collection first.'
+    return
+  }
+
+  await runBatchAction(
+    `Removed ${selectedImageCount.value} image${selectedImageCount.value === 1 ? '' : 's'} from collection.`,
+    async (image) => {
+      const result = await artStore.updateArtImageConnections(image.id, {
+        disconnectArtCollectionIds: [collectionId],
+      })
+      if (!result.success) {
+        throw new Error(
+          result.message || `Failed to remove image #${image.id}.`,
+        )
+      }
+    },
+  )
+  await fetchCollectionsSafely(true)
+}
+
+async function removeSelectedFromActiveCollection() {
+  if (!activeGroup.value || activeGroup.value.id <= 0) return
+  batchCollectionId.value = activeGroup.value.id
+  await removeSelectedFromCollection()
+}
+
+async function applySelectedImageFlags() {
+  const updates: Partial<ArtImage> = {}
+  if (batchIsPublic.value !== 'keep') {
+    updates.isPublic = batchIsPublic.value === 'true'
+  }
+  if (batchIsMature.value !== 'keep') {
+    updates.isMature = batchIsMature.value === 'true'
+  }
+  if (!Object.keys(updates).length) {
+    errorMessage.value = 'Choose at least one field to update.'
+    return
+  }
+
+  await runBatchAction(
+    `Updated ${selectedImageCount.value} image${selectedImageCount.value === 1 ? '' : 's'}.`,
+    async (image) => {
+      const result = await artStore.updateArtImage(image.id, updates)
+      if (!result.success) {
+        throw new Error(
+          result.message || `Failed to update image #${image.id}.`,
+        )
+      }
+    },
+  )
+  await fetchCollectionsSafely(true)
+}
+
+async function deleteSelectedImages() {
+  if (!canBatchModifyImages.value) return
+  const ids = [...selectedImageIds.value]
+  const confirmed = window.confirm(
+    `Delete ${ids.length} selected image${ids.length === 1 ? '' : 's'}? This cannot be undone.`,
+  )
+  if (!confirmed) return
+
+  errorMessage.value = ''
+  successMessage.value = ''
+  isBatchWorking.value = true
+  try {
+    await runLimited(ids, 3, async (imageId) => {
+      const deleted = await artStore.deleteArtImage(imageId)
+      if (!deleted) throw new Error(`Failed to delete image #${imageId}.`)
+      const next = { ...hydratedImages.value }
+      delete next[imageId]
+      hydratedImages.value = next
+    })
+
+    if (
+      selectedImageForOverlay.value &&
+      ids.includes(selectedImageForOverlay.value.id)
+    ) {
+      selectedImageForOverlay.value = null
+    }
+    selectedImageIds.value = []
+    successMessage.value = `Deleted ${ids.length} image${ids.length === 1 ? '' : 's'}.`
+    await fetchCollectionsSafely(true)
+  } catch (error) {
+    const message = getErrorMessage(error, 'Failed to delete selected images.')
+    errorMessage.value = message
+    errorStore.setError(ErrorType.NETWORK_ERROR, message)
+  } finally {
+    isBatchWorking.value = false
+  }
+}
+
+function labelFromSlug(slug: string): string {
+  return slug
+    .split(/[-_]/)
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+}
+
+function hashSlug(slug: string): number {
+  let hash = 0
+  for (let index = 0; index < slug.length; index++) {
+    hash = (hash * 31 + slug.charCodeAt(index)) % 100000
+  }
+  return hash
+}
+
+function folderUrlToArtImage(
+  url: string,
+  slug: string,
+  index: number,
+): ArtImage {
+  return {
+    id: -(1_000_000 + hashSlug(slug) * 1000 + index),
+    imagePath: url,
+    path: url,
+    fileName: url.split('/').pop() || url,
+    isPublic: true,
+    isMature: false,
+    userId: currentUserId.value ?? null,
+  } as unknown as ArtImage
 }
 
 async function runLimited<T>(
@@ -1649,20 +1341,16 @@ function handleCollectionDeleted(id: number) {
 async function handleImageDeleted(imageId: number) {
   errorMessage.value = ''
   const deleted = await artStore.deleteArtImage(imageId)
-
   if (deleted) {
     if (selectedImageForOverlay.value?.id === imageId) {
       selectedImageForOverlay.value = null
     }
-
     selectedImageIds.value = selectedImageIds.value.filter(
       (id) => id !== imageId,
     )
-
     const next = { ...hydratedImages.value }
     delete next[imageId]
     hydratedImages.value = next
-
     successMessage.value = `Image #${imageId} deleted.`
   } else {
     errorMessage.value = `Failed to delete image #${imageId}.`
@@ -1702,7 +1390,7 @@ function searchableImageText(image: ArtImage): string {
     image.isPublic ? 'public' : 'private',
     image.isMature ? 'mature' : '',
   ]
-    .filter((v) => v !== null && v !== undefined)
+    .filter((value) => value !== null && value !== undefined)
     .join(' ')
     .toLowerCase()
 }

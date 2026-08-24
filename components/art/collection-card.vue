@@ -38,7 +38,6 @@
       </button>
     </template>
 
-    <!-- ── Preview image ─────────────────────────────────────────────── -->
     <div
       v-if="showImage"
       :class="[
@@ -86,7 +85,6 @@
         </div>
       </div>
 
-      <!-- ── Compact overlay label ───────────────────────────────────── -->
       <div
         v-if="compact || size === 'xs' || size === 'sm'"
         class="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col gap-px px-2 py-1.5"
@@ -100,7 +98,6 @@
         </span>
       </div>
 
-      <!-- Status badges -->
       <div
         v-if="activeSelected || (collection.isMature && !showMature)"
         class="absolute left-2 top-2 flex flex-wrap gap-1"
@@ -117,7 +114,6 @@
         >
       </div>
 
-      <!-- Selected check -->
       <div
         v-if="activeSelected"
         class="absolute bottom-2 right-2 rounded-full bg-primary p-1.5 text-primary-content shadow"
@@ -126,7 +122,6 @@
       </div>
     </div>
 
-    <!-- ── Text content ──────────────────────────────────────────────── -->
     <div
       v-if="!compact && size !== 'xs' && size !== 'sm'"
       class="flex min-w-0 flex-1 flex-col gap-1.5"
@@ -146,14 +141,12 @@
           {{ collectionDescription }}
         </p>
       </div>
-      <!-- Meta badges -->
       <div v-if="showMeta" class="flex flex-wrap items-center gap-1">
         <span class="badge badge-outline badge-xs">{{ imageCountLabel }}</span>
         <span v-if="collectionUsername" class="badge badge-primary badge-xs">
           {{ collectionUsername }}
         </span>
       </div>
-      <!-- Stats grid — only when selected AND showStats -->
       <div
         v-if="showStats && activeSelected"
         class="grid grid-cols-2 gap-1.5 rounded-xl border border-base-300 bg-base-100 p-2 text-xs"
@@ -180,7 +173,6 @@
         </div>
       </div>
 
-      <!-- Select button -->
       <div v-if="showSelectButton" class="mt-auto pt-1">
         <button
           class="btn btn-xs w-full rounded-lg"
@@ -194,7 +186,6 @@
         </button>
       </div>
 
-      <!-- Debug -->
       <details
         v-if="showDebug"
         class="rounded-xl border border-base-300 bg-base-100 p-2"
@@ -212,7 +203,6 @@
 </template>
 
 <script setup lang="ts">
-// /components/content/art/collection-card.vue
 import { computed } from 'vue'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
@@ -223,6 +213,8 @@ type ArtImageCollection = ArtCollection & {
   artImages?: ArtImage[]
   ArtImages?: ArtImage[]
   images?: ArtImage[]
+  artImageCount?: number
+  _count?: { ArtImages?: number }
 }
 
 const props = withDefaults(
@@ -247,8 +239,6 @@ const props = withDefaults(
     fallbackIcon?: string
     imageHeightClass?: string
     previewArtImage?: ArtImage | null
-    /** Total karma this collection has earned from reactions to it. Omit/undefined
-     *  renders no badge — see components/wonderlab/reactable-card.vue. */
     earnedKarma?: number | null
   }>(),
   {
@@ -334,7 +324,15 @@ const collectionImages = computed<ArtImage[]>(() => {
   return Array.from(map.values()).sort((a, b) => b.id - a.id)
 })
 
-const imageCount = computed(() => collectionImages.value.length)
+const imageCount = computed(() => {
+  const explicit = Number(
+    mediaCollection.value.artImageCount ??
+      mediaCollection.value._count?.ArtImages,
+  )
+  return Number.isInteger(explicit) && explicit >= 0
+    ? explicit
+    : collectionImages.value.length
+})
 
 const imageCountLabel = computed(
   () => `${imageCount.value} image${imageCount.value === 1 ? '' : 's'}`,
@@ -355,7 +353,6 @@ const previewArtImage = computed<ArtImage | null>(() => {
 
 const previewImage = computed(() => {
   if (isHiddenMature.value) return ''
-  // Path-first: prefer the stored path, fall back to inline base64.
   return (
     safeText(previewArtImage.value?.imagePath).trim() ||
     safeText(

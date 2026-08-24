@@ -16,6 +16,13 @@ import type * as Prisma from "../internal/prismaNamespace"
  * Model AquariumStock
  * One fish (Character row) placed in one Aquarium. hunger/mood are the live
  * play-loop state; placedAt lets the UI order a tank by arrival.
+ * 
+ * cthulhuquarium/t-032: the bible (Character) describes species; this table
+ * contains individuals. Two goldfish are the same Character row and
+ * different AquariumStock rows -- hidden stats and parentage live here,
+ * never on Character, so the bible stays a catalogue rather than a save
+ * file. See SYSTEMS.md "Genetics: hidden stats, breeding, and secret
+ * evolutions".
  */
 export type AquariumStockModel = runtime.Types.Result.DefaultSelection<Prisma.$AquariumStockPayload>
 
@@ -32,6 +39,14 @@ export type AquariumStockAvgAggregateOutputType = {
   aquariumId: number | null
   characterId: number | null
   hunger: number | null
+  statCharm: number | null
+  statEmpathy: number | null
+  statGrace: number | null
+  statLuck: number | null
+  statMight: number | null
+  statWits: number | null
+  parentAId: number | null
+  parentBId: number | null
 }
 
 export type AquariumStockSumAggregateOutputType = {
@@ -39,6 +54,14 @@ export type AquariumStockSumAggregateOutputType = {
   aquariumId: number | null
   characterId: number | null
   hunger: number | null
+  statCharm: number | null
+  statEmpathy: number | null
+  statGrace: number | null
+  statLuck: number | null
+  statMight: number | null
+  statWits: number | null
+  parentAId: number | null
+  parentBId: number | null
 }
 
 export type AquariumStockMinAggregateOutputType = {
@@ -51,6 +74,14 @@ export type AquariumStockMinAggregateOutputType = {
   hunger: number | null
   mood: string | null
   placedAt: Date | null
+  statCharm: number | null
+  statEmpathy: number | null
+  statGrace: number | null
+  statLuck: number | null
+  statMight: number | null
+  statWits: number | null
+  parentAId: number | null
+  parentBId: number | null
 }
 
 export type AquariumStockMaxAggregateOutputType = {
@@ -63,6 +94,14 @@ export type AquariumStockMaxAggregateOutputType = {
   hunger: number | null
   mood: string | null
   placedAt: Date | null
+  statCharm: number | null
+  statEmpathy: number | null
+  statGrace: number | null
+  statLuck: number | null
+  statMight: number | null
+  statWits: number | null
+  parentAId: number | null
+  parentBId: number | null
 }
 
 export type AquariumStockCountAggregateOutputType = {
@@ -75,6 +114,14 @@ export type AquariumStockCountAggregateOutputType = {
   hunger: number
   mood: number
   placedAt: number
+  statCharm: number
+  statEmpathy: number
+  statGrace: number
+  statLuck: number
+  statMight: number
+  statWits: number
+  parentAId: number
+  parentBId: number
   _all: number
 }
 
@@ -84,6 +131,14 @@ export type AquariumStockAvgAggregateInputType = {
   aquariumId?: true
   characterId?: true
   hunger?: true
+  statCharm?: true
+  statEmpathy?: true
+  statGrace?: true
+  statLuck?: true
+  statMight?: true
+  statWits?: true
+  parentAId?: true
+  parentBId?: true
 }
 
 export type AquariumStockSumAggregateInputType = {
@@ -91,6 +146,14 @@ export type AquariumStockSumAggregateInputType = {
   aquariumId?: true
   characterId?: true
   hunger?: true
+  statCharm?: true
+  statEmpathy?: true
+  statGrace?: true
+  statLuck?: true
+  statMight?: true
+  statWits?: true
+  parentAId?: true
+  parentBId?: true
 }
 
 export type AquariumStockMinAggregateInputType = {
@@ -103,6 +166,14 @@ export type AquariumStockMinAggregateInputType = {
   hunger?: true
   mood?: true
   placedAt?: true
+  statCharm?: true
+  statEmpathy?: true
+  statGrace?: true
+  statLuck?: true
+  statMight?: true
+  statWits?: true
+  parentAId?: true
+  parentBId?: true
 }
 
 export type AquariumStockMaxAggregateInputType = {
@@ -115,6 +186,14 @@ export type AquariumStockMaxAggregateInputType = {
   hunger?: true
   mood?: true
   placedAt?: true
+  statCharm?: true
+  statEmpathy?: true
+  statGrace?: true
+  statLuck?: true
+  statMight?: true
+  statWits?: true
+  parentAId?: true
+  parentBId?: true
 }
 
 export type AquariumStockCountAggregateInputType = {
@@ -127,6 +206,14 @@ export type AquariumStockCountAggregateInputType = {
   hunger?: true
   mood?: true
   placedAt?: true
+  statCharm?: true
+  statEmpathy?: true
+  statGrace?: true
+  statLuck?: true
+  statMight?: true
+  statWits?: true
+  parentAId?: true
+  parentBId?: true
   _all?: true
 }
 
@@ -226,6 +313,14 @@ export type AquariumStockGroupByOutputType = {
   hunger: number
   mood: string | null
   placedAt: Date
+  statCharm: number | null
+  statEmpathy: number | null
+  statGrace: number | null
+  statLuck: number | null
+  statMight: number | null
+  statWits: number | null
+  parentAId: number | null
+  parentBId: number | null
   _count: AquariumStockCountAggregateOutputType | null
   _avg: AquariumStockAvgAggregateOutputType | null
   _sum: AquariumStockSumAggregateOutputType | null
@@ -261,8 +356,20 @@ export type AquariumStockWhereInput = {
   hunger?: Prisma.IntFilter<"AquariumStock"> | number
   mood?: Prisma.StringNullableFilter<"AquariumStock"> | string | null
   placedAt?: Prisma.DateTimeFilter<"AquariumStock"> | Date | string
+  statCharm?: Prisma.IntNullableFilter<"AquariumStock"> | number | null
+  statEmpathy?: Prisma.IntNullableFilter<"AquariumStock"> | number | null
+  statGrace?: Prisma.IntNullableFilter<"AquariumStock"> | number | null
+  statLuck?: Prisma.IntNullableFilter<"AquariumStock"> | number | null
+  statMight?: Prisma.IntNullableFilter<"AquariumStock"> | number | null
+  statWits?: Prisma.IntNullableFilter<"AquariumStock"> | number | null
+  parentAId?: Prisma.IntNullableFilter<"AquariumStock"> | number | null
+  parentBId?: Prisma.IntNullableFilter<"AquariumStock"> | number | null
   Aquarium?: Prisma.XOR<Prisma.AquariumScalarRelationFilter, Prisma.AquariumWhereInput>
   Character?: Prisma.XOR<Prisma.CharacterScalarRelationFilter, Prisma.CharacterWhereInput>
+  ParentA?: Prisma.XOR<Prisma.AquariumStockNullableScalarRelationFilter, Prisma.AquariumStockWhereInput> | null
+  ParentB?: Prisma.XOR<Prisma.AquariumStockNullableScalarRelationFilter, Prisma.AquariumStockWhereInput> | null
+  OffspringAsParentA?: Prisma.AquariumStockListRelationFilter
+  OffspringAsParentB?: Prisma.AquariumStockListRelationFilter
 }
 
 export type AquariumStockOrderByWithRelationInput = {
@@ -275,8 +382,20 @@ export type AquariumStockOrderByWithRelationInput = {
   hunger?: Prisma.SortOrder
   mood?: Prisma.SortOrderInput | Prisma.SortOrder
   placedAt?: Prisma.SortOrder
+  statCharm?: Prisma.SortOrderInput | Prisma.SortOrder
+  statEmpathy?: Prisma.SortOrderInput | Prisma.SortOrder
+  statGrace?: Prisma.SortOrderInput | Prisma.SortOrder
+  statLuck?: Prisma.SortOrderInput | Prisma.SortOrder
+  statMight?: Prisma.SortOrderInput | Prisma.SortOrder
+  statWits?: Prisma.SortOrderInput | Prisma.SortOrder
+  parentAId?: Prisma.SortOrderInput | Prisma.SortOrder
+  parentBId?: Prisma.SortOrderInput | Prisma.SortOrder
   Aquarium?: Prisma.AquariumOrderByWithRelationInput
   Character?: Prisma.CharacterOrderByWithRelationInput
+  ParentA?: Prisma.AquariumStockOrderByWithRelationInput
+  ParentB?: Prisma.AquariumStockOrderByWithRelationInput
+  OffspringAsParentA?: Prisma.AquariumStockOrderByRelationAggregateInput
+  OffspringAsParentB?: Prisma.AquariumStockOrderByRelationAggregateInput
   _relevance?: Prisma.AquariumStockOrderByRelevanceInput
 }
 
@@ -293,8 +412,20 @@ export type AquariumStockWhereUniqueInput = Prisma.AtLeast<{
   hunger?: Prisma.IntFilter<"AquariumStock"> | number
   mood?: Prisma.StringNullableFilter<"AquariumStock"> | string | null
   placedAt?: Prisma.DateTimeFilter<"AquariumStock"> | Date | string
+  statCharm?: Prisma.IntNullableFilter<"AquariumStock"> | number | null
+  statEmpathy?: Prisma.IntNullableFilter<"AquariumStock"> | number | null
+  statGrace?: Prisma.IntNullableFilter<"AquariumStock"> | number | null
+  statLuck?: Prisma.IntNullableFilter<"AquariumStock"> | number | null
+  statMight?: Prisma.IntNullableFilter<"AquariumStock"> | number | null
+  statWits?: Prisma.IntNullableFilter<"AquariumStock"> | number | null
+  parentAId?: Prisma.IntNullableFilter<"AquariumStock"> | number | null
+  parentBId?: Prisma.IntNullableFilter<"AquariumStock"> | number | null
   Aquarium?: Prisma.XOR<Prisma.AquariumScalarRelationFilter, Prisma.AquariumWhereInput>
   Character?: Prisma.XOR<Prisma.CharacterScalarRelationFilter, Prisma.CharacterWhereInput>
+  ParentA?: Prisma.XOR<Prisma.AquariumStockNullableScalarRelationFilter, Prisma.AquariumStockWhereInput> | null
+  ParentB?: Prisma.XOR<Prisma.AquariumStockNullableScalarRelationFilter, Prisma.AquariumStockWhereInput> | null
+  OffspringAsParentA?: Prisma.AquariumStockListRelationFilter
+  OffspringAsParentB?: Prisma.AquariumStockListRelationFilter
 }, "id">
 
 export type AquariumStockOrderByWithAggregationInput = {
@@ -307,6 +438,14 @@ export type AquariumStockOrderByWithAggregationInput = {
   hunger?: Prisma.SortOrder
   mood?: Prisma.SortOrderInput | Prisma.SortOrder
   placedAt?: Prisma.SortOrder
+  statCharm?: Prisma.SortOrderInput | Prisma.SortOrder
+  statEmpathy?: Prisma.SortOrderInput | Prisma.SortOrder
+  statGrace?: Prisma.SortOrderInput | Prisma.SortOrder
+  statLuck?: Prisma.SortOrderInput | Prisma.SortOrder
+  statMight?: Prisma.SortOrderInput | Prisma.SortOrder
+  statWits?: Prisma.SortOrderInput | Prisma.SortOrder
+  parentAId?: Prisma.SortOrderInput | Prisma.SortOrder
+  parentBId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.AquariumStockCountOrderByAggregateInput
   _avg?: Prisma.AquariumStockAvgOrderByAggregateInput
   _max?: Prisma.AquariumStockMaxOrderByAggregateInput
@@ -327,6 +466,14 @@ export type AquariumStockScalarWhereWithAggregatesInput = {
   hunger?: Prisma.IntWithAggregatesFilter<"AquariumStock"> | number
   mood?: Prisma.StringNullableWithAggregatesFilter<"AquariumStock"> | string | null
   placedAt?: Prisma.DateTimeWithAggregatesFilter<"AquariumStock"> | Date | string
+  statCharm?: Prisma.IntNullableWithAggregatesFilter<"AquariumStock"> | number | null
+  statEmpathy?: Prisma.IntNullableWithAggregatesFilter<"AquariumStock"> | number | null
+  statGrace?: Prisma.IntNullableWithAggregatesFilter<"AquariumStock"> | number | null
+  statLuck?: Prisma.IntNullableWithAggregatesFilter<"AquariumStock"> | number | null
+  statMight?: Prisma.IntNullableWithAggregatesFilter<"AquariumStock"> | number | null
+  statWits?: Prisma.IntNullableWithAggregatesFilter<"AquariumStock"> | number | null
+  parentAId?: Prisma.IntNullableWithAggregatesFilter<"AquariumStock"> | number | null
+  parentBId?: Prisma.IntNullableWithAggregatesFilter<"AquariumStock"> | number | null
 }
 
 export type AquariumStockCreateInput = {
@@ -336,8 +483,18 @@ export type AquariumStockCreateInput = {
   hunger?: number
   mood?: string | null
   placedAt?: Date | string
+  statCharm?: number | null
+  statEmpathy?: number | null
+  statGrace?: number | null
+  statLuck?: number | null
+  statMight?: number | null
+  statWits?: number | null
   Aquarium: Prisma.AquariumCreateNestedOneWithoutStockInput
   Character: Prisma.CharacterCreateNestedOneWithoutAquariumStockInput
+  ParentA?: Prisma.AquariumStockCreateNestedOneWithoutOffspringAsParentAInput
+  ParentB?: Prisma.AquariumStockCreateNestedOneWithoutOffspringAsParentBInput
+  OffspringAsParentA?: Prisma.AquariumStockCreateNestedManyWithoutParentAInput
+  OffspringAsParentB?: Prisma.AquariumStockCreateNestedManyWithoutParentBInput
 }
 
 export type AquariumStockUncheckedCreateInput = {
@@ -350,6 +507,16 @@ export type AquariumStockUncheckedCreateInput = {
   hunger?: number
   mood?: string | null
   placedAt?: Date | string
+  statCharm?: number | null
+  statEmpathy?: number | null
+  statGrace?: number | null
+  statLuck?: number | null
+  statMight?: number | null
+  statWits?: number | null
+  parentAId?: number | null
+  parentBId?: number | null
+  OffspringAsParentA?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutParentAInput
+  OffspringAsParentB?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutParentBInput
 }
 
 export type AquariumStockUpdateInput = {
@@ -359,8 +526,18 @@ export type AquariumStockUpdateInput = {
   hunger?: Prisma.IntFieldUpdateOperationsInput | number
   mood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   placedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  statCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Aquarium?: Prisma.AquariumUpdateOneRequiredWithoutStockNestedInput
   Character?: Prisma.CharacterUpdateOneRequiredWithoutAquariumStockNestedInput
+  ParentA?: Prisma.AquariumStockUpdateOneWithoutOffspringAsParentANestedInput
+  ParentB?: Prisma.AquariumStockUpdateOneWithoutOffspringAsParentBNestedInput
+  OffspringAsParentA?: Prisma.AquariumStockUpdateManyWithoutParentANestedInput
+  OffspringAsParentB?: Prisma.AquariumStockUpdateManyWithoutParentBNestedInput
 }
 
 export type AquariumStockUncheckedUpdateInput = {
@@ -373,6 +550,16 @@ export type AquariumStockUncheckedUpdateInput = {
   hunger?: Prisma.IntFieldUpdateOperationsInput | number
   mood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   placedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  statCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  OffspringAsParentA?: Prisma.AquariumStockUncheckedUpdateManyWithoutParentANestedInput
+  OffspringAsParentB?: Prisma.AquariumStockUncheckedUpdateManyWithoutParentBNestedInput
 }
 
 export type AquariumStockCreateManyInput = {
@@ -385,6 +572,14 @@ export type AquariumStockCreateManyInput = {
   hunger?: number
   mood?: string | null
   placedAt?: Date | string
+  statCharm?: number | null
+  statEmpathy?: number | null
+  statGrace?: number | null
+  statLuck?: number | null
+  statMight?: number | null
+  statWits?: number | null
+  parentAId?: number | null
+  parentBId?: number | null
 }
 
 export type AquariumStockUpdateManyMutationInput = {
@@ -394,6 +589,12 @@ export type AquariumStockUpdateManyMutationInput = {
   hunger?: Prisma.IntFieldUpdateOperationsInput | number
   mood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   placedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  statCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type AquariumStockUncheckedUpdateManyInput = {
@@ -406,6 +607,14 @@ export type AquariumStockUncheckedUpdateManyInput = {
   hunger?: Prisma.IntFieldUpdateOperationsInput | number
   mood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   placedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  statCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type AquariumStockListRelationFilter = {
@@ -416,6 +625,11 @@ export type AquariumStockListRelationFilter = {
 
 export type AquariumStockOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type AquariumStockNullableScalarRelationFilter = {
+  is?: Prisma.AquariumStockWhereInput | null
+  isNot?: Prisma.AquariumStockWhereInput | null
 }
 
 export type AquariumStockOrderByRelevanceInput = {
@@ -434,6 +648,14 @@ export type AquariumStockCountOrderByAggregateInput = {
   hunger?: Prisma.SortOrder
   mood?: Prisma.SortOrder
   placedAt?: Prisma.SortOrder
+  statCharm?: Prisma.SortOrder
+  statEmpathy?: Prisma.SortOrder
+  statGrace?: Prisma.SortOrder
+  statLuck?: Prisma.SortOrder
+  statMight?: Prisma.SortOrder
+  statWits?: Prisma.SortOrder
+  parentAId?: Prisma.SortOrder
+  parentBId?: Prisma.SortOrder
 }
 
 export type AquariumStockAvgOrderByAggregateInput = {
@@ -441,6 +663,14 @@ export type AquariumStockAvgOrderByAggregateInput = {
   aquariumId?: Prisma.SortOrder
   characterId?: Prisma.SortOrder
   hunger?: Prisma.SortOrder
+  statCharm?: Prisma.SortOrder
+  statEmpathy?: Prisma.SortOrder
+  statGrace?: Prisma.SortOrder
+  statLuck?: Prisma.SortOrder
+  statMight?: Prisma.SortOrder
+  statWits?: Prisma.SortOrder
+  parentAId?: Prisma.SortOrder
+  parentBId?: Prisma.SortOrder
 }
 
 export type AquariumStockMaxOrderByAggregateInput = {
@@ -453,6 +683,14 @@ export type AquariumStockMaxOrderByAggregateInput = {
   hunger?: Prisma.SortOrder
   mood?: Prisma.SortOrder
   placedAt?: Prisma.SortOrder
+  statCharm?: Prisma.SortOrder
+  statEmpathy?: Prisma.SortOrder
+  statGrace?: Prisma.SortOrder
+  statLuck?: Prisma.SortOrder
+  statMight?: Prisma.SortOrder
+  statWits?: Prisma.SortOrder
+  parentAId?: Prisma.SortOrder
+  parentBId?: Prisma.SortOrder
 }
 
 export type AquariumStockMinOrderByAggregateInput = {
@@ -465,6 +703,14 @@ export type AquariumStockMinOrderByAggregateInput = {
   hunger?: Prisma.SortOrder
   mood?: Prisma.SortOrder
   placedAt?: Prisma.SortOrder
+  statCharm?: Prisma.SortOrder
+  statEmpathy?: Prisma.SortOrder
+  statGrace?: Prisma.SortOrder
+  statLuck?: Prisma.SortOrder
+  statMight?: Prisma.SortOrder
+  statWits?: Prisma.SortOrder
+  parentAId?: Prisma.SortOrder
+  parentBId?: Prisma.SortOrder
 }
 
 export type AquariumStockSumOrderByAggregateInput = {
@@ -472,6 +718,14 @@ export type AquariumStockSumOrderByAggregateInput = {
   aquariumId?: Prisma.SortOrder
   characterId?: Prisma.SortOrder
   hunger?: Prisma.SortOrder
+  statCharm?: Prisma.SortOrder
+  statEmpathy?: Prisma.SortOrder
+  statGrace?: Prisma.SortOrder
+  statLuck?: Prisma.SortOrder
+  statMight?: Prisma.SortOrder
+  statWits?: Prisma.SortOrder
+  parentAId?: Prisma.SortOrder
+  parentBId?: Prisma.SortOrder
 }
 
 export type AquariumStockCreateNestedManyWithoutCharacterInput = {
@@ -558,6 +812,122 @@ export type AquariumStockUncheckedUpdateManyWithoutAquariumNestedInput = {
   deleteMany?: Prisma.AquariumStockScalarWhereInput | Prisma.AquariumStockScalarWhereInput[]
 }
 
+export type AquariumStockCreateNestedOneWithoutOffspringAsParentAInput = {
+  create?: Prisma.XOR<Prisma.AquariumStockCreateWithoutOffspringAsParentAInput, Prisma.AquariumStockUncheckedCreateWithoutOffspringAsParentAInput>
+  connectOrCreate?: Prisma.AquariumStockCreateOrConnectWithoutOffspringAsParentAInput
+  connect?: Prisma.AquariumStockWhereUniqueInput
+}
+
+export type AquariumStockCreateNestedOneWithoutOffspringAsParentBInput = {
+  create?: Prisma.XOR<Prisma.AquariumStockCreateWithoutOffspringAsParentBInput, Prisma.AquariumStockUncheckedCreateWithoutOffspringAsParentBInput>
+  connectOrCreate?: Prisma.AquariumStockCreateOrConnectWithoutOffspringAsParentBInput
+  connect?: Prisma.AquariumStockWhereUniqueInput
+}
+
+export type AquariumStockCreateNestedManyWithoutParentAInput = {
+  create?: Prisma.XOR<Prisma.AquariumStockCreateWithoutParentAInput, Prisma.AquariumStockUncheckedCreateWithoutParentAInput> | Prisma.AquariumStockCreateWithoutParentAInput[] | Prisma.AquariumStockUncheckedCreateWithoutParentAInput[]
+  connectOrCreate?: Prisma.AquariumStockCreateOrConnectWithoutParentAInput | Prisma.AquariumStockCreateOrConnectWithoutParentAInput[]
+  createMany?: Prisma.AquariumStockCreateManyParentAInputEnvelope
+  connect?: Prisma.AquariumStockWhereUniqueInput | Prisma.AquariumStockWhereUniqueInput[]
+}
+
+export type AquariumStockCreateNestedManyWithoutParentBInput = {
+  create?: Prisma.XOR<Prisma.AquariumStockCreateWithoutParentBInput, Prisma.AquariumStockUncheckedCreateWithoutParentBInput> | Prisma.AquariumStockCreateWithoutParentBInput[] | Prisma.AquariumStockUncheckedCreateWithoutParentBInput[]
+  connectOrCreate?: Prisma.AquariumStockCreateOrConnectWithoutParentBInput | Prisma.AquariumStockCreateOrConnectWithoutParentBInput[]
+  createMany?: Prisma.AquariumStockCreateManyParentBInputEnvelope
+  connect?: Prisma.AquariumStockWhereUniqueInput | Prisma.AquariumStockWhereUniqueInput[]
+}
+
+export type AquariumStockUncheckedCreateNestedManyWithoutParentAInput = {
+  create?: Prisma.XOR<Prisma.AquariumStockCreateWithoutParentAInput, Prisma.AquariumStockUncheckedCreateWithoutParentAInput> | Prisma.AquariumStockCreateWithoutParentAInput[] | Prisma.AquariumStockUncheckedCreateWithoutParentAInput[]
+  connectOrCreate?: Prisma.AquariumStockCreateOrConnectWithoutParentAInput | Prisma.AquariumStockCreateOrConnectWithoutParentAInput[]
+  createMany?: Prisma.AquariumStockCreateManyParentAInputEnvelope
+  connect?: Prisma.AquariumStockWhereUniqueInput | Prisma.AquariumStockWhereUniqueInput[]
+}
+
+export type AquariumStockUncheckedCreateNestedManyWithoutParentBInput = {
+  create?: Prisma.XOR<Prisma.AquariumStockCreateWithoutParentBInput, Prisma.AquariumStockUncheckedCreateWithoutParentBInput> | Prisma.AquariumStockCreateWithoutParentBInput[] | Prisma.AquariumStockUncheckedCreateWithoutParentBInput[]
+  connectOrCreate?: Prisma.AquariumStockCreateOrConnectWithoutParentBInput | Prisma.AquariumStockCreateOrConnectWithoutParentBInput[]
+  createMany?: Prisma.AquariumStockCreateManyParentBInputEnvelope
+  connect?: Prisma.AquariumStockWhereUniqueInput | Prisma.AquariumStockWhereUniqueInput[]
+}
+
+export type AquariumStockUpdateOneWithoutOffspringAsParentANestedInput = {
+  create?: Prisma.XOR<Prisma.AquariumStockCreateWithoutOffspringAsParentAInput, Prisma.AquariumStockUncheckedCreateWithoutOffspringAsParentAInput>
+  connectOrCreate?: Prisma.AquariumStockCreateOrConnectWithoutOffspringAsParentAInput
+  upsert?: Prisma.AquariumStockUpsertWithoutOffspringAsParentAInput
+  disconnect?: Prisma.AquariumStockWhereInput | boolean
+  delete?: Prisma.AquariumStockWhereInput | boolean
+  connect?: Prisma.AquariumStockWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AquariumStockUpdateToOneWithWhereWithoutOffspringAsParentAInput, Prisma.AquariumStockUpdateWithoutOffspringAsParentAInput>, Prisma.AquariumStockUncheckedUpdateWithoutOffspringAsParentAInput>
+}
+
+export type AquariumStockUpdateOneWithoutOffspringAsParentBNestedInput = {
+  create?: Prisma.XOR<Prisma.AquariumStockCreateWithoutOffspringAsParentBInput, Prisma.AquariumStockUncheckedCreateWithoutOffspringAsParentBInput>
+  connectOrCreate?: Prisma.AquariumStockCreateOrConnectWithoutOffspringAsParentBInput
+  upsert?: Prisma.AquariumStockUpsertWithoutOffspringAsParentBInput
+  disconnect?: Prisma.AquariumStockWhereInput | boolean
+  delete?: Prisma.AquariumStockWhereInput | boolean
+  connect?: Prisma.AquariumStockWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AquariumStockUpdateToOneWithWhereWithoutOffspringAsParentBInput, Prisma.AquariumStockUpdateWithoutOffspringAsParentBInput>, Prisma.AquariumStockUncheckedUpdateWithoutOffspringAsParentBInput>
+}
+
+export type AquariumStockUpdateManyWithoutParentANestedInput = {
+  create?: Prisma.XOR<Prisma.AquariumStockCreateWithoutParentAInput, Prisma.AquariumStockUncheckedCreateWithoutParentAInput> | Prisma.AquariumStockCreateWithoutParentAInput[] | Prisma.AquariumStockUncheckedCreateWithoutParentAInput[]
+  connectOrCreate?: Prisma.AquariumStockCreateOrConnectWithoutParentAInput | Prisma.AquariumStockCreateOrConnectWithoutParentAInput[]
+  upsert?: Prisma.AquariumStockUpsertWithWhereUniqueWithoutParentAInput | Prisma.AquariumStockUpsertWithWhereUniqueWithoutParentAInput[]
+  createMany?: Prisma.AquariumStockCreateManyParentAInputEnvelope
+  set?: Prisma.AquariumStockWhereUniqueInput | Prisma.AquariumStockWhereUniqueInput[]
+  disconnect?: Prisma.AquariumStockWhereUniqueInput | Prisma.AquariumStockWhereUniqueInput[]
+  delete?: Prisma.AquariumStockWhereUniqueInput | Prisma.AquariumStockWhereUniqueInput[]
+  connect?: Prisma.AquariumStockWhereUniqueInput | Prisma.AquariumStockWhereUniqueInput[]
+  update?: Prisma.AquariumStockUpdateWithWhereUniqueWithoutParentAInput | Prisma.AquariumStockUpdateWithWhereUniqueWithoutParentAInput[]
+  updateMany?: Prisma.AquariumStockUpdateManyWithWhereWithoutParentAInput | Prisma.AquariumStockUpdateManyWithWhereWithoutParentAInput[]
+  deleteMany?: Prisma.AquariumStockScalarWhereInput | Prisma.AquariumStockScalarWhereInput[]
+}
+
+export type AquariumStockUpdateManyWithoutParentBNestedInput = {
+  create?: Prisma.XOR<Prisma.AquariumStockCreateWithoutParentBInput, Prisma.AquariumStockUncheckedCreateWithoutParentBInput> | Prisma.AquariumStockCreateWithoutParentBInput[] | Prisma.AquariumStockUncheckedCreateWithoutParentBInput[]
+  connectOrCreate?: Prisma.AquariumStockCreateOrConnectWithoutParentBInput | Prisma.AquariumStockCreateOrConnectWithoutParentBInput[]
+  upsert?: Prisma.AquariumStockUpsertWithWhereUniqueWithoutParentBInput | Prisma.AquariumStockUpsertWithWhereUniqueWithoutParentBInput[]
+  createMany?: Prisma.AquariumStockCreateManyParentBInputEnvelope
+  set?: Prisma.AquariumStockWhereUniqueInput | Prisma.AquariumStockWhereUniqueInput[]
+  disconnect?: Prisma.AquariumStockWhereUniqueInput | Prisma.AquariumStockWhereUniqueInput[]
+  delete?: Prisma.AquariumStockWhereUniqueInput | Prisma.AquariumStockWhereUniqueInput[]
+  connect?: Prisma.AquariumStockWhereUniqueInput | Prisma.AquariumStockWhereUniqueInput[]
+  update?: Prisma.AquariumStockUpdateWithWhereUniqueWithoutParentBInput | Prisma.AquariumStockUpdateWithWhereUniqueWithoutParentBInput[]
+  updateMany?: Prisma.AquariumStockUpdateManyWithWhereWithoutParentBInput | Prisma.AquariumStockUpdateManyWithWhereWithoutParentBInput[]
+  deleteMany?: Prisma.AquariumStockScalarWhereInput | Prisma.AquariumStockScalarWhereInput[]
+}
+
+export type AquariumStockUncheckedUpdateManyWithoutParentANestedInput = {
+  create?: Prisma.XOR<Prisma.AquariumStockCreateWithoutParentAInput, Prisma.AquariumStockUncheckedCreateWithoutParentAInput> | Prisma.AquariumStockCreateWithoutParentAInput[] | Prisma.AquariumStockUncheckedCreateWithoutParentAInput[]
+  connectOrCreate?: Prisma.AquariumStockCreateOrConnectWithoutParentAInput | Prisma.AquariumStockCreateOrConnectWithoutParentAInput[]
+  upsert?: Prisma.AquariumStockUpsertWithWhereUniqueWithoutParentAInput | Prisma.AquariumStockUpsertWithWhereUniqueWithoutParentAInput[]
+  createMany?: Prisma.AquariumStockCreateManyParentAInputEnvelope
+  set?: Prisma.AquariumStockWhereUniqueInput | Prisma.AquariumStockWhereUniqueInput[]
+  disconnect?: Prisma.AquariumStockWhereUniqueInput | Prisma.AquariumStockWhereUniqueInput[]
+  delete?: Prisma.AquariumStockWhereUniqueInput | Prisma.AquariumStockWhereUniqueInput[]
+  connect?: Prisma.AquariumStockWhereUniqueInput | Prisma.AquariumStockWhereUniqueInput[]
+  update?: Prisma.AquariumStockUpdateWithWhereUniqueWithoutParentAInput | Prisma.AquariumStockUpdateWithWhereUniqueWithoutParentAInput[]
+  updateMany?: Prisma.AquariumStockUpdateManyWithWhereWithoutParentAInput | Prisma.AquariumStockUpdateManyWithWhereWithoutParentAInput[]
+  deleteMany?: Prisma.AquariumStockScalarWhereInput | Prisma.AquariumStockScalarWhereInput[]
+}
+
+export type AquariumStockUncheckedUpdateManyWithoutParentBNestedInput = {
+  create?: Prisma.XOR<Prisma.AquariumStockCreateWithoutParentBInput, Prisma.AquariumStockUncheckedCreateWithoutParentBInput> | Prisma.AquariumStockCreateWithoutParentBInput[] | Prisma.AquariumStockUncheckedCreateWithoutParentBInput[]
+  connectOrCreate?: Prisma.AquariumStockCreateOrConnectWithoutParentBInput | Prisma.AquariumStockCreateOrConnectWithoutParentBInput[]
+  upsert?: Prisma.AquariumStockUpsertWithWhereUniqueWithoutParentBInput | Prisma.AquariumStockUpsertWithWhereUniqueWithoutParentBInput[]
+  createMany?: Prisma.AquariumStockCreateManyParentBInputEnvelope
+  set?: Prisma.AquariumStockWhereUniqueInput | Prisma.AquariumStockWhereUniqueInput[]
+  disconnect?: Prisma.AquariumStockWhereUniqueInput | Prisma.AquariumStockWhereUniqueInput[]
+  delete?: Prisma.AquariumStockWhereUniqueInput | Prisma.AquariumStockWhereUniqueInput[]
+  connect?: Prisma.AquariumStockWhereUniqueInput | Prisma.AquariumStockWhereUniqueInput[]
+  update?: Prisma.AquariumStockUpdateWithWhereUniqueWithoutParentBInput | Prisma.AquariumStockUpdateWithWhereUniqueWithoutParentBInput[]
+  updateMany?: Prisma.AquariumStockUpdateManyWithWhereWithoutParentBInput | Prisma.AquariumStockUpdateManyWithWhereWithoutParentBInput[]
+  deleteMany?: Prisma.AquariumStockScalarWhereInput | Prisma.AquariumStockScalarWhereInput[]
+}
+
 export type AquariumStockCreateWithoutCharacterInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -565,7 +935,17 @@ export type AquariumStockCreateWithoutCharacterInput = {
   hunger?: number
   mood?: string | null
   placedAt?: Date | string
+  statCharm?: number | null
+  statEmpathy?: number | null
+  statGrace?: number | null
+  statLuck?: number | null
+  statMight?: number | null
+  statWits?: number | null
   Aquarium: Prisma.AquariumCreateNestedOneWithoutStockInput
+  ParentA?: Prisma.AquariumStockCreateNestedOneWithoutOffspringAsParentAInput
+  ParentB?: Prisma.AquariumStockCreateNestedOneWithoutOffspringAsParentBInput
+  OffspringAsParentA?: Prisma.AquariumStockCreateNestedManyWithoutParentAInput
+  OffspringAsParentB?: Prisma.AquariumStockCreateNestedManyWithoutParentBInput
 }
 
 export type AquariumStockUncheckedCreateWithoutCharacterInput = {
@@ -577,6 +957,16 @@ export type AquariumStockUncheckedCreateWithoutCharacterInput = {
   hunger?: number
   mood?: string | null
   placedAt?: Date | string
+  statCharm?: number | null
+  statEmpathy?: number | null
+  statGrace?: number | null
+  statLuck?: number | null
+  statMight?: number | null
+  statWits?: number | null
+  parentAId?: number | null
+  parentBId?: number | null
+  OffspringAsParentA?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutParentAInput
+  OffspringAsParentB?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutParentBInput
 }
 
 export type AquariumStockCreateOrConnectWithoutCharacterInput = {
@@ -618,6 +1008,14 @@ export type AquariumStockScalarWhereInput = {
   hunger?: Prisma.IntFilter<"AquariumStock"> | number
   mood?: Prisma.StringNullableFilter<"AquariumStock"> | string | null
   placedAt?: Prisma.DateTimeFilter<"AquariumStock"> | Date | string
+  statCharm?: Prisma.IntNullableFilter<"AquariumStock"> | number | null
+  statEmpathy?: Prisma.IntNullableFilter<"AquariumStock"> | number | null
+  statGrace?: Prisma.IntNullableFilter<"AquariumStock"> | number | null
+  statLuck?: Prisma.IntNullableFilter<"AquariumStock"> | number | null
+  statMight?: Prisma.IntNullableFilter<"AquariumStock"> | number | null
+  statWits?: Prisma.IntNullableFilter<"AquariumStock"> | number | null
+  parentAId?: Prisma.IntNullableFilter<"AquariumStock"> | number | null
+  parentBId?: Prisma.IntNullableFilter<"AquariumStock"> | number | null
 }
 
 export type AquariumStockCreateWithoutAquariumInput = {
@@ -627,7 +1025,17 @@ export type AquariumStockCreateWithoutAquariumInput = {
   hunger?: number
   mood?: string | null
   placedAt?: Date | string
+  statCharm?: number | null
+  statEmpathy?: number | null
+  statGrace?: number | null
+  statLuck?: number | null
+  statMight?: number | null
+  statWits?: number | null
   Character: Prisma.CharacterCreateNestedOneWithoutAquariumStockInput
+  ParentA?: Prisma.AquariumStockCreateNestedOneWithoutOffspringAsParentAInput
+  ParentB?: Prisma.AquariumStockCreateNestedOneWithoutOffspringAsParentBInput
+  OffspringAsParentA?: Prisma.AquariumStockCreateNestedManyWithoutParentAInput
+  OffspringAsParentB?: Prisma.AquariumStockCreateNestedManyWithoutParentBInput
 }
 
 export type AquariumStockUncheckedCreateWithoutAquariumInput = {
@@ -639,6 +1047,16 @@ export type AquariumStockUncheckedCreateWithoutAquariumInput = {
   hunger?: number
   mood?: string | null
   placedAt?: Date | string
+  statCharm?: number | null
+  statEmpathy?: number | null
+  statGrace?: number | null
+  statLuck?: number | null
+  statMight?: number | null
+  statWits?: number | null
+  parentAId?: number | null
+  parentBId?: number | null
+  OffspringAsParentA?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutParentAInput
+  OffspringAsParentB?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutParentBInput
 }
 
 export type AquariumStockCreateOrConnectWithoutAquariumInput = {
@@ -667,6 +1085,336 @@ export type AquariumStockUpdateManyWithWhereWithoutAquariumInput = {
   data: Prisma.XOR<Prisma.AquariumStockUpdateManyMutationInput, Prisma.AquariumStockUncheckedUpdateManyWithoutAquariumInput>
 }
 
+export type AquariumStockCreateWithoutOffspringAsParentAInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  nickname?: string | null
+  hunger?: number
+  mood?: string | null
+  placedAt?: Date | string
+  statCharm?: number | null
+  statEmpathy?: number | null
+  statGrace?: number | null
+  statLuck?: number | null
+  statMight?: number | null
+  statWits?: number | null
+  Aquarium: Prisma.AquariumCreateNestedOneWithoutStockInput
+  Character: Prisma.CharacterCreateNestedOneWithoutAquariumStockInput
+  ParentA?: Prisma.AquariumStockCreateNestedOneWithoutOffspringAsParentAInput
+  ParentB?: Prisma.AquariumStockCreateNestedOneWithoutOffspringAsParentBInput
+  OffspringAsParentB?: Prisma.AquariumStockCreateNestedManyWithoutParentBInput
+}
+
+export type AquariumStockUncheckedCreateWithoutOffspringAsParentAInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  aquariumId: number
+  characterId: number
+  nickname?: string | null
+  hunger?: number
+  mood?: string | null
+  placedAt?: Date | string
+  statCharm?: number | null
+  statEmpathy?: number | null
+  statGrace?: number | null
+  statLuck?: number | null
+  statMight?: number | null
+  statWits?: number | null
+  parentAId?: number | null
+  parentBId?: number | null
+  OffspringAsParentB?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutParentBInput
+}
+
+export type AquariumStockCreateOrConnectWithoutOffspringAsParentAInput = {
+  where: Prisma.AquariumStockWhereUniqueInput
+  create: Prisma.XOR<Prisma.AquariumStockCreateWithoutOffspringAsParentAInput, Prisma.AquariumStockUncheckedCreateWithoutOffspringAsParentAInput>
+}
+
+export type AquariumStockCreateWithoutOffspringAsParentBInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  nickname?: string | null
+  hunger?: number
+  mood?: string | null
+  placedAt?: Date | string
+  statCharm?: number | null
+  statEmpathy?: number | null
+  statGrace?: number | null
+  statLuck?: number | null
+  statMight?: number | null
+  statWits?: number | null
+  Aquarium: Prisma.AquariumCreateNestedOneWithoutStockInput
+  Character: Prisma.CharacterCreateNestedOneWithoutAquariumStockInput
+  ParentA?: Prisma.AquariumStockCreateNestedOneWithoutOffspringAsParentAInput
+  ParentB?: Prisma.AquariumStockCreateNestedOneWithoutOffspringAsParentBInput
+  OffspringAsParentA?: Prisma.AquariumStockCreateNestedManyWithoutParentAInput
+}
+
+export type AquariumStockUncheckedCreateWithoutOffspringAsParentBInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  aquariumId: number
+  characterId: number
+  nickname?: string | null
+  hunger?: number
+  mood?: string | null
+  placedAt?: Date | string
+  statCharm?: number | null
+  statEmpathy?: number | null
+  statGrace?: number | null
+  statLuck?: number | null
+  statMight?: number | null
+  statWits?: number | null
+  parentAId?: number | null
+  parentBId?: number | null
+  OffspringAsParentA?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutParentAInput
+}
+
+export type AquariumStockCreateOrConnectWithoutOffspringAsParentBInput = {
+  where: Prisma.AquariumStockWhereUniqueInput
+  create: Prisma.XOR<Prisma.AquariumStockCreateWithoutOffspringAsParentBInput, Prisma.AquariumStockUncheckedCreateWithoutOffspringAsParentBInput>
+}
+
+export type AquariumStockCreateWithoutParentAInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  nickname?: string | null
+  hunger?: number
+  mood?: string | null
+  placedAt?: Date | string
+  statCharm?: number | null
+  statEmpathy?: number | null
+  statGrace?: number | null
+  statLuck?: number | null
+  statMight?: number | null
+  statWits?: number | null
+  Aquarium: Prisma.AquariumCreateNestedOneWithoutStockInput
+  Character: Prisma.CharacterCreateNestedOneWithoutAquariumStockInput
+  ParentB?: Prisma.AquariumStockCreateNestedOneWithoutOffspringAsParentBInput
+  OffspringAsParentA?: Prisma.AquariumStockCreateNestedManyWithoutParentAInput
+  OffspringAsParentB?: Prisma.AquariumStockCreateNestedManyWithoutParentBInput
+}
+
+export type AquariumStockUncheckedCreateWithoutParentAInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  aquariumId: number
+  characterId: number
+  nickname?: string | null
+  hunger?: number
+  mood?: string | null
+  placedAt?: Date | string
+  statCharm?: number | null
+  statEmpathy?: number | null
+  statGrace?: number | null
+  statLuck?: number | null
+  statMight?: number | null
+  statWits?: number | null
+  parentBId?: number | null
+  OffspringAsParentA?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutParentAInput
+  OffspringAsParentB?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutParentBInput
+}
+
+export type AquariumStockCreateOrConnectWithoutParentAInput = {
+  where: Prisma.AquariumStockWhereUniqueInput
+  create: Prisma.XOR<Prisma.AquariumStockCreateWithoutParentAInput, Prisma.AquariumStockUncheckedCreateWithoutParentAInput>
+}
+
+export type AquariumStockCreateManyParentAInputEnvelope = {
+  data: Prisma.AquariumStockCreateManyParentAInput | Prisma.AquariumStockCreateManyParentAInput[]
+  skipDuplicates?: boolean
+}
+
+export type AquariumStockCreateWithoutParentBInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  nickname?: string | null
+  hunger?: number
+  mood?: string | null
+  placedAt?: Date | string
+  statCharm?: number | null
+  statEmpathy?: number | null
+  statGrace?: number | null
+  statLuck?: number | null
+  statMight?: number | null
+  statWits?: number | null
+  Aquarium: Prisma.AquariumCreateNestedOneWithoutStockInput
+  Character: Prisma.CharacterCreateNestedOneWithoutAquariumStockInput
+  ParentA?: Prisma.AquariumStockCreateNestedOneWithoutOffspringAsParentAInput
+  OffspringAsParentA?: Prisma.AquariumStockCreateNestedManyWithoutParentAInput
+  OffspringAsParentB?: Prisma.AquariumStockCreateNestedManyWithoutParentBInput
+}
+
+export type AquariumStockUncheckedCreateWithoutParentBInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  aquariumId: number
+  characterId: number
+  nickname?: string | null
+  hunger?: number
+  mood?: string | null
+  placedAt?: Date | string
+  statCharm?: number | null
+  statEmpathy?: number | null
+  statGrace?: number | null
+  statLuck?: number | null
+  statMight?: number | null
+  statWits?: number | null
+  parentAId?: number | null
+  OffspringAsParentA?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutParentAInput
+  OffspringAsParentB?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutParentBInput
+}
+
+export type AquariumStockCreateOrConnectWithoutParentBInput = {
+  where: Prisma.AquariumStockWhereUniqueInput
+  create: Prisma.XOR<Prisma.AquariumStockCreateWithoutParentBInput, Prisma.AquariumStockUncheckedCreateWithoutParentBInput>
+}
+
+export type AquariumStockCreateManyParentBInputEnvelope = {
+  data: Prisma.AquariumStockCreateManyParentBInput | Prisma.AquariumStockCreateManyParentBInput[]
+  skipDuplicates?: boolean
+}
+
+export type AquariumStockUpsertWithoutOffspringAsParentAInput = {
+  update: Prisma.XOR<Prisma.AquariumStockUpdateWithoutOffspringAsParentAInput, Prisma.AquariumStockUncheckedUpdateWithoutOffspringAsParentAInput>
+  create: Prisma.XOR<Prisma.AquariumStockCreateWithoutOffspringAsParentAInput, Prisma.AquariumStockUncheckedCreateWithoutOffspringAsParentAInput>
+  where?: Prisma.AquariumStockWhereInput
+}
+
+export type AquariumStockUpdateToOneWithWhereWithoutOffspringAsParentAInput = {
+  where?: Prisma.AquariumStockWhereInput
+  data: Prisma.XOR<Prisma.AquariumStockUpdateWithoutOffspringAsParentAInput, Prisma.AquariumStockUncheckedUpdateWithoutOffspringAsParentAInput>
+}
+
+export type AquariumStockUpdateWithoutOffspringAsParentAInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hunger?: Prisma.IntFieldUpdateOperationsInput | number
+  mood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  statCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  Aquarium?: Prisma.AquariumUpdateOneRequiredWithoutStockNestedInput
+  Character?: Prisma.CharacterUpdateOneRequiredWithoutAquariumStockNestedInput
+  ParentA?: Prisma.AquariumStockUpdateOneWithoutOffspringAsParentANestedInput
+  ParentB?: Prisma.AquariumStockUpdateOneWithoutOffspringAsParentBNestedInput
+  OffspringAsParentB?: Prisma.AquariumStockUpdateManyWithoutParentBNestedInput
+}
+
+export type AquariumStockUncheckedUpdateWithoutOffspringAsParentAInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aquariumId?: Prisma.IntFieldUpdateOperationsInput | number
+  characterId?: Prisma.IntFieldUpdateOperationsInput | number
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hunger?: Prisma.IntFieldUpdateOperationsInput | number
+  mood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  statCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  OffspringAsParentB?: Prisma.AquariumStockUncheckedUpdateManyWithoutParentBNestedInput
+}
+
+export type AquariumStockUpsertWithoutOffspringAsParentBInput = {
+  update: Prisma.XOR<Prisma.AquariumStockUpdateWithoutOffspringAsParentBInput, Prisma.AquariumStockUncheckedUpdateWithoutOffspringAsParentBInput>
+  create: Prisma.XOR<Prisma.AquariumStockCreateWithoutOffspringAsParentBInput, Prisma.AquariumStockUncheckedCreateWithoutOffspringAsParentBInput>
+  where?: Prisma.AquariumStockWhereInput
+}
+
+export type AquariumStockUpdateToOneWithWhereWithoutOffspringAsParentBInput = {
+  where?: Prisma.AquariumStockWhereInput
+  data: Prisma.XOR<Prisma.AquariumStockUpdateWithoutOffspringAsParentBInput, Prisma.AquariumStockUncheckedUpdateWithoutOffspringAsParentBInput>
+}
+
+export type AquariumStockUpdateWithoutOffspringAsParentBInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hunger?: Prisma.IntFieldUpdateOperationsInput | number
+  mood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  statCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  Aquarium?: Prisma.AquariumUpdateOneRequiredWithoutStockNestedInput
+  Character?: Prisma.CharacterUpdateOneRequiredWithoutAquariumStockNestedInput
+  ParentA?: Prisma.AquariumStockUpdateOneWithoutOffspringAsParentANestedInput
+  ParentB?: Prisma.AquariumStockUpdateOneWithoutOffspringAsParentBNestedInput
+  OffspringAsParentA?: Prisma.AquariumStockUpdateManyWithoutParentANestedInput
+}
+
+export type AquariumStockUncheckedUpdateWithoutOffspringAsParentBInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aquariumId?: Prisma.IntFieldUpdateOperationsInput | number
+  characterId?: Prisma.IntFieldUpdateOperationsInput | number
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hunger?: Prisma.IntFieldUpdateOperationsInput | number
+  mood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  statCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  OffspringAsParentA?: Prisma.AquariumStockUncheckedUpdateManyWithoutParentANestedInput
+}
+
+export type AquariumStockUpsertWithWhereUniqueWithoutParentAInput = {
+  where: Prisma.AquariumStockWhereUniqueInput
+  update: Prisma.XOR<Prisma.AquariumStockUpdateWithoutParentAInput, Prisma.AquariumStockUncheckedUpdateWithoutParentAInput>
+  create: Prisma.XOR<Prisma.AquariumStockCreateWithoutParentAInput, Prisma.AquariumStockUncheckedCreateWithoutParentAInput>
+}
+
+export type AquariumStockUpdateWithWhereUniqueWithoutParentAInput = {
+  where: Prisma.AquariumStockWhereUniqueInput
+  data: Prisma.XOR<Prisma.AquariumStockUpdateWithoutParentAInput, Prisma.AquariumStockUncheckedUpdateWithoutParentAInput>
+}
+
+export type AquariumStockUpdateManyWithWhereWithoutParentAInput = {
+  where: Prisma.AquariumStockScalarWhereInput
+  data: Prisma.XOR<Prisma.AquariumStockUpdateManyMutationInput, Prisma.AquariumStockUncheckedUpdateManyWithoutParentAInput>
+}
+
+export type AquariumStockUpsertWithWhereUniqueWithoutParentBInput = {
+  where: Prisma.AquariumStockWhereUniqueInput
+  update: Prisma.XOR<Prisma.AquariumStockUpdateWithoutParentBInput, Prisma.AquariumStockUncheckedUpdateWithoutParentBInput>
+  create: Prisma.XOR<Prisma.AquariumStockCreateWithoutParentBInput, Prisma.AquariumStockUncheckedCreateWithoutParentBInput>
+}
+
+export type AquariumStockUpdateWithWhereUniqueWithoutParentBInput = {
+  where: Prisma.AquariumStockWhereUniqueInput
+  data: Prisma.XOR<Prisma.AquariumStockUpdateWithoutParentBInput, Prisma.AquariumStockUncheckedUpdateWithoutParentBInput>
+}
+
+export type AquariumStockUpdateManyWithWhereWithoutParentBInput = {
+  where: Prisma.AquariumStockScalarWhereInput
+  data: Prisma.XOR<Prisma.AquariumStockUpdateManyMutationInput, Prisma.AquariumStockUncheckedUpdateManyWithoutParentBInput>
+}
+
 export type AquariumStockCreateManyCharacterInput = {
   id?: number
   createdAt?: Date | string
@@ -676,6 +1424,14 @@ export type AquariumStockCreateManyCharacterInput = {
   hunger?: number
   mood?: string | null
   placedAt?: Date | string
+  statCharm?: number | null
+  statEmpathy?: number | null
+  statGrace?: number | null
+  statLuck?: number | null
+  statMight?: number | null
+  statWits?: number | null
+  parentAId?: number | null
+  parentBId?: number | null
 }
 
 export type AquariumStockUpdateWithoutCharacterInput = {
@@ -685,7 +1441,17 @@ export type AquariumStockUpdateWithoutCharacterInput = {
   hunger?: Prisma.IntFieldUpdateOperationsInput | number
   mood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   placedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  statCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Aquarium?: Prisma.AquariumUpdateOneRequiredWithoutStockNestedInput
+  ParentA?: Prisma.AquariumStockUpdateOneWithoutOffspringAsParentANestedInput
+  ParentB?: Prisma.AquariumStockUpdateOneWithoutOffspringAsParentBNestedInput
+  OffspringAsParentA?: Prisma.AquariumStockUpdateManyWithoutParentANestedInput
+  OffspringAsParentB?: Prisma.AquariumStockUpdateManyWithoutParentBNestedInput
 }
 
 export type AquariumStockUncheckedUpdateWithoutCharacterInput = {
@@ -697,6 +1463,16 @@ export type AquariumStockUncheckedUpdateWithoutCharacterInput = {
   hunger?: Prisma.IntFieldUpdateOperationsInput | number
   mood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   placedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  statCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  OffspringAsParentA?: Prisma.AquariumStockUncheckedUpdateManyWithoutParentANestedInput
+  OffspringAsParentB?: Prisma.AquariumStockUncheckedUpdateManyWithoutParentBNestedInput
 }
 
 export type AquariumStockUncheckedUpdateManyWithoutCharacterInput = {
@@ -708,6 +1484,14 @@ export type AquariumStockUncheckedUpdateManyWithoutCharacterInput = {
   hunger?: Prisma.IntFieldUpdateOperationsInput | number
   mood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   placedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  statCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type AquariumStockCreateManyAquariumInput = {
@@ -719,6 +1503,14 @@ export type AquariumStockCreateManyAquariumInput = {
   hunger?: number
   mood?: string | null
   placedAt?: Date | string
+  statCharm?: number | null
+  statEmpathy?: number | null
+  statGrace?: number | null
+  statLuck?: number | null
+  statMight?: number | null
+  statWits?: number | null
+  parentAId?: number | null
+  parentBId?: number | null
 }
 
 export type AquariumStockUpdateWithoutAquariumInput = {
@@ -728,7 +1520,17 @@ export type AquariumStockUpdateWithoutAquariumInput = {
   hunger?: Prisma.IntFieldUpdateOperationsInput | number
   mood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   placedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  statCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Character?: Prisma.CharacterUpdateOneRequiredWithoutAquariumStockNestedInput
+  ParentA?: Prisma.AquariumStockUpdateOneWithoutOffspringAsParentANestedInput
+  ParentB?: Prisma.AquariumStockUpdateOneWithoutOffspringAsParentBNestedInput
+  OffspringAsParentA?: Prisma.AquariumStockUpdateManyWithoutParentANestedInput
+  OffspringAsParentB?: Prisma.AquariumStockUpdateManyWithoutParentBNestedInput
 }
 
 export type AquariumStockUncheckedUpdateWithoutAquariumInput = {
@@ -740,6 +1542,16 @@ export type AquariumStockUncheckedUpdateWithoutAquariumInput = {
   hunger?: Prisma.IntFieldUpdateOperationsInput | number
   mood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   placedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  statCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  OffspringAsParentA?: Prisma.AquariumStockUncheckedUpdateManyWithoutParentANestedInput
+  OffspringAsParentB?: Prisma.AquariumStockUncheckedUpdateManyWithoutParentBNestedInput
 }
 
 export type AquariumStockUncheckedUpdateManyWithoutAquariumInput = {
@@ -751,8 +1563,212 @@ export type AquariumStockUncheckedUpdateManyWithoutAquariumInput = {
   hunger?: Prisma.IntFieldUpdateOperationsInput | number
   mood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   placedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  statCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
+export type AquariumStockCreateManyParentAInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  aquariumId: number
+  characterId: number
+  nickname?: string | null
+  hunger?: number
+  mood?: string | null
+  placedAt?: Date | string
+  statCharm?: number | null
+  statEmpathy?: number | null
+  statGrace?: number | null
+  statLuck?: number | null
+  statMight?: number | null
+  statWits?: number | null
+  parentBId?: number | null
+}
+
+export type AquariumStockCreateManyParentBInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  aquariumId: number
+  characterId: number
+  nickname?: string | null
+  hunger?: number
+  mood?: string | null
+  placedAt?: Date | string
+  statCharm?: number | null
+  statEmpathy?: number | null
+  statGrace?: number | null
+  statLuck?: number | null
+  statMight?: number | null
+  statWits?: number | null
+  parentAId?: number | null
+}
+
+export type AquariumStockUpdateWithoutParentAInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hunger?: Prisma.IntFieldUpdateOperationsInput | number
+  mood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  statCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  Aquarium?: Prisma.AquariumUpdateOneRequiredWithoutStockNestedInput
+  Character?: Prisma.CharacterUpdateOneRequiredWithoutAquariumStockNestedInput
+  ParentB?: Prisma.AquariumStockUpdateOneWithoutOffspringAsParentBNestedInput
+  OffspringAsParentA?: Prisma.AquariumStockUpdateManyWithoutParentANestedInput
+  OffspringAsParentB?: Prisma.AquariumStockUpdateManyWithoutParentBNestedInput
+}
+
+export type AquariumStockUncheckedUpdateWithoutParentAInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aquariumId?: Prisma.IntFieldUpdateOperationsInput | number
+  characterId?: Prisma.IntFieldUpdateOperationsInput | number
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hunger?: Prisma.IntFieldUpdateOperationsInput | number
+  mood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  statCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  OffspringAsParentA?: Prisma.AquariumStockUncheckedUpdateManyWithoutParentANestedInput
+  OffspringAsParentB?: Prisma.AquariumStockUncheckedUpdateManyWithoutParentBNestedInput
+}
+
+export type AquariumStockUncheckedUpdateManyWithoutParentAInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aquariumId?: Prisma.IntFieldUpdateOperationsInput | number
+  characterId?: Prisma.IntFieldUpdateOperationsInput | number
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hunger?: Prisma.IntFieldUpdateOperationsInput | number
+  mood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  statCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+}
+
+export type AquariumStockUpdateWithoutParentBInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hunger?: Prisma.IntFieldUpdateOperationsInput | number
+  mood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  statCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  Aquarium?: Prisma.AquariumUpdateOneRequiredWithoutStockNestedInput
+  Character?: Prisma.CharacterUpdateOneRequiredWithoutAquariumStockNestedInput
+  ParentA?: Prisma.AquariumStockUpdateOneWithoutOffspringAsParentANestedInput
+  OffspringAsParentA?: Prisma.AquariumStockUpdateManyWithoutParentANestedInput
+  OffspringAsParentB?: Prisma.AquariumStockUpdateManyWithoutParentBNestedInput
+}
+
+export type AquariumStockUncheckedUpdateWithoutParentBInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aquariumId?: Prisma.IntFieldUpdateOperationsInput | number
+  characterId?: Prisma.IntFieldUpdateOperationsInput | number
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hunger?: Prisma.IntFieldUpdateOperationsInput | number
+  mood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  statCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  OffspringAsParentA?: Prisma.AquariumStockUncheckedUpdateManyWithoutParentANestedInput
+  OffspringAsParentB?: Prisma.AquariumStockUncheckedUpdateManyWithoutParentBNestedInput
+}
+
+export type AquariumStockUncheckedUpdateManyWithoutParentBInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aquariumId?: Prisma.IntFieldUpdateOperationsInput | number
+  characterId?: Prisma.IntFieldUpdateOperationsInput | number
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hunger?: Prisma.IntFieldUpdateOperationsInput | number
+  mood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  placedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  statCharm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statEmpathy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statGrace?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statLuck?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statMight?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  statWits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+}
+
+
+/**
+ * Count Type AquariumStockCountOutputType
+ */
+
+export type AquariumStockCountOutputType = {
+  OffspringAsParentA: number
+  OffspringAsParentB: number
+}
+
+export type AquariumStockCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  OffspringAsParentA?: boolean | AquariumStockCountOutputTypeCountOffspringAsParentAArgs
+  OffspringAsParentB?: boolean | AquariumStockCountOutputTypeCountOffspringAsParentBArgs
+}
+
+/**
+ * AquariumStockCountOutputType without action
+ */
+export type AquariumStockCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AquariumStockCountOutputType
+   */
+  select?: Prisma.AquariumStockCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * AquariumStockCountOutputType without action
+ */
+export type AquariumStockCountOutputTypeCountOffspringAsParentAArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AquariumStockWhereInput
+}
+
+/**
+ * AquariumStockCountOutputType without action
+ */
+export type AquariumStockCountOutputTypeCountOffspringAsParentBArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AquariumStockWhereInput
+}
 
 
 export type AquariumStockSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -765,8 +1781,21 @@ export type AquariumStockSelect<ExtArgs extends runtime.Types.Extensions.Interna
   hunger?: boolean
   mood?: boolean
   placedAt?: boolean
+  statCharm?: boolean
+  statEmpathy?: boolean
+  statGrace?: boolean
+  statLuck?: boolean
+  statMight?: boolean
+  statWits?: boolean
+  parentAId?: boolean
+  parentBId?: boolean
   Aquarium?: boolean | Prisma.AquariumDefaultArgs<ExtArgs>
   Character?: boolean | Prisma.CharacterDefaultArgs<ExtArgs>
+  ParentA?: boolean | Prisma.AquariumStock$ParentAArgs<ExtArgs>
+  ParentB?: boolean | Prisma.AquariumStock$ParentBArgs<ExtArgs>
+  OffspringAsParentA?: boolean | Prisma.AquariumStock$OffspringAsParentAArgs<ExtArgs>
+  OffspringAsParentB?: boolean | Prisma.AquariumStock$OffspringAsParentBArgs<ExtArgs>
+  _count?: boolean | Prisma.AquariumStockCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["aquariumStock"]>
 
 
@@ -781,12 +1810,25 @@ export type AquariumStockSelectScalar = {
   hunger?: boolean
   mood?: boolean
   placedAt?: boolean
+  statCharm?: boolean
+  statEmpathy?: boolean
+  statGrace?: boolean
+  statLuck?: boolean
+  statMight?: boolean
+  statWits?: boolean
+  parentAId?: boolean
+  parentBId?: boolean
 }
 
-export type AquariumStockOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "aquariumId" | "characterId" | "nickname" | "hunger" | "mood" | "placedAt", ExtArgs["result"]["aquariumStock"]>
+export type AquariumStockOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "aquariumId" | "characterId" | "nickname" | "hunger" | "mood" | "placedAt" | "statCharm" | "statEmpathy" | "statGrace" | "statLuck" | "statMight" | "statWits" | "parentAId" | "parentBId", ExtArgs["result"]["aquariumStock"]>
 export type AquariumStockInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Aquarium?: boolean | Prisma.AquariumDefaultArgs<ExtArgs>
   Character?: boolean | Prisma.CharacterDefaultArgs<ExtArgs>
+  ParentA?: boolean | Prisma.AquariumStock$ParentAArgs<ExtArgs>
+  ParentB?: boolean | Prisma.AquariumStock$ParentBArgs<ExtArgs>
+  OffspringAsParentA?: boolean | Prisma.AquariumStock$OffspringAsParentAArgs<ExtArgs>
+  OffspringAsParentB?: boolean | Prisma.AquariumStock$OffspringAsParentBArgs<ExtArgs>
+  _count?: boolean | Prisma.AquariumStockCountOutputTypeDefaultArgs<ExtArgs>
 }
 
 export type $AquariumStockPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -794,6 +1836,10 @@ export type $AquariumStockPayload<ExtArgs extends runtime.Types.Extensions.Inter
   objects: {
     Aquarium: Prisma.$AquariumPayload<ExtArgs>
     Character: Prisma.$CharacterPayload<ExtArgs>
+    ParentA: Prisma.$AquariumStockPayload<ExtArgs> | null
+    ParentB: Prisma.$AquariumStockPayload<ExtArgs> | null
+    OffspringAsParentA: Prisma.$AquariumStockPayload<ExtArgs>[]
+    OffspringAsParentB: Prisma.$AquariumStockPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -805,6 +1851,27 @@ export type $AquariumStockPayload<ExtArgs extends runtime.Types.Extensions.Inter
     hunger: number
     mood: string | null
     placedAt: Date
+    /**
+     * Hidden rolled individual stats, mirroring Character's six public Rarity
+     * stats (charm/empathy/grace/luck/might/wits) but numeric and per-fish
+     * rather than per-species. Null until rolled (t-029: rolled on acquisition
+     * or hatch, and must CONVERGE toward the better parent on breeding rather
+     * than reroll -- see SYSTEMS.md's four genetics rules). [v1 placeholder --
+     * no roll range/formula is fixed by this migration; t-029 owns that.]
+     */
+    statCharm: number | null
+    statEmpathy: number | null
+    statGrace: number | null
+    statLuck: number | null
+    statMight: number | null
+    statWits: number | null
+    /**
+     * Parentage for breeding (t-029). Nullable/SetNull: breeding never
+     * consumes the parents (progress never degrades), and selling or losing a
+     * parent must not cascade-delete its offspring's own record.
+     */
+    parentAId: number | null
+    parentBId: number | null
   }, ExtArgs["result"]["aquariumStock"]>
   composites: {}
 }
@@ -1147,6 +2214,10 @@ export interface Prisma__AquariumStockClient<T, Null = never, ExtArgs extends ru
   readonly [Symbol.toStringTag]: "PrismaPromise"
   Aquarium<T extends Prisma.AquariumDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AquariumDefaultArgs<ExtArgs>>): Prisma.Prisma__AquariumClient<runtime.Types.Result.GetResult<Prisma.$AquariumPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   Character<T extends Prisma.CharacterDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CharacterDefaultArgs<ExtArgs>>): Prisma.Prisma__CharacterClient<runtime.Types.Result.GetResult<Prisma.$CharacterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  ParentA<T extends Prisma.AquariumStock$ParentAArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AquariumStock$ParentAArgs<ExtArgs>>): Prisma.Prisma__AquariumStockClient<runtime.Types.Result.GetResult<Prisma.$AquariumStockPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  ParentB<T extends Prisma.AquariumStock$ParentBArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AquariumStock$ParentBArgs<ExtArgs>>): Prisma.Prisma__AquariumStockClient<runtime.Types.Result.GetResult<Prisma.$AquariumStockPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  OffspringAsParentA<T extends Prisma.AquariumStock$OffspringAsParentAArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AquariumStock$OffspringAsParentAArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AquariumStockPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  OffspringAsParentB<T extends Prisma.AquariumStock$OffspringAsParentBArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AquariumStock$OffspringAsParentBArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AquariumStockPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1185,6 +2256,14 @@ export interface AquariumStockFieldRefs {
   readonly hunger: Prisma.FieldRef<"AquariumStock", 'Int'>
   readonly mood: Prisma.FieldRef<"AquariumStock", 'String'>
   readonly placedAt: Prisma.FieldRef<"AquariumStock", 'DateTime'>
+  readonly statCharm: Prisma.FieldRef<"AquariumStock", 'Int'>
+  readonly statEmpathy: Prisma.FieldRef<"AquariumStock", 'Int'>
+  readonly statGrace: Prisma.FieldRef<"AquariumStock", 'Int'>
+  readonly statLuck: Prisma.FieldRef<"AquariumStock", 'Int'>
+  readonly statMight: Prisma.FieldRef<"AquariumStock", 'Int'>
+  readonly statWits: Prisma.FieldRef<"AquariumStock", 'Int'>
+  readonly parentAId: Prisma.FieldRef<"AquariumStock", 'Int'>
+  readonly parentBId: Prisma.FieldRef<"AquariumStock", 'Int'>
 }
     
 
@@ -1530,6 +2609,92 @@ export type AquariumStockDeleteManyArgs<ExtArgs extends runtime.Types.Extensions
    * Limit how many AquariumStocks to delete.
    */
   limit?: number
+}
+
+/**
+ * AquariumStock.ParentA
+ */
+export type AquariumStock$ParentAArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AquariumStock
+   */
+  select?: Prisma.AquariumStockSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AquariumStock
+   */
+  omit?: Prisma.AquariumStockOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AquariumStockInclude<ExtArgs> | null
+  where?: Prisma.AquariumStockWhereInput
+}
+
+/**
+ * AquariumStock.ParentB
+ */
+export type AquariumStock$ParentBArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AquariumStock
+   */
+  select?: Prisma.AquariumStockSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AquariumStock
+   */
+  omit?: Prisma.AquariumStockOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AquariumStockInclude<ExtArgs> | null
+  where?: Prisma.AquariumStockWhereInput
+}
+
+/**
+ * AquariumStock.OffspringAsParentA
+ */
+export type AquariumStock$OffspringAsParentAArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AquariumStock
+   */
+  select?: Prisma.AquariumStockSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AquariumStock
+   */
+  omit?: Prisma.AquariumStockOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AquariumStockInclude<ExtArgs> | null
+  where?: Prisma.AquariumStockWhereInput
+  orderBy?: Prisma.AquariumStockOrderByWithRelationInput | Prisma.AquariumStockOrderByWithRelationInput[]
+  cursor?: Prisma.AquariumStockWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AquariumStockScalarFieldEnum | Prisma.AquariumStockScalarFieldEnum[]
+}
+
+/**
+ * AquariumStock.OffspringAsParentB
+ */
+export type AquariumStock$OffspringAsParentBArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AquariumStock
+   */
+  select?: Prisma.AquariumStockSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AquariumStock
+   */
+  omit?: Prisma.AquariumStockOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AquariumStockInclude<ExtArgs> | null
+  where?: Prisma.AquariumStockWhereInput
+  orderBy?: Prisma.AquariumStockOrderByWithRelationInput | Prisma.AquariumStockOrderByWithRelationInput[]
+  cursor?: Prisma.AquariumStockWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AquariumStockScalarFieldEnum | Prisma.AquariumStockScalarFieldEnum[]
 }
 
 /**

@@ -32,12 +32,18 @@ export type AquariumAvgAggregateOutputType = {
   id: number | null
   userId: number | null
   coins: number | null
+  setSlotsCap: number | null
+  sizeCap: number | null
+  debrisLevel: number | null
 }
 
 export type AquariumSumAggregateOutputType = {
   id: number | null
   userId: number | null
   coins: number | null
+  setSlotsCap: number | null
+  sizeCap: number | null
+  debrisLevel: number | null
 }
 
 export type AquariumMinAggregateOutputType = {
@@ -51,6 +57,10 @@ export type AquariumMinAggregateOutputType = {
   backgroundKey: string | null
   isPublic: boolean | null
   lastTickAt: Date | null
+  setSlotsCap: number | null
+  sizeCap: number | null
+  debrisLevel: number | null
+  lastCleanedAt: Date | null
 }
 
 export type AquariumMaxAggregateOutputType = {
@@ -64,6 +74,10 @@ export type AquariumMaxAggregateOutputType = {
   backgroundKey: string | null
   isPublic: boolean | null
   lastTickAt: Date | null
+  setSlotsCap: number | null
+  sizeCap: number | null
+  debrisLevel: number | null
+  lastCleanedAt: Date | null
 }
 
 export type AquariumCountAggregateOutputType = {
@@ -77,6 +91,10 @@ export type AquariumCountAggregateOutputType = {
   backgroundKey: number
   isPublic: number
   lastTickAt: number
+  setSlotsCap: number
+  sizeCap: number
+  debrisLevel: number
+  lastCleanedAt: number
   _all: number
 }
 
@@ -85,12 +103,18 @@ export type AquariumAvgAggregateInputType = {
   id?: true
   userId?: true
   coins?: true
+  setSlotsCap?: true
+  sizeCap?: true
+  debrisLevel?: true
 }
 
 export type AquariumSumAggregateInputType = {
   id?: true
   userId?: true
   coins?: true
+  setSlotsCap?: true
+  sizeCap?: true
+  debrisLevel?: true
 }
 
 export type AquariumMinAggregateInputType = {
@@ -104,6 +128,10 @@ export type AquariumMinAggregateInputType = {
   backgroundKey?: true
   isPublic?: true
   lastTickAt?: true
+  setSlotsCap?: true
+  sizeCap?: true
+  debrisLevel?: true
+  lastCleanedAt?: true
 }
 
 export type AquariumMaxAggregateInputType = {
@@ -117,6 +145,10 @@ export type AquariumMaxAggregateInputType = {
   backgroundKey?: true
   isPublic?: true
   lastTickAt?: true
+  setSlotsCap?: true
+  sizeCap?: true
+  debrisLevel?: true
+  lastCleanedAt?: true
 }
 
 export type AquariumCountAggregateInputType = {
@@ -130,6 +162,10 @@ export type AquariumCountAggregateInputType = {
   backgroundKey?: true
   isPublic?: true
   lastTickAt?: true
+  setSlotsCap?: true
+  sizeCap?: true
+  debrisLevel?: true
+  lastCleanedAt?: true
   _all?: true
 }
 
@@ -230,6 +266,10 @@ export type AquariumGroupByOutputType = {
   backgroundKey: string | null
   isPublic: boolean
   lastTickAt: Date | null
+  setSlotsCap: number
+  sizeCap: number
+  debrisLevel: number
+  lastCleanedAt: Date | null
   _count: AquariumCountAggregateOutputType | null
   _avg: AquariumAvgAggregateOutputType | null
   _sum: AquariumSumAggregateOutputType | null
@@ -266,9 +306,14 @@ export type AquariumWhereInput = {
   backgroundKey?: Prisma.StringNullableFilter<"Aquarium"> | string | null
   isPublic?: Prisma.BoolFilter<"Aquarium"> | boolean
   lastTickAt?: Prisma.DateTimeNullableFilter<"Aquarium"> | Date | string | null
+  setSlotsCap?: Prisma.IntFilter<"Aquarium"> | number
+  sizeCap?: Prisma.IntFilter<"Aquarium"> | number
+  debrisLevel?: Prisma.IntFilter<"Aquarium"> | number
+  lastCleanedAt?: Prisma.DateTimeNullableFilter<"Aquarium"> | Date | string | null
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   Stock?: Prisma.AquariumStockListRelationFilter
   Events?: Prisma.AquariumEventListRelationFilter
+  Sets?: Prisma.AquariumSetListRelationFilter
 }
 
 export type AquariumOrderByWithRelationInput = {
@@ -282,30 +327,41 @@ export type AquariumOrderByWithRelationInput = {
   backgroundKey?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   lastTickAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  setSlotsCap?: Prisma.SortOrder
+  sizeCap?: Prisma.SortOrder
+  debrisLevel?: Prisma.SortOrder
+  lastCleanedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   User?: Prisma.UserOrderByWithRelationInput
   Stock?: Prisma.AquariumStockOrderByRelationAggregateInput
   Events?: Prisma.AquariumEventOrderByRelationAggregateInput
+  Sets?: Prisma.AquariumSetOrderByRelationAggregateInput
   _relevance?: Prisma.AquariumOrderByRelevanceInput
 }
 
 export type AquariumWhereUniqueInput = Prisma.AtLeast<{
   id?: number
-  slug?: string
+  userId_slug?: Prisma.AquariumUserIdSlugCompoundUniqueInput
   AND?: Prisma.AquariumWhereInput | Prisma.AquariumWhereInput[]
   OR?: Prisma.AquariumWhereInput[]
   NOT?: Prisma.AquariumWhereInput | Prisma.AquariumWhereInput[]
   createdAt?: Prisma.DateTimeFilter<"Aquarium"> | Date | string
   updatedAt?: Prisma.DateTimeNullableFilter<"Aquarium"> | Date | string | null
   userId?: Prisma.IntFilter<"Aquarium"> | number
+  slug?: Prisma.StringFilter<"Aquarium"> | string
   title?: Prisma.StringFilter<"Aquarium"> | string
   coins?: Prisma.IntFilter<"Aquarium"> | number
   backgroundKey?: Prisma.StringNullableFilter<"Aquarium"> | string | null
   isPublic?: Prisma.BoolFilter<"Aquarium"> | boolean
   lastTickAt?: Prisma.DateTimeNullableFilter<"Aquarium"> | Date | string | null
+  setSlotsCap?: Prisma.IntFilter<"Aquarium"> | number
+  sizeCap?: Prisma.IntFilter<"Aquarium"> | number
+  debrisLevel?: Prisma.IntFilter<"Aquarium"> | number
+  lastCleanedAt?: Prisma.DateTimeNullableFilter<"Aquarium"> | Date | string | null
   User?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   Stock?: Prisma.AquariumStockListRelationFilter
   Events?: Prisma.AquariumEventListRelationFilter
-}, "id" | "slug">
+  Sets?: Prisma.AquariumSetListRelationFilter
+}, "id" | "userId_slug">
 
 export type AquariumOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -318,6 +374,10 @@ export type AquariumOrderByWithAggregationInput = {
   backgroundKey?: Prisma.SortOrderInput | Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   lastTickAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  setSlotsCap?: Prisma.SortOrder
+  sizeCap?: Prisma.SortOrder
+  debrisLevel?: Prisma.SortOrder
+  lastCleanedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.AquariumCountOrderByAggregateInput
   _avg?: Prisma.AquariumAvgOrderByAggregateInput
   _max?: Prisma.AquariumMaxOrderByAggregateInput
@@ -339,6 +399,10 @@ export type AquariumScalarWhereWithAggregatesInput = {
   backgroundKey?: Prisma.StringNullableWithAggregatesFilter<"Aquarium"> | string | null
   isPublic?: Prisma.BoolWithAggregatesFilter<"Aquarium"> | boolean
   lastTickAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Aquarium"> | Date | string | null
+  setSlotsCap?: Prisma.IntWithAggregatesFilter<"Aquarium"> | number
+  sizeCap?: Prisma.IntWithAggregatesFilter<"Aquarium"> | number
+  debrisLevel?: Prisma.IntWithAggregatesFilter<"Aquarium"> | number
+  lastCleanedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Aquarium"> | Date | string | null
 }
 
 export type AquariumCreateInput = {
@@ -350,9 +414,14 @@ export type AquariumCreateInput = {
   backgroundKey?: string | null
   isPublic?: boolean
   lastTickAt?: Date | string | null
+  setSlotsCap?: number
+  sizeCap?: number
+  debrisLevel?: number
+  lastCleanedAt?: Date | string | null
   User: Prisma.UserCreateNestedOneWithoutAquariumsInput
   Stock?: Prisma.AquariumStockCreateNestedManyWithoutAquariumInput
   Events?: Prisma.AquariumEventCreateNestedManyWithoutAquariumInput
+  Sets?: Prisma.AquariumSetCreateNestedManyWithoutAquariumInput
 }
 
 export type AquariumUncheckedCreateInput = {
@@ -366,8 +435,13 @@ export type AquariumUncheckedCreateInput = {
   backgroundKey?: string | null
   isPublic?: boolean
   lastTickAt?: Date | string | null
+  setSlotsCap?: number
+  sizeCap?: number
+  debrisLevel?: number
+  lastCleanedAt?: Date | string | null
   Stock?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutAquariumInput
   Events?: Prisma.AquariumEventUncheckedCreateNestedManyWithoutAquariumInput
+  Sets?: Prisma.AquariumSetUncheckedCreateNestedManyWithoutAquariumInput
 }
 
 export type AquariumUpdateInput = {
@@ -379,9 +453,14 @@ export type AquariumUpdateInput = {
   backgroundKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastTickAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  setSlotsCap?: Prisma.IntFieldUpdateOperationsInput | number
+  sizeCap?: Prisma.IntFieldUpdateOperationsInput | number
+  debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   User?: Prisma.UserUpdateOneRequiredWithoutAquariumsNestedInput
   Stock?: Prisma.AquariumStockUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUpdateManyWithoutAquariumNestedInput
+  Sets?: Prisma.AquariumSetUpdateManyWithoutAquariumNestedInput
 }
 
 export type AquariumUncheckedUpdateInput = {
@@ -395,8 +474,13 @@ export type AquariumUncheckedUpdateInput = {
   backgroundKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastTickAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  setSlotsCap?: Prisma.IntFieldUpdateOperationsInput | number
+  sizeCap?: Prisma.IntFieldUpdateOperationsInput | number
+  debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Stock?: Prisma.AquariumStockUncheckedUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUncheckedUpdateManyWithoutAquariumNestedInput
+  Sets?: Prisma.AquariumSetUncheckedUpdateManyWithoutAquariumNestedInput
 }
 
 export type AquariumCreateManyInput = {
@@ -410,6 +494,10 @@ export type AquariumCreateManyInput = {
   backgroundKey?: string | null
   isPublic?: boolean
   lastTickAt?: Date | string | null
+  setSlotsCap?: number
+  sizeCap?: number
+  debrisLevel?: number
+  lastCleanedAt?: Date | string | null
 }
 
 export type AquariumUpdateManyMutationInput = {
@@ -421,6 +509,10 @@ export type AquariumUpdateManyMutationInput = {
   backgroundKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastTickAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  setSlotsCap?: Prisma.IntFieldUpdateOperationsInput | number
+  sizeCap?: Prisma.IntFieldUpdateOperationsInput | number
+  debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type AquariumUncheckedUpdateManyInput = {
@@ -434,6 +526,10 @@ export type AquariumUncheckedUpdateManyInput = {
   backgroundKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastTickAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  setSlotsCap?: Prisma.IntFieldUpdateOperationsInput | number
+  sizeCap?: Prisma.IntFieldUpdateOperationsInput | number
+  debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type AquariumListRelationFilter = {
@@ -452,6 +548,11 @@ export type AquariumOrderByRelevanceInput = {
   search: string
 }
 
+export type AquariumUserIdSlugCompoundUniqueInput = {
+  userId: number
+  slug: string
+}
+
 export type AquariumCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -463,12 +564,19 @@ export type AquariumCountOrderByAggregateInput = {
   backgroundKey?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   lastTickAt?: Prisma.SortOrder
+  setSlotsCap?: Prisma.SortOrder
+  sizeCap?: Prisma.SortOrder
+  debrisLevel?: Prisma.SortOrder
+  lastCleanedAt?: Prisma.SortOrder
 }
 
 export type AquariumAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   coins?: Prisma.SortOrder
+  setSlotsCap?: Prisma.SortOrder
+  sizeCap?: Prisma.SortOrder
+  debrisLevel?: Prisma.SortOrder
 }
 
 export type AquariumMaxOrderByAggregateInput = {
@@ -482,6 +590,10 @@ export type AquariumMaxOrderByAggregateInput = {
   backgroundKey?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   lastTickAt?: Prisma.SortOrder
+  setSlotsCap?: Prisma.SortOrder
+  sizeCap?: Prisma.SortOrder
+  debrisLevel?: Prisma.SortOrder
+  lastCleanedAt?: Prisma.SortOrder
 }
 
 export type AquariumMinOrderByAggregateInput = {
@@ -495,12 +607,19 @@ export type AquariumMinOrderByAggregateInput = {
   backgroundKey?: Prisma.SortOrder
   isPublic?: Prisma.SortOrder
   lastTickAt?: Prisma.SortOrder
+  setSlotsCap?: Prisma.SortOrder
+  sizeCap?: Prisma.SortOrder
+  debrisLevel?: Prisma.SortOrder
+  lastCleanedAt?: Prisma.SortOrder
 }
 
 export type AquariumSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   coins?: Prisma.SortOrder
+  setSlotsCap?: Prisma.SortOrder
+  sizeCap?: Prisma.SortOrder
+  debrisLevel?: Prisma.SortOrder
 }
 
 export type AquariumScalarRelationFilter = {
@@ -564,6 +683,20 @@ export type AquariumUpdateOneRequiredWithoutStockNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.AquariumUpdateToOneWithWhereWithoutStockInput, Prisma.AquariumUpdateWithoutStockInput>, Prisma.AquariumUncheckedUpdateWithoutStockInput>
 }
 
+export type AquariumCreateNestedOneWithoutSetsInput = {
+  create?: Prisma.XOR<Prisma.AquariumCreateWithoutSetsInput, Prisma.AquariumUncheckedCreateWithoutSetsInput>
+  connectOrCreate?: Prisma.AquariumCreateOrConnectWithoutSetsInput
+  connect?: Prisma.AquariumWhereUniqueInput
+}
+
+export type AquariumUpdateOneRequiredWithoutSetsNestedInput = {
+  create?: Prisma.XOR<Prisma.AquariumCreateWithoutSetsInput, Prisma.AquariumUncheckedCreateWithoutSetsInput>
+  connectOrCreate?: Prisma.AquariumCreateOrConnectWithoutSetsInput
+  upsert?: Prisma.AquariumUpsertWithoutSetsInput
+  connect?: Prisma.AquariumWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AquariumUpdateToOneWithWhereWithoutSetsInput, Prisma.AquariumUpdateWithoutSetsInput>, Prisma.AquariumUncheckedUpdateWithoutSetsInput>
+}
+
 export type AquariumCreateNestedOneWithoutEventsInput = {
   create?: Prisma.XOR<Prisma.AquariumCreateWithoutEventsInput, Prisma.AquariumUncheckedCreateWithoutEventsInput>
   connectOrCreate?: Prisma.AquariumCreateOrConnectWithoutEventsInput
@@ -587,8 +720,13 @@ export type AquariumCreateWithoutUserInput = {
   backgroundKey?: string | null
   isPublic?: boolean
   lastTickAt?: Date | string | null
+  setSlotsCap?: number
+  sizeCap?: number
+  debrisLevel?: number
+  lastCleanedAt?: Date | string | null
   Stock?: Prisma.AquariumStockCreateNestedManyWithoutAquariumInput
   Events?: Prisma.AquariumEventCreateNestedManyWithoutAquariumInput
+  Sets?: Prisma.AquariumSetCreateNestedManyWithoutAquariumInput
 }
 
 export type AquariumUncheckedCreateWithoutUserInput = {
@@ -601,8 +739,13 @@ export type AquariumUncheckedCreateWithoutUserInput = {
   backgroundKey?: string | null
   isPublic?: boolean
   lastTickAt?: Date | string | null
+  setSlotsCap?: number
+  sizeCap?: number
+  debrisLevel?: number
+  lastCleanedAt?: Date | string | null
   Stock?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutAquariumInput
   Events?: Prisma.AquariumEventUncheckedCreateNestedManyWithoutAquariumInput
+  Sets?: Prisma.AquariumSetUncheckedCreateNestedManyWithoutAquariumInput
 }
 
 export type AquariumCreateOrConnectWithoutUserInput = {
@@ -645,6 +788,10 @@ export type AquariumScalarWhereInput = {
   backgroundKey?: Prisma.StringNullableFilter<"Aquarium"> | string | null
   isPublic?: Prisma.BoolFilter<"Aquarium"> | boolean
   lastTickAt?: Prisma.DateTimeNullableFilter<"Aquarium"> | Date | string | null
+  setSlotsCap?: Prisma.IntFilter<"Aquarium"> | number
+  sizeCap?: Prisma.IntFilter<"Aquarium"> | number
+  debrisLevel?: Prisma.IntFilter<"Aquarium"> | number
+  lastCleanedAt?: Prisma.DateTimeNullableFilter<"Aquarium"> | Date | string | null
 }
 
 export type AquariumCreateWithoutStockInput = {
@@ -656,8 +803,13 @@ export type AquariumCreateWithoutStockInput = {
   backgroundKey?: string | null
   isPublic?: boolean
   lastTickAt?: Date | string | null
+  setSlotsCap?: number
+  sizeCap?: number
+  debrisLevel?: number
+  lastCleanedAt?: Date | string | null
   User: Prisma.UserCreateNestedOneWithoutAquariumsInput
   Events?: Prisma.AquariumEventCreateNestedManyWithoutAquariumInput
+  Sets?: Prisma.AquariumSetCreateNestedManyWithoutAquariumInput
 }
 
 export type AquariumUncheckedCreateWithoutStockInput = {
@@ -671,7 +823,12 @@ export type AquariumUncheckedCreateWithoutStockInput = {
   backgroundKey?: string | null
   isPublic?: boolean
   lastTickAt?: Date | string | null
+  setSlotsCap?: number
+  sizeCap?: number
+  debrisLevel?: number
+  lastCleanedAt?: Date | string | null
   Events?: Prisma.AquariumEventUncheckedCreateNestedManyWithoutAquariumInput
+  Sets?: Prisma.AquariumSetUncheckedCreateNestedManyWithoutAquariumInput
 }
 
 export type AquariumCreateOrConnectWithoutStockInput = {
@@ -699,8 +856,13 @@ export type AquariumUpdateWithoutStockInput = {
   backgroundKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastTickAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  setSlotsCap?: Prisma.IntFieldUpdateOperationsInput | number
+  sizeCap?: Prisma.IntFieldUpdateOperationsInput | number
+  debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   User?: Prisma.UserUpdateOneRequiredWithoutAquariumsNestedInput
   Events?: Prisma.AquariumEventUpdateManyWithoutAquariumNestedInput
+  Sets?: Prisma.AquariumSetUpdateManyWithoutAquariumNestedInput
 }
 
 export type AquariumUncheckedUpdateWithoutStockInput = {
@@ -714,6 +876,101 @@ export type AquariumUncheckedUpdateWithoutStockInput = {
   backgroundKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastTickAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  setSlotsCap?: Prisma.IntFieldUpdateOperationsInput | number
+  sizeCap?: Prisma.IntFieldUpdateOperationsInput | number
+  debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Events?: Prisma.AquariumEventUncheckedUpdateManyWithoutAquariumNestedInput
+  Sets?: Prisma.AquariumSetUncheckedUpdateManyWithoutAquariumNestedInput
+}
+
+export type AquariumCreateWithoutSetsInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  slug: string
+  title: string
+  coins?: number
+  backgroundKey?: string | null
+  isPublic?: boolean
+  lastTickAt?: Date | string | null
+  setSlotsCap?: number
+  sizeCap?: number
+  debrisLevel?: number
+  lastCleanedAt?: Date | string | null
+  User: Prisma.UserCreateNestedOneWithoutAquariumsInput
+  Stock?: Prisma.AquariumStockCreateNestedManyWithoutAquariumInput
+  Events?: Prisma.AquariumEventCreateNestedManyWithoutAquariumInput
+}
+
+export type AquariumUncheckedCreateWithoutSetsInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  userId: number
+  slug: string
+  title: string
+  coins?: number
+  backgroundKey?: string | null
+  isPublic?: boolean
+  lastTickAt?: Date | string | null
+  setSlotsCap?: number
+  sizeCap?: number
+  debrisLevel?: number
+  lastCleanedAt?: Date | string | null
+  Stock?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutAquariumInput
+  Events?: Prisma.AquariumEventUncheckedCreateNestedManyWithoutAquariumInput
+}
+
+export type AquariumCreateOrConnectWithoutSetsInput = {
+  where: Prisma.AquariumWhereUniqueInput
+  create: Prisma.XOR<Prisma.AquariumCreateWithoutSetsInput, Prisma.AquariumUncheckedCreateWithoutSetsInput>
+}
+
+export type AquariumUpsertWithoutSetsInput = {
+  update: Prisma.XOR<Prisma.AquariumUpdateWithoutSetsInput, Prisma.AquariumUncheckedUpdateWithoutSetsInput>
+  create: Prisma.XOR<Prisma.AquariumCreateWithoutSetsInput, Prisma.AquariumUncheckedCreateWithoutSetsInput>
+  where?: Prisma.AquariumWhereInput
+}
+
+export type AquariumUpdateToOneWithWhereWithoutSetsInput = {
+  where?: Prisma.AquariumWhereInput
+  data: Prisma.XOR<Prisma.AquariumUpdateWithoutSetsInput, Prisma.AquariumUncheckedUpdateWithoutSetsInput>
+}
+
+export type AquariumUpdateWithoutSetsInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  coins?: Prisma.IntFieldUpdateOperationsInput | number
+  backgroundKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastTickAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  setSlotsCap?: Prisma.IntFieldUpdateOperationsInput | number
+  sizeCap?: Prisma.IntFieldUpdateOperationsInput | number
+  debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  User?: Prisma.UserUpdateOneRequiredWithoutAquariumsNestedInput
+  Stock?: Prisma.AquariumStockUpdateManyWithoutAquariumNestedInput
+  Events?: Prisma.AquariumEventUpdateManyWithoutAquariumNestedInput
+}
+
+export type AquariumUncheckedUpdateWithoutSetsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  coins?: Prisma.IntFieldUpdateOperationsInput | number
+  backgroundKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastTickAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  setSlotsCap?: Prisma.IntFieldUpdateOperationsInput | number
+  sizeCap?: Prisma.IntFieldUpdateOperationsInput | number
+  debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Stock?: Prisma.AquariumStockUncheckedUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUncheckedUpdateManyWithoutAquariumNestedInput
 }
 
@@ -726,8 +983,13 @@ export type AquariumCreateWithoutEventsInput = {
   backgroundKey?: string | null
   isPublic?: boolean
   lastTickAt?: Date | string | null
+  setSlotsCap?: number
+  sizeCap?: number
+  debrisLevel?: number
+  lastCleanedAt?: Date | string | null
   User: Prisma.UserCreateNestedOneWithoutAquariumsInput
   Stock?: Prisma.AquariumStockCreateNestedManyWithoutAquariumInput
+  Sets?: Prisma.AquariumSetCreateNestedManyWithoutAquariumInput
 }
 
 export type AquariumUncheckedCreateWithoutEventsInput = {
@@ -741,7 +1003,12 @@ export type AquariumUncheckedCreateWithoutEventsInput = {
   backgroundKey?: string | null
   isPublic?: boolean
   lastTickAt?: Date | string | null
+  setSlotsCap?: number
+  sizeCap?: number
+  debrisLevel?: number
+  lastCleanedAt?: Date | string | null
   Stock?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutAquariumInput
+  Sets?: Prisma.AquariumSetUncheckedCreateNestedManyWithoutAquariumInput
 }
 
 export type AquariumCreateOrConnectWithoutEventsInput = {
@@ -769,8 +1036,13 @@ export type AquariumUpdateWithoutEventsInput = {
   backgroundKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastTickAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  setSlotsCap?: Prisma.IntFieldUpdateOperationsInput | number
+  sizeCap?: Prisma.IntFieldUpdateOperationsInput | number
+  debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   User?: Prisma.UserUpdateOneRequiredWithoutAquariumsNestedInput
   Stock?: Prisma.AquariumStockUpdateManyWithoutAquariumNestedInput
+  Sets?: Prisma.AquariumSetUpdateManyWithoutAquariumNestedInput
 }
 
 export type AquariumUncheckedUpdateWithoutEventsInput = {
@@ -784,7 +1056,12 @@ export type AquariumUncheckedUpdateWithoutEventsInput = {
   backgroundKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastTickAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  setSlotsCap?: Prisma.IntFieldUpdateOperationsInput | number
+  sizeCap?: Prisma.IntFieldUpdateOperationsInput | number
+  debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Stock?: Prisma.AquariumStockUncheckedUpdateManyWithoutAquariumNestedInput
+  Sets?: Prisma.AquariumSetUncheckedUpdateManyWithoutAquariumNestedInput
 }
 
 export type AquariumCreateManyUserInput = {
@@ -797,6 +1074,10 @@ export type AquariumCreateManyUserInput = {
   backgroundKey?: string | null
   isPublic?: boolean
   lastTickAt?: Date | string | null
+  setSlotsCap?: number
+  sizeCap?: number
+  debrisLevel?: number
+  lastCleanedAt?: Date | string | null
 }
 
 export type AquariumUpdateWithoutUserInput = {
@@ -808,8 +1089,13 @@ export type AquariumUpdateWithoutUserInput = {
   backgroundKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastTickAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  setSlotsCap?: Prisma.IntFieldUpdateOperationsInput | number
+  sizeCap?: Prisma.IntFieldUpdateOperationsInput | number
+  debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Stock?: Prisma.AquariumStockUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUpdateManyWithoutAquariumNestedInput
+  Sets?: Prisma.AquariumSetUpdateManyWithoutAquariumNestedInput
 }
 
 export type AquariumUncheckedUpdateWithoutUserInput = {
@@ -822,8 +1108,13 @@ export type AquariumUncheckedUpdateWithoutUserInput = {
   backgroundKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastTickAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  setSlotsCap?: Prisma.IntFieldUpdateOperationsInput | number
+  sizeCap?: Prisma.IntFieldUpdateOperationsInput | number
+  debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Stock?: Prisma.AquariumStockUncheckedUpdateManyWithoutAquariumNestedInput
   Events?: Prisma.AquariumEventUncheckedUpdateManyWithoutAquariumNestedInput
+  Sets?: Prisma.AquariumSetUncheckedUpdateManyWithoutAquariumNestedInput
 }
 
 export type AquariumUncheckedUpdateManyWithoutUserInput = {
@@ -836,6 +1127,10 @@ export type AquariumUncheckedUpdateManyWithoutUserInput = {
   backgroundKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastTickAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  setSlotsCap?: Prisma.IntFieldUpdateOperationsInput | number
+  sizeCap?: Prisma.IntFieldUpdateOperationsInput | number
+  debrisLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  lastCleanedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 
@@ -846,11 +1141,13 @@ export type AquariumUncheckedUpdateManyWithoutUserInput = {
 export type AquariumCountOutputType = {
   Stock: number
   Events: number
+  Sets: number
 }
 
 export type AquariumCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Stock?: boolean | AquariumCountOutputTypeCountStockArgs
   Events?: boolean | AquariumCountOutputTypeCountEventsArgs
+  Sets?: boolean | AquariumCountOutputTypeCountSetsArgs
 }
 
 /**
@@ -877,6 +1174,13 @@ export type AquariumCountOutputTypeCountEventsArgs<ExtArgs extends runtime.Types
   where?: Prisma.AquariumEventWhereInput
 }
 
+/**
+ * AquariumCountOutputType without action
+ */
+export type AquariumCountOutputTypeCountSetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AquariumSetWhereInput
+}
+
 
 export type AquariumSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -889,9 +1193,14 @@ export type AquariumSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   backgroundKey?: boolean
   isPublic?: boolean
   lastTickAt?: boolean
+  setSlotsCap?: boolean
+  sizeCap?: boolean
+  debrisLevel?: boolean
+  lastCleanedAt?: boolean
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   Stock?: boolean | Prisma.Aquarium$StockArgs<ExtArgs>
   Events?: boolean | Prisma.Aquarium$EventsArgs<ExtArgs>
+  Sets?: boolean | Prisma.Aquarium$SetsArgs<ExtArgs>
   _count?: boolean | Prisma.AquariumCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["aquarium"]>
 
@@ -908,13 +1217,18 @@ export type AquariumSelectScalar = {
   backgroundKey?: boolean
   isPublic?: boolean
   lastTickAt?: boolean
+  setSlotsCap?: boolean
+  sizeCap?: boolean
+  debrisLevel?: boolean
+  lastCleanedAt?: boolean
 }
 
-export type AquariumOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "userId" | "slug" | "title" | "coins" | "backgroundKey" | "isPublic" | "lastTickAt", ExtArgs["result"]["aquarium"]>
+export type AquariumOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "userId" | "slug" | "title" | "coins" | "backgroundKey" | "isPublic" | "lastTickAt" | "setSlotsCap" | "sizeCap" | "debrisLevel" | "lastCleanedAt", ExtArgs["result"]["aquarium"]>
 export type AquariumInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   User?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   Stock?: boolean | Prisma.Aquarium$StockArgs<ExtArgs>
   Events?: boolean | Prisma.Aquarium$EventsArgs<ExtArgs>
+  Sets?: boolean | Prisma.Aquarium$SetsArgs<ExtArgs>
   _count?: boolean | Prisma.AquariumCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -924,18 +1238,46 @@ export type $AquariumPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     User: Prisma.$UserPayload<ExtArgs>
     Stock: Prisma.$AquariumStockPayload<ExtArgs>[]
     Events: Prisma.$AquariumEventPayload<ExtArgs>[]
+    Sets: Prisma.$AquariumSetPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     createdAt: Date
     updatedAt: Date | null
     userId: number
+    /**
+     * cthulhuquarium/t-032: was globally @unique, which collides the moment a
+     * second user picks the same tank name (e.g. "my-tank"). Slugs only need
+     * to be unique per owner -- see the @@unique([userId, slug]) below.
+     */
     slug: string
     title: string
     coins: number
     backgroundKey: string | null
     isPublic: boolean
     lastTickAt: Date | null
+    /**
+     * cthulhuquarium/t-032: counted set-piece slots (SYSTEMS.md "Capacity: two
+     * pools, two units"). Starts at three per SYSTEMS.md; a tank upgrade raises
+     * this alongside sizeCap. Distinct pool from fish capacity -- do not sum
+     * with sizeCap.
+     */
+    setSlotsCap: number
+    /**
+     * cthulhuquarium/t-032: weighed fish capacity, measured against the sum of
+     * placed AquariumStock's Character.size. [v1 placeholder -- economy.yaml
+     * predates this two-pool split (it was written for a single shared-pool
+     * model Silas later superseded) and does not yet carry a tuned starting
+     * value; this default is a starting-point guess for a future balance pass,
+     * not a confirmed number.]
+     */
+    sizeCap: number
+    /**
+     * cthulhuquarium/t-032 item 5 (t-027 dependency): tank-wide debris level,
+     * settled server-side like hunger. 0 = spotless.
+     */
+    debrisLevel: number
+    lastCleanedAt: Date | null
   }, ExtArgs["result"]["aquarium"]>
   composites: {}
 }
@@ -1279,6 +1621,7 @@ export interface Prisma__AquariumClient<T, Null = never, ExtArgs extends runtime
   User<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   Stock<T extends Prisma.Aquarium$StockArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Aquarium$StockArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AquariumStockPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Events<T extends Prisma.Aquarium$EventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Aquarium$EventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AquariumEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Sets<T extends Prisma.Aquarium$SetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Aquarium$SetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AquariumSetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1318,6 +1661,10 @@ export interface AquariumFieldRefs {
   readonly backgroundKey: Prisma.FieldRef<"Aquarium", 'String'>
   readonly isPublic: Prisma.FieldRef<"Aquarium", 'Boolean'>
   readonly lastTickAt: Prisma.FieldRef<"Aquarium", 'DateTime'>
+  readonly setSlotsCap: Prisma.FieldRef<"Aquarium", 'Int'>
+  readonly sizeCap: Prisma.FieldRef<"Aquarium", 'Int'>
+  readonly debrisLevel: Prisma.FieldRef<"Aquarium", 'Int'>
+  readonly lastCleanedAt: Prisma.FieldRef<"Aquarium", 'DateTime'>
 }
     
 
@@ -1711,6 +2058,30 @@ export type Aquarium$EventsArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.AquariumEventScalarFieldEnum | Prisma.AquariumEventScalarFieldEnum[]
+}
+
+/**
+ * Aquarium.Sets
+ */
+export type Aquarium$SetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AquariumSet
+   */
+  select?: Prisma.AquariumSetSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AquariumSet
+   */
+  omit?: Prisma.AquariumSetOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AquariumSetInclude<ExtArgs> | null
+  where?: Prisma.AquariumSetWhereInput
+  orderBy?: Prisma.AquariumSetOrderByWithRelationInput | Prisma.AquariumSetOrderByWithRelationInput[]
+  cursor?: Prisma.AquariumSetWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AquariumSetScalarFieldEnum | Prisma.AquariumSetScalarFieldEnum[]
 }
 
 /**

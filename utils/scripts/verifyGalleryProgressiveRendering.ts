@@ -16,6 +16,7 @@ function forbidText(source: string, text: string, message: string): void {
 
 const gallery = read('components/gallery/kr-gallery.vue')
 const deferredImage = read('components/gallery/kr-deferred-image.vue')
+const viewportGate = read('components/gallery/kr-viewport-gate.vue')
 const viewport = read('utils/viewportHydration.ts')
 const artPlate = read('components/narrative/kr-art-plate.vue')
 const facets = read('components/facets/facet-gallery.vue')
@@ -23,6 +24,8 @@ const artGallery = read('components/art/art-gallery.vue')
 const imageCard = read('components/art/image-card.vue')
 const resourceCard = read('components/resources/resource-card.vue')
 const checkpointCard = read('components/servers/checkpoint-card.vue')
+const achievementCard = read('components/achievements/earned-achievement-card.vue')
+const stylistGallery = read('components/art/stylist-client-gallery.vue')
 
 for (const token of [
   'pageSize',
@@ -60,11 +63,13 @@ requireText(
   ':src="activeSrc || undefined"',
   'kr-deferred-image must leave src absent before hydration',
 )
-requireText(
-  deferredImage,
-  'observeViewportHydration',
-  'kr-deferred-image must use the shared viewport observer',
-)
+for (const [source, message] of [
+  [deferredImage, 'kr-deferred-image must use the shared viewport observer'],
+  [viewportGate, 'kr-viewport-gate must use the shared viewport observer'],
+  [imageCard, 'image-card heavy-data fetches must use the shared viewport observer'],
+] as const) {
+  requireText(source, 'observeViewportHydration', message)
+}
 requireText(
   viewport,
   "rootMargin: '1800px 0px 1800px 0px'",
@@ -79,6 +84,7 @@ for (const [source, message] of [
   [artPlate, 'shared entity art plates must defer their image sources'],
   [resourceCard, 'resource gallery cards must defer preview image sources'],
   [checkpointCard, 'checkpoint gallery cards must defer preview image sources'],
+  [achievementCard, 'earned achievement cards must defer generated art'],
 ] as const) {
   requireText(source, '<kr-deferred-image', message)
 }
@@ -116,13 +122,18 @@ requireText(
 )
 requireText(
   imageCard,
-  'observeViewportHydration',
-  'image-card heavy-data fetches must be driven by the shared viewport observer',
-)
-requireText(
-  imageCard,
   '<kr-deferred-image',
   'image-card network image sources must be deferred too',
+)
+requireText(
+  stylistGallery,
+  '<kr-viewport-gate',
+  'stylist photo blobs must be gated by viewport proximity',
+)
+forbidText(
+  stylistGallery,
+  'Promise.all(next.map(loadBlob))',
+  'stylist gallery must not eagerly fetch every authenticated photo blob',
 )
 
 if (failures.length) {

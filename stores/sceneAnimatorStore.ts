@@ -36,7 +36,15 @@ export type SceneAnimatorSource = {
   resultPath: string | null
   resultFileType: string | null
   error: string | null
+  createdAt: string | null
   updatedAt: string | null
+}
+
+export type SceneAnimatorFolderStat = {
+  total: number
+  done: number
+  active: number
+  failed: number
 }
 
 type SceneAnimatorConfig = {
@@ -59,6 +67,7 @@ type SceneAnimatorIndexData = {
   config: SceneAnimatorConfig
   configKey: string
   sources: SceneAnimatorSource[]
+  folderStats: Record<string, SceneAnimatorFolderStat>
 }
 
 type SceneAnimatorEnqueueData = {
@@ -101,6 +110,7 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
   const defaultPreset = getDefaultVideoPreset('wan')
 
   const folders = ref<SceneAnimatorFolder[]>([])
+  const folderStats = ref<Record<string, SceneAnimatorFolderStat>>({})
   const sources = ref<SceneAnimatorSource[]>([])
   const selectedFolder = ref('')
   const engine = ref<VideoEngine>('wan')
@@ -112,6 +122,7 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
   const resultPreviewUrls = ref<Record<number, string>>({})
   const loading = ref(false)
   const queueing = ref(false)
+  const retryingSource = ref<string | null>(null)
   const initialized = ref(false)
   const error = ref<string | null>(null)
   const lastEnqueue = ref<SceneAnimatorEnqueueData | null>(null)
@@ -241,6 +252,7 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
         // still answered normally), so this is reported through the same
         // error banner rather than thrown, with the server's specific reason.
         folders.value = []
+        folderStats.value = {}
         sources.value = []
         initialized.value = true
         error.value =
@@ -249,6 +261,7 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
       }
 
       folders.value = response.data.folders
+      folderStats.value = response.data.folderStats
       configKey.value = response.data.configKey
       engine.value = response.data.config.engine
       presetId.value = response.data.config.presetId
@@ -313,6 +326,49 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
     }
   }
 
+  async function retrySource(sourceFile: string): Promise<boolean> {
+    queueing.value = true
+    retryingSource.value = sourceFile
+    clearError()
+    try {
+      const response = await performFetch<SceneAnimatorEnqueueData>(
+        '/api/scene-animator/enqueue',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            folder: selectedFolder.value,
+            engine: engine.value,
+            presetId: presetId.value,
+            durationSeconds: durationSeconds.value,
+            isMature: isMature.value,
+            retryFailed: true,
+            sourceFile,
+          }),
+        },
+        1,
+        120_000,
+      )
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Failed to retry this scene.')
+      }
+      lastEnqueue.value = response.data
+      if (response.data.errors.length) {
+        error.value = response.data.errors
+          .map((item) => `${item.sourceFile}: ${item.message}`)
+          .join('\n')
+        return false
+      }
+      await load()
+      return true
+    } catch (cause) {
+      error.value = errorMessage(cause, 'Failed to retry this scene.')
+      return false
+    } finally {
+      queueing.value = false
+      retryingSource.value = null
+    }
+  }
+
   async function selectFolder(folder: string) {
     selectedFolder.value = folder
     await load(folder)
@@ -353,6 +409,7 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
 
   return {
     folders,
+    folderStats,
     sources,
     selectedFolder,
     engine,
@@ -364,6 +421,7 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
     resultPreviewUrls,
     loading,
     queueing,
+    retryingSource,
     initialized,
     error,
     lastEnqueue,
@@ -378,6 +436,7 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
     clearError,
     load,
     enqueue,
+    retrySource,
     selectFolder,
     setEngine,
     setPreset,

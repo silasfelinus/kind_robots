@@ -63,7 +63,7 @@
                   :key="folder.name || '__root__'"
                   :value="folder.name"
                 >
-                  {{ folder.name || '(animate root)' }} · {{ folder.imageCount }} image{{ folder.imageCount === 1 ? '' : 's' }}
+                  {{ folder.name || '(animate root)' }} · {{ folder.imageCount }} image{{ folder.imageCount === 1 ? '' : 's' }}{{ folderCompletionSuffix(folder.name) }}
                 </option>
               </select>
             </label>
@@ -173,31 +173,26 @@
           <section class="space-y-4">
             <div class="kr-panel p-4">
               <div class="grid grid-cols-2 gap-3 md:grid-cols-5">
-                <div class="rounded-xl bg-base-200 p-3">
-                  <p class="text-xs font-bold text-base-content/50">Scenes</p>
-                  <p class="text-2xl font-black">{{ store.totalCount }}</p>
-                </div>
-                <div class="rounded-xl bg-base-200 p-3">
-                  <p class="text-xs font-bold text-base-content/50">Missing</p>
-                  <p class="text-2xl font-black">{{ store.missingCount }}</p>
-                </div>
-                <div class="rounded-xl bg-base-200 p-3">
-                  <p class="text-xs font-bold text-base-content/50">Active</p>
-                  <p class="text-2xl font-black">{{ store.activeCount }}</p>
-                </div>
-                <div class="rounded-xl bg-base-200 p-3">
-                  <p class="text-xs font-bold text-base-content/50">Done</p>
-                  <p class="text-2xl font-black">{{ store.doneCount }}</p>
-                </div>
-                <div class="rounded-xl bg-base-200 p-3">
-                  <p class="text-xs font-bold text-base-content/50">Failed</p>
-                  <p class="text-2xl font-black">{{ store.failedCount }}</p>
-                </div>
+                <button
+                  v-for="tile in statTiles"
+                  :key="tile.key"
+                  type="button"
+                  class="rounded-xl bg-base-200 p-3 text-left transition-colors hover:bg-base-300"
+                  :class="{ 'ring-2 ring-primary': statusFilter === tile.key }"
+                  @click="statusFilter = statusFilter === tile.key ? 'all' : tile.key"
+                >
+                  <p class="text-xs font-bold text-base-content/50">{{ tile.label }}</p>
+                  <p class="text-2xl font-black">{{ tile.count }}</p>
+                </button>
               </div>
               <div class="mt-3 flex items-center gap-3">
                 <progress class="progress progress-primary flex-1" :value="store.completionPercent" max="100" />
                 <span class="w-12 text-right text-sm font-black">{{ store.completionPercent }}%</span>
               </div>
+              <p v-if="statusFilter !== 'all'" class="mt-3 flex items-center gap-2 text-xs text-base-content/50">
+                Showing {{ filteredSources.length }} {{ statusFilter }} scene{{ filteredSources.length === 1 ? '' : 's' }} only.
+                <button type="button" class="link" @click="statusFilter = 'all'">Clear filter</button>
+              </p>
             </div>
 
             <div
@@ -228,9 +223,21 @@
               </div>
             </div>
 
+            <div
+              v-else-if="!filteredSources.length"
+              class="grid min-h-40 place-items-center rounded-2xl border border-dashed border-base-300 bg-base-100/50 p-6 text-center"
+            >
+              <div>
+                <p class="font-black">No {{ statusFilter }} scenes in this folder</p>
+                <button type="button" class="link mt-1 text-sm" @click="statusFilter = 'all'">
+                  Clear filter
+                </button>
+              </div>
+            </div>
+
             <div v-else class="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
               <article
-                v-for="source in store.sources"
+                v-for="source in filteredSources"
                 :key="source.dedupeKey"
                 class="kr-panel overflow-hidden"
               >
@@ -267,7 +274,10 @@
                       />
                     </template>
                     <div v-else class="grid size-full place-items-center p-3 text-center text-xs text-base-content/40">
-                      <span v-if="source.status === 'rendering' || source.status === 'queued'" class="loading loading-spinner loading-sm" />
+                      <template v-if="source.status === 'rendering' || source.status === 'queued'">
+                        <span class="loading loading-spinner loading-sm" />
+                        <span class="mt-1 block">{{ elapsedLabel(source) }}</span>
+                      </template>
                       <span v-else>{{ statusLabel(source.status) }}</span>
                     </div>
                     <span class="absolute left-2 top-2 badge badge-sm bg-base-100/90">motion</span>
@@ -290,6 +300,16 @@
                   <p v-if="source.error" class="line-clamp-3 text-xs text-error" :title="source.error">
                     {{ source.error }}
                   </p>
+                  <button
+                    v-if="source.status === 'failed' || source.status === 'cancelled'"
+                    type="button"
+                    class="btn btn-error btn-outline btn-xs w-full rounded-lg"
+                    :disabled="store.queueing"
+                    @click="store.retrySource(source.name)"
+                  >
+                    <span v-if="store.retryingSource === source.name" class="loading loading-spinner loading-xs" />
+                    Retry this scene
+                  </button>
                 </div>
               </article>
             </div>
@@ -301,15 +321,44 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useSceneAnimatorStore, type SceneAnimatorSource } from '@/stores/sceneAnimatorStore'
 import { useUserStore } from '@/stores/userStore'
 import type { VideoEngine, VideoPresetId } from '@/utils/videoPresets'
 
+type StatusFilter = 'all' | 'missing' | 'active' | 'done' | 'failed'
+
 const store = useSceneAnimatorStore()
 const userStore = useUserStore()
 const ready = ref(false)
+const statusFilter = ref<StatusFilter>('all')
 let pollTimer: ReturnType<typeof setInterval> | null = null
+
+const statTiles = computed(() => [
+  { key: 'all' as const, label: 'Scenes', count: store.totalCount },
+  { key: 'missing' as const, label: 'Missing', count: store.missingCount },
+  { key: 'active' as const, label: 'Active', count: store.activeCount },
+  { key: 'done' as const, label: 'Done', count: store.doneCount },
+  { key: 'failed' as const, label: 'Failed', count: store.failedCount },
+])
+
+function matchesFilter(source: SceneAnimatorSource, filter: StatusFilter): boolean {
+  if (filter === 'all') return true
+  if (filter === 'missing') return source.status === 'missing'
+  if (filter === 'active') return source.status === 'queued' || source.status === 'rendering'
+  if (filter === 'done') return source.status === 'done'
+  return source.status === 'failed' || source.status === 'cancelled'
+}
+
+const filteredSources = computed(() =>
+  store.sources.filter((source) => matchesFilter(source, statusFilter.value)),
+)
+
+function folderCompletionSuffix(folderName: string): string {
+  const stat = store.folderStats[folderName]
+  if (!stat || !stat.total) return ''
+  return ` · ${stat.done}/${stat.total} rendered`
+}
 
 onMounted(async () => {
   await userStore.initialize()
@@ -332,6 +381,7 @@ function eventValue(event: Event): string {
 }
 
 function onFolderChange(event: Event) {
+  statusFilter.value = 'all'
   void store.selectFolder(eventValue(event))
 }
 
@@ -377,5 +427,25 @@ function isVideoResult(source: SceneAnimatorSource): boolean {
   const type = String(source.resultFileType || '').toLowerCase()
   const url = store.resultUrl(source) || ''
   return type.includes('mp4') || type.includes('webm') || /\.(mp4|webm)(?:[?#]|$)/i.test(url)
+}
+
+function formatElapsed(seconds: number): string {
+  if (seconds < 60) return `${Math.max(0, Math.round(seconds))}s`
+  const minutes = Math.round(seconds / 60)
+  if (minutes < 60) return `${minutes}m`
+  return `${Math.floor(minutes / 60)}h ${minutes % 60}m`
+}
+
+// Elapsed-since-queued for a queued job, elapsed-since-last-update for a
+// rendering one, plus the current preset's own timeout as a rough "typically
+// finishes within" ceiling -- there's no per-job progress signal to report
+// against, so this is the clearest honest estimate available without one.
+function elapsedLabel(source: SceneAnimatorSource): string {
+  const since = source.status === 'rendering' ? source.updatedAt : source.createdAt
+  const ceiling = formatElapsed(store.selectedPreset.timeoutSeconds)
+  if (!since) return `typically ≤ ${ceiling}`
+  const elapsedSeconds = (Date.now() - new Date(since).getTime()) / 1000
+  if (!Number.isFinite(elapsedSeconds) || elapsedSeconds < 0) return `typically ≤ ${ceiling}`
+  return `${formatElapsed(elapsedSeconds)} elapsed · typically ≤ ${ceiling}`
 }
 </script>

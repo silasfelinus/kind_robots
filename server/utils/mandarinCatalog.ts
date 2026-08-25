@@ -106,7 +106,9 @@ function normalizeSourceEntry(entry: SourceEntry, level: number): MandarinCard |
     meanings: selectedMeanings.slice(0, 6),
     kind: [...simplified].length === 1 ? 'character' : 'word',
     ...(radical ? { radical } : {}),
-    ...(Number.isFinite(entry.q) ? { frequency: Number(entry.q) } : {}),
+    ...(typeof entry.q === 'number' && Number.isFinite(entry.q)
+      ? { frequency: entry.q }
+      : {}),
     hskLevel: level,
     partsOfSpeech: Array.isArray(entry.p) ? entry.p.filter(Boolean) : [],
     classifiers: Array.isArray(form.c) ? form.c.filter(Boolean) : [],
@@ -119,10 +121,13 @@ function normalizeSourceEntry(entry: SourceEntry, level: number): MandarinCard |
 }
 
 async function fetchLevel(level: number): Promise<MandarinCard[]> {
-  const entries = await $fetch<SourceEntry[]>(`${SOURCE_BASE}/${level}.min.json`, {
-    retry: 2,
-    timeout: 20_000,
-  })
+  const entries = await $fetch<SourceEntry[], string>(
+    `${SOURCE_BASE}/${level}.min.json`,
+    {
+      retry: 2,
+      timeout: 20_000,
+    },
+  )
   if (!Array.isArray(entries)) throw new Error(`HSK level ${level} source was not an array.`)
   return entries
     .map((entry) => normalizeSourceEntry(entry, level))
@@ -182,9 +187,11 @@ function buildSets(cards: MandarinCard[]): MandarinStudySet[] {
     },
     {
       id: 'hsk-2',
-      label: 'HSK 2 vocabulary',
-      description: 'Level 2 vocabulary, including level 1 words where the source is inclusive.',
-      cardKeys: cards.filter((card) => card.hskLevel === 2).map((card) => card.key),
+      label: 'HSK 1–2 vocabulary',
+      description: 'The cumulative beginner vocabulary through HSK level 2.',
+      cardKeys: cards
+        .filter((card) => (card.hskLevel ?? 99) <= 2)
+        .map((card) => card.key),
     },
   ]
 

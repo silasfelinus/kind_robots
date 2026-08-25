@@ -17,6 +17,11 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'music-mentor',
     route: '/music-mentor',
   },
+  'mandarin-tutor': {
+    channelKey: 'play',
+    tabKey: 'mandarin',
+    route: '/play/mandarin',
+  },
   'coloring-book': {
     channelKey: 'plan',
     tabKey: 'coloring',

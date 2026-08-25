@@ -2,7 +2,9 @@ import { createHash } from 'node:crypto'
 import type { MandarinCard, MandarinCatalogPayload } from '~/utils/mandarin'
 import { getMandarinCatalog } from './mandarinCatalog'
 
-export const MANDARIN_ILLUSTRATION_RECIPE_VERSION = 'v1'
+export const MANDARIN_ILLUSTRATION_RECIPE_VERSION = 'v2'
+export const MANDARIN_ART_DIRECTION_ID = 'modern-chinese-picturebook-v2'
+export const MANDARIN_ART_DIRECTION_LABEL = 'Modern Chinese picture-book gouache'
 export const MANDARIN_ILLUSTRATION_ENGINE = 'krea2'
 export const MANDARIN_ILLUSTRATION_SIZE = 768
 
@@ -21,6 +23,7 @@ export type MandarinIllustrationManifestEntry = {
   strategy: MandarinIllustrationStrategy
   strategyReason: string
   recipeVersion: string
+  artDirectionId: string
   engine: string
   width: number
   height: number
@@ -31,6 +34,14 @@ export type MandarinIllustrationManifestEntry = {
 
 export type MandarinIllustrationManifest = {
   recipeVersion: string
+  artDirection: {
+    id: string
+    label: string
+    medium: string
+    culturalGrounding: string
+    antiAiTells: string[]
+    textPolicy: string
+  }
   engine: string
   generatedFrom: MandarinCatalogPayload['source']
   selection: {
@@ -43,6 +54,25 @@ export type MandarinIllustrationManifest = {
 }
 
 const FUNCTION_WORD_PARTS_OF_SPEECH = new Set(['u', 'y', 'c', 'p', 'd', 'r'])
+
+const ART_DIRECTION = {
+  id: MANDARIN_ART_DIRECTION_ID,
+  label: MANDARIN_ART_DIRECTION_LABEL,
+  medium:
+    'Hand-painted educational picture-book illustration with Chinese gouache, watercolor, and restrained ink-wash influence; matte pigments on subtly textured paper.',
+  culturalGrounding:
+    'Use ordinary contemporary Chinese material culture, domestic life, foodways, streets, transit, tableware, textiles, games, and environments when they naturally support the vocabulary. Cultural specificity should come from believable lived details, not tourist shorthand.',
+  antiAiTells: [
+    'simplified deliberate forms instead of indiscriminate micro-detail',
+    'matte pigment and paper texture instead of glossy CGI surfaces',
+    'natural asymmetry and hand-painted edge variation instead of mechanical perfection',
+    'one clear focal subject instead of decorative filler and object clutter',
+    'simple believable anatomy instead of elaborate hand or face poses',
+    'restrained lighting instead of cinematic rim-light, lens flare, bokeh, or neon glow',
+  ],
+  textPolicy:
+    'No Hanzi, pinyin, English, numerals, pseudo-writing, captions, signage, logos, speech bubbles, labels, or watermarks inside generated art.',
+} as const
 
 function stableToken(cardKey: string): string {
   return createHash('sha256').update(cardKey, 'utf8').digest('hex').slice(0, 24)
@@ -84,9 +114,7 @@ function illustrationStrategy(card: MandarinCard): {
     }
   }
 
-  if (
-    /^(?:\(?(?:modal |grammar )?particle\b|prefix\b|suffix\b)/i.test(card.meaning.trim())
-  ) {
+  if (/^(?:\(?(?:modal |grammar )?particle\b|prefix\b|suffix\b)/i.test(card.meaning.trim())) {
     return {
       strategy: 'glyph-only',
       reason: 'This entry is primarily grammatical morphology rather than a concrete visual concept.',
@@ -104,51 +132,53 @@ function categoryDirection(card: MandarinCard): string {
 
   if (categories.has('casino')) {
     return [
-      'Use a professional modern table-game or casino-service setting only when it helps express the concept.',
-      'Cards, chips, table layouts, dealer/player actions, cash handling, and suits should look physically plausible and brand-neutral.',
-      'Do not invent readable table labels, betting text, chip denominations, or card-face numerals.',
+      'Use a grounded contemporary Chinese or Chinese-speaking table-game context when it clarifies the concept: believable felt tables, chips, cards, tiles, cash handling, dealer gestures, and player interactions.',
+      'Favor the visual language of a real working casino floor over fantasy luxury. Keep equipment physically plausible and brand-neutral.',
+      'Do not invent readable table labels, chip denominations, card-face numerals, or gambling signage.',
     ].join(' ')
   }
-  if (categories.has('animals')) {
-    return 'Center one clearly recognizable animal or small natural animal scene; make species identity unmistakable.'
-  }
-  if (categories.has('colors')) {
-    return 'Use one familiar central object or tiny scene whose dominant named color is unmistakable; communicate the color without swatches, labels, or text.'
-  }
-  if (categories.has('numbers')) {
-    return 'Communicate quantity with a clean group of countable everyday objects; use objects rather than written digits or number symbols.'
-  }
   if (categories.has('food-drink')) {
-    return 'Make the food, drink, meal, vessel, or eating action immediately recognizable and appetizing without packaging text.'
+    return 'Use recognizable Chinese everyday food culture where natural: ceramic bowls and cups, chopsticks, bamboo steamers, shared dishes, market ingredients, or an ordinary kitchen/table setting. The food or action remains the focal point.'
   }
   if (categories.has('family')) {
-    return 'Use a warm contemporary everyday people scene that makes the relationship or person concept clear without relying on labels.'
-  }
-  if (categories.has('everyday-actions')) {
-    return 'Show the action unmistakably in progress with a clear subject, readable body language, and minimal background distraction.'
+    return 'Use a warm contemporary Chinese domestic-life scene: an ordinary apartment, home, courtyard, or neighborhood context with believable everyday clothing and furnishings. Make the relationship obvious through interaction, not labels.'
   }
   if (categories.has('travel-places')) {
-    return 'Use a recognizable contemporary vehicle, destination, room, street, or travel situation with no readable signage.'
-  }
-  if (categories.has('time-calendar')) {
-    return 'Express the time-of-day, date, duration, or temporal idea through lighting and ordinary activity, avoiding clocks or calendars with readable numerals unless essential.'
+    return 'Use a practical contemporary Chinese urban, neighborhood, transit, room, street, or travel setting where it helps. Architecture and objects should feel lived-in and specific, with no readable signage.'
   }
   if (categories.has('greetings')) {
-    return 'Use a simple contemporary social interaction whose gesture and situation communicate the phrase without speech bubbles or written language.'
+    return 'Use a simple contemporary Chinese social interaction with natural gesture, distance, and body language. Keep faces expressive but lightly rendered rather than uncanny close-up portraits.'
+  }
+  if (categories.has('time-calendar')) {
+    return 'Express time through lighting and recognizable Chinese everyday routines such as breakfast, commuting, school, work, evening meals, or neighborhood activity. Avoid clocks or calendars with readable numerals unless absolutely necessary.'
+  }
+  if (categories.has('everyday-actions')) {
+    return 'Show one person clearly performing the action in an ordinary contemporary Chinese daily-life setting where useful. Use a simple pose, believable hands, and minimal background distraction.'
+  }
+  if (categories.has('numbers')) {
+    return 'Communicate quantity with a clean group of countable everyday objects, preferably familiar Chinese household, food, market, school, or game objects when appropriate. Use objects rather than written digits or number symbols.'
+  }
+  if (categories.has('colors')) {
+    return 'Use one familiar central object or tiny scene whose target color is unmistakable. Chinese ceramics, textiles, food, plants, or ordinary household objects may provide subtle cultural grounding without turning into ornament.'
+  }
+  if (categories.has('animals')) {
+    return 'Center one clearly recognizable animal or a tiny natural scene. Chinese landscape, garden, farm, or neighborhood cues may appear lightly when relevant, but the animal must remain the unmistakable memory anchor.'
   }
 
-  return 'Choose the simplest ordinary object or everyday scene that makes the primary meaning visually obvious at a glance.'
+  return 'Choose the simplest ordinary object or everyday scene that makes the primary meaning obvious at a glance. When cultural context helps, ground it in contemporary Chinese lived environments and material culture rather than decorative stereotypes.'
 }
 
 export function buildMandarinIllustrationPrompt(card: MandarinCard): string {
   const concept = compactConcept(card.meaning)
   return [
-    `Educational flashcard illustration for the vocabulary concept: ${concept}.`,
+    `Create a square educational flashcard illustration for the vocabulary concept: ${concept}.`,
     categoryDirection(card),
-    'One memorable focal subject or compact everyday scene, square composition, polished educational editorial illustration, friendly but not childish, crisp silhouette, natural light, tactile detail, uncluttered background.',
-    'Use contemporary everyday Chinese context only when the vocabulary itself makes location or culture relevant; otherwise keep the scene universal.',
-    'Avoid generic cultural shorthand such as decorative pagodas, lanterns, calligraphy, dragons, or historical costume unless that object is genuinely the vocabulary concept.',
-    'No readable text, no Chinese characters, no Latin letters, no numerals, no captions, no signage, no labels, no speech bubbles, no logos, no watermarks, no collage.',
+    'House style: modern Chinese educational picture-book art, hand-painted gouache with gentle watercolor and restrained ink-wash influence, matte pigments, subtle paper grain, clean shapes, clear silhouettes, limited deliberate detail, warm harmonious color, and generous negative space.',
+    'The composition should feel designed by an illustrator: one strong memory anchor or one compact scene, natural asymmetry, modest depth, quiet lighting, and believable object relationships.',
+    'Ground Chinese cultural flavor through truthful everyday details such as ceramics, bamboo, wood, textiles, foodways, interiors, markets, streets, transit, games, furnishings, or landscape only when they naturally belong to the concept.',
+    'Do not use generic China shorthand as decoration: no gratuitous pagodas, lantern walls, dragons, Great Wall imagery, calligraphy, red-and-gold festival dressing, or historical costume unless that specific thing is genuinely the vocabulary concept.',
+    'Avoid characteristic synthetic-image tells: no photorealism, glossy plastic skin, 3D-render surfaces, hyper-detailed microtexture everywhere, perfect symmetry, excessive cinematic rim lighting, lens flare, bokeh, neon glow, decorative filler, implausible anatomy, or crowded hands.',
+    'No readable text, no Chinese characters, no pinyin, no English, no Latin letters, no numerals, no pseudo-writing, no captions, no signage, no labels, no speech bubbles, no logos, no watermarks, no collage.',
   ].join(' ')
 }
 
@@ -189,20 +219,19 @@ export async function getMandarinIllustrationManifest(): Promise<MandarinIllustr
         strategy: decision.strategy,
         strategyReason: decision.reason,
         recipeVersion: MANDARIN_ILLUSTRATION_RECIPE_VERSION,
+        artDirectionId: MANDARIN_ART_DIRECTION_ID,
         engine: MANDARIN_ILLUSTRATION_ENGINE,
         width: MANDARIN_ILLUSTRATION_SIZE,
         height: MANDARIN_ILLUSTRATION_SIZE,
         imagePath,
         imageUrl: imagePath.replace(/^public/, ''),
-        prompt:
-          decision.strategy === 'illustrate'
-            ? buildMandarinIllustrationPrompt(card)
-            : null,
+        prompt: decision.strategy === 'illustrate' ? buildMandarinIllustrationPrompt(card) : null,
       }
     })
 
   return {
     recipeVersion: MANDARIN_ILLUSTRATION_RECIPE_VERSION,
+    artDirection: { ...ART_DIRECTION, antiAiTells: [...ART_DIRECTION.antiAiTells] },
     engine: MANDARIN_ILLUSTRATION_ENGINE,
     generatedFrom: catalog.source,
     selection: {

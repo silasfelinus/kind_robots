@@ -58,6 +58,28 @@ function splitCategories(value: string): string[] {
     .slice(0, 40)
 }
 
+function comparableDraft(draft: MandarinCurationDraft) {
+  return {
+    traditional: draft.traditional.trim(),
+    pinyin: draft.pinyin.trim(),
+    meaning: draft.meaning.trim(),
+    meanings: splitMeanings(draft.meaningsText),
+    usageNote: draft.usageNote.trim(),
+    categories: [...splitCategories(draft.categoriesText)].sort(),
+  }
+}
+
+function comparableRow(row: MandarinCurationRow) {
+  return {
+    traditional: row.effective.traditional.trim(),
+    pinyin: row.effective.pinyin.trim(),
+    meaning: row.effective.meaning.trim(),
+    meanings: row.effective.meanings.map((item) => item.trim()).filter(Boolean),
+    usageNote: row.effective.usageNote.trim(),
+    categories: [...editableCategories(row.effective.categories)].sort(),
+  }
+}
+
 function firstTopicalCategory(row: MandarinCurationRow): string {
   return editableCategories(row.effective.categories)[0] ?? 'zzzz'
 }
@@ -84,6 +106,15 @@ export const useMandarinCurationStore = defineStore(
           (row) => row.cardKey === selectedCardKey.value,
         ) ?? null,
     )
+
+    const draftDirty = computed(() => {
+      const row = selectedRow.value
+      const currentDraft = draft.value
+      if (!row || !currentDraft) return false
+      return JSON.stringify(comparableDraft(currentDraft)) !== JSON.stringify(comparableRow(row))
+    })
+
+    const canSave = computed(() => draftDirty.value && !saving.value)
 
     const visibleRows = computed(() => {
       const query = search.value.trim().toLowerCase()
@@ -178,20 +209,41 @@ export const useMandarinCurationStore = defineStore(
       }
     }
 
-    function selectCard(cardKey: string) {
+    function guardUnsavedDraft(): boolean {
+      if (!draftDirty.value) return true
+      error.value = 'This entry has unsaved changes. Save them or discard the draft before leaving it.'
+      notice.value = ''
+      return false
+    }
+
+    function selectCard(cardKey: string): boolean {
+      if (cardKey === selectedCardKey.value) return true
+      if (!guardUnsavedDraft()) return false
       const row = payload.value?.rows.find(
         (candidate) => candidate.cardKey === cardKey,
       )
-      if (!row) return
+      if (!row) return false
       selectedCardKey.value = cardKey
       draft.value = draftFromRow(row)
       notice.value = ''
       error.value = ''
+      return true
     }
 
-    function closeEditor() {
+    function closeEditor(): boolean {
+      if (!guardUnsavedDraft()) return false
       selectedCardKey.value = null
       draft.value = null
+      error.value = ''
+      return true
+    }
+
+    function discardDraft() {
+      const row = selectedRow.value
+      if (!row) return
+      draft.value = draftFromRow(row)
+      error.value = ''
+      notice.value = 'Unsaved changes discarded.'
     }
 
     function resetDraftToSource() {
@@ -211,7 +263,7 @@ export const useMandarinCurationStore = defineStore(
     async function saveSelected(): Promise<boolean> {
       const row = selectedRow.value
       const currentDraft = draft.value
-      if (!row || !currentDraft || saving.value) return false
+      if (!row || !currentDraft || saving.value || !draftDirty.value) return false
       saving.value = true
       error.value = ''
       notice.value = ''
@@ -287,10 +339,13 @@ export const useMandarinCurationStore = defineStore(
       selectedCardKey,
       draft,
       selectedRow,
+      draftDirty,
+      canSave,
       visibleRows,
       load,
       selectCard,
       closeEditor,
+      discardDraft,
       resetDraftToSource,
       saveSelected,
     }

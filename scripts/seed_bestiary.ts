@@ -72,6 +72,13 @@ interface Species {
   art_prompt?: string
   evolves_to?: string
   evolution_kind?: 'growth' | 'breeding' | 'secret'
+  // cthulhuquarium/t-042: three bible fields that had nowhere to land until
+  // Monster grew dedicated columns for them. `tier` here is the bible's OWN
+  // 1-5 "how deep into the game" integer -- unrelated to `rarity` above,
+  // which is what actually lands on Monster.tier.
+  tier?: number
+  diet_role?: string
+  school_role?: string
 }
 
 const warnings: string[] = []
@@ -113,25 +120,17 @@ function loadBible(dir: string): Species[] {
 // SCHEMA.md's field table has always mapped `rarity` onto it. If the bible ever
 // authors stats.luck, that should win here.
 function toUpsertData(fish: Species) {
+  // cthulhuquarium/t-042 added EvolutionKind.SECRET, so all three bible
+  // values now map straight across -- no more silent null + warning for
+  // 'secret'.
   const kind =
     fish.evolution_kind === 'growth'
       ? ('GROWTH' as const)
       : fish.evolution_kind === 'breeding'
         ? ('BREEDING' as const)
-        : null
-
-  if (fish.evolution_kind === 'secret' && kind === null) {
-    // The bible allows growth | breeding | secret; the EvolutionKind enum has
-    // only GROWTH and BREEDING. Mapping secret onto BREEDING would be a lie --
-    // SCHEMA.md defines breeding as needing two parents and secret as a hidden
-    // individual-stat roll, which are different mechanics. So the edge is still
-    // seeded and the KIND is left null, and re-running after the enum gains
-    // SECRET fills it in for free. Tracked as cthulhuquarium/t-042.
-    warn(
-      `${fish.slug}: evolution_kind 'secret' has no EvolutionKind enum value; ` +
-        `seeding evolvesToId with a null evolutionKind (see cthulhuquarium/t-042)`,
-    )
-  }
+        : fish.evolution_kind === 'secret'
+          ? ('SECRET' as const)
+          : null
 
   return {
     name: fish.name,
@@ -152,6 +151,12 @@ function toUpsertData(fish: Species) {
     tickIntervalSeconds: fish.interval,
     unlockCost: fish.unlock_cost,
     behavior: fish.behavior,
+    // cthulhuquarium/t-042: depth is the bible's own numeric `tier`, and
+    // dietRole/schoolRole are its diet_role/school_role -- three fields
+    // that previously had no column to land in.
+    depth: fish.tier ?? null,
+    dietRole: fish.diet_role ?? null,
+    schoolRole: fish.school_role ?? null,
     hue: fish.hue,
     games: fish.games.join(','),
     artPrompt: fish.art_prompt?.trim() ?? null,

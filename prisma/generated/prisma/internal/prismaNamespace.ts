@@ -405,6 +405,9 @@ export const ModelName = {
   BotFacet: 'BotFacet',
   RewardFacet: 'RewardFacet',
   MandarinAudioAsset: 'MandarinAudioAsset',
+  MandarinCatalogOverride: 'MandarinCatalogOverride',
+  MandarinCatalogChange: 'MandarinCatalogChange',
+  MandarinRequestedCard: 'MandarinRequestedCard',
   ModelBuildRun: 'ModelBuildRun',
   ModelBuildItem: 'ModelBuildItem',
   ModelBuildArtifact: 'ModelBuildArtifact',
@@ -506,7 +509,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
+    modelProps: "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinRequestedCard" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1035,6 +1038,204 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.MandarinAudioAssetCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.MandarinAudioAssetCountAggregateOutputType> | number
+        }
+      }
+    }
+    MandarinCatalogOverride: {
+      payload: Prisma.$MandarinCatalogOverridePayload<ExtArgs>
+      fields: Prisma.MandarinCatalogOverrideFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MandarinCatalogOverrideFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinCatalogOverridePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MandarinCatalogOverrideFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinCatalogOverridePayload>
+        }
+        findFirst: {
+          args: Prisma.MandarinCatalogOverrideFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinCatalogOverridePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MandarinCatalogOverrideFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinCatalogOverridePayload>
+        }
+        findMany: {
+          args: Prisma.MandarinCatalogOverrideFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinCatalogOverridePayload>[]
+        }
+        create: {
+          args: Prisma.MandarinCatalogOverrideCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinCatalogOverridePayload>
+        }
+        createMany: {
+          args: Prisma.MandarinCatalogOverrideCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.MandarinCatalogOverrideDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinCatalogOverridePayload>
+        }
+        update: {
+          args: Prisma.MandarinCatalogOverrideUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinCatalogOverridePayload>
+        }
+        deleteMany: {
+          args: Prisma.MandarinCatalogOverrideDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MandarinCatalogOverrideUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.MandarinCatalogOverrideUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinCatalogOverridePayload>
+        }
+        aggregate: {
+          args: Prisma.MandarinCatalogOverrideAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMandarinCatalogOverride>
+        }
+        groupBy: {
+          args: Prisma.MandarinCatalogOverrideGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MandarinCatalogOverrideGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MandarinCatalogOverrideCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MandarinCatalogOverrideCountAggregateOutputType> | number
+        }
+      }
+    }
+    MandarinCatalogChange: {
+      payload: Prisma.$MandarinCatalogChangePayload<ExtArgs>
+      fields: Prisma.MandarinCatalogChangeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MandarinCatalogChangeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinCatalogChangePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MandarinCatalogChangeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinCatalogChangePayload>
+        }
+        findFirst: {
+          args: Prisma.MandarinCatalogChangeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinCatalogChangePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MandarinCatalogChangeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinCatalogChangePayload>
+        }
+        findMany: {
+          args: Prisma.MandarinCatalogChangeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinCatalogChangePayload>[]
+        }
+        create: {
+          args: Prisma.MandarinCatalogChangeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinCatalogChangePayload>
+        }
+        createMany: {
+          args: Prisma.MandarinCatalogChangeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.MandarinCatalogChangeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinCatalogChangePayload>
+        }
+        update: {
+          args: Prisma.MandarinCatalogChangeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinCatalogChangePayload>
+        }
+        deleteMany: {
+          args: Prisma.MandarinCatalogChangeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MandarinCatalogChangeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.MandarinCatalogChangeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinCatalogChangePayload>
+        }
+        aggregate: {
+          args: Prisma.MandarinCatalogChangeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMandarinCatalogChange>
+        }
+        groupBy: {
+          args: Prisma.MandarinCatalogChangeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MandarinCatalogChangeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MandarinCatalogChangeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MandarinCatalogChangeCountAggregateOutputType> | number
+        }
+      }
+    }
+    MandarinRequestedCard: {
+      payload: Prisma.$MandarinRequestedCardPayload<ExtArgs>
+      fields: Prisma.MandarinRequestedCardFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MandarinRequestedCardFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinRequestedCardPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MandarinRequestedCardFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinRequestedCardPayload>
+        }
+        findFirst: {
+          args: Prisma.MandarinRequestedCardFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinRequestedCardPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MandarinRequestedCardFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinRequestedCardPayload>
+        }
+        findMany: {
+          args: Prisma.MandarinRequestedCardFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinRequestedCardPayload>[]
+        }
+        create: {
+          args: Prisma.MandarinRequestedCardCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinRequestedCardPayload>
+        }
+        createMany: {
+          args: Prisma.MandarinRequestedCardCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.MandarinRequestedCardDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinRequestedCardPayload>
+        }
+        update: {
+          args: Prisma.MandarinRequestedCardUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinRequestedCardPayload>
+        }
+        deleteMany: {
+          args: Prisma.MandarinRequestedCardDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MandarinRequestedCardUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.MandarinRequestedCardUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinRequestedCardPayload>
+        }
+        aggregate: {
+          args: Prisma.MandarinRequestedCardAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMandarinRequestedCard>
+        }
+        groupBy: {
+          args: Prisma.MandarinRequestedCardGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MandarinRequestedCardGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MandarinRequestedCardCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MandarinRequestedCardCountAggregateOutputType> | number
         }
       }
     }
@@ -6896,6 +7097,64 @@ export const MandarinAudioAssetScalarFieldEnum = {
 export type MandarinAudioAssetScalarFieldEnum = (typeof MandarinAudioAssetScalarFieldEnum)[keyof typeof MandarinAudioAssetScalarFieldEnum]
 
 
+export const MandarinCatalogOverrideScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  cardKey: 'cardKey',
+  traditional: 'traditional',
+  pinyin: 'pinyin',
+  meaning: 'meaning',
+  meanings: 'meanings',
+  usageNote: 'usageNote',
+  categories: 'categories',
+  updatedByUserId: 'updatedByUserId',
+  isActive: 'isActive'
+} as const
+
+export type MandarinCatalogOverrideScalarFieldEnum = (typeof MandarinCatalogOverrideScalarFieldEnum)[keyof typeof MandarinCatalogOverrideScalarFieldEnum]
+
+
+export const MandarinCatalogChangeScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  cardKey: 'cardKey',
+  adminUserId: 'adminUserId',
+  beforeJson: 'beforeJson',
+  afterJson: 'afterJson',
+  note: 'note'
+} as const
+
+export type MandarinCatalogChangeScalarFieldEnum = (typeof MandarinCatalogChangeScalarFieldEnum)[keyof typeof MandarinCatalogChangeScalarFieldEnum]
+
+
+export const MandarinRequestedCardScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  requestText: 'requestText',
+  normalizedRequest: 'normalizedRequest',
+  simplified: 'simplified',
+  traditional: 'traditional',
+  pinyin: 'pinyin',
+  meaning: 'meaning',
+  meanings: 'meanings',
+  usageNote: 'usageNote',
+  provider: 'provider',
+  model: 'model',
+  recipeVersion: 'recipeVersion',
+  generationProvenance: 'generationProvenance',
+  artPrompt: 'artPrompt',
+  artPromptVersion: 'artPromptVersion',
+  artJobId: 'artJobId',
+  artImageId: 'artImageId',
+  isActive: 'isActive'
+} as const
+
+export type MandarinRequestedCardScalarFieldEnum = (typeof MandarinRequestedCardScalarFieldEnum)[keyof typeof MandarinRequestedCardScalarFieldEnum]
+
+
 export const ModelBuildRunScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -8509,7 +8768,10 @@ export const MonsterScalarFieldEnum = {
   yieldPerTick: 'yieldPerTick',
   tickIntervalSeconds: 'tickIntervalSeconds',
   unlockCost: 'unlockCost',
+  depth: 'depth',
   behavior: 'behavior',
+  dietRole: 'dietRole',
+  schoolRole: 'schoolRole',
   hue: 'hue',
   games: 'games',
   artPrompt: 'artPrompt',
@@ -8779,6 +9041,49 @@ export const MandarinAudioAssetOrderByRelevanceFieldEnum = {
 } as const
 
 export type MandarinAudioAssetOrderByRelevanceFieldEnum = (typeof MandarinAudioAssetOrderByRelevanceFieldEnum)[keyof typeof MandarinAudioAssetOrderByRelevanceFieldEnum]
+
+
+export const MandarinCatalogOverrideOrderByRelevanceFieldEnum = {
+  cardKey: 'cardKey',
+  traditional: 'traditional',
+  pinyin: 'pinyin',
+  meaning: 'meaning',
+  meanings: 'meanings',
+  usageNote: 'usageNote',
+  categories: 'categories'
+} as const
+
+export type MandarinCatalogOverrideOrderByRelevanceFieldEnum = (typeof MandarinCatalogOverrideOrderByRelevanceFieldEnum)[keyof typeof MandarinCatalogOverrideOrderByRelevanceFieldEnum]
+
+
+export const MandarinCatalogChangeOrderByRelevanceFieldEnum = {
+  cardKey: 'cardKey',
+  beforeJson: 'beforeJson',
+  afterJson: 'afterJson',
+  note: 'note'
+} as const
+
+export type MandarinCatalogChangeOrderByRelevanceFieldEnum = (typeof MandarinCatalogChangeOrderByRelevanceFieldEnum)[keyof typeof MandarinCatalogChangeOrderByRelevanceFieldEnum]
+
+
+export const MandarinRequestedCardOrderByRelevanceFieldEnum = {
+  requestText: 'requestText',
+  normalizedRequest: 'normalizedRequest',
+  simplified: 'simplified',
+  traditional: 'traditional',
+  pinyin: 'pinyin',
+  meaning: 'meaning',
+  meanings: 'meanings',
+  usageNote: 'usageNote',
+  provider: 'provider',
+  model: 'model',
+  recipeVersion: 'recipeVersion',
+  generationProvenance: 'generationProvenance',
+  artPrompt: 'artPrompt',
+  artPromptVersion: 'artPromptVersion'
+} as const
+
+export type MandarinRequestedCardOrderByRelevanceFieldEnum = (typeof MandarinRequestedCardOrderByRelevanceFieldEnum)[keyof typeof MandarinRequestedCardOrderByRelevanceFieldEnum]
 
 
 export const ModelBuildRunOrderByRelevanceFieldEnum = {
@@ -9631,6 +9936,8 @@ export const MonsterOrderByRelevanceFieldEnum = {
   quirks: 'quirks',
   alignment: 'alignment',
   behavior: 'behavior',
+  dietRole: 'dietRole',
+  schoolRole: 'schoolRole',
   games: 'games',
   artPrompt: 'artPrompt',
   icon: 'icon',
@@ -10360,6 +10667,9 @@ export type GlobalOmitConfig = {
   botFacet?: Prisma.BotFacetOmit
   rewardFacet?: Prisma.RewardFacetOmit
   mandarinAudioAsset?: Prisma.MandarinAudioAssetOmit
+  mandarinCatalogOverride?: Prisma.MandarinCatalogOverrideOmit
+  mandarinCatalogChange?: Prisma.MandarinCatalogChangeOmit
+  mandarinRequestedCard?: Prisma.MandarinRequestedCardOmit
   modelBuildRun?: Prisma.ModelBuildRunOmit
   modelBuildItem?: Prisma.ModelBuildItemOmit
   modelBuildArtifact?: Prisma.ModelBuildArtifactOmit

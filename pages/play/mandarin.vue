@@ -122,8 +122,20 @@
             >
               <div class="grid md:grid-cols-[minmax(16rem,0.9fr)_minmax(18rem,1.1fr)]">
                 <div class="flex min-h-80 flex-col items-center justify-center gap-4 bg-base-200/70 p-6 text-center">
-                  <div class="flex h-36 w-36 items-center justify-center rounded-3xl border border-base-300 bg-base-100 shadow-inner">
-                    <span class="text-7xl font-semibold leading-none">{{ currentCard.simplified }}</span>
+                  <div class="relative flex h-56 w-56 items-center justify-center overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-inner">
+                    <img
+                      v-if="store.illustrationUrl(currentCard.key)"
+                      :src="store.illustrationUrl(currentCard.key) || ''"
+                      :alt="`Generated study illustration for ${currentCard.meaning}`"
+                      class="h-full w-full object-cover"
+                    />
+                    <span v-else class="text-7xl font-semibold leading-none">{{ currentCard.simplified }}</span>
+                    <span
+                      v-if="store.illustrationUrl(currentCard.key)"
+                      class="absolute bottom-2 right-2 rounded-xl bg-base-100/90 px-3 py-1 text-3xl font-semibold shadow"
+                    >
+                      {{ currentCard.simplified }}
+                    </span>
                   </div>
                   <div>
                     <p class="text-2xl font-bold tracking-wide">{{ currentCard.pinyin }}</p>
@@ -175,13 +187,19 @@
                     <button
                       type="button"
                       class="btn btn-outline"
-                      :disabled="Boolean(store.artQueueingKey)"
-                      @click="store.queueIllustration(currentCard)"
+                      :disabled="Boolean(store.artQueueingKey || store.artRefreshingKey || store.illustrationUrl(currentCard.key))"
+                      @click="artAction(currentCard)"
                     >
-                      <span v-if="store.artQueueingKey === currentCard.key" class="loading loading-spinner loading-xs" />
-                      {{ store.illustrationJobId(currentCard.key) ? `ArtJob #${store.illustrationJobId(currentCard.key)}` : 'Queue Krea 2 art' }}
+                      <span
+                        v-if="store.artQueueingKey === currentCard.key || store.artRefreshingKey === currentCard.key"
+                        class="loading loading-spinner loading-xs"
+                      />
+                      {{ artActionLabel(currentCard) }}
                     </button>
                   </div>
+                  <p v-if="store.illustrationStatus(currentCard.key)" class="mt-2 text-right text-xs opacity-60">
+                    Illustration: {{ store.illustrationStatus(currentCard.key) }}
+                  </p>
                 </div>
               </div>
 
@@ -258,7 +276,7 @@
 import { onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useMandarinTutorStore } from '@/stores/mandarinTutorStore'
-import type { MandarinComponentRole } from '@/utils/mandarin'
+import type { MandarinCard, MandarinComponentRole } from '@/utils/mandarin'
 
 const store = useMandarinTutorStore()
 const {
@@ -285,6 +303,21 @@ function createSet() {
   if (!created) return
   newSetName.value = ''
   store.selectSet(`custom:${created.id}`)
+}
+
+async function artAction(card: MandarinCard) {
+  if (store.illustrationUrl(card.key)) return
+  if (store.illustrationJobId(card.key)) {
+    await store.refreshIllustration(card)
+    return
+  }
+  await store.queueIllustration(card)
+}
+
+function artActionLabel(card: MandarinCard): string {
+  if (store.illustrationUrl(card.key)) return 'Art ready'
+  const jobId = store.illustrationJobId(card.key)
+  return jobId ? `Refresh ArtJob #${jobId}` : 'Queue Krea 2 art'
 }
 
 function roleLabel(role: MandarinComponentRole): string {

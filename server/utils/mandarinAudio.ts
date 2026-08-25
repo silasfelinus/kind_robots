@@ -59,7 +59,7 @@ export async function resolveMandarinAudioCard(
 ): Promise<MandarinCard | null> {
   const requestedMatch = cardKey.match(/^requested:(\d+)$/)
   if (requestedMatch) {
-    const id = Number(requestedMatch[1])
+    const id = Number(requestedMatch?.[1])
     if (!Number.isInteger(id) || id <= 0) return null
     const row = await prisma.mandarinRequestedCard.findFirst({
       where: {

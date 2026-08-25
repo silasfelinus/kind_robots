@@ -26,6 +26,11 @@ type SceneAnimatorEnqueueRequest = {
   durationSeconds?: number | null
   isMature?: boolean | null
   retryFailed?: boolean | null
+  // Scopes the whole batch loop below to one file -- a per-card "retry this
+  // one" action, as opposed to retryFailed's "retry every failed source in
+  // the folder." Exact filename match against listSceneAnimatorSourceFiles;
+  // anything else falls through to the normal empty-queue response.
+  sourceFile?: string | null
 }
 
 type EnqueueResponse = {
@@ -82,7 +87,11 @@ export default defineEventHandler(async (event) => {
   const folder = String(body.folder ?? '').trim()
   const config = resolveConfig(body)
   const preset = getVideoPreset(config.presetId) ?? getDefaultVideoPreset(config.engine)
-  const sources = await listSceneAnimatorSourceFiles(folder)
+  const requestedSourceFile = String(body.sourceFile ?? '').trim()
+  const allSources = await listSceneAnimatorSourceFiles(folder)
+  const sources = requestedSourceFile
+    ? allSources.filter((source) => source.name === requestedSourceFile)
+    : allSources
   const configKey = sceneAnimatorConfigKey(config)
 
   const existingJobs = await prisma.artJob.findMany({
@@ -105,6 +114,13 @@ export default defineEventHandler(async (event) => {
   const queued: Array<{ sourceFile: string; jobId: number }> = []
   const skipped: Array<{ sourceFile: string; jobId: number | null; reason: string }> = []
   const errors: Array<{ sourceFile: string; message: string }> = []
+
+  if (requestedSourceFile && !sources.length) {
+    errors.push({
+      sourceFile: requestedSourceFile,
+      message: 'No matching source file in this folder.',
+    })
+  }
 
   for (const source of sources) {
     const dedupeKey = sceneAnimatorDedupeKey(source.hash, config)

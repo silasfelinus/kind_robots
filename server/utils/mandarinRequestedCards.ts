@@ -1,10 +1,14 @@
 import { createError } from 'h3'
 import type { MandarinCard } from '~/utils/mandarin'
 import { enrichMandarinCharacterData } from './mandarinCharacterData'
+import {
+  buildMandarinIllustrationPrompt,
+  MANDARIN_ILLUSTRATION_RECIPE_VERSION,
+} from './mandarinIllustrationManifest'
 import { prisma } from './prisma'
 
 export const MANDARIN_REQUEST_RECIPE_VERSION = 'v1'
-export const MANDARIN_REQUEST_ART_VERSION = 'v1'
+export const MANDARIN_REQUEST_ART_VERSION = MANDARIN_ILLUSTRATION_RECIPE_VERSION
 const MAX_REQUEST_LENGTH = 120
 const MAX_TEXT_RESPONSE_LENGTH = 20_000
 
@@ -142,14 +146,71 @@ export function requestedCardPrompt(requestText: string): string {
   return `Create a Mandarin learning card for this requested word or short phrase: ${JSON.stringify(requestText)}`
 }
 
+function requestedArtCategories(fields: GeneratedMandarinFields): string[] {
+  const context = `${fields.meaning} ${fields.usageNote || ''}`
+  if (/casino|gambl|wager|bet|dealer|banker|chip|baccarat|blackjack|roulette|poker/i.test(context)) {
+    return ['requested', 'casino']
+  }
+  if (/food|drink|tea|coffee|meal|rice|noodle|bread|restaurant|eat|cook/i.test(context)) {
+    return ['requested', 'food-drink']
+  }
+  return ['requested']
+}
+
 export function requestedArtPrompt(fields: GeneratedMandarinFields): string {
-  return [
-    `Educational flashcard illustration for the Mandarin concept “${fields.meaning}”.`,
-    `The underlying Chinese learning item is ${fields.simplified}, but do not render written language in the image.`,
-    'Show one concrete, memorable everyday object, action, or scene that communicates the concept at a glance.',
-    'Friendly, culturally grounded, uncluttered, polished editorial illustration.',
-    'No text, no letters, no Chinese characters, no captions, no logo, no watermark.',
-  ].join(' ')
+  const promptCard: MandarinCard = {
+    key: 'requested:prompt',
+    simplified: fields.simplified,
+    ...(fields.traditional ? { traditional: fields.traditional } : {}),
+    pinyin: fields.pinyin,
+    meaning: fields.meaning,
+    meanings: fields.meanings,
+    kind: [...fields.simplified].length === 1 ? 'character' : 'phrase',
+    partsOfSpeech: [],
+    classifiers: [],
+    categories: requestedArtCategories(fields),
+    components: [],
+    historyStatus: 'pending',
+    source: {
+      label: 'Requested Mandarin card',
+      version: MANDARIN_REQUEST_ART_VERSION,
+    },
+  }
+  return buildMandarinIllustrationPrompt(promptCard)
+}
+
+function rowGeneratedFields(row: RequestedCardRow): GeneratedMandarinFields {
+  return {
+    simplified: row.simplified,
+    traditional: row.traditional,
+    pinyin: row.pinyin,
+    meaning: row.meaning,
+    meanings: parseStoredMeanings(row.meanings, row.meaning),
+    usageNote: row.usageNote,
+  }
+}
+
+export async function ensureRequestedArtRecipe<T extends RequestedCardRow>(row: T): Promise<T> {
+  if (row.artPromptVersion === MANDARIN_REQUEST_ART_VERSION) return row
+
+  const artPrompt = requestedArtPrompt(rowGeneratedFields(row))
+  await prisma.mandarinRequestedCard.update({
+    where: { id: row.id },
+    data: {
+      artPrompt,
+      artPromptVersion: MANDARIN_REQUEST_ART_VERSION,
+      artJobId: null,
+      artImageId: null,
+    },
+  })
+
+  return {
+    ...row,
+    artPrompt,
+    artPromptVersion: MANDARIN_REQUEST_ART_VERSION,
+    artJobId: null,
+    artImageId: null,
+  }
 }
 
 function parseStoredMeanings(raw: string, fallback: string): string[] {
@@ -226,6 +287,7 @@ export async function reconcileRequestedCardArt<T extends RequestedCardRow>(
 }
 
 export function requestedCardPublicData(row: RequestedCardRow) {
+  const artIsCurrent = row.artPromptVersion === MANDARIN_REQUEST_ART_VERSION
   return {
     id: row.id,
     card: requestedRowToCard(row),
@@ -241,9 +303,9 @@ export function requestedCardPublicData(row: RequestedCardRow) {
     art: {
       prompt: row.artPrompt,
       promptVersion: row.artPromptVersion,
-      jobId: row.artJobId,
-      imageId: row.artImageId,
-      imageUrl: row.artImageId ? `/api/art/images/${row.artImageId}/file` : null,
+      jobId: artIsCurrent ? row.artJobId : null,
+      imageId: artIsCurrent ? row.artImageId : null,
+      imageUrl: artIsCurrent && row.artImageId ? `/api/art/images/${row.artImageId}/file` : null,
     },
   }
 }

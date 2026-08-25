@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { performFetch } from './utils'
 import { useUserStore } from './userStore'
@@ -10,6 +10,8 @@ import type {
 } from '@/utils/mandarin'
 
 const STORAGE_KEY = 'kind-robots:mandarin-tutor:v1'
+const CANONICAL_ART_RECIPE = 'v2'
+const CANONICAL_ART_DIRECTION = 'modern-chinese-picturebook-v2'
 
 type LocalState = {
   customSets: MandarinCustomSet[]
@@ -62,6 +64,23 @@ type MandarinRequestedCardsPayload = {
   cards: MandarinRequestedCardData[]
 }
 
+type MandarinIllustrationManifestEntry = {
+  cardKey: string
+  imageUrl?: string
+  prompt?: string | null
+  strategy: 'illustrate' | 'glyph-only'
+  recipeVersion?: string
+  artDirectionId?: string
+}
+
+type MandarinIllustrationManifestPayload = {
+  recipeVersion: string
+  artDirection?: {
+    id?: string
+  }
+  entries: MandarinIllustrationManifestEntry[]
+}
+
 function safeId(value: string): string {
   return value
     .trim()
@@ -100,8 +119,12 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
   const artImageIds = ref<Record<string, number>>({})
   const artImageUrls = ref<Record<string, string>>({})
   const artStatuses = ref<Record<string, string>>({})
+  const canonicalArtUrls = ref<Record<string, string>>({})
+  const canonicalArtPrompts = ref<Record<string, string>>({})
+  const canonicalArtStrategies = ref<Record<string, 'illustrate' | 'glyph-only'>>({})
   const artQueueingKey = ref<string | null>(null)
   const artRefreshingKey = ref<string | null>(null)
+  const canonicalArtProbeInFlight = new Set<string>()
   let activeReferenceAudio: HTMLAudioElement | null = null
 
   const cardMap = computed(
@@ -243,6 +266,82 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     }
   }
 
+  async function loadIllustrationManifest() {
+    if (!import.meta.client) return
+    try {
+      const response = await performFetch<MandarinIllustrationManifestPayload>(
+        '/api/mandarin/art-manifest',
+        {},
+        1,
+        30_000,
+      )
+      const manifest = response.data
+      if (!response.success || !manifest || !Array.isArray(manifest.entries)) return
+      if (manifest.recipeVersion !== CANONICAL_ART_RECIPE) return
+      if (manifest.artDirection?.id !== CANONICAL_ART_DIRECTION) return
+
+      const urls: Record<string, string> = {}
+      const prompts: Record<string, string> = {}
+      const strategies: Record<string, 'illustrate' | 'glyph-only'> = {}
+      const statusDefaults: Record<string, string> = {}
+
+      for (const entry of manifest.entries) {
+        const key = String(entry.cardKey || '').trim()
+        if (!key) continue
+        strategies[key] = entry.strategy
+        if (entry.strategy === 'glyph-only') {
+          statusDefaults[key] = 'GLYPH ONLY'
+          continue
+        }
+
+        const imageUrl = String(entry.imageUrl || '').trim()
+        const prompt = String(entry.prompt || '').trim()
+        if (imageUrl.startsWith('/images/mandarin-tutor/cards/v2/')) {
+          urls[key] = imageUrl
+          statusDefaults[key] = 'V2 PENDING'
+        }
+        if (prompt) prompts[key] = prompt
+      }
+
+      canonicalArtUrls.value = urls
+      canonicalArtPrompts.value = prompts
+      canonicalArtStrategies.value = strategies
+      artStatuses.value = { ...statusDefaults, ...artStatuses.value }
+    } catch (cause) {
+      console.warn('[mandarin] v2 illustration manifest load failed', cause)
+    }
+  }
+
+  async function probeCanonicalIllustration(cardKey: string): Promise<string | null> {
+    if (!import.meta.client || requestedId(cardKey)) return null
+    if (artImageUrls.value[cardKey]) return artImageUrls.value[cardKey] || null
+    if (canonicalArtProbeInFlight.has(cardKey)) return null
+
+    const url = canonicalArtUrls.value[cardKey]
+    if (!url) return null
+
+    canonicalArtProbeInFlight.add(cardKey)
+    try {
+      const response = await fetch(url, {
+        method: 'HEAD',
+        cache: 'no-store',
+      })
+      if (!response.ok) {
+        artStatuses.value = { ...artStatuses.value, [cardKey]: 'V2 PENDING' }
+        return null
+      }
+
+      artImageUrls.value = { ...artImageUrls.value, [cardKey]: url }
+      artStatuses.value = { ...artStatuses.value, [cardKey]: 'V2 READY' }
+      return url
+    } catch {
+      artStatuses.value = { ...artStatuses.value, [cardKey]: 'V2 PENDING' }
+      return null
+    } finally {
+      canonicalArtProbeInFlight.delete(cardKey)
+    }
+  }
+
   async function fetchProtectedImage(artImageId: number): Promise<string | null> {
     if (!import.meta.client) return null
     const userStore = useUserStore()
@@ -321,7 +420,10 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     if (initialized.value || loading.value) return
     loadLocalState()
     await loadCatalog()
+    await loadIllustrationManifest()
     await loadRequestedCards()
+    const key = currentCard.value?.key
+    if (key) await probeCanonicalIllustration(key)
   }
 
   function selectSet(id: string) {
@@ -570,12 +672,14 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     artQueueingKey.value = card.key
     error.value = null
     try {
-      const promptString = [
-        `Educational flashcard illustration for the Mandarin concept “${card.meaning}”.`,
-        'One clear memorable everyday scene or object that communicates the meaning at a glance.',
-        'Culturally grounded, friendly, uncluttered, polished editorial illustration.',
-        'No text, no letters, no Chinese characters, no captions, no logo, no watermark.',
-      ].join(' ')
+      const promptString = canonicalArtPrompts.value[card.key]
+      if (!promptString) {
+        if (canonicalArtStrategies.value[card.key] === 'glyph-only') {
+          throw new Error('This card is intentionally glyph-only because a decorative image would misteach it.')
+        }
+        throw new Error('The canonical Mandarin v2 art prompt is not available yet.')
+      }
+
       const response = await performFetch<ArtEnqueueData>(
         '/api/art/enqueue',
         {
@@ -588,7 +692,7 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
             height: 768,
             isPublic: false,
             isMature: false,
-            designer: `mandarin:${card.key}`,
+            designer: `mandarin:v2:${card.key}`,
           }),
         },
         1,
@@ -675,6 +779,14 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     return artStatuses.value[cardKey] || null
   }
 
+  watch(
+    () => currentCard.value?.key ?? null,
+    (cardKey) => {
+      if (!cardKey) return
+      void probeCanonicalIllustration(cardKey)
+    },
+  )
+
   return {
     cards,
     builtInSets,
@@ -697,6 +809,8 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     artImageIds,
     artImageUrls,
     artStatuses,
+    canonicalArtUrls,
+    canonicalArtStrategies,
     artQueueingKey,
     artRefreshingKey,
     allSets,
@@ -708,7 +822,9 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     audioSupported,
     initialize,
     loadCatalog,
+    loadIllustrationManifest,
     loadRequestedCards,
+    probeCanonicalIllustration,
     selectSet,
     nextCard,
     previousCard,

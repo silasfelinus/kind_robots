@@ -7,7 +7,22 @@
 // text encode; otherwise the plain prompt string is used. Flux.2 uses its OWN
 // text encoder and VAE (different from Flux.1).
 //
-// VERIFY these filenames against the Comfy-Org Flux.2 release you download.
+// MODEL FILENAMES, corrected 2026-08-24 (kind-robots/t-070, cthulhuquarium/t-033).
+// These previously read `flux-2-klein-4b-Q4_K_M.gguf` and
+// `flux2_klein_text_encoder_fp8_scaled.safetensors`, neither of which exists in any
+// Comfy-Org release or on the render box -- so this engine had never once run. The
+// comment above them said to verify the names against the release; nobody did, and the
+// only failure signal was a ComfyUI error at render time months later.
+//
+// Now pointed at the Flux 2 stack that IS registered as a Resource and present on the
+// box: flux2_dev_fp8mixed (diffusion_models/), mistral_3_small_flux2_bf16
+// (text_encoders/) and flux2-vae (vae/). The unet is a .safetensors, so the loader
+// moves off UnetLoaderGGUF.
+//
+// NOT YET RUN END TO END: mistral_3_small_flux2_bf16 is 35.5 GB against a 12 GB card.
+// ComfyUI can offload a text encoder to CPU, but that needs a real render to confirm.
+// If it will not fit, register Comfy-Org's mistral_3_small_flux2_fp8 and change the one
+// name here -- do not invent a filename, which is how this broke the first time.
 import {
   buildSimpleCheckpointWorkflow,
   type ComfyWorkflow,
@@ -15,10 +30,9 @@ import {
 import type { LoraSelectionInput } from '../../utils/loraChain'
 
 export const FLUX2_KLEIN_UNET_LOADER: 'UNETLoader' | 'UnetLoaderGGUF' =
-  'UnetLoaderGGUF'
-export const FLUX2_KLEIN_MODEL = 'flux-2-klein-4b-Q4_K_M.gguf'
-export const FLUX2_KLEIN_CLIP =
-  'flux2_klein_text_encoder_fp8_scaled.safetensors'
+  'UNETLoader'
+export const FLUX2_KLEIN_MODEL = 'flux2_dev_fp8mixed.safetensors'
+export const FLUX2_KLEIN_CLIP = 'mistral_3_small_flux2_bf16.safetensors'
 export const FLUX2_KLEIN_CLIP_TYPE = 'flux2'
 export const FLUX2_KLEIN_VAE = 'flux2-vae.safetensors'
 export const FLUX2_KLEIN_DEFAULT_STEPS = 4

@@ -1,6 +1,7 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { performFetch } from './utils'
+import { useUserStore } from './userStore'
 import type {
   MandarinCard,
   MandarinCatalogPayload,
@@ -14,12 +15,20 @@ type LocalState = {
   customSets: MandarinCustomSet[]
   selectedSetId: string
   artJobs: Record<string, number>
+  artImageIds: Record<string, number>
 }
 
 type ArtEnqueueData = {
   jobId?: number
   status?: string
   deduplicated?: boolean
+}
+
+type ArtJobData = {
+  job?: {
+    status?: string
+    artImageId?: number | null
+  }
 }
 
 function safeId(value: string): string {
@@ -46,7 +55,11 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
   const error = ref<string | null>(null)
   const speechError = ref<string | null>(null)
   const artJobs = ref<Record<string, number>>({})
+  const artImageIds = ref<Record<string, number>>({})
+  const artImageUrls = ref<Record<string, string>>({})
+  const artStatuses = ref<Record<string, string>>({})
   const artQueueingKey = ref<string | null>(null)
+  const artRefreshingKey = ref<string | null>(null)
 
   const cardMap = computed(
     () => new Map(cards.value.map((card) => [card.key, card] as const)),
@@ -118,6 +131,7 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
       customSets: customSets.value,
       selectedSetId: selectedSetId.value,
       artJobs: artJobs.value,
+      artImageIds: artImageIds.value,
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
   }
@@ -134,6 +148,9 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
       }
       if (parsed.artJobs && typeof parsed.artJobs === 'object') {
         artJobs.value = parsed.artJobs
+      }
+      if (parsed.artImageIds && typeof parsed.artImageIds === 'object') {
+        artImageIds.value = parsed.artImageIds
       }
     } catch {
       localStorage.removeItem(STORAGE_KEY)
@@ -279,6 +296,17 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     window.speechSynthesis.speak(utterance)
   }
 
+  async function fetchProtectedImage(artImageId: number): Promise<string | null> {
+    if (!import.meta.client) return null
+    const userStore = useUserStore()
+    const token = userStore.token || userStore.user?.token || ''
+    const headers = new Headers()
+    if (token) headers.set('Authorization', `Bearer ${token}`)
+    const response = await fetch(`/api/art/images/${artImageId}/file`, { headers })
+    if (!response.ok) return null
+    return URL.createObjectURL(await response.blob())
+  }
+
   async function queueIllustration(
     card: MandarinCard | null = currentCard.value,
   ): Promise<number | null> {
@@ -315,6 +343,7 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
         throw new Error(response.message || 'Failed to queue the Krea 2 illustration.')
       }
       artJobs.value = { ...artJobs.value, [card.key]: jobId }
+      artStatuses.value = { ...artStatuses.value, [card.key]: response.data?.status || 'PENDING' }
       saveLocalState()
       return jobId
     } catch (cause) {
@@ -328,9 +357,64 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     }
   }
 
+  async function refreshIllustration(
+    card: MandarinCard | null = currentCard.value,
+  ): Promise<string | null> {
+    if (!card || artRefreshingKey.value) return null
+    const jobId = illustrationJobId(card.key)
+    const knownImageId = Number(artImageIds.value[card.key])
+    artRefreshingKey.value = card.key
+    error.value = null
+    try {
+      let artImageId =
+        Number.isInteger(knownImageId) && knownImageId > 0 ? knownImageId : 0
+
+      if (!artImageId) {
+        if (!jobId) return null
+        const response = await performFetch<ArtJobData>(
+          `/api/art/queue/${jobId}`,
+          {},
+          1,
+          20_000,
+        )
+        if (!response.success || !response.data?.job) {
+          throw new Error(response.message || `Failed to read ArtJob ${jobId}.`)
+        }
+        const status = String(response.data.job.status || 'UNKNOWN')
+        artStatuses.value = { ...artStatuses.value, [card.key]: status }
+        artImageId = Number(response.data.job.artImageId)
+        if (!Number.isInteger(artImageId) || artImageId <= 0) return null
+        artImageIds.value = { ...artImageIds.value, [card.key]: artImageId }
+        saveLocalState()
+      }
+
+      const nextUrl = await fetchProtectedImage(artImageId)
+      if (!nextUrl) throw new Error('The finished illustration is not available yet.')
+      const previousUrl = artImageUrls.value[card.key]
+      if (previousUrl?.startsWith('blob:')) URL.revokeObjectURL(previousUrl)
+      artImageUrls.value = { ...artImageUrls.value, [card.key]: nextUrl }
+      artStatuses.value = { ...artStatuses.value, [card.key]: 'DONE' }
+      return nextUrl
+    } catch (cause) {
+      error.value =
+        cause instanceof Error ? cause.message : 'Failed to refresh the illustration.'
+      return null
+    } finally {
+      artRefreshingKey.value = null
+    }
+  }
+
   function illustrationJobId(cardKey: string): number | null {
     const id = Number(artJobs.value[cardKey])
     return Number.isInteger(id) && id > 0 ? id : null
+  }
+
+  function illustrationUrl(cardKey: string): string | null {
+    return artImageUrls.value[cardKey] || null
+  }
+
+  function illustrationStatus(cardKey: string): string | null {
+    return artStatuses.value[cardKey] || null
   }
 
   return {
@@ -348,7 +432,11 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     error,
     speechError,
     artJobs,
+    artImageIds,
+    artImageUrls,
+    artStatuses,
     artQueueingKey,
+    artRefreshingKey,
     allSets,
     selectedSet,
     studyCards,
@@ -370,6 +458,9 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     cardIsInCustomSet,
     speak,
     queueIllustration,
+    refreshIllustration,
     illustrationJobId,
+    illustrationUrl,
+    illustrationStatus,
   }
 })

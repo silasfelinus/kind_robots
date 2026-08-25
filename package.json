@@ -7,6 +7,8 @@
     "audit:channel-assets": "tsx utils/scripts/auditChannelAssets.ts",
     "audit:mandarin-provenance": "tsx utils/scripts/auditMandarinCatalog.ts",
     "test:mandarin-content-audit": "tsx utils/scripts/auditMandarinCatalog.ts --self-test",
+    "audit:mandarin-proficiency-coverage": "tsx utils/scripts/auditMandarinProficiencyCoverage.ts",
+    "test:mandarin-proficiency-coverage-selftest": "tsx utils/scripts/auditMandarinProficiencyCoverage.ts --self-test",
     "audit:checkpoints": "prisma generate && tsx utils/scripts/auditCheckpointResources.ts",
     "repair:checkpoints": "prisma generate && tsx utils/scripts/repairCheckpointResources.ts",
     "audit:facet-data": "prisma generate && tsx utils/scripts/auditFacetCatalogData.ts",

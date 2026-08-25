@@ -3,6 +3,7 @@ import {
   BUILT_IN_SET_TERMS,
   CURATED_MANDARIN_CARDS,
   MANDARIN_SOURCE,
+  MANDARIN_SOURCE_COMMIT,
   STARTER_COMPONENT_GUIDES,
   type MandarinCard,
   type MandarinCatalogPayload,
@@ -37,8 +38,9 @@ type SourceEntry = {
   f?: SourceForm[]
 }
 
-const SOURCE_COMMIT = 'a66fd30b9580da2c2af7eb19e4b9d8099a29c061'
-const SOURCE_BASE = `https://raw.githubusercontent.com/jelleverheyen/hsk-vocabulary/${SOURCE_COMMIT}/wordlists/inclusive/new`
+// Pin lives in utils/mandarin.ts (MANDARIN_SOURCE_COMMIT) so this fetch and
+// MANDARIN_SOURCE's own version string can never drift apart.
+const SOURCE_BASE = `https://raw.githubusercontent.com/jelleverheyen/hsk-vocabulary/${MANDARIN_SOURCE_COMMIT}/wordlists/inclusive/new`
 const MINIMUM_CARD_COUNT = 500
 let sourceCatalogPromise: Promise<MandarinCatalogPayload> | null = null
 let catalogPromise: Promise<MandarinCatalogPayload> | null = null

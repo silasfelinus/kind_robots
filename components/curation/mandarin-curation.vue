@@ -37,7 +37,7 @@
         </div>
       </div>
 
-      <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(15rem,1.4fr)_minmax(11rem,0.7fr)_minmax(9rem,0.5fr)_minmax(10rem,0.6fr)_auto]">
+      <div class="grid gap-3" style="grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));">
         <label class="form-control gap-1">
           <span class="text-xs font-black text-base-content/55">Search catalog</span>
           <input
@@ -98,7 +98,11 @@
       <span class="loading loading-spinner loading-lg text-primary" />
     </div>
 
-    <div v-else class="grid min-h-0 gap-4" :class="selectedRow ? 'xl:grid-cols-[minmax(0,1.55fr)_minmax(25rem,0.8fr)]' : ''">
+    <div
+      v-else
+      class="grid min-h-0 gap-4"
+      style="grid-template-columns: repeat(auto-fit, minmax(min(25rem, 100%), 1fr));"
+    >
       <div class="kr-panel min-w-0 overflow-hidden">
         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-base-300 bg-base-200/60 px-4 py-3">
           <p class="font-black">{{ visibleRows.length }} words shown</p>

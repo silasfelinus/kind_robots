@@ -30,6 +30,7 @@ export type ProjectWithRelations = Project & {
 }
 
 export type ProjectPriorityLevel = Project['priority']
+export type ProjectLifecycleStatus = Project['status']
 
 export type ProjectListOptions = {
   mine?: boolean

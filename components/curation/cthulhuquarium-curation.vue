@@ -44,14 +44,14 @@
       v-else-if="!visibleRows.length"
       class="grid min-h-52 place-items-center rounded-2xl border border-dashed border-base-300 bg-base-100/50 p-8 text-center"
     >
-      <p class="font-black">No fish match this view.</p>
+      <p class="font-black">No monsters match this view.</p>
     </div>
 
-    <div v-else class="grid items-start gap-4 xl:grid-cols-2 2xl:grid-cols-3">
+    <div v-else class="flex flex-wrap items-start gap-4">
       <article
         v-for="{ fish, draft } in visibleRows"
         :key="fish.slug"
-        class="kr-panel overflow-hidden"
+        class="kr-panel min-w-0 flex-[1_1_30rem] overflow-hidden"
       >
         <div class="border-b border-base-300 bg-base-200/60 p-4">
           <div class="flex items-start justify-between gap-3">
@@ -105,20 +105,20 @@
               :placeholder="fish.artPrompt"
             />
             <span class="text-[11px] text-base-content/45">
-              The curation draft is separate from fish canon, so choosing between the two current fish bibles stays reversible.
+              The curation draft is production state; the merged YAML bible remains the portable Monster canon until the seed bridge lands.
             </span>
           </label>
 
-          <div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
+          <div class="flex flex-wrap gap-2">
             <input
               v-model="draft.inspirationUrl"
               type="url"
-              class="input input-bordered input-sm rounded-xl"
+              class="input input-bordered input-sm min-w-56 flex-1 rounded-xl"
               placeholder="Add inspiration image URL"
             />
             <button
               type="button"
-              class="btn btn-sm rounded-xl"
+              class="btn btn-sm shrink-0 rounded-xl"
               :disabled="!draft.inspirationUrl.trim() || isSaving(fish.slug)"
               @click="addInspiration(fish)"
             >
@@ -128,8 +128,12 @@
 
           <details v-if="fish.curation.inspirations.length" class="rounded-xl border border-base-300 bg-base-100 p-3">
             <summary class="cursor-pointer text-xs font-black">All inspiration art</summary>
-            <div class="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5">
-              <div v-for="inspiration in fish.curation.inspirations" :key="inspiration.id" class="relative">
+            <div class="mt-3 flex gap-2 overflow-x-auto pb-1">
+              <div
+                v-for="inspiration in fish.curation.inspirations"
+                :key="inspiration.id"
+                class="relative w-20 shrink-0"
+              >
                 <img :src="inspiration.url" :alt="inspiration.label" class="aspect-square w-full rounded-lg object-cover" />
                 <button
                   type="button"
@@ -144,8 +148,8 @@
           </details>
 
           <div class="rounded-xl border border-base-300 bg-base-100 p-3">
-            <div class="grid gap-3 sm:grid-cols-2">
-              <label class="form-control gap-1">
+            <div class="flex flex-wrap gap-3">
+              <label class="form-control min-w-52 flex-1 gap-1">
                 <span class="text-xs font-black">Render preset</span>
                 <select v-model="draft.presetId" class="select select-bordered select-sm rounded-xl">
                   <option v-for="preset in presets" :key="preset.id" :value="preset.id">
@@ -157,7 +161,7 @@
                 </span>
               </label>
 
-              <label class="form-control gap-1">
+              <label class="form-control min-w-52 flex-1 gap-1">
                 <span class="text-xs font-black">Starting point</span>
                 <select v-model="draft.sourceMode" class="select select-bordered select-sm rounded-xl">
                   <option value="fresh">Fresh composition</option>
@@ -215,8 +219,12 @@
 
           <div v-if="fish.curation.candidateImageIds.length" class="space-y-2">
             <p class="text-xs font-black uppercase tracking-wider text-base-content/45">Candidates</p>
-            <div class="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
-              <div v-for="id in fish.curation.candidateImageIds" :key="id" class="rounded-xl border border-base-300 bg-base-100 p-1.5">
+            <div class="flex flex-wrap gap-2">
+              <div
+                v-for="id in fish.curation.candidateImageIds"
+                :key="id"
+                class="w-24 shrink-0 rounded-xl border border-base-300 bg-base-100 p-1.5"
+              >
                 <img :src="artImageUrl(id)" :alt="`${fish.name} candidate ${id}`" class="aspect-square w-full rounded-lg object-cover" />
                 <p class="mt-1 text-center text-[10px] font-bold">#{{ id }}</p>
                 <div class="mt-1 grid grid-cols-2 gap-1">
@@ -252,7 +260,7 @@ import type { Resource } from '~/prisma/generated/prisma/client'
 import type {
   CthulhuquariumCurationData,
   CthulhuquariumCurationEntry,
-  CthulhuquariumCurationFish,
+  CthulhuquariumCurationMonster,
 } from '~/types/curationStudio'
 import { useArtStore } from '@/stores/artStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
@@ -278,7 +286,7 @@ const notice = ref('')
 const saving = ref<string[]>([])
 const generating = ref<string[]>([])
 
-type FishDraft = {
+type MonsterDraft = {
   prompt: string
   inspirationUrl: string
   presetId: string
@@ -289,15 +297,15 @@ type FishDraft = {
   jobStatus: string
 }
 
-type FishRow = {
-  fish: CthulhuquariumCurationFish
-  draft: FishDraft
+type MonsterRow = {
+  fish: CthulhuquariumCurationMonster
+  draft: MonsterDraft
 }
 
-const drafts = reactive<Record<string, FishDraft>>({})
+const drafts = reactive<Record<string, MonsterDraft>>({})
 const checkpoints = computed<Partial<Resource>[]>(() => checkpointStore.visibleCheckpoints)
 
-function makeDraft(fish: CthulhuquariumCurationFish, previous?: FishDraft): FishDraft {
+function makeDraft(fish: CthulhuquariumCurationMonster, previous?: MonsterDraft): MonsterDraft {
   return {
     prompt: fish.curation.promptOverride || fish.artPrompt,
     inspirationUrl: previous?.inspirationUrl || '',
@@ -314,7 +322,7 @@ function makeDraft(fish: CthulhuquariumCurationFish, previous?: FishDraft): Fish
   }
 }
 
-function draftFor(fish: CthulhuquariumCurationFish): FishDraft {
+function draftFor(fish: CthulhuquariumCurationMonster): MonsterDraft {
   const existing = drafts[fish.slug]
   if (existing) return existing
   const created = makeDraft(fish)
@@ -322,7 +330,7 @@ function draftFor(fish: CthulhuquariumCurationFish): FishDraft {
   return created
 }
 
-const visibleRows = computed<FishRow[]>(() => {
+const visibleRows = computed<MonsterRow[]>(() => {
   const query = search.value.trim().toLowerCase()
   return (data.value?.fish || [])
     .filter((fish) => {
@@ -412,7 +420,7 @@ function selectedPreset(slug: string): ArtGeneratorPreset {
   return presets.find((preset) => preset.id === draft?.presetId) || presets[0]!
 }
 
-function canGenerate(fish: CthulhuquariumCurationFish): boolean {
+function canGenerate(fish: CthulhuquariumCurationMonster): boolean {
   const draft = draftFor(fish)
   if (!draft.prompt.trim()) return false
   if (draft.sourceMode === 'existing') return Boolean(draft.sourceImageId && draft.checkpoint)
@@ -424,7 +432,7 @@ function replaceCuration(slug: string, entry: CthulhuquariumCurationEntry) {
   if (fish) fish.curation = entry
 }
 
-async function persist(fish: CthulhuquariumCurationFish, patch: Partial<CthulhuquariumCurationEntry>) {
+async function persist(fish: CthulhuquariumCurationMonster, patch: Partial<CthulhuquariumCurationEntry>) {
   if (isSaving(fish.slug)) return false
   saving.value = [...saving.value, fish.slug]
   error.value = ''
@@ -450,14 +458,14 @@ async function persist(fish: CthulhuquariumCurationFish, patch: Partial<Cthulhuq
   }
 }
 
-async function save(fish: CthulhuquariumCurationFish) {
+async function save(fish: CthulhuquariumCurationMonster) {
   const draft = draftFor(fish)
   if (await persist(fish, { promptOverride: draft.prompt.trim() })) {
     notice.value = `${fish.name} curation saved.`
   }
 }
 
-async function addInspiration(fish: CthulhuquariumCurationFish) {
+async function addInspiration(fish: CthulhuquariumCurationMonster) {
   const draft = draftFor(fish)
   const url = draft.inspirationUrl.trim()
   if (!/^https:\/\//i.test(url)) {
@@ -475,20 +483,20 @@ async function addInspiration(fish: CthulhuquariumCurationFish) {
   if (await persist(fish, { inspirations })) draft.inspirationUrl = ''
 }
 
-async function removeInspiration(fish: CthulhuquariumCurationFish, id: string) {
+async function removeInspiration(fish: CthulhuquariumCurationMonster, id: string) {
   await persist(fish, {
     inspirations: fish.curation.inspirations.filter((item) => item.id !== id),
   })
 }
 
-async function chooseDesign(fish: CthulhuquariumCurationFish, id: number) {
+async function chooseDesign(fish: CthulhuquariumCurationMonster, id: number) {
   const selectedDesignImageId = fish.curation.selectedDesignImageId === id ? null : id
   if (await persist(fish, { selectedDesignImageId })) {
     draftFor(fish).sourceImageId = selectedDesignImageId || id
   }
 }
 
-async function toggleSprite(fish: CthulhuquariumCurationFish, id: number) {
+async function toggleSprite(fish: CthulhuquariumCurationMonster, id: number) {
   const spriteImageIds = fish.curation.spriteImageIds.includes(id)
     ? fish.curation.spriteImageIds.filter((imageId) => imageId !== id)
     : [...fish.curation.spriteImageIds, id]
@@ -507,7 +515,7 @@ async function sourceImageDataUrl(id: number): Promise<string> {
   })
 }
 
-async function generate(fish: CthulhuquariumCurationFish) {
+async function generate(fish: CthulhuquariumCurationMonster) {
   if (isGenerating(fish.slug) || !canGenerate(fish)) return
   generating.value = [...generating.value, fish.slug]
   error.value = ''

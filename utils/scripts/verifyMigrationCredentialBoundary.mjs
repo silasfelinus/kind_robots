@@ -68,6 +68,25 @@ assert.match(
   /never on `\/mnt\/user\/pc`/,
   'the runbook must state where secrets live and where they must not',
 )
+
+// .env.example must NOT define MIGRATION_DATABASE_URL. Neither deploy path reads
+// it from there -- compose's one-shot migrate service takes it from the shell and
+// fails loudly when unset, and Alexandria's docker run passes it with -e from the
+// .secrets handoff file. Defining it in .env does two bad things at once: the app
+// service uses `env_file: .env`, so a permanently-running web process ends up
+// holding a credential that can drop tables (see verifyMigrateOnDeploy.ts), and it
+// becomes a SILENT FALLBACK that turns a lost handoff file into an obscure
+// downstream error instead of a clear one (2026-08-25).
+const envExample = readFileSync('.env.example', 'utf8')
+const definesMigrationUrl = envExample
+  .split('\n')
+  .filter((line) => /^\s*(export\s+)?MIGRATION_DATABASE_URL\s*=/.test(line))
+assert.deepEqual(
+  definesMigrationUrl,
+  [],
+  '.env.example must not define MIGRATION_DATABASE_URL -- it belongs in ' +
+    '<checkout>/.secrets/kindrobots-db-migrate.env and reaches deploys via the shell',
+)
 assert.doesNotMatch(
   migrateWrapper,
   /MIGRATION_DATABASE_URL\s*\?\?\s*process\.env\.DATABASE_URL/,

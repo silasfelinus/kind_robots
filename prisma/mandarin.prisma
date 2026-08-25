@@ -3,20 +3,24 @@
 /// learner to request it may synthesize it and every later web/mobile client
 /// can reuse the exact same bytes without another provider call.
 model MandarinAudioAsset {
-  id          String   @id @db.VarChar(64)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
-  cardKey     String   @db.VarChar(255)
-  text        String   @db.VarChar(255)
-  pinyin      String   @db.VarChar(512)
-  provider    String   @db.VarChar(64)
-  model       String   @db.VarChar(128)
-  voice       String   @db.VarChar(64)
-  format      String   @db.VarChar(16)
-  contentType String   @db.VarChar(64)
-  byteLength  Int
-  audioData   Bytes    @db.MediumBlob
+  id            String   @id @db.VarChar(64)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
+  cardKey       String   @db.VarChar(255)
+  text          String   @db.VarChar(255)
+  pinyin        String   @db.VarChar(512)
+  provider      String   @db.VarChar(64)
+  model         String   @db.VarChar(128)
+  voice         String   @db.VarChar(64)
+  format        String   @db.VarChar(16)
+  recipeVersion String   @db.VarChar(32)
+  contentType   String   @db.VarChar(64)
+  byteLength    Int
+  audioData     Bytes    @db.MediumBlob
 
-  @@unique([cardKey, model, voice, format])
+  // `id` already hashes the complete synthesis identity (including pinyin and
+  // recipeVersion). Do not add a narrower uniqueness constraint here: a future
+  // pronunciation correction or recipe bump must be allowed to coexist with
+  // the old immutable asset instead of colliding on cardKey/model/voice.
   @@index([cardKey])
 }

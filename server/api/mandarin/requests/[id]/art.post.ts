@@ -7,6 +7,7 @@ import { requireApiUser } from '../../../../utils/authGuard'
 import { errorHandler } from '../../../../utils/error'
 import { prisma } from '../../../../utils/prisma'
 import {
+  ensureRequestedArtRecipe,
   reconcileRequestedCardArt,
   requestedCardPublicDataEnriched,
 } from '../../../../utils/mandarinRequestedCards'
@@ -75,7 +76,11 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 404, message: 'Requested Mandarin card not found.' })
     }
 
-    const reconciled = await reconcileRequestedCardArt(row)
+    // v2 is a deliberate visual reset. An older requested-card image must not
+    // short-circuit the new house style: upgrade its persisted prompt first and
+    // clear the stale v1 job/image linkage before checking queue state.
+    const recipeCurrent = await ensureRequestedArtRecipe(row)
+    const reconciled = await reconcileRequestedCardArt(recipeCurrent)
     if (reconciled.artImageId) {
       return {
         success: true,
@@ -113,7 +118,7 @@ export default defineEventHandler(async (event) => {
         height: 768,
         isPublic: false,
         isMature: false,
-        designer: `mandarin-request:${reconciled.id}`,
+        designer: `mandarin-request:v2:${reconciled.id}`,
       },
     })
 
@@ -143,7 +148,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       statusCode: 201,
-      message: 'Requested-card illustration queued.',
+      message: 'Requested-card v2 illustration queued.',
       data: await requestedCardPublicDataEnriched(updated),
     }
   } catch (error) {

@@ -129,4 +129,46 @@ import { checkSchemaMigrationParity } from './schemaMigrationParity.js'
   assert.equal(result.structuralSchemaChange, true)
 }
 
+// A structural change that REMOVES a field, paired with a REMOVED migration
+// file -- the shape of a clean `git revert` of a migration that was never
+// applied to production. Must pass: this is exactly as sound as the forward
+// case above, just in the opposite direction.
+{
+  const diff = [
+    '--- a/prisma/schema.prisma',
+    '+++ b/prisma/schema.prisma',
+    '@@ -10,7 +10,6 @@ model Creature {',
+    '   name  String',
+    '-  tier  Rarity @default(COMMON)',
+    ' }',
+  ].join('\n')
+  const result = checkSchemaMigrationParity({
+    schemaDiffs: [diff],
+    addedMigrationPaths: [],
+    removedMigrationPaths: [
+      'prisma/migrations/20260825120000_add_creature_model/migration.sql',
+    ],
+  })
+  assert.equal(result.ok, true)
+  assert.equal(result.structuralSchemaChange, true)
+}
+
+// removedMigrationPaths omitted entirely (existing callers/tests) must keep
+// behaving exactly as before -- no removed migration, no free pass.
+{
+  const diff = [
+    '--- a/prisma/schema.prisma',
+    '+++ b/prisma/schema.prisma',
+    '@@ -10,6 +10,7 @@ model Character {',
+    '   name  String',
+    '+  size  Int @default(1)',
+    ' }',
+  ].join('\n')
+  const result = checkSchemaMigrationParity({
+    schemaDiffs: [diff],
+    addedMigrationPaths: [],
+  })
+  assert.equal(result.ok, false)
+}
+
 console.log('schemaMigrationParity: all assertions passed')

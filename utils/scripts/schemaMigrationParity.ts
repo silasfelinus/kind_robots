@@ -14,6 +14,19 @@ export type SchemaMigrationParityInput = {
   schemaDiffs: string[]
   /** Paths newly added under prisma/migrations/ in this diff range. */
   addedMigrationPaths: string[]
+  /**
+   * Paths removed from under prisma/migrations/ in this diff range. Optional
+   * for backward compatibility with existing callers/tests that never pass
+   * it (treated as empty). A structural schema change paired with a removed
+   * migration file is the shape of a clean revert of a migration that was
+   * never applied to production -- e.g. `git revert` on a PR caught before
+   * deploy -- and is exactly as sound as the forward case this check was
+   * built for (an added migration file matching an added field). Neither
+   * direction diffs the migration's actual SQL against the schema edit;
+   * both only check that *a* matching migration file move happened, the
+   * same granularity the original added-file check already used.
+   */
+  removedMigrationPaths?: string[]
 }
 
 export type SchemaMigrationParityResult = {
@@ -50,6 +63,10 @@ export function checkSchemaMigrationParity(
   }
 
   if (input.addedMigrationPaths.length > 0) {
+    return { ok: true, structuralSchemaChange: true }
+  }
+
+  if ((input.removedMigrationPaths ?? []).length > 0) {
     return { ok: true, structuralSchemaChange: true }
   }
 

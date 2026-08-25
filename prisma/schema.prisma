@@ -2681,6 +2681,13 @@ enum ResourceType {
   VAE
   TEXT_ENCODER
   DIFFUSION_MODEL
+  /// Operates on LATENTS, loaded by LatentUpscaleModelLoader from
+  /// models/latent_upscale_models/. LTX's spatial upscaler is one, and the
+  /// ltx-12gb-balanced video preset requires it. Distinct from UPSCALER: the
+  /// loaders, the directories and the graph positions are all different.
+  LATENT_UPSCALER
+  /// Operates on PIXELS (ESRGAN and friends), from models/upscale_models/.
+  UPSCALER
 }
 
 enum RewardType {

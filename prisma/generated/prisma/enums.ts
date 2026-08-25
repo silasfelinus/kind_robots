@@ -106,8 +106,7 @@ export type DownloadStatus = (typeof DownloadStatus)[keyof typeof DownloadStatus
 
 export const EvolutionKind = {
   GROWTH: 'GROWTH',
-  BREEDING: 'BREEDING',
-  SECRET: 'SECRET'
+  BREEDING: 'BREEDING'
 } as const
 
 export type EvolutionKind = (typeof EvolutionKind)[keyof typeof EvolutionKind]

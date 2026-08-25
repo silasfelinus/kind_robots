@@ -83,6 +83,20 @@ function addedFiles(base: string, pattern: string): string[] {
     .filter(Boolean)
 }
 
+function removedFiles(base: string, pattern: string): string[] {
+  return git([
+    'diff',
+    '--name-only',
+    '--diff-filter=D',
+    `${base}...HEAD`,
+    '--',
+    pattern,
+  ])
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+}
+
 function fileDiff(base: string, path: string): string {
   return git(['diff', `${base}...HEAD`, '--', path])
 }
@@ -103,8 +117,13 @@ if (!base) {
 const changedSchemaFiles = changedFiles(base, 'prisma/*.prisma')
 const schemaDiffs = changedSchemaFiles.map((path) => fileDiff(base, path))
 const addedMigrationPaths = addedFiles(base, 'prisma/migrations/*')
+const removedMigrationPaths = removedFiles(base, 'prisma/migrations/*')
 
-const result = checkSchemaMigrationParity({ schemaDiffs, addedMigrationPaths })
+const result = checkSchemaMigrationParity({
+  schemaDiffs,
+  addedMigrationPaths,
+  removedMigrationPaths,
+})
 
 if (!result.ok) {
   console.error(`[schema-migration-parity] ${result.message}`)
@@ -115,9 +134,13 @@ if (!result.ok) {
 }
 
 if (result.structuralSchemaChange) {
+  const parts = [
+    ...addedMigrationPaths.map((p) => `+${p}`),
+    ...removedMigrationPaths.map((p) => `-${p}`),
+  ]
   console.log(
-    `[schema-migration-parity] schema changed with a matching new migration ` +
-      `(${addedMigrationPaths.join(', ')}) -- ok.`,
+    `[schema-migration-parity] schema changed with a matching migration file move ` +
+      `(${parts.join(', ')}) -- ok.`,
   )
 } else {
   console.log(

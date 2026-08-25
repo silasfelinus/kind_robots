@@ -50,6 +50,8 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import CurationColoringBookCuration from '@/components/curation/coloring-book-curation.vue'
+import CurationCthulhuquariumCuration from '@/components/curation/cthulhuquarium-curation.vue'
 import { useUserStore } from '@/stores/userStore'
 
 const userStore = useUserStore()

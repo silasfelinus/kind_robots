@@ -490,6 +490,17 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     return set
   }
 
+  function renameCustomSet(setId: string, name: string): boolean {
+    const set = customSets.value.find((candidate) => candidate.id === setId)
+    const cleanName = name.trim().slice(0, 80)
+    if (!set || !cleanName) return false
+    if (set.name === cleanName) return true
+    set.name = cleanName
+    customSets.value = [...customSets.value]
+    saveLocalState()
+    return true
+  }
+
   function toggleCardInCustomSet(setId: string, cardKey: string) {
     const set = customSets.value.find((candidate) => candidate.id === setId)
     if (!set || !cardMap.value.has(cardKey)) return
@@ -833,6 +844,7 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     toggleMeaning,
     toggleDetails,
     createCustomSet,
+    renameCustomSet,
     toggleCardInCustomSet,
     cardIsInCustomSet,
     requestedData,

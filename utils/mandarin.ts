@@ -60,10 +60,18 @@ export type MandarinCustomSet = {
   createdAt: string
 }
 
+// Single source of truth for the pinned upstream commit/URL -- also read by
+// server/utils/mandarinCatalog.ts (which fetches from it) and
+// utils/mandarinProficiencyStandards.ts (which records which official
+// standard that pinned data maps to, mandarin-tutor/t-008). Keeping this in
+// one place means bumping the pin can't silently desync the two.
+export const MANDARIN_SOURCE_COMMIT = 'a66fd30b9580da2c2af7eb19e4b9d8099a29c061'
+export const MANDARIN_SOURCE_REPO_URL = 'https://github.com/jelleverheyen/hsk-vocabulary'
+
 export const MANDARIN_SOURCE: MandarinSource = {
   label: 'HSK Vocabulary / CC-CEDICT compilation',
-  version: 'jelleverheyen/hsk-vocabulary@a66fd30b9580da2c2af7eb19e4b9d8099a29c061',
-  url: 'https://github.com/jelleverheyen/hsk-vocabulary',
+  version: `jelleverheyen/hsk-vocabulary@${MANDARIN_SOURCE_COMMIT}`,
+  url: MANDARIN_SOURCE_REPO_URL,
   licenseNote: 'Source and attribution details are preserved from the upstream dataset.',
 }
 

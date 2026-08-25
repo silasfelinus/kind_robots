@@ -73,6 +73,7 @@ export type ResourceMinAggregateOutputType = {
   slug: string | null
   commercialSafe: boolean | null
   allowReviews: boolean | null
+  loraTarget: $Enums.LoraTarget | null
 }
 
 export type ResourceMaxAggregateOutputType = {
@@ -106,6 +107,7 @@ export type ResourceMaxAggregateOutputType = {
   slug: string | null
   commercialSafe: boolean | null
   allowReviews: boolean | null
+  loraTarget: $Enums.LoraTarget | null
 }
 
 export type ResourceCountAggregateOutputType = {
@@ -139,6 +141,7 @@ export type ResourceCountAggregateOutputType = {
   slug: number
   commercialSafe: number
   allowReviews: number
+  loraTarget: number
   _all: number
 }
 
@@ -190,6 +193,7 @@ export type ResourceMinAggregateInputType = {
   slug?: true
   commercialSafe?: true
   allowReviews?: true
+  loraTarget?: true
 }
 
 export type ResourceMaxAggregateInputType = {
@@ -223,6 +227,7 @@ export type ResourceMaxAggregateInputType = {
   slug?: true
   commercialSafe?: true
   allowReviews?: true
+  loraTarget?: true
 }
 
 export type ResourceCountAggregateInputType = {
@@ -256,6 +261,7 @@ export type ResourceCountAggregateInputType = {
   slug?: true
   commercialSafe?: true
   allowReviews?: true
+  loraTarget?: true
   _all?: true
 }
 
@@ -376,6 +382,7 @@ export type ResourceGroupByOutputType = {
   slug: string | null
   commercialSafe: boolean
   allowReviews: boolean
+  loraTarget: $Enums.LoraTarget | null
   _count: ResourceCountAggregateOutputType | null
   _avg: ResourceAvgAggregateOutputType | null
   _sum: ResourceSumAggregateOutputType | null
@@ -432,6 +439,7 @@ export type ResourceWhereInput = {
   slug?: Prisma.StringNullableFilter<"Resource"> | string | null
   commercialSafe?: Prisma.BoolFilter<"Resource"> | boolean
   allowReviews?: Prisma.BoolFilter<"Resource"> | boolean
+  loraTarget?: Prisma.EnumLoraTargetNullableFilter<"Resource"> | $Enums.LoraTarget | null
   ArtImages?: Prisma.ArtImageListRelationFilter
   Reactions?: Prisma.ReactionListRelationFilter
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
@@ -471,6 +479,7 @@ export type ResourceOrderByWithRelationInput = {
   slug?: Prisma.SortOrderInput | Prisma.SortOrder
   commercialSafe?: Prisma.SortOrder
   allowReviews?: Prisma.SortOrder
+  loraTarget?: Prisma.SortOrderInput | Prisma.SortOrder
   ArtImages?: Prisma.ArtImageOrderByRelationAggregateInput
   Reactions?: Prisma.ReactionOrderByRelationAggregateInput
   ArtImage?: Prisma.ArtImageOrderByWithRelationInput
@@ -514,6 +523,7 @@ export type ResourceWhereUniqueInput = Prisma.AtLeast<{
   imagePath?: Prisma.StringNullableFilter<"Resource"> | string | null
   commercialSafe?: Prisma.BoolFilter<"Resource"> | boolean
   allowReviews?: Prisma.BoolFilter<"Resource"> | boolean
+  loraTarget?: Prisma.EnumLoraTargetNullableFilter<"Resource"> | $Enums.LoraTarget | null
   ArtImages?: Prisma.ArtImageListRelationFilter
   Reactions?: Prisma.ReactionListRelationFilter
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
@@ -553,6 +563,7 @@ export type ResourceOrderByWithAggregationInput = {
   slug?: Prisma.SortOrderInput | Prisma.SortOrder
   commercialSafe?: Prisma.SortOrder
   allowReviews?: Prisma.SortOrder
+  loraTarget?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ResourceCountOrderByAggregateInput
   _avg?: Prisma.ResourceAvgOrderByAggregateInput
   _max?: Prisma.ResourceMaxOrderByAggregateInput
@@ -594,6 +605,7 @@ export type ResourceScalarWhereWithAggregatesInput = {
   slug?: Prisma.StringNullableWithAggregatesFilter<"Resource"> | string | null
   commercialSafe?: Prisma.BoolWithAggregatesFilter<"Resource"> | boolean
   allowReviews?: Prisma.BoolWithAggregatesFilter<"Resource"> | boolean
+  loraTarget?: Prisma.EnumLoraTargetNullableWithAggregatesFilter<"Resource"> | $Enums.LoraTarget | null
 }
 
 export type ResourceCreateInput = {
@@ -624,6 +636,7 @@ export type ResourceCreateInput = {
   slug?: string | null
   commercialSafe?: boolean
   allowReviews?: boolean
+  loraTarget?: $Enums.LoraTarget | null
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutCheckpointResourceInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutResourceInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutResourcesInput
@@ -663,6 +676,7 @@ export type ResourceUncheckedCreateInput = {
   slug?: string | null
   commercialSafe?: boolean
   allowReviews?: boolean
+  loraTarget?: $Enums.LoraTarget | null
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutCheckpointResourceInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutResourceInput
   UsedInImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutLoraResourcesInput
@@ -697,6 +711,7 @@ export type ResourceUpdateInput = {
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loraTarget?: Prisma.NullableEnumLoraTargetFieldUpdateOperationsInput | $Enums.LoraTarget | null
   ArtImages?: Prisma.ArtImageUpdateManyWithoutCheckpointResourceNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutResourceNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutResourcesNestedInput
@@ -736,6 +751,7 @@ export type ResourceUncheckedUpdateInput = {
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loraTarget?: Prisma.NullableEnumLoraTargetFieldUpdateOperationsInput | $Enums.LoraTarget | null
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutCheckpointResourceNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutResourceNestedInput
   UsedInImages?: Prisma.ArtImageUncheckedUpdateManyWithoutLoraResourcesNestedInput
@@ -773,6 +789,7 @@ export type ResourceCreateManyInput = {
   slug?: string | null
   commercialSafe?: boolean
   allowReviews?: boolean
+  loraTarget?: $Enums.LoraTarget | null
 }
 
 export type ResourceUpdateManyMutationInput = {
@@ -803,6 +820,7 @@ export type ResourceUpdateManyMutationInput = {
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loraTarget?: Prisma.NullableEnumLoraTargetFieldUpdateOperationsInput | $Enums.LoraTarget | null
 }
 
 export type ResourceUncheckedUpdateManyInput = {
@@ -836,6 +854,7 @@ export type ResourceUncheckedUpdateManyInput = {
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loraTarget?: Prisma.NullableEnumLoraTargetFieldUpdateOperationsInput | $Enums.LoraTarget | null
 }
 
 export type ResourceNullableScalarRelationFilter = {
@@ -890,6 +909,7 @@ export type ResourceCountOrderByAggregateInput = {
   slug?: Prisma.SortOrder
   commercialSafe?: Prisma.SortOrder
   allowReviews?: Prisma.SortOrder
+  loraTarget?: Prisma.SortOrder
 }
 
 export type ResourceAvgOrderByAggregateInput = {
@@ -931,6 +951,7 @@ export type ResourceMaxOrderByAggregateInput = {
   slug?: Prisma.SortOrder
   commercialSafe?: Prisma.SortOrder
   allowReviews?: Prisma.SortOrder
+  loraTarget?: Prisma.SortOrder
 }
 
 export type ResourceMinOrderByAggregateInput = {
@@ -964,6 +985,7 @@ export type ResourceMinOrderByAggregateInput = {
   slug?: Prisma.SortOrder
   commercialSafe?: Prisma.SortOrder
   allowReviews?: Prisma.SortOrder
+  loraTarget?: Prisma.SortOrder
 }
 
 export type ResourceSumOrderByAggregateInput = {
@@ -1094,6 +1116,10 @@ export type EnumSupportedServerFieldUpdateOperationsInput = {
   set?: $Enums.SupportedServer
 }
 
+export type NullableEnumLoraTargetFieldUpdateOperationsInput = {
+  set?: $Enums.LoraTarget | null
+}
+
 export type ResourceCreateNestedManyWithoutServersInput = {
   create?: Prisma.XOR<Prisma.ResourceCreateWithoutServersInput, Prisma.ResourceUncheckedCreateWithoutServersInput> | Prisma.ResourceCreateWithoutServersInput[] | Prisma.ResourceUncheckedCreateWithoutServersInput[]
   connectOrCreate?: Prisma.ResourceCreateOrConnectWithoutServersInput | Prisma.ResourceCreateOrConnectWithoutServersInput[]
@@ -1202,6 +1228,7 @@ export type ResourceCreateWithoutArtImagesInput = {
   slug?: string | null
   commercialSafe?: boolean
   allowReviews?: boolean
+  loraTarget?: $Enums.LoraTarget | null
   Reactions?: Prisma.ReactionCreateNestedManyWithoutResourceInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutResourcesInput
   User?: Prisma.UserCreateNestedOneWithoutResourcesInput
@@ -1240,6 +1267,7 @@ export type ResourceUncheckedCreateWithoutArtImagesInput = {
   slug?: string | null
   commercialSafe?: boolean
   allowReviews?: boolean
+  loraTarget?: $Enums.LoraTarget | null
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutResourceInput
   UsedInImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutLoraResourcesInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutResourcesInput
@@ -1278,6 +1306,7 @@ export type ResourceCreateWithoutArtImageInput = {
   slug?: string | null
   commercialSafe?: boolean
   allowReviews?: boolean
+  loraTarget?: $Enums.LoraTarget | null
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutCheckpointResourceInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutResourceInput
   User?: Prisma.UserCreateNestedOneWithoutResourcesInput
@@ -1315,6 +1344,7 @@ export type ResourceUncheckedCreateWithoutArtImageInput = {
   slug?: string | null
   commercialSafe?: boolean
   allowReviews?: boolean
+  loraTarget?: $Enums.LoraTarget | null
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutCheckpointResourceInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutResourceInput
   UsedInImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutLoraResourcesInput
@@ -1359,6 +1389,7 @@ export type ResourceCreateWithoutUsedInImagesInput = {
   slug?: string | null
   commercialSafe?: boolean
   allowReviews?: boolean
+  loraTarget?: $Enums.LoraTarget | null
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutCheckpointResourceInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutResourceInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutResourcesInput
@@ -1397,6 +1428,7 @@ export type ResourceUncheckedCreateWithoutUsedInImagesInput = {
   slug?: string | null
   commercialSafe?: boolean
   allowReviews?: boolean
+  loraTarget?: $Enums.LoraTarget | null
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutCheckpointResourceInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutResourceInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutResourcesInput
@@ -1446,6 +1478,7 @@ export type ResourceUpdateWithoutArtImagesInput = {
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loraTarget?: Prisma.NullableEnumLoraTargetFieldUpdateOperationsInput | $Enums.LoraTarget | null
   Reactions?: Prisma.ReactionUpdateManyWithoutResourceNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutResourcesNestedInput
   User?: Prisma.UserUpdateOneWithoutResourcesNestedInput
@@ -1484,6 +1517,7 @@ export type ResourceUncheckedUpdateWithoutArtImagesInput = {
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loraTarget?: Prisma.NullableEnumLoraTargetFieldUpdateOperationsInput | $Enums.LoraTarget | null
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutResourceNestedInput
   UsedInImages?: Prisma.ArtImageUncheckedUpdateManyWithoutLoraResourcesNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutResourcesNestedInput
@@ -1539,6 +1573,7 @@ export type ResourceScalarWhereInput = {
   slug?: Prisma.StringNullableFilter<"Resource"> | string | null
   commercialSafe?: Prisma.BoolFilter<"Resource"> | boolean
   allowReviews?: Prisma.BoolFilter<"Resource"> | boolean
+  loraTarget?: Prisma.EnumLoraTargetNullableFilter<"Resource"> | $Enums.LoraTarget | null
 }
 
 export type ResourceUpsertWithWhereUniqueWithoutUsedInImagesInput = {
@@ -1585,6 +1620,7 @@ export type ResourceCreateWithoutReactionsInput = {
   slug?: string | null
   commercialSafe?: boolean
   allowReviews?: boolean
+  loraTarget?: $Enums.LoraTarget | null
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutCheckpointResourceInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutResourcesInput
   User?: Prisma.UserCreateNestedOneWithoutResourcesInput
@@ -1623,6 +1659,7 @@ export type ResourceUncheckedCreateWithoutReactionsInput = {
   slug?: string | null
   commercialSafe?: boolean
   allowReviews?: boolean
+  loraTarget?: $Enums.LoraTarget | null
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutCheckpointResourceInput
   UsedInImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutLoraResourcesInput
   Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutResourcesInput
@@ -1672,6 +1709,7 @@ export type ResourceUpdateWithoutReactionsInput = {
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loraTarget?: Prisma.NullableEnumLoraTargetFieldUpdateOperationsInput | $Enums.LoraTarget | null
   ArtImages?: Prisma.ArtImageUpdateManyWithoutCheckpointResourceNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutResourcesNestedInput
   User?: Prisma.UserUpdateOneWithoutResourcesNestedInput
@@ -1710,6 +1748,7 @@ export type ResourceUncheckedUpdateWithoutReactionsInput = {
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loraTarget?: Prisma.NullableEnumLoraTargetFieldUpdateOperationsInput | $Enums.LoraTarget | null
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutCheckpointResourceNestedInput
   UsedInImages?: Prisma.ArtImageUncheckedUpdateManyWithoutLoraResourcesNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutResourcesNestedInput
@@ -1743,6 +1782,7 @@ export type ResourceCreateWithoutServersInput = {
   slug?: string | null
   commercialSafe?: boolean
   allowReviews?: boolean
+  loraTarget?: $Enums.LoraTarget | null
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutCheckpointResourceInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutResourceInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutResourcesInput
@@ -1781,6 +1821,7 @@ export type ResourceUncheckedCreateWithoutServersInput = {
   slug?: string | null
   commercialSafe?: boolean
   allowReviews?: boolean
+  loraTarget?: $Enums.LoraTarget | null
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutCheckpointResourceInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutResourceInput
   UsedInImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutLoraResourcesInput
@@ -1835,6 +1876,7 @@ export type ResourceCreateWithoutUserInput = {
   slug?: string | null
   commercialSafe?: boolean
   allowReviews?: boolean
+  loraTarget?: $Enums.LoraTarget | null
   ArtImages?: Prisma.ArtImageCreateNestedManyWithoutCheckpointResourceInput
   Reactions?: Prisma.ReactionCreateNestedManyWithoutResourceInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutResourcesInput
@@ -1872,6 +1914,7 @@ export type ResourceUncheckedCreateWithoutUserInput = {
   slug?: string | null
   commercialSafe?: boolean
   allowReviews?: boolean
+  loraTarget?: $Enums.LoraTarget | null
   ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutCheckpointResourceInput
   Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutResourceInput
   UsedInImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutLoraResourcesInput
@@ -1934,6 +1977,7 @@ export type ResourceCreateManyArtImageInput = {
   slug?: string | null
   commercialSafe?: boolean
   allowReviews?: boolean
+  loraTarget?: $Enums.LoraTarget | null
 }
 
 export type ResourceUpdateWithoutArtImageInput = {
@@ -1964,6 +2008,7 @@ export type ResourceUpdateWithoutArtImageInput = {
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loraTarget?: Prisma.NullableEnumLoraTargetFieldUpdateOperationsInput | $Enums.LoraTarget | null
   ArtImages?: Prisma.ArtImageUpdateManyWithoutCheckpointResourceNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutResourceNestedInput
   User?: Prisma.UserUpdateOneWithoutResourcesNestedInput
@@ -2001,6 +2046,7 @@ export type ResourceUncheckedUpdateWithoutArtImageInput = {
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loraTarget?: Prisma.NullableEnumLoraTargetFieldUpdateOperationsInput | $Enums.LoraTarget | null
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutCheckpointResourceNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutResourceNestedInput
   UsedInImages?: Prisma.ArtImageUncheckedUpdateManyWithoutLoraResourcesNestedInput
@@ -2037,6 +2083,7 @@ export type ResourceUncheckedUpdateManyWithoutArtImageInput = {
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loraTarget?: Prisma.NullableEnumLoraTargetFieldUpdateOperationsInput | $Enums.LoraTarget | null
 }
 
 export type ResourceUpdateWithoutUsedInImagesInput = {
@@ -2067,6 +2114,7 @@ export type ResourceUpdateWithoutUsedInImagesInput = {
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loraTarget?: Prisma.NullableEnumLoraTargetFieldUpdateOperationsInput | $Enums.LoraTarget | null
   ArtImages?: Prisma.ArtImageUpdateManyWithoutCheckpointResourceNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutResourceNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutResourcesNestedInput
@@ -2105,6 +2153,7 @@ export type ResourceUncheckedUpdateWithoutUsedInImagesInput = {
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loraTarget?: Prisma.NullableEnumLoraTargetFieldUpdateOperationsInput | $Enums.LoraTarget | null
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutCheckpointResourceNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutResourceNestedInput
   Servers?: Prisma.ServerUncheckedUpdateManyWithoutResourcesNestedInput
@@ -2141,6 +2190,7 @@ export type ResourceUncheckedUpdateManyWithoutUsedInImagesInput = {
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loraTarget?: Prisma.NullableEnumLoraTargetFieldUpdateOperationsInput | $Enums.LoraTarget | null
 }
 
 export type ResourceUpdateWithoutServersInput = {
@@ -2171,6 +2221,7 @@ export type ResourceUpdateWithoutServersInput = {
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loraTarget?: Prisma.NullableEnumLoraTargetFieldUpdateOperationsInput | $Enums.LoraTarget | null
   ArtImages?: Prisma.ArtImageUpdateManyWithoutCheckpointResourceNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutResourceNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutResourcesNestedInput
@@ -2209,6 +2260,7 @@ export type ResourceUncheckedUpdateWithoutServersInput = {
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loraTarget?: Prisma.NullableEnumLoraTargetFieldUpdateOperationsInput | $Enums.LoraTarget | null
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutCheckpointResourceNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutResourceNestedInput
   UsedInImages?: Prisma.ArtImageUncheckedUpdateManyWithoutLoraResourcesNestedInput
@@ -2245,6 +2297,7 @@ export type ResourceUncheckedUpdateManyWithoutServersInput = {
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loraTarget?: Prisma.NullableEnumLoraTargetFieldUpdateOperationsInput | $Enums.LoraTarget | null
 }
 
 export type ResourceCreateManyUserInput = {
@@ -2277,6 +2330,7 @@ export type ResourceCreateManyUserInput = {
   slug?: string | null
   commercialSafe?: boolean
   allowReviews?: boolean
+  loraTarget?: $Enums.LoraTarget | null
 }
 
 export type ResourceUpdateWithoutUserInput = {
@@ -2307,6 +2361,7 @@ export type ResourceUpdateWithoutUserInput = {
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loraTarget?: Prisma.NullableEnumLoraTargetFieldUpdateOperationsInput | $Enums.LoraTarget | null
   ArtImages?: Prisma.ArtImageUpdateManyWithoutCheckpointResourceNestedInput
   Reactions?: Prisma.ReactionUpdateManyWithoutResourceNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutResourcesNestedInput
@@ -2344,6 +2399,7 @@ export type ResourceUncheckedUpdateWithoutUserInput = {
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loraTarget?: Prisma.NullableEnumLoraTargetFieldUpdateOperationsInput | $Enums.LoraTarget | null
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutCheckpointResourceNestedInput
   Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutResourceNestedInput
   UsedInImages?: Prisma.ArtImageUncheckedUpdateManyWithoutLoraResourcesNestedInput
@@ -2380,6 +2436,7 @@ export type ResourceUncheckedUpdateManyWithoutUserInput = {
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   commercialSafe?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  loraTarget?: Prisma.NullableEnumLoraTargetFieldUpdateOperationsInput | $Enums.LoraTarget | null
 }
 
 
@@ -2471,6 +2528,7 @@ export type ResourceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   slug?: boolean
   commercialSafe?: boolean
   allowReviews?: boolean
+  loraTarget?: boolean
   ArtImages?: boolean | Prisma.Resource$ArtImagesArgs<ExtArgs>
   Reactions?: boolean | Prisma.Resource$ReactionsArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Resource$ArtImageArgs<ExtArgs>
@@ -2513,9 +2571,10 @@ export type ResourceSelectScalar = {
   slug?: boolean
   commercialSafe?: boolean
   allowReviews?: boolean
+  loraTarget?: boolean
 }
 
-export type ResourceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "customLabel" | "MediaPath" | "customUrl" | "civitaiUrl" | "huggingUrl" | "localPath" | "description" | "isMature" | "resourceType" | "userId" | "artImageId" | "generation" | "supportedServer" | "isPublic" | "isActive" | "artPrompt" | "triggerWords" | "defaultTrigger" | "hash" | "previewImageUrl" | "civitaiModelId" | "civitaiModelVersionId" | "imagePath" | "slug" | "commercialSafe" | "allowReviews", ExtArgs["result"]["resource"]>
+export type ResourceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "customLabel" | "MediaPath" | "customUrl" | "civitaiUrl" | "huggingUrl" | "localPath" | "description" | "isMature" | "resourceType" | "userId" | "artImageId" | "generation" | "supportedServer" | "isPublic" | "isActive" | "artPrompt" | "triggerWords" | "defaultTrigger" | "hash" | "previewImageUrl" | "civitaiModelId" | "civitaiModelVersionId" | "imagePath" | "slug" | "commercialSafe" | "allowReviews" | "loraTarget", ExtArgs["result"]["resource"]>
 export type ResourceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ArtImages?: boolean | Prisma.Resource$ArtImagesArgs<ExtArgs>
   Reactions?: boolean | Prisma.Resource$ReactionsArgs<ExtArgs>
@@ -2584,6 +2643,18 @@ export type $ResourcePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
      * could neither be opted out of nor gated like its siblings.
      */
     allowReviews: boolean
+    /**
+     * Which part of the model graph a LORA-typed Resource applies to
+     * (kind-robots/t-069). Most LoRAs train the unet/model and load through
+     * LoraLoaderModelOnly; a LoRA that trains the text encoder needs a clip
+     * input instead, which a model-only loader cannot supply -- applying one
+     * through the model-only path is a silent no-op, not an error. Null means
+     * legacy/unknown: every LoRA registered before this field existed trained
+     * the model, so null is read as MODEL rather than as a genuinely unknown
+     * state. Not yet read anywhere -- the picker/enqueue guard this enables is
+     * deliberate follow-up scope, not part of this column landing.
+     */
+    loraTarget: $Enums.LoraTarget | null
   }, ExtArgs["result"]["resource"]>
   composites: {}
 }
@@ -2989,6 +3060,7 @@ export interface ResourceFieldRefs {
   readonly slug: Prisma.FieldRef<"Resource", 'String'>
   readonly commercialSafe: Prisma.FieldRef<"Resource", 'Boolean'>
   readonly allowReviews: Prisma.FieldRef<"Resource", 'Boolean'>
+  readonly loraTarget: Prisma.FieldRef<"Resource", 'LoraTarget'>
 }
     
 

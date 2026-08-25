@@ -41,6 +41,7 @@ export const resourceGallerySelect = {
   imagePath: true,
   slug: true,
   commercialSafe: true,
+  loraTarget: true,
   ArtImage: {
     select: resourcePreviewArtImageSelect,
   },

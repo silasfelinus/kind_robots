@@ -8089,7 +8089,8 @@ export const ResourceScalarFieldEnum = {
   imagePath: 'imagePath',
   slug: 'slug',
   commercialSafe: 'commercialSafe',
-  allowReviews: 'allowReviews'
+  allowReviews: 'allowReviews',
+  loraTarget: 'loraTarget'
 } as const
 
 export type ResourceScalarFieldEnum = (typeof ResourceScalarFieldEnum)[keyof typeof ResourceScalarFieldEnum]
@@ -10284,6 +10285,13 @@ export type EnumResourceTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
  * Reference to a field of type 'SupportedServer'
  */
 export type EnumSupportedServerFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SupportedServer'>
+    
+
+
+/**
+ * Reference to a field of type 'LoraTarget'
+ */
+export type EnumLoraTargetFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LoraTarget'>
     
 
 

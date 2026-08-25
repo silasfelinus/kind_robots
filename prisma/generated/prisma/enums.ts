@@ -266,6 +266,15 @@ export const ResourceType = {
 export type ResourceType = (typeof ResourceType)[keyof typeof ResourceType]
 
 
+export const LoraTarget = {
+  MODEL: 'MODEL',
+  TEXT_ENCODER: 'TEXT_ENCODER',
+  BOTH: 'BOTH'
+} as const
+
+export type LoraTarget = (typeof LoraTarget)[keyof typeof LoraTarget]
+
+
 export const RewardType = {
   SKILL: 'SKILL',
   ITEM: 'ITEM',

@@ -8,20 +8,44 @@
   >
     <template #interactive>
       <div class="flex flex-col gap-5">
-        <coloring-book-readiness />
-        <coloring-book-package-readiness />
-        <coloring-book-cover-studio />
-        <div id="coloring-production-actions">
-          <coloring-book-production-toolbar />
-        </div>
-        <coloring-book-production-history />
-        <coloring-book-studio />
+        <CurationColoringBookCuration />
+
+        <details class="group rounded-3xl border border-base-300 bg-base-100 shadow-sm">
+          <summary
+            class="flex cursor-pointer list-none flex-wrap items-center justify-between gap-3 p-4 marker:hidden"
+          >
+            <div>
+              <h3 class="flex items-center gap-2 text-lg font-black">
+                <Icon name="kind-icon:activity" class="size-5 text-primary" />
+                Production controls & diagnostics
+              </h3>
+              <p class="mt-1 text-sm text-base-content/55">
+                Readiness, packaging, covers, queue actions, history, and the full ledger inspector.
+              </p>
+            </div>
+            <span class="badge badge-outline rounded-2xl group-open:badge-primary">
+              Secondary tools
+            </span>
+          </summary>
+
+          <div class="flex flex-col gap-5 border-t border-base-300 p-4">
+            <coloring-book-readiness />
+            <coloring-book-package-readiness />
+            <coloring-book-cover-studio />
+            <div id="coloring-production-actions">
+              <coloring-book-production-toolbar />
+            </div>
+            <coloring-book-production-history />
+            <coloring-book-studio />
+          </div>
+        </details>
       </div>
     </template>
   </project-front-page>
 </template>
 
 <script setup lang="ts">
+import CurationColoringBookCuration from '@/components/curation/coloring-book-curation.vue'
 import type { ProjectFrontConfig } from '@/components/conductor/projectFront'
 
 const config: ProjectFrontConfig = {

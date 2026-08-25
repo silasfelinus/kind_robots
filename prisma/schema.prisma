@@ -224,13 +224,6 @@ model Character {
   wits                 Rarity                 @default(COMMON)
   gender               String?                @db.VarChar(256)
   slug                 String?                @unique @db.VarChar(255)
-  /// cthulhuquarium/t-032: tank-capacity weight for this species when placed as
-  /// AquariumStock. Consumed against Aquarium.sizeCap (weighed pool, distinct
-  /// from the counted setSlotsCap -- see SYSTEMS.md "Capacity: two pools, two
-  /// units"). Required going forward; existing rows default to the smallest
-  /// unit so nothing is retroactively over its cap. [v1 placeholder -- actual
-  /// per-species values are a data/authoring pass, not this migration's job.]
-  size                 Int                    @default(1)
   ChallengeSubmissions ChallengeSubmission[]
   ArtImage             ArtImage?              @relation(fields: [artImageId], references: [id])
   User                 User?                  @relation(fields: [userId], references: [id])

@@ -7409,7 +7409,6 @@ export const CharacterScalarFieldEnum = {
   wits: 'wits',
   gender: 'gender',
   slug: 'slug',
-  size: 'size',
   theme: 'theme'
 } as const
 

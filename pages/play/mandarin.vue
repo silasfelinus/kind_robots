@@ -18,6 +18,10 @@
               <div class="stat-title text-xs">Sets</div>
               <div class="stat-value text-xl">{{ allSets.length }}</div>
             </div>
+            <div class="stat px-4 py-2">
+              <div class="stat-title text-xs">Requested</div>
+              <div class="stat-value text-xl">{{ requestedCards.length }}</div>
+            </div>
           </div>
         </div>
         <div class="rounded-2xl border border-base-300 bg-base-200/50 p-3 text-xs leading-relaxed opacity-80">
@@ -73,9 +77,23 @@
                 <span class="mt-1 block truncate text-xs opacity-70">{{ card.meaning }}</span>
               </button>
             </div>
-            <p v-else class="mt-2 text-sm opacity-60">
-              That term is not in the starter catalog yet. Free-form word creation is tracked separately so generated translations and etymology never masquerade as curated facts.
-            </p>
+            <div v-else class="flex flex-col gap-3 rounded-2xl border border-dashed border-base-300 bg-base-200/30 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p class="font-semibold">Not in the catalog yet.</p>
+                <p class="mt-1 max-w-2xl text-xs leading-relaxed opacity-65">
+                  Create a requested card for “{{ searchQuery.trim() }}”. Its translation and usage fields will be clearly labeled as AI-generated; character decomposition remains separately sourced when available.
+                </p>
+              </div>
+              <button
+                class="btn btn-primary shrink-0"
+                type="button"
+                :disabled="requestingWord"
+                @click="requestCurrentWord"
+              >
+                <span v-if="requestingWord" class="loading loading-spinner loading-xs" />
+                {{ requestingWord ? 'Creating card…' : 'Create requested card' }}
+              </button>
+            </div>
           </div>
         </section>
 
@@ -114,6 +132,27 @@
               <button v-if="focusKey" type="button" class="btn btn-ghost btn-sm" @click="store.clearFocus()">
                 Return to deck
               </button>
+            </div>
+
+            <div
+              v-if="currentRequested"
+              class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-sm"
+            >
+              <div class="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p class="font-black">AI-generated requested card</p>
+                  <p class="mt-1 max-w-3xl text-xs leading-relaxed opacity-75">
+                    This card was generated for “{{ currentRequested.requestText }}”; it is not being presented as a dictionary-sourced entry. Character analysis, when shown below, is enriched separately from the sourced character dataset.
+                  </p>
+                </div>
+                <span class="badge badge-warning badge-outline">requested</span>
+              </div>
+              <p v-if="currentRequested.usageNote" class="mt-3 rounded-xl bg-base-100/60 p-3 text-xs leading-relaxed">
+                <span class="font-bold">Usage note:</span> {{ currentRequested.usageNote }}
+              </p>
+              <p class="mt-2 text-[11px] opacity-60">
+                {{ currentRequested.provenance.provider }} · {{ currentRequested.provenance.model }} · recipe {{ currentRequested.provenance.recipeVersion }}
+              </p>
             </div>
 
             <article
@@ -254,6 +293,9 @@
                     <div class="text-xs opacity-55">
                       Source: {{ currentCard.source.label }} · {{ currentCard.source.version }}
                     </div>
+                    <p v-if="currentCard.source.licenseNote" class="text-[11px] leading-relaxed opacity-50">
+                      {{ currentCard.source.licenseNote }}
+                    </p>
                   </div>
                 </div>
               </section>
@@ -287,7 +329,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import MandarinVoiceCoach from '@/components/mandarin/mandarin-voice-coach.vue'
 import { useMandarinTutorStore } from '@/stores/mandarinTutorStore'
@@ -298,6 +340,7 @@ const {
   cards,
   allSets,
   customSets,
+  requestedCards,
   selectedSetId,
   selectedSet,
   currentCard,
@@ -308,10 +351,14 @@ const {
   detailsVisible,
   loading,
   initialized,
+  requestingWord,
   audioSupported,
 } = storeToRefs(store)
 
 const newSetName = ref('')
+const currentRequested = computed(() =>
+  currentCard.value ? store.requestedData(currentCard.value.key) : null,
+)
 
 function createSet() {
   const created = store.createCustomSet(newSetName.value)
@@ -320,8 +367,16 @@ function createSet() {
   store.selectSet(`custom:${created.id}`)
 }
 
+async function requestCurrentWord() {
+  await store.requestWord(searchQuery.value)
+}
+
 async function artAction(card: MandarinCard) {
   if (store.illustrationUrl(card.key)) return
+  if (store.requestedData(card.key)) {
+    await store.refreshRequestedIllustration(card)
+    return
+  }
   if (store.illustrationJobId(card.key)) {
     await store.refreshIllustration(card)
     return
@@ -332,6 +387,9 @@ async function artAction(card: MandarinCard) {
 function artActionLabel(card: MandarinCard): string {
   if (store.illustrationUrl(card.key)) return 'Art ready'
   const jobId = store.illustrationJobId(card.key)
+  if (store.requestedData(card.key)) {
+    return jobId ? `Refresh ArtJob #${jobId}` : 'Queue Krea 2 art'
+  }
   return jobId ? `Refresh ArtJob #${jobId}` : 'Queue Krea 2 art'
 }
 

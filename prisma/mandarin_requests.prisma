@@ -1,0 +1,36 @@
+/// User-requested Mandarin learning cards. Core HSK/curated vocabulary remains
+/// source-backed and code/data driven; these rows are explicitly generated
+/// additions whose provider/model provenance is retained permanently.
+///
+/// userId is intentionally a plain ownership scalar in v1 rather than a Prisma
+/// relation so this additive model does not need to modify the already-crowded
+/// User model merely to establish a back-reference. Every API access is scoped
+/// by authenticated userId.
+model MandarinRequestedCard {
+  id                    Int      @id @default(autoincrement())
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @default(now()) @updatedAt
+  userId                Int
+  requestText           String   @db.VarChar(255)
+  normalizedRequest     String   @db.VarChar(255)
+  simplified            String   @db.VarChar(255)
+  traditional           String?  @db.VarChar(255)
+  pinyin                String   @db.VarChar(512)
+  meaning               String   @db.Text
+  meanings              String   @db.LongText
+  usageNote             String?  @db.Text
+  provider              String   @db.VarChar(64)
+  model                 String   @db.VarChar(255)
+  recipeVersion         String   @db.VarChar(32)
+  generationProvenance  String   @db.Text
+  artPrompt             String   @db.Text
+  artPromptVersion      String   @db.VarChar(32)
+  artJobId              Int?
+  artImageId            Int?
+  isActive              Boolean  @default(true)
+
+  @@unique([userId, normalizedRequest])
+  @@index([userId, isActive])
+  @@index([artJobId])
+  @@index([artImageId])
+}

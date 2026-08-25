@@ -37,6 +37,31 @@ type MandarinAudioData = {
   cached?: boolean
 }
 
+export type MandarinRequestedCardData = {
+  id: number
+  card: MandarinCard
+  requestText: string
+  usageNote?: string | null
+  generated: true
+  provenance: {
+    provider: string
+    model: string
+    recipeVersion: string
+    note: string
+  }
+  art: {
+    prompt: string
+    promptVersion: string
+    jobId?: number | null
+    imageId?: number | null
+    imageUrl?: string | null
+  }
+}
+
+type MandarinRequestedCardsPayload = {
+  cards: MandarinRequestedCardData[]
+}
+
 function safeId(value: string): string {
   return value
     .trim()
@@ -46,10 +71,18 @@ function safeId(value: string): string {
     .slice(0, 60)
 }
 
+function requestedId(cardKey: string): number | null {
+  const match = cardKey.match(/^requested:(\d+)$/)
+  if (!match) return null
+  const id = Number(match[1])
+  return Number.isInteger(id) && id > 0 ? id : null
+}
+
 export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
   const cards = ref<MandarinCard[]>([])
   const builtInSets = ref<MandarinStudySet[]>([])
   const customSets = ref<MandarinCustomSet[]>([])
+  const requestedCards = ref<MandarinRequestedCardData[]>([])
   const selectedSetId = ref('starter-500')
   const studyIndex = ref(0)
   const searchQuery = ref('')
@@ -58,6 +91,7 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
   const detailsVisible = ref(false)
   const loading = ref(false)
   const initialized = ref(false)
+  const requestingWord = ref(false)
   const error = ref<string | null>(null)
   const speechError = ref<string | null>(null)
   const audioUrls = ref<Record<string, string>>({})
@@ -74,8 +108,20 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     () => new Map(cards.value.map((card) => [card.key, card] as const)),
   )
 
+  const requestedSet = computed<MandarinStudySet | null>(() => {
+    const cardKeys = requestedCards.value.map((entry) => entry.card.key)
+    if (!cardKeys.length) return null
+    return {
+      id: 'requested',
+      label: 'Requested words',
+      description: 'Your generated additions, kept separate from sourced starter vocabulary.',
+      cardKeys,
+    }
+  })
+
   const allSets = computed<MandarinStudySet[]>(() => [
     ...builtInSets.value,
+    ...(requestedSet.value ? [requestedSet.value] : []),
     ...customSets.value.map((set) => ({
       id: `custom:${set.id}`,
       label: set.name,
@@ -180,7 +226,8 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
       if (!response.success || !response.data) {
         throw new Error(response.message || 'Failed to load Mandarin cards.')
       }
-      cards.value = response.data.cards
+      const requested = cards.value.filter((card) => requestedId(card.key))
+      cards.value = [...response.data.cards, ...requested]
       builtInSets.value = response.data.sets
       if (!allSets.value.some((set) => set.id === selectedSetId.value)) {
         selectedSetId.value = builtInSets.value[0]?.id ?? 'starter-500'
@@ -196,10 +243,85 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     }
   }
 
+  async function fetchProtectedImage(artImageId: number): Promise<string | null> {
+    if (!import.meta.client) return null
+    const userStore = useUserStore()
+    const token = userStore.token || userStore.user?.token || ''
+    const headers = new Headers()
+    if (token) headers.set('Authorization', `Bearer ${token}`)
+    const response = await fetch(`/api/art/images/${artImageId}/file`, { headers })
+    if (!response.ok) return null
+    return URL.createObjectURL(await response.blob())
+  }
+
+  async function hydrateRequestedArt(entry: MandarinRequestedCardData) {
+    const key = entry.card.key
+    const jobId = Number(entry.art.jobId)
+    const imageId = Number(entry.art.imageId)
+
+    if (Number.isInteger(jobId) && jobId > 0) {
+      artJobs.value = { ...artJobs.value, [key]: jobId }
+      if (!entry.art.imageId) {
+        artStatuses.value = { ...artStatuses.value, [key]: 'PENDING' }
+      }
+    }
+
+    if (!Number.isInteger(imageId) || imageId <= 0) return
+    artImageIds.value = { ...artImageIds.value, [key]: imageId }
+    artStatuses.value = { ...artStatuses.value, [key]: 'DONE' }
+
+    const nextUrl = await fetchProtectedImage(imageId)
+    if (!nextUrl) return
+    const previousUrl = artImageUrls.value[key]
+    if (previousUrl?.startsWith('blob:')) URL.revokeObjectURL(previousUrl)
+    artImageUrls.value = { ...artImageUrls.value, [key]: nextUrl }
+  }
+
+  async function upsertRequestedCard(entry: MandarinRequestedCardData) {
+    requestedCards.value = [
+      entry,
+      ...requestedCards.value.filter((candidate) => candidate.id !== entry.id),
+    ]
+    cards.value = [
+      ...cards.value.filter((candidate) => candidate.key !== entry.card.key),
+      entry.card,
+    ]
+    await hydrateRequestedArt(entry)
+  }
+
+  async function loadRequestedCards() {
+    if (!import.meta.client) return
+    const userStore = useUserStore()
+    const token = userStore.token || userStore.user?.token || ''
+    if (!token) return
+
+    try {
+      const response = await performFetch<MandarinRequestedCardsPayload>(
+        '/api/mandarin/requests',
+        {},
+        1,
+        30_000,
+      )
+      if (!response.success || !response.data) return
+
+      const existingRequestedKeys = new Set(
+        cards.value.filter((card) => requestedId(card.key)).map((card) => card.key),
+      )
+      cards.value = cards.value.filter((card) => !existingRequestedKeys.has(card.key))
+      requestedCards.value = []
+      for (const entry of response.data.cards) {
+        await upsertRequestedCard(entry)
+      }
+    } catch (cause) {
+      console.warn('[mandarin] requested-card load failed', cause)
+    }
+  }
+
   async function initialize() {
     if (initialized.value || loading.value) return
     loadLocalState()
     await loadCatalog()
+    await loadRequestedCards()
   }
 
   function selectSet(id: string) {
@@ -281,6 +403,73 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
         .find((set) => set.id === setId)
         ?.cardKeys.includes(cardKey),
     )
+  }
+
+  function requestedData(cardKey: string): MandarinRequestedCardData | null {
+    const id = requestedId(cardKey)
+    if (!id) return null
+    return requestedCards.value.find((entry) => entry.id === id) ?? null
+  }
+
+  async function requestWord(request = searchQuery.value): Promise<MandarinRequestedCardData | null> {
+    const cleanRequest = request.trim()
+    if (!cleanRequest || requestingWord.value) return null
+    requestingWord.value = true
+    error.value = null
+    try {
+      const response = await performFetch<MandarinRequestedCardData>(
+        '/api/mandarin/requests',
+        {
+          method: 'POST',
+          body: JSON.stringify({ request: cleanRequest }),
+        },
+        1,
+        60_000,
+      )
+      if (!response.success || !response.data?.card) {
+        throw new Error(response.message || 'Failed to create the requested Mandarin card.')
+      }
+      await upsertRequestedCard(response.data)
+      focusKey.value = response.data.card.key
+      searchQuery.value = ''
+      resetReveal()
+      return response.data
+    } catch (cause) {
+      error.value =
+        cause instanceof Error ? cause.message : 'Failed to create the requested Mandarin card.'
+      return null
+    } finally {
+      requestingWord.value = false
+    }
+  }
+
+  async function refreshRequestedIllustration(
+    card: MandarinCard | null = currentCard.value,
+  ): Promise<string | null> {
+    if (!card || !requestedId(card.key) || artRefreshingKey.value) return null
+    const id = requestedId(card.key)
+    if (!id) return null
+    artRefreshingKey.value = card.key
+    error.value = null
+    try {
+      const response = await performFetch<MandarinRequestedCardData>(
+        `/api/mandarin/requests/${id}/art`,
+        { method: 'POST' },
+        1,
+        45_000,
+      )
+      if (!response.success || !response.data?.card) {
+        throw new Error(response.message || 'Failed to refresh requested-card art.')
+      }
+      await upsertRequestedCard(response.data)
+      return artImageUrls.value[card.key] || null
+    } catch (cause) {
+      error.value =
+        cause instanceof Error ? cause.message : 'Failed to refresh requested-card art.'
+      return null
+    } finally {
+      artRefreshingKey.value = null
+    }
   }
 
   function playBrowserSpeech(card: MandarinCard): boolean {
@@ -368,31 +557,16 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
 
     if (await playReferenceAudio(url)) return
 
-    // Safari/iOS can reject a play() that follows an async cache-generation
-    // request because the original tap's user activation has expired. The URL
-    // is retained, so the next tap plays immediately; browser speech keeps the
-    // first tap useful instead of turning that policy quirk into a dead button.
     if (playBrowserSpeech(card)) return
 
     speechError.value =
       'The reference clip is ready, but this browser blocked audio playback. Tap Hear pronunciation again.'
   }
 
-  async function fetchProtectedImage(artImageId: number): Promise<string | null> {
-    if (!import.meta.client) return null
-    const userStore = useUserStore()
-    const token = userStore.token || userStore.user?.token || ''
-    const headers = new Headers()
-    if (token) headers.set('Authorization', `Bearer ${token}`)
-    const response = await fetch(`/api/art/images/${artImageId}/file`, { headers })
-    if (!response.ok) return null
-    return URL.createObjectURL(await response.blob())
-  }
-
   async function queueIllustration(
     card: MandarinCard | null = currentCard.value,
   ): Promise<number | null> {
-    if (!card || artQueueingKey.value) return null
+    if (!card || requestedId(card.key) || artQueueingKey.value) return null
     artQueueingKey.value = card.key
     error.value = null
     try {
@@ -442,7 +616,7 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
   async function refreshIllustration(
     card: MandarinCard | null = currentCard.value,
   ): Promise<string | null> {
-    if (!card || artRefreshingKey.value) return null
+    if (!card || requestedId(card.key) || artRefreshingKey.value) return null
     const jobId = illustrationJobId(card.key)
     const knownImageId = Number(artImageIds.value[card.key])
     artRefreshingKey.value = card.key
@@ -487,7 +661,8 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
   }
 
   function illustrationJobId(cardKey: string): number | null {
-    const id = Number(artJobs.value[cardKey])
+    const requested = requestedData(cardKey)
+    const id = Number(requested?.art.jobId ?? artJobs.value[cardKey])
     return Number.isInteger(id) && id > 0 ? id : null
   }
 
@@ -496,6 +671,7 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
   }
 
   function illustrationStatus(cardKey: string): string | null {
+    if (requestedData(cardKey)?.art.imageId) return 'DONE'
     return artStatuses.value[cardKey] || null
   }
 
@@ -503,6 +679,7 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     cards,
     builtInSets,
     customSets,
+    requestedCards,
     selectedSetId,
     studyIndex,
     searchQuery,
@@ -511,6 +688,7 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     detailsVisible,
     loading,
     initialized,
+    requestingWord,
     error,
     speechError,
     audioUrls,
@@ -530,6 +708,7 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     audioSupported,
     initialize,
     loadCatalog,
+    loadRequestedCards,
     selectSet,
     nextCard,
     previousCard,
@@ -540,6 +719,9 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     createCustomSet,
     toggleCardInCustomSet,
     cardIsInCustomSet,
+    requestedData,
+    requestWord,
+    refreshRequestedIllustration,
     speak,
     queueIllustration,
     refreshIllustration,

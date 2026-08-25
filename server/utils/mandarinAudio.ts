@@ -1,0 +1,158 @@
+import { createHash } from 'node:crypto'
+import type { H3Event } from 'h3'
+import type { MandarinCard } from '~/utils/mandarin'
+import { getMandarinCatalog } from './mandarinCatalog'
+import { manaGate } from './manaGate'
+import { prisma } from './prisma'
+import { safeFetch } from './safeFetch'
+import {
+  assertProviderApiKey,
+  getRuntimeOpenAiKey,
+} from './textProviderService'
+
+export const MANDARIN_AUDIO_PROVIDER = 'openai'
+export const MANDARIN_AUDIO_MODEL = 'gpt-4o-mini-tts-2025-12-15'
+export const MANDARIN_AUDIO_VOICE = 'marin'
+export const MANDARIN_AUDIO_FORMAT = 'mp3'
+export const MANDARIN_AUDIO_CONTENT_TYPE = 'audio/mpeg'
+const MANDARIN_AUDIO_RECIPE_VERSION = 'v1'
+const MAX_AUDIO_BYTES = 2 * 1024 * 1024
+
+const generationPromises = new Map<
+  string,
+  Promise<{ id: string; cached: boolean }>
+>()
+
+export function mandarinAudioAssetId(card: Pick<MandarinCard, 'simplified' | 'pinyin'>): string {
+  return createHash('sha256')
+    .update(
+      [
+        MANDARIN_AUDIO_RECIPE_VERSION,
+        MANDARIN_AUDIO_PROVIDER,
+        MANDARIN_AUDIO_MODEL,
+        MANDARIN_AUDIO_VOICE,
+        MANDARIN_AUDIO_FORMAT,
+        card.simplified,
+        card.pinyin,
+      ].join('|'),
+      'utf8',
+    )
+    .digest('hex')
+}
+
+export function mandarinAudioUrl(id: string): string {
+  return `/api/mandarin/audio/${id}`
+}
+
+export async function resolveMandarinCatalogCard(cardKey: string): Promise<MandarinCard | null> {
+  const catalog = await getMandarinCatalog()
+  return catalog.cards.find((card) => card.key === cardKey) ?? null
+}
+
+async function synthesizeAndStore(
+  event: H3Event,
+  card: MandarinCard,
+  id: string,
+): Promise<{ id: string; cached: boolean }> {
+  const existing = await prisma.mandarinAudioAsset.findUnique({
+    where: { id },
+    select: { id: true },
+  })
+  if (existing) return { id, cached: true }
+
+  const config = useRuntimeConfig()
+  const apiKey = getRuntimeOpenAiKey(config)
+  assertProviderApiKey({
+    apiKey,
+    providerLabel: 'OpenAI',
+    expectedPrefix: 'sk-',
+  })
+
+  // These are deliberately short curriculum clips. The estimate is
+  // conservative for a word/short phrase and manaGate enforces the app's
+  // minimum charge. Cache hits never incur another generation charge.
+  const gate = await manaGate(event, {
+    kind: 'text',
+    estCostUsd: 0.001,
+  })
+
+  const response = await safeFetch(
+    'https://api.openai.com/v1/audio/speech',
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: MANDARIN_AUDIO_MODEL,
+        voice: MANDARIN_AUDIO_VOICE,
+        input: card.simplified,
+        response_format: MANDARIN_AUDIO_FORMAT,
+        instructions: [
+          'Speak Standard Mandarin Chinese clearly and naturally as a patient native pronunciation reference.',
+          `The intended pinyin is ${card.pinyin}.`,
+          'Say only the supplied Chinese word or phrase once.',
+          'Use natural lexical tones and normal Mandarin tone sandhi.',
+          'Do not translate, spell, explain, introduce, or repeat it.',
+        ].join(' '),
+      }),
+    },
+    { connectTimeoutMs: 30_000 },
+  )
+
+  if (!response.ok) {
+    throw new Error(`Mandarin reference-audio synthesis failed with status ${response.status}.`)
+  }
+
+  const declaredLength = Number(response.headers.get('content-length') || 0)
+  if (Number.isFinite(declaredLength) && declaredLength > MAX_AUDIO_BYTES) {
+    throw new Error('Mandarin reference-audio response exceeded the size limit.')
+  }
+
+  const audioData = new Uint8Array(await response.arrayBuffer())
+  if (!audioData.length) {
+    throw new Error('Mandarin reference-audio synthesis returned an empty clip.')
+  }
+  if (audioData.length > MAX_AUDIO_BYTES) {
+    throw new Error('Mandarin reference-audio response exceeded the size limit.')
+  }
+
+  // The id is deterministic, so concurrent first requests converge on the
+  // same row. Upsert also makes a retry after a network/client timeout safe.
+  await prisma.mandarinAudioAsset.upsert({
+    where: { id },
+    create: {
+      id,
+      cardKey: card.key,
+      text: card.simplified,
+      pinyin: card.pinyin,
+      provider: MANDARIN_AUDIO_PROVIDER,
+      model: MANDARIN_AUDIO_MODEL,
+      voice: MANDARIN_AUDIO_VOICE,
+      format: MANDARIN_AUDIO_FORMAT,
+      contentType: MANDARIN_AUDIO_CONTENT_TYPE,
+      byteLength: audioData.length,
+      audioData,
+    },
+    update: {},
+  })
+
+  await gate.commit(`mandarin-audio:${id}`)
+  return { id, cached: false }
+}
+
+export async function ensureMandarinAudioAsset(
+  event: H3Event,
+  card: MandarinCard,
+): Promise<{ id: string; cached: boolean }> {
+  const id = mandarinAudioAssetId(card)
+  const inFlight = generationPromises.get(id)
+  if (inFlight) return inFlight
+
+  const promise = synthesizeAndStore(event, card, id).finally(() => {
+    generationPromises.delete(id)
+  })
+  generationPromises.set(id, promise)
+  return promise
+}

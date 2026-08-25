@@ -143,12 +143,24 @@
                       Traditional: <span class="text-lg">{{ currentCard.traditional }}</span>
                     </p>
                   </div>
-                  <button type="button" class="btn btn-accent" @click="store.speak(currentCard)">
-                    Hear pronunciation
+                  <button
+                    type="button"
+                    class="btn btn-accent"
+                    :disabled="Boolean(store.audioLoadingKey)"
+                    @click="store.speak(currentCard)"
+                  >
+                    <span
+                      v-if="store.audioLoadingKey === currentCard.key"
+                      class="loading loading-spinner loading-xs"
+                    />
+                    {{ store.audioLoadingKey === currentCard.key ? 'Preparing reference…' : 'Hear pronunciation' }}
                   </button>
                   <p v-if="store.speechError" class="text-xs text-error">{{ store.speechError }}</p>
                   <p v-else-if="!audioSupported" class="text-xs opacity-60">
-                    This browser does not expose speech synthesis.
+                    This browser cannot play the reference audio.
+                  </p>
+                  <p v-else class="max-w-sm text-xs opacity-55">
+                    The first play may create the shared reference clip; later plays reuse the same cached recording.
                   </p>
                 </div>
 

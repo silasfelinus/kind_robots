@@ -1301,7 +1301,8 @@ export const ResourceScalarFieldEnum = {
   imagePath: 'imagePath',
   slug: 'slug',
   commercialSafe: 'commercialSafe',
-  allowReviews: 'allowReviews'
+  allowReviews: 'allowReviews',
+  loraTarget: 'loraTarget'
 } as const
 
 export type ResourceScalarFieldEnum = (typeof ResourceScalarFieldEnum)[keyof typeof ResourceScalarFieldEnum]

@@ -1438,6 +1438,16 @@ model Resource {
   /// Added late: Resource was the one reaction target with no such flag, so it
   /// could neither be opted out of nor gated like its siblings.
   allowReviews          Boolean         @default(true)
+  /// Which part of the model graph a LORA-typed Resource applies to
+  /// (kind-robots/t-069). Most LoRAs train the unet/model and load through
+  /// LoraLoaderModelOnly; a LoRA that trains the text encoder needs a clip
+  /// input instead, which a model-only loader cannot supply -- applying one
+  /// through the model-only path is a silent no-op, not an error. Null means
+  /// legacy/unknown: every LoRA registered before this field existed trained
+  /// the model, so null is read as MODEL rather than as a genuinely unknown
+  /// state. Not yet read anywhere -- the picker/enqueue guard this enables is
+  /// deliberate follow-up scope, not part of this column landing.
+  loraTarget            LoraTarget?
   ArtImages             ArtImage[]      @relation("ArtImageCheckpointResource")
   Reactions             Reaction[]
   ArtImage              ArtImage?       @relation("ResourcePreviewImage", fields: [artImageId], references: [id])
@@ -2816,6 +2826,13 @@ enum ResourceType {
   LATENT_UPSCALER
   /// Operates on PIXELS (ESRGAN and friends), from models/upscale_models/.
   UPSCALER
+}
+
+/// See Resource.loraTarget (kind-robots/t-069).
+enum LoraTarget {
+  MODEL
+  TEXT_ENCODER
+  BOTH
 }
 
 enum RewardType {

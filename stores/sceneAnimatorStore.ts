@@ -236,6 +236,18 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
         throw new Error(response.message || 'Failed to load Scene Animator.')
       }
 
+      if (!response.data.rootAvailable) {
+        // Root not mounted/reachable yet — not a request failure (the API
+        // still answered normally), so this is reported through the same
+        // error banner rather than thrown, with the server's specific reason.
+        folders.value = []
+        sources.value = []
+        initialized.value = true
+        error.value =
+          response.message || 'Scene Animator source root is unavailable.'
+        return
+      }
+
       folders.value = response.data.folders
       configKey.value = response.data.configKey
       engine.value = response.data.config.engine

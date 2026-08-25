@@ -13,6 +13,7 @@ import {
   CASINO_STUDY_SET_META,
   type MandarinCasinoCard,
 } from '~/utils/mandarinCasino'
+import { CASINO_MANDARIN_ADDITIONS } from '~/utils/mandarinCasinoAdditions'
 import { enrichMandarinCharacterData } from './mandarinCharacterData'
 import { applyMandarinCatalogOverrides } from './mandarinCatalogOverrides'
 
@@ -203,7 +204,7 @@ function mergeCards(sourceCards: MandarinCard[]): MandarinCard[] {
     existing.categories = [...new Set([...existing.categories, ...curated.categories])]
   }
 
-  for (const specialist of CASINO_MANDARIN_CARDS) {
+  for (const specialist of [...CASINO_MANDARIN_CARDS, ...CASINO_MANDARIN_ADDITIONS]) {
     const existing = bySimplified.get(specialist.simplified)
     if (!existing) {
       bySimplified.set(specialist.simplified, specialist)

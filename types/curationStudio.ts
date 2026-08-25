@@ -39,10 +39,10 @@ export type CthulhuquariumCurationMonster = CthulhuquariumMonster & {
 export type CthulhuquariumCurationFish = CthulhuquariumCurationMonster
 
 export type CthulhuquariumCurationData = {
-  // Canonical API name. `fish` remains during the first UI slice so this PR can
-  // merge independently of t-008/t-038 without inventing a second entity type.
-  monsters: CthulhuquariumCurationMonster[]
-  /** @deprecated Use monsters. */
+  // `fish` is the compatibility payload name used by this first UI slice.
+  // `monsters` is reserved for the t-008-backed API once YAML rows are seeded
+  // into Prisma Monster records; both represent the same domain entity.
+  monsters?: CthulhuquariumCurationMonster[]
   fish: CthulhuquariumCurationMonster[]
   sourceRepo: string
   sourceRef: string

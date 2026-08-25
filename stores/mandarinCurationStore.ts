@@ -7,7 +7,12 @@ import type {
   MandarinCurationUpdate,
 } from '@/types/mandarinCuration'
 
-export type MandarinCurationSort = 'hanzi' | 'pinyin' | 'meaning' | 'hsk'
+export type MandarinCurationSort =
+  | 'hanzi'
+  | 'pinyin'
+  | 'meaning'
+  | 'hsk'
+  | 'category'
 
 export type MandarinCurationDraft = {
   traditional: string
@@ -51,6 +56,10 @@ function splitCategories(value: string): string[] {
     .map((item) => item.trim())
     .filter(Boolean)
     .slice(0, 40)
+}
+
+function firstTopicalCategory(row: MandarinCurationRow): string {
+  return editableCategories(row.effective.categories)[0] ?? 'zzzz'
 }
 
 export const useMandarinCurationStore = defineStore(
@@ -119,6 +128,13 @@ export const useMandarinCurationStore = defineStore(
         }
         if (sortKey.value === 'meaning') {
           return a.effective.meaning.localeCompare(b.effective.meaning)
+        }
+        if (sortKey.value === 'category') {
+          const categoryOrder = firstTopicalCategory(a).localeCompare(
+            firstTopicalCategory(b),
+          )
+          if (categoryOrder !== 0) return categoryOrder
+          return a.effective.pinyin.localeCompare(b.effective.pinyin)
         }
         const levelA = a.effective.hskLevel ?? 99
         const levelB = b.effective.hskLevel ?? 99

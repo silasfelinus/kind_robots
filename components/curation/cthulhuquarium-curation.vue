@@ -157,7 +157,7 @@
                   </option>
                 </select>
                 <span class="text-[11px] leading-5 text-base-content/45">
-                  FLUX schnell is the proven Cthulhuquarium default. Krea2 and FLUX.2 stay hidden until their render-box paths are verified.
+                  FLUX schnell remains the proven Cthulhuquarium default; Krea2 is restored and FLUX.2's model configuration is repaired, so every house preset stays selectable.
                 </span>
               </label>
 
@@ -272,9 +272,7 @@ import {
 
 const artStore = useArtStore()
 const checkpointStore = useCheckpointStore()
-const presets = ART_GENERATOR_PRESETS.filter(
-  (preset) => preset.engine !== 'krea2' && preset.engine !== 'flux2',
-)
+const presets = ART_GENERATOR_PRESETS
 const CTH_DEFAULT_PRESET_ID = 'flux-schnell'
 
 const data = ref<CthulhuquariumCurationData | null>(null)

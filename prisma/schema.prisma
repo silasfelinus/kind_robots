@@ -54,7 +54,7 @@ model ArtImage {
   Characters           Character[]
   Chats                Chat[]
   Contenders           Contender[]
-  Creatures            Creature[]
+  Monsters            Monster[]
   DreamsPrimary        Dream[]               @relation("DreamPrimaryArtImage")
   EntityArtLinks       EntityArtImage[]
   ExpressionMedia      ExpressionMedia?
@@ -1171,7 +1171,7 @@ model Pack {
   Dreams     Dream[]
   Facets     Facet[]
   Characters Character[]
-  Creatures  Creature[]
+  Monsters  Monster[]
   Rewards    Reward[]
 
   @@index([ownerId])
@@ -1764,7 +1764,7 @@ model User {
   Challenges             Challenge[]
   characters             Character[]
   Chats                  Chat[]
-  Creatures              Creature[]
+  Monsters              Monster[]
   ConversationsIn        ConversationParticipant[]
   SentMessages           DirectMessage[]           @relation("DirectMessageSender")
   Dreams                 Dream[]
@@ -2465,10 +2465,10 @@ model AquariumCodexEntry {
 /// needed a capacity weight, `Character.size` was added for them, and when
 /// that migration shipped unapplied it took every unselected
 /// `prisma.character.findUnique()` down with it, including character-linked
-/// art generation (kind-robots/t-071). Creature carries what the fish bible
+/// art generation (kind-robots/t-071). Monster carries what the fish bible
 /// (conductor projects/cthulhuquarium, external to this repo) actually
 /// needs. Sharing survives unchanged -- `games` is the mechanism, not the
-/// table, exactly as it was meant to be: a Creature tagged
+/// table, exactly as it was meant to be: a Monster tagged
 /// "cthulhuquarium,ruler-hooked" is readable by both.
 /// NOT YET WIRED, deliberately: AquariumStock.characterId and
 /// AquariumCodexEntry.characterId still reference Character (t-032), and
@@ -2478,7 +2478,7 @@ model AquariumCodexEntry {
 /// DROP, no rewrite of a table anything currently reads. See t-035's
 /// roadmap note for the full ordering and why the drop specifically waits
 /// on kind-robots/t-071 being resolved first.
-model Creature {
+model Monster {
   id                  Int            @id @default(autoincrement())
   createdAt           DateTime       @default(now())
   updatedAt           DateTime?      @default(now()) @updatedAt
@@ -2545,8 +2545,8 @@ model Creature {
   /// is set; omit both on a species with no further evolution.
   evolutionKind       EvolutionKind?
   evolvesToId         Int?
-  EvolvesTo           Creature?      @relation("CreatureEvolution", fields: [evolvesToId], references: [id], onDelete: SetNull)
-  EvolvesFrom         Creature[]     @relation("CreatureEvolution")
+  EvolvesTo           Monster?       @relation("MonsterEvolution", fields: [evolvesToId], references: [id], onDelete: SetNull)
+  EvolvesFrom         Monster[]      @relation("MonsterEvolution")
   icon                String?
   iconPath            String?        @db.Text
   imagePath           String?        @db.VarChar(764)
@@ -2575,7 +2575,7 @@ model Creature {
   @@index([isActive])
 }
 
-/// cthulhuquarium/t-035: which mechanism unlocks a Creature.evolvesToId --
+/// cthulhuquarium/t-035: which mechanism unlocks a Monster.evolvesToId --
 /// see that field's own doc comment. Both were already named in the fish
 /// bible's SCHEMA.md (external, conductor repo) before this table existed.
 enum EvolutionKind {

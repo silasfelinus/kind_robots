@@ -134,7 +134,7 @@ export const ModelName = {
   AquariumStock: 'AquariumStock',
   AquariumSet: 'AquariumSet',
   AquariumCodexEntry: 'AquariumCodexEntry',
-  Creature: 'Creature',
+  Monster: 'Monster',
   AquariumEvent: 'AquariumEvent',
   AuthToken: 'AuthToken',
   Conversation: 'Conversation',
@@ -1876,7 +1876,7 @@ export const AquariumCodexEntryScalarFieldEnum = {
 export type AquariumCodexEntryScalarFieldEnum = (typeof AquariumCodexEntryScalarFieldEnum)[keyof typeof AquariumCodexEntryScalarFieldEnum]
 
 
-export const CreatureScalarFieldEnum = {
+export const MonsterScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
@@ -1921,7 +1921,7 @@ export const CreatureScalarFieldEnum = {
   packId: 'packId'
 } as const
 
-export type CreatureScalarFieldEnum = (typeof CreatureScalarFieldEnum)[keyof typeof CreatureScalarFieldEnum]
+export type MonsterScalarFieldEnum = (typeof MonsterScalarFieldEnum)[keyof typeof MonsterScalarFieldEnum]
 
 
 export const AquariumEventScalarFieldEnum = {
@@ -2995,7 +2995,7 @@ export const AquariumSetOrderByRelevanceFieldEnum = {
 export type AquariumSetOrderByRelevanceFieldEnum = (typeof AquariumSetOrderByRelevanceFieldEnum)[keyof typeof AquariumSetOrderByRelevanceFieldEnum]
 
 
-export const CreatureOrderByRelevanceFieldEnum = {
+export const MonsterOrderByRelevanceFieldEnum = {
   slug: 'slug',
   name: 'name',
   species: 'species',
@@ -3013,7 +3013,7 @@ export const CreatureOrderByRelevanceFieldEnum = {
   heroPath: 'heroPath'
 } as const
 
-export type CreatureOrderByRelevanceFieldEnum = (typeof CreatureOrderByRelevanceFieldEnum)[keyof typeof CreatureOrderByRelevanceFieldEnum]
+export type MonsterOrderByRelevanceFieldEnum = (typeof MonsterOrderByRelevanceFieldEnum)[keyof typeof MonsterOrderByRelevanceFieldEnum]
 
 
 export const AquariumEventOrderByRelevanceFieldEnum = {

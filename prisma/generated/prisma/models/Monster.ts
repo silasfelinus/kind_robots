@@ -4,7 +4,7 @@
 // biome-ignore-all lint: generated file
 // @ts-nocheck 
 /*
- * This file exports the `Creature` model and its related types.
+ * This file exports the `Monster` model and its related types.
  *
  * 🟢 You can import this file directly.
  */
@@ -13,7 +13,7 @@ import type * as $Enums from "../enums"
 import type * as Prisma from "../internal/prismaNamespace"
 
 /**
- * Model Creature
+ * Model Monster
  * cthulhuquarium/t-035: the bestiary's own model. Character is this site's
  * chattable-personality table -- people you can talk to, story NPCs -- and
  * fish/tank creatures have no dialogue, no personality, and no chat
@@ -23,10 +23,10 @@ import type * as Prisma from "../internal/prismaNamespace"
  * needed a capacity weight, `Character.size` was added for them, and when
  * that migration shipped unapplied it took every unselected
  * `prisma.character.findUnique()` down with it, including character-linked
- * art generation (kind-robots/t-071). Creature carries what the fish bible
+ * art generation (kind-robots/t-071). Monster carries what the fish bible
  * (conductor projects/cthulhuquarium, external to this repo) actually
  * needs. Sharing survives unchanged -- `games` is the mechanism, not the
- * table, exactly as it was meant to be: a Creature tagged
+ * table, exactly as it was meant to be: a Monster tagged
  * "cthulhuquarium,ruler-hooked" is readable by both.
  * NOT YET WIRED, deliberately: AquariumStock.characterId and
  * AquariumCodexEntry.characterId still reference Character (t-032), and
@@ -37,17 +37,17 @@ import type * as Prisma from "../internal/prismaNamespace"
  * roadmap note for the full ordering and why the drop specifically waits
  * on kind-robots/t-071 being resolved first.
  */
-export type CreatureModel = runtime.Types.Result.DefaultSelection<Prisma.$CreaturePayload>
+export type MonsterModel = runtime.Types.Result.DefaultSelection<Prisma.$MonsterPayload>
 
-export type AggregateCreature = {
-  _count: CreatureCountAggregateOutputType | null
-  _avg: CreatureAvgAggregateOutputType | null
-  _sum: CreatureSumAggregateOutputType | null
-  _min: CreatureMinAggregateOutputType | null
-  _max: CreatureMaxAggregateOutputType | null
+export type AggregateMonster = {
+  _count: MonsterCountAggregateOutputType | null
+  _avg: MonsterAvgAggregateOutputType | null
+  _sum: MonsterSumAggregateOutputType | null
+  _min: MonsterMinAggregateOutputType | null
+  _max: MonsterMaxAggregateOutputType | null
 }
 
-export type CreatureAvgAggregateOutputType = {
+export type MonsterAvgAggregateOutputType = {
   id: number | null
   size: number | null
   yieldPerTick: number | null
@@ -63,7 +63,7 @@ export type CreatureAvgAggregateOutputType = {
   packId: number | null
 }
 
-export type CreatureSumAggregateOutputType = {
+export type MonsterSumAggregateOutputType = {
   id: number | null
   size: number | null
   yieldPerTick: number | null
@@ -79,52 +79,7 @@ export type CreatureSumAggregateOutputType = {
   packId: number | null
 }
 
-export type CreatureMinAggregateOutputType = {
-  id: number | null
-  createdAt: Date | null
-  updatedAt: Date | null
-  slug: string | null
-  name: string | null
-  species: string | null
-  class: string | null
-  fieldNote: string | null
-  quirks: string | null
-  alignment: string | null
-  tier: $Enums.Rarity | null
-  charm: $Enums.Rarity | null
-  empathy: $Enums.Rarity | null
-  grace: $Enums.Rarity | null
-  luck: $Enums.Rarity | null
-  might: $Enums.Rarity | null
-  wits: $Enums.Rarity | null
-  size: number | null
-  yieldPerTick: number | null
-  tickIntervalSeconds: number | null
-  unlockCost: number | null
-  behavior: string | null
-  hue: number | null
-  games: string | null
-  artPrompt: string | null
-  evolutionKind: $Enums.EvolutionKind | null
-  evolvesToId: number | null
-  icon: string | null
-  iconPath: string | null
-  imagePath: string | null
-  cardPath: string | null
-  heroPath: string | null
-  artImageId: number | null
-  cardArtImageId: number | null
-  heroArtImageId: number | null
-  iconArtImageId: number | null
-  isPublic: boolean | null
-  isActive: boolean | null
-  isMature: boolean | null
-  allowReviews: boolean | null
-  userId: number | null
-  packId: number | null
-}
-
-export type CreatureMaxAggregateOutputType = {
+export type MonsterMinAggregateOutputType = {
   id: number | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -169,7 +124,52 @@ export type CreatureMaxAggregateOutputType = {
   packId: number | null
 }
 
-export type CreatureCountAggregateOutputType = {
+export type MonsterMaxAggregateOutputType = {
+  id: number | null
+  createdAt: Date | null
+  updatedAt: Date | null
+  slug: string | null
+  name: string | null
+  species: string | null
+  class: string | null
+  fieldNote: string | null
+  quirks: string | null
+  alignment: string | null
+  tier: $Enums.Rarity | null
+  charm: $Enums.Rarity | null
+  empathy: $Enums.Rarity | null
+  grace: $Enums.Rarity | null
+  luck: $Enums.Rarity | null
+  might: $Enums.Rarity | null
+  wits: $Enums.Rarity | null
+  size: number | null
+  yieldPerTick: number | null
+  tickIntervalSeconds: number | null
+  unlockCost: number | null
+  behavior: string | null
+  hue: number | null
+  games: string | null
+  artPrompt: string | null
+  evolutionKind: $Enums.EvolutionKind | null
+  evolvesToId: number | null
+  icon: string | null
+  iconPath: string | null
+  imagePath: string | null
+  cardPath: string | null
+  heroPath: string | null
+  artImageId: number | null
+  cardArtImageId: number | null
+  heroArtImageId: number | null
+  iconArtImageId: number | null
+  isPublic: boolean | null
+  isActive: boolean | null
+  isMature: boolean | null
+  allowReviews: boolean | null
+  userId: number | null
+  packId: number | null
+}
+
+export type MonsterCountAggregateOutputType = {
   id: number
   createdAt: number
   updatedAt: number
@@ -216,7 +216,7 @@ export type CreatureCountAggregateOutputType = {
 }
 
 
-export type CreatureAvgAggregateInputType = {
+export type MonsterAvgAggregateInputType = {
   id?: true
   size?: true
   yieldPerTick?: true
@@ -232,7 +232,7 @@ export type CreatureAvgAggregateInputType = {
   packId?: true
 }
 
-export type CreatureSumAggregateInputType = {
+export type MonsterSumAggregateInputType = {
   id?: true
   size?: true
   yieldPerTick?: true
@@ -248,52 +248,7 @@ export type CreatureSumAggregateInputType = {
   packId?: true
 }
 
-export type CreatureMinAggregateInputType = {
-  id?: true
-  createdAt?: true
-  updatedAt?: true
-  slug?: true
-  name?: true
-  species?: true
-  class?: true
-  fieldNote?: true
-  quirks?: true
-  alignment?: true
-  tier?: true
-  charm?: true
-  empathy?: true
-  grace?: true
-  luck?: true
-  might?: true
-  wits?: true
-  size?: true
-  yieldPerTick?: true
-  tickIntervalSeconds?: true
-  unlockCost?: true
-  behavior?: true
-  hue?: true
-  games?: true
-  artPrompt?: true
-  evolutionKind?: true
-  evolvesToId?: true
-  icon?: true
-  iconPath?: true
-  imagePath?: true
-  cardPath?: true
-  heroPath?: true
-  artImageId?: true
-  cardArtImageId?: true
-  heroArtImageId?: true
-  iconArtImageId?: true
-  isPublic?: true
-  isActive?: true
-  isMature?: true
-  allowReviews?: true
-  userId?: true
-  packId?: true
-}
-
-export type CreatureMaxAggregateInputType = {
+export type MonsterMinAggregateInputType = {
   id?: true
   createdAt?: true
   updatedAt?: true
@@ -338,7 +293,52 @@ export type CreatureMaxAggregateInputType = {
   packId?: true
 }
 
-export type CreatureCountAggregateInputType = {
+export type MonsterMaxAggregateInputType = {
+  id?: true
+  createdAt?: true
+  updatedAt?: true
+  slug?: true
+  name?: true
+  species?: true
+  class?: true
+  fieldNote?: true
+  quirks?: true
+  alignment?: true
+  tier?: true
+  charm?: true
+  empathy?: true
+  grace?: true
+  luck?: true
+  might?: true
+  wits?: true
+  size?: true
+  yieldPerTick?: true
+  tickIntervalSeconds?: true
+  unlockCost?: true
+  behavior?: true
+  hue?: true
+  games?: true
+  artPrompt?: true
+  evolutionKind?: true
+  evolvesToId?: true
+  icon?: true
+  iconPath?: true
+  imagePath?: true
+  cardPath?: true
+  heroPath?: true
+  artImageId?: true
+  cardArtImageId?: true
+  heroArtImageId?: true
+  iconArtImageId?: true
+  isPublic?: true
+  isActive?: true
+  isMature?: true
+  allowReviews?: true
+  userId?: true
+  packId?: true
+}
+
+export type MonsterCountAggregateInputType = {
   id?: true
   createdAt?: true
   updatedAt?: true
@@ -384,93 +384,93 @@ export type CreatureCountAggregateInputType = {
   _all?: true
 }
 
-export type CreatureAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type MonsterAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Filter which Creature to aggregate.
+   * Filter which Monster to aggregate.
    */
-  where?: Prisma.CreatureWhereInput
+  where?: Prisma.MonsterWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of Creatures to fetch.
+   * Determine the order of Monsters to fetch.
    */
-  orderBy?: Prisma.CreatureOrderByWithRelationInput | Prisma.CreatureOrderByWithRelationInput[]
+  orderBy?: Prisma.MonsterOrderByWithRelationInput | Prisma.MonsterOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
    * Sets the start position
    */
-  cursor?: Prisma.CreatureWhereUniqueInput
+  cursor?: Prisma.MonsterWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` Creatures from the position of the cursor.
+   * Take `±n` Monsters from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` Creatures.
+   * Skip the first `n` Monsters.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Count returned Creatures
+   * Count returned Monsters
   **/
-  _count?: true | CreatureCountAggregateInputType
+  _count?: true | MonsterCountAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to average
   **/
-  _avg?: CreatureAvgAggregateInputType
+  _avg?: MonsterAvgAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to sum
   **/
-  _sum?: CreatureSumAggregateInputType
+  _sum?: MonsterSumAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to find the minimum value
   **/
-  _min?: CreatureMinAggregateInputType
+  _min?: MonsterMinAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to find the maximum value
   **/
-  _max?: CreatureMaxAggregateInputType
+  _max?: MonsterMaxAggregateInputType
 }
 
-export type GetCreatureAggregateType<T extends CreatureAggregateArgs> = {
-      [P in keyof T & keyof AggregateCreature]: P extends '_count' | 'count'
+export type GetMonsterAggregateType<T extends MonsterAggregateArgs> = {
+      [P in keyof T & keyof AggregateMonster]: P extends '_count' | 'count'
     ? T[P] extends true
       ? number
-      : Prisma.GetScalarType<T[P], AggregateCreature[P]>
-    : Prisma.GetScalarType<T[P], AggregateCreature[P]>
+      : Prisma.GetScalarType<T[P], AggregateMonster[P]>
+    : Prisma.GetScalarType<T[P], AggregateMonster[P]>
 }
 
 
 
 
-export type CreatureGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.CreatureWhereInput
-  orderBy?: Prisma.CreatureOrderByWithAggregationInput | Prisma.CreatureOrderByWithAggregationInput[]
-  by: Prisma.CreatureScalarFieldEnum[] | Prisma.CreatureScalarFieldEnum
-  having?: Prisma.CreatureScalarWhereWithAggregatesInput
+export type MonsterGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MonsterWhereInput
+  orderBy?: Prisma.MonsterOrderByWithAggregationInput | Prisma.MonsterOrderByWithAggregationInput[]
+  by: Prisma.MonsterScalarFieldEnum[] | Prisma.MonsterScalarFieldEnum
+  having?: Prisma.MonsterScalarWhereWithAggregatesInput
   take?: number
   skip?: number
-  _count?: CreatureCountAggregateInputType | true
-  _avg?: CreatureAvgAggregateInputType
-  _sum?: CreatureSumAggregateInputType
-  _min?: CreatureMinAggregateInputType
-  _max?: CreatureMaxAggregateInputType
+  _count?: MonsterCountAggregateInputType | true
+  _avg?: MonsterAvgAggregateInputType
+  _sum?: MonsterSumAggregateInputType
+  _min?: MonsterMinAggregateInputType
+  _max?: MonsterMaxAggregateInputType
 }
 
-export type CreatureGroupByOutputType = {
+export type MonsterGroupByOutputType = {
   id: number
   createdAt: Date
   updatedAt: Date | null
@@ -513,82 +513,82 @@ export type CreatureGroupByOutputType = {
   allowReviews: boolean
   userId: number | null
   packId: number | null
-  _count: CreatureCountAggregateOutputType | null
-  _avg: CreatureAvgAggregateOutputType | null
-  _sum: CreatureSumAggregateOutputType | null
-  _min: CreatureMinAggregateOutputType | null
-  _max: CreatureMaxAggregateOutputType | null
+  _count: MonsterCountAggregateOutputType | null
+  _avg: MonsterAvgAggregateOutputType | null
+  _sum: MonsterSumAggregateOutputType | null
+  _min: MonsterMinAggregateOutputType | null
+  _max: MonsterMaxAggregateOutputType | null
 }
 
-export type GetCreatureGroupByPayload<T extends CreatureGroupByArgs> = Prisma.PrismaPromise<
+export type GetMonsterGroupByPayload<T extends MonsterGroupByArgs> = Prisma.PrismaPromise<
   Array<
-    Prisma.PickEnumerable<CreatureGroupByOutputType, T['by']> &
+    Prisma.PickEnumerable<MonsterGroupByOutputType, T['by']> &
       {
-        [P in ((keyof T) & (keyof CreatureGroupByOutputType))]: P extends '_count'
+        [P in ((keyof T) & (keyof MonsterGroupByOutputType))]: P extends '_count'
           ? T[P] extends boolean
             ? number
-            : Prisma.GetScalarType<T[P], CreatureGroupByOutputType[P]>
-          : Prisma.GetScalarType<T[P], CreatureGroupByOutputType[P]>
+            : Prisma.GetScalarType<T[P], MonsterGroupByOutputType[P]>
+          : Prisma.GetScalarType<T[P], MonsterGroupByOutputType[P]>
       }
     >
   >
 
 
 
-export type CreatureWhereInput = {
-  AND?: Prisma.CreatureWhereInput | Prisma.CreatureWhereInput[]
-  OR?: Prisma.CreatureWhereInput[]
-  NOT?: Prisma.CreatureWhereInput | Prisma.CreatureWhereInput[]
-  id?: Prisma.IntFilter<"Creature"> | number
-  createdAt?: Prisma.DateTimeFilter<"Creature"> | Date | string
-  updatedAt?: Prisma.DateTimeNullableFilter<"Creature"> | Date | string | null
-  slug?: Prisma.StringFilter<"Creature"> | string
-  name?: Prisma.StringFilter<"Creature"> | string
-  species?: Prisma.StringNullableFilter<"Creature"> | string | null
-  class?: Prisma.StringNullableFilter<"Creature"> | string | null
-  fieldNote?: Prisma.StringNullableFilter<"Creature"> | string | null
-  quirks?: Prisma.StringNullableFilter<"Creature"> | string | null
-  alignment?: Prisma.StringNullableFilter<"Creature"> | string | null
-  tier?: Prisma.EnumRarityFilter<"Creature"> | $Enums.Rarity
-  charm?: Prisma.EnumRarityFilter<"Creature"> | $Enums.Rarity
-  empathy?: Prisma.EnumRarityFilter<"Creature"> | $Enums.Rarity
-  grace?: Prisma.EnumRarityFilter<"Creature"> | $Enums.Rarity
-  luck?: Prisma.EnumRarityFilter<"Creature"> | $Enums.Rarity
-  might?: Prisma.EnumRarityFilter<"Creature"> | $Enums.Rarity
-  wits?: Prisma.EnumRarityFilter<"Creature"> | $Enums.Rarity
-  size?: Prisma.IntFilter<"Creature"> | number
-  yieldPerTick?: Prisma.IntNullableFilter<"Creature"> | number | null
-  tickIntervalSeconds?: Prisma.IntNullableFilter<"Creature"> | number | null
-  unlockCost?: Prisma.IntNullableFilter<"Creature"> | number | null
-  behavior?: Prisma.StringNullableFilter<"Creature"> | string | null
-  hue?: Prisma.IntNullableFilter<"Creature"> | number | null
-  games?: Prisma.StringNullableFilter<"Creature"> | string | null
-  artPrompt?: Prisma.StringNullableFilter<"Creature"> | string | null
-  evolutionKind?: Prisma.EnumEvolutionKindNullableFilter<"Creature"> | $Enums.EvolutionKind | null
-  evolvesToId?: Prisma.IntNullableFilter<"Creature"> | number | null
-  icon?: Prisma.StringNullableFilter<"Creature"> | string | null
-  iconPath?: Prisma.StringNullableFilter<"Creature"> | string | null
-  imagePath?: Prisma.StringNullableFilter<"Creature"> | string | null
-  cardPath?: Prisma.StringNullableFilter<"Creature"> | string | null
-  heroPath?: Prisma.StringNullableFilter<"Creature"> | string | null
-  artImageId?: Prisma.IntNullableFilter<"Creature"> | number | null
-  cardArtImageId?: Prisma.IntNullableFilter<"Creature"> | number | null
-  heroArtImageId?: Prisma.IntNullableFilter<"Creature"> | number | null
-  iconArtImageId?: Prisma.IntNullableFilter<"Creature"> | number | null
-  isPublic?: Prisma.BoolFilter<"Creature"> | boolean
-  isActive?: Prisma.BoolFilter<"Creature"> | boolean
-  isMature?: Prisma.BoolFilter<"Creature"> | boolean
-  allowReviews?: Prisma.BoolFilter<"Creature"> | boolean
-  userId?: Prisma.IntNullableFilter<"Creature"> | number | null
-  packId?: Prisma.IntNullableFilter<"Creature"> | number | null
-  EvolvesTo?: Prisma.XOR<Prisma.CreatureNullableScalarRelationFilter, Prisma.CreatureWhereInput> | null
-  EvolvesFrom?: Prisma.CreatureListRelationFilter
+export type MonsterWhereInput = {
+  AND?: Prisma.MonsterWhereInput | Prisma.MonsterWhereInput[]
+  OR?: Prisma.MonsterWhereInput[]
+  NOT?: Prisma.MonsterWhereInput | Prisma.MonsterWhereInput[]
+  id?: Prisma.IntFilter<"Monster"> | number
+  createdAt?: Prisma.DateTimeFilter<"Monster"> | Date | string
+  updatedAt?: Prisma.DateTimeNullableFilter<"Monster"> | Date | string | null
+  slug?: Prisma.StringFilter<"Monster"> | string
+  name?: Prisma.StringFilter<"Monster"> | string
+  species?: Prisma.StringNullableFilter<"Monster"> | string | null
+  class?: Prisma.StringNullableFilter<"Monster"> | string | null
+  fieldNote?: Prisma.StringNullableFilter<"Monster"> | string | null
+  quirks?: Prisma.StringNullableFilter<"Monster"> | string | null
+  alignment?: Prisma.StringNullableFilter<"Monster"> | string | null
+  tier?: Prisma.EnumRarityFilter<"Monster"> | $Enums.Rarity
+  charm?: Prisma.EnumRarityFilter<"Monster"> | $Enums.Rarity
+  empathy?: Prisma.EnumRarityFilter<"Monster"> | $Enums.Rarity
+  grace?: Prisma.EnumRarityFilter<"Monster"> | $Enums.Rarity
+  luck?: Prisma.EnumRarityFilter<"Monster"> | $Enums.Rarity
+  might?: Prisma.EnumRarityFilter<"Monster"> | $Enums.Rarity
+  wits?: Prisma.EnumRarityFilter<"Monster"> | $Enums.Rarity
+  size?: Prisma.IntFilter<"Monster"> | number
+  yieldPerTick?: Prisma.IntNullableFilter<"Monster"> | number | null
+  tickIntervalSeconds?: Prisma.IntNullableFilter<"Monster"> | number | null
+  unlockCost?: Prisma.IntNullableFilter<"Monster"> | number | null
+  behavior?: Prisma.StringNullableFilter<"Monster"> | string | null
+  hue?: Prisma.IntNullableFilter<"Monster"> | number | null
+  games?: Prisma.StringNullableFilter<"Monster"> | string | null
+  artPrompt?: Prisma.StringNullableFilter<"Monster"> | string | null
+  evolutionKind?: Prisma.EnumEvolutionKindNullableFilter<"Monster"> | $Enums.EvolutionKind | null
+  evolvesToId?: Prisma.IntNullableFilter<"Monster"> | number | null
+  icon?: Prisma.StringNullableFilter<"Monster"> | string | null
+  iconPath?: Prisma.StringNullableFilter<"Monster"> | string | null
+  imagePath?: Prisma.StringNullableFilter<"Monster"> | string | null
+  cardPath?: Prisma.StringNullableFilter<"Monster"> | string | null
+  heroPath?: Prisma.StringNullableFilter<"Monster"> | string | null
+  artImageId?: Prisma.IntNullableFilter<"Monster"> | number | null
+  cardArtImageId?: Prisma.IntNullableFilter<"Monster"> | number | null
+  heroArtImageId?: Prisma.IntNullableFilter<"Monster"> | number | null
+  iconArtImageId?: Prisma.IntNullableFilter<"Monster"> | number | null
+  isPublic?: Prisma.BoolFilter<"Monster"> | boolean
+  isActive?: Prisma.BoolFilter<"Monster"> | boolean
+  isMature?: Prisma.BoolFilter<"Monster"> | boolean
+  allowReviews?: Prisma.BoolFilter<"Monster"> | boolean
+  userId?: Prisma.IntNullableFilter<"Monster"> | number | null
+  packId?: Prisma.IntNullableFilter<"Monster"> | number | null
+  EvolvesTo?: Prisma.XOR<Prisma.MonsterNullableScalarRelationFilter, Prisma.MonsterWhereInput> | null
+  EvolvesFrom?: Prisma.MonsterListRelationFilter
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   Pack?: Prisma.XOR<Prisma.PackNullableScalarRelationFilter, Prisma.PackWhereInput> | null
 }
 
-export type CreatureOrderByWithRelationInput = {
+export type MonsterOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -631,68 +631,68 @@ export type CreatureOrderByWithRelationInput = {
   allowReviews?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   packId?: Prisma.SortOrderInput | Prisma.SortOrder
-  EvolvesTo?: Prisma.CreatureOrderByWithRelationInput
-  EvolvesFrom?: Prisma.CreatureOrderByRelationAggregateInput
+  EvolvesTo?: Prisma.MonsterOrderByWithRelationInput
+  EvolvesFrom?: Prisma.MonsterOrderByRelationAggregateInput
   ArtImage?: Prisma.ArtImageOrderByWithRelationInput
   User?: Prisma.UserOrderByWithRelationInput
   Pack?: Prisma.PackOrderByWithRelationInput
-  _relevance?: Prisma.CreatureOrderByRelevanceInput
+  _relevance?: Prisma.MonsterOrderByRelevanceInput
 }
 
-export type CreatureWhereUniqueInput = Prisma.AtLeast<{
+export type MonsterWhereUniqueInput = Prisma.AtLeast<{
   id?: number
   slug?: string
-  AND?: Prisma.CreatureWhereInput | Prisma.CreatureWhereInput[]
-  OR?: Prisma.CreatureWhereInput[]
-  NOT?: Prisma.CreatureWhereInput | Prisma.CreatureWhereInput[]
-  createdAt?: Prisma.DateTimeFilter<"Creature"> | Date | string
-  updatedAt?: Prisma.DateTimeNullableFilter<"Creature"> | Date | string | null
-  name?: Prisma.StringFilter<"Creature"> | string
-  species?: Prisma.StringNullableFilter<"Creature"> | string | null
-  class?: Prisma.StringNullableFilter<"Creature"> | string | null
-  fieldNote?: Prisma.StringNullableFilter<"Creature"> | string | null
-  quirks?: Prisma.StringNullableFilter<"Creature"> | string | null
-  alignment?: Prisma.StringNullableFilter<"Creature"> | string | null
-  tier?: Prisma.EnumRarityFilter<"Creature"> | $Enums.Rarity
-  charm?: Prisma.EnumRarityFilter<"Creature"> | $Enums.Rarity
-  empathy?: Prisma.EnumRarityFilter<"Creature"> | $Enums.Rarity
-  grace?: Prisma.EnumRarityFilter<"Creature"> | $Enums.Rarity
-  luck?: Prisma.EnumRarityFilter<"Creature"> | $Enums.Rarity
-  might?: Prisma.EnumRarityFilter<"Creature"> | $Enums.Rarity
-  wits?: Prisma.EnumRarityFilter<"Creature"> | $Enums.Rarity
-  size?: Prisma.IntFilter<"Creature"> | number
-  yieldPerTick?: Prisma.IntNullableFilter<"Creature"> | number | null
-  tickIntervalSeconds?: Prisma.IntNullableFilter<"Creature"> | number | null
-  unlockCost?: Prisma.IntNullableFilter<"Creature"> | number | null
-  behavior?: Prisma.StringNullableFilter<"Creature"> | string | null
-  hue?: Prisma.IntNullableFilter<"Creature"> | number | null
-  games?: Prisma.StringNullableFilter<"Creature"> | string | null
-  artPrompt?: Prisma.StringNullableFilter<"Creature"> | string | null
-  evolutionKind?: Prisma.EnumEvolutionKindNullableFilter<"Creature"> | $Enums.EvolutionKind | null
-  evolvesToId?: Prisma.IntNullableFilter<"Creature"> | number | null
-  icon?: Prisma.StringNullableFilter<"Creature"> | string | null
-  iconPath?: Prisma.StringNullableFilter<"Creature"> | string | null
-  imagePath?: Prisma.StringNullableFilter<"Creature"> | string | null
-  cardPath?: Prisma.StringNullableFilter<"Creature"> | string | null
-  heroPath?: Prisma.StringNullableFilter<"Creature"> | string | null
-  artImageId?: Prisma.IntNullableFilter<"Creature"> | number | null
-  cardArtImageId?: Prisma.IntNullableFilter<"Creature"> | number | null
-  heroArtImageId?: Prisma.IntNullableFilter<"Creature"> | number | null
-  iconArtImageId?: Prisma.IntNullableFilter<"Creature"> | number | null
-  isPublic?: Prisma.BoolFilter<"Creature"> | boolean
-  isActive?: Prisma.BoolFilter<"Creature"> | boolean
-  isMature?: Prisma.BoolFilter<"Creature"> | boolean
-  allowReviews?: Prisma.BoolFilter<"Creature"> | boolean
-  userId?: Prisma.IntNullableFilter<"Creature"> | number | null
-  packId?: Prisma.IntNullableFilter<"Creature"> | number | null
-  EvolvesTo?: Prisma.XOR<Prisma.CreatureNullableScalarRelationFilter, Prisma.CreatureWhereInput> | null
-  EvolvesFrom?: Prisma.CreatureListRelationFilter
+  AND?: Prisma.MonsterWhereInput | Prisma.MonsterWhereInput[]
+  OR?: Prisma.MonsterWhereInput[]
+  NOT?: Prisma.MonsterWhereInput | Prisma.MonsterWhereInput[]
+  createdAt?: Prisma.DateTimeFilter<"Monster"> | Date | string
+  updatedAt?: Prisma.DateTimeNullableFilter<"Monster"> | Date | string | null
+  name?: Prisma.StringFilter<"Monster"> | string
+  species?: Prisma.StringNullableFilter<"Monster"> | string | null
+  class?: Prisma.StringNullableFilter<"Monster"> | string | null
+  fieldNote?: Prisma.StringNullableFilter<"Monster"> | string | null
+  quirks?: Prisma.StringNullableFilter<"Monster"> | string | null
+  alignment?: Prisma.StringNullableFilter<"Monster"> | string | null
+  tier?: Prisma.EnumRarityFilter<"Monster"> | $Enums.Rarity
+  charm?: Prisma.EnumRarityFilter<"Monster"> | $Enums.Rarity
+  empathy?: Prisma.EnumRarityFilter<"Monster"> | $Enums.Rarity
+  grace?: Prisma.EnumRarityFilter<"Monster"> | $Enums.Rarity
+  luck?: Prisma.EnumRarityFilter<"Monster"> | $Enums.Rarity
+  might?: Prisma.EnumRarityFilter<"Monster"> | $Enums.Rarity
+  wits?: Prisma.EnumRarityFilter<"Monster"> | $Enums.Rarity
+  size?: Prisma.IntFilter<"Monster"> | number
+  yieldPerTick?: Prisma.IntNullableFilter<"Monster"> | number | null
+  tickIntervalSeconds?: Prisma.IntNullableFilter<"Monster"> | number | null
+  unlockCost?: Prisma.IntNullableFilter<"Monster"> | number | null
+  behavior?: Prisma.StringNullableFilter<"Monster"> | string | null
+  hue?: Prisma.IntNullableFilter<"Monster"> | number | null
+  games?: Prisma.StringNullableFilter<"Monster"> | string | null
+  artPrompt?: Prisma.StringNullableFilter<"Monster"> | string | null
+  evolutionKind?: Prisma.EnumEvolutionKindNullableFilter<"Monster"> | $Enums.EvolutionKind | null
+  evolvesToId?: Prisma.IntNullableFilter<"Monster"> | number | null
+  icon?: Prisma.StringNullableFilter<"Monster"> | string | null
+  iconPath?: Prisma.StringNullableFilter<"Monster"> | string | null
+  imagePath?: Prisma.StringNullableFilter<"Monster"> | string | null
+  cardPath?: Prisma.StringNullableFilter<"Monster"> | string | null
+  heroPath?: Prisma.StringNullableFilter<"Monster"> | string | null
+  artImageId?: Prisma.IntNullableFilter<"Monster"> | number | null
+  cardArtImageId?: Prisma.IntNullableFilter<"Monster"> | number | null
+  heroArtImageId?: Prisma.IntNullableFilter<"Monster"> | number | null
+  iconArtImageId?: Prisma.IntNullableFilter<"Monster"> | number | null
+  isPublic?: Prisma.BoolFilter<"Monster"> | boolean
+  isActive?: Prisma.BoolFilter<"Monster"> | boolean
+  isMature?: Prisma.BoolFilter<"Monster"> | boolean
+  allowReviews?: Prisma.BoolFilter<"Monster"> | boolean
+  userId?: Prisma.IntNullableFilter<"Monster"> | number | null
+  packId?: Prisma.IntNullableFilter<"Monster"> | number | null
+  EvolvesTo?: Prisma.XOR<Prisma.MonsterNullableScalarRelationFilter, Prisma.MonsterWhereInput> | null
+  EvolvesFrom?: Prisma.MonsterListRelationFilter
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   Pack?: Prisma.XOR<Prisma.PackNullableScalarRelationFilter, Prisma.PackWhereInput> | null
 }, "id" | "slug">
 
-export type CreatureOrderByWithAggregationInput = {
+export type MonsterOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -735,62 +735,62 @@ export type CreatureOrderByWithAggregationInput = {
   allowReviews?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   packId?: Prisma.SortOrderInput | Prisma.SortOrder
-  _count?: Prisma.CreatureCountOrderByAggregateInput
-  _avg?: Prisma.CreatureAvgOrderByAggregateInput
-  _max?: Prisma.CreatureMaxOrderByAggregateInput
-  _min?: Prisma.CreatureMinOrderByAggregateInput
-  _sum?: Prisma.CreatureSumOrderByAggregateInput
+  _count?: Prisma.MonsterCountOrderByAggregateInput
+  _avg?: Prisma.MonsterAvgOrderByAggregateInput
+  _max?: Prisma.MonsterMaxOrderByAggregateInput
+  _min?: Prisma.MonsterMinOrderByAggregateInput
+  _sum?: Prisma.MonsterSumOrderByAggregateInput
 }
 
-export type CreatureScalarWhereWithAggregatesInput = {
-  AND?: Prisma.CreatureScalarWhereWithAggregatesInput | Prisma.CreatureScalarWhereWithAggregatesInput[]
-  OR?: Prisma.CreatureScalarWhereWithAggregatesInput[]
-  NOT?: Prisma.CreatureScalarWhereWithAggregatesInput | Prisma.CreatureScalarWhereWithAggregatesInput[]
-  id?: Prisma.IntWithAggregatesFilter<"Creature"> | number
-  createdAt?: Prisma.DateTimeWithAggregatesFilter<"Creature"> | Date | string
-  updatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Creature"> | Date | string | null
-  slug?: Prisma.StringWithAggregatesFilter<"Creature"> | string
-  name?: Prisma.StringWithAggregatesFilter<"Creature"> | string
-  species?: Prisma.StringNullableWithAggregatesFilter<"Creature"> | string | null
-  class?: Prisma.StringNullableWithAggregatesFilter<"Creature"> | string | null
-  fieldNote?: Prisma.StringNullableWithAggregatesFilter<"Creature"> | string | null
-  quirks?: Prisma.StringNullableWithAggregatesFilter<"Creature"> | string | null
-  alignment?: Prisma.StringNullableWithAggregatesFilter<"Creature"> | string | null
-  tier?: Prisma.EnumRarityWithAggregatesFilter<"Creature"> | $Enums.Rarity
-  charm?: Prisma.EnumRarityWithAggregatesFilter<"Creature"> | $Enums.Rarity
-  empathy?: Prisma.EnumRarityWithAggregatesFilter<"Creature"> | $Enums.Rarity
-  grace?: Prisma.EnumRarityWithAggregatesFilter<"Creature"> | $Enums.Rarity
-  luck?: Prisma.EnumRarityWithAggregatesFilter<"Creature"> | $Enums.Rarity
-  might?: Prisma.EnumRarityWithAggregatesFilter<"Creature"> | $Enums.Rarity
-  wits?: Prisma.EnumRarityWithAggregatesFilter<"Creature"> | $Enums.Rarity
-  size?: Prisma.IntWithAggregatesFilter<"Creature"> | number
-  yieldPerTick?: Prisma.IntNullableWithAggregatesFilter<"Creature"> | number | null
-  tickIntervalSeconds?: Prisma.IntNullableWithAggregatesFilter<"Creature"> | number | null
-  unlockCost?: Prisma.IntNullableWithAggregatesFilter<"Creature"> | number | null
-  behavior?: Prisma.StringNullableWithAggregatesFilter<"Creature"> | string | null
-  hue?: Prisma.IntNullableWithAggregatesFilter<"Creature"> | number | null
-  games?: Prisma.StringNullableWithAggregatesFilter<"Creature"> | string | null
-  artPrompt?: Prisma.StringNullableWithAggregatesFilter<"Creature"> | string | null
-  evolutionKind?: Prisma.EnumEvolutionKindNullableWithAggregatesFilter<"Creature"> | $Enums.EvolutionKind | null
-  evolvesToId?: Prisma.IntNullableWithAggregatesFilter<"Creature"> | number | null
-  icon?: Prisma.StringNullableWithAggregatesFilter<"Creature"> | string | null
-  iconPath?: Prisma.StringNullableWithAggregatesFilter<"Creature"> | string | null
-  imagePath?: Prisma.StringNullableWithAggregatesFilter<"Creature"> | string | null
-  cardPath?: Prisma.StringNullableWithAggregatesFilter<"Creature"> | string | null
-  heroPath?: Prisma.StringNullableWithAggregatesFilter<"Creature"> | string | null
-  artImageId?: Prisma.IntNullableWithAggregatesFilter<"Creature"> | number | null
-  cardArtImageId?: Prisma.IntNullableWithAggregatesFilter<"Creature"> | number | null
-  heroArtImageId?: Prisma.IntNullableWithAggregatesFilter<"Creature"> | number | null
-  iconArtImageId?: Prisma.IntNullableWithAggregatesFilter<"Creature"> | number | null
-  isPublic?: Prisma.BoolWithAggregatesFilter<"Creature"> | boolean
-  isActive?: Prisma.BoolWithAggregatesFilter<"Creature"> | boolean
-  isMature?: Prisma.BoolWithAggregatesFilter<"Creature"> | boolean
-  allowReviews?: Prisma.BoolWithAggregatesFilter<"Creature"> | boolean
-  userId?: Prisma.IntNullableWithAggregatesFilter<"Creature"> | number | null
-  packId?: Prisma.IntNullableWithAggregatesFilter<"Creature"> | number | null
+export type MonsterScalarWhereWithAggregatesInput = {
+  AND?: Prisma.MonsterScalarWhereWithAggregatesInput | Prisma.MonsterScalarWhereWithAggregatesInput[]
+  OR?: Prisma.MonsterScalarWhereWithAggregatesInput[]
+  NOT?: Prisma.MonsterScalarWhereWithAggregatesInput | Prisma.MonsterScalarWhereWithAggregatesInput[]
+  id?: Prisma.IntWithAggregatesFilter<"Monster"> | number
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"Monster"> | Date | string
+  updatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Monster"> | Date | string | null
+  slug?: Prisma.StringWithAggregatesFilter<"Monster"> | string
+  name?: Prisma.StringWithAggregatesFilter<"Monster"> | string
+  species?: Prisma.StringNullableWithAggregatesFilter<"Monster"> | string | null
+  class?: Prisma.StringNullableWithAggregatesFilter<"Monster"> | string | null
+  fieldNote?: Prisma.StringNullableWithAggregatesFilter<"Monster"> | string | null
+  quirks?: Prisma.StringNullableWithAggregatesFilter<"Monster"> | string | null
+  alignment?: Prisma.StringNullableWithAggregatesFilter<"Monster"> | string | null
+  tier?: Prisma.EnumRarityWithAggregatesFilter<"Monster"> | $Enums.Rarity
+  charm?: Prisma.EnumRarityWithAggregatesFilter<"Monster"> | $Enums.Rarity
+  empathy?: Prisma.EnumRarityWithAggregatesFilter<"Monster"> | $Enums.Rarity
+  grace?: Prisma.EnumRarityWithAggregatesFilter<"Monster"> | $Enums.Rarity
+  luck?: Prisma.EnumRarityWithAggregatesFilter<"Monster"> | $Enums.Rarity
+  might?: Prisma.EnumRarityWithAggregatesFilter<"Monster"> | $Enums.Rarity
+  wits?: Prisma.EnumRarityWithAggregatesFilter<"Monster"> | $Enums.Rarity
+  size?: Prisma.IntWithAggregatesFilter<"Monster"> | number
+  yieldPerTick?: Prisma.IntNullableWithAggregatesFilter<"Monster"> | number | null
+  tickIntervalSeconds?: Prisma.IntNullableWithAggregatesFilter<"Monster"> | number | null
+  unlockCost?: Prisma.IntNullableWithAggregatesFilter<"Monster"> | number | null
+  behavior?: Prisma.StringNullableWithAggregatesFilter<"Monster"> | string | null
+  hue?: Prisma.IntNullableWithAggregatesFilter<"Monster"> | number | null
+  games?: Prisma.StringNullableWithAggregatesFilter<"Monster"> | string | null
+  artPrompt?: Prisma.StringNullableWithAggregatesFilter<"Monster"> | string | null
+  evolutionKind?: Prisma.EnumEvolutionKindNullableWithAggregatesFilter<"Monster"> | $Enums.EvolutionKind | null
+  evolvesToId?: Prisma.IntNullableWithAggregatesFilter<"Monster"> | number | null
+  icon?: Prisma.StringNullableWithAggregatesFilter<"Monster"> | string | null
+  iconPath?: Prisma.StringNullableWithAggregatesFilter<"Monster"> | string | null
+  imagePath?: Prisma.StringNullableWithAggregatesFilter<"Monster"> | string | null
+  cardPath?: Prisma.StringNullableWithAggregatesFilter<"Monster"> | string | null
+  heroPath?: Prisma.StringNullableWithAggregatesFilter<"Monster"> | string | null
+  artImageId?: Prisma.IntNullableWithAggregatesFilter<"Monster"> | number | null
+  cardArtImageId?: Prisma.IntNullableWithAggregatesFilter<"Monster"> | number | null
+  heroArtImageId?: Prisma.IntNullableWithAggregatesFilter<"Monster"> | number | null
+  iconArtImageId?: Prisma.IntNullableWithAggregatesFilter<"Monster"> | number | null
+  isPublic?: Prisma.BoolWithAggregatesFilter<"Monster"> | boolean
+  isActive?: Prisma.BoolWithAggregatesFilter<"Monster"> | boolean
+  isMature?: Prisma.BoolWithAggregatesFilter<"Monster"> | boolean
+  allowReviews?: Prisma.BoolWithAggregatesFilter<"Monster"> | boolean
+  userId?: Prisma.IntNullableWithAggregatesFilter<"Monster"> | number | null
+  packId?: Prisma.IntNullableWithAggregatesFilter<"Monster"> | number | null
 }
 
-export type CreatureCreateInput = {
+export type MonsterCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   slug: string
@@ -828,14 +828,14 @@ export type CreatureCreateInput = {
   isActive?: boolean
   isMature?: boolean
   allowReviews?: boolean
-  EvolvesTo?: Prisma.CreatureCreateNestedOneWithoutEvolvesFromInput
-  EvolvesFrom?: Prisma.CreatureCreateNestedManyWithoutEvolvesToInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCreaturesInput
-  User?: Prisma.UserCreateNestedOneWithoutCreaturesInput
-  Pack?: Prisma.PackCreateNestedOneWithoutCreaturesInput
+  EvolvesTo?: Prisma.MonsterCreateNestedOneWithoutEvolvesFromInput
+  EvolvesFrom?: Prisma.MonsterCreateNestedManyWithoutEvolvesToInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutMonstersInput
+  User?: Prisma.UserCreateNestedOneWithoutMonstersInput
+  Pack?: Prisma.PackCreateNestedOneWithoutMonstersInput
 }
 
-export type CreatureUncheckedCreateInput = {
+export type MonsterUncheckedCreateInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -878,10 +878,10 @@ export type CreatureUncheckedCreateInput = {
   allowReviews?: boolean
   userId?: number | null
   packId?: number | null
-  EvolvesFrom?: Prisma.CreatureUncheckedCreateNestedManyWithoutEvolvesToInput
+  EvolvesFrom?: Prisma.MonsterUncheckedCreateNestedManyWithoutEvolvesToInput
 }
 
-export type CreatureUpdateInput = {
+export type MonsterUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -919,14 +919,14 @@ export type CreatureUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  EvolvesTo?: Prisma.CreatureUpdateOneWithoutEvolvesFromNestedInput
-  EvolvesFrom?: Prisma.CreatureUpdateManyWithoutEvolvesToNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutCreaturesNestedInput
-  User?: Prisma.UserUpdateOneWithoutCreaturesNestedInput
-  Pack?: Prisma.PackUpdateOneWithoutCreaturesNestedInput
+  EvolvesTo?: Prisma.MonsterUpdateOneWithoutEvolvesFromNestedInput
+  EvolvesFrom?: Prisma.MonsterUpdateManyWithoutEvolvesToNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutMonstersNestedInput
+  User?: Prisma.UserUpdateOneWithoutMonstersNestedInput
+  Pack?: Prisma.PackUpdateOneWithoutMonstersNestedInput
 }
 
-export type CreatureUncheckedUpdateInput = {
+export type MonsterUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -969,10 +969,10 @@ export type CreatureUncheckedUpdateInput = {
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  EvolvesFrom?: Prisma.CreatureUncheckedUpdateManyWithoutEvolvesToNestedInput
+  EvolvesFrom?: Prisma.MonsterUncheckedUpdateManyWithoutEvolvesToNestedInput
 }
 
-export type CreatureCreateManyInput = {
+export type MonsterCreateManyInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -1017,7 +1017,7 @@ export type CreatureCreateManyInput = {
   packId?: number | null
 }
 
-export type CreatureUpdateManyMutationInput = {
+export type MonsterUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1057,7 +1057,7 @@ export type CreatureUpdateManyMutationInput = {
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
-export type CreatureUncheckedUpdateManyInput = {
+export type MonsterUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1102,28 +1102,28 @@ export type CreatureUncheckedUpdateManyInput = {
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
-export type CreatureListRelationFilter = {
-  every?: Prisma.CreatureWhereInput
-  some?: Prisma.CreatureWhereInput
-  none?: Prisma.CreatureWhereInput
+export type MonsterListRelationFilter = {
+  every?: Prisma.MonsterWhereInput
+  some?: Prisma.MonsterWhereInput
+  none?: Prisma.MonsterWhereInput
 }
 
-export type CreatureOrderByRelationAggregateInput = {
+export type MonsterOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type CreatureNullableScalarRelationFilter = {
-  is?: Prisma.CreatureWhereInput | null
-  isNot?: Prisma.CreatureWhereInput | null
+export type MonsterNullableScalarRelationFilter = {
+  is?: Prisma.MonsterWhereInput | null
+  isNot?: Prisma.MonsterWhereInput | null
 }
 
-export type CreatureOrderByRelevanceInput = {
-  fields: Prisma.CreatureOrderByRelevanceFieldEnum | Prisma.CreatureOrderByRelevanceFieldEnum[]
+export type MonsterOrderByRelevanceInput = {
+  fields: Prisma.MonsterOrderByRelevanceFieldEnum | Prisma.MonsterOrderByRelevanceFieldEnum[]
   sort: Prisma.SortOrder
   search: string
 }
 
-export type CreatureCountOrderByAggregateInput = {
+export type MonsterCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -1168,7 +1168,7 @@ export type CreatureCountOrderByAggregateInput = {
   packId?: Prisma.SortOrder
 }
 
-export type CreatureAvgOrderByAggregateInput = {
+export type MonsterAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   size?: Prisma.SortOrder
   yieldPerTick?: Prisma.SortOrder
@@ -1184,52 +1184,7 @@ export type CreatureAvgOrderByAggregateInput = {
   packId?: Prisma.SortOrder
 }
 
-export type CreatureMaxOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
-  updatedAt?: Prisma.SortOrder
-  slug?: Prisma.SortOrder
-  name?: Prisma.SortOrder
-  species?: Prisma.SortOrder
-  class?: Prisma.SortOrder
-  fieldNote?: Prisma.SortOrder
-  quirks?: Prisma.SortOrder
-  alignment?: Prisma.SortOrder
-  tier?: Prisma.SortOrder
-  charm?: Prisma.SortOrder
-  empathy?: Prisma.SortOrder
-  grace?: Prisma.SortOrder
-  luck?: Prisma.SortOrder
-  might?: Prisma.SortOrder
-  wits?: Prisma.SortOrder
-  size?: Prisma.SortOrder
-  yieldPerTick?: Prisma.SortOrder
-  tickIntervalSeconds?: Prisma.SortOrder
-  unlockCost?: Prisma.SortOrder
-  behavior?: Prisma.SortOrder
-  hue?: Prisma.SortOrder
-  games?: Prisma.SortOrder
-  artPrompt?: Prisma.SortOrder
-  evolutionKind?: Prisma.SortOrder
-  evolvesToId?: Prisma.SortOrder
-  icon?: Prisma.SortOrder
-  iconPath?: Prisma.SortOrder
-  imagePath?: Prisma.SortOrder
-  cardPath?: Prisma.SortOrder
-  heroPath?: Prisma.SortOrder
-  artImageId?: Prisma.SortOrder
-  cardArtImageId?: Prisma.SortOrder
-  heroArtImageId?: Prisma.SortOrder
-  iconArtImageId?: Prisma.SortOrder
-  isPublic?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
-  isMature?: Prisma.SortOrder
-  allowReviews?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
-  packId?: Prisma.SortOrder
-}
-
-export type CreatureMinOrderByAggregateInput = {
+export type MonsterMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -1274,7 +1229,52 @@ export type CreatureMinOrderByAggregateInput = {
   packId?: Prisma.SortOrder
 }
 
-export type CreatureSumOrderByAggregateInput = {
+export type MonsterMinOrderByAggregateInput = {
+  id?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
+  slug?: Prisma.SortOrder
+  name?: Prisma.SortOrder
+  species?: Prisma.SortOrder
+  class?: Prisma.SortOrder
+  fieldNote?: Prisma.SortOrder
+  quirks?: Prisma.SortOrder
+  alignment?: Prisma.SortOrder
+  tier?: Prisma.SortOrder
+  charm?: Prisma.SortOrder
+  empathy?: Prisma.SortOrder
+  grace?: Prisma.SortOrder
+  luck?: Prisma.SortOrder
+  might?: Prisma.SortOrder
+  wits?: Prisma.SortOrder
+  size?: Prisma.SortOrder
+  yieldPerTick?: Prisma.SortOrder
+  tickIntervalSeconds?: Prisma.SortOrder
+  unlockCost?: Prisma.SortOrder
+  behavior?: Prisma.SortOrder
+  hue?: Prisma.SortOrder
+  games?: Prisma.SortOrder
+  artPrompt?: Prisma.SortOrder
+  evolutionKind?: Prisma.SortOrder
+  evolvesToId?: Prisma.SortOrder
+  icon?: Prisma.SortOrder
+  iconPath?: Prisma.SortOrder
+  imagePath?: Prisma.SortOrder
+  cardPath?: Prisma.SortOrder
+  heroPath?: Prisma.SortOrder
+  artImageId?: Prisma.SortOrder
+  cardArtImageId?: Prisma.SortOrder
+  heroArtImageId?: Prisma.SortOrder
+  iconArtImageId?: Prisma.SortOrder
+  isPublic?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
+  isMature?: Prisma.SortOrder
+  allowReviews?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
+  packId?: Prisma.SortOrder
+}
+
+export type MonsterSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   size?: Prisma.SortOrder
   yieldPerTick?: Prisma.SortOrder
@@ -1290,195 +1290,195 @@ export type CreatureSumOrderByAggregateInput = {
   packId?: Prisma.SortOrder
 }
 
-export type CreatureCreateNestedManyWithoutArtImageInput = {
-  create?: Prisma.XOR<Prisma.CreatureCreateWithoutArtImageInput, Prisma.CreatureUncheckedCreateWithoutArtImageInput> | Prisma.CreatureCreateWithoutArtImageInput[] | Prisma.CreatureUncheckedCreateWithoutArtImageInput[]
-  connectOrCreate?: Prisma.CreatureCreateOrConnectWithoutArtImageInput | Prisma.CreatureCreateOrConnectWithoutArtImageInput[]
-  createMany?: Prisma.CreatureCreateManyArtImageInputEnvelope
-  connect?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
+export type MonsterCreateNestedManyWithoutArtImageInput = {
+  create?: Prisma.XOR<Prisma.MonsterCreateWithoutArtImageInput, Prisma.MonsterUncheckedCreateWithoutArtImageInput> | Prisma.MonsterCreateWithoutArtImageInput[] | Prisma.MonsterUncheckedCreateWithoutArtImageInput[]
+  connectOrCreate?: Prisma.MonsterCreateOrConnectWithoutArtImageInput | Prisma.MonsterCreateOrConnectWithoutArtImageInput[]
+  createMany?: Prisma.MonsterCreateManyArtImageInputEnvelope
+  connect?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
 }
 
-export type CreatureUncheckedCreateNestedManyWithoutArtImageInput = {
-  create?: Prisma.XOR<Prisma.CreatureCreateWithoutArtImageInput, Prisma.CreatureUncheckedCreateWithoutArtImageInput> | Prisma.CreatureCreateWithoutArtImageInput[] | Prisma.CreatureUncheckedCreateWithoutArtImageInput[]
-  connectOrCreate?: Prisma.CreatureCreateOrConnectWithoutArtImageInput | Prisma.CreatureCreateOrConnectWithoutArtImageInput[]
-  createMany?: Prisma.CreatureCreateManyArtImageInputEnvelope
-  connect?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
+export type MonsterUncheckedCreateNestedManyWithoutArtImageInput = {
+  create?: Prisma.XOR<Prisma.MonsterCreateWithoutArtImageInput, Prisma.MonsterUncheckedCreateWithoutArtImageInput> | Prisma.MonsterCreateWithoutArtImageInput[] | Prisma.MonsterUncheckedCreateWithoutArtImageInput[]
+  connectOrCreate?: Prisma.MonsterCreateOrConnectWithoutArtImageInput | Prisma.MonsterCreateOrConnectWithoutArtImageInput[]
+  createMany?: Prisma.MonsterCreateManyArtImageInputEnvelope
+  connect?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
 }
 
-export type CreatureUpdateManyWithoutArtImageNestedInput = {
-  create?: Prisma.XOR<Prisma.CreatureCreateWithoutArtImageInput, Prisma.CreatureUncheckedCreateWithoutArtImageInput> | Prisma.CreatureCreateWithoutArtImageInput[] | Prisma.CreatureUncheckedCreateWithoutArtImageInput[]
-  connectOrCreate?: Prisma.CreatureCreateOrConnectWithoutArtImageInput | Prisma.CreatureCreateOrConnectWithoutArtImageInput[]
-  upsert?: Prisma.CreatureUpsertWithWhereUniqueWithoutArtImageInput | Prisma.CreatureUpsertWithWhereUniqueWithoutArtImageInput[]
-  createMany?: Prisma.CreatureCreateManyArtImageInputEnvelope
-  set?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  disconnect?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  delete?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  connect?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  update?: Prisma.CreatureUpdateWithWhereUniqueWithoutArtImageInput | Prisma.CreatureUpdateWithWhereUniqueWithoutArtImageInput[]
-  updateMany?: Prisma.CreatureUpdateManyWithWhereWithoutArtImageInput | Prisma.CreatureUpdateManyWithWhereWithoutArtImageInput[]
-  deleteMany?: Prisma.CreatureScalarWhereInput | Prisma.CreatureScalarWhereInput[]
+export type MonsterUpdateManyWithoutArtImageNestedInput = {
+  create?: Prisma.XOR<Prisma.MonsterCreateWithoutArtImageInput, Prisma.MonsterUncheckedCreateWithoutArtImageInput> | Prisma.MonsterCreateWithoutArtImageInput[] | Prisma.MonsterUncheckedCreateWithoutArtImageInput[]
+  connectOrCreate?: Prisma.MonsterCreateOrConnectWithoutArtImageInput | Prisma.MonsterCreateOrConnectWithoutArtImageInput[]
+  upsert?: Prisma.MonsterUpsertWithWhereUniqueWithoutArtImageInput | Prisma.MonsterUpsertWithWhereUniqueWithoutArtImageInput[]
+  createMany?: Prisma.MonsterCreateManyArtImageInputEnvelope
+  set?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  disconnect?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  delete?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  connect?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  update?: Prisma.MonsterUpdateWithWhereUniqueWithoutArtImageInput | Prisma.MonsterUpdateWithWhereUniqueWithoutArtImageInput[]
+  updateMany?: Prisma.MonsterUpdateManyWithWhereWithoutArtImageInput | Prisma.MonsterUpdateManyWithWhereWithoutArtImageInput[]
+  deleteMany?: Prisma.MonsterScalarWhereInput | Prisma.MonsterScalarWhereInput[]
 }
 
-export type CreatureUncheckedUpdateManyWithoutArtImageNestedInput = {
-  create?: Prisma.XOR<Prisma.CreatureCreateWithoutArtImageInput, Prisma.CreatureUncheckedCreateWithoutArtImageInput> | Prisma.CreatureCreateWithoutArtImageInput[] | Prisma.CreatureUncheckedCreateWithoutArtImageInput[]
-  connectOrCreate?: Prisma.CreatureCreateOrConnectWithoutArtImageInput | Prisma.CreatureCreateOrConnectWithoutArtImageInput[]
-  upsert?: Prisma.CreatureUpsertWithWhereUniqueWithoutArtImageInput | Prisma.CreatureUpsertWithWhereUniqueWithoutArtImageInput[]
-  createMany?: Prisma.CreatureCreateManyArtImageInputEnvelope
-  set?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  disconnect?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  delete?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  connect?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  update?: Prisma.CreatureUpdateWithWhereUniqueWithoutArtImageInput | Prisma.CreatureUpdateWithWhereUniqueWithoutArtImageInput[]
-  updateMany?: Prisma.CreatureUpdateManyWithWhereWithoutArtImageInput | Prisma.CreatureUpdateManyWithWhereWithoutArtImageInput[]
-  deleteMany?: Prisma.CreatureScalarWhereInput | Prisma.CreatureScalarWhereInput[]
+export type MonsterUncheckedUpdateManyWithoutArtImageNestedInput = {
+  create?: Prisma.XOR<Prisma.MonsterCreateWithoutArtImageInput, Prisma.MonsterUncheckedCreateWithoutArtImageInput> | Prisma.MonsterCreateWithoutArtImageInput[] | Prisma.MonsterUncheckedCreateWithoutArtImageInput[]
+  connectOrCreate?: Prisma.MonsterCreateOrConnectWithoutArtImageInput | Prisma.MonsterCreateOrConnectWithoutArtImageInput[]
+  upsert?: Prisma.MonsterUpsertWithWhereUniqueWithoutArtImageInput | Prisma.MonsterUpsertWithWhereUniqueWithoutArtImageInput[]
+  createMany?: Prisma.MonsterCreateManyArtImageInputEnvelope
+  set?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  disconnect?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  delete?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  connect?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  update?: Prisma.MonsterUpdateWithWhereUniqueWithoutArtImageInput | Prisma.MonsterUpdateWithWhereUniqueWithoutArtImageInput[]
+  updateMany?: Prisma.MonsterUpdateManyWithWhereWithoutArtImageInput | Prisma.MonsterUpdateManyWithWhereWithoutArtImageInput[]
+  deleteMany?: Prisma.MonsterScalarWhereInput | Prisma.MonsterScalarWhereInput[]
 }
 
-export type CreatureCreateNestedManyWithoutPackInput = {
-  create?: Prisma.XOR<Prisma.CreatureCreateWithoutPackInput, Prisma.CreatureUncheckedCreateWithoutPackInput> | Prisma.CreatureCreateWithoutPackInput[] | Prisma.CreatureUncheckedCreateWithoutPackInput[]
-  connectOrCreate?: Prisma.CreatureCreateOrConnectWithoutPackInput | Prisma.CreatureCreateOrConnectWithoutPackInput[]
-  createMany?: Prisma.CreatureCreateManyPackInputEnvelope
-  connect?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
+export type MonsterCreateNestedManyWithoutPackInput = {
+  create?: Prisma.XOR<Prisma.MonsterCreateWithoutPackInput, Prisma.MonsterUncheckedCreateWithoutPackInput> | Prisma.MonsterCreateWithoutPackInput[] | Prisma.MonsterUncheckedCreateWithoutPackInput[]
+  connectOrCreate?: Prisma.MonsterCreateOrConnectWithoutPackInput | Prisma.MonsterCreateOrConnectWithoutPackInput[]
+  createMany?: Prisma.MonsterCreateManyPackInputEnvelope
+  connect?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
 }
 
-export type CreatureUncheckedCreateNestedManyWithoutPackInput = {
-  create?: Prisma.XOR<Prisma.CreatureCreateWithoutPackInput, Prisma.CreatureUncheckedCreateWithoutPackInput> | Prisma.CreatureCreateWithoutPackInput[] | Prisma.CreatureUncheckedCreateWithoutPackInput[]
-  connectOrCreate?: Prisma.CreatureCreateOrConnectWithoutPackInput | Prisma.CreatureCreateOrConnectWithoutPackInput[]
-  createMany?: Prisma.CreatureCreateManyPackInputEnvelope
-  connect?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
+export type MonsterUncheckedCreateNestedManyWithoutPackInput = {
+  create?: Prisma.XOR<Prisma.MonsterCreateWithoutPackInput, Prisma.MonsterUncheckedCreateWithoutPackInput> | Prisma.MonsterCreateWithoutPackInput[] | Prisma.MonsterUncheckedCreateWithoutPackInput[]
+  connectOrCreate?: Prisma.MonsterCreateOrConnectWithoutPackInput | Prisma.MonsterCreateOrConnectWithoutPackInput[]
+  createMany?: Prisma.MonsterCreateManyPackInputEnvelope
+  connect?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
 }
 
-export type CreatureUpdateManyWithoutPackNestedInput = {
-  create?: Prisma.XOR<Prisma.CreatureCreateWithoutPackInput, Prisma.CreatureUncheckedCreateWithoutPackInput> | Prisma.CreatureCreateWithoutPackInput[] | Prisma.CreatureUncheckedCreateWithoutPackInput[]
-  connectOrCreate?: Prisma.CreatureCreateOrConnectWithoutPackInput | Prisma.CreatureCreateOrConnectWithoutPackInput[]
-  upsert?: Prisma.CreatureUpsertWithWhereUniqueWithoutPackInput | Prisma.CreatureUpsertWithWhereUniqueWithoutPackInput[]
-  createMany?: Prisma.CreatureCreateManyPackInputEnvelope
-  set?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  disconnect?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  delete?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  connect?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  update?: Prisma.CreatureUpdateWithWhereUniqueWithoutPackInput | Prisma.CreatureUpdateWithWhereUniqueWithoutPackInput[]
-  updateMany?: Prisma.CreatureUpdateManyWithWhereWithoutPackInput | Prisma.CreatureUpdateManyWithWhereWithoutPackInput[]
-  deleteMany?: Prisma.CreatureScalarWhereInput | Prisma.CreatureScalarWhereInput[]
+export type MonsterUpdateManyWithoutPackNestedInput = {
+  create?: Prisma.XOR<Prisma.MonsterCreateWithoutPackInput, Prisma.MonsterUncheckedCreateWithoutPackInput> | Prisma.MonsterCreateWithoutPackInput[] | Prisma.MonsterUncheckedCreateWithoutPackInput[]
+  connectOrCreate?: Prisma.MonsterCreateOrConnectWithoutPackInput | Prisma.MonsterCreateOrConnectWithoutPackInput[]
+  upsert?: Prisma.MonsterUpsertWithWhereUniqueWithoutPackInput | Prisma.MonsterUpsertWithWhereUniqueWithoutPackInput[]
+  createMany?: Prisma.MonsterCreateManyPackInputEnvelope
+  set?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  disconnect?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  delete?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  connect?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  update?: Prisma.MonsterUpdateWithWhereUniqueWithoutPackInput | Prisma.MonsterUpdateWithWhereUniqueWithoutPackInput[]
+  updateMany?: Prisma.MonsterUpdateManyWithWhereWithoutPackInput | Prisma.MonsterUpdateManyWithWhereWithoutPackInput[]
+  deleteMany?: Prisma.MonsterScalarWhereInput | Prisma.MonsterScalarWhereInput[]
 }
 
-export type CreatureUncheckedUpdateManyWithoutPackNestedInput = {
-  create?: Prisma.XOR<Prisma.CreatureCreateWithoutPackInput, Prisma.CreatureUncheckedCreateWithoutPackInput> | Prisma.CreatureCreateWithoutPackInput[] | Prisma.CreatureUncheckedCreateWithoutPackInput[]
-  connectOrCreate?: Prisma.CreatureCreateOrConnectWithoutPackInput | Prisma.CreatureCreateOrConnectWithoutPackInput[]
-  upsert?: Prisma.CreatureUpsertWithWhereUniqueWithoutPackInput | Prisma.CreatureUpsertWithWhereUniqueWithoutPackInput[]
-  createMany?: Prisma.CreatureCreateManyPackInputEnvelope
-  set?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  disconnect?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  delete?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  connect?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  update?: Prisma.CreatureUpdateWithWhereUniqueWithoutPackInput | Prisma.CreatureUpdateWithWhereUniqueWithoutPackInput[]
-  updateMany?: Prisma.CreatureUpdateManyWithWhereWithoutPackInput | Prisma.CreatureUpdateManyWithWhereWithoutPackInput[]
-  deleteMany?: Prisma.CreatureScalarWhereInput | Prisma.CreatureScalarWhereInput[]
+export type MonsterUncheckedUpdateManyWithoutPackNestedInput = {
+  create?: Prisma.XOR<Prisma.MonsterCreateWithoutPackInput, Prisma.MonsterUncheckedCreateWithoutPackInput> | Prisma.MonsterCreateWithoutPackInput[] | Prisma.MonsterUncheckedCreateWithoutPackInput[]
+  connectOrCreate?: Prisma.MonsterCreateOrConnectWithoutPackInput | Prisma.MonsterCreateOrConnectWithoutPackInput[]
+  upsert?: Prisma.MonsterUpsertWithWhereUniqueWithoutPackInput | Prisma.MonsterUpsertWithWhereUniqueWithoutPackInput[]
+  createMany?: Prisma.MonsterCreateManyPackInputEnvelope
+  set?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  disconnect?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  delete?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  connect?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  update?: Prisma.MonsterUpdateWithWhereUniqueWithoutPackInput | Prisma.MonsterUpdateWithWhereUniqueWithoutPackInput[]
+  updateMany?: Prisma.MonsterUpdateManyWithWhereWithoutPackInput | Prisma.MonsterUpdateManyWithWhereWithoutPackInput[]
+  deleteMany?: Prisma.MonsterScalarWhereInput | Prisma.MonsterScalarWhereInput[]
 }
 
-export type CreatureCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.CreatureCreateWithoutUserInput, Prisma.CreatureUncheckedCreateWithoutUserInput> | Prisma.CreatureCreateWithoutUserInput[] | Prisma.CreatureUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.CreatureCreateOrConnectWithoutUserInput | Prisma.CreatureCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.CreatureCreateManyUserInputEnvelope
-  connect?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
+export type MonsterCreateNestedManyWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.MonsterCreateWithoutUserInput, Prisma.MonsterUncheckedCreateWithoutUserInput> | Prisma.MonsterCreateWithoutUserInput[] | Prisma.MonsterUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.MonsterCreateOrConnectWithoutUserInput | Prisma.MonsterCreateOrConnectWithoutUserInput[]
+  createMany?: Prisma.MonsterCreateManyUserInputEnvelope
+  connect?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
 }
 
-export type CreatureUncheckedCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.CreatureCreateWithoutUserInput, Prisma.CreatureUncheckedCreateWithoutUserInput> | Prisma.CreatureCreateWithoutUserInput[] | Prisma.CreatureUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.CreatureCreateOrConnectWithoutUserInput | Prisma.CreatureCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.CreatureCreateManyUserInputEnvelope
-  connect?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
+export type MonsterUncheckedCreateNestedManyWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.MonsterCreateWithoutUserInput, Prisma.MonsterUncheckedCreateWithoutUserInput> | Prisma.MonsterCreateWithoutUserInput[] | Prisma.MonsterUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.MonsterCreateOrConnectWithoutUserInput | Prisma.MonsterCreateOrConnectWithoutUserInput[]
+  createMany?: Prisma.MonsterCreateManyUserInputEnvelope
+  connect?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
 }
 
-export type CreatureUpdateManyWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.CreatureCreateWithoutUserInput, Prisma.CreatureUncheckedCreateWithoutUserInput> | Prisma.CreatureCreateWithoutUserInput[] | Prisma.CreatureUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.CreatureCreateOrConnectWithoutUserInput | Prisma.CreatureCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.CreatureUpsertWithWhereUniqueWithoutUserInput | Prisma.CreatureUpsertWithWhereUniqueWithoutUserInput[]
-  createMany?: Prisma.CreatureCreateManyUserInputEnvelope
-  set?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  disconnect?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  delete?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  connect?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  update?: Prisma.CreatureUpdateWithWhereUniqueWithoutUserInput | Prisma.CreatureUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.CreatureUpdateManyWithWhereWithoutUserInput | Prisma.CreatureUpdateManyWithWhereWithoutUserInput[]
-  deleteMany?: Prisma.CreatureScalarWhereInput | Prisma.CreatureScalarWhereInput[]
+export type MonsterUpdateManyWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.MonsterCreateWithoutUserInput, Prisma.MonsterUncheckedCreateWithoutUserInput> | Prisma.MonsterCreateWithoutUserInput[] | Prisma.MonsterUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.MonsterCreateOrConnectWithoutUserInput | Prisma.MonsterCreateOrConnectWithoutUserInput[]
+  upsert?: Prisma.MonsterUpsertWithWhereUniqueWithoutUserInput | Prisma.MonsterUpsertWithWhereUniqueWithoutUserInput[]
+  createMany?: Prisma.MonsterCreateManyUserInputEnvelope
+  set?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  disconnect?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  delete?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  connect?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  update?: Prisma.MonsterUpdateWithWhereUniqueWithoutUserInput | Prisma.MonsterUpdateWithWhereUniqueWithoutUserInput[]
+  updateMany?: Prisma.MonsterUpdateManyWithWhereWithoutUserInput | Prisma.MonsterUpdateManyWithWhereWithoutUserInput[]
+  deleteMany?: Prisma.MonsterScalarWhereInput | Prisma.MonsterScalarWhereInput[]
 }
 
-export type CreatureUncheckedUpdateManyWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.CreatureCreateWithoutUserInput, Prisma.CreatureUncheckedCreateWithoutUserInput> | Prisma.CreatureCreateWithoutUserInput[] | Prisma.CreatureUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.CreatureCreateOrConnectWithoutUserInput | Prisma.CreatureCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.CreatureUpsertWithWhereUniqueWithoutUserInput | Prisma.CreatureUpsertWithWhereUniqueWithoutUserInput[]
-  createMany?: Prisma.CreatureCreateManyUserInputEnvelope
-  set?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  disconnect?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  delete?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  connect?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  update?: Prisma.CreatureUpdateWithWhereUniqueWithoutUserInput | Prisma.CreatureUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.CreatureUpdateManyWithWhereWithoutUserInput | Prisma.CreatureUpdateManyWithWhereWithoutUserInput[]
-  deleteMany?: Prisma.CreatureScalarWhereInput | Prisma.CreatureScalarWhereInput[]
+export type MonsterUncheckedUpdateManyWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.MonsterCreateWithoutUserInput, Prisma.MonsterUncheckedCreateWithoutUserInput> | Prisma.MonsterCreateWithoutUserInput[] | Prisma.MonsterUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.MonsterCreateOrConnectWithoutUserInput | Prisma.MonsterCreateOrConnectWithoutUserInput[]
+  upsert?: Prisma.MonsterUpsertWithWhereUniqueWithoutUserInput | Prisma.MonsterUpsertWithWhereUniqueWithoutUserInput[]
+  createMany?: Prisma.MonsterCreateManyUserInputEnvelope
+  set?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  disconnect?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  delete?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  connect?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  update?: Prisma.MonsterUpdateWithWhereUniqueWithoutUserInput | Prisma.MonsterUpdateWithWhereUniqueWithoutUserInput[]
+  updateMany?: Prisma.MonsterUpdateManyWithWhereWithoutUserInput | Prisma.MonsterUpdateManyWithWhereWithoutUserInput[]
+  deleteMany?: Prisma.MonsterScalarWhereInput | Prisma.MonsterScalarWhereInput[]
 }
 
-export type CreatureCreateNestedOneWithoutEvolvesFromInput = {
-  create?: Prisma.XOR<Prisma.CreatureCreateWithoutEvolvesFromInput, Prisma.CreatureUncheckedCreateWithoutEvolvesFromInput>
-  connectOrCreate?: Prisma.CreatureCreateOrConnectWithoutEvolvesFromInput
-  connect?: Prisma.CreatureWhereUniqueInput
+export type MonsterCreateNestedOneWithoutEvolvesFromInput = {
+  create?: Prisma.XOR<Prisma.MonsterCreateWithoutEvolvesFromInput, Prisma.MonsterUncheckedCreateWithoutEvolvesFromInput>
+  connectOrCreate?: Prisma.MonsterCreateOrConnectWithoutEvolvesFromInput
+  connect?: Prisma.MonsterWhereUniqueInput
 }
 
-export type CreatureCreateNestedManyWithoutEvolvesToInput = {
-  create?: Prisma.XOR<Prisma.CreatureCreateWithoutEvolvesToInput, Prisma.CreatureUncheckedCreateWithoutEvolvesToInput> | Prisma.CreatureCreateWithoutEvolvesToInput[] | Prisma.CreatureUncheckedCreateWithoutEvolvesToInput[]
-  connectOrCreate?: Prisma.CreatureCreateOrConnectWithoutEvolvesToInput | Prisma.CreatureCreateOrConnectWithoutEvolvesToInput[]
-  createMany?: Prisma.CreatureCreateManyEvolvesToInputEnvelope
-  connect?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
+export type MonsterCreateNestedManyWithoutEvolvesToInput = {
+  create?: Prisma.XOR<Prisma.MonsterCreateWithoutEvolvesToInput, Prisma.MonsterUncheckedCreateWithoutEvolvesToInput> | Prisma.MonsterCreateWithoutEvolvesToInput[] | Prisma.MonsterUncheckedCreateWithoutEvolvesToInput[]
+  connectOrCreate?: Prisma.MonsterCreateOrConnectWithoutEvolvesToInput | Prisma.MonsterCreateOrConnectWithoutEvolvesToInput[]
+  createMany?: Prisma.MonsterCreateManyEvolvesToInputEnvelope
+  connect?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
 }
 
-export type CreatureUncheckedCreateNestedManyWithoutEvolvesToInput = {
-  create?: Prisma.XOR<Prisma.CreatureCreateWithoutEvolvesToInput, Prisma.CreatureUncheckedCreateWithoutEvolvesToInput> | Prisma.CreatureCreateWithoutEvolvesToInput[] | Prisma.CreatureUncheckedCreateWithoutEvolvesToInput[]
-  connectOrCreate?: Prisma.CreatureCreateOrConnectWithoutEvolvesToInput | Prisma.CreatureCreateOrConnectWithoutEvolvesToInput[]
-  createMany?: Prisma.CreatureCreateManyEvolvesToInputEnvelope
-  connect?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
+export type MonsterUncheckedCreateNestedManyWithoutEvolvesToInput = {
+  create?: Prisma.XOR<Prisma.MonsterCreateWithoutEvolvesToInput, Prisma.MonsterUncheckedCreateWithoutEvolvesToInput> | Prisma.MonsterCreateWithoutEvolvesToInput[] | Prisma.MonsterUncheckedCreateWithoutEvolvesToInput[]
+  connectOrCreate?: Prisma.MonsterCreateOrConnectWithoutEvolvesToInput | Prisma.MonsterCreateOrConnectWithoutEvolvesToInput[]
+  createMany?: Prisma.MonsterCreateManyEvolvesToInputEnvelope
+  connect?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
 }
 
 export type NullableEnumEvolutionKindFieldUpdateOperationsInput = {
   set?: $Enums.EvolutionKind | null
 }
 
-export type CreatureUpdateOneWithoutEvolvesFromNestedInput = {
-  create?: Prisma.XOR<Prisma.CreatureCreateWithoutEvolvesFromInput, Prisma.CreatureUncheckedCreateWithoutEvolvesFromInput>
-  connectOrCreate?: Prisma.CreatureCreateOrConnectWithoutEvolvesFromInput
-  upsert?: Prisma.CreatureUpsertWithoutEvolvesFromInput
-  disconnect?: Prisma.CreatureWhereInput | boolean
-  delete?: Prisma.CreatureWhereInput | boolean
-  connect?: Prisma.CreatureWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.CreatureUpdateToOneWithWhereWithoutEvolvesFromInput, Prisma.CreatureUpdateWithoutEvolvesFromInput>, Prisma.CreatureUncheckedUpdateWithoutEvolvesFromInput>
+export type MonsterUpdateOneWithoutEvolvesFromNestedInput = {
+  create?: Prisma.XOR<Prisma.MonsterCreateWithoutEvolvesFromInput, Prisma.MonsterUncheckedCreateWithoutEvolvesFromInput>
+  connectOrCreate?: Prisma.MonsterCreateOrConnectWithoutEvolvesFromInput
+  upsert?: Prisma.MonsterUpsertWithoutEvolvesFromInput
+  disconnect?: Prisma.MonsterWhereInput | boolean
+  delete?: Prisma.MonsterWhereInput | boolean
+  connect?: Prisma.MonsterWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MonsterUpdateToOneWithWhereWithoutEvolvesFromInput, Prisma.MonsterUpdateWithoutEvolvesFromInput>, Prisma.MonsterUncheckedUpdateWithoutEvolvesFromInput>
 }
 
-export type CreatureUpdateManyWithoutEvolvesToNestedInput = {
-  create?: Prisma.XOR<Prisma.CreatureCreateWithoutEvolvesToInput, Prisma.CreatureUncheckedCreateWithoutEvolvesToInput> | Prisma.CreatureCreateWithoutEvolvesToInput[] | Prisma.CreatureUncheckedCreateWithoutEvolvesToInput[]
-  connectOrCreate?: Prisma.CreatureCreateOrConnectWithoutEvolvesToInput | Prisma.CreatureCreateOrConnectWithoutEvolvesToInput[]
-  upsert?: Prisma.CreatureUpsertWithWhereUniqueWithoutEvolvesToInput | Prisma.CreatureUpsertWithWhereUniqueWithoutEvolvesToInput[]
-  createMany?: Prisma.CreatureCreateManyEvolvesToInputEnvelope
-  set?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  disconnect?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  delete?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  connect?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  update?: Prisma.CreatureUpdateWithWhereUniqueWithoutEvolvesToInput | Prisma.CreatureUpdateWithWhereUniqueWithoutEvolvesToInput[]
-  updateMany?: Prisma.CreatureUpdateManyWithWhereWithoutEvolvesToInput | Prisma.CreatureUpdateManyWithWhereWithoutEvolvesToInput[]
-  deleteMany?: Prisma.CreatureScalarWhereInput | Prisma.CreatureScalarWhereInput[]
+export type MonsterUpdateManyWithoutEvolvesToNestedInput = {
+  create?: Prisma.XOR<Prisma.MonsterCreateWithoutEvolvesToInput, Prisma.MonsterUncheckedCreateWithoutEvolvesToInput> | Prisma.MonsterCreateWithoutEvolvesToInput[] | Prisma.MonsterUncheckedCreateWithoutEvolvesToInput[]
+  connectOrCreate?: Prisma.MonsterCreateOrConnectWithoutEvolvesToInput | Prisma.MonsterCreateOrConnectWithoutEvolvesToInput[]
+  upsert?: Prisma.MonsterUpsertWithWhereUniqueWithoutEvolvesToInput | Prisma.MonsterUpsertWithWhereUniqueWithoutEvolvesToInput[]
+  createMany?: Prisma.MonsterCreateManyEvolvesToInputEnvelope
+  set?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  disconnect?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  delete?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  connect?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  update?: Prisma.MonsterUpdateWithWhereUniqueWithoutEvolvesToInput | Prisma.MonsterUpdateWithWhereUniqueWithoutEvolvesToInput[]
+  updateMany?: Prisma.MonsterUpdateManyWithWhereWithoutEvolvesToInput | Prisma.MonsterUpdateManyWithWhereWithoutEvolvesToInput[]
+  deleteMany?: Prisma.MonsterScalarWhereInput | Prisma.MonsterScalarWhereInput[]
 }
 
-export type CreatureUncheckedUpdateManyWithoutEvolvesToNestedInput = {
-  create?: Prisma.XOR<Prisma.CreatureCreateWithoutEvolvesToInput, Prisma.CreatureUncheckedCreateWithoutEvolvesToInput> | Prisma.CreatureCreateWithoutEvolvesToInput[] | Prisma.CreatureUncheckedCreateWithoutEvolvesToInput[]
-  connectOrCreate?: Prisma.CreatureCreateOrConnectWithoutEvolvesToInput | Prisma.CreatureCreateOrConnectWithoutEvolvesToInput[]
-  upsert?: Prisma.CreatureUpsertWithWhereUniqueWithoutEvolvesToInput | Prisma.CreatureUpsertWithWhereUniqueWithoutEvolvesToInput[]
-  createMany?: Prisma.CreatureCreateManyEvolvesToInputEnvelope
-  set?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  disconnect?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  delete?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  connect?: Prisma.CreatureWhereUniqueInput | Prisma.CreatureWhereUniqueInput[]
-  update?: Prisma.CreatureUpdateWithWhereUniqueWithoutEvolvesToInput | Prisma.CreatureUpdateWithWhereUniqueWithoutEvolvesToInput[]
-  updateMany?: Prisma.CreatureUpdateManyWithWhereWithoutEvolvesToInput | Prisma.CreatureUpdateManyWithWhereWithoutEvolvesToInput[]
-  deleteMany?: Prisma.CreatureScalarWhereInput | Prisma.CreatureScalarWhereInput[]
+export type MonsterUncheckedUpdateManyWithoutEvolvesToNestedInput = {
+  create?: Prisma.XOR<Prisma.MonsterCreateWithoutEvolvesToInput, Prisma.MonsterUncheckedCreateWithoutEvolvesToInput> | Prisma.MonsterCreateWithoutEvolvesToInput[] | Prisma.MonsterUncheckedCreateWithoutEvolvesToInput[]
+  connectOrCreate?: Prisma.MonsterCreateOrConnectWithoutEvolvesToInput | Prisma.MonsterCreateOrConnectWithoutEvolvesToInput[]
+  upsert?: Prisma.MonsterUpsertWithWhereUniqueWithoutEvolvesToInput | Prisma.MonsterUpsertWithWhereUniqueWithoutEvolvesToInput[]
+  createMany?: Prisma.MonsterCreateManyEvolvesToInputEnvelope
+  set?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  disconnect?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  delete?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  connect?: Prisma.MonsterWhereUniqueInput | Prisma.MonsterWhereUniqueInput[]
+  update?: Prisma.MonsterUpdateWithWhereUniqueWithoutEvolvesToInput | Prisma.MonsterUpdateWithWhereUniqueWithoutEvolvesToInput[]
+  updateMany?: Prisma.MonsterUpdateManyWithWhereWithoutEvolvesToInput | Prisma.MonsterUpdateManyWithWhereWithoutEvolvesToInput[]
+  deleteMany?: Prisma.MonsterScalarWhereInput | Prisma.MonsterScalarWhereInput[]
 }
 
-export type CreatureCreateWithoutArtImageInput = {
+export type MonsterCreateWithoutArtImageInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   slug: string
@@ -1516,13 +1516,13 @@ export type CreatureCreateWithoutArtImageInput = {
   isActive?: boolean
   isMature?: boolean
   allowReviews?: boolean
-  EvolvesTo?: Prisma.CreatureCreateNestedOneWithoutEvolvesFromInput
-  EvolvesFrom?: Prisma.CreatureCreateNestedManyWithoutEvolvesToInput
-  User?: Prisma.UserCreateNestedOneWithoutCreaturesInput
-  Pack?: Prisma.PackCreateNestedOneWithoutCreaturesInput
+  EvolvesTo?: Prisma.MonsterCreateNestedOneWithoutEvolvesFromInput
+  EvolvesFrom?: Prisma.MonsterCreateNestedManyWithoutEvolvesToInput
+  User?: Prisma.UserCreateNestedOneWithoutMonstersInput
+  Pack?: Prisma.PackCreateNestedOneWithoutMonstersInput
 }
 
-export type CreatureUncheckedCreateWithoutArtImageInput = {
+export type MonsterUncheckedCreateWithoutArtImageInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -1564,84 +1564,84 @@ export type CreatureUncheckedCreateWithoutArtImageInput = {
   allowReviews?: boolean
   userId?: number | null
   packId?: number | null
-  EvolvesFrom?: Prisma.CreatureUncheckedCreateNestedManyWithoutEvolvesToInput
+  EvolvesFrom?: Prisma.MonsterUncheckedCreateNestedManyWithoutEvolvesToInput
 }
 
-export type CreatureCreateOrConnectWithoutArtImageInput = {
-  where: Prisma.CreatureWhereUniqueInput
-  create: Prisma.XOR<Prisma.CreatureCreateWithoutArtImageInput, Prisma.CreatureUncheckedCreateWithoutArtImageInput>
+export type MonsterCreateOrConnectWithoutArtImageInput = {
+  where: Prisma.MonsterWhereUniqueInput
+  create: Prisma.XOR<Prisma.MonsterCreateWithoutArtImageInput, Prisma.MonsterUncheckedCreateWithoutArtImageInput>
 }
 
-export type CreatureCreateManyArtImageInputEnvelope = {
-  data: Prisma.CreatureCreateManyArtImageInput | Prisma.CreatureCreateManyArtImageInput[]
+export type MonsterCreateManyArtImageInputEnvelope = {
+  data: Prisma.MonsterCreateManyArtImageInput | Prisma.MonsterCreateManyArtImageInput[]
   skipDuplicates?: boolean
 }
 
-export type CreatureUpsertWithWhereUniqueWithoutArtImageInput = {
-  where: Prisma.CreatureWhereUniqueInput
-  update: Prisma.XOR<Prisma.CreatureUpdateWithoutArtImageInput, Prisma.CreatureUncheckedUpdateWithoutArtImageInput>
-  create: Prisma.XOR<Prisma.CreatureCreateWithoutArtImageInput, Prisma.CreatureUncheckedCreateWithoutArtImageInput>
+export type MonsterUpsertWithWhereUniqueWithoutArtImageInput = {
+  where: Prisma.MonsterWhereUniqueInput
+  update: Prisma.XOR<Prisma.MonsterUpdateWithoutArtImageInput, Prisma.MonsterUncheckedUpdateWithoutArtImageInput>
+  create: Prisma.XOR<Prisma.MonsterCreateWithoutArtImageInput, Prisma.MonsterUncheckedCreateWithoutArtImageInput>
 }
 
-export type CreatureUpdateWithWhereUniqueWithoutArtImageInput = {
-  where: Prisma.CreatureWhereUniqueInput
-  data: Prisma.XOR<Prisma.CreatureUpdateWithoutArtImageInput, Prisma.CreatureUncheckedUpdateWithoutArtImageInput>
+export type MonsterUpdateWithWhereUniqueWithoutArtImageInput = {
+  where: Prisma.MonsterWhereUniqueInput
+  data: Prisma.XOR<Prisma.MonsterUpdateWithoutArtImageInput, Prisma.MonsterUncheckedUpdateWithoutArtImageInput>
 }
 
-export type CreatureUpdateManyWithWhereWithoutArtImageInput = {
-  where: Prisma.CreatureScalarWhereInput
-  data: Prisma.XOR<Prisma.CreatureUpdateManyMutationInput, Prisma.CreatureUncheckedUpdateManyWithoutArtImageInput>
+export type MonsterUpdateManyWithWhereWithoutArtImageInput = {
+  where: Prisma.MonsterScalarWhereInput
+  data: Prisma.XOR<Prisma.MonsterUpdateManyMutationInput, Prisma.MonsterUncheckedUpdateManyWithoutArtImageInput>
 }
 
-export type CreatureScalarWhereInput = {
-  AND?: Prisma.CreatureScalarWhereInput | Prisma.CreatureScalarWhereInput[]
-  OR?: Prisma.CreatureScalarWhereInput[]
-  NOT?: Prisma.CreatureScalarWhereInput | Prisma.CreatureScalarWhereInput[]
-  id?: Prisma.IntFilter<"Creature"> | number
-  createdAt?: Prisma.DateTimeFilter<"Creature"> | Date | string
-  updatedAt?: Prisma.DateTimeNullableFilter<"Creature"> | Date | string | null
-  slug?: Prisma.StringFilter<"Creature"> | string
-  name?: Prisma.StringFilter<"Creature"> | string
-  species?: Prisma.StringNullableFilter<"Creature"> | string | null
-  class?: Prisma.StringNullableFilter<"Creature"> | string | null
-  fieldNote?: Prisma.StringNullableFilter<"Creature"> | string | null
-  quirks?: Prisma.StringNullableFilter<"Creature"> | string | null
-  alignment?: Prisma.StringNullableFilter<"Creature"> | string | null
-  tier?: Prisma.EnumRarityFilter<"Creature"> | $Enums.Rarity
-  charm?: Prisma.EnumRarityFilter<"Creature"> | $Enums.Rarity
-  empathy?: Prisma.EnumRarityFilter<"Creature"> | $Enums.Rarity
-  grace?: Prisma.EnumRarityFilter<"Creature"> | $Enums.Rarity
-  luck?: Prisma.EnumRarityFilter<"Creature"> | $Enums.Rarity
-  might?: Prisma.EnumRarityFilter<"Creature"> | $Enums.Rarity
-  wits?: Prisma.EnumRarityFilter<"Creature"> | $Enums.Rarity
-  size?: Prisma.IntFilter<"Creature"> | number
-  yieldPerTick?: Prisma.IntNullableFilter<"Creature"> | number | null
-  tickIntervalSeconds?: Prisma.IntNullableFilter<"Creature"> | number | null
-  unlockCost?: Prisma.IntNullableFilter<"Creature"> | number | null
-  behavior?: Prisma.StringNullableFilter<"Creature"> | string | null
-  hue?: Prisma.IntNullableFilter<"Creature"> | number | null
-  games?: Prisma.StringNullableFilter<"Creature"> | string | null
-  artPrompt?: Prisma.StringNullableFilter<"Creature"> | string | null
-  evolutionKind?: Prisma.EnumEvolutionKindNullableFilter<"Creature"> | $Enums.EvolutionKind | null
-  evolvesToId?: Prisma.IntNullableFilter<"Creature"> | number | null
-  icon?: Prisma.StringNullableFilter<"Creature"> | string | null
-  iconPath?: Prisma.StringNullableFilter<"Creature"> | string | null
-  imagePath?: Prisma.StringNullableFilter<"Creature"> | string | null
-  cardPath?: Prisma.StringNullableFilter<"Creature"> | string | null
-  heroPath?: Prisma.StringNullableFilter<"Creature"> | string | null
-  artImageId?: Prisma.IntNullableFilter<"Creature"> | number | null
-  cardArtImageId?: Prisma.IntNullableFilter<"Creature"> | number | null
-  heroArtImageId?: Prisma.IntNullableFilter<"Creature"> | number | null
-  iconArtImageId?: Prisma.IntNullableFilter<"Creature"> | number | null
-  isPublic?: Prisma.BoolFilter<"Creature"> | boolean
-  isActive?: Prisma.BoolFilter<"Creature"> | boolean
-  isMature?: Prisma.BoolFilter<"Creature"> | boolean
-  allowReviews?: Prisma.BoolFilter<"Creature"> | boolean
-  userId?: Prisma.IntNullableFilter<"Creature"> | number | null
-  packId?: Prisma.IntNullableFilter<"Creature"> | number | null
+export type MonsterScalarWhereInput = {
+  AND?: Prisma.MonsterScalarWhereInput | Prisma.MonsterScalarWhereInput[]
+  OR?: Prisma.MonsterScalarWhereInput[]
+  NOT?: Prisma.MonsterScalarWhereInput | Prisma.MonsterScalarWhereInput[]
+  id?: Prisma.IntFilter<"Monster"> | number
+  createdAt?: Prisma.DateTimeFilter<"Monster"> | Date | string
+  updatedAt?: Prisma.DateTimeNullableFilter<"Monster"> | Date | string | null
+  slug?: Prisma.StringFilter<"Monster"> | string
+  name?: Prisma.StringFilter<"Monster"> | string
+  species?: Prisma.StringNullableFilter<"Monster"> | string | null
+  class?: Prisma.StringNullableFilter<"Monster"> | string | null
+  fieldNote?: Prisma.StringNullableFilter<"Monster"> | string | null
+  quirks?: Prisma.StringNullableFilter<"Monster"> | string | null
+  alignment?: Prisma.StringNullableFilter<"Monster"> | string | null
+  tier?: Prisma.EnumRarityFilter<"Monster"> | $Enums.Rarity
+  charm?: Prisma.EnumRarityFilter<"Monster"> | $Enums.Rarity
+  empathy?: Prisma.EnumRarityFilter<"Monster"> | $Enums.Rarity
+  grace?: Prisma.EnumRarityFilter<"Monster"> | $Enums.Rarity
+  luck?: Prisma.EnumRarityFilter<"Monster"> | $Enums.Rarity
+  might?: Prisma.EnumRarityFilter<"Monster"> | $Enums.Rarity
+  wits?: Prisma.EnumRarityFilter<"Monster"> | $Enums.Rarity
+  size?: Prisma.IntFilter<"Monster"> | number
+  yieldPerTick?: Prisma.IntNullableFilter<"Monster"> | number | null
+  tickIntervalSeconds?: Prisma.IntNullableFilter<"Monster"> | number | null
+  unlockCost?: Prisma.IntNullableFilter<"Monster"> | number | null
+  behavior?: Prisma.StringNullableFilter<"Monster"> | string | null
+  hue?: Prisma.IntNullableFilter<"Monster"> | number | null
+  games?: Prisma.StringNullableFilter<"Monster"> | string | null
+  artPrompt?: Prisma.StringNullableFilter<"Monster"> | string | null
+  evolutionKind?: Prisma.EnumEvolutionKindNullableFilter<"Monster"> | $Enums.EvolutionKind | null
+  evolvesToId?: Prisma.IntNullableFilter<"Monster"> | number | null
+  icon?: Prisma.StringNullableFilter<"Monster"> | string | null
+  iconPath?: Prisma.StringNullableFilter<"Monster"> | string | null
+  imagePath?: Prisma.StringNullableFilter<"Monster"> | string | null
+  cardPath?: Prisma.StringNullableFilter<"Monster"> | string | null
+  heroPath?: Prisma.StringNullableFilter<"Monster"> | string | null
+  artImageId?: Prisma.IntNullableFilter<"Monster"> | number | null
+  cardArtImageId?: Prisma.IntNullableFilter<"Monster"> | number | null
+  heroArtImageId?: Prisma.IntNullableFilter<"Monster"> | number | null
+  iconArtImageId?: Prisma.IntNullableFilter<"Monster"> | number | null
+  isPublic?: Prisma.BoolFilter<"Monster"> | boolean
+  isActive?: Prisma.BoolFilter<"Monster"> | boolean
+  isMature?: Prisma.BoolFilter<"Monster"> | boolean
+  allowReviews?: Prisma.BoolFilter<"Monster"> | boolean
+  userId?: Prisma.IntNullableFilter<"Monster"> | number | null
+  packId?: Prisma.IntNullableFilter<"Monster"> | number | null
 }
 
-export type CreatureCreateWithoutPackInput = {
+export type MonsterCreateWithoutPackInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   slug: string
@@ -1679,13 +1679,13 @@ export type CreatureCreateWithoutPackInput = {
   isActive?: boolean
   isMature?: boolean
   allowReviews?: boolean
-  EvolvesTo?: Prisma.CreatureCreateNestedOneWithoutEvolvesFromInput
-  EvolvesFrom?: Prisma.CreatureCreateNestedManyWithoutEvolvesToInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCreaturesInput
-  User?: Prisma.UserCreateNestedOneWithoutCreaturesInput
+  EvolvesTo?: Prisma.MonsterCreateNestedOneWithoutEvolvesFromInput
+  EvolvesFrom?: Prisma.MonsterCreateNestedManyWithoutEvolvesToInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutMonstersInput
+  User?: Prisma.UserCreateNestedOneWithoutMonstersInput
 }
 
-export type CreatureUncheckedCreateWithoutPackInput = {
+export type MonsterUncheckedCreateWithoutPackInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -1727,36 +1727,36 @@ export type CreatureUncheckedCreateWithoutPackInput = {
   isMature?: boolean
   allowReviews?: boolean
   userId?: number | null
-  EvolvesFrom?: Prisma.CreatureUncheckedCreateNestedManyWithoutEvolvesToInput
+  EvolvesFrom?: Prisma.MonsterUncheckedCreateNestedManyWithoutEvolvesToInput
 }
 
-export type CreatureCreateOrConnectWithoutPackInput = {
-  where: Prisma.CreatureWhereUniqueInput
-  create: Prisma.XOR<Prisma.CreatureCreateWithoutPackInput, Prisma.CreatureUncheckedCreateWithoutPackInput>
+export type MonsterCreateOrConnectWithoutPackInput = {
+  where: Prisma.MonsterWhereUniqueInput
+  create: Prisma.XOR<Prisma.MonsterCreateWithoutPackInput, Prisma.MonsterUncheckedCreateWithoutPackInput>
 }
 
-export type CreatureCreateManyPackInputEnvelope = {
-  data: Prisma.CreatureCreateManyPackInput | Prisma.CreatureCreateManyPackInput[]
+export type MonsterCreateManyPackInputEnvelope = {
+  data: Prisma.MonsterCreateManyPackInput | Prisma.MonsterCreateManyPackInput[]
   skipDuplicates?: boolean
 }
 
-export type CreatureUpsertWithWhereUniqueWithoutPackInput = {
-  where: Prisma.CreatureWhereUniqueInput
-  update: Prisma.XOR<Prisma.CreatureUpdateWithoutPackInput, Prisma.CreatureUncheckedUpdateWithoutPackInput>
-  create: Prisma.XOR<Prisma.CreatureCreateWithoutPackInput, Prisma.CreatureUncheckedCreateWithoutPackInput>
+export type MonsterUpsertWithWhereUniqueWithoutPackInput = {
+  where: Prisma.MonsterWhereUniqueInput
+  update: Prisma.XOR<Prisma.MonsterUpdateWithoutPackInput, Prisma.MonsterUncheckedUpdateWithoutPackInput>
+  create: Prisma.XOR<Prisma.MonsterCreateWithoutPackInput, Prisma.MonsterUncheckedCreateWithoutPackInput>
 }
 
-export type CreatureUpdateWithWhereUniqueWithoutPackInput = {
-  where: Prisma.CreatureWhereUniqueInput
-  data: Prisma.XOR<Prisma.CreatureUpdateWithoutPackInput, Prisma.CreatureUncheckedUpdateWithoutPackInput>
+export type MonsterUpdateWithWhereUniqueWithoutPackInput = {
+  where: Prisma.MonsterWhereUniqueInput
+  data: Prisma.XOR<Prisma.MonsterUpdateWithoutPackInput, Prisma.MonsterUncheckedUpdateWithoutPackInput>
 }
 
-export type CreatureUpdateManyWithWhereWithoutPackInput = {
-  where: Prisma.CreatureScalarWhereInput
-  data: Prisma.XOR<Prisma.CreatureUpdateManyMutationInput, Prisma.CreatureUncheckedUpdateManyWithoutPackInput>
+export type MonsterUpdateManyWithWhereWithoutPackInput = {
+  where: Prisma.MonsterScalarWhereInput
+  data: Prisma.XOR<Prisma.MonsterUpdateManyMutationInput, Prisma.MonsterUncheckedUpdateManyWithoutPackInput>
 }
 
-export type CreatureCreateWithoutUserInput = {
+export type MonsterCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   slug: string
@@ -1794,13 +1794,13 @@ export type CreatureCreateWithoutUserInput = {
   isActive?: boolean
   isMature?: boolean
   allowReviews?: boolean
-  EvolvesTo?: Prisma.CreatureCreateNestedOneWithoutEvolvesFromInput
-  EvolvesFrom?: Prisma.CreatureCreateNestedManyWithoutEvolvesToInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCreaturesInput
-  Pack?: Prisma.PackCreateNestedOneWithoutCreaturesInput
+  EvolvesTo?: Prisma.MonsterCreateNestedOneWithoutEvolvesFromInput
+  EvolvesFrom?: Prisma.MonsterCreateNestedManyWithoutEvolvesToInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutMonstersInput
+  Pack?: Prisma.PackCreateNestedOneWithoutMonstersInput
 }
 
-export type CreatureUncheckedCreateWithoutUserInput = {
+export type MonsterUncheckedCreateWithoutUserInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -1842,36 +1842,36 @@ export type CreatureUncheckedCreateWithoutUserInput = {
   isMature?: boolean
   allowReviews?: boolean
   packId?: number | null
-  EvolvesFrom?: Prisma.CreatureUncheckedCreateNestedManyWithoutEvolvesToInput
+  EvolvesFrom?: Prisma.MonsterUncheckedCreateNestedManyWithoutEvolvesToInput
 }
 
-export type CreatureCreateOrConnectWithoutUserInput = {
-  where: Prisma.CreatureWhereUniqueInput
-  create: Prisma.XOR<Prisma.CreatureCreateWithoutUserInput, Prisma.CreatureUncheckedCreateWithoutUserInput>
+export type MonsterCreateOrConnectWithoutUserInput = {
+  where: Prisma.MonsterWhereUniqueInput
+  create: Prisma.XOR<Prisma.MonsterCreateWithoutUserInput, Prisma.MonsterUncheckedCreateWithoutUserInput>
 }
 
-export type CreatureCreateManyUserInputEnvelope = {
-  data: Prisma.CreatureCreateManyUserInput | Prisma.CreatureCreateManyUserInput[]
+export type MonsterCreateManyUserInputEnvelope = {
+  data: Prisma.MonsterCreateManyUserInput | Prisma.MonsterCreateManyUserInput[]
   skipDuplicates?: boolean
 }
 
-export type CreatureUpsertWithWhereUniqueWithoutUserInput = {
-  where: Prisma.CreatureWhereUniqueInput
-  update: Prisma.XOR<Prisma.CreatureUpdateWithoutUserInput, Prisma.CreatureUncheckedUpdateWithoutUserInput>
-  create: Prisma.XOR<Prisma.CreatureCreateWithoutUserInput, Prisma.CreatureUncheckedCreateWithoutUserInput>
+export type MonsterUpsertWithWhereUniqueWithoutUserInput = {
+  where: Prisma.MonsterWhereUniqueInput
+  update: Prisma.XOR<Prisma.MonsterUpdateWithoutUserInput, Prisma.MonsterUncheckedUpdateWithoutUserInput>
+  create: Prisma.XOR<Prisma.MonsterCreateWithoutUserInput, Prisma.MonsterUncheckedCreateWithoutUserInput>
 }
 
-export type CreatureUpdateWithWhereUniqueWithoutUserInput = {
-  where: Prisma.CreatureWhereUniqueInput
-  data: Prisma.XOR<Prisma.CreatureUpdateWithoutUserInput, Prisma.CreatureUncheckedUpdateWithoutUserInput>
+export type MonsterUpdateWithWhereUniqueWithoutUserInput = {
+  where: Prisma.MonsterWhereUniqueInput
+  data: Prisma.XOR<Prisma.MonsterUpdateWithoutUserInput, Prisma.MonsterUncheckedUpdateWithoutUserInput>
 }
 
-export type CreatureUpdateManyWithWhereWithoutUserInput = {
-  where: Prisma.CreatureScalarWhereInput
-  data: Prisma.XOR<Prisma.CreatureUpdateManyMutationInput, Prisma.CreatureUncheckedUpdateManyWithoutUserInput>
+export type MonsterUpdateManyWithWhereWithoutUserInput = {
+  where: Prisma.MonsterScalarWhereInput
+  data: Prisma.XOR<Prisma.MonsterUpdateManyMutationInput, Prisma.MonsterUncheckedUpdateManyWithoutUserInput>
 }
 
-export type CreatureCreateWithoutEvolvesFromInput = {
+export type MonsterCreateWithoutEvolvesFromInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   slug: string
@@ -1909,13 +1909,13 @@ export type CreatureCreateWithoutEvolvesFromInput = {
   isActive?: boolean
   isMature?: boolean
   allowReviews?: boolean
-  EvolvesTo?: Prisma.CreatureCreateNestedOneWithoutEvolvesFromInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCreaturesInput
-  User?: Prisma.UserCreateNestedOneWithoutCreaturesInput
-  Pack?: Prisma.PackCreateNestedOneWithoutCreaturesInput
+  EvolvesTo?: Prisma.MonsterCreateNestedOneWithoutEvolvesFromInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutMonstersInput
+  User?: Prisma.UserCreateNestedOneWithoutMonstersInput
+  Pack?: Prisma.PackCreateNestedOneWithoutMonstersInput
 }
 
-export type CreatureUncheckedCreateWithoutEvolvesFromInput = {
+export type MonsterUncheckedCreateWithoutEvolvesFromInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -1960,12 +1960,12 @@ export type CreatureUncheckedCreateWithoutEvolvesFromInput = {
   packId?: number | null
 }
 
-export type CreatureCreateOrConnectWithoutEvolvesFromInput = {
-  where: Prisma.CreatureWhereUniqueInput
-  create: Prisma.XOR<Prisma.CreatureCreateWithoutEvolvesFromInput, Prisma.CreatureUncheckedCreateWithoutEvolvesFromInput>
+export type MonsterCreateOrConnectWithoutEvolvesFromInput = {
+  where: Prisma.MonsterWhereUniqueInput
+  create: Prisma.XOR<Prisma.MonsterCreateWithoutEvolvesFromInput, Prisma.MonsterUncheckedCreateWithoutEvolvesFromInput>
 }
 
-export type CreatureCreateWithoutEvolvesToInput = {
+export type MonsterCreateWithoutEvolvesToInput = {
   createdAt?: Date | string
   updatedAt?: Date | string | null
   slug: string
@@ -2003,13 +2003,13 @@ export type CreatureCreateWithoutEvolvesToInput = {
   isActive?: boolean
   isMature?: boolean
   allowReviews?: boolean
-  EvolvesFrom?: Prisma.CreatureCreateNestedManyWithoutEvolvesToInput
-  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCreaturesInput
-  User?: Prisma.UserCreateNestedOneWithoutCreaturesInput
-  Pack?: Prisma.PackCreateNestedOneWithoutCreaturesInput
+  EvolvesFrom?: Prisma.MonsterCreateNestedManyWithoutEvolvesToInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutMonstersInput
+  User?: Prisma.UserCreateNestedOneWithoutMonstersInput
+  Pack?: Prisma.PackCreateNestedOneWithoutMonstersInput
 }
 
-export type CreatureUncheckedCreateWithoutEvolvesToInput = {
+export type MonsterUncheckedCreateWithoutEvolvesToInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -2051,31 +2051,31 @@ export type CreatureUncheckedCreateWithoutEvolvesToInput = {
   allowReviews?: boolean
   userId?: number | null
   packId?: number | null
-  EvolvesFrom?: Prisma.CreatureUncheckedCreateNestedManyWithoutEvolvesToInput
+  EvolvesFrom?: Prisma.MonsterUncheckedCreateNestedManyWithoutEvolvesToInput
 }
 
-export type CreatureCreateOrConnectWithoutEvolvesToInput = {
-  where: Prisma.CreatureWhereUniqueInput
-  create: Prisma.XOR<Prisma.CreatureCreateWithoutEvolvesToInput, Prisma.CreatureUncheckedCreateWithoutEvolvesToInput>
+export type MonsterCreateOrConnectWithoutEvolvesToInput = {
+  where: Prisma.MonsterWhereUniqueInput
+  create: Prisma.XOR<Prisma.MonsterCreateWithoutEvolvesToInput, Prisma.MonsterUncheckedCreateWithoutEvolvesToInput>
 }
 
-export type CreatureCreateManyEvolvesToInputEnvelope = {
-  data: Prisma.CreatureCreateManyEvolvesToInput | Prisma.CreatureCreateManyEvolvesToInput[]
+export type MonsterCreateManyEvolvesToInputEnvelope = {
+  data: Prisma.MonsterCreateManyEvolvesToInput | Prisma.MonsterCreateManyEvolvesToInput[]
   skipDuplicates?: boolean
 }
 
-export type CreatureUpsertWithoutEvolvesFromInput = {
-  update: Prisma.XOR<Prisma.CreatureUpdateWithoutEvolvesFromInput, Prisma.CreatureUncheckedUpdateWithoutEvolvesFromInput>
-  create: Prisma.XOR<Prisma.CreatureCreateWithoutEvolvesFromInput, Prisma.CreatureUncheckedCreateWithoutEvolvesFromInput>
-  where?: Prisma.CreatureWhereInput
+export type MonsterUpsertWithoutEvolvesFromInput = {
+  update: Prisma.XOR<Prisma.MonsterUpdateWithoutEvolvesFromInput, Prisma.MonsterUncheckedUpdateWithoutEvolvesFromInput>
+  create: Prisma.XOR<Prisma.MonsterCreateWithoutEvolvesFromInput, Prisma.MonsterUncheckedCreateWithoutEvolvesFromInput>
+  where?: Prisma.MonsterWhereInput
 }
 
-export type CreatureUpdateToOneWithWhereWithoutEvolvesFromInput = {
-  where?: Prisma.CreatureWhereInput
-  data: Prisma.XOR<Prisma.CreatureUpdateWithoutEvolvesFromInput, Prisma.CreatureUncheckedUpdateWithoutEvolvesFromInput>
+export type MonsterUpdateToOneWithWhereWithoutEvolvesFromInput = {
+  where?: Prisma.MonsterWhereInput
+  data: Prisma.XOR<Prisma.MonsterUpdateWithoutEvolvesFromInput, Prisma.MonsterUncheckedUpdateWithoutEvolvesFromInput>
 }
 
-export type CreatureUpdateWithoutEvolvesFromInput = {
+export type MonsterUpdateWithoutEvolvesFromInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2113,13 +2113,13 @@ export type CreatureUpdateWithoutEvolvesFromInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  EvolvesTo?: Prisma.CreatureUpdateOneWithoutEvolvesFromNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutCreaturesNestedInput
-  User?: Prisma.UserUpdateOneWithoutCreaturesNestedInput
-  Pack?: Prisma.PackUpdateOneWithoutCreaturesNestedInput
+  EvolvesTo?: Prisma.MonsterUpdateOneWithoutEvolvesFromNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutMonstersNestedInput
+  User?: Prisma.UserUpdateOneWithoutMonstersNestedInput
+  Pack?: Prisma.PackUpdateOneWithoutMonstersNestedInput
 }
 
-export type CreatureUncheckedUpdateWithoutEvolvesFromInput = {
+export type MonsterUncheckedUpdateWithoutEvolvesFromInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2164,23 +2164,23 @@ export type CreatureUncheckedUpdateWithoutEvolvesFromInput = {
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
-export type CreatureUpsertWithWhereUniqueWithoutEvolvesToInput = {
-  where: Prisma.CreatureWhereUniqueInput
-  update: Prisma.XOR<Prisma.CreatureUpdateWithoutEvolvesToInput, Prisma.CreatureUncheckedUpdateWithoutEvolvesToInput>
-  create: Prisma.XOR<Prisma.CreatureCreateWithoutEvolvesToInput, Prisma.CreatureUncheckedCreateWithoutEvolvesToInput>
+export type MonsterUpsertWithWhereUniqueWithoutEvolvesToInput = {
+  where: Prisma.MonsterWhereUniqueInput
+  update: Prisma.XOR<Prisma.MonsterUpdateWithoutEvolvesToInput, Prisma.MonsterUncheckedUpdateWithoutEvolvesToInput>
+  create: Prisma.XOR<Prisma.MonsterCreateWithoutEvolvesToInput, Prisma.MonsterUncheckedCreateWithoutEvolvesToInput>
 }
 
-export type CreatureUpdateWithWhereUniqueWithoutEvolvesToInput = {
-  where: Prisma.CreatureWhereUniqueInput
-  data: Prisma.XOR<Prisma.CreatureUpdateWithoutEvolvesToInput, Prisma.CreatureUncheckedUpdateWithoutEvolvesToInput>
+export type MonsterUpdateWithWhereUniqueWithoutEvolvesToInput = {
+  where: Prisma.MonsterWhereUniqueInput
+  data: Prisma.XOR<Prisma.MonsterUpdateWithoutEvolvesToInput, Prisma.MonsterUncheckedUpdateWithoutEvolvesToInput>
 }
 
-export type CreatureUpdateManyWithWhereWithoutEvolvesToInput = {
-  where: Prisma.CreatureScalarWhereInput
-  data: Prisma.XOR<Prisma.CreatureUpdateManyMutationInput, Prisma.CreatureUncheckedUpdateManyWithoutEvolvesToInput>
+export type MonsterUpdateManyWithWhereWithoutEvolvesToInput = {
+  where: Prisma.MonsterScalarWhereInput
+  data: Prisma.XOR<Prisma.MonsterUpdateManyMutationInput, Prisma.MonsterUncheckedUpdateManyWithoutEvolvesToInput>
 }
 
-export type CreatureCreateManyArtImageInput = {
+export type MonsterCreateManyArtImageInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -2224,7 +2224,7 @@ export type CreatureCreateManyArtImageInput = {
   packId?: number | null
 }
 
-export type CreatureUpdateWithoutArtImageInput = {
+export type MonsterUpdateWithoutArtImageInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2262,13 +2262,13 @@ export type CreatureUpdateWithoutArtImageInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  EvolvesTo?: Prisma.CreatureUpdateOneWithoutEvolvesFromNestedInput
-  EvolvesFrom?: Prisma.CreatureUpdateManyWithoutEvolvesToNestedInput
-  User?: Prisma.UserUpdateOneWithoutCreaturesNestedInput
-  Pack?: Prisma.PackUpdateOneWithoutCreaturesNestedInput
+  EvolvesTo?: Prisma.MonsterUpdateOneWithoutEvolvesFromNestedInput
+  EvolvesFrom?: Prisma.MonsterUpdateManyWithoutEvolvesToNestedInput
+  User?: Prisma.UserUpdateOneWithoutMonstersNestedInput
+  Pack?: Prisma.PackUpdateOneWithoutMonstersNestedInput
 }
 
-export type CreatureUncheckedUpdateWithoutArtImageInput = {
+export type MonsterUncheckedUpdateWithoutArtImageInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2310,10 +2310,10 @@ export type CreatureUncheckedUpdateWithoutArtImageInput = {
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  EvolvesFrom?: Prisma.CreatureUncheckedUpdateManyWithoutEvolvesToNestedInput
+  EvolvesFrom?: Prisma.MonsterUncheckedUpdateManyWithoutEvolvesToNestedInput
 }
 
-export type CreatureUncheckedUpdateManyWithoutArtImageInput = {
+export type MonsterUncheckedUpdateManyWithoutArtImageInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2357,7 +2357,7 @@ export type CreatureUncheckedUpdateManyWithoutArtImageInput = {
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
-export type CreatureCreateManyPackInput = {
+export type MonsterCreateManyPackInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -2401,7 +2401,7 @@ export type CreatureCreateManyPackInput = {
   userId?: number | null
 }
 
-export type CreatureUpdateWithoutPackInput = {
+export type MonsterUpdateWithoutPackInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2439,13 +2439,13 @@ export type CreatureUpdateWithoutPackInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  EvolvesTo?: Prisma.CreatureUpdateOneWithoutEvolvesFromNestedInput
-  EvolvesFrom?: Prisma.CreatureUpdateManyWithoutEvolvesToNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutCreaturesNestedInput
-  User?: Prisma.UserUpdateOneWithoutCreaturesNestedInput
+  EvolvesTo?: Prisma.MonsterUpdateOneWithoutEvolvesFromNestedInput
+  EvolvesFrom?: Prisma.MonsterUpdateManyWithoutEvolvesToNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutMonstersNestedInput
+  User?: Prisma.UserUpdateOneWithoutMonstersNestedInput
 }
 
-export type CreatureUncheckedUpdateWithoutPackInput = {
+export type MonsterUncheckedUpdateWithoutPackInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2487,10 +2487,10 @@ export type CreatureUncheckedUpdateWithoutPackInput = {
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  EvolvesFrom?: Prisma.CreatureUncheckedUpdateManyWithoutEvolvesToNestedInput
+  EvolvesFrom?: Prisma.MonsterUncheckedUpdateManyWithoutEvolvesToNestedInput
 }
 
-export type CreatureUncheckedUpdateManyWithoutPackInput = {
+export type MonsterUncheckedUpdateManyWithoutPackInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2534,7 +2534,7 @@ export type CreatureUncheckedUpdateManyWithoutPackInput = {
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
-export type CreatureCreateManyUserInput = {
+export type MonsterCreateManyUserInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -2578,7 +2578,7 @@ export type CreatureCreateManyUserInput = {
   packId?: number | null
 }
 
-export type CreatureUpdateWithoutUserInput = {
+export type MonsterUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2616,13 +2616,13 @@ export type CreatureUpdateWithoutUserInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  EvolvesTo?: Prisma.CreatureUpdateOneWithoutEvolvesFromNestedInput
-  EvolvesFrom?: Prisma.CreatureUpdateManyWithoutEvolvesToNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutCreaturesNestedInput
-  Pack?: Prisma.PackUpdateOneWithoutCreaturesNestedInput
+  EvolvesTo?: Prisma.MonsterUpdateOneWithoutEvolvesFromNestedInput
+  EvolvesFrom?: Prisma.MonsterUpdateManyWithoutEvolvesToNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutMonstersNestedInput
+  Pack?: Prisma.PackUpdateOneWithoutMonstersNestedInput
 }
 
-export type CreatureUncheckedUpdateWithoutUserInput = {
+export type MonsterUncheckedUpdateWithoutUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2664,10 +2664,10 @@ export type CreatureUncheckedUpdateWithoutUserInput = {
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  EvolvesFrom?: Prisma.CreatureUncheckedUpdateManyWithoutEvolvesToNestedInput
+  EvolvesFrom?: Prisma.MonsterUncheckedUpdateManyWithoutEvolvesToNestedInput
 }
 
-export type CreatureUncheckedUpdateManyWithoutUserInput = {
+export type MonsterUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2711,7 +2711,7 @@ export type CreatureUncheckedUpdateManyWithoutUserInput = {
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
-export type CreatureCreateManyEvolvesToInput = {
+export type MonsterCreateManyEvolvesToInput = {
   id?: number
   createdAt?: Date | string
   updatedAt?: Date | string | null
@@ -2755,7 +2755,7 @@ export type CreatureCreateManyEvolvesToInput = {
   packId?: number | null
 }
 
-export type CreatureUpdateWithoutEvolvesToInput = {
+export type MonsterUpdateWithoutEvolvesToInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2793,13 +2793,13 @@ export type CreatureUpdateWithoutEvolvesToInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  EvolvesFrom?: Prisma.CreatureUpdateManyWithoutEvolvesToNestedInput
-  ArtImage?: Prisma.ArtImageUpdateOneWithoutCreaturesNestedInput
-  User?: Prisma.UserUpdateOneWithoutCreaturesNestedInput
-  Pack?: Prisma.PackUpdateOneWithoutCreaturesNestedInput
+  EvolvesFrom?: Prisma.MonsterUpdateManyWithoutEvolvesToNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutMonstersNestedInput
+  User?: Prisma.UserUpdateOneWithoutMonstersNestedInput
+  Pack?: Prisma.PackUpdateOneWithoutMonstersNestedInput
 }
 
-export type CreatureUncheckedUpdateWithoutEvolvesToInput = {
+export type MonsterUncheckedUpdateWithoutEvolvesToInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2841,10 +2841,10 @@ export type CreatureUncheckedUpdateWithoutEvolvesToInput = {
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  EvolvesFrom?: Prisma.CreatureUncheckedUpdateManyWithoutEvolvesToNestedInput
+  EvolvesFrom?: Prisma.MonsterUncheckedUpdateManyWithoutEvolvesToNestedInput
 }
 
-export type CreatureUncheckedUpdateManyWithoutEvolvesToInput = {
+export type MonsterUncheckedUpdateManyWithoutEvolvesToInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2890,36 +2890,36 @@ export type CreatureUncheckedUpdateManyWithoutEvolvesToInput = {
 
 
 /**
- * Count Type CreatureCountOutputType
+ * Count Type MonsterCountOutputType
  */
 
-export type CreatureCountOutputType = {
+export type MonsterCountOutputType = {
   EvolvesFrom: number
 }
 
-export type CreatureCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  EvolvesFrom?: boolean | CreatureCountOutputTypeCountEvolvesFromArgs
+export type MonsterCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  EvolvesFrom?: boolean | MonsterCountOutputTypeCountEvolvesFromArgs
 }
 
 /**
- * CreatureCountOutputType without action
+ * MonsterCountOutputType without action
  */
-export type CreatureCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type MonsterCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the CreatureCountOutputType
+   * Select specific fields to fetch from the MonsterCountOutputType
    */
-  select?: Prisma.CreatureCountOutputTypeSelect<ExtArgs> | null
+  select?: Prisma.MonsterCountOutputTypeSelect<ExtArgs> | null
 }
 
 /**
- * CreatureCountOutputType without action
+ * MonsterCountOutputType without action
  */
-export type CreatureCountOutputTypeCountEvolvesFromArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.CreatureWhereInput
+export type MonsterCountOutputTypeCountEvolvesFromArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MonsterWhereInput
 }
 
 
-export type CreatureSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+export type MonsterSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -2962,17 +2962,17 @@ export type CreatureSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   allowReviews?: boolean
   userId?: boolean
   packId?: boolean
-  EvolvesTo?: boolean | Prisma.Creature$EvolvesToArgs<ExtArgs>
-  EvolvesFrom?: boolean | Prisma.Creature$EvolvesFromArgs<ExtArgs>
-  ArtImage?: boolean | Prisma.Creature$ArtImageArgs<ExtArgs>
-  User?: boolean | Prisma.Creature$UserArgs<ExtArgs>
-  Pack?: boolean | Prisma.Creature$PackArgs<ExtArgs>
-  _count?: boolean | Prisma.CreatureCountOutputTypeDefaultArgs<ExtArgs>
-}, ExtArgs["result"]["creature"]>
+  EvolvesTo?: boolean | Prisma.Monster$EvolvesToArgs<ExtArgs>
+  EvolvesFrom?: boolean | Prisma.Monster$EvolvesFromArgs<ExtArgs>
+  ArtImage?: boolean | Prisma.Monster$ArtImageArgs<ExtArgs>
+  User?: boolean | Prisma.Monster$UserArgs<ExtArgs>
+  Pack?: boolean | Prisma.Monster$PackArgs<ExtArgs>
+  _count?: boolean | Prisma.MonsterCountOutputTypeDefaultArgs<ExtArgs>
+}, ExtArgs["result"]["monster"]>
 
 
 
-export type CreatureSelectScalar = {
+export type MonsterSelectScalar = {
   id?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -3017,21 +3017,21 @@ export type CreatureSelectScalar = {
   packId?: boolean
 }
 
-export type CreatureOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "slug" | "name" | "species" | "class" | "fieldNote" | "quirks" | "alignment" | "tier" | "charm" | "empathy" | "grace" | "luck" | "might" | "wits" | "size" | "yieldPerTick" | "tickIntervalSeconds" | "unlockCost" | "behavior" | "hue" | "games" | "artPrompt" | "evolutionKind" | "evolvesToId" | "icon" | "iconPath" | "imagePath" | "cardPath" | "heroPath" | "artImageId" | "cardArtImageId" | "heroArtImageId" | "iconArtImageId" | "isPublic" | "isActive" | "isMature" | "allowReviews" | "userId" | "packId", ExtArgs["result"]["creature"]>
-export type CreatureInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  EvolvesTo?: boolean | Prisma.Creature$EvolvesToArgs<ExtArgs>
-  EvolvesFrom?: boolean | Prisma.Creature$EvolvesFromArgs<ExtArgs>
-  ArtImage?: boolean | Prisma.Creature$ArtImageArgs<ExtArgs>
-  User?: boolean | Prisma.Creature$UserArgs<ExtArgs>
-  Pack?: boolean | Prisma.Creature$PackArgs<ExtArgs>
-  _count?: boolean | Prisma.CreatureCountOutputTypeDefaultArgs<ExtArgs>
+export type MonsterOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "slug" | "name" | "species" | "class" | "fieldNote" | "quirks" | "alignment" | "tier" | "charm" | "empathy" | "grace" | "luck" | "might" | "wits" | "size" | "yieldPerTick" | "tickIntervalSeconds" | "unlockCost" | "behavior" | "hue" | "games" | "artPrompt" | "evolutionKind" | "evolvesToId" | "icon" | "iconPath" | "imagePath" | "cardPath" | "heroPath" | "artImageId" | "cardArtImageId" | "heroArtImageId" | "iconArtImageId" | "isPublic" | "isActive" | "isMature" | "allowReviews" | "userId" | "packId", ExtArgs["result"]["monster"]>
+export type MonsterInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  EvolvesTo?: boolean | Prisma.Monster$EvolvesToArgs<ExtArgs>
+  EvolvesFrom?: boolean | Prisma.Monster$EvolvesFromArgs<ExtArgs>
+  ArtImage?: boolean | Prisma.Monster$ArtImageArgs<ExtArgs>
+  User?: boolean | Prisma.Monster$UserArgs<ExtArgs>
+  Pack?: boolean | Prisma.Monster$PackArgs<ExtArgs>
+  _count?: boolean | Prisma.MonsterCountOutputTypeDefaultArgs<ExtArgs>
 }
 
-export type $CreaturePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  name: "Creature"
+export type $MonsterPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  name: "Monster"
   objects: {
-    EvolvesTo: Prisma.$CreaturePayload<ExtArgs> | null
-    EvolvesFrom: Prisma.$CreaturePayload<ExtArgs>[]
+    EvolvesTo: Prisma.$MonsterPayload<ExtArgs> | null
+    EvolvesFrom: Prisma.$MonsterPayload<ExtArgs>[]
     ArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
     User: Prisma.$UserPayload<ExtArgs> | null
     Pack: Prisma.$PackPayload<ExtArgs> | null
@@ -3136,143 +3136,143 @@ export type $CreaturePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     allowReviews: boolean
     userId: number | null
     packId: number | null
-  }, ExtArgs["result"]["creature"]>
+  }, ExtArgs["result"]["monster"]>
   composites: {}
 }
 
-export type CreatureGetPayload<S extends boolean | null | undefined | CreatureDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$CreaturePayload, S>
+export type MonsterGetPayload<S extends boolean | null | undefined | MonsterDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$MonsterPayload, S>
 
-export type CreatureCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<CreatureFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-    select?: CreatureCountAggregateInputType | true
+export type MonsterCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
+  Omit<MonsterFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+    select?: MonsterCountAggregateInputType | true
   }
 
-export interface CreatureDelegate<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-  [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Creature'], meta: { name: 'Creature' } }
+export interface MonsterDelegate<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Monster'], meta: { name: 'Monster' } }
   /**
-   * Find zero or one Creature that matches the filter.
-   * @param {CreatureFindUniqueArgs} args - Arguments to find a Creature
+   * Find zero or one Monster that matches the filter.
+   * @param {MonsterFindUniqueArgs} args - Arguments to find a Monster
    * @example
-   * // Get one Creature
-   * const creature = await prisma.creature.findUnique({
+   * // Get one Monster
+   * const monster = await prisma.monster.findUnique({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findUnique<T extends CreatureFindUniqueArgs>(args: Prisma.SelectSubset<T, CreatureFindUniqueArgs<ExtArgs>>): Prisma.Prisma__CreatureClient<runtime.Types.Result.GetResult<Prisma.$CreaturePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  findUnique<T extends MonsterFindUniqueArgs>(args: Prisma.SelectSubset<T, MonsterFindUniqueArgs<ExtArgs>>): Prisma.Prisma__MonsterClient<runtime.Types.Result.GetResult<Prisma.$MonsterPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find one Creature that matches the filter or throw an error with `error.code='P2025'`
+   * Find one Monster that matches the filter or throw an error with `error.code='P2025'`
    * if no matches were found.
-   * @param {CreatureFindUniqueOrThrowArgs} args - Arguments to find a Creature
+   * @param {MonsterFindUniqueOrThrowArgs} args - Arguments to find a Monster
    * @example
-   * // Get one Creature
-   * const creature = await prisma.creature.findUniqueOrThrow({
+   * // Get one Monster
+   * const monster = await prisma.monster.findUniqueOrThrow({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findUniqueOrThrow<T extends CreatureFindUniqueOrThrowArgs>(args: Prisma.SelectSubset<T, CreatureFindUniqueOrThrowArgs<ExtArgs>>): Prisma.Prisma__CreatureClient<runtime.Types.Result.GetResult<Prisma.$CreaturePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  findUniqueOrThrow<T extends MonsterFindUniqueOrThrowArgs>(args: Prisma.SelectSubset<T, MonsterFindUniqueOrThrowArgs<ExtArgs>>): Prisma.Prisma__MonsterClient<runtime.Types.Result.GetResult<Prisma.$MonsterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find the first Creature that matches the filter.
+   * Find the first Monster that matches the filter.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {CreatureFindFirstArgs} args - Arguments to find a Creature
+   * @param {MonsterFindFirstArgs} args - Arguments to find a Monster
    * @example
-   * // Get one Creature
-   * const creature = await prisma.creature.findFirst({
+   * // Get one Monster
+   * const monster = await prisma.monster.findFirst({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findFirst<T extends CreatureFindFirstArgs>(args?: Prisma.SelectSubset<T, CreatureFindFirstArgs<ExtArgs>>): Prisma.Prisma__CreatureClient<runtime.Types.Result.GetResult<Prisma.$CreaturePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  findFirst<T extends MonsterFindFirstArgs>(args?: Prisma.SelectSubset<T, MonsterFindFirstArgs<ExtArgs>>): Prisma.Prisma__MonsterClient<runtime.Types.Result.GetResult<Prisma.$MonsterPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find the first Creature that matches the filter or
+   * Find the first Monster that matches the filter or
    * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {CreatureFindFirstOrThrowArgs} args - Arguments to find a Creature
+   * @param {MonsterFindFirstOrThrowArgs} args - Arguments to find a Monster
    * @example
-   * // Get one Creature
-   * const creature = await prisma.creature.findFirstOrThrow({
+   * // Get one Monster
+   * const monster = await prisma.monster.findFirstOrThrow({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findFirstOrThrow<T extends CreatureFindFirstOrThrowArgs>(args?: Prisma.SelectSubset<T, CreatureFindFirstOrThrowArgs<ExtArgs>>): Prisma.Prisma__CreatureClient<runtime.Types.Result.GetResult<Prisma.$CreaturePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  findFirstOrThrow<T extends MonsterFindFirstOrThrowArgs>(args?: Prisma.SelectSubset<T, MonsterFindFirstOrThrowArgs<ExtArgs>>): Prisma.Prisma__MonsterClient<runtime.Types.Result.GetResult<Prisma.$MonsterPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find zero or more Creatures that matches the filter.
+   * Find zero or more Monsters that matches the filter.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {CreatureFindManyArgs} args - Arguments to filter and select certain fields only.
+   * @param {MonsterFindManyArgs} args - Arguments to filter and select certain fields only.
    * @example
-   * // Get all Creatures
-   * const creatures = await prisma.creature.findMany()
+   * // Get all Monsters
+   * const monsters = await prisma.monster.findMany()
    * 
-   * // Get first 10 Creatures
-   * const creatures = await prisma.creature.findMany({ take: 10 })
+   * // Get first 10 Monsters
+   * const monsters = await prisma.monster.findMany({ take: 10 })
    * 
    * // Only select the `id`
-   * const creatureWithIdOnly = await prisma.creature.findMany({ select: { id: true } })
+   * const monsterWithIdOnly = await prisma.monster.findMany({ select: { id: true } })
    * 
    */
-  findMany<T extends CreatureFindManyArgs>(args?: Prisma.SelectSubset<T, CreatureFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CreaturePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+  findMany<T extends MonsterFindManyArgs>(args?: Prisma.SelectSubset<T, MonsterFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MonsterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
   /**
-   * Create a Creature.
-   * @param {CreatureCreateArgs} args - Arguments to create a Creature.
+   * Create a Monster.
+   * @param {MonsterCreateArgs} args - Arguments to create a Monster.
    * @example
-   * // Create one Creature
-   * const Creature = await prisma.creature.create({
+   * // Create one Monster
+   * const Monster = await prisma.monster.create({
    *   data: {
-   *     // ... data to create a Creature
+   *     // ... data to create a Monster
    *   }
    * })
    * 
    */
-  create<T extends CreatureCreateArgs>(args: Prisma.SelectSubset<T, CreatureCreateArgs<ExtArgs>>): Prisma.Prisma__CreatureClient<runtime.Types.Result.GetResult<Prisma.$CreaturePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  create<T extends MonsterCreateArgs>(args: Prisma.SelectSubset<T, MonsterCreateArgs<ExtArgs>>): Prisma.Prisma__MonsterClient<runtime.Types.Result.GetResult<Prisma.$MonsterPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Create many Creatures.
-   * @param {CreatureCreateManyArgs} args - Arguments to create many Creatures.
+   * Create many Monsters.
+   * @param {MonsterCreateManyArgs} args - Arguments to create many Monsters.
    * @example
-   * // Create many Creatures
-   * const creature = await prisma.creature.createMany({
+   * // Create many Monsters
+   * const monster = await prisma.monster.createMany({
    *   data: [
    *     // ... provide data here
    *   ]
    * })
    *     
    */
-  createMany<T extends CreatureCreateManyArgs>(args?: Prisma.SelectSubset<T, CreatureCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  createMany<T extends MonsterCreateManyArgs>(args?: Prisma.SelectSubset<T, MonsterCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
-   * Delete a Creature.
-   * @param {CreatureDeleteArgs} args - Arguments to delete one Creature.
+   * Delete a Monster.
+   * @param {MonsterDeleteArgs} args - Arguments to delete one Monster.
    * @example
-   * // Delete one Creature
-   * const Creature = await prisma.creature.delete({
+   * // Delete one Monster
+   * const Monster = await prisma.monster.delete({
    *   where: {
-   *     // ... filter to delete one Creature
+   *     // ... filter to delete one Monster
    *   }
    * })
    * 
    */
-  delete<T extends CreatureDeleteArgs>(args: Prisma.SelectSubset<T, CreatureDeleteArgs<ExtArgs>>): Prisma.Prisma__CreatureClient<runtime.Types.Result.GetResult<Prisma.$CreaturePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  delete<T extends MonsterDeleteArgs>(args: Prisma.SelectSubset<T, MonsterDeleteArgs<ExtArgs>>): Prisma.Prisma__MonsterClient<runtime.Types.Result.GetResult<Prisma.$MonsterPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Update one Creature.
-   * @param {CreatureUpdateArgs} args - Arguments to update one Creature.
+   * Update one Monster.
+   * @param {MonsterUpdateArgs} args - Arguments to update one Monster.
    * @example
-   * // Update one Creature
-   * const creature = await prisma.creature.update({
+   * // Update one Monster
+   * const monster = await prisma.monster.update({
    *   where: {
    *     // ... provide filter here
    *   },
@@ -3282,30 +3282,30 @@ export interface CreatureDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    * })
    * 
    */
-  update<T extends CreatureUpdateArgs>(args: Prisma.SelectSubset<T, CreatureUpdateArgs<ExtArgs>>): Prisma.Prisma__CreatureClient<runtime.Types.Result.GetResult<Prisma.$CreaturePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  update<T extends MonsterUpdateArgs>(args: Prisma.SelectSubset<T, MonsterUpdateArgs<ExtArgs>>): Prisma.Prisma__MonsterClient<runtime.Types.Result.GetResult<Prisma.$MonsterPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Delete zero or more Creatures.
-   * @param {CreatureDeleteManyArgs} args - Arguments to filter Creatures to delete.
+   * Delete zero or more Monsters.
+   * @param {MonsterDeleteManyArgs} args - Arguments to filter Monsters to delete.
    * @example
-   * // Delete a few Creatures
-   * const { count } = await prisma.creature.deleteMany({
+   * // Delete a few Monsters
+   * const { count } = await prisma.monster.deleteMany({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    * 
    */
-  deleteMany<T extends CreatureDeleteManyArgs>(args?: Prisma.SelectSubset<T, CreatureDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  deleteMany<T extends MonsterDeleteManyArgs>(args?: Prisma.SelectSubset<T, MonsterDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
-   * Update zero or more Creatures.
+   * Update zero or more Monsters.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {CreatureUpdateManyArgs} args - Arguments to update one or more rows.
+   * @param {MonsterUpdateManyArgs} args - Arguments to update one or more rows.
    * @example
-   * // Update many Creatures
-   * const creature = await prisma.creature.updateMany({
+   * // Update many Monsters
+   * const monster = await prisma.monster.updateMany({
    *   where: {
    *     // ... provide filter here
    *   },
@@ -3315,56 +3315,56 @@ export interface CreatureDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    * })
    * 
    */
-  updateMany<T extends CreatureUpdateManyArgs>(args: Prisma.SelectSubset<T, CreatureUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  updateMany<T extends MonsterUpdateManyArgs>(args: Prisma.SelectSubset<T, MonsterUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
-   * Create or update one Creature.
-   * @param {CreatureUpsertArgs} args - Arguments to update or create a Creature.
+   * Create or update one Monster.
+   * @param {MonsterUpsertArgs} args - Arguments to update or create a Monster.
    * @example
-   * // Update or create a Creature
-   * const creature = await prisma.creature.upsert({
+   * // Update or create a Monster
+   * const monster = await prisma.monster.upsert({
    *   create: {
-   *     // ... data to create a Creature
+   *     // ... data to create a Monster
    *   },
    *   update: {
    *     // ... in case it already exists, update
    *   },
    *   where: {
-   *     // ... the filter for the Creature we want to update
+   *     // ... the filter for the Monster we want to update
    *   }
    * })
    */
-  upsert<T extends CreatureUpsertArgs>(args: Prisma.SelectSubset<T, CreatureUpsertArgs<ExtArgs>>): Prisma.Prisma__CreatureClient<runtime.Types.Result.GetResult<Prisma.$CreaturePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  upsert<T extends MonsterUpsertArgs>(args: Prisma.SelectSubset<T, MonsterUpsertArgs<ExtArgs>>): Prisma.Prisma__MonsterClient<runtime.Types.Result.GetResult<Prisma.$MonsterPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
   /**
-   * Count the number of Creatures.
+   * Count the number of Monsters.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {CreatureCountArgs} args - Arguments to filter Creatures to count.
+   * @param {MonsterCountArgs} args - Arguments to filter Monsters to count.
    * @example
-   * // Count the number of Creatures
-   * const count = await prisma.creature.count({
+   * // Count the number of Monsters
+   * const count = await prisma.monster.count({
    *   where: {
-   *     // ... the filter for the Creatures we want to count
+   *     // ... the filter for the Monsters we want to count
    *   }
    * })
   **/
-  count<T extends CreatureCountArgs>(
-    args?: Prisma.Subset<T, CreatureCountArgs>,
+  count<T extends MonsterCountArgs>(
+    args?: Prisma.Subset<T, MonsterCountArgs>,
   ): Prisma.PrismaPromise<
     T extends runtime.Types.Utils.Record<'select', any>
       ? T['select'] extends true
         ? number
-        : Prisma.GetScalarType<T['select'], CreatureCountAggregateOutputType>
+        : Prisma.GetScalarType<T['select'], MonsterCountAggregateOutputType>
       : number
   >
 
   /**
-   * Allows you to perform aggregations operations on a Creature.
+   * Allows you to perform aggregations operations on a Monster.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {CreatureAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+   * @param {MonsterAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
    * @example
    * // Ordered by age ascending
    * // Where email contains prisma.io
@@ -3384,13 +3384,13 @@ export interface CreatureDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    *   take: 10,
    * })
   **/
-  aggregate<T extends CreatureAggregateArgs>(args: Prisma.Subset<T, CreatureAggregateArgs>): Prisma.PrismaPromise<GetCreatureAggregateType<T>>
+  aggregate<T extends MonsterAggregateArgs>(args: Prisma.Subset<T, MonsterAggregateArgs>): Prisma.PrismaPromise<GetMonsterAggregateType<T>>
 
   /**
-   * Group by Creature.
+   * Group by Monster.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {CreatureGroupByArgs} args - Group by arguments.
+   * @param {MonsterGroupByArgs} args - Group by arguments.
    * @example
    * // Group by city, order by createdAt, get count
    * const result = await prisma.user.groupBy({
@@ -3405,14 +3405,14 @@ export interface CreatureDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    * 
   **/
   groupBy<
-    T extends CreatureGroupByArgs,
+    T extends MonsterGroupByArgs,
     HasSelectOrTake extends Prisma.Or<
       Prisma.Extends<'skip', Prisma.Keys<T>>,
       Prisma.Extends<'take', Prisma.Keys<T>>
     >,
     OrderByArg extends Prisma.True extends HasSelectOrTake
-      ? { orderBy: CreatureGroupByArgs['orderBy'] }
-      : { orderBy?: CreatureGroupByArgs['orderBy'] },
+      ? { orderBy: MonsterGroupByArgs['orderBy'] }
+      : { orderBy?: MonsterGroupByArgs['orderBy'] },
     OrderFields extends Prisma.ExcludeUnderscoreKeys<Prisma.Keys<Prisma.MaybeTupleToUnion<T['orderBy']>>>,
     ByFields extends Prisma.MaybeTupleToUnion<T['by']>,
     ByValid extends Prisma.Has<ByFields, OrderFields>,
@@ -3461,26 +3461,26 @@ export interface CreatureDelegate<ExtArgs extends runtime.Types.Extensions.Inter
           ? never
           : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
       }[OrderFields]
-  >(args: Prisma.SubsetIntersection<T, CreatureGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCreatureGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  >(args: Prisma.SubsetIntersection<T, MonsterGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMonsterGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
 /**
- * Fields of the Creature model
+ * Fields of the Monster model
  */
-readonly fields: CreatureFieldRefs;
+readonly fields: MonsterFieldRefs;
 }
 
 /**
- * The delegate class that acts as a "Promise-like" for Creature.
+ * The delegate class that acts as a "Promise-like" for Monster.
  * Why is this prefixed with `Prisma__`?
  * Because we want to prevent naming conflicts as mentioned in
  * https://github.com/prisma/prisma-client-js/issues/707
  */
-export interface Prisma__CreatureClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+export interface Prisma__MonsterClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  EvolvesTo<T extends Prisma.Creature$EvolvesToArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Creature$EvolvesToArgs<ExtArgs>>): Prisma.Prisma__CreatureClient<runtime.Types.Result.GetResult<Prisma.$CreaturePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  EvolvesFrom<T extends Prisma.Creature$EvolvesFromArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Creature$EvolvesFromArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CreaturePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  ArtImage<T extends Prisma.Creature$ArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Creature$ArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  User<T extends Prisma.Creature$UserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Creature$UserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  Pack<T extends Prisma.Creature$PackArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Creature$PackArgs<ExtArgs>>): Prisma.Prisma__PackClient<runtime.Types.Result.GetResult<Prisma.$PackPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  EvolvesTo<T extends Prisma.Monster$EvolvesToArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Monster$EvolvesToArgs<ExtArgs>>): Prisma.Prisma__MonsterClient<runtime.Types.Result.GetResult<Prisma.$MonsterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  EvolvesFrom<T extends Prisma.Monster$EvolvesFromArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Monster$EvolvesFromArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MonsterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ArtImage<T extends Prisma.Monster$ArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Monster$ArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  User<T extends Prisma.Monster$UserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Monster$UserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  Pack<T extends Prisma.Monster$PackArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Monster$PackArgs<ExtArgs>>): Prisma.Prisma__PackClient<runtime.Types.Result.GetResult<Prisma.$PackPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3507,445 +3507,445 @@ export interface Prisma__CreatureClient<T, Null = never, ExtArgs extends runtime
 
 
 /**
- * Fields of the Creature model
+ * Fields of the Monster model
  */
-export interface CreatureFieldRefs {
-  readonly id: Prisma.FieldRef<"Creature", 'Int'>
-  readonly createdAt: Prisma.FieldRef<"Creature", 'DateTime'>
-  readonly updatedAt: Prisma.FieldRef<"Creature", 'DateTime'>
-  readonly slug: Prisma.FieldRef<"Creature", 'String'>
-  readonly name: Prisma.FieldRef<"Creature", 'String'>
-  readonly species: Prisma.FieldRef<"Creature", 'String'>
-  readonly class: Prisma.FieldRef<"Creature", 'String'>
-  readonly fieldNote: Prisma.FieldRef<"Creature", 'String'>
-  readonly quirks: Prisma.FieldRef<"Creature", 'String'>
-  readonly alignment: Prisma.FieldRef<"Creature", 'String'>
-  readonly tier: Prisma.FieldRef<"Creature", 'Rarity'>
-  readonly charm: Prisma.FieldRef<"Creature", 'Rarity'>
-  readonly empathy: Prisma.FieldRef<"Creature", 'Rarity'>
-  readonly grace: Prisma.FieldRef<"Creature", 'Rarity'>
-  readonly luck: Prisma.FieldRef<"Creature", 'Rarity'>
-  readonly might: Prisma.FieldRef<"Creature", 'Rarity'>
-  readonly wits: Prisma.FieldRef<"Creature", 'Rarity'>
-  readonly size: Prisma.FieldRef<"Creature", 'Int'>
-  readonly yieldPerTick: Prisma.FieldRef<"Creature", 'Int'>
-  readonly tickIntervalSeconds: Prisma.FieldRef<"Creature", 'Int'>
-  readonly unlockCost: Prisma.FieldRef<"Creature", 'Int'>
-  readonly behavior: Prisma.FieldRef<"Creature", 'String'>
-  readonly hue: Prisma.FieldRef<"Creature", 'Int'>
-  readonly games: Prisma.FieldRef<"Creature", 'String'>
-  readonly artPrompt: Prisma.FieldRef<"Creature", 'String'>
-  readonly evolutionKind: Prisma.FieldRef<"Creature", 'EvolutionKind'>
-  readonly evolvesToId: Prisma.FieldRef<"Creature", 'Int'>
-  readonly icon: Prisma.FieldRef<"Creature", 'String'>
-  readonly iconPath: Prisma.FieldRef<"Creature", 'String'>
-  readonly imagePath: Prisma.FieldRef<"Creature", 'String'>
-  readonly cardPath: Prisma.FieldRef<"Creature", 'String'>
-  readonly heroPath: Prisma.FieldRef<"Creature", 'String'>
-  readonly artImageId: Prisma.FieldRef<"Creature", 'Int'>
-  readonly cardArtImageId: Prisma.FieldRef<"Creature", 'Int'>
-  readonly heroArtImageId: Prisma.FieldRef<"Creature", 'Int'>
-  readonly iconArtImageId: Prisma.FieldRef<"Creature", 'Int'>
-  readonly isPublic: Prisma.FieldRef<"Creature", 'Boolean'>
-  readonly isActive: Prisma.FieldRef<"Creature", 'Boolean'>
-  readonly isMature: Prisma.FieldRef<"Creature", 'Boolean'>
-  readonly allowReviews: Prisma.FieldRef<"Creature", 'Boolean'>
-  readonly userId: Prisma.FieldRef<"Creature", 'Int'>
-  readonly packId: Prisma.FieldRef<"Creature", 'Int'>
+export interface MonsterFieldRefs {
+  readonly id: Prisma.FieldRef<"Monster", 'Int'>
+  readonly createdAt: Prisma.FieldRef<"Monster", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"Monster", 'DateTime'>
+  readonly slug: Prisma.FieldRef<"Monster", 'String'>
+  readonly name: Prisma.FieldRef<"Monster", 'String'>
+  readonly species: Prisma.FieldRef<"Monster", 'String'>
+  readonly class: Prisma.FieldRef<"Monster", 'String'>
+  readonly fieldNote: Prisma.FieldRef<"Monster", 'String'>
+  readonly quirks: Prisma.FieldRef<"Monster", 'String'>
+  readonly alignment: Prisma.FieldRef<"Monster", 'String'>
+  readonly tier: Prisma.FieldRef<"Monster", 'Rarity'>
+  readonly charm: Prisma.FieldRef<"Monster", 'Rarity'>
+  readonly empathy: Prisma.FieldRef<"Monster", 'Rarity'>
+  readonly grace: Prisma.FieldRef<"Monster", 'Rarity'>
+  readonly luck: Prisma.FieldRef<"Monster", 'Rarity'>
+  readonly might: Prisma.FieldRef<"Monster", 'Rarity'>
+  readonly wits: Prisma.FieldRef<"Monster", 'Rarity'>
+  readonly size: Prisma.FieldRef<"Monster", 'Int'>
+  readonly yieldPerTick: Prisma.FieldRef<"Monster", 'Int'>
+  readonly tickIntervalSeconds: Prisma.FieldRef<"Monster", 'Int'>
+  readonly unlockCost: Prisma.FieldRef<"Monster", 'Int'>
+  readonly behavior: Prisma.FieldRef<"Monster", 'String'>
+  readonly hue: Prisma.FieldRef<"Monster", 'Int'>
+  readonly games: Prisma.FieldRef<"Monster", 'String'>
+  readonly artPrompt: Prisma.FieldRef<"Monster", 'String'>
+  readonly evolutionKind: Prisma.FieldRef<"Monster", 'EvolutionKind'>
+  readonly evolvesToId: Prisma.FieldRef<"Monster", 'Int'>
+  readonly icon: Prisma.FieldRef<"Monster", 'String'>
+  readonly iconPath: Prisma.FieldRef<"Monster", 'String'>
+  readonly imagePath: Prisma.FieldRef<"Monster", 'String'>
+  readonly cardPath: Prisma.FieldRef<"Monster", 'String'>
+  readonly heroPath: Prisma.FieldRef<"Monster", 'String'>
+  readonly artImageId: Prisma.FieldRef<"Monster", 'Int'>
+  readonly cardArtImageId: Prisma.FieldRef<"Monster", 'Int'>
+  readonly heroArtImageId: Prisma.FieldRef<"Monster", 'Int'>
+  readonly iconArtImageId: Prisma.FieldRef<"Monster", 'Int'>
+  readonly isPublic: Prisma.FieldRef<"Monster", 'Boolean'>
+  readonly isActive: Prisma.FieldRef<"Monster", 'Boolean'>
+  readonly isMature: Prisma.FieldRef<"Monster", 'Boolean'>
+  readonly allowReviews: Prisma.FieldRef<"Monster", 'Boolean'>
+  readonly userId: Prisma.FieldRef<"Monster", 'Int'>
+  readonly packId: Prisma.FieldRef<"Monster", 'Int'>
 }
     
 
 // Custom InputTypes
 /**
- * Creature findUnique
+ * Monster findUnique
  */
-export type CreatureFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type MonsterFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Creature
+   * Select specific fields to fetch from the Monster
    */
-  select?: Prisma.CreatureSelect<ExtArgs> | null
+  select?: Prisma.MonsterSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Creature
+   * Omit specific fields from the Monster
    */
-  omit?: Prisma.CreatureOmit<ExtArgs> | null
+  omit?: Prisma.MonsterOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.CreatureInclude<ExtArgs> | null
+  include?: Prisma.MonsterInclude<ExtArgs> | null
   /**
-   * Filter, which Creature to fetch.
+   * Filter, which Monster to fetch.
    */
-  where: Prisma.CreatureWhereUniqueInput
+  where: Prisma.MonsterWhereUniqueInput
 }
 
 /**
- * Creature findUniqueOrThrow
+ * Monster findUniqueOrThrow
  */
-export type CreatureFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type MonsterFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Creature
+   * Select specific fields to fetch from the Monster
    */
-  select?: Prisma.CreatureSelect<ExtArgs> | null
+  select?: Prisma.MonsterSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Creature
+   * Omit specific fields from the Monster
    */
-  omit?: Prisma.CreatureOmit<ExtArgs> | null
+  omit?: Prisma.MonsterOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.CreatureInclude<ExtArgs> | null
+  include?: Prisma.MonsterInclude<ExtArgs> | null
   /**
-   * Filter, which Creature to fetch.
+   * Filter, which Monster to fetch.
    */
-  where: Prisma.CreatureWhereUniqueInput
+  where: Prisma.MonsterWhereUniqueInput
 }
 
 /**
- * Creature findFirst
+ * Monster findFirst
  */
-export type CreatureFindFirstArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type MonsterFindFirstArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Creature
+   * Select specific fields to fetch from the Monster
    */
-  select?: Prisma.CreatureSelect<ExtArgs> | null
+  select?: Prisma.MonsterSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Creature
+   * Omit specific fields from the Monster
    */
-  omit?: Prisma.CreatureOmit<ExtArgs> | null
+  omit?: Prisma.MonsterOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.CreatureInclude<ExtArgs> | null
+  include?: Prisma.MonsterInclude<ExtArgs> | null
   /**
-   * Filter, which Creature to fetch.
+   * Filter, which Monster to fetch.
    */
-  where?: Prisma.CreatureWhereInput
+  where?: Prisma.MonsterWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of Creatures to fetch.
+   * Determine the order of Monsters to fetch.
    */
-  orderBy?: Prisma.CreatureOrderByWithRelationInput | Prisma.CreatureOrderByWithRelationInput[]
+  orderBy?: Prisma.MonsterOrderByWithRelationInput | Prisma.MonsterOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for searching for Creatures.
+   * Sets the position for searching for Monsters.
    */
-  cursor?: Prisma.CreatureWhereUniqueInput
+  cursor?: Prisma.MonsterWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` Creatures from the position of the cursor.
+   * Take `±n` Monsters from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` Creatures.
+   * Skip the first `n` Monsters.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
    * 
-   * Filter by unique combinations of Creatures.
+   * Filter by unique combinations of Monsters.
    */
-  distinct?: Prisma.CreatureScalarFieldEnum | Prisma.CreatureScalarFieldEnum[]
+  distinct?: Prisma.MonsterScalarFieldEnum | Prisma.MonsterScalarFieldEnum[]
 }
 
 /**
- * Creature findFirstOrThrow
+ * Monster findFirstOrThrow
  */
-export type CreatureFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type MonsterFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Creature
+   * Select specific fields to fetch from the Monster
    */
-  select?: Prisma.CreatureSelect<ExtArgs> | null
+  select?: Prisma.MonsterSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Creature
+   * Omit specific fields from the Monster
    */
-  omit?: Prisma.CreatureOmit<ExtArgs> | null
+  omit?: Prisma.MonsterOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.CreatureInclude<ExtArgs> | null
+  include?: Prisma.MonsterInclude<ExtArgs> | null
   /**
-   * Filter, which Creature to fetch.
+   * Filter, which Monster to fetch.
    */
-  where?: Prisma.CreatureWhereInput
+  where?: Prisma.MonsterWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of Creatures to fetch.
+   * Determine the order of Monsters to fetch.
    */
-  orderBy?: Prisma.CreatureOrderByWithRelationInput | Prisma.CreatureOrderByWithRelationInput[]
+  orderBy?: Prisma.MonsterOrderByWithRelationInput | Prisma.MonsterOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for searching for Creatures.
+   * Sets the position for searching for Monsters.
    */
-  cursor?: Prisma.CreatureWhereUniqueInput
+  cursor?: Prisma.MonsterWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` Creatures from the position of the cursor.
+   * Take `±n` Monsters from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` Creatures.
+   * Skip the first `n` Monsters.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
    * 
-   * Filter by unique combinations of Creatures.
+   * Filter by unique combinations of Monsters.
    */
-  distinct?: Prisma.CreatureScalarFieldEnum | Prisma.CreatureScalarFieldEnum[]
+  distinct?: Prisma.MonsterScalarFieldEnum | Prisma.MonsterScalarFieldEnum[]
 }
 
 /**
- * Creature findMany
+ * Monster findMany
  */
-export type CreatureFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type MonsterFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Creature
+   * Select specific fields to fetch from the Monster
    */
-  select?: Prisma.CreatureSelect<ExtArgs> | null
+  select?: Prisma.MonsterSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Creature
+   * Omit specific fields from the Monster
    */
-  omit?: Prisma.CreatureOmit<ExtArgs> | null
+  omit?: Prisma.MonsterOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.CreatureInclude<ExtArgs> | null
+  include?: Prisma.MonsterInclude<ExtArgs> | null
   /**
-   * Filter, which Creatures to fetch.
+   * Filter, which Monsters to fetch.
    */
-  where?: Prisma.CreatureWhereInput
+  where?: Prisma.MonsterWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of Creatures to fetch.
+   * Determine the order of Monsters to fetch.
    */
-  orderBy?: Prisma.CreatureOrderByWithRelationInput | Prisma.CreatureOrderByWithRelationInput[]
+  orderBy?: Prisma.MonsterOrderByWithRelationInput | Prisma.MonsterOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for listing Creatures.
+   * Sets the position for listing Monsters.
    */
-  cursor?: Prisma.CreatureWhereUniqueInput
+  cursor?: Prisma.MonsterWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` Creatures from the position of the cursor.
+   * Take `±n` Monsters from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` Creatures.
+   * Skip the first `n` Monsters.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
    * 
-   * Filter by unique combinations of Creatures.
+   * Filter by unique combinations of Monsters.
    */
-  distinct?: Prisma.CreatureScalarFieldEnum | Prisma.CreatureScalarFieldEnum[]
+  distinct?: Prisma.MonsterScalarFieldEnum | Prisma.MonsterScalarFieldEnum[]
 }
 
 /**
- * Creature create
+ * Monster create
  */
-export type CreatureCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type MonsterCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Creature
+   * Select specific fields to fetch from the Monster
    */
-  select?: Prisma.CreatureSelect<ExtArgs> | null
+  select?: Prisma.MonsterSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Creature
+   * Omit specific fields from the Monster
    */
-  omit?: Prisma.CreatureOmit<ExtArgs> | null
+  omit?: Prisma.MonsterOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.CreatureInclude<ExtArgs> | null
+  include?: Prisma.MonsterInclude<ExtArgs> | null
   /**
-   * The data needed to create a Creature.
+   * The data needed to create a Monster.
    */
-  data: Prisma.XOR<Prisma.CreatureCreateInput, Prisma.CreatureUncheckedCreateInput>
+  data: Prisma.XOR<Prisma.MonsterCreateInput, Prisma.MonsterUncheckedCreateInput>
 }
 
 /**
- * Creature createMany
+ * Monster createMany
  */
-export type CreatureCreateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type MonsterCreateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * The data used to create many Creatures.
+   * The data used to create many Monsters.
    */
-  data: Prisma.CreatureCreateManyInput | Prisma.CreatureCreateManyInput[]
+  data: Prisma.MonsterCreateManyInput | Prisma.MonsterCreateManyInput[]
   skipDuplicates?: boolean
 }
 
 /**
- * Creature update
+ * Monster update
  */
-export type CreatureUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type MonsterUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Creature
+   * Select specific fields to fetch from the Monster
    */
-  select?: Prisma.CreatureSelect<ExtArgs> | null
+  select?: Prisma.MonsterSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Creature
+   * Omit specific fields from the Monster
    */
-  omit?: Prisma.CreatureOmit<ExtArgs> | null
+  omit?: Prisma.MonsterOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.CreatureInclude<ExtArgs> | null
+  include?: Prisma.MonsterInclude<ExtArgs> | null
   /**
-   * The data needed to update a Creature.
+   * The data needed to update a Monster.
    */
-  data: Prisma.XOR<Prisma.CreatureUpdateInput, Prisma.CreatureUncheckedUpdateInput>
+  data: Prisma.XOR<Prisma.MonsterUpdateInput, Prisma.MonsterUncheckedUpdateInput>
   /**
-   * Choose, which Creature to update.
+   * Choose, which Monster to update.
    */
-  where: Prisma.CreatureWhereUniqueInput
+  where: Prisma.MonsterWhereUniqueInput
 }
 
 /**
- * Creature updateMany
+ * Monster updateMany
  */
-export type CreatureUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type MonsterUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * The data used to update Creatures.
+   * The data used to update Monsters.
    */
-  data: Prisma.XOR<Prisma.CreatureUpdateManyMutationInput, Prisma.CreatureUncheckedUpdateManyInput>
+  data: Prisma.XOR<Prisma.MonsterUpdateManyMutationInput, Prisma.MonsterUncheckedUpdateManyInput>
   /**
-   * Filter which Creatures to update
+   * Filter which Monsters to update
    */
-  where?: Prisma.CreatureWhereInput
+  where?: Prisma.MonsterWhereInput
   /**
-   * Limit how many Creatures to update.
+   * Limit how many Monsters to update.
    */
   limit?: number
 }
 
 /**
- * Creature upsert
+ * Monster upsert
  */
-export type CreatureUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type MonsterUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Creature
+   * Select specific fields to fetch from the Monster
    */
-  select?: Prisma.CreatureSelect<ExtArgs> | null
+  select?: Prisma.MonsterSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Creature
+   * Omit specific fields from the Monster
    */
-  omit?: Prisma.CreatureOmit<ExtArgs> | null
+  omit?: Prisma.MonsterOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.CreatureInclude<ExtArgs> | null
+  include?: Prisma.MonsterInclude<ExtArgs> | null
   /**
-   * The filter to search for the Creature to update in case it exists.
+   * The filter to search for the Monster to update in case it exists.
    */
-  where: Prisma.CreatureWhereUniqueInput
+  where: Prisma.MonsterWhereUniqueInput
   /**
-   * In case the Creature found by the `where` argument doesn't exist, create a new Creature with this data.
+   * In case the Monster found by the `where` argument doesn't exist, create a new Monster with this data.
    */
-  create: Prisma.XOR<Prisma.CreatureCreateInput, Prisma.CreatureUncheckedCreateInput>
+  create: Prisma.XOR<Prisma.MonsterCreateInput, Prisma.MonsterUncheckedCreateInput>
   /**
-   * In case the Creature was found with the provided `where` argument, update it with this data.
+   * In case the Monster was found with the provided `where` argument, update it with this data.
    */
-  update: Prisma.XOR<Prisma.CreatureUpdateInput, Prisma.CreatureUncheckedUpdateInput>
+  update: Prisma.XOR<Prisma.MonsterUpdateInput, Prisma.MonsterUncheckedUpdateInput>
 }
 
 /**
- * Creature delete
+ * Monster delete
  */
-export type CreatureDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type MonsterDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Creature
+   * Select specific fields to fetch from the Monster
    */
-  select?: Prisma.CreatureSelect<ExtArgs> | null
+  select?: Prisma.MonsterSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Creature
+   * Omit specific fields from the Monster
    */
-  omit?: Prisma.CreatureOmit<ExtArgs> | null
+  omit?: Prisma.MonsterOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.CreatureInclude<ExtArgs> | null
+  include?: Prisma.MonsterInclude<ExtArgs> | null
   /**
-   * Filter which Creature to delete.
+   * Filter which Monster to delete.
    */
-  where: Prisma.CreatureWhereUniqueInput
+  where: Prisma.MonsterWhereUniqueInput
 }
 
 /**
- * Creature deleteMany
+ * Monster deleteMany
  */
-export type CreatureDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type MonsterDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Filter which Creatures to delete
+   * Filter which Monsters to delete
    */
-  where?: Prisma.CreatureWhereInput
+  where?: Prisma.MonsterWhereInput
   /**
-   * Limit how many Creatures to delete.
+   * Limit how many Monsters to delete.
    */
   limit?: number
 }
 
 /**
- * Creature.EvolvesTo
+ * Monster.EvolvesTo
  */
-export type Creature$EvolvesToArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Monster$EvolvesToArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Creature
+   * Select specific fields to fetch from the Monster
    */
-  select?: Prisma.CreatureSelect<ExtArgs> | null
+  select?: Prisma.MonsterSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Creature
+   * Omit specific fields from the Monster
    */
-  omit?: Prisma.CreatureOmit<ExtArgs> | null
+  omit?: Prisma.MonsterOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.CreatureInclude<ExtArgs> | null
-  where?: Prisma.CreatureWhereInput
+  include?: Prisma.MonsterInclude<ExtArgs> | null
+  where?: Prisma.MonsterWhereInput
 }
 
 /**
- * Creature.EvolvesFrom
+ * Monster.EvolvesFrom
  */
-export type Creature$EvolvesFromArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Monster$EvolvesFromArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Creature
+   * Select specific fields to fetch from the Monster
    */
-  select?: Prisma.CreatureSelect<ExtArgs> | null
+  select?: Prisma.MonsterSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Creature
+   * Omit specific fields from the Monster
    */
-  omit?: Prisma.CreatureOmit<ExtArgs> | null
+  omit?: Prisma.MonsterOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.CreatureInclude<ExtArgs> | null
-  where?: Prisma.CreatureWhereInput
-  orderBy?: Prisma.CreatureOrderByWithRelationInput | Prisma.CreatureOrderByWithRelationInput[]
-  cursor?: Prisma.CreatureWhereUniqueInput
+  include?: Prisma.MonsterInclude<ExtArgs> | null
+  where?: Prisma.MonsterWhereInput
+  orderBy?: Prisma.MonsterOrderByWithRelationInput | Prisma.MonsterOrderByWithRelationInput[]
+  cursor?: Prisma.MonsterWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.CreatureScalarFieldEnum | Prisma.CreatureScalarFieldEnum[]
+  distinct?: Prisma.MonsterScalarFieldEnum | Prisma.MonsterScalarFieldEnum[]
 }
 
 /**
- * Creature.ArtImage
+ * Monster.ArtImage
  */
-export type Creature$ArtImageArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Monster$ArtImageArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the ArtImage
    */
@@ -3962,9 +3962,9 @@ export type Creature$ArtImageArgs<ExtArgs extends runtime.Types.Extensions.Inter
 }
 
 /**
- * Creature.User
+ * Monster.User
  */
-export type Creature$UserArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Monster$UserArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the User
    */
@@ -3981,9 +3981,9 @@ export type Creature$UserArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 }
 
 /**
- * Creature.Pack
+ * Monster.Pack
  */
-export type Creature$PackArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Monster$PackArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the Pack
    */
@@ -4000,19 +4000,19 @@ export type Creature$PackArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 }
 
 /**
- * Creature without action
+ * Monster without action
  */
-export type CreatureDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type MonsterDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Creature
+   * Select specific fields to fetch from the Monster
    */
-  select?: Prisma.CreatureSelect<ExtArgs> | null
+  select?: Prisma.MonsterSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Creature
+   * Omit specific fields from the Monster
    */
-  omit?: Prisma.CreatureOmit<ExtArgs> | null
+  omit?: Prisma.MonsterOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.CreatureInclude<ExtArgs> | null
+  include?: Prisma.MonsterInclude<ExtArgs> | null
 }

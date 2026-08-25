@@ -666,7 +666,7 @@ export type AquariumSet = Prisma.AquariumSetModel
  */
 export type AquariumCodexEntry = Prisma.AquariumCodexEntryModel
 /**
- * Model Creature
+ * Model Monster
  * cthulhuquarium/t-035: the bestiary's own model. Character is this site's
  * chattable-personality table -- people you can talk to, story NPCs -- and
  * fish/tank creatures have no dialogue, no personality, and no chat
@@ -676,10 +676,10 @@ export type AquariumCodexEntry = Prisma.AquariumCodexEntryModel
  * needed a capacity weight, `Character.size` was added for them, and when
  * that migration shipped unapplied it took every unselected
  * `prisma.character.findUnique()` down with it, including character-linked
- * art generation (kind-robots/t-071). Creature carries what the fish bible
+ * art generation (kind-robots/t-071). Monster carries what the fish bible
  * (conductor projects/cthulhuquarium, external to this repo) actually
  * needs. Sharing survives unchanged -- `games` is the mechanism, not the
- * table, exactly as it was meant to be: a Creature tagged
+ * table, exactly as it was meant to be: a Monster tagged
  * "cthulhuquarium,ruler-hooked" is readable by both.
  * NOT YET WIRED, deliberately: AquariumStock.characterId and
  * AquariumCodexEntry.characterId still reference Character (t-032), and
@@ -690,7 +690,7 @@ export type AquariumCodexEntry = Prisma.AquariumCodexEntryModel
  * roadmap note for the full ordering and why the drop specifically waits
  * on kind-robots/t-071 being resolved first.
  */
-export type Creature = Prisma.CreatureModel
+export type Monster = Prisma.MonsterModel
 /**
  * Model AquariumEvent
  * Append-only audit trail for one Aquarium: feeds, purchases, rare

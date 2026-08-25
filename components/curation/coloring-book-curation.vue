@@ -55,8 +55,12 @@
       <p class="font-black">No pages match this view.</p>
     </div>
 
-    <div v-else class="grid items-start gap-4 xl:grid-cols-2 2xl:grid-cols-3">
-      <article v-for="proposal in visibleProposals" :key="proposal.id" class="kr-panel overflow-hidden">
+    <div v-else class="flex flex-wrap items-start gap-4">
+      <article
+        v-for="proposal in visibleProposals"
+        :key="proposal.id"
+        class="kr-panel min-w-0 flex-[1_1_28rem] overflow-hidden"
+      >
         <div class="border-b border-base-300 bg-base-200/60 p-4">
           <div class="flex items-start justify-between gap-3">
             <div>

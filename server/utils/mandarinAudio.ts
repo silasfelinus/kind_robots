@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto'
 import type { H3Event } from 'h3'
 import type { MandarinCard } from '~/utils/mandarin'
 import { getMandarinCatalog } from './mandarinCatalog'
+import { requestedRowToCard } from './mandarinRequestedCards'
 import { manaGate } from './manaGate'
 import { prisma } from './prisma'
 import { safeFetch } from './safeFetch'
@@ -50,6 +51,26 @@ export function mandarinAudioUrl(id: string): string {
 export async function resolveMandarinCatalogCard(cardKey: string): Promise<MandarinCard | null> {
   const catalog = await getMandarinCatalog()
   return catalog.cards.find((card) => card.key === cardKey) ?? null
+}
+
+export async function resolveMandarinAudioCard(
+  cardKey: string,
+  userId: number,
+): Promise<MandarinCard | null> {
+  const requestedMatch = cardKey.match(/^requested:(\d+)$/)
+  if (requestedMatch) {
+    const id = Number(requestedMatch[1])
+    if (!Number.isInteger(id) || id <= 0) return null
+    const row = await prisma.mandarinRequestedCard.findFirst({
+      where: {
+        id,
+        userId,
+        isActive: true,
+      },
+    })
+    return row ? requestedRowToCard(row) : null
+  }
+  return resolveMandarinCatalogCard(cardKey)
 }
 
 async function synthesizeAndStore(

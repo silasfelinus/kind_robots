@@ -1,0 +1,30 @@
+-- CreateTable
+CREATE TABLE `MandarinRequestedCard` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+    `userId` INTEGER NOT NULL,
+    `requestText` VARCHAR(255) NOT NULL,
+    `normalizedRequest` VARCHAR(255) NOT NULL,
+    `simplified` VARCHAR(255) NOT NULL,
+    `traditional` VARCHAR(255) NULL,
+    `pinyin` VARCHAR(512) NOT NULL,
+    `meaning` TEXT NOT NULL,
+    `meanings` LONGTEXT NOT NULL,
+    `usageNote` TEXT NULL,
+    `provider` VARCHAR(64) NOT NULL,
+    `model` VARCHAR(255) NOT NULL,
+    `recipeVersion` VARCHAR(32) NOT NULL,
+    `generationProvenance` TEXT NOT NULL,
+    `artPrompt` TEXT NOT NULL,
+    `artPromptVersion` VARCHAR(32) NOT NULL,
+    `artJobId` INTEGER NULL,
+    `artImageId` INTEGER NULL,
+    `isActive` BOOLEAN NOT NULL DEFAULT true,
+
+    UNIQUE INDEX `MandarinRequestedCard_userId_normalizedRequest_key`(`userId`, `normalizedRequest`),
+    INDEX `MandarinRequestedCard_userId_isActive_idx`(`userId`, `isActive`),
+    INDEX `MandarinRequestedCard_artJobId_idx`(`artJobId`),
+    INDEX `MandarinRequestedCard_artImageId_idx`(`artImageId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

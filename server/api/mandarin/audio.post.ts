@@ -4,7 +4,7 @@ import { errorHandler } from '../../utils/error'
 import {
   ensureMandarinAudioAsset,
   mandarinAudioUrl,
-  resolveMandarinCatalogCard,
+  resolveMandarinAudioCard,
 } from '../../utils/mandarinAudio'
 
 type MandarinAudioRequest = {
@@ -13,25 +13,26 @@ type MandarinAudioRequest = {
 
 export default defineEventHandler(async (event) => {
   try {
-    await requireApiUser(event)
+    const auth = await requireApiUser(event)
     const body = await readBody<MandarinAudioRequest>(event)
     const cardKey = typeof body?.cardKey === 'string' ? body.cardKey.trim() : ''
 
     if (!cardKey || cardKey.length > 255) {
       throw createError({
         statusCode: 400,
-        message: 'A valid Mandarin catalog card key is required.',
+        message: 'A valid Mandarin card key is required.',
       })
     }
 
     // Never turn this endpoint into arbitrary user-supplied TTS. Generation is
-    // limited to the sourced/curated Mandarin catalog, and the server chooses
-    // the exact Hanzi + pinyin that reach the provider.
-    const card = await resolveMandarinCatalogCard(cardKey)
+    // limited to the sourced/curated catalog or an authenticated user's own
+    // durable requested card, and the server chooses the exact Hanzi + pinyin
+    // that reach the provider.
+    const card = await resolveMandarinAudioCard(cardKey, auth.user.id)
     if (!card) {
       throw createError({
         statusCode: 404,
-        message: 'That Mandarin card is not in the current catalog.',
+        message: 'That Mandarin card is not available to this user.',
       })
     }
 

@@ -9,7 +9,14 @@ const requiresMigrationCredential =
   migrateIndex !== -1 ||
   (dbIndex !== -1 && ['execute', 'push'].includes(prismaArgs[dbIndex + 1] ?? ''))
 
-const migrationDatabaseUrl = process.env.MIGRATION_DATABASE_URL?.trim()
+// Same quote-stripping as shadowDatabaseUrl below, and for the same reason:
+// `docker run --env-file` is not a shell parser, so a quoted value in .env
+// arrives with its quotes attached. Without this, `prisma migrate status` run
+// out of the image fails on a URL that looks correct in the file.
+const migrationDatabaseUrl = process.env.MIGRATION_DATABASE_URL?.trim().replace(
+  /^(["'])(.*)\1$/,
+  '$2',
+)
 
 // Only a real shadow URL, or none at all.
 //

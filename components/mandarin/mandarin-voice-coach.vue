@@ -141,6 +141,9 @@ let mediaRecorder: MediaRecorder | null = null
 let mediaStream: MediaStream | null = null
 let chunks: Blob[] = []
 let autoStopTimer: ReturnType<typeof setTimeout> | null = null
+let recordingCardKey = ''
+let recordingPinyin = ''
+let disposed = false
 
 const voiceSupported = computed(
   () =>
@@ -216,7 +219,8 @@ async function transcribe(file: File): Promise<string> {
   return heard
 }
 
-async function evaluateRecording(blob: Blob) {
+async function evaluateRecording(blob: Blob, cardKey: string, pinyin: string) {
+  if (disposed || props.card.key !== cardKey) return
   evaluating.value = true
   error.value = null
   const mimeType = blob.type || 'audio/webm'
@@ -230,8 +234,13 @@ async function evaluateRecording(blob: Blob) {
 
   const [transcriptionResult, toneResult] = await Promise.allSettled([
     transcribe(file),
-    analyzeMandarinToneShapes(file, props.card.pinyin),
+    analyzeMandarinToneShapes(file, pinyin),
   ])
+
+  if (disposed || props.card.key !== cardKey) {
+    evaluating.value = false
+    return
+  }
 
   if (transcriptionResult.status === 'fulfilled') {
     transcript.value = transcriptionResult.value
@@ -267,6 +276,8 @@ async function startRecording() {
       },
     })
     chunks = []
+    recordingCardKey = props.card.key
+    recordingPinyin = props.card.pinyin
     const mimeType = preferredMimeType()
     mediaRecorder = mimeType
       ? new MediaRecorder(mediaStream, { mimeType })
@@ -276,13 +287,16 @@ async function startRecording() {
       if (event.data.size > 0) chunks.push(event.data)
     }
     mediaRecorder.onstop = () => {
+      const cardKey = recordingCardKey
+      const pinyin = recordingPinyin
       const blob = new Blob(chunks, {
         type: mediaRecorder?.mimeType || mimeType || 'audio/webm',
       })
       chunks = []
       mediaRecorder = null
       stopMediaStream()
-      if (blob.size > 0) void evaluateRecording(blob)
+      if (disposed || props.card.key !== cardKey) return
+      if (blob.size > 0) void evaluateRecording(blob, cardKey, pinyin)
       else error.value = 'The microphone recording was empty. Try again.'
     }
 
@@ -321,6 +335,7 @@ watch(
 )
 
 onBeforeUnmount(() => {
+  disposed = true
   clearTimer()
   if (mediaRecorder?.state !== 'inactive') mediaRecorder?.stop()
   stopMediaStream()

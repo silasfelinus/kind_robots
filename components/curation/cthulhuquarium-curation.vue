@@ -152,6 +152,9 @@
                     {{ preset.label }}
                   </option>
                 </select>
+                <span class="text-[11px] leading-5 text-base-content/45">
+                  FLUX schnell is the proven Cthulhuquarium default. Krea2 and FLUX.2 stay hidden until their render-box paths are verified.
+                </span>
               </label>
 
               <label class="form-control gap-1">
@@ -256,13 +259,15 @@ import { useCheckpointStore } from '@/stores/checkpointStore'
 import { performFetch } from '@/stores/utils'
 import {
   ART_GENERATOR_PRESETS,
-  DEFAULT_ART_PRESET_ID,
   type ArtGeneratorPreset,
 } from '@/utils/artGeneratorPresets'
 
 const artStore = useArtStore()
 const checkpointStore = useCheckpointStore()
-const presets = ART_GENERATOR_PRESETS
+const presets = ART_GENERATOR_PRESETS.filter(
+  (preset) => preset.engine !== 'krea2' && preset.engine !== 'flux2',
+)
+const CTH_DEFAULT_PRESET_ID = 'flux-schnell'
 
 const data = ref<CthulhuquariumCurationData | null>(null)
 const loading = ref(false)
@@ -296,7 +301,7 @@ function makeDraft(fish: CthulhuquariumCurationFish, previous?: FishDraft): Fish
   return {
     prompt: fish.curation.promptOverride || fish.artPrompt,
     inspirationUrl: previous?.inspirationUrl || '',
-    presetId: previous?.presetId || DEFAULT_ART_PRESET_ID,
+    presetId: previous?.presetId || CTH_DEFAULT_PRESET_ID,
     sourceMode: previous?.sourceMode || 'fresh',
     sourceImageId:
       previous?.sourceImageId ||

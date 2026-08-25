@@ -31,6 +31,12 @@ type ArtJobData = {
   }
 }
 
+type MandarinAudioData = {
+  id?: string
+  url?: string
+  cached?: boolean
+}
+
 function safeId(value: string): string {
   return value
     .trim()
@@ -54,12 +60,15 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
   const initialized = ref(false)
   const error = ref<string | null>(null)
   const speechError = ref<string | null>(null)
+  const audioUrls = ref<Record<string, string>>({})
+  const audioLoadingKey = ref<string | null>(null)
   const artJobs = ref<Record<string, number>>({})
   const artImageIds = ref<Record<string, number>>({})
   const artImageUrls = ref<Record<string, string>>({})
   const artStatuses = ref<Record<string, string>>({})
   const artQueueingKey = ref<string | null>(null)
   const artRefreshingKey = ref<string | null>(null)
+  let activeReferenceAudio: HTMLAudioElement | null = null
 
   const cardMap = computed(
     () => new Map(cards.value.map((card) => [card.key, card] as const)),
@@ -116,7 +125,7 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
 
   const customSetCount = computed(() => customSets.value.length)
   const audioSupported = computed(
-    () => import.meta.client && 'speechSynthesis' in window,
+    () => import.meta.client && typeof Audio !== 'undefined',
   )
 
   function resetReveal() {
@@ -274,12 +283,8 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     )
   }
 
-  function speak(card: MandarinCard | null = currentCard.value) {
-    speechError.value = null
-    if (!card || !import.meta.client || !('speechSynthesis' in window)) {
-      speechError.value = 'Mandarin speech playback is not available in this browser.'
-      return
-    }
+  function playBrowserSpeech(card: MandarinCard): boolean {
+    if (!import.meta.client || !('speechSynthesis' in window)) return false
 
     window.speechSynthesis.cancel()
     const utterance = new SpeechSynthesisUtterance(card.simplified)
@@ -291,9 +296,86 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
       voices.find((candidate) => candidate.lang.toLowerCase().startsWith('zh'))
     if (voice) utterance.voice = voice
     utterance.onerror = () => {
-      speechError.value = 'The Mandarin voice could not play this word.'
+      speechError.value = 'The Mandarin reference audio could not play in this browser.'
     }
     window.speechSynthesis.speak(utterance)
+    return true
+  }
+
+  async function playReferenceAudio(url: string): Promise<boolean> {
+    if (!import.meta.client || typeof Audio === 'undefined') return false
+
+    if (activeReferenceAudio) {
+      activeReferenceAudio.pause()
+      activeReferenceAudio.currentTime = 0
+    }
+
+    const audio = new Audio(url)
+    audio.preload = 'auto'
+    activeReferenceAudio = audio
+
+    try {
+      await audio.play()
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  async function speak(card: MandarinCard | null = currentCard.value) {
+    speechError.value = null
+    if (!card || !import.meta.client) {
+      speechError.value = 'Mandarin speech playback is not available in this browser.'
+      return
+    }
+
+    if (audioLoadingKey.value) return
+
+    let url = audioUrls.value[card.key] || ''
+
+    if (!url) {
+      audioLoadingKey.value = card.key
+      try {
+        const response = await performFetch<MandarinAudioData>(
+          '/api/mandarin/audio',
+          {
+            method: 'POST',
+            body: JSON.stringify({ cardKey: card.key }),
+          },
+          1,
+          45_000,
+        )
+
+        const resolvedUrl = String(response.data?.url || '').trim()
+        if (!response.success || !resolvedUrl.startsWith('/api/mandarin/audio/')) {
+          if (playBrowserSpeech(card)) return
+          throw new Error(response.message || 'Mandarin reference audio is unavailable.')
+        }
+
+        url = resolvedUrl
+        audioUrls.value = { ...audioUrls.value, [card.key]: url }
+      } catch (cause) {
+        if (playBrowserSpeech(card)) return
+        speechError.value =
+          cause instanceof Error
+            ? cause.message
+            : 'Mandarin reference audio is unavailable.'
+        return
+      } finally {
+        audioLoadingKey.value = null
+      }
+    }
+
+    if (await playReferenceAudio(url)) return
+
+    // Safari/iOS can reject a play() that follows an async cache-generation
+    // request because the original tap's user activation has expired. The URL
+    // is retained, so the next tap plays immediately; browser speech keeps the
+    // first tap useful instead of turning that policy quirk into a dead button.
+    if (playBrowserSpeech(card)) return
+
+    speechError.value =
+      'The reference clip is ready, but this browser blocked audio playback. Tap Hear pronunciation again.'
   }
 
   async function fetchProtectedImage(artImageId: number): Promise<string | null> {
@@ -431,6 +513,8 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     initialized,
     error,
     speechError,
+    audioUrls,
+    audioLoadingKey,
     artJobs,
     artImageIds,
     artImageUrls,

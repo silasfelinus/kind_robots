@@ -51,7 +51,22 @@ assert.match(source, /'SELECT','INSERT','UPDATE','DELETE','SHOW VIEW'/)
 assert.match(source, /dangerous_privileges" == '0'/)
 assert.match(source, /expected_privileges" == '5'/)
 
-assert.match(source, /OUTPUT_FILE="\$\{OUTPUT_FILE:-\/mnt\/user\/pc\/kindrobots-db-agent\/kindrobots-db-agent\.env\}"/)
+// The handoff file lives beside the checkout, NOT on /mnt/user/pc. This assertion
+// used to demand the opposite. provision-agent-db-lane.sh moved the agent lane to
+// <repo>/.secrets on 2026-08-21 -- "that share is a primary thoroughfare for
+// ordinary folders and is the wrong place for a mode-600 secret" -- and this line
+// was never updated, so the Provisioning contract check has been red on main ever
+// since, asserting a location the project had already rejected. Found 2026-08-25
+// while writing the same rule down properly (conductor AGENTS.md rule 14) after the
+// migrate lane's handoff file was lost in that same move and broke a production
+// migration.
+assert.match(source, /SECRETS_DIR="\$\{SECRETS_DIR:-\$REPO_ROOT\/\.secrets\}"/)
+assert.match(source, /OUTPUT_FILE="\$\{OUTPUT_FILE:-\$SECRETS_DIR\/kindrobots-db-agent\.env\}"/)
+assert.deepEqual(
+  source.split('\n').filter((l) => /\/mnt\/user\/pc/.test(l) && !l.trim().startsWith('#')),
+  [],
+  'provision-agent-db-lane.sh must not reference /mnt/user/pc outside a comment',
+)
 assert.match(source, /chmod 700 "\$output_dir"/)
 assert.match(source, /umask 077/)
 assert.match(source, /chmod 600 "\$OUTPUT_FILE"/)

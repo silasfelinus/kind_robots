@@ -41,7 +41,21 @@ Migrate from the image you are about to serve, then Force Update:
 
 ```bash
 cd /mnt/user/appdata/kind_robots
-set -a; . ./.secrets/kindrobots-db-migrate.env; set +a
+
+# Do not skip this check. `. ./.secrets/...` on a missing file prints one line
+# and CARRIES ON, leaving MIGRATION_DATABASE_URL unset in the shell -- and then
+# `-e MIGRATION_DATABASE_URL` passes nothing, so the value falls through from
+# --env-file instead, quotes and all. See "When the handoff file is missing".
+if [ ! -r ./.secrets/kindrobots-db-migrate.env ]; then
+  echo "STOP: ./.secrets/kindrobots-db-migrate.env is missing."
+  echo "Run:  bash scripts/provision-migrate-db-lane.sh --apply"
+else
+  set -a; . ./.secrets/kindrobots-db-migrate.env; set +a
+  case "$MIGRATION_DATABASE_URL" in
+    mysql://*) echo "migrate credential loaded, shape OK" ;;
+    *) echo "STOP: MIGRATION_DATABASE_URL is unset or not a bare mysql:// URL" ;;
+  esac
+fi
 
 docker pull ghcr.io/silasfelinus/kind_robots:latest
 
@@ -52,9 +66,68 @@ docker run --rm --network cafepurr \
   node scripts/prisma-migrate-deploy.mjs
 ```
 
+The `case` prints only OK or STOP — never the credential. Do not echo the
+variable itself to check it; that is how a live JWT ended up in a session
+transcript three times (conductor/t-116, t-128).
+
 Every line above is meant to be pasted as-is. There are deliberately **no placeholders** to substitute: `MIGRATION_DATABASE_URL` arrives from the sourced handoff file, and `-e MIGRATION_DATABASE_URL` with no `=value` passes it from the current shell, keeping the credential out of the command line and out of shell history. An earlier revision of this page printed a `mysql://kindrobot_migrate:PASSWORD@HOST:5544/DBNAME` template here; it was pasted verbatim more than once, and `P1001: Can't reach database server at HOST:5544` is what that looks like.
 
 No `git pull` is required for any of this. The image carries its own `prisma/migrations`, `scripts/` and `prisma.config.ts`; the checkout is used only for `.env`.
+
+#### Secrets live in `<checkout>/.secrets/`, never on `/mnt/user/pc`
+
+**Standing rule, Silas 2026-08-25:** the only acceptable location for this host's
+credentials is `/mnt/user/appdata/kind_robots/.secrets/`. Never `/mnt/user/pc`, and
+never treat `/mnt/user/pc` as a root for anything unless explicitly told to in that
+instance — which, for secrets, will not happen.
+
+`/mnt/user/pc` is a general-access share and a primary thoroughfare for ordinary
+folders, which makes it exactly the wrong home for a mode-600 file. The agent lane was
+moved off it on 2026-08-21 for this reason (see `agent-database-lane.md`); the migrate
+lane's handoff file was supposed to move with it and evidently did not survive, which is
+the direct cause of the 2026-08-25 failure below.
+
+Both provisioners already default to `<repo>/.secrets` and need no argument. `SECRETS_DIR`
+can override it, and should not be pointed at `/mnt/user/pc`.
+
+This rule is about **credentials**, not about the share as a whole. `/mnt/user/pc` remains
+the correct, established home for bulk data that is not secret — `kindrobots/images`,
+`kindrobots/animate`, and the model store at `ai/models`. Those are documented elsewhere
+and are not affected.
+
+#### When the handoff file is missing
+
+`set -a; . ./.secrets/kindrobots-db-migrate.env; set +a` **does not stop on a missing
+file.** Bash prints `No such file or directory` and continues, so
+`MIGRATION_DATABASE_URL` is never set in the shell, `-e MIGRATION_DATABASE_URL` passes
+nothing, and the value silently falls through from `--env-file .env` — where it is
+quoted, because `docker run --env-file` is not a shell parser and does not unquote.
+
+The failure then surfaces several steps later, after the CA has loaded and printed
+successfully, as:
+
+```text
+TypeError [ERR_INVALID_URL]: Invalid URL ... input: '"mysql:/
+```
+
+which reads like a TLS problem and is not one. (2026-08-25, on Alexandria: two attempts
+lost to this.) `prisma-migrate-deploy.mjs` and `prisma.config.ts` now strip matched
+surrounding quotes, so the fallback path works, but the missing file is still the real
+fault — the whole point of the handoff file is that the migrate credential lives outside
+`.env` and outside the application lane.
+
+Recreate it with the provisioner, which reconciles the lane in both MariaDB and ProxySQL
+and verifies authentication end to end:
+
+```bash
+bash scripts/provision-migrate-db-lane.sh            # dry run
+bash scripts/provision-migrate-db-lane.sh --apply
+```
+
+If `.env` currently carries a `MIGRATION_DATABASE_URL`, confirm it is the elevated
+`kindrobot_migrate` account and not the application user before relying on it. The
+credential-boundary guard can only check the variable *name*; it cannot tell which
+account is behind the value.
 
 Pull first. Migrating from `:latest` and then Force Updating to `:latest` is what keeps the schema and the code that will serve it the same build.
 

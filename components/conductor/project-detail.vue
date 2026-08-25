@@ -189,6 +189,44 @@
                 @blur="autosave('repoUrl', $event)"
               />
             </div>
+            <template v-if="userStore.isAdmin">
+              <div class="form-control min-w-0">
+                <label class="label py-0.5">
+                  <span class="label-text text-xs font-semibold">Status</span>
+                </label>
+                <select
+                  class="select select-bordered select-sm w-full rounded-xl text-sm"
+                  :value="linkedProject.status"
+                  :disabled="projectSaving"
+                  @change="onStatusSelect"
+                >
+                  <option v-for="s in LIFECYCLE_STATUSES" :key="s" :value="s">
+                    {{ s }}
+                  </option>
+                  <option
+                    v-if="linkedProject.status === 'BRAINSTORM'"
+                    value="BRAINSTORM"
+                  >
+                    BRAINSTORM
+                  </option>
+                </select>
+              </div>
+              <div class="form-control min-w-0">
+                <label class="label py-0.5">
+                  <span class="label-text text-xs font-semibold">Priority</span>
+                </label>
+                <select
+                  class="select select-bordered select-sm w-full rounded-xl text-sm"
+                  :value="linkedProject.priority"
+                  :disabled="projectSaving"
+                  @change="onPrioritySelect"
+                >
+                  <option v-for="p in LIFECYCLE_PRIORITIES" :key="p" :value="p">
+                    {{ p }}
+                  </option>
+                </select>
+              </div>
+            </template>
           </div>
         </section>
 
@@ -442,6 +480,7 @@ import type {
 } from '@/server/api/conductor/projects.get'
 import {
   useProjectStore,
+  type ProjectLifecycleStatus,
   type ProjectPriorityLevel,
   type ProjectWithRelations,
 } from '@/stores/projectStore'
@@ -485,7 +524,18 @@ type ProjectPatch = {
   isPublic?: boolean
   isMature?: boolean
   allowReviews?: boolean
+  status?: ProjectLifecycleStatus
+  priority?: ProjectPriorityLevel
 }
+
+const LIFECYCLE_STATUSES: ProjectLifecycleStatus[] = [
+  'ACTIVE',
+  'CONTINUOUS',
+  'PAUSED',
+  'DONE',
+  'ARCHIVED',
+]
+const LIFECYCLE_PRIORITIES: ProjectPriorityLevel[] = ['HIGH', 'NORMAL', 'LOW']
 
 const linkedProject = computed(() => projectStore.projectForSlug(props.slug))
 
@@ -692,6 +742,18 @@ async function patchProject(patch: ProjectPatch) {
   } finally {
     projectSaving.value = false
   }
+}
+
+function onStatusSelect(event: Event) {
+  const value = (event.target as HTMLSelectElement).value as ProjectLifecycleStatus
+  if (!linkedProject.value || value === linkedProject.value.status) return
+  patchProject({ status: value })
+}
+
+function onPrioritySelect(event: Event) {
+  const value = (event.target as HTMLSelectElement).value as ProjectPriorityLevel
+  if (!linkedProject.value || value === linkedProject.value.priority) return
+  patchProject({ priority: value })
 }
 
 async function autosave(field: keyof ProjectPatch, event: FocusEvent) {

@@ -58,6 +58,7 @@ export const ModelName = {
   CharacterFacet: 'CharacterFacet',
   BotFacet: 'BotFacet',
   RewardFacet: 'RewardFacet',
+  MandarinAudioAsset: 'MandarinAudioAsset',
   ModelBuildRun: 'ModelBuildRun',
   ModelBuildItem: 'ModelBuildItem',
   ModelBuildArtifact: 'ModelBuildArtifact',
@@ -283,6 +284,26 @@ export const RewardFacetScalarFieldEnum = {
 } as const
 
 export type RewardFacetScalarFieldEnum = (typeof RewardFacetScalarFieldEnum)[keyof typeof RewardFacetScalarFieldEnum]
+
+
+export const MandarinAudioAssetScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  cardKey: 'cardKey',
+  text: 'text',
+  pinyin: 'pinyin',
+  provider: 'provider',
+  model: 'model',
+  voice: 'voice',
+  format: 'format',
+  recipeVersion: 'recipeVersion',
+  contentType: 'contentType',
+  byteLength: 'byteLength',
+  audioData: 'audioData'
+} as const
+
+export type MandarinAudioAssetScalarFieldEnum = (typeof MandarinAudioAssetScalarFieldEnum)[keyof typeof MandarinAudioAssetScalarFieldEnum]
 
 
 export const ModelBuildRunScalarFieldEnum = {
@@ -1829,7 +1850,7 @@ export const AquariumStockScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   aquariumId: 'aquariumId',
-  characterId: 'characterId',
+  monsterId: 'monsterId',
   nickname: 'nickname',
   hunger: 'hunger',
   mood: 'mood',
@@ -1863,7 +1884,7 @@ export const AquariumCodexEntryScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   userId: 'userId',
-  characterId: 'characterId',
+  monsterId: 'monsterId',
   firstAcquiredAt: 'firstAcquiredAt',
   bestStatCharm: 'bestStatCharm',
   bestStatEmpathy: 'bestStatEmpathy',
@@ -2152,6 +2173,22 @@ export const RewardFacetOrderByRelevanceFieldEnum = {
 } as const
 
 export type RewardFacetOrderByRelevanceFieldEnum = (typeof RewardFacetOrderByRelevanceFieldEnum)[keyof typeof RewardFacetOrderByRelevanceFieldEnum]
+
+
+export const MandarinAudioAssetOrderByRelevanceFieldEnum = {
+  id: 'id',
+  cardKey: 'cardKey',
+  text: 'text',
+  pinyin: 'pinyin',
+  provider: 'provider',
+  model: 'model',
+  voice: 'voice',
+  format: 'format',
+  recipeVersion: 'recipeVersion',
+  contentType: 'contentType'
+} as const
+
+export type MandarinAudioAssetOrderByRelevanceFieldEnum = (typeof MandarinAudioAssetOrderByRelevanceFieldEnum)[keyof typeof MandarinAudioAssetOrderByRelevanceFieldEnum]
 
 
 export const ModelBuildRunOrderByRelevanceFieldEnum = {

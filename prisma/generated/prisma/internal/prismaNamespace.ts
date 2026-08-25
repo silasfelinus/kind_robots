@@ -404,6 +404,7 @@ export const ModelName = {
   CharacterFacet: 'CharacterFacet',
   BotFacet: 'BotFacet',
   RewardFacet: 'RewardFacet',
+  MandarinAudioAsset: 'MandarinAudioAsset',
   ModelBuildRun: 'ModelBuildRun',
   ModelBuildItem: 'ModelBuildItem',
   ModelBuildArtifact: 'ModelBuildArtifact',
@@ -505,7 +506,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
+    modelProps: "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -968,6 +969,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.RewardFacetCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.RewardFacetCountAggregateOutputType> | number
+        }
+      }
+    }
+    MandarinAudioAsset: {
+      payload: Prisma.$MandarinAudioAssetPayload<ExtArgs>
+      fields: Prisma.MandarinAudioAssetFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MandarinAudioAssetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinAudioAssetPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MandarinAudioAssetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinAudioAssetPayload>
+        }
+        findFirst: {
+          args: Prisma.MandarinAudioAssetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinAudioAssetPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MandarinAudioAssetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinAudioAssetPayload>
+        }
+        findMany: {
+          args: Prisma.MandarinAudioAssetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinAudioAssetPayload>[]
+        }
+        create: {
+          args: Prisma.MandarinAudioAssetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinAudioAssetPayload>
+        }
+        createMany: {
+          args: Prisma.MandarinAudioAssetCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.MandarinAudioAssetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinAudioAssetPayload>
+        }
+        update: {
+          args: Prisma.MandarinAudioAssetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinAudioAssetPayload>
+        }
+        deleteMany: {
+          args: Prisma.MandarinAudioAssetDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MandarinAudioAssetUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.MandarinAudioAssetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MandarinAudioAssetPayload>
+        }
+        aggregate: {
+          args: Prisma.MandarinAudioAssetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMandarinAudioAsset>
+        }
+        groupBy: {
+          args: Prisma.MandarinAudioAssetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MandarinAudioAssetGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MandarinAudioAssetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MandarinAudioAssetCountAggregateOutputType> | number
         }
       }
     }
@@ -6809,6 +6876,26 @@ export const RewardFacetScalarFieldEnum = {
 export type RewardFacetScalarFieldEnum = (typeof RewardFacetScalarFieldEnum)[keyof typeof RewardFacetScalarFieldEnum]
 
 
+export const MandarinAudioAssetScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  cardKey: 'cardKey',
+  text: 'text',
+  pinyin: 'pinyin',
+  provider: 'provider',
+  model: 'model',
+  voice: 'voice',
+  format: 'format',
+  recipeVersion: 'recipeVersion',
+  contentType: 'contentType',
+  byteLength: 'byteLength',
+  audioData: 'audioData'
+} as const
+
+export type MandarinAudioAssetScalarFieldEnum = (typeof MandarinAudioAssetScalarFieldEnum)[keyof typeof MandarinAudioAssetScalarFieldEnum]
+
+
 export const ModelBuildRunScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -8353,7 +8440,7 @@ export const AquariumStockScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   aquariumId: 'aquariumId',
-  characterId: 'characterId',
+  monsterId: 'monsterId',
   nickname: 'nickname',
   hunger: 'hunger',
   mood: 'mood',
@@ -8387,7 +8474,7 @@ export const AquariumCodexEntryScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   userId: 'userId',
-  characterId: 'characterId',
+  monsterId: 'monsterId',
   firstAcquiredAt: 'firstAcquiredAt',
   bestStatCharm: 'bestStatCharm',
   bestStatEmpathy: 'bestStatEmpathy',
@@ -8676,6 +8763,22 @@ export const RewardFacetOrderByRelevanceFieldEnum = {
 } as const
 
 export type RewardFacetOrderByRelevanceFieldEnum = (typeof RewardFacetOrderByRelevanceFieldEnum)[keyof typeof RewardFacetOrderByRelevanceFieldEnum]
+
+
+export const MandarinAudioAssetOrderByRelevanceFieldEnum = {
+  id: 'id',
+  cardKey: 'cardKey',
+  text: 'text',
+  pinyin: 'pinyin',
+  provider: 'provider',
+  model: 'model',
+  voice: 'voice',
+  format: 'format',
+  recipeVersion: 'recipeVersion',
+  contentType: 'contentType'
+} as const
+
+export type MandarinAudioAssetOrderByRelevanceFieldEnum = (typeof MandarinAudioAssetOrderByRelevanceFieldEnum)[keyof typeof MandarinAudioAssetOrderByRelevanceFieldEnum]
 
 
 export const ModelBuildRunOrderByRelevanceFieldEnum = {
@@ -9659,6 +9762,13 @@ export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, '
 
 
 /**
+ * Reference to a field of type 'Bytes'
+ */
+export type BytesFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Bytes'>
+    
+
+
+/**
  * Reference to a field of type 'ModelBuildStatus'
  */
 export type EnumModelBuildStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ModelBuildStatus'>
@@ -10249,6 +10359,7 @@ export type GlobalOmitConfig = {
   characterFacet?: Prisma.CharacterFacetOmit
   botFacet?: Prisma.BotFacetOmit
   rewardFacet?: Prisma.RewardFacetOmit
+  mandarinAudioAsset?: Prisma.MandarinAudioAssetOmit
   modelBuildRun?: Prisma.ModelBuildRunOmit
   modelBuildItem?: Prisma.ModelBuildItemOmit
   modelBuildArtifact?: Prisma.ModelBuildArtifactOmit

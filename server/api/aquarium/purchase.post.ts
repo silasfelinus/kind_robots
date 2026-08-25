@@ -3,7 +3,7 @@
 // Purchases into the authenticated user's tank, priced and validated
 // entirely server-side from data/economy.yaml (cthulhuquarium/t-009).
 //
-// Body: { type: 'species', characterId: number }
+// Body: { type: 'species', monsterId: number }
 //
 // Only `type: 'species'` (unlocking a new fish species) is implemented.
 // The task note also named `food` and `upgrade` purchase types, but neither
@@ -42,22 +42,22 @@ export default defineEventHandler(async (event) => {
         message:
           type === 'food' || type === 'upgrade'
             ? `Purchase type '${type}' is not implemented -- see this route's file header for why (feed food via POST /api/aquarium/feed; capacity grows only via milestones).`
-            : "Unsupported purchase type. Only { type: 'species', characterId } is implemented.",
+            : "Unsupported purchase type. Only { type: 'species', monsterId } is implemented.",
       })
     }
 
-    const characterId = Number(body?.characterId)
-    if (!Number.isInteger(characterId) || characterId <= 0) {
+    const monsterId = Number(body?.monsterId)
+    if (!Number.isInteger(monsterId) || monsterId <= 0) {
       throw createError({
         statusCode: 400,
-        message: 'characterId must be a positive integer.',
+        message: 'monsterId must be a positive integer.',
       })
     }
 
     const result = await purchaseSpeciesForUser(
       user.id,
       user.username,
-      characterId,
+      monsterId,
     )
 
     response = {

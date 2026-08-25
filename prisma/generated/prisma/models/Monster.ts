@@ -28,9 +28,11 @@ import type * as Prisma from "../internal/prismaNamespace"
  * needs. Sharing survives unchanged -- `games` is the mechanism, not the
  * table, exactly as it was meant to be: a Monster tagged
  * "cthulhuquarium,ruler-hooked" is readable by both.
- * NOT YET WIRED, deliberately: AquariumStock.characterId and
- * AquariumCodexEntry.characterId still reference Character (t-032), and
- * Character.size still exists. Repointing those tables and dropping
+ * WIRED 2026-08-25 (t-038): AquariumStock.monsterId and
+ * AquariumCodexEntry.monsterId now reference Monster. `Character.size` still
+ * exists and is now dead weight -- dropping it needs the REVERSE deploy order
+ * from an add (deploy the client that stops selecting it FIRST, then migrate),
+ * so it is deliberately not in this change. Repointing those tables and dropping
  * Character.size are follow-on work, filed separately and kept out of this
  * migration so this one stays purely additive -- CREATE TABLE only, no
  * DROP, no rewrite of a table anything currently reads. See t-035's
@@ -586,6 +588,8 @@ export type MonsterWhereInput = {
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   Pack?: Prisma.XOR<Prisma.PackNullableScalarRelationFilter, Prisma.PackWhereInput> | null
+  AquariumStock?: Prisma.AquariumStockListRelationFilter
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryListRelationFilter
 }
 
 export type MonsterOrderByWithRelationInput = {
@@ -636,6 +640,8 @@ export type MonsterOrderByWithRelationInput = {
   ArtImage?: Prisma.ArtImageOrderByWithRelationInput
   User?: Prisma.UserOrderByWithRelationInput
   Pack?: Prisma.PackOrderByWithRelationInput
+  AquariumStock?: Prisma.AquariumStockOrderByRelationAggregateInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryOrderByRelationAggregateInput
   _relevance?: Prisma.MonsterOrderByRelevanceInput
 }
 
@@ -690,6 +696,8 @@ export type MonsterWhereUniqueInput = Prisma.AtLeast<{
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
   User?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   Pack?: Prisma.XOR<Prisma.PackNullableScalarRelationFilter, Prisma.PackWhereInput> | null
+  AquariumStock?: Prisma.AquariumStockListRelationFilter
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryListRelationFilter
 }, "id" | "slug">
 
 export type MonsterOrderByWithAggregationInput = {
@@ -833,6 +841,8 @@ export type MonsterCreateInput = {
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutMonstersInput
   User?: Prisma.UserCreateNestedOneWithoutMonstersInput
   Pack?: Prisma.PackCreateNestedOneWithoutMonstersInput
+  AquariumStock?: Prisma.AquariumStockCreateNestedManyWithoutMonsterInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryCreateNestedManyWithoutMonsterInput
 }
 
 export type MonsterUncheckedCreateInput = {
@@ -879,6 +889,8 @@ export type MonsterUncheckedCreateInput = {
   userId?: number | null
   packId?: number | null
   EvolvesFrom?: Prisma.MonsterUncheckedCreateNestedManyWithoutEvolvesToInput
+  AquariumStock?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutMonsterInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryUncheckedCreateNestedManyWithoutMonsterInput
 }
 
 export type MonsterUpdateInput = {
@@ -924,6 +936,8 @@ export type MonsterUpdateInput = {
   ArtImage?: Prisma.ArtImageUpdateOneWithoutMonstersNestedInput
   User?: Prisma.UserUpdateOneWithoutMonstersNestedInput
   Pack?: Prisma.PackUpdateOneWithoutMonstersNestedInput
+  AquariumStock?: Prisma.AquariumStockUpdateManyWithoutMonsterNestedInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryUpdateManyWithoutMonsterNestedInput
 }
 
 export type MonsterUncheckedUpdateInput = {
@@ -970,6 +984,8 @@ export type MonsterUncheckedUpdateInput = {
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   EvolvesFrom?: Prisma.MonsterUncheckedUpdateManyWithoutEvolvesToNestedInput
+  AquariumStock?: Prisma.AquariumStockUncheckedUpdateManyWithoutMonsterNestedInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryUncheckedUpdateManyWithoutMonsterNestedInput
 }
 
 export type MonsterCreateManyInput = {
@@ -1110,6 +1126,11 @@ export type MonsterListRelationFilter = {
 
 export type MonsterOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type MonsterScalarRelationFilter = {
+  is?: Prisma.MonsterWhereInput
+  isNot?: Prisma.MonsterWhereInput
 }
 
 export type MonsterNullableScalarRelationFilter = {
@@ -1416,6 +1437,34 @@ export type MonsterUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.MonsterScalarWhereInput | Prisma.MonsterScalarWhereInput[]
 }
 
+export type MonsterCreateNestedOneWithoutAquariumStockInput = {
+  create?: Prisma.XOR<Prisma.MonsterCreateWithoutAquariumStockInput, Prisma.MonsterUncheckedCreateWithoutAquariumStockInput>
+  connectOrCreate?: Prisma.MonsterCreateOrConnectWithoutAquariumStockInput
+  connect?: Prisma.MonsterWhereUniqueInput
+}
+
+export type MonsterUpdateOneRequiredWithoutAquariumStockNestedInput = {
+  create?: Prisma.XOR<Prisma.MonsterCreateWithoutAquariumStockInput, Prisma.MonsterUncheckedCreateWithoutAquariumStockInput>
+  connectOrCreate?: Prisma.MonsterCreateOrConnectWithoutAquariumStockInput
+  upsert?: Prisma.MonsterUpsertWithoutAquariumStockInput
+  connect?: Prisma.MonsterWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MonsterUpdateToOneWithWhereWithoutAquariumStockInput, Prisma.MonsterUpdateWithoutAquariumStockInput>, Prisma.MonsterUncheckedUpdateWithoutAquariumStockInput>
+}
+
+export type MonsterCreateNestedOneWithoutAquariumCodexEntryInput = {
+  create?: Prisma.XOR<Prisma.MonsterCreateWithoutAquariumCodexEntryInput, Prisma.MonsterUncheckedCreateWithoutAquariumCodexEntryInput>
+  connectOrCreate?: Prisma.MonsterCreateOrConnectWithoutAquariumCodexEntryInput
+  connect?: Prisma.MonsterWhereUniqueInput
+}
+
+export type MonsterUpdateOneRequiredWithoutAquariumCodexEntryNestedInput = {
+  create?: Prisma.XOR<Prisma.MonsterCreateWithoutAquariumCodexEntryInput, Prisma.MonsterUncheckedCreateWithoutAquariumCodexEntryInput>
+  connectOrCreate?: Prisma.MonsterCreateOrConnectWithoutAquariumCodexEntryInput
+  upsert?: Prisma.MonsterUpsertWithoutAquariumCodexEntryInput
+  connect?: Prisma.MonsterWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MonsterUpdateToOneWithWhereWithoutAquariumCodexEntryInput, Prisma.MonsterUpdateWithoutAquariumCodexEntryInput>, Prisma.MonsterUncheckedUpdateWithoutAquariumCodexEntryInput>
+}
+
 export type MonsterCreateNestedOneWithoutEvolvesFromInput = {
   create?: Prisma.XOR<Prisma.MonsterCreateWithoutEvolvesFromInput, Prisma.MonsterUncheckedCreateWithoutEvolvesFromInput>
   connectOrCreate?: Prisma.MonsterCreateOrConnectWithoutEvolvesFromInput
@@ -1520,6 +1569,8 @@ export type MonsterCreateWithoutArtImageInput = {
   EvolvesFrom?: Prisma.MonsterCreateNestedManyWithoutEvolvesToInput
   User?: Prisma.UserCreateNestedOneWithoutMonstersInput
   Pack?: Prisma.PackCreateNestedOneWithoutMonstersInput
+  AquariumStock?: Prisma.AquariumStockCreateNestedManyWithoutMonsterInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryCreateNestedManyWithoutMonsterInput
 }
 
 export type MonsterUncheckedCreateWithoutArtImageInput = {
@@ -1565,6 +1616,8 @@ export type MonsterUncheckedCreateWithoutArtImageInput = {
   userId?: number | null
   packId?: number | null
   EvolvesFrom?: Prisma.MonsterUncheckedCreateNestedManyWithoutEvolvesToInput
+  AquariumStock?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutMonsterInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryUncheckedCreateNestedManyWithoutMonsterInput
 }
 
 export type MonsterCreateOrConnectWithoutArtImageInput = {
@@ -1683,6 +1736,8 @@ export type MonsterCreateWithoutPackInput = {
   EvolvesFrom?: Prisma.MonsterCreateNestedManyWithoutEvolvesToInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutMonstersInput
   User?: Prisma.UserCreateNestedOneWithoutMonstersInput
+  AquariumStock?: Prisma.AquariumStockCreateNestedManyWithoutMonsterInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryCreateNestedManyWithoutMonsterInput
 }
 
 export type MonsterUncheckedCreateWithoutPackInput = {
@@ -1728,6 +1783,8 @@ export type MonsterUncheckedCreateWithoutPackInput = {
   allowReviews?: boolean
   userId?: number | null
   EvolvesFrom?: Prisma.MonsterUncheckedCreateNestedManyWithoutEvolvesToInput
+  AquariumStock?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutMonsterInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryUncheckedCreateNestedManyWithoutMonsterInput
 }
 
 export type MonsterCreateOrConnectWithoutPackInput = {
@@ -1798,6 +1855,8 @@ export type MonsterCreateWithoutUserInput = {
   EvolvesFrom?: Prisma.MonsterCreateNestedManyWithoutEvolvesToInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutMonstersInput
   Pack?: Prisma.PackCreateNestedOneWithoutMonstersInput
+  AquariumStock?: Prisma.AquariumStockCreateNestedManyWithoutMonsterInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryCreateNestedManyWithoutMonsterInput
 }
 
 export type MonsterUncheckedCreateWithoutUserInput = {
@@ -1843,6 +1902,8 @@ export type MonsterUncheckedCreateWithoutUserInput = {
   allowReviews?: boolean
   packId?: number | null
   EvolvesFrom?: Prisma.MonsterUncheckedCreateNestedManyWithoutEvolvesToInput
+  AquariumStock?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutMonsterInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryUncheckedCreateNestedManyWithoutMonsterInput
 }
 
 export type MonsterCreateOrConnectWithoutUserInput = {
@@ -1869,6 +1930,410 @@ export type MonsterUpdateWithWhereUniqueWithoutUserInput = {
 export type MonsterUpdateManyWithWhereWithoutUserInput = {
   where: Prisma.MonsterScalarWhereInput
   data: Prisma.XOR<Prisma.MonsterUpdateManyMutationInput, Prisma.MonsterUncheckedUpdateManyWithoutUserInput>
+}
+
+export type MonsterCreateWithoutAquariumStockInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  slug: string
+  name: string
+  species?: string | null
+  class?: string | null
+  fieldNote?: string | null
+  quirks?: string | null
+  alignment?: string | null
+  tier?: $Enums.Rarity
+  charm?: $Enums.Rarity
+  empathy?: $Enums.Rarity
+  grace?: $Enums.Rarity
+  luck?: $Enums.Rarity
+  might?: $Enums.Rarity
+  wits?: $Enums.Rarity
+  size?: number
+  yieldPerTick?: number | null
+  tickIntervalSeconds?: number | null
+  unlockCost?: number | null
+  behavior?: string | null
+  hue?: number | null
+  games?: string | null
+  artPrompt?: string | null
+  evolutionKind?: $Enums.EvolutionKind | null
+  icon?: string | null
+  iconPath?: string | null
+  imagePath?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
+  isPublic?: boolean
+  isActive?: boolean
+  isMature?: boolean
+  allowReviews?: boolean
+  EvolvesTo?: Prisma.MonsterCreateNestedOneWithoutEvolvesFromInput
+  EvolvesFrom?: Prisma.MonsterCreateNestedManyWithoutEvolvesToInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutMonstersInput
+  User?: Prisma.UserCreateNestedOneWithoutMonstersInput
+  Pack?: Prisma.PackCreateNestedOneWithoutMonstersInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryCreateNestedManyWithoutMonsterInput
+}
+
+export type MonsterUncheckedCreateWithoutAquariumStockInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  slug: string
+  name: string
+  species?: string | null
+  class?: string | null
+  fieldNote?: string | null
+  quirks?: string | null
+  alignment?: string | null
+  tier?: $Enums.Rarity
+  charm?: $Enums.Rarity
+  empathy?: $Enums.Rarity
+  grace?: $Enums.Rarity
+  luck?: $Enums.Rarity
+  might?: $Enums.Rarity
+  wits?: $Enums.Rarity
+  size?: number
+  yieldPerTick?: number | null
+  tickIntervalSeconds?: number | null
+  unlockCost?: number | null
+  behavior?: string | null
+  hue?: number | null
+  games?: string | null
+  artPrompt?: string | null
+  evolutionKind?: $Enums.EvolutionKind | null
+  evolvesToId?: number | null
+  icon?: string | null
+  iconPath?: string | null
+  imagePath?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
+  isPublic?: boolean
+  isActive?: boolean
+  isMature?: boolean
+  allowReviews?: boolean
+  userId?: number | null
+  packId?: number | null
+  EvolvesFrom?: Prisma.MonsterUncheckedCreateNestedManyWithoutEvolvesToInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryUncheckedCreateNestedManyWithoutMonsterInput
+}
+
+export type MonsterCreateOrConnectWithoutAquariumStockInput = {
+  where: Prisma.MonsterWhereUniqueInput
+  create: Prisma.XOR<Prisma.MonsterCreateWithoutAquariumStockInput, Prisma.MonsterUncheckedCreateWithoutAquariumStockInput>
+}
+
+export type MonsterUpsertWithoutAquariumStockInput = {
+  update: Prisma.XOR<Prisma.MonsterUpdateWithoutAquariumStockInput, Prisma.MonsterUncheckedUpdateWithoutAquariumStockInput>
+  create: Prisma.XOR<Prisma.MonsterCreateWithoutAquariumStockInput, Prisma.MonsterUncheckedCreateWithoutAquariumStockInput>
+  where?: Prisma.MonsterWhereInput
+}
+
+export type MonsterUpdateToOneWithWhereWithoutAquariumStockInput = {
+  where?: Prisma.MonsterWhereInput
+  data: Prisma.XOR<Prisma.MonsterUpdateWithoutAquariumStockInput, Prisma.MonsterUncheckedUpdateWithoutAquariumStockInput>
+}
+
+export type MonsterUpdateWithoutAquariumStockInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fieldNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tier?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  empathy?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  grace?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  luck?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  might?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  size?: Prisma.IntFieldUpdateOperationsInput | number
+  yieldPerTick?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tickIntervalSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  unlockCost?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  behavior?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hue?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  games?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evolutionKind?: Prisma.NullableEnumEvolutionKindFieldUpdateOperationsInput | $Enums.EvolutionKind | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  EvolvesTo?: Prisma.MonsterUpdateOneWithoutEvolvesFromNestedInput
+  EvolvesFrom?: Prisma.MonsterUpdateManyWithoutEvolvesToNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutMonstersNestedInput
+  User?: Prisma.UserUpdateOneWithoutMonstersNestedInput
+  Pack?: Prisma.PackUpdateOneWithoutMonstersNestedInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryUpdateManyWithoutMonsterNestedInput
+}
+
+export type MonsterUncheckedUpdateWithoutAquariumStockInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fieldNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tier?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  empathy?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  grace?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  luck?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  might?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  size?: Prisma.IntFieldUpdateOperationsInput | number
+  yieldPerTick?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tickIntervalSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  unlockCost?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  behavior?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hue?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  games?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evolutionKind?: Prisma.NullableEnumEvolutionKindFieldUpdateOperationsInput | $Enums.EvolutionKind | null
+  evolvesToId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  EvolvesFrom?: Prisma.MonsterUncheckedUpdateManyWithoutEvolvesToNestedInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryUncheckedUpdateManyWithoutMonsterNestedInput
+}
+
+export type MonsterCreateWithoutAquariumCodexEntryInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  slug: string
+  name: string
+  species?: string | null
+  class?: string | null
+  fieldNote?: string | null
+  quirks?: string | null
+  alignment?: string | null
+  tier?: $Enums.Rarity
+  charm?: $Enums.Rarity
+  empathy?: $Enums.Rarity
+  grace?: $Enums.Rarity
+  luck?: $Enums.Rarity
+  might?: $Enums.Rarity
+  wits?: $Enums.Rarity
+  size?: number
+  yieldPerTick?: number | null
+  tickIntervalSeconds?: number | null
+  unlockCost?: number | null
+  behavior?: string | null
+  hue?: number | null
+  games?: string | null
+  artPrompt?: string | null
+  evolutionKind?: $Enums.EvolutionKind | null
+  icon?: string | null
+  iconPath?: string | null
+  imagePath?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
+  isPublic?: boolean
+  isActive?: boolean
+  isMature?: boolean
+  allowReviews?: boolean
+  EvolvesTo?: Prisma.MonsterCreateNestedOneWithoutEvolvesFromInput
+  EvolvesFrom?: Prisma.MonsterCreateNestedManyWithoutEvolvesToInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutMonstersInput
+  User?: Prisma.UserCreateNestedOneWithoutMonstersInput
+  Pack?: Prisma.PackCreateNestedOneWithoutMonstersInput
+  AquariumStock?: Prisma.AquariumStockCreateNestedManyWithoutMonsterInput
+}
+
+export type MonsterUncheckedCreateWithoutAquariumCodexEntryInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  slug: string
+  name: string
+  species?: string | null
+  class?: string | null
+  fieldNote?: string | null
+  quirks?: string | null
+  alignment?: string | null
+  tier?: $Enums.Rarity
+  charm?: $Enums.Rarity
+  empathy?: $Enums.Rarity
+  grace?: $Enums.Rarity
+  luck?: $Enums.Rarity
+  might?: $Enums.Rarity
+  wits?: $Enums.Rarity
+  size?: number
+  yieldPerTick?: number | null
+  tickIntervalSeconds?: number | null
+  unlockCost?: number | null
+  behavior?: string | null
+  hue?: number | null
+  games?: string | null
+  artPrompt?: string | null
+  evolutionKind?: $Enums.EvolutionKind | null
+  evolvesToId?: number | null
+  icon?: string | null
+  iconPath?: string | null
+  imagePath?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  artImageId?: number | null
+  cardArtImageId?: number | null
+  heroArtImageId?: number | null
+  iconArtImageId?: number | null
+  isPublic?: boolean
+  isActive?: boolean
+  isMature?: boolean
+  allowReviews?: boolean
+  userId?: number | null
+  packId?: number | null
+  EvolvesFrom?: Prisma.MonsterUncheckedCreateNestedManyWithoutEvolvesToInput
+  AquariumStock?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutMonsterInput
+}
+
+export type MonsterCreateOrConnectWithoutAquariumCodexEntryInput = {
+  where: Prisma.MonsterWhereUniqueInput
+  create: Prisma.XOR<Prisma.MonsterCreateWithoutAquariumCodexEntryInput, Prisma.MonsterUncheckedCreateWithoutAquariumCodexEntryInput>
+}
+
+export type MonsterUpsertWithoutAquariumCodexEntryInput = {
+  update: Prisma.XOR<Prisma.MonsterUpdateWithoutAquariumCodexEntryInput, Prisma.MonsterUncheckedUpdateWithoutAquariumCodexEntryInput>
+  create: Prisma.XOR<Prisma.MonsterCreateWithoutAquariumCodexEntryInput, Prisma.MonsterUncheckedCreateWithoutAquariumCodexEntryInput>
+  where?: Prisma.MonsterWhereInput
+}
+
+export type MonsterUpdateToOneWithWhereWithoutAquariumCodexEntryInput = {
+  where?: Prisma.MonsterWhereInput
+  data: Prisma.XOR<Prisma.MonsterUpdateWithoutAquariumCodexEntryInput, Prisma.MonsterUncheckedUpdateWithoutAquariumCodexEntryInput>
+}
+
+export type MonsterUpdateWithoutAquariumCodexEntryInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fieldNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tier?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  empathy?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  grace?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  luck?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  might?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  size?: Prisma.IntFieldUpdateOperationsInput | number
+  yieldPerTick?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tickIntervalSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  unlockCost?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  behavior?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hue?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  games?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evolutionKind?: Prisma.NullableEnumEvolutionKindFieldUpdateOperationsInput | $Enums.EvolutionKind | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  EvolvesTo?: Prisma.MonsterUpdateOneWithoutEvolvesFromNestedInput
+  EvolvesFrom?: Prisma.MonsterUpdateManyWithoutEvolvesToNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutMonstersNestedInput
+  User?: Prisma.UserUpdateOneWithoutMonstersNestedInput
+  Pack?: Prisma.PackUpdateOneWithoutMonstersNestedInput
+  AquariumStock?: Prisma.AquariumStockUpdateManyWithoutMonsterNestedInput
+}
+
+export type MonsterUncheckedUpdateWithoutAquariumCodexEntryInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  species?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  class?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fieldNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  quirks?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alignment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tier?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  charm?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  empathy?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  grace?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  luck?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  might?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
+  size?: Prisma.IntFieldUpdateOperationsInput | number
+  yieldPerTick?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tickIntervalSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  unlockCost?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  behavior?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hue?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  games?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evolutionKind?: Prisma.NullableEnumEvolutionKindFieldUpdateOperationsInput | $Enums.EvolutionKind | null
+  evolvesToId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  EvolvesFrom?: Prisma.MonsterUncheckedUpdateManyWithoutEvolvesToNestedInput
+  AquariumStock?: Prisma.AquariumStockUncheckedUpdateManyWithoutMonsterNestedInput
 }
 
 export type MonsterCreateWithoutEvolvesFromInput = {
@@ -1913,6 +2378,8 @@ export type MonsterCreateWithoutEvolvesFromInput = {
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutMonstersInput
   User?: Prisma.UserCreateNestedOneWithoutMonstersInput
   Pack?: Prisma.PackCreateNestedOneWithoutMonstersInput
+  AquariumStock?: Prisma.AquariumStockCreateNestedManyWithoutMonsterInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryCreateNestedManyWithoutMonsterInput
 }
 
 export type MonsterUncheckedCreateWithoutEvolvesFromInput = {
@@ -1958,6 +2425,8 @@ export type MonsterUncheckedCreateWithoutEvolvesFromInput = {
   allowReviews?: boolean
   userId?: number | null
   packId?: number | null
+  AquariumStock?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutMonsterInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryUncheckedCreateNestedManyWithoutMonsterInput
 }
 
 export type MonsterCreateOrConnectWithoutEvolvesFromInput = {
@@ -2007,6 +2476,8 @@ export type MonsterCreateWithoutEvolvesToInput = {
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutMonstersInput
   User?: Prisma.UserCreateNestedOneWithoutMonstersInput
   Pack?: Prisma.PackCreateNestedOneWithoutMonstersInput
+  AquariumStock?: Prisma.AquariumStockCreateNestedManyWithoutMonsterInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryCreateNestedManyWithoutMonsterInput
 }
 
 export type MonsterUncheckedCreateWithoutEvolvesToInput = {
@@ -2052,6 +2523,8 @@ export type MonsterUncheckedCreateWithoutEvolvesToInput = {
   userId?: number | null
   packId?: number | null
   EvolvesFrom?: Prisma.MonsterUncheckedCreateNestedManyWithoutEvolvesToInput
+  AquariumStock?: Prisma.AquariumStockUncheckedCreateNestedManyWithoutMonsterInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryUncheckedCreateNestedManyWithoutMonsterInput
 }
 
 export type MonsterCreateOrConnectWithoutEvolvesToInput = {
@@ -2117,6 +2590,8 @@ export type MonsterUpdateWithoutEvolvesFromInput = {
   ArtImage?: Prisma.ArtImageUpdateOneWithoutMonstersNestedInput
   User?: Prisma.UserUpdateOneWithoutMonstersNestedInput
   Pack?: Prisma.PackUpdateOneWithoutMonstersNestedInput
+  AquariumStock?: Prisma.AquariumStockUpdateManyWithoutMonsterNestedInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryUpdateManyWithoutMonsterNestedInput
 }
 
 export type MonsterUncheckedUpdateWithoutEvolvesFromInput = {
@@ -2162,6 +2637,8 @@ export type MonsterUncheckedUpdateWithoutEvolvesFromInput = {
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  AquariumStock?: Prisma.AquariumStockUncheckedUpdateManyWithoutMonsterNestedInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryUncheckedUpdateManyWithoutMonsterNestedInput
 }
 
 export type MonsterUpsertWithWhereUniqueWithoutEvolvesToInput = {
@@ -2266,6 +2743,8 @@ export type MonsterUpdateWithoutArtImageInput = {
   EvolvesFrom?: Prisma.MonsterUpdateManyWithoutEvolvesToNestedInput
   User?: Prisma.UserUpdateOneWithoutMonstersNestedInput
   Pack?: Prisma.PackUpdateOneWithoutMonstersNestedInput
+  AquariumStock?: Prisma.AquariumStockUpdateManyWithoutMonsterNestedInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryUpdateManyWithoutMonsterNestedInput
 }
 
 export type MonsterUncheckedUpdateWithoutArtImageInput = {
@@ -2311,6 +2790,8 @@ export type MonsterUncheckedUpdateWithoutArtImageInput = {
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   EvolvesFrom?: Prisma.MonsterUncheckedUpdateManyWithoutEvolvesToNestedInput
+  AquariumStock?: Prisma.AquariumStockUncheckedUpdateManyWithoutMonsterNestedInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryUncheckedUpdateManyWithoutMonsterNestedInput
 }
 
 export type MonsterUncheckedUpdateManyWithoutArtImageInput = {
@@ -2443,6 +2924,8 @@ export type MonsterUpdateWithoutPackInput = {
   EvolvesFrom?: Prisma.MonsterUpdateManyWithoutEvolvesToNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutMonstersNestedInput
   User?: Prisma.UserUpdateOneWithoutMonstersNestedInput
+  AquariumStock?: Prisma.AquariumStockUpdateManyWithoutMonsterNestedInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryUpdateManyWithoutMonsterNestedInput
 }
 
 export type MonsterUncheckedUpdateWithoutPackInput = {
@@ -2488,6 +2971,8 @@ export type MonsterUncheckedUpdateWithoutPackInput = {
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   EvolvesFrom?: Prisma.MonsterUncheckedUpdateManyWithoutEvolvesToNestedInput
+  AquariumStock?: Prisma.AquariumStockUncheckedUpdateManyWithoutMonsterNestedInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryUncheckedUpdateManyWithoutMonsterNestedInput
 }
 
 export type MonsterUncheckedUpdateManyWithoutPackInput = {
@@ -2620,6 +3105,8 @@ export type MonsterUpdateWithoutUserInput = {
   EvolvesFrom?: Prisma.MonsterUpdateManyWithoutEvolvesToNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutMonstersNestedInput
   Pack?: Prisma.PackUpdateOneWithoutMonstersNestedInput
+  AquariumStock?: Prisma.AquariumStockUpdateManyWithoutMonsterNestedInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryUpdateManyWithoutMonsterNestedInput
 }
 
 export type MonsterUncheckedUpdateWithoutUserInput = {
@@ -2665,6 +3152,8 @@ export type MonsterUncheckedUpdateWithoutUserInput = {
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   EvolvesFrom?: Prisma.MonsterUncheckedUpdateManyWithoutEvolvesToNestedInput
+  AquariumStock?: Prisma.AquariumStockUncheckedUpdateManyWithoutMonsterNestedInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryUncheckedUpdateManyWithoutMonsterNestedInput
 }
 
 export type MonsterUncheckedUpdateManyWithoutUserInput = {
@@ -2797,6 +3286,8 @@ export type MonsterUpdateWithoutEvolvesToInput = {
   ArtImage?: Prisma.ArtImageUpdateOneWithoutMonstersNestedInput
   User?: Prisma.UserUpdateOneWithoutMonstersNestedInput
   Pack?: Prisma.PackUpdateOneWithoutMonstersNestedInput
+  AquariumStock?: Prisma.AquariumStockUpdateManyWithoutMonsterNestedInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryUpdateManyWithoutMonsterNestedInput
 }
 
 export type MonsterUncheckedUpdateWithoutEvolvesToInput = {
@@ -2842,6 +3333,8 @@ export type MonsterUncheckedUpdateWithoutEvolvesToInput = {
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   EvolvesFrom?: Prisma.MonsterUncheckedUpdateManyWithoutEvolvesToNestedInput
+  AquariumStock?: Prisma.AquariumStockUncheckedUpdateManyWithoutMonsterNestedInput
+  AquariumCodexEntry?: Prisma.AquariumCodexEntryUncheckedUpdateManyWithoutMonsterNestedInput
 }
 
 export type MonsterUncheckedUpdateManyWithoutEvolvesToInput = {
@@ -2895,10 +3388,14 @@ export type MonsterUncheckedUpdateManyWithoutEvolvesToInput = {
 
 export type MonsterCountOutputType = {
   EvolvesFrom: number
+  AquariumStock: number
+  AquariumCodexEntry: number
 }
 
 export type MonsterCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   EvolvesFrom?: boolean | MonsterCountOutputTypeCountEvolvesFromArgs
+  AquariumStock?: boolean | MonsterCountOutputTypeCountAquariumStockArgs
+  AquariumCodexEntry?: boolean | MonsterCountOutputTypeCountAquariumCodexEntryArgs
 }
 
 /**
@@ -2916,6 +3413,20 @@ export type MonsterCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exte
  */
 export type MonsterCountOutputTypeCountEvolvesFromArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.MonsterWhereInput
+}
+
+/**
+ * MonsterCountOutputType without action
+ */
+export type MonsterCountOutputTypeCountAquariumStockArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AquariumStockWhereInput
+}
+
+/**
+ * MonsterCountOutputType without action
+ */
+export type MonsterCountOutputTypeCountAquariumCodexEntryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AquariumCodexEntryWhereInput
 }
 
 
@@ -2967,6 +3478,8 @@ export type MonsterSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   ArtImage?: boolean | Prisma.Monster$ArtImageArgs<ExtArgs>
   User?: boolean | Prisma.Monster$UserArgs<ExtArgs>
   Pack?: boolean | Prisma.Monster$PackArgs<ExtArgs>
+  AquariumStock?: boolean | Prisma.Monster$AquariumStockArgs<ExtArgs>
+  AquariumCodexEntry?: boolean | Prisma.Monster$AquariumCodexEntryArgs<ExtArgs>
   _count?: boolean | Prisma.MonsterCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["monster"]>
 
@@ -3024,6 +3537,8 @@ export type MonsterInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   ArtImage?: boolean | Prisma.Monster$ArtImageArgs<ExtArgs>
   User?: boolean | Prisma.Monster$UserArgs<ExtArgs>
   Pack?: boolean | Prisma.Monster$PackArgs<ExtArgs>
+  AquariumStock?: boolean | Prisma.Monster$AquariumStockArgs<ExtArgs>
+  AquariumCodexEntry?: boolean | Prisma.Monster$AquariumCodexEntryArgs<ExtArgs>
   _count?: boolean | Prisma.MonsterCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -3035,6 +3550,8 @@ export type $MonsterPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     ArtImage: Prisma.$ArtImagePayload<ExtArgs> | null
     User: Prisma.$UserPayload<ExtArgs> | null
     Pack: Prisma.$PackPayload<ExtArgs> | null
+    AquariumStock: Prisma.$AquariumStockPayload<ExtArgs>[]
+    AquariumCodexEntry: Prisma.$AquariumCodexEntryPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -3481,6 +3998,8 @@ export interface Prisma__MonsterClient<T, Null = never, ExtArgs extends runtime.
   ArtImage<T extends Prisma.Monster$ArtImageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Monster$ArtImageArgs<ExtArgs>>): Prisma.Prisma__ArtImageClient<runtime.Types.Result.GetResult<Prisma.$ArtImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   User<T extends Prisma.Monster$UserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Monster$UserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Pack<T extends Prisma.Monster$PackArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Monster$PackArgs<ExtArgs>>): Prisma.Prisma__PackClient<runtime.Types.Result.GetResult<Prisma.$PackPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  AquariumStock<T extends Prisma.Monster$AquariumStockArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Monster$AquariumStockArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AquariumStockPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  AquariumCodexEntry<T extends Prisma.Monster$AquariumCodexEntryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Monster$AquariumCodexEntryArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AquariumCodexEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3997,6 +4516,54 @@ export type Monster$PackArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    */
   include?: Prisma.PackInclude<ExtArgs> | null
   where?: Prisma.PackWhereInput
+}
+
+/**
+ * Monster.AquariumStock
+ */
+export type Monster$AquariumStockArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AquariumStock
+   */
+  select?: Prisma.AquariumStockSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AquariumStock
+   */
+  omit?: Prisma.AquariumStockOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AquariumStockInclude<ExtArgs> | null
+  where?: Prisma.AquariumStockWhereInput
+  orderBy?: Prisma.AquariumStockOrderByWithRelationInput | Prisma.AquariumStockOrderByWithRelationInput[]
+  cursor?: Prisma.AquariumStockWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AquariumStockScalarFieldEnum | Prisma.AquariumStockScalarFieldEnum[]
+}
+
+/**
+ * Monster.AquariumCodexEntry
+ */
+export type Monster$AquariumCodexEntryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AquariumCodexEntry
+   */
+  select?: Prisma.AquariumCodexEntrySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AquariumCodexEntry
+   */
+  omit?: Prisma.AquariumCodexEntryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AquariumCodexEntryInclude<ExtArgs> | null
+  where?: Prisma.AquariumCodexEntryWhereInput
+  orderBy?: Prisma.AquariumCodexEntryOrderByWithRelationInput | Prisma.AquariumCodexEntryOrderByWithRelationInput[]
+  cursor?: Prisma.AquariumCodexEntryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AquariumCodexEntryScalarFieldEnum | Prisma.AquariumCodexEntryScalarFieldEnum[]
 }
 
 /**

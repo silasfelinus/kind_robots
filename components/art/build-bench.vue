@@ -1,26 +1,32 @@
 <template>
-  <section class="kr-container flex flex-col gap-4 p-3">
-    <header class="flex flex-wrap items-center justify-between gap-2">
-      <div>
-        <h1 class="text-xl font-semibold">⚗️ Build Bench</h1>
-        <p class="text-xs text-base-content/60">
-          Pit two full builds head-to-head — clone one side, change a single knob,
-          render both, pick the winner. Renders jump the queue (priority) and land
-          in your gallery.
-        </p>
+  <section class="kr-container flex flex-col gap-4 p-4 md:p-6">
+    <header class="flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <span
+          class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/15 text-primary"
+        >
+          <Icon name="kind-icon:server" class="h-7 w-7" />
+        </span>
+        <div>
+          <p class="text-2xl font-black tracking-tight">Build Bench</p>
+          <p class="text-sm text-base-content/60">
+            Two builds enter, you decide. Clone one side, change a single knob,
+            render both, pick the winner.
+          </p>
+        </div>
       </div>
       <div class="flex flex-wrap items-center gap-2">
-        <button class="btn btn-primary btn-sm rounded-2xl" :disabled="running" @click="store.runBoth">
+        <button class="btn btn-primary btn-sm" :disabled="running" @click="store.runBoth">
           <span v-if="running" class="loading loading-spinner loading-xs" />
           Run both
         </button>
-        <button class="btn btn-ghost btn-sm rounded-2xl" :disabled="running" @click="store.newMatchup">
+        <button class="btn btn-ghost btn-sm" :disabled="running" @click="store.newMatchup">
           New matchup
         </button>
       </div>
     </header>
 
-    <p v-if="store.state.error" class="kr-note-warning rounded-xl p-2 text-xs">
+    <p v-if="store.state.error" class="kr-note kr-note-warning">
       {{ store.state.error }}
     </p>
 
@@ -28,7 +34,7 @@
       <div
         v-for="side in (['A', 'B'] as BenchSide[])"
         :key="side"
-        class="flex flex-col gap-3 rounded-3xl border p-3"
+        class="flex flex-col gap-3 rounded-2xl border p-4"
         :class="store.state.winner === side ? 'border-success bg-success/5' : 'border-base-300 bg-base-100'"
       >
         <div class="flex items-center justify-between">
@@ -39,7 +45,7 @@
             <span v-if="store.state.winner === side" class="badge badge-success badge-sm">🏆 winner</span>
           </div>
           <button
-            class="btn btn-ghost btn-xs rounded-xl"
+            class="btn btn-ghost btn-xs"
             :disabled="running"
             :title="`Copy Build ${side}'s entire config onto Build ${side === 'A' ? 'B' : 'A'}`"
             @click="store.cloneTo(side)"
@@ -51,7 +57,7 @@
         <label class="flex flex-col gap-1 text-xs">
           <span class="font-semibold">Engine</span>
           <select
-            class="select select-bordered select-sm rounded-xl"
+            class="select select-bordered select-sm"
             :value="cfg(side).engine"
             @change="store.setEngine(side, ($event.target as HTMLSelectElement).value as BenchEngineKey)"
           >
@@ -66,7 +72,7 @@
           <textarea
             v-model="cfg(side).prompt"
             rows="3"
-            class="textarea textarea-bordered textarea-sm rounded-xl"
+            class="textarea textarea-bordered textarea-sm"
             placeholder="Describe the image…"
             @change="store.persist"
           />
@@ -77,22 +83,22 @@
           <textarea
             v-model="cfg(side).negativePrompt"
             rows="2"
-            class="textarea textarea-bordered textarea-sm mt-2 w-full rounded-xl"
+            class="textarea textarea-bordered textarea-sm mt-2 w-full"
             placeholder="Negative prompt (works on cfg>1 engines)"
             @change="store.persist"
           />
           <div class="mt-2 grid grid-cols-3 gap-2">
             <label class="flex flex-col gap-1">
               <span>Steps</span>
-              <input v-model.number="cfg(side).steps" type="number" min="1" class="input input-bordered input-xs rounded-lg" @change="store.persist" />
+              <input v-model.number="cfg(side).steps" type="number" min="1" class="input input-bordered input-xs" @change="store.persist" />
             </label>
             <label class="flex flex-col gap-1">
               <span>CFG</span>
-              <input v-model.number="cfg(side).cfg" type="number" step="0.1" class="input input-bordered input-xs rounded-lg" @change="store.persist" />
+              <input v-model.number="cfg(side).cfg" type="number" step="0.1" class="input input-bordered input-xs" @change="store.persist" />
             </label>
             <label class="flex flex-col gap-1">
               <span>Guidance</span>
-              <input v-model.number="cfg(side).guidance" type="number" step="0.1" class="input input-bordered input-xs rounded-lg" @change="store.persist" />
+              <input v-model.number="cfg(side).guidance" type="number" step="0.1" class="input input-bordered input-xs" @change="store.persist" />
             </label>
             <label class="flex flex-col gap-1">
               <span>Seed</span>
@@ -100,48 +106,54 @@
                 :value="cfg(side).seed ?? ''"
                 type="number"
                 placeholder="random"
-                class="input input-bordered input-xs rounded-lg"
+                class="input input-bordered input-xs"
                 @change="onSeed(side, $event)"
               />
             </label>
             <label class="flex flex-col gap-1">
               <span>Width</span>
-              <input v-model.number="cfg(side).width" type="number" step="8" class="input input-bordered input-xs rounded-lg" @change="store.persist" />
+              <input v-model.number="cfg(side).width" type="number" step="8" class="input input-bordered input-xs" @change="store.persist" />
             </label>
             <label class="flex flex-col gap-1">
               <span>Height</span>
-              <input v-model.number="cfg(side).height" type="number" step="8" class="input input-bordered input-xs rounded-lg" @change="store.persist" />
+              <input v-model.number="cfg(side).height" type="number" step="8" class="input input-bordered input-xs" @change="store.persist" />
             </label>
             <label class="flex flex-col gap-1">
               <span>Sampler</span>
-              <input v-model="cfg(side).sampler" type="text" class="input input-bordered input-xs rounded-lg" @change="store.persist" />
+              <input v-model="cfg(side).sampler" type="text" class="input input-bordered input-xs" @change="store.persist" />
             </label>
             <label class="flex flex-col gap-1">
               <span>Scheduler</span>
-              <input v-model="cfg(side).scheduler" type="text" class="input input-bordered input-xs rounded-lg" @change="store.persist" />
+              <input v-model="cfg(side).scheduler" type="text" class="input input-bordered input-xs" @change="store.persist" />
             </label>
             <label class="flex flex-col gap-1">
               <span>LoRA</span>
-              <input v-model="cfg(side).loraName" type="text" placeholder="none" class="input input-bordered input-xs rounded-lg" @change="store.persist" />
+              <input v-model="cfg(side).loraName" type="text" placeholder="none" class="input input-bordered input-xs" @change="store.persist" />
             </label>
           </div>
         </details>
 
-        <button class="btn btn-outline btn-sm rounded-2xl" :disabled="running" @click="store.runSide(side)">
+        <button class="btn btn-outline btn-sm" :disabled="running" @click="store.runSide(side)">
           Render Build {{ side }}
         </button>
 
         <!-- result -->
-        <div class="flex min-h-48 items-center justify-center rounded-2xl bg-base-200 p-2">
-          <div v-if="result(side).status === 'idle'" class="text-xs opacity-50">No render yet</div>
+        <div class="flex min-h-48 items-center justify-center rounded-2xl bg-base-200 p-3">
+          <div
+            v-if="result(side).status === 'idle'"
+            class="flex flex-col items-center gap-2 text-xs text-base-content/50"
+          >
+            <Icon name="kind-icon:image" class="h-8 w-8 opacity-60" />
+            No render yet
+          </div>
           <div v-else-if="result(side).status === 'queued' || result(side).status === 'rendering'" class="flex flex-col items-center gap-2 text-xs">
             <span class="loading loading-spinner loading-md" />
             {{ result(side).status === 'rendering' ? 'Rendering…' : 'Queued…' }}
             <span v-if="result(side).jobId" class="opacity-50">job #{{ result(side).jobId }}</span>
           </div>
-          <div v-else-if="result(side).status === 'failed'" class="kr-note-warning rounded-xl p-2 text-xs">
+          <p v-else-if="result(side).status === 'failed'" class="kr-note kr-note-warning">
             Failed: {{ result(side).error }}
-          </div>
+          </p>
           <img
             v-else-if="result(side).src"
             :src="result(side).src"
@@ -153,7 +165,7 @@
         <div v-if="result(side).status === 'done'" class="flex items-center justify-between text-[11px] opacity-70">
           <span>seed {{ result(side).seed ?? '—' }} · {{ elapsed(side) }} · ArtImage #{{ result(side).artImageId }}</span>
           <button
-            class="btn btn-xs rounded-xl"
+            class="btn btn-xs"
             :class="store.state.winner === side ? 'btn-success' : 'btn-ghost'"
             @click="store.pickWinner(side)"
           >
@@ -164,24 +176,24 @@
     </div>
 
     <!-- save / notes -->
-    <div class="flex flex-wrap items-center gap-2 rounded-2xl border border-base-300 p-3">
+    <div class="kr-panel-flat flex flex-wrap items-center gap-2 p-4">
       <input
         v-model="store.state.note"
         type="text"
         placeholder="Notes on this matchup (why the winner won)…"
-        class="input input-bordered input-sm flex-1 rounded-xl"
+        class="input input-bordered input-sm flex-1"
       />
-      <button class="btn btn-sm rounded-2xl" @click="store.saveMatchup">Save matchup</button>
+      <button class="btn btn-sm" @click="store.saveMatchup">Save matchup</button>
     </div>
 
     <!-- saved matchups -->
-    <details v-if="store.state.saved.length" class="rounded-2xl border border-base-300 p-3 text-xs">
+    <details v-if="store.state.saved.length" class="kr-panel-flat p-4 text-xs">
       <summary class="cursor-pointer font-semibold">Saved matchups ({{ store.state.saved.length }})</summary>
-      <ul class="mt-2 flex flex-col gap-1">
+      <ul class="mt-3 flex flex-col gap-1.5">
         <li
           v-for="m in store.state.saved"
           :key="m.id"
-          class="flex items-center justify-between gap-2 rounded-xl bg-base-200 px-2 py-1"
+          class="flex items-center justify-between gap-2 rounded-xl bg-base-200 px-3 py-2"
         >
           <span class="truncate">
             <strong>{{ engineLabel(m.a.engine) }}</strong> vs <strong>{{ engineLabel(m.b.engine) }}</strong>

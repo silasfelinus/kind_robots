@@ -11,7 +11,7 @@
       >
         <p class="text-xl font-black">Administrator access required</p>
         <p class="mt-2 text-sm text-base-content/60">
-          This screen edits production prompts and can enqueue GPU work.
+          This screen edits production curation data and can enqueue GPU work.
         </p>
       </div>
 
@@ -34,15 +34,25 @@
             >
               ✏️ Coloring Book
             </button>
+            <button
+              type="button"
+              class="tab font-black"
+              :class="{ 'tab-active': project === 'mandarin' }"
+              @click="project = 'mandarin'"
+            >
+              🀄 Mandarin
+            </button>
           </nav>
           <div class="flex flex-wrap gap-2">
             <span class="badge badge-outline">Admin only</span>
+            <span class="badge badge-outline">Audited changes</span>
             <span class="badge badge-outline">ArtJob backed</span>
           </div>
         </div>
 
         <CurationCthulhuquariumCuration v-if="project === 'cthulhuquarium'" />
-        <CurationColoringBookCuration v-else />
+        <CurationColoringBookCuration v-else-if="project === 'coloring-book'" />
+        <CurationMandarinCuration v-else />
       </template>
     </div>
   </main>
@@ -52,11 +62,14 @@
 import { onMounted, ref } from 'vue'
 import CurationColoringBookCuration from '@/components/curation/coloring-book-curation.vue'
 import CurationCthulhuquariumCuration from '@/components/curation/cthulhuquarium-curation.vue'
+import CurationMandarinCuration from '@/components/curation/mandarin-curation.vue'
 import { useUserStore } from '@/stores/userStore'
 
 const userStore = useUserStore()
 const ready = ref(false)
-const project = ref<'cthulhuquarium' | 'coloring-book'>('cthulhuquarium')
+const project = ref<'cthulhuquarium' | 'coloring-book' | 'mandarin'>(
+  'cthulhuquarium',
+)
 
 onMounted(async () => {
   await userStore.initialize()

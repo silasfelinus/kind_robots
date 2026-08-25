@@ -6,7 +6,7 @@
           <p class="text-xs font-black uppercase tracking-widest text-primary">
             Temporary catalog cleanup
           </p>
-          <h1 class="mt-1 text-2xl font-black">LoRA maturity triage</h1>
+          <div class="mt-1 text-2xl font-black">LoRA maturity triage</div>
           <p class="mt-1 max-w-3xl text-sm text-base-content/60">
             Confirm LoRAs as SFW or NSFW here, then save the changed maturity flags in one pass.
             Review progress stays in this browser until this cleanup page is removed.

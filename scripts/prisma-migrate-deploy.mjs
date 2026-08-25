@@ -39,6 +39,46 @@ if (!databaseUrl) {
   )
 }
 
+// The credential boundary has to check the ACCOUNT, not just the variable name.
+//
+// Refusing DATABASE_URL above only stops someone passing the wrong VARIABLE. It
+// does nothing about the wrong VALUE, and on 2026-08-25 that is exactly what
+// production had: .env line 103 defined MIGRATION_DATABASE_URL pointing at
+// `kindrobot`, the ordinary application account, not `kindrobot_migrate`. Every
+// check in this repo passed, because every check looked at the name. The boundary
+// was not merely bypassed, it was inverted -- schema writes would have run as the
+// web process's own user, which is the precise thing the two-lane design exists
+// to prevent.
+//
+// Comparing the two URLs' usernames catches it without hardcoding an account
+// name, so this keeps working if the lanes are ever renamed. DATABASE_URL is
+// normally present here because the migrate container is given --env-file .env
+// (compose passes it too); when it is absent there is nothing to compare and the
+// check is skipped rather than guessed at.
+const appUrlRaw = process.env.DATABASE_URL?.trim().replace(/^(["'])(.*)\1$/, '$2')
+if (appUrlRaw) {
+  let migrateUser
+  let appUser
+  try {
+    migrateUser = new URL(databaseUrl).username
+    appUser = new URL(appUrlRaw).username
+  } catch {
+    // A malformed URL is diagnosed further down with better context; do not
+    // pre-empt it with a confusing message from this check.
+    migrateUser = undefined
+  }
+  if (migrateUser && appUser && migrateUser === appUser) {
+    throw new Error(
+      `MIGRATION_DATABASE_URL and DATABASE_URL are the same database account ` +
+        `('${migrateUser}'). Schema changes must run as the elevated migration ` +
+        `account, not the application account -- see ` +
+        `docs/runbooks/migration-credential-boundary.md. Regenerate the handoff ` +
+        `file with scripts/provision-migrate-db-lane.sh --apply and source it, ` +
+        `rather than pointing MIGRATION_DATABASE_URL at the app credential.`,
+    )
+  }
+}
+
 function readDatabaseSslCa() {
   const encoded = process.env.DATABASE_SSL_CA_BASE64?.replace(/\s+/g, '')
   if (encoded) {

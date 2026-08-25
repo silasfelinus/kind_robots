@@ -77,6 +77,23 @@ assert.match(
 // holding a credential that can drop tables (see verifyMigrateOnDeploy.ts), and it
 // becomes a SILENT FALLBACK that turns a lost handoff file into an obscure
 // downstream error instead of a clear one (2026-08-25).
+// The boundary must check the ACCOUNT, not only the variable name. Refusing
+// DATABASE_URL as a variable does nothing about MIGRATION_DATABASE_URL holding the
+// app account's URL -- which is what production actually had on 2026-08-25 (.env
+// line 103 pointed at `kindrobot`, not `kindrobot_migrate`), passing every check in
+// this repo because every check looked at the name.
+assert.match(
+  migrateWrapper,
+  /MIGRATION_DATABASE_URL and DATABASE_URL are the same database account/,
+  'prisma-migrate-deploy.mjs must refuse a MIGRATION_DATABASE_URL whose account ' +
+    'equals DATABASE_URL\'s -- name-only checks do not enforce the lane boundary',
+)
+assert.match(
+  migrateWrapper,
+  /new URL\(databaseUrl\)\.username/,
+  'the account check must compare parsed usernames, not substrings',
+)
+
 const envExample = readFileSync('.env.example', 'utf8')
 const definesMigrationUrl = envExample
   .split('\n')

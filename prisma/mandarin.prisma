@@ -1,0 +1,22 @@
+/// Shared pronunciation reference audio for Mandarin Tutor. One deterministic
+/// asset identity represents one catalog card + synthesis recipe, so the first
+/// learner to request it may synthesize it and every later web/mobile client
+/// can reuse the exact same bytes without another provider call.
+model MandarinAudioAsset {
+  id          String   @id @db.VarChar(64)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  cardKey     String   @db.VarChar(255)
+  text        String   @db.VarChar(255)
+  pinyin      String   @db.VarChar(512)
+  provider    String   @db.VarChar(64)
+  model       String   @db.VarChar(128)
+  voice       String   @db.VarChar(64)
+  format      String   @db.VarChar(16)
+  contentType String   @db.VarChar(64)
+  byteLength  Int
+  audioData   Bytes    @db.MediumBlob
+
+  @@unique([cardKey, model, voice, format])
+  @@index([cardKey])
+}

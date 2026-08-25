@@ -124,14 +124,43 @@
           </aside>
 
           <main class="min-w-0 space-y-4">
-            <div v-if="selectedSet" class="flex flex-wrap items-center justify-between gap-2 text-sm">
-              <div>
-                <span class="font-semibold">{{ selectedSet.label }}</span>
-                <span class="ml-2 opacity-60">{{ selectedSet.description }}</span>
+            <div v-if="selectedSet" class="space-y-2 text-sm">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div class="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                  <span class="font-semibold">{{ selectedSet.label }}</span>
+                  <span class="opacity-60">{{ selectedSet.description }}</span>
+                  <button
+                    v-if="selectedCustomSetId && renamingSetId !== selectedCustomSetId"
+                    type="button"
+                    class="btn btn-ghost btn-xs"
+                    @click="startRenameSelectedSet"
+                  >
+                    Rename deck
+                  </button>
+                </div>
+                <button v-if="focusKey" type="button" class="btn btn-ghost btn-sm" @click="store.clearFocus()">
+                  Return to deck
+                </button>
               </div>
-              <button v-if="focusKey" type="button" class="btn btn-ghost btn-sm" @click="store.clearFocus()">
-                Return to deck
-              </button>
+
+              <form
+                v-if="selectedCustomSetId && renamingSetId === selectedCustomSetId"
+                class="flex max-w-lg flex-wrap items-center gap-2 rounded-xl border border-base-300 bg-base-100 p-2"
+                @submit.prevent="saveRenamedSet"
+              >
+                <input
+                  v-model="renameSetName"
+                  class="input input-bordered input-sm min-w-44 flex-1"
+                  maxlength="80"
+                  aria-label="Custom study set name"
+                />
+                <button class="btn btn-primary btn-sm" type="submit" :disabled="!renameSetName.trim()">
+                  Save name
+                </button>
+                <button class="btn btn-ghost btn-sm" type="button" @click="cancelRenameSet">
+                  Cancel
+                </button>
+              </form>
             </div>
 
             <div
@@ -356,6 +385,13 @@ const {
 } = storeToRefs(store)
 
 const newSetName = ref('')
+const renamingSetId = ref<string | null>(null)
+const renameSetName = ref('')
+const selectedCustomSetId = computed(() =>
+  selectedSetId.value.startsWith('custom:')
+    ? selectedSetId.value.slice('custom:'.length)
+    : null,
+)
 const currentRequested = computed(() =>
   currentCard.value ? store.requestedData(currentCard.value.key) : null,
 )
@@ -365,6 +401,28 @@ function createSet() {
   if (!created) return
   newSetName.value = ''
   store.selectSet(`custom:${created.id}`)
+}
+
+function startRenameSelectedSet() {
+  const id = selectedCustomSetId.value
+  if (!id) return
+  const set = customSets.value.find((candidate) => candidate.id === id)
+  if (!set) return
+  renamingSetId.value = id
+  renameSetName.value = set.name
+}
+
+function saveRenamedSet() {
+  const id = selectedCustomSetId.value
+  if (!id || renamingSetId.value !== id) return
+  if (!store.renameCustomSet(id, renameSetName.value)) return
+  renamingSetId.value = null
+  renameSetName.value = ''
+}
+
+function cancelRenameSet() {
+  renamingSetId.value = null
+  renameSetName.value = ''
 }
 
 async function requestCurrentWord() {

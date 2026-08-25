@@ -210,6 +210,18 @@ function buildSets(cards: MandarinCard[]): MandarinStudySet[] {
   return sets.filter((set) => set.cardKeys.length > 0)
 }
 
+async function enrichCharacterDataSafely(cards: MandarinCard[]): Promise<MandarinCard[]> {
+  try {
+    return await enrichMandarinCharacterData(cards)
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error)
+    console.warn('[mandarin] character-analysis enrichment unavailable; serving lexical catalog without it', {
+      message,
+    })
+    return cards
+  }
+}
+
 async function createCatalog(): Promise<MandarinCatalogPayload> {
   const [levelOne, levelTwo] = await Promise.all([fetchLevel(1), fetchLevel(2)])
   const baseCards = mergeCards([...levelOne, ...levelTwo])
@@ -222,7 +234,9 @@ async function createCatalog(): Promise<MandarinCatalogPayload> {
   // Character formation data is a separate provenance layer from lexical
   // meanings. Enrich only after the vocabulary catalog is normalized so a
   // character source can never silently replace a word's dictionary meaning.
-  const cards = await enrichMandarinCharacterData(baseCards)
+  // If the secondary source is temporarily unavailable, keep the core study
+  // deck alive and leave its existing pending/curated analysis intact.
+  const cards = await enrichCharacterDataSafely(baseCards)
 
   return {
     cards,

@@ -248,12 +248,6 @@ model Character {
   /// Optional daisyUI theme this record's card wears. NULL falls back to a
   /// stable id-derived pick -- see resolveEntityTheme in utils/entityTheme.ts.
   theme                String?                @db.VarChar(764)
-  /// cthulhuquarium/t-007: fish species stocked into a tank. AquariumStock
-  /// references this Character row rather than duplicating species data.
-  AquariumStock        AquariumStock[]
-  /// cthulhuquarium/t-032: the Ichthyonomicon -- one row per user per species
-  /// ever owned, surviving a sell/rotation cycle. See AquariumCodexEntry.
-  AquariumCodexEntries AquariumCodexEntry[]
 
   @@index([userId], map: "Character_userId_fkey")
   @@index([isPublic])
@@ -2315,7 +2309,7 @@ model LifeRunArt {
 }
 
 /// cthulhuquarium/t-007: a player's persistent tank. Fish species are
-/// Character rows -- AquariumStock references them, never duplicates them.
+/// Monster rows -- AquariumStock references them, never duplicates them.
 /// See projects/cthulhuquarium/roadmap.yaml and DESIGN-BRIEF.md in conductor.
 model Aquarium {
   id            Int             @id @default(autoincrement())
@@ -2337,7 +2331,7 @@ model Aquarium {
   /// with sizeCap.
   setSlotsCap   Int             @default(3)
   /// cthulhuquarium/t-032: weighed fish capacity, measured against the sum of
-  /// placed AquariumStock's Character.size. [v1 placeholder -- economy.yaml
+  /// placed AquariumStock's Monster.size. [v1 placeholder -- economy.yaml
   /// predates this two-pool split (it was written for a single shared-pool
   /// model Silas later superseded) and does not yet carry a tuned starting
   /// value; this default is a starting-point guess for a future balance pass,
@@ -2357,7 +2351,7 @@ model Aquarium {
   @@index([isPublic])
 }
 
-/// One fish (Character row) placed in one Aquarium. hunger/mood are the live
+/// One fish (Monster row) placed in one Aquarium. hunger/mood are the live
 /// play-loop state; placedAt lets the UI order a tank by arrival.
 ///
 /// cthulhuquarium/t-032: the bible (Character) describes species; this table
@@ -2371,12 +2365,12 @@ model AquariumStock {
   createdAt          DateTime        @default(now())
   updatedAt          DateTime?       @default(now()) @updatedAt
   aquariumId         Int
-  characterId        Int
+  monsterId          Int
   nickname           String?         @db.VarChar(255)
   hunger             Int             @default(100)
   mood               String?         @db.VarChar(64)
   placedAt           DateTime        @default(now())
-  /// Hidden rolled individual stats, mirroring Character's six public Rarity
+  /// Hidden rolled individual stats, mirroring Monster's six public Rarity
   /// stats (charm/empathy/grace/luck/might/wits) but numeric and per-fish
   /// rather than per-species. Null until rolled (t-029: rolled on acquisition
   /// or hatch, and must CONVERGE toward the better parent on breeding rather
@@ -2394,14 +2388,14 @@ model AquariumStock {
   parentAId          Int?
   parentBId          Int?
   Aquarium           Aquarium        @relation(fields: [aquariumId], references: [id], onDelete: Cascade)
-  Character          Character       @relation(fields: [characterId], references: [id])
+  Monster            Monster         @relation(fields: [monsterId], references: [id])
   ParentA            AquariumStock?  @relation("AquariumStockParentA", fields: [parentAId], references: [id], onDelete: SetNull)
   ParentB            AquariumStock?  @relation("AquariumStockParentB", fields: [parentBId], references: [id], onDelete: SetNull)
   OffspringAsParentA AquariumStock[] @relation("AquariumStockParentA")
   OffspringAsParentB AquariumStock[] @relation("AquariumStockParentB")
 
   @@index([aquariumId])
-  @@index([characterId])
+  @@index([monsterId])
   @@index([parentAId])
   @@index([parentBId])
 }
@@ -2438,7 +2432,7 @@ model AquariumCodexEntry {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime? @default(now()) @updatedAt
   userId          Int
-  characterId     Int
+  monsterId       Int
   firstAcquiredAt DateTime  @default(now())
   /// Best individual stats ever seen of this species, owned or not -- the
   /// book's own record, independent of any single AquariumStock row.
@@ -2449,11 +2443,11 @@ model AquariumCodexEntry {
   bestStatMight   Int?
   bestStatWits    Int?
   User            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Character       Character @relation(fields: [characterId], references: [id])
+  Monster         Monster   @relation(fields: [monsterId], references: [id])
 
-  @@unique([userId, characterId])
+  @@unique([userId, monsterId])
   @@index([userId])
-  @@index([characterId])
+  @@index([monsterId])
 }
 
 /// cthulhuquarium/t-035: the bestiary's own model. Character is this site's
@@ -2470,9 +2464,11 @@ model AquariumCodexEntry {
 /// needs. Sharing survives unchanged -- `games` is the mechanism, not the
 /// table, exactly as it was meant to be: a Monster tagged
 /// "cthulhuquarium,ruler-hooked" is readable by both.
-/// NOT YET WIRED, deliberately: AquariumStock.characterId and
-/// AquariumCodexEntry.characterId still reference Character (t-032), and
-/// Character.size still exists. Repointing those tables and dropping
+/// WIRED 2026-08-25 (t-038): AquariumStock.monsterId and
+/// AquariumCodexEntry.monsterId now reference Monster. `Character.size` still
+/// exists and is now dead weight -- dropping it needs the REVERSE deploy order
+/// from an add (deploy the client that stops selecting it FIRST, then migrate),
+/// so it is deliberately not in this change. Repointing those tables and dropping
 /// Character.size are follow-on work, filed separately and kept out of this
 /// migration so this one stays purely additive -- CREATE TABLE only, no
 /// DROP, no rewrite of a table anything currently reads. See t-035's
@@ -2565,6 +2561,8 @@ model Monster {
   ArtImage            ArtImage?      @relation(fields: [artImageId], references: [id])
   User                User?          @relation(fields: [userId], references: [id])
   Pack                Pack?          @relation(fields: [packId], references: [id])
+  AquariumStock       AquariumStock[]
+  AquariumCodexEntry  AquariumCodexEntry[]
 
   @@index([slug])
   @@index([tier])

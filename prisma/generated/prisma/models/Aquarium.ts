@@ -15,7 +15,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 /**
  * Model Aquarium
  * cthulhuquarium/t-007: a player's persistent tank. Fish species are
- * Character rows -- AquariumStock references them, never duplicates them.
+ * Monster rows -- AquariumStock references them, never duplicates them.
  * See projects/cthulhuquarium/roadmap.yaml and DESIGN-BRIEF.md in conductor.
  */
 export type AquariumModel = runtime.Types.Result.DefaultSelection<Prisma.$AquariumPayload>
@@ -1265,7 +1265,7 @@ export type $AquariumPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     setSlotsCap: number
     /**
      * cthulhuquarium/t-032: weighed fish capacity, measured against the sum of
-     * placed AquariumStock's Character.size. [v1 placeholder -- economy.yaml
+     * placed AquariumStock's Monster.size. [v1 placeholder -- economy.yaml
      * predates this two-pool split (it was written for a single shared-pool
      * model Silas later superseded) and does not yet carry a tuned starting
      * value; this default is a starting-point guess for a future balance pass,

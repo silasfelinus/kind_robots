@@ -63,6 +63,14 @@ export type BotFacet = Prisma.BotFacetModel
  */
 export type RewardFacet = Prisma.RewardFacetModel
 /**
+ * Model MandarinAudioAsset
+ * Shared pronunciation reference audio for Mandarin Tutor. One deterministic
+ * asset identity represents one catalog card + synthesis recipe, so the first
+ * learner to request it may synthesize it and every later web/mobile client
+ * can reuse the exact same bytes without another provider call.
+ */
+export type MandarinAudioAsset = Prisma.MandarinAudioAssetModel
+/**
  * Model ModelBuildRun
  * One resumable Model Builder run: a source record, a chosen recipe, and the
  * build items produced from the selected outputs. `sourceSnapshot` freezes the
@@ -601,13 +609,13 @@ export type LifeRunArt = Prisma.LifeRunArtModel
 /**
  * Model Aquarium
  * cthulhuquarium/t-007: a player's persistent tank. Fish species are
- * Character rows -- AquariumStock references them, never duplicates them.
+ * Monster rows -- AquariumStock references them, never duplicates them.
  * See projects/cthulhuquarium/roadmap.yaml and DESIGN-BRIEF.md in conductor.
  */
 export type Aquarium = Prisma.AquariumModel
 /**
  * Model AquariumStock
- * One fish (Character row) placed in one Aquarium. hunger/mood are the live
+ * One fish (Monster row) placed in one Aquarium. hunger/mood are the live
  * play-loop state; placedAt lets the UI order a tank by arrival.
  * 
  * cthulhuquarium/t-032: the bible (Character) describes species; this table
@@ -657,9 +665,11 @@ export type AquariumCodexEntry = Prisma.AquariumCodexEntryModel
  * needs. Sharing survives unchanged -- `games` is the mechanism, not the
  * table, exactly as it was meant to be: a Monster tagged
  * "cthulhuquarium,ruler-hooked" is readable by both.
- * NOT YET WIRED, deliberately: AquariumStock.characterId and
- * AquariumCodexEntry.characterId still reference Character (t-032), and
- * Character.size still exists. Repointing those tables and dropping
+ * WIRED 2026-08-25 (t-038): AquariumStock.monsterId and
+ * AquariumCodexEntry.monsterId now reference Monster. `Character.size` still
+ * exists and is now dead weight -- dropping it needs the REVERSE deploy order
+ * from an add (deploy the client that stops selecting it FIRST, then migrate),
+ * so it is deliberately not in this change. Repointing those tables and dropping
  * Character.size are follow-on work, filed separately and kept out of this
  * migration so this one stays purely additive -- CREATE TABLE only, no
  * DROP, no rewrite of a table anything currently reads. See t-035's

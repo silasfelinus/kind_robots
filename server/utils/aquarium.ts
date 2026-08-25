@@ -8,7 +8,7 @@
 // All economy math is delegated to server/utils/aquariumEconomy.ts (pure,
 // no prisma) -- this file's job is loading/persisting Prisma state around
 // that math and enforcing ownership/authorization. The client proposes
-// (a characterId to unlock, an aquariumStockId to feed); the server disposes
+// (a monsterId to unlock, an aquariumStockId to feed); the server disposes
 // (prices, caps, and elapsed-tick income all come from here, never from the
 // request body).
 
@@ -39,19 +39,19 @@ type TransactionClient = Parameters<
   Parameters<typeof prisma.$transaction>[0]
 >[0]
 
-// Six Rarity stat fields every Character row carries -- see
+// Six Rarity stat fields every Monster row carries -- see
 // aquariumEconomy.ts's deriveFishRarityTier for why this stands in for a
 // canonical per-species rarity/tier column that does not exist yet.
-const characterRaritySelect = {
+const monsterRaritySelect = {
   charm: true,
   empathy: true,
   grace: true,
   luck: true,
   might: true,
   wits: true,
-} satisfies Prisma.CharacterSelect
+} satisfies Prisma.MonsterSelect
 
-const stockCharacterSelect = {
+const stockMonsterSelect = {
   id: true,
   name: true,
   slug: true,
@@ -60,17 +60,17 @@ const stockCharacterSelect = {
   icon: true,
   iconPath: true,
   cardPath: true,
-  ...characterRaritySelect,
-} satisfies Prisma.CharacterSelect
+  ...monsterRaritySelect,
+} satisfies Prisma.MonsterSelect
 
 const ownedStockSelect = {
   id: true,
-  characterId: true,
+  monsterId: true,
   nickname: true,
   hunger: true,
   mood: true,
   placedAt: true,
-  Character: { select: stockCharacterSelect },
+  Monster: { select: stockMonsterSelect },
 } satisfies Prisma.AquariumStockSelect
 
 const ownedAquariumSelect = {
@@ -160,7 +160,7 @@ export async function settleTickForUser(
     debrisLevel: tank.debrisLevel,
     fish: tank.Stock.map((stock) => ({
       id: stock.id,
-      rarity: deriveFishRarityTier(stock.Character),
+      rarity: deriveFishRarityTier(stock.Monster),
       hunger: stock.hunger,
     })),
   })
@@ -239,13 +239,13 @@ export async function feedFishForUser(
     )
   }
 
-  const rarity = deriveFishRarityTier(stock.Character)
+  const rarity = deriveFishRarityTier(stock.Monster)
   const cost = feedCost(rarity)
 
   if (tank.coins < cost) {
     throw apiError(
       402,
-      `Feeding ${stock.Character.name} costs ${cost} coins; your tank only has ${tank.coins}.`,
+      `Feeding ${stock.Monster.name} costs ${cost} coins; your tank only has ${tank.coins}.`,
     )
   }
 
@@ -263,7 +263,7 @@ export async function feedFishForUser(
 
     await logEvent(tx, tank.id, 'feed', {
       aquariumStockId: stock.id,
-      characterId: stock.characterId,
+      monsterId: stock.monsterId,
       cost,
     })
 
@@ -295,48 +295,48 @@ export interface PurchaseSpeciesResult {
 export async function purchaseSpeciesForUser(
   userId: number,
   username: string,
-  characterId: number,
+  monsterId: number,
 ): Promise<PurchaseSpeciesResult> {
   const tank = await getOrCreateTankForUser(userId, username)
 
-  const character = await prisma.character.findFirst({
-    where: { id: characterId, isActive: true, isPublic: true },
-    select: stockCharacterSelect,
+  const monster = await prisma.monster.findFirst({
+    where: { id: monsterId, isActive: true, isPublic: true },
+    select: stockMonsterSelect,
   })
-  if (!character) {
+  if (!monster) {
     throw apiError(
       404,
-      `Character ${characterId} does not exist or is not available to unlock.`,
+      `Monster ${monsterId} does not exist or is not available to unlock.`,
     )
   }
 
-  const alreadyOwned = tank.Stock.some((row) => row.characterId === characterId)
+  const alreadyOwned = tank.Stock.some((row) => row.monsterId === monsterId)
   if (alreadyOwned) {
     throw apiError(
       409,
-      `${character.name} is already in your tank -- Cthulhuquarium is a collection, not copies of the same fish.`,
+      `${monster.name} is already in your tank -- Cthulhuquarium is a collection, not copies of the same fish.`,
     )
   }
 
   const currentSize = tank.Stock.reduce(
-    (sum, row) => sum + (row.Character.size ?? 1),
+    (sum, row) => sum + (row.Monster.size ?? 1),
     0,
   )
-  const newSize = character.size ?? 1
+  const newSize = monster.size ?? 1
   if (currentSize + newSize > tank.sizeCap) {
     throw apiError(
       409,
-      `Adding ${character.name} (size ${newSize}) would exceed your tank's capacity (${currentSize}/${tank.sizeCap} used).`,
+      `Adding ${monster.name} (size ${newSize}) would exceed your tank's capacity (${currentSize}/${tank.sizeCap} used).`,
     )
   }
 
-  const rarity = deriveFishRarityTier(character)
+  const rarity = deriveFishRarityTier(monster)
   const cost = unlockCost(rarity)
 
   if (tank.coins < cost) {
     throw apiError(
       402,
-      `Unlocking ${character.name} costs ${cost} coins; your tank only has ${tank.coins}.`,
+      `Unlocking ${monster.name} costs ${cost} coins; your tank only has ${tank.coins}.`,
     )
   }
 
@@ -344,7 +344,7 @@ export async function purchaseSpeciesForUser(
     const createdStock = await tx.aquariumStock.create({
       data: {
         aquariumId: tank.id,
-        characterId: character.id,
+        monsterId: monster.id,
         hunger: HUNGER_STARTING_VALUE,
       },
       select: ownedStockSelect,
@@ -358,7 +358,7 @@ export async function purchaseSpeciesForUser(
 
     await logEvent(tx, tank.id, 'purchase', {
       type: 'species',
-      characterId: character.id,
+      monsterId: monster.id,
       aquariumStockId: createdStock.id,
       cost,
     })
@@ -384,7 +384,7 @@ const publicStockSelect = {
   hunger: true,
   mood: true,
   placedAt: true,
-  Character: {
+  Monster: {
     select: {
       id: true,
       name: true,

@@ -499,6 +499,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useResourceStore } from '@/stores/resourceStore'
 import { useUserStore } from '@/stores/userStore'
 import { performFetch } from '@/stores/utils'
+import { projectAssetFallback } from '@/components/conductor/projectFront'
 
 type EntityArtType =
   | 'bot'
@@ -620,13 +621,40 @@ const selectedSlot = computed(() => {
     height: configured?.height || 1024,
   }
 })
+/**
+ * A Project's own DB columns (heroPath/cardPath/imagePath) are only one of
+ * two places its art can live: conductor's art pipeline commits hero/card/
+ * icon images straight to the conductor repo and never writes them back to
+ * the Project row (kind-robots/t-068). Every other conductor-facing surface
+ * (project-front-page.vue, conductor-page.vue) already falls back to the
+ * conductor raw URL, keyed by conductorSlug, when the DB column is empty —
+ * mirror that here so the Artwork panel agrees with the rest of the site
+ * instead of reporting "no hero yet" for art that exists in conductor.
+ * (No local /images/projects/<slug>/ asset pool exists yet, so unlike
+ * project-front-page.vue's full local-then-raw chain, this goes straight to
+ * the raw fallback rather than adding a guaranteed-404 local candidate.)
+ */
+const PROJECT_ART_KIND_BY_FIELD: Record<string, 'hero' | 'card' | 'icon'> = {
+  heroPath: 'hero',
+  cardPath: 'card',
+  imagePath: 'icon',
+}
+
+function projectFallbackSrc(field: string): string {
+  if (props.entityType !== 'project') return ''
+  const kind = PROJECT_ART_KIND_BY_FIELD[field]
+  const slug = props.entity.conductorSlug as string | null | undefined
+  if (!kind || !slug) return ''
+  return projectAssetFallback(slug, kind)
+}
+
 function slotSrc(field: string): string {
   const direct = normalizeSrc(props.entity[field])
   if (direct) return direct
   if (props.entity.artImageId && ['imagePath', 'avatarImage'].includes(field)) {
     return `/api/art/images/${props.entity.artImageId}/file`
   }
-  return ''
+  return projectFallbackSrc(field)
 }
 const currentSrc = computed(() => slotSrc(selectedSlot.value.field))
 const filteredHistory = computed(() =>

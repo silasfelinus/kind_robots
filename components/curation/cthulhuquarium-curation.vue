@@ -17,7 +17,7 @@
       </label>
 
       <div class="ml-auto text-right text-xs text-base-content/50">
-        <p class="font-black text-base-content/80">{{ visibleFish.length }} shown</p>
+        <p class="font-black text-base-content/80">{{ visibleRows.length }} shown</p>
         <p>{{ settledCount }} / {{ data?.fish.length || 0 }} designs settled</p>
       </div>
 
@@ -41,14 +41,18 @@
     </div>
 
     <div
-      v-else-if="!visibleFish.length"
+      v-else-if="!visibleRows.length"
       class="grid min-h-52 place-items-center rounded-2xl border border-dashed border-base-300 bg-base-100/50 p-8 text-center"
     >
       <p class="font-black">No fish match this view.</p>
     </div>
 
     <div v-else class="grid items-start gap-4 xl:grid-cols-2 2xl:grid-cols-3">
-      <article v-for="fish in visibleFish" :key="fish.slug" class="kr-panel overflow-hidden">
+      <article
+        v-for="{ fish, draft } in visibleRows"
+        :key="fish.slug"
+        class="kr-panel overflow-hidden"
+      >
         <div class="border-b border-base-300 bg-base-200/60 p-4">
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
@@ -96,7 +100,7 @@
               <span v-if="fish.curation.promptOverride" class="badge badge-xs badge-warning">draft override</span>
             </span>
             <textarea
-              v-model="drafts[fish.slug].prompt"
+              v-model="draft.prompt"
               class="textarea textarea-bordered min-h-28 rounded-xl text-sm leading-5"
               :placeholder="fish.artPrompt"
             />
@@ -107,7 +111,7 @@
 
           <div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
             <input
-              v-model="drafts[fish.slug].inspirationUrl"
+              v-model="draft.inspirationUrl"
               type="url"
               class="input input-bordered input-sm rounded-xl"
               placeholder="Add inspiration image URL"
@@ -115,7 +119,7 @@
             <button
               type="button"
               class="btn btn-sm rounded-xl"
-              :disabled="!drafts[fish.slug].inspirationUrl.trim() || isSaving(fish.slug)"
+              :disabled="!draft.inspirationUrl.trim() || isSaving(fish.slug)"
               @click="addInspiration(fish)"
             >
               Add reference
@@ -143,7 +147,7 @@
             <div class="grid gap-3 sm:grid-cols-2">
               <label class="form-control gap-1">
                 <span class="text-xs font-black">Render preset</span>
-                <select v-model="drafts[fish.slug].presetId" class="select select-bordered select-sm rounded-xl">
+                <select v-model="draft.presetId" class="select select-bordered select-sm rounded-xl">
                   <option v-for="preset in presets" :key="preset.id" :value="preset.id">
                     {{ preset.label }}
                   </option>
@@ -152,16 +156,19 @@
 
               <label class="form-control gap-1">
                 <span class="text-xs font-black">Starting point</span>
-                <select v-model="drafts[fish.slug].sourceMode" class="select select-bordered select-sm rounded-xl">
+                <select v-model="draft.sourceMode" class="select select-bordered select-sm rounded-xl">
                   <option value="fresh">Fresh composition</option>
                   <option value="existing">Existing candidate art</option>
                 </select>
               </label>
             </div>
 
-            <label v-if="selectedPreset(fish.slug).engine === 'comfy' || drafts[fish.slug].sourceMode === 'existing'" class="form-control mt-3 gap-1">
+            <label
+              v-if="selectedPreset(fish.slug).engine === 'comfy' || draft.sourceMode === 'existing'"
+              class="form-control mt-3 gap-1"
+            >
               <span class="text-xs font-black">SDXL checkpoint</span>
-              <select v-model="drafts[fish.slug].checkpoint" class="select select-bordered select-sm rounded-xl">
+              <select v-model="draft.checkpoint" class="select select-bordered select-sm rounded-xl">
                 <option value="">Choose checkpoint</option>
                 <option v-for="checkpoint in checkpoints" :key="String(checkpoint.id || checkpoint.name)" :value="checkpoint.name || ''">
                   {{ checkpoint.customLabel || checkpoint.name }}
@@ -169,9 +176,9 @@
               </select>
             </label>
 
-            <label v-if="drafts[fish.slug].sourceMode === 'existing'" class="form-control mt-3 gap-1">
+            <label v-if="draft.sourceMode === 'existing'" class="form-control mt-3 gap-1">
               <span class="text-xs font-black">Source ArtImage</span>
-              <select v-model.number="drafts[fish.slug].sourceImageId" class="select select-bordered select-sm rounded-xl">
+              <select v-model.number="draft.sourceImageId" class="select select-bordered select-sm rounded-xl">
                 <option :value="0">Choose candidate</option>
                 <option v-if="fish.curation.selectedDesignImageId" :value="fish.curation.selectedDesignImageId">
                   #{{ fish.curation.selectedDesignImageId }} · chosen design
@@ -197,8 +204,8 @@
                 <span v-if="isSaving(fish.slug)" class="loading loading-spinner loading-xs" />
                 Save curation
               </button>
-              <span v-if="drafts[fish.slug].jobId" class="text-xs text-base-content/45">
-                ArtJob #{{ drafts[fish.slug].jobId }}
+              <span v-if="draft.jobId" class="text-xs text-base-content/45">
+                ArtJob #{{ draft.jobId }}
               </span>
             </div>
           </div>
@@ -277,19 +284,51 @@ type FishDraft = {
   jobStatus: string
 }
 
+type FishRow = {
+  fish: CthulhuquariumCurationFish
+  draft: FishDraft
+}
+
 const drafts = reactive<Record<string, FishDraft>>({})
 const checkpoints = computed<Partial<Resource>[]>(() => checkpointStore.visibleCheckpoints)
 
-const visibleFish = computed(() => {
+function makeDraft(fish: CthulhuquariumCurationFish, previous?: FishDraft): FishDraft {
+  return {
+    prompt: fish.curation.promptOverride || fish.artPrompt,
+    inspirationUrl: previous?.inspirationUrl || '',
+    presetId: previous?.presetId || DEFAULT_ART_PRESET_ID,
+    sourceMode: previous?.sourceMode || 'fresh',
+    sourceImageId:
+      previous?.sourceImageId ||
+      fish.curation.selectedDesignImageId ||
+      fish.curation.candidateImageIds[0] ||
+      0,
+    checkpoint: previous?.checkpoint || String(checkpointStore.selectedCheckpoint?.name || ''),
+    jobId: previous?.jobId || null,
+    jobStatus: previous?.jobStatus || '',
+  }
+}
+
+function draftFor(fish: CthulhuquariumCurationFish): FishDraft {
+  const existing = drafts[fish.slug]
+  if (existing) return existing
+  const created = makeDraft(fish)
+  drafts[fish.slug] = created
+  return created
+}
+
+const visibleRows = computed<FishRow[]>(() => {
   const query = search.value.trim().toLowerCase()
-  return (data.value?.fish || []).filter((fish) => {
-    if (hideSettled.value && fish.curation.selectedDesignImageId) return false
-    if (!query) return true
-    return [fish.name, fish.slug, fish.species, fish.fieldNote, fish.artPrompt]
-      .join(' ')
-      .toLowerCase()
-      .includes(query)
-  })
+  return (data.value?.fish || [])
+    .filter((fish) => {
+      if (hideSettled.value && fish.curation.selectedDesignImageId) return false
+      if (!query) return true
+      return [fish.name, fish.slug, fish.species, fish.fieldNote, fish.artPrompt]
+        .join(' ')
+        .toLowerCase()
+        .includes(query)
+    })
+    .map((fish) => ({ fish, draft: draftFor(fish) }))
 })
 
 const settledCount = computed(
@@ -337,21 +376,7 @@ async function load() {
     }
     data.value = response.data
     for (const fish of response.data.fish) {
-      const previous = drafts[fish.slug]
-      drafts[fish.slug] = {
-        prompt: fish.curation.promptOverride || fish.artPrompt,
-        inspirationUrl: previous?.inspirationUrl || '',
-        presetId: previous?.presetId || DEFAULT_ART_PRESET_ID,
-        sourceMode: previous?.sourceMode || 'fresh',
-        sourceImageId:
-          previous?.sourceImageId ||
-          fish.curation.selectedDesignImageId ||
-          fish.curation.candidateImageIds[0] ||
-          0,
-        checkpoint: previous?.checkpoint || String(checkpointStore.selectedCheckpoint?.name || ''),
-        jobId: previous?.jobId || null,
-        jobStatus: previous?.jobStatus || '',
-      }
+      drafts[fish.slug] = makeDraft(fish, drafts[fish.slug])
     }
   } catch (cause) {
     error.value = cause instanceof Error ? cause.message : 'Failed to load Cthulhuquarium.'
@@ -373,16 +398,18 @@ function isGenerating(slug: string): boolean {
 }
 
 function generationLabel(slug: string): string {
-  return drafts[slug]?.jobStatus === 'RUNNING' ? 'Rendering…' : 'Queued…'
+  const draft = drafts[slug]
+  return draft?.jobStatus === 'RUNNING' ? 'Rendering…' : 'Queued…'
 }
 
 function selectedPreset(slug: string): ArtGeneratorPreset {
-  return presets.find((preset) => preset.id === drafts[slug]?.presetId) || presets[0]!
+  const draft = drafts[slug]
+  return presets.find((preset) => preset.id === draft?.presetId) || presets[0]!
 }
 
 function canGenerate(fish: CthulhuquariumCurationFish): boolean {
-  const draft = drafts[fish.slug]
-  if (!draft?.prompt.trim()) return false
+  const draft = draftFor(fish)
+  if (!draft.prompt.trim()) return false
   if (draft.sourceMode === 'existing') return Boolean(draft.sourceImageId && draft.checkpoint)
   return selectedPreset(fish.slug).engine !== 'comfy' || Boolean(draft.checkpoint)
 }
@@ -419,13 +446,15 @@ async function persist(fish: CthulhuquariumCurationFish, patch: Partial<Cthulhuq
 }
 
 async function save(fish: CthulhuquariumCurationFish) {
-  if (await persist(fish, { promptOverride: drafts[fish.slug].prompt.trim() })) {
+  const draft = draftFor(fish)
+  if (await persist(fish, { promptOverride: draft.prompt.trim() })) {
     notice.value = `${fish.name} curation saved.`
   }
 }
 
 async function addInspiration(fish: CthulhuquariumCurationFish) {
-  const url = drafts[fish.slug].inspirationUrl.trim()
+  const draft = draftFor(fish)
+  const url = draft.inspirationUrl.trim()
   if (!/^https:\/\//i.test(url)) {
     error.value = 'Inspiration art must use an https:// URL.'
     return
@@ -438,7 +467,7 @@ async function addInspiration(fish: CthulhuquariumCurationFish) {
       url,
     },
   ]
-  if (await persist(fish, { inspirations })) drafts[fish.slug].inspirationUrl = ''
+  if (await persist(fish, { inspirations })) draft.inspirationUrl = ''
 }
 
 async function removeInspiration(fish: CthulhuquariumCurationFish, id: string) {
@@ -450,7 +479,7 @@ async function removeInspiration(fish: CthulhuquariumCurationFish, id: string) {
 async function chooseDesign(fish: CthulhuquariumCurationFish, id: number) {
   const selectedDesignImageId = fish.curation.selectedDesignImageId === id ? null : id
   if (await persist(fish, { selectedDesignImageId })) {
-    drafts[fish.slug].sourceImageId = selectedDesignImageId || id
+    draftFor(fish).sourceImageId = selectedDesignImageId || id
   }
 }
 
@@ -477,7 +506,7 @@ async function generate(fish: CthulhuquariumCurationFish) {
   if (isGenerating(fish.slug) || !canGenerate(fish)) return
   generating.value = [...generating.value, fish.slug]
   error.value = ''
-  const draft = drafts[fish.slug]
+  const draft = draftFor(fish)
   const preset = selectedPreset(fish.slug)
 
   try {

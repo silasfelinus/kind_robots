@@ -39,7 +39,7 @@
       </div>
 
       <template v-else>
-        <section class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm">
+        <section class="kr-panel-flat p-4 shadow-sm">
           <label class="form-control">
             <span class="label-text mb-1 font-semibold">Find a word, Hanzi, pinyin, or English meaning</span>
             <input
@@ -86,7 +86,7 @@
 
         <div class="grid gap-5 lg:grid-cols-[18rem_minmax(0,1fr)]">
           <aside class="space-y-3 lg:sticky lg:top-4 lg:self-start">
-            <div class="rounded-2xl border border-base-300 bg-base-100 p-3 shadow-sm">
+            <div class="kr-panel-flat p-3 shadow-sm">
               <div class="mb-2 flex items-center justify-between gap-2">
                 <h2 class="font-bold">Study sets</h2>
                 <span class="badge badge-ghost">{{ selectedSet?.cardKeys.length ?? 0 }}</span>
@@ -292,7 +292,7 @@
                       <div
                         v-for="component in currentCard.components"
                         :key="`${component.glyph}:${component.role}`"
-                        class="rounded-2xl border border-base-300 bg-base-100 p-4"
+                        class="kr-panel-flat p-4"
                       >
                         <div class="flex items-start gap-3">
                           <span class="text-4xl font-semibold">{{ component.glyph }}</span>
@@ -312,10 +312,10 @@
 
                   <div class="space-y-3">
                     <h3 class="text-lg font-bold">How did the character get here?</h3>
-                    <p v-if="currentCard.history" class="rounded-2xl border border-base-300 bg-base-100 p-4 text-sm leading-relaxed">
+                    <p v-if="currentCard.history" class="kr-panel-flat p-4 text-sm leading-relaxed">
                       {{ currentCard.history }}
                     </p>
-                    <p v-else class="rounded-2xl border border-base-300 bg-base-100 p-4 text-sm leading-relaxed opacity-65">
+                    <p v-else class="kr-panel-flat p-4 text-sm leading-relaxed opacity-65">
                       Historical development is pending a dedicated decomposition source. The current radical, when shown, is an indexing clue rather than an etymological claim.
                     </p>
                     <div class="text-xs opacity-55">
@@ -346,7 +346,7 @@
               </section>
             </article>
 
-            <div v-else class="rounded-2xl border border-base-300 bg-base-100 p-8 text-center opacity-65">
+            <div v-else class="kr-panel-flat p-8 text-center opacity-65">
               This set has no cards yet.
             </div>
           </main>

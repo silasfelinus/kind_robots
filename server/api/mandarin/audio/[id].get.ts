@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
     }
 
     setHeader(event, 'Content-Type', asset.contentType || 'audio/mpeg')
-    setHeader(event, 'Content-Length', String(asset.byteLength))
+    setHeader(event, 'Content-Length', asset.byteLength)
     setHeader(event, 'Cache-Control', 'public, max-age=31536000, immutable')
     setHeader(event, 'X-Content-Type-Options', 'nosniff')
     return Buffer.from(asset.audioData)

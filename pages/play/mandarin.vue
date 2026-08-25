@@ -40,28 +40,15 @@
 
       <template v-else>
         <section class="rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm">
-          <div class="flex flex-col gap-3 lg:flex-row lg:items-end">
-            <label class="form-control flex-1">
-              <span class="label-text mb-1 font-semibold">Find a word, Hanzi, pinyin, or English meaning</span>
-              <input
-                v-model="searchQuery"
-                class="input input-bordered w-full"
-                placeholder="说, shuō, speak, casino…"
-                autocomplete="off"
-              />
-            </label>
-            <div class="flex gap-2">
-              <input
-                v-model="newSetName"
-                class="input input-bordered min-w-0"
-                placeholder="New custom set"
-                @keyup.enter="createSet"
-              />
-              <button class="btn btn-outline" type="button" @click="createSet">
-                Create set
-              </button>
-            </div>
-          </div>
+          <label class="form-control">
+            <span class="label-text mb-1 font-semibold">Find a word, Hanzi, pinyin, or English meaning</span>
+            <input
+              v-model="searchQuery"
+              class="input input-bordered w-full"
+              placeholder="说, shuō, speak, casino…"
+              autocomplete="off"
+            />
+          </label>
 
           <div v-if="searchQuery.trim()" class="mt-3">
             <div v-if="searchResults.length" class="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
@@ -70,7 +57,7 @@
                 :key="card.key"
                 type="button"
                 class="rounded-xl border border-base-300 bg-base-200/40 p-3 text-left transition hover:border-accent hover:bg-base-200"
-                @click="store.focusCard(card.key)"
+                @click="focusSearchCard(card.key)"
               >
                 <span class="text-2xl font-semibold">{{ card.simplified }}</span>
                 <span class="ml-2 text-sm opacity-65">{{ card.pinyin }}</span>
@@ -104,7 +91,7 @@
                 <h2 class="font-bold">Study sets</h2>
                 <span class="badge badge-ghost">{{ selectedSet?.cardKeys.length ?? 0 }}</span>
               </div>
-              <div class="max-h-[32rem] space-y-1 overflow-y-auto pr-1">
+              <div class="max-h-[28rem] space-y-1 overflow-y-auto pr-1">
                 <button
                   v-for="set in allSets"
                   :key="set.id"
@@ -120,6 +107,24 @@
                   <span class="mt-0.5 block text-xs opacity-70">{{ set.description }}</span>
                 </button>
               </div>
+
+              <form class="mt-3 space-y-2 border-t border-base-300 pt-3" @submit.prevent="createSet">
+                <label class="form-control gap-1">
+                  <span class="text-xs font-semibold opacity-65">New custom deck</span>
+                  <div class="join w-full">
+                    <input
+                      v-model="newSetName"
+                      class="input input-bordered input-sm join-item min-w-0 flex-1"
+                      placeholder="Work phrases"
+                      maxlength="80"
+                    />
+                    <button class="btn btn-outline btn-sm join-item" type="submit" :disabled="!newSetName.trim()">
+                      Create
+                    </button>
+                  </div>
+                </label>
+                <p v-if="newSetNotice" class="text-xs leading-relaxed text-success">{{ newSetNotice }}</p>
+              </form>
             </div>
           </aside>
 
@@ -127,24 +132,33 @@
             <div v-if="selectedSet" class="space-y-2 text-sm">
               <div class="flex flex-wrap items-center justify-between gap-2">
                 <div class="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-                  <span class="font-semibold">{{ selectedSet.label }}</span>
-                  <span class="opacity-60">{{ selectedSet.description }}</span>
-                  <button
-                    v-if="selectedCustomSetId && renamingSetId !== selectedCustomSetId"
-                    type="button"
-                    class="btn btn-ghost btn-xs"
-                    @click="startRenameSelectedSet"
-                  >
-                    Rename deck
-                  </button>
+                  <template v-if="focusKey">
+                    <span class="font-semibold">Exploring a card</span>
+                    <span v-if="focusPosition && focusPosition.total > 1" class="badge badge-ghost">
+                      result {{ focusPosition.index + 1 }} of {{ focusPosition.total }}
+                    </span>
+                    <span v-else class="opacity-60">outside the current deck sequence</span>
+                  </template>
+                  <template v-else>
+                    <span class="font-semibold">{{ selectedSet.label }}</span>
+                    <span class="opacity-60">{{ selectedSet.description }}</span>
+                    <button
+                      v-if="selectedCustomSetId && renamingSetId !== selectedCustomSetId"
+                      type="button"
+                      class="btn btn-ghost btn-xs"
+                      @click="startRenameSelectedSet"
+                    >
+                      Rename deck
+                    </button>
+                  </template>
                 </div>
                 <button v-if="focusKey" type="button" class="btn btn-ghost btn-sm" @click="store.clearFocus()">
-                  Return to deck
+                  Return to {{ selectedSet.label }}
                 </button>
               </div>
 
               <form
-                v-if="selectedCustomSetId && renamingSetId === selectedCustomSetId"
+                v-if="!focusKey && selectedCustomSetId && renamingSetId === selectedCustomSetId"
                 class="flex max-w-lg flex-wrap items-center gap-2 rounded-xl border border-base-300 bg-base-100 p-2"
                 @submit.prevent="saveRenamedSet"
               >
@@ -165,28 +179,30 @@
 
             <div
               v-if="currentRequested"
-              class="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-sm"
+              class="rounded-2xl border border-warning/35 bg-warning/8 p-3 text-sm"
             >
-              <div class="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p class="font-black">AI-generated requested card</p>
-                  <p class="mt-1 max-w-3xl text-xs leading-relaxed opacity-75">
-                    This card was generated for “{{ currentRequested.requestText }}”; it is not being presented as a dictionary-sourced entry. Character analysis, when shown below, is enriched separately from the sourced character dataset.
-                  </p>
-                </div>
-                <span class="badge badge-warning badge-outline">requested</span>
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="badge badge-warning badge-outline">AI-generated requested card</span>
+                <span class="text-xs opacity-65">requested as “{{ currentRequested.requestText }}”</span>
               </div>
-              <p v-if="currentRequested.usageNote" class="mt-3 rounded-xl bg-base-100/60 p-3 text-xs leading-relaxed">
+              <p v-if="currentRequested.usageNote" class="mt-2 text-xs leading-relaxed">
                 <span class="font-bold">Usage note:</span> {{ currentRequested.usageNote }}
               </p>
-              <p class="mt-2 text-[11px] opacity-60">
-                {{ currentRequested.provenance.provider }} · {{ currentRequested.provenance.model }} · recipe {{ currentRequested.provenance.recipeVersion }}
-              </p>
+              <details class="mt-2 text-xs opacity-70">
+                <summary class="cursor-pointer font-semibold">Generation provenance</summary>
+                <p class="mt-2 leading-relaxed">
+                  Translation and usage fields are AI-generated rather than dictionary-sourced. Character analysis is enriched separately from the sourced character dataset.
+                </p>
+                <p class="mt-1 opacity-70">
+                  {{ currentRequested.provenance.provider }} · {{ currentRequested.provenance.model }} · recipe {{ currentRequested.provenance.recipeVersion }}
+                </p>
+              </details>
             </div>
 
             <article
               v-if="currentCard"
-              class="overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-xl"
+              ref="cardPanel"
+              class="scroll-mt-4 overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-xl"
             >
               <div class="grid md:grid-cols-[minmax(16rem,0.9fr)_minmax(18rem,1.1fr)]">
                 <div class="flex min-h-80 flex-col items-center justify-center gap-4 bg-base-200/70 p-6 text-center">
@@ -194,7 +210,7 @@
                     <img
                       v-if="store.illustrationUrl(currentCard.key)"
                       :src="store.illustrationUrl(currentCard.key) || ''"
-                      :alt="`Generated study illustration for ${currentCard.meaning}`"
+                      :alt="`Study illustration for ${currentCard.meaning}`"
                       class="h-full w-full object-cover"
                     />
                     <span v-else class="text-7xl font-semibold leading-none">{{ currentCard.simplified }}</span>
@@ -211,24 +227,8 @@
                       Traditional: <span class="text-lg">{{ currentCard.traditional }}</span>
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    class="btn btn-accent"
-                    :disabled="Boolean(store.audioLoadingKey)"
-                    @click="store.speak(currentCard)"
-                  >
-                    <span
-                      v-if="store.audioLoadingKey === currentCard.key"
-                      class="loading loading-spinner loading-xs"
-                    />
-                    {{ store.audioLoadingKey === currentCard.key ? 'Preparing reference…' : 'Hear pronunciation' }}
-                  </button>
-                  <p v-if="store.speechError" class="text-xs text-error">{{ store.speechError }}</p>
-                  <p v-else-if="!audioSupported" class="text-xs opacity-60">
-                    This browser cannot play the reference audio.
-                  </p>
-                  <p v-else class="max-w-sm text-xs opacity-55">
-                    The first play may create the shared reference clip; later plays reuse the same cached recording.
+                  <p v-if="friendlyIllustrationStatus" class="max-w-sm text-xs opacity-55">
+                    {{ friendlyIllustrationStatus }}
                   </p>
                 </div>
 
@@ -258,28 +258,27 @@
                     </div>
                   </div>
 
-                  <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    <button type="button" class="btn btn-outline" @click="store.previousCard()">Previous</button>
-                    <button type="button" class="btn btn-outline" @click="store.nextCard()">Next</button>
-                    <button type="button" class="btn btn-outline" @click="store.toggleDetails()">
-                      {{ detailsVisible ? 'Hide parts' : 'Parts & history' }}
+                  <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    <button
+                      type="button"
+                      class="btn btn-outline"
+                      :disabled="Boolean(focusKey && (!focusPosition || focusPosition.total <= 1))"
+                      @click="store.previousCard()"
+                    >
+                      {{ focusKey ? 'Previous result' : 'Previous' }}
                     </button>
                     <button
                       type="button"
                       class="btn btn-outline"
-                      :disabled="Boolean(store.artQueueingKey || store.artRefreshingKey || store.illustrationUrl(currentCard.key))"
-                      @click="artAction(currentCard)"
+                      :disabled="Boolean(focusKey && (!focusPosition || focusPosition.total <= 1))"
+                      @click="store.nextCard()"
                     >
-                      <span
-                        v-if="store.artQueueingKey === currentCard.key || store.artRefreshingKey === currentCard.key"
-                        class="loading loading-spinner loading-xs"
-                      />
-                      {{ artActionLabel(currentCard) }}
+                      {{ focusKey ? 'Next result' : 'Next' }}
+                    </button>
+                    <button type="button" class="btn btn-outline col-span-2 sm:col-span-1" @click="store.toggleDetails()">
+                      {{ detailsVisible ? 'Hide parts' : 'Parts & history' }}
                     </button>
                   </div>
-                  <p v-if="store.illustrationStatus(currentCard.key)" class="mt-2 text-right text-xs opacity-60">
-                    Illustration: {{ store.illustrationStatus(currentCard.key) }}
-                  </p>
                 </div>
               </div>
 
@@ -342,7 +341,7 @@
                   >
                     {{ set.name }}
                   </button>
-                  <span v-if="!customSets.length" class="text-xs opacity-55">Create a custom set above to collect cards.</span>
+                  <span v-if="!customSets.length" class="text-xs opacity-55">Create a custom deck in Study sets to collect cards.</span>
                 </div>
               </section>
             </article>
@@ -358,11 +357,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import MandarinVoiceCoach from '@/components/mandarin/mandarin-voice-coach.vue'
 import { useMandarinTutorStore } from '@/stores/mandarinTutorStore'
-import type { MandarinCard, MandarinComponentRole } from '@/utils/mandarin'
+import type { MandarinComponentRole } from '@/utils/mandarin'
 
 const store = useMandarinTutorStore()
 const {
@@ -376,17 +375,19 @@ const {
   searchQuery,
   searchResults,
   focusKey,
+  focusPosition,
   meaningVisible,
   detailsVisible,
   loading,
   initialized,
   requestingWord,
-  audioSupported,
 } = storeToRefs(store)
 
 const newSetName = ref('')
+const newSetNotice = ref('')
 const renamingSetId = ref<string | null>(null)
 const renameSetName = ref('')
+const cardPanel = ref<HTMLElement | null>(null)
 const selectedCustomSetId = computed(() =>
   selectedSetId.value.startsWith('custom:')
     ? selectedSetId.value.slice('custom:'.length)
@@ -395,12 +396,30 @@ const selectedCustomSetId = computed(() =>
 const currentRequested = computed(() =>
   currentCard.value ? store.requestedData(currentCard.value.key) : null,
 )
+const friendlyIllustrationStatus = computed(() => {
+  const key = currentCard.value?.key
+  if (!key || store.illustrationUrl(key)) return ''
+  const status = store.illustrationStatus(key)
+  if (status === 'GLYPH ONLY') return 'This card uses the character itself as its visual anchor.'
+  if (status) return 'A study illustration is being prepared for this card.'
+  return ''
+})
+
+async function scrollToCard() {
+  await nextTick()
+  cardPanel.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
+async function focusSearchCard(key: string) {
+  store.focusCard(key)
+  await scrollToCard()
+}
 
 function createSet() {
   const created = store.createCustomSet(newSetName.value)
   if (!created) return
   newSetName.value = ''
-  store.selectSet(`custom:${created.id}`)
+  newSetNotice.value = `Created “${created.name}”. Keep studying, then add useful cards from the card itself.`
 }
 
 function startRenameSelectedSet() {
@@ -426,29 +445,8 @@ function cancelRenameSet() {
 }
 
 async function requestCurrentWord() {
-  await store.requestWord(searchQuery.value)
-}
-
-async function artAction(card: MandarinCard) {
-  if (store.illustrationUrl(card.key)) return
-  if (store.requestedData(card.key)) {
-    await store.refreshRequestedIllustration(card)
-    return
-  }
-  if (store.illustrationJobId(card.key)) {
-    await store.refreshIllustration(card)
-    return
-  }
-  await store.queueIllustration(card)
-}
-
-function artActionLabel(card: MandarinCard): string {
-  if (store.illustrationUrl(card.key)) return 'Art ready'
-  const jobId = store.illustrationJobId(card.key)
-  if (store.requestedData(card.key)) {
-    return jobId ? `Refresh ArtJob #${jobId}` : 'Queue Krea 2 art'
-  }
-  return jobId ? `Refresh ArtJob #${jobId}` : 'Queue Krea 2 art'
+  const created = await store.requestWord(searchQuery.value)
+  if (created) await scrollToCard()
 }
 
 function roleLabel(role: MandarinComponentRole): string {

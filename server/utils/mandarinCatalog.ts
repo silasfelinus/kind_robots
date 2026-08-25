@@ -9,6 +9,7 @@ import {
   type MandarinStudySet,
 } from '~/utils/mandarin'
 import { enrichMandarinCharacterData } from './mandarinCharacterData'
+import { applyMandarinCatalogOverrides } from './mandarinCatalogOverrides'
 
 type SourcePronunciation = {
   y?: string
@@ -33,6 +34,7 @@ type SourceEntry = {
 const SOURCE_COMMIT = 'a66fd30b9580da2c2af7eb19e4b9d8099a29c061'
 const SOURCE_BASE = `https://raw.githubusercontent.com/jelleverheyen/hsk-vocabulary/${SOURCE_COMMIT}/wordlists/inclusive/new`
 const MINIMUM_CARD_COUNT = 500
+let sourceCatalogPromise: Promise<MandarinCatalogPayload> | null = null
 let catalogPromise: Promise<MandarinCatalogPayload> | null = null
 
 function cleanText(value: unknown): string {
@@ -167,7 +169,6 @@ function mergeCards(sourceCards: MandarinCard[]): MandarinCard[] {
 }
 
 function buildSets(cards: MandarinCard[]): MandarinStudySet[] {
-  const bySimplified = new Map(cards.map((card) => [card.simplified, card]))
   const starterKeys = cards
     .filter((card) => card.hskLevel === 1 || card.hskLevel === 2)
     .slice(0, 500)
@@ -196,14 +197,14 @@ function buildSets(cards: MandarinCard[]): MandarinStudySet[] {
     },
   ]
 
-  for (const [id, terms] of Object.entries(BUILT_IN_SET_TERMS)) {
-    const meta = BUILT_IN_SET_META[id]
-    if (!meta) continue
+  for (const [id, meta] of Object.entries(BUILT_IN_SET_META)) {
     sets.push({
       id,
       label: meta.label,
       description: meta.description,
-      cardKeys: [...new Set(terms.map((term) => bySimplified.get(term)?.key).filter(Boolean))] as string[],
+      cardKeys: cards
+        .filter((card) => card.categories.includes(id))
+        .map((card) => card.key),
     })
   }
 
@@ -222,7 +223,7 @@ async function enrichCharacterDataSafely(cards: MandarinCard[]): Promise<Mandari
   }
 }
 
-async function createCatalog(): Promise<MandarinCatalogPayload> {
+async function createSourceCatalog(): Promise<MandarinCatalogPayload> {
   const [levelOne, levelTwo] = await Promise.all([fetchLevel(1), fetchLevel(2)])
   const baseCards = mergeCards([...levelOne, ...levelTwo])
   if (baseCards.length < MINIMUM_CARD_COUNT) {
@@ -231,18 +232,33 @@ async function createCatalog(): Promise<MandarinCatalogPayload> {
     )
   }
 
-  // Character formation data is a separate provenance layer from lexical
-  // meanings. Enrich only after the vocabulary catalog is normalized so a
-  // character source can never silently replace a word's dictionary meaning.
-  // If the secondary source is temporarily unavailable, keep the core study
-  // deck alive and leave its existing pending/curated analysis intact.
+  // Character formation is source-backed enrichment, still part of the
+  // immutable underlying curriculum snapshot. Administrative lexical/category
+  // overrides are deliberately applied only after this stage.
   const cards = await enrichCharacterDataSafely(baseCards)
-
   return {
     cards,
     sets: buildSets(cards),
     source: MANDARIN_SOURCE,
   }
+}
+
+async function createCatalog(): Promise<MandarinCatalogPayload> {
+  const sourceCatalog = await getMandarinSourceCatalog()
+  const cards = await applyMandarinCatalogOverrides(sourceCatalog.cards)
+  return {
+    cards,
+    sets: buildSets(cards),
+    source: sourceCatalog.source,
+  }
+}
+
+export function getMandarinSourceCatalog(): Promise<MandarinCatalogPayload> {
+  sourceCatalogPromise ??= createSourceCatalog().catch((error) => {
+    sourceCatalogPromise = null
+    throw error
+  })
+  return sourceCatalogPromise
 }
 
 export function getMandarinCatalog(): Promise<MandarinCatalogPayload> {
@@ -251,4 +267,8 @@ export function getMandarinCatalog(): Promise<MandarinCatalogPayload> {
     throw error
   })
   return catalogPromise
+}
+
+export function invalidateMandarinCatalog(): void {
+  catalogPromise = null
 }

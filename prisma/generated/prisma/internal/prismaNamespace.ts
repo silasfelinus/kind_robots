@@ -480,6 +480,7 @@ export const ModelName = {
   AquariumStock: 'AquariumStock',
   AquariumSet: 'AquariumSet',
   AquariumCodexEntry: 'AquariumCodexEntry',
+  Creature: 'Creature',
   AquariumEvent: 'AquariumEvent',
   AuthToken: 'AuthToken',
   Conversation: 'Conversation',
@@ -504,7 +505,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumCodexEntry" | "aquariumEvent" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
+    modelProps: "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumCodexEntry" | "creature" | "aquariumEvent" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -5986,6 +5987,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Creature: {
+      payload: Prisma.$CreaturePayload<ExtArgs>
+      fields: Prisma.CreatureFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CreatureFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CreaturePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CreatureFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CreaturePayload>
+        }
+        findFirst: {
+          args: Prisma.CreatureFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CreaturePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CreatureFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CreaturePayload>
+        }
+        findMany: {
+          args: Prisma.CreatureFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CreaturePayload>[]
+        }
+        create: {
+          args: Prisma.CreatureCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CreaturePayload>
+        }
+        createMany: {
+          args: Prisma.CreatureCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.CreatureDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CreaturePayload>
+        }
+        update: {
+          args: Prisma.CreatureUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CreaturePayload>
+        }
+        deleteMany: {
+          args: Prisma.CreatureDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CreatureUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.CreatureUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CreaturePayload>
+        }
+        aggregate: {
+          args: Prisma.CreatureAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCreature>
+        }
+        groupBy: {
+          args: Prisma.CreatureGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CreatureGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CreatureCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CreatureCountAggregateOutputType> | number
+        }
+      }
+    }
     AquariumEvent: {
       payload: Prisma.$AquariumEventPayload<ExtArgs>
       fields: Prisma.AquariumEventFieldRefs
@@ -8333,6 +8400,54 @@ export const AquariumCodexEntryScalarFieldEnum = {
 export type AquariumCodexEntryScalarFieldEnum = (typeof AquariumCodexEntryScalarFieldEnum)[keyof typeof AquariumCodexEntryScalarFieldEnum]
 
 
+export const CreatureScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  slug: 'slug',
+  name: 'name',
+  species: 'species',
+  class: 'class',
+  fieldNote: 'fieldNote',
+  quirks: 'quirks',
+  alignment: 'alignment',
+  tier: 'tier',
+  charm: 'charm',
+  empathy: 'empathy',
+  grace: 'grace',
+  luck: 'luck',
+  might: 'might',
+  wits: 'wits',
+  size: 'size',
+  yieldPerTick: 'yieldPerTick',
+  tickIntervalSeconds: 'tickIntervalSeconds',
+  unlockCost: 'unlockCost',
+  behavior: 'behavior',
+  hue: 'hue',
+  games: 'games',
+  artPrompt: 'artPrompt',
+  evolutionKind: 'evolutionKind',
+  evolvesToId: 'evolvesToId',
+  icon: 'icon',
+  iconPath: 'iconPath',
+  imagePath: 'imagePath',
+  cardPath: 'cardPath',
+  heroPath: 'heroPath',
+  artImageId: 'artImageId',
+  cardArtImageId: 'cardArtImageId',
+  heroArtImageId: 'heroArtImageId',
+  iconArtImageId: 'iconArtImageId',
+  isPublic: 'isPublic',
+  isActive: 'isActive',
+  isMature: 'isMature',
+  allowReviews: 'allowReviews',
+  userId: 'userId',
+  packId: 'packId'
+} as const
+
+export type CreatureScalarFieldEnum = (typeof CreatureScalarFieldEnum)[keyof typeof CreatureScalarFieldEnum]
+
+
 export const AquariumEventScalarFieldEnum = {
   id: 'id',
   aquariumId: 'aquariumId',
@@ -9404,6 +9519,27 @@ export const AquariumSetOrderByRelevanceFieldEnum = {
 export type AquariumSetOrderByRelevanceFieldEnum = (typeof AquariumSetOrderByRelevanceFieldEnum)[keyof typeof AquariumSetOrderByRelevanceFieldEnum]
 
 
+export const CreatureOrderByRelevanceFieldEnum = {
+  slug: 'slug',
+  name: 'name',
+  species: 'species',
+  class: 'class',
+  fieldNote: 'fieldNote',
+  quirks: 'quirks',
+  alignment: 'alignment',
+  behavior: 'behavior',
+  games: 'games',
+  artPrompt: 'artPrompt',
+  icon: 'icon',
+  iconPath: 'iconPath',
+  imagePath: 'imagePath',
+  cardPath: 'cardPath',
+  heroPath: 'heroPath'
+} as const
+
+export type CreatureOrderByRelevanceFieldEnum = (typeof CreatureOrderByRelevanceFieldEnum)[keyof typeof CreatureOrderByRelevanceFieldEnum]
+
+
 export const AquariumEventOrderByRelevanceFieldEnum = {
   kind: 'kind',
   payload: 'payload'
@@ -9922,6 +10058,13 @@ export type EnumLifeArtSceneTypeFieldRefInput<$PrismaModel> = FieldRefInputType<
 
 
 /**
+ * Reference to a field of type 'EvolutionKind'
+ */
+export type EnumEvolutionKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EvolutionKind'>
+    
+
+
+/**
  * Reference to a field of type 'AuthTokenPurpose'
  */
 export type EnumAuthTokenPurposeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AuthTokenPurpose'>
@@ -10182,6 +10325,7 @@ export type GlobalOmitConfig = {
   aquariumStock?: Prisma.AquariumStockOmit
   aquariumSet?: Prisma.AquariumSetOmit
   aquariumCodexEntry?: Prisma.AquariumCodexEntryOmit
+  creature?: Prisma.CreatureOmit
   aquariumEvent?: Prisma.AquariumEventOmit
   authToken?: Prisma.AuthTokenOmit
   conversation?: Prisma.ConversationOmit

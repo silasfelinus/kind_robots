@@ -67,6 +67,15 @@ export function unlockCost(rarity: Rarity): number {
   return RARITY_TIERS[rarity].unlockCost
 }
 
+// UPDATE 2026-08-25 (t-035): the canonical field this comment describes now
+// exists -- `Creature.tier` (prisma/schema.prisma) -- but AquariumStock and
+// AquariumCodexEntry still reference Character via characterId (t-032),
+// unchanged in t-035's migration on purpose (see that migration's own doc
+// comment). This function stays the derivation in use until a follow-on
+// task repoints AquariumStock at Creature and this call site can read
+// `creature.tier` directly instead of deriving it. Do not delete this
+// function or its six-stat signature while that repoint is still pending.
+//
 // Character has no single canonical "species rarity"/tier column -- it has
 // six PER-STAT Rarity fields (charm/empathy/grace/luck/might/wits), reused
 // from its original chatbot-personality design. t-003's fish bible

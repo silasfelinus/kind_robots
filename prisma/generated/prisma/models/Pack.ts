@@ -232,6 +232,7 @@ export type PackWhereInput = {
   Dreams?: Prisma.DreamListRelationFilter
   Facets?: Prisma.FacetListRelationFilter
   Characters?: Prisma.CharacterListRelationFilter
+  Creatures?: Prisma.CreatureListRelationFilter
   Rewards?: Prisma.RewardListRelationFilter
 }
 
@@ -245,6 +246,7 @@ export type PackOrderByWithRelationInput = {
   Dreams?: Prisma.DreamOrderByRelationAggregateInput
   Facets?: Prisma.FacetOrderByRelationAggregateInput
   Characters?: Prisma.CharacterOrderByRelationAggregateInput
+  Creatures?: Prisma.CreatureOrderByRelationAggregateInput
   Rewards?: Prisma.RewardOrderByRelationAggregateInput
   _relevance?: Prisma.PackOrderByRelevanceInput
 }
@@ -262,6 +264,7 @@ export type PackWhereUniqueInput = Prisma.AtLeast<{
   Dreams?: Prisma.DreamListRelationFilter
   Facets?: Prisma.FacetListRelationFilter
   Characters?: Prisma.CharacterListRelationFilter
+  Creatures?: Prisma.CreatureListRelationFilter
   Rewards?: Prisma.RewardListRelationFilter
 }, "id" | "slug">
 
@@ -297,6 +300,7 @@ export type PackCreateInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutPackInput
   Facets?: Prisma.FacetCreateNestedManyWithoutPackInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutPackInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutPackInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutPackInput
 }
 
@@ -309,6 +313,7 @@ export type PackUncheckedCreateInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutPackInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutPackInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutPackInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutPackInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutPackInput
 }
 
@@ -320,6 +325,7 @@ export type PackUpdateInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutPackNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutPackNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutPackNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutPackNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutPackNestedInput
 }
 
@@ -332,6 +338,7 @@ export type PackUncheckedUpdateInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutPackNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutPackNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutPackNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutPackNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutPackNestedInput
 }
 
@@ -518,6 +525,22 @@ export type PackUncheckedUpdateManyWithoutOwnerNestedInput = {
   deleteMany?: Prisma.PackScalarWhereInput | Prisma.PackScalarWhereInput[]
 }
 
+export type PackCreateNestedOneWithoutCreaturesInput = {
+  create?: Prisma.XOR<Prisma.PackCreateWithoutCreaturesInput, Prisma.PackUncheckedCreateWithoutCreaturesInput>
+  connectOrCreate?: Prisma.PackCreateOrConnectWithoutCreaturesInput
+  connect?: Prisma.PackWhereUniqueInput
+}
+
+export type PackUpdateOneWithoutCreaturesNestedInput = {
+  create?: Prisma.XOR<Prisma.PackCreateWithoutCreaturesInput, Prisma.PackUncheckedCreateWithoutCreaturesInput>
+  connectOrCreate?: Prisma.PackCreateOrConnectWithoutCreaturesInput
+  upsert?: Prisma.PackUpsertWithoutCreaturesInput
+  disconnect?: Prisma.PackWhereInput | boolean
+  delete?: Prisma.PackWhereInput | boolean
+  connect?: Prisma.PackWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PackUpdateToOneWithWhereWithoutCreaturesInput, Prisma.PackUpdateWithoutCreaturesInput>, Prisma.PackUncheckedUpdateWithoutCreaturesInput>
+}
+
 export type PackCreateWithoutCharactersInput = {
   createdAt?: Date | string
   slug: string
@@ -525,6 +548,7 @@ export type PackCreateWithoutCharactersInput = {
   Owner: Prisma.UserCreateNestedOneWithoutPacksOwnedInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutPackInput
   Facets?: Prisma.FacetCreateNestedManyWithoutPackInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutPackInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutPackInput
 }
 
@@ -536,6 +560,7 @@ export type PackUncheckedCreateWithoutCharactersInput = {
   ownerId: number
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutPackInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutPackInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutPackInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutPackInput
 }
 
@@ -562,6 +587,7 @@ export type PackUpdateWithoutCharactersInput = {
   Owner?: Prisma.UserUpdateOneRequiredWithoutPacksOwnedNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutPackNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutPackNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutPackNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutPackNestedInput
 }
 
@@ -573,6 +599,7 @@ export type PackUncheckedUpdateWithoutCharactersInput = {
   ownerId?: Prisma.IntFieldUpdateOperationsInput | number
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutPackNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutPackNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutPackNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutPackNestedInput
 }
 
@@ -583,6 +610,7 @@ export type PackCreateWithoutDreamsInput = {
   Owner: Prisma.UserCreateNestedOneWithoutPacksOwnedInput
   Facets?: Prisma.FacetCreateNestedManyWithoutPackInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutPackInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutPackInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutPackInput
 }
 
@@ -594,6 +622,7 @@ export type PackUncheckedCreateWithoutDreamsInput = {
   ownerId: number
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutPackInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutPackInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutPackInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutPackInput
 }
 
@@ -620,6 +649,7 @@ export type PackUpdateWithoutDreamsInput = {
   Owner?: Prisma.UserUpdateOneRequiredWithoutPacksOwnedNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutPackNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutPackNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutPackNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutPackNestedInput
 }
 
@@ -631,6 +661,7 @@ export type PackUncheckedUpdateWithoutDreamsInput = {
   ownerId?: Prisma.IntFieldUpdateOperationsInput | number
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutPackNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutPackNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutPackNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutPackNestedInput
 }
 
@@ -641,6 +672,7 @@ export type PackCreateWithoutFacetsInput = {
   Owner: Prisma.UserCreateNestedOneWithoutPacksOwnedInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutPackInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutPackInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutPackInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutPackInput
 }
 
@@ -652,6 +684,7 @@ export type PackUncheckedCreateWithoutFacetsInput = {
   ownerId: number
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutPackInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutPackInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutPackInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutPackInput
 }
 
@@ -678,6 +711,7 @@ export type PackUpdateWithoutFacetsInput = {
   Owner?: Prisma.UserUpdateOneRequiredWithoutPacksOwnedNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutPackNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutPackNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutPackNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutPackNestedInput
 }
 
@@ -689,6 +723,7 @@ export type PackUncheckedUpdateWithoutFacetsInput = {
   ownerId?: Prisma.IntFieldUpdateOperationsInput | number
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutPackNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutPackNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutPackNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutPackNestedInput
 }
 
@@ -700,6 +735,7 @@ export type PackCreateWithoutRewardsInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutPackInput
   Facets?: Prisma.FacetCreateNestedManyWithoutPackInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutPackInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutPackInput
 }
 
 export type PackUncheckedCreateWithoutRewardsInput = {
@@ -711,6 +747,7 @@ export type PackUncheckedCreateWithoutRewardsInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutPackInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutPackInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutPackInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutPackInput
 }
 
 export type PackCreateOrConnectWithoutRewardsInput = {
@@ -737,6 +774,7 @@ export type PackUpdateWithoutRewardsInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutPackNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutPackNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutPackNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutPackNestedInput
 }
 
 export type PackUncheckedUpdateWithoutRewardsInput = {
@@ -748,6 +786,7 @@ export type PackUncheckedUpdateWithoutRewardsInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutPackNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutPackNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutPackNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutPackNestedInput
 }
 
 export type PackCreateWithoutOwnerInput = {
@@ -757,6 +796,7 @@ export type PackCreateWithoutOwnerInput = {
   Dreams?: Prisma.DreamCreateNestedManyWithoutPackInput
   Facets?: Prisma.FacetCreateNestedManyWithoutPackInput
   Characters?: Prisma.CharacterCreateNestedManyWithoutPackInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutPackInput
   Rewards?: Prisma.RewardCreateNestedManyWithoutPackInput
 }
 
@@ -768,6 +808,7 @@ export type PackUncheckedCreateWithoutOwnerInput = {
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutPackInput
   Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutPackInput
   Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutPackInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutPackInput
   Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutPackInput
 }
 
@@ -808,6 +849,68 @@ export type PackScalarWhereInput = {
   ownerId?: Prisma.IntFilter<"Pack"> | number
 }
 
+export type PackCreateWithoutCreaturesInput = {
+  createdAt?: Date | string
+  slug: string
+  title: string
+  Owner: Prisma.UserCreateNestedOneWithoutPacksOwnedInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutPackInput
+  Facets?: Prisma.FacetCreateNestedManyWithoutPackInput
+  Characters?: Prisma.CharacterCreateNestedManyWithoutPackInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutPackInput
+}
+
+export type PackUncheckedCreateWithoutCreaturesInput = {
+  id?: number
+  createdAt?: Date | string
+  slug: string
+  title: string
+  ownerId: number
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutPackInput
+  Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutPackInput
+  Characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutPackInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutPackInput
+}
+
+export type PackCreateOrConnectWithoutCreaturesInput = {
+  where: Prisma.PackWhereUniqueInput
+  create: Prisma.XOR<Prisma.PackCreateWithoutCreaturesInput, Prisma.PackUncheckedCreateWithoutCreaturesInput>
+}
+
+export type PackUpsertWithoutCreaturesInput = {
+  update: Prisma.XOR<Prisma.PackUpdateWithoutCreaturesInput, Prisma.PackUncheckedUpdateWithoutCreaturesInput>
+  create: Prisma.XOR<Prisma.PackCreateWithoutCreaturesInput, Prisma.PackUncheckedCreateWithoutCreaturesInput>
+  where?: Prisma.PackWhereInput
+}
+
+export type PackUpdateToOneWithWhereWithoutCreaturesInput = {
+  where?: Prisma.PackWhereInput
+  data: Prisma.XOR<Prisma.PackUpdateWithoutCreaturesInput, Prisma.PackUncheckedUpdateWithoutCreaturesInput>
+}
+
+export type PackUpdateWithoutCreaturesInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  Owner?: Prisma.UserUpdateOneRequiredWithoutPacksOwnedNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutPackNestedInput
+  Facets?: Prisma.FacetUpdateManyWithoutPackNestedInput
+  Characters?: Prisma.CharacterUpdateManyWithoutPackNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutPackNestedInput
+}
+
+export type PackUncheckedUpdateWithoutCreaturesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.IntFieldUpdateOperationsInput | number
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutPackNestedInput
+  Facets?: Prisma.FacetUncheckedUpdateManyWithoutPackNestedInput
+  Characters?: Prisma.CharacterUncheckedUpdateManyWithoutPackNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutPackNestedInput
+}
+
 export type PackCreateManyOwnerInput = {
   id?: number
   createdAt?: Date | string
@@ -822,6 +925,7 @@ export type PackUpdateWithoutOwnerInput = {
   Dreams?: Prisma.DreamUpdateManyWithoutPackNestedInput
   Facets?: Prisma.FacetUpdateManyWithoutPackNestedInput
   Characters?: Prisma.CharacterUpdateManyWithoutPackNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutPackNestedInput
   Rewards?: Prisma.RewardUpdateManyWithoutPackNestedInput
 }
 
@@ -833,6 +937,7 @@ export type PackUncheckedUpdateWithoutOwnerInput = {
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutPackNestedInput
   Facets?: Prisma.FacetUncheckedUpdateManyWithoutPackNestedInput
   Characters?: Prisma.CharacterUncheckedUpdateManyWithoutPackNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutPackNestedInput
   Rewards?: Prisma.RewardUncheckedUpdateManyWithoutPackNestedInput
 }
 
@@ -852,6 +957,7 @@ export type PackCountOutputType = {
   Dreams: number
   Facets: number
   Characters: number
+  Creatures: number
   Rewards: number
 }
 
@@ -859,6 +965,7 @@ export type PackCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   Dreams?: boolean | PackCountOutputTypeCountDreamsArgs
   Facets?: boolean | PackCountOutputTypeCountFacetsArgs
   Characters?: boolean | PackCountOutputTypeCountCharactersArgs
+  Creatures?: boolean | PackCountOutputTypeCountCreaturesArgs
   Rewards?: boolean | PackCountOutputTypeCountRewardsArgs
 }
 
@@ -896,6 +1003,13 @@ export type PackCountOutputTypeCountCharactersArgs<ExtArgs extends runtime.Types
 /**
  * PackCountOutputType without action
  */
+export type PackCountOutputTypeCountCreaturesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CreatureWhereInput
+}
+
+/**
+ * PackCountOutputType without action
+ */
 export type PackCountOutputTypeCountRewardsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.RewardWhereInput
 }
@@ -911,6 +1025,7 @@ export type PackSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   Dreams?: boolean | Prisma.Pack$DreamsArgs<ExtArgs>
   Facets?: boolean | Prisma.Pack$FacetsArgs<ExtArgs>
   Characters?: boolean | Prisma.Pack$CharactersArgs<ExtArgs>
+  Creatures?: boolean | Prisma.Pack$CreaturesArgs<ExtArgs>
   Rewards?: boolean | Prisma.Pack$RewardsArgs<ExtArgs>
   _count?: boolean | Prisma.PackCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["pack"]>
@@ -931,6 +1046,7 @@ export type PackInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   Dreams?: boolean | Prisma.Pack$DreamsArgs<ExtArgs>
   Facets?: boolean | Prisma.Pack$FacetsArgs<ExtArgs>
   Characters?: boolean | Prisma.Pack$CharactersArgs<ExtArgs>
+  Creatures?: boolean | Prisma.Pack$CreaturesArgs<ExtArgs>
   Rewards?: boolean | Prisma.Pack$RewardsArgs<ExtArgs>
   _count?: boolean | Prisma.PackCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -942,6 +1058,7 @@ export type $PackPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     Dreams: Prisma.$DreamPayload<ExtArgs>[]
     Facets: Prisma.$FacetPayload<ExtArgs>[]
     Characters: Prisma.$CharacterPayload<ExtArgs>[]
+    Creatures: Prisma.$CreaturePayload<ExtArgs>[]
     Rewards: Prisma.$RewardPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1294,6 +1411,7 @@ export interface Prisma__PackClient<T, Null = never, ExtArgs extends runtime.Typ
   Dreams<T extends Prisma.Pack$DreamsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Pack$DreamsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DreamPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Facets<T extends Prisma.Pack$FacetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Pack$FacetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FacetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Characters<T extends Prisma.Pack$CharactersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Pack$CharactersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CharacterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Creatures<T extends Prisma.Pack$CreaturesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Pack$CreaturesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CreaturePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Rewards<T extends Prisma.Pack$RewardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Pack$RewardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RewardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1746,6 +1864,30 @@ export type Pack$CharactersArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.CharacterScalarFieldEnum | Prisma.CharacterScalarFieldEnum[]
+}
+
+/**
+ * Pack.Creatures
+ */
+export type Pack$CreaturesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Creature
+   */
+  select?: Prisma.CreatureSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Creature
+   */
+  omit?: Prisma.CreatureOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CreatureInclude<ExtArgs> | null
+  where?: Prisma.CreatureWhereInput
+  orderBy?: Prisma.CreatureOrderByWithRelationInput | Prisma.CreatureOrderByWithRelationInput[]
+  cursor?: Prisma.CreatureWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CreatureScalarFieldEnum | Prisma.CreatureScalarFieldEnum[]
 }
 
 /**

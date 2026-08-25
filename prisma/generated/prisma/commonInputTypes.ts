@@ -1272,6 +1272,23 @@ export type EnumLifeArtSceneTypeWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumLifeArtSceneTypeFilter<$PrismaModel>
 }
 
+export type EnumEvolutionKindNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.EvolutionKind | Prisma.EnumEvolutionKindFieldRefInput<$PrismaModel> | null
+  in?: $Enums.EvolutionKind[] | null
+  notIn?: $Enums.EvolutionKind[] | null
+  not?: Prisma.NestedEnumEvolutionKindNullableFilter<$PrismaModel> | $Enums.EvolutionKind | null
+}
+
+export type EnumEvolutionKindNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.EvolutionKind | Prisma.EnumEvolutionKindFieldRefInput<$PrismaModel> | null
+  in?: $Enums.EvolutionKind[] | null
+  notIn?: $Enums.EvolutionKind[] | null
+  not?: Prisma.NestedEnumEvolutionKindNullableWithAggregatesFilter<$PrismaModel> | $Enums.EvolutionKind | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumEvolutionKindNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumEvolutionKindNullableFilter<$PrismaModel>
+}
+
 export type EnumAuthTokenPurposeFilter<$PrismaModel = never> = {
   equals?: $Enums.AuthTokenPurpose | Prisma.EnumAuthTokenPurposeFieldRefInput<$PrismaModel>
   in?: $Enums.AuthTokenPurpose[]
@@ -2601,6 +2618,23 @@ export type NestedEnumLifeArtSceneTypeWithAggregatesFilter<$PrismaModel = never>
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumLifeArtSceneTypeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumLifeArtSceneTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumEvolutionKindNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.EvolutionKind | Prisma.EnumEvolutionKindFieldRefInput<$PrismaModel> | null
+  in?: $Enums.EvolutionKind[] | null
+  notIn?: $Enums.EvolutionKind[] | null
+  not?: Prisma.NestedEnumEvolutionKindNullableFilter<$PrismaModel> | $Enums.EvolutionKind | null
+}
+
+export type NestedEnumEvolutionKindNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.EvolutionKind | Prisma.EnumEvolutionKindFieldRefInput<$PrismaModel> | null
+  in?: $Enums.EvolutionKind[] | null
+  notIn?: $Enums.EvolutionKind[] | null
+  not?: Prisma.NestedEnumEvolutionKindNullableWithAggregatesFilter<$PrismaModel> | $Enums.EvolutionKind | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumEvolutionKindNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumEvolutionKindNullableFilter<$PrismaModel>
 }
 
 export type NestedEnumAuthTokenPurposeFilter<$PrismaModel = never> = {

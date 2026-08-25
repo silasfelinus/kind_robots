@@ -812,6 +812,7 @@ export type UserWhereInput = {
   Challenges?: Prisma.ChallengeListRelationFilter
   characters?: Prisma.CharacterListRelationFilter
   Chats?: Prisma.ChatListRelationFilter
+  Creatures?: Prisma.CreatureListRelationFilter
   ConversationsIn?: Prisma.ConversationParticipantListRelationFilter
   SentMessages?: Prisma.DirectMessageListRelationFilter
   Dreams?: Prisma.DreamListRelationFilter
@@ -936,6 +937,7 @@ export type UserOrderByWithRelationInput = {
   Challenges?: Prisma.ChallengeOrderByRelationAggregateInput
   characters?: Prisma.CharacterOrderByRelationAggregateInput
   Chats?: Prisma.ChatOrderByRelationAggregateInput
+  Creatures?: Prisma.CreatureOrderByRelationAggregateInput
   ConversationsIn?: Prisma.ConversationParticipantOrderByRelationAggregateInput
   SentMessages?: Prisma.DirectMessageOrderByRelationAggregateInput
   Dreams?: Prisma.DreamOrderByRelationAggregateInput
@@ -1064,6 +1066,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   Challenges?: Prisma.ChallengeListRelationFilter
   characters?: Prisma.CharacterListRelationFilter
   Chats?: Prisma.ChatListRelationFilter
+  Creatures?: Prisma.CreatureListRelationFilter
   ConversationsIn?: Prisma.ConversationParticipantListRelationFilter
   SentMessages?: Prisma.DirectMessageListRelationFilter
   Dreams?: Prisma.DreamListRelationFilter
@@ -1344,6 +1347,7 @@ export type UserCreateInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -1468,6 +1472,7 @@ export type UserUncheckedCreateInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -1589,6 +1594,7 @@ export type UserUpdateInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -1713,6 +1719,7 @@ export type UserUncheckedUpdateInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -2925,6 +2932,22 @@ export type UserUpdateOneRequiredWithoutAquariumCodexEntriesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAquariumCodexEntriesInput, Prisma.UserUpdateWithoutAquariumCodexEntriesInput>, Prisma.UserUncheckedUpdateWithoutAquariumCodexEntriesInput>
 }
 
+export type UserCreateNestedOneWithoutCreaturesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreaturesInput, Prisma.UserUncheckedCreateWithoutCreaturesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreaturesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutCreaturesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreaturesInput, Prisma.UserUncheckedCreateWithoutCreaturesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreaturesInput
+  upsert?: Prisma.UserUpsertWithoutCreaturesInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreaturesInput, Prisma.UserUpdateWithoutCreaturesInput>, Prisma.UserUncheckedUpdateWithoutCreaturesInput>
+}
+
 export type UserCreateNestedOneWithoutAuthTokensInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutAuthTokensInput, Prisma.UserUncheckedCreateWithoutAuthTokensInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutAuthTokensInput
@@ -3107,6 +3130,7 @@ export type UserCreateWithoutArtImagesInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -3230,6 +3254,7 @@ export type UserUncheckedCreateWithoutArtImagesInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -3356,6 +3381,7 @@ export type UserCreateWithoutArtImageInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -3478,6 +3504,7 @@ export type UserUncheckedCreateWithoutArtImageInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -3619,6 +3646,7 @@ export type UserUpdateWithoutArtImagesInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -3742,6 +3770,7 @@ export type UserUncheckedUpdateWithoutArtImagesInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -3956,6 +3985,7 @@ export type UserCreateWithoutArtCollectionsInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -4079,6 +4109,7 @@ export type UserUncheckedCreateWithoutArtCollectionsInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -4215,6 +4246,7 @@ export type UserUpdateWithoutArtCollectionsInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -4338,6 +4370,7 @@ export type UserUncheckedUpdateWithoutArtCollectionsInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -4458,6 +4491,7 @@ export type UserCreateWithoutBotsInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -4581,6 +4615,7 @@ export type UserUncheckedCreateWithoutBotsInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -4717,6 +4752,7 @@ export type UserUpdateWithoutBotsInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -4840,6 +4876,7 @@ export type UserUncheckedUpdateWithoutBotsInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -4960,6 +4997,7 @@ export type UserCreateWithoutCharactersInput = {
   Bots?: Prisma.BotCreateNestedManyWithoutUserInput
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -5083,6 +5121,7 @@ export type UserUncheckedCreateWithoutCharactersInput = {
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -5219,6 +5258,7 @@ export type UserUpdateWithoutCharactersInput = {
   Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -5342,6 +5382,7 @@ export type UserUncheckedUpdateWithoutCharactersInput = {
   Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -5462,6 +5503,7 @@ export type UserCreateWithoutChatsInput = {
   Bots?: Prisma.BotCreateNestedManyWithoutUserInput
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -5585,6 +5627,7 @@ export type UserUncheckedCreateWithoutChatsInput = {
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -5721,6 +5764,7 @@ export type UserUpdateWithoutChatsInput = {
   Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -5844,6 +5888,7 @@ export type UserUncheckedUpdateWithoutChatsInput = {
   Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -5965,6 +6010,7 @@ export type UserCreateWithoutDreamsInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
@@ -6088,6 +6134,7 @@ export type UserUncheckedCreateWithoutDreamsInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
@@ -6224,6 +6271,7 @@ export type UserUpdateWithoutDreamsInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
@@ -6347,6 +6395,7 @@ export type UserUncheckedUpdateWithoutDreamsInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
@@ -6467,6 +6516,7 @@ export type UserCreateWithoutProjectsInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -6590,6 +6640,7 @@ export type UserUncheckedCreateWithoutProjectsInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -6726,6 +6777,7 @@ export type UserUpdateWithoutProjectsInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -6849,6 +6901,7 @@ export type UserUncheckedUpdateWithoutProjectsInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -6969,6 +7022,7 @@ export type UserCreateWithoutFacetsInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -7092,6 +7146,7 @@ export type UserUncheckedCreateWithoutFacetsInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -7228,6 +7283,7 @@ export type UserUpdateWithoutFacetsInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -7351,6 +7407,7 @@ export type UserUncheckedUpdateWithoutFacetsInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -7471,6 +7528,7 @@ export type UserCreateWithoutLogsInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -7594,6 +7652,7 @@ export type UserUncheckedCreateWithoutLogsInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -7730,6 +7789,7 @@ export type UserUpdateWithoutLogsInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -7853,6 +7913,7 @@ export type UserUncheckedUpdateWithoutLogsInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -7973,6 +8034,7 @@ export type UserCreateWithoutManaTransactionsInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -8096,6 +8158,7 @@ export type UserUncheckedCreateWithoutManaTransactionsInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -8232,6 +8295,7 @@ export type UserUpdateWithoutManaTransactionsInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -8355,6 +8419,7 @@ export type UserUncheckedUpdateWithoutManaTransactionsInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -8475,6 +8540,7 @@ export type UserCreateWithoutMissionRemittancesInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -8598,6 +8664,7 @@ export type UserUncheckedCreateWithoutMissionRemittancesInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -8734,6 +8801,7 @@ export type UserUpdateWithoutMissionRemittancesInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -8857,6 +8925,7 @@ export type UserUncheckedUpdateWithoutMissionRemittancesInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -8977,6 +9046,7 @@ export type UserCreateWithoutOrdersInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -9100,6 +9170,7 @@ export type UserUncheckedCreateWithoutOrdersInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -9236,6 +9307,7 @@ export type UserUpdateWithoutOrdersInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -9359,6 +9431,7 @@ export type UserUncheckedUpdateWithoutOrdersInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -9479,6 +9552,7 @@ export type UserCreateWithoutEntitlementsInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -9602,6 +9676,7 @@ export type UserUncheckedCreateWithoutEntitlementsInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -9738,6 +9813,7 @@ export type UserUpdateWithoutEntitlementsInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -9861,6 +9937,7 @@ export type UserUncheckedUpdateWithoutEntitlementsInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -9981,6 +10058,7 @@ export type UserCreateWithoutGrantsGivenInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -10104,6 +10182,7 @@ export type UserUncheckedCreateWithoutGrantsGivenInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -10229,6 +10308,7 @@ export type UserCreateWithoutGrantsReceivedInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -10352,6 +10432,7 @@ export type UserUncheckedCreateWithoutGrantsReceivedInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -10488,6 +10569,7 @@ export type UserUpdateWithoutGrantsGivenInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -10611,6 +10693,7 @@ export type UserUncheckedUpdateWithoutGrantsGivenInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -10742,6 +10825,7 @@ export type UserUpdateWithoutGrantsReceivedInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -10865,6 +10949,7 @@ export type UserUncheckedUpdateWithoutGrantsReceivedInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -10985,6 +11070,7 @@ export type UserCreateWithoutPacksOwnedInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -11108,6 +11194,7 @@ export type UserUncheckedCreateWithoutPacksOwnedInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -11244,6 +11331,7 @@ export type UserUpdateWithoutPacksOwnedInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -11367,6 +11455,7 @@ export type UserUncheckedUpdateWithoutPacksOwnedInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -11486,6 +11575,7 @@ export type UserCreateWithoutAchievementsInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -11609,6 +11699,7 @@ export type UserUncheckedCreateWithoutAchievementsInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -11745,6 +11836,7 @@ export type UserUpdateWithoutAchievementsInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -11868,6 +11960,7 @@ export type UserUncheckedUpdateWithoutAchievementsInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -11989,6 +12082,7 @@ export type UserCreateWithoutPitchSheetsInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -12112,6 +12206,7 @@ export type UserUncheckedCreateWithoutPitchSheetsInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -12248,6 +12343,7 @@ export type UserUpdateWithoutPitchSheetsInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -12371,6 +12467,7 @@ export type UserUncheckedUpdateWithoutPitchSheetsInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -12491,6 +12588,7 @@ export type UserCreateWithoutClaimedPromptsInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -12614,6 +12712,7 @@ export type UserUncheckedCreateWithoutClaimedPromptsInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -12739,6 +12838,7 @@ export type UserCreateWithoutPromptsInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -12862,6 +12962,7 @@ export type UserUncheckedCreateWithoutPromptsInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -12998,6 +13099,7 @@ export type UserUpdateWithoutClaimedPromptsInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -13121,6 +13223,7 @@ export type UserUncheckedUpdateWithoutClaimedPromptsInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -13252,6 +13355,7 @@ export type UserUpdateWithoutPromptsInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -13375,6 +13479,7 @@ export type UserUncheckedUpdateWithoutPromptsInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -13495,6 +13600,7 @@ export type UserCreateWithoutReactionsInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -13618,6 +13724,7 @@ export type UserUncheckedCreateWithoutReactionsInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -13754,6 +13861,7 @@ export type UserUpdateWithoutReactionsInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -13877,6 +13985,7 @@ export type UserUncheckedUpdateWithoutReactionsInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -13997,6 +14106,7 @@ export type UserCreateWithoutResourcesInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -14120,6 +14230,7 @@ export type UserUncheckedCreateWithoutResourcesInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -14256,6 +14367,7 @@ export type UserUpdateWithoutResourcesInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -14379,6 +14491,7 @@ export type UserUncheckedUpdateWithoutResourcesInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -14499,6 +14612,7 @@ export type UserCreateWithoutRewardsInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -14622,6 +14736,7 @@ export type UserUncheckedCreateWithoutRewardsInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -14758,6 +14873,7 @@ export type UserUpdateWithoutRewardsInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -14881,6 +14997,7 @@ export type UserUncheckedUpdateWithoutRewardsInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -15001,6 +15118,7 @@ export type UserCreateWithoutScenariosInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -15124,6 +15242,7 @@ export type UserUncheckedCreateWithoutScenariosInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -15260,6 +15379,7 @@ export type UserUpdateWithoutScenariosInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -15383,6 +15503,7 @@ export type UserUncheckedUpdateWithoutScenariosInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -15503,6 +15624,7 @@ export type UserCreateWithoutServersInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -15626,6 +15748,7 @@ export type UserUncheckedCreateWithoutServersInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -15762,6 +15885,7 @@ export type UserUpdateWithoutServersInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -15885,6 +16009,7 @@ export type UserUncheckedUpdateWithoutServersInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -16005,6 +16130,7 @@ export type UserCreateWithoutSmartIconsInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -16128,6 +16254,7 @@ export type UserUncheckedCreateWithoutSmartIconsInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -16264,6 +16391,7 @@ export type UserUpdateWithoutSmartIconsInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -16387,6 +16515,7 @@ export type UserUncheckedUpdateWithoutSmartIconsInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -16507,6 +16636,7 @@ export type UserCreateWithoutThemesInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -16630,6 +16760,7 @@ export type UserUncheckedCreateWithoutThemesInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -16766,6 +16897,7 @@ export type UserUpdateWithoutThemesInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -16889,6 +17021,7 @@ export type UserUncheckedUpdateWithoutThemesInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -17009,6 +17142,7 @@ export type UserCreateWithoutStylistClientsInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -17132,6 +17266,7 @@ export type UserUncheckedCreateWithoutStylistClientsInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -17268,6 +17403,7 @@ export type UserUpdateWithoutStylistClientsInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -17391,6 +17527,7 @@ export type UserUncheckedUpdateWithoutStylistClientsInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -17511,6 +17648,7 @@ export type UserCreateWithoutStylistAppointmentsInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -17634,6 +17772,7 @@ export type UserUncheckedCreateWithoutStylistAppointmentsInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -17770,6 +17909,7 @@ export type UserUpdateWithoutStylistAppointmentsInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -17893,6 +18033,7 @@ export type UserUncheckedUpdateWithoutStylistAppointmentsInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -18012,6 +18153,7 @@ export type UserCreateWithoutArtJobsInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -18135,6 +18277,7 @@ export type UserUncheckedCreateWithoutArtJobsInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -18271,6 +18414,7 @@ export type UserUpdateWithoutArtJobsInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -18394,6 +18538,7 @@ export type UserUncheckedUpdateWithoutArtJobsInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -18515,6 +18660,7 @@ export type UserCreateWithoutKarmaTransactionsInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -18638,6 +18784,7 @@ export type UserUncheckedCreateWithoutKarmaTransactionsInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -18774,6 +18921,7 @@ export type UserUpdateWithoutKarmaTransactionsInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -18897,6 +19045,7 @@ export type UserUncheckedUpdateWithoutKarmaTransactionsInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -19017,6 +19166,7 @@ export type UserCreateWithoutReferredByInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -19140,6 +19290,7 @@ export type UserUncheckedCreateWithoutReferredByInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -19265,6 +19416,7 @@ export type UserCreateWithoutReferralsMadeInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -19388,6 +19540,7 @@ export type UserUncheckedCreateWithoutReferralsMadeInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -19524,6 +19677,7 @@ export type UserUpdateWithoutReferredByInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -19647,6 +19801,7 @@ export type UserUncheckedUpdateWithoutReferredByInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -19778,6 +19933,7 @@ export type UserUpdateWithoutReferralsMadeInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -19901,6 +20057,7 @@ export type UserUncheckedUpdateWithoutReferralsMadeInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -20021,6 +20178,7 @@ export type UserCreateWithoutRelationsReceivedInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -20144,6 +20302,7 @@ export type UserUncheckedCreateWithoutRelationsReceivedInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -20269,6 +20428,7 @@ export type UserCreateWithoutRelationsOwnedInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -20392,6 +20552,7 @@ export type UserUncheckedCreateWithoutRelationsOwnedInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -20528,6 +20689,7 @@ export type UserUpdateWithoutRelationsReceivedInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -20651,6 +20813,7 @@ export type UserUncheckedUpdateWithoutRelationsReceivedInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -20782,6 +20945,7 @@ export type UserUpdateWithoutRelationsOwnedInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -20905,6 +21069,7 @@ export type UserUncheckedUpdateWithoutRelationsOwnedInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -21025,6 +21190,7 @@ export type UserCreateWithoutUserRolesInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -21148,6 +21314,7 @@ export type UserUncheckedCreateWithoutUserRolesInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -21284,6 +21451,7 @@ export type UserUpdateWithoutUserRolesInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -21407,6 +21575,7 @@ export type UserUncheckedUpdateWithoutUserRolesInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -21526,6 +21695,7 @@ export type UserCreateWithoutChallengesInput = {
   Bots?: Prisma.BotCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -21649,6 +21819,7 @@ export type UserUncheckedCreateWithoutChallengesInput = {
   Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -21785,6 +21956,7 @@ export type UserUpdateWithoutChallengesInput = {
   Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -21908,6 +22080,7 @@ export type UserUncheckedUpdateWithoutChallengesInput = {
   Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -22029,6 +22202,7 @@ export type UserCreateWithoutLifeRunsInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -22152,6 +22326,7 @@ export type UserUncheckedCreateWithoutLifeRunsInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -22288,6 +22463,7 @@ export type UserUpdateWithoutLifeRunsInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -22411,6 +22587,7 @@ export type UserUncheckedUpdateWithoutLifeRunsInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -22531,6 +22708,7 @@ export type UserCreateWithoutLifeAchievementUnlocksInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -22654,6 +22832,7 @@ export type UserUncheckedCreateWithoutLifeAchievementUnlocksInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -22790,6 +22969,7 @@ export type UserUpdateWithoutLifeAchievementUnlocksInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -22913,6 +23093,7 @@ export type UserUncheckedUpdateWithoutLifeAchievementUnlocksInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -23032,6 +23213,7 @@ export type UserCreateWithoutAquariumsInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -23155,6 +23337,7 @@ export type UserUncheckedCreateWithoutAquariumsInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -23291,6 +23474,7 @@ export type UserUpdateWithoutAquariumsInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -23414,6 +23598,7 @@ export type UserUncheckedUpdateWithoutAquariumsInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -23534,6 +23719,7 @@ export type UserCreateWithoutAquariumCodexEntriesInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -23657,6 +23843,7 @@ export type UserUncheckedCreateWithoutAquariumCodexEntriesInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -23793,6 +23980,7 @@ export type UserUpdateWithoutAquariumCodexEntriesInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -23908,6 +24096,513 @@ export type UserUncheckedUpdateWithoutAquariumCodexEntriesInput = {
   Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
   AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
   Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUncheckedUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUncheckedUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
+  Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
+  Facets?: Prisma.FacetUncheckedUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  Orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUncheckedUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUncheckedUpdateManyWithoutUserNestedInput
+  ManaTransactions?: Prisma.ManaTransactionUncheckedUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedUpdateManyWithoutRemittedByNestedInput
+  ActedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
+  Notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUncheckedUpdateManyWithoutUserNestedInput
+  Projects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUncheckedUpdateManyWithoutClaimerNestedInput
+  Prompts?: Prisma.PromptUncheckedUpdateManyWithoutUserNestedInput
+  Reactions?: Prisma.ReactionUncheckedUpdateManyWithoutUserNestedInput
+  ReferredBy?: Prisma.ReferralUncheckedUpdateOneWithoutReferredNestedInput
+  ReferralsMade?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  Resources?: Prisma.ResourceUncheckedUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUncheckedUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUncheckedUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUncheckedUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUncheckedUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUncheckedUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUncheckedUpdateManyWithoutUserNestedInput
+  RelationsReceived?: Prisma.UserRelationUncheckedUpdateManyWithoutRelatedUserNestedInput
+  RelationsOwned?: Prisma.UserRelationUncheckedUpdateManyWithoutUserNestedInput
+  UserRoles?: Prisma.UserRoleUncheckedUpdateManyWithoutUserNestedInput
+  GrantsGiven?: Prisma.GrantUncheckedUpdateManyWithoutGranterNestedInput
+  GrantsReceived?: Prisma.GrantUncheckedUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUncheckedUpdateManyWithoutOwnerNestedInput
+}
+
+export type UserCreateWithoutCreaturesInput = {
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  tokens?: number
+  earnedTokens?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  isGuest?: boolean
+  lastManaRefill?: Date | string | null
+  manaCap?: number
+  signupBonusGiven?: boolean
+  referralCode?: string | null
+  allowFriendRequests?: boolean
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  listInDirectory?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterConfirmedAt?: Date | string | null
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  restrictedAt?: Date | string | null
+  restrictedById?: number | null
+  restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
+  Achievements?: Prisma.AchievementRecordCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumCreateNestedManyWithoutUserInput
+  AquariumCodexEntries?: Prisma.AquariumCodexEntryCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
+  Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
+  Facets?: Prisma.FacetCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionCreateNestedManyWithoutUserInput
+  Orders?: Prisma.OrderCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogCreateNestedManyWithoutUserInput
+  ManaTransactions?: Prisma.ManaTransactionCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceCreateNestedManyWithoutRemittedByInput
+  ActedNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
+  Notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetCreateNestedManyWithoutUserInput
+  Projects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptCreateNestedManyWithoutClaimerInput
+  Prompts?: Prisma.PromptCreateNestedManyWithoutUserInput
+  Reactions?: Prisma.ReactionCreateNestedManyWithoutUserInput
+  ReferredBy?: Prisma.ReferralCreateNestedOneWithoutReferredInput
+  ReferralsMade?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  Resources?: Prisma.ResourceCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeCreateNestedManyWithoutUserInput
+  ArtImage?: Prisma.ArtImageCreateNestedOneWithoutUserProfilesInput
+  RelationsReceived?: Prisma.UserRelationCreateNestedManyWithoutRelatedUserInput
+  RelationsOwned?: Prisma.UserRelationCreateNestedManyWithoutUserInput
+  UserRoles?: Prisma.UserRoleCreateNestedManyWithoutUserInput
+  GrantsGiven?: Prisma.GrantCreateNestedManyWithoutGranterInput
+  GrantsReceived?: Prisma.GrantCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackCreateNestedManyWithoutOwnerInput
+}
+
+export type UserUncheckedCreateWithoutCreaturesInput = {
+  id?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string | null
+  username: string
+  email?: string | null
+  questPoints?: number
+  emailVerified?: Date | string | null
+  name?: string | null
+  address1?: string | null
+  address2?: string | null
+  avatarImage?: string | null
+  bio?: string | null
+  birthday?: Date | string | null
+  city?: string | null
+  country?: string | null
+  discordUrl?: string | null
+  facebookUrl?: string | null
+  instagramUrl?: string | null
+  kindrobotsUrl?: string | null
+  languages?: string | null
+  phone?: string | null
+  state?: string | null
+  timezone?: string | null
+  twitterUrl?: string | null
+  apiKey?: string | null
+  password?: string | null
+  karma?: number
+  mana?: number
+  tokens?: number
+  earnedTokens?: number
+  clickRecord?: number | null
+  matchRecord?: number | null
+  showMature?: boolean
+  Role?: $Enums.Role
+  artImageId?: number | null
+  token?: string | null
+  designerName?: string | null
+  googleEmail?: string | null
+  googleId?: string | null
+  blockList?: string | null
+  isPublic?: boolean
+  smartBar?: string | null
+  customIcons?: boolean
+  isMember?: boolean
+  preferredArtServerId?: number | null
+  preferredTextServerId?: number | null
+  memberUntil?: Date | string | null
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  artModels?: string | null
+  lastReward?: string | null
+  textModels?: string | null
+  vibes?: string | null
+  hiddenServerIds?: string | null
+  isActive?: boolean
+  artPrompt?: string | null
+  isGuest?: boolean
+  lastManaRefill?: Date | string | null
+  manaCap?: number
+  signupBonusGiven?: boolean
+  referralCode?: string | null
+  allowFriendRequests?: boolean
+  brevoContactId?: string | null
+  isRestricted?: boolean
+  listInDirectory?: boolean
+  messagePolicy?: $Enums.MessagePolicy
+  newsletterConfirmedAt?: Date | string | null
+  newsletterFrequency?: $Enums.NewsletterFrequency
+  restrictedAt?: Date | string | null
+  restrictedById?: number | null
+  restrictedReason?: string | null
+  introDismissedAt?: Date | string | null
+  Achievements?: Prisma.AchievementRecordUncheckedCreateNestedManyWithoutUserInput
+  AppRepos?: Prisma.AppRepoUncheckedCreateNestedManyWithoutUserInput
+  Aquariums?: Prisma.AquariumUncheckedCreateNestedManyWithoutUserInput
+  AquariumCodexEntries?: Prisma.AquariumCodexEntryUncheckedCreateNestedManyWithoutUserInput
+  ArtCollections?: Prisma.ArtCollectionUncheckedCreateNestedManyWithoutUserInput
+  ArtImages?: Prisma.ArtImageUncheckedCreateNestedManyWithoutUserInput
+  ArtJobs?: Prisma.ArtJobUncheckedCreateNestedManyWithoutUserInput
+  AuthTokens?: Prisma.AuthTokenUncheckedCreateNestedManyWithoutUserInput
+  Bots?: Prisma.BotUncheckedCreateNestedManyWithoutUserInput
+  Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
+  characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
+  Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
+  SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
+  Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
+  Facets?: Prisma.FacetUncheckedCreateNestedManyWithoutUserInput
+  GithubInstallations?: Prisma.GithubInstallationUncheckedCreateNestedManyWithoutUserInput
+  KarmaTransactions?: Prisma.KarmaTransactionUncheckedCreateNestedManyWithoutUserInput
+  Orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUncheckedCreateNestedManyWithoutUserInput
+  LifeRuns?: Prisma.LifeRunUncheckedCreateNestedManyWithoutUserInput
+  Logs?: Prisma.LogUncheckedCreateNestedManyWithoutUserInput
+  ManaTransactions?: Prisma.ManaTransactionUncheckedCreateNestedManyWithoutUserInput
+  MissionRemittances?: Prisma.MissionRemittanceUncheckedCreateNestedManyWithoutRemittedByInput
+  ActedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
+  Notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  PitchSheets?: Prisma.PitchSheetUncheckedCreateNestedManyWithoutUserInput
+  Projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  ClaimedPrompts?: Prisma.PromptUncheckedCreateNestedManyWithoutClaimerInput
+  Prompts?: Prisma.PromptUncheckedCreateNestedManyWithoutUserInput
+  Reactions?: Prisma.ReactionUncheckedCreateNestedManyWithoutUserInput
+  ReferredBy?: Prisma.ReferralUncheckedCreateNestedOneWithoutReferredInput
+  ReferralsMade?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  Resources?: Prisma.ResourceUncheckedCreateNestedManyWithoutUserInput
+  Rewards?: Prisma.RewardUncheckedCreateNestedManyWithoutUserInput
+  Scenarios?: Prisma.ScenarioUncheckedCreateNestedManyWithoutUserInput
+  Servers?: Prisma.ServerUncheckedCreateNestedManyWithoutUserInput
+  SmartIcons?: Prisma.SmartIconUncheckedCreateNestedManyWithoutUserInput
+  StylistAppointments?: Prisma.StylistAppointmentUncheckedCreateNestedManyWithoutUserInput
+  StylistClients?: Prisma.StylistClientUncheckedCreateNestedManyWithoutUserInput
+  Themes?: Prisma.ThemeUncheckedCreateNestedManyWithoutUserInput
+  RelationsReceived?: Prisma.UserRelationUncheckedCreateNestedManyWithoutRelatedUserInput
+  RelationsOwned?: Prisma.UserRelationUncheckedCreateNestedManyWithoutUserInput
+  UserRoles?: Prisma.UserRoleUncheckedCreateNestedManyWithoutUserInput
+  GrantsGiven?: Prisma.GrantUncheckedCreateNestedManyWithoutGranterInput
+  GrantsReceived?: Prisma.GrantUncheckedCreateNestedManyWithoutGranteeInput
+  PacksOwned?: Prisma.PackUncheckedCreateNestedManyWithoutOwnerInput
+}
+
+export type UserCreateOrConnectWithoutCreaturesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreaturesInput, Prisma.UserUncheckedCreateWithoutCreaturesInput>
+}
+
+export type UserUpsertWithoutCreaturesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCreaturesInput, Prisma.UserUncheckedUpdateWithoutCreaturesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreaturesInput, Prisma.UserUncheckedCreateWithoutCreaturesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCreaturesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCreaturesInput, Prisma.UserUncheckedUpdateWithoutCreaturesInput>
+}
+
+export type UserUpdateWithoutCreaturesInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Achievements?: Prisma.AchievementRecordUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUpdateManyWithoutUserNestedInput
+  AquariumCodexEntries?: Prisma.AquariumCodexEntryUpdateManyWithoutUserNestedInput
+  ArtCollections?: Prisma.ArtCollectionUpdateManyWithoutUserNestedInput
+  ArtImages?: Prisma.ArtImageUpdateManyWithoutUserNestedInput
+  ArtJobs?: Prisma.ArtJobUpdateManyWithoutUserNestedInput
+  AuthTokens?: Prisma.AuthTokenUpdateManyWithoutUserNestedInput
+  Bots?: Prisma.BotUpdateManyWithoutUserNestedInput
+  Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
+  characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
+  Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
+  SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
+  Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
+  Facets?: Prisma.FacetUpdateManyWithoutUserNestedInput
+  GithubInstallations?: Prisma.GithubInstallationUpdateManyWithoutUserNestedInput
+  KarmaTransactions?: Prisma.KarmaTransactionUpdateManyWithoutUserNestedInput
+  Orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
+  LifeAchievementUnlocks?: Prisma.LifeAchievementUnlockUpdateManyWithoutUserNestedInput
+  LifeRuns?: Prisma.LifeRunUpdateManyWithoutUserNestedInput
+  Logs?: Prisma.LogUpdateManyWithoutUserNestedInput
+  ManaTransactions?: Prisma.ManaTransactionUpdateManyWithoutUserNestedInput
+  MissionRemittances?: Prisma.MissionRemittanceUpdateManyWithoutRemittedByNestedInput
+  ActedNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
+  Notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  PitchSheets?: Prisma.PitchSheetUpdateManyWithoutUserNestedInput
+  Projects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  ClaimedPrompts?: Prisma.PromptUpdateManyWithoutClaimerNestedInput
+  Prompts?: Prisma.PromptUpdateManyWithoutUserNestedInput
+  Reactions?: Prisma.ReactionUpdateManyWithoutUserNestedInput
+  ReferredBy?: Prisma.ReferralUpdateOneWithoutReferredNestedInput
+  ReferralsMade?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  Resources?: Prisma.ResourceUpdateManyWithoutUserNestedInput
+  Rewards?: Prisma.RewardUpdateManyWithoutUserNestedInput
+  Scenarios?: Prisma.ScenarioUpdateManyWithoutUserNestedInput
+  Servers?: Prisma.ServerUpdateManyWithoutUserNestedInput
+  SmartIcons?: Prisma.SmartIconUpdateManyWithoutUserNestedInput
+  StylistAppointments?: Prisma.StylistAppointmentUpdateManyWithoutUserNestedInput
+  StylistClients?: Prisma.StylistClientUpdateManyWithoutUserNestedInput
+  Themes?: Prisma.ThemeUpdateManyWithoutUserNestedInput
+  ArtImage?: Prisma.ArtImageUpdateOneWithoutUserProfilesNestedInput
+  RelationsReceived?: Prisma.UserRelationUpdateManyWithoutRelatedUserNestedInput
+  RelationsOwned?: Prisma.UserRelationUpdateManyWithoutUserNestedInput
+  UserRoles?: Prisma.UserRoleUpdateManyWithoutUserNestedInput
+  GrantsGiven?: Prisma.GrantUpdateManyWithoutGranterNestedInput
+  GrantsReceived?: Prisma.GrantUpdateManyWithoutGranteeNestedInput
+  PacksOwned?: Prisma.PackUpdateManyWithoutOwnerNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCreaturesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  questPoints?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthday?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  facebookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  kindrobotsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  languages?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  twitterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  karma?: Prisma.IntFieldUpdateOperationsInput | number
+  mana?: Prisma.IntFieldUpdateOperationsInput | number
+  tokens?: Prisma.IntFieldUpdateOperationsInput | number
+  earnedTokens?: Prisma.IntFieldUpdateOperationsInput | number
+  clickRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchRecord?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  showMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  designerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  blockList?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  smartBar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customIcons?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMember?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredArtServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preferredTextServerId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  memberUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  artModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastReward?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  textModels?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  vibes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hiddenServerIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isGuest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastManaRefill?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  manaCap?: Prisma.IntFieldUpdateOperationsInput | number
+  signupBonusGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  referralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  allowFriendRequests?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  brevoContactId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isRestricted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  listInDirectory?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  messagePolicy?: Prisma.EnumMessagePolicyFieldUpdateOperationsInput | $Enums.MessagePolicy
+  newsletterConfirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  newsletterFrequency?: Prisma.EnumNewsletterFrequencyFieldUpdateOperationsInput | $Enums.NewsletterFrequency
+  restrictedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  restrictedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  restrictedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  introDismissedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Achievements?: Prisma.AchievementRecordUncheckedUpdateManyWithoutUserNestedInput
+  AppRepos?: Prisma.AppRepoUncheckedUpdateManyWithoutUserNestedInput
+  Aquariums?: Prisma.AquariumUncheckedUpdateManyWithoutUserNestedInput
+  AquariumCodexEntries?: Prisma.AquariumCodexEntryUncheckedUpdateManyWithoutUserNestedInput
   ArtCollections?: Prisma.ArtCollectionUncheckedUpdateManyWithoutUserNestedInput
   ArtImages?: Prisma.ArtImageUncheckedUpdateManyWithoutUserNestedInput
   ArtJobs?: Prisma.ArtJobUncheckedUpdateManyWithoutUserNestedInput
@@ -24036,6 +24731,7 @@ export type UserCreateWithoutAuthTokensInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -24159,6 +24855,7 @@ export type UserUncheckedCreateWithoutAuthTokensInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -24295,6 +24992,7 @@ export type UserUpdateWithoutAuthTokensInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -24418,6 +25116,7 @@ export type UserUncheckedUpdateWithoutAuthTokensInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -24539,6 +25238,7 @@ export type UserCreateWithoutConversationsInInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
@@ -24662,6 +25362,7 @@ export type UserUncheckedCreateWithoutConversationsInInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
@@ -24798,6 +25499,7 @@ export type UserUpdateWithoutConversationsInInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
@@ -24921,6 +25623,7 @@ export type UserUncheckedUpdateWithoutConversationsInInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
@@ -25041,6 +25744,7 @@ export type UserCreateWithoutSentMessagesInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementCreateNestedManyWithoutUserInput
@@ -25164,6 +25868,7 @@ export type UserUncheckedCreateWithoutSentMessagesInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
   Entitlements?: Prisma.EntitlementUncheckedCreateNestedManyWithoutUserInput
@@ -25300,6 +26005,7 @@ export type UserUpdateWithoutSentMessagesInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUpdateManyWithoutUserNestedInput
@@ -25423,6 +26129,7 @@ export type UserUncheckedUpdateWithoutSentMessagesInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
   Entitlements?: Prisma.EntitlementUncheckedUpdateManyWithoutUserNestedInput
@@ -25543,6 +26250,7 @@ export type UserCreateWithoutActedNotificationsInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -25666,6 +26374,7 @@ export type UserUncheckedCreateWithoutActedNotificationsInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -25791,6 +26500,7 @@ export type UserCreateWithoutNotificationsInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -25914,6 +26624,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -26050,6 +26761,7 @@ export type UserUpdateWithoutActedNotificationsInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -26173,6 +26885,7 @@ export type UserUncheckedUpdateWithoutActedNotificationsInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -26304,6 +27017,7 @@ export type UserUpdateWithoutNotificationsInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -26427,6 +27141,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -26547,6 +27262,7 @@ export type UserCreateWithoutGithubInstallationsInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -26670,6 +27386,7 @@ export type UserUncheckedCreateWithoutGithubInstallationsInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -26806,6 +27523,7 @@ export type UserUpdateWithoutGithubInstallationsInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -26929,6 +27647,7 @@ export type UserUncheckedUpdateWithoutGithubInstallationsInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -27048,6 +27767,7 @@ export type UserCreateWithoutAppReposInput = {
   Challenges?: Prisma.ChallengeCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamCreateNestedManyWithoutUserInput
@@ -27171,6 +27891,7 @@ export type UserUncheckedCreateWithoutAppReposInput = {
   Challenges?: Prisma.ChallengeUncheckedCreateNestedManyWithoutUserInput
   characters?: Prisma.CharacterUncheckedCreateNestedManyWithoutUserInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutUserInput
+  Creatures?: Prisma.CreatureUncheckedCreateNestedManyWithoutUserInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedCreateNestedManyWithoutUserInput
   SentMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   Dreams?: Prisma.DreamUncheckedCreateNestedManyWithoutUserInput
@@ -27307,6 +28028,7 @@ export type UserUpdateWithoutAppReposInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -27430,6 +28152,7 @@ export type UserUncheckedUpdateWithoutAppReposInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -27625,6 +28348,7 @@ export type UserUpdateWithoutArtImageInput = {
   Challenges?: Prisma.ChallengeUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUpdateManyWithoutUserNestedInput
@@ -27747,6 +28471,7 @@ export type UserUncheckedUpdateWithoutArtImageInput = {
   Challenges?: Prisma.ChallengeUncheckedUpdateManyWithoutUserNestedInput
   characters?: Prisma.CharacterUncheckedUpdateManyWithoutUserNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutUserNestedInput
+  Creatures?: Prisma.CreatureUncheckedUpdateManyWithoutUserNestedInput
   ConversationsIn?: Prisma.ConversationParticipantUncheckedUpdateManyWithoutUserNestedInput
   SentMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   Dreams?: Prisma.DreamUncheckedUpdateManyWithoutUserNestedInput
@@ -27877,6 +28602,7 @@ export type UserCountOutputType = {
   Challenges: number
   characters: number
   Chats: number
+  Creatures: number
   ConversationsIn: number
   SentMessages: number
   Dreams: number
@@ -27927,6 +28653,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   Challenges?: boolean | UserCountOutputTypeCountChallengesArgs
   characters?: boolean | UserCountOutputTypeCountCharactersArgs
   Chats?: boolean | UserCountOutputTypeCountChatsArgs
+  Creatures?: boolean | UserCountOutputTypeCountCreaturesArgs
   ConversationsIn?: boolean | UserCountOutputTypeCountConversationsInArgs
   SentMessages?: boolean | UserCountOutputTypeCountSentMessagesArgs
   Dreams?: boolean | UserCountOutputTypeCountDreamsArgs
@@ -28056,6 +28783,13 @@ export type UserCountOutputTypeCountCharactersArgs<ExtArgs extends runtime.Types
  */
 export type UserCountOutputTypeCountChatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ChatWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCreaturesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CreatureWhereInput
 }
 
 /**
@@ -28389,6 +29123,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   Challenges?: boolean | Prisma.User$ChallengesArgs<ExtArgs>
   characters?: boolean | Prisma.User$charactersArgs<ExtArgs>
   Chats?: boolean | Prisma.User$ChatsArgs<ExtArgs>
+  Creatures?: boolean | Prisma.User$CreaturesArgs<ExtArgs>
   ConversationsIn?: boolean | Prisma.User$ConversationsInArgs<ExtArgs>
   SentMessages?: boolean | Prisma.User$SentMessagesArgs<ExtArgs>
   Dreams?: boolean | Prisma.User$DreamsArgs<ExtArgs>
@@ -28520,6 +29255,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   Challenges?: boolean | Prisma.User$ChallengesArgs<ExtArgs>
   characters?: boolean | Prisma.User$charactersArgs<ExtArgs>
   Chats?: boolean | Prisma.User$ChatsArgs<ExtArgs>
+  Creatures?: boolean | Prisma.User$CreaturesArgs<ExtArgs>
   ConversationsIn?: boolean | Prisma.User$ConversationsInArgs<ExtArgs>
   SentMessages?: boolean | Prisma.User$SentMessagesArgs<ExtArgs>
   Dreams?: boolean | Prisma.User$DreamsArgs<ExtArgs>
@@ -28575,6 +29311,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     Challenges: Prisma.$ChallengePayload<ExtArgs>[]
     characters: Prisma.$CharacterPayload<ExtArgs>[]
     Chats: Prisma.$ChatPayload<ExtArgs>[]
+    Creatures: Prisma.$CreaturePayload<ExtArgs>[]
     ConversationsIn: Prisma.$ConversationParticipantPayload<ExtArgs>[]
     SentMessages: Prisma.$DirectMessagePayload<ExtArgs>[]
     Dreams: Prisma.$DreamPayload<ExtArgs>[]
@@ -29038,6 +29775,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   Challenges<T extends Prisma.User$ChallengesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ChallengesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChallengePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   characters<T extends Prisma.User$charactersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$charactersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CharacterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Chats<T extends Prisma.User$ChatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ChatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Creatures<T extends Prisma.User$CreaturesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$CreaturesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CreaturePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ConversationsIn<T extends Prisma.User$ConversationsInArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ConversationsInArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ConversationParticipantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   SentMessages<T extends Prisma.User$SentMessagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$SentMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DirectMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Dreams<T extends Prisma.User$DreamsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$DreamsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DreamPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -29809,6 +30547,30 @@ export type User$ChatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs
   take?: number
   skip?: number
   distinct?: Prisma.ChatScalarFieldEnum | Prisma.ChatScalarFieldEnum[]
+}
+
+/**
+ * User.Creatures
+ */
+export type User$CreaturesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Creature
+   */
+  select?: Prisma.CreatureSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Creature
+   */
+  omit?: Prisma.CreatureOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CreatureInclude<ExtArgs> | null
+  where?: Prisma.CreatureWhereInput
+  orderBy?: Prisma.CreatureOrderByWithRelationInput | Prisma.CreatureOrderByWithRelationInput[]
+  cursor?: Prisma.CreatureWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CreatureScalarFieldEnum | Prisma.CreatureScalarFieldEnum[]
 }
 
 /**

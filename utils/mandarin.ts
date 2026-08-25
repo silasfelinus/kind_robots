@@ -69,7 +69,7 @@ export const MANDARIN_SOURCE: MandarinSource = {
 
 const curatedSource: MandarinSource = {
   label: 'Kind Robots curated starter vocabulary',
-  version: '2026-08-24',
+  version: '2026-08-25',
 }
 
 type CuratedSeed = [
@@ -113,7 +113,7 @@ const CURATED_SEEDS: CuratedSeed[] = [
   ['赌注', 'dǔ zhù', 'bet; wager', 'casino', '賭注'],
   ['下注', 'xià zhù', 'to place a bet', 'casino'],
   ['筹码', 'chóu mǎ', 'casino chip', 'casino', '籌碼'],
-  ['牌', 'pái', 'card; tile;牌', 'casino'],
+  ['牌', 'pái', 'card; tile', 'casino'],
   ['扑克牌', 'pū kè pái', 'playing cards', 'casino', '撲克牌'],
   ['牌桌', 'pái zhuō', 'card or gaming table', 'casino'],
   ['荷官', 'hé guān', 'casino dealer', 'casino'],
@@ -262,15 +262,23 @@ export const STARTER_COMPONENT_GUIDES: Record<
 export const BUILT_IN_SET_TERMS: Record<string, string[]> = {
   numbers: [
     '零', '一', '二', '两', '三', '四', '五', '六', '七', '八', '九', '十', '百',
-    '千', '万', '多少', '半', '一半', '元', '钱', '双倍',
+    '千', '万', '多少', '半', '一半', '第一', '第二', '次', '个',
   ],
   family: [
     '家', '家人', '爸爸', '妈妈', '父亲', '母亲', '哥哥', '姐姐', '弟弟', '妹妹',
-    '儿子', '女儿', '爷爷', '奶奶', '孩子', '朋友',
+    '儿子', '女儿', '爷爷', '奶奶', '孩子', '丈夫', '妻子',
+  ],
+  people: [
+    '人', '男人', '女人', '老人', '孩子', '男孩', '女孩', '朋友', '同学', '老师',
+    '学生', '医生', '先生', '小姐', '服务员', '客人', '大家', '自己',
+  ],
+  body: [
+    '身体', '头', '头发', '脸', '眼睛', '耳朵', '鼻子', '嘴', '牙', '手', '手指',
+    '胳膊', '腿', '脚', '心', '病', '疼',
   ],
   'food-drink': [
-    '吃', '吃饭', '喝', '水', '茶', '牛奶', '米饭', '饭', '饭店', '面包', '鸡蛋',
-    '水果', '菜', '杯子',
+    '吃', '吃饭', '喝', '水', '茶', '咖啡', '牛奶', '米饭', '饭', '面包', '面条',
+    '鸡蛋', '肉', '鸡肉', '鱼', '水果', '苹果', '香蕉', '西瓜', '菜', '蔬菜', '杯子',
   ],
   animals: [
     '猫', '狗', '鸟', '鱼', '马', '牛', '鸡', '兔子', '老虎', '狮子', '熊', '熊猫',
@@ -280,25 +288,66 @@ export const BUILT_IN_SET_TERMS: Record<string, string[]> = {
     '红色', '蓝色', '绿色', '黄色', '黑色', '白色', '紫色', '粉红色', '橙色', '灰色',
     '白', '黑', '红', '蓝', '绿', '黄',
   ],
-  'time-calendar': [
-    '今天', '明天', '昨天', '现在', '时间', '小时', '上午', '下午', '晚上', '早上',
-    '中午', '星期', '月', '年', '今年', '明年', '去年', '生日', '日期',
+  home: [
+    '家', '房子', '房间', '门', '窗户', '桌子', '椅子', '床', '电视', '电脑', '手机',
+    '冰箱', '厨房', '洗手间', '东西', '书',
   ],
-  'travel-places': [
-    '车', '汽车', '火车', '飞机', '机场', '车站', '路', '地图', '医院', '学校',
-    '商店', '商场', '饭店', '北京', '中国', '外国', '家', '房间',
+  school: [
+    '学校', '学生', '老师', '同学', '教室', '课', '上课', '下课', '学习', '书', '本',
+    '笔', '汉语', '中文', '字', '写', '读', '问题', '考试',
+  ],
+  work: [
+    '工作', '上班', '下班', '公司', '老板', '同事', '职员', '办公室', '事情', '做',
+    '忙', '休息', '电话', '电脑', '会议',
+  ],
+  'travel-transport': [
+    '车', '汽车', '公共汽车', '出租车', '火车', '飞机', '机场', '车站', '地铁', '自行车',
+    '船', '票', '路', '旅行', '旅游', '开车', '坐', '到', '出发',
+  ],
+  places: [
+    '家', '学校', '医院', '商店', '商场', '超市', '饭店', '餐厅', '银行', '公园',
+    '电影院', '酒店', '厕所', '房间', '城市', '国家', '中国', '北京',
+  ],
+  weather: [
+    '天气', '热', '冷', '暖和', '凉快', '晴', '阴', '下雨', '下雪', '雨', '雪', '风',
+    '云', '春天', '夏天', '秋天', '冬天',
+  ],
+  'time-calendar': [
+    '今天', '明天', '昨天', '现在', '时间', '时候', '点', '分钟', '小时', '上午', '下午',
+    '晚上', '早上', '中午', '星期', '周末', '月', '年', '今年', '明年', '去年', '生日',
+    '日期', '号', '日', '以前', '以后',
+  ],
+  directions: [
+    '上', '下', '左', '右', '前面', '后面', '里面', '外面', '旁边', '中间', '这里',
+    '那里', '哪儿', '哪里', '近', '远', '东', '西', '南', '北',
+  ],
+  clothing: [
+    '衣服', '裤子', '鞋', '帽子', '裙子', '衬衫', '毛衣', '外套', '袜子', '穿', '脱',
+    '件', '双', '大', '小',
+  ],
+  'shopping-money': [
+    '钱', '元', '块', '角', '分', '现金', '卡', '买', '卖', '商店', '商场', '超市',
+    '东西', '贵', '便宜', '多少', '多少钱', '价格', '给', '找钱', '收',
   ],
   'everyday-actions': [
     '来', '去', '走', '跑', '看', '听', '说', '写', '读', '吃', '喝', '睡', '学习',
-    '工作', '买', '找', '给', '拿', '坐', '站', '开', '关', '洗', '想', '知道',
+    '工作', '买', '卖', '找', '给', '拿', '坐', '站', '开', '关', '洗', '穿', '想',
+    '知道', '做', '用', '等', '问', '回答', '帮助',
+  ],
+  adjectives: [
+    '大', '小', '多', '少', '好', '坏', '高', '矮', '长', '短', '新', '旧', '漂亮',
+    '快', '慢', '热', '冷', '暖和', '凉快', '忙', '累', '高兴', '难', '容易', '对',
+    '错', '远', '近', '贵', '便宜', '干净', '安静',
   ],
   'questions-grammar': [
     '吗', '呢', '什么', '怎么', '谁', '哪', '哪儿', '哪里', '多少', '为什么', '的',
-    '了', '着', '也', '都', '很', '不', '没', '没有', '有', '是', '在', '会', '能', '要',
+    '了', '着', '过', '也', '都', '还', '再', '已经', '正在', '很', '不', '没', '没有',
+    '有', '是', '在', '会', '能', '可以', '要', '应该', '和', '跟', '但是', '因为',
+    '所以',
   ],
   greetings: [
     '你好', '您好', '谢谢', '再见', '对不起', '没关系', '不客气', '请', '请问', '请进',
-    '请坐', '早上', '晚上',
+    '请坐', '欢迎', '早上', '晚上',
   ],
   casino: CURATED_SEEDS.filter((seed) => seed[3] === 'casino').map(
     (seed) => seed[0],
@@ -310,16 +359,24 @@ export const BUILT_IN_SET_META: Record<
   { label: string; description: string }
 > = {
   numbers: {
-    label: 'Numbers & money',
-    description: 'Counting, quantities, prices, and the number language you use constantly.',
+    label: 'Numbers & quantities',
+    description: 'Counting, quantities, ordinals, and the number language used constantly.',
   },
   family: {
-    label: 'Family & people',
-    description: 'Family relationships and everyday people words.',
+    label: 'Family',
+    description: 'Close family relationships and everyday household relationship words.',
+  },
+  people: {
+    label: 'People',
+    description: 'Common people, roles, classmates, professionals, and social vocabulary.',
+  },
+  body: {
+    label: 'Body & health',
+    description: 'Body parts plus a small practical core for talking about feeling sick or hurt.',
   },
   'food-drink': {
     label: 'Food & drink',
-    description: 'Meals, drinks, ordering, and everyday kitchen vocabulary.',
+    description: 'Meals, drinks, ingredients, ordering, and everyday kitchen vocabulary.',
   },
   animals: {
     label: 'Animals',
@@ -329,21 +386,57 @@ export const BUILT_IN_SET_META: Record<
     label: 'Colors',
     description: 'Core color words in practical noun-friendly forms.',
   },
+  home: {
+    label: 'Home',
+    description: 'Rooms, furniture, devices, and ordinary things around the house.',
+  },
+  school: {
+    label: 'School & study',
+    description: 'Classroom people, materials, language study, lessons, questions, and tests.',
+  },
+  work: {
+    label: 'Work',
+    description: 'Jobs, workplaces, coworkers, schedules, and common workday actions.',
+  },
+  'travel-transport': {
+    label: 'Travel & transport',
+    description: 'Vehicles, stations, tickets, travel verbs, and getting from one place to another.',
+  },
+  places: {
+    label: 'Places',
+    description: 'Buildings, businesses, public places, cities, and common destinations.',
+  },
+  weather: {
+    label: 'Weather & seasons',
+    description: 'Weather conditions, temperature words, precipitation, and the four seasons.',
+  },
   'time-calendar': {
     label: 'Time & calendar',
-    description: 'Days, dates, clock time, and words for past, present, and future.',
+    description: 'Days, dates, clock time, duration, and words for past, present, and future.',
   },
-  'travel-places': {
-    label: 'Travel & places',
-    description: 'Transport, directions, buildings, and common destinations.',
+  directions: {
+    label: 'Directions & position',
+    description: 'Left, right, inside, outside, compass directions, distance, and relative position.',
+  },
+  clothing: {
+    label: 'Clothing',
+    description: 'Everyday clothes, getting dressed, and the measure words that commonly go with them.',
+  },
+  'shopping-money': {
+    label: 'Shopping & money',
+    description: 'Prices, cash, buying and selling, stores, affordability, and making change.',
   },
   'everyday-actions': {
     label: 'Everyday actions',
     description: 'High-frequency verbs that make beginner sentences move.',
   },
+  adjectives: {
+    label: 'Descriptions & adjectives',
+    description: 'Size, speed, temperature, difficulty, quality, distance, cost, and everyday states.',
+  },
   'questions-grammar': {
     label: 'Questions & glue words',
-    description: 'Question words, particles, negation, and other high-frequency sentence machinery.',
+    description: 'Question words, particles, negation, aspect, conjunctions, and high-frequency sentence machinery.',
   },
   greetings: {
     label: 'Greetings & practical phrases',

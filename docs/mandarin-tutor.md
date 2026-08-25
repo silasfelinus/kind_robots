@@ -23,11 +23,25 @@ A radical is never presented as a complete etymology merely because the dictiona
 
 The first hand-checked starter analyses cover a few high-value semantic-phonetic patterns such as `说`, `妈`, `请`, `清`, and `河`. A broader sourced decomposition/history dataset is Conductor `mandarin-tutor/t-003`.
 
-## Pronunciation
+## Pronunciation playback
 
 Every normalized lexical card has tone-marked pinyin and a pronunciation action. The current web MVP uses the browser's `SpeechSynthesis` Mandarin voice when available so every card is immediately speakable without storing hundreds of generated files.
 
-That playback is intentionally not described as the final audio asset system. Conductor `mandarin-tutor/t-004` owns durable, deterministic per-word audio clips that can be cached and shared by web, iOS, and Android clients.
+That playback is intentionally not described as the final audio asset system. Conductor `mandarin-tutor/t-004` owns durable, deterministic per-word reference audio clips that can be cached and shared by web, iOS, and Android clients.
+
+## Voice practice and correction
+
+The study card also has a record → transcribe → compare → retry loop.
+
+- The browser records a short microphone attempt with `MediaRecorder`.
+- `POST /api/mandarin/pronunciation` accepts that authenticated multipart audio and forwards it to the configured OpenAI transcription service using `gpt-4o-mini-transcribe` with Mandarin language selection.
+- The endpoint intentionally **does not send the target Hanzi or pinyin as an ASR prompt**. “What I heard” is therefore an independent recognition signal rather than a target-biased autocorrection.
+- Kind Robots does not persist the learner's recording. The browser keeps only the current object URL for replay; changing cards or leaving the component drops it.
+- Broad tone-shape analysis happens locally in the browser. `mandarinToneAnalysis.ts` reuses the Music Mentor YIN pitch detector rather than introducing a second pitch algorithm.
+- Tone feedback is deliberately modest: level, rising, falling, dipping, mixed, or insufficient pitch. It handles the common 3 + 3 third-tone sandhi case and avoids a fake numerical “pronunciation score.”
+- Recognition evidence and acoustic evidence remain separate. A transcript mismatch is an intelligibility clue, not proof that a particular consonant or vowel was wrong; a pitch-shape match likewise does not prove the whole pronunciation was native-like.
+
+The MVP uses equal voiced-span syllable partitioning for multi-syllable tone guidance. Forced alignment, phoneme-level consonant/vowel assessment, richer tone-sandhi modeling, and persistent personal pronunciation diagnostics belong in the next pronunciation-depth task rather than being implied by this first pass.
 
 ## Art
 
@@ -37,7 +51,7 @@ The MVP remembers queued ArtJob IDs locally. Durable card-to-ArtImage attachment
 
 ## Learner state
 
-Custom study sets and queued illustration IDs are persisted by `mandarinTutorStore` in local storage. Components never touch local storage or APIs directly. This is an intentionally lightweight first learning loop; portable authenticated mastery/review state is `mandarin-tutor/t-009`.
+Custom study sets and queued illustration IDs are persisted by `mandarinTutorStore` in local storage. Components never touch local storage or APIs directly. Voice-practice recordings are not added to that state. This is an intentionally lightweight first learning loop; portable authenticated mastery/review state is `mandarin-tutor/t-009`.
 
 ## Requested words
 

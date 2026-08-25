@@ -1,0 +1,36 @@
+-- cthulhuquarium/t-035: the table is MONSTER, not Creature.
+--
+-- Silas, 2026-08-25, choosing between the two names this project had been
+-- carrying: "I like monster. It sets a tone and I love monsters. I'd rather we
+-- expand the idea of monster to include a boring rainbow nudibranch that does
+-- nothing than rely on creature as a catch all."
+--
+-- `Creature` was picked defensively -- on the reasoning that not everything in
+-- the table is monstrous, so a neutral word was safer. That is backwards for
+-- this game. Cthulhuquarium is a monster-collecting game; the word is doing
+-- tone work, and a bestiary that calls a placid rainbow nudibranch a monster is
+-- funnier and more committed than one that hedges. A catch-all noun costs
+-- nothing to adopt and says nothing.
+--
+-- WHY A RENAME RATHER THAN AN EDIT TO 20260825120000_add_creature_model:
+-- that migration is merged. It has almost certainly not been applied anywhere
+-- (production is several migrations behind and it landed the same day), and
+-- editing it in place would produce a cleaner history -- one CREATE TABLE
+-- `Monster` and no rename at all. But "almost certainly not applied" is not
+-- "not applied": any database that HAD run it would end up with a `Creature`
+-- table plus a checksum mismatch against a migration file that no longer
+-- describes what it did, which is a genuinely confusing state to debug.
+--
+-- RENAME TABLE is correct unconditionally, and costs a fresh database one
+-- extra millisecond in the same deploy that created the table. If it is ever
+-- confirmed that no database anywhere applied 20260825120000, the two files
+-- can be collapsed into a single CREATE TABLE `Monster` -- but that is a
+-- tidiness win, not a correctness one, and it is not worth guessing about.
+--
+-- Nothing else changes. No column is added, dropped, or retyped; no data is
+-- touched; no other table is referenced. AquariumStock.characterId,
+-- AquariumCodexEntry.characterId and Character.size are all still exactly as
+-- they were -- repointing those and dropping Character.size remain follow-on
+-- work gated on kind-robots/t-071.
+
+RENAME TABLE `Creature` TO `Monster`;

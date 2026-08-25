@@ -54,6 +54,7 @@ model ArtImage {
   Characters           Character[]
   Chats                Chat[]
   Contenders           Contender[]
+  Monsters            Monster[]
   DreamsPrimary        Dream[]               @relation("DreamPrimaryArtImage")
   EntityArtLinks       EntityArtImage[]
   ExpressionMedia      ExpressionMedia?
@@ -1170,6 +1171,7 @@ model Pack {
   Dreams     Dream[]
   Facets     Facet[]
   Characters Character[]
+  Monsters  Monster[]
   Rewards    Reward[]
 
   @@index([ownerId])
@@ -1762,6 +1764,7 @@ model User {
   Challenges             Challenge[]
   characters             Character[]
   Chats                  Chat[]
+  Monsters              Monster[]
   ConversationsIn        ConversationParticipant[]
   SentMessages           DirectMessage[]           @relation("DirectMessageSender")
   Dreams                 Dream[]
@@ -2451,6 +2454,133 @@ model AquariumCodexEntry {
   @@unique([userId, characterId])
   @@index([userId])
   @@index([characterId])
+}
+
+/// cthulhuquarium/t-035: the bestiary's own model. Character is this site's
+/// chattable-personality table -- people you can talk to, story NPCs -- and
+/// fish/tank creatures have no dialogue, no personality, and no chat
+/// surface. Reusing Character for them because its columns happened to fit
+/// (species, class, backstory-as-quirks, the six Rarity stats) ignored what
+/// the model MEANS, and the concrete cost was already paid once: fish
+/// needed a capacity weight, `Character.size` was added for them, and when
+/// that migration shipped unapplied it took every unselected
+/// `prisma.character.findUnique()` down with it, including character-linked
+/// art generation (kind-robots/t-071). Monster carries what the fish bible
+/// (conductor projects/cthulhuquarium, external to this repo) actually
+/// needs. Sharing survives unchanged -- `games` is the mechanism, not the
+/// table, exactly as it was meant to be: a Monster tagged
+/// "cthulhuquarium,ruler-hooked" is readable by both.
+/// NOT YET WIRED, deliberately: AquariumStock.characterId and
+/// AquariumCodexEntry.characterId still reference Character (t-032), and
+/// Character.size still exists. Repointing those tables and dropping
+/// Character.size are follow-on work, filed separately and kept out of this
+/// migration so this one stays purely additive -- CREATE TABLE only, no
+/// DROP, no rewrite of a table anything currently reads. See t-035's
+/// roadmap note for the full ordering and why the drop specifically waits
+/// on kind-robots/t-071 being resolved first.
+model Monster {
+  id                  Int            @id @default(autoincrement())
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime?      @default(now()) @updatedAt
+  slug                String         @unique @db.VarChar(255)
+  name                String         @db.VarChar(256)
+  species             String?        @db.VarChar(764)
+  class               String?        @db.VarChar(764)
+  /// One-line museum-placard text, dry register -- the fish bible's
+  /// `field_note`.
+  fieldNote           String?        @db.Text
+  quirks              String?        @db.Text
+  alignment           String?        @db.VarChar(256)
+  /// Collection/economy tier, COMMON..MYTHIC -- matches the fish bible's
+  /// `tier` and economy.yaml's rarity_tiers lookup key. This is the
+  /// canonical field server/utils/aquariumEconomy.ts's deriveFishRarityTier
+  /// has been waiting on; Character never had one (see that function's own
+  /// doc comment, which this model finally resolves).
+  tier                Rarity         @default(COMMON)
+  /// The six per-species stats, independently tiered -- mirrors Character's
+  /// own six columns, so a COMMON-tier creature can still roll a MYTHIC
+  /// `luck`. An individual owned fish's own rolled stats are separate
+  /// (AquariumStock.stat*, t-029) and not affected by this model.
+  charm               Rarity         @default(COMMON)
+  empathy             Rarity         @default(COMMON)
+  grace               Rarity         @default(COMMON)
+  luck                Rarity         @default(COMMON)
+  might               Rarity         @default(COMMON)
+  wits                Rarity         @default(COMMON)
+  /// Tank-capacity weight when placed as AquariumStock (t-032's weighed
+  /// pool, distinct from the counted setSlotsCap). Plays the same role
+  /// Character.size was added for -- see that column's own doc comment for
+  /// why it existed and why it's moving here.
+  size                Int            @default(1)
+  /// Per-species overrides of the tier-derived economy constants in
+  /// aquariumEconomy.ts (RARITY_TIERS[tier].incomePerTick/.unlockCost,
+  /// TICK_SECONDS). Null means "use the tier default" -- ECONOMY.md says
+  /// v1 authoring only needs to assign a tier; these three exist for a
+  /// later per-species balance pass, not required at seed time.
+  yieldPerTick        Int?
+  tickIntervalSeconds Int?
+  unlockCost          Int?
+  /// Free-form ecological role tag (the fish bible's diet_role/school_role
+  /// feed economy.yaml's rivalry.emergent_rules -- predator/prey,
+  /// school/anchor/solitary). Exact taxonomy and consumption belongs to
+  /// whichever task wires the rivalry economy (t-030 or a successor);
+  /// stored as free text for the same reason AquariumEvent.kind and
+  /// AquariumSet.kind are -- a new tag is a data commit, not a migration.
+  behavior            String?        @db.VarChar(255)
+  /// 0-360 hue-rotate degrees for palette-shifting a shared sprite. No
+  /// renderer consumes this yet -- t-011 owns the real play loop -- reserved
+  /// so a later art pass doesn't need its own migration.
+  hue                 Int?
+  /// Comma-separated game slugs sharing this creature (e.g.
+  /// "cthulhuquarium,ruler-hooked") -- this IS the sharing mechanism per
+  /// t-035's roadmap note, not a second per-game table. Stored as text,
+  /// same convention as Product.metadata (see that model's own doc
+  /// comment): this schema stores structured/multi-value data as
+  /// String/@db.Text, never a native Json column.
+  games               String?        @db.VarChar(764)
+  artPrompt           String?        @db.Text
+  /// growth: a species matures into the next one (the goldfish line is the
+  /// named example). breeding: a "secret evolution" that only appears by
+  /// pairing two owned individuals (t-029). Required whenever evolvesToId
+  /// is set; omit both on a species with no further evolution.
+  evolutionKind       EvolutionKind?
+  evolvesToId         Int?
+  EvolvesTo           Monster?       @relation("MonsterEvolution", fields: [evolvesToId], references: [id], onDelete: SetNull)
+  EvolvesFrom         Monster[]      @relation("MonsterEvolution")
+  icon                String?
+  iconPath            String?        @db.Text
+  imagePath           String?        @db.VarChar(764)
+  cardPath            String?        @db.Text
+  heroPath            String?        @db.Text
+  artImageId          Int?
+  cardArtImageId      Int?
+  heroArtImageId      Int?
+  iconArtImageId      Int?
+  isPublic            Boolean        @default(true)
+  isActive            Boolean        @default(true)
+  isMature            Boolean        @default(false)
+  allowReviews        Boolean        @default(true)
+  userId              Int?           @default(10)
+  packId              Int?
+  ArtImage            ArtImage?      @relation(fields: [artImageId], references: [id])
+  User                User?          @relation(fields: [userId], references: [id])
+  Pack                Pack?          @relation(fields: [packId], references: [id])
+
+  @@index([slug])
+  @@index([tier])
+  @@index([evolvesToId])
+  @@index([userId])
+  @@index([packId])
+  @@index([isPublic])
+  @@index([isActive])
+}
+
+/// cthulhuquarium/t-035: which mechanism unlocks a Monster.evolvesToId --
+/// see that field's own doc comment. Both were already named in the fish
+/// bible's SCHEMA.md (external, conductor repo) before this table existed.
+enum EvolutionKind {
+  GROWTH
+  BREEDING
 }
 
 /// Append-only audit trail for one Aquarium: feeds, purchases, rare

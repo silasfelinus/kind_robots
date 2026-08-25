@@ -124,11 +124,19 @@ function normalizeSourceEntry(entry: SourceEntry, level: number): MandarinCard |
 }
 
 async function fetchLevel(level: number): Promise<MandarinCard[]> {
+  // GitHub serves raw .json content as `text/plain; charset=utf-8`, not
+  // `application/json`. ofetch's default JSON auto-parsing keys off the
+  // response's Content-Type header, so without an explicit `parseResponse`
+  // it silently returns the raw response text instead of a parsed array
+  // whenever that header disagrees with the file extension. Forcing
+  // JSON.parse here makes parsing independent of what the upstream host
+  // decides to label the response as.
   const entries = await $fetch<SourceEntry[], string>(
     `${SOURCE_BASE}/${level}.min.json`,
     {
       retry: 2,
       timeout: 20_000,
+      parseResponse: (responseText) => JSON.parse(responseText),
     },
   )
   if (!Array.isArray(entries)) throw new Error(`HSK level ${level} source was not an array.`)

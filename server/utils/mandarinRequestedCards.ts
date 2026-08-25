@@ -218,11 +218,11 @@ export async function reconcileRequestedCardArt<T extends RequestedCardRow>(
     return row
   }
 
-  const updated = await prisma.mandarinRequestedCard.update({
+  await prisma.mandarinRequestedCard.update({
     where: { id: row.id },
     data: { artImageId },
   })
-  return updated as T
+  return { ...row, artImageId }
 }
 
 export function requestedCardPublicData(row: RequestedCardRow) {

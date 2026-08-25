@@ -10,7 +10,27 @@ import { withConnectionRetry } from './db-connection-retry.mjs'
 // Production migration execution must use the explicitly elevated migration
 // credential. DATABASE_URL belongs to the normal application/coding-agent lane
 // and is intentionally not accepted here.
-const databaseUrl = process.env.MIGRATION_DATABASE_URL?.trim()
+//
+// Strip surrounding quotes, for the same reason prisma.config.ts strips them
+// from SHADOW_DATABASE_URL: `import 'dotenv/config'` and docker compose's
+// `env_file:` both unquote values as they read them, but `docker run
+// --env-file` does NOT, because it is not a shell parser. So a perfectly
+// ordinary MIGRATION_DATABASE_URL="mysql://..." line in .env reaches this
+// script with the double quote as part of the value, and the failure lands
+// several steps later as an opaque
+//
+//   TypeError [ERR_INVALID_URL]: Invalid URL ... input: '"mysql:/
+//
+// from `new URL(databaseUrl)` further down -- after the CA has already loaded
+// and printed, which makes it read like a certificate problem rather than a
+// quoting one (2026-08-25: this blocked a production migration on Alexandria).
+// The runbook's documented invocation passes the credential from the shell via
+// `-e MIGRATION_DATABASE_URL`, where it is already unquoted; this is the
+// fallback path when it comes from --env-file instead.
+const databaseUrl = process.env.MIGRATION_DATABASE_URL?.trim().replace(
+  /^(["'])(.*)\1$/,
+  '$2',
+)
 const caFilePath = '/tmp/kindrobots-proxysql-ca.pem'
 
 if (!databaseUrl) {

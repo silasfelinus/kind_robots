@@ -203,6 +203,8 @@
                 </div>
               </div>
 
+              <MandarinVoiceCoach :card="currentCard" />
+
               <section v-if="detailsVisible" class="border-t border-base-300 bg-base-200/30 p-5 sm:p-7">
                 <div class="grid gap-5 xl:grid-cols-2">
                   <div class="space-y-3">
@@ -275,6 +277,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
+import MandarinVoiceCoach from '@/components/mandarin/mandarin-voice-coach.vue'
 import { useMandarinTutorStore } from '@/stores/mandarinTutorStore'
 import type { MandarinCard, MandarinComponentRole } from '@/utils/mandarin'
 

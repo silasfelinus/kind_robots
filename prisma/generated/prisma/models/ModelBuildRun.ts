@@ -583,6 +583,14 @@ export type EnumModelBuildStatusFieldUpdateOperationsInput = {
   set?: $Enums.ModelBuildStatus
 }
 
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 export type ModelBuildRunCreateNestedOneWithoutItemsInput = {
   create?: Prisma.XOR<Prisma.ModelBuildRunCreateWithoutItemsInput, Prisma.ModelBuildRunUncheckedCreateWithoutItemsInput>
   connectOrCreate?: Prisma.ModelBuildRunCreateOrConnectWithoutItemsInput

@@ -59,9 +59,6 @@ export const ModelName = {
   BotFacet: 'BotFacet',
   RewardFacet: 'RewardFacet',
   MandarinAudioAsset: 'MandarinAudioAsset',
-  MandarinCatalogOverride: 'MandarinCatalogOverride',
-  MandarinCatalogChange: 'MandarinCatalogChange',
-  MandarinRequestedCard: 'MandarinRequestedCard',
   ModelBuildRun: 'ModelBuildRun',
   ModelBuildItem: 'ModelBuildItem',
   ModelBuildArtifact: 'ModelBuildArtifact',
@@ -307,64 +304,6 @@ export const MandarinAudioAssetScalarFieldEnum = {
 } as const
 
 export type MandarinAudioAssetScalarFieldEnum = (typeof MandarinAudioAssetScalarFieldEnum)[keyof typeof MandarinAudioAssetScalarFieldEnum]
-
-
-export const MandarinCatalogOverrideScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  cardKey: 'cardKey',
-  traditional: 'traditional',
-  pinyin: 'pinyin',
-  meaning: 'meaning',
-  meanings: 'meanings',
-  usageNote: 'usageNote',
-  categories: 'categories',
-  updatedByUserId: 'updatedByUserId',
-  isActive: 'isActive'
-} as const
-
-export type MandarinCatalogOverrideScalarFieldEnum = (typeof MandarinCatalogOverrideScalarFieldEnum)[keyof typeof MandarinCatalogOverrideScalarFieldEnum]
-
-
-export const MandarinCatalogChangeScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  cardKey: 'cardKey',
-  adminUserId: 'adminUserId',
-  beforeJson: 'beforeJson',
-  afterJson: 'afterJson',
-  note: 'note'
-} as const
-
-export type MandarinCatalogChangeScalarFieldEnum = (typeof MandarinCatalogChangeScalarFieldEnum)[keyof typeof MandarinCatalogChangeScalarFieldEnum]
-
-
-export const MandarinRequestedCardScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  userId: 'userId',
-  requestText: 'requestText',
-  normalizedRequest: 'normalizedRequest',
-  simplified: 'simplified',
-  traditional: 'traditional',
-  pinyin: 'pinyin',
-  meaning: 'meaning',
-  meanings: 'meanings',
-  usageNote: 'usageNote',
-  provider: 'provider',
-  model: 'model',
-  recipeVersion: 'recipeVersion',
-  generationProvenance: 'generationProvenance',
-  artPrompt: 'artPrompt',
-  artPromptVersion: 'artPromptVersion',
-  artJobId: 'artJobId',
-  artImageId: 'artImageId',
-  isActive: 'isActive'
-} as const
-
-export type MandarinRequestedCardScalarFieldEnum = (typeof MandarinRequestedCardScalarFieldEnum)[keyof typeof MandarinRequestedCardScalarFieldEnum]
 
 
 export const ModelBuildRunScalarFieldEnum = {
@@ -1980,10 +1919,7 @@ export const MonsterScalarFieldEnum = {
   yieldPerTick: 'yieldPerTick',
   tickIntervalSeconds: 'tickIntervalSeconds',
   unlockCost: 'unlockCost',
-  depth: 'depth',
   behavior: 'behavior',
-  dietRole: 'dietRole',
-  schoolRole: 'schoolRole',
   hue: 'hue',
   games: 'games',
   artPrompt: 'artPrompt',
@@ -2253,49 +2189,6 @@ export const MandarinAudioAssetOrderByRelevanceFieldEnum = {
 } as const
 
 export type MandarinAudioAssetOrderByRelevanceFieldEnum = (typeof MandarinAudioAssetOrderByRelevanceFieldEnum)[keyof typeof MandarinAudioAssetOrderByRelevanceFieldEnum]
-
-
-export const MandarinCatalogOverrideOrderByRelevanceFieldEnum = {
-  cardKey: 'cardKey',
-  traditional: 'traditional',
-  pinyin: 'pinyin',
-  meaning: 'meaning',
-  meanings: 'meanings',
-  usageNote: 'usageNote',
-  categories: 'categories'
-} as const
-
-export type MandarinCatalogOverrideOrderByRelevanceFieldEnum = (typeof MandarinCatalogOverrideOrderByRelevanceFieldEnum)[keyof typeof MandarinCatalogOverrideOrderByRelevanceFieldEnum]
-
-
-export const MandarinCatalogChangeOrderByRelevanceFieldEnum = {
-  cardKey: 'cardKey',
-  beforeJson: 'beforeJson',
-  afterJson: 'afterJson',
-  note: 'note'
-} as const
-
-export type MandarinCatalogChangeOrderByRelevanceFieldEnum = (typeof MandarinCatalogChangeOrderByRelevanceFieldEnum)[keyof typeof MandarinCatalogChangeOrderByRelevanceFieldEnum]
-
-
-export const MandarinRequestedCardOrderByRelevanceFieldEnum = {
-  requestText: 'requestText',
-  normalizedRequest: 'normalizedRequest',
-  simplified: 'simplified',
-  traditional: 'traditional',
-  pinyin: 'pinyin',
-  meaning: 'meaning',
-  meanings: 'meanings',
-  usageNote: 'usageNote',
-  provider: 'provider',
-  model: 'model',
-  recipeVersion: 'recipeVersion',
-  generationProvenance: 'generationProvenance',
-  artPrompt: 'artPrompt',
-  artPromptVersion: 'artPromptVersion'
-} as const
-
-export type MandarinRequestedCardOrderByRelevanceFieldEnum = (typeof MandarinRequestedCardOrderByRelevanceFieldEnum)[keyof typeof MandarinRequestedCardOrderByRelevanceFieldEnum]
 
 
 export const ModelBuildRunOrderByRelevanceFieldEnum = {
@@ -3148,8 +3041,6 @@ export const MonsterOrderByRelevanceFieldEnum = {
   quirks: 'quirks',
   alignment: 'alignment',
   behavior: 'behavior',
-  dietRole: 'dietRole',
-  schoolRole: 'schoolRole',
   games: 'games',
   artPrompt: 'artPrompt',
   icon: 'icon',

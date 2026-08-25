@@ -71,31 +71,6 @@ export type RewardFacet = Prisma.RewardFacetModel
  */
 export type MandarinAudioAsset = Prisma.MandarinAudioAssetModel
 /**
- * Model MandarinCatalogOverride
- * One canonical administrative overlay per sourced Mandarin card.
- * The source catalog remains immutable; null fields inherit the current source
- * value. This deliberately has no edition/version dimension.
- */
-export type MandarinCatalogOverride = Prisma.MandarinCatalogOverrideModel
-/**
- * Model MandarinCatalogChange
- * Append-only audit trail for Mandarin catalog curation. beforeJson and
- * afterJson are effective learner-facing snapshots, not mutable source data.
- */
-export type MandarinCatalogChange = Prisma.MandarinCatalogChangeModel
-/**
- * Model MandarinRequestedCard
- * User-requested Mandarin learning cards. Core HSK/curated vocabulary remains
- * source-backed and code/data driven; these rows are explicitly generated
- * additions whose provider/model provenance is retained permanently.
- * 
- * userId is intentionally a plain ownership scalar in v1 rather than a Prisma
- * relation so this additive model does not need to modify the already-crowded
- * User model merely to establish a back-reference. Every API access is scoped
- * by authenticated userId.
- */
-export type MandarinRequestedCard = Prisma.MandarinRequestedCardModel
-/**
  * Model ModelBuildRun
  * One resumable Model Builder run: a source record, a chosen recipe, and the
  * build items produced from the selected outputs. `sourceSnapshot` freezes the

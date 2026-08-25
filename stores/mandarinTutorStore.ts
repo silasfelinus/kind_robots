@@ -106,6 +106,7 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
   const studyIndex = ref(0)
   const searchQuery = ref('')
   const focusKey = ref<string | null>(null)
+  const focusKeys = ref<string[]>([])
   const meaningVisible = ref(false)
   const detailsVisible = ref(false)
   const loading = ref(false)
@@ -190,6 +191,15 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
         return haystack.includes(query)
       })
       .slice(0, 24)
+  })
+
+  const focusPosition = computed(() => {
+    const key = focusKey.value
+    if (!key) return null
+    const validKeys = focusKeys.value.filter((candidate) => cardMap.value.has(candidate))
+    const index = validKeys.indexOf(key)
+    if (index < 0) return { index: 0, total: 1 }
+    return { index, total: validKeys.length }
   })
 
   const customSetCount = computed(() => customSets.value.length)
@@ -431,20 +441,40 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     selectedSetId.value = id
     studyIndex.value = 0
     focusKey.value = null
+    focusKeys.value = []
     resetReveal()
     saveLocalState()
   }
 
+  function moveFocusedCard(offset: number): boolean {
+    const key = focusKey.value
+    if (!key) return false
+    const validKeys = focusKeys.value.filter((candidate) => cardMap.value.has(candidate))
+    if (validKeys.length <= 1) return false
+    const currentIndex = Math.max(0, validKeys.indexOf(key))
+    const nextIndex = (currentIndex + offset + validKeys.length) % validKeys.length
+    focusKey.value = validKeys[nextIndex] ?? key
+    focusKeys.value = validKeys
+    resetReveal()
+    return true
+  }
+
   function nextCard() {
+    if (focusKey.value) {
+      void moveFocusedCard(1)
+      return
+    }
     if (!studyCards.value.length) return
-    focusKey.value = null
     studyIndex.value = (studyIndex.value + 1) % studyCards.value.length
     resetReveal()
   }
 
   function previousCard() {
+    if (focusKey.value) {
+      void moveFocusedCard(-1)
+      return
+    }
     if (!studyCards.value.length) return
-    focusKey.value = null
     studyIndex.value =
       (studyIndex.value - 1 + studyCards.value.length) % studyCards.value.length
     resetReveal()
@@ -452,12 +482,15 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
 
   function focusCard(key: string) {
     if (!cardMap.value.has(key)) return
+    const resultKeys = searchResults.value.map((card) => card.key)
+    focusKeys.value = resultKeys.includes(key) ? resultKeys : [key]
     focusKey.value = key
     resetReveal()
   }
 
   function clearFocus() {
     focusKey.value = null
+    focusKeys.value = []
     resetReveal()
   }
 
@@ -544,6 +577,7 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
       }
       await upsertRequestedCard(response.data)
       focusKey.value = response.data.card.key
+      focusKeys.value = [response.data.card.key]
       searchQuery.value = ''
       resetReveal()
       return response.data
@@ -807,6 +841,7 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     studyIndex,
     searchQuery,
     focusKey,
+    focusKeys,
     meaningVisible,
     detailsVisible,
     loading,
@@ -829,6 +864,7 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     studyCards,
     currentCard,
     searchResults,
+    focusPosition,
     customSetCount,
     audioSupported,
     initialize,

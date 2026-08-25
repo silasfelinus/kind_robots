@@ -19,13 +19,28 @@ import {
 } from './mandarinCatalogOverrides'
 import { prisma } from './prisma'
 
-type OverrideRow = Awaited<
-  ReturnType<typeof prisma.mandarinCatalogOverride.findFirst>
->
+type OverrideRecord = {
+  cardKey: string
+  traditional: string | null
+  pinyin: string | null
+  meaning: string | null
+  meanings: string | null
+  usageNote: string | null
+  categories: string | null
+  updatedByUserId: number
+  isActive: boolean
+  updatedAt: Date
+}
 
-type ChangeRow = Awaited<
-  ReturnType<typeof prisma.mandarinCatalogChange.findFirst>
->
+type ChangeRecord = {
+  id: number
+  cardKey: string
+  adminUserId: number
+  beforeJson: string
+  afterJson: string
+  note: string | null
+  createdAt: Date
+}
 
 function clean(value: unknown, max: number): string {
   return typeof value === 'string' ? value.trim().slice(0, max) : ''
@@ -62,7 +77,7 @@ function parseSnapshot(raw: string): MandarinCurationSnapshot | null {
   }
 }
 
-function changePublic(row: NonNullable<ChangeRow>): MandarinCurationChange | null {
+function changePublic(row: ChangeRecord): MandarinCurationChange | null {
   const before = parseSnapshot(row.beforeJson)
   const after = parseSnapshot(row.afterJson)
   if (!before || !after) return null
@@ -76,7 +91,7 @@ function changePublic(row: NonNullable<ChangeRow>): MandarinCurationChange | nul
   }
 }
 
-function overriddenFields(row: OverrideRow): string[] {
+function overriddenFields(row: OverrideRecord | null): string[] {
   if (!row?.isActive) return []
   return [
     row.traditional !== null ? 'traditional' : '',
@@ -91,7 +106,7 @@ function overriddenFields(row: OverrideRow): string[] {
 function rowPublic(input: {
   source: MandarinCard
   effective: MandarinCard
-  override: OverrideRow
+  override: OverrideRecord | null
   audioReady: boolean
   changes: MandarinCurationChange[]
 }): MandarinCurationRow {
@@ -249,10 +264,9 @@ export async function updateMandarinCuration(input: {
     throw createError({ statusCode: 400, message: 'Mandarin card key is required.' })
   }
 
-  const [sourceCatalog, effectiveCatalog, existingOverride] = await Promise.all([
+  const [sourceCatalog, effectiveCatalog] = await Promise.all([
     getMandarinSourceCatalog(),
     getMandarinCatalog(),
-    prisma.mandarinCatalogOverride.findUnique({ where: { cardKey } }),
   ])
   const sourceCard = sourceCatalog.cards.find((card) => card.key === cardKey)
   if (!sourceCard) {
@@ -305,7 +319,8 @@ export async function updateMandarinCuration(input: {
   const meaningsOverride = sameArray(desired.meanings, sourceMeanings)
     ? null
     : JSON.stringify(desired.meanings)
-  const usageNoteOverride = desired.usageNote ? desired.usageNote : null
+  const usageNoteOverride =
+    desired.usageNote === source.usageNote ? null : desired.usageNote
   const categoriesOverride = sameCategorySet(desired.categories, source.categories)
     ? null
     : JSON.stringify(desired.categories)

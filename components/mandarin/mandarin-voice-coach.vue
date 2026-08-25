@@ -3,12 +3,11 @@
     <div class="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
       <div class="max-w-2xl">
         <div class="flex flex-wrap items-center gap-2">
-          <h3 class="text-lg font-bold">Say it</h3>
-          <span class="badge badge-outline">voice coach</span>
+          <h3 class="text-lg font-bold">Pronunciation practice</h3>
+          <span class="badge badge-outline">listen · say · check</span>
         </div>
         <p class="mt-1 text-sm leading-relaxed opacity-70">
-          Record the word. The speech recognizer reports what it heard without being told the target,
-          while a separate on-device pitch check compares the broad tone shape.
+          Hear the reference, say the word yourself, then compare what the recognizer heard with a separate on-device check of the broad tone shape.
         </p>
         <div class="mt-3 flex flex-wrap gap-2">
           <span
@@ -26,6 +25,15 @@
 
       <div class="flex flex-wrap items-center gap-2">
         <button
+          type="button"
+          class="btn btn-accent"
+          :disabled="recording || evaluating || Boolean(tutorStore.audioLoadingKey)"
+          @click="tutorStore.speak(card)"
+        >
+          <span v-if="tutorStore.audioLoadingKey === card.key" class="loading loading-spinner loading-xs" />
+          {{ tutorStore.audioLoadingKey === card.key ? 'Preparing reference…' : 'Hear reference' }}
+        </button>
+        <button
           v-if="!recording"
           type="button"
           class="btn btn-primary"
@@ -33,7 +41,7 @@
           @click="startRecording"
         >
           <span v-if="evaluating" class="loading loading-spinner loading-xs" />
-          {{ evaluating ? 'Listening…' : transcript ? 'Try again' : 'Record me' }}
+          {{ evaluating ? 'Checking pronunciation…' : transcript ? 'Try again' : 'Say it' }}
         </button>
         <button
           v-else
@@ -45,20 +53,23 @@
         </button>
         <span v-if="recording" class="flex items-center gap-2 text-sm font-semibold text-error" role="status">
           <span class="h-2.5 w-2.5 animate-pulse rounded-full bg-current" />
-          Recording
+          Recording · {{ secondsRemaining }}s max
         </span>
       </div>
     </div>
 
+    <p v-if="tutorStore.speechError" class="mt-3 text-sm text-error" role="alert">
+      {{ tutorStore.speechError }}
+    </p>
     <p v-if="!voiceSupported" class="mt-3 text-sm opacity-60">
-      This browser does not expose microphone recording. The regular pronunciation playback still works.
+      This browser does not expose microphone recording. Reference pronunciation still works.
     </p>
     <p v-if="error" class="mt-3 text-sm text-error" role="alert">{{ error }}</p>
 
     <div v-if="audioUrl" class="mt-4 rounded-2xl border border-base-300 bg-base-200/40 p-4">
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p class="text-xs font-semibold uppercase tracking-wide opacity-55">Your recording</p>
+          <p class="text-xs font-semibold uppercase tracking-wide opacity-55">Your attempt</p>
           <p class="text-xs opacity-60">Not saved by Kind Robots. The clip is sent to the configured speech service only for transcription.</p>
         </div>
         <audio :src="audioUrl" controls class="h-10 max-w-full" />
@@ -89,7 +100,7 @@
       </div>
 
       <div class="rounded-2xl border border-base-300 bg-base-200/40 p-4">
-        <p class="text-xs font-semibold uppercase tracking-wide opacity-55">Rough tone shape</p>
+        <p class="text-xs font-semibold uppercase tracking-wide opacity-55">Tone shape</p>
         <div v-if="toneAnalysis?.observations.length" class="mt-2 space-y-2">
           <div
             v-for="observation in toneAnalysis.observations"
@@ -118,6 +129,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { performFetch } from '@/stores/utils'
+import { useMandarinTutorStore } from '@/stores/mandarinTutorStore'
 import { analyzeMandarinToneShapes, type MandarinToneAnalysis } from '@/stores/helpers/mandarinToneAnalysis'
 import {
   compareMandarinTranscript,
@@ -128,6 +140,8 @@ import type { MandarinCard } from '@/utils/mandarin'
 const props = defineProps<{
   card: MandarinCard
 }>()
+
+const tutorStore = useMandarinTutorStore()
 
 type TranscriptionData = {
   transcript?: string
@@ -140,11 +154,13 @@ const error = ref<string | null>(null)
 const transcript = ref('')
 const toneAnalysis = ref<MandarinToneAnalysis | null>(null)
 const audioUrl = ref<string | null>(null)
+const secondsRemaining = ref(12)
 
 let mediaRecorder: MediaRecorder | null = null
 let mediaStream: MediaStream | null = null
 let chunks: Blob[] = []
 let autoStopTimer: ReturnType<typeof setTimeout> | null = null
+let countdownTimer: ReturnType<typeof setInterval> | null = null
 let recordingCardKey = ''
 let recordingPinyin = ''
 let disposed = false
@@ -169,7 +185,9 @@ const comparison = computed(() =>
 
 function clearTimer() {
   if (autoStopTimer) clearTimeout(autoStopTimer)
+  if (countdownTimer) clearInterval(countdownTimer)
   autoStopTimer = null
+  countdownTimer = null
 }
 
 function stopMediaStream() {
@@ -181,6 +199,7 @@ function clearAttempt() {
   transcript.value = ''
   toneAnalysis.value = null
   error.value = null
+  secondsRemaining.value = 12
   if (audioUrl.value) URL.revokeObjectURL(audioUrl.value)
   audioUrl.value = null
 }
@@ -306,6 +325,10 @@ async function startRecording() {
 
     mediaRecorder.start(250)
     recording.value = true
+    secondsRemaining.value = 12
+    countdownTimer = setInterval(() => {
+      secondsRemaining.value = Math.max(0, secondsRemaining.value - 1)
+    }, 1_000)
     autoStopTimer = setTimeout(() => stopRecording(), 12_000)
   } catch (cause) {
     stopMediaStream()

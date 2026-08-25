@@ -10,11 +10,11 @@ CREATE TABLE `MandarinAudioAsset` (
     `model` VARCHAR(128) NOT NULL,
     `voice` VARCHAR(64) NOT NULL,
     `format` VARCHAR(16) NOT NULL,
+    `recipeVersion` VARCHAR(32) NOT NULL,
     `contentType` VARCHAR(64) NOT NULL,
     `byteLength` INTEGER NOT NULL,
     `audioData` MEDIUMBLOB NOT NULL,
 
-    UNIQUE INDEX `MandarinAudioAsset_cardKey_model_voice_format_key`(`cardKey`, `model`, `voice`, `format`),
     INDEX `MandarinAudioAsset_cardKey_idx`(`cardKey`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

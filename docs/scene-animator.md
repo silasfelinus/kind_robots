@@ -56,6 +56,20 @@ The source API only accepts normalized relative folders and image filenames.
 Absolute paths, `..` traversal, and symlink escapes are rejected. The MVP is
 read-only: it never deletes, renames, or mutates source stills.
 
+## Verifying the mount
+
+`GET /api/scene-animator/health` (admin-only) reports whether the configured
+source root actually resolves, without loading the full folder/source
+listing: which of `ANIMATE_PATH`, an `IMAGES_PATH`-derived sibling, or the
+local `<repo>/animate` fallback is in effect, plus a folder/image count when
+reachable. It answers `200` when the root is reachable and `503` with a
+specific reason (not mounted, wrong permissions, etc.) when it is not.
+
+The batch page's own `GET /api/scene-animator` reports the same signal inline
+as `rootAvailable` in its response, so a misconfigured or not-yet-mounted
+root surfaces as a clear message in the admin UI instead of an opaque request
+failure.
+
 The application/container still needs read access to the chosen source root.
 Adding or changing a production bind mount is an operator deployment step; the
 code does not attempt to alter container configuration itself.

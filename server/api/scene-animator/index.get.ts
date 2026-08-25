@@ -3,9 +3,9 @@ import prisma from '@/server/utils/prisma'
 import { requireAdminApiUser } from '@/server/utils/authGuard'
 import {
   SCENE_ANIMATOR_PROJECT_SLUG,
-  listSceneAnimatorFolders,
   listSceneAnimatorSourceFiles,
   parseSceneAnimatorContext,
+  readSceneAnimatorRootStatus,
   sceneAnimatorConfigKey,
   sceneAnimatorDedupeKey,
   type SceneAnimatorRenderConfig,
@@ -64,7 +64,24 @@ export default defineEventHandler(async (event) => {
   const query = getQuery(event) as Record<string, unknown>
   const folder = queryString(query.folder).trim()
   const config = resolveConfig(query)
-  const folders = await listSceneAnimatorFolders()
+  const rootStatus = await readSceneAnimatorRootStatus()
+
+  if (!rootStatus.available) {
+    return {
+      success: true,
+      message: rootStatus.reason,
+      data: {
+        rootAvailable: false,
+        folders: [],
+        selectedFolder: null,
+        config,
+        configKey: sceneAnimatorConfigKey(config),
+        sources: [],
+      },
+    }
+  }
+
+  const folders = rootStatus.folders
 
   if (!folder && !folders.some((item) => item.name === '')) {
     return {

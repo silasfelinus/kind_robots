@@ -103,6 +103,58 @@ export function getSceneAnimatorRoot(): string {
   return path.resolve(process.cwd(), 'animate')
 }
 
+/** How `getSceneAnimatorRoot()` arrived at its answer — surfaced in health
+ *  diagnostics so an operator can tell "misconfigured" from "not mounted yet"
+ *  without reading source. */
+export type SceneAnimatorRootSource =
+  | 'ANIMATE_PATH'
+  | 'IMAGES_PATH-derived'
+  | 'fallback'
+
+export function getSceneAnimatorRootSource(): SceneAnimatorRootSource {
+  if (process.env.ANIMATE_PATH?.trim()) return 'ANIMATE_PATH'
+  if (process.env.IMAGES_PATH?.trim()) return 'IMAGES_PATH-derived'
+  return 'fallback'
+}
+
+export type SceneAnimatorRootStatus = {
+  available: boolean
+  root: string
+  source: SceneAnimatorRootSource
+  folders: Array<{ name: string; imageCount: number }>
+  reason: string | null
+}
+
+/**
+ * Non-throwing read of the configured source root. `listSceneAnimatorFolders()`
+ * throws (a 503 "source root is unavailable" H3 error, or a raw fs error if the
+ * root exists but isn't readable) the moment ANIMATE_PATH points at a mount that
+ * hasn't landed yet -- exactly the operator-visible case this exists to make
+ * legible instead of an opaque request failure. Single source of truth for both
+ * the `/api/scene-animator` listing (which needs the folder list either way) and
+ * the dedicated `/api/scene-animator/health` check (which only needs the verdict).
+ */
+export async function readSceneAnimatorRootStatus(): Promise<SceneAnimatorRootStatus> {
+  const root = getSceneAnimatorRoot()
+  const source = getSceneAnimatorRootSource()
+
+  try {
+    const folders = await listSceneAnimatorFolders()
+    return { available: true, root, source, folders, reason: null }
+  } catch (error) {
+    return {
+      available: false,
+      root,
+      source,
+      folders: [],
+      reason:
+        error instanceof Error
+          ? error.message
+          : `Scene Animator source root is unavailable: ${root}`,
+    }
+  }
+}
+
 async function resolveContainedPath(folder: string, filename?: string): Promise<string> {
   const root = getSceneAnimatorRoot()
   let resolvedRoot: string

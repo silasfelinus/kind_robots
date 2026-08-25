@@ -65,7 +65,11 @@
       </div>
     </div>
 
-    <div v-if="transcript || toneAnalysis" class="mt-4 grid gap-4 lg:grid-cols-2" aria-live="polite">
+    <div
+      v-if="transcript || toneAnalysis"
+      class="mt-4 grid grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))] gap-4"
+      aria-live="polite"
+    >
       <div class="rounded-2xl border border-base-300 bg-base-200/40 p-4">
         <p class="text-xs font-semibold uppercase tracking-wide opacity-55">What I heard</p>
         <p v-if="transcript" class="mt-2 text-2xl font-bold">{{ transcript }}</p>

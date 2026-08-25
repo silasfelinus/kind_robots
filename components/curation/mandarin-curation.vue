@@ -190,6 +190,7 @@
             <div class="flex flex-wrap items-center gap-2">
               <span class="text-4xl font-black">{{ selectedRow.effective.simplified }}</span>
               <span v-if="selectedRow.hasOverride" class="badge badge-warning">global override</span>
+              <span v-if="draftDirty" class="badge badge-info badge-outline">unsaved</span>
             </div>
             <p class="mt-1 text-xs text-base-content/50">
               {{ selectedRow.cardKey }} · {{ selectedRow.source.sourceLabel }}
@@ -201,6 +202,14 @@
         </div>
 
         <div class="max-h-[74vh] space-y-4 overflow-y-auto p-4">
+          <div
+            v-if="draftDirty"
+            class="rounded-xl border border-info/30 bg-info/10 p-3 text-xs leading-5"
+            role="status"
+          >
+            This draft has unsaved changes. Saving, discarding, or restoring to the source is explicit so a row switch cannot erase work silently.
+          </div>
+
           <div class="rounded-xl border border-base-300 bg-base-200/40 p-3 text-xs leading-5">
             <p class="font-black uppercase tracking-wide text-base-content/55">Immutable source</p>
             <p class="mt-1">
@@ -287,9 +296,18 @@
           </label>
 
           <div class="flex flex-wrap gap-2">
-            <button class="btn btn-primary btn-sm rounded-xl" type="button" :disabled="saving" @click="store.saveSelected()">
+            <button class="btn btn-primary btn-sm rounded-xl" type="button" :disabled="!canSave" @click="store.saveSelected()">
               <span v-if="saving" class="loading loading-spinner loading-xs" />
-              Submit change
+              Save changes
+            </button>
+            <button
+              v-if="draftDirty"
+              class="btn btn-ghost btn-sm rounded-xl"
+              type="button"
+              :disabled="saving"
+              @click="store.discardDraft()"
+            >
+              Discard draft
             </button>
             <button class="btn btn-outline btn-sm rounded-xl" type="button" :disabled="saving" @click="store.resetDraftToSource()">
               Restore source values
@@ -345,6 +363,8 @@ const {
   selectedCardKey,
   draft,
   selectedRow,
+  draftDirty,
+  canSave,
   visibleRows,
 } = storeToRefs(store)
 

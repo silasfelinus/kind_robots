@@ -27,7 +27,7 @@ const RARITIES = new Set([
   'LEGENDARY',
   'MYTHIC',
 ])
-const EVOLUTION_KINDS = new Set(['GROWTH', 'BREEDING', null])
+const EVOLUTION_KINDS = new Set(['GROWTH', 'BREEDING', 'SECRET', null])
 
 // From prisma/schema.prisma's Monster model. Kept literal on purpose: if a
 // column narrows, this file should fail rather than silently follow.
@@ -37,6 +37,8 @@ const WIDTHS: Record<string, number> = {
   class: 764,
   alignment: 256,
   behavior: 255,
+  dietRole: 255,
+  schoolRole: 255,
   games: 764,
 }
 

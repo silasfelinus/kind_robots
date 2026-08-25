@@ -104,6 +104,14 @@ export const DownloadStatus = {
 export type DownloadStatus = (typeof DownloadStatus)[keyof typeof DownloadStatus]
 
 
+export const EvolutionKind = {
+  GROWTH: 'GROWTH',
+  BREEDING: 'BREEDING'
+} as const
+
+export type EvolutionKind = (typeof EvolutionKind)[keyof typeof EvolutionKind]
+
+
 export const DreamRelationType = {
   IS_A: 'IS_A',
   APPEARS_IN: 'APPEARS_IN',
@@ -250,7 +258,9 @@ export const ResourceType = {
   API: 'API',
   VAE: 'VAE',
   TEXT_ENCODER: 'TEXT_ENCODER',
-  DIFFUSION_MODEL: 'DIFFUSION_MODEL'
+  DIFFUSION_MODEL: 'DIFFUSION_MODEL',
+  LATENT_UPSCALER: 'LATENT_UPSCALER',
+  UPSCALER: 'UPSCALER'
 } as const
 
 export type ResourceType = (typeof ResourceType)[keyof typeof ResourceType]

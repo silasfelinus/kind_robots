@@ -666,6 +666,32 @@ export type AquariumSet = Prisma.AquariumSetModel
  */
 export type AquariumCodexEntry = Prisma.AquariumCodexEntryModel
 /**
+ * Model Creature
+ * cthulhuquarium/t-035: the bestiary's own model. Character is this site's
+ * chattable-personality table -- people you can talk to, story NPCs -- and
+ * fish/tank creatures have no dialogue, no personality, and no chat
+ * surface. Reusing Character for them because its columns happened to fit
+ * (species, class, backstory-as-quirks, the six Rarity stats) ignored what
+ * the model MEANS, and the concrete cost was already paid once: fish
+ * needed a capacity weight, `Character.size` was added for them, and when
+ * that migration shipped unapplied it took every unselected
+ * `prisma.character.findUnique()` down with it, including character-linked
+ * art generation (kind-robots/t-071). Creature carries what the fish bible
+ * (conductor projects/cthulhuquarium, external to this repo) actually
+ * needs. Sharing survives unchanged -- `games` is the mechanism, not the
+ * table, exactly as it was meant to be: a Creature tagged
+ * "cthulhuquarium,ruler-hooked" is readable by both.
+ * NOT YET WIRED, deliberately: AquariumStock.characterId and
+ * AquariumCodexEntry.characterId still reference Character (t-032), and
+ * Character.size still exists. Repointing those tables and dropping
+ * Character.size are follow-on work, filed separately and kept out of this
+ * migration so this one stays purely additive -- CREATE TABLE only, no
+ * DROP, no rewrite of a table anything currently reads. See t-035's
+ * roadmap note for the full ordering and why the drop specifically waits
+ * on kind-robots/t-071 being resolved first.
+ */
+export type Creature = Prisma.CreatureModel
+/**
  * Model AquariumEvent
  * Append-only audit trail for one Aquarium: feeds, purchases, rare
  * experiences, and anything else the future leaderboard/balance pass needs

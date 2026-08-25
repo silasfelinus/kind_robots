@@ -134,6 +134,7 @@ export const ModelName = {
   AquariumStock: 'AquariumStock',
   AquariumSet: 'AquariumSet',
   AquariumCodexEntry: 'AquariumCodexEntry',
+  Creature: 'Creature',
   AquariumEvent: 'AquariumEvent',
   AuthToken: 'AuthToken',
   Conversation: 'Conversation',
@@ -1875,6 +1876,54 @@ export const AquariumCodexEntryScalarFieldEnum = {
 export type AquariumCodexEntryScalarFieldEnum = (typeof AquariumCodexEntryScalarFieldEnum)[keyof typeof AquariumCodexEntryScalarFieldEnum]
 
 
+export const CreatureScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  slug: 'slug',
+  name: 'name',
+  species: 'species',
+  class: 'class',
+  fieldNote: 'fieldNote',
+  quirks: 'quirks',
+  alignment: 'alignment',
+  tier: 'tier',
+  charm: 'charm',
+  empathy: 'empathy',
+  grace: 'grace',
+  luck: 'luck',
+  might: 'might',
+  wits: 'wits',
+  size: 'size',
+  yieldPerTick: 'yieldPerTick',
+  tickIntervalSeconds: 'tickIntervalSeconds',
+  unlockCost: 'unlockCost',
+  behavior: 'behavior',
+  hue: 'hue',
+  games: 'games',
+  artPrompt: 'artPrompt',
+  evolutionKind: 'evolutionKind',
+  evolvesToId: 'evolvesToId',
+  icon: 'icon',
+  iconPath: 'iconPath',
+  imagePath: 'imagePath',
+  cardPath: 'cardPath',
+  heroPath: 'heroPath',
+  artImageId: 'artImageId',
+  cardArtImageId: 'cardArtImageId',
+  heroArtImageId: 'heroArtImageId',
+  iconArtImageId: 'iconArtImageId',
+  isPublic: 'isPublic',
+  isActive: 'isActive',
+  isMature: 'isMature',
+  allowReviews: 'allowReviews',
+  userId: 'userId',
+  packId: 'packId'
+} as const
+
+export type CreatureScalarFieldEnum = (typeof CreatureScalarFieldEnum)[keyof typeof CreatureScalarFieldEnum]
+
+
 export const AquariumEventScalarFieldEnum = {
   id: 'id',
   aquariumId: 'aquariumId',
@@ -2944,6 +2993,27 @@ export const AquariumSetOrderByRelevanceFieldEnum = {
 } as const
 
 export type AquariumSetOrderByRelevanceFieldEnum = (typeof AquariumSetOrderByRelevanceFieldEnum)[keyof typeof AquariumSetOrderByRelevanceFieldEnum]
+
+
+export const CreatureOrderByRelevanceFieldEnum = {
+  slug: 'slug',
+  name: 'name',
+  species: 'species',
+  class: 'class',
+  fieldNote: 'fieldNote',
+  quirks: 'quirks',
+  alignment: 'alignment',
+  behavior: 'behavior',
+  games: 'games',
+  artPrompt: 'artPrompt',
+  icon: 'icon',
+  iconPath: 'iconPath',
+  imagePath: 'imagePath',
+  cardPath: 'cardPath',
+  heroPath: 'heroPath'
+} as const
+
+export type CreatureOrderByRelevanceFieldEnum = (typeof CreatureOrderByRelevanceFieldEnum)[keyof typeof CreatureOrderByRelevanceFieldEnum]
 
 
 export const AquariumEventOrderByRelevanceFieldEnum = {

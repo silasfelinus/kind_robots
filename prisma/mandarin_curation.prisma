@@ -1,0 +1,35 @@
+/// One canonical administrative overlay per sourced Mandarin card.
+/// The source catalog remains immutable; null fields inherit the current source
+/// value. This deliberately has no edition/version dimension.
+model MandarinCatalogOverride {
+  id              Int      @id @default(autoincrement())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
+  cardKey         String   @unique @db.VarChar(255)
+  traditional     String?  @db.VarChar(255)
+  pinyin          String?  @db.VarChar(512)
+  meaning         String?  @db.Text
+  meanings        String?  @db.LongText
+  usageNote       String?  @db.Text
+  categories      String?  @db.LongText
+  updatedByUserId Int
+  isActive        Boolean  @default(true)
+
+  @@index([updatedByUserId])
+  @@index([isActive])
+}
+
+/// Append-only audit trail for Mandarin catalog curation. beforeJson and
+/// afterJson are effective learner-facing snapshots, not mutable source data.
+model MandarinCatalogChange {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  cardKey     String   @db.VarChar(255)
+  adminUserId Int
+  beforeJson  String   @db.LongText
+  afterJson   String   @db.LongText
+  note        String?  @db.Text
+
+  @@index([cardKey, createdAt])
+  @@index([adminUserId, createdAt])
+}

@@ -8,6 +8,7 @@ import {
   type MandarinCatalogPayload,
   type MandarinStudySet,
 } from '~/utils/mandarin'
+import { enrichMandarinCharacterData } from './mandarinCharacterData'
 
 type SourcePronunciation = {
   y?: string
@@ -211,12 +212,17 @@ function buildSets(cards: MandarinCard[]): MandarinStudySet[] {
 
 async function createCatalog(): Promise<MandarinCatalogPayload> {
   const [levelOne, levelTwo] = await Promise.all([fetchLevel(1), fetchLevel(2)])
-  const cards = mergeCards([...levelOne, ...levelTwo])
-  if (cards.length < MINIMUM_CARD_COUNT) {
+  const baseCards = mergeCards([...levelOne, ...levelTwo])
+  if (baseCards.length < MINIMUM_CARD_COUNT) {
     throw new Error(
-      `Mandarin starter catalog only normalized ${cards.length} cards; expected at least ${MINIMUM_CARD_COUNT}.`,
+      `Mandarin starter catalog only normalized ${baseCards.length} cards; expected at least ${MINIMUM_CARD_COUNT}.`,
     )
   }
+
+  // Character formation data is a separate provenance layer from lexical
+  // meanings. Enrich only after the vocabulary catalog is normalized so a
+  // character source can never silently replace a word's dictionary meaning.
+  const cards = await enrichMandarinCharacterData(baseCards)
 
   return {
     cards,

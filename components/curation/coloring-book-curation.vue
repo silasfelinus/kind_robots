@@ -63,36 +63,59 @@
     <div
       v-else
       class="grid gap-4"
-      style="grid-template-columns: repeat(auto-fill, minmax(min(290px, 100%), 1fr))"
+      style="grid-template-columns: repeat(auto-fill, minmax(min(540px, 100%), 1fr))"
     >
       <article
         v-for="proposal in visibleProposals"
         :key="proposal.id"
         class="kr-panel min-w-0 overflow-hidden"
       >
-        <div class="relative aspect-[17/22] overflow-hidden bg-base-200">
-          <img
-            v-if="proposal.colorUrl"
-            :src="proposal.colorUrl"
-            :alt="`${proposal.title} color candidate`"
-            class="size-full object-cover"
-            loading="lazy"
-          />
-          <img
-            v-else-if="bwDisplayUrl(proposal)"
-            :src="bwDisplayUrl(proposal) || ''"
-            :alt="`${proposal.title} black and white candidate`"
-            class="size-full object-cover grayscale"
-            loading="lazy"
-          />
-          <div v-else class="grid size-full place-items-center text-base-content/30">
-            <div class="text-center">
-              <Icon name="kind-icon:image" class="mx-auto size-12" />
-              <p class="mt-2 text-xs font-bold">No candidate art yet</p>
-            </div>
+        <div class="relative bg-base-300">
+          <div class="grid grid-cols-2 gap-px">
+            <figure class="relative min-w-0 bg-base-200">
+              <div class="aspect-[17/22] w-full overflow-hidden">
+                <img
+                  v-if="proposal.colorUrl"
+                  :src="proposal.colorUrl"
+                  :alt="`${proposal.title} color candidate`"
+                  class="size-full object-contain"
+                  loading="lazy"
+                />
+                <div v-else class="grid size-full place-items-center text-base-content/30">
+                  <div class="text-center">
+                    <Icon name="kind-icon:image" class="mx-auto size-10" />
+                    <p class="mt-2 text-xs font-bold">No color candidate</p>
+                  </div>
+                </div>
+              </div>
+              <figcaption class="absolute bottom-3 left-3 badge border-0 bg-base-100/90 font-black shadow-sm backdrop-blur">
+                Color
+              </figcaption>
+            </figure>
+
+            <figure class="relative min-w-0 bg-base-200">
+              <div class="aspect-[17/22] w-full overflow-hidden">
+                <img
+                  v-if="bwDisplayUrl(proposal)"
+                  :src="bwDisplayUrl(proposal) || ''"
+                  :alt="`${proposal.title} black and white candidate`"
+                  class="size-full object-contain grayscale"
+                  loading="lazy"
+                />
+                <div v-else class="grid size-full place-items-center text-base-content/30">
+                  <div class="text-center">
+                    <Icon name="kind-icon:image" class="mx-auto size-10" />
+                    <p class="mt-2 text-xs font-bold">No B&amp;W candidate</p>
+                  </div>
+                </div>
+              </div>
+              <figcaption class="absolute bottom-3 left-3 badge border-0 bg-base-100/90 font-black shadow-sm backdrop-blur">
+                B&amp;W
+              </figcaption>
+            </figure>
           </div>
 
-          <div class="absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-3">
+          <div class="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-3">
             <span class="badge border-0 bg-base-100/90 font-black shadow-sm backdrop-blur">
               {{ proposal.id }}
             </span>
@@ -100,21 +123,6 @@
               {{ stageLabel(proposal) }}
             </span>
           </div>
-
-          <figure
-            v-if="proposal.colorUrl && bwDisplayUrl(proposal)"
-            class="absolute bottom-3 right-3 w-[34%] overflow-hidden rounded-xl border-2 border-base-100 bg-base-100 shadow-lg"
-          >
-            <img
-              :src="bwDisplayUrl(proposal) || ''"
-              :alt="`${proposal.title} black and white candidate`"
-              class="aspect-[17/22] w-full object-cover grayscale"
-              loading="lazy"
-            />
-            <figcaption class="bg-base-100 px-2 py-1 text-center text-[10px] font-black">
-              B&amp;W
-            </figcaption>
-          </figure>
         </div>
 
         <div class="space-y-4 p-4">

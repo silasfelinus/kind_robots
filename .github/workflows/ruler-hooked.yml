@@ -1,0 +1,33 @@
+name: Ruler Hooked
+
+on:
+  pull_request:
+    paths:
+      - 'utils/rulerHooked/**'
+      - 'stores/rulerHookedStore.ts'
+      - 'components/ruler-hooked/**'
+      - '.github/workflows/ruler-hooked.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'utils/rulerHooked/**'
+      - 'stores/rulerHookedStore.ts'
+      - 'components/ruler-hooked/**'
+      - '.github/workflows/ruler-hooked.yml'
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    env:
+      CYPRESS_INSTALL_BINARY: 0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Game loop self-test
+        run: npx tsx utils/rulerHooked/game.selftest.ts
+      - name: Fishing encounter self-test
+        run: npx tsx utils/rulerHooked/encounter.selftest.ts

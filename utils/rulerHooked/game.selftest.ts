@@ -118,7 +118,8 @@ const fresh = (id = 'sv_a'): RunSave =>
 
 // 7. A pre-Fishopedia schema-3 slot migrates rather than being discarded
 {
-  const old = fresh('sv_old') as RunSave & { fishopedia?: RunSave['fishopedia'] }
+  type LegacyRunSave = Omit<RunSave, 'fishopedia'> & { fishopedia?: RunSave['fishopedia'] }
+  const old = fresh('sv_old') as LegacyRunSave
   old.schemaVersion = 3
   delete old.fishopedia
   backingStore.set('rulerHooked:save:sv_old', JSON.stringify(old))

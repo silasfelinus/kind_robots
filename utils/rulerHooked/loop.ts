@@ -1,9 +1,12 @@
 // utils/rulerHooked/loop.ts
 //
 // The pure turn loop (data-model.md §5). Keeps ALL game logic framework-free so
-// the Pinia store is a thin wrapper and the loop is testable headlessly. One turn:
-// fish beat → maybe an arc step, else maybe an interrupt/ambient draw → present a
-// card (or none). Applying the chosen effect is resolveChoice() (applyEffects.ts).
+// the Pinia store is a thin wrapper and the loop is testable headlessly.
+//
+// Interactive fishing now resolves before the kingdom interruption. The legacy
+// takeTurn() wrapper remains for headless tests and callers that want an automatic
+// successful catch, while advanceAfterFishingAttempt() advances governance after
+// either a landed or escaped interactive encounter.
 //
 // No wall-clock anywhere: turnCount is the only progression counter and time-of-day
 // is derived from it.
@@ -23,6 +26,12 @@ export interface TurnResult {
   arcId?: string
 }
 
+export interface KingdomTurnResult {
+  save: RunSave
+  card: Card | null
+  arcId?: string
+}
+
 /** Find an arc-step card by id across all arcs in the bundle. */
 export function findArcStep(bundle: ContentBundle, stepId: string): { card: Card; arcId: string } | null {
   for (const arc of bundle.arcs) {
@@ -37,15 +46,67 @@ export function allDeckCards(bundle: ContentBundle): Card[] {
   return bundle.decks.flatMap((d) => d.cards)
 }
 
+/** Resolve governance after the fishing attempt has already consumed the turn. */
+function resolveNarrative(
+  bundle: ContentBundle,
+  next: RunSave,
+  rng: RngStream,
+  interruptChance = 0.6,
+): KingdomTurnResult {
+  tickCooldowns(next)
+  const seen = new Set(next.deckState.seenCardIds)
+
+  // 1. A pending active-arc step (arcs resolve before free draws).
+  for (const arcId of Object.keys(next.deckState.activeArcs)) {
+    const step = next.deckState.activeArcs[arcId]?.step
+    if (step && !seen.has(step)) {
+      const found = findArcStep(bundle, step)
+      if (found) return { save: next, card: found.card, arcId }
+    }
+  }
+
+  // 2. Start a newly eligible arc (seeded chance), presenting its first step.
+  for (const arc of bundle.arcs) {
+    if (next.deckState.activeArcs[arc.id]) continue
+    if (arc.steps.some((s) => seen.has(s.id))) continue
+    const trig = arc.start?.trigger
+    if (!triggerHolds(next, trig)) continue
+    const chance = trig?.chance ?? 1
+    if (rng.next() >= chance) continue
+    const first = arc.steps[0]
+    if (!first) continue
+    next.deckState.activeArcs[arc.id] = { step: first.id, flags: {} }
+    return { save: next, card: first, arcId: arc.id }
+  }
+
+  // 3. A free interrupt/ambient draw (seeded, may be null → quiet fishing).
+  const card = selectCard(next, allDeckCards(bundle), rng, interruptChance)
+  if (card && card.trigger?.cooldown) {
+    next.deckState.cooldowns[card.id] = card.trigger.cooldown
+  }
+  return { save: next, card }
+}
+
 /**
- * Advance one turn. Priority: (1) land a deterministic fish from the currently
- * available ecology, (2) a pending active-arc step, (3) starting a newly eligible
- * arc, (4) a seeded interrupt/ambient draw. Returns a new save plus the catch and
- * any card to present.
- *
- * Fishing uses a turn-scoped child RNG derived from the run seed. Narrative draws
- * keep the caller-supplied RNG stream. This deliberately prevents future changes to
- * specimen math (size/quality/fight cues) from changing which kingdom card appears.
+ * Consume one reign turn after an interactive fishing attempt, successful or not,
+ * then resolve the normal kingdom interruption. No fish is recorded here.
+ */
+export function advanceAfterFishingAttempt(
+  bundle: ContentBundle,
+  save: RunSave,
+  rng: RngStream,
+  interruptChance = 0.6,
+): KingdomTurnResult {
+  const next = cloneSave(save)
+  next.turnCount += 1
+  next.cyclePosition = cyclePosition(next.turnCount)
+  return resolveNarrative(bundle, next, rng, interruptChance)
+}
+
+/**
+ * Compatibility wrapper for an automatic successful catch. Fishing uses a
+ * turn-scoped child RNG derived from the run seed. Narrative draws keep the
+ * caller-supplied RNG stream, so specimen math cannot perturb kingdom cards.
  */
 export function takeTurn(
   bundle: ContentBundle,
@@ -56,44 +117,15 @@ export function takeTurn(
   const next = cloneSave(save)
   const fishRng = makeRng(`${next.seed}:${next.turnCount}:fish`)
 
-  // 1. Fish beat — now a real species/specimen, not the original 50% counter flip.
   next.turnCount += 1
   next.cyclePosition = cyclePosition(next.turnCount)
   const caught = resolveFishingCatch(next, fishRng)
-  tickCooldowns(next)
+  const narrative = resolveNarrative(bundle, next, rng, interruptChance)
 
-  const seen = new Set(next.deckState.seenCardIds)
-
-  // 2. A pending active-arc step (arcs resolve before free draws).
-  for (const arcId of Object.keys(next.deckState.activeArcs)) {
-    const step = next.deckState.activeArcs[arcId]?.step
-    if (step && !seen.has(step)) {
-      const found = findArcStep(bundle, step)
-      if (found) return { save: next, catch: caught, card: found.card, arcId }
-    }
+  return {
+    ...narrative,
+    catch: caught,
   }
-
-  // 3. Start a newly eligible arc (seeded chance), presenting its first step.
-  for (const arc of bundle.arcs) {
-    if (next.deckState.activeArcs[arc.id]) continue // already active
-    // completed arcs leave no active entry but their steps are in seenCardIds
-    if (arc.steps.some((s) => seen.has(s.id))) continue
-    const trig = arc.start?.trigger
-    if (!triggerHolds(next, trig)) continue
-    const chance = trig?.chance ?? 1
-    if (rng.next() >= chance) continue
-    const first = arc.steps[0]
-    if (!first) continue
-    next.deckState.activeArcs[arc.id] = { step: first.id, flags: {} }
-    return { save: next, catch: caught, card: first, arcId: arc.id }
-  }
-
-  // 4. A free interrupt/ambient draw (seeded, may be null → quiet fishing).
-  const card = selectCard(next, allDeckCards(bundle), rng, interruptChance)
-  if (card && card.trigger?.cooldown) {
-    next.deckState.cooldowns[card.id] = card.trigger.cooldown
-  }
-  return { save: next, catch: caught, card }
 }
 
 /**

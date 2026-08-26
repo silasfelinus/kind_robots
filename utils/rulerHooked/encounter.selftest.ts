@@ -4,11 +4,12 @@
 import assert from 'node:assert/strict'
 import { RULER_HOOKED_CONTENT as C } from './content'
 import { createRun } from './newGame'
-import { advanceAfterFishingAttempt } from './loop'
+import { advanceAfterFishingAttempt, takeTurn } from './loop'
 import { makeRng } from './seed'
 import {
   applyFishingAction,
   fishingEncounterFinished,
+  startFishingEncounter,
   startFishingEncounterForFish,
   type FishingAction,
   type FishingEncounter,
@@ -98,6 +99,14 @@ function playSmart(encounter: FishingEncounter): FishingEncounter {
   assert.equal(result.save.turnCount, 1)
   assert.equal(result.save.counters.fishCaught ?? 0, 0)
   assert.deepEqual(result.save.fishopedia, {})
+}
+
+// 7. The encounter preview and successful compatibility turn resolve the same species.
+{
+  const save = fresh()
+  const encounter = startFishingEncounter(save)
+  const turn = takeTurn(C, save, makeRng('narrative'))
+  assert.equal(encounter.fishSlug, turn.catch.fishSlug)
 }
 
 console.log('ruler-hooked ENCOUNTER self-test: ALL PASS')

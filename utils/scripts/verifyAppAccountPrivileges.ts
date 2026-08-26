@@ -70,7 +70,7 @@ export function privilegesIn(line: string): string[] {
   // parentheses, so splitting first yields "SELECT (ID" and "NAME)" -- two
   // privileges that do not exist, one of which would be reported as an
   // unexpected privilege the account does not actually hold.
-  return match[1]
+  return match[1]!
     .replace(/\s*\([^)]*\)/g, '')
     .split(',')
     .map((p) => p.trim().toUpperCase())

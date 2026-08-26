@@ -11,7 +11,7 @@
         <div class="flex items-center justify-between gap-3">
           <div>
             <p class="text-sm font-bold">{{ store.save.ruler.honorific }} {{ store.save.ruler.name }}</p>
-            <p class="text-xs opacity-60">Turn {{ store.save.turnCount }} · {{ store.save.status.toLowerCase() }}</p>
+            <p class="text-xs opacity-60">Turn {{ store.save.turnCount }} · {{ store.save.status.toLowerCase() }} · {{ store.save.counters.fishCaught ?? 0 }} fish</p>
           </div>
           <button
             type="button"
@@ -24,6 +24,11 @@
         </div>
 
         <RulerHookedHealth :health="store.save.kingdomHealth" />
+
+        <RulerHookedCatch
+          v-if="store.lastCatch"
+          :catch-result="store.lastCatch"
+        />
 
         <RulerHookedCard
           v-if="store.activeCard"
@@ -45,6 +50,8 @@
           <p class="text-lg font-bold">{{ endingTitleFor(store.save.endingKey) }}</p>
           <p class="text-sm opacity-80">The reign is complete. Start another from the slots below.</p>
         </div>
+
+        <RulerHookedFishopedia :save="store.save" />
       </template>
 
       <RulerHookedSlots />

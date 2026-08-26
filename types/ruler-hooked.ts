@@ -23,6 +23,10 @@ export type Rarity =
   | 'LEGENDARY'
   | 'MYTHIC'
 
+export type FishAffinity = 'GOOD' | 'NEUTRAL' | 'EVIL'
+export type FishQuality = 'ORDINARY' | 'FINE' | 'EXCEPTIONAL' | 'TROPHY'
+export type FishSource = 'cthulhuquarium' | 'ruler-hooked'
+
 // --- regions / compositing (compositing.md) ---------------------------------
 
 /** Canonical region keys, back-to-front z-order (compositing.md §1). */
@@ -185,6 +189,56 @@ export interface Ending {
   trigger?: Trigger
 }
 
+// --- fish ecology / Fishopedia ----------------------------------------------
+
+export interface FishUnlock {
+  /** Every clause must hold. */
+  all?: TriggerClause[]
+  /** If supplied, at least one clause must hold. */
+  any?: TriggerClause[]
+}
+
+export interface FishDefinition {
+  slug: string
+  name: string
+  source: FishSource
+  affinity: FishAffinity
+  rarity: Rarity
+  habitats: RegionKey[]
+  sizeRangeCm: [number, number]
+  silhouette: string
+  distinction: string
+  catchBehavior: string
+  fishopediaNote: string
+  consequenceReveal: string
+  unlock?: FishUnlock
+  /** Optional authored draw weight override; otherwise rarity supplies it. */
+  baseWeight?: number
+}
+
+export interface FishopediaEntry {
+  fishSlug: string
+  firstCaughtTurn: number
+  countCaught: number
+  bestSizeCm: number
+  bestQualityScore: number
+}
+
+export interface CatchResult {
+  fishSlug: string
+  name: string
+  affinity: FishAffinity
+  rarity: Rarity
+  sizeCm: number
+  qualityScore: number
+  quality: FishQuality
+  newDiscovery: boolean
+  countCaught: number
+  fishopediaNote: string
+  consequenceReveal: string
+  catchBehavior: string
+}
+
 // --- content bundle (data-model.md §6) --------------------------------------
 
 export interface CharacterRef {
@@ -269,6 +323,7 @@ export interface RunSave {
   inventory: { skills: InventoryReward[]; items: InventoryReward[] }
   choiceLog: ChoiceLogEntry[]
   flags: Record<string, boolean>
+  fishopedia: Record<string, FishopediaEntry>
   endingKey: string | null
   createdAt: string // display metadata only — never read by game logic
   updatedAt: string

@@ -4,11 +4,12 @@ import { applyEffect, resolveChoice, cloneSave } from '~/utils/rulerHooked/apply
 import { triggerHolds, effectiveWeight } from '~/utils/rulerHooked/triggers'
 import { rampState, resolveScene, cycleTime, assetCandidates } from '~/utils/rulerHooked/compositor'
 import { eligiblePool, weightedPick, selectCard, tickCooldowns } from '~/utils/rulerHooked/select'
+import { availableFish, resolveFishingCatch, RULER_HOOKED_FISH } from '~/utils/rulerHooked/fish'
 import type { Card, RegionsManifest, RunSave } from '~/types/ruler-hooked'
 
 function baseSave(): RunSave {
   return {
-    schemaVersion: 3, saveId: 'sv_test', name: 'Test', dreamSlug: 'ruler-hooked',
+    schemaVersion: 4, saveId: 'sv_test', name: 'Test', dreamSlug: 'ruler-hooked',
     contentVersion: '2026.07', seed: 'mo-4820', status: 'ACTIVE',
     ruler: { name: 'Mo', honorific: 'Queen' },
     turnCount: 5, cyclePosition: 0,
@@ -17,7 +18,7 @@ function baseSave(): RunSave {
     regionStates: {}, regionOverrides: {},
     deckState: { seenCardIds: [], activeArcs: {}, cooldowns: {}, drawBag: [] },
     inventory: { skills: [], items: [] },
-    choiceLog: [], flags: {}, endingKey: null,
+    choiceLog: [], flags: {}, fishopedia: {}, endingKey: null,
     createdAt: 'x', updatedAt: 'x',
   }
 }
@@ -30,8 +31,8 @@ function baseSave(): RunSave {
   const seqB = [b.next(), b.next(), b.next()]
   assert.deepEqual(seqA, seqB, 'same seed -> same sequence')
   const c = makeRng('mo-4820'); c.next()
-  const resumed = makeRng(0, c.state()) // resume from mid-stream state
-  assert.equal(resumed.next(), a === b ? c.next() : c.next(), 'state resume continues stream')
+  const resumed = makeRng(0, c.state())
+  assert.equal(resumed.next(), c.next(), 'state resume continues stream')
   assert.notDeepEqual(makeRng('other').next(), seqA[0], 'different seed differs')
 }
 
@@ -111,7 +112,6 @@ function baseSave(): RunSave {
   assert.ok(!eligiblePool(s, cards).some((c) => c.id === 'a'), 'cooldown excluded')
   tickCooldowns(s); assert.equal(s.deckState.cooldowns.a, 1, 'cooldown ticks down')
 
-  // deterministic pick: same seed -> same choice
   const p1 = weightedPick(baseSave(), cards.filter((c) => c.kind === 'interrupt'), makeRng('seedX'))
   const p2 = weightedPick(baseSave(), cards.filter((c) => c.kind === 'interrupt'), makeRng('seedX'))
   assert.equal(p1?.id, p2?.id, 'weightedPick deterministic per seed')
@@ -119,6 +119,42 @@ function baseSave(): RunSave {
   const r1 = selectCard(s2, cards, makeRng('t5'))
   const r2 = selectCard(s2, cards, makeRng('t5'))
   assert.equal(r1?.id ?? null, r2?.id ?? null, 'selectCard deterministic per seed (replay==reload)')
+}
+
+// 6. Fish ecology: roster contract, world-state pool changes, deterministic records
+{
+  assert.equal(RULER_HOOKED_FISH.length, 15, 'vertical slice stays at 15 authored species')
+  for (const affinity of ['GOOD', 'NEUTRAL', 'EVIL'] as const) {
+    assert.equal(RULER_HOOKED_FISH.filter((f) => f.affinity === affinity).length, 5, `${affinity} roster stays at five species`)
+  }
+
+  const neutral = baseSave()
+  neutral.kingdomHealth = { nature: 50, prosperity: 50, treasury: 50, joy: 50, order: 50 }
+  const neutralPool = availableFish(neutral).map((f) => f.slug)
+  assert.deepEqual(neutralPool, ['parlour-rustfish'], 'baseline lake starts with the universal Rustfish')
+
+  const green = baseSave()
+  green.flags.treelineSanctuarySettled = true
+  green.kingdomHealth.nature = 70
+  assert.ok(availableFish(green).some((f) => f.slug === 'sunspoke-koi'), 'sanctuary + nature unlocks Sunspoke Koi')
+
+  const taxed = baseSave()
+  taxed.counters.taxHikes = 2
+  taxed.kingdomHealth.joy = 35
+  taxed.kingdomHealth.treasury = 70
+  assert.ok(availableFish(taxed).some((f) => f.slug === 'tithe-lamprey'), 'repeated extraction unlocks Tithe Lamprey')
+
+  const a = baseSave(); a.kingdomHealth = { nature: 50, prosperity: 50, treasury: 50, joy: 50, order: 50 }
+  const b = cloneSave(a)
+  const ca = resolveFishingCatch(a, makeRng('fish-seed'))
+  const cb = resolveFishingCatch(b, makeRng('fish-seed'))
+  assert.deepEqual(ca, cb, 'same save + RNG seed gives identical specimen')
+  assert.equal(a.counters.fishCaught, 4, 'catch increments fish count')
+  assert.equal(a.fishopedia[ca.fishSlug]?.countCaught, 1, 'catch is recorded in Fishopedia')
+  assert.equal(ca.newDiscovery, true, 'first catch marks a discovery')
+  const ca2 = resolveFishingCatch(a, makeRng('fish-seed'))
+  assert.equal(ca2.newDiscovery, false, 'later catch of same species is not new')
+  assert.equal(a.fishopedia[ca.fishSlug]?.countCaught, 2, 'repeat catch increments species record')
 }
 
 console.log('ruler-hooked engine self-test: ALL PASS')

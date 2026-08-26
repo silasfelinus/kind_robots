@@ -8,15 +8,17 @@
 // No wall-clock anywhere: turnCount is the only progression counter and time-of-day
 // is derived from it.
 
-import type { Card, ContentBundle, RunSave } from '~/types/ruler-hooked'
-import type { RngStream } from './seed'
+import type { Card, CatchResult, ContentBundle, RunSave } from '~/types/ruler-hooked'
+import { makeRng, type RngStream } from './seed'
 import { cloneSave } from './applyEffects'
 import { cyclePosition } from './compositor'
+import { resolveFishingCatch } from './fish'
 import { selectCard, tickCooldowns } from './select'
 import { triggerHolds } from './triggers'
 
 export interface TurnResult {
   save: RunSave
+  catch: CatchResult
   card: Card | null
   arcId?: string
 }
@@ -36,9 +38,14 @@ export function allDeckCards(bundle: ContentBundle): Card[] {
 }
 
 /**
- * Advance one turn. Priority: (1) a pending active-arc step, (2) starting a newly
- * eligible arc, (3) a seeded interrupt/ambient draw, else pure fishing. Returns a
- * new save (input untouched) plus the card to present, if any.
+ * Advance one turn. Priority: (1) land a deterministic fish from the currently
+ * available ecology, (2) a pending active-arc step, (3) starting a newly eligible
+ * arc, (4) a seeded interrupt/ambient draw. Returns a new save plus the catch and
+ * any card to present.
+ *
+ * Fishing uses a turn-scoped child RNG derived from the run seed. Narrative draws
+ * keep the caller-supplied RNG stream. This deliberately prevents future changes to
+ * specimen math (size/quality/fight cues) from changing which kingdom card appears.
  */
 export function takeTurn(
   bundle: ContentBundle,
@@ -47,11 +54,12 @@ export function takeTurn(
   interruptChance = 0.6,
 ): TurnResult {
   const next = cloneSave(save)
+  const fishRng = makeRng(`${next.seed}:${next.turnCount}:fish`)
 
-  // 1. Fish beat — the cosmetic, always-valid heartbeat.
+  // 1. Fish beat — now a real species/specimen, not the original 50% counter flip.
   next.turnCount += 1
   next.cyclePosition = cyclePosition(next.turnCount)
-  next.counters.fishCaught = (next.counters.fishCaught ?? 0) + (rng.next() < 0.5 ? 1 : 0)
+  const caught = resolveFishingCatch(next, fishRng)
   tickCooldowns(next)
 
   const seen = new Set(next.deckState.seenCardIds)
@@ -61,7 +69,7 @@ export function takeTurn(
     const step = next.deckState.activeArcs[arcId]?.step
     if (step && !seen.has(step)) {
       const found = findArcStep(bundle, step)
-      if (found) return { save: next, card: found.card, arcId }
+      if (found) return { save: next, catch: caught, card: found.card, arcId }
     }
   }
 
@@ -77,15 +85,15 @@ export function takeTurn(
     const first = arc.steps[0]
     if (!first) continue
     next.deckState.activeArcs[arc.id] = { step: first.id, flags: {} }
-    return { save: next, card: first, arcId: arc.id }
+    return { save: next, catch: caught, card: first, arcId: arc.id }
   }
 
-  // 4. A free interrupt/ambient draw (seeded, may be null → pure fishing).
+  // 4. A free interrupt/ambient draw (seeded, may be null → quiet fishing).
   const card = selectCard(next, allDeckCards(bundle), rng, interruptChance)
   if (card && card.trigger?.cooldown) {
     next.deckState.cooldowns[card.id] = card.trigger.cooldown
   }
-  return { save: next, card }
+  return { save: next, catch: caught, card }
 }
 
 /**

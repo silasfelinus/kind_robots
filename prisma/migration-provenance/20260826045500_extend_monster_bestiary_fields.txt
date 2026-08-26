@@ -1,0 +1,4 @@
+# cthulhuquarium/t-042 expand-then-client rollout.
+# The additive migration landed first in #2124 and was applied successfully
+# on Alexandria before this client/schema restoration PR was opened.
+prisma/migrations/20260826045500_extend_monster_bestiary_fields/migration.sql

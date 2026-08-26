@@ -1,5 +1,5 @@
 <template>
-  <details class="collapse collapse-arrow rounded-2xl border border-base-300 bg-base-100">
+  <details class="fishopedia-shell collapse collapse-arrow rounded-2xl border border-base-300 bg-base-100">
     <summary class="collapse-title flex items-center justify-between gap-3 pr-12 font-bold">
       <span>📖 Fishopedia</span>
       <span class="badge badge-outline">{{ discoveredCount }}/{{ roster.length }} discovered</span>
@@ -10,7 +10,7 @@
         Unknown species stay hidden until caught. Discovered entries remember your best specimen and why that creature could exist in this reign.
       </p>
 
-      <div class="grid gap-3 sm:grid-cols-2">
+      <div class="fishopedia-grid grid gap-3">
         <article
           v-for="fish in roster"
           :key="fish.slug"
@@ -77,3 +77,19 @@ function formatSize(cm: number): string {
   return `${cm.toFixed(1)} cm`
 }
 </script>
+
+<style scoped>
+.fishopedia-shell {
+  container-type: inline-size;
+}
+
+.fishopedia-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@container (min-width: 32rem) {
+  .fishopedia-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+</style>

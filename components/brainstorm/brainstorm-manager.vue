@@ -784,12 +784,16 @@
     <div
       v-else-if="isBatchGenerating"
       class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))] gap-4"
+      role="status"
+      aria-live="polite"
       aria-label="Generating Brainstorm candidates"
     >
+      <span class="sr-only">Brainstorming a fresh batch of candidates…</span>
       <div
         v-for="index in skeletonCount"
         :key="index"
         class="kr-panel-flat min-h-56 animate-pulse border border-base-content/8 bg-base-100/75 p-5"
+        aria-hidden="true"
       >
         <div class="h-4 w-24 rounded bg-base-300" />
         <div class="mt-4 h-5 w-2/3 rounded bg-base-300" />

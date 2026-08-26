@@ -60,6 +60,15 @@ const stockMonsterSelect = {
   icon: true,
   iconPath: true,
   cardPath: true,
+  // tier/behavior/hue are the renderer's fields (cthulhuquarium/t-011): tier
+  // for a rarity-readable cue, behavior for swim-pattern selection (the
+  // bible's own drift/dart/lurk/school/anchor/surface/hover/tumble/cling
+  // vocabulary), hue as the reserved palette-shift column schema.prisma
+  // already carries for exactly this renderer, falling back to a
+  // slug-derived hue client-side when null.
+  tier: true,
+  behavior: true,
+  hue: true,
   ...monsterRaritySelect,
 } satisfies Prisma.MonsterSelect
 
@@ -465,6 +474,84 @@ export async function listPublicTanks(
     }),
     prisma.aquarium.count({ where: { isPublic: true } }),
   ])
+
+  return { data, take, skip, total }
+}
+
+// ---------------------------------------------------------------------------
+// Catalog -- species the user's tank does not yet own, for the unlock panel
+// (cthulhuquarium/t-011). `cost` is computed the exact same way
+// purchaseSpeciesForUser charges (deriveFishRarityTier + unlockCost) so the
+// displayed price never drifts from what unlocking actually costs.
+// ---------------------------------------------------------------------------
+
+const catalogMonsterSelect = {
+  id: true,
+  name: true,
+  slug: true,
+  species: true,
+  fieldNote: true,
+  depth: true,
+  size: true,
+  icon: true,
+  iconPath: true,
+  cardPath: true,
+  tier: true,
+  behavior: true,
+  hue: true,
+  ...monsterRaritySelect,
+} satisfies Prisma.MonsterSelect
+
+export type CatalogMonster = Prisma.MonsterGetPayload<{
+  select: typeof catalogMonsterSelect
+}>
+
+export interface CatalogEntry extends CatalogMonster {
+  cost: number
+}
+
+export interface CatalogResult {
+  data: CatalogEntry[]
+  take: number
+  skip: number
+  total: number
+}
+
+export async function listCatalogForUser(
+  userId: number,
+  username: string,
+  take: number,
+  skip: number,
+): Promise<CatalogResult> {
+  const tank = await getOrCreateTankForUser(userId, username)
+  const ownedIds = tank.Stock.map((row) => row.monsterId)
+
+  // Monster is a shared bestiary table (cthulhuquarium/t-035's `games`
+  // column) -- a ruler-hooked-only row should not show up here as
+  // unlockable. cthulhuquarium/t-022 (shared bestiary handshake) owns
+  // deciding cross-game unlock rules beyond this simple membership filter.
+  const where: Prisma.MonsterWhereInput = {
+    isActive: true,
+    isPublic: true,
+    games: { contains: 'cthulhuquarium' },
+    ...(ownedIds.length > 0 ? { id: { notIn: ownedIds } } : {}),
+  }
+
+  const [rows, total] = await Promise.all([
+    prisma.monster.findMany({
+      where,
+      select: catalogMonsterSelect,
+      orderBy: [{ depth: 'asc' }, { name: 'asc' }],
+      take,
+      skip,
+    }),
+    prisma.monster.count({ where }),
+  ])
+
+  const data: CatalogEntry[] = rows.map((monster) => ({
+    ...monster,
+    cost: unlockCost(deriveFishRarityTier(monster)),
+  }))
 
   return { data, take, skip, total }
 }

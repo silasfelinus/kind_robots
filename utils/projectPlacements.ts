@@ -98,8 +98,8 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/plan/projects/coat-dance',
   },
   'ruler-hooked': {
-    channelKey: 'plan',
-    tabKey: 'projects',
+    channelKey: 'play',
+    tabKey: 'ruler-hooked',
     route: '/plan/projects/ruler-hooked',
   },
   newsfeed: {

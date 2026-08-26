@@ -2,7 +2,19 @@
 <template>
   <div class="kr-surface">
     <div class="kr-scroll p-4">
-      <p class="text-xl font-bold mb-4">Global Leaderboard</p>
+      <header class="flex items-center gap-3 mb-4">
+        <span
+          class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/15 text-primary"
+        >
+          <Icon name="kind-icon:trophy" class="h-7 w-7" />
+        </span>
+        <div>
+          <p class="text-2xl font-black tracking-tight">Global Leaderboard</p>
+          <p class="text-sm text-base-content/60">
+            The highest click records ever recorded, ranked best to worst.
+          </p>
+        </div>
+      </header>
       <leaderboard-table
         :rows="leaderboard"
         score-label="Click Record"

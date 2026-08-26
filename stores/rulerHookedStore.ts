@@ -1,17 +1,23 @@
 // stores/rulerHookedStore.ts
 //
-// The Ruler Hooked playthrough store (data-model.md §8). A thin Pinia setup-store
-// over the verified framework-free engine (utils/rulerHooked/*): it holds the
-// active RunSave + current card, drives the turn loop, and persists via the
-// localStorage SaveStore. All game logic lives in the engine; this is UI glue.
+// The Ruler Hooked playthrough store. A thin Pinia setup-store over the verified
+// framework-free engine: active RunSave + current card + current fishing encounter,
+// persisted through the localStorage SaveStore.
 
 import { defineStore } from 'pinia'
 import { RULER_HOOKED_CONTENT as BUNDLE } from '~/utils/rulerHooked/content'
 import { createRun } from '~/utils/rulerHooked/newGame'
-import { takeTurn, eligibleEnding } from '~/utils/rulerHooked/loop'
+import { advanceAfterFishingAttempt, takeTurn, eligibleEnding } from '~/utils/rulerHooked/loop'
 import { resolveChoice, applyEffect, cloneSave } from '~/utils/rulerHooked/applyEffects'
 import { resolveScene } from '~/utils/rulerHooked/compositor'
 import { makeRng } from '~/utils/rulerHooked/seed'
+import {
+  applyFishingAction,
+  fishingEncounterFinished,
+  startFishingEncounter,
+  type FishingAction,
+  type FishingEncounter,
+} from '~/utils/rulerHooked/encounter'
 import {
   loadIndex, loadSave, writeSave, renameSlot as renameSlotStore,
   deleteSlot as deleteSlotStore, setActive, makeSaveId,
@@ -26,18 +32,33 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
   const activeCard = ref<Card | null>(null)
   const activeArcId = ref<string | null>(null)
   const pendingEnding = ref<string | null>(null)
+  const activeFishing = ref<FishingEncounter | null>(null)
   const lastCatch = ref<CatchResult | null>(null)
+  const lastEscape = ref<{ fishName: string; cue: string } | null>(null)
   const slots = ref<SaveSlotMeta[]>([])
 
   const scene = computed(() =>
     save.value ? resolveScene(save.value, bundle.regions) : null,
   )
   const canFish = computed(
-    () => !!save.value && !activeCard.value && !pendingEnding.value && save.value.status === 'ACTIVE',
+    () => !!save.value
+      && !activeCard.value
+      && !activeFishing.value
+      && !pendingEnding.value
+      && save.value.status === 'ACTIVE',
   )
 
   function refreshSlots() {
     slots.value = loadIndex().slots
+  }
+
+  function clearTransientPlayState() {
+    activeCard.value = null
+    activeArcId.value = null
+    pendingEnding.value = null
+    activeFishing.value = null
+    lastCatch.value = null
+    lastEscape.value = null
   }
 
   /** Load the last active slot (or leave null for the title screen). */
@@ -62,9 +83,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
       stamp,
     })
     save.value = run
-    activeCard.value = null
-    pendingEnding.value = null
-    lastCatch.value = null
+    clearTransientPlayState()
     writeSave(run, stamp)
     refreshSlots()
   }
@@ -73,22 +92,43 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     const s = loadSave(saveId)
     if (!s) return
     save.value = s
-    activeCard.value = null
-    pendingEnding.value = null
-    lastCatch.value = null
+    clearTransientPlayState()
     setActive(saveId)
     refreshSlots()
   }
 
-  /** Advance one turn: land a fish, then present any kingdom interruption. */
-  function fish() {
+  /** Select a deterministic fish and enter its beat-based encounter. */
+  function startFishing() {
     if (!save.value || !canFish.value) return
-    const rng = makeRng(`${save.value.seed}:${save.value.turnCount}`)
-    const result = takeTurn(bundle, save.value, rng)
-    save.value = result.save
-    lastCatch.value = result.catch
-    activeCard.value = result.card
-    activeArcId.value = result.arcId ?? null
+    lastCatch.value = null
+    lastEscape.value = null
+    activeFishing.value = startFishingEncounter(save.value)
+  }
+
+  /** Apply one player beat. Terminal outcomes immediately advance the reign turn. */
+  function fishingAction(action: FishingAction) {
+    if (!save.value || !activeFishing.value) return
+    const nextEncounter = applyFishingAction(activeFishing.value, action)
+    activeFishing.value = nextEncounter
+    if (!fishingEncounterFinished(nextEncounter)) return
+
+    const narrativeRng = makeRng(`${save.value.seed}:${save.value.turnCount}`)
+    if (nextEncounter.phase === 'LANDED') {
+      const result = takeTurn(bundle, save.value, narrativeRng)
+      save.value = result.save
+      lastCatch.value = result.catch
+      lastEscape.value = null
+      activeCard.value = result.card
+      activeArcId.value = result.arcId ?? null
+    } else {
+      const result = advanceAfterFishingAttempt(bundle, save.value, narrativeRng)
+      save.value = result.save
+      lastCatch.value = null
+      lastEscape.value = { fishName: nextEncounter.fishName, cue: nextEncounter.cue }
+      activeCard.value = result.card
+      activeArcId.value = result.arcId ?? null
+    }
+    activeFishing.value = null
     persist()
   }
 
@@ -116,8 +156,9 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     pendingEnding.value = null
     persist()
   }
+
   function declineEnding() {
-    pendingEnding.value = null // reachable, never forced
+    pendingEnding.value = null
   }
 
   function renameSlot(saveId: string, name: string) {
@@ -125,9 +166,13 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     if (save.value?.saveId === saveId) save.value.name = name
     refreshSlots()
   }
+
   function deleteSlot(saveId: string) {
     deleteSlotStore(saveId)
-    if (save.value?.saveId === saveId) save.value = null
+    if (save.value?.saveId === saveId) {
+      save.value = null
+      clearTransientPlayState()
+    }
     refreshSlots()
   }
 
@@ -137,9 +182,9 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
   }
 
   return {
-    bundle, save, activeCard, activeArcId, pendingEnding, lastCatch, slots,
-    scene, canFish,
-    init, newGame, loadSlot, fish, choose, acceptEnding, declineEnding,
-    renameSlot, deleteSlot, refreshSlots,
+    bundle, save, activeCard, activeArcId, pendingEnding, activeFishing,
+    lastCatch, lastEscape, slots, scene, canFish,
+    init, newGame, loadSlot, startFishing, fishingAction, choose,
+    acceptEnding, declineEnding, renameSlot, deleteSlot, refreshSlots,
   }
 })

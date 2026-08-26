@@ -10,7 +10,7 @@ import type { RunSave, SaveIndex, SaveSlotMeta } from '~/types/ruler-hooked'
 
 const INDEX_KEY = 'rulerHooked:index'
 const slotKey = (saveId: string) => `rulerHooked:save:${saveId}`
-export const SAVE_SCHEMA_VERSION = 3
+export const SAVE_SCHEMA_VERSION = 4
 
 // Checked per-call (not captured at module load) so SSR — and headless tests
 // that install a window shim after import — behave correctly.
@@ -50,6 +50,13 @@ function parse<T>(raw: string | null): T | null {
   }
 }
 
+/** Add fields introduced after the original PoC without invalidating old slots. */
+function migrateSave(save: RunSave): RunSave {
+  if (!save.fishopedia) save.fishopedia = {}
+  save.schemaVersion = SAVE_SCHEMA_VERSION
+  return save
+}
+
 function metaOf(save: RunSave): SaveSlotMeta {
   return {
     saveId: save.saveId,
@@ -64,25 +71,28 @@ function metaOf(save: RunSave): SaveSlotMeta {
 }
 
 export function loadIndex(): SaveIndex {
-  return (
-    parse<SaveIndex>(safeGet(INDEX_KEY)) ?? {
-      schemaVersion: SAVE_SCHEMA_VERSION,
-      activeSaveId: null,
-      slots: [],
-    }
-  )
+  const index = parse<SaveIndex>(safeGet(INDEX_KEY)) ?? {
+    schemaVersion: SAVE_SCHEMA_VERSION,
+    activeSaveId: null,
+    slots: [],
+  }
+  index.schemaVersion = SAVE_SCHEMA_VERSION
+  return index
 }
 
 function writeIndex(index: SaveIndex): void {
+  index.schemaVersion = SAVE_SCHEMA_VERSION
   safeSet(INDEX_KEY, JSON.stringify(index))
 }
 
 export function loadSave(saveId: string): RunSave | null {
-  return parse<RunSave>(safeGet(slotKey(saveId)))
+  const save = parse<RunSave>(safeGet(slotKey(saveId)))
+  return save ? migrateSave(save) : null
 }
 
 /** Write a save body and upsert its slot into the index (last-writer-wins). */
 export function writeSave(save: RunSave, stamp: string): void {
+  migrateSave(save)
   save.updatedAt = stamp
   safeSet(slotKey(save.saveId), JSON.stringify(save))
   const index = loadIndex()

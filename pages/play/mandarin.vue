@@ -27,6 +27,37 @@
         <div class="rounded-2xl border border-base-300 bg-base-200/50 p-3 text-xs leading-relaxed opacity-80">
           Component roles are labeled separately from dictionary radicals. A radical is useful for indexing and pattern recognition, but it is not automatically the historical “meaning” of the whole character.
         </div>
+
+        <div class="join" role="tablist" aria-label="Interaction mode">
+          <button
+            type="button"
+            role="tab"
+            :aria-selected="interactionMode === 'study'"
+            class="btn join-item"
+            :class="interactionMode === 'study' ? 'btn-primary' : 'btn-outline'"
+            @click="store.setInteractionMode('study')"
+          >
+            Study
+          </button>
+          <button
+            type="button"
+            role="tab"
+            :aria-selected="interactionMode === 'explore'"
+            class="btn join-item"
+            :class="interactionMode === 'explore' ? 'btn-primary' : 'btn-outline'"
+            @click="store.setInteractionMode('explore')"
+          >
+            Explore
+          </button>
+        </div>
+        <p class="text-xs leading-relaxed opacity-60">
+          <template v-if="interactionMode === 'study'">
+            Study is a deliberate recall loop: guess from the character, reveal, hear it, then rate yourself.
+          </template>
+          <template v-else>
+            Explore is for searching, browsing decomposition and history, and curating decks.
+          </template>
+        </p>
       </header>
 
       <div v-if="store.error" class="alert alert-error text-sm" role="alert">
@@ -39,7 +70,7 @@
       </div>
 
       <template v-else>
-        <section class="kr-panel-flat p-4 shadow-sm">
+        <section v-if="interactionMode === 'explore'" class="kr-panel-flat p-4 shadow-sm">
           <label class="form-control">
             <span class="label-text mb-1 font-semibold">Find a word, Hanzi, pinyin, or English meaning</span>
             <input
@@ -200,7 +231,7 @@
             </div>
 
             <article
-              v-if="currentCard"
+              v-if="interactionMode === 'explore' && currentCard"
               ref="cardPanel"
               class="scroll-mt-4 overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-xl"
             >
@@ -346,6 +377,66 @@
               </section>
             </article>
 
+            <article
+              v-else-if="interactionMode === 'study' && currentCard"
+              ref="cardPanel"
+              class="scroll-mt-4 overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-xl"
+            >
+              <div class="flex flex-col items-center gap-6 p-6 text-center sm:p-10">
+                <div class="flex flex-wrap items-center justify-center gap-2">
+                  <span v-if="currentCard.hskLevel" class="badge badge-outline">HSK {{ currentCard.hskLevel }}</span>
+                  <span class="badge badge-ghost">{{ studySessionRatedForSet }} rated this session</span>
+                </div>
+
+                <span class="text-8xl font-semibold leading-none">{{ currentCard.simplified }}</span>
+
+                <button
+                  v-if="studyPhase !== 'revealed'"
+                  type="button"
+                  class="btn btn-primary btn-lg"
+                  @click="store.revealStudyCard()"
+                >
+                  Reveal
+                </button>
+
+                <div v-else class="w-full max-w-md space-y-3">
+                  <div class="relative mx-auto flex h-40 w-40 items-center justify-center overflow-hidden rounded-3xl border border-base-300 bg-base-200/70 shadow-inner">
+                    <img
+                      v-if="store.illustrationUrl(currentCard.key)"
+                      :src="store.illustrationUrl(currentCard.key) || ''"
+                      :alt="`Study illustration for ${currentCard.meaning}`"
+                      class="h-full w-full object-cover"
+                    />
+                    <span v-else class="text-5xl font-semibold leading-none opacity-60">{{ currentCard.simplified }}</span>
+                  </div>
+                  <p class="text-2xl font-bold tracking-wide">{{ currentCard.pinyin }}</p>
+                  <p class="text-xl font-semibold">{{ currentCard.meaning }}</p>
+                  <p v-if="currentCard.meanings.length > 1" class="text-sm leading-relaxed opacity-65">
+                    {{ currentCard.meanings.slice(1).join(' · ') }}
+                  </p>
+                </div>
+              </div>
+
+              <MandarinVoiceCoach v-if="studyPhase === 'revealed'" :card="currentCard" />
+
+              <section v-if="studyPhase === 'revealed'" class="border-t border-base-300 p-5 sm:p-7">
+                <p class="mb-2 text-sm font-semibold">How well did you recall this?</p>
+                <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  <button type="button" class="btn btn-outline btn-error" @click="store.rateStudyCard('again')">Again</button>
+                  <button type="button" class="btn btn-outline btn-warning" @click="store.rateStudyCard('hard')">Hard</button>
+                  <button type="button" class="btn btn-outline btn-success" @click="store.rateStudyCard('good')">Good</button>
+                  <button type="button" class="btn btn-outline btn-accent" @click="store.rateStudyCard('easy')">Easy</button>
+                </div>
+                <p class="mt-2 text-xs leading-relaxed opacity-55">
+                  Ratings guide this session only for now — they are not yet scheduled into spaced repetition.
+                </p>
+              </section>
+
+              <section v-else class="border-t border-base-300 p-4 text-center">
+                <button type="button" class="btn btn-ghost btn-sm" @click="store.nextCard()">Skip for now</button>
+              </section>
+            </article>
+
             <div v-else class="kr-panel-flat p-8 text-center opacity-65">
               This set has no cards yet.
             </div>
@@ -381,6 +472,9 @@ const {
   loading,
   initialized,
   requestingWord,
+  interactionMode,
+  studyPhase,
+  studySessionRatedForSet,
 } = storeToRefs(store)
 
 const newSetName = ref('')

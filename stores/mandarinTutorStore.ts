@@ -18,6 +18,16 @@ type LocalState = {
   selectedSetId: string
   artJobs: Record<string, number>
   artImageIds: Record<string, number>
+  interactionMode?: InteractionMode
+}
+
+export type InteractionMode = 'study' | 'explore'
+export type StudyRating = 'again' | 'hard' | 'good' | 'easy'
+
+type StudySessionEntry = {
+  cardKey: string
+  rating: StudyRating
+  ratedAt: string
 }
 
 type ArtEnqueueData = {
@@ -104,6 +114,15 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
   const requestedCards = ref<MandarinRequestedCardData[]>([])
   const selectedSetId = ref('starter-500')
   const studyIndex = ref(0)
+  // Interaction mode: 'study' is the deliberate recall loop (challenge -> reveal ->
+  // pronunciation -> self-rating -> next); 'explore' is the prior all-purpose page
+  // (search, requested words, decomposition/history, provenance, deck curation).
+  // mandarin-tutor/t-009: establishes the mode split. `studySessionLog` below is a
+  // client-only, in-session record -- durable SRS scheduling and mastery-history
+  // persistence is deliberately deferred to a follow-up task (see that task's note).
+  const interactionMode = ref<InteractionMode>('study')
+  const studyPhase = ref<'challenge' | 'revealed'>('challenge')
+  const studySessionLog = ref<StudySessionEntry[]>([])
   const searchQuery = ref('')
   const focusKey = ref<string | null>(null)
   const focusKeys = ref<string[]>([])
@@ -207,9 +226,22 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     () => import.meta.client && typeof Audio !== 'undefined',
   )
 
+  // In-session diagnostic only (not durable mastery history): how many distinct
+  // cards in the current set have been rated since the page loaded.
+  const studySessionRatedForSet = computed(() => {
+    const keys = new Set(studyCards.value.map((card) => card.key))
+    const rated = new Set(
+      studySessionLog.value
+        .filter((entry) => keys.has(entry.cardKey))
+        .map((entry) => entry.cardKey),
+    )
+    return rated.size
+  })
+
   function resetReveal() {
     meaningVisible.value = false
     detailsVisible.value = false
+    studyPhase.value = 'challenge'
     speechError.value = null
   }
 
@@ -220,6 +252,7 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
       selectedSetId: selectedSetId.value,
       artJobs: artJobs.value,
       artImageIds: artImageIds.value,
+      interactionMode: interactionMode.value,
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
   }
@@ -239,6 +272,9 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
       }
       if (parsed.artImageIds && typeof parsed.artImageIds === 'object') {
         artImageIds.value = parsed.artImageIds
+      }
+      if (parsed.interactionMode === 'study' || parsed.interactionMode === 'explore') {
+        interactionMode.value = parsed.interactionMode
       }
     } catch {
       localStorage.removeItem(STORAGE_KEY)
@@ -500,6 +536,31 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
 
   function toggleDetails() {
     detailsVisible.value = !detailsVisible.value
+  }
+
+  function setInteractionMode(mode: InteractionMode) {
+    if (interactionMode.value === mode) return
+    interactionMode.value = mode
+    clearFocus()
+    resetReveal()
+    saveLocalState()
+  }
+
+  function revealStudyCard() {
+    if (interactionMode.value !== 'study' || !currentCard.value) return
+    studyPhase.value = 'revealed'
+  }
+
+  function rateStudyCard(rating: StudyRating) {
+    if (interactionMode.value !== 'study' || studyPhase.value !== 'revealed') return
+    const card = currentCard.value
+    if (!card) return
+    studySessionLog.value = [
+      ...studySessionLog.value,
+      { cardKey: card.key, rating, ratedAt: new Date().toISOString() },
+    ]
+    // nextCard() calls resetReveal(), which returns studyPhase to 'challenge'.
+    nextCard()
   }
 
   function createCustomSet(name: string): MandarinCustomSet | null {
@@ -839,6 +900,9 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     requestedCards,
     selectedSetId,
     studyIndex,
+    interactionMode,
+    studyPhase,
+    studySessionLog,
     searchQuery,
     focusKey,
     focusKeys,
@@ -867,6 +931,7 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     focusPosition,
     customSetCount,
     audioSupported,
+    studySessionRatedForSet,
     initialize,
     loadCatalog,
     loadIllustrationManifest,
@@ -879,6 +944,9 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     clearFocus,
     toggleMeaning,
     toggleDetails,
+    setInteractionMode,
+    revealStudyCard,
+    rateStudyCard,
     createCustomSet,
     renameCustomSet,
     toggleCardInCustomSet,

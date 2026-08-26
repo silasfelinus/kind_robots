@@ -55,6 +55,21 @@ const fresh = (id = 'sv_a'): RunSave =>
   assert.equal(a.save.fishopedia['parlour-rustfish']?.countCaught, 1, 'catch persists to Fishopedia')
 }
 
+// 2b. Fish randomness is isolated from the narrative draw stream
+{
+  const a = fresh('sv_rng_a')
+  const b = fresh('sv_rng_b')
+  a.seed = 'fish-world-alpha'
+  b.seed = 'fish-world-beta'
+  const turnA = takeTurn(C, a, makeRng('same-narrative-stream'))
+  const turnB = takeTurn(C, b, makeRng('same-narrative-stream'))
+  assert.equal(
+    turnA.card?.id ?? null,
+    turnB.card?.id ?? null,
+    'changing the fish RNG seed cannot change the kingdom card draw',
+  )
+}
+
 // 3. The warlock/druid choice recomposites regions (exit criterion 2)
 {
   const card = C.decks[0]!.cards.find((c) => c.id === 'warlock-druid-north')!

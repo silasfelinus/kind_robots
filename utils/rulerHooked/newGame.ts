@@ -25,7 +25,7 @@ export function createRun(bundle: ContentBundle, opts: NewGameOpts): RunSave {
   const drawBag = bundle.decks.flatMap((d) => d.cards.map((c) => c.id))
 
   return {
-    schemaVersion: 3,
+    schemaVersion: 4,
     saveId: opts.saveId,
     name: opts.name,
     dreamSlug: 'ruler-hooked',
@@ -43,6 +43,7 @@ export function createRun(bundle: ContentBundle, opts: NewGameOpts): RunSave {
     inventory: { skills: [], items: [] },
     choiceLog: [],
     flags: {},
+    fishopedia: {},
     endingKey: null,
     createdAt: opts.stamp,
     updatedAt: opts.stamp,

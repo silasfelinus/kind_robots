@@ -445,6 +445,17 @@ export const ANIMATION_EFFECTS = [
     blocksInput: true,
     preferredSurface: 'page',
   },
+  {
+    id: 'marble-run-contraption',
+    label: 'Marble Run Contraption',
+    reveal: 'The circuit keeps its marbles moving',
+    icon: 'kind-icon:toybox',
+    tooltip:
+      'A wooden circuit rolls marbles past a tipping seesaw, a spinning pinwheel, and a ringing bell before a slow elevator carries them back to the top; nudge the lever to redirect the next marble, click for a burst of extra traffic ⚙️',
+    color: '#8a5a34',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

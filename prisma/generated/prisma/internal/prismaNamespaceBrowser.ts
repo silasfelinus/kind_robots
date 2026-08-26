@@ -62,6 +62,8 @@ export const ModelName = {
   MandarinCatalogOverride: 'MandarinCatalogOverride',
   MandarinCatalogChange: 'MandarinCatalogChange',
   MandarinRequestedCard: 'MandarinRequestedCard',
+  MandarinCustomSet: 'MandarinCustomSet',
+  MandarinArtJobLink: 'MandarinArtJobLink',
   MandarinCardProgress: 'MandarinCardProgress',
   MandarinReviewEvent: 'MandarinReviewEvent',
   ModelBuildRun: 'ModelBuildRun',
@@ -367,6 +369,31 @@ export const MandarinRequestedCardScalarFieldEnum = {
 } as const
 
 export type MandarinRequestedCardScalarFieldEnum = (typeof MandarinRequestedCardScalarFieldEnum)[keyof typeof MandarinRequestedCardScalarFieldEnum]
+
+
+export const MandarinCustomSetScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  clientId: 'clientId',
+  name: 'name',
+  cardKeys: 'cardKeys'
+} as const
+
+export type MandarinCustomSetScalarFieldEnum = (typeof MandarinCustomSetScalarFieldEnum)[keyof typeof MandarinCustomSetScalarFieldEnum]
+
+
+export const MandarinArtJobLinkScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  cardKey: 'cardKey',
+  jobId: 'jobId'
+} as const
+
+export type MandarinArtJobLinkScalarFieldEnum = (typeof MandarinArtJobLinkScalarFieldEnum)[keyof typeof MandarinArtJobLinkScalarFieldEnum]
 
 
 export const MandarinCardProgressScalarFieldEnum = {
@@ -2329,6 +2356,22 @@ export const MandarinRequestedCardOrderByRelevanceFieldEnum = {
 } as const
 
 export type MandarinRequestedCardOrderByRelevanceFieldEnum = (typeof MandarinRequestedCardOrderByRelevanceFieldEnum)[keyof typeof MandarinRequestedCardOrderByRelevanceFieldEnum]
+
+
+export const MandarinCustomSetOrderByRelevanceFieldEnum = {
+  clientId: 'clientId',
+  name: 'name',
+  cardKeys: 'cardKeys'
+} as const
+
+export type MandarinCustomSetOrderByRelevanceFieldEnum = (typeof MandarinCustomSetOrderByRelevanceFieldEnum)[keyof typeof MandarinCustomSetOrderByRelevanceFieldEnum]
+
+
+export const MandarinArtJobLinkOrderByRelevanceFieldEnum = {
+  cardKey: 'cardKey'
+} as const
+
+export type MandarinArtJobLinkOrderByRelevanceFieldEnum = (typeof MandarinArtJobLinkOrderByRelevanceFieldEnum)[keyof typeof MandarinArtJobLinkOrderByRelevanceFieldEnum]
 
 
 export const MandarinCardProgressOrderByRelevanceFieldEnum = {

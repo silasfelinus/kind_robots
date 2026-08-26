@@ -4,12 +4,19 @@
 <template>
   <section class="kr-unbound kr-container space-y-6 p-4">
     <header class="flex flex-wrap items-center justify-between gap-3">
-      <div>
-        <p class="text-2xl font-bold">AppMaker</p>
-        <p class="text-sm opacity-70">
-          The app factory — every app is a workspace folder, a project roadmap,
-          and a Dream sharing one slug.
-        </p>
+      <div class="flex items-center gap-3">
+        <span
+          class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/15 text-primary"
+        >
+          <Icon name="kind-icon:toolbox" class="h-7 w-7" />
+        </span>
+        <div>
+          <p class="text-2xl font-black tracking-tight">AppMaker</p>
+          <p class="text-sm text-base-content/60">
+            The app factory — every app is a workspace folder, a project
+            roadmap, and a Dream sharing one slug.
+          </p>
+        </div>
       </div>
       <div class="flex items-center gap-2">
         <button class="btn btn-sm" :disabled="loading" @click="refresh">

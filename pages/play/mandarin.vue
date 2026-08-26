@@ -386,6 +386,18 @@
                 <div class="flex flex-wrap items-center justify-center gap-2">
                   <span v-if="currentCard.hskLevel" class="badge badge-outline">HSK {{ currentCard.hskLevel }}</span>
                   <span class="badge badge-ghost">{{ studySessionRatedForSet }} rated this session</span>
+                  <span
+                    v-if="studyDiagnostics && studyDiagnostics.dueCount > 0"
+                    class="badge badge-primary badge-outline"
+                  >
+                    {{ studyDiagnostics.dueCount }} due for review
+                  </span>
+                  <span
+                    v-if="studyDiagnostics && studyDiagnostics.retentionRate !== null"
+                    class="badge badge-ghost"
+                  >
+                    {{ Math.round(studyDiagnostics.retentionRate * 100) }}% retention
+                  </span>
                 </div>
 
                 <span class="text-8xl font-semibold leading-none">{{ currentCard.simplified }}</span>
@@ -428,7 +440,7 @@
                   <button type="button" class="btn btn-outline btn-accent" @click="store.rateStudyCard('easy')">Easy</button>
                 </div>
                 <p class="mt-2 text-xs leading-relaxed opacity-55">
-                  Ratings guide this session only for now — they are not yet scheduled into spaced repetition.
+                  Ratings are saved and scheduled with a simple spaced-repetition model — you'll see this card again around when it's due.
                 </p>
               </section>
 
@@ -475,6 +487,7 @@ const {
   interactionMode,
   studyPhase,
   studySessionRatedForSet,
+  studyDiagnostics,
 } = storeToRefs(store)
 
 const newSetName = ref('')

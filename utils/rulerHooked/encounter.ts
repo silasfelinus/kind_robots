@@ -6,7 +6,7 @@
 
 import type { FishAffinity, Rarity, RunSave } from '~/types/ruler-hooked'
 import { cloneSave } from './applyEffects'
-import { resolveFishingCatch } from './fish'
+import { RULER_HOOKED_FISH, resolveFishingCatch } from './fish'
 import { makeRng } from './seed'
 
 export type FishingAction = 'REEL' | 'SLACK' | 'WAIT'
@@ -51,6 +51,14 @@ interface FishingProfile {
   slackRecovery: number
 }
 
+interface EncounterFish {
+  fishSlug: string
+  name: string
+  affinity: FishAffinity
+  rarity: Rarity
+  catchBehavior: string
+}
+
 const STANDARD_PROFILE: FishingProfile = {
   family: 'STANDARD_TENSION',
   maxBeats: 8,
@@ -80,13 +88,7 @@ export function profileForFish(fishSlug: string): FishingProfile {
   return PROFILES[fishSlug] ?? STANDARD_PROFILE
 }
 
-/**
- * Select the same fish the compatibility takeTurn() path will later record,
- * but against a clone so beginning an encounter does not mutate the real save.
- */
-export function startFishingEncounter(save: RunSave): FishingEncounter {
-  const fishSeed = `${save.seed}:${save.turnCount}:fish`
-  const preview = resolveFishingCatch(cloneSave(save), makeRng(fishSeed))
+function buildEncounter(save: RunSave, preview: EncounterFish): FishingEncounter {
   const profile = profileForFish(preview.fishSlug)
   const patience = profile.family === 'PATIENCE'
 
@@ -113,6 +115,29 @@ export function startFishingEncounter(save: RunSave): FishingEncounter {
   }
 }
 
+/**
+ * Select the same fish the compatibility takeTurn() path will later record,
+ * but against a clone so beginning an encounter does not mutate the real save.
+ */
+export function startFishingEncounter(save: RunSave): FishingEncounter {
+  const fishSeed = `${save.seed}:${save.turnCount}:fish`
+  const preview = resolveFishingCatch(cloneSave(save), makeRng(fishSeed))
+  return buildEncounter(save, preview)
+}
+
+/** Deterministic direct constructor for reducer tests and authored previews. */
+export function startFishingEncounterForFish(save: RunSave, fishSlug: string): FishingEncounter {
+  const fish = RULER_HOOKED_FISH.find((candidate) => candidate.slug === fishSlug)
+  if (!fish) throw new Error(`Unknown Ruler Hooked fish: ${fishSlug}`)
+  return buildEncounter(save, {
+    fishSlug: fish.slug,
+    name: fish.name,
+    affinity: fish.affinity,
+    rarity: fish.rarity,
+    catchBehavior: fish.catchBehavior,
+  })
+}
+
 const clamp = (value: number, min = 0, max = 100): number =>
   Math.max(min, Math.min(max, value))
 
@@ -135,10 +160,7 @@ function recordBeat(encounter: FishingEncounter, action: FishingAction): Fishing
 }
 
 function resolveApproach(encounter: FishingEncounter, action: FishingAction): FishingEncounter {
-  const next: FishingEncounter = {
-    ...encounter,
-    beat: encounter.beat + 1,
-  }
+  const next: FishingEncounter = { ...encounter, beat: encounter.beat + 1 }
 
   if (action === 'WAIT') {
     next.phase = 'FIGHT'
@@ -170,10 +192,7 @@ function effectiveAction(encounter: FishingEncounter, action: FishingAction): Fi
 
 function resolveFight(encounter: FishingEncounter, action: FishingAction): FishingEncounter {
   const profile = profileForFish(encounter.fishSlug)
-  const next: FishingEncounter = {
-    ...encounter,
-    beat: encounter.beat + 1,
-  }
+  const next: FishingEncounter = { ...encounter, beat: encounter.beat + 1 }
   const rng = makeRng(`${encounter.seed}:${next.beat}:${action}`)
   const surge = Math.floor(rng.next() * 8)
   const resistance = Math.floor(rng.next() * 5)

@@ -17,13 +17,28 @@
             type="button"
             class="btn btn-primary"
             :disabled="!store.canFish"
-            @click="store.fish()"
+            @click="store.startFishing()"
           >
             🎣 Cast a line
           </button>
         </div>
 
         <RulerHookedHealth :health="store.save.kingdomHealth" />
+
+        <RulerHookedFishingEncounter
+          v-if="store.activeFishing"
+          :encounter="store.activeFishing"
+          @action="store.fishingAction($event)"
+        />
+
+        <div
+          v-if="store.lastEscape"
+          class="rounded-xl border border-warning/40 bg-warning/10 p-4"
+          role="status"
+        >
+          <p class="font-bold">{{ store.lastEscape.fishName }} got away.</p>
+          <p class="mt-1 text-sm opacity-75">{{ store.lastEscape.cue }}</p>
+        </div>
 
         <RulerHookedCatch
           v-if="store.lastCatch"

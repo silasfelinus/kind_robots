@@ -89,7 +89,7 @@
         </ul>
       </section>
 
-      <mana-wallet />
+      <mana-wallet :show-header="false" />
     </template>
   </div>
 </template>

@@ -1,60 +1,75 @@
 <!-- components/cthulhuquarium/cthulhuquarium-game.vue
-     The Cthulhuquarium play-loop prototype, dropped into the /play/aquarium
-     scaffold's #interactive slot (conductor cthulhuquarium/t-010).
+     The real Cthulhuquarium play loop (conductor cthulhuquarium/t-011),
+     replacing the t-010 localStorage prototype. Coins, hunger, and species
+     ownership are the server's Aquarium/AquariumStock rows
+     (server/api/aquarium/**) -- this component never invents an economy
+     number, it only renders what the store last loaded and asks the store
+     to feed/unlock/settle.
 
-     Client-only and localStorage-backed on purpose: it makes the Play tab
-     playable the day it lands rather than shipping an empty shell. Fish are
-     drawn shapes, not art, and the species list is a placeholder subset of the
-     canonical fish bible. cthulhuquarium/t-009 and t-011 replace the store and
-     the renderer with the server-authoritative loop and real generated art;
-     this component's job until then is to prove the loop is fun. -->
+     Design notes for the reviewer (t-011's task note calls for "collectibles
+     drift up and pay coins on click", but economy.yaml has no click-for-
+     coins income path -- production is entirely tick-settled server-side,
+     see server/utils/aquariumEconomy.ts's settleTick). Rather than invent a
+     client-authoritative click economy, a settled tick's coinsEarned spawns
+     drifting motes as a VISUAL reveal of coins the server already credited;
+     clicking one just dismisses it. No extra request, no new balance path.
+
+     Fish are still hand-drawn shapes, not art -- t-015 (full art pass) is
+     the task that changes that. What's real now is the swim behavior itself:
+     each occupant's Monster.behavior (the fish bible's own vocabulary --
+     drift/dart/lurk/school/anchor/surface/hover/tumble/cling) selects a
+     movement profile instead of a hardcoded three-value switch, and hue
+     comes from Monster.hue when a balance pass has set it, falling back to
+     a slug-derived hue so an unassigned species still reads consistently
+     rather than defaulting to one color. -->
 <template>
   <ClientOnly>
     <div class="kr-container flex max-w-3xl flex-col gap-3">
+      <p v-if="tankStore.error" class="alert alert-error text-sm">
+        {{ tankStore.error }}
+      </p>
+
       <div
-        v-if="store.offlineEarnings > 0"
+        v-if="tankStore.offlineEarnings > 0"
         class="alert rounded-xl border border-info/40 bg-info/10 py-2 text-sm"
       >
         <Icon name="kind-icon:coin" class="size-4 shrink-0" />
         <span>
           Something was collected while you were gone:
-          <b>{{ store.offlineEarnings }}</b> coins. Nobody says by whom.
+          <b>{{ tankStore.offlineEarnings }}</b> coins. Nobody says by whom.
         </span>
+        <button
+          type="button"
+          class="btn btn-ghost btn-xs ml-auto"
+          @click="tankStore.clearOfflineEarnings()"
+        >
+          Dismiss
+        </button>
       </div>
 
       <div class="flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center gap-3 text-sm font-bold">
           <span class="flex items-center gap-1">
             <Icon name="kind-icon:coin" class="size-4 text-warning" />
-            {{ store.coins }}
+            {{ tankStore.coins }}
           </span>
           <span class="flex items-center gap-1 opacity-70">
             <Icon name="kind-icon:fish" class="size-4" />
-            {{ store.stock.length }}
+            {{ tankStore.stock.length }}
           </span>
-          <span class="flex items-center gap-1 opacity-70">
-            🍖 {{ store.food }}
+          <span class="flex items-center gap-1 text-xs opacity-60">
+            {{ tankStore.occupantSize }}/{{ tankStore.sizeCap }} capacity
           </span>
         </div>
 
-        <div class="flex flex-wrap gap-2">
-          <button
-            type="button"
-            class="btn btn-sm"
-            :disabled="store.coins < store.foodCost"
-            @click="store.buyFood()"
-          >
-            Buy food ({{ store.foodCost }})
-          </button>
-          <button
-            type="button"
-            class="btn btn-primary btn-sm"
-            :disabled="store.food <= 0"
-            @click="onFeed"
-          >
-            Feed
-          </button>
-        </div>
+        <button
+          type="button"
+          class="btn btn-primary btn-sm"
+          :disabled="!tankStore.hungriest"
+          @click="onFeed"
+        >
+          Feed hungriest
+        </button>
       </div>
 
       <canvas
@@ -62,60 +77,109 @@
         class="w-full cursor-pointer rounded-2xl border border-base-300 bg-base-300"
         :width="STAGE_WIDTH"
         :height="STAGE_HEIGHT"
-        aria-label="Aquarium tank. Click drifting motes to collect coins."
+        aria-label="Aquarium tank. Click drifting coins to collect them."
         @click="onCanvasClick"
       />
 
-      <p class="text-xs opacity-60">
-        Click the drifting motes for coins. Feed buys something live and drops
-        it in. Fed occupants pay out on their own; hungry ones stop, but nothing
-        you have earned is ever lost. Progress saves in this browser only — a
-        real account-backed tank arrives with the aquarium API.
+      <p v-if="tankStore.loading" class="text-xs opacity-60">
+        Settling into your tank…
+      </p>
+      <p v-else class="text-xs opacity-60">
+        Feed the hungriest occupant to keep it paying out. Coins accrue on their
+        own while you're away and settle the moment you return -- nothing here
+        is saved in this browser, it's all your tank.
       </p>
 
       <div class="flex flex-col gap-2">
-        <p class="text-xs font-black uppercase tracking-wide opacity-60">
-          The tank
-        </p>
-        <!-- Column count follows the host panel's real width, not the viewport:
-             this is a shared component and the layout contract's viewport-grid
-             rule forbids sm:/md: grid-cols here. -->
+        <div class="flex items-center justify-between">
+          <p class="text-xs font-black uppercase tracking-wide opacity-60">
+            The tank
+          </p>
+        </div>
+        <!-- Column count follows the host panel's real width, not the
+             viewport: this is a shared component and the layout contract's
+             viewport-grid rule forbids sm:/md: grid-cols here. -->
         <div class="grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-2">
           <div
-            v-for="species in PROTOTYPE_SPECIES"
-            :key="species.slug"
+            v-for="entry in tankStore.stock"
+            :key="entry.id"
             class="rounded-xl border border-base-300 bg-base-100 p-3"
           >
             <div class="flex items-start justify-between gap-2">
               <div>
-                <p class="text-sm font-bold">
-                  {{ store.unlocked.has(species.slug) ? species.name : '???' }}
-                </p>
+                <p class="text-sm font-bold">{{ entry.Monster.name }}</p>
                 <p class="mt-0.5 text-xs italic opacity-70">
-                  {{
-                    store.unlocked.has(species.slug)
-                      ? species.note
-                      : 'Not yet observed.'
-                  }}
+                  {{ entry.Monster.species || entry.Monster.behavior || '—' }}
                 </p>
               </div>
               <button
-                v-if="!store.unlocked.has(species.slug)"
                 type="button"
                 class="btn btn-outline btn-xs shrink-0"
-                :disabled="store.coins < species.unlockCost"
-                @click="store.unlock(species.slug)"
+                :disabled="entry.hunger >= 100"
+                @click="tankStore.feed(entry.id)"
               >
-                {{ species.unlockCost }}
+                Feed
               </button>
             </div>
-            <p
-              v-if="store.unlocked.has(species.slug)"
-              class="mt-1 text-xs opacity-60"
+            <div
+              class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-base-300"
             >
-              {{ species.yield }} coins every {{ species.interval }}s
-            </p>
+              <div
+                class="h-full rounded-full bg-success transition-all"
+                :class="{
+                  'bg-warning': entry.hunger < 50,
+                  'bg-error': entry.hunger < 20,
+                }"
+                :style="{ width: `${entry.hunger}%` }"
+              />
+            </div>
           </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <p class="text-xs font-black uppercase tracking-wide opacity-60">
+          Unlock a new occupant
+        </p>
+        <p v-if="tankStore.catalogLoading" class="text-xs opacity-60">
+          Reading the bestiary…
+        </p>
+        <div
+          v-else
+          class="grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-2"
+        >
+          <div
+            v-for="entry in tankStore.catalog"
+            :key="entry.id"
+            class="flex items-start gap-2 rounded-xl border border-base-300 bg-base-100 p-3"
+          >
+            <kr-art-plate
+              :source="entry"
+              variant="icon"
+              shape="plate"
+              frame="thin"
+              fit="cover"
+              class="size-12 shrink-0"
+              placeholder-icon="kind-icon:fish"
+            />
+            <div class="min-w-0 flex-1">
+              <p class="truncate text-sm font-bold">{{ entry.name }}</p>
+              <p class="mt-0.5 line-clamp-2 text-xs italic opacity-70">
+                {{ entry.fieldNote || 'Not yet observed.' }}
+              </p>
+              <button
+                type="button"
+                class="btn btn-outline btn-xs mt-1"
+                :disabled="!canUnlock(entry)"
+                @click="tankStore.unlock(entry.id)"
+              >
+                Unlock ({{ entry.cost }})
+              </button>
+            </div>
+          </div>
+          <p v-if="!tankStore.catalog.length" class="text-xs opacity-60">
+            Nothing left to discover right now.
+          </p>
         </div>
       </div>
     </div>
@@ -125,9 +189,11 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import {
-  PROTOTYPE_SPECIES,
-  useCthulhuquariumStore,
-} from '~/stores/cthulhuquariumStore'
+  TANK_POLL_INTERVAL_MS,
+  useCthulhuquariumTankStore,
+  type CatalogEntry,
+  type TankStock,
+} from '~/stores/cthulhuquariumTankStore'
 
 /* Fixed logical resolution; CSS scales it to the host width so the canvas
    survives phone widths without its own breakpoint logic. */
@@ -135,28 +201,133 @@ const STAGE_WIDTH = 640
 const STAGE_HEIGHT = 360
 
 const MOTE_RADIUS = 9
-const MOTE_VALUE = 4
-const MOTE_SPAWN_SECONDS = 2.4
-const MAX_MOTES = 6
 const FOOD_FALL_SPEED = 70
+/* Caps how many motes one settled tick can spawn at once -- a long-idle
+   catch-up shouldn't paper the tank in coins, just show a satisfying handful. */
+const MAX_MOTE_BATCH = 6
+
+type BehaviorProfile = {
+  speed: number
+  vBand: readonly [number, number]
+  wobble: number
+  wallCling: boolean
+  stationary: boolean
+  lure: boolean
+}
+
+// The fish bible's own movement vocabulary (schema.prisma's Monster.behavior
+// doc comment). Unknown/missing behavior falls back to DRIFT_PROFILE rather
+// than failing to render -- a data gap should never mean an invisible fish.
+const DRIFT_PROFILE: BehaviorProfile = {
+  speed: 34,
+  vBand: [0.15, 0.85],
+  wobble: 9,
+  wallCling: false,
+  stationary: false,
+  lure: false,
+}
+
+const BEHAVIOR_PROFILES: Record<string, BehaviorProfile> = {
+  drift: DRIFT_PROFILE,
+  dart: {
+    speed: 62,
+    vBand: [0.15, 0.85],
+    wobble: 9,
+    wallCling: false,
+    stationary: false,
+    lure: false,
+  },
+  lurk: {
+    speed: 14,
+    vBand: [0.15, 0.85],
+    wobble: 3,
+    wallCling: false,
+    stationary: false,
+    lure: true,
+  },
+  school: {
+    speed: 40,
+    vBand: [0.25, 0.7],
+    wobble: 7,
+    wallCling: false,
+    stationary: false,
+    lure: false,
+  },
+  anchor: {
+    speed: 4,
+    vBand: [0.7, 0.92],
+    wobble: 1.5,
+    wallCling: false,
+    stationary: true,
+    lure: false,
+  },
+  surface: {
+    speed: 26,
+    vBand: [0.05, 0.22],
+    wobble: 6,
+    wallCling: false,
+    stationary: false,
+    lure: false,
+  },
+  hover: {
+    speed: 10,
+    vBand: [0.3, 0.6],
+    wobble: 2,
+    wallCling: false,
+    stationary: false,
+    lure: false,
+  },
+  tumble: {
+    speed: 20,
+    vBand: [0.15, 0.85],
+    wobble: 14,
+    wallCling: false,
+    stationary: false,
+    lure: false,
+  },
+  cling: {
+    speed: 5,
+    vBand: [0.15, 0.85],
+    wobble: 1,
+    wallCling: true,
+    stationary: false,
+    lure: false,
+  },
+}
+
+function behaviorProfile(behavior: string | null): BehaviorProfile {
+  return BEHAVIOR_PROFILES[(behavior || '').toLowerCase()] ?? DRIFT_PROFILE
+}
+
+// Deterministic fallback hue for a species Monster.hue hasn't been assigned
+// yet -- same slug always reads the same color instead of shifting on
+// every reload/re-render.
+function hashHue(slug: string): number {
+  let hash = 0
+  for (let index = 0; index < slug.length; index += 1) {
+    hash = (hash * 31 + slug.charCodeAt(index)) >>> 0
+  }
+  return hash % 360
+}
 
 type Swimmer = {
-  slug: string
+  stockId: number
+  monsterId: number
   x: number
   y: number
   vx: number
   vy: number
   phase: number
+  profile: BehaviorProfile
 }
 
-type Mote = { x: number; y: number; drift: number; born: number }
-/* The food is ALIVE (Silas, 2026-08-24) -- "our fish food should be wriggling". It is
-   livestock bought by the handful, not a pellet: it squirms on the way down and stops
-   when eaten. `phase` drives the wriggle, `lean` gives each one its own bias so a
-   handful never moves in unison. */
+type Mote = { x: number; y: number; drift: number }
+/* The food is ALIVE (Silas, 2026-08-24) -- it wriggles on the way down and
+   stops when eaten. `phase` drives the wriggle, `lean` gives each one its
+   own bias so a handful never moves in unison. */
 type FeedCreature = { x: number; y: number; phase: number; lean: number }
 
-const store = useCthulhuquariumStore()
+const tankStore = useCthulhuquariumTankStore()
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 
 const swimmers = ref<Swimmer[]>([])
@@ -165,54 +336,65 @@ const feed = ref<FeedCreature[]>([])
 
 let frame = 0
 let lastFrameAt = 0
-let sinceMote = 0
-let sincePersist = 0
+let pollTimer: ReturnType<typeof setInterval> | null = null
 
-function spawnSwimmer(slug: string): Swimmer {
-  const species = store.speciesBySlug.get(slug)
-  const speed =
-    species?.behavior === 'dart' ? 62 : species?.behavior === 'lurk' ? 16 : 34
+function canUnlock(entry: CatalogEntry): boolean {
+  return (
+    tankStore.coins >= entry.cost &&
+    tankStore.occupantSize + (entry.size ?? 1) <= tankStore.sizeCap
+  )
+}
+
+function spawnSwimmer(stock: TankStock): Swimmer {
+  const profile = behaviorProfile(stock.Monster.behavior)
   return {
-    slug,
+    stockId: stock.id,
+    monsterId: stock.monsterId,
     x: Math.random() * STAGE_WIDTH,
-    y: 60 + Math.random() * (STAGE_HEIGHT - 110),
-    vx: Math.random() < 0.5 ? -speed : speed,
+    y:
+      STAGE_HEIGHT *
+      (profile.vBand[0] +
+        Math.random() * (profile.vBand[1] - profile.vBand[0])),
+    vx: Math.random() < 0.5 ? -profile.speed : profile.speed,
     vy: 0,
     phase: Math.random() * Math.PI * 2,
+    profile,
   }
 }
 
 /** Keep one drawn swimmer per stocked occupant. */
 function syncSwimmers() {
-  const want = store.stock.map((entry) => entry.slug)
-  const have = swimmers.value.map((entry) => entry.slug)
-  for (const slug of want) {
-    const index = have.indexOf(slug)
-    if (index === -1) swimmers.value.push(spawnSwimmer(slug))
-    else have[index] = ''
+  const want = tankStore.stock.map((entry) => entry.id)
+  const have = swimmers.value.map((entry) => entry.stockId)
+  for (const entry of tankStore.stock) {
+    if (!have.includes(entry.id)) swimmers.value.push(spawnSwimmer(entry))
   }
   swimmers.value = swimmers.value.filter((swimmer) =>
-    want.includes(swimmer.slug),
+    want.includes(swimmer.stockId),
   )
+}
+
+function stockFor(swimmer: Swimmer): TankStock | undefined {
+  return tankStore.stock.find((entry) => entry.id === swimmer.stockId)
 }
 
 function drawFish(
   context: CanvasRenderingContext2D,
   swimmer: Swimmer,
   hunger: number,
+  monster: TankStock['Monster'],
 ) {
-  const species = store.speciesBySlug.get(swimmer.slug)
-  if (!species) return
+  const hue = monster.hue ?? hashHue(monster.slug)
   const facing = swimmer.vx >= 0 ? 1 : -1
-  const size = 10 + species.tier * 5
-  // Hungry occupants desaturate and dim rather than vanishing, so a neglected
-  // tank reads as neglected at a glance.
+  const size = 10 + (monster.size ?? 1) * 4
+  // Hungry occupants desaturate and dim rather than vanishing, so a
+  // neglected tank reads as neglected at a glance.
   const life = 0.3 + (hunger / 100) * 0.7
 
   context.save()
   context.translate(swimmer.x, swimmer.y)
   context.scale(facing, 1)
-  context.fillStyle = `hsla(${species.hue}, ${28 + hunger * 0.35}%, ${20 + hunger * 0.14}%, ${life})`
+  context.fillStyle = `hsla(${hue}, ${28 + hunger * 0.35}%, ${20 + hunger * 0.14}%, ${life})`
 
   context.beginPath()
   context.ellipse(0, 0, size, size * 0.55, 0, 0, Math.PI * 2)
@@ -236,8 +418,8 @@ function drawFish(
   )
   context.fill()
 
-  if (species.behavior === 'lurk') {
-    // The angler's lure — the one light in the tank that is bait.
+  if (swimmer.profile.lure) {
+    // The angler's lure -- the one light in the tank that is bait.
     context.fillStyle = `rgba(190, 255, 140, ${life})`
     context.beginPath()
     context.arc(size * 1.1, -size * 0.75, 2.6, 0, Math.PI * 2)
@@ -253,6 +435,13 @@ function render(context: CanvasRenderingContext2D) {
   context.fillStyle = water
   context.fillRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT)
 
+  // Debris tints the water -- ambient only, no interaction wired here.
+  const debris = tankStore.tank?.debrisLevel ?? 0
+  if (debris > 0) {
+    context.fillStyle = `rgba(120, 110, 70, ${Math.min(0.22, debris / 400)})`
+    context.fillRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT)
+  }
+
   context.fillStyle = 'rgba(150, 255, 210, 0.06)'
   context.beginPath()
   context.moveTo(STAGE_WIDTH * 0.35, 0)
@@ -263,8 +452,6 @@ function render(context: CanvasRenderingContext2D) {
   context.fill()
 
   for (const creature of feed.value) {
-    // Three segments hinged off a shared phase: enough to read as something
-    // struggling, cheap enough to draw a handful of at 60fps.
     context.strokeStyle = 'rgba(226, 196, 148, 0.92)'
     context.lineWidth = 2.4
     context.lineCap = 'round'
@@ -280,8 +467,9 @@ function render(context: CanvasRenderingContext2D) {
   }
 
   for (const swimmer of swimmers.value) {
-    const entry = store.stock.find((item) => item.slug === swimmer.slug)
-    drawFish(context, swimmer, entry?.hunger ?? 0)
+    const entry = stockFor(swimmer)
+    if (!entry) continue
+    drawFish(context, swimmer, entry.hunger, entry.Monster)
   }
 
   for (const mote of motes.value) {
@@ -298,14 +486,12 @@ function render(context: CanvasRenderingContext2D) {
 }
 
 function step(delta: number) {
-  store.tick(delta)
   syncSwimmers()
 
   for (const swimmer of swimmers.value) {
     const target = feed.value[0]
-    if (target) {
-      // Fish path toward food rather than ignoring it — the feed button has to
-      // visibly do something or nobody presses it twice.
+    if (target && !swimmer.profile.stationary) {
+      // Fish path toward food rather than ignoring it.
       const dx = target.x - swimmer.x
       const dy = target.y - swimmer.y
       const distance = Math.hypot(dx, dy) || 1
@@ -313,17 +499,25 @@ function step(delta: number) {
       swimmer.y += (dy / distance) * 55 * delta
       swimmer.vx = dx >= 0 ? Math.abs(swimmer.vx) : -Math.abs(swimmer.vx)
     } else {
+      const [minY, maxY] = swimmer.profile.vBand
+      const bandTop = STAGE_HEIGHT * minY
+      const bandBottom = STAGE_HEIGHT * maxY
       swimmer.phase += delta
       swimmer.x += swimmer.vx * delta
-      swimmer.y += Math.sin(swimmer.phase) * 9 * delta
+      swimmer.y += Math.sin(swimmer.phase) * swimmer.profile.wobble * delta
+      if (swimmer.profile.wallCling) {
+        // Clings near whichever wall it's closest to rather than crossing
+        // the whole tank.
+        const nearLeft = swimmer.x < STAGE_WIDTH / 2
+        swimmer.x += ((nearLeft ? 30 : STAGE_WIDTH - 30) - swimmer.x) * 0.02
+      }
       if (swimmer.x < 20 || swimmer.x > STAGE_WIDTH - 20) swimmer.vx *= -1
-      swimmer.y = Math.min(Math.max(swimmer.y, 40), STAGE_HEIGHT - 30)
+      swimmer.y = Math.min(Math.max(swimmer.y, bandTop), bandBottom)
     }
   }
 
   feed.value = feed.value.filter((creature) => {
     creature.y += FOOD_FALL_SPEED * delta
-    // It struggles the whole way down, and drifts slightly as it does.
     creature.phase += delta * 9
     creature.x += Math.sin(creature.phase * 0.7) * 6 * delta
     const eaten = swimmers.value.some(
@@ -333,40 +527,37 @@ function step(delta: number) {
     return !eaten && creature.y < STAGE_HEIGHT - 8
   })
 
-  sinceMote += delta
-  if (sinceMote >= MOTE_SPAWN_SECONDS && motes.value.length < MAX_MOTES) {
-    sinceMote = 0
-    motes.value.push({
-      x: 30 + Math.random() * (STAGE_WIDTH - 60),
-      y: STAGE_HEIGHT - 20,
-      drift: (Math.random() - 0.5) * 14,
-      born: 0,
-    })
-  }
   motes.value = motes.value.filter((mote) => {
-    mote.born += delta
     mote.y -= 26 * delta
     mote.x += mote.drift * delta
     return mote.y > 10
   })
-
-  sincePersist += delta
-  if (sincePersist >= 5) {
-    sincePersist = 0
-    store.persist()
-  }
 }
 
 function loop(timestamp: number) {
   const context = canvasRef.value?.getContext('2d')
   if (!context) return
-  // Clamp the delta so a backgrounded tab returning does not simulate one giant
-  // step — offline time is settled by the store on init, not by the frame loop.
+  // Clamp the delta so a backgrounded tab returning does not simulate one
+  // giant step -- coins/hunger are settled server-side, not by this loop.
   const delta = Math.min((timestamp - lastFrameAt) / 1000 || 0, 0.1)
   lastFrameAt = timestamp
   step(delta)
   render(context)
   frame = window.requestAnimationFrame(loop)
+}
+
+function spawnMotes(coinsEarned: number) {
+  const count = Math.min(
+    MAX_MOTE_BATCH,
+    Math.max(1, Math.round(coinsEarned / 5)),
+  )
+  for (let index = 0; index < count; index += 1) {
+    motes.value.push({
+      x: 30 + Math.random() * (STAGE_WIDTH - 60),
+      y: STAGE_HEIGHT - 20 - Math.random() * 30,
+      drift: (Math.random() - 0.5) * 14,
+    })
+  }
 }
 
 function onCanvasClick(event: MouseEvent) {
@@ -378,24 +569,35 @@ function onCanvasClick(event: MouseEvent) {
   const index = motes.value.findIndex(
     (mote) => Math.hypot(mote.x - x, mote.y - y) <= MOTE_RADIUS + 8,
   )
-  if (index === -1) return
-  motes.value.splice(index, 1)
-  store.collect(MOTE_VALUE)
+  // Clicking a mote just dismisses it -- the coins it represents were
+  // already credited by the tick settlement that spawned it.
+  if (index !== -1) motes.value.splice(index, 1)
 }
 
-function onFeed() {
-  if (!store.feed()) return
+async function onFeed() {
+  const target = tankStore.hungriest
+  if (!target) return
+  const ok = await tankStore.feed(target.id)
+  if (!ok) return
+  const swimmer = swimmers.value.find((entry) => entry.stockId === target.id)
   feed.value.push({
-    x: 60 + Math.random() * (STAGE_WIDTH - 120),
+    x: swimmer?.x ?? 60 + Math.random() * (STAGE_WIDTH - 120),
     y: 12,
     phase: Math.random() * Math.PI * 2,
     lean: (Math.random() - 0.5) * 1.6,
   })
 }
 
-onMounted(() => {
-  store.init()
+async function pollTick() {
+  const earned = await tankStore.settleTick()
+  if (earned > 0) spawnMotes(earned)
+}
+
+onMounted(async () => {
+  await tankStore.load()
+  await tankStore.loadCatalog()
   syncSwimmers()
+  pollTimer = setInterval(pollTick, TANK_POLL_INTERVAL_MS)
   frame = window.requestAnimationFrame((timestamp) => {
     lastFrameAt = timestamp
     frame = window.requestAnimationFrame(loop)
@@ -404,6 +606,6 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   if (frame) window.cancelAnimationFrame(frame)
-  store.persist()
+  if (pollTimer) clearInterval(pollTimer)
 })
 </script>

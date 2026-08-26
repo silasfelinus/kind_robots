@@ -4,7 +4,7 @@ import { applyEffect, resolveChoice, cloneSave } from '~/utils/rulerHooked/apply
 import { triggerHolds, effectiveWeight } from '~/utils/rulerHooked/triggers'
 import { rampState, resolveScene, cycleTime, assetCandidates } from '~/utils/rulerHooked/compositor'
 import { eligiblePool, weightedPick, selectCard, tickCooldowns } from '~/utils/rulerHooked/select'
-import { availableFish, resolveFishingCatch } from '~/utils/rulerHooked/fish'
+import { availableFish, resolveFishingCatch, RULER_HOOKED_FISH } from '~/utils/rulerHooked/fish'
 import type { Card, RegionsManifest, RunSave } from '~/types/ruler-hooked'
 
 function baseSave(): RunSave {
@@ -121,8 +121,13 @@ function baseSave(): RunSave {
   assert.equal(r1?.id ?? null, r2?.id ?? null, 'selectCard deterministic per seed (replay==reload)')
 }
 
-// 6. Fish ecology: world state changes the pool; catches are deterministic and recorded
+// 6. Fish ecology: roster contract, world-state pool changes, deterministic records
 {
+  assert.equal(RULER_HOOKED_FISH.length, 15, 'vertical slice stays at 15 authored species')
+  for (const affinity of ['GOOD', 'NEUTRAL', 'EVIL'] as const) {
+    assert.equal(RULER_HOOKED_FISH.filter((f) => f.affinity === affinity).length, 5, `${affinity} roster stays at five species`)
+  }
+
   const neutral = baseSave()
   neutral.kingdomHealth = { nature: 50, prosperity: 50, treasury: 50, joy: 50, order: 50 }
   const neutralPool = availableFish(neutral).map((f) => f.slug)

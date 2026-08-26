@@ -49,6 +49,13 @@ type MandarinAudioData = {
   cached?: boolean
 }
 
+export type MandarinStudyDiagnosticsData = {
+  totalTracked: number
+  dueCount: number
+  retentionRate: number | null
+  weakCardKeys: string[]
+}
+
 export type MandarinRequestedCardData = {
   id: number
   card: MandarinCard
@@ -123,6 +130,10 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
   const interactionMode = ref<InteractionMode>('study')
   const studyPhase = ref<'challenge' | 'revealed'>('challenge')
   const studySessionLog = ref<StudySessionEntry[]>([])
+  // Durable counterpart to studySessionLog: t-015's SM-2-lite schedule, persisted
+  // server-side via /api/mandarin/study/rate and /api/mandarin/study/progress.
+  const studyDiagnostics = ref<MandarinStudyDiagnosticsData | null>(null)
+  const studyDiagnosticsLoading = ref(false)
   const searchQuery = ref('')
   const focusKey = ref<string | null>(null)
   const focusKeys = ref<string[]>([])
@@ -462,12 +473,35 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     }
   }
 
+  async function loadStudyDiagnostics() {
+    if (!import.meta.client || studyDiagnosticsLoading.value) return
+    const userStore = useUserStore()
+    if (!userStore.token && !userStore.user?.token) return
+    studyDiagnosticsLoading.value = true
+    try {
+      const response = await performFetch<{ diagnostics: MandarinStudyDiagnosticsData }>(
+        '/api/mandarin/study/progress',
+        {},
+        1,
+        20_000,
+      )
+      if (response.success && response.data?.diagnostics) {
+        studyDiagnostics.value = response.data.diagnostics
+      }
+    } catch (cause) {
+      console.warn('[mandarin] study diagnostics load failed', cause)
+    } finally {
+      studyDiagnosticsLoading.value = false
+    }
+  }
+
   async function initialize() {
     if (initialized.value || loading.value) return
     loadLocalState()
     await loadCatalog()
     await loadIllustrationManifest()
     await loadRequestedCards()
+    void loadStudyDiagnostics()
     const key = currentCard.value?.key
     if (key) await probeCanonicalIllustration(key)
   }
@@ -559,8 +593,33 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
       ...studySessionLog.value,
       { cardKey: card.key, rating, ratedAt: new Date().toISOString() },
     ]
+    void persistStudyRating(card.key, rating)
     // nextCard() calls resetReveal(), which returns studyPhase to 'challenge'.
     nextCard()
+  }
+
+  async function persistStudyRating(cardKey: string, rating: StudyRating) {
+    if (!import.meta.client) return
+    try {
+      const response = await performFetch<{ dueAt?: string }>(
+        '/api/mandarin/study/rate',
+        {
+          method: 'POST',
+          body: JSON.stringify({ cardKey, rating }),
+        },
+        1,
+        20_000,
+      )
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to save the study rating.')
+      }
+      void loadStudyDiagnostics()
+    } catch (cause) {
+      // Scheduling is a durability nice-to-have on top of the already-recorded
+      // in-session log -- a save failure (offline, not logged in, transient 5xx)
+      // must never block or roll back the learner's current-session progress.
+      console.warn('[mandarin] failed to persist study rating', cause)
+    }
   }
 
   function createCustomSet(name: string): MandarinCustomSet | null {
@@ -903,6 +962,8 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     interactionMode,
     studyPhase,
     studySessionLog,
+    studyDiagnostics,
+    studyDiagnosticsLoading,
     searchQuery,
     focusKey,
     focusKeys,
@@ -936,6 +997,7 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     loadCatalog,
     loadIllustrationManifest,
     loadRequestedCards,
+    loadStudyDiagnostics,
     probeCanonicalIllustration,
     selectSet,
     nextCard,

@@ -9,7 +9,7 @@
 // is derived from it.
 
 import type { Card, CatchResult, ContentBundle, RunSave } from '~/types/ruler-hooked'
-import type { RngStream } from './seed'
+import { makeRng, type RngStream } from './seed'
 import { cloneSave } from './applyEffects'
 import { cyclePosition } from './compositor'
 import { resolveFishingCatch } from './fish'
@@ -42,6 +42,10 @@ export function allDeckCards(bundle: ContentBundle): Card[] {
  * available ecology, (2) a pending active-arc step, (3) starting a newly eligible
  * arc, (4) a seeded interrupt/ambient draw. Returns a new save plus the catch and
  * any card to present.
+ *
+ * Fishing uses a turn-scoped child RNG derived from the run seed. Narrative draws
+ * keep the caller-supplied RNG stream. This deliberately prevents future changes to
+ * specimen math (size/quality/fight cues) from changing which kingdom card appears.
  */
 export function takeTurn(
   bundle: ContentBundle,
@@ -50,11 +54,12 @@ export function takeTurn(
   interruptChance = 0.6,
 ): TurnResult {
   const next = cloneSave(save)
+  const fishRng = makeRng(`${next.seed}:${next.turnCount}:fish`)
 
   // 1. Fish beat — now a real species/specimen, not the original 50% counter flip.
   next.turnCount += 1
   next.cyclePosition = cyclePosition(next.turnCount)
-  const caught = resolveFishingCatch(next, rng)
+  const caught = resolveFishingCatch(next, fishRng)
   tickCooldowns(next)
 
   const seen = new Set(next.deckState.seenCardIds)

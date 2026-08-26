@@ -1,6 +1,6 @@
 <template>
   <div class="kr-container max-w-3xl p-6 space-y-8">
-    <div class="text-center space-y-2">
+    <div v-if="showHeader" class="text-center space-y-2">
       <h1 class="text-3xl font-extrabold text-primary">
         ⚡ {{ userStore.username }}'s Mana Wallet
       </h1>
@@ -145,6 +145,8 @@
 import { onMounted } from 'vue'
 import { useManaStore } from '@/stores/manaStore'
 import { useUserStore } from '@/stores/userStore'
+
+withDefaults(defineProps<{ showHeader?: boolean }>(), { showHeader: true })
 
 const manaStore = useManaStore()
 const userStore = useUserStore()

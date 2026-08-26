@@ -8,6 +8,7 @@ import type {
   MandarinCustomSet,
   MandarinStudySet,
 } from '@/utils/mandarin'
+import { mergeArtJobs, mergeCustomSets } from '@/utils/mandarinCloudMerge'
 
 const STORAGE_KEY = 'kind-robots:mandarin-tutor:v1'
 const CANONICAL_ART_RECIPE = 'v2'
@@ -539,23 +540,19 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
       )
       if (!response.success || !response.data) return
 
-      const serverSets = response.data.sets ?? []
-      const serverSetIds = new Set(serverSets.map((set) => set.id))
-      const unsyncedLocalSets = customSets.value.filter(
-        (set) => !serverSetIds.has(set.id),
+      const setsResult = mergeCustomSets(
+        response.data.sets ?? [],
+        customSets.value,
       )
-      customSets.value = [...serverSets, ...unsyncedLocalSets]
-      for (const set of unsyncedLocalSets) void persistCustomSet(set)
+      customSets.value = setsResult.merged
+      for (const set of setsResult.unsynced) void persistCustomSet(set)
 
-      const serverArtJobs = response.data.artJobs ?? {}
-      const unsyncedLocalArtJobs = Object.entries(artJobs.value).filter(
-        ([cardKey]) => !(cardKey in serverArtJobs),
+      const artJobsResult = mergeArtJobs(
+        response.data.artJobs ?? {},
+        artJobs.value,
       )
-      artJobs.value = {
-        ...serverArtJobs,
-        ...Object.fromEntries(unsyncedLocalArtJobs),
-      }
-      for (const [cardKey, jobId] of unsyncedLocalArtJobs)
+      artJobs.value = artJobsResult.merged
+      for (const [cardKey, jobId] of artJobsResult.unsynced)
         void persistArtJobLink(cardKey, jobId)
 
       saveLocalState()

@@ -8,6 +8,7 @@ import type {
   MandarinCustomSet,
   MandarinStudySet,
 } from '@/utils/mandarin'
+import { mergeArtJobs, mergeCustomSets } from '@/utils/mandarinCloudMerge'
 
 const STORAGE_KEY = 'kind-robots:mandarin-tutor:v1'
 const CANONICAL_ART_RECIPE = 'v2'
@@ -18,6 +19,16 @@ type LocalState = {
   selectedSetId: string
   artJobs: Record<string, number>
   artImageIds: Record<string, number>
+  interactionMode?: InteractionMode
+}
+
+export type InteractionMode = 'study' | 'explore'
+export type StudyRating = 'again' | 'hard' | 'good' | 'easy'
+
+type StudySessionEntry = {
+  cardKey: string
+  rating: StudyRating
+  ratedAt: string
 }
 
 type ArtEnqueueData = {
@@ -37,6 +48,21 @@ type MandarinAudioData = {
   id?: string
   url?: string
   cached?: boolean
+}
+
+// mandarin-tutor/t-016: customSets and artJobs move off localStorage-only state onto
+// /api/mandarin/sets. The server is treated as the record of truth once reachable;
+// localStorage remains the first-load cache/offline fallback (see `loadCloudState`).
+type MandarinSetsCloudPayload = {
+  sets?: MandarinCustomSet[]
+  artJobs?: Record<string, number>
+}
+
+export type MandarinStudyDiagnosticsData = {
+  totalTracked: number
+  dueCount: number
+  retentionRate: number | null
+  weakCardKeys: string[]
 }
 
 export type MandarinRequestedCardData = {
@@ -104,6 +130,19 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
   const requestedCards = ref<MandarinRequestedCardData[]>([])
   const selectedSetId = ref('starter-500')
   const studyIndex = ref(0)
+  // Interaction mode: 'study' is the deliberate recall loop (challenge -> reveal ->
+  // pronunciation -> self-rating -> next); 'explore' is the prior all-purpose page
+  // (search, requested words, decomposition/history, provenance, deck curation).
+  // mandarin-tutor/t-009: establishes the mode split. `studySessionLog` below is a
+  // client-only, in-session record -- durable SRS scheduling and mastery-history
+  // persistence is deliberately deferred to a follow-up task (see that task's note).
+  const interactionMode = ref<InteractionMode>('study')
+  const studyPhase = ref<'challenge' | 'revealed'>('challenge')
+  const studySessionLog = ref<StudySessionEntry[]>([])
+  // Durable counterpart to studySessionLog: t-015's SM-2-lite schedule, persisted
+  // server-side via /api/mandarin/study/rate and /api/mandarin/study/progress.
+  const studyDiagnostics = ref<MandarinStudyDiagnosticsData | null>(null)
+  const studyDiagnosticsLoading = ref(false)
   const searchQuery = ref('')
   const focusKey = ref<string | null>(null)
   const focusKeys = ref<string[]>([])
@@ -122,7 +161,9 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
   const artStatuses = ref<Record<string, string>>({})
   const canonicalArtUrls = ref<Record<string, string>>({})
   const canonicalArtPrompts = ref<Record<string, string>>({})
-  const canonicalArtStrategies = ref<Record<string, 'illustrate' | 'glyph-only'>>({})
+  const canonicalArtStrategies = ref<
+    Record<string, 'illustrate' | 'glyph-only'>
+  >({})
   const artQueueingKey = ref<string | null>(null)
   const artRefreshingKey = ref<string | null>(null)
   const canonicalArtProbeInFlight = new Set<string>()
@@ -138,7 +179,8 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     return {
       id: 'requested',
       label: 'Requested words',
-      description: 'Your generated additions, kept separate from sourced starter vocabulary.',
+      description:
+        'Your generated additions, kept separate from sourced starter vocabulary.',
       cardKeys,
     }
   })
@@ -196,7 +238,9 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
   const focusPosition = computed(() => {
     const key = focusKey.value
     if (!key) return null
-    const validKeys = focusKeys.value.filter((candidate) => cardMap.value.has(candidate))
+    const validKeys = focusKeys.value.filter((candidate) =>
+      cardMap.value.has(candidate),
+    )
     const index = validKeys.indexOf(key)
     if (index < 0) return { index: 0, total: 1 }
     return { index, total: validKeys.length }
@@ -207,9 +251,22 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     () => import.meta.client && typeof Audio !== 'undefined',
   )
 
+  // In-session diagnostic only (not durable mastery history): how many distinct
+  // cards in the current set have been rated since the page loaded.
+  const studySessionRatedForSet = computed(() => {
+    const keys = new Set(studyCards.value.map((card) => card.key))
+    const rated = new Set(
+      studySessionLog.value
+        .filter((entry) => keys.has(entry.cardKey))
+        .map((entry) => entry.cardKey),
+    )
+    return rated.size
+  })
+
   function resetReveal() {
     meaningVisible.value = false
     detailsVisible.value = false
+    studyPhase.value = 'challenge'
     speechError.value = null
   }
 
@@ -220,6 +277,7 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
       selectedSetId: selectedSetId.value,
       artJobs: artJobs.value,
       artImageIds: artImageIds.value,
+      interactionMode: interactionMode.value,
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
   }
@@ -239,6 +297,12 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
       }
       if (parsed.artImageIds && typeof parsed.artImageIds === 'object') {
         artImageIds.value = parsed.artImageIds
+      }
+      if (
+        parsed.interactionMode === 'study' ||
+        parsed.interactionMode === 'explore'
+      ) {
+        interactionMode.value = parsed.interactionMode
       }
     } catch {
       localStorage.removeItem(STORAGE_KEY)
@@ -270,7 +334,9 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
       resetReveal()
     } catch (cause) {
       error.value =
-        cause instanceof Error ? cause.message : 'Failed to load Mandarin cards.'
+        cause instanceof Error
+          ? cause.message
+          : 'Failed to load Mandarin cards.'
     } finally {
       loading.value = false
     }
@@ -286,7 +352,8 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
         30_000,
       )
       const manifest = response.data
-      if (!response.success || !manifest || !Array.isArray(manifest.entries)) return
+      if (!response.success || !manifest || !Array.isArray(manifest.entries))
+        return
       if (manifest.recipeVersion !== CANONICAL_ART_RECIPE) return
       if (manifest.artDirection?.id !== CANONICAL_ART_DIRECTION) return
 
@@ -322,7 +389,9 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     }
   }
 
-  async function probeCanonicalIllustration(cardKey: string): Promise<string | null> {
+  async function probeCanonicalIllustration(
+    cardKey: string,
+  ): Promise<string | null> {
     if (!import.meta.client || requestedId(cardKey)) return null
     if (artImageUrls.value[cardKey]) return artImageUrls.value[cardKey] || null
     if (canonicalArtProbeInFlight.has(cardKey)) return null
@@ -352,13 +421,17 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     }
   }
 
-  async function fetchProtectedImage(artImageId: number): Promise<string | null> {
+  async function fetchProtectedImage(
+    artImageId: number,
+  ): Promise<string | null> {
     if (!import.meta.client) return null
     const userStore = useUserStore()
     const token = userStore.token || userStore.user?.token || ''
     const headers = new Headers()
     if (token) headers.set('Authorization', `Bearer ${token}`)
-    const response = await fetch(`/api/art/images/${artImageId}/file`, { headers })
+    const response = await fetch(`/api/art/images/${artImageId}/file`, {
+      headers,
+    })
     if (!response.ok) return null
     return URL.createObjectURL(await response.blob())
   }
@@ -414,9 +487,13 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
       if (!response.success || !response.data) return
 
       const existingRequestedKeys = new Set(
-        cards.value.filter((card) => requestedId(card.key)).map((card) => card.key),
+        cards.value
+          .filter((card) => requestedId(card.key))
+          .map((card) => card.key),
       )
-      cards.value = cards.value.filter((card) => !existingRequestedKeys.has(card.key))
+      cards.value = cards.value.filter(
+        (card) => !existingRequestedKeys.has(card.key),
+      )
       requestedCards.value = []
       for (const entry of response.data.cards) {
         await upsertRequestedCard(entry)
@@ -426,12 +503,119 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     }
   }
 
+  async function loadStudyDiagnostics() {
+    if (!import.meta.client || studyDiagnosticsLoading.value) return
+    const userStore = useUserStore()
+    if (!userStore.token && !userStore.user?.token) return
+    studyDiagnosticsLoading.value = true
+    try {
+      const response = await performFetch<{
+        diagnostics: MandarinStudyDiagnosticsData
+      }>('/api/mandarin/study/progress', {}, 1, 20_000)
+      if (response.success && response.data?.diagnostics) {
+        studyDiagnostics.value = response.data.diagnostics
+      }
+    } catch (cause) {
+      console.warn('[mandarin] study diagnostics load failed', cause)
+    } finally {
+      studyDiagnosticsLoading.value = false
+    }
+  }
+
+  // mandarin-tutor/t-016: pulls the learner's server-side customSets/artJobs
+  // (MandarinCustomSet/MandarinArtJobLink) and treats them as authoritative once
+  // reachable. Any locally-known set or art-job link the server doesn't have yet
+  // (created while offline, or before this device last synced) is kept rather than
+  // dropped, and re-pushed so it isn't silently lost.
+  async function loadCloudState() {
+    if (!import.meta.client) return
+    const userStore = useUserStore()
+    if (!userStore.token && !userStore.user?.token) return
+    try {
+      const response = await performFetch<MandarinSetsCloudPayload>(
+        '/api/mandarin/sets',
+        {},
+        1,
+        20_000,
+      )
+      if (!response.success || !response.data) return
+
+      const setsResult = mergeCustomSets(
+        response.data.sets ?? [],
+        customSets.value,
+      )
+      customSets.value = setsResult.merged
+      for (const set of setsResult.unsynced) void persistCustomSet(set)
+
+      const artJobsResult = mergeArtJobs(
+        response.data.artJobs ?? {},
+        artJobs.value,
+      )
+      artJobs.value = artJobsResult.merged
+      for (const [cardKey, jobId] of artJobsResult.unsynced)
+        void persistArtJobLink(cardKey, jobId)
+
+      saveLocalState()
+    } catch (cause) {
+      console.warn('[mandarin] cloud custom-set load failed', cause)
+    }
+  }
+
+  async function persistCustomSet(set: MandarinCustomSet) {
+    if (!import.meta.client) return
+    try {
+      const response = await performFetch(
+        '/api/mandarin/sets',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            clientId: set.id,
+            name: set.name,
+            cardKeys: set.cardKeys,
+          }),
+        },
+        1,
+        20_000,
+      )
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to save the custom set.')
+      }
+    } catch (cause) {
+      // Durability nice-to-have on top of the already-saved local state -- a save
+      // failure (offline, not logged in, transient 5xx) must never block the
+      // learner's current-session edit.
+      console.warn('[mandarin] failed to persist custom set', cause)
+    }
+  }
+
+  async function persistArtJobLink(cardKey: string, jobId: number) {
+    if (!import.meta.client) return
+    try {
+      const response = await performFetch(
+        '/api/mandarin/sets/art-jobs',
+        {
+          method: 'POST',
+          body: JSON.stringify({ cardKey, jobId }),
+        },
+        1,
+        20_000,
+      )
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to save the art job link.')
+      }
+    } catch (cause) {
+      console.warn('[mandarin] failed to persist art job link', cause)
+    }
+  }
+
   async function initialize() {
     if (initialized.value || loading.value) return
     loadLocalState()
     await loadCatalog()
     await loadIllustrationManifest()
     await loadRequestedCards()
+    void loadStudyDiagnostics()
+    void loadCloudState()
     const key = currentCard.value?.key
     if (key) await probeCanonicalIllustration(key)
   }
@@ -449,10 +633,13 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
   function moveFocusedCard(offset: number): boolean {
     const key = focusKey.value
     if (!key) return false
-    const validKeys = focusKeys.value.filter((candidate) => cardMap.value.has(candidate))
+    const validKeys = focusKeys.value.filter((candidate) =>
+      cardMap.value.has(candidate),
+    )
     if (validKeys.length <= 1) return false
     const currentIndex = Math.max(0, validKeys.indexOf(key))
-    const nextIndex = (currentIndex + offset + validKeys.length) % validKeys.length
+    const nextIndex =
+      (currentIndex + offset + validKeys.length) % validKeys.length
     focusKey.value = validKeys[nextIndex] ?? key
     focusKeys.value = validKeys
     resetReveal()
@@ -502,6 +689,57 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     detailsVisible.value = !detailsVisible.value
   }
 
+  function setInteractionMode(mode: InteractionMode) {
+    if (interactionMode.value === mode) return
+    interactionMode.value = mode
+    clearFocus()
+    resetReveal()
+    saveLocalState()
+  }
+
+  function revealStudyCard() {
+    if (interactionMode.value !== 'study' || !currentCard.value) return
+    studyPhase.value = 'revealed'
+  }
+
+  function rateStudyCard(rating: StudyRating) {
+    if (interactionMode.value !== 'study' || studyPhase.value !== 'revealed')
+      return
+    const card = currentCard.value
+    if (!card) return
+    studySessionLog.value = [
+      ...studySessionLog.value,
+      { cardKey: card.key, rating, ratedAt: new Date().toISOString() },
+    ]
+    void persistStudyRating(card.key, rating)
+    // nextCard() calls resetReveal(), which returns studyPhase to 'challenge'.
+    nextCard()
+  }
+
+  async function persistStudyRating(cardKey: string, rating: StudyRating) {
+    if (!import.meta.client) return
+    try {
+      const response = await performFetch<{ dueAt?: string }>(
+        '/api/mandarin/study/rate',
+        {
+          method: 'POST',
+          body: JSON.stringify({ cardKey, rating }),
+        },
+        1,
+        20_000,
+      )
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to save the study rating.')
+      }
+      void loadStudyDiagnostics()
+    } catch (cause) {
+      // Scheduling is a durability nice-to-have on top of the already-recorded
+      // in-session log -- a save failure (offline, not logged in, transient 5xx)
+      // must never block or roll back the learner's current-session progress.
+      console.warn('[mandarin] failed to persist study rating', cause)
+    }
+  }
+
   function createCustomSet(name: string): MandarinCustomSet | null {
     const cleanName = name.trim()
     if (!cleanName) return null
@@ -520,6 +758,7 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     }
     customSets.value.push(set)
     saveLocalState()
+    void persistCustomSet(set)
     return set
   }
 
@@ -531,6 +770,7 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     set.name = cleanName
     customSets.value = [...customSets.value]
     saveLocalState()
+    void persistCustomSet(set)
     return true
   }
 
@@ -541,6 +781,7 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
       ? set.cardKeys.filter((key) => key !== cardKey)
       : [...set.cardKeys, cardKey]
     saveLocalState()
+    void persistCustomSet(set)
   }
 
   function cardIsInCustomSet(setId: string, cardKey: string): boolean {
@@ -557,7 +798,9 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     return requestedCards.value.find((entry) => entry.id === id) ?? null
   }
 
-  async function requestWord(request = searchQuery.value): Promise<MandarinRequestedCardData | null> {
+  async function requestWord(
+    request = searchQuery.value,
+  ): Promise<MandarinRequestedCardData | null> {
     const cleanRequest = request.trim()
     if (!cleanRequest || requestingWord.value) return null
     requestingWord.value = true
@@ -573,7 +816,9 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
         60_000,
       )
       if (!response.success || !response.data?.card) {
-        throw new Error(response.message || 'Failed to create the requested Mandarin card.')
+        throw new Error(
+          response.message || 'Failed to create the requested Mandarin card.',
+        )
       }
       await upsertRequestedCard(response.data)
       focusKey.value = response.data.card.key
@@ -583,7 +828,9 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
       return response.data
     } catch (cause) {
       error.value =
-        cause instanceof Error ? cause.message : 'Failed to create the requested Mandarin card.'
+        cause instanceof Error
+          ? cause.message
+          : 'Failed to create the requested Mandarin card.'
       return null
     } finally {
       requestingWord.value = false
@@ -606,13 +853,17 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
         45_000,
       )
       if (!response.success || !response.data?.card) {
-        throw new Error(response.message || 'Failed to refresh requested-card art.')
+        throw new Error(
+          response.message || 'Failed to refresh requested-card art.',
+        )
       }
       await upsertRequestedCard(response.data)
       return artImageUrls.value[card.key] || null
     } catch (cause) {
       error.value =
-        cause instanceof Error ? cause.message : 'Failed to refresh requested-card art.'
+        cause instanceof Error
+          ? cause.message
+          : 'Failed to refresh requested-card art.'
       return null
     } finally {
       artRefreshingKey.value = null
@@ -632,7 +883,8 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
       voices.find((candidate) => candidate.lang.toLowerCase().startsWith('zh'))
     if (voice) utterance.voice = voice
     utterance.onerror = () => {
-      speechError.value = 'The Mandarin reference audio could not play in this browser.'
+      speechError.value =
+        'The Mandarin reference audio could not play in this browser.'
     }
     window.speechSynthesis.speak(utterance)
     return true
@@ -661,7 +913,8 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
   async function speak(card: MandarinCard | null = currentCard.value) {
     speechError.value = null
     if (!card || !import.meta.client) {
-      speechError.value = 'Mandarin speech playback is not available in this browser.'
+      speechError.value =
+        'Mandarin speech playback is not available in this browser.'
       return
     }
 
@@ -683,9 +936,14 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
         )
 
         const resolvedUrl = String(response.data?.url || '').trim()
-        if (!response.success || !resolvedUrl.startsWith('/api/mandarin/audio/')) {
+        if (
+          !response.success ||
+          !resolvedUrl.startsWith('/api/mandarin/audio/')
+        ) {
           if (playBrowserSpeech(card)) return
-          throw new Error(response.message || 'Mandarin reference audio is unavailable.')
+          throw new Error(
+            response.message || 'Mandarin reference audio is unavailable.',
+          )
         }
 
         url = resolvedUrl
@@ -720,9 +978,13 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
       const promptString = canonicalArtPrompts.value[card.key]
       if (!promptString) {
         if (canonicalArtStrategies.value[card.key] === 'glyph-only') {
-          throw new Error('This card is intentionally glyph-only because a decorative image would misteach it.')
+          throw new Error(
+            'This card is intentionally glyph-only because a decorative image would misteach it.',
+          )
         }
-        throw new Error('The canonical Mandarin v2 art prompt is not available yet.')
+        throw new Error(
+          'The canonical Mandarin v2 art prompt is not available yet.',
+        )
       }
 
       const response = await performFetch<ArtEnqueueData>(
@@ -745,11 +1007,17 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
       )
       const jobId = Number(response.data?.jobId)
       if (!response.success || !Number.isInteger(jobId) || jobId <= 0) {
-        throw new Error(response.message || 'Failed to queue the Krea 2 illustration.')
+        throw new Error(
+          response.message || 'Failed to queue the Krea 2 illustration.',
+        )
       }
       artJobs.value = { ...artJobs.value, [card.key]: jobId }
-      artStatuses.value = { ...artStatuses.value, [card.key]: response.data?.status || 'PENDING' }
+      artStatuses.value = {
+        ...artStatuses.value,
+        [card.key]: response.data?.status || 'PENDING',
+      }
       saveLocalState()
+      void persistArtJobLink(card.key, jobId)
       return jobId
     } catch (cause) {
       error.value =
@@ -794,7 +1062,8 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
       }
 
       const nextUrl = await fetchProtectedImage(artImageId)
-      if (!nextUrl) throw new Error('The finished illustration is not available yet.')
+      if (!nextUrl)
+        throw new Error('The finished illustration is not available yet.')
       const previousUrl = artImageUrls.value[card.key]
       if (previousUrl?.startsWith('blob:')) URL.revokeObjectURL(previousUrl)
       artImageUrls.value = { ...artImageUrls.value, [card.key]: nextUrl }
@@ -802,7 +1071,9 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
       return nextUrl
     } catch (cause) {
       error.value =
-        cause instanceof Error ? cause.message : 'Failed to refresh the illustration.'
+        cause instanceof Error
+          ? cause.message
+          : 'Failed to refresh the illustration.'
       return null
     } finally {
       artRefreshingKey.value = null
@@ -839,6 +1110,11 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     requestedCards,
     selectedSetId,
     studyIndex,
+    interactionMode,
+    studyPhase,
+    studySessionLog,
+    studyDiagnostics,
+    studyDiagnosticsLoading,
     searchQuery,
     focusKey,
     focusKeys,
@@ -867,10 +1143,13 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     focusPosition,
     customSetCount,
     audioSupported,
+    studySessionRatedForSet,
     initialize,
     loadCatalog,
     loadIllustrationManifest,
     loadRequestedCards,
+    loadStudyDiagnostics,
+    loadCloudState,
     probeCanonicalIllustration,
     selectSet,
     nextCard,
@@ -879,6 +1158,9 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
     clearFocus,
     toggleMeaning,
     toggleDetails,
+    setInteractionMode,
+    revealStudyCard,
+    rateStudyCard,
     createCustomSet,
     renameCustomSet,
     toggleCardInCustomSet,

@@ -120,6 +120,63 @@ export type MandarinCatalogChange = Prisma.MandarinCatalogChangeModel
  */
 export type MandarinRequestedCard = Prisma.MandarinRequestedCardModel
 /**
+ * Model MandarinCustomSet
+ * Custom study-set and queued-illustration bookkeeping for the Mandarin Tutor Study
+ * loop (mandarin-tutor/t-016, follow-up to t-012's mobile-domain audit). Both fields
+ * previously lived only in `mandarinTutorStore`'s `localStorage` snapshot, per that
+ * store's own deferred-follow-up comment -- they would show up empty on a reinstalled
+ * PWA, a second device, or a future native client. This gives them the same
+ * authenticated-backend treatment `MandarinCardProgress` got in t-015.
+ * 
+ * userId is a plain ownership scalar, matching every other Mandarin Tutor model's
+ * established pattern (MandarinRequestedCard, MandarinCardProgress), so this additive
+ * model needs no changes to the already-crowded User model.
+ * 
+ * clientId is the store's own client-generated slug (`safeId(name)`, e.g. "deck",
+ * "deck-2") -- the identity the UI already keys sets on -- not the autoincrement `id`,
+ * so a set created offline keeps the same identity once it syncs.
+ * 
+ * cardKeys is a serialized-JSON string array (this repo stores structured data as
+ * String/@db.LongText, never a native Json column -- see
+ * utils/scripts/verifyNoPrismaJsonCast.ts), matching MandarinRequestedCard.meanings.
+ */
+export type MandarinCustomSet = Prisma.MandarinCustomSetModel
+/**
+ * Model MandarinArtJobLink
+ * Queued/known illustration ArtJob ids for a learner's own cards, keyed by cardKey
+ * (mirrors `mandarinTutorStore`'s `artJobs: Record<string, number>`). Purely a
+ * lookup so a returning learner (or a second device) can resume polling a job that
+ * was already enqueued, rather than re-enqueueing. The ArtJob row itself remains the
+ * source of truth for job status; this table only remembers which job belongs to
+ * which card for which learner.
+ */
+export type MandarinArtJobLink = Prisma.MandarinArtJobLinkModel
+/**
+ * Model MandarinCardProgress
+ * Spaced-repetition scheduling and mastery history for the Mandarin Tutor Study loop
+ * (mandarin-tutor/t-015, follow-up to t-009's mode split). userId is a plain ownership
+ * scalar, matching MandarinRequestedCard's established pattern, so this additive model
+ * needs no changes to the already-crowded User model. cardKey mirrors MandarinCard.key
+ * (sourced catalog cards use their catalog key; user-generated cards use
+ * `requested:<id>`) rather than a foreign key, since catalog cards are not database rows.
+ * 
+ * `dimension` is forward-compatible groundwork for the task's own "distinguish
+ * recognition of meaning, Hanzi, and pronunciation when useful" goal: every row this
+ * pass writes uses 'overall', because the shipped Study loop asks one holistic
+ * self-rating per card, not three separate per-skill quizzes. A future decomposed
+ * rating UI can start writing 'meaning' / 'hanzi' / 'pronunciation' rows without a
+ * migration.
+ */
+export type MandarinCardProgress = Prisma.MandarinCardProgressModel
+/**
+ * Model MandarinReviewEvent
+ * Append-only review-event log backing retention diagnostics (accuracy over time, weak
+ * cards). Never updated after creation -- MandarinCardProgress is the current-state
+ * summary derived from this log plus the SM-2-lite scheduling math in
+ * server/utils/mandarinSrs.ts, not a replacement for it.
+ */
+export type MandarinReviewEvent = Prisma.MandarinReviewEventModel
+/**
  * Model ModelBuildRun
  * One resumable Model Builder run: a source record, a chosen recipe, and the
  * build items produced from the selected outputs. `sourceSnapshot` freezes the

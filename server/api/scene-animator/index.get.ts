@@ -59,6 +59,60 @@ function jobStatus(status: string): 'queued' | 'rendering' | 'done' | 'failed' |
   return 'queued'
 }
 
+type FolderStat = { total: number; done: number; active: number; failed: number }
+
+// Coarser than the per-source status the selected folder gets: this counts a
+// source file as "done" if ANY job for it (under any engine/preset/duration
+// config, not just the currently selected one) reached DONE, so the folder
+// picker's completion badge doesn't jump around every time the batch config
+// changes. It intentionally reuses the same jobs query every other branch
+// already pays for -- listing every folder's own image files (which requires
+// reading and hashing each file's bytes, see listSceneAnimatorSourceFiles) to
+// get a config-exact count would multiply that I/O by folder count.
+function buildFolderStats(
+  folders: Array<{ name: string; imageCount: number }>,
+  jobs: Array<{ payload: string; status: string }>,
+): Record<string, FolderStat> {
+  const stats: Record<string, FolderStat> = {}
+  for (const folder of folders) {
+    stats[folder.name] = { total: folder.imageCount, done: 0, active: 0, failed: 0 }
+  }
+
+  // Best status per (folder, file), across every config that ever rendered it.
+  // Nested by folder first so a filename that happens to collide across two
+  // folders can't merge two unrelated sources' counts together.
+  const bestByFolder = new Map<string, Map<string, 'done' | 'active' | 'failed'>>()
+  const rank = { failed: 0, active: 1, done: 2 } as const
+  for (const job of jobs) {
+    let payload: Record<string, unknown>
+    try {
+      payload = JSON.parse(job.payload) as Record<string, unknown>
+    } catch {
+      continue
+    }
+    const context = parseSceneAnimatorContext(payload.sceneAnimator)
+    if (!context || !(context.sourceFolder in stats)) continue
+    const status = jobStatus(job.status)
+    const current: 'done' | 'active' | 'failed' =
+      status === 'done' ? 'done' : status === 'rendering' || status === 'queued' ? 'active' : 'failed'
+    let byFile = bestByFolder.get(context.sourceFolder)
+    if (!byFile) {
+      byFile = new Map()
+      bestByFolder.set(context.sourceFolder, byFile)
+    }
+    const existing = byFile.get(context.sourceFile)
+    if (!existing || rank[current] > rank[existing]) byFile.set(context.sourceFile, current)
+  }
+
+  for (const [folderName, byFile] of bestByFolder) {
+    const stat = stats[folderName]
+    if (!stat) continue
+    for (const status of byFile.values()) stat[status] += 1
+  }
+
+  return stats
+}
+
 export default defineEventHandler(async (event) => {
   await requireAdminApiUser(event)
   const query = getQuery(event) as Record<string, unknown>
@@ -77,11 +131,25 @@ export default defineEventHandler(async (event) => {
         config,
         configKey: sceneAnimatorConfigKey(config),
         sources: [],
+        folderStats: {},
       },
     }
   }
 
   const folders = rootStatus.folders
+
+  // Cheap (DB rows, not filesystem reads) and shared by every return path
+  // below, including the two folder-less ones -- the folder picker shows a
+  // completion badge for every folder up front, not just the selected one.
+  const jobs = await prisma.artJob.findMany({
+    where: {
+      projectSlug: SCENE_ANIMATOR_PROJECT_SLUG,
+      payload: { contains: '"sceneAnimator"' },
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 1000,
+  })
+  const folderStats = buildFolderStats(folders, jobs)
 
   if (!folder && !folders.some((item) => item.name === '')) {
     return {
@@ -93,23 +161,16 @@ export default defineEventHandler(async (event) => {
         config,
         configKey: sceneAnimatorConfigKey(config),
         sources: [],
+        folderStats,
       },
     }
   }
 
   const sources = await listSceneAnimatorSourceFiles(folder)
-  const jobs = await prisma.artJob.findMany({
-    where: {
-      projectSlug: SCENE_ANIMATOR_PROJECT_SLUG,
-      payload: { contains: '"sceneAnimator"' },
-    },
-    orderBy: { createdAt: 'desc' },
-    take: 1000,
-  })
 
   const latestByKey = new Map<string, (typeof jobs)[number]>()
   for (const job of jobs) {
-    let payload: Record<string, unknown> | null = null
+    let payload: Record<string, unknown>
     try {
       payload = JSON.parse(job.payload) as Record<string, unknown>
     } catch {
@@ -154,6 +215,7 @@ export default defineEventHandler(async (event) => {
       resultPath: result?.imagePath ?? null,
       resultFileType: result?.fileType ?? null,
       error: job?.error ?? null,
+      createdAt: job?.createdAt ?? null,
       updatedAt: job?.updatedAt ?? null,
     }
   })
@@ -167,6 +229,7 @@ export default defineEventHandler(async (event) => {
       config,
       configKey,
       sources: rows,
+      folderStats,
     },
   }
 })

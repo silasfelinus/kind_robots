@@ -63,6 +63,7 @@
           </label>
           <input
             :id="`${candidate.id}-title`"
+            ref="editTitleInput"
             v-model="draftTitle"
             class="input input-bordered input-sm w-full font-bold"
             maxlength="120"
@@ -80,7 +81,7 @@
 
       <button
         type="button"
-        class="btn btn-ghost btn-xs shrink-0"
+        class="btn btn-ghost btn-xs h-auto min-h-11 min-w-11 shrink-0"
         :disabled="disabled"
         :aria-label="`Delete candidate${candidate.title ? ` ${candidate.title}` : ''}`"
         @click="emit('delete')"
@@ -106,7 +107,7 @@
         <div class="mt-2 flex flex-wrap justify-end gap-2">
           <button
             type="button"
-            class="btn btn-ghost btn-sm"
+            class="btn btn-ghost btn-sm h-auto min-h-11"
             :disabled="disabled"
             @click="cancelEdit"
           >
@@ -114,7 +115,7 @@
           </button>
           <button
             type="button"
-            class="btn btn-primary btn-sm"
+            class="btn btn-primary btn-sm h-auto min-h-11"
             :disabled="disabled || !draftText.trim()"
             @click="saveEdit"
           >
@@ -159,6 +160,15 @@
     >
       Art generation failed{{ artError ? `: ${artError}` : '.' }} Select for art
       and try again.
+    </p>
+
+    <p
+      v-if="artInterrupted"
+      class="kr-note kr-note-warning mt-3 text-xs"
+      data-testid="brainstorm-candidate-art-interrupted"
+    >
+      Art generation was still {{ candidate.meta.art?.status }} when this
+      session last closed. Select for art and generate again to pick it back up.
     </p>
 
     <details
@@ -293,7 +303,7 @@
     >
       <button
         type="button"
-        class="btn btn-sm"
+        class="btn btn-sm h-auto min-h-11"
         :class="candidate.status === 'kept' ? 'btn-success' : 'btn-ghost'"
         :disabled="disabled"
         @click="toggleKeep"
@@ -303,7 +313,7 @@
 
       <button
         type="button"
-        class="btn btn-sm"
+        class="btn btn-sm h-auto min-h-11"
         :class="candidate.status === 'rejected' ? 'btn-error' : 'btn-ghost'"
         :disabled="disabled"
         @click="toggleReject"
@@ -313,8 +323,9 @@
 
       <button
         v-if="!editing"
+        ref="editButton"
         type="button"
-        class="btn btn-ghost btn-sm"
+        class="btn btn-ghost btn-sm h-auto min-h-11"
         :disabled="disabled"
         @click="beginEdit"
       >
@@ -324,7 +335,7 @@
       <div class="ml-auto flex flex-wrap gap-2">
         <button
           type="button"
-          class="btn btn-outline btn-sm"
+          class="btn btn-outline btn-sm h-auto min-h-11"
           :disabled="disabled"
           @click="regenerate"
         >
@@ -336,7 +347,7 @@
         </button>
         <button
           type="button"
-          class="btn btn-secondary btn-sm"
+          class="btn btn-secondary btn-sm h-auto min-h-11"
           :disabled="disabled"
           @click="branch"
         >
@@ -366,7 +377,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { BRAINSTORM_RETURN_TYPES } from '@/types/brainstorm'
 import type {
   BrainstormCandidate,
@@ -402,6 +413,8 @@ const editing = ref(false)
 const draftTitle = ref(props.candidate.title)
 const draftText = ref(props.candidate.text)
 const feedbackDraft = ref(props.candidate.feedback)
+const editTitleInput = ref<HTMLInputElement | null>(null)
+const editButton = ref<HTMLButtonElement | null>(null)
 
 watch(
   () => props.candidate.title,
@@ -456,6 +469,19 @@ const artFailed = computed(
   () => !artBusy.value && props.candidate.meta.art?.status === 'failed',
 )
 const artError = computed(() => props.candidate.meta.art?.error || null)
+// A `queued`/`processing` status with nothing in *this* session actively
+// polling it (artBusy false) means an earlier attempt's poll loop was
+// interrupted -- most commonly a page reload or closed tab mid-generation.
+// Without this, the card renders identically to "art never requested",
+// silently orphaning the ArtJob instead of telling the user it needs a
+// manual retry (generateArtForCandidate's resumableJobId path only runs once
+// they select the candidate and generate again).
+const artInterrupted = computed(
+  () =>
+    !artBusy.value &&
+    (props.candidate.meta.art?.status === 'queued' ||
+      props.candidate.meta.art?.status === 'processing'),
+)
 
 const returnType = computed(() =>
   BRAINSTORM_RETURN_TYPES.find(
@@ -525,23 +551,33 @@ function toggleReject(): void {
   else emit('reject')
 }
 
-function beginEdit(): void {
+// The Edit button and the title input it swaps for both v-if out of the DOM
+// on their own side of the toggle, so a keyboard user's focus would
+// otherwise silently drop to <body> on every entry/exit -- explicitly move
+// it to whichever control just took that control's place instead.
+async function beginEdit(): Promise<void> {
   draftTitle.value = props.candidate.title
   draftText.value = props.candidate.text
   editing.value = true
+  await nextTick()
+  editTitleInput.value?.focus()
 }
 
-function cancelEdit(): void {
+async function cancelEdit(): Promise<void> {
   draftTitle.value = props.candidate.title
   draftText.value = props.candidate.text
   editing.value = false
+  await nextTick()
+  editButton.value?.focus()
 }
 
-function saveEdit(): void {
+async function saveEdit(): Promise<void> {
   const text = draftText.value.trim()
   if (!text) return
   emit('edit', { title: draftTitle.value.trim(), text })
   editing.value = false
+  await nextTick()
+  editButton.value?.focus()
 }
 
 function emitFeedback(): void {

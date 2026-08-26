@@ -62,6 +62,10 @@ export const ModelName = {
   MandarinCatalogOverride: 'MandarinCatalogOverride',
   MandarinCatalogChange: 'MandarinCatalogChange',
   MandarinRequestedCard: 'MandarinRequestedCard',
+  MandarinCustomSet: 'MandarinCustomSet',
+  MandarinArtJobLink: 'MandarinArtJobLink',
+  MandarinCardProgress: 'MandarinCardProgress',
+  MandarinReviewEvent: 'MandarinReviewEvent',
   ModelBuildRun: 'ModelBuildRun',
   ModelBuildItem: 'ModelBuildItem',
   ModelBuildArtifact: 'ModelBuildArtifact',
@@ -365,6 +369,64 @@ export const MandarinRequestedCardScalarFieldEnum = {
 } as const
 
 export type MandarinRequestedCardScalarFieldEnum = (typeof MandarinRequestedCardScalarFieldEnum)[keyof typeof MandarinRequestedCardScalarFieldEnum]
+
+
+export const MandarinCustomSetScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  clientId: 'clientId',
+  name: 'name',
+  cardKeys: 'cardKeys'
+} as const
+
+export type MandarinCustomSetScalarFieldEnum = (typeof MandarinCustomSetScalarFieldEnum)[keyof typeof MandarinCustomSetScalarFieldEnum]
+
+
+export const MandarinArtJobLinkScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  cardKey: 'cardKey',
+  jobId: 'jobId'
+} as const
+
+export type MandarinArtJobLinkScalarFieldEnum = (typeof MandarinArtJobLinkScalarFieldEnum)[keyof typeof MandarinArtJobLinkScalarFieldEnum]
+
+
+export const MandarinCardProgressScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  cardKey: 'cardKey',
+  dimension: 'dimension',
+  repetitions: 'repetitions',
+  lapses: 'lapses',
+  intervalDays: 'intervalDays',
+  easeFactor: 'easeFactor',
+  dueAt: 'dueAt',
+  lastRating: 'lastRating',
+  lastReviewedAt: 'lastReviewedAt'
+} as const
+
+export type MandarinCardProgressScalarFieldEnum = (typeof MandarinCardProgressScalarFieldEnum)[keyof typeof MandarinCardProgressScalarFieldEnum]
+
+
+export const MandarinReviewEventScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  userId: 'userId',
+  cardKey: 'cardKey',
+  dimension: 'dimension',
+  rating: 'rating',
+  intervalDays: 'intervalDays',
+  ratedAt: 'ratedAt'
+} as const
+
+export type MandarinReviewEventScalarFieldEnum = (typeof MandarinReviewEventScalarFieldEnum)[keyof typeof MandarinReviewEventScalarFieldEnum]
 
 
 export const ModelBuildRunScalarFieldEnum = {
@@ -1980,7 +2042,10 @@ export const MonsterScalarFieldEnum = {
   yieldPerTick: 'yieldPerTick',
   tickIntervalSeconds: 'tickIntervalSeconds',
   unlockCost: 'unlockCost',
+  depth: 'depth',
   behavior: 'behavior',
+  dietRole: 'dietRole',
+  schoolRole: 'schoolRole',
   hue: 'hue',
   games: 'games',
   artPrompt: 'artPrompt',
@@ -2293,6 +2358,40 @@ export const MandarinRequestedCardOrderByRelevanceFieldEnum = {
 } as const
 
 export type MandarinRequestedCardOrderByRelevanceFieldEnum = (typeof MandarinRequestedCardOrderByRelevanceFieldEnum)[keyof typeof MandarinRequestedCardOrderByRelevanceFieldEnum]
+
+
+export const MandarinCustomSetOrderByRelevanceFieldEnum = {
+  clientId: 'clientId',
+  name: 'name',
+  cardKeys: 'cardKeys'
+} as const
+
+export type MandarinCustomSetOrderByRelevanceFieldEnum = (typeof MandarinCustomSetOrderByRelevanceFieldEnum)[keyof typeof MandarinCustomSetOrderByRelevanceFieldEnum]
+
+
+export const MandarinArtJobLinkOrderByRelevanceFieldEnum = {
+  cardKey: 'cardKey'
+} as const
+
+export type MandarinArtJobLinkOrderByRelevanceFieldEnum = (typeof MandarinArtJobLinkOrderByRelevanceFieldEnum)[keyof typeof MandarinArtJobLinkOrderByRelevanceFieldEnum]
+
+
+export const MandarinCardProgressOrderByRelevanceFieldEnum = {
+  cardKey: 'cardKey',
+  dimension: 'dimension',
+  lastRating: 'lastRating'
+} as const
+
+export type MandarinCardProgressOrderByRelevanceFieldEnum = (typeof MandarinCardProgressOrderByRelevanceFieldEnum)[keyof typeof MandarinCardProgressOrderByRelevanceFieldEnum]
+
+
+export const MandarinReviewEventOrderByRelevanceFieldEnum = {
+  cardKey: 'cardKey',
+  dimension: 'dimension',
+  rating: 'rating'
+} as const
+
+export type MandarinReviewEventOrderByRelevanceFieldEnum = (typeof MandarinReviewEventOrderByRelevanceFieldEnum)[keyof typeof MandarinReviewEventOrderByRelevanceFieldEnum]
 
 
 export const ModelBuildRunOrderByRelevanceFieldEnum = {
@@ -3145,6 +3244,8 @@ export const MonsterOrderByRelevanceFieldEnum = {
   quirks: 'quirks',
   alignment: 'alignment',
   behavior: 'behavior',
+  dietRole: 'dietRole',
+  schoolRole: 'schoolRole',
   games: 'games',
   artPrompt: 'artPrompt',
   icon: 'icon',

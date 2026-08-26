@@ -55,6 +55,7 @@ export type MonsterAvgAggregateOutputType = {
   yieldPerTick: number | null
   tickIntervalSeconds: number | null
   unlockCost: number | null
+  depth: number | null
   hue: number | null
   evolvesToId: number | null
   artImageId: number | null
@@ -71,6 +72,7 @@ export type MonsterSumAggregateOutputType = {
   yieldPerTick: number | null
   tickIntervalSeconds: number | null
   unlockCost: number | null
+  depth: number | null
   hue: number | null
   evolvesToId: number | null
   artImageId: number | null
@@ -103,7 +105,10 @@ export type MonsterMinAggregateOutputType = {
   yieldPerTick: number | null
   tickIntervalSeconds: number | null
   unlockCost: number | null
+  depth: number | null
   behavior: string | null
+  dietRole: string | null
+  schoolRole: string | null
   hue: number | null
   games: string | null
   artPrompt: string | null
@@ -148,7 +153,10 @@ export type MonsterMaxAggregateOutputType = {
   yieldPerTick: number | null
   tickIntervalSeconds: number | null
   unlockCost: number | null
+  depth: number | null
   behavior: string | null
+  dietRole: string | null
+  schoolRole: string | null
   hue: number | null
   games: string | null
   artPrompt: string | null
@@ -193,7 +201,10 @@ export type MonsterCountAggregateOutputType = {
   yieldPerTick: number
   tickIntervalSeconds: number
   unlockCost: number
+  depth: number
   behavior: number
+  dietRole: number
+  schoolRole: number
   hue: number
   games: number
   artPrompt: number
@@ -224,6 +235,7 @@ export type MonsterAvgAggregateInputType = {
   yieldPerTick?: true
   tickIntervalSeconds?: true
   unlockCost?: true
+  depth?: true
   hue?: true
   evolvesToId?: true
   artImageId?: true
@@ -240,6 +252,7 @@ export type MonsterSumAggregateInputType = {
   yieldPerTick?: true
   tickIntervalSeconds?: true
   unlockCost?: true
+  depth?: true
   hue?: true
   evolvesToId?: true
   artImageId?: true
@@ -272,7 +285,10 @@ export type MonsterMinAggregateInputType = {
   yieldPerTick?: true
   tickIntervalSeconds?: true
   unlockCost?: true
+  depth?: true
   behavior?: true
+  dietRole?: true
+  schoolRole?: true
   hue?: true
   games?: true
   artPrompt?: true
@@ -317,7 +333,10 @@ export type MonsterMaxAggregateInputType = {
   yieldPerTick?: true
   tickIntervalSeconds?: true
   unlockCost?: true
+  depth?: true
   behavior?: true
+  dietRole?: true
+  schoolRole?: true
   hue?: true
   games?: true
   artPrompt?: true
@@ -362,7 +381,10 @@ export type MonsterCountAggregateInputType = {
   yieldPerTick?: true
   tickIntervalSeconds?: true
   unlockCost?: true
+  depth?: true
   behavior?: true
+  dietRole?: true
+  schoolRole?: true
   hue?: true
   games?: true
   artPrompt?: true
@@ -494,7 +516,10 @@ export type MonsterGroupByOutputType = {
   yieldPerTick: number | null
   tickIntervalSeconds: number | null
   unlockCost: number | null
+  depth: number | null
   behavior: string | null
+  dietRole: string | null
+  schoolRole: string | null
   hue: number | null
   games: string | null
   artPrompt: string | null
@@ -562,7 +587,10 @@ export type MonsterWhereInput = {
   yieldPerTick?: Prisma.IntNullableFilter<"Monster"> | number | null
   tickIntervalSeconds?: Prisma.IntNullableFilter<"Monster"> | number | null
   unlockCost?: Prisma.IntNullableFilter<"Monster"> | number | null
+  depth?: Prisma.IntNullableFilter<"Monster"> | number | null
   behavior?: Prisma.StringNullableFilter<"Monster"> | string | null
+  dietRole?: Prisma.StringNullableFilter<"Monster"> | string | null
+  schoolRole?: Prisma.StringNullableFilter<"Monster"> | string | null
   hue?: Prisma.IntNullableFilter<"Monster"> | number | null
   games?: Prisma.StringNullableFilter<"Monster"> | string | null
   artPrompt?: Prisma.StringNullableFilter<"Monster"> | string | null
@@ -614,7 +642,10 @@ export type MonsterOrderByWithRelationInput = {
   yieldPerTick?: Prisma.SortOrderInput | Prisma.SortOrder
   tickIntervalSeconds?: Prisma.SortOrderInput | Prisma.SortOrder
   unlockCost?: Prisma.SortOrderInput | Prisma.SortOrder
+  depth?: Prisma.SortOrderInput | Prisma.SortOrder
   behavior?: Prisma.SortOrderInput | Prisma.SortOrder
+  dietRole?: Prisma.SortOrderInput | Prisma.SortOrder
+  schoolRole?: Prisma.SortOrderInput | Prisma.SortOrder
   hue?: Prisma.SortOrderInput | Prisma.SortOrder
   games?: Prisma.SortOrderInput | Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -670,7 +701,10 @@ export type MonsterWhereUniqueInput = Prisma.AtLeast<{
   yieldPerTick?: Prisma.IntNullableFilter<"Monster"> | number | null
   tickIntervalSeconds?: Prisma.IntNullableFilter<"Monster"> | number | null
   unlockCost?: Prisma.IntNullableFilter<"Monster"> | number | null
+  depth?: Prisma.IntNullableFilter<"Monster"> | number | null
   behavior?: Prisma.StringNullableFilter<"Monster"> | string | null
+  dietRole?: Prisma.StringNullableFilter<"Monster"> | string | null
+  schoolRole?: Prisma.StringNullableFilter<"Monster"> | string | null
   hue?: Prisma.IntNullableFilter<"Monster"> | number | null
   games?: Prisma.StringNullableFilter<"Monster"> | string | null
   artPrompt?: Prisma.StringNullableFilter<"Monster"> | string | null
@@ -722,7 +756,10 @@ export type MonsterOrderByWithAggregationInput = {
   yieldPerTick?: Prisma.SortOrderInput | Prisma.SortOrder
   tickIntervalSeconds?: Prisma.SortOrderInput | Prisma.SortOrder
   unlockCost?: Prisma.SortOrderInput | Prisma.SortOrder
+  depth?: Prisma.SortOrderInput | Prisma.SortOrder
   behavior?: Prisma.SortOrderInput | Prisma.SortOrder
+  dietRole?: Prisma.SortOrderInput | Prisma.SortOrder
+  schoolRole?: Prisma.SortOrderInput | Prisma.SortOrder
   hue?: Prisma.SortOrderInput | Prisma.SortOrder
   games?: Prisma.SortOrderInput | Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -775,7 +812,10 @@ export type MonsterScalarWhereWithAggregatesInput = {
   yieldPerTick?: Prisma.IntNullableWithAggregatesFilter<"Monster"> | number | null
   tickIntervalSeconds?: Prisma.IntNullableWithAggregatesFilter<"Monster"> | number | null
   unlockCost?: Prisma.IntNullableWithAggregatesFilter<"Monster"> | number | null
+  depth?: Prisma.IntNullableWithAggregatesFilter<"Monster"> | number | null
   behavior?: Prisma.StringNullableWithAggregatesFilter<"Monster"> | string | null
+  dietRole?: Prisma.StringNullableWithAggregatesFilter<"Monster"> | string | null
+  schoolRole?: Prisma.StringNullableWithAggregatesFilter<"Monster"> | string | null
   hue?: Prisma.IntNullableWithAggregatesFilter<"Monster"> | number | null
   games?: Prisma.StringNullableWithAggregatesFilter<"Monster"> | string | null
   artPrompt?: Prisma.StringNullableWithAggregatesFilter<"Monster"> | string | null
@@ -819,7 +859,10 @@ export type MonsterCreateInput = {
   yieldPerTick?: number | null
   tickIntervalSeconds?: number | null
   unlockCost?: number | null
+  depth?: number | null
   behavior?: string | null
+  dietRole?: string | null
+  schoolRole?: string | null
   hue?: number | null
   games?: string | null
   artPrompt?: string | null
@@ -867,7 +910,10 @@ export type MonsterUncheckedCreateInput = {
   yieldPerTick?: number | null
   tickIntervalSeconds?: number | null
   unlockCost?: number | null
+  depth?: number | null
   behavior?: string | null
+  dietRole?: string | null
+  schoolRole?: string | null
   hue?: number | null
   games?: string | null
   artPrompt?: string | null
@@ -914,7 +960,10 @@ export type MonsterUpdateInput = {
   yieldPerTick?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tickIntervalSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   unlockCost?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  depth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   behavior?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dietRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  schoolRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hue?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   games?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -962,7 +1011,10 @@ export type MonsterUncheckedUpdateInput = {
   yieldPerTick?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tickIntervalSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   unlockCost?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  depth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   behavior?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dietRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  schoolRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hue?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   games?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1010,7 +1062,10 @@ export type MonsterCreateManyInput = {
   yieldPerTick?: number | null
   tickIntervalSeconds?: number | null
   unlockCost?: number | null
+  depth?: number | null
   behavior?: string | null
+  dietRole?: string | null
+  schoolRole?: string | null
   hue?: number | null
   games?: string | null
   artPrompt?: string | null
@@ -1054,7 +1109,10 @@ export type MonsterUpdateManyMutationInput = {
   yieldPerTick?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tickIntervalSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   unlockCost?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  depth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   behavior?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dietRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  schoolRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hue?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   games?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1095,7 +1153,10 @@ export type MonsterUncheckedUpdateManyInput = {
   yieldPerTick?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tickIntervalSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   unlockCost?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  depth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   behavior?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dietRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  schoolRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hue?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   games?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1166,7 +1227,10 @@ export type MonsterCountOrderByAggregateInput = {
   yieldPerTick?: Prisma.SortOrder
   tickIntervalSeconds?: Prisma.SortOrder
   unlockCost?: Prisma.SortOrder
+  depth?: Prisma.SortOrder
   behavior?: Prisma.SortOrder
+  dietRole?: Prisma.SortOrder
+  schoolRole?: Prisma.SortOrder
   hue?: Prisma.SortOrder
   games?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
@@ -1195,6 +1259,7 @@ export type MonsterAvgOrderByAggregateInput = {
   yieldPerTick?: Prisma.SortOrder
   tickIntervalSeconds?: Prisma.SortOrder
   unlockCost?: Prisma.SortOrder
+  depth?: Prisma.SortOrder
   hue?: Prisma.SortOrder
   evolvesToId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
@@ -1227,7 +1292,10 @@ export type MonsterMaxOrderByAggregateInput = {
   yieldPerTick?: Prisma.SortOrder
   tickIntervalSeconds?: Prisma.SortOrder
   unlockCost?: Prisma.SortOrder
+  depth?: Prisma.SortOrder
   behavior?: Prisma.SortOrder
+  dietRole?: Prisma.SortOrder
+  schoolRole?: Prisma.SortOrder
   hue?: Prisma.SortOrder
   games?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
@@ -1272,7 +1340,10 @@ export type MonsterMinOrderByAggregateInput = {
   yieldPerTick?: Prisma.SortOrder
   tickIntervalSeconds?: Prisma.SortOrder
   unlockCost?: Prisma.SortOrder
+  depth?: Prisma.SortOrder
   behavior?: Prisma.SortOrder
+  dietRole?: Prisma.SortOrder
+  schoolRole?: Prisma.SortOrder
   hue?: Prisma.SortOrder
   games?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
@@ -1301,6 +1372,7 @@ export type MonsterSumOrderByAggregateInput = {
   yieldPerTick?: Prisma.SortOrder
   tickIntervalSeconds?: Prisma.SortOrder
   unlockCost?: Prisma.SortOrder
+  depth?: Prisma.SortOrder
   hue?: Prisma.SortOrder
   evolvesToId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
@@ -1548,7 +1620,10 @@ export type MonsterCreateWithoutArtImageInput = {
   yieldPerTick?: number | null
   tickIntervalSeconds?: number | null
   unlockCost?: number | null
+  depth?: number | null
   behavior?: string | null
+  dietRole?: string | null
+  schoolRole?: string | null
   hue?: number | null
   games?: string | null
   artPrompt?: string | null
@@ -1595,7 +1670,10 @@ export type MonsterUncheckedCreateWithoutArtImageInput = {
   yieldPerTick?: number | null
   tickIntervalSeconds?: number | null
   unlockCost?: number | null
+  depth?: number | null
   behavior?: string | null
+  dietRole?: string | null
+  schoolRole?: string | null
   hue?: number | null
   games?: string | null
   artPrompt?: string | null
@@ -1671,7 +1749,10 @@ export type MonsterScalarWhereInput = {
   yieldPerTick?: Prisma.IntNullableFilter<"Monster"> | number | null
   tickIntervalSeconds?: Prisma.IntNullableFilter<"Monster"> | number | null
   unlockCost?: Prisma.IntNullableFilter<"Monster"> | number | null
+  depth?: Prisma.IntNullableFilter<"Monster"> | number | null
   behavior?: Prisma.StringNullableFilter<"Monster"> | string | null
+  dietRole?: Prisma.StringNullableFilter<"Monster"> | string | null
+  schoolRole?: Prisma.StringNullableFilter<"Monster"> | string | null
   hue?: Prisma.IntNullableFilter<"Monster"> | number | null
   games?: Prisma.StringNullableFilter<"Monster"> | string | null
   artPrompt?: Prisma.StringNullableFilter<"Monster"> | string | null
@@ -1715,7 +1796,10 @@ export type MonsterCreateWithoutPackInput = {
   yieldPerTick?: number | null
   tickIntervalSeconds?: number | null
   unlockCost?: number | null
+  depth?: number | null
   behavior?: string | null
+  dietRole?: string | null
+  schoolRole?: string | null
   hue?: number | null
   games?: string | null
   artPrompt?: string | null
@@ -1762,7 +1846,10 @@ export type MonsterUncheckedCreateWithoutPackInput = {
   yieldPerTick?: number | null
   tickIntervalSeconds?: number | null
   unlockCost?: number | null
+  depth?: number | null
   behavior?: string | null
+  dietRole?: string | null
+  schoolRole?: string | null
   hue?: number | null
   games?: string | null
   artPrompt?: string | null
@@ -1834,7 +1921,10 @@ export type MonsterCreateWithoutUserInput = {
   yieldPerTick?: number | null
   tickIntervalSeconds?: number | null
   unlockCost?: number | null
+  depth?: number | null
   behavior?: string | null
+  dietRole?: string | null
+  schoolRole?: string | null
   hue?: number | null
   games?: string | null
   artPrompt?: string | null
@@ -1881,7 +1971,10 @@ export type MonsterUncheckedCreateWithoutUserInput = {
   yieldPerTick?: number | null
   tickIntervalSeconds?: number | null
   unlockCost?: number | null
+  depth?: number | null
   behavior?: string | null
+  dietRole?: string | null
+  schoolRole?: string | null
   hue?: number | null
   games?: string | null
   artPrompt?: string | null
@@ -1953,7 +2046,10 @@ export type MonsterCreateWithoutAquariumStockInput = {
   yieldPerTick?: number | null
   tickIntervalSeconds?: number | null
   unlockCost?: number | null
+  depth?: number | null
   behavior?: string | null
+  dietRole?: string | null
+  schoolRole?: string | null
   hue?: number | null
   games?: string | null
   artPrompt?: string | null
@@ -2000,7 +2096,10 @@ export type MonsterUncheckedCreateWithoutAquariumStockInput = {
   yieldPerTick?: number | null
   tickIntervalSeconds?: number | null
   unlockCost?: number | null
+  depth?: number | null
   behavior?: string | null
+  dietRole?: string | null
+  schoolRole?: string | null
   hue?: number | null
   games?: string | null
   artPrompt?: string | null
@@ -2062,7 +2161,10 @@ export type MonsterUpdateWithoutAquariumStockInput = {
   yieldPerTick?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tickIntervalSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   unlockCost?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  depth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   behavior?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dietRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  schoolRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hue?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   games?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2109,7 +2211,10 @@ export type MonsterUncheckedUpdateWithoutAquariumStockInput = {
   yieldPerTick?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tickIntervalSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   unlockCost?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  depth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   behavior?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dietRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  schoolRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hue?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   games?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2155,7 +2260,10 @@ export type MonsterCreateWithoutAquariumCodexEntryInput = {
   yieldPerTick?: number | null
   tickIntervalSeconds?: number | null
   unlockCost?: number | null
+  depth?: number | null
   behavior?: string | null
+  dietRole?: string | null
+  schoolRole?: string | null
   hue?: number | null
   games?: string | null
   artPrompt?: string | null
@@ -2202,7 +2310,10 @@ export type MonsterUncheckedCreateWithoutAquariumCodexEntryInput = {
   yieldPerTick?: number | null
   tickIntervalSeconds?: number | null
   unlockCost?: number | null
+  depth?: number | null
   behavior?: string | null
+  dietRole?: string | null
+  schoolRole?: string | null
   hue?: number | null
   games?: string | null
   artPrompt?: string | null
@@ -2264,7 +2375,10 @@ export type MonsterUpdateWithoutAquariumCodexEntryInput = {
   yieldPerTick?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tickIntervalSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   unlockCost?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  depth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   behavior?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dietRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  schoolRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hue?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   games?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2311,7 +2425,10 @@ export type MonsterUncheckedUpdateWithoutAquariumCodexEntryInput = {
   yieldPerTick?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tickIntervalSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   unlockCost?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  depth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   behavior?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dietRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  schoolRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hue?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   games?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2357,7 +2474,10 @@ export type MonsterCreateWithoutEvolvesFromInput = {
   yieldPerTick?: number | null
   tickIntervalSeconds?: number | null
   unlockCost?: number | null
+  depth?: number | null
   behavior?: string | null
+  dietRole?: string | null
+  schoolRole?: string | null
   hue?: number | null
   games?: string | null
   artPrompt?: string | null
@@ -2404,7 +2524,10 @@ export type MonsterUncheckedCreateWithoutEvolvesFromInput = {
   yieldPerTick?: number | null
   tickIntervalSeconds?: number | null
   unlockCost?: number | null
+  depth?: number | null
   behavior?: string | null
+  dietRole?: string | null
+  schoolRole?: string | null
   hue?: number | null
   games?: string | null
   artPrompt?: string | null
@@ -2455,7 +2578,10 @@ export type MonsterCreateWithoutEvolvesToInput = {
   yieldPerTick?: number | null
   tickIntervalSeconds?: number | null
   unlockCost?: number | null
+  depth?: number | null
   behavior?: string | null
+  dietRole?: string | null
+  schoolRole?: string | null
   hue?: number | null
   games?: string | null
   artPrompt?: string | null
@@ -2502,7 +2628,10 @@ export type MonsterUncheckedCreateWithoutEvolvesToInput = {
   yieldPerTick?: number | null
   tickIntervalSeconds?: number | null
   unlockCost?: number | null
+  depth?: number | null
   behavior?: string | null
+  dietRole?: string | null
+  schoolRole?: string | null
   hue?: number | null
   games?: string | null
   artPrompt?: string | null
@@ -2569,7 +2698,10 @@ export type MonsterUpdateWithoutEvolvesFromInput = {
   yieldPerTick?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tickIntervalSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   unlockCost?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  depth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   behavior?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dietRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  schoolRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hue?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   games?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2616,7 +2748,10 @@ export type MonsterUncheckedUpdateWithoutEvolvesFromInput = {
   yieldPerTick?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tickIntervalSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   unlockCost?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  depth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   behavior?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dietRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  schoolRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hue?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   games?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2679,7 +2814,10 @@ export type MonsterCreateManyArtImageInput = {
   yieldPerTick?: number | null
   tickIntervalSeconds?: number | null
   unlockCost?: number | null
+  depth?: number | null
   behavior?: string | null
+  dietRole?: string | null
+  schoolRole?: string | null
   hue?: number | null
   games?: string | null
   artPrompt?: string | null
@@ -2722,7 +2860,10 @@ export type MonsterUpdateWithoutArtImageInput = {
   yieldPerTick?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tickIntervalSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   unlockCost?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  depth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   behavior?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dietRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  schoolRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hue?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   games?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2769,7 +2910,10 @@ export type MonsterUncheckedUpdateWithoutArtImageInput = {
   yieldPerTick?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tickIntervalSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   unlockCost?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  depth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   behavior?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dietRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  schoolRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hue?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   games?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2816,7 +2960,10 @@ export type MonsterUncheckedUpdateManyWithoutArtImageInput = {
   yieldPerTick?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tickIntervalSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   unlockCost?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  depth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   behavior?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dietRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  schoolRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hue?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   games?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2860,7 +3007,10 @@ export type MonsterCreateManyPackInput = {
   yieldPerTick?: number | null
   tickIntervalSeconds?: number | null
   unlockCost?: number | null
+  depth?: number | null
   behavior?: string | null
+  dietRole?: string | null
+  schoolRole?: string | null
   hue?: number | null
   games?: string | null
   artPrompt?: string | null
@@ -2903,7 +3053,10 @@ export type MonsterUpdateWithoutPackInput = {
   yieldPerTick?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tickIntervalSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   unlockCost?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  depth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   behavior?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dietRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  schoolRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hue?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   games?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2950,7 +3103,10 @@ export type MonsterUncheckedUpdateWithoutPackInput = {
   yieldPerTick?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tickIntervalSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   unlockCost?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  depth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   behavior?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dietRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  schoolRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hue?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   games?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2997,7 +3153,10 @@ export type MonsterUncheckedUpdateManyWithoutPackInput = {
   yieldPerTick?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tickIntervalSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   unlockCost?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  depth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   behavior?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dietRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  schoolRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hue?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   games?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3041,7 +3200,10 @@ export type MonsterCreateManyUserInput = {
   yieldPerTick?: number | null
   tickIntervalSeconds?: number | null
   unlockCost?: number | null
+  depth?: number | null
   behavior?: string | null
+  dietRole?: string | null
+  schoolRole?: string | null
   hue?: number | null
   games?: string | null
   artPrompt?: string | null
@@ -3084,7 +3246,10 @@ export type MonsterUpdateWithoutUserInput = {
   yieldPerTick?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tickIntervalSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   unlockCost?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  depth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   behavior?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dietRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  schoolRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hue?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   games?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3131,7 +3296,10 @@ export type MonsterUncheckedUpdateWithoutUserInput = {
   yieldPerTick?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tickIntervalSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   unlockCost?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  depth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   behavior?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dietRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  schoolRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hue?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   games?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3178,7 +3346,10 @@ export type MonsterUncheckedUpdateManyWithoutUserInput = {
   yieldPerTick?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tickIntervalSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   unlockCost?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  depth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   behavior?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dietRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  schoolRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hue?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   games?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3222,7 +3393,10 @@ export type MonsterCreateManyEvolvesToInput = {
   yieldPerTick?: number | null
   tickIntervalSeconds?: number | null
   unlockCost?: number | null
+  depth?: number | null
   behavior?: string | null
+  dietRole?: string | null
+  schoolRole?: string | null
   hue?: number | null
   games?: string | null
   artPrompt?: string | null
@@ -3265,7 +3439,10 @@ export type MonsterUpdateWithoutEvolvesToInput = {
   yieldPerTick?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tickIntervalSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   unlockCost?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  depth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   behavior?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dietRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  schoolRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hue?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   games?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3312,7 +3489,10 @@ export type MonsterUncheckedUpdateWithoutEvolvesToInput = {
   yieldPerTick?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tickIntervalSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   unlockCost?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  depth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   behavior?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dietRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  schoolRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hue?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   games?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3359,7 +3539,10 @@ export type MonsterUncheckedUpdateManyWithoutEvolvesToInput = {
   yieldPerTick?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   tickIntervalSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   unlockCost?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  depth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   behavior?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dietRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  schoolRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hue?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   games?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3452,7 +3635,10 @@ export type MonsterSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   yieldPerTick?: boolean
   tickIntervalSeconds?: boolean
   unlockCost?: boolean
+  depth?: boolean
   behavior?: boolean
+  dietRole?: boolean
+  schoolRole?: boolean
   hue?: boolean
   games?: boolean
   artPrompt?: boolean
@@ -3507,7 +3693,10 @@ export type MonsterSelectScalar = {
   yieldPerTick?: boolean
   tickIntervalSeconds?: boolean
   unlockCost?: boolean
+  depth?: boolean
   behavior?: boolean
+  dietRole?: boolean
+  schoolRole?: boolean
   hue?: boolean
   games?: boolean
   artPrompt?: boolean
@@ -3530,7 +3719,7 @@ export type MonsterSelectScalar = {
   packId?: boolean
 }
 
-export type MonsterOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "slug" | "name" | "species" | "class" | "fieldNote" | "quirks" | "alignment" | "tier" | "charm" | "empathy" | "grace" | "luck" | "might" | "wits" | "size" | "yieldPerTick" | "tickIntervalSeconds" | "unlockCost" | "behavior" | "hue" | "games" | "artPrompt" | "evolutionKind" | "evolvesToId" | "icon" | "iconPath" | "imagePath" | "cardPath" | "heroPath" | "artImageId" | "cardArtImageId" | "heroArtImageId" | "iconArtImageId" | "isPublic" | "isActive" | "isMature" | "allowReviews" | "userId" | "packId", ExtArgs["result"]["monster"]>
+export type MonsterOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "slug" | "name" | "species" | "class" | "fieldNote" | "quirks" | "alignment" | "tier" | "charm" | "empathy" | "grace" | "luck" | "might" | "wits" | "size" | "yieldPerTick" | "tickIntervalSeconds" | "unlockCost" | "depth" | "behavior" | "dietRole" | "schoolRole" | "hue" | "games" | "artPrompt" | "evolutionKind" | "evolvesToId" | "icon" | "iconPath" | "imagePath" | "cardPath" | "heroPath" | "artImageId" | "cardArtImageId" | "heroArtImageId" | "iconArtImageId" | "isPublic" | "isActive" | "isMature" | "allowReviews" | "userId" | "packId", ExtArgs["result"]["monster"]>
 export type MonsterInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   EvolvesTo?: boolean | Prisma.Monster$EvolvesToArgs<ExtArgs>
   EvolvesFrom?: boolean | Prisma.Monster$EvolvesFromArgs<ExtArgs>
@@ -3570,10 +3759,11 @@ export type $MonsterPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     alignment: string | null
     /**
      * Collection/economy tier, COMMON..MYTHIC -- matches the fish bible's
-     * `tier` and economy.yaml's rarity_tiers lookup key. This is the
-     * canonical field server/utils/aquariumEconomy.ts's deriveFishRarityTier
-     * has been waiting on; Character never had one (see that function's own
-     * doc comment, which this model finally resolves).
+     * `rarity` (NOT its own unrelated `tier` field -- see `depth` below) and
+     * economy.yaml's rarity_tiers lookup key. This is the canonical field
+     * server/utils/aquariumEconomy.ts's deriveFishRarityTier has been waiting
+     * on; Character never had one (see that function's own doc comment,
+     * which this model finally resolves).
      */
     tier: $Enums.Rarity
     /**
@@ -3606,14 +3796,36 @@ export type $MonsterPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     tickIntervalSeconds: number | null
     unlockCost: number | null
     /**
-     * Free-form ecological role tag (the fish bible's diet_role/school_role
-     * feed economy.yaml's rivalry.emergent_rules -- predator/prey,
-     * school/anchor/solitary). Exact taxonomy and consumption belongs to
-     * whichever task wires the rivalry economy (t-030 or a successor);
-     * stored as free text for the same reason AquariumEvent.kind and
-     * AquariumSet.kind are -- a new tag is a data commit, not a migration.
+     * The bible's own 1-5 "roughly how deep into the game it appears"
+     * integer (cthulhuquarium/t-042) -- unrelated to the `tier` Rarity
+     * column above, hence the different name rather than a second `tier`.
+     * Nothing reads this yet.
+     */
+    depth: number | null
+    /**
+     * The RENDERER's movement mode -- drift, dart, lurk, school, anchor,
+     * surface, hover, tumble, cling -- the fish bible's own `behavior`
+     * field, name-for-name. Previously mis-documented here as the bible's
+     * diet_role/school_role (predator/prey, school/anchor/solitary
+     * ecological roles); those are a DIFFERENT pair of bible fields and now
+     * have their own columns below (cthulhuquarium/t-042). Stored as free
+     * text for the same reason AquariumEvent.kind and AquariumSet.kind are
+     * -- a new tag is a data commit, not a migration.
      */
     behavior: string | null
+    /**
+     * The fish bible's `diet_role` (predator/prey) -- feeds
+     * economy.yaml's rivalry.emergent_rules. Exact taxonomy and consumption
+     * belongs to whichever task wires the rivalry economy (t-030 or a
+     * successor); stored as free text, same convention as `behavior`.
+     */
+    dietRole: string | null
+    /**
+     * The fish bible's `school_role` (school/anchor/solitary) -- feeds
+     * economy.yaml's rivalry.emergent_rules alongside `dietRole`. Same
+     * free-text convention.
+     */
+    schoolRole: string | null
     /**
      * 0-360 hue-rotate degrees for palette-shifting a shared sprite. No
      * renderer consumes this yet -- t-011 owns the real play loop -- reserved
@@ -3633,8 +3845,11 @@ export type $MonsterPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     /**
      * growth: a species matures into the next one (the goldfish line is the
      * named example). breeding: a "secret evolution" that only appears by
-     * pairing two owned individuals (t-029). Required whenever evolvesToId
-     * is set; omit both on a species with no further evolution.
+     * pairing two owned individuals (t-029). secret: a hidden individual-
+     * stat roll rather than a pairing (cthulhuquarium/t-042) -- a different
+     * mechanic from breeding despite the similar-sounding name. Required
+     * whenever evolvesToId is set; omit both on a species with no further
+     * evolution.
      */
     evolutionKind: $Enums.EvolutionKind | null
     evolvesToId: number | null
@@ -4050,7 +4265,10 @@ export interface MonsterFieldRefs {
   readonly yieldPerTick: Prisma.FieldRef<"Monster", 'Int'>
   readonly tickIntervalSeconds: Prisma.FieldRef<"Monster", 'Int'>
   readonly unlockCost: Prisma.FieldRef<"Monster", 'Int'>
+  readonly depth: Prisma.FieldRef<"Monster", 'Int'>
   readonly behavior: Prisma.FieldRef<"Monster", 'String'>
+  readonly dietRole: Prisma.FieldRef<"Monster", 'String'>
+  readonly schoolRole: Prisma.FieldRef<"Monster", 'String'>
   readonly hue: Prisma.FieldRef<"Monster", 'Int'>
   readonly games: Prisma.FieldRef<"Monster", 'String'>
   readonly artPrompt: Prisma.FieldRef<"Monster", 'String'>

@@ -1,0 +1,48 @@
+/// Custom study-set and queued-illustration bookkeeping for the Mandarin Tutor Study
+/// loop (mandarin-tutor/t-016, follow-up to t-012's mobile-domain audit). Both fields
+/// previously lived only in `mandarinTutorStore`'s `localStorage` snapshot, per that
+/// store's own deferred-follow-up comment -- they would show up empty on a reinstalled
+/// PWA, a second device, or a future native client. This gives them the same
+/// authenticated-backend treatment `MandarinCardProgress` got in t-015.
+///
+/// userId is a plain ownership scalar, matching every other Mandarin Tutor model's
+/// established pattern (MandarinRequestedCard, MandarinCardProgress), so this additive
+/// model needs no changes to the already-crowded User model.
+///
+/// clientId is the store's own client-generated slug (`safeId(name)`, e.g. "deck",
+/// "deck-2") -- the identity the UI already keys sets on -- not the autoincrement `id`,
+/// so a set created offline keeps the same identity once it syncs.
+///
+/// cardKeys is a serialized-JSON string array (this repo stores structured data as
+/// String/@db.LongText, never a native Json column -- see
+/// utils/scripts/verifyNoPrismaJsonCast.ts), matching MandarinRequestedCard.meanings.
+model MandarinCustomSet {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  userId    Int
+  clientId  String   @db.VarChar(64)
+  name      String   @db.VarChar(80)
+  cardKeys  String   @db.LongText
+
+  @@unique([userId, clientId])
+  @@index([userId])
+}
+
+/// Queued/known illustration ArtJob ids for a learner's own cards, keyed by cardKey
+/// (mirrors `mandarinTutorStore`'s `artJobs: Record<string, number>`). Purely a
+/// lookup so a returning learner (or a second device) can resume polling a job that
+/// was already enqueued, rather than re-enqueueing. The ArtJob row itself remains the
+/// source of truth for job status; this table only remembers which job belongs to
+/// which card for which learner.
+model MandarinArtJobLink {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  userId    Int
+  cardKey   String   @db.VarChar(255)
+  jobId     Int
+
+  @@unique([userId, cardKey])
+  @@index([jobId])
+}

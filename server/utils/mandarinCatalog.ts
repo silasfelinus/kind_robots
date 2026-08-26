@@ -3,11 +3,18 @@ import {
   BUILT_IN_SET_TERMS,
   CURATED_MANDARIN_CARDS,
   MANDARIN_SOURCE,
+  MANDARIN_SOURCE_COMMIT,
   STARTER_COMPONENT_GUIDES,
   type MandarinCard,
   type MandarinCatalogPayload,
   type MandarinStudySet,
 } from '~/utils/mandarin'
+import {
+  CASINO_MANDARIN_CARDS,
+  CASINO_STUDY_SET_META,
+  type MandarinCasinoCard,
+} from '~/utils/mandarinCasino'
+import { CASINO_MANDARIN_ADDITIONS } from '~/utils/mandarinCasinoAdditions'
 import { enrichMandarinCharacterData } from './mandarinCharacterData'
 import { applyMandarinCatalogOverrides } from './mandarinCatalogOverrides'
 
@@ -31,8 +38,9 @@ type SourceEntry = {
   f?: SourceForm[]
 }
 
-const SOURCE_COMMIT = 'a66fd30b9580da2c2af7eb19e4b9d8099a29c061'
-const SOURCE_BASE = `https://raw.githubusercontent.com/jelleverheyen/hsk-vocabulary/${SOURCE_COMMIT}/wordlists/inclusive/new`
+// Pin lives in utils/mandarin.ts (MANDARIN_SOURCE_COMMIT) so this fetch and
+// MANDARIN_SOURCE's own version string can never drift apart.
+const SOURCE_BASE = `https://raw.githubusercontent.com/jelleverheyen/hsk-vocabulary/${MANDARIN_SOURCE_COMMIT}/wordlists/inclusive/new`
 const MINIMUM_CARD_COUNT = 500
 let sourceCatalogPromise: Promise<MandarinCatalogPayload> | null = null
 let catalogPromise: Promise<MandarinCatalogPayload> | null = null
@@ -124,17 +132,62 @@ function normalizeSourceEntry(entry: SourceEntry, level: number): MandarinCard |
 }
 
 async function fetchLevel(level: number): Promise<MandarinCard[]> {
+  // GitHub serves raw .json content as `text/plain; charset=utf-8`, not
+  // `application/json`. ofetch's default JSON auto-parsing keys off the
+  // response's Content-Type header, so without an explicit `parseResponse`
+  // it silently returns the raw response text instead of a parsed array
+  // whenever that header disagrees with the file extension. Forcing
+  // JSON.parse here makes parsing independent of what the upstream host
+  // decides to label the response as.
   const entries = await $fetch<SourceEntry[], string>(
     `${SOURCE_BASE}/${level}.min.json`,
     {
       retry: 2,
       timeout: 20_000,
+      parseResponse: (responseText) => JSON.parse(responseText),
     },
   )
   if (!Array.isArray(entries)) throw new Error(`HSK level ${level} source was not an array.`)
   return entries
     .map((entry) => normalizeSourceEntry(entry, level))
     .filter((card): card is MandarinCard => Boolean(card))
+}
+
+function appendUsageNote(card: MandarinCard, usageNote?: string): MandarinCasinoCard {
+  const current = (card as MandarinCasinoCard).usageNote?.trim()
+  const incoming = usageNote?.trim()
+  const combined = [...new Set([current, incoming].filter((value): value is string => Boolean(value)))]
+  return {
+    ...card,
+    ...(combined.length ? { usageNote: combined.join(' ') } : {}),
+  }
+}
+
+function mergeCasinoCard(existing: MandarinCard, specialist: MandarinCasinoCard): MandarinCard {
+  const categories = [...new Set([...existing.categories, ...specialist.categories])]
+  const withUsage = appendUsageNote(existing, specialist.usageNote)
+
+  // A specialist curriculum may add table context to an ordinary HSK word, but it must
+  // not turn the canonical everyday card for 大, 小, 客人, 谢谢, etc. into a casino-only
+  // definition. Dedicated curated casino terms have no HSK level and intentionally take
+  // the sharper specialist gloss/pinyin/source below.
+  if (existing.hskLevel !== undefined) {
+    return {
+      ...withUsage,
+      categories,
+    }
+  }
+
+  return {
+    ...withUsage,
+    ...(specialist.traditional ? { traditional: specialist.traditional } : {}),
+    pinyin: specialist.pinyin,
+    meaning: specialist.meaning,
+    meanings: [...specialist.meanings],
+    kind: specialist.kind,
+    categories,
+    source: { ...specialist.source },
+  }
 }
 
 function mergeCards(sourceCards: MandarinCard[]): MandarinCard[] {
@@ -151,6 +204,15 @@ function mergeCards(sourceCards: MandarinCard[]): MandarinCard[] {
       continue
     }
     existing.categories = [...new Set([...existing.categories, ...curated.categories])]
+  }
+
+  for (const specialist of [...CASINO_MANDARIN_CARDS, ...CASINO_MANDARIN_ADDITIONS]) {
+    const existing = bySimplified.get(specialist.simplified)
+    if (!existing) {
+      bySimplified.set(specialist.simplified, specialist)
+      continue
+    }
+    bySimplified.set(specialist.simplified, mergeCasinoCard(existing, specialist))
   }
 
   for (const [setId, terms] of Object.entries(BUILT_IN_SET_TERMS)) {
@@ -198,6 +260,17 @@ function buildSets(cards: MandarinCard[]): MandarinStudySet[] {
   ]
 
   for (const [id, meta] of Object.entries(BUILT_IN_SET_META)) {
+    sets.push({
+      id,
+      label: meta.label,
+      description: meta.description,
+      cardKeys: cards
+        .filter((card) => card.categories.includes(id))
+        .map((card) => card.key),
+    })
+  }
+
+  for (const [id, meta] of Object.entries(CASINO_STUDY_SET_META)) {
     sets.push({
       id,
       label: meta.label,

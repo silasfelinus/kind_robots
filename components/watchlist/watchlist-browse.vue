@@ -448,10 +448,7 @@
 
       <!-- Results -->
       <div aria-live="polite" aria-atomic="true">
-        <div
-          v-if="errorMessage"
-          class="rounded-2xl border border-error/40 bg-error/10 p-4 text-sm text-error"
-        >
+        <div v-if="errorMessage" class="kr-note kr-note-error">
           {{ errorMessage }}
         </div>
 

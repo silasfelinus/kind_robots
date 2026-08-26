@@ -1,5 +1,20 @@
 <template>
   <div class="kr-unbound kr-container max-w-3xl p-6 space-y-8">
+    <header class="flex items-center gap-3">
+      <span
+        class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/15 text-primary"
+      >
+        <Icon name="kind-icon:coin" class="h-7 w-7" />
+      </span>
+      <div>
+        <p class="text-2xl font-black tracking-tight">Creator Earnings</p>
+        <p class="text-sm text-base-content/60">
+          What you've earned when someone spent tokens on something you made — a
+          Bot, Character, Facet, Scenario, Pitch, Art, Pack, Reward, or Dream.
+        </p>
+      </div>
+    </header>
+
     <div
       v-if="userStore.isGuest"
       class="rounded-2xl border border-accent/30 bg-(--kr-surface) p-6 text-center space-y-3"
@@ -13,11 +28,6 @@
     </div>
 
     <template v-else>
-      <p class="text-sm text-base-content/60">
-        What you've earned when someone spent tokens on something you made — a
-        Bot, Character, Facet, Scenario, Pitch, Art, Pack, Reward, or Dream.
-      </p>
-
       <div
         class="flex items-start gap-3 rounded-2xl border border-info/30 bg-info/10 p-4 text-sm text-base-content/75"
       >

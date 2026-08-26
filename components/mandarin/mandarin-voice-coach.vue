@@ -9,6 +9,12 @@
         <p class="mt-1 text-sm leading-relaxed opacity-70">
           Hear the reference, say the word yourself, then compare what the recognizer heard with a separate on-device check of the broad tone shape.
         </p>
+        <div
+          v-if="usageNote"
+          class="mt-3 rounded-xl border border-info/25 bg-info/10 px-3 py-2 text-sm leading-relaxed"
+        >
+          <span class="font-bold">Usage note:</span> {{ usageNote }}
+        </div>
         <div class="mt-3 flex flex-wrap gap-2">
           <span
             v-for="tone in toneTargets"
@@ -172,6 +178,9 @@ const voiceSupported = computed(
     Boolean(navigator.mediaDevices?.getUserMedia),
 )
 
+const usageNote = computed(
+  () => (props.card as MandarinCard & { usageNote?: string }).usageNote?.trim() || '',
+)
 const toneTargets = computed(() => parsePinyinToneTargets(props.card.pinyin))
 const comparison = computed(() =>
   transcript.value

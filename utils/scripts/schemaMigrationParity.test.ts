@@ -38,8 +38,31 @@ import { checkSchemaMigrationParity } from './schemaMigrationParity.js'
   assert.equal(result.structuralSchemaChange, true)
 }
 
+// An intentional expand-then-client rollout: the migration landed on the
+// base branch first, and the repository-aware verifier has validated a newly
+// added provenance marker that points to that existing migration. Must pass.
+{
+  const diff = [
+    '--- a/prisma/schema.prisma',
+    '+++ b/prisma/schema.prisma',
+    '@@ -10,6 +10,7 @@ model Monster {',
+    '   name  String',
+    '+  depth Int?',
+    ' }',
+  ].join('\n')
+  const result = checkSchemaMigrationParity({
+    schemaDiffs: [diff],
+    addedMigrationPaths: [],
+    preexpandedMigrationPaths: [
+      'prisma/migrations/20260826045500_extend_monster_bestiary_fields/migration.sql',
+    ],
+  })
+  assert.equal(result.ok, true)
+  assert.equal(result.structuralSchemaChange, true)
+}
+
 // The actual regression this check exists to catch: a structural change with
-// no new migration file anywhere in the diff.
+// no new migration file and no validated pre-expansion provenance.
 {
   const diff = [
     '--- a/prisma/schema.prisma',
@@ -55,10 +78,7 @@ import { checkSchemaMigrationParity } from './schemaMigrationParity.js'
   })
   assert.equal(result.ok, false)
   assert.equal(result.structuralSchemaChange, true)
-  assert.match(
-    result.message ?? '',
-    /no new file was added under prisma\/migrations/,
-  )
+  assert.match(result.message ?? '', /neither a migration file move nor/)
 }
 
 // Comment-only / doc-comment-only / reordering edits need no migration, even
@@ -104,7 +124,8 @@ import { checkSchemaMigrationParity } from './schemaMigrationParity.js'
 }
 
 // Multiple schema files (this repo's multi-file prisma/ schema) -- a
-// structural change in ANY of them needs a migration, not just schema.prisma.
+// structural change in ANY of them needs migration coverage, not just
+// schema.prisma.
 {
   const cosmeticSchema = [
     '--- a/prisma/schema.prisma',
@@ -153,8 +174,8 @@ import { checkSchemaMigrationParity } from './schemaMigrationParity.js'
   assert.equal(result.structuralSchemaChange, true)
 }
 
-// removedMigrationPaths omitted entirely (existing callers/tests) must keep
-// behaving exactly as before -- no removed migration, no free pass.
+// Optional coverage arrays omitted entirely (existing callers/tests) must
+// keep behaving exactly as before -- no migration movement, no free pass.
 {
   const diff = [
     '--- a/prisma/schema.prisma',

@@ -97,6 +97,12 @@ jobs:
       - name: Reaction target coverage contract
         run: npm run test:reaction-targets
 
+      - name: Mandarin proficiency-coverage contract
+        run: npm run test:mandarin-proficiency-coverage-selftest
+
+      - name: Mandarin cloud-state merge contract
+        run: npm run test:mandarin-cloud-merge-selftest
+
       - name: Reaction route auth contract
         run: npm run test:reaction-route-auth
 

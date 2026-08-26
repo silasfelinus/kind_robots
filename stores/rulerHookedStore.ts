@@ -16,7 +16,7 @@ import {
   loadIndex, loadSave, writeSave, renameSlot as renameSlotStore,
   deleteSlot as deleteSlotStore, setActive, makeSaveId,
 } from '~/utils/rulerHooked/save'
-import type { Card, RunSave, SaveSlotMeta } from '~/types/ruler-hooked'
+import type { Card, CatchResult, RunSave, SaveSlotMeta } from '~/types/ruler-hooked'
 
 const nowStamp = (): string => new Date().toISOString()
 
@@ -26,6 +26,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
   const activeCard = ref<Card | null>(null)
   const activeArcId = ref<string | null>(null)
   const pendingEnding = ref<string | null>(null)
+  const lastCatch = ref<CatchResult | null>(null)
   const slots = ref<SaveSlotMeta[]>([])
 
   const scene = computed(() =>
@@ -63,6 +64,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     save.value = run
     activeCard.value = null
     pendingEnding.value = null
+    lastCatch.value = null
     writeSave(run, stamp)
     refreshSlots()
   }
@@ -73,16 +75,18 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     save.value = s
     activeCard.value = null
     pendingEnding.value = null
+    lastCatch.value = null
     setActive(saveId)
     refreshSlots()
   }
 
-  /** Advance one turn: present a card if one fires, else it's a quiet catch. */
+  /** Advance one turn: land a fish, then present any kingdom interruption. */
   function fish() {
     if (!save.value || !canFish.value) return
     const rng = makeRng(`${save.value.seed}:${save.value.turnCount}`)
     const result = takeTurn(bundle, save.value, rng)
     save.value = result.save
+    lastCatch.value = result.catch
     activeCard.value = result.card
     activeArcId.value = result.arcId ?? null
     persist()
@@ -133,7 +137,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
   }
 
   return {
-    bundle, save, activeCard, activeArcId, pendingEnding, slots,
+    bundle, save, activeCard, activeArcId, pendingEnding, lastCatch, slots,
     scene, canFish,
     init, newGame, loadSlot, fish, choose, acceptEnding, declineEnding,
     renameSlot, deleteSlot, refreshSlots,

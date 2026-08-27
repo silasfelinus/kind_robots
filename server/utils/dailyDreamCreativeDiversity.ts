@@ -55,26 +55,24 @@ function storyPitch(
   const firstPlace = blueprint.locations[0]?.name || 'a place that should not exist'
   const secondPlace = blueprint.locations[1]?.name || firstPlace
   const theme = facetValue(blueprint, 'THEME') || 'the world’s central rule'
-  const genre = facetValue(blueprint, 'GENRE')
-  const genreClause = genre ? ` In this ${genre} world,` : ''
 
   switch (engine) {
     case 'KINETIC':
-      return `${hero} has one narrowing chance to carry ${reward} through ${firstPlace} while the place changes around them. ${foil} can clear the way, seize the reward, or force the crisis into ${secondPlace}.${genreClause} ${theme} becomes pressure that demands action rather than explanation.`
+      return `${hero} has one narrowing chance to carry ${reward} through ${firstPlace} while the place changes around them. ${foil} can clear the way, seize the reward, or force the crisis into ${secondPlace}. Every consequence of ${theme} arrives in motion.`
     case 'DISCOVERY':
-      return `${hero} discovers ${reward} at ${firstPlace} and tests what it can actually do. Each use exposes a new physical rule of the world, while ${foil} follows a conflicting explanation toward ${secondPlace}.${genreClause} the mystery of ${theme} is learned by encounter, not by paperwork.`
+      return `${hero} discovers ${reward} at ${firstPlace} and tests what it can actually do. Each use exposes a new physical rule, while ${foil} follows a conflicting explanation toward ${secondPlace}. The truth of ${theme} can only be learned by going deeper.`
     case 'RELATIONSHIP':
-      return `${hero} and ${foil} need ${reward} for incompatible reasons, and neither can reach ${secondPlace} alone. Their bargain changes as ${secondReward} makes the cost of ${theme} personal.${genreClause} the central turn is a choice about another person, not an institution.`
+      return `${hero} and ${foil} need ${reward} for incompatible reasons, and neither can reach ${secondPlace} alone. Their bargain changes as ${secondReward} makes the cost of ${theme} personal. The decisive turn is whether they choose the goal or each other.`
     case 'CAPER':
-      return `${hero} plans an audacious theft of ${reward} from ${firstPlace}; ${foil} is the indispensable part of the plan who may also ruin it. The escape route through ${secondPlace} depends on using ${secondReward} at exactly the wrong-looking moment.${genreClause} ${theme} drives the trick and its reversal.`
+      return `${hero} plans an audacious theft of ${reward} from ${firstPlace}; ${foil} is the indispensable part of the plan who may also ruin it. The escape route through ${secondPlace} depends on using ${secondReward} at exactly the wrong-looking moment, with ${theme} driving the final reversal.`
     case 'SURVIVAL':
-      return `${firstPlace} becomes dangerous in stages, forcing ${hero} and ${foil} toward ${secondPlace}. ${reward} can get one of them through the worst passage, while ${secondReward} changes who counts as safe.${genreClause} ${theme} is embodied in terrain, bodies, weather, hunger, pursuit, or transformation.`
+      return `${firstPlace} becomes dangerous in stages, forcing ${hero} and ${foil} toward ${secondPlace}. ${reward} can get one of them through the worst passage, while ${secondReward} changes who counts as safe. ${theme} expresses itself through bodies, terrain, pursuit, weather, hunger, or transformation.`
     case 'MYTHIC':
-      return `${reward} awakens at ${firstPlace} and reveals that ${theme} operates at a scale nobody expected. ${hero} must choose whether to use it, destroy it, or carry it to ${secondPlace} before ${foil} makes the choice for them.${genreClause} awe, dread, or impossible scale should be visible in the consequences.`
+      return `${reward} awakens at ${firstPlace} and reveals that ${theme} operates at a scale nobody expected. ${hero} must choose whether to use it, destroy it, or carry it to ${secondPlace} before ${foil} makes the choice for them, while the visible consequences grow larger than either of them.`
     case 'COMPETITION':
-      return `${firstPlace} hosts a contest whose prize is ${reward}, and ${hero} enters for a reason that clashes with ${foil}. The rules mutate when ${secondReward} appears, turning the final round toward ${secondPlace}.${genreClause} ${theme} shapes the game, rivalry, and reversal.`
+      return `${firstPlace} hosts a contest whose prize is ${reward}, and ${hero} enters for a reason that clashes with ${foil}. The rules mutate when ${secondReward} appears, turning the final round toward ${secondPlace}. ${theme} reshapes the rivalry with every reversal.`
     case 'JOURNEY':
-      return `${hero} must cross from ${firstPlace} to ${secondPlace} carrying ${reward}, with ${foil} joining for a different destination. Each leg reveals a different consequence of ${theme}, and ${secondReward} can bypass one obstacle only by creating another.${genreClause} movement through distinct terrain is the story engine.`
+      return `${hero} must cross from ${firstPlace} to ${secondPlace} carrying ${reward}, with ${foil} joining for a different destination. Each leg reveals a different consequence of ${theme}, and ${secondReward} can bypass one obstacle only by creating another.`
   }
 }
 
@@ -102,7 +100,6 @@ export function diversifyDailyDreamCreativeDirection(
   return {
     ...blueprint,
     pitch: storyPitch(blueprint, engine),
-    flavorText: `${blueprint.flavorText} Story engine: ${engine.toLowerCase()}.`,
     artPrompt: withVisualDirection(blueprint.artPrompt, direction),
     narrator: blueprint.narrator
       ? {

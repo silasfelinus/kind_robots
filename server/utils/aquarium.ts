@@ -28,11 +28,12 @@ import {
   justCompletedBestiary as computeJustCompletedBestiary,
   MAX_CLEAN_CLICKS_PER_REQUEST,
   mergeBestStats,
+  rollRareEvent,
   SET_PIECE_CATALOG,
   settleTick,
   unlockCost,
 } from './aquariumEconomy'
-import type { StatBlock } from './aquariumEconomy'
+import type { RareEventResult, StatBlock } from './aquariumEconomy'
 
 function apiError(statusCode: number, message: string): Error {
   const error = new Error(message) as Error & { statusCode: number }
@@ -221,6 +222,11 @@ export interface TickResult {
   elapsedTicks: number
   ticksProcessed: number
   coinsEarned: number
+  // cthulhuquarium/t-016: null on the overwhelming majority of calls (see
+  // rollRareEvent's own docs). `coinsEarned` above already has any bonus
+  // folded in -- this is purely so the client can show what happened and
+  // why, never a separate balance to reconcile.
+  rareEvent: RareEventResult | null
 }
 
 export async function settleTickForUser(
@@ -250,8 +256,16 @@ export async function settleTickForUser(
       elapsedTicks: settlement.elapsedTicks,
       ticksProcessed: 0,
       coinsEarned: 0,
+      rareEvent: null,
     }
   }
+
+  // cthulhuquarium/t-016: rolled here, not inside settleTick, so the pure
+  // economy math stays a deterministic function of its inputs -- only ever
+  // rolled when this call actually processed real elapsed time, per
+  // rare_events' own "never on a no-op poll" rule.
+  const rareEvent = rollRareEvent(Math.random(), Math.random())
+  const totalCoinsEarned = settlement.coinsEarned + (rareEvent?.bonusCoins ?? 0)
 
   const aquarium = await prisma.$transaction(async (tx) => {
     for (const stock of tank.Stock) {
@@ -267,7 +281,7 @@ export async function settleTickForUser(
     const updated = await tx.aquarium.update({
       where: { id: tank.id },
       data: {
-        coins: { increment: settlement.coinsEarned },
+        coins: { increment: totalCoinsEarned },
         debrisLevel: settlement.newDebrisLevel,
         lastTickAt: settlement.newLastTickAt,
       },
@@ -281,6 +295,13 @@ export async function settleTickForUser(
       newDebrisLevel: settlement.newDebrisLevel,
     })
 
+    if (rareEvent) {
+      await logEvent(tx, tank.id, 'rare-event', {
+        kind: rareEvent.kind,
+        bonusCoins: rareEvent.bonusCoins,
+      })
+    }
+
     return updated
   })
 
@@ -288,7 +309,8 @@ export async function settleTickForUser(
     aquarium: toClientAquarium(aquarium),
     elapsedTicks: settlement.elapsedTicks,
     ticksProcessed: settlement.ticksProcessed,
-    coinsEarned: settlement.coinsEarned,
+    coinsEarned: totalCoinsEarned,
+    rareEvent,
   }
 }
 

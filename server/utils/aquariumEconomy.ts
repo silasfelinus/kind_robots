@@ -620,6 +620,100 @@ export function settleTick(input: TickSettlementInput): TickSettlementResult {
 }
 
 // ---------------------------------------------------------------------------
+// Rare random events (cthulhuquarium/t-016) -- economy.yaml `rare_events`.
+// HARD CONSTRAINT (Silas, 2026-08-24, amending t-016's own note): no event
+// may ever take anything away -- every kind here is additive-only or purely
+// cosmetic; none may reduce coins, fish, or unlocks. v1 never implements an
+// actual income pause (accounting for "paused, but still catches up exactly
+// right" is real complexity for very little player-visible difference from
+// "no economic effect at all"), so every kind is either a coin bonus or a
+// zero-effect cosmetic beat.
+//
+// Randomness intentionally lives OUTSIDE this file, same discipline as the
+// rest of aquariumEconomy.ts: rollRareEvent takes the caller's own
+// Math.random() values as explicit arguments rather than calling Math.random
+// itself, so it stays a pure, unit-testable function of its inputs. The
+// caller (server/utils/aquarium.ts's settleTickForUser) is responsible for
+// only rolling once per settle call that actually processed >=1 real tick.
+// ---------------------------------------------------------------------------
+
+export type RareEventKind =
+  'rare_visitor' | 'windfall_collectible' | 'tank_gone_wrong'
+
+export interface RareEventConfig {
+  chance: number
+  bonusCoinsMin: number
+  bonusCoinsMax: number
+  tone: string
+}
+
+// economy.yaml `rare_events.events`. Order matters: rollRareEvent walks this
+// object in key order, carving out each kind's `chance` as its own slice of
+// the [0, 1) roll space -- changing the order changes which slice belongs to
+// which kind, never the total probability that some event fires.
+export const RARE_EVENT_CATALOG: Readonly<
+  Record<RareEventKind, RareEventConfig>
+> = Object.freeze({
+  rare_visitor: {
+    chance: 0.03,
+    bonusCoinsMin: 15,
+    bonusCoinsMax: 40,
+    tone: 'Something paid a short visit, left more than it took, and did not linger.',
+  },
+  windfall_collectible: {
+    chance: 0.008,
+    bonusCoinsMin: 60,
+    bonusCoinsMax: 150,
+    tone: 'One piece of gravel is worth far more than gravel. Nobody asks why.',
+  },
+  tank_gone_wrong: {
+    chance: 0.015,
+    bonusCoinsMin: 0,
+    bonusCoinsMax: 0,
+    tone: 'For a few seconds the water was the wrong color. Then it was not.',
+  },
+})
+
+export const RARE_EVENT_KINDS: readonly RareEventKind[] = Object.keys(
+  RARE_EVENT_CATALOG,
+) as RareEventKind[]
+
+export interface RareEventResult {
+  kind: RareEventKind
+  bonusCoins: number
+  tone: string
+}
+
+// Pure. `selectRoll` decides WHICH kind (or none) fires; `magnitudeRoll`
+// decides the bonus-coin amount within that kind's range. Both are expected
+// to be independent values in [0, 1) (i.e. two separate Math.random() calls)
+// -- reusing one roll for both would correlate which kind fires with how
+// large its bonus is, which is not a real design intent here, just an
+// accident of implementation.
+//
+// At most one kind ever fires per call. `selectRoll` falling past the last
+// configured kind's slice (the overwhelmingly common case, since the
+// catalog's chances intentionally sum to well under 1) returns null.
+export function rollRareEvent(
+  selectRoll: number,
+  magnitudeRoll: number,
+): RareEventResult | null {
+  let floor = 0
+  for (const kind of RARE_EVENT_KINDS) {
+    const config = RARE_EVENT_CATALOG[kind]
+    const ceiling = floor + config.chance
+    if (selectRoll >= floor && selectRoll < ceiling) {
+      const span = config.bonusCoinsMax - config.bonusCoinsMin
+      const bonusCoins =
+        config.bonusCoinsMin + Math.floor(magnitudeRoll * (span + 1))
+      return { kind, bonusCoins, tone: config.tone }
+    }
+    floor = ceiling
+  }
+  return null
+}
+
+// ---------------------------------------------------------------------------
 // Bestiary completion (cthulhuquarium/t-024) -- pure decision logic only.
 // Loading/persisting the actual codex rows is server/utils/aquarium.ts's
 // job (AquariumCodexEntry, prisma); this stays a plain arithmetic check so

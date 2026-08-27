@@ -29,6 +29,37 @@
         {{ tankStore.error }}
       </p>
 
+      <!-- Rare random events (cthulhuquarium/t-016): brief, dry, unsettling
+           -- never a jump scare, never explained. A settled tick's own
+           coinsEarned already includes any bonus; this is purely the
+           dismissible notice of what happened. -->
+      <div
+        v-if="tankStore.lastRareEvent"
+        class="flex items-start gap-2 rounded-xl border border-base-300 bg-base-200/60 p-3 text-sm"
+      >
+        <Icon
+          name="kind-icon:sparkles"
+          class="mt-0.5 size-4 shrink-0 opacity-60"
+        />
+        <div class="min-w-0 flex-1">
+          <p class="italic opacity-80">{{ tankStore.lastRareEvent.tone }}</p>
+          <p
+            v-if="tankStore.lastRareEvent.bonusCoins > 0"
+            class="mt-1 text-xs font-bold opacity-60"
+          >
+            +{{ tankStore.lastRareEvent.bonusCoins }} coins
+          </p>
+        </div>
+        <button
+          type="button"
+          class="btn btn-ghost btn-xs min-h-11 min-w-11 shrink-0"
+          aria-label="Dismiss"
+          @click="tankStore.dismissRareEvent()"
+        >
+          <Icon name="kind-icon:close" class="size-4" />
+        </button>
+      </div>
+
       <div class="flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center gap-3 text-sm font-bold">
           <span class="flex items-center gap-1">

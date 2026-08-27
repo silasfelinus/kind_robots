@@ -280,6 +280,84 @@
           </div>
         </template>
       </div>
+
+      <!-- Set pieces (cthulhuquarium/t-026): the build layer. Fish provide
+           colour and income; sets provide the variation and the surprise
+           combos (SYSTEMS.md's own framing) -- so unlike the bestiary this
+           panel is about a small, legible, COUNTED choice (setSlotsCap),
+           not a big collected list. -->
+      <div class="flex flex-col gap-2 border-t border-base-300 pt-3">
+        <button
+          type="button"
+          class="flex items-center justify-between gap-2 text-left"
+          @click="onToggleSets"
+        >
+          <span class="text-xs font-black uppercase tracking-wide opacity-60">
+            Set pieces
+            <span class="opacity-80">
+              — {{ tankStore.equippedSets.length }}/{{ tankStore.setSlotsCap }}
+              equipped
+            </span>
+          </span>
+          <Icon
+            :name="showSets ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'"
+            class="size-4 shrink-0 opacity-60"
+          />
+        </button>
+
+        <template v-if="showSets">
+          <p v-if="tankStore.setCatalogLoading" class="text-xs opacity-60">
+            Surveying the build layer…
+          </p>
+          <div
+            v-else
+            class="grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-2"
+          >
+            <div
+              v-for="entry in tankStore.setCatalog"
+              :key="entry.kind"
+              class="flex flex-col gap-1 rounded-xl border border-base-300 bg-base-100 p-3"
+              :class="{ 'border-primary/60': entry.equipped }"
+            >
+              <div class="flex items-start justify-between gap-2">
+                <p class="text-sm font-bold">{{ entry.title }}</p>
+                <span
+                  v-if="entry.equipped"
+                  class="badge badge-primary badge-xs shrink-0"
+                >
+                  Equipped
+                </span>
+              </div>
+              <p class="text-xs italic opacity-70">{{ entry.description }}</p>
+              <button
+                v-if="entry.equipped"
+                type="button"
+                class="btn btn-outline btn-xs min-h-11 mt-1 self-start"
+                @click="
+                  () => {
+                    const id = equippedSetId(entry.kind)
+                    if (id) tankStore.unequipSet(id)
+                  }
+                "
+              >
+                Unequip
+              </button>
+              <button
+                v-else
+                type="button"
+                class="btn btn-outline btn-xs min-h-11 mt-1 self-start"
+                :disabled="!canEquip(entry)"
+                @click="tankStore.equipSet(entry.kind)"
+              >
+                Equip ({{ entry.cost }})
+              </button>
+            </div>
+            <p v-if="!tankStore.setCatalog.length" class="text-xs opacity-60">
+              No set pieces to show right now.
+            </p>
+          </div>
+        </template>
+      </div>
     </div>
 
     <!-- The unlock reveal beat (cthulhuquarium/t-012): the field note is
@@ -428,6 +506,7 @@ import {
   TANK_POLL_INTERVAL_MS,
   useCthulhuquariumTankStore,
   type CatalogEntry,
+  type SetCatalogEntry,
   type TankStock,
 } from '~/stores/cthulhuquariumTankStore'
 import { touchHitRadius } from '~/utils/aquariumTouch'
@@ -536,6 +615,13 @@ function behaviorProfile(behavior: string | null): BehaviorProfile {
   return BEHAVIOR_PROFILES[(behavior || '').toLowerCase()] ?? DRIFT_PROFILE
 }
 
+// swim_speed (cthulhuquarium/t-026, economy.yaml set_pieces.swim_speed):
+// "cosmetic_only, value: null" -- there is no economy number to read here,
+// only a visual pacing choice this component owns. 1.4x is a deliberately
+// noticeable-but-not-frantic bump over each behavior's own base speed.
+const SWIM_SPEED_SET_KIND = 'swim_speed'
+const SWIM_SPEED_MULTIPLIER = 1.4
+
 // Deterministic fallback hue for a species Monster.hue hasn't been assigned
 // yet -- same slug always reads the same color instead of shifting on
 // every reload/re-render.
@@ -588,6 +674,16 @@ const swimmers = ref<Swimmer[]>([])
 const motes = ref<Mote[]>([])
 const feed = ref<FeedCreature[]>([])
 const showBestiary = ref(false)
+const showSets = ref(false)
+
+// Read live rather than baked into each Swimmer at spawn time, so
+// equipping/unequipping Swift Current takes effect immediately instead of
+// only for fish spawned afterward.
+const swimSpeedMultiplier = computed(() =>
+  tankStore.equippedSets.some((entry) => entry.kind === SWIM_SPEED_SET_KIND)
+    ? SWIM_SPEED_MULTIPLIER
+    : 1,
+)
 
 let frame = 0
 let lastFrameAt = 0
@@ -763,15 +859,15 @@ function step(delta: number) {
       const dx = target.x - swimmer.x
       const dy = target.y - swimmer.y
       const distance = Math.hypot(dx, dy) || 1
-      swimmer.x += (dx / distance) * 55 * delta
-      swimmer.y += (dy / distance) * 55 * delta
+      swimmer.x += (dx / distance) * 55 * swimSpeedMultiplier.value * delta
+      swimmer.y += (dy / distance) * 55 * swimSpeedMultiplier.value * delta
       swimmer.vx = dx >= 0 ? Math.abs(swimmer.vx) : -Math.abs(swimmer.vx)
     } else {
       const [minY, maxY] = swimmer.profile.vBand
       const bandTop = STAGE_HEIGHT * minY
       const bandBottom = STAGE_HEIGHT * maxY
       swimmer.phase += delta
-      swimmer.x += swimmer.vx * delta
+      swimmer.x += swimmer.vx * swimSpeedMultiplier.value * delta
       swimmer.y += Math.sin(swimmer.phase) * swimmer.profile.wobble * delta
       if (swimmer.profile.wallCling) {
         // Clings near whichever wall it's closest to rather than crossing
@@ -874,6 +970,25 @@ function onToggleBestiary() {
   if (showBestiary.value && !tankStore.bestiary.length) {
     void tankStore.loadBestiary()
   }
+}
+
+function onToggleSets() {
+  showSets.value = !showSets.value
+  if (showSets.value && !tankStore.setCatalog.length) {
+    void tankStore.loadSets()
+  }
+}
+
+function canEquip(entry: SetCatalogEntry): boolean {
+  return (
+    !entry.equipped &&
+    tankStore.coins >= entry.cost &&
+    tankStore.equippedSets.length < tankStore.setSlotsCap
+  )
+}
+
+function equippedSetId(kind: string): number | null {
+  return tankStore.equippedSets.find((entry) => entry.kind === kind)?.id ?? null
 }
 
 onMounted(async () => {

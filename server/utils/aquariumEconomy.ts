@@ -229,6 +229,214 @@ export function cleanDebris(debrisLevel: number, clicks = 1): number {
 }
 
 // ---------------------------------------------------------------------------
+// Set pieces -- economy.yaml `set_pieces` (cthulhuquarium/t-026). Bonuses
+// key off fish PROPERTIES or a scarce, counted setSlotsCap slot -- never a
+// flat percentage floating free of anything to build around (SYSTEMS.md
+// "For synergy to be real, set bonuses must key off fish properties, not
+// flat buffs"). AquariumSet.kind is a free-form string, same "a new tag is
+// a data commit, not a migration" convention as Monster.behavior /
+// AquariumEvent.kind -- this catalog IS that data commit, and its `kind`
+// keys match economy.yaml's set_pieces keys exactly so the two stay
+// trivially diffable.
+//
+// Unlock costs are new here -- economy.yaml prices each EFFECT but never
+// named a coin cost for equipping one ("full authoring... is t-026's job").
+// Priced against RARITY_TIERS as an anchor rather than inventing an
+// unrelated number: a slot occupying a set is roughly as valuable as a
+// same-tier species unlock, scaled by how strong a lever the effect is.
+// Flagged for reviewer/balance-pass revisit, same discipline as
+// Aquarium.sizeCap's own "starting-point guess" doc comment.
+// ---------------------------------------------------------------------------
+
+export type SetPieceEffect =
+  | 'slots_cap_delta'
+  | 'feed_coin_rebate'
+  | 'cosmetic_only'
+  | 'rivalry_multiplier_override'
+  | 'auto_click_collectibles'
+  | 'debris_clear_per_tick'
+  | 'idle_income_bonus_fraction'
+
+// The finite set of AquariumSet.kind values this catalog actually defines.
+// Keyed as a literal union (not `Record<string, ...>`) so dot/literal-key
+// access into SET_PIECE_CATALOG below is a real required property, not an
+// index signature -- noUncheckedIndexedAccess otherwise marks every access
+// `| undefined` even though the catalog is exhaustive over this union.
+export type SetPieceKind =
+  | 'extra_species_slot'
+  | 'feeding_bonus'
+  | 'swim_speed'
+  | 'peace_ward'
+  | 'roaming_collector'
+  | 'debris_skimmer'
+  | 'idle_hoarder'
+
+export interface SetPieceConfig {
+  kind: SetPieceKind
+  title: string
+  description: string
+  effect: SetPieceEffect
+  value: number | null
+  cost: number
+}
+
+export const SET_PIECE_CATALOG: Readonly<Record<SetPieceKind, SetPieceConfig>> =
+  {
+    extra_species_slot: {
+      kind: 'extra_species_slot',
+      title: 'Pressure Valve',
+      description:
+        "Widens the tank by one size unit while equipped -- buys a little capacity with coins instead of waiting on a milestone (SYSTEMS.md's own framing).",
+      effect: 'slots_cap_delta',
+      value: 1,
+      cost: RARITY_TIERS.UNCOMMON.unlockCost,
+    },
+    feeding_bonus: {
+      kind: 'feeding_bonus',
+      title: "Larder's Favor",
+      description: 'Feeding any occupant refunds half its coin cost.',
+      effect: 'feed_coin_rebate',
+      value: 0.5,
+      cost: RARITY_TIERS.UNCOMMON.unlockCost,
+    },
+    swim_speed: {
+      kind: 'swim_speed',
+      title: 'Swift Current',
+      description:
+        'Every occupant swims noticeably faster. Purely cosmetic -- economy.yaml explicitly carries no number for this one.',
+      effect: 'cosmetic_only',
+      value: null,
+      cost: RARITY_TIERS.COMMON.unlockCost,
+    },
+    peace_ward: {
+      kind: 'peace_ward',
+      title: 'Peace Ward',
+      description:
+        "Rivalry never applies anywhere in the tank while equipped. (Rivalry itself hasn't been built yet -- t-030/a successor owns that; this equips and holds ready for when it lands, same 'schema-ready, unread yet' discipline as Monster.depth.)",
+      effect: 'rivalry_multiplier_override',
+      value: 1.0,
+      cost: RARITY_TIERS.RARE.unlockCost,
+    },
+    roaming_collector: {
+      kind: 'roaming_collector',
+      title: 'Roaming Collector',
+      description:
+        'A little automaton drifts the tank collecting coins on its own -- capped well short of full automation, and never stacks with Idle Hoarder.',
+      effect: 'auto_click_collectibles',
+      value: 0.5,
+      cost: RARITY_TIERS.RARE.unlockCost,
+    },
+    debris_skimmer: {
+      kind: 'debris_skimmer',
+      title: 'Debris Skimmer',
+      description:
+        'Passively clears a little debris every tick -- one of three deliberately co-viable routes to a clean tank, never the only one.',
+      effect: 'debris_clear_per_tick',
+      value: 2,
+      cost: RARITY_TIERS.UNCOMMON.unlockCost,
+    },
+    idle_hoarder: {
+      kind: 'idle_hoarder',
+      title: 'Idle Hoarder',
+      description:
+        'Extra income while you are away, on top of the baseline offline rate -- never total; idling still stays strictly worse than playing.',
+      effect: 'idle_income_bonus_fraction',
+      value: 0.4,
+      cost: RARITY_TIERS.RARE.unlockCost,
+    },
+  } as const
+
+export const SET_PIECE_KINDS: readonly SetPieceKind[] = Object.keys(
+  SET_PIECE_CATALOG,
+) as SetPieceKind[]
+
+// Type guard, not just a boolean check: narrows `kind` to SetPieceKind for
+// every caller that checks this before indexing SET_PIECE_CATALOG (e.g.
+// aquarium.ts's equipSetForUser) -- AquariumSet.kind itself stays a plain
+// DB string (same "a new tag is a data commit, not a migration" convention
+// as Monster.behavior), this only narrows the in-memory value after
+// validation.
+export function isKnownSetPieceKind(kind: string): kind is SetPieceKind {
+  return Object.prototype.hasOwnProperty.call(SET_PIECE_CATALOG, kind)
+}
+
+// economy.yaml's own `no_stack_idle_effects`: roaming_collector and
+// idle_hoarder are two fictions over the same underlying "bonus income
+// while away" lever, not two independently-stacking bonuses -- equipping
+// both would double it. Equip-time validation (aquarium.ts) is the primary
+// guard; idleIncomeBonusFraction below (Math.max, never sum) is the
+// belt-and-suspenders backstop in the actual math.
+export const NO_STACK_IDLE_SET_KINDS: readonly SetPieceKind[] = [
+  'roaming_collector',
+  'idle_hoarder',
+]
+
+// AquariumSet.kind values are plain DB strings (see the type guard above),
+// so these checks compare against NO_STACK_IDLE_SET_KINDS by value rather
+// than relying on Array<SetPieceKind>.includes's narrower parameter type.
+const noStackIdleKindSet: ReadonlySet<string> = new Set(NO_STACK_IDLE_SET_KINDS)
+
+export function conflictsWithEquippedIdleSet(
+  candidateKind: string,
+  equippedKinds: readonly string[],
+): boolean {
+  if (!noStackIdleKindSet.has(candidateKind)) return false
+  return equippedKinds.some(
+    (kind) => kind !== candidateKind && noStackIdleKindSet.has(kind),
+  )
+}
+
+function idleIncomeBonusFraction(equippedKinds: readonly string[]): number {
+  const fractions: number[] = []
+  if (equippedKinds.includes('roaming_collector')) {
+    fractions.push(SET_PIECE_CATALOG.roaming_collector.value ?? 0)
+  }
+  if (equippedKinds.includes('idle_hoarder')) {
+    fractions.push(SET_PIECE_CATALOG.idle_hoarder.value ?? 0)
+  }
+  return fractions.length > 0 ? Math.max(...fractions) : 0
+}
+
+// Matches set_pieces.debris_skimmer.value in economy.yaml, which itself
+// notes it must stay in sync with debris.clean.debris_set_clears_per_tick
+// -- kept as one named constant here rather than two so the two can't drift
+// apart inside this file the way the YAML warns about across files.
+const DEBRIS_SKIMMER_CLEARS_PER_TICK =
+  SET_PIECE_CATALOG.debris_skimmer.value ?? 0
+
+// extra_species_slot (economy.yaml set_pieces.extra_species_slot): a
+// counted number of equipped slots that grant a flat sizeCap bonus each.
+// Duplicates of the same kind aren't offered by the equip flow today (each
+// kind equips at most once, aquarium.ts), so this is always 0 or
+// SET_PIECE_CATALOG.extra_species_slot.value in practice -- written as a
+// count rather than a boolean so it stays correct if that rule ever
+// relaxes.
+export function effectiveSizeCap(
+  baseSizeCap: number,
+  equippedKinds: readonly string[],
+): number {
+  const count = equippedKinds.filter(
+    (kind) => kind === 'extra_species_slot',
+  ).length
+  return baseSizeCap + count * (SET_PIECE_CATALOG.extra_species_slot.value ?? 0)
+}
+
+// feeding_bonus (economy.yaml set_pieces.feeding_bonus): feeding refunds a
+// fraction of that feed's own coin cost as a bonus payout. Floored, same
+// no-fabricated-coins discipline as settleTick's own rounding.
+export function feedCoinRebate(
+  cost: number,
+  equippedKinds: readonly string[],
+): number {
+  if (!equippedKinds.includes('feeding_bonus')) return 0
+  return Math.floor(cost * (SET_PIECE_CATALOG.feeding_bonus.value ?? 0))
+}
+
+export function isSwimSpeedActive(equippedKinds: readonly string[]): boolean {
+  return equippedKinds.includes('swim_speed')
+}
+
+// ---------------------------------------------------------------------------
 // Offline income -- economy.yaml `offline_income`
 // ---------------------------------------------------------------------------
 
@@ -270,6 +478,10 @@ export interface TickSettlementInput {
   now: Date
   debrisLevel: number
   fish: readonly TickFishState[]
+  // cthulhuquarium/t-026: AquariumSet.kind values currently equipped in the
+  // tank. Optional/defaults to none so every pre-t-026 caller (and any test
+  // that doesn't care about sets) keeps identical behavior.
+  equippedSetKinds?: readonly string[]
 }
 
 export interface TickSettlementResult {
@@ -322,6 +534,8 @@ export function settleTick(input: TickSettlementInput): TickSettlementResult {
 
   const ticksProcessed = Math.min(elapsedTicks, MAX_ACCRUAL_TICKS)
   const occupantCount = input.fish.length
+  const equippedSetKinds = input.equippedSetKinds ?? []
+  const debrisSkimmerActive = equippedSetKinds.includes('debris_skimmer')
 
   let debrisLevel = input.debrisLevel
   let grossProduction = 0
@@ -354,6 +568,17 @@ export function settleTick(input: TickSettlementInput): TickSettlementResult {
       DEBRIS_RANGE.max,
       debrisLevel + occupantCount * DEBRIS_ACCRUAL_PER_OCCUPANT_PER_TICK,
     )
+    // debris_skimmer (cthulhuquarium/t-026, economy.yaml
+    // set_pieces.debris_skimmer): one of the three deliberately co-viable
+    // debris routes (SYSTEMS.md), passive and weaker than a manual click
+    // spree -- it only ever partially offsets accrual, never zeroes it out
+    // on its own for an occupied tank producing debris faster than 2/tick.
+    if (debrisSkimmerActive) {
+      debrisLevel = Math.max(
+        DEBRIS_RANGE.min,
+        debrisLevel - DEBRIS_SKIMMER_CLEARS_PER_TICK,
+      )
+    }
   }
 
   // Math.floor, not Math.round, on both of these: rounding UP is
@@ -364,8 +589,20 @@ export function settleTick(input: TickSettlementInput): TickSettlementResult {
   // approximate it). Flooring means a fractional remainder is only ever
   // lost, never fabricated, regardless of how a client chunks its calls --
   // the server never pays out more than the elapsed time actually earned.
+  //
+  // idle_hoarder / roaming_collector (cthulhuquarium/t-026): both are
+  // "extra income while away" set pieces that economy.yaml explicitly
+  // marks non-stacking (no_stack_idle_effects) -- idleIncomeBonusFraction
+  // takes the MAX of whichever is equipped, never the sum, as a
+  // belt-and-suspenders backstop alongside the equip-time rejection in
+  // aquarium.ts. Multiplies the already-discounted offline rate rather
+  // than adding a second flat rate, so the hard "never 1.0, idling stays
+  // worse than playing" ceiling (SYSTEMS.md #3) holds even at both this
+  // multiplier's max and OFFLINE_INCOME_RATE_MULTIPLIER's current value.
   const coinsEarned = Math.floor(
-    grossProduction * OFFLINE_INCOME_RATE_MULTIPLIER,
+    grossProduction *
+      OFFLINE_INCOME_RATE_MULTIPLIER *
+      (1 + idleIncomeBonusFraction(equippedSetKinds)),
   )
 
   return {

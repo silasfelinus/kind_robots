@@ -6,8 +6,10 @@
 // intentional expand-then-client rollout, the migration may already have
 // landed on the base branch; in that case this diff must add a narrowly scoped
 // provenance marker under prisma/migration-provenance/ that references the
-// already-landed migration. The marker is validated against the diff base, so
-// it cannot point at a migration that only exists on the feature branch.
+// already-landed migration. For the inverse contract-then-migration sequence,
+// a removal-only schema diff may add a `.pending.txt` marker naming the future
+// migration. Pending markers are one-shot: they cannot cover schema additions,
+// and they become invalid as soon as their migration exists on HEAD.
 //
 // kind-robots/t-072 added this guard for the class of bug that broke
 // production in kind-robots/t-071: a migration is easy to forget once
@@ -28,6 +30,17 @@ import { checkSchemaMigrationParity } from './schemaMigrationParity'
 
 function git(args: string[]): string {
   return execFileSync('git', args, { encoding: 'utf8' })
+}
+
+function gitObjectExists(revision: string, path: string): boolean {
+  try {
+    execFileSync('git', ['cat-file', '-e', `${revision}:${path}`], {
+      stdio: 'ignore',
+    })
+    return true
+  } catch {
+    return false
+  }
 }
 
 /**
@@ -94,6 +107,13 @@ function removedFiles(base: string, pattern: string): string[] {
     .filter(Boolean)
 }
 
+function trackedFiles(pathPrefix: string): string[] {
+  return git(['ls-files', '--', pathPrefix])
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+}
+
 function fileDiff(base: string, path: string): string {
   return git(['diff', `${base}...HEAD`, '--', path])
 }
@@ -103,41 +123,54 @@ function failProvenance(message: string): never {
   process.exit(1)
 }
 
+function readMigrationPath(provenancePath: string): {
+  migrationPath: string
+  migrationDirectory: string
+} {
+  const lines = readFileSync(provenancePath, 'utf8')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith('#'))
+
+  if (lines.length !== 1) {
+    failProvenance(
+      `${provenancePath} must contain exactly one non-comment migration.sql path`,
+    )
+  }
+
+  const migrationPath = lines[0]!
+  const match = migrationPath.match(
+    /^prisma\/migrations\/([^/]+)\/migration\.sql$/,
+  )
+  if (!match) {
+    failProvenance(
+      `${provenancePath} must reference prisma/migrations/<directory>/migration.sql`,
+    )
+  }
+
+  const migrationDirectory = match[1]!
+  if (basename(dirname(migrationPath)) !== migrationDirectory) {
+    failProvenance(`${provenancePath} migration directory does not match its path`)
+  }
+
+  return { migrationPath, migrationDirectory }
+}
+
 /**
- * A provenance marker is intentionally tiny and one-shot. Its filename must
- * be the already-landed migration directory plus `.txt`, and its sole
- * non-comment line must be that directory's migration.sql path. Most
- * importantly, `git cat-file` verifies the migration exists at the diff BASE,
- * not merely on HEAD. That makes the marker useful only for genuine
- * migration-first/client-second rollouts, not as a generic waiver.
+ * A pre-expansion provenance marker is intentionally tiny and one-shot. Its
+ * filename must be the already-landed migration directory plus `.txt`, and
+ * its sole non-comment line must be that directory's migration.sql path. Most
+ * importantly, the migration must exist at the diff BASE, not merely on HEAD.
+ * That makes the marker useful only for genuine migration-first/client-second
+ * rollouts, not as a generic waiver.
  */
 function validatePreexpandedMigrations(
   base: string,
   provenancePaths: string[],
 ): string[] {
   return provenancePaths.map((provenancePath) => {
-    const lines = readFileSync(provenancePath, 'utf8')
-      .split('\n')
-      .map((line) => line.trim())
-      .filter((line) => line && !line.startsWith('#'))
-
-    if (lines.length !== 1) {
-      failProvenance(
-        `${provenancePath} must contain exactly one non-comment migration.sql path`,
-      )
-    }
-
-    const migrationPath = lines[0]!
-    const match = migrationPath.match(
-      /^prisma\/migrations\/([^/]+)\/migration\.sql$/,
-    )
-    if (!match) {
-      failProvenance(
-        `${provenancePath} must reference prisma/migrations/<directory>/migration.sql`,
-      )
-    }
-
-    const migrationDirectory = match[1]!
+    const { migrationPath, migrationDirectory } =
+      readMigrationPath(provenancePath)
     const expectedMarker = `prisma/migration-provenance/${migrationDirectory}.txt`
     if (provenancePath !== expectedMarker) {
       failProvenance(
@@ -145,14 +178,7 @@ function validatePreexpandedMigrations(
       )
     }
 
-    // Guard against odd path tricks even though the regex is already strict.
-    if (basename(dirname(migrationPath)) !== migrationDirectory) {
-      failProvenance(`${provenancePath} migration directory does not match its path`)
-    }
-
-    try {
-      git(['cat-file', '-e', `${base}:${migrationPath}`])
-    } catch {
+    if (!gitObjectExists(base, migrationPath)) {
       failProvenance(
         `${provenancePath} references ${migrationPath}, but that migration does not exist on the diff base ${base}`,
       )
@@ -160,6 +186,39 @@ function validatePreexpandedMigrations(
 
     return migrationPath
   })
+}
+
+/**
+ * A pending marker records the opposite rollout direction: the schema/client
+ * contracts first, and a destructive migration is intentionally created only
+ * after the narrowed client is deployed. The marker filename names that exact
+ * future migration and the migration must not exist yet. Every tracked pending
+ * marker is checked on every run, so the later migration PR must remove its
+ * marker in the same diff rather than leaving a permanent waiver behind.
+ */
+function validatePendingMigrations(provenancePaths: string[]): Map<string, string> {
+  const migrationByMarker = new Map<string, string>()
+
+  for (const provenancePath of provenancePaths) {
+    const { migrationPath, migrationDirectory } =
+      readMigrationPath(provenancePath)
+    const expectedMarker = `prisma/migration-provenance/${migrationDirectory}.pending.txt`
+    if (provenancePath !== expectedMarker) {
+      failProvenance(
+        `${provenancePath} must be named ${expectedMarker} for ${migrationPath}`,
+      )
+    }
+
+    if (gitObjectExists('HEAD', migrationPath)) {
+      failProvenance(
+        `${provenancePath} is still pending but ${migrationPath} now exists on HEAD; remove the pending marker in the migration PR`,
+      )
+    }
+
+    migrationByMarker.set(provenancePath, migrationPath)
+  }
+
+  return migrationByMarker
 }
 
 const base = resolveDiffBase()
@@ -179,9 +238,25 @@ const schemaDiffs = changedSchemaFiles.map((path) => fileDiff(base, path))
 const addedMigrationPaths = addedFiles(base, 'prisma/migrations/*')
 const removedMigrationPaths = removedFiles(base, 'prisma/migrations/*')
 const addedProvenancePaths = addedFiles(base, 'prisma/migration-provenance/*')
+const addedPendingProvenancePaths = addedProvenancePaths.filter((path) =>
+  path.endsWith('.pending.txt'),
+)
+const addedPreexpandedProvenancePaths = addedProvenancePaths.filter(
+  (path) => !path.endsWith('.pending.txt'),
+)
 const preexpandedMigrationPaths = validatePreexpandedMigrations(
   base,
-  addedProvenancePaths,
+  addedPreexpandedProvenancePaths,
+)
+
+const allPendingProvenancePaths = trackedFiles(
+  'prisma/migration-provenance',
+).filter((path) => path.endsWith('.pending.txt'))
+const pendingMigrationByMarker = validatePendingMigrations(
+  allPendingProvenancePaths,
+)
+const deferredMigrationPaths = addedPendingProvenancePaths.map(
+  (path) => pendingMigrationByMarker.get(path)!,
 )
 
 const result = checkSchemaMigrationParity({
@@ -189,6 +264,7 @@ const result = checkSchemaMigrationParity({
   addedMigrationPaths,
   removedMigrationPaths,
   preexpandedMigrationPaths,
+  deferredMigrationPaths,
 })
 
 if (!result.ok) {
@@ -204,6 +280,7 @@ if (result.structuralSchemaChange) {
     ...addedMigrationPaths.map((p) => `+${p}`),
     ...removedMigrationPaths.map((p) => `-${p}`),
     ...preexpandedMigrationPaths.map((p) => `preexpanded:${p}`),
+    ...deferredMigrationPaths.map((p) => `deferred:${p}`),
   ]
   console.log(
     `[schema-migration-parity] schema changed with migration coverage ` +

@@ -61,8 +61,80 @@ import { checkSchemaMigrationParity } from './schemaMigrationParity.js'
   assert.equal(result.structuralSchemaChange, true)
 }
 
+// An intentional contract-then-migration rollout: the client/schema removes
+// a field first, while the destructive migration is deliberately deferred
+// until the narrowed client is deployed. A validated pending marker covers
+// this removal-only shape.
+{
+  const diff = [
+    '--- a/prisma/schema.prisma',
+    '+++ b/prisma/schema.prisma',
+    '@@ -10,7 +10,6 @@ model Character {',
+    '   slug  String?',
+    '-  size  Int @default(1)',
+    '   theme String?',
+    ' }',
+  ].join('\n')
+  const result = checkSchemaMigrationParity({
+    schemaDiffs: [diff],
+    addedMigrationPaths: [],
+    deferredMigrationPaths: [
+      'prisma/migrations/20260827233000_drop_character_size/migration.sql',
+    ],
+  })
+  assert.equal(result.ok, true)
+  assert.equal(result.structuralSchemaChange, true)
+}
+
+// A pending marker must NEVER waive the original t-071 failure shape. Schema
+// additions still require migration-first coverage.
+{
+  const diff = [
+    '--- a/prisma/schema.prisma',
+    '+++ b/prisma/schema.prisma',
+    '@@ -10,6 +10,7 @@ model Character {',
+    '   slug  String?',
+    '+  size  Int @default(1)',
+    '   theme String?',
+    ' }',
+  ].join('\n')
+  const result = checkSchemaMigrationParity({
+    schemaDiffs: [diff],
+    addedMigrationPaths: [],
+    deferredMigrationPaths: [
+      'prisma/migrations/20260827233000_drop_character_size/migration.sql',
+    ],
+  })
+  assert.equal(result.ok, false)
+  assert.equal(result.structuralSchemaChange, true)
+  assert.match(result.message ?? '', /contract-first schema contraction/)
+}
+
+// A rename or other mixed add/remove change is not a pure contraction either.
+// The pending path is deliberately narrower than a generic migration waiver.
+{
+  const diff = [
+    '--- a/prisma/schema.prisma',
+    '+++ b/prisma/schema.prisma',
+    '@@ -10,7 +10,7 @@ model Character {',
+    '-  oldName String?',
+    '+  newName String?',
+    ' }',
+  ].join('\n')
+  const result = checkSchemaMigrationParity({
+    schemaDiffs: [diff],
+    addedMigrationPaths: [],
+    deferredMigrationPaths: [
+      'prisma/migrations/20260827233000_rename_character_field/migration.sql',
+    ],
+  })
+  assert.equal(result.ok, false)
+  assert.equal(result.structuralSchemaChange, true)
+  assert.match(result.message ?? '', /zero structural additions/)
+}
+
 // The actual regression this check exists to catch: a structural change with
-// no new migration file and no validated pre-expansion provenance.
+// no new migration file and no validated migration provenance.
 {
   const diff = [
     '--- a/prisma/schema.prisma',

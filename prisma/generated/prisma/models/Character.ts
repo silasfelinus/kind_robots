@@ -36,7 +36,6 @@ export type CharacterAvgAggregateOutputType = {
   iconArtImageId: number | null
   userId: number | null
   packId: number | null
-  size: number | null
 }
 
 export type CharacterSumAggregateOutputType = {
@@ -49,7 +48,6 @@ export type CharacterSumAggregateOutputType = {
   iconArtImageId: number | null
   userId: number | null
   packId: number | null
-  size: number | null
 }
 
 export type CharacterMinAggregateOutputType = {
@@ -99,7 +97,6 @@ export type CharacterMinAggregateOutputType = {
   wits: $Enums.Rarity | null
   gender: string | null
   slug: string | null
-  size: number | null
   theme: string | null
 }
 
@@ -150,7 +147,6 @@ export type CharacterMaxAggregateOutputType = {
   wits: $Enums.Rarity | null
   gender: string | null
   slug: string | null
-  size: number | null
   theme: string | null
 }
 
@@ -201,7 +197,6 @@ export type CharacterCountAggregateOutputType = {
   wits: number
   gender: number
   slug: number
-  size: number
   theme: number
   _all: number
 }
@@ -217,7 +212,6 @@ export type CharacterAvgAggregateInputType = {
   iconArtImageId?: true
   userId?: true
   packId?: true
-  size?: true
 }
 
 export type CharacterSumAggregateInputType = {
@@ -230,7 +224,6 @@ export type CharacterSumAggregateInputType = {
   iconArtImageId?: true
   userId?: true
   packId?: true
-  size?: true
 }
 
 export type CharacterMinAggregateInputType = {
@@ -280,7 +273,6 @@ export type CharacterMinAggregateInputType = {
   wits?: true
   gender?: true
   slug?: true
-  size?: true
   theme?: true
 }
 
@@ -331,7 +323,6 @@ export type CharacterMaxAggregateInputType = {
   wits?: true
   gender?: true
   slug?: true
-  size?: true
   theme?: true
 }
 
@@ -382,7 +373,6 @@ export type CharacterCountAggregateInputType = {
   wits?: true
   gender?: true
   slug?: true
-  size?: true
   theme?: true
   _all?: true
 }
@@ -520,7 +510,6 @@ export type CharacterGroupByOutputType = {
   wits: $Enums.Rarity
   gender: string | null
   slug: string | null
-  size: number
   theme: string | null
   _count: CharacterCountAggregateOutputType | null
   _avg: CharacterAvgAggregateOutputType | null
@@ -594,7 +583,6 @@ export type CharacterWhereInput = {
   wits?: Prisma.EnumRarityFilter<"Character"> | $Enums.Rarity
   gender?: Prisma.StringNullableFilter<"Character"> | string | null
   slug?: Prisma.StringNullableFilter<"Character"> | string | null
-  size?: Prisma.IntFilter<"Character"> | number
   theme?: Prisma.StringNullableFilter<"Character"> | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionListRelationFilter
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
@@ -659,7 +647,6 @@ export type CharacterOrderByWithRelationInput = {
   wits?: Prisma.SortOrder
   gender?: Prisma.SortOrderInput | Prisma.SortOrder
   slug?: Prisma.SortOrderInput | Prisma.SortOrder
-  size?: Prisma.SortOrder
   theme?: Prisma.SortOrderInput | Prisma.SortOrder
   ChallengeSubmissions?: Prisma.ChallengeSubmissionOrderByRelationAggregateInput
   ArtImage?: Prisma.ArtImageOrderByWithRelationInput
@@ -728,7 +715,6 @@ export type CharacterWhereUniqueInput = Prisma.AtLeast<{
   title?: Prisma.StringNullableFilter<"Character"> | string | null
   wits?: Prisma.EnumRarityFilter<"Character"> | $Enums.Rarity
   gender?: Prisma.StringNullableFilter<"Character"> | string | null
-  size?: Prisma.IntFilter<"Character"> | number
   theme?: Prisma.StringNullableFilter<"Character"> | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionListRelationFilter
   ArtImage?: Prisma.XOR<Prisma.ArtImageNullableScalarRelationFilter, Prisma.ArtImageWhereInput> | null
@@ -793,7 +779,6 @@ export type CharacterOrderByWithAggregationInput = {
   wits?: Prisma.SortOrder
   gender?: Prisma.SortOrderInput | Prisma.SortOrder
   slug?: Prisma.SortOrderInput | Prisma.SortOrder
-  size?: Prisma.SortOrder
   theme?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.CharacterCountOrderByAggregateInput
   _avg?: Prisma.CharacterAvgOrderByAggregateInput
@@ -852,7 +837,6 @@ export type CharacterScalarWhereWithAggregatesInput = {
   wits?: Prisma.EnumRarityWithAggregatesFilter<"Character"> | $Enums.Rarity
   gender?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
   slug?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
-  size?: Prisma.IntWithAggregatesFilter<"Character"> | number
   theme?: Prisma.StringNullableWithAggregatesFilter<"Character"> | string | null
 }
 
@@ -899,7 +883,6 @@ export type CharacterCreateInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutCharacterInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCharactersInput
@@ -964,7 +947,6 @@ export type CharacterUncheckedCreateInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
@@ -1022,7 +1004,6 @@ export type CharacterUpdateInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutCharacterNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCharactersNestedInput
@@ -1087,7 +1068,6 @@ export type CharacterUncheckedUpdateInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
@@ -1149,7 +1129,6 @@ export type CharacterCreateManyInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
 }
 
@@ -1196,7 +1175,6 @@ export type CharacterUpdateManyMutationInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -1247,7 +1225,6 @@ export type CharacterUncheckedUpdateManyInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -1319,7 +1296,6 @@ export type CharacterCountOrderByAggregateInput = {
   wits?: Prisma.SortOrder
   gender?: Prisma.SortOrder
   slug?: Prisma.SortOrder
-  size?: Prisma.SortOrder
   theme?: Prisma.SortOrder
 }
 
@@ -1333,7 +1309,6 @@ export type CharacterAvgOrderByAggregateInput = {
   iconArtImageId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   packId?: Prisma.SortOrder
-  size?: Prisma.SortOrder
 }
 
 export type CharacterMaxOrderByAggregateInput = {
@@ -1383,7 +1358,6 @@ export type CharacterMaxOrderByAggregateInput = {
   wits?: Prisma.SortOrder
   gender?: Prisma.SortOrder
   slug?: Prisma.SortOrder
-  size?: Prisma.SortOrder
   theme?: Prisma.SortOrder
 }
 
@@ -1434,7 +1408,6 @@ export type CharacterMinOrderByAggregateInput = {
   wits?: Prisma.SortOrder
   gender?: Prisma.SortOrder
   slug?: Prisma.SortOrder
-  size?: Prisma.SortOrder
   theme?: Prisma.SortOrder
 }
 
@@ -1448,7 +1421,6 @@ export type CharacterSumOrderByAggregateInput = {
   iconArtImageId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   packId?: Prisma.SortOrder
-  size?: Prisma.SortOrder
 }
 
 export type CharacterNullableScalarRelationFilter = {
@@ -1869,7 +1841,6 @@ export type CharacterCreateWithoutFacetLinksInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutCharacterInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCharactersInput
@@ -1933,7 +1904,6 @@ export type CharacterUncheckedCreateWithoutFacetLinksInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
@@ -2006,7 +1976,6 @@ export type CharacterUpdateWithoutFacetLinksInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutCharacterNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCharactersNestedInput
@@ -2070,7 +2039,6 @@ export type CharacterUncheckedUpdateWithoutFacetLinksInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
@@ -2127,7 +2095,6 @@ export type CharacterCreateWithoutArtImageInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutCharacterInput
   User?: Prisma.UserCreateNestedOneWithoutCharactersInput
@@ -2190,7 +2157,6 @@ export type CharacterUncheckedCreateWithoutArtImageInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
@@ -2281,7 +2247,6 @@ export type CharacterScalarWhereInput = {
   wits?: Prisma.EnumRarityFilter<"Character"> | $Enums.Rarity
   gender?: Prisma.StringNullableFilter<"Character"> | string | null
   slug?: Prisma.StringNullableFilter<"Character"> | string | null
-  size?: Prisma.IntFilter<"Character"> | number
   theme?: Prisma.StringNullableFilter<"Character"> | string | null
 }
 
@@ -2328,7 +2293,6 @@ export type CharacterCreateWithoutChatsInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutCharacterInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCharactersInput
@@ -2392,7 +2356,6 @@ export type CharacterUncheckedCreateWithoutChatsInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutCharacterInput
@@ -2465,7 +2428,6 @@ export type CharacterUpdateWithoutChatsInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutCharacterNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCharactersNestedInput
@@ -2529,7 +2491,6 @@ export type CharacterUncheckedUpdateWithoutChatsInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutCharacterNestedInput
@@ -2586,7 +2547,6 @@ export type CharacterCreateWithoutDreamsInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutCharacterInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCharactersInput
@@ -2650,7 +2610,6 @@ export type CharacterUncheckedCreateWithoutDreamsInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
@@ -2728,7 +2687,6 @@ export type CharacterCreateWithoutExpressionMediaInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutCharacterInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCharactersInput
@@ -2792,7 +2750,6 @@ export type CharacterUncheckedCreateWithoutExpressionMediaInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
@@ -2865,7 +2822,6 @@ export type CharacterUpdateWithoutExpressionMediaInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutCharacterNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCharactersNestedInput
@@ -2929,7 +2885,6 @@ export type CharacterUncheckedUpdateWithoutExpressionMediaInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
@@ -2986,7 +2941,6 @@ export type CharacterCreateWithoutExpressionTransitionInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutCharacterInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCharactersInput
@@ -3050,7 +3004,6 @@ export type CharacterUncheckedCreateWithoutExpressionTransitionInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
@@ -3123,7 +3076,6 @@ export type CharacterUpdateWithoutExpressionTransitionInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutCharacterNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCharactersNestedInput
@@ -3187,7 +3139,6 @@ export type CharacterUncheckedUpdateWithoutExpressionTransitionInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
@@ -3244,7 +3195,6 @@ export type CharacterCreateWithoutPackInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutCharacterInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCharactersInput
@@ -3307,7 +3257,6 @@ export type CharacterUncheckedCreateWithoutPackInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
@@ -3391,7 +3340,6 @@ export type CharacterCreateWithoutReactionsInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutCharacterInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCharactersInput
@@ -3455,7 +3403,6 @@ export type CharacterUncheckedCreateWithoutReactionsInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
@@ -3517,7 +3464,6 @@ export type CharacterCreateWithoutAuthoredReactionsInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutCharacterInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCharactersInput
@@ -3581,7 +3527,6 @@ export type CharacterUncheckedCreateWithoutAuthoredReactionsInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
@@ -3654,7 +3599,6 @@ export type CharacterUpdateWithoutReactionsInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutCharacterNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCharactersNestedInput
@@ -3718,7 +3662,6 @@ export type CharacterUncheckedUpdateWithoutReactionsInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
@@ -3786,7 +3729,6 @@ export type CharacterUpdateWithoutAuthoredReactionsInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutCharacterNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCharactersNestedInput
@@ -3850,7 +3792,6 @@ export type CharacterUncheckedUpdateWithoutAuthoredReactionsInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
@@ -3907,7 +3848,6 @@ export type CharacterCreateWithoutRewardsInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutCharacterInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCharactersInput
@@ -3971,7 +3911,6 @@ export type CharacterUncheckedCreateWithoutRewardsInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
@@ -4049,7 +3988,6 @@ export type CharacterCreateWithoutScenariosInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutCharacterInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCharactersInput
@@ -4113,7 +4051,6 @@ export type CharacterUncheckedCreateWithoutScenariosInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
@@ -4191,7 +4128,6 @@ export type CharacterCreateWithoutUserInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutCharacterInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCharactersInput
@@ -4254,7 +4190,6 @@ export type CharacterUncheckedCreateWithoutUserInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
@@ -4338,7 +4273,6 @@ export type CharacterCreateWithoutChallengeSubmissionsInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCharactersInput
   User?: Prisma.UserCreateNestedOneWithoutCharactersInput
@@ -4402,7 +4336,6 @@ export type CharacterUncheckedCreateWithoutChallengeSubmissionsInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedCreateNestedManyWithoutCharacterInput
@@ -4475,7 +4408,6 @@ export type CharacterUpdateWithoutChallengeSubmissionsInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCharactersNestedInput
   User?: Prisma.UserUpdateOneWithoutCharactersNestedInput
@@ -4539,7 +4471,6 @@ export type CharacterUncheckedUpdateWithoutChallengeSubmissionsInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
   ExpressionMedia?: Prisma.ExpressionMediaUncheckedUpdateManyWithoutCharacterNestedInput
@@ -4596,7 +4527,6 @@ export type CharacterCreateWithoutLifeRunsInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionCreateNestedManyWithoutCharacterInput
   ArtImage?: Prisma.ArtImageCreateNestedOneWithoutCharactersInput
@@ -4660,7 +4590,6 @@ export type CharacterUncheckedCreateWithoutLifeRunsInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedCreateNestedManyWithoutCharacterInput
   Chats?: Prisma.ChatUncheckedCreateNestedManyWithoutCharacterInput
@@ -4733,7 +4662,6 @@ export type CharacterUpdateWithoutLifeRunsInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutCharacterNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCharactersNestedInput
@@ -4797,7 +4725,6 @@ export type CharacterUncheckedUpdateWithoutLifeRunsInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
@@ -4857,7 +4784,6 @@ export type CharacterCreateManyArtImageInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
 }
 
@@ -4904,7 +4830,6 @@ export type CharacterUpdateWithoutArtImageInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutCharacterNestedInput
   User?: Prisma.UserUpdateOneWithoutCharactersNestedInput
@@ -4967,7 +4892,6 @@ export type CharacterUncheckedUpdateWithoutArtImageInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
@@ -5028,7 +4952,6 @@ export type CharacterUncheckedUpdateManyWithoutArtImageInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -5075,7 +4998,6 @@ export type CharacterUpdateWithoutDreamsInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutCharacterNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCharactersNestedInput
@@ -5139,7 +5061,6 @@ export type CharacterUncheckedUpdateWithoutDreamsInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
@@ -5200,7 +5121,6 @@ export type CharacterUncheckedUpdateManyWithoutDreamsInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -5250,7 +5170,6 @@ export type CharacterCreateManyPackInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
 }
 
@@ -5297,7 +5216,6 @@ export type CharacterUpdateWithoutPackInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutCharacterNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCharactersNestedInput
@@ -5360,7 +5278,6 @@ export type CharacterUncheckedUpdateWithoutPackInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
@@ -5421,7 +5338,6 @@ export type CharacterUncheckedUpdateManyWithoutPackInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -5468,7 +5384,6 @@ export type CharacterUpdateWithoutRewardsInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutCharacterNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCharactersNestedInput
@@ -5532,7 +5447,6 @@ export type CharacterUncheckedUpdateWithoutRewardsInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
@@ -5593,7 +5507,6 @@ export type CharacterUncheckedUpdateManyWithoutRewardsInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -5640,7 +5553,6 @@ export type CharacterUpdateWithoutScenariosInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutCharacterNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCharactersNestedInput
@@ -5704,7 +5616,6 @@ export type CharacterUncheckedUpdateWithoutScenariosInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
@@ -5765,7 +5676,6 @@ export type CharacterUncheckedUpdateManyWithoutScenariosInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -5815,7 +5725,6 @@ export type CharacterCreateManyUserInput = {
   wits?: $Enums.Rarity
   gender?: string | null
   slug?: string | null
-  size?: number
   theme?: string | null
 }
 
@@ -5862,7 +5771,6 @@ export type CharacterUpdateWithoutUserInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUpdateManyWithoutCharacterNestedInput
   ArtImage?: Prisma.ArtImageUpdateOneWithoutCharactersNestedInput
@@ -5925,7 +5833,6 @@ export type CharacterUncheckedUpdateWithoutUserInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ChallengeSubmissions?: Prisma.ChallengeSubmissionUncheckedUpdateManyWithoutCharacterNestedInput
   Chats?: Prisma.ChatUncheckedUpdateManyWithoutCharacterNestedInput
@@ -5986,7 +5893,6 @@ export type CharacterUncheckedUpdateManyWithoutUserInput = {
   wits?: Prisma.EnumRarityFieldUpdateOperationsInput | $Enums.Rarity
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  size?: Prisma.IntFieldUpdateOperationsInput | number
   theme?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -6158,7 +6064,6 @@ export type CharacterSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   wits?: boolean
   gender?: boolean
   slug?: boolean
-  size?: boolean
   theme?: boolean
   ChallengeSubmissions?: boolean | Prisma.Character$ChallengeSubmissionsArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Character$ArtImageArgs<ExtArgs>
@@ -6226,11 +6131,10 @@ export type CharacterSelectScalar = {
   wits?: boolean
   gender?: boolean
   slug?: boolean
-  size?: boolean
   theme?: boolean
 }
 
-export type CharacterOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "achievements" | "alignment" | "experience" | "level" | "class" | "species" | "backstory" | "drive" | "quirks" | "genre" | "artImageId" | "cardArtImageId" | "heroArtImageId" | "iconArtImageId" | "isPublic" | "userId" | "packId" | "artPrompt" | "honorific" | "imagePath" | "icon" | "iconPath" | "cardPath" | "heroPath" | "allowReviews" | "designer" | "personality" | "sampleResponse" | "voice" | "isMature" | "isActive" | "charm" | "empathy" | "grace" | "luck" | "might" | "presentation" | "role" | "title" | "wits" | "gender" | "slug" | "size" | "theme", ExtArgs["result"]["character"]>
+export type CharacterOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "name" | "achievements" | "alignment" | "experience" | "level" | "class" | "species" | "backstory" | "drive" | "quirks" | "genre" | "artImageId" | "cardArtImageId" | "heroArtImageId" | "iconArtImageId" | "isPublic" | "userId" | "packId" | "artPrompt" | "honorific" | "imagePath" | "icon" | "iconPath" | "cardPath" | "heroPath" | "allowReviews" | "designer" | "personality" | "sampleResponse" | "voice" | "isMature" | "isActive" | "charm" | "empathy" | "grace" | "luck" | "might" | "presentation" | "role" | "title" | "wits" | "gender" | "slug" | "theme", ExtArgs["result"]["character"]>
 export type CharacterInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ChallengeSubmissions?: boolean | Prisma.Character$ChallengeSubmissionsArgs<ExtArgs>
   ArtImage?: boolean | Prisma.Character$ArtImageArgs<ExtArgs>
@@ -6314,15 +6218,6 @@ export type $CharacterPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     wits: $Enums.Rarity
     gender: string | null
     slug: string | null
-    /**
-     * cthulhuquarium/t-032: tank-capacity weight for this species when placed as
-     * AquariumStock. Consumed against Aquarium.sizeCap (weighed pool, distinct
-     * from the counted setSlotsCap -- see SYSTEMS.md "Capacity: two pools, two
-     * units"). Required going forward; existing rows default to the smallest
-     * unit so nothing is retroactively over its cap. [v1 placeholder -- actual
-     * per-species values are a data/authoring pass, not this migration's job.]
-     */
-    size: number
     /**
      * Optional daisyUI theme this record's card wears. NULL falls back to a
      * stable id-derived pick -- see resolveEntityTheme in utils/entityTheme.ts.
@@ -6757,7 +6652,6 @@ export interface CharacterFieldRefs {
   readonly wits: Prisma.FieldRef<"Character", 'Rarity'>
   readonly gender: Prisma.FieldRef<"Character", 'String'>
   readonly slug: Prisma.FieldRef<"Character", 'String'>
-  readonly size: Prisma.FieldRef<"Character", 'Int'>
   readonly theme: Prisma.FieldRef<"Character", 'String'>
 }
     

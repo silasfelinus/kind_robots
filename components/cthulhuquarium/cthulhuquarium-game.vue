@@ -72,6 +72,38 @@
         </button>
       </div>
 
+      <!-- Debris and cleaning (cthulhuquarium/t-027): the active-play
+           channel. Debris only ever throttles the production RATE, never
+           holdings, so clicking Clean can never lose anything -- it just
+           speeds the tank back up. Manual clicking is one of three
+           deliberately co-viable routes (the debris set and The Sexton are
+           the other two, both still unbuilt); this is only the first. -->
+      <div class="flex items-center gap-2">
+        <Icon name="kind-icon:sparkles" class="size-4 shrink-0 opacity-60" />
+        <div
+          class="h-1.5 flex-1 overflow-hidden rounded-full bg-base-300"
+          role="meter"
+          :aria-valuenow="tankStore.debrisLevel"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-label="Tank debris"
+        >
+          <div
+            class="h-full rounded-full bg-warning/70 transition-all"
+            :class="{ 'bg-error/70': tankStore.debrisLevel >= 80 }"
+            :style="{ width: `${tankStore.debrisLevel}%` }"
+          />
+        </div>
+        <button
+          type="button"
+          class="btn btn-outline btn-xs min-h-11 min-w-11"
+          :disabled="tankStore.debrisLevel <= 0"
+          @click="tankStore.clean()"
+        >
+          Clean
+        </button>
+      </div>
+
       <canvas
         ref="canvasRef"
         class="aspect-[16/9] w-full cursor-pointer rounded-2xl border border-base-300 bg-base-300"

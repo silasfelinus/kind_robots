@@ -12,11 +12,13 @@
 import assert from 'node:assert/strict'
 
 import {
+  DEBRIS_CLICK_CLEARS,
   DEBRIS_RANGE,
   MAX_ACCRUAL_TICKS,
   OFFLINE_INCOME_RATE_MULTIPLIER,
   RARITY_TIERS,
   TICK_SECONDS,
+  cleanDebris,
   debrisMultiplier,
   deriveFishRarityTier,
   feedCost,
@@ -432,6 +434,26 @@ for (let i = 0; i < ITERATIONS; i++) {
 
 console.log(
   `✅ settleTick property test: coinsEarned/debris/hunger invariants held across ${ITERATIONS} random scenarios`,
+)
+
+// --- cleanDebris: the manual-click active-play channel (t-027) ------------
+
+assert.equal(DEBRIS_CLICK_CLEARS, 5)
+assert.equal(cleanDebris(100), 95)
+assert.equal(cleanDebris(5), 0, 'clears exactly to zero, not negative')
+assert.equal(
+  cleanDebris(3),
+  0,
+  'never goes below DEBRIS_RANGE.min even from a partial click',
+)
+assert.equal(cleanDebris(0), 0, 'idempotent at zero')
+assert.ok(
+  cleanDebris(50) >= DEBRIS_RANGE.min,
+  'result always stays within DEBRIS_RANGE',
+)
+
+console.log(
+  '✅ cleanDebris: clears exactly DEBRIS_CLICK_CLEARS per click, floors at DEBRIS_RANGE.min',
 )
 
 console.log('✅ verifyAquariumEconomy: all assertions passed')

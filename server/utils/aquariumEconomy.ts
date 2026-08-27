@@ -170,11 +170,23 @@ export function debrisMultiplier(debrisLevel: number): number {
   return 1.0
 }
 
-// Manual/set-piece/Sexton cleaning (economy.yaml `debris.clean`) has no
-// endpoint in this task's scope -- t-009's endpoint list is tank/tick/feed/
-// purchase/browse only; a manual "clean" action, if ever added, is a
-// natural follow-up but was not requested here and AquariumSet/Sexton-style
-// fish placement are both explicitly out of scope per the task note.
+// Manual clicking -- economy.yaml `debris.clean.click_clears` -- is the
+// active-play channel cthulhuquarium/t-027 builds: instant, no coin cost, no
+// cooldown. Debris only ever throttles the production RATE, never holdings
+// (see this section's header comment), so clearing it can never lose
+// anything -- only speed production back up. The other two routes named in
+// economy.yaml (`debris_set_clears_per_tick` for the t-026 set piece,
+// `sexton_clears_per_tick` for the still-unbuilt functional Sexton fish) are
+// deliberately NOT implemented here -- both are passive, per-tick income-loop
+// mechanics that belong to their own tasks (t-026 is still `waiting`), not
+// this one's manual-click scope. SYSTEMS.md's own rule is to keep all three
+// routes co-viable rather than let one dominate; building only the manual
+// route now does not foreclose the other two.
+export const DEBRIS_CLICK_CLEARS = 5
+
+export function cleanDebris(debrisLevel: number): number {
+  return Math.max(DEBRIS_RANGE.min, debrisLevel - DEBRIS_CLICK_CLEARS)
+}
 
 // ---------------------------------------------------------------------------
 // Offline income -- economy.yaml `offline_income`

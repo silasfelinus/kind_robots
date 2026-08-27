@@ -16,6 +16,7 @@ import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from './prisma'
 import { getUniqueAquariumSlugForUser } from './aquariumSlug'
 import {
+  cleanDebris,
   deriveFishRarityTier,
   feedCost,
   FEED_RESTORES_HUNGER_TO,
@@ -291,6 +292,50 @@ export async function feedFishForUser(
     cost,
     hunger: FEED_RESTORES_HUNGER_TO,
   }
+}
+
+// ---------------------------------------------------------------------------
+// Clean -- the manual-click active-play channel (cthulhuquarium/t-027).
+// Instant, free, no cooldown: debris only ever throttles the production
+// RATE (see aquariumEconomy.ts's own header comment on that section), so
+// there is nothing here to gate -- clicking can never lose progress, only
+// speed it back up. Idempotent at debrisLevel 0 rather than erroring, so a
+// client racing its own disabled-button state never has to handle a 4xx.
+// ---------------------------------------------------------------------------
+
+export interface CleanResult {
+  aquarium: OwnedAquarium
+  debrisLevel: number
+}
+
+export async function cleanTankForUser(
+  userId: number,
+  username: string,
+): Promise<CleanResult> {
+  const tank = await getOrCreateTankForUser(userId, username)
+  const newDebrisLevel = cleanDebris(tank.debrisLevel)
+
+  if (newDebrisLevel === tank.debrisLevel) {
+    return { aquarium: tank, debrisLevel: tank.debrisLevel }
+  }
+
+  const aquarium = await prisma.$transaction(async (tx) => {
+    const now = new Date()
+    const updated = await tx.aquarium.update({
+      where: { id: tank.id },
+      data: { debrisLevel: newDebrisLevel, lastCleanedAt: now },
+      select: ownedAquariumSelect,
+    })
+
+    await logEvent(tx, tank.id, 'clean', {
+      previousDebrisLevel: tank.debrisLevel,
+      newDebrisLevel,
+    })
+
+    return updated
+  })
+
+  return { aquarium, debrisLevel: newDebrisLevel }
 }
 
 // ---------------------------------------------------------------------------

@@ -97,6 +97,11 @@ interface FeedResponse {
   hunger: number
 }
 
+interface CleanResponse {
+  aquarium: Tank
+  debrisLevel: number
+}
+
 interface PurchaseResponse {
   aquarium: Tank
   stock: TankStock
@@ -131,6 +136,7 @@ export const useCthulhuquariumTankStore = defineStore(
       stock.value.reduce((sum, entry) => sum + (entry.Monster.size ?? 1), 0),
     )
     const sizeCap = computed(() => tank.value?.sizeCap ?? 0)
+    const debrisLevel = computed(() => tank.value?.debrisLevel ?? 0)
     const hungriest = computed<TankStock | null>(() =>
       stock.value.reduce<TankStock | null>(
         (worst, entry) =>
@@ -218,6 +224,22 @@ export const useCthulhuquariumTankStore = defineStore(
       revealedUnlock.value = null
     }
 
+    // The active-play channel (cthulhuquarium/t-027): -5 debris per click,
+    // instant, free, no cooldown. Debris only ever throttles the tank's
+    // production RATE, never holdings, so there is nothing to lose by
+    // spamming this -- the button just disables itself at debrisLevel 0.
+    async function clean(): Promise<boolean> {
+      const res = await performFetch<CleanResponse>('/api/aquarium/clean', {
+        method: 'POST',
+      })
+      if (res.success && res.data) {
+        tank.value = res.data.aquarium
+        return true
+      }
+      error.value = res.message || 'Could not clean the tank.'
+      return false
+    }
+
     function clearOfflineEarnings(): void {
       offlineEarnings.value = 0
     }
@@ -229,6 +251,7 @@ export const useCthulhuquariumTankStore = defineStore(
       coins,
       occupantSize,
       sizeCap,
+      debrisLevel,
       hungriest,
       offlineEarnings,
       loading,
@@ -242,6 +265,7 @@ export const useCthulhuquariumTankStore = defineStore(
       feed,
       unlock,
       dismissReveal,
+      clean,
       clearOfflineEarnings,
     }
   },

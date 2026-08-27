@@ -64,7 +64,7 @@
 
         <button
           type="button"
-          class="btn btn-primary btn-sm"
+          class="btn btn-primary btn-sm min-h-11 min-w-11"
           :disabled="!tankStore.hungriest"
           @click="onFeed"
         >
@@ -74,10 +74,10 @@
 
       <canvas
         ref="canvasRef"
-        class="w-full cursor-pointer rounded-2xl border border-base-300 bg-base-300"
+        class="aspect-[16/9] w-full cursor-pointer rounded-2xl border border-base-300 bg-base-300"
         :width="STAGE_WIDTH"
         :height="STAGE_HEIGHT"
-        aria-label="Aquarium tank. Click drifting coins to collect them."
+        aria-label="Aquarium tank. Tap drifting coins to collect them."
         @click="onCanvasClick"
       />
 
@@ -114,7 +114,7 @@
               </div>
               <button
                 type="button"
-                class="btn btn-outline btn-xs shrink-0"
+                class="btn btn-outline btn-xs min-h-11 min-w-11 shrink-0"
                 :disabled="entry.hunger >= 100"
                 @click="tankStore.feed(entry.id)"
               >
@@ -173,7 +173,7 @@
               </p>
               <button
                 type="button"
-                class="btn btn-outline btn-xs mt-1"
+                class="btn btn-outline btn-xs min-h-11 mt-1"
                 :disabled="!canUnlock(entry)"
                 @click="tankStore.unlock(entry.id)"
               >
@@ -255,6 +255,7 @@ import {
   type CatalogEntry,
   type TankStock,
 } from '~/stores/cthulhuquariumTankStore'
+import { touchHitRadius } from '~/utils/aquariumTouch'
 
 /* Fixed logical resolution; CSS scales it to the host width so the canvas
    survives phone widths without its own breakpoint logic. */
@@ -489,11 +490,24 @@ function drawFish(
   context.restore()
 }
 
+// The water gradient never changes shape (it only spans the fixed stage
+// dimensions), so it's built once per context instead of allocated fresh on
+// every animation frame -- a full tank redraws this 60x/sec, and a mid-range
+// phone shouldn't pay for a gradient rebuild it doesn't need.
+let waterGradient: CanvasGradient | null = null
+let waterGradientContext: CanvasRenderingContext2D | null = null
+
+function getWaterGradient(context: CanvasRenderingContext2D): CanvasGradient {
+  if (waterGradient && waterGradientContext === context) return waterGradient
+  waterGradient = context.createLinearGradient(0, 0, 0, STAGE_HEIGHT)
+  waterGradient.addColorStop(0, '#0d2b2a')
+  waterGradient.addColorStop(1, '#04100f')
+  waterGradientContext = context
+  return waterGradient
+}
+
 function render(context: CanvasRenderingContext2D) {
-  const water = context.createLinearGradient(0, 0, 0, STAGE_HEIGHT)
-  water.addColorStop(0, '#0d2b2a')
-  water.addColorStop(1, '#04100f')
-  context.fillStyle = water
+  context.fillStyle = getWaterGradient(context)
   context.fillRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT)
 
   // Debris tints the water -- ambient only, no interaction wired here.
@@ -627,8 +641,14 @@ function onCanvasClick(event: MouseEvent) {
   const bounds = canvas.getBoundingClientRect()
   const x = ((event.clientX - bounds.left) / bounds.width) * STAGE_WIDTH
   const y = ((event.clientY - bounds.top) / bounds.height) * STAGE_HEIGHT
+  // The canvas is scaled by CSS to fit the host panel, so its display width
+  // can be well under STAGE_WIDTH on a phone -- a fixed canvas-space hit
+  // radius would then cover only a few real screen pixels. Grow the hit
+  // radius (never the drawn dot) so the actual tap target stays thumb-sized
+  // regardless of viewport width.
+  const hitRadius = touchHitRadius(MOTE_RADIUS + 8, STAGE_WIDTH, bounds.width)
   const index = motes.value.findIndex(
-    (mote) => Math.hypot(mote.x - x, mote.y - y) <= MOTE_RADIUS + 8,
+    (mote) => Math.hypot(mote.x - x, mote.y - y) <= hitRadius,
   )
   // Clicking a mote just dismisses it -- the coins it represents were
   // already credited by the tick settlement that spawned it.

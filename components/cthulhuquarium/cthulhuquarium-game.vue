@@ -1036,20 +1036,57 @@ function equippedSetId(kind: string): number | null {
   return tankStore.equippedSets.find((entry) => entry.kind === kind)?.id ?? null
 }
 
+// cthulhuquarium/t-048: both loops pause on a hidden tab and resume cleanly
+// on foreground. Browsers already throttle background-tab timers/rAF on
+// their own, so this isn't a functional fix -- it's the difference between
+// "the browser happens to slow this down" and "this app declares it has
+// nothing to do while hidden," which matters more once/if this ever runs
+// inside a native wrapper (t-021's mobile-packaging audit). `loop`'s own
+// delta clamp already means a stale `lastFrameAt` after a long hidden gap
+// can't simulate a giant step, but resetting it on resume (same pattern as
+// the initial kick-off below) keeps the very first frame back honest too.
+function startLoops() {
+  if (pollTimer === null) {
+    pollTimer = setInterval(pollTick, TANK_POLL_INTERVAL_MS)
+  }
+  if (frame === 0) {
+    frame = window.requestAnimationFrame((timestamp) => {
+      lastFrameAt = timestamp
+      frame = window.requestAnimationFrame(loop)
+    })
+  }
+}
+
+function stopLoops() {
+  if (frame) {
+    window.cancelAnimationFrame(frame)
+    frame = 0
+  }
+  if (pollTimer) {
+    clearInterval(pollTimer)
+    pollTimer = null
+  }
+}
+
+function handleVisibilityChange() {
+  if (document.hidden) {
+    stopLoops()
+  } else {
+    startLoops()
+  }
+}
+
 onMounted(async () => {
   await tankStore.load()
   await tankStore.loadCatalog()
   syncSwimmers()
-  pollTimer = setInterval(pollTick, TANK_POLL_INTERVAL_MS)
-  frame = window.requestAnimationFrame((timestamp) => {
-    lastFrameAt = timestamp
-    frame = window.requestAnimationFrame(loop)
-  })
+  if (!document.hidden) startLoops()
+  document.addEventListener('visibilitychange', handleVisibilityChange)
 })
 
 onBeforeUnmount(() => {
-  if (frame) window.cancelAnimationFrame(frame)
-  if (pollTimer) clearInterval(pollTimer)
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
+  stopLoops()
   // A click right before navigating away should still land instead of
   // being dropped along with the debounce timer.
   tankStore.flushCleanNow()

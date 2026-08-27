@@ -20,6 +20,7 @@ import {
   feedCost,
   FEED_RESTORES_HUNGER_TO,
   HUNGER_STARTING_VALUE,
+  justCompletedBestiary as computeJustCompletedBestiary,
   settleTick,
   unlockCost,
 } from './aquariumEconomy'
@@ -294,6 +295,159 @@ export async function feedFishForUser(
 }
 
 // ---------------------------------------------------------------------------
+// Bestiary -- the completionist codex (cthulhuquarium/t-024). AquariumCodexEntry
+// is the permanent "you found this" record: unlike AquariumStock (what's
+// CURRENTLY in the tank), a codex row is never deleted, so a species stays
+// collected even if the fish is later removed from the tank or the species
+// itself is retired from the bible (isActive: false) -- Silas's 2026-08-24
+// "nothing here may ever decrease" rule. The bestiary view's denominator is
+// therefore the UNION of the currently-active bible and every species this
+// user has ever collected, never the active set alone: retiring an
+// already-collected species must never shrink the count.
+// ---------------------------------------------------------------------------
+
+const BESTIARY_COMPLETE_EVENT_KIND = 'bestiary-complete'
+
+const bestiaryMonsterSelect = {
+  id: true,
+  name: true,
+  slug: true,
+  species: true,
+  // Selected at the DB level for every row (owned or not) -- stripped in
+  // toBestiaryEntry for anything not yet in the user's codex, same "server
+  // disposes, never sends the spoiler pre-unlock" discipline as
+  // catalogMonsterSelect (cthulhuquarium/t-012).
+  fieldNote: true,
+  size: true,
+  icon: true,
+  iconPath: true,
+  cardPath: true,
+  tier: true,
+  behavior: true,
+  hue: true,
+} satisfies Prisma.MonsterSelect
+
+type BestiaryMonster = Prisma.MonsterGetPayload<{
+  select: typeof bestiaryMonsterSelect
+}>
+
+export interface BestiaryEntry {
+  id: number
+  name: string
+  slug: string
+  species: string | null
+  size: number
+  icon: string | null
+  iconPath: string | null
+  cardPath: string | null
+  tier: string
+  behavior: string | null
+  hue: number | null
+  collected: boolean
+  firstAcquiredAt: string | null
+  fieldNote: string | null
+}
+
+export interface BestiaryResult {
+  data: BestiaryEntry[]
+  collectedCount: number
+  totalCount: number
+  completed: boolean
+}
+
+const cthulhuquariumBestiaryWhere = {
+  isPublic: true,
+  games: { contains: 'cthulhuquarium' },
+} satisfies Prisma.MonsterWhereInput
+
+function bestiaryUnionWhere(collectedIds: number[]): Prisma.MonsterWhereInput {
+  return {
+    OR: [
+      { ...cthulhuquariumBestiaryWhere, isActive: true },
+      // No monster has a negative id -- this arm simply drops out of the OR
+      // when nothing has been collected yet, rather than needing a second
+      // query shape for that case.
+      { id: { in: collectedIds.length > 0 ? collectedIds : [-1] } },
+    ],
+  }
+}
+
+function toBestiaryEntry(
+  monster: BestiaryMonster,
+  firstAcquiredAt: Date | null,
+): BestiaryEntry {
+  const collected = firstAcquiredAt !== null
+  return {
+    id: monster.id,
+    name: monster.name,
+    slug: monster.slug,
+    species: monster.species,
+    size: monster.size,
+    icon: monster.icon,
+    iconPath: monster.iconPath,
+    cardPath: monster.cardPath,
+    tier: monster.tier,
+    behavior: monster.behavior,
+    hue: monster.hue,
+    collected,
+    firstAcquiredAt: firstAcquiredAt ? firstAcquiredAt.toISOString() : null,
+    fieldNote: collected ? monster.fieldNote : null,
+  }
+}
+
+export async function listBestiaryForUser(
+  userId: number,
+): Promise<BestiaryResult> {
+  const codexEntries = await prisma.aquariumCodexEntry.findMany({
+    where: { userId },
+    select: { monsterId: true, firstAcquiredAt: true },
+  })
+  const collectedAt = new Map(
+    codexEntries.map((entry) => [entry.monsterId, entry.firstAcquiredAt]),
+  )
+
+  const monsters = await prisma.monster.findMany({
+    where: bestiaryUnionWhere([...collectedAt.keys()]),
+    select: bestiaryMonsterSelect,
+    orderBy: [{ name: 'asc' }],
+  })
+
+  const data = monsters.map((monster) =>
+    toBestiaryEntry(monster, collectedAt.get(monster.id) ?? null),
+  )
+  const totalCount = data.length
+  const collectedCount = data.filter((entry) => entry.collected).length
+
+  return {
+    data,
+    collectedCount,
+    totalCount,
+    completed: totalCount > 0 && collectedCount >= totalCount,
+  }
+}
+
+// Counts-only version of the same union rule, for use inside
+// purchaseSpeciesForUser's transaction to detect a first-time full
+// completion without pulling the whole display payload.
+async function countBestiaryTotals(
+  tx: TransactionClient,
+  userId: number,
+): Promise<{ totalCount: number; collectedCount: number }> {
+  const collectedIds = (
+    await tx.aquariumCodexEntry.findMany({
+      where: { userId },
+      select: { monsterId: true },
+    })
+  ).map((row) => row.monsterId)
+
+  const totalCount = await tx.monster.count({
+    where: bestiaryUnionWhere(collectedIds),
+  })
+
+  return { totalCount, collectedCount: collectedIds.length }
+}
+
+// ---------------------------------------------------------------------------
 // Purchase -- species unlock only. See PR description for why `food` and
 // `upgrade` purchase types (named in the task note) are intentionally not
 // implemented: economy.yaml bundles buying+consuming food into a single
@@ -305,6 +459,12 @@ export interface PurchaseSpeciesResult {
   aquarium: OwnedAquarium
   stock: OwnedAquarium['Stock'][number]
   cost: number
+  // True exactly once -- the settlement that brings collectedCount to
+  // totalCount for the first time (cthulhuquarium/t-024's "a real beat when
+  // the set closes"). Never true again afterward, even though completion
+  // itself is never revoked -- see BESTIARY_COMPLETE_EVENT_KIND's guard in
+  // the transaction below.
+  justCompletedBestiary: boolean
 }
 
 export async function purchaseSpeciesForUser(
@@ -355,33 +515,83 @@ export async function purchaseSpeciesForUser(
     )
   }
 
-  const { aquarium, stock } = await prisma.$transaction(async (tx) => {
-    const createdStock = await tx.aquariumStock.create({
-      data: {
-        aquariumId: tank.id,
+  const { aquarium, stock, justCompletedBestiary } = await prisma.$transaction(
+    async (tx) => {
+      const { totalCount, collectedCount: collectedCountBefore } =
+        await countBestiaryTotals(tx, userId)
+
+      const createdStock = await tx.aquariumStock.create({
+        data: {
+          aquariumId: tank.id,
+          monsterId: monster.id,
+          hunger: HUNGER_STARTING_VALUE,
+        },
+        select: ownedStockSelect,
+      })
+
+      const updatedAquarium = await tx.aquarium.update({
+        where: { id: tank.id },
+        data: { coins: { decrement: cost } },
+        select: ownedAquariumSelect,
+      })
+
+      // The permanent codex record -- upsert rather than create, so that if
+      // a future feature ever lets a species leave the tank and be rebought,
+      // firstAcquiredAt keeps the ORIGINAL discovery date (t-024's "cannot
+      // be un-collected" applies to the record, not just the count) instead
+      // of a unique-constraint error. Today `alreadyOwned` above already
+      // guarantees this monster has no codex row yet -- there is no
+      // release/sell path -- so this always takes the `create` branch, but
+      // upsert keeps that an invariant of the data rather than of this one
+      // call site.
+      const existingEntry = await tx.aquariumCodexEntry.findUnique({
+        where: { userId_monsterId: { userId, monsterId: monster.id } },
+        select: { id: true },
+      })
+      await tx.aquariumCodexEntry.upsert({
+        where: { userId_monsterId: { userId, monsterId: monster.id } },
+        create: { userId, monsterId: monster.id },
+        update: {},
+      })
+      const collectedCountAfter = collectedCountBefore + (existingEntry ? 0 : 1)
+
+      let justCompletedBestiary = false
+      if (
+        computeJustCompletedBestiary(
+          totalCount,
+          collectedCountBefore,
+          collectedCountAfter,
+        )
+      ) {
+        const alreadyCelebrated = await tx.aquariumEvent.findFirst({
+          where: { aquariumId: tank.id, kind: BESTIARY_COMPLETE_EVENT_KIND },
+          select: { id: true },
+        })
+        if (!alreadyCelebrated) {
+          justCompletedBestiary = true
+          await logEvent(tx, tank.id, BESTIARY_COMPLETE_EVENT_KIND, {
+            collectedCount: collectedCountAfter,
+            totalCount,
+          })
+        }
+      }
+
+      await logEvent(tx, tank.id, 'purchase', {
+        type: 'species',
         monsterId: monster.id,
-        hunger: HUNGER_STARTING_VALUE,
-      },
-      select: ownedStockSelect,
-    })
+        aquariumStockId: createdStock.id,
+        cost,
+      })
 
-    const updatedAquarium = await tx.aquarium.update({
-      where: { id: tank.id },
-      data: { coins: { decrement: cost } },
-      select: ownedAquariumSelect,
-    })
+      return {
+        aquarium: updatedAquarium,
+        stock: createdStock,
+        justCompletedBestiary,
+      }
+    },
+  )
 
-    await logEvent(tx, tank.id, 'purchase', {
-      type: 'species',
-      monsterId: monster.id,
-      aquariumStockId: createdStock.id,
-      cost,
-    })
-
-    return { aquarium: updatedAquarium, stock: createdStock }
-  })
-
-  return { aquarium, stock, cost }
+  return { aquarium, stock, cost, justCompletedBestiary }
 }
 
 // ---------------------------------------------------------------------------

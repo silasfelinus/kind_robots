@@ -2,5 +2,6 @@
 # Character.size is removed from the client/schema first. Do not create or run
 # this destructive migration until the new container has been Force Updated
 # and GET /api/characters/<id> has returned HTTP 200 in production.
-# The follow-up migration PR must remove this pending marker.
+# Step 2 is a human production gate; the follow-up migration PR must remove
+# this pending marker only after that gate is confirmed.
 prisma/migrations/20260827233000_drop_character_size/migration.sql

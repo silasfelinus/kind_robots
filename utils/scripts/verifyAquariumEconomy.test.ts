@@ -12,11 +12,13 @@
 import assert from 'node:assert/strict'
 
 import {
+  BESTIARY_MILESTONES,
   conflictsWithEquippedIdleSet,
   DEBRIS_CLICK_CLEARS,
   DEBRIS_RANGE,
   effectiveSizeCap,
   feedCoinRebate,
+  firedBestiaryMilestones,
   isKnownSetPieceKind,
   MAX_ACCRUAL_TICKS,
   MAX_CLEAN_CLICKS_PER_REQUEST,
@@ -782,6 +784,48 @@ assert.equal(justCompletedBestiary(5, 6, 7), false)
 
 console.log(
   '✅ justCompletedBestiary: fires exactly once, on the crossing, never before or after',
+)
+
+// --- firedBestiaryMilestones: cthulhuquarium/t-028's landmark gate ---------
+
+// economy.yaml's exact four v1 bestiary breakpoints, in order.
+assert.deepEqual(
+  BESTIARY_MILESTONES.map((m) => [m.id, m.threshold, m.slotsCapDelta]),
+  [
+    ['bestiary_5', 5, 2],
+    ['bestiary_10', 10, 2],
+    ['bestiary_15', 15, 2],
+    ['bestiary_20', 20, 2],
+  ],
+)
+
+// Crossing one breakpoint fires exactly that one.
+assert.deepEqual(
+  firedBestiaryMilestones(4, 5).map((m) => m.id),
+  ['bestiary_5'],
+)
+// Already past a breakpoint before this call -- must not re-fire.
+assert.deepEqual(firedBestiaryMilestones(5, 6), [])
+// A big single jump (e.g. an admin grant, or catching up after a gap) can
+// cross several breakpoints at once -- all of them fire, none skipped.
+assert.deepEqual(
+  firedBestiaryMilestones(3, 17).map((m) => m.id),
+  ['bestiary_5', 'bestiary_10', 'bestiary_15'],
+)
+// Landing exactly on a threshold counts as crossing it.
+assert.deepEqual(
+  firedBestiaryMilestones(9, 10).map((m) => m.id),
+  ['bestiary_10'],
+)
+// No movement, no fire.
+assert.deepEqual(firedBestiaryMilestones(5, 5), [])
+// Below every threshold -- nothing fires yet.
+assert.deepEqual(firedBestiaryMilestones(0, 3), [])
+// Past every threshold already -- nothing left to fire.
+assert.deepEqual(firedBestiaryMilestones(20, 25), [])
+
+console.log(
+  '✅ firedBestiaryMilestones: crosses each bestiary breakpoint exactly once, handles multi-breakpoint jumps',
 )
 
 // --- mergeBestStats: the Ichthyonomicon's best-individual-seen record ------

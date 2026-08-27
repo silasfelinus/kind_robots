@@ -25,6 +25,7 @@ import {
   feedCoinRebate,
   feedCost,
   FEED_RESTORES_HUNGER_TO,
+  firedBestiaryMilestones,
   HUNGER_STARTING_VALUE,
   isKnownDecorKind,
   isKnownSetPieceKind,
@@ -35,8 +36,10 @@ import {
   SET_PIECE_CATALOG,
   settleTick,
   unlockCost,
+  type BestiaryMilestoneConfig,
+  type RareEventResult,
+  type StatBlock,
 } from './aquariumEconomy'
-import type { RareEventResult, StatBlock } from './aquariumEconomy'
 
 function apiError(statusCode: number, message: string): Error {
   const error = new Error(message) as Error & { statusCode: number }
@@ -487,6 +490,16 @@ export async function cleanTankForUser(
 
 const BESTIARY_COMPLETE_EVENT_KIND = 'bestiary-complete'
 
+// cthulhuquarium/t-028: one distinct AquariumEvent.kind per bestiary
+// milestone (e.g. 'milestone-bestiary_5') rather than a single shared
+// 'milestone' kind with a payload-encoded landmark id -- AquariumEvent.payload
+// is a plain LongText column, not JSON-queryable, so a per-landmark kind
+// keeps "has this landmark already fired" a simple indexed equality check,
+// same shape as BESTIARY_COMPLETE_EVENT_KIND's own guard above.
+function milestoneEventKind(milestone: { id: string }): string {
+  return `milestone-${milestone.id}`
+}
+
 const bestiaryMonsterSelect = {
   id: true,
   name: true,
@@ -749,6 +762,15 @@ export interface PurchaseSpeciesResult {
   // itself is never revoked -- see BESTIARY_COMPLETE_EVENT_KIND's guard in
   // the transaction below.
   justCompletedBestiary: boolean
+  // Any bestiary-breakpoint milestones (economy.yaml `milestones`,
+  // cthulhuquarium/t-028) this purchase just crossed for the first time --
+  // empty on every purchase that doesn't cross bestiary_5/10/15/20. Each
+  // entry has already been applied to `aquarium.setSlotsCap` and logged as
+  // an AquariumEvent by the time this is returned. Frontend interstitial
+  // presentation (Charlotte handing over the background) is a separate,
+  // not-yet-built layer -- see t-028's roadmap note; this is the gate
+  // itself, not the ceremony around it.
+  firedMilestones: BestiaryMilestoneConfig[]
 }
 
 export async function purchaseSpeciesForUser(
@@ -802,8 +824,8 @@ export async function purchaseSpeciesForUser(
     )
   }
 
-  const { aquarium, stock, justCompletedBestiary } = await prisma.$transaction(
-    async (tx) => {
+  const { aquarium, stock, justCompletedBestiary, firedMilestones } =
+    await prisma.$transaction(async (tx) => {
       const { totalCount, collectedCount: collectedCountBefore } =
         await countBestiaryTotals(tx, userId)
 
@@ -814,12 +836,6 @@ export async function purchaseSpeciesForUser(
           hunger: HUNGER_STARTING_VALUE,
         },
         select: ownedStockSelect,
-      })
-
-      const updatedAquarium = await tx.aquarium.update({
-        where: { id: tank.id },
-        data: { coins: { decrement: cost } },
-        select: ownedAquariumSelect,
       })
 
       // The permanent codex record -- upsert rather than create, so that if
@@ -857,6 +873,52 @@ export async function purchaseSpeciesForUser(
       })
       const collectedCountAfter = collectedCountBefore + (existingEntry ? 0 : 1)
 
+      // cthulhuquarium/t-028: bestiary-breakpoint milestones (economy.yaml
+      // `milestones`). Guarded against re-logging the same landmark the same
+      // way BESTIARY_COMPLETE_EVENT_KIND is below -- collectedCount can only
+      // ever increase (justCompletedBestiary's own note), so in the normal
+      // case each landmark is crossed at most once, but the guard makes that
+      // an enforced invariant of the data rather than an assumption about
+      // caller behavior.
+      const candidateMilestones = firedBestiaryMilestones(
+        collectedCountBefore,
+        collectedCountAfter,
+      )
+      const firedMilestones: BestiaryMilestoneConfig[] = []
+      if (candidateMilestones.length > 0) {
+        const alreadyLoggedKinds = new Set(
+          (
+            await tx.aquariumEvent.findMany({
+              where: {
+                aquariumId: tank.id,
+                kind: { in: candidateMilestones.map(milestoneEventKind) },
+              },
+              select: { kind: true },
+            })
+          ).map((row) => row.kind),
+        )
+        for (const milestone of candidateMilestones) {
+          if (!alreadyLoggedKinds.has(milestoneEventKind(milestone))) {
+            firedMilestones.push(milestone)
+          }
+        }
+      }
+      const slotsCapDelta = firedMilestones.reduce(
+        (sum, milestone) => sum + milestone.slotsCapDelta,
+        0,
+      )
+
+      const updatedAquarium = await tx.aquarium.update({
+        where: { id: tank.id },
+        data: {
+          coins: { decrement: cost },
+          ...(slotsCapDelta > 0
+            ? { setSlotsCap: { increment: slotsCapDelta } }
+            : {}),
+        },
+        select: ownedAquariumSelect,
+      })
+
       let justCompletedBestiary = false
       if (
         computeJustCompletedBestiary(
@@ -878,6 +940,14 @@ export async function purchaseSpeciesForUser(
         }
       }
 
+      for (const milestone of firedMilestones) {
+        await logEvent(tx, tank.id, milestoneEventKind(milestone), {
+          landmark: milestone.id,
+          slotsCapDelta: milestone.slotsCapDelta,
+          collectedCount: collectedCountAfter,
+        })
+      }
+
       await logEvent(tx, tank.id, 'purchase', {
         type: 'species',
         monsterId: monster.id,
@@ -889,15 +959,16 @@ export async function purchaseSpeciesForUser(
         aquarium: updatedAquarium,
         stock: createdStock,
         justCompletedBestiary,
+        firedMilestones,
       }
-    },
-  )
+    })
 
   return {
     aquarium: toClientAquarium(aquarium),
     stock,
     cost,
     justCompletedBestiary,
+    firedMilestones,
   }
 }
 

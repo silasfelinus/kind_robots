@@ -145,6 +145,10 @@ interface UnequipSetResponse {
   aquarium: Tank
 }
 
+interface SetVisibilityResponse {
+  aquarium: Tank
+}
+
 interface CleanResponse {
   aquarium: Tank
   debrisLevel: number
@@ -492,6 +496,27 @@ export const useCthulhuquariumTankStore = defineStore(
       offlineTicksProcessed.value = 0
     }
 
+    // cthulhuquarium/t-014: the one-click public/private toggle. Optimistic
+    // on the visible switch would just mean flipping it back on failure, so
+    // instead this simply waits for the server's own isPublic on the
+    // returned aquarium -- the same "server disposes" pattern as every
+    // other mutation in this store.
+    async function setVisibility(isPublic: boolean): Promise<boolean> {
+      const res = await performFetch<SetVisibilityResponse>(
+        '/api/aquarium/visibility',
+        {
+          method: 'POST',
+          body: JSON.stringify({ isPublic }),
+        },
+      )
+      if (res.success && res.data) {
+        tank.value = res.data.aquarium
+        return true
+      }
+      error.value = res.message || "Could not update the tank's visibility."
+      return false
+    }
+
     return {
       tank,
       catalog,
@@ -532,6 +557,7 @@ export const useCthulhuquariumTankStore = defineStore(
       loadSets,
       equipSet,
       unequipSet,
+      setVisibility,
     }
   },
 )

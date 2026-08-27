@@ -41,8 +41,9 @@ const config: ProjectFrontConfig = {
       'Server-backed tanks with real offline income',
       'The real play loop — server-driven feeding and species unlocks',
       'Bestiary schema shared with Ruler Hooked',
+      'Browsable public aquariums',
     ],
-    next: ['Twenty species with generated art', 'Browsable public aquariums'],
+    next: ['Twenty species with generated art'],
   },
 }
 </script>

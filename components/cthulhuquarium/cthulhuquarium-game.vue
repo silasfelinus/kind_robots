@@ -383,6 +383,37 @@
           </div>
         </template>
       </div>
+
+      <!-- Visibility (cthulhuquarium/t-014): "Each user should be viewable"
+           -- new tanks default public, and this is the one-click way to
+           change that. Read-only for visitors either way: the toggle only
+           ever writes the owner's own tank. -->
+      <div
+        class="flex flex-wrap items-center justify-between gap-2 border-t border-base-300 pt-3"
+      >
+        <label class="flex cursor-pointer items-center gap-2">
+          <input
+            type="checkbox"
+            class="toggle toggle-success toggle-sm"
+            :checked="tankStore.tank?.isPublic ?? false"
+            :disabled="visibilitySaving"
+            @change="onToggleVisibility"
+          />
+          <span class="text-xs font-bold">
+            {{ tankStore.tank?.isPublic ? 'Public tank' : 'Private tank' }}
+          </span>
+        </label>
+        <NuxtLink
+          v-if="tankStore.tank?.isPublic && username"
+          :to="`/play/aquarium/browse/${username}/${tankStore.tank.slug}`"
+          class="link text-xs opacity-70"
+        >
+          View your public page
+        </NuxtLink>
+        <NuxtLink to="/play/aquarium/browse" class="link text-xs opacity-70">
+          Browse public tanks
+        </NuxtLink>
+      </div>
     </div>
 
     <!-- The unlock reveal beat (cthulhuquarium/t-012): the field note is
@@ -536,6 +567,7 @@ import {
   type TankStock,
 } from '~/stores/cthulhuquariumTankStore'
 import { touchHitRadius } from '~/utils/aquariumTouch'
+import { useUserStore } from '~/stores/userStore'
 
 /* Fixed logical resolution; CSS scales it to the host width so the canvas
    survives phone widths without its own breakpoint logic. */
@@ -677,7 +709,10 @@ type Mote = { x: number; y: number; drift: number }
 type FeedCreature = { x: number; y: number; phase: number; lean: number }
 
 const tankStore = useCthulhuquariumTankStore()
+const userStore = useUserStore()
+const username = computed(() => userStore.username)
 const canvasRef = ref<HTMLCanvasElement | null>(null)
+const visibilitySaving = ref(false)
 
 // Display-only mirror of server/utils/aquariumEconomy.ts's TICK_SECONDS,
 // for the welcome-back panel's duration line only -- never used to compute
@@ -1021,6 +1056,16 @@ function onToggleSets() {
   showSets.value = !showSets.value
   if (showSets.value && !tankStore.setCatalog.length) {
     void tankStore.loadSets()
+  }
+}
+
+async function onToggleVisibility(event: Event): Promise<void> {
+  const next = (event.target as HTMLInputElement).checked
+  visibilitySaving.value = true
+  try {
+    await tankStore.setVisibility(next)
+  } finally {
+    visibilitySaving.value = false
   }
 }
 

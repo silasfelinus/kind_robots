@@ -164,8 +164,12 @@
             />
             <div class="min-w-0 flex-1">
               <p class="truncate text-sm font-bold">{{ entry.name }}</p>
+              <!-- Deliberately never the field note here -- the server
+                   doesn't even send it for unowned species
+                   (cthulhuquarium/t-012). It reveals in the dialog below,
+                   once, on unlock. -->
               <p class="mt-0.5 line-clamp-2 text-xs italic opacity-70">
-                {{ entry.fieldNote || 'Not yet observed.' }}
+                Not yet observed.
               </p>
               <button
                 type="button"
@@ -183,6 +187,63 @@
         </div>
       </div>
     </div>
+
+    <!-- The unlock reveal beat (cthulhuquarium/t-012): the field note is
+         real information the player earned by paying for it, not shop
+         copy -- so it gets a moment of its own instead of quietly sitting
+         in a shrinking catalog card. -->
+    <Teleport to="body">
+      <dialog
+        v-if="tankStore.revealedUnlock"
+        class="modal modal-open"
+        aria-modal="true"
+        @cancel.prevent="tankStore.dismissReveal()"
+      >
+        <div
+          class="modal-box flex max-w-sm flex-col items-center gap-3 rounded-3xl border border-base-300 bg-base-100 text-center shadow-2xl"
+        >
+          <p class="text-xs font-black uppercase tracking-wide text-primary">
+            New occupant
+          </p>
+          <kr-art-plate
+            :source="tankStore.revealedUnlock.Monster"
+            variant="card"
+            shape="plate"
+            frame="thin"
+            fit="cover"
+            class="h-32 w-24"
+            placeholder-icon="kind-icon:fish"
+          />
+          <h3 class="text-lg font-black">
+            {{ tankStore.revealedUnlock.Monster.name }}
+          </h3>
+          <p
+            v-if="tankStore.revealedUnlock.Monster.species"
+            class="text-xs italic opacity-60"
+          >
+            {{ tankStore.revealedUnlock.Monster.species }}
+          </p>
+          <p class="text-sm opacity-80">
+            {{
+              tankStore.revealedUnlock.Monster.fieldNote ||
+              'Nothing is written about this one yet.'
+            }}
+          </p>
+          <button
+            type="button"
+            class="btn btn-primary btn-sm mt-1"
+            @click="tankStore.dismissReveal()"
+          >
+            Add it to the tank
+          </button>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+          <button type="button" @click="tankStore.dismissReveal()">
+            close
+          </button>
+        </form>
+      </dialog>
+    </Teleport>
   </ClientOnly>
 </template>
 

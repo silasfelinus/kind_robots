@@ -52,7 +52,7 @@ jobs:
             mapfile -t conflicts < <(git diff --name-only --diff-filter=U)
             for path in "${conflicts[@]}"; do
               case "$path" in
-                prisma/schema.prisma|prisma/generated/prisma/internal/prismaNamespace.ts|prisma/generated/prisma/internal/prismaNamespaceBrowser.ts|prisma/generated/prisma/models/Character.ts)
+                prisma/schema.prisma|prisma/generated/prisma/internal/class.ts|prisma/generated/prisma/internal/prismaNamespace.ts|prisma/generated/prisma/internal/prismaNamespaceBrowser.ts|prisma/generated/prisma/models/Character.ts)
                   git checkout --theirs -- "$path"
                   git add "$path"
                   ;;
@@ -99,7 +99,7 @@ jobs:
           git diff --cached --check
           git commit -m "Merge current main into t-075 rescue and regenerate Prisma"
 
-          allowed='^(prisma/schema\.prisma|prisma/generated/prisma/internal/prismaNamespace\.ts|prisma/generated/prisma/internal/prismaNamespaceBrowser\.ts|prisma/generated/prisma/models/Character\.ts|prisma/migration-provenance/20260827233000_drop_character_size\.pending\.txt|utils/scripts/schemaMigrationParity\.ts|utils/scripts/schemaMigrationParity\.test\.ts|utils/scripts/verifySchemaMigrationParity\.ts)$'
+          allowed='^(prisma/schema\.prisma|prisma/generated/prisma/internal/class\.ts|prisma/generated/prisma/internal/prismaNamespace\.ts|prisma/generated/prisma/internal/prismaNamespaceBrowser\.ts|prisma/generated/prisma/models/Character\.ts|prisma/migration-provenance/20260827233000_drop_character_size\.pending\.txt|utils/scripts/schemaMigrationParity\.ts|utils/scripts/schemaMigrationParity\.test\.ts|utils/scripts/verifySchemaMigrationParity\.ts)$'
           unexpected="$(git diff --name-only origin/main...HEAD | grep -Ev "$allowed" || true)"
           if [ -n "$unexpected" ]; then
             echo "Unexpected final PR diff after syncing main:" >&2

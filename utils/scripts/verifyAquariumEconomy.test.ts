@@ -15,6 +15,7 @@ import {
   DEBRIS_CLICK_CLEARS,
   DEBRIS_RANGE,
   MAX_ACCRUAL_TICKS,
+  MAX_CLEAN_CLICKS_PER_REQUEST,
   OFFLINE_INCOME_RATE_MULTIPLIER,
   RARITY_TIERS,
   TICK_SECONDS,
@@ -550,6 +551,47 @@ assert.ok(
 
 console.log(
   '✅ cleanDebris: clears exactly DEBRIS_CLICK_CLEARS per click, floors at DEBRIS_RANGE.min',
+)
+
+// --- cleanDebris(clicks): cthulhuquarium/t-013's debounced click batching --
+
+assert.equal(
+  cleanDebris(100, 1),
+  95,
+  'clicks=1 is identical to the pre-t-013 single-click call',
+)
+assert.equal(
+  cleanDebris(100, 3),
+  100 - DEBRIS_CLICK_CLEARS * 3,
+  'a batched flush of N clicks clears N times as much in one call',
+)
+assert.equal(
+  cleanDebris(10, 3),
+  0,
+  'a batch that would overshoot still floors at DEBRIS_RANGE.min, never negative',
+)
+assert.equal(
+  cleanDebris(50, 0),
+  cleanDebris(50, 1),
+  'clicks=0 clamps up to 1, never a zero-effect clear',
+)
+assert.equal(
+  cleanDebris(50, -3),
+  cleanDebris(50, 1),
+  'a negative clicks value clamps to 1, never subtracts negative debris',
+)
+assert.equal(
+  cleanDebris(50, 2.9),
+  cleanDebris(50, 2),
+  'a fractional clicks value floors to a whole click count',
+)
+assert.ok(
+  MAX_CLEAN_CLICKS_PER_REQUEST > 0,
+  'the batch-size cap is a positive request-shape guard, not a balance number',
+)
+
+console.log(
+  '✅ cleanDebris(clicks): batches N clicks into one clear, clamps clicks to a positive integer',
 )
 
 // --- justCompletedBestiary: cthulhuquarium/t-024's completion-beat gate ----

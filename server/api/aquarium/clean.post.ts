@@ -4,9 +4,13 @@
 // play channel cthulhuquarium/t-027 builds: -5 debris per click, instant,
 // free, no cooldown (data/economy.yaml's debris.clean.click_clears).
 //
-// No body -- there is nothing to parse; every click clears the same amount.
+// Optional body `{ clicks?: number }` (cthulhuquarium/t-013): the client
+// debounces a click spree into one request instead of one POST per click
+// and reports how many landed. Missing/invalid `clicks` defaults to 1, so a
+// client that sends no body at all keeps the original single-click
+// behavior. `cleanTankForUser` clamps the value server-side.
 
-import { defineEventHandler } from 'h3'
+import { defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../../utils/error'
 import { requireApiUser } from '../../utils/authGuard'
 import { cleanTankForUser } from '../../utils/aquarium'
@@ -16,7 +20,12 @@ export default defineEventHandler(async (event) => {
 
   try {
     const { user } = await requireApiUser(event)
-    const result = await cleanTankForUser(user.id, user.username)
+    const body = await readBody(event).catch(() => null)
+    const clicks =
+      body && typeof body === 'object' && typeof body.clicks === 'number'
+        ? body.clicks
+        : 1
+    const result = await cleanTankForUser(user.id, user.username, clicks)
 
     response = {
       success: true,

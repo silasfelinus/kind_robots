@@ -29,24 +29,6 @@
         {{ tankStore.error }}
       </p>
 
-      <div
-        v-if="tankStore.offlineEarnings > 0"
-        class="alert rounded-xl border border-info/40 bg-info/10 py-2 text-sm"
-      >
-        <Icon name="kind-icon:coin" class="size-4 shrink-0" />
-        <span>
-          Something was collected while you were gone:
-          <b>{{ tankStore.offlineEarnings }}</b> coins. Nobody says by whom.
-        </span>
-        <button
-          type="button"
-          class="btn btn-ghost btn-xs ml-auto"
-          @click="tankStore.clearOfflineEarnings()"
-        >
-          Dismiss
-        </button>
-      </div>
-
       <div class="flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center gap-3 text-sm font-bold">
           <span class="flex items-center gap-1">
@@ -97,10 +79,18 @@
         <button
           type="button"
           class="btn btn-outline btn-xs min-h-11 min-w-11"
-          :disabled="tankStore.debrisLevel <= 0"
-          @click="tankStore.clean()"
+          :disabled="
+            tankStore.debrisLevel <= 0 && tankStore.pendingCleanClicks === 0
+          "
+          @click="tankStore.requestClean()"
         >
           Clean
+          <span
+            v-if="tankStore.pendingCleanClicks > 0"
+            class="badge badge-neutral badge-xs ml-1"
+          >
+            ×{{ tankStore.pendingCleanClicks }}
+          </span>
         </button>
       </div>
 
@@ -388,11 +378,52 @@
         </form>
       </dialog>
     </Teleport>
+
+    <!-- The welcome-back beat (cthulhuquarium/t-013): settled on load()
+         from lastTickAt, before this component even finishes mounting.
+         Deliberately not congratulatory -- something worked while nobody
+         was watching, and the tank is not going to explain itself. -->
+    <Teleport to="body">
+      <dialog
+        v-if="tankStore.offlineEarnings > 0"
+        class="modal modal-open"
+        aria-modal="true"
+        @cancel.prevent="tankStore.clearOfflineEarnings()"
+      >
+        <div
+          class="modal-box flex max-w-sm flex-col items-center gap-3 rounded-3xl border border-base-300 bg-base-100 text-center shadow-2xl"
+        >
+          <Icon name="kind-icon:coin" class="size-8 text-warning" />
+          <p class="text-xs font-black uppercase tracking-wide text-primary">
+            While you were away
+          </p>
+          <h3 class="text-lg font-black">
+            {{ tankStore.offlineEarnings }} coins
+          </h3>
+          <p class="text-sm opacity-80">
+            Something kept working{{ offlineDurationLabel }}. Nobody says by
+            whom.
+          </p>
+          <button
+            type="button"
+            class="btn btn-primary btn-sm mt-1"
+            @click="tankStore.clearOfflineEarnings()"
+          >
+            Take it
+          </button>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+          <button type="button" @click="tankStore.clearOfflineEarnings()">
+            close
+          </button>
+        </form>
+      </dialog>
+    </Teleport>
   </ClientOnly>
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import {
   TANK_POLL_INTERVAL_MS,
   useCthulhuquariumTankStore,
@@ -535,6 +566,23 @@ type FeedCreature = { x: number; y: number; phase: number; lean: number }
 
 const tankStore = useCthulhuquariumTankStore()
 const canvasRef = ref<HTMLCanvasElement | null>(null)
+
+// Display-only mirror of server/utils/aquariumEconomy.ts's TICK_SECONDS,
+// for the welcome-back panel's duration line only -- never used to compute
+// coins or anything the server doesn't already own. Same "must be kept in
+// sync by hand" discipline that file's own header comment documents for
+// its relationship to economy.yaml.
+const DISPLAY_TICK_SECONDS = 60
+
+const offlineDurationLabel = computed(() => {
+  const seconds = tankStore.offlineTicksProcessed * DISPLAY_TICK_SECONDS
+  if (seconds < 60) return ''
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60)
+    return ` -- gone about ${minutes} minute${minutes === 1 ? '' : 's'}`
+  const hours = Math.floor(minutes / 60)
+  return ` -- gone about ${hours} hour${hours === 1 ? '' : 's'}`
+})
 
 const swimmers = ref<Swimmer[]>([])
 const motes = ref<Mote[]>([])
@@ -842,5 +890,8 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   if (frame) window.cancelAnimationFrame(frame)
   if (pollTimer) clearInterval(pollTimer)
+  // A click right before navigating away should still land instead of
+  // being dropped along with the debounce timer.
+  tankStore.flushCleanNow()
 })
 </script>

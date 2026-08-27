@@ -208,8 +208,24 @@ export function debrisMultiplier(debrisLevel: number): number {
 // route now does not foreclose the other two.
 export const DEBRIS_CLICK_CLEARS = 5
 
-export function cleanDebris(debrisLevel: number): number {
-  return Math.max(DEBRIS_RANGE.min, debrisLevel - DEBRIS_CLICK_CLEARS)
+// cthulhuquarium/t-013: the client batches a rapid click spree into one
+// debounced request instead of one POST per click (see
+// stores/cthulhuquariumTankStore.ts's flushClean()), and reports how many
+// clicks landed in that window as `clicks`. This is a defensive request-size
+// cap, not a balance constant -- clicking clean has nothing to lose by being
+// spammed (see this section's header comment), so a larger value doesn't
+// unlock anything a determined clicker couldn't already reach one request at
+// a time; it just bounds how much server work one request can demand.
+export const MAX_CLEAN_CLICKS_PER_REQUEST = 50
+
+export function cleanDebris(debrisLevel: number, clicks = 1): number {
+  const safeClicks = Number.isFinite(clicks)
+    ? Math.max(1, Math.floor(clicks))
+    : 1
+  return Math.max(
+    DEBRIS_RANGE.min,
+    debrisLevel - DEBRIS_CLICK_CLEARS * safeClicks,
+  )
 }
 
 // ---------------------------------------------------------------------------

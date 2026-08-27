@@ -323,3 +323,30 @@ export function settleTick(input: TickSettlementInput): TickSettlementResult {
     newLastTickAt: input.now,
   }
 }
+
+// ---------------------------------------------------------------------------
+// Bestiary completion (cthulhuquarium/t-024) -- pure decision logic only.
+// Loading/persisting the actual codex rows is server/utils/aquarium.ts's
+// job (AquariumCodexEntry, prisma); this stays a plain arithmetic check so
+// it can be unit-tested the same way as the rest of this file.
+//
+// Silas's 2026-08-24 decision this task follows: the game is ENDLESS BUT
+// THE BESTIARY COMPLETES, and "nothing here may ever decrease" -- a species
+// cannot be un-collected and completion cannot be reset. That invariant is
+// enforced by the CALLER's counting rule (collectedCount comes from
+// AquariumCodexEntry rows, which are never deleted, and totalCount is the
+// union of currently-active bestiary species and every species the user has
+// ever collected -- so retiring an already-collected species can never
+// shrink the denominator below what was already counted), not by anything
+// here. This function only decides whether a count transition crosses the
+// completion line for the first time.
+export function justCompletedBestiary(
+  totalCount: number,
+  collectedCountBefore: number,
+  collectedCountAfter: number,
+): boolean {
+  if (totalCount <= 0) return false
+  const wasComplete = collectedCountBefore >= totalCount
+  const isComplete = collectedCountAfter >= totalCount
+  return !wasComplete && isComplete
+}

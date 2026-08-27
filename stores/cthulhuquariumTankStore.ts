@@ -106,6 +106,36 @@ interface PurchaseResponse {
   aquarium: Tank
   stock: TankStock
   cost: number
+  justCompletedBestiary: boolean
+}
+
+// The completionist codex (cthulhuquarium/t-024). A collected entry carries
+// full art and its fieldNote; an uncollected one is only ever known by name
+// and shows as a silhouette in the panel -- the server never sends its
+// fieldNote or art paths (same "the server disposes" discipline as
+// CatalogEntry above).
+export interface BestiaryEntry {
+  id: number
+  name: string
+  slug: string
+  species: string | null
+  size: number
+  icon: string | null
+  iconPath: string | null
+  cardPath: string | null
+  tier: string
+  behavior: string | null
+  hue: number | null
+  collected: boolean
+  firstAcquiredAt: string | null
+  fieldNote: string | null
+}
+
+interface BestiaryResponse {
+  data: BestiaryEntry[]
+  collectedCount: number
+  totalCount: number
+  completed: boolean
 }
 
 // How often the mounted game component re-settles the tick while the tab is
@@ -129,6 +159,21 @@ export const useCthulhuquariumTankStore = defineStore(
     // "give it a real beat" call). The game component watches this to show
     // a reveal, then clears it via dismissReveal().
     const revealedUnlock = ref<TankStock | null>(null)
+
+    // cthulhuquarium/t-024's bestiary. Loaded lazily (the panel starts
+    // collapsed) rather than alongside load()/loadCatalog() on every mount --
+    // it is the completionist book, not something the tank loop needs every
+    // poll.
+    const bestiary = ref<BestiaryEntry[]>([])
+    const bestiaryCollectedCount = ref(0)
+    const bestiaryTotalCount = ref(0)
+    const bestiaryLoading = ref(false)
+    // Set once, the moment a purchase's response says this unlock closed the
+    // set -- the game component watches it for the one-time completion beat,
+    // then clears it via dismissBestiaryCompletion(). Never re-derived from
+    // bestiaryCollectedCount/bestiaryTotalCount, so simply reloading the
+    // bestiary later can't retrigger it.
+    const bestiaryJustCompleted = ref(false)
 
     const stock = computed(() => tank.value?.Stock ?? [])
     const coins = computed(() => tank.value?.coins ?? 0)
@@ -214,6 +259,10 @@ export const useCthulhuquariumTankStore = defineStore(
         tank.value = res.data.aquarium
         catalog.value = catalog.value.filter((entry) => entry.id !== monsterId)
         revealedUnlock.value = res.data.stock
+        if (res.data.justCompletedBestiary) bestiaryJustCompleted.value = true
+        // A stale bestiary panel (or one never loaded yet) would otherwise
+        // still show this species as uncollected after unlocking it.
+        if (bestiary.value.length > 0) await loadBestiary()
         return true
       }
       error.value = res.message || 'Could not unlock that species.'
@@ -240,6 +289,26 @@ export const useCthulhuquariumTankStore = defineStore(
       return false
     }
 
+    async function loadBestiary(): Promise<void> {
+      bestiaryLoading.value = true
+      try {
+        const res = await performFetch<BestiaryResponse>(
+          '/api/aquarium/bestiary',
+        )
+        if (res.success && res.data) {
+          bestiary.value = res.data.data
+          bestiaryCollectedCount.value = res.data.collectedCount
+          bestiaryTotalCount.value = res.data.totalCount
+        }
+      } finally {
+        bestiaryLoading.value = false
+      }
+    }
+
+    function dismissBestiaryCompletion(): void {
+      bestiaryJustCompleted.value = false
+    }
+
     function clearOfflineEarnings(): void {
       offlineEarnings.value = 0
     }
@@ -259,6 +328,11 @@ export const useCthulhuquariumTankStore = defineStore(
       error,
       ready,
       revealedUnlock,
+      bestiary,
+      bestiaryCollectedCount,
+      bestiaryTotalCount,
+      bestiaryLoading,
+      bestiaryJustCompleted,
       load,
       settleTick,
       loadCatalog,
@@ -267,6 +341,8 @@ export const useCthulhuquariumTankStore = defineStore(
       dismissReveal,
       clean,
       clearOfflineEarnings,
+      loadBestiary,
+      dismissBestiaryCompletion,
     }
   },
 )

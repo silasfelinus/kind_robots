@@ -218,6 +218,78 @@
           </p>
         </div>
       </div>
+
+      <!-- The bestiary (cthulhuquarium/t-024): the collection is the actual
+           progression spine now ("ENDLESS BUT THE BESTIARY COMPLETES"), so it
+           gets a view worth returning to rather than living only as a side
+           effect of the unlock panel above. Collapsed by default and loaded
+           on first open -- it's the completionist book, not part of the
+           tank's own poll loop. -->
+      <div class="flex flex-col gap-2 border-t border-base-300 pt-3">
+        <button
+          type="button"
+          class="flex items-center justify-between gap-2 text-left"
+          @click="onToggleBestiary"
+        >
+          <span class="text-xs font-black uppercase tracking-wide opacity-60">
+            Bestiary
+            <span v-if="tankStore.bestiaryTotalCount > 0" class="opacity-80">
+              — {{ tankStore.bestiaryCollectedCount }}/{{
+                tankStore.bestiaryTotalCount
+              }}
+              observed
+            </span>
+          </span>
+          <Icon
+            :name="
+              showBestiary ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'
+            "
+            class="size-4 shrink-0 opacity-60"
+          />
+        </button>
+
+        <template v-if="showBestiary">
+          <p v-if="tankStore.bestiaryLoading" class="text-xs opacity-60">
+            Reading the codex…
+          </p>
+          <div
+            v-else
+            class="grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-2"
+          >
+            <div
+              v-for="entry in tankStore.bestiary"
+              :key="entry.id"
+              class="flex items-start gap-2 rounded-xl border border-base-300 bg-base-100 p-3"
+              :class="{ 'opacity-60': !entry.collected }"
+            >
+              <kr-art-plate
+                :source="entry.collected ? entry : null"
+                variant="icon"
+                shape="plate"
+                frame="thin"
+                fit="cover"
+                class="size-12 shrink-0"
+                :placeholder-icon="
+                  entry.collected ? 'kind-icon:fish' : 'kind-icon:lock'
+                "
+              />
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-bold">{{ entry.name }}</p>
+                <p class="mt-0.5 line-clamp-2 text-xs italic opacity-70">
+                  {{
+                    entry.collected
+                      ? entry.fieldNote || 'Nothing is written down yet.'
+                      : 'Not yet observed.'
+                  }}
+                </p>
+              </div>
+            </div>
+            <p v-if="!tankStore.bestiary.length" class="text-xs opacity-60">
+              Nothing in the bestiary yet.
+            </p>
+          </div>
+        </template>
+      </div>
     </div>
 
     <!-- The unlock reveal beat (cthulhuquarium/t-012): the field note is
@@ -271,6 +343,46 @@
         </div>
         <form method="dialog" class="modal-backdrop">
           <button type="button" @click="tankStore.dismissReveal()">
+            close
+          </button>
+        </form>
+      </dialog>
+    </Teleport>
+
+    <!-- The bestiary completion beat (cthulhuquarium/t-024): "the closest
+         thing this game has to an ending... but it must not end the session
+         or lock anything, because the tank keeps running." Dismissing this
+         does nothing but close the dialog -- the tank, coins, and stock are
+         all untouched. -->
+    <Teleport to="body">
+      <dialog
+        v-if="tankStore.bestiaryJustCompleted"
+        class="modal modal-open"
+        aria-modal="true"
+        @cancel.prevent="tankStore.dismissBestiaryCompletion()"
+      >
+        <div
+          class="modal-box flex max-w-sm flex-col items-center gap-3 rounded-3xl border border-base-300 bg-base-100 text-center shadow-2xl"
+        >
+          <Icon name="kind-icon:trophy" class="size-10 text-warning" />
+          <p class="text-xs font-black uppercase tracking-wide text-primary">
+            The bestiary is complete
+          </p>
+          <h3 class="text-lg font-black">Every species, observed.</h3>
+          <p class="text-sm opacity-80">
+            Nothing here resets and nothing leaves the collection -- the tank
+            keeps running exactly as it was. This is just the beat that says so.
+          </p>
+          <button
+            type="button"
+            class="btn btn-primary btn-sm mt-1"
+            @click="tankStore.dismissBestiaryCompletion()"
+          >
+            Back to the tank
+          </button>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+          <button type="button" @click="tankStore.dismissBestiaryCompletion()">
             close
           </button>
         </form>
@@ -427,6 +539,7 @@ const canvasRef = ref<HTMLCanvasElement | null>(null)
 const swimmers = ref<Swimmer[]>([])
 const motes = ref<Mote[]>([])
 const feed = ref<FeedCreature[]>([])
+const showBestiary = ref(false)
 
 let frame = 0
 let lastFrameAt = 0
@@ -704,6 +817,15 @@ async function onFeed() {
 async function pollTick() {
   const earned = await tankStore.settleTick()
   if (earned > 0) spawnMotes(earned)
+}
+
+function onToggleBestiary() {
+  showBestiary.value = !showBestiary.value
+  // Loaded once on first open, not eagerly on mount -- see the store's own
+  // comment on why the codex isn't part of the tank's poll loop.
+  if (showBestiary.value && !tankStore.bestiary.length) {
+    void tankStore.loadBestiary()
+  }
 }
 
 onMounted(async () => {

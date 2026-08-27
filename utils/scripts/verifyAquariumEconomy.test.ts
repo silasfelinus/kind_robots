@@ -24,6 +24,7 @@ import {
   feedCost,
   hungerMultiplier,
   incomePerTick,
+  justCompletedBestiary,
   settleTick,
   unlockCost,
 } from '../../server/utils/aquariumEconomy.js'
@@ -454,6 +455,25 @@ assert.ok(
 
 console.log(
   '✅ cleanDebris: clears exactly DEBRIS_CLICK_CLEARS per click, floors at DEBRIS_RANGE.min',
+)
+
+// --- justCompletedBestiary: cthulhuquarium/t-024's completion-beat gate ----
+
+// Crossing the line for the first time fires.
+assert.equal(justCompletedBestiary(10, 9, 10), true)
+// Already complete before this call -- must not fire again.
+assert.equal(justCompletedBestiary(10, 10, 10), false)
+// Still short of the total -- no beat.
+assert.equal(justCompletedBestiary(10, 5, 6), false)
+// An empty bestiary (no species seeded yet) never reads as "complete".
+assert.equal(justCompletedBestiary(0, 0, 0), false)
+// Overshooting totalCount (e.g. a race with a retired species changing the
+// denominator) still only fires once, on the crossing itself.
+assert.equal(justCompletedBestiary(5, 4, 6), true)
+assert.equal(justCompletedBestiary(5, 6, 7), false)
+
+console.log(
+  '✅ justCompletedBestiary: fires exactly once, on the crossing, never before or after',
 )
 
 console.log('✅ verifyAquariumEconomy: all assertions passed')

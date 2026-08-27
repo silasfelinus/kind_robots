@@ -1015,6 +1015,92 @@ export async function listPublicTanks(
 }
 
 // ---------------------------------------------------------------------------
+// Leaderboard -- ranks players by DISTINCT SPECIES COLLECTED, never coins
+// (cthulhuquarium/t-018). Decided 2026-08-24: the game is endless with the
+// bestiary as the win state, so a coin leaderboard would only rank whoever
+// left a tab open longest. AquariumCodexEntry carries a `@@unique([userId,
+// monsterId])` constraint and is never deleted once written (t-024/t-031's
+// "nothing here may ever decrease" rule), so a plain per-user row count
+// already equals distinct species collected -- no DISTINCT needed.
+//
+// Same consent boundary as the public browse above: only ranks users who
+// have at least one `isPublic` tank (the per-feature opt-in t-014 already
+// established -- a player who has never made a tank public hasn't agreed to
+// be identified here either), and never a restricted/moderated account.
+// Display names only, same publicOwnerSelect as the rest of this file.
+// ---------------------------------------------------------------------------
+
+export interface SpeciesLeaderboardEntry {
+  rank: number
+  userId: number
+  username: string
+  avatarImage: string | null
+  speciesCollected: number
+}
+
+export interface SpeciesLeaderboardResult {
+  data: SpeciesLeaderboardEntry[]
+  take: number
+  skip: number
+  total: number
+}
+
+export async function getSpeciesLeaderboard(
+  take: number,
+  skip: number,
+): Promise<SpeciesLeaderboardResult> {
+  const rankableUserWhere = {
+    isRestricted: false,
+    Aquariums: { some: { isPublic: true } },
+  } satisfies Prisma.UserWhereInput
+
+  const [grouped, total] = await Promise.all([
+    prisma.aquariumCodexEntry.groupBy({
+      by: ['userId'],
+      where: { User: rankableUserWhere },
+      _count: { monsterId: true },
+      orderBy: [
+        { _count: { monsterId: 'desc' } },
+        // Tie-break deterministically (lowest userId first) rather than
+        // leaving groupBy's tie order unspecified across pages.
+        { userId: 'asc' },
+      ],
+      take,
+      skip,
+    }),
+    prisma.aquariumCodexEntry
+      .groupBy({
+        by: ['userId'],
+        where: { User: rankableUserWhere },
+      })
+      .then((rows) => rows.length),
+  ])
+
+  const userIds = grouped.map((row) => row.userId)
+  const users = await prisma.user.findMany({
+    where: { id: { in: userIds } },
+    select: { id: true, ...publicOwnerSelect },
+  })
+  const userById = new Map(users.map((user) => [user.id, user]))
+
+  const data: SpeciesLeaderboardEntry[] = grouped
+    .map((row, index) => {
+      const user = userById.get(row.userId)
+      if (!user) return null
+      return {
+        rank: skip + index + 1,
+        userId: user.id,
+        username: user.username,
+        avatarImage: user.avatarImage,
+        speciesCollected: row._count.monsterId,
+      }
+    })
+    .filter((entry): entry is SpeciesLeaderboardEntry => entry !== null)
+
+  return { data, take, skip, total }
+}
+
+// ---------------------------------------------------------------------------
 // Catalog -- species the user's tank does not yet own, for the unlock panel
 // (cthulhuquarium/t-011). `cost` is computed the exact same way
 // purchaseSpeciesForUser charges (deriveFishRarityTier + unlockCost) so the

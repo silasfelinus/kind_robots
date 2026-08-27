@@ -537,6 +537,12 @@
         <NuxtLink to="/play/aquarium/browse" class="link text-xs opacity-70">
           Browse public tanks
         </NuxtLink>
+        <NuxtLink
+          to="/play/aquarium/leaderboard"
+          class="link text-xs opacity-70"
+        >
+          Leaderboard
+        </NuxtLink>
       </div>
     </div>
 

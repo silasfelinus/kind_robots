@@ -48,6 +48,14 @@ export interface TankStock {
   Monster: TankMonster
 }
 
+// cthulhuquarium/t-026: one equipped set piece, as returned in Tank.Sets and
+// by the /api/aquarium/sets endpoints.
+export interface TankSet {
+  id: number
+  kind: string
+  equippedAt: string
+}
+
 export interface Tank {
   id: number
   slug: string
@@ -58,11 +66,29 @@ export interface Tank {
   lastTickAt: string | null
   setSlotsCap: number
   sizeCap: number
+  // Server-computed sizeCap + any equipped extra_species_slot bonus
+  // (server/utils/aquariumEconomy.ts's effectiveSizeCap) -- this is what
+  // the unlock panel should check capacity against, not the raw sizeCap.
+  effectiveSizeCap: number
   debrisLevel: number
   lastCleanedAt: string | null
   createdAt: string
   updatedAt: string | null
   Stock: TankStock[]
+  Sets: TankSet[]
+}
+
+// cthulhuquarium/t-026: one catalog entry from GET /api/aquarium/sets,
+// static config (aquariumEconomy.ts's SET_PIECE_CATALOG) plus this tank's
+// own equipped flag.
+export interface SetCatalogEntry {
+  kind: string
+  title: string
+  description: string
+  effect: string
+  value: number | null
+  cost: number
+  equipped: boolean
 }
 
 export interface CatalogEntry {
@@ -100,7 +126,23 @@ interface FeedResponse {
   aquarium: Tank
   aquariumStockId: number
   cost: number
+  rebate: number
   hunger: number
+}
+
+interface SetCatalogResponse {
+  catalog: SetCatalogEntry[]
+  equipped: TankSet[]
+  setSlotsCap: number
+}
+
+interface EquipSetResponse {
+  aquarium: Tank
+  set: TankSet
+}
+
+interface UnequipSetResponse {
+  aquarium: Tank
 }
 
 interface CleanResponse {
@@ -192,12 +234,25 @@ export const useCthulhuquariumTankStore = defineStore(
     // bestiary later can't retrigger it.
     const bestiaryJustCompleted = ref(false)
 
+    // cthulhuquarium/t-026's set-piece catalog. Loaded lazily, same
+    // collapsed-panel-until-opened pattern as the bestiary above -- it
+    // isn't part of the tank's own poll loop.
+    const setCatalog = ref<SetCatalogEntry[]>([])
+    const setCatalogLoading = ref(false)
+
     const stock = computed(() => tank.value?.Stock ?? [])
     const coins = computed(() => tank.value?.coins ?? 0)
     const occupantSize = computed(() =>
       stock.value.reduce((sum, entry) => sum + (entry.Monster.size ?? 1), 0),
     )
-    const sizeCap = computed(() => tank.value?.sizeCap ?? 0)
+    // effectiveSizeCap folds in any equipped extra_species_slot bonus; falls
+    // back to the raw sizeCap for the brief window before the tank has
+    // loaded (tank.value is null) rather than reading 0.
+    const sizeCap = computed(
+      () => tank.value?.effectiveSizeCap ?? tank.value?.sizeCap ?? 0,
+    )
+    const equippedSets = computed(() => tank.value?.Sets ?? [])
+    const setSlotsCap = computed(() => tank.value?.setSlotsCap ?? 0)
     const debrisLevel = computed(() => tank.value?.debrisLevel ?? 0)
     const hungriest = computed<TankStock | null>(() =>
       stock.value.reduce<TankStock | null>(
@@ -368,6 +423,53 @@ export const useCthulhuquariumTankStore = defineStore(
       bestiaryJustCompleted.value = false
     }
 
+    // cthulhuquarium/t-026: the build layer. loadSets() is called lazily by
+    // the game component the first time its panel opens, same as
+    // loadBestiary() above.
+    async function loadSets(): Promise<void> {
+      setCatalogLoading.value = true
+      try {
+        const res = await performFetch<SetCatalogResponse>('/api/aquarium/sets')
+        if (res.success && res.data) setCatalog.value = res.data.catalog
+      } finally {
+        setCatalogLoading.value = false
+      }
+    }
+
+    async function equipSet(kind: string): Promise<boolean> {
+      const res = await performFetch<EquipSetResponse>(
+        '/api/aquarium/sets/equip',
+        {
+          method: 'POST',
+          body: JSON.stringify({ kind }),
+        },
+      )
+      if (res.success && res.data) {
+        tank.value = res.data.aquarium
+        if (setCatalog.value.length) await loadSets()
+        return true
+      }
+      error.value = res.message || 'Could not equip that set piece.'
+      return false
+    }
+
+    async function unequipSet(aquariumSetId: number): Promise<boolean> {
+      const res = await performFetch<UnequipSetResponse>(
+        '/api/aquarium/sets/unequip',
+        {
+          method: 'POST',
+          body: JSON.stringify({ aquariumSetId }),
+        },
+      )
+      if (res.success && res.data) {
+        tank.value = res.data.aquarium
+        if (setCatalog.value.length) await loadSets()
+        return true
+      }
+      error.value = res.message || 'Could not unequip that set piece.'
+      return false
+    }
+
     function clearOfflineEarnings(): void {
       offlineEarnings.value = 0
       offlineTicksProcessed.value = 0
@@ -395,6 +497,10 @@ export const useCthulhuquariumTankStore = defineStore(
       bestiaryTotalCount,
       bestiaryLoading,
       bestiaryJustCompleted,
+      equippedSets,
+      setSlotsCap,
+      setCatalog,
+      setCatalogLoading,
       load,
       settleTick,
       loadCatalog,
@@ -406,6 +512,9 @@ export const useCthulhuquariumTankStore = defineStore(
       clearOfflineEarnings,
       loadBestiary,
       dismissBestiaryCompletion,
+      loadSets,
+      equipSet,
+      unequipSet,
     }
   },
 )

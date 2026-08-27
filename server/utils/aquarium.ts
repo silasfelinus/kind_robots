@@ -17,12 +17,17 @@ import prisma from './prisma'
 import { getUniqueAquariumSlugForUser } from './aquariumSlug'
 import {
   cleanDebris,
+  conflictsWithEquippedIdleSet,
   deriveFishRarityTier,
+  effectiveSizeCap,
+  feedCoinRebate,
   feedCost,
   FEED_RESTORES_HUNGER_TO,
   HUNGER_STARTING_VALUE,
+  isKnownSetPieceKind,
   justCompletedBestiary as computeJustCompletedBestiary,
   MAX_CLEAN_CLICKS_PER_REQUEST,
+  SET_PIECE_CATALOG,
   settleTick,
   unlockCost,
 } from './aquariumEconomy'
@@ -103,6 +108,15 @@ const ownedStockSelect = {
   Monster: { select: stockMonsterSelect },
 } satisfies Prisma.AquariumStockSelect
 
+// cthulhuquarium/t-026: the tank's equipped set pieces. Ordered oldest-
+// first so the UI can show "what you built up over time" rather than a
+// re-shuffling list on every load.
+const ownedSetSelect = {
+  id: true,
+  kind: true,
+  equippedAt: true,
+} satisfies Prisma.AquariumSetSelect
+
 const ownedAquariumSelect = {
   id: true,
   slug: true,
@@ -118,11 +132,32 @@ const ownedAquariumSelect = {
   createdAt: true,
   updatedAt: true,
   Stock: { select: ownedStockSelect },
+  Sets: { select: ownedSetSelect, orderBy: { equippedAt: 'asc' } },
 } satisfies Prisma.AquariumSelect
 
 export type OwnedAquarium = Prisma.AquariumGetPayload<{
   select: typeof ownedAquariumSelect
 }>
+
+// The wire shape every route actually returns: OwnedAquarium plus
+// effectiveSizeCap, the sizeCap.raw + extra_species_slot bonuses derived
+// number (aquariumEconomy.ts). Computed server-side rather than left for
+// the client to re-derive from `Sets` + a hardcoded bonus value -- same
+// "the server disposes, the client never invents an economy number"
+// discipline as everywhere else in this file.
+export interface ClientAquarium extends OwnedAquarium {
+  effectiveSizeCap: number
+}
+
+function toClientAquarium(aquarium: OwnedAquarium): ClientAquarium {
+  return {
+    ...aquarium,
+    effectiveSizeCap: effectiveSizeCap(
+      aquarium.sizeCap,
+      aquarium.Sets.map((set) => set.kind),
+    ),
+  }
+}
 
 const DEFAULT_STARTING_COINS = 0
 
@@ -146,17 +181,17 @@ async function logEvent(
 export async function getOrCreateTankForUser(
   userId: number,
   username: string,
-): Promise<OwnedAquarium> {
+): Promise<ClientAquarium> {
   const existing = await prisma.aquarium.findFirst({
     where: { userId },
     select: ownedAquariumSelect,
     orderBy: { id: 'asc' },
   })
-  if (existing) return existing
+  if (existing) return toClientAquarium(existing)
 
   const slug = await getUniqueAquariumSlugForUser(userId, username)
 
-  return prisma.aquarium.create({
+  const created = await prisma.aquarium.create({
     data: {
       userId,
       slug,
@@ -165,6 +200,7 @@ export async function getOrCreateTankForUser(
     },
     select: ownedAquariumSelect,
   })
+  return toClientAquarium(created)
 }
 
 // ---------------------------------------------------------------------------
@@ -172,7 +208,7 @@ export async function getOrCreateTankForUser(
 // ---------------------------------------------------------------------------
 
 export interface TickResult {
-  aquarium: OwnedAquarium
+  aquarium: ClientAquarium
   elapsedTicks: number
   ticksProcessed: number
   coinsEarned: number
@@ -183,6 +219,7 @@ export async function settleTickForUser(
   username: string,
 ): Promise<TickResult> {
   const tank = await getOrCreateTankForUser(userId, username)
+  const equippedSetKinds = tank.Sets.map((set) => set.kind)
 
   const settlement = settleTick({
     lastTickAt: tank.lastTickAt,
@@ -195,6 +232,7 @@ export async function settleTickForUser(
       yieldPerTick: stock.Monster.yieldPerTick,
       tickIntervalSeconds: stock.Monster.tickIntervalSeconds,
     })),
+    equippedSetKinds,
   })
 
   if (settlement.ticksProcessed <= 0) {
@@ -238,7 +276,7 @@ export async function settleTickForUser(
   })
 
   return {
-    aquarium,
+    aquarium: toClientAquarium(aquarium),
     elapsedTicks: settlement.elapsedTicks,
     ticksProcessed: settlement.ticksProcessed,
     coinsEarned: settlement.coinsEarned,
@@ -250,9 +288,14 @@ export async function settleTickForUser(
 // ---------------------------------------------------------------------------
 
 export interface FeedResult {
-  aquarium: OwnedAquarium
+  aquarium: ClientAquarium
   aquariumStockId: number
   cost: number
+  // feeding_bonus (cthulhuquarium/t-026): coins refunded from `cost` this
+  // feed, 0 unless that set is equipped. `cost` above stays the sticker
+  // price either way -- this is what actually left the tank's balance:
+  // netCharged = cost - rebate.
+  rebate: number
   hunger: number
 }
 
@@ -281,6 +324,10 @@ export async function feedFishForUser(
     )
   }
 
+  const equippedSetKinds = tank.Sets.map((set) => set.kind)
+  const rebate = feedCoinRebate(cost, equippedSetKinds)
+  const netCharged = cost - rebate
+
   const aquarium = await prisma.$transaction(async (tx) => {
     await tx.aquariumStock.update({
       where: { id: stock.id },
@@ -289,7 +336,7 @@ export async function feedFishForUser(
 
     const updated = await tx.aquarium.update({
       where: { id: tank.id },
-      data: { coins: { decrement: cost } },
+      data: { coins: { decrement: netCharged } },
       select: ownedAquariumSelect,
     })
 
@@ -297,15 +344,17 @@ export async function feedFishForUser(
       aquariumStockId: stock.id,
       monsterId: stock.monsterId,
       cost,
+      rebate,
     })
 
     return updated
   })
 
   return {
-    aquarium,
+    aquarium: toClientAquarium(aquarium),
     aquariumStockId: stock.id,
     cost,
+    rebate,
     hunger: FEED_RESTORES_HUNGER_TO,
   }
 }
@@ -320,7 +369,7 @@ export async function feedFishForUser(
 // ---------------------------------------------------------------------------
 
 export interface CleanResult {
-  aquarium: OwnedAquarium
+  aquarium: ClientAquarium
   debrisLevel: number
 }
 
@@ -364,7 +413,7 @@ export async function cleanTankForUser(
     return updated
   })
 
-  return { aquarium, debrisLevel: newDebrisLevel }
+  return { aquarium: toClientAquarium(aquarium), debrisLevel: newDebrisLevel }
 }
 
 // ---------------------------------------------------------------------------
@@ -526,10 +575,17 @@ async function countBestiaryTotals(
 // implemented: economy.yaml bundles buying+consuming food into a single
 // action (POST /feed already IS that purchase) and states capacity growth
 // is milestone-only, "never purchased with coins".
+//
+// cthulhuquarium/t-026's extra_species_slot set piece does NOT contradict
+// that rule: it never raises the base `sizeCap` column milestones grow, it
+// occupies one of the tank's scarce, counted setSlotsCap slots and only
+// widens the derived `effectiveSizeCap` used below while equipped --
+// unequip it (or lose the slot to a different set) and the bonus is gone.
+// That is a build choice, not a purchased permanent upgrade.
 // ---------------------------------------------------------------------------
 
 export interface PurchaseSpeciesResult {
-  aquarium: OwnedAquarium
+  aquarium: ClientAquarium
   stock: OwnedAquarium['Stock'][number]
   cost: number
   // True exactly once -- the settlement that brings collectedCount to
@@ -571,10 +627,13 @@ export async function purchaseSpeciesForUser(
     0,
   )
   const newSize = monster.size ?? 1
-  if (currentSize + newSize > tank.sizeCap) {
+  // tank.effectiveSizeCap (aquariumEconomy.ts's effectiveSizeCap) already
+  // folds in any equipped extra_species_slot bonus -- see this section's
+  // header comment for why that's not a "capacity purchased with coins".
+  if (currentSize + newSize > tank.effectiveSizeCap) {
     throw apiError(
       409,
-      `Adding ${monster.name} (size ${newSize}) would exceed your tank's capacity (${currentSize}/${tank.sizeCap} used).`,
+      `Adding ${monster.name} (size ${newSize}) would exceed your tank's capacity (${currentSize}/${tank.effectiveSizeCap} used).`,
     )
   }
 
@@ -664,7 +723,12 @@ export async function purchaseSpeciesForUser(
     },
   )
 
-  return { aquarium, stock, cost, justCompletedBestiary }
+  return {
+    aquarium: toClientAquarium(aquarium),
+    stock,
+    cost,
+    justCompletedBestiary,
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -850,4 +914,144 @@ export async function listCatalogForUser(
   }))
 
   return { data, take, skip, total }
+}
+
+// ---------------------------------------------------------------------------
+// Set pieces (cthulhuquarium/t-026) -- "the build layer and its synergies".
+// The catalog itself is static (aquariumEconomy.ts's SET_PIECE_CATALOG);
+// this section is only the per-tank equip/unequip state around it. Sets
+// draw from their own counted setSlotsCap pool, entirely separate from
+// sizeCap's weighed fish pool (SYSTEMS.md "Capacity: two pools, two
+// units") -- equipping a set never touches sizeCap/effectiveSizeCap
+// checks, and unlocking a species never touches setSlotsCap.
+// ---------------------------------------------------------------------------
+
+export interface SetCatalogEntry {
+  kind: string
+  title: string
+  description: string
+  effect: string
+  value: number | null
+  cost: number
+  equipped: boolean
+}
+
+export interface SetCatalogResult {
+  catalog: SetCatalogEntry[]
+  equipped: OwnedAquarium['Sets']
+  setSlotsCap: number
+}
+
+export async function listSetsForUser(
+  userId: number,
+  username: string,
+): Promise<SetCatalogResult> {
+  const tank = await getOrCreateTankForUser(userId, username)
+  const equippedKinds = new Set(tank.Sets.map((set) => set.kind))
+
+  const catalog = Object.values(SET_PIECE_CATALOG).map((config) => ({
+    ...config,
+    equipped: equippedKinds.has(config.kind),
+  }))
+
+  return { catalog, equipped: tank.Sets, setSlotsCap: tank.setSlotsCap }
+}
+
+export interface EquipSetResult {
+  aquarium: ClientAquarium
+  set: OwnedAquarium['Sets'][number]
+}
+
+export async function equipSetForUser(
+  userId: number,
+  username: string,
+  kind: string,
+): Promise<EquipSetResult> {
+  if (!isKnownSetPieceKind(kind)) {
+    throw apiError(400, `'${kind}' is not a known set piece.`)
+  }
+
+  const tank = await getOrCreateTankForUser(userId, username)
+  const equippedKinds = tank.Sets.map((set) => set.kind)
+  const config = SET_PIECE_CATALOG[kind]
+
+  if (equippedKinds.includes(kind)) {
+    throw apiError(409, `${config.title} is already equipped in your tank.`)
+  }
+  if (tank.Sets.length >= tank.setSlotsCap) {
+    throw apiError(
+      409,
+      `All ${tank.setSlotsCap} set slots are full -- unequip one first.`,
+    )
+  }
+  if (conflictsWithEquippedIdleSet(kind, equippedKinds)) {
+    throw apiError(
+      409,
+      `${config.title} does the same job as an already-equipped set (they don't stack) -- unequip that one first if you want to switch.`,
+    )
+  }
+  if (tank.coins < config.cost) {
+    throw apiError(
+      402,
+      `Equipping ${config.title} costs ${config.cost} coins; your tank only has ${tank.coins}.`,
+    )
+  }
+
+  const { aquarium, createdSet } = await prisma.$transaction(async (tx) => {
+    const createdSet = await tx.aquariumSet.create({
+      data: { aquariumId: tank.id, kind },
+      select: ownedSetSelect,
+    })
+
+    const updated = await tx.aquarium.update({
+      where: { id: tank.id },
+      data: { coins: { decrement: config.cost } },
+      select: ownedAquariumSelect,
+    })
+
+    await logEvent(tx, tank.id, 'equip-set', { kind, cost: config.cost })
+
+    return { aquarium: updated, createdSet }
+  })
+
+  return { aquarium: toClientAquarium(aquarium), set: createdSet }
+}
+
+export interface UnequipSetResult {
+  aquarium: ClientAquarium
+}
+
+export async function unequipSetForUser(
+  userId: number,
+  username: string,
+  aquariumSetId: number,
+): Promise<UnequipSetResult> {
+  const tank = await getOrCreateTankForUser(userId, username)
+  const existing = tank.Sets.find((set) => set.id === aquariumSetId)
+  if (!existing) {
+    throw apiError(
+      404,
+      `Set piece ${aquariumSetId} is not equipped in your tank.`,
+    )
+  }
+
+  // No coin refund on unequip -- equipping spent coins to occupy a scarce
+  // slot with an active build choice, same "not a refundable purchase"
+  // shape as a species unlock (SYSTEMS.md "The shop rotates; the book is
+  // forever" section covers selling FISH back; set pieces were never
+  // included in that discussion and get no analogous sell-back here).
+  const aquarium = await prisma.$transaction(async (tx) => {
+    await tx.aquariumSet.delete({ where: { id: aquariumSetId } })
+
+    const updated = await tx.aquarium.findUniqueOrThrow({
+      where: { id: tank.id },
+      select: ownedAquariumSelect,
+    })
+
+    await logEvent(tx, tank.id, 'unequip-set', { kind: existing.kind })
+
+    return updated
+  })
+
+  return { aquarium: toClientAquarium(aquarium) }
 }

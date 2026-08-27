@@ -12,12 +12,19 @@
 import assert from 'node:assert/strict'
 
 import {
+  conflictsWithEquippedIdleSet,
   DEBRIS_CLICK_CLEARS,
   DEBRIS_RANGE,
+  effectiveSizeCap,
+  feedCoinRebate,
+  isKnownSetPieceKind,
   MAX_ACCRUAL_TICKS,
   MAX_CLEAN_CLICKS_PER_REQUEST,
+  NO_STACK_IDLE_SET_KINDS,
   OFFLINE_INCOME_RATE_MULTIPLIER,
   RARITY_TIERS,
+  SET_PIECE_CATALOG,
+  SET_PIECE_KINDS,
   TICK_SECONDS,
   cleanDebris,
   debrisMultiplier,
@@ -463,6 +470,166 @@ console.log(
 
 console.log(
   "✅ settleTick: per-species yieldPerTick/tickIntervalSeconds overrides change that fish's production as expected",
+)
+
+// --- set pieces (cthulhuquarium/t-026): catalog shape, capacity/rebate math,
+// idle-bonus non-stacking, debris_skimmer in settleTick -------------------
+
+// The catalog's keys must match economy.yaml's set_pieces keys exactly (see
+// aquariumEconomy.ts's own header comment on why).
+assert.deepEqual(
+  [...SET_PIECE_KINDS].sort(),
+  [
+    'debris_skimmer',
+    'extra_species_slot',
+    'feeding_bonus',
+    'idle_hoarder',
+    'peace_ward',
+    'roaming_collector',
+    'swim_speed',
+  ].sort(),
+)
+for (const kind of SET_PIECE_KINDS) {
+  assert.equal(SET_PIECE_CATALOG[kind].kind, kind)
+  assert.ok(SET_PIECE_CATALOG[kind].cost > 0)
+}
+assert.equal(isKnownSetPieceKind('extra_species_slot'), true)
+assert.equal(isKnownSetPieceKind('not-a-real-set'), false)
+
+console.log(
+  '✅ SET_PIECE_CATALOG: every economy.yaml set_pieces key is present, priced, self-consistent',
+)
+
+// extra_species_slot: +1 per equipped copy (economy.yaml value: 1).
+assert.equal(effectiveSizeCap(10, []), 10)
+assert.equal(effectiveSizeCap(10, ['extra_species_slot']), 11)
+assert.equal(effectiveSizeCap(10, ['swim_speed', 'debris_skimmer']), 10)
+
+console.log(
+  '✅ effectiveSizeCap: extra_species_slot adds exactly its configured delta, other kinds are no-ops',
+)
+
+// feeding_bonus: refunds 50% of cost, floored, only when equipped.
+assert.equal(feedCoinRebate(100, []), 0)
+assert.equal(feedCoinRebate(100, ['feeding_bonus']), 50)
+assert.equal(
+  feedCoinRebate(101, ['feeding_bonus']),
+  50,
+  'rebate floors rather than rounds, same anti-fabrication discipline as settleTick',
+)
+
+console.log(
+  '✅ feedCoinRebate: 50% refund only with feeding_bonus equipped, floored',
+)
+
+// no_stack_idle_effects: roaming_collector and idle_hoarder conflict with
+// each other but nothing else conflicts with anything.
+assert.deepEqual([...NO_STACK_IDLE_SET_KINDS].sort(), [
+  'idle_hoarder',
+  'roaming_collector',
+])
+assert.equal(
+  conflictsWithEquippedIdleSet('idle_hoarder', ['roaming_collector']),
+  true,
+)
+assert.equal(
+  conflictsWithEquippedIdleSet('roaming_collector', ['idle_hoarder']),
+  true,
+)
+assert.equal(
+  conflictsWithEquippedIdleSet('idle_hoarder', ['idle_hoarder']),
+  false,
+  'a kind never conflicts with itself -- equip-time duplicate rejection is a separate check',
+)
+assert.equal(
+  conflictsWithEquippedIdleSet('debris_skimmer', ['idle_hoarder']),
+  false,
+  'a non-idle set never conflicts with anything',
+)
+
+console.log(
+  '✅ conflictsWithEquippedIdleSet: only the roaming_collector/idle_hoarder pair conflicts',
+)
+
+// settleTick: debris_skimmer clears debris passively each tick, on top of
+// (not instead of) accrual -- and never undercuts manual clicking's larger
+// single clear (SYSTEMS.md's three-co-viable-routes rule).
+{
+  const start = new Date('2026-08-25T00:00:00Z')
+  const now = new Date(start.getTime() + TICK_SECONDS * 1000)
+  const withSkimmer = settleTick({
+    lastTickAt: start,
+    now,
+    debrisLevel: 50,
+    fish: [{ id: 1, rarity: 'COMMON', hunger: 100 }],
+    equippedSetKinds: ['debris_skimmer'],
+  })
+  const withoutSkimmer = settleTick({
+    lastTickAt: start,
+    now,
+    debrisLevel: 50,
+    fish: [{ id: 1, rarity: 'COMMON', hunger: 100 }],
+  })
+  assert.ok(
+    withSkimmer.newDebrisLevel < withoutSkimmer.newDebrisLevel,
+    'an equipped debris_skimmer must leave the tank cleaner than an otherwise-identical tank without one',
+  )
+  assert.ok(
+    withSkimmer.newDebrisLevel >= DEBRIS_RANGE.min,
+    'debris_skimmer never pushes debris below its floor',
+  )
+}
+
+// settleTick: idle_hoarder/roaming_collector scale coinsEarned up, and the
+// two never stack even if both are somehow passed at once (belt-and-
+// suspenders backstop behind the equip-time rejection).
+{
+  const start = new Date('2026-08-25T00:00:00Z')
+  const longNow = new Date(start.getTime() + 50 * TICK_SECONDS * 1000)
+  const base = settleTick({
+    lastTickAt: start,
+    now: longNow,
+    debrisLevel: 0,
+    fish: [{ id: 1, rarity: 'COMMON', hunger: 100 }],
+  })
+  const hoarder = settleTick({
+    lastTickAt: start,
+    now: longNow,
+    debrisLevel: 0,
+    fish: [{ id: 1, rarity: 'COMMON', hunger: 100 }],
+    equippedSetKinds: ['idle_hoarder'],
+  })
+  const collector = settleTick({
+    lastTickAt: start,
+    now: longNow,
+    debrisLevel: 0,
+    fish: [{ id: 1, rarity: 'COMMON', hunger: 100 }],
+    equippedSetKinds: ['roaming_collector'],
+  })
+  const bothIdleKinds = settleTick({
+    lastTickAt: start,
+    now: longNow,
+    debrisLevel: 0,
+    fish: [{ id: 1, rarity: 'COMMON', hunger: 100 }],
+    equippedSetKinds: ['idle_hoarder', 'roaming_collector'],
+  })
+  assert.ok(
+    hoarder.coinsEarned > base.coinsEarned,
+    'idle_hoarder must earn strictly more than the unequipped baseline over a long enough window',
+  )
+  assert.ok(
+    collector.coinsEarned > hoarder.coinsEarned,
+    "roaming_collector's larger configured fraction (0.5 vs idle_hoarder's 0.4) must earn more over a long enough window",
+  )
+  assert.equal(
+    bothIdleKinds.coinsEarned,
+    collector.coinsEarned,
+    'passing both no_stack_idle_effects kinds at once must earn exactly what the LARGER single one alone earns (Math.max) -- never their sum',
+  )
+}
+
+console.log(
+  '✅ settleTick: debris_skimmer and idle_hoarder/roaming_collector apply correctly and never double-stack',
 )
 
 // --- PROPERTY TEST: coinsEarned is always a non-negative integer, hunger is

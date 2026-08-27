@@ -996,19 +996,29 @@ export interface PublicTankListResult {
   total: number
 }
 
+// cthulhuquarium/t-052 (kaizen from t-018): the leaderboard and
+// directory.get.ts both exclude restricted/moderated accounts from public
+// listings; this browse query only checked `isPublic` and let a restricted
+// user's public tank still surface here. Same `User: { isRestricted: false
+// }` filter as getSpeciesLeaderboard above, for consistency.
+const publicTankWhere = {
+  isPublic: true,
+  User: { isRestricted: false },
+} satisfies Prisma.AquariumWhereInput
+
 export async function listPublicTanks(
   take: number,
   skip: number,
 ): Promise<PublicTankListResult> {
   const [data, total] = await Promise.all([
     prisma.aquarium.findMany({
-      where: { isPublic: true },
+      where: publicTankWhere,
       select: publicAquariumSummarySelect,
       orderBy: { updatedAt: 'desc' },
       take,
       skip,
     }),
-    prisma.aquarium.count({ where: { isPublic: true } }),
+    prisma.aquarium.count({ where: publicTankWhere }),
   ])
 
   return { data, take, skip, total }

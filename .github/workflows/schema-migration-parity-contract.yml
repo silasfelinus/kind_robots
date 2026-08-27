@@ -38,6 +38,10 @@ jobs:
       - name: Merge current main, resolve Prisma, and self-clean
         env:
           CYPRESS_INSTALL_BINARY: '0'
+          # validate/generate need a syntactically valid datasource URL but do
+          # not connect to it. Migration commands remain credential-gated by
+          # prisma.config.ts and are never invoked by this helper.
+          DATABASE_URL: 'mysql://ci:ci@127.0.0.1:3306/kind_robots_ci'
         run: |
           set -euo pipefail
           git config user.name "kind-robots-t075-sync[bot]"

@@ -645,3 +645,55 @@ export function justCompletedBestiary(
   const isComplete = collectedCountAfter >= totalCount
   return !wasComplete && isComplete
 }
+
+// ---------------------------------------------------------------------------
+// The Ichthyonomicon (cthulhuquarium/t-031) -- pure decision logic only.
+// AquariumCodexEntry.bestStat* (added by t-032) is the book's "best
+// individual seen of this species" record, independent of which fish is
+// currently in the tank or whether the species is currently owned at all.
+// Loading/persisting the actual rows is server/utils/aquarium.ts's job; this
+// stays plain arithmetic so it is unit-testable the same way as the rest of
+// this file.
+//
+// No caller rolls an individual's stats yet -- that is cthulhuquarium/t-029
+// (genetics), still `waiting` on this task's own dependency graph. Every
+// AquariumStock stat column is null until it lands, which makes every call
+// through here a provable no-op today: this wires the record now, correctly,
+// rather than leaving it for t-029 to invent from scratch, per t-031's note
+// that t-030's sell-back is "only safe because this exists."
+// ---------------------------------------------------------------------------
+
+export interface StatBlock {
+  charm: number | null
+  empathy: number | null
+  grace: number | null
+  luck: number | null
+  might: number | null
+  wits: number | null
+}
+
+const STAT_BLOCK_KEYS = [
+  'charm',
+  'empathy',
+  'grace',
+  'luck',
+  'might',
+  'wits',
+] as const satisfies readonly (keyof StatBlock)[]
+
+// Per-stat max, independently -- never a lower value replacing a higher one
+// (SYSTEMS.md's "nothing here may ever decrease" rule applies to the book's
+// best-stat record same as it does to the bestiary count). A null on either
+// side loses to whichever side has a real number; both null stays null.
+export function mergeBestStats(
+  existing: StatBlock,
+  observed: StatBlock,
+): StatBlock {
+  const merged = {} as StatBlock
+  for (const key of STAT_BLOCK_KEYS) {
+    const a = existing[key]
+    const b = observed[key]
+    merged[key] = a == null ? b : b == null ? a : Math.max(a, b)
+  }
+  return merged
+}

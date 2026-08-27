@@ -157,11 +157,20 @@ interface PurchaseResponse {
   justCompletedBestiary: boolean
 }
 
-// The completionist codex (cthulhuquarium/t-024). A collected entry carries
-// full art and its fieldNote; an uncollected one is only ever known by name
-// and shows as a silhouette in the panel -- the server never sends its
-// fieldNote or art paths (same "the server disposes" discipline as
-// CatalogEntry above).
+// The Ichthyonomicon -- the completionist codex (cthulhuquarium/t-024,
+// extended by t-031). A collected entry carries full art and its fieldNote;
+// an uncollected one is only ever known by name and shows as a silhouette in
+// the panel -- the server never sends its fieldNote or art paths (same "the
+// server disposes" discipline as CatalogEntry above).
+export interface BestiaryStatBlock {
+  charm: number | null
+  empathy: number | null
+  grace: number | null
+  luck: number | null
+  might: number | null
+  wits: number | null
+}
+
 export interface BestiaryEntry {
   id: number
   name: string
@@ -177,6 +186,14 @@ export interface BestiaryEntry {
   collected: boolean
   firstAcquiredAt: string | null
   fieldNote: string | null
+  // t-031: distinct from `collected` -- true only while the species has a
+  // live AquariumStock row. Equal to `collected` until t-030 ships a sell
+  // path; when it isn't, the panel offers re-order instead of "not yet
+  // observed."
+  currentlyOwned: boolean
+  // t-031: the book's best-individual-seen record. Null until
+  // cthulhuquarium/t-029 (genetics) starts rolling individual stats.
+  bestStats: BestiaryStatBlock | null
 }
 
 interface BestiaryResponse {

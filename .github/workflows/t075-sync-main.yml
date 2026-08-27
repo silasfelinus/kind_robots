@@ -1,0 +1,81 @@
+name: t-075 sync current main
+
+on:
+  push:
+    branches:
+      - worker/kind-robots-t-075-20260827-a7c9
+    paths:
+      - .github/workflows/t075-sync-main.yml
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout rescue branch
+        uses: actions/checkout@v4
+        with:
+          ref: worker/kind-robots-t-075-20260827-a7c9
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Merge current main and regenerate Prisma
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+        run: |
+          set -euo pipefail
+          git config user.name "kind-robots-t075-sync[bot]"
+          git config user.email "kind-robots-t075-sync[bot]@users.noreply.github.com"
+          git fetch origin main
+
+          if ! git merge --no-ff --no-commit origin/main; then
+            echo "Resolving expected Prisma conflicts from current main."
+            git checkout --theirs -- prisma/schema.prisma
+            for path in \
+              prisma/generated/prisma/internal/prismaNamespace.ts \
+              prisma/generated/prisma/internal/prismaNamespaceBrowser.ts \
+              prisma/generated/prisma/models/Character.ts
+            do
+              if git ls-files -u -- "$path" | grep -q .; then
+                git checkout --theirs -- "$path"
+              fi
+            done
+            git add prisma/schema.prisma prisma/generated/prisma
+          fi
+
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('prisma/schema.prisma')
+          text = path.read_text()
+          size_line = '  size                 Int                    @default(1)\n'
+          comment = '''  /// cthulhuquarium/t-032: tank-capacity weight for this species when placed as\n  /// AquariumStock. Consumed against Aquarium.sizeCap (weighed pool, distinct\n  /// from the counted setSlotsCap -- see SYSTEMS.md "Capacity: two pools, two\n  /// units"). Required going forward; existing rows default to the smallest\n  /// unit so nothing is retroactively over its cap. [v1 placeholder -- actual\n  /// per-species values are a data/authoring pass, not this migration's job.]\n'''
+          if size_line in text:
+              if comment not in text:
+                  raise SystemExit('Character.size exists but its expected stale comment block changed; refusing an unreviewed edit')
+              text = text.replace(comment + size_line, '', 1)
+              path.write_text(text)
+          elif 'model Character {' not in text:
+              raise SystemExit('Character model missing after merge')
+          PY
+
+          npm ci
+          npx prisma validate
+          npx prisma generate
+          npm run test:schema-migration-parity-selftest
+          GITHUB_BASE_REF=main npm run test:schema-migration-parity
+
+          git rm .github/workflows/t075-sync-main.yml
+          git add prisma/schema.prisma prisma/generated/prisma
+          git diff --cached --check
+          git status --short
+          git commit -m "Merge current main into t-075 rescue and regenerate Prisma"
+          git push origin HEAD:worker/kind-robots-t-075-20260827-a7c9

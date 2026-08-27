@@ -199,6 +199,13 @@ export async function getOrCreateTankForUser(
       slug,
       title: `${username}'s Tank`,
       coins: DEFAULT_STARTING_COINS,
+      // cthulhuquarium/t-014: "default new tanks to public per the pitch" --
+      // set explicitly here rather than relying on the schema column
+      // default, which stays false so existing rows created before this
+      // task are unaffected. The owner can flip it back off any time via
+      // setTankVisibilityForUser below; this only decides the starting
+      // state for a brand-new tank.
+      isPublic: true,
     },
     select: ownedAquariumSelect,
   })
@@ -1176,6 +1183,40 @@ export async function unequipSetForUser(
 
     await logEvent(tx, tank.id, 'unequip-set', { kind: existing.kind })
 
+    return updated
+  })
+
+  return { aquarium: toClientAquarium(aquarium) }
+}
+
+// ---------------------------------------------------------------------------
+// Visibility toggle (cthulhuquarium/t-014) -- the one-click public/private
+// switch the task note calls for. New tanks already default to public (see
+// getOrCreateTankForUser above); this is how an owner changes their mind
+// either way afterward. A no-op write (flipping to the value it's already
+// at) still round-trips through the same update rather than short-
+// circuiting, so `updatedAt` and the event log stay an honest record of
+// when the owner last touched this setting.
+// ---------------------------------------------------------------------------
+
+export interface SetVisibilityResult {
+  aquarium: ClientAquarium
+}
+
+export async function setTankVisibilityForUser(
+  userId: number,
+  username: string,
+  isPublic: boolean,
+): Promise<SetVisibilityResult> {
+  const tank = await getOrCreateTankForUser(userId, username)
+
+  const aquarium = await prisma.$transaction(async (tx) => {
+    const updated = await tx.aquarium.update({
+      where: { id: tank.id },
+      data: { isPublic },
+      select: ownedAquariumSelect,
+    })
+    await logEvent(tx, tank.id, 'set-visibility', { isPublic })
     return updated
   })
 

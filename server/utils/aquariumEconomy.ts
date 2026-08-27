@@ -437,6 +437,100 @@ export function isSwimSpeedActive(equippedKinds: readonly string[]): boolean {
 }
 
 // ---------------------------------------------------------------------------
+// Decor -- cthulhuquarium/t-017 "they can decorate it". Purely cosmetic,
+// unlike set pieces: no economy effect, no slot cap, and multiple copies of
+// the same kind are allowed (each purchase is its own AquariumDecor row, not
+// a counted slot). economy.yaml has no decor-pricing section yet -- these
+// costs are priced against RARITY_TIERS the same "anchor, not invention" way
+// SET_PIECE_CATALOG's costs are, flagged for a future balance pass, not a
+// confirmed number.
+// ---------------------------------------------------------------------------
+
+// The finite set of AquariumDecor.kind values this catalog actually defines.
+// Keyed as a literal union, same noUncheckedIndexedAccess reasoning as
+// SetPieceKind above.
+export type DecorKind =
+  | 'pebble_bed'
+  | 'driftwood'
+  | 'coral_spire'
+  | 'sunken_chest'
+  | 'glow_kelp'
+  | 'ceramic_ruin'
+
+export interface DecorConfig {
+  kind: DecorKind
+  title: string
+  description: string
+  icon: string
+  cost: number
+}
+
+export const DECOR_CATALOG: Readonly<Record<DecorKind, DecorConfig>> = {
+  pebble_bed: {
+    kind: 'pebble_bed',
+    title: 'Pebble Bed',
+    description: 'A scatter of smooth river stones along the tank floor.',
+    icon: '🪨',
+    cost: Math.round(RARITY_TIERS.COMMON.unlockCost * 0.2),
+  },
+  driftwood: {
+    kind: 'driftwood',
+    title: 'Driftwood',
+    description: 'A weathered branch, sanded soft by years of current.',
+    icon: '🪵',
+    cost: Math.round(RARITY_TIERS.COMMON.unlockCost * 0.4),
+  },
+  coral_spire: {
+    kind: 'coral_spire',
+    title: 'Coral Spire',
+    description: 'A single bright spike of coral, taller than it should be.',
+    icon: '🪸',
+    cost: RARITY_TIERS.COMMON.unlockCost,
+  },
+  sunken_chest: {
+    kind: 'sunken_chest',
+    title: 'Sunken Chest',
+    description: 'Locked, barnacled, and almost certainly empty. Almost.',
+    icon: '🧰',
+    cost: RARITY_TIERS.UNCOMMON.unlockCost,
+  },
+  glow_kelp: {
+    kind: 'glow_kelp',
+    title: 'Glow Kelp',
+    description: 'A frond of kelp that holds a faint bioluminescent glow.',
+    icon: '🌿',
+    cost: Math.round(RARITY_TIERS.UNCOMMON.unlockCost * 0.5),
+  },
+  ceramic_ruin: {
+    kind: 'ceramic_ruin',
+    title: 'Ceramic Ruin',
+    description: 'Half a castle turret, glazed and cracked, moss-soft.',
+    icon: '🏺',
+    cost: RARITY_TIERS.RARE.unlockCost,
+  },
+} as const
+
+export const DECOR_KINDS: readonly DecorKind[] = Object.keys(
+  DECOR_CATALOG,
+) as DecorKind[]
+
+// Type guard, same role as isKnownSetPieceKind: narrows `kind` to DecorKind
+// for every caller that checks this before indexing DECOR_CATALOG (e.g.
+// aquarium.ts's purchaseDecorForUser). AquariumDecor.kind itself stays a
+// plain DB string.
+export function isKnownDecorKind(kind: string): kind is DecorKind {
+  return Object.prototype.hasOwnProperty.call(DECOR_CATALOG, kind)
+}
+
+// Placement coordinates are percentages of the canvas stage (0-100), not
+// pixels -- clamp rather than reject so a stale/edge-dragged value never
+// fails a save, it just settles at the nearest valid edge.
+export function clampDecorCoordinate(value: number): number {
+  if (!Number.isFinite(value)) return 50
+  return Math.min(100, Math.max(0, value))
+}
+
+// ---------------------------------------------------------------------------
 // Offline income -- economy.yaml `offline_income`
 // ---------------------------------------------------------------------------
 

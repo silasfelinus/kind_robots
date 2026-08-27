@@ -56,6 +56,17 @@ export interface TankSet {
   equippedAt: string
 }
 
+// cthulhuquarium/t-017: one placed decor object, as returned in Tank.Decor
+// and by the /api/aquarium/decor endpoints. x/y are percentages (0-100) of
+// the canvas stage, not pixels.
+export interface TankDecor {
+  id: number
+  kind: string
+  x: number
+  y: number
+  zIndex: number
+}
+
 export interface Tank {
   id: number
   slug: string
@@ -76,6 +87,7 @@ export interface Tank {
   updatedAt: string | null
   Stock: TankStock[]
   Sets: TankSet[]
+  Decor: TankDecor[]
 }
 
 // cthulhuquarium/t-026: one catalog entry from GET /api/aquarium/sets,
@@ -152,6 +164,34 @@ interface EquipSetResponse {
 }
 
 interface UnequipSetResponse {
+  aquarium: Tank
+}
+
+// cthulhuquarium/t-017: one catalog entry from GET /api/aquarium/decor,
+// static config (aquariumEconomy.ts's DECOR_CATALOG).
+export interface DecorCatalogEntry {
+  kind: string
+  title: string
+  description: string
+  icon: string
+  cost: number
+}
+
+interface DecorCatalogResponse {
+  catalog: DecorCatalogEntry[]
+  placed: TankDecor[]
+}
+
+interface PurchaseDecorResponse {
+  aquarium: Tank
+  decor: TankDecor
+}
+
+interface MoveDecorResponse {
+  aquarium: Tank
+}
+
+interface RemoveDecorResponse {
   aquarium: Tank
 }
 
@@ -277,6 +317,16 @@ export const useCthulhuquariumTankStore = defineStore(
     const setCatalog = ref<SetCatalogEntry[]>([])
     const setCatalogLoading = ref(false)
 
+    // cthulhuquarium/t-017's decor catalog. Loaded lazily, same
+    // collapsed-panel-until-opened pattern as sets/bestiary above.
+    const decorCatalog = ref<DecorCatalogEntry[]>([])
+    const decorCatalogLoading = ref(false)
+    // The decor kind pending placement -- set by choosing an item in the
+    // shop, cleared once a canvas click places it (or the panel closes).
+    // Mirrors stage-manager.vue's pendingPerformer idiom: choose, then
+    // click to commit.
+    const pendingDecorKind = ref<string | null>(null)
+
     const stock = computed(() => tank.value?.Stock ?? [])
     const coins = computed(() => tank.value?.coins ?? 0)
     const occupantSize = computed(() =>
@@ -290,6 +340,7 @@ export const useCthulhuquariumTankStore = defineStore(
     )
     const equippedSets = computed(() => tank.value?.Sets ?? [])
     const setSlotsCap = computed(() => tank.value?.setSlotsCap ?? 0)
+    const placedDecor = computed(() => tank.value?.Decor ?? [])
     const debrisLevel = computed(() => tank.value?.debrisLevel ?? 0)
     const hungriest = computed<TankStock | null>(() =>
       stock.value.reduce<TankStock | null>(
@@ -512,6 +563,86 @@ export const useCthulhuquariumTankStore = defineStore(
       return false
     }
 
+    // cthulhuquarium/t-017: the decorate layer. loadDecor() is called
+    // lazily by the game component the first time its panel opens, same as
+    // loadSets()/loadBestiary() above.
+    async function loadDecor(): Promise<void> {
+      decorCatalogLoading.value = true
+      try {
+        const res = await performFetch<DecorCatalogResponse>(
+          '/api/aquarium/decor',
+        )
+        if (res.success && res.data) decorCatalog.value = res.data.catalog
+      } finally {
+        decorCatalogLoading.value = false
+      }
+    }
+
+    function chooseDecorToPlace(kind: string): void {
+      pendingDecorKind.value = kind
+    }
+
+    function cancelDecorPlacement(): void {
+      pendingDecorKind.value = null
+    }
+
+    async function purchaseDecor(
+      kind: string,
+      x?: number,
+      y?: number,
+    ): Promise<boolean> {
+      const res = await performFetch<PurchaseDecorResponse>(
+        '/api/aquarium/decor/purchase',
+        {
+          method: 'POST',
+          body: JSON.stringify({ kind, x, y }),
+        },
+      )
+      if (res.success && res.data) {
+        tank.value = res.data.aquarium
+        pendingDecorKind.value = null
+        return true
+      }
+      error.value = res.message || 'Could not place that decor item.'
+      return false
+    }
+
+    async function moveDecor(
+      aquariumDecorId: number,
+      x: number,
+      y: number,
+    ): Promise<boolean> {
+      const res = await performFetch<MoveDecorResponse>(
+        '/api/aquarium/decor/move',
+        {
+          method: 'POST',
+          body: JSON.stringify({ aquariumDecorId, x, y }),
+        },
+      )
+      if (res.success && res.data) {
+        tank.value = res.data.aquarium
+        return true
+      }
+      error.value = res.message || 'Could not move that decor item.'
+      return false
+    }
+
+    async function removeDecor(aquariumDecorId: number): Promise<boolean> {
+      const res = await performFetch<RemoveDecorResponse>(
+        '/api/aquarium/decor/remove',
+        {
+          method: 'POST',
+          body: JSON.stringify({ aquariumDecorId }),
+        },
+      )
+      if (res.success && res.data) {
+        tank.value = res.data.aquarium
+        return true
+      }
+      error.value = res.message || 'Could not remove that decor item.'
+      return false
+    }
+
     function clearOfflineEarnings(): void {
       offlineEarnings.value = 0
       offlineTicksProcessed.value = 0
@@ -565,6 +696,10 @@ export const useCthulhuquariumTankStore = defineStore(
       setSlotsCap,
       setCatalog,
       setCatalogLoading,
+      placedDecor,
+      decorCatalog,
+      decorCatalogLoading,
+      pendingDecorKind,
       load,
       settleTick,
       loadCatalog,
@@ -581,6 +716,12 @@ export const useCthulhuquariumTankStore = defineStore(
       equipSet,
       unequipSet,
       setVisibility,
+      loadDecor,
+      chooseDecorToPlace,
+      cancelDecorPlacement,
+      purchaseDecor,
+      moveDecor,
+      removeDecor,
     }
   },
 )

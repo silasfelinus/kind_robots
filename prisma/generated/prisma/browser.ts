@@ -720,6 +720,20 @@ export type AquariumStock = Prisma.AquariumStockModel
  */
 export type AquariumSet = Prisma.AquariumSetModel
 /**
+ * Model AquariumDecor
+ * cthulhuquarium/t-017: one purchased-and-placed decor object in one
+ * Aquarium. Purely cosmetic (no economy effect, no slot cap) -- decor never
+ * competes with setSlotsCap/sizeCap's two-pool balance. `kind` keys into
+ * server/utils/aquariumEconomy.ts's DECOR_CATALOG, same free-form-string
+ * convention as AquariumSet.kind and AquariumEvent.kind: a new decor item
+ * is a data commit, not a migration. x/y are percentages (0-100) of the
+ * canvas stage, not pixels, so placement survives a stage-size change
+ * untouched. One row per placed instance -- buying two of the same kind is
+ * two rows, not a quantity field, matching AquariumSet's per-instance shape
+ * rather than AquariumStock's collection-of-individuals shape.
+ */
+export type AquariumDecor = Prisma.AquariumDecorModel
+/**
  * Model AquariumCodexEntry
  * cthulhuquarium/t-032 item 4: the Ichthyonomicon. One row per user per
  * species ever bought or raised, whether or not currently owned -- survives

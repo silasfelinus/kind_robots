@@ -56,6 +56,12 @@ const stockMonsterSelect = {
   name: true,
   slug: true,
   species: true,
+  // fieldNote is safe to select here: this shape is only ever used for
+  // fish ALREADY placed in a tank (ownedStockSelect below, and the public
+  // browse selects have their own, separate, fieldNote-free shape) --
+  // never for the pre-unlock catalog (cthulhuquarium/t-012). See that
+  // task's note: "the field note reveals on first unlock, not before."
+  fieldNote: true,
   size: true,
   icon: true,
   iconPath: true,
@@ -483,6 +489,13 @@ export async function listPublicTanks(
 // (cthulhuquarium/t-011). `cost` is computed the exact same way
 // purchaseSpeciesForUser charges (deriveFishRarityTier + unlockCost) so the
 // displayed price never drifts from what unlocking actually costs.
+//
+// Deliberately no `fieldNote` here (cthulhuquarium/t-012): "unlocking a
+// species the player has never seen should feel like the point of the
+// game... the field note reveals on first unlock, not before." The
+// museum-placard text only becomes selectable once a species is owned
+// (see stockMonsterSelect) -- the server never sends the spoiler pre-sale,
+// same "server disposes" discipline as pricing.
 // ---------------------------------------------------------------------------
 
 const catalogMonsterSelect = {
@@ -490,7 +503,6 @@ const catalogMonsterSelect = {
   name: true,
   slug: true,
   species: true,
-  fieldNote: true,
   depth: true,
   size: true,
   icon: true,

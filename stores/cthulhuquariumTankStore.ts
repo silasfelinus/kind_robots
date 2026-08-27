@@ -19,6 +19,10 @@ export interface TankMonster {
   name: string
   slug: string
   species: string | null
+  // Only ever populated for OWNED fish -- the server never sends this for
+  // catalog (unowned) entries (cthulhuquarium/t-012: "the field note
+  // reveals on first unlock, not before").
+  fieldNote: string | null
   size: number
   icon: string | null
   iconPath: string | null
@@ -66,7 +70,8 @@ export interface CatalogEntry {
   name: string
   slug: string
   species: string | null
-  fieldNote: string | null
+  // No fieldNote here on purpose -- see TankMonster's own comment. The
+  // catalog is what a NOT-yet-owned species looks like.
   depth: number | null
   size: number
   icon: string | null
@@ -114,6 +119,11 @@ export const useCthulhuquariumTankStore = defineStore(
     const catalogLoading = ref(false)
     const error = ref('')
     const ready = ref(false)
+    // The just-unlocked occupant, field note and all -- the ONE moment its
+    // fieldNote is legitimately known client-side (cthulhuquarium/t-012's
+    // "give it a real beat" call). The game component watches this to show
+    // a reveal, then clears it via dismissReveal().
+    const revealedUnlock = ref<TankStock | null>(null)
 
     const stock = computed(() => tank.value?.Stock ?? [])
     const coins = computed(() => tank.value?.coins ?? 0)
@@ -197,10 +207,15 @@ export const useCthulhuquariumTankStore = defineStore(
       if (res.success && res.data) {
         tank.value = res.data.aquarium
         catalog.value = catalog.value.filter((entry) => entry.id !== monsterId)
+        revealedUnlock.value = res.data.stock
         return true
       }
       error.value = res.message || 'Could not unlock that species.'
       return false
+    }
+
+    function dismissReveal(): void {
+      revealedUnlock.value = null
     }
 
     function clearOfflineEarnings(): void {
@@ -220,11 +235,13 @@ export const useCthulhuquariumTankStore = defineStore(
       catalogLoading,
       error,
       ready,
+      revealedUnlock,
       load,
       settleTick,
       loadCatalog,
       feed,
       unlock,
+      dismissReveal,
       clearOfflineEarnings,
     }
   },

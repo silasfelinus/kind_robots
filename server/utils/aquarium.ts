@@ -27,10 +27,12 @@ import {
   isKnownSetPieceKind,
   justCompletedBestiary as computeJustCompletedBestiary,
   MAX_CLEAN_CLICKS_PER_REQUEST,
+  mergeBestStats,
   SET_PIECE_CATALOG,
   settleTick,
   unlockCost,
 } from './aquariumEconomy'
+import type { StatBlock } from './aquariumEconomy'
 
 function apiError(statusCode: number, message: string): Error {
   const error = new Error(message) as Error & { statusCode: number }
@@ -417,7 +419,8 @@ export async function cleanTankForUser(
 }
 
 // ---------------------------------------------------------------------------
-// Bestiary -- the completionist codex (cthulhuquarium/t-024). AquariumCodexEntry
+// The Ichthyonomicon -- the completionist codex, and the record that makes
+// selling safe (cthulhuquarium/t-024, extended by t-031). AquariumCodexEntry
 // is the permanent "you found this" record: unlike AquariumStock (what's
 // CURRENTLY in the tank), a codex row is never deleted, so a species stays
 // collected even if the fish is later removed from the tank or the species
@@ -426,6 +429,16 @@ export async function cleanTankForUser(
 // therefore the UNION of the currently-active bible and every species this
 // user has ever collected, never the active set alone: retiring an
 // already-collected species must never shrink the count.
+//
+// t-031 adds two things on top of t-024's collected/fieldNote view: the
+// book's own best-individual-stats record (AquariumCodexEntry.bestStat*,
+// t-032's columns -- see mergeBestStats in aquariumEconomy.ts) and a
+// currentlyOwned flag distinct from collected, so a species can be "in the
+// book" without being "in the tank right now." Today those are always equal
+// (there is no sell path yet -- t-030 is `waiting` on this task), but the
+// distinction is what t-030's sell-back and re-order flow needs to exist
+// safely, per this task's own note: "t-030's rotating stock and sell-back
+// are only safe because this exists."
 // ---------------------------------------------------------------------------
 
 const BESTIARY_COMPLETE_EVENT_KIND = 'bestiary-complete'
@@ -468,6 +481,14 @@ export interface BestiaryEntry {
   collected: boolean
   firstAcquiredAt: string | null
   fieldNote: string | null
+  // t-031: distinct from `collected` -- true only while a live AquariumStock
+  // row exists for this species. Always equal to `collected` until t-030
+  // ships a sell path; drives the book's re-order affordance once it does.
+  currentlyOwned: boolean
+  // t-031: the book's best-individual-seen record (AquariumCodexEntry's
+  // bestStat* columns). All null for any species until cthulhuquarium/t-029
+  // (genetics) starts rolling individual stats -- see mergeBestStats.
+  bestStats: StatBlock | null
 }
 
 export interface BestiaryResult {
@@ -494,9 +515,74 @@ function bestiaryUnionWhere(collectedIds: number[]): Prisma.MonsterWhereInput {
   }
 }
 
+const codexBestStatSelect = {
+  bestStatCharm: true,
+  bestStatEmpathy: true,
+  bestStatGrace: true,
+  bestStatLuck: true,
+  bestStatMight: true,
+  bestStatWits: true,
+} satisfies Prisma.AquariumCodexEntrySelect
+
+type CodexBestStats = Prisma.AquariumCodexEntryGetPayload<{
+  select: typeof codexBestStatSelect
+}>
+
+function toStatBlock(row: CodexBestStats): StatBlock {
+  return {
+    charm: row.bestStatCharm,
+    empathy: row.bestStatEmpathy,
+    grace: row.bestStatGrace,
+    luck: row.bestStatLuck,
+    might: row.bestStatMight,
+    wits: row.bestStatWits,
+  }
+}
+
+function isAllNull(stats: StatBlock): boolean {
+  return Object.values(stats).every((value) => value == null)
+}
+
+// The observed side of every mergeBestStats call in this file today -- see
+// the call site's own comment for why that's provably correct, not a stub.
+const NULL_STAT_BLOCK: StatBlock = {
+  charm: null,
+  empathy: null,
+  grace: null,
+  luck: null,
+  might: null,
+  wits: null,
+}
+
+// Plain scalar shape, not a Prisma *Input type -- these six columns are
+// identical between the checked/unchecked create and update input variants,
+// so tying this to one of them would fight whichever call site spreads it
+// alongside userId/monsterId (unchecked-style FK scalars).
+interface CodexBestStatColumns {
+  bestStatCharm: number | null
+  bestStatEmpathy: number | null
+  bestStatGrace: number | null
+  bestStatLuck: number | null
+  bestStatMight: number | null
+  bestStatWits: number | null
+}
+
+function fromStatBlock(stats: StatBlock): CodexBestStatColumns {
+  return {
+    bestStatCharm: stats.charm,
+    bestStatEmpathy: stats.empathy,
+    bestStatGrace: stats.grace,
+    bestStatLuck: stats.luck,
+    bestStatMight: stats.might,
+    bestStatWits: stats.wits,
+  }
+}
+
 function toBestiaryEntry(
   monster: BestiaryMonster,
   firstAcquiredAt: Date | null,
+  bestStats: StatBlock | null,
+  currentlyOwned: boolean,
 ): BestiaryEntry {
   const collected = firstAcquiredAt !== null
   return {
@@ -514,19 +600,39 @@ function toBestiaryEntry(
     collected,
     firstAcquiredAt: firstAcquiredAt ? firstAcquiredAt.toISOString() : null,
     fieldNote: collected ? monster.fieldNote : null,
+    // Never owned means never bought a live fish either -- collected can
+    // still be true here in the future via a non-purchase route (e.g. a
+    // hatched offspring), so this doesn't just mirror `collected`.
+    currentlyOwned: collected && currentlyOwned,
+    bestStats:
+      collected && bestStats && !isAllNull(bestStats) ? bestStats : null,
   }
 }
 
 export async function listBestiaryForUser(
   userId: number,
 ): Promise<BestiaryResult> {
-  const codexEntries = await prisma.aquariumCodexEntry.findMany({
-    where: { userId },
-    select: { monsterId: true, firstAcquiredAt: true },
-  })
+  const [codexEntries, ownedStock] = await Promise.all([
+    prisma.aquariumCodexEntry.findMany({
+      where: { userId },
+      select: {
+        monsterId: true,
+        firstAcquiredAt: true,
+        ...codexBestStatSelect,
+      },
+    }),
+    prisma.aquariumStock.findMany({
+      where: { Aquarium: { userId } },
+      select: { monsterId: true },
+    }),
+  ])
   const collectedAt = new Map(
     codexEntries.map((entry) => [entry.monsterId, entry.firstAcquiredAt]),
   )
+  const bestStatsByMonster = new Map(
+    codexEntries.map((entry) => [entry.monsterId, toStatBlock(entry)]),
+  )
+  const ownedMonsterIds = new Set(ownedStock.map((row) => row.monsterId))
 
   const monsters = await prisma.monster.findMany({
     where: bestiaryUnionWhere([...collectedAt.keys()]),
@@ -535,7 +641,12 @@ export async function listBestiaryForUser(
   })
 
   const data = monsters.map((monster) =>
-    toBestiaryEntry(monster, collectedAt.get(monster.id) ?? null),
+    toBestiaryEntry(
+      monster,
+      collectedAt.get(monster.id) ?? null,
+      bestStatsByMonster.get(monster.id) ?? null,
+      ownedMonsterIds.has(monster.id),
+    ),
   )
   const totalCount = data.length
   const collectedCount = data.filter((entry) => entry.collected).length
@@ -678,12 +789,27 @@ export async function purchaseSpeciesForUser(
       // call site.
       const existingEntry = await tx.aquariumCodexEntry.findUnique({
         where: { userId_monsterId: { userId, monsterId: monster.id } },
-        select: { id: true },
+        select: { id: true, ...codexBestStatSelect },
       })
+      // t-031: fold this individual's rolled stats into the book's
+      // best-ever record. createdStock above always has null stat columns
+      // today (t-029/genetics hasn't landed -- see mergeBestStats's own
+      // comment), so NULL_STAT_BLOCK is not a shortcut, it's the actual
+      // observed value; this still runs the real merge so the record is
+      // wired correctly the moment t-029 starts rolling individuals rather
+      // than needing a second pass through this call site later.
+      const mergedStats = mergeBestStats(
+        existingEntry ? toStatBlock(existingEntry) : NULL_STAT_BLOCK,
+        NULL_STAT_BLOCK,
+      )
       await tx.aquariumCodexEntry.upsert({
         where: { userId_monsterId: { userId, monsterId: monster.id } },
-        create: { userId, monsterId: monster.id },
-        update: {},
+        create: {
+          userId,
+          monsterId: monster.id,
+          ...fromStatBlock(mergedStats),
+        },
+        update: { ...fromStatBlock(mergedStats) },
       })
       const collectedCountAfter = collectedCountBefore + (existingEntry ? 0 : 1)
 

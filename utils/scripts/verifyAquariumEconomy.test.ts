@@ -34,6 +34,7 @@ import {
   hungerMultiplier,
   incomePerTick,
   justCompletedBestiary,
+  mergeBestStats,
   settleTick,
   unlockCost,
 } from '../../server/utils/aquariumEconomy.js'
@@ -778,6 +779,52 @@ assert.equal(justCompletedBestiary(5, 6, 7), false)
 
 console.log(
   '✅ justCompletedBestiary: fires exactly once, on the crossing, never before or after',
+)
+
+// --- mergeBestStats: the Ichthyonomicon's best-individual-seen record ------
+// (cthulhuquarium/t-031) ------------------------------------------------
+
+const ALL_NULL = {
+  charm: null,
+  empathy: null,
+  grace: null,
+  luck: null,
+  might: null,
+  wits: null,
+}
+
+// Both sides null (t-029/genetics hasn't rolled anything yet) -- the actual
+// shape of every real call site today. Must be a true no-op.
+assert.deepEqual(mergeBestStats(ALL_NULL, ALL_NULL), ALL_NULL)
+
+// A first observation on a fresh (never-observed) record adopts the
+// observed value outright, per-stat, independently of the others.
+assert.deepEqual(mergeBestStats(ALL_NULL, { ...ALL_NULL, charm: 4, wits: 2 }), {
+  ...ALL_NULL,
+  charm: 4,
+  wits: 2,
+})
+
+// A higher observed value replaces the existing best; a lower one does not
+// -- per-stat max, never a regression (SYSTEMS.md's "nothing here may ever
+// decrease").
+assert.deepEqual(
+  mergeBestStats(
+    { ...ALL_NULL, charm: 5, grace: 8 },
+    { ...ALL_NULL, charm: 3, grace: 9 },
+  ),
+  { ...ALL_NULL, charm: 5, grace: 9 },
+)
+
+// An observed null (a stat this individual never rolled, or a future
+// partial-observation caller) never overwrites an existing recorded best.
+assert.deepEqual(mergeBestStats({ ...ALL_NULL, might: 7 }, ALL_NULL), {
+  ...ALL_NULL,
+  might: 7,
+})
+
+console.log(
+  '✅ mergeBestStats: per-stat max, independently, never regresses an existing best',
 )
 
 console.log('✅ verifyAquariumEconomy: all assertions passed')

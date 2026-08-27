@@ -209,12 +209,14 @@
         </div>
       </div>
 
-      <!-- The bestiary (cthulhuquarium/t-024): the collection is the actual
-           progression spine now ("ENDLESS BUT THE BESTIARY COMPLETES"), so it
-           gets a view worth returning to rather than living only as a side
-           effect of the unlock panel above. Collapsed by default and loaded
-           on first open -- it's the completionist book, not part of the
-           tank's own poll loop. -->
+      <!-- The Ichthyonomicon (cthulhuquarium/t-024, extended by t-031): the
+           collection is the actual progression spine now ("ENDLESS BUT THE
+           BESTIARY COMPLETES"), so it gets a view worth returning to rather
+           than living only as a side effect of the unlock panel above.
+           Collapsed by default and loaded on first open -- it's the
+           completionist book, not part of the tank's own poll loop. Formal
+           name on the cover; Charlotte and Wilbur would just call it "the
+           book" (SYSTEMS.md). -->
       <div class="flex flex-col gap-2 border-t border-base-300 pt-3">
         <button
           type="button"
@@ -222,7 +224,7 @@
           @click="onToggleBestiary"
         >
           <span class="text-xs font-black uppercase tracking-wide opacity-60">
-            Bestiary
+            The Ichthyonomicon
             <span v-if="tankStore.bestiaryTotalCount > 0" class="opacity-80">
               — {{ tankStore.bestiaryCollectedCount }}/{{
                 tankStore.bestiaryTotalCount
@@ -240,7 +242,7 @@
 
         <template v-if="showBestiary">
           <p v-if="tankStore.bestiaryLoading" class="text-xs opacity-60">
-            Reading the codex…
+            Reading the book…
           </p>
           <div
             v-else
@@ -272,10 +274,33 @@
                       : 'Not yet observed.'
                   }}
                 </p>
+                <!-- Best-individual-seen record (t-031). Stays hidden until
+                     cthulhuquarium/t-029 (genetics) rolls a first individual
+                     -- there is nothing honest to show before then. -->
+                <p
+                  v-if="entry.bestStats"
+                  class="mt-1 text-[0.65rem] uppercase tracking-wide opacity-60"
+                >
+                  Best seen: {{ formatBestStats(entry.bestStats) }}
+                </p>
+                <!-- Re-order (t-031): the book remembers a species whether
+                     or not it's currently in the tank, so it's re-orderable
+                     from here rather than access being tied to today's
+                     rotating shop stock. Always equal to "already owned"
+                     until t-030 ships a sell path -- this button simply
+                     never renders yet in practice. -->
+                <button
+                  v-if="entry.collected && !entry.currentlyOwned"
+                  type="button"
+                  class="btn btn-outline btn-xs min-h-11 mt-1"
+                  @click="tankStore.unlock(entry.id)"
+                >
+                  Re-order
+                </button>
               </div>
             </div>
             <p v-if="!tankStore.bestiary.length" class="text-xs opacity-60">
-              Nothing in the bestiary yet.
+              Nothing in the book yet.
             </p>
           </div>
         </template>
@@ -505,6 +530,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import {
   TANK_POLL_INTERVAL_MS,
   useCthulhuquariumTankStore,
+  type BestiaryStatBlock,
   type CatalogEntry,
   type SetCatalogEntry,
   type TankStock,
@@ -694,6 +720,25 @@ function canUnlock(entry: CatalogEntry): boolean {
     tankStore.coins >= entry.cost &&
     tankStore.occupantSize + (entry.size ?? 1) <= tankStore.sizeCap
   )
+}
+
+// t-031: compact "best seen" line for the Ichthyonomicon. Only ever called
+// with a non-null block (the template guards on `entry.bestStats`), so a
+// still-null individual stat here means "never recorded," not "zero."
+const BEST_STAT_LABELS: Record<keyof BestiaryStatBlock, string> = {
+  charm: 'CHA',
+  empathy: 'EMP',
+  grace: 'GRA',
+  luck: 'LUC',
+  might: 'MGT',
+  wits: 'WIT',
+}
+
+function formatBestStats(stats: BestiaryStatBlock): string {
+  return (Object.keys(BEST_STAT_LABELS) as Array<keyof BestiaryStatBlock>)
+    .filter((key) => stats[key] != null)
+    .map((key) => `${BEST_STAT_LABELS[key]} ${stats[key]}`)
+    .join(' · ')
 }
 
 function spawnSwimmer(stock: TankStock): Swimmer {

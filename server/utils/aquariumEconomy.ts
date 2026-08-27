@@ -835,6 +835,53 @@ export function justCompletedBestiary(
 }
 
 // ---------------------------------------------------------------------------
+// Milestones -- economy.yaml `milestones` (t-025 decision 4 / cthulhuquarium/t-028).
+// "A milestone does not unlock a background; a milestone causes Charlotte to
+// appear, and she gives you the background" -- delivered as an AquariumEvent
+// with kind 'milestone' and a payload naming which landmark fired.
+//
+// economy.yaml lists eight v1 landmarks. Only the four bestiary breakpoints
+// are wired here. The other four (first_full_tank, first_evolution,
+// first_spotless_tank, first_rivalry_resolved) are deliberately left out --
+// t-028's roadmap note explains why: first_evolution and
+// first_rivalry_resolved have no detectable signal server-side yet (no
+// evolution-progression or live rivalry-computation subsystem exists), and
+// first_full_tank/first_spotless_tank need a "full"/"was-ever-high"
+// semantics decision the two-pool capacity split (t-032) never settled.
+// Wiring only what is unambiguous today rather than guessing.
+export interface BestiaryMilestoneConfig {
+  id: string
+  threshold: number
+  slotsCapDelta: number
+}
+
+export const BESTIARY_MILESTONES: readonly BestiaryMilestoneConfig[] = [
+  { id: 'bestiary_5', threshold: 5, slotsCapDelta: 2 },
+  { id: 'bestiary_10', threshold: 10, slotsCapDelta: 2 },
+  { id: 'bestiary_15', threshold: 15, slotsCapDelta: 2 },
+  { id: 'bestiary_20', threshold: 20, slotsCapDelta: 2 },
+]
+
+// Pure decision logic, same discipline as justCompletedBestiary above: given
+// a collected-species count transition, which bestiary milestones (if any)
+// does it cross for the first time? Ordered ascending by threshold. A
+// species can never be un-collected (see justCompletedBestiary's own note),
+// so each milestone can only ever be crossed once per Aquarium -- the
+// caller is still responsible for the idempotency guard against re-logging
+// on a re-processed/duplicate transaction, same convention as
+// BESTIARY_COMPLETE_EVENT_KIND's existing-row check.
+export function firedBestiaryMilestones(
+  collectedCountBefore: number,
+  collectedCountAfter: number,
+): BestiaryMilestoneConfig[] {
+  return BESTIARY_MILESTONES.filter(
+    (milestone) =>
+      collectedCountBefore < milestone.threshold &&
+      milestone.threshold <= collectedCountAfter,
+  )
+}
+
+// ---------------------------------------------------------------------------
 // The Ichthyonomicon (cthulhuquarium/t-031) -- pure decision logic only.
 // AquariumCodexEntry.bestStat* (added by t-032) is the book's "best
 // individual seen of this species" record, independent of which fish is

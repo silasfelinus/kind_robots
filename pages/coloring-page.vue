@@ -9,21 +9,27 @@
 <template>
   <div class="kr-surface kr-container max-w-4xl">
     <div class="kr-scroll flex flex-col gap-4 p-4 sm:p-6">
-      <header class="flex flex-col gap-2">
-        <div class="flex flex-wrap items-center gap-2">
-          <span class="text-3xl leading-none">🖍️</span>
-          <p class="text-2xl font-black text-base-content sm:text-3xl">
-            Coloring Page Maker
-          </p>
-          <span class="badge badge-primary badge-sm font-bold">New</span>
+      <header class="flex items-start gap-3">
+        <div
+          class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-primary"
+        >
+          <Icon name="kind-icon:magic" class="size-6" />
         </div>
-        <p class="max-w-2xl text-sm text-base-content/60">
-          Turn any photo or finished design into a printable black-and-white
-          coloring page. Upload an image or pick one from your gallery, choose
-          <b class="text-base-content/80">Coloring Page</b> for crisp line art or
-          <b class="text-base-content/80">Bold Coloring</b> for thick,
-          kid-friendly outlines, then generate, download, and print.
-        </p>
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-wrap items-center gap-2">
+            <p class="text-2xl font-black tracking-tight text-base-content">
+              Coloring Page Maker
+            </p>
+            <span class="badge badge-primary badge-sm font-bold">New</span>
+          </div>
+          <p class="max-w-2xl text-sm text-base-content/60">
+            Turn any photo or finished design into a printable black-and-white
+            coloring page. Upload an image or pick one from your gallery, choose
+            <b class="text-base-content/80">Coloring Page</b> for crisp line art
+            or <b class="text-base-content/80">Bold Coloring</b> for thick,
+            kid-friendly outlines, then generate, download, and print.
+          </p>
+        </div>
       </header>
 
       <art-styler

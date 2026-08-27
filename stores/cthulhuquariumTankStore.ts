@@ -90,6 +90,12 @@ interface TickResponse {
   coinsEarned: number
 }
 
+// cthulhuquarium/t-013: how long the store waits after the last Clean click
+// before flushing the accumulated count as one request. Long enough to
+// collapse a real click spree into a single write, short enough that a
+// single deliberate click still feels immediate.
+const CLEAN_DEBOUNCE_MS = 400
+
 interface FeedResponse {
   aquarium: Tank
   aquariumStockId: number
@@ -150,6 +156,17 @@ export const useCthulhuquariumTankStore = defineStore(
     const tank = ref<Tank | null>(null)
     const catalog = ref<CatalogEntry[]>([])
     const offlineEarnings = ref(0)
+    // Ticks settled by the SAME offline-catch-up call that produced
+    // offlineEarnings above (load()'s initial settle only, never the live
+    // 20s poll -- see settleTickRaw()'s callers). Display-only: lets the
+    // welcome-back panel say roughly how long the tank ran unattended
+    // alongside what it earned, without the client inventing its own
+    // elapsed-time math.
+    const offlineTicksProcessed = ref(0)
+    // Clicks queued by requestClean() and not yet flushed to the server --
+    // see flushClean() below. Shown next to the Clean button so a click
+    // spree still gets instant feedback even though the write is batched.
+    const pendingCleanClicks = ref(0)
     const loading = ref(false)
     const catalogLoading = ref(false)
     const error = ref('')
@@ -190,15 +207,30 @@ export const useCthulhuquariumTankStore = defineStore(
       ),
     )
 
-    async function settleTick(): Promise<number> {
+    // Shared by settleTick() (the live 20s heartbeat -- see
+    // TANK_POLL_INTERVAL_MS's own comment) and load() (the offline
+    // catch-up). Only load() treats the result as an "offline" event;
+    // the heartbeat just wants coinsEarned for its coin-mote animation.
+    async function settleTickRaw(): Promise<{
+      coinsEarned: number
+      ticksProcessed: number
+    }> {
       const res = await performFetch<TickResponse>('/api/aquarium/tick', {
         method: 'POST',
       })
       if (res.success && res.data) {
         tank.value = res.data.aquarium
-        return res.data.coinsEarned
+        return {
+          coinsEarned: res.data.coinsEarned,
+          ticksProcessed: res.data.ticksProcessed,
+        }
       }
-      return 0
+      return { coinsEarned: 0, ticksProcessed: 0 }
+    }
+
+    async function settleTick(): Promise<number> {
+      const { coinsEarned } = await settleTickRaw()
+      return coinsEarned
     }
 
     async function load(): Promise<void> {
@@ -214,8 +246,11 @@ export const useCthulhuquariumTankStore = defineStore(
         // Settle any offline time immediately on load, same as the t-010
         // prototype's own init() did -- the difference is this is now a
         // real server-authoritative settlement, not a localStorage replay.
-        const earned = await settleTick()
-        if (earned > 0) offlineEarnings.value += earned
+        const { coinsEarned, ticksProcessed } = await settleTickRaw()
+        if (coinsEarned > 0) {
+          offlineEarnings.value += coinsEarned
+          offlineTicksProcessed.value += ticksProcessed
+        }
         ready.value = true
       } finally {
         loading.value = false
@@ -276,17 +311,41 @@ export const useCthulhuquariumTankStore = defineStore(
     // The active-play channel (cthulhuquarium/t-027): -5 debris per click,
     // instant, free, no cooldown. Debris only ever throttles the tank's
     // production RATE, never holdings, so there is nothing to lose by
-    // spamming this -- the button just disables itself at debrisLevel 0.
-    async function clean(): Promise<boolean> {
+    // spamming this economically -- but each click was still one POST, so a
+    // real click spree meant one write per click. cthulhuquarium/t-013
+    // batches that: requestClean() queues the click and (re)starts a
+    // debounce timer; only the LAST click in a spree actually fires the
+    // network request, carrying however many clicks queued up behind it.
+    let cleanDebounceTimer: ReturnType<typeof setTimeout> | undefined
+
+    async function flushClean(): Promise<void> {
+      const clicks = pendingCleanClicks.value
+      pendingCleanClicks.value = 0
+      if (clicks <= 0) return
       const res = await performFetch<CleanResponse>('/api/aquarium/clean', {
         method: 'POST',
+        body: JSON.stringify({ clicks }),
       })
       if (res.success && res.data) {
         tank.value = res.data.aquarium
-        return true
+      } else {
+        error.value = res.message || 'Could not clean the tank.'
       }
-      error.value = res.message || 'Could not clean the tank.'
-      return false
+    }
+
+    function requestClean(): void {
+      pendingCleanClicks.value += 1
+      clearTimeout(cleanDebounceTimer)
+      cleanDebounceTimer = setTimeout(() => {
+        void flushClean()
+      }, CLEAN_DEBOUNCE_MS)
+    }
+
+    // Called on unmount so a click right before navigating away still
+    // lands instead of being dropped with the cleared timer.
+    function flushCleanNow(): void {
+      clearTimeout(cleanDebounceTimer)
+      void flushClean()
     }
 
     async function loadBestiary(): Promise<void> {
@@ -311,6 +370,7 @@ export const useCthulhuquariumTankStore = defineStore(
 
     function clearOfflineEarnings(): void {
       offlineEarnings.value = 0
+      offlineTicksProcessed.value = 0
     }
 
     return {
@@ -323,6 +383,8 @@ export const useCthulhuquariumTankStore = defineStore(
       debrisLevel,
       hungriest,
       offlineEarnings,
+      offlineTicksProcessed,
+      pendingCleanClicks,
       loading,
       catalogLoading,
       error,
@@ -339,7 +401,8 @@ export const useCthulhuquariumTankStore = defineStore(
       feed,
       unlock,
       dismissReveal,
-      clean,
+      requestClean,
+      flushCleanNow,
       clearOfflineEarnings,
       loadBestiary,
       dismissBestiaryCompletion,

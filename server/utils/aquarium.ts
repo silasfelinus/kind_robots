@@ -22,6 +22,7 @@ import {
   FEED_RESTORES_HUNGER_TO,
   HUNGER_STARTING_VALUE,
   justCompletedBestiary as computeJustCompletedBestiary,
+  MAX_CLEAN_CLICKS_PER_REQUEST,
   settleTick,
   unlockCost,
 } from './aquariumEconomy'
@@ -326,9 +327,21 @@ export interface CleanResult {
 export async function cleanTankForUser(
   userId: number,
   username: string,
+  // cthulhuquarium/t-013: the client debounces a click spree into one
+  // batched call instead of one POST per click; `clicks` is how many landed
+  // in that window. Defaults to 1 so every pre-t-013 call site (and a
+  // client that omits the field entirely) keeps identical single-click
+  // behavior. Clamped server-side -- never trust the request body for the
+  // clamp itself (MAX_CLEAN_CLICKS_PER_REQUEST above documents why a large
+  // value doesn't unlock anything, it just bounds one request's work).
+  clicks = 1,
 ): Promise<CleanResult> {
+  const safeClicks = Math.min(
+    Math.max(1, Math.floor(Number.isFinite(clicks) ? clicks : 1)),
+    MAX_CLEAN_CLICKS_PER_REQUEST,
+  )
   const tank = await getOrCreateTankForUser(userId, username)
-  const newDebrisLevel = cleanDebris(tank.debrisLevel)
+  const newDebrisLevel = cleanDebris(tank.debrisLevel, safeClicks)
 
   if (newDebrisLevel === tank.debrisLevel) {
     return { aquarium: tank, debrisLevel: tank.debrisLevel }
@@ -345,6 +358,7 @@ export async function cleanTankForUser(
     await logEvent(tx, tank.id, 'clean', {
       previousDebrisLevel: tank.debrisLevel,
       newDebrisLevel,
+      clicks: safeClicks,
     })
 
     return updated

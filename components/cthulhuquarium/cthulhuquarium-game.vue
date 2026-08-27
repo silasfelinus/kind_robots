@@ -811,6 +811,20 @@ function behaviorProfile(behavior: string | null): BehaviorProfile {
 const SWIM_SPEED_SET_KIND = 'swim_speed'
 const SWIM_SPEED_MULTIPLIER = 1.4
 
+// roaming_collector (cthulhuquarium/t-026 economy, cthulhuquarium/t-049
+// visual): the set piece's income bonus is entirely server-side already
+// (server/utils/aquariumEconomy.ts's settleTick), same as idle_hoarder --
+// t-026 made the two economically identical but only idle_hoarder is a pure
+// stat, and Silas's own note on roaming_collector asked for it to "visibly
+// move around the tank... it is a thing to watch." This sprite is that
+// visual and nothing else: it drifts, and when it passes near an
+// already-spawned mote it dismisses that mote the same way a tap does (the
+// coins that mote represents were already credited by the tick that spawned
+// it) -- it must never award coins or spawn a mote of its own.
+const ROAMING_COLLECTOR_SET_KIND = 'roaming_collector'
+const COLLECTOR_SPEED = 30
+const COLLECTOR_RADIUS = 16
+
 // Deterministic fallback hue for a species Monster.hue hasn't been assigned
 // yet -- same slug always reads the same color instead of shifting on
 // every reload/re-render.
@@ -834,6 +848,17 @@ type Swimmer = {
 }
 
 type Mote = { x: number; y: number; drift: number }
+/* The roaming_collector automaton (t-049). `collectFlash` counts down from 1
+   after it dismisses a mote, driving a brief pulse in drawCollector -- purely
+   decorative, never read anywhere else. */
+type Collector = {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  phase: number
+  collectFlash: number
+}
 /* The food is ALIVE (Silas, 2026-08-24) -- it wriggles on the way down and
    stops when eaten. `phase` drives the wriggle, `lean` gives each one its
    own bias so a handful never moves in unison. */
@@ -865,6 +890,7 @@ const offlineDurationLabel = computed(() => {
 const swimmers = ref<Swimmer[]>([])
 const motes = ref<Mote[]>([])
 const feed = ref<FeedCreature[]>([])
+const collector = ref<Collector | null>(null)
 const showBestiary = ref(false)
 const showSets = ref(false)
 const showDecor = ref(false)
@@ -876,6 +902,12 @@ const swimSpeedMultiplier = computed(() =>
   tankStore.equippedSets.some((entry) => entry.kind === SWIM_SPEED_SET_KIND)
     ? SWIM_SPEED_MULTIPLIER
     : 1,
+)
+
+const roamingCollectorEquipped = computed(() =>
+  tankStore.equippedSets.some(
+    (entry) => entry.kind === ROAMING_COLLECTOR_SET_KIND,
+  ),
 )
 
 let frame = 0
@@ -1018,6 +1050,29 @@ function decorIcon(kind: string): string {
   return DECOR_ICONS[kind] ?? '❖'
 }
 
+// cthulhuquarium/t-049: a simple glyph, same "hand-drawn shapes, not art"
+// convention decor icons already use above -- distinct from the painted
+// fish shapes and from a plain mote circle, so it reads as its own thing on
+// the tank floor rather than another fish or another coin.
+function drawCollector(context: CanvasRenderingContext2D, bot: Collector) {
+  context.save()
+  context.translate(bot.x, bot.y)
+  context.globalAlpha = 0.65 + Math.sin(bot.phase * 3) * 0.1
+  context.font = '22px sans-serif'
+  context.textAlign = 'center'
+  context.textBaseline = 'middle'
+  context.fillText('🤖', 0, 0)
+  if (bot.collectFlash > 0) {
+    context.globalAlpha = bot.collectFlash * 0.6
+    context.strokeStyle = 'rgba(255, 236, 160, 0.9)'
+    context.lineWidth = 2
+    context.beginPath()
+    context.arc(0, 0, 14 + (1 - bot.collectFlash) * 10, 0, Math.PI * 2)
+    context.stroke()
+  }
+  context.restore()
+}
+
 function decorTitle(kind: string): string {
   return (
     tankStore.decorCatalog.find((entry) => entry.kind === kind)?.title ?? kind
@@ -1144,6 +1199,8 @@ function render(context: CanvasRenderingContext2D) {
     context.arc(mote.x, mote.y, MOTE_RADIUS + 4, 0, Math.PI * 2)
     context.stroke()
   }
+
+  if (collector.value) drawCollector(context, collector.value)
 }
 
 function step(delta: number) {
@@ -1193,6 +1250,42 @@ function step(delta: number) {
     mote.x += mote.drift * delta
     return mote.y > 10
   })
+
+  stepCollector(delta)
+}
+
+function stepCollector(delta: number) {
+  if (!roamingCollectorEquipped.value) {
+    collector.value = null
+    return
+  }
+  if (!collector.value) {
+    collector.value = {
+      x: Math.random() * STAGE_WIDTH,
+      y: STAGE_HEIGHT * (0.55 + Math.random() * 0.3),
+      vx: (Math.random() < 0.5 ? -1 : 1) * COLLECTOR_SPEED,
+      vy: (Math.random() < 0.5 ? -1 : 1) * (COLLECTOR_SPEED * 0.4),
+      phase: Math.random() * Math.PI * 2,
+      collectFlash: 0,
+    }
+  }
+  const bot = collector.value
+  bot.phase += delta
+  bot.x += bot.vx * delta
+  bot.y += bot.vy * delta
+  if (bot.x < 24 || bot.x > STAGE_WIDTH - 24) bot.vx *= -1
+  if (bot.y < STAGE_HEIGHT * 0.4 || bot.y > STAGE_HEIGHT - 24) bot.vy *= -1
+  bot.collectFlash = Math.max(0, bot.collectFlash - delta * 2)
+
+  // Dismisses the nearest passing mote exactly like a tap would -- no coins
+  // change hands here, settleTick already credited them when the mote spawned.
+  const index = motes.value.findIndex(
+    (mote) => Math.hypot(mote.x - bot.x, mote.y - bot.y) <= COLLECTOR_RADIUS,
+  )
+  if (index !== -1) {
+    motes.value.splice(index, 1)
+    bot.collectFlash = 1
+  }
 }
 
 function loop(timestamp: number) {

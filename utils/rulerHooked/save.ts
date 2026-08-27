@@ -7,10 +7,16 @@
 // packaged app can swap the adapter without touching callers.
 
 import type { RunSave, SaveIndex, SaveSlotMeta } from '~/types/ruler-hooked'
+import { HERO_RULER_PRESET_ID } from '~/utils/rulerHooked/rulerPresets'
+import { deletePortrait } from '~/utils/rulerHooked/portraitStore'
 
 const INDEX_KEY = 'rulerHooked:index'
 const slotKey = (saveId: string) => `rulerHooked:save:${saveId}`
-export const SAVE_SCHEMA_VERSION = 4
+// v5 (t-021): ruler.cosmetics widened from an untyped bag to RulerCosmetics
+// with a required-in-practice presetId. Old saves (schemaVersion <= 4) never
+// wrote presetId, so migrateSave() below fills it in with the hero preset
+// rather than leaving the ruler region with nothing to resolve to.
+export const SAVE_SCHEMA_VERSION = 5
 
 // Checked per-call (not captured at module load) so SSR — and headless tests
 // that install a window shim after import — behave correctly.
@@ -53,6 +59,10 @@ function parse<T>(raw: string | null): T | null {
 /** Add fields introduced after the original PoC without invalidating old slots. */
 function migrateSave(save: RunSave): RunSave {
   if (!save.fishopedia) save.fishopedia = {}
+  if (!save.ruler.cosmetics) save.ruler.cosmetics = {}
+  if (!save.ruler.cosmetics.presetId) {
+    save.ruler.cosmetics.presetId = HERO_RULER_PRESET_ID
+  }
   save.schemaVersion = SAVE_SCHEMA_VERSION
   return save
 }
@@ -118,7 +128,10 @@ export function renameSlot(saveId: string, name: string): void {
 }
 
 export function deleteSlot(saveId: string): void {
+  const existing = loadSave(saveId)
+  const portraitId = existing?.ruler.cosmetics?.customPortraitId
   safeRemove(slotKey(saveId))
+  if (portraitId) void deletePortrait(portraitId) // best-effort, fire-and-forget
   const index = loadIndex()
   index.slots = index.slots.filter((s) => s.saveId !== saveId)
   if (index.activeSaveId === saveId) {

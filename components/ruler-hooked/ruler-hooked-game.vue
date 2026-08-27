@@ -6,7 +6,13 @@
   <ClientOnly>
     <div class="kr-container max-w-3xl flex flex-col gap-4">
       <template v-if="store.save">
-        <RulerHookedStage :scene="store.scene" :regions="store.bundle.regions" />
+        <RulerHookedStage
+          :scene="store.scene"
+          :regions="store.bundle.regions"
+          :ruler-custom-portrait-id="
+            store.save.ruler.cosmetics?.customPortraitId ?? null
+          "
+        />
 
         <div class="flex items-center justify-between gap-3">
           <div>
@@ -22,6 +28,8 @@
             🎣 Cast a line
           </button>
         </div>
+
+        <RulerHookedCosmetics />
 
         <RulerHookedHealth :health="store.save.kingdomHealth" />
 

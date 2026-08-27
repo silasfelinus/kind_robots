@@ -60,6 +60,8 @@
 
 <script setup lang="ts">
 import { assetCandidates } from '~/utils/rulerHooked/compositor'
+import { getPortraitUrl } from '~/utils/rulerHooked/portraitStore'
+import { RULER_LAYER_FALLBACK_STATE } from '~/utils/rulerHooked/rulerPresets'
 import type {
   RegionKey,
   RegionsManifest,
@@ -71,17 +73,64 @@ const props = withDefaults(
     scene: SceneState | null
     regions: RegionsManifest
     showImages?: boolean
+    /** t-021: a locally-stored custom portrait, when set, replaces the ruler
+     *  region's preset layer entirely (highest priority — see resolveScene's
+     *  ruler cosmetic axis for how presetId is picked underneath it). */
+    rulerCustomPortraitId?: string | null
   }>(),
   {
     showImages: true,
+    rulerCustomPortraitId: null,
   },
 )
 
+// Resolve the custom portrait id (if any) to a displayable object URL.
+// Async by nature (IndexedDB) — starts null so the preset/fallback layer
+// shows first and swaps in once resolved, never a gap.
+const customPortraitUrl = ref<string | null>(null)
+watch(
+  () => props.rulerCustomPortraitId,
+  async (id, _prev, onCleanup) => {
+    let cancelled = false
+    onCleanup(() => {
+      cancelled = true
+    })
+    if (!id) {
+      customPortraitUrl.value = null
+      return
+    }
+    const url = await getPortraitUrl(id)
+    if (!cancelled) customPortraitUrl.value = url
+  },
+  { immediate: true },
+)
+const prevUrl = ref<string | null>(null)
+watch(customPortraitUrl, (url) => {
+  // Revoke the previous object URL once it's no longer displayed, not before
+  // (revoking the URL still in `src` would blank the image mid-swap).
+  if (prevUrl.value && prevUrl.value !== url) URL.revokeObjectURL(prevUrl.value)
+  prevUrl.value = url
+})
+onBeforeUnmount(() => {
+  if (prevUrl.value) URL.revokeObjectURL(prevUrl.value)
+})
+
 // Per-region index into the asset fallback ladder (advances on <img> error).
 const errIndex = reactive<Record<string, number>>({})
+// If the custom portrait itself fails to load (corrupt/unreadable blob), stop
+// offering it and degrade to the normal preset fallback ladder instead of
+// retrying the same broken src forever.
+const customPortraitFailed = ref(false)
 function onImgError(region: string) {
+  if (region === 'ruler' && customPortraitUrl.value) {
+    customPortraitFailed.value = true
+    return
+  }
   errIndex[region] = (errIndex[region] ?? 0) + 1
 }
+watch(customPortraitUrl, () => {
+  customPortraitFailed.value = false
+})
 
 // A readable placeholder palette keyed by state so recompositing is visible.
 const STATE_CLASS: Record<string, string> = {
@@ -125,15 +174,29 @@ const layers = computed<Layer[]>(() => {
     .sort((a, b) => (regs[a]!.z ?? 0) - (regs[b]!.z ?? 0))
     .map((region) => {
       const state = scene.regionStates[region]
+      const isRuler = region === 'ruler'
+      // The ruler region falls back to its one already-rendered layer
+      // (ruler-fishing.webp) until a given cosmetic preset's own file exists
+      // (t-021) — every other region has no such fallback.
       const cands = props.showImages
-        ? assetCandidates(region, state, scene.time)
+        ? assetCandidates(
+            region,
+            state,
+            scene.time,
+            undefined,
+            isRuler ? RULER_LAYER_FALLBACK_STATE : undefined,
+          )
         : []
       const idx = errIndex[region] ?? 0
+      // A custom portrait (once resolved) takes priority over any preset
+      // layer for the ruler region specifically.
+      const customSrc =
+        isRuler && !customPortraitFailed.value ? customPortraitUrl.value : null
       return {
         region,
         label: state ? `${region} · ${state}` : region,
         classes: STATE_CLASS[state ?? 'open'] ?? 'bg-base-300',
-        src: cands[idx] ?? null,
+        src: customSrc ?? cands[idx] ?? null,
       }
     })
 })

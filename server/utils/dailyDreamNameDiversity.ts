@@ -1,4 +1,5 @@
 import type { DailyDreamBlueprint } from './dailyDreamFacetBlueprint'
+import { diversifyDailyDreamCreativeDirection } from './dailyDreamCreativeDiversity'
 
 const GROUNDED_NAMES = [
   'Nadia Reyes',
@@ -147,9 +148,9 @@ function pickUniqueName(options: {
     (hashSeed(`${options.dateKey}:${options.userId}:style`) + options.slot) %
     NAME_STYLE_POOLS.length
   const pool = NAME_STYLE_POOLS[styleIndex]!
-  const start = hashSeed(
-    `${options.dateKey}:${options.userId}:name:${options.slot}`,
-  ) % pool.length
+  const start =
+    hashSeed(`${options.dateKey}:${options.userId}:name:${options.slot}`) %
+    pool.length
 
   for (let offset = 0; offset < pool.length; offset++) {
     const candidate = pool[(start + offset) % pool.length]!
@@ -206,7 +207,7 @@ export function diversifyDailyDreamNames(
     ...characterAssignments,
   ]
 
-  return {
+  const namedBlueprint: DailyDreamBlueprint = {
     ...blueprint,
     description: replaceSequence(blueprint.description, descriptionOrder),
     pitch: replaceSequence(blueprint.pitch, pitchOrder),
@@ -247,4 +248,9 @@ export function diversifyDailyDreamNames(
       artPrompt: replaceSequence(reward.artPrompt, descriptionOrder),
     })),
   }
+
+  // /api/dreams/daily historically calls this one postprocessor before persistence.
+  // Keep that compatibility surface, but finish the same pass by varying the legacy
+  // pitch engine and renderer medium so this sibling cannot reintroduce the old rut.
+  return diversifyDailyDreamCreativeDirection(namedBlueprint, options)
 }

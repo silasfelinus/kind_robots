@@ -22,6 +22,8 @@ import {
   MAX_CLEAN_CLICKS_PER_REQUEST,
   NO_STACK_IDLE_SET_KINDS,
   OFFLINE_INCOME_RATE_MULTIPLIER,
+  RARE_EVENT_CATALOG,
+  RARE_EVENT_KINDS,
   RARITY_TIERS,
   SET_PIECE_CATALOG,
   SET_PIECE_KINDS,
@@ -35,6 +37,7 @@ import {
   incomePerTick,
   justCompletedBestiary,
   mergeBestStats,
+  rollRareEvent,
   settleTick,
   unlockCost,
 } from '../../server/utils/aquariumEconomy.js'
@@ -825,6 +828,70 @@ assert.deepEqual(mergeBestStats({ ...ALL_NULL, might: 7 }, ALL_NULL), {
 
 console.log(
   '✅ mergeBestStats: per-stat max, independently, never regresses an existing best',
+)
+
+// --- rare random events (cthulhuquarium/t-016) ------------------------------
+
+// Catalog shape: every kind priced/toned, no kind ever configured to take
+// anything away (bonusCoinsMin can be 0 -- a purely cosmetic kind -- but
+// never negative, and max is never below min).
+assert.deepEqual(
+  [...RARE_EVENT_KINDS].sort(),
+  ['rare_visitor', 'tank_gone_wrong', 'windfall_collectible'].sort(),
+)
+for (const kind of RARE_EVENT_KINDS) {
+  const config = RARE_EVENT_CATALOG[kind]
+  assert.ok(config.chance > 0 && config.chance < 1)
+  assert.ok(config.bonusCoinsMin >= 0)
+  assert.ok(config.bonusCoinsMax >= config.bonusCoinsMin)
+  assert.ok(config.tone.length > 0)
+}
+assert.ok(
+  RARE_EVENT_KINDS.reduce(
+    (sum, kind) => sum + RARE_EVENT_CATALOG[kind].chance,
+    0,
+  ) < 1,
+  'chances must sum to under 1 so "nothing happened" stays possible',
+)
+
+console.log(
+  '✅ RARE_EVENT_CATALOG: every economy.yaml rare_events key is present, priced, self-consistent',
+)
+
+// rollRareEvent: selectRoll walks RARE_EVENT_KINDS in order -- rare_visitor
+// [0, 0.03), windfall_collectible [0.03, 0.038), tank_gone_wrong
+// [0.038, 0.053), no event [0.053, 1).
+assert.equal(rollRareEvent(0, 0)?.kind, 'rare_visitor')
+assert.equal(rollRareEvent(0.0299, 0)?.kind, 'rare_visitor')
+assert.equal(rollRareEvent(0.03, 0)?.kind, 'windfall_collectible')
+assert.equal(rollRareEvent(0.0379, 0)?.kind, 'windfall_collectible')
+assert.equal(rollRareEvent(0.038, 0)?.kind, 'tank_gone_wrong')
+assert.equal(rollRareEvent(0.0529, 0)?.kind, 'tank_gone_wrong')
+assert.equal(
+  rollRareEvent(0.053, 0),
+  null,
+  'selectRoll landing exactly on the total configured chance is a no-event roll, not an off-by-one hit',
+)
+assert.equal(rollRareEvent(0.9999, 0), null)
+
+console.log(
+  '✅ rollRareEvent: selectRoll walks RARE_EVENT_KINDS in order, exact boundaries land in the right slice (or none)',
+)
+
+// magnitudeRoll: linear across [bonusCoinsMin, bonusCoinsMax], floored -- 0
+// gives the min, just-under-1 gives the max, never above it.
+assert.equal(rollRareEvent(0, 0)?.bonusCoins, 15)
+assert.equal(rollRareEvent(0, 0.999999)?.bonusCoins, 40)
+assert.equal(rollRareEvent(0.03, 0)?.bonusCoins, 60)
+assert.equal(rollRareEvent(0.03, 0.999999)?.bonusCoins, 150)
+assert.equal(
+  rollRareEvent(0.038, 0.999999)?.bonusCoins,
+  0,
+  'tank_gone_wrong is configured min=max=0 -- purely cosmetic, never a coin effect regardless of the roll',
+)
+
+console.log(
+  "✅ rollRareEvent: bonusCoins scales linearly across each kind's configured range, floored, never exceeds bonusCoinsMax",
 )
 
 console.log('✅ verifyAquariumEconomy: all assertions passed')

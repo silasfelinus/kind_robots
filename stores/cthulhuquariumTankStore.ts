@@ -109,11 +109,21 @@ export interface CatalogEntry {
   cost: number
 }
 
+// cthulhuquarium/t-016: one rare random event, as returned alongside a tick
+// settlement. `bonusCoins` is already folded into that same response's
+// `coinsEarned` -- this is purely display, never a separate balance.
+export interface RareEvent {
+  kind: 'rare_visitor' | 'windfall_collectible' | 'tank_gone_wrong'
+  bonusCoins: number
+  tone: string
+}
+
 interface TickResponse {
   aquarium: Tank
   elapsedTicks: number
   ticksProcessed: number
   coinsEarned: number
+  rareEvent: RareEvent | null
 }
 
 // cthulhuquarium/t-013: how long the store waits after the last Clean click
@@ -240,6 +250,12 @@ export const useCthulhuquariumTankStore = defineStore(
     // a reveal, then clears it via dismissReveal().
     const revealedUnlock = ref<TankStock | null>(null)
 
+    // cthulhuquarium/t-016: the most recent rare event, if the last settle
+    // fired one -- null the overwhelming majority of the time. The game
+    // component watches this to show a brief notice, then clears it via
+    // dismissRareEvent().
+    const lastRareEvent = ref<RareEvent | null>(null)
+
     // cthulhuquarium/t-024's bestiary. Loaded lazily (the panel starts
     // collapsed) rather than alongside load()/loadCatalog() on every mount --
     // it is the completionist book, not something the tank loop needs every
@@ -296,6 +312,7 @@ export const useCthulhuquariumTankStore = defineStore(
       })
       if (res.success && res.data) {
         tank.value = res.data.aquarium
+        if (res.data.rareEvent) lastRareEvent.value = res.data.rareEvent
         return {
           coinsEarned: res.data.coinsEarned,
           ticksProcessed: res.data.ticksProcessed,
@@ -307,6 +324,10 @@ export const useCthulhuquariumTankStore = defineStore(
     async function settleTick(): Promise<number> {
       const { coinsEarned } = await settleTickRaw()
       return coinsEarned
+    }
+
+    function dismissRareEvent(): void {
+      lastRareEvent.value = null
     }
 
     async function load(): Promise<void> {
@@ -534,6 +555,7 @@ export const useCthulhuquariumTankStore = defineStore(
       error,
       ready,
       revealedUnlock,
+      lastRareEvent,
       bestiary,
       bestiaryCollectedCount,
       bestiaryTotalCount,
@@ -549,6 +571,7 @@ export const useCthulhuquariumTankStore = defineStore(
       feed,
       unlock,
       dismissReveal,
+      dismissRareEvent,
       requestClean,
       flushCleanNow,
       clearOfflineEarnings,

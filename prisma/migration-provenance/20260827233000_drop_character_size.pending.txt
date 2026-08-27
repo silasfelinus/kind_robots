@@ -1,0 +1,5 @@
+# kind-robots/t-075 contract-then-migration rollout.
+# Character.size is removed from the client/schema first. Do not create or run
+# this destructive migration until the new container has been Force Updated
+# and GET /api/characters/<id> has been verified healthy in production.
+prisma/migrations/20260827233000_drop_character_size/migration.sql

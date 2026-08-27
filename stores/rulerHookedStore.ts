@@ -22,6 +22,10 @@ import {
   loadIndex, loadSave, writeSave, renameSlot as renameSlotStore,
   deleteSlot as deleteSlotStore, setActive, makeSaveId,
 } from '~/utils/rulerHooked/save'
+import {
+  putPortrait, deletePortrait, makePortraitId,
+} from '~/utils/rulerHooked/portraitStore'
+import { HERO_RULER_PRESET_ID } from '~/utils/rulerHooked/rulerPresets'
 import type { Card, CatchResult, RunSave, SaveSlotMeta } from '~/types/ruler-hooked'
 
 const nowStamp = (): string => new Date().toISOString()
@@ -71,9 +75,28 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     }
   }
 
-  function newGame(name: string, rulerName: string, honorific = 'Ruler') {
+  /**
+   * `presetId` picks a ruler cosmetic preset (defaults to the hero preset);
+   * `customPortraitFile` — when supplied — is downscaled and stored locally
+   * (portraitStore.ts, IndexedDB) and takes priority over `presetId` for
+   * display (t-021). A failed/unavailable portrait import (e.g. IndexedDB
+   * blocked by a privacy setting) silently falls back to the preset instead
+   * of blocking new-game creation.
+   */
+  async function newGame(
+    name: string,
+    rulerName: string,
+    honorific = 'Ruler',
+    opts: { presetId?: string; customPortraitFile?: File } = {},
+  ) {
     const stamp = nowStamp()
     const saveId = makeSaveId(stamp, rulerName + slots.value.length)
+    let customPortraitId: string | undefined
+    if (opts.customPortraitFile) {
+      const id = makePortraitId(`${saveId}:${opts.customPortraitFile.name}`)
+      customPortraitId =
+        (await putPortrait(opts.customPortraitFile, id)) ?? undefined
+    }
     const run = createRun(bundle, {
       saveId,
       name: name || `${honorific} ${rulerName}'s reign`,
@@ -81,11 +104,53 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
       rulerName,
       honorific,
       stamp,
+      presetId: opts.presetId,
+      customPortraitId,
     })
     save.value = run
     clearTransientPlayState()
     writeSave(run, stamp)
     refreshSlots()
+  }
+
+  /**
+   * Change the active save's ruler cosmetics after creation ("cosmetic-only
+   * by design, so there is no reason to lock them at creation" — t-021).
+   * Replaces (rather than merges) any previous custom portrait, deleting the
+   * old blob so switching presets/portraits repeatedly doesn't leak storage.
+   */
+  async function updateCosmetics(opts: {
+    presetId?: string
+    customPortraitFile?: File
+  }) {
+    if (!save.value) return
+    const prevPortraitId = save.value.ruler.cosmetics?.customPortraitId
+    let customPortraitId: string | undefined
+    if (opts.customPortraitFile) {
+      const id = makePortraitId(
+        `${save.value.saveId}:${nowStamp()}:${opts.customPortraitFile.name}`,
+      )
+      customPortraitId =
+        (await putPortrait(opts.customPortraitFile, id)) ?? undefined
+    }
+    save.value.ruler.cosmetics = {
+      ...save.value.ruler.cosmetics,
+      presetId:
+        opts.presetId ??
+        save.value.ruler.cosmetics?.presetId ??
+        HERO_RULER_PRESET_ID,
+      // Explicitly picking a preset (no new file) clears any prior custom
+      // portrait so the preset actually takes visual effect.
+      customPortraitId:
+        customPortraitId ?? (opts.presetId ? undefined : prevPortraitId),
+    }
+    if (
+      prevPortraitId &&
+      prevPortraitId !== save.value.ruler.cosmetics.customPortraitId
+    ) {
+      void deletePortrait(prevPortraitId)
+    }
+    persist()
   }
 
   function loadSlot(saveId: string) {
@@ -184,7 +249,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
   return {
     bundle, save, activeCard, activeArcId, pendingEnding, activeFishing,
     lastCatch, lastEscape, slots, scene, canFish,
-    init, newGame, loadSlot, startFishing, fishingAction, choose,
+    init, newGame, updateCosmetics, loadSlot, startFishing, fishingAction, choose,
     acceptEnding, declineEnding, renameSlot, deleteSlot, refreshSlots,
   }
 })

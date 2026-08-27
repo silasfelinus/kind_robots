@@ -14,7 +14,9 @@ import { resolveScene } from '~/utils/rulerHooked/compositor'
 import { makeRng } from '~/utils/rulerHooked/seed'
 import {
   loadIndex, loadSave, writeSave, renameSlot, deleteSlot, makeSaveId,
+  SAVE_SCHEMA_VERSION,
 } from '~/utils/rulerHooked/save'
+import { HERO_RULER_PRESET_ID } from '~/utils/rulerHooked/rulerPresets'
 import type { RunSave } from '~/types/ruler-hooked'
 
 // --- localStorage shim for node -------------------------------------------
@@ -139,8 +141,31 @@ const fresh = (id = 'sv_a'): RunSave =>
   delete old.fishopedia
   backingStore.set('rulerHooked:save:sv_old', JSON.stringify(old))
   const migrated = loadSave('sv_old')
-  assert.equal(migrated?.schemaVersion, 4, 'legacy slot is promoted to schema 4')
+  assert.equal(migrated?.schemaVersion, SAVE_SCHEMA_VERSION, 'legacy slot is promoted to the current schema')
   assert.deepEqual(migrated?.fishopedia, {}, 'legacy slot receives an empty Fishopedia')
+}
+
+// 8. A pre-cosmetics schema-4 slot (t-021) migrates to a hero-preset default
+// rather than leaving the ruler region with nothing to resolve to.
+{
+  const old = fresh('sv_precosmetics')
+  old.schemaVersion = 4
+  delete old.ruler.cosmetics
+  backingStore.set('rulerHooked:save:sv_precosmetics', JSON.stringify(old))
+  const migrated = loadSave('sv_precosmetics')
+  assert.equal(migrated?.schemaVersion, SAVE_SCHEMA_VERSION, 'legacy slot is promoted to the current schema')
+  assert.equal(migrated?.ruler.cosmetics?.presetId, HERO_RULER_PRESET_ID, 'legacy slot defaults to the hero ruler preset')
+
+  // A save that already had SOME cosmetics (but no presetId, e.g. an
+  // intermediate schema-5 slot written before this migration rule existed)
+  // is filled in without disturbing whatever else was already there.
+  const oldWithCosmetics = fresh('sv_partial_cosmetics')
+  oldWithCosmetics.schemaVersion = 5
+  oldWithCosmetics.ruler.cosmetics = { crownTilt: true }
+  backingStore.set('rulerHooked:save:sv_partial_cosmetics', JSON.stringify(oldWithCosmetics))
+  const migratedPartial = loadSave('sv_partial_cosmetics')
+  assert.equal(migratedPartial?.ruler.cosmetics?.presetId, HERO_RULER_PRESET_ID, 'a presetId-less cosmetics bag also gets the hero default')
+  assert.equal(migratedPartial?.ruler.cosmetics?.crownTilt, true, 'existing cosmetics fields survive migration untouched')
 }
 
 console.log('ruler-hooked GAME self-test: ALL PASS')

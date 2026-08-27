@@ -5,6 +5,7 @@ import { triggerHolds, effectiveWeight } from '~/utils/rulerHooked/triggers'
 import { rampState, resolveScene, cycleTime, assetCandidates } from '~/utils/rulerHooked/compositor'
 import { eligiblePool, weightedPick, selectCard, tickCooldowns } from '~/utils/rulerHooked/select'
 import { availableFish, resolveFishingCatch, RULER_HOOKED_FISH } from '~/utils/rulerHooked/fish'
+import { HERO_RULER_PRESET_ID, RULER_PRESET_IDS } from '~/utils/rulerHooked/rulerPresets'
 import type { Card, RegionsManifest, RunSave } from '~/types/ruler-hooked'
 
 function baseSave(): RunSave {
@@ -155,6 +156,51 @@ function baseSave(): RunSave {
   const ca2 = resolveFishingCatch(a, makeRng('fish-seed'))
   assert.equal(ca2.newDiscovery, false, 'later catch of same species is not new')
   assert.equal(a.fishopedia[ca.fishSlug]?.countCaught, 2, 'repeat catch increments species record')
+}
+
+// 7. Ruler cosmetics (t-021): resolveScene's ruler special-case + the
+//    ruler-only assetCandidates fallback ladder.
+{
+  const manifest: RegionsManifest = { regions: {
+    ruler: { z: 7, states: [...RULER_PRESET_IDS, 'fishing'] },
+  } }
+
+  // No cosmetics at all (an old/migrated save) -> the hero preset, never a hole.
+  const bare = baseSave()
+  assert.equal(resolveScene(bare, manifest).regionStates.ruler, HERO_RULER_PRESET_ID, 'no cosmetics -> hero preset')
+
+  // An explicit preset choice wins, and is never routed through regionOverrides.
+  const withPreset = baseSave()
+  withPreset.ruler.cosmetics = { presetId: 'chieftain-brakka' }
+  assert.equal(resolveScene(withPreset, manifest).regionStates.ruler, 'chieftain-brakka', 'explicit presetId is honored')
+  assert.equal(withPreset.regionOverrides.ruler, undefined, 'ruler cosmetics never touch regionOverrides')
+
+  // A ruler-only fallback rung: a preset with no dedicated file yet still
+  // resolves to the one already-rendered layer, at every time-of-day rung.
+  const noFallback = assetCandidates('ruler', 'chieftain-brakka', 'night')
+  assert.deepEqual(noFallback, [
+    '/images/ruler-hooked/ruler-chieftain-brakka-night.webp',
+    '/images/ruler-hooked/ruler-chieftain-brakka.webp',
+  ], 'no fallbackState -> the normal ladder only (settle(night)=night dedupes), no fishing rung')
+
+  const withFallback = assetCandidates('ruler', 'chieftain-brakka', 'night', undefined, 'fishing')
+  assert.deepEqual(withFallback, [
+    '/images/ruler-hooked/ruler-chieftain-brakka-night.webp',
+    '/images/ruler-hooked/ruler-chieftain-brakka.webp',
+    '/images/ruler-hooked/ruler-fishing-night.webp',
+    '/images/ruler-hooked/ruler-fishing.webp',
+  ], 'fallbackState appends the fishing rungs after the preset rungs, de-duped')
+
+  // fallbackState === state is a no-op (never doubles the ladder).
+  const sameState = assetCandidates('ruler', 'fishing', 'day', undefined, 'fishing')
+  assert.deepEqual(sameState, ['/images/ruler-hooked/ruler-fishing-day.webp', '/images/ruler-hooked/ruler-fishing.webp'], 'fallbackState equal to state adds nothing new')
+
+  // Every other region is unaffected by the ruler special-case or the new param.
+  const otherManifest: RegionsManifest = { regions: {
+    lake: { z: 5, states: ['clear'] },
+  } }
+  const withLake = baseSave()
+  assert.equal(resolveScene(withLake, otherManifest).regionStates.lake, 'clear', 'non-ruler regions resolve exactly as before')
 }
 
 console.log('ruler-hooked engine self-test: ALL PASS')

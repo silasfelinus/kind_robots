@@ -16,6 +16,7 @@ import type {
   SceneState,
   TimeKey,
 } from '~/types/ruler-hooked'
+import { HERO_RULER_PRESET_ID } from '~/utils/rulerHooked/rulerPresets'
 
 /** Even-threshold a 0..100 slider value across an ordered ramp (compositing.md §3). */
 export function rampState(value: number, ramp: RegionState[]): RegionState {
@@ -50,6 +51,15 @@ export function resolveScene(
   for (const key of Object.keys(manifest.regions) as RegionKey[]) {
     const def = manifest.regions[key]
     if (!def) continue
+    if (key === 'ruler') {
+      // Cosmetic axis (t-021): the ruler region's "state" is the player's
+      // chosen preset id, not a ramp/event-driven state. A custom portrait
+      // (handled separately by the stage/portraitStore) still needs a preset
+      // id underneath it for save-index display and as the degrade target if
+      // the custom image is ever unreadable, so this always resolves to one.
+      regionStates[key] = save.ruler.cosmetics?.presetId ?? HERO_RULER_PRESET_ID
+      continue
+    }
     const override = save.regionOverrides[key]
     if (override !== undefined) {
       regionStates[key] = override
@@ -83,14 +93,24 @@ export function assetCandidates(
   state: RegionState | undefined,
   time: TimeKey,
   dir = '/images/ruler-hooked',
+  /**
+   * A second state to fall back to (all three time rungs) if `state`'s own
+   * files don't exist — e.g. the ruler region falls back to its one
+   * already-rendered layer (RULER_LAYER_FALLBACK_STATE = 'fishing') until a
+   * given cosmetic preset gets its own dedicated file (t-021). Never used for
+   * any other region today.
+   */
+  fallbackState?: RegionState,
 ): string[] {
-  const base = state ? `${region}-${state}` : `${region}`
   const settle = SETTLE[time]
-  const names = [
-    `${base}-${time}`, // exact
-    `${base}-${settle}`, // treat → nearest settle
-    base, // time-agnostic
-  ]
+  const rungs = (s: RegionState | undefined): string[] => {
+    const base = s ? `${region}-${s}` : `${region}`
+    return [`${base}-${time}`, `${base}-${settle}`, base]
+  }
+  const names = rungs(state)
+  if (fallbackState !== undefined && fallbackState !== state) {
+    names.push(...rungs(fallbackState))
+  }
   // de-dupe while preserving order
   const seen = new Set<string>()
   return names

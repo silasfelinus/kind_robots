@@ -299,6 +299,26 @@ export interface DeckState {
   drawBag: string[]
 }
 
+/**
+ * Cosmetic-only ruler customization (ruler-hooked/t-021). `presetId` selects
+ * one of RULER_PRESETS (utils/rulerHooked/rulerPresets.ts); `customPortraitId`
+ * — when set — takes priority over `presetId` and points at a locally-stored
+ * player-supplied image (utils/rulerHooked/portraitStore.ts, IndexedDB, never
+ * uploaded). `body`/`skin`/`species`/`outfit`/`crownTilt` are reserved for a
+ * future composable-overlay upgrade path (t-021's note: presets today, an
+ * additive overlay system later if the combinatorial range turns out to
+ * matter more than preset coherence) — nothing currently reads them.
+ */
+export interface RulerCosmetics {
+  presetId?: string
+  customPortraitId?: string
+  body?: string
+  skin?: string
+  species?: string
+  outfit?: string
+  crownTilt?: boolean
+}
+
 export interface RunSave {
   schemaVersion: number
   saveId: string
@@ -311,7 +331,7 @@ export interface RunSave {
     name: string
     honorific?: string
     characterSlug?: string
-    cosmetics?: Record<string, unknown>
+    cosmetics?: RulerCosmetics
   }
   turnCount: number
   cyclePosition: number

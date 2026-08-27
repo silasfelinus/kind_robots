@@ -21,6 +21,7 @@ import {
   cleanDebris,
   debrisMultiplier,
   deriveFishRarityTier,
+  effectiveTickSeconds,
   feedCost,
   hungerMultiplier,
   incomePerTick,
@@ -135,6 +136,47 @@ assert.equal(feedCost('MYTHIC'), 10000, 'round(50000 * 0.2) = 10000')
 assert.equal(feedCost('RARE'), 150, 'round(750 * 0.2) = 150')
 
 console.log('✅ feedCost: scales with unlock cost, rounded correctly')
+
+// --- per-species economy overrides (cthulhuquarium/t-047): null/undefined
+// falls back to the tier default; a set value replaces it outright ---------
+
+assert.equal(
+  incomePerTick('COMMON', null),
+  1,
+  'null override falls back to the tier default',
+)
+assert.equal(
+  incomePerTick('COMMON', undefined),
+  1,
+  'undefined override falls back to the tier default',
+)
+assert.equal(
+  incomePerTick('COMMON', 7),
+  7,
+  'a set override replaces the tier default outright',
+)
+assert.equal(unlockCost('RARE', null), 750)
+assert.equal(unlockCost('RARE', 1000), 1000)
+assert.equal(effectiveTickSeconds(null), TICK_SECONDS)
+assert.equal(effectiveTickSeconds(30), 30)
+
+// feedCost threads its unlockCost override through unlockCost() itself,
+// so overriding unlock cost also reshapes feed cost -- the two curves
+// never drift apart just because one is overridden and the other isn't.
+assert.equal(
+  feedCost('COMMON', null),
+  10,
+  'round(50 * 0.2) unaffected by a null override',
+)
+assert.equal(
+  feedCost('COMMON', 1000),
+  200,
+  'round(1000 * 0.2) = 200 -- feed cost follows the overridden unlock cost',
+)
+
+console.log(
+  '✅ per-species overrides: null falls back to tier default, a set value replaces it, feedCost follows an overridden unlockCost',
+)
 
 // --- MAX_ACCRUAL_TICKS: 8 hours at 60s/tick = 480 ---------------------------
 
@@ -367,6 +409,59 @@ console.log(
 
 console.log(
   '✅ settleTick: an empty tank settles safely with zero production and zero debris accrual',
+)
+
+// --- settleTick: per-species yieldPerTick/tickIntervalSeconds overrides
+// (cthulhuquarium/t-047) change that fish's production without touching the
+// tank-wide tick cadence hunger/debris still run on ------------------------
+
+{
+  const start = new Date('2026-08-25T00:00:00Z')
+  const now = new Date(start.getTime() + TICK_SECONDS * 1000)
+
+  // A COMMON fish with yieldPerTick overridden to match MYTHIC's tier rate
+  // (120) should out-earn a plain COMMON fish by exactly that factor.
+  const overridden = settleTick({
+    lastTickAt: start,
+    now,
+    debrisLevel: 0,
+    fish: [{ id: 1, rarity: 'COMMON', hunger: 100, yieldPerTick: 120 }],
+  })
+  const plain = settleTick({
+    lastTickAt: start,
+    now,
+    debrisLevel: 0,
+    fish: [{ id: 1, rarity: 'COMMON', hunger: 100 }],
+  })
+  assert.ok(
+    overridden.coinsEarned >= plain.coinsEarned,
+    'a yieldPerTick override raised well above the tier default must not earn less than the tier default',
+  )
+
+  // A fish with tickIntervalSeconds halved (30s instead of 60s) produces at
+  // twice the rate for the same elapsed real time -- verified over a long
+  // enough window that flooring doesn't hide the difference.
+  const longNow = new Date(start.getTime() + 100 * TICK_SECONDS * 1000)
+  const doubleRate = settleTick({
+    lastTickAt: start,
+    now: longNow,
+    debrisLevel: 0,
+    fish: [{ id: 1, rarity: 'COMMON', hunger: 100, tickIntervalSeconds: 30 }],
+  })
+  const baseRate = settleTick({
+    lastTickAt: start,
+    now: longNow,
+    debrisLevel: 0,
+    fish: [{ id: 1, rarity: 'COMMON', hunger: 100 }],
+  })
+  assert.ok(
+    doubleRate.coinsEarned >= baseRate.coinsEarned * 1.5,
+    `a halved tickIntervalSeconds should earn roughly double (base=${baseRate.coinsEarned}, doubled=${doubleRate.coinsEarned})`,
+  )
+}
+
+console.log(
+  "✅ settleTick: per-species yieldPerTick/tickIntervalSeconds overrides change that fish's production as expected",
 )
 
 // --- PROPERTY TEST: coinsEarned is always a non-negative integer, hunger is

@@ -59,12 +59,29 @@ function rarityRank(rarity: Rarity): number {
   return RARITY_ORDER.indexOf(rarity)
 }
 
-export function incomePerTick(rarity: Rarity): number {
-  return RARITY_TIERS[rarity].incomePerTick
+// `override` is Monster.yieldPerTick (cthulhuquarium/t-047): null/undefined
+// means "use the tier default," a set value replaces it outright. Schema
+// comment: "these three exist for a later per-species balance pass, not
+// required at seed time" -- every existing call site omits the argument and
+// gets the exact prior tier-only behavior.
+export function incomePerTick(
+  rarity: Rarity,
+  override?: number | null,
+): number {
+  return override ?? RARITY_TIERS[rarity].incomePerTick
 }
 
-export function unlockCost(rarity: Rarity): number {
-  return RARITY_TIERS[rarity].unlockCost
+// `override` is Monster.unlockCost -- same null-means-tier-default contract
+// as incomePerTick above.
+export function unlockCost(rarity: Rarity, override?: number | null): number {
+  return override ?? RARITY_TIERS[rarity].unlockCost
+}
+
+// `override` is Monster.tickIntervalSeconds: how often, in seconds, THIS
+// species produces income, distinct from the tank-wide TICK_SECONDS the
+// settlement loop advances by. null/undefined means "use the tank cadence."
+export function effectiveTickSeconds(override?: number | null): number {
+  return override ?? TICK_SECONDS
 }
 
 // UPDATE 2026-08-25 (t-035): the canonical field this comment describes now
@@ -142,9 +159,16 @@ export const FEED_COST_FACTOR_OF_UNLOCK_COST = 0.2
 
 // Feed cost scales with the fish's own unlock-cost curve ("the food is
 // alive" -- feeding a MYTHIC costs more than feeding a COMMON). Rounded to
-// the nearest coin: cost = round(unlockCost * factor).
-export function feedCost(rarity: Rarity): number {
-  return Math.round(unlockCost(rarity) * FEED_COST_FACTOR_OF_UNLOCK_COST)
+// the nearest coin: cost = round(unlockCost * factor). `unlockCostOverride`
+// is Monster.unlockCost, threaded through so a per-species unlock override
+// also reshapes its feed cost instead of silently ignoring it.
+export function feedCost(
+  rarity: Rarity,
+  unlockCostOverride?: number | null,
+): number {
+  return Math.round(
+    unlockCost(rarity, unlockCostOverride) * FEED_COST_FACTOR_OF_UNLOCK_COST,
+  )
 }
 
 // ---------------------------------------------------------------------------
@@ -216,6 +240,13 @@ export interface TickFishState {
   id: number
   rarity: Rarity
   hunger: number
+  // Per-species overrides (Monster.yieldPerTick/tickIntervalSeconds,
+  // cthulhuquarium/t-047) -- null/undefined on either falls back to the
+  // tier default / tank-wide TICK_SECONDS, exactly as before this field
+  // existed. Every existing caller that omits these keeps identical
+  // behavior.
+  yieldPerTick?: number | null
+  tickIntervalSeconds?: number | null
 }
 
 export interface TickSettlementInput {
@@ -284,8 +315,19 @@ export function settleTick(input: TickSettlementInput): TickSettlementResult {
 
     for (const fish of input.fish) {
       const hunger = fishHunger.get(fish.id) ?? 0
+      // A per-species tickIntervalSeconds override changes how OFTEN this
+      // fish produces, not how often the tank-wide loop advances (hunger
+      // decay and debris accrual stay on TICK_SECONDS for every fish, same
+      // as always) -- so it is applied as a rate scale on top of the
+      // per-tick yield: a fish that produces every 30s instead of 60s
+      // effectively produces twice per tank tick.
+      const rateScale =
+        TICK_SECONDS / effectiveTickSeconds(fish.tickIntervalSeconds)
       grossProduction +=
-        incomePerTick(fish.rarity) * hungerMultiplier(hunger) * debrisMult
+        incomePerTick(fish.rarity, fish.yieldPerTick) *
+        rateScale *
+        hungerMultiplier(hunger) *
+        debrisMult
       fishHunger.set(
         fish.id,
         Math.max(HUNGER_RANGE.min, hunger - HUNGER_DECAY_PER_TICK),

@@ -53,6 +53,17 @@ const monsterRaritySelect = {
   wits: true,
 } satisfies Prisma.MonsterSelect
 
+// Per-species economy overrides (cthulhuquarium/t-047) -- null on any of
+// these means "use the tier default"; aquariumEconomy.ts's
+// incomePerTick/unlockCost/effectiveTickSeconds all implement that fallback,
+// so every call site here just passes the raw (possibly-null) column
+// through rather than resolving the default itself.
+const monsterEconomyOverridesSelect = {
+  yieldPerTick: true,
+  tickIntervalSeconds: true,
+  unlockCost: true,
+} satisfies Prisma.MonsterSelect
+
 const stockMonsterSelect = {
   id: true,
   name: true,
@@ -78,6 +89,7 @@ const stockMonsterSelect = {
   behavior: true,
   hue: true,
   ...monsterRaritySelect,
+  ...monsterEconomyOverridesSelect,
 } satisfies Prisma.MonsterSelect
 
 const ownedStockSelect = {
@@ -179,6 +191,8 @@ export async function settleTickForUser(
       id: stock.id,
       rarity: deriveFishRarityTier(stock.Monster),
       hunger: stock.hunger,
+      yieldPerTick: stock.Monster.yieldPerTick,
+      tickIntervalSeconds: stock.Monster.tickIntervalSeconds,
     })),
   })
 
@@ -257,7 +271,7 @@ export async function feedFishForUser(
   }
 
   const rarity = deriveFishRarityTier(stock.Monster)
-  const cost = feedCost(rarity)
+  const cost = feedCost(rarity, stock.Monster.unlockCost)
 
   if (tank.coins < cost) {
     throw apiError(
@@ -551,7 +565,7 @@ export async function purchaseSpeciesForUser(
   }
 
   const rarity = deriveFishRarityTier(monster)
-  const cost = unlockCost(rarity)
+  const cost = unlockCost(rarity, monster.unlockCost)
 
   if (tank.coins < cost) {
     throw apiError(
@@ -767,6 +781,7 @@ const catalogMonsterSelect = {
   behavior: true,
   hue: true,
   ...monsterRaritySelect,
+  ...monsterEconomyOverridesSelect,
 } satisfies Prisma.MonsterSelect
 
 export type CatalogMonster = Prisma.MonsterGetPayload<{
@@ -817,7 +832,7 @@ export async function listCatalogForUser(
 
   const data: CatalogEntry[] = rows.map((monster) => ({
     ...monster,
-    cost: unlockCost(deriveFishRarityTier(monster)),
+    cost: unlockCost(deriveFishRarityTier(monster), monster.unlockCost),
   }))
 
   return { data, take, skip, total }

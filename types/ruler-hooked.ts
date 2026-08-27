@@ -299,6 +299,17 @@ export interface DeckState {
   drawBag: string[]
 }
 
+/** Cosmetic-only choices for the player character (ruler-hooked/t-021). `honorific`
+ *  on the enclosing `ruler` is free text; `presetId` selects a whole pre-authored
+ *  figure (utils/rulerHooked/rulerPresets.ts) rather than composable parts -- see
+ *  that module's header for why. `outfit`/`crownTilt` predate the preset system
+ *  and are kept for back-compat; nothing currently reads them. */
+export interface RulerCosmetics {
+  presetId?: string
+  outfit?: string
+  crownTilt?: boolean
+}
+
 export interface RunSave {
   schemaVersion: number
   saveId: string
@@ -311,7 +322,7 @@ export interface RunSave {
     name: string
     honorific?: string
     characterSlug?: string
-    cosmetics?: Record<string, unknown>
+    cosmetics?: RulerCosmetics
   }
   turnCount: number
   cyclePosition: number

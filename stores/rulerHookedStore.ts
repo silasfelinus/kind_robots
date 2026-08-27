@@ -71,7 +71,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     }
   }
 
-  function newGame(name: string, rulerName: string, honorific = 'Ruler') {
+  function newGame(name: string, rulerName: string, honorific = 'Ruler', presetId?: string) {
     const stamp = nowStamp()
     const saveId = makeSaveId(stamp, rulerName + slots.value.length)
     const run = createRun(bundle, {
@@ -80,12 +80,27 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
       seed: `${rulerName}-${saveId}`,
       rulerName,
       honorific,
+      presetId,
       stamp,
     })
     save.value = run
     clearTransientPlayState()
     writeSave(run, stamp)
     refreshSlots()
+  }
+
+  /** Change the ruler's name/honorific/portrait on an existing reign (t-021: these
+   *  are cosmetic-only, so there is no reason to lock them at creation). */
+  function updateRuler(patch: { name?: string; honorific?: string; presetId?: string }) {
+    if (!save.value) return
+    const next = cloneSave(save.value)
+    if (patch.name !== undefined) next.ruler.name = patch.name
+    if (patch.honorific !== undefined) next.ruler.honorific = patch.honorific
+    if (patch.presetId !== undefined) {
+      next.ruler.cosmetics = { ...(next.ruler.cosmetics ?? {}), presetId: patch.presetId }
+    }
+    save.value = next
+    persist()
   }
 
   function loadSlot(saveId: string) {
@@ -184,7 +199,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
   return {
     bundle, save, activeCard, activeArcId, pendingEnding, activeFishing,
     lastCatch, lastEscape, slots, scene, canFish,
-    init, newGame, loadSlot, startFishing, fishingAction, choose,
+    init, newGame, updateRuler, loadSlot, startFishing, fishingAction, choose,
     acceptEnding, declineEnding, renameSlot, deleteSlot, refreshSlots,
   }
 })

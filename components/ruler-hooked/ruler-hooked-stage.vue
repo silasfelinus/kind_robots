@@ -71,9 +71,13 @@ const props = withDefaults(
     scene: SceneState | null
     regions: RegionsManifest
     showImages?: boolean
+    /** Ruler cosmetic preset id (ruler-hooked/t-021) -- only the `ruler` region
+     *  consumes this; every other region ignores it. */
+    rulerCosmeticId?: string
   }>(),
   {
     showImages: true,
+    rulerCosmeticId: undefined,
   },
 )
 
@@ -126,7 +130,13 @@ const layers = computed<Layer[]>(() => {
     .map((region) => {
       const state = scene.regionStates[region]
       const cands = props.showImages
-        ? assetCandidates(region, state, scene.time)
+        ? assetCandidates(
+            region,
+            state,
+            scene.time,
+            undefined,
+            region === 'ruler' ? props.rulerCosmeticId : undefined,
+          )
         : []
       const idx = errIndex[region] ?? 0
       return {

@@ -5,6 +5,7 @@
 
 import type { ContentBundle, RunSave } from '~/types/ruler-hooked'
 import { AXIS_KEYS } from '~/types/ruler-hooked'
+import { SAVE_SCHEMA_VERSION } from '~/utils/rulerHooked/save'
 
 export interface NewGameOpts {
   saveId: string
@@ -12,6 +13,9 @@ export interface NewGameOpts {
   seed: string
   rulerName: string
   honorific?: string
+  /** Chosen ruler cosmetic preset id (utils/rulerHooked/rulerPresets.ts). Undefined
+   *  leaves cosmetics empty; the compositor/UI fall back to the default preset. */
+  presetId?: string
   stamp: string // ISO timestamp supplied by the caller (no Date.now in the engine)
 }
 
@@ -25,14 +29,18 @@ export function createRun(bundle: ContentBundle, opts: NewGameOpts): RunSave {
   const drawBag = bundle.decks.flatMap((d) => d.cards.map((c) => c.id))
 
   return {
-    schemaVersion: 4,
+    schemaVersion: SAVE_SCHEMA_VERSION,
     saveId: opts.saveId,
     name: opts.name,
     dreamSlug: 'ruler-hooked',
     contentVersion: bundle.contentVersion,
     seed: opts.seed,
     status: 'ACTIVE',
-    ruler: { name: opts.rulerName, honorific: opts.honorific, cosmetics: {} },
+    ruler: {
+      name: opts.rulerName,
+      honorific: opts.honorific,
+      cosmetics: opts.presetId ? { presetId: opts.presetId } : {},
+    },
     turnCount: 0,
     cyclePosition: 0,
     kingdomHealth,

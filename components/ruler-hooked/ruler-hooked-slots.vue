@@ -22,21 +22,7 @@
     </div>
     <p v-else class="mb-3 text-xs opacity-60">No saves yet — start a new reign.</p>
 
-    <div class="flex flex-wrap items-end gap-2">
-      <label class="form-control">
-        <span class="label-text text-xs">Ruler name</span>
-        <input v-model="rulerName" type="text" placeholder="Mo" class="input input-bordered input-sm w-28" />
-      </label>
-      <label class="form-control">
-        <span class="label-text text-xs">Title</span>
-        <select v-model="honorific" class="select select-bordered select-sm">
-          <option>Queen</option><option>King</option><option>Ruler</option>
-        </select>
-      </label>
-      <button type="button" class="btn btn-primary btn-sm" :disabled="!rulerName.trim()" @click="start">
-        New reign
-      </button>
-    </div>
+    <RulerHookedCosmeticsEditor submit-label="New reign" @submit="start" />
   </div>
 </template>
 
@@ -44,12 +30,9 @@
 import { useRulerHookedStore } from '~/stores/rulerHookedStore'
 
 const store = useRulerHookedStore()
-const rulerName = ref('Mo')
-const honorific = ref('Queen')
 
-function start() {
-  if (!rulerName.value.trim()) return
-  store.newGame('', rulerName.value.trim(), honorific.value)
+function start(payload: { name: string; honorific: string; presetId: string }) {
+  store.newGame('', payload.name, payload.honorific, payload.presetId)
 }
 function rename(saveId: string, current: string) {
   const name = typeof window !== 'undefined' ? window.prompt('Rename this reign', current) : null

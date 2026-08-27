@@ -9,7 +9,7 @@ import type { Card, RegionsManifest, RunSave } from '~/types/ruler-hooked'
 
 function baseSave(): RunSave {
   return {
-    schemaVersion: 4, saveId: 'sv_test', name: 'Test', dreamSlug: 'ruler-hooked',
+    schemaVersion: 5, saveId: 'sv_test', name: 'Test', dreamSlug: 'ruler-hooked',
     contentVersion: '2026.07', seed: 'mo-4820', status: 'ACTIVE',
     ruler: { name: 'Mo', honorific: 'Queen' },
     turnCount: 5, cyclePosition: 0,
@@ -93,6 +93,24 @@ function baseSave(): RunSave {
     '/images/ruler-hooked/treeline-wild-day.webp',
     '/images/ruler-hooked/treeline-wild.webp',
   ], 'golden falls back to day settle then base')
+
+  // Ruler cosmetic axis (ruler-hooked/t-021): a chosen preset's layer is tried
+  // first, ahead of the region's normal state/time candidates.
+  const rulerCands = assetCandidates('ruler', 'fishing', 'day', undefined, 'king-osric')
+  assert.deepEqual(rulerCands, [
+    '/images/ruler-hooked/ruler/king-osric.webp',
+    '/images/ruler-hooked/ruler-fishing-day.webp',
+    '/images/ruler-hooked/ruler-fishing.webp',
+  ], 'preset layer tried first, falls back to the base ruler layer')
+  assert.deepEqual(
+    assetCandidates('ruler', 'fishing', 'day'),
+    ['/images/ruler-hooked/ruler-fishing-day.webp', '/images/ruler-hooked/ruler-fishing.webp'],
+    'no cosmeticId -> unchanged base-ruler-layer candidates',
+  )
+  assert.ok(
+    !assetCandidates('treeline', 'wild', 'day', undefined, 'king-osric').some((c) => c.includes('/ruler/')),
+    'cosmeticId is ignored for every region other than ruler',
+  )
 }
 
 // 5. Selection determinism + gating

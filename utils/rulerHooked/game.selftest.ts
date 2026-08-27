@@ -13,7 +13,7 @@ import { resolveChoice } from '~/utils/rulerHooked/applyEffects'
 import { resolveScene } from '~/utils/rulerHooked/compositor'
 import { makeRng } from '~/utils/rulerHooked/seed'
 import {
-  loadIndex, loadSave, writeSave, renameSlot, deleteSlot, makeSaveId,
+  loadIndex, loadSave, writeSave, renameSlot, deleteSlot, makeSaveId, SAVE_SCHEMA_VERSION,
 } from '~/utils/rulerHooked/save'
 import type { RunSave } from '~/types/ruler-hooked'
 
@@ -37,10 +37,20 @@ const fresh = (id = 'sv_a'): RunSave =>
   const s = fresh()
   assert.equal(s.turnCount, 0)
   assert.equal(s.status, 'ACTIVE')
-  assert.equal(s.schemaVersion, 4)
+  assert.equal(s.schemaVersion, SAVE_SCHEMA_VERSION)
   assert.equal(s.kingdomHealth.nature, 50)
   assert.equal(s.contentVersion, C.contentVersion)
   assert.deepEqual(s.fishopedia, {})
+  assert.deepEqual(s.ruler.cosmetics, {}, 'no presetId chosen -> empty cosmetics, not undefined')
+}
+
+// 1b. A chosen ruler preset is threaded through to the save (ruler-hooked/t-021)
+{
+  const s = createRun(C, {
+    saveId: 'sv_preset', name: 'Test Reign', seed: 'mo-4820',
+    rulerName: 'Mo', honorific: 'Queen', presetId: 'queen-mabel', stamp: 'T0',
+  })
+  assert.equal(s.ruler.cosmetics?.presetId, 'queen-mabel')
 }
 
 // 2. Turn loop is deterministic, advances turnCount, and lands a real species
@@ -139,8 +149,23 @@ const fresh = (id = 'sv_a'): RunSave =>
   delete old.fishopedia
   backingStore.set('rulerHooked:save:sv_old', JSON.stringify(old))
   const migrated = loadSave('sv_old')
-  assert.equal(migrated?.schemaVersion, 4, 'legacy slot is promoted to schema 4')
+  assert.equal(migrated?.schemaVersion, 5, 'legacy slot is promoted to the current schema')
   assert.deepEqual(migrated?.fishopedia, {}, 'legacy slot receives an empty Fishopedia')
+}
+
+// 8. A pre-cosmetics schema-4 slot (ruler-hooked/t-021) migrates to a real
+// cosmetics object rather than leaving `ruler.cosmetics` undefined
+{
+  type PreCosmeticsRunSave = Omit<RunSave, 'ruler'> & {
+    ruler: Omit<RunSave['ruler'], 'cosmetics'> & { cosmetics?: RunSave['ruler']['cosmetics'] }
+  }
+  const old = fresh('sv_old_cosmetics') as PreCosmeticsRunSave
+  old.schemaVersion = 4
+  delete old.ruler.cosmetics
+  backingStore.set('rulerHooked:save:sv_old_cosmetics', JSON.stringify(old))
+  const migrated = loadSave('sv_old_cosmetics')
+  assert.equal(migrated?.schemaVersion, 5, 'legacy slot is promoted to the current schema')
+  assert.deepEqual(migrated?.ruler.cosmetics, {}, 'legacy slot receives an empty cosmetics object, not a presetId it never chose')
 }
 
 console.log('ruler-hooked GAME self-test: ALL PASS')

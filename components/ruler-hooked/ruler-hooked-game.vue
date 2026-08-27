@@ -6,22 +6,40 @@
   <ClientOnly>
     <div class="kr-container max-w-3xl flex flex-col gap-4">
       <template v-if="store.save">
-        <RulerHookedStage :scene="store.scene" :regions="store.bundle.regions" />
+        <RulerHookedStage
+          :scene="store.scene"
+          :regions="store.bundle.regions"
+          :ruler-cosmetic-id="store.save.ruler.cosmetics?.presetId ?? DEFAULT_RULER_PRESET_ID"
+        />
 
         <div class="flex items-center justify-between gap-3">
           <div>
             <p class="text-sm font-bold">{{ store.save.ruler.honorific }} {{ store.save.ruler.name }}</p>
             <p class="text-xs opacity-60">Turn {{ store.save.turnCount }} · {{ store.save.status.toLowerCase() }} · {{ store.save.counters.fishCaught ?? 0 }} fish</p>
           </div>
-          <button
-            type="button"
-            class="btn btn-primary"
-            :disabled="!store.canFish"
-            @click="store.startFishing()"
-          >
-            🎣 Cast a line
-          </button>
+          <div class="flex items-center gap-2">
+            <button type="button" class="btn btn-ghost btn-xs" @click="showEditor = !showEditor">
+              {{ showEditor ? 'Close' : 'Edit reign' }}
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              :disabled="!store.canFish"
+              @click="store.startFishing()"
+            >
+              🎣 Cast a line
+            </button>
+          </div>
         </div>
+
+        <!-- Cosmetics are cosmetic-only by design (ruler-hooked/t-021) -- change
+             name/honorific/portrait any time, not just at creation. -->
+        <RulerHookedCosmeticsEditor
+          v-if="showEditor"
+          :save="store.save"
+          submit-label="Save changes"
+          @submit="onUpdateRuler"
+        />
 
         <RulerHookedHealth :health="store.save.kingdomHealth" />
 
@@ -80,12 +98,19 @@
 
 <script setup lang="ts">
 import { useRulerHookedStore } from '~/stores/rulerHookedStore'
+import { DEFAULT_RULER_PRESET_ID } from '~/utils/rulerHooked/rulerPresets'
 
 const store = useRulerHookedStore()
+const showEditor = ref(false)
 
 onMounted(() => {
   store.init()
 })
+
+function onUpdateRuler(payload: { name: string; honorific: string; presetId: string }) {
+  store.updateRuler(payload)
+  showEditor.value = false
+}
 
 function endingTitleFor(key: string | null): string {
   const e = store.bundle.endings.find((x) => x.outcomeKey === key)

@@ -70,6 +70,12 @@ export function resolveScene(
  * contract {region}-{state}[-{time}].webp (compositing.md §4.3). Returns the
  * ordered fallback candidates (exact → settle-neighbour → base) so the caller's
  * <img> onError ladder can degrade gracefully instead of showing a hole.
+ *
+ * `cosmeticId` is the ruler-only cosmetic axis (ruler-hooked/t-021): when the
+ * `ruler` region resolves with a chosen preset id, its layer at
+ * ruler/<cosmeticId>.webp is tried FIRST, ahead of every other candidate --
+ * missing preset art falls through to the same base-ruler-layer candidates
+ * every other region already has, never a hole. Every other region ignores it.
  */
 const SETTLE: Record<TimeKey, TimeKey> = {
   day: 'day',
@@ -83,6 +89,7 @@ export function assetCandidates(
   state: RegionState | undefined,
   time: TimeKey,
   dir = '/images/ruler-hooked',
+  cosmeticId?: string,
 ): string[] {
   const base = state ? `${region}-${state}` : `${region}`
   const settle = SETTLE[time]
@@ -91,6 +98,7 @@ export function assetCandidates(
     `${base}-${settle}`, // treat → nearest settle
     base, // time-agnostic
   ]
+  if (region === 'ruler' && cosmeticId) names.unshift(`ruler/${cosmeticId}`)
   // de-dupe while preserving order
   const seen = new Set<string>()
   return names

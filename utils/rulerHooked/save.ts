@@ -10,7 +10,7 @@ import type { RunSave, SaveIndex, SaveSlotMeta } from '~/types/ruler-hooked'
 
 const INDEX_KEY = 'rulerHooked:index'
 const slotKey = (saveId: string) => `rulerHooked:save:${saveId}`
-export const SAVE_SCHEMA_VERSION = 4
+export const SAVE_SCHEMA_VERSION = 5
 
 // Checked per-call (not captured at module load) so SSR — and headless tests
 // that install a window shim after import — behave correctly.
@@ -53,6 +53,11 @@ function parse<T>(raw: string | null): T | null {
 /** Add fields introduced after the original PoC without invalidating old slots. */
 function migrateSave(save: RunSave): RunSave {
   if (!save.fishopedia) save.fishopedia = {}
+  // v4 -> v5 (ruler-hooked/t-021): ruler.cosmetics gained a `presetId` axis. A
+  // slot from before this existed has no cosmetics object at all (or an empty
+  // one) -- both cases already read correctly as "use the default preset", so
+  // this only needs to guarantee the object exists, never invent a presetId.
+  if (!save.ruler.cosmetics) save.ruler.cosmetics = {}
   save.schemaVersion = SAVE_SCHEMA_VERSION
   return save
 }

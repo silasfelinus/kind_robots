@@ -487,6 +487,7 @@ export const ModelName = {
   Aquarium: 'Aquarium',
   AquariumStock: 'AquariumStock',
   AquariumSet: 'AquariumSet',
+  AquariumDecor: 'AquariumDecor',
   AquariumCodexEntry: 'AquariumCodexEntry',
   Monster: 'Monster',
   AquariumEvent: 'AquariumEvent',
@@ -513,7 +514,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
+    modelProps: "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -6457,6 +6458,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    AquariumDecor: {
+      payload: Prisma.$AquariumDecorPayload<ExtArgs>
+      fields: Prisma.AquariumDecorFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AquariumDecorFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AquariumDecorPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AquariumDecorFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AquariumDecorPayload>
+        }
+        findFirst: {
+          args: Prisma.AquariumDecorFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AquariumDecorPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AquariumDecorFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AquariumDecorPayload>
+        }
+        findMany: {
+          args: Prisma.AquariumDecorFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AquariumDecorPayload>[]
+        }
+        create: {
+          args: Prisma.AquariumDecorCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AquariumDecorPayload>
+        }
+        createMany: {
+          args: Prisma.AquariumDecorCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.AquariumDecorDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AquariumDecorPayload>
+        }
+        update: {
+          args: Prisma.AquariumDecorUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AquariumDecorPayload>
+        }
+        deleteMany: {
+          args: Prisma.AquariumDecorDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AquariumDecorUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.AquariumDecorUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AquariumDecorPayload>
+        }
+        aggregate: {
+          args: Prisma.AquariumDecorAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAquariumDecor>
+        }
+        groupBy: {
+          args: Prisma.AquariumDecorGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AquariumDecorGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AquariumDecorCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AquariumDecorCountAggregateOutputType> | number
+        }
+      }
+    }
     AquariumCodexEntry: {
       payload: Prisma.$AquariumCodexEntryPayload<ExtArgs>
       fields: Prisma.AquariumCodexEntryFieldRefs
@@ -9055,6 +9122,20 @@ export const AquariumSetScalarFieldEnum = {
 export type AquariumSetScalarFieldEnum = (typeof AquariumSetScalarFieldEnum)[keyof typeof AquariumSetScalarFieldEnum]
 
 
+export const AquariumDecorScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  aquariumId: 'aquariumId',
+  kind: 'kind',
+  x: 'x',
+  y: 'y',
+  zIndex: 'zIndex'
+} as const
+
+export type AquariumDecorScalarFieldEnum = (typeof AquariumDecorScalarFieldEnum)[keyof typeof AquariumDecorScalarFieldEnum]
+
+
 export const AquariumCodexEntryScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -10288,6 +10369,13 @@ export const AquariumSetOrderByRelevanceFieldEnum = {
 export type AquariumSetOrderByRelevanceFieldEnum = (typeof AquariumSetOrderByRelevanceFieldEnum)[keyof typeof AquariumSetOrderByRelevanceFieldEnum]
 
 
+export const AquariumDecorOrderByRelevanceFieldEnum = {
+  kind: 'kind'
+} as const
+
+export type AquariumDecorOrderByRelevanceFieldEnum = (typeof AquariumDecorOrderByRelevanceFieldEnum)[keyof typeof AquariumDecorOrderByRelevanceFieldEnum]
+
+
 export const MonsterOrderByRelevanceFieldEnum = {
   slug: 'slug',
   name: 'name',
@@ -11117,6 +11205,7 @@ export type GlobalOmitConfig = {
   aquarium?: Prisma.AquariumOmit
   aquariumStock?: Prisma.AquariumStockOmit
   aquariumSet?: Prisma.AquariumSetOmit
+  aquariumDecor?: Prisma.AquariumDecorOmit
   aquariumCodexEntry?: Prisma.AquariumCodexEntryOmit
   monster?: Prisma.MonsterOmit
   aquariumEvent?: Prisma.AquariumEventOmit

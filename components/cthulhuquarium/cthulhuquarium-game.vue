@@ -125,13 +125,36 @@
         </button>
       </div>
 
+      <!-- Decor placement banner (cthulhuquarium/t-017): shown once a shop
+           item is chosen, so tapping the tank has an obvious, reversible
+           meaning instead of silently spending coins. -->
+      <div
+        v-if="tankStore.pendingDecorKind"
+        class="flex items-center justify-between gap-2 rounded-xl border border-primary/60 bg-primary/10 px-3 py-2 text-xs"
+      >
+        <span class="font-bold">
+          Tap the tank to place
+          {{ decorTitle(tankStore.pendingDecorKind) }}
+        </span>
+        <button
+          type="button"
+          class="btn btn-ghost btn-xs min-h-11 min-w-11"
+          @click="tankStore.cancelDecorPlacement()"
+        >
+          Cancel
+        </button>
+      </div>
+
       <canvas
         ref="canvasRef"
-        class="aspect-[16/9] w-full cursor-pointer rounded-2xl border border-base-300 bg-base-300"
+        class="aspect-[16/9] w-full cursor-pointer rounded-2xl border border-base-300 bg-base-300 touch-none"
         :width="STAGE_WIDTH"
         :height="STAGE_HEIGHT"
-        aria-label="Aquarium tank. Tap drifting coins to collect them."
-        @click="onCanvasClick"
+        aria-label="Aquarium tank. Tap drifting coins to collect them, or drag a placed decoration to move it."
+        @pointerdown="onCanvasPointerDown"
+        @pointermove="onCanvasPointerMove"
+        @pointerup="onCanvasPointerUp"
+        @pointercancel="onCanvasPointerUp"
       />
 
       <p v-if="tankStore.loading" class="text-xs opacity-60">
@@ -415,6 +438,76 @@
         </template>
       </div>
 
+      <!-- Decorate (cthulhuquarium/t-017): "they can decorate it" -- purely
+           cosmetic, unlike set pieces (no slot cap, no economy effect, and
+           buying the same item twice is fine). Choosing an item here sets
+           pendingDecorKind; the next tap on the tank places and pays for it.
+           An already-placed item can be dragged directly on the canvas. -->
+      <div class="flex flex-col gap-2 border-t border-base-300 pt-3">
+        <button
+          type="button"
+          class="flex items-center justify-between gap-2 text-left"
+          @click="onToggleDecor"
+        >
+          <span class="text-xs font-black uppercase tracking-wide opacity-60">
+            Decorate
+            <span v-if="tankStore.placedDecor.length" class="opacity-80">
+              — {{ tankStore.placedDecor.length }} placed
+            </span>
+          </span>
+          <Icon
+            :name="
+              showDecor ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'
+            "
+            class="size-4 shrink-0 opacity-60"
+          />
+        </button>
+
+        <template v-if="showDecor">
+          <p v-if="tankStore.decorCatalogLoading" class="text-xs opacity-60">
+            Sorting through the driftwood…
+          </p>
+          <div
+            v-else
+            class="grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-2"
+          >
+            <div
+              v-for="entry in tankStore.decorCatalog"
+              :key="entry.kind"
+              class="flex flex-col gap-1 rounded-xl border border-base-300 bg-base-100 p-3"
+              :class="{
+                'border-primary/60': tankStore.pendingDecorKind === entry.kind,
+              }"
+            >
+              <div class="flex items-start justify-between gap-2">
+                <p class="text-sm font-bold">
+                  <span class="mr-1">{{ entry.icon }}</span
+                  >{{ entry.title }}
+                </p>
+              </div>
+              <p class="text-xs italic opacity-70">{{ entry.description }}</p>
+              <button
+                type="button"
+                class="btn btn-outline btn-xs min-h-11 mt-1 self-start"
+                :disabled="tankStore.coins < entry.cost"
+                @click="tankStore.chooseDecorToPlace(entry.kind)"
+              >
+                Place ({{ entry.cost }})
+              </button>
+            </div>
+            <p v-if="!tankStore.decorCatalog.length" class="text-xs opacity-60">
+              Nothing to place right now.
+            </p>
+          </div>
+          <p
+            v-if="tankStore.placedDecor.length"
+            class="text-[0.65rem] uppercase tracking-wide opacity-60"
+          >
+            Drag anything placed in the tank to move it.
+          </p>
+        </template>
+      </div>
+
       <!-- Visibility (cthulhuquarium/t-014): "Each user should be viewable"
            -- new tanks default public, and this is the one-click way to
            change that. Read-only for visitors either way: the toggle only
@@ -595,6 +688,7 @@ import {
   type BestiaryStatBlock,
   type CatalogEntry,
   type SetCatalogEntry,
+  type TankDecor,
   type TankStock,
 } from '~/stores/cthulhuquariumTankStore'
 import { touchHitRadius } from '~/utils/aquariumTouch'
@@ -767,6 +861,7 @@ const motes = ref<Mote[]>([])
 const feed = ref<FeedCreature[]>([])
 const showBestiary = ref(false)
 const showSets = ref(false)
+const showDecor = ref(false)
 
 // Read live rather than baked into each Swimmer at spawn time, so
 // equipping/unequipping Swift Current takes effect immediately instead of
@@ -897,6 +992,76 @@ function drawFish(
 let waterGradient: CanvasGradient | null = null
 let waterGradientContext: CanvasRenderingContext2D | null = null
 
+// cthulhuquarium/t-017: decor icons drawn as simple glyphs (same "hand-drawn
+// shapes, not art" precedent t-015 documents for fish before its own art
+// pass). Kept local rather than read from tankStore.decorCatalog so decor
+// renders correctly even before the Decorate panel has ever been opened
+// (the catalog loads lazily, same as sets/bestiary) -- must stay in sync
+// with server/utils/aquariumEconomy.ts's DECOR_CATALOG icons by hand, same
+// convention as everywhere else the client mirrors a server-owned constant.
+const DECOR_ICONS: Record<string, string> = {
+  pebble_bed: '🪨',
+  driftwood: '🪵',
+  coral_spire: '🪸',
+  sunken_chest: '🧰',
+  glow_kelp: '🌿',
+  ceramic_ruin: '🏺',
+}
+
+function decorIcon(kind: string): string {
+  return DECOR_ICONS[kind] ?? '❖'
+}
+
+function decorTitle(kind: string): string {
+  return (
+    tankStore.decorCatalog.find((entry) => entry.kind === kind)?.title ?? kind
+  )
+}
+
+// Radius (canvas-space, at STAGE_WIDTH scale) used to hit-test an existing
+// placed decor icon for dragging -- roughly matches the glyph's own drawn
+// size (28px font) plus a little slack, same touchHitRadius scaling as
+// motes get for their own hit test.
+const DECOR_HIT_RADIUS = 20
+
+// Which decor item is mid-drag, if any, and where the pointer currently is
+// in stage-space pixels -- render() draws this one at the live pointer
+// position instead of its last-saved x/y so the drag reads as the object
+// actually moving, not lagging behind until release.
+const draggingDecorId = ref<number | null>(null)
+const dragPreview = ref<{ x: number; y: number } | null>(null)
+
+function decorStagePos(decor: TankDecor): { x: number; y: number } {
+  return { x: (decor.x / 100) * STAGE_WIDTH, y: (decor.y / 100) * STAGE_HEIGHT }
+}
+
+function stageCoordsFromEvent(
+  event: PointerEvent,
+): { x: number; y: number } | null {
+  const canvas = canvasRef.value
+  if (!canvas) return null
+  const bounds = canvas.getBoundingClientRect()
+  return {
+    x: ((event.clientX - bounds.left) / bounds.width) * STAGE_WIDTH,
+    y: ((event.clientY - bounds.top) / bounds.height) * STAGE_HEIGHT,
+  }
+}
+
+function hitTestDecor(x: number, y: number): TankDecor | null {
+  const bounds = canvasRef.value?.getBoundingClientRect()
+  const hitRadius = bounds
+    ? touchHitRadius(DECOR_HIT_RADIUS, STAGE_WIDTH, bounds.width)
+    : DECOR_HIT_RADIUS
+  // Last-placed-on-top: later entries win a tie so the most recently
+  // placed item at a spot is the one that starts dragging.
+  let found: TankDecor | null = null
+  for (const decor of tankStore.placedDecor) {
+    const pos = decorStagePos(decor)
+    if (Math.hypot(pos.x - x, pos.y - y) <= hitRadius) found = decor
+  }
+  return found
+}
+
 function getWaterGradient(context: CanvasRenderingContext2D): CanvasGradient {
   if (waterGradient && waterGradientContext === context) return waterGradient
   waterGradient = context.createLinearGradient(0, 0, 0, STAGE_HEIGHT)
@@ -925,6 +1090,21 @@ function render(context: CanvasRenderingContext2D) {
   context.lineTo(STAGE_WIDTH * 0.2, STAGE_HEIGHT)
   context.closePath()
   context.fill()
+
+  // Decor (cthulhuquarium/t-017): drawn behind the fish/food layer, in
+  // front of the background -- purely cosmetic, no physics, so this is the
+  // only place per-frame work happens for it.
+  context.font = '28px sans-serif'
+  context.textAlign = 'center'
+  context.textBaseline = 'middle'
+  for (const decor of tankStore.placedDecor) {
+    const dragging = decor.id === draggingDecorId.value
+    const pos =
+      dragging && dragPreview.value ? dragPreview.value : decorStagePos(decor)
+    context.globalAlpha = dragging ? 0.7 : 1
+    context.fillText(decorIcon(decor.kind), pos.x, pos.y)
+  }
+  context.globalAlpha = 1
 
   for (const creature of feed.value) {
     context.strokeStyle = 'rgba(226, 196, 148, 0.92)'
@@ -1035,24 +1215,77 @@ function spawnMotes(coinsEarned: number) {
   }
 }
 
-function onCanvasClick(event: MouseEvent) {
-  const canvas = canvasRef.value
-  if (!canvas) return
-  const bounds = canvas.getBoundingClientRect()
-  const x = ((event.clientX - bounds.left) / bounds.width) * STAGE_WIDTH
-  const y = ((event.clientY - bounds.top) / bounds.height) * STAGE_HEIGHT
+// cthulhuquarium/t-017: the canvas now handles three distinct gestures
+// through pointer events (unifying mouse+touch, unlike the old click-only
+// handler) --
+//   1. a shop item is pending placement: any tap purchases and places it
+//      here, then clears the pending choice (see the placement banner).
+//   2. the tap lands on an already-placed decor icon: start a drag, tracked
+//      through pointermove and committed on pointerup via moveDecor.
+//   3. neither of the above: fall back to the original behavior, dismissing
+//      a tapped coin mote.
+function onCanvasPointerDown(event: PointerEvent) {
+  const coords = stageCoordsFromEvent(event)
+  if (!coords) return
+
+  if (tankStore.pendingDecorKind) {
+    const kind = tankStore.pendingDecorKind
+    const x = Math.min(100, Math.max(0, (coords.x / STAGE_WIDTH) * 100))
+    const y = Math.min(100, Math.max(0, (coords.y / STAGE_HEIGHT) * 100))
+    void tankStore.purchaseDecor(kind, x, y)
+    return
+  }
+
+  const hitDecor = hitTestDecor(coords.x, coords.y)
+  if (hitDecor) {
+    draggingDecorId.value = hitDecor.id
+    dragPreview.value = coords
+    canvasRef.value?.setPointerCapture(event.pointerId)
+    return
+  }
+
   // The canvas is scaled by CSS to fit the host panel, so its display width
   // can be well under STAGE_WIDTH on a phone -- a fixed canvas-space hit
   // radius would then cover only a few real screen pixels. Grow the hit
   // radius (never the drawn dot) so the actual tap target stays thumb-sized
   // regardless of viewport width.
-  const hitRadius = touchHitRadius(MOTE_RADIUS + 8, STAGE_WIDTH, bounds.width)
-  const index = motes.value.findIndex(
-    (mote) => Math.hypot(mote.x - x, mote.y - y) <= hitRadius,
+  const bounds = canvasRef.value?.getBoundingClientRect()
+  const hitRadius = touchHitRadius(
+    MOTE_RADIUS + 8,
+    STAGE_WIDTH,
+    bounds?.width ?? STAGE_WIDTH,
   )
-  // Clicking a mote just dismisses it -- the coins it represents were
+  const index = motes.value.findIndex(
+    (mote) => Math.hypot(mote.x - coords.x, mote.y - coords.y) <= hitRadius,
+  )
+  // Tapping a mote just dismisses it -- the coins it represents were
   // already credited by the tick settlement that spawned it.
   if (index !== -1) motes.value.splice(index, 1)
+}
+
+function onCanvasPointerMove(event: PointerEvent) {
+  if (draggingDecorId.value === null) return
+  const coords = stageCoordsFromEvent(event)
+  if (!coords) return
+  dragPreview.value = {
+    x: Math.min(Math.max(coords.x, 0), STAGE_WIDTH),
+    y: Math.min(Math.max(coords.y, 0), STAGE_HEIGHT),
+  }
+}
+
+async function onCanvasPointerUp(event: PointerEvent) {
+  if (draggingDecorId.value === null) return
+  const id = draggingDecorId.value
+  const preview = dragPreview.value
+  draggingDecorId.value = null
+  dragPreview.value = null
+  if (canvasRef.value?.hasPointerCapture(event.pointerId)) {
+    canvasRef.value.releasePointerCapture(event.pointerId)
+  }
+  if (!preview) return
+  const x = (preview.x / STAGE_WIDTH) * 100
+  const y = (preview.y / STAGE_HEIGHT) * 100
+  await tankStore.moveDecor(id, x, y)
 }
 
 async function onFeed() {
@@ -1087,6 +1320,13 @@ function onToggleSets() {
   showSets.value = !showSets.value
   if (showSets.value && !tankStore.setCatalog.length) {
     void tankStore.loadSets()
+  }
+}
+
+function onToggleDecor() {
+  showDecor.value = !showDecor.value
+  if (showDecor.value && !tankStore.decorCatalog.length) {
+    void tankStore.loadDecor()
   }
 }
 

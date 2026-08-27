@@ -17,13 +17,16 @@ import prisma from './prisma'
 import { getUniqueAquariumSlugForUser } from './aquariumSlug'
 import {
   cleanDebris,
+  clampDecorCoordinate,
   conflictsWithEquippedIdleSet,
+  DECOR_CATALOG,
   deriveFishRarityTier,
   effectiveSizeCap,
   feedCoinRebate,
   feedCost,
   FEED_RESTORES_HUNGER_TO,
   HUNGER_STARTING_VALUE,
+  isKnownDecorKind,
   isKnownSetPieceKind,
   justCompletedBestiary as computeJustCompletedBestiary,
   MAX_CLEAN_CLICKS_PER_REQUEST,
@@ -120,6 +123,17 @@ const ownedSetSelect = {
   equippedAt: true,
 } satisfies Prisma.AquariumSetSelect
 
+// cthulhuquarium/t-017: this tank's placed decor. Ordered oldest-first, same
+// "how it was built up over time" reasoning as ownedSetSelect.
+const ownedDecorSelect = {
+  id: true,
+  kind: true,
+  x: true,
+  y: true,
+  zIndex: true,
+  createdAt: true,
+} satisfies Prisma.AquariumDecorSelect
+
 const ownedAquariumSelect = {
   id: true,
   slug: true,
@@ -136,6 +150,7 @@ const ownedAquariumSelect = {
   updatedAt: true,
   Stock: { select: ownedStockSelect },
   Sets: { select: ownedSetSelect, orderBy: { equippedAt: 'asc' } },
+  Decor: { select: ownedDecorSelect, orderBy: { createdAt: 'asc' } },
 } satisfies Prisma.AquariumSelect
 
 export type OwnedAquarium = Prisma.AquariumGetPayload<{
@@ -915,6 +930,18 @@ const publicStockSelect = {
   },
 } satisfies Prisma.AquariumStockSelect
 
+// cthulhuquarium/t-017: decor is visible to visitors browsing a public tank,
+// same as the fish it swims among -- no owner-only fields to strip, unlike
+// Stock/Sets which carry nothing sensitive either but keep their own
+// narrower select for consistency with the rest of this file.
+const publicDecorSelect = {
+  id: true,
+  kind: true,
+  x: true,
+  y: true,
+  zIndex: true,
+} satisfies Prisma.AquariumDecorSelect
+
 const publicAquariumDetailSelect = {
   slug: true,
   title: true,
@@ -926,6 +953,7 @@ const publicAquariumDetailSelect = {
   updatedAt: true,
   User: { select: publicOwnerSelect },
   Stock: { select: publicStockSelect },
+  Decor: { select: publicDecorSelect, orderBy: { createdAt: 'asc' } },
 } satisfies Prisma.AquariumSelect
 
 const publicAquariumSummarySelect = {
@@ -1204,6 +1232,171 @@ export async function unequipSetForUser(
     })
 
     await logEvent(tx, tank.id, 'unequip-set', { kind: existing.kind })
+
+    return updated
+  })
+
+  return { aquarium: toClientAquarium(aquarium) }
+}
+
+// ---------------------------------------------------------------------------
+// Decor (cthulhuquarium/t-017) -- "they can decorate it". Purely cosmetic:
+// no economy effect, no slot cap (unlike set pieces, multiple copies of the
+// same kind are allowed -- each purchase is its own row). Placement is
+// free (no cost, no ownership beyond "you own this tank") since it never
+// touches coins.
+// ---------------------------------------------------------------------------
+
+export interface DecorCatalogEntry {
+  kind: string
+  title: string
+  description: string
+  icon: string
+  cost: number
+}
+
+export interface DecorCatalogResult {
+  catalog: DecorCatalogEntry[]
+  placed: OwnedAquarium['Decor']
+}
+
+export async function listDecorForUser(
+  userId: number,
+  username: string,
+): Promise<DecorCatalogResult> {
+  const tank = await getOrCreateTankForUser(userId, username)
+  return { catalog: Object.values(DECOR_CATALOG), placed: tank.Decor }
+}
+
+export interface PurchaseDecorResult {
+  aquarium: ClientAquarium
+  decor: OwnedAquarium['Decor'][number]
+}
+
+export async function purchaseDecorForUser(
+  userId: number,
+  username: string,
+  kind: string,
+  x?: number,
+  y?: number,
+): Promise<PurchaseDecorResult> {
+  if (!isKnownDecorKind(kind)) {
+    throw apiError(400, `'${kind}' is not a known decor item.`)
+  }
+
+  const tank = await getOrCreateTankForUser(userId, username)
+  const config = DECOR_CATALOG[kind]
+
+  if (tank.coins < config.cost) {
+    throw apiError(
+      402,
+      `Placing ${config.title} costs ${config.cost} coins; your tank only has ${tank.coins}.`,
+    )
+  }
+
+  const placeX = clampDecorCoordinate(x ?? 50)
+  const placeY = clampDecorCoordinate(y ?? 50)
+
+  const { aquarium, createdDecor } = await prisma.$transaction(async (tx) => {
+    const createdDecor = await tx.aquariumDecor.create({
+      data: { aquariumId: tank.id, kind, x: placeX, y: placeY },
+      select: ownedDecorSelect,
+    })
+
+    const updated = await tx.aquarium.update({
+      where: { id: tank.id },
+      data: { coins: { decrement: config.cost } },
+      select: ownedAquariumSelect,
+    })
+
+    await logEvent(tx, tank.id, 'purchase-decor', {
+      kind,
+      cost: config.cost,
+      x: placeX,
+      y: placeY,
+    })
+
+    return { aquarium: updated, createdDecor }
+  })
+
+  return { aquarium: toClientAquarium(aquarium), decor: createdDecor }
+}
+
+export interface MoveDecorResult {
+  aquarium: ClientAquarium
+}
+
+export async function moveDecorForUser(
+  userId: number,
+  username: string,
+  aquariumDecorId: number,
+  x: number,
+  y: number,
+): Promise<MoveDecorResult> {
+  const tank = await getOrCreateTankForUser(userId, username)
+  const existing = tank.Decor.find((decor) => decor.id === aquariumDecorId)
+  if (!existing) {
+    throw apiError(
+      404,
+      `Decor item ${aquariumDecorId} is not placed in your tank.`,
+    )
+  }
+
+  const placeX = clampDecorCoordinate(x)
+  const placeY = clampDecorCoordinate(y)
+
+  const aquarium = await prisma.$transaction(async (tx) => {
+    await tx.aquariumDecor.update({
+      where: { id: aquariumDecorId },
+      data: { x: placeX, y: placeY },
+    })
+
+    const updated = await tx.aquarium.findUniqueOrThrow({
+      where: { id: tank.id },
+      select: ownedAquariumSelect,
+    })
+
+    await logEvent(tx, tank.id, 'move-decor', {
+      aquariumDecorId,
+      x: placeX,
+      y: placeY,
+    })
+
+    return updated
+  })
+
+  return { aquarium: toClientAquarium(aquarium) }
+}
+
+export interface RemoveDecorResult {
+  aquarium: ClientAquarium
+}
+
+export async function removeDecorForUser(
+  userId: number,
+  username: string,
+  aquariumDecorId: number,
+): Promise<RemoveDecorResult> {
+  const tank = await getOrCreateTankForUser(userId, username)
+  const existing = tank.Decor.find((decor) => decor.id === aquariumDecorId)
+  if (!existing) {
+    throw apiError(
+      404,
+      `Decor item ${aquariumDecorId} is not placed in your tank.`,
+    )
+  }
+
+  // No coin refund on removal -- same "not a refundable purchase" shape as
+  // unequipping a set piece (see unequipSetForUser above).
+  const aquarium = await prisma.$transaction(async (tx) => {
+    await tx.aquariumDecor.delete({ where: { id: aquariumDecorId } })
+
+    const updated = await tx.aquarium.findUniqueOrThrow({
+      where: { id: tank.id },
+      select: ownedAquariumSelect,
+    })
+
+    await logEvent(tx, tank.id, 'remove-decor', { kind: existing.kind })
 
     return updated
   })

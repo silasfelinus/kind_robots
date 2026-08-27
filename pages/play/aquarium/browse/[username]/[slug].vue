@@ -82,6 +82,27 @@
           </p>
         </header>
 
+        <!-- Decor (cthulhuquarium/t-017): "visible to visitors browsing that
+             tank". This page has no canvas -- introducing one just for decor
+             would be disproportionate to a static read-only listing, so the
+             minimum-diff match is a simple absolutely-positioned overlay
+             using the exact same x/y percentage contract the owner's own
+             canvas places against. -->
+        <section
+          v-if="tank.Decor.length"
+          class="relative aspect-[16/9] w-full overflow-hidden rounded-3xl border border-base-300 bg-[#04100f]"
+          aria-hidden="true"
+        >
+          <span
+            v-for="decor in tank.Decor"
+            :key="decor.id"
+            class="absolute -translate-x-1/2 -translate-y-1/2 text-3xl"
+            :style="{ left: `${decor.x}%`, top: `${decor.y}%` }"
+          >
+            {{ decorIcon(decor.kind) }}
+          </span>
+        </section>
+
         <section
           v-if="tank.Stock.length"
           class="grid grid-cols-[repeat(auto-fit,minmax(11rem,1fr))] gap-3"
@@ -154,6 +175,18 @@ interface PublicTankOwner {
   avatarImage: string | null
 }
 
+// cthulhuquarium/t-017: one placed decor object. x/y are percentages (0-100)
+// of the tank, same contract the owner's own canvas places against -- kept
+// local rather than imported from the store since this page is
+// unauthenticated and doesn't use the tank store at all.
+interface PublicTankDecor {
+  id: number
+  kind: string
+  x: number
+  y: number
+  zIndex: number
+}
+
 interface PublicTankDetail {
   slug: string
   title: string
@@ -165,6 +198,23 @@ interface PublicTankDetail {
   updatedAt: string
   User: PublicTankOwner
   Stock: PublicTankStock[]
+  Decor: PublicTankDecor[]
+}
+
+// Mirrors cthulhuquarium-game.vue's own DECOR_ICONS -- must stay in sync
+// with server/utils/aquariumEconomy.ts's DECOR_CATALOG icons by hand, same
+// convention as everywhere else the client mirrors a server-owned constant.
+const DECOR_ICONS: Record<string, string> = {
+  pebble_bed: '🪨',
+  driftwood: '🪵',
+  coral_spire: '🪸',
+  sunken_chest: '🧰',
+  glow_kelp: '🌿',
+  ceramic_ruin: '🏺',
+}
+
+function decorIcon(kind: string): string {
+  return DECOR_ICONS[kind] ?? '❖'
 }
 
 const route = useRoute()

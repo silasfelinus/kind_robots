@@ -39,10 +39,8 @@ jobs:
           python-version: "3.12"
 
       - name: Delete merged branches and report stranded work
-        env:
-          FORCE_DELETE_BRANCHES: ${{ github.event_name == 'pull_request' && 'worker/mandarin-interactions-admin-sk90,worker/mandarin-requested-words-final-sk7y,worker/mandarin-requested-words-sk7y' || github.event.inputs.force_delete_branches }}
         run: |
           python scripts/branch_janitor.py \
             ${{ (github.event.inputs.dry_run == 'true') && '--dry-run' || '' }} \
-            --force-delete "$FORCE_DELETE_BRANCHES" \
+            --force-delete "${{ github.event.inputs.force_delete_branches }}" \
             | tee -a "$GITHUB_STEP_SUMMARY"

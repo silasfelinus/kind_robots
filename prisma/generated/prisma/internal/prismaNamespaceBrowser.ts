@@ -141,6 +141,7 @@ export const ModelName = {
   Aquarium: 'Aquarium',
   AquariumStock: 'AquariumStock',
   AquariumSet: 'AquariumSet',
+  AquariumDecor: 'AquariumDecor',
   AquariumCodexEntry: 'AquariumCodexEntry',
   Monster: 'Monster',
   AquariumEvent: 'AquariumEvent',
@@ -683,6 +684,7 @@ export const CharacterScalarFieldEnum = {
   wits: 'wits',
   gender: 'gender',
   slug: 'slug',
+  size: 'size',
   theme: 'theme'
 } as const
 
@@ -2002,6 +2004,20 @@ export const AquariumSetScalarFieldEnum = {
 export type AquariumSetScalarFieldEnum = (typeof AquariumSetScalarFieldEnum)[keyof typeof AquariumSetScalarFieldEnum]
 
 
+export const AquariumDecorScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  aquariumId: 'aquariumId',
+  kind: 'kind',
+  x: 'x',
+  y: 'y',
+  zIndex: 'zIndex'
+} as const
+
+export type AquariumDecorScalarFieldEnum = (typeof AquariumDecorScalarFieldEnum)[keyof typeof AquariumDecorScalarFieldEnum]
+
+
 export const AquariumCodexEntryScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -3233,6 +3249,13 @@ export const AquariumSetOrderByRelevanceFieldEnum = {
 } as const
 
 export type AquariumSetOrderByRelevanceFieldEnum = (typeof AquariumSetOrderByRelevanceFieldEnum)[keyof typeof AquariumSetOrderByRelevanceFieldEnum]
+
+
+export const AquariumDecorOrderByRelevanceFieldEnum = {
+  kind: 'kind'
+} as const
+
+export type AquariumDecorOrderByRelevanceFieldEnum = (typeof AquariumDecorOrderByRelevanceFieldEnum)[keyof typeof AquariumDecorOrderByRelevanceFieldEnum]
 
 
 export const MonsterOrderByRelevanceFieldEnum = {

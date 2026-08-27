@@ -23,6 +23,10 @@ export type Rarity =
   | 'LEGENDARY'
   | 'MYTHIC'
 
+export type FishAffinity = 'GOOD' | 'NEUTRAL' | 'EVIL'
+export type FishQuality = 'ORDINARY' | 'FINE' | 'EXCEPTIONAL' | 'TROPHY'
+export type FishSource = 'cthulhuquarium' | 'ruler-hooked'
+
 // --- regions / compositing (compositing.md) ---------------------------------
 
 /** Canonical region keys, back-to-front z-order (compositing.md §1). */
@@ -185,6 +189,56 @@ export interface Ending {
   trigger?: Trigger
 }
 
+// --- fish ecology / Fishopedia ----------------------------------------------
+
+export interface FishUnlock {
+  /** Every clause must hold. */
+  all?: TriggerClause[]
+  /** If supplied, at least one clause must hold. */
+  any?: TriggerClause[]
+}
+
+export interface FishDefinition {
+  slug: string
+  name: string
+  source: FishSource
+  affinity: FishAffinity
+  rarity: Rarity
+  habitats: RegionKey[]
+  sizeRangeCm: [number, number]
+  silhouette: string
+  distinction: string
+  catchBehavior: string
+  fishopediaNote: string
+  consequenceReveal: string
+  unlock?: FishUnlock
+  /** Optional authored draw weight override; otherwise rarity supplies it. */
+  baseWeight?: number
+}
+
+export interface FishopediaEntry {
+  fishSlug: string
+  firstCaughtTurn: number
+  countCaught: number
+  bestSizeCm: number
+  bestQualityScore: number
+}
+
+export interface CatchResult {
+  fishSlug: string
+  name: string
+  affinity: FishAffinity
+  rarity: Rarity
+  sizeCm: number
+  qualityScore: number
+  quality: FishQuality
+  newDiscovery: boolean
+  countCaught: number
+  fishopediaNote: string
+  consequenceReveal: string
+  catchBehavior: string
+}
+
 // --- content bundle (data-model.md §6) --------------------------------------
 
 export interface CharacterRef {
@@ -245,6 +299,26 @@ export interface DeckState {
   drawBag: string[]
 }
 
+/**
+ * Cosmetic-only ruler customization (ruler-hooked/t-021). `presetId` selects
+ * one of RULER_PRESETS (utils/rulerHooked/rulerPresets.ts); `customPortraitId`
+ * — when set — takes priority over `presetId` and points at a locally-stored
+ * player-supplied image (utils/rulerHooked/portraitStore.ts, IndexedDB, never
+ * uploaded). `body`/`skin`/`species`/`outfit`/`crownTilt` are reserved for a
+ * future composable-overlay upgrade path (t-021's note: presets today, an
+ * additive overlay system later if the combinatorial range turns out to
+ * matter more than preset coherence) — nothing currently reads them.
+ */
+export interface RulerCosmetics {
+  presetId?: string
+  customPortraitId?: string
+  body?: string
+  skin?: string
+  species?: string
+  outfit?: string
+  crownTilt?: boolean
+}
+
 export interface RunSave {
   schemaVersion: number
   saveId: string
@@ -257,7 +331,7 @@ export interface RunSave {
     name: string
     honorific?: string
     characterSlug?: string
-    cosmetics?: Record<string, unknown>
+    cosmetics?: RulerCosmetics
   }
   turnCount: number
   cyclePosition: number
@@ -269,6 +343,7 @@ export interface RunSave {
   inventory: { skills: InventoryReward[]; items: InventoryReward[] }
   choiceLog: ChoiceLogEntry[]
   flags: Record<string, boolean>
+  fishopedia: Record<string, FishopediaEntry>
   endingKey: string | null
   createdAt: string // display metadata only — never read by game logic
   updatedAt: string

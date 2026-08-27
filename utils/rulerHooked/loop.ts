@@ -1,21 +1,32 @@
 // utils/rulerHooked/loop.ts
 //
 // The pure turn loop (data-model.md §5). Keeps ALL game logic framework-free so
-// the Pinia store is a thin wrapper and the loop is testable headlessly. One turn:
-// fish beat → maybe an arc step, else maybe an interrupt/ambient draw → present a
-// card (or none). Applying the chosen effect is resolveChoice() (applyEffects.ts).
+// the Pinia store is a thin wrapper and the loop is testable headlessly.
+//
+// Interactive fishing now resolves before the kingdom interruption. The legacy
+// takeTurn() wrapper remains for headless tests and callers that want an automatic
+// successful catch, while advanceAfterFishingAttempt() advances governance after
+// either a landed or escaped interactive encounter.
 //
 // No wall-clock anywhere: turnCount is the only progression counter and time-of-day
 // is derived from it.
 
-import type { Card, ContentBundle, RunSave } from '~/types/ruler-hooked'
-import type { RngStream } from './seed'
+import type { Card, CatchResult, ContentBundle, RunSave } from '~/types/ruler-hooked'
+import { makeRng, type RngStream } from './seed'
 import { cloneSave } from './applyEffects'
 import { cyclePosition } from './compositor'
+import { resolveFishingCatch } from './fish'
 import { selectCard, tickCooldowns } from './select'
 import { triggerHolds } from './triggers'
 
 export interface TurnResult {
+  save: RunSave
+  catch: CatchResult
+  card: Card | null
+  arcId?: string
+}
+
+export interface KingdomTurnResult {
   save: RunSave
   card: Card | null
   arcId?: string
@@ -35,28 +46,17 @@ export function allDeckCards(bundle: ContentBundle): Card[] {
   return bundle.decks.flatMap((d) => d.cards)
 }
 
-/**
- * Advance one turn. Priority: (1) a pending active-arc step, (2) starting a newly
- * eligible arc, (3) a seeded interrupt/ambient draw, else pure fishing. Returns a
- * new save (input untouched) plus the card to present, if any.
- */
-export function takeTurn(
+/** Resolve governance after the fishing attempt has already consumed the turn. */
+function resolveNarrative(
   bundle: ContentBundle,
-  save: RunSave,
+  next: RunSave,
   rng: RngStream,
   interruptChance = 0.6,
-): TurnResult {
-  const next = cloneSave(save)
-
-  // 1. Fish beat — the cosmetic, always-valid heartbeat.
-  next.turnCount += 1
-  next.cyclePosition = cyclePosition(next.turnCount)
-  next.counters.fishCaught = (next.counters.fishCaught ?? 0) + (rng.next() < 0.5 ? 1 : 0)
+): KingdomTurnResult {
   tickCooldowns(next)
-
   const seen = new Set(next.deckState.seenCardIds)
 
-  // 2. A pending active-arc step (arcs resolve before free draws).
+  // 1. A pending active-arc step (arcs resolve before free draws).
   for (const arcId of Object.keys(next.deckState.activeArcs)) {
     const step = next.deckState.activeArcs[arcId]?.step
     if (step && !seen.has(step)) {
@@ -65,10 +65,9 @@ export function takeTurn(
     }
   }
 
-  // 3. Start a newly eligible arc (seeded chance), presenting its first step.
+  // 2. Start a newly eligible arc (seeded chance), presenting its first step.
   for (const arc of bundle.arcs) {
-    if (next.deckState.activeArcs[arc.id]) continue // already active
-    // completed arcs leave no active entry but their steps are in seenCardIds
+    if (next.deckState.activeArcs[arc.id]) continue
     if (arc.steps.some((s) => seen.has(s.id))) continue
     const trig = arc.start?.trigger
     if (!triggerHolds(next, trig)) continue
@@ -80,12 +79,53 @@ export function takeTurn(
     return { save: next, card: first, arcId: arc.id }
   }
 
-  // 4. A free interrupt/ambient draw (seeded, may be null → pure fishing).
+  // 3. A free interrupt/ambient draw (seeded, may be null → quiet fishing).
   const card = selectCard(next, allDeckCards(bundle), rng, interruptChance)
   if (card && card.trigger?.cooldown) {
     next.deckState.cooldowns[card.id] = card.trigger.cooldown
   }
   return { save: next, card }
+}
+
+/**
+ * Consume one reign turn after an interactive fishing attempt, successful or not,
+ * then resolve the normal kingdom interruption. No fish is recorded here.
+ */
+export function advanceAfterFishingAttempt(
+  bundle: ContentBundle,
+  save: RunSave,
+  rng: RngStream,
+  interruptChance = 0.6,
+): KingdomTurnResult {
+  const next = cloneSave(save)
+  next.turnCount += 1
+  next.cyclePosition = cyclePosition(next.turnCount)
+  return resolveNarrative(bundle, next, rng, interruptChance)
+}
+
+/**
+ * Compatibility wrapper for an automatic successful catch. Fishing uses a
+ * turn-scoped child RNG derived from the run seed. Narrative draws keep the
+ * caller-supplied RNG stream, so specimen math cannot perturb kingdom cards.
+ */
+export function takeTurn(
+  bundle: ContentBundle,
+  save: RunSave,
+  rng: RngStream,
+  interruptChance = 0.6,
+): TurnResult {
+  const next = cloneSave(save)
+  const fishRng = makeRng(`${next.seed}:${next.turnCount}:fish`)
+
+  next.turnCount += 1
+  next.cyclePosition = cyclePosition(next.turnCount)
+  const caught = resolveFishingCatch(next, fishRng)
+  const narrative = resolveNarrative(bundle, next, rng, interruptChance)
+
+  return {
+    ...narrative,
+    catch: caught,
+  }
 }
 
 /**

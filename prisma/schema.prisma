@@ -224,6 +224,13 @@ model Character {
   wits                 Rarity                 @default(COMMON)
   gender               String?                @db.VarChar(256)
   slug                 String?                @unique @db.VarChar(255)
+  /// cthulhuquarium/t-032: tank-capacity weight for this species when placed as
+  /// AquariumStock. Consumed against Aquarium.sizeCap (weighed pool, distinct
+  /// from the counted setSlotsCap -- see SYSTEMS.md "Capacity: two pools, two
+  /// units"). Required going forward; existing rows default to the smallest
+  /// unit so nothing is retroactively over its cap. [v1 placeholder -- actual
+  /// per-species values are a data/authoring pass, not this migration's job.]
+  size                 Int                    @default(1)
   ChallengeSubmissions ChallengeSubmission[]
   ArtImage             ArtImage?              @relation(fields: [artImageId], references: [id])
   User                 User?                  @relation(fields: [userId], references: [id])
@@ -2348,6 +2355,7 @@ model Aquarium {
   Stock         AquariumStock[]
   Events        AquariumEvent[]
   Sets          AquariumSet[]
+  Decor         AquariumDecor[]
 
   @@unique([userId, slug])
   @@index([userId])
@@ -2417,6 +2425,33 @@ model AquariumSet {
   kind       String   @db.VarChar(64)
   equippedAt DateTime @default(now())
   Aquarium   Aquarium @relation(fields: [aquariumId], references: [id], onDelete: Cascade)
+
+  @@index([aquariumId])
+  @@index([kind])
+}
+
+/// cthulhuquarium/t-017: one purchased-and-placed decor object in one
+/// Aquarium. Purely cosmetic (no economy effect, no slot cap) -- decor never
+/// competes with setSlotsCap/sizeCap's two-pool balance. `kind` keys into
+/// server/utils/aquariumEconomy.ts's DECOR_CATALOG, same free-form-string
+/// convention as AquariumSet.kind and AquariumEvent.kind: a new decor item
+/// is a data commit, not a migration. x/y are percentages (0-100) of the
+/// canvas stage, not pixels, so placement survives a stage-size change
+/// untouched. One row per placed instance -- buying two of the same kind is
+/// two rows, not a quantity field, matching AquariumSet's per-instance shape
+/// rather than AquariumStock's collection-of-individuals shape.
+model AquariumDecor {
+  id         Int       @id @default(autoincrement())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime? @default(now()) @updatedAt
+  aquariumId Int
+  kind       String    @db.VarChar(64)
+  x          Float     @default(50)
+  y          Float     @default(50)
+  /// Draw order within the decor layer only -- fish always render above all
+  /// decor regardless of this value.
+  zIndex     Int       @default(0)
+  Aquarium   Aquarium  @relation(fields: [aquariumId], references: [id], onDelete: Cascade)
 
   @@index([aquariumId])
   @@index([kind])

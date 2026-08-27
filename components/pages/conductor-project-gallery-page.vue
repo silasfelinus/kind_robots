@@ -2,6 +2,21 @@
   <section
     class="kr-surface rounded-2xl border border-base-300 bg-(--kr-surface) p-3"
   >
+    <header class="flex shrink-0 items-start gap-3">
+      <div
+        class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-primary"
+      >
+        <Icon name="kind-icon:gallery" class="size-6" />
+      </div>
+      <div class="min-w-0 flex-1">
+        <h2 class="text-2xl font-black tracking-tight">Projects</h2>
+        <p class="text-sm text-base-content/60">
+          Browse every Conductor project, filter by status, or start a new
+          one.
+        </p>
+      </div>
+    </header>
+
     <section
       v-if="createOpen"
       class="shrink-0 rounded-xl border border-base-300 bg-base-100"

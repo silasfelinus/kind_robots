@@ -22,34 +22,67 @@
     </div>
     <p v-else class="mb-3 text-xs opacity-60">No saves yet — start a new reign.</p>
 
-    <div class="flex flex-wrap items-end gap-2">
-      <label class="form-control">
-        <span class="label-text text-xs">Ruler name</span>
-        <input v-model="rulerName" type="text" placeholder="Mo" class="input input-bordered input-sm w-28" />
-      </label>
-      <label class="form-control">
-        <span class="label-text text-xs">Title</span>
-        <select v-model="honorific" class="select select-bordered select-sm">
-          <option>Queen</option><option>King</option><option>Ruler</option>
-        </select>
-      </label>
-      <button type="button" class="btn btn-primary btn-sm" :disabled="!rulerName.trim()" @click="start">
-        New reign
-      </button>
+    <div class="flex flex-col gap-2">
+      <div class="flex flex-wrap items-end gap-2">
+        <label class="form-control">
+          <span class="label-text text-xs">Ruler name</span>
+          <input v-model="rulerName" type="text" placeholder="Mo" class="input input-bordered input-sm w-28" />
+        </label>
+        <label class="form-control">
+          <span class="label-text text-xs">Title</span>
+          <input
+            v-model="honorific"
+            type="text"
+            list="ruler-honorific-suggestions"
+            placeholder="Queen"
+            class="input input-bordered input-sm w-32"
+          />
+          <datalist id="ruler-honorific-suggestions">
+            <option v-for="h in honorificSuggestions" :key="h" :value="h" />
+          </datalist>
+        </label>
+        <button type="button" class="btn btn-primary btn-sm" :disabled="!rulerName.trim()" @click="start">
+          New reign
+        </button>
+      </div>
+
+      <details class="rounded-lg border border-base-300 p-2">
+        <summary class="cursor-pointer text-xs font-medium opacity-70">
+          Choose your ruler's look
+        </summary>
+        <div class="mt-2">
+          <RulerHookedCosmeticsPicker
+            v-model="presetId"
+            @custom-file="(f: File | null) => (customPortraitFile = f)"
+          />
+        </div>
+      </details>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useRulerHookedStore } from '~/stores/rulerHookedStore'
+import {
+  HERO_RULER_PRESET_ID,
+  RULER_PRESETS,
+} from '~/utils/rulerHooked/rulerPresets'
 
 const store = useRulerHookedStore()
 const rulerName = ref('Mo')
 const honorific = ref('Queen')
+const presetId = ref(HERO_RULER_PRESET_ID)
+const customPortraitFile = ref<File | null>(null)
 
-function start() {
+// Preset honorifics as suggestions, not a constraint (t-021: free text).
+const honorificSuggestions = [...new Set(RULER_PRESETS.map((p) => p.title))]
+
+async function start() {
   if (!rulerName.value.trim()) return
-  store.newGame('', rulerName.value.trim(), honorific.value)
+  await store.newGame('', rulerName.value.trim(), honorific.value, {
+    presetId: presetId.value,
+    customPortraitFile: customPortraitFile.value ?? undefined,
+  })
 }
 function rename(saveId: string, current: string) {
   const name = typeof window !== 'undefined' ? window.prompt('Rename this reign', current) : null

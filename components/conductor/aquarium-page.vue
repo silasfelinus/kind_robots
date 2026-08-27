@@ -21,12 +21,12 @@ const config: ProjectFrontConfig = {
   tagline:
     'It sits in the back of the curiosity shop, and now it is yours to feed.',
   description:
-    'A darkly funny idle aquarium. Click the drifting motes for coins, spend them on food, and keep the occupants fed well enough to keep paying you. Every species has a field note, a rarity, and a reason it is not in any book — and the tank goes deeper than the three you can see.',
+    'A darkly funny idle aquarium. Feed the occupants to keep them paying you, and unlock new species with what they earn. Every species has a field note, a rarity, and a reason it is not in any book — and the tank goes deeper than the ones you start with.',
   sections: [
     {
       key: 'loop',
       title: 'Feed the tank',
-      body: 'Click for coins, buy food, keep the occupants fed. Fed things pay out; hungry things stop.',
+      body: 'Feed keeps a species paying out; hungry things pause, they never lose what they already earned.',
       icon: 'kind-icon:coin',
     },
     {
@@ -37,12 +37,13 @@ const config: ProjectFrontConfig = {
     },
   ],
   deliverables: {
-    done: ['Play-loop prototype', 'Bestiary schema shared with Ruler Hooked'],
-    next: [
-      'Server-backed tanks and offline income',
-      'Twenty species with generated art',
+    done: [
+      'Server-backed tanks with real offline income',
+      'The real play loop — server-driven feeding and species unlocks',
+      'Bestiary schema shared with Ruler Hooked',
       'Browsable public aquariums',
     ],
+    next: ['Twenty species with generated art'],
   },
 }
 </script>

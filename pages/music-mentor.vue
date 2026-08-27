@@ -1,20 +1,27 @@
 <template>
   <div class="kr-surface">
     <div class="kr-scroll p-6 space-y-6 max-w-3xl mx-auto">
-      <header class="space-y-1">
-        <p class="text-2xl font-bold">🎤 Music Mentor</p>
-        <p class="text-sm opacity-70">
-          Upload a recording of your sung medley and get honest, specific
-          feedback on the singing and the arrangement. Everything is analyzed
-          <strong>in your browser</strong> — the audio never leaves your device,
-          and nothing is stored.
-        </p>
-        <p class="text-xs opacity-60">
-          Honest heads-up: this measures the objective stuff (pitch, timing,
-          dynamics, structure) and reasons over your setlist. It can't judge
-          tone, emotion, or "is this a good voice" — that still needs a human
-          ear.
-        </p>
+      <header class="flex items-start gap-3">
+        <div
+          class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-primary"
+        >
+          <Icon name="kind-icon:microphone" class="size-6" />
+        </div>
+        <div class="min-w-0 flex-1 space-y-1">
+          <p class="text-2xl font-black tracking-tight">Music Mentor</p>
+          <p class="text-sm text-base-content/60">
+            Upload a recording of your sung medley and get honest, specific
+            feedback on the singing and the arrangement. Everything is analyzed
+            <strong>in your browser</strong> — the audio never leaves your
+            device, and nothing is stored.
+          </p>
+          <p class="text-xs text-base-content/50">
+            Honest heads-up: this measures the objective stuff (pitch, timing,
+            dynamics, structure) and reasons over your setlist. It can't judge
+            tone, emotion, or "is this a good voice" — that still needs a human
+            ear.
+          </p>
+        </div>
       </header>
 
       <div v-if="!isLoggedIn" class="alert alert-warning text-sm" role="alert">

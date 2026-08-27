@@ -20,6 +20,10 @@
 // Characters where they fit."
 
 import type { ContentBundle } from '~/types/ruler-hooked'
+import {
+  RULER_PRESET_IDS,
+  RULER_LAYER_FALLBACK_STATE,
+} from '~/utils/rulerHooked/rulerPresets'
 
 export const RULER_HOOKED_CONTENT: ContentBundle = {
   contentVersion: '2026.08-content-depth',
@@ -65,7 +69,16 @@ export const RULER_HOOKED_CONTENT: ContentBundle = {
       },
       lake: { z: 5, states: ['clear'], times: ['day', 'night'] },
       near_bank: { z: 6, states: ['grassy'] },
-      ruler: { z: 7, states: ['fishing'] },
+      // States = the cosmetic preset ids (t-021) plus the one already-rendered
+      // layer name (RULER_LAYER_FALLBACK_STATE = 'fishing') that every preset
+      // currently degrades to — resolveScene() picks the state directly from
+      // save.ruler.cosmetics.presetId, never from this list's order/first
+      // entry, but the list stays authored here so it reads as real data
+      // (compositor.ts's ruler special-case, assetCandidates' fallbackState).
+      ruler: {
+        z: 7,
+        states: [...RULER_PRESET_IDS, RULER_LAYER_FALLBACK_STATE],
+      },
     },
   },
 

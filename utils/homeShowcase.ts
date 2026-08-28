@@ -1,0 +1,151 @@
+// /utils/homeShowcase.ts
+//
+// The vocabulary the home page and its API agree on.
+//
+// Silas, 2026-08-28: "I want a home page that really shows off all the little
+// parts of our website and its progress ... These displays should always lead
+// to something, not just static displays of images and text."
+//
+// That second sentence is why `showcaseHref` lives here rather than being
+// computed per-rail in the template: every card on the home page resolves to a
+// destination through one function, so a rail can never quietly ship a tile
+// that goes nowhere. Adding a kind to ShowcaseKind without adding it to
+// SHOWCASE_DESTINATIONS is a type error, not a dead link discovered later.
+
+export type ShowcaseKind =
+  | 'art'
+  | 'animation'
+  | 'dream'
+  | 'character'
+  | 'bot'
+  | 'reward'
+  | 'scenario'
+  | 'facet'
+  | 'project'
+
+/**
+ * The art fields every showcase card carries. Deliberately the shape
+ * `resolveArtVariantSrc` (utils/artImageSrc.ts) already understands, so
+ * kr-art-plate can render a card straight from the API payload with the same
+ * variant fallback chain every gallery uses -- no per-rail image handling.
+ */
+export type ShowcaseArt = {
+  imagePath: string | null
+  cardPath: string | null
+  heroPath: string | null
+  iconPath: string | null
+  fileType: string | null
+}
+
+export type ShowcaseCard = {
+  kind: ShowcaseKind
+  id: number
+  title: string
+  subtitle: string | null
+  slug: string | null
+  badge: string | null
+  createdAt: string
+  art: ShowcaseArt
+  /**
+   * An explicit destination that overrides the kind's default.
+   *
+   * Set for projects, whose real home is the tool itself: a conductor slug
+   * resolves through PROJECT_PLACEMENTS to an in-app route (/taskmaster,
+   * /coloring, /music-mentor...), and sending someone to a project record when
+   * the thing it describes is one click away would be exactly the "buried
+   * under nav paths" problem this page exists to fix.
+   */
+  href: string | null
+}
+
+export type ShowcaseHero = {
+  dream: ShowcaseCard
+  /** Everything the dream cycle built around it, in reading order. */
+  cast: ShowcaseCard[]
+  hook: string | null
+  pitch: string | null
+  /** How many cast members resolved art -- the "is it ready" signal. */
+  castWithArt: number
+}
+
+export type ShowcaseRailKey =
+  | 'art'
+  | 'animations'
+  | 'dreams'
+  | 'characters'
+  | 'bots'
+  | 'rewards'
+  | 'scenarios'
+  | 'facets'
+
+export type HomeShowcase = {
+  hero: ShowcaseHero | null
+  rails: Record<ShowcaseRailKey, ShowcaseCard[]>
+  projects: ShowcaseCard[]
+  generatedAt: string
+}
+
+/**
+ * Where a card of each kind goes when clicked.
+ *
+ * `query` names the route-query key that preselects the object on the
+ * destination page. Character, Bot and Facet managers already honoured one;
+ * dream/reward/scenario managers gained the same handling alongside this file
+ * so a home card lands ON the object rather than merely near it.
+ *
+ * `slugParam: true` means the destination keys off the slug rather than the id.
+ */
+export const SHOWCASE_DESTINATIONS: Record<
+  ShowcaseKind,
+  { path: string; query: string | null; slugParam?: boolean }
+> = {
+  art: { path: '/art', query: 'art' },
+  animation: { path: '/art', query: 'art' },
+  dream: { path: '/dreams', query: 'dream' },
+  character: { path: '/characters', query: 'characterId' },
+  bot: { path: '/bots', query: 'botId' },
+  reward: { path: '/rewards', query: 'reward' },
+  scenario: { path: '/stories', query: 'scenario' },
+  facet: { path: '/facets', query: 'facet', slugParam: true },
+  project: { path: '/conductor', query: 'project' },
+}
+
+/** The destination for one card. Always a real route, never ''. */
+export function showcaseHref(card: {
+  kind: ShowcaseKind
+  id: number
+  slug?: string | null
+  href?: string | null
+}): string {
+  if (card.href) return card.href
+
+  const destination = SHOWCASE_DESTINATIONS[card.kind]
+  if (!destination) return '/'
+
+  const { path, query, slugParam } = destination
+  if (!query) return path
+
+  const value = slugParam ? (card.slug ?? '') : String(card.id)
+  if (!value) return path
+
+  return `${path}?${query}=${encodeURIComponent(value)}`
+}
+
+/** Empty rails render nothing at all rather than an apologetic empty box. */
+export function emptyShowcase(): HomeShowcase {
+  return {
+    hero: null,
+    rails: {
+      art: [],
+      animations: [],
+      dreams: [],
+      characters: [],
+      bots: [],
+      rewards: [],
+      scenarios: [],
+      facets: [],
+    },
+    projects: [],
+    generatedAt: new Date(0).toISOString(),
+  }
+}

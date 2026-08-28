@@ -5,6 +5,7 @@
     "addFilePathComments": "node utils/scripts/addFilePathComment.js",
     "audit": "node ./utils/scripts/audit.mjs",
     "audit:channel-assets": "tsx utils/scripts/auditChannelAssets.ts",
+    "audit:default-art": "tsx utils/scripts/auditDefaultArt.ts",
     "audit:mandarin-provenance": "tsx utils/scripts/auditMandarinCatalog.ts",
     "test:mandarin-content-audit": "tsx utils/scripts/auditMandarinCatalog.ts --self-test",
     "audit:mandarin-proficiency-coverage": "tsx utils/scripts/auditMandarinProficiencyCoverage.ts",

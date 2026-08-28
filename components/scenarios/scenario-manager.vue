@@ -47,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from '#app'
 import { useCharacterStore } from '@/stores/characterStore'
 import { useChoiceStore } from '@/stores/choiceStore'
@@ -55,6 +55,7 @@ import { useNavStore } from '@/stores/navStore'
 import { useRewardStore } from '@/stores/rewardStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useServerStore } from '@/stores/serverStore'
+import { querySelectionId } from '@/utils/routeSelection'
 
 const dashboardKey = 'scenario'
 
@@ -179,6 +180,22 @@ async function refreshManagerData() {
   await loadManagerData(true)
 }
 
+/**
+ * Open the Scenario named in the route. `?scenario=` already carried the
+ * literal 'new' (see onMounted below); a numeric value now selects that
+ * Scenario instead, which is what the home page's scenario rail and the dream
+ * hero's cast strip link to (utils/homeShowcase.ts SHOWCASE_DESTINATIONS). The
+ * two never collide -- querySelectionId rejects anything that isn't a positive
+ * integer, so 'new' falls through to the add-tab branch untouched.
+ */
+async function syncScenarioFromRoute(): Promise<void> {
+  const id = querySelectionId(route.query.scenarioId ?? route.query.scenario)
+  if (!id) return
+
+  navStore.setDashboardTab(dashboardKey, 'scenarios')
+  await scenarioStore.selectScenario(id)
+}
+
 onMounted(async () => {
   await loadManagerData()
 
@@ -193,6 +210,16 @@ onMounted(async () => {
     navStore.setDashboardTab(dashboardKey, 'add')
     const { scenario: _drop, ...restQuery } = route.query
     router.replace({ query: restQuery })
+    return
   }
+
+  await syncScenarioFromRoute()
+
+  watch(
+    () => [route.query.scenarioId, route.query.scenario],
+    () => {
+      void syncScenarioFromRoute()
+    },
+  )
 })
 </script>

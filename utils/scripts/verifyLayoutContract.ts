@@ -170,6 +170,24 @@ function templateOf(source: string): string {
 }
 
 /*
+ * Template markup with HTML comments removed.
+ *
+ * MENTION IS NOT USE, again -- the same trap codeOf() documents for
+ * no-viewport. templateOf() strips <script> and <style> but keeps comments, so
+ * the one-header rule's raw /<h1[\s>]/ matched a file-header comment that said
+ * "renders no <h1>", i.e. flagged a component for documenting its own
+ * compliance (components/home/home-page.vue, 2026-08-28). The element rules go
+ * through parseTemplate(), whose tokenizer already skips comments; this is for
+ * the rules that still read markup as text.
+ *
+ * Stripping comments can only ever REMOVE matches, so no rule can gain a
+ * violation from this -- at worst a stale baseline entry shrinks.
+ */
+function templateMarkupOf(source: string): string {
+  return templateOf(source).replace(/<!--[\s\S]*?-->/g, ' ')
+}
+
+/*
  * A "page component" is one that occupies the whole content host: anything under
  * pages/, anything under components/pages/, or a *-page.vue anywhere. These are
  * the ones competing with workspace-header for the title.
@@ -847,7 +865,7 @@ function collect(): Record<RuleId, string[]> {
     const r = rel(file)
     const pageComponent = isPageComponent(file)
 
-    if (pageComponent && /<h1[\s>]/.test(template)) {
+    if (pageComponent && /<h1[\s>]/.test(templateMarkupOf(source))) {
       violations['one-header'].push(r)
     }
 

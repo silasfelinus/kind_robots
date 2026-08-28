@@ -43,6 +43,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useRoute } from '#app'
 import { useArtStore } from '@/stores/artStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { useDreamStore, type DreamWithRelations } from '@/stores/dreamStore'
@@ -51,6 +52,7 @@ import { usePromptStore } from '@/stores/promptStore'
 import { useScenarioStore } from '@/stores/scenarioStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useUploadStore } from '@/stores/uploadStore'
+import { querySelectionId } from '@/utils/routeSelection'
 
 type DreamTab = 'dreams' | 'dreammaker' | 'brainstorm'
 
@@ -62,6 +64,7 @@ const serverStore = useServerStore()
 const uploadStore = useUploadStore()
 const collectionStore = useCollectionStore()
 const artStore = useArtStore()
+const route = useRoute()
 
 const dashboardKey = 'dream'
 
@@ -201,8 +204,31 @@ watch(
   () => setupUploadTarget(),
 )
 
+/**
+ * Open the Dream named in the route, so a link can land ON an object rather
+ * than merely near it -- the home page's dream rail and hero both point here
+ * (utils/homeShowcase.ts SHOWCASE_DESTINATIONS). Mirrors the same handling
+ * character-manager and bot-manager already had; ?dreamId= and ?dream= are
+ * both accepted for the same reason those two accept a pair.
+ */
+async function syncDreamFromRoute(): Promise<void> {
+  const id = querySelectionId(route.query.dreamId ?? route.query.dream)
+  if (!id) return
+
+  navStore.setDashboardTab?.(dashboardKey, 'dreams')
+  await dreamStore.selectDreamById(id)
+}
+
 onMounted(async () => {
   await loadManagerData()
+  await syncDreamFromRoute()
+
+  watch(
+    () => [route.query.dreamId, route.query.dream],
+    () => {
+      void syncDreamFromRoute()
+    },
+  )
 })
 
 onUnmounted(() => {

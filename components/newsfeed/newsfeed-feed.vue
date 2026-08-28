@@ -15,12 +15,12 @@
           type="button"
           class="btn btn-sm rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           :class="
-            activeSlug === 'all'
+            activeSlug === ALL_FEEDS_SLUG
               ? 'btn-primary'
               : 'btn-ghost border border-base-300'
           "
-          :aria-pressed="activeSlug === 'all'"
-          @click="activeSlug = 'all'"
+          :aria-pressed="activeSlug === ALL_FEEDS_SLUG"
+          @click="activeSlug = ALL_FEEDS_SLUG"
         >
           All
         </button>
@@ -43,6 +43,33 @@
       </div>
 
       <div class="flex items-center gap-2">
+        <!--
+          Pin the tab you want to land on. Silas, 2026-08-28: "We should be able
+          to choose the starting feed, I only get all as the starting option and
+          I'd personally like to choose AI Gaming as the initial launch. But
+          others might want otherwise."
+
+          Deliberately a one-click toggle on the tab you are already looking at
+          rather than a select buried in Manage feeds: choosing a starting feed
+          is something you do WHILE reading the feed you like, and a preference
+          you can set without first learning where preferences live is one more
+          person who actually sets it.
+        -->
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm gap-1.5 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          :class="startsHere ? 'text-primary' : ''"
+          :aria-pressed="startsHere"
+          :title="pinTitle"
+          @click="toggleStartingFeed"
+        >
+          <Icon
+            :name="startsHere ? 'kind-icon:star' : 'kind-icon:stars'"
+            class="size-4"
+          />
+          <span class="hidden sm:inline">{{ pinLabel }}</span>
+        </button>
+
         <button
           type="button"
           class="btn btn-ghost btn-sm gap-1.5 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
@@ -145,7 +172,10 @@ import {
   getFeedDefinition,
   type NewsFeedItem,
 } from '@/stores/helpers/newsfeed'
-import { useFeedPreferenceStore } from '@/stores/feedPreferenceStore'
+import {
+  ALL_FEEDS_SLUG,
+  useFeedPreferenceStore,
+} from '@/stores/feedPreferenceStore'
 
 const props = withDefaults(
   defineProps<{
@@ -176,11 +206,19 @@ const isLoading = ref(false)
 const errorMessage = ref('')
 const groups = ref<FeedGroup[]>([])
 const sourceErrorCount = ref(0)
-const activeSlug = ref<string>('all')
+const activeSlug = ref<string>(ALL_FEEDS_SLUG)
 const showManageFeeds = ref(false)
 const pageSize = 12
 const visibleLimit = ref(props.initialLimit || pageSize)
 let hasLoadedOnce = false
+
+/*
+ * The saved starting feed is applied exactly once, on the first load, and only
+ * to a feed that actually came back. After that the tab is the reader's live
+ * choice -- reapplying it on every refresh would yank someone out of the tab
+ * they just clicked into.
+ */
+let hasAppliedStartingFeed = false
 
 // Unfiltered union across every loaded feed -- also what NewsfeedFilters uses
 // to derive its category chip list, so a category disappearing behind an
@@ -218,7 +256,7 @@ const allItems = computed<NewsFeedItem[]>(() =>
 )
 
 const visibleItems = computed<NewsFeedItem[]>(() => {
-  if (activeSlug.value === 'all') return allItems.value
+  if (activeSlug.value === ALL_FEEDS_SLUG) return allItems.value
   const groupItems =
     groups.value.find((group) => group.slug === activeSlug.value)?.items ?? []
   return applyPerspectiveBalance(
@@ -234,6 +272,33 @@ const displayedItems = computed(() =>
 const canShowMore = computed(
   () => visibleItems.value.length > displayedItems.value.length,
 )
+
+const startsHere = computed(
+  () => feedPreferenceStore.startingFeedSlug === activeSlug.value,
+)
+
+const activeFeedTitle = computed(() =>
+  activeSlug.value === ALL_FEEDS_SLUG
+    ? 'All'
+    : (groups.value.find((group) => group.slug === activeSlug.value)?.title ??
+      activeSlug.value),
+)
+
+const pinLabel = computed(() =>
+  startsHere.value ? 'Starts here' : 'Start here',
+)
+
+const pinTitle = computed(() =>
+  startsHere.value
+    ? `The newsfeed already opens on ${activeFeedTitle.value}. Click to go back to opening on All.`
+    : `Open the newsfeed on ${activeFeedTitle.value} from now on.`,
+)
+
+function toggleStartingFeed(): void {
+  feedPreferenceStore.setStartingFeed(
+    startsHere.value ? ALL_FEEDS_SLUG : activeSlug.value,
+  )
+}
 
 async function loadFeed(): Promise<void> {
   isLoading.value = true
@@ -279,11 +344,22 @@ async function loadFeed(): Promise<void> {
       0,
     )
 
+    if (!hasAppliedStartingFeed) {
+      hasAppliedStartingFeed = true
+      const preferred = feedPreferenceStore.startingFeedSlug
+      if (
+        preferred !== ALL_FEEDS_SLUG &&
+        groups.value.some((group) => group.slug === preferred)
+      ) {
+        activeSlug.value = preferred
+      }
+    }
+
     if (
-      activeSlug.value !== 'all' &&
+      activeSlug.value !== ALL_FEEDS_SLUG &&
       !groups.value.some((g) => g.slug === activeSlug.value)
     ) {
-      activeSlug.value = 'all'
+      activeSlug.value = ALL_FEEDS_SLUG
     }
   } catch (error) {
     errorMessage.value =

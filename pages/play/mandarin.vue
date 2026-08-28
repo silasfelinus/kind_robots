@@ -286,6 +286,7 @@
                     <button v-if="canQueueArt" type="button" class="btn btn-outline btn-xs" :disabled="artBusy" @click="queueCurrentIllustration">
                       {{ artBusy ? 'Submitting…' : 'Request illustration' }}
                     </button>
+                    <p v-if="artNotice" class="mt-1 text-xs text-success">{{ artNotice }}</p>
                   </div>
                   <div v-else class="space-y-3">
                     <Icon name="kind-icon:volume" class="mx-auto size-12 opacity-60" />
@@ -346,6 +347,7 @@
                         Check art #{{ currentArtJobId }}
                       </button>
                     </div>
+                    <p v-if="artNotice" class="text-xs text-success">{{ artNotice }}</p>
                   </div>
                   <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
                     <button type="button" class="btn btn-sm btn-outline btn-error" @click="store.rateStudyCard('again')">Again</button>
@@ -404,6 +406,7 @@
                     Check art #{{ currentArtJobId }}
                   </button>
                 </div>
+                <p v-if="artNotice" class="text-xs text-success">{{ artNotice }}</p>
               </div>
 
               <div class="flex min-h-64 flex-col p-5">
@@ -535,6 +538,7 @@ const newSetNotice = ref('')
 const cardPanel = ref<HTMLElement | null>(null)
 const brokenArtKeys = ref(new Set<string>())
 const artNotice = ref('')
+let artNoticeTimer: ReturnType<typeof setTimeout> | null = null
 
 const workspaceViews: Array<{ value: WorkspaceView; label: string; icon: string }> = [
   { value: 'card', label: 'Card', icon: 'kind-icon:cards' },
@@ -668,16 +672,30 @@ async function requestCurrentWord() {
   if (created) await scrollToCard()
 }
 
+function setArtNotice(message: string) {
+  if (artNoticeTimer) {
+    clearTimeout(artNoticeTimer)
+    artNoticeTimer = null
+  }
+  artNotice.value = message
+  if (message) {
+    artNoticeTimer = setTimeout(() => {
+      artNotice.value = ''
+      artNoticeTimer = null
+    }, 4000)
+  }
+}
+
 async function queueCurrentIllustration() {
-  artNotice.value = ''
+  setArtNotice('')
   const jobId = await store.queueIllustration(currentCard.value)
-  if (jobId) artNotice.value = `Illustration queued as ArtJob ${jobId}.`
+  if (jobId) setArtNotice(`Illustration queued as ArtJob ${jobId}.`)
 }
 
 async function refreshCurrentIllustration() {
   const card = currentCard.value
   if (!card) return
-  artNotice.value = ''
+  setArtNotice('')
   const canonical = await store.probeCanonicalIllustration(card.key)
   if (canonical) return
   const url = currentRequested.value

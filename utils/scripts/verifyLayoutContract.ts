@@ -152,6 +152,16 @@ function walk(dir: string, ext: string, out: string[] = []): string[] {
 const read = (path: string): string => readFileSync(path, 'utf8')
 const rel = (path: string): string => relative(ROOT, path).replace(/\\/g, '/')
 
+/*
+ * Escapes a string for use inside a GitHub Actions workflow command
+ * (`::warning ...::message`). Same rule GitHub documents for `%`/CR/LF in
+ * command properties and message text; matches the pattern already used by
+ * verifyCommentCalibrationBatch002Contract.ts's own `workflowEscape`.
+ */
+function workflowEscape(value: string): string {
+  return value.replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A')
+}
+
 /* Strip <script> and <style> so we only ever match real template markup. */
 function templateOf(source: string): string {
   return source
@@ -1051,6 +1061,24 @@ function main(): void {
       )
       for (const entry of removed) console.log(`  - ${entry}`)
       console.log('')
+
+      /*
+       * interface-vision t-122: this is the same comparison --update would
+       * make, just without writing the file, so it doubles as the "scratch/
+       * dry mode" check the kaizen asked for. Surface it as a warning
+       * annotation (not a failing check) on whichever PR/push caused the
+       * shrink, instead of leaving it to sit unnoticed in a log until some
+       * later session happens to run --report and spot it (as happened with
+       * video-lora-picker.vue's stale viewport-grid entries, kind_robots
+       * PR #2184).
+       */
+      const summary =
+        `${removed.length} entr${removed.length === 1 ? 'y' : 'ies'} in "${key}" (${RULE_TITLES[key]}) ` +
+        `no longer violate the layout contract and can be ratcheted out of the baseline: ` +
+        `${removed.join(', ')}. Run \`npm run test:layout-contract -- --update\` to shrink it.`
+      console.log(
+        `::warning title=Layout contract baseline could shrink (${key})::${workflowEscape(summary)}`,
+      )
     }
   }
 

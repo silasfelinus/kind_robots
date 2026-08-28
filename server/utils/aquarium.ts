@@ -38,9 +38,12 @@ import {
   qualifiesForBreedingEvolution,
   rollIndividualStats,
   rollRareEvent,
+  rotateShopStock,
+  sellPrice,
   SET_PIECE_CATALOG,
   settleTick,
   STAT_BLOCK_KEYS,
+  todaysShopDateKey,
   unlockCost,
   type BestiaryMilestoneConfig,
   type LastAquariumConfig,
@@ -489,11 +492,11 @@ export async function cleanTankForUser(
 // book's own best-individual-stats record (AquariumCodexEntry.bestStat*,
 // t-032's columns -- see mergeBestStats in aquariumEconomy.ts) and a
 // currentlyOwned flag distinct from collected, so a species can be "in the
-// book" without being "in the tank right now." Today those are always equal
-// (there is no sell path yet -- t-030 is `waiting` on this task), but the
-// distinction is what t-030's sell-back and re-order flow needs to exist
-// safely, per this task's own note: "t-030's rotating stock and sell-back
-// are only safe because this exists."
+// book" without being "in the tank right now." They diverge the moment a
+// fish is sold (t-030's sellFishForUser below): collected stays true
+// forever, currentlyOwned goes false, and the book's re-order affordance
+// (see toBestiaryEntry) is what makes that safe -- per t-031's own note,
+// "t-030's rotating stock and sell-back are only safe because this exists."
 // ---------------------------------------------------------------------------
 
 const BESTIARY_COMPLETE_EVENT_KIND = 'bestiary-complete'
@@ -547,8 +550,8 @@ export interface BestiaryEntry {
   firstAcquiredAt: string | null
   fieldNote: string | null
   // t-031: distinct from `collected` -- true only while a live AquariumStock
-  // row exists for this species. Always equal to `collected` until t-030
-  // ships a sell path; drives the book's re-order affordance once it does.
+  // row exists for this species. False after a sell (t-030) even though
+  // `collected` stays true forever; drives the book's re-order affordance.
   currentlyOwned: boolean
   // t-031: the book's best-individual-seen record (AquariumCodexEntry's
   // bestStat* columns). All null for any species until cthulhuquarium/t-029
@@ -1322,6 +1325,91 @@ export async function breedFishForUser(
 }
 
 // ---------------------------------------------------------------------------
+// Selling -- cthulhuquarium/t-030. Deletes the live AquariumStock row and
+// pays out aquariumEconomy.ts's sellPrice(...) coins, priced off THIS
+// individual's own rolled stats. AquariumCodexEntry (the Ichthyonomicon) is
+// never touched -- t-031's "never decreases" record is exactly what makes
+// this safe: purchaseSpeciesForUser's re-order path only checks live
+// ownership, so the species stays buyable again afterward regardless of
+// today's rotating catalog (see listCatalogForUser's own note). Selling
+// never refunds a set piece or decor slot -- this only ever touches
+// AquariumStock, same "narrow, single-purpose mutation" shape as
+// unequipSetForUser/removeDecorForUser above.
+// ---------------------------------------------------------------------------
+
+const sellStockSelect = {
+  id: true,
+  aquariumId: true,
+  monsterId: true,
+  statCharm: true,
+  statEmpathy: true,
+  statGrace: true,
+  statLuck: true,
+  statMight: true,
+  statWits: true,
+  Monster: {
+    select: {
+      name: true,
+      ...monsterRaritySelect,
+      ...monsterEconomyOverridesSelect,
+    },
+  },
+} satisfies Prisma.AquariumStockSelect
+
+export interface SellFishResult {
+  aquarium: ClientAquarium
+  monsterId: number
+  salePrice: number
+}
+
+export async function sellFishForUser(
+  userId: number,
+  username: string,
+  aquariumStockId: number,
+): Promise<SellFishResult> {
+  const tank = await getOrCreateTankForUser(userId, username)
+
+  const stock = await prisma.aquariumStock.findUnique({
+    where: { id: aquariumStockId },
+    select: sellStockSelect,
+  })
+  // Always scoped back to the caller's own tank (tank.id, resolved from the
+  // verified userId above) -- never trust aquariumId from the client, same
+  // ownership discipline as breedFishForUser's parent lookups.
+  if (!stock || stock.aquariumId !== tank.id) {
+    throw apiError(404, `Fish ${aquariumStockId} is not in your tank.`)
+  }
+
+  const rarity = deriveFishRarityTier(stock.Monster)
+  const baseCost = unlockCost(rarity, stock.Monster.unlockCost)
+  const salePrice = sellPrice(baseCost, toIndividualStatBlock(stock))
+
+  const aquarium = await prisma.$transaction(async (tx) => {
+    await tx.aquariumStock.delete({ where: { id: aquariumStockId } })
+
+    const updated = await tx.aquarium.update({
+      where: { id: tank.id },
+      data: { coins: { increment: salePrice } },
+      select: ownedAquariumSelect,
+    })
+
+    await logEvent(tx, tank.id, 'sell', {
+      aquariumStockId,
+      monsterId: stock.monsterId,
+      salePrice,
+    })
+
+    return updated
+  })
+
+  return {
+    aquarium: toClientAquarium(aquarium),
+    monsterId: stock.monsterId,
+    salePrice,
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Public browse -- display name + tank contents ONLY, never email or userId.
 // ---------------------------------------------------------------------------
 
@@ -1536,6 +1624,14 @@ export async function getSpeciesLeaderboard(
 // purchaseSpeciesForUser charges (deriveFishRarityTier + unlockCost) so the
 // displayed price never drifts from what unlocking actually costs.
 //
+// cthulhuquarium/t-030: this list is further narrowed to today's rotating
+// slate (aquariumEconomy.ts's rotateShopStock) -- "the shop rotates; the
+// book is forever". A species that has ever been owned is NOT gated by this
+// rotation at all: it stays buyable through the Ichthyonomicon's re-order
+// path (listBestiaryForUser's `currentlyOwned` flag), which calls the same
+// purchaseSpeciesForUser this catalog's `cost` mirrors. Rotation only ever
+// decides what a never-yet-owned species' DISCOVERY looks like.
+//
 // Deliberately no `fieldNote` here (cthulhuquarium/t-012): "unlocking a
 // species the player has never seen should feel like the point of the
 // game... the field note reveals on first unlock, not before." The
@@ -1574,6 +1670,10 @@ export interface CatalogResult {
   take: number
   skip: number
   total: number
+  // cthulhuquarium/t-030: today's UTC rotation key (aquariumEconomy.ts's
+  // todaysShopDateKey), so the client can tell "still today's slate" from
+  // "the shop rotated" without re-deriving the date itself.
+  dateKey: string
 }
 
 export async function listCatalogForUser(
@@ -1589,11 +1689,33 @@ export async function listCatalogForUser(
   // column) -- a ruler-hooked-only row should not show up here as
   // unlockable. cthulhuquarium/t-022 (shared bestiary handshake) owns
   // deciding cross-game unlock rules beyond this simple membership filter.
-  const where: Prisma.MonsterWhereInput = {
+  const eligibleWhere: Prisma.MonsterWhereInput = {
     isActive: true,
     isPublic: true,
     games: { contains: 'cthulhuquarium' },
     ...(ownedIds.length > 0 ? { id: { notIn: ownedIds } } : {}),
+  }
+
+  // cthulhuquarium/t-030: rotation governs DISCOVERY only -- this filters
+  // which not-yet-owned species are visible today, never whether an
+  // ALREADY-owned-at-some-point species can be bought back (that's
+  // purchaseSpeciesForUser + the Ichthyonomicon's re-order path below,
+  // neither of which consults this). See aquariumEconomy.ts's own header
+  // comment on rotateShopStock for the full rationale.
+  const eligibleIds = (
+    await prisma.monster.findMany({
+      where: eligibleWhere,
+      select: { id: true },
+      orderBy: [{ depth: 'asc' }, { name: 'asc' }],
+    })
+  ).map((row) => row.id)
+
+  const dateKey = todaysShopDateKey()
+  const todaysIds = rotateShopStock(eligibleIds, userId, dateKey)
+  // No monster has a negative id -- this simply returns zero rows rather
+  // than needing a second query shape when nothing is eligible yet.
+  const where: Prisma.MonsterWhereInput = {
+    id: { in: todaysIds.length > 0 ? todaysIds : [-1] },
   }
 
   const [rows, total] = await Promise.all([
@@ -1612,7 +1734,7 @@ export async function listCatalogForUser(
     cost: unlockCost(deriveFishRarityTier(monster), monster.unlockCost),
   }))
 
-  return { data, take, skip, total }
+  return { data, take, skip, total, dateKey }
 }
 
 // ---------------------------------------------------------------------------

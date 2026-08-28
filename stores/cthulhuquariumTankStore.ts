@@ -245,6 +245,15 @@ interface PurchaseResponse {
   firedMilestones: FiredMilestone[]
 }
 
+// cthulhuquarium/t-030: sell.post.ts's response shape. `monsterId` (rather
+// than the now-deleted aquariumStockId) is what the store needs to refresh
+// the bestiary's `currentlyOwned` flag for the right species.
+interface SellResponse {
+  aquarium: Tank
+  monsterId: number
+  salePrice: number
+}
+
 // The Ichthyonomicon -- the completionist codex (cthulhuquarium/t-024,
 // extended by t-031). A collected entry carries full art and its fieldNote;
 // an uncollected one is only ever known by name and shows as a silhouette in
@@ -275,9 +284,9 @@ export interface BestiaryEntry {
   firstAcquiredAt: string | null
   fieldNote: string | null
   // t-031: distinct from `collected` -- true only while the species has a
-  // live AquariumStock row. Equal to `collected` until t-030 ships a sell
-  // path; when it isn't, the panel offers re-order instead of "not yet
-  // observed."
+  // live AquariumStock row. False after a sell (t-030) even though
+  // `collected` stays true forever; when it's false, the panel offers
+  // re-order instead of "not yet observed."
   currentlyOwned: boolean
   // t-031: the book's best-individual-seen record. Null until
   // cthulhuquarium/t-029 (genetics) starts rolling individual stats.
@@ -518,6 +527,26 @@ export const useCthulhuquariumTankStore = defineStore(
 
     function dismissReveal(): void {
       revealedUnlock.value = null
+    }
+
+    // cthulhuquarium/t-030: sells one individual fish back to the shop.
+    // Usually a loss, sometimes worth more than base price -- see
+    // server/utils/aquariumEconomy.ts's sellPrice for the exact curve. The
+    // species itself is never lost: it stays re-orderable from the
+    // Ichthyonomicon the moment currentlyOwned flips to false, so this
+    // refreshes the bestiary the same way unlock() does when it's loaded.
+    async function sell(aquariumStockId: number): Promise<boolean> {
+      const res = await performFetch<SellResponse>('/api/aquarium/sell', {
+        method: 'POST',
+        body: JSON.stringify({ aquariumStockId }),
+      })
+      if (res.success && res.data) {
+        tank.value = res.data.aquarium
+        if (bestiary.value.length > 0) await loadBestiary()
+        return true
+      }
+      error.value = res.message || 'Could not sell that fish.'
+      return false
     }
 
     // The active-play channel (cthulhuquarium/t-027): -5 debris per click,
@@ -819,6 +848,7 @@ export const useCthulhuquariumTankStore = defineStore(
       loadCatalog,
       feed,
       unlock,
+      sell,
       dismissReveal,
       dismissRareEvent,
       requestClean,

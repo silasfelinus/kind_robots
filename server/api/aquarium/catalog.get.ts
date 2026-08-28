@@ -42,7 +42,12 @@ export default defineEventHandler(async (event) => {
     response = {
       success: true,
       data: result.data,
-      meta: { take: result.take, skip: result.skip, total: result.total },
+      meta: {
+        take: result.take,
+        skip: result.skip,
+        total: result.total,
+        dateKey: result.dateKey,
+      },
       statusCode: 200,
     }
     event.node.res.statusCode = 200

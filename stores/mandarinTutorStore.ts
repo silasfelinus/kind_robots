@@ -405,7 +405,13 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
         method: 'HEAD',
         cache: 'no-store',
       })
-      if (!response.ok) {
+      // A missing /images/... path is not a 404 here: Nuxt falls through to the
+      // catch-all page and answers 200 text/html. Trusting response.ok alone
+      // flips every unrendered card to V2 READY and paints a broken <img> over
+      // the Hanzi fallback, which is worse than showing no picture at all. The
+      // content type is what actually distinguishes a rendered card.
+      const contentType = response.headers.get('content-type') || ''
+      if (!response.ok || !contentType.toLowerCase().startsWith('image/')) {
         artStatuses.value = { ...artStatuses.value, [cardKey]: 'V2 PENDING' }
         return null
       }

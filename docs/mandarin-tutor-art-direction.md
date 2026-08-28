@@ -95,6 +95,64 @@ Use a real working table-game visual language: believable felt, chips, playing c
 
 Do not force decorative metaphors onto particles, classifiers, components, or abstract sentence machinery when an image would misteach. These remain `glyph-only` until a pedagogically useful visual treatment is explicitly designed.
 
+## Per-card style variation
+
+The house style is fixed. The illustrator's decisions are not.
+
+A recipe that emits identical style language for every card produces a deck where
+all 577 pictures share one camera distance, one lighting setup, and one palette —
+the interchangeable read this art direction exists to avoid. So each card also
+draws one option per axis from `server/utils/mandarinIllustrationStyle.ts`:
+
+| Axis | Options | What it moves |
+| --- | --- | --- |
+| framing | 6 | close still life, wide and quiet, vignette, overhead, eye level, through a near edge |
+| light | 5 | overcast, low late sun, open shade, lamplight, early-morning window |
+| palette | 6 | a limited harmony plus one accent, all inside the matte gouache family |
+| handling | 5 | flat gouache, wet washes, dry brush, ink line over wash, pooling pigment |
+| ground | 4 | bare paper, flat wash, soft halo, lower band |
+
+3600 combinations. The draw is derived from the card's stable token — the same
+token that names its media file — so it is deterministic in both directions: a
+card's look is tied to its identity rather than to its position in the catalog,
+and the tutor's per-card retry rebuilds exactly the prompt the batch was
+submitted with. Manifest entries carry the draw as `styleVariant` for audit.
+
+Changing an axis list changes the prompts of every card that draws from it. Since
+the corpus is submitted once and rendered durably, treat an axis edit the way you
+would treat any other recipe change: expect to regenerate what it touches.
+
+`utils/scripts/verifyMandarinArtRecipe.test.ts` holds the properties that matter
+(determinism, every option reachable, no option dominating the deck, no clause
+smuggling text or tourist shorthand back in).
+
+## The prompt contract owns the wording
+
+Every prompt this recipe builds passes `server/utils/artPromptContract.ts`, and
+the recipe test asserts it card by card. This is not a formality — it is why the
+corpus exists at all. The original v2 recipe hedged the way a person writes
+("ground it in Chinese detail **only when** it naturally belongs to the
+concept"), and the contract rejects that for a demonstrated reason: Krea 2
+cannot evaluate a condition, it paints the densest noun phrase it is handed. All
+577 enqueues came back 422 and not one card was ever rendered.
+
+Three habits the recipe therefore avoids, all of them things a human reader
+would find perfectly clear:
+
+- **Conditionals.** "where it helps", "when useful", "unless that is the
+  concept". The recipe knows the card's categories and meaning, so it decides at
+  build time and states one outcome. The cultural-shorthand exclusion is dropped
+  entirely for a card whose concept *is* a dragon or a lantern.
+- **Format nouns.** Not "flashcard illustration" — asking for a card renders a
+  card, title bar and invented text included. The tutor owns the card; the model
+  paints a picture.
+- **Piled-up exclusions.** The old recipe named text fourteen ways and listed
+  twelve synthetic-image tells including "lens flare", "bokeh", and "neon glow".
+  At cfg 1 the ComfyUI negative prompt is inert, so all of that landed in
+  *positive* conditioning. Same art direction, stated as the wanted result:
+  "everything is hand-painted... plain even light", "every surface is blank and
+  unmarked".
+
 ## Text policy
 
 Generated card art contains no Hanzi, pinyin, English, Latin letters, numerals, pseudo-writing, labels, captions, signage, speech bubbles, logos, or watermarks. The tutor UI owns language rendering.

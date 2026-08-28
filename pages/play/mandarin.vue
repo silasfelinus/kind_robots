@@ -1,48 +1,15 @@
 <template>
   <div class="kr-surface">
     <div class="kr-scroll mx-auto max-w-7xl space-y-4 p-3 sm:p-4">
-      <header class="relative overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-sm">
-        <div class="grid min-h-40 grid-cols-[repeat(auto-fit,minmax(min(100%,22rem),1fr))]">
-          <div class="relative z-10 flex flex-col justify-center gap-3 p-5 sm:p-6">
-            <div>
-              <p class="text-3xl font-bold">Mandarin Tutor</p>
-              <p class="mt-1 max-w-2xl text-sm opacity-70">
-                Learn the word, hear it, picture it, then open the character and see how it works.
-              </p>
-            </div>
-            <div class="flex flex-wrap gap-2 text-xs">
-              <span class="badge badge-ghost">{{ cards.length }} cards</span>
-              <span class="badge badge-ghost">{{ allSets.length }} sets</span>
-              <span class="badge badge-ghost">{{ requestedCards.length }} requested</span>
-              <span v-if="selectedSet" class="badge badge-primary badge-outline">
-                {{ selectedSet.label }} · {{ selectedSet.cardKeys.length }}
-              </span>
-            </div>
-          </div>
-
-          <div class="grid min-h-36 grid-cols-3 bg-base-200/70 p-3">
-            <div
-              v-for="card in bannerCards"
-              :key="card.key"
-              class="relative m-1 overflow-hidden rounded-2xl border border-base-300 bg-base-100 shadow-inner"
-            >
-              <img
-                v-if="artCandidate(card.key)"
-                :src="artCandidate(card.key)"
-                :alt="`Illustration for ${card.meaning}`"
-                class="absolute inset-0 h-full w-full object-cover"
-                @error="markArtBroken(card.key)"
-              />
-              <div v-else class="absolute inset-0 flex items-center justify-center bg-base-200/80">
-                <span class="text-4xl font-semibold opacity-45">{{ card.simplified }}</span>
-              </div>
-              <span class="absolute bottom-2 left-2 rounded-lg bg-base-100/90 px-2 py-1 text-lg font-bold shadow">
-                {{ card.simplified }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </header>
+      <MandarinBanner
+        :tiles="bannerTiles"
+        :card-count="cards.length"
+        :set-count="allSets.length"
+        :requested-count="requestedCards.length"
+        :active-set-label="selectedSet?.label || ''"
+        :active-set-size="selectedSet?.cardKeys.length || 0"
+        @art-error="markArtBroken"
+      />
 
       <section class="kr-panel-flat flex flex-wrap items-center justify-between gap-2 p-2 shadow-sm">
         <div class="join" role="tablist" aria-label="Learning mode">
@@ -270,18 +237,18 @@
                     {{ currentCard.pinyin }}
                   </span>
                   <div v-else-if="studyPromptMode === 'picture'" class="space-y-3">
-                    <div class="relative mx-auto flex h-48 w-48 items-center justify-center overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-inner">
-                      <img
-                        v-if="currentArtUrl"
-                        :src="currentArtUrl"
-                        :alt="`Study illustration for ${currentCard.meaning}`"
-                        class="h-full w-full object-cover"
-                        @error="markArtBroken(currentCard.key)"
+                    <div class="mx-auto h-48 w-48 overflow-hidden rounded-3xl border border-base-300 shadow-inner">
+                      <!-- reveal-glyph is off here on purpose: in picture-prompt
+                           mode the character is the answer being recalled. -->
+                      <MandarinCardArt
+                        :card-key="currentCard.key"
+                        :simplified="currentCard.simplified"
+                        :meaning="currentCard.meaning"
+                        :art="currentArtUrl"
+                        :reveal-glyph="false"
+                        eager
+                        @error="markArtBroken"
                       />
-                      <div v-else class="space-y-2 opacity-55">
-                        <Icon name="kind-icon:image" class="mx-auto size-10" />
-                        <p class="text-xs">Picture not ready yet</p>
-                      </div>
                     </div>
                     <button v-if="canQueueArt" type="button" class="btn btn-outline btn-xs" :disabled="artBusy" @click="queueCurrentIllustration">
                       {{ artBusy ? 'Submitting…' : 'Request illustration' }}
@@ -296,15 +263,15 @@
                 </div>
 
                 <div v-else class="grid w-full grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] items-center gap-4">
-                  <div class="relative mx-auto flex h-44 w-44 items-center justify-center overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-inner">
-                    <img
-                      v-if="currentArtUrl"
-                      :src="currentArtUrl"
-                      :alt="`Study illustration for ${currentCard.meaning}`"
-                      class="h-full w-full object-cover"
-                      @error="markArtBroken(currentCard.key)"
+                  <div class="mx-auto h-44 w-44 overflow-hidden rounded-3xl border border-base-300 shadow-inner">
+                    <MandarinCardArt
+                      :card-key="currentCard.key"
+                      :simplified="currentCard.simplified"
+                      :meaning="currentCard.meaning"
+                      :art="currentArtUrl"
+                      eager
+                      @error="markArtBroken"
                     />
-                    <span v-else class="text-5xl font-semibold opacity-50">{{ currentCard.simplified }}</span>
                   </div>
                   <div class="space-y-2 text-center">
                     <p class="text-5xl font-semibold leading-none">{{ currentCard.simplified }}</p>
@@ -385,15 +352,15 @@
           >
             <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))]">
               <div class="flex min-h-64 flex-col items-center justify-center gap-3 bg-base-200/55 p-5 text-center">
-                <div class="relative flex h-48 w-48 items-center justify-center overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-inner">
-                  <img
-                    v-if="currentArtUrl"
-                    :src="currentArtUrl"
-                    :alt="`Study illustration for ${currentCard.meaning}`"
-                    class="h-full w-full object-cover"
-                    @error="markArtBroken(currentCard.key)"
+                <div class="h-48 w-48 overflow-hidden rounded-3xl border border-base-300 shadow-inner">
+                  <MandarinCardArt
+                    :card-key="currentCard.key"
+                    :simplified="currentCard.simplified"
+                    :meaning="currentCard.meaning"
+                    :art="currentArtUrl"
+                    eager
+                    @error="markArtBroken"
                   />
-                  <span v-else class="text-6xl font-semibold opacity-55">{{ currentCard.simplified }}</span>
                 </div>
                 <p class="text-3xl font-bold">{{ currentCard.simplified }}</p>
                 <p class="text-xl font-bold tracking-wide">{{ currentCard.pinyin }}</p>
@@ -492,10 +459,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useMandarinTutorStore } from '@/stores/mandarinTutorStore'
 import type { MandarinComponentRole } from '@/utils/mandarin'
+import type { MandarinBannerTile } from '@/components/mandarin/mandarin-banner.vue'
 
 const store = useMandarinTutorStore()
 const {
@@ -557,9 +525,15 @@ const currentRequested = computed(() =>
   currentCard.value ? store.requestedData(currentCard.value.key) : null,
 )
 
-const bannerCards = computed(() => {
+const bannerTiles = computed<MandarinBannerTile[]>(() => {
   const source = studyCards.value.length ? studyCards.value : cards.value
-  return source.slice(0, 3)
+  return source.slice(0, 4).map((card) => ({
+    key: card.key,
+    simplified: card.simplified,
+    pinyin: card.pinyin,
+    meaning: card.meaning,
+    art: artCandidate(card.key),
+  }))
 })
 
 const currentArtUrl = computed(() => {
@@ -707,8 +681,22 @@ async function refreshCurrentIllustration() {
   if (url) {
     brokenArtKeys.value.delete(card.key)
     setArtNotice('Illustration ready.')
+    return
   }
+  // Nothing came back. Saying so beats leaving the button looking inert while
+  // the home relay is still working through the queue.
+  setArtNotice('Still rendering — check again in a moment.')
 }
+
+// A notice about one card is meaningless on the next one.
+watch(
+  () => currentCard.value?.key ?? null,
+  () => setArtNotice(''),
+)
+
+onBeforeUnmount(() => {
+  if (artNoticeTimer) clearTimeout(artNoticeTimer)
+})
 
 function roleLabel(role: MandarinComponentRole): string {
   if (role === 'semantic') return 'meaning clue'

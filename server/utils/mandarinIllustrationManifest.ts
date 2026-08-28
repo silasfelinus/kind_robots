@@ -191,6 +191,14 @@ function categoryDirection(card: MandarinCard): string {
  * The variant is derived from the card key, so this function stays pure and the
  * tutor's per-card retry reproduces the same prompt the batch was submitted
  * with.
+ *
+ * The style clauses are INSERTED into the original v2 sentence order rather
+ * than replacing any of it, and the only text removed is "warm harmonious
+ * color, " from the house style. That is deliberate: Conductor stages the
+ * corpus from whatever manifest production is currently serving, so it can
+ * apply the same edit to an older deployment's prompt and land on a
+ * byte-identical string. Rewording the surrounding sentences would silently
+ * break that (see scripts/mandarin_prompt_variation.py in Conductor).
  */
 export function buildMandarinIllustrationPrompt(card: MandarinCard): string {
   const concept = compactConcept(card.meaning)
@@ -198,15 +206,19 @@ export function buildMandarinIllustrationPrompt(card: MandarinCard): string {
   return [
     `Create a square educational flashcard illustration for the vocabulary concept: ${concept}.`,
     categoryDirection(card),
+    // "warm harmonious color" is gone from the house style on purpose: the
+    // palette axis below now names the colour, and leaving both in had every
+    // card asking for the same warm harmony no matter which palette it drew.
     'House style: modern Chinese educational picture-book art, hand-painted gouache with gentle watercolor and restrained ink-wash influence, matte pigments, subtle paper grain, clean shapes, clear silhouettes, limited deliberate detail, and generous negative space.',
     variant.framing,
     variant.light,
     variant.palette,
     variant.handling,
     variant.ground,
-    'The composition should feel decided by an illustrator: one strong memory anchor, natural asymmetry, and believable object relationships.',
-    'Ground Chinese cultural flavor in truthful everyday detail -- ceramics, bamboo, wood, textiles, foodways, interiors, markets, streets, transit, games, furnishings, landscape -- only where it naturally belongs to the concept, and never as decoration: no gratuitous pagodas, lantern walls, dragons, Great Wall imagery, calligraphy, red-and-gold festival dressing, or historical costume unless that specific thing is the vocabulary concept.',
-    'Avoid characteristic synthetic-image tells: no photorealism, glossy plastic skin, 3D-render surfaces, hyper-detailed microtexture everywhere, perfect symmetry, cinematic rim lighting, lens flare, bokeh, neon glow, decorative filler, implausible anatomy, or crowded hands.',
+    'The composition should feel designed by an illustrator: one strong memory anchor or one compact scene, natural asymmetry, modest depth, quiet lighting, and believable object relationships.',
+    'Ground Chinese cultural flavor through truthful everyday details such as ceramics, bamboo, wood, textiles, foodways, interiors, markets, streets, transit, games, furnishings, or landscape only when they naturally belong to the concept.',
+    'Do not use generic China shorthand as decoration: no gratuitous pagodas, lantern walls, dragons, Great Wall imagery, calligraphy, red-and-gold festival dressing, or historical costume unless that specific thing is genuinely the vocabulary concept.',
+    'Avoid characteristic synthetic-image tells: no photorealism, glossy plastic skin, 3D-render surfaces, hyper-detailed microtexture everywhere, perfect symmetry, excessive cinematic rim lighting, lens flare, bokeh, neon glow, decorative filler, implausible anatomy, or crowded hands.',
     'No readable text, no Chinese characters, no pinyin, no English, no Latin letters, no numerals, no pseudo-writing, no captions, no signage, no labels, no speech bubbles, no logos, no watermarks, no collage.',
   ].join(' ')
 }

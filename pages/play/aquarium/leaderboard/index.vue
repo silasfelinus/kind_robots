@@ -133,7 +133,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { performFetch } from '@/stores/utils'
-import type { ApiResponse } from '@/types/api'
+import type { PaginationMeta } from '@/types/api'
 
 interface LeaderboardEntry {
   rank: number
@@ -162,11 +162,9 @@ async function load(): Promise<void> {
   loading.value = true
   errorMessage.value = ''
   try {
-    const response = (await performFetch<LeaderboardEntry[]>(
+    const response = await performFetch<LeaderboardEntry[], PaginationMeta>(
       `/api/aquarium/leaderboard?take=${TAKE}&skip=${skip.value}`,
-    )) as ApiResponse<LeaderboardEntry[]> & {
-      meta?: { take: number; skip: number; total: number }
-    }
+    )
     if (!response.success || !response.data) {
       throw new Error(response.message || 'Could not load the leaderboard.')
     }

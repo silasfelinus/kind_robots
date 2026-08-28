@@ -697,11 +697,17 @@ async function refreshCurrentIllustration() {
   if (!card) return
   setArtNotice('')
   const canonical = await store.probeCanonicalIllustration(card.key)
-  if (canonical) return
+  if (canonical) {
+    setArtNotice('Illustration ready.')
+    return
+  }
   const url = currentRequested.value
     ? await store.refreshRequestedIllustration(card)
     : await store.refreshIllustration(card)
-  if (url) brokenArtKeys.value.delete(card.key)
+  if (url) {
+    brokenArtKeys.value.delete(card.key)
+    setArtNotice('Illustration ready.')
+  }
 }
 
 function roleLabel(role: MandarinComponentRole): string {

@@ -13,6 +13,7 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { performFetch } from './utils'
+import { formatMilestoneToastMessage } from '~/utils/aquariumMilestoneToast'
 
 export interface TankMonster {
   id: number
@@ -225,11 +226,23 @@ interface CleanResponse {
   debrisLevel: number
 }
 
+// cthulhuquarium/t-053: a bestiary-breakpoint milestone (t-028's
+// BESTIARY_MILESTONES) a purchase's response just fired. Declared locally
+// rather than importing server/utils/aquariumEconomy.ts's
+// BestiaryMilestoneConfig -- same frontend/backend type-boundary discipline
+// as the rest of this file.
+export interface FiredMilestone {
+  id: string
+  threshold: number
+  slotsCapDelta: number
+}
+
 interface PurchaseResponse {
   aquarium: Tank
   stock: TankStock
   cost: number
   justCompletedBestiary: boolean
+  firedMilestones: FiredMilestone[]
 }
 
 // The Ichthyonomicon -- the completionist codex (cthulhuquarium/t-024,
@@ -331,6 +344,20 @@ export const useCthulhuquariumTankStore = defineStore(
     // bestiaryCollectedCount/bestiaryTotalCount, so simply reloading the
     // bestiary later can't retrigger it.
     const bestiaryJustCompleted = ref(false)
+
+    // cthulhuquarium/t-053: any bestiary-breakpoint milestones (t-028) an
+    // unlock's response just fired, queued for a generic, art-agnostic
+    // toast -- one entry per crossed threshold, oldest first (in practice
+    // at most one per purchase, since collected count only ever advances
+    // by one species at a time, but the response shape is an array so this
+    // stays an array too). The game component reads the front entry
+    // (nextMilestoneToast below) and pops it via dismissMilestoneToast()
+    // once its toast has shown; never re-derived from bestiaryCollectedCount
+    // so reloading the bestiary later can't requeue an already-shown
+    // milestone. A full authored Charlotte interstitial (t-028's own note)
+    // is a separate, not-yet-built layer -- this is the placeholder/no-art
+    // gate itself.
+    const milestoneToastQueue = ref<FiredMilestone[]>([])
 
     // cthulhuquarium/t-026's set-piece catalog. Loaded lazily, same
     // collapsed-panel-until-opened pattern as the bestiary above -- it
@@ -477,6 +504,9 @@ export const useCthulhuquariumTankStore = defineStore(
         catalog.value = catalog.value.filter((entry) => entry.id !== monsterId)
         revealedUnlock.value = res.data.stock
         if (res.data.justCompletedBestiary) bestiaryJustCompleted.value = true
+        if (res.data.firedMilestones?.length) {
+          milestoneToastQueue.value.push(...res.data.firedMilestones)
+        }
         // A stale bestiary panel (or one never loaded yet) would otherwise
         // still show this species as uncollected after unlocking it.
         if (bestiary.value.length > 0) await loadBestiary()
@@ -548,6 +578,19 @@ export const useCthulhuquariumTankStore = defineStore(
 
     function dismissBestiaryCompletion(): void {
       bestiaryJustCompleted.value = false
+    }
+
+    // cthulhuquarium/t-053: the front of milestoneToastQueue, pre-formatted
+    // for display -- null when the queue is empty. Reading this instead of
+    // milestoneToastQueue.value[0] directly keeps the wording rule
+    // (formatMilestoneToastMessage) in one place.
+    const nextMilestoneToast = computed(() => {
+      const next = milestoneToastQueue.value[0]
+      return next ? formatMilestoneToastMessage(next) : null
+    })
+
+    function dismissMilestoneToast(): void {
+      milestoneToastQueue.value.shift()
     }
 
     // cthulhuquarium/t-026: the build layer. loadSets() is called lazily by
@@ -762,6 +805,7 @@ export const useCthulhuquariumTankStore = defineStore(
       bestiaryTotalCount,
       bestiaryLoading,
       bestiaryJustCompleted,
+      nextMilestoneToast,
       equippedSets,
       setSlotsCap,
       setCatalog,
@@ -782,6 +826,7 @@ export const useCthulhuquariumTankStore = defineStore(
       clearOfflineEarnings,
       loadBestiary,
       dismissBestiaryCompletion,
+      dismissMilestoneToast,
       loadSets,
       equipSet,
       unequipSet,

@@ -36,6 +36,7 @@
     "test:aquarium-economy": "tsx utils/scripts/verifyAquariumEconomy.test.ts",
     "test:aquarium-genetics": "tsx utils/scripts/verifyAquariumGenetics.test.ts",
     "test:aquarium-touch": "tsx utils/scripts/verifyAquariumTouch.test.ts",
+    "test:aquarium-milestone-toast": "tsx utils/scripts/verifyAquariumMilestoneToast.test.ts",
     "test:creator-earnings": "tsx utils/scripts/verifyCreatorEarnings.test.ts",
     "test:social-post-draft": "tsx utils/scripts/verifySocialPostDraft.test.ts",
     "test:mission-accrual": "tsx utils/scripts/verifyMissionAccrual.test.ts",

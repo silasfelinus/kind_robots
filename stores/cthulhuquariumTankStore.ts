@@ -199,6 +199,27 @@ interface SetVisibilityResponse {
   aquarium: Tank
 }
 
+// cthulhuquarium/t-039: the terminal purchase's static config, as returned
+// by GET /api/aquarium/finale (server/utils/aquariumEconomy.ts's
+// LAST_AQUARIUM_CONFIG).
+export interface FinaleConfig {
+  title: string
+  description: string
+  cost: number
+  effect: 'cosmetic_reframe'
+  reframeScope: 'existing_tank_contents'
+}
+
+interface FinaleStatusResponse {
+  config: FinaleConfig
+  triggered: boolean
+}
+
+interface PurchaseFinaleResponse {
+  aquarium: Tank
+  finaleJustTriggered: boolean
+}
+
 interface CleanResponse {
   aquarium: Tank
   debrisLevel: number
@@ -326,6 +347,19 @@ export const useCthulhuquariumTankStore = defineStore(
     // Mirrors stage-manager.vue's pendingPerformer idiom: choose, then
     // click to commit.
     const pendingDecorKind = ref<string | null>(null)
+
+    // cthulhuquarium/t-039: the last aquarium. Loaded lazily on mount (not
+    // gated behind a panel toggle like sets/decor/bestiary above) since the
+    // shop button's disabled/owned state needs `finaleTriggered` immediately,
+    // not only once a player opens a collapsed section.
+    const finaleConfig = ref<FinaleConfig | null>(null)
+    const finaleTriggered = ref(false)
+    const finaleLoading = ref(false)
+    // Set once, the moment a purchase's response confirms the finale just
+    // fired -- the game component watches it for the one-time reveal dialog,
+    // then clears it via dismissFinaleReveal(). Never re-derived from
+    // finaleTriggered, so reloading the status later can't retrigger it.
+    const finaleJustTriggered = ref(false)
 
     const stock = computed(() => tank.value?.Stock ?? [])
     const coins = computed(() => tank.value?.coins ?? 0)
@@ -669,6 +703,42 @@ export const useCthulhuquariumTankStore = defineStore(
       return false
     }
 
+    // cthulhuquarium/t-039: loaded once on mount (see finaleConfig's own
+    // comment for why this isn't lazy like sets/decor/bestiary).
+    async function loadFinaleStatus(): Promise<void> {
+      finaleLoading.value = true
+      try {
+        const res = await performFetch<FinaleStatusResponse>(
+          '/api/aquarium/finale',
+        )
+        if (res.success && res.data) {
+          finaleConfig.value = res.data.config
+          finaleTriggered.value = res.data.triggered
+        }
+      } finally {
+        finaleLoading.value = false
+      }
+    }
+
+    async function purchaseFinale(): Promise<boolean> {
+      const res = await performFetch<PurchaseFinaleResponse>(
+        '/api/aquarium/finale/purchase',
+        { method: 'POST' },
+      )
+      if (res.success && res.data) {
+        tank.value = res.data.aquarium
+        finaleTriggered.value = true
+        if (res.data.finaleJustTriggered) finaleJustTriggered.value = true
+        return true
+      }
+      error.value = res.message || 'Could not buy the last aquarium.'
+      return false
+    }
+
+    function dismissFinaleReveal(): void {
+      finaleJustTriggered.value = false
+    }
+
     return {
       tank,
       catalog,
@@ -722,6 +792,13 @@ export const useCthulhuquariumTankStore = defineStore(
       purchaseDecor,
       moveDecor,
       removeDecor,
+      finaleConfig,
+      finaleTriggered,
+      finaleLoading,
+      finaleJustTriggered,
+      loadFinaleStatus,
+      purchaseFinale,
+      dismissFinaleReveal,
     }
   },
 )

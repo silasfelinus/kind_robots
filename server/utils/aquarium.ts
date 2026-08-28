@@ -30,6 +30,7 @@ import {
   isKnownDecorKind,
   isKnownSetPieceKind,
   justCompletedBestiary as computeJustCompletedBestiary,
+  LAST_AQUARIUM_CONFIG,
   MAX_CLEAN_CLICKS_PER_REQUEST,
   mergeBestStats,
   rollRareEvent,
@@ -37,6 +38,7 @@ import {
   settleTick,
   unlockCost,
   type BestiaryMilestoneConfig,
+  type LastAquariumConfig,
   type RareEventResult,
   type StatBlock,
 } from './aquariumEconomy'
@@ -1404,6 +1406,84 @@ export async function unequipSetForUser(
   })
 
   return { aquarium: toClientAquarium(aquarium) }
+}
+
+// ---------------------------------------------------------------------------
+// The last aquarium (cthulhuquarium/t-039) -- a single, standalone terminal
+// purchase. Not a SetPieceKind: it never occupies a setSlotsCap slot and can
+// never be unequipped -- once bought it's permanent, the same "not a
+// refundable purchase" shape as a species unlock. "Has this fired" lives on
+// an AquariumEvent guard rather than a durable Aquarium column, the same
+// idempotency shape as BESTIARY_COMPLETE_EVENT_KIND above -- a boolean this
+// cheap to derive doesn't need its own migration.
+// ---------------------------------------------------------------------------
+
+const FINALE_EVENT_KIND = 'finale'
+
+export interface FinaleStatus {
+  config: LastAquariumConfig
+  triggered: boolean
+}
+
+export async function getFinaleStatusForUser(
+  userId: number,
+  username: string,
+): Promise<FinaleStatus> {
+  const tank = await getOrCreateTankForUser(userId, username)
+  const fired = await prisma.aquariumEvent.findFirst({
+    where: { aquariumId: tank.id, kind: FINALE_EVENT_KIND },
+    select: { id: true },
+  })
+  return { config: LAST_AQUARIUM_CONFIG, triggered: Boolean(fired) }
+}
+
+export interface PurchaseLastAquariumResult {
+  aquarium: ClientAquarium
+  // Always true on a successful response -- purchaseLastAquariumForUser
+  // throws (409) rather than returning false for an already-triggered tank,
+  // same convention as equipSetForUser's duplicate-equip guard above. Kept
+  // as an explicit field (rather than the caller inferring "success means
+  // triggered") so the client response shape matches PurchaseSpeciesResult's
+  // justCompletedBestiary convention -- a boolean the frontend watches to
+  // fire a one-time reveal, not a status the frontend has to derive.
+  finaleJustTriggered: boolean
+}
+
+export async function purchaseLastAquariumForUser(
+  userId: number,
+  username: string,
+): Promise<PurchaseLastAquariumResult> {
+  const tank = await getOrCreateTankForUser(userId, username)
+
+  const alreadyTriggered = await prisma.aquariumEvent.findFirst({
+    where: { aquariumId: tank.id, kind: FINALE_EVENT_KIND },
+    select: { id: true },
+  })
+  if (alreadyTriggered) {
+    throw apiError(409, `${LAST_AQUARIUM_CONFIG.title} is already yours.`)
+  }
+  if (tank.coins < LAST_AQUARIUM_CONFIG.cost) {
+    throw apiError(
+      402,
+      `${LAST_AQUARIUM_CONFIG.title} costs ${LAST_AQUARIUM_CONFIG.cost} coins; your tank only has ${tank.coins}.`,
+    )
+  }
+
+  const aquarium = await prisma.$transaction(async (tx) => {
+    const updated = await tx.aquarium.update({
+      where: { id: tank.id },
+      data: { coins: { decrement: LAST_AQUARIUM_CONFIG.cost } },
+      select: ownedAquariumSelect,
+    })
+
+    await logEvent(tx, tank.id, FINALE_EVENT_KIND, {
+      cost: LAST_AQUARIUM_CONFIG.cost,
+    })
+
+    return updated
+  })
+
+  return { aquarium: toClientAquarium(aquarium), finaleJustTriggered: true }
 }
 
 // ---------------------------------------------------------------------------

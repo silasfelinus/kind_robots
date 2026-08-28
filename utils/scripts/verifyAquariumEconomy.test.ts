@@ -20,6 +20,7 @@ import {
   feedCoinRebate,
   firedBestiaryMilestones,
   isKnownSetPieceKind,
+  LAST_AQUARIUM_CONFIG,
   MAX_ACCRUAL_TICKS,
   MAX_CLEAN_CLICKS_PER_REQUEST,
   NO_STACK_IDLE_SET_KINDS,
@@ -936,6 +937,30 @@ assert.equal(
 
 console.log(
   "✅ rollRareEvent: bonusCoins scales linearly across each kind's configured range, floored, never exceeds bonusCoinsMax",
+)
+
+// --- the last aquarium (cthulhuquarium/t-039): a standalone terminal
+// purchase, not a SetPieceKind -------------------------------------------
+
+assert.equal(LAST_AQUARIUM_CONFIG.effect, 'cosmetic_reframe')
+assert.equal(LAST_AQUARIUM_CONFIG.reframeScope, 'existing_tank_contents')
+assert.ok(
+  LAST_AQUARIUM_CONFIG.cost > 0,
+  'the last aquarium must cost something -- it is a purchase, not a freebie',
+)
+assert.ok(
+  LAST_AQUARIUM_CONFIG.cost >
+    Math.max(...SET_PIECE_KINDS.map((kind) => SET_PIECE_CATALOG[kind].cost)),
+  'the last aquarium is, by design, the single most expensive purchasable in the game',
+)
+assert.equal(
+  isKnownSetPieceKind('last_aquarium'),
+  false,
+  'the last aquarium is intentionally not a SetPieceKind -- it never occupies a setSlotsCap slot and is never equipped/unequipped',
+)
+
+console.log(
+  '✅ LAST_AQUARIUM_CONFIG: priced above every set piece, purely cosmetic_reframe, and not a SetPieceKind',
 )
 
 console.log('✅ verifyAquariumEconomy: all assertions passed')

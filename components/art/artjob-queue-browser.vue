@@ -33,6 +33,14 @@
           </select>
           <button
             type="button"
+            class="btn btn-secondary btn-sm rounded-2xl"
+            title="Watch finished renders full screen, newest first"
+            @click="slideshowOpen = true"
+          >
+            Slideshow
+          </button>
+          <button
+            type="button"
             class="btn btn-primary btn-sm rounded-2xl"
             :disabled="isLoading"
             @click="refresh"
@@ -349,6 +357,8 @@
       </section>
     </div>
 
+    <artjob-slideshow v-if="slideshowOpen" @close="slideshowOpen = false" />
+
     <artjob-editor
       v-if="editorJob"
       :job="editorJob"
@@ -386,6 +396,7 @@ const selectedWindow = ref(24)
 const pageSizeInput = ref('20')
 const pageInput = ref('1')
 const editorJob = ref<ArtJobRecord | null>(null)
+const slideshowOpen = ref(false)
 const editorAction = ref<EditorAction>('EDIT')
 const refreshingServerIds = ref<number[]>([])
 const removingServerIds = ref<number[]>([])

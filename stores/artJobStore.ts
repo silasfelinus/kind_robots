@@ -5,14 +5,10 @@ import type { ArtImage, ArtJob, Prisma } from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
 import { resolveArtImageSource } from '~/utils/artImageSource'
 import type { ArtImageSource } from '~/utils/artImageSource'
-import { resolveMaturityPrivacy } from '~/utils/maturityPrivacy'
+import { artJobImageVersion, artJobPublicImageSrc } from '~/utils/artJobFields'
 
 export type ArtJobStatus =
-  | 'PENDING'
-  | 'RUNNING'
-  | 'DONE'
-  | 'FAILED'
-  | 'CANCELLED'
+  'PENDING' | 'RUNNING' | 'DONE' | 'FAILED' | 'CANCELLED'
 
 export type ArtJobRetryMode = 'NEW_OUTPUT' | 'OVERWRITE'
 
@@ -194,16 +190,9 @@ type ArtJobState = {
 const DEFAULT_JOB_PAGE_SIZE = 20
 const MAX_JOB_PAGE_SIZE = 100
 
-type JsonRecord = Record<string, unknown>
-
 function normalizePageSize(value: number): number {
   if (!Number.isFinite(value)) return DEFAULT_JOB_PAGE_SIZE
   return Math.min(Math.max(Math.floor(value), 1), MAX_JOB_PAGE_SIZE)
-}
-
-function asRecord(value: unknown): JsonRecord {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
-  return value as JsonRecord
 }
 
 export const useArtJobStore = defineStore('artJobStore', () => {
@@ -240,22 +229,13 @@ export const useArtJobStore = defineStore('artJobStore', () => {
   function cachePublicImageUrls(jobs: ArtJobRecord[]): void {
     for (const job of jobs) {
       if (typeof job.artImageId !== 'number') continue
-      const visibility = resolveMaturityPrivacy(
-        asRecord(asRecord(job.payload).save),
-      )
-      if (!visibility.isPublic || visibility.isMature) continue
+      const src = artJobPublicImageSrc(job)
+      if (!src) continue
 
-      // updatedAt is DateTime? in the schema. Same guard as
-      // artjob-queue-card.vue: a null timestamp simply means no cache-buster.
-      const updatedAt = job.updatedAt
-        ? new Date(job.updatedAt).getTime()
-        : Number.NaN
-      const version = Number.isFinite(updatedAt) ? `?v=${updatedAt}` : ''
-      const src = `/api/art/images/${job.artImageId}/file${version}`
       const info = resolveArtImageSource({ imagePath: src, fileType: 'webp' })
       state.imageSrcById[job.artImageId] = src
       state.imageInfoById[job.artImageId] = info
-      state.imageVersionById[job.artImageId] = version
+      state.imageVersionById[job.artImageId] = artJobImageVersion(job)
     }
   }
 
@@ -650,6 +630,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
 
   return {
     ...toRefs(state),
+    cachePublicImageUrls,
     fetchStats,
     fetchUptime,
     fetchJobs,

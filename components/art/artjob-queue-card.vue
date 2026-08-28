@@ -375,10 +375,21 @@ import { computed, ref } from 'vue'
 import { useArtJobStore, type ArtJobRecord } from '@/stores/artJobStore'
 import { useArtJobPriorityStore } from '@/stores/artJobPriorityStore'
 import { useArtStore } from '@/stores/artStore'
-import { resolveMaturityPrivacy } from '@/utils/maturityPrivacy'
+import {
+  artJobImagePath,
+  artJobImageVersion,
+  artJobNegativePrompt,
+  artJobPageLabel,
+  artJobPrompt,
+  artJobPublicImageSrc,
+  artJobRequestId,
+  artJobSettings,
+  artJobTitle,
+  artJobVariant,
+  artJobVisibility,
+} from '@/utils/artJobFields'
 
 type EditorAction = 'EDIT' | 'NEW_OUTPUT' | 'OVERWRITE'
-type JsonRecord = Record<string, unknown>
 
 const props = defineProps<{
   job: ArtJobRecord
@@ -393,192 +404,33 @@ const priorityStore = useArtJobPriorityStore()
 const artStore = useArtStore()
 const copied = ref(false)
 
-function asRecord(value: unknown): JsonRecord {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
-  return value as JsonRecord
-}
+const jobPrompt = computed<string>(() => artJobPrompt(props.job))
 
-function scalar(value: unknown): string {
-  if (typeof value === 'string') return value.trim()
-  if (typeof value === 'number' && Number.isFinite(value)) return String(value)
-  return ''
-}
-
-function nestedScalar(value: unknown, keys: string[], depth = 0): string {
-  if (depth > 6 || value === null || value === undefined) return ''
-  if (Array.isArray(value)) {
-    for (const child of value) {
-      const result = nestedScalar(child, keys, depth + 1)
-      if (result) return result
-    }
-    return ''
-  }
-
-  const record = asRecord(value)
-  for (const key of keys) {
-    const direct = scalar(record[key])
-    if (direct) return direct
-  }
-  for (const child of Object.values(record)) {
-    const result = nestedScalar(child, keys, depth + 1)
-    if (result) return result
-  }
-  return ''
-}
-
-function directPayloadScalar(job: ArtJobRecord, keys: string[]): string {
-  const payload = asRecord(job.payload)
-  for (const key of keys) {
-    const value = scalar(payload[key])
-    if (value) return value
-  }
-  return ''
-}
-
-function payloadScalar(job: ArtJobRecord, keys: string[]): string {
-  const direct = directPayloadScalar(job, keys)
-  if (direct) return direct
-  return nestedScalar(asRecord(job.payload).workflow, keys)
-}
-
-function workflowPrompt(
-  job: ArtJobRecord,
-  kind: 'positive' | 'negative',
-): string {
-  const workflow = asRecord(asRecord(job.payload).workflow)
-  for (const value of Object.values(workflow)) {
-    const node = asRecord(value)
-    const classType = scalar(node.class_type).toLowerCase()
-    const inputs = asRecord(node.inputs)
-    const title = scalar(asRecord(node._meta).title).toLowerCase()
-    const isNegative = title.includes('negative')
-    if (kind === 'negative' && !isNegative) continue
-    if (kind === 'positive' && isNegative) continue
-    if (!classType.includes('clip') && !classType.includes('wildcard')) continue
-    const text =
-      scalar(inputs.text) ||
-      scalar(inputs.wildcard_text) ||
-      scalar(inputs.populated_text) ||
-      scalar(inputs.t5xxl) ||
-      scalar(inputs.clip_l)
-    if (text) return text
-  }
-  return ''
-}
-
-const jobPrompt = computed<string>(
-  () =>
-    payloadScalar(props.job, [
-      'promptString',
-      'artPrompt',
-      'positivePrompt',
-      'prompt',
-    ]) || workflowPrompt(props.job, 'positive'),
+const jobNegativePrompt = computed<string>(() =>
+  artJobNegativePrompt(props.job),
 )
 
-const jobNegativePrompt = computed<string>(
-  () =>
-    payloadScalar(props.job, [
-      'negativePrompt',
-      'negative_prompt',
-      'negative',
-    ]) || workflowPrompt(props.job, 'negative'),
-)
-
-const jobVisibility = computed(() =>
-  resolveMaturityPrivacy(asRecord(asRecord(props.job.payload).save)),
-)
+const jobVisibility = computed(() => artJobVisibility(props.job))
 
 const canShowJobContent = computed<boolean>(
   () => !jobVisibility.value.isMature || artStore.showMature,
 )
 
-const jobTitle = computed<string>(() => {
-  return (
-    directPayloadScalar(props.job, ['title', 'label', 'name']) ||
-    props.job.projectSlug ||
-    `ArtJob #${props.job.id}`
-  )
-})
+const jobTitle = computed<string>(() => artJobTitle(props.job))
 
-const jobPage = computed<string>(() =>
-  directPayloadScalar(props.job, [
-    'page',
-    'pagePath',
-    'route',
-    'destinationPage',
-  ]),
-)
+const jobPageLabel = computed<string>(() => artJobPageLabel(props.job))
 
-const jobPageLabel = computed<string>(() => {
-  const page = jobPage.value
-  if (!page) return ''
-  if (page === 'index' || page === 'home') return '/'
-  return page.startsWith('/') ? page : `/${page}`
-})
+const jobVariant = computed<string>(() => artJobVariant(props.job))
 
-const jobVariant = computed<string>(() =>
-  directPayloadScalar(props.job, ['variant', 'breakpoint']),
-)
+const jobRequestId = computed<string>(() => artJobRequestId(props.job))
 
-const jobRequestId = computed<string>(() =>
-  directPayloadScalar(props.job, ['requestId', 'requestID', 'request_id']),
-)
+const jobImagePath = computed<string>(() => artJobImagePath(props.job))
 
-const jobImagePath = computed<string>(() =>
-  directPayloadScalar(props.job, [
-    'imagePath',
-    'outputPath',
-    'destinationPath',
-  ]),
-)
+const jobSettings = computed<string[]>(() => artJobSettings(props.job))
 
-const jobSettings = computed<string[]>(() => {
-  const job = props.job
-  const values = [
-    [
-      'size',
-      `${payloadScalar(job, ['width'])}×${payloadScalar(job, ['height'])}`,
-    ],
-    [
-      'model',
-      payloadScalar(job, [
-        'checkpoint',
-        'ckpt_name',
-        'unet_name',
-        'model_name',
-      ]),
-    ],
-    ['sampler', payloadScalar(job, ['sampler', 'sampler_name'])],
-    ['scheduler', payloadScalar(job, ['scheduler'])],
-    ['steps', payloadScalar(job, ['steps'])],
-    ['cfg', payloadScalar(job, ['cfg', 'cfg_scale'])],
-    ['guidance', payloadScalar(job, ['guidance'])],
-    ['denoise', payloadScalar(job, ['denoise'])],
-    ['seed', payloadScalar(job, ['seed', 'noise_seed'])],
-  ]
+const imageVersion = computed<string>(() => artJobImageVersion(props.job))
 
-  return values
-    .filter(([, value]) => value && value !== '×')
-    .map(([label, value]) => `${label}: ${value}`)
-})
-
-// updatedAt is DateTime? in the schema, so it can genuinely be null; a null
-// timestamp simply means no cache-buster. Shared by the public URL and the
-// protected-preview cache key so both invalidate together on an overwrite.
-const imageVersion = computed<string>(() => {
-  const updatedAt = props.job.updatedAt
-    ? new Date(props.job.updatedAt).getTime()
-    : Number.NaN
-  return Number.isFinite(updatedAt) ? `?v=${updatedAt}` : ''
-})
-
-const publicImageSrc = computed<string>(() => {
-  const id = props.job.artImageId
-  if (typeof id !== 'number') return ''
-  if (!jobVisibility.value.isPublic || jobVisibility.value.isMature) return ''
-  return `/api/art/images/${id}/file${imageVersion.value}`
-})
+const publicImageSrc = computed<string>(() => artJobPublicImageSrc(props.job))
 
 const jobImageSrc = computed<string>(() => {
   const id = props.job.artImageId

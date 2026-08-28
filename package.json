@@ -68,6 +68,7 @@
     "test:facet-closure": "tsx utils/scripts/verifyFacetClosure.ts",
     "test:facet-gallery": "tsx utils/scripts/verifyFacetGallery.ts",
     "test:layout-contract": "tsx utils/scripts/verifyLayoutContract.ts",
+    "test:art-slideshow-rotation": "tsx utils/scripts/verifyArtSlideshowRotation.test.ts",
     "audit:responsive": "node utils/scripts/auditResponsiveLayout.mjs",
     "test:daily-dream-facets": "prisma validate && tsx utils/scripts/verifyDailyDreamFacets.ts",
     "test:prompt-variants": "tsx utils/scripts/verifyPromptVariants.ts",

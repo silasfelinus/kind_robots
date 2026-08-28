@@ -13,6 +13,7 @@
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 
+import { checkArtPromptContract } from '../../server/utils/artPromptContract.js'
 import {
   MANDARIN_FRAMINGS,
   MANDARIN_GROUNDS,
@@ -20,8 +21,10 @@ import {
   MANDARIN_LIGHTS,
   MANDARIN_PALETTES,
   MANDARIN_STYLE_VARIANT_COMBINATIONS,
+  buildMandarinIllustrationPrompt,
   mandarinStyleVariant,
 } from '../../server/utils/mandarinIllustrationStyle.js'
+import type { MandarinCard } from '../mandarin.js'
 
 function token(cardKey: string): string {
   return createHash('sha256').update(cardKey, 'utf8').digest('hex').slice(0, 24)
@@ -138,6 +141,79 @@ function token(cardKey: string): string {
       `style clause hard-codes China shorthand: ${clause}`,
     )
   }
+}
+
+// --- every built prompt satisfies the art prompt contract ------------------
+
+{
+  // This is the check that was missing. Every v2 prompt in production violated
+  // the contract's conditional-instruction rule ("...only when they naturally
+  // belong to the concept"), so all 577 enqueues came back 422 and the corpus
+  // could never be submitted at all. The recipe and the gate that guards the
+  // enqueue boundary have to be tested against each other, not separately.
+  function card(overrides: Partial<MandarinCard> & Pick<MandarinCard, 'key' | 'meaning'>): MandarinCard {
+    return {
+      simplified: '字',
+      pinyin: 'zì',
+      meanings: [overrides.meaning],
+      kind: 'word',
+      partsOfSpeech: [],
+      classifiers: [],
+      categories: [],
+      components: [],
+      historyStatus: 'pending',
+      source: { label: 'test', version: 'test' },
+      ...overrides,
+    } as MandarinCard
+  }
+
+  const samples: MandarinCard[] = [
+    card({ key: 'hsk:1:的', meaning: "of; ~'s (possessive particle)" }),
+    card({ key: 'hsk:1:写', meaning: 'to write', categories: ['everyday-actions'] }),
+    card({ key: 'hsk:1:三', meaning: 'three', categories: ['numbers'] }),
+    card({ key: 'hsk:1:红', meaning: 'red', categories: ['colors'] }),
+    card({ key: 'hsk:1:猫', meaning: 'cat', categories: ['animals'] }),
+    card({ key: 'hsk:1:茶', meaning: 'tea', categories: ['food-drink'] }),
+    card({ key: 'hsk:1:妈妈', meaning: 'mother', categories: ['family'] }),
+    card({ key: 'hsk:1:车站', meaning: 'station', categories: ['travel-places'] }),
+    card({ key: 'hsk:1:你好', meaning: 'hello', categories: ['greetings'] }),
+    card({ key: 'hsk:2:早上', meaning: 'morning', categories: ['time-calendar'] }),
+    card({ key: 'casino:荷官', meaning: 'dealer', categories: ['casino'] }),
+    // A card whose concept IS the cultural shorthand the recipe otherwise
+    // excludes. It must not ship a prompt that asks for a dragon and forbids
+    // one in the same breath.
+    card({ key: 'hsk:5:龙', meaning: 'dragon', categories: ['animals'] }),
+    card({ key: 'hsk:4:灯笼', meaning: 'lantern' }),
+  ]
+
+  for (const sample of samples) {
+    const prompt = buildMandarinIllustrationPrompt(sample)
+    const violations = checkArtPromptContract({
+      prompt,
+      engine: 'krea2',
+      cfg: 1,
+      steps: 8,
+    })
+    assert.deepEqual(
+      violations,
+      [],
+      `${sample.key} violates the art prompt contract: ${violations
+        .map((violation) => `[${violation.rule}] ${violation.detail}`)
+        .join(' ')}`,
+    )
+  }
+
+  // The dragon card asks for a dragon and does not also forbid one.
+  const dragon = buildMandarinIllustrationPrompt(samples[samples.length - 2] as MandarinCard)
+  assert.ok(!/no pagodas/i.test(dragon), 'a dragon card should not carry the shorthand exclusion')
+  const ordinary = buildMandarinIllustrationPrompt(samples[0] as MandarinCard)
+  assert.ok(/no pagodas/i.test(ordinary), 'an ordinary card should carry the shorthand exclusion')
+
+  // Format vocabulary: the tutor owns the card, the model paints a picture.
+  assert.ok(
+    !/flashcard|trading card|card illustration/i.test(ordinary),
+    'the prompt must not ask the model for a card',
+  )
 }
 
 console.log('mandarin art recipe contract: OK')

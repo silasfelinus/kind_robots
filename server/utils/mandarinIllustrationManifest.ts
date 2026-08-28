@@ -1,7 +1,8 @@
-import { createHash } from 'node:crypto'
 import type { MandarinCard, MandarinCatalogPayload } from '~/utils/mandarin'
 import { getMandarinCatalog } from './mandarinCatalog'
 import {
+  buildMandarinIllustrationPrompt,
+  mandarinCardToken,
   mandarinStyleVariant,
   type MandarinStyleVariant,
 } from './mandarinIllustrationStyle'
@@ -85,16 +86,6 @@ const ART_DIRECTION = {
     'No Hanzi, pinyin, English, numerals, pseudo-writing, captions, signage, logos, speech bubbles, labels, or watermarks inside generated art.',
 } as const
 
-export function mandarinCardToken(cardKey: string): string {
-  return createHash('sha256').update(cardKey, 'utf8').digest('hex').slice(0, 24)
-}
-
-function compactConcept(meaning: string): string {
-  const clean = meaning.replace(/\s+/g, ' ').trim()
-  const firstClause = clean.split(';')[0]?.trim() || clean
-  return firstClause.slice(0, 240)
-}
-
 function illustrationStrategy(card: MandarinCard): {
   strategy: MandarinIllustrationStrategy
   reason: string
@@ -136,91 +127,6 @@ function illustrationStrategy(card: MandarinCard): {
     strategy: 'illustrate',
     reason: 'A concrete object, action, person, place, quantity, or scene can provide a useful visual memory anchor.',
   }
-}
-
-function categoryDirection(card: MandarinCard): string {
-  const categories = new Set(card.categories)
-
-  if (categories.has('casino')) {
-    return [
-      'Use a grounded contemporary Chinese or Chinese-speaking table-game context when it clarifies the concept: believable felt tables, chips, cards, tiles, cash handling, dealer gestures, and player interactions.',
-      'Favor the visual language of a real working casino floor over fantasy luxury. Keep equipment physically plausible and brand-neutral.',
-      'Do not invent readable table labels, chip denominations, card-face numerals, or gambling signage.',
-    ].join(' ')
-  }
-  if (categories.has('food-drink')) {
-    return 'Use recognizable Chinese everyday food culture where natural: ceramic bowls and cups, chopsticks, bamboo steamers, shared dishes, market ingredients, or an ordinary kitchen/table setting. The food or action remains the focal point.'
-  }
-  if (categories.has('family')) {
-    return 'Use a warm contemporary Chinese domestic-life scene: an ordinary apartment, home, courtyard, or neighborhood context with believable everyday clothing and furnishings. Make the relationship obvious through interaction, not labels.'
-  }
-  if (categories.has('travel-places')) {
-    return 'Use a practical contemporary Chinese urban, neighborhood, transit, room, street, or travel setting where it helps. Architecture and objects should feel lived-in and specific, with no readable signage.'
-  }
-  if (categories.has('greetings')) {
-    return 'Use a simple contemporary Chinese social interaction with natural gesture, distance, and body language. Keep faces expressive but lightly rendered rather than uncanny close-up portraits.'
-  }
-  if (categories.has('time-calendar')) {
-    return 'Express time through lighting and recognizable Chinese everyday routines such as breakfast, commuting, school, work, evening meals, or neighborhood activity. Avoid clocks or calendars with readable numerals unless absolutely necessary.'
-  }
-  if (categories.has('everyday-actions')) {
-    return 'Show one person clearly performing the action in an ordinary contemporary Chinese daily-life setting where useful. Use a simple pose, believable hands, and minimal background distraction.'
-  }
-  if (categories.has('numbers')) {
-    return 'Communicate quantity with a clean group of countable everyday objects, preferably familiar Chinese household, food, market, school, or game objects when appropriate. Use objects rather than written digits or number symbols.'
-  }
-  if (categories.has('colors')) {
-    return 'Use one familiar central object or tiny scene whose target color is unmistakable. Chinese ceramics, textiles, food, plants, or ordinary household objects may provide subtle cultural grounding without turning into ornament.'
-  }
-  if (categories.has('animals')) {
-    return 'Center one clearly recognizable animal or a tiny natural scene. Chinese landscape, garden, farm, or neighborhood cues may appear lightly when relevant, but the animal must remain the unmistakable memory anchor.'
-  }
-
-  return 'Choose the simplest ordinary object or everyday scene that makes the primary meaning obvious at a glance. When cultural context helps, ground it in contemporary Chinese lived environments and material culture rather than decorative stereotypes.'
-}
-
-/**
- * The canonical v2 prompt for a card.
- *
- * Structure: what to draw (concept + category direction), the fixed house
- * style, then this card's own style draw -- framing, light, palette, paint
- * handling, ground -- then the fixed guard rails. The house style is what makes
- * 577 cards look like one deck; the style draw is what stops them from looking
- * like one image rendered 577 times.
- *
- * The variant is derived from the card key, so this function stays pure and the
- * tutor's per-card retry reproduces the same prompt the batch was submitted
- * with.
- *
- * The style clauses are INSERTED into the original v2 sentence order rather
- * than replacing any of it, and the only text removed is "warm harmonious
- * color, " from the house style. That is deliberate: Conductor stages the
- * corpus from whatever manifest production is currently serving, so it can
- * apply the same edit to an older deployment's prompt and land on a
- * byte-identical string. Rewording the surrounding sentences would silently
- * break that (see scripts/mandarin_prompt_variation.py in Conductor).
- */
-export function buildMandarinIllustrationPrompt(card: MandarinCard): string {
-  const concept = compactConcept(card.meaning)
-  const variant = mandarinStyleVariant(mandarinCardToken(card.key))
-  return [
-    `Create a square educational flashcard illustration for the vocabulary concept: ${concept}.`,
-    categoryDirection(card),
-    // "warm harmonious color" is gone from the house style on purpose: the
-    // palette axis below now names the colour, and leaving both in had every
-    // card asking for the same warm harmony no matter which palette it drew.
-    'House style: modern Chinese educational picture-book art, hand-painted gouache with gentle watercolor and restrained ink-wash influence, matte pigments, subtle paper grain, clean shapes, clear silhouettes, limited deliberate detail, and generous negative space.',
-    variant.framing,
-    variant.light,
-    variant.palette,
-    variant.handling,
-    variant.ground,
-    'The composition should feel designed by an illustrator: one strong memory anchor or one compact scene, natural asymmetry, modest depth, quiet lighting, and believable object relationships.',
-    'Ground Chinese cultural flavor through truthful everyday details such as ceramics, bamboo, wood, textiles, foodways, interiors, markets, streets, transit, games, furnishings, or landscape only when they naturally belong to the concept.',
-    'Do not use generic China shorthand as decoration: no gratuitous pagodas, lantern walls, dragons, Great Wall imagery, calligraphy, red-and-gold festival dressing, or historical costume unless that specific thing is genuinely the vocabulary concept.',
-    'Avoid characteristic synthetic-image tells: no photorealism, glossy plastic skin, 3D-render surfaces, hyper-detailed microtexture everywhere, perfect symmetry, excessive cinematic rim lighting, lens flare, bokeh, neon glow, decorative filler, implausible anatomy, or crowded hands.',
-    'No readable text, no Chinese characters, no pinyin, no English, no Latin letters, no numerals, no pseudo-writing, no captions, no signage, no labels, no speech bubbles, no logos, no watermarks, no collage.',
-  ].join(' ')
 }
 
 function selectedCardKeys(catalog: MandarinCatalogPayload): string[] {
@@ -285,3 +191,7 @@ export async function getMandarinIllustrationManifest(): Promise<MandarinIllustr
     entries,
   }
 }
+
+// The prompt recipe lives in the pure module; re-exported so callers that think
+// of it as "the manifest's prompt" keep working.
+export { buildMandarinIllustrationPrompt, mandarinCardToken } from './mandarinIllustrationStyle'

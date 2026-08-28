@@ -21,7 +21,13 @@
 // 6 x 5 x 6 x 5 x 4 = 3600 combinations across 577 cards.
 //
 // Pure functions only -- no prisma, no Nuxt runtime -- so the recipe can be
-// self-tested without a database.
+// self-tested without a database. buildMandarinIllustrationPrompt lives here
+// rather than beside the manifest assembler for exactly that reason: it is the
+// piece that has to be checked against the art prompt contract, and the
+// assembler pulls in the catalog and prisma behind it.
+
+import type { MandarinCard } from '~/utils/mandarin'
+import { createHash } from 'node:crypto'
 
 export type MandarinStyleVariant = {
   /** Stable axis-index id, e.g. `f2-l0-p4-h1-g3`. Recorded for audit/QA. */
@@ -126,3 +132,136 @@ export const MANDARIN_STYLE_VARIANT_COMBINATIONS =
   MANDARIN_PALETTES.length *
   MANDARIN_HANDLINGS.length *
   MANDARIN_GROUNDS.length
+
+export function mandarinCardToken(cardKey: string): string {
+  return createHash('sha256').update(cardKey, 'utf8').digest('hex').slice(0, 24)
+}
+
+function compactConcept(meaning: string): string {
+  const clean = meaning.replace(/\s+/g, ' ').trim()
+  const firstClause = clean.split(';')[0]?.trim() || clean
+  return firstClause.slice(0, 240)
+}
+
+
+/**
+ * Where the card is set.
+ *
+ * Every clause here states one decided outcome. The art prompt contract
+ * (server/utils/artPromptContract.ts) rejects "only when", "where appropriate",
+ * "as needed" and their relatives for a demonstrated reason: Krea 2 is a
+ * distilled diffusion transformer, it cannot evaluate a condition, and it
+ * paints the densest noun phrase it is handed. "Use a Chinese setting where it
+ * helps" is not a hedge to the model -- it is a Chinese setting, always, plus
+ * some noise. The recipe knows the card's categories, so it decides here.
+ */
+function categoryDirection(card: MandarinCard): string {
+  const categories = new Set(card.categories)
+
+  if (categories.has('casino')) {
+    return [
+      'Set it on the working floor of a contemporary Chinese-speaking casino: believable felt tables, chips, cards, tiles, cash handling, dealer gestures, and players mid-hand.',
+      'Favor the look of a real working table game over fantasy luxury. Keep the equipment physically plausible and brand-neutral, with blank chips, blank card faces, and blank signage.',
+    ].join(' ')
+  }
+  if (categories.has('food-drink')) {
+    return 'Set it in everyday Chinese food culture: ceramic bowls and cups, chopsticks, bamboo steamers, shared dishes, market ingredients, an ordinary kitchen or table. The food or the action stays the focal point.'
+  }
+  if (categories.has('family')) {
+    return 'Set it in a warm contemporary Chinese home: an ordinary apartment, courtyard, or neighborhood, with everyday clothing and furnishings. The relationship reads through how the people act toward each other.'
+  }
+  if (categories.has('travel-places')) {
+    return 'Set it in a practical contemporary Chinese street, neighborhood, room, transit, or travel scene. The architecture and objects look lived-in and specific, and every sign is blank.'
+  }
+  if (categories.has('greetings')) {
+    return 'Show a simple contemporary Chinese social interaction with natural gesture, distance, and body language. Keep the faces small and lightly painted rather than a close-up portrait.'
+  }
+  if (categories.has('time-calendar')) {
+    return 'Express the hour through daylight and a recognizable Chinese daily routine: breakfast, the commute, school, work, an evening meal, neighborhood activity. Let the light carry the time rather than a clock face.'
+  }
+  if (categories.has('everyday-actions')) {
+    return 'Show one person performing the action in an ordinary contemporary Chinese daily-life setting, with a simple pose, believable hands, and a quiet uncluttered background.'
+  }
+  if (categories.has('numbers')) {
+    return 'Show the quantity as a clean group of countable everyday objects from a Chinese household, kitchen, market, school, or game. The count is carried by the objects themselves.'
+  }
+  if (categories.has('colors')) {
+    return 'Show one familiar central object whose color is unmistakable: Chinese ceramics, textiles, food, plants, or an ordinary household object.'
+  }
+  if (categories.has('animals')) {
+    return 'Center one clearly recognizable animal, with a light Chinese landscape, garden, farm, or neighborhood behind it. The animal stays the memory anchor.'
+  }
+
+  return 'Show the simplest ordinary object or everyday scene that makes the meaning obvious at a glance, grounded in contemporary Chinese lived environments and material culture.'
+}
+
+/**
+ * Cultural shorthand — pagodas, dragons, festival red-and-gold — is banned as
+ * decoration but obviously allowed when it IS the word. The recipe decides per
+ * card instead of shipping the model an "unless" it cannot read.
+ */
+const CULTURAL_SHORTHAND = /\b(?:pagoda|dragon|lantern|great wall|calligraph|festival|new year|temple|opera|costume|traditional dress)/i
+
+
+/**
+ * The canonical v2 prompt for a card.
+ *
+ * Structure: what to draw (concept + category direction), the fixed house
+ * style, then this card's own style draw -- framing, light, palette, paint
+ * handling, ground -- then the fixed guard rails. The house style is what makes
+ * 577 cards look like one deck; the style draw is what stops them from looking
+ * like one image rendered 577 times.
+ *
+ * The variant is derived from the card key, so this function stays pure and the
+ * tutor's per-card retry reproduces the same prompt the batch was submitted
+ * with.
+ *
+ * The style clauses are INSERTED into the original v2 sentence order rather
+ * than replacing any of it, and the only text removed is "warm harmonious
+ * color, " from the house style. That is deliberate: Conductor stages the
+ * corpus from whatever manifest production is currently serving, so it can
+ * apply the same edit to an older deployment's prompt and land on a
+ * byte-identical string. Rewording the surrounding sentences would silently
+ * break that (see scripts/mandarin_prompt_variation.py in Conductor).
+ */
+export function buildMandarinIllustrationPrompt(card: MandarinCard): string {
+  const concept = compactConcept(card.meaning)
+  const variant = mandarinStyleVariant(mandarinCardToken(card.key))
+  const conceptIsCultural = CULTURAL_SHORTHAND.test(`${card.meaning} ${card.categories.join(' ')}`)
+
+  return [
+    // Not "flashcard illustration". Naming a physical format gets you the
+    // object: the contract's second rule was learned from "treasure card
+    // illustration", which rendered literal trading cards with title bars and
+    // invented rules text. The tutor owns the card; the model paints a picture.
+    `A square illustration of this idea: ${concept}.`,
+    categoryDirection(card),
+    // "warm harmonious color" is gone from the house style on purpose: the
+    // palette axis below now names the colour, and leaving both in had every
+    // card asking for the same warm harmony no matter which palette it drew.
+    'House style: modern Chinese educational picture-book art, hand-painted gouache with gentle watercolor and restrained ink-wash influence, matte pigments, subtle paper grain, clean shapes, clear silhouettes, limited deliberate detail, and generous negative space.',
+    variant.framing,
+    variant.light,
+    variant.palette,
+    variant.handling,
+    variant.ground,
+    'The composition is decided by an illustrator: one strong memory anchor, natural asymmetry, modest depth, and believable object relationships.',
+    'Chinese cultural flavor comes from truthful everyday detail that belongs to the idea itself: ceramics, bamboo, wood, textiles, foodways, interiors, markets, streets, transit, games, furnishings, landscape.',
+    // Naming what to leave out is only safe when the word is not the concept --
+    // and on a cfg-1 distilled engine every one of those nouns lands in
+    // positive conditioning anyway, so a card about a dragon would get the
+    // dragon twice over.
+    ...(conceptIsCultural
+      ? []
+      : [
+          'Keep the tourist shorthand out of it: no pagodas, lantern walls, dragons, Great Wall, red-and-gold festival dressing, or historical costume.',
+        ]),
+    // The old recipe listed twelve synthetic-image tells to avoid -- including
+    // "lens flare", "bokeh", and "neon glow". At cfg 1 the ComfyUI negative
+    // prompt is inert, so that list was a request for exactly those things.
+    // Same art direction, stated as the wanted result.
+    'Everything is hand-painted: matte pigment on paper, simplified deliberate shapes, plain even light, simple anatomy, relaxed hands, and calm uncluttered surroundings.',
+    // Likewise: the old recipe named text fourteen ways. Once, positively.
+    'Every surface in the picture is blank and unmarked, carrying no writing of any kind.',
+  ].join(' ')
+}

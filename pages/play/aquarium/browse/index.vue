@@ -136,7 +136,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { performFetch } from '@/stores/utils'
-import type { ApiResponse } from '@/types/api'
+import type { PaginationMeta } from '@/types/api'
 
 interface PublicTankOwner {
   username: string
@@ -171,11 +171,9 @@ async function load(): Promise<void> {
   loading.value = true
   errorMessage.value = ''
   try {
-    const response = (await performFetch<PublicTankSummary[]>(
+    const response = await performFetch<PublicTankSummary[], PaginationMeta>(
       `/api/aquarium/browse?take=${TAKE}&skip=${skip.value}`,
-    )) as ApiResponse<PublicTankSummary[]> & {
-      meta?: { take: number; skip: number; total: number }
-    }
+    )
     if (!response.success || !response.data) {
       throw new Error(response.message || 'Could not load public tanks.')
     }

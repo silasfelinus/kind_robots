@@ -1,5 +1,18 @@
 import type { User } from '~/prisma/generated/prisma/client'
 
+// Shared shape for the take/skip/total pagination `meta` several list
+// endpoints return (server/api/aquarium/browse/index.get.ts,
+// server/api/aquarium/leaderboard.get.ts, and others following the same
+// convention). Callers that only need pagination -- not a route-specific
+// extra field like catalog.get.ts's `dateKey` -- can use
+// `performFetch<T, PaginationMeta>(url)` directly instead of hand-casting
+// the result (cthulhuquarium/t-061).
+export type PaginationMeta = {
+  take: number
+  skip: number
+  total: number
+}
+
 export type ApiResponse<T = unknown, M = unknown> = {
   success: boolean
   message: string

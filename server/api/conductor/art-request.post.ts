@@ -41,6 +41,33 @@ const VARIANT_SIZES: Record<ArtVariant, string> = {
   image: '',
 }
 
+/**
+ * Media roots whose prompts are owned by a versioned recipe, not by this
+ * endpoint's generic contextual prompt builder.
+ *
+ * A miss under one of these roots means "not rendered yet", which is the normal
+ * state of a corpus the home relay is still working through -- not a gap to
+ * paper over. Letting a generic request through is actively harmful: it renders
+ * an off-direction image to the canonical media path, and that image then
+ * satisfies the path forever, permanently suppressing the real one. Three such
+ * requests reached Conductor's queue for Mandarin v2 card paths before this
+ * guard existed, all asking for readable Hanzi and "digital painting blending
+ * illustration and realism" -- both of which the v2 art direction forbids.
+ *
+ * `force` does not bypass this the way it bypasses the existence check: the way
+ * to (re)render one of these cards is the tutor's own request button, which
+ * enqueues the manifest's canonical prompt.
+ */
+const CANONICAL_PROMPT_ROOTS = [
+  {
+    path: '/images/mandarin-tutor/cards/',
+    message:
+      'Mandarin Tutor card art is generated from the versioned illustration ' +
+      'manifest, not from generic missing-image requests. A missing file here ' +
+      'means the card has not been rendered yet.',
+  },
+] as const
+
 type MissingArtRequestBody = {
   src?: string
   imagePath?: string
@@ -179,6 +206,12 @@ function targetFromSource(body: MissingArtRequestBody): ImageTarget {
 
   if (rawPath.startsWith('/_nuxt/') || rawPath.includes('/node_modules/')) {
     throw createError({ statusCode: 400, message: 'Build assets are ignored.' })
+  }
+
+  for (const root of CANONICAL_PROMPT_ROOTS) {
+    if (rawPath.startsWith(root.path)) {
+      throw createError({ statusCode: 400, message: root.message })
+    }
   }
 
   if (hostname === 'raw.githubusercontent.com') {

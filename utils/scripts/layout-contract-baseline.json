@@ -1,6 +1,6 @@
 {
   "note": "Layout-contract allow-list. RATCHET: this file may only ever shrink. --update refuses to record a larger count. See utils/scripts/verifyLayoutContract.ts.",
-  "recorded": "2026-08-19",
+  "recorded": "2026-08-28",
   "violations": {
     "one-header": [],
     "one-scroll": [],
@@ -216,9 +216,6 @@
       "components/user/user-dashboard.vue → sm:grid-cols-2",
       "components/user/user-dashboard.vue → xl:grid-cols-[minmax(16rem,22rem)_minmax(0,1fr)]",
       "components/user/user-panel.vue → md:grid-cols-2",
-      "components/video-lora-picker.vue → lg:grid-cols-3",
-      "components/video-lora-picker.vue → sm:grid-cols-2",
-      "components/video-lora-picker.vue → sm:grid-cols-[1fr_7rem]",
       "components/watchlist/watchlist-browse.vue → lg:grid-cols-6",
       "components/watchlist/watchlist-browse.vue → sm:grid-cols-3",
       "components/wonderlab/mural-manager.vue → md:grid-cols-3",

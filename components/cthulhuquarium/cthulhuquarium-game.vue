@@ -216,14 +216,29 @@
                   {{ entry.Monster.species || entry.Monster.behavior || '—' }}
                 </p>
               </div>
-              <button
-                type="button"
-                class="btn btn-outline btn-xs min-h-11 min-w-11 shrink-0"
-                :disabled="entry.hunger >= 100"
-                @click="tankStore.feed(entry.id)"
-              >
-                Feed
-              </button>
+              <div class="flex shrink-0 flex-col gap-1">
+                <button
+                  type="button"
+                  class="btn btn-outline btn-xs min-h-11 min-w-11"
+                  :disabled="entry.hunger >= 100"
+                  @click="tankStore.feed(entry.id)"
+                >
+                  Feed
+                </button>
+                <!-- Sell (t-030): priced off THIS individual's own rolled
+                     stats, never a flat species price -- usually a loss, but
+                     a well-bred fish can sell for more than it cost. Always
+                     re-orderable afterward from the Ichthyonomicon below, so
+                     no confirmation dialog, same one-click shape as
+                     unequip/remove elsewhere in this component. -->
+                <button
+                  type="button"
+                  class="btn btn-outline btn-xs min-h-11 min-w-11"
+                  @click="tankStore.sell(entry.id)"
+                >
+                  Sell
+                </button>
+              </div>
             </div>
             <div
               class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-base-300"
@@ -244,6 +259,14 @@
       <div class="flex flex-col gap-2">
         <p class="text-xs font-black uppercase tracking-wide opacity-60">
           Unlock a new occupant
+        </p>
+        <!-- t-030: the shop rotates -- this is a slice of what's never been
+             owned, not the whole remaining bestiary. Anything sold or
+             already discovered stays available any time via the
+             Ichthyonomicon's re-order button below, regardless of today's
+             slate. -->
+        <p class="text-xs italic opacity-50">
+          Today's arrivals -- check back tomorrow for more.
         </p>
         <p v-if="tankStore.catalogLoading" class="text-xs opacity-60">
           Reading the bestiary…
@@ -365,12 +388,10 @@
                 >
                   Best seen: {{ formatBestStats(entry.bestStats) }}
                 </p>
-                <!-- Re-order (t-031): the book remembers a species whether
-                     or not it's currently in the tank, so it's re-orderable
-                     from here rather than access being tied to today's
-                     rotating shop stock. Always equal to "already owned"
-                     until t-030 ships a sell path -- this button simply
-                     never renders yet in practice. -->
+                <!-- Re-order (t-031, sell path shipped in t-030): the book
+                     remembers a species whether or not it's currently in
+                     the tank, so a sold species is re-orderable from here
+                     regardless of today's rotating shop stock. -->
                 <button
                   v-if="entry.collected && !entry.currentlyOwned"
                   type="button"

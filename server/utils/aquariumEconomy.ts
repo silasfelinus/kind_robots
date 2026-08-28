@@ -1102,3 +1102,144 @@ export function qualifiesForBreedingEvolution(stats: StatBlock): boolean {
   const total = (values as number[]).reduce((sum, value) => sum + value, 0)
   return total / values.length >= SECRET_EVOLUTION_AVERAGE_STAT_THRESHOLD
 }
+
+// ---------------------------------------------------------------------------
+// Selling fish back -- cthulhuquarium/t-030. Silas, 2026-08-24: "usually at a
+// loss, but if they end up breeding fish with good stats, or a new evolve,
+// it could be worth more... Selling AT A LOSS is fine; that is spending...
+// A well-bred individual selling for MORE is the good version, because it
+// turns breeding into an economy." Priced off the INDIVIDUAL's own rolled
+// stats (StatBlock), never a flat per-species price -- same "the fish is the
+// economy, not the species" discipline as feedCost pricing food off the
+// fish's own rarity tier.
+//
+// Piecewise-linear against the average of the six stats, anchored at the
+// SAME bar a breeding pair already has to clear for a secret evolution
+// (SECRET_EVOLUTION_AVERAGE_STAT_THRESHOLD) -- selling a fish that good is
+// meant to feel like the same kind of payoff, not an unrelated number.
+// [v1 placeholder, same "wrong on purpose at first" discipline as every
+// other constant in this section -- flagged for t-019's balance pass.]
+// ---------------------------------------------------------------------------
+
+// Worst possible roll (average stat 0): sells for this fraction of unlockCost.
+export const SELL_PRICE_FLOOR_FRACTION = 0.2
+// Exactly base price at the breeding-evolution stat-average bar.
+export const SELL_PRICE_BREAKEVEN_STAT_AVERAGE =
+  SECRET_EVOLUTION_AVERAGE_STAT_THRESHOLD
+export const SELL_PRICE_BREAKEVEN_FRACTION = 1
+// Perfect roll (average stat 100): sells for this fraction of unlockCost.
+export const SELL_PRICE_CEILING_FRACTION = 1.5
+
+// Average of the individual's six rolled stats, clamped into [0, 100].
+// Every AquariumStock is rolled once on creation, so a null stat should not
+// happen in practice -- nulls are simply excluded from the average rather
+// than throwing, same defensive-but-total discipline as
+// qualifiesForBreedingEvolution's own null handling.
+function averageStat(stats: StatBlock): number {
+  const values = STAT_BLOCK_KEYS.map((key) => stats[key]).filter(
+    (value): value is number => value != null,
+  )
+  if (values.length === 0) return 0
+  const total = values.reduce((sum, value) => sum + value, 0)
+  return Math.min(100, Math.max(0, total / values.length))
+}
+
+// `baseCost` is the same unlockCost(deriveFishRarityTier(monster), ...)
+// purchaseSpeciesForUser already charges to buy this species, so a sale
+// never drifts from what a re-purchase would cost. Rounded to the nearest
+// coin, floored at 1 so a worthless roll still pays something rather than
+// nothing.
+export function sellPrice(baseCost: number, stats: StatBlock): number {
+  const average = averageStat(stats)
+  const breakeven = SELL_PRICE_BREAKEVEN_STAT_AVERAGE
+  const fraction =
+    average <= breakeven
+      ? SELL_PRICE_FLOOR_FRACTION +
+        (average / breakeven) *
+          (SELL_PRICE_BREAKEVEN_FRACTION - SELL_PRICE_FLOOR_FRACTION)
+      : SELL_PRICE_BREAKEVEN_FRACTION +
+        ((average - breakeven) / (100 - breakeven)) *
+          (SELL_PRICE_CEILING_FRACTION - SELL_PRICE_BREAKEVEN_FRACTION)
+  return Math.max(1, Math.round(baseCost * fraction))
+}
+
+// ---------------------------------------------------------------------------
+// Rotating shop stock -- cthulhuquarium/t-030. "THE FIX... make [the
+// Ichthyonomicon] the RE-PURCHASE MECHANISM, not just a trophy case. Then
+// rotation governs DISCOVERY rather than ACCESS: today's stock is what is
+// new, cheap, or well-rolled, a reason to check in rather than a gate, and
+// anything ever owned is orderable from the book at any time" (Silas,
+// 2026-08-24, this task's own note).
+//
+// This section only decides WHICH of the eligible (not-currently-owned)
+// species show up in today's catalog -- it has no opinion on price or
+// ownership. purchaseSpeciesForUser (server/utils/aquarium.ts) never
+// consults this: a species that has ever been owned stays buyable through
+// the Ichthyonomicon's re-order path regardless of what is rotated in here,
+// which is exactly what keeps selling safe (see t-031's own note: "t-030's
+// rotating stock and sell-back are only safe because this exists").
+//
+// Deterministic per (userId, dateKey) rather than a persisted "today's
+// offer" row -- same seeded-PRNG idiom as the daily dream feature
+// (server/utils/dailyDreamFacetBlueprint.ts's hashSeed/mulberry32), so every
+// request from the same player on the same day sees the same slate without
+// a new migration (per this task's own note: extend t-032's schema, don't
+// open a second migration path into the same tables -- this needs none).
+//
+// [v1 placeholder: a uniform-random subset, not a real "new, cheap, or
+// well-rolled" weighting -- same "wrong on purpose at first" discipline as
+// the rest of this file, flagged for t-019's balance pass.]
+// ---------------------------------------------------------------------------
+
+// How many not-yet-owned species show up in a given day's rotation. Early
+// game, with fewer eligible species than this, rotation is a no-op and the
+// catalog simply shows everything -- it only becomes meaningful once the
+// pool of undiscovered species grows past this window.
+export const SHOP_ROTATION_SIZE = 8
+
+function hashSeed(input: string): number {
+  let hash = 2166136261
+  for (let index = 0; index < input.length; index++) {
+    hash ^= input.charCodeAt(index)
+    hash = Math.imul(hash, 16777619)
+  }
+  return hash >>> 0
+}
+
+function mulberry32(seed: number): () => number {
+  return () => {
+    seed |= 0
+    seed = (seed + 0x6d2b79f5) | 0
+    let value = Math.imul(seed ^ (seed >>> 15), 1 | seed)
+    value = (value + Math.imul(value ^ (value >>> 7), 61 | value)) ^ value
+    return ((value ^ (value >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+// UTC calendar day, matching the daily dream feature's own dateKey
+// convention -- a simple, timezone-agnostic "which day is it" that never
+// depends on the request's local clock.
+export function todaysShopDateKey(now: Date = new Date()): string {
+  return now.toISOString().slice(0, 10)
+}
+
+// Deterministically shuffles `eligibleIds` for this (userId, dateKey) and
+// returns the first SHOP_ROTATION_SIZE of them -- same id list in, same
+// slate out, for every request from this player on this day. Fisher-Yates
+// over a seeded PRNG rather than sort-by-random-key, so this stays an exact,
+// unbiased permutation of the input rather than an approximation.
+export function rotateShopStock(
+  eligibleIds: readonly number[],
+  userId: number,
+  dateKey: string,
+): number[] {
+  const random = mulberry32(hashSeed(`${userId}:${dateKey}:shop`))
+  const shuffled = [...eligibleIds]
+  for (let index = shuffled.length - 1; index > 0; index--) {
+    const swapIndex = Math.floor(random() * (index + 1))
+    const current = shuffled[index]!
+    shuffled[index] = shuffled[swapIndex]!
+    shuffled[swapIndex] = current
+  }
+  return shuffled.slice(0, SHOP_ROTATION_SIZE)
+}

@@ -18,7 +18,7 @@
         log out </a
       >?
     </div>
-    <form class="space-y-6 w-full max-w-md mx-auto" @submit.prevent="register">
+    <form class="kr-container max-w-md space-y-6" @submit.prevent="register">
       <div v-if="step === 1">
         <!-- Pick a Username Section -->
         <p class="text-4xl font-bold mb-4 text-center">Pick a</p>

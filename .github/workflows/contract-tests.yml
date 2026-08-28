@@ -49,6 +49,9 @@ jobs:
       - name: ArtJob priority bounds contract
         run: npm run test:artjob-priority-bounds
 
+      - name: ArtJob slideshow rotation contract
+        run: npm run test:art-slideshow-rotation
+
       - name: Art failure-signature grouping contract
         run: npm run test:art-failure-signature
 

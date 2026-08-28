@@ -14,6 +14,7 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { performFetch } from './utils'
 import { formatMilestoneToastMessage } from '~/utils/aquariumMilestoneToast'
+import { useOneShotFlag, useOneShotQueue } from '~/utils/useOneShotSignal'
 
 export interface TankMonster {
   id: number
@@ -438,8 +439,11 @@ export const useCthulhuquariumTankStore = defineStore(
     // set -- the game component watches it for the one-time completion beat,
     // then clears it via dismissBestiaryCompletion(). Never re-derived from
     // bestiaryCollectedCount/bestiaryTotalCount, so simply reloading the
-    // bestiary later can't retrigger it.
-    const bestiaryJustCompleted = ref(false)
+    // bestiary later can't retrigger it. useOneShotFlag() (t-056) is the
+    // shared one-shot-signal primitive; bestiaryJustCompleted is just its
+    // `flag`, kept under the original ref name.
+    const bestiaryCompletionSignal = useOneShotFlag()
+    const bestiaryJustCompleted = bestiaryCompletionSignal.flag
 
     // cthulhuquarium/t-053: any bestiary-breakpoint milestones (t-028) an
     // unlock's response just fired, queued for a generic, art-agnostic
@@ -452,8 +456,12 @@ export const useCthulhuquariumTankStore = defineStore(
     // so reloading the bestiary later can't requeue an already-shown
     // milestone. A full authored Charlotte interstitial (t-028's own note)
     // is a separate, not-yet-built layer -- this is the placeholder/no-art
-    // gate itself.
-    const milestoneToastQueue = ref<FiredMilestone[]>([])
+    // gate itself. Built on useOneShotQueue() (t-056), the same shared
+    // primitive as bestiaryCompletionSignal/finaleRevealSignal below --
+    // this was never exposed on the store directly (only nextMilestoneToast/
+    // dismissMilestoneToast below were), so there's no external ref name to
+    // preserve here.
+    const milestoneToastSignal = useOneShotQueue<FiredMilestone>()
 
     // cthulhuquarium/t-026's set-piece catalog. Loaded lazily, same
     // collapsed-panel-until-opened pattern as the bestiary above -- it
@@ -482,7 +490,10 @@ export const useCthulhuquariumTankStore = defineStore(
     // fired -- the game component watches it for the one-time reveal dialog,
     // then clears it via dismissFinaleReveal(). Never re-derived from
     // finaleTriggered, so reloading the status later can't retrigger it.
-    const finaleJustTriggered = ref(false)
+    // Built on useOneShotFlag() (t-056), same primitive as
+    // bestiaryCompletionSignal above.
+    const finaleRevealSignal = useOneShotFlag()
+    const finaleJustTriggered = finaleRevealSignal.flag
 
     // cthulhuquarium/t-041's egg catalog. Loaded lazily, same
     // collapsed-panel-until-opened pattern as sets/decor above -- it never
@@ -625,9 +636,9 @@ export const useCthulhuquariumTankStore = defineStore(
         tank.value = res.data.aquarium
         catalog.value = catalog.value.filter((entry) => entry.id !== monsterId)
         revealedUnlock.value = res.data.stock
-        if (res.data.justCompletedBestiary) bestiaryJustCompleted.value = true
+        if (res.data.justCompletedBestiary) bestiaryCompletionSignal.trigger()
         if (res.data.firedMilestones?.length) {
-          milestoneToastQueue.value.push(...res.data.firedMilestones)
+          milestoneToastSignal.push(...res.data.firedMilestones)
         }
         // A stale bestiary panel (or one never loaded yet) would otherwise
         // still show this species as uncollected after unlocking it.
@@ -719,20 +730,20 @@ export const useCthulhuquariumTankStore = defineStore(
     }
 
     function dismissBestiaryCompletion(): void {
-      bestiaryJustCompleted.value = false
+      bestiaryCompletionSignal.dismiss()
     }
 
-    // cthulhuquarium/t-053: the front of milestoneToastQueue, pre-formatted
-    // for display -- null when the queue is empty. Reading this instead of
-    // milestoneToastQueue.value[0] directly keeps the wording rule
-    // (formatMilestoneToastMessage) in one place.
+    // cthulhuquarium/t-053: the front of milestoneToastSignal's queue,
+    // pre-formatted for display -- null when the queue is empty. Reading
+    // this instead of milestoneToastSignal.next.value directly keeps the
+    // wording rule (formatMilestoneToastMessage) in one place.
     const nextMilestoneToast = computed(() => {
-      const next = milestoneToastQueue.value[0]
+      const next = milestoneToastSignal.next.value
       return next ? formatMilestoneToastMessage(next) : null
     })
 
     function dismissMilestoneToast(): void {
-      milestoneToastQueue.value.shift()
+      milestoneToastSignal.dismiss()
     }
 
     // cthulhuquarium/t-026: the build layer. loadSets() is called lazily by
@@ -913,7 +924,7 @@ export const useCthulhuquariumTankStore = defineStore(
       if (res.success && res.data) {
         tank.value = res.data.aquarium
         finaleTriggered.value = true
-        if (res.data.finaleJustTriggered) finaleJustTriggered.value = true
+        if (res.data.finaleJustTriggered) finaleRevealSignal.trigger()
         return true
       }
       error.value = res.message || 'Could not buy the last aquarium.'
@@ -921,7 +932,7 @@ export const useCthulhuquariumTankStore = defineStore(
     }
 
     function dismissFinaleReveal(): void {
-      finaleJustTriggered.value = false
+      finaleRevealSignal.dismiss()
     }
 
     // cthulhuquarium/t-041: lazy-loaded, same pattern as loadSets/loadDecor.
@@ -961,9 +972,9 @@ export const useCthulhuquariumTankStore = defineStore(
       if (res.success && res.data) {
         tank.value = res.data.aquarium
         revealedHatch.value = res.data.stock
-        if (res.data.justCompletedBestiary) bestiaryJustCompleted.value = true
+        if (res.data.justCompletedBestiary) bestiaryCompletionSignal.trigger()
         if (res.data.firedMilestones?.length) {
-          milestoneToastQueue.value.push(...res.data.firedMilestones)
+          milestoneToastSignal.push(...res.data.firedMilestones)
         }
         if (bestiary.value.length > 0) await loadBestiary()
         return true
@@ -997,9 +1008,9 @@ export const useCthulhuquariumTankStore = defineStore(
           stock: res.data.stock,
           evolved: res.data.evolved,
         }
-        if (res.data.justCompletedBestiary) bestiaryJustCompleted.value = true
+        if (res.data.justCompletedBestiary) bestiaryCompletionSignal.trigger()
         if (res.data.firedMilestones?.length) {
-          milestoneToastQueue.value.push(...res.data.firedMilestones)
+          milestoneToastSignal.push(...res.data.firedMilestones)
         }
         if (bestiary.value.length > 0) await loadBestiary()
         return true

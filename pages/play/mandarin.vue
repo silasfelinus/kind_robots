@@ -193,15 +193,6 @@
             </p>
           </div>
 
-          <p
-            v-if="artNotice"
-            class="kr-note kr-note-info"
-            role="status"
-            aria-live="polite"
-          >
-            {{ artNotice }}
-          </p>
-
           <article
             v-if="interactionMode === 'study' && currentCard"
             ref="cardPanel"
@@ -262,6 +253,7 @@
                     <button v-if="canQueueArt" type="button" class="btn btn-outline btn-xs" :disabled="artBusy" @click="queueCurrentIllustration">
                       {{ artBusy ? 'Submitting…' : 'Request illustration' }}
                     </button>
+                    <p v-if="artNotice" class="mt-1 text-xs text-success">{{ artNotice }}</p>
                   </div>
                   <div v-else class="space-y-3">
                     <Icon name="kind-icon:volume" class="mx-auto size-12 opacity-60" />
@@ -322,6 +314,7 @@
                         Check art #{{ currentArtJobId }}
                       </button>
                     </div>
+                    <p v-if="artNotice" class="text-xs text-success">{{ artNotice }}</p>
                   </div>
                   <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
                     <button type="button" class="btn btn-sm btn-outline btn-error" @click="store.rateStudyCard('again')">Again</button>
@@ -380,6 +373,7 @@
                     Check art #{{ currentArtJobId }}
                   </button>
                 </div>
+                <p v-if="artNotice" class="text-xs text-success">{{ artNotice }}</p>
               </div>
 
               <div class="flex min-h-64 flex-col p-5">
@@ -512,6 +506,7 @@ const newSetNotice = ref('')
 const cardPanel = ref<HTMLElement | null>(null)
 const brokenArtKeys = ref(new Set<string>())
 const artNotice = ref('')
+let artNoticeTimer: ReturnType<typeof setTimeout> | null = null
 
 const workspaceViews: Array<{ value: WorkspaceView; label: string; icon: string }> = [
   { value: 'card', label: 'Card', icon: 'kind-icon:cards' },
@@ -651,35 +646,33 @@ async function requestCurrentWord() {
   if (created) await scrollToCard()
 }
 
-// Art jobs render on the home relay at its own pace, so queueing and checking
-// both finish with nothing visibly different on the card. Say what happened.
-let artNoticeTimer: ReturnType<typeof setTimeout> | null = null
-
-function showArtNotice(message: string) {
-  artNotice.value = message
-  if (artNoticeTimer) clearTimeout(artNoticeTimer)
-  if (!message) return
-  artNoticeTimer = setTimeout(() => {
-    artNotice.value = ''
+function setArtNotice(message: string) {
+  if (artNoticeTimer) {
+    clearTimeout(artNoticeTimer)
     artNoticeTimer = null
-  }, 8000)
+  }
+  artNotice.value = message
+  if (message) {
+    artNoticeTimer = setTimeout(() => {
+      artNotice.value = ''
+      artNoticeTimer = null
+    }, 4000)
+  }
 }
 
 async function queueCurrentIllustration() {
-  showArtNotice('')
+  setArtNotice('')
   const jobId = await store.queueIllustration(currentCard.value)
-  if (jobId) {
-    showArtNotice(`Illustration queued as ArtJob ${jobId}. It renders in the background.`)
-  }
+  if (jobId) setArtNotice(`Illustration queued as ArtJob ${jobId}.`)
 }
 
 async function refreshCurrentIllustration() {
   const card = currentCard.value
   if (!card) return
-  showArtNotice('')
+  setArtNotice('')
   const canonical = await store.probeCanonicalIllustration(card.key)
   if (canonical) {
-    showArtNotice('Illustration is ready.')
+    setArtNotice('Illustration ready.')
     return
   }
   const url = currentRequested.value
@@ -687,16 +680,18 @@ async function refreshCurrentIllustration() {
     : await store.refreshIllustration(card)
   if (url) {
     brokenArtKeys.value.delete(card.key)
-    showArtNotice('Illustration is ready.')
+    setArtNotice('Illustration ready.')
     return
   }
-  showArtNotice('Still rendering — check again in a moment.')
+  // Nothing came back. Saying so beats leaving the button looking inert while
+  // the home relay is still working through the queue.
+  setArtNotice('Still rendering — check again in a moment.')
 }
 
 // A notice about one card is meaningless on the next one.
 watch(
   () => currentCard.value?.key ?? null,
-  () => showArtNotice(''),
+  () => setArtNotice(''),
 )
 
 onBeforeUnmount(() => {

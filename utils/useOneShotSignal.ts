@@ -61,3 +61,32 @@ export function useOneShotFlag(): {
 
   return { flag, trigger, dismiss }
 }
+
+// cthulhuquarium/t-060 (kaizen from t-056): revealedUnlock, revealedHatch,
+// and revealedBreed in stores/cthulhuquariumTankStore.ts are each their own
+// hand-rolled `ref<T | null>(null)`, set once from a purchase response and
+// cleared via a matching dismissX() -- the same "one moment this is
+// legitimately known client-side" shape as useOneShotFlag above, just with a
+// typed payload instead of a boolean. A fresh reveal always replaces
+// whatever hasn't been dismissed yet (matches the original bare-ref
+// assignment semantics exactly), so this is deliberately NOT built on
+// useOneShotQueue -- a queue would change last-write-wins into
+// first-in-first-shown if two reveals ever landed back to back.
+export function useOneShotReveal<T>(): {
+  value: ComputedRef<T | null>
+  reveal: (payload: T) => void
+  dismiss: () => void
+} {
+  const payload = ref<T | null>(null) as Ref<T | null>
+  const value = computed<T | null>(() => payload.value)
+
+  function reveal(next: T): void {
+    payload.value = next
+  }
+
+  function dismiss(): void {
+    payload.value = null
+  }
+
+  return { value, reveal, dismiss }
+}

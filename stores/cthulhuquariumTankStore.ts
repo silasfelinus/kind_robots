@@ -14,7 +14,11 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { performFetch } from './utils'
 import { formatMilestoneToastMessage } from '~/utils/aquariumMilestoneToast'
-import { useOneShotFlag, useOneShotQueue } from '~/utils/useOneShotSignal'
+import {
+  useOneShotFlag,
+  useOneShotQueue,
+  useOneShotReveal,
+} from '~/utils/useOneShotSignal'
 
 export interface TankMonster {
   id: number
@@ -434,8 +438,11 @@ export const useCthulhuquariumTankStore = defineStore(
     // The just-unlocked occupant, field note and all -- the ONE moment its
     // fieldNote is legitimately known client-side (cthulhuquarium/t-012's
     // "give it a real beat" call). The game component watches this to show
-    // a reveal, then clears it via dismissReveal().
-    const revealedUnlock = ref<TankStock | null>(null)
+    // a reveal, then clears it via dismissReveal(). useOneShotReveal() (t-060)
+    // is the shared one-shot-reveal primitive; revealedUnlock is just its
+    // `value`, kept under the original ref name.
+    const unlockRevealSignal = useOneShotReveal<TankStock>()
+    const revealedUnlock = unlockRevealSignal.value
 
     // cthulhuquarium/t-016: the most recent rare event, if the last settle
     // fired one -- null the overwhelming majority of the time. The game
@@ -521,13 +528,17 @@ export const useCthulhuquariumTankStore = defineStore(
     // watches this to show the hatch reveal, then clears it via
     // dismissHatchReveal(). A hatch must never be silent (the task's own
     // "ONE THING THAT MUST NOT HAPPEN" adjacent rule): this ref is that beat.
-    const revealedHatch = ref<TankStock | null>(null)
+    // Built on useOneShotReveal() (t-060), same primitive as revealedUnlock.
+    const hatchRevealSignal = useOneShotReveal<TankStock>()
+    const revealedHatch = hatchRevealSignal.value
 
     // cthulhuquarium/t-055: the just-bred offspring, same "the one moment
     // this is legitimately known client-side" shape as revealedHatch above
     // -- the game component watches this to show the breed reveal, then
-    // clears it via dismissBreedReveal().
-    const revealedBreed = ref<RevealedBreed | null>(null)
+    // clears it via dismissBreedReveal(). Built on useOneShotReveal() (t-060),
+    // same primitive as revealedUnlock/revealedHatch.
+    const breedRevealSignal = useOneShotReveal<RevealedBreed>()
+    const revealedBreed = breedRevealSignal.value
 
     const stock = computed(() => tank.value?.Stock ?? [])
     const coins = computed(() => tank.value?.coins ?? 0)
@@ -654,7 +665,7 @@ export const useCthulhuquariumTankStore = defineStore(
       if (res.success && res.data) {
         tank.value = res.data.aquarium
         catalog.value = catalog.value.filter((entry) => entry.id !== monsterId)
-        revealedUnlock.value = res.data.stock
+        unlockRevealSignal.reveal(res.data.stock)
         if (res.data.justCompletedBestiary) bestiaryCompletionSignal.trigger()
         if (res.data.firedMilestones?.length) {
           milestoneToastSignal.push(...res.data.firedMilestones)
@@ -669,7 +680,7 @@ export const useCthulhuquariumTankStore = defineStore(
     }
 
     function dismissReveal(): void {
-      revealedUnlock.value = null
+      unlockRevealSignal.dismiss()
     }
 
     // cthulhuquarium/t-030: sells one individual fish back to the shop.
@@ -990,7 +1001,7 @@ export const useCthulhuquariumTankStore = defineStore(
       )
       if (res.success && res.data) {
         tank.value = res.data.aquarium
-        revealedHatch.value = res.data.stock
+        hatchRevealSignal.reveal(res.data.stock)
         if (res.data.justCompletedBestiary) bestiaryCompletionSignal.trigger()
         if (res.data.firedMilestones?.length) {
           milestoneToastSignal.push(...res.data.firedMilestones)
@@ -1003,7 +1014,7 @@ export const useCthulhuquariumTankStore = defineStore(
     }
 
     function dismissHatchReveal(): void {
-      revealedHatch.value = null
+      hatchRevealSignal.dismiss()
     }
 
     // cthulhuquarium/t-055: breeds two owned individuals of the same
@@ -1023,10 +1034,10 @@ export const useCthulhuquariumTankStore = defineStore(
       })
       if (res.success && res.data) {
         tank.value = res.data.aquarium
-        revealedBreed.value = {
+        breedRevealSignal.reveal({
           stock: res.data.stock,
           evolved: res.data.evolved,
-        }
+        })
         if (res.data.justCompletedBestiary) bestiaryCompletionSignal.trigger()
         if (res.data.firedMilestones?.length) {
           milestoneToastSignal.push(...res.data.firedMilestones)
@@ -1039,7 +1050,7 @@ export const useCthulhuquariumTankStore = defineStore(
     }
 
     function dismissBreedReveal(): void {
-      revealedBreed.value = null
+      breedRevealSignal.dismiss()
     }
 
     return {

@@ -222,8 +222,17 @@ export type OwnedAquarium = Prisma.AquariumGetPayload<{
 // itself uses to price a breed -- computed here purely so the tank UI can
 // show "breed for N coins" in its confirmation step before the player
 // commits, without the client re-deriving rarity/pricing math of its own.
+// cthulhuquarium/t-062: sellPrice mirrors breedCost's discipline just above
+// -- computed here with the SAME sellFishForUser(server/utils/aquarium.ts)
+// math (unlockCost + sellPrice off the individual's own rolled stats) so
+// the tank UI can show what pressing Sell would actually pay before the
+// player commits, without re-deriving the sell curve client-side. Kept as
+// a top-level ClientStock field rather than nested under Monster like
+// breedCost -- unlike breedCost, this is per-individual (depends on THIS
+// fish's own stat roll), not a fixed per-species number.
 type ClientStock = OwnedAquarium['Stock'][number] & {
   Monster: OwnedAquarium['Stock'][number]['Monster'] & { breedCost: number }
+  sellPrice: number
 }
 
 export interface ClientAquarium extends Omit<OwnedAquarium, 'Stock'> {
@@ -238,16 +247,20 @@ function toClientAquarium(aquarium: OwnedAquarium): ClientAquarium {
       aquarium.sizeCap,
       aquarium.Sets.map((set) => set.kind),
     ),
-    Stock: aquarium.Stock.map((stock) => ({
-      ...stock,
-      Monster: {
-        ...stock.Monster,
-        breedCost: breedCost(
-          deriveFishRarityTier(stock.Monster),
-          stock.Monster.unlockCost,
+    Stock: aquarium.Stock.map((stock) => {
+      const rarity = deriveFishRarityTier(stock.Monster)
+      return {
+        ...stock,
+        Monster: {
+          ...stock.Monster,
+          breedCost: breedCost(rarity, stock.Monster.unlockCost),
+        },
+        sellPrice: sellPrice(
+          unlockCost(rarity, stock.Monster.unlockCost),
+          toIndividualStatBlock(stock),
         ),
-      },
-    })),
+      }
+    }),
   }
 }
 

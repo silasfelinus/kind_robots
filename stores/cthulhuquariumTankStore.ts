@@ -69,6 +69,11 @@ export interface TankStock {
   statWits: number | null
   parentAId: number | null
   parentBId: number | null
+  // cthulhuquarium/t-062: what selling THIS individual would pay right now,
+  // server-computed (aquariumEconomy.ts's sellPrice) off its own rolled
+  // stats -- same "server disposes" discipline as breedCost above, shown
+  // next to the Sell action so the player sees the payout before clicking.
+  sellPrice: number
   Monster: TankMonster
 }
 

@@ -557,6 +557,111 @@
         </template>
       </div>
 
+      <!-- Eggs (cthulhuquarium/t-041): "a hidden egg purchase... it should
+           hatch something that fits in the aquarium." Two independent
+           dials -- rarity (the LINE the egg seeds, read off the shell) and
+           size (the tank-capacity weight reserved the instant it's bought,
+           same pool as every occupant) -- so a small MYTHIC egg and a large
+           COMMON egg are both real, separately-priced offers. Buying is the
+           decision (the cost is seen up front); hatching is free and
+           always shown, never silent. -->
+      <div class="flex flex-col gap-2 border-t border-base-300 pt-3">
+        <button
+          type="button"
+          class="flex items-center justify-between gap-2 text-left"
+          @click="onToggleEggs"
+        >
+          <span class="text-xs font-black uppercase tracking-wide opacity-60">
+            Eggs
+            <span v-if="tankStore.eggs.length > 0" class="opacity-80">
+              — {{ tankStore.eggs.length }} waiting to hatch
+            </span>
+          </span>
+          <Icon
+            :name="showEggs ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'"
+            class="size-4 shrink-0 opacity-60"
+          />
+        </button>
+
+        <template v-if="showEggs">
+          <!-- Your own unhatched eggs, if any -- shown above the shop so
+               "something to do right now" never hides behind the full
+               catalog grid. -->
+          <div
+            v-if="tankStore.eggs.length"
+            class="grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-2"
+          >
+            <div
+              v-for="egg in tankStore.eggs"
+              :key="egg.id"
+              class="flex items-start gap-2 rounded-xl border border-primary/60 bg-base-100 p-3"
+            >
+              <span class="text-3xl leading-none" aria-hidden="true">{{
+                EGG_ICON
+              }}</span>
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-bold">
+                  {{ egg.rarity.charAt(0)
+                  }}{{ egg.rarity.slice(1).toLowerCase() }}
+                  Egg
+                  <span class="font-normal opacity-60"
+                    >(size {{ egg.size }})</span
+                  >
+                </p>
+                <button
+                  type="button"
+                  class="btn btn-primary btn-outline btn-xs min-h-11 mt-1"
+                  @click="tankStore.hatchEgg(egg.id)"
+                >
+                  Hatch
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-xs italic opacity-50">
+            Every rarity comes in every size -- the shell tells you the line,
+            not the size; the price tells you the size, not the line.
+          </p>
+          <p v-if="tankStore.eggCatalogLoading" class="text-xs opacity-60">
+            Reading the shelf…
+          </p>
+          <div
+            v-else
+            class="grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-2"
+          >
+            <div
+              v-for="entry in tankStore.eggCatalog"
+              :key="`${entry.rarity}-${entry.size}`"
+              class="flex items-start gap-2 rounded-xl border border-base-300 bg-base-100 p-3"
+            >
+              <span class="text-3xl leading-none" aria-hidden="true">{{
+                entry.icon
+              }}</span>
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-bold">
+                  {{ entry.title }}
+                  <span class="font-normal opacity-60"
+                    >(size {{ entry.size }})</span
+                  >
+                </p>
+                <p class="mt-0.5 line-clamp-2 text-xs italic opacity-70">
+                  {{ entry.description }}
+                </p>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-xs min-h-11 mt-1"
+                  :disabled="!canBuyEgg(entry)"
+                  @click="tankStore.purchaseEgg(entry.rarity, entry.size)"
+                >
+                  Buy ({{ entry.cost }})
+                </button>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+
       <!-- The last aquarium (cthulhuquarium/t-039): a single, standalone,
            one-time terminal purchase -- deliberately not folded into "Set
            pieces" above, since it never occupies a setSlotsCap slot and can
@@ -679,6 +784,64 @@
         </div>
         <form method="dialog" class="modal-backdrop">
           <button type="button" @click="tankStore.dismissReveal()">
+            close
+          </button>
+        </form>
+      </dialog>
+    </Teleport>
+
+    <!-- The hatch reveal (cthulhuquarium/t-041): the egg is consumed here --
+         this dialog IS the "must be shown, never silent" requirement the
+         task note makes non-negotiable, same reasoning as the unlock reveal
+         above but for a purchase that resolved to something unknown at
+         the time of buying, not something chosen. -->
+    <Teleport to="body">
+      <dialog
+        v-if="tankStore.revealedHatch"
+        class="modal modal-open"
+        aria-modal="true"
+        @cancel.prevent="tankStore.dismissHatchReveal()"
+      >
+        <div
+          class="modal-box flex max-w-sm flex-col items-center gap-3 rounded-3xl border border-base-300 bg-base-100 text-center shadow-2xl"
+        >
+          <p class="text-xs font-black uppercase tracking-wide text-primary">
+            It hatched
+          </p>
+          <kr-art-plate
+            :source="tankStore.revealedHatch.Monster"
+            variant="card"
+            shape="plate"
+            frame="thin"
+            fit="cover"
+            class="h-32 w-24"
+            placeholder-icon="kind-icon:fish"
+          />
+          <h3 class="text-lg font-black">
+            {{ tankStore.revealedHatch.Monster.name }}
+          </h3>
+          <p
+            v-if="tankStore.revealedHatch.Monster.species"
+            class="text-xs italic opacity-60"
+          >
+            {{ tankStore.revealedHatch.Monster.species }}
+          </p>
+          <p class="text-sm opacity-80">
+            {{
+              tankStore.revealedHatch.Monster.fieldNote ||
+              'Nothing is written about this one yet.'
+            }}
+          </p>
+          <button
+            type="button"
+            class="btn btn-primary btn-sm mt-1"
+            @click="tankStore.dismissHatchReveal()"
+          >
+            Add it to the tank
+          </button>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+          <button type="button" @click="tankStore.dismissHatchReveal()">
             close
           </button>
         </form>
@@ -823,6 +986,7 @@ import {
   useCthulhuquariumTankStore,
   type BestiaryStatBlock,
   type CatalogEntry,
+  type EggCatalogEntry,
   type SetCatalogEntry,
   type TankDecor,
   type TankStock,
@@ -1007,6 +1171,12 @@ const visibilitySaving = ref(false)
 // its relationship to economy.yaml.
 const DISPLAY_TICK_SECONDS = 60
 
+// cthulhuquarium/t-041: the "your eggs" inventory tile has no catalog entry
+// to read an icon off of (TankEgg carries no `icon` field, unlike
+// EggCatalogEntry) -- mirrors aquariumEconomy.ts's EGG_ICON by hand, same
+// "must be kept in sync" discipline as DISPLAY_TICK_SECONDS above.
+const EGG_ICON = '🥚'
+
 const offlineDurationLabel = computed(() => {
   const seconds = tankStore.offlineTicksProcessed * DISPLAY_TICK_SECONDS
   if (seconds < 60) return ''
@@ -1024,6 +1194,7 @@ const collector = ref<Collector | null>(null)
 const showBestiary = ref(false)
 const showSets = ref(false)
 const showDecor = ref(false)
+const showEggs = ref(false)
 
 // Read live rather than baked into each Swimmer at spawn time, so
 // equipping/unequipping Swift Current takes effect immediately instead of
@@ -1589,6 +1760,13 @@ function onToggleDecor() {
   }
 }
 
+function onToggleEggs() {
+  showEggs.value = !showEggs.value
+  if (showEggs.value && !tankStore.eggCatalog.length) {
+    void tankStore.loadEggCatalog()
+  }
+}
+
 async function onToggleVisibility(event: Event): Promise<void> {
   const next = (event.target as HTMLInputElement).checked
   visibilitySaving.value = true
@@ -1609,6 +1787,17 @@ function canEquip(entry: SetCatalogEntry): boolean {
 
 function equippedSetId(kind: string): number | null {
   return tankStore.equippedSets.find((entry) => entry.kind === kind)?.id ?? null
+}
+
+// cthulhuquarium/t-041: mirrors the server's capacity math
+// (currentReservedSize) so a disabled Buy button agrees with what the
+// server will actually accept -- an unhatched egg's own size already
+// counts against tankStore.occupantSize (see that computed's own comment).
+function canBuyEgg(entry: EggCatalogEntry): boolean {
+  return (
+    tankStore.coins >= entry.cost &&
+    tankStore.occupantSize + entry.size <= tankStore.sizeCap
+  )
 }
 
 // cthulhuquarium/t-048: both loops pause on a hidden tab and resume cleanly

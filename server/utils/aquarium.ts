@@ -12,7 +12,7 @@
 // (prices, caps, and elapsed-tick income all come from here, never from the
 // request body).
 
-import type { Prisma } from '~/prisma/generated/prisma/client'
+import type { Prisma, Rarity } from '~/prisma/generated/prisma/client'
 import prisma from './prisma'
 import { getUniqueAquariumSlugForUser } from './aquariumSlug'
 import {
@@ -24,17 +24,23 @@ import {
   DECOR_CATALOG,
   deriveFishRarityTier,
   effectiveSizeCap,
+  eggCatalog,
+  eggCost,
+  EGG_SIZE_OPTIONS,
   feedCoinRebate,
   feedCost,
   FEED_RESTORES_HUNGER_TO,
   firedBestiaryMilestones,
   HUNGER_STARTING_VALUE,
   isKnownDecorKind,
+  isKnownEggRarity,
+  isKnownEggSize,
   isKnownSetPieceKind,
   justCompletedBestiary as computeJustCompletedBestiary,
   LAST_AQUARIUM_CONFIG,
   MAX_CLEAN_CLICKS_PER_REQUEST,
   mergeBestStats,
+  pickHatchIndex,
   qualifiesForBreedingEvolution,
   rollIndividualStats,
   rollRareEvent,
@@ -148,6 +154,17 @@ const ownedDecorSelect = {
   createdAt: true,
 } satisfies Prisma.AquariumDecorSelect
 
+// cthulhuquarium/t-041: unhatched eggs only -- once hatched, an egg's
+// outcome already lives on the created AquariumStock row and the
+// Ichthyonomicon entry; the row itself is kept (never deleted, for
+// history) but has nothing left to show in the live tank view.
+const ownedEggSelect = {
+  id: true,
+  rarity: true,
+  size: true,
+  purchasedAt: true,
+} satisfies Prisma.AquariumEggSelect
+
 const ownedAquariumSelect = {
   id: true,
   slug: true,
@@ -165,6 +182,11 @@ const ownedAquariumSelect = {
   Stock: { select: ownedStockSelect },
   Sets: { select: ownedSetSelect, orderBy: { equippedAt: 'asc' } },
   Decor: { select: ownedDecorSelect, orderBy: { createdAt: 'asc' } },
+  Eggs: {
+    select: ownedEggSelect,
+    where: { hatchedAt: null },
+    orderBy: { purchasedAt: 'asc' },
+  },
 } satisfies Prisma.AquariumSelect
 
 export type OwnedAquarium = Prisma.AquariumGetPayload<{
@@ -189,6 +211,25 @@ function toClientAquarium(aquarium: OwnedAquarium): ClientAquarium {
       aquarium.Sets.map((set) => set.kind),
     ),
   }
+}
+
+// cthulhuquarium/t-041: an unhatched egg reserves its `size` in the weighed
+// pool from the moment it's bought -- SAME pool as Stock's Monster.size,
+// checked by the SAME rule, so a hatch (whose resolved species is always
+// size <= the egg's own) can never overflow the tank. Every call site that
+// already summed tank.Stock for a capacity check must also sum tank.Eggs
+// (unhatched-only, per ownedEggSelect's own where clause) or a player could
+// bypass the cap entirely by buying eggs first.
+function currentReservedSize(tank: {
+  Stock: OwnedAquarium['Stock']
+  Eggs: OwnedAquarium['Eggs']
+}): number {
+  const stockSize = tank.Stock.reduce(
+    (sum, row) => sum + (row.Monster.size ?? 1),
+    0,
+  )
+  const eggSize = tank.Eggs.reduce((sum, egg) => sum + egg.size, 0)
+  return stockSize + eggSize
 }
 
 const DEFAULT_STARTING_COINS = 0
@@ -856,10 +897,7 @@ export async function purchaseSpeciesForUser(
     )
   }
 
-  const currentSize = tank.Stock.reduce(
-    (sum, row) => sum + (row.Monster.size ?? 1),
-    0,
-  )
+  const currentSize = currentReservedSize(tank)
   const newSize = monster.size ?? 1
   // tank.effectiveSizeCap (aquariumEconomy.ts's effectiveSizeCap) already
   // folds in any equipped extra_species_slot bonus -- see this section's
@@ -1031,6 +1069,293 @@ export async function purchaseSpeciesForUser(
 }
 
 // ---------------------------------------------------------------------------
+// Eggs -- cthulhuquarium/t-041. Two steps, two routes: purchaseEggForUser
+// reserves capacity and charges coins up front (the "decision" the task
+// note requires -- the player sees the cost before committing); hatchEggForUser
+// resolves and consumes the egg later, for free, since it was already paid
+// for. See aquariumEconomy.ts's own header comment on EGG_SIZE_OPTIONS/
+// eggCost for the pricing rationale.
+// ---------------------------------------------------------------------------
+
+export interface EggCatalogResult {
+  catalog: ReturnType<typeof eggCatalog>
+  eggs: OwnedAquarium['Eggs']
+}
+
+// Static catalog (all six rarities x all three sizes, no rotation -- eggs
+// are a shop fixture, not a discovery slate like the species catalog) plus
+// this tank's own unhatched eggs, same "catalog + this tank's own state"
+// shape as listSetsForUser/listDecorForUser.
+export async function listEggCatalogForUser(
+  userId: number,
+  username: string,
+): Promise<EggCatalogResult> {
+  const tank = await getOrCreateTankForUser(userId, username)
+  return { catalog: eggCatalog(), eggs: tank.Eggs }
+}
+
+export interface PurchaseEggResult {
+  aquarium: ClientAquarium
+  egg: OwnedAquarium['Eggs'][number]
+  cost: number
+}
+
+export async function purchaseEggForUser(
+  userId: number,
+  username: string,
+  rarity: Rarity,
+  size: number,
+): Promise<PurchaseEggResult> {
+  if (!isKnownEggRarity(rarity)) {
+    throw apiError(400, `'${rarity}' is not a real rarity tier.`)
+  }
+  if (!isKnownEggSize(size)) {
+    throw apiError(
+      400,
+      `Eggs are only offered at sizes ${EGG_SIZE_OPTIONS.join(', ')}.`,
+    )
+  }
+
+  const tank = await getOrCreateTankForUser(userId, username)
+
+  // The size is reserved the instant the egg is bought -- checked ONCE,
+  // here, by the ordinary capacity rule (currentReservedSize folds in every
+  // other unhatched egg too), so hatching itself never needs a capacity
+  // check at all: the space already exists.
+  const currentSize = currentReservedSize(tank)
+  if (currentSize + size > tank.effectiveSizeCap) {
+    throw apiError(
+      409,
+      `A size-${size} egg would exceed your tank's capacity (${currentSize}/${tank.effectiveSizeCap} used) -- the space is reserved the moment you buy it.`,
+    )
+  }
+
+  const cost = eggCost(rarity, size)
+  if (tank.coins < cost) {
+    throw apiError(
+      402,
+      `A ${rarity.toLowerCase()} egg that size costs ${cost} coins; your tank only has ${tank.coins}.`,
+    )
+  }
+
+  const { aquarium, egg } = await prisma.$transaction(async (tx) => {
+    const createdEgg = await tx.aquariumEgg.create({
+      data: { aquariumId: tank.id, rarity, size },
+      select: ownedEggSelect,
+    })
+    const updatedAquarium = await tx.aquarium.update({
+      where: { id: tank.id },
+      data: { coins: { decrement: cost } },
+      select: ownedAquariumSelect,
+    })
+    await logEvent(tx, tank.id, 'purchase', {
+      type: 'egg',
+      rarity,
+      size,
+      aquariumEggId: createdEgg.id,
+      cost,
+    })
+    return { aquarium: updatedAquarium, egg: createdEgg }
+  })
+
+  return { aquarium: toClientAquarium(aquarium), egg, cost }
+}
+
+export interface HatchEggResult {
+  aquarium: ClientAquarium
+  stock: OwnedAquarium['Stock'][number]
+  justCompletedBestiary: boolean
+  firedMilestones: BestiaryMilestoneConfig[]
+}
+
+export async function hatchEggForUser(
+  userId: number,
+  username: string,
+  aquariumEggId: number,
+): Promise<HatchEggResult> {
+  const tank = await getOrCreateTankForUser(userId, username)
+
+  const egg = tank.Eggs.find((row) => row.id === aquariumEggId)
+  if (!egg) {
+    throw apiError(
+      404,
+      'That egg is not in your tank (or has already hatched).',
+    )
+  }
+
+  // EGGS HATCH EXISTING SPECIES, and always the BASE of a line (EvolvesFrom:
+  // none -- no other species' evolvesToId points at it) matching the egg's
+  // own rarity grade, per the task note's "rarity describes the LINE, read
+  // off the shell" decision. size <= egg.size is the whole reason a hatch
+  // can never overflow the tank -- the reservation already covers it.
+  //
+  // Deliberately NOT filtered against species the player already owns
+  // (contrast purchaseSpeciesForUser's alreadyOwned 409): a duplicate
+  // individual is a genuinely useful outcome here, not a wasted one --
+  // breeding (t-029) requires two individuals of the SAME species, and a
+  // hatch is the only route to a second one of an already-owned line base.
+  const eligiblePool = await prisma.monster.findMany({
+    where: {
+      isActive: true,
+      isPublic: true,
+      games: { contains: 'cthulhuquarium' },
+      tier: egg.rarity,
+      size: { lte: egg.size },
+      EvolvesFrom: { none: {} },
+    },
+    select: stockMonsterSelect,
+    orderBy: { id: 'asc' },
+  })
+  if (eligiblePool.length === 0) {
+    throw apiError(
+      409,
+      `No ${egg.rarity.toLowerCase()}-tier line exists yet at size ${egg.size} or smaller -- this egg can't hatch right now. Nothing was lost; try again once the bestiary grows.`,
+    )
+  }
+  const monster =
+    eligiblePool[pickHatchIndex(eligiblePool.length, Math.random())]!
+
+  const rolledStats = rollIndividualStats(monster, rollSixRandoms())
+
+  const { aquarium, stock, justCompletedBestiary, firedMilestones } =
+    await prisma.$transaction(async (tx) => {
+      // Race guard, same "server disposes" discipline as everywhere else --
+      // updateMany's count is 0 if another request hatched (or somehow
+      // deleted) this exact egg between the read above and this write.
+      const hatched = await tx.aquariumEgg.updateMany({
+        where: { id: egg.id, aquariumId: tank.id, hatchedAt: null },
+        data: { hatchedAt: new Date(), hatchedMonsterId: monster.id },
+      })
+      if (hatched.count === 0) {
+        throw apiError(409, 'That egg has already hatched.')
+      }
+
+      const { totalCount, collectedCount: collectedCountBefore } =
+        await countBestiaryTotals(tx, userId)
+
+      const createdStock = await tx.aquariumStock.create({
+        data: {
+          aquariumId: tank.id,
+          monsterId: monster.id,
+          hunger: HUNGER_STARTING_VALUE,
+          ...fromIndividualStatBlock(rolledStats),
+        },
+        select: ownedStockSelect,
+      })
+
+      const existingEntry = await tx.aquariumCodexEntry.findUnique({
+        where: { userId_monsterId: { userId, monsterId: monster.id } },
+        select: { id: true, ...codexBestStatSelect },
+      })
+      const mergedStats = mergeBestStats(
+        existingEntry ? toStatBlock(existingEntry) : NULL_STAT_BLOCK,
+        rolledStats,
+      )
+      await tx.aquariumCodexEntry.upsert({
+        where: { userId_monsterId: { userId, monsterId: monster.id } },
+        create: {
+          userId,
+          monsterId: monster.id,
+          ...fromStatBlock(mergedStats),
+        },
+        update: { ...fromStatBlock(mergedStats) },
+      })
+      const collectedCountAfter = collectedCountBefore + (existingEntry ? 0 : 1)
+
+      const candidateMilestones = firedBestiaryMilestones(
+        collectedCountBefore,
+        collectedCountAfter,
+      )
+      const firedMilestones: BestiaryMilestoneConfig[] = []
+      if (candidateMilestones.length > 0) {
+        const alreadyLoggedKinds = new Set(
+          (
+            await tx.aquariumEvent.findMany({
+              where: {
+                aquariumId: tank.id,
+                kind: { in: candidateMilestones.map(milestoneEventKind) },
+              },
+              select: { kind: true },
+            })
+          ).map((row) => row.kind),
+        )
+        for (const milestone of candidateMilestones) {
+          if (!alreadyLoggedKinds.has(milestoneEventKind(milestone))) {
+            firedMilestones.push(milestone)
+          }
+        }
+      }
+      const slotsCapDelta = firedMilestones.reduce(
+        (sum, milestone) => sum + milestone.slotsCapDelta,
+        0,
+      )
+
+      // No coins column touched here -- the egg was already paid for at
+      // purchase. slotsCapDelta from a freshly-crossed milestone can still
+      // apply, same as any other acquisition route.
+      const updatedAquarium = await tx.aquarium.update({
+        where: { id: tank.id },
+        data:
+          slotsCapDelta > 0
+            ? { setSlotsCap: { increment: slotsCapDelta } }
+            : {},
+        select: ownedAquariumSelect,
+      })
+
+      let justCompletedBestiary = false
+      if (
+        computeJustCompletedBestiary(
+          totalCount,
+          collectedCountBefore,
+          collectedCountAfter,
+        )
+      ) {
+        const alreadyCelebrated = await tx.aquariumEvent.findFirst({
+          where: { aquariumId: tank.id, kind: BESTIARY_COMPLETE_EVENT_KIND },
+          select: { id: true },
+        })
+        if (!alreadyCelebrated) {
+          justCompletedBestiary = true
+          await logEvent(tx, tank.id, BESTIARY_COMPLETE_EVENT_KIND, {
+            collectedCount: collectedCountAfter,
+            totalCount,
+          })
+        }
+      }
+
+      for (const milestone of firedMilestones) {
+        await logEvent(tx, tank.id, milestoneEventKind(milestone), {
+          landmark: milestone.id,
+          slotsCapDelta: milestone.slotsCapDelta,
+          collectedCount: collectedCountAfter,
+        })
+      }
+
+      await logEvent(tx, tank.id, 'hatch', {
+        aquariumEggId: egg.id,
+        eggRarity: egg.rarity,
+        eggSize: egg.size,
+        monsterId: monster.id,
+        aquariumStockId: createdStock.id,
+      })
+
+      return {
+        aquarium: updatedAquarium,
+        stock: createdStock,
+        justCompletedBestiary,
+        firedMilestones,
+      }
+    })
+
+  return {
+    aquarium: toClientAquarium(aquarium),
+    stock,
+    justCompletedBestiary,
+    firedMilestones,
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Breeding -- cthulhuquarium/t-029. "Breeding never consumes the parents"
 // (SYSTEMS.md): both parent AquariumStock rows are read-only here, never
 // updated or deleted -- only a new offspring row is created, linked back to
@@ -1138,10 +1463,7 @@ export async function breedFishForUser(
     throw apiError(409, `${monster.name} is not currently breedable.`)
   }
 
-  const currentSize = tank.Stock.reduce(
-    (sum, row) => sum + (row.Monster.size ?? 1),
-    0,
-  )
+  const currentSize = currentReservedSize(tank)
   const offspringSize = monster.size ?? 1
   if (currentSize + offspringSize > tank.effectiveSizeCap) {
     throw apiError(

@@ -238,6 +238,45 @@
                 >
                   Sell
                 </button>
+                <!-- Breed (t-055): a two-step pick, same "choose, then click
+                     to commit" idiom as the decor placement flow -- clicking
+                     Breed on one card arms it as parent A, then only other
+                     cards of the SAME species offer "Breed with this" as
+                     parent B. Neither click mutates the tank; that only
+                     happens once the confirm dialog below is accepted. -->
+                <button
+                  v-if="pendingBreedParentId === entry.id"
+                  type="button"
+                  class="btn btn-primary btn-xs min-h-11 min-w-11"
+                  @click="onBreedClick(entry)"
+                >
+                  Cancel breed
+                </button>
+                <button
+                  v-else-if="
+                    pendingBreedParent &&
+                    pendingBreedParent.monsterId === entry.monsterId
+                  "
+                  type="button"
+                  class="btn btn-primary btn-xs min-h-11 min-w-11"
+                  @click="onBreedClick(entry)"
+                >
+                  Breed with this
+                </button>
+                <button
+                  v-else
+                  type="button"
+                  class="btn btn-outline btn-xs min-h-11 min-w-11"
+                  :disabled="pendingBreedParentId !== null"
+                  :title="
+                    pendingBreedParentId !== null
+                      ? 'Pick another individual of the same species, or cancel first.'
+                      : undefined
+                  "
+                  @click="onBreedClick(entry)"
+                >
+                  Breed
+                </button>
               </div>
             </div>
             <div
@@ -848,6 +887,138 @@
       </dialog>
     </Teleport>
 
+    <!-- The breed confirmation (cthulhuquarium/t-055): the second half of
+         the choose-then-click-to-commit flow above. Shows the coin cost
+         before anything is spent -- the one thing the task asked for by
+         name -- and disables Confirm rather than guessing when the pair
+         can't actually be afforded or would overflow the tank; the server
+         re-checks both regardless, this is just so the button doesn't lie. -->
+    <Teleport to="body">
+      <dialog
+        v-if="breedConfirmPair"
+        class="modal modal-open"
+        aria-modal="true"
+        @cancel.prevent="breedConfirmPair = null"
+      >
+        <div
+          class="modal-box flex max-w-sm flex-col items-center gap-3 rounded-3xl border border-base-300 bg-base-100 text-center shadow-2xl"
+        >
+          <p class="text-xs font-black uppercase tracking-wide text-primary">
+            Breed these two?
+          </p>
+          <kr-art-plate
+            :source="breedConfirmPair.a.Monster"
+            variant="card"
+            shape="plate"
+            frame="thin"
+            fit="cover"
+            class="h-32 w-24"
+            placeholder-icon="kind-icon:fish"
+          />
+          <h3 class="text-lg font-black">
+            {{ breedConfirmPair.a.Monster.name }}
+          </h3>
+          <p class="text-sm opacity-80">
+            Costs {{ breedConfirmPair.a.Monster.breedCost }} coins. Neither
+            parent is consumed -- you'll get a new individual with converged
+            stats, and just maybe, a secret evolution.
+          </p>
+          <p v-if="!canConfirmBreed" class="text-xs text-error">
+            Not enough coins, or not enough tank room, for this pairing right
+            now.
+          </p>
+          <div class="flex gap-2">
+            <button
+              type="button"
+              class="btn btn-outline btn-sm"
+              @click="breedConfirmPair = null"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary btn-sm"
+              :disabled="!canConfirmBreed"
+              @click="onConfirmBreed"
+            >
+              Breed for {{ breedConfirmPair.a.Monster.breedCost }}
+            </button>
+          </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+          <button type="button" @click="breedConfirmPair = null">close</button>
+        </form>
+      </dialog>
+    </Teleport>
+
+    <!-- The breed reveal (cthulhuquarium/t-055): same "must be shown, never
+         silent" beat as the hatch reveal above, but doubling as the payoff
+         moment for a secret BREEDING evolution (SYSTEMS.md's "the payoff,
+         not a guaranteed outcome") -- `evolved` swaps the framing so that
+         rare beat actually reads as special rather than an ordinary
+         offspring reveal with different art. -->
+    <Teleport to="body">
+      <dialog
+        v-if="tankStore.revealedBreed"
+        class="modal modal-open"
+        aria-modal="true"
+        @cancel.prevent="tankStore.dismissBreedReveal()"
+      >
+        <div
+          class="modal-box flex max-w-sm flex-col items-center gap-3 rounded-3xl border border-base-300 bg-base-100 text-center shadow-2xl"
+        >
+          <Icon
+            v-if="tankStore.revealedBreed.evolved"
+            name="kind-icon:sparkles"
+            class="size-8 text-warning"
+          />
+          <p class="text-xs font-black uppercase tracking-wide text-primary">
+            {{
+              tankStore.revealedBreed.evolved
+                ? 'A secret evolution!'
+                : 'It bred'
+            }}
+          </p>
+          <kr-art-plate
+            :source="tankStore.revealedBreed.stock.Monster"
+            variant="card"
+            shape="plate"
+            frame="thin"
+            fit="cover"
+            class="h-32 w-24"
+            placeholder-icon="kind-icon:fish"
+          />
+          <h3 class="text-lg font-black">
+            {{ tankStore.revealedBreed.stock.Monster.name }}
+          </h3>
+          <p
+            v-if="tankStore.revealedBreed.stock.Monster.species"
+            class="text-xs italic opacity-60"
+          >
+            {{ tankStore.revealedBreed.stock.Monster.species }}
+          </p>
+          <p class="text-sm opacity-80">
+            {{
+              tankStore.revealedBreed.stock.Monster.fieldNote ||
+              'Nothing is written about this one yet.'
+            }}
+          </p>
+          <button
+            type="button"
+            class="btn btn-primary btn-sm mt-1"
+            @click="tankStore.dismissBreedReveal()"
+          >
+            Add it to the tank
+          </button>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+          <button type="button" @click="tankStore.dismissBreedReveal()">
+            close
+          </button>
+        </form>
+      </dialog>
+    </Teleport>
+
     <!-- The bestiary completion beat (cthulhuquarium/t-024): "the closest
          thing this game has to an ending... but it must not end the session
          or lock anything, because the tank keeps running." Dismissing this
@@ -1196,6 +1367,15 @@ const showSets = ref(false)
 const showDecor = ref(false)
 const showEggs = ref(false)
 
+// Breeding (cthulhuquarium/t-055): pendingBreedParentId is the "choose"
+// half of the choose-then-click-to-commit flow -- set by clicking Breed on
+// one tank card, cleared by clicking it again or by confirming/cancelling
+// the pairing below. breedConfirmPair is the "click to commit" half: set
+// once a second, same-species card is chosen, cleared once the confirm
+// dialog closes either way.
+const pendingBreedParentId = ref<number | null>(null)
+const breedConfirmPair = ref<{ a: TankStock; b: TankStock } | null>(null)
+
 // Read live rather than baked into each Swimmer at spawn time, so
 // equipping/unequipping Swift Current takes effect immediately instead of
 // only for fish spawned afterward.
@@ -1220,6 +1400,50 @@ function canUnlock(entry: CatalogEntry): boolean {
     tankStore.coins >= entry.cost &&
     tankStore.occupantSize + (entry.size ?? 1) <= tankStore.sizeCap
   )
+}
+
+// cthulhuquarium/t-055: the currently-armed first parent, if any -- looked
+// up live off tankStore.stock (rather than cached at click time) so a sell
+// or feed elsewhere in the tank while a pairing is pending can't leave this
+// pointing at stale data.
+const pendingBreedParent = computed<TankStock | null>(
+  () =>
+    tankStore.stock.find((entry) => entry.id === pendingBreedParentId.value) ??
+    null,
+)
+
+function onBreedClick(entry: TankStock): void {
+  if (pendingBreedParentId.value === entry.id) {
+    pendingBreedParentId.value = null
+    return
+  }
+  const pending = pendingBreedParent.value
+  if (pending && pending.monsterId === entry.monsterId) {
+    breedConfirmPair.value = { a: pending, b: entry }
+    pendingBreedParentId.value = null
+    return
+  }
+  pendingBreedParentId.value = entry.id
+}
+
+// Same capacity/coin math the confirm button's disabled state and the
+// server's own breedFishForUser check independently -- this is only so the
+// button doesn't invite a click the server would reject anyway; the server
+// re-checks both for real regardless (aquarium.ts never trusts the client).
+const canConfirmBreed = computed(() => {
+  const pair = breedConfirmPair.value
+  if (!pair) return false
+  return (
+    tankStore.coins >= pair.a.Monster.breedCost &&
+    tankStore.occupantSize + (pair.a.Monster.size ?? 1) <= tankStore.sizeCap
+  )
+})
+
+async function onConfirmBreed(): Promise<void> {
+  const pair = breedConfirmPair.value
+  if (!pair) return
+  breedConfirmPair.value = null
+  await tankStore.breed(pair.a.id, pair.b.id)
 }
 
 // t-031: compact "best seen" line for the Ichthyonomicon. Only ever called

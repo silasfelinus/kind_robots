@@ -124,6 +124,15 @@ const stockMonsterSelect = {
   ...monsterEconomyOverridesSelect,
 } satisfies Prisma.MonsterSelect
 
+// cthulhuquarium/t-055: the rolled individual stats and parentage were
+// already written by t-029's breedFishForUser/purchaseSpeciesForUser (see
+// breedStockSelect/sellStockSelect below, which needed them for their own
+// server-side math) but never reached the general tank load -- there was no
+// frontend surface asking for them yet. Surfacing them here is what lets the
+// tank UI offer a breeding flow at all: picking two owned individuals of the
+// same species needs their ids (parentAId/parentBId are read back, not
+// written, from this shape) and the rolled stats are what a future stat
+// display would read, though this task only wires the action itself.
 const ownedStockSelect = {
   id: true,
   monsterId: true,
@@ -131,6 +140,14 @@ const ownedStockSelect = {
   hunger: true,
   mood: true,
   placedAt: true,
+  statCharm: true,
+  statEmpathy: true,
+  statGrace: true,
+  statLuck: true,
+  statMight: true,
+  statWits: true,
+  parentAId: true,
+  parentBId: true,
   Monster: { select: stockMonsterSelect },
 } satisfies Prisma.AquariumStockSelect
 
@@ -199,8 +216,19 @@ export type OwnedAquarium = Prisma.AquariumGetPayload<{
 // the client to re-derive from `Sets` + a hardcoded bonus value -- same
 // "the server disposes, the client never invents an economy number"
 // discipline as everywhere else in this file.
-export interface ClientAquarium extends OwnedAquarium {
+//
+// cthulhuquarium/t-055: each Stock row's Monster also carries `breedCost`,
+// the SAME breedCost(deriveFishRarityTier(...), ...) call breedFishForUser
+// itself uses to price a breed -- computed here purely so the tank UI can
+// show "breed for N coins" in its confirmation step before the player
+// commits, without the client re-deriving rarity/pricing math of its own.
+type ClientStock = OwnedAquarium['Stock'][number] & {
+  Monster: OwnedAquarium['Stock'][number]['Monster'] & { breedCost: number }
+}
+
+export interface ClientAquarium extends Omit<OwnedAquarium, 'Stock'> {
   effectiveSizeCap: number
+  Stock: ClientStock[]
 }
 
 function toClientAquarium(aquarium: OwnedAquarium): ClientAquarium {
@@ -210,6 +238,16 @@ function toClientAquarium(aquarium: OwnedAquarium): ClientAquarium {
       aquarium.sizeCap,
       aquarium.Sets.map((set) => set.kind),
     ),
+    Stock: aquarium.Stock.map((stock) => ({
+      ...stock,
+      Monster: {
+        ...stock.Monster,
+        breedCost: breedCost(
+          deriveFishRarityTier(stock.Monster),
+          stock.Monster.unlockCost,
+        ),
+      },
+    })),
   }
 }
 

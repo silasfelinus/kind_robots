@@ -37,6 +37,11 @@ export interface TankMonster {
   luck: string
   might: string
   wits: string
+  // cthulhuquarium/t-055: what breeding two owned individuals of this
+  // species costs, server-computed (aquariumEconomy.ts's breedCost) off
+  // this same rarity/unlockCost -- never re-derived client-side, same
+  // "server disposes" discipline as every other price in this store.
+  breedCost: number
 }
 
 export interface TankStock {
@@ -46,6 +51,19 @@ export interface TankStock {
   hunger: number
   mood: string | null
   placedAt: string
+  // cthulhuquarium/t-055/t-029: hidden rolled individual stats and
+  // parentage. Null until rolled -- every individual placed before t-029
+  // shipped has null stats and no parents. Read-only here (breed() sends
+  // parent ids, never these stats); a future stat display is the only
+  // thing waiting on this, not this task's own breeding action.
+  statCharm: number | null
+  statEmpathy: number | null
+  statGrace: number | null
+  statLuck: number | null
+  statMight: number | null
+  statWits: number | null
+  parentAId: number | null
+  parentBId: number | null
   Monster: TankMonster
 }
 
@@ -267,6 +285,29 @@ interface HatchEggResponse {
   firedMilestones: FiredMilestone[]
 }
 
+// cthulhuquarium/t-055: breed.post.ts's response shape. `evolved` mirrors
+// server/utils/aquarium.ts's BreedResult -- true only when the offspring's
+// rolled stats qualified for the parent species' secret BREEDING evolution,
+// in which case `stock` is already the evolved species, not the parents'
+// own (see breedFishForUser's own comment).
+interface BreedResponse {
+  aquarium: Tank
+  stock: TankStock
+  cost: number
+  evolved: boolean
+  justCompletedBestiary: boolean
+  firedMilestones: FiredMilestone[]
+}
+
+// The breed reveal beat, same "the one moment this is legitimately known
+// client-side" shape as revealedUnlock/revealedHatch -- `evolved` is carried
+// alongside the stock so the dialog can tell "a normal offspring" from "a
+// secret evolution" apart without re-deriving it from the parent species.
+export interface RevealedBreed {
+  stock: TankStock
+  evolved: boolean
+}
+
 interface CleanResponse {
   aquarium: Tank
   debrisLevel: number
@@ -454,6 +495,12 @@ export const useCthulhuquariumTankStore = defineStore(
     // dismissHatchReveal(). A hatch must never be silent (the task's own
     // "ONE THING THAT MUST NOT HAPPEN" adjacent rule): this ref is that beat.
     const revealedHatch = ref<TankStock | null>(null)
+
+    // cthulhuquarium/t-055: the just-bred offspring, same "the one moment
+    // this is legitimately known client-side" shape as revealedHatch above
+    // -- the game component watches this to show the breed reveal, then
+    // clears it via dismissBreedReveal().
+    const revealedBreed = ref<RevealedBreed | null>(null)
 
     const stock = computed(() => tank.value?.Stock ?? [])
     const coins = computed(() => tank.value?.coins ?? 0)
@@ -929,6 +976,42 @@ export const useCthulhuquariumTankStore = defineStore(
       revealedHatch.value = null
     }
 
+    // cthulhuquarium/t-055: breeds two owned individuals of the same
+    // species into a new offspring. Neither parent is consumed or modified
+    // -- see server/utils/aquarium.ts's breedFishForUser for the full price/
+    // capacity/ownership checks, all enforced server-side same as every
+    // other action here. Refreshes the bestiary the same way unlock()/
+    // hatchEgg() do, since a breed can land on a species the book hasn't
+    // seen yet (most notably a secret evolution's own species).
+    async function breed(
+      parentAId: number,
+      parentBId: number,
+    ): Promise<boolean> {
+      const res = await performFetch<BreedResponse>('/api/aquarium/breed', {
+        method: 'POST',
+        body: JSON.stringify({ parentAId, parentBId }),
+      })
+      if (res.success && res.data) {
+        tank.value = res.data.aquarium
+        revealedBreed.value = {
+          stock: res.data.stock,
+          evolved: res.data.evolved,
+        }
+        if (res.data.justCompletedBestiary) bestiaryJustCompleted.value = true
+        if (res.data.firedMilestones?.length) {
+          milestoneToastQueue.value.push(...res.data.firedMilestones)
+        }
+        if (bestiary.value.length > 0) await loadBestiary()
+        return true
+      }
+      error.value = res.message || 'Could not breed those two.'
+      return false
+    }
+
+    function dismissBreedReveal(): void {
+      revealedBreed.value = null
+    }
+
     return {
       tank,
       catalog,
@@ -1000,6 +1083,9 @@ export const useCthulhuquariumTankStore = defineStore(
       purchaseEgg,
       hatchEgg,
       dismissHatchReveal,
+      revealedBreed,
+      breed,
+      dismissBreedReveal,
     }
   },
 )

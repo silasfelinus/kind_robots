@@ -1,162 +1,167 @@
 # Narrowing the application database account
 
-**kind-robots/t-073.** The application account `kindrobot` holds
-`ALL PRIVILEGES ON *.*` **`WITH GRANT OPTION`**, plus `ALL PRIVILEGES` on
-`kindrobots`, `kindblank`, `kindblank_fresh` and `kindblank_shadow`.
+**kind-robots/t-073.** This runbook records the remaining MariaDB privilege
+cleanup for the production application account, `kindrobot`.
 
-That credential is `DATABASE_URL`. It lives in the app service's env file and is
-loaded into the long-running Nuxt container, so **the permanently-running web
-process holds server-wide superuser on every database, and can re-grant itself
-anything it likes.**
+## Current state, verified live 2026-08-27
 
-This makes the two-lane design decorative. `prisma.config.ts` refusing
-`DATABASE_URL` for migrate commands, `prisma-migrate-deploy.mjs` refusing it
-again, `verifyMigrateOnDeploy.ts` warning that moving `MIGRATION_DATABASE_URL`
-into the app service "would hand a permanently-running web process the ability to
-drop tables" — all of it carefully prevents something the app account can already
-do. See [migration-credential-boundary.md](./migration-credential-boundary.md)
-for the boundary this is supposed to enforce. **The boundary is real in the code
-and absent in the database.** Code cannot enforce a database privilege.
+The original t-073 investigation found a server-wide `ALL PRIVILEGES ON *.* WITH
+GRANT OPTION` grant. That worst-case grant was subsequently removed manually on
+Alexandria. A fresh `SHOW GRANTS FOR 'kindrobot'@'%'` on 2026-08-27 showed:
 
-> **A wrong revoke takes the site down.** Work the sequence below in order. Do
-> not skip step 0.
+```text
+GRANT USAGE ON *.* TO `kindrobot`@`%` IDENTIFIED BY PASSWORD '<redacted>'
+GRANT ALL PRIVILEGES ON `kindrobots`.* TO `kindrobot`@`%`
+GRANT ALL PRIVILEGES ON `kindblank`.* TO `kindrobot`@`%`
+GRANT ALL PRIVILEGES ON `kindblank_fresh`.* TO `kindrobot`@`%`
+GRANT ALL PRIVILEGES ON `kindblank_shadow`.* TO `kindrobot`@`%`
+```
+
+So the production web process is **not** a server-wide superuser and does **not**
+hold `GRANT OPTION` anymore. The remaining problem is smaller but real:
+
+- it can still run DDL such as `CREATE`, `ALTER`, and `DROP` inside
+  `kindblank_fresh`;
+- it still has full access to three databases the running app does not need;
+- the separate `kindrobot_migrate` lane exists specifically so schema-changing
+  work does not need to live in the always-running web process.
+
+The intended final state is:
+
+```text
+USAGE on *.*
+SELECT, INSERT, UPDATE, DELETE on `kindblank_fresh`.*
+```
+
+Nothing in the PR that added this runbook changes grants automatically. The live
+change remains a human-gated Alexandria operation.
 
 ---
 
-## Step 0 — rotate the password first, before any of this
+## 1. Why DML-only is enough
 
-The `kindrobot` password was disclosed twice in an agent session transcript on
-2026-08-25: once in plaintext, and once as the `mysql_native_password` hash from
-a `SHOW GRANTS` dump. **A hash is a credential, not a fingerprint** — it is
-sufficient to authenticate with some clients. Treat the transcript as untrusted
-storage.
-
-Rotate before narrowing, because narrowing takes planning and the disclosure is
-live now. Rotation is independent of everything below and can ship on its own.
-
-After rotating, update the app service's env file and restart it. Nothing else
-reads this credential.
-
----
-
-## Step 1 — what the app actually executes (done; recorded here as evidence)
-
-The dangerous part of a narrowing is discovering, at revoke time, that something
-quietly depended on a privilege it should not have had. Enumerated 2026-08-25
-across the whole runtime path:
+The runtime path was enumerated during t-073:
 
 | operation | count in `server/` | privilege needed |
-|---|---|---|
-| `SELECT` (incl. `SELECT … FOR UPDATE`) | 10 | `SELECT` |
+|---|---:|---|
+| `SELECT` including `SELECT ... FOR UPDATE` | 10 | `SELECT` |
 | `INSERT` | 1 | `INSERT` |
 | `UPDATE` | 1 | `UPDATE` |
 | `DELETE` | 1 | `DELETE` |
-| `GET_LOCK()` | 1 | none — any user may call it |
-| **DDL of any kind** | **0** | — |
+| `GET_LOCK()` | 1 | none beyond the connection itself |
+| DDL | 0 | none |
 
-Everything else goes through Prisma Client, which emits only DML.
+Everything else goes through Prisma Client and remains DML.
 
-Two things that look like exceptions and are not:
+Two apparent exceptions do not widen the app lane:
 
-- **`server/plugins/01-migration-drift-check.ts`** reads `_prisma_migrations` at
-  boot. That is a plain `SELECT` on a table in the app's own database. Its own
-  comment says it "needs to know what was migrated, never to migrate anything",
-  which is exactly right and stays true under the narrowed grant.
-- **`CREATE TEMPORARY TABLE`** appears only in hand-run maintenance scripts under
-  `utils/scripts/`. Those are a different lane, run deliberately by a human, and
-  must not widen the app lane. If one needs the privilege, give it the migration
-  credential for that run.
-
-**Conclusion: the app lane needs `SELECT, INSERT, UPDATE, DELETE` on
-`kindblank_fresh` and nothing else.**
-
-Still worth eyeballing before you revoke, because they are outside this repo:
-ProxySQL's query rules, and anything on the box that reuses `DATABASE_URL`.
+- `server/plugins/01-migration-drift-check.ts` only reads `_prisma_migrations`.
+- maintenance scripts under `utils/scripts/` that need schema privileges belong
+  on the migration credential, not `DATABASE_URL`.
 
 ---
 
-## Step 2 — record the current grant so it can be restored
+## 2. Credential disclosure status is separate
 
-```sql
-SHOW GRANTS FOR 'kindrobot'@'%';
-```
+The August 25 investigation also recorded that an application credential or
+password hash had appeared in an agent transcript. Grant narrowing does not tell
+us whether that credential was later rotated.
 
-Save the output somewhere you can reach in a hurry. **Redact the
-`IDENTIFIED BY PASSWORD '…'` portion before it goes anywhere persistent** — that
-is the disclosure in step 0 repeating itself.
+If it was already rotated after that disclosure, do not rotate it again merely
+because this runbook exists. If it was not, rotate it before doing unrelated
+privilege work and update the application service atomically.
 
-Restoring is `GRANT ALL PRIVILEGES ON *.* TO 'kindrobot'@'%' WITH GRANT OPTION;`
-followed by `FLUSH PRIVILEGES;` — under a minute, if something breaks.
+Do not print or persist a MariaDB password hash. Redact `IDENTIFIED BY PASSWORD`
+from any saved `SHOW GRANTS` output.
 
 ---
 
-## Step 3 — verify against a narrowed account first, not in production
+## 3. Snapshot the current grants
 
-Create a second account with the target grant and point a **non-production**
-app instance at it:
+Before changing anything, capture the current **redacted** grants. The known
+2026-08-27 rollback target is the four database-wide `ALL PRIVILEGES` grants
+listed at the top of this document. Do **not** restore the historical global
+`ALL PRIVILEGES ON *.* WITH GRANT OPTION`; that state has already been fixed.
+
+A rollback, if needed, is therefore:
 
 ```sql
-CREATE USER 'kindrobot_app'@'%' IDENTIFIED BY '<new password>';
-GRANT SELECT, INSERT, UPDATE, DELETE ON `kindblank_fresh`.* TO 'kindrobot_app'@'%';
+GRANT ALL PRIVILEGES ON `kindrobots`.* TO 'kindrobot'@'%';
+GRANT ALL PRIVILEGES ON `kindblank`.* TO 'kindrobot'@'%';
+GRANT ALL PRIVILEGES ON `kindblank_fresh`.* TO 'kindrobot'@'%';
+GRANT ALL PRIVILEGES ON `kindblank_shadow`.* TO 'kindrobot'@'%';
 FLUSH PRIVILEGES;
 ```
 
-Exercise the app against it: boot it (the drift-check plugin runs on boot), load
-a few pages, write something, and run the art queue path — that one takes a
-`GET_LOCK` and a `SELECT … FOR UPDATE`, so it is the best single smoke test.
-
-Then confirm the account is actually as narrow as intended:
-
-```bash
-DATABASE_URL='<narrowed url>' npx tsx utils/scripts/verifyAppAccountPrivileges.ts
-```
-
-That script asks the **database** what the connected account holds and exits 1 on
-anything beyond `SELECT/INSERT/UPDATE/DELETE` on one database, on any `*.*`
-grant, and on `GRANT OPTION`. It redacts password hashes from everything it
-prints, including error messages.
-
 ---
 
-## Step 4 — narrow the real account
+## 4. Narrow the real account
 
-Only once step 3 is green:
+The cleanest transition is to remove all database privileges from the account,
+then immediately add back only the DML set the app needs:
 
 ```sql
 REVOKE ALL PRIVILEGES, GRANT OPTION FROM 'kindrobot'@'%';
-GRANT SELECT, INSERT, UPDATE, DELETE ON `kindblank_fresh`.* TO 'kindrobot'@'%';
+GRANT SELECT, INSERT, UPDATE, DELETE
+  ON `kindblank_fresh`.*
+  TO 'kindrobot'@'%';
 FLUSH PRIVILEGES;
 ```
 
-Then re-run the verifier against the real `DATABASE_URL` and restart the app.
+`USAGE ON *.*` is the account/authentication baseline and is expected to remain.
 
-`REVOKE ALL PRIVILEGES, GRANT OPTION` removes the global grant **and** the four
-per-database ones in a single statement, which is what you want: the account
-should not keep `ALL PRIVILEGES` on `kindrobots`, `kindblank`, or
-`kindblank_shadow` either.
+This intentionally removes access to:
 
-**`kindblank_shadow` in particular.** It is a Prisma shadow database, created and
-dropped by tooling. That is a reasonable thing for a *migration* account to
-reach and not something the web process needs.
+- `kindrobots`
+- `kindblank`
+- `kindblank_shadow`
 
----
+and removes schema-changing privileges from `kindblank_fresh`.
 
-## Step 5 — keep it narrow
-
-Add the verifier to whatever runs against the live database on a schedule. The
-failure mode this guards against is not someone deliberately re-granting
-superuser; it is a future incident where a wide grant is handed out to unblock
-something at 2am and never taken back.
+`kindblank_shadow` belongs to migration/tooling behavior, not the production web
+process. The dedicated `kindrobot_migrate` identity is the schema-changing lane.
 
 ---
 
-## Two smaller things, cheap to fix while you are in here
+## 5. Verify immediately
 
-- **`.env` is mode `0640`, owner `silasfelinus:users`.** Any process running as
-  group `users` can read the database credential. `0600` unless something else
-  genuinely needs it.
-- **The connection string carries `sslaccept=accept_invalid_certs`.** The
-  application lane connects without verifying the ProxySQL certificate. The
-  migration lane already does a TLS preflight; this one does not.
+From the repository checkout, with the production `DATABASE_URL` available to
+the process running the command:
 
-Neither is the headline. Both are a few minutes.
+```bash
+npm run test:app-account-privileges
+```
+
+The verifier:
+
+- asks MariaDB what the connected identity actually holds;
+- allows only global `USAGE`;
+- allows only `SELECT`, `INSERT`, `UPDATE`, `DELETE`;
+- requires those DML privileges to be database-wide on the database the app is
+  actually connected to;
+- rejects `ALL PRIVILEGES`, `GRANT OPTION`, server-wide privileges, grants on
+  another database, and bespoke table-level grants;
+- redacts credential material from all output.
+
+Then exercise the production app through normal application paths, including at
+least one read and one write. The art queue is a useful smoke path because it
+uses both `GET_LOCK()` and `SELECT ... FOR UPDATE`.
+
+If anything unexpectedly fails, restore the four database grants from section 3
+first, then investigate. Do not widen the account beyond that known 2026-08-27
+state as a troubleshooting shortcut.
+
+---
+
+## 6. Keep the boundary testable
+
+The long-term failure mode is configuration drift: a wide grant gets handed out
+during an incident and survives after the incident is over. Keep the verifier as
+a cheap explicit check whenever database credentials or ProxySQL/MariaDB routing
+are changed.
+
+Two adjacent hardening items remain separate from this grant cleanup:
+
+- keep the application `.env` readable only by the account/process that needs it;
+- avoid disabling certificate verification on the application DB connection if
+  the current ProxySQL TLS setup can support verified certificates.

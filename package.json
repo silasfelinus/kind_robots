@@ -10,6 +10,7 @@
     "audit:mandarin-proficiency-coverage": "tsx utils/scripts/auditMandarinProficiencyCoverage.ts",
     "test:mandarin-proficiency-coverage-selftest": "tsx utils/scripts/auditMandarinProficiencyCoverage.ts --self-test",
     "test:mandarin-srs-selftest": "tsx utils/scripts/verifyMandarinSrs.test.ts",
+    "test:mandarin-art-recipe": "tsx utils/scripts/verifyMandarinArtRecipe.test.ts",
     "test:mandarin-cloud-merge-selftest": "tsx utils/scripts/verifyMandarinCloudMerge.test.ts",
     "audit:checkpoints": "prisma generate && tsx utils/scripts/auditCheckpointResources.ts",
     "repair:checkpoints": "prisma generate && tsx utils/scripts/repairCheckpointResources.ts",

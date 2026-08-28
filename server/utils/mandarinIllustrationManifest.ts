@@ -1,6 +1,10 @@
 import { createHash } from 'node:crypto'
 import type { MandarinCard, MandarinCatalogPayload } from '~/utils/mandarin'
 import { getMandarinCatalog } from './mandarinCatalog'
+import {
+  mandarinStyleVariant,
+  type MandarinStyleVariant,
+} from './mandarinIllustrationStyle'
 
 export const MANDARIN_ILLUSTRATION_RECIPE_VERSION = 'v2'
 export const MANDARIN_ART_DIRECTION_ID = 'modern-chinese-picturebook-v2'
@@ -30,6 +34,13 @@ export type MandarinIllustrationManifestEntry = {
   imagePath: string
   imageUrl: string
   prompt: string | null
+  /**
+   * The per-card framing/light/palette/handling/ground draw baked into `prompt`.
+   * Present only for illustrated entries. Batch producers read this to tell a
+   * varied manifest from the original uniform one, and QA reads it to check
+   * whether a weak render is a bad concept or a bad style draw.
+   */
+  styleVariant: MandarinStyleVariant | null
 }
 
 export type MandarinIllustrationManifest = {
@@ -74,7 +85,7 @@ const ART_DIRECTION = {
     'No Hanzi, pinyin, English, numerals, pseudo-writing, captions, signage, logos, speech bubbles, labels, or watermarks inside generated art.',
 } as const
 
-function stableToken(cardKey: string): string {
+export function mandarinCardToken(cardKey: string): string {
   return createHash('sha256').update(cardKey, 'utf8').digest('hex').slice(0, 24)
 }
 
@@ -168,16 +179,34 @@ function categoryDirection(card: MandarinCard): string {
   return 'Choose the simplest ordinary object or everyday scene that makes the primary meaning obvious at a glance. When cultural context helps, ground it in contemporary Chinese lived environments and material culture rather than decorative stereotypes.'
 }
 
+/**
+ * The canonical v2 prompt for a card.
+ *
+ * Structure: what to draw (concept + category direction), the fixed house
+ * style, then this card's own style draw -- framing, light, palette, paint
+ * handling, ground -- then the fixed guard rails. The house style is what makes
+ * 577 cards look like one deck; the style draw is what stops them from looking
+ * like one image rendered 577 times.
+ *
+ * The variant is derived from the card key, so this function stays pure and the
+ * tutor's per-card retry reproduces the same prompt the batch was submitted
+ * with.
+ */
 export function buildMandarinIllustrationPrompt(card: MandarinCard): string {
   const concept = compactConcept(card.meaning)
+  const variant = mandarinStyleVariant(mandarinCardToken(card.key))
   return [
     `Create a square educational flashcard illustration for the vocabulary concept: ${concept}.`,
     categoryDirection(card),
-    'House style: modern Chinese educational picture-book art, hand-painted gouache with gentle watercolor and restrained ink-wash influence, matte pigments, subtle paper grain, clean shapes, clear silhouettes, limited deliberate detail, warm harmonious color, and generous negative space.',
-    'The composition should feel designed by an illustrator: one strong memory anchor or one compact scene, natural asymmetry, modest depth, quiet lighting, and believable object relationships.',
-    'Ground Chinese cultural flavor through truthful everyday details such as ceramics, bamboo, wood, textiles, foodways, interiors, markets, streets, transit, games, furnishings, or landscape only when they naturally belong to the concept.',
-    'Do not use generic China shorthand as decoration: no gratuitous pagodas, lantern walls, dragons, Great Wall imagery, calligraphy, red-and-gold festival dressing, or historical costume unless that specific thing is genuinely the vocabulary concept.',
-    'Avoid characteristic synthetic-image tells: no photorealism, glossy plastic skin, 3D-render surfaces, hyper-detailed microtexture everywhere, perfect symmetry, excessive cinematic rim lighting, lens flare, bokeh, neon glow, decorative filler, implausible anatomy, or crowded hands.',
+    'House style: modern Chinese educational picture-book art, hand-painted gouache with gentle watercolor and restrained ink-wash influence, matte pigments, subtle paper grain, clean shapes, clear silhouettes, limited deliberate detail, and generous negative space.',
+    variant.framing,
+    variant.light,
+    variant.palette,
+    variant.handling,
+    variant.ground,
+    'The composition should feel decided by an illustrator: one strong memory anchor, natural asymmetry, and believable object relationships.',
+    'Ground Chinese cultural flavor in truthful everyday detail -- ceramics, bamboo, wood, textiles, foodways, interiors, markets, streets, transit, games, furnishings, landscape -- only where it naturally belongs to the concept, and never as decoration: no gratuitous pagodas, lantern walls, dragons, Great Wall imagery, calligraphy, red-and-gold festival dressing, or historical costume unless that specific thing is the vocabulary concept.',
+    'Avoid characteristic synthetic-image tells: no photorealism, glossy plastic skin, 3D-render surfaces, hyper-detailed microtexture everywhere, perfect symmetry, cinematic rim lighting, lens flare, bokeh, neon glow, decorative filler, implausible anatomy, or crowded hands.',
     'No readable text, no Chinese characters, no pinyin, no English, no Latin letters, no numerals, no pseudo-writing, no captions, no signage, no labels, no speech bubbles, no logos, no watermarks, no collage.',
   ].join(' ')
 }
@@ -203,7 +232,7 @@ export async function getMandarinIllustrationManifest(): Promise<MandarinIllustr
     .map((key) => cardByKey.get(key))
     .filter((card): card is MandarinCard => Boolean(card))
     .map((card): MandarinIllustrationManifestEntry => {
-      const token = stableToken(card.key)
+      const token = mandarinCardToken(card.key)
       const decision = illustrationStrategy(card)
       const imagePath = `public/images/mandarin-tutor/cards/${MANDARIN_ILLUSTRATION_RECIPE_VERSION}/${token}.webp`
       return {
@@ -226,6 +255,7 @@ export async function getMandarinIllustrationManifest(): Promise<MandarinIllustr
         imagePath,
         imageUrl: imagePath.replace(/^public/, ''),
         prompt: decision.strategy === 'illustrate' ? buildMandarinIllustrationPrompt(card) : null,
+        styleVariant: decision.strategy === 'illustrate' ? mandarinStyleVariant(token) : null,
       }
     })
 

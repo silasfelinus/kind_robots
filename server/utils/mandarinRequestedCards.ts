@@ -159,7 +159,10 @@ function requestedArtCategories(fields: GeneratedMandarinFields): string[] {
 
 export function requestedArtPrompt(fields: GeneratedMandarinFields): string {
   const promptCard: MandarinCard = {
-    key: 'requested:prompt',
+    // The key seeds the per-card style draw in buildMandarinIllustrationPrompt,
+    // so it has to name the actual word -- a constant here would give every
+    // requested card in the deck the same framing, light, and palette.
+    key: `requested:${fields.simplified}`,
     simplified: fields.simplified,
     ...(fields.traditional ? { traditional: fields.traditional } : {}),
     pinyin: fields.pinyin,

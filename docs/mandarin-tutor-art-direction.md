@@ -95,6 +95,37 @@ Use a real working table-game visual language: believable felt, chips, playing c
 
 Do not force decorative metaphors onto particles, classifiers, components, or abstract sentence machinery when an image would misteach. These remain `glyph-only` until a pedagogically useful visual treatment is explicitly designed.
 
+## Per-card style variation
+
+The house style is fixed. The illustrator's decisions are not.
+
+A recipe that emits identical style language for every card produces a deck where
+all 577 pictures share one camera distance, one lighting setup, and one palette —
+the interchangeable read this art direction exists to avoid. So each card also
+draws one option per axis from `server/utils/mandarinIllustrationStyle.ts`:
+
+| Axis | Options | What it moves |
+| --- | --- | --- |
+| framing | 6 | close still life, wide and quiet, vignette, overhead, eye level, through a near edge |
+| light | 5 | overcast, low late sun, open shade, lamplight, early-morning window |
+| palette | 6 | a limited harmony plus one accent, all inside the matte gouache family |
+| handling | 5 | flat gouache, wet washes, dry brush, ink line over wash, pooling pigment |
+| ground | 4 | bare paper, flat wash, soft halo, lower band |
+
+3600 combinations. The draw is derived from the card's stable token — the same
+token that names its media file — so it is deterministic in both directions: a
+card's look is tied to its identity rather than to its position in the catalog,
+and the tutor's per-card retry rebuilds exactly the prompt the batch was
+submitted with. Manifest entries carry the draw as `styleVariant` for audit.
+
+Changing an axis list changes the prompts of every card that draws from it. Since
+the corpus is submitted once and rendered durably, treat an axis edit the way you
+would treat any other recipe change: expect to regenerate what it touches.
+
+`utils/scripts/verifyMandarinArtRecipe.test.ts` holds the properties that matter
+(determinism, every option reachable, no option dominating the deck, no clause
+smuggling text or tourist shorthand back in).
+
 ## Text policy
 
 Generated card art contains no Hanzi, pinyin, English, Latin letters, numerals, pseudo-writing, labels, captions, signage, speech bubbles, logos, or watermarks. The tutor UI owns language rendering.

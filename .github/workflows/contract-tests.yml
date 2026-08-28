@@ -103,6 +103,9 @@ jobs:
       - name: Mandarin cloud-state merge contract
         run: npm run test:mandarin-cloud-merge-selftest
 
+      - name: Mandarin art recipe contract
+        run: npm run test:mandarin-art-recipe
+
       - name: Reaction route auth contract
         run: npm run test:reaction-route-auth
 

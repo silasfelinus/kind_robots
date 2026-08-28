@@ -34,6 +34,7 @@
     "test:mana-attribution": "tsx utils/scripts/verifyManaAttribution.test.ts",
     "test:revenue-split": "tsx utils/scripts/verifyRevenueSplit.test.ts",
     "test:aquarium-economy": "tsx utils/scripts/verifyAquariumEconomy.test.ts",
+    "test:aquarium-genetics": "tsx utils/scripts/verifyAquariumGenetics.test.ts",
     "test:aquarium-touch": "tsx utils/scripts/verifyAquariumTouch.test.ts",
     "test:creator-earnings": "tsx utils/scripts/verifyCreatorEarnings.test.ts",
     "test:social-post-draft": "tsx utils/scripts/verifySocialPostDraft.test.ts",

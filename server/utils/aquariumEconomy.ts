@@ -940,7 +940,7 @@ export interface StatBlock {
   wits: number | null
 }
 
-const STAT_BLOCK_KEYS = [
+export const STAT_BLOCK_KEYS = [
   'charm',
   'empathy',
   'grace',
@@ -964,4 +964,141 @@ export function mergeBestStats(
     merged[key] = a == null ? b : b == null ? a : Math.max(a, b)
   }
   return merged
+}
+
+// ---------------------------------------------------------------------------
+// Genetics -- cthulhuquarium/t-029 (SYSTEMS.md "Genetics: hidden stats,
+// breeding, and secret evolutions"). economy.yaml predates this design
+// section (authored 2026-08-24, after economy.yaml's schema_version 1 draft)
+// and has no `genetics` block to transcribe yet -- these constants are the
+// same kind of anchored-against-RARITY_TIERS v1 placeholder as
+// SET_PIECE_CATALOG's/DECOR_CATALOG's costs: "wrong on purpose at first,
+// fixed by t-019's balance pass" (SYSTEMS.md's own scope framing). Flagged
+// for reviewer/balance-pass revisit, same discipline as every other
+// under-tuned constant in this file.
+//
+// Randomness lives outside this file, same discipline as rollRareEvent:
+// every function below takes the caller's own [0,1) Math.random() values as
+// explicit arguments rather than calling Math.random itself.
+// ---------------------------------------------------------------------------
+
+function clamp01(value: number): number {
+  if (!Number.isFinite(value)) return 0
+  return Math.min(1, Math.max(0, value))
+}
+
+// One roll input per hidden stat, keyed the same as StatBlock/STAT_BLOCK_KEYS.
+export type StatRolls = Readonly<
+  Record<(typeof STAT_BLOCK_KEYS)[number], number>
+>
+
+// Numeric roll range for ONE individual stat, keyed by the SPECIES' own
+// Rarity tier for that stat (Monster.charm/.../wits) -- distinct from
+// RARITY_TIERS, which prices/pays a whole species rather than rolling one
+// individual's hidden number. A COMMON-tier species with a MYTHIC `luck`
+// still rolls that fish's luck from the MYTHIC range (deriveFishRarityTier's
+// same "highest stat wins" spirit, applied per-stat instead of per-species).
+export interface StatRollRange {
+  min: number
+  max: number
+}
+
+export const STAT_ROLL_RANGES: Record<Rarity, StatRollRange> = {
+  COMMON: { min: 1, max: 20 },
+  UNCOMMON: { min: 10, max: 35 },
+  RARE: { min: 25, max: 55 },
+  EPIC: { min: 45, max: 75 },
+  LEGENDARY: { min: 65, max: 90 },
+  MYTHIC: { min: 85, max: 100 },
+}
+
+export interface SpeciesStatRarities {
+  charm: Rarity
+  empathy: Rarity
+  grace: Rarity
+  luck: Rarity
+  might: Rarity
+  wits: Rarity
+}
+
+// Rolls one individual's six hidden stats on acquisition/hatch (t-029's
+// "Hidden stats are discovered" rule -- every AquariumStock is rolled once,
+// never rerolled). Each stat is drawn independently from its own species
+// Rarity tier's range, linear across [min, max], rounded to the nearest
+// integer.
+export function rollIndividualStats(
+  speciesStats: SpeciesStatRarities,
+  rolls: StatRolls,
+): StatBlock {
+  const result = {} as StatBlock
+  for (const key of STAT_BLOCK_KEYS) {
+    const range = STAT_ROLL_RANGES[speciesStats[key]]
+    const roll = clamp01(rolls[key])
+    result[key] = Math.round(range.min + roll * (range.max - range.min))
+  }
+  return result
+}
+
+// Breeding convergence (SYSTEMS.md's second genetics rule: "hidden stats are
+// discovered, not rolled-for-forever... breeding should converge -- offspring
+// should inherit toward the better parent -- so effort compounds instead of
+// resetting"). Anchors each stat INDEPENDENTLY on whichever parent rolled
+// higher for that stat (one parent can be the better source for charm, the
+// other for luck -- there is no single "better parent" as a whole), then
+// rolls the offspring's value in a narrow band ABOVE that anchor, never
+// below it. A null on one side loses to the other's real number; both null
+// stays null (an offspring of two never-rolled parents, which should not
+// happen in practice since every AquariumStock is rolled on creation, but
+// this keeps the function total rather than throwing on unexpected input).
+export const BREED_CONVERGENCE_UPSIDE = 8
+
+export function convergeBreedStats(
+  parentA: StatBlock,
+  parentB: StatBlock,
+  rolls: StatRolls,
+): StatBlock {
+  const result = {} as StatBlock
+  for (const key of STAT_BLOCK_KEYS) {
+    const a = parentA[key]
+    const b = parentB[key]
+    const anchor = a == null ? b : b == null ? a : Math.max(a, b)
+    if (anchor == null) {
+      result[key] = null
+      continue
+    }
+    const roll = clamp01(rolls[key])
+    result[key] = Math.round(anchor + roll * BREED_CONVERGENCE_UPSIDE)
+  }
+  return result
+}
+
+// Breeding cost -- priced against RARITY_TIERS as an anchor, same "not an
+// unrelated invented number" discipline as SET_PIECE_CATALOG's costs.
+// `unlockCostOverride` is Monster.unlockCost, same null-means-tier-default
+// contract as feedCost/unlockCost above.
+export const BREED_COST_FACTOR_OF_UNLOCK_COST = 0.5
+
+export function breedCost(
+  rarity: Rarity,
+  unlockCostOverride?: number | null,
+): number {
+  return Math.round(
+    unlockCost(rarity, unlockCostOverride) * BREED_COST_FACTOR_OF_UNLOCK_COST,
+  )
+}
+
+// Secret evolutions (Monster.evolutionKind === 'BREEDING') are "the payoff"
+// (SYSTEMS.md) -- gated on the offspring's rolled stats actually being good,
+// not on breeding alone, so it rewards convergence effort rather than firing
+// on the first pairing. v1 threshold: every one of the offspring's six
+// stats must average at or above this bar. [v1 placeholder -- see file
+// header; a real balance pass may prefer a per-stat minimum over an average,
+// which is a one-line change here once tuning data exists.]
+export const SECRET_EVOLUTION_AVERAGE_STAT_THRESHOLD = 85
+
+export function qualifiesForBreedingEvolution(stats: StatBlock): boolean {
+  const values = STAT_BLOCK_KEYS.map((key) => stats[key])
+  if (values.some((value) => value == null)) return false
+  const total = (values as number[]).reduce((sum, value) => sum + value, 0)
+  return total / values.length >= SECRET_EVOLUTION_AVERAGE_STAT_THRESHOLD
 }

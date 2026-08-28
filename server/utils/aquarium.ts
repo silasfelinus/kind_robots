@@ -16,9 +16,11 @@ import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from './prisma'
 import { getUniqueAquariumSlugForUser } from './aquariumSlug'
 import {
+  breedCost,
   cleanDebris,
   clampDecorCoordinate,
   conflictsWithEquippedIdleSet,
+  convergeBreedStats,
   DECOR_CATALOG,
   deriveFishRarityTier,
   effectiveSizeCap,
@@ -33,14 +35,18 @@ import {
   LAST_AQUARIUM_CONFIG,
   MAX_CLEAN_CLICKS_PER_REQUEST,
   mergeBestStats,
+  qualifiesForBreedingEvolution,
+  rollIndividualStats,
   rollRareEvent,
   SET_PIECE_CATALOG,
   settleTick,
+  STAT_BLOCK_KEYS,
   unlockCost,
   type BestiaryMilestoneConfig,
   type LastAquariumConfig,
   type RareEventResult,
   type StatBlock,
+  type StatRolls,
 } from './aquariumEconomy'
 
 function apiError(statusCode: number, message: string): Error {
@@ -637,6 +643,52 @@ function fromStatBlock(stats: StatBlock): CodexBestStatColumns {
   }
 }
 
+// cthulhuquarium/t-029: AquariumStock's own individual stat* columns --
+// same shape/role as CodexBestStatColumns above, but for the fish's OWN
+// rolled stats rather than the book's per-species best-ever record.
+interface IndividualStatColumns {
+  statCharm: number | null
+  statEmpathy: number | null
+  statGrace: number | null
+  statLuck: number | null
+  statMight: number | null
+  statWits: number | null
+}
+
+function toIndividualStatBlock(row: IndividualStatColumns): StatBlock {
+  return {
+    charm: row.statCharm,
+    empathy: row.statEmpathy,
+    grace: row.statGrace,
+    luck: row.statLuck,
+    might: row.statMight,
+    wits: row.statWits,
+  }
+}
+
+function fromIndividualStatBlock(stats: StatBlock): IndividualStatColumns {
+  return {
+    statCharm: stats.charm,
+    statEmpathy: stats.empathy,
+    statGrace: stats.grace,
+    statLuck: stats.luck,
+    statMight: stats.might,
+    statWits: stats.wits,
+  }
+}
+
+// One fresh [0,1) roll per hidden stat -- the one place in this file that
+// actually calls Math.random, threaded into aquariumEconomy.ts's pure
+// rollIndividualStats/convergeBreedStats functions (same "randomness lives
+// outside the pure module" discipline as rollRareEvent's call site below).
+function rollSixRandoms(): StatRolls {
+  const rolls = {} as Record<(typeof STAT_BLOCK_KEYS)[number], number>
+  for (const key of STAT_BLOCK_KEYS) {
+    rolls[key] = Math.random()
+  }
+  return rolls
+}
+
 function toBestiaryEntry(
   monster: BestiaryMonster,
   firstAcquiredAt: Date | null,
@@ -826,6 +878,11 @@ export async function purchaseSpeciesForUser(
     )
   }
 
+  // t-029: roll this individual's hidden stats once, on acquisition --
+  // never rerolled afterward (SYSTEMS.md "Hidden stats are discovered, not
+  // rolled-for-forever").
+  const rolledStats = rollIndividualStats(monster, rollSixRandoms())
+
   const { aquarium, stock, justCompletedBestiary, firedMilestones } =
     await prisma.$transaction(async (tx) => {
       const { totalCount, collectedCount: collectedCountBefore } =
@@ -836,6 +893,7 @@ export async function purchaseSpeciesForUser(
           aquariumId: tank.id,
           monsterId: monster.id,
           hunger: HUNGER_STARTING_VALUE,
+          ...fromIndividualStatBlock(rolledStats),
         },
         select: ownedStockSelect,
       })
@@ -853,16 +911,11 @@ export async function purchaseSpeciesForUser(
         where: { userId_monsterId: { userId, monsterId: monster.id } },
         select: { id: true, ...codexBestStatSelect },
       })
-      // t-031: fold this individual's rolled stats into the book's
-      // best-ever record. createdStock above always has null stat columns
-      // today (t-029/genetics hasn't landed -- see mergeBestStats's own
-      // comment), so NULL_STAT_BLOCK is not a shortcut, it's the actual
-      // observed value; this still runs the real merge so the record is
-      // wired correctly the moment t-029 starts rolling individuals rather
-      // than needing a second pass through this call site later.
+      // t-031/t-029: fold this individual's freshly-rolled stats into the
+      // book's best-ever record.
       const mergedStats = mergeBestStats(
         existingEntry ? toStatBlock(existingEntry) : NULL_STAT_BLOCK,
-        NULL_STAT_BLOCK,
+        rolledStats,
       )
       await tx.aquariumCodexEntry.upsert({
         where: { userId_monsterId: { userId, monsterId: monster.id } },
@@ -969,6 +1022,300 @@ export async function purchaseSpeciesForUser(
     aquarium: toClientAquarium(aquarium),
     stock,
     cost,
+    justCompletedBestiary,
+    firedMilestones,
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Breeding -- cthulhuquarium/t-029. "Breeding never consumes the parents"
+// (SYSTEMS.md): both parent AquariumStock rows are read-only here, never
+// updated or deleted -- only a new offspring row is created, linked back to
+// both via parentAId/parentBId (nullable/SetNull, per t-032's own schema
+// comment on those columns).
+//
+// v1 SCOPE DECISION (flagged for reviewer/Silas): only two individuals of
+// the SAME species may breed together. SYSTEMS.md describes secret
+// evolution as "a second, separate evolution axis... same evolves_to
+// plumbing" as growth evolution, and Monster.evolvesToId/evolutionKind are
+// both PER-SPECIES fields, not a cross-species pairing rule -- there is no
+// design text describing what a cross-species offspring's species would
+// even be. Same-species pairing is the smallest change that satisfies every
+// written rule (never consumes parents, converges stats, unlocks a second
+// evolution axis) without inventing an unspecified hybridization mechanic.
+// Revisit if Silas wants cross-species breeding.
+// ---------------------------------------------------------------------------
+
+const breedStockSelect = {
+  id: true,
+  aquariumId: true,
+  monsterId: true,
+  statCharm: true,
+  statEmpathy: true,
+  statGrace: true,
+  statLuck: true,
+  statMight: true,
+  statWits: true,
+  Monster: {
+    select: {
+      id: true,
+      name: true,
+      size: true,
+      isActive: true,
+      isPublic: true,
+      evolutionKind: true,
+      evolvesToId: true,
+      ...monsterRaritySelect,
+      ...monsterEconomyOverridesSelect,
+    },
+  },
+} satisfies Prisma.AquariumStockSelect
+
+type BreedParentStock = Prisma.AquariumStockGetPayload<{
+  select: typeof breedStockSelect
+}>
+
+export interface BreedResult {
+  aquarium: ClientAquarium
+  stock: OwnedAquarium['Stock'][number]
+  cost: number
+  // True when the offspring's rolled stats qualified for the parent
+  // species' Monster.evolutionKind === 'BREEDING' secret evolution -- the
+  // created stock row is then the EVOLVED species, not the parents' own.
+  evolved: boolean
+  justCompletedBestiary: boolean
+  firedMilestones: BestiaryMilestoneConfig[]
+}
+
+export async function breedFishForUser(
+  userId: number,
+  username: string,
+  parentAId: number,
+  parentBId: number,
+): Promise<BreedResult> {
+  if (parentAId === parentBId) {
+    throw apiError(
+      400,
+      'A fish cannot breed with itself -- pick two different individuals.',
+    )
+  }
+
+  const tank = await getOrCreateTankForUser(userId, username)
+
+  const [parentA, parentB]: [BreedParentStock | null, BreedParentStock | null] =
+    await Promise.all([
+      prisma.aquariumStock.findUnique({
+        where: { id: parentAId },
+        select: breedStockSelect,
+      }),
+      prisma.aquariumStock.findUnique({
+        where: { id: parentBId },
+        select: breedStockSelect,
+      }),
+    ])
+
+  // Always scoped back to the caller's own tank (tank.id, resolved from the
+  // verified userId above) -- never trust aquariumId from the client, same
+  // ownership discipline as every other route in this file.
+  if (!parentA || parentA.aquariumId !== tank.id) {
+    throw apiError(404, `Fish ${parentAId} is not in your tank.`)
+  }
+  if (!parentB || parentB.aquariumId !== tank.id) {
+    throw apiError(404, `Fish ${parentBId} is not in your tank.`)
+  }
+  if (parentA.monsterId !== parentB.monsterId) {
+    throw apiError(
+      409,
+      'Only two of the same species can breed together (for now).',
+    )
+  }
+
+  const monster = parentA.Monster
+  if (!monster.isActive || !monster.isPublic) {
+    throw apiError(409, `${monster.name} is not currently breedable.`)
+  }
+
+  const currentSize = tank.Stock.reduce(
+    (sum, row) => sum + (row.Monster.size ?? 1),
+    0,
+  )
+  const offspringSize = monster.size ?? 1
+  if (currentSize + offspringSize > tank.effectiveSizeCap) {
+    throw apiError(
+      409,
+      `Breeding would exceed your tank's capacity (${currentSize}/${tank.effectiveSizeCap} used).`,
+    )
+  }
+
+  const rarity = deriveFishRarityTier(monster)
+  const cost = breedCost(rarity, monster.unlockCost)
+  if (tank.coins < cost) {
+    throw apiError(
+      402,
+      `Breeding costs ${cost} coins; your tank only has ${tank.coins}.`,
+    )
+  }
+
+  const offspringStats = convergeBreedStats(
+    toIndividualStatBlock(parentA),
+    toIndividualStatBlock(parentB),
+    rollSixRandoms(),
+  )
+
+  // Secret evolution (Monster.evolutionKind === 'BREEDING'): gated on the
+  // offspring's own rolled stats, not on the pairing alone -- "the payoff"
+  // (SYSTEMS.md), not a guaranteed outcome of breeding at all. Re-checks the
+  // evolved species is itself active/public before committing to it, same
+  // as purchaseSpeciesForUser's own monster lookup -- an evolvesToId
+  // pointing at a retired/unpublished species falls back to the parents'
+  // own species rather than creating an offspring nobody can otherwise own.
+  let evolved = false
+  let offspringMonsterId = monster.id
+  if (
+    monster.evolutionKind === 'BREEDING' &&
+    monster.evolvesToId &&
+    qualifiesForBreedingEvolution(offspringStats)
+  ) {
+    const evolvedMonster = await prisma.monster.findFirst({
+      where: { id: monster.evolvesToId, isActive: true, isPublic: true },
+      select: { id: true },
+    })
+    if (evolvedMonster) {
+      offspringMonsterId = evolvedMonster.id
+      evolved = true
+    }
+  }
+
+  const { aquarium, stock, justCompletedBestiary, firedMilestones } =
+    await prisma.$transaction(async (tx) => {
+      const { totalCount, collectedCount: collectedCountBefore } =
+        await countBestiaryTotals(tx, userId)
+
+      const createdStock = await tx.aquariumStock.create({
+        data: {
+          aquariumId: tank.id,
+          monsterId: offspringMonsterId,
+          hunger: HUNGER_STARTING_VALUE,
+          parentAId: parentA.id,
+          parentBId: parentB.id,
+          ...fromIndividualStatBlock(offspringStats),
+        },
+        select: ownedStockSelect,
+      })
+
+      const existingEntry = await tx.aquariumCodexEntry.findUnique({
+        where: {
+          userId_monsterId: { userId, monsterId: offspringMonsterId },
+        },
+        select: { id: true, ...codexBestStatSelect },
+      })
+      const mergedStats = mergeBestStats(
+        existingEntry ? toStatBlock(existingEntry) : NULL_STAT_BLOCK,
+        offspringStats,
+      )
+      await tx.aquariumCodexEntry.upsert({
+        where: {
+          userId_monsterId: { userId, monsterId: offspringMonsterId },
+        },
+        create: {
+          userId,
+          monsterId: offspringMonsterId,
+          ...fromStatBlock(mergedStats),
+        },
+        update: { ...fromStatBlock(mergedStats) },
+      })
+      const collectedCountAfter = collectedCountBefore + (existingEntry ? 0 : 1)
+
+      const candidateMilestones = firedBestiaryMilestones(
+        collectedCountBefore,
+        collectedCountAfter,
+      )
+      const firedMilestones: BestiaryMilestoneConfig[] = []
+      if (candidateMilestones.length > 0) {
+        const alreadyLoggedKinds = new Set(
+          (
+            await tx.aquariumEvent.findMany({
+              where: {
+                aquariumId: tank.id,
+                kind: { in: candidateMilestones.map(milestoneEventKind) },
+              },
+              select: { kind: true },
+            })
+          ).map((row) => row.kind),
+        )
+        for (const milestone of candidateMilestones) {
+          if (!alreadyLoggedKinds.has(milestoneEventKind(milestone))) {
+            firedMilestones.push(milestone)
+          }
+        }
+      }
+      const slotsCapDelta = firedMilestones.reduce(
+        (sum, milestone) => sum + milestone.slotsCapDelta,
+        0,
+      )
+
+      const updatedAquarium = await tx.aquarium.update({
+        where: { id: tank.id },
+        data: {
+          coins: { decrement: cost },
+          ...(slotsCapDelta > 0
+            ? { setSlotsCap: { increment: slotsCapDelta } }
+            : {}),
+        },
+        select: ownedAquariumSelect,
+      })
+
+      let justCompletedBestiary = false
+      if (
+        computeJustCompletedBestiary(
+          totalCount,
+          collectedCountBefore,
+          collectedCountAfter,
+        )
+      ) {
+        const alreadyCelebrated = await tx.aquariumEvent.findFirst({
+          where: { aquariumId: tank.id, kind: BESTIARY_COMPLETE_EVENT_KIND },
+          select: { id: true },
+        })
+        if (!alreadyCelebrated) {
+          justCompletedBestiary = true
+          await logEvent(tx, tank.id, BESTIARY_COMPLETE_EVENT_KIND, {
+            collectedCount: collectedCountAfter,
+            totalCount,
+          })
+        }
+      }
+
+      for (const milestone of firedMilestones) {
+        await logEvent(tx, tank.id, milestoneEventKind(milestone), {
+          landmark: milestone.id,
+          slotsCapDelta: milestone.slotsCapDelta,
+          collectedCount: collectedCountAfter,
+        })
+      }
+
+      await logEvent(tx, tank.id, 'breed', {
+        parentAId: parentA.id,
+        parentBId: parentB.id,
+        offspringStockId: createdStock.id,
+        monsterId: offspringMonsterId,
+        evolved,
+        cost,
+      })
+
+      return {
+        aquarium: updatedAquarium,
+        stock: createdStock,
+        justCompletedBestiary,
+        firedMilestones,
+      }
+    })
+
+  return {
+    aquarium: toClientAquarium(aquarium),
+    stock,
+    cost,
+    evolved,
     justCompletedBestiary,
     firedMilestones,
   }

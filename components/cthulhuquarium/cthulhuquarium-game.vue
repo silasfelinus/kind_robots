@@ -508,6 +508,39 @@
         </template>
       </div>
 
+      <!-- The last aquarium (cthulhuquarium/t-039): a single, standalone,
+           one-time terminal purchase -- deliberately not folded into "Set
+           pieces" above, since it never occupies a setSlotsCap slot and can
+           never be unequipped. Charlotte sells it "cheerfully and without
+           comment" per the task's own design note, so this stays a plain
+           shop row; the moment itself is the reveal dialog below. -->
+      <div
+        v-if="tankStore.finaleConfig"
+        class="flex flex-col gap-1 border-t border-base-300 pt-3"
+      >
+        <div class="flex items-start justify-between gap-2">
+          <p class="text-sm font-bold">{{ tankStore.finaleConfig.title }}</p>
+          <span
+            v-if="tankStore.finaleTriggered"
+            class="badge badge-primary badge-xs shrink-0"
+          >
+            Yours
+          </span>
+        </div>
+        <p class="text-xs italic opacity-70">
+          {{ tankStore.finaleConfig.description }}
+        </p>
+        <button
+          v-if="!tankStore.finaleTriggered"
+          type="button"
+          class="btn btn-outline btn-xs min-h-11 mt-1 self-start"
+          :disabled="tankStore.coins < tankStore.finaleConfig.cost"
+          @click="tankStore.purchaseFinale()"
+        >
+          Buy ({{ tankStore.finaleConfig.cost }})
+        </button>
+      </div>
+
       <!-- Visibility (cthulhuquarium/t-014): "Each user should be viewable"
            -- new tanks default public, and this is the one-click way to
            change that. Read-only for visitors either way: the toggle only
@@ -637,6 +670,54 @@
         </div>
         <form method="dialog" class="modal-backdrop">
           <button type="button" @click="tankStore.dismissBestiaryCompletion()">
+            close
+          </button>
+        </form>
+      </dialog>
+    </Teleport>
+
+    <!-- The finale (cthulhuquarium/t-039): "you are also in an aquarium."
+         PLACEHOLDER PRESENTATION -- the real screen-finale plate (the same
+         albumen interior stock as screen-shop/screen-bestiary, an eye
+         mid-drift and incurious beyond the pane) is queued in conductor's
+         art-generate.yaml but not yet generated. This dialog ships the
+         mechanical gate now, text-only, and gets the real plate swapped in
+         once it exists -- the exact "placeholder now, authored pass later"
+         precedent t-028/t-053 already established for the milestone toast.
+         Never re-triggers: finaleJustTriggered only ever flips true once,
+         the same one-time-reveal shape as bestiaryJustCompleted above. -->
+    <Teleport to="body">
+      <dialog
+        v-if="tankStore.finaleJustTriggered"
+        class="modal modal-open"
+        aria-modal="true"
+        @cancel.prevent="tankStore.dismissFinaleReveal()"
+      >
+        <div
+          class="modal-box flex max-w-sm flex-col items-center gap-3 rounded-3xl border border-base-300 bg-base-100 text-center shadow-2xl"
+        >
+          <Icon name="kind-icon:eye" class="size-10 text-primary" />
+          <p class="text-xs font-black uppercase tracking-wide text-primary">
+            The last aquarium
+          </p>
+          <h3 class="text-lg font-black">
+            Everything is exactly as you left it.
+          </h3>
+          <p class="text-sm opacity-80">
+            Nothing in your tank has changed. But through the glass across the
+            shop's window, something enormous drifts past, pauses for a moment
+            the way you pause at a tank you've already seen today, and moves on.
+          </p>
+          <button
+            type="button"
+            class="btn btn-primary btn-sm mt-1"
+            @click="tankStore.dismissFinaleReveal()"
+          >
+            Back to the tank
+          </button>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+          <button type="button" @click="tankStore.dismissFinaleReveal()">
             close
           </button>
         </form>
@@ -1132,6 +1213,34 @@ function getWaterGradient(context: CanvasRenderingContext2D): CanvasGradient {
   return waterGradient
 }
 
+// cthulhuquarium/t-039: the finale's "cosmetic reframe" of the tank the
+// player already built. Deliberately code-only -- reframe_scope is
+// existing_tank_contents, meaning re-render what's already here rather than
+// author new content, and this canvas has never drawn a raster image at all
+// (every occupant/decor is a procedural shape), so a real asset was never
+// the right tool for this specific effect anyway. Drawn LAST, over
+// everything else, so "same fish, same set pieces, same room" never has to
+// change -- only a vignette (a photograph of the same room, not a new one)
+// plus a faint cooler wash (re-lit). Permanent once the purchase lands: this
+// function doesn't gate on anything but tankStore.finaleTriggered.
+function drawFinaleReframe(context: CanvasRenderingContext2D) {
+  const vignette = context.createRadialGradient(
+    STAGE_WIDTH / 2,
+    STAGE_HEIGHT / 2,
+    STAGE_HEIGHT * 0.25,
+    STAGE_WIDTH / 2,
+    STAGE_HEIGHT / 2,
+    STAGE_HEIGHT * 0.78,
+  )
+  vignette.addColorStop(0, 'rgba(6, 14, 20, 0)')
+  vignette.addColorStop(1, 'rgba(4, 10, 14, 0.55)')
+  context.fillStyle = vignette
+  context.fillRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT)
+
+  context.fillStyle = 'rgba(70, 110, 140, 0.08)'
+  context.fillRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT)
+}
+
 function render(context: CanvasRenderingContext2D) {
   context.fillStyle = getWaterGradient(context)
   context.fillRect(0, 0, STAGE_WIDTH, STAGE_HEIGHT)
@@ -1201,6 +1310,8 @@ function render(context: CanvasRenderingContext2D) {
   }
 
   if (collector.value) drawCollector(context, collector.value)
+
+  if (tankStore.finaleTriggered) drawFinaleReframe(context)
 }
 
 function step(delta: number) {
@@ -1494,6 +1605,10 @@ function handleVisibilityChange() {
 onMounted(async () => {
   await tankStore.load()
   await tankStore.loadCatalog()
+  // cthulhuquarium/t-039: loaded eagerly, not lazily behind a panel toggle
+  // like sets/decor/bestiary -- the shop row's disabled/owned state and the
+  // canvas reframe below both need finaleTriggered as soon as the tank does.
+  void tankStore.loadFinaleStatus()
   syncSwimmers()
   if (!document.hidden) startLoops()
   document.addEventListener('visibilitychange', handleVisibilityChange)

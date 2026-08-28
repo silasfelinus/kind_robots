@@ -360,6 +360,39 @@ export function isKnownSetPieceKind(kind: string): kind is SetPieceKind {
   return Object.prototype.hasOwnProperty.call(SET_PIECE_CATALOG, kind)
 }
 
+// ---------------------------------------------------------------------------
+// The last aquarium -- cthulhuquarium/t-039, economy.yaml's `last_aquarium`.
+// Deliberately NOT a SetPieceKind: it doesn't occupy a setSlotsCap slot and
+// can never be unequipped -- a one-time terminal purchase, permanent the
+// moment it's bought, same as a species unlock (aquarium.ts's
+// purchaseLastAquariumForUser). `slotsCapDelta: 0` is the whole point: this
+// is the one purchasable thing in the game whose effect is purely
+// `cosmetic_reframe`, so SYSTEMS.md's "coins buy breadth, milestones buy
+// room" needs no exception at all -- see the task note for the full design
+// reasoning. It is also, by design, the single most expensive item here.
+// ---------------------------------------------------------------------------
+
+export interface LastAquariumConfig {
+  title: string
+  description: string
+  cost: number
+  effect: 'cosmetic_reframe'
+  // Machine-readable form of "same fish, same set pieces, same room --
+  // re-lit, re-framed, seen from a step further back" (the task note's own
+  // phrase): the purchase re-renders what the player already owns rather
+  // than adding new content.
+  reframeScope: 'existing_tank_contents'
+}
+
+export const LAST_AQUARIUM_CONFIG: LastAquariumConfig = {
+  title: 'The Last Aquarium',
+  description:
+    'An enormous ornate tank, empty on its plinth. Buying it changes nothing about what you already keep -- it only changes how you see it.',
+  cost: 250000,
+  effect: 'cosmetic_reframe',
+  reframeScope: 'existing_tank_contents',
+}
+
 // economy.yaml's own `no_stack_idle_effects`: roaming_collector and
 // idle_hoarder are two fictions over the same underlying "bonus income
 // while away" lever, not two independently-stacking bonuses -- equipping

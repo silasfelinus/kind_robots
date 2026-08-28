@@ -241,13 +241,17 @@
                      a well-bred fish can sell for more than it cost. Always
                      re-orderable afterward from the Ichthyonomicon below, so
                      no confirmation dialog, same one-click shape as
-                     unequip/remove elsewhere in this component. -->
+                     unequip/remove elsewhere in this component. t-062: the
+                     button label itself shows the payout (server-computed,
+                     entry.sellPrice) so the player sees what pressing it
+                     pays before clicking, same "Breed for N" idiom as the
+                     breed confirm dialog below. -->
                 <button
                   type="button"
                   class="btn btn-outline btn-xs min-h-11 min-w-11"
                   @click="tankStore.sell(entry.id)"
                 >
-                  Sell
+                  Sell for {{ entry.sellPrice }}
                 </button>
                 <!-- Breed (t-055): a two-step pick, same "choose, then click
                      to commit" idiom as the decor placement flow -- clicking

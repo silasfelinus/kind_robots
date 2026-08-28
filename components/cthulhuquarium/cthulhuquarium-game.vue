@@ -60,6 +60,34 @@
         </button>
       </div>
 
+      <!-- cthulhuquarium/t-053: the generic, art-agnostic milestone toast --
+           t-028's bestiary-breakpoint gate (bestiary_5/10/15/20) fires
+           server-side and already applies the slot-cap increase before this
+           ever renders; this is only the dismissible notice saying so.
+           Same non-blocking dismissible-notice shape as the rare-event
+           block above, deliberately not a modal -- a full authored
+           Charlotte interstitial (t-028's own note) is a later layer. -->
+      <div
+        v-if="tankStore.nextMilestoneToast"
+        class="flex items-start gap-2 rounded-xl border border-success/40 bg-success/10 p-3 text-sm"
+      >
+        <Icon
+          name="kind-icon:trophy"
+          class="mt-0.5 size-4 shrink-0 text-success"
+        />
+        <p class="min-w-0 flex-1 font-bold">
+          {{ tankStore.nextMilestoneToast }}
+        </p>
+        <button
+          type="button"
+          class="btn btn-ghost btn-xs min-h-11 min-w-11 shrink-0"
+          aria-label="Dismiss"
+          @click="tankStore.dismissMilestoneToast()"
+        >
+          <Icon name="kind-icon:close" class="size-4" />
+        </button>
+      </div>
+
       <div class="flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center gap-3 text-sm font-bold">
           <span class="flex items-center gap-1">

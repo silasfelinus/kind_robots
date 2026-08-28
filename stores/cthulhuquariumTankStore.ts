@@ -68,6 +68,17 @@ export interface TankDecor {
   zIndex: number
 }
 
+// cthulhuquarium/t-041: one purchased-but-not-yet-hatched egg, as returned
+// in Tank.Eggs and by the /api/aquarium/eggs endpoints. Never includes an
+// already-hatched egg -- the server's ownedEggSelect filters those out,
+// since a hatched egg's outcome already lives on a TankStock row.
+export interface TankEgg {
+  id: number
+  rarity: string
+  size: number
+  purchasedAt: string
+}
+
 export interface Tank {
   id: number
   slug: string
@@ -81,6 +92,9 @@ export interface Tank {
   // Server-computed sizeCap + any equipped extra_species_slot bonus
   // (server/utils/aquariumEconomy.ts's effectiveSizeCap) -- this is what
   // the unlock panel should check capacity against, not the raw sizeCap.
+  // An unhatched egg's own size is ALSO reserved against this same number
+  // (server-side, before the egg is ever created) -- see occupantSize's own
+  // comment below for why the client mirrors that.
   effectiveSizeCap: number
   debrisLevel: number
   lastCleanedAt: string | null
@@ -89,6 +103,7 @@ export interface Tank {
   Stock: TankStock[]
   Sets: TankSet[]
   Decor: TankDecor[]
+  Eggs: TankEgg[]
 }
 
 // cthulhuquarium/t-026: one catalog entry from GET /api/aquarium/sets,
@@ -219,6 +234,37 @@ interface FinaleStatusResponse {
 interface PurchaseFinaleResponse {
   aquarium: Tank
   finaleJustTriggered: boolean
+}
+
+// cthulhuquarium/t-041: one catalog entry from GET /api/aquarium/eggs,
+// static config (aquariumEconomy.ts's eggCatalog()) -- one row per
+// rarity+size combination, both dials kept independent per the task's own
+// design note.
+export interface EggCatalogEntry {
+  rarity: string
+  size: number
+  cost: number
+  title: string
+  description: string
+  icon: string
+}
+
+interface EggCatalogResponse {
+  catalog: EggCatalogEntry[]
+  eggs: TankEgg[]
+}
+
+interface PurchaseEggResponse {
+  aquarium: Tank
+  egg: TankEgg
+  cost: number
+}
+
+interface HatchEggResponse {
+  aquarium: Tank
+  stock: TankStock
+  justCompletedBestiary: boolean
+  firedMilestones: FiredMilestone[]
 }
 
 interface CleanResponse {
@@ -397,10 +443,30 @@ export const useCthulhuquariumTankStore = defineStore(
     // finaleTriggered, so reloading the status later can't retrigger it.
     const finaleJustTriggered = ref(false)
 
+    // cthulhuquarium/t-041's egg catalog. Loaded lazily, same
+    // collapsed-panel-until-opened pattern as sets/decor above -- it never
+    // rotates, so there's nothing time-sensitive about deferring it.
+    const eggCatalog = ref<EggCatalogEntry[]>([])
+    const eggCatalogLoading = ref(false)
+    // The just-hatched individual, same "the one moment this is legitimately
+    // known client-side" shape as revealedUnlock -- the game component
+    // watches this to show the hatch reveal, then clears it via
+    // dismissHatchReveal(). A hatch must never be silent (the task's own
+    // "ONE THING THAT MUST NOT HAPPEN" adjacent rule): this ref is that beat.
+    const revealedHatch = ref<TankStock | null>(null)
+
     const stock = computed(() => tank.value?.Stock ?? [])
     const coins = computed(() => tank.value?.coins ?? 0)
-    const occupantSize = computed(() =>
-      stock.value.reduce((sum, entry) => sum + (entry.Monster.size ?? 1), 0),
+    const eggs = computed(() => tank.value?.Eggs ?? [])
+    // Every unhatched egg's size is reserved against the same weighed pool
+    // as owned fish (server/utils/aquarium.ts's currentReservedSize) -- the
+    // client mirrors that here so the shop's disabled/capacity state agrees
+    // with what the server will actually accept, instead of only finding
+    // out on a rejected purchase.
+    const occupantSize = computed(
+      () =>
+        stock.value.reduce((sum, entry) => sum + (entry.Monster.size ?? 1), 0) +
+        eggs.value.reduce((sum, egg) => sum + egg.size, 0),
     )
     // effectiveSizeCap folds in any equipped extra_species_slot bonus; falls
     // back to the raw sizeCap for the brief window before the tank has
@@ -811,6 +877,58 @@ export const useCthulhuquariumTankStore = defineStore(
       finaleJustTriggered.value = false
     }
 
+    // cthulhuquarium/t-041: lazy-loaded, same pattern as loadSets/loadDecor.
+    async function loadEggCatalog(): Promise<void> {
+      eggCatalogLoading.value = true
+      try {
+        const res = await performFetch<EggCatalogResponse>('/api/aquarium/eggs')
+        if (res.success && res.data) eggCatalog.value = res.data.catalog
+      } finally {
+        eggCatalogLoading.value = false
+      }
+    }
+
+    async function purchaseEgg(rarity: string, size: number): Promise<boolean> {
+      const res = await performFetch<PurchaseEggResponse>(
+        '/api/aquarium/eggs/purchase',
+        { method: 'POST', body: JSON.stringify({ rarity, size }) },
+      )
+      if (res.success && res.data) {
+        tank.value = res.data.aquarium
+        return true
+      }
+      error.value = res.message || 'Could not buy that egg.'
+      return false
+    }
+
+    // The hatch beat: consumes the egg, adds the resolved individual, and
+    // shows it via revealedHatch -- see that ref's own comment for why this
+    // can never be silent. Refreshes the bestiary the same way unlock()
+    // does when it's already loaded, since a hatch can land on a species
+    // the book hasn't seen yet.
+    async function hatchEgg(aquariumEggId: number): Promise<boolean> {
+      const res = await performFetch<HatchEggResponse>(
+        '/api/aquarium/eggs/hatch',
+        { method: 'POST', body: JSON.stringify({ aquariumEggId }) },
+      )
+      if (res.success && res.data) {
+        tank.value = res.data.aquarium
+        revealedHatch.value = res.data.stock
+        if (res.data.justCompletedBestiary) bestiaryJustCompleted.value = true
+        if (res.data.firedMilestones?.length) {
+          milestoneToastQueue.value.push(...res.data.firedMilestones)
+        }
+        if (bestiary.value.length > 0) await loadBestiary()
+        return true
+      }
+      error.value = res.message || 'Could not hatch that egg.'
+      return false
+    }
+
+    function dismissHatchReveal(): void {
+      revealedHatch.value = null
+    }
+
     return {
       tank,
       catalog,
@@ -874,6 +992,14 @@ export const useCthulhuquariumTankStore = defineStore(
       loadFinaleStatus,
       purchaseFinale,
       dismissFinaleReveal,
+      eggs,
+      eggCatalog,
+      eggCatalogLoading,
+      revealedHatch,
+      loadEggCatalog,
+      purchaseEgg,
+      hatchEgg,
+      dismissHatchReveal,
     }
   },
 )

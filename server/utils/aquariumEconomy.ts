@@ -46,7 +46,7 @@ export const RARITY_TIERS: Record<Rarity, RarityTierConfig> = {
   MYTHIC: { incomePerTick: 120, unlockCost: 50000 },
 }
 
-const RARITY_ORDER: readonly Rarity[] = [
+export const RARITY_ORDER: readonly Rarity[] = [
   'COMMON',
   'UNCOMMON',
   'RARE',
@@ -561,6 +561,126 @@ export function isKnownDecorKind(kind: string): kind is DecorKind {
 export function clampDecorCoordinate(value: number): number {
   if (!Number.isFinite(value)) return 50
   return Math.min(100, Math.max(0, value))
+}
+
+// ---------------------------------------------------------------------------
+// Eggs -- cthulhuquarium/t-041, roadmap task note (no economy.yaml section
+// yet -- flagged there for a future data-file mirror, same as
+// SET_PIECE_CATALOG/DECOR_CATALOG's own "priced against RARITY_TIERS as an
+// anchor, not a confirmed number" disclaimer).
+//
+// TWO INDEPENDENT DIALS, per the task note: `rarity` grades the LINE the
+// egg seeds (read off the shell, decided at purchase -- NOT the tier of
+// what actually hatches, which is always the COMMON-tier base of that
+// line), and `size` is the tank-capacity weight reserved at purchase,
+// entirely separate from rarity. A small MYTHIC egg and a large COMMON egg
+// are both offered, and both legible at a glance -- that pair is the point.
+//
+// PRICING: an egg is a PROMISE, not a guaranteed delivery of a same-tier
+// fish (the hatch is always a common-tier line base) -- priced as a
+// fraction of the promised tier's own unlock cost, plus a flat surcharge
+// per size unit reserved. Flagged for a future balance pass, same
+// discipline as every other catalog in this file.
+// ---------------------------------------------------------------------------
+
+// Every tank-capacity size an egg can be offered at. Three options keeps
+// the size dial genuinely a *choice* (cheap-and-small vs. pricier-but-
+// roomier) without inflating the shop into one row per integer.
+export const EGG_SIZE_OPTIONS: readonly number[] = [1, 2, 3]
+
+// The egg's own price traces to the LINE's promised tier, discounted
+// because delivery is a common-tier base, not the tier itself -- 0.6 is a
+// starting-point guess, not a confirmed number.
+export const EGG_RARITY_PRICE_FACTOR = 0.6
+
+// Flat coin cost per reserved size unit, independent of rarity -- anchored
+// to a fifth of a COMMON unlock so the size dial stays a modest surcharge
+// rather than dominating the rarity dial's price signal.
+export const EGG_SIZE_PRICE_PER_UNIT = Math.round(
+  RARITY_TIERS.COMMON.unlockCost * 0.2,
+)
+
+export function eggCost(rarity: Rarity, size: number): number {
+  return (
+    Math.round(RARITY_TIERS[rarity].unlockCost * EGG_RARITY_PRICE_FACTOR) +
+    size * EGG_SIZE_PRICE_PER_UNIT
+  )
+}
+
+// The art-direction ramp (ART-DIRECTION.md, Victorian trade-catalogue
+// engraving lineage): a single monotonic line-density/ornament dial, chosen
+// specifically because it survives a 256px silhouette and needs no colour,
+// leaving size and rarity as the two dials this feature actually needs
+// independent. Doubles as shop copy -- the player reads the shell, not a
+// hidden number.
+export const EGG_RARITY_DESCRIPTIONS: Readonly<Record<Rarity, string>> = {
+  COMMON: 'A plain, smooth ovoid -- a few contour lines, mostly bare shell.',
+  UNCOMMON: 'Simple banding rings the shell.',
+  RARE: 'Finely speckled, with a ruled seam pole to pole.',
+  EPIC: 'Worked all over in ornamental whorls.',
+  LEGENDARY: 'Elaborate scrollwork, raised at the collar.',
+  MYTHIC:
+    'Engraved so densely the shell reads as solid black, its form picked out in reserved white line.',
+}
+
+// PLACEHOLDER PRESENTATION, same "mechanical gate now, authored pass later"
+// precedent as LAST_AQUARIUM_CONFIG's finale dialog (t-039/t-053): the six
+// real plates (the Victorian-engraving ramp EGG_RARITY_DESCRIPTIONS above
+// describes) are already generated -- projects/cthulhuquarium/art/
+// cthulhuquarium-egg-<rarity>.webp in conductor -- but eggs are items, not
+// Monster rows, so there is no ArtImage link for them to resolve through
+// kr-art-plate's normal source chain, and `public/images/**` is
+// git-ignored in this repo (the real distribution path is conductor's
+// `distribute_images.py` intake pipeline, not a hand-added file in this
+// PR). Every egg uses one flat emoji instead, same convention as
+// DECOR_CATALOG's `icon` field -- swap this for the real plates once the
+// distribution pipeline lands them, same as the finale dialog is still
+// waiting on its own screen-finale plate.
+export const EGG_ICON = '🥚'
+
+export interface EggCatalogEntry {
+  rarity: Rarity
+  size: number
+  cost: number
+  title: string
+  description: string
+  icon: string
+}
+
+// One offering per (rarity, size) pair -- the two dials stay genuinely
+// independent in the shop, not just in the pricing math: a small MYTHIC
+// egg and a large COMMON egg are both real, separately-priced rows.
+export function eggCatalog(): readonly EggCatalogEntry[] {
+  const entries: EggCatalogEntry[] = []
+  for (const rarity of RARITY_ORDER) {
+    for (const size of EGG_SIZE_OPTIONS) {
+      entries.push({
+        rarity,
+        size,
+        cost: eggCost(rarity, size),
+        title: `${rarity.charAt(0)}${rarity.slice(1).toLowerCase()} Egg`,
+        description: EGG_RARITY_DESCRIPTIONS[rarity],
+        icon: EGG_ICON,
+      })
+    }
+  }
+  return entries
+}
+
+export function isKnownEggRarity(value: string): value is Rarity {
+  return (RARITY_ORDER as readonly string[]).includes(value)
+}
+
+export function isKnownEggSize(value: number): boolean {
+  return EGG_SIZE_OPTIONS.includes(value)
+}
+
+// Pure random-index pick, same "caller supplies the roll" discipline as
+// rollRareEvent above -- the actual species-pool query lives in
+// aquarium.ts (it needs Prisma), this only turns one [0, 1) roll into a
+// pool index so the selection itself stays unit-testable.
+export function pickHatchIndex(poolSize: number, roll: number): number {
+  return Math.min(poolSize - 1, Math.floor(roll * poolSize))
 }
 
 // ---------------------------------------------------------------------------

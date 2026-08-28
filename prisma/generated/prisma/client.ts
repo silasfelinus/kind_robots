@@ -758,6 +758,25 @@ export type AquariumSet = Prisma.AquariumSetModel
  */
 export type AquariumDecor = Prisma.AquariumDecorModel
 /**
+ * Model AquariumEgg
+ * cthulhuquarium/t-041: a purchased-but-not-yet-hatched egg. An ITEM, not a
+ * Monster/species row -- the roadmap task note rejects modelling eggs as
+ * Monster.evolvesToId targets (single-valued/validated, but an egg resolves
+ * to a POOL of eligible line-base species) and rejects minting new species
+ * outright (would push the bible past its deliberate 151-species cap).
+ * `rarity` grades the LINE the egg seeds -- read off the shell, decided at
+ * purchase time, independent of `size`. `size` is the tank-capacity weight
+ * (the weighed pool, same unit as Monster.size) reserved from the moment of
+ * purchase, so a hatch can never overflow the tank: the space was already
+ * paid for and checked once, by the ordinary capacity rule, with no new
+ * capacity logic anywhere. Consumed on hatch (hatchedAt + hatchedMonsterId
+ * set) -- the sole exception to "a species' base evolution form is never
+ * consumed" (SCHEMA.md), justified because size is conserved (this egg's
+ * units become at most that many Monster units) and the Ichthyonomicon
+ * record survives regardless of what happens to this row afterward.
+ */
+export type AquariumEgg = Prisma.AquariumEggModel
+/**
  * Model AquariumCodexEntry
  * cthulhuquarium/t-032 item 4: the Ichthyonomicon. One row per user per
  * species ever bought or raised, whether or not currently owned -- survives

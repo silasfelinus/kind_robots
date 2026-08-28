@@ -35,11 +35,18 @@ import {
   debrisMultiplier,
   deriveFishRarityTier,
   effectiveTickSeconds,
+  eggCatalog,
+  eggCost,
+  EGG_SIZE_OPTIONS,
   feedCost,
   hungerMultiplier,
   incomePerTick,
+  isKnownEggRarity,
+  isKnownEggSize,
   justCompletedBestiary,
   mergeBestStats,
+  pickHatchIndex,
+  RARITY_ORDER,
   rollRareEvent,
   settleTick,
   unlockCost,
@@ -961,6 +968,94 @@ assert.equal(
 
 console.log(
   '✅ LAST_AQUARIUM_CONFIG: priced above every set piece, purely cosmetic_reframe, and not a SetPieceKind',
+)
+
+// --- eggs (cthulhuquarium/t-041): two independent dials -- rarity grades
+// the LINE the egg seeds, size is the reserved tank-capacity weight -------
+
+// Rarity dominates price; size is a modest surcharge -- a small MYTHIC egg
+// still costs more than a large COMMON one, per the task note's own "small
+// expensive high-rarity, big cheap ordinary" framing.
+assert.ok(
+  eggCost('MYTHIC', EGG_SIZE_OPTIONS[0]!) >
+    eggCost('COMMON', EGG_SIZE_OPTIONS[EGG_SIZE_OPTIONS.length - 1]!),
+  'a small MYTHIC egg must cost more than a large COMMON egg -- rarity is the dominant price signal',
+)
+
+// Independent dials: holding rarity fixed, cost strictly increases with
+// size; holding size fixed, cost strictly increases with rarity.
+for (const rarity of RARITY_ORDER) {
+  for (let i = 1; i < EGG_SIZE_OPTIONS.length; i++) {
+    assert.ok(
+      eggCost(rarity, EGG_SIZE_OPTIONS[i]!) >
+        eggCost(rarity, EGG_SIZE_OPTIONS[i - 1]!),
+      `eggCost(${rarity}, ${EGG_SIZE_OPTIONS[i]}) must exceed eggCost(${rarity}, ${EGG_SIZE_OPTIONS[i - 1]}) -- size is a real dial, not a no-op`,
+    )
+  }
+}
+for (let i = 1; i < RARITY_ORDER.length; i++) {
+  const size = EGG_SIZE_OPTIONS[0]!
+  assert.ok(
+    eggCost(RARITY_ORDER[i]!, size) > eggCost(RARITY_ORDER[i - 1]!, size),
+    `eggCost(${RARITY_ORDER[i]}, ${size}) must exceed eggCost(${RARITY_ORDER[i - 1]}, ${size}) -- rarity is a real dial, not a no-op`,
+  )
+}
+
+console.log(
+  '✅ eggCost: rarity and size are genuinely independent dials, rarity dominates the price signal',
+)
+
+// eggCatalog() offers every rarity x size combination exactly once, and
+// every entry's cost matches eggCost's own math -- the catalog is a thin
+// enumeration, not a second source of truth for pricing.
+const catalog = eggCatalog()
+assert.equal(catalog.length, RARITY_ORDER.length * EGG_SIZE_OPTIONS.length)
+for (const entry of catalog) {
+  assert.equal(entry.cost, eggCost(entry.rarity, entry.size))
+  assert.ok(EGG_SIZE_OPTIONS.includes(entry.size))
+  assert.ok(RARITY_ORDER.includes(entry.rarity))
+}
+const seenPairs = new Set(
+  catalog.map((entry) => `${entry.rarity}:${entry.size}`),
+)
+assert.equal(
+  seenPairs.size,
+  catalog.length,
+  'eggCatalog() must offer each rarity+size pair exactly once',
+)
+
+console.log(
+  '✅ eggCatalog: one entry per rarity+size pair, every cost traces to eggCost',
+)
+
+assert.equal(isKnownEggRarity('MYTHIC'), true)
+assert.equal(isKnownEggRarity('LEGENDARY'), true)
+assert.equal(isKnownEggRarity('not-a-rarity'), false)
+assert.equal(isKnownEggSize(EGG_SIZE_OPTIONS[0]!), true)
+assert.equal(isKnownEggSize(999), false)
+
+console.log(
+  '✅ isKnownEggRarity/isKnownEggSize: reject anything outside the real catalog',
+)
+
+// pickHatchIndex: pure roll -> index, in range, and deterministic given the
+// same roll -- the actual species-pool query lives in aquarium.ts (needs
+// Prisma), this only verifies the index math it depends on.
+assert.equal(pickHatchIndex(5, 0), 0)
+assert.equal(pickHatchIndex(5, 0.999), 4)
+assert.equal(
+  pickHatchIndex(5, 1),
+  4,
+  'a roll of exactly 1 (should never happen from Math.random(), but must not throw) clamps to the last index',
+)
+for (let i = 0; i < 20; i++) {
+  const roll = i / 20
+  const index = pickHatchIndex(7, roll)
+  assert.ok(index >= 0 && index < 7)
+}
+
+console.log(
+  '✅ pickHatchIndex: always returns a valid in-range pool index, never off-by-one at the edges',
 )
 
 console.log('✅ verifyAquariumEconomy: all assertions passed')

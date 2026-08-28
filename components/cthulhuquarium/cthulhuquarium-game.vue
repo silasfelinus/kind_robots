@@ -215,6 +215,17 @@
                 <p class="mt-0.5 text-xs italic opacity-70">
                   {{ entry.Monster.species || entry.Monster.behavior || '—' }}
                 </p>
+                <!-- t-059: this individual's own rolled stats (t-029/t-055),
+                     reusing the Ichthyonomicon's formatBestStats/
+                     BEST_STAT_LABELS idiom (t-031) rather than a second
+                     stat-formatting scheme. Hidden until rolled -- any
+                     individual placed before t-029 shipped has none. -->
+                <p
+                  v-if="tankStockStatsLine(entry)"
+                  class="mt-1 text-[0.65rem] uppercase tracking-wide opacity-60"
+                >
+                  {{ tankStockStatsLine(entry) }}
+                </p>
               </div>
               <div class="flex shrink-0 flex-col gap-1">
                 <button
@@ -1484,6 +1495,23 @@ function formatBestStats(stats: BestiaryStatBlock): string {
     .filter((key) => stats[key] != null)
     .map((key) => `${BEST_STAT_LABELS[key]} ${stats[key]}`)
     .join(' · ')
+}
+
+// t-059: THIS individual's own rolled stats live on TankStock as
+// stat<Name> (t-029/t-055), not as a BestiaryStatBlock -- reshape once here
+// so the display can reuse formatBestStats/BEST_STAT_LABELS unchanged
+// instead of a second formatting scheme.
+function tankStockStatsLine(entry: TankStock): string | null {
+  const stats: BestiaryStatBlock = {
+    charm: entry.statCharm,
+    empathy: entry.statEmpathy,
+    grace: entry.statGrace,
+    luck: entry.statLuck,
+    might: entry.statMight,
+    wits: entry.statWits,
+  }
+  if (Object.values(stats).every((value) => value == null)) return null
+  return formatBestStats(stats)
 }
 
 function spawnSwimmer(stock: TankStock): Swimmer {

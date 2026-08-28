@@ -35,12 +35,12 @@ function recordTransportSuccess(): void {
   circuitOpenUntil = 0
 }
 
-export async function performFetch<T = unknown>(
+export async function performFetch<T = unknown, M = unknown>(
   url: string,
   options: RequestInit = {},
   retries = 1,
   timeout = 10000,
-): Promise<ApiResponse<T> & { status?: number }> {
+): Promise<ApiResponse<T, M> & { status?: number }> {
   const userStore = useUserStore()
   const errorStore = useErrorStore()
   const token = userStore.token || userStore.user?.token || ''
@@ -117,6 +117,7 @@ export async function performFetch<T = unknown>(
         success: res.ok && bodySuccess,
         status: effectiveStatus,
         data: (body.data ?? parsedBody) as T,
+        meta: body.meta as M,
         message:
           typeof body.message === 'string'
             ? body.message

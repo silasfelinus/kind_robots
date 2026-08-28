@@ -303,9 +303,13 @@
              owned, not the whole remaining bestiary. Anything sold or
              already discovered stays available any time via the
              Ichthyonomicon's re-order button below, regardless of today's
-             slate. -->
+             slate. t-057: a live countdown to the next rotation replaces the
+             old static hint once the catalog has loaded. -->
         <p class="text-xs italic opacity-50">
-          Today's arrivals -- check back tomorrow for more.
+          {{
+            shopRefreshLabel ??
+            "Today's arrivals -- check back tomorrow for more."
+          }}
         </p>
         <p v-if="tankStore.catalogLoading" class="text-xs opacity-60">
           Reading the bestiary…
@@ -1163,6 +1167,7 @@ import {
   type TankStock,
 } from '~/stores/cthulhuquariumTankStore'
 import { touchHitRadius } from '~/utils/aquariumTouch'
+import { formatShopRefreshCountdown } from '~/utils/aquariumShopCountdown'
 import { useUserStore } from '~/stores/userStore'
 
 /* Fixed logical resolution; CSS scales it to the host width so the canvas
@@ -1394,6 +1399,22 @@ const roamingCollectorEquipped = computed(() =>
 let frame = 0
 let lastFrameAt = 0
 let pollTimer: ReturnType<typeof setInterval> | null = null
+
+// cthulhuquarium/t-057: bumped alongside pollTick's own 20s cadence (see
+// startLoops()) so shopRefreshLabel below recomputes without a second
+// timer -- a countdown display only shown in whole minutes doesn't need
+// finer-grained ticking than the tank's existing poll loop already gives it.
+const now = ref(Date.now())
+
+// The unlock panel's live "refreshes in Xh Ym" readout, replacing the old
+// static "check back tomorrow" hint. Null (falls back to that static hint
+// in the template) until the catalog has loaded at least once, or for the
+// brief window after a rotation flips server-side but before the next
+// loadCatalog() call picks up the new dateKey.
+const shopRefreshLabel = computed(() => {
+  const dateKey = tankStore.catalogDateKey
+  return dateKey ? formatShopRefreshCountdown(dateKey, now.value) : null
+})
 
 function canUnlock(entry: CatalogEntry): boolean {
   return (
@@ -1959,6 +1980,9 @@ async function onFeed() {
 async function pollTick() {
   const earned = await tankStore.settleTick()
   if (earned > 0) spawnMotes(earned)
+  // cthulhuquarium/t-057: keeps shopRefreshLabel's countdown live without a
+  // second timer -- see `now`'s own comment.
+  now.value = Date.now()
 }
 
 function onToggleBestiary() {
@@ -2034,6 +2058,10 @@ function canBuyEgg(entry: EggCatalogEntry): boolean {
 // can't simulate a giant step, but resetting it on resume (same pattern as
 // the initial kick-off below) keeps the very first frame back honest too.
 function startLoops() {
+  // cthulhuquarium/t-057: refresh immediately on resume rather than leaving
+  // shopRefreshLabel showing however stale `now` was when the tab hid --
+  // matches lastFrameAt's own "keep the first beat back honest" reasoning.
+  now.value = Date.now()
   if (pollTimer === null) {
     pollTimer = setInterval(pollTick, TANK_POLL_INTERVAL_MS)
   }

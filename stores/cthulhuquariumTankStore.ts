@@ -156,6 +156,17 @@ export interface CatalogEntry {
   cost: number
 }
 
+// cthulhuquarium/t-057: GET /api/aquarium/catalog's meta object (server/api/
+// aquarium/catalog.get.ts). `dateKey` is the only field this store reads
+// today (utils/aquariumShopCountdown.ts derives the rotation countdown from
+// it) -- take/skip/total are mirrored here for accuracy, not currently used.
+export interface CatalogMeta {
+  take: number
+  skip: number
+  total: number
+  dateKey: string
+}
+
 // cthulhuquarium/t-016: one rare random event, as returned alongside a tick
 // settlement. `bonusCoins` is already folded into that same response's
 // `coinsEarned` -- this is purely display, never a separate balance.
@@ -399,6 +410,11 @@ export const useCthulhuquariumTankStore = defineStore(
   () => {
     const tank = ref<Tank | null>(null)
     const catalog = ref<CatalogEntry[]>([])
+    // cthulhuquarium/t-057: today's rotation key from the catalog response's
+    // meta ("YYYY-MM-DD", server's todaysShopDateKey) -- null until
+    // loadCatalog() has completed at least once. The unlock panel's refresh
+    // countdown (utils/aquariumShopCountdown.ts) reads this.
+    const catalogDateKey = ref<string | null>(null)
     const offlineEarnings = ref(0)
     // Ticks settled by the SAME offline-catch-up call that produced
     // offlineEarnings above (load()'s initial settle only, never the live
@@ -602,10 +618,13 @@ export const useCthulhuquariumTankStore = defineStore(
     async function loadCatalog(): Promise<void> {
       catalogLoading.value = true
       try {
-        const res = await performFetch<CatalogEntry[]>(
+        const res = await performFetch<CatalogEntry[], CatalogMeta>(
           '/api/aquarium/catalog?take=24',
         )
         if (res.success && res.data) catalog.value = res.data
+        // cthulhuquarium/t-057: the unlock panel's live refresh countdown
+        // reads this -- see utils/aquariumShopCountdown.ts.
+        if (res.meta?.dateKey) catalogDateKey.value = res.meta.dateKey
       } finally {
         catalogLoading.value = false
       }
@@ -1026,6 +1045,7 @@ export const useCthulhuquariumTankStore = defineStore(
     return {
       tank,
       catalog,
+      catalogDateKey,
       stock,
       coins,
       occupantSize,

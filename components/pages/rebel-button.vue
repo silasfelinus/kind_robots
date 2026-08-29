@@ -126,9 +126,7 @@
           aria-modal="true"
           @click.self="state.showResetPopup = false"
         >
-          <div
-            class="w-full max-w-sm rounded-2xl border border-base-300 bg-base-100 p-6 shadow-2xl"
-          >
+          <div class="w-full max-w-sm kr-panel-flat p-6 shadow-2xl">
             <p>Are you sure you want to reset the leaderboard?</p>
             <div class="flex justify-end space-x-4 mt-4">
               <button

@@ -51,25 +51,47 @@
 
     <!--
       The top band is the dream, its cast, and whatever is waiting on Silas.
-      He asked for the dream to give up horizontal space for the third
+      He asked twice for the dream to give up horizontal space to the third
       (2026-08-29: "Dream entry should take up less horizontal space to leave
-      room for a vertical notification scroll").
+      room for a vertical notification scroll", then "did not get the increased
+      horizontal space for notifications either").
+
+      IT DID NOT, AND THIS IS WHY. The hero carried `lg:flex-1`, so however
+      narrow its contents became, the PANEL still absorbed every pixel the cast
+      gave up. Measured at 1920: hero panel 1560px, Needs-you 320px -- and
+      widening Needs-you from 16rem to 20rem moved 64px while the cast quietly
+      kept the other 1200. The hero now sizes to its contents and Needs-you
+      takes the remainder, which is the only arrangement where making the cast
+      slimmer actually reaches the column it was slimmed for.
+
+      `lg:flex-1` is still the fallback when there is no Needs-you column at
+      all (a signed-out visitor, or an empty gate list) -- otherwise the band
+      would end in 1200px of nothing.
+
+      ONE HEIGHT FOR ALL THREE COLUMNS. Silas: "still a discrepancy betwen hero
+      dream height and the rest." There was: the dream card's 4:3 plate set the
+      band height at 356px and the single row of cast tiles left ~150px of dead
+      space beneath it. A definite height on the row makes every column exactly
+      as tall as its neighbours, and each column then distributes that height
+      internally (the card's plate flexes, the cast's rows share it, the gate
+      list scrolls). `h-*` in rem, not vh -- the contract's no-viewport rule.
     -->
-    <div class="flex flex-col gap-2 lg:flex-row lg:items-stretch">
+    <div class="flex flex-col gap-2 lg:h-96 lg:flex-row lg:items-stretch">
       <home-dream-hero
         v-if="showcaseStore.hero"
-        class="min-w-0 lg:flex-1"
+        class="min-w-0"
+        :class="showAttention ? 'lg:shrink-0' : 'lg:flex-1'"
         :hero="showcaseStore.hero"
         @select="openCard"
       />
 
       <div
         v-else-if="!showcaseStore.hasLoaded"
-        class="h-40 w-full animate-pulse rounded-2xl bg-base-200 lg:flex-1"
+        class="h-40 w-full animate-pulse rounded-2xl bg-base-200 lg:h-full lg:flex-1"
         aria-hidden="true"
       />
 
-      <home-attention />
+      <home-attention class="lg:min-w-0 lg:flex-1" />
     </div>
 
     <!--
@@ -239,8 +261,16 @@
       contract's one-scroll rule deliberately does not count a `max-h-*` region
       -- those are nested previews, not the page's scroll owner, which is still
       pages/[...slug].vue's content-host.
+
+      The bound was accidentally DROPPED when the heading moved into the feed's
+      own control row, which is how an unbounded feed got back onto the page.
+      It is on the section itself now rather than an inner wrapper, so the
+      heading row scrolls with the stories instead of the stories scrolling
+      under a pinned header inside a panel that also scrolls.
     -->
-    <section class="flex flex-col kr-panel-flat p-3">
+    <section
+      class="flex max-h-80 flex-col overflow-y-auto overscroll-contain kr-panel-flat p-3"
+    >
       <NewsfeedFeed :initial-limit="24" compact>
         <template #lead>
           <h2
@@ -328,6 +358,18 @@ const selectedCard = ref<RailItem | null>(null)
 function openCard(card: RailItem): void {
   selectedCard.value = card
 }
+
+/**
+ * Whether home-attention will render anything.
+ *
+ * Deliberately the SAME condition that component uses (`gates.length ||
+ * !hasLoaded`), because the hero's width depends on whether it has a neighbour:
+ * with one it sizes to its contents, without one it fills the row. If these two
+ * ever disagree the band gets either a 1200px hole or a squashed gate list.
+ */
+const showAttention = computed(
+  () => conductorStore.humanGates.length > 0 || !conductorStore.hasLoaded,
+)
 
 /**
  * Percent complete for a project, joined to conductor's own figure on

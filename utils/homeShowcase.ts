@@ -67,6 +67,12 @@ export type ShowcaseCard = {
    * under nav paths" problem this page exists to fix.
    */
   href: string | null
+  /**
+   * Projects only: the conductor project this record mirrors. The home strip
+   * joins on it to show conductor's own progress percentage rather than
+   * inventing a second definition of "how far along is this".
+   */
+  conductorSlug: string | null
 }
 
 export type ShowcaseHero = {

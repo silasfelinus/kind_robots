@@ -99,11 +99,33 @@
           class="flex min-w-0 flex-1 items-stretch border-l border-base-300"
         >
           <tab-select
-            class="min-w-0 flex-1"
+            class="min-w-0 shrink-0"
             :channel="resolvedChannel"
             :active-tab-key="activeTabKey"
             @select="goToTab"
           />
+
+          <!--
+            THE EMPTY STRETCH, given something to say. Silas, 2026-08-29: "we
+            still have a wide akward space in the navigation tab selector, it
+            would be better on sufficiently large screens to show a unique tab
+            message, we should have something in front matter."
+
+            A dropdown needs room for one label and no more, so `flex-1` on it
+            spent the rest of the row on nothing. The tab-select now takes only
+            what it needs and this takes the remainder -- but only from `lg`,
+            because below that the row genuinely has no spare width and a
+            truncated half-sentence is worse than blank space.
+          -->
+          <p
+            v-if="tabMessage"
+            class="hidden min-w-0 flex-1 items-center truncate px-3 text-sm text-base-content/55 lg:flex"
+            :title="tabMessage"
+          >
+            {{ tabMessage }}
+          </p>
+
+          <span v-else class="min-w-0 flex-1" />
         </div>
 
         <!-- No tabs resolved (a bare route, or content still loading): fall
@@ -227,6 +249,8 @@ const resolvedTabs = computed(() => resolvedChannel.value?.tabs ?? [])
 // The room label this fed ("CREATIVE WORLDS") sat above the page title in the
 // old title section. The channel name in channel-select says the same thing one
 // control to the left, so nothing repeats it.
+
+const tabMessage = computed(() => pageStore.tabMessage || '')
 
 const shellSummary = computed(
   () => pageStore.subtitle || pageStore.description || '',

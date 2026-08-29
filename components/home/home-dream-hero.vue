@@ -29,6 +29,17 @@
 <template>
   <section class="flex flex-col gap-2 kr-panel-flat p-3 lg:flex-row">
     <!--
+      NARROWER STILL, and it is the part that gives. Silas, 2026-08-29: "the
+      dream elements are matched according to the dream hero, and that leaves a
+      bunch of dead space, it would be better if the dream hero shrunk rather
+      than the others gained, to save room" -- and "Dream entry should take up
+      less horizontal space to leave room for a vertical notification scroll."
+
+      So the cast went back to square plates (portrait ones had made the CAST
+      set the band height, which is the reverse of what he asked for), and this
+      card is a fixed 11rem rather than a fifth of the page, freeing the width
+      the Needs-you column now occupies.
+
       ABOUT A FIFTH OF THE WIDTH, in its natural proportion. Silas, 2026-08-29:
       "Obviously the dream hero is horribly proportioned, It would be better to
       have something that fits about 20% width of screen, properly fitted
@@ -44,7 +55,7 @@
     -->
     <NuxtLink
       :to="showcaseHref(hero.dream)"
-      class="group flex shrink-0 flex-col gap-1 rounded-xl border-2 border-primary/70 bg-base-100 p-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5 lg:w-1/5"
+      class="group flex shrink-0 flex-col gap-1 rounded-xl border-2 border-primary/70 bg-base-100 p-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5 lg:w-44"
     >
       <kr-art-plate
         :source="hero.dream.art"
@@ -71,7 +82,7 @@
 
         <p
           v-if="hero.hook"
-          class="mt-0.5 line-clamp-2 text-[0.7rem] leading-snug text-base-content/65"
+          class="mt-0.5 line-clamp-1 text-[0.7rem] leading-snug text-base-content/65"
         >
           {{ hero.hook }}
         </p>
@@ -120,7 +131,7 @@
         <kr-art-plate
           :source="member.art"
           variant="card"
-          shape="card"
+          shape="square"
           frame="none"
           :alt="member.title"
           :fallback="fallbackFor(member)"

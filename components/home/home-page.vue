@@ -49,13 +49,27 @@
       {{ showcaseStore.errorMessage }}
     </div>
 
-    <home-dream-hero v-if="showcaseStore.hero" :hero="showcaseStore.hero" />
+    <!--
+      The top band is the dream, its cast, and whatever is waiting on Silas.
+      He asked for the dream to give up horizontal space for the third
+      (2026-08-29: "Dream entry should take up less horizontal space to leave
+      room for a vertical notification scroll").
+    -->
+    <div class="flex flex-col gap-2 lg:flex-row lg:items-stretch">
+      <home-dream-hero
+        v-if="showcaseStore.hero"
+        class="min-w-0 lg:flex-1"
+        :hero="showcaseStore.hero"
+      />
 
-    <div
-      v-else-if="!showcaseStore.hasLoaded"
-      class="h-48 w-full animate-pulse rounded-2xl bg-base-200 lg:h-64"
-      aria-hidden="true"
-    />
+      <div
+        v-else-if="!showcaseStore.hasLoaded"
+        class="h-40 w-full animate-pulse rounded-2xl bg-base-200 lg:flex-1"
+        aria-hidden="true"
+      />
+
+      <home-attention />
+    </div>
 
     <!--
       The rails. `auto-rows-fr` so neighbouring shelves in a row share a height
@@ -77,6 +91,7 @@
         :plate-variant="entry.plateVariant"
         :placeholder-icon="entry.placeholderIcon"
         :rows="entry.rows ?? 1"
+        :fit="entry.fit ?? 'cover'"
       />
     </div>
 
@@ -138,34 +153,55 @@
             />
           </div>
 
-          <div class="min-w-0 flex-1">
-            <p class="flex items-center gap-1">
-              <span
-                class="truncate text-xs font-black group-hover:text-primary"
-                :title="project.title"
-              >
-                {{ project.title }}
-              </span>
-              <span
-                v-if="project.badge"
-                class="badge badge-primary badge-xs shrink-0 font-bold"
-              >
-                {{ project.badge }}
-              </span>
-            </p>
-            <p
-              v-if="project.subtitle"
-              class="truncate text-[0.65rem] text-base-content/55"
-              :title="project.subtitle"
-            >
-              {{ project.subtitle }}
-            </p>
-          </div>
+          <!--
+            Silas, 2026-08-29: "project titles are still getting cut off ...
+            they are the most important part, and we should see progress
+            indicator, the priority rating could be a simple single letter.
+            description is not needed, these are things I'm well aquainted
+            with." So the description is gone, the priority is one glyph, and
+            everything the title was competing with for width went with them.
 
-          <Icon
-            name="kind-icon:chevron-right"
-            class="size-3.5 shrink-0 text-base-content/30 group-hover:text-primary"
-          />
+            Progress comes from conductorStore, which already computes it per
+            project; the two are joined on conductorSlug.
+          -->
+          <div class="min-w-0 flex-1">
+            <p
+              class="truncate text-xs font-black leading-tight group-hover:text-primary"
+              :title="project.title"
+            >
+              {{ project.title }}
+            </p>
+
+            <div class="mt-1 flex items-center gap-1.5">
+              <span
+                v-if="priorityLetter(project)"
+                class="grid size-3.5 shrink-0 place-items-center rounded bg-primary text-[0.5rem] font-black text-primary-content"
+                :title="`${project.badge || 'Priority'}`"
+              >
+                {{ priorityLetter(project) }}
+              </span>
+
+              <template v-if="progressFor(project) !== null">
+                <span
+                  class="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-base-300"
+                  :title="`${progressFor(project)}% complete`"
+                >
+                  <span
+                    class="block h-full rounded-full bg-primary"
+                    :style="{ width: `${progressFor(project)}%` }"
+                  />
+                </span>
+
+                <span
+                  class="shrink-0 text-[0.6rem] font-bold tabular-nums text-base-content/55"
+                >
+                  {{ progressFor(project) }}%
+                </span>
+              </template>
+
+              <span v-else class="min-w-0 flex-1" />
+            </div>
+          </div>
         </NuxtLink>
       </div>
     </section>
@@ -203,6 +239,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
+import { useConductorStore } from '@/stores/conductorStore'
 import { useHomeShowcaseStore } from '@/stores/homeShowcaseStore'
 import {
   showcaseHref,
@@ -224,9 +261,38 @@ type RailDefinition = {
   /** Extra grid classes for this shelf's cell, and its internal row count. */
   cellClass?: string
   rows?: 1 | 2
+  fit?: 'cover' | 'contain'
 }
 
 const showcaseStore = useHomeShowcaseStore()
+const conductorStore = useConductorStore()
+
+/**
+ * Percent complete for a project, joined to conductor's own figure on
+ * conductorSlug. Conductor computes it from the roadmap (done weight plus half
+ * for in-progress), which is the number Silas already reads elsewhere -- so
+ * this shows the same one rather than inventing a second definition.
+ */
+function progressFor(project: ShowcaseCard): number | null {
+  const slug = project.conductorSlug
+  if (!slug) return null
+
+  const match = conductorStore.projects.find((entry) => entry.slug === slug)
+  /*
+   * NULL, not 0, when there is no match. A project conductor has never heard of
+   * is of UNKNOWN progress; rendering an empty bar at 0% asserts that no work
+   * has been done on it, which is a different and probably false claim. The bar
+   * is omitted instead.
+   */
+  if (typeof match?.progress !== 'number') return null
+
+  return Math.max(0, Math.min(100, Math.round(match.progress)))
+}
+
+/** HIGH -> H. The word cost more width than the title could spare. */
+function priorityLetter(project: ShowcaseCard): string {
+  return (project.badge || '').trim().charAt(0).toUpperCase()
+}
 
 /*
  * ORDER IS THE ARGUMENT. Art first because it is the most immediately legible
@@ -252,6 +318,7 @@ const RAILS: RailDefinition[] = [
     // shelves filling a tidy 3x2 beside it.
     cellClass: 'lg:row-span-2',
     rows: 2,
+    fit: 'contain',
   },
   {
     key: 'animations',

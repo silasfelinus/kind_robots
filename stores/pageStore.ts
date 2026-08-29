@@ -14,10 +14,7 @@ import { useNavStore } from '@/stores/navStore'
 import { useSheetStore } from '@/stores/sheetStore'
 
 export type PageLayoutKey = 'default' | 'minimal' | 'vertical-scroll' | false
-export type WorkspaceCardsInput =
-  | string
-  | BuilderCard[]
-  | NavigationCard[]
+export type WorkspaceCardsInput = string | BuilderCard[] | NavigationCard[]
 export type PageNarratorKind = 'bot' | 'character'
 export type PageNarratorRef =
   | string
@@ -37,6 +34,15 @@ export type WorkspacePage = ContentCollectionItem & {
   refreshLabel?: string
   room?: string
   subtitle?: string
+  /**
+   * A line for the wide empty stretch beside the tab dropdown. Silas,
+   * 2026-08-29: "we still have a wide akward space in the navigation tab
+   * selector, it would be better on sufficiently large screens to show a unique
+   * tab message, we should have something in front matter." Per-page, falling
+   * back to the tab's and then the channel's, so a page can say something
+   * specific without every page having to.
+   */
+  tabMessage?: string
   tooltip?: string
   dottiTip?: string
   amiTip?: string
@@ -64,7 +70,6 @@ export type WorkspacePage = ContentCollectionItem & {
 // utils/pageImagePath.ts now — same behaviour for every value in content/
 // today, plus `data:` support and a guard against double-prefixing an
 // `images/`-rooted path into `/images/images/…`.
-
 
 function isBuilderCardArray(value: unknown): value is BuilderCard[] {
   return (
@@ -154,6 +159,7 @@ export const usePageStore = defineStore('pageStore', () => {
     room: getString(currentPage.value?.room) || 'Kind Robots',
     subtitle:
       getString(currentPage.value?.subtitle) || 'Welcome to Kind Robots',
+    tabMessage: getString(currentPage.value?.tabMessage),
     description: getString(currentPage.value?.description),
     summary: getString(currentPage.value?.summary),
     icon: getString(currentPage.value?.icon) || 'mdi:robot-happy',
@@ -272,8 +278,7 @@ export const usePageStore = defineStore('pageStore', () => {
       summary: tab?.summary || channel?.summary || meta.value.summary,
       dashboardKey:
         tab?.dashboardKey || channel?.dashboardKey || meta.value.dashboardKey,
-      dashboardTab:
-        tab?.dashboardTab || tab?.tabKey || meta.value.dashboardTab,
+      dashboardTab: tab?.dashboardTab || tab?.tabKey || meta.value.dashboardTab,
       cards: tabCards || cardsKey.value,
       loadingMessage:
         tab?.loadingMessage ||
@@ -438,6 +443,7 @@ export const usePageStore = defineStore('pageStore', () => {
     title: computed(() => meta.value.title),
     room: computed(() => meta.value.room),
     subtitle: computed(() => meta.value.subtitle),
+    tabMessage: computed(() => meta.value.tabMessage),
     description: computed(() => meta.value.description),
     summary: computed(() => meta.value.summary),
     icon: computed(() => meta.value.icon),

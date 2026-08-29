@@ -40,12 +40,19 @@
       card is a fixed width rather than a fifth of the page, freeing the width
       the Needs-you column now occupies.
 
-      THEN A LITTLE WIDER AGAIN, once it had something to say. Silas,
-      2026-08-29: "The hero is the right size, but make it a little wider
-      because we want to add the descrition for the dream, that is missing."
-      11rem fitted a title and a one-line hook and nothing else; 16rem fits a
-      three-line description without the whole band growing, because the cast
-      beside it gave up more width than this took (see the cast note below).
+      THEN MEASURED, because two passes of "a little wider" never got there.
+      Silas, 2026-08-29: "that dream hero is absolutely not 20%." He was right,
+      and it was checkable all along: at 1920 the card was 256px, which is 13.3%
+      of the screen, while the cast tiles beside it were 157px EACH. The card
+      read as subordinate to its own cast.
+
+      `20vw` states the requirement he actually gave ("something that fits about
+      20% width of screen") instead of approximating it with a rem width that is
+      only correct at one viewport. The clamp keeps it sane at the extremes: no
+      narrower than 14rem on a small laptop, no wider than 26rem on an ultrawide
+      where 20% would be a poster. `vw` is fine here -- the layout contract's
+      no-viewport rule bans viewport HEIGHT units (h-screen/100vh/100dvh) inside
+      the h-dvh shell, not vw.
 
       ABOUT A FIFTH OF THE WIDTH, in its natural proportion. Silas, 2026-08-29:
       "Obviously the dream hero is horribly proportioned, It would be better to
@@ -62,21 +69,32 @@
     -->
     <NuxtLink
       :to="showcaseHref(hero.dream)"
-      class="group flex shrink-0 flex-col gap-1 rounded-xl border-2 border-primary/70 bg-base-100 p-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5 lg:w-64"
+      class="group flex shrink-0 flex-col gap-1 rounded-xl border-2 border-primary/70 bg-base-100 p-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5 lg:h-full lg:w-[clamp(14rem,20vw,26rem)]"
     >
-      <kr-art-plate
-        :source="hero.dream.art"
-        variant="hero"
-        shape="wide"
-        frame="none"
-        :alt="hero.dream.title"
-        :fallback="dreamFallback"
-        eager
-        hover-zoom
-        fit="cover"
-      />
+      <!--
+        `h-full` inside a flexible box, so the PLATE fills whatever height the
+        band has left after the text rather than setting the card's height from
+        its own aspect ratio. An aspect-ratio only sizes a box while one
+        dimension is auto; giving it a definite height makes the ratio inert and
+        the image crops to fit. This is what lets the three columns of the band
+        share one height instead of the tallest one winning.
+      -->
+      <div class="min-h-0 flex-1 overflow-hidden rounded-lg">
+        <kr-art-plate
+          class="h-full"
+          :source="hero.dream.art"
+          variant="hero"
+          shape="wide"
+          frame="none"
+          :alt="hero.dream.title"
+          :fallback="dreamFallback"
+          eager
+          hover-zoom
+          fit="cover"
+        />
+      </div>
 
-      <div class="min-w-0">
+      <div class="min-w-0 shrink-0">
         <p
           class="text-[0.6rem] font-black uppercase tracking-[0.18em] text-primary"
         >
@@ -87,28 +105,25 @@
           {{ hero.dream.title }}
         </h2>
 
-        <p
-          v-if="hero.hook"
-          class="mt-0.5 line-clamp-1 text-[0.7rem] font-bold leading-snug text-base-content/70"
-        >
-          {{ hero.hook }}
-        </p>
-
         <!--
           THE DESCRIPTION, which was simply never rendered. Silas, 2026-08-29:
           "we want to add the descrition for the dream, that is missing."
 
           It is clamped rather than truncated server-side so the text reflows
           with the card instead of ending in a hard ellipsis at a fixed
-          character count. `hook` above is one line and this is three, so the
-          two do not read as the same sentence twice -- and where a dream has
-          only one of them, the other is simply absent.
+          character count.
+
+          It also REPLACED the one-line `hook` that used to sit above it. Both
+          are summarized from the same source fields, so on most dreams they
+          were the same sentence printed twice at two lengths -- and the
+          duplicate line was 20px of the height the band is now trying to
+          budget. `hook` is the fallback when there is no description.
         -->
         <p
-          v-if="hero.description"
-          class="mt-1 line-clamp-3 text-[0.7rem] leading-snug text-base-content/60"
+          v-if="hero.description || hero.hook"
+          class="mt-1 line-clamp-3 text-[0.7rem] leading-snug text-base-content/65"
         >
-          {{ hero.description }}
+          {{ hero.description || hero.hook }}
         </p>
 
         <span
@@ -136,19 +151,32 @@
       breakpoint (it can be embedded in a narrower host), and a static count is
       not that.
 
-      SLIMMER TILES, on purpose and at a cost. Silas, 2026-08-29: "the other
-      elements on the daily dream can be 50% slimmer, to make room for a better
-      human gate needs you section." A literal half of 7rem is 3.5rem, at which
-      a name truncates to about four characters and the tile stops being
-      identifiable -- which fights his earlier "All the cards need to be big
-      enough to see more of the titles". 4.5rem is the floor where a short name
-      still reads, and the band gives up more width than the difference anyway,
-      because the Needs-you column beside it grew at the same time. If the cast
-      still feels wide, the next thing to cut is the tile CAPTION, not the plate.
+      FIXED TRACKS, and this is the fix for a change that did nothing. Silas,
+      2026-08-29: "the other elements on the daily dream can be 50% slimmer, to
+      make room for a better human gate needs you section." The first attempt
+      lowered the minimum in `minmax(min(100%,7rem),1fr)` to 4.5rem and changed
+      NOTHING, because the `1fr` maximum stretches every track to fill the
+      container: with eight cast members in a wide row each tile was
+      container/8, measured at 157px, whatever the minimum said. Silas, next
+      pass: "I'm wondering if anything actually got done." Fair.
+
+      `auto-cols-[4.5rem]` is a fixed track size with no `1fr` to stretch it, so
+      a tile is 72px and stays 72px. That is the "50% slimmer" actually applied
+      -- and it is what frees the width the Needs-you column now takes, because
+      this panel no longer stretches to fill the row (see home-page.vue).
+
+      THREE ROWS, flowing sideways, for the height. One row of small tiles left
+      ~150px of dead space under the cast while the dream card set the band
+      height -- Silas: "still a discrepancy betwen hero dream height and the
+      rest." `grid-rows-3` with `auto-rows-fr` and `h-full` makes the rows share
+      the band height exactly, so the cast is as tall as the card beside it by
+      construction rather than by luck. At 4.5rem wide and a third of the band
+      tall, a tile lands near 2:3 -- the portrait card shape these objects are
+      drawn at anyway.
     -->
     <div
       v-if="hero.cast.length"
-      class="grid content-start gap-1 grid-cols-[repeat(auto-fit,minmax(min(100%,4.5rem),1fr))] lg:min-w-0 lg:flex-1"
+      class="grid grid-flow-col grid-rows-3 auto-cols-[4.5rem] auto-rows-fr gap-1 overflow-x-auto no-scrollbar lg:h-full"
     >
       <!--
         A cast member opens the interstitial rather than navigating away. Silas,
@@ -167,7 +195,7 @@
         :key="`${member.kind}-${member.id}`"
         :to="showcaseHref(member)"
         :data-theme="themeFor(member)"
-        class="group flex min-w-0 flex-col overflow-hidden rounded-lg border-2 border-primary/70 bg-base-100 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5"
+        class="group flex h-full min-w-0 flex-col overflow-hidden rounded-lg border-2 border-primary/70 bg-base-100 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5"
         :title="
           member.subtitle
             ? `${member.title} — ${member.subtitle}`
@@ -176,6 +204,7 @@
         @click="onCastClick($event, member)"
       >
         <kr-art-plate
+          class="min-h-0 flex-1"
           :source="member.art"
           variant="card"
           shape="square"
@@ -209,9 +238,9 @@
           </template>
         </kr-art-plate>
 
-        <div class="min-w-0 px-1 py-0.5">
+        <div class="min-w-0 shrink-0 px-1 py-0.5">
           <p
-            class="truncate text-xs font-bold leading-tight group-hover:text-primary"
+            class="truncate text-[0.65rem] font-bold leading-tight group-hover:text-primary"
           >
             {{ member.title }}
           </p>

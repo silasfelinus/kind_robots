@@ -47,7 +47,7 @@
 <template>
   <section
     v-if="gates.length || isLoading"
-    class="flex min-h-0 flex-col gap-1 kr-panel-flat p-2 lg:w-80 lg:shrink-0"
+    class="flex min-h-0 flex-col gap-1 kr-panel-flat p-2"
   >
     <header class="flex shrink-0 items-baseline justify-between gap-2">
       <h2
@@ -71,16 +71,28 @@
       A bounded scroller, not an unbounded list: the gate count is unpredictable
       (it has been twenty-plus) and this sits beside a fixed-height hero. The
       layout contract's one-scroll rule deliberately does not count a `max-h-*`
-      region -- nested preview, not the page's scroll owner.
+      region -- nested preview, not the page's scroll owner. `max-h-full` bounds
+      it to the band height the page sets, and keeps the `max-h-*` exemption.
+
+      COLUMNS, now that there is width to use. This was a 20rem strip because
+      that is all the hero left it; it now takes the remainder of the row, which
+      at 1920 is around three times that. A single column at that width would be
+      one short sentence per line with 900px of blank to its right. Container
+      columns (not a viewport breakpoint -- viewport-grid rule) put three or four
+      gates across, so the same bounded height shows about twelve at once
+      instead of four. An open composer spans the full width, because a textarea
+      in a 20rem column is not somewhere you want to write an answer.
     -->
     <div
-      class="max-h-64 min-h-0 space-y-1 overflow-y-auto overscroll-contain pr-1"
+      class="grid max-h-full min-h-0 content-start gap-1 overflow-y-auto overscroll-contain pr-1 grid-cols-[repeat(auto-fit,minmax(min(100%,17rem),1fr))]"
     >
       <div
         v-for="gate in gates"
         :key="gateKey(gate)"
-        class="rounded-lg border border-base-300 bg-base-100 transition-colors"
-        :class="openKey === gateKey(gate) ? 'border-primary' : ''"
+        class="min-w-0 rounded-lg border border-base-300 bg-base-100 transition-colors"
+        :class="
+          openKey === gateKey(gate) ? 'border-primary [grid-column:1/-1]' : ''
+        "
       >
         <button
           type="button"
@@ -194,7 +206,7 @@
 
       <p
         v-if="isLoading && !gates.length"
-        class="px-1 py-2 text-[0.7rem] text-base-content/50"
+        class="px-1 py-2 text-[0.7rem] text-base-content/50 [grid-column:1/-1]"
       >
         Checking what's waiting…
       </p>

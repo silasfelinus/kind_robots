@@ -19,4 +19,4 @@ backgroundTablet: /api/art/backdrop/index-tablet
 backgroundDesktop: /api/art/backdrop/index-desktop
 ---
 
-:home-feed-placeholder
+:home-page

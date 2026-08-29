@@ -214,6 +214,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRoute } from '#app'
 import { useArtJobStore } from '@/stores/artJobStore'
 import { useArtStore } from '@/stores/artStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
@@ -221,6 +222,7 @@ import { useCollectionStore } from '@/stores/collectionStore'
 import { useNavStore } from '@/stores/navStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
+import { querySelectionId } from '@/utils/routeSelection'
 
 type ArtTab =
   | 'generate'
@@ -245,6 +247,7 @@ const collectionStore = useCollectionStore()
 const navStore = useNavStore()
 const serverStore = useServerStore()
 const userStore = useUserStore()
+const route = useRoute()
 
 const defaultDashboardKey = 'art'
 const defaultTab: ArtTab = 'generate'
@@ -420,9 +423,33 @@ function clearArtPreview(): void {
 
 watch(shouldLiveRefreshArtJobs, syncArtJobLiveRefresh, { immediate: true })
 
+/**
+ * Open the gallery on the ArtImage named in the route.
+ *
+ * The home page's art and animation rails link to /art?art=<id>
+ * (utils/homeShowcase.ts SHOWCASE_DESTINATIONS), and /art opens on the
+ * Generate tab by default -- so without this a click on a specific render
+ * landed on the prompt form, which is the opposite of "leads to something".
+ */
+async function syncArtFromRoute(): Promise<void> {
+  const id = querySelectionId(route.query.artId ?? route.query.art)
+  if (!id) return
+
+  navStore.setDashboardTab(dashboardKey.value, 'gallery')
+  await artStore.selectArtImage(id)
+}
+
 onMounted(async () => {
   document.addEventListener('visibilitychange', handleVisibilityChange)
   await loadManagerData()
+  await syncArtFromRoute()
+
+  watch(
+    () => [route.query.artId, route.query.art],
+    () => {
+      void syncArtFromRoute()
+    },
+  )
 })
 
 onBeforeUnmount(() => {

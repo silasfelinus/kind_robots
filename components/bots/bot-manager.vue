@@ -36,6 +36,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from '#app'
 import { useBotStore } from '@/stores/botStore'
 import { useNavStore } from '@/stores/navStore'
+import { querySelectionId } from '@/utils/routeSelection'
 
 const dashboardKey = 'bot'
 
@@ -67,12 +68,6 @@ async function loadManagerData(force = false) {
   } finally {
     isLoadingManager.value = false
   }
-}
-
-function querySelectionId(value: unknown): number | null {
-  const raw = Array.isArray(value) ? value[0] : value
-  const id = Number(raw)
-  return Number.isInteger(id) && id > 0 ? id : null
 }
 
 async function syncBotFromRoute(): Promise<void> {

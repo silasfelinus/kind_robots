@@ -64,6 +64,7 @@ import type { NewsFeedItem } from '@/stores/helpers/newsfeed'
 import { useFeedPreferenceStore } from '@/stores/feedPreferenceStore'
 import type { EntityCardChip } from '@/components/gallery/kr-entity-card-body.vue'
 import type { ArtImageSrcLike } from '@/utils/artImageSrc'
+import { defaultArtFor } from '@/utils/defaultArtPool'
 
 const props = withDefaults(
   defineProps<{
@@ -96,18 +97,15 @@ const badges = computed<EntityCardChip[]>(() =>
 )
 
 // A repeating flat icon on every image-less card reads as "a sea of empty
-// boxes" (Silas, 2026-07-25) -- pick one of 8 default illustrations per item
-// instead, deterministic on item.id so a given item's card doesn't flicker
-// between defaults across re-renders.
-const DEFAULT_IMAGE_COUNT = 8
-const fallbackImageSrc = computed(() => {
-  let hash = 0
-  for (let i = 0; i < props.item.id.length; i++) {
-    hash = (hash * 31 + props.item.id.charCodeAt(i)) | 0
-  }
-  const index = (Math.abs(hash) % DEFAULT_IMAGE_COUNT) + 1
-  return `/images/newsfeed/defaults/default-${String(index).padStart(2, '0')}.webp`
-})
+// boxes" (Silas, 2026-07-25) -- pick a default illustration per item instead,
+// deterministic on item.id so a given item's card doesn't flicker between
+// defaults across re-renders.
+//
+// The pool itself moved to utils/defaultArtPool.ts when the home page grew
+// rails that need the same stand-ins (Silas, 2026-08-28: "I need more default
+// art if we don't have an image to go with the article"). The hash lives there
+// now; this is the same behaviour over a bigger, shared pool.
+const fallbackImageSrc = computed(() => defaultArtFor(props.item.id))
 
 // "show or hide perspective labels" (BIAS-CONTROLS.md) -- never shown when
 // no source-level rating exists ("unrated sources remain usable and

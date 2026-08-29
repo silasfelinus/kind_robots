@@ -27,7 +27,17 @@ import {
   type PerspectiveWeights,
 } from '@/stores/helpers/newsfeed'
 
+/**
+ * The feed the newsfeed opens on. 'all' is the merged view; anything else is a
+ * feed slug. Silas, 2026-08-28: "We should be able to choose the starting feed,
+ * I only get all as the starting option and I'd personally like to choose AI
+ * Gaming as the initial launch. But others might want otherwise." Hence a
+ * preference rather than a new hard-coded default.
+ */
+export const ALL_FEEDS_SLUG = 'all'
+
 export interface NewsfeedPreferences {
+  startingFeedSlug: string
   enabledFeedSlugs: string[]
   perspectiveMode: PerspectiveMode
   perspectiveWeights: PerspectiveWeights
@@ -63,6 +73,7 @@ function safeSetLocalStorage(key: string, value: string): void {
 
 function defaultPreferences(): NewsfeedPreferences {
   return {
+    startingFeedSlug: ALL_FEEDS_SLUG,
     enabledFeedSlugs: defaultEnabledFeedSlugs(),
     perspectiveMode: 'balanced',
     perspectiveWeights: { ...DEFAULT_PERSPECTIVE_WEIGHTS },
@@ -138,6 +149,18 @@ function sanitizeCategories(raw: unknown): string[] {
   return sanitizeKeywordList(raw)
 }
 
+/*
+ * A stored starting feed can outlive the feed itself (registry rename, feed
+ * removed, or the user simply turned that feed off later). Falling back to
+ * 'all' is the only option that always resolves to something visible -- the
+ * alternative is a home page that opens on an empty tab.
+ */
+function sanitizeStartingFeedSlug(value: unknown): string {
+  if (typeof value !== 'string') return ALL_FEEDS_SLUG
+  if (value === ALL_FEEDS_SLUG) return ALL_FEEDS_SLUG
+  return isFeedSlug(value) ? value : ALL_FEEDS_SLUG
+}
+
 function sanitizeSortMode(value: unknown): FeedSortMode {
   return value === 'relevance' ? 'relevance' : 'recent'
 }
@@ -153,6 +176,7 @@ function parsePreferences(raw: string | null): NewsfeedPreferences {
     const enabledFeedSlugs = sanitizeSlugs(parsed.enabledFeedSlugs)
 
     return {
+      startingFeedSlug: sanitizeStartingFeedSlug(parsed.startingFeedSlug),
       enabledFeedSlugs: enabledFeedSlugs.length
         ? enabledFeedSlugs
         : fallback.enabledFeedSlugs,
@@ -190,6 +214,7 @@ export const useFeedPreferenceStore = defineStore('feedPreferenceStore', () => {
   const disabledSourceIds = ref<string[]>([])
   const selectedCategories = ref<string[]>([])
   const sortMode = ref<FeedSortMode>('recent')
+  const startingFeedSlug = ref<string>(ALL_FEEDS_SLUG)
   const isHydrated = ref(false)
 
   const enabledFeeds = computed<FeedDefinition[]>(() =>
@@ -221,6 +246,7 @@ export const useFeedPreferenceStore = defineStore('feedPreferenceStore', () => {
 
   function persist(): void {
     const payload: NewsfeedPreferences = {
+      startingFeedSlug: startingFeedSlug.value,
       enabledFeedSlugs: enabledFeedSlugs.value,
       perspectiveMode: perspectiveMode.value,
       perspectiveWeights: perspectiveWeights.value,
@@ -249,7 +275,18 @@ export const useFeedPreferenceStore = defineStore('feedPreferenceStore', () => {
     disabledSourceIds.value = parsed.disabledSourceIds
     selectedCategories.value = parsed.selectedCategories
     sortMode.value = parsed.sortMode
+    startingFeedSlug.value = parsed.startingFeedSlug
     isHydrated.value = true
+  }
+
+  /**
+   * Pin the feed the newsfeed opens on. Anything unrecognised resolves to
+   * 'all' rather than being rejected, so a caller can pass a slug straight
+   * from a chip without pre-validating it.
+   */
+  function setStartingFeed(slug: string): void {
+    startingFeedSlug.value = sanitizeStartingFeedSlug(slug)
+    persist()
   }
 
   function isFeedEnabled(slug: string): boolean {
@@ -265,6 +302,9 @@ export const useFeedPreferenceStore = defineStore('feedPreferenceStore', () => {
   function disableFeed(slug: string): void {
     if (!isFeedEnabled(slug)) return
     enabledFeedSlugs.value = enabledFeedSlugs.value.filter((s) => s !== slug)
+    // Turning off the feed you open on would otherwise leave the newsfeed
+    // starting on a tab that no longer loads.
+    if (startingFeedSlug.value === slug) startingFeedSlug.value = ALL_FEEDS_SLUG
     persist()
   }
 
@@ -383,11 +423,13 @@ export const useFeedPreferenceStore = defineStore('feedPreferenceStore', () => {
     disabledSourceIds.value = fallback.disabledSourceIds
     selectedCategories.value = fallback.selectedCategories
     sortMode.value = fallback.sortMode
+    startingFeedSlug.value = fallback.startingFeedSlug
     persist()
   }
 
   return {
     enabledFeedSlugs,
+    startingFeedSlug,
     perspectiveMode,
     perspectiveWeights,
     labelsVisible,
@@ -409,6 +451,7 @@ export const useFeedPreferenceStore = defineStore('feedPreferenceStore', () => {
     disableFeed,
     toggleFeed,
     reorderFeeds,
+    setStartingFeed,
     setPerspectiveMode,
     setPerspectiveWeights,
     setLabelsVisible,

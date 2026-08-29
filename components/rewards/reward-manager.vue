@@ -40,16 +40,19 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
+import { useRoute } from '#app'
 import { useNavStore } from '@/stores/navStore'
 import { useRewardStore } from '@/stores/rewardStore'
 import { performFetch } from '@/stores/utils'
 import type { FacetWithAliases } from '@/stores/facetStore'
+import { querySelectionId } from '@/utils/routeSelection'
 
 const dashboardKey = 'reward'
 
 const navStore = useNavStore()
 const rewardStore = useRewardStore()
+const route = useRoute()
 
 const isLoadingManager = ref(false)
 const managerError = ref<string | null>(null)
@@ -121,7 +124,29 @@ async function handleRewardSaved() {
   }
 }
 
+/**
+ * Open the Reward named in the route. The home page's items-and-skills rail and
+ * the dream hero's cast strip both link here by id
+ * (utils/homeShowcase.ts SHOWCASE_DESTINATIONS), and before this a card that
+ * looked clickable landed on an unfiltered gallery.
+ */
+async function syncRewardFromRoute(): Promise<void> {
+  const id = querySelectionId(route.query.rewardId ?? route.query.reward)
+  if (!id) return
+
+  navStore.setDashboardTab(dashboardKey, 'rewards')
+  await rewardStore.selectReward(id)
+}
+
 onMounted(async () => {
   await loadManagerData()
+  await syncRewardFromRoute()
+
+  watch(
+    () => [route.query.rewardId, route.query.reward],
+    () => {
+      void syncRewardFromRoute()
+    },
+  )
 })
 </script>

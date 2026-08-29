@@ -1,6 +1,6 @@
 <template>
   <div class="kr-surface">
-    <div class="kr-scroll mx-auto max-w-7xl space-y-4 p-3 sm:p-4">
+    <div class="kr-scroll kr-container max-w-7xl space-y-4 p-3 sm:p-4">
       <MandarinBanner
         :tiles="bannerTiles"
         :card-count="cards.length"

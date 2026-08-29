@@ -8,7 +8,7 @@
 <template>
   <main class="kr-surface bg-base-200/40">
     <div
-      class="kr-scroll mx-auto max-w-4xl space-y-5 px-3 py-5 sm:px-6 sm:py-8"
+      class="kr-scroll kr-container max-w-4xl space-y-5 px-3 py-5 sm:px-6 sm:py-8"
     >
       <nav>
         <NuxtLink

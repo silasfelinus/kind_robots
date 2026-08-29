@@ -7,7 +7,7 @@
 <template>
   <main class="kr-surface bg-base-200/40">
     <div
-      class="kr-scroll mx-auto max-w-5xl space-y-5 px-3 py-5 sm:px-6 sm:py-8"
+      class="kr-scroll kr-container max-w-5xl space-y-5 px-3 py-5 sm:px-6 sm:py-8"
     >
       <nav class="flex items-center justify-between gap-3">
         <NuxtLink to="/play/aquarium" class="btn btn-ghost btn-sm rounded-xl">

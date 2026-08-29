@@ -456,6 +456,17 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'strandbeest-migration',
+    label: 'Strandbeest Migration',
+    reveal: 'The herd catches the wind',
+    icon: 'kind-icon:wind',
+    tooltip:
+      'Wind-powered wire-legged walkers amble across a dune horizon, gait quickening as gusts pick up; move your pointer near one for a local gust, click to add a walker to the herd 🐾',
+    color: '#a8804f',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

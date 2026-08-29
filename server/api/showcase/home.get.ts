@@ -183,16 +183,55 @@ const artPathSelect = {
   fileType: true,
   promptString: true,
   artPrompt: true,
-} as const
+} as const satisfies Prisma.ArtImageSelect
 
-const entityArtSelect = {
+/**
+ * The art columns an ArtImage row carries. `path` and `fileType` exist HERE and
+ * nowhere else -- see entityArtSelect below for why that distinction has teeth.
+ */
+const artImageRelationSelect = {
   imagePath: true,
   path: true,
   cardPath: true,
   heroPath: true,
   iconPath: true,
   fileType: true,
-} as const
+} as const satisfies Prisma.ArtImageSelect
+
+/**
+ * The art columns the seven showcase OBJECTS carry. Only the four *Path fields:
+ * `path` and `fileType` are ArtImage-only columns.
+ *
+ * THIS CONSTANT SHIPPED WRONG AND BROKE THE WHOLE ENDPOINT (2026-08-29). It
+ * included `path` and `fileType`, so every entity query raised
+ * "Unknown field `path` for select statement on model `Dream`" -- a Prisma
+ * VALIDATION error, thrown before any connection is attempted -- and because
+ * the handler fans out through Promise.all, one bad select 500'd all ten
+ * queries. The home page rendered its error note and nothing else.
+ *
+ * WHY TYPESCRIPT DIDN'T CATCH IT, AND WHY THIS LINE IS THE FIX. Excess-property
+ * checking only applies to FRESH object literals. Spreading a variable
+ * (`select: { id: true, ...entityArtSelect }`) launders its properties past that
+ * check, so `vue-tsc` passed a query Prisma rejects at runtime. Adding
+ * `satisfies` at each call site does not help either -- the spread is still not
+ * fresh. Constraining the shared constant itself is what works: the
+ * intersection below means a field must exist on ALL SEVEN models to live here,
+ * and adding an eighth model to the union is what forces the next person to
+ * check. Verified by reverting this line locally -- `path` and `fileType` are
+ * reported as excess properties.
+ */
+const entityArtSelect = {
+  imagePath: true,
+  cardPath: true,
+  heroPath: true,
+  iconPath: true,
+} as const satisfies Prisma.DreamSelect &
+  Prisma.CharacterSelect &
+  Prisma.BotSelect &
+  Prisma.RewardSelect &
+  Prisma.ScenarioSelect &
+  Prisma.FacetSelect &
+  Prisma.ProjectSelect
 
 /* ── hero ────────────────────────────────────────────────────────────────── */
 
@@ -229,7 +268,7 @@ const heroDreamInclude = {
   PitchSheet: {
     select: { hook: true, pitch: true, subtitle: true, title: true },
   },
-  ArtImage: { select: entityArtSelect },
+  ArtImage: { select: artImageRelationSelect },
   Characters: {
     where: PUBLIC,
     select: { ...heroCastSelect, name: true, title: true, role: true },
@@ -485,7 +524,7 @@ async function loadDreamRail(): Promise<ShowcaseCard[]> {
       pitch: true,
       dreamType: true,
       ...entityArtSelect,
-      ArtImage: { select: entityArtSelect },
+      ArtImage: { select: artImageRelationSelect },
     },
   })
 
@@ -515,7 +554,7 @@ async function loadCharacterRail(): Promise<ShowcaseCard[]> {
       role: true,
       species: true,
       ...entityArtSelect,
-      ArtImage: { select: entityArtSelect },
+      ArtImage: { select: artImageRelationSelect },
     },
   })
 
@@ -545,7 +584,7 @@ async function loadBotRail(): Promise<ShowcaseCard[]> {
       tagline: true,
       avatarImage: true,
       ...entityArtSelect,
-      ArtImage: { select: entityArtSelect },
+      ArtImage: { select: artImageRelationSelect },
     },
   })
 
@@ -580,7 +619,7 @@ async function loadRewardRail(): Promise<ShowcaseCard[]> {
       rewardType: true,
       rarity: true,
       ...entityArtSelect,
-      ArtImage: { select: entityArtSelect },
+      ArtImage: { select: artImageRelationSelect },
     },
   })
 
@@ -611,7 +650,7 @@ async function loadScenarioRail(): Promise<ShowcaseCard[]> {
       genres: true,
       locations: true,
       ...entityArtSelect,
-      ArtImage: { select: entityArtSelect },
+      ArtImage: { select: artImageRelationSelect },
     },
   })
 
@@ -640,7 +679,7 @@ async function loadFacetRail(): Promise<ShowcaseCard[]> {
       flavorText: true,
       description: true,
       ...entityArtSelect,
-      ArtImage: { select: entityArtSelect },
+      ArtImage: { select: artImageRelationSelect },
     },
   })
 
@@ -681,7 +720,7 @@ async function loadProjects(): Promise<ShowcaseCard[]> {
       conductorSlug: true,
       liveUrl: true,
       ...entityArtSelect,
-      ArtImage: { select: entityArtSelect },
+      ArtImage: { select: artImageRelationSelect },
     },
   })
 

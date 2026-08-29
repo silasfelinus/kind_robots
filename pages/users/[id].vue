@@ -1,7 +1,7 @@
 <!-- /pages/users/[id].vue -->
 <template>
   <section class="kr-surface">
-    <div class="kr-scroll mx-auto max-w-2xl p-4 sm:p-6">
+    <div class="kr-scroll kr-container max-w-2xl p-4 sm:p-6">
       <NuxtLink
         to="/plan/wonderlab"
         class="btn btn-ghost btn-sm mb-4 rounded-xl"

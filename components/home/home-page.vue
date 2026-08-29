@@ -3,92 +3,73 @@
   The front door.
 
   Silas, 2026-08-28: "I want a home page that really shows off all the little
-  parts of our website and its progress, and helps encourage me to play around
-  and see what we've been building ... right now, all of our progress is buried
-  under nav paths that a user might never see. These displays should always lead
-  to something, not just static displays of images and text."
+  parts of our website and its progress ... These displays should always lead to
+  something, not just static displays of images and text." Everything on this
+  page is a link.
 
-  So the page is built out of four movements, and every single thing in all four
-  is a link:
+  THE SECOND PASS IS ABOUT DENSITY. The first version worked but was about five
+  screens tall. Silas, 2026-08-29: "I'm not sure if we can get this down to one
+  page, but I definitely don't want it larger than two. We should be condensing
+  this, that initial banner shouldn't be an entire page, gutters too large, and
+  things should be combined." What changed, in order of how much height it
+  bought back:
 
-    1. one quiet line of orientation (who you are, one way in, one refresh)
-    2. THE HERO — the most recent dream whose art is finished, with its cast
-    3. THE RAILS — one shelf per kind of thing the swarm makes, newest first
-    4. THE FEED — the newsfeed, still whole, now sharing the page
+    1. The eight rails moved from a vertical stack into a multi-column grid.
+       Stacked at ~200px each they were 1600px on their own; at three columns
+       they are three rows. This is a page component, so a viewport breakpoint
+       is the right tool here -- the rails themselves must not gate columns that
+       way (layout contract, viewport-grid), and they don't.
+    2. The hero and its cast became one side-by-side panel instead of a
+       full-width 16:9 plate with a strip beneath it.
+    3. The orientation row is gone entirely. Silas: "nothing on that very first
+       row below the header nav is needed: the text, refresh, and dashboard
+       link." Refresh went with it -- a page reload does the same job, and the
+       store already caches for a minute either way.
+    4. Tile sizes, paddings and label sizes all came down a step.
 
-  WHAT THIS COMPONENT DOES NOT DO. It renders no <h1>: workspace-header already
-  puts "Kind Robots / Dashboard Room" at the top of every page from
-  content/index.md's frontmatter, and a second title is a duplicate, not a
-  heading (design brief rule 1, enforced by the one-header rule in
-  verifyLayoutContract.ts). It owns no scroll region either — this mounts inside
+  EVERY SECTION IS A PANEL. Silas: "the lack of backgrounds around text is
+  merging it with the background." kr-page-backdrop paints generated art behind
+  the whole route, so text with no ground of its own dissolved into it.
+
+  WHAT THIS COMPONENT DOES NOT DO. It renders no <h1> -- workspace-header
+  already puts "Kind Robots / Dashboard Room" at the top of every page from
+  content/index.md's frontmatter (design brief rule 1, enforced by the
+  one-header rule). It owns no scroll region either: this mounts inside
   pages/[...slug].vue's content-host, which is already the page's single scroll
   owner, which is what .kr-unbound on the root declares.
 
   EMPTY RAILS ARE NOT RENDERED. A shelf with nothing on it is an apology; the
   store drops them, so a fresh database shows a shorter page rather than eight
-  empty boxes. That is also how "if we are still making new animations, we
-  should include those too" resolves itself: the animations rail appears on days
-  the pipeline produced clips and is silently absent otherwise.
+  empty boxes. That is also how "if we are still making new animations" resolves
+  itself: the animations rail appears on days the pipeline produced clips.
 -->
 <template>
-  <div class="kr-unbound gap-6 p-1 pb-8 sm:gap-8">
-    <!-- 1. Orientation. One row, no title — see the note above. -->
-    <div class="flex flex-wrap items-center justify-between gap-3">
-      <p class="text-sm text-base-content/60">
-        {{ greeting }}
-      </p>
-
-      <div class="flex items-center gap-2">
-        <button
-          type="button"
-          class="btn btn-ghost btn-sm rounded-xl"
-          :disabled="showcaseStore.isLoading"
-          :aria-busy="showcaseStore.isLoading"
-          @click="showcaseStore.load(true)"
-        >
-          <span
-            v-if="showcaseStore.isLoading"
-            class="loading loading-spinner loading-xs"
-          />
-          <Icon v-else name="kind-icon:refresh" class="size-4" />
-          Refresh
-        </button>
-
-        <NuxtLink
-          v-if="isLoggedIn"
-          to="/dashboard"
-          class="btn btn-primary btn-sm rounded-xl"
-        >
-          <Icon name="kind-icon:dashboard" class="size-4" />
-          Dashboard
-        </NuxtLink>
-        <NuxtLink v-else to="/login" class="btn btn-primary btn-sm rounded-xl">
-          <Icon name="kind-icon:login" class="size-4" />
-          Log in
-        </NuxtLink>
-      </div>
-    </div>
-
+  <div class="kr-unbound gap-2 pb-4">
     <div v-if="showcaseStore.errorMessage" class="kr-note kr-note-warning">
       {{ showcaseStore.errorMessage }}
     </div>
 
-    <!-- 2. The hero. -->
     <home-dream-hero v-if="showcaseStore.hero" :hero="showcaseStore.hero" />
 
     <div
       v-else-if="!showcaseStore.hasLoaded"
-      class="aspect-video w-full animate-pulse rounded-3xl bg-base-200"
+      class="h-48 w-full animate-pulse rounded-2xl bg-base-200 lg:h-64"
       aria-hidden="true"
     />
 
-    <!-- 3. The rails. -->
-    <div v-if="visibleRails.length" class="flex flex-col gap-6 sm:gap-7">
+    <!--
+      The rails. `auto-rows-fr` so neighbouring shelves in a row share a height
+      rather than each sizing to its own longest caption, which is what made the
+      grid look ragged before.
+    -->
+    <div
+      v-if="visibleRails.length"
+      class="grid auto-rows-fr gap-2 sm:grid-cols-2 lg:grid-cols-4"
+    >
       <home-rail
         v-for="entry in visibleRails"
         :key="entry.key"
         :label="entry.label"
-        :blurb="entry.blurb"
         :items="entry.items"
         :see-all-href="entry.href"
         :shape="entry.shape"
@@ -99,46 +80,55 @@
 
     <div
       v-else-if="!showcaseStore.hasLoaded"
-      class="flex gap-3 overflow-hidden"
+      class="grid gap-2 sm:grid-cols-2 lg:grid-cols-4"
       aria-hidden="true"
     >
       <div
         v-for="n in 6"
         :key="n"
-        class="h-52 w-36 shrink-0 animate-pulse rounded-2xl bg-base-200 sm:w-40"
+        class="h-44 animate-pulse rounded-2xl bg-base-200"
       />
     </div>
 
-    <!-- The projects strip: what is being built, and a way straight into it. -->
-    <section v-if="showcaseStore.projects.length" class="flex flex-col gap-2">
+    <!--
+      The projects strip. Silas, 2026-08-29: "I do like how projects appear
+      differently than the rest" -- so this deliberately keeps its horizontal
+      icon-plus-text card shape rather than being folded into the rail grid.
+    -->
+    <section
+      v-if="showcaseStore.projects.length"
+      class="flex flex-col gap-1.5 kr-panel-flat p-3"
+    >
       <header class="flex flex-wrap items-baseline justify-between gap-3">
-        <h2 class="text-xs font-black uppercase tracking-[0.18em] text-primary">
+        <h2
+          class="text-[0.7rem] font-black uppercase tracking-[0.16em] text-primary"
+        >
           What we're building
         </h2>
 
         <NuxtLink
           to="/conductor"
-          class="link link-hover text-xs font-bold text-base-content/60 hover:text-primary"
+          class="link link-hover text-[0.7rem] font-bold text-base-content/50 hover:text-primary"
         >
           every project →
         </NuxtLink>
       </header>
 
       <div
-        class="grid gap-3 grid-cols-[repeat(auto-fit,minmax(min(100%,17rem),1fr))]"
+        class="grid gap-2 grid-cols-[repeat(auto-fit,minmax(min(100%,11rem),1fr))]"
       >
         <NuxtLink
           v-for="project in showcaseStore.projects"
           :key="project.id"
           :to="showcaseHref(project)"
-          class="group flex items-center gap-3 kr-panel-flat p-3 transition-shadow hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5"
+          class="group flex items-center gap-2 rounded-xl border border-base-300 bg-base-100 p-1.5 transition-shadow hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5"
         >
-          <div class="size-14 shrink-0">
+          <div class="size-10 shrink-0 overflow-hidden rounded-lg">
             <kr-art-plate
               :source="project.art"
               variant="icon"
               shape="square"
-              frame="thin"
+              frame="none"
               :alt="project.title"
               :fallback="fallbackFor(project)"
               placeholder-icon="kind-icon:blueprint"
@@ -147,9 +137,9 @@
           </div>
 
           <div class="min-w-0 flex-1">
-            <p class="flex items-center gap-1.5">
+            <p class="flex items-center gap-1">
               <span
-                class="truncate text-sm font-black group-hover:text-primary"
+                class="truncate text-xs font-black group-hover:text-primary"
                 :title="project.title"
               >
                 {{ project.title }}
@@ -163,7 +153,7 @@
             </p>
             <p
               v-if="project.subtitle"
-              class="truncate text-xs text-base-content/55"
+              class="truncate text-[0.65rem] text-base-content/55"
               :title="project.subtitle"
             >
               {{ project.subtitle }}
@@ -172,31 +162,30 @@
 
           <Icon
             name="kind-icon:chevron-right"
-            class="size-4 shrink-0 text-base-content/30 group-hover:text-primary"
+            class="size-3.5 shrink-0 text-base-content/30 group-hover:text-primary"
           />
         </NuxtLink>
       </div>
     </section>
 
-    <!-- 4. The feed, still whole. -->
-    <section class="flex flex-col gap-2">
+    <!-- The feed, still whole. -->
+    <section class="flex flex-col gap-1.5 kr-panel-flat p-3">
       <header class="flex flex-wrap items-baseline justify-between gap-3">
-        <h2 class="text-xs font-black uppercase tracking-[0.18em] text-primary">
+        <h2
+          class="text-[0.7rem] font-black uppercase tracking-[0.16em] text-primary"
+        >
           From around the web
         </h2>
 
         <NuxtLink
           to="/plan/newsfeed"
-          class="link link-hover text-xs font-bold text-base-content/60 hover:text-primary"
+          class="link link-hover text-[0.7rem] font-bold text-base-content/50 hover:text-primary"
         >
           newsfeed lab →
         </NuxtLink>
       </header>
 
-      <NewsfeedFeed
-        class="kr-panel-flat p-4 shadow-sm sm:p-5"
-        :initial-limit="9"
-      />
+      <NewsfeedFeed :initial-limit="6" compact />
     </section>
   </div>
 </template>
@@ -204,7 +193,6 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useHomeShowcaseStore } from '@/stores/homeShowcaseStore'
-import { useUserStore } from '@/stores/userStore'
 import {
   showcaseHref,
   type ShowcaseCard,
@@ -217,7 +205,6 @@ import type { ArtPlateShape } from '@/utils/galleryVocabulary'
 type RailDefinition = {
   key: ShowcaseRailKey
   label: string
-  blurb: string
   /** Shown inside a plate that resolved no art at all -- never in the header. */
   placeholderIcon: string
   href: string
@@ -226,21 +213,12 @@ type RailDefinition = {
 }
 
 const showcaseStore = useHomeShowcaseStore()
-const userStore = useUserStore()
-
-const isLoggedIn = computed(() => userStore.isLoggedIn)
-
-const greeting = computed(() =>
-  isLoggedIn.value
-    ? 'Everything the swarm made lately, newest first.'
-    : 'Welcome in — everything below is live, and all of it is yours to poke at.',
-)
 
 /*
  * ORDER IS THE ARGUMENT. Art first because it is the most immediately legible
- * proof that something is happening here; the six schema objects next, in the
- * order the dream cycle itself creates them (dream, character, reward,
- * scenario, facet), with bots alongside; animations wherever they exist.
+ * proof that something is happening here; then the six schema objects roughly
+ * in the order the dream cycle creates them, with bots alongside; animations
+ * wherever they exist.
  *
  * Shapes differ on purpose: renders and clips are landscape work and get the
  * wide plate, authored objects are portrait cards. A rail of mismatched aspect
@@ -250,7 +228,6 @@ const RAILS: RailDefinition[] = [
   {
     key: 'art',
     label: 'Fresh from the art queue',
-    blurb: 'The newest renders the swarm finished.',
     placeholderIcon: 'kind-icon:palette-color',
     href: '/art',
     shape: 'wide',
@@ -259,7 +236,6 @@ const RAILS: RailDefinition[] = [
   {
     key: 'animations',
     label: 'Moving pictures',
-    blurb: 'Clips out of the animation pipeline.',
     placeholderIcon: 'kind-icon:movie',
     href: '/art',
     shape: 'wide',
@@ -268,55 +244,49 @@ const RAILS: RailDefinition[] = [
   {
     key: 'dreams',
     label: 'New dreams',
-    blurb: 'Pitches, worlds, and whatever else the cycle dreamt up.',
     placeholderIcon: 'kind-icon:dream',
     href: '/dreams',
-    shape: 'card',
+    shape: 'square',
     plateVariant: 'card',
   },
   {
     key: 'characters',
     label: 'New characters',
-    blurb: 'Faces to put in a story.',
     placeholderIcon: 'kind-icon:character',
     href: '/characters',
-    shape: 'card',
+    shape: 'square',
     plateVariant: 'card',
   },
   {
     key: 'scenarios',
     label: 'New scenarios',
-    blurb: 'Situations waiting for someone to walk into them.',
     placeholderIcon: 'kind-icon:scenario',
     href: '/stories',
-    shape: 'card',
+    shape: 'square',
     plateVariant: 'card',
   },
   {
     key: 'rewards',
     label: 'New items and skills',
-    blurb: 'Things to find, and things to learn.',
     placeholderIcon: 'kind-icon:treasure',
     href: '/rewards',
-    shape: 'card',
+    shape: 'square',
     plateVariant: 'card',
   },
   {
     key: 'bots',
     label: 'New bots',
-    blurb: 'Everyone who will talk back.',
     placeholderIcon: 'kind-icon:robot',
     href: '/bots',
-    shape: 'card',
+    shape: 'square',
     plateVariant: 'card',
   },
   {
     key: 'facets',
     label: 'New facets',
-    blurb: 'The ingredients everything else is mixed from.',
     placeholderIcon: 'kind-icon:shapes',
     href: '/facets',
-    shape: 'card',
+    shape: 'square',
     plateVariant: 'card',
   },
 ]

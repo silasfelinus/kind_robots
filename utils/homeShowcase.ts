@@ -45,6 +45,17 @@ export type ShowcaseCard = {
   slug: string | null
   badge: string | null
   createdAt: string
+  /**
+   * The daisyUI theme this card wears, straight from the record's own `theme`
+   * column where it has one. Silas, 2026-08-10, on the object cards: "it looks
+   * very pretty to have the bots with their custom theme backgrounds ... each
+   * card when viewed should have a theme shift to distinguish it from
+   * neighbours" -- and again 2026-08-29 on the home page: "The lack of
+   * different theme colors is notable, it would give us more variety easily."
+   * Null falls back to resolveEntityTheme's id-derived pick, which is stable
+   * rather than random so a rail does not strobe on re-render.
+   */
+  theme: string | null
   art: ShowcaseArt
   /**
    * An explicit destination that overrides the kind's default.

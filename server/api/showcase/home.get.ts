@@ -134,6 +134,7 @@ function card(
     slug?: string | null
     badge?: string | null
     href?: string | null
+    theme?: string | null
     createdAt: Date | null
     art: ShowcaseArt
   },
@@ -146,6 +147,7 @@ function card(
     slug: fields.slug ?? null,
     badge: fields.badge ?? null,
     href: fields.href ?? null,
+    theme: fields.theme ?? null,
     createdAt: iso(fields.createdAt),
     art: fields.art,
   }
@@ -257,10 +259,16 @@ const DAILY_DREAM_WHERE: Prisma.DreamWhereInput = {
   ],
 }
 
+/**
+ * Cast members carry `theme` so the hero's strip is as colour-varied as the
+ * rails. Kept out of entityArtSelect on purpose -- Project has no `theme`
+ * column, and that constant is constrained against ProjectSelect too.
+ */
 const heroCastSelect = {
   id: true,
   createdAt: true,
   slug: true,
+  theme: true,
   ...entityArtSelect,
 } as const
 
@@ -314,6 +322,7 @@ function buildHeroCast(dream: HeroDream): ShowcaseCard[] {
         title: character.name,
         subtitle: summarize(character.title, character.role),
         slug: character.slug,
+        theme: character.theme,
         badge: 'Character',
         createdAt: character.createdAt,
         art: artOf(character),
@@ -328,6 +337,7 @@ function buildHeroCast(dream: HeroDream): ShowcaseCard[] {
         title: reward.name,
         subtitle: summarize(reward.description),
         slug: reward.slug,
+        theme: reward.theme,
         badge: reward.rewardType === 'SKILL' ? 'Skill' : 'Item',
         createdAt: reward.createdAt,
         art: artOf(reward),
@@ -342,6 +352,7 @@ function buildHeroCast(dream: HeroDream): ShowcaseCard[] {
         title: scenario.title,
         subtitle: summarize(scenario.description),
         slug: scenario.slug,
+        theme: scenario.theme,
         badge: 'Scenario',
         createdAt: scenario.createdAt,
         art: artOf(scenario),
@@ -359,6 +370,7 @@ function buildHeroCast(dream: HeroDream): ShowcaseCard[] {
         title: facet.title,
         subtitle: summarize(facet.flavorText),
         slug: facet.slug,
+        theme: facet.theme,
         badge: 'Facet',
         createdAt: facet.createdAt,
         art: artOf(facet),
@@ -398,6 +410,7 @@ function pickHero(candidates: HeroDream[]): ShowcaseHero | null {
           title: dream.PitchSheet?.title || dream.title,
           subtitle: summarize(dream.PitchSheet?.subtitle, dream.flavorText),
           slug: dream.slug,
+          theme: dream.theme,
           badge: 'Dream',
           createdAt: dream.createdAt,
           art,
@@ -523,6 +536,7 @@ async function loadDreamRail(): Promise<ShowcaseCard[]> {
       flavorText: true,
       pitch: true,
       dreamType: true,
+      theme: true,
       ...entityArtSelect,
       ArtImage: { select: artImageRelationSelect },
     },
@@ -534,6 +548,7 @@ async function loadDreamRail(): Promise<ShowcaseCard[]> {
       title: dream.title,
       subtitle: summarize(dream.flavorText, dream.pitch),
       slug: dream.slug,
+      theme: dream.theme,
       createdAt: dream.createdAt,
       art: artOfEntity(dream),
     }),
@@ -553,6 +568,7 @@ async function loadCharacterRail(): Promise<ShowcaseCard[]> {
       title: true,
       role: true,
       species: true,
+      theme: true,
       ...entityArtSelect,
       ArtImage: { select: artImageRelationSelect },
     },
@@ -564,6 +580,7 @@ async function loadCharacterRail(): Promise<ShowcaseCard[]> {
       title: character.name,
       subtitle: summarize(character.title, character.role, character.species),
       slug: character.slug,
+      theme: character.theme,
       createdAt: character.createdAt,
       art: artOfEntity(character),
     }),
@@ -583,6 +600,7 @@ async function loadBotRail(): Promise<ShowcaseCard[]> {
       subtitle: true,
       tagline: true,
       avatarImage: true,
+      theme: true,
       ...entityArtSelect,
       ArtImage: { select: artImageRelationSelect },
     },
@@ -594,6 +612,7 @@ async function loadBotRail(): Promise<ShowcaseCard[]> {
       title: bot.name,
       subtitle: summarize(bot.subtitle, bot.tagline),
       slug: bot.slug,
+      theme: bot.theme,
       createdAt: bot.createdAt,
       // avatarImage is the Bot-only art field, and it predates the shared
       // path fields -- a bot with nothing else still has a face.
@@ -618,6 +637,7 @@ async function loadRewardRail(): Promise<ShowcaseCard[]> {
       flavorText: true,
       rewardType: true,
       rarity: true,
+      theme: true,
       ...entityArtSelect,
       ArtImage: { select: artImageRelationSelect },
     },
@@ -629,6 +649,7 @@ async function loadRewardRail(): Promise<ShowcaseCard[]> {
       title: reward.name,
       subtitle: summarize(reward.flavorText, reward.description),
       slug: reward.slug,
+      theme: reward.theme,
       badge: reward.rewardType === 'SKILL' ? 'Skill' : 'Item',
       createdAt: reward.createdAt,
       art: artOfEntity(reward),
@@ -649,6 +670,7 @@ async function loadScenarioRail(): Promise<ShowcaseCard[]> {
       description: true,
       genres: true,
       locations: true,
+      theme: true,
       ...entityArtSelect,
       ArtImage: { select: artImageRelationSelect },
     },
@@ -660,6 +682,7 @@ async function loadScenarioRail(): Promise<ShowcaseCard[]> {
       title: scenario.title,
       subtitle: summarize(scenario.description, scenario.locations),
       slug: scenario.slug,
+      theme: scenario.theme,
       createdAt: scenario.createdAt,
       art: artOfEntity(scenario),
     }),
@@ -678,6 +701,7 @@ async function loadFacetRail(): Promise<ShowcaseCard[]> {
       slug: true,
       flavorText: true,
       description: true,
+      theme: true,
       ...entityArtSelect,
       ArtImage: { select: artImageRelationSelect },
     },
@@ -689,6 +713,7 @@ async function loadFacetRail(): Promise<ShowcaseCard[]> {
       title: facet.title,
       subtitle: summarize(facet.flavorText, facet.description),
       slug: facet.slug,
+      theme: facet.theme,
       createdAt: facet.createdAt,
       art: artOfEntity(facet),
     }),

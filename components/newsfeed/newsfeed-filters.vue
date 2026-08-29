@@ -229,7 +229,10 @@ const excludeDraft = ref('')
 // Custom (per-bucket weight sliders) is deferred per this task's own note --
 // "Custom per-bucket weights ... may follow once the simple modes work
 // cleanly." The store/type already support it for forward compatibility.
-const perspectiveModes: Array<{ value: Exclude<PerspectiveMode, 'custom'>; label: string }> = [
+const perspectiveModes: Array<{
+  value: Exclude<PerspectiveMode, 'custom'>
+  label: string
+}> = [
   { value: 'focused', label: 'Focused' },
   { value: 'balanced', label: 'Balanced' },
   { value: 'broad', label: 'Broad spectrum' },

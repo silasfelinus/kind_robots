@@ -1,6 +1,19 @@
 <!-- /components/content/weird/rebel-button.vue -->
 <template>
   <main class="kr-unbound">
+    <header class="flex items-center gap-3 m-2">
+      <span
+        class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/15 text-primary"
+      >
+        <Icon name="kind-icon:button" class="h-7 w-7" />
+      </span>
+      <div>
+        <p class="text-2xl font-black tracking-tight">Rebel Button</p>
+        <p class="text-sm text-base-content/60">
+          Do not press this button. (You're going to press it.)
+        </p>
+      </div>
+    </header>
     <div
       class="hero flex flex-col items-center justify-center bg-(--kr-surface-sunken) rounded-2xl border m-2 min-h-full w-full"
     >
@@ -11,19 +24,19 @@
         <div
           class="flex flex-col items-center w-full md:w-1/3 space-y-4 m-2 p-2"
         >
-          <div class="bg-base-300 p-4 rounded-lg shadow-lg">
+          <div class="bg-base-300 p-4 rounded-2xl shadow-lg">
             <click-leaderboard class="rounded-2xl m-2 p-2" />
           </div>
           <transition name="slide-fade-slow">
             <div
               v-if="state.topScore >= 100"
-              class="bg-base-300 p-4 rounded-lg shadow-lg"
+              class="bg-base-300 p-4 rounded-2xl shadow-lg"
             ></div>
           </transition>
           <transition name="slide-fade">
             <div
               v-if="state.topScore >= 20 && state.pressCount >= 1"
-              class="bg-accent p-4 rounded-lg shadow-lg border m-2"
+              class="bg-accent p-4 rounded-2xl shadow-lg border m-2"
             >
               <h2 class="text-xl">Last Achievement</h2>
               <p class="text-lg">
@@ -34,7 +47,7 @@
           <transition name="slide-fade-slow">
             <div
               v-if="state.topScore >= 21 && state.pressCount >= 1"
-              class="bg-base-300 p-4 rounded-lg shadow-lg border m-2"
+              class="bg-base-300 p-4 rounded-2xl shadow-lg border m-2"
             >
               <p class="text-lg">
                 Previous message: {{ state.previousMessage }}
@@ -58,7 +71,7 @@
           </div>
           <div v-if="state.pressed" class="text-center">
             <button
-              class="text-blue-500 p-2 rounded-lg mb-4"
+              class="btn btn-ghost btn-sm rounded-xl mb-4"
               @click="openResetPopup"
             >
               Reset
@@ -74,7 +87,7 @@
           <transition name="slide-fade">
             <div
               v-if="state.showLeaderboard && state.topScore >= 10"
-              class="bg-accent p-4 rounded-lg shadow-lg border m-2"
+              class="bg-accent p-4 rounded-2xl shadow-lg border m-2"
             >
               <h2 class="text-2xl mb-2">Leaderboard</h2>
               <p class="text-lg">Top Score: {{ state.topScore }}</p>
@@ -83,7 +96,7 @@
           <transition name="slide-fade-slow">
             <div
               v-if="state.topScore >= 30"
-              class="bg-base-300 p-4 rounded-lg shadow-lg border m-2"
+              class="bg-base-300 p-4 rounded-2xl shadow-lg border m-2"
             >
               <!-- Butterfly Toggle Component -->
               You've unlocked our mascot AMI - The Anti-Malaria Intelligence.
@@ -95,7 +108,7 @@
           <transition name="slide-fade-slow">
             <div
               v-if="state.topScore >= 40"
-              class="bg-base-300 p-4 rounded-lg shadow-lg border m-2"
+              class="bg-base-300 p-4 rounded-2xl shadow-lg border m-2"
             >
               <!-- Theme Select -->
               Feel free to change the theme!
@@ -108,22 +121,23 @@
       <transition name="slide-fade">
         <div
           v-if="state.showResetPopup"
-          class="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-opacity-50 bg-black"
+          class="pointer-events-auto fixed inset-0 z-70 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
           @click.self="state.showResetPopup = false"
         >
-          <div class="bg-white p-4 rounded-lg">
+          <div
+            class="w-full max-w-sm rounded-2xl border border-base-300 bg-base-100 p-6 shadow-2xl"
+          >
             <p>Are you sure you want to reset the leaderboard?</p>
             <div class="flex justify-end space-x-4 mt-4">
               <button
-                class="bg-red-500 text-white px-4 py-2 rounded-lg"
+                class="btn btn-ghost rounded-xl"
                 @click="state.showResetPopup = false"
               >
                 Cancel
               </button>
-              <button
-                class="bg-green-500 text-white px-4 py-2 rounded-lg"
-                @click="reset"
-              >
+              <button class="btn btn-error rounded-xl" @click="reset">
                 Confirm
               </button>
             </div>

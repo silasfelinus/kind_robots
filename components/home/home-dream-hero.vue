@@ -37,8 +37,15 @@
 
       So the cast went back to square plates (portrait ones had made the CAST
       set the band height, which is the reverse of what he asked for), and this
-      card is a fixed 11rem rather than a fifth of the page, freeing the width
+      card is a fixed width rather than a fifth of the page, freeing the width
       the Needs-you column now occupies.
+
+      THEN A LITTLE WIDER AGAIN, once it had something to say. Silas,
+      2026-08-29: "The hero is the right size, but make it a little wider
+      because we want to add the descrition for the dream, that is missing."
+      11rem fitted a title and a one-line hook and nothing else; 16rem fits a
+      three-line description without the whole band growing, because the cast
+      beside it gave up more width than this took (see the cast note below).
 
       ABOUT A FIFTH OF THE WIDTH, in its natural proportion. Silas, 2026-08-29:
       "Obviously the dream hero is horribly proportioned, It would be better to
@@ -55,7 +62,7 @@
     -->
     <NuxtLink
       :to="showcaseHref(hero.dream)"
-      class="group flex shrink-0 flex-col gap-1 rounded-xl border-2 border-primary/70 bg-base-100 p-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5 lg:w-44"
+      class="group flex shrink-0 flex-col gap-1 rounded-xl border-2 border-primary/70 bg-base-100 p-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5 lg:w-64"
     >
       <kr-art-plate
         :source="hero.dream.art"
@@ -82,9 +89,26 @@
 
         <p
           v-if="hero.hook"
-          class="mt-0.5 line-clamp-1 text-[0.7rem] leading-snug text-base-content/65"
+          class="mt-0.5 line-clamp-1 text-[0.7rem] font-bold leading-snug text-base-content/70"
         >
           {{ hero.hook }}
+        </p>
+
+        <!--
+          THE DESCRIPTION, which was simply never rendered. Silas, 2026-08-29:
+          "we want to add the descrition for the dream, that is missing."
+
+          It is clamped rather than truncated server-side so the text reflows
+          with the card instead of ending in a hard ellipsis at a fixed
+          character count. `hook` above is one line and this is three, so the
+          two do not read as the same sentence twice -- and where a dream has
+          only one of them, the other is simply absent.
+        -->
+        <p
+          v-if="hero.description"
+          class="mt-1 line-clamp-3 text-[0.7rem] leading-snug text-base-content/60"
+        >
+          {{ hero.description }}
         </p>
 
         <span
@@ -111,22 +135,45 @@
       forbids a SHARED component from gating its column count on a viewport
       breakpoint (it can be embedded in a narrower host), and a static count is
       not that.
+
+      SLIMMER TILES, on purpose and at a cost. Silas, 2026-08-29: "the other
+      elements on the daily dream can be 50% slimmer, to make room for a better
+      human gate needs you section." A literal half of 7rem is 3.5rem, at which
+      a name truncates to about four characters and the tile stops being
+      identifiable -- which fights his earlier "All the cards need to be big
+      enough to see more of the titles". 4.5rem is the floor where a short name
+      still reads, and the band gives up more width than the difference anyway,
+      because the Needs-you column beside it grew at the same time. If the cast
+      still feels wide, the next thing to cut is the tile CAPTION, not the plate.
     -->
     <div
       v-if="hero.cast.length"
-      class="grid content-start gap-1.5 grid-cols-[repeat(auto-fit,minmax(min(100%,7rem),1fr))] lg:min-w-0 lg:flex-1"
+      class="grid content-start gap-1 grid-cols-[repeat(auto-fit,minmax(min(100%,4.5rem),1fr))] lg:min-w-0 lg:flex-1"
     >
+      <!--
+        A cast member opens the interstitial rather than navigating away. Silas,
+        2026-08-29: "Whenever I click on one of the new objects, I want it to
+        expand to tell me about it ... with clicking outside the container
+        returning to the homepage." The dream plate above still navigates,
+        because its own caption says "Open the dream" and that is a promise
+        worth keeping.
+
+        It stays an anchor with a real destination and intercepts the plain
+        click -- see the same note in home-rail.vue for why the <button> version
+        of this was worse.
+      -->
       <NuxtLink
         v-for="member in hero.cast"
         :key="`${member.kind}-${member.id}`"
         :to="showcaseHref(member)"
         :data-theme="themeFor(member)"
-        class="group flex min-w-0 flex-col overflow-hidden rounded-lg border-2 border-primary/70 bg-base-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5"
+        class="group flex min-w-0 flex-col overflow-hidden rounded-lg border-2 border-primary/70 bg-base-100 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5"
         :title="
           member.subtitle
             ? `${member.title} — ${member.subtitle}`
             : member.title
         "
+        @click="onCastClick($event, member)"
       >
         <kr-art-plate
           :source="member.art"
@@ -185,6 +232,7 @@ import { defaultArtFor } from '@/utils/defaultArtPool'
 import { resolveEntityTheme } from '@/utils/entityTheme'
 
 const props = defineProps<{ hero: ShowcaseHero }>()
+const emit = defineEmits<{ select: [card: ShowcaseCard] }>()
 
 /*
  * Dated while the date still means something, plain otherwise. A hero that is
@@ -207,6 +255,15 @@ const kicker = computed(() => {
 const dreamFallback = computed(() =>
   defaultArtFor(`dream-${props.hero.dream.id}`),
 )
+
+/** See home-rail.vue's onTileClick: same rule, same reasons. */
+function onCastClick(event: MouseEvent, member: ShowcaseCard): void {
+  if (event.button !== 0) return
+  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+
+  event.preventDefault()
+  emit('select', member)
+}
 
 function fallbackFor(member: ShowcaseCard): string {
   return defaultArtFor(`${member.kind}-${member.id}`)

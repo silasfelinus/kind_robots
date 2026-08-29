@@ -5,13 +5,14 @@
     :href="allowNavigation ? item.url : undefined"
     :target="allowNavigation ? '_blank' : undefined"
     :rel="allowNavigation ? 'noopener noreferrer' : undefined"
-    class="group flex h-full flex-col gap-2 overflow-hidden kr-panel-flat p-3 shadow-sm transition-shadow duration-300 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-100 motion-safe:hover:-translate-y-0.5 motion-safe:transition-transform"
+    class="group flex h-full flex-col overflow-hidden kr-panel-flat shadow-sm transition-shadow duration-300 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-100 motion-safe:hover:-translate-y-0.5 motion-safe:transition-transform"
+    :class="compact ? 'gap-1 p-2' : 'gap-2 p-3'"
   >
     <kr-entity-card-body
       class="flex flex-1 flex-col"
       :title="item.title"
       :description="item.summary || undefined"
-      :show-description="!compact && Boolean(item.summary)"
+      :show-description="Boolean(item.summary)"
       :show-image="showImage"
       :source="imageSource"
       variant="hero"
@@ -19,40 +20,44 @@
       hover-zoom
       :badges="badges"
     >
+      <!--
+        ONE THIN LINE OF PROVENANCE. Silas, 2026-08-29: "I need more of the
+        title and description in the news feeds, way too much space is given to
+        origin, date and a return icon, we need an image and info. These aren't
+        that."
+
+        What went: the wrapping two-column row (source left, time right, each
+        free to claim a line of its own), the clock glyph, and the
+        external-link glyph. The card is a whole <a> to an external site, so
+        the arrow was decoration explaining what the entire card already is,
+        and the clock explained a string that reads "6h ago".
+
+        What stayed: the source, the time, and the perspective label -- the
+        last because BIAS-CONTROLS.md requires the rating to be visible
+        wherever a rated item is, not because it fits. All three now share one
+        truncating line at the smallest legible size, which returns roughly two
+        lines of card to the title and summary above.
+      -->
       <div
-        class="mt-auto flex flex-wrap items-center justify-between gap-2 pt-1"
+        class="mt-auto flex min-w-0 items-center gap-1.5 pt-1 text-[0.65rem] text-base-content/45"
       >
-        <span class="flex min-w-0 items-center gap-1.5">
-          <span
-            class="truncate text-xs font-bold text-base-content/55"
-            :title="item.source"
-          >
-            {{ item.source }}
-          </span>
-          <span
-            v-if="perspectiveLabel"
-            class="badge badge-ghost badge-xs shrink-0 gap-1 rounded-xl border-base-300"
-            :title="`Perspective rating from ${item.perspective?.source} — political-lean labels are provenance, not fact.`"
-          >
-            {{ perspectiveLabel }}
-          </span>
+        <span class="truncate font-bold" :title="item.source">
+          {{ item.source }}
         </span>
         <span
-          class="flex shrink-0 items-center gap-1 text-xs text-base-content/45"
+          v-if="perspectiveLabel"
+          class="shrink-0 rounded border border-base-300 px-1 font-bold"
+          :title="`Perspective rating from ${item.perspective?.source} — political-lean labels are provenance, not fact.`"
         >
-          <Icon name="kind-icon:clock" class="size-3" />
-          <time
-            :datetime="item.publishedAt"
-            :title="absoluteTime(item.publishedAt)"
-          >
-            {{ relativeTime(item.publishedAt) }}
-          </time>
-          <Icon
-            v-if="allowNavigation"
-            name="kind-icon:external-link"
-            class="size-3"
-          />
+          {{ perspectiveLabel }}
         </span>
+        <time
+          class="ml-auto shrink-0 tabular-nums"
+          :datetime="item.publishedAt"
+          :title="absoluteTime(item.publishedAt)"
+        >
+          {{ relativeTime(item.publishedAt) }}
+        </time>
       </div>
     </kr-entity-card-body>
   </component>
@@ -72,10 +77,15 @@ const props = withDefaults(
     showImage?: boolean
     allowNavigation?: boolean
     /**
-     * Drops the summary paragraph, keeping the plate, title, source and time.
-     * The home page shows the feed alongside eight other sections and asked for
-     * the whole page to fit in two screens (Silas, 2026-08-29); the Newsfeed Lab
-     * page, where the feed IS the page, leaves this off and reads in full.
+     * Tightens the card's own padding and gaps for the home page, where the
+     * feed sits alongside eight other sections.
+     *
+     * IT NO LONGER DROPS THE SUMMARY. It used to, to buy height back for the
+     * two-screen budget -- and that was the wrong thing to cut. Silas,
+     * 2026-08-29: "I need more of the title and description in the news feeds,
+     * way too much space is given to origin, date and a return icon." The
+     * height came back out of the provenance row instead, which was spending
+     * two lines on a source name and a timestamp.
      */
     compact?: boolean
   }>(),

@@ -89,6 +89,19 @@ const sharedNavigationSchema = z.object({
   backgroundTablet: z.string().optional(),
   backgroundDesktop: z.string().optional(),
   tooltip: z.string().optional(),
+  /*
+   * The line the workspace header shows beside the tab picker on wide screens.
+   *
+   * IT MUST BE DECLARED HERE TO EXIST AT ALL. Nuxt Content validates frontmatter
+   * against this schema and drops every key it does not know, so `tabMessage:`
+   * in a markdown file without this line parses to nothing and the header falls
+   * back to blank -- which is exactly what shipped: content/index.md carried a
+   * tabMessage from the day the header started reading one, and Silas
+   * (2026-08-29) still reported "no information and a very large tab selector".
+   * The renderer was never the problem; the field was being thrown away one
+   * layer earlier.
+   */
+  tabMessage: z.string().optional(),
   dottiTip: z.string().optional(),
   amiTip: z.string().optional(),
   // Simple author-facing narrator selector. The page loader normalizes this
@@ -154,6 +167,7 @@ export type PageBrief = {
   icon: string
   image: string
   tooltip: string
+  tabMessage?: string
   dottiTip: string
   amiTip: string
   narratorSlug?: string

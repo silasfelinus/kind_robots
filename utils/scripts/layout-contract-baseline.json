@@ -1,6 +1,6 @@
 {
   "note": "Layout-contract allow-list. RATCHET: this file may only ever shrink. --update refuses to record a larger count. See utils/scripts/verifyLayoutContract.ts.",
-  "recorded": "2026-08-28",
+  "recorded": "2026-08-29",
   "violations": {
     "one-header": [],
     "one-scroll": [],
@@ -166,8 +166,6 @@
       "components/navigation/navigation-trimmed.vue → sm:grid-cols-2",
       "components/navigation/server-selector.vue → md:grid-cols-2",
       "components/navigation/server-selector.vue → sm:grid-cols-[minmax(0,1fr)_auto]",
-      "components/newsfeed/newsfeed-feed.vue → lg:grid-cols-3",
-      "components/newsfeed/newsfeed-feed.vue → sm:grid-cols-2",
       "components/newsfeed/newsfeed-filters.vue → sm:grid-cols-2",
       "components/projects/project-placement-manager.vue → md:grid-cols-2",
       "components/projects/project-placement-manager.vue → sm:grid-cols-3",

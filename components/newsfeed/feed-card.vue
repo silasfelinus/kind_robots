@@ -11,7 +11,7 @@
       class="flex flex-1 flex-col"
       :title="item.title"
       :description="item.summary || undefined"
-      :show-description="Boolean(item.summary)"
+      :show-description="!compact && Boolean(item.summary)"
       :show-image="showImage"
       :source="imageSource"
       variant="hero"
@@ -71,10 +71,18 @@ const props = withDefaults(
     item: NewsFeedItem
     showImage?: boolean
     allowNavigation?: boolean
+    /**
+     * Drops the summary paragraph, keeping the plate, title, source and time.
+     * The home page shows the feed alongside eight other sections and asked for
+     * the whole page to fit in two screens (Silas, 2026-08-29); the Newsfeed Lab
+     * page, where the feed IS the page, leaves this off and reads in full.
+     */
+    compact?: boolean
   }>(),
   {
     showImage: true,
     allowNavigation: true,
+    compact: false,
   },
 )
 

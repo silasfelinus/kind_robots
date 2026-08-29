@@ -143,9 +143,19 @@
 
     <div
       v-if="!errorMessage && visibleItems.length"
-      class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
+      class="grid gap-3"
+      :class="
+        compact
+          ? 'grid-cols-[repeat(auto-fit,minmax(min(100%,13rem),1fr))]'
+          : 'grid-cols-[repeat(auto-fit,minmax(min(100%,17rem),1fr))]'
+      "
     >
-      <FeedCard v-for="item in displayedItems" :key="item.id" :item="item" />
+      <FeedCard
+        v-for="item in displayedItems"
+        :key="item.id"
+        :item="item"
+        :compact="compact"
+      />
     </div>
 
     <button
@@ -181,9 +191,12 @@ const props = withDefaults(
   defineProps<{
     /** Cap the initial number of visible cards (0 = show all). */
     initialLimit?: number
+    /** Summary-less cards, for hosts where the feed is one section of many. */
+    compact?: boolean
   }>(),
   {
     initialLimit: 0,
+    compact: false,
   },
 )
 

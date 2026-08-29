@@ -110,7 +110,7 @@
           <div
             v-for="entry in tank.Stock"
             :key="entry.id"
-            class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 shadow-sm"
+            class="flex items-center gap-3 kr-panel-flat p-3 shadow-sm"
           >
             <kr-art-plate
               :source="entry.Monster"

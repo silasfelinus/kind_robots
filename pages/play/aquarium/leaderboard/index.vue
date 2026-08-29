@@ -71,7 +71,7 @@
           <li
             v-for="entry in entries"
             :key="entry.userId"
-            class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100 p-3 shadow-sm"
+            class="flex items-center gap-3 kr-panel-flat p-3 shadow-sm"
           >
             <span
               class="grid size-8 shrink-0 place-items-center rounded-full bg-base-200 text-xs font-black"

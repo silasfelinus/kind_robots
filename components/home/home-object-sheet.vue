@@ -197,6 +197,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import type { ShowcaseDetail } from '@/server/api/showcase/detail.get'
+import { performFetch } from '@/stores/utils'
 import {
   showcaseHref,
   type RailItem,
@@ -270,9 +271,19 @@ async function load(): Promise<void> {
   pending.value = true
   errorMessage.value = ''
   try {
-    detail.value = await $fetch<ShowcaseDetail>('/api/showcase/detail', {
-      query: { kind: props.card.kind, id: props.card.id },
-    })
+    /*
+     * performFetch, not $fetch: it is what every other store here uses, it
+     * unwraps the endpoint's {success, message, data} envelope, and Nuxt's
+     * typed $fetch overload resolution failed outright on this call with
+     * TS2589 ("type instantiation is excessively deep").
+     */
+    const response = await performFetch<ShowcaseDetail>(
+      `/api/showcase/detail?kind=${encodeURIComponent(props.card.kind)}&id=${props.card.id}`,
+    )
+    if (!response.success || !response.data) {
+      throw new Error(response.message || 'detail unavailable')
+    }
+    detail.value = response.data
   } catch {
     detail.value = null
     // The tile is still on screen behind this and already said what it knew,

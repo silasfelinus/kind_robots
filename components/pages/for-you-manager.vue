@@ -5,7 +5,7 @@
   >
     <div class="kr-scroll min-h-0 flex-1 overscroll-contain">
       <div
-        class="mx-auto w-full max-w-[1800px] space-y-6 p-2 pb-8 sm:p-4 sm:pb-10 xl:p-6"
+        class="kr-container max-w-[1800px] space-y-6 p-2 pb-8 sm:p-4 sm:pb-10 xl:p-6"
       >
         <!--
           daily-dream-generator moved here from dream-manager, where it sat in a

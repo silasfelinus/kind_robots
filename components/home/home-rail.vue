@@ -140,17 +140,25 @@
         but every theme's base-300 is a near-neutral grey, so the variety was
         invisible; primary is the token that actually differs between themes.
       -->
-      <component
-        :is="interactive ? 'button' : 'NuxtLink'"
+      <!--
+        STILL A LINK, even when it opens the interstitial. `interactive` used to
+        swap this element for a <button>, which threw away the href: no
+        middle-click, no "open in new tab", no destination in the status bar,
+        and nothing for a crawler -- on the page whose whole brief is "These
+        displays should always lead to something". Intercepting the plain click
+        keeps the anchor and its address and still opens the sheet, and a
+        modified click (cmd, ctrl, shift, middle) falls through to the browser
+        exactly as it should.
+      -->
+      <NuxtLink
         v-for="item in items"
         :key="`${item.kind}-${item.id}`"
-        :type="interactive ? 'button' : undefined"
-        :to="interactive ? undefined : showcaseHref(item)"
+        :to="showcaseHref(item)"
         :data-theme="themeFor(item)"
         class="group flex shrink-0 flex-col overflow-hidden rounded-xl border-2 border-primary/70 bg-base-100 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:-translate-y-0.5"
         :class="cardWidthClass"
         :title="item.subtitle ? `${item.title} — ${item.subtitle}` : item.title"
-        @click="interactive ? emit('select', item) : undefined"
+        @click="onTileClick($event, item)"
       >
         <kr-art-plate
           :source="item.art"
@@ -190,7 +198,7 @@
             {{ item.title }}
           </p>
         </div>
-      </component>
+      </NuxtLink>
     </div>
   </section>
 </template>
@@ -266,6 +274,24 @@ const atEnd = ref(false)
 const cardWidthClass = computed(() =>
   props.shape === 'wide' || props.shape === 'hero' ? 'w-48' : 'w-32',
 )
+
+/**
+ * Opens the interstitial for a plain left click on an interactive shelf, and
+ * otherwise leaves the anchor alone.
+ *
+ * The modifier checks are what keep cmd/ctrl-click ("open in a new tab"),
+ * shift-click ("open in a new window") and middle-click working: preventing
+ * those would break the ordinary browser affordances the anchor exists to
+ * provide.
+ */
+function onTileClick(event: MouseEvent, item: RailItem): void {
+  if (!props.interactive) return
+  if (event.button !== 0) return
+  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+
+  event.preventDefault()
+  emit('select', item)
+}
 
 function fallbackFor(item: RailItem): string {
   return defaultArtFor(`${item.kind}-${item.id}`)

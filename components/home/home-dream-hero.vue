@@ -151,17 +151,21 @@
       class="grid content-start gap-1 grid-cols-[repeat(auto-fit,minmax(min(100%,4.5rem),1fr))] lg:min-w-0 lg:flex-1"
     >
       <!--
-        A BUTTON, not a link: a cast member opens the interstitial rather than
-        navigating away. Silas, 2026-08-29: "Whenever I click on one of the new
-        objects, I want it to expand to tell me about it ... with clicking
-        outside the container returning to the homepage." The dream plate above
-        still navigates, because its own caption says "Open the dream" and that
-        is a promise worth keeping.
+        A cast member opens the interstitial rather than navigating away. Silas,
+        2026-08-29: "Whenever I click on one of the new objects, I want it to
+        expand to tell me about it ... with clicking outside the container
+        returning to the homepage." The dream plate above still navigates,
+        because its own caption says "Open the dream" and that is a promise
+        worth keeping.
+
+        It stays an anchor with a real destination and intercepts the plain
+        click -- see the same note in home-rail.vue for why the <button> version
+        of this was worse.
       -->
-      <button
+      <NuxtLink
         v-for="member in hero.cast"
         :key="`${member.kind}-${member.id}`"
-        type="button"
+        :to="showcaseHref(member)"
         :data-theme="themeFor(member)"
         class="group flex min-w-0 flex-col overflow-hidden rounded-lg border-2 border-primary/70 bg-base-100 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5"
         :title="
@@ -169,7 +173,7 @@
             ? `${member.title} — ${member.subtitle}`
             : member.title
         "
-        @click="emit('select', member)"
+        @click="onCastClick($event, member)"
       >
         <kr-art-plate
           :source="member.art"
@@ -212,7 +216,7 @@
             {{ member.title }}
           </p>
         </div>
-      </button>
+      </NuxtLink>
     </div>
   </section>
 </template>
@@ -251,6 +255,15 @@ const kicker = computed(() => {
 const dreamFallback = computed(() =>
   defaultArtFor(`dream-${props.hero.dream.id}`),
 )
+
+/** See home-rail.vue's onTileClick: same rule, same reasons. */
+function onCastClick(event: MouseEvent, member: ShowcaseCard): void {
+  if (event.button !== 0) return
+  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+
+  event.preventDefault()
+  emit('select', member)
+}
 
 function fallbackFor(member: ShowcaseCard): string {
   return defaultArtFor(`${member.kind}-${member.id}`)

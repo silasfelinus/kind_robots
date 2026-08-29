@@ -75,12 +75,35 @@ export type ShowcaseCard = {
   conductorSlug: string | null
 }
 
+/**
+ * A showcase card as a rail tile, optionally carrying a pipeline state.
+ *
+ * Only the art shelf's queue mode sets `status`: an ArtJob has a lifecycle
+ * (PENDING/RUNNING/DONE/FAILED/CANCELLED) where a finished object simply
+ * exists. Every other shelf passes cards through untouched and renders no chip.
+ *
+ * It lives here rather than in home-rail.vue because `<script setup>` cannot
+ * export types -- and because the art shelf and the rail both need to name it.
+ */
+export type RailItem = ShowcaseCard & { status?: string | null }
+
 export type ShowcaseHero = {
   dream: ShowcaseCard
   /** Everything the dream cycle built around it, in reading order. */
   cast: ShowcaseCard[]
   hook: string | null
   pitch: string | null
+  /**
+   * The dream's actual description, at paragraph length rather than the
+   * one-line `hook`/`pitch` summaries beside it.
+   *
+   * Silas, 2026-08-29: "make it a little wider because we want to add the
+   * descrition for the dream, that is missing." Both existing fields run
+   * through `summarize`, which keeps the FIRST LINE only and caps at 160
+   * characters -- fine for a card subtitle, not a description. This is the same
+   * source text at paragraph length.
+   */
+  description: string | null
   /** How many cast members resolved art -- the "is it ready" signal. */
   castWithArt: number
 }

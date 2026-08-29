@@ -109,23 +109,50 @@
             THE EMPTY STRETCH, given something to say. Silas, 2026-08-29: "we
             still have a wide akward space in the navigation tab selector, it
             would be better on sufficiently large screens to show a unique tab
-            message, we should have something in front matter."
+            message, we should have something in front matter." And again after
+            that shipped: "Still seeing no information and a very large tab
+            seletor ... that giant bar is selectable with crazy whitespace ...
+            we could put something else there, a kind robots title and a
+            subtitle?"
 
             A dropdown needs room for one label and no more, so `flex-1` on it
-            spent the rest of the row on nothing. The tab-select now takes only
-            what it needs and this takes the remainder -- but only from `lg`,
-            because below that the row genuinely has no spare width and a
-            truncated half-sentence is worse than blank space.
-          -->
-          <p
-            v-if="tabMessage"
-            class="hidden min-w-0 flex-1 items-center truncate px-3 text-sm text-base-content/55 lg:flex"
-            :title="tabMessage"
-          >
-            {{ tabMessage }}
-          </p>
+            spent the rest of the row on nothing. tab-select now takes only what
+            it needs and this takes the remainder -- but only from `lg`, because
+            below that the row genuinely has no spare width and a truncated
+            half-sentence is worse than blank space.
 
-          <span v-else class="min-w-0 flex-1" />
+            TWO REASONS IT WAS STILL BLANK after the first attempt, both fixed:
+
+              1. `tabMessage` was not declared in content.config.ts, so Nuxt
+                 Content dropped the key while parsing frontmatter and
+                 pageStore.tabMessage was always ''. content/index.md had
+                 carried one the whole time. See the note there.
+              2. Nothing else filled in when a page HAD no tabMessage, which is
+                 every page but the home page. The brand line plus the page's
+                 own subtitle always exist, so the stretch now always says
+                 something rather than depending on per-page authoring.
+
+            NOT INTERACTIVE, and that matters: it sits inside the same bordered
+            shell as two dropdowns, so `pointer-events-none` keeps the whole
+            width from reading as one enormous button ("that giant bar is
+            selectable"). Only the tab label to its left opens the menu.
+          -->
+          <div
+            class="pointer-events-none hidden min-w-0 flex-1 flex-col justify-center px-3 leading-tight lg:flex"
+            :title="headerMessage"
+          >
+            <span
+              class="truncate text-[0.65rem] font-black uppercase tracking-[0.18em] text-primary/75"
+            >
+              {{ brandLine }}
+            </span>
+            <span
+              v-if="headerMessage"
+              class="truncate text-sm text-base-content/55"
+            >
+              {{ headerMessage }}
+            </span>
+          </div>
         </div>
 
         <!-- No tabs resolved (a bare route, or content still loading): fall
@@ -250,8 +277,6 @@ const resolvedTabs = computed(() => resolvedChannel.value?.tabs ?? [])
 // old title section. The channel name in channel-select says the same thing one
 // control to the left, so nothing repeats it.
 
-const tabMessage = computed(() => pageStore.tabMessage || '')
-
 const shellSummary = computed(
   () => pageStore.subtitle || pageStore.description || '',
 )
@@ -350,6 +375,27 @@ const activeTitle = computed(
     activeTabConfig.value.title ||
     activeTabConfig.value.label ||
     pageStore.title,
+)
+
+/*
+ * The brand, and then whatever this particular page has to say for itself.
+ *
+ * `tabMessage` is the authored, page-specific line and wins where it exists.
+ * Everything after it is a fallback so the stretch is never empty: a tab's own
+ * subtitle, then the page's. `activeTabConfig` resolves to fallbackTab (built
+ * from pageStore) on routes outside any channel, so this holds there too.
+ */
+const brandLine = computed(
+  () => pageStore.room || activeTitle.value || 'Kind Robots',
+)
+
+const headerMessage = computed(
+  () =>
+    pageStore.tabMessage ||
+    activeTabConfig.value.subtitle ||
+    pageStore.subtitle ||
+    activeTabConfig.value.summary ||
+    '',
 )
 
 /**

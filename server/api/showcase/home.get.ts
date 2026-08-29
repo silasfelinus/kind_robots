@@ -152,6 +152,26 @@ function summarize(
   return null
 }
 
+/**
+ * Several lines of a text field, for the hero's description.
+ *
+ * `summarize` above deliberately keeps one line at card length; this keeps a
+ * short paragraph. Both trim rather than wrap, because the hero clamps in CSS
+ * and a server-side ellipsis mid-clamp reads as corruption.
+ */
+function paragraph(
+  ...candidates: Array<string | null | undefined>
+): string | null {
+  for (const candidate of candidates) {
+    const text = (candidate ?? '').trim()
+    if (!text) continue
+
+    return text.length > 420 ? `${text.slice(0, 417)}…` : text
+  }
+
+  return null
+}
+
 function card(
   kind: ShowcaseKind,
   fields: {
@@ -454,6 +474,11 @@ function pickHero(candidates: HeroDream[]): ShowcaseHero | null {
           dream.PitchSheet?.pitch,
           dream.pitch,
           dream.description,
+        ),
+        description: paragraph(
+          dream.description,
+          dream.PitchSheet?.pitch,
+          dream.pitch,
         ),
         castWithArt,
       },

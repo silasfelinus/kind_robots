@@ -60,6 +60,7 @@
         v-if="showcaseStore.hero"
         class="min-w-0 lg:flex-1"
         :hero="showcaseStore.hero"
+        @select="openCard"
       />
 
       <div
@@ -80,19 +81,38 @@
       v-if="visibleRails.length"
       class="grid auto-rows-fr gap-2 sm:grid-cols-2 lg:grid-cols-4"
     >
-      <home-rail
-        v-for="entry in visibleRails"
-        :key="entry.key"
-        :class="entry.cellClass"
-        :label="entry.label"
-        :items="entry.items"
-        :see-all-href="entry.href"
-        :shape="entry.shape"
-        :plate-variant="entry.plateVariant"
-        :placeholder-icon="entry.placeholderIcon"
-        :rows="entry.rows ?? 1"
-        :fit="entry.fit ?? 'cover'"
-      />
+      <template v-for="entry in visibleRails" :key="entry.key">
+        <!--
+          The art cell is the one shelf with two modes behind it. Silas,
+          2026-08-29: "let me togle between the fresh from art queue and to see
+          the current progress, and choose from active to failed, etc, keeping
+          the layout, which otherwise is great." home-art-shelf renders the SAME
+          home-rail in the same two-row cell and only swaps what fills it, so
+          "keeping the layout" is structural rather than a thing to re-check.
+        -->
+        <home-art-shelf
+          v-if="entry.key === 'art'"
+          :class="entry.cellClass"
+          :fresh="entry.items"
+          @select="openCard"
+        />
+
+        <home-rail
+          v-else
+          :class="entry.cellClass"
+          :label="entry.label"
+          :icon="entry.icon"
+          :items="entry.items"
+          :see-all-href="entry.href"
+          :shape="entry.shape"
+          :plate-variant="entry.plateVariant"
+          :placeholder-icon="entry.placeholderIcon"
+          :rows="entry.rows ?? 1"
+          :fit="entry.fit ?? 'cover'"
+          interactive
+          @select="openCard"
+        />
+      </template>
     </div>
 
     <div
@@ -206,43 +226,64 @@
       </div>
     </section>
 
-    <!-- The feed, still whole. -->
-    <section class="flex flex-col gap-1.5 kr-panel-flat p-3">
-      <header class="flex flex-wrap items-baseline justify-between gap-3">
-        <h2
-          class="text-[0.7rem] font-black uppercase tracking-[0.16em] text-primary"
-        >
-          From around the web
-        </h2>
+    <!--
+      The feed, still whole -- but its heading now sits IN its control strip
+      rather than in a section header above it. Silas, 2026-08-29: "The
+      selections like all ai news, etc, and the other icons, should be in line
+      with the From around the web and newsfeed tab section." That was two full
+      rows of chrome before the first story; the `lead`/`trail` slots on
+      newsfeed-feed make it one.
 
-        <NuxtLink
-          to="/plan/newsfeed"
-          class="link link-hover text-[0.7rem] font-bold text-base-content/50 hover:text-primary"
-        >
-          newsfeed lab →
-        </NuxtLink>
-      </header>
+      The scroller is bounded rather than however tall the feed wants to be
+      ("newsfeeds should scroll vertically, and take up less height"). The
+      contract's one-scroll rule deliberately does not count a `max-h-*` region
+      -- those are nested previews, not the page's scroll owner, which is still
+      pages/[...slug].vue's content-host.
+    -->
+    <section class="flex flex-col kr-panel-flat p-3">
+      <NewsfeedFeed :initial-limit="24" compact>
+        <template #lead>
+          <h2
+            class="hidden shrink-0 text-[0.7rem] font-black uppercase tracking-[0.16em] text-primary lg:block"
+          >
+            From around the web
+          </h2>
+        </template>
 
-      <!--
-        Bounded and vertically scrolling rather than however tall the feed
-        wants to be. Silas, 2026-08-29: "newsfeeds should scroll vertically, and
-        take up less height." The contract's one-scroll rule deliberately does
-        not count a `max-h-*` region -- those are nested previews, not the
-        page's scroll owner, which is still pages/[...slug].vue's content-host.
-      -->
-      <div class="max-h-64 overflow-y-auto overscroll-contain pr-1">
-        <NewsfeedFeed :initial-limit="24" compact />
-      </div>
+        <template #trail>
+          <NuxtLink
+            to="/plan/newsfeed"
+            class="link link-hover shrink-0 text-[0.7rem] font-bold text-base-content/50 hover:text-primary"
+          >
+            lab →
+          </NuxtLink>
+        </template>
+      </NewsfeedFeed>
     </section>
+
+    <!--
+      The interstitial. Silas, 2026-08-29: "Whenever I click on one of the new
+      objects, I want it to expand to tell me about it ... with clicking outside
+      the container returning to the homepage."
+
+      Mounted only while something is selected, so its detail fetch happens on
+      the click rather than on page load.
+    -->
+    <home-object-sheet
+      v-if="selectedCard"
+      :card="selectedCard"
+      @close="selectedCard = null"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useConductorStore } from '@/stores/conductorStore'
 import { useHomeShowcaseStore } from '@/stores/homeShowcaseStore'
 import {
   showcaseHref,
+  type RailItem,
   type ShowcaseCard,
   type ShowcaseRailKey,
 } from '@/utils/homeShowcase'
@@ -252,7 +293,15 @@ import type { ArtPlateShape } from '@/utils/galleryVocabulary'
 
 type RailDefinition = {
   key: ShowcaseRailKey
+  /**
+   * Still required, still not printed. Silas, 2026-08-29: "Would love to
+   * replace the words for new dreams, characters, etc with just an icon." The
+   * shelf renders `icon` and keeps this as its tooltip and accessible name --
+   * the words leave the screen, not the accessibility tree.
+   */
   label: string
+  /** The glyph shown in place of the label. */
+  icon: string
   /** Shown inside a plate that resolved no art at all -- never in the header. */
   placeholderIcon: string
   href: string
@@ -266,6 +315,19 @@ type RailDefinition = {
 
 const showcaseStore = useHomeShowcaseStore()
 const conductorStore = useConductorStore()
+
+/**
+ * The card the interstitial is showing, or null.
+ *
+ * Held here rather than in a store because nothing outside this page reads it,
+ * and because a page-scoped ref is cleared by navigation for free -- a store
+ * would keep the sheet "open" behind a route change.
+ */
+const selectedCard = ref<RailItem | null>(null)
+
+function openCard(card: RailItem): void {
+  selectedCard.value = card
+}
 
 /**
  * Percent complete for a project, joined to conductor's own figure on
@@ -308,6 +370,7 @@ const RAILS: RailDefinition[] = [
   {
     key: 'art',
     label: 'Fresh from the art queue',
+    icon: 'kind-icon:palette-color',
     placeholderIcon: 'kind-icon:palette-color',
     href: '/art',
     shape: 'wide',
@@ -323,6 +386,7 @@ const RAILS: RailDefinition[] = [
   {
     key: 'animations',
     label: 'Moving pictures',
+    icon: 'kind-icon:movie',
     placeholderIcon: 'kind-icon:movie',
     href: '/art',
     shape: 'wide',
@@ -331,6 +395,7 @@ const RAILS: RailDefinition[] = [
   {
     key: 'dreams',
     label: 'New dreams',
+    icon: 'kind-icon:dream',
     placeholderIcon: 'kind-icon:dream',
     href: '/dreams',
     shape: 'square',
@@ -339,6 +404,7 @@ const RAILS: RailDefinition[] = [
   {
     key: 'characters',
     label: 'New characters',
+    icon: 'kind-icon:character',
     placeholderIcon: 'kind-icon:character',
     href: '/characters',
     shape: 'square',
@@ -347,6 +413,7 @@ const RAILS: RailDefinition[] = [
   {
     key: 'scenarios',
     label: 'New scenarios',
+    icon: 'kind-icon:scenario',
     placeholderIcon: 'kind-icon:scenario',
     href: '/stories',
     shape: 'square',
@@ -355,6 +422,7 @@ const RAILS: RailDefinition[] = [
   {
     key: 'rewards',
     label: 'New items and skills',
+    icon: 'kind-icon:treasure',
     placeholderIcon: 'kind-icon:treasure',
     href: '/rewards',
     shape: 'square',
@@ -363,6 +431,7 @@ const RAILS: RailDefinition[] = [
   {
     key: 'bots',
     label: 'New bots',
+    icon: 'kind-icon:robot',
     placeholderIcon: 'kind-icon:robot',
     href: '/bots',
     shape: 'square',
@@ -371,6 +440,7 @@ const RAILS: RailDefinition[] = [
   {
     key: 'facets',
     label: 'New facets',
+    icon: 'kind-icon:shapes',
     placeholderIcon: 'kind-icon:shapes',
     href: '/facets',
     shape: 'square',

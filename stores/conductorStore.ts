@@ -19,7 +19,13 @@ export type PitchStatus =
   | 'superseded'
   | 'archived'
 export type PitchBucket = 'review' | 'approved' | 'rejected' | 'archived'
-export type ConductorTaskAction = 'approve' | 'reject' | 'comment'
+/**
+ * `answer` is a comment that also releases the gate back to `ready`, so the
+ * next Worker cycle picks the task up carrying the answer. `comment` adds the
+ * note and leaves the task parked. See the note in
+ * server/api/conductor/task-action.post.ts for why the distinction exists.
+ */
+export type ConductorTaskAction = 'approve' | 'reject' | 'comment' | 'answer'
 
 export interface ConductorHumanGate {
   project: ConductorProject
@@ -303,7 +309,7 @@ export const useConductorStore = defineStore('conductor', () => {
     if (updatingTaskKeys.value.includes(key)) return false
 
     const trimmedMessage = message.trim()
-    if ((action === 'reject' || action === 'comment') && !trimmedMessage) {
+    if (action !== 'approve' && !trimmedMessage) {
       taskUpdateError.value = 'Add a message before sending this action.'
       return false
     }
@@ -348,6 +354,17 @@ export const useConductorStore = defineStore('conductor', () => {
             ...task,
             status: 'ready',
             approvedByHuman: false,
+            softGate: false,
+            note,
+            updated: now,
+          }
+        }
+        if (action === 'answer') {
+          // Released, but with no verdict attached: approvedByHuman is left
+          // exactly as it was, unlike a reject.
+          return {
+            ...task,
+            status: 'ready',
             softGate: false,
             note,
             updated: now,

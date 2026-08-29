@@ -8,7 +8,7 @@
   (components/conductor/newsfeed-page.vue).
 -->
 <template>
-  <section class="flex flex-col gap-4">
+  <section class="flex flex-col gap-2">
     <!--
       ONE ROW. Silas, 2026-08-29: "we could condense the title and the selection
       for topics into one row instead of two large ones." The chips scroll
@@ -16,7 +16,21 @@
       label is guessable, so the whole strip is one line at any width.
     -->
     <header class="flex items-center gap-2">
-      <div class="flex min-w-0 flex-1 gap-1.5 overflow-x-auto">
+      <!--
+        ONE ROW WITH ITS HOST'S HEADING, not a row beneath it. Silas,
+        2026-08-29: "The selections like all ai news, etc, and the other icons,
+        should be in line with the From around the web and newsfeed tab
+        section."
+
+        The home page used to render its own "From around the web" heading and
+        "newsfeed lab" link in a section header, and then this strip below it --
+        two full rows of chrome above the first story. These slots let the host
+        put its heading and its link INTO this row, so there is one. The
+        Newsfeed Lab page passes neither and is unchanged.
+      -->
+      <slot name="lead" />
+
+      <div class="no-scrollbar flex min-w-0 flex-1 gap-1.5 overflow-x-auto">
         <button
           type="button"
           class="btn btn-sm shrink-0 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
@@ -73,7 +87,7 @@
             :name="startsHere ? 'kind-icon:star' : 'kind-icon:stars'"
             class="size-4"
           />
-          <span class="hidden xl:inline">{{ pinLabel }}</span>
+          <span class="hidden 2xl:inline">{{ pinLabel }}</span>
         </button>
 
         <button
@@ -84,7 +98,7 @@
           @click="showManageFeeds = !showManageFeeds"
         >
           <Icon name="kind-icon:sliders" class="size-4" />
-          <span class="hidden xl:inline">Manage feeds</span>
+          <span class="hidden 2xl:inline">Manage feeds</span>
           <Icon
             :name="
               showManageFeeds
@@ -104,8 +118,10 @@
         >
           <span v-if="isLoading" class="loading loading-spinner loading-xs" />
           <Icon v-else name="kind-icon:refresh" class="size-4" />
-          <span class="hidden xl:inline">Refresh</span>
+          <span class="hidden 2xl:inline">Refresh</span>
         </button>
+
+        <slot name="trail" />
       </div>
     </header>
 

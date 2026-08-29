@@ -59,6 +59,33 @@ const PUBLIC = {
 } as const
 
 /**
+ * The canonical URL for an ArtImage's bytes.
+ *
+ * NOT the stored imagePath. Silas, 2026-08-29: "it looks like artqueue is
+ * giving us a lot of filler images, which is weird for something that should
+ * definitely have an image." Two causes, both fixed here and by dropping the
+ * path filter below:
+ *
+ *   - The freshest renders -- exactly what a "fresh from the art queue" rail
+ *     exists to show -- often have no stored path at all yet. Their bytes are
+ *     still in ArtImage.imageData until offloadArtImageData.ts moves them to
+ *     the share, so a `imagePath IS NOT NULL` filter skipped them entirely and
+ *     the rail fell back to older rows.
+ *   - An older row's stored path can stop serving (the share moved, the file
+ *     was never exported), and kr-art-plate then degrades to the stand-in pool
+ *     -- filler art on a record that certainly has real art.
+ *
+ * /api/art/images/[id]/file handles both: it 302s to imagePath when that is
+ * set and usable, and serves (and webp-transcodes) the stored bytes when it is
+ * not. It also owns the visibility check and an immutable Cache-Control, so
+ * this costs one cached redirect rather than a lookup per view. It is the same
+ * URL cardPath/heroPath/iconPath already store for entity art.
+ */
+function artImageFileUrl(id: number): string {
+  return `/api/art/images/${id}/file`
+}
+
+/**
  * Video ArtImages. NOTE the gap: the video pipeline's default output format is
  * animated WebP (server/api/comfy/utils/videoOutput.ts), which is stored with
  * fileType 'webp' and is therefore indistinguishable from a still here -- those
@@ -478,7 +505,6 @@ async function loadArtRail(): Promise<ShowcaseCard[]> {
       isPublic: true,
       isMature: false,
       NOT: { fileType: { in: VIDEO_FILE_TYPES } },
-      OR: [{ imagePath: { not: null } }, { path: { not: null } }],
     },
     orderBy: { createdAt: 'desc' },
     take: ART_RAIL_LIMIT,
@@ -492,7 +518,7 @@ async function loadArtRail(): Promise<ShowcaseCard[]> {
         summarize(image.promptString, image.artPrompt) || 'Untitled render',
       subtitle: null,
       createdAt: image.createdAt,
-      art: artOf(image),
+      art: { ...artOf(image), imagePath: artImageFileUrl(image.id) },
     }),
   )
 }
@@ -504,7 +530,6 @@ async function loadAnimationRail(): Promise<ShowcaseCard[]> {
       isPublic: true,
       isMature: false,
       fileType: { in: VIDEO_FILE_TYPES },
-      OR: [{ imagePath: { not: null } }, { path: { not: null } }],
     },
     orderBy: { createdAt: 'desc' },
     take: ANIMATION_RAIL_LIMIT,
@@ -518,7 +543,7 @@ async function loadAnimationRail(): Promise<ShowcaseCard[]> {
       subtitle: null,
       badge: (clip.fileType || 'clip').toUpperCase(),
       createdAt: clip.createdAt,
-      art: artOf(clip),
+      art: { ...artOf(clip), imagePath: artImageFileUrl(clip.id) },
     }),
   )
 }

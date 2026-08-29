@@ -69,12 +69,14 @@
       <home-rail
         v-for="entry in visibleRails"
         :key="entry.key"
+        :class="entry.cellClass"
         :label="entry.label"
         :items="entry.items"
         :see-all-href="entry.href"
         :shape="entry.shape"
         :plate-variant="entry.plateVariant"
         :placeholder-icon="entry.placeholderIcon"
+        :rows="entry.rows ?? 1"
       />
     </div>
 
@@ -185,7 +187,16 @@
         </NuxtLink>
       </header>
 
-      <NewsfeedFeed :initial-limit="6" compact />
+      <!--
+        Bounded and vertically scrolling rather than however tall the feed
+        wants to be. Silas, 2026-08-29: "newsfeeds should scroll vertically, and
+        take up less height." The contract's one-scroll rule deliberately does
+        not count a `max-h-*` region -- those are nested previews, not the
+        page's scroll owner, which is still pages/[...slug].vue's content-host.
+      -->
+      <div class="max-h-64 overflow-y-auto overscroll-contain pr-1">
+        <NewsfeedFeed :initial-limit="24" compact />
+      </div>
     </section>
   </div>
 </template>
@@ -210,6 +221,9 @@ type RailDefinition = {
   href: string
   shape: ArtPlateShape
   plateVariant: ArtVariant
+  /** Extra grid classes for this shelf's cell, and its internal row count. */
+  cellClass?: string
+  rows?: 1 | 2
 }
 
 const showcaseStore = useHomeShowcaseStore()
@@ -232,6 +246,12 @@ const RAILS: RailDefinition[] = [
     href: '/art',
     shape: 'wide',
     plateVariant: 'card',
+    // Twice the height, two rows of tiles. Silas, 2026-08-29: "on desktop, art
+    // queue can take up twice the height, so we have an even spacing for the
+    // other six objects" -- one tall art cell on the left, the six object
+    // shelves filling a tidy 3x2 beside it.
+    cellClass: 'lg:row-span-2',
+    rows: 2,
   },
   {
     key: 'animations',

@@ -85,14 +85,69 @@ for (const file of mdFiles) {
   for (const tag of tags) mountedTags.add(tag)
 }
 
+/**
+ * Candidate class lists in a template, judged per ELEMENT rather than per file.
+ *
+ * `/class="/` matches `:class="` too, which is deliberate and preserves the old
+ * rule's reach: art-manager.vue hides a `kr-scroll` inside a ternary
+ * (`: 'kr-scroll p-3'`), and a rule that only read static attributes would stop
+ * seeing it. Each quoted literal inside a dynamic binding becomes its own
+ * candidate, so `cond ? 'max-h-40 overflow-y-auto' : 'overflow-y-auto'` is
+ * correctly read as one bounded branch and one unbounded one.
+ */
+function classGroups(template: string): string[] {
+  const groups: string[] = []
+
+  for (const attribute of template.matchAll(/class="([^"]*)"/g)) {
+    const value = attribute[1] ?? ''
+
+    if (/['`]/.test(value)) {
+      for (const literal of value.matchAll(/['`]([^'`]*)['`]/g)) {
+        groups.push(literal[1] ?? '')
+      }
+      continue
+    }
+
+    groups.push(value)
+  }
+
+  return groups
+}
+
+/**
+ * A scroll owner: an element that scrolls and is NOT height-bounded.
+ *
+ * THE `max-h-*` EXEMPTION IS THE POINT, and it is borrowed rather than
+ * invented -- verifyLayoutContract.ts's ownScrollCount has carried it from the
+ * start ("Bounded max-h-* regions are intentionally nested previews, not
+ * page-level owners"). This checker had a blunter rule: a bare regex for
+ * `overflow-y-auto` anywhere in the file. The two therefore disagreed about the
+ * same concept, and the home page found the seam -- a `max-h-64` newsfeed box
+ * (Silas, 2026-08-29: "newsfeeds should scroll vertically, and take up less
+ * height") is a nested preview by the layout contract's definition and a
+ * violation by this one.
+ *
+ * A bounded box cannot compete with the host for the page's scroll gesture the
+ * way an unbounded one does, which is what this rule exists to prevent. So the
+ * definitions are reconciled here, in the direction the more considered rule
+ * already documents.
+ */
+function ownsScrollRegion(template: string): boolean {
+  return classGroups(template).some((classList) => {
+    const tokens = classList.split(/\s+/).filter(Boolean)
+    const scrolls =
+      tokens.includes('overflow-y-auto') ||
+      tokens.includes('overflow-auto') ||
+      tokens.includes('kr-scroll')
+
+    return scrolls && !tokens.some((token) => token.startsWith('max-h-'))
+  })
+}
+
 const current: string[] = []
 for (const tag of mountedTags) {
   for (const file of filesByTag.get(tag) ?? []) {
-    const template = templateOf(read(file))
-    const ownsScroll =
-      /overflow-y-auto|overflow-auto/.test(template) ||
-      /class="[^"]*\bkr-scroll\b[^"]*"/.test(template)
-    if (ownsScroll) current.push(rel(file))
+    if (ownsScrollRegion(templateOf(read(file)))) current.push(rel(file))
   }
 }
 

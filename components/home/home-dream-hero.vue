@@ -10,7 +10,7 @@
   a title with an empty plate. The choosing happens server-side in
   /api/showcase/home; this renders what it was handed.
 
-  ONE PANEL, SIDE BY SIDE. The first cut gave the plate the full content width
+  ONE PANEL, SIDE BY SIDE, at about a fifth to four fifths. The first cut gave the plate the full content width
   at 16:9 and stacked the cast beneath it, which came to roughly a full viewport
   before anything else appeared -- Silas, 2026-08-29: "that initial banner
   shouldn't be an entire page ... things should be combined." The plate and the
@@ -28,15 +28,28 @@
 -->
 <template>
   <section class="flex flex-col gap-2 kr-panel-flat p-3 lg:flex-row">
+    <!--
+      ABOUT A FIFTH OF THE WIDTH, in its natural proportion. Silas, 2026-08-29:
+      "Obviously the dream hero is horribly proportioned, It would be better to
+      have something that fits about 20% width of screen, properly fitted
+      height, and then the other cards are to it's right."
+
+      The previous shape gave the plate the full content width at 16:9, which at
+      a desktop width is a 1300x200 letterbox -- a slot, not a picture. A 4:3
+      plate in a one-fifth column is roughly 260x195, which is a shape the art
+      was actually composed for, and it leaves four fifths for the cast.
+
+      The caption moved OUT of the plate. Scrim-over-art works at 1300px wide
+      and not at 260px, where a title plus a hook covers the picture entirely.
+    -->
     <NuxtLink
       :to="showcaseHref(hero.dream)"
-      class="group relative block h-36 shrink-0 overflow-hidden rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:h-40 lg:h-44 lg:min-w-0 lg:flex-1"
+      class="group flex shrink-0 flex-col gap-1 rounded-xl border-2 border-primary/70 bg-base-100 p-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5 lg:w-1/5"
     >
       <kr-art-plate
-        class="h-full"
         :source="hero.dream.art"
         variant="hero"
-        shape="hero"
+        shape="wide"
         frame="none"
         :alt="hero.dream.title"
         :fallback="dreamFallback"
@@ -45,51 +58,38 @@
         fit="cover"
       />
 
-      <!--
-        Sibling of the plate rather than its `caption` slot: that slot's scrim
-        is sized for a one-line figcaption, and this needs a kicker, a title, a
-        hook and a call to action without the gradient stopping mid-text.
-      -->
-      <div
-        class="pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-t from-black/90 via-black/55 to-transparent px-3 pb-2.5 pt-12"
-      >
+      <div class="min-w-0">
         <p
-          class="text-[0.6rem] font-black uppercase tracking-[0.2em] text-white/70"
+          class="text-[0.6rem] font-black uppercase tracking-[0.18em] text-primary"
         >
           {{ kicker }}
         </p>
 
-        <h2 class="text-lg font-black leading-tight text-white sm:text-2xl">
+        <h2 class="text-sm font-black leading-tight text-base-content">
           {{ hero.dream.title }}
         </h2>
 
         <p
           v-if="hero.hook"
-          class="kr-prose mt-0.5 line-clamp-2 text-xs text-white/85"
+          class="mt-0.5 line-clamp-2 text-[0.7rem] leading-snug text-base-content/65"
         >
           {{ hero.hook }}
         </p>
 
         <span
-          class="mt-1 inline-flex items-center gap-1 text-xs font-bold text-white/90 group-hover:text-white"
+          class="mt-1 inline-flex items-center gap-1 text-[0.7rem] font-bold text-primary"
         >
           Open the dream
           <Icon
             name="kind-icon:chevron-right"
-            class="size-3.5 motion-safe:transition-transform motion-safe:group-hover:translate-x-1"
+            class="size-3 motion-safe:transition-transform motion-safe:group-hover:translate-x-1"
           />
         </span>
       </div>
     </NuxtLink>
 
     <!--
-      The cast. A wrapping row on narrow screens, a fixed-width column of
-      players beside the plate from `lg` up. Each chip wears its record's own
-      daisyUI theme for the same reason the rails do (Silas, 2026-08-29: "The
-      lack of different theme colors is notable").
-    -->
-    <!--
-      A fixed THREE columns, not a wrapping flex row. Wrapping made the cast
+      Container-width columns, not a wrapping flex row. Wrapping made the cast
       column roughly three times the plate's height, and since the panel sizes
       to its tallest child that left a large empty field under the plate --
       exactly the "gutters too large" complaint, in vertical form. Three columns
@@ -103,14 +103,14 @@
     -->
     <div
       v-if="hero.cast.length"
-      class="grid grid-cols-3 content-start gap-1.5 lg:w-52 lg:shrink-0"
+      class="grid content-start gap-1.5 grid-cols-[repeat(auto-fit,minmax(min(100%,7rem),1fr))] lg:min-w-0 lg:flex-1"
     >
       <NuxtLink
         v-for="member in hero.cast"
         :key="`${member.kind}-${member.id}`"
         :to="showcaseHref(member)"
         :data-theme="themeFor(member)"
-        class="group flex min-w-0 flex-col overflow-hidden rounded-lg border border-base-300 bg-base-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5"
+        class="group flex min-w-0 flex-col overflow-hidden rounded-lg border-2 border-primary/70 bg-base-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5"
         :title="
           member.subtitle
             ? `${member.title} — ${member.subtitle}`
@@ -120,7 +120,7 @@
         <kr-art-plate
           :source="member.art"
           variant="card"
-          shape="square"
+          shape="card"
           frame="none"
           :alt="member.title"
           :fallback="fallbackFor(member)"
@@ -153,7 +153,7 @@
 
         <div class="min-w-0 px-1 py-0.5">
           <p
-            class="truncate text-[0.65rem] font-bold leading-tight group-hover:text-primary"
+            class="truncate text-xs font-bold leading-tight group-hover:text-primary"
           >
             {{ member.title }}
           </p>

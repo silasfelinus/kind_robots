@@ -3,7 +3,7 @@
     class="min-h-screen bg-base-300 px-4 py-8 text-base-content sm:px-6 lg:px-8"
   >
     <section
-      class="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-5xl flex-col items-center justify-center gap-6"
+      class="kr-container flex min-h-[calc(100vh-4rem)] max-w-5xl flex-col items-center justify-center gap-6"
     >
       <img
         src="/images/background/error.webp"

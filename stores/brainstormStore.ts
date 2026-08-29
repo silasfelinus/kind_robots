@@ -5,6 +5,7 @@ import { useArtStore } from '@/stores/artStore'
 import type { GenerateArtData } from '@/stores/artStore'
 import { useServerStore } from '@/stores/serverStore'
 import { performFetch } from '@/stores/utils'
+import type { ArtGeneratorEngine } from '@/utils/artGeneratorPresets'
 import {
   applyCandidateEdit,
   applyCandidateRegeneration,
@@ -124,6 +125,14 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
   // now), not durable creative state worth persisting through save/load the
   // way meta.art (the resulting job/image linkage) is.
   const artSelectionIds = ref<string[]>([])
+  // brainstorm/t-025: which of artGeneratorPresets.ts's prompt-only engines
+  // (krea2/flux2/flux/comfy) the batch "Generate art" control enqueues with.
+  // sdxl-img2img/kontext are deliberately excluded from the picker -- those
+  // are entity-recreation/edit engines that require an existing image
+  // (server/api/art/enqueue.post.ts rejects them for a prompt-only request),
+  // and every Brainstorm candidate generates fresh from text with no source
+  // image. Default stays krea2 per t-016's original note.
+  const artEngine = ref<ArtGeneratorEngine>('krea2')
   const artGenerationState = ref<'idle' | 'generating'>('idle')
   const artGenerationError = ref<BrainstormError | null>(null)
   const artGenerationProgress = ref<{
@@ -1002,7 +1011,7 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
       } else {
         const enqueued = await artStore.enqueueArtGeneration({
           promptString: prompt,
-          engine: 'krea2',
+          engine: artEngine.value,
           isPublic: false,
           isMature: false,
           brainstormContext: {
@@ -1345,6 +1354,7 @@ export const useBrainstormStore = defineStore('brainstormStore', () => {
     generationTargetId,
     lastGeneratedAt,
     artSelectionIds,
+    artEngine,
     artGenerationState,
     artGenerationError,
     artGenerationProgress,

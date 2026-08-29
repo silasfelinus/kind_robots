@@ -56,6 +56,45 @@ Each generated asset can connect back to others, so a Dream becomes a living, ex
 
 ---
 
+## Product Families
+
+The Dream engine above is the common substrate; most of what's live at kindrobots.org is a
+purpose-built surface built on top of it. Broad current families, grouped by what they're for
+(not exhaustive — new ones ship regularly):
+
+- **Worldbuilding & narrative** — the core Dream flow, **Storybook**, **Da Vinci** (branching AI narration), **Taskmaster** (a story-woven task engine).
+- **Games & play** — **Cthulhuquarium** (a creature-collecting aquarium sim), **Ruler is Hooked** (a fishing/kingdom-management game), **Mandarin Tutor** (visual-linguistics-forward language learning), **Challenge Center**, **Music Mentor**, **Coloring Book**.
+- **Creative tools** — **Model Builder** (custom model/LoRA training workflows), **Animation Manager**, **Scene Animator**, **Mural Design**, **Brainstorm**.
+- **Community & content** — **Newsfeed**, **Forums**, **AI Art Academy**, **Watchlist**.
+- **Commerce & mission** — the **Sanctuary** giftshop (digital downloads, print-on-demand swag, mana top-ups, and a direct link to the malaria fundraiser), **Rainbow Butterflies** (see below).
+
+Every product shares the same account, mana/token balance, and generation backends described in
+this README — there's one Kind Robots account, not a separate signup per product.
+
+---
+
+## Conductor
+
+**[Conductor](https://kindrobots.org/conductor)** is the project's own multi-agent build system —
+a service-agnostic coordination layer where AI agents (and Silas) pick up roadmap tasks, implement
+them, open PRs, and review each other's work, with or without a human in the loop at any given
+moment. A meaningful share of Kind Robots' own ongoing development, including parts of this
+README, runs through it. Conductor is also a first-class product in its own right (project
+tracking, task roadmaps, human-approval gates), not only internal tooling.
+
+---
+
+## Rainbow Butterflies
+
+**Rainbow Butterflies** is Kind Robots' mission and outreach project: an in-progress agent-assisted
+commons where humans and AI agents will research, build, create, and collaborate around the
+Against Malaria fundraiser, carrying AMI's identity into places beyond kindrobots.org itself. It's
+still in active build-out (no public launch yet), and it operates under its own written disclosure
+and outreach rules — AMI is always declared as AI, never impersonates a human, and never runs
+unsolicited bulk outreach or manufactured engagement.
+
+---
+
 ## Self-Hosting
 
 **Most people don't need this section** — the full experience is live at **[kindrobots.org](https://kindrobots.org)**. Follow the steps below only if you want to run your own independent instance.
@@ -177,94 +216,4 @@ Kind Robots exists to encourage creativity with AI tools — and to turn that cr
 
 ## License & Contributing
 
-This is an actively evolving solo project. If you'd like to get involved, open an issue to start a conversation.
-
-
-[Commands]
-Install files:
-npm install
-
-Launch prisma studio:
-npx prisma studio
-
-Run lint and prettier:
-npx run lint
-
-Install files:
-npm install
-
-Start dev server:
-npx run dev
-
-Start Production Build:
-npx run build
-npx run start
-
-Setup Database:
-npx prisma studio
-npx prisma db pull
-npx prisma migrate dev
-
-Update Database:
-npx prisma migrate dev --name [NAME]
-npx prisma generate
-
-
-Run Typescript tests:
- npm run test
-
-Run cypress Tests:
- npm run cypress:run
-
- Run Single Cypress Test:
-npx cypress run --spec "cypress/e2e/api/users.cy.ts"
-
-Update Smart Icons
-node utils/scripts/updateKindIcons.js 
-
-
-Run  comfy-test
-curl -X POST "https://kindrobots.org/prompt" \
-  -H "Content-Type: application/json" \
-  --data-binary @utils/fluxKontext.json
-
-******
-Database migration fix! [replace UPDATE_NAME]
-
-# 1) Create SQL from live DB vs schema (no shadow)
-npx prisma migrate diff \
-  --from-schema-datasource prisma/schema.prisma \
-  --to-schema-datamodel   prisma/schema.prisma \
-  --script > migration.sql
-
-# 2) Apply it to the DB (reads .env via --schema)
-npx prisma db execute --file migration.sql --schema prisma/schema.prisma
-
-# 3) Record it as a proper migration folder
-TS=$(date +%Y%m%d%H%M%S); MIGR="${TS}_chattype_and_pitchtype"
-mkdir -p prisma/migrations/"$MIGR"
-mv migration.sql prisma/migrations/"$MIGR"/migration.sql
-npx prisma migrate resolve --schema=prisma/schema.prisma --applied "$MIGR"
-
-# 4) Regenerate + sanity check
-npx prisma generate
-npx prisma migrate status --schema=prisma/schema.prisma
-
-**********
-Convert Images: 
-node ./utils/scripts/convertImagesToWebp.mjs ../../convert ../../convert/webp
-
-
-***
-Github whitespace error (if git is out of sync with minor edits)
-
-## confirm the edits are minor
-git diff --summary
-git diff --check
-git diff --ignore-space-at-eol --stat
-
-## Sync
-git fetch origin
-git reset --hard origin/main
-git clean -fd
-git status
+This is an actively evolving solo project. If you'd like to get involved, open an issue to start a conversation. Command cheatsheet and internal dev/ops notes live in [`docs/DEV-NOTES.md`](docs/DEV-NOTES.md).

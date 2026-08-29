@@ -35,17 +35,23 @@
             <Icon name="kind-icon:copy" class="size-4" /> Duplicate
           </button>
 
-          <details class="dropdown dropdown-end">
-            <summary class="btn btn-ghost btn-sm rounded-xl border border-base-300">
+          <div class="dropdown dropdown-end">
+            <button
+              type="button"
+              tabindex="0"
+              class="btn btn-ghost btn-sm rounded-xl border border-base-300"
+              aria-haspopup="menu"
+            >
               <Icon name="kind-icon:download" class="size-4" /> Export
-            </summary>
+            </button>
             <ul
+              tabindex="0"
               class="menu dropdown-content z-20 mt-2 w-44 kr-panel-flat p-2 shadow-xl"
             >
-              <li><button type="button" @click="downloadStory(undefined, 'markdown')">Markdown</button></li>
-              <li><button type="button" @click="downloadStory(undefined, 'json')">JSON</button></li>
+              <li><button type="button" @click="downloadStory(undefined, 'markdown'); closeExportMenu()">Markdown</button></li>
+              <li><button type="button" @click="downloadStory(undefined, 'json'); closeExportMenu()">JSON</button></li>
             </ul>
-          </details>
+          </div>
 
           <button
             v-if="!restartArmed"
@@ -274,6 +280,21 @@ function downloadStory(
 ): void {
   const payload = storyStore.buildExport(sessionId, format)
   if (payload) triggerDownload(payload)
+}
+
+// The Export menu used to be a native <details>/<summary> dropdown, the only
+// one in the codebase built that way -- every sibling dropdown (channel-select
+// .vue, tab-select.vue, watchlist-browse.vue) is the focus-based
+// `.dropdown`/`.dropdown-content` pair instead, which channel-select.vue
+// explicitly closes on selection via its own closeDropdown() (blurring
+// document.activeElement). <details> has no such behavior: clicking an item
+// inside it does not close the menu, so after switching to the same
+// focus-based pattern here, closing on click still needs to be wired up by
+// hand -- this mirrors that one closeDropdown() helper.
+function closeExportMenu(): void {
+  if (typeof document === 'undefined') return
+  const element = document.activeElement as HTMLElement | null
+  element?.blur()
 }
 
 function startNewStory(): void {

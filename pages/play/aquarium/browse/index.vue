@@ -73,7 +73,7 @@
             v-for="tank in tanks"
             :key="`${tank.User.username}/${tank.slug}`"
             :to="`/play/aquarium/browse/${tank.User.username}/${tank.slug}`"
-            class="group flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-100 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
+            class="group flex flex-col gap-2 kr-panel-flat p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
           >
             <div class="flex items-center gap-3">
               <div

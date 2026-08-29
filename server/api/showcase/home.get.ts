@@ -161,6 +161,7 @@ function card(
     slug?: string | null
     badge?: string | null
     href?: string | null
+    conductorSlug?: string | null
     theme?: string | null
     createdAt: Date | null
     art: ShowcaseArt
@@ -174,6 +175,7 @@ function card(
     slug: fields.slug ?? null,
     badge: fields.badge ?? null,
     href: fields.href ?? null,
+    conductorSlug: fields.conductorSlug ?? null,
     theme: fields.theme ?? null,
     createdAt: iso(fields.createdAt),
     art: fields.art,
@@ -780,7 +782,8 @@ async function loadProjects(): Promise<ShowcaseCard[]> {
       title: project.title,
       subtitle: summarize(project.pitch, project.goal, project.description),
       slug: project.slug,
-      badge: project.priority === 'HIGH' ? 'High priority' : null,
+      badge: project.priority,
+      conductorSlug: project.conductorSlug,
       href: projectHref(project),
       createdAt: project.createdAt,
       art: artOfEntity(project),

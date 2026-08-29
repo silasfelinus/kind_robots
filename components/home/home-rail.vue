@@ -36,7 +36,7 @@
   so it is gone rather than tuned.
 -->
 <template>
-  <section class="flex min-w-0 flex-col gap-1 kr-panel-flat p-2">
+  <section class="flex h-full min-w-0 flex-col gap-1 kr-panel-flat p-2">
     <header class="flex flex-wrap items-baseline justify-between gap-x-3">
       <h2
         class="text-[0.7rem] font-black uppercase tracking-[0.16em] text-primary"
@@ -66,10 +66,10 @@
       cell instead of one row floating in it.
     -->
     <div
-      class="overflow-x-auto pb-1"
+      class="min-h-0 flex-1 overflow-x-auto pb-1"
       :class="
         rows === 2
-          ? 'grid grid-flow-col grid-rows-2 auto-cols-max gap-2'
+          ? 'grid grid-flow-col grid-rows-2 auto-cols-max content-between gap-2'
           : 'flex gap-2'
       "
     >
@@ -98,7 +98,7 @@
           :fallback="fallbackFor(item)"
           :placeholder-icon="placeholderIcon"
           hover-zoom
-          fit="cover"
+          :fit="fit"
         />
 
         <!--
@@ -138,9 +138,17 @@ const props = withDefaults(
     placeholderIcon?: string
     /** 2 lays the tiles out in two rows, for a rail spanning two grid rows. */
     rows?: 1 | 2
+    /**
+     * 'contain' shows the whole frame. Silas, 2026-08-29, on the art queue:
+     * "we sghould get full views of the images". Cropping a render to a tile's
+     * aspect is fine for an object whose card art was composed for that box,
+     * and wrong for the queue, where the point is what was actually made.
+     */
+    fit?: 'cover' | 'contain'
   }>(),
   {
     seeAllLabel: 'see all',
+    fit: 'cover',
     shape: 'card',
     plateVariant: 'card',
     placeholderIcon: 'kind-icon:image',
@@ -170,7 +178,22 @@ function fallbackFor(item: ShowcaseCard): string {
   return defaultArtFor(`${item.kind}-${item.id}`)
 }
 
-function themeFor(item: ShowcaseCard): string {
+/**
+ * The record's own theme, or none.
+ *
+ * resolveEntityTheme falls back to an id-derived pick when a record has no
+ * stored theme, which is what gives the object shelves their variety. ArtImage
+ * has no `theme` column at all, so every render was being dressed in an
+ * arbitrary theme -- harmless while plates were cropped, and obvious once they
+ * switched to `contain`, because the letterbox bars took that theme's base
+ * colour and the art queue turned into a row of bright pink and navy frames.
+ *
+ * Art and clips keep the page theme, so a letterboxed render sits on warm paper
+ * like everything else.
+ */
+function themeFor(item: ShowcaseCard): string | undefined {
+  if (item.kind === 'art' || item.kind === 'animation') return undefined
+
   return resolveEntityTheme({ id: item.id, theme: item.theme })
 }
 </script>

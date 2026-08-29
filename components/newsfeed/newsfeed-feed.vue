@@ -9,11 +9,17 @@
 -->
 <template>
   <section class="flex flex-col gap-4">
-    <header class="flex flex-wrap items-center justify-between gap-3">
-      <div class="flex flex-wrap gap-1.5">
+    <!--
+      ONE ROW. Silas, 2026-08-29: "we could condense the title and the selection
+      for topics into one row instead of two large ones." The chips scroll
+      sideways instead of wrapping, and the controls shrink to icons where the
+      label is guessable, so the whole strip is one line at any width.
+    -->
+    <header class="flex items-center gap-2">
+      <div class="flex min-w-0 flex-1 gap-1.5 overflow-x-auto">
         <button
           type="button"
-          class="btn btn-sm rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          class="btn btn-sm shrink-0 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           :class="
             activeSlug === ALL_FEEDS_SLUG
               ? 'btn-primary'
@@ -28,7 +34,7 @@
           v-for="group in groups"
           :key="group.slug"
           type="button"
-          class="btn btn-sm gap-1.5 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          class="btn btn-sm shrink-0 gap-1.5 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           :class="
             activeSlug === group.slug
               ? 'btn-primary'
@@ -42,7 +48,7 @@
         </button>
       </div>
 
-      <div class="flex items-center gap-2">
+      <div class="flex shrink-0 items-center gap-1">
         <!--
           Pin the tab you want to land on. Silas, 2026-08-28: "We should be able
           to choose the starting feed, I only get all as the starting option and
@@ -67,7 +73,7 @@
             :name="startsHere ? 'kind-icon:star' : 'kind-icon:stars'"
             class="size-4"
           />
-          <span class="hidden sm:inline">{{ pinLabel }}</span>
+          <span class="hidden xl:inline">{{ pinLabel }}</span>
         </button>
 
         <button
@@ -78,7 +84,7 @@
           @click="showManageFeeds = !showManageFeeds"
         >
           <Icon name="kind-icon:sliders" class="size-4" />
-          Manage feeds
+          <span class="hidden xl:inline">Manage feeds</span>
           <Icon
             :name="
               showManageFeeds
@@ -98,7 +104,7 @@
         >
           <span v-if="isLoading" class="loading loading-spinner loading-xs" />
           <Icon v-else name="kind-icon:refresh" class="size-4" />
-          Refresh
+          <span class="hidden xl:inline">Refresh</span>
         </button>
       </div>
     </header>
@@ -133,10 +139,26 @@
           name="kind-icon:news"
           class="mx-auto size-10 text-base-content/25"
         />
-        <p class="mt-2 font-black">Nothing here yet</p>
+        <!--
+          Two different silences, told apart. "Nothing published lately" and
+          "we could not reach the source" look identical on screen but mean
+          opposite things: the first is the world being quiet, the second is us
+          being broken. Reporting the first when the second is true is how an
+          outage reads as an empty site.
+        -->
+        <p class="mt-2 font-black">
+          {{
+            sourceErrorCount
+              ? 'Could not reach the sources'
+              : 'Nothing here yet'
+          }}
+        </p>
         <p class="mt-1 text-sm text-base-content/55">
-          The swarm hasn't published anything for this feed in a bit — check
-          back soon.
+          {{
+            sourceErrorCount
+              ? 'This feed’s sources did not answer on the last refresh. Try Refresh in a moment.'
+              : 'The swarm hasn’t published anything for this feed in a bit — check back soon.'
+          }}
         </p>
       </div>
     </div>
@@ -360,10 +382,26 @@ async function loadFeed(): Promise<void> {
     if (!hasAppliedStartingFeed) {
       hasAppliedStartingFeed = true
       const preferred = feedPreferenceStore.startingFeedSlug
-      if (
-        preferred !== ALL_FEEDS_SLUG &&
-        groups.value.some((group) => group.slug === preferred)
-      ) {
+      /*
+       * The pinned feed has to have something IN it, not merely exist.
+       *
+       * Silas, 2026-08-29: "something broke on the newsfeed. there were ai
+       * gaming news articles and now there is nothing." Nothing had broken in
+       * the data -- /api/newsfeed?feeds=ai-gaming was serving 20 items when
+       * checked -- but one of that feed's two sources had failed on his
+       * refresh, and pinning a starting feed (added earlier this week) turned a
+       * transient upstream hiccup into an apparently empty site. Before the
+       * pin he would have landed on All and seen everything else.
+       *
+       * So the pin is a preference about where to LAND, not a filter to honour
+       * into an empty room: if the preferred feed has no items this refresh,
+       * All is the honest place to be. An explicit click on that tab still goes
+       * there and stays there -- this only governs the automatic first landing.
+       */
+      const preferredGroup = groups.value.find(
+        (group) => group.slug === preferred,
+      )
+      if (preferred !== ALL_FEEDS_SLUG && preferredGroup?.items.length) {
         activeSlug.value = preferred
       }
     }

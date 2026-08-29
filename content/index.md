@@ -2,6 +2,7 @@
 title: 'Kind Robots'
 room: 'Dashboard Room'
 subtitle: 'Craft your universe'
+tabMessage: 'Everything the swarm made lately — all of it clickable.'
 description: Welcome to Kind Robots, a consortium of AI-assisted tools to generate and share your creations with others.
 image: splash/robots.png
 icon: kind-icon:home

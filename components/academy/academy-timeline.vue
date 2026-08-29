@@ -1,6 +1,6 @@
 <!-- /components/academy/academy-timeline.vue -->
 <template>
-  <section class="mx-auto flex w-full max-w-[1600px] flex-col gap-5">
+  <section class="kr-container max-w-[1600px] flex flex-col gap-5">
     <header
       class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,30rem),1fr))] overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-sm"
     >

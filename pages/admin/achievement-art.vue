@@ -48,12 +48,10 @@
                 placeholder="Search label, trigger, or message"
               />
             </label>
-
             <div class="flex flex-wrap gap-2 text-xs">
               <span class="badge badge-ghost">{{ achievements.length }} total</span>
               <span class="badge badge-warning">{{ missingArtCount }} without art</span>
             </div>
-
             <div class="space-y-2 pr-1">
               <button
                 v-for="achievement in filteredAchievements"
@@ -88,7 +86,7 @@
 
               <p
                 v-if="!filteredAchievements.length"
-                class="rounded-xl border border-dashed border-base-300 p-6 text-center text-sm text-base-content/50"
+                class="kr-panel-flat border-dashed p-6 text-center text-sm text-base-content/50"
               >
                 No matching achievements.
               </p>

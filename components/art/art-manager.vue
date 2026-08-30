@@ -56,10 +56,16 @@
             : 'kr-scroll p-3'
         "
       >
-        <art-generator
+        <div
           v-if="activeTab === 'generate'"
-          class="min-h-full w-full"
-        />
+          class="flex min-h-full w-full flex-col gap-3"
+        >
+          <forum-art-generation-context
+            v-if="forumPostId"
+            :post-id="forumPostId"
+          />
+          <art-generator class="min-h-full w-full" />
+        </div>
 
         <checkpoint-gallery
           v-else-if="activeTab === 'checkpoints'"
@@ -289,6 +295,8 @@ const activeTab = computed<ArtTab>(() => {
 
   return selectedTab as ArtTab
 })
+
+const forumPostId = computed(() => querySelectionId(route.query.forumPost))
 
 const shouldLiveRefreshArtJobs = computed(() => {
   return (

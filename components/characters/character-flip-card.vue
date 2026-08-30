@@ -18,7 +18,7 @@
 
     <div
       v-if="statusMessage"
-      class="rounded-2xl border p-3 text-sm"
+      class="kr-note p-3 font-normal"
       :class="statusTone === 'error' ? 'kr-note-error' : 'kr-note-success'"
     >
       {{ statusMessage }}

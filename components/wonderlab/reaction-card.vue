@@ -162,12 +162,8 @@
 
       <div
         v-if="reactionMessage"
-        class="rounded-2xl border p-3 text-sm"
-        :class="
-          reactionStatus === 'error'
-            ? 'border-error/40 bg-error/10 text-error'
-            : 'border-success/40 bg-success/10 text-success'
-        "
+        class="kr-note p-3 font-normal"
+        :class="reactionStatus === 'error' ? 'kr-note-error' : 'kr-note-success'"
       >
         {{ reactionMessage }}
       </div>

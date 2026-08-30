@@ -89,7 +89,7 @@
 
     <div
       v-if="showMessage && artStore.generationMessage"
-      class="flex items-start gap-2 rounded-2xl border p-3 text-sm font-semibold"
+      class="flex items-start gap-2 kr-note p-3"
       :class="
         artStore.generationMessageTone === 'error'
           ? 'kr-note-error'

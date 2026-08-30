@@ -766,7 +766,7 @@
               </div>
               <div
                 v-else
-                class="rounded-2xl border border-dashed border-base-300 bg-base-100/50 p-4 text-center text-xs text-base-content/40"
+                class="kr-panel-flat border-dashed bg-base-100/50 p-4 text-center text-xs text-base-content/40"
               >
                 <Icon
                   name="kind-icon:dream"

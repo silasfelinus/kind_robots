@@ -55,7 +55,7 @@
 
     <div
       v-else-if="!visibleProposals.length"
-      class="grid min-h-52 place-items-center rounded-2xl border border-dashed border-base-300 bg-base-100/50 p-8 text-center"
+      class="grid min-h-52 place-items-center kr-panel-flat border-dashed bg-base-100/50 p-8 text-center"
     >
       <p class="font-black">No pages match this view.</p>
     </div>

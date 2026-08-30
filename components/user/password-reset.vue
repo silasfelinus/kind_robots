@@ -88,12 +88,8 @@
 
     <div
       v-if="feedback"
-      class="rounded-2xl border p-3 text-sm font-semibold"
-      :class="
-        ok
-          ? 'border-success/40 bg-success/10 text-success'
-          : 'border-error/40 bg-error/10 text-error'
-      "
+      class="kr-note p-3"
+      :class="ok ? 'kr-note-success' : 'kr-note-error'"
     >
       {{ feedback }}
       <NuxtLink v-if="ok && hasToken" to="/login" class="link ml-1"

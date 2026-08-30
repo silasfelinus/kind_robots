@@ -60,12 +60,8 @@
 
       <div
         v-if="dreamStore.error || statusMessage"
-        class="mt-3 rounded-2xl border p-3 text-sm"
-        :class="
-          dreamStore.error || statusTone === 'error'
-            ? 'border-error/40 bg-error/10 text-error'
-            : 'border-success/40 bg-success/10 text-success'
-        "
+        class="mt-3 kr-note p-3 font-normal"
+        :class="dreamStore.error || statusTone === 'error' ? 'kr-note-error' : 'kr-note-success'"
       >
         {{ dreamStore.error || statusMessage }}
       </div>

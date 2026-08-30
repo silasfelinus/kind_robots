@@ -189,7 +189,7 @@
     -->
     <div
       v-else
-      class="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 rounded-2xl border border-warning/40 bg-warning/10 p-4 text-center text-warning"
+      class="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 kr-note kr-note-warning text-center font-normal"
     >
       <Icon name="kind-icon:warning" class="h-10 w-10" />
 

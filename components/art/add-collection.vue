@@ -73,7 +73,7 @@
 
       <div
         v-if="message"
-        class="rounded-2xl border p-3 text-sm font-semibold"
+        class="kr-note p-3"
         :class="messageTone === 'error' ? 'kr-note-error' : 'kr-note-success'"
       >
         {{ message }}

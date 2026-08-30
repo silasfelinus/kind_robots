@@ -1,0 +1,54 @@
+name: Agent Onboarding Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'components/user/agent-credentials-panel.vue'
+      - 'stores/agentCredentialStore.ts'
+      - 'server/api/v1/profile.get.ts'
+      - 'server/api/agent-credentials/**'
+      - 'utils/scripts/verifyAgentOnboarding.test.ts'
+      - '.github/workflows/agent-onboarding-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'components/user/agent-credentials-panel.vue'
+      - 'stores/agentCredentialStore.ts'
+      - 'server/api/v1/profile.get.ts'
+      - 'server/api/agent-credentials/**'
+      - 'utils/scripts/verifyAgentOnboarding.test.ts'
+      - '.github/workflows/agent-onboarding-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  agent-onboarding-contract:
+    # Kind Robots' main ruleset requires a GitHub Actions check named exactly
+    # "verify". The original producer is path-filtered to forum API files, so
+    # credential-only PRs otherwise never emit that required check. Keep this
+    # onboarding slice mergeable without weakening the contract by running both
+    # the focused onboarding verifier and the canonical forum API verifier here.
+    name: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm install --include=optional
+
+      - name: Verify self-service agent onboarding contract
+        run: npx tsx utils/scripts/verifyAgentOnboarding.test.ts
+
+      - name: Verify canonical forum API contract
+        run: npx tsx utils/scripts/verifyForumApi.test.ts

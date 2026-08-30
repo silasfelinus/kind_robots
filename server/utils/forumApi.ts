@@ -4,8 +4,11 @@ import {
   buildForumReadFilter,
   canManageForumPost,
   findForumChannel,
+  forumAttachmentCanonicalPath,
   forumParentBelongsToThread,
+  isForumAttachmentKind,
   parseForumChannelRegistryJson,
+  type ForumAttachmentReference,
   type ForumChannel,
   type ForumOrder,
 } from '~/utils/forumApiContract'
@@ -17,6 +20,9 @@ import {
 } from './authGuard'
 import { effectiveShowMature, isMaturityRestricted } from './contentAccess'
 import prisma from './prisma'
+
+const KIND_ROBOTS_ORIGIN = 'https://kindrobots.org'
+const MAX_FORUM_ATTACHMENTS = 2
 
 export const forumPostSelect = {
   id: true,
@@ -35,6 +41,8 @@ export const forumPostSelect = {
   channel: true,
   isMature: true,
   isActive: true,
+  artImageId: true,
+  projectId: true,
   User: {
     select: {
       id: true,
@@ -48,6 +56,35 @@ export const forumPostSelect = {
       name: true,
       slug: true,
       avatarImage: true,
+    },
+  },
+  ArtImage: {
+    select: {
+      id: true,
+      fileName: true,
+      promptString: true,
+      artPrompt: true,
+      thumbnailPath: true,
+      cardPath: true,
+      imagePath: true,
+      isPublic: true,
+      isMature: true,
+      isActive: true,
+    },
+  },
+  Project: {
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      goal: true,
+      cardPath: true,
+      heroPath: true,
+      imagePath: true,
+      iconPath: true,
+      isPublic: true,
+      isMature: true,
+      isActive: true,
     },
   },
 } satisfies Prisma.ChatSelect
@@ -67,6 +104,11 @@ export type ForumActor = {
 export type ForumReadContext = {
   auth: AuthGuardResult | null
   includeMature: boolean
+}
+
+export type ForumAttachmentRelations = {
+  artImageId: number | null
+  projectId: number | null
 }
 
 export function getForumChannels(): ForumChannel[] {
@@ -216,6 +258,142 @@ export function assertMatureForumWriteAllowed(
   }
 }
 
+export function parseForumAttachmentReferences(
+  value: unknown,
+): ForumAttachmentReference[] | undefined {
+  if (typeof value === 'undefined') return undefined
+
+  if (!Array.isArray(value)) {
+    throw createError({
+      statusCode: 400,
+      message: 'attachments must be an array of Kind Robots object references.',
+    })
+  }
+
+  if (value.length > MAX_FORUM_ATTACHMENTS) {
+    throw createError({
+      statusCode: 400,
+      message: `A forum post may attach at most ${MAX_FORUM_ATTACHMENTS} Kind Robots objects.`,
+    })
+  }
+
+  const seenKinds = new Set<string>()
+
+  return value.map((entry, index) => {
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
+      throw createError({
+        statusCode: 400,
+        message: `attachments[${index}] must be an object with kind and id.`,
+      })
+    }
+
+    const row = entry as Record<string, unknown>
+    const unknownFields = Object.keys(row).filter(
+      (field) => field !== 'kind' && field !== 'id',
+    )
+
+    if (unknownFields.length) {
+      throw createError({
+        statusCode: 400,
+        message: `Unsupported attachment fields: ${unknownFields.join(', ')}. Only kind and id are accepted.`,
+      })
+    }
+
+    if (!isForumAttachmentKind(row.kind)) {
+      throw createError({
+        statusCode: 400,
+        message: `attachments[${index}].kind must be ART_IMAGE or PROJECT.`,
+      })
+    }
+
+    if (typeof row.id !== 'number' || !Number.isInteger(row.id) || row.id <= 0) {
+      throw createError({
+        statusCode: 400,
+        message: `attachments[${index}].id must be a positive integer.`,
+      })
+    }
+
+    if (seenKinds.has(row.kind)) {
+      throw createError({
+        statusCode: 400,
+        message: `Only one ${row.kind} attachment may be stored on a forum post.`,
+      })
+    }
+
+    seenKinds.add(row.kind)
+    return { kind: row.kind, id: row.id }
+  })
+}
+
+export async function requireForumAttachmentRelations(
+  references: readonly ForumAttachmentReference[],
+  options: { auth: AuthGuardResult; isMature: boolean },
+): Promise<ForumAttachmentRelations> {
+  const relations: ForumAttachmentRelations = {
+    artImageId: null,
+    projectId: null,
+  }
+
+  for (const reference of references) {
+    if (reference.kind === 'ART_IMAGE') {
+      const art = await prisma.artImage.findFirst({
+        where: {
+          id: reference.id,
+          isPublic: true,
+          isActive: true,
+        },
+        select: { id: true, isMature: true },
+      })
+
+      if (!art) {
+        throw createError({
+          statusCode: 404,
+          message: `Public ArtImage ${reference.id} was not found.`,
+        })
+      }
+
+      if (art.isMature && !options.isMature) {
+        throw createError({
+          statusCode: 400,
+          message: 'A mature ArtImage may only be attached to a mature forum post.',
+        })
+      }
+
+      assertMatureForumWriteAllowed(options.auth, Boolean(art.isMature))
+      relations.artImageId = art.id
+      continue
+    }
+
+    const project = await prisma.project.findFirst({
+      where: {
+        id: reference.id,
+        isPublic: true,
+        isActive: true,
+      },
+      select: { id: true, isMature: true },
+    })
+
+    if (!project) {
+      throw createError({
+        statusCode: 404,
+        message: `Public Project ${reference.id} was not found.`,
+      })
+    }
+
+    if (project.isMature && !options.isMature) {
+      throw createError({
+        statusCode: 400,
+        message: 'A mature Project may only be attached to a mature forum post.',
+      })
+    }
+
+    assertMatureForumWriteAllowed(options.auth, project.isMature)
+    relations.projectId = project.id
+  }
+
+  return relations
+}
+
 export async function requireForumThreadRoot(
   id: number,
   includeMature: boolean,
@@ -261,7 +439,88 @@ export async function requireForumReplyParent(
   return parent
 }
 
-export function serializeForumPost(post: ForumPostRecord) {
+function absoluteKindRobotsUrl(value: string | null | undefined): string | null {
+  const raw = value?.trim()
+  if (!raw) return null
+
+  try {
+    return new URL(raw, KIND_ROBOTS_ORIGIN).toString()
+  } catch {
+    return null
+  }
+}
+
+function summarizeAttachment(value: string | null | undefined): string | null {
+  const clean = value?.replace(/\s+/g, ' ').trim()
+  if (!clean) return null
+  return clean.length > 240 ? `${clean.slice(0, 239).trimEnd()}…` : clean
+}
+
+function serializeForumAttachments(
+  post: ForumPostRecord,
+  includeMature: boolean,
+) {
+  const attachments: Array<{
+    kind: 'ART_IMAGE' | 'PROJECT'
+    id: number
+    title: string
+    summary: string | null
+    imageUrl: string | null
+    canonicalUrl: string
+  }> = []
+
+  if (
+    post.ArtImage?.isPublic &&
+    post.ArtImage.isActive &&
+    (includeMature || !post.ArtImage.isMature)
+  ) {
+    const reference: ForumAttachmentReference = {
+      kind: 'ART_IMAGE',
+      id: post.ArtImage.id,
+    }
+    attachments.push({
+      ...reference,
+      title: post.ArtImage.fileName?.trim() || `Kind Robots art #${post.ArtImage.id}`,
+      summary: summarizeAttachment(post.ArtImage.promptString ?? post.ArtImage.artPrompt),
+      imageUrl: absoluteKindRobotsUrl(
+        post.ArtImage.thumbnailPath ??
+          post.ArtImage.cardPath ??
+          post.ArtImage.imagePath,
+      ),
+      canonicalUrl: `${KIND_ROBOTS_ORIGIN}${forumAttachmentCanonicalPath(reference)}`,
+    })
+  }
+
+  if (
+    post.Project?.isPublic &&
+    post.Project.isActive &&
+    (includeMature || !post.Project.isMature)
+  ) {
+    const reference: ForumAttachmentReference = {
+      kind: 'PROJECT',
+      id: post.Project.id,
+    }
+    attachments.push({
+      ...reference,
+      title: post.Project.title,
+      summary: summarizeAttachment(post.Project.description ?? post.Project.goal),
+      imageUrl: absoluteKindRobotsUrl(
+        post.Project.cardPath ??
+          post.Project.heroPath ??
+          post.Project.imagePath ??
+          post.Project.iconPath,
+      ),
+      canonicalUrl: `${KIND_ROBOTS_ORIGIN}${forumAttachmentCanonicalPath(reference)}`,
+    })
+  }
+
+  return attachments
+}
+
+export function serializeForumPost(
+  post: ForumPostRecord,
+  includeMatureAttachments = false,
+) {
   const user = post.User
     ? {
         id: post.User.id,
@@ -291,6 +550,7 @@ export function serializeForumPost(post: ForumPostRecord) {
     title: post.title,
     content: post.content,
     isMature: post.isMature,
+    attachments: serializeForumAttachments(post, includeMatureAttachments),
     author: {
       kind: bot ? ('AI_AGENT' as const) : ('HUMAN' as const),
       displayName: bot?.name ?? user?.username ?? post.sender,

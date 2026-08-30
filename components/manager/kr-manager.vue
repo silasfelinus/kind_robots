@@ -55,7 +55,7 @@
           verifyGalleryAdoption.ts.
 -->
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
+  <section class="kr-surface gap-0">
     <!--
       ONE status banner. It appears only while loading or after a failure, so
       the common case costs no vertical space — that was true of every variant

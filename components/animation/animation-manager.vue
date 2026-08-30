@@ -1,6 +1,6 @@
 <!-- /components/animation/animation-manager.vue -->
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
+  <section class="kr-surface gap-0">
     <div
       v-if="showHeader"
       class="flex flex-wrap items-center justify-between gap-3 border-b border-base-300 px-4 py-3"

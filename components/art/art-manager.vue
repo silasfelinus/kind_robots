@@ -1,6 +1,6 @@
 <!-- /components/art/art-manager.vue -->
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
+  <section class="kr-surface gap-0">
     <div
       v-if="isLoadingManager"
       class="flex h-full min-h-0 flex-1 items-center justify-center kr-panel"

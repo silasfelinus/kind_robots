@@ -12,7 +12,7 @@
       />
 
       <div
-        class="w-full max-w-3xl rounded-3xl border border-base-300 bg-base-100/95 p-6 text-center shadow-xl backdrop-blur sm:p-8"
+        class="kr-panel w-full max-w-3xl rounded-3xl bg-base-100/95 text-center shadow-xl backdrop-blur sm:p-8"
       >
         <p class="text-sm font-black uppercase tracking-[0.2em] text-primary">
           {{ statusCode }} · Lost & Found Room

@@ -72,7 +72,7 @@ for (const name of [
   assert.ok(reference, 'ForumAttachmentReference schema is required')
   assert.equal(reference.additionalProperties, false)
   assert.deepEqual(reference.required, ['kind', 'id'])
-  assert.deepEqual(reference.properties.kind.enum, ['ART_IMAGE', 'PROJECT'])
+  assert.deepEqual(reference.properties.kind.enum, ['ART_IMAGE', 'PROJECT', 'CHARACTER'])
   assert.equal(reference.properties.id.minimum, 1)
 
   const preview = schemas.ForumAttachmentPreview

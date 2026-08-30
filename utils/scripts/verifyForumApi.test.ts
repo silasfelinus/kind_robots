@@ -52,6 +52,7 @@ const expectedSlugs = [
 {
   assert.equal(isForumAttachmentKind('ART_IMAGE'), true)
   assert.equal(isForumAttachmentKind('PROJECT'), true)
+  assert.equal(isForumAttachmentKind('CHARACTER'), true)
   assert.equal(isForumAttachmentKind('BOT'), false)
   assert.equal(
     forumAttachmentCanonicalPath({ kind: 'ART_IMAGE', id: 17 }),
@@ -60,6 +61,10 @@ const expectedSlugs = [
   assert.equal(
     forumAttachmentCanonicalPath({ kind: 'PROJECT', id: 23 }),
     '/conductor?project=23',
+  )
+  assert.equal(
+    forumAttachmentCanonicalPath({ kind: 'CHARACTER', id: 9 }),
+    '/characters?character=9',
   )
 }
 

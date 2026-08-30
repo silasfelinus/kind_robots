@@ -725,32 +725,46 @@
            pieces" above, since it never occupies a setSlotsCap slot and can
            never be unequipped. Charlotte sells it "cheerfully and without
            comment" per the task's own design note, so this stays a plain
-           shop row; the moment itself is the reveal dialog below. -->
+           shop row; the moment itself is the reveal dialog below. The real
+           set-last-aquarium plate (cthulhuquarium/t-054) replaces what would
+           otherwise be a text-only row, matching the fish catalog's
+           icon-plus-text layout above. -->
       <div
         v-if="tankStore.finaleConfig"
-        class="flex flex-col gap-1 border-t border-base-300 pt-3"
+        class="flex items-start gap-2 border-t border-base-300 pt-3"
       >
-        <div class="flex items-start justify-between gap-2">
-          <p class="text-sm font-bold">{{ tankStore.finaleConfig.title }}</p>
-          <span
-            v-if="tankStore.finaleTriggered"
-            class="badge badge-primary badge-xs shrink-0"
+        <kr-art-plate
+          :source="{ imagePath: setLastAquariumArt }"
+          variant="icon"
+          shape="plate"
+          frame="thin"
+          fit="cover"
+          class="size-12 shrink-0"
+          placeholder-icon="kind-icon:box"
+        />
+        <div class="min-w-0 flex-1">
+          <div class="flex items-start justify-between gap-2">
+            <p class="text-sm font-bold">{{ tankStore.finaleConfig.title }}</p>
+            <span
+              v-if="tankStore.finaleTriggered"
+              class="badge badge-primary badge-xs shrink-0"
+            >
+              Yours
+            </span>
+          </div>
+          <p class="text-xs italic opacity-70">
+            {{ tankStore.finaleConfig.description }}
+          </p>
+          <button
+            v-if="!tankStore.finaleTriggered"
+            type="button"
+            class="btn btn-outline btn-xs min-h-11 mt-1"
+            :disabled="tankStore.coins < tankStore.finaleConfig.cost"
+            @click="tankStore.purchaseFinale()"
           >
-            Yours
-          </span>
+            Buy ({{ tankStore.finaleConfig.cost }})
+          </button>
         </div>
-        <p class="text-xs italic opacity-70">
-          {{ tankStore.finaleConfig.description }}
-        </p>
-        <button
-          v-if="!tankStore.finaleTriggered"
-          type="button"
-          class="btn btn-outline btn-xs min-h-11 mt-1 self-start"
-          :disabled="tankStore.coins < tankStore.finaleConfig.cost"
-          @click="tankStore.purchaseFinale()"
-        >
-          Buy ({{ tankStore.finaleConfig.cost }})
-        </button>
       </div>
 
       <!-- Visibility (cthulhuquarium/t-014): "Each user should be viewable"
@@ -1079,15 +1093,13 @@
     </Teleport>
 
     <!-- The finale (cthulhuquarium/t-039): "you are also in an aquarium."
-         PLACEHOLDER PRESENTATION -- the real screen-finale plate (the same
-         albumen interior stock as screen-shop/screen-bestiary, an eye
-         mid-drift and incurious beyond the pane) is queued in conductor's
-         art-generate.yaml but not yet generated. This dialog ships the
-         mechanical gate now, text-only, and gets the real plate swapped in
-         once it exists -- the exact "placeholder now, authored pass later"
-         precedent t-028/t-053 already established for the milestone toast.
-         Never re-triggers: finaleJustTriggered only ever flips true once,
-         the same one-time-reveal shape as bestiaryJustCompleted above. -->
+         The real screen-finale plate (cthulhuquarium/t-054) -- the same
+         albumen interior stock as screen-shop/screen-bestiary, viewed across
+         a glass tabletop toward the shop's own lit tanks -- replaces the
+         icon-only placeholder t-028/t-053's toast established as the interim
+         convention. Never re-triggers: finaleJustTriggered only ever flips
+         true once, the same one-time-reveal shape as bestiaryJustCompleted
+         above. -->
     <Teleport to="body">
       <dialog
         v-if="tankStore.finaleJustTriggered"
@@ -1098,7 +1110,14 @@
         <div
           class="modal-box flex max-w-sm flex-col items-center gap-3 rounded-3xl border border-base-300 bg-base-100 text-center shadow-2xl"
         >
-          <Icon name="kind-icon:eye" class="size-10 text-primary" />
+          <kr-art-plate
+            :source="{ imagePath: screenFinaleArt }"
+            shape="wide"
+            frame="thin"
+            fit="cover"
+            class="w-full"
+            placeholder-icon="kind-icon:eye"
+          />
           <p class="text-xs font-black uppercase tracking-wide text-primary">
             The last aquarium
           </p>
@@ -1184,6 +1203,17 @@ import {
 import { touchHitRadius } from '~/utils/aquariumTouch'
 import { formatShopRefreshCountdown } from '~/utils/aquariumShopCountdown'
 import { useUserStore } from '~/stores/userStore'
+// cthulhuquarium/t-054: the finale's two plates, authored in conductor's
+// projects/cthulhuquarium/art/ (screen-finale.webp 76eb4140, set-last-
+// aquarium.webp ee3354e0) but with no Monster/Reward row to hang an ArtImage
+// off -- the same "unrowed" gap the egg comment in aquariumEconomy.ts
+// documents. `distribute_images.py`'s media-share pipeline is unusable here:
+// it's a manual step on Silas's home network, not something CI or an agent
+// session can write to. Bundling as ordinary Vite assets sidesteps that
+// entirely -- committed to git (unlike the ignored public/images/**), built
+// into a normal fingerprinted _nuxt/ URL, no infra dependency at all.
+import screenFinaleArt from '~/assets/images/cthulhuquarium/cthulhuquarium-screen-finale.webp'
+import setLastAquariumArt from '~/assets/images/cthulhuquarium/cthulhuquarium-set-last-aquarium.webp'
 
 /* Fixed logical resolution; CSS scales it to the host width so the canvas
    survives phone widths without its own breakpoint logic. */

@@ -2,6 +2,7 @@ import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
+import { logAdminAction } from '@/server/utils/audit'
 import { isMaturityRestricted } from '@/server/utils/contentAccess'
 import {
   assertForumPostManageable,
@@ -127,6 +128,16 @@ export default defineEventHandler(async (event) => {
       data: updateData,
       select: forumPostSelect,
     })
+
+    // assertForumPostManageable already enforced ownership-or-admin above,
+    // so a userId mismatch here can only mean an admin is editing someone
+    // else's content -- the moderation action worth an audit trail.
+    if (post.userId !== actor.userId) {
+      await logAdminAction(
+        actor.auth.user,
+        `Edited forum ${post.previousEntryId === null ? 'thread' : 'post'} #${id} authored by ${post.Bot?.name ?? post.User?.username ?? post.sender}.`,
+      )
+    }
 
     event.node.res.statusCode = 200
     return {

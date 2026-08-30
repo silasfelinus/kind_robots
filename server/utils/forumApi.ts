@@ -2,14 +2,25 @@ import { createError, getHeader, type H3Event } from 'h3'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import {
   buildForumReadFilter,
+  buildForumReplyReadFilter,
   canManageForumPost,
   findForumChannel,
   forumAttachmentCanonicalPath,
   forumParentBelongsToThread,
+  forumRetryAfterSeconds,
+  FORUM_DUPLICATE_WINDOW_MS,
+  FORUM_WRITE_WINDOW_MAX_POSTS,
+  FORUM_WRITE_WINDOW_MS,
   isForumAttachmentKind,
+  isForumNearDuplicate,
+  isForumPostEdited,
+  isForumPostRemoved,
+  isHealthClaimFlagReason,
   parseForumChannelRegistryJson,
+  shouldEscalateHealthClaimFlags,
   type ForumAttachmentReference,
   type ForumChannel,
+  type ForumFlagReason,
   type ForumOrder,
 } from '~/utils/forumApiContract'
 import {
@@ -18,7 +29,9 @@ import {
   requireScopedApiUser,
   type AuthGuardResult,
 } from './authGuard'
+import { logSystemAction } from './audit'
 import { effectiveShowMature, isMaturityRestricted } from './contentAccess'
+import { notInRestricted } from './restriction'
 import prisma from './prisma'
 
 const KIND_ROBOTS_ORIGIN = 'https://kindrobots.org'
@@ -114,6 +127,14 @@ export type ForumActor = {
   botId: number | null
   displayName: string
   botName: string | null
+  /** True when the underlying account is shadow-restricted
+   * (`User.isRestricted`, see server/utils/restriction.ts). Forum writes
+   * still succeed normally for a restricted actor -- explicitly rejecting
+   * them would tip off exactly the bad-faith accounts this exists to
+   * quietly contain -- but the resulting post is forced private so it
+   * never reaches the public commons. Set by requireForumWriter; callers
+   * that create Chat rows must fold this into `isPublic`. */
+  shadowRestricted: boolean
 }
 
 export type ForumReadContext = {
@@ -182,18 +203,46 @@ export async function getForumReadContext(
   return { auth, includeMature }
 }
 
-export function forumReadWhere(options: {
+/**
+ * Async because it now also excludes shadow-restricted accounts' content
+ * (server/utils/restriction.ts's `notInRestricted`) -- the existing
+ * "credential-level and Bot/account restriction" gap this closes: a
+ * restricted account could still write to the forum, and its posts still
+ * showed up in every public read path since the forum's own read filter
+ * never checked restriction status. A Bot inherits its owner's restriction
+ * since `notInRestricted` matches on the post's `userId`, which every forum
+ * post (bot-authored or not) always carries.
+ */
+export async function forumReadWhere(options: {
   channel?: string | null
   includeMature?: boolean
   rootOnly?: boolean
   cursor?: number | null
   order?: ForumOrder
-}): Prisma.ChatWhereInput {
-  return buildForumReadFilter(options) as Prisma.ChatWhereInput
+}): Promise<Prisma.ChatWhereInput> {
+  return {
+    ...(buildForumReadFilter(options) as Prisma.ChatWhereInput),
+    ...(await notInRestricted('userId')),
+  }
+}
+
+/** Reply-listing counterpart of `forumReadWhere` for a single thread's
+ * detail view -- see `buildForumReplyReadFilter`'s doc comment for why it
+ * deliberately omits the `isActive` filter (removed replies render as
+ * tombstones instead of vanishing). Still excludes restricted accounts'
+ * content, same as every other read path. */
+export async function forumReplyReadWhere(options: {
+  includeMature?: boolean
+}): Promise<Prisma.ChatWhereInput> {
+  return {
+    ...(buildForumReplyReadFilter(options) as Prisma.ChatWhereInput),
+    ...(await notInRestricted('userId')),
+  }
 }
 
 export async function requireForumWriter(event: H3Event): Promise<ForumActor> {
   const auth = await requireScopedApiUser(event, 'forum:write')
+  const shadowRestricted = Boolean(auth.user.isRestricted)
 
   if (auth.kind !== 'agent-credential') {
     return {
@@ -202,6 +251,7 @@ export async function requireForumWriter(event: H3Event): Promise<ForumActor> {
       botId: null,
       displayName: auth.user.username,
       botName: null,
+      shadowRestricted,
     }
   }
 
@@ -237,7 +287,163 @@ export async function requireForumWriter(event: H3Event): Promise<ForumActor> {
     botId: bot.id,
     displayName: bot.name,
     botName: bot.name,
+    shadowRestricted,
   }
+}
+
+// --- Conservative per-actor write limits & duplicate rejection -------------
+
+/** Same actor identity used for rate-limit/duplicate lookups everywhere:
+ * a bound Bot gets its own budget (so one credential can't be starved by a
+ * sibling bot on the same account), otherwise the human account itself. */
+function forumWriteActorFilter(actor: ForumActor): Prisma.ChatWhereInput {
+  return actor.botId
+    ? { botId: actor.botId }
+    : { userId: actor.userId, botId: null }
+}
+
+export function setForumRetryAfterHeader(
+  event: H3Event,
+  unblockAtMs: number,
+): void {
+  event.node.res.setHeader(
+    'Retry-After',
+    String(forumRetryAfterSeconds(unblockAtMs)),
+  )
+}
+
+/**
+ * Guards thread/reply creation with a conservative rolling write-count limit
+ * and a short-window near-duplicate check. Throws a 429 (with a Retry-After
+ * header already set) rather than letting either through -- call this after
+ * validating `content` but before writing the Chat row. Not applied to
+ * edits or flags: this is specifically about not rewarding raw posting
+ * volume, per rainbow-butterflies/t-025.
+ */
+export async function assertForumWriteAllowed(
+  event: H3Event,
+  actor: ForumActor,
+  content: string,
+): Promise<void> {
+  const actorFilter = forumWriteActorFilter(actor)
+  const windowStart = new Date(Date.now() - FORUM_WRITE_WINDOW_MS)
+
+  const writeCount = await prisma.chat.count({
+    where: {
+      type: 'ToForum',
+      ...actorFilter,
+      createdAt: { gte: windowStart },
+    },
+  })
+
+  if (writeCount >= FORUM_WRITE_WINDOW_MAX_POSTS) {
+    const oldest = await prisma.chat.findFirst({
+      where: {
+        type: 'ToForum',
+        ...actorFilter,
+        createdAt: { gte: windowStart },
+      },
+      orderBy: { createdAt: 'asc' },
+      select: { createdAt: true },
+    })
+    const unblockAt =
+      (oldest?.createdAt.getTime() ?? Date.now()) + FORUM_WRITE_WINDOW_MS
+    setForumRetryAfterHeader(event, unblockAt)
+    throw createError({
+      statusCode: 429,
+      message:
+        'Too many forum posts in a short period. Please slow down and try again shortly.',
+    })
+  }
+
+  const duplicateWindowStart = new Date(Date.now() - FORUM_DUPLICATE_WINDOW_MS)
+  const recent = await prisma.chat.findMany({
+    where: {
+      type: 'ToForum',
+      ...actorFilter,
+      createdAt: { gte: duplicateWindowStart },
+    },
+    orderBy: { createdAt: 'desc' },
+    select: { content: true, createdAt: true },
+    take: 5,
+  })
+
+  const duplicate = recent.find((entry) =>
+    isForumNearDuplicate(content, entry.content),
+  )
+
+  if (duplicate) {
+    const unblockAt = duplicate.createdAt.getTime() + FORUM_DUPLICATE_WINDOW_MS
+    setForumRetryAfterHeader(event, unblockAt)
+    throw createError({
+      statusCode: 429,
+      message:
+        'This looks like a duplicate of a post you made moments ago. Please wait or change your content before posting again.',
+    })
+  }
+}
+
+// --- Health-claim flag escalation -------------------------------------------
+
+const FORUM_FLAG_REACTION_MARKER = '"kind":"forum-flag"'
+
+/**
+ * Called after a flag is recorded (posts/[id]/flag.post.ts). When a post has
+ * accumulated flags from at least FORUM_HEALTH_CLAIM_ESCALATION_THRESHOLD
+ * distinct flaggers citing a health-claim-relevant reason (misinformation or
+ * unsafe), auto-hides it (isPublic: false) pending human review and writes
+ * a system audit entry. Counts distinct flaggers, not raw flag rows, so one
+ * hostile account can't unilaterally hide a post by flagging it repeatedly.
+ * Best-effort and idempotent: re-hiding an already-hidden post is a no-op.
+ */
+export async function escalateHealthClaimFlagsIfNeeded(
+  postId: number,
+): Promise<boolean> {
+  const flagReactions = await prisma.reaction.findMany({
+    where: {
+      chatId: postId,
+      comment: { contains: FORUM_FLAG_REACTION_MARKER },
+    },
+    select: { userId: true, authorBotId: true, comment: true },
+  })
+
+  const distinctFlaggers = new Set<string>()
+
+  for (const reaction of flagReactions) {
+    if (!reaction.comment) continue
+
+    let parsed: { kind?: string; reason?: string }
+    try {
+      parsed = JSON.parse(reaction.comment)
+    } catch {
+      continue
+    }
+
+    if (parsed.kind !== 'forum-flag' || !parsed.reason) continue
+    if (!isHealthClaimFlagReason(parsed.reason as ForumFlagReason)) continue
+
+    distinctFlaggers.add(`${reaction.userId}:${reaction.authorBotId ?? ''}`)
+  }
+
+  if (!shouldEscalateHealthClaimFlags(distinctFlaggers.size)) return false
+
+  const post = await prisma.chat.findFirst({
+    where: { id: postId, type: 'ToForum', isPublic: true },
+    select: { id: true },
+  })
+
+  if (!post) return false
+
+  await prisma.chat.update({
+    where: { id: postId },
+    data: { isPublic: false },
+  })
+
+  await logSystemAction(
+    `Forum post #${postId} auto-hidden pending review: ${distinctFlaggers.size} distinct health-claim (misinformation/unsafe) flags reached the escalation threshold.`,
+  )
+
+  return true
 }
 
 export function assertForumPostManageable(
@@ -452,6 +658,7 @@ export async function requireForumThreadRoot(
       isActive: true,
       previousEntryId: null,
       ...(includeMature ? {} : { isMature: false }),
+      ...(await notInRestricted('userId')),
     },
     select: forumPostSelect,
   })
@@ -590,6 +797,35 @@ export function serializeForumPost(
   post: ForumPostRecord,
   includeMatureAttachments = false,
 ) {
+  const removed = isForumPostRemoved(post)
+
+  // A removed post renders as a tombstone: the thread/reply slot stays in
+  // place (so nesting and reply counts elsewhere stay coherent) but content
+  // and authorship are redacted rather than the post silently vanishing
+  // from a thread it's still structurally part of.
+  if (removed) {
+    return {
+      id: post.id,
+      createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
+      threadId: post.originId ?? post.id,
+      parentId: post.previousEntryId,
+      channel: post.channel,
+      title: null,
+      content: '[removed]',
+      isMature: post.isMature,
+      removed: true,
+      edited: false,
+      attachments: [],
+      author: {
+        kind: 'REMOVED' as const,
+        displayName: '[removed]',
+        user: null,
+        bot: null,
+      },
+    }
+  }
+
   const user = post.User
     ? {
         id: post.User.id,
@@ -619,6 +855,8 @@ export function serializeForumPost(
     title: post.title,
     content: post.content,
     isMature: post.isMature,
+    removed: false,
+    edited: isForumPostEdited(post),
     attachments: serializeForumAttachments(post, includeMatureAttachments),
     author: {
       kind: bot ? ('AI_AGENT' as const) : ('HUMAN' as const),

@@ -6,6 +6,7 @@ import {
   getForumReadContext,
   serializeForumPost,
 } from '@/server/utils/forumApi'
+import { notInRestricted } from '@/server/utils/restriction'
 import { parseForumBoolean } from '~/utils/forumApiContract'
 
 type ForumPostReadQuery = {
@@ -31,8 +32,13 @@ export default defineEventHandler(async (event) => {
         id,
         type: 'ToForum',
         isPublic: true,
-        isActive: true,
+        // No isActive filter here: a removed post still resolves so a
+        // direct link (e.g. from a thread's own reply list) renders a
+        // "[removed]" tombstone instead of an opaque 404. A restricted
+        // author's post, by contrast, should look like it never existed --
+        // notInRestricted below still excludes it outright.
         ...(includeMature ? {} : { isMature: false }),
+        ...(await notInRestricted('userId')),
       },
       select: forumPostSelect,
     })

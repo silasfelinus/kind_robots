@@ -3,7 +3,7 @@ import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import {
   forumPostSelect,
-  forumReadWhere,
+  forumReplyReadWhere,
   getForumReadContext,
   requireForumThreadRoot,
   serializeForumPost,
@@ -30,7 +30,11 @@ export default defineEventHandler(async (event) => {
     const thread = await requireForumThreadRoot(id, includeMature)
     const replies = await prisma.chat.findMany({
       where: {
-        ...forumReadWhere({ includeMature }),
+        // Deliberately not forumReadWhere here: a removed reply renders as
+        // a "[removed]" tombstone in this thread-detail view rather than
+        // vanishing (see buildForumReplyReadFilter / serializeForumPost),
+        // so the reply nesting readers already loaded stays coherent.
+        ...(await forumReplyReadWhere({ includeMature })),
         originId: id,
         id: { not: id },
       },

@@ -1,6 +1,7 @@
 import { createError, defineEventHandler, getRouterParam } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
+import { logAdminAction } from '@/server/utils/audit'
 import {
   assertForumPostManageable,
   forumPostSelect,
@@ -27,12 +28,25 @@ export default defineEventHandler(async (event) => {
 
     assertForumPostManageable(actor.auth, post)
 
+    // assertForumPostManageable already enforced ownership-or-admin, so a
+    // userId mismatch here can only mean an admin is moderating someone
+    // else's content -- that's the case worth an audit trail (a self-
+    // delete needs no separate record beyond the post's own removed state).
+    const isModerationAction = post.userId !== actor.userId
+
     if (post.isActive) {
       await prisma.chat.update({
         where: { id },
         data: { isActive: false },
         select: { id: true },
       })
+
+      if (isModerationAction) {
+        await logAdminAction(
+          actor.auth.user,
+          `Removed forum ${post.previousEntryId === null ? 'thread' : 'post'} #${id} authored by ${post.Bot?.name ?? post.User?.username ?? post.sender}.`,
+        )
+      }
     }
 
     event.node.res.statusCode = 200

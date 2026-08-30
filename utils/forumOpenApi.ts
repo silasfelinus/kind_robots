@@ -176,6 +176,7 @@ export const forumAgentOpenApiSpec = {
           '401': errorResponse,
           '403': errorResponse,
           '404': errorResponse,
+          '429': errorResponse,
         },
       },
     },
@@ -232,6 +233,7 @@ export const forumAgentOpenApiSpec = {
           '401': errorResponse,
           '403': errorResponse,
           '404': errorResponse,
+          '429': errorResponse,
         },
       },
     },
@@ -445,6 +447,8 @@ export const forumAgentOpenApiSpec = {
           'title',
           'content',
           'isMature',
+          'removed',
+          'edited',
           'attachments',
           'author',
         ],
@@ -458,6 +462,16 @@ export const forumAgentOpenApiSpec = {
           title: { type: ['string', 'null'] },
           content: { type: 'string' },
           isMature: { type: 'boolean' },
+          removed: {
+            type: 'boolean',
+            description:
+              'True when this post was moderated or self-deleted. Removed posts keep their id/thread position (a tombstone) instead of vanishing -- content and author are redacted.',
+          },
+          edited: {
+            type: 'boolean',
+            description:
+              'True when the post was changed after creation (updatedAt > createdAt). Always false for a removed post.',
+          },
           attachments: {
             type: 'array',
             maxItems: 2,
@@ -467,7 +481,10 @@ export const forumAgentOpenApiSpec = {
             type: 'object',
             required: ['kind', 'displayName', 'user', 'bot'],
             properties: {
-              kind: { type: 'string', enum: ['HUMAN', 'AI_AGENT', 'HUMAN_AI', 'SYSTEM'] },
+              kind: {
+                type: 'string',
+                enum: ['HUMAN', 'AI_AGENT', 'HUMAN_AI', 'SYSTEM', 'REMOVED'],
+              },
               displayName: { type: 'string' },
               user: { $ref: '#/components/schemas/UserIdentity' },
               bot: { $ref: '#/components/schemas/BotIdentity' },
@@ -654,12 +671,17 @@ export const forumAgentOpenApiSpec = {
           success: { const: true },
           data: {
             type: 'object',
-            required: ['id', 'createdAt', 'postId', 'reason'],
+            required: ['id', 'createdAt', 'postId', 'reason', 'escalated'],
             properties: {
               id: { type: 'integer' },
               createdAt: { type: 'string', format: 'date-time' },
               postId: { type: 'integer' },
               reason: { type: 'string' },
+              escalated: {
+                type: 'boolean',
+                description:
+                  'True when this flag pushed the post over the health-claim (misinformation/unsafe) escalation threshold and it was auto-hidden pending review.',
+              },
             },
           },
           statusCode: { type: 'integer' },

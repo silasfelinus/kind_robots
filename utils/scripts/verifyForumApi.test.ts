@@ -1,18 +1,29 @@
 import assert from 'node:assert/strict'
 import {
   DEFAULT_FORUM_CHANNELS,
+  FORUM_DUPLICATE_SIMILARITY_THRESHOLD,
+  FORUM_HEALTH_CLAIM_ESCALATION_THRESHOLD,
   buildForumReadFilter,
+  buildForumReplyReadFilter,
   canManageForumPost,
   credentialHasForumScope,
   findForumChannel,
   forumAttachmentCanonicalPath,
+  forumContentSimilarity,
   forumParentBelongsToThread,
   forumPostIsPubliclyVisible,
+  forumRetryAfterSeconds,
   isForumAttachmentKind,
+  isForumNearDuplicate,
+  isForumPostEdited,
+  isForumPostRemoved,
   isForumThreadRoot,
+  isHealthClaimFlagReason,
+  normalizeForumContent,
   parseForumChannelRegistryJson,
   parseForumFlagReason,
   parseForumLimit,
+  shouldEscalateHealthClaimFlags,
 } from '../forumApiContract.js'
 
 const expectedSlugs = [
@@ -219,6 +230,101 @@ const expectedSlugs = [
   assert.equal(parseForumLimit('30'), 30)
   assert.equal(parseForumLimit('999'), 100)
   assert.equal(parseForumLimit('nope'), 30)
+}
+
+// rainbow-butterflies/t-025 -- minimum safe commons controls.
+{
+  assert.equal(normalizeForumContent('  Hello   World  '), 'hello world')
+  assert.equal(normalizeForumContent('SAME'), normalizeForumContent('same'))
+
+  assert.equal(forumContentSimilarity('hello world', 'hello world'), 1)
+  assert.equal(forumContentSimilarity('hello world', 'HELLO   WORLD'), 1)
+  assert.equal(forumContentSimilarity('', ''), 1)
+  assert.equal(forumContentSimilarity('a', 'ab'), 0)
+
+  const nearlyIdentical = forumContentSimilarity(
+    'Please check out my new project, it is really cool!',
+    'Please check out my new project, it is really cool.',
+  )
+  assert.ok(
+    nearlyIdentical >= FORUM_DUPLICATE_SIMILARITY_THRESHOLD,
+    `expected near-identical strings to score >= ${FORUM_DUPLICATE_SIMILARITY_THRESHOLD}, got ${nearlyIdentical}`,
+  )
+  assert.equal(
+    isForumNearDuplicate(
+      'Please check out my new project, it is really cool!',
+      'Please check out my new project, it is really cool.',
+    ),
+    true,
+  )
+
+  const unrelated = forumContentSimilarity(
+    'Please check out my new project, it is really cool!',
+    'The weather has been unusually mild this week in the valley.',
+  )
+  assert.ok(
+    unrelated < FORUM_DUPLICATE_SIMILARITY_THRESHOLD,
+    `expected unrelated strings to score < ${FORUM_DUPLICATE_SIMILARITY_THRESHOLD}, got ${unrelated}`,
+  )
+  assert.equal(
+    isForumNearDuplicate(
+      'Please check out my new project, it is really cool!',
+      'The weather has been unusually mild this week in the valley.',
+    ),
+    false,
+  )
+
+  assert.equal(forumRetryAfterSeconds(10_000, 0), 10)
+  assert.equal(forumRetryAfterSeconds(1_500, 0), 2)
+  assert.equal(forumRetryAfterSeconds(-5_000, 0), 1)
+}
+
+{
+  const created = new Date('2026-08-01T00:00:00Z')
+  assert.equal(isForumPostEdited({ createdAt: created, updatedAt: null }), false)
+  assert.equal(isForumPostEdited({ createdAt: created, updatedAt: created }), false)
+  assert.equal(
+    isForumPostEdited({
+      createdAt: created,
+      updatedAt: new Date('2026-08-01T00:05:00Z'),
+    }),
+    true,
+  )
+
+  assert.equal(isForumPostRemoved({ isActive: true }), false)
+  assert.equal(isForumPostRemoved({ isActive: false }), true)
+
+  assert.deepEqual(buildForumReplyReadFilter(), {
+    type: 'ToForum',
+    isPublic: true,
+    isMature: false,
+  })
+  assert.deepEqual(buildForumReplyReadFilter({ includeMature: true }), {
+    type: 'ToForum',
+    isPublic: true,
+  })
+  assert.equal('isActive' in buildForumReplyReadFilter(), false)
+}
+
+{
+  assert.equal(isHealthClaimFlagReason('misinformation'), true)
+  assert.equal(isHealthClaimFlagReason('unsafe'), true)
+  assert.equal(isHealthClaimFlagReason('spam'), false)
+  assert.equal(isHealthClaimFlagReason('harassment'), false)
+  assert.equal(isHealthClaimFlagReason('other'), false)
+
+  assert.equal(
+    shouldEscalateHealthClaimFlags(FORUM_HEALTH_CLAIM_ESCALATION_THRESHOLD - 1),
+    false,
+  )
+  assert.equal(
+    shouldEscalateHealthClaimFlags(FORUM_HEALTH_CLAIM_ESCALATION_THRESHOLD),
+    true,
+  )
+  assert.equal(
+    shouldEscalateHealthClaimFlags(FORUM_HEALTH_CLAIM_ESCALATION_THRESHOLD + 5),
+    true,
+  )
 }
 
 console.log('verifyForumApi.test.ts: all assertions passed')

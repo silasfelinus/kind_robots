@@ -3,7 +3,7 @@ import { access } from 'node:fs/promises'
 import {
   forumAgentOpenApiRouteFiles,
   forumAgentOpenApiSpec,
-} from '../forumOpenApi.js'
+} from '../forumOpenApiCombined.js'
 
 const methods = new Set(['get', 'post', 'patch', 'delete', 'put'])
 const actualOperations = new Map<string, unknown>()
@@ -18,7 +18,11 @@ for (const [path, pathItem] of Object.entries(forumAgentOpenApiSpec.paths)) {
 
     const operationId = (operation as { operationId?: string }).operationId
     assert.ok(operationId, `${key} must define operationId`)
-    assert.equal(operationIds.has(operationId), false, `duplicate operationId: ${operationId}`)
+    assert.equal(
+      operationIds.has(operationId),
+      false,
+      `duplicate operationId: ${operationId}`,
+    )
     operationIds.add(operationId)
   }
 }
@@ -29,9 +33,14 @@ assert.deepEqual(
   'OpenAPI operations must exactly match the implemented public v1 forum/agent route set.',
 )
 
-for (const [operation, routeFile] of Object.entries(forumAgentOpenApiRouteFiles)) {
+for (const [operation, routeFile] of Object.entries(
+  forumAgentOpenApiRouteFiles,
+)) {
   await access(routeFile)
-  assert.ok(actualOperations.has(operation), `${operation} is missing from OpenAPI`)
+  assert.ok(
+    actualOperations.has(operation),
+    `${operation} is missing from OpenAPI`,
+  )
 }
 
 const schemas = forumAgentOpenApiSpec.components.schemas as Record<string, any>
@@ -41,6 +50,7 @@ for (const name of [
   'CreateReplyRequest',
   'UpdatePostRequest',
   'FlagPostRequest',
+  'GenerateForumArtRequest',
 ]) {
   const schema = schemas[name]
   assert.ok(schema, `${name} schema is required`)
@@ -71,7 +81,11 @@ for (const name of [
   assert.ok(reference, 'ForumAttachmentReference schema is required')
   assert.equal(reference.additionalProperties, false)
   assert.deepEqual(reference.required, ['kind', 'id'])
-  assert.deepEqual(reference.properties.kind.enum, ['ART_IMAGE', 'PROJECT', 'CHARACTER'])
+  assert.deepEqual(reference.properties.kind.enum, [
+    'ART_IMAGE',
+    'PROJECT',
+    'CHARACTER',
+  ])
   assert.equal(reference.properties.id.minimum, 1)
 
   const preview = schemas.ForumAttachmentPreview
@@ -80,7 +94,11 @@ for (const name of [
   assert.ok(preview.required.includes('canonicalUrl'))
   assert.ok(preview.required.includes('imageUrl'))
 
-  for (const name of ['CreateThreadRequest', 'CreateReplyRequest', 'UpdatePostRequest']) {
+  for (const name of [
+    'CreateThreadRequest',
+    'CreateReplyRequest',
+    'UpdatePostRequest',
+  ]) {
     const attachments = schemas[name].properties.attachments
     assert.ok(attachments, `${name} must expose typed attachments`)
     assert.equal(attachments.type, 'array')
@@ -99,6 +117,22 @@ for (const name of [
     postAttachments.items.$ref,
     '#/components/schemas/ForumAttachmentPreview',
   )
+}
+
+{
+  const request = schemas.GenerateForumArtRequest
+  assert.equal(request.properties.prompt.maxLength, 4000)
+  const response = schemas.GenerateForumArtResponse
+  assert.ok(response, 'GenerateForumArtResponse schema is required')
+  assert.ok(response.properties.data.required.includes('mana'))
+
+  const action = actualOperations.get(
+    'POST /api/v1/forum/posts/{id}/generate-art',
+  ) as { 'x-kind-robots-scopes'?: string[] }
+  assert.deepEqual(action['x-kind-robots-scopes'], [
+    'forum:write',
+    'generation:art',
+  ])
 }
 
 const profile = actualOperations.get('GET /api/v1/profile') as {

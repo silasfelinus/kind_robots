@@ -6,10 +6,7 @@
 // old canonical ArtImage for historical ArtJobs, copies the fresh render into
 // the canonical row, and deletes the temporary upload in one transaction.
 import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
-import type {
-  ArtImage,
-  Prisma,
-} from '~/prisma/generated/prisma/client'
+import type { ArtImage, Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '../../../../utils/prisma'
 import { errorHandler } from '../../../../utils/error'
 import { requireMachineUser } from '../../../../utils/authGuard'
@@ -44,6 +41,10 @@ import {
 } from '../../../../utils/entityArt'
 import { attachCompletedArtImageToCollections } from '../../../../utils/generatedArtCollections'
 import { offloadArtImageBytes } from '../../../../utils/artImageOffload'
+import {
+  attachCompletedForumArt,
+  type ForumArtCompletion,
+} from '../../../../utils/forumGeneration'
 
 const MAX_ATTEMPTS = 3
 
@@ -97,12 +98,8 @@ function readSavePolicy(payload: unknown): {
 } {
   const save = asRecord(parseArtJobPayload(payload).save)
   return {
-    ...(typeof save.isPublic === 'boolean'
-      ? { isPublic: save.isPublic }
-      : {}),
-    ...(typeof save.isMature === 'boolean'
-      ? { isMature: save.isMature }
-      : {}),
+    ...(typeof save.isPublic === 'boolean' ? { isPublic: save.isPublic } : {}),
+    ...(typeof save.isMature === 'boolean' ? { isMature: save.isMature } : {}),
     ...(typeof save.designer === 'string' && save.designer.trim()
       ? { designer: save.designer.trim() }
       : {}),
@@ -263,7 +260,10 @@ export default defineEventHandler(async (event) => {
     const parsedJobPayload = parseArtJobPayload(job.payload)
     const declaredEntityArt = asRecord(parsedJobPayload.entityArt)
     const expectsEntityArtCompletion = Object.keys(declaredEntityArt).length > 0
-    if (expectsEntityArtCompletion && !readEntityArtMetadata(parsedJobPayload)) {
+    if (
+      expectsEntityArtCompletion &&
+      !readEntityArtMetadata(parsedJobPayload)
+    ) {
       throw createError({
         statusCode: 409,
         message:
@@ -278,6 +278,7 @@ export default defineEventHandler(async (event) => {
     let completedFacetIds: number[] = []
     let completedCollectionIds: number[] = []
     let completedEntityArt: Record<string, unknown> | null = null
+    let completedForumArt: ForumArtCompletion | null = null
 
     if (body.success) {
       const uploadedArtImageId = Number(body.artImageId)
@@ -357,11 +358,7 @@ export default defineEventHandler(async (event) => {
             data: snapshotData(target),
           })
           const facetTx = tx as unknown as FacetCompletionTransaction
-          await copyArtImageFacets(
-            facetTx,
-            targetArtImageId,
-            archived.id,
-          )
+          await copyArtImageFacets(facetTx, targetArtImageId, archived.id)
 
           await tx.artJob.updateMany({
             where: {
@@ -403,6 +400,13 @@ export default defineEventHandler(async (event) => {
             })
           }
 
+          const forumArt = await attachCompletedForumArt(
+            tx,
+            tracedPayload,
+            targetArtImageId,
+            job.userId,
+          )
+
           const collectionIds = await attachCompletedArtImageToCollections(tx, {
             artImageId: targetArtImageId,
             userId: job.userId,
@@ -430,6 +434,7 @@ export default defineEventHandler(async (event) => {
             facetIds,
             collectionIds,
             entityArt,
+            forumArt,
           }
         })
 
@@ -439,6 +444,7 @@ export default defineEventHandler(async (event) => {
         completedFacetIds = result.facetIds
         completedCollectionIds = result.collectionIds
         completedEntityArt = result.entityArt
+        completedForumArt = result.forumArt
       } else {
         const normalResult = await prisma.$transaction(async (tx) => {
           const uploaded = await tx.artImage.findUnique({
@@ -498,6 +504,13 @@ export default defineEventHandler(async (event) => {
             })
           }
 
+          const forumArt = await attachCompletedForumArt(
+            tx,
+            tracedPayload,
+            uploadedArtImageId,
+            job.userId,
+          )
+
           const collectionIds = await attachCompletedArtImageToCollections(tx, {
             artImageId: uploadedArtImageId,
             userId: job.userId,
@@ -515,13 +528,14 @@ export default defineEventHandler(async (event) => {
             },
           })
 
-          return { completed, facetIds, collectionIds, entityArt }
+          return { completed, facetIds, collectionIds, entityArt, forumArt }
         })
 
         updated = normalResult.completed
         completedFacetIds = normalResult.facetIds
         completedCollectionIds = normalResult.collectionIds
         completedEntityArt = normalResult.entityArt
+        completedForumArt = normalResult.forumArt
       }
     } else {
       const message = String(body.error || 'Generation failed.').slice(0, 4000)
@@ -549,10 +563,9 @@ export default defineEventHandler(async (event) => {
      * A no-op unless IMAGES_PATH is set, and it never throws — see
      * artImageOffload.ts. Failure leaves the row exactly as it is today.
      */
-    const offloadTargets = [
-      updated.artImageId,
-      archivedArtImageId,
-    ].filter((value): value is number => Number.isInteger(value) && Number(value) > 0)
+    const offloadTargets = [updated.artImageId, archivedArtImageId].filter(
+      (value): value is number => Number.isInteger(value) && Number(value) > 0,
+    )
 
     const offloaded: string[] = []
     for (const targetId of offloadTargets) {
@@ -579,6 +592,7 @@ export default defineEventHandler(async (event) => {
         completedFacetIds,
         completedCollectionIds,
         completedEntityArt,
+        completedForumArt,
         offloadedImagePaths: offloaded,
       },
       statusCode: 200,

@@ -14,12 +14,14 @@ export const AGENT_CREDENTIAL_SCOPES = [
   'profile:read',
   'forum:read',
   'forum:write',
+  'generation:art',
 ] as const
 
 export type AgentCredentialScope = (typeof AGENT_CREDENTIAL_SCOPES)[number]
 
 // Scopes a freshly-created forum-agent credential gets when the caller
-// doesn't specify its own set.
+// doesn't specify its own set. Generation is deliberately opt-in because it
+// spends the owning User's Kind Robots generation balance.
 export const DEFAULT_FORUM_AGENT_SCOPES: AgentCredentialScope[] = [
   'profile:read',
   'forum:read',

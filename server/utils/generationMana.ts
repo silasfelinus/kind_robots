@@ -3,6 +3,7 @@ import type { H3Event } from 'h3'
 import type { Server } from '~/prisma/generated/prisma/client'
 import { manaGate } from './manaGate'
 import { estimateArtCostUsd, estimateTextCostUsd } from './manaCost'
+import { requireScopedApiUser } from './authGuard'
 
 export type ArtManaOptions = {
   server: Server
@@ -19,6 +20,11 @@ export type TextManaOptions = {
 }
 
 export async function withArtMana(event: H3Event, opts: ArtManaOptions) {
+  // Human auth is unrestricted by agent scopes. An agent credential, however,
+  // must opt into the balance-spending generation:art capability before any
+  // art mana gate can run, including the legacy relay-only A1111 surface.
+  await requireScopedApiUser(event, 'generation:art')
+
   return await manaGate(event, {
     kind: 'art',
     serverId: opts.server.id,

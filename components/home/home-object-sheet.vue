@@ -74,9 +74,7 @@
           contract's one-scroll rule counts page-level owners, and a modal's
           own body is not the page's.
         -->
-        <div
-          class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 sm:p-4"
-        >
+        <div class="kr-scroll p-3 sm:p-4">
           <div v-if="pending" class="flex min-h-40 items-center justify-center">
             <span class="loading loading-spinner loading-md text-primary" />
             <span class="sr-only">Loading details…</span>

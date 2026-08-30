@@ -67,7 +67,7 @@
       </div>
     </header>
 
-    <main class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
+    <main class="kr-scroll p-3">
       <div class="grid gap-3 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <section class="grid gap-3">
           <div class="kr-panel-flat p-4">

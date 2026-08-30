@@ -1,6 +1,6 @@
 <template>
   <div class="kr-surface">
-    <div class="kr-scroll p-6 space-y-6 max-w-3xl mx-auto">
+    <div class="kr-scroll kr-container max-w-3xl p-6 space-y-6">
       <header class="flex items-start gap-3">
         <div
           class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-primary"

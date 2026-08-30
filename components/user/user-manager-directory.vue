@@ -40,13 +40,13 @@
 
     <div
       v-if="store.lastMessage"
-      class="rounded-xl border border-success/40 bg-success/10 p-2 text-sm text-success"
+      class="kr-note kr-note-success rounded-xl p-2 font-normal"
     >
       {{ store.lastMessage }}
     </div>
     <div
       v-if="store.lastError"
-      class="rounded-xl border border-error/40 bg-error/10 p-2 text-sm text-error"
+      class="kr-note kr-note-error rounded-xl p-2 font-normal"
     >
       {{ store.lastError }}
     </div>

@@ -142,13 +142,13 @@
 
         <div
           v-if="triageStore.saveMessage"
-          class="rounded-2xl border border-success/40 bg-success/10 p-3 text-sm text-success"
+          class="kr-note kr-note-success p-3 font-normal"
         >
           {{ triageStore.saveMessage }}
         </div>
         <div
           v-if="triageStore.saveError"
-          class="rounded-2xl border border-error/40 bg-error/10 p-3 text-sm text-error"
+          class="kr-note kr-note-error p-3 font-normal"
         >
           {{ triageStore.saveError }}
         </div>

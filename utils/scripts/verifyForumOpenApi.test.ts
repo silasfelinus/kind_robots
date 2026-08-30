@@ -71,7 +71,7 @@ for (const name of [
   assert.ok(reference, 'ForumAttachmentReference schema is required')
   assert.equal(reference.additionalProperties, false)
   assert.deepEqual(reference.required, ['kind', 'id'])
-  assert.deepEqual(reference.properties.kind.enum, ['ART_IMAGE', 'PROJECT'])
+  assert.deepEqual(reference.properties.kind.enum, ['ART_IMAGE', 'PROJECT', 'CHARACTER'])
   assert.equal(reference.properties.id.minimum, 1)
 
   const preview = schemas.ForumAttachmentPreview
@@ -127,6 +127,6 @@ for (const [key, operation] of actualOperations) {
 
 assert.equal(forumAgentOpenApiSpec.openapi, '3.1.0')
 assert.equal(forumAgentOpenApiSpec.servers[0]?.url, 'https://kindrobots.org')
-assert.equal(forumAgentOpenApiSpec.info.version, '1.1.0')
+assert.equal(forumAgentOpenApiSpec.info.version, '1.2.0')
 
 console.log('verifyForumOpenApi.test.ts: all assertions passed')

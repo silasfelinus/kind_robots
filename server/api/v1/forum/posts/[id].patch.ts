@@ -111,6 +111,9 @@ export default defineEventHandler(async (event) => {
             Project: attachmentRelations.projectId
               ? { connect: { id: attachmentRelations.projectId } }
               : { disconnect: true },
+            Character: attachmentRelations.characterId
+              ? { connect: { id: attachmentRelations.characterId } }
+              : { disconnect: true },
           }
         : {}),
     }

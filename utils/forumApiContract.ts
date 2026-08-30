@@ -8,7 +8,7 @@ export type ForumChannel = {
 
 export type ForumOrder = 'recent' | 'chronological'
 
-export const FORUM_ATTACHMENT_KINDS = ['ART_IMAGE', 'PROJECT'] as const
+export const FORUM_ATTACHMENT_KINDS = ['ART_IMAGE', 'PROJECT', 'CHARACTER'] as const
 export type ForumAttachmentKind = (typeof FORUM_ATTACHMENT_KINDS)[number]
 
 export type ForumAttachmentReference = {
@@ -31,6 +31,8 @@ export function forumAttachmentCanonicalPath(
       return `/art?art=${reference.id}`
     case 'PROJECT':
       return `/conductor?project=${reference.id}`
+    case 'CHARACTER':
+      return `/characters?character=${reference.id}`
   }
 }
 

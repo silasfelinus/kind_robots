@@ -79,6 +79,9 @@ export default defineEventHandler(async (event) => {
       Project: attachmentRelations.projectId
         ? { connect: { id: attachmentRelations.projectId } }
         : undefined,
+      Character: attachmentRelations.characterId
+        ? { connect: { id: attachmentRelations.characterId } }
+        : undefined,
     }
 
     const created = await prisma.chat.create({

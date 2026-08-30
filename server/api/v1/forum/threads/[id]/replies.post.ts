@@ -5,6 +5,8 @@ import { errorHandler } from '@/server/utils/error'
 import {
   assertMatureForumWriteAllowed,
   forumPostSelect,
+  parseForumAttachmentReferences,
+  requireForumAttachmentRelations,
   requireForumReplyParent,
   requireForumThreadRoot,
   requireForumWriter,
@@ -18,7 +20,12 @@ import {
   requiredString,
 } from '@/server/utils/chatApi'
 
-const FORUM_REPLY_CREATE_FIELDS = new Set(['content', 'parentId', 'isMature'])
+const FORUM_REPLY_CREATE_FIELDS = new Set([
+  'content',
+  'parentId',
+  'isMature',
+  'attachments',
+])
 
 export default defineEventHandler(async (event) => {
   const threadId = Number(getRouterParam(event, 'id'))
@@ -46,6 +53,12 @@ export default defineEventHandler(async (event) => {
     const isMature = thread.isMature || parent.isMature || requestedMature
     assertMatureForumWriteAllowed(actor.auth, isMature)
 
+    const attachmentReferences = parseForumAttachmentReferences(rawBody.attachments) ?? []
+    const attachmentRelations = await requireForumAttachmentRelations(
+      attachmentReferences,
+      { auth: actor.auth, isMature },
+    )
+
     const data: Prisma.ChatCreateInput = {
       type: 'ToForum',
       sender: actor.displayName,
@@ -60,6 +73,12 @@ export default defineEventHandler(async (event) => {
       User: { connect: { id: actor.userId } },
       Bot: actor.botId ? { connect: { id: actor.botId } } : undefined,
       botName: actor.botName,
+      ArtImage: attachmentRelations.artImageId
+        ? { connect: { id: attachmentRelations.artImageId } }
+        : undefined,
+      Project: attachmentRelations.projectId
+        ? { connect: { id: attachmentRelations.projectId } }
+        : undefined,
     }
 
     const created = await prisma.chat.create({
@@ -70,7 +89,7 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 201
     return {
       success: true,
-      data: serializeForumPost(created),
+      data: serializeForumPost(created, isMature),
       statusCode: 201,
     }
   } catch (error) {

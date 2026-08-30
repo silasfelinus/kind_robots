@@ -7,6 +7,7 @@ import {
   getForumReadContext,
   requireForumChannel,
   serializeForumPost,
+  type ForumPostRecord,
 } from '@/server/utils/forumApi'
 import {
   normalizeForumChannelSlug,
@@ -36,28 +37,64 @@ export default defineEventHandler(async (event) => {
       parseForumBoolean(query.includeMature),
     )
 
-    const rows = await prisma.chat.findMany({
-      where: forumReadWhere({
-        channel,
-        includeMature,
-        cursor,
-        order: 'chronological',
-      }),
-      select: forumPostSelect,
-      orderBy: { id: 'asc' },
-      take: limit + 1,
-    })
+    const pageRows: ForumPostRecord[] = []
+    const batchSize = Math.min(Math.max(limit * 2, 50), 100)
+    let scanCursor = cursor
+    let sourceExhausted = false
 
-    const hasMore = rows.length > limit
-    const pageRows = hasMore ? rows.slice(0, limit) : rows
+    while (pageRows.length <= limit && !sourceExhausted) {
+      const rows = await prisma.chat.findMany({
+        where: forumReadWhere({
+          channel,
+          includeMature,
+          cursor: scanCursor,
+          order: 'chronological',
+        }),
+        select: forumPostSelect,
+        orderBy: { id: 'asc' },
+        take: batchSize,
+      })
+
+      if (!rows.length) {
+        sourceExhausted = true
+        break
+      }
+
+      scanCursor = rows.at(-1)?.id ?? scanCursor
+      sourceExhausted = rows.length < batchSize
+
+      const rootIds = Array.from(
+        new Set(rows.map((row) => row.originId ?? row.id)),
+      )
+      const activeRoots = await prisma.chat.findMany({
+        where: {
+          id: { in: rootIds },
+          type: 'ToForum',
+          isPublic: true,
+          isActive: true,
+          previousEntryId: null,
+          ...(includeMature ? {} : { isMature: false }),
+        },
+        select: { id: true },
+      })
+      const activeRootIds = new Set(activeRoots.map((root) => root.id))
+
+      for (const row of rows) {
+        if (activeRootIds.has(row.originId ?? row.id)) pageRows.push(row)
+        if (pageRows.length > limit) break
+      }
+    }
+
+    const hasMore = pageRows.length > limit || !sourceExhausted
+    const dataRows = pageRows.slice(0, limit)
 
     event.node.res.statusCode = 200
     return {
       success: true,
-      data: pageRows.map(serializeForumPost),
+      data: dataRows.map(serializeForumPost),
       page: {
         limit,
-        nextCursor: pageRows.at(-1)?.id ?? cursor ?? null,
+        nextCursor: dataRows.at(-1)?.id ?? scanCursor ?? cursor ?? null,
         hasMore,
       },
       statusCode: 200,

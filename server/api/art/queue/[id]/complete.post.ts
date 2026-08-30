@@ -44,6 +44,10 @@ import {
 } from '../../../../utils/entityArt'
 import { attachCompletedArtImageToCollections } from '../../../../utils/generatedArtCollections'
 import { offloadArtImageBytes } from '../../../../utils/artImageOffload'
+import {
+  attachCompletedForumArt,
+  type ForumArtCompletion,
+} from '../../../../utils/forumGeneration'
 
 const MAX_ATTEMPTS = 3
 
@@ -278,6 +282,7 @@ export default defineEventHandler(async (event) => {
     let completedFacetIds: number[] = []
     let completedCollectionIds: number[] = []
     let completedEntityArt: Record<string, unknown> | null = null
+    let completedForumArt: ForumArtCompletion | null = null
 
     if (body.success) {
       const uploadedArtImageId = Number(body.artImageId)
@@ -403,6 +408,13 @@ export default defineEventHandler(async (event) => {
             })
           }
 
+          const forumArt = await attachCompletedForumArt(
+            tx,
+            tracedPayload,
+            targetArtImageId,
+            job.userId,
+          )
+
           const collectionIds = await attachCompletedArtImageToCollections(tx, {
             artImageId: targetArtImageId,
             userId: job.userId,
@@ -430,6 +442,7 @@ export default defineEventHandler(async (event) => {
             facetIds,
             collectionIds,
             entityArt,
+            forumArt,
           }
         })
 
@@ -439,6 +452,7 @@ export default defineEventHandler(async (event) => {
         completedFacetIds = result.facetIds
         completedCollectionIds = result.collectionIds
         completedEntityArt = result.entityArt
+        completedForumArt = result.forumArt
       } else {
         const normalResult = await prisma.$transaction(async (tx) => {
           const uploaded = await tx.artImage.findUnique({
@@ -498,6 +512,13 @@ export default defineEventHandler(async (event) => {
             })
           }
 
+          const forumArt = await attachCompletedForumArt(
+            tx,
+            tracedPayload,
+            uploadedArtImageId,
+            job.userId,
+          )
+
           const collectionIds = await attachCompletedArtImageToCollections(tx, {
             artImageId: uploadedArtImageId,
             userId: job.userId,
@@ -515,13 +536,14 @@ export default defineEventHandler(async (event) => {
             },
           })
 
-          return { completed, facetIds, collectionIds, entityArt }
+          return { completed, facetIds, collectionIds, entityArt, forumArt }
         })
 
         updated = normalResult.completed
         completedFacetIds = normalResult.facetIds
         completedCollectionIds = normalResult.collectionIds
         completedEntityArt = normalResult.entityArt
+        completedForumArt = normalResult.forumArt
       }
     } else {
       const message = String(body.error || 'Generation failed.').slice(0, 4000)
@@ -579,6 +601,7 @@ export default defineEventHandler(async (event) => {
         completedFacetIds,
         completedCollectionIds,
         completedEntityArt,
+        completedForumArt,
         offloadedImagePaths: offloaded,
       },
       statusCode: 200,

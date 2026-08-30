@@ -1,6 +1,6 @@
 <!-- /components/content/user/user-manager.vue -->
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col gap-4 overflow-hidden">
+  <section class="kr-surface gap-4">
     <!--
       NO ACCOUNT ROW HERE, and none teleported elsewhere either.
 

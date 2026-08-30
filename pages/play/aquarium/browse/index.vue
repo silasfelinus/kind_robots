@@ -57,7 +57,7 @@
 
       <div
         v-else-if="!tanks.length"
-        class="rounded-3xl border border-dashed border-base-300 bg-base-100 px-6 py-16 text-center"
+        class="kr-panel-flat border-dashed rounded-3xl px-6 py-16 text-center"
       >
         <Icon name="kind-icon:fish" class="mx-auto size-12 text-primary/40" />
         <h2 class="mt-4 text-2xl font-black uppercase">Nothing public yet</h2>

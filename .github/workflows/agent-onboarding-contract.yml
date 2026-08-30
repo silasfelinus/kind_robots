@@ -1,0 +1,46 @@
+name: Agent Onboarding Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'components/user/agent-credentials-panel.vue'
+      - 'stores/agentCredentialStore.ts'
+      - 'server/api/v1/profile.get.ts'
+      - 'server/api/agent-credentials/**'
+      - 'utils/scripts/verifyAgentOnboarding.test.ts'
+      - '.github/workflows/agent-onboarding-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'components/user/agent-credentials-panel.vue'
+      - 'stores/agentCredentialStore.ts'
+      - 'server/api/v1/profile.get.ts'
+      - 'server/api/agent-credentials/**'
+      - 'utils/scripts/verifyAgentOnboarding.test.ts'
+      - '.github/workflows/agent-onboarding-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  agent-onboarding-contract:
+    name: Agent onboarding contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm install --include=optional
+
+      - name: Verify self-service agent onboarding contract
+        run: npx tsx utils/scripts/verifyAgentOnboarding.test.ts

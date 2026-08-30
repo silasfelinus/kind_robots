@@ -89,6 +89,13 @@
             You are browsing as Kind Guest. Sign in to use your own account.
           </div>
 
+          <div
+            v-if="returnTarget"
+            class="rounded-2xl border border-secondary/30 bg-secondary/10 p-3 text-sm font-semibold text-secondary"
+          >
+            Sign in to continue to the trusted Kind Robots service that sent you here.
+          </div>
+
           <label for="login" class="flex flex-col gap-2">
             <span class="pl-1 text-sm font-black text-base-content/80">
               Username
@@ -184,7 +191,7 @@
           </NuxtLink>
         </div>
 
-        <div class="my-5 flex items-center gap-3">
+        <div v-if="!returnTarget" class="my-5 flex items-center gap-3">
           <span class="h-px flex-1 bg-base-content/15" />
           <span
             class="rounded-full border border-base-content/10 bg-base-100/80 px-3 py-1 text-xs font-black uppercase tracking-widest text-base-content/45"
@@ -195,6 +202,7 @@
         </div>
 
         <div
+          v-if="!returnTarget"
           class="flex justify-center rounded-2xl border border-base-300/70 bg-base-100/70 p-2 shadow-sm"
         >
           <GoogleLogin />
@@ -252,11 +260,12 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useErrorStore, ErrorType } from '~/stores/errorStore'
 import { useUserStore } from '~/stores/userStore'
 
 const store = useUserStore()
+const route = useRoute()
 const router = useRouter()
 const errorStore = useErrorStore()
 
@@ -264,6 +273,34 @@ const login = ref('')
 const password = ref('')
 const errorMessage = ref('')
 const userNotFound = ref(false)
+
+function normalizeLocalReturnTarget(value: unknown): string {
+  const raw = Array.isArray(value) ? value[0] : value
+  if (typeof raw !== 'string') return ''
+
+  const candidate = raw.trim()
+  if (
+    !candidate.startsWith('/') ||
+    candidate.startsWith('//') ||
+    candidate.includes('\\') ||
+    candidate.length > 4096
+  ) {
+    return ''
+  }
+
+  try {
+    const base = 'https://kindrobots.invalid'
+    const parsed = new URL(candidate, base)
+    if (parsed.origin !== base) return ''
+    return `${parsed.pathname}${parsed.search}${parsed.hash}`
+  } catch {
+    return ''
+  }
+}
+
+const returnTarget = computed(() => {
+  return normalizeLocalReturnTarget(route.query.returnTo)
+})
 
 const normalizedUsername = computed(() => {
   return String(store.username || '')
@@ -276,7 +313,9 @@ const isKindGuest = computed(() => {
 })
 
 const shouldShowLoginForm = computed(() => {
-  return !store.isLoggedIn || isKindGuest.value
+  // A first-party SSO return request must refresh the server cookie even when
+  // stale client state still thinks the user is logged in.
+  return !store.isLoggedIn || isKindGuest.value || Boolean(returnTarget.value)
 })
 
 const stayLoggedIn = computed({
@@ -300,6 +339,14 @@ async function handleLogin(): Promise<void> {
       errorMessage.value =
         result.message || 'That username or password does not look right.'
       userNotFound.value = result.message?.includes('User not found') || false
+      return
+    }
+
+    if (returnTarget.value) {
+      // Use a real document navigation for API authorization endpoints. A
+      // vue-router push would treat /api/... as an app page and never reach
+      // Nitro's authorization handler.
+      window.location.assign(returnTarget.value)
       return
     }
 

@@ -1,8 +1,6 @@
 <!-- /components/ui/kr-stat-tile.vue -->
 <template>
-  <article
-    class="stat rounded-2xl border border-base-300 bg-base-100 shadow-sm"
-  >
+  <article class="stat kr-panel-flat shadow-sm">
     <div class="stat-title">{{ title }}</div>
     <div class="stat-value" :class="toneClass">{{ value }}</div>
     <div v-if="desc" class="stat-desc">{{ desc }}</div>

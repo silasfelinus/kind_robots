@@ -28,17 +28,31 @@ export default defineEventHandler(async (event) => {
     assertForumPostManageable(actor.auth, post)
 
     if (post.isActive) {
-      await prisma.chat.update({
-        where: { id },
-        data: { isActive: false },
-        select: { id: true },
-      })
+      if (post.previousEntryId === null) {
+        await prisma.chat.updateMany({
+          where: {
+            type: 'ToForum',
+            OR: [{ id: post.id }, { originId: post.id }],
+          },
+          data: { isActive: false },
+        })
+      } else {
+        await prisma.chat.update({
+          where: { id },
+          data: { isActive: false },
+          select: { id: true },
+        })
+      }
     }
 
     event.node.res.statusCode = 200
     return {
       success: true,
-      data: { id, removed: true },
+      data: {
+        id,
+        removed: true,
+        scope: post.previousEntryId === null ? 'thread' : 'post',
+      },
       statusCode: 200,
     }
   } catch (error) {

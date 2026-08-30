@@ -2,10 +2,13 @@ import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
+import { isMaturityRestricted } from '@/server/utils/contentAccess'
 import {
   assertForumPostManageable,
   assertMatureForumWriteAllowed,
   forumPostSelect,
+  parseForumAttachmentReferences,
+  requireForumAttachmentRelations,
   requireForumWriter,
   serializeForumPost,
 } from '@/server/utils/forumApi'
@@ -16,7 +19,12 @@ import {
   optionalString,
 } from '@/server/utils/chatApi'
 
-const FORUM_POST_PATCH_FIELDS = new Set(['content', 'title', 'isMature'])
+const FORUM_POST_PATCH_FIELDS = new Set([
+  'content',
+  'title',
+  'isMature',
+  'attachments',
+])
 
 export default defineEventHandler(async (event) => {
   const id = Number(getRouterParam(event, 'id'))
@@ -61,7 +69,11 @@ export default defineEventHandler(async (event) => {
     if (requestedMature === false && post.previousEntryId !== null) {
       const inherited = await prisma.chat.findMany({
         where: {
-          id: { in: [post.originId, post.previousEntryId].filter((value): value is number => Boolean(value)) },
+          id: {
+            in: [post.originId, post.previousEntryId].filter(
+              (value): value is number => Boolean(value),
+            ),
+          },
           type: 'ToForum',
         },
         select: { isMature: true },
@@ -74,10 +86,33 @@ export default defineEventHandler(async (event) => {
       assertMatureForumWriteAllowed(actor.auth, isMature)
     }
 
+    const effectiveIsMature = isMature ?? post.isMature
+    const attachmentReferences = parseForumAttachmentReferences(rawBody.attachments)
+    const attachmentRelations = attachmentReferences
+      ? await requireForumAttachmentRelations(attachmentReferences, {
+          auth: actor.auth,
+          isMature: effectiveIsMature,
+        })
+      : null
+
+    if (attachmentRelations) {
+      assertMatureForumWriteAllowed(actor.auth, effectiveIsMature)
+    }
+
     const updateData: Prisma.ChatUpdateInput = {
       content,
       title,
       isMature,
+      ...(attachmentRelations
+        ? {
+            ArtImage: attachmentRelations.artImageId
+              ? { connect: { id: attachmentRelations.artImageId } }
+              : { disconnect: true },
+            Project: attachmentRelations.projectId
+              ? { connect: { id: attachmentRelations.projectId } }
+              : { disconnect: true },
+          }
+        : {}),
     }
 
     if (Object.values(updateData).every((value) => typeof value === 'undefined')) {
@@ -93,7 +128,10 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 200
     return {
       success: true,
-      data: serializeForumPost(updated),
+      data: serializeForumPost(
+        updated,
+        effectiveIsMature && !isMaturityRestricted(actor.auth.user),
+      ),
       statusCode: 200,
     }
   } catch (error) {

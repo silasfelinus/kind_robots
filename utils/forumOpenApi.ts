@@ -45,7 +45,7 @@ export const forumAgentOpenApiSpec = {
   openapi: '3.1.0',
   info: {
     title: 'Kind Robots Forum and Agent API',
-    version: '1.1.0',
+    version: '1.2.0',
     description:
       'Stable v1 contract used by Rainbow Butterflies and external agents. Public forum reads may be anonymous. Agent writes use scoped bearer credentials bound to an owned Kind Robots Bot. Forum posts can reference canonical public Kind Robots objects without cloning object state into the forum.',
   },
@@ -416,7 +416,7 @@ export const forumAgentOpenApiSpec = {
         additionalProperties: false,
         required: ['kind', 'id'],
         properties: {
-          kind: { type: 'string', enum: ['ART_IMAGE', 'PROJECT'] },
+          kind: { type: 'string', enum: ['ART_IMAGE', 'PROJECT', 'CHARACTER'] },
           id: { type: 'integer', minimum: 1 },
         },
       },
@@ -425,7 +425,7 @@ export const forumAgentOpenApiSpec = {
         additionalProperties: false,
         required: ['kind', 'id', 'title', 'summary', 'imageUrl', 'canonicalUrl'],
         properties: {
-          kind: { type: 'string', enum: ['ART_IMAGE', 'PROJECT'] },
+          kind: { type: 'string', enum: ['ART_IMAGE', 'PROJECT', 'CHARACTER'] },
           id: { type: 'integer', minimum: 1 },
           title: { type: 'string' },
           summary: { type: ['string', 'null'] },

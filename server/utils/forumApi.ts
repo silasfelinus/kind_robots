@@ -87,6 +87,21 @@ export const forumPostSelect = {
       isActive: true,
     },
   },
+  Character: {
+    select: {
+      id: true,
+      name: true,
+      backstory: true,
+      drive: true,
+      cardPath: true,
+      heroPath: true,
+      imagePath: true,
+      iconPath: true,
+      isPublic: true,
+      isMature: true,
+      isActive: true,
+    },
+  },
 } satisfies Prisma.ChatSelect
 
 export type ForumPostRecord = Prisma.ChatGetPayload<{
@@ -109,6 +124,7 @@ export type ForumReadContext = {
 export type ForumAttachmentRelations = {
   artImageId: number | null
   projectId: number | null
+  characterId: number | null
 }
 
 export function getForumChannels(): ForumChannel[] {
@@ -302,7 +318,7 @@ export function parseForumAttachmentReferences(
     if (!isForumAttachmentKind(row.kind)) {
       throw createError({
         statusCode: 400,
-        message: `attachments[${index}].kind must be ART_IMAGE or PROJECT.`,
+        message: `attachments[${index}].kind must be ART_IMAGE, PROJECT, or CHARACTER.`,
       })
     }
 
@@ -332,6 +348,7 @@ export async function requireForumAttachmentRelations(
   const relations: ForumAttachmentRelations = {
     artImageId: null,
     projectId: null,
+    characterId: null,
   }
 
   for (const reference of references) {
@@ -364,7 +381,36 @@ export async function requireForumAttachmentRelations(
       continue
     }
 
-    const project = await prisma.project.findFirst({
+    if (reference.kind === 'PROJECT') {
+      const project = await prisma.project.findFirst({
+        where: {
+          id: reference.id,
+          isPublic: true,
+          isActive: true,
+        },
+        select: { id: true, isMature: true },
+      })
+
+      if (!project) {
+        throw createError({
+          statusCode: 404,
+          message: `Public Project ${reference.id} was not found.`,
+        })
+      }
+
+      if (project.isMature && !options.isMature) {
+        throw createError({
+          statusCode: 400,
+          message: 'A mature Project may only be attached to a mature forum post.',
+        })
+      }
+
+      assertMatureForumWriteAllowed(options.auth, project.isMature)
+      relations.projectId = project.id
+      continue
+    }
+
+    const character = await prisma.character.findFirst({
       where: {
         id: reference.id,
         isPublic: true,
@@ -373,22 +419,22 @@ export async function requireForumAttachmentRelations(
       select: { id: true, isMature: true },
     })
 
-    if (!project) {
+    if (!character) {
       throw createError({
         statusCode: 404,
-        message: `Public Project ${reference.id} was not found.`,
+        message: `Public Character ${reference.id} was not found.`,
       })
     }
 
-    if (project.isMature && !options.isMature) {
+    if (character.isMature && !options.isMature) {
       throw createError({
         statusCode: 400,
-        message: 'A mature Project may only be attached to a mature forum post.',
+        message: 'A mature Character may only be attached to a mature forum post.',
       })
     }
 
-    assertMatureForumWriteAllowed(options.auth, project.isMature)
-    relations.projectId = project.id
+    assertMatureForumWriteAllowed(options.auth, character.isMature)
+    relations.characterId = character.id
   }
 
   return relations
@@ -461,7 +507,7 @@ function serializeForumAttachments(
   includeMature: boolean,
 ) {
   const attachments: Array<{
-    kind: 'ART_IMAGE' | 'PROJECT'
+    kind: 'ART_IMAGE' | 'PROJECT' | 'CHARACTER'
     id: number
     title: string
     summary: string | null
@@ -509,6 +555,29 @@ function serializeForumAttachments(
           post.Project.heroPath ??
           post.Project.imagePath ??
           post.Project.iconPath,
+      ),
+      canonicalUrl: `${KIND_ROBOTS_ORIGIN}${forumAttachmentCanonicalPath(reference)}`,
+    })
+  }
+
+  if (
+    post.Character?.isPublic &&
+    post.Character.isActive &&
+    (includeMature || !post.Character.isMature)
+  ) {
+    const reference: ForumAttachmentReference = {
+      kind: 'CHARACTER',
+      id: post.Character.id,
+    }
+    attachments.push({
+      ...reference,
+      title: post.Character.name,
+      summary: summarizeAttachment(post.Character.backstory ?? post.Character.drive),
+      imageUrl: absoluteKindRobotsUrl(
+        post.Character.cardPath ??
+          post.Character.heroPath ??
+          post.Character.imagePath ??
+          post.Character.iconPath,
       ),
       canonicalUrl: `${KIND_ROBOTS_ORIGIN}${forumAttachmentCanonicalPath(reference)}`,
     })

@@ -277,7 +277,7 @@
 
         <div
           v-else
-          class="flex min-h-72 flex-col items-center justify-center rounded-3xl border border-dashed border-base-300 bg-base-100/70 p-8 text-center"
+          class="flex min-h-72 flex-col items-center justify-center kr-panel-flat border-dashed rounded-3xl bg-base-100/70 p-8 text-center"
         >
           <span class="flex size-16 items-center justify-center rounded-3xl bg-success/10 text-success">
             <Icon :name="emptyIcon" class="size-8" />

@@ -168,7 +168,7 @@
 
       <div
         v-else
-        class="rounded-2xl border border-dashed border-base-300 bg-base-100/70 p-5 text-center"
+        class="kr-panel-flat border-dashed bg-base-100/70 p-5 text-center"
       >
         <p class="font-bold">No saved stories yet</p>
         <p class="mt-1 text-xs text-base-content/50">

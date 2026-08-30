@@ -211,7 +211,7 @@
 
             <div
               v-else-if="!store.totalCount"
-              class="grid min-h-64 place-items-center rounded-2xl border border-dashed border-base-300 bg-base-100/50 p-8 text-center"
+              class="grid min-h-64 place-items-center kr-panel-flat border-dashed bg-base-100/50 p-8 text-center"
             >
               <div>
                 <Icon name="kind-icon:server" class="mx-auto size-10 text-base-content/30" />
@@ -225,7 +225,7 @@
 
             <div
               v-else-if="!filteredSources.length"
-              class="grid min-h-40 place-items-center rounded-2xl border border-dashed border-base-300 bg-base-100/50 p-6 text-center"
+              class="grid min-h-40 place-items-center kr-panel-flat border-dashed bg-base-100/50 p-6 text-center"
             >
               <div>
                 <p class="font-black">No {{ statusFilter }} scenes in this folder</p>

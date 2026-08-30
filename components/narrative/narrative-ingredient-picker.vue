@@ -59,7 +59,7 @@
     <p
       v-if="query.trim() && !filteredItems.length"
       role="status"
-      class="rounded-xl border border-dashed border-base-300 bg-base-100/60 px-3 py-2 text-xs text-base-content/45"
+      class="kr-panel-flat border-dashed rounded-xl bg-base-100/60 px-3 py-2 text-xs text-base-content/45"
     >
       No matching {{ label.toLowerCase() }}. Clear the search or leave the
       narrator free to choose.
@@ -81,7 +81,7 @@
     <div
       v-else-if="loading"
       role="status"
-      class="flex min-h-32 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100/60"
+      class="flex min-h-32 items-center justify-center kr-panel-flat border-dashed bg-base-100/60"
     >
       <span
         class="loading loading-dots loading-md text-secondary motion-reduce:hidden"
@@ -93,7 +93,7 @@
     <div
       v-else-if="!items.length"
       role="status"
-      class="rounded-2xl border border-dashed border-base-300 bg-base-100/60 p-4 text-center text-xs text-base-content/50"
+      class="kr-panel-flat border-dashed bg-base-100/60 p-4 text-center text-xs text-base-content/50"
     >
       {{ emptyState }}
     </div>

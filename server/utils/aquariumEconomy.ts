@@ -624,18 +624,22 @@ export const EGG_RARITY_DESCRIPTIONS: Readonly<Record<Rarity, string>> = {
 }
 
 // PLACEHOLDER PRESENTATION, same "mechanical gate now, authored pass later"
-// precedent as LAST_AQUARIUM_CONFIG's finale dialog (t-039/t-053): the six
-// real plates (the Victorian-engraving ramp EGG_RARITY_DESCRIPTIONS above
-// describes) are already generated -- projects/cthulhuquarium/art/
+// precedent LAST_AQUARIUM_CONFIG's finale dialog used until cthulhuquarium/
+// t-054 swapped its own two plates in: the six real plates (the
+// Victorian-engraving ramp EGG_RARITY_DESCRIPTIONS above describes) are
+// already generated -- projects/cthulhuquarium/art/
 // cthulhuquarium-egg-<rarity>.webp in conductor -- but eggs are items, not
 // Monster rows, so there is no ArtImage link for them to resolve through
-// kr-art-plate's normal source chain, and `public/images/**` is
-// git-ignored in this repo (the real distribution path is conductor's
-// `distribute_images.py` intake pipeline, not a hand-added file in this
-// PR). Every egg uses one flat emoji instead, same convention as
-// DECOR_CATALOG's `icon` field -- swap this for the real plates once the
-// distribution pipeline lands them, same as the finale dialog is still
-// waiting on its own screen-finale plate.
+// kr-art-plate's normal source chain, and `public/images/**` is git-ignored
+// in this repo. t-054 found that `distribute_images.py`'s media-share
+// pipeline was never actually reachable for this (it's a manual step on
+// Silas's home network, not something CI or an agent session can write to)
+// and shipped the finale's two plates as ordinary bundled Vite assets
+// instead (components/cthulhuquarium/cthulhuquarium-game.vue's
+// screenFinaleArt/setLastAquariumArt imports) -- committed to git, no infra
+// dependency. The same approach would work here too, whenever egg art is
+// prioritized; every egg still uses one flat emoji for now, same convention
+// as DECOR_CATALOG's `icon` field.
 export const EGG_ICON = '🥚'
 
 export interface EggCatalogEntry {

@@ -83,6 +83,20 @@ assert.deepEqual(
   { ok: true, userId: 42 },
 )
 
+// The exchange request has no user-id field. Even if a caller smuggles one
+// into an untyped object, the decision is bound to the locked grant's userId.
+const crossUserAttempt = {
+  clientId: 'rainbow-butterflies',
+  redirectUri: 'https://rainbowbutterflies.org/auth/callback',
+  verifier,
+  now,
+  userId: 99,
+}
+assert.deepEqual(evaluateAuthorizationCodeExchange(record, crossUserAttempt), {
+  ok: true,
+  userId: 42,
+})
+
 assert.deepEqual(
   evaluateAuthorizationCodeExchange(
     { ...record, consumedAt: new Date('2026-08-30T05:29:00.000Z') },

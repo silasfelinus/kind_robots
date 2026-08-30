@@ -14,10 +14,7 @@
       </div>
     </div>
 
-    <div
-      v-else-if="managerError"
-      class="flex min-h-0 flex-1 flex-col overflow-hidden kr-note kr-note-error"
-    >
+    <div v-else-if="managerError" class="kr-stage kr-note kr-note-error">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <span>{{ managerError }}</span>
         <button

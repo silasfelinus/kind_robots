@@ -75,7 +75,7 @@
     </header>
 
     <div class="flex min-h-0 flex-1 flex-col gap-3 p-3 sm:p-4">
-      <div class="flex shrink-0 flex-wrap items-center gap-2">
+      <div class="kr-toolbar">
         <label class="input input-bordered input-sm flex min-w-52 flex-1 items-center gap-2 rounded-2xl bg-base-100">
           <Icon name="kind-icon:search" class="size-4 text-base-content/35" />
           <input

@@ -158,6 +158,7 @@ model Bot {
   ArtImage             ArtImage?              @relation(fields: [artImageId], references: [id])
   Server               Server?                @relation(fields: [serverId], references: [id])
   User                 User?                  @relation(fields: [userId], references: [id])
+  AgentCredentials     AgentCredential[]
   ChallengeSubmissions ChallengeSubmission[]
   Chats                Chat[]
   NarratedDreams       Dream[]                @relation("DreamNarrator")
@@ -1750,6 +1751,7 @@ model User {
   restrictedReason       String?                   @db.Text
   introDismissedAt       DateTime?
   Achievements           AchievementRecord[]
+  AgentCredentials       AgentCredential[]
   AppRepos               AppRepo[]
   Aquariums              Aquarium[]
   AquariumCodexEntries   AquariumCodexEntry[]
@@ -2705,6 +2707,35 @@ model AuthToken {
 
   @@index([userId])
   @@index([purpose])
+}
+
+/// rainbow-butterflies/t-015: first-class scoped per-agent credentials,
+/// replacing the legacy whole-user User.apiKey for machine/agent callers.
+/// The secret is shown once at creation and stored hashed (bcrypt, never
+/// reversible); `keyPrefix` is the public, non-secret half used to look the
+/// row up before the hash comparison. `scopes` is a JSON array of scope
+/// strings (e.g. ["profile:read","forum:read","forum:write"]) -- additive,
+/// no enum, so new scopes never need a migration. Optional `botId` lets a
+/// credential act on behalf of one Bot; otherwise it acts as the owning
+/// User directly.
+model AgentCredential {
+  id           Int       @id @default(autoincrement())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now()) @updatedAt
+  userId       Int
+  botId        Int?
+  label        String    @db.VarChar(255)
+  keyPrefix    String    @unique @db.VarChar(16)
+  hashedSecret String    @db.VarChar(255)
+  scopes       Json
+  expiresAt    DateTime?
+  lastUsedAt   DateTime?
+  revokedAt    DateTime?
+  User         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Bot          Bot?      @relation(fields: [botId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([botId])
 }
 
 model Conversation {

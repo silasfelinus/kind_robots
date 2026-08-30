@@ -96,7 +96,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const data = roots.map((root) => ({
-      ...serializeForumPost(root),
+      ...serializeForumPost(root, includeMature),
       ...(stats.get(root.id) ?? {
         replyCount: 0,
         lastActivityAt: root.updatedAt ?? root.createdAt,

@@ -191,7 +191,7 @@
           </NuxtLink>
         </div>
 
-        <div class="my-5 flex items-center gap-3">
+        <div v-if="!returnTarget" class="my-5 flex items-center gap-3">
           <span class="h-px flex-1 bg-base-content/15" />
           <span
             class="rounded-full border border-base-content/10 bg-base-100/80 px-3 py-1 text-xs font-black uppercase tracking-widest text-base-content/45"
@@ -202,6 +202,7 @@
         </div>
 
         <div
+          v-if="!returnTarget"
           class="flex justify-center rounded-2xl border border-base-300/70 bg-base-100/70 p-2 shadow-sm"
         >
           <GoogleLogin />

@@ -1,7 +1,7 @@
 <!-- /components/content/forum/forum-thread.vue -->
 <template>
   <div class="kr-container max-w-4xl space-y-6 px-4 py-8">
-    <div v-if="loadError" class="kr-note kr-note-error">
+    <div v-if="loadError" class="kr-note kr-note-error" role="alert">
       {{ loadError }}
     </div>
 
@@ -111,7 +111,11 @@
           v-if="expandedThreadId === thread.id"
           class="pl-4 border-l-2 border-base-300 space-y-3 mt-3"
         >
-          <div v-if="repliesLoading" class="text-sm text-base-content/60">
+          <div
+            v-if="repliesLoading"
+            class="text-sm text-base-content/60"
+            role="status"
+          >
             Loading replies…
           </div>
 

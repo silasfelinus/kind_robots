@@ -50,6 +50,37 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // A reply is only browsable through its thread, so it must not outlive
+    // that thread's root becoming unreachable (removed, privatized, or its
+    // author restricted) -- otherwise a direct link to the reply would keep
+    // working via GET by id even though threads/[id].get.ts's
+    // requireForumThreadRoot already 404s the same thread when browsed.
+    // Mirrors requireForumThreadRoot's own visibility filter exactly.
+    // (A thread root's own originId points at itself, so this only fires
+    // for genuine replies, not an extra round-trip re-checking the root
+    // against its own already-verified state.)
+    if (post.originId && post.originId !== post.id) {
+      const rootVisible = await prisma.chat.findFirst({
+        where: {
+          id: post.originId,
+          type: 'ToForum',
+          isPublic: true,
+          isActive: true,
+          previousEntryId: null,
+          ...(includeMature ? {} : { isMature: false }),
+          ...(await notInRestricted('userId')),
+        },
+        select: { id: true },
+      })
+
+      if (!rootVisible) {
+        throw createError({
+          statusCode: 404,
+          message: `Forum post ${id} was not found.`,
+        })
+      }
+    }
+
     event.node.res.statusCode = 200
     return {
       success: true,

@@ -1,5 +1,5 @@
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
+  <section class="kr-surface gap-0">
     <nav
       class="mb-2 flex shrink-0 items-center gap-2 kr-panel-flat p-2"
       aria-label="Art studio views"

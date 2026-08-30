@@ -1,6 +1,6 @@
 <!-- /components/content/giftshop/giftshop-manager.vue -->
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
+  <section class="kr-surface gap-0">
     <div
       v-if="isLoadingManager || managerError"
       class="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-2 kr-panel-flat p-3 text-sm shadow"

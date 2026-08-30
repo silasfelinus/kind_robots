@@ -21,7 +21,7 @@
 <template>
   <section
     v-if="storyStore.phase === 'configure'"
-    class="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain"
+    class="flex kr-scroll flex-col gap-3"
   >
     <div
       class="flex shrink-0 items-center justify-between gap-2 kr-panel-flat p-2 pl-1 shadow-sm"

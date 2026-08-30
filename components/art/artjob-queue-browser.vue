@@ -8,10 +8,7 @@
       The ArtJob dashboard is admin-only.
     </div>
 
-    <div
-      v-else
-      class="flex h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain p-3"
-    >
+    <div v-else class="flex h-full kr-scroll flex-col gap-3 p-3">
       <header class="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 class="text-lg font-semibold">ArtJob Pipeline</h2>

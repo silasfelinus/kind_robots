@@ -335,6 +335,7 @@
               >
                 <user-panel class="min-w-0" />
                 <user-galleries class="min-w-0" />
+                <agent-credentials-panel class="min-w-0" />
                 <cache-clear />
                 <card-picker />
               </div>

@@ -147,6 +147,7 @@ export const ModelName = {
   Monster: 'Monster',
   AquariumEvent: 'AquariumEvent',
   AuthToken: 'AuthToken',
+  AgentCredential: 'AgentCredential',
   Conversation: 'Conversation',
   ConversationParticipant: 'ConversationParticipant',
   DirectMessage: 'DirectMessage',
@@ -2125,6 +2126,24 @@ export const AuthTokenScalarFieldEnum = {
 export type AuthTokenScalarFieldEnum = (typeof AuthTokenScalarFieldEnum)[keyof typeof AuthTokenScalarFieldEnum]
 
 
+export const AgentCredentialScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  botId: 'botId',
+  label: 'label',
+  keyPrefix: 'keyPrefix',
+  hashedSecret: 'hashedSecret',
+  scopes: 'scopes',
+  expiresAt: 'expiresAt',
+  lastUsedAt: 'lastUsedAt',
+  revokedAt: 'revokedAt'
+} as const
+
+export type AgentCredentialScalarFieldEnum = (typeof AgentCredentialScalarFieldEnum)[keyof typeof AgentCredentialScalarFieldEnum]
+
+
 export const ConversationScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -2247,6 +2266,13 @@ export const SortOrder = {
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const NullsOrder = {
@@ -3308,6 +3334,32 @@ export const AuthTokenOrderByRelevanceFieldEnum = {
 } as const
 
 export type AuthTokenOrderByRelevanceFieldEnum = (typeof AuthTokenOrderByRelevanceFieldEnum)[keyof typeof AuthTokenOrderByRelevanceFieldEnum]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+} as const
+
+export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const AgentCredentialOrderByRelevanceFieldEnum = {
+  label: 'label',
+  keyPrefix: 'keyPrefix',
+  hashedSecret: 'hashedSecret'
+} as const
+
+export type AgentCredentialOrderByRelevanceFieldEnum = (typeof AgentCredentialOrderByRelevanceFieldEnum)[keyof typeof AgentCredentialOrderByRelevanceFieldEnum]
 
 
 export const ConversationOrderByRelevanceFieldEnum = {

@@ -116,7 +116,7 @@
       <!-- Description -->
       <section
         v-if="view.description"
-        class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm"
+        class="kr-panel rounded-3xl p-5"
       >
         <p class="text-sm leading-relaxed text-base-content/80 sm:text-base">
           {{ view.description }}
@@ -134,7 +134,7 @@
         <article
           v-for="block in view.sections"
           :key="block.key"
-          class="flex flex-col gap-2 rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm"
+          class="kr-panel flex flex-col gap-2 rounded-3xl p-5"
         >
           <div class="flex items-center gap-2">
             <span

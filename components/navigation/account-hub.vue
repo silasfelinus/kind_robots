@@ -147,7 +147,7 @@
         <div v-if="accountMenuOpen" class="flex flex-col gap-2 px-1 pb-1">
           <div
             v-if="store.lastError"
-            class="rounded-xl border border-error/30 bg-error/10 p-2 text-xs font-bold text-error"
+            class="kr-note kr-note-error rounded-xl border-error/30 p-2 text-xs font-bold"
           >
             {{ store.lastError }}
           </div>

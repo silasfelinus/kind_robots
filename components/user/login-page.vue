@@ -84,7 +84,7 @@
         >
           <div
             v-if="isKindGuest"
-            class="rounded-2xl border border-info/30 bg-info/10 p-3 text-sm font-semibold text-info"
+            class="kr-note kr-note-info border-info/30 p-3"
           >
             You are browsing as Kind Guest. Sign in to use your own account.
           </div>

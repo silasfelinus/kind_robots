@@ -83,10 +83,7 @@
       </div>
     </header>
 
-    <section
-      v-if="themeError"
-      class="shrink-0 rounded-2xl border border-error/40 bg-error/10 p-3 text-sm font-semibold text-error"
-    >
+    <section v-if="themeError" class="shrink-0 kr-note kr-note-error p-3">
       <div class="flex items-start gap-2">
         <Icon name="kind-icon:alert" class="mt-0.5 h-4 w-4 shrink-0" />
         <p class="whitespace-pre-wrap">{{ themeError }}</p>

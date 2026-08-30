@@ -33,9 +33,11 @@
 
       <div
         v-else-if="!userStore.isAdmin"
-        class="rounded-2xl border border-error/40 bg-error/10 p-8 text-center"
+        class="kr-note kr-note-error p-8 text-center font-normal"
       >
-        <p class="text-xl font-black">Administrator access required</p>
+        <p class="text-xl font-black text-base-content">
+          Administrator access required
+        </p>
         <p class="mt-2 text-sm text-base-content/60">
           The social post review queue is restricted to administrators.
         </p>

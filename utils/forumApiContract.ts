@@ -238,6 +238,26 @@ export function forumParentBelongsToThread(
   )
 }
 
+/** rainbow-butterflies/t-032 -- reply nesting is unbounded by data-model
+ * design (cycles are structurally impossible: auto-increment Chat IDs,
+ * previousEntryId must reference an already-existing row) and today's
+ * forum-thread.vue renders replies as a flat list, not a recursive tree, so
+ * depth alone can't crash anything client-side. It's also bounded indirectly
+ * by the per-actor write rate limit above. Still, a determined actor with
+ * multiple accounts/credentials could build an arbitrarily deep
+ * previousEntryId chain over time, so cap it explicitly rather than relying
+ * only on the indirect rate limit. */
+export const FORUM_MAX_REPLY_DEPTH = 8
+
+/** A reply's depth is its parent's depth + 1 (the thread root is depth 0).
+ * `parentDepth` is the number of previousEntryId hops from the root to the
+ * proposed parent -- see forumReplyDepth() in server/utils/forumApi.ts,
+ * which walks that chain (the walk itself needs Prisma, so it can't live
+ * here). */
+export function forumReplyDepthAtLimit(parentDepth: number): boolean {
+  return parentDepth >= FORUM_MAX_REPLY_DEPTH
+}
+
 export type ForumReadFilterOptions = {
   channel?: string | null
   includeMature?: boolean

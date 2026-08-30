@@ -7,8 +7,10 @@ import {
   findForumChannel,
   forumAttachmentCanonicalPath,
   forumParentBelongsToThread,
+  forumReplyDepthAtLimit,
   forumRetryAfterSeconds,
   FORUM_DUPLICATE_WINDOW_MS,
+  FORUM_MAX_REPLY_DEPTH,
   FORUM_WRITE_WINDOW_MAX_POSTS,
   FORUM_WRITE_WINDOW_MS,
   isForumAttachmentKind,
@@ -673,6 +675,31 @@ export async function requireForumThreadRoot(
   return root
 }
 
+/** Walks the previousEntryId chain from `postId` back toward the thread root,
+ * counting hops. Bails out as soon as the count reaches FORUM_MAX_REPLY_DEPTH
+ * + 1 rather than walking all the way to the root every time -- callers only
+ * ever need to know whether the depth is at/over the cap, not its exact value
+ * once it's already over. Cycles are structurally impossible (see
+ * forumReplyDepthAtLimit's doc comment), so this always terminates. */
+async function forumReplyDepth(postId: number): Promise<number> {
+  let depth = 0
+  let currentId: number | null = postId
+
+  while (currentId !== null && depth <= FORUM_MAX_REPLY_DEPTH) {
+    const parentId: number = currentId
+    const row: { previousEntryId: number | null } | null =
+      await prisma.chat.findUnique({
+        where: { id: parentId },
+        select: { previousEntryId: true },
+      })
+    if (!row || row.previousEntryId === null) break
+    depth += 1
+    currentId = row.previousEntryId
+  }
+
+  return depth
+}
+
 export async function requireForumReplyParent(
   threadId: number,
   parentId: number,
@@ -686,6 +713,14 @@ export async function requireForumReplyParent(
     throw createError({
       statusCode: 400,
       message: 'The requested reply parent does not belong to this forum thread.',
+    })
+  }
+
+  const parentDepth = await forumReplyDepth(parent.id)
+  if (forumReplyDepthAtLimit(parentDepth)) {
+    throw createError({
+      statusCode: 400,
+      message: `This thread has reached the maximum reply nesting depth (${FORUM_MAX_REPLY_DEPTH}). Reply to an earlier post in the thread instead.`,
     })
   }
 

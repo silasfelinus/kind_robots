@@ -7,14 +7,23 @@ on:
       - 'server/api/v1/forum/**'
       - 'server/api/v1/openapi.get.ts'
       - 'server/api/v1/profile.get.ts'
+      - 'server/api/art/queue/[id]/complete.post.ts'
       - 'server/utils/forumApi.ts'
+      - 'server/utils/forumGeneration.ts'
+      - 'server/utils/comfyGate.ts'
+      - 'server/utils/generationMana.ts'
       - 'utils/forumApiContract.ts'
       - 'utils/forumOpenApi.ts'
+      - 'utils/forumOpenApiCombined.ts'
       - 'utils/scripts/verifyForumApi.test.ts'
       - 'utils/scripts/verifyForumOpenApi.test.ts'
+      - 'utils/scripts/verifyForumGeneration.test.ts'
       - 'docs/api/forum-v1.md'
       - 'server/utils/authGuard.ts'
       - 'utils/agentCredentialScopes.ts'
+      - 'components/art/forum-art-generation-context.vue'
+      - 'components/art/art-manager.vue'
+      - 'stores/forumGenerationStore.ts'
       - '.github/workflows/forum-api-contract.yml'
   workflow_dispatch:
 
@@ -42,6 +51,9 @@ jobs:
 
       - name: Verify forum API contract
         run: npx tsx utils/scripts/verifyForumApi.test.ts
+
+      - name: Verify forum generation contract
+        run: npx tsx utils/scripts/verifyForumGeneration.test.ts
 
       - name: Verify forum OpenAPI contract
         run: npx tsx utils/scripts/verifyForumOpenApi.test.ts

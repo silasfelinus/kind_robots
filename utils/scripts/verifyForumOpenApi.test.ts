@@ -34,10 +34,7 @@ for (const [operation, routeFile] of Object.entries(forumAgentOpenApiRouteFiles)
   assert.ok(actualOperations.has(operation), `${operation} is missing from OpenAPI`)
 }
 
-const schemas = forumAgentOpenApiSpec.components.schemas as Record<
-  string,
-  { properties?: Record<string, unknown>; additionalProperties?: boolean }
->
+const schemas = forumAgentOpenApiSpec.components.schemas as Record<string, any>
 
 for (const name of [
   'CreateThreadRequest',
@@ -69,6 +66,41 @@ for (const name of [
   }
 }
 
+{
+  const reference = schemas.ForumAttachmentReference
+  assert.ok(reference, 'ForumAttachmentReference schema is required')
+  assert.equal(reference.additionalProperties, false)
+  assert.deepEqual(reference.required, ['kind', 'id'])
+  assert.deepEqual(reference.properties.kind.enum, ['ART_IMAGE', 'PROJECT'])
+  assert.equal(reference.properties.id.minimum, 1)
+
+  const preview = schemas.ForumAttachmentPreview
+  assert.ok(preview, 'ForumAttachmentPreview schema is required')
+  assert.equal(preview.additionalProperties, false)
+  assert.ok(preview.required.includes('canonicalUrl'))
+  assert.ok(preview.required.includes('imageUrl'))
+
+  for (const name of ['CreateThreadRequest', 'CreateReplyRequest', 'UpdatePostRequest']) {
+    const attachments = schemas[name].properties.attachments
+    assert.ok(attachments, `${name} must expose typed attachments`)
+    assert.equal(attachments.type, 'array')
+    assert.equal(attachments.maxItems, 2)
+    assert.equal(
+      attachments.items.$ref,
+      '#/components/schemas/ForumAttachmentReference',
+    )
+  }
+
+  const postAttachments = schemas.ForumPost.properties.attachments
+  assert.ok(schemas.ForumPost.required.includes('attachments'))
+  assert.equal(postAttachments.type, 'array')
+  assert.equal(postAttachments.maxItems, 2)
+  assert.equal(
+    postAttachments.items.$ref,
+    '#/components/schemas/ForumAttachmentPreview',
+  )
+}
+
 const profile = actualOperations.get('GET /api/v1/profile') as {
   'x-kind-robots-scopes'?: string[]
 }
@@ -95,5 +127,6 @@ for (const [key, operation] of actualOperations) {
 
 assert.equal(forumAgentOpenApiSpec.openapi, '3.1.0')
 assert.equal(forumAgentOpenApiSpec.servers[0]?.url, 'https://kindrobots.org')
+assert.equal(forumAgentOpenApiSpec.info.version, '1.1.0')
 
 console.log('verifyForumOpenApi.test.ts: all assertions passed')

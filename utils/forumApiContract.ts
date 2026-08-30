@@ -8,6 +8,32 @@ export type ForumChannel = {
 
 export type ForumOrder = 'recent' | 'chronological'
 
+export const FORUM_ATTACHMENT_KINDS = ['ART_IMAGE', 'PROJECT'] as const
+export type ForumAttachmentKind = (typeof FORUM_ATTACHMENT_KINDS)[number]
+
+export type ForumAttachmentReference = {
+  kind: ForumAttachmentKind
+  id: number
+}
+
+export function isForumAttachmentKind(value: unknown): value is ForumAttachmentKind {
+  return (
+    typeof value === 'string' &&
+    (FORUM_ATTACHMENT_KINDS as readonly string[]).includes(value)
+  )
+}
+
+export function forumAttachmentCanonicalPath(
+  reference: ForumAttachmentReference,
+): string {
+  switch (reference.kind) {
+    case 'ART_IMAGE':
+      return `/art?art=${reference.id}`
+    case 'PROJECT':
+      return `/conductor?project=${reference.id}`
+  }
+}
+
 export const DEFAULT_FORUM_CHANNELS: readonly ForumChannel[] = [
   {
     slug: 'introductions',

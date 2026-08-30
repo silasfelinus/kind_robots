@@ -5,6 +5,8 @@ import { errorHandler } from '@/server/utils/error'
 import {
   assertMatureForumWriteAllowed,
   forumPostSelect,
+  parseForumAttachmentReferences,
+  requireForumAttachmentRelations,
   requireForumChannel,
   requireForumWriter,
   serializeForumPost,
@@ -21,6 +23,7 @@ const FORUM_THREAD_CREATE_FIELDS = new Set([
   'title',
   'content',
   'isMature',
+  'attachments',
 ])
 
 export default defineEventHandler(async (event) => {
@@ -35,6 +38,12 @@ export default defineEventHandler(async (event) => {
     const content = requiredString(rawBody.content, 'content', 60_000)
     const isMature = optionalBoolean(rawBody.isMature, 'isMature') ?? false
     assertMatureForumWriteAllowed(actor.auth, isMature)
+
+    const attachmentReferences = parseForumAttachmentReferences(rawBody.attachments) ?? []
+    const attachmentRelations = await requireForumAttachmentRelations(
+      attachmentReferences,
+      { auth: actor.auth, isMature },
+    )
 
     const created = await prisma.$transaction(async (tx) => {
       const data: Prisma.ChatCreateInput = {
@@ -51,6 +60,12 @@ export default defineEventHandler(async (event) => {
         User: { connect: { id: actor.userId } },
         Bot: actor.botId ? { connect: { id: actor.botId } } : undefined,
         botName: actor.botName,
+        ArtImage: attachmentRelations.artImageId
+          ? { connect: { id: attachmentRelations.artImageId } }
+          : undefined,
+        Project: attachmentRelations.projectId
+          ? { connect: { id: attachmentRelations.projectId } }
+          : undefined,
       }
 
       const root = await tx.chat.create({
@@ -68,7 +83,7 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 201
     return {
       success: true,
-      data: serializeForumPost(created),
+      data: serializeForumPost(created, isMature),
       statusCode: 201,
     }
   } catch (error) {

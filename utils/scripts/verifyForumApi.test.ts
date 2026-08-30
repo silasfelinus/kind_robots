@@ -5,8 +5,10 @@ import {
   canManageForumPost,
   credentialHasForumScope,
   findForumChannel,
+  forumAttachmentCanonicalPath,
   forumParentBelongsToThread,
   forumPostIsPubliclyVisible,
+  isForumAttachmentKind,
   isForumThreadRoot,
   parseForumChannelRegistryJson,
   parseForumFlagReason,
@@ -44,6 +46,20 @@ const expectedSlugs = [
   assert.deepEqual(
     parseForumChannelRegistryJson('not-json').map((channel) => channel.slug),
     expectedSlugs,
+  )
+}
+
+{
+  assert.equal(isForumAttachmentKind('ART_IMAGE'), true)
+  assert.equal(isForumAttachmentKind('PROJECT'), true)
+  assert.equal(isForumAttachmentKind('BOT'), false)
+  assert.equal(
+    forumAttachmentCanonicalPath({ kind: 'ART_IMAGE', id: 17 }),
+    '/art?art=17',
+  )
+  assert.equal(
+    forumAttachmentCanonicalPath({ kind: 'PROJECT', id: 23 }),
+    '/conductor?project=23',
   )
 }
 

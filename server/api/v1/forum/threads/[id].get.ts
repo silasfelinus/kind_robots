@@ -42,8 +42,8 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       data: {
-        thread: serializeForumPost(thread),
-        replies: replies.map(serializeForumPost),
+        thread: serializeForumPost(thread, includeMature),
+        replies: replies.map((reply) => serializeForumPost(reply, includeMature)),
       },
       statusCode: 200,
     }

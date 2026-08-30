@@ -137,7 +137,7 @@
 
     <div
       v-if="errorMessage"
-      class="shrink-0 flex items-center gap-2 rounded-xl border border-error/40 bg-error/10 px-3 py-2 text-xs font-semibold text-error"
+      class="shrink-0 flex items-center gap-2 kr-note kr-note-error rounded-xl px-3 py-2 text-xs"
     >
       <icon name="kind-icon:alert" class="h-3.5 w-3.5 shrink-0" />
       {{ errorMessage }}
@@ -145,7 +145,7 @@
 
     <div
       v-if="successMessage"
-      class="shrink-0 flex items-center gap-2 rounded-xl border border-success/40 bg-success/10 px-3 py-2 text-xs font-semibold text-success"
+      class="shrink-0 flex items-center gap-2 kr-note kr-note-success rounded-xl px-3 py-2 text-xs"
     >
       <icon name="kind-icon:check" class="h-3.5 w-3.5 shrink-0" />
       {{ successMessage }}

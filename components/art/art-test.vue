@@ -1247,7 +1247,7 @@ onMounted(async () => {
 
             <div
               v-if="syncMessage"
-              class="rounded-xl border border-info/30 bg-info/10 px-3 py-2 text-xs font-semibold text-info"
+              class="kr-note kr-note-info rounded-xl px-3 py-2 text-xs"
             >
               {{ syncMessage }}
             </div>

@@ -84,7 +84,7 @@
 
         <p
           v-if="urgentCount > 0"
-          class="rounded-2xl border border-error/20 bg-error/5 px-4 py-3 text-sm font-semibold text-error"
+          class="kr-note kr-note-error border-error/20 bg-error/5 px-4 py-3"
         >
           {{ urgentCount }} item{{ urgentCount === 1 ? '' : 's' }} need a
           decision.

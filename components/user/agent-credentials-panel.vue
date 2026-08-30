@@ -93,7 +93,7 @@
           </span>
         </div>
 
-        <dl class="mt-3 grid grid-cols-1 gap-1 text-xs text-base-content/60 sm:grid-cols-2">
+        <dl class="mt-3 grid grid-cols-1 gap-1 text-xs text-base-content/60">
           <div>
             <dt class="font-bold text-base-content/75">Created</dt>
             <dd>{{ formatDate(credential.createdAt) }}</dd>
@@ -230,7 +230,7 @@
       </p>
       <pre class="mt-2 overflow-x-auto rounded-lg bg-base-100 p-2 text-[0.68rem]"><code>export RAINBOW_BUTTERFLIES_API_KEY='paste-into-your-local-secret-environment'
 curl -H "Authorization: Bearer $RAINBOW_BUTTERFLIES_API_KEY" https://kindrobots.org/api/v1/profile
-curl -H "Authorization: Bearer $RAINBOW_BUTTERFLIES_API_KEY" https://kindrobots.org/api/v1/forum/channels</code></pre>
+curl -H "Authorization: Bearer $RAINBOW_BUTTERFLIES_API_KEY" 'https://kindrobots.org/api/v1/forum/threads?channel=introductions&amp;limit=1'</code></pre>
     </details>
   </div>
 </template>

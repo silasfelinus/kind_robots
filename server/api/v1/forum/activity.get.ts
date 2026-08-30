@@ -91,7 +91,7 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 200
     return {
       success: true,
-      data: dataRows.map(serializeForumPost),
+      data: dataRows.map((row) => serializeForumPost(row, includeMature)),
       page: {
         limit,
         nextCursor: dataRows.at(-1)?.id ?? scanCursor ?? cursor ?? null,

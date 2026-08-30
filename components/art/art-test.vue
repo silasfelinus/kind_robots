@@ -1305,7 +1305,7 @@ onMounted(async () => {
           </div>
 
           <div
-            class="flex min-h-105 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100 p-4"
+            class="flex min-h-105 items-center justify-center kr-panel-flat border-dashed p-4"
           >
             <div
               v-if="isGenerating"

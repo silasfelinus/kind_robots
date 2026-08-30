@@ -63,7 +63,7 @@
     <div class="min-h-0 flex-1 overflow-y-auto">
       <div
         v-if="!store.sourceType"
-        class="flex h-full min-h-32 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100 p-6 text-center text-sm text-base-content/50"
+        class="flex h-full min-h-32 items-center justify-center kr-panel-flat border-dashed p-6 text-center text-sm text-base-content/50"
       >
         Select a source type above to load records.
       </div>

@@ -50,7 +50,7 @@
       <div class="flex flex-col gap-4 pr-1">
         <div
           v-if="isGuest"
-          class="flex min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-base-300 bg-base-100 p-6 text-center"
+          class="flex min-h-64 flex-col items-center justify-center gap-3 kr-panel-flat border-dashed p-6 text-center"
         >
           <span
             class="flex h-14 w-14 items-center justify-center rounded-2xl bg-base-200 text-base-content/40"

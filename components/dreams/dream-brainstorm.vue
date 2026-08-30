@@ -340,7 +340,7 @@
 
             <div
               v-else
-              class="flex min-h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-base-300 bg-base-100 p-6 text-center text-base-content/50"
+              class="flex min-h-64 flex-col items-center justify-center gap-3 kr-panel-flat border-dashed p-6 text-center text-base-content/50"
             >
               <Icon
                 name="kind-icon:sparkles"

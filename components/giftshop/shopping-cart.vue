@@ -34,7 +34,7 @@
 
     <div
       v-else-if="!cartStore.hasItems"
-      class="rounded-2xl border border-dashed border-base-300 bg-base-100 p-8 text-center"
+      class="kr-panel-flat border-dashed p-8 text-center"
     >
       <Icon name="kind-icon:cart" class="mx-auto h-10 w-10 text-base-content/35" />
       <p class="mt-3 text-lg font-black text-base-content">Your cart is empty.</p>

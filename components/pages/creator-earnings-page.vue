@@ -111,7 +111,7 @@
 
         <section
           v-if="isEmpty"
-          class="flex min-h-48 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-base-300 bg-base-100 p-6 text-center"
+          class="flex min-h-48 flex-col items-center justify-center gap-3 kr-panel-flat border-dashed p-6 text-center"
         >
           <Icon name="kind-icon:coin" class="h-10 w-10 text-base-content/30" />
           <p class="text-base font-bold text-base-content">

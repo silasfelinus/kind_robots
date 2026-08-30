@@ -3,6 +3,7 @@ import {
   DEFAULT_FORUM_CHANNELS,
   FORUM_DUPLICATE_SIMILARITY_THRESHOLD,
   FORUM_HEALTH_CLAIM_ESCALATION_THRESHOLD,
+  FORUM_MAX_REPLY_DEPTH,
   buildForumReadFilter,
   buildForumReplyReadFilter,
   canManageForumPost,
@@ -12,6 +13,7 @@ import {
   forumContentSimilarity,
   forumParentBelongsToThread,
   forumPostIsPubliclyVisible,
+  forumReplyDepthAtLimit,
   forumRetryAfterSeconds,
   isForumAttachmentKind,
   isForumNearDuplicate,
@@ -221,6 +223,14 @@ const expectedSlugs = [
     }),
     false,
   )
+}
+
+// rainbow-butterflies/t-032 -- max reply-nesting-depth guard.
+{
+  assert.equal(forumReplyDepthAtLimit(0), false)
+  assert.equal(forumReplyDepthAtLimit(FORUM_MAX_REPLY_DEPTH - 1), false)
+  assert.equal(forumReplyDepthAtLimit(FORUM_MAX_REPLY_DEPTH), true)
+  assert.equal(forumReplyDepthAtLimit(FORUM_MAX_REPLY_DEPTH + 1), true)
 }
 
 {

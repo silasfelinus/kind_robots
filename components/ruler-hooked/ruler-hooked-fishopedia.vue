@@ -1,5 +1,5 @@
 <template>
-  <details class="fishopedia-shell collapse collapse-arrow rounded-2xl border border-base-300 bg-base-100">
+  <details class="fishopedia-shell collapse collapse-arrow kr-panel-flat">
     <summary class="collapse-title flex items-center justify-between gap-3 pr-12 font-bold">
       <span>📖 Fishopedia</span>
       <span class="badge badge-outline">{{ discoveredCount }}/{{ roster.length }} discovered</span>

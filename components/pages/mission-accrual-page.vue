@@ -193,7 +193,7 @@
 
         <section
           v-if="!data.remittances.length"
-          class="flex min-h-32 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-base-300 bg-base-100 p-6 text-center"
+          class="flex min-h-32 flex-col items-center justify-center gap-2 kr-panel-flat border-dashed p-6 text-center"
         >
           <p class="text-sm text-base-content/55">No remittances logged yet.</p>
         </section>

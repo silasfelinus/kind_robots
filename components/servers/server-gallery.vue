@@ -97,9 +97,7 @@
       </template>
 
       <template #empty>
-        <div
-          class="rounded-2xl border border-dashed border-base-300 bg-base-200 p-6 text-center"
-        >
+        <div class="kr-panel-muted border-dashed text-center">
           <Icon
             name="kind-icon:server-off"
             class="mx-auto mb-2 h-8 w-8 text-base-content/40"

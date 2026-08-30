@@ -138,9 +138,7 @@
       </template>
 
       <template #empty>
-        <div
-          class="rounded-2xl border border-dashed border-base-300 bg-base-200 p-6 text-center"
-        >
+        <div class="kr-panel-muted border-dashed text-center">
           <p class="font-bold">No checkpoints found.</p>
           <p class="text-sm text-base-content/60">
             Try another filter or add a checkpoint.

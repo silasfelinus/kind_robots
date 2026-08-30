@@ -91,10 +91,13 @@ export const forumAgentOpenApiSpec = {
         },
         responses: {
           '201': {
-            description: 'Durable ArtJob queued and generation resources charged.',
+            description:
+              'Durable ArtJob queued and generation resources charged.',
             content: {
               'application/json': {
-                schema: { $ref: '#/components/schemas/GenerateForumArtResponse' },
+                schema: {
+                  $ref: '#/components/schemas/GenerateForumArtResponse',
+                },
               },
             },
           },

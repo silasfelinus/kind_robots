@@ -5,13 +5,7 @@ import { estimateArtCostUsd } from './manaCost'
 import { requireScopedApiUser } from './authGuard'
 
 type ComfyEngine =
-  | 'comfy'
-  | 'flux'
-  | 'kontext'
-  | 'charsheet'
-  | 'hunyuan'
-  | 'ltx'
-  | 'wan'
+  'comfy' | 'flux' | 'kontext' | 'charsheet' | 'hunyuan' | 'ltx' | 'wan'
 
 interface ComfyGateInput {
   steps?: number | null

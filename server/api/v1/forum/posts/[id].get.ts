@@ -1,9 +1,4 @@
-import {
-  createError,
-  defineEventHandler,
-  getQuery,
-  getRouterParam,
-} from 'h3'
+import { createError, defineEventHandler, getQuery, getRouterParam } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import {

@@ -18,7 +18,11 @@ for (const [path, pathItem] of Object.entries(forumAgentOpenApiSpec.paths)) {
 
     const operationId = (operation as { operationId?: string }).operationId
     assert.ok(operationId, `${key} must define operationId`)
-    assert.equal(operationIds.has(operationId), false, `duplicate operationId: ${operationId}`)
+    assert.equal(
+      operationIds.has(operationId),
+      false,
+      `duplicate operationId: ${operationId}`,
+    )
     operationIds.add(operationId)
   }
 }
@@ -29,9 +33,14 @@ assert.deepEqual(
   'OpenAPI operations must exactly match the implemented public v1 forum/agent route set.',
 )
 
-for (const [operation, routeFile] of Object.entries(forumAgentOpenApiRouteFiles)) {
+for (const [operation, routeFile] of Object.entries(
+  forumAgentOpenApiRouteFiles,
+)) {
   await access(routeFile)
-  assert.ok(actualOperations.has(operation), `${operation} is missing from OpenAPI`)
+  assert.ok(
+    actualOperations.has(operation),
+    `${operation} is missing from OpenAPI`,
+  )
 }
 
 const schemas = forumAgentOpenApiSpec.components.schemas as Record<string, any>
@@ -72,7 +81,11 @@ for (const name of [
   assert.ok(reference, 'ForumAttachmentReference schema is required')
   assert.equal(reference.additionalProperties, false)
   assert.deepEqual(reference.required, ['kind', 'id'])
-  assert.deepEqual(reference.properties.kind.enum, ['ART_IMAGE', 'PROJECT', 'CHARACTER'])
+  assert.deepEqual(reference.properties.kind.enum, [
+    'ART_IMAGE',
+    'PROJECT',
+    'CHARACTER',
+  ])
   assert.equal(reference.properties.id.minimum, 1)
 
   const preview = schemas.ForumAttachmentPreview
@@ -81,7 +94,11 @@ for (const name of [
   assert.ok(preview.required.includes('canonicalUrl'))
   assert.ok(preview.required.includes('imageUrl'))
 
-  for (const name of ['CreateThreadRequest', 'CreateReplyRequest', 'UpdatePostRequest']) {
+  for (const name of [
+    'CreateThreadRequest',
+    'CreateReplyRequest',
+    'UpdatePostRequest',
+  ]) {
     const attachments = schemas[name].properties.attachments
     assert.ok(attachments, `${name} must expose typed attachments`)
     assert.equal(attachments.type, 'array')

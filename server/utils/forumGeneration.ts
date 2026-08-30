@@ -22,6 +22,18 @@ export type ForumArtCompletion = {
 
 type ForumCompletionTransaction = Pick<Prisma.TransactionClient, 'chat'>
 
+// Same cast-at-the-boundary idiom as generatedArtCollections.ts's
+// ArtCollectionDb/asArtCollectionDb: the caller's `tx` comes from
+// `prisma.$transaction(async (tx) => ...)`, whose generated client-extension
+// type isn't always structurally assignable to a `Pick<Prisma.TransactionClient,
+// ...>` narrowing across Prisma client regenerations, even though it carries
+// every property the narrowing needs at runtime. Accepting `unknown` and
+// casting internally avoids that false-positive mismatch without widening
+// what this function actually uses `tx` for.
+function asForumCompletionTransaction(tx: unknown): ForumCompletionTransaction {
+  return tx as ForumCompletionTransaction
+}
+
 function asRecord(value: unknown): JsonRecord {
   return value && typeof value === 'object' && !Array.isArray(value)
     ? (value as JsonRecord)
@@ -59,13 +71,15 @@ export function readForumArtGenerationContext(
 }
 
 export async function attachCompletedForumArt(
-  tx: ForumCompletionTransaction,
+  txInput: unknown,
   payload: unknown,
   artImageId: number,
   jobUserId: number,
 ): Promise<ForumArtCompletion | null> {
   const context = readForumArtGenerationContext(payload)
   if (!context) return null
+
+  const tx = asForumCompletionTransaction(txInput)
 
   if (context.userId !== jobUserId) {
     return {

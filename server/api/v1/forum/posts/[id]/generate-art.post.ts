@@ -1,9 +1,4 @@
-import {
-  createError,
-  defineEventHandler,
-  getRouterParam,
-  readBody,
-} from 'h3'
+import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { authHasScope } from '@/server/utils/authGuard'
@@ -33,7 +28,8 @@ const MAX_PROMPT_LENGTH = 4000
 
 function sourcePrompt(title: string | null, content: string): string {
   const source = [title?.trim(), content.trim()].filter(Boolean).join('\n\n')
-  const prefix = 'Create an illustration inspired by this public forum contribution:\n\n'
+  const prefix =
+    'Create an illustration inspired by this public forum contribution:\n\n'
   const room = Math.max(0, MAX_PROMPT_LENGTH - prefix.length)
   return `${prefix}${source.slice(0, room)}`
 }
@@ -84,7 +80,8 @@ export default defineEventHandler(async (event) => {
       'prompt',
       MAX_PROMPT_LENGTH,
     )
-    const promptString = promptOverride || sourcePrompt(post.title, post.content)
+    const promptString =
+      promptOverride || sourcePrompt(post.title, post.content)
 
     const gate = await authAndGate(event, {
       engine: 'comfy',

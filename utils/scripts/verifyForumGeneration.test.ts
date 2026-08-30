@@ -24,7 +24,10 @@ const payload = {
 }
 
 assert.deepEqual(readForumArtGenerationContext(payload), payload.forumContext)
-assert.equal(readForumArtGenerationContext({ forumContext: { kind: 'forum-art' } }), null)
+assert.equal(
+  readForumArtGenerationContext({ forumContext: { kind: 'forum-art' } }),
+  null,
+)
 assert.equal(readForumArtGenerationContext({}), null)
 
 {
@@ -93,7 +96,17 @@ assert.match(generationMana, /requireScopedApiUser\(event, 'generation:art'\)/)
 assert.match(actionRoute, /authHasScope\(actor\.auth, 'generation:art'\)/)
 assert.match(actionRoute, /forum-art-enqueue:/)
 assert.match(completionRoute, /attachCompletedForumArt/)
-assert.match(handoff, /Generation resources are not donations\./)
-assert.match(handoff, /Rainbow Butterflies never receives a spend-capable credential\./)
+
+// Prose assertions match against whitespace-collapsed content: Prettier is
+// free to rewrap this paragraph's template text across lines however it
+// likes (and has, more than once), which would otherwise break a raw
+// multi-word match that assumes a single literal space between words that
+// happen to land on the same source line today.
+const handoffProse = handoff.replace(/\s+/g, ' ')
+assert.match(handoffProse, /Generation resources are not donations\./)
+assert.match(
+  handoffProse,
+  /Rainbow Butterflies never receives a spend-capable credential\./,
+)
 
 console.log('verifyForumGeneration.test.ts: all assertions passed')

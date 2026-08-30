@@ -6,10 +6,7 @@
 // old canonical ArtImage for historical ArtJobs, copies the fresh render into
 // the canonical row, and deletes the temporary upload in one transaction.
 import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
-import type {
-  ArtImage,
-  Prisma,
-} from '~/prisma/generated/prisma/client'
+import type { ArtImage, Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '../../../../utils/prisma'
 import { errorHandler } from '../../../../utils/error'
 import { requireMachineUser } from '../../../../utils/authGuard'
@@ -101,12 +98,8 @@ function readSavePolicy(payload: unknown): {
 } {
   const save = asRecord(parseArtJobPayload(payload).save)
   return {
-    ...(typeof save.isPublic === 'boolean'
-      ? { isPublic: save.isPublic }
-      : {}),
-    ...(typeof save.isMature === 'boolean'
-      ? { isMature: save.isMature }
-      : {}),
+    ...(typeof save.isPublic === 'boolean' ? { isPublic: save.isPublic } : {}),
+    ...(typeof save.isMature === 'boolean' ? { isMature: save.isMature } : {}),
     ...(typeof save.designer === 'string' && save.designer.trim()
       ? { designer: save.designer.trim() }
       : {}),
@@ -267,7 +260,10 @@ export default defineEventHandler(async (event) => {
     const parsedJobPayload = parseArtJobPayload(job.payload)
     const declaredEntityArt = asRecord(parsedJobPayload.entityArt)
     const expectsEntityArtCompletion = Object.keys(declaredEntityArt).length > 0
-    if (expectsEntityArtCompletion && !readEntityArtMetadata(parsedJobPayload)) {
+    if (
+      expectsEntityArtCompletion &&
+      !readEntityArtMetadata(parsedJobPayload)
+    ) {
       throw createError({
         statusCode: 409,
         message:
@@ -362,11 +358,7 @@ export default defineEventHandler(async (event) => {
             data: snapshotData(target),
           })
           const facetTx = tx as unknown as FacetCompletionTransaction
-          await copyArtImageFacets(
-            facetTx,
-            targetArtImageId,
-            archived.id,
-          )
+          await copyArtImageFacets(facetTx, targetArtImageId, archived.id)
 
           await tx.artJob.updateMany({
             where: {
@@ -571,10 +563,9 @@ export default defineEventHandler(async (event) => {
      * A no-op unless IMAGES_PATH is set, and it never throws — see
      * artImageOffload.ts. Failure leaves the row exactly as it is today.
      */
-    const offloadTargets = [
-      updated.artImageId,
-      archivedArtImageId,
-    ].filter((value): value is number => Number.isInteger(value) && Number(value) > 0)
+    const offloadTargets = [updated.artImageId, archivedArtImageId].filter(
+      (value): value is number => Number.isInteger(value) && Number(value) > 0,
+    )
 
     const offloaded: string[] = []
     for (const targetId of offloadTargets) {

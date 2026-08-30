@@ -2,13 +2,19 @@ import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
-import { requireForumWriter } from '@/server/utils/forumApi'
+import {
+  escalateHealthClaimFlagsIfNeeded,
+  requireForumWriter,
+} from '@/server/utils/forumApi'
 import {
   assertJsonObject,
   assertOnlyFields,
   nullableString,
 } from '@/server/utils/chatApi'
-import { parseForumFlagReason } from '~/utils/forumApiContract'
+import {
+  isHealthClaimFlagReason,
+  parseForumFlagReason,
+} from '~/utils/forumApiContract'
 
 const FORUM_FLAG_FIELDS = new Set(['reason', 'detail'])
 
@@ -68,6 +74,10 @@ export default defineEventHandler(async (event) => {
       select: { id: true, createdAt: true },
     })
 
+    const escalated = isHealthClaimFlagReason(reason)
+      ? await escalateHealthClaimFlagsIfNeeded(post.id)
+      : false
+
     event.node.res.statusCode = 202
     return {
       success: true,
@@ -76,6 +86,7 @@ export default defineEventHandler(async (event) => {
         createdAt: flag.createdAt,
         postId: post.id,
         reason,
+        escalated,
       },
       statusCode: 202,
     }

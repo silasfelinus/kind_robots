@@ -3,6 +3,7 @@ import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import {
+  assertForumWriteAllowed,
   assertMatureForumWriteAllowed,
   forumPostSelect,
   parseForumAttachmentReferences,
@@ -52,6 +53,7 @@ export default defineEventHandler(async (event) => {
 
     const isMature = thread.isMature || parent.isMature || requestedMature
     assertMatureForumWriteAllowed(actor.auth, isMature)
+    await assertForumWriteAllowed(event, actor, content)
 
     const attachmentReferences = parseForumAttachmentReferences(rawBody.attachments) ?? []
     const attachmentRelations = await requireForumAttachmentRelations(
@@ -65,7 +67,7 @@ export default defineEventHandler(async (event) => {
       content,
       title: null,
       channel: thread.channel,
-      isPublic: true,
+      isPublic: !actor.shadowRestricted,
       isActive: true,
       isMature,
       originId: thread.id,

@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
     )
 
     const rows = await prisma.chat.findMany({
-      where: forumReadWhere({
+      where: await forumReadWhere({
         channel,
         includeMature,
         rootOnly: true,
@@ -58,7 +58,7 @@ export default defineEventHandler(async (event) => {
     const replyRows = rootIds.length
       ? await prisma.chat.findMany({
           where: {
-            ...forumReadWhere({ includeMature }),
+            ...(await forumReadWhere({ includeMature })),
             originId: { in: rootIds },
             id: { notIn: rootIds },
           },

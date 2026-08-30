@@ -275,3 +275,142 @@ export function parseForumFlagReason(value: unknown): ForumFlagReason | null {
     ? (reason as ForumFlagReason)
     : null
 }
+
+// rainbow-butterflies/t-025 -- minimum safe commons controls. Everything
+// below is pure/DB-free so it stays covered by verifyForumApi.test.ts the
+// same way the rest of this file is; the DB-touching call sites live in
+// server/utils/forumApi.ts.
+
+/** A reply-listing filter that deliberately omits `isActive`, unlike
+ * `buildForumReadFilter` above: a thread's own detail view renders a
+ * removed reply as a "[removed]" tombstone (see `isForumPostRemoved` /
+ * forumApi.ts's `serializeForumPost`) instead of letting it silently vanish
+ * and orphan any still-visible replies nested under it. Feeds/listings keep
+ * using `buildForumReadFilter` (removed posts don't clutter browse views);
+ * only a thread's own reply list needs the tombstone-inclusive shape. */
+export function buildForumReplyReadFilter(
+  options: Pick<ForumReadFilterOptions, 'includeMature'> = {},
+): Record<string, unknown> {
+  const where: Record<string, unknown> = {
+    type: 'ToForum',
+    isPublic: true,
+  }
+
+  if (!options.includeMature) where.isMature = false
+
+  return where
+}
+
+/** Whether a post's own createdAt/updatedAt shows it was edited after
+ * creation. `updatedAt` is nullable in the historical Chat schema (rows
+ * created before the column existed), so no `updatedAt` at all reads as
+ * "never edited," not an error. */
+export function isForumPostEdited(post: {
+  createdAt: Date
+  updatedAt: Date | null
+}): boolean {
+  if (!post.updatedAt) return false
+  return post.updatedAt.getTime() > post.createdAt.getTime()
+}
+
+/** Whether a post has been moderated/self-deleted out of the live commons.
+ * `isActive: false` is the existing soft-delete flag (see posts/[id].delete.ts);
+ * this just names the check so callers don't inline the negation. */
+export function isForumPostRemoved(post: { isActive: boolean }): boolean {
+  return !post.isActive
+}
+
+// --- Conservative per-actor write limits -----------------------------------
+
+/** Rolling window a single credential/account's forum writes (thread + reply
+ * creation, not edits/flags) are counted against. Deliberately generous
+ * enough for real conversation, tight enough to blunt a flooding script:
+ * a well-behaved human or agent posting a message every minute or two never
+ * approaches this. */
+export const FORUM_WRITE_WINDOW_MS = 10 * 60 * 1000
+export const FORUM_WRITE_WINDOW_MAX_POSTS = 12
+
+/** Shorter window + higher bar used only to catch near-identical rapid
+ * reposts (the "did you mean to submit this twice" / flood-a-script case),
+ * not to rate-limit ordinary conversation. */
+export const FORUM_DUPLICATE_WINDOW_MS = 5 * 60 * 1000
+export const FORUM_DUPLICATE_SIMILARITY_THRESHOLD = 0.85
+
+/** Collapses whitespace/case so trivial formatting differences (extra
+ * spaces, a changed capital letter) don't defeat duplicate detection. */
+export function normalizeForumContent(value: string): string {
+  return value.trim().toLowerCase().replace(/\s+/g, ' ')
+}
+
+function characterBigrams(value: string): Map<string, number> {
+  const counts = new Map<string, number>()
+  for (let i = 0; i < value.length - 1; i++) {
+    const gram = value.slice(i, i + 2)
+    counts.set(gram, (counts.get(gram) ?? 0) + 1)
+  }
+  return counts
+}
+
+/** Sorensen-Dice coefficient over character bigrams: cheap (linear time, no
+ * external deps), symmetric, and a good "near-duplicate" signal for the
+ * short-to-medium prose typical of forum posts. 1 = identical content,
+ * 0 = no shared bigrams at all. */
+export function forumContentSimilarity(a: string, b: string): number {
+  const normalizedA = normalizeForumContent(a)
+  const normalizedB = normalizeForumContent(b)
+
+  if (normalizedA === normalizedB) return 1
+  if (normalizedA.length < 2 || normalizedB.length < 2) {
+    return normalizedA === normalizedB ? 1 : 0
+  }
+
+  const bigramsA = characterBigrams(normalizedA)
+  const bigramsB = characterBigrams(normalizedB)
+
+  let intersection = 0
+  for (const [gram, count] of bigramsA) {
+    const other = bigramsB.get(gram)
+    if (other) intersection += Math.min(count, other)
+  }
+
+  const totalGrams = normalizedA.length - 1 + (normalizedB.length - 1)
+  return (2 * intersection) / totalGrams
+}
+
+export function isForumNearDuplicate(a: string, b: string): boolean {
+  return forumContentSimilarity(a, b) >= FORUM_DUPLICATE_SIMILARITY_THRESHOLD
+}
+
+/** Seconds until `unblockAtMs` from `nowMs`, floored at 1 so a Retry-After
+ * header never reads 0 or negative. */
+export function forumRetryAfterSeconds(
+  unblockAtMs: number,
+  nowMs = Date.now(),
+): number {
+  return Math.max(1, Math.ceil((unblockAtMs - nowMs) / 1000))
+}
+
+// --- Health-claim flag escalation -------------------------------------------
+
+/** Flag reasons treated as potentially health-claim-adjacent for the
+ * anti-malaria mission commons -- misinformation and unsafe content get
+ * escalated faster than ordinary spam/harassment/other flags. */
+export const FORUM_HEALTH_CLAIM_FLAG_REASONS: readonly ForumFlagReason[] = [
+  'misinformation',
+  'unsafe',
+]
+
+export function isHealthClaimFlagReason(reason: ForumFlagReason): boolean {
+  return (FORUM_HEALTH_CLAIM_FLAG_REASONS as readonly string[]).includes(reason)
+}
+
+/** Distinct flaggers (not raw flag count, so one hostile actor can't
+ * unilaterally hide a post by flagging it repeatedly) required before a
+ * post is auto-hidden pending review. */
+export const FORUM_HEALTH_CLAIM_ESCALATION_THRESHOLD = 2
+
+export function shouldEscalateHealthClaimFlags(
+  distinctFlaggerCount: number,
+): boolean {
+  return distinctFlaggerCount >= FORUM_HEALTH_CLAIM_ESCALATION_THRESHOLD
+}

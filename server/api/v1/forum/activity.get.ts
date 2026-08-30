@@ -1,6 +1,7 @@
 import { defineEventHandler, getQuery } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
+import { notInRestricted } from '@/server/utils/restriction'
 import {
   forumPostSelect,
   forumReadWhere,
@@ -44,7 +45,7 @@ export default defineEventHandler(async (event) => {
 
     while (pageRows.length <= limit && !sourceExhausted) {
       const rows = await prisma.chat.findMany({
-        where: forumReadWhere({
+        where: await forumReadWhere({
           channel,
           includeMature,
           cursor: scanCursor,
@@ -74,6 +75,7 @@ export default defineEventHandler(async (event) => {
           isActive: true,
           previousEntryId: null,
           ...(includeMature ? {} : { isMature: false }),
+          ...(await notInRestricted('userId')),
         },
         select: { id: true },
       })

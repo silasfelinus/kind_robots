@@ -26,7 +26,12 @@ permissions:
 
 jobs:
   agent-onboarding-contract:
-    name: Agent onboarding contract
+    # Kind Robots' main ruleset requires a GitHub Actions check named exactly
+    # "verify". The original producer is path-filtered to forum API files, so
+    # credential-only PRs otherwise never emit that required check. Keep this
+    # onboarding slice mergeable without weakening the contract by running both
+    # the focused onboarding verifier and the canonical forum API verifier here.
+    name: verify
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -44,3 +49,6 @@ jobs:
 
       - name: Verify self-service agent onboarding contract
         run: npx tsx utils/scripts/verifyAgentOnboarding.test.ts
+
+      - name: Verify canonical forum API contract
+        run: npx tsx utils/scripts/verifyForumApi.test.ts

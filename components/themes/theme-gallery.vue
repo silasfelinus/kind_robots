@@ -311,7 +311,7 @@
 
             <template #empty>
               <div
-                class="flex min-h-44 flex-col items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-200 p-6 text-center text-base-content/55"
+                class="kr-panel-muted flex min-h-44 flex-col items-center justify-center border-dashed text-center text-base-content/55"
               >
                 <Icon
                   name="kind-icon:palette"

@@ -5,9 +5,14 @@ on:
     branches: [main]
     paths:
       - 'server/api/v1/forum/**'
+      - 'server/api/v1/openapi.get.ts'
+      - 'server/api/v1/profile.get.ts'
       - 'server/utils/forumApi.ts'
       - 'utils/forumApiContract.ts'
+      - 'utils/forumOpenApi.ts'
       - 'utils/scripts/verifyForumApi.test.ts'
+      - 'utils/scripts/verifyForumOpenApi.test.ts'
+      - 'docs/api/forum-v1.md'
       - 'server/utils/authGuard.ts'
       - 'utils/agentCredentialScopes.ts'
       - '.github/workflows/forum-api-contract.yml'
@@ -37,3 +42,6 @@ jobs:
 
       - name: Verify forum API contract
         run: npx tsx utils/scripts/verifyForumApi.test.ts
+
+      - name: Verify forum OpenAPI contract
+        run: npx tsx utils/scripts/verifyForumOpenApi.test.ts

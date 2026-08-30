@@ -53,14 +53,14 @@
 
       <div
         v-if="artJobStore.error"
-        class="rounded-2xl border border-error/40 bg-error/10 p-3 text-sm text-error"
+        class="kr-note kr-note-error p-3 font-normal"
       >
         {{ artJobStore.error }}
       </div>
 
       <div
         v-if="stats?.oldestPending"
-        class="rounded-2xl border border-warning/40 bg-warning/10 p-3 text-xs text-warning-content"
+        class="kr-note kr-note-warning p-3 text-xs text-warning-content font-normal"
       >
         Oldest pending job #{{ stats.oldestPending.id }} has waited
         {{ formatAge(stats.oldestPending.ageSeconds) }}.

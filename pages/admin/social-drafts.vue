@@ -112,7 +112,7 @@
 
         <p
           v-if="draftsStore.error"
-          class="rounded-xl border border-error/40 bg-error/10 p-3 text-sm text-error"
+          class="kr-note kr-note-error rounded-xl p-3 font-normal"
         >
           {{ draftsStore.error }}
         </p>

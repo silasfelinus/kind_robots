@@ -1,7 +1,7 @@
 <!-- /components/dreams/dream-brainstorm.vue -->
 <template>
   <section
-    class="flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-3"
+    class="kr-surface rounded-2xl border border-base-300 bg-base-200 p-3"
   >
     <header class="shrink-0 kr-panel-flat p-4">
       <div

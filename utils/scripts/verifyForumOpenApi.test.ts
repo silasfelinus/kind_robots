@@ -3,7 +3,7 @@ import { access } from 'node:fs/promises'
 import {
   forumAgentOpenApiRouteFiles,
   forumAgentOpenApiSpec,
-} from '../forumOpenApi.js'
+} from '../forumOpenApiCombined.js'
 
 const methods = new Set(['get', 'post', 'patch', 'delete', 'put'])
 const actualOperations = new Map<string, unknown>()
@@ -41,6 +41,7 @@ for (const name of [
   'CreateReplyRequest',
   'UpdatePostRequest',
   'FlagPostRequest',
+  'GenerateForumArtRequest',
 ]) {
   const schema = schemas[name]
   assert.ok(schema, `${name} schema is required`)
@@ -101,6 +102,22 @@ for (const name of [
   )
 }
 
+{
+  const request = schemas.GenerateForumArtRequest
+  assert.equal(request.properties.prompt.maxLength, 4000)
+  const response = schemas.GenerateForumArtResponse
+  assert.ok(response, 'GenerateForumArtResponse schema is required')
+  assert.ok(response.properties.data.required.includes('mana'))
+
+  const action = actualOperations.get(
+    'POST /api/v1/forum/posts/{id}/generate-art',
+  ) as { 'x-kind-robots-scopes'?: string[] }
+  assert.deepEqual(action['x-kind-robots-scopes'], [
+    'forum:write',
+    'generation:art',
+  ])
+}
+
 const profile = actualOperations.get('GET /api/v1/profile') as {
   'x-kind-robots-scopes'?: string[]
 }
@@ -127,6 +144,6 @@ for (const [key, operation] of actualOperations) {
 
 assert.equal(forumAgentOpenApiSpec.openapi, '3.1.0')
 assert.equal(forumAgentOpenApiSpec.servers[0]?.url, 'https://kindrobots.org')
-assert.equal(forumAgentOpenApiSpec.info.version, '1.1.0')
+assert.equal(forumAgentOpenApiSpec.info.version, '1.2.0')
 
 console.log('verifyForumOpenApi.test.ts: all assertions passed')

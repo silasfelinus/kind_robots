@@ -2,7 +2,9 @@
   <section class="kr-container flex flex-col gap-4 p-4 md:p-6">
     <header class="flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-3">
-        <span class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/15 text-primary">
+        <span
+          class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/15 text-primary"
+        >
           <Icon name="kind-icon:server" class="h-7 w-7" />
         </span>
         <div>
@@ -67,32 +69,80 @@
 
         <label class="flex flex-col gap-1 text-xs">
           <span class="font-semibold">Prompt</span>
-          <textarea v-model="cfg(side).prompt" rows="3" class="textarea textarea-bordered textarea-sm" placeholder="Describe the image…" @change="store.persist" />
+          <textarea
+            v-model="cfg(side).prompt"
+            rows="3"
+            class="textarea textarea-bordered textarea-sm"
+            placeholder="Describe the image…"
+            @change="store.persist"
+          />
         </label>
 
         <details class="text-xs">
           <summary class="cursor-pointer font-semibold opacity-70">Negative + advanced</summary>
-          <textarea v-model="cfg(side).negativePrompt" rows="2" class="textarea textarea-bordered textarea-sm mt-2 w-full" placeholder="Negative prompt (works on cfg>1 engines)" @change="store.persist" />
+          <textarea
+            v-model="cfg(side).negativePrompt"
+            rows="2"
+            class="textarea textarea-bordered textarea-sm mt-2 w-full"
+            placeholder="Negative prompt (works on cfg>1 engines)"
+            @change="store.persist"
+          />
           <div class="mt-2 grid grid-cols-3 gap-2">
-            <label class="flex flex-col gap-1"><span>Steps</span><input v-model.number="cfg(side).steps" type="number" min="1" class="input input-bordered input-xs" @change="store.persist" /></label>
-            <label class="flex flex-col gap-1"><span>CFG</span><input v-model.number="cfg(side).cfg" type="number" step="0.1" class="input input-bordered input-xs" @change="store.persist" /></label>
-            <label class="flex flex-col gap-1"><span>Guidance</span><input v-model.number="cfg(side).guidance" type="number" step="0.1" class="input input-bordered input-xs" @change="store.persist" /></label>
+            <label class="flex flex-col gap-1">
+              <span>Steps</span>
+              <input v-model.number="cfg(side).steps" type="number" min="1" class="input input-bordered input-xs" @change="store.persist" />
+            </label>
+            <label class="flex flex-col gap-1">
+              <span>CFG</span>
+              <input v-model.number="cfg(side).cfg" type="number" step="0.1" class="input input-bordered input-xs" @change="store.persist" />
+            </label>
+            <label class="flex flex-col gap-1">
+              <span>Guidance</span>
+              <input v-model.number="cfg(side).guidance" type="number" step="0.1" class="input input-bordered input-xs" @change="store.persist" />
+            </label>
             <label class="flex flex-col gap-1">
               <span>Seed</span>
-              <input :value="cfg(side).seed ?? ''" type="number" placeholder="random" class="input input-bordered input-xs" @change="onSeed(side, $event)" />
+              <input
+                :value="cfg(side).seed ?? ''"
+                type="number"
+                placeholder="random"
+                class="input input-bordered input-xs"
+                @change="onSeed(side, $event)"
+              />
             </label>
-            <label class="flex flex-col gap-1"><span>Width</span><input v-model.number="cfg(side).width" type="number" step="8" class="input input-bordered input-xs" @change="store.persist" /></label>
-            <label class="flex flex-col gap-1"><span>Height</span><input v-model.number="cfg(side).height" type="number" step="8" class="input input-bordered input-xs" @change="store.persist" /></label>
-            <label class="flex flex-col gap-1"><span>Sampler</span><input v-model="cfg(side).sampler" type="text" class="input input-bordered input-xs" @change="store.persist" /></label>
-            <label class="flex flex-col gap-1"><span>Scheduler</span><input v-model="cfg(side).scheduler" type="text" class="input input-bordered input-xs" @change="store.persist" /></label>
-            <label class="flex flex-col gap-1"><span>LoRA</span><input v-model="cfg(side).loraName" type="text" placeholder="none" class="input input-bordered input-xs" @change="store.persist" /></label>
+            <label class="flex flex-col gap-1">
+              <span>Width</span>
+              <input v-model.number="cfg(side).width" type="number" step="8" class="input input-bordered input-xs" @change="store.persist" />
+            </label>
+            <label class="flex flex-col gap-1">
+              <span>Height</span>
+              <input v-model.number="cfg(side).height" type="number" step="8" class="input input-bordered input-xs" @change="store.persist" />
+            </label>
+            <label class="flex flex-col gap-1">
+              <span>Sampler</span>
+              <input v-model="cfg(side).sampler" type="text" class="input input-bordered input-xs" @change="store.persist" />
+            </label>
+            <label class="flex flex-col gap-1">
+              <span>Scheduler</span>
+              <input v-model="cfg(side).scheduler" type="text" class="input input-bordered input-xs" @change="store.persist" />
+            </label>
+            <label class="flex flex-col gap-1">
+              <span>LoRA</span>
+              <input v-model="cfg(side).loraName" type="text" placeholder="none" class="input input-bordered input-xs" @change="store.persist" />
+            </label>
           </div>
         </details>
 
-        <button class="btn btn-outline btn-sm" :disabled="running" @click="store.runSide(side)">Render Build {{ side }}</button>
+        <button class="btn btn-outline btn-sm" :disabled="running" @click="store.runSide(side)">
+          Render Build {{ side }}
+        </button>
 
+        <!-- result -->
         <div class="flex min-h-48 items-center justify-center rounded-2xl bg-base-200 p-3">
-          <div v-if="result(side).status === 'idle'" class="flex flex-col items-center gap-2 text-xs text-base-content/50">
+          <div
+            v-if="result(side).status === 'idle'"
+            class="flex flex-col items-center gap-2 text-xs text-base-content/50"
+          >
             <Icon name="kind-icon:image" class="h-8 w-8 opacity-60" />
             No render yet
           </div>
@@ -101,28 +151,50 @@
             {{ result(side).status === 'rendering' ? 'Rendering…' : 'Queued…' }}
             <span v-if="result(side).jobId" class="opacity-50">job #{{ result(side).jobId }}</span>
           </div>
-          <p v-else-if="result(side).status === 'failed'" class="kr-note kr-note-warning">Failed: {{ result(side).error }}</p>
-          <img v-else-if="result(side).src" :src="result(side).src" :alt="`Build ${side} render`" class="max-h-96 w-auto rounded-xl" />
+          <p v-else-if="result(side).status === 'failed'" class="kr-note kr-note-warning">
+            Failed: {{ result(side).error }}
+          </p>
+          <img
+            v-else-if="result(side).src"
+            :src="result(side).src"
+            :alt="`Build ${side} render`"
+            class="max-h-96 w-auto rounded-xl"
+          />
         </div>
 
         <div v-if="result(side).status === 'done'" class="flex items-center justify-between text-[11px] opacity-70">
           <span>seed {{ result(side).seed ?? '—' }} · {{ elapsed(side) }} · ArtImage #{{ result(side).artImageId }}</span>
-          <button class="btn btn-xs" :class="store.state.winner === side ? 'btn-success' : 'btn-ghost'" @click="store.pickWinner(side)">
+          <button
+            class="btn btn-xs"
+            :class="store.state.winner === side ? 'btn-success' : 'btn-ghost'"
+            @click="store.pickWinner(side)"
+          >
             {{ store.state.winner === side ? '🏆 winner' : 'Pick winner' }}
           </button>
         </div>
       </div>
     </div>
 
+    <!-- save / notes -->
     <div class="kr-panel-flat flex flex-wrap items-center gap-2 p-4">
-      <input v-model="store.state.note" type="text" placeholder="Notes on this matchup (why the winner won)…" class="input input-bordered input-sm flex-1" />
+      <input
+        v-model="store.state.note"
+        type="text"
+        placeholder="Notes on this matchup (why the winner won)…"
+        class="input input-bordered input-sm flex-1"
+      />
       <button class="btn btn-sm" @click="store.saveMatchup">Save matchup</button>
     </div>
 
+    <!-- saved matchups -->
     <details v-if="store.state.saved.length" class="kr-panel-flat p-4 text-xs">
       <summary class="cursor-pointer font-semibold">Saved matchups ({{ store.state.saved.length }})</summary>
       <ul class="mt-3 flex flex-col gap-1.5">
-        <li v-for="m in store.state.saved" :key="m.id" class="flex items-center justify-between gap-2 rounded-xl bg-base-200 px-3 py-2">
+        <li
+          v-for="m in store.state.saved"
+          :key="m.id"
+          class="flex items-center justify-between gap-2 rounded-xl bg-base-200 px-3 py-2"
+        >
           <span class="truncate">
             <strong>{{ engineLabel(m.a.engine) }}</strong> vs <strong>{{ engineLabel(m.b.engine) }}</strong>
             <span v-if="m.winner" class="badge badge-success badge-xs ml-1">{{ m.winner }} won</span>

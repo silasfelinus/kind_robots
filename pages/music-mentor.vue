@@ -127,7 +127,7 @@
           <div
             v-for="row in featureRows"
             :key="row.label"
-            class="flex justify-between gap-3 rounded-lg border border-base-300 bg-base-100 px-3 py-2"
+            class="kr-panel-flat flex justify-between gap-3 rounded-lg px-3 py-2"
           >
             <span class="opacity-70">{{ row.label }}</span>
             <span class="font-medium text-right">{{ row.value }}</span>

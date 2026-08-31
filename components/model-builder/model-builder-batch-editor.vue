@@ -37,7 +37,7 @@
     </div>
 
     <!-- Automate the whole group -->
-    <section class="rounded-xl border border-base-300 bg-base-200 p-2.5">
+    <section class="kr-panel-muted rounded-xl p-2.5">
       <div class="mb-2 flex items-center justify-between gap-2">
         <span
           class="text-xs font-bold uppercase tracking-wide text-base-content/50"
@@ -115,7 +115,7 @@
     <!-- Set one field to the same value on every item -->
     <section
       v-if="!isAsset && fields.length"
-      class="rounded-xl border border-base-300 bg-base-200 p-2.5"
+      class="kr-panel-muted rounded-xl p-2.5"
     >
       <span
         class="mb-2 block text-xs font-bold uppercase tracking-wide text-base-content/50"
@@ -175,7 +175,7 @@
     </section>
 
     <!-- Per-item fine-tune -->
-    <section class="rounded-xl border border-base-300 bg-base-200 p-2.5">
+    <section class="kr-panel-muted rounded-xl p-2.5">
       <span
         class="mb-2 block text-xs font-bold uppercase tracking-wide text-base-content/50"
       >

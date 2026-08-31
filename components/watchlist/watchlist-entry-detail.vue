@@ -8,9 +8,7 @@
   an admin viewer.
 -->
 <template>
-  <section
-    class="flex flex-col gap-4 rounded-3xl border border-base-300 bg-base-100 p-5"
-  >
+  <section class="kr-panel-flat flex flex-col gap-4 rounded-3xl p-5">
     <div class="flex items-start justify-between gap-3">
       <div class="flex min-w-0 items-center gap-2">
         <button

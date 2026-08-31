@@ -199,13 +199,25 @@
         </button>
       </div>
 
-      <!-- LIST: dense single-column rows for fast scanning -->
+      <!--
+        LIST: dense single-column rows for fast scanning (model-builder/
+        t-029, cycle 69). Row surface was hand-rolled as `rounded-lg border
+        border-base-300 bg-base-100` while the GALLERY and GRID views one
+        toggle away already use the shared `kr-panel-flat` class for their
+        record buttons -- kr-panel-flat's own definition in tailwind.css
+        even names "dense lists, rows, and inboxes" as its purpose, so the
+        one view that's actually a dense row list was the one view not
+        using it. Swapped to kr-panel-flat (bg-base-100 + border-base-300
+        match exactly; only the corner radius changes, rounded-lg ->
+        rounded-2xl, aligning it with this file's other two views and with
+        model-builder-run-history.vue's identical list-row pattern).
+      -->
       <div v-else class="flex flex-col gap-1">
         <button
           v-for="record in store.sources"
           :key="record.id"
           type="button"
-          class="flex items-center gap-3 rounded-lg border border-base-300 bg-base-100 px-2.5 py-1.5 text-left transition hover:border-primary hover:bg-base-200"
+          class="flex items-center gap-3 kr-panel-flat px-2.5 py-1.5 text-left transition hover:border-primary hover:bg-base-200"
           @click="store.selectSource(record)"
         >
           <div

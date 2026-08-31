@@ -55,11 +55,11 @@
         <article
           v-for="agent in agents"
           :key="agent.agentId"
-          class="flex flex-col gap-2 rounded-2xl border p-3"
+          class="flex flex-col gap-2 p-3"
           :class="
             agent.supportsInputImages
-              ? 'border-base-300 bg-base-100'
-              : 'border-warning/50 bg-warning/10'
+              ? 'kr-panel-flat'
+              : 'rounded-2xl border border-warning/50 bg-warning/10'
           "
         >
           <div class="flex flex-wrap items-center justify-between gap-2">

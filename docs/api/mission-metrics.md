@@ -10,9 +10,9 @@ Rainbow Butterflies uses a deliberately small first-party measurement surface so
 - `return_visit`
 - `fundraiser_click`
 
-Each event may carry three low-cardinality labels: `source`, `campaign`, and `placement`. Values are lowercased, reduced to letters/numbers/hyphens, and capped at 48 characters. Unknown request fields are rejected.
+Each event may carry three low-cardinality labels: `source`, `campaign`, and `placement`. Unknown request fields are rejected. The values are not stored as arbitrary client text: source, campaign, and placement are normalized into small checked-in vocabularies, with unknown source/campaign values collapsing to `other` and unknown placements to `unknown`. This keeps query strings from becoming an accidental free-form analytics field.
 
-Accepted events are written to the existing Kind Robots `Log` model as JSON with `username = rainbow-metrics` and `userId = null`. The payload contains only the event and those three coarse labels. It does not contain a visitor identifier, account id, IP address, user agent, referrer, full URL, browser fingerprint, or arbitrary metadata.
+Accepted events are written to the existing Kind Robots `Log` model as JSON with `username = rainbow-metrics` and `userId = null`. The payload contains only the event and those three coarse bucket labels. It does not contain a visitor identifier, account id, IP address, user agent, referrer, full URL, browser fingerprint, or arbitrary metadata.
 
 Event timestamps are deliberately reduced to the UTC day (`00:00:00`) before storage. The reporting goal is a daily funnel, so retaining an exact visit/click time would add needless identifying detail without improving the decision signal.
 
@@ -35,7 +35,7 @@ Anonymous event rows provide only first/returning visit counts and outbound fund
 
 The Rainbow Butterflies client may store a boolean `seen before` marker and the last UTC day on which a visit was counted. Those values contain no random id and are never sent to Kind Robots. They exist only so one browser is not counted repeatedly on every reload and so a later visit can be classified as returning.
 
-Campaign attribution may persist the sanitized source/campaign labels themselves. It does not persist the referring URL or a visitor id.
+Campaign attribution may persist the already-bucketed source/campaign labels themselves. It does not persist the referring URL or a visitor id.
 
 ## Donation boundary
 

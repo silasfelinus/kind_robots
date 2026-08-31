@@ -33,7 +33,7 @@
 
       <div
         v-if="loading && !tanks.length"
-        class="grid min-h-[40vh] place-items-center rounded-3xl border border-base-300 bg-base-100"
+        class="kr-panel-flat grid min-h-[40vh] place-items-center rounded-3xl"
       >
         <div class="text-center">
           <span class="loading loading-ring loading-lg text-primary" />

@@ -4,11 +4,11 @@ import { errorHandler } from '@/server/utils/error'
 import { authHasScope } from '@/server/utils/authGuard'
 import { authAndGate } from '@/server/utils/comfyGate'
 import {
-  assertForumPostManageable,
   assertMatureForumWriteAllowed,
   forumPostSelect,
   requireForumWriter,
 } from '@/server/utils/forumApi'
+import { canManageForumPost } from '@/utils/forumApiContract'
 import {
   assertJsonObject,
   assertOnlyFields,
@@ -29,7 +29,7 @@ const MAX_PROMPT_LENGTH = 4000
 function sourcePrompt(title: string | null, content: string): string {
   const source = [title?.trim(), content.trim()].filter(Boolean).join('\n\n')
   const prefix =
-    'Create an illustration inspired by this public forum contribution:\n\n'
+    'Create a new illustration that builds constructively on this public forum contribution. Preserve the useful idea, but make a distinct reusable work:\n\n'
   const room = Math.max(0, MAX_PROMPT_LENGTH - prefix.length)
   return `${prefix}${source.slice(0, room)}`
 }
@@ -68,7 +68,6 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    assertForumPostManageable(actor.auth, post)
     assertMatureForumWriteAllowed(actor.auth, post.isMature)
 
     const rawBody = (await readBody<unknown>(event)) ?? {}
@@ -93,7 +92,7 @@ export default defineEventHandler(async (event) => {
     if (gate.user.id !== actor.userId) {
       throw createError({
         statusCode: 403,
-        message: 'Forum author and generation-balance owner do not match.',
+        message: 'Forum contributor and generation-balance owner do not match.',
       })
     }
 
@@ -113,20 +112,42 @@ export default defineEventHandler(async (event) => {
       loras: null,
     })
 
+    const managesSource = canManageForumPost(
+      {
+        kind: actor.auth.kind,
+        userId: actor.userId,
+        botId: actor.auth.botId,
+        isAdmin: actor.auth.isAdmin,
+      },
+      post,
+    )
+    const hasCanonicalObject = Boolean(
+      post.ArtImage?.id || post.Project?.id || post.Character?.id,
+    )
+    const mode: 'attach' | 'contribute' =
+      managesSource && !hasCanonicalObject ? 'attach' : 'contribute'
+
     const forumContext: ForumArtGenerationContext = {
       kind: 'forum-art',
       postId: post.id,
       threadId: post.originId ?? post.id,
       userId: actor.userId,
-      botId: actor.botId,
+      // Attach mode preserves the source Bot identity when a human operator is
+      // illustrating one of their own Bot-authored posts. Contribution mode
+      // instead records the actual contributing actor.
+      botId: mode === 'attach' ? (post.botId ?? actor.botId) : actor.botId,
       requestedAt: new Date().toISOString(),
+      mode,
+      actorDisplayName: actor.displayName,
+      actorBotName: actor.botName,
+      actorShadowRestricted: actor.shadowRestricted,
     }
 
     const payload = {
       workflow,
       promptString,
       save: {
-        isPublic: true,
+        isPublic: !actor.shadowRestricted,
         isMature: post.isMature,
         designer: actor.displayName,
         artCollectionIds: [],
@@ -150,12 +171,15 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message:
-        'Forum illustration queued. Generation resources were charged to the authenticated Kind Robots account; this spend is not a charitable donation.',
+        mode === 'contribute'
+          ? 'Forum contribution queued. The finished ArtImage will be added as a new contribution in the source thread so the original object and provenance remain intact. Generation resource spending is not a charitable donation.'
+          : 'Forum illustration queued. The finished ArtImage will attach to your source contribution. Generation resource spending is not a charitable donation.',
       data: {
         jobId: job.id,
         status: job.status,
         postId: post.id,
         threadId: post.originId ?? post.id,
+        mode,
         mana: {
           balance,
           charged: gate.cost,

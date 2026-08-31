@@ -80,7 +80,10 @@
             target="_blank"
             rel="noopener noreferrer"
           >
-            Source {{ attachment.kind.replace('_', ' ').toLowerCase() }} #{{ attachment.id }} ↗
+            Source {{ attachment.kind.replace('_', ' ').toLowerCase() }} #{{
+              attachment.id
+            }}
+            ↗
           </a>
         </div>
       </article>

@@ -53,7 +53,12 @@ assert.equal(readForumArtGenerationContext({}), null)
     },
   }
 
-  const result = await attachCompletedForumArt(tx as never, legacyPayload, 900, 7)
+  const result = await attachCompletedForumArt(
+    tx as never,
+    legacyPayload,
+    900,
+    7,
+  )
   assert.equal(result?.status, 'ATTACHED')
   assert.deepEqual(updates, [
     {
@@ -78,8 +83,17 @@ const contributionPayload = {
   },
 }
 
+type ChatCreateInput = {
+  data: {
+    originId: number
+    previousEntryId: number
+    ArtImage: unknown
+    content: string
+  }
+}
+
 {
-  const creates: any[] = []
+  const creates: ChatCreateInput[] = []
   const tx = {
     chat: {
       findFirst: async () => ({
@@ -89,8 +103,8 @@ const contributionPayload = {
         channel: 'creativity',
         isMature: false,
       }),
-      create: async (input: any) => {
-        creates.push(input)
+      create: async (input: unknown) => {
+        creates.push(input as ChatCreateInput)
         return { id: 77 }
       },
     },
@@ -105,10 +119,12 @@ const contributionPayload = {
   assert.equal(result?.status, 'CONTRIBUTION')
   assert.equal(result?.contributionPostId, 77)
   assert.equal(creates.length, 1)
-  assert.equal(creates[0].data.originId, 40)
-  assert.equal(creates[0].data.previousEntryId, 40)
-  assert.deepEqual(creates[0].data.ArtImage, { connect: { id: 901 } })
-  assert.match(creates[0].data.content, /Built on forum contribution #55/)
+  const [created] = creates
+  assert.ok(created)
+  assert.equal(created.data.originId, 40)
+  assert.equal(created.data.previousEntryId, 40)
+  assert.deepEqual(created.data.ArtImage, { connect: { id: 901 } })
+  assert.match(created.data.content, /Built on forum contribution #55/)
 }
 
 {
@@ -123,7 +139,12 @@ const contributionPayload = {
     },
   }
 
-  const result = await attachCompletedForumArt(tx as never, legacyPayload, 902, 7)
+  const result = await attachCompletedForumArt(
+    tx as never,
+    legacyPayload,
+    902,
+    7,
+  )
   assert.equal(result?.status, 'SKIPPED')
   assert.equal(result?.reason, 'forum-post-unavailable')
   assert.equal(updated, false)
@@ -131,7 +152,12 @@ const contributionPayload = {
 
 {
   const tx = { chat: { findFirst: async () => null } }
-  const result = await attachCompletedForumArt(tx as never, contributionPayload, 903, 99)
+  const result = await attachCompletedForumArt(
+    tx as never,
+    contributionPayload,
+    903,
+    99,
+  )
   assert.equal(result?.status, 'SKIPPED')
   assert.equal(result?.reason, 'job-user-mismatch')
 }

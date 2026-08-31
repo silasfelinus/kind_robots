@@ -53,20 +53,31 @@ export function readForumArtGenerationContext(
   const userId = positiveInt(row.userId)
   const botId = row.botId == null ? null : positiveInt(row.botId)
   const requestedAt = typeof row.requestedAt === 'string' ? row.requestedAt : ''
-  const mode = row.mode === 'contribute' ? 'contribute' : row.mode === 'attach' ? 'attach' : undefined
-  const actorDisplayName = typeof row.actorDisplayName === 'string' ? row.actorDisplayName.trim() : undefined
-  const actorBotName = row.actorBotName == null
-    ? null
-    : typeof row.actorBotName === 'string'
-      ? row.actorBotName.trim()
+  const mode =
+    row.mode === 'contribute'
+      ? 'contribute'
+      : row.mode === 'attach'
+        ? 'attach'
+        : undefined
+  const actorDisplayName =
+    typeof row.actorDisplayName === 'string'
+      ? row.actorDisplayName.trim()
       : undefined
-  const actorShadowRestricted = typeof row.actorShadowRestricted === 'boolean'
-    ? row.actorShadowRestricted
-    : undefined
+  const actorBotName =
+    row.actorBotName == null
+      ? null
+      : typeof row.actorBotName === 'string'
+        ? row.actorBotName.trim()
+        : undefined
+  const actorShadowRestricted =
+    typeof row.actorShadowRestricted === 'boolean'
+      ? row.actorShadowRestricted
+      : undefined
 
   if (!postId || !threadId || !userId || !requestedAt) return null
   if (row.botId != null && !botId) return null
-  if (row.actorBotName != null && typeof actorBotName === 'undefined') return null
+  if (row.actorBotName != null && typeof actorBotName === 'undefined')
+    return null
 
   return {
     kind: 'forum-art',
@@ -114,7 +125,9 @@ export async function attachCompletedForumArt(
       isPublic: true,
       isActive: true,
       ...(contributionMode ? {} : { userId: jobUserId }),
-      ...(!contributionMode && context.botId != null ? { botId: context.botId } : {}),
+      ...(!contributionMode && context.botId != null
+        ? { botId: context.botId }
+        : {}),
     },
     select: {
       id: true,

@@ -195,9 +195,10 @@ export const useForumGenerationStore = defineStore(
           id: response.data.jobId,
           status: response.data.status,
         }
-        const destination = response.data.mode === 'contribute'
-          ? 'as a new Commons contribution'
-          : 'onto the source post'
+        const destination =
+          response.data.mode === 'contribute'
+            ? 'as a new Commons contribution'
+            : 'onto the source post'
         message.value = `Queued ArtJob #${response.data.jobId} ${destination}. Charged ${response.data.mana.charged} generation units; this compute spend is not a charitable donation.`
         void pollJob(response.data.jobId)
         return true

@@ -1,6 +1,8 @@
 <!-- /components/academy/academy-manager.vue -->
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col overflow-hidden bg-base-200 text-base-content">
+  <section
+    class="flex h-full min-h-0 w-full flex-col overflow-hidden bg-base-200 text-base-content"
+  >
     <!--
       Timeline and Style Gallery render purely off academyStore's static seed
       data (hydrated synchronously in onMounted below) — they never need
@@ -9,7 +11,7 @@
       fetch (see loadManagerData). Keeping these two branches first ensures a
       failed or slow art-server call never hides tabs that don't depend on it.
     -->
-    <section class="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+    <section class="kr-stage h-full">
       <div class="kr-scroll overscroll-contain p-3">
         <academy-timeline
           v-if="activeTab === 'timeline'"
@@ -45,7 +47,7 @@
         <div
           v-else-if="managerError"
           role="alert"
-          class="kr-note kr-note-error flex min-h-0 flex-1 flex-col overflow-hidden"
+          class="kr-note kr-note-error kr-stage"
         >
           <div class="flex flex-wrap items-center justify-between gap-3">
             <span>{{ managerError }}</span>

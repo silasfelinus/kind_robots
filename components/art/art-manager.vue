@@ -27,10 +27,7 @@
       </div>
     </div>
 
-    <section
-      v-else-if="activeTab === 'gallery'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
+    <section v-else-if="activeTab === 'gallery'" class="kr-stage h-full">
       <art-gallery
         class="h-full min-h-0 flex-1 overflow-hidden"
         variant="dashboard"
@@ -41,7 +38,7 @@
 
     <section
       v-else
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+      class="kr-stage h-full"
       @click.capture="
         activeTab === 'artjob' ? handleArtJobImageClick($event) : undefined
       "
@@ -149,7 +146,7 @@
 
           <div
             v-show="artJobWorkspaceTab === 'queue'"
-            class="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-3"
+            class="kr-stage gap-3 p-3"
           >
             <artjob-failed-page-requeue class="shrink-0" />
             <artjob-queue-browser class="min-h-0 flex-1 overflow-hidden" />

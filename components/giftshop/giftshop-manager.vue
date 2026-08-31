@@ -28,14 +28,14 @@
       </button>
     </div>
 
-    <section class="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden">
+    <section class="kr-stage gap-4">
       <section
         v-if="
           activeTab === 'community' ||
           activeTab === 'mana' ||
           activeTab === 'forum'
         "
-        class="flex h-full min-h-0 flex-1 flex-col overflow-hidden kr-panel-flat"
+        class="kr-stage h-full kr-panel-flat"
       >
         <div class="kr-scroll overscroll-contain p-4">
           <template v-if="activeTab === 'community'">
@@ -99,10 +99,7 @@
         </div>
       </section>
 
-      <section
-        v-else-if="activeTab === 'giftshop'"
-        class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-      >
+      <section v-else-if="activeTab === 'giftshop'" class="kr-stage h-full">
         <giftshop-interact class="h-full min-h-0 flex-1 overflow-hidden" />
       </section>
 

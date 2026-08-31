@@ -720,7 +720,7 @@
 
           <!-- Controls bar -->
           <div
-            class="flex shrink-0 flex-wrap items-center gap-2 border-t border-base-300 bg-base-100/90 px-4 py-2.5 backdrop-blur-sm"
+            class="kr-toolbar border-t border-base-300 bg-base-100/90 px-4 py-2.5 backdrop-blur-sm"
           >
             <!-- Start/Pause/Resume/Stop -->
             <template v-if="!store.isRunning">

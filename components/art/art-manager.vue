@@ -97,7 +97,7 @@
 
         <template v-else-if="activeTab === 'artjob'">
           <div
-            class="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-base-300 bg-base-100 px-3 py-2"
+            class="kr-toolbar justify-between border-b border-base-300 bg-base-100 px-3 py-2"
           >
             <div
               role="tablist"

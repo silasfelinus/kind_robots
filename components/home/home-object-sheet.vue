@@ -173,7 +173,7 @@
           Reviews moved inline above instead.
         -->
         <footer
-          class="flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-base-300 p-3"
+          class="kr-toolbar justify-between border-t border-base-300 p-3"
         >
           <p class="text-[0.65rem] text-base-content/45">
             {{ createdLabel }}

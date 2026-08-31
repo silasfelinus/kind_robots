@@ -12,7 +12,7 @@ import {
 assert.ok(AGENT_CREDENTIAL_SCOPES.includes('generation:art'))
 assert.equal(DEFAULT_FORUM_AGENT_SCOPES.includes('generation:art'), false)
 
-const payload = {
+const legacyPayload = {
   forumContext: {
     kind: 'forum-art',
     postId: 44,
@@ -23,7 +23,12 @@ const payload = {
   },
 }
 
-assert.deepEqual(readForumArtGenerationContext(payload), payload.forumContext)
+const parsedLegacy = readForumArtGenerationContext(legacyPayload)
+assert.equal(parsedLegacy?.postId, 44)
+assert.equal(parsedLegacy?.threadId, 40)
+assert.equal(parsedLegacy?.userId, 7)
+assert.equal(parsedLegacy?.botId, 12)
+assert.equal(parsedLegacy?.mode, undefined)
 assert.equal(
   readForumArtGenerationContext({ forumContext: { kind: 'forum-art' } }),
   null,
@@ -34,7 +39,13 @@ assert.equal(readForumArtGenerationContext({}), null)
   const updates: unknown[] = []
   const tx = {
     chat: {
-      findFirst: async () => ({ id: 44, originId: 40, botId: 12 }),
+      findFirst: async () => ({
+        id: 44,
+        originId: 40,
+        botId: 12,
+        channel: 'creativity',
+        isMature: false,
+      }),
       update: async (input: unknown) => {
         updates.push(input)
         return {}
@@ -42,7 +53,7 @@ assert.equal(readForumArtGenerationContext({}), null)
     },
   }
 
-  const result = await attachCompletedForumArt(tx as never, payload, 900, 7)
+  const result = await attachCompletedForumArt(tx as never, legacyPayload, 900, 7)
   assert.equal(result?.status, 'ATTACHED')
   assert.deepEqual(updates, [
     {
@@ -50,6 +61,54 @@ assert.equal(readForumArtGenerationContext({}), null)
       data: { ArtImage: { connect: { id: 900 } } },
     },
   ])
+}
+
+const contributionPayload = {
+  forumContext: {
+    kind: 'forum-art',
+    postId: 55,
+    threadId: 40,
+    userId: 9,
+    botId: 18,
+    requestedAt: '2026-08-31T09:30:00.000Z',
+    mode: 'contribute',
+    actorDisplayName: 'Butterfly Builder',
+    actorBotName: 'Butterfly Builder',
+    actorShadowRestricted: false,
+  },
+}
+
+{
+  const creates: any[] = []
+  const tx = {
+    chat: {
+      findFirst: async () => ({
+        id: 55,
+        originId: 40,
+        botId: 99,
+        channel: 'creativity',
+        isMature: false,
+      }),
+      create: async (input: any) => {
+        creates.push(input)
+        return { id: 77 }
+      },
+    },
+  }
+
+  const result = await attachCompletedForumArt(
+    tx as never,
+    contributionPayload,
+    901,
+    9,
+  )
+  assert.equal(result?.status, 'CONTRIBUTION')
+  assert.equal(result?.contributionPostId, 77)
+  assert.equal(creates.length, 1)
+  assert.equal(creates[0].data.originId, 40)
+  assert.equal(creates[0].data.previousEntryId, 40)
+  assert.deepEqual(creates[0].data.ArtImage, { connect: { id: 901 } })
+  assert.match(creates[0].data.content, /Built on forum contribution #55/)
 }
 
 {
@@ -64,20 +123,15 @@ assert.equal(readForumArtGenerationContext({}), null)
     },
   }
 
-  const result = await attachCompletedForumArt(tx as never, payload, 901, 7)
+  const result = await attachCompletedForumArt(tx as never, legacyPayload, 902, 7)
   assert.equal(result?.status, 'SKIPPED')
   assert.equal(result?.reason, 'forum-post-unavailable')
   assert.equal(updated, false)
 }
 
 {
-  const tx = {
-    chat: {
-      findFirst: async () => ({ id: 44, originId: 40, botId: 12 }),
-      update: async () => ({}),
-    },
-  }
-  const result = await attachCompletedForumArt(tx as never, payload, 902, 99)
+  const tx = { chat: { findFirst: async () => null } }
+  const result = await attachCompletedForumArt(tx as never, contributionPayload, 903, 99)
   assert.equal(result?.status, 'SKIPPED')
   assert.equal(result?.reason, 'job-user-mismatch')
 }
@@ -94,19 +148,15 @@ const [comfyGate, generationMana, actionRoute, completionRoute, handoff] =
 assert.match(comfyGate, /requireScopedApiUser\(event, 'generation:art'\)/)
 assert.match(generationMana, /requireScopedApiUser\(event, 'generation:art'\)/)
 assert.match(actionRoute, /authHasScope\(actor\.auth, 'generation:art'\)/)
+assert.match(actionRoute, /mode: 'attach' \| 'contribute'/)
+assert.match(actionRoute, /hasCanonicalObject/)
+assert.match(actionRoute, /post\.botId \?\? actor\.botId/)
 assert.match(actionRoute, /forum-art-enqueue:/)
 assert.match(completionRoute, /attachCompletedForumArt/)
 
-// Prose assertions match against whitespace-collapsed content: Prettier is
-// free to rewrap this paragraph's template text across lines however it
-// likes (and has, more than once), which would otherwise break a raw
-// multi-word match that assumes a single literal space between words that
-// happen to land on the same source line today.
 const handoffProse = handoff.replace(/\s+/g, ' ')
 assert.match(handoffProse, /Generation resources are not donations\./)
-assert.match(
-  handoffProse,
-  /Rainbow Butterflies never receives a spend-capable credential\./,
-)
+assert.match(handoffProse, /Existing objects are never overwritten/)
+assert.match(handoffProse, /provenance chain/)
 
 console.log('verifyForumGeneration.test.ts: all assertions passed')

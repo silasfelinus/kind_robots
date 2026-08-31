@@ -59,6 +59,7 @@ export type MissionMetricSummary = {
   privacy: {
     visitorIdsStored: false
     ipAddressesStored: false
+    exactEventTimesStored: false
     referrersStored: false
     userAgentsStored: false
     donationIdentitiesKnown: false
@@ -73,12 +74,20 @@ function rateLimitKey(event: H3Event): string {
   return getRequestIP(event, { xForwardedFor: true }) || 'unknown'
 }
 
+function sweepExpiredRateWindows(now: number): void {
+  for (const [key, value] of rateWindows) {
+    if (value.resetAt <= now) rateWindows.delete(key)
+  }
+}
+
 export function assertMissionEventRateLimit(event: H3Event): void {
   const now = Date.now()
+  sweepExpiredRateWindows(now)
+
   const key = rateLimitKey(event)
   const current = rateWindows.get(key)
 
-  if (!current || current.resetAt <= now) {
+  if (!current) {
     rateWindows.set(key, { count: 1, resetAt: now + RATE_WINDOW_MS })
     return
   }
@@ -97,20 +106,26 @@ export function assertMissionEventRateLimit(event: H3Event): void {
   current.count += 1
 }
 
+function utcDayBucket(value = new Date()): Date {
+  const day = new Date(value)
+  day.setUTCHours(0, 0, 0, 0)
+  return day
+}
+
 export async function recordMissionEvent(input: MissionEventInput): Promise<void> {
   await prisma.log.create({
     data: {
       message: encodeMissionEventLog(input),
       username: MISSION_LOG_USERNAME,
       userId: null,
-      timestamp: new Date(),
+      // Mission reporting needs daily trends, not an exact click timestamp.
+      timestamp: utcDayBucket(),
     },
   })
 }
 
 function periodStart(days: number): Date {
-  const start = new Date()
-  start.setUTCHours(0, 0, 0, 0)
+  const start = utcDayBucket()
   start.setUTCDate(start.getUTCDate() - (days - 1))
   return start
 }
@@ -248,6 +263,7 @@ export async function summarizeMissionMetrics(days: number): Promise<MissionMetr
     privacy: {
       visitorIdsStored: false,
       ipAddressesStored: false,
+      exactEventTimesStored: false,
       referrersStored: false,
       userAgentsStored: false,
       donationIdentitiesKnown: false,

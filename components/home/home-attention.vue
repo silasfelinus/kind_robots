@@ -89,7 +89,7 @@
       <div
         v-for="gate in gates"
         :key="gateKey(gate)"
-        class="min-w-0 rounded-lg border border-base-300 bg-base-100 transition-colors"
+        class="min-w-0 kr-panel-flat rounded-lg transition-colors"
         :class="
           openKey === gateKey(gate) ? 'border-primary [grid-column:1/-1]' : ''
         "

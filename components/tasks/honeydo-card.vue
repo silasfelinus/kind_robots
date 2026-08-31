@@ -10,7 +10,7 @@
 -->
 <template>
   <div
-    class="flex flex-col gap-1 rounded-2xl border px-4 py-3 transition-colors"
+    class="flex flex-col gap-1 kr-panel-flat px-4 py-3 transition-colors"
     :class="cardClass"
   >
     <div class="flex items-center gap-3">
@@ -130,10 +130,10 @@ const isDone = computed(() => props.todo.status === 'DONE')
 
 const cardClass = computed(() =>
   isDone.value
-    ? 'opacity-60 border-base-300 bg-base-100'
+    ? 'opacity-60'
     : props.todo.priority === 'HIGH'
       ? 'border-error/30 bg-error/5'
-      : 'border-base-300 bg-base-100',
+      : '',
 )
 
 function relativeTime(iso: string): string {

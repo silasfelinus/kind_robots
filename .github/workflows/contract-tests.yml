@@ -928,6 +928,9 @@ jobs:
       - name: Narrator lore-topic "why" guard contract
         run: npm run test:narrator-lore-topic-why-guard
 
+      - name: Narrator Dream-switch seed reset contract
+        run: npm run test:narrator-dream-switch-seed-reset-guard
+
       - name: Fetch main for capture-group guard diff
         run: git fetch origin main
 

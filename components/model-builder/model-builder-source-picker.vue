@@ -95,6 +95,27 @@
         </button>
       </div>
 
+      <!--
+        Empty state (model-builder/t-029, cycle 55/68): a successful load with
+        zero records fell through to this point with no branch to catch it --
+        the gallery/grid/list containers below all render on `v-else`-style
+        chains keyed to `viewMode`, so an empty `store.sources` produced a
+        blank panel with no feedback that the fetch actually completed.
+        Distinct from the sourcesError branch above (a failed request) and
+        the loadingSources branch (still in flight) -- this is specifically
+        "finished, worked, nothing came back".
+      -->
+      <div
+        v-else-if="!store.sources.length"
+        class="flex h-full min-h-32 flex-col items-center justify-center gap-1 kr-panel-flat border-dashed p-6 text-center text-sm text-base-content/50"
+      >
+        <Icon
+          :name="activeType?.icon || 'kind-icon:blueprint'"
+          class="h-6 w-6 text-base-content/30"
+        />
+        No {{ activeType?.plural.toLowerCase() }} yet.
+      </div>
+
       <!-- GALLERY: image-forward tiles, packs tight to kill whitespace -->
       <div
         v-else-if="viewMode === 'gallery'"

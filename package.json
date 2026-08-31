@@ -379,6 +379,8 @@
     "test:model-builder-step-content-focus-guard": "tsx utils/scripts/verifyModelBuilderStepContentFocusGuard.ts",
     "test:model-builder-source-loading-announcement-guard-selftest": "tsx utils/scripts/verifyModelBuilderSourceLoadingAnnouncementGuard.test.ts",
     "test:model-builder-source-loading-announcement-guard": "tsx utils/scripts/verifyModelBuilderSourceLoadingAnnouncementGuard.ts",
+    "test:model-builder-source-empty-state-guard-selftest": "tsx utils/scripts/verifyModelBuilderSourceEmptyStateGuard.test.ts",
+    "test:model-builder-source-empty-state-guard": "tsx utils/scripts/verifyModelBuilderSourceEmptyStateGuard.ts",
     "test:model-builder-source-field-guard-selftest": "tsx utils/scripts/verifyModelBuilderSourceFieldGuard.test.ts",
     "test:model-builder-source-field-guard": "tsx utils/scripts/verifyModelBuilderSourceFieldGuard.ts",
     "test:model-builder-contract-tests-coverage-guard-selftest": "tsx utils/scripts/verifyModelBuilderContractTestsCoverageGuard.test.ts",

@@ -824,6 +824,12 @@ jobs:
       - name: Model Builder source loading announcement guard contract
         run: npm run test:model-builder-source-loading-announcement-guard
 
+      - name: Model Builder source empty-state guard self-test
+        run: npm run test:model-builder-source-empty-state-guard-selftest
+
+      - name: Model Builder source empty-state guard contract
+        run: npm run test:model-builder-source-empty-state-guard
+
       - name: Model Builder source-field guard self-test
         run: npm run test:model-builder-source-field-guard-selftest
 

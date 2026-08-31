@@ -14,6 +14,8 @@ Each event may carry three low-cardinality labels: `source`, `campaign`, and `pl
 
 Accepted events are written to the existing Kind Robots `Log` model as JSON with `username = rainbow-metrics` and `userId = null`. The payload contains only the event and those three coarse labels. It does not contain a visitor identifier, account id, IP address, user agent, referrer, full URL, browser fingerprint, or arbitrary metadata.
 
+Event timestamps are deliberately reduced to the UTC day (`00:00:00`) before storage. The reporting goal is a daily funnel, so retaining an exact visit/click time would add needless identifying detail without improving the decision signal.
+
 The public ingest endpoint uses the request IP transiently in process memory for a one-minute anti-abuse rate-limit bucket. The IP is not persisted, logged, returned, hashed into a durable identifier, or combined with other signals.
 
 ## What is derived from canonical Kind Robots state

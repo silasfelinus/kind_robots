@@ -36,7 +36,7 @@
       :show-stats="true"
     />
 
-    <section v-else class="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden">
+    <section v-else class="kr-stage gap-4">
       <div class="flex shrink-0 flex-wrap gap-2 kr-panel-flat p-2">
         <button
           v-for="tab in modeTabs"

@@ -24,11 +24,6 @@
         </div>
       </header>
 
-      <div v-if="!isLoggedIn" class="alert alert-warning text-sm" role="alert">
-        You need to be signed in to run an analysis — the coaching step is
-        billed to your account's mana.
-      </div>
-
       <!-- File -->
       <section class="space-y-2">
         <label class="font-semibold">
@@ -127,7 +122,7 @@
           <div
             v-for="row in featureRows"
             :key="row.label"
-            class="flex justify-between gap-3 rounded-lg border border-base-300 bg-base-100 px-3 py-2"
+            class="kr-panel-flat flex justify-between gap-3 rounded-lg px-3 py-2"
           >
             <span class="opacity-70">{{ row.label }}</span>
             <span class="font-medium text-right">{{ row.value }}</span>
@@ -178,110 +173,57 @@ const canAnalyze = computed(
   () =>
     isLoggedIn.value &&
     !store.isBusy &&
-    !!file.value &&
+    file.value !== null &&
     selected.value.length > 0,
 )
 
 const analyzeLabel = computed(() => {
-  if (store.state.status === 'extracting') return 'Listening…'
-  if (store.state.status === 'thinking') return 'Thinking…'
+  if (!isLoggedIn.value) return 'Sign in to analyze'
+  if (store.isBusy) return 'Analyzing…'
+  if (!file.value) return 'Choose a recording first'
   return 'Analyze my medley'
 })
-
-function onFileChange(event: Event) {
-  const target = event.target as HTMLInputElement
-  const picked = target.files?.[0] ?? null
-  store.reset()
-  if (!picked) {
-    file.value = null
-    fileName.value = ''
-    return
-  }
-  const sizeMb = picked.size / (1024 * 1024)
-  if (sizeMb > MAX_MB) {
-    file.value = null
-    fileName.value = ''
-    store.state.status = 'error'
-    store.state.error = `That file is ${sizeMb.toFixed(0)} MB — please keep it under ${MAX_MB} MB (a shorter clip, or export just the audio).`
-    return
-  }
-  file.value = picked
-  fileName.value = picked.name
-  fileSizeMb.value = sizeMb.toFixed(1)
-}
-
-function toggle(value: MentorDimension) {
-  selected.value = selected.value.includes(value)
-    ? selected.value.filter((v) => v !== value)
-    : [...selected.value, value]
-}
 
 const featureRows = computed(() => {
   const f = store.state.features
   if (!f) return []
-  const dash = (v: unknown) => (v === null || v === undefined ? '—' : String(v))
+  const fmt = (n: number | null, suffix = '') =>
+    n === null ? '—' : `${n.toFixed(1)}${suffix}`
   return [
-    { label: 'Duration', value: `${f.durationSec}s` },
-    { label: 'Voiced', value: `${f.pitch.voicedPercent}%` },
-    {
-      label: 'Median pitch',
-      value: f.pitch.medianNoteName
-        ? `${f.pitch.medianNoteName} (${dash(f.pitch.medianPitchHz)} Hz)`
-        : '—',
-    },
-    { label: 'Est. key', value: dash(f.pitch.estimatedKey) },
-    {
-      label: 'Intonation (avg off)',
-      value:
-        f.pitch.meanAbsCentsOff != null
-          ? `${f.pitch.meanAbsCentsOff} cents`
-          : '—',
-    },
-    {
-      label: 'Vocal range',
-      value:
-        f.pitch.rangeSemitones != null
-          ? `${f.pitch.rangeSemitones} semitones`
-          : '—',
-    },
-    {
-      label: 'Vibrato',
-      value:
-        f.pitch.vibratoRateHz != null ? `${f.pitch.vibratoRateHz} Hz` : '—',
-    },
-    {
-      label: 'Tempo',
-      value:
-        f.timing.estimatedTempoBpm != null
-          ? `${f.timing.estimatedTempoBpm} BPM`
-          : '—',
-    },
-    {
-      label: 'Tempo steadiness',
-      value:
-        f.timing.tempoStability != null
-          ? `${Math.round(f.timing.tempoStability * 100)}%`
-          : '—',
-    },
-    { label: 'Timing trend', value: dash(f.timing.rushDragTrend) },
-    {
-      label: 'Loudness range',
-      value:
-        f.dynamics.loudnessRangeDb != null
-          ? `${f.dynamics.loudnessRangeDb} dB`
-          : '—',
-    },
-    { label: 'Dynamic trend', value: dash(f.dynamics.overallTrend) },
-    { label: 'Sections (approx)', value: dash(f.structure.approxSectionCount) },
+    { label: 'Duration', value: fmt(f.durationSec, ' s') },
+    { label: 'Tempo', value: fmt(f.tempoBpm, ' BPM') },
+    { label: 'Pitch center', value: fmt(f.pitchCenterHz, ' Hz') },
+    { label: 'Pitch stability', value: fmt(f.pitchStabilityCents, ' ¢') },
+    { label: 'Pitch range', value: fmt(f.pitchRangeSemitones, ' semitones') },
+    { label: 'Dynamic range', value: fmt(f.dynamicRangeDb, ' dB') },
+    { label: 'Voiced', value: fmt(f.voicedFraction * 100, '%') },
+    { label: 'Sections detected', value: String(f.sectionCount) },
   ]
 })
 
+function toggle(d: MentorDimension) {
+  const i = selected.value.indexOf(d)
+  if (i >= 0) selected.value.splice(i, 1)
+  else selected.value.push(d)
+}
+
+function onFileChange(e: Event) {
+  const input = e.target as HTMLInputElement
+  const f = input.files?.[0] ?? null
+  if (!f) return
+  if (f.size > MAX_MB * 1024 * 1024) {
+    store.state.error = `File is too large. Maximum is ${MAX_MB} MB.`
+    input.value = ''
+    return
+  }
+  file.value = f
+  fileName.value = f.name
+  fileSizeMb.value = (f.size / 1024 / 1024).toFixed(1)
+  store.reset()
+}
+
 async function run() {
-  if (!canAnalyze.value || !file.value) return
-  await store.analyze({
-    file: file.value,
-    setlist: setlist.value,
-    dimensions: selected.value,
-  })
+  if (!file.value || !canAnalyze.value) return
+  await store.analyze(file.value, selected.value, setlist.value)
 }
 </script>

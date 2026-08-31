@@ -99,88 +99,136 @@
               loading="lazy"
               class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
-            <div v-else class="flex h-full items-center justify-center bg-base-200">
-              <Icon name="kind-icon:gallery" class="h-12 w-12 text-base-content/20" />
+            <div v-else class="flex h-full items-center justify-center">
+              <Icon name="kind-icon:gallery" class="h-10 w-10 text-base-content/20" />
             </div>
-            <div class="absolute inset-0 bg-linear-to-t from-base-content/70 via-transparent to-transparent" />
-            <span
-              class="absolute bottom-3 left-3 rounded-full bg-base-100/90 px-2.5 py-1 text-[0.65rem] font-black uppercase tracking-wider text-base-content shadow-sm backdrop-blur"
+
+            <div class="absolute inset-0 bg-linear-to-t from-black/80 via-black/10 to-black/10" />
+
+            <div class="absolute left-3 top-3 flex flex-wrap gap-1.5">
+              <span class="badge border-0 bg-base-100/90 text-[0.65rem] font-bold text-base-content shadow-sm backdrop-blur">
+                {{ style.era }}
+              </span>
+              <span class="badge border-0 bg-base-100/80 text-[0.65rem] text-base-content/75 shadow-sm backdrop-blur">
+                {{ style.region }}
+              </span>
+            </div>
+
+            <div
+              v-if="academyStore.viewedLessons.includes(style.slug)"
+              class="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-success text-success-content shadow-md"
+              title="Lesson explored"
             >
-              {{ style.period }}
-            </span>
+              <Icon name="kind-icon:check" class="h-4 w-4" aria-hidden="true" />
+              <span class="sr-only">Lesson explored</span>
+            </div>
+
+            <div class="absolute inset-x-0 bottom-0 p-4">
+              <p class="text-lg font-black leading-tight text-white drop-shadow sm:text-xl">
+                {{ style.name }}
+              </p>
+            </div>
           </div>
 
-          <div class="flex flex-1 flex-col p-4">
-            <h3 class="text-lg font-black leading-tight text-base-content">
-              {{ style.name }}
-            </h3>
-            <p class="mt-1 line-clamp-2 text-sm leading-relaxed text-base-content/60">
-              {{ style.summary }}
+          <div class="flex flex-1 flex-col gap-3 p-4">
+            <p class="line-clamp-2 text-sm leading-relaxed text-base-content/70">
+              {{ style.recognitionCues[0] }}
             </p>
-            <div class="mt-auto flex items-center justify-between gap-2 pt-4">
-              <span class="text-xs font-bold text-primary">Open lesson</span>
-              <Icon name="kind-icon:arrow-right" class="h-4 w-4 text-primary transition-transform group-hover:translate-x-0.5" />
+            <div class="mt-auto flex items-center justify-between gap-3 text-xs font-bold text-primary">
+              <span>Enter the gallery</span>
+              <Icon
+                name="kind-icon:arrow-right"
+                class="h-4 w-4 transition-transform group-hover:translate-x-1"
+                aria-hidden="true"
+              />
             </div>
           </div>
         </button>
 
-        <article
-          v-else
-          :id="`academy-style-detail-${style.slug}`"
-          class="kr-panel-flat overflow-hidden rounded-3xl shadow-lg"
-        >
-          <div class="flex items-center justify-between gap-3 border-b border-base-300 p-4 sm:p-5">
-            <div class="min-w-0">
-              <p class="text-xs font-black uppercase tracking-[0.16em] text-primary">
-                {{ style.period }}
-              </p>
-              <h3 class="truncate text-xl font-black sm:text-2xl">{{ style.name }}</h3>
-            </div>
-            <button
-              type="button"
-              class="btn btn-ghost btn-sm rounded-xl"
-              :aria-controls="`academy-style-detail-${style.slug}`"
-              aria-expanded="true"
-              @click="collapse(style.slug)"
-            >
-              <Icon name="kind-icon:x" class="size-4" />
-              Close
-            </button>
-          </div>
-          <academy-style-detail :style="style" />
-        </article>
+        <div v-else :id="`academy-style-detail-${style.slug}`" class="py-1">
+          <academy-style-detail
+            :lesson="style"
+            @close="closeLesson(style.slug)"
+            @remix="emit('remix', $event)"
+          />
+        </div>
       </li>
     </ol>
   </section>
 </template>
 
 <script setup lang="ts">
-import type { ComponentPublicInstance } from 'vue'
-import { computed, nextTick, ref } from 'vue'
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  type ComponentPublicInstance,
+} from 'vue'
 import { useAcademyStore } from '@/stores/academyStore'
+
+const emit = defineEmits<{
+  remix: [styleSlug: string]
+}>()
 
 const academyStore = useAcademyStore()
 const expandedSlug = ref<string | null>(null)
-const toggleRefs = new Map<string, HTMLElement>()
 
 const heroStyles = computed(() => {
-  const timeline = academyStore.timeline.filter((style) => style.previewImageSrc)
+  const timeline = academyStore.timeline
   if (timeline.length <= 3) return timeline
-  return [timeline[0], timeline[Math.floor(timeline.length / 2)], timeline[timeline.length - 1]].filter(Boolean)
+  const middle = Math.floor(timeline.length / 2)
+  return [timeline[0], timeline[middle], timeline[timeline.length - 1]].filter(
+    (style): style is NonNullable<typeof style> => Boolean(style),
+  )
 })
 
 function timelineImageAspect(index: number) {
-  return index % 5 === 0 ? 'aspect-[4/3]' : index % 3 === 0 ? 'aspect-[3/2]' : 'aspect-[16/10]'
+  if (index % 11 === 0) return 'aspect-[16/9]'
+  if (index % 5 === 0) return 'aspect-square'
+  return 'aspect-[4/3]'
 }
 
-function setToggleRef(slug: string, el: Element | ComponentPublicInstance | null) {
-  if (el instanceof HTMLElement) toggleRefs.set(slug, el)
-  else toggleRefs.delete(slug)
+// Collapsing an expanded lesson unmounts its close button (v-if/v-else swap
+// with the toggle button), so the browser drops focus to <body> with no
+// fix — keyboard/screen-reader users lose their place in the timeline.
+// Track each toggle button so we can restore focus to it after closing.
+const toggleRefs = new Map<string, HTMLButtonElement>()
+
+function setToggleRef(
+  slug: string,
+  el: Element | ComponentPublicInstance | null,
+) {
+  if (el instanceof HTMLButtonElement) {
+    toggleRefs.set(slug, el)
+  } else {
+    toggleRefs.delete(slug)
+  }
 }
 
-async function collapse(slug: string) {
+function closeLesson(slug: string) {
   expandedSlug.value = null
-  await nextTick()
-  toggleRefs.get(slug)?.focus()
+  nextTick(() => {
+    toggleRefs.get(slug)?.focus()
+  })
 }
+
+function onKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape' && expandedSlug.value) {
+    closeLesson(expandedSlug.value)
+  }
+}
+
+onMounted(() => {
+  if (typeof window !== 'undefined') {
+    window.addEventListener('keydown', onKeydown)
+  }
+})
+
+onBeforeUnmount(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('keydown', onKeydown)
+  }
+})
 </script>

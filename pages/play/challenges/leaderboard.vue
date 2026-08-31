@@ -21,7 +21,7 @@
       </nav>
 
       <header
-        class="relative isolate overflow-hidden rounded-3xl border border-base-300 bg-base-100 p-5 shadow-xl sm:p-8"
+        class="kr-panel-flat relative isolate overflow-hidden rounded-3xl p-5 shadow-xl sm:p-8"
       >
         <div
           class="pointer-events-none absolute inset-0 bg-gradient-to-br from-warning/20 via-transparent to-primary/20"
@@ -64,9 +64,7 @@
         </div>
       </header>
 
-      <section
-        class="rounded-3xl border border-base-300 bg-base-100 p-4 shadow-lg sm:p-6"
-      >
+      <section class="kr-panel-flat rounded-3xl p-4 shadow-lg sm:p-6">
         <div class="flex flex-wrap items-end justify-between gap-4">
           <fieldset>
             <legend
@@ -139,7 +137,7 @@
         <div
           v-for="n in 3"
           :key="n"
-          class="h-72 animate-pulse rounded-3xl border border-base-300 bg-base-100"
+          class="kr-panel-flat h-72 animate-pulse rounded-3xl"
         />
       </div>
 
@@ -210,9 +208,7 @@
           </article>
         </div>
 
-        <div
-          class="overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-lg"
-        >
+        <div class="kr-panel-flat overflow-hidden rounded-3xl shadow-lg">
           <div class="overflow-x-auto">
             <table class="table">
               <thead class="bg-base-200/70 text-xs uppercase tracking-wider">

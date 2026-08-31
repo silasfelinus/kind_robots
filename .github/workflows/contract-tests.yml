@@ -925,6 +925,9 @@ jobs:
       - name: Reaction first-party author runtime contract
         run: npx tsx utils/scripts/verifyFirstPartyReactionAuthor.ts
 
+      - name: Narrator lore-topic "why" guard contract
+        run: npm run test:narrator-lore-topic-why-guard
+
       - name: Fetch main for capture-group guard diff
         run: git fetch origin main
 

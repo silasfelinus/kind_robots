@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import { performFetch } from '@/stores/utils'
 
 type ForumAttachment = {
-  kind: 'ART_IMAGE' | 'PROJECT'
+  kind: 'ART_IMAGE' | 'PROJECT' | 'CHARACTER'
   id: number
   title: string
   canonicalUrl: string
@@ -22,11 +22,14 @@ type ForumPost = {
   }
 }
 
+type QueueMode = 'attach' | 'contribute'
+
 type QueueResponse = {
   jobId: number
   status: 'PENDING' | 'RUNNING' | 'DONE' | 'FAILED' | 'CANCELLED'
   postId: number
   threadId: number
+  mode: QueueMode
   mana: {
     balance: number
     charged: number
@@ -49,7 +52,7 @@ function defaultPrompt(post: ForumPost): string {
     .filter(Boolean)
     .join('\n\n')
   const prefix =
-    'Create an illustration inspired by this public forum contribution:\n\n'
+    'Create a new illustration that builds constructively on this public forum contribution. Preserve the useful idea, but make a distinct reusable work:\n\n'
   return `${prefix}${source}`.slice(0, MAX_PROMPT_LENGTH)
 }
 
@@ -65,6 +68,8 @@ export const useForumGenerationStore = defineStore(
     const loadingPost = ref(false)
     const queueing = ref(false)
     const job = ref<ArtJob | null>(null)
+    const queueMode = ref<QueueMode | null>(null)
+    const completedArtId = ref<number | null>(null)
     const message = ref('')
     const error = ref('')
 
@@ -73,6 +78,12 @@ export const useForumGenerationStore = defineStore(
         sourcePost.value?.attachments.find(
           (entry) => entry.kind === 'ART_IMAGE',
         ) ?? null,
+    )
+
+    const completedArtUrl = computed(() =>
+      completedArtId.value
+        ? `https://kindrobots.org/art?art=${completedArtId.value}`
+        : null,
     )
 
     async function loadPost(postId: number): Promise<boolean> {
@@ -119,10 +130,17 @@ export const useForumGenerationStore = defineStore(
 
         job.value = next
         if (next.status === 'DONE') {
-          message.value = next.artImageId
-            ? `ArtImage #${next.artImageId} finished and was attached to the forum post.`
-            : 'The art job finished.'
-          await refreshPost()
+          completedArtId.value = next.artImageId ?? null
+          if (queueMode.value === 'contribute') {
+            message.value = next.artImageId
+              ? `ArtImage #${next.artImageId} finished as a new contribution in the source Commons thread. The original object remains intact.`
+              : 'The contribution job finished.'
+          } else {
+            message.value = next.artImageId
+              ? `ArtImage #${next.artImageId} finished and was attached to the forum post.`
+              : 'The art job finished.'
+            await refreshPost()
+          }
           return
         }
 
@@ -155,6 +173,8 @@ export const useForumGenerationStore = defineStore(
       error.value = ''
       message.value = ''
       job.value = null
+      queueMode.value = null
+      completedArtId.value = null
 
       try {
         const response = await performFetch<QueueResponse>(
@@ -170,11 +190,16 @@ export const useForumGenerationStore = defineStore(
           return false
         }
 
+        queueMode.value = response.data.mode
         job.value = {
           id: response.data.jobId,
           status: response.data.status,
         }
-        message.value = `Queued ArtJob #${response.data.jobId}. Charged ${response.data.mana.charged} generation units; this compute spend is not a charitable donation.`
+        const destination =
+          response.data.mode === 'contribute'
+            ? 'as a new Commons contribution'
+            : 'onto the source post'
+        message.value = `Queued ArtJob #${response.data.jobId} ${destination}. Charged ${response.data.mana.charged} generation units; this compute spend is not a charitable donation.`
         void pollJob(response.data.jobId)
         return true
       } finally {
@@ -186,6 +211,8 @@ export const useForumGenerationStore = defineStore(
       sourcePost.value = null
       promptDraft.value = ''
       job.value = null
+      queueMode.value = null
+      completedArtId.value = null
       message.value = ''
       error.value = ''
     }
@@ -196,6 +223,9 @@ export const useForumGenerationStore = defineStore(
       loadingPost,
       queueing,
       job,
+      queueMode,
+      completedArtId,
+      completedArtUrl,
       message,
       error,
       attachedArt,

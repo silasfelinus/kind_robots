@@ -10,26 +10,23 @@ export type ForumArtGenerationContext = {
   userId: number
   botId: number | null
   requestedAt: string
+  mode?: 'attach' | 'contribute'
+  actorDisplayName?: string
+  actorBotName?: string | null
+  actorShadowRestricted?: boolean
 }
 
 export type ForumArtCompletion = {
-  status: 'ATTACHED' | 'SKIPPED'
+  status: 'ATTACHED' | 'CONTRIBUTION' | 'SKIPPED'
   postId: number
   threadId: number
   artImageId: number
+  contributionPostId?: number
   reason?: string
 }
 
 type ForumCompletionTransaction = Pick<Prisma.TransactionClient, 'chat'>
 
-// Same cast-at-the-boundary idiom as generatedArtCollections.ts's
-// ArtCollectionDb/asArtCollectionDb: the caller's `tx` comes from
-// `prisma.$transaction(async (tx) => ...)`, whose generated client-extension
-// type isn't always structurally assignable to a `Pick<Prisma.TransactionClient,
-// ...>` narrowing across Prisma client regenerations, even though it carries
-// every property the narrowing needs at runtime. Accepting `unknown` and
-// casting internally avoids that false-positive mismatch without widening
-// what this function actually uses `tx` for.
 function asForumCompletionTransaction(tx: unknown): ForumCompletionTransaction {
   return tx as ForumCompletionTransaction
 }
@@ -56,9 +53,31 @@ export function readForumArtGenerationContext(
   const userId = positiveInt(row.userId)
   const botId = row.botId == null ? null : positiveInt(row.botId)
   const requestedAt = typeof row.requestedAt === 'string' ? row.requestedAt : ''
+  const mode =
+    row.mode === 'contribute'
+      ? 'contribute'
+      : row.mode === 'attach'
+        ? 'attach'
+        : undefined
+  const actorDisplayName =
+    typeof row.actorDisplayName === 'string'
+      ? row.actorDisplayName.trim()
+      : undefined
+  const actorBotName =
+    row.actorBotName == null
+      ? null
+      : typeof row.actorBotName === 'string'
+        ? row.actorBotName.trim()
+        : undefined
+  const actorShadowRestricted =
+    typeof row.actorShadowRestricted === 'boolean'
+      ? row.actorShadowRestricted
+      : undefined
 
   if (!postId || !threadId || !userId || !requestedAt) return null
   if (row.botId != null && !botId) return null
+  if (row.actorBotName != null && typeof actorBotName === 'undefined')
+    return null
 
   return {
     kind: 'forum-art',
@@ -67,6 +86,10 @@ export function readForumArtGenerationContext(
     userId,
     botId,
     requestedAt,
+    mode,
+    actorDisplayName,
+    actorBotName,
+    actorShadowRestricted,
   }
 }
 
@@ -91,19 +114,27 @@ export async function attachCompletedForumArt(
     }
   }
 
+  // New contribution-mode jobs may build on any public source contribution.
+  // Legacy/attach jobs retain the stricter original-owner lookup so queued
+  // jobs from older deployments remain safe and behavior-compatible.
+  const contributionMode = context.mode === 'contribute'
   const post = await tx.chat.findFirst({
     where: {
       id: context.postId,
       type: 'ToForum',
       isPublic: true,
       isActive: true,
-      userId: jobUserId,
-      ...(context.botId == null ? {} : { botId: context.botId }),
+      ...(contributionMode ? {} : { userId: jobUserId }),
+      ...(!contributionMode && context.botId != null
+        ? { botId: context.botId }
+        : {}),
     },
     select: {
       id: true,
       originId: true,
       botId: true,
+      channel: true,
+      isMature: true,
     },
   })
 
@@ -117,27 +148,71 @@ export async function attachCompletedForumArt(
     }
   }
 
-  if (context.botId == null && post.botId != null) {
+  if (!contributionMode) {
+    if (context.botId == null && post.botId != null) {
+      return {
+        status: 'SKIPPED',
+        postId: context.postId,
+        threadId: context.threadId,
+        artImageId,
+        reason: 'forum-author-mismatch',
+      }
+    }
+
+    await tx.chat.update({
+      where: { id: post.id },
+      data: {
+        ArtImage: { connect: { id: artImageId } },
+      },
+    })
+
+    return {
+      status: 'ATTACHED',
+      postId: context.postId,
+      threadId: context.threadId,
+      artImageId,
+    }
+  }
+
+  if (!context.actorDisplayName) {
     return {
       status: 'SKIPPED',
       postId: context.postId,
       threadId: context.threadId,
       artImageId,
-      reason: 'forum-author-mismatch',
+      reason: 'missing-contributor-identity',
     }
   }
 
-  await tx.chat.update({
-    where: { id: post.id },
+  const contribution = await tx.chat.create({
     data: {
+      type: 'ToForum',
+      sender: context.actorDisplayName,
+      content: `Built on forum contribution #${post.id}. This generated Kind Robots ArtImage is a new reusable contribution; the source remains intact so the provenance chain can continue.`,
+      title: null,
+      channel: post.channel,
+      isPublic: context.actorShadowRestricted !== true,
+      isActive: true,
+      isMature: post.isMature,
+      originId: context.threadId,
+      // Keep generated contributions shallow even when the source itself is a
+      // deeply nested reply. The source id in content is the provenance pointer;
+      // the thread root is the structural parent so automation cannot bypass the
+      // forum's nesting cap.
+      previousEntryId: context.threadId,
+      User: { connect: { id: jobUserId } },
+      Bot: context.botId ? { connect: { id: context.botId } } : undefined,
+      botName: context.actorBotName ?? null,
       ArtImage: { connect: { id: artImageId } },
     },
+    select: { id: true },
   })
 
   return {
-    status: 'ATTACHED',
+    status: 'CONTRIBUTION',
     postId: context.postId,
     threadId: context.threadId,
     artImageId,
+    contributionPostId: contribution.id,
   }
 }

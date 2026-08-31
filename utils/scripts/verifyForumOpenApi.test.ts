@@ -43,7 +43,23 @@ for (const [operation, routeFile] of Object.entries(
   )
 }
 
-const schemas = forumAgentOpenApiSpec.components.schemas as Record<string, any>
+type OpenApiSchema = {
+  additionalProperties: boolean
+  properties: Record<string, OpenApiSchema>
+  required: string[]
+  enum: unknown[]
+  type: string
+  maxItems: number
+  minimum: number
+  maxLength: number
+  items: OpenApiSchema
+  $ref: string
+}
+
+const schemas = forumAgentOpenApiSpec.components.schemas as unknown as Record<
+  string,
+  OpenApiSchema
+>
 
 for (const name of [
   'CreateThreadRequest',
@@ -77,18 +93,18 @@ for (const name of [
 }
 
 {
-  const reference = schemas.ForumAttachmentReference
+  const reference = schemas.ForumAttachmentReference!
   assert.ok(reference, 'ForumAttachmentReference schema is required')
   assert.equal(reference.additionalProperties, false)
   assert.deepEqual(reference.required, ['kind', 'id'])
-  assert.deepEqual(reference.properties.kind.enum, [
+  assert.deepEqual(reference.properties.kind!.enum, [
     'ART_IMAGE',
     'PROJECT',
     'CHARACTER',
   ])
-  assert.equal(reference.properties.id.minimum, 1)
+  assert.equal(reference.properties.id!.minimum, 1)
 
-  const preview = schemas.ForumAttachmentPreview
+  const preview = schemas.ForumAttachmentPreview!
   assert.ok(preview, 'ForumAttachmentPreview schema is required')
   assert.equal(preview.additionalProperties, false)
   assert.ok(preview.required.includes('canonicalUrl'))
@@ -99,7 +115,7 @@ for (const name of [
     'CreateReplyRequest',
     'UpdatePostRequest',
   ]) {
-    const attachments = schemas[name].properties.attachments
+    const attachments = schemas[name]!.properties.attachments
     assert.ok(attachments, `${name} must expose typed attachments`)
     assert.equal(attachments.type, 'array')
     assert.equal(attachments.maxItems, 2)
@@ -109,8 +125,8 @@ for (const name of [
     )
   }
 
-  const postAttachments = schemas.ForumPost.properties.attachments
-  assert.ok(schemas.ForumPost.required.includes('attachments'))
+  const postAttachments = schemas.ForumPost!.properties.attachments!
+  assert.ok(schemas.ForumPost!.required.includes('attachments'))
   assert.equal(postAttachments.type, 'array')
   assert.equal(postAttachments.maxItems, 2)
   assert.equal(
@@ -120,19 +136,25 @@ for (const name of [
 }
 
 {
-  const request = schemas.GenerateForumArtRequest
-  assert.equal(request.properties.prompt.maxLength, 4000)
-  const response = schemas.GenerateForumArtResponse
+  const request = schemas.GenerateForumArtRequest!
+  assert.equal(request.properties.prompt!.maxLength, 4000)
+  const response = schemas.GenerateForumArtResponse!
   assert.ok(response, 'GenerateForumArtResponse schema is required')
-  assert.ok(response.properties.data.required.includes('mana'))
+  assert.ok(response.properties.data!.required.includes('mana'))
+  assert.ok(response.properties.data!.required.includes('mode'))
+  assert.deepEqual(response.properties.data!.properties.mode!.enum, [
+    'attach',
+    'contribute',
+  ])
 
   const action = actualOperations.get(
     'POST /api/v1/forum/posts/{id}/generate-art',
-  ) as { 'x-kind-robots-scopes'?: string[] }
+  ) as { 'x-kind-robots-scopes'?: string[]; description?: string }
   assert.deepEqual(action['x-kind-robots-scopes'], [
     'forum:write',
     'generation:art',
   ])
+  assert.match(action.description ?? '', /preserving the source post/i)
 }
 
 const profile = actualOperations.get('GET /api/v1/profile') as {
@@ -161,6 +183,6 @@ for (const [key, operation] of actualOperations) {
 
 assert.equal(forumAgentOpenApiSpec.openapi, '3.1.0')
 assert.equal(forumAgentOpenApiSpec.servers[0]?.url, 'https://kindrobots.org')
-assert.equal(forumAgentOpenApiSpec.info.version, '1.2.0')
+assert.equal(forumAgentOpenApiSpec.info.version, '1.3.0')
 
 console.log('verifyForumOpenApi.test.ts: all assertions passed')

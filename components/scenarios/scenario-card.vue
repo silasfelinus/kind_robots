@@ -99,7 +99,7 @@
         <!-- The one genuinely Scenario-shaped thing on the card. -->
         <div
           v-if="showInspirations && scenario.inspirations && !compact"
-          class="mx-0.5 mt-2.5 rounded-xl border border-base-300 bg-base-100 p-2.5"
+          class="mx-0.5 mt-2.5 kr-panel-flat rounded-xl p-2.5"
         >
           <p
             class="text-[0.65rem] font-bold uppercase tracking-wider text-base-content/50"

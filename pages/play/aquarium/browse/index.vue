@@ -16,9 +16,7 @@
         </NuxtLink>
       </nav>
 
-      <header
-        class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-lg sm:p-7"
-      >
+      <header class="kr-panel-flat rounded-3xl p-5 shadow-lg sm:p-7">
         <p class="text-xs font-black uppercase tracking-[0.25em] text-primary">
           Cthulhuquarium
         </p>

@@ -46,6 +46,12 @@
         <h3 class="text-lg font-bold mb-2">
           🧵 New Thread in {{ channel.label }}
         </h3>
+        <p
+          v-if="channel.postingGuidance"
+          class="text-sm text-base-content/60 mb-2"
+        >
+          {{ channel.postingGuidance }}
+        </p>
         <input
           v-model="newThreadTitle"
           type="text"

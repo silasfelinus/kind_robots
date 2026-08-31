@@ -250,7 +250,23 @@ export const narratorLoreTopics: NarratorLoreTopic[] = [
     icon: 'kind-icon:hand-heart',
     answer:
       'The mission is to empower artists and prompt-engineers to create and share content with modern AI tools — and to turn that creativity into benefit for humanity.',
-    keywords: ['purpose', 'mission', 'why', 'goal'],
+    // 'why' alone is deliberately excluded: it's a bare, generic word that
+    // shows up in countless unrelated story questions ("why did the captain
+    // leave?"), so a plain substring match on it hijacked ordinary narrator
+    // chat. Explicit multi-word "why ... exist/here" phrasings still route
+    // to this topic without that false-positive risk.
+    keywords: [
+      'purpose',
+      'mission',
+      'goal',
+      'why does this exist',
+      'why does this site exist',
+      'why this site exists',
+      'why do you exist',
+      'why does kind robots exist',
+      'point of this site',
+      'reason this exists',
+    ],
   },
   {
     key: 'mascot',

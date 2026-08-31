@@ -302,7 +302,7 @@ const renderedTab = computed<string | null>(() => {
   const fallback = getDashboardDefaultTab(props.dashboardKey)
   if (hasSlot(fallback)) {
     console.warn(
-      `⚠️ ${props.dashboardKey} manager has no slot for tab "${activeTab.value}" -- showing "${fallback}"`,
+      `\\u26A0\\uFE0F ${props.dashboardKey} manager has no slot for tab "${activeTab.value}" -- showing "${fallback}"`,
     )
     return fallback
   }

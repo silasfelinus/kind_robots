@@ -2,7 +2,7 @@
 <template>
   <section class="kr-container max-w-[1600px] flex flex-col gap-5">
     <header
-      class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,30rem),1fr))] overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-sm"
+      class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,30rem),1fr))] overflow-hidden kr-panel-flat rounded-3xl shadow-sm"
     >
       <div class="flex flex-col justify-center gap-4 p-5 sm:p-7">
         <div class="flex items-center gap-2 text-primary">
@@ -86,7 +86,7 @@
           v-if="expandedSlug !== style.slug"
           :ref="(el) => setToggleRef(style.slug, el)"
           type="button"
-          class="group flex h-full w-full flex-col overflow-hidden rounded-3xl border border-base-300 bg-base-100 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          class="group flex h-full w-full flex-col overflow-hidden kr-panel-flat rounded-3xl text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           aria-expanded="false"
           :aria-controls="`academy-style-detail-${style.slug}`"
           @click="expandedSlug = style.slug"

@@ -1,6 +1,6 @@
 <!-- /components/dreams/dream-sheet-toolbar.vue -->
 <template>
-  <aside class="rounded-2xl border border-base-300 bg-base-100/90 p-3 shadow-sm backdrop-blur">
+  <aside class="kr-panel-flat bg-base-100/90 p-3 shadow-sm backdrop-blur">
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div class="min-w-0">
         <p class="flex items-center gap-2 text-xs font-black uppercase tracking-[0.22em] text-primary">

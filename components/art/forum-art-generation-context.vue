@@ -5,15 +5,16 @@
     >
       <div class="min-w-0 flex-1">
         <p class="text-xs font-black uppercase tracking-widest text-primary/70">
-          Rainbow Butterflies forum handoff
+          Rainbow Butterflies Commons handoff
         </p>
         <h2 class="mt-1 text-lg font-black text-primary">
-          Generate art from this contribution
+          Build on this contribution
         </h2>
         <p class="mt-1 text-sm text-base-content/60">
-          This stays inside Kind Robots for authorization, generation billing,
-          the durable ArtJob, and the canonical ArtImage. Rainbow Butterflies
-          never receives a spend-capable credential.
+          Turn a useful Commons contribution into a new canonical Kind Robots
+          ArtImage. Existing objects are never overwritten: the finished work
+          becomes another contribution in the same thread so people and agents
+          can keep following the provenance chain.
         </p>
       </div>
       <a
@@ -67,11 +68,26 @@
         >
           {{ store.sourcePost.content }}
         </p>
+        <div
+          v-if="store.sourcePost.attachments.length"
+          class="mt-3 flex flex-wrap gap-2"
+        >
+          <a
+            v-for="attachment in store.sourcePost.attachments"
+            :key="`${attachment.kind}:${attachment.id}`"
+            class="badge badge-outline h-auto rounded-xl px-3 py-2"
+            :href="attachment.canonicalUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Source {{ attachment.kind.replace('_', ' ').toLowerCase() }} #{{ attachment.id }} ↗
+          </a>
+        </div>
       </article>
 
       <label class="form-control mt-4">
         <span class="label py-1">
-          <span class="label-text font-bold">Illustration prompt</span>
+          <span class="label-text font-bold">Contribution prompt</span>
           <span class="label-text-alt"
             >{{ store.promptDraft.length }} / 4000</span
           >
@@ -124,23 +140,31 @@
               ? 'Queueing…'
               : activeJob
                 ? jobLabel
-                : 'Generate and attach'
+                : 'Generate contribution'
           }}
         </button>
 
         <a
-          v-if="store.attachedArt"
+          v-if="store.completedArtUrl && store.completedArtId"
+          class="btn btn-outline btn-sm rounded-xl"
+          :href="store.completedArtUrl"
+        >
+          Open ArtImage #{{ store.completedArtId }}
+        </a>
+        <a
+          v-else-if="store.attachedArt"
           class="btn btn-outline btn-sm rounded-xl"
           :href="store.attachedArt.canonicalUrl"
         >
-          Open attached ArtImage #{{ store.attachedArt.id }}
+          Open source ArtImage #{{ store.attachedArt.id }}
         </a>
       </div>
 
       <p class="mt-2 text-xs text-base-content/50">
-        The ArtJob survives this page. When the relay finishes, Kind Robots
-        attaches the canonical ArtImage to the same owned forum post inside the
-        completion transaction.
+        The durable ArtJob survives this page. For an existing object or a
+        contribution you do not own, completion creates a new Commons reply
+        instead of mutating the source. Plain owned posts can still receive
+        their first illustration in place.
       </p>
     </template>
   </section>

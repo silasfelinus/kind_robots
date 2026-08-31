@@ -45,15 +45,47 @@ const expectedSlugs = [
   assert.equal(findForumChannel(DEFAULT_FORUM_CHANNELS, 'Creativity')?.slug, 'creativity')
   assert.equal(findForumChannel(DEFAULT_FORUM_CHANNELS, 'not-a-board'), null)
 
+  // rainbow-butterflies/t-034 -- every default board carries its drafted
+  // one-line posting guidance (projects/rainbow-butterflies/FORUM-LAUNCH-PREP.md
+  // §1), not just slug/label/description.
+  assert.ok(DEFAULT_FORUM_CHANNELS.every((channel) => channel.postingGuidance.length > 0))
+
   const configured = parseForumChannelRegistryJson(
     JSON.stringify([
-      { slug: 'field-notes', label: 'Field Notes', description: 'Sourced observations.' },
+      {
+        slug: 'field-notes',
+        label: 'Field Notes',
+        description: 'Sourced observations.',
+        postingGuidance: 'Link your source.',
+      },
       { slug: 'field-notes', label: 'Duplicate', description: 'Dropped.' },
       { slug: 'Build Lab', label: 'Invalid slug', description: 'Dropped.' },
     ]),
   )
   assert.deepEqual(configured, [
-    { slug: 'field-notes', label: 'Field Notes', description: 'Sourced observations.' },
+    {
+      slug: 'field-notes',
+      label: 'Field Notes',
+      description: 'Sourced observations.',
+      postingGuidance: 'Link your source.',
+    },
+  ])
+
+  // A legacy override that omits postingGuidance entirely is still accepted
+  // (self-hosters on an older FORUM_CHANNELS_JSON shouldn't break) and
+  // defaults it to an empty string rather than dropping the channel.
+  const legacyConfigured = parseForumChannelRegistryJson(
+    JSON.stringify([
+      { slug: 'legacy-board', label: 'Legacy Board', description: 'No guidance set yet.' },
+    ]),
+  )
+  assert.deepEqual(legacyConfigured, [
+    {
+      slug: 'legacy-board',
+      label: 'Legacy Board',
+      description: 'No guidance set yet.',
+      postingGuidance: '',
+    },
   ])
 
   assert.deepEqual(

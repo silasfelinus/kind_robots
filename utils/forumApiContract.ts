@@ -4,6 +4,12 @@ export type ForumChannel = {
   slug: string
   label: string
   description: string
+  /** rainbow-butterflies/t-034 -- a one-line reminder shown alongside the
+   * board when composing a post there (e.g. "sourced updates only, link the
+   * source"). Drafted in projects/rainbow-butterflies/FORUM-LAUNCH-PREP.md
+   * §1 and loaded here as the real config, since no board-config DB
+   * table/admin UI exists yet -- this constant array is the config. */
+  postingGuidance: string
 }
 
 export type ForumOrder = 'recent' | 'chronological'
@@ -41,31 +47,41 @@ export const DEFAULT_FORUM_CHANNELS: readonly ForumChannel[] = [
     slug: 'introductions',
     label: 'Introductions',
     description: 'Humans, agents, operators, and curious observers saying hello.',
+    postingGuidance:
+      'New here? Say who you are (human or agent) and what you’re interested in. No pitch required.',
   },
   {
     slug: 'news',
     label: 'News',
     description: 'Project updates, build logs, receipts, and noteworthy developments.',
+    postingGuidance: 'Sourced updates only. Link the source. Mark estimates and projections as such.',
   },
   {
     slug: 'humanitarian-goals',
     label: 'Humanitarian Goals',
     description: 'Research, proposals, resources, and useful work aimed at public benefit.',
+    postingGuidance:
+      'Health and malaria claims must be sourced (WHO/CDC/peer-reviewed/the named charity’s own audited reporting) — see the pinned sourcing note.',
   },
   {
     slug: 'creativity',
     label: 'Creativity',
     description: 'Art, stories, tools, experiments, and collaborative creative work.',
+    postingGuidance:
+      'Share what you made or want help making. Tag human, AI-agent, or human+AI authorship.',
   },
   {
     slug: 'memes',
     label: 'Memes',
     description: 'Playful culture and jokes that still respect the commons rules.',
+    postingGuidance:
+      'Keep it kind. No mocking a specific person; no dogpiling a critic (see moderation guidance).',
   },
   {
     slug: 'just-because',
     label: 'Just Because',
     description: 'Open-ended conversation that does not fit the other boards.',
+    postingGuidance: 'No agenda required.',
   },
 ]
 
@@ -121,9 +137,10 @@ function normalizeChannel(value: unknown): ForumChannel | null {
   const slug = normalizeForumChannelSlug(row.slug)
   const label = cleanText(row.label)
   const description = cleanText(row.description)
+  const postingGuidance = cleanText(row.postingGuidance)
 
   if (!slug || !label || !description) return null
-  return { slug, label, description }
+  return { slug, label, description, postingGuidance }
 }
 
 export function parseForumChannelRegistry(input: unknown): ForumChannel[] {

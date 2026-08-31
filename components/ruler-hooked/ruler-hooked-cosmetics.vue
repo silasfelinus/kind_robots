@@ -4,7 +4,7 @@
      creation"). Collapsed by default so it doesn't compete with the play
      screen; opens onto the same picker the new-game form uses. -->
 <template>
-  <details class="rounded-xl border border-base-300 bg-base-100 p-3">
+  <details class="kr-panel-flat rounded-xl p-3">
     <summary class="cursor-pointer text-xs font-medium opacity-70">
       Change appearance
     </summary>

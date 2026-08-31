@@ -22,7 +22,7 @@
 
       <div
         v-if="loading && !tank"
-        class="grid min-h-[50vh] place-items-center rounded-3xl border border-base-300 bg-base-100"
+        class="grid min-h-[50vh] place-items-center kr-panel-flat rounded-3xl"
       >
         <div class="text-center">
           <span class="loading loading-ring loading-lg text-primary" />
@@ -178,93 +178,3 @@ interface PublicTankOwner {
 // cthulhuquarium/t-017: one placed decor object. x/y are percentages (0-100)
 // of the tank, same contract the owner's own canvas places against -- kept
 // local rather than imported from the store since this page is
-// unauthenticated and doesn't use the tank store at all.
-interface PublicTankDecor {
-  id: number
-  kind: string
-  x: number
-  y: number
-  zIndex: number
-}
-
-interface PublicTankDetail {
-  slug: string
-  title: string
-  coins: number
-  backgroundKey: string | null
-  debrisLevel: number
-  sizeCap: number
-  setSlotsCap: number
-  updatedAt: string
-  User: PublicTankOwner
-  Stock: PublicTankStock[]
-  Decor: PublicTankDecor[]
-}
-
-// Mirrors cthulhuquarium-game.vue's own DECOR_ICONS -- must stay in sync
-// with server/utils/aquariumEconomy.ts's DECOR_CATALOG icons by hand, same
-// convention as everywhere else the client mirrors a server-owned constant.
-const DECOR_ICONS: Record<string, string> = {
-  pebble_bed: '🪨',
-  driftwood: '🪵',
-  coral_spire: '🪸',
-  sunken_chest: '🧰',
-  glow_kelp: '🌿',
-  ceramic_ruin: '🏺',
-}
-
-function decorIcon(kind: string): string {
-  return DECOR_ICONS[kind] ?? '❖'
-}
-
-const route = useRoute()
-const tank = ref<PublicTankDetail | null>(null)
-const loading = ref(false)
-const errorMessage = ref('')
-let requestSequence = 0
-
-const username = computed(() => String(route.params.username || '').trim())
-const slug = computed(() => String(route.params.slug || '').trim())
-
-useHead(() => ({
-  title: tank.value
-    ? `${tank.value.title} · @${tank.value.User.username} · Cthulhuquarium`
-    : 'Public tank · Cthulhuquarium',
-}))
-
-function normalizeImagePath(value: string): string {
-  if (value.startsWith('/') || value.startsWith('http')) return value
-  return `/images/${value}`
-}
-
-async function loadTank(): Promise<void> {
-  if (!username.value || !slug.value) return
-
-  const sequence = ++requestSequence
-  loading.value = true
-  errorMessage.value = ''
-
-  try {
-    const response = await performFetch<PublicTankDetail>(
-      `/api/aquarium/browse/${encodeURIComponent(username.value)}/${encodeURIComponent(slug.value)}`,
-    )
-
-    if (sequence !== requestSequence) return
-
-    if (!response.success || !response.data) {
-      throw new Error(response.message || 'Could not load this tank.')
-    }
-
-    tank.value = response.data
-  } catch (error: unknown) {
-    if (sequence !== requestSequence) return
-    errorMessage.value =
-      error instanceof Error ? error.message : 'Could not load this tank.'
-  } finally {
-    if (sequence === requestSequence) loading.value = false
-  }
-}
-
-watch([username, slug], loadTank)
-onMounted(loadTank)
-</script>

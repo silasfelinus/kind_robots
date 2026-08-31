@@ -65,7 +65,7 @@
     -->
     <div
       v-if="loading || error"
-      class="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-2 rounded-2xl border p-3 text-sm shadow"
+      class="mb-3 kr-toolbar justify-between rounded-2xl border p-3 text-sm shadow"
       :class="
         error ? 'border-error/40 bg-error/10' : 'border-base-300 bg-base-100'
       "
@@ -302,7 +302,7 @@ const renderedTab = computed<string | null>(() => {
   const fallback = getDashboardDefaultTab(props.dashboardKey)
   if (hasSlot(fallback)) {
     console.warn(
-      `\u26A0\uFE0F ${props.dashboardKey} manager has no slot for tab "${activeTab.value}" -- showing "${fallback}"`,
+      `⚠️ ${props.dashboardKey} manager has no slot for tab "${activeTab.value}" -- showing "${fallback}"`,
     )
     return fallback
   }

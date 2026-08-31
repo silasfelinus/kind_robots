@@ -113,7 +113,7 @@
 
     <!-- Footer -->
     <div
-      class="flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-base-300 pt-2"
+      class="kr-toolbar justify-between border-t border-base-300 pt-2"
     >
       <div class="flex items-center gap-3">
         <span class="text-xs text-base-content/60">

@@ -3,7 +3,7 @@
   <section class="kr-surface gap-0">
     <div
       v-if="isLoadingManager || managerError"
-      class="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-2 kr-panel-flat p-3 text-sm shadow"
+      class="mb-3 kr-toolbar justify-between kr-panel-flat p-3 text-sm shadow"
     >
       <p
         class="min-w-0 flex-1 text-base-content/70"

@@ -1,0 +1,38 @@
+name: Mission Metrics Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'server/api/v1/mission/**'
+      - 'server/utils/missionMetrics.ts'
+      - 'utils/missionMetricsContract.ts'
+      - 'utils/scripts/verifyMissionMetrics.test.ts'
+      - 'docs/api/mission-metrics.md'
+      - '.github/workflows/mission-metrics-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Verify mission metrics contract
+        run: npx tsx utils/scripts/verifyMissionMetrics.test.ts

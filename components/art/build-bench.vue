@@ -34,8 +34,8 @@
       <div
         v-for="side in (['A', 'B'] as BenchSide[])"
         :key="side"
-        class="flex flex-col gap-3 rounded-2xl border p-4"
-        :class="store.state.winner === side ? 'border-success bg-success/5' : 'border-base-300 bg-base-100'"
+        class="kr-panel-flat flex flex-col gap-3 p-4"
+        :class="store.state.winner === side ? 'border-success bg-success/5' : ''"
       >
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">

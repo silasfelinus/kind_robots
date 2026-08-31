@@ -14,15 +14,29 @@ assert.equal(normalizeMissionDimension('X'.repeat(100), 'none').length, 48)
 const input = normalizeMissionEventInput({
   event: 'fundraiser_click',
   source: 'Bluesky',
-  campaign: 'Launch Week 1',
-  placement: 'Hero CTA',
+  campaign: 'Open Social Pilot',
+  placement: 'Hero',
 })
 assert.deepEqual(input, {
   event: 'fundraiser_click',
   source: 'bluesky',
-  campaign: 'launch-week-1',
-  placement: 'hero-cta',
+  campaign: 'open-social-pilot',
+  placement: 'hero',
 })
+assert.deepEqual(
+  normalizeMissionEventInput({
+    event: 'fundraiser_click',
+    source: 'someone@example.com',
+    campaign: 'visitor-9f8e7d6c',
+    placement: 'made-up-slot',
+  }),
+  {
+    event: 'fundraiser_click',
+    source: 'other',
+    campaign: 'other',
+    placement: 'unknown',
+  },
+)
 assert.equal(normalizeMissionEventInput({ event: 'donation' }), null)
 
 const encoded = encodeMissionEventLog(input!)
@@ -46,6 +60,7 @@ assert.match(metricsSource, /username: MISSION_LOG_USERNAME/)
 assert.match(metricsSource, /getRequestIP/)
 assert.match(metricsSource, /visitorIdsStored: false/)
 assert.match(metricsSource, /ipAddressesStored: false/)
+assert.match(metricsSource, /exactEventTimesStored: false/)
 assert.match(metricsSource, /referrersStored: false/)
 assert.match(metricsSource, /donationIdentitiesKnown: false/)
 assert.match(metricsSource, /donationAmountsKnown: false/)

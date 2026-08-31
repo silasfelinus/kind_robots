@@ -140,6 +140,18 @@ function eventKeyForDay(event: MissionEventType): 'visit' | 'returnVisit' | 'fun
   return 'visit'
 }
 
+function decodeAttributionKey(key: string): { source: string; campaign: string } {
+  const separator = key.indexOf('\u0000')
+  if (separator < 0) {
+    return { source: key || 'direct', campaign: 'none' }
+  }
+
+  return {
+    source: key.slice(0, separator) || 'direct',
+    campaign: key.slice(separator + 1) || 'none',
+  }
+}
+
 export async function summarizeMissionMetrics(days: number): Promise<MissionMetricSummary> {
   const since = periodStart(days)
   const through = new Date()
@@ -241,10 +253,7 @@ export async function summarizeMissionMetrics(days: number): Promise<MissionMetr
     fundraiserClicks: {
       total: fundraiserClicks,
       byAttribution: [...attribution.entries()]
-        .map(([key, count]) => {
-          const [source, campaign] = key.split('\u0000')
-          return { source, campaign, count }
-        })
+        .map(([key, count]) => ({ ...decodeAttributionKey(key), count }))
         .sort((a, b) => b.count - a.count || a.source.localeCompare(b.source)),
       byPlacement: [...placements.entries()]
         .map(([placement, count]) => ({ placement, count }))

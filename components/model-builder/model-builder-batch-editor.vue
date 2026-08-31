@@ -37,7 +37,7 @@
     </div>
 
     <!-- Automate the whole group -->
-    <section class="rounded-xl border border-base-300 bg-base-200 p-2.5">
+    <section class="kr-panel-muted rounded-xl p-2.5">
       <div class="mb-2 flex items-center justify-between gap-2">
         <span
           class="text-xs font-bold uppercase tracking-wide text-base-content/50"
@@ -56,118 +56,47 @@
         </label>
       </div>
       <div class="flex flex-wrap gap-1.5">
-        <button
-          type="button"
-          class="btn btn-xs rounded-lg"
-          :disabled="anyBatching || store.autoBuilding"
-          @click="draftAll('pitch')"
-        >
+        <button type="button" class="btn btn-xs rounded-lg" :disabled="anyBatching || store.autoBuilding" @click="draftAll('pitch')">
           <Icon name="kind-icon:sparkles" class="h-3.5 w-3.5" />
           Draft pitches
         </button>
-        <button
-          v-if="!isAsset"
-          type="button"
-          class="btn btn-xs rounded-lg"
-          :disabled="anyBatching || store.autoBuilding"
-          @click="draftAll('fields')"
-        >
+        <button v-if="!isAsset" type="button" class="btn btn-xs rounded-lg" :disabled="anyBatching || store.autoBuilding" @click="draftAll('fields')">
           <Icon name="kind-icon:sparkles" class="h-3.5 w-3.5" />
           Draft fields
         </button>
-        <button
-          v-if="wantArt"
-          type="button"
-          class="btn btn-xs rounded-lg"
-          :disabled="anyBatching || store.autoBuilding"
-          @click="draftAll('artPrompt')"
-        >
+        <button v-if="wantArt" type="button" class="btn btn-xs rounded-lg" :disabled="anyBatching || store.autoBuilding" @click="draftAll('artPrompt')">
           <Icon name="kind-icon:sparkles" class="h-3.5 w-3.5" />
           Draft prompts
         </button>
-        <button
-          type="button"
-          class="btn btn-xs btn-ghost rounded-lg"
-          :disabled="anyBatching || store.autoBuilding"
-          @click="
-            store.batchApproveStage(group.outputKey, 'FIELDS_AND_PROMPTS')
-          "
-        >
+        <button type="button" class="btn btn-xs btn-ghost rounded-lg" :disabled="anyBatching || store.autoBuilding" @click="store.batchApproveStage(group.outputKey, 'FIELDS_AND_PROMPTS')">
           <Icon name="kind-icon:check" class="h-3.5 w-3.5" />
           Approve fields
         </button>
-        <button
-          type="button"
-          class="btn btn-xs btn-primary rounded-lg"
-          :disabled="anyBatching || store.autoBuilding"
-          :title="autoBuildGroupTitle"
-          @click="store.batchAutoBuild(group.outputKey)"
-        >
+        <button type="button" class="btn btn-xs btn-primary rounded-lg" :disabled="anyBatching || store.autoBuilding" :title="autoBuildGroupTitle" @click="store.batchAutoBuild(group.outputKey)">
           <Icon name="kind-icon:bolt" class="h-3.5 w-3.5" />
           Auto-build group
-          <span v-if="busyCount" class="badge badge-xs badge-ghost"
-            >{{ busyCount }} busy</span
-          >
+          <span v-if="busyCount" class="badge badge-xs badge-ghost">{{ busyCount }} busy</span>
         </button>
       </div>
     </section>
 
     <!-- Set one field to the same value on every item -->
-    <section
-      v-if="!isAsset && fields.length"
-      class="rounded-xl border border-base-300 bg-base-200 p-2.5"
-    >
-      <span
-        class="mb-2 block text-xs font-bold uppercase tracking-wide text-base-content/50"
-      >
+    <section v-if="!isAsset && fields.length" class="kr-panel-muted rounded-xl p-2.5">
+      <span class="mb-2 block text-xs font-bold uppercase tracking-wide text-base-content/50">
         Set a field on all {{ group.items.length }}
       </span>
       <div class="flex flex-col gap-1.5">
-        <div
-          v-for="field in fields"
-          :key="field.key"
-          class="flex items-center gap-2"
-        >
-          <label
-            class="w-24 shrink-0 truncate text-xs font-semibold text-base-content"
-            :for="batchFieldId(field.key)"
-            :title="field.label"
-          >
+        <div v-for="field in fields" :key="field.key" class="flex items-center gap-2">
+          <label class="w-24 shrink-0 truncate text-xs font-semibold text-base-content" :for="batchFieldId(field.key)" :title="field.label">
             {{ field.label }}
             <span v-if="field.required" class="text-error">*</span>
           </label>
-          <select
-            v-if="field.choices"
-            :id="batchFieldId(field.key)"
-            v-model="batchValues[field.key]"
-            class="select select-bordered select-xs flex-1 bg-base-100"
-          >
+          <select v-if="field.choices" :id="batchFieldId(field.key)" v-model="batchValues[field.key]" class="select select-bordered select-xs flex-1 bg-base-100">
             <option value="">—</option>
-            <option
-              v-for="choice in field.choices"
-              :key="choice"
-              :value="choice"
-            >
-              {{ choice }}
-            </option>
+            <option v-for="choice in field.choices" :key="choice" :value="choice">{{ choice }}</option>
           </select>
-          <input
-            v-else
-            :id="batchFieldId(field.key)"
-            v-model="batchValues[field.key]"
-            type="text"
-            :placeholder="field.default || 'value for all'"
-            class="input input-bordered input-xs flex-1 bg-base-100"
-          />
-          <button
-            type="button"
-            class="btn btn-xs rounded-lg"
-            :disabled="
-              anyBatching || store.autoBuilding || !batchValues[field.key]
-            "
-            :aria-label="`Apply ${field.label} to all ${group.items.length} items`"
-            @click="applyField(field.key)"
-          >
+          <input v-else :id="batchFieldId(field.key)" v-model="batchValues[field.key]" type="text" :placeholder="field.default || 'value for all'" class="input input-bordered input-xs flex-1 bg-base-100" />
+          <button type="button" class="btn btn-xs rounded-lg" :disabled="anyBatching || store.autoBuilding || !batchValues[field.key]" :aria-label="`Apply ${field.label} to all ${group.items.length} items`" @click="applyField(field.key)">
             Apply
           </button>
         </div>
@@ -175,39 +104,17 @@
     </section>
 
     <!-- Per-item fine-tune -->
-    <section class="rounded-xl border border-base-300 bg-base-200 p-2.5">
-      <span
-        class="mb-2 block text-xs font-bold uppercase tracking-wide text-base-content/50"
-      >
+    <section class="kr-panel-muted rounded-xl p-2.5">
+      <span class="mb-2 block text-xs font-bold uppercase tracking-wide text-base-content/50">
         Fine-tune individual items
       </span>
       <ul class="flex flex-col gap-1">
-        <li
-          v-for="item in group.items"
-          :key="item.id"
-          class="flex items-center gap-2 rounded-lg bg-base-100 px-2 py-1"
-        >
-          <span
-            class="min-w-0 flex-1 truncate text-xs font-semibold text-base-content"
-          >
-            {{ item.label }}
-          </span>
-          <span
-            class="badge badge-xs"
-            :class="commitBadge(item)"
-            :title="
-              autoBuildFailed(item)
-                ? (item.error ?? 'Auto-build failed for this item.')
-                : undefined
-            "
-          >
+        <li v-for="item in group.items" :key="item.id" class="flex items-center gap-2 rounded-lg bg-base-100 px-2 py-1">
+          <span class="min-w-0 flex-1 truncate text-xs font-semibold text-base-content">{{ item.label }}</span>
+          <span class="badge badge-xs" :class="commitBadge(item)" :title="autoBuildFailed(item) ? (item.error ?? 'Auto-build failed for this item.') : undefined">
             {{ itemStageSummary(item) }}
           </span>
-          <button
-            type="button"
-            class="btn btn-xs btn-ghost rounded-lg"
-            @click="emit('select-item', item.id)"
-          >
+          <button type="button" class="btn btn-xs btn-ghost rounded-lg" @click="emit('select-item', item.id)">
             <Icon name="kind-icon:pencil" class="h-3 w-3" />
             Edit
           </button>

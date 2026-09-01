@@ -94,7 +94,7 @@
           <div
             v-for="stat in view.stats"
             :key="stat.label"
-            class="flex items-center gap-2 rounded-2xl border border-base-300 bg-base-100/70 px-3 py-1.5 backdrop-blur"
+            class="flex items-center gap-2 kr-panel-flat bg-base-100/70 px-3 py-1.5 backdrop-blur"
           >
             <Icon
               v-if="stat.icon"

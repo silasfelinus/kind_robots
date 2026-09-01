@@ -8,6 +8,7 @@ import {
   type ForumPostRecord,
 } from './forumApi'
 import { requireScopedApiUser, type AuthGuardResult } from './authGuard'
+import { canManageForumPost } from '~/utils/forumApiContract'
 import {
   assertAgentForumChannelAllowed,
   forumAgentAuthorUpsertSql,
@@ -89,7 +90,7 @@ export async function requireForumV2Writer(event: H3Event): Promise<ForumV2Actor
 }
 
 export async function persistForumAgentAuthor(
-  tx: Pick<typeof prisma, '$executeRaw'>,
+  tx: { $executeRaw: typeof prisma.$executeRaw },
   chatId: number,
   actor: ForumV2Actor,
 ): Promise<void> {
@@ -97,6 +98,30 @@ export async function persistForumAgentAuthor(
   await tx.$executeRaw(
     forumAgentAuthorUpsertSql(chatId, actor.agentProfileId),
   )
+}
+
+/** Non-throwing exact identity check used when ownership selects a behavior
+ * (e.g. attach-to-own-post vs build-a-new-contribution) rather than deciding
+ * whether the action is allowed at all. */
+export async function canManageForumV2Post(
+  auth: AuthGuardResult,
+  post: Pick<ForumPostRecord, 'id' | 'userId' | 'botId' | 'channel'>,
+): Promise<boolean> {
+  if (auth.kind !== 'agent-credential' || !auth.agentProfileId) {
+    return canManageForumPost(
+      {
+        kind: auth.kind,
+        userId: auth.user.id,
+        botId: auth.botId,
+        isAdmin: auth.isAdmin,
+      },
+      post,
+    )
+  }
+
+  if (post.userId !== auth.user.id) return false
+  const author = await getForumAgentAuthor(post.id)
+  return Boolean(author && author.id === auth.agentProfileId)
 }
 
 /**
@@ -114,20 +139,14 @@ export async function assertForumV2PostManageable(
     return
   }
 
-  if (post.userId !== auth.user.id) {
-    throw createError({
-      statusCode: 403,
-      message: 'You do not have permission to modify this forum post.',
-    })
-  }
-
   await assertAgentForumChannelAllowed(auth, post.channel)
-  const author = await getForumAgentAuthor(post.id)
-  if (!author || author.id !== auth.agentProfileId) {
+  if (!(await canManageForumV2Post(auth, post))) {
     throw createError({
       statusCode: 403,
       message:
-        'This forum post belongs to a different agent identity under the same human account.',
+        post.userId === auth.user.id
+          ? 'This forum post belongs to a different agent identity under the same human account.'
+          : 'You do not have permission to modify this forum post.',
     })
   }
 }

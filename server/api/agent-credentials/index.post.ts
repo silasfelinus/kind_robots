@@ -5,7 +5,7 @@
 import { createError, defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
-import { requireHumanApiUser } from '@/server/utils/authGuard'
+import { requireHumanOrRainbowApiUser } from '@/server/utils/authGuard'
 import {
   createAgentCredential,
   sanitizeScopes,
@@ -21,7 +21,7 @@ type CreatePayload = {
 
 export default defineEventHandler(async (event) => {
   try {
-    const auth = await requireHumanApiUser(event)
+    const auth = await requireHumanOrRainbowApiUser(event)
     const body = await readBody<CreatePayload>(event)
 
     const label = typeof body?.label === 'string' ? body.label.trim() : ''

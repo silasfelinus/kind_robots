@@ -140,39 +140,47 @@ export default defineEventHandler(async (event) => {
 
     const payload = {
       workflow,
+      promptString,
+      save: {
+        isPublic: !actor.shadowRestricted,
+        isMature: post.isMature,
+        designer: actor.displayName,
+        artCollectionIds: [],
+      },
       forumContext,
     }
 
     const job = await prisma.artJob.create({
       data: {
-        userId: actor.userId,
-        status: 'PENDING',
-        prompt: promptString,
-        width: DEFAULT_WIDTH,
-        height: DEFAULT_HEIGHT,
-        steps: DEFAULT_STEPS,
-        cfg: DEFAULT_CFG,
-        seed: null,
-        sampler: DEFAULT_SAMPLER,
-        scheduler: DEFAULT_SCHEDULER,
+        engine: 'COMFY',
         payload: JSON.stringify(payload),
-        metadata: JSON.stringify({
-          source: 'forum-art',
-          postId: post.id,
-          threadId: post.originId ?? post.id,
-          mode,
-        }),
+        priority: 100,
+        projectSlug: 'rainbow-butterflies',
+        userId: actor.userId,
       },
     })
 
+    const { balance } = await gate.commit(`forum-art-enqueue:${job.id}`)
+
+    event.node.res.statusCode = 201
     return {
       success: true,
+      message:
+        mode === 'contribute'
+          ? 'Forum contribution queued. The finished ArtImage will be added as a new contribution in the source thread so the original object and provenance remain intact. Generation resource spending is not a charitable donation.'
+          : 'Forum illustration queued. The finished ArtImage will attach to your source contribution. Generation resource spending is not a charitable donation.',
       data: {
-        id: job.id,
+        jobId: job.id,
         status: job.status,
+        postId: post.id,
+        threadId: post.originId ?? post.id,
         mode,
+        mana: {
+          balance,
+          charged: gate.cost,
+        },
       },
-      statusCode: 200,
+      statusCode: 201,
     }
   } catch (error) {
     const handled = errorHandler(error)

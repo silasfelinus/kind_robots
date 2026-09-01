@@ -7,6 +7,7 @@ import {
   getForumReadContext,
   requireForumChannel,
   serializeForumPost,
+  type ForumPostRecord,
 } from '@/server/utils/forumApi'
 import { getForumUpvoteStats } from '@/server/utils/forumUpvotes'
 import {
@@ -51,9 +52,7 @@ export default defineEventHandler(async (event) => {
     )
     const viewerUserId = auth?.user.id ?? null
 
-    let roots: Awaited<ReturnType<typeof prisma.chat.findMany<{
-      select: typeof forumPostSelect
-    }>>>
+    let roots: ForumPostRecord[]
     let hasMore = false
     let nextCursor: number | null = null
     let upvoteStats = new Map<number, { upvoteCount: number; viewerHasUpvoted: boolean }>()
@@ -115,7 +114,7 @@ export default defineEventHandler(async (event) => {
         const byId = new Map(hydrated.map((row) => [row.id, row]))
         roots = pageIds
           .map((id) => byId.get(id))
-          .filter((row): row is NonNullable<typeof row> => Boolean(row))
+          .filter((row): row is ForumPostRecord => Boolean(row))
       }
     } else {
       const rows = await prisma.chat.findMany({

@@ -35,18 +35,26 @@ const SECRET_BYTES = 32
 export type SafeAgentCredential = Omit<
   AgentCredential,
   'hashedSecret' | 'scopes'
-> & { scopes: AgentCredentialScope[] }
+> & {
+  scopes: AgentCredentialScope[]
+  /** Durable external-agent identity, separate from optional legacy Bot binding. */
+  agentProfileId: number | null
+}
 
-export function toSafeCredential(row: AgentCredential): SafeAgentCredential {
+export function toSafeCredential(
+  row: AgentCredential,
+  agentProfileId: number | null = null,
+): SafeAgentCredential {
   const { hashedSecret: _hashedSecret, scopes, ...rest } = row
   void _hashedSecret
 
-  return { ...rest, scopes: sanitizeScopes(scopes) }
+  return { ...rest, scopes: sanitizeScopes(scopes), agentProfileId }
 }
 
 export type CreateAgentCredentialInput = {
   userId: number
   botId?: number | null
+  agentProfileId?: number | null
   label: string
   scopes?: AgentCredentialScope[]
   expiresAt?: Date | null
@@ -59,9 +67,10 @@ export type CreateAgentCredentialResult = {
 }
 
 /**
- * Issue a new credential for a user (optionally scoped to one Bot). Returns
- * the plaintext token exactly once -- the caller must display/copy it now;
- * it cannot be recovered later, only rotated (revoke + create a new one).
+ * Issue a new credential for a user. Legacy callers may bind it to one Bot;
+ * Rainbow's v2 path binds it to one durable AgentProfile instead. A credential
+ * cannot represent both identities at once. Returns the plaintext token exactly
+ * once -- it cannot be recovered later, only rotated.
  */
 export async function createAgentCredential(
   input: CreateAgentCredentialInput,
@@ -69,6 +78,22 @@ export async function createAgentCredential(
   const label = input.label.trim()
   if (!label) {
     throw new Error('label is required')
+  }
+
+  const botId = input.botId ?? null
+  const agentProfileId = input.agentProfileId ?? null
+  if (botId && agentProfileId) {
+    throw new Error('a credential cannot bind both botId and agentProfileId')
+  }
+
+  if (agentProfileId) {
+    const profile = await prisma.agentProfile.findUnique({
+      where: { id: agentProfileId },
+      select: { userId: true, isActive: true },
+    })
+    if (!profile || profile.userId !== input.userId || !profile.isActive) {
+      throw new Error('agentProfileId must reference an active profile you own')
+    }
   }
 
   const scopes =
@@ -84,20 +109,33 @@ export async function createAgentCredential(
   const secret = randomBytes(SECRET_BYTES).toString('hex')
   const hashedSecret = await bcryptHash(secret, SALT_ROUNDS)
 
-  const row = await prisma.agentCredential.create({
-    data: {
-      userId: input.userId,
-      botId: input.botId ?? null,
-      label,
-      keyPrefix,
-      hashedSecret,
-      scopes,
-      expiresAt: input.expiresAt ?? null,
-    },
+  const row = await prisma.$transaction(async (tx) => {
+    const credential = await tx.agentCredential.create({
+      data: {
+        userId: input.userId,
+        botId,
+        label,
+        keyPrefix,
+        hashedSecret,
+        scopes,
+        expiresAt: input.expiresAt ?? null,
+      },
+    })
+
+    if (agentProfileId) {
+      await tx.agentProfileCredential.create({
+        data: {
+          agentProfileId,
+          credentialId: credential.id,
+        },
+      })
+    }
+
+    return credential
   })
 
   return {
-    credential: toSafeCredential(row),
+    credential: toSafeCredential(row, agentProfileId),
     token: `${keyPrefix}.${secret}`,
   }
 }
@@ -110,7 +148,19 @@ export async function listAgentCredentials(
     orderBy: { createdAt: 'desc' },
   })
 
-  return rows.map(toSafeCredential)
+  if (rows.length === 0) return []
+
+  const links = await prisma.agentProfileCredential.findMany({
+    where: { credentialId: { in: rows.map((row) => row.id) } },
+    select: { credentialId: true, agentProfileId: true },
+  })
+  const profileByCredential = new Map(
+    links.map((link) => [link.credentialId, link.agentProfileId]),
+  )
+
+  return rows.map((row) =>
+    toSafeCredential(row, profileByCredential.get(row.id) ?? null),
+  )
 }
 
 export type RevokeResult = 'revoked' | 'not-found' | 'forbidden'
@@ -139,6 +189,7 @@ export type ValidateAgentCredentialResult = {
   credentialId: number
   userId: number
   botId: number | null
+  agentProfileId: number | null
   scopes: AgentCredentialScope[]
 }
 
@@ -167,11 +218,8 @@ export function parseCredentialToken(
 
 /**
  * Resolve a bearer token of the form `<keyPrefix>.<secret>` to the owning
- * user/bot + granted scopes. Returns null for anything invalid, expired, or
- * revoked -- never throws, so a guard can chain this alongside the other
- * auth paths without a try/catch at every call site (matches
- * server/utils/authToken.ts's discriminated-result style, simplified to
- * null since there is no caller-facing reason code needed here).
+ * user + optional Bot/AgentProfile identity + granted scopes. Returns null for
+ * anything invalid, expired, or revoked.
  */
 export async function validateAgentCredential(
   token: string,
@@ -189,15 +237,22 @@ export async function validateAgentCredential(
   const matches = await bcryptCompare(secret, row.hashedSecret)
   if (!matches) return null
 
-  await prisma.agentCredential.update({
-    where: { id: row.id },
-    data: { lastUsedAt: new Date() },
-  })
+  const [profileLink] = await Promise.all([
+    prisma.agentProfileCredential.findUnique({
+      where: { credentialId: row.id },
+      select: { agentProfileId: true },
+    }),
+    prisma.agentCredential.update({
+      where: { id: row.id },
+      data: { lastUsedAt: new Date() },
+    }),
+  ])
 
   return {
     credentialId: row.id,
     userId: row.userId,
     botId: row.botId,
+    agentProfileId: profileLink?.agentProfileId ?? null,
     scopes: sanitizeScopes(row.scopes),
   }
 }

@@ -6,22 +6,28 @@ on:
     paths:
       - 'prisma/agent-profile.prisma'
       - 'prisma/migrations/**agent_checkins_notes/**'
+      - 'prisma/migrations/**agent_attention_requests/**'
       - 'utils/agentCredentialScopes.ts'
       - 'server/utils/authGuard.ts'
+      - 'server/utils/agentAttentionRequests.ts'
       - 'server/api/v1/agent/**'
       - 'server/api/agent-profiles/**'
       - 'utils/scripts/verifyAgentCheckins.test.ts'
+      - 'tests/contracts/verifyAgentAttentionRequests.ts'
       - '.github/workflows/agent-checkin-contract.yml'
   push:
     branches: [main]
     paths:
       - 'prisma/agent-profile.prisma'
       - 'prisma/migrations/**agent_checkins_notes/**'
+      - 'prisma/migrations/**agent_attention_requests/**'
       - 'utils/agentCredentialScopes.ts'
       - 'server/utils/authGuard.ts'
+      - 'server/utils/agentAttentionRequests.ts'
       - 'server/api/v1/agent/**'
       - 'server/api/agent-profiles/**'
       - 'utils/scripts/verifyAgentCheckins.test.ts'
+      - 'tests/contracts/verifyAgentAttentionRequests.ts'
       - '.github/workflows/agent-checkin-contract.yml'
   workflow_dispatch:
 
@@ -43,3 +49,5 @@ jobs:
         run: npm install --include=optional
       - name: Verify agent check-in and note contract
         run: npx tsx utils/scripts/verifyAgentCheckins.test.ts
+      - name: Verify agent human-attention request contract
+        run: npx tsx tests/contracts/verifyAgentAttentionRequests.ts

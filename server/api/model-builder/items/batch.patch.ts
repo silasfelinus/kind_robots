@@ -14,6 +14,7 @@ import {
   assertContentStageEditable,
   assertRunAccess,
   assertRunWritable,
+  MAX_BATCH_ITEMS,
   mergeStageStatusChanges,
   prepareItemUpdate,
   type ItemPatchBody,
@@ -49,6 +50,20 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 400,
         message: 'Request body must include a non-empty "items" array.',
+      })
+    }
+
+    // Mirrors runs/index.post.ts's identical cap (model-builder/t-029, cycle
+    // 73) -- the client never sends more than one run's worth of items
+    // (bounded by MAX_BATCH at run creation), but a direct API call bypasses
+    // that entirely. Without this, an oversized `items` array here forces
+    // this route's per-entry sequential findUnique + attachability checks,
+    // plus the single all-or-nothing transaction, over an unbounded amount
+    // of work in one request.
+    if (body.items.length > MAX_BATCH_ITEMS) {
+      throw createError({
+        statusCode: 400,
+        message: `A batch request may include at most ${MAX_BATCH_ITEMS} items.`,
       })
     }
 

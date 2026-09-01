@@ -273,6 +273,8 @@
     "test:model-builder-run-create-text-cap-guard": "tsx utils/scripts/verifyModelBuilderRunCreateTextCapGuard.ts",
     "test:model-builder-run-create-items-cap-guard-selftest": "tsx utils/scripts/verifyModelBuilderRunCreateItemsCapGuard.test.ts",
     "test:model-builder-run-create-items-cap-guard": "tsx utils/scripts/verifyModelBuilderRunCreateItemsCapGuard.ts",
+    "test:model-builder-batch-items-cap-guard-selftest": "tsx utils/scripts/verifyModelBuilderBatchItemsCapGuard.test.ts",
+    "test:model-builder-batch-items-cap-guard": "tsx utils/scripts/verifyModelBuilderBatchItemsCapGuard.ts",
     "test:model-builder-async-poll-failure-guard-selftest": "tsx utils/scripts/verifyModelBuilderAsyncPollFailureGuard.test.ts",
     "test:model-builder-async-poll-failure-guard": "tsx utils/scripts/verifyModelBuilderAsyncPollFailureGuard.ts",
     "test:art-queue-poll-failure-guard-selftest": "tsx utils/scripts/verifyArtQueuePollFailureGuard.test.ts",

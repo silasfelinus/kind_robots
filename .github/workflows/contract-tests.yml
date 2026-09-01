@@ -506,6 +506,12 @@ jobs:
       - name: Model Builder run-create items-cap guard contract
         run: npm run test:model-builder-run-create-items-cap-guard
 
+      - name: Model Builder batch items-cap guard checker self-test
+        run: npm run test:model-builder-batch-items-cap-guard-selftest
+
+      - name: Model Builder batch items-cap guard contract
+        run: npm run test:model-builder-batch-items-cap-guard
+
       - name: Model Builder async poll-failure guard checker self-test
         run: npm run test:model-builder-async-poll-failure-guard-selftest
 

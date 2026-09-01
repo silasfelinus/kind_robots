@@ -129,9 +129,16 @@ export async function getAgentForumChannels(agentProfileId: number): Promise<str
 
 export async function assertAgentForumChannelAllowed(
   auth: ForumAuthShape,
-  channel: string,
+  channel: string | null,
 ): Promise<void> {
   if (auth.kind !== 'agent-credential' || !auth.agentProfileId) return
+
+  if (!channel) {
+    throw createError({
+      statusCode: 403,
+      message: 'This forum post is not assigned to an agent-authorized channel.',
+    })
+  }
 
   const allowed = await getAgentForumChannels(auth.agentProfileId)
   if (!allowed.includes(channel)) {

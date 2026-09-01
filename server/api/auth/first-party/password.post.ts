@@ -1,5 +1,10 @@
 import { createError, defineEventHandler, readBody, setHeader } from 'h3'
 import { validateUserCredentials } from '@/server/api/auth'
+import {
+  assertAuthAttemptAllowed,
+  clearAuthFailures,
+  recordAuthFailure,
+} from '@/server/utils/authAttemptLimit'
 import { getFirstPartyClients } from '@/server/utils/firstPartySso'
 import { issueFirstPartyDelegation } from '@/server/utils/firstPartyDelegation'
 import { findFirstPartyClient } from '~/utils/firstPartySsoContract'
@@ -26,10 +31,13 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Username and password are required.' })
   }
 
+  assertAuthAttemptAllowed(event, username)
   const result = await validateUserCredentials(username, password)
   if (!result?.user || result.user.isActive === false) {
+    recordAuthFailure(event, username)
     throw createError({ statusCode: 401, message: 'Invalid username or password.' })
   }
+  clearAuthFailures(event, username)
 
   const delegationToken = await issueFirstPartyDelegation({
     userId: result.user.id,

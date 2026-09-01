@@ -278,6 +278,8 @@
     "test:model-builder-batch-items-cap-guard": "tsx utils/scripts/verifyModelBuilderBatchItemsCapGuard.ts",
     "test:model-builder-cross-run-release-guard-selftest": "tsx utils/scripts/verifyModelBuilderCrossRunReleaseGuard.test.ts",
     "test:model-builder-cross-run-release-guard": "tsx utils/scripts/verifyModelBuilderCrossRunReleaseGuard.ts",
+    "test:model-builder-run-epoch-guard-selftest": "tsx utils/scripts/verifyModelBuilderRunEpochGuard.test.ts",
+    "test:model-builder-run-epoch-guard": "tsx utils/scripts/verifyModelBuilderRunEpochGuard.ts",
     "test:model-builder-async-poll-failure-guard-selftest": "tsx utils/scripts/verifyModelBuilderAsyncPollFailureGuard.test.ts",
     "test:model-builder-async-poll-failure-guard": "tsx utils/scripts/verifyModelBuilderAsyncPollFailureGuard.ts",
     "test:art-queue-poll-failure-guard-selftest": "tsx utils/scripts/verifyArtQueuePollFailureGuard.test.ts",

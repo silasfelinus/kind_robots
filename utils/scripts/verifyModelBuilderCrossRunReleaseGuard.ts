@@ -35,6 +35,17 @@
 // in the `finally` block of all five functions: if a future refactor reverts
 // any one of them to an unconditional clear/release, this fails loudly
 // rather than silently reopening the race for just that entry point.
+//
+// Cycle 76 strengthened this same guard with an additional `runEpoch`
+// condition (a run id alone can't tell "still the same continuous session on
+// this run" apart from "abandoned this run, then later revisited the same
+// run id" -- see runEpoch's own doc comment in the store and
+// verifyModelBuilderRunEpochGuard.ts, which asserts that stronger shape
+// specifically). This guard only checks that the run-id half of the
+// condition is still present -- it deliberately does not care whether an
+// `&& runEpoch === epoch` clause has been added alongside it, so it keeps
+// working unchanged as a baseline regardless of which cycle's fix shape is
+// currently in place.
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -46,7 +57,12 @@ const repositoryRoot = resolve(scriptDirectory, '../..')
 
 const STORE_PATH = join(repositoryRoot, 'stores/modelBuilderStore.ts')
 
-const RUN_ID_GUARD = /if\s*\(\s*state\.run\?\.id\s*===\s*runId\s*\)/
+// Deliberately not anchored to an immediately-following `)` -- cycle 76's
+// `&& runEpoch === epoch` addition (see the doc comment above) puts other
+// text between `runId` and the closing paren, and this guard only cares
+// that the run-id half of the condition is still present somewhere in the
+// `if (...)` guarding the clear/release.
+const RUN_ID_GUARD = /if\s*\(\s*state\.run\?\.id\s*===\s*runId/
 
 const BATCH_FUNCTIONS = [
   'batchDraftField',

@@ -72,9 +72,13 @@ function findUnguardedBareSetStatusCalls(body: string): number {
   // Remove the one sanctioned guarded shape: an `if (state.run?.id ===
   // runId)` block whose body calls the bare setStatus(. Non-greedy across
   // newlines so this only eats up to the next closing brace, not the rest
-  // of the function.
+  // of the function. The optional `&& runEpoch === epoch` clause is cycle
+  // 76's strengthening of this same guard (see runEpoch's own doc comment
+  // in the store) -- accepted here too so this check keeps passing
+  // regardless of whether that clause has been added alongside the run-id
+  // check.
   scrubbed = scrubbed.replace(
-    /if\s*\(\s*state\.run\?\.id\s*===\s*runId\s*\)\s*\{[\s\S]*?setStatus\([\s\S]*?\n\s*\}/,
+    /if\s*\(\s*state\.run\?\.id\s*===\s*runId(?:\s*&&\s*runEpoch\s*===\s*epoch)?\s*\)\s*\{[\s\S]*?setStatus\([\s\S]*?\n\s*\}/,
     '',
   )
   const matches = scrubbed.match(/\bsetStatus\(/g)

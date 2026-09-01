@@ -518,6 +518,12 @@ jobs:
       - name: Model Builder cross-run release guard contract
         run: npm run test:model-builder-cross-run-release-guard
 
+      - name: Model Builder run-epoch guard checker self-test
+        run: npm run test:model-builder-run-epoch-guard-selftest
+
+      - name: Model Builder run-epoch guard contract
+        run: npm run test:model-builder-run-epoch-guard
+
       - name: Model Builder async poll-failure guard checker self-test
         run: npm run test:model-builder-async-poll-failure-guard-selftest
 

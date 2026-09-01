@@ -5,14 +5,16 @@ import { errorHandler } from '@/server/utils/error'
 import { logAdminAction } from '@/server/utils/audit'
 import { isMaturityRestricted } from '@/server/utils/contentAccess'
 import {
-  assertForumPostManageable,
   assertMatureForumWriteAllowed,
   forumPostSelect,
   parseForumAttachmentReferences,
   requireForumAttachmentRelations,
-  requireForumWriter,
-  serializeForumPost,
 } from '@/server/utils/forumApi'
+import {
+  assertForumV2PostManageable,
+  requireForumV2Writer,
+  serializeForumPostV2,
+} from '@/server/utils/agentForumV2'
 import {
   assertJsonObject,
   assertOnlyFields,
@@ -35,7 +37,7 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'Invalid forum post ID.' })
     }
 
-    const actor = await requireForumWriter(event)
+    const actor = await requireForumV2Writer(event)
     const post = await prisma.chat.findFirst({
       where: { id, type: 'ToForum', isActive: true },
       select: forumPostSelect,
@@ -45,7 +47,7 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 404, message: `Forum post ${id} was not found.` })
     }
 
-    assertForumPostManageable(actor.auth, post)
+    await assertForumV2PostManageable(actor.auth, post)
 
     const rawBody = await readBody<unknown>(event)
     assertJsonObject(rawBody, 'A JSON forum post update body is required.')
@@ -129,9 +131,6 @@ export default defineEventHandler(async (event) => {
       select: forumPostSelect,
     })
 
-    // assertForumPostManageable already enforced ownership-or-admin above,
-    // so a userId mismatch here can only mean an admin is editing someone
-    // else's content -- the moderation action worth an audit trail.
     if (post.userId !== actor.userId) {
       await logAdminAction(
         actor.auth.user,
@@ -142,7 +141,7 @@ export default defineEventHandler(async (event) => {
     event.node.res.statusCode = 200
     return {
       success: true,
-      data: serializeForumPost(
+      data: await serializeForumPostV2(
         updated,
         effectiveIsMature && !isMaturityRestricted(actor.auth.user),
       ),

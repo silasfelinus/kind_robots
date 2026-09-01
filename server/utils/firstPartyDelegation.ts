@@ -48,6 +48,7 @@ export async function validateFirstPartyDelegation(
   try {
     const { payload } = await jwtVerify(token, getSecretKey(), {
       issuer: ISSUER,
+      algorithms: ['HS256'],
     })
 
     if (payload.kind !== TOKEN_KIND) return null

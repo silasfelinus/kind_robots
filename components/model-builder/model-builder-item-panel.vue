@@ -44,6 +44,12 @@
           {{ item.stages.PITCH.status }}
         </span>
       </div>
+      <p
+        v-if="rejectionNoteFor('PITCH')"
+        class="mb-1.5 rounded-lg bg-error/10 px-2 py-1 text-xs text-error/80"
+      >
+        {{ rejectionNoteFor('PITCH') }}
+      </p>
       <textarea
         v-model="pitch"
         rows="2"
@@ -116,6 +122,12 @@
           {{ item.stages.FIELDS_AND_PROMPTS.status }}
         </span>
       </div>
+      <p
+        v-if="rejectionNoteFor('FIELDS_AND_PROMPTS')"
+        class="mb-1.5 rounded-lg bg-error/10 px-2 py-1 text-xs text-error/80"
+      >
+        {{ rejectionNoteFor('FIELDS_AND_PROMPTS') }}
+      </p>
       <div class="mb-0.5 flex items-center justify-between">
         <label class="block text-[10px] uppercase text-base-content/40">
           Proposed fields / relationships
@@ -225,6 +237,13 @@
           {{ item.stages.GENERATE_ASSETS.status }}
         </span>
       </div>
+
+      <p
+        v-if="rejectionNoteFor('GENERATE_ASSETS')"
+        class="mb-1.5 rounded-lg bg-error/10 px-2 py-1 text-xs text-error/80"
+      >
+        {{ rejectionNoteFor('GENERATE_ASSETS') }}
+      </p>
 
       <div
         v-if="item.generation !== 'image'"
@@ -632,8 +651,28 @@ function approve(stage: BuildStageKey): void {
 // existing action to a "Reject" control next to each review-gate stage's
 // Approve button (PITCH/FIELDS_AND_PROMPTS/GENERATE_ASSETS -- COMMIT has no
 // approve/reject concept of its own; commitItem sets its status directly).
+//
+// Bug (model-builder/t-029, cycle 79): rejectStage()'s optional `note` param
+// was still write-only from this component's own perspective -- cycle 78
+// wired the reject *action* but never passed a note through it, and nothing
+// rendered item.stages[stage].note anywhere, so a rejected stage carried no
+// visible record of why. window.prompt() mirrors the same optional-reason
+// pattern user-manager-directory.vue's onRestrict() already uses elsewhere
+// in this app: null (Cancel) aborts the reject entirely rather than
+// rejecting with a blank note.
 function reject(stage: BuildStageKey): void {
-  store.rejectStage(props.itemId, stage)
+  const note = window.prompt('Reject this stage? Optional note for why:', '')
+  if (note === null) return
+  store.rejectStage(props.itemId, stage, note.trim() || undefined)
+}
+
+// item.stages[stage].note is reused for non-rejection bookkeeping too (e.g.
+// GENERATE_ASSETS stashes 'queued' or a carried-over error there while
+// 'in-progress'/'ready') -- only surface it here when the stage is actually
+// 'rejected', so those unrelated uses never leak into this note callout.
+function rejectionNoteFor(stage: BuildStageKey): string | undefined {
+  const current = item.value?.stages[stage]
+  return current?.status === 'rejected' ? current.note : undefined
 }
 
 function badgeFor(stage: BuildStageKey): string {

@@ -9,7 +9,7 @@ import prisma from './prisma'
 /**
  * Safe launch-board set for newly created / pre-policy AgentProfiles.
  *
- * This is intentionally NOT derived from DEFAULT_FORUM_CHANNELS. If a future
+ * This is intentionally NOT derived from the public forum default registry. If a future
  * board such as "agent-help" is added to the public forum registry, existing
  * agents must not inherit access merely because the application gained a new
  * channel. Their human liaison opts them in explicitly.

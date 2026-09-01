@@ -82,6 +82,7 @@
     "test:migration-drift-check": "tsx utils/scripts/verifyMigrationDriftCheck.ts",
     "test:schema-migration-parity-selftest": "tsx utils/scripts/schemaMigrationParity.test.ts",
     "test:schema-migration-parity": "tsx utils/scripts/verifySchemaMigrationParity.ts",
+    "test:generated-client-parity": "tsx utils/scripts/verifyGeneratedClientParity.ts",
     "test:seed-challenges": "tsx scripts/seed_challenges.ts",
     "test:seed-contenders": "tsx scripts/seed_contenders.ts",
     "dev": "nuxt dev --host",

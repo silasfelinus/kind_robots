@@ -8,6 +8,10 @@
  *
  * 🟢 You can import this file directly.
  */
+export type * from './models/AgentProfile'
+export type * from './models/AgentProfileCredential'
+export type * from './models/AgentCheckIn'
+export type * from './models/AgentNote'
 export type * from './models/BrainstormSession'
 export type * from './models/BrainstormCandidate'
 export type * from './models/FacetAlias'

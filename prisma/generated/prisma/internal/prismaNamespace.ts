@@ -397,6 +397,10 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 
 export const ModelName = {
+  AgentProfile: 'AgentProfile',
+  AgentProfileCredential: 'AgentProfileCredential',
+  AgentCheckIn: 'AgentCheckIn',
+  AgentNote: 'AgentNote',
   BrainstormSession: 'BrainstormSession',
   BrainstormCandidate: 'BrainstormCandidate',
   FacetAlias: 'FacetAlias',
@@ -516,10 +520,274 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
+    modelProps: "agentProfile" | "agentProfileCredential" | "agentCheckIn" | "agentNote" | "brainstormSession" | "brainstormCandidate" | "facetAlias" | "facetProfile" | "characterFacet" | "botFacet" | "rewardFacet" | "mandarinAudioAsset" | "mandarinCatalogOverride" | "mandarinCatalogChange" | "mandarinRequestedCard" | "mandarinCustomSet" | "mandarinArtJobLink" | "mandarinCardProgress" | "mandarinReviewEvent" | "modelBuildRun" | "modelBuildItem" | "modelBuildArtifact" | "modelBuildRevision" | "projectPageContent" | "artImage" | "artCollection" | "bot" | "character" | "chat" | "dream" | "dreamRelation" | "project" | "facet" | "dreamFacet" | "scenarioFacet" | "projectFacet" | "projectArtImage" | "projectArtCollection" | "entityArtImage" | "facetArtImage" | "facetArtCollection" | "facetRelation" | "expressionMedia" | "expressionTransition" | "log" | "achievement" | "manaTransaction" | "revenueSplit" | "socialPostDraft" | "missionRemittance" | "product" | "order" | "orderItem" | "entitlement" | "printJob" | "grant" | "pack" | "achievementRecord" | "narratorTopic" | "narratorThread" | "pitchSheet" | "prompt" | "reaction" | "resource" | "reward" | "scenario" | "server" | "serverHealthCheck" | "smartIcon" | "theme" | "user" | "stylistClient" | "stylistAppointment" | "artJob" | "queueControl" | "downloadRequest" | "karmaTransaction" | "referral" | "userRelation" | "userRole" | "todo" | "challenge" | "challengeSubmission" | "contender" | "lifeRun" | "lifeChoice" | "lifeStat" | "lifeEnding" | "lifeAchievement" | "lifeAchievementUnlock" | "lifeRunArt" | "aquarium" | "aquariumStock" | "aquariumSet" | "aquariumDecor" | "aquariumEgg" | "aquariumCodexEntry" | "monster" | "aquariumEvent" | "authToken" | "agentCredential" | "conversation" | "conversationParticipant" | "directMessage" | "notification" | "githubInstallation" | "appRepo" | "mediaEntry"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
+    AgentProfile: {
+      payload: Prisma.$AgentProfilePayload<ExtArgs>
+      fields: Prisma.AgentProfileFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AgentProfileFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfilePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AgentProfileFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfilePayload>
+        }
+        findFirst: {
+          args: Prisma.AgentProfileFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfilePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AgentProfileFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfilePayload>
+        }
+        findMany: {
+          args: Prisma.AgentProfileFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfilePayload>[]
+        }
+        create: {
+          args: Prisma.AgentProfileCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfilePayload>
+        }
+        createMany: {
+          args: Prisma.AgentProfileCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.AgentProfileDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfilePayload>
+        }
+        update: {
+          args: Prisma.AgentProfileUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfilePayload>
+        }
+        deleteMany: {
+          args: Prisma.AgentProfileDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AgentProfileUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.AgentProfileUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfilePayload>
+        }
+        aggregate: {
+          args: Prisma.AgentProfileAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAgentProfile>
+        }
+        groupBy: {
+          args: Prisma.AgentProfileGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AgentProfileGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AgentProfileCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AgentProfileCountAggregateOutputType> | number
+        }
+      }
+    }
+    AgentProfileCredential: {
+      payload: Prisma.$AgentProfileCredentialPayload<ExtArgs>
+      fields: Prisma.AgentProfileCredentialFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AgentProfileCredentialFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfileCredentialPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AgentProfileCredentialFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfileCredentialPayload>
+        }
+        findFirst: {
+          args: Prisma.AgentProfileCredentialFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfileCredentialPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AgentProfileCredentialFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfileCredentialPayload>
+        }
+        findMany: {
+          args: Prisma.AgentProfileCredentialFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfileCredentialPayload>[]
+        }
+        create: {
+          args: Prisma.AgentProfileCredentialCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfileCredentialPayload>
+        }
+        createMany: {
+          args: Prisma.AgentProfileCredentialCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.AgentProfileCredentialDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfileCredentialPayload>
+        }
+        update: {
+          args: Prisma.AgentProfileCredentialUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfileCredentialPayload>
+        }
+        deleteMany: {
+          args: Prisma.AgentProfileCredentialDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AgentProfileCredentialUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.AgentProfileCredentialUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfileCredentialPayload>
+        }
+        aggregate: {
+          args: Prisma.AgentProfileCredentialAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAgentProfileCredential>
+        }
+        groupBy: {
+          args: Prisma.AgentProfileCredentialGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AgentProfileCredentialGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AgentProfileCredentialCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AgentProfileCredentialCountAggregateOutputType> | number
+        }
+      }
+    }
+    AgentCheckIn: {
+      payload: Prisma.$AgentCheckInPayload<ExtArgs>
+      fields: Prisma.AgentCheckInFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AgentCheckInFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentCheckInPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AgentCheckInFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentCheckInPayload>
+        }
+        findFirst: {
+          args: Prisma.AgentCheckInFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentCheckInPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AgentCheckInFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentCheckInPayload>
+        }
+        findMany: {
+          args: Prisma.AgentCheckInFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentCheckInPayload>[]
+        }
+        create: {
+          args: Prisma.AgentCheckInCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentCheckInPayload>
+        }
+        createMany: {
+          args: Prisma.AgentCheckInCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.AgentCheckInDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentCheckInPayload>
+        }
+        update: {
+          args: Prisma.AgentCheckInUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentCheckInPayload>
+        }
+        deleteMany: {
+          args: Prisma.AgentCheckInDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AgentCheckInUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.AgentCheckInUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentCheckInPayload>
+        }
+        aggregate: {
+          args: Prisma.AgentCheckInAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAgentCheckIn>
+        }
+        groupBy: {
+          args: Prisma.AgentCheckInGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AgentCheckInGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AgentCheckInCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AgentCheckInCountAggregateOutputType> | number
+        }
+      }
+    }
+    AgentNote: {
+      payload: Prisma.$AgentNotePayload<ExtArgs>
+      fields: Prisma.AgentNoteFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AgentNoteFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentNotePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AgentNoteFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentNotePayload>
+        }
+        findFirst: {
+          args: Prisma.AgentNoteFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentNotePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AgentNoteFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentNotePayload>
+        }
+        findMany: {
+          args: Prisma.AgentNoteFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentNotePayload>[]
+        }
+        create: {
+          args: Prisma.AgentNoteCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentNotePayload>
+        }
+        createMany: {
+          args: Prisma.AgentNoteCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.AgentNoteDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentNotePayload>
+        }
+        update: {
+          args: Prisma.AgentNoteUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentNotePayload>
+        }
+        deleteMany: {
+          args: Prisma.AgentNoteDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AgentNoteUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.AgentNoteUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentNotePayload>
+        }
+        aggregate: {
+          args: Prisma.AgentNoteAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAgentNote>
+        }
+        groupBy: {
+          args: Prisma.AgentNoteGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AgentNoteGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AgentNoteCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AgentNoteCountAggregateOutputType> | number
+        }
+      }
+    }
     BrainstormSession: {
       payload: Prisma.$BrainstormSessionPayload<ExtArgs>
       fields: Prisma.BrainstormSessionFieldRefs
@@ -7423,6 +7691,58 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
+export const AgentProfileScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  name: 'name',
+  avatarImage: 'avatarImage',
+  description: 'description',
+  isPublic: 'isPublic',
+  allowMessages: 'allowMessages',
+  isActive: 'isActive'
+} as const
+
+export type AgentProfileScalarFieldEnum = (typeof AgentProfileScalarFieldEnum)[keyof typeof AgentProfileScalarFieldEnum]
+
+
+export const AgentProfileCredentialScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  agentProfileId: 'agentProfileId',
+  credentialId: 'credentialId'
+} as const
+
+export type AgentProfileCredentialScalarFieldEnum = (typeof AgentProfileCredentialScalarFieldEnum)[keyof typeof AgentProfileCredentialScalarFieldEnum]
+
+
+export const AgentCheckInScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  agentProfileId: 'agentProfileId',
+  userId: 'userId',
+  credentialId: 'credentialId',
+  status: 'status',
+  summary: 'summary'
+} as const
+
+export type AgentCheckInScalarFieldEnum = (typeof AgentCheckInScalarFieldEnum)[keyof typeof AgentCheckInScalarFieldEnum]
+
+
+export const AgentNoteScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  agentProfileId: 'agentProfileId',
+  userId: 'userId',
+  body: 'body',
+  deliveredAt: 'deliveredAt',
+  deliveredCheckInId: 'deliveredCheckInId'
+} as const
+
+export type AgentNoteScalarFieldEnum = (typeof AgentNoteScalarFieldEnum)[keyof typeof AgentNoteScalarFieldEnum]
+
+
 export const BrainstormSessionScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
@@ -9533,6 +9853,30 @@ export const NullsOrder = {
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
+export const AgentProfileOrderByRelevanceFieldEnum = {
+  name: 'name',
+  avatarImage: 'avatarImage',
+  description: 'description'
+} as const
+
+export type AgentProfileOrderByRelevanceFieldEnum = (typeof AgentProfileOrderByRelevanceFieldEnum)[keyof typeof AgentProfileOrderByRelevanceFieldEnum]
+
+
+export const AgentCheckInOrderByRelevanceFieldEnum = {
+  status: 'status',
+  summary: 'summary'
+} as const
+
+export type AgentCheckInOrderByRelevanceFieldEnum = (typeof AgentCheckInOrderByRelevanceFieldEnum)[keyof typeof AgentCheckInOrderByRelevanceFieldEnum]
+
+
+export const AgentNoteOrderByRelevanceFieldEnum = {
+  body: 'body'
+} as const
+
+export type AgentNoteOrderByRelevanceFieldEnum = (typeof AgentNoteOrderByRelevanceFieldEnum)[keyof typeof AgentNoteOrderByRelevanceFieldEnum]
+
+
 export const BrainstormSessionOrderByRelevanceFieldEnum = {
   name: 'name',
   premise: 'premise',
@@ -11327,6 +11671,10 @@ export interface PrismaClientOptionsWithAdapter extends PrismaClientBaseOptions 
  */
 export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaClientOptionsWithAdapter
 export type GlobalOmitConfig = {
+  agentProfile?: Prisma.AgentProfileOmit
+  agentProfileCredential?: Prisma.AgentProfileCredentialOmit
+  agentCheckIn?: Prisma.AgentCheckInOmit
+  agentNote?: Prisma.AgentNoteOmit
   brainstormSession?: Prisma.BrainstormSessionOmit
   brainstormCandidate?: Prisma.BrainstormCandidateOmit
   facetAlias?: Prisma.FacetAliasOmit

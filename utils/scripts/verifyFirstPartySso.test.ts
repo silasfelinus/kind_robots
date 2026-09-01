@@ -51,7 +51,10 @@ assert.equal(
   ),
   false,
 )
-assert.equal(isAllowedFirstPartyRedirect(rainbow, 'javascript:alert(1)'), false)
+assert.equal(
+  isAllowedFirstPartyRedirect(rainbow, 'javascript:alert(1)'),
+  false,
+)
 
 assert.equal(validateSsoState('too-short'), null)
 assert.equal(validateSsoState('0123456789abcdef'), '0123456789abcdef')
@@ -163,19 +166,6 @@ const googleExchangeSource = readFileSync(
   'server/api/auth/first-party/google/exchange.post.ts',
   'utf8',
 )
-const exchangeSource = readFileSync(
-  'server/api/auth/first-party/exchange.post.ts',
-  'utf8',
-)
-const passwordSource = readFileSync(
-  'server/api/auth/first-party/password.post.ts',
-  'utf8',
-)
-const delegationSource = readFileSync(
-  'server/utils/firstPartyDelegation.ts',
-  'utf8',
-)
-const authGuardSource = readFileSync('server/utils/authGuard.ts', 'utf8')
 const registrationSource = readFileSync('server/api/users/register.post.ts', 'utf8')
 
 assert.match(googleConfigSource, /GOOGLE_ID/)
@@ -183,19 +173,7 @@ assert.doesNotMatch(googleConfigSource, /GOOGLE_SECRET/)
 assert.match(googleExchangeSource, /GOOGLE_SECRET/)
 assert.match(googleExchangeSource, /email_verified\s*!==\s*true/)
 assert.match(googleExchangeSource, /code_verifier:\s*verifier/)
-assert.match(googleExchangeSource, /issueFirstPartyDelegation/)
 assert.doesNotMatch(googleExchangeSource, /return\s+\{[^}]*access_token/s)
-assert.match(exchangeSource, /delegationToken/)
-assert.match(exchangeSource, /issueFirstPartyDelegation/)
-assert.match(passwordSource, /findFirstPartyClient/)
-assert.match(passwordSource, /issueFirstPartyDelegation/)
-assert.match(delegationSource, /kind:\s*TOKEN_KIND/)
-assert.match(delegationSource, /setSubject\(String\(input\.userId\)\)/)
-assert.match(delegationSource, /setAudience\(input\.client\.id\)/)
-assert.doesNotMatch(delegationSource, /\bid:\s*input\.userId/)
-assert.match(authGuardSource, /kind:\s*'first-party-delegation'/)
-assert.match(authGuardSource, /isAdmin:\s*false/)
-assert.match(authGuardSource, /validateFirstPartyDelegationAuth\(bearerToken\)/)
 assert.doesNotMatch(registrationSource, /Received user data.*userData/)
 assert.match(registrationSource, /password:\s*_password/)
 

@@ -1,4 +1,4 @@
-import { defineEventHandler, getQuery } from 'h3'
+import { createError, defineEventHandler, getQuery } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import {
@@ -6,9 +6,10 @@ import {
   forumReadWhere,
   getForumReadContext,
   requireForumChannel,
-  serializeForumPost,
   type ForumPostRecord,
 } from '@/server/utils/forumApi'
+import { serializeForumPostsV2 } from '@/server/utils/agentForumV2'
+import { getAgentForumChannels } from '@/server/utils/agentForumPolicy'
 import { getForumUpvoteStats } from '@/server/utils/forumUpvotes'
 import {
   normalizeForumChannelSlug,
@@ -51,6 +52,24 @@ export default defineEventHandler(async (event) => {
       parseForumBoolean(query.includeMature),
     )
     const viewerUserId = auth?.user.id ?? null
+    const agentChannels =
+      auth?.kind === 'agent-credential' && auth.agentProfileId
+        ? await getAgentForumChannels(auth.agentProfileId)
+        : null
+
+    if (channel && agentChannels && !agentChannels.includes(channel)) {
+      throw createError({
+        statusCode: 403,
+        message:
+          `This agent is not authorized for the "${channel}" forum channel. ` +
+          'Its human liaison can change the AgentProfile forum permissions.',
+      })
+    }
+
+    const rootWhere = async (options: Parameters<typeof forumReadWhere>[0]) => ({
+      ...(await forumReadWhere(options)),
+      ...(!channel && agentChannels ? { channel: { in: agentChannels } } : {}),
+    })
 
     let roots: ForumPostRecord[]
     let hasMore = false
@@ -58,11 +77,8 @@ export default defineEventHandler(async (event) => {
     let upvoteStats = new Map<number, { upvoteCount: number; viewerHasUpvoted: boolean }>()
 
     if (order === 'upvotes') {
-      // Upvote ranking uses an offset cursor because score order is not
-      // monotonic with Chat.id. Fetch only lightweight root metadata for the
-      // ranking pass, then hydrate the requested page in canonical order.
       const rankingRows = await prisma.chat.findMany({
-        where: await forumReadWhere({
+        where: await rootWhere({
           channel,
           includeMature,
           rootOnly: true,
@@ -102,7 +118,7 @@ export default defineEventHandler(async (event) => {
       } else {
         const hydrated = await prisma.chat.findMany({
           where: {
-            ...(await forumReadWhere({
+            ...(await rootWhere({
               channel,
               includeMature,
               rootOnly: true,
@@ -118,7 +134,7 @@ export default defineEventHandler(async (event) => {
       }
     } else {
       const rows = await prisma.chat.findMany({
-        where: await forumReadWhere({
+        where: await rootWhere({
           channel,
           includeMature,
           rootOnly: true,
@@ -180,13 +196,14 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    const data = roots.map((root) => ({
-      ...serializeForumPost(root, includeMature),
-      ...(stats.get(root.id) ?? {
+    const serializedRoots = await serializeForumPostsV2(roots, includeMature)
+    const data = serializedRoots.map((root, index) => ({
+      ...root,
+      ...(stats.get(roots[index]!.id) ?? {
         replyCount: 0,
-        lastActivityAt: root.updatedAt ?? root.createdAt,
+        lastActivityAt: roots[index]!.updatedAt ?? roots[index]!.createdAt,
       }),
-      ...(upvoteStats.get(root.id) ?? {
+      ...(upvoteStats.get(roots[index]!.id) ?? {
         upvoteCount: 0,
         viewerHasUpvoted: false,
       }),

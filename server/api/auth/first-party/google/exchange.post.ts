@@ -32,7 +32,10 @@ async function reserveGoogleUsername(name: string, googleId: string): Promise<st
   const base = cleanName || `user-${googleId.slice(0, 8)}`
 
   for (let attempt = 0; attempt < 20; attempt++) {
-    const suffix = attempt === 0 ? '' : `-${googleId.slice(0, 6)}${attempt === 1 ? '' : `-${attempt}`}`
+    const suffix =
+      attempt === 0
+        ? ''
+        : `-${googleId.slice(0, 6)}${attempt === 1 ? '' : `-${attempt}`}`
     const candidate = `${base.slice(0, 255 - suffix.length)}${suffix}`
     const existing = await prisma.user.findUnique({
       where: { username: candidate },
@@ -101,10 +104,22 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const googleUser = await $fetch<GoogleUserInfoResponse>(
+    // Native fetch is deliberate here: Nuxt's typed $fetch tries to infer an
+    // internal Nitro route for arbitrary external URLs and can recurse deeply
+    // enough to fail vue-tsc. This is a plain external HTTP boundary.
+    const userInfoResponse = await fetch(
       'https://www.googleapis.com/oauth2/v3/userinfo',
-      { headers: { Authorization: `Bearer ${accessToken}` } },
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      },
     )
+    if (!userInfoResponse.ok) {
+      throw createError({
+        statusCode: 401,
+        message: 'Google user information could not be retrieved.',
+      })
+    }
+    const googleUser = (await userInfoResponse.json()) as GoogleUserInfoResponse
 
     const email = String(googleUser.email || '').trim().toLowerCase()
     const googleId = String(googleUser.sub || '').trim()

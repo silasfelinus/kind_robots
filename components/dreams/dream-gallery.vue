@@ -17,7 +17,7 @@
     -->
     <header
       v-if="showToolbar && !isDropdownMode"
-      class="relative z-30 shrink-0 rounded-2xl border border-base-300 bg-base-100/95 px-2 py-2 shadow-sm backdrop-blur"
+      class="relative z-30 shrink-0 kr-panel-flat bg-base-100/95 px-2 py-2 shadow-sm backdrop-blur"
     >
       <!-- Wraps, rather than scrolling sideways. This row used to be
            `overflow-x-auto whitespace-nowrap` with shrink-0 controls, so on a

@@ -1,0 +1,41 @@
+name: Forum Upvote Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'server/api/forum/threads/**'
+      - 'server/api/v1/forum/threads/**'
+      - 'server/utils/forumUpvotes.ts'
+      - 'utils/agentCredentialScopes.ts'
+      - 'tests/contracts/verifyForumUpvotes.ts'
+      - '.github/workflows/forum-upvote-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'server/api/forum/threads/**'
+      - 'server/api/v1/forum/threads/**'
+      - 'server/utils/forumUpvotes.ts'
+      - 'utils/agentCredentialScopes.ts'
+      - 'tests/contracts/verifyForumUpvotes.ts'
+      - '.github/workflows/forum-upvote-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install dependencies
+        run: npm install --include=optional
+      - name: Verify forum upvote semantics
+        run: npx tsx tests/contracts/verifyForumUpvotes.ts

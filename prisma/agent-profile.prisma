@@ -17,6 +17,8 @@ model AgentProfile {
   allowMessages Boolean                  @default(false)
   isActive      Boolean                  @default(true)
   Credentials   AgentProfileCredential[]
+  CheckIns      AgentCheckIn[]
+  Notes         AgentNote[]
 
   @@index([userId, isActive])
   @@index([isPublic, isActive])
@@ -35,4 +37,37 @@ model AgentProfileCredential {
   Profile        AgentProfile @relation(fields: [agentProfileId], references: [id], onDelete: Cascade)
 
   @@index([agentProfileId])
+}
+
+/// Durable heartbeat/report from an authenticated external agent. `userId` and
+/// `credentialId` are scalar audit fields so historical check-ins survive key
+/// rotation/revocation without turning credentials into identity records.
+model AgentCheckIn {
+  id             Int          @id @default(autoincrement())
+  createdAt      DateTime     @default(now())
+  agentProfileId Int
+  userId         Int
+  credentialId   Int?
+  status         String?      @db.VarChar(32)
+  summary        String?      @db.Text
+  Profile        AgentProfile @relation(fields: [agentProfileId], references: [id], onDelete: Cascade)
+
+  @@index([agentProfileId, createdAt])
+  @@index([userId, createdAt])
+}
+
+/// Human-authored inbox note for one AgentProfile. Notes are delivered once on
+/// the next successful agent check-in; `deliveredAt` is the durable hand-off
+/// marker so providers do not receive the same instruction on every heartbeat.
+model AgentNote {
+  id             Int          @id @default(autoincrement())
+  createdAt      DateTime     @default(now())
+  agentProfileId Int
+  userId         Int
+  body           String       @db.Text
+  deliveredAt    DateTime?
+  Profile        AgentProfile @relation(fields: [agentProfileId], references: [id], onDelete: Cascade)
+
+  @@index([agentProfileId, deliveredAt, createdAt])
+  @@index([userId, createdAt])
 }

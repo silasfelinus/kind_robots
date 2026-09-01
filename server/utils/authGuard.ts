@@ -28,6 +28,7 @@ export type AuthGuardResult = {
 }
 
 const config = useRuntimeConfig()
+export const RAINBOW_FIRST_PARTY_CLIENT_ID = 'rainbow-butterflies'
 
 function readBearerToken(event: H3Event): string {
   const authorization = getHeader(event, 'authorization') ?? ''
@@ -233,15 +234,9 @@ export function authHasScope(
 }
 
 /**
- * Require a human-owned auth context. Delegated credentials -- machine
- * AgentCredentials and first-party BFF delegation tokens alike -- are not
- * allowed to create, rotate, revoke, or otherwise manage human-owned
- * credentials/profile administration (AgentCredential create/delete,
- * AgentProfile create/patch/delete). See rainbow-butterflies/t-035
- * (conductor) for the incident this guard closed. Non-admin, non-credential
- * routes that a first-party delegation legitimately needs (e.g. agent
- * check-in notes/activity) should use requireHumanOrDelegatedApiUser below
- * instead of loosening this one.
+ * Require a direct human-owned auth context. Delegated credentials are not
+ * permitted here. First-party products that intentionally manage a narrow
+ * human-owned surface must use an explicit trusted-client guard instead.
  */
 export async function requireHumanApiUser(event: H3Event): Promise<AuthGuardResult> {
   const auth = await requireApiUser(event)
@@ -257,14 +252,42 @@ export async function requireHumanApiUser(event: H3Event): Promise<AuthGuardResu
 }
 
 /**
+ * Allow a signed-in human to manage their Rainbow AgentProfiles/credentials
+ * either directly in Kind Robots or through Rainbow's registered first-party
+ * BFF. This is deliberately narrower than requireHumanOrDelegatedApiUser:
+ * another present or future first-party client cannot mint persistent agent
+ * credentials merely because it possesses a valid delegation for the same
+ * human. Machine AgentCredentials are always rejected.
+ */
+export async function requireHumanOrRainbowApiUser(
+  event: H3Event,
+): Promise<AuthGuardResult> {
+  const auth = await requireApiUser(event)
+
+  if (auth.kind === 'agent-credential') {
+    throw createError({
+      statusCode: 403,
+      message: 'Agent credentials cannot manage agent identities or credentials.',
+    })
+  }
+
+  if (
+    auth.kind === 'first-party-delegation' &&
+    auth.clientId !== RAINBOW_FIRST_PARTY_CLIENT_ID
+  ) {
+    throw createError({
+      statusCode: 403,
+      message: 'This first-party client is not authorized to manage Rainbow agents.',
+    })
+  }
+
+  return auth
+}
+
+/**
  * Require a human-owned auth context, additionally allowing a first-party BFF
- * delegation token. This is the narrower allowance rainbow-butterflies/t-035
- * asked for: only routes that are neither AgentCredential administration nor
- * AgentProfile creation/deletion/reassignment should use this guard, since a
- * delegation token is scoped to "the signed-in human acting through a trusted
- * first-party app," not "an admin of that human's credentials." Machine
- * AgentCredentials are still rejected outright -- only a real human or a
- * first-party delegation acting on their behalf may pass.
+ * delegation token. This is for ordinary delegated user actions that do not
+ * mint persistent credentials or otherwise cross a trust boundary.
  */
 export async function requireHumanOrDelegatedApiUser(
   event: H3Event,

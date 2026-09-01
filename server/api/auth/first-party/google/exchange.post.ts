@@ -2,6 +2,7 @@ import { createError, defineEventHandler, readBody, setHeader } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { logSafeError } from '@/server/utils/error'
 import { getFirstPartyClients } from '@/server/utils/firstPartySso'
+import { issueFirstPartyDelegation } from '@/server/utils/firstPartyDelegation'
 import {
   findFirstPartyClient,
   normalizeAllowedFirstPartyRedirect,
@@ -81,10 +82,6 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    // Use the platform fetch API for external OAuth calls. Nuxt's typed $fetch
-    // attempts Nitro route inference even for arbitrary external URLs, which
-    // can make vue-tsc recurse excessively. Google's token endpoint expects
-    // the standard application/x-www-form-urlencoded OAuth request shape.
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: {
@@ -183,12 +180,18 @@ export default defineEventHandler(async (event) => {
       }
     }
 
+    const delegationToken = await issueFirstPartyDelegation({
+      userId: user.id,
+      client,
+    })
+
     return {
       success: true,
       user: {
         id: user.id,
         username: user.username,
       },
+      delegationToken,
     }
   } catch (error) {
     logSafeError('[First-party Google exchange] failed:', error)

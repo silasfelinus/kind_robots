@@ -30,6 +30,7 @@ assert.match(delegation, /kind:\s*TOKEN_KIND/)
 assert.match(delegation, /setSubject\(String\(input\.userId\)\)/)
 assert.match(delegation, /setAudience\(input\.client\.id\)/)
 assert.match(delegation, /issuer:\s*ISSUER/)
+assert.match(delegation, /algorithms:\s*\['HS256'\]/)
 assert.match(delegation, /findFirstPartyClient\(getFirstPartyClients\(\), clientId\)/)
 assert.doesNotMatch(delegation, /\bid:\s*input\.userId/)
 

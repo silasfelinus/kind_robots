@@ -1,6 +1,7 @@
 import { createError, defineEventHandler, readBody, setHeader } from 'h3'
 import { requireScopedApiUser } from '@/server/utils/authGuard'
 import prisma from '@/server/utils/prisma'
+import { claimResolvedAgentAttentionRequests } from '@/server/utils/agentAttentionRequests'
 
 const allowedStatuses = new Set(['idle', 'working', 'blocked', 'completed'])
 
@@ -102,8 +103,38 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    return { checkIn, notes }
+    const attention = await claimResolvedAgentAttentionRequests({
+      tx,
+      agentProfileId: profile.id,
+      userId: auth.user.id,
+      checkInId: checkIn.id,
+      deliveredAt,
+    })
+
+    return { checkIn, notes, attention }
   })
+
+  const attention = result.attention.map((request) => ({
+    id: request.id,
+    kind: request.kind,
+    title: request.title,
+    body: request.body,
+    clientKey: request.clientKey,
+    status: request.status,
+    resolution: request.resolution,
+    resolvedAt: request.resolvedAt,
+  }))
+  const deliveries: string[] = []
+  if (result.notes.length) {
+    deliveries.push(
+      `${result.notes.length} human note${result.notes.length === 1 ? '' : 's'}`,
+    )
+  }
+  if (attention.length) {
+    deliveries.push(
+      `${attention.length} resolved attention request${attention.length === 1 ? '' : 's'}`,
+    )
+  }
 
   return {
     success: true,
@@ -118,9 +149,10 @@ export default defineEventHandler(async (event) => {
       summary: result.checkIn.summary,
     },
     notes: result.notes,
+    attention,
     message:
-      result.notes.length > 0
-        ? `${result.notes.length} human note${result.notes.length === 1 ? '' : 's'} delivered.`
-        : 'Check-in recorded. No new human notes.',
+      deliveries.length > 0
+        ? `${deliveries.join(' and ')} delivered.`
+        : 'Check-in recorded. No new human notes or attention resolutions.',
   }
 })

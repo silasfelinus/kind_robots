@@ -88,40 +88,111 @@
       </div>
 
       <button
-        type="button"
         class="btn btn-warning btn-sm rounded-xl"
-        @click="goToGallery"
+        type="button"
+        @click="goToDefaultTab"
       >
-        Return to Gallery
+        Go to {{ defaultTabLabel }}
       </button>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
+import { computed, onMounted, ref } from 'vue'
+import { useSampleStore } from '@/stores/sampleStore'
+import { useNavStore } from '@/stores/navStore'
+import {
+  getDashboardConfig,
+  getDashboardDefaultTab,
+  getDashboardTabs,
+  isDashboardTabKey,
+  type DashboardKey,
+} from '@/stores/helpers/dashboardHelper'
+
+// 'sample' must be a registered DashboardKey — add the channel entry and its
+// tabs (gallery, add, interact) in /stores/helpers/dashboardHelper.ts before
+// this compiles. See sample/README.md, "Adding a new channel".
+const dashboardKey: DashboardKey = 'sample'
 
 const sampleStore = useSampleStore()
-const { activeTab, isLoadingManager, managerError, sampleFormMode } =
-  storeToRefs(sampleStore)
+const navStore = useNavStore()
 
-const validTabLabels = computed(() =>
-  sampleStore.validTabs.map((tab) => tab.label).join(', '),
-)
+const isLoadingManager = ref(false)
+const managerError = ref<string | null>(null)
 
-onMounted(() => {
-  void sampleStore.initializeManager()
+const dashboardConfig = computed(() => {
+  return getDashboardConfig(dashboardKey)
 })
 
+const dashboardTabs = computed(() => {
+  return getDashboardTabs(dashboardKey)
+})
+
+const defaultTab = computed(() => {
+  return getDashboardDefaultTab(dashboardKey)
+})
+
+// The nav store owns which tab is active; the manager just renders it and
+// falls back to the registry default for unknown values.
+const activeTab = computed(() => {
+  const selectedTab = navStore.getDashboardTab(dashboardKey)
+
+  if (isDashboardTabKey(dashboardKey, selectedTab)) {
+    return selectedTab
+  }
+
+  return defaultTab.value
+})
+
+// The add tab doubles as the edit form when a row is selected.
+const sampleFormMode = computed<'add' | 'edit'>(() => {
+  return sampleStore.selectedSample ? 'edit' : 'add'
+})
+
+const validTabLabels = computed(() => {
+  return dashboardTabs.value.map((tab) => tab.key).join(', ')
+})
+
+const defaultTabLabel = computed(() => {
+  return (
+    dashboardTabs.value.find((tab) => tab.key === defaultTab.value)?.label ||
+    dashboardConfig.value.label
+  )
+})
+
+async function loadManagerData(force = false) {
+  isLoadingManager.value = true
+  managerError.value = null
+
+  try {
+    await sampleStore.initialize({ force, fetchRemote: true })
+  } catch (error) {
+    managerError.value =
+      error instanceof Error ? error.message : 'Failed to load samples.'
+  } finally {
+    isLoadingManager.value = false
+  }
+}
+
 async function refreshManagerData() {
-  await sampleStore.refreshManagerData()
+  await loadManagerData(true)
 }
 
 function goToGallery() {
-  sampleStore.setActiveTab('gallery')
+  navStore.setDashboardTab(dashboardKey, 'gallery')
 }
 
-function handleSampleSaved() {
-  sampleStore.setActiveTab('gallery')
+function goToDefaultTab() {
+  navStore.setDashboardTab(dashboardKey, defaultTab.value)
 }
+
+async function handleSampleSaved() {
+  await loadManagerData(true)
+  goToGallery()
+}
+
+onMounted(async () => {
+  await loadManagerData()
+})
 </script>

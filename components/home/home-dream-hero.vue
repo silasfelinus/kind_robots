@@ -65,6 +65,12 @@
       no-viewport rule bans viewport HEIGHT units (h-screen/100vh/100dvh) inside
       the h-dvh shell, not vw.
 
+      WIDER AGAIN AT xl, because that is where the room went. Silas, 2026-09-01:
+      "the dream hero gets the extra room, allowing for larger text on the
+      description." Moving the newsfeed and project strip into a narrow right
+      column freed most of the band, and this is where he asked it to land --
+      26vw rather than 20vw, and the description below steps up a size with it.
+
       ABOUT A FIFTH OF THE WIDTH, in its natural proportion. Silas, 2026-08-29:
       "Obviously the dream hero is horribly proportioned, It would be better to
       have something that fits about 20% width of screen, properly fitted
@@ -80,7 +86,7 @@
     -->
     <NuxtLink
       :to="showcaseHref(hero.dream)"
-      class="group flex shrink-0 flex-col gap-1 rounded-xl border-2 border-primary/70 bg-base-100 p-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5 lg:h-full lg:w-[clamp(14rem,20vw,26rem)]"
+      class="group flex shrink-0 flex-col gap-1 rounded-xl border-2 border-primary/70 bg-base-100 p-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5 lg:h-full lg:w-[clamp(14rem,20vw,26rem)] xl:w-[clamp(18rem,26vw,34rem)]"
     >
       <!--
         `h-full` inside a flexible box, so the PLATE fills whatever height the
@@ -112,7 +118,9 @@
           {{ kicker }}
         </p>
 
-        <h2 class="text-sm font-black leading-tight text-base-content">
+        <h2
+          class="text-sm font-black leading-tight text-base-content xl:text-base"
+        >
           {{ hero.dream.title }}
         </h2>
 
@@ -132,7 +140,7 @@
         -->
         <p
           v-if="hero.description || hero.hook"
-          class="mt-1 line-clamp-3 text-[0.7rem] leading-snug text-base-content/65"
+          class="mt-1 line-clamp-4 text-[0.7rem] leading-snug text-base-content/65 xl:line-clamp-6 xl:text-sm xl:leading-relaxed"
         >
           {{ hero.description || hero.hook }}
         </p>
@@ -248,11 +256,28 @@
           </template>
         </kr-art-plate>
 
+        <!--
+          THE CARD SAYS WHAT THE THING IS. Silas, 2026-09-01: "we should see
+          description text on the character, item, skill, etc for the daily
+          dream (facets is just the title)."
+
+          The server sends `subtitle: null` for facets precisely so this needs no
+          per-kind branch here -- a facet is a one-word tag on the dream rather
+          than a character in it, and its flavour text read as filler beside a
+          character's backstory. Everything else gets two clamped lines under
+          its name.
+        -->
         <div class="min-w-0 shrink-0 px-1.5 py-1">
           <p
             class="truncate text-xs font-bold leading-tight group-hover:text-primary"
           >
             {{ member.title }}
+          </p>
+          <p
+            v-if="member.subtitle"
+            class="line-clamp-2 text-[0.65rem] leading-snug text-base-content/60"
+          >
+            {{ member.subtitle }}
           </p>
         </div>
       </a>

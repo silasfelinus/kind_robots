@@ -328,7 +328,19 @@ const heroDreamInclude = {
   ArtImage: { select: artImageRelationSelect },
   Characters: {
     where: PUBLIC,
-    select: { ...heroCastSelect, name: true, title: true, role: true },
+    select: {
+      ...heroCastSelect,
+      name: true,
+      title: true,
+      role: true,
+      // Silas, 2026-09-01: "we should see description text on the character,
+      // item, skill, etc for the daily dream". A character's `title`/`role` is
+      // a job label ("Ledger Clerk"), not a description -- the prose lives in
+      // backstory, with personality as the fallback for characters that have
+      // one but no backstory.
+      backstory: true,
+      personality: true,
+    },
     take: 4,
   },
   Rewards: {
@@ -369,7 +381,12 @@ function buildHeroCast(dream: HeroDream): ShowcaseCard[] {
       card('character', {
         id: character.id,
         title: character.name,
-        subtitle: summarize(character.title, character.role),
+        subtitle: summarize(
+          character.backstory,
+          character.personality,
+          character.title,
+          character.role,
+        ),
         slug: character.slug,
         theme: character.theme,
         badge: 'Character',
@@ -417,7 +434,12 @@ function buildHeroCast(dream: HeroDream): ShowcaseCard[] {
       card('facet', {
         id: facet.id,
         title: facet.title,
-        subtitle: summarize(facet.flavorText),
+        // Deliberately null: Silas, 2026-09-01, listing which cast cards get
+        // description text -- "(facets is just the title)". A facet is a one-word
+        // tag on the dream rather than a character in it, so its flavour text
+        // reads as filler beside a character's backstory. It is still the card's
+        // tooltip via ShowcaseCard.subtitle elsewhere; this is the hero cast only.
+        subtitle: null,
         slug: facet.slug,
         theme: facet.theme,
         badge: 'Facet',

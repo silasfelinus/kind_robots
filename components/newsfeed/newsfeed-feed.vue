@@ -27,6 +27,14 @@
         two full rows of chrome above the first story. These slots let the host
         put its heading and its link INTO this row, so there is one. The
         Newsfeed Lab page passes neither and is unchanged.
+
+        `compact` ALSO KEEPS THE THREE CONTROLS ICON-ONLY, whatever the viewport.
+        Their labels used to appear from `2xl` up, which asks about the VIEWPORT
+        while the thing that has to fit them is the CONTAINER -- and once the
+        feed moved into a 22% side column (2026-09-01) a 1920px screen was
+        showing three full labels inside a 414px panel and overflowing it. The
+        same hazard the layout contract's viewport-grid rule exists for, in a
+        utility it does not cover.
       -->
       <slot name="lead" />
 
@@ -87,7 +95,7 @@
             :name="startsHere ? 'kind-icon:star' : 'kind-icon:stars'"
             class="size-4"
           />
-          <span class="hidden 2xl:inline">{{ pinLabel }}</span>
+          <span v-if="!compact" class="hidden 2xl:inline">{{ pinLabel }}</span>
         </button>
 
         <button
@@ -98,7 +106,7 @@
           @click="showManageFeeds = !showManageFeeds"
         >
           <Icon name="kind-icon:sliders" class="size-4" />
-          <span class="hidden 2xl:inline">Manage feeds</span>
+          <span v-if="!compact" class="hidden 2xl:inline">Manage feeds</span>
           <Icon
             :name="
               showManageFeeds
@@ -118,7 +126,7 @@
         >
           <span v-if="isLoading" class="loading loading-spinner loading-xs" />
           <Icon v-else name="kind-icon:refresh" class="size-4" />
-          <span class="hidden 2xl:inline">Refresh</span>
+          <span v-if="!compact" class="hidden 2xl:inline">Refresh</span>
         </button>
 
         <slot name="trail" />

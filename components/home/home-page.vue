@@ -38,266 +38,261 @@
   pages/[...slug].vue's content-host, which is already the page's single scroll
   owner, which is what .kr-unbound on the root declares.
 
+  FILLS THE SCREEN ON DESKTOP. Silas, 2026-09-01: "We still have some dead space
+  at the bottom of the screen. it would be better to specifically choose
+  percentages, at least on desktop, so we are using maximum space." From `xl` the
+  root is `h-full` and every band divides that height by percentage, so the page
+  ends exactly where the viewport does. Below `xl` it is the ordinary stacking
+  column it always was -- a fixed-height layout on a phone crushes content rather
+  than filling space, and he has not asked for a small-screen design yet ("I do
+  not have an ideal layout for tablet and mobile yet").
+
+  The note has to live up here rather than above the root element: the layout
+  contract's root-surface rule reads the FIRST element in the template, and a
+  comment sitting in front of it reads as the root and fails the rule.
+
   EMPTY RAILS ARE NOT RENDERED. A shelf with nothing on it is an apology; the
   store drops them, so a fresh database shows a shorter page rather than eight
   empty boxes. That is also how "if we are still making new animations" resolves
   itself: the animations rail appears on days the pipeline produced clips.
 -->
 <template>
-  <div class="kr-unbound gap-2 pb-4">
+  <div class="kr-unbound gap-2 pb-4 xl:h-full xl:min-h-0 xl:pb-0">
     <div v-if="showcaseStore.errorMessage" class="kr-note kr-note-warning">
       {{ showcaseStore.errorMessage }}
     </div>
 
     <!--
-      The top band is the dream, its cast, and whatever is waiting on Silas.
-      He asked twice for the dream to give up horizontal space to the third
-      (2026-08-29: "Dream entry should take up less horizontal space to leave
-      room for a vertical notification scroll", then "did not get the increased
-      horizontal space for notifications either").
+      TWO COLUMNS ON DESKTOP. Silas, 2026-09-01: "Needs you, project progress,
+      and newsfeed should be in one column on the right side ... the dream hero
+      gets the extra room ... Then in the lower left corner that remains we
+      should have the six galleries ... in 3 columns and two rows."
 
-      THEN TOO FAR THE OTHER WAY. Giving Needs-you the whole remainder put it
-      at 64.5% of the band, and Silas, 2026-08-30: "The needs you section is too
-      large, it should be 1/3 the size on xl screens, 1/2 as large on medium.
-      Basically, one vertically scrollable row, so the dream section can
-      breath."
+      Left is the dream and the galleries; right is everything that is a list
+      rather than a picture. The right column is 22% -- "The needs you section is
+      still too wide" applied to what was a third of the band, and narrow enough
+      that the newsfeed reads as a vertical feed rather than a grid.
 
-      So the sizes are stated directly on the gate column and the hero takes
-      what is left -- the reverse of the previous arrangement, and the right way
-      round now that the number wanted is a fraction of the row rather than
-      "whatever the cast released". One column of gates that scrolls, not the
-      three-across grid that width invited.
-
-      ONE HEIGHT FOR ALL THREE COLUMNS. Silas: "still a discrepancy betwen hero
-      dream height and the rest." There was: the dream card's 4:3 plate set the
-      band height at 356px and the single row of cast tiles left ~150px of dead
-      space beneath it. A definite height on the row makes every column exactly
-      as tall as its neighbours, and each column then distributes that height
-      internally (the card's plate flexes, the cast's rows share it, the gate
-      list scrolls). `h-*` in rem, not vh -- the contract's no-viewport rule.
+      Below `xl` the two columns stack and each band keeps its natural height,
+      which is also where the galleries fall back to one swipe-scrollable row
+      ("ideally we will be able to do something close to this with tablet but
+      have swipe scrolling to show the different object galleries").
     -->
-    <div class="flex flex-col gap-2 lg:h-96 lg:flex-row lg:items-stretch">
-      <home-dream-hero
-        v-if="showcaseStore.hero"
-        class="min-w-0 lg:flex-1"
-        :hero="showcaseStore.hero"
-        @select="openCard"
-      />
-
-      <div
-        v-else-if="!showcaseStore.hasLoaded"
-        class="h-40 w-full animate-pulse rounded-2xl bg-base-200 lg:h-full lg:flex-1"
-        aria-hidden="true"
-      />
-
-      <home-attention class="lg:w-1/2 lg:shrink-0 xl:w-1/3" />
-    </div>
-
-    <!--
-      ONE ROW OF SHELVES THAT SCROLLS SIDEWAYS. Silas, 2026-08-30: "let's have
-      one row instead of two for the art and objects sections, with a scroll to
-      show us the other three object sets hidden."
-
-      It was a 4-column grid two rows deep with the art shelf spanning both. Now
-      it is a single flex track: each shelf claims a quarter of the row, four are
-      visible, and the remaining three (of seven) are one chevron away. The
-      quarter is of THIS CONTAINER, not a viewport breakpoint, with a 17rem
-      floor so a narrow screen shows fewer real shelves instead of seven slivers.
-
-      overflow-x-auto is deliberately not counted by the layout contract's
-      one-scroll rule, which counts vertical owners -- the page's scroll owner is
-      still pages/[...slug].vue's content-host.
-    -->
-    <div
-      v-if="visibleRails.length"
-      class="no-scrollbar flex gap-2 overflow-x-auto pb-1"
-    >
-      <template v-for="entry in visibleRails" :key="entry.key">
+    <div class="flex flex-col gap-2 xl:min-h-0 xl:flex-1 xl:flex-row">
+      <div class="flex min-w-0 flex-col gap-2 xl:min-h-0 xl:w-[78%]">
         <!--
-          The art cell is the one shelf with two modes behind it. Silas,
-          2026-08-29: "let me togle between the fresh from art queue and to see
-          the current progress, and choose from active to failed, etc, keeping
-          the layout, which otherwise is great." home-art-shelf renders the SAME
-          home-rail in the same two-row cell and only swaps what fills it, so
-          "keeping the layout" is structural rather than a thing to re-check.
+          The dream band. 46/54 rather than half and half: the galleries below
+          are two rows of cards and need the larger share, while the hero is one
+          card and one scrolling cast row.
         -->
-        <home-art-shelf
-          v-if="entry.key === 'art'"
-          class="min-w-[17rem] shrink-0 basis-[calc(25%-0.375rem)]"
-          :fresh="entry.items"
-          @select="openCard"
-        />
-
-        <home-rail
-          v-else
-          class="min-w-[17rem] shrink-0 basis-[calc(25%-0.375rem)]"
-          :label="entry.label"
-          :icon="entry.icon"
-          :items="entry.items"
-          :see-all-href="entry.href"
-          :shape="entry.shape"
-          :plate-variant="entry.plateVariant"
-          :placeholder-icon="entry.placeholderIcon"
-          :fit="entry.fit ?? 'cover'"
-          interactive
-          @select="openCard"
-        />
-      </template>
-    </div>
-
-    <div
-      v-else-if="!showcaseStore.hasLoaded"
-      class="flex gap-2 overflow-hidden"
-      aria-hidden="true"
-    >
-      <div
-        v-for="n in 4"
-        :key="n"
-        class="h-44 min-w-[17rem] shrink-0 basis-[calc(25%-0.375rem)] animate-pulse rounded-2xl bg-base-200"
-      />
-    </div>
-
-    <!--
-      The projects strip. Silas, 2026-08-29: "I do like how projects appear
-      differently than the rest" -- so this deliberately keeps its horizontal
-      icon-plus-text card shape rather than being folded into the rail grid.
-    -->
-    <section
-      v-if="showcaseStore.projects.length"
-      class="flex flex-col gap-1.5 kr-panel-flat p-3"
-    >
-      <header class="flex flex-wrap items-baseline justify-between gap-3">
-        <h2
-          class="text-[0.7rem] font-black uppercase tracking-[0.16em] text-primary"
+        <div
+          class="flex flex-col gap-2 lg:h-96 lg:flex-row lg:items-stretch xl:h-[46%] xl:min-h-0 xl:shrink-0"
         >
-          What we're building
-        </h2>
+          <home-dream-hero
+            v-if="showcaseStore.hero"
+            class="min-w-0 lg:flex-1"
+            :hero="showcaseStore.hero"
+            @select="openCard"
+          />
 
-        <NuxtLink
-          to="/conductor"
-          class="link link-hover text-[0.7rem] font-bold text-base-content/50 hover:text-primary"
-        >
-          every project →
-        </NuxtLink>
-      </header>
+          <div
+            v-else-if="!showcaseStore.hasLoaded"
+            class="h-40 w-full animate-pulse rounded-2xl bg-base-200 lg:h-full lg:flex-1"
+            aria-hidden="true"
+          />
+        </div>
 
-      <div
-        class="grid gap-2 grid-cols-[repeat(auto-fit,minmax(min(100%,11rem),1fr))]"
-      >
-        <NuxtLink
-          v-for="project in showcaseStore.projects"
-          :key="project.id"
-          :to="showcaseHref(project)"
-          class="group flex items-center gap-2 rounded-xl border border-base-300 bg-base-100 p-1.5 transition-shadow hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5"
+        <!--
+          THE SIX GALLERIES, 3x2. Silas named exactly six: "art images, dreams,
+          character, rewards (items and skills combined) scenario, and facets".
+          Bots and animations are no longer on the page as a result -- flagged
+          rather than quietly kept, since dropping a kind is a content decision.
+
+          A page component MAY gate grid-cols on a viewport breakpoint (the
+          layout contract's viewport-grid rule binds shared components, which
+          get embedded in hosts narrower than the viewport implies). Below xl
+          this stays the one horizontally scrolling row it was, which is the
+          swipe behaviour asked for on tablet.
+        -->
+        <div
+          v-if="visibleRails.length"
+          class="no-scrollbar flex gap-2 overflow-x-auto pb-1 xl:grid xl:min-h-0 xl:flex-1 xl:grid-cols-3 xl:grid-rows-2 xl:overflow-visible xl:pb-0"
         >
-          <div class="size-10 shrink-0 overflow-hidden rounded-lg">
-            <kr-art-plate
-              :source="project.art"
-              variant="icon"
-              shape="square"
-              frame="none"
-              :alt="project.title"
-              :fallback="fallbackFor(project)"
-              placeholder-icon="kind-icon:blueprint"
-              fit="cover"
+          <template v-for="entry in visibleRails" :key="entry.key">
+            <!--
+              The art cell is the one shelf with two modes behind it. Silas,
+              2026-08-29: "let me togle between the fresh from art queue and to
+              see the current progress, and choose from active to failed, etc,
+              keeping the layout, which otherwise is great." home-art-shelf
+              renders the SAME home-rail and only swaps what fills it.
+            -->
+            <home-art-shelf
+              v-if="entry.key === 'art'"
+              class="min-w-[17rem] shrink-0 basis-[calc(25%-0.375rem)] xl:min-h-0 xl:min-w-0 xl:basis-auto"
+              :fresh="entry.items"
+              @select="openCard"
             />
-          </div>
 
-          <!--
-            Silas, 2026-08-29: "project titles are still getting cut off ...
-            they are the most important part, and we should see progress
-            indicator, the priority rating could be a simple single letter.
-            description is not needed, these are things I'm well aquainted
-            with." So the description is gone, the priority is one glyph, and
-            everything the title was competing with for width went with them.
+            <home-rail
+              v-else
+              class="min-w-[17rem] shrink-0 basis-[calc(25%-0.375rem)] xl:min-h-0 xl:min-w-0 xl:basis-auto"
+              :label="entry.label"
+              :icon="entry.icon"
+              :items="entry.items"
+              :see-all-href="entry.href"
+              :shape="entry.shape"
+              :plate-variant="entry.plateVariant"
+              :placeholder-icon="entry.placeholderIcon"
+              :fit="entry.fit ?? 'cover'"
+              interactive
+              @select="openCard"
+            />
+          </template>
+        </div>
 
-            Progress comes from conductorStore, which already computes it per
-            project; the two are joined on conductorSlug.
-          -->
-          <div class="min-w-0 flex-1">
-            <p
-              class="truncate text-xs font-black leading-tight group-hover:text-primary"
-              :title="project.title"
-            >
-              {{ project.title }}
-            </p>
-
-            <div class="mt-1 flex items-center gap-1.5">
-              <span
-                v-if="priorityLetter(project)"
-                class="grid size-3.5 shrink-0 place-items-center rounded bg-primary text-[0.5rem] font-black text-primary-content"
-                :title="`${project.badge || 'Priority'}`"
-              >
-                {{ priorityLetter(project) }}
-              </span>
-
-              <template v-if="progressFor(project) !== null">
-                <span
-                  class="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-base-300"
-                  :title="`${progressFor(project)}% complete`"
-                >
-                  <span
-                    class="block h-full rounded-full bg-primary"
-                    :style="{ width: `${progressFor(project)}%` }"
-                  />
-                </span>
-
-                <span
-                  class="shrink-0 text-[0.6rem] font-bold tabular-nums text-base-content/55"
-                >
-                  {{ progressFor(project) }}%
-                </span>
-              </template>
-
-              <span v-else class="min-w-0 flex-1" />
-            </div>
-          </div>
-        </NuxtLink>
+        <div
+          v-else-if="!showcaseStore.hasLoaded"
+          class="flex gap-2 overflow-hidden xl:grid xl:min-h-0 xl:flex-1 xl:grid-cols-3 xl:grid-rows-2"
+          aria-hidden="true"
+        >
+          <div
+            v-for="n in 6"
+            :key="n"
+            class="h-44 min-w-[17rem] shrink-0 basis-[calc(25%-0.375rem)] animate-pulse rounded-2xl bg-base-200 xl:h-auto xl:min-w-0 xl:basis-auto"
+          />
+        </div>
       </div>
-    </section>
 
-    <!--
-      The feed, still whole -- but its heading now sits IN its control strip
-      rather than in a section header above it. Silas, 2026-08-29: "The
-      selections like all ai news, etc, and the other icons, should be in line
-      with the From around the web and newsfeed tab section." That was two full
-      rows of chrome before the first story; the `lead`/`trail` slots on
-      newsfeed-feed make it one.
+      <!--
+        THE RIGHT COLUMN: the three things that are lists rather than pictures.
+        Needs-you and the newsfeed both scroll and share the leftover height;
+        the project strip sits between them at its natural height because it is
+        six short rows and scrolling it would be silly.
+      -->
+      <div class="flex min-w-0 flex-col gap-2 xl:min-h-0 xl:w-[22%]">
+        <home-attention class="xl:min-h-0 xl:flex-1" />
 
-      The scroller is bounded rather than however tall the feed wants to be
-      ("newsfeeds should scroll vertically, and take up less height"). The
-      contract's one-scroll rule deliberately does not count a `max-h-*` region
-      -- those are nested previews, not the page's scroll owner, which is still
-      pages/[...slug].vue's content-host.
+        <!--
+          The projects strip. Silas, 2026-08-29: "I do like how projects appear
+          differently than the rest" -- so this keeps its horizontal
+          icon-plus-text card shape. In a narrow column that becomes one card
+          per row, which is what the container-width columns already do.
+        -->
+        <section
+          v-if="showcaseStore.projects.length"
+          class="flex shrink-0 flex-col gap-1.5 kr-panel-flat p-3"
+        >
+          <header class="flex flex-wrap items-baseline justify-between gap-3">
+            <h2
+              class="text-[0.7rem] font-black uppercase tracking-[0.16em] text-primary"
+            >
+              What we're building
+            </h2>
 
-      The bound was accidentally DROPPED when the heading moved into the feed's
-      own control row, which is how an unbounded feed got back onto the page.
-      It is on the section itself now rather than an inner wrapper, so the
-      heading row scrolls with the stories instead of the stories scrolling
-      under a pinned header inside a panel that also scrolls.
-    -->
-    <section
-      class="flex max-h-80 flex-col overflow-y-auto overscroll-contain kr-panel-flat p-3"
-    >
-      <NewsfeedFeed :initial-limit="24" compact>
-        <template #lead>
-          <h2
-            class="hidden shrink-0 text-[0.7rem] font-black uppercase tracking-[0.16em] text-primary lg:block"
+            <NuxtLink
+              to="/conductor"
+              class="link link-hover text-[0.7rem] font-bold text-base-content/50 hover:text-primary"
+            >
+              every project →
+            </NuxtLink>
+          </header>
+
+          <div
+            class="grid gap-2 grid-cols-[repeat(auto-fit,minmax(min(100%,11rem),1fr))]"
           >
-            From around the web
-          </h2>
-        </template>
+            <NuxtLink
+              v-for="project in showcaseStore.projects"
+              :key="project.id"
+              :to="showcaseHref(project)"
+              class="group flex items-center gap-2 rounded-xl border border-base-300 bg-base-100 p-1.5 transition-shadow hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5"
+            >
+              <div class="size-10 shrink-0 overflow-hidden rounded-lg">
+                <kr-art-plate
+                  :source="project.art"
+                  variant="icon"
+                  shape="square"
+                  frame="none"
+                  :alt="project.title"
+                  :fallback="fallbackFor(project)"
+                  placeholder-icon="kind-icon:blueprint"
+                  fit="cover"
+                />
+              </div>
 
-        <template #trail>
-          <NuxtLink
-            to="/plan/newsfeed"
-            class="link link-hover shrink-0 text-[0.7rem] font-bold text-base-content/50 hover:text-primary"
-          >
-            lab →
-          </NuxtLink>
-        </template>
-      </NewsfeedFeed>
-    </section>
+              <div class="min-w-0 flex-1">
+                <p
+                  class="truncate text-xs font-black leading-tight group-hover:text-primary"
+                  :title="project.title"
+                >
+                  {{ project.title }}
+                </p>
+
+                <div class="mt-1 flex items-center gap-1.5">
+                  <span
+                    v-if="priorityLetter(project)"
+                    class="grid size-3.5 shrink-0 place-items-center rounded bg-primary text-[0.5rem] font-black text-primary-content"
+                    :title="`${project.badge || 'Priority'}`"
+                  >
+                    {{ priorityLetter(project) }}
+                  </span>
+
+                  <template v-if="progressFor(project) !== null">
+                    <span
+                      class="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-base-300"
+                      :title="`${progressFor(project)}% complete`"
+                    >
+                      <span
+                        class="block h-full rounded-full bg-primary"
+                        :style="{ width: `${progressFor(project)}%` }"
+                      />
+                    </span>
+
+                    <span
+                      class="shrink-0 text-[0.6rem] font-bold tabular-nums text-base-content/55"
+                    >
+                      {{ progressFor(project) }}%
+                    </span>
+                  </template>
+
+                  <span v-else class="min-w-0 flex-1" />
+                </div>
+              </div>
+            </NuxtLink>
+          </div>
+        </section>
+
+        <!--
+          The feed, its heading inside its own control strip rather than in a
+          section header above it (Silas, 2026-08-29). Bounded on small screens
+          by max-h; on xl it simply fills whatever the column has left, which is
+          the "use maximum space" ask. The contract's one-scroll rule does not
+          count a `max-h-*` region -- nested preview, not the page's scroll
+          owner, which is still pages/[...slug].vue's content-host.
+        -->
+        <section
+          class="flex max-h-80 flex-col overflow-y-auto overscroll-contain kr-panel-flat p-3 xl:max-h-full xl:min-h-0 xl:flex-1"
+        >
+          <NewsfeedFeed :initial-limit="24" compact>
+            <template #lead>
+              <h2
+                class="hidden shrink-0 text-[0.7rem] font-black uppercase tracking-[0.16em] text-primary lg:block"
+              >
+                From around the web
+              </h2>
+            </template>
+
+            <template #trail>
+              <NuxtLink
+                to="/plan/newsfeed"
+                class="link link-hover shrink-0 text-[0.7rem] font-bold text-base-content/50 hover:text-primary"
+              >
+                lab →
+              </NuxtLink>
+            </template>
+          </NewsfeedFeed>
+        </section>
+      </div>
+    </div>
 
     <!--
       The interstitial. Silas, 2026-08-29: "Whenever I click on one of the new
@@ -392,10 +387,19 @@ function priorityLetter(project: ShowcaseCard): string {
 }
 
 /*
+ * SIX GALLERIES, NAMED. Silas, 2026-09-01: "the six galleries (art images,
+ * dreams, character, rewards (items and skills combined) scenario, and facets,
+ * in 3 columns and two rows."
+ *
+ * That list is exactly six, and it does not include bots or animations -- both
+ * were on the page before and are not any more. Worth stating plainly rather
+ * than leaving to be noticed: dropping a kind from the front page is a content
+ * decision, and if bots should be back, one of these six has to give up its
+ * cell or the grid stops being 3x2.
+ *
  * ORDER IS THE ARGUMENT. Art first because it is the most immediately legible
- * proof that something is happening here; then the six schema objects roughly
- * in the order the dream cycle creates them, with bots alongside; animations
- * wherever they exist.
+ * proof that something is happening here; then the objects roughly in the order
+ * the dream cycle creates them.
  *
  * Shapes differ on purpose: renders and clips are landscape work and get the
  * wide plate, authored objects are portrait cards. A rail of mismatched aspect
@@ -415,15 +419,6 @@ const RAILS: RailDefinition[] = [
     // row now (2026-08-30), so there is no second row to span and the art shelf
     // is an ordinary single-row shelf like the rest.
     fit: 'contain',
-  },
-  {
-    key: 'animations',
-    label: 'Moving pictures',
-    icon: 'kind-icon:movie',
-    placeholderIcon: 'kind-icon:movie',
-    href: '/art',
-    shape: 'wide',
-    plateVariant: 'card',
   },
   {
     key: 'dreams',
@@ -454,19 +449,13 @@ const RAILS: RailDefinition[] = [
   },
   {
     key: 'rewards',
+    // "rewards (items and skills combined)" -- they already are: Reward is one
+    // model with a rewardType of ITEM or SKILL, and this rail has always shown
+    // both. The label says so.
     label: 'New items and skills',
     icon: 'kind-icon:treasure',
     placeholderIcon: 'kind-icon:treasure',
     href: '/rewards',
-    shape: 'square',
-    plateVariant: 'card',
-  },
-  {
-    key: 'bots',
-    label: 'New bots',
-    icon: 'kind-icon:robot',
-    placeholderIcon: 'kind-icon:robot',
-    href: '/bots',
     shape: 'square',
     plateVariant: 'card',
   },

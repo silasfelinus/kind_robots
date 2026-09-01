@@ -40,7 +40,7 @@
 
     <section
       v-else-if="activeTab === 'add'"
-      class="min-h-0 flex-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-4"
+      class="min-h-0 flex-1 overflow-y-auto kr-panel-flat p-4"
     >
       <div class="mb-4 flex items-start justify-between gap-3">
         <div class="min-w-0">
@@ -88,111 +88,40 @@
       </div>
 
       <button
-        class="btn btn-warning btn-sm rounded-xl"
         type="button"
-        @click="goToDefaultTab"
+        class="btn btn-warning btn-sm rounded-xl"
+        @click="goToGallery"
       >
-        Go to {{ defaultTabLabel }}
+        Return to Gallery
       </button>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { useSampleStore } from '@/stores/sampleStore'
-import { useNavStore } from '@/stores/navStore'
-import {
-  getDashboardConfig,
-  getDashboardDefaultTab,
-  getDashboardTabs,
-  isDashboardTabKey,
-  type DashboardKey,
-} from '@/stores/helpers/dashboardHelper'
-
-// 'sample' must be a registered DashboardKey — add the channel entry and its
-// tabs (gallery, add, interact) in /stores/helpers/dashboardHelper.ts before
-// this compiles. See sample/README.md, "Adding a new channel".
-const dashboardKey: DashboardKey = 'sample'
+import { storeToRefs } from 'pinia'
 
 const sampleStore = useSampleStore()
-const navStore = useNavStore()
+const { activeTab, isLoadingManager, managerError, sampleFormMode } =
+  storeToRefs(sampleStore)
 
-const isLoadingManager = ref(false)
-const managerError = ref<string | null>(null)
+const validTabLabels = computed(() =>
+  sampleStore.validTabs.map((tab) => tab.label).join(', '),
+)
 
-const dashboardConfig = computed(() => {
-  return getDashboardConfig(dashboardKey)
+onMounted(() => {
+  void sampleStore.initializeManager()
 })
-
-const dashboardTabs = computed(() => {
-  return getDashboardTabs(dashboardKey)
-})
-
-const defaultTab = computed(() => {
-  return getDashboardDefaultTab(dashboardKey)
-})
-
-// The nav store owns which tab is active; the manager just renders it and
-// falls back to the registry default for unknown values.
-const activeTab = computed(() => {
-  const selectedTab = navStore.getDashboardTab(dashboardKey)
-
-  if (isDashboardTabKey(dashboardKey, selectedTab)) {
-    return selectedTab
-  }
-
-  return defaultTab.value
-})
-
-// The add tab doubles as the edit form when a row is selected.
-const sampleFormMode = computed<'add' | 'edit'>(() => {
-  return sampleStore.selectedSample ? 'edit' : 'add'
-})
-
-const validTabLabels = computed(() => {
-  return dashboardTabs.value.map((tab) => tab.key).join(', ')
-})
-
-const defaultTabLabel = computed(() => {
-  return (
-    dashboardTabs.value.find((tab) => tab.key === defaultTab.value)?.label ||
-    dashboardConfig.value.label
-  )
-})
-
-async function loadManagerData(force = false) {
-  isLoadingManager.value = true
-  managerError.value = null
-
-  try {
-    await sampleStore.initialize({ force, fetchRemote: true })
-  } catch (error) {
-    managerError.value =
-      error instanceof Error ? error.message : 'Failed to load samples.'
-  } finally {
-    isLoadingManager.value = false
-  }
-}
 
 async function refreshManagerData() {
-  await loadManagerData(true)
+  await sampleStore.refreshManagerData()
 }
 
 function goToGallery() {
-  navStore.setDashboardTab(dashboardKey, 'gallery')
+  sampleStore.setActiveTab('gallery')
 }
 
-function goToDefaultTab() {
-  navStore.setDashboardTab(dashboardKey, defaultTab.value)
+function handleSampleSaved() {
+  sampleStore.setActiveTab('gallery')
 }
-
-async function handleSampleSaved() {
-  await loadManagerData(true)
-  goToGallery()
-}
-
-onMounted(async () => {
-  await loadManagerData()
-})
 </script>

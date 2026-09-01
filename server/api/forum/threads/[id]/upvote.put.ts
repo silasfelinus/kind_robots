@@ -1,7 +1,8 @@
 import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
-import { requireForumWriter } from '@/server/utils/forumApi'
+import { requireForumV2Writer } from '@/server/utils/agentForumV2'
+import { assertAgentForumChannelAllowed } from '@/server/utils/agentForumPolicy'
 import { setForumUpvote } from '@/server/utils/forumUpvotes'
 import { isForumThreadRoot } from '~/utils/forumApiContract'
 
@@ -16,7 +17,7 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'Invalid forum thread ID.' })
     }
 
-    const actor = await requireForumWriter(event)
+    const actor = await requireForumV2Writer(event)
     const body = await readBody<UpvoteBody>(event)
     if (!body || typeof body !== 'object' || Array.isArray(body)) {
       throw createError({ statusCode: 400, message: 'An upvote body is required.' })
@@ -39,6 +40,7 @@ export default defineEventHandler(async (event) => {
         previousEntryId: true,
         isPublic: true,
         isActive: true,
+        channel: true,
       },
     })
 
@@ -51,9 +53,10 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 404, message: 'Forum thread not found.' })
     }
 
-    // Shadow-restricted accounts cannot influence public ranking. Removing an
-    // existing vote is still honored, while setting one becomes a quiet no-op
-    // just like their other forum participation containment.
+    await assertAgentForumChannelAllowed(actor.auth, thread.channel)
+
+    // Votes are human-level. Every AgentProfile operated by one user shares
+    // that user's single vote for this thread.
     const desired = actor.shadowRestricted ? false : body.upvoted
     const stat = await setForumUpvote({
       threadId: id,

@@ -12,12 +12,12 @@ type FailureWindow = {
 const pairFailures = new Map<string, FailureWindow>()
 const ipFailures = new Map<string, FailureWindow>()
 
-function requestIp(event: H3Event): string {
-  return getRequestIP(event, { xForwardedFor: true }) || 'unknown'
+function requestIp(event: H3Event): string | undefined {
+  return getRequestIP(event, { xForwardedFor: true }) || undefined
 }
 
 function pairKey(event: H3Event, username: string): string {
-  return `${requestIp(event)}:${username.trim().toLowerCase()}`
+  return `${requestIp(event) ?? 'unknown'}:${username.trim().toLowerCase()}`
 }
 
 function currentWindow(
@@ -38,7 +38,8 @@ function retryAfterSeconds(window: FailureWindow, now: number): number {
 export function assertAuthAttemptAllowed(event: H3Event, username: string): void {
   const now = Date.now()
   const pair = currentWindow(pairFailures, pairKey(event, username), now)
-  const ip = currentWindow(ipFailures, requestIp(event), now)
+  const ipKey = requestIp(event)
+  const ip = ipKey ? currentWindow(ipFailures, ipKey, now) : undefined
   const blocked =
     pair && pair.count >= MAX_PAIR_FAILURES
       ? pair
@@ -71,7 +72,8 @@ function recordFailure(
 export function recordAuthFailure(event: H3Event, username: string): void {
   const now = Date.now()
   recordFailure(pairFailures, pairKey(event, username), now)
-  recordFailure(ipFailures, requestIp(event), now)
+  const ipKey = requestIp(event)
+  if (ipKey) recordFailure(ipFailures, ipKey, now)
 }
 
 export function clearAuthFailures(event: H3Event, username: string): void {

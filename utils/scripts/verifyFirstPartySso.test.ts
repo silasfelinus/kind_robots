@@ -26,6 +26,13 @@ assert.equal(
   true,
 )
 assert.equal(
+  isAllowedFirstPartyRedirect(
+    rainbow,
+    'https://rainbowbutterflies.org/auth/google/callback',
+  ),
+  true,
+)
+assert.equal(
   isAllowedFirstPartyRedirect(rainbow, 'https://evil.example/auth/callback'),
   false,
 )

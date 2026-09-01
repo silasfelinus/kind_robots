@@ -914,6 +914,12 @@ jobs:
       - name: Model Builder resumeRun request guard contract
         run: npm run test:model-builder-resume-run-request-guard
 
+      - name: Model Builder item-panel Reject wiring guard checker self-test
+        run: npm run test:model-builder-item-panel-reject-wiring-guard-selftest
+
+      - name: Model Builder item-panel Reject wiring guard contract
+        run: npm run test:model-builder-item-panel-reject-wiring-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

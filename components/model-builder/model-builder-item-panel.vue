@@ -81,15 +81,24 @@
         >
           Edit
         </button>
-        <button
-          v-else
-          type="button"
-          class="btn btn-xs btn-primary rounded-lg"
-          :disabled="isLocked('PITCH') || !pitch.trim()"
-          @click="approve('PITCH')"
-        >
-          Approve pitch
-        </button>
+        <template v-else>
+          <button
+            type="button"
+            class="btn btn-xs btn-ghost rounded-lg text-error"
+            :disabled="isLocked('PITCH') || isAnyDraftInFlight"
+            @click="reject('PITCH')"
+          >
+            Reject
+          </button>
+          <button
+            type="button"
+            class="btn btn-xs btn-primary rounded-lg"
+            :disabled="isLocked('PITCH') || !pitch.trim()"
+            @click="approve('PITCH')"
+          >
+            Approve pitch
+          </button>
+        </template>
       </div>
     </section>
 
@@ -181,15 +190,24 @@
         >
           Edit
         </button>
-        <button
-          v-else
-          type="button"
-          class="btn btn-xs btn-primary rounded-lg"
-          :disabled="isLocked('FIELDS_AND_PROMPTS')"
-          @click="approve('FIELDS_AND_PROMPTS')"
-        >
-          Approve fields &amp; prompts
-        </button>
+        <template v-else>
+          <button
+            type="button"
+            class="btn btn-xs btn-ghost rounded-lg text-error"
+            :disabled="isLocked('FIELDS_AND_PROMPTS') || isAnyDraftInFlight"
+            @click="reject('FIELDS_AND_PROMPTS')"
+          >
+            Reject
+          </button>
+          <button
+            type="button"
+            class="btn btn-xs btn-primary rounded-lg"
+            :disabled="isLocked('FIELDS_AND_PROMPTS')"
+            @click="approve('FIELDS_AND_PROMPTS')"
+          >
+            Approve fields &amp; prompts
+          </button>
+        </template>
       </div>
     </section>
 
@@ -297,15 +315,24 @@
         >
           Edit
         </button>
-        <button
-          v-else
-          type="button"
-          class="btn btn-xs btn-primary rounded-lg"
-          :disabled="!canApproveAssets"
-          @click="approve('GENERATE_ASSETS')"
-        >
-          Keep this asset
-        </button>
+        <template v-else>
+          <button
+            type="button"
+            class="btn btn-xs btn-ghost rounded-lg text-error"
+            :disabled="isLocked('GENERATE_ASSETS') || isGenerating || isQueued"
+            @click="reject('GENERATE_ASSETS')"
+          >
+            Reject
+          </button>
+          <button
+            type="button"
+            class="btn btn-xs btn-primary rounded-lg"
+            :disabled="!canApproveAssets"
+            @click="approve('GENERATE_ASSETS')"
+          >
+            Keep this asset
+          </button>
+        </template>
       </div>
     </section>
 
@@ -593,6 +620,20 @@ function isEditable(stage: BuildStageKey): boolean {
 
 function approve(stage: BuildStageKey): void {
   store.approveStage(props.itemId, stage)
+}
+
+// Bug (model-builder/t-029, cycle 78): rejectStage() is a fully-built store
+// action (mirroring approveStage/reopenStage -- flips the stage to
+// 'rejected', invalidates downstream via markDownstreamStale, reverts on a
+// failed PATCH) and badgeFor()/isEditable() above have handled the
+// 'rejected' status for a long time (badge-error styling, textareas stay
+// editable), but no component ever called store.rejectStage -- a real user
+// session could never actually produce a 'rejected' stage. Wires the
+// existing action to a "Reject" control next to each review-gate stage's
+// Approve button (PITCH/FIELDS_AND_PROMPTS/GENERATE_ASSETS -- COMMIT has no
+// approve/reject concept of its own; commitItem sets its status directly).
+function reject(stage: BuildStageKey): void {
+  store.rejectStage(props.itemId, stage)
 }
 
 function badgeFor(stage: BuildStageKey): string {

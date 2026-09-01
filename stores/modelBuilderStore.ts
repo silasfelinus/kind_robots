@@ -2335,7 +2335,24 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         )
       }
     } finally {
-      state.autoBuilding = false
+      // Bug (model-builder/t-029, cycle 75): unlike the loop body and the
+      // summary setStatus above, this used to clear state.autoBuilding
+      // unconditionally regardless of which run was active by the time this
+      // call's own awaited work finally settled. openRun/resetRun/resetAll
+      // eagerly clear state.autoBuilding the instant the user switches away
+      // (see their own doc comments) precisely so a *new* operation on the
+      // newly-active run isn't blocked by this abandoned one -- but that
+      // eager clear only protects the moment of the switch itself. If the
+      // user starts a genuinely new autoBuildRun/batchAutoBuild on the new
+      // run before this abandoned call's last awaited autoBuildItem()
+      // settles, this unconditional clear fires *after* that new operation
+      // has already re-set state.autoBuilding = true, silently stomping it
+      // back to false mid-flight -- the new run's UI reads "not busy" while
+      // its own auto-build is still genuinely running, opening the door to
+      // exactly the double-invocation race isRunOperationInFlight() exists
+      // to prevent. Only clear when this call still owns the flag, i.e. the
+      // active run is still the one this call started for.
+      if (state.run?.id === runId) state.autoBuilding = false
     }
   }
 
@@ -2493,7 +2510,17 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         )
       }
     } finally {
-      batchingOutputSingleton.release(outputKey)
+      // See autoBuildRun's identical fix (model-builder/t-029, cycle 75):
+      // releasing unconditionally let this abandoned call's finally fire
+      // after the user switched to a different run and started a brand-new
+      // batch operation that happens to share this same outputKey (a
+      // realistic collision -- output keys like "characters"/"rewards" are
+      // recipe-level names reused across many runs), silently releasing the
+      // NEW operation's own in-flight claim out from under it.
+      // batchingOutputSingleton.release only checks that the VALUE still
+      // matches, which a same-named group on a different run also satisfies
+      // -- only release when this call is still the one that owns it.
+      if (state.run?.id === runId) batchingOutputSingleton.release(outputKey)
     }
   }
 
@@ -2622,7 +2649,11 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         }
       }
     } finally {
-      batchingOutputSingleton.release(outputKey)
+      // See autoBuildRun's identical fix (model-builder/t-029, cycle 75) --
+      // only release when this call still owns the claim, or an abandoned
+      // call for a different run sharing this same outputKey can release a
+      // brand-new operation's in-flight claim out from under it.
+      if (state.run?.id === runId) batchingOutputSingleton.release(outputKey)
     }
   }
 
@@ -2734,7 +2765,11 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         }
       }
     } finally {
-      batchingOutputSingleton.release(outputKey)
+      // See autoBuildRun's identical fix (model-builder/t-029, cycle 75) --
+      // only release when this call still owns the claim, or an abandoned
+      // call for a different run sharing this same outputKey can release a
+      // brand-new operation's in-flight claim out from under it.
+      if (state.run?.id === runId) batchingOutputSingleton.release(outputKey)
     }
   }
 
@@ -2816,7 +2851,11 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         )
       }
     } finally {
-      batchingOutputSingleton.release(outputKey)
+      // See autoBuildRun's identical fix (model-builder/t-029, cycle 75) --
+      // only release when this call still owns the claim, or an abandoned
+      // call for a different run sharing this same outputKey can release a
+      // brand-new operation's in-flight claim out from under it.
+      if (state.run?.id === runId) batchingOutputSingleton.release(outputKey)
     }
   }
 

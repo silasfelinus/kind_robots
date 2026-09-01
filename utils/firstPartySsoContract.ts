@@ -24,8 +24,11 @@ export const DEFAULT_FIRST_PARTY_CLIENTS: readonly FirstPartyClient[] = [
     label: 'Rainbow Butterflies',
     redirectUris: [
       'https://rainbowbutterflies.org/auth/callback',
+      'https://rainbowbutterflies.org/auth/google/callback',
       'http://localhost:3000/auth/callback',
+      'http://localhost:3000/auth/google/callback',
       'http://127.0.0.1:3000/auth/callback',
+      'http://127.0.0.1:3000/auth/google/callback',
     ],
   },
 ]

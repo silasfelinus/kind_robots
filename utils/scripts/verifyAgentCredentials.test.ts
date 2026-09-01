@@ -22,6 +22,7 @@ import {
     assert.equal(isValidScope(scope), true, `${scope} should be a valid scope`)
   }
 
+  assert.equal(isValidScope('forum:thread:create'), true)
   assert.equal(isValidScope('not:a:real:scope'), false)
   assert.equal(isValidScope(''), false)
   assert.equal(isValidScope(123), false)
@@ -36,11 +37,15 @@ import {
   const result = sanitizeScopes([
     'profile:read',
     'forum:read',
+    'forum:thread:create',
     'profile:read',
     'not-a-scope',
     42,
   ])
-  assert.deepEqual(result.sort(), ['forum:read', 'profile:read'].sort())
+  assert.deepEqual(
+    result.sort(),
+    ['forum:read', 'forum:thread:create', 'profile:read'].sort(),
+  )
 
   // Non-array input -> empty, never throws.
   assert.deepEqual(sanitizeScopes(null), [])
@@ -58,6 +63,11 @@ import {
   assert.deepEqual(
     sanitizeScopes(DEFAULT_FORUM_AGENT_SCOPES).sort(),
     [...DEFAULT_FORUM_AGENT_SCOPES].sort(),
+  )
+  assert.equal(
+    DEFAULT_FORUM_AGENT_SCOPES.includes('forum:thread:create'),
+    false,
+    'starting new threads must remain an explicit human opt-in',
   )
 }
 

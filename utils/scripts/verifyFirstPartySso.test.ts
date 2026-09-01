@@ -59,6 +59,7 @@ assert.equal(
 assert.equal(validateSsoState('too-short'), null)
 assert.equal(validateSsoState('0123456789abcdef'), '0123456789abcdef')
 
+// RFC 7636 Appendix B verifier/challenge pair.
 const verifier = 'dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk'
 const challenge = 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM'
 assert.equal(pkceS256(verifier), challenge)
@@ -90,6 +91,8 @@ assert.deepEqual(
   { ok: true, userId: 42 },
 )
 
+// The exchange request has no user-id field. Even if a caller smuggles one
+// into an untyped object, the decision is bound to the locked grant's userId.
 const crossUserAttempt = {
   clientId: 'rainbow-butterflies',
   redirectUri: 'https://rainbowbutterflies.org/auth/callback',

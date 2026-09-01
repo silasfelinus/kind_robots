@@ -1,6 +1,11 @@
 // server/api/auth/login.post.ts
-import { defineEventHandler, readBody, sendError, setCookie } from 'h3'
+import { defineEventHandler, isError, readBody, sendError, setCookie } from 'h3'
 import { validateUserCredentials } from '.'
+import {
+  assertAuthAttemptAllowed,
+  clearAuthFailures,
+  recordAuthFailure,
+} from '../../utils/authAttemptLimit'
 import { logSafeError } from '../../utils/error'
 
 export default defineEventHandler(async (event) => {
@@ -10,9 +15,13 @@ export default defineEventHandler(async (event) => {
       password: string
     }>(event)
 
+    const safeUsername = typeof username === 'string' ? username : ''
+    assertAuthAttemptAllowed(event, safeUsername)
+
     const result = await validateUserCredentials(username, password)
 
     if (result && result.user) {
+      clearAuthFailures(event, safeUsername)
       const sessionValue = String(result.token ?? '')
 
       if (sessionValue) {
@@ -33,9 +42,13 @@ export default defineEventHandler(async (event) => {
       return { success: true, data }
     }
 
+    recordAuthFailure(event, safeUsername)
     event.node.res.statusCode = 401
     return { success: false, message: 'Invalid credentials' }
   } catch (error: unknown) {
+    if (isError(error)) {
+      return sendError(event, error)
+    }
     logSafeError('Error during login:', error)
     const errorMessage =
       error instanceof Error ? error.message : 'Unknown error occurred'

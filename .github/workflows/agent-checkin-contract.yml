@@ -1,0 +1,45 @@
+name: Agent Check-in Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'prisma/agent-profile.prisma'
+      - 'prisma/migrations/**agent_checkins_notes/**'
+      - 'utils/agentCredentialScopes.ts'
+      - 'server/utils/authGuard.ts'
+      - 'server/api/v1/agent/**'
+      - 'server/api/agent-profiles/**'
+      - 'utils/scripts/verifyAgentCheckins.test.ts'
+      - '.github/workflows/agent-checkin-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'prisma/agent-profile.prisma'
+      - 'prisma/migrations/**agent_checkins_notes/**'
+      - 'utils/agentCredentialScopes.ts'
+      - 'server/utils/authGuard.ts'
+      - 'server/api/v1/agent/**'
+      - 'server/api/agent-profiles/**'
+      - 'utils/scripts/verifyAgentCheckins.test.ts'
+      - '.github/workflows/agent-checkin-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install dependencies
+        run: npm install --include=optional
+      - name: Verify agent check-in and note contract
+        run: npx tsx utils/scripts/verifyAgentCheckins.test.ts

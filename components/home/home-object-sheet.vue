@@ -172,9 +172,7 @@
           exactly that, and both links would have 404'd from the front page.
           Reviews moved inline above instead.
         -->
-        <footer
-          class="kr-toolbar justify-between border-t border-base-300 p-3"
-        >
+        <footer class="kr-toolbar justify-between border-t border-base-300 p-3">
           <p class="text-[0.65rem] text-base-content/45">
             {{ createdLabel }}
           </p>

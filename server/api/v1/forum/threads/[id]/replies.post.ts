@@ -10,9 +10,13 @@ import {
   requireForumAttachmentRelations,
   requireForumReplyParent,
   requireForumThreadRoot,
-  requireForumWriter,
-  serializeForumPost,
 } from '@/server/utils/forumApi'
+import {
+  persistForumAgentAuthor,
+  requireForumV2Writer,
+  serializeForumPostV2,
+} from '@/server/utils/agentForumV2'
+import { assertAgentForumChannelAllowed } from '@/server/utils/agentForumPolicy'
 import {
   assertJsonObject,
   assertOnlyFields,
@@ -36,7 +40,7 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'Invalid forum thread ID.' })
     }
 
-    const actor = await requireForumWriter(event)
+    const actor = await requireForumV2Writer(event)
     const rawBody = await readBody<unknown>(event)
     assertJsonObject(rawBody, 'A JSON forum reply body is required.')
     assertOnlyFields(rawBody, FORUM_REPLY_CREATE_FIELDS, 'forum reply')
@@ -45,6 +49,7 @@ export default defineEventHandler(async (event) => {
     const requestedMature = optionalBoolean(rawBody.isMature, 'isMature') ?? false
     const requestedParentId = optionalPositiveId(rawBody.parentId, 'parentId')
     const thread = await requireForumThreadRoot(threadId, true)
+    await assertAgentForumChannelAllowed(actor.auth, thread.channel)
     assertMatureForumWriteAllowed(actor.auth, thread.isMature)
 
     const parent = requestedParentId
@@ -61,40 +66,44 @@ export default defineEventHandler(async (event) => {
       { auth: actor.auth, isMature },
     )
 
-    const data: Prisma.ChatCreateInput = {
-      type: 'ToForum',
-      sender: actor.displayName,
-      content,
-      title: null,
-      channel: thread.channel,
-      isPublic: !actor.shadowRestricted,
-      isActive: true,
-      isMature,
-      originId: thread.id,
-      previousEntryId: parent.id,
-      User: { connect: { id: actor.userId } },
-      Bot: actor.botId ? { connect: { id: actor.botId } } : undefined,
-      botName: actor.botName,
-      ArtImage: attachmentRelations.artImageId
-        ? { connect: { id: attachmentRelations.artImageId } }
-        : undefined,
-      Project: attachmentRelations.projectId
-        ? { connect: { id: attachmentRelations.projectId } }
-        : undefined,
-      Character: attachmentRelations.characterId
-        ? { connect: { id: attachmentRelations.characterId } }
-        : undefined,
-    }
+    const created = await prisma.$transaction(async (tx) => {
+      const data: Prisma.ChatCreateInput = {
+        type: 'ToForum',
+        sender: actor.displayName,
+        content,
+        title: null,
+        channel: thread.channel,
+        isPublic: !actor.shadowRestricted,
+        isActive: true,
+        isMature,
+        originId: thread.id,
+        previousEntryId: parent.id,
+        User: { connect: { id: actor.userId } },
+        Bot: actor.botId ? { connect: { id: actor.botId } } : undefined,
+        botName: actor.botName,
+        ArtImage: attachmentRelations.artImageId
+          ? { connect: { id: attachmentRelations.artImageId } }
+          : undefined,
+        Project: attachmentRelations.projectId
+          ? { connect: { id: attachmentRelations.projectId } }
+          : undefined,
+        Character: attachmentRelations.characterId
+          ? { connect: { id: attachmentRelations.characterId } }
+          : undefined,
+      }
 
-    const created = await prisma.chat.create({
-      data,
-      select: forumPostSelect,
+      const reply = await tx.chat.create({
+        data,
+        select: forumPostSelect,
+      })
+      await persistForumAgentAuthor(tx, reply.id, actor)
+      return reply
     })
 
     event.node.res.statusCode = 201
     return {
       success: true,
-      data: serializeForumPost(created, isMature),
+      data: await serializeForumPostV2(created, isMature),
       statusCode: 201,
     }
   } catch (error) {

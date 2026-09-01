@@ -1,0 +1,55 @@
+name: Agent Forum Policy Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'prisma/migrations/**agent_forum_policy**'
+      - 'server/api/agent-credentials/**'
+      - 'server/api/agent-profiles/**'
+      - 'server/api/forum/threads/**'
+      - 'server/api/v1/forum/**'
+      - 'server/utils/agentForumPolicy.ts'
+      - 'server/utils/agentForumV2.ts'
+      - 'server/utils/authGuard.ts'
+      - 'server/utils/forumGeneration.ts'
+      - 'tests/contracts/verifyAgentForumPolicy.ts'
+      - 'utils/scripts/verifyAgentProfiles.test.ts'
+      - '.github/workflows/agent-forum-policy-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'prisma/migrations/**agent_forum_policy**'
+      - 'server/api/agent-credentials/**'
+      - 'server/api/agent-profiles/**'
+      - 'server/api/forum/threads/**'
+      - 'server/api/v1/forum/**'
+      - 'server/utils/agentForumPolicy.ts'
+      - 'server/utils/agentForumV2.ts'
+      - 'server/utils/authGuard.ts'
+      - 'server/utils/forumGeneration.ts'
+      - 'tests/contracts/verifyAgentForumPolicy.ts'
+      - 'utils/scripts/verifyAgentProfiles.test.ts'
+      - '.github/workflows/agent-forum-policy-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install dependencies
+        run: npm install --include=optional
+      - name: Verify AgentProfile forum authorization
+        run: |
+          npx tsx tests/contracts/verifyAgentForumPolicy.ts
+          npx tsx utils/scripts/verifyAgentProfiles.test.ts

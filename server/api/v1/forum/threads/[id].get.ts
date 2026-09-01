@@ -6,8 +6,11 @@ import {
   forumReplyReadWhere,
   getForumReadContext,
   requireForumThreadRoot,
-  serializeForumPost,
 } from '@/server/utils/forumApi'
+import {
+  serializeForumPostsV2,
+} from '@/server/utils/agentForumV2'
+import { assertAgentForumChannelAllowed } from '@/server/utils/agentForumPolicy'
 import { getForumUpvoteStats } from '@/server/utils/forumUpvotes'
 import { parseForumBoolean } from '~/utils/forumApiContract'
 
@@ -29,12 +32,10 @@ export default defineEventHandler(async (event) => {
       parseForumBoolean(query.includeMature),
     )
     const thread = await requireForumThreadRoot(id, includeMature)
+    if (auth) await assertAgentForumChannelAllowed(auth, thread.channel)
+
     const replies = await prisma.chat.findMany({
       where: {
-        // Deliberately not forumReadWhere here: a removed reply renders as
-        // a "[removed]" tombstone in this thread-detail view rather than
-        // vanishing (see buildForumReplyReadFilter / serializeForumPost),
-        // so the reply nesting readers already loaded stays coherent.
         ...(await forumReplyReadWhere({ includeMature })),
         originId: id,
         id: { not: id },
@@ -45,16 +46,21 @@ export default defineEventHandler(async (event) => {
     const upvote = (
       await getForumUpvoteStats([id], auth?.user.id ?? null)
     ).get(id) ?? { upvoteCount: 0, viewerHasUpvoted: false }
+    const serialized = await serializeForumPostsV2(
+      [thread, ...replies],
+      includeMature,
+    )
+    const serializedThread = serialized[0]!
 
     event.node.res.statusCode = 200
     return {
       success: true,
       data: {
         thread: {
-          ...serializeForumPost(thread, includeMature),
+          ...serializedThread,
           ...upvote,
         },
-        replies: replies.map((reply) => serializeForumPost(reply, includeMature)),
+        replies: serialized.slice(1),
       },
       statusCode: 200,
     }

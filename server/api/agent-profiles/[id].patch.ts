@@ -1,7 +1,12 @@
 import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
 import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
-import { requireHumanApiUser } from '@/server/utils/authGuard'
+import { requireHumanOrRainbowApiUser } from '@/server/utils/authGuard'
+import {
+  agentForumPolicyUpsertSql,
+  getAgentForumChannels,
+  normalizeAgentForumChannelAllowlist,
+} from '@/server/utils/agentForumPolicy'
 
 type UpdateAgentProfilePayload = {
   name?: unknown
@@ -9,6 +14,7 @@ type UpdateAgentProfilePayload = {
   description?: unknown
   isPublic?: unknown
   allowMessages?: unknown
+  forumChannels?: unknown
 }
 
 function parseId(value: string | undefined) {
@@ -37,7 +43,7 @@ function optionalString(value: unknown, maxLength: number, field: string) {
 
 export default defineEventHandler(async (event) => {
   try {
-    const auth = await requireHumanApiUser(event)
+    const auth = await requireHumanOrRainbowApiUser(event)
     const id = parseId(getRouterParam(event, 'id'))
     const existing = await prisma.agentProfile.findUnique({ where: { id } })
 
@@ -86,8 +92,33 @@ export default defineEventHandler(async (event) => {
       data.allowMessages = body.allowMessages
     }
 
-    const profile = await prisma.agentProfile.update({ where: { id }, data })
-    return { success: true, profile }
+    const requestedForumChannels =
+      body.forumChannels === undefined
+        ? null
+        : normalizeAgentForumChannelAllowlist(body.forumChannels)
+
+    const profile = await prisma.$transaction(async (tx) => {
+      const updated = Object.keys(data).length
+        ? await tx.agentProfile.update({ where: { id }, data })
+        : existing
+
+      if (requestedForumChannels) {
+        await tx.$executeRaw(
+          agentForumPolicyUpsertSql(id, requestedForumChannels),
+        )
+      }
+
+      return updated
+    })
+
+    return {
+      success: true,
+      profile: {
+        ...profile,
+        forumChannels:
+          requestedForumChannels ?? (await getAgentForumChannels(id)),
+      },
+    }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
     event.node.res.statusCode = statusCode || 500

@@ -4,8 +4,9 @@ import { errorHandler } from '@/server/utils/error'
 import {
   forumPostSelect,
   getForumReadContext,
-  serializeForumPost,
 } from '@/server/utils/forumApi'
+import { serializeForumPostV2 } from '@/server/utils/agentForumV2'
+import { assertAgentForumChannelAllowed } from '@/server/utils/agentForumPolicy'
 import { notInRestricted } from '@/server/utils/restriction'
 import { parseForumBoolean } from '~/utils/forumApiContract'
 
@@ -22,7 +23,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const query = getQuery<ForumPostReadQuery>(event)
-    const { includeMature } = await getForumReadContext(
+    const { auth, includeMature } = await getForumReadContext(
       event,
       parseForumBoolean(query.includeMature),
     )
@@ -32,11 +33,6 @@ export default defineEventHandler(async (event) => {
         id,
         type: 'ToForum',
         isPublic: true,
-        // No isActive filter here: a removed post still resolves so a
-        // direct link (e.g. from a thread's own reply list) renders a
-        // "[removed]" tombstone instead of an opaque 404. A restricted
-        // author's post, by contrast, should look like it never existed --
-        // notInRestricted below still excludes it outright.
         ...(includeMature ? {} : { isMature: false }),
         ...(await notInRestricted('userId')),
       },
@@ -50,15 +46,8 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // A reply is only browsable through its thread, so it must not outlive
-    // that thread's root becoming unreachable (removed, privatized, or its
-    // author restricted) -- otherwise a direct link to the reply would keep
-    // working via GET by id even though threads/[id].get.ts's
-    // requireForumThreadRoot already 404s the same thread when browsed.
-    // Mirrors requireForumThreadRoot's own visibility filter exactly.
-    // (A thread root's own originId points at itself, so this only fires
-    // for genuine replies, not an extra round-trip re-checking the root
-    // against its own already-verified state.)
+    if (auth) await assertAgentForumChannelAllowed(auth, post.channel)
+
     if (post.originId && post.originId !== post.id) {
       const rootVisible = await prisma.chat.findFirst({
         where: {
@@ -70,7 +59,7 @@ export default defineEventHandler(async (event) => {
           ...(includeMature ? {} : { isMature: false }),
           ...(await notInRestricted('userId')),
         },
-        select: { id: true },
+        select: { id: true, channel: true },
       })
 
       if (!rootVisible) {
@@ -79,12 +68,13 @@ export default defineEventHandler(async (event) => {
           message: `Forum post ${id} was not found.`,
         })
       }
+      if (auth) await assertAgentForumChannelAllowed(auth, rootVisible.channel)
     }
 
     event.node.res.statusCode = 200
     return {
       success: true,
-      data: serializeForumPost(post, includeMature),
+      data: await serializeForumPostV2(post, includeMature),
       statusCode: 200,
     }
   } catch (error) {

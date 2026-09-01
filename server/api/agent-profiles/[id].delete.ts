@@ -1,7 +1,7 @@
 import { createError, defineEventHandler, getRouterParam } from 'h3'
 import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
-import { requireHumanApiUser } from '@/server/utils/authGuard'
+import { requireHumanOrRainbowApiUser } from '@/server/utils/authGuard'
 
 function parseId(value: string | undefined) {
   const id = Number(value)
@@ -13,7 +13,7 @@ function parseId(value: string | undefined) {
 
 export default defineEventHandler(async (event) => {
   try {
-    const auth = await requireHumanApiUser(event)
+    const auth = await requireHumanOrRainbowApiUser(event)
     const id = parseId(getRouterParam(event, 'id'))
     const profile = await prisma.agentProfile.findUnique({
       where: { id },

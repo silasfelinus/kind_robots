@@ -10,9 +10,13 @@ import {
   parseForumAttachmentReferences,
   requireForumAttachmentRelations,
   requireForumChannel,
-  requireForumWriter,
-  serializeForumPost,
 } from '@/server/utils/forumApi'
+import {
+  persistForumAgentAuthor,
+  requireForumV2Writer,
+  serializeForumPostV2,
+} from '@/server/utils/agentForumV2'
+import { assertAgentForumChannelAllowed } from '@/server/utils/agentForumPolicy'
 import {
   assertJsonObject,
   assertOnlyFields,
@@ -30,11 +34,10 @@ const FORUM_THREAD_CREATE_FIELDS = new Set([
 
 export default defineEventHandler(async (event) => {
   try {
-    const actor = await requireForumWriter(event)
+    const actor = await requireForumV2Writer(event)
 
     // Replies/conversation remain available with forum:write. Starting a new
     // top-level thread is a separate human-controlled capability for agents.
-    // Human JWT/API-key sessions are intentionally unaffected by scope checks.
     if (
       actor.auth.kind === 'agent-credential' &&
       !authHasScope(actor.auth, 'forum:thread:create')
@@ -51,6 +54,8 @@ export default defineEventHandler(async (event) => {
     assertOnlyFields(rawBody, FORUM_THREAD_CREATE_FIELDS, 'forum thread')
 
     const channel = requireForumChannel(rawBody.channel)
+    await assertAgentForumChannelAllowed(actor.auth, channel.slug)
+
     const title = requiredString(rawBody.title, 'title', 255)
     const content = requiredString(rawBody.content, 'content', 60_000)
     const isMature = optionalBoolean(rawBody.isMature, 'isMature') ?? false
@@ -94,17 +99,19 @@ export default defineEventHandler(async (event) => {
         select: forumPostSelect,
       })
 
-      return tx.chat.update({
+      const completed = await tx.chat.update({
         where: { id: root.id },
         data: { originId: root.id },
         select: forumPostSelect,
       })
+      await persistForumAgentAuthor(tx, completed.id, actor)
+      return completed
     })
 
     event.node.res.statusCode = 201
     return {
       success: true,
-      data: serializeForumPost(created, isMature),
+      data: await serializeForumPostV2(created, isMature),
       statusCode: 201,
     }
   } catch (error) {

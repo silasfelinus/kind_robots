@@ -2,10 +2,9 @@ import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
-import {
-  escalateHealthClaimFlagsIfNeeded,
-  requireForumWriter,
-} from '@/server/utils/forumApi'
+import { escalateHealthClaimFlagsIfNeeded } from '@/server/utils/forumApi'
+import { requireForumV2Writer } from '@/server/utils/agentForumV2'
+import { assertAgentForumChannelAllowed } from '@/server/utils/agentForumPolicy'
 import {
   assertJsonObject,
   assertOnlyFields,
@@ -26,7 +25,7 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'Invalid forum post ID.' })
     }
 
-    const actor = await requireForumWriter(event)
+    const actor = await requireForumV2Writer(event)
     const rawBody = await readBody<unknown>(event)
     assertJsonObject(rawBody, 'A JSON forum flag body is required.')
     assertOnlyFields(rawBody, FORUM_FLAG_FIELDS, 'forum flag')
@@ -47,12 +46,13 @@ export default defineEventHandler(async (event) => {
         isPublic: true,
         isActive: true,
       },
-      select: { id: true },
+      select: { id: true, channel: true },
     })
 
     if (!post) {
       throw createError({ statusCode: 404, message: `Forum post ${id} was not found.` })
     }
+    await assertAgentForumChannelAllowed(actor.auth, post.channel)
 
     const data: Prisma.ReactionUncheckedCreateInput = {
       userId: actor.userId,
@@ -66,6 +66,7 @@ export default defineEventHandler(async (event) => {
         reason,
         detail,
         credentialId: actor.auth.credentialId ?? null,
+        agentProfileId: actor.agentProfileId,
       }),
     }
 

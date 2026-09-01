@@ -216,10 +216,10 @@ export function authHasScope(
 export async function requireHumanApiUser(event: H3Event): Promise<AuthGuardResult> {
   const auth = await requireApiUser(event)
 
-  if (auth.kind === 'agent-credential') {
+  if (auth.kind === 'agent-credential' || auth.kind === 'first-party-delegation') {
     throw createError({
       statusCode: 403,
-      message: 'Agent credentials cannot manage credentials.',
+      message: 'Delegated credentials cannot manage credentials.',
     })
   }
 

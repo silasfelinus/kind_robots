@@ -17,8 +17,10 @@ export type AuthGuardResult = {
   scopes?: AgentCredentialScope[]
   /** Only set for kind: 'agent-credential' -- the AgentCredential row's id. */
   credentialId?: number
-  /** Only set for kind: 'agent-credential' when the credential names a Bot. */
+  /** Only set for kind: 'agent-credential' when the credential names a legacy Bot. */
   botId?: number | null
+  /** Only set for kind: 'agent-credential' when the credential names an external AgentProfile. */
+  agentProfileId?: number | null
 }
 
 const config = useRuntimeConfig()
@@ -174,6 +176,7 @@ async function validateAgentCredentialAuth(
     scopes: result.scopes,
     credentialId: result.credentialId,
     botId: result.botId,
+    agentProfileId: result.agentProfileId,
   }
 }
 

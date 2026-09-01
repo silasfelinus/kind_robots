@@ -174,12 +174,19 @@
       cards, single row, scrollable horizontally depending on room in the
       middle."
 
-      Each tile is sized by the BAND HEIGHT rather than by a width: `h-full`
-      plus `aspect-[2/3]` makes it as tall as the row and derives its width from
-      the portrait shape these objects are actually drawn at. So the cards fill
-      the space (they are ~230px wide here, not 72px thumbnails), the row is as
-      tall as the dream card beside it by construction, and however many cast
-      members a dream has, they scroll sideways instead of shrinking or wrapping.
+      Each tile is as tall as the row (`h-full`) with a FIXED width. It used to
+      derive its width from `aspect-2/3`, which made a handsome card and left no
+      say over how much of it was text. Silas, 2026-09-01: "having a little more
+      vertical space for larger text would be great on those, with some width
+      cut back so we can fit the location entry." A fixed 11rem is narrower than
+      the ~15rem the aspect produced -- enough to fit the newly-added location
+      card on screen -- and the plate simply takes whatever height the caption
+      does not, so widening the caption no longer fights the picture for room.
+
+      So the cards fill the space (measured at 1920: 176px wide and 420px tall,
+      not 72px thumbnails), the row is as tall as the dream card beside it by
+      construction, and however many cast members a dream has, they scroll
+      sideways instead of shrinking or wrapping.
 
       This replaces a three-row grid of 4.5rem tiles. That grid existed to solve
       two earlier problems -- tiles that would not stay small (`minmax(X,1fr)`
@@ -192,11 +199,31 @@
       card at the right edge is the affordance, and eight shelves each reserving
       a scrollbar gutter was a complaint in its own right.
     -->
+    <!--
+      A REAL SCROLL CONTROL, because the row genuinely does not always fit.
+      Silas, 2026-09-01: "it's reasonable that there will be a need to scroll on
+      smaller displays, but if so, we need an actual scroll selector."
+
+      Six full-height slots at 11rem come to more than the middle column has at
+      1920, and narrower screens are worse. The track stays `.no-scrollbar` for
+      the reason home-rail.vue gives -- a reserved scrollbar gutter is a row of
+      nothing -- so the affordance is a pair of chevrons instead.
+
+      They OVERLAY the ends of the row rather than sitting in a header, because
+      unlike a rail this panel has no header row to put them in and adding one
+      would cost the height the cards just gained. `v-show` keeps the buttons out
+      of the tab order's way only when there is nothing to scroll.
+    -->
     <div
       v-if="hero.cast.length"
-      class="no-scrollbar flex gap-1.5 overflow-x-auto lg:h-full lg:min-w-0 lg:flex-1"
+      class="relative lg:h-full lg:min-w-0 lg:flex-1"
     >
-      <!--
+      <div
+        ref="castTrack"
+        class="no-scrollbar flex h-full gap-1.5 overflow-x-auto scroll-smooth"
+        @scroll.passive="measureCast"
+      >
+        <!--
         A cast member opens the interstitial rather than navigating away. Silas,
         2026-08-29: "Whenever I click on one of the new objects, I want it to
         expand to tell me about it ... with clicking outside the container
@@ -208,37 +235,37 @@
         click -- see the same note in home-rail.vue for why the <button> version
         of this was worse, and why it is a plain <a> rather than a NuxtLink.
       -->
-      <a
-        v-for="member in hero.cast"
-        :key="`${member.kind}-${member.id}`"
-        :href="showcaseHref(member)"
-        :data-theme="themeFor(member)"
-        class="group flex aspect-2/3 h-full shrink-0 flex-col overflow-hidden rounded-lg border-2 border-primary/70 bg-base-100 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5"
-        :title="
-          member.subtitle
-            ? `${member.title} — ${member.subtitle}`
-            : member.title
-        "
-        @click="onCastClick($event, member)"
-      >
-        <kr-art-plate
-          class="min-h-0 flex-1"
-          :source="member.art"
-          variant="card"
-          shape="square"
-          frame="none"
-          :alt="member.title"
-          :fallback="fallbackFor(member)"
-          hover-zoom
-          fit="cover"
+        <a
+          v-for="member in principals"
+          :key="`${member.kind}-${member.id}`"
+          :href="showcaseHref(member)"
+          :data-theme="themeFor(member)"
+          class="group flex h-full w-44 shrink-0 flex-col overflow-hidden rounded-lg border-2 border-primary/70 bg-base-100 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5"
+          :title="
+            member.subtitle
+              ? `${member.title} — ${member.subtitle}`
+              : member.title
+          "
+          @click="onCastClick($event, member)"
         >
-          <!--
+          <kr-art-plate
+            class="min-h-0 flex-1"
+            :source="member.art"
+            variant="card"
+            shape="square"
+            frame="none"
+            :alt="member.title"
+            :fallback="fallbackFor(member)"
+            hover-zoom
+            fit="cover"
+          >
+            <!--
             The kind rides on the plate rather than taking a line of its own
             beneath it. Two text lines per chip made the cast column taller than
             the plate beside it, which is where the panel's dead space came from.
           -->
-          <template v-if="member.badge" #overlay>
-            <!--
+            <template v-if="member.badge" #overlay>
+              <!--
               text-base-content, not text-primary: each chip sits inside its
               record's own daisyUI theme, and several themes' primary is far too
               pale to read on base-100 (the "Facet" chip on a pastel tile
@@ -248,15 +275,15 @@
 
               max-w + truncate because "CHARACTER" is wider than a 4rem tile.
             -->
-            <span
-              class="absolute left-1 top-1 max-w-[calc(100%-0.5rem)] truncate rounded bg-base-100/90 px-1 text-[0.45rem] font-black uppercase tracking-[0.08em] text-base-content backdrop-blur"
-            >
-              {{ member.badge }}
-            </span>
-          </template>
-        </kr-art-plate>
+              <span
+                class="absolute left-1 top-1 max-w-[calc(100%-0.5rem)] truncate rounded bg-base-100/90 px-1 text-[0.45rem] font-black uppercase tracking-[0.08em] text-base-content backdrop-blur"
+              >
+                {{ member.badge }}
+              </span>
+            </template>
+          </kr-art-plate>
 
-        <!--
+          <!--
           THE CARD SAYS WHAT THE THING IS. Silas, 2026-09-01: "we should see
           description text on the character, item, skill, etc for the daily
           dream (facets is just the title)."
@@ -267,26 +294,96 @@
           character's backstory. Everything else gets two clamped lines under
           its name.
         -->
-        <div class="min-w-0 shrink-0 px-1.5 py-1">
-          <p
-            class="truncate text-xs font-bold leading-tight group-hover:text-primary"
-          >
-            {{ member.title }}
-          </p>
-          <p
-            v-if="member.subtitle"
-            class="line-clamp-2 text-[0.65rem] leading-snug text-base-content/60"
-          >
-            {{ member.subtitle }}
-          </p>
+          <!--
+          The caption gets a definite share of the card rather than whatever is
+          left after the picture. Silas, 2026-09-01: "having a little more
+          vertical space for larger text". Two lines of name and three of
+          description at a readable size; the plate above flexes into the rest,
+          so this is the half of the card that sets the split.
+        -->
+          <div class="min-w-0 shrink-0 px-2 py-1.5">
+            <p
+              class="line-clamp-2 text-sm font-bold leading-tight group-hover:text-primary"
+            >
+              {{ member.title }}
+            </p>
+            <p
+              v-if="member.subtitle"
+              class="mt-0.5 line-clamp-3 text-xs leading-snug text-base-content/65"
+            >
+              {{ member.subtitle }}
+            </p>
+          </div>
+        </a>
+
+        <!--
+        THE FACETS SHARE ONE CARD'S SLOT, as a 2x2 of picture-and-title. Silas,
+        2026-09-01: "since facets are just images ... we should have a 2x2 grid
+        with image and title in the space the other cards have image, title, and
+        description."
+
+        Same width as a cast card (w-44) so the row keeps its rhythm, and each
+        cell is still a link that opens the interstitial. A facet is a one-word
+        tag on the dream rather than a character in it, which is why it gets a
+        quarter of a card while a character gets a whole one.
+      -->
+        <div v-if="facets.length" class="flex h-full w-44 shrink-0 flex-col">
+          <div class="grid min-h-0 flex-1 grid-cols-2 grid-rows-2 gap-1">
+            <a
+              v-for="facet in facets.slice(0, 4)"
+              :key="`facet-${facet.id}`"
+              :href="showcaseHref(facet)"
+              :data-theme="themeFor(facet)"
+              class="group/facet flex min-h-0 min-w-0 flex-col overflow-hidden rounded-lg border-2 border-primary/60 bg-base-100 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+              :title="facet.title"
+              @click="onCastClick($event, facet)"
+            >
+              <kr-art-plate
+                class="min-h-0 flex-1"
+                :source="facet.art"
+                variant="card"
+                shape="square"
+                frame="none"
+                :alt="facet.title"
+                :fallback="fallbackFor(facet)"
+                fit="cover"
+              />
+              <p
+                class="shrink-0 truncate px-1 py-0.5 text-[0.6rem] font-bold leading-tight group-hover/facet:text-primary"
+              >
+                {{ facet.title }}
+              </p>
+            </a>
+          </div>
         </div>
-      </a>
+      </div>
+
+      <button
+        v-show="castCanScroll"
+        type="button"
+        class="absolute left-0 top-1/2 grid size-7 -translate-y-1/2 place-items-center rounded-full border border-base-300 bg-base-100/90 text-base-content/60 shadow backdrop-blur transition-colors hover:text-primary disabled:opacity-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+        :disabled="castAtStart"
+        aria-label="Scroll the cast backwards"
+        @click="scrollCast(-1)"
+      >
+        <Icon name="kind-icon:chevron-left" class="size-4" />
+      </button>
+      <button
+        v-show="castCanScroll"
+        type="button"
+        class="absolute right-0 top-1/2 grid size-7 -translate-y-1/2 place-items-center rounded-full border border-base-300 bg-base-100/90 text-base-content/60 shadow backdrop-blur transition-colors hover:text-primary disabled:opacity-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+        :disabled="castAtEnd"
+        aria-label="Scroll the cast forwards"
+        @click="scrollCast(1)"
+      >
+        <Icon name="kind-icon:chevron-right" class="size-4" />
+      </button>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import {
   showcaseHref,
   type ShowcaseCard,
@@ -296,6 +393,35 @@ import { defaultArtFor } from '@/utils/defaultArtPool'
 import { resolveEntityTheme } from '@/utils/entityTheme'
 
 const props = defineProps<{ hero: ShowcaseHero }>()
+
+/*
+ * THE CAST IS TWO KINDS OF THING, and only one of them is a character.
+ *
+ * A daily dream's cast runs to nine: a location, a character, an item, a skill,
+ * a scenario -- and four FACETS, which are one-word tags on the dream ("Noir",
+ * "Hacker"). Nine full cards do not fit the middle column at a readable size:
+ * measured at 1920 only 5.1 of nine were on screen, so Silas saw a sixth card
+ * clipped ("I can tell that there is a sixth entry cut off").
+ *
+ * Shrinking every card until nine fit would undo the larger text he asked for
+ * in the same breath. So the split follows what he already said about facets --
+ * "(facets is just the title)" -- and gives the five real cast members the cards
+ * while the four facets share ONE card's slot as a 2x2 of picture-and-title.
+ * Nothing is hidden; the thing that gave up room is the thing that was only
+ * ever a word.
+ *
+ * SIX SLOTS STILL DO NOT ALL FIT (six x 182px against a ~933px middle at 1920),
+ * and that is fine now: "it's reasonable that there will be a need to scroll on
+ * smaller displays, but if so, we need an actual scroll selector." The row has
+ * chevrons.
+ */
+const principals = computed(() =>
+  props.hero.cast.filter((member) => member.kind !== 'facet'),
+)
+
+const facets = computed(() =>
+  props.hero.cast.filter((member) => member.kind === 'facet'),
+)
 const emit = defineEmits<{ select: [card: ShowcaseCard] }>()
 
 /*
@@ -336,4 +462,62 @@ function fallbackFor(member: ShowcaseCard): string {
 function themeFor(member: ShowcaseCard): string {
   return resolveEntityTheme({ id: member.id, theme: member.theme })
 }
+
+/*
+ * The cast row's chevrons, same mechanism as home-rail.vue's -- deliberately a
+ * copy of about twenty lines rather than a shared composable, because the two
+ * differ in every respect that matters (a rail puts its buttons in a header it
+ * already has; this overlays them on a track that has none) and the shared part
+ * is three DOM measurements.
+ */
+const castTrack = ref<HTMLElement | null>(null)
+const castCanScroll = ref(false)
+const castAtStart = ref(true)
+const castAtEnd = ref(false)
+
+/** The 2px slack absorbs sub-pixel rounding; see the same note in home-rail. */
+function measureCast(): void {
+  const element = castTrack.value
+  if (!element) return
+
+  const max = element.scrollWidth - element.clientWidth
+  castCanScroll.value = max > 2
+  castAtStart.value = element.scrollLeft <= 2
+  castAtEnd.value = element.scrollLeft >= max - 2
+}
+
+/** One press moves about a screenful, keeping a card of context. */
+function scrollCast(direction: 1 | -1): void {
+  const element = castTrack.value
+  if (!element) return
+
+  element.scrollBy({
+    left: direction * Math.max(element.clientWidth * 0.8, 176),
+    behavior: 'smooth',
+  })
+}
+
+let castObserver: ResizeObserver | null = null
+
+onMounted(() => {
+  measureCast()
+  if (typeof ResizeObserver === 'undefined') return
+
+  // The row's width is set by the page band, not by its contents, so a content
+  // watcher alone leaves stale chevrons after a resize.
+  castObserver = new ResizeObserver(() => measureCast())
+  if (castTrack.value) castObserver.observe(castTrack.value)
+})
+
+onBeforeUnmount(() => {
+  castObserver?.disconnect()
+  castObserver = null
+})
+
+watch(
+  () => props.hero.cast.length,
+  () => {
+    void nextTick(measureCast)
+  },
+)
 </script>

@@ -33,6 +33,7 @@
     plate-variant="card"
     placeholder-icon="kind-icon:palette-color"
     fit="contain"
+    show-label
     :interactive="mode === 'fresh'"
     @select="emit('select', $event)"
   >

@@ -22,8 +22,10 @@ CREATE TABLE `AgentNote` (
     `userId` INTEGER NOT NULL,
     `body` TEXT NOT NULL,
     `deliveredAt` DATETIME(3) NULL,
+    `deliveredCheckInId` INTEGER NULL,
 
     INDEX `AgentNote_agentProfileId_deliveredAt_createdAt_idx`(`agentProfileId`, `deliveredAt`, `createdAt`),
+    INDEX `AgentNote_deliveredCheckInId_idx`(`deliveredCheckInId`),
     INDEX `AgentNote_userId_createdAt_idx`(`userId`, `createdAt`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

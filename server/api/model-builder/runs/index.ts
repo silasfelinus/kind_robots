@@ -310,6 +310,18 @@ export type ContentStageKey = 'PITCH' | 'FIELDS_AND_PROMPTS' | 'GENERATE_ASSETS'
 // would keep anyway.
 export const MAX_DRAFT_TEXT_LENGTH = 20_000
 
+// Mirrors modelBuilderStore.ts's own MAX_BATCH (12) -- the quantity cap the
+// recipe-selector UI enforces client-side on `setOutputQuantity`. The CREATE
+// route's own `items` array had no equivalent server-side cap (model-builder/
+// t-029, cycle 72's own investigation flagged this and left it out of scope
+// as "low-severity, not a front-end-polish bug" -- addressed here instead),
+// so a direct API call bypassing the UI's stepper could hand this route an
+// arbitrarily large `items` array and create a run with thousands of rows in
+// one request. Kept as its own named constant (not literally re-imported from
+// the client store, which isn't available on the server) so the two stay
+// easy to compare and keep in sync by eye.
+export const MAX_BATCH_ITEMS = 12
+
 // Exported so callers can re-run this exact check a second time, against a
 // freshly-read stageStatuses value immediately before their write — see
 // PreparedItemUpdate.contentStageChecks' doc comment for why the single

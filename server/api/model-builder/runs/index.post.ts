@@ -4,7 +4,7 @@ import type { ModelBuildAction } from '~/prisma/generated/prisma/client'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
-import { MAX_DRAFT_TEXT_LENGTH, runInclude } from './index'
+import { MAX_BATCH_ITEMS, MAX_DRAFT_TEXT_LENGTH, runInclude } from './index'
 
 const actions = new Set<ModelBuildAction>(['CREATE', 'UPDATE', 'ASSET_ONLY'])
 
@@ -123,6 +123,12 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 400,
         message: 'At least one build item is required.',
+      })
+    }
+    if (body.items.length > MAX_BATCH_ITEMS) {
+      throw createError({
+        statusCode: 400,
+        message: `A build run may contain at most ${MAX_BATCH_ITEMS} items.`,
       })
     }
 

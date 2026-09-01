@@ -7,14 +7,19 @@ import {
   getForumReadContext,
   requireForumChannel,
   serializeForumPost,
+  type ForumPostRecord,
 } from '@/server/utils/forumApi'
+import { getForumUpvoteStats } from '@/server/utils/forumUpvotes'
 import {
   normalizeForumChannelSlug,
   parseForumBoolean,
   parseForumLimit,
   parseForumOrder,
   parsePositiveForumInt,
+  type ForumOrder,
 } from '~/utils/forumApiContract'
+
+type ForumThreadOrder = ForumOrder | 'upvotes'
 
 type ForumThreadQuery = {
   channel?: string | string[]
@@ -22,6 +27,13 @@ type ForumThreadQuery = {
   limit?: string | string[]
   order?: string | string[]
   includeMature?: string | string[]
+}
+
+function parseThreadOrder(value: unknown): ForumThreadOrder {
+  const raw = Array.isArray(value) ? value[0] : value
+  return typeof raw === 'string' && raw.trim().toLowerCase() === 'upvotes'
+    ? 'upvotes'
+    : parseForumOrder(value)
 }
 
 export default defineEventHandler(async (event) => {
@@ -33,27 +45,100 @@ export default defineEventHandler(async (event) => {
       : null
     const cursor = parsePositiveForumInt(query.cursor)
     const limit = parseForumLimit(query.limit)
-    const order = parseForumOrder(query.order)
-    const { includeMature } = await getForumReadContext(
+    const order = parseThreadOrder(query.order)
+    const { auth, includeMature } = await getForumReadContext(
       event,
       parseForumBoolean(query.includeMature),
     )
+    const viewerUserId = auth?.user.id ?? null
 
-    const rows = await prisma.chat.findMany({
-      where: await forumReadWhere({
-        channel,
-        includeMature,
-        rootOnly: true,
-        cursor,
-        order,
-      }),
-      select: forumPostSelect,
-      orderBy: { id: order === 'chronological' ? 'asc' : 'desc' },
-      take: limit + 1,
-    })
+    let roots: ForumPostRecord[]
+    let hasMore = false
+    let nextCursor: number | null = null
+    let upvoteStats = new Map<number, { upvoteCount: number; viewerHasUpvoted: boolean }>()
 
-    const hasMore = rows.length > limit
-    const roots = hasMore ? rows.slice(0, limit) : rows
+    if (order === 'upvotes') {
+      // Upvote ranking uses an offset cursor because score order is not
+      // monotonic with Chat.id. Fetch only lightweight root metadata for the
+      // ranking pass, then hydrate the requested page in canonical order.
+      const rankingRows = await prisma.chat.findMany({
+        where: await forumReadWhere({
+          channel,
+          includeMature,
+          rootOnly: true,
+        }),
+        select: {
+          id: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      })
+
+      upvoteStats = await getForumUpvoteStats(
+        rankingRows.map((row) => row.id),
+        viewerUserId,
+      )
+
+      rankingRows.sort((a, b) => {
+        const score =
+          (upvoteStats.get(b.id)?.upvoteCount ?? 0) -
+          (upvoteStats.get(a.id)?.upvoteCount ?? 0)
+        if (score) return score
+
+        const aTime = (a.updatedAt ?? a.createdAt).getTime()
+        const bTime = (b.updatedAt ?? b.createdAt).getTime()
+        return bTime - aTime || b.id - a.id
+      })
+
+      const offset = cursor ?? 0
+      const pageIds = rankingRows
+        .slice(offset, offset + limit)
+        .map((row) => row.id)
+      hasMore = offset + limit < rankingRows.length
+      nextCursor = hasMore ? offset + limit : null
+
+      if (!pageIds.length) {
+        roots = []
+      } else {
+        const hydrated = await prisma.chat.findMany({
+          where: {
+            ...(await forumReadWhere({
+              channel,
+              includeMature,
+              rootOnly: true,
+            })),
+            id: { in: pageIds },
+          },
+          select: forumPostSelect,
+        })
+        const byId = new Map(hydrated.map((row) => [row.id, row]))
+        roots = pageIds
+          .map((id) => byId.get(id))
+          .filter((row): row is ForumPostRecord => Boolean(row))
+      }
+    } else {
+      const rows = await prisma.chat.findMany({
+        where: await forumReadWhere({
+          channel,
+          includeMature,
+          rootOnly: true,
+          cursor,
+          order,
+        }),
+        select: forumPostSelect,
+        orderBy: { id: order === 'chronological' ? 'asc' : 'desc' },
+        take: limit + 1,
+      })
+
+      hasMore = rows.length > limit
+      roots = hasMore ? rows.slice(0, limit) : rows
+      nextCursor = hasMore ? roots.at(-1)?.id ?? null : null
+      upvoteStats = await getForumUpvoteStats(
+        roots.map((root) => root.id),
+        viewerUserId,
+      )
+    }
+
     const rootIds = roots.map((row) => row.id)
     const replyRows = rootIds.length
       ? await prisma.chat.findMany({
@@ -101,6 +186,10 @@ export default defineEventHandler(async (event) => {
         replyCount: 0,
         lastActivityAt: root.updatedAt ?? root.createdAt,
       }),
+      ...(upvoteStats.get(root.id) ?? {
+        upvoteCount: 0,
+        viewerHasUpvoted: false,
+      }),
     }))
 
     event.node.res.statusCode = 200
@@ -110,7 +199,7 @@ export default defineEventHandler(async (event) => {
       page: {
         order,
         limit,
-        nextCursor: hasMore ? roots.at(-1)?.id ?? null : null,
+        nextCursor,
       },
       statusCode: 200,
     }

@@ -57,17 +57,19 @@ model AgentCheckIn {
 }
 
 /// Human-authored inbox note for one AgentProfile. Notes are delivered once on
-/// the next successful agent check-in; `deliveredAt` is the durable hand-off
-/// marker so providers do not receive the same instruction on every heartbeat.
+/// the next successful agent check-in. `deliveredCheckInId` makes the claim
+/// durable even if two provider timers happen to check in concurrently.
 model AgentNote {
-  id             Int          @id @default(autoincrement())
-  createdAt      DateTime     @default(now())
-  agentProfileId Int
-  userId         Int
-  body           String       @db.Text
-  deliveredAt    DateTime?
-  Profile        AgentProfile @relation(fields: [agentProfileId], references: [id], onDelete: Cascade)
+  id                 Int          @id @default(autoincrement())
+  createdAt          DateTime     @default(now())
+  agentProfileId     Int
+  userId             Int
+  body               String       @db.Text
+  deliveredAt        DateTime?
+  deliveredCheckInId Int?
+  Profile            AgentProfile @relation(fields: [agentProfileId], references: [id], onDelete: Cascade)
 
   @@index([agentProfileId, deliveredAt, createdAt])
+  @@index([deliveredCheckInId])
   @@index([userId, createdAt])
 }

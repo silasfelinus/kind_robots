@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 
 import {
   DEFAULT_FIRST_PARTY_CLIENTS,
@@ -159,5 +160,24 @@ assert.deepEqual(
   }),
   { ok: false, reason: 'pkce' },
 )
+
+const googleConfigSource = readFileSync(
+  'server/api/auth/first-party/google/config.get.ts',
+  'utf8',
+)
+const googleExchangeSource = readFileSync(
+  'server/api/auth/first-party/google/exchange.post.ts',
+  'utf8',
+)
+const registrationSource = readFileSync('server/api/users/register.post.ts', 'utf8')
+
+assert.match(googleConfigSource, /GOOGLE_ID/)
+assert.doesNotMatch(googleConfigSource, /GOOGLE_SECRET/)
+assert.match(googleExchangeSource, /GOOGLE_SECRET/)
+assert.match(googleExchangeSource, /email_verified\s*!==\s*true/)
+assert.match(googleExchangeSource, /code_verifier:\s*verifier/)
+assert.doesNotMatch(googleExchangeSource, /return\s+\{[^}]*access_token/s)
+assert.doesNotMatch(registrationSource, /Received user data.*userData/)
+assert.match(registrationSource, /password:\s*_password/)
 
 console.log('First-party SSO contract OK')

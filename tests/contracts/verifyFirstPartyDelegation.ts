@@ -38,10 +38,13 @@ assert.match(authGuard, /'first-party-delegation'/)
 assert.match(authGuard, /validateFirstPartyDelegationAuth\(bearerToken\)/)
 assert.match(authGuard, /clientId:\s*delegation\.clientId/)
 assert.match(authGuard, /isAdmin:\s*false/)
-assert.match(
-  authGuard,
-  /auth\.kind === 'agent-credential' \|\| auth\.kind === 'first-party-delegation'/,
-)
+
+const humanGuard = authGuard.match(
+  /export async function requireHumanApiUser[\s\S]*?\n}\n\nexport async function requireScopedApiUser/,
+)?.[0]
+assert.ok(humanGuard, 'requireHumanApiUser contract was not found')
+assert.match(humanGuard, /auth\.kind === 'agent-credential'/)
+assert.doesNotMatch(humanGuard, /auth\.kind === 'first-party-delegation'/)
 
 // Google provider tokens remain server-side and are never returned as the BFF delegation.
 assert.doesNotMatch(googleExchange, /return\s+\{[^}]*access_token/s)

@@ -7,7 +7,7 @@
 <template>
   <main class="kr-surface bg-base-200/40">
     <div
-      class="kr-scroll mx-auto max-w-5xl space-y-5 px-3 py-5 sm:px-6 sm:py-8"
+      class="kr-scroll kr-container max-w-5xl space-y-5 px-3 py-5 sm:px-6 sm:py-8"
     >
       <nav class="flex items-center justify-between gap-3">
         <NuxtLink to="/play/aquarium" class="btn btn-ghost btn-sm rounded-xl">
@@ -16,9 +16,7 @@
         </NuxtLink>
       </nav>
 
-      <header
-        class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-lg sm:p-7"
-      >
+      <header class="kr-panel-flat rounded-3xl p-5 shadow-lg sm:p-7">
         <p class="text-xs font-black uppercase tracking-[0.25em] text-primary">
           Cthulhuquarium
         </p>
@@ -33,7 +31,7 @@
 
       <div
         v-if="loading && !tanks.length"
-        class="grid min-h-[40vh] place-items-center rounded-3xl border border-base-300 bg-base-100"
+        class="kr-panel-flat grid min-h-[40vh] place-items-center rounded-3xl"
       >
         <div class="text-center">
           <span class="loading loading-ring loading-lg text-primary" />
@@ -57,7 +55,7 @@
 
       <div
         v-else-if="!tanks.length"
-        class="rounded-3xl border border-dashed border-base-300 bg-base-100 px-6 py-16 text-center"
+        class="kr-panel-flat border-dashed rounded-3xl px-6 py-16 text-center"
       >
         <Icon name="kind-icon:fish" class="mx-auto size-12 text-primary/40" />
         <h2 class="mt-4 text-2xl font-black uppercase">Nothing public yet</h2>

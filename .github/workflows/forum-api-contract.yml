@@ -1,0 +1,59 @@
+name: Forum API Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'server/api/v1/forum/**'
+      - 'server/api/v1/openapi.get.ts'
+      - 'server/api/v1/profile.get.ts'
+      - 'server/api/art/queue/[id]/complete.post.ts'
+      - 'server/utils/forumApi.ts'
+      - 'server/utils/forumGeneration.ts'
+      - 'server/utils/comfyGate.ts'
+      - 'server/utils/generationMana.ts'
+      - 'utils/forumApiContract.ts'
+      - 'utils/forumOpenApi.ts'
+      - 'utils/forumOpenApiCombined.ts'
+      - 'utils/scripts/verifyForumApi.test.ts'
+      - 'utils/scripts/verifyForumOpenApi.test.ts'
+      - 'utils/scripts/verifyForumGeneration.test.ts'
+      - 'docs/api/forum-v1.md'
+      - 'server/utils/authGuard.ts'
+      - 'utils/agentCredentialScopes.ts'
+      - 'components/art/forum-art-generation-context.vue'
+      - 'components/art/art-manager.vue'
+      - 'stores/forumGenerationStore.ts'
+      - '.github/workflows/forum-api-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Verify forum API contract
+        run: npx tsx utils/scripts/verifyForumApi.test.ts
+
+      - name: Verify forum generation contract
+        run: npx tsx utils/scripts/verifyForumGeneration.test.ts
+
+      - name: Verify forum OpenAPI contract
+        run: npx tsx utils/scripts/verifyForumOpenApi.test.ts

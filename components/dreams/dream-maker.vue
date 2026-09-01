@@ -60,18 +60,14 @@
 
       <div
         v-if="dreamStore.error || statusMessage"
-        class="mt-3 rounded-2xl border p-3 text-sm"
-        :class="
-          dreamStore.error || statusTone === 'error'
-            ? 'border-error/40 bg-error/10 text-error'
-            : 'border-success/40 bg-success/10 text-success'
-        "
+        class="mt-3 kr-note p-3 font-normal"
+        :class="dreamStore.error || statusTone === 'error' ? 'kr-note-error' : 'kr-note-success'"
       >
         {{ dreamStore.error || statusMessage }}
       </div>
     </header>
 
-    <main class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
+    <main class="kr-scroll p-3">
       <div class="grid gap-3 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <section class="grid gap-3">
           <div class="kr-panel-flat p-4">

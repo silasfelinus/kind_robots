@@ -1,7 +1,7 @@
 <!-- /pages/users/[id].vue -->
 <template>
   <section class="kr-surface">
-    <div class="kr-scroll mx-auto max-w-2xl p-4 sm:p-6">
+    <div class="kr-scroll kr-container max-w-2xl p-4 sm:p-6">
       <NuxtLink
         to="/plan/wonderlab"
         class="btn btn-ghost btn-sm mb-4 rounded-xl"
@@ -12,7 +12,7 @@
 
       <article
         v-if="user"
-        class="overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-lg"
+        class="overflow-hidden rounded-3xl kr-panel-flat shadow-lg"
       >
         <div
           class="h-28 bg-linear-to-br from-primary/25 via-secondary/15 to-accent/20"
@@ -66,7 +66,7 @@
 
       <div
         v-else-if="status === 'pending'"
-        class="flex min-h-64 items-center justify-center rounded-3xl border border-base-300 bg-base-100"
+        class="flex min-h-64 items-center justify-center rounded-3xl kr-panel-flat"
       >
         <span class="loading loading-spinner loading-lg text-primary" />
       </div>

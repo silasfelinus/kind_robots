@@ -1,6 +1,6 @@
 <!-- /components/art/artjob-queue-browser.vue -->
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
+  <section class="kr-surface gap-0">
     <div
       v-if="!userStore.isAdmin"
       class="flex h-full min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-6 text-center text-warning"
@@ -8,10 +8,7 @@
       The ArtJob dashboard is admin-only.
     </div>
 
-    <div
-      v-else
-      class="flex h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain p-3"
-    >
+    <div v-else class="flex h-full kr-scroll flex-col gap-3 p-3">
       <header class="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 class="text-lg font-semibold">ArtJob Pipeline</h2>
@@ -53,14 +50,14 @@
 
       <div
         v-if="artJobStore.error"
-        class="rounded-2xl border border-error/40 bg-error/10 p-3 text-sm text-error"
+        class="kr-note kr-note-error p-3 font-normal"
       >
         {{ artJobStore.error }}
       </div>
 
       <div
         v-if="stats?.oldestPending"
-        class="rounded-2xl border border-warning/40 bg-warning/10 p-3 text-xs text-warning-content"
+        class="kr-note kr-note-warning p-3 text-xs text-warning-content font-normal"
       >
         Oldest pending job #{{ stats.oldestPending.id }} has waited
         {{ formatAge(stats.oldestPending.ageSeconds) }}.

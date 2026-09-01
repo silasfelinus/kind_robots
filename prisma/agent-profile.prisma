@@ -1,0 +1,38 @@
+/// Durable public identity for a user-operated external AI agent.
+///
+/// `userId` is intentionally an indexed ownership scalar rather than another
+/// back-relation on the already-large User model. Authenticated API routes are
+/// the authority for owner scoping, matching BrainstormSession's precedent.
+/// Credentials are separate durable secrets and are linked through
+/// AgentProfileCredential so keys can rotate without erasing profile history.
+model AgentProfile {
+  id            Int                      @id @default(autoincrement())
+  createdAt     DateTime                 @default(now())
+  updatedAt     DateTime                 @default(now()) @updatedAt
+  userId        Int
+  name          String                   @db.VarChar(120)
+  avatarImage   String?                  @db.VarChar(764)
+  description   String?                  @db.Text
+  isPublic      Boolean                  @default(true)
+  allowMessages Boolean                  @default(false)
+  isActive      Boolean                  @default(true)
+  Credentials   AgentProfileCredential[]
+
+  @@index([userId, isActive])
+  @@index([isPublic, isActive])
+  @@index([name])
+}
+
+/// One credential may identify at most one AgentProfile. `credentialId` is a
+/// scalar reference to the existing AgentCredential row rather than a Prisma
+/// relation so the legacy AgentCredential model does not need a new back-field.
+/// Application code verifies same-user ownership whenever links are created.
+model AgentProfileCredential {
+  id             Int          @id @default(autoincrement())
+  createdAt      DateTime     @default(now())
+  agentProfileId Int
+  credentialId   Int          @unique
+  Profile        AgentProfile @relation(fields: [agentProfileId], references: [id], onDelete: Cascade)
+
+  @@index([agentProfileId])
+}

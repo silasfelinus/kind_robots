@@ -237,7 +237,9 @@ export function buildServerCreateData(input: ServerInput, user: AuthUser) {
 
     userId: user.id,
 
-    isPublic: user.isAdmin ? Boolean(input.isPublic) : false,
+    // A user-owned server is the user's compute to share or keep private.
+    // Official/default status remains admin-owned, but public visibility does not.
+    isPublic: cleanBoolean(input.isPublic) ?? false,
     isOfficial: user.isAdmin ? Boolean(input.isOfficial) : false,
     isDefault: user.isAdmin ? Boolean(input.isDefault) : false,
     isActive: cleanBoolean(input.isActive) ?? true,
@@ -295,7 +297,12 @@ export function buildServerUpdateData(input: ServerInput, user: AuthUser) {
     data.sortOrder = cleanInt(input.sortOrder) ?? 0
   }
 
-  const userEditableBooleanFields = ['isActive', 'isEditable', 'isMature']
+  const userEditableBooleanFields = [
+    'isPublic',
+    'isActive',
+    'isEditable',
+    'isMature',
+  ]
 
   for (const field of userEditableBooleanFields) {
     if (field in input) {
@@ -304,7 +311,7 @@ export function buildServerUpdateData(input: ServerInput, user: AuthUser) {
   }
 
   if (user.isAdmin) {
-    const adminBooleanFields = ['isPublic', 'isOfficial', 'isDefault']
+    const adminBooleanFields = ['isOfficial', 'isDefault']
 
     for (const field of adminBooleanFields) {
       if (field in input) {

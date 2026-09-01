@@ -20,3 +20,23 @@ export async function logAdminAction(
     console.error('[audit] failed to write admin log:', err)
   }
 }
+
+/** Same audit trail, for an action the system took automatically rather
+ * than one a human admin performed (e.g. auto-hiding a post that crossed
+ * the health-claim flag-escalation threshold -- see forumApi.ts). Log.userId
+ * is nullable specifically so these system entries don't have to borrow a
+ * real admin's identity. */
+export async function logSystemAction(message: string): Promise<void> {
+  try {
+    await prisma.log.create({
+      data: {
+        message,
+        username: 'system',
+        userId: null,
+        timestamp: new Date(),
+      },
+    })
+  } catch (err) {
+    console.error('[audit] failed to write system log:', err)
+  }
+}

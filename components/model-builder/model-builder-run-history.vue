@@ -45,7 +45,7 @@
 
       <div
         v-else-if="!store.runs.length"
-        class="flex h-full min-h-32 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-base-300 bg-base-100 p-6 text-center text-sm text-base-content/50"
+        class="flex h-full min-h-32 flex-col items-center justify-center gap-2 kr-panel-flat border-dashed p-6 text-center text-sm text-base-content/50"
       >
         <Icon
           name="kind-icon:blueprint"

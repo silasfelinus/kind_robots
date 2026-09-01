@@ -32,7 +32,7 @@
       <div class="min-h-0 flex-1 overflow-y-auto p-4">
         <div
           v-if="localError"
-          class="mb-3 rounded-2xl border border-error/40 bg-error/10 p-3 text-sm text-error"
+          class="mb-3 kr-note kr-note-error p-3 font-normal"
         >
           {{ localError }}
         </div>

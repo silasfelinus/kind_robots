@@ -653,6 +653,7 @@ const {
   isOpen,
   pinOpen,
   activeBubble,
+  activeDream,
   bubblesEnabled,
   currentEmotion,
   currentEmotionRow,
@@ -1257,6 +1258,34 @@ watch(
     }
   },
   { immediate: true },
+)
+
+/*
+ * Seeded topic messages belong to ONE Dream, so they have to go when the Dream
+ * does.
+ *
+ * `topicButtons` is built from `narratorThreads`, i.e. from the active Dream's
+ * narrator bot, and `selectTopic`/`selectStarter` push those threads' opening
+ * text and follow-ups into `seededMessages`. narratorStore already drops its
+ * own Dream-scoped state on this transition (the `activeDream.value?.id`
+ * watcher clears narratorSessionIds, the composer draft and the status line),
+ * but this component's half of the thread had no matching reset.
+ *
+ * The Dream can change underneath a mounted dock: dream-relationship-gallery's
+ * "Connected Dreams" panel calls `selectDreamById()` in place, and
+ * dream-interact keeps `<LazyWorkspaceNarrator>` mounted throughout because its
+ * `v-if="dreamStore.selectedDream"` never goes falsy. The new Dream's
+ * conversation therefore opened with the previous Dream's topic cards still at
+ * the top of it, and their follow-up buttons still resolved through
+ * `findStarter`, so tapping one loaded a prompt written for a Dream that is no
+ * longer open. `clearNarratorThread` already pairs `clearSession()` with
+ * emptying `seededMessages`; this is the same pairing on the Dream-switch path.
+ */
+watch(
+  () => activeDream.value?.id ?? null,
+  () => {
+    seededMessages.value = []
+  },
 )
 
 onMounted(async () => {

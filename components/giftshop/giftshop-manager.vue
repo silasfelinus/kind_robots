@@ -1,9 +1,9 @@
 <!-- /components/content/giftshop/giftshop-manager.vue -->
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
+  <section class="kr-surface gap-0">
     <div
       v-if="isLoadingManager || managerError"
-      class="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-2 kr-panel-flat p-3 text-sm shadow"
+      class="mb-3 kr-toolbar justify-between kr-panel-flat p-3 text-sm shadow"
     >
       <p
         class="min-w-0 flex-1 text-base-content/70"
@@ -28,14 +28,14 @@
       </button>
     </div>
 
-    <section class="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden">
+    <section class="kr-stage gap-4">
       <section
         v-if="
           activeTab === 'community' ||
           activeTab === 'mana' ||
           activeTab === 'forum'
         "
-        class="flex h-full min-h-0 flex-1 flex-col overflow-hidden kr-panel-flat"
+        class="kr-stage h-full kr-panel-flat"
       >
         <div class="kr-scroll overscroll-contain p-4">
           <template v-if="activeTab === 'community'">
@@ -99,10 +99,7 @@
         </div>
       </section>
 
-      <section
-        v-else-if="activeTab === 'giftshop'"
-        class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-      >
+      <section v-else-if="activeTab === 'giftshop'" class="kr-stage h-full">
         <giftshop-interact class="h-full min-h-0 flex-1 overflow-hidden" />
       </section>
 

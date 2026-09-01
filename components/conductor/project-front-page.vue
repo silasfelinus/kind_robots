@@ -24,7 +24,7 @@
         class="absolute inset-0 bg-gradient-to-t from-base-200 via-base-200/70 to-transparent"
       />
       <div
-        class="relative mx-auto flex w-full max-w-5xl flex-col gap-4 px-5 pb-6 pt-16 sm:pt-24"
+        class="relative kr-container flex max-w-5xl flex-col gap-4 px-5 pb-6 pt-16 sm:pt-24"
       >
         <div class="flex flex-wrap items-center gap-2">
           <span
@@ -112,11 +112,11 @@
       </div>
     </header>
 
-    <div class="mx-auto flex w-full max-w-5xl flex-col gap-5 px-5 pb-10 pt-5">
+    <div class="kr-container flex max-w-5xl flex-col gap-5 px-5 pb-10 pt-5">
       <!-- Description -->
       <section
         v-if="view.description"
-        class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm"
+        class="kr-panel rounded-3xl p-5"
       >
         <p class="text-sm leading-relaxed text-base-content/80 sm:text-base">
           {{ view.description }}
@@ -134,7 +134,7 @@
         <article
           v-for="block in view.sections"
           :key="block.key"
-          class="flex flex-col gap-2 rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm"
+          class="kr-panel flex flex-col gap-2 rounded-3xl p-5"
         >
           <div class="flex items-center gap-2">
             <span

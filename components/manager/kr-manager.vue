@@ -55,7 +55,7 @@
           verifyGalleryAdoption.ts.
 -->
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
+  <section class="kr-surface gap-0">
     <!--
       ONE status banner. It appears only while loading or after a failure, so
       the common case costs no vertical space — that was true of every variant
@@ -65,7 +65,7 @@
     -->
     <div
       v-if="loading || error"
-      class="mb-3 flex shrink-0 flex-wrap items-center justify-between gap-2 rounded-2xl border p-3 text-sm shadow"
+      class="mb-3 kr-toolbar justify-between rounded-2xl border p-3 text-sm shadow"
       :class="
         error ? 'border-error/40 bg-error/10' : 'border-base-300 bg-base-100'
       "
@@ -123,7 +123,7 @@
       :key="renderedTab"
       :class="
         isPanelTab(renderedTab)
-          ? 'kr-panel-flat min-h-0 flex-1 overflow-y-auto overscroll-contain p-4'
+          ? 'kr-panel-flat kr-scroll p-4'
           : 'flex h-full min-h-0 flex-1 flex-col overflow-hidden'
       "
     >
@@ -189,7 +189,7 @@
     -->
     <div
       v-else
-      class="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 rounded-2xl border border-warning/40 bg-warning/10 p-4 text-center text-warning"
+      class="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 kr-note kr-note-warning text-center font-normal"
     >
       <Icon name="kind-icon:warning" class="h-10 w-10" />
 
@@ -302,7 +302,7 @@ const renderedTab = computed<string | null>(() => {
   const fallback = getDashboardDefaultTab(props.dashboardKey)
   if (hasSlot(fallback)) {
     console.warn(
-      `\u26A0\uFE0F ${props.dashboardKey} manager has no slot for tab "${activeTab.value}" -- showing "${fallback}"`,
+      `⚠️ ${props.dashboardKey} manager has no slot for tab "${activeTab.value}" -- showing "${fallback}"`,
     )
     return fallback
   }

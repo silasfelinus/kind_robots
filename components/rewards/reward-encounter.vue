@@ -72,12 +72,8 @@
 
     <div
       v-if="statusMessage"
-      class="shrink-0 rounded-2xl border p-3 text-sm"
-      :class="
-        statusTone === 'error'
-          ? 'border-error/40 bg-error/10 text-error'
-          : 'border-success/40 bg-success/10 text-success'
-      "
+      class="shrink-0 kr-note p-3 font-normal"
+      :class="statusTone === 'error' ? 'kr-note-error' : 'kr-note-success'"
     >
       {{ statusMessage }}
     </div>

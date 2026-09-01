@@ -2,16 +2,10 @@
 import type { H3Event } from 'h3'
 import { manaGate } from './manaGate'
 import { estimateArtCostUsd } from './manaCost'
-import { requireMachineUser } from './authGuard'
+import { requireScopedApiUser } from './authGuard'
 
 type ComfyEngine =
-  | 'comfy'
-  | 'flux'
-  | 'kontext'
-  | 'charsheet'
-  | 'hunyuan'
-  | 'ltx'
-  | 'wan'
+  'comfy' | 'flux' | 'kontext' | 'charsheet' | 'hunyuan' | 'ltx' | 'wan'
 
 interface ComfyGateInput {
   steps?: number | null
@@ -25,7 +19,7 @@ interface ComfyGateInput {
 
 interface ComfyGateResult {
   user: { id: number }
-  // Carried through from requireMachineUser. Routes that need an admin bypass
+  // Carried through from requireScopedApiUser. Routes that need an admin bypass
   // (entity-art ownership, LoRA visibility, mature Facet selection) must read
   // THIS, never `gate.user`: the user object here is deliberately narrowed to
   // `{ id }`, so casting it to something carrying `isAdmin` yields a
@@ -46,15 +40,16 @@ interface ComfyGateResult {
  * exactly like manaGate; the route's errorHandler catches them. Returns the user
  * and a `commit` to call once generation succeeds.
  *
- * Accepts a session JWT, a long-lived user apiKey, or the beta admin token
- * (requireMachineUser) — machine-auth parity with /api/art/generate so
- * automation (conductor, relay agent) can drive Comfy routes.
+ * Human auth (session JWT, user apiKey, beta admin token) retains the normal
+ * authenticated-user behavior. Scoped agent credentials must explicitly carry
+ * generation:art; a forum-only key can never spend its operator's generation
+ * balance merely because it is a valid machine credential.
  */
 export async function authAndGate(
   event: H3Event,
   input: ComfyGateInput,
 ): Promise<ComfyGateResult> {
-  const { user, isAdmin } = await requireMachineUser(event)
+  const { user, isAdmin } = await requireScopedApiUser(event, 'generation:art')
 
   const gate = await manaGate(event, {
     kind: 'art',

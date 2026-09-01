@@ -1,7 +1,7 @@
 <!-- /components/giftshop/checkout-success.vue -->
 <template>
   <section
-    class="mx-auto flex min-h-full max-w-3xl flex-col items-center justify-center gap-5 px-4 py-8 text-center"
+    class="kr-container max-w-3xl flex min-h-full flex-col items-center justify-center gap-5 px-4 py-8 text-center"
   >
     <div
       class="w-full rounded-3xl border bg-base-100 p-6 shadow-lg sm:p-10"

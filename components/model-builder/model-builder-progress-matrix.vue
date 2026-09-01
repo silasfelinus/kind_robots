@@ -175,7 +175,7 @@
     />
     <div
       v-else
-      class="flex flex-1 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100 p-6 text-center text-sm text-base-content/50"
+      class="flex flex-1 items-center justify-center kr-panel-flat border-dashed p-6 text-center text-sm text-base-content/50"
     >
       Select a row to work through its stages.
     </div>

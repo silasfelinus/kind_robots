@@ -698,10 +698,28 @@
           {{ selectedForArtCount }} of {{ keptCandidates.length }} kept idea{{
             keptCandidates.length === 1 ? '' : 's'
           }}
-          selected · Krea 2
+          selected
         </p>
       </div>
       <div class="flex flex-wrap items-center gap-2">
+        <label class="form-control">
+          <span class="sr-only">Art engine</span>
+          <select
+            v-model="artEngine"
+            class="select select-bordered select-sm rounded-xl"
+            :disabled="isGeneratingArt"
+            data-testid="brainstorm-art-engine"
+            aria-label="Art engine"
+          >
+            <option
+              v-for="profile in artEngineOptions"
+              :key="profile.engine"
+              :value="profile.engine"
+            >
+              {{ profile.label }}
+            </option>
+          </select>
+        </label>
         <button
           type="button"
           class="btn btn-ghost btn-sm"
@@ -856,6 +874,8 @@ import type {
 } from '@/stores/helpers/brainstormSourceAdapters'
 import { useBotStore } from '@/stores/botStore'
 import type { Bot } from '~/prisma/generated/prisma/client'
+import { ART_ENGINE_PROFILES } from '@/utils/artGeneratorPresets'
+import type { ArtGeneratorEngine } from '@/utils/artGeneratorPresets'
 
 const creativeDirections = [
   {
@@ -969,6 +989,7 @@ const {
   suggestedSessionName,
   source,
   selectedForArtCandidates,
+  artEngine,
   artGenerationState,
   artGenerationError,
   artGenerationProgress,
@@ -1122,6 +1143,16 @@ const artProgressLabel = computed(() => {
     ? `Generating ${progress.completed}/${progress.total}…`
     : 'Generating…'
 })
+
+// brainstorm/t-025: every artGeneratorPresets.ts engine is prompt-only
+// (krea2/flux2/flux/comfy) -- sdxl-img2img/kontext are deliberately not in
+// this catalog at all, since those are entity-recreation/edit engines that
+// need a source image, which no brainstorm candidate has.
+const artEngineOptions: { engine: ArtGeneratorEngine; label: string }[] =
+  Object.values(ART_ENGINE_PROFILES).map((profile) => ({
+    engine: profile.engine,
+    label: profile.label,
+  }))
 
 const errorHeading = computed(() => {
   switch (generationError.value?.kind) {

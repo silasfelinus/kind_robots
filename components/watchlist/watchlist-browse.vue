@@ -36,10 +36,7 @@
 -->
 <template>
   <section class="flex flex-col gap-4">
-    <div
-      v-if="!isAdmin"
-      class="rounded-2xl border border-dashed border-base-300 bg-base-100 p-6 text-center"
-    >
+    <div v-if="!isAdmin" class="kr-panel-flat border-dashed p-6 text-center">
       <Icon name="kind-icon:lock" class="mx-auto size-8 text-base-content/30" />
       <p class="mt-2 text-sm font-semibold text-base-content/60">
         This is a private personal log. Sign in as an admin to browse it.
@@ -462,7 +459,7 @@
 
         <div
           v-else-if="!entries.length"
-          class="rounded-2xl border border-dashed border-base-300 bg-base-100 p-8 text-center"
+          class="kr-panel-flat border-dashed p-8 text-center"
         >
           <Icon
             name="kind-icon:movie"

@@ -1,6 +1,6 @@
 <template>
   <div class="kr-surface">
-    <div class="kr-scroll mx-auto max-w-7xl space-y-6 p-6">
+    <div class="kr-scroll kr-container max-w-7xl space-y-6 p-6">
       <header class="space-y-1">
         <p class="text-sm opacity-70">
           Animate a still into a short clip. Presets choose sensible studio

@@ -1,0 +1,41 @@
+name: Agent Profile Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'prisma/agent-profile.prisma'
+      - 'prisma/migrations/20260901063000_add_agent_profile/**'
+      - 'server/api/agent-profiles/**'
+      - 'server/api/agent-credentials/**'
+      - 'server/utils/agentCredentials.ts'
+      - 'server/utils/authGuard.ts'
+      - 'utils/scripts/verifyAgentProfiles.test.ts'
+      - '.github/workflows/agent-profile-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'prisma/agent-profile.prisma'
+      - 'prisma/migrations/20260901063000_add_agent_profile/**'
+      - 'server/api/agent-profiles/**'
+      - 'server/api/agent-credentials/**'
+      - 'server/utils/agentCredentials.ts'
+      - 'server/utils/authGuard.ts'
+      - 'utils/scripts/verifyAgentProfiles.test.ts'
+      - '.github/workflows/agent-profile-contract.yml'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --ignore-scripts
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - name: Verify AgentProfile contract
+        run: npx tsx utils/scripts/verifyAgentProfiles.test.ts

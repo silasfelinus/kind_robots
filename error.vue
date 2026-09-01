@@ -3,7 +3,7 @@
     class="min-h-screen bg-base-300 px-4 py-8 text-base-content sm:px-6 lg:px-8"
   >
     <section
-      class="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-5xl flex-col items-center justify-center gap-6"
+      class="kr-container flex min-h-[calc(100vh-4rem)] max-w-5xl flex-col items-center justify-center gap-6"
     >
       <img
         src="/images/background/error.webp"
@@ -12,7 +12,7 @@
       />
 
       <div
-        class="w-full max-w-3xl rounded-3xl border border-base-300 bg-base-100/95 p-6 text-center shadow-xl backdrop-blur sm:p-8"
+        class="kr-panel w-full max-w-3xl rounded-3xl bg-base-100/95 text-center shadow-xl backdrop-blur sm:p-8"
       >
         <p class="text-sm font-black uppercase tracking-[0.2em] text-primary">
           {{ statusCode }} · Lost & Found Room

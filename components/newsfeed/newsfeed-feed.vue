@@ -149,7 +149,7 @@
 
       <div
         v-else-if="!visibleItems.length"
-        class="rounded-2xl border border-dashed border-base-300 bg-base-100 p-8 text-center"
+        class="kr-panel-flat border-dashed p-8 text-center"
       >
         <Icon
           name="kind-icon:news"

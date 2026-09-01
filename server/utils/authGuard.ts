@@ -3,12 +3,24 @@ import { createError, getHeader, type H3Event } from 'h3'
 import prisma from './prisma'
 import { verifyJwtToken } from '@/server/api/auth'
 import { type AuthUser, withAdminFlag } from './authUser'
+import {
+  validateAgentCredential,
+  type AgentCredentialScope,
+} from './agentCredentials'
 
 export type AuthGuardResult = {
   user: AuthUser
-  kind: 'jwt' | 'beta-admin-token' | 'user-api-key'
+  kind: 'jwt' | 'beta-admin-token' | 'user-api-key' | 'agent-credential'
   isAdmin: boolean
   isServerKey: boolean
+  /** Only set for kind: 'agent-credential' -- the scopes that credential was granted. */
+  scopes?: AgentCredentialScope[]
+  /** Only set for kind: 'agent-credential' -- the AgentCredential row's id. */
+  credentialId?: number
+  /** Only set for kind: 'agent-credential' when the credential names a legacy Bot. */
+  botId?: number | null
+  /** Only set for kind: 'agent-credential' when the credential names an external AgentProfile. */
+  agentProfileId?: number | null
 }
 
 const config = useRuntimeConfig()
@@ -46,7 +58,9 @@ function getConfiguredBetaAdminToken(): string {
 }
 
 function getBetaAdminUserId(): number {
-  const raw = Number(config.betaAdminUserId || process.env.BETA_ADMIN_USER_ID || 1)
+  const raw = Number(
+    config.betaAdminUserId || process.env.BETA_ADMIN_USER_ID || 1,
+  )
 
   return Number.isInteger(raw) && raw > 0 ? raw : 1
 }
@@ -93,11 +107,14 @@ async function validateJwtAuth(token: string): Promise<AuthGuardResult | null> {
   }
 }
 
-async function validateBetaAdminAuth(event: H3Event): Promise<AuthGuardResult | null> {
+async function validateBetaAdminAuth(
+  event: H3Event,
+): Promise<AuthGuardResult | null> {
   const configuredToken = getConfiguredBetaAdminToken()
   const suppliedToken = readBetaAdminToken(event)
 
-  if (!configuredToken || !suppliedToken || suppliedToken !== configuredToken) return null
+  if (!configuredToken || !suppliedToken || suppliedToken !== configuredToken)
+    return null
 
   const user = await getUserById(getBetaAdminUserId())
 
@@ -133,6 +150,36 @@ async function validateUserApiKeyAuth(
   }
 }
 
+// rainbow-butterflies/t-015: the scoped-credential replacement for
+// validateUserApiKeyAuth above. Deliberately does NOT inherit the owning
+// user's isAdmin flag -- an agent credential is meant to carry only the
+// narrow scopes it was issued, never blanket admin access, even when its
+// owner is an admin. Callers that need admin-gated behavior for a human
+// admin must still authenticate as that admin directly (jwt/beta-admin-token/
+// user-api-key), not through an agent credential.
+async function validateAgentCredentialAuth(
+  token: string,
+): Promise<AuthGuardResult | null> {
+  if (!token || !token.includes('.')) return null
+
+  const result = await validateAgentCredential(token)
+  if (!result) return null
+
+  const user = await getUserById(result.userId)
+  if (!user || !user.isActive) return null
+
+  return {
+    user,
+    kind: 'agent-credential',
+    isAdmin: false,
+    isServerKey: false,
+    scopes: result.scopes,
+    credentialId: result.credentialId,
+    botId: result.botId,
+    agentProfileId: result.agentProfileId,
+  }
+}
+
 export async function getOptionalApiUser(
   event: H3Event,
 ): Promise<AuthGuardResult | null> {
@@ -141,6 +188,7 @@ export async function getOptionalApiUser(
 
   return (
     (await validateJwtAuth(bearerToken)) ??
+    (await validateAgentCredentialAuth(userApiKey)) ??
     (await validateUserApiKeyAuth(userApiKey)) ??
     (await validateBetaAdminAuth(event))
   )
@@ -183,6 +231,60 @@ export async function requireAdminApiUser(
     throw createError({
       statusCode: 403,
       message: 'Admin access required.',
+    })
+  }
+
+  return auth
+}
+
+/**
+ * True if `auth` is allowed to perform `scope`-gated work. Non-agent-credential
+ * auth (jwt/user-api-key/beta-admin-token) acts as the full authenticated user
+ * and is never scope-restricted; only `kind: 'agent-credential'` is limited to
+ * its own granted scopes.
+ */
+export function authHasScope(
+  auth: AuthGuardResult,
+  scope: AgentCredentialScope,
+): boolean {
+  if (auth.kind !== 'agent-credential') return true
+
+  return (auth.scopes ?? []).includes(scope)
+}
+
+/**
+ * Same as requireApiUser, but 403s if the resolved auth is itself an agent
+ * credential. Use this for endpoints that manage credentials (create/list/
+ * revoke) so a scoped agent credential can never mint, enumerate, or revoke
+ * credentials on its own behalf -- that management surface stays reachable
+ * only by the real, fully-authenticated user (jwt/user-api-key/beta-admin-token).
+ */
+export async function requireHumanApiUser(
+  event: H3Event,
+): Promise<AuthGuardResult> {
+  const auth = await requireApiUser(event)
+
+  if (auth.kind === 'agent-credential') {
+    throw createError({
+      statusCode: 403,
+      message: 'Agent credentials cannot manage credentials.',
+    })
+  }
+
+  return auth
+}
+
+/** Same as requireApiUser, but 403s unless the resolved auth carries `scope`. */
+export async function requireScopedApiUser(
+  event: H3Event,
+  scope: AgentCredentialScope,
+): Promise<AuthGuardResult> {
+  const auth = await requireApiUser(event)
+
+  if (!authHasScope(auth, scope)) {
+    throw createError({
+      statusCode: 403,
+      message: `This credential is not authorized for scope "${scope}".`,
     })
   }
 

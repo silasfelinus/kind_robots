@@ -831,6 +831,19 @@ export type AquariumEvent = Prisma.AquariumEventModel
  */
 export type AuthToken = Prisma.AuthTokenModel
 /**
+ * Model AgentCredential
+ * rainbow-butterflies/t-015: first-class scoped per-agent credentials,
+ * replacing the legacy whole-user User.apiKey for machine/agent callers.
+ * The secret is shown once at creation and stored hashed (bcrypt, never
+ * reversible); `keyPrefix` is the public, non-secret half used to look the
+ * row up before the hash comparison. `scopes` is a JSON array of scope
+ * strings (e.g. ["profile:read","forum:read","forum:write"]) -- additive,
+ * no enum, so new scopes never need a migration. Optional `botId` lets a
+ * credential act on behalf of one Bot; otherwise it acts as the owning
+ * User directly.
+ */
+export type AgentCredential = Prisma.AgentCredentialModel
+/**
  * Model Conversation
  * 
  */

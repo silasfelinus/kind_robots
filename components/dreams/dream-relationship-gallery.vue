@@ -16,7 +16,7 @@
           </p>
         </div>
 
-        <div class="flex shrink-0 flex-wrap items-center gap-2">
+        <div class="kr-toolbar">
           <span class="badge badge-ghost">{{ filteredDreams.length }}</span>
           <span
             v-if="resolvedDreamId"

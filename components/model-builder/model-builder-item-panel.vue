@@ -36,7 +36,7 @@
     </p>
 
     <!-- Stage: PITCH -->
-    <section class="rounded-xl border border-base-300 p-2.5">
+    <section class="kr-panel-flat rounded-xl p-2.5">
       <div class="mb-1.5 flex items-center gap-2">
         <Icon name="kind-icon:lightbulb" class="h-4 w-4 text-primary" />
         <span class="text-xs font-bold uppercase tracking-wide">Pitch</span>
@@ -94,7 +94,7 @@
     </section>
 
     <!-- Stage: FIELDS_AND_PROMPTS -->
-    <section class="rounded-xl border border-base-300 p-2.5">
+    <section class="kr-panel-flat rounded-xl p-2.5">
       <div class="mb-1.5 flex items-center gap-2">
         <Icon name="kind-icon:list" class="h-4 w-4 text-primary" />
         <span class="text-xs font-bold uppercase tracking-wide"
@@ -194,7 +194,7 @@
     </section>
 
     <!-- Stage: GENERATE_ASSETS -->
-    <section class="rounded-xl border border-base-300 p-2.5">
+    <section class="kr-panel-flat rounded-xl p-2.5">
       <div class="mb-1.5 flex items-center gap-2">
         <Icon name="kind-icon:sparkles" class="h-4 w-4 text-primary" />
         <span class="text-xs font-bold uppercase tracking-wide"
@@ -310,7 +310,7 @@
     </section>
 
     <!-- Stage: COMMIT -->
-    <section class="rounded-xl border border-base-300 p-2.5">
+    <section class="kr-panel-flat rounded-xl p-2.5">
       <div class="mb-1.5 flex items-center gap-2">
         <Icon name="kind-icon:check" class="h-4 w-4 text-primary" />
         <span class="text-xs font-bold uppercase tracking-wide">Commit</span>

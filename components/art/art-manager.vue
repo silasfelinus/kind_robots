@@ -1,6 +1,6 @@
 <!-- /components/art/art-manager.vue -->
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
+  <section class="kr-surface gap-0">
     <div
       v-if="isLoadingManager"
       class="flex h-full min-h-0 flex-1 items-center justify-center kr-panel"
@@ -14,10 +14,7 @@
       </div>
     </div>
 
-    <div
-      v-else-if="managerError"
-      class="flex min-h-0 flex-1 flex-col overflow-hidden kr-note kr-note-error"
-    >
+    <div v-else-if="managerError" class="kr-stage kr-note kr-note-error">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <span>{{ managerError }}</span>
         <button
@@ -30,10 +27,7 @@
       </div>
     </div>
 
-    <section
-      v-else-if="activeTab === 'gallery'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
+    <section v-else-if="activeTab === 'gallery'" class="kr-stage h-full">
       <art-gallery
         class="h-full min-h-0 flex-1 overflow-hidden"
         variant="dashboard"
@@ -44,7 +38,7 @@
 
     <section
       v-else
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
+      class="kr-stage h-full"
       @click.capture="
         activeTab === 'artjob' ? handleArtJobImageClick($event) : undefined
       "
@@ -56,10 +50,16 @@
             : 'kr-scroll p-3'
         "
       >
-        <art-generator
+        <div
           v-if="activeTab === 'generate'"
-          class="min-h-full w-full"
-        />
+          class="flex min-h-full w-full flex-col gap-3"
+        >
+          <forum-art-generation-context
+            v-if="forumPostId"
+            :post-id="forumPostId"
+          />
+          <art-generator class="min-h-full w-full" />
+        </div>
 
         <checkpoint-gallery
           v-else-if="activeTab === 'checkpoints'"
@@ -94,7 +94,7 @@
 
         <template v-else-if="activeTab === 'artjob'">
           <div
-            class="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-base-300 bg-base-100 px-3 py-2"
+            class="kr-toolbar justify-between border-b border-base-300 bg-base-100 px-3 py-2"
           >
             <div
               role="tablist"
@@ -146,7 +146,7 @@
 
           <div
             v-show="artJobWorkspaceTab === 'queue'"
-            class="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-3"
+            class="kr-stage gap-3 p-3"
           >
             <artjob-failed-page-requeue class="shrink-0" />
             <artjob-queue-browser class="min-h-0 flex-1 overflow-hidden" />
@@ -289,6 +289,8 @@ const activeTab = computed<ArtTab>(() => {
 
   return selectedTab as ArtTab
 })
+
+const forumPostId = computed(() => querySelectionId(route.query.forumPost))
 
 const shouldLiveRefreshArtJobs = computed(() => {
   return (

@@ -1,6 +1,6 @@
 <!-- /components/content/user/user-manager.vue -->
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col gap-4 overflow-hidden">
+  <section class="kr-surface gap-4">
     <!--
       NO ACCOUNT ROW HERE, and none teleported elsewhere either.
 
@@ -51,10 +51,7 @@
       </NuxtLink>
     </section>
 
-    <section
-      v-else-if="activeTab === 'profile'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
+    <section v-else-if="activeTab === 'profile'" class="kr-stage h-full">
       <user-dashboard class="min-h-0 flex-1" />
     </section>
 
@@ -64,7 +61,7 @@
         activeTab === 'friends' ||
         activeTab === 'achievements'
       "
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
+      class="kr-stage h-full rounded-2xl border border-base-300 bg-base-200"
     >
       <div class="kr-scroll overscroll-contain p-4">
         <avatar-picker
@@ -79,20 +76,14 @@
       </div>
     </section>
 
-    <section
-      v-else-if="activeTab === 'themes'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
+    <section v-else-if="activeTab === 'themes'" class="kr-stage h-full">
       <theme-gallery
         class="h-full min-h-0 flex-1 overflow-hidden"
         :show-header="false"
       />
     </section>
 
-    <section
-      v-else-if="activeTab === 'chats'"
-      class="flex h-full min-h-0 flex-1 flex-col overflow-hidden"
-    >
+    <section v-else-if="activeTab === 'chats'" class="kr-stage h-full">
       <chat-gallery
         class="h-full min-h-0 flex-1 overflow-hidden"
         :show-header="false"

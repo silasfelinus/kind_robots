@@ -43,6 +43,7 @@ export default defineEventHandler(async (event) => {
         { year: 'desc' },
         { watchedMonth: 'desc' },
         { watchedDay: 'desc' },
+        { id: 'desc' },
       ],
       take: RELATED_LIMIT,
     })

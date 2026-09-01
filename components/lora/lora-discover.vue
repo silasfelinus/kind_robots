@@ -165,7 +165,7 @@
 
     <div
       v-if="!loading && !visibleCards.length"
-      class="rounded-2xl border border-dashed border-base-300 bg-base-200 p-6 text-center"
+      class="kr-panel-muted border-dashed text-center"
     >
       <p class="font-bold">No results.</p>
       <p class="text-sm text-base-content/60">

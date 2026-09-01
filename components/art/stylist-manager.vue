@@ -44,7 +44,7 @@
       {{ superkate.syncError }} — working from this device's copy.
     </p>
 
-    <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+    <div class="kr-scroll">
       <stylist-calculator v-if="superkate.activeView === 'calculator'" />
       <stylist-clients v-else-if="superkate.activeView === 'clients'" />
       <stylist-history v-else-if="superkate.activeView === 'history'" />

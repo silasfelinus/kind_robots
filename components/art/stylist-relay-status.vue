@@ -12,7 +12,7 @@
   capabilities, and agent version.
 -->
 <template>
-  <section class="flex h-full min-h-0 w-full flex-col overflow-hidden">
+  <section class="kr-surface gap-0">
     <div
       v-if="!userStore.isAdmin"
       class="flex h-full min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-6 text-center text-warning"
@@ -20,10 +20,7 @@
       Relay diagnostics are admin-only.
     </div>
 
-    <div
-      v-else
-      class="flex h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain p-3"
-    >
+    <div v-else class="flex h-full kr-scroll flex-col gap-3 p-3">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 class="text-lg font-semibold">Relay Diagnostics</h2>
@@ -58,11 +55,11 @@
         <article
           v-for="agent in agents"
           :key="agent.agentId"
-          class="flex flex-col gap-2 rounded-2xl border p-3"
+          class="flex flex-col gap-2 p-3"
           :class="
             agent.supportsInputImages
-              ? 'border-base-300 bg-base-100'
-              : 'border-warning/50 bg-warning/10'
+              ? 'kr-panel-flat'
+              : 'rounded-2xl border border-warning/50 bg-warning/10'
           "
         >
           <div class="flex flex-wrap items-center justify-between gap-2">

@@ -48,7 +48,7 @@
       </div>
     </div>
 
-    <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3">
+    <div class="kr-scroll p-3">
       <div v-if="visibleJobs.length" class="flex flex-col gap-3">
         <article
           v-for="job in visibleJobs"
@@ -83,7 +83,7 @@
             <div
               v-else
               :title="jobImageDiag(job)"
-              class="flex h-28 w-24 shrink-0 flex-col items-center justify-center gap-0.5 rounded-2xl border border-dashed border-base-300 bg-base-100 p-2 text-center text-[10px] uppercase tracking-wide text-base-content/40"
+              class="flex h-28 w-24 shrink-0 flex-col items-center justify-center gap-0.5 kr-panel-flat border-dashed p-2 text-center text-[10px] uppercase tracking-wide text-base-content/40"
             >
               <span>{{ jobImageReason(job) || 'Loading art' }}</span>
             </div>

@@ -1,6 +1,6 @@
 <!-- /components/academy/academy-styles-browser.vue -->
 <template>
-  <section class="mx-auto flex w-full max-w-[1600px] flex-col gap-4">
+  <section class="kr-container flex max-w-[1600px] flex-col gap-4">
     <header
       class="flex flex-col gap-4 rounded-3xl border border-base-300 bg-base-100 p-4 shadow-sm sm:p-5 lg:flex-row lg:items-end lg:justify-between"
     >

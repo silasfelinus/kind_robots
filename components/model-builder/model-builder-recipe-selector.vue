@@ -56,10 +56,24 @@
 
     <!-- Outputs -->
     <div class="min-h-0 flex-1 space-y-1.5 overflow-y-auto">
+      <!--
+        Output rows (model-builder/t-029, cycle 70): this dense checkbox list
+        was hand-rolled as `rounded-xl border border-base-300 bg-base-100`
+        while model-builder-run-history.vue's identical dense-row list (same
+        border-base-300 + bg-base-100 combo, same selected-state override)
+        already uses the shared kr-panel-flat class -- kr-panel-flat's own
+        definition in tailwind.css even names "dense lists, rows, and
+        inboxes" as its purpose. Swapped to kr-panel-flat with an explicit
+        `rounded-xl` override so the corner radius stays exactly as before
+        (kr-panel-flat's own default is rounded-2xl) -- same override
+        pattern already used elsewhere (e.g. scenario-card.vue,
+        ruler-hooked-cosmetics.vue). border-base-300 and bg-base-100 match
+        kr-panel-flat exactly, so nothing else changes.
+      -->
       <label
         v-for="output in store.recipeOutputs"
         :key="output.key"
-        class="flex cursor-pointer items-center gap-3 rounded-xl border border-base-300 bg-base-100 p-2.5 transition hover:border-primary/50"
+        class="flex cursor-pointer items-center gap-3 kr-panel-flat rounded-xl p-2.5 transition hover:border-primary/50"
         :class="store.selections[output.key]?.on ? 'border-primary/60 bg-primary/5' : ''"
       >
         <input
@@ -113,7 +127,7 @@
 
     <!-- Footer -->
     <div
-      class="flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-base-300 pt-2"
+      class="kr-toolbar justify-between border-t border-base-300 pt-2"
     >
       <div class="flex items-center gap-3">
         <span class="text-xs text-base-content/60">

@@ -76,12 +76,8 @@
 
       <div
         v-if="message"
-        class="mt-4 rounded-2xl border p-3 text-sm font-semibold"
-        :class="
-          success
-            ? 'border-success/40 bg-success/10 text-success'
-            : 'border-error/40 bg-error/10 text-error'
-        "
+        class="mt-4 kr-note p-3"
+        :class="success ? 'kr-note-success' : 'kr-note-error'"
       >
         {{ message }}
       </div>

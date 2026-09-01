@@ -5,7 +5,7 @@
   >
     <div class="kr-scroll min-h-0 flex-1 overscroll-contain">
       <div
-        class="mx-auto w-full max-w-[1800px] space-y-6 p-2 pb-8 sm:p-4 sm:pb-10 xl:p-6"
+        class="kr-container max-w-[1800px] space-y-6 p-2 pb-8 sm:p-4 sm:pb-10 xl:p-6"
       >
         <!--
           daily-dream-generator moved here from dream-manager, where it sat in a
@@ -84,7 +84,7 @@
 
         <p
           v-if="urgentCount > 0"
-          class="rounded-2xl border border-error/20 bg-error/5 px-4 py-3 text-sm font-semibold text-error"
+          class="kr-note kr-note-error border-error/20 bg-error/5 px-4 py-3"
         >
           {{ urgentCount }} item{{ urgentCount === 1 ? '' : 's' }} need a
           decision.

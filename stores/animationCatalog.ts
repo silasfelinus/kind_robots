@@ -467,6 +467,17 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'shadow-puppet-theater',
+    label: 'Shadow Puppet Theater',
+    reveal: 'The screen catches its light',
+    icon: 'kind-icon:theater',
+    tooltip:
+      'Jointed shadow puppets perform short wordless vignettes behind a slow-drifting backlight; move your pointer to join with a hand-shadow, click to advance the scene 🏮',
+    color: '#e0a458',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

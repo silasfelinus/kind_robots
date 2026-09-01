@@ -1,7 +1,7 @@
 <!-- /components/model-builder/model-builder-manager.vue -->
 <template>
   <section
-    class="flex h-full min-h-0 max-h-full w-full flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200"
+    class="flex h-full min-h-0 max-h-full w-full flex-col overflow-hidden kr-panel-muted"
     :aria-busy="resumingRun"
   >
     <header

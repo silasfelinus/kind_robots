@@ -63,7 +63,7 @@
     <div class="min-h-0 flex-1 overflow-y-auto">
       <div
         v-if="!store.sourceType"
-        class="flex h-full min-h-32 items-center justify-center rounded-2xl border border-dashed border-base-300 bg-base-100 p-6 text-center text-sm text-base-content/50"
+        class="flex h-full min-h-32 items-center justify-center kr-panel-flat border-dashed p-6 text-center text-sm text-base-content/50"
       >
         Select a source type above to load records.
       </div>
@@ -93,6 +93,27 @@
         >
           Retry
         </button>
+      </div>
+
+      <!--
+        Empty state (model-builder/t-029, cycle 55/68): a successful load with
+        zero records fell through to this point with no branch to catch it --
+        the gallery/grid/list containers below all render on `v-else`-style
+        chains keyed to `viewMode`, so an empty `store.sources` produced a
+        blank panel with no feedback that the fetch actually completed.
+        Distinct from the sourcesError branch above (a failed request) and
+        the loadingSources branch (still in flight) -- this is specifically
+        "finished, worked, nothing came back".
+      -->
+      <div
+        v-else-if="!store.sources.length"
+        class="flex h-full min-h-32 flex-col items-center justify-center gap-1 kr-panel-flat border-dashed p-6 text-center text-sm text-base-content/50"
+      >
+        <Icon
+          :name="activeType?.icon || 'kind-icon:blueprint'"
+          class="h-6 w-6 text-base-content/30"
+        />
+        No {{ activeType?.plural.toLowerCase() }} yet.
       </div>
 
       <!-- GALLERY: image-forward tiles, packs tight to kill whitespace -->
@@ -178,13 +199,25 @@
         </button>
       </div>
 
-      <!-- LIST: dense single-column rows for fast scanning -->
+      <!--
+        LIST: dense single-column rows for fast scanning (model-builder/
+        t-029, cycle 69). Row surface was hand-rolled as `rounded-lg border
+        border-base-300 bg-base-100` while the GALLERY and GRID views one
+        toggle away already use the shared `kr-panel-flat` class for their
+        record buttons -- kr-panel-flat's own definition in tailwind.css
+        even names "dense lists, rows, and inboxes" as its purpose, so the
+        one view that's actually a dense row list was the one view not
+        using it. Swapped to kr-panel-flat (bg-base-100 + border-base-300
+        match exactly; only the corner radius changes, rounded-lg ->
+        rounded-2xl, aligning it with this file's other two views and with
+        model-builder-run-history.vue's identical list-row pattern).
+      -->
       <div v-else class="flex flex-col gap-1">
         <button
           v-for="record in store.sources"
           :key="record.id"
           type="button"
-          class="flex items-center gap-3 rounded-lg border border-base-300 bg-base-100 px-2.5 py-1.5 text-left transition hover:border-primary hover:bg-base-200"
+          class="flex items-center gap-3 kr-panel-flat px-2.5 py-1.5 text-left transition hover:border-primary hover:bg-base-200"
           @click="store.selectSource(record)"
         >
           <div

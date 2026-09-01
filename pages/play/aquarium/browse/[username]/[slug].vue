@@ -8,7 +8,7 @@
 <template>
   <main class="kr-surface bg-base-200/40">
     <div
-      class="kr-scroll mx-auto max-w-4xl space-y-5 px-3 py-5 sm:px-6 sm:py-8"
+      class="kr-scroll kr-container max-w-4xl space-y-5 px-3 py-5 sm:px-6 sm:py-8"
     >
       <nav>
         <NuxtLink
@@ -22,7 +22,7 @@
 
       <div
         v-if="loading && !tank"
-        class="grid min-h-[50vh] place-items-center rounded-3xl border border-base-300 bg-base-100"
+        class="grid min-h-[50vh] place-items-center kr-panel-flat rounded-3xl"
       >
         <div class="text-center">
           <span class="loading loading-ring loading-lg text-primary" />

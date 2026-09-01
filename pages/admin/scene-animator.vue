@@ -33,9 +33,9 @@
 
       <div
         v-else-if="!userStore.isAdmin"
-        class="rounded-2xl border border-error/40 bg-error/10 p-8 text-center"
+        class="kr-note kr-note-error p-8 text-center font-normal"
       >
-        <p class="text-xl font-black">Administrator access required</p>
+        <p class="text-xl font-black text-base-content">Administrator access required</p>
         <p class="mt-2 text-sm text-base-content/60">
           Folder animation can enqueue substantial local GPU work, so this surface is admin-only.
         </p>
@@ -197,7 +197,7 @@
 
             <div
               v-if="store.error"
-              class="rounded-2xl border border-error/40 bg-error/10 p-4"
+              class="kr-note kr-note-error"
             >
               <div class="flex items-start justify-between gap-3">
                 <pre class="whitespace-pre-wrap font-sans text-sm text-error">{{ store.error }}</pre>
@@ -211,7 +211,7 @@
 
             <div
               v-else-if="!store.totalCount"
-              class="grid min-h-64 place-items-center rounded-2xl border border-dashed border-base-300 bg-base-100/50 p-8 text-center"
+              class="grid min-h-64 place-items-center kr-panel-flat border-dashed bg-base-100/50 p-8 text-center"
             >
               <div>
                 <Icon name="kind-icon:server" class="mx-auto size-10 text-base-content/30" />
@@ -225,7 +225,7 @@
 
             <div
               v-else-if="!filteredSources.length"
-              class="grid min-h-40 place-items-center rounded-2xl border border-dashed border-base-300 bg-base-100/50 p-6 text-center"
+              class="grid min-h-40 place-items-center kr-panel-flat border-dashed bg-base-100/50 p-6 text-center"
             >
               <div>
                 <p class="font-black">No {{ statusFilter }} scenes in this folder</p>

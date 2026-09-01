@@ -1,0 +1,39 @@
+name: First-Party SSO Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'server/api/auth/first-party/**'
+      - 'server/utils/firstPartySso.ts'
+      - 'utils/firstPartySsoContract.ts'
+      - 'utils/scripts/verifyFirstPartySso.test.ts'
+      - 'components/user/login-page.vue'
+      - 'prisma/migrations/*first_party_authorization_codes*/migration.sql'
+      - '.github/workflows/first-party-sso-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Verify first-party SSO contract
+        run: npx tsx utils/scripts/verifyFirstPartySso.test.ts

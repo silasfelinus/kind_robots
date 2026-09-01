@@ -1,18 +1,15 @@
 // /server/api/agent-credentials/[id].delete.ts
-// rainbow-butterflies/t-015: revoke (never hard-delete) an agent credential.
-// Revocation is idempotent and ownership-checked -- revoking someone else's
-// credential id 403s rather than 404ing, matching the rest of this repo's
-// ownership-guard convention (canMutateServer, etc.) of telling an owner why
-// a request was rejected without leaking whether a given id merely doesn't
-// exist.
+// Revoke (never hard-delete) an agent credential. Revocation is idempotent and
+// ownership-checked; Rainbow may perform it only through its trusted first-party
+// delegation for the signed-in human.
 import { createError, defineEventHandler, getRouterParam } from 'h3'
 import { errorHandler } from '../../utils/error'
-import { requireHumanApiUser } from '@/server/utils/authGuard'
+import { requireHumanOrRainbowApiUser } from '@/server/utils/authGuard'
 import { revokeAgentCredential } from '@/server/utils/agentCredentials'
 
 export default defineEventHandler(async (event) => {
   try {
-    const auth = await requireHumanApiUser(event)
+    const auth = await requireHumanOrRainbowApiUser(event)
     const idParam = getRouterParam(event, 'id')
     const id = Number(idParam)
 

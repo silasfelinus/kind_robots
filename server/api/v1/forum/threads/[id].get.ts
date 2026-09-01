@@ -8,6 +8,7 @@ import {
   requireForumThreadRoot,
   serializeForumPost,
 } from '@/server/utils/forumApi'
+import { getForumUpvoteStats } from '@/server/utils/forumUpvotes'
 import { parseForumBoolean } from '~/utils/forumApiContract'
 
 type ForumThreadReadQuery = {
@@ -23,7 +24,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const query = getQuery<ForumThreadReadQuery>(event)
-    const { includeMature } = await getForumReadContext(
+    const { auth, includeMature } = await getForumReadContext(
       event,
       parseForumBoolean(query.includeMature),
     )
@@ -41,12 +42,18 @@ export default defineEventHandler(async (event) => {
       select: forumPostSelect,
       orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
     })
+    const upvote = (
+      await getForumUpvoteStats([id], auth?.user.id ?? null)
+    ).get(id) ?? { upvoteCount: 0, viewerHasUpvoted: false }
 
     event.node.res.statusCode = 200
     return {
       success: true,
       data: {
-        thread: serializeForumPost(thread, includeMature),
+        thread: {
+          ...serializeForumPost(thread, includeMature),
+          ...upvote,
+        },
         replies: replies.map((reply) => serializeForumPost(reply, includeMature)),
       },
       statusCode: 200,

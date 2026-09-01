@@ -74,25 +74,21 @@
       region -- nested preview, not the page's scroll owner. `max-h-full` bounds
       it to the band height the page sets, and keeps the `max-h-*` exemption.
 
-      COLUMNS, now that there is width to use. This was a 20rem strip because
-      that is all the hero left it; it now takes the remainder of the row, which
-      at 1920 is around three times that. A single column at that width would be
-      one short sentence per line with 900px of blank to its right. Container
-      columns (not a viewport breakpoint -- viewport-grid rule) put three or four
-      gates across, so the same bounded height shows about twelve at once
-      instead of four. An open composer spans the full width, because a textarea
-      in a 20rem column is not somewhere you want to write an answer.
+      ONE COLUMN, not the three-across grid a very wide column briefly invited.
+      Silas, 2026-08-30: "Basically, one vertically scrollable row, so the dream
+      section can breath." The width is set by the page (half the band at lg, a
+      third at xl) and the gates simply stack and scroll inside it, which is
+      also the shape that lets a composer open in place without reflowing its
+      neighbours.
     -->
     <div
-      class="grid max-h-full min-h-0 content-start gap-1 overflow-y-auto overscroll-contain pr-1 grid-cols-[repeat(auto-fit,minmax(min(100%,17rem),1fr))]"
+      class="max-h-full min-h-0 space-y-1 overflow-y-auto overscroll-contain pr-1"
     >
       <div
         v-for="gate in gates"
         :key="gateKey(gate)"
         class="min-w-0 kr-panel-flat rounded-lg transition-colors"
-        :class="
-          openKey === gateKey(gate) ? 'border-primary [grid-column:1/-1]' : ''
-        "
+        :class="openKey === gateKey(gate) ? 'border-primary' : ''"
       >
         <button
           type="button"
@@ -206,7 +202,7 @@
 
       <p
         v-if="isLoading && !gates.length"
-        class="px-1 py-2 text-[0.7rem] text-base-content/50 [grid-column:1/-1]"
+        class="px-1 py-2 text-[0.7rem] text-base-content/50"
       >
         Checking what's waiting…
       </p>

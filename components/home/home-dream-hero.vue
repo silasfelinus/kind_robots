@@ -27,6 +27,17 @@
   own object.
 -->
 <template>
+  <!--
+    THE CAST TAKES THE SLACK, which was the open question of the previous pass.
+    A dream card at 20% plus small tiles plus a Needs-you column at a third came
+    to about 65% of the band, and the leftover went to whitespace between the
+    two groups because it was not clear which element should grow. Silas,
+    2026-08-30, answered it: "the dream cards for the latest gen should fill up
+    the rest of the space. It's the hero that we wanted to limit."
+
+    So the card stays pinned at 20% of the screen, Needs-you keeps its third,
+    and the cast is the flexible middle.
+  -->
   <section class="flex flex-col gap-2 kr-panel-flat p-3 lg:flex-row">
     <!--
       NARROWER STILL, and it is the part that gives. Silas, 2026-08-29: "the
@@ -151,32 +162,31 @@
       breakpoint (it can be embedded in a narrower host), and a static count is
       not that.
 
-      FIXED TRACKS, and this is the fix for a change that did nothing. Silas,
-      2026-08-29: "the other elements on the daily dream can be 50% slimmer, to
-      make room for a better human gate needs you section." The first attempt
-      lowered the minimum in `minmax(min(100%,7rem),1fr)` to 4.5rem and changed
-      NOTHING, because the `1fr` maximum stretches every track to fill the
-      container: with eight cast members in a wide row each tile was
-      container/8, measured at 157px, whatever the minimum said. Silas, next
-      pass: "I'm wondering if anything actually got done." Fair.
+      ONE ROW OF FULL-HEIGHT CARDS THAT SCROLLS. Silas, 2026-08-30: "Then the
+      cards, single row, scrollable horizontally depending on room in the
+      middle."
 
-      `auto-cols-[4.5rem]` is a fixed track size with no `1fr` to stretch it, so
-      a tile is 72px and stays 72px. That is the "50% slimmer" actually applied
-      -- and it is what frees the width the Needs-you column now takes, because
-      this panel no longer stretches to fill the row (see home-page.vue).
+      Each tile is sized by the BAND HEIGHT rather than by a width: `h-full`
+      plus `aspect-[2/3]` makes it as tall as the row and derives its width from
+      the portrait shape these objects are actually drawn at. So the cards fill
+      the space (they are ~230px wide here, not 72px thumbnails), the row is as
+      tall as the dream card beside it by construction, and however many cast
+      members a dream has, they scroll sideways instead of shrinking or wrapping.
 
-      THREE ROWS, flowing sideways, for the height. One row of small tiles left
-      ~150px of dead space under the cast while the dream card set the band
-      height -- Silas: "still a discrepancy betwen hero dream height and the
-      rest." `grid-rows-3` with `auto-rows-fr` and `h-full` makes the rows share
-      the band height exactly, so the cast is as tall as the card beside it by
-      construction rather than by luck. At 4.5rem wide and a third of the band
-      tall, a tile lands near 2:3 -- the portrait card shape these objects are
-      drawn at anyway.
+      This replaces a three-row grid of 4.5rem tiles. That grid existed to solve
+      two earlier problems -- tiles that would not stay small (`minmax(X,1fr)`
+      stretches every track, so lowering the minimum did nothing), and a cast
+      shorter than the card beside it. Both are answered better by sizing from
+      the height: nothing can stretch a tile whose width comes from its aspect
+      ratio, and a full-height row cannot be shorter than the row.
+
+      NO VISIBLE SCROLLBAR, on the same argument home-rail.vue makes: a partial
+      card at the right edge is the affordance, and eight shelves each reserving
+      a scrollbar gutter was a complaint in its own right.
     -->
     <div
       v-if="hero.cast.length"
-      class="grid grid-flow-col grid-rows-3 auto-cols-[4.5rem] auto-rows-fr gap-1 overflow-x-auto no-scrollbar lg:h-full"
+      class="no-scrollbar flex gap-1.5 overflow-x-auto lg:h-full lg:min-w-0 lg:flex-1"
     >
       <!--
         A cast member opens the interstitial rather than navigating away. Silas,
@@ -188,14 +198,14 @@
 
         It stays an anchor with a real destination and intercepts the plain
         click -- see the same note in home-rail.vue for why the <button> version
-        of this was worse.
+        of this was worse, and why it is a plain <a> rather than a NuxtLink.
       -->
-      <NuxtLink
+      <a
         v-for="member in hero.cast"
         :key="`${member.kind}-${member.id}`"
-        :to="showcaseHref(member)"
+        :href="showcaseHref(member)"
         :data-theme="themeFor(member)"
-        class="group flex h-full min-w-0 flex-col overflow-hidden rounded-lg border-2 border-primary/70 bg-base-100 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5"
+        class="group flex aspect-2/3 h-full shrink-0 flex-col overflow-hidden rounded-lg border-2 border-primary/70 bg-base-100 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5"
         :title="
           member.subtitle
             ? `${member.title} — ${member.subtitle}`
@@ -238,14 +248,14 @@
           </template>
         </kr-art-plate>
 
-        <div class="min-w-0 shrink-0 px-1 py-0.5">
+        <div class="min-w-0 shrink-0 px-1.5 py-1">
           <p
-            class="truncate text-[0.65rem] font-bold leading-tight group-hover:text-primary"
+            class="truncate text-xs font-bold leading-tight group-hover:text-primary"
           >
             {{ member.title }}
           </p>
         </div>
-      </NuxtLink>
+      </a>
     </div>
   </section>
 </template>

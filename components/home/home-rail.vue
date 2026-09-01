@@ -141,19 +141,37 @@
         invisible; primary is the token that actually differs between themes.
       -->
       <!--
-        STILL A LINK, even when it opens the interstitial. `interactive` used to
-        swap this element for a <button>, which threw away the href: no
+        STILL A LINK, even when it opens the interstitial. `interactive` once
+        swapped this element for a <button>, which threw away the href: no
         middle-click, no "open in new tab", no destination in the status bar,
         and nothing for a crawler -- on the page whose whole brief is "These
         displays should always lead to something". Intercepting the plain click
         keeps the anchor and its address and still opens the sheet, and a
         modified click (cmd, ctrl, shift, middle) falls through to the browser
         exactly as it should.
+
+      A PLAIN ANCHOR, NOT NuxtLink, AND THAT IS THE BUG FIX. Silas, 2026-08-30:
+        "right now if I ckck something, I see a popup start, but then it jumps
+        me to the dedicated page for that object".
+
+        The tile was a NuxtLink with an `@click` that called preventDefault.
+        RouterLink renders its OWN click handler, and a parent's fallthrough
+        listener is merged AFTER it, so RouterLink's navigate ran first and saw
+        `defaultPrevented === false`. It routed away; our handler then opened the
+        sheet on a page that was already leaving. Exactly the flicker he
+        describes. `.capture` does not fix it either -- for listeners on the
+        event's own target, capture and bubble both fire in registration order.
+
+        A plain <a> has no handler of its own, so preventDefault is the whole
+        decision. The href stays real (middle-click, cmd-click, "open in new
+        tab", the status bar, crawlers), and the non-interactive case still gets
+        SPA routing because the handler calls router.push itself rather than
+        letting the browser do a full page load.
       -->
-      <NuxtLink
+      <a
         v-for="item in items"
         :key="`${item.kind}-${item.id}`"
-        :to="showcaseHref(item)"
+        :href="showcaseHref(item)"
         :data-theme="themeFor(item)"
         class="group flex shrink-0 flex-col overflow-hidden rounded-xl border-2 border-primary/70 bg-base-100 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:-translate-y-0.5"
         :class="cardWidthClass"
@@ -198,13 +216,14 @@
             {{ item.title }}
           </p>
         </div>
-      </NuxtLink>
+      </a>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { showcaseHref, type RailItem } from '@/utils/homeShowcase'
 import type { ArtVariant } from '@/utils/artImageSrc'
 import type { ArtPlateShape } from '@/utils/galleryVocabulary'
@@ -253,6 +272,8 @@ const props = withDefaults(
 
 const emit = defineEmits<{ select: [item: RailItem] }>()
 
+const router = useRouter()
+
 const track = ref<HTMLElement | null>(null)
 const canScroll = ref(false)
 const atStart = ref(true)
@@ -276,21 +297,27 @@ const cardWidthClass = computed(() =>
 )
 
 /**
- * Opens the interstitial for a plain left click on an interactive shelf, and
- * otherwise leaves the anchor alone.
+ * What a plain left click on a tile does: open the interstitial on an
+ * interactive shelf, or route to the record on any other.
  *
  * The modifier checks are what keep cmd/ctrl-click ("open in a new tab"),
  * shift-click ("open in a new window") and middle-click working: preventing
  * those would break the ordinary browser affordances the anchor exists to
- * provide.
+ * provide. Everything else is prevented and handled here, which is only
+ * reliable because this is a plain <a> -- see the note in the template.
  */
 function onTileClick(event: MouseEvent, item: RailItem): void {
-  if (!props.interactive) return
   if (event.button !== 0) return
   if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
 
   event.preventDefault()
-  emit('select', item)
+
+  if (props.interactive) {
+    emit('select', item)
+    return
+  }
+
+  void router.push(showcaseHref(item))
 }
 
 function fallbackFor(item: RailItem): string {

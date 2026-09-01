@@ -8,7 +8,76 @@
     class="group flex h-full flex-col overflow-hidden kr-panel-flat shadow-sm transition-shadow duration-300 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-100 motion-safe:hover:-translate-y-0.5 motion-safe:transition-transform"
     :class="compact ? 'gap-1 p-2' : 'gap-2 p-3'"
   >
+    <!--
+      COMPACT IS ITS OWN LAYOUT: picture, then headline, and nothing else.
+      Silas, 2026-08-30: "newsfeed needs to allow more of the headline...in fact,
+      it might be best if we have the image, then the headline, but not any of
+      the article unless clicked."
+
+      It cannot go through kr-entity-card-body here, because that component's
+      `hero` variant puts the title INSIDE the plate's scrim -- white text over
+      the picture, clamped to one line when compact, which is precisely the
+      truncation he is describing. Below the plate the headline has the card's
+      full width and three lines, and the whole card is a link to the article,
+      so "not any of the article unless clicked" is satisfied by the click
+      already going somewhere that has the article.
+
+      The full-size path below is unchanged: the Newsfeed Lab page, where the
+      feed IS the page, still reads with its summary.
+    -->
+    <template v-if="compact">
+      <div class="relative overflow-hidden rounded-xl">
+        <kr-art-plate
+          v-if="showImage"
+          :source="imageSource"
+          variant="hero"
+          shape="wide"
+          frame="none"
+          :alt="item.title"
+          :fallback="fallbackImageSrc"
+          fit="cover"
+          hover-zoom
+        />
+        <span
+          v-if="primaryCategory"
+          class="absolute left-1.5 top-1.5 rounded bg-base-100/90 px-1 text-[0.55rem] font-black uppercase tracking-[0.08em] text-base-content backdrop-blur"
+        >
+          {{ primaryCategory }}
+        </span>
+      </div>
+
+      <h3
+        class="line-clamp-3 text-[0.8rem] font-black leading-snug text-base-content group-hover:text-primary"
+        :title="item.title"
+      >
+        {{ item.title }}
+      </h3>
+
+      <div
+        class="mt-auto flex min-w-0 items-center gap-1.5 pt-1 text-[0.65rem] text-base-content/45"
+      >
+        <span class="truncate font-bold" :title="item.source">
+          {{ item.source }}
+        </span>
+        <span
+          v-if="perspectiveLabel"
+          class="shrink-0 rounded border border-base-300 px-1 font-bold"
+          :title="`Perspective rating from ${item.perspective?.source} — political-lean labels are provenance, not fact.`"
+        >
+          {{ perspectiveLabel }}
+        </span>
+        <time
+          class="ml-auto shrink-0 tabular-nums"
+          :datetime="item.publishedAt"
+          :title="absoluteTime(item.publishedAt)"
+        >
+          {{ relativeTime(item.publishedAt) }}
+        </time>
+      </div>
+    </template>
+
     <kr-entity-card-body
+      v-else
       class="flex flex-1 flex-col"
       :title="item.title"
       :description="item.summary || undefined"
@@ -77,15 +146,16 @@ const props = withDefaults(
     showImage?: boolean
     allowNavigation?: boolean
     /**
-     * Tightens the card's own padding and gaps for the home page, where the
-     * feed sits alongside eight other sections.
+     * The home page's card: picture, headline, one thin provenance line.
      *
-     * IT NO LONGER DROPS THE SUMMARY. It used to, to buy height back for the
-     * two-screen budget -- and that was the wrong thing to cut. Silas,
-     * 2026-08-29: "I need more of the title and description in the news feeds,
-     * way too much space is given to origin, date and a return icon." The
-     * height came back out of the provenance row instead, which was spending
-     * two lines on a source name and a timestamp.
+     * This has moved twice. It first dropped the summary to buy height, then
+     * restored it when Silas asked for "more of the title and description"
+     * (2026-08-29) -- and the description was never the part he wanted, as the
+     * next message made clear: "it might be best if we have the image, then the
+     * headline, but not any of the article unless clicked" (2026-08-30). The
+     * headline is what needed room; it now gets three lines under the picture
+     * instead of one line over it, and the summary is gone from this variant
+     * entirely. The Newsfeed Lab page passes no `compact` and reads in full.
      */
     compact?: boolean
   }>(),

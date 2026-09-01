@@ -184,7 +184,7 @@
           v-for="record in store.sources"
           :key="record.id"
           type="button"
-          class="flex items-center gap-3 rounded-lg border border-base-300 bg-base-100 px-2.5 py-1.5 text-left transition hover:border-primary hover:bg-base-200"
+          class="flex items-center gap-3 kr-panel-flat rounded-lg px-2.5 py-1.5 text-left transition hover:border-primary hover:bg-base-200"
           @click="store.selectSource(record)"
         >
           <div

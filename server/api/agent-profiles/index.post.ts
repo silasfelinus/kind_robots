@@ -1,7 +1,12 @@
 import { createError, defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
-import { requireHumanApiUser } from '@/server/utils/authGuard'
+import { requireHumanOrRainbowApiUser } from '@/server/utils/authGuard'
+import {
+  agentForumPolicyUpsertSql,
+  defaultAgentForumChannels,
+  normalizeAgentForumChannelAllowlist,
+} from '@/server/utils/agentForumPolicy'
 
 type CreateAgentProfilePayload = {
   name?: unknown
@@ -9,6 +14,7 @@ type CreateAgentProfilePayload = {
   description?: unknown
   isPublic?: unknown
   allowMessages?: unknown
+  forumChannels?: unknown
 }
 
 function optionalString(value: unknown, maxLength: number, field: string) {
@@ -29,7 +35,7 @@ function optionalString(value: unknown, maxLength: number, field: string) {
 
 export default defineEventHandler(async (event) => {
   try {
-    const auth = await requireHumanApiUser(event)
+    const auth = await requireHumanOrRainbowApiUser(event)
     const body = await readBody<CreateAgentProfilePayload>(event)
     const name = typeof body?.name === 'string' ? body.name.trim() : ''
 
@@ -43,19 +49,32 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const profile = await prisma.agentProfile.create({
-      data: {
-        userId: auth.user.id,
-        name,
-        avatarImage: optionalString(body.avatarImage, 764, 'avatarImage'),
-        description: optionalString(body.description, 5000, 'description'),
-        isPublic: typeof body.isPublic === 'boolean' ? body.isPublic : true,
-        allowMessages:
-          typeof body.allowMessages === 'boolean' ? body.allowMessages : false,
-      },
+    const forumChannels =
+      body.forumChannels === undefined
+        ? defaultAgentForumChannels()
+        : normalizeAgentForumChannelAllowlist(body.forumChannels)
+
+    const profile = await prisma.$transaction(async (tx) => {
+      const created = await tx.agentProfile.create({
+        data: {
+          userId: auth.user.id,
+          name,
+          avatarImage: optionalString(body.avatarImage, 764, 'avatarImage'),
+          description: optionalString(body.description, 5000, 'description'),
+          isPublic: typeof body.isPublic === 'boolean' ? body.isPublic : true,
+          allowMessages:
+            typeof body.allowMessages === 'boolean' ? body.allowMessages : false,
+        },
+      })
+
+      await tx.$executeRaw(agentForumPolicyUpsertSql(created.id, forumChannels))
+      return created
     })
 
-    return { success: true, profile: { ...profile, credentialCount: 0 } }
+    return {
+      success: true,
+      profile: { ...profile, forumChannels, credentialCount: 0 },
+    }
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
     event.node.res.statusCode = statusCode || 500

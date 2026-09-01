@@ -10,11 +10,14 @@ export default defineEventHandler(async (event) => {
   console.log('🚀 Launching the user creation journey...')
 
   try {
-    // Reading the user data from the event body
     const userData = await readBody(event)
-    console.log('📬 Received user data:', userData)
+    // Never log registration bodies: they can contain plaintext passwords.
+    console.log('📬 Received user registration request:', {
+      hasUsername: Boolean(userData?.username),
+      hasEmail: Boolean(userData?.email),
+      hasReferralCode: Boolean(userData?.referralCode),
+    })
 
-    // Ensuring the essential fields are provided
     if (!userData.username && !userData.email) {
       return {
         success: false,
@@ -32,22 +35,18 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Initiating the user creation with the gathered stellar dust (user data)
     const result = await createUser({
       username: userData.username,
       email: userData.email,
       password: userData.password,
     })
 
-    // If the star formation (user creation) is successful, we celebrate with a warm welcome
     if (result.success && result.user) {
       console.log('🌟 A new star is born in our user universe:', {
         id: result.user.id,
         username: result.user.username,
       })
 
-      // Auto-send the inbox welcome message. Non-fatal: a failure here
-      // should never block a successful registration.
       try {
         await sendWelcomeMessage(result.user.id, { markAsRead: false })
         console.log('💌 Welcome message delivered to', result.user.id)
@@ -58,7 +57,6 @@ export default defineEventHandler(async (event) => {
         )
       }
 
-      // Referral attribution. Non-fatal: failure here never blocks registration.
       if (userData.referralCode && typeof userData.referralCode === 'string') {
         try {
           const referrer = await prisma.user.findFirst({
@@ -88,16 +86,18 @@ export default defineEventHandler(async (event) => {
         }
       }
 
+      const { password: _password, ...safeUser } = result.user
+      void _password
+
       return {
         success: true,
         message:
           '🌟 Welcome to our cosmic family, brave explorer! Your account has been created.',
-        user: result.user as User,
+        user: safeUser,
         statusCode: 201,
       }
     }
 
-    // If something goes amiss in the cosmic process, we communicate the issue
     return {
       success: false,
       message:
@@ -108,7 +108,6 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error: unknown) {
     const { message, statusCode } = errorHandler(error)
-    // If a cosmic storm (error) occurs, we navigate safely with our error handler
     console.error('🌩️ Cosmic storm encountered:', message)
     return {
       success: false,

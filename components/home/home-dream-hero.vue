@@ -27,7 +27,20 @@
   own object.
 -->
 <template>
-  <section class="flex flex-col gap-2 kr-panel-flat p-3 lg:flex-row">
+  <!--
+    `lg:justify-between` because the two numbers Silas gave under-specify the
+    row. A dream card at 20% of the screen plus a cast of 4.5rem tiles plus a
+    Needs-you column at a third comes to about 65% of the band -- something has
+    to absorb the other 35%, and the three candidates are the card (which
+    becomes a 4:1 letterbox, "a slot, not a picture"), the tiles (the thing he
+    asked to shrink), or whitespace. Whitespace wins, but only if it sits
+    BETWEEN the two content groups rather than trailing after them: the card
+    holds the left edge, the cast sits against the Needs-you column, and the gap
+    reads as deliberate rather than as a hole where something failed to load.
+  -->
+  <section
+    class="flex flex-col gap-2 kr-panel-flat p-3 lg:flex-row lg:justify-between"
+  >
     <!--
       NARROWER STILL, and it is the part that gives. Silas, 2026-08-29: "the
       dream elements are matched according to the dream hero, and that leaves a
@@ -176,7 +189,7 @@
     -->
     <div
       v-if="hero.cast.length"
-      class="grid grid-flow-col grid-rows-3 auto-cols-[4.5rem] auto-rows-fr gap-1 overflow-x-auto no-scrollbar lg:h-full"
+      class="no-scrollbar grid grid-flow-col grid-rows-3 auto-cols-[4.5rem] auto-rows-fr gap-1 overflow-x-auto lg:h-full lg:shrink-0"
     >
       <!--
         A cast member opens the interstitial rather than navigating away. Silas,
@@ -188,12 +201,12 @@
 
         It stays an anchor with a real destination and intercepts the plain
         click -- see the same note in home-rail.vue for why the <button> version
-        of this was worse.
+        of this was worse, and why it is a plain <a> rather than a NuxtLink.
       -->
-      <NuxtLink
+      <a
         v-for="member in hero.cast"
         :key="`${member.kind}-${member.id}`"
-        :to="showcaseHref(member)"
+        :href="showcaseHref(member)"
         :data-theme="themeFor(member)"
         class="group flex h-full min-w-0 flex-col overflow-hidden rounded-lg border-2 border-primary/70 bg-base-100 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5"
         :title="
@@ -245,7 +258,7 @@
             {{ member.title }}
           </p>
         </div>
-      </NuxtLink>
+      </a>
     </div>
   </section>
 </template>

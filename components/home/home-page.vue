@@ -56,17 +56,17 @@
       room for a vertical notification scroll", then "did not get the increased
       horizontal space for notifications either").
 
-      IT DID NOT, AND THIS IS WHY. The hero carried `lg:flex-1`, so however
-      narrow its contents became, the PANEL still absorbed every pixel the cast
-      gave up. Measured at 1920: hero panel 1560px, Needs-you 320px -- and
-      widening Needs-you from 16rem to 20rem moved 64px while the cast quietly
-      kept the other 1200. The hero now sizes to its contents and Needs-you
-      takes the remainder, which is the only arrangement where making the cast
-      slimmer actually reaches the column it was slimmed for.
+      THEN TOO FAR THE OTHER WAY. Giving Needs-you the whole remainder put it
+      at 64.5% of the band, and Silas, 2026-08-30: "The needs you section is too
+      large, it should be 1/3 the size on xl screens, 1/2 as large on medium.
+      Basically, one vertically scrollable row, so the dream section can
+      breath."
 
-      `lg:flex-1` is still the fallback when there is no Needs-you column at
-      all (a signed-out visitor, or an empty gate list) -- otherwise the band
-      would end in 1200px of nothing.
+      So the sizes are stated directly on the gate column and the hero takes
+      what is left -- the reverse of the previous arrangement, and the right way
+      round now that the number wanted is a fraction of the row rather than
+      "whatever the cast released". One column of gates that scrolls, not the
+      three-across grid that width invited.
 
       ONE HEIGHT FOR ALL THREE COLUMNS. Silas: "still a discrepancy betwen hero
       dream height and the rest." There was: the dream card's 4:3 plate set the
@@ -79,8 +79,7 @@
     <div class="flex flex-col gap-2 lg:h-96 lg:flex-row lg:items-stretch">
       <home-dream-hero
         v-if="showcaseStore.hero"
-        class="min-w-0"
-        :class="showAttention ? 'lg:shrink-0' : 'lg:flex-1'"
+        class="min-w-0 lg:flex-1"
         :hero="showcaseStore.hero"
         @select="openCard"
       />
@@ -91,17 +90,27 @@
         aria-hidden="true"
       />
 
-      <home-attention class="lg:min-w-0 lg:flex-1" />
+      <home-attention class="lg:w-1/2 lg:shrink-0 xl:w-1/3" />
     </div>
 
     <!--
-      The rails. `auto-rows-fr` so neighbouring shelves in a row share a height
-      rather than each sizing to its own longest caption, which is what made the
-      grid look ragged before.
+      ONE ROW OF SHELVES THAT SCROLLS SIDEWAYS. Silas, 2026-08-30: "let's have
+      one row instead of two for the art and objects sections, with a scroll to
+      show us the other three object sets hidden."
+
+      It was a 4-column grid two rows deep with the art shelf spanning both. Now
+      it is a single flex track: each shelf claims a quarter of the row, four are
+      visible, and the remaining three (of seven) are one chevron away. The
+      quarter is of THIS CONTAINER, not a viewport breakpoint, with a 17rem
+      floor so a narrow screen shows fewer real shelves instead of seven slivers.
+
+      overflow-x-auto is deliberately not counted by the layout contract's
+      one-scroll rule, which counts vertical owners -- the page's scroll owner is
+      still pages/[...slug].vue's content-host.
     -->
     <div
       v-if="visibleRails.length"
-      class="grid auto-rows-fr gap-2 sm:grid-cols-2 lg:grid-cols-4"
+      class="no-scrollbar flex gap-2 overflow-x-auto pb-1"
     >
       <template v-for="entry in visibleRails" :key="entry.key">
         <!--
@@ -114,14 +123,14 @@
         -->
         <home-art-shelf
           v-if="entry.key === 'art'"
-          :class="entry.cellClass"
+          class="min-w-[17rem] shrink-0 basis-[calc(25%-0.375rem)]"
           :fresh="entry.items"
           @select="openCard"
         />
 
         <home-rail
           v-else
-          :class="entry.cellClass"
+          class="min-w-[17rem] shrink-0 basis-[calc(25%-0.375rem)]"
           :label="entry.label"
           :icon="entry.icon"
           :items="entry.items"
@@ -129,7 +138,6 @@
           :shape="entry.shape"
           :plate-variant="entry.plateVariant"
           :placeholder-icon="entry.placeholderIcon"
-          :rows="entry.rows ?? 1"
           :fit="entry.fit ?? 'cover'"
           interactive
           @select="openCard"
@@ -139,13 +147,13 @@
 
     <div
       v-else-if="!showcaseStore.hasLoaded"
-      class="grid gap-2 sm:grid-cols-2 lg:grid-cols-4"
+      class="flex gap-2 overflow-hidden"
       aria-hidden="true"
     >
       <div
-        v-for="n in 6"
+        v-for="n in 4"
         :key="n"
-        class="h-44 animate-pulse rounded-2xl bg-base-200"
+        class="h-44 min-w-[17rem] shrink-0 basis-[calc(25%-0.375rem)] animate-pulse rounded-2xl bg-base-200"
       />
     </div>
 
@@ -337,9 +345,6 @@ type RailDefinition = {
   href: string
   shape: ArtPlateShape
   plateVariant: ArtVariant
-  /** Extra grid classes for this shelf's cell, and its internal row count. */
-  cellClass?: string
-  rows?: 1 | 2
   fit?: 'cover' | 'contain'
 }
 
@@ -358,18 +363,6 @@ const selectedCard = ref<RailItem | null>(null)
 function openCard(card: RailItem): void {
   selectedCard.value = card
 }
-
-/**
- * Whether home-attention will render anything.
- *
- * Deliberately the SAME condition that component uses (`gates.length ||
- * !hasLoaded`), because the hero's width depends on whether it has a neighbour:
- * with one it sizes to its contents, without one it fills the row. If these two
- * ever disagree the band gets either a 1200px hole or a squashed gate list.
- */
-const showAttention = computed(
-  () => conductorStore.humanGates.length > 0 || !conductorStore.hasLoaded,
-)
 
 /**
  * Percent complete for a project, joined to conductor's own figure on
@@ -417,12 +410,10 @@ const RAILS: RailDefinition[] = [
     href: '/art',
     shape: 'wide',
     plateVariant: 'card',
-    // Twice the height, two rows of tiles. Silas, 2026-08-29: "on desktop, art
-    // queue can take up twice the height, so we have an even spacing for the
-    // other six objects" -- one tall art cell on the left, the six object
-    // shelves filling a tidy 3x2 beside it.
-    cellClass: 'lg:row-span-2',
-    rows: 2,
+    // Was a double-height cell spanning two grid rows ("on desktop, art queue
+    // can take up twice the height", 2026-08-29). The shelves are one scrolling
+    // row now (2026-08-30), so there is no second row to span and the art shelf
+    // is an ordinary single-row shelf like the rest.
     fit: 'contain',
   },
   {

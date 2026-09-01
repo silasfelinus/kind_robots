@@ -214,18 +214,20 @@ export function authHasScope(
 }
 
 /**
- * Require a human-owned auth context. A first-party BFF delegation is allowed:
- * Rainbow is acting on behalf of the signed-in human and remains non-admin.
- * Machine AgentCredentials are not allowed to create, rotate, revoke, or
- * otherwise manage human-owned credentials/profile administration.
+ * Require a human-owned auth context. Delegated credentials -- machine
+ * AgentCredentials and first-party BFF delegation tokens alike -- are not
+ * allowed to create, rotate, revoke, or otherwise manage human-owned
+ * credentials/profile administration. See rainbow-butterflies/t-035 (conductor)
+ * for the open decision on a narrower, route-group-scoped allowance for
+ * first-party delegation on non-credential human-owned endpoints.
  */
 export async function requireHumanApiUser(event: H3Event): Promise<AuthGuardResult> {
   const auth = await requireApiUser(event)
 
-  if (auth.kind === 'agent-credential') {
+  if (auth.kind === 'agent-credential' || auth.kind === 'first-party-delegation') {
     throw createError({
       statusCode: 403,
-      message: 'Agent credentials cannot manage human-owned credentials or profiles.',
+      message: 'Delegated credentials cannot manage credentials.',
     })
   }
 

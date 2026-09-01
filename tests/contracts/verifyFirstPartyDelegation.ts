@@ -13,6 +13,10 @@ const passwordExchange = readFileSync(
   'server/api/auth/first-party/password.post.ts',
   'utf8',
 )
+const authAttemptLimit = readFileSync(
+  'server/utils/authAttemptLimit.ts',
+  'utf8',
+)
 const delegation = readFileSync(
   'server/utils/firstPartyDelegation.ts',
   'utf8',
@@ -26,6 +30,13 @@ for (const source of [googleExchange, codeExchange, passwordExchange]) {
 
 assert.match(passwordExchange, /findFirstPartyClient/)
 assert.match(passwordExchange, /validateUserCredentials/)
+assert.match(passwordExchange, /assertAuthAttemptAllowed\(event, username\)/)
+assert.match(passwordExchange, /recordAuthFailure\(event, username\)/)
+assert.match(passwordExchange, /clearAuthFailures\(event, username\)/)
+assert.match(authAttemptLimit, /statusCode:\s*429/)
+assert.match(authAttemptLimit, /'Retry-After'/)
+assert.match(authAttemptLimit, /MAX_PAIR_FAILURES/)
+assert.match(authAttemptLimit, /MAX_IP_FAILURES/)
 assert.match(delegation, /kind:\s*TOKEN_KIND/)
 assert.match(delegation, /setSubject\(String\(input\.userId\)\)/)
 assert.match(delegation, /setAudience\(input\.client\.id\)/)

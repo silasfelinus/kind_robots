@@ -491,6 +491,22 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
   // unreachable from the now-different state.run). See generateItemAsset.
   const cancelledRunIds = new Set<string>()
 
+  // Bumped every time the user abandons the active run's in-flight work via
+  // resetRun/resetAll/openRun/resumeRun (model-builder/t-029, cycle 76). Cycle
+  // 75's own fix guarded autoBuildRun/batchDraftField/batchSetField/
+  // batchApproveStage/batchAutoBuild's loop-abort checks and finally-block
+  // flag clears with `state.run?.id === runId` -- but a run id is not a
+  // one-shot token: openRun()'s cached-adopt branch reuses the exact same
+  // cached run object on a revisit, and state.runs is never purged by
+  // resetRun(), so reopening the SAME run after abandoning it (e.g. "New
+  // run" mid auto-build, then History → Open on the run just left) makes
+  // `state.run?.id === runId` true again even though the abandon event
+  // already happened. A captured runId alone can't tell "still the same
+  // continuous session on this run" apart from "abandoned this run, then
+  // later revisited the same run id" -- runEpoch can, because it is bumped
+  // once per abandon and never reused.
+  let runEpoch = 0
+
   // --- display helpers ------------------------------------------------------
 
   function sourceLabel(record: SourceRecord | null): string {
@@ -2280,13 +2296,18 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     // would then also overwrite whatever the user is now looking at with a
     // completed count for a run they've navigated away from).
     const runId = state.run.id
+    // See runEpoch's own doc comment (model-builder/t-029, cycle 76) -- a
+    // run id alone doesn't catch a *revisit* of this same run after it was
+    // abandoned mid-loop (History → Open on the run just reset away from);
+    // runEpoch does, since it's bumped once per abandon and never reused.
+    const epoch = runEpoch
     const items = [...state.run.items]
     let committed = 0
     let skipped = 0
     let failed = 0
     try {
       for (const item of items) {
-        if (state.run?.id !== runId) return
+        if (state.run?.id !== runId || runEpoch !== epoch) return
         if (item.stages.COMMIT.status === 'approved') {
           committed++
           // Already committed before this pass touched it -- not routed
@@ -2310,7 +2331,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         else if (outcome === 'skipped') skipped++
         else failed++
       }
-      if (state.run?.id === runId) {
+      if (state.run?.id === runId && runEpoch === epoch) {
         // A 'failed' outcome (a rejected commit — e.g. the ASSET_ONLY
         // attachability re-check in commit.post.ts firing because the
         // ArtImage's owner changed its visibility mid-run — a draft that
@@ -2351,8 +2372,11 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       // its own auto-build is still genuinely running, opening the door to
       // exactly the double-invocation race isRunOperationInFlight() exists
       // to prevent. Only clear when this call still owns the flag, i.e. the
-      // active run is still the one this call started for.
-      if (state.run?.id === runId) state.autoBuilding = false
+      // active run is still the one this call started for. Also checked
+      // against runEpoch (model-builder/t-029, cycle 76) -- see its own doc
+      // comment for why a plain run-id match isn't enough on a revisit.
+      if (state.run?.id === runId && runEpoch === epoch)
+        state.autoBuilding = false
     }
   }
 
@@ -2428,8 +2452,12 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     // of which run was on screen by then, popping a misleading "Drafted
     // X/N items." banner over whatever OTHER run the user has since
     // switched to, about a group that isn't even part of what's on screen.
-    // Captured up front, mirroring autoBuildRun's own runId capture.
+    // Captured up front, mirroring autoBuildRun's own runId capture. epoch
+    // mirrors autoBuildRun's own epoch capture (model-builder/t-029, cycle
+    // 76) -- see runEpoch's doc comment for why runId alone misses a
+    // same-run revisit.
     const runId = state.run?.id
+    const epoch = runEpoch
     const stageKey = stageForDraftField(field)
     batchingOutputSingleton.claim(outputKey)
     clearStatus()
@@ -2519,8 +2547,12 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       // NEW operation's own in-flight claim out from under it.
       // batchingOutputSingleton.release only checks that the VALUE still
       // matches, which a same-named group on a different run also satisfies
-      // -- only release when this call is still the one that owns it.
-      if (state.run?.id === runId) batchingOutputSingleton.release(outputKey)
+      // -- only release when this call is still the one that owns it. Also
+      // checked against runEpoch (model-builder/t-029, cycle 76) -- see its
+      // own doc comment for why a plain run-id match isn't enough on a
+      // revisit.
+      if (state.run?.id === runId && runEpoch === epoch)
+        batchingOutputSingleton.release(outputKey)
     }
   }
 
@@ -2574,6 +2606,9 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     // "Set ... on N/M items." success banner over whatever OTHER run is now
     // on screen, about a group that isn't even part of what's on screen.
     const runId = state.run?.id
+    // See batchDraftField's identical epoch capture (model-builder/t-029,
+    // cycle 76) and runEpoch's own doc comment.
+    const epoch = runEpoch
     const items = groupItems(outputKey)
     const entries: Array<{
       item: BuildItem
@@ -2652,8 +2687,12 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       // See autoBuildRun's identical fix (model-builder/t-029, cycle 75) --
       // only release when this call still owns the claim, or an abandoned
       // call for a different run sharing this same outputKey can release a
-      // brand-new operation's in-flight claim out from under it.
-      if (state.run?.id === runId) batchingOutputSingleton.release(outputKey)
+      // brand-new operation's in-flight claim out from under it. Also
+      // checked against runEpoch (model-builder/t-029, cycle 76) -- see its
+      // own doc comment for why a plain run-id match isn't enough on a
+      // revisit.
+      if (state.run?.id === runId && runEpoch === epoch)
+        batchingOutputSingleton.release(outputKey)
     }
   }
 
@@ -2700,6 +2739,9 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     // switch runs during via History, and this function's success toast was
     // a bare, unscoped setStatus with no runId at all.
     const runId = state.run?.id
+    // See batchDraftField's identical epoch capture (model-builder/t-029,
+    // cycle 76) and runEpoch's own doc comment.
+    const epoch = runEpoch
     const entries: Array<{
       item: BuildItem
       payload: Record<string, unknown>
@@ -2768,8 +2810,12 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       // See autoBuildRun's identical fix (model-builder/t-029, cycle 75) --
       // only release when this call still owns the claim, or an abandoned
       // call for a different run sharing this same outputKey can release a
-      // brand-new operation's in-flight claim out from under it.
-      if (state.run?.id === runId) batchingOutputSingleton.release(outputKey)
+      // brand-new operation's in-flight claim out from under it. Also
+      // checked against runEpoch (model-builder/t-029, cycle 76) -- see its
+      // own doc comment for why a plain run-id match isn't enough on a
+      // revisit.
+      if (state.run?.id === runId && runEpoch === epoch)
+        batchingOutputSingleton.release(outputKey)
     }
   }
 
@@ -2802,6 +2848,10 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     // (mirroring batchDraftField/batchSetField/batchApproveStage's own
     // identical `state.run?.id` capture) rather than a non-null assertion.
     const runId = state.run?.id
+    // See autoBuildRun's identical epoch capture (model-builder/t-029, cycle
+    // 76) and runEpoch's own doc comment -- a run id alone doesn't catch a
+    // revisit of this same run after it was abandoned mid-loop.
+    const epoch = runEpoch
     batchingOutputSingleton.claim(outputKey)
     clearStatus()
     let committed = 0
@@ -2814,7 +2864,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         // rather than continuing to await autoBuildItem() calls that can
         // now only fail fast (findItem() won't find this item in whatever
         // OTHER run is now active).
-        if (state.run?.id !== runId) return
+        if (state.run?.id !== runId || runEpoch !== epoch) return
         if (item.stages.COMMIT.status === 'approved') {
           committed++
           // See autoBuildRun's identical branch: keep the badge from
@@ -2844,7 +2894,7 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       const failedNote = failed
         ? ` (${failed} failed — see the item's own error for details)`
         : ''
-      if (state.run?.id === runId) {
+      if (state.run?.id === runId && runEpoch === epoch) {
         setStatus(
           failed ? 'error' : 'success',
           `Auto-built ${committed}/${items.length} in this group${failedNote}${skippedNote}.`,
@@ -2854,8 +2904,12 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       // See autoBuildRun's identical fix (model-builder/t-029, cycle 75) --
       // only release when this call still owns the claim, or an abandoned
       // call for a different run sharing this same outputKey can release a
-      // brand-new operation's in-flight claim out from under it.
-      if (state.run?.id === runId) batchingOutputSingleton.release(outputKey)
+      // brand-new operation's in-flight claim out from under it. Also
+      // checked against runEpoch (model-builder/t-029, cycle 76) -- see its
+      // own doc comment for why a plain run-id match isn't enough on a
+      // revisit.
+      if (state.run?.id === runId && runEpoch === epoch)
+        batchingOutputSingleton.release(outputKey)
     }
   }
 
@@ -2954,6 +3008,8 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
           state.autoBuildingItemId = null
           state.batchingOutputKey = null
           draftingField.value = null
+          // See runEpoch's own doc comment (model-builder/t-029, cycle 76).
+          runEpoch++
           state.run = adaptRun(data)
           state.sourceType = data.sourceType as SourceTypeKey
           state.recipeKey = data.recipeKey as RecipeKey
@@ -3101,6 +3157,13 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
       state.autoBuildingItemId = null
       state.batchingOutputKey = null
       draftingField.value = null
+      // See runEpoch's own doc comment (model-builder/t-029, cycle 76) --
+      // this branch is reachable on a revisit (opening a run whose id
+      // matches one abandoned earlier this session), so the eager flag
+      // clears above aren't enough on their own to stop an abandoned loop
+      // that's still in flight from resuming once the id compares equal
+      // again.
+      runEpoch++
       state.run = cached
       state.sourceType = cached.sourceType
       state.recipeKey = cached.recipeKey
@@ -3140,6 +3203,8 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
         state.autoBuildingItemId = null
         state.batchingOutputKey = null
         draftingField.value = null
+        // See runEpoch's own doc comment (model-builder/t-029, cycle 76).
+        runEpoch++
         state.run = adaptRun(response.data)
         state.sourceType = state.run.sourceType
         state.recipeKey = state.run.recipeKey
@@ -3229,6 +3294,8 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     state.autoBuildingItemId = null
     state.batchingOutputKey = null
     draftingField.value = null
+    // See runEpoch's own doc comment (model-builder/t-029, cycle 76).
+    runEpoch++
     safeRemove(runIdKey)
     clearStatus()
   }
@@ -3252,6 +3319,8 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     state.autoBuildingItemId = null
     state.batchingOutputKey = null
     draftingField.value = null
+    // See runEpoch's own doc comment (model-builder/t-029, cycle 76).
+    runEpoch++
     safeRemove(runIdKey)
     clearStatus()
   }

@@ -1,8 +1,7 @@
 // /server/api/agent-credentials/index.post.ts
-// rainbow-butterflies/t-015: issue a new agent credential for the current
-// user (optionally scoped to one of their Bots). The plaintext token is
-// returned exactly once in this response and never persisted -- callers
-// must copy it now.
+// Issue a new scoped machine credential for the current user. Legacy Kind
+// Robots callers may bind it to one owned Bot; Rainbow v2 callers bind it to a
+// durable AgentProfile instead. The plaintext token is returned exactly once.
 import { createError, defineEventHandler, readBody } from 'h3'
 import { errorHandler } from '../../utils/error'
 import prisma from '../../utils/prisma'
@@ -15,6 +14,7 @@ import {
 type CreatePayload = {
   label?: unknown
   botId?: unknown
+  agentProfileId?: unknown
   scopes?: unknown
   expiresAt?: unknown
 }
@@ -50,6 +50,40 @@ export default defineEventHandler(async (event) => {
       botId = parsed
     }
 
+    let agentProfileId: number | null = null
+    if (
+      body?.agentProfileId !== undefined &&
+      body.agentProfileId !== null
+    ) {
+      const parsed = Number(body.agentProfileId)
+      if (!Number.isInteger(parsed) || parsed <= 0) {
+        throw createError({
+          statusCode: 400,
+          message: 'agentProfileId must be a positive integer.',
+        })
+      }
+
+      const profile = await prisma.agentProfile.findUnique({
+        where: { id: parsed },
+        select: { userId: true, isActive: true },
+      })
+      if (!profile || profile.userId !== auth.user.id || !profile.isActive) {
+        throw createError({
+          statusCode: 403,
+          message: 'agentProfileId must reference an active profile you own.',
+        })
+      }
+
+      agentProfileId = parsed
+    }
+
+    if (botId && agentProfileId) {
+      throw createError({
+        statusCode: 400,
+        message: 'A credential cannot bind both botId and agentProfileId.',
+      })
+    }
+
     const scopes = sanitizeScopes(body?.scopes)
 
     let expiresAt: Date | null = null
@@ -67,6 +101,7 @@ export default defineEventHandler(async (event) => {
     const { credential, token } = await createAgentCredential({
       userId: auth.user.id,
       botId,
+      agentProfileId,
       label,
       scopes,
       expiresAt,

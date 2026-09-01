@@ -3,7 +3,7 @@
     <div class="w-full max-w-3xl">
       <div
         v-if="userStore.isAdmin"
-        class="sticky top-3 z-30 mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100/95 p-3 shadow-lg backdrop-blur"
+        class="kr-panel-flat sticky top-3 z-30 mb-4 flex flex-wrap items-center justify-between gap-3 bg-base-100/95 p-3 shadow-lg backdrop-blur"
       >
         <div class="join">
           <button

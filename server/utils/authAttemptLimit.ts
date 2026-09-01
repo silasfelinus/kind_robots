@@ -35,7 +35,10 @@ function retryAfterSeconds(window: FailureWindow, now: number): number {
   return Math.max(1, Math.ceil((window.resetAt - now) / 1000))
 }
 
-export function assertAuthAttemptAllowed(event: H3Event, username: string): void {
+export function assertAuthAttemptAllowed(
+  event: H3Event,
+  username: string,
+): void {
   const now = Date.now()
   const pair = currentWindow(pairFailures, pairKey(event, username), now)
   const ipKey = requestIp(event)
@@ -49,7 +52,7 @@ export function assertAuthAttemptAllowed(event: H3Event, username: string): void
 
   if (!blocked) return
 
-  setHeader(event, 'Retry-After', String(retryAfterSeconds(blocked, now)))
+  setHeader(event, 'Retry-After', retryAfterSeconds(blocked, now))
   throw createError({
     statusCode: 429,
     message: 'Too many failed sign-in attempts. Please try again later.',

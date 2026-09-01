@@ -1,6 +1,6 @@
 <!-- /components/art/stylist-clients.vue -->
 <template>
-  <section class="stylist-clients flex flex-col gap-4 rounded-2xl border border-base-300 bg-base-200 p-4">
+  <section class="stylist-clients kr-panel-muted flex flex-col gap-4 p-4">
     <header class="flex items-center gap-2">
       <Icon name="kind-icon:heart" class="h-5 w-5 text-primary" />
       <h2 class="text-base font-black text-base-content">Clients</h2>

@@ -356,7 +356,29 @@ const heroDreamInclude = {
   },
   Scenarios: {
     where: PUBLIC,
-    select: { ...heroCastSelect, title: true, description: true },
+    select: {
+      ...heroCastSelect,
+      title: true,
+      description: true,
+      /*
+       * THE DAILY DREAM'S LOCATION, which had no way to reach the page.
+       * Silas, 2026-09-01: "We are missing locations."
+       *
+       * A location is not its own model -- it is a Dream with
+       * `dreamType: LOCATION`, and utils/scripts/publishDreamLocations.ts links
+       * it to the SCENARIOS it hosts rather than to the daily dream directly.
+       * So the only path from the hero to its setting runs through the
+       * scenario, which is why nothing surfaced it before. Verified against
+       * production 2026-09-01: LOCATION dream 5723 "The Shadow Oak Common" ->
+       * Scenario 2203 "The Signal That Answered Back", the scenario in that
+       * day's cast, and the place the scenario's own prose names.
+       */
+      Dreams: {
+        where: { ...PUBLIC, dreamType: 'LOCATION' },
+        select: { ...heroCastSelect, title: true, description: true },
+        take: 2,
+      },
+    },
     take: 3,
   },
   FacetLinks: {
@@ -375,6 +397,37 @@ type HeroDream = Prisma.DreamGetPayload<{
 
 function buildHeroCast(dream: HeroDream): ShowcaseCard[] {
   const cast: ShowcaseCard[] = []
+
+  /*
+   * LOCATIONS FIRST: the setting before the cast standing in it, which is also
+   * the order the scenario's own prose uses ("In Nightfall Pasture at The
+   * Shadow Oak Common, Ronan Okafor..."). Reached through the scenarios, and
+   * deduped -- two scenarios in one dream can share a location, and it should
+   * appear once.
+   *
+   * `kind: 'dream'` because a location IS a Dream (dreamType LOCATION), so the
+   * card opens at /dreams?dream=<id> like any other. Only the badge differs.
+   */
+  const seenLocations = new Set<number>()
+  for (const scenario of dream.Scenarios ?? []) {
+    for (const location of scenario.Dreams ?? []) {
+      if (seenLocations.has(location.id)) continue
+      seenLocations.add(location.id)
+
+      cast.push(
+        card('dream', {
+          id: location.id,
+          title: location.title,
+          subtitle: summarize(location.description),
+          slug: location.slug,
+          theme: location.theme,
+          badge: 'Location',
+          createdAt: location.createdAt,
+          art: artOf(location),
+        }),
+      )
+    }
+  }
 
   for (const character of dream.Characters ?? []) {
     cast.push(

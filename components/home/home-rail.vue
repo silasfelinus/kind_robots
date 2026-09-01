@@ -58,14 +58,30 @@
         words so a screen reader and a hover both still get "New characters".
       -->
       <span
-        class="flex shrink-0 items-center gap-1 text-primary"
+        class="flex min-w-0 shrink items-center gap-1 text-primary"
         :title="label"
         :aria-label="label"
       >
-        <Icon :name="icon || placeholderIcon" class="size-4" />
+        <Icon :name="icon || placeholderIcon" class="size-4 shrink-0" />
+        <!--
+          THE WORDS COME BACK WHERE THERE IS ROOM. Silas, 2026-09-01: "objects
+          section should be labeled if the screen supports it."
+
+          The HOST decides, via `showLabel`, rather than this component guessing
+          with a breakpoint -- that is the t-089 lesson: a breakpoint asks how
+          big the WINDOW is, which is only the same question as how big this
+          shelf is when the shelf is the window. It is not: below xl these
+          shelves are 17rem cells in a scrolling row, and at xl they are ~480px
+          cells in a 3x2 grid. Only the page knows which.
+        -->
+        <span
+          v-if="showLabel"
+          class="hidden truncate text-[0.6rem] font-black uppercase tracking-[0.14em] xl:inline"
+          >{{ label }}</span
+        >
         <span
           v-if="items.length"
-          class="text-[0.6rem] font-black tabular-nums text-base-content/40"
+          class="shrink-0 text-[0.6rem] font-black tabular-nums text-base-content/40"
           >{{ items.length }}</span
         >
       </span>
@@ -173,12 +189,27 @@
         :key="`${item.kind}-${item.id}`"
         :href="showcaseHref(item)"
         :data-theme="themeFor(item)"
-        class="group flex shrink-0 flex-col overflow-hidden rounded-xl border-2 border-primary/70 bg-base-100 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:-translate-y-0.5"
+        class="group flex h-full shrink-0 flex-col overflow-hidden rounded-xl border-2 border-primary/70 bg-base-100 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:-translate-y-0.5"
         :class="cardWidthClass"
         :title="item.subtitle ? `${item.title} — ${item.subtitle}` : item.title"
         @click="onTileClick($event, item)"
       >
+        <!--
+          THE PICTURE TAKES WHATEVER THE CAPTION LEAVES. Silas, 2026-09-01:
+          "there is wayyyy to much negative space on the object galleries ... we
+          should also just have the space for the text and the images fill the
+          rest."
+
+          The tile used to be its plate's natural height plus one caption line,
+          sitting inside a grid cell much taller than that -- so every gallery
+          card had a band of empty panel under it. `min-h-0 flex-1` on the plate
+          plus `h-full` on the tile inverts that: the caption claims its two
+          lines and the plate expands into everything else. An aspect-ratio only
+          sizes a box while a dimension is auto, so giving the plate a definite
+          height makes `shape` inert here and the art crops to fill.
+        -->
         <kr-art-plate
+          class="min-h-0 flex-1"
           :source="item.art"
           :variant="plateVariant"
           :shape="shape"
@@ -205,13 +236,14 @@
         </kr-art-plate>
 
         <!--
-          Title only. The subtitle used to sit under it, but at a 5rem tile it
-          truncated to "a short line of co…" on every card -- a line of height
-          per rail spent on nothing. It survives as the link's tooltip.
+          TWO LINES, not one truncated one. Silas, 2026-09-01: "if we had two
+          lines allocated we wouldn't have to cut so much text". Most object
+          names fit in two at this width; the tooltip still carries the full
+          name plus its subtitle for the ones that do not.
         -->
-        <div class="min-w-0 px-1.5 py-1">
+        <div class="min-w-0 shrink-0 px-1.5 py-1">
           <p
-            class="truncate text-xs font-bold leading-tight text-base-content group-hover:text-primary"
+            class="line-clamp-2 text-xs font-bold leading-tight text-base-content group-hover:text-primary"
           >
             {{ item.title }}
           </p>
@@ -238,6 +270,12 @@ const props = withDefaults(
     seeAllLabel?: string
     /** The glyph that replaces the shelf's written label on screen. */
     icon?: string
+    /**
+     * Show the written label beside the glyph. The host sets this when its
+     * layout gives the shelf room for words; see the note in the template for
+     * why this is a prop rather than a breakpoint decided in here.
+     */
+    showLabel?: boolean
     /** 'card' is the 2:3 portrait shelf; 'wide' is the 4:3 art shelf. */
     shape?: ArtPlateShape
     plateVariant?: ArtVariant
@@ -265,6 +303,7 @@ const props = withDefaults(
     plateVariant: 'card',
     placeholderIcon: 'kind-icon:image',
     icon: '',
+    showLabel: false,
     rows: 1,
     interactive: false,
   },

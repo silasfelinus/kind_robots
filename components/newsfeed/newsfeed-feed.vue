@@ -38,7 +38,41 @@
       -->
       <slot name="lead" />
 
-      <div class="no-scrollbar flex min-w-0 flex-1 gap-1.5 overflow-x-auto">
+      <!--
+        A DROPDOWN WHEN THE COLUMN IS NARROW, chips when it is not. Silas,
+        2026-09-01: "the news section is missing a scroll or dropdown to choose
+        different news tabs."
+
+        The chip row was already `overflow-x-auto`, so it was scrollABLE -- but
+        in the 414px right column the visible chips ("All", part of one topic)
+        filled the strip edge to edge with no partial chip showing, so nothing
+        on screen said there were seven more. That is a scroll with no
+        affordance, which is the same complaint as the cast row's, and here a
+        select answers it better than chevrons: it costs one control instead of
+        three, it names the tab you are on, and it lists every feed at once
+        rather than a slice.
+
+        `compact` and not a breakpoint, on the t-089 rule: the question is how
+        wide THIS panel is, and only the host knows that. The Newsfeed Lab page
+        passes nothing and keeps its chips.
+      -->
+      <label v-if="compact" class="min-w-0 flex-1">
+        <span class="sr-only">Choose a news feed</span>
+        <select
+          v-model="activeSlug"
+          class="select select-sm w-full rounded-xl border-base-300 bg-base-100 font-bold focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+        >
+          <option :value="ALL_FEEDS_SLUG">All</option>
+          <option v-for="group in groups" :key="group.slug" :value="group.slug">
+            {{ group.title }}
+          </option>
+        </select>
+      </label>
+
+      <div
+        v-else
+        class="no-scrollbar flex min-w-0 flex-1 gap-1.5 overflow-x-auto"
+      >
         <button
           type="button"
           class="btn btn-sm shrink-0 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"

@@ -144,6 +144,7 @@
               :plate-variant="entry.plateVariant"
               :placeholder-icon="entry.placeholderIcon"
               :fit="entry.fit ?? 'cover'"
+              show-label
               interactive
               @select="openCard"
             />

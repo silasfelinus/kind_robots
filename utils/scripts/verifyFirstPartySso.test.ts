@@ -51,15 +51,11 @@ assert.equal(
   ),
   false,
 )
-assert.equal(
-  isAllowedFirstPartyRedirect(rainbow, 'javascript:alert(1)'),
-  false,
-)
+assert.equal(isAllowedFirstPartyRedirect(rainbow, 'javascript:alert(1)'), false)
 
 assert.equal(validateSsoState('too-short'), null)
 assert.equal(validateSsoState('0123456789abcdef'), '0123456789abcdef')
 
-// RFC 7636 Appendix B verifier/challenge pair.
 const verifier = 'dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk'
 const challenge = 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM'
 assert.equal(pkceS256(verifier), challenge)
@@ -91,8 +87,6 @@ assert.deepEqual(
   { ok: true, userId: 42 },
 )
 
-// The exchange request has no user-id field. Even if a caller smuggles one
-// into an untyped object, the decision is bound to the locked grant's userId.
 const crossUserAttempt = {
   clientId: 'rainbow-butterflies',
   redirectUri: 'https://rainbowbutterflies.org/auth/callback',
@@ -169,6 +163,19 @@ const googleExchangeSource = readFileSync(
   'server/api/auth/first-party/google/exchange.post.ts',
   'utf8',
 )
+const exchangeSource = readFileSync(
+  'server/api/auth/first-party/exchange.post.ts',
+  'utf8',
+)
+const passwordSource = readFileSync(
+  'server/api/auth/first-party/password.post.ts',
+  'utf8',
+)
+const delegationSource = readFileSync(
+  'server/utils/firstPartyDelegation.ts',
+  'utf8',
+)
+const authGuardSource = readFileSync('server/utils/authGuard.ts', 'utf8')
 const registrationSource = readFileSync('server/api/users/register.post.ts', 'utf8')
 
 assert.match(googleConfigSource, /GOOGLE_ID/)
@@ -176,7 +183,19 @@ assert.doesNotMatch(googleConfigSource, /GOOGLE_SECRET/)
 assert.match(googleExchangeSource, /GOOGLE_SECRET/)
 assert.match(googleExchangeSource, /email_verified\s*!==\s*true/)
 assert.match(googleExchangeSource, /code_verifier:\s*verifier/)
+assert.match(googleExchangeSource, /issueFirstPartyDelegation/)
 assert.doesNotMatch(googleExchangeSource, /return\s+\{[^}]*access_token/s)
+assert.match(exchangeSource, /delegationToken/)
+assert.match(exchangeSource, /issueFirstPartyDelegation/)
+assert.match(passwordSource, /findFirstPartyClient/)
+assert.match(passwordSource, /issueFirstPartyDelegation/)
+assert.match(delegationSource, /kind:\s*TOKEN_KIND/)
+assert.match(delegationSource, /setSubject\(String\(input\.userId\)\)/)
+assert.match(delegationSource, /setAudience\(input\.client\.id\)/)
+assert.doesNotMatch(delegationSource, /\bid:\s*input\.userId/)
+assert.match(authGuardSource, /kind:\s*'first-party-delegation'/)
+assert.match(authGuardSource, /isAdmin:\s*false/)
+assert.match(authGuardSource, /validateFirstPartyDelegationAuth\(bearerToken\)/)
 assert.doesNotMatch(registrationSource, /Received user data.*userData/)
 assert.match(registrationSource, /password:\s*_password/)
 

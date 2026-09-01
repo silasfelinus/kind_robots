@@ -6,6 +6,8 @@ on:
     paths:
       - 'server/api/auth/first-party/**'
       - 'server/utils/firstPartySso.ts'
+      - 'server/utils/firstPartyDelegation.ts'
+      - 'server/utils/authGuard.ts'
       - 'utils/firstPartySsoContract.ts'
       - 'utils/scripts/verifyFirstPartySso.test.ts'
       - 'components/user/login-page.vue'

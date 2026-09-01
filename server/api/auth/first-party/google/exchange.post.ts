@@ -81,22 +81,35 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const tokenResponse = await $fetch<GoogleTokenResponse>(
-      'https://oauth2.googleapis.com/token',
-      {
-        method: 'POST',
-        body: {
-          code,
-          client_id: googleClientId,
-          client_secret: googleClientSecret,
-          redirect_uri: redirectUri,
-          grant_type: 'authorization_code',
-          code_verifier: verifier,
-        },
+    // Use the platform fetch API for external OAuth calls. Nuxt's typed $fetch
+    // attempts Nitro route inference even for arbitrary external URLs, which
+    // can make vue-tsc recurse excessively. Google's token endpoint expects
+    // the standard application/x-www-form-urlencoded OAuth request shape.
+    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Accept: 'application/json',
       },
-    )
+      body: new URLSearchParams({
+        code,
+        client_id: googleClientId,
+        client_secret: googleClientSecret,
+        redirect_uri: redirectUri,
+        grant_type: 'authorization_code',
+        code_verifier: verifier,
+      }),
+    })
 
-    const accessToken = String(tokenResponse.access_token || '').trim()
+    if (!tokenResponse.ok) {
+      throw createError({
+        statusCode: 401,
+        message: 'Google authorization code exchange failed.',
+      })
+    }
+
+    const tokenPayload = (await tokenResponse.json()) as GoogleTokenResponse
+    const accessToken = String(tokenPayload.access_token || '').trim()
     if (!accessToken) {
       throw createError({
         statusCode: 401,
@@ -104,13 +117,13 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Native fetch is deliberate here: Nuxt's typed $fetch tries to infer an
-    // internal Nitro route for arbitrary external URLs and can recurse deeply
-    // enough to fail vue-tsc. This is a plain external HTTP boundary.
     const userInfoResponse = await fetch(
       'https://www.googleapis.com/oauth2/v3/userinfo',
       {
-        headers: { Authorization: `Bearer ${accessToken}` },
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          Accept: 'application/json',
+        },
       },
     )
     if (!userInfoResponse.ok) {

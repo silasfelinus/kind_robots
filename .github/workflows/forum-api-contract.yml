@@ -34,6 +34,10 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      # Forum generation contract imports the Prisma-backed provenance helper,
+      # but remains a static verifier and never opens a database connection.
+      DATABASE_URL: mysql://contract:contract@127.0.0.1:3306/kindrobots
     steps:
       - name: Checkout
         uses: actions/checkout@v4

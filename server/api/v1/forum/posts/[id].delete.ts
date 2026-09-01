@@ -2,11 +2,11 @@ import { createError, defineEventHandler, getRouterParam } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { logAdminAction } from '@/server/utils/audit'
+import { forumPostSelect } from '@/server/utils/forumApi'
 import {
-  assertForumPostManageable,
-  forumPostSelect,
-  requireForumWriter,
-} from '@/server/utils/forumApi'
+  assertForumV2PostManageable,
+  requireForumV2Writer,
+} from '@/server/utils/agentForumV2'
 
 export default defineEventHandler(async (event) => {
   const id = Number(getRouterParam(event, 'id'))
@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'Invalid forum post ID.' })
     }
 
-    const actor = await requireForumWriter(event)
+    const actor = await requireForumV2Writer(event)
     const post = await prisma.chat.findFirst({
       where: { id, type: 'ToForum' },
       select: forumPostSelect,
@@ -26,12 +26,8 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 404, message: `Forum post ${id} was not found.` })
     }
 
-    assertForumPostManageable(actor.auth, post)
+    await assertForumV2PostManageable(actor.auth, post)
 
-    // assertForumPostManageable already enforced ownership-or-admin, so a
-    // userId mismatch here can only mean an admin is moderating someone
-    // else's content -- that's the case worth an audit trail (a self-
-    // delete needs no separate record beyond the post's own removed state).
     const isModerationAction = post.userId !== actor.userId
 
     if (post.isActive) {

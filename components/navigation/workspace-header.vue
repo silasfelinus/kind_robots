@@ -138,20 +138,52 @@
             selectable"). Only the tab label to its left opens the menu.
           -->
           <div
-            class="pointer-events-none hidden min-w-0 flex-1 flex-col justify-center px-3 leading-tight lg:flex"
-            :title="headerMessage"
+            class="pointer-events-none hidden min-w-0 flex-1 items-center gap-4 px-3 lg:flex"
           >
-            <span
-              class="truncate text-[0.65rem] font-black uppercase tracking-[0.18em] text-primary/75"
+            <div
+              class="flex min-w-0 shrink flex-col justify-center leading-tight"
+              :title="headerMessage"
             >
-              {{ brandLine }}
-            </span>
-            <span
-              v-if="headerMessage"
-              class="truncate text-sm text-base-content/55"
+              <span
+                class="truncate text-[0.65rem] font-black uppercase tracking-[0.18em] text-primary/75"
+              >
+                {{ brandLine }}
+              </span>
+              <span
+                v-if="headerMessage"
+                class="truncate text-sm text-base-content/55"
+              >
+                {{ headerMessage }}
+              </span>
+            </div>
+
+            <!--
+              THE GREETING. Silas, 2026-09-01: "it's more a part of the main
+              content dash, but we really should see a Welcome {username} in
+              large letters after the room and room info piece."
+
+              "After the room and room info piece" places it exactly: those two
+              lines are to its left, and this takes the rest of the stretch. It
+              stays in the header rather than moving into the page because that
+              is where the room and its blurb live, and because the home page is
+              now a fixed-height desktop layout -- a greeting band there would
+              come out of the dream's height rather than out of space that was
+              already empty.
+
+              THE ONE RULE THIS ROW HAS is that nothing in it grows (see the
+              note at the top of this file: the strip that preceded it needed
+              300 lines of measurement precisely because a child's width was
+              unbounded). So this is `min-w-0 truncate` inside a `shrink`
+              sibling pair, and it appears only from `xl`, where the stretch has
+              room to spare. A long username shortens; it never pushes.
+            -->
+            <p
+              v-if="greeting"
+              class="hidden min-w-0 flex-1 truncate text-right text-lg font-black text-base-content/80 xl:block xl:text-xl"
+              :title="greeting"
             >
-              {{ headerMessage }}
-            </span>
+              {{ greeting }}
+            </p>
           </div>
         </div>
 
@@ -218,6 +250,7 @@ import type { ResolvedTab } from '@/stores/helpers/channelContent'
 import { useChannelContentStore } from '@/stores/channelContentStore'
 import { useNavStore } from '@/stores/navStore'
 import { usePageStore } from '@/stores/pageStore'
+import { useUserStore } from '@/stores/userStore'
 import { tabRouteTarget } from '@/utils/tabNavigation'
 
 const fallbackIcon = 'kind-icon:sparkles'
@@ -225,6 +258,7 @@ const fallbackIcon = 'kind-icon:sparkles'
 const channelContentStore = useChannelContentStore()
 const navStore = useNavStore()
 const pageStore = usePageStore()
+const userStore = useUserStore()
 const router = useRouter()
 const route = useRoute()
 
@@ -385,6 +419,18 @@ const activeTitle = computed(
  * subtitle, then the page's. `activeTabConfig` resolves to fallbackTab (built
  * from pageStore) on routes outside any channel, so this holds there too.
  */
+/**
+ * "Welcome <username>", or nothing at all.
+ *
+ * Nothing for a signed-out visitor: userStore.username falls back to the
+ * literal "Kind Guest" so that everyone has a name for attribution purposes,
+ * and greeting a stranger by a placeholder reads worse than not greeting them.
+ * `isLoggedIn` is the check that distinguishes the two.
+ */
+const greeting = computed(() =>
+  userStore.isLoggedIn ? `Welcome ${userStore.username}` : '',
+)
+
 const brandLine = computed(
   () => pageStore.room || activeTitle.value || 'Kind Robots',
 )

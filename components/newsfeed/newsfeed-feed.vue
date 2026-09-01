@@ -20,10 +20,10 @@
         ONE ROW WITH ITS HOST'S HEADING, not a row beneath it. Silas,
         2026-08-29: "The selections like all ai news, etc, and the other icons,
         should be in line with the From around the web and newsfeed tab
-        section."
+        section." (That heading is just "News" now, 2026-09-01.)
 
-        The home page used to render its own "From around the web" heading and
-        "newsfeed lab" link in a section header, and then this strip below it --
+        The home page used to render its own heading and "newsfeed lab" link in
+        a section header, and then this strip below it --
         two full rows of chrome above the first story. These slots let the host
         put its heading and its link INTO this row, so there is one. The
         Newsfeed Lab page passes neither and is unchanged.

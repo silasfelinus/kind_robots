@@ -74,7 +74,11 @@
         v-for="output in store.recipeOutputs"
         :key="output.key"
         class="flex cursor-pointer items-center gap-3 kr-panel-flat rounded-xl p-2.5 transition hover:border-primary/50"
-        :class="store.selections[output.key]?.on ? 'border-primary/60 bg-primary/5' : ''"
+        :class="
+          store.selections[output.key]?.on
+            ? 'border-primary/60 bg-primary/5'
+            : ''
+        "
       >
         <input
           type="checkbox"
@@ -89,7 +93,9 @@
             <span class="truncate text-sm font-bold text-base-content">
               {{ output.label }}
             </span>
-            <span class="badge badge-xs badge-ghost">{{ output.generation }}</span>
+            <span class="badge badge-xs badge-ghost">{{
+              output.generation
+            }}</span>
             <span v-if="output.size" class="text-[10px] text-base-content/40">
               {{ output.size }}
             </span>
@@ -126,12 +132,13 @@
     </div>
 
     <!-- Footer -->
-    <div
-      class="kr-toolbar justify-between border-t border-base-300 pt-2"
-    >
+    <div class="kr-toolbar justify-between border-t border-base-300 pt-2">
       <div class="flex items-center gap-3">
         <span class="text-xs text-base-content/60">
-          {{ store.selectedOutputCount }} output{{ store.selectedOutputCount === 1 ? '' : 's' }} selected
+          {{ store.selectedOutputCount }} output{{
+            store.selectedOutputCount === 1 ? '' : 's'
+          }}
+          selected
         </span>
         <label
           class="flex cursor-pointer items-center gap-1.5 text-xs text-base-content/70"
@@ -150,10 +157,18 @@
         type="button"
         class="btn btn-primary btn-sm rounded-xl"
         :disabled="!store.canStartRun"
+        :aria-busy="store.startingRun"
         @click="store.startRun()"
       >
-        <Icon name="kind-icon:play" class="h-4 w-4" />
-        Start build run
+        <span
+          v-if="store.startingRun"
+          class="loading loading-dots loading-sm"
+          aria-hidden="true"
+        />
+        <template v-else>
+          <Icon name="kind-icon:play" class="h-4 w-4" />
+          Start build run
+        </template>
       </button>
     </div>
   </div>

@@ -920,6 +920,12 @@ jobs:
       - name: Model Builder item-panel Reject wiring guard contract
         run: npm run test:model-builder-item-panel-reject-wiring-guard
 
+      - name: Model Builder "Start build run" loading-state guard checker self-test
+        run: npm run test:model-builder-start-run-loading-guard-selftest
+
+      - name: Model Builder "Start build run" loading-state guard contract
+        run: npm run test:model-builder-start-run-loading-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

@@ -1,7 +1,8 @@
-import { defineEventHandler, readBody } from 'h3'
+import { createError, defineEventHandler, readBody } from 'h3'
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
+import { authHasScope } from '@/server/utils/authGuard'
 import {
   assertForumWriteAllowed,
   assertMatureForumWriteAllowed,
@@ -30,6 +31,21 @@ const FORUM_THREAD_CREATE_FIELDS = new Set([
 export default defineEventHandler(async (event) => {
   try {
     const actor = await requireForumWriter(event)
+
+    // Replies/conversation remain available with forum:write. Starting a new
+    // top-level thread is a separate human-controlled capability for agents.
+    // Human JWT/API-key sessions are intentionally unaffected by scope checks.
+    if (
+      actor.auth.kind === 'agent-credential' &&
+      !authHasScope(actor.auth, 'forum:thread:create')
+    ) {
+      throw createError({
+        statusCode: 403,
+        message:
+          'This agent is not authorized to create new forum threads. Its human liaison can grant "forum:thread:create" if desired.',
+      })
+    }
+
     const rawBody = await readBody<unknown>(event)
     assertJsonObject(rawBody, 'A JSON forum thread body is required.')
     assertOnlyFields(rawBody, FORUM_THREAD_CREATE_FIELDS, 'forum thread')

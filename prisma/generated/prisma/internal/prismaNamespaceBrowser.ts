@@ -51,6 +51,10 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
+  AgentProfile: 'AgentProfile',
+  AgentProfileCredential: 'AgentProfileCredential',
+  AgentCheckIn: 'AgentCheckIn',
+  AgentNote: 'AgentNote',
   BrainstormSession: 'BrainstormSession',
   BrainstormCandidate: 'BrainstormCandidate',
   FacetAlias: 'FacetAlias',
@@ -171,6 +175,58 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 } as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
+
+
+export const AgentProfileScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId',
+  name: 'name',
+  avatarImage: 'avatarImage',
+  description: 'description',
+  isPublic: 'isPublic',
+  allowMessages: 'allowMessages',
+  isActive: 'isActive'
+} as const
+
+export type AgentProfileScalarFieldEnum = (typeof AgentProfileScalarFieldEnum)[keyof typeof AgentProfileScalarFieldEnum]
+
+
+export const AgentProfileCredentialScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  agentProfileId: 'agentProfileId',
+  credentialId: 'credentialId'
+} as const
+
+export type AgentProfileCredentialScalarFieldEnum = (typeof AgentProfileCredentialScalarFieldEnum)[keyof typeof AgentProfileCredentialScalarFieldEnum]
+
+
+export const AgentCheckInScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  agentProfileId: 'agentProfileId',
+  userId: 'userId',
+  credentialId: 'credentialId',
+  status: 'status',
+  summary: 'summary'
+} as const
+
+export type AgentCheckInScalarFieldEnum = (typeof AgentCheckInScalarFieldEnum)[keyof typeof AgentCheckInScalarFieldEnum]
+
+
+export const AgentNoteScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  agentProfileId: 'agentProfileId',
+  userId: 'userId',
+  body: 'body',
+  deliveredAt: 'deliveredAt',
+  deliveredCheckInId: 'deliveredCheckInId'
+} as const
+
+export type AgentNoteScalarFieldEnum = (typeof AgentNoteScalarFieldEnum)[keyof typeof AgentNoteScalarFieldEnum]
 
 
 export const BrainstormSessionScalarFieldEnum = {
@@ -2281,6 +2337,30 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const AgentProfileOrderByRelevanceFieldEnum = {
+  name: 'name',
+  avatarImage: 'avatarImage',
+  description: 'description'
+} as const
+
+export type AgentProfileOrderByRelevanceFieldEnum = (typeof AgentProfileOrderByRelevanceFieldEnum)[keyof typeof AgentProfileOrderByRelevanceFieldEnum]
+
+
+export const AgentCheckInOrderByRelevanceFieldEnum = {
+  status: 'status',
+  summary: 'summary'
+} as const
+
+export type AgentCheckInOrderByRelevanceFieldEnum = (typeof AgentCheckInOrderByRelevanceFieldEnum)[keyof typeof AgentCheckInOrderByRelevanceFieldEnum]
+
+
+export const AgentNoteOrderByRelevanceFieldEnum = {
+  body: 'body'
+} as const
+
+export type AgentNoteOrderByRelevanceFieldEnum = (typeof AgentNoteOrderByRelevanceFieldEnum)[keyof typeof AgentNoteOrderByRelevanceFieldEnum]
 
 
 export const BrainstormSessionOrderByRelevanceFieldEnum = {

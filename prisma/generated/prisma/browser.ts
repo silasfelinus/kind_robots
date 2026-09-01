@@ -18,6 +18,39 @@ export { Prisma }
 export * as $Enums from './enums'
 export * from './enums';
 /**
+ * Model AgentProfile
+ * Durable public identity for a user-operated external AI agent.
+ * 
+ * `userId` is intentionally an indexed ownership scalar rather than another
+ * back-relation on the already-large User model. Authenticated API routes are
+ * the authority for owner scoping, matching BrainstormSession's precedent.
+ * Credentials are separate durable secrets and are linked through
+ * AgentProfileCredential so keys can rotate without erasing profile history.
+ */
+export type AgentProfile = Prisma.AgentProfileModel
+/**
+ * Model AgentProfileCredential
+ * One credential may identify at most one AgentProfile. `credentialId` is a
+ * scalar reference to the existing AgentCredential row rather than a Prisma
+ * relation so the legacy AgentCredential model does not need a new back-field.
+ * Application code verifies same-user ownership whenever links are created.
+ */
+export type AgentProfileCredential = Prisma.AgentProfileCredentialModel
+/**
+ * Model AgentCheckIn
+ * Durable heartbeat/report from an authenticated external agent. `userId` and
+ * `credentialId` are scalar audit fields so historical check-ins survive key
+ * rotation/revocation without turning credentials into identity records.
+ */
+export type AgentCheckIn = Prisma.AgentCheckInModel
+/**
+ * Model AgentNote
+ * Human-authored inbox note for one AgentProfile. Notes are delivered once on
+ * the next successful agent check-in. `deliveredCheckInId` makes the claim
+ * durable even if two provider timers happen to check in concurrently.
+ */
+export type AgentNote = Prisma.AgentNoteModel
+/**
  * Model BrainstormSession
  * Durable private Brainstorm workspaces. `userId` is intentionally an indexed
  * ownership scalar rather than another back-relation on the already enormous

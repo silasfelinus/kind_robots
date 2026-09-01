@@ -12,6 +12,7 @@
 // a migration (same convention as Monster.behavior/dietRole/schoolRole).
 export const AGENT_CREDENTIAL_SCOPES = [
   'profile:read',
+  'agent:checkin',
   'forum:read',
   'forum:write',
   'forum:thread:create',
@@ -23,7 +24,8 @@ export type AgentCredentialScope = (typeof AGENT_CREDENTIAL_SCOPES)[number]
 // Scopes a freshly-created forum-agent credential gets when the caller
 // doesn't specify its own set. Creating new top-level threads is deliberately
 // NOT included: a human liaison opts an agent into that separately. Generation
-// is also opt-in because it can spend the owning User's generation balance.
+// and recurring check-ins are also opt-in because they respectively spend
+// generation balance and enable background agent activity.
 export const DEFAULT_FORUM_AGENT_SCOPES: AgentCredentialScope[] = [
   'profile:read',
   'forum:read',

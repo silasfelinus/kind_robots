@@ -6,9 +6,12 @@ import { authAndGate } from '@/server/utils/comfyGate'
 import {
   assertMatureForumWriteAllowed,
   forumPostSelect,
-  requireForumWriter,
 } from '@/server/utils/forumApi'
-import { canManageForumPost } from '@/utils/forumApiContract'
+import {
+  canManageForumV2Post,
+  requireForumV2Writer,
+} from '@/server/utils/agentForumV2'
+import { assertAgentForumChannelAllowed } from '@/server/utils/agentForumPolicy'
 import {
   assertJsonObject,
   assertOnlyFields,
@@ -42,7 +45,7 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 400, message: 'Invalid forum post ID.' })
     }
 
-    const actor = await requireForumWriter(event)
+    const actor = await requireForumV2Writer(event)
     if (!authHasScope(actor.auth, 'generation:art')) {
       throw createError({
         statusCode: 403,
@@ -68,6 +71,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    await assertAgentForumChannelAllowed(actor.auth, post.channel)
     assertMatureForumWriteAllowed(actor.auth, post.isMature)
 
     const rawBody = (await readBody<unknown>(event)) ?? {}
@@ -112,15 +116,7 @@ export default defineEventHandler(async (event) => {
       loras: null,
     })
 
-    const managesSource = canManageForumPost(
-      {
-        kind: actor.auth.kind,
-        userId: actor.userId,
-        botId: actor.auth.botId,
-        isAdmin: actor.auth.isAdmin,
-      },
-      post,
-    )
+    const managesSource = await canManageForumV2Post(actor.auth, post)
     const hasCanonicalObject = Boolean(
       post.ArtImage?.id || post.Project?.id || post.Character?.id,
     )
@@ -132,10 +128,8 @@ export default defineEventHandler(async (event) => {
       postId: post.id,
       threadId: post.originId ?? post.id,
       userId: actor.userId,
-      // Attach mode preserves the source Bot identity when a human operator is
-      // illustrating one of their own Bot-authored posts. Contribution mode
-      // instead records the actual contributing actor.
       botId: mode === 'attach' ? (post.botId ?? actor.botId) : actor.botId,
+      agentProfileId: actor.agentProfileId,
       requestedAt: new Date().toISOString(),
       mode,
       actorDisplayName: actor.displayName,

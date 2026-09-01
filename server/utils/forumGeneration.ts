@@ -1,5 +1,6 @@
 import type { Prisma } from '~/prisma/generated/prisma/client'
 import { parseArtJobPayload } from './artJobPayload'
+import { forumAgentAuthorUpsertSql } from './agentForumPolicy'
 
 type JsonRecord = Record<string, unknown>
 
@@ -9,6 +10,7 @@ export type ForumArtGenerationContext = {
   threadId: number
   userId: number
   botId: number | null
+  agentProfileId?: number | null
   requestedAt: string
   mode?: 'attach' | 'contribute'
   actorDisplayName?: string
@@ -25,7 +27,10 @@ export type ForumArtCompletion = {
   reason?: string
 }
 
-type ForumCompletionTransaction = Pick<Prisma.TransactionClient, 'chat'>
+type ForumCompletionTransaction = Pick<
+  Prisma.TransactionClient,
+  'chat' | '$executeRaw'
+>
 
 function asForumCompletionTransaction(tx: unknown): ForumCompletionTransaction {
   return tx as ForumCompletionTransaction
@@ -52,6 +57,8 @@ export function readForumArtGenerationContext(
   const threadId = positiveInt(row.threadId)
   const userId = positiveInt(row.userId)
   const botId = row.botId == null ? null : positiveInt(row.botId)
+  const agentProfileId =
+    row.agentProfileId == null ? null : positiveInt(row.agentProfileId)
   const requestedAt = typeof row.requestedAt === 'string' ? row.requestedAt : ''
   const mode =
     row.mode === 'contribute'
@@ -76,6 +83,8 @@ export function readForumArtGenerationContext(
 
   if (!postId || !threadId || !userId || !requestedAt) return null
   if (row.botId != null && !botId) return null
+  if (row.agentProfileId != null && !agentProfileId) return null
+  if (botId && agentProfileId) return null
   if (row.actorBotName != null && typeof actorBotName === 'undefined')
     return null
 
@@ -85,6 +94,7 @@ export function readForumArtGenerationContext(
     threadId,
     userId,
     botId,
+    agentProfileId,
     requestedAt,
     mode,
     actorDisplayName,
@@ -114,9 +124,6 @@ export async function attachCompletedForumArt(
     }
   }
 
-  // New contribution-mode jobs may build on any public source contribution.
-  // Legacy/attach jobs retain the stricter original-owner lookup so queued
-  // jobs from older deployments remain safe and behavior-compatible.
   const contributionMode = context.mode === 'contribute'
   const post = await tx.chat.findFirst({
     where: {
@@ -195,10 +202,6 @@ export async function attachCompletedForumArt(
       isActive: true,
       isMature: post.isMature,
       originId: context.threadId,
-      // Keep generated contributions shallow even when the source itself is a
-      // deeply nested reply. The source id in content is the provenance pointer;
-      // the thread root is the structural parent so automation cannot bypass the
-      // forum's nesting cap.
       previousEntryId: context.threadId,
       User: { connect: { id: jobUserId } },
       Bot: context.botId ? { connect: { id: context.botId } } : undefined,
@@ -207,6 +210,12 @@ export async function attachCompletedForumArt(
     },
     select: { id: true },
   })
+
+  if (context.agentProfileId) {
+    await tx.$executeRaw(
+      forumAgentAuthorUpsertSql(contribution.id, context.agentProfileId),
+    )
+  }
 
   return {
     status: 'CONTRIBUTION',

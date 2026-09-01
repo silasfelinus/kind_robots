@@ -143,7 +143,7 @@
                 />
               </label>
 
-              <div class="sticky bottom-0 flex flex-wrap items-center gap-3 rounded-2xl border border-base-300 bg-base-100/95 p-3 shadow-lg backdrop-blur">
+              <div class="kr-panel-flat sticky bottom-0 flex flex-wrap items-center gap-3 bg-base-100/95 p-3 shadow-lg backdrop-blur">
                 <p
                   v-if="saveMessage"
                   class="min-w-0 flex-1 text-sm"

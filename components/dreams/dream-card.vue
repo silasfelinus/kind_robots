@@ -75,7 +75,7 @@
 
       <details
         v-if="showDebug"
-        class="absolute inset-x-2 bottom-2 z-10 rounded-2xl border border-base-300 bg-base-100/95 p-2 text-xs shadow backdrop-blur"
+        class="kr-panel-flat absolute inset-x-2 bottom-2 z-10 bg-base-100/95 p-2 text-xs shadow backdrop-blur"
         @click.stop
       >
         <summary class="cursor-pointer font-bold text-primary">

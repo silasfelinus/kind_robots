@@ -5,7 +5,11 @@ import { requireMachineUser } from '~/server/utils/authGuard'
 export type ChatGptActorRole = 'admin' | 'user'
 
 export type ChatGptActorSource =
-  'jwt' | 'beta-admin-token' | 'user-api-key' | 'agent-credential'
+  | 'jwt'
+  | 'beta-admin-token'
+  | 'user-api-key'
+  | 'agent-credential'
+  | 'first-party-delegation'
 
 export type ChatGptActor = {
   userId: number

@@ -6,8 +6,12 @@ on:
     paths:
       - 'server/api/auth/first-party/**'
       - 'server/utils/firstPartySso.ts'
+      - 'server/utils/firstPartyDelegation.ts'
+      - 'server/utils/authGuard.ts'
+      - 'server/chatgpt/auth/resolveActor.ts'
       - 'utils/firstPartySsoContract.ts'
       - 'utils/scripts/verifyFirstPartySso.test.ts'
+      - 'tests/contracts/verifyFirstPartyDelegation.ts'
       - 'components/user/login-page.vue'
       - 'prisma/migrations/*first_party_authorization_codes*/migration.sql'
       - '.github/workflows/first-party-sso-contract.yml'
@@ -37,3 +41,6 @@ jobs:
 
       - name: Verify first-party SSO contract
         run: npx tsx utils/scripts/verifyFirstPartySso.test.ts
+
+      - name: Verify first-party BFF delegation contract
+        run: npx tsx tests/contracts/verifyFirstPartyDelegation.ts

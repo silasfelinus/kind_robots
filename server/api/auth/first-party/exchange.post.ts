@@ -8,6 +8,7 @@ import {
   consumeFirstPartyAuthorizationCode,
   parseFirstPartyExchangeRequest,
 } from '@/server/utils/firstPartySso'
+import { issueFirstPartyDelegation } from '@/server/utils/firstPartyDelegation'
 
 export default defineEventHandler(async (event) => {
   setHeader(event, 'Cache-Control', 'no-store')
@@ -25,10 +26,15 @@ export default defineEventHandler(async (event) => {
     rawBody as Record<string, unknown>,
   )
   const user = await consumeFirstPartyAuthorizationCode(request)
+  const delegationToken = await issueFirstPartyDelegation({
+    userId: user.id,
+    client: request.client,
+  })
 
   return {
     success: true,
     clientId: request.client.id,
     user,
+    delegationToken,
   }
 })

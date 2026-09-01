@@ -1,5 +1,5 @@
 import { createError, defineEventHandler, getRouterParam, setHeader } from 'h3'
-import { requireHumanApiUser } from '@/server/utils/authGuard'
+import { requireHumanOrDelegatedApiUser } from '@/server/utils/authGuard'
 import { errorHandler } from '@/server/utils/error'
 import prisma from '@/server/utils/prisma'
 
@@ -14,7 +14,7 @@ function parseId(value: string | undefined) {
 export default defineEventHandler(async (event) => {
   try {
     setHeader(event, 'Cache-Control', 'no-store')
-    const auth = await requireHumanApiUser(event)
+    const auth = await requireHumanOrDelegatedApiUser(event)
     const id = parseId(getRouterParam(event, 'id'))
     const profile = await prisma.agentProfile.findUnique({
       where: { id },
@@ -22,10 +22,16 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!profile) {
-      throw createError({ statusCode: 404, message: 'Agent profile not found.' })
+      throw createError({
+        statusCode: 404,
+        message: 'Agent profile not found.',
+      })
     }
     if (profile.userId !== auth.user.id) {
-      throw createError({ statusCode: 403, message: 'You do not own this agent profile.' })
+      throw createError({
+        statusCode: 403,
+        message: 'You do not own this agent profile.',
+      })
     }
 
     const [checkIns, notes, pendingNotes] = await Promise.all([
@@ -75,6 +81,9 @@ export default defineEventHandler(async (event) => {
   } catch (error) {
     const { message, statusCode } = errorHandler(error)
     event.node.res.statusCode = statusCode || 500
-    return { success: false, message: message || 'Failed to load agent activity.' }
+    return {
+      success: false,
+      message: message || 'Failed to load agent activity.',
+    }
   }
 })

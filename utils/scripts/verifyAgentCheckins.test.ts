@@ -9,8 +9,14 @@ const migration = readFileSync(
 const scopes = readFileSync('utils/agentCredentialScopes.ts', 'utf8')
 const authGuard = readFileSync('server/utils/authGuard.ts', 'utf8')
 const checkIn = readFileSync('server/api/v1/agent/check-in.post.ts', 'utf8')
-const notes = readFileSync('server/api/agent-profiles/[id]/notes.post.ts', 'utf8')
-const activity = readFileSync('server/api/agent-profiles/[id]/activity.get.ts', 'utf8')
+const notes = readFileSync(
+  'server/api/agent-profiles/[id]/notes.post.ts',
+  'utf8',
+)
+const activity = readFileSync(
+  'server/api/agent-profiles/[id]/activity.get.ts',
+  'utf8',
+)
 
 assert.match(schema, /model AgentCheckIn \{/)
 assert.match(schema, /model AgentNote \{/)
@@ -38,18 +44,36 @@ assert.match(checkIn, /where:\s*\{ deliveredCheckInId: checkIn\.id \}/)
 assert.match(checkIn, /take:\s*20/)
 
 for (const source of [notes, activity]) {
-  assert.match(source, /requireHumanApiUser\(event\)/)
+  assert.match(source, /requireHumanOrDelegatedApiUser\(event\)/)
   assert.match(source, /profile\.userId !== auth\.user\.id/)
 }
 assert.match(notes, /Note queued for the agent’s next check-in/)
 assert.match(activity, /pendingNotes/)
 assert.match(activity, /lastCheckInAt/)
 
+// requireHumanApiUser stays strict: it guards AgentCredential administration
+// and AgentProfile create/patch/delete, so it must keep rejecting BOTH
+// machine AgentCredentials and first-party delegation tokens.
 const humanGuard = authGuard.match(
-  /export async function requireHumanApiUser[\s\S]*?\n}\n\nexport async function requireScopedApiUser/,
+  /export async function requireHumanApiUser[\s\S]*?\n}\n\n\/\*\*/,
 )?.[0]
-assert.ok(humanGuard)
-assert.doesNotMatch(humanGuard, /auth\.kind === 'first-party-delegation'/)
-assert.match(humanGuard, /auth\.kind === 'agent-credential'/)
+assert.ok(humanGuard, 'requireHumanApiUser contract was not found')
+assert.match(
+  humanGuard,
+  /auth\.kind === 'agent-credential' \|\| auth\.kind === 'first-party-delegation'/,
+)
+
+// requireHumanOrDelegatedApiUser is the narrow allowance: it rejects machine
+// AgentCredentials but lets a first-party delegation token through, for use
+// only on the non-credential, non-admin routes above.
+const delegatedGuard = authGuard.match(
+  /export async function requireHumanOrDelegatedApiUser[\s\S]*?\n}/,
+)?.[0]
+assert.ok(
+  delegatedGuard,
+  'requireHumanOrDelegatedApiUser contract was not found',
+)
+assert.match(delegatedGuard, /auth\.kind === 'agent-credential'/)
+assert.doesNotMatch(delegatedGuard, /auth\.kind === 'first-party-delegation'/)
 
 console.log('Agent check-in + human notes contract OK')

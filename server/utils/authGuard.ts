@@ -31,7 +31,10 @@ const config = useRuntimeConfig()
 
 function readBearerToken(event: H3Event): string {
   const authorization = getHeader(event, 'authorization') ?? ''
-  return authorization.trim().replace(/^Bearer\s+/i, '').trim()
+  return authorization
+    .trim()
+    .replace(/^Bearer\s+/i, '')
+    .trim()
 }
 
 function readUserApiKey(event: H3Event): string {
@@ -58,7 +61,9 @@ function getConfiguredBetaAdminToken(): string {
 }
 
 function getBetaAdminUserId(): number {
-  const raw = Number(config.betaAdminUserId || process.env.BETA_ADMIN_USER_ID || 1)
+  const raw = Number(
+    config.betaAdminUserId || process.env.BETA_ADMIN_USER_ID || 1,
+  )
   return Number.isInteger(raw) && raw > 0 ? raw : 1
 }
 
@@ -117,10 +122,13 @@ async function validateFirstPartyDelegationAuth(
   }
 }
 
-async function validateBetaAdminAuth(event: H3Event): Promise<AuthGuardResult | null> {
+async function validateBetaAdminAuth(
+  event: H3Event,
+): Promise<AuthGuardResult | null> {
   const configuredToken = getConfiguredBetaAdminToken()
   const suppliedToken = readBetaAdminToken(event)
-  if (!configuredToken || !suppliedToken || suppliedToken !== configuredToken) return null
+  if (!configuredToken || !suppliedToken || suppliedToken !== configuredToken)
+    return null
 
   const user = await getUserById(getBetaAdminUserId())
   if (!user || !user.isActive || !user.isAdmin) return null
@@ -133,7 +141,9 @@ async function validateBetaAdminAuth(event: H3Event): Promise<AuthGuardResult | 
   }
 }
 
-async function validateUserApiKeyAuth(token: string): Promise<AuthGuardResult | null> {
+async function validateUserApiKeyAuth(
+  token: string,
+): Promise<AuthGuardResult | null> {
   if (!token) return null
 
   const user = await prisma.user.findFirst({
@@ -174,7 +184,9 @@ async function validateAgentCredentialAuth(
   }
 }
 
-export async function getOptionalApiUser(event: H3Event): Promise<AuthGuardResult | null> {
+export async function getOptionalApiUser(
+  event: H3Event,
+): Promise<AuthGuardResult | null> {
   const bearerToken = readBearerToken(event)
   const userApiKey = readUserApiKey(event)
 
@@ -187,21 +199,28 @@ export async function getOptionalApiUser(event: H3Event): Promise<AuthGuardResul
   )
 }
 
-export async function requireMachineUser(event: H3Event): Promise<AuthGuardResult> {
+export async function requireMachineUser(
+  event: H3Event,
+): Promise<AuthGuardResult> {
   const auth = await getOptionalApiUser(event)
-  if (!auth) throw createError({ statusCode: 401, message: 'Invalid or expired token.' })
+  if (!auth)
+    throw createError({ statusCode: 401, message: 'Invalid or expired token.' })
   return auth
 }
 
 export async function requireApiUser(event: H3Event): Promise<AuthGuardResult> {
   const auth = await getOptionalApiUser(event)
-  if (!auth) throw createError({ statusCode: 401, message: 'Invalid or expired token.' })
+  if (!auth)
+    throw createError({ statusCode: 401, message: 'Invalid or expired token.' })
   return auth
 }
 
-export async function requireAdminApiUser(event: H3Event): Promise<AuthGuardResult> {
+export async function requireAdminApiUser(
+  event: H3Event,
+): Promise<AuthGuardResult> {
   const auth = await requireApiUser(event)
-  if (!auth.isAdmin) throw createError({ statusCode: 403, message: 'Admin access required.' })
+  if (!auth.isAdmin)
+    throw createError({ statusCode: 403, message: 'Admin access required.' })
   return auth
 }
 
@@ -217,9 +236,12 @@ export function authHasScope(
  * Require a human-owned auth context. Delegated credentials -- machine
  * AgentCredentials and first-party BFF delegation tokens alike -- are not
  * allowed to create, rotate, revoke, or otherwise manage human-owned
- * credentials/profile administration. See rainbow-butterflies/t-035 (conductor)
- * for the open decision on a narrower, route-group-scoped allowance for
- * first-party delegation on non-credential human-owned endpoints.
+ * credentials/profile administration (AgentCredential create/delete,
+ * AgentProfile create/patch/delete). See rainbow-butterflies/t-035
+ * (conductor) for the incident this guard closed. Non-admin, non-credential
+ * routes that a first-party delegation legitimately needs (e.g. agent
+ * check-in notes/activity) should use requireHumanOrDelegatedApiUser below
+ * instead of loosening this one.
  */
 export async function requireHumanApiUser(event: H3Event): Promise<AuthGuardResult> {
   const auth = await requireApiUser(event)
@@ -228,6 +250,31 @@ export async function requireHumanApiUser(event: H3Event): Promise<AuthGuardResu
     throw createError({
       statusCode: 403,
       message: 'Delegated credentials cannot manage credentials.',
+    })
+  }
+
+  return auth
+}
+
+/**
+ * Require a human-owned auth context, additionally allowing a first-party BFF
+ * delegation token. This is the narrower allowance rainbow-butterflies/t-035
+ * asked for: only routes that are neither AgentCredential administration nor
+ * AgentProfile creation/deletion/reassignment should use this guard, since a
+ * delegation token is scoped to "the signed-in human acting through a trusted
+ * first-party app," not "an admin of that human's credentials." Machine
+ * AgentCredentials are still rejected outright -- only a real human or a
+ * first-party delegation acting on their behalf may pass.
+ */
+export async function requireHumanOrDelegatedApiUser(
+  event: H3Event,
+): Promise<AuthGuardResult> {
+  const auth = await requireApiUser(event)
+
+  if (auth.kind === 'agent-credential') {
+    throw createError({
+      statusCode: 403,
+      message: 'Agent credentials cannot act as a human user.',
     })
   }
 

@@ -38,6 +38,14 @@
 // functions still captures and re-checks its own epoch. If a future
 // refactor drops either half, this fails loudly rather than silently
 // reopening the revisit race for just that entry point.
+//
+// Cycle 77 closed a gap in the fix itself, not just the guard: batchDraftField
+// captured and re-checked its epoch in its finally block (per the above) but,
+// unlike autoBuildRun/batchAutoBuild, never checked it inside its own
+// per-item loop -- so a revisited run's abandoned draft pass kept awaiting
+// draftText for the run's remaining items instead of stopping. Fixed the
+// same way as the other two loops, and LOOPING_FUNCTIONS below now covers
+// all three.
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -77,9 +85,22 @@ const MIN_BUMPS_PER_FUNCTION: Record<
 }
 
 // Functions whose loop-abort check (not just their finally block) must also
-// check runEpoch -- the two entry points with a per-item loop that can span
-// a run revisit mid-pass, mirroring their existing runId-mismatch check.
-const LOOPING_FUNCTIONS = ['autoBuildRun', 'batchAutoBuild'] as const
+// check runEpoch -- the three entry points with a per-item-await loop that
+// can span a run revisit mid-pass, mirroring their existing runId-mismatch
+// check. batchDraftField joined autoBuildRun/batchAutoBuild here in cycle 77
+// -- it awaits draftText once per item, same shape as the other two, but its
+// loop had no abort check at all pre-fix (only its finally-block release was
+// epoch-guarded, from cycle 76). batchSetField/batchApproveStage stay out of
+// this list on purpose: their per-item loops build up a payload
+// synchronously with no await inside the loop body, then await once via a
+// single batchPushItems() call after the loop -- there's no per-iteration
+// await to abandon mid-loop, so a loop-abort check would have nothing to
+// guard.
+const LOOPING_FUNCTIONS = [
+  'autoBuildRun',
+  'batchDraftField',
+  'batchAutoBuild',
+] as const
 
 // All five run/batch operation functions whose finally block releases a
 // store-wide "in flight" flag and must therefore re-check both the run id
@@ -193,9 +214,11 @@ function main(): void {
 
   console.log(
     'Model Builder run-epoch guard contract passed: every abandon site ' +
-      'bumps runEpoch, and autoBuildRun()/batchDraftField()/batchSetField()/' +
+      'bumps runEpoch, autoBuildRun()/batchDraftField()/batchSetField()/' +
       'batchApproveStage()/batchAutoBuild() each capture and re-check their ' +
-      'own epoch before clearing/releasing their in-flight flag.',
+      'own epoch before clearing/releasing their in-flight flag, and ' +
+      "autoBuildRun()/batchDraftField()/batchAutoBuild()'s own per-item " +
+      'loops abort on an epoch mismatch too.',
   )
 }
 

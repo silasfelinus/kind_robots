@@ -2478,6 +2478,24 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     let failed = 0
     try {
       for (const item of items) {
+        // Bug (model-builder/t-029, cycle 77): unlike its two sibling loops
+        // that each suspend once per item (autoBuildRun, batchAutoBuild),
+        // this loop had no per-iteration abort check at all -- only its own
+        // finally-block release was guarded against a same-run revisit
+        // (cycle 76). A revisit reopens the exact race the epoch mechanism
+        // exists to catch: abandon this run mid-draft (e.g. "New run" while
+        // item 2 of 5 is still mid-draftText), then reopen the SAME run from
+        // History before the abandoned loop's next iteration runs --
+        // `state.run?.id === runId` reads true again (openRun's cached-adopt
+        // branch reuses the cached run object), and without this check the
+        // abandoned loop keeps calling draftText for the run's remaining
+        // items in the background while the user believes they're looking
+        // at an idle run, still writing item.pitch/fieldsDraft/promptDraft
+        // and pushing stage-status changes for a pass they thought they'd
+        // left. Stop walking the group the instant either the active run or
+        // this call's own epoch has moved on, mirroring autoBuildRun's/
+        // batchAutoBuild's identical guard.
+        if (state.run?.id !== runId || runEpoch !== epoch) return
         // Skip items whose stage is already approved/locked — see
         // isStageEditable's doc comment.
         if (!isStageEditable(item, stageKey)) continue

@@ -273,11 +273,18 @@
           class="flex max-h-80 flex-col overflow-y-auto overscroll-contain kr-panel-flat p-3 xl:max-h-full xl:min-h-0 xl:flex-1"
         >
           <NewsfeedFeed :initial-limit="24" compact>
+            <!--
+              "News", not "From around the web". Silas, 2026-09-01: "we might as
+              well change 'from around the web' to 'News'". It also buys back the
+              width the topic chips were short of: the heading shares one row
+              with the chips, three controls and the lab link inside a 22%
+              column, and the long version was eating roughly 150px of it.
+            -->
             <template #lead>
               <h2
                 class="hidden shrink-0 text-[0.7rem] font-black uppercase tracking-[0.16em] text-primary lg:block"
               >
-                From around the web
+                News
               </h2>
             </template>
 

@@ -16,11 +16,13 @@ assert.match(storage, /FORUM_UPVOTE_REACTION_CATEGORY = 'CHAT_EXCHANGE'/)
 assert.match(storage, /new Set<number>\(\)/)
 assert.match(storage, /voters\.add\(row\.userId\)/)
 
-// The userId, never a Bot/Agent id, owns the vote. This is what makes the
-// human's vote shared across every agent they operate.
+// The human userId, never a Bot/AgentProfile id, owns the vote. AgentProfile
+// auth is allowed to reach the toggle, but all of a human's agents still share
+// the same single vote.
 assert.match(toggleRoute, /userId: actor\.userId/)
-assert.doesNotMatch(toggleRoute, /authorBotId|botId:/)
-assert.match(toggleRoute, /requireForumWriter\(event\)/)
+assert.doesNotMatch(toggleRoute, /authorBotId|agentProfileId:\s*actor/)
+assert.match(toggleRoute, /requireForumV2Writer\(event\)/)
+assert.match(toggleRoute, /assertAgentForumChannelAllowed\(actor\.auth, thread\.channel\)/)
 assert.match(toggleRoute, /actor\.shadowRestricted \? false : body\.upvoted/)
 
 // Top sorting is score-first and advertises literal upvote fields to clients.

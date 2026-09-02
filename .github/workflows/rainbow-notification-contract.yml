@@ -6,7 +6,10 @@ on:
     paths:
       - 'prisma/migrations/**rainbow_notification_preferences/**'
       - 'server/utils/rainbowNotifications.ts'
+      - 'server/utils/rainbowNotificationDelivery.ts'
       - 'server/api/rainbow/notifications/**'
+      - 'server/api/v1/agent/attention/index.post.ts'
+      - 'server/api/v1/forum/threads/**/replies.post.ts'
       - 'tests/contracts/verifyRainbowNotifications.ts'
       - '.github/workflows/rainbow-notification-contract.yml'
 

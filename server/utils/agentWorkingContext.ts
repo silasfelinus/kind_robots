@@ -189,10 +189,12 @@ export async function buildAgentWorkingContext(input: {
     allowedChannels = await getAgentForumChannels(input.agentProfileId)
   }
   if (capabilities.forumRead) {
-    ;[recentPosts, directReplies] = await Promise.all([
+    const [loadedRecentPosts, loadedDirectReplies] = await Promise.all([
       recentForumPosts(input),
       directForumReplies(input),
     ])
+    recentPosts = loadedRecentPosts
+    directReplies = loadedDirectReplies
   }
 
   return {

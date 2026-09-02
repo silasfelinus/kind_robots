@@ -40,6 +40,9 @@ jobs:
       - name: Art-request YAML indentation contract
         run: npm run test:art-request-yaml
 
+      - name: GitHub file-read contract
+        run: npm run test:github-file-contents
+
       - name: Art prompt contract
         run: npm run test:art-prompt-contract
 

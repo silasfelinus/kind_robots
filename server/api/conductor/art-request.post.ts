@@ -7,9 +7,14 @@ import { buildContextualArtPrompt } from '@/server/utils/conductorArtPrompt'
 import { errorHandler } from '@/server/utils/error'
 import {
   appendRequest,
+  requestBlockIds,
   type ArtQueueEntry,
   type ArtVariant,
 } from '@/server/utils/artRequestYaml'
+import {
+  githubPathExists,
+  readGithubFile,
+} from '@/server/utils/githubFileContents'
 import { validateApiKey } from '@/server/utils/validateKey'
 
 const GITHUB_API = 'https://api.github.com'
@@ -88,12 +93,6 @@ type MissingArtRequestBody = {
   projectId?: number
   projectSlug?: string
   projectField?: string
-}
-
-type GitHubFile = {
-  content: string
-  sha: string
-  encoding: string
 }
 
 type ImageTarget = {
@@ -272,32 +271,15 @@ function githubHeaders(token: string): HeadersInit {
   }
 }
 
-async function fetchGithubFile(
-  repo: string,
-  path: string,
-  token: string,
-  ref = DEFAULT_BRANCH,
-): Promise<GitHubFile | null> {
-  const url = `${GITHUB_API}/repos/${repo}/contents/${encodePath(path)}?ref=${encodeURIComponent(ref)}`
-  const res = await fetch(url, { headers: githubHeaders(token) })
-  if (res.status === 404) return null
-  if (!res.ok) {
-    throw new Error(`GitHub ${res.status} while fetching ${repo}/${path}`)
-  }
-  return (await res.json()) as GitHubFile
-}
-
 async function githubFileExists(
   target: ImageTarget,
   token: string,
 ): Promise<boolean> {
-  return Boolean(
-    await fetchGithubFile(
-      target.targetRepo,
-      target.imagePath,
-      token,
-      target.targetRef,
-    ),
+  return githubPathExists(
+    target.targetRepo,
+    target.imagePath,
+    token,
+    target.targetRef,
   )
 }
 
@@ -330,12 +312,6 @@ async function imageAlreadyExists(
 ): Promise<boolean> {
   if (await mediaFileExists(target)) return true
   return githubFileExists(target, token)
-}
-
-function decodeGithubContent(file: GitHubFile): string {
-  return Buffer.from(file.content.replace(/\n/g, ''), 'base64').toString(
-    'utf-8',
-  )
 }
 
 function encodeGithubContent(content: string): string {
@@ -411,7 +387,11 @@ async function updateConductorQueue(
   force: boolean,
 ) {
   const branch = getConductorBranch()
-  const file = await fetchGithubFile(
+  // readGithubFile rather than a bare Contents API read: past 1 MB that
+  // endpoint answers 200 with a usable sha and an empty `content`, and this is
+  // a read-modify-write. Decoding that empty body as the queue is what let
+  // 0e671cd commit a two-entry file over conductor's whole art queue.
+  const file = await readGithubFile(
     CONDUCTOR_REPO,
     ART_PROMPTS_PATH,
     token,
@@ -424,9 +404,22 @@ async function updateConductorQueue(
     })
   }
 
-  const current = decodeGithubContent(file)
+  const current = file.content
   const next = appendRequest(current, entry, { allowDuplicate: force })
   if (next === current) return { created: false, branch }
+
+  // Appending must never drop a request another producer already staged. This
+  // is the invariant a bad read breaks, so it is asserted against the bytes
+  // about to be committed rather than trusted from the read alone.
+  const dropped = requestBlockIds(current).filter(
+    (id) => !requestBlockIds(next).includes(id),
+  )
+  if (dropped.length) {
+    throw new Error(
+      `Refusing to update ${ART_PROMPTS_PATH}: the write would drop ` +
+        `${dropped.length} existing request(s), starting with "${dropped[0]}".`,
+    )
+  }
 
   const res = await fetch(
     `${GITHUB_API}/repos/${CONDUCTOR_REPO}/contents/${encodePath(ART_PROMPTS_PATH)}`,

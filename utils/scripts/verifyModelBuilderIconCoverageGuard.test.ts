@@ -7,10 +7,18 @@
 // shape with every icon present, and (cycle 84) a leading comment
 // containing literal `{`/`}` characters, which broke the original
 // brace-matching extraction by hiding the real Facet-shaped entry entirely.
+//
+// Also covers checkComponentIconCoverageGuard()/extractComponentIconLiterals()
+// (cycle 85), the widened component-family literal scan -- its regression
+// fixture is the exact real bug this cycle found: model-builder-source-
+// picker.vue's List view-mode button referenced `kind-icon:document`, which
+// has never existed in assets/icons/.
 import assert from 'node:assert/strict'
 
 import {
+  checkComponentIconCoverageGuard,
   checkIconCoverageGuard,
+  extractComponentIconLiterals,
   extractIconEntries,
 } from './verifyModelBuilderIconCoverageGuard.js'
 
@@ -148,4 +156,85 @@ console.log(
   'Model Builder icon coverage guard checker verified: parses all three ' +
     'icon-carrying arrays, passes on the clean shape, and flags a typo in ' +
     'any of BUILD_STAGES/SOURCE_TYPES/RECIPES individually.',
+)
+
+// --- component-family literal scan (cycle 85) -------------------------------
+
+const COMPONENT_AVAILABLE_ICONS = new Set(['image', 'cards', 'list', 'check'])
+
+// The real bug shape this cycle found: a view-mode toggle array whose 'list'
+// entry references an icon that was never added to assets/icons/.
+const brokenComponentFixture = `
+const viewModes = [
+  { value: 'gallery', label: 'Gallery', icon: 'kind-icon:image' },
+  { value: 'grid', label: 'Grid', icon: 'kind-icon:cards' },
+  { value: 'list', label: 'List', icon: 'kind-icon:document' },
+]
+`
+const brokenLiterals = extractComponentIconLiterals(
+  'model-builder-source-picker.vue',
+  brokenComponentFixture,
+)
+assert.deepEqual(
+  brokenLiterals.map((entry) => entry.icon),
+  ['image', 'cards', 'document'],
+  `expected all three literal icon names to be extracted in order, got: ${JSON.stringify(brokenLiterals)}`,
+)
+const brokenComponentErrors = checkComponentIconCoverageGuard(
+  brokenLiterals,
+  COMPONENT_AVAILABLE_ICONS,
+)
+assert.equal(
+  brokenComponentErrors.length,
+  1,
+  `expected exactly 1 error for the missing 'document' icon, got: ${JSON.stringify(brokenComponentErrors)}`,
+)
+assert.ok(
+  brokenComponentErrors[0]!.includes('model-builder-source-picker.vue') &&
+    brokenComponentErrors[0]!.includes('document'),
+  `expected the error to name the file and the missing icon, got: ${brokenComponentErrors[0]}`,
+)
+
+// The fixed shape (this cycle's actual fix: 'document' -> 'list') raises no
+// errors.
+const fixedLiterals = extractComponentIconLiterals(
+  'model-builder-source-picker.vue',
+  brokenComponentFixture.replace(
+    "icon: 'kind-icon:document'",
+    "icon: 'kind-icon:list'",
+  ),
+)
+assert.equal(
+  checkComponentIconCoverageGuard(fixedLiterals, COMPONENT_AVAILABLE_ICONS)
+    .length,
+  0,
+  'expected the fixed shape to raise no errors',
+)
+
+// A file referencing the same broken icon twice (e.g. once in a data array,
+// once directly in a template attribute) is reported once, not twice.
+const repeatedLiterals = extractComponentIconLiterals(
+  'model-builder-item-panel.vue',
+  `<Icon name="kind-icon:document" />\nconst x = 'kind-icon:document'`,
+)
+assert.equal(
+  repeatedLiterals.length,
+  2,
+  `expected both raw occurrences to be extracted, got: ${JSON.stringify(repeatedLiterals)}`,
+)
+const repeatedErrors = checkComponentIconCoverageGuard(
+  repeatedLiterals,
+  COMPONENT_AVAILABLE_ICONS,
+)
+assert.equal(
+  repeatedErrors.length,
+  1,
+  `expected the duplicate reference to be deduplicated into 1 error, got: ${JSON.stringify(repeatedErrors)}`,
+)
+
+console.log(
+  'Model Builder component icon coverage guard checker verified: extracts ' +
+    'every kind-icon: literal from a component file, passes on the fixed ' +
+    "shape, flags the real 'document' regression this cycle found, and " +
+    'deduplicates repeated references within the same file.',
 )

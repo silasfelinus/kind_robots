@@ -269,10 +269,21 @@ const sourceTypes = SOURCE_TYPES
 
 type ViewMode = 'gallery' | 'grid' | 'list'
 
+// The List button's icon named a "document" glyph until this cycle
+// (model-builder/t-029) -- no matching svg has ever existed under
+// assets/icons/ (confirmed via `git log` on that directory), so the Nuxt
+// Icon module silently rendered a blank glyph for the List button with no
+// error anywhere -- the exact "hand-typed icon name silently resolves to
+// nothing" shape this task's history already hit twice for other hand-typed
+// field names (cycle 22's Bot/Facet subtitleFields, cycle 82/84's
+// SOURCE_TYPES icon coverage guard). The three-horizontal-lines glyph below
+// is the conventional "list view" icon and already exists; BUILD_STAGES' own
+// FIELDS_AND_PROMPTS entry names the same glyph but is never rendered
+// decoratively anywhere in this app today, so there is no visual collision.
 const viewModes: { value: ViewMode; label: string; icon: string }[] = [
   { value: 'gallery', label: 'Gallery', icon: 'kind-icon:image' },
   { value: 'grid', label: 'Grid', icon: 'kind-icon:cards' },
-  { value: 'list', label: 'List', icon: 'kind-icon:document' },
+  { value: 'list', label: 'List', icon: 'kind-icon:list' },
 ]
 
 const VIEW_PREFERENCE_SCOPE = 'model-builder-source-picker'

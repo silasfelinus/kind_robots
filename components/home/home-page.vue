@@ -171,7 +171,49 @@
         six short rows and scrolling it would be silly.
       -->
       <div class="flex min-w-0 flex-col gap-2 xl:min-h-0 xl:w-[22%]">
-        <home-attention class="xl:min-h-0 xl:flex-1" />
+        <!--
+          ONE PANE AT A TIME ON A PHONE. Silas, 2026-09-02: "Thinking we should
+          move the news, todo, project section to a different screen on mobile.
+          I don't love scrolling vertically forever to finish my todos before
+          seeing projects and news."
+
+          Stacked, these three are a very long page: the gate list alone has run
+          to seventy-plus rows, and projects and news sit underneath it. On a
+          desktop that is fine because they are a column beside the galleries;
+          on a phone the column unrolls into the page and buries the last two.
+
+          A switcher rather than a separate route: they are the same dashboard,
+          and a route change would cost the hero and galleries above. The tabs
+          are CSS-only below xl -- `hidden xl:flex` on the inactive panes -- so
+          the xl layout keeps all three stacked exactly as before, and nothing
+          here has to know the viewport width in JavaScript.
+        -->
+        <div
+          role="tablist"
+          aria-label="Dashboard sections"
+          class="flex shrink-0 gap-1 kr-panel-flat p-1 xl:hidden"
+        >
+          <button
+            v-for="pane in RIGHT_PANES"
+            :key="pane.key"
+            type="button"
+            role="tab"
+            :aria-selected="activePane === pane.key"
+            class="flex-1 rounded-lg px-2 py-1.5 text-[0.7rem] font-black uppercase tracking-[0.1em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+            :class="
+              activePane === pane.key
+                ? 'bg-primary text-primary-content'
+                : 'text-base-content/55 hover:text-primary'
+            "
+            @click="activePane = pane.key"
+          >
+            {{ pane.label }}
+          </button>
+        </div>
+
+        <div :class="paneClass('attention')">
+          <home-attention class="xl:min-h-0 xl:flex-1" />
+        </div>
 
         <!--
           The projects strip. Silas, 2026-08-29: "I do like how projects appear
@@ -179,88 +221,90 @@
           icon-plus-text card shape. In a narrow column that becomes one card
           per row, which is what the container-width columns already do.
         -->
-        <section
-          v-if="showcaseStore.projects.length"
-          class="flex shrink-0 flex-col gap-1.5 kr-panel-flat p-3"
-        >
-          <header class="flex flex-wrap items-baseline justify-between gap-3">
-            <h2
-              class="text-[0.7rem] font-black uppercase tracking-[0.16em] text-primary"
-            >
-              What we're building
-            </h2>
-
-            <NuxtLink
-              to="/conductor"
-              class="link link-hover text-[0.7rem] font-bold text-base-content/50 hover:text-primary"
-            >
-              every project →
-            </NuxtLink>
-          </header>
-
-          <div
-            class="grid gap-2 grid-cols-[repeat(auto-fit,minmax(min(100%,11rem),1fr))]"
+        <div :class="paneClass('projects')">
+          <section
+            v-if="showcaseStore.projects.length"
+            class="flex w-full shrink-0 flex-col gap-1.5 kr-panel-flat p-3"
           >
-            <NuxtLink
-              v-for="project in showcaseStore.projects"
-              :key="project.id"
-              :to="showcaseHref(project)"
-              class="group flex items-center gap-2 rounded-xl border border-base-300 bg-base-100 p-1.5 transition-shadow hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5"
+            <header class="flex flex-wrap items-baseline justify-between gap-3">
+              <h2
+                class="text-[0.7rem] font-black uppercase tracking-[0.16em] text-primary"
+              >
+                What we're building
+              </h2>
+
+              <NuxtLink
+                to="/conductor"
+                class="link link-hover text-[0.7rem] font-bold text-base-content/50 hover:text-primary"
+              >
+                every project →
+              </NuxtLink>
+            </header>
+
+            <div
+              class="grid gap-2 grid-cols-[repeat(auto-fit,minmax(min(100%,11rem),1fr))]"
             >
-              <div class="size-10 shrink-0 overflow-hidden rounded-lg">
-                <kr-art-plate
-                  :source="project.art"
-                  variant="icon"
-                  shape="square"
-                  frame="none"
-                  :alt="project.title"
-                  :fallback="fallbackFor(project)"
-                  placeholder-icon="kind-icon:blueprint"
-                  fit="cover"
-                />
-              </div>
-
-              <div class="min-w-0 flex-1">
-                <p
-                  class="truncate text-xs font-black leading-tight group-hover:text-primary"
-                  :title="project.title"
-                >
-                  {{ project.title }}
-                </p>
-
-                <div class="mt-1 flex items-center gap-1.5">
-                  <span
-                    v-if="priorityLetter(project)"
-                    class="grid size-3.5 shrink-0 place-items-center rounded bg-primary text-[0.5rem] font-black text-primary-content"
-                    :title="`${project.badge || 'Priority'}`"
-                  >
-                    {{ priorityLetter(project) }}
-                  </span>
-
-                  <template v-if="progressFor(project) !== null">
-                    <span
-                      class="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-base-300"
-                      :title="`${progressFor(project)}% complete`"
-                    >
-                      <span
-                        class="block h-full rounded-full bg-primary"
-                        :style="{ width: `${progressFor(project)}%` }"
-                      />
-                    </span>
-
-                    <span
-                      class="shrink-0 text-[0.6rem] font-bold tabular-nums text-base-content/55"
-                    >
-                      {{ progressFor(project) }}%
-                    </span>
-                  </template>
-
-                  <span v-else class="min-w-0 flex-1" />
+              <NuxtLink
+                v-for="project in showcaseStore.projects"
+                :key="project.id"
+                :to="showcaseHref(project)"
+                class="group flex items-center gap-2 rounded-xl border border-base-300 bg-base-100 p-1.5 transition-shadow hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5"
+              >
+                <div class="size-10 shrink-0 overflow-hidden rounded-lg">
+                  <kr-art-plate
+                    :source="project.art"
+                    variant="icon"
+                    shape="square"
+                    frame="none"
+                    :alt="project.title"
+                    :fallback="fallbackFor(project)"
+                    placeholder-icon="kind-icon:blueprint"
+                    fit="cover"
+                  />
                 </div>
-              </div>
-            </NuxtLink>
-          </div>
-        </section>
+
+                <div class="min-w-0 flex-1">
+                  <p
+                    class="truncate text-xs font-black leading-tight group-hover:text-primary"
+                    :title="project.title"
+                  >
+                    {{ project.title }}
+                  </p>
+
+                  <div class="mt-1 flex items-center gap-1.5">
+                    <span
+                      v-if="priorityLetter(project)"
+                      class="grid size-3.5 shrink-0 place-items-center rounded bg-primary text-[0.5rem] font-black text-primary-content"
+                      :title="`${project.badge || 'Priority'}`"
+                    >
+                      {{ priorityLetter(project) }}
+                    </span>
+
+                    <template v-if="progressFor(project) !== null">
+                      <span
+                        class="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-base-300"
+                        :title="`${progressFor(project)}% complete`"
+                      >
+                        <span
+                          class="block h-full rounded-full bg-primary"
+                          :style="{ width: `${progressFor(project)}%` }"
+                        />
+                      </span>
+
+                      <span
+                        class="shrink-0 text-[0.6rem] font-bold tabular-nums text-base-content/55"
+                      >
+                        {{ progressFor(project) }}%
+                      </span>
+                    </template>
+
+                    <span v-else class="min-w-0 flex-1" />
+                  </div>
+                </div>
+              </NuxtLink>
+            </div>
+          </section>
+        </div>
 
         <!--
           The feed, its heading inside its own control strip rather than in a
@@ -270,35 +314,37 @@
           count a `max-h-*` region -- nested preview, not the page's scroll
           owner, which is still pages/[...slug].vue's content-host.
         -->
-        <section
-          class="flex max-h-80 flex-col overflow-y-auto overscroll-contain kr-panel-flat p-3 xl:max-h-full xl:min-h-0 xl:flex-1"
-        >
-          <NewsfeedFeed :initial-limit="24" compact>
-            <!--
+        <div :class="paneClass('news')">
+          <section
+            class="flex max-h-80 w-full flex-col overflow-y-auto overscroll-contain kr-panel-flat p-3 xl:max-h-full xl:min-h-0 xl:flex-1"
+          >
+            <NewsfeedFeed :initial-limit="24" compact>
+              <!--
               "News", not "From around the web". Silas, 2026-09-01: "we might as
               well change 'from around the web' to 'News'". It also buys back the
               width the topic chips were short of: the heading shares one row
               with the chips, three controls and the lab link inside a 22%
               column, and the long version was eating roughly 150px of it.
             -->
-            <template #lead>
-              <h2
-                class="hidden shrink-0 text-[0.7rem] font-black uppercase tracking-[0.16em] text-primary lg:block"
-              >
-                News
-              </h2>
-            </template>
+              <template #lead>
+                <h2
+                  class="hidden shrink-0 text-[0.7rem] font-black uppercase tracking-[0.16em] text-primary lg:block"
+                >
+                  News
+                </h2>
+              </template>
 
-            <template #trail>
-              <NuxtLink
-                to="/plan/newsfeed"
-                class="link link-hover shrink-0 text-[0.7rem] font-bold text-base-content/50 hover:text-primary"
-              >
-                lab →
-              </NuxtLink>
-            </template>
-          </NewsfeedFeed>
-        </section>
+              <template #trail>
+                <NuxtLink
+                  to="/plan/newsfeed"
+                  class="link link-hover shrink-0 text-[0.7rem] font-bold text-base-content/50 hover:text-primary"
+                >
+                  lab →
+                </NuxtLink>
+              </template>
+            </NewsfeedFeed>
+          </section>
+        </div>
       </div>
     </div>
 
@@ -331,6 +377,34 @@ import {
 import { defaultArtFor } from '@/utils/defaultArtPool'
 import type { ArtVariant } from '@/utils/artImageSrc'
 import type { ArtPlateShape } from '@/utils/galleryVocabulary'
+
+/*
+ * The three right-column sections, as phone tabs. See the tablist in the
+ * template for why this is a switcher rather than a route.
+ */
+const RIGHT_PANES = [
+  { key: 'attention', label: 'Needs you' },
+  { key: 'projects', label: 'Building' },
+  { key: 'news', label: 'News' },
+] as const
+
+type RightPane = (typeof RIGHT_PANES)[number]['key']
+
+const activePane = ref<RightPane>('attention')
+
+/**
+ * Show this pane on a phone only when it is the selected tab; always show it
+ * from xl up, where the three stack in a column as they did before.
+ *
+ * `hidden xl:flex` rather than a JS breakpoint check: the xl layout must not
+ * depend on a media query listener having fired, and a server-rendered page
+ * would otherwise flash the wrong pane set before hydration.
+ */
+function paneClass(pane: RightPane): string {
+  const shared = 'min-w-0 flex-col xl:flex xl:min-h-0'
+  const grow = pane === 'projects' ? 'xl:shrink-0' : 'xl:flex-1'
+  return `${activePane.value === pane ? 'flex' : 'hidden'} ${shared} ${grow}`
+}
 
 type RailDefinition = {
   key: ShowcaseRailKey

@@ -2,7 +2,7 @@
 <template>
   <section class="kr-container flex max-w-[1600px] flex-col gap-4">
     <header
-      class="flex flex-col gap-4 rounded-3xl border border-base-300 bg-base-100 p-4 shadow-sm sm:p-5 lg:flex-row lg:items-end lg:justify-between"
+      class="kr-panel-section flex flex-col gap-4 p-4 sm:p-5 lg:flex-row lg:items-end lg:justify-between"
     >
       <div class="min-w-0 max-w-2xl">
         <p class="flex items-center gap-1.5 text-xs font-black uppercase tracking-[0.16em] text-primary">
@@ -63,7 +63,7 @@
       </div>
     </header>
 
-    <div class="flex flex-wrap items-center gap-3 rounded-3xl border border-base-300 bg-base-100 p-4 shadow-sm sm:p-5">
+    <div class="kr-panel-section flex flex-wrap items-center gap-3 p-4 sm:p-5">
       <div class="min-w-[min(100%,20rem)] flex-1">
         <div class="flex items-center justify-between gap-3">
           <div>

@@ -11,9 +11,11 @@ on:
       - 'server/utils/authGuard.ts'
       - 'server/utils/agentAttentionRequests.ts'
       - 'server/utils/agentProfileRuntime.ts'
+      - 'server/utils/agentWorkingContext.ts'
       - 'server/api/v1/agent/**'
       - 'server/api/agent-profiles/**'
       - 'utils/scripts/verifyAgentCheckins.test.ts'
+      - 'utils/scripts/verifyAgentWorkingContext.test.ts'
       - 'tests/contracts/verifyAgentAttentionRequests.ts'
       - '.github/workflows/agent-checkin-contract.yml'
   push:
@@ -26,9 +28,11 @@ on:
       - 'server/utils/authGuard.ts'
       - 'server/utils/agentAttentionRequests.ts'
       - 'server/utils/agentProfileRuntime.ts'
+      - 'server/utils/agentWorkingContext.ts'
       - 'server/api/v1/agent/**'
       - 'server/api/agent-profiles/**'
       - 'utils/scripts/verifyAgentCheckins.test.ts'
+      - 'utils/scripts/verifyAgentWorkingContext.test.ts'
       - 'tests/contracts/verifyAgentAttentionRequests.ts'
       - '.github/workflows/agent-checkin-contract.yml'
   workflow_dispatch:
@@ -51,5 +55,7 @@ jobs:
         run: npm install --include=optional
       - name: Verify agent check-in and note contract
         run: npx tsx utils/scripts/verifyAgentCheckins.test.ts
+      - name: Verify agent working-context contract
+        run: npx tsx utils/scripts/verifyAgentWorkingContext.test.ts
       - name: Verify agent human-attention request contract
         run: npx tsx tests/contracts/verifyAgentAttentionRequests.ts

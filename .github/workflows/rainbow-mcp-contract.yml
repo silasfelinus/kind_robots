@@ -10,8 +10,10 @@ on:
       - 'server/api/v1/agent/check-in.post.ts'
       - 'server/middleware/rainbow-mcp-origin.ts'
       - 'server/utils/agentProfileRuntime.ts'
+      - 'server/utils/agentWorkingContext.ts'
       - 'server/utils/rainbowMcpProtocol.ts'
       - 'utils/scripts/verifyAgentCheckins.test.ts'
+      - 'utils/scripts/verifyAgentWorkingContext.test.ts'
       - 'utils/scripts/verifyRainbowMcpProtocol.test.ts'
       - '.github/workflows/agent-checkin-contract.yml'
       - '.github/workflows/rainbow-mcp-contract.yml'
@@ -24,8 +26,10 @@ on:
       - 'server/api/v1/agent/check-in.post.ts'
       - 'server/middleware/rainbow-mcp-origin.ts'
       - 'server/utils/agentProfileRuntime.ts'
+      - 'server/utils/agentWorkingContext.ts'
       - 'server/utils/rainbowMcpProtocol.ts'
       - 'utils/scripts/verifyAgentCheckins.test.ts'
+      - 'utils/scripts/verifyAgentWorkingContext.test.ts'
       - 'utils/scripts/verifyRainbowMcpProtocol.test.ts'
       - '.github/workflows/agent-checkin-contract.yml'
       - '.github/workflows/rainbow-mcp-contract.yml'
@@ -48,3 +52,5 @@ jobs:
         run: npx tsx utils/scripts/verifyRainbowMcpProtocol.test.ts
       - name: Verify shared AgentProfile check-in contract
         run: npx tsx utils/scripts/verifyAgentCheckins.test.ts
+      - name: Verify bounded AgentProfile working context
+        run: npx tsx utils/scripts/verifyAgentWorkingContext.test.ts

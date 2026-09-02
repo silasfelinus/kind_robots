@@ -1,4 +1,16 @@
 // PUT /api/bots/:id/facets
+/*
+ * Carries the same fix as characters/[id]/facets.put.ts, which see for the full
+ * account. In short: a `{ facetIds: [], facetKeys: [...] }` body normalized to
+ * zero assignments here, and the unconditional deleteMany below still ran -- so
+ * the request cleared the Bot's Facets, wrote nothing, and answered
+ * `success: true`.
+ *
+ * Found while fixing the Character endpoint, not reported from the field: no
+ * caller currently sends slugs to a Bot, so unlike Characters this one has not
+ * actually eaten anything. It is the identical defect one route over, and a
+ * route that silently deletes and reports success is not worth leaving armed.
+ */
 import { createError, defineEventHandler, readBody } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
@@ -39,7 +51,16 @@ function normalizeSource(value: unknown): string {
   return (source || 'CURATED').slice(0, 64)
 }
 
-function normalizeAssignments(body: unknown) {
+type BotFacetAssignment = {
+  facetId: number
+  fieldKey: string
+  sortOrder: number
+  weight: number
+  source: string
+}
+
+/** The caller's explicit assignments, or null when it gave none. */
+function explicitAssignments(body: unknown): BotFacetAssignment[] | null {
   if (!body || typeof body !== 'object') {
     throw createError({ statusCode: 400, message: 'Body must be an object.' })
   }
@@ -56,16 +77,12 @@ function normalizeAssignments(body: unknown) {
     }
   }
 
-  const deduped = new Map<
-    string,
-    {
-      facetId: number
-      fieldKey: string
-      sortOrder: number
-      weight: number
-      source: string
-    }
-  >()
+  // An `assignments` array the caller actually sent is authoritative even when
+  // empty -- that is a deliberate clear. Anything else with nothing in it falls
+  // through to the facetIds/facetKeys selection.
+  if (!Array.isArray(record.assignments) && !rawAssignments.length) return null
+
+  const deduped = new Map<string, BotFacetAssignment>()
 
   for (const [index, entry] of rawAssignments.entries()) {
     const facetId = Number(entry?.facetId)
@@ -117,12 +134,46 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const assignments = normalizeAssignments(await readBody(event))
-    await resolveFacetSelection({
-      facetIds: assignments.map((assignment) => assignment.facetId),
-      userId: auth.user.id,
-      isAdmin: auth.isAdmin,
-    })
+    const body = await readBody(event)
+    let assignments = explicitAssignments(body)
+
+    if (assignments) {
+      await resolveFacetSelection({
+        facetIds: assignments.map((assignment) => assignment.facetId),
+        userId: auth.user.id,
+        isAdmin: auth.isAdmin,
+      })
+    } else {
+      const record = body as Record<string, unknown>
+      const facets = await resolveFacetSelection({
+        facetIds: record.facetIds,
+        facetKeys: record.facetKeys,
+        userId: auth.user.id,
+        isAdmin: auth.isAdmin,
+      })
+      const existing = await prisma.botFacet.findMany({
+        where: { botId: id },
+        orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }],
+      })
+      const existingFieldKey = new Map(
+        existing.map((assignment) => [assignment.facetId, assignment.fieldKey]),
+      )
+
+      /*
+       * 'facet' rather than a taxonomy-derived key: a Bot has no field/taxonomy
+       * convention the way a Character does (CHARACTER_FIELD_TAXONOMIES) or a
+       * Reward does (rewardFacetFieldKey), and this endpoint's own facetIds path
+       * already defaults to 'facet'. Inventing a second convention here would be
+       * a guess nothing reads back.
+       */
+      assignments = facets.map((facet, index) => ({
+        facetId: facet.id,
+        fieldKey: existingFieldKey.get(facet.id) ?? 'facet',
+        sortOrder: index,
+        weight: 1,
+        source: existingFieldKey.has(facet.id) ? 'CURATED' : 'MANUAL',
+      }))
+    }
 
     await prisma.$transaction(async (tx) => {
       await tx.botFacet.deleteMany({ where: { botId: id } })

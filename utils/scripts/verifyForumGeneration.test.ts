@@ -162,9 +162,10 @@ type ChatCreateInput = {
   assert.equal(result?.reason, 'job-user-mismatch')
 }
 
-const [comfyGate, generationMana, actionRoute, completionRoute, handoff] =
+const [comfyGate, krea2Gate, generationMana, actionRoute, completionRoute, handoff] =
   await Promise.all([
     readFile('server/utils/comfyGate.ts', 'utf8'),
+    readFile('server/utils/krea2GenerationGate.ts', 'utf8'),
     readFile('server/utils/generationMana.ts', 'utf8'),
     readFile('server/api/v1/forum/posts/[id]/generate-art.post.ts', 'utf8'),
     readFile('server/api/art/queue/[id]/complete.post.ts', 'utf8'),
@@ -172,13 +173,21 @@ const [comfyGate, generationMana, actionRoute, completionRoute, handoff] =
   ])
 
 assert.match(comfyGate, /requireScopedApiUser\(event, 'generation:art'\)/)
+assert.match(krea2Gate, /requireScopedApiUser\(event, 'generation:art'\)/)
+assert.match(krea2Gate, /shared|perHumanDaily|enqueueKrea2PublicFreeJob/)
 assert.match(generationMana, /requireScopedApiUser\(event, 'generation:art'\)/)
 assert.match(actionRoute, /authHasScope\(actor\.auth, 'generation:art'\)/)
+assert.match(actionRoute, /krea2GenerationGate\(event/)
+assert.doesNotMatch(actionRoute, /authAndGate\(event/)
 assert.match(actionRoute, /mode: 'attach' \| 'contribute'/)
 assert.match(actionRoute, /hasCanonicalObject/)
 assert.match(actionRoute, /const sourceBotId = post\.botId \?\? actor\.botId/)
 assert.match(actionRoute, /botId: mode === 'attach' \? sourceBotId : actor\.botId/)
-assert.match(actionRoute, /forum-art-enqueue:/)
+assert.match(actionRoute, /'forum-art-enqueue'/)
+assert.match(actionRoute, /quotaMode/)
+assert.match(actionRoute, /sharedAcrossAgents: true/)
+assert.match(actionRoute, /tokensCharged/)
+assert.match(actionRoute, /Free public capacity is currently full/)
 assert.match(completionRoute, /attachCompletedForumArt/)
 
 const handoffProse = handoff.replace(/\s+/g, ' ')

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Find or migrate exact hand-rolled kr-panel-section surfaces.
+"""Find or migrate geometry-neutral hand-rolled kr-panel-section surfaces.
 
 Dry-run is the default. Pass --write to update matching Vue files in place.
-Only the approved rounded-3xl/base-100/shadow-sm shape is touched; variants
-with different borders, backgrounds, or shadows are intentionally ignored.
+Only the approved rounded-3xl/base-100/shadow-sm shape is touched, and only
+when the source already owns full padding. Variants with different borders,
+backgrounds, shadows, or child-owned padding are intentionally ignored.
 """
 
 from __future__ import annotations
@@ -22,13 +23,21 @@ BASE_TOKENS = {
 }
 
 
+def has_base_padding(tokens: list[str]) -> bool:
+    return any(token.startswith("p-") and ":" not in token for token in tokens)
+
+
 def migrate_classes(classes: str) -> str | None:
     tokens = classes.split()
-    if "kr-panel-section" in tokens or not BASE_TOKENS.issubset(tokens):
+    if (
+        "kr-panel-section" in tokens
+        or not BASE_TOKENS.issubset(tokens)
+        or not has_base_padding(tokens)
+    ):
         return None
 
     remaining = [token for token in tokens if token not in BASE_TOKENS]
-    # kr-panel-section owns p-5. Preserve a deliberate smaller base padding override,
+    # kr-panel-section owns p-5. Preserve a deliberate base padding override,
     # while removing a redundant p-5 if the hand-rolled surface carried one.
     remaining = [token for token in remaining if token != "p-5"]
     return " ".join(["kr-panel-section", *remaining])

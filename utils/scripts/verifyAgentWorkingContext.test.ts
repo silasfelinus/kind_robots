@@ -46,9 +46,15 @@ assert.match(context, /projectAssignmentsAvailable: false/)
 assert.doesNotMatch(context, /readConductorProjection|buildConductorData|ConductorProjection/)
 
 // Both REST and the existing narrow MCP check-in keep using recordAgentCheckIn,
-// so this richer context reaches providers without adding a generic third tool.
+// so this richer context reaches providers without adding a third context tool.
+assert.match(mcp, /const TOOL_IDENTITY = 'rainbow_agent_identity'/)
 assert.match(mcp, /const TOOL_CHECK_IN = 'rainbow_check_in'/)
+assert.equal(
+  [...mcp.matchAll(/const TOOL_[A-Z_]+ =/g)].length,
+  2,
+  'Rainbow MCP must remain a two-tool bridge',
+)
 assert.match(mcp, /recordAgentCheckIn\(\{ context, \.\.\.input \}\)/)
-assert.doesNotMatch(mcp, /rainbow_working_context|generic.*proxy/i)
+assert.doesNotMatch(mcp, /rainbow_working_context/)
 
 console.log('Agent working-context contract OK')

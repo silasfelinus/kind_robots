@@ -2,9 +2,7 @@
 <template>
   <project-front-page class="kr-surface" slug="davinci" :fallback="config">
     <template #interactive>
-      <section
-        class="flex flex-col gap-4 rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm"
-      >
+      <section class="flex flex-col gap-4 kr-panel-section">
         <div class="flex items-center gap-2">
           <Icon name="kind-icon:castle" class="size-5 text-primary" />
           <h3
@@ -412,9 +410,7 @@
         </div>
       </section>
 
-      <section
-        class="flex flex-col items-start gap-3 rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm"
-      >
+      <section class="flex flex-col items-start gap-3 kr-panel-section">
         <div class="flex items-center gap-2">
           <Icon name="kind-icon:trophy" class="size-5 text-primary" />
           <h3

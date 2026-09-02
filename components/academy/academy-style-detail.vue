@@ -112,7 +112,7 @@
 
     <header
       v-else
-      class="flex flex-wrap items-start justify-between gap-3 rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm"
+      class="flex flex-wrap items-start justify-between gap-3 kr-panel-section"
     >
       <div class="flex min-w-0 flex-col gap-2">
         <div class="flex flex-wrap items-center gap-2">
@@ -325,7 +325,7 @@
           </div>
         </section>
 
-        <section class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm">
+        <section class="kr-panel-section">
           <p class="flex items-center gap-1.5 text-xs font-black uppercase tracking-[0.16em] text-base-content/45">
             <Icon name="kind-icon:chat" class="h-4 w-4" />
             Reflect

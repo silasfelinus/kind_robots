@@ -18,15 +18,24 @@
 //      are duplicate work. Keep the candidate (or an already-RUNNING sibling)
 //      and cancel the other PENDING copies.
 //
-// Explicit retries carry payload.retry and are excluded from both policies.
-// Cancellation preserves the ArtJob row/provenance while removing it from the
-// runnable queue.
+// It also acts as the final claim-time capacity gate for Rainbow's deferred
+// Krea2 public-free jobs. Those jobs own no future credit when enqueued; they
+// become runnable only after a fresh human + public daily slot is atomically
+// reserved here.
+//
+// Explicit retries carry payload.retry and are excluded from both coverage
+// policies. Cancellation preserves the ArtJob row/provenance while removing it
+// from the runnable queue.
 
 import type { ArtJob } from '~/prisma/generated/prisma/client'
 import prisma from './prisma'
 import { parseArtJobPayload } from './artJobPayload'
 import { queuedArtPrompt } from './artJobQueueSettings'
 import { normalizeArtPrompt } from './artJobProvenance'
+import {
+  getDeferredKrea2JobIds,
+  tryPromoteDeferredKrea2Job,
+} from './krea2Quota'
 
 export const FACET_COVERAGE_FIELD_ORDER = [
   'imagePath',
@@ -347,6 +356,18 @@ async function reconcileStaticDelivery(
 export async function reconcileQueuedArtJobCoverage(
   candidate: QueueCandidate,
 ): Promise<CoverageResult> {
+  const deferred = await getDeferredKrea2JobIds([candidate.id])
+  if (deferred.has(candidate.id)) {
+    const promoted = await tryPromoteDeferredKrea2Job(candidate.id)
+    if (!promoted) {
+      return {
+        skipCandidate: true,
+        cancelledCount: 0,
+        reason: 'krea2-free-capacity-wait',
+      }
+    }
+  }
+
   const parsedPayload = parseArtJobPayload(candidate.payload)
   const facet = await reconcileFacetCoverage(candidate, parsedPayload)
   if (facet) return facet

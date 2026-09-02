@@ -350,9 +350,19 @@ const atEnd = ref(false)
  * whole tiles land nearest it, so a shelf always ends on a tile boundary at any
  * width. `Math.round` rather than `floor`: flooring would rather grow tiles 40%
  * than fit one more, which reads worse than a slightly narrow tile.
+ *
+ * MAX_GROWTH is the other half of that, and it was missing. Rounding down to one
+ * column is the same "grow the tile enormously" move the comment above rejects:
+ * a 256px mobile shelf against the 192px wide ideal rounds to a single 256px
+ * tile, a third over target and most of a phone screen. Silas, 2026-09-02:
+ * "Still weird use of whitespace on the facet section on mobile when I scroll."
+ * So a tile may run up to a quarter over the ideal and no further; past that,
+ * fit one more column instead. Desktop is unaffected -- its shelves land at 149
+ * and 228 against ceilings of 160 and 240.
  */
 const GAP = 8 // gap-2
 const IDEAL_TILE = { wide: 192, portrait: 128 } as const
+const MAX_GROWTH = 1.25
 
 const measuredTileWidth = ref(0)
 
@@ -377,11 +387,17 @@ function fitTiles(available: number): { columns: number; width: number } {
     props.shape === 'wide' || props.shape === 'hero'
       ? IDEAL_TILE.wide
       : IDEAL_TILE.portrait
-  const columns = Math.max(1, Math.round((available + GAP) / (ideal + GAP)))
-  return {
-    columns,
-    width: Math.floor((available - (columns - 1) * GAP) / columns),
+  let columns = Math.max(1, Math.round((available + GAP) / (ideal + GAP)))
+  const widthAt = (n: number) => Math.floor((available - (n - 1) * GAP) / n)
+
+  // One extra column rather than one oversized tile. Guarded on the resulting
+  // width staying usable, so a very narrow track still yields a single tile
+  // instead of shrinking towards zero.
+  if (widthAt(columns) > ideal * MAX_GROWTH && widthAt(columns + 1) >= 96) {
+    columns += 1
   }
+
+  return { columns, width: widthAt(columns) }
 }
 
 /**

@@ -5,10 +5,7 @@
   empty or missing, so a project without art doesn't leave a hole.
 -->
 <template>
-  <section
-    v-if="images.length"
-    class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm"
-  >
+  <section v-if="images.length" class="kr-panel-section">
     <div class="mb-3 flex items-center gap-2">
       <Icon name="kind-icon:image" class="size-5 text-primary" />
       <h3

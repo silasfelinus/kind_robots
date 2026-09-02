@@ -2,9 +2,7 @@
 <template>
   <project-front-page class="kr-surface" slug="alexa-integration" :fallback="config">
     <template #interactive>
-      <section
-        class="flex flex-col gap-4 rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm"
-      >
+      <section class="flex flex-col gap-4 kr-panel-section">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div class="flex items-center gap-2">
             <Icon name="kind-icon:server" class="size-5 text-primary" />
@@ -82,9 +80,7 @@
         </NuxtLink>
       </section>
 
-      <section
-        class="flex flex-col gap-3 rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm"
-      >
+      <section class="flex flex-col gap-3 kr-panel-section">
         <div class="flex items-center gap-2">
           <Icon name="kind-icon:book" class="size-5 text-primary" />
           <h3

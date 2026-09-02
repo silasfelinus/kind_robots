@@ -2,9 +2,7 @@
 <template>
   <project-front-page class="kr-surface" slug="coat-dance" :fallback="config">
     <template #interactive>
-      <section
-        class="flex flex-col gap-3 rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm"
-      >
+      <section class="flex flex-col gap-3 kr-panel-section">
         <div class="flex items-center gap-2">
           <Icon name="kind-icon:sparkles" class="size-5 text-primary" />
           <h3

@@ -5,7 +5,7 @@
   deliverables, persisted via projectStore.updateProject.
 -->
 <template>
-  <section class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm">
+  <section class="kr-panel-section">
     <div class="mb-3 flex items-center gap-2">
       <Icon name="kind-icon:check-circle" class="size-5 text-primary" />
       <h3

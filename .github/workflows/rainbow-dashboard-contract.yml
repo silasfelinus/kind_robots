@@ -1,0 +1,34 @@
+name: Rainbow Dashboard Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'server/api/v1/rainbow/dashboard.get.ts'
+      - 'server/utils/rainbowDashboard.ts'
+      - 'utils/scripts/verifyRainbowDashboard.test.ts'
+      - '.github/workflows/rainbow-dashboard-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'server/api/v1/rainbow/dashboard.get.ts'
+      - 'server/utils/rainbowDashboard.ts'
+      - 'utils/scripts/verifyRainbowDashboard.test.ts'
+      - '.github/workflows/rainbow-dashboard-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm install --include=optional
+      - name: Verify private Rainbow dashboard workspace contract
+        run: npx tsx utils/scripts/verifyRainbowDashboard.test.ts

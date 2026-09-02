@@ -8,7 +8,7 @@
     aria-modal="true"
   >
     <div
-      class="pointer-events-auto mx-auto w-full max-w-md overflow-hidden rounded-2xl border border-accent/40 bg-base-100 shadow-2xl shadow-accent/20"
+      class="pointer-events-auto kr-container max-w-md overflow-hidden rounded-2xl border border-accent/40 bg-base-100 shadow-2xl shadow-accent/20"
       @click.stop
     >
       <!-- Coloured top band -->

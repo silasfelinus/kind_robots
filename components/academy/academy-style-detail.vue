@@ -191,7 +191,7 @@
       class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,24rem),1fr))] items-start gap-5"
     >
       <div class="flex min-w-0 flex-col gap-5">
-        <section class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6">
+        <section class="kr-panel-section sm:p-6">
           <p class="flex items-center gap-1.5 text-xs font-black uppercase tracking-[0.16em] text-primary">
             <Icon name="kind-icon:search" class="h-4 w-4" />
             How to spot it
@@ -213,7 +213,7 @@
           </div>
         </section>
 
-        <section class="rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm sm:p-6">
+        <section class="kr-panel-section sm:p-6">
           <div class="flex flex-wrap items-end justify-between gap-2">
             <div>
               <p class="flex items-center gap-1.5 text-xs font-black uppercase tracking-[0.16em] text-secondary">

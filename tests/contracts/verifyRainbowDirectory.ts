@@ -11,6 +11,7 @@ const human = readFileSync('server/api/rainbow/directory/humans/[id].get.ts', 'u
 const agent = readFileSync('server/api/rainbow/directory/agents/[id].get.ts', 'utf8')
 const preferenceGet = readFileSync('server/api/rainbow/directory/preferences.get.ts', 'utf8')
 const preferencePatch = readFileSync('server/api/rainbow/directory/preferences.patch.ts', 'utf8')
+const profileGet = readFileSync('server/api/rainbow/directory/profile.get.ts', 'utf8')
 const profilePatch = readFileSync('server/api/rainbow/directory/profile.patch.ts', 'utf8')
 
 // Humans are private-by-default and preference storage is additive only.
@@ -44,15 +45,17 @@ assert.match(agent, /getPublicRainbowAgent/)
 assert.match(human, /404/)
 assert.match(agent, /404/)
 
-// Listing consent and safe canonical display-profile edits are human or
+// Listing consent and safe canonical display-profile reads/edits are human or
 // trusted-Rainbow actions, never AgentCredential self-service.
-for (const source of [preferenceGet, preferencePatch, profilePatch]) {
+for (const source of [preferenceGet, preferencePatch, profileGet, profilePatch]) {
   assert.match(source, /requireHumanOrRainbowApiUser\(event\)/)
 }
 assert.match(preferencePatch, /typeof value !== 'boolean'/)
-assert.match(profilePatch, /avatarImage/)
-assert.match(profilePatch, /bio/)
-assert.match(profilePatch, /designerName/)
-assert.doesNotMatch(profilePatch, /email|password|apiKey|tokens|mana/)
+for (const source of [profileGet, profilePatch]) {
+  assert.match(source, /avatarImage/)
+  assert.match(source, /bio/)
+  assert.match(source, /designerName/)
+  assert.doesNotMatch(source, /email|password|apiKey|tokens|mana/)
+}
 
 console.log('Rainbow community directory contract OK')

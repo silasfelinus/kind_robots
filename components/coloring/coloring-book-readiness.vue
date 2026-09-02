@@ -1,5 +1,5 @@
 <template>
-  <section class="flex flex-col gap-4 rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm">
+  <section class="flex flex-col gap-4 kr-panel-section">
     <header class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
       <div>
         <div class="flex items-center gap-2">

@@ -156,6 +156,7 @@
     "seed:resource-commercial-safe": "tsx scripts/seed_resource_commercial_safe.ts",
     "generate:achievement-art": "tsx scripts/generate_achievement_art.ts",
     "test:art-request-yaml": "tsx utils/scripts/verifyArtRequestYaml.ts && tsx utils/scripts/verifyArtAssetSuggest.ts",
+    "test:github-file-contents": "tsx utils/scripts/verifyGithubFileContents.ts",
     "test:art-prompt-repair": "tsx utils/scripts/verifyArtPromptRepair.ts",
     "test:art-prompt-contract": "tsx utils/scripts/verifyArtPromptContract.ts",
     "test:artjob-sampler-repair": "tsx utils/scripts/verifyArtJobSamplerRepair.ts",

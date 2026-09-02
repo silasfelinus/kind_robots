@@ -137,6 +137,19 @@ function requestBlocks(content: string): string[] {
     .filter((block) => block.startsWith('- id:'))
 }
 
+/**
+ * Every request id currently present in the file, in order.
+ *
+ * appendRequest only ever adds, so a caller can compare this before and after
+ * to prove a write is append-only. That check is what stands between a bad read
+ * of art-prompts.yaml and a commit that silently deletes the queue.
+ */
+export function requestBlockIds(content: string): string[] {
+  return requestBlocks(content)
+    .map((block) => requestValue(block, 'id'))
+    .filter(Boolean)
+}
+
 export function requestAlreadyQueued(
   content: string,
   entry: ArtQueueEntry,

@@ -66,8 +66,8 @@ export default defineEventHandler(async (event) => {
       typeof raw.negativePrompt === 'string' ? raw.negativePrompt.trim() : ''
     const width = integerOrDefault(raw.width, 1024, 256, 2048)
     const height = integerOrDefault(raw.height, 1024, 256, 2048)
-    const steps = integerOrDefault(raw.steps, 8, 1, 20)
-    const cfg = finiteOrDefault(raw.cfg, 1, 0, 20)
+    const steps = integerOrDefault(raw.steps, 8, 1, 8)
+    const cfg = finiteOrDefault(raw.cfg, 1, 0, 1)
     const seed = raw.seed == null ? null : integerOrDefault(raw.seed, 0, 0, 2_147_483_647)
     const sampler = typeof raw.sampler === 'string' ? raw.sampler.trim() || null : null
     const scheduler =
@@ -108,7 +108,6 @@ export default defineEventHandler(async (event) => {
           },
           rainbowQuota: {
             requestedAt: new Date().toISOString(),
-            requestedByAgentProfileId: gate.quota?.deferredForUser != null ? undefined : undefined,
           },
         }),
         priority: 100,

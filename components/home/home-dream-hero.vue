@@ -322,12 +322,30 @@
         with image and title in the space the other cards have image, title, and
         description."
 
-        Same width as a cast card (w-44) so the row keeps its rhythm, and each
-        cell is still a link that opens the interstitial. A facet is a one-word
-        tag on the dream rather than a character in it, which is why it gets a
-        quarter of a card while a character gets a whole one.
+        SIZED FROM THE ROW HEIGHT, NOT FROM A CARD WIDTH. It first took one cast
+        card's slot (w-44), which sounded right -- four quarter-cards in the
+        space of one -- and measured terribly: at 1920 each cell came out 86 wide
+        by 208 tall, so a square facet illustration was cropped to a vertical
+        sliver of itself. Silas, 2026-09-02: "weird whitespace formatting
+        preventing the facets from full size."
+
+        `aspect-[9/10]` derives the block's width from the band height instead,
+        which is the one number that actually decides how tall a cell is. At a
+        420px band that is a 378px block: two ~187px columns, each cell ~208 tall
+        with a ~16px caption, so the picture above it is ~187x188 -- square, and
+        the whole facet is visible. It rescales with the band rather than being
+        correct at one viewport, which is the mistake `w-44` made.
+
+        The row scrolls to reach it, and that is fine: Silas, 2026-09-01, "it's
+        reasonable that there will be a need to scroll on smaller displays, but
+        if so, we need an actual scroll selector" -- the chevrons are that.
+        Cramming four facets into a card's width to avoid one chevron press is
+        what produced the slivers.
       -->
-        <div v-if="facets.length" class="flex h-full w-44 shrink-0 flex-col">
+        <div
+          v-if="facets.length"
+          class="flex h-full shrink-0 flex-col lg:aspect-[9/10]"
+        >
           <div class="grid min-h-0 flex-1 grid-cols-2 grid-rows-2 gap-1">
             <a
               v-for="facet in facets.slice(0, 4)"
@@ -486,15 +504,45 @@ function measureCast(): void {
   castAtEnd.value = element.scrollLeft >= max - 2
 }
 
-/** One press moves about a screenful, keeping a card of context. */
+/**
+ * One press lands on whole slots, never mid-card.
+ *
+ * A percentage-of-width scroll is fine on a rail of uniform tiles and wrong
+ * here: this row is five 176px cards followed by a ~378px facet block, so any
+ * fixed distance stops partway through something. Scrolling forward instead
+ * aligns the first slot that is currently overflowing to the right edge, which
+ * means one press from the start brings the facets fully into view -- the point
+ * of widening them at all.
+ */
 function scrollCast(direction: 1 | -1): void {
   const element = castTrack.value
   if (!element) return
 
-  element.scrollBy({
-    left: direction * Math.max(element.clientWidth * 0.8, 176),
-    behavior: 'smooth',
-  })
+  const slots = Array.from(element.children)
+  const left = element.scrollLeft
+  const right = left + element.clientWidth
+  const offset = (slot: Element) =>
+    (slot as HTMLElement).offsetLeft - element.offsetLeft
+
+  if (direction === 1) {
+    const next = slots.find(
+      (slot) => offset(slot) + slot.clientWidth > right + 1,
+    )
+    if (!next) return
+    // Align its right edge, so the slot arrives whole rather than just started.
+    element.scrollTo({
+      left: Math.min(
+        offset(next) + next.clientWidth - element.clientWidth,
+        element.scrollWidth - element.clientWidth,
+      ),
+      behavior: 'smooth',
+    })
+    return
+  }
+
+  const previous = [...slots].reverse().find((slot) => offset(slot) < left - 1)
+  if (!previous) return
+  element.scrollTo({ left: Math.max(offset(previous), 0), behavior: 'smooth' })
 }
 
 let castObserver: ResizeObserver | null = null

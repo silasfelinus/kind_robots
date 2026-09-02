@@ -191,6 +191,7 @@
         :data-theme="themeFor(item)"
         class="group flex h-full shrink-0 flex-col overflow-hidden rounded-xl border-2 border-primary/70 bg-base-100 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:-translate-y-0.5"
         :class="cardWidthClass"
+        :style="tileStyle"
         :title="item.subtitle ? `${item.title} — ${item.subtitle}` : item.title"
         @click="onTileClick($event, item)"
       >
@@ -331,9 +332,57 @@ const atEnd = ref(false)
  * ~90px short of the cell the six object shelves define beside it, leaving a
  * dead corner. w-48 fills it, and bigger plates suit the art queue anyway.
  */
+/*
+ * WHOLE TILES ONLY. Silas, 2026-09-02: "the other new objects should be properly
+ * sized to fit their container space, no allow those partial cutoffs."
+ *
+ * A fixed tile width leaves whatever the track's width happens not to divide by.
+ * Measured at 1920: a 465px shelf fitted three 128px tiles and left 65px, which
+ * rendered as a 57px sliver of a fourth card at every shelf edge, on all six
+ * shelves at once.
+ *
+ * The sliver used to be deliberate -- it was the only thing telling you the row
+ * continued. That argument expired when the chevrons landed (2026-09-01, at
+ * Silas's "we need an actual scroll selector"): the affordance now has its own
+ * control, so the sliver is just a broken-looking edge.
+ *
+ * IDEAL_TILE is a target, not a size. The track is divided into however many
+ * whole tiles land nearest it, so a shelf always ends on a tile boundary at any
+ * width. `Math.round` rather than `floor`: flooring would rather grow tiles 40%
+ * than fit one more, which reads worse than a slightly narrow tile.
+ */
+const GAP = 8 // gap-2
+const IDEAL_TILE = { wide: 192, portrait: 128 } as const
+
+const measuredTileWidth = ref(0)
+
 const cardWidthClass = computed(() =>
   props.shape === 'wide' || props.shape === 'hero' ? 'w-48' : 'w-32',
 )
+
+/*
+ * The class above stays as the pre-measurement value, so server-rendered markup
+ * and the first paint are already the right ballpark rather than zero-width;
+ * the inline width takes over on mount and on every resize.
+ */
+const tileStyle = computed(() =>
+  measuredTileWidth.value
+    ? { width: `${measuredTileWidth.value}px` }
+    : undefined,
+)
+
+/** How many whole tiles the track is currently divided into. */
+function fitTiles(available: number): { columns: number; width: number } {
+  const ideal =
+    props.shape === 'wide' || props.shape === 'hero'
+      ? IDEAL_TILE.wide
+      : IDEAL_TILE.portrait
+  const columns = Math.max(1, Math.round((available + GAP) / (ideal + GAP)))
+  return {
+    columns,
+    width: Math.floor((available - (columns - 1) * GAP) / columns),
+  }
+}
 
 /**
  * What a plain left click on a tile does: open the interstitial on an
@@ -414,19 +463,30 @@ function measure(): void {
   const element = track.value
   if (!element) return
 
+  // Sized before the overflow is read, because the width IS what decides
+  // whether the track overflows at all.
+  measuredTileWidth.value = fitTiles(element.clientWidth).width
+
   const max = element.scrollWidth - element.clientWidth
   canScroll.value = max > 2
   atStart.value = element.scrollLeft <= 2
   atEnd.value = element.scrollLeft >= max - 2
 }
 
-/** One press moves about a screenful of shelf, keeping a tile of context. */
+/**
+ * One press moves a whole page of whole tiles.
+ *
+ * Deliberately the full page rather than the 80% it used to scroll: 80% of a
+ * track that holds exactly N tiles lands mid-tile, which would put back the
+ * clipped edge this all exists to remove.
+ */
 function scrollBy(direction: 1 | -1): void {
   const element = track.value
   if (!element) return
 
+  const { columns, width } = fitTiles(element.clientWidth)
   element.scrollBy({
-    left: direction * Math.max(element.clientWidth * 0.8, 160),
+    left: direction * columns * (width + GAP),
     behavior: 'smooth',
   })
 }

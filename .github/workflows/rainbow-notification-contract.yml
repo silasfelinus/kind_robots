@@ -1,0 +1,22 @@
+name: Rainbow Notification Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'prisma/migrations/**rainbow_notification_preferences/**'
+      - 'server/utils/rainbowNotifications.ts'
+      - 'server/api/rainbow/notifications/**'
+      - 'tests/contracts/verifyRainbowNotifications.ts'
+      - '.github/workflows/rainbow-notification-contract.yml'
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci
+      - run: npx tsx tests/contracts/verifyRainbowNotifications.ts

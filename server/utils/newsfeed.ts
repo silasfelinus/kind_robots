@@ -295,16 +295,40 @@ export interface AggregatedFeed {
   sourceErrors: Array<{ sourceId: string; error: string; stale?: boolean }>
 }
 
+/*
+ * WHOLE WORDS, NOT SUBSTRINGS. `includeTags` and `excludeTags` were declared but
+ * never used by any feed, and a plain `.includes()` is why they could not be:
+ * the tag that matters most here is "ai", and as a substring that matches said,
+ * maintain, available, again, detail, campaign, and most of the English
+ * language. A feed narrowed with it would have filtered nothing.
+ *
+ * The boundary is non-alphanumeric on both sides, so "ai" matches "AI",
+ * "AI-generated", "(AI)" and "about AI." but not "said" -- which is what makes
+ * a broad-but-fresh source usable as an AI source.
+ */
+const tagPatterns = new Map<string, RegExp>()
+
+function tagPattern(tag: string): RegExp {
+  const key = tag.toLowerCase()
+  let pattern = tagPatterns.get(key)
+  if (!pattern) {
+    const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    pattern = new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, 'i')
+    tagPatterns.set(key, pattern)
+  }
+  return pattern
+}
+
 function matchesTagFilters(item: NewsFeedItem, feed: FeedDefinition): boolean {
   const haystack = [item.title, item.summary, ...item.category]
     .join(' ')
     .toLowerCase()
 
-  if (feed.excludeTags?.some((tag) => haystack.includes(tag.toLowerCase()))) {
+  if (feed.excludeTags?.some((tag) => tagPattern(tag).test(haystack))) {
     return false
   }
   if (feed.includeTags?.length) {
-    return feed.includeTags.some((tag) => haystack.includes(tag.toLowerCase()))
+    return feed.includeTags.some((tag) => tagPattern(tag).test(haystack))
   }
   return true
 }

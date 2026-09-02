@@ -154,8 +154,8 @@ async function loadRecentObjects(input: { userId: number; includeMature: boolean
       detail: clip(item.promptString || item.artPrompt, 280),
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,
-      isPublic: item.isPublic,
-      isMature: item.isMature,
+      isPublic: Boolean(item.isPublic),
+      isMature: Boolean(item.isMature),
       imagePath: item.thumbnailPath || item.cardPath || item.imagePath,
     })),
     ...characters.map((item) => ({
@@ -165,8 +165,8 @@ async function loadRecentObjects(input: { userId: number; includeMature: boolean
       detail: clip([item.species, item.role].filter(Boolean).join(' · '), 280),
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,
-      isPublic: item.isPublic,
-      isMature: item.isMature,
+      isPublic: Boolean(item.isPublic),
+      isMature: Boolean(item.isMature),
       imagePath: item.iconPath || item.cardPath || item.imagePath,
     })),
     ...projects.map((item) => ({
@@ -176,8 +176,8 @@ async function loadRecentObjects(input: { userId: number; includeMature: boolean
       detail: clip(item.description, 280),
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,
-      isPublic: item.isPublic,
-      isMature: item.isMature,
+      isPublic: Boolean(item.isPublic),
+      isMature: Boolean(item.isMature),
       imagePath: item.iconPath || item.cardPath || item.imagePath,
     })),
   ]

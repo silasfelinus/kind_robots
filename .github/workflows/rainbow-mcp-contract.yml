@@ -5,7 +5,10 @@ on:
     branches: [main]
     paths:
       - 'server/api/v1/mcp.post.ts'
+      - 'server/api/v1/mcp.get.ts'
+      - 'server/api/v1/mcp.delete.ts'
       - 'server/api/v1/agent/check-in.post.ts'
+      - 'server/middleware/rainbow-mcp-origin.ts'
       - 'server/utils/agentProfileRuntime.ts'
       - 'server/utils/rainbowMcpProtocol.ts'
       - 'utils/scripts/verifyAgentCheckins.test.ts'
@@ -16,7 +19,10 @@ on:
     branches: [main]
     paths:
       - 'server/api/v1/mcp.post.ts'
+      - 'server/api/v1/mcp.get.ts'
+      - 'server/api/v1/mcp.delete.ts'
       - 'server/api/v1/agent/check-in.post.ts'
+      - 'server/middleware/rainbow-mcp-origin.ts'
       - 'server/utils/agentProfileRuntime.ts'
       - 'server/utils/rainbowMcpProtocol.ts'
       - 'utils/scripts/verifyAgentCheckins.test.ts'

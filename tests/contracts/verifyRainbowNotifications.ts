@@ -52,7 +52,7 @@ for (const route of [preferenceGet, preferencePatch]) {
   assert.doesNotMatch(route, /userId.*readBody|body\.userId/)
 }
 for (const field of ['agentAttention', 'forumReplyMention', 'scheduledAgentFailure']) {
-  assert.match(preferencePatch, new RegExp(`requiredBoolean\\(body\\.${field}`))
+  assert.match(preferencePatch, new RegExp(`requiredBoolean\\(\\s*body\\.${field}`))
 }
 assert.doesNotMatch(preferencePatch, /Brevo|sendTransactionalEmail|newsletter/i)
 

@@ -149,7 +149,11 @@ export const FEED_SOURCES: FeedSourceDefinition[] = [
     name: 'MarkTechPost',
     url: 'https://www.marktechpost.com/feed/',
     kind: 'rss',
-    verified: true,
+    /*
+     * Answers 202 with an empty body 2026-09-02 -- a soft failure that never
+     * raised, so it counted as a working source while contributing nothing.
+     */
+    verified: false,
   },
   {
     id: 'huggingface-blog',
@@ -218,6 +222,48 @@ export const FEED_SOURCES: FeedSourceDefinition[] = [
     verified: true,
   },
   {
+    /*
+     * BROAD SOURCES, NARROWED BY includeTags. Silas, 2026-09-02: "the news is
+     * still waaaay old. why am I seeing news from 4-6 days ago?"
+     *
+     * Because ai-gaming was running on one source. pcgamer-ai has 404'd since
+     * 2026-07-19, and Kotaku's AI tag publishes roughly twice a week, so the
+     * top of the feed was routinely 4-6 days old with no error to show for it.
+     *
+     * These four are general gaming feeds rather than AI-tagged ones -- no
+     * outlet outside Kotaku publishes a working AI-only gaming feed -- so the
+     * feed's includeTags narrows them to the AI stories. Measured 2026-09-02:
+     * newest item 0.1-0.4 days old across all four, against Kotaku's 4.
+     */
+    id: 'gamedeveloper',
+    name: 'Game Developer',
+    url: 'https://www.gamedeveloper.com/rss.xml',
+    kind: 'rss',
+    verified: true,
+  },
+  {
+    id: 'rockpapershotgun',
+    name: 'Rock Paper Shotgun',
+    url: 'https://www.rockpapershotgun.com/feed',
+    kind: 'rss',
+    verified: true,
+  },
+  {
+    id: 'theverge-games',
+    name: 'The Verge — Games',
+    url: 'https://www.theverge.com/rss/games/index.xml',
+    kind: 'rss',
+    verified: true,
+  },
+  {
+    /* 3D/art tooling, where AI-in-games coverage actually concentrates. */
+    id: '80lv',
+    name: '80.lv',
+    url: 'https://80.lv/feed/',
+    kind: 'rss',
+    verified: true,
+  },
+  {
     // Still unreachable as of 2026-07-19 (t-013): no working tag/category feed
     // found (/tag/ai/rss, /tag/ai/feed, /software/ai/feed, /software/ai/rss all
     // 404 -- pcgamer.com/tag/ai/ itself 301s to /software/ai/, a page with no
@@ -263,11 +309,40 @@ export const FEED_SOURCES: FeedSourceDefinition[] = [
     verified: true,
   },
   {
+    /* Live-checked 2026-09-02: 40 items, newest 1.0 days old. */
+    id: 'stackoverflow-blog',
+    name: 'Stack Overflow Blog',
+    url: 'https://stackoverflow.blog/feed/',
+    kind: 'rss',
+    verified: true,
+  },
+  {
+    /* Live-checked 2026-09-02: newest 1.8 days old. */
+    id: 'smashingmag',
+    name: 'Smashing Magazine',
+    url: 'https://www.smashingmagazine.com/feed/',
+    kind: 'rss',
+    verified: true,
+  },
+  {
+    /* Live-checked 2026-09-02: 10 items, newest 0.3 days old. */
+    id: 'theverge-ai',
+    name: 'The Verge — AI',
+    url: 'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml',
+    kind: 'rss',
+    verified: true,
+  },
+  {
     id: 'css-tricks',
     name: 'CSS-Tricks',
     url: 'https://css-tricks.com/feed/',
     kind: 'rss',
-    verified: true,
+    /*
+     * Returned HTTP 500 on every check 2026-09-02. Marked unverified so it
+     * stops being fetched, rather than left `true` and quietly halving
+     * developer-tips.
+     */
+    verified: false,
   },
 ]
 
@@ -282,7 +357,12 @@ export const FEED_DEFINITIONS: FeedDefinition[] = [
     description: 'What is shipping and changing across the AI industry.',
     icon: 'kind-icon:terminal',
     defaultEnabled: true,
-    sourceIds: ['techcrunch-ai', 'technologyreview-ai', 'marktechpost'],
+    sourceIds: [
+      'techcrunch-ai',
+      'technologyreview-ai',
+      'marktechpost',
+      'theverge-ai',
+    ],
     defaultSort: 'recent',
     topicPolitical: false,
   },
@@ -322,7 +402,39 @@ export const FEED_DEFINITIONS: FeedDefinition[] = [
     description: 'AI showing up in games — NPCs, tools, and player experience.',
     icon: 'kind-icon:players',
     defaultEnabled: true,
-    sourceIds: ['kotaku-ai', 'pcgamer-ai'],
+    sourceIds: [
+      'kotaku-ai',
+      'pcgamer-ai',
+      'gamedeveloper',
+      'rockpapershotgun',
+      'theverge-games',
+      '80lv',
+    ],
+    /*
+     * The four general gaming sources above would otherwise turn this into a
+     * general gaming feed. These keep it what its description says it is.
+     * Matching is whole-word (see matchesTagFilters), which is the only reason
+     * a two-letter tag like 'ai' is usable at all.
+     */
+    includeTags: [
+      'ai',
+      'a.i.',
+      'artificial intelligence',
+      'machine learning',
+      'llm',
+      'llms',
+      'chatgpt',
+      'openai',
+      'anthropic',
+      'generative',
+      'genai',
+      'neural',
+      'deepfake',
+      'copilot',
+      'midjourney',
+      'stable diffusion',
+      'procedural generation',
+    ],
     defaultSort: 'recent',
     topicPolitical: false,
   },
@@ -347,7 +459,12 @@ export const FEED_DEFINITIONS: FeedDefinition[] = [
     description: 'Practical engineering guidance worth reading today.',
     icon: 'kind-icon:code',
     defaultEnabled: true,
-    sourceIds: ['devto-tips', 'css-tricks'],
+    sourceIds: [
+      'devto-tips',
+      'css-tricks',
+      'stackoverflow-blog',
+      'smashingmag',
+    ],
     defaultSort: 'recent',
     topicPolitical: false,
   },

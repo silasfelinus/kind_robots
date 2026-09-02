@@ -10,6 +10,13 @@ export const MCP_CLIENT_CAPABILITIES_META_KEY =
   'io.modelcontextprotocol/clientCapabilities'
 export const MCP_SERVER_INFO_META_KEY = 'io.modelcontextprotocol/serverInfo'
 
+const PUBLIC_MCP_ORIGINS = new Set([
+  'https://kindrobots.org',
+  'https://www.kindrobots.org',
+  'https://rainbowbutterflies.org',
+  'https://www.rainbowbutterflies.org',
+])
+
 export type RainbowMcpRequest = {
   jsonrpc?: unknown
   id?: unknown
@@ -36,6 +43,25 @@ export function isMcpObject(value: unknown): value is Record<string, unknown> {
 
 export function isKnownMcpProtocolVersion(value: string): boolean {
   return (SUPPORTED_MCP_PROTOCOL_VERSIONS as readonly string[]).includes(value)
+}
+
+export function isAllowedMcpOrigin(
+  origin: string | undefined,
+  production = true,
+): boolean {
+  if (!origin) return true
+  if (PUBLIC_MCP_ORIGINS.has(origin)) return true
+  if (production) return false
+
+  try {
+    const parsed = new URL(origin)
+    return (
+      parsed.protocol === 'http:' &&
+      (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1')
+    )
+  } catch {
+    return false
+  }
 }
 
 export function requestClaimsModernMcp(

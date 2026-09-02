@@ -7,6 +7,7 @@ import { claimResolvedAgentAttentionRequests } from './agentAttentionRequests'
 const AGENT_CHECKIN_STATUSES = new Set(['idle', 'working', 'blocked', 'completed'])
 const CHECKIN_WINDOW_MS = 10 * 60 * 1000
 const CHECKIN_WINDOW_LIMIT = 30
+const CHECKIN_WINDOW_CLEANUP_THRESHOLD = 1000
 const checkInWindows = new Map<number, { startedAt: number; count: number }>()
 
 type AgentCheckInInput = {
@@ -104,6 +105,16 @@ export async function requireBoundAgentProfile(
   }
 }
 
+function cleanupExpiredCheckInWindows(now: number) {
+  if (checkInWindows.size < CHECKIN_WINDOW_CLEANUP_THRESHOLD) return
+
+  for (const [credentialId, window] of checkInWindows) {
+    if (now - window.startedAt >= CHECKIN_WINDOW_MS) {
+      checkInWindows.delete(credentialId)
+    }
+  }
+}
+
 export function assertAgentCheckInRateAllowed(event: H3Event, credentialId: number | undefined) {
   if (!credentialId) {
     throw createError({
@@ -113,6 +124,7 @@ export function assertAgentCheckInRateAllowed(event: H3Event, credentialId: numb
   }
 
   const now = Date.now()
+  cleanupExpiredCheckInWindows(now)
   const existing = checkInWindows.get(credentialId)
   if (!existing || now - existing.startedAt >= CHECKIN_WINDOW_MS) {
     checkInWindows.set(credentialId, { startedAt: now, count: 1 })

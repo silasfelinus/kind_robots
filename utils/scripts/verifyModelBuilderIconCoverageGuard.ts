@@ -35,6 +35,18 @@
 // already uses for exactly this reason -- it never looks at brace characters
 // at all, so a comment (or any other free text) containing them can't
 // desynchronize the split.
+//
+// Widened (cycle 85) -- this guard only ever read modelBuilderRecipes.ts, but
+// every components/model-builder/*.vue file also carries its own hand-typed
+// `'kind-icon:<name>'` literals outside those three arrays (button icons,
+// view-mode toggles, status glyphs). Those were entirely uncovered: found via
+// this exact gap, model-builder-source-picker.vue's List view-mode button
+// referenced `kind-icon:document`, and assets/icons/document.svg has never
+// existed in this repo's history -- the button silently rendered a blank
+// glyph with no error anywhere, live on production. checkComponentIconCoverage
+// below extends the same "every 'kind-icon:<name>' literal resolves to a real
+// assets/icons/<name>.svg file" contract across the whole component family,
+// not just the three recipe-catalog arrays.
 import { readFileSync, readdirSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -45,6 +57,10 @@ const repositoryRoot = resolve(scriptDirectory, '../..')
 const MODEL_BUILDER_RECIPES_PATH = join(
   repositoryRoot,
   'stores/helpers/modelBuilderRecipes.ts',
+)
+const MODEL_BUILDER_COMPONENTS_DIRECTORY = join(
+  repositoryRoot,
+  'components/model-builder',
 )
 const ICONS_DIRECTORY = join(repositoryRoot, 'assets/icons')
 
@@ -133,22 +149,85 @@ export function checkIconCoverageGuard(
   return errors
 }
 
-function main(): void {
-  const content = readFileSync(MODEL_BUILDER_RECIPES_PATH, 'utf8')
-  const entries = extractIconEntries(content)
+export interface ComponentIconLiteral {
+  file: string
+  icon: string
+}
 
+// Every `kind-icon:<name>` literal appearing anywhere in a component-family
+// .vue file's content -- template icon names, view-mode/status-badge data
+// arrays, anything -- regardless of quote style or surrounding context. Not
+// brace/object-shaped like extractIconEntries above: a Vue SFC mixes markup
+// and script freely, so this deliberately looks for the one substring that
+// actually determines the Iconify lookup rather than trying to parse the
+// surrounding array/attribute shape.
+export function extractComponentIconLiterals(
+  fileName: string,
+  content: string,
+): ComponentIconLiteral[] {
+  return [...content.matchAll(/kind-icon:([\w-]+)/g)].map((match) => ({
+    file: fileName,
+    icon: match[1]!,
+  }))
+}
+
+// Same contract as checkIconCoverageGuard, applied to the component-literal
+// shape above. Deduplicates by file+icon so one bad reference used in several
+// places within the same file is reported once, not once per occurrence.
+export function checkComponentIconCoverageGuard(
+  entries: ComponentIconLiteral[],
+  availableIcons: Set<string>,
+): string[] {
+  const errors: string[] = []
+  const seen = new Set<string>()
+
+  for (const entry of entries) {
+    const dedupeKey = `${entry.file}:${entry.icon}`
+    if (seen.has(dedupeKey)) continue
+    seen.add(dedupeKey)
+    if (!availableIcons.has(entry.icon)) {
+      errors.push(
+        `${entry.file} references 'kind-icon:${entry.icon}' but ` +
+          `assets/icons/${entry.icon}.svg does not exist -- the component ` +
+          'renders a blank icon instead of erroring anywhere.',
+      )
+    }
+  }
+
+  return errors
+}
+
+function main(): void {
   const availableIcons = new Set(
     readdirSync(ICONS_DIRECTORY)
       .filter((file) => file.endsWith('.svg'))
       .map((file) => file.slice(0, -'.svg'.length)),
   )
 
-  const errors = checkIconCoverageGuard(entries, availableIcons)
+  const content = readFileSync(MODEL_BUILDER_RECIPES_PATH, 'utf8')
+  const entries = extractIconEntries(content)
+  const catalogErrors = checkIconCoverageGuard(entries, availableIcons)
+
+  const componentFiles = readdirSync(MODEL_BUILDER_COMPONENTS_DIRECTORY)
+    .filter((file) => file.endsWith('.vue'))
+    .sort()
+  const componentLiterals = componentFiles.flatMap((file) =>
+    extractComponentIconLiterals(
+      file,
+      readFileSync(join(MODEL_BUILDER_COMPONENTS_DIRECTORY, file), 'utf8'),
+    ),
+  )
+  const componentErrors = checkComponentIconCoverageGuard(
+    componentLiterals,
+    availableIcons,
+  )
+
+  const errors = [...catalogErrors, ...componentErrors]
 
   if (errors.length) {
     console.error(
       `Model Builder icon coverage guard failed: ${errors.length} icon ` +
-        'reference(s) in modelBuilderRecipes.ts have no matching svg file:',
+        'reference(s) have no matching svg file:',
     )
     for (const error of errors) console.error(`- ${error}`)
     process.exitCode = 1
@@ -157,8 +236,10 @@ function main(): void {
 
   console.log(
     `Model Builder icon coverage guard passed: all ${entries.length} ` +
-      'icon references in BUILD_STAGES/SOURCE_TYPES/RECIPES resolve to a ' +
-      'real assets/icons/*.svg file.',
+      'icon references in BUILD_STAGES/SOURCE_TYPES/RECIPES, and all ' +
+      `${componentLiterals.length} kind-icon: literal(s) across ` +
+      `${componentFiles.length} components/model-builder/*.vue files, ` +
+      'resolve to a real assets/icons/*.svg file.',
   )
 }
 

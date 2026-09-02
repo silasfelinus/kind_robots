@@ -329,6 +329,16 @@
         sliver of itself. Silas, 2026-09-02: "weird whitespace formatting
         preventing the facets from full size."
 
+        A WIDTH IS STILL REQUIRED BELOW lg, and dropping it was a real bug.
+        Silas, 2026-09-02, on a phone: "looked good until I swiped into the
+        facets and the resolution jumped and hijaked the screen." Below lg the
+        cast row has no definite height -- `h-full` is `lg:h-full` on its parent
+        -- so with neither a width nor an aspect this block fell back to its
+        content's intrinsic size and rendered one facet at roughly full-screen.
+        `w-44` matches a cast card, which is what it was before and what the row
+        expects; `lg:w-auto` hands sizing back to the aspect where the band
+        finally has a height for it to derive from.
+
         `aspect-[9/10]` derives the block's width from the band height instead,
         which is the one number that actually decides how tall a cell is. At a
         420px band that is a 378px block: two ~187px columns, each cell ~208 tall
@@ -344,9 +354,18 @@
       -->
         <div
           v-if="facets.length"
-          class="flex h-full shrink-0 flex-col lg:aspect-[9/10]"
+          class="flex h-full w-44 shrink-0 flex-col lg:aspect-[9/10] lg:w-auto"
         >
-          <div class="grid min-h-0 flex-1 grid-cols-2 grid-rows-2 gap-1">
+          <!--
+            `min-w-0` alongside `min-h-0`: a grid item's automatic minimum size
+            is its content, so without it a column can be pushed wider than its
+            track by the image inside it. The cells below already carry it; the
+            grid did not, which left one more path by which an image's intrinsic
+            width could drive the layout instead of the other way round.
+          -->
+          <div
+            class="grid min-h-0 min-w-0 flex-1 grid-cols-2 grid-rows-2 gap-1"
+          >
             <a
               v-for="facet in facets.slice(0, 4)"
               :key="`facet-${facet.id}`"

@@ -14,6 +14,32 @@ const CHARACTER_FIELD_TAXONOMIES: Record<string, readonly FacetTaxonomy[]> = {
   role: ['ROLE'],
 }
 
+/**
+ * The fieldKey a Facet of this taxonomy belongs under on a Character.
+ *
+ * Derived from CHARACTER_FIELD_TAXONOMIES above rather than restated, so the
+ * two cannot drift: this is the same question that map already answers, asked
+ * in the other direction.
+ *
+ * Anything outside the map -- MATERIAL on a character, say -- lands under
+ * 'facet', matching rewardFacetFieldKey's fallback. It is a grouping label, not
+ * a validity check, so an unusual taxonomy is stored rather than dropped.
+ */
+export function characterFacetFieldKey(taxonomy: FacetTaxonomy): string {
+  // ROLE is listed under both `class` and `role`, and iteration order would
+  // hand it to `class`. `role` is the field that holds ROLE and nothing else,
+  // so it is the more specific answer and wins.
+  if (taxonomy === 'ROLE') return 'role'
+
+  for (const [fieldKey, taxonomies] of Object.entries(
+    CHARACTER_FIELD_TAXONOMIES,
+  )) {
+    if (taxonomies.includes(taxonomy)) return fieldKey
+  }
+
+  return 'facet'
+}
+
 type CharacterFacetSource = Record<string, unknown> & { id: number }
 
 type PendingAssignment = {
@@ -38,10 +64,14 @@ type CharacterFacetRow = {
 // transaction client; this keeps generated-client drift out of unrelated routes.
 type CharacterFacetSyncClient = {
   facetAlias: {
-    findMany(args: unknown): PromiseLike<Array<{ lookupKey: string; facetId: number }>>
+    findMany(
+      args: unknown,
+    ): PromiseLike<Array<{ lookupKey: string; facetId: number }>>
   }
   facetProfile: {
-    findMany(args: unknown): PromiseLike<Array<{ facetId: number; taxonomy: string }>>
+    findMany(
+      args: unknown,
+    ): PromiseLike<Array<{ facetId: number; taxonomy: string }>>
   }
   facet: {
     findMany(args: unknown): PromiseLike<Array<{ id: number }>>
@@ -67,7 +97,9 @@ function splitCharacterField(fieldKey: string, value: unknown): string[] {
   return [trimmed]
 }
 
-function collectAssignments(character: CharacterFacetSource): PendingAssignment[] {
+function collectAssignments(
+  character: CharacterFacetSource,
+): PendingAssignment[] {
   const assignments: PendingAssignment[] = []
 
   for (const fieldKey of Object.keys(CHARACTER_FIELD_TAXONOMIES)) {

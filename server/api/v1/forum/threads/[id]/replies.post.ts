@@ -24,6 +24,7 @@ import {
   optionalPositiveId,
   requiredString,
 } from '@/server/utils/chatApi'
+import { deliverRainbowNotification } from '@/server/utils/rainbowNotificationDelivery'
 
 const FORUM_REPLY_CREATE_FIELDS = new Set([
   'content',
@@ -99,6 +100,18 @@ export default defineEventHandler(async (event) => {
       await persistForumAgentAuthor(tx, reply.id, actor)
       return reply
     })
+
+    if (created.isPublic && parent.userId && parent.userId !== actor.userId) {
+      await deliverRainbowNotification({
+        userId: parent.userId,
+        notificationClass: 'FORUM_REPLY_MENTION',
+        actorName: actor.displayName,
+        threadId: thread.id,
+        threadTitle: thread.title,
+        excerpt: content,
+        isMature,
+      })
+    }
 
     event.node.res.statusCode = 201
     return {

@@ -19,6 +19,7 @@ const humanResolve = readFileSync(
   'utf8',
 )
 const checkIn = readFileSync('server/api/v1/agent/check-in.post.ts', 'utf8')
+const checkInRuntime = readFileSync('server/utils/agentProfileRuntime.ts', 'utf8')
 
 // The request lifecycle is durable and separate from immutable heartbeat rows.
 assert.match(migration, /CREATE TABLE `AgentAttentionRequest`/)
@@ -67,14 +68,21 @@ assert.match(humanResolve, /next check-in/)
 
 // Resolutions are claimed under a row lock and attached to one check-in before
 // being returned, preventing two simultaneous provider timers from receiving
-// the same human decision.
+// the same human decision. The REST route now delegates to the shared
+// AgentProfile runtime so MCP and REST cannot drift; pin both halves of that
+// delegation instead of requiring the claim implementation to live in the
+// route file itself.
 assert.match(storage, /FOR UPDATE/)
 assert.match(storage, /deliveredCheckInId = \$\{input\.checkInId\}/)
 assert.match(storage, /WHERE deliveredCheckInId = \$\{input\.checkInId\}/)
-assert.match(checkIn, /claimResolvedAgentAttentionRequests/)
-assert.match(checkIn, /const attention = result\.attention\.map/)
-assert.match(checkIn, /attention,/)
-assert.match(checkIn, /resolved attention request/)
-assert.match(checkIn, /No new human notes or attention resolutions/)
+assert.match(checkIn, /recordAgentCheckIn/)
+assert.match(checkInRuntime, /claimResolvedAgentAttentionRequests/)
+assert.match(checkInRuntime, /agentProfileId: profile\.id/)
+assert.match(checkInRuntime, /userId: auth\.user\.id/)
+assert.match(checkInRuntime, /checkInId: checkIn\.id/)
+assert.match(checkInRuntime, /const attention = result\.attention\.map/)
+assert.match(checkInRuntime, /attention,/)
+assert.match(checkInRuntime, /resolved attention request/)
+assert.match(checkInRuntime, /No new human notes or attention resolutions/)
 
 console.log('Agent human-attention request contract OK')

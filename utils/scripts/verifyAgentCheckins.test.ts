@@ -8,6 +8,7 @@ const migration = readFileSync(
 )
 const scopes = readFileSync('utils/agentCredentialScopes.ts', 'utf8')
 const authGuard = readFileSync('server/utils/authGuard.ts', 'utf8')
+const runtime = readFileSync('server/utils/agentProfileRuntime.ts', 'utf8')
 const checkIn = readFileSync('server/api/v1/agent/check-in.post.ts', 'utf8')
 const notes = readFileSync(
   'server/api/agent-profiles/[id]/notes.post.ts',
@@ -33,15 +34,29 @@ assert.doesNotMatch(
   /agent:checkin/,
 )
 
-assert.match(checkIn, /requireScopedApiUser\(event, 'agent:checkin'\)/)
-assert.match(checkIn, /auth\.kind !== 'agent-credential'/)
-assert.match(checkIn, /!auth\.agentProfileId/)
-assert.match(checkIn, /profile\.userId !== auth\.user\.id/)
-assert.match(checkIn, /tx\.agentCheckIn\.create/)
-assert.match(checkIn, /deliveredAt:\s*null/)
-assert.match(checkIn, /deliveredCheckInId:\s*checkIn\.id/)
-assert.match(checkIn, /where:\s*\{ deliveredCheckInId: checkIn\.id \}/)
-assert.match(checkIn, /take:\s*20/)
+// Both REST and MCP share the same credential/profile validation, input cleaning,
+// rate limit, durable check-in write, and note/attention delivery transaction.
+assert.match(runtime, /requireScopedApiUser\(event, scope\)/)
+assert.match(runtime, /auth\.kind !== 'agent-credential'/)
+assert.match(runtime, /!auth\.agentProfileId/)
+assert.match(runtime, /profile\.userId !== auth\.user\.id/)
+assert.match(runtime, /AGENT_CHECKIN_STATUSES/)
+assert.match(runtime, /trimmed\.length > 5000/)
+assert.match(runtime, /CHECKIN_WINDOW_LIMIT = 30/)
+assert.match(runtime, /CHECKIN_WINDOW_MS = 10 \* 60 \* 1000/)
+assert.match(runtime, /setHeader\(event, 'Retry-After', retryAfter\)/)
+assert.match(runtime, /tx\.agentCheckIn\.create/)
+assert.match(runtime, /deliveredAt:\s*null/)
+assert.match(runtime, /deliveredCheckInId:\s*checkIn\.id/)
+assert.match(runtime, /where:\s*\{ deliveredCheckInId: checkIn\.id \}/)
+assert.match(runtime, /take:\s*20/)
+assert.match(runtime, /claimResolvedAgentAttentionRequests/)
+
+assert.match(checkIn, /requireBoundAgentProfile\(event, 'agent:checkin'\)/)
+assert.match(checkIn, /parseAgentCheckInInput\(body\)/)
+assert.match(checkIn, /assertAgentCheckInRateAllowed\(event, context\.auth\.credentialId\)/)
+assert.match(checkIn, /recordAgentCheckIn\(\{ context, \.\.\.input \}\)/)
+assert.doesNotMatch(checkIn, /prisma\.|agentCheckIn\.create|agentNote\.updateMany/)
 
 for (const source of [notes, activity]) {
   assert.match(source, /requireHumanOrDelegatedApiUser\(event\)/)

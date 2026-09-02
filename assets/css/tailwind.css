@@ -538,6 +538,14 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply rounded-2xl border border-base-300 bg-base-100;
   }
 
+  /* Larger-radius page-section surface: coloring-book studio panels and
+   * conductor-app project pages. Approved by Silas (interface-vision/t-123)
+   * as the named primitive for the previously hand-rolled
+   * rounded-3xl/border/base-100/p-5/shadow-sm shape. */
+  .kr-panel-section {
+    @apply rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm;
+  }
+
   /*
    * Status callouts — inline tinted notices (the most-repeated surface in
    * the app, previously written by hand with drifting opacities like

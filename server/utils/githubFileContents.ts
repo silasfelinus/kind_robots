@@ -106,7 +106,7 @@ export async function readGithubFile(
     throw new Error(`GitHub returned no blob sha for ${repo}/${path}`)
   }
 
-  let content = payloadNeedsBlobFallback(payload)
+  const content = payloadNeedsBlobFallback(payload)
     ? await readGithubBlob(repo, sha, token, fetchImpl)
     : decodeBase64Content(String(payload.content || ''))
 

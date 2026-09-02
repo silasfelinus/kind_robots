@@ -381,9 +381,17 @@ const showRedo = computed(
  *
  * The trailing clause is the whole point. Silas: "we get a lot of text focused
  * gens" -- several facet cards came back as pictures of trading cards with
- * garbled lettering printed on them rather than as illustrations, so every
- * manual redo would start by saying exactly this. Saying it by default is what
- * makes the button an expedite rather than an empty box.
+ * garbled lettering printed on them, so every manual redo would start by saying
+ * so. Saying it by default is what makes this an expedite rather than an empty
+ * box.
+ *
+ * SAID ONCE, AND POSITIVELY. The first version of this piled up five negations
+ * ("No text, no lettering, no captions, no watermark, no logo") and the repo's
+ * own prompt contract rejects that with a 422: this engine's negative prompt is
+ * inert, so every one of those words lands in POSITIVE conditioning and asks
+ * for the thing it names. Shipped like that, the button would have failed on
+ * every click. "Unmarked surfaces" states the wanted result instead, which is
+ * what the contract asks for and what actually works.
  */
 const suggestedPrompt = computed(() => {
   const parts = [
@@ -394,9 +402,8 @@ const suggestedPrompt = computed(() => {
     .filter(Boolean)
 
   return (
-    `${parts.join('. ')}. A single illustrated subject, full-frame. ` +
-    'No text, no lettering, no captions, no watermark, no logo, no border, ' +
-    'and not a picture of a card.'
+    `${parts.join('. ')}. A single illustrated subject, full-frame, ` +
+    'unmarked surfaces, edge-to-edge scene with no printed matter in view.'
   )
 })
 

@@ -138,7 +138,7 @@
 
     <section
       v-if="!compact && lesson.exampleWorks?.length"
-      class="rounded-3xl border border-base-300 bg-base-100 p-4 shadow-sm sm:p-5"
+      class="kr-panel-section p-4 sm:p-5"
     >
       <div class="mb-4 flex flex-wrap items-end justify-between gap-2">
         <div>

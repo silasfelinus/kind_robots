@@ -101,9 +101,7 @@
 
       <!-- Every user-generated content model carries these two flags. -->
       <section class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <label
-          class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-4 py-3"
-        >
+        <label class="label kr-panel-flat cursor-pointer justify-between px-4 py-3">
           <span class="label-text font-bold">Public</span>
 
           <input
@@ -113,9 +111,7 @@
           />
         </label>
 
-        <label
-          class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-4 py-3"
-        >
+        <label class="label kr-panel-flat cursor-pointer justify-between px-4 py-3">
           <span class="label-text font-bold">Mature</span>
 
           <input
@@ -131,7 +127,7 @@
            picked value into the form. Current forms doing this: add-reward
            ('rewardEssence'), add-scenario ('genre'). Drop this section if
            your model has no choice-driven fields. -->
-      <section class="rounded-2xl border border-base-300 bg-base-100 p-4">
+      <section class="kr-panel-flat p-4">
         <h2 class="text-xl font-bold text-base-content">Sample Type Choices</h2>
 
         <p class="mb-4 text-sm text-base-content/70">

@@ -164,7 +164,18 @@ export function createStorybookLibraryController(bridge: StorybookLibraryBridge)
           : []
       }
     } catch {
-      localStorage.removeItem(LIBRARY_STORAGE_KEY)
+      // Recovering from a bad read shouldn't itself be able to throw: a
+      // storage-access failure (privacy mode, a strict cookie/site-data
+      // policy, quota exhaustion) can make removeItem() throw the same way
+      // getItem()/setItem() just did, which would otherwise escape this
+      // catch block and break Storybook initialization entirely instead of
+      // just falling back to an empty in-memory library.
+      try {
+        localStorage.removeItem(LIBRARY_STORAGE_KEY)
+      } catch {
+        // Best-effort cleanup only — an empty in-memory library below is
+        // the actual recovery; a stale key left behind isn't harmful.
+      }
       library.value = []
     }
     initialized.value = true

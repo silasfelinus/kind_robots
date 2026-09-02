@@ -24,7 +24,7 @@ for (const table of [
   'Krea2QuotaReservation',
   'Krea2DeferredFreeJob',
 ]) {
-  assert.match(migration, new RegExp(`CREATE TABLE \\`${table}\\``))
+  assert.match(migration, new RegExp('CREATE TABLE `' + table + '`'))
 }
 assert.doesNotMatch(migration, /DROP TABLE|DROP COLUMN/i)
 assert.match(migration, /`userId` INTEGER NOT NULL/)
@@ -47,7 +47,7 @@ assert.match(quota, /FOR UPDATE/)
 assert.match(quota, /usage\.userUsed >= config\.perHumanDaily/)
 assert.match(quota, /usage\.publicUsed >= config\.publicDailyPool/)
 assert.match(quota, /incrementUsage\(tx, quotaDate, audit\.userId\)/)
-assert.match(quota, /agentProfileId: auth\.agentProfileId|agentProfileId\?: number/)
+assert.match(quota, /agentProfileId\?: number/)
 assert.match(status, /getKrea2QuotaStatus\(auth\.user\.id\)/)
 assert.match(status, /sharedAcrossAgents: true/)
 
@@ -57,6 +57,8 @@ assert.match(gate, /quota\.userRemaining <= 0/)
 assert.match(gate, /paid\.fundedBy !== 'TOKENS'/)
 assert.match(gate, /free mana is not used as an overflow pool/i)
 assert.match(gate, /Math\.max\(Number\(data\.priority \?\? 100\), 200\)/)
+assert.match(gate, /agentProfileId: auth\.agentProfileId/)
+assert.match(gate, /credentialId: auth\.credentialId/)
 
 // Public-pool exhaustion queues rather than silently charging. Deferred work
 // owns no future credit and is promoted only when the relay can reserve a

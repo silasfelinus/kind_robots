@@ -140,7 +140,7 @@
         -->
         <p
           v-if="hero.description || hero.hook"
-          class="mt-1 line-clamp-4 text-[0.7rem] leading-snug text-base-content/65 xl:line-clamp-6 xl:text-sm xl:leading-relaxed"
+          class="mt-1 line-clamp-4 text-[0.7rem] leading-snug text-base-content xl:line-clamp-6 xl:text-sm xl:leading-relaxed"
         >
           {{ hero.description || hero.hook }}
         </p>
@@ -295,6 +295,20 @@
           its name.
         -->
           <!--
+          FULL STRENGTH, NOT A TINT. Silas, 2026-09-02: "better readable text
+          for the dream creation descriptions, a different color that isn't
+          light grey, it gets lost." These ran at `text-base-content/65`, and a
+          65% tint of base-content is exactly light grey in every light theme --
+          on the pale panel behind it that is the lowest-contrast text on the
+          page, under prose people are meant to actually read.
+
+          Hierarchy against the title above it comes from weight and size (the
+          title is `font-bold`, this is not), which is enough without also
+          spending contrast on it. Deliberately not a hue like `text-secondary`:
+          each card wears its own record's daisyUI theme, so a hue that reads
+          well on one is illegible on the next -- the same trap the badge chip
+          hit and documented above.
+
           The caption gets a definite share of the card rather than whatever is
           left after the picture. Silas, 2026-09-01: "having a little more
           vertical space for larger text". Two lines of name and three of
@@ -309,7 +323,7 @@
             </p>
             <p
               v-if="member.subtitle"
-              class="mt-0.5 line-clamp-3 text-xs leading-snug text-base-content/65"
+              class="mt-0.5 line-clamp-3 text-xs leading-snug text-base-content"
             >
               {{ member.subtitle }}
             </p>

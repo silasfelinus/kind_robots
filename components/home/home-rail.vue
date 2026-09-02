@@ -15,12 +15,17 @@
   dissolved into whatever the backdrop happened to be doing. The panel is that
   ground.
 
-  THE HEADER IS TWO GLYPHS. Silas, 2026-08-29: "Would love to replace the words
-  for new dreams, characters, etc with just an icon, same with see all, and slim
-  it does even more." The words cost a full text line per shelf across eight
-  shelves; the icons say the same thing in the height of the row they share with
-  the count. The label survives as the link's accessible name and its tooltip --
-  it is removed from the screen, not from the accessibility tree.
+  THE HEADER IS ONE ROW: a glyph, the shelf's name, its count, and the chevrons.
+  It began as two glyphs and no words -- Silas, 2026-08-29: "Would love to
+  replace the words for new dreams, characters, etc with just an icon, same with
+  see all, and slim it does even more" -- because eight shelves each spending a
+  text line on a heading was eight wasted rows.
+
+  There are six shelves now, in a 3x2 grid with room to spare, and the words
+  came back at his request on 2026-09-01 and 09-02. The saving that justified
+  dropping them is gone, and an icon alone made you learn which glyph meant
+  scenarios. The name doubles as the see-all link, so the row is still one line
+  and still carries exactly one destination.
 
   CHEVRONS, NOT A SCROLLBAR. Silas, same message: "Could we use <> chevrons
   instead of a scrollbar, or at least, only show the scrollbar if highlighted,
@@ -57,10 +62,11 @@
         The shelf's identity, as one glyph. `title` and `aria-label` carry the
         words so a screen reader and a hover both still get "New characters".
       -->
-      <span
-        class="flex min-w-0 shrink items-center gap-1 text-primary"
-        :title="label"
-        :aria-label="label"
+      <NuxtLink
+        :to="seeAllHref"
+        class="flex min-w-0 shrink items-center gap-1 rounded text-primary transition-colors hover:text-primary/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+        :title="`${label} — ${seeAllLabel}`"
+        :aria-label="`${label} — ${seeAllLabel}`"
       >
         <Icon :name="icon || placeholderIcon" class="size-4 shrink-0" />
         <!--
@@ -73,10 +79,24 @@
           shelf is when the shelf is the window. It is not: below xl these
           shelves are 17rem cells in a scrolling row, and at xl they are ~480px
           cells in a 3x2 grid. Only the page knows which.
+
+          AND THEN IT WAS GATED TWICE ANYWAY. This carried `hidden xl:inline` on
+          top of `showLabel`, so the prop the host sets was overruled by the very
+          breakpoint the note above says not to use, and the words never appeared
+          below xl. Silas, 2026-09-02: "we are still missing text labels on the
+          objects when we have room." The prop is now the only gate, as written.
+
+          THE LABEL IS THE LINK. Silas, same message: "the see all link on the
+          objects should not be there, it can be a link on the text that you will
+          add instead." A separate arrow was a second control saying what the
+          heading already says, and on a phone it competed with the chevrons for
+          a strip only a few hundred pixels wide. The whole icon-label-count
+          group is the destination now, which is also a far bigger tap target
+          than a 20px glyph.
         -->
         <span
           v-if="showLabel"
-          class="hidden truncate text-[0.6rem] font-black uppercase tracking-[0.14em] xl:inline"
+          class="truncate text-[0.6rem] font-black uppercase tracking-[0.14em]"
           >{{ label }}</span
         >
         <span
@@ -84,7 +104,7 @@
           class="shrink-0 text-[0.6rem] font-black tabular-nums text-base-content/40"
           >{{ items.length }}</span
         >
-      </span>
+      </NuxtLink>
 
       <!-- Anything the host wants in this row (the art shelf's mode toggle). -->
       <div class="flex min-w-0 flex-1 items-center gap-1 overflow-hidden">
@@ -116,15 +136,6 @@
           <Icon name="kind-icon:chevron-right" class="size-3.5" />
         </button>
       </span>
-
-      <NuxtLink
-        :to="seeAllHref"
-        class="grid size-5 shrink-0 place-items-center rounded text-base-content/45 transition-colors hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
-        :title="`${label} — ${seeAllLabel}`"
-        :aria-label="`${label} — ${seeAllLabel}`"
-      >
-        <Icon name="kind-icon:arrow-right" class="size-3.5" />
-      </NuxtLink>
     </header>
 
     <!--
@@ -210,7 +221,7 @@
           height makes `shape` inert here and the art crops to fill.
         -->
         <kr-art-plate
-          class="min-h-0 flex-1"
+          class="min-h-12 flex-1"
           :source="item.art"
           :variant="plateVariant"
           :shape="shape"
@@ -237,14 +248,22 @@
         </kr-art-plate>
 
         <!--
-          TWO LINES, not one truncated one. Silas, 2026-09-01: "if we had two
-          lines allocated we wouldn't have to cut so much text". Most object
-          names fit in two at this width; the tooltip still carries the full
-          name plus its subtitle for the ones that do not.
+          AS MANY LINES AS THE NAME NEEDS. Silas, 2026-09-01: "if we had two
+          lines allocated we wouldn't have to cut so much text", and then
+          2026-09-02: "if the title is larger than two lines, I'd rather we push
+          to take up vertical space than truncate."
+
+          So four lines instead of two, not unlimited. "Larger than two lines"
+          means a name that needs three or four, and no clamp at all was the
+          wrong reading of it: the art queue's tiles are titled with their whole
+          generation prompt, so on a tablet they rendered as eight lines of
+          paragraph with the artwork crushed down to its floor -- the картинка
+          shelf became a wall of text. Four lines covers every real object name
+          and still leaves the tile a picture.
         -->
         <div class="min-w-0 shrink-0 px-1.5 py-1">
           <p
-            class="line-clamp-2 text-xs font-bold leading-tight text-base-content group-hover:text-primary"
+            class="line-clamp-4 text-xs font-bold leading-tight text-base-content group-hover:text-primary"
           >
             {{ item.title }}
           </p>

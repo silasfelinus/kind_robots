@@ -1,0 +1,24 @@
+name: Krea2 Public Quota Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'prisma/migrations/**add_krea2_public_quota**'
+      - 'server/utils/krea2Quota.ts'
+      - 'server/utils/krea2GenerationGate.ts'
+      - 'server/utils/artJobQueueCoverage.ts'
+      - 'server/api/rainbow/generation/krea2/**'
+      - 'tests/contracts/verifyKrea2PublicQuota.ts'
+      - '.github/workflows/krea2-public-quota-contract.yml'
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm install --include=optional
+      - run: npx tsx tests/contracts/verifyKrea2PublicQuota.ts

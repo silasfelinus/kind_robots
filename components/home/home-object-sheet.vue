@@ -172,18 +172,103 @@
           exactly that, and both links would have 404'd from the front page.
           Reviews moved inline above instead.
         -->
+        <!--
+          REDO THE ART FROM HERE. Silas, 2026-09-02: "when clicking on an
+          object, I would love a way to expedite asking for a new art prompt.
+          For example, we get a lot of text focused gens, so I want to be able
+          to easily submit them for a better redo."
+
+          The redo already existed -- entity-art-manager.vue has done exactly
+          this for a while -- but only on each record's own manager page, which
+          is two navigations away from noticing the problem. Noticing happens
+          here, so the button is here.
+
+          EXPEDITE MEANS PREFILLED, not just present. The complaint is specific:
+          the renders come back as pictures OF CARDS, with garbled lettering
+          baked in (the "Hacker" facet is a card with four lines of nonsense
+          text on it). So the default prompt is composed from the record's own
+          title and description with an explicit no-lettering clause on the end,
+          which is the edit you would have made by hand every time. It stays
+          editable -- it is a starting point, not a fixed template.
+        -->
+        <section
+          v-if="showRedo && redoOpen"
+          class="border-t border-base-300 bg-base-200/40 p-3"
+        >
+          <label
+            :for="`redo-prompt-${card.kind}-${card.id}`"
+            class="text-[0.65rem] font-black uppercase tracking-[0.14em] text-primary"
+          >
+            New art prompt
+          </label>
+          <textarea
+            :id="`redo-prompt-${card.kind}-${card.id}`"
+            v-model="redoPrompt"
+            rows="4"
+            class="mt-1 w-full rounded-lg border border-base-300 bg-base-100 p-2 text-xs leading-snug focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+            :disabled="redoBusy"
+          />
+
+          <div class="mt-2 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              class="btn btn-primary btn-xs gap-1.5 rounded-lg"
+              :disabled="redoBusy || !redoPrompt.trim()"
+              @click="submitRedo"
+            >
+              <span
+                v-if="redoBusy"
+                class="loading loading-spinner loading-xs"
+              />
+              <Icon v-else name="kind-icon:refresh" class="size-3.5" />
+              Queue new art
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-ghost btn-xs rounded-lg border border-base-300"
+              :disabled="redoBusy"
+              title="Rebuild the suggested prompt from this record"
+              @click="redoPrompt = suggestedPrompt"
+            >
+              Reset prompt
+            </button>
+
+            <p
+              v-if="redoMessage"
+              class="text-[0.65rem] font-bold"
+              :class="redoFailed ? 'text-error' : 'text-success'"
+            >
+              {{ redoMessage }}
+            </p>
+          </div>
+        </section>
+
         <footer class="kr-toolbar justify-between border-t border-base-300 p-3">
           <p class="text-[0.65rem] text-base-content/45">
             {{ createdLabel }}
           </p>
 
-          <NuxtLink
-            :to="detail?.href || showcaseHref(card)"
-            class="btn btn-primary btn-sm gap-1.5 rounded-xl"
-          >
-            Open {{ kindLabel.toLowerCase() }}
-            <Icon name="kind-icon:chevron-right" class="size-4" />
-          </NuxtLink>
+          <div class="flex items-center gap-2">
+            <button
+              v-if="showRedo"
+              type="button"
+              class="btn btn-ghost btn-sm gap-1.5 rounded-xl border border-base-300"
+              :aria-expanded="redoOpen"
+              @click="toggleRedo"
+            >
+              <Icon name="kind-icon:palette-color" class="size-4" />
+              Redo art
+            </button>
+
+            <NuxtLink
+              :to="detail?.href || showcaseHref(card)"
+              class="btn btn-primary btn-sm gap-1.5 rounded-xl"
+            >
+              Open {{ kindLabel.toLowerCase() }}
+              <Icon name="kind-icon:chevron-right" class="size-4" />
+            </NuxtLink>
+          </div>
         </footer>
       </div>
     </dialog>
@@ -200,6 +285,7 @@ import {
   type ShowcaseKind,
 } from '@/utils/homeShowcase'
 import type { ReactionTargetType } from '@/stores/reactionStore'
+import { useUserStore } from '@/stores/userStore'
 import { defaultArtFor } from '@/utils/defaultArtPool'
 
 const props = defineProps<{ card: RailItem }>()
@@ -252,6 +338,116 @@ const REVIEW_TARGETS: Partial<Record<ShowcaseKind, ReactionTargetType>> = {
 const reviewTarget = computed<ReactionTargetType | null>(
   () => REVIEW_TARGETS[props.card.kind] ?? null,
 )
+
+/*
+ * WHICH KINDS CAN BE REDONE. Straight off EntityArtType in
+ * server/utils/entityArt.ts -- the enqueue endpoint's `entityArt` block only
+ * knows how to attach a finished render back onto these tables.
+ *
+ * `art` and `animation` are deliberately absent: an ArtImage IS the render, so
+ * there is no entity field to attach a replacement to. Regenerating one means
+ * making a new image, which is a different action on a different page.
+ */
+const REDO_ENTITY_TYPES: Partial<Record<ShowcaseKind, string>> = {
+  dream: 'dream',
+  character: 'character',
+  bot: 'bot',
+  reward: 'reward',
+  scenario: 'scenario',
+  facet: 'facet',
+  project: 'project',
+}
+
+const userStore = useUserStore()
+
+const redoOpen = ref(false)
+const redoPrompt = ref('')
+const redoBusy = ref(false)
+const redoMessage = ref('')
+const redoFailed = ref(false)
+
+/*
+ * Signed in AND a redoable kind. Not an admin check: /api/art/enqueue is behind
+ * authAndGate, which does the real authorisation and charges the mana, so
+ * duplicating a rule here would only get out of step with it. Signed-out
+ * visitors never see a button that would just 401.
+ */
+const showRedo = computed(
+  () => userStore.isLoggedIn && Boolean(REDO_ENTITY_TYPES[props.card.kind]),
+)
+
+/**
+ * A first draft of the prompt, built from what the record actually says.
+ *
+ * The trailing clause is the whole point. Silas: "we get a lot of text focused
+ * gens" -- several facet cards came back as pictures of trading cards with
+ * garbled lettering printed on them rather than as illustrations, so every
+ * manual redo would start by saying exactly this. Saying it by default is what
+ * makes the button an expedite rather than an empty box.
+ */
+const suggestedPrompt = computed(() => {
+  const parts = [
+    detail.value?.title || props.card.title,
+    detail.value?.subtitle || props.card.subtitle || '',
+  ]
+    .map((part) => String(part || '').trim())
+    .filter(Boolean)
+
+  return (
+    `${parts.join('. ')}. A single illustrated subject, full-frame. ` +
+    'No text, no lettering, no captions, no watermark, no logo, no border, ' +
+    'and not a picture of a card.'
+  )
+})
+
+function toggleRedo(): void {
+  redoOpen.value = !redoOpen.value
+  redoMessage.value = ''
+  if (redoOpen.value && !redoPrompt.value.trim()) {
+    redoPrompt.value = suggestedPrompt.value
+  }
+}
+
+async function submitRedo(): Promise<void> {
+  const entityType = REDO_ENTITY_TYPES[props.card.kind]
+  if (!entityType || !redoPrompt.value.trim()) return
+
+  redoBusy.value = true
+  redoMessage.value = ''
+  redoFailed.value = false
+  try {
+    const response = await performFetch<{ jobId: number; status: string }>(
+      '/api/art/enqueue',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          promptString: redoPrompt.value.trim(),
+          entityArt: {
+            entityType,
+            entityId: props.card.id,
+            // The card image, which is what every gallery and rail reads.
+            field: 'imagePath',
+            // Keep the old render rather than overwriting it: a redo that is
+            // worse than what it replaced should be recoverable.
+            preserveOriginal: true,
+            mode: 'recreate',
+          },
+        }),
+      },
+    )
+    if (!response.success || !response.data?.jobId) {
+      throw new Error(response.message || 'Art could not be queued.')
+    }
+    redoMessage.value = `Queued as ArtJob ${response.data.jobId}. It attaches when the render finishes.`
+  } catch (error) {
+    redoFailed.value = true
+    redoMessage.value =
+      error instanceof Error ? error.message : 'Art could not be queued.'
+  } finally {
+    redoBusy.value = false
+  }
+}
 
 const createdLabel = computed(() => {
   const created = new Date(detail.value?.createdAt || props.card.createdAt)

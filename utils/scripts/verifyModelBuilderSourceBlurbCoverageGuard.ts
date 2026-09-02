@@ -75,9 +75,9 @@ export function extractSourceTypeEntries(
     const blurbMatch = obj.match(/blurb:\s*'([^']*)'/)
     if (!keyMatch || !recipesMatch || !blurbMatch) continue
     entries.push({
-      key: keyMatch[1]!,
-      recipes: [...recipesMatch[1]!.matchAll(/'([\w-]+)'/g)].map((m) => m[1]!),
-      blurb: blurbMatch[1]!,
+      key: keyMatch![1]!,
+      recipes: [...recipesMatch![1]!.matchAll(/'([\w-]+)'/g)].map((m) => m[1]!),
+      blurb: blurbMatch![1]!,
     })
   }
   return entries
@@ -105,9 +105,13 @@ export function extractOutputCatalogEntries(
     if (!keyMatch || !recipeMatch) continue
     const sourceTypesMatch = obj.match(/sourceTypes:\s*\[([^\]]*)\]/)
     const sourceTypes = sourceTypesMatch
-      ? [...sourceTypesMatch[1]!.matchAll(/'(\w+)'/g)].map((m) => m[1]!)
+      ? [...sourceTypesMatch![1]!.matchAll(/'(\w+)'/g)].map((m) => m[1]!)
       : null
-    entries.push({ key: keyMatch[1]!, recipe: recipeMatch[1]!, sourceTypes })
+    entries.push({
+      key: keyMatch![1]!,
+      recipe: recipeMatch![1]!,
+      sourceTypes,
+    })
   }
   return entries
 }

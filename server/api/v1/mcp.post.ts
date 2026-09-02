@@ -14,15 +14,21 @@ import {
   requireBoundAgentProfile,
   serializeAgentIdentity,
 } from '@/server/utils/agentProfileRuntime'
+import {
+  isKnownMcpProtocolVersion,
+  isLegacyMcpNotification,
+  isMcpObject,
+  MCP_SERVER_INFO_META_KEY,
+  MODERN_MCP_PROTOCOL_VERSION,
+  requestClaimsModernMcp,
+  selectLegacyMcpProtocolVersion,
+  SUPPORTED_MCP_PROTOCOL_VERSIONS,
+  validateModernMcpRequest,
+  type RainbowMcpHeaders,
+  type RainbowMcpRequest,
+} from '@/server/utils/rainbowMcpProtocol'
 
-const MODERN_PROTOCOL_VERSION = '2026-07-28'
-const LEGACY_PROTOCOL_VERSIONS = ['2025-11-25', '2025-06-18'] as const
-const ALL_PROTOCOL_VERSIONS = [MODERN_PROTOCOL_VERSION, ...LEGACY_PROTOCOL_VERSIONS]
 const SERVER_INFO = { name: 'kind-robots-rainbow-agent', version: '1.0.0' } as const
-const SERVER_INFO_META_KEY = 'io.modelcontextprotocol/serverInfo'
-const PROTOCOL_META_KEY = 'io.modelcontextprotocol/protocolVersion'
-const CLIENT_CAPABILITIES_META_KEY = 'io.modelcontextprotocol/clientCapabilities'
-
 const TOOL_IDENTITY = 'rainbow_agent_identity'
 const TOOL_CHECK_IN = 'rainbow_check_in'
 
@@ -82,21 +88,10 @@ const tools = [
   },
 ] as const
 
-type JsonRpcRequest = {
-  jsonrpc?: unknown
-  id?: unknown
-  method?: unknown
-  params?: unknown
-}
-
 type RpcError = {
   code: number
   message: string
   data?: unknown
-}
-
-function isObject(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
 }
 
 function rpcResult(id: unknown, result: unknown) {
@@ -108,16 +103,19 @@ function rpcError(id: unknown, error: RpcError) {
 }
 
 function modernMeta() {
-  return { [SERVER_INFO_META_KEY]: SERVER_INFO }
+  return { [MCP_SERVER_INFO_META_KEY]: SERVER_INFO }
 }
 
 function modernResult<T extends Record<string, unknown>>(result: T): T & { _meta: object } {
   return { ...result, _meta: modernMeta() }
 }
 
-function headerMismatch(event: H3Event, id: unknown, message: string) {
-  event.node.res.statusCode = 400
-  return rpcError(id, { code: -32020, message })
+function headersFor(event: H3Event): RainbowMcpHeaders {
+  return {
+    protocolVersion: getHeader(event, 'mcp-protocol-version') || undefined,
+    method: getHeader(event, 'mcp-method') || undefined,
+    name: getHeader(event, 'mcp-name') || undefined,
+  }
 }
 
 function unsupportedVersion(event: H3Event, id: unknown, requested: string) {
@@ -125,71 +123,13 @@ function unsupportedVersion(event: H3Event, id: unknown, requested: string) {
   return rpcError(id, {
     code: -32022,
     message: `Unsupported MCP protocol version "${requested}".`,
-    data: { requested, supported: ALL_PROTOCOL_VERSIONS },
+    data: { requested, supported: [...SUPPORTED_MCP_PROTOCOL_VERSIONS] },
   })
-}
-
-function validateModernRequest(
-  event: H3Event,
-  request: JsonRpcRequest,
-): ReturnType<typeof rpcError> | null {
-  const versionHeader = getHeader(event, 'mcp-protocol-version')
-  if (versionHeader !== MODERN_PROTOCOL_VERSION) {
-    if (versionHeader && versionHeader !== MODERN_PROTOCOL_VERSION) {
-      return unsupportedVersion(event, request.id, versionHeader)
-    }
-    return headerMismatch(
-      event,
-      request.id,
-      `MCP-Protocol-Version must be ${MODERN_PROTOCOL_VERSION}.`,
-    )
-  }
-
-  const methodHeader = getHeader(event, 'mcp-method')
-  if (typeof request.method !== 'string' || methodHeader !== request.method) {
-    return headerMismatch(event, request.id, 'Mcp-Method must match the JSON-RPC method.')
-  }
-
-  const params = isObject(request.params) ? request.params : null
-  const meta = params && isObject(params._meta) ? params._meta : null
-  if (meta?.[PROTOCOL_META_KEY] !== MODERN_PROTOCOL_VERSION) {
-    return headerMismatch(
-      event,
-      request.id,
-      'Request _meta protocolVersion must match MCP-Protocol-Version.',
-    )
-  }
-  if (!isObject(meta?.[CLIENT_CAPABILITIES_META_KEY])) {
-    event.node.res.statusCode = 400
-    return rpcError(request.id, {
-      code: -32602,
-      message: 'Modern MCP requests require clientCapabilities in params._meta.',
-    })
-  }
-
-  if (request.method === 'tools/call') {
-    const name = typeof params?.name === 'string' ? params.name : ''
-    if (!name || getHeader(event, 'mcp-name') !== name) {
-      return headerMismatch(event, request.id, 'Mcp-Name must match params.name for tools/call.')
-    }
-  }
-
-  return null
-}
-
-function requestClaimsModern(request: JsonRpcRequest, event: H3Event) {
-  const params = isObject(request.params) ? request.params : null
-  const meta = params && isObject(params._meta) ? params._meta : null
-  return (
-    request.method === 'server/discover' ||
-    getHeader(event, 'mcp-protocol-version') === MODERN_PROTOCOL_VERSION ||
-    meta?.[PROTOCOL_META_KEY] === MODERN_PROTOCOL_VERSION
-  )
 }
 
 function validateArguments(value: unknown) {
   if (value === undefined) return {}
-  if (!isObject(value)) {
+  if (!isMcpObject(value)) {
     throw new Error('Tool arguments must be a JSON object.')
   }
   return value
@@ -277,10 +217,10 @@ export default defineEventHandler(async (event) => {
     return rpcError(null, { code: -32600, message: 'Content-Type must be application/json.' })
   }
 
-  let request: JsonRpcRequest
+  let request: RainbowMcpRequest
   try {
     const body = await readBody<unknown>(event)
-    if (!isObject(body)) {
+    if (!isMcpObject(body)) {
       event.node.res.statusCode = 400
       return rpcError(null, { code: -32600, message: 'MCP accepts one JSON-RPC request object.' })
     }
@@ -290,43 +230,44 @@ export default defineEventHandler(async (event) => {
     return rpcError(null, { code: -32700, message: 'Invalid JSON.' })
   }
 
-  if (
-    request.jsonrpc !== '2.0' ||
-    typeof request.method !== 'string' ||
-    request.id === undefined
-  ) {
+  if (request.jsonrpc !== '2.0' || typeof request.method !== 'string') {
     event.node.res.statusCode = 400
     return rpcError(request.id, { code: -32600, message: 'Invalid JSON-RPC request.' })
   }
 
-  const protocolHeader = getHeader(event, 'mcp-protocol-version')
-  if (
-    protocolHeader &&
-    protocolHeader !== MODERN_PROTOCOL_VERSION &&
-    !LEGACY_PROTOCOL_VERSIONS.includes(
-      protocolHeader as (typeof LEGACY_PROTOCOL_VERSIONS)[number],
-    )
-  ) {
-    return unsupportedVersion(event, request.id, protocolHeader)
+  const headers = headersFor(event)
+  if (headers.protocolVersion && !isKnownMcpProtocolVersion(headers.protocolVersion)) {
+    return unsupportedVersion(event, request.id, headers.protocolVersion)
   }
 
-  const modern = requestClaimsModern(request, event)
+  const modern = requestClaimsModernMcp(request, headers)
+
+  if (!modern && isLegacyMcpNotification(request)) {
+    event.node.res.statusCode = 202
+    return null
+  }
+
+  if (request.id === undefined) {
+    event.node.res.statusCode = 400
+    return rpcError(null, { code: -32600, message: 'MCP requests require a JSON-RPC id.' })
+  }
+
   if (modern) {
-    const mismatch = validateModernRequest(event, request)
-    if (mismatch) return mismatch
+    const protocolError = validateModernMcpRequest(request, headers)
+    if (protocolError) {
+      event.node.res.statusCode = protocolError.statusCode
+      return rpcError(request.id, {
+        code: protocolError.code,
+        message: protocolError.message,
+        data: protocolError.data,
+      })
+    }
   }
 
   if (!modern && request.method === 'initialize') {
-    const params = isObject(request.params) ? request.params : {}
-    const requested = typeof params.protocolVersion === 'string' ? params.protocolVersion : ''
-    const protocolVersion = LEGACY_PROTOCOL_VERSIONS.includes(
-      requested as (typeof LEGACY_PROTOCOL_VERSIONS)[number],
-    )
-      ? requested
-      : LEGACY_PROTOCOL_VERSIONS[0]
-
+    const params = isMcpObject(request.params) ? request.params : {}
     return rpcResult(request.id, {
-      protocolVersion,
+      protocolVersion: selectLegacyMcpProtocolVersion(params.protocolVersion),
       capabilities: { tools: {} },
       serverInfo: SERVER_INFO,
       instructions:
@@ -339,10 +280,10 @@ export default defineEventHandler(async (event) => {
       request.id,
       modernResult({
         resultType: 'complete',
-        supportedVersions: [MODERN_PROTOCOL_VERSION],
+        supportedVersions: [MODERN_MCP_PROTOCOL_VERSION],
         capabilities: { tools: {} },
         instructions:
-          'Two-tool Rainbow AgentProfile bridge: read bound identity/capabilities and submit a heartbeat. Credentials remain in the MCP client/server transport, never in tool arguments.',
+          'Two-tool Rainbow AgentProfile bridge: read bound identity/capabilities and submit a heartbeat. Credentials remain in the MCP transport, never in tool arguments.',
         ttlMs: 300_000,
         cacheScope: 'public',
       }),
@@ -350,19 +291,21 @@ export default defineEventHandler(async (event) => {
   }
 
   if (request.method === 'tools/list') {
-    const result = modern
-      ? modernResult({
-          resultType: 'complete',
-          tools,
-          ttlMs: 300_000,
-          cacheScope: 'public',
-        })
-      : { tools }
-    return rpcResult(request.id, result)
+    return rpcResult(
+      request.id,
+      modern
+        ? modernResult({
+            resultType: 'complete',
+            tools,
+            ttlMs: 300_000,
+            cacheScope: 'public',
+          })
+        : { tools },
+    )
   }
 
   if (request.method === 'tools/call') {
-    const params = isObject(request.params) ? request.params : {}
+    const params = isMcpObject(request.params) ? request.params : {}
     const name = typeof params.name === 'string' ? params.name : ''
     if (!name) {
       return rpcResult(request.id, toolError('Tool name is required.', modern))

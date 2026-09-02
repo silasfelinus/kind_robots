@@ -3,8 +3,10 @@
 // Regression test for checkIconCoverageGuard()/extractIconEntries() in
 // verifyModelBuilderIconCoverageGuard.ts (model-builder/t-029, cycle 82).
 // Exercises the real check against a synthetic modelBuilderRecipes.ts-shaped
-// fixture covering: a typo'd icon name, a renamed/removed icon, and the
-// clean shape with every icon present.
+// fixture covering: a typo'd icon name, a renamed/removed icon, the clean
+// shape with every icon present, and (cycle 84) a leading comment
+// containing literal `{`/`}` characters, which broke the original
+// brace-matching extraction by hiding the real Facet-shaped entry entirely.
 import assert from 'node:assert/strict'
 
 import {
@@ -29,10 +31,12 @@ function fixture(options: {
   stageIcon?: string
   sourceIcon?: string
   recipeIcon?: string
+  sourceLeadingComment?: string
 }): string {
   const stageIcon = options.stageIcon ?? 'lightbulb'
   const sourceIcon = options.sourceIcon ?? 'blueprint'
   const recipeIcon = options.recipeIcon ?? 'megaphone'
+  const sourceLeadingComment = options.sourceLeadingComment ?? ''
   return `
 export const BUILD_STAGES: BuildStageConfig[] = [
   { key: 'PITCH', label: 'Pitch', short: 'Pitch', description: 'x', icon: 'kind-icon:${stageIcon}' },
@@ -40,7 +44,7 @@ export const BUILD_STAGES: BuildStageConfig[] = [
 ]
 
 export const SOURCE_TYPES: SourceTypeConfig[] = [
-  {
+  {${sourceLeadingComment}
     key: 'Project',
     label: 'Project',
     plural: 'Projects',
@@ -117,6 +121,27 @@ assert.equal(
   multipleMissingErrors.length,
   2,
   `expected 2 errors for the two missing icons, got: ${JSON.stringify(multipleMissingErrors)}`,
+)
+
+// A leading comment mentioning a brace-containing path (the real Facet
+// entry's actual shape in modelBuilderRecipes.ts) must not hide the entry
+// that follows it, and the comment's own `{`/`}` characters must not be
+// mistaken for a phantom entry (cycle 84 -- see this file's header note).
+const braceCommentEntries = extractIconEntries(
+  fixture({
+    sourceLeadingComment:
+      '\n    // see server/api/{dreams,scenarios}/[id]/facets.put.ts for context',
+  }),
+)
+assert.equal(
+  braceCommentEntries.length,
+  4,
+  `expected the brace-containing comment not to swallow or duplicate any entry, got: ${JSON.stringify(braceCommentEntries)}`,
+)
+assert.deepEqual(
+  braceCommentEntries.find((e) => e.array === 'SOURCE_TYPES'),
+  { array: 'SOURCE_TYPES', key: 'Project', icon: 'blueprint' },
+  `expected the Project entry to survive a brace-containing leading comment, got: ${JSON.stringify(braceCommentEntries)}`,
 )
 
 console.log(

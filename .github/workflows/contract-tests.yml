@@ -941,6 +941,12 @@ jobs:
       - name: Model Builder icon coverage guard contract
         run: npm run test:model-builder-icon-coverage-guard
 
+      - name: Model Builder source-endpoint coverage guard checker self-test
+        run: npm run test:model-builder-source-endpoint-coverage-guard-selftest
+
+      - name: Model Builder source-endpoint coverage guard contract
+        run: npm run test:model-builder-source-endpoint-coverage-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

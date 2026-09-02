@@ -21,6 +21,20 @@
 // project's other narrow textual guards over a general-purpose static
 // analyzer (see verifyModelBuilderSourceBlurbCoverageGuard.ts's header for
 // the same rationale).
+//
+// Fixed (cycle 84) -- extractIconEntries originally split each array's body
+// into per-entry objects with a naive `/\{[^{}]*\}/g` non-nested-brace
+// regex. SOURCE_TYPES' Facet entry carries a leading comment mentioning
+// `server/api/{dreams,scenarios}/...` -- a literal `{`/`}` pair inside prose
+// -- which broke that assumption: the regex matched the comment's
+// `{dreams,scenarios}` as a fake "entry" and skipped the real Facet object
+// entirely, so this guard silently checked only 6 of SOURCE_TYPES' 7 icons
+// (Facet's `kind-icon:gem` was never verified) while still reporting a
+// plausible-looking total. Rewritten to split on `key: '...'` boundaries
+// instead, the same index-based chunking verifyModelBuilderSourceFieldGuard.ts
+// already uses for exactly this reason -- it never looks at brace characters
+// at all, so a comment (or any other free text) containing them can't
+// desynchronize the split.
 import { readFileSync, readdirSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -56,8 +70,11 @@ export interface IconEntry {
 }
 
 // Every `{ key: '...', ..., icon: 'kind-icon:...', ... }` entry across the
-// three arrays that carry an `icon` field. Exported so the self-test can
-// exercise it against a synthetic fixture.
+// three arrays that carry an `icon` field. Splits each array's body on
+// `key: '...'` boundaries (not brace matching -- see the cycle-84 fix note
+// above) so free-text comments containing `{`/`}` can't desynchronize the
+// split. Exported so the self-test can exercise it against a synthetic
+// fixture.
 export function extractIconEntries(recipesFileContent: string): IconEntry[] {
   const entries: IconEntry[] = []
 
@@ -69,13 +86,25 @@ export function extractIconEntries(recipesFileContent: string): IconEntry[] {
           'has its shape changed?',
       )
     }
-    for (const objMatch of match[1]!.matchAll(/\{[^{}]*\}/g)) {
-      const obj = objMatch[0]
-      const keyMatch = obj.match(/key:\s*'([\w-]+)'/)
-      const iconMatch = obj.match(/icon:\s*'kind-icon:([\w-]+)'/)
-      if (!keyMatch || !iconMatch) continue
-      entries.push({ array: name, key: keyMatch![1]!, icon: iconMatch![1]! })
+    const body = match[1]!
+    const keyMatches = [...body.matchAll(/key:\s*'([\w-]+)'/g)]
+    if (!keyMatches.length) {
+      throw new Error(
+        `Found the ${name} array literal but no key: entries inside it -- ` +
+          'has its shape changed?',
+      )
     }
+    keyMatches.forEach((keyMatch, index) => {
+      const start = keyMatch.index!
+      const end =
+        index + 1 < keyMatches.length
+          ? keyMatches[index + 1]!.index!
+          : body.length
+      const chunk = body.slice(start, end)
+      const iconMatch = chunk.match(/icon:\s*'kind-icon:([\w-]+)'/)
+      if (!iconMatch) return
+      entries.push({ array: name, key: keyMatch[1]!, icon: iconMatch[1]! })
+    })
   }
 
   return entries

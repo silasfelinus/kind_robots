@@ -929,6 +929,12 @@ jobs:
       - name: Model Builder "Start build run" loading-state guard contract
         run: npm run test:model-builder-start-run-loading-guard
 
+      - name: Model Builder source-blurb coverage guard checker self-test
+        run: npm run test:model-builder-source-blurb-coverage-guard-selftest
+
+      - name: Model Builder source-blurb coverage guard contract
+        run: npm run test:model-builder-source-blurb-coverage-guard
+
       - name: Kontext mask forwarding contract
         run: npm run test:kontext-mask-forwarding
 

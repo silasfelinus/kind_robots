@@ -408,6 +408,8 @@
     "test:model-builder-item-panel-reject-wiring-guard": "tsx utils/scripts/verifyModelBuilderItemPanelRejectWiringGuard.ts",
     "test:model-builder-start-run-loading-guard-selftest": "tsx utils/scripts/verifyModelBuilderStartRunLoadingGuard.test.ts",
     "test:model-builder-start-run-loading-guard": "tsx utils/scripts/verifyModelBuilderStartRunLoadingGuard.ts",
+    "test:model-builder-source-blurb-coverage-guard-selftest": "tsx utils/scripts/verifyModelBuilderSourceBlurbCoverageGuard.test.ts",
+    "test:model-builder-source-blurb-coverage-guard": "tsx utils/scripts/verifyModelBuilderSourceBlurbCoverageGuard.ts",
     "test:storybook-active-story-resume-guard": "npx tsx utils/scripts/verifyStorybookActiveStoryResumeGuard.ts",
     "test:storybook-answer-input-preservation-guard": "node utils/scripts/verifyStorybookAnswerInputPreservationGuard.mjs",
     "test:storybook-answer-rollback-guard": "node utils/scripts/verifyStorybookAnswerRollbackGuard.mjs",

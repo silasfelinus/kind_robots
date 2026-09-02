@@ -148,7 +148,7 @@ export const SOURCE_TYPES: SourceTypeConfig[] = [
     subtitleField: 'class',
     defaultRecipe: 'character-deck',
     recipes: ['character-deck', 'art-upgrade', 'relationship-expansion'],
-    blurb: 'Full character deck, signature rewards, or an art upgrade.',
+    blurb: 'Full character deck, signature rewards, scenarios, or an art upgrade.',
   },
   {
     key: 'Bot',
@@ -212,7 +212,7 @@ export const SOURCE_TYPES: SourceTypeConfig[] = [
     subtitleField: 'rewardType',
     defaultRecipe: 'reward-deck',
     recipes: ['reward-deck', 'art-upgrade', 'relationship-expansion'],
-    blurb: 'Reward deck with type-aware art and optional 3D reference.',
+    blurb: 'Reward deck with type-aware art, optional 3D reference, or expand into characters.',
   },
   {
     key: 'Scenario',
@@ -224,7 +224,7 @@ export const SOURCE_TYPES: SourceTypeConfig[] = [
     subtitleField: 'difficulty',
     defaultRecipe: 'art-upgrade',
     recipes: ['art-upgrade', 'relationship-expansion'],
-    blurb: 'Art upgrade, or expand into cast characters and rewards.',
+    blurb: 'Art upgrade, or expand into cast characters.',
   },
 ]
 

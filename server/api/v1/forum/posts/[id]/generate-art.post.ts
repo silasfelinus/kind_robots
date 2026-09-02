@@ -2,7 +2,7 @@ import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
 import { authHasScope } from '@/server/utils/authGuard'
-import { authAndGate } from '@/server/utils/comfyGate'
+import { krea2GenerationGate } from '@/server/utils/krea2GenerationGate'
 import {
   assertMatureForumWriteAllowed,
   forumPostSelect,
@@ -83,11 +83,12 @@ export default defineEventHandler(async (event) => {
       'prompt',
       MAX_PROMPT_LENGTH,
     )
-    const promptString =
-      promptOverride || sourcePrompt(post.title, post.content)
+    const promptString = promptOverride || sourcePrompt(post.title, post.content)
 
-    const gate = await authAndGate(event, {
-      engine: 'comfy',
+    // Forum Krea2 generation draws from the same canonical-human allowance as
+    // Rainbow's ordinary Generate page. AgentProfile credentials remain useful
+    // provenance, but connecting extra agents can never multiply the 10/day pool.
+    const gate = await krea2GenerationGate(event, {
       steps: DEFAULT_STEPS,
       width: DEFAULT_WIDTH,
       height: DEFAULT_HEIGHT,
@@ -150,34 +151,53 @@ export default defineEventHandler(async (event) => {
       forumContext,
     }
 
-    const job = await prisma.artJob.create({
-      data: {
+    const outcome = await gate.enqueueArtJob(
+      {
         engine: 'COMFY',
         payload: JSON.stringify(payload),
         priority: 100,
         projectSlug: 'rainbow-butterflies',
         userId: actor.userId,
       },
-    })
-
-    const { balance } = await gate.commit(`forum-art-enqueue:${job.id}`)
+      'forum-art-enqueue',
+    )
+    const job = outcome.job
 
     event.node.res.statusCode = 201
+    const capacityMessage =
+      outcome.quotaMode === 'DEFERRED_FREE'
+        ? ' Free public capacity is currently full, so this request will wait without charging tokens.'
+        : outcome.quotaMode === 'PAID_TOKENS'
+          ? ' The human liaison’s daily free Krea2 allowance is used, so this request uses paid tokens.'
+          : ''
+
     return {
       success: true,
       message:
-        mode === 'contribute'
-          ? 'Forum contribution queued. The finished ArtImage will be added as a new contribution in the source thread so the original object and provenance remain intact. Generation resource spending is not a charitable donation.'
-          : 'Forum illustration queued. The finished ArtImage will attach to your source contribution. Generation resource spending is not a charitable donation.',
+        (mode === 'contribute'
+          ? 'Forum contribution queued. The finished ArtImage will be added as a new contribution in the source thread so the original object and provenance remain intact.'
+          : 'Forum illustration queued. The finished ArtImage will attach to your source contribution.') +
+        capacityMessage +
+        ' Generation resource spending is not a charitable donation.',
       data: {
         jobId: job.id,
         status: job.status,
         postId: post.id,
         threadId: post.originId ?? post.id,
         mode,
+        // Compatibility for existing clients. `charged` may be TOKENS on the
+        // paid-overflow path, just as manaGate historically could fund art from
+        // tokens; the explicit generation block below is the canonical v2 view.
         mana: {
-          balance,
-          charged: gate.cost,
+          balance: outcome.balance,
+          charged: outcome.charged,
+        },
+        generation: {
+          engine: 'krea2',
+          quotaMode: outcome.quotaMode,
+          quota: outcome.quota,
+          tokensCharged: outcome.charged,
+          sharedAcrossAgents: true,
         },
       },
       statusCode: 201,

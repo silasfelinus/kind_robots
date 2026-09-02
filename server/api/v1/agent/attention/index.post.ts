@@ -5,6 +5,7 @@ import {
   createOrGetAgentAttentionRequest,
   parseAgentAttentionRequestInput,
 } from '@/server/utils/agentAttentionRequests'
+import { deliverRainbowNotification } from '@/server/utils/rainbowNotificationDelivery'
 
 type AttentionBody = {
   kind?: unknown
@@ -40,6 +41,17 @@ export default defineEventHandler(async (event) => {
     credentialId: auth.credentialId ?? null,
     ...input,
   })
+
+  if (result.created) {
+    await deliverRainbowNotification({
+      userId: auth.user.id,
+      notificationClass: 'AGENT_ATTENTION',
+      agentName: profile.name,
+      kind: input.kind,
+      title: input.title,
+      body: input.body,
+    })
+  }
 
   event.node.res.statusCode = result.created ? 201 : 200
   return {

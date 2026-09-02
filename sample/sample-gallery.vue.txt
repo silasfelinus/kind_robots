@@ -70,7 +70,7 @@
              showMature from their account settings instead. -->
         <label
           v-if="userStore.isAdmin"
-          class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-100 px-4 py-2"
+          class="label kr-panel-flat cursor-pointer justify-between px-4 py-2"
         >
           <span class="label-text font-bold">Show Mature</span>
 

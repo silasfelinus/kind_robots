@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import {
+  isAllowedMcpOrigin,
   isKnownMcpProtocolVersion,
   isLegacyMcpNotification,
   MODERN_MCP_PROTOCOL_VERSION,
@@ -50,6 +51,15 @@ assert.deepEqual([...SUPPORTED_MCP_PROTOCOL_VERSIONS], [
 assert.equal(isKnownMcpProtocolVersion('2026-07-28'), true)
 assert.equal(isKnownMcpProtocolVersion('2025-11-25'), true)
 assert.equal(isKnownMcpProtocolVersion('2099-01-01'), false)
+
+assert.equal(isAllowedMcpOrigin(undefined, true), true)
+assert.equal(isAllowedMcpOrigin('https://kindrobots.org', true), true)
+assert.equal(isAllowedMcpOrigin('https://rainbowbutterflies.org', true), true)
+assert.equal(isAllowedMcpOrigin('https://attacker.example', true), false)
+assert.equal(isAllowedMcpOrigin('http://localhost:3000', true), false)
+assert.equal(isAllowedMcpOrigin('http://localhost:3000', false), true)
+assert.equal(isAllowedMcpOrigin('http://127.0.0.1:5173', false), true)
+assert.equal(isAllowedMcpOrigin('not a url', false), false)
 
 const listRequest = modernRequest('tools/list')
 assert.equal(requestClaimsModernMcp(listRequest, modernHeaders('tools/list')), true)
@@ -123,6 +133,12 @@ assert.equal(
 )
 
 const route = readFileSync('server/api/v1/mcp.post.ts', 'utf8')
+const getRoute = readFileSync('server/api/v1/mcp.get.ts', 'utf8')
+const deleteRoute = readFileSync('server/api/v1/mcp.delete.ts', 'utf8')
+const originMiddleware = readFileSync(
+  'server/middleware/rainbow-mcp-origin.ts',
+  'utf8',
+)
 const runtime = readFileSync('server/utils/agentProfileRuntime.ts', 'utf8')
 const checkInRoute = readFileSync('server/api/v1/agent/check-in.post.ts', 'utf8')
 
@@ -148,6 +164,16 @@ assert.match(route, /WWW-Authenticate/)
 assert.doesNotMatch(route, /fetch\(|\$fetch\(/)
 assert.doesNotMatch(route, /agentCredential\.create|agent-credentials|generation:art|forum:write/)
 assert.doesNotMatch(route, /console\.log|console\.error|authorization.*log/i)
+
+assert.match(originMiddleware, /pathname !== '\/api\/v1\/mcp'/)
+assert.match(originMiddleware, /getHeader\(event, 'origin'\)/)
+assert.match(originMiddleware, /isAllowedMcpOrigin/)
+assert.match(originMiddleware, /process\.env\.NODE_ENV === 'production'/)
+assert.match(originMiddleware, /statusCode: 403/)
+for (const statelessRoute of [getRoute, deleteRoute]) {
+  assert.match(statelessRoute, /setHeader\(event, 'Allow', 'POST'\)/)
+  assert.match(statelessRoute, /statusCode = 405/)
+}
 
 assert.match(runtime, /requireScopedApiUser\(event, scope\)/)
 assert.match(runtime, /auth\.kind !== 'agent-credential'/)

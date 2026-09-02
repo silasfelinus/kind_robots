@@ -412,6 +412,8 @@
     "test:model-builder-source-blurb-coverage-guard": "tsx utils/scripts/verifyModelBuilderSourceBlurbCoverageGuard.ts",
     "test:model-builder-icon-coverage-guard-selftest": "tsx utils/scripts/verifyModelBuilderIconCoverageGuard.test.ts",
     "test:model-builder-icon-coverage-guard": "tsx utils/scripts/verifyModelBuilderIconCoverageGuard.ts",
+    "test:model-builder-source-endpoint-coverage-guard-selftest": "tsx utils/scripts/verifyModelBuilderSourceEndpointCoverageGuard.test.ts",
+    "test:model-builder-source-endpoint-coverage-guard": "tsx utils/scripts/verifyModelBuilderSourceEndpointCoverageGuard.ts",
     "test:storybook-active-story-resume-guard": "npx tsx utils/scripts/verifyStorybookActiveStoryResumeGuard.ts",
     "test:storybook-answer-input-preservation-guard": "node utils/scripts/verifyStorybookAnswerInputPreservationGuard.mjs",
     "test:storybook-answer-rollback-guard": "node utils/scripts/verifyStorybookAnswerRollbackGuard.mjs",

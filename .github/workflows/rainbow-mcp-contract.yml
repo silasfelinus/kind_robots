@@ -1,0 +1,44 @@
+name: Rainbow MCP Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'server/api/v1/mcp.post.ts'
+      - 'server/api/v1/agent/check-in.post.ts'
+      - 'server/utils/agentProfileRuntime.ts'
+      - 'server/utils/rainbowMcpProtocol.ts'
+      - 'utils/scripts/verifyAgentCheckins.test.ts'
+      - 'utils/scripts/verifyRainbowMcpProtocol.test.ts'
+      - '.github/workflows/agent-checkin-contract.yml'
+      - '.github/workflows/rainbow-mcp-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'server/api/v1/mcp.post.ts'
+      - 'server/api/v1/agent/check-in.post.ts'
+      - 'server/utils/agentProfileRuntime.ts'
+      - 'server/utils/rainbowMcpProtocol.ts'
+      - 'utils/scripts/verifyAgentCheckins.test.ts'
+      - 'utils/scripts/verifyRainbowMcpProtocol.test.ts'
+      - '.github/workflows/agent-checkin-contract.yml'
+      - '.github/workflows/rainbow-mcp-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm install --include=optional
+      - name: Verify protocol and two-tool boundary
+        run: npx tsx utils/scripts/verifyRainbowMcpProtocol.test.ts
+      - name: Verify shared AgentProfile check-in contract
+        run: npx tsx utils/scripts/verifyAgentCheckins.test.ts

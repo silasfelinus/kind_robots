@@ -253,15 +253,17 @@
           2026-09-02: "if the title is larger than two lines, I'd rather we push
           to take up vertical space than truncate."
 
-          So no clamp at all. The caption is `shrink-0` and the plate above it is
-          `min-h-0 flex-1`, which means a third or fourth line takes its room
-          from the picture rather than from the name -- the name is the part you
-          are reading. The plate keeps a floor so a pathological title cannot
-          squeeze the artwork out of existence entirely.
+          So four lines instead of two, not unlimited. "Larger than two lines"
+          means a name that needs three or four, and no clamp at all was the
+          wrong reading of it: the art queue's tiles are titled with their whole
+          generation prompt, so on a tablet they rendered as eight lines of
+          paragraph with the artwork crushed down to its floor -- the картинка
+          shelf became a wall of text. Four lines covers every real object name
+          and still leaves the tile a picture.
         -->
         <div class="min-w-0 shrink-0 px-1.5 py-1">
           <p
-            class="text-xs font-bold leading-tight text-base-content group-hover:text-primary"
+            class="line-clamp-4 text-xs font-bold leading-tight text-base-content group-hover:text-primary"
           >
             {{ item.title }}
           </p>

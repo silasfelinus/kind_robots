@@ -69,10 +69,22 @@
 
     <!--
       A bounded scroller, not an unbounded list: the gate count is unpredictable
-      (it has been twenty-plus) and this sits beside a fixed-height hero. The
+      (it has been seventy-plus) and this sits beside a fixed-height hero. The
       layout contract's one-scroll rule deliberately does not count a `max-h-*`
-      region -- nested preview, not the page's scroll owner. `max-h-full` bounds
-      it to the band height the page sets, and keeps the `max-h-*` exemption.
+      region -- nested preview, not the page's scroll owner.
+
+      TWO BOUNDS, because one is not enough. `xl:max-h-full` is right at xl,
+      where this sits in a column with a definite height. Below xl that column is
+      auto-height, so `max-h-full` resolves to "as tall as my content" and the
+      scroller silently stops scrolling -- the list simply unrolls into the page.
+
+      Measured on a tablet at 1180x820 (2026-09-02): this rendered 3542px tall
+      with `scrollHeight === clientHeight`, and the page's real scroll owner
+      reported 4333px of content in a 722px viewport. Six screenfuls, almost all
+      of it gates. Silas: "We have three screens, a MASSIVE news feed." The
+      explicit 26rem is about six gate rows -- enough to work through, short
+      enough that projects and news stay on the same screen. With it, the same
+      page measures 1133px.
 
       ONE COLUMN, not the three-across grid a very wide column briefly invited.
       Silas, 2026-08-30: "Basically, one vertically scrollable row, so the dream
@@ -82,7 +94,7 @@
       neighbours.
     -->
     <div
-      class="max-h-full min-h-0 space-y-1 overflow-y-auto overscroll-contain pr-1"
+      class="max-h-[26rem] min-h-0 space-y-1 overflow-y-auto overscroll-contain pr-1 xl:max-h-full"
     >
       <div
         v-for="gate in gates"

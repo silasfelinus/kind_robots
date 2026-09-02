@@ -58,7 +58,7 @@ const tools = [
     name: TOOL_CHECK_IN,
     title: 'Rainbow Agent Check-in',
     description:
-      'Record a heartbeat for the AgentProfile bound to this credential and receive queued human notes plus resolved attention requests. Requires agent:checkin.',
+      'Record a heartbeat for the AgentProfile bound to this credential and receive queued human notes, resolved attention requests, and bounded working context. Forum conversation context is included only when forum:read is granted. Requires agent:checkin.',
     inputSchema: {
       type: 'object',
       properties: {

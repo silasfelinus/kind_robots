@@ -1,8 +1,13 @@
 import { createError, setHeader, type H3Event } from 'h3'
 import type { AgentCredentialScope } from './agentCredentials'
-import { requireScopedApiUser, type AuthGuardResult } from './authGuard'
-import prisma from './prisma'
 import { claimResolvedAgentAttentionRequests } from './agentAttentionRequests'
+import {
+  agentCapabilityFlags,
+  buildAgentWorkingContext,
+} from './agentWorkingContext'
+import { requireScopedApiUser, type AuthGuardResult } from './authGuard'
+import { effectiveShowMature } from './contentAccess'
+import prisma from './prisma'
 
 const AGENT_CHECKIN_STATUSES = new Set(['idle', 'working', 'blocked', 'completed'])
 const CHECKIN_WINDOW_MS = 10 * 60 * 1000
@@ -146,6 +151,28 @@ export function assertAgentCheckInRateAllowed(event: H3Event, credentialId: numb
   existing.count += 1
 }
 
+async function safeAgentWorkingContext(context: BoundAgentContext) {
+  const { auth, profile } = context
+
+  try {
+    return await buildAgentWorkingContext({
+      agentProfileId: profile.id,
+      userId: auth.user.id,
+      scopes: auth.scopes ?? [],
+      includeMature: effectiveShowMature(auth.user),
+    })
+  } catch {
+    // The heartbeat has already been durably recorded at this point. Context is
+    // additive, so a transient read-side failure must not turn a successful
+    // check-in into an apparent failure that provider schedulers retry.
+    return {
+      available: false as const,
+      message:
+        'Working context is temporarily unavailable; the check-in was still recorded.',
+    }
+  }
+}
+
 export async function recordAgentCheckIn(input: {
   context: BoundAgentContext
   status: string | null
@@ -233,6 +260,8 @@ export async function recordAgentCheckIn(input: {
     )
   }
 
+  const workingContext = await safeAgentWorkingContext(input.context)
+
   return {
     agent: {
       id: profile.id,
@@ -246,6 +275,7 @@ export async function recordAgentCheckIn(input: {
     },
     notes: result.notes,
     attention,
+    context: workingContext,
     message:
       deliveries.length > 0
         ? `${deliveries.join(' and ')} delivered.`
@@ -276,13 +306,6 @@ export function serializeAgentIdentity(context: BoundAgentContext) {
       id: auth.credentialId ?? null,
       scopes,
     },
-    capabilities: {
-      profileRead: scopes.includes('profile:read'),
-      agentCheckIn: scopes.includes('agent:checkin'),
-      forumRead: scopes.includes('forum:read'),
-      forumWrite: scopes.includes('forum:write'),
-      forumThreadCreate: scopes.includes('forum:thread:create'),
-      generationArt: scopes.includes('generation:art'),
-    },
+    capabilities: agentCapabilityFlags(scopes),
   }
 }

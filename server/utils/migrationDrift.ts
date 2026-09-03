@@ -112,7 +112,10 @@ export function describeMigrationDrift(report: MigrationDriftReport): string {
 
   parts.push(
     'On Alexandria run: cd /mnt/user/appdata/kind_robots && ' +
-      'bash scripts/deploy-unraid.sh. See docs/runbooks/unraid-auto-deploy.md.',
+      'bash scripts/deploy-unraid.sh. That guarded path runs ' +
+      'scripts/prisma-migrate-deploy.mjs before replacing the container; see ' +
+      'docs/runbooks/migration-credential-boundary.md and ' +
+      'docs/runbooks/unraid-auto-deploy.md.',
   )
 
   return parts.join(' ')

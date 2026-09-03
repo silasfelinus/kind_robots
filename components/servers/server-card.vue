@@ -16,7 +16,7 @@
     >
       <div v-if="showActions" class="mt-3 flex flex-wrap gap-1">
         <button
-          class="btn btn-xs btn-ghost rounded-xl"
+          class="kr-btn-ghost-xs"
           type="button"
           title="Select"
           @click="selectServer"
@@ -26,7 +26,7 @@
 
         <button
           v-if="allowEdit"
-          class="btn btn-xs btn-ghost rounded-xl"
+          class="kr-btn-ghost-xs"
           type="button"
           title="Edit"
           @click="editServer"
@@ -36,7 +36,7 @@
 
         <button
           v-if="allowTest"
-          class="btn btn-xs btn-ghost rounded-xl"
+          class="kr-btn-ghost-xs"
           type="button"
           title="Test health"
           @click="testServer"

@@ -41,7 +41,7 @@
 
           <button
             v-if="rating"
-            class="btn btn-xs btn-ghost rounded-xl"
+            class="kr-btn-ghost-xs"
             type="button"
             @click="rating = 0"
           >

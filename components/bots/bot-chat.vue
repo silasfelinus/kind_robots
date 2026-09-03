@@ -154,35 +154,19 @@
         />
 
         <div class="mb-2 flex flex-wrap items-center gap-2">
-          <button
-            class="btn btn-xs btn-ghost rounded-xl"
-            type="button"
-            @click="fillStarter"
-          >
+          <button class="kr-btn-ghost-xs" type="button" @click="fillStarter">
             Starter
           </button>
 
-          <button
-            class="btn btn-xs btn-ghost rounded-xl"
-            type="button"
-            @click="fillWeird"
-          >
+          <button class="kr-btn-ghost-xs" type="button" @click="fillWeird">
             Weird
           </button>
 
-          <button
-            class="btn btn-xs btn-ghost rounded-xl"
-            type="button"
-            @click="copyBotIntro"
-          >
+          <button class="kr-btn-ghost-xs" type="button" @click="copyBotIntro">
             Bot Intro
           </button>
 
-          <button
-            class="btn btn-xs btn-ghost rounded-xl"
-            type="button"
-            @click="clearMessage"
-          >
+          <button class="kr-btn-ghost-xs" type="button" @click="clearMessage">
             Clear
           </button>
 
@@ -390,7 +374,7 @@
           <h2 class="text-lg font-bold text-base-content">Prompt Preview</h2>
 
           <button
-            class="btn btn-xs btn-ghost rounded-xl"
+            class="kr-btn-ghost-xs"
             type="button"
             :disabled="!promptPreview"
             @click="copyPromptPreview"

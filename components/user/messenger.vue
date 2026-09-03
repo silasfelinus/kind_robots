@@ -15,7 +15,7 @@
       >
         <h2 class="font-black">Messages</h2>
         <button
-          class="btn btn-ghost btn-xs"
+          class="kr-btn-ghost-xs-plain"
           :disabled="convo.isLoadingList"
           @click="convo.loadConversations()"
         >

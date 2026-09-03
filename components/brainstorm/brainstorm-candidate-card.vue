@@ -262,7 +262,7 @@
           <div v-if="!entry.current" class="mt-2 flex justify-end">
             <button
               type="button"
-              class="btn btn-ghost btn-xs"
+              class="kr-btn-ghost-xs-plain"
               :disabled="disabled"
               @click="emit('restoreRevision', entry.index)"
             >

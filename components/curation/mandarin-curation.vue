@@ -87,11 +87,11 @@
 
     <div v-if="notice" class="alert border border-success/25 bg-success/10 text-sm">
       <span>{{ notice }}</span>
-      <button class="btn btn-ghost btn-xs" type="button" @click="notice = ''">Dismiss</button>
+      <button class="kr-btn-ghost-xs-plain" type="button" @click="notice = ''">Dismiss</button>
     </div>
     <div v-if="error" class="alert border border-error/25 bg-error/10 text-sm">
       <span class="min-w-0 flex-1 break-words">{{ error }}</span>
-      <button class="btn btn-ghost btn-xs" type="button" @click="error = ''">Dismiss</button>
+      <button class="kr-btn-ghost-xs-plain" type="button" @click="error = ''">Dismiss</button>
     </div>
 
     <div v-if="loading && !payload" class="grid min-h-64 place-items-center kr-panel">
@@ -174,7 +174,7 @@
                   <span v-else class="text-xs text-base-content/35">source</span>
                 </td>
                 <td>
-                  <button class="btn btn-ghost btn-xs" type="button" @click.stop="store.selectCard(row.cardKey)">
+                  <button class="kr-btn-ghost-xs-plain" type="button" @click.stop="store.selectCard(row.cardKey)">
                     Edit
                   </button>
                 </td>

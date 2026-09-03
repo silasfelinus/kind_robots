@@ -68,7 +68,7 @@
             Get more mana 🚀
           </NuxtLink>
           <button
-            class="btn btn-ghost rounded-xl"
+            class="kr-btn-ghost-md"
             :disabled="manaStore.loading"
             @click="manaStore.fetch()"
           >

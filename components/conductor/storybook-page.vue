@@ -525,7 +525,7 @@
           <div class="flex flex-wrap gap-2">
             <button
               type="button"
-              class="btn btn-ghost rounded-xl"
+              class="kr-btn-ghost-md"
               :disabled="store.isWeaving"
               @click="clearDraft"
             >

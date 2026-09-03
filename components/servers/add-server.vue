@@ -267,7 +267,7 @@
     <footer
       class="flex shrink-0 flex-wrap justify-end gap-2 border-t border-base-300 bg-base-200 p-4"
     >
-      <button class="btn btn-ghost rounded-xl" type="button" @click="closeForm">
+      <button class="kr-btn-ghost-md" type="button" @click="closeForm">
         Cancel
       </button>
 

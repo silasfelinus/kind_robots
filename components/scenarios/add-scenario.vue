@@ -294,7 +294,7 @@
       <footer class="flex flex-col gap-2 sm:flex-row sm:justify-end">
         <button
           v-if="mode === 'edit'"
-          class="btn btn-ghost rounded-xl"
+          class="kr-btn-ghost-md"
           type="button"
           @click="resetFromSelected"
         >
@@ -303,7 +303,7 @@
 
         <button
           v-else
-          class="btn btn-ghost rounded-xl"
+          class="kr-btn-ghost-md"
           type="button"
           @click="resetForAdd"
         >

@@ -207,7 +207,7 @@
           <p v-if="createError" class="text-sm text-error">{{ createError }}</p>
         </div>
         <div class="modal-action">
-          <button class="btn btn-ghost rounded-xl" @click="closeCreate">
+          <button class="kr-btn-ghost-md" @click="closeCreate">
             Cancel
           </button>
           <button
@@ -238,7 +238,7 @@
         />
         <p v-if="pwError" class="mt-2 text-sm text-error">{{ pwError }}</p>
         <div class="modal-action">
-          <button class="btn btn-ghost rounded-xl" @click="closePassword">
+          <button class="kr-btn-ghost-md" @click="closePassword">
             Cancel
           </button>
           <button

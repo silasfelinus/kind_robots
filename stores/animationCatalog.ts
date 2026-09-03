@@ -478,6 +478,17 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'kintsugi-weather',
+    label: 'Kintsugi Weather',
+    reveal: 'Cracks catch the light',
+    icon: 'kind-icon:gem',
+    tooltip:
+      'Hairline fractures branch quietly across the glaze, then heal themselves with warm gold seams before fading clear again; hover to warm a healing seam, click for a passing hairline crack 🏺',
+    color: '#c9a24b',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

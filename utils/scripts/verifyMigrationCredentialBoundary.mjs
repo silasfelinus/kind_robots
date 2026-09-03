@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 
 const prismaConfig = readFileSync('prisma.config.ts', 'utf8')
 const migrateWrapper = readFileSync('scripts/prisma-migrate-deploy.mjs', 'utf8')
@@ -38,15 +38,12 @@ for (const [name, source] of [
 
 // SECRETS AND CREDENTIALS NEVER LIVE ON /mnt/user/pc (Silas, 2026-08-25). It is a
 // general-access share and a primary thoroughfare for ordinary folders, which makes
-// it the wrong home for a mode-600 file. The agent lane was moved off it on
-// 2026-08-21; the migrate lane's handoff file was meant to follow and did not
-// survive, which is what broke the 2026-08-25 production migration. Bulk non-secret
-// data (kindrobots/images, kindrobots/animate, ai/models) legitimately lives there
-// and is not what this checks.
+// it the wrong home for a mode-600 file. Check every credential provisioner that is
+// still present; the retired agent-lane provisioner was removed with that lane.
 for (const provisioner of [
   'scripts/provision-migrate-db-lane.sh',
   'scripts/provision-agent-db-lane.sh',
-]) {
+].filter(existsSync)) {
   const text = readFileSync(provisioner, 'utf8')
   assert.match(
     text,

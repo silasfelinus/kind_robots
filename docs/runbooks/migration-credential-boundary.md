@@ -4,7 +4,7 @@ Kind Robots deliberately separates ordinary application/database access from sch
 
 ## Normal application and developer commands
 
-`DATABASE_URL` remains the normal credential for application runtime, Prisma Client use, and non-schema-writing commands such as `prisma generate`, `prisma studio`, and `prisma db pull`.
+`DATABASE_URL` is the normal credential for application runtime, Prisma Client use, and non-schema-writing commands such as `prisma generate`, `prisma studio`, and `prisma db pull`.
 
 Coding-agent sessions do not need a standing migration credential for ordinary work.
 
@@ -21,129 +21,48 @@ MIGRATION_DATABASE_URL='<migration connection string>' npx prisma db push
 
 All `prisma migrate ...` subcommands fail closed when `MIGRATION_DATABASE_URL` is absent. `prisma db execute` and `prisma db push` do the same. They do not silently fall back to `DATABASE_URL`.
 
-The repository production wrapper, `node scripts/prisma-migrate-deploy.mjs`, also requires `MIGRATION_DATABASE_URL` before it opens a database connection. The wrapper passes the elevated URL to the child Prisma process as both `MIGRATION_DATABASE_URL` and `DATABASE_URL` only inside that child so Prisma and the TLS preflight use the same explicitly authorized connection.
+The production wrapper, `node scripts/prisma-migrate-deploy.mjs`, also requires `MIGRATION_DATABASE_URL`. It performs the TLS preflight and passes the elevated URL to Prisma only inside the throwaway migration process.
 
 ## Local development
 
-Local development uses the same explicit boundary. If a developer intentionally wants to run migrations against a disposable local development database, set `MIGRATION_DATABASE_URL` to that local database URL for the command or shell session. Do not rely on an ambient application `DATABASE_URL` to become migration-capable by accident.
+Local development uses the same explicit boundary. To intentionally migrate a disposable local database, set `MIGRATION_DATABASE_URL` to that local database URL for the command or shell session. Do not rely on an ambient application `DATABASE_URL` to become migration-capable by accident.
 
-This keeps local migration work possible while making elevation visible in the command environment.
+## Production on Alexandria
 
-## CI and production
+Production is the `KindRobots` DockerMan container on the Alexandria Unraid host. The canonical deploy path is **not** the Unraid Force Update button and is **not** `docker compose`.
 
-CI or production jobs that execute migrations must provide `MIGRATION_DATABASE_URL` through the environment or secret store. Jobs that only build, typecheck, generate Prisma Client code, or run application tests should continue to use the ordinary database lane and should not receive the migration credential unless they genuinely need schema-write capability.
+Unraid User Scripts schedules:
 
-### Applying migrations on deploy
+```bash
+/bin/bash /mnt/user/appdata/kind_robots/scripts/unraid-user-script.sh
+```
 
-**Production is Unraid, and Unraid's Force Update does not migrate.** The site is served by the `KindRobots` container, created from an Unraid Docker template and running `ghcr.io/silasfelinus/kind_robots:latest`. Updating it means Force Update in the Unraid UI, which pulls the image and recreates the container. Nothing in that path runs a migration, so it has to be done alongside.
+That launcher refreshes a clean `main` checkout and delegates to `scripts/deploy-unraid.sh`. The deployer:
 
-Migrate from the image you are about to serve, then Force Update:
+1. pulls `ghcr.io/silasfelinus/kind_robots:latest`;
+2. loads the migration credential from the protected handoff file;
+3. runs that image's pending migrations;
+4. only after migration succeeds, invokes Unraid DockerMan's container updater;
+5. waits for the `KindRobots` container health check.
+
+If migration fails, the old application container is left running. The elevated credential never enters the long-running web container.
+
+See `docs/runbooks/unraid-auto-deploy.md` for the one-time User Scripts setup and the migration compatibility rule for unattended deployments.
+
+### Manual production deployment
+
+The same guarded path can be invoked directly:
 
 ```bash
 cd /mnt/user/appdata/kind_robots
-
-# Do not skip this check. `. ./.secrets/...` on a missing file prints one line
-# and CARRIES ON, leaving MIGRATION_DATABASE_URL unset in the shell -- and then
-# `-e MIGRATION_DATABASE_URL` passes nothing, so the value falls through from
-# --env-file instead, quotes and all. See "When the handoff file is missing".
-if [ ! -r ./.secrets/kindrobots-db-migrate.env ]; then
-  echo "STOP: ./.secrets/kindrobots-db-migrate.env is missing."
-  echo "Run:  bash scripts/provision-migrate-db-lane.sh --apply"
-else
-  set -a; . ./.secrets/kindrobots-db-migrate.env; set +a
-  case "$MIGRATION_DATABASE_URL" in
-    mysql://*) echo "migrate credential loaded, shape OK" ;;
-    *) echo "STOP: MIGRATION_DATABASE_URL is unset or not a bare mysql:// URL" ;;
-  esac
-fi
-
-docker pull ghcr.io/silasfelinus/kind_robots:latest
-
-docker run --rm --network cafepurr \
-  --env-file /mnt/user/appdata/kind_robots/.env \
-  -e MIGRATION_DATABASE_URL \
-  ghcr.io/silasfelinus/kind_robots:latest \
-  node scripts/prisma-migrate-deploy.mjs
+bash scripts/deploy-unraid.sh
 ```
 
-The `case` prints only OK or STOP — never the credential. Do not echo the
-variable itself to check it; that is how a live JWT ended up in a session
-transcript three times (conductor/t-116, t-128).
+Do not manually split this back into “migrate, then click Force Update” for routine work. That two-step human handoff is exactly how production accumulated unapplied migrations.
 
-Every line above is meant to be pasted as-is. There are deliberately **no placeholders** to substitute: `MIGRATION_DATABASE_URL` arrives from the sourced handoff file, and `-e MIGRATION_DATABASE_URL` with no `=value` passes it from the current shell, keeping the credential out of the command line and out of shell history. An earlier revision of this page printed a `mysql://kindrobot_migrate:PASSWORD@HOST:5544/DBNAME` template here; it was pasted verbatim more than once, and `P1001: Can't reach database server at HOST:5544` is what that looks like.
+`migrate deploy` applies pending migrations only. It never resets the database.
 
-No `git pull` is required for any of this. The image carries its own `prisma/migrations`, `scripts/` and `prisma.config.ts`; the checkout is used only for `.env`.
-
-#### Secrets live in `<checkout>/.secrets/`, never on `/mnt/user/pc`
-
-**Standing rule, Silas 2026-08-25:** the only acceptable location for this host's
-credentials is `/mnt/user/appdata/kind_robots/.secrets/`. Never `/mnt/user/pc`, and
-never treat `/mnt/user/pc` as a root for anything unless explicitly told to in that
-instance — which, for secrets, will not happen.
-
-`/mnt/user/pc` is a general-access share and a primary thoroughfare for ordinary
-folders, which makes it exactly the wrong home for a mode-600 file. The agent lane was
-moved off it on 2026-08-21 for this reason (see `agent-database-lane.md`); the migrate
-lane's handoff file was supposed to move with it and evidently did not survive, which is
-the direct cause of the 2026-08-25 failure below.
-
-Both provisioners already default to `<repo>/.secrets` and need no argument. `SECRETS_DIR`
-can override it, and should not be pointed at `/mnt/user/pc`.
-
-This rule is about **credentials**, not about the share as a whole. `/mnt/user/pc` remains
-the correct, established home for bulk data that is not secret — `kindrobots/images`,
-`kindrobots/animate`, and the model store at `ai/models`. Those are documented elsewhere
-and are not affected.
-
-#### When the handoff file is missing
-
-`set -a; . ./.secrets/kindrobots-db-migrate.env; set +a` **does not stop on a missing
-file.** Bash prints `No such file or directory` and continues, so
-`MIGRATION_DATABASE_URL` is never set in the shell, `-e MIGRATION_DATABASE_URL` passes
-nothing, and the value silently falls through from `--env-file .env` — where it is
-quoted, because `docker run --env-file` is not a shell parser and does not unquote.
-
-The failure then surfaces several steps later, after the CA has loaded and printed
-successfully, as:
-
-```text
-TypeError [ERR_INVALID_URL]: Invalid URL ... input: '"mysql:/
-```
-
-which reads like a TLS problem and is not one. (2026-08-25, on Alexandria: two attempts
-lost to this.) `prisma-migrate-deploy.mjs` and `prisma.config.ts` now strip matched
-surrounding quotes, so the fallback path works, but the missing file is still the real
-fault — the whole point of the handoff file is that the migrate credential lives outside
-`.env` and outside the application lane.
-
-Recreate it with the provisioner, which reconciles the lane in both MariaDB and ProxySQL
-and verifies authentication end to end:
-
-```bash
-bash scripts/provision-migrate-db-lane.sh            # dry run
-bash scripts/provision-migrate-db-lane.sh --apply
-```
-
-If `.env` currently carries a `MIGRATION_DATABASE_URL`, confirm it is the elevated
-`kindrobot_migrate` account and not the application user before relying on it. The
-credential-boundary guard can only check the variable *name*; it cannot tell which
-account is behind the value.
-
-Pull first. Migrating from `:latest` and then Force Updating to `:latest` is what keeps the schema and the code that will serve it the same build.
-
-`migrate deploy` applies pending migrations only — it never resets, drops, or generates, and re-running it is a no-op, so it is safe to run before every update whether or not anything is pending.
-
-#### Do not use docker compose on Alexandria
-
-`docker-compose.yml` also defines a one-shot `migrate` service the app is gated behind, and that gate is real — but it only fires on `docker compose up`, which is **not** how this host deploys. Running compose there creates a second container that fights `KindRobots` for port 3009 and fails to bind. The compose path is for development and for any host that does deploy that way; on Alexandria, use the two steps above.
-
-Set `MIGRATION_DATABASE_URL` to the `kindrobot_migrate` credential in the deploying shell. It is deliberately **not** read from the application env file.
-
-This keeps the boundary rather than bending it. The rule is that schema-write capability must not sit in the _long-running_ application container; a container whose entire lifetime is the migration is the same shape as a CI job. Do not move `MIGRATION_DATABASE_URL` into the `kind-robots` service to simplify the file — that hands a permanently-running web process the ability to drop tables, and `utils/scripts/verifyMigrateOnDeploy.ts` fails the build if you do.
-
-That contract also pins the runtime image carrying `prisma/`, `scripts/` and `prisma.config.ts`. The image originally shipped only `.output`, `node_modules` and `package.json`, which is why migrations could not run from it at all and had to be run by hand from a repo checkout on the host — against whatever revision that checkout happened to be on. An image-slimming pass that drops them would silently reintroduce that.
-
-### Where the credential comes from
+## Where the credential comes from
 
 `MIGRATION_DATABASE_URL` is written by `scripts/provision-migrate-db-lane.sh` to a mode-600 handoff file, by default:
 
@@ -151,20 +70,50 @@ That contract also pins the runtime image carrying `prisma/`, `scripts/` and `pr
 <repo>/.secrets/kindrobots-db-migrate.env
 ```
 
-Source that in the deploying shell (`set -a; . <file>; set +a`) rather than retyping a URL. If the file does not exist, or the credential in it no longer authenticates, run the provisioner — it creates or reconciles the lane in **both** MariaDB and ProxySQL and verifies authentication end to end:
+On Alexandria that is:
+
+```text
+/mnt/user/appdata/kind_robots/.secrets/kindrobots-db-migrate.env
+```
+
+Credentials live under the checkout's `.secrets/` directory, **never on `/mnt/user/pc`**. `/mnt/user/pc` is a general-access share and is appropriate for bulk non-secret data such as media and models, not credentials.
+
+If the handoff file is missing or the credential no longer authenticates, reconcile it with:
 
 ```bash
-bash scripts/provision-migrate-db-lane.sh            # dry run
+cd /mnt/user/appdata/kind_robots
+bash scripts/provision-migrate-db-lane.sh
 bash scripts/provision-migrate-db-lane.sh --apply
 ```
 
-### Reading what is pending
+The provisioner reconciles the migration lane in MariaDB and ProxySQL and verifies authentication end to end.
 
-`prisma migrate status` **cannot be used against this lane directly.** `prisma.config.ts` passes `MIGRATION_DATABASE_URL` through as the datasource URL and adds no SSL parameters; nothing reads `DATABASE_SSL_CA_BASE64` except `scripts/prisma-migrate-deploy.mjs`, which writes the CA to a temp file and appends `sslcert`/`sslaccept=strict` itself. `kindrobot_migrate` has `use_ssl=1` in ProxySQL, so a plain `npx prisma migrate status` connects without TLS and is rejected — surfacing as **P1000 "Authentication failed"**, which reads exactly like a wrong password and is not one. (2026-08-19: an hour was lost to this.)
+## Important shell rule
 
-Read the history directly instead — no TLS plumbing, no Prisma:
+Do **not** source the application `.env` as shell code. Its values may contain shell-significant characters. The production deployer passes it to `docker run --env-file`, while sourcing only the dedicated migration handoff file.
+
+This is wrong:
 
 ```bash
+set -a; . ./.env; set +a
+```
+
+This is the only file intended to be sourced for migration credentials:
+
+```bash
+set -a; . ./.secrets/kindrobots-db-migrate.env; set +a
+```
+
+Do not echo `MIGRATION_DATABASE_URL` to inspect it. Check only its shape or parsed account name.
+
+## Reading what is pending
+
+The normal answer is to run the guarded deployer. For diagnostics, Prisma's migration history is `_prisma_migrations`, and the runtime image carries the exact migration directories belonging to the code it will serve.
+
+A direct history comparison can be made without changing schema:
+
+```bash
+cd /mnt/user/appdata/kind_robots
 set -a; . ./.secrets/kindrobots-db-migrate.env; set +a
 
 docker run --rm --network cafepurr -e MYSQL_PWD="$MIGRATE_DB_PASSWORD" mariadb:11.4 \
@@ -176,30 +125,14 @@ docker run --rm --network cafepurr -e MYSQL_PWD="$MIGRATE_DB_PASSWORD" mariadb:1
 docker run --rm ghcr.io/silasfelinus/kind_robots:latest sh -lc 'ls -1 /app/prisma/migrations' \
   | grep -v migration_lock | sort > /tmp/ondisk.txt
 
-comm -23 /tmp/ondisk.txt /tmp/applied.txt    # what a deploy would run
+comm -23 /tmp/ondisk.txt /tmp/applied.txt
 ```
 
-Take the on-disk list from the **image**, not from a repo checkout on the host: the image is what will actually run, and the checkout is at whatever revision it happens to be.
+Take the on-disk list from the image, not from an arbitrary checkout revision. The image is what production will actually run.
 
-Two things to look for in that output:
+## Running migration machinery by hand
 
-- **`00000000000000_squashed` listed as pending** — the database predates the squash and was never baselined. Do not run deploy; it would try to re-create the whole schema. Record the baseline with `prisma migrate resolve --applied 00000000000000_squashed` (which needs the same TLS treatment as `status`, so run it through the image with `sslcert`/`sslaccept` set on the URL) and re-check.
-- **Applied migrations absent from the image** — expected for a database older than the squash; `migrate deploy` ignores them.
-
-If you do want Prisma's own view, replicate what the wrapper does to the URL:
-
-```bash
-docker run --rm --network cafepurr --env-file .env -e MIGRATION_DATABASE_URL \
-  ghcr.io/silasfelinus/kind_robots:latest sh -lc '
-    printf %s "$DATABASE_SSL_CA_BASE64" | tr -d "[:space:]" | base64 -d > /tmp/ca.pem
-    export MIGRATION_DATABASE_URL="${MIGRATION_DATABASE_URL}?sslcert=/tmp/ca.pem&sslaccept=strict"
-    npx prisma migrate status
-  '
-```
-
-### Running a migration by hand
-
-Still supported, from a repo checkout with dependencies installed. Pass a plain `mysql://` URL with no SSL parameters — the wrapper adds them:
+Still supported for targeted repair work. Use the elevated lane explicitly:
 
 ```bash
 set -a; . ./.secrets/kindrobots-db-migrate.env; set +a
@@ -207,7 +140,6 @@ DATABASE_SSL_CA_BASE64="$(grep -m1 '^DATABASE_SSL_CA_BASE64=' .env | cut -d= -f2
   node scripts/prisma-migrate-deploy.mjs
 ```
 
-Two shell hazards, both of which have cost real time here:
+For surgical repair, the same explicit boundary applies to `prisma migrate resolve`, `prisma db execute`, and `prisma db push`.
 
-- **Do not `source` the application `.env`.** Its values are unquoted and contain characters bash will execute; `set -a; . ./.env` produces `command not found` lines made of your secrets. Read individual keys with `grep`/`cut` as above, or let `docker run --env-file` parse the file (docker does not use a shell).
-- **Do not put an interactive `read` in a block you paste.** When several lines are pasted at once, `read` consumes the _next pasted line_ as its input rather than waiting for you to type. Put passwords in a mode-600 file and read them from there.
+Never use `prisma migrate reset` against the real database. Never place `MIGRATION_DATABASE_URL` in the long-running application environment merely to make deployment convenient.

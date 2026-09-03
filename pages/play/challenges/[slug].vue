@@ -381,7 +381,7 @@
                       v-for="reaction in reactionOptions"
                       :key="reaction.value"
                       type="button"
-                      class="btn btn-sm rounded-xl"
+                      class="kr-btn"
                       :class="
                         submission.myReaction === reaction.value
                           ? reaction.activeClass

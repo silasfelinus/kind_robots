@@ -111,7 +111,7 @@
                 v-for="preset in presets"
                 :key="preset.id"
                 type="button"
-                class="btn btn-sm rounded-xl"
+                class="kr-btn"
                 :class="preset.id === presetId ? 'btn-primary' : 'btn-outline'"
                 :aria-pressed="preset.id === presetId"
                 :title="preset.blurb"

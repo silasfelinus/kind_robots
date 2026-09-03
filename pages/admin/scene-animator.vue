@@ -17,7 +17,7 @@
           <span class="badge badge-outline">ArtJob-backed resume</span>
           <button
             type="button"
-            class="btn btn-sm rounded-xl"
+            class="kr-btn"
             :disabled="store.loading || store.queueing || !userStore.isAdmin"
             @click="store.load()"
           >

@@ -263,7 +263,7 @@
               <div class="grid grid-cols-2 gap-2">
                 <button
                   type="button"
-                  class="btn btn-sm rounded-xl"
+                  class="kr-btn"
                   :class="
                     triageStore.decisionFor(resource.id) === 'sfw'
                       ? 'btn-success'
@@ -275,7 +275,7 @@
                 </button>
                 <button
                   type="button"
-                  class="btn btn-sm rounded-xl"
+                  class="kr-btn"
                   :class="
                     triageStore.decisionFor(resource.id) === 'nsfw'
                       ? 'btn-error'

@@ -79,7 +79,7 @@
                   v-for="option in typeOptions"
                   :key="option.value"
                   type="button"
-                  class="btn btn-sm rounded-xl"
+                  class="kr-btn"
                   :class="
                     typeFilter === option.value
                       ? 'btn-primary shadow-md'

@@ -12,7 +12,7 @@
         v-for="view in visibleViews"
         :key="view.key"
         type="button"
-        class="btn btn-sm rounded-xl"
+        class="kr-btn"
         :class="superkate.activeView === view.key ? 'btn-primary' : 'btn-ghost'"
         @click="superkate.activeView = view.key"
       >

@@ -44,7 +44,7 @@
             <div class="flex gap-2">
               <NuxtLink
                 to="/play/challenges/leaderboard"
-                class="btn btn-outline btn-sm rounded-xl"
+                class="kr-btn btn-outline"
               >
                 <Icon name="kind-icon:trophy" class="size-4" />
                 Rankings

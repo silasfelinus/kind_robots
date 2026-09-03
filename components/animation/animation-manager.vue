@@ -24,7 +24,7 @@
       <div class="flex flex-wrap items-center gap-2">
         <NuxtLink
           to="/play/screenfx"
-          class="btn btn-outline btn-sm rounded-xl"
+          class="kr-btn btn-outline"
           title="Toggle effects live on-screen"
         >
           <Icon name="kind-icon:sparkles" class="h-4 w-4" />
@@ -32,7 +32,7 @@
         </NuxtLink>
         <NuxtLink
           to="/conductor"
-          class="btn btn-outline btn-sm rounded-xl"
+          class="kr-btn btn-outline"
           title="Animation development work lives in Conductor"
         >
           <Icon name="kind-icon:scroll" class="h-4 w-4" />

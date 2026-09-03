@@ -149,14 +149,14 @@
 
         <a
           v-if="store.completedArtUrl && store.completedArtId"
-          class="btn btn-outline btn-sm rounded-xl"
+          class="kr-btn btn-outline"
           :href="store.completedArtUrl"
         >
           Open ArtImage #{{ store.completedArtId }}
         </a>
         <a
           v-else-if="store.attachedArt"
-          class="btn btn-outline btn-sm rounded-xl"
+          class="kr-btn btn-outline"
           :href="store.attachedArt.canonicalUrl"
         >
           Open source ArtImage #{{ store.attachedArt.id }}

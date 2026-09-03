@@ -106,7 +106,7 @@
         <div class="flex items-center justify-between gap-3 pt-2">
           <button
             type="button"
-            class="btn btn-outline btn-sm rounded-xl"
+            class="kr-btn btn-outline"
             :disabled="loading || skip <= 0"
             @click="prevPage"
           >
@@ -118,7 +118,7 @@
           </p>
           <button
             type="button"
-            class="btn btn-outline btn-sm rounded-xl"
+            class="kr-btn btn-outline"
             :disabled="loading || skip + tanks.length >= total"
             @click="nextPage"
           >

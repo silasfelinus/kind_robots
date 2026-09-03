@@ -462,7 +462,7 @@
               Discard draft
             </button>
             <button
-              class="btn btn-outline btn-sm rounded-xl"
+              class="kr-btn btn-outline"
               type="button"
               :disabled="saving"
               @click="store.resetDraftToSource()"

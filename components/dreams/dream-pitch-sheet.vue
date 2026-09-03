@@ -170,7 +170,7 @@
 
         <button
           v-if="activeSheet && allowEdit"
-          class="btn btn-outline btn-sm rounded-xl"
+          class="kr-btn btn-outline"
           type="button"
           @click.stop="emit('edit', activeSheet.id)"
         >

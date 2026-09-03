@@ -11,8 +11,8 @@
 //
 // The fix has two production shapes that must enforce the same invariant:
 // docker compose gates the app behind a one-shot migrate service, while Alexandria's
-// DockerMan deployment runs the matching image's migrations before asking Unraid to
-// recreate the production container.
+// User Scripts + DockerMan deployment runs the matching image's migrations before asking
+// Unraid to recreate the production container.
 //
 //   npx tsx utils/scripts/verifyMigrateOnDeploy.ts
 import assert from 'node:assert/strict'
@@ -23,11 +23,15 @@ const root = process.cwd()
 const dockerfile = readFileSync(join(root, 'Dockerfile'), 'utf8')
 const compose = readFileSync(join(root, 'docker-compose.yml'), 'utf8')
 const unraidDeploy = readFileSync(join(root, 'scripts/deploy-unraid.sh'), 'utf8')
-const unraidInstaller = readFileSync(
-  join(root, 'scripts/install-unraid-auto-deploy.sh'),
+const unraidUserScript = readFileSync(
+  join(root, 'scripts/unraid-user-script.sh'),
   'utf8',
 )
 const agents = readFileSync(join(root, 'AGENTS.md'), 'utf8')
+const unraidRunbook = readFileSync(
+  join(root, 'docs/runbooks/unraid-auto-deploy.md'),
+  'utf8',
+)
 
 // -------------------------------------------------- the image can migrate
 
@@ -136,7 +140,12 @@ assert.match(
 assert.match(
   unraidDeploy,
   /flock -n 9/,
-  'scheduled Alexandria deploys need a host lock so overlapping cron ticks cannot race',
+  'scheduled Alexandria deploys need a host lock so overlapping User Script runs cannot race',
+)
+assert.match(
+  unraidDeploy,
+  /STATE_DIR="\$\{KIND_ROBOTS_DEPLOY_STATE_DIR:-\$APP_DIR\/\.deploy-state\}"/,
+  'deployment verification state must live in persistent appdata rather than Unraid rootfs',
 )
 assert.match(
   unraidDeploy,
@@ -172,19 +181,29 @@ assert.ok(
 )
 
 assert.match(
-  unraidInstaller,
-  /\/boot\/config\/plugins\/custom_cron/,
-  'the installer must persist its schedule on the Unraid boot device',
+  unraidUserScript,
+  /git -C "\$APP_DIR" pull --ff-only/,
+  'the User Scripts launcher should refresh the production checkout when main is clean',
 )
 assert.match(
-  unraidInstaller,
-  /update_cron/,
-  'the installer must ask Unraid to load the persistent cron immediately',
+  unraidUserScript,
+  /exec \/bin\/bash "\$APP_DIR\/scripts\/deploy-unraid\.sh"/,
+  'the User Scripts launcher must delegate to the guarded deployer instead of duplicating deployment logic',
 )
 assert.match(
-  unraidInstaller,
-  /scripts\/deploy-unraid\.sh/,
-  'the scheduled launcher must call the guarded deploy path instead of duplicating deployment logic',
+  unraidRunbook,
+  /Schedule it for every \*\*5 minutes\*\*/,
+  'the runbook must tell the operator to use persistent Unraid User Scripts scheduling',
+)
+assert.doesNotMatch(
+  unraidRunbook,
+  /install-unraid-auto-deploy\.sh|custom_cron|update_cron/,
+  'the runbook must not depend on volatile or hand-managed cron installation',
+)
+assert.match(
+  unraidRunbook,
+  /Migration compatibility rule/,
+  'automatic migration-before-update requires a documented old-build/new-schema compatibility rule',
 )
 
 // ------------------------------------------- agents cannot lose the handoff
@@ -204,7 +223,12 @@ assert.match(
   /Do not tell Silas to use Force Update as the normal Kind Robots deploy step/,
   'agents must route production changes through the migration-aware deployer, not the migration-blind UI shortcut',
 )
+assert.match(
+  agents,
+  /User Scripts/,
+  'all agents must know that Alexandria scheduling is owned by Unraid User Scripts',
+)
 
 console.log(
-  'Migrate-on-deploy verified: compose and Alexandria both migrate before serving new code; migration credentials stay scoped; all agents carry the self-hosted handoff contract.',
+  'Migrate-on-deploy verified: compose and Alexandria both migrate before serving new code; User Scripts owns persistent scheduling; migration credentials stay scoped; all agents carry the self-hosted handoff contract.',
 )

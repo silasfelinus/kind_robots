@@ -9,24 +9,10 @@
 // path runs plain `npm run build`. Merging a migration to main applied it to
 // nothing.
 //
-// The fix is a one-shot `migrate` service that the app is gated behind. Two
-// separate things have to stay true for that to work, and both are invisible
-// until a deploy fails:
-//
-//   1. The RUNTIME image must carry prisma/ and scripts/. It originally copied
-//      only .output, node_modules and package.json -- so the wrapper script, the
-//      schema and the migration SQL were all absent, and `migrate deploy` inside
-//      the image was impossible. That is not a hypothetical: it is why
-//      migrations had to be run from a separate checkout on the host, against
-//      whatever revision that checkout happened to be sitting on. A future
-//      image-slimming pass would reintroduce it silently.
-//
-//   2. The migration credential must reach the one-shot container and NOT the
-//      long-running app. docs/runbooks/migration-credential-boundary.md exists
-//      to keep schema-write capability out of the application lane, and
-//      prisma-migrate-deploy.mjs refuses DATABASE_URL outright. Moving
-//      MIGRATION_DATABASE_URL into the app service to "simplify" would hand a
-//      permanently-running web process the ability to drop tables.
+// The fix has two production shapes that must enforce the same invariant:
+// docker compose gates the app behind a one-shot migrate service, while Alexandria's
+// DockerMan deployment runs the matching image's migrations before asking Unraid to
+// recreate the production container.
 //
 //   npx tsx utils/scripts/verifyMigrateOnDeploy.ts
 import assert from 'node:assert/strict'
@@ -36,17 +22,18 @@ import { join } from 'node:path'
 const root = process.cwd()
 const dockerfile = readFileSync(join(root, 'Dockerfile'), 'utf8')
 const compose = readFileSync(join(root, 'docker-compose.yml'), 'utf8')
+const unraidDeploy = readFileSync(join(root, 'scripts/deploy-unraid.sh'), 'utf8')
+const unraidInstaller = readFileSync(
+  join(root, 'scripts/install-unraid-auto-deploy.sh'),
+  'utf8',
+)
+const agents = readFileSync(join(root, 'AGENTS.md'), 'utf8')
 
 // -------------------------------------------------- the image can migrate
 
 // Only the runtime stage matters; the build stage has the whole repo anyway.
 const runtimeStage = dockerfile.slice(dockerfile.lastIndexOf('FROM '))
 
-// Matched with a trailing-whitespace lookahead rather than \b. A word boundary
-// sits between "prisma" and the dot in "prisma.config.ts", so /app/prisma\b was
-// satisfied by the config-file COPY alone -- the assertion for the prisma/
-// DIRECTORY passed with the directory absent, which is the exact regression this
-// is here to catch. Caught by deleting the line and watching the contract pass.
 for (const required of ['prisma', 'scripts', 'prisma.config.ts']) {
   const escaped = required.replaceAll('.', '\\.')
   assert.match(
@@ -56,7 +43,7 @@ for (const required of ['prisma', 'scripts', 'prisma.config.ts']) {
   )
 }
 
-// ------------------------------------------------- the gate actually gates
+// ------------------------------------------------- compose actually gates
 
 assert.match(
   compose,
@@ -66,7 +53,7 @@ assert.match(
 assert.match(
   compose,
   /command:\s*\["node",\s*"scripts\/prisma-migrate-deploy\.mjs"\]/,
-  'the migrate service must run the wrapper, not `prisma migrate deploy` directly -- the wrapper does the TLS preflight and the known-failed-migration repair, and refuses to fall back to DATABASE_URL',
+  'the migrate service must run the wrapper, not `prisma migrate deploy` directly -- the wrapper does the TLS preflight and refuses to fall back to DATABASE_URL',
 )
 assert.match(
   compose,
@@ -103,11 +90,6 @@ assert.match(
 )
 
 // ------------------------------------------- the box runs what CI built
-//
-// Both services carried `build: context: .` and `image: kind-robots:local`,
-// so the host compiled from whatever its checkout happened to be while
-// publish-container.yml pushed to GHCR and nothing consumed it. What ran in
-// production was not what CI had built or tested.
 
 for (const [name, block] of [
   ['migrate', migrateService!],
@@ -120,10 +102,6 @@ for (const [name, block] of [
   )
 }
 
-// Same image for both, enforced by a YAML anchor rather than two strings that
-// have to be kept in step. Migrating with one build and serving another is how
-// a schema arrives that the running code does not expect, and nothing surfaces
-// it until something breaks at runtime.
 const images = [...compose.matchAll(/^ {4}image:\s*(.+)$/gm)].map((match) =>
   (match[1] as string).trim(),
 )
@@ -148,6 +126,85 @@ assert.match(
   'the anchor must default to the GHCR image CI publishes, and stay overridable so a sha- tag can be pinned for rollback',
 )
 
+// -------------------------------- Alexandria's real production path gates too
+
+assert.match(
+  unraidDeploy,
+  /^set -Eeuo pipefail$/m,
+  'the Unraid deployer must fail closed when a migration or update command fails',
+)
+assert.match(
+  unraidDeploy,
+  /flock -n 9/,
+  'scheduled Alexandria deploys need a host lock so overlapping cron ticks cannot race',
+)
+assert.match(
+  unraidDeploy,
+  /\. "\$MIGRATION_ENV"/,
+  'the deployer must load the isolated migration handoff file rather than the application env file',
+)
+assert.doesNotMatch(
+  unraidDeploy,
+  /\. "\$ENV_FILE"/,
+  'the application .env must never be sourced as shell code',
+)
+assert.match(
+  unraidDeploy,
+  /node scripts\/prisma-migrate-deploy\.mjs/,
+  'Alexandria must use the same guarded Prisma wrapper as compose',
+)
+assert.match(
+  unraidDeploy,
+  /dynamix\.docker\.manager\/scripts\/update_container/,
+  'Alexandria must recreate KindRobots through Unraid DockerMan so its saved template remains authoritative',
+)
+
+const pullIndex = unraidDeploy.indexOf('docker pull "$IMAGE"')
+const migrateIndex = unraidDeploy.indexOf('run_migrations "$IMAGE"')
+const updateIndex = unraidDeploy.indexOf(
+  'php -q "$UNRAID_UPDATE_SCRIPT" "$CONTAINER"',
+)
+assert.ok(pullIndex >= 0, 'Unraid deployer must pull the registry image')
+assert.ok(migrateIndex > pullIndex, 'migration must use the image after it is pulled')
+assert.ok(
+  updateIndex > migrateIndex,
+  'Unraid container replacement must happen only after the matching image migration succeeds',
+)
+
+assert.match(
+  unraidInstaller,
+  /\/boot\/config\/plugins\/custom_cron/,
+  'the installer must persist its schedule on the Unraid boot device',
+)
+assert.match(
+  unraidInstaller,
+  /update_cron/,
+  'the installer must ask Unraid to load the persistent cron immediately',
+)
+assert.match(
+  unraidInstaller,
+  /scripts\/deploy-unraid\.sh/,
+  'the scheduled launcher must call the guarded deploy path instead of duplicating deployment logic',
+)
+
+// ------------------------------------------- agents cannot lose the handoff
+
+assert.match(
+  agents,
+  /Self-hosted production — merge is not deploy/,
+  'every agent origin must be told that a merge is not a self-hosted production deployment',
+)
+assert.match(
+  agents,
+  /merged → image published → deployed → schema\s+verified/,
+  'agent handoffs must distinguish merge, publication, deployment, and schema verification',
+)
+assert.match(
+  agents,
+  /Do not tell Silas to use Force Update as the normal Kind Robots deploy step/,
+  'agents must route production changes through the migration-aware deployer, not the migration-blind UI shortcut',
+)
+
 console.log(
-  'Migrate-on-deploy verified: runtime image carries prisma/, scripts/ and prisma.config.ts; app gated on a one-shot migrate; credential scoped to it.',
+  'Migrate-on-deploy verified: compose and Alexandria both migrate before serving new code; migration credentials stay scoped; all agents carry the self-hosted handoff contract.',
 )

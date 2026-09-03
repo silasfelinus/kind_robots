@@ -18,7 +18,7 @@
           </option>
         </select>
         <div class="modal-action">
-          <button class="btn btn-ghost btn-sm" @click="closeModal">
+          <button class="kr-btn-ghost-plain" @click="closeModal">
             Cancel
           </button>
           <button

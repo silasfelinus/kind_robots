@@ -19,7 +19,7 @@
       <button type="submit" class="btn btn-primary btn-sm" :disabled="!name.trim()">
         {{ editingId ? 'Update' : 'Add client' }}
       </button>
-      <button v-if="editingId" type="button" class="btn btn-ghost btn-sm" @click="resetForm">Cancel</button>
+      <button v-if="editingId" type="button" class="kr-btn-ghost-plain" @click="resetForm">Cancel</button>
     </form>
 
     <p v-if="photoError" class="rounded-xl bg-error/10 p-2 text-xs text-error">{{ photoError }}</p>

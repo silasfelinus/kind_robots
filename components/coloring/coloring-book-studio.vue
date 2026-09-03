@@ -31,7 +31,7 @@
       <span>{{ studio.error }}</span>
       <button
         type="button"
-        class="btn btn-ghost btn-sm"
+        class="kr-btn-ghost-plain"
         @click="studio.clearNotice()"
       >
         Dismiss
@@ -47,7 +47,7 @@
       <span>{{ studio.message }}</span>
       <button
         type="button"
-        class="btn btn-ghost btn-sm"
+        class="kr-btn-ghost-plain"
         @click="studio.clearNotice()"
       >
         Dismiss

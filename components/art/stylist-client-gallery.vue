@@ -72,7 +72,7 @@
         />
       </label>
       <label
-        class="btn btn-ghost btn-sm"
+        class="kr-btn-ghost-plain"
         :class="{ 'btn-disabled': uploading }"
       >
         <Icon name="kind-icon:camera" class="size-4" />

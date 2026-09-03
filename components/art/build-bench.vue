@@ -20,7 +20,7 @@
           <span v-if="running" class="loading loading-spinner loading-xs" />
           Run both
         </button>
-        <button class="btn btn-ghost btn-sm" :disabled="running" @click="store.newMatchup">
+        <button class="kr-btn-ghost-plain" :disabled="running" @click="store.newMatchup">
           New matchup
         </button>
       </div>

@@ -24,7 +24,7 @@
       <button
         v-if="query || date"
         type="button"
-        class="btn btn-ghost btn-sm"
+        class="kr-btn-ghost-plain"
         @click="clearFilters"
       >
         Clear

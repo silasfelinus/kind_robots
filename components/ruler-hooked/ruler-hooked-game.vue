@@ -65,7 +65,7 @@
           <p v-if="endingBody" class="text-sm opacity-80">{{ endingBody }}</p>
           <div class="mt-3 flex gap-2">
             <button type="button" class="btn btn-accent btn-sm" @click="store.acceptEnding()">Take this ending</button>
-            <button type="button" class="btn btn-ghost btn-sm" @click="store.declineEnding()">Keep fishing</button>
+            <button type="button" class="kr-btn-ghost-plain" @click="store.declineEnding()">Keep fishing</button>
           </div>
         </div>
 

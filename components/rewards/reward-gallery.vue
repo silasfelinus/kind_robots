@@ -49,7 +49,7 @@
 
           <button
             v-if="allowAdd && !isDropdownMode"
-            class="btn btn-primary btn-sm rounded-xl"
+            class="kr-btn-primary"
             type="button"
             @click="startAddingReward"
           >
@@ -87,11 +87,7 @@
           </p>
         </div>
 
-        <button
-          class="kr-btn-ghost"
-          type="button"
-          @click="closeRewardForm"
-        >
+        <button class="kr-btn-ghost" type="button" @click="closeRewardForm">
           <Icon name="kind-icon:x" class="h-4 w-4" />
           <span class="hidden sm:inline">Close</span>
         </button>
@@ -314,7 +310,7 @@
 
         <button
           v-if="allowAdd"
-          class="btn btn-primary btn-sm rounded-xl"
+          class="kr-btn-primary"
           type="button"
           @click="startAddingReward"
         >
@@ -636,8 +632,9 @@ const visibleRewards = computed<Reward[]>(() => {
 // refinement) rather than re-fetching on every keystroke — those filters only
 // narrow an already-fetched set. the earned-karma tracker keys its watch on the id list,
 // so a refilter that yields the same rewards does not re-request.
-const { earnedKarma: earnedKarmaByRewardId } = userStore.trackEarnedKarma('reward', () =>
-  visibleRewards.value.map((reward) => reward.id),
+const { earnedKarma: earnedKarmaByRewardId } = userStore.trackEarnedKarma(
+  'reward',
+  () => visibleRewards.value.map((reward) => reward.id),
 )
 
 const collections = computed(() => {

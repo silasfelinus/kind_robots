@@ -2,7 +2,9 @@
   <section class="space-y-4">
     <div class="kr-panel flex flex-wrap items-end gap-3 p-4">
       <label class="form-control min-w-56 flex-1 gap-1">
-        <span class="text-xs font-bold text-base-content/55">Find a monster</span>
+        <span class="text-xs font-bold text-base-content/55"
+          >Find a monster</span
+        >
         <input
           v-model="search"
           type="search"
@@ -11,17 +13,30 @@
         />
       </label>
 
-      <label class="flex cursor-pointer items-center gap-2 rounded-xl border border-base-300 px-3 py-2 text-sm font-bold">
-        <input v-model="hideSettled" type="checkbox" class="checkbox checkbox-sm" />
+      <label
+        class="flex cursor-pointer items-center gap-2 rounded-xl border border-base-300 px-3 py-2 text-sm font-bold"
+      >
+        <input
+          v-model="hideSettled"
+          type="checkbox"
+          class="checkbox checkbox-sm"
+        />
         Hide settled designs
       </label>
 
       <div class="ml-auto text-right text-xs text-base-content/50">
-        <p class="font-black text-base-content/80">{{ visibleRows.length }} shown</p>
+        <p class="font-black text-base-content/80">
+          {{ visibleRows.length }} shown
+        </p>
         <p>{{ settledCount }} / {{ data?.fish.length || 0 }} designs settled</p>
       </div>
 
-      <button class="btn btn-sm rounded-xl" type="button" :disabled="loading" @click="load">
+      <button
+        class="btn btn-sm rounded-xl"
+        type="button"
+        :disabled="loading"
+        @click="load"
+      >
         <span v-if="loading" class="loading loading-spinner loading-xs" />
         Refresh
       </button>
@@ -29,11 +44,15 @@
 
     <div v-if="notice" class="alert border border-info/25 bg-info/10">
       <span>{{ notice }}</span>
-      <button class="kr-btn-ghost-xs-plain" type="button" @click="notice = ''">Dismiss</button>
+      <button class="kr-btn-ghost-xs-plain" type="button" @click="notice = ''">
+        Dismiss
+      </button>
     </div>
     <div v-if="error" class="alert border border-error/25 bg-error/10">
       <span class="min-w-0 flex-1 break-words">{{ error }}</span>
-      <button class="kr-btn-ghost-xs-plain" type="button" @click="error = ''">Dismiss</button>
+      <button class="kr-btn-ghost-xs-plain" type="button" @click="error = ''">
+        Dismiss
+      </button>
     </div>
 
     <div v-if="loading" class="grid min-h-64 place-items-center kr-panel">
@@ -58,46 +77,91 @@
             <div class="min-w-0">
               <div class="flex flex-wrap items-center gap-2">
                 <h2 class="text-xl font-black">{{ fish.name }}</h2>
-                <span class="badge badge-sm badge-outline">{{ fish.rarity }}</span>
+                <span class="badge badge-sm badge-outline">{{
+                  fish.rarity
+                }}</span>
               </div>
-              <p class="mt-1 text-xs italic text-base-content/50">{{ fish.species }}</p>
+              <p class="mt-1 text-xs italic text-base-content/50">
+                {{ fish.species }}
+              </p>
             </div>
-            <a :href="fish.sourceUrl" target="_blank" rel="noreferrer" class="kr-btn-ghost-xs-plain">
+            <a
+              :href="fish.sourceUrl"
+              target="_blank"
+              rel="noreferrer"
+              class="kr-btn-ghost-xs-plain"
+            >
               YAML ↗
             </a>
           </div>
 
-          <div class="mt-3 rounded-xl border border-base-content/10 bg-base-100/70 p-3">
-            <p class="text-[11px] font-black uppercase tracking-wider text-primary">Ichthyonomicon</p>
-            <p class="mt-1 text-sm leading-6">{{ fish.fieldNote || 'Entry not written yet.' }}</p>
+          <div
+            class="mt-3 rounded-xl border border-base-content/10 bg-base-100/70 p-3"
+          >
+            <p
+              class="text-[11px] font-black uppercase tracking-wider text-primary"
+            >
+              Ichthyonomicon
+            </p>
+            <p class="mt-1 text-sm leading-6">
+              {{ fish.fieldNote || 'Entry not written yet.' }}
+            </p>
           </div>
         </div>
 
         <div class="space-y-4 p-4">
           <div class="grid grid-cols-3 gap-2">
-            <ArtSlot label="Inspiration" :src="fish.curation.inspirations[0]?.url || ''" empty="No reference yet" />
+            <ArtSlot
+              label="Inspiration"
+              :src="fish.curation.inspirations[0]?.url || ''"
+              empty="No reference yet"
+            />
             <ArtSlot
               label="Chosen design"
-              :src="fish.curation.selectedDesignImageId ? artImageUrl(fish.curation.selectedDesignImageId) : ''"
+              :src="
+                fish.curation.selectedDesignImageId
+                  ? artImageUrl(fish.curation.selectedDesignImageId)
+                  : ''
+              "
               empty="Still deciding"
             />
             <ArtSlot
               label="Sprite"
-              :src="fish.curation.spriteImageIds[0] ? artImageUrl(fish.curation.spriteImageIds[0]) : ''"
+              :src="
+                fish.curation.spriteImageIds[0]
+                  ? artImageUrl(fish.curation.spriteImageIds[0])
+                  : ''
+              "
               empty="No sprite yet"
               contain
             />
           </div>
 
-          <p v-if="fish.curation.inspirations.length > 1 || fish.curation.spriteImageIds.length > 1" class="text-[11px] text-base-content/45">
-            {{ fish.curation.inspirations.length }} inspiration{{ fish.curation.inspirations.length === 1 ? '' : 's' }} ·
-            {{ fish.curation.spriteImageIds.length }} sprite{{ fish.curation.spriteImageIds.length === 1 ? '' : 's' }}
+          <p
+            v-if="
+              fish.curation.inspirations.length > 1 ||
+              fish.curation.spriteImageIds.length > 1
+            "
+            class="text-[11px] text-base-content/45"
+          >
+            {{ fish.curation.inspirations.length }} inspiration{{
+              fish.curation.inspirations.length === 1 ? '' : 's'
+            }}
+            · {{ fish.curation.spriteImageIds.length }} sprite{{
+              fish.curation.spriteImageIds.length === 1 ? '' : 's'
+            }}
           </p>
 
           <label class="form-control gap-1">
-            <span class="flex items-center justify-between gap-2 text-xs font-black">
+            <span
+              class="flex items-center justify-between gap-2 text-xs font-black"
+            >
               Art prompt
-              <span v-if="fish.curation.promptOverride" class="badge badge-xs badge-warning">draft override</span>
+              <span
+                v-if="fish.curation.promptOverride"
+                class="badge badge-xs badge-warning"
+                >draft override</span
+              >
             </span>
             <textarea
               v-model="draft.prompt"
@@ -105,7 +169,8 @@
               :placeholder="fish.artPrompt"
             />
             <span class="text-[11px] text-base-content/45">
-              The curation draft is production state; the merged YAML bible remains the portable Monster canon until the seed bridge lands.
+              The curation draft is production state; the merged YAML bible
+              remains the portable Monster canon until the seed bridge lands.
             </span>
           </label>
 
@@ -126,15 +191,24 @@
             </button>
           </div>
 
-          <details v-if="fish.curation.inspirations.length" class="rounded-xl border border-base-300 bg-base-100 p-3">
-            <summary class="cursor-pointer text-xs font-black">All inspiration art</summary>
+          <details
+            v-if="fish.curation.inspirations.length"
+            class="rounded-xl border border-base-300 bg-base-100 p-3"
+          >
+            <summary class="cursor-pointer text-xs font-black">
+              All inspiration art
+            </summary>
             <div class="mt-3 flex gap-2 overflow-x-auto pb-1">
               <div
                 v-for="inspiration in fish.curation.inspirations"
                 :key="inspiration.id"
                 class="relative w-20 shrink-0"
               >
-                <img :src="inspiration.url" :alt="inspiration.label" class="aspect-square w-full rounded-lg object-cover" />
+                <img
+                  :src="inspiration.url"
+                  :alt="inspiration.label"
+                  class="aspect-square w-full rounded-lg object-cover"
+                />
                 <button
                   type="button"
                   class="btn btn-circle btn-error btn-xs absolute right-1 top-1"
@@ -151,19 +225,31 @@
             <div class="flex flex-wrap gap-3">
               <label class="form-control min-w-52 flex-1 gap-1">
                 <span class="text-xs font-black">Render preset</span>
-                <select v-model="draft.presetId" class="select select-bordered select-sm rounded-xl">
-                  <option v-for="preset in presets" :key="preset.id" :value="preset.id">
+                <select
+                  v-model="draft.presetId"
+                  class="select select-bordered select-sm rounded-xl"
+                >
+                  <option
+                    v-for="preset in presets"
+                    :key="preset.id"
+                    :value="preset.id"
+                  >
                     {{ preset.label }}
                   </option>
                 </select>
                 <span class="text-[11px] leading-5 text-base-content/45">
-                  FLUX schnell remains the proven Cthulhuquarium default; Krea2 is restored and FLUX.2's model configuration is repaired, so every house preset stays selectable.
+                  FLUX schnell remains the proven Cthulhuquarium default; Krea2
+                  is restored and FLUX.2's model configuration is repaired, so
+                  every house preset stays selectable.
                 </span>
               </label>
 
               <label class="form-control min-w-52 flex-1 gap-1">
                 <span class="text-xs font-black">Starting point</span>
-                <select v-model="draft.sourceMode" class="select select-bordered select-sm rounded-xl">
+                <select
+                  v-model="draft.sourceMode"
+                  class="select select-bordered select-sm rounded-xl"
+                >
                   <option value="fresh">Fresh composition</option>
                   <option value="existing">Existing candidate art</option>
                 </select>
@@ -171,44 +257,85 @@
             </div>
 
             <label
-              v-if="selectedPreset(fish.slug).engine === 'comfy' || draft.sourceMode === 'existing'"
+              v-if="
+                selectedPreset(fish.slug).engine === 'comfy' ||
+                draft.sourceMode === 'existing'
+              "
               class="form-control mt-3 gap-1"
             >
               <span class="text-xs font-black">SDXL checkpoint</span>
-              <select v-model="draft.checkpoint" class="select select-bordered select-sm rounded-xl">
+              <select
+                v-model="draft.checkpoint"
+                class="select select-bordered select-sm rounded-xl"
+              >
                 <option value="">Choose checkpoint</option>
-                <option v-for="checkpoint in checkpoints" :key="String(checkpoint.id || checkpoint.name)" :value="checkpoint.name || ''">
+                <option
+                  v-for="checkpoint in checkpoints"
+                  :key="String(checkpoint.id || checkpoint.name)"
+                  :value="checkpoint.name || ''"
+                >
                   {{ checkpoint.customLabel || checkpoint.name }}
                 </option>
               </select>
             </label>
 
-            <label v-if="draft.sourceMode === 'existing'" class="form-control mt-3 gap-1">
+            <label
+              v-if="draft.sourceMode === 'existing'"
+              class="form-control mt-3 gap-1"
+            >
               <span class="text-xs font-black">Source ArtImage</span>
-              <select v-model.number="draft.sourceImageId" class="select select-bordered select-sm rounded-xl">
+              <select
+                v-model.number="draft.sourceImageId"
+                class="select select-bordered select-sm rounded-xl"
+              >
                 <option :value="0">Choose candidate</option>
-                <option v-if="fish.curation.selectedDesignImageId" :value="fish.curation.selectedDesignImageId">
+                <option
+                  v-if="fish.curation.selectedDesignImageId"
+                  :value="fish.curation.selectedDesignImageId"
+                >
                   #{{ fish.curation.selectedDesignImageId }} · chosen design
                 </option>
-                <option v-for="id in fish.curation.candidateImageIds" :key="id" :value="id">#{{ id }}</option>
+                <option
+                  v-for="id in fish.curation.candidateImageIds"
+                  :key="id"
+                  :value="id"
+                >
+                  #{{ id }}
+                </option>
               </select>
               <span class="text-[11px] leading-5 text-base-content/45">
-                Existing-art revisions run through the normal SDXL img2img queue with this candidate as the conditioning image.
+                Existing-art revisions run through the normal SDXL img2img queue
+                with this candidate as the conditioning image.
               </span>
             </label>
 
             <div class="mt-3 flex flex-wrap items-center gap-2">
               <button
                 type="button"
-                class="btn btn-primary btn-sm rounded-xl"
+                class="kr-btn-primary"
                 :disabled="isGenerating(fish.slug) || !canGenerate(fish)"
                 @click="generate(fish)"
               >
-                <span v-if="isGenerating(fish.slug)" class="loading loading-spinner loading-xs" />
-                {{ isGenerating(fish.slug) ? generationLabel(fish.slug) : 'Generate idea' }}
+                <span
+                  v-if="isGenerating(fish.slug)"
+                  class="loading loading-spinner loading-xs"
+                />
+                {{
+                  isGenerating(fish.slug)
+                    ? generationLabel(fish.slug)
+                    : 'Generate idea'
+                }}
               </button>
-              <button type="button" class="kr-btn-ghost" :disabled="isSaving(fish.slug)" @click="save(fish)">
-                <span v-if="isSaving(fish.slug)" class="loading loading-spinner loading-xs" />
+              <button
+                type="button"
+                class="kr-btn-ghost"
+                :disabled="isSaving(fish.slug)"
+                @click="save(fish)"
+              >
+                <span
+                  v-if="isSaving(fish.slug)"
+                  class="loading loading-spinner loading-xs"
+                />
                 Save curation
               </button>
               <span v-if="draft.jobId" class="text-xs text-base-content/45">
@@ -218,20 +345,32 @@
           </div>
 
           <div v-if="fish.curation.candidateImageIds.length" class="space-y-2">
-            <p class="text-xs font-black uppercase tracking-wider text-base-content/45">Candidates</p>
+            <p
+              class="text-xs font-black uppercase tracking-wider text-base-content/45"
+            >
+              Candidates
+            </p>
             <div class="flex flex-wrap gap-2">
               <div
                 v-for="id in fish.curation.candidateImageIds"
                 :key="id"
                 class="w-24 shrink-0 rounded-xl border border-base-300 bg-base-100 p-1.5"
               >
-                <img :src="artImageUrl(id)" :alt="`${fish.name} candidate ${id}`" class="aspect-square w-full rounded-lg object-cover" />
+                <img
+                  :src="artImageUrl(id)"
+                  :alt="`${fish.name} candidate ${id}`"
+                  class="aspect-square w-full rounded-lg object-cover"
+                />
                 <p class="mt-1 text-center text-[10px] font-bold">#{{ id }}</p>
                 <div class="mt-1 grid grid-cols-2 gap-1">
                   <button
                     type="button"
                     class="btn btn-xs h-auto min-h-7 px-1"
-                    :class="fish.curation.selectedDesignImageId === id ? 'btn-success' : 'btn-ghost'"
+                    :class="
+                      fish.curation.selectedDesignImageId === id
+                        ? 'btn-success'
+                        : 'btn-ghost'
+                    "
                     @click="chooseDesign(fish, id)"
                   >
                     Design
@@ -239,7 +378,11 @@
                   <button
                     type="button"
                     class="btn btn-xs h-auto min-h-7 px-1"
-                    :class="fish.curation.spriteImageIds.includes(id) ? 'btn-secondary' : 'btn-ghost'"
+                    :class="
+                      fish.curation.spriteImageIds.includes(id)
+                        ? 'btn-secondary'
+                        : 'btn-ghost'
+                    "
                     @click="toggleSprite(fish, id)"
                   >
                     Sprite
@@ -301,9 +444,14 @@ type MonsterRow = {
 }
 
 const drafts = reactive<Record<string, MonsterDraft>>({})
-const checkpoints = computed<Partial<Resource>[]>(() => checkpointStore.visibleCheckpoints)
+const checkpoints = computed<Partial<Resource>[]>(
+  () => checkpointStore.visibleCheckpoints,
+)
 
-function makeDraft(fish: CthulhuquariumCurationMonster, previous?: MonsterDraft): MonsterDraft {
+function makeDraft(
+  fish: CthulhuquariumCurationMonster,
+  previous?: MonsterDraft,
+): MonsterDraft {
   return {
     prompt: fish.curation.promptOverride || fish.artPrompt,
     inspirationUrl: previous?.inspirationUrl || '',
@@ -314,7 +462,9 @@ function makeDraft(fish: CthulhuquariumCurationMonster, previous?: MonsterDraft)
       fish.curation.selectedDesignImageId ||
       fish.curation.candidateImageIds[0] ||
       0,
-    checkpoint: previous?.checkpoint || String(checkpointStore.selectedCheckpoint?.name || ''),
+    checkpoint:
+      previous?.checkpoint ||
+      String(checkpointStore.selectedCheckpoint?.name || ''),
     jobId: previous?.jobId || null,
     jobStatus: previous?.jobStatus || '',
   }
@@ -334,7 +484,13 @@ const visibleRows = computed<MonsterRow[]>(() => {
     .filter((fish) => {
       if (hideSettled.value && fish.curation.selectedDesignImageId) return false
       if (!query) return true
-      return [fish.name, fish.slug, fish.species, fish.fieldNote, fish.artPrompt]
+      return [
+        fish.name,
+        fish.slug,
+        fish.species,
+        fish.fieldNote,
+        fish.artPrompt,
+      ]
         .join(' ')
         .toLowerCase()
         .includes(query)
@@ -343,7 +499,9 @@ const visibleRows = computed<MonsterRow[]>(() => {
 })
 
 const settledCount = computed(
-  () => data.value?.fish.filter((fish) => fish.curation.selectedDesignImageId).length || 0,
+  () =>
+    data.value?.fish.filter((fish) => fish.curation.selectedDesignImageId)
+      .length || 0,
 )
 
 const ArtSlot = defineComponent({
@@ -356,16 +514,36 @@ const ArtSlot = defineComponent({
   setup(props) {
     return () =>
       h('div', { class: 'space-y-1' }, [
-        h('p', { class: 'text-[10px] font-black uppercase tracking-wider text-base-content/45' }, props.label),
-        h('div', { class: 'aspect-square overflow-hidden rounded-xl bg-base-200' }, [
-          props.src
-            ? h('img', {
-                src: props.src,
-                alt: props.label,
-                class: props.contain ? 'size-full object-contain p-1' : 'size-full object-cover',
-              })
-            : h('div', { class: 'grid size-full place-items-center p-2 text-center text-xs text-base-content/35' }, props.empty),
-        ]),
+        h(
+          'p',
+          {
+            class:
+              'text-[10px] font-black uppercase tracking-wider text-base-content/45',
+          },
+          props.label,
+        ),
+        h(
+          'div',
+          { class: 'aspect-square overflow-hidden rounded-xl bg-base-200' },
+          [
+            props.src
+              ? h('img', {
+                  src: props.src,
+                  alt: props.label,
+                  class: props.contain
+                    ? 'size-full object-contain p-1'
+                    : 'size-full object-cover',
+                })
+              : h(
+                  'div',
+                  {
+                    class:
+                      'grid size-full place-items-center p-2 text-center text-xs text-base-content/35',
+                  },
+                  props.empty,
+                ),
+          ],
+        ),
       ])
   },
 })
@@ -383,14 +561,17 @@ async function load() {
       '/api/admin/curation-studio/cthulhuquarium',
     )
     if (!response.success || !response.data) {
-      throw new Error(response.message || 'Failed to load Cthulhuquarium curation data.')
+      throw new Error(
+        response.message || 'Failed to load Cthulhuquarium curation data.',
+      )
     }
     data.value = response.data
     for (const fish of response.data.fish) {
       drafts[fish.slug] = makeDraft(fish, drafts[fish.slug])
     }
   } catch (cause) {
-    error.value = cause instanceof Error ? cause.message : 'Failed to load Cthulhuquarium.'
+    error.value =
+      cause instanceof Error ? cause.message : 'Failed to load Cthulhuquarium.'
   } finally {
     loading.value = false
   }
@@ -421,8 +602,11 @@ function selectedPreset(slug: string): ArtGeneratorPreset {
 function canGenerate(fish: CthulhuquariumCurationMonster): boolean {
   const draft = draftFor(fish)
   if (!draft.prompt.trim()) return false
-  if (draft.sourceMode === 'existing') return Boolean(draft.sourceImageId && draft.checkpoint)
-  return selectedPreset(fish.slug).engine !== 'comfy' || Boolean(draft.checkpoint)
+  if (draft.sourceMode === 'existing')
+    return Boolean(draft.sourceImageId && draft.checkpoint)
+  return (
+    selectedPreset(fish.slug).engine !== 'comfy' || Boolean(draft.checkpoint)
+  )
 }
 
 function replaceCuration(slug: string, entry: CthulhuquariumCurationEntry) {
@@ -430,7 +614,10 @@ function replaceCuration(slug: string, entry: CthulhuquariumCurationEntry) {
   if (fish) fish.curation = entry
 }
 
-async function persist(fish: CthulhuquariumCurationMonster, patch: Partial<CthulhuquariumCurationEntry>) {
+async function persist(
+  fish: CthulhuquariumCurationMonster,
+  patch: Partial<CthulhuquariumCurationEntry>,
+) {
   if (isSaving(fish.slug)) return false
   saving.value = [...saving.value, fish.slug]
   error.value = ''
@@ -449,7 +636,8 @@ async function persist(fish: CthulhuquariumCurationMonster, patch: Partial<Cthul
     replaceCuration(fish.slug, response.data)
     return true
   } catch (cause) {
-    error.value = cause instanceof Error ? cause.message : `Failed to save ${fish.name}.`
+    error.value =
+      cause instanceof Error ? cause.message : `Failed to save ${fish.name}.`
     return false
   } finally {
     saving.value = saving.value.filter((slug) => slug !== fish.slug)
@@ -481,14 +669,18 @@ async function addInspiration(fish: CthulhuquariumCurationMonster) {
   if (await persist(fish, { inspirations })) draft.inspirationUrl = ''
 }
 
-async function removeInspiration(fish: CthulhuquariumCurationMonster, id: string) {
+async function removeInspiration(
+  fish: CthulhuquariumCurationMonster,
+  id: string,
+) {
   await persist(fish, {
     inspirations: fish.curation.inspirations.filter((item) => item.id !== id),
   })
 }
 
 async function chooseDesign(fish: CthulhuquariumCurationMonster, id: number) {
-  const selectedDesignImageId = fish.curation.selectedDesignImageId === id ? null : id
+  const selectedDesignImageId =
+    fish.curation.selectedDesignImageId === id ? null : id
   if (await persist(fish, { selectedDesignImageId })) {
     draftFor(fish).sourceImageId = selectedDesignImageId || id
   }
@@ -508,7 +700,8 @@ async function sourceImageDataUrl(id: number): Promise<string> {
   return await new Promise<string>((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = () => resolve(String(reader.result || ''))
-    reader.onerror = () => reject(new Error(`Could not read source ArtImage #${id}.`))
+    reader.onerror = () =>
+      reject(new Error(`Could not read source ArtImage #${id}.`))
     reader.readAsDataURL(blob)
   })
 }
@@ -560,7 +753,10 @@ async function generate(fish: CthulhuquariumCurationMonster) {
       }
       jobId = response.data.jobId
     } else {
-      const queued = await artStore.enqueueArtGeneration({ ...base, engine: preset.engine })
+      const queued = await artStore.enqueueArtGeneration({
+        ...base,
+        engine: preset.engine,
+      })
       if (!queued.success || !queued.jobId) {
         throw new Error(queued.message || 'Failed to queue render.')
       }
@@ -575,19 +771,24 @@ async function generate(fish: CthulhuquariumCurationMonster) {
       const job = await artStore.getArtJobStatus(jobId)
       if (!job) {
         pollFailures += 1
-        if (pollFailures >= 6) throw new Error(`Lost track of ArtJob #${jobId}.`)
+        if (pollFailures >= 6)
+          throw new Error(`Lost track of ArtJob #${jobId}.`)
         continue
       }
       pollFailures = 0
       draft.jobStatus = job.status
       if (job.status === 'PENDING' || job.status === 'RUNNING') continue
       if (job.status !== 'DONE' || !job.artImageId) {
-        throw new Error(job.error || `ArtJob #${jobId} ${job.status.toLowerCase()}.`)
+        throw new Error(
+          job.error || `ArtJob #${jobId} ${job.status.toLowerCase()}.`,
+        )
       }
 
       const candidateImageIds = [
         job.artImageId,
-        ...fish.curation.candidateImageIds.filter((id) => id !== job.artImageId),
+        ...fish.curation.candidateImageIds.filter(
+          (id) => id !== job.artImageId,
+        ),
       ]
       await persist(fish, {
         promptOverride: draft.prompt.trim(),
@@ -598,7 +799,10 @@ async function generate(fish: CthulhuquariumCurationMonster) {
       break
     }
   } catch (cause) {
-    error.value = cause instanceof Error ? cause.message : `Failed to generate ${fish.name}.`
+    error.value =
+      cause instanceof Error
+        ? cause.message
+        : `Failed to generate ${fish.name}.`
   } finally {
     generating.value = generating.value.filter((slug) => slug !== fish.slug)
   }

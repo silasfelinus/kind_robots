@@ -23,7 +23,7 @@
 
           <button
             v-if="allowAdd && !isDropdownMode"
-            class="btn btn-primary btn-sm rounded-xl"
+            class="kr-btn-primary"
             type="button"
             @click="startAddingScenario"
           >
@@ -272,7 +272,7 @@
 
         <button
           v-if="allowAdd && !searchQuery"
-          class="btn btn-primary btn-sm rounded-xl"
+          class="kr-btn-primary"
           type="button"
           @click="startAddingScenario"
         >

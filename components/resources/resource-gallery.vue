@@ -447,23 +447,15 @@ onMounted(async () => {
       <div class="flex flex-wrap gap-2">
         <button
           type="button"
-          class="btn btn-primary btn-sm rounded-xl"
+          class="kr-btn-primary"
           @click="startAdd('CHECKPOINT')"
         >
           Checkpoint
         </button>
-        <button
-          type="button"
-          class="btn btn-primary btn-sm rounded-xl"
-          @click="startAdd('LORA')"
-        >
+        <button type="button" class="kr-btn-primary" @click="startAdd('LORA')">
           LoRA / LyCORIS
         </button>
-        <button
-          type="button"
-          class="kr-btn-ghost"
-          @click="closeForm"
-        >
+        <button type="button" class="kr-btn-ghost" @click="closeForm">
           Cancel
         </button>
       </div>
@@ -546,7 +538,7 @@ onMounted(async () => {
 
             <button
               type="button"
-              class="btn btn-primary btn-sm rounded-xl"
+              class="kr-btn-primary"
               @click="addToGeneration(infoResource)"
             >
               <Icon name="kind-icon:plus" class="h-4 w-4" />

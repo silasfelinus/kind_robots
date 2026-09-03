@@ -18,11 +18,7 @@
           </p>
         </div>
 
-        <button
-          class="kr-btn-ghost"
-          type="button"
-          @click="closeCharacterForm"
-        >
+        <button class="kr-btn-ghost" type="button" @click="closeCharacterForm">
           <Icon name="kind-icon:x" class="h-4 w-4" />
           <span class="hidden sm:inline">Close</span>
         </button>
@@ -315,7 +311,7 @@
 
         <button
           v-if="allowAdd"
-          class="btn btn-primary btn-sm rounded-xl"
+          class="kr-btn-primary"
           type="button"
           @click="startAddingCharacter"
         >

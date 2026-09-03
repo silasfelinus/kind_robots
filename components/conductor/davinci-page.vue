@@ -50,7 +50,7 @@
             <p class="max-w-md text-sm text-base-content/65">
               Log in to seed a life, make choices, and leave a legacy.
             </p>
-            <NuxtLink to="/login" class="btn btn-primary btn-sm rounded-xl">
+            <NuxtLink to="/login" class="kr-btn-primary">
               Log in to play
             </NuxtLink>
           </div>

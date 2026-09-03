@@ -8,8 +8,15 @@
           class="select select-bordered select-sm rounded-xl"
           @change="store.selectBook(eventValue($event))"
         >
-          <option v-for="book in store.books" :key="book.slug" :value="book.slug">
-            {{ book.title }} · {{ book.counts.acceptedColor }}/{{ book.counts.total }} color accepted
+          <option
+            v-for="book in store.books"
+            :key="book.slug"
+            :value="book.slug"
+          >
+            {{ book.title }} · {{ book.counts.acceptedColor }}/{{
+              book.counts.total
+            }}
+            color accepted
           </option>
         </select>
       </label>
@@ -24,8 +31,14 @@
         />
       </label>
 
-      <label class="flex cursor-pointer items-center gap-2 rounded-xl border border-base-300 px-3 py-2 text-sm font-bold">
-        <input v-model="hideFinal" type="checkbox" class="checkbox checkbox-sm" />
+      <label
+        class="flex cursor-pointer items-center gap-2 rounded-xl border border-base-300 px-3 py-2 text-sm font-bold"
+      >
+        <input
+          v-model="hideFinal"
+          type="checkbox"
+          class="checkbox checkbox-sm"
+        />
         Hide final pairs
       </label>
 
@@ -42,14 +55,21 @@
 
     <div v-if="notice" class="alert border border-info/25 bg-info/10">
       <span>{{ notice }}</span>
-      <button class="kr-btn-ghost-xs-plain" type="button" @click="notice = ''">Dismiss</button>
+      <button class="kr-btn-ghost-xs-plain" type="button" @click="notice = ''">
+        Dismiss
+      </button>
     </div>
     <div v-if="error" class="alert border border-error/25 bg-error/10">
       <span>{{ error }}</span>
-      <button class="kr-btn-ghost-xs-plain" type="button" @click="error = ''">Dismiss</button>
+      <button class="kr-btn-ghost-xs-plain" type="button" @click="error = ''">
+        Dismiss
+      </button>
     </div>
 
-    <div v-if="store.loading && !store.books.length" class="grid min-h-64 place-items-center kr-panel">
+    <div
+      v-if="store.loading && !store.books.length"
+      class="grid min-h-64 place-items-center kr-panel"
+    >
       <span class="loading loading-spinner loading-lg text-primary" />
     </div>
 
@@ -63,7 +83,9 @@
     <div
       v-else
       class="grid gap-4"
-      style="grid-template-columns: repeat(auto-fill, minmax(min(540px, 100%), 1fr))"
+      style="
+        grid-template-columns: repeat(auto-fill, minmax(min(540px, 100%), 1fr));
+      "
     >
       <article
         v-for="proposal in visibleProposals"
@@ -81,14 +103,19 @@
                   class="size-full object-contain"
                   loading="lazy"
                 />
-                <div v-else class="grid size-full place-items-center text-base-content/30">
+                <div
+                  v-else
+                  class="grid size-full place-items-center text-base-content/30"
+                >
                   <div class="text-center">
                     <Icon name="kind-icon:image" class="mx-auto size-10" />
                     <p class="mt-2 text-xs font-bold">No color candidate</p>
                   </div>
                 </div>
               </div>
-              <figcaption class="absolute bottom-3 left-3 badge border-0 bg-base-100/90 font-black shadow-sm backdrop-blur">
+              <figcaption
+                class="absolute bottom-3 left-3 badge border-0 bg-base-100/90 font-black shadow-sm backdrop-blur"
+              >
                 Color
               </figcaption>
             </figure>
@@ -102,24 +129,36 @@
                   class="size-full object-contain grayscale"
                   loading="lazy"
                 />
-                <div v-else class="grid size-full place-items-center text-base-content/30">
+                <div
+                  v-else
+                  class="grid size-full place-items-center text-base-content/30"
+                >
                   <div class="text-center">
                     <Icon name="kind-icon:image" class="mx-auto size-10" />
                     <p class="mt-2 text-xs font-bold">No B&amp;W candidate</p>
                   </div>
                 </div>
               </div>
-              <figcaption class="absolute bottom-3 left-3 badge border-0 bg-base-100/90 font-black shadow-sm backdrop-blur">
+              <figcaption
+                class="absolute bottom-3 left-3 badge border-0 bg-base-100/90 font-black shadow-sm backdrop-blur"
+              >
                 B&amp;W
               </figcaption>
             </figure>
           </div>
 
-          <div class="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-3">
-            <span class="badge border-0 bg-base-100/90 font-black shadow-sm backdrop-blur">
+          <div
+            class="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-3"
+          >
+            <span
+              class="badge border-0 bg-base-100/90 font-black shadow-sm backdrop-blur"
+            >
               {{ proposal.id }}
             </span>
-            <span class="badge border-0 shadow-sm" :class="stageBadge(proposal)">
+            <span
+              class="badge border-0 shadow-sm"
+              :class="stageBadge(proposal)"
+            >
               {{ stageLabel(proposal) }}
             </span>
           </div>
@@ -127,16 +166,26 @@
 
         <div class="space-y-4 p-4">
           <div>
-            <p class="text-[11px] font-black uppercase tracking-wider text-primary">
+            <p
+              class="text-[11px] font-black uppercase tracking-wider text-primary"
+            >
               Slot {{ proposal.slot }}
             </p>
-            <h2 class="mt-1 text-xl font-black leading-tight">{{ proposal.title }}</h2>
-            <p v-if="proposal.notes.length" class="mt-2 line-clamp-2 text-xs leading-5 text-base-content/55">
+            <h2 class="mt-1 text-xl font-black leading-tight">
+              {{ proposal.title }}
+            </h2>
+            <p
+              v-if="proposal.notes.length"
+              class="mt-2 line-clamp-2 text-xs leading-5 text-base-content/55"
+            >
               {{ proposal.notes.join(' · ') }}
             </p>
           </div>
 
-          <div v-if="proposal.inspirations.length" class="flex gap-2 overflow-x-auto pb-1">
+          <div
+            v-if="proposal.inspirations.length"
+            class="flex gap-2 overflow-x-auto pb-1"
+          >
             <figure
               v-for="asset in proposal.inspirations"
               :key="`${proposal.id}:${asset.path}`"
@@ -169,7 +218,7 @@
 
           <div v-if="userStore.isAdmin" class="flex flex-wrap gap-2">
             <button
-              class="btn btn-primary btn-sm rounded-xl"
+              class="kr-btn-primary"
               type="button"
               :disabled="store.savingPrompt || !promptChanged(proposal)"
               @click="savePrompt(proposal.id)"
@@ -198,7 +247,9 @@
               class="btn btn-success btn-outline btn-sm rounded-xl"
               type="button"
               :disabled="store.requestingAction"
-              @click="acceptColor(proposal.id, colorCandidatePath(proposal) || '')"
+              @click="
+                acceptColor(proposal.id, colorCandidatePath(proposal) || '')
+              "
             >
               Accept color
             </button>
@@ -212,7 +263,11 @@
               Accept B&amp;W
             </button>
             <button
-              v-if="proposal.accepted.color && proposal.accepted.bw && !(proposal.final.color && proposal.final.bw)"
+              v-if="
+                proposal.accepted.color &&
+                proposal.accepted.bw &&
+                !(proposal.final.color && proposal.final.bw)
+              "
               class="btn btn-success btn-sm rounded-xl"
               type="button"
               :disabled="store.requestingAction"
@@ -222,7 +277,10 @@
             </button>
           </div>
 
-          <div v-else class="flex items-center gap-2 text-xs text-base-content/45">
+          <div
+            v-else
+            class="flex items-center gap-2 text-xs text-base-content/45"
+          >
             <Icon name="kind-icon:lock" class="size-4" />
             Production edits are admin-only.
           </div>
@@ -252,7 +310,8 @@ const drafts = reactive<Record<string, string>>({})
 const visibleProposals = computed<ColoringBookProposal[]>(() => {
   const query = search.value.trim().toLowerCase()
   return (store.selectedBook?.proposals || []).filter((proposal) => {
-    if (hideFinal.value && proposal.final.color && proposal.final.bw) return false
+    if (hideFinal.value && proposal.final.color && proposal.final.bw)
+      return false
     if (!query) return true
     return [proposal.title, proposal.id, proposal.prompt, ...proposal.notes]
       .join(' ')
@@ -285,8 +344,12 @@ function eventValue(event: Event): string {
   return (event.target as HTMLSelectElement).value
 }
 
-function productionState(proposalId: string): ColoringBookProductionState | null {
-  return store.productionStates[`${store.selectedBookSlug}:${proposalId}`] ?? null
+function productionState(
+  proposalId: string,
+): ColoringBookProductionState | null {
+  return (
+    store.productionStates[`${store.selectedBookSlug}:${proposalId}`] ?? null
+  )
 }
 
 function bwDisplayUrl(proposal: ColoringBookProposal): string | null {
@@ -309,14 +372,21 @@ function promptChanged(proposal: ColoringBookProposal): boolean {
 
 function stageLabel(proposal: ColoringBookProposal): string {
   if (proposal.final.color && proposal.final.bw) return 'Final pair'
-  if (proposal.accepted.color && proposal.accepted.bw) return 'Ready to finalize'
+  if (proposal.accepted.color && proposal.accepted.bw)
+    return 'Ready to finalize'
   if (bwCandidatePath(proposal)) return 'Accept B&W'
   if (proposal.accepted.color) return 'Build B&W'
   if (colorCandidatePath(proposal)) return 'Accept color'
-  if (proposal.queue.status === 'pending' || proposal.queue.status === 'running') {
+  if (
+    proposal.queue.status === 'pending' ||
+    proposal.queue.status === 'running'
+  ) {
     return 'Rendering color'
   }
-  if (proposal.queue.status === 'needs_review' || proposal.queue.semanticGateError) {
+  if (
+    proposal.queue.status === 'needs_review' ||
+    proposal.queue.semanticGateError
+  ) {
     return 'Needs review'
   }
   return 'Needs color'
@@ -325,10 +395,16 @@ function stageLabel(proposal: ColoringBookProposal): string {
 function stageBadge(proposal: ColoringBookProposal): string {
   if (proposal.final.color && proposal.final.bw) return 'badge-success'
   if (proposal.accepted.color && proposal.accepted.bw) return 'badge-success'
-  if (proposal.queue.status === 'needs_review' || proposal.queue.semanticGateError) {
+  if (
+    proposal.queue.status === 'needs_review' ||
+    proposal.queue.semanticGateError
+  ) {
     return 'badge-warning'
   }
-  if (proposal.queue.status === 'pending' || proposal.queue.status === 'running') {
+  if (
+    proposal.queue.status === 'pending' ||
+    proposal.queue.status === 'running'
+  ) {
     return 'badge-info'
   }
   return 'badge-neutral'
@@ -349,11 +425,17 @@ async function savePrompt(proposalId: string): Promise<void> {
   }
 }
 
-async function render(proposalId: string, variant: 'color' | 'bw'): Promise<void> {
+async function render(
+  proposalId: string,
+  variant: 'color' | 'bw',
+): Promise<void> {
   select(proposalId)
   const ok =
     variant === 'color'
-      ? await store.requestColorRender(true, 'Requested from Coloring Book curation')
+      ? await store.requestColorRender(
+          true,
+          'Requested from Coloring Book curation',
+        )
       : await store.requestBw(true, 'Requested from Coloring Book curation')
   if (ok) {
     notice.value = store.message || `${variant} render requested.`
@@ -363,9 +445,14 @@ async function render(proposalId: string, variant: 'color' | 'bw'): Promise<void
   }
 }
 
-async function acceptColor(proposalId: string, sourcePath: string): Promise<void> {
+async function acceptColor(
+  proposalId: string,
+  sourcePath: string,
+): Promise<void> {
   select(proposalId)
-  if (await store.acceptColor('Accepted from Coloring Book curation', sourcePath)) {
+  if (
+    await store.acceptColor('Accepted from Coloring Book curation', sourcePath)
+  ) {
     notice.value = store.message || 'Color candidate accepted.'
     syncDrafts()
   } else if (store.error) {
@@ -375,7 +462,9 @@ async function acceptColor(proposalId: string, sourcePath: string): Promise<void
 
 async function acceptBw(proposalId: string, sourcePath: string): Promise<void> {
   select(proposalId)
-  if (await store.acceptBw('Accepted from Coloring Book curation', sourcePath)) {
+  if (
+    await store.acceptBw('Accepted from Coloring Book curation', sourcePath)
+  ) {
     notice.value = store.message || 'B&W candidate accepted.'
     syncDrafts()
   } else if (store.error) {

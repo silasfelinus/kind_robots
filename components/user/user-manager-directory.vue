@@ -32,7 +32,7 @@
           <option value="ALL">All roles</option>
           <option v-for="r in ROLES" :key="r" :value="r">{{ r }}</option>
         </select>
-        <button class="btn btn-primary btn-sm rounded-xl" @click="openCreate">
+        <button class="kr-btn-primary" @click="openCreate">
           <Icon name="kind-icon:plus" class="h-4 w-4" /> New user
         </button>
       </div>
@@ -207,9 +207,7 @@
           <p v-if="createError" class="text-sm text-error">{{ createError }}</p>
         </div>
         <div class="modal-action">
-          <button class="kr-btn-ghost-md" @click="closeCreate">
-            Cancel
-          </button>
+          <button class="kr-btn-ghost-md" @click="closeCreate">Cancel</button>
           <button
             class="btn btn-primary rounded-xl"
             :disabled="store.isSaving || !createForm.username"
@@ -238,9 +236,7 @@
         />
         <p v-if="pwError" class="mt-2 text-sm text-error">{{ pwError }}</p>
         <div class="modal-action">
-          <button class="kr-btn-ghost-md" @click="closePassword">
-            Cancel
-          </button>
+          <button class="kr-btn-ghost-md" @click="closePassword">Cancel</button>
           <button
             class="btn btn-primary rounded-xl"
             :disabled="store.isSaving || newPassword.length < 8"

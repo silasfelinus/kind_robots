@@ -5,12 +5,15 @@
       class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-(--kr-surface-raised) p-3 shadow-sm"
     >
       <div class="min-w-0">
-        <p class="text-[0.7rem] font-bold uppercase tracking-wide text-primary/70">
+        <p
+          class="text-[0.7rem] font-bold uppercase tracking-wide text-primary/70"
+        >
           Story library
         </p>
         <p class="mt-0.5 text-sm text-base-content/60">
           {{ storyStore.recentStories.length }} saved
-          {{ storyStore.recentStories.length === 1 ? 'story' : 'stories' }} on this account
+          {{ storyStore.recentStories.length === 1 ? 'story' : 'stories' }} on
+          this account
         </p>
       </div>
 
@@ -48,8 +51,28 @@
               tabindex="0"
               class="menu dropdown-content z-20 mt-2 w-44 kr-panel-flat p-2 shadow-xl"
             >
-              <li><button type="button" @click="downloadStory(undefined, 'markdown'); closeExportMenu()">Markdown</button></li>
-              <li><button type="button" @click="downloadStory(undefined, 'json'); closeExportMenu()">JSON</button></li>
+              <li>
+                <button
+                  type="button"
+                  @click="
+                    downloadStory(undefined, 'markdown')
+                    closeExportMenu()
+                  "
+                >
+                  Markdown
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  @click="
+                    downloadStory(undefined, 'json')
+                    closeExportMenu()
+                  "
+                >
+                  JSON
+                </button>
+              </li>
             </ul>
           </div>
 
@@ -70,13 +93,14 @@
             @click="restartCurrent"
             @blur="restartArmed = false"
           >
-            <Icon name="kind-icon:alert" class="size-4" /> Restart from the beginning?
+            <Icon name="kind-icon:alert" class="size-4" /> Restart from the
+            beginning?
           </button>
 
           <button
             v-if="!newStoryArmed"
             type="button"
-            class="btn btn-primary btn-sm rounded-xl"
+            class="kr-btn-primary"
             :disabled="storyStore.isWeaving"
             @click="newStoryArmed = true"
           >
@@ -104,7 +128,8 @@
         <div>
           <h2 class="text-lg font-black">Recent stories</h2>
           <p class="mt-1 text-xs leading-relaxed text-base-content/55">
-            Open an existing branch, duplicate it safely, or export a portable copy.
+            Open an existing branch, duplicate it safely, or export a portable
+            copy.
           </p>
         </div>
         <span class="badge badge-ghost rounded-xl">
@@ -126,17 +151,25 @@
               <h3 class="truncate font-black">{{ story.bible.title }}</h3>
               <span
                 class="badge badge-sm rounded-xl"
-                :class="story.status === 'complete' ? 'badge-success' : 'badge-primary'"
+                :class="
+                  story.status === 'complete'
+                    ? 'badge-success'
+                    : 'badge-primary'
+                "
               >
                 {{ story.status }}
               </span>
             </div>
-            <p class="mt-1 line-clamp-2 text-xs leading-relaxed text-base-content/55">
+            <p
+              class="mt-1 line-clamp-2 text-xs leading-relaxed text-base-content/55"
+            >
               {{ story.bible.premise }}
             </p>
             <p class="mt-2 text-[0.68rem] text-base-content/40">
-              {{ story.beats.length }} scene{{ story.beats.length === 1 ? '' : 's' }} ·
-              updated {{ formatStoryDate(story.updatedAt) }}
+              {{ story.beats.length }} scene{{
+                story.beats.length === 1 ? '' : 's'
+              }}
+              · updated {{ formatStoryDate(story.updatedAt) }}
             </p>
           </div>
 
@@ -313,7 +346,10 @@ function formatStoryDate(value: string): string {
     : new Intl.DateTimeFormat('en-US', {
         month: 'short',
         day: 'numeric',
-        year: date.getFullYear() === new Date().getFullYear() ? undefined : 'numeric',
+        year:
+          date.getFullYear() === new Date().getFullYear()
+            ? undefined
+            : 'numeric',
       }).format(date)
 }
 

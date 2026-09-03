@@ -2,13 +2,17 @@
 <template>
   <section class="kr-container flex flex-col gap-4 p-4 sm:p-6">
     <header class="overflow-hidden kr-panel p-0">
-      <div class="flex flex-col gap-3 p-5 sm:flex-row sm:items-start sm:justify-between">
+      <div
+        class="flex flex-col gap-3 p-5 sm:flex-row sm:items-start sm:justify-between"
+      >
         <div class="min-w-0">
           <div class="flex items-center gap-2">
             <Icon name="kind-icon:map" class="h-6 w-6 text-primary" />
             <h1 class="text-xl font-black sm:text-2xl">Project Placement</h1>
           </div>
-          <p class="mt-2 max-w-3xl text-sm leading-relaxed text-base-content/65">
+          <p
+            class="mt-2 max-w-3xl text-sm leading-relaxed text-base-content/65"
+          >
             Apply the canonical channel, tab, and live URL map to existing
             Project rows. The operation uses the normal guarded Project PATCH
             endpoint and reports every updated, unchanged, missing, or failed
@@ -54,10 +58,10 @@
         />
       </section>
 
-      <section
-        class="flex flex-col gap-4 kr-panel-flat p-4 shadow-sm sm:p-5"
-      >
-        <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+      <section class="flex flex-col gap-4 kr-panel-flat p-4 shadow-sm sm:p-5">
+        <div
+          class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"
+        >
           <div>
             <h2 class="font-black">Backfill controls</h2>
             <p class="mt-1 text-sm text-base-content/60">
@@ -84,18 +88,24 @@
               :disabled="busy"
               @click="loadProjects"
             >
-              <span v-if="projectStore.loading" class="loading loading-spinner loading-xs" />
+              <span
+                v-if="projectStore.loading"
+                class="loading loading-spinner loading-xs"
+              />
               <Icon v-else name="kind-icon:refresh" class="h-4 w-4" />
               Load projects
             </button>
 
             <button
               type="button"
-              class="btn btn-primary btn-sm rounded-xl"
+              class="kr-btn-primary"
               :disabled="busy || !projectStore.loaded"
               @click="applyPlacements"
             >
-              <span v-if="applying" class="loading loading-spinner loading-xs" />
+              <span
+                v-if="applying"
+                class="loading loading-spinner loading-xs"
+              />
               <Icon v-else name="kind-icon:wand" class="h-4 w-4" />
               Apply placements
             </button>
@@ -108,7 +118,9 @@
           :class="messageTone === 'error' ? 'alert-error' : 'alert-success'"
         >
           <Icon
-            :name="messageTone === 'error' ? 'kind-icon:error' : 'kind-icon:check'"
+            :name="
+              messageTone === 'error' ? 'kind-icon:error' : 'kind-icon:check'
+            "
             class="h-5 w-5"
           />
           <span>{{ message }}</span>
@@ -219,7 +231,9 @@ const messageTone = ref<'success' | 'error'>('success')
 
 const canManage = computed(() => userStore.role === 'ADMIN')
 const expectedCount = Object.keys(PROJECT_PLACEMENTS).length
-const busy = computed(() => projectStore.loading || projectStore.saving || applying.value)
+const busy = computed(
+  () => projectStore.loading || projectStore.saving || applying.value,
+)
 const matchedCount = computed(() => {
   const slugs = new Set(Object.keys(PROJECT_PLACEMENTS))
 
@@ -230,7 +244,10 @@ const matchedCount = computed(() => {
   ).length
 })
 
-function setMessage(value: string, tone: 'success' | 'error' = 'success'): void {
+function setMessage(
+  value: string,
+  tone: 'success' | 'error' = 'success',
+): void {
   message.value = value
   messageTone.value = tone
 }

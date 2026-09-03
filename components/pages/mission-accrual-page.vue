@@ -179,7 +179,7 @@
             <div class="sm:col-span-4 flex items-center gap-3">
               <button
                 type="submit"
-                class="btn btn-primary btn-sm rounded-xl"
+                class="kr-btn-primary"
                 :disabled="store.submitting"
               >
                 {{ store.submitting ? 'Logging…' : 'Log remittance' }}

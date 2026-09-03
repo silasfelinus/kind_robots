@@ -38,7 +38,7 @@
 
           <button
             v-if="allowAdd && !isDropdownMode"
-            class="btn btn-primary btn-sm rounded-xl"
+            class="kr-btn-primary"
             type="button"
             @click="startAddingBot"
           >
@@ -79,11 +79,7 @@
           </p>
         </div>
 
-        <button
-          class="kr-btn-ghost"
-          type="button"
-          @click="closeBotForm"
-        >
+        <button class="kr-btn-ghost" type="button" @click="closeBotForm">
           <Icon name="kind-icon:x" class="h-4 w-4" />
           <span class="hidden sm:inline">Close</span>
         </button>
@@ -381,7 +377,7 @@
 
         <button
           v-if="allowAdd"
-          class="btn btn-primary btn-sm rounded-xl"
+          class="kr-btn-primary"
           type="button"
           @click="startAddingBot"
         >
@@ -916,8 +912,9 @@ const filteredBots = computed<Bot[]>(() => {
 // interface-vision/t-066: earned karma for the rendered set, batched through
 // the shared userStore earned-karma tracker. Scoped to
 // filteredBots — the set the grid actually renders.
-const { earnedKarma: earnedKarmaByBotId } = userStore.trackEarnedKarma('bot', () =>
-  filteredBots.value.map((bot) => bot.id),
+const { earnedKarma: earnedKarmaByBotId } = userStore.trackEarnedKarma(
+  'bot',
+  () => filteredBots.value.map((bot) => bot.id),
 )
 
 onMounted(async () => {

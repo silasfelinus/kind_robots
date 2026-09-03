@@ -83,7 +83,7 @@
           </button>
 
           <button
-            class="btn btn-sm btn-outline rounded-xl"
+            class="kr-btn btn-outline"
             type="button"
             @click.stop="selectBot"
           >
@@ -101,7 +101,8 @@
 
           <pre
             class="mt-2 max-h-48 overflow-auto text-xs text-base-content/70"
-            >{{ JSON.stringify(bot, null, 2) }}</pre>
+            >{{ JSON.stringify(bot, null, 2) }}</pre
+          >
         </details>
       </section>
     </reactable-card>

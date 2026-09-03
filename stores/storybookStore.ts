@@ -474,8 +474,21 @@ export const useStorybookStore = defineStore('storybookStore', () => {
         resumeNarrativeArtJobs()
       }
     } catch {
-      localStorage.removeItem(DRAFT_STORAGE_KEY)
-      localStorage.removeItem(STORAGE_KEY)
+      // Recovering from a bad read shouldn't itself be able to throw: a
+      // storage-access failure (privacy mode, a strict cookie/site-data
+      // policy, quota exhaustion) can make removeItem() throw the same way
+      // getItem()/JSON.parse() just did, which would otherwise escape this
+      // catch block and break Storybook initialization entirely instead of
+      // just falling back to in-memory-only state (storybook/t-010, sibling
+      // of storybookLibraryHelper.ts's initialize() guard).
+      try {
+        localStorage.removeItem(DRAFT_STORAGE_KEY)
+        localStorage.removeItem(STORAGE_KEY)
+      } catch {
+        // Best-effort cleanup only — falling through with in-memory-only
+        // setupDraft/session below is the actual recovery; stale keys left
+        // behind aren't harmful.
+      }
     }
   }
 

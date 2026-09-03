@@ -328,7 +328,7 @@
             />
             <button
               type="button"
-              class="btn btn-ghost btn-xs rounded-xl"
+              class="kr-btn-ghost-xs"
               @click="speciesCustomMode = false"
             >
               Cancel
@@ -456,7 +456,7 @@
             </button>
             <button
               type="button"
-              class="btn btn-ghost btn-xs rounded-xl"
+              class="kr-btn-ghost-xs"
               @click="traitCustomMode = false"
             >
               Cancel

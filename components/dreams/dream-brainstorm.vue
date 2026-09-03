@@ -322,7 +322,7 @@
                 <div class="mt-2 flex flex-wrap justify-between gap-2">
                   <button
                     type="button"
-                    class="btn btn-ghost btn-xs rounded-xl"
+                    class="kr-btn-ghost-xs"
                     @click="useCandidateAsSeed(candidate)"
                   >
                     Use as Seed

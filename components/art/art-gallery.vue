@@ -254,7 +254,7 @@
             </button>
 
             <button
-              class="btn btn-ghost btn-xs rounded-xl"
+              class="kr-btn-ghost-xs"
               type="button"
               :disabled="isBatchWorking || !selectedImageCount"
               @click="clearImageSelection"

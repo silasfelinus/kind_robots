@@ -99,7 +99,7 @@
               <button
                 v-if="hasDrifted"
                 type="button"
-                class="btn btn-ghost btn-xs rounded-xl"
+                class="kr-btn-ghost-xs"
                 @click="applyPreset(presetId)"
               >
                 Reset to {{ activePreset.label }}
@@ -155,7 +155,7 @@
                 </span>
                 <button
                   type="button"
-                  class="btn btn-ghost btn-xs rounded-xl"
+                  class="kr-btn-ghost-xs"
                   :disabled="artStore.isGenerating"
                   @click="clearPrompt"
                 >
@@ -209,7 +209,7 @@
               </button>
               <button
                 type="button"
-                class="btn btn-ghost btn-xs rounded-xl"
+                class="kr-btn-ghost-xs"
                 :disabled="artStore.isGenerating"
                 @click="randomStore.resetAll()"
               >

@@ -415,7 +415,7 @@
               </div>
 
               <button
-                class="btn btn-ghost btn-xs rounded-xl"
+                class="kr-btn-ghost-xs"
                 type="button"
                 :disabled="!selectedGettingToKnowYouQuestion || isSendingChat"
                 @click="clearSelectedPrompt"

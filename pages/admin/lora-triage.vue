@@ -107,7 +107,7 @@
             <span class="text-sm font-bold">{{ triageStore.selectedCount }} selected</span>
             <button
               type="button"
-              class="btn btn-ghost btn-xs rounded-xl"
+              class="kr-btn-ghost-xs"
               :disabled="pageResources.length === 0"
               @click="selectPage"
             >
@@ -115,7 +115,7 @@
             </button>
             <button
               type="button"
-              class="btn btn-ghost btn-xs rounded-xl"
+              class="kr-btn-ghost-xs"
               :disabled="triageStore.selectedCount === 0"
               @click="triageStore.clearSelection()"
             >

@@ -15,7 +15,7 @@
       <h4 class="text-sm font-black text-base-content">
         {{ editingExisting ? `Edit pack: ${draft.title}` : 'New pack' }}
       </h4>
-      <button class="btn btn-ghost btn-xs rounded-xl" @click="emit('close')">
+      <button class="kr-btn-ghost-xs" @click="emit('close')">
         Close
       </button>
     </div>
@@ -103,7 +103,7 @@
         <span class="text-xs font-bold text-base-content/70"
           >Items ({{ draft.items.length }})</span
         >
-        <button class="btn btn-ghost btn-xs rounded-xl" @click="addItem">
+        <button class="kr-btn-ghost-xs" @click="addItem">
           <Icon name="kind-icon:plus" class="size-3.5" />
           Add item
         </button>

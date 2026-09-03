@@ -331,12 +331,12 @@
                 </div>
 
                 <div class="flex items-center justify-between gap-2 border-t border-base-300 pt-3">
-                  <button type="button" class="btn btn-ghost btn-sm" :disabled="focusNavigationLocked" @click="store.previousCard()">
+                  <button type="button" class="kr-btn-ghost-plain" :disabled="focusNavigationLocked" @click="store.previousCard()">
                     <Icon name="kind-icon:back" class="size-4" />
                     Previous
                   </button>
                   <span class="text-xs opacity-55">{{ currentPositionLabel }}</span>
-                  <button type="button" class="btn btn-ghost btn-sm" :disabled="focusNavigationLocked" @click="store.nextCard()">
+                  <button type="button" class="kr-btn-ghost-plain" :disabled="focusNavigationLocked" @click="store.nextCard()">
                     Next
                     <Icon name="kind-icon:forward" class="size-4" />
                   </button>
@@ -392,9 +392,9 @@
                 </div>
 
                 <div class="flex items-center justify-between gap-2 border-t border-base-300 pt-3">
-                  <button type="button" class="btn btn-ghost btn-sm" :disabled="focusNavigationLocked" @click="store.previousCard()">Previous</button>
+                  <button type="button" class="kr-btn-ghost-plain" :disabled="focusNavigationLocked" @click="store.previousCard()">Previous</button>
                   <button type="button" class="btn btn-outline btn-sm" @click="store.toggleDetails()">{{ detailsVisible ? 'Hide parts' : 'Parts & history' }}</button>
-                  <button type="button" class="btn btn-ghost btn-sm" :disabled="focusNavigationLocked" @click="store.nextCard()">Next</button>
+                  <button type="button" class="kr-btn-ghost-plain" :disabled="focusNavigationLocked" @click="store.nextCard()">Next</button>
                 </div>
               </div>
             </div>

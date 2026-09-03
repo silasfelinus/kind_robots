@@ -421,7 +421,7 @@
                 Flat kr-panel-flat variant for dense lists and inboxes.
               </p>
               <div class="card-actions justify-end">
-                <button class="btn btn-ghost btn-sm">Dismiss</button>
+                <button class="kr-btn-ghost-plain">Dismiss</button>
               </div>
             </div>
           </div>

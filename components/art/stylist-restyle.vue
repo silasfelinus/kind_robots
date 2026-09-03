@@ -111,7 +111,7 @@
           <button type="button" class="btn btn-primary btn-sm" @click="capturePhoto">
             <Icon name="kind-icon:camera" class="h-4 w-4" /> Capture
           </button>
-          <button type="button" class="btn btn-ghost btn-sm" @click="closeCamera">Cancel</button>
+          <button type="button" class="kr-btn-ghost-plain" @click="closeCamera">Cancel</button>
         </div>
       </div>
 

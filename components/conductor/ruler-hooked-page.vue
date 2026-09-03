@@ -29,7 +29,7 @@
             </button>
             <button
               type="button"
-              class="btn btn-ghost btn-sm"
+              class="kr-btn-ghost-plain"
               @click="pwa?.cancelInstall()"
             >
               Not now

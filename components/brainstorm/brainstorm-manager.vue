@@ -441,7 +441,7 @@
             <div class="mt-3 flex flex-wrap gap-2">
               <button
                 type="button"
-                class="btn btn-ghost btn-sm"
+                class="kr-btn-ghost-plain"
                 :disabled="isPersisting || !premise.trim()"
                 @click="store.useSuggestedSessionName()"
               >
@@ -460,7 +460,7 @@
               <button
                 v-if="savedSessionId"
                 type="button"
-                class="btn btn-ghost btn-sm"
+                class="kr-btn-ghost-plain"
                 :disabled="isPersisting"
                 data-testid="brainstorm-save-as-new"
                 @click="store.detachSavedSession()"
@@ -554,7 +554,7 @@
             <p class="font-black">{{ persistenceErrorHeading }}</p>
             <p class="mt-1 break-words text-sm opacity-80">{{ persistenceError.message }}</p>
           </div>
-          <button type="button" class="btn btn-ghost btn-sm" @click="store.clearPersistenceError()">
+          <button type="button" class="kr-btn-ghost-plain" @click="store.clearPersistenceError()">
             Dismiss
           </button>
         </div>
@@ -572,7 +572,7 @@
         <p class="font-black">{{ errorHeading }}</p>
         <p class="mt-1 break-words text-sm opacity-80">{{ generationError.message }}</p>
       </div>
-      <button type="button" class="btn btn-ghost btn-sm" @click="store.clearGenerationError()">
+      <button type="button" class="kr-btn-ghost-plain" @click="store.clearGenerationError()">
         Dismiss
       </button>
     </div>
@@ -722,7 +722,7 @@
         </label>
         <button
           type="button"
-          class="btn btn-ghost btn-sm"
+          class="kr-btn-ghost-plain"
           :disabled="!selectedForArtCount || isGeneratingArt"
           @click="store.clearArtSelection()"
         >
@@ -764,7 +764,7 @@
       </div>
       <button
         type="button"
-        class="btn btn-ghost btn-sm"
+        class="kr-btn-ghost-plain"
         @click="store.clearArtGenerationError()"
       >
         Dismiss

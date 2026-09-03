@@ -51,7 +51,7 @@
               </NuxtLink>
               <button
                 type="button"
-                class="btn btn-ghost btn-sm rounded-xl"
+                class="kr-btn-ghost"
                 :disabled="loading"
                 aria-label="Refresh challenges"
                 @click="loadChallenges"

@@ -40,7 +40,7 @@
         </NuxtLink>
         <button
           v-if="activeCount > 0"
-          class="btn btn-ghost btn-sm rounded-xl"
+          class="kr-btn-ghost"
           type="button"
           @click="store.clearEffects()"
         >

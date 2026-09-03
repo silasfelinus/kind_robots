@@ -72,7 +72,7 @@
 
         <button
           type="button"
-          class="btn btn-ghost btn-sm rounded-xl"
+          class="kr-btn-ghost"
           @click="showScenarioForm = false"
         >
           <Icon name="kind-icon:x" class="h-4 w-4" />

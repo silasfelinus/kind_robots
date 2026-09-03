@@ -530,7 +530,7 @@
           </div>
           <button
             type="button"
-            class="btn btn-ghost btn-sm rounded-xl"
+            class="kr-btn-ghost"
             @click="goToGallery"
           >
             <Icon name="kind-icon:gallery" class="h-4 w-4" />

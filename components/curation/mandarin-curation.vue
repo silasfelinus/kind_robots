@@ -302,7 +302,7 @@
             </button>
             <button
               v-if="draftDirty"
-              class="btn btn-ghost btn-sm rounded-xl"
+              class="kr-btn-ghost"
               type="button"
               :disabled="saving"
               @click="store.discardDraft()"

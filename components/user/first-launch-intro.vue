@@ -23,7 +23,7 @@
         </div>
 
         <button
-          class="btn btn-ghost btn-sm rounded-xl"
+          class="kr-btn-ghost"
           type="button"
           @click="dismiss"
         >
@@ -90,7 +90,7 @@
         <div class="flex gap-2">
           <button
             v-if="step > 0"
-            class="btn btn-ghost btn-sm rounded-xl"
+            class="kr-btn-ghost"
             type="button"
             @click="back"
           >

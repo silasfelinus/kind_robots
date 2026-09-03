@@ -28,7 +28,7 @@
 
           <button
             type="button"
-            class="btn btn-ghost btn-sm rounded-xl"
+            class="kr-btn-ghost"
             @click="backToGallery"
           >
             <Icon name="kind-icon:arrow-left" class="h-4 w-4" />

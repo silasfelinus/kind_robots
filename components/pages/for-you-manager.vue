@@ -68,7 +68,7 @@
             <button
               v-if="userStore.isAdmin"
               type="button"
-              class="btn btn-ghost btn-sm rounded-xl"
+              class="kr-btn-ghost"
               :disabled="conductorStore.pending"
               @click="conductorStore.fetchProjects(true)"
             >
@@ -271,7 +271,7 @@
                         </button>
                         <button
                           type="button"
-                          class="btn btn-ghost btn-sm rounded-xl"
+                          class="kr-btn-ghost"
                           :disabled="
                             taskIsUpdating(gate.project.slug, gate.task.id) ||
                             !gateMessage(gate.project.slug, gate.task.id).trim()
@@ -394,7 +394,7 @@
                   </button>
                   <button
                     type="button"
-                    class="btn btn-ghost btn-sm rounded-xl"
+                    class="kr-btn-ghost"
                     @click="navigateTo('/conductor')"
                   >
                     Full review

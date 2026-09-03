@@ -48,7 +48,7 @@
 
           <button
             v-if="allowRefresh && !isDropdownMode"
-            class="btn btn-ghost btn-sm rounded-xl"
+            class="kr-btn-ghost"
             type="button"
             :disabled="isLoading || botStore.loading"
             @click="refreshBots(true)"
@@ -80,7 +80,7 @@
         </div>
 
         <button
-          class="btn btn-ghost btn-sm rounded-xl"
+          class="kr-btn-ghost"
           type="button"
           @click="closeBotForm"
         >
@@ -553,7 +553,7 @@
                  the absence of the thing it clears. -->
             <button
               v-if="botStore.currentBot"
-              class="btn btn-ghost btn-sm rounded-xl"
+              class="kr-btn-ghost"
               type="button"
               @click="clearSelectedBot"
             >

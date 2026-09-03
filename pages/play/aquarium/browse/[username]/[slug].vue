@@ -13,7 +13,7 @@
       <nav>
         <NuxtLink
           to="/play/aquarium/browse"
-          class="btn btn-ghost btn-sm rounded-xl"
+          class="kr-btn-ghost"
         >
           <Icon name="kind-icon:arrow-left" class="size-4" />
           Public tanks

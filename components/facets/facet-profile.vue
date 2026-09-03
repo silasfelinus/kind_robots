@@ -14,7 +14,7 @@
     <header class="kr-toolbar shrink-0 kr-panel-flat p-3">
       <button
         type="button"
-        class="btn btn-ghost btn-sm rounded-xl"
+        class="kr-btn-ghost"
         @click="closeFacet"
       >
         <Icon name="kind-icon:chevron-left" class="size-4" /> All Facets

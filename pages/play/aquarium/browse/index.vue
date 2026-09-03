@@ -10,7 +10,7 @@
       class="kr-scroll kr-container max-w-5xl space-y-5 px-3 py-5 sm:px-6 sm:py-8"
     >
       <nav class="flex items-center justify-between gap-3">
-        <NuxtLink to="/play/aquarium" class="btn btn-ghost btn-sm rounded-xl">
+        <NuxtLink to="/play/aquarium" class="kr-btn-ghost">
           <Icon name="kind-icon:arrow-left" class="size-4" />
           Your tank
         </NuxtLink>

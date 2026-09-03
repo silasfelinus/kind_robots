@@ -3,60 +3,27 @@
 // Does the database this process is talking to actually have the schema this
 // build expects?
 //
-// Nothing in CI can answer that. Every migration check in .github/workflows is
-// structural -- verifyMigrateOnDeploy.ts asserts the runtime image carries
-// prisma/ and scripts/ and that compose's one-shot service runs the wrapper;
-// verifyMigrationCredentialBoundary.mjs asserts the elevated credential stays
-// out of the app lane. None of them connect to a production database, by
-// design: CI has no credential for one. They prove the machinery for migrating
-// is intact, never that a migration was run.
+// CI can prove migration machinery exists, but cannot prove Alexandria actually
+// ran a production migration because CI deliberately has no production database
+// credential. The production answer is the migration-aware Unraid deploy path in
+// scripts/deploy-unraid.sh, normally scheduled by Unraid User Scripts.
 //
-// On Alexandria that gap is not theoretical. docker-compose.yml gates the app
-// behind a `migrate` service (`condition: service_completed_successfully`), but
-// docs/runbooks/migration-credential-boundary.md is explicit that the gate
-// "only fires on `docker compose up`, which is not how this host deploys" --
-// there it is pull + Force Update, with the migration as a separate manual
-// step. Code and schema therefore ship independently, and doing only the first
-// is silent until a query touches a column that isn't there.
-//
-// 2026-08-19: PR #1956 added `User.tokens`, `User.earnedTokens` and
-// `ManaTransaction.resource` (migration 20260819120000_split_mana_tokens_resource,
-// merged 01:11). The container was updated; the migration was not run. First
-// symptom was a raw Prisma error in a user-facing response:
-//
-//   The column `User.tokens` does not exist in the current database.
-//
-// This module turns that into one line at boot naming the pending migration.
-// It is framework-free (no Prisma import, no Nitro, no fs) so the comparison
-// can be tested against real inputs without a database.
+// This module remains framework-free so the comparison can be tested against real
+// inputs without a database.
 
 /** One row of Prisma's own `_prisma_migrations` bookkeeping table. */
 export type AppliedMigrationRow = {
   migration_name: string
-  // Set when the migration ran to completion. Null means it started and did
-  // not finish -- Prisma leaves the row behind as the record of that.
   finished_at?: Date | string | null
   rolled_back_at?: Date | string | null
 }
 
 export type MigrationDriftReport = {
-  /**
-   * On disk in this build, not successfully applied to the database. This is
-   * the dangerous direction: the code expects columns the database lacks.
-   */
+  /** On disk in this build, not successfully applied to the database. */
   pending: string[]
-  /**
-   * Recorded in `_prisma_migrations` but never successfully completed. Prisma
-   * can retain an older failed/rolled-back attempt next to a later successful
-   * attempt with the same migration name; that recovered migration is healthy.
-   */
+  /** Recorded without any successful completion. */
   failed: string[]
-  /**
-   * Applied to the database but absent from this build. Harmless to queries
-   * (the columns exist, this code just doesn't use them) but it can mean the
-   * running image is older than the schema -- worth knowing during a rollback.
-   * Pre-squash history intentionally replaced by the current squash is omitted.
-   */
+  /** Applied to the database but absent from this build. */
   ahead: string[]
 }
 
@@ -70,13 +37,6 @@ function isApplied(row: AppliedMigrationRow): boolean {
   return true
 }
 
-/**
- * Compare the migrations this build carries against what the database records.
- *
- * `onDisk` is the directory names under prisma/migrations, which sort
- * chronologically by their timestamp prefix; the report preserves that order so
- * the first pending entry is the oldest thing missing.
- */
 export function compareMigrations(
   onDisk: readonly string[],
   applied: readonly AppliedMigrationRow[],
@@ -94,9 +54,6 @@ export function compareMigrations(
     }
   }
 
-  // Prisma keeps historical attempts. Once any row for a migration name has
-  // completed successfully, an older failed/rolled-back row is history rather
-  // than current drift.
   const failed = [...failedAttemptNames]
     .filter((name) => !appliedNames.has(name))
     .sort()
@@ -106,11 +63,6 @@ export function compareMigrations(
 
   let ahead = [...appliedNames].filter((name) => !diskSet.has(name))
 
-  // A production database can legitimately retain every pre-squash migration
-  // row after the current build replaces that history with one squashed marker.
-  // If both sides agree that the squash itself was applied, only absent applied
-  // migrations at or after the first post-squash migration can represent a
-  // genuinely newer schema (for example, a rollback to an older image).
   if (diskSet.has(SQUASH_MIGRATION) && appliedNames.has(SQUASH_MIGRATION)) {
     const firstPostSquash = diskNames
       .filter((name) => name !== SQUASH_MIGRATION)
@@ -132,12 +84,6 @@ export function hasMigrationDrift(report: MigrationDriftReport): boolean {
   return report.pending.length > 0 || report.failed.length > 0
 }
 
-/**
- * The boot log line. Written here rather than in the plugin so its wording is
- * covered by the same test as the comparison -- a check nobody can act on is
- * the failure mode this whole module exists to prevent, and "drift detected"
- * with no migration name and no command is exactly that.
- */
 export function describeMigrationDrift(report: MigrationDriftReport): string {
   const parts: string[] = []
 
@@ -165,10 +111,8 @@ export function describeMigrationDrift(report: MigrationDriftReport): string {
   }
 
   parts.push(
-    'Apply with: docker run --rm --network cafepurr --env-file <app .env> ' +
-      "-e MIGRATION_DATABASE_URL='<kindrobot_migrate URL>' " +
-      '<the image you are serving> node scripts/prisma-migrate-deploy.mjs ' +
-      '(see docs/runbooks/migration-credential-boundary.md).',
+    'On Alexandria run: cd /mnt/user/appdata/kind_robots && ' +
+      'bash scripts/deploy-unraid.sh. See docs/runbooks/unraid-auto-deploy.md.',
   )
 
   return parts.join(' ')

@@ -18,7 +18,7 @@
         </p>
       </div>
       <a
-        class="btn btn-ghost btn-sm rounded-xl"
+        class="kr-btn-ghost"
         href="https://rainbowbutterflies.org/#commons"
         target="_blank"
         rel="noopener noreferrer"

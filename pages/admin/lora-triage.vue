@@ -246,7 +246,7 @@
           <div class="flex items-center gap-2">
             <button
               type="button"
-              class="btn btn-ghost btn-sm rounded-xl"
+              class="kr-btn-ghost"
               :disabled="safePage <= 1"
               @click="page = safePage - 1"
             >
@@ -255,7 +255,7 @@
             <span class="text-sm font-bold">Page {{ safePage }} / {{ totalPages }}</span>
             <button
               type="button"
-              class="btn btn-ghost btn-sm rounded-xl"
+              class="kr-btn-ghost"
               :disabled="safePage >= totalPages"
               @click="page = safePage + 1"
             >

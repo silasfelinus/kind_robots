@@ -13,7 +13,7 @@
         <div v-if="botStore.selectedBot" class="flex shrink-0 justify-end">
           <button
             type="button"
-            class="btn btn-ghost btn-sm rounded-xl"
+            class="kr-btn-ghost"
             title="Brainstorm variations grounded in this Bot"
             @click="startBrainstormWithBot"
           >

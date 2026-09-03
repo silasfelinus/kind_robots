@@ -24,7 +24,7 @@
           </button>
           <button
             type="button"
-            class="btn btn-ghost btn-sm rounded-xl"
+            class="kr-btn-ghost"
             title="Brainstorm variations grounded in this Character"
             @click="startBrainstormWithCharacter"
           >

@@ -109,7 +109,7 @@
               </div>
 
               <button
-                class="btn btn-ghost btn-sm rounded-xl"
+                class="kr-btn-ghost"
                 type="button"
                 :disabled="chatMessages.length === 0 || isSendingChat"
                 @click="clearChatMessages"

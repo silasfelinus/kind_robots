@@ -40,7 +40,7 @@
             </div>
           </div>
           <button
-            class="btn btn-ghost btn-sm rounded-xl"
+            class="kr-btn-ghost"
             :disabled="karmaStore.loading"
             @click="karmaStore.fetch()"
           >

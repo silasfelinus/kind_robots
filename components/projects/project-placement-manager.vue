@@ -80,7 +80,7 @@
 
             <button
               type="button"
-              class="btn btn-ghost btn-sm rounded-xl"
+              class="kr-btn-ghost"
               :disabled="busy"
               @click="loadProjects"
             >

@@ -461,7 +461,7 @@ onMounted(async () => {
         </button>
         <button
           type="button"
-          class="btn btn-ghost btn-sm rounded-xl"
+          class="kr-btn-ghost"
           @click="closeForm"
         >
           Cancel

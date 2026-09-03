@@ -59,7 +59,7 @@
 
           <button
             v-if="allowRefresh && !isDropdownMode"
-            class="btn btn-ghost btn-sm rounded-xl"
+            class="kr-btn-ghost"
             type="button"
             :disabled="isLoading"
             @click="refreshRewards(true)"
@@ -88,7 +88,7 @@
         </div>
 
         <button
-          class="btn btn-ghost btn-sm rounded-xl"
+          class="kr-btn-ghost"
           type="button"
           @click="closeRewardForm"
         >
@@ -424,7 +424,7 @@
                  note there. Clear has nothing to say without a selection. -->
             <button
               v-if="rewardStore.selectedReward"
-              class="btn btn-ghost btn-sm rounded-xl"
+              class="kr-btn-ghost"
               type="button"
               @click="clearSelectedReward"
             >

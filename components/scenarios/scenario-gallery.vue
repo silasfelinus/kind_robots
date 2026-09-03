@@ -33,7 +33,7 @@
 
           <button
             v-if="allowRefresh && !isDropdownMode"
-            class="btn btn-ghost btn-sm rounded-xl"
+            class="kr-btn-ghost"
             type="button"
             :disabled="isLoading"
             @click="refreshScenarios(true)"
@@ -55,7 +55,7 @@
         </h3>
 
         <button
-          class="btn btn-ghost btn-sm rounded-xl"
+          class="kr-btn-ghost"
           type="button"
           @click="showScenarioForm = false"
         >

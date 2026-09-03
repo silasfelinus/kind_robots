@@ -488,7 +488,7 @@
               </div>
             </div>
             <button
-              class="btn btn-ghost btn-sm rounded-xl"
+              class="kr-btn-ghost"
               type="button"
               @click="clearSelectedImage"
             >

@@ -79,7 +79,7 @@
               </p>
             </div>
             <button
-              class="btn btn-ghost btn-sm rounded-xl"
+              class="kr-btn-ghost"
               :disabled="earningsStore.loading"
               @click="earningsStore.fetch()"
             >

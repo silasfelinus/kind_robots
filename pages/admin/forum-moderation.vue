@@ -17,7 +17,7 @@
         </div>
         <button
           type="button"
-          class="btn btn-ghost btn-sm rounded-xl"
+          class="kr-btn-ghost"
           :disabled="loading"
           @click="moderationStore.fetchHiddenPosts()"
         >

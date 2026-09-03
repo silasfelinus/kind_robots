@@ -133,7 +133,7 @@
               Log a remittance
             </h2>
             <button
-              class="btn btn-ghost btn-sm rounded-xl"
+              class="kr-btn-ghost"
               :disabled="store.loading"
               @click="store.fetch()"
             >

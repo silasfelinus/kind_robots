@@ -30,7 +30,7 @@
         </div>
         <button
           type="button"
-          class="btn btn-ghost btn-sm rounded-xl"
+          class="kr-btn-ghost"
           @click="emit('close')"
         >
           <Icon name="mdi:close" class="h-4 w-4" />
@@ -485,7 +485,7 @@
         <div class="flex gap-2">
           <button
             type="button"
-            class="btn btn-ghost btn-sm rounded-xl"
+            class="kr-btn-ghost"
             @click="emit('close')"
           >
             Cancel

@@ -25,7 +25,7 @@
 
       <button
         v-if="showClose"
-        class="btn btn-ghost btn-sm rounded-xl"
+        class="kr-btn-ghost"
         type="button"
         @click="emit('close')"
       >

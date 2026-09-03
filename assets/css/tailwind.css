@@ -573,6 +573,15 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply border-error/40 bg-error/10 text-error;
   }
 
+  /* The most-repeated ghost-button shape in the app (interface-vision t-104
+   * slice 42): a small, rounded, low-emphasis action button used for
+   * dismiss/close/secondary controls in headers and toolbars. Previously
+   * hand-rolled as `btn btn-ghost btn-sm rounded-xl` in 40+ files with no
+   * shared name to hang future changes on. */
+  .kr-btn-ghost {
+    @apply btn btn-ghost btn-sm rounded-xl;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

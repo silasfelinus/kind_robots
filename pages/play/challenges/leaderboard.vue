@@ -4,7 +4,7 @@
       class="kr-scroll kr-container max-w-7xl space-y-5 px-3 py-5 sm:px-6 sm:py-8"
     >
       <nav class="flex flex-wrap items-center justify-between gap-3">
-        <NuxtLink to="/play/challenges" class="btn btn-ghost btn-sm rounded-xl">
+        <NuxtLink to="/play/challenges" class="kr-btn-ghost">
           <Icon name="kind-icon:arrow-left" class="size-4" />
           Fight card
         </NuxtLink>

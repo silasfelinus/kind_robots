@@ -207,7 +207,7 @@
                 <span v-if="isGenerating(fish.slug)" class="loading loading-spinner loading-xs" />
                 {{ isGenerating(fish.slug) ? generationLabel(fish.slug) : 'Generate idea' }}
               </button>
-              <button type="button" class="btn btn-ghost btn-sm rounded-xl" :disabled="isSaving(fish.slug)" @click="save(fish)">
+              <button type="button" class="kr-btn-ghost" :disabled="isSaving(fish.slug)" @click="save(fish)">
                 <span v-if="isSaving(fish.slug)" class="loading loading-spinner loading-xs" />
                 Save curation
               </button>

@@ -31,7 +31,7 @@
 
       <button
         v-if="dismissible"
-        class="btn btn-ghost btn-sm rounded-xl"
+        class="kr-btn-ghost"
         type="button"
         title="Close"
         @click="emit('close')"

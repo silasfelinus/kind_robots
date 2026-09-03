@@ -255,7 +255,7 @@
             v-for="opt in newsletterOptions"
             :key="opt.value"
             type="button"
-            class="btn btn-sm rounded-xl"
+            class="kr-btn"
             :class="
               newsletterFreq === opt.value ? 'btn-primary' : 'btn-outline'
             "

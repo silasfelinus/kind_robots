@@ -175,7 +175,7 @@
 
     <footer v-if="nextCursor" class="flex shrink-0 justify-center pt-1">
       <button
-        class="btn btn-sm rounded-xl"
+        class="kr-btn"
         type="button"
         :disabled="loading"
         @click="runSearch(false)"

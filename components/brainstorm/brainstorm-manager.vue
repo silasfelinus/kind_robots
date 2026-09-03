@@ -376,7 +376,7 @@
           </label>
           <button
             type="button"
-            class="btn btn-sm rounded-xl"
+            class="kr-btn"
             :disabled="isSearchingSource"
             data-testid="brainstorm-source-search"
             @click="runSourceSearch"

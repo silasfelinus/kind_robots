@@ -17,10 +17,10 @@
         </div>
 
         <div class="flex flex-wrap gap-2">
-          <button class="btn btn-sm rounded-xl" type="button" :disabled="!activeServer" @click="refreshHealth">
+          <button class="kr-btn" type="button" :disabled="!activeServer" @click="refreshHealth">
             Health
           </button>
-          <button class="btn btn-sm rounded-xl" type="button" :disabled="!activeServer" @click="refreshModelStatus">
+          <button class="kr-btn" type="button" :disabled="!activeServer" @click="refreshModelStatus">
             Model
           </button>
           <button

@@ -109,7 +109,7 @@
 
         <div v-if="showModeButtons" class="grid grid-cols-2 gap-2 pt-1">
           <button
-            class="btn btn-sm rounded-xl"
+            class="kr-btn"
             :class="
               activeMode === 'chat' ? 'btn-primary text-white' : 'btn-outline'
             "
@@ -121,7 +121,7 @@
           </button>
 
           <button
-            class="btn btn-sm rounded-xl"
+            class="kr-btn"
             :class="
               activeMode === 'adventure' ? 'btn-secondary' : 'btn-outline'
             "

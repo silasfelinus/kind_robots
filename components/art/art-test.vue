@@ -924,28 +924,28 @@ onMounted(async () => {
 
               <div class="flex flex-wrap gap-2">
                 <button
-                  class="btn btn-sm rounded-xl"
+                  class="kr-btn"
                   type="button"
                   @click="setSize(768, 768)"
                 >
                   768²
                 </button>
                 <button
-                  class="btn btn-sm rounded-xl"
+                  class="kr-btn"
                   type="button"
                   @click="setSize(1024, 1024)"
                 >
                   1024²
                 </button>
                 <button
-                  class="btn btn-sm rounded-xl"
+                  class="kr-btn"
                   type="button"
                   @click="setSize(1216, 832)"
                 >
                   16:9
                 </button>
                 <button
-                  class="btn btn-sm rounded-xl"
+                  class="kr-btn"
                   type="button"
                   @click="setSize(832, 1216)"
                 >
@@ -1289,14 +1289,14 @@ onMounted(async () => {
             <div v-if="resultImage" class="flex flex-wrap gap-2">
               <button
                 type="button"
-                class="btn btn-sm rounded-xl"
+                class="kr-btn"
                 @click="downloadImage"
               >
                 Download
               </button>
               <button
                 type="button"
-                class="btn btn-sm rounded-xl"
+                class="kr-btn"
                 @click="copyOutput"
               >
                 Copy JSON

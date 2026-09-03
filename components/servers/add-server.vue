@@ -169,7 +169,7 @@
 
           <div class="flex flex-wrap gap-2 md:col-span-2">
             <button
-              class="btn btn-sm rounded-xl"
+              class="kr-btn"
               type="button"
               @click="showApiKey = !showApiKey"
             >

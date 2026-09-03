@@ -31,12 +31,7 @@
         <p>{{ settledCount }} / {{ data?.fish.length || 0 }} designs settled</p>
       </div>
 
-      <button
-        class="btn btn-sm rounded-xl"
-        type="button"
-        :disabled="loading"
-        @click="load"
-      >
+      <button class="kr-btn" type="button" :disabled="loading" @click="load">
         <span v-if="loading" class="loading loading-spinner loading-xs" />
         Refresh
       </button>

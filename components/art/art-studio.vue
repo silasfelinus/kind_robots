@@ -6,7 +6,7 @@
     >
       <button
         type="button"
-        class="btn btn-sm rounded-xl"
+        class="kr-btn"
         :class="activeTab === 'generate' ? 'btn-primary' : 'btn-ghost'"
         :aria-pressed="activeTab === 'generate'"
         @click="selectPrimaryTab('generate')"
@@ -17,7 +17,7 @@
 
       <button
         type="button"
-        class="btn btn-sm rounded-xl"
+        class="kr-btn"
         :class="activeTab === 'gallery' ? 'btn-primary' : 'btn-ghost'"
         :aria-pressed="activeTab === 'gallery'"
         @click="selectPrimaryTab('gallery')"

@@ -43,7 +43,7 @@
       </label>
 
       <button
-        class="btn btn-sm rounded-xl"
+        class="kr-btn"
         type="button"
         :disabled="store.loading"
         @click="refresh"
@@ -226,7 +226,7 @@
               Save prompt
             </button>
             <button
-              class="btn btn-sm rounded-xl"
+              class="kr-btn"
               type="button"
               :disabled="store.requestingAction"
               @click="render(proposal.id, 'color')"
@@ -235,7 +235,7 @@
             </button>
             <button
               v-if="proposal.accepted.color"
-              class="btn btn-sm rounded-xl"
+              class="kr-btn"
               type="button"
               :disabled="store.requestingAction"
               @click="render(proposal.id, 'bw')"

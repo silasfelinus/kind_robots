@@ -7,7 +7,7 @@
             v-for="slot in slots"
             :key="slot.field"
             type="button"
-            class="btn btn-sm rounded-xl"
+            class="kr-btn"
             :class="selectedField === slot.field ? 'btn-secondary' : 'btn-ghost border border-base-300'"
             @click="selectedField = slot.field"
           >

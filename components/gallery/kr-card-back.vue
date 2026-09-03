@@ -244,7 +244,7 @@
       <button
         v-if="canReview && $slots.reviews"
         type="button"
-        class="btn btn-sm rounded-xl"
+        class="kr-btn"
         :class="reviewsOpen ? 'btn-accent' : 'btn-outline'"
         :aria-expanded="reviewsOpen"
         @click="reviewsOpen = !reviewsOpen"

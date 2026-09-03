@@ -11,7 +11,7 @@
           </p>
         </div>
         <button
-          class="btn btn-sm rounded-xl"
+          class="kr-btn"
           type="button"
           :disabled="loading"
           @click="store.load()"

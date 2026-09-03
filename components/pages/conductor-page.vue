@@ -175,7 +175,7 @@
         >
         <button
           type="button"
-          class="btn btn-ghost btn-xs rounded-lg"
+          class="kr-btn-ghost-xs-lg"
           :disabled="pending"
           @click="refreshWorkspace"
         >

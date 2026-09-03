@@ -33,7 +33,7 @@
               Accept
             </button>
             <button
-              class="btn btn-ghost btn-xs rounded-lg"
+              class="kr-btn-ghost-xs-lg"
               @click="friends.rejectRequest(r.id)"
             >
               Decline
@@ -77,7 +77,7 @@
               Message
             </button>
             <button
-              class="btn btn-ghost btn-xs rounded-lg"
+              class="kr-btn-ghost-xs-lg"
               @click="friends.removeFriend(id)"
             >
               Remove
@@ -146,7 +146,7 @@
             >
             <button
               v-if="u.messagePolicy !== 'NONE'"
-              class="btn btn-ghost btn-xs rounded-lg"
+              class="kr-btn-ghost-xs-lg"
               @click="message(u.id)"
             >
               Message
@@ -167,7 +167,7 @@
         >
           <span class="font-semibold">{{ nameFor(id) }}</span>
           <button
-            class="btn btn-ghost btn-xs rounded-lg"
+            class="kr-btn-ghost-xs-lg"
             @click="friends.unblockUser(id)"
           >
             Unblock

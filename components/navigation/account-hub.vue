@@ -330,7 +330,7 @@
           <button
             v-if="unreadCount"
             type="button"
-            class="btn btn-ghost btn-xs rounded-lg"
+            class="kr-btn-ghost-xs-lg"
             @click="notifications.markAllRead()"
           >
             Mark all read

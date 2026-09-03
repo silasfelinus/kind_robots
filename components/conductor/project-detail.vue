@@ -96,7 +96,7 @@
       <button
         v-if="linkedProject"
         type="button"
-        class="btn btn-ghost btn-xs rounded-lg"
+        class="kr-btn-ghost-xs-lg"
         title="Brainstorm variations grounded in this Project"
         aria-label="Brainstorm variations grounded in this Project"
         @click="startBrainstormWithProject"
@@ -105,7 +105,7 @@
       </button>
       <button
         type="button"
-        class="btn btn-ghost btn-xs rounded-lg"
+        class="kr-btn-ghost-xs-lg"
         :disabled="refreshing"
         title="Refresh project"
         @click="refreshProject"

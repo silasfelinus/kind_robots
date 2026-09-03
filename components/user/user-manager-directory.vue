@@ -140,7 +140,7 @@
             <td>
               <div class="flex items-center justify-end gap-1">
                 <button
-                  class="btn btn-ghost btn-xs rounded-lg"
+                  class="kr-btn-ghost-xs-lg"
                   title="Reset password"
                   @click="openPassword(u)"
                 >

@@ -411,7 +411,7 @@
           <span>📜 Dungeon Log</span>
           <button
             type="button"
-            class="btn btn-ghost btn-xs rounded-lg"
+            class="kr-btn-ghost-xs-lg"
             aria-label="Close dungeon log"
             @click="logOpen = false"
           >
@@ -487,7 +487,7 @@
 
       <div class="flex shrink-0 items-center gap-1">
         <button
-          class="btn btn-ghost btn-xs rounded-lg"
+          class="kr-btn-ghost-xs-lg"
           type="button"
           @click="logOpen = !logOpen"
         >
@@ -495,7 +495,7 @@
         </button>
 
         <button
-          class="btn btn-ghost btn-xs rounded-lg"
+          class="kr-btn-ghost-xs-lg"
           type="button"
           @click="isOpen = !isOpen"
         >
@@ -513,7 +513,7 @@
           <h2 class="text-sm font-bold">🏆 Global Leaderboard</h2>
           <button
             type="button"
-            class="btn btn-ghost btn-xs rounded-lg"
+            class="kr-btn-ghost-xs-lg"
             aria-label="Close leaderboard"
             @click="isOpen = false"
           >

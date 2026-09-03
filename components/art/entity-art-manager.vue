@@ -248,7 +248,7 @@
         </div>
         <button
           type="button"
-          class="btn btn-ghost btn-xs rounded-lg"
+          class="kr-btn-ghost-xs-lg"
           :disabled="submitting"
           @click="closeForms"
         >
@@ -411,7 +411,7 @@
         </div>
         <button
           type="button"
-          class="btn btn-ghost btn-xs rounded-lg"
+          class="kr-btn-ghost-xs-lg"
           :disabled="submitting"
           @click="closeForms"
         >

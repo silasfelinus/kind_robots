@@ -6,7 +6,7 @@
       <div class="flex flex-wrap items-start gap-3">
         <button
           type="button"
-          class="btn btn-ghost btn-sm rounded-2xl"
+          class="kr-btn-ghost-2xl"
           @click="goBack"
         >
           <Icon name="kind-icon:chevron-left" class="size-4" />
@@ -38,7 +38,7 @@
           </span>
           <button
             type="button"
-            class="btn btn-ghost btn-sm rounded-2xl"
+            class="kr-btn-ghost-2xl"
             :disabled="isLoading"
             @click="refresh"
           >
@@ -253,7 +253,7 @@
               <div v-else class="flex flex-wrap justify-end gap-2 border-t border-base-300/60 pt-3">
                 <button
                   type="button"
-                  class="btn btn-ghost btn-sm rounded-2xl"
+                  class="kr-btn-ghost-2xl"
                   :disabled="isUpdating(pitch.slug)"
                   @click="setStatus(pitch, 'awaiting-silas')"
                 >

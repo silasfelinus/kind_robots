@@ -332,7 +332,7 @@
         >
           <button
             type="button"
-            class="btn btn-ghost btn-sm rounded-2xl"
+            class="kr-btn-ghost-2xl"
             :disabled="!artJobStore.jobHasPreviousPage"
             @click="artJobStore.setJobPage(artJobStore.jobPage - 1)"
           >
@@ -344,7 +344,7 @@
           >
           <button
             type="button"
-            class="btn btn-ghost btn-sm rounded-2xl"
+            class="kr-btn-ghost-2xl"
             :disabled="!artJobStore.jobHasNextPage"
             @click="artJobStore.setJobPage(artJobStore.jobPage + 1)"
           >

@@ -755,14 +755,14 @@
             <button
               v-if="store.isRunning"
               type="button"
-              class="btn btn-ghost btn-sm rounded-2xl"
+              class="kr-btn-ghost-2xl"
               @click="store.stop()"
             >
               <Icon name="mdi:stop" class="h-4 w-4" />
             </button>
             <button
               type="button"
-              class="btn btn-ghost btn-sm rounded-2xl"
+              class="kr-btn-ghost-2xl"
               :disabled="store.isGenerating || !store.transcript.length"
               @click="store.regenerateLastTurn()"
             >
@@ -770,7 +770,7 @@
             </button>
             <button
               type="button"
-              class="btn btn-ghost btn-sm rounded-2xl"
+              class="kr-btn-ghost-2xl"
               :disabled="store.isGenerating"
               @click="store.generateNextTurn()"
             >
@@ -822,7 +822,7 @@
               />
               <button
                 type="button"
-                class="btn btn-ghost btn-sm rounded-2xl"
+                class="kr-btn-ghost-2xl"
                 :disabled="!narratorBeat.trim()"
                 @click="submitNarratorBeat"
               >

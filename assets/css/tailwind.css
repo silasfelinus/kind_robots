@@ -600,6 +600,15 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply btn btn-ghost btn-xs;
   }
 
+  /* Fourth-most-repeated ghost-button shape (interface-vision t-104 slice 45):
+   * same `sm` size as .kr-btn-ghost, but with a wider `rounded-2xl` corner
+   * radius instead of `rounded-xl` — `btn btn-ghost btn-sm rounded-2xl`,
+   * previously hand-rolled in 23 files. Named for the radius it overrides
+   * (not a size suffix) since the size matches the base .kr-btn-ghost shape. */
+  .kr-btn-ghost-2xl {
+    @apply btn btn-ghost btn-sm rounded-2xl;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

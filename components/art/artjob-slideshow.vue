@@ -90,7 +90,7 @@
             <div class="flex flex-wrap items-center gap-1">
               <button
                 type="button"
-                class="btn btn-ghost btn-sm rounded-2xl"
+                class="kr-btn-ghost-2xl"
                 :disabled="!slideshowStore.hasPreviousSlide"
                 title="Previous (left arrow)"
                 @click="previousSlide"
@@ -108,7 +108,7 @@
               </button>
               <button
                 type="button"
-                class="btn btn-ghost btn-sm rounded-2xl"
+                class="kr-btn-ghost-2xl"
                 title="Next (right arrow)"
                 @click="nextSlide"
               >
@@ -116,7 +116,7 @@
               </button>
               <button
                 type="button"
-                class="btn btn-ghost btn-sm rounded-2xl"
+                class="kr-btn-ghost-2xl"
                 title="Show or hide the caption (i)"
                 @click="toggleAllOverlay"
               >
@@ -133,7 +133,7 @@
               </button>
               <button
                 type="button"
-                class="btn btn-ghost btn-sm rounded-2xl"
+                class="kr-btn-ghost-2xl"
                 title="Toggle browser fullscreen (f)"
                 @click="toggleFullscreen"
               >

@@ -269,7 +269,7 @@
                   </button>
                   <button
                     type="button"
-                    class="btn btn-outline btn-sm rounded-xl"
+                    class="kr-btn btn-outline"
                     @click="useCuratedChapters"
                   >
                     Play the written chapters instead

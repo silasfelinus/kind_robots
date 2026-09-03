@@ -19,7 +19,7 @@
         <div class="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            class="btn btn-outline btn-sm rounded-xl"
+            class="kr-btn btn-outline"
             :disabled="triageStore.isSaving || loading"
             @click="refresh"
           >

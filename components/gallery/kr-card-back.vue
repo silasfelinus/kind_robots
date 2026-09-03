@@ -256,7 +256,7 @@
       <button
         v-if="canEdit"
         type="button"
-        class="btn btn-outline btn-sm rounded-xl"
+        class="kr-btn btn-outline"
         @click="editing = true"
       >
         <Icon name="kind-icon:edit" class="h-4 w-4" />

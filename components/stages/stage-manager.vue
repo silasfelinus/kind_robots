@@ -699,7 +699,7 @@
                 <button
                   v-if="!store.castReady"
                   type="button"
-                  class="btn btn-outline btn-sm rounded-xl"
+                  class="kr-btn btn-outline"
                   @click="activeCard = 'cast'"
                 >
                   <Icon name="mdi:account-multiple-plus" class="h-4 w-4" /> Cast

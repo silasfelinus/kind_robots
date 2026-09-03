@@ -54,10 +54,7 @@
               <li>
                 <button
                   type="button"
-                  @click="
-                    downloadStory(undefined, 'markdown')
-                    closeExportMenu()
-                  "
+                  @click="downloadStory(undefined, 'markdown'); closeExportMenu()"
                 >
                   Markdown
                 </button>
@@ -65,10 +62,7 @@
               <li>
                 <button
                   type="button"
-                  @click="
-                    downloadStory(undefined, 'json')
-                    closeExportMenu()
-                  "
+                  @click="downloadStory(undefined, 'json'); closeExportMenu()"
                 >
                   JSON
                 </button>

@@ -45,13 +45,82 @@ export interface FunctionBody {
   body: string
 }
 
+// Regression fixture (model-builder/t-029 cycle 88, kaizen from OpenAI cycle
+// 87's guard-integrity audit): the brace/paren counters below used to scan
+// raw characters, so a `{`/`}`/`(`/`)` that only exists inside a `//`/`/* */`
+// comment or a string/template literal was counted as real structure. A
+// stray `}` in a comment silently truncated a function's extracted body
+// (the completion-gate check would then miss any real violation the
+// truncated-away code contained -- a false negative), and a stray `{` in a
+// string literal made the scan overrun into later code looking for a
+// closing brace that was never coming, throwing "has ...'s shape changed?"
+// on a file whose shape hadn't changed at all. `computeCodeMask` marks
+// which offsets are genuine code (not comment/string content) so the
+// counters below can skip the rest.
+export function computeCodeMask(content: string): boolean[] {
+  const mask = new Array<boolean>(content.length).fill(true)
+  type State =
+    | 'code'
+    | 'line-comment'
+    | 'block-comment'
+    | 'single-quote'
+    | 'double-quote'
+    | 'template'
+  let state: State = 'code'
+
+  for (let i = 0; i < content.length; i++) {
+    const ch = content[i]
+    if (state === 'code') {
+      if (ch === '/' && content[i + 1] === '/') {
+        state = 'line-comment'
+        mask[i] = false
+      } else if (ch === '/' && content[i + 1] === '*') {
+        state = 'block-comment'
+        mask[i] = false
+      } else if (ch === "'" || ch === '"' || ch === '`') {
+        state =
+          ch === "'" ? 'single-quote' : ch === '"' ? 'double-quote' : 'template'
+        mask[i] = false
+      }
+      continue
+    }
+
+    mask[i] = false
+    if (state === 'line-comment') {
+      if (ch === '\n') state = 'code'
+    } else if (state === 'block-comment') {
+      if (ch === '*' && content[i + 1] === '/') {
+        mask[i + 1] = false
+        i++
+        state = 'code'
+      }
+    } else {
+      // single-quote / double-quote / template: an unescaped backslash
+      // consumes the following character too (so `\'`/`\"`/`` \` `` never
+      // ends the string), then the matching quote closes it.
+      const closingQuote =
+        state === 'single-quote' ? "'" : state === 'double-quote' ? '"' : '`'
+      if (ch === '\\') {
+        if (i + 1 < content.length) mask[++i] = false
+      } else if (ch === closingQuote) {
+        state = 'code'
+      }
+    }
+  }
+
+  return mask
+}
+
 // Finds every top-level `function NAME(` / `async function NAME(` declared
 // at 2-space indent (this store's setup-function convention) and extracts
 // its body via paren-matching (to skip past a parameter list, which may
 // itself contain `{ ... }` object-type braces) followed by brace-matching
-// from the body's own opening `{`.
+// from the body's own opening `{`. Braces/parens inside a comment or string
+// literal are ignored (see computeCodeMask) rather than counted as
+// structure.
 export function extractFunctionBodies(content: string): FunctionBody[] {
   const functions: FunctionBody[] = []
+  const codeMask = computeCodeMask(content)
   const signaturePattern = /^ {2}(async )?function (\w+)\s*\(/gm
 
   for (const match of content.matchAll(signaturePattern)) {
@@ -62,6 +131,7 @@ export function extractFunctionBodies(content: string): FunctionBody[] {
     let parenDepth = 0
     let i = parenOpen
     for (; i < content.length; i++) {
+      if (!codeMask[i]) continue
       if (content[i] === '(') parenDepth++
       else if (content[i] === ')') {
         parenDepth--
@@ -86,6 +156,7 @@ export function extractFunctionBodies(content: string): FunctionBody[] {
     let braceDepth = 0
     let j = braceOpen
     for (; j < content.length; j++) {
+      if (!codeMask[j]) continue
       if (content[j] === '{') braceDepth++
       else if (content[j] === '}') {
         braceDepth--
@@ -120,9 +191,11 @@ export interface GuardInterval {
 // Every `if (item.stages.KEY.status === 'VALUE') { ... }` block in `body`,
 // as a [start, end) offset interval spanning its own braces -- covers both
 // the named-helper idiom (finishGenerateAssets/finishCommit's own bodies)
-// and an inline guard written directly in an async function.
+// and an inline guard written directly in an async function. Braces inside
+// a comment or string literal are ignored (see computeCodeMask).
 export function findGuardIntervals(body: string): GuardInterval[] {
   const intervals: GuardInterval[] = []
+  const codeMask = computeCodeMask(body)
   const guardPattern = /if \(item\.stages\.(\w+)\.status === '[\w-]+'\) \{/g
 
   for (const match of body.matchAll(guardPattern)) {
@@ -131,6 +204,7 @@ export function findGuardIntervals(body: string): GuardInterval[] {
     let depth = 0
     let k = braceOpen
     for (; k < body.length; k++) {
+      if (!codeMask[k]) continue
       if (body[k] === '{') depth++
       else if (body[k] === '}') {
         depth--

@@ -9,9 +9,18 @@
 // not be flagged), and a synchronous function with no `await` at all (must
 // not be flagged even though it writes item.stages unconditionally, matching
 // approveStage/rejectStage/reopenStage's real shape).
+//
+// Also covers the comment/string-brace parser blind spot (model-builder/t-029
+// cycle 88, kaizen from OpenAI cycle 87's guard-integrity audit): before
+// computeCodeMask existed, a `}` inside a `//` comment silently truncated a
+// function's extracted body (a real violation inside the truncated-away tail
+// would go undetected -- a false negative), and a `{` inside a string
+// literal made the brace scan overrun looking for a closing brace that was
+// never coming, throwing on a file whose shape hadn't actually changed.
 import assert from 'node:assert/strict'
 
 import {
+  computeCodeMask,
   extractFunctionBodies,
   findGuardIntervals,
   findUngatedCompletionWrites,
@@ -128,4 +137,108 @@ console.log(
     'post-await stage-status write, clears the named-helper and inline-' +
     'guard shapes, and never flags a pre-await write or a synchronous ' +
     'function with no await.',
+)
+
+// --- comment/string-brace parser blind spot ---------------------------
+
+// A `}` inside a `//` line comment, before the function's real closing
+// brace, must not be counted as the end of the body -- the real write two
+// lines later must still be captured.
+const COMMENT_BRACE_FIXTURE = `
+  async function commentBraceTruncation(itemId: string): Promise<boolean> {
+    const item = findItem(itemId)
+    if (!item) return false
+    // note: unrelated aside mentioning a curly brace }
+    const response = await performFetch('/x', {})
+    item.stages.COMMIT = { status: 'approved' }
+    return true
+  }
+
+  function afterCommentBrace(): void {
+    doSomething()
+  }
+`
+
+const commentBraceFunctions = extractFunctionBodies(COMMENT_BRACE_FIXTURE)
+assert.equal(
+  commentBraceFunctions.map((f) => f.name).join(','),
+  'commentBraceTruncation,afterCommentBrace',
+  `a '}' inside a comment must not truncate extraction, got: ${commentBraceFunctions
+    .map((f) => f.name)
+    .join(',')}`,
+)
+assert.ok(
+  commentBraceFunctions[0]!.body.includes('item.stages.COMMIT'),
+  "commentBraceTruncation's body must include its real write, not stop at the comment's stray '}'",
+)
+
+const commentBraceViolations = findUngatedCompletionWrites(
+  COMMENT_BRACE_FIXTURE,
+)
+assert.equal(
+  commentBraceViolations.length,
+  1,
+  `expected the real ungated write past the comment to still be flagged, got ${commentBraceViolations.length}: ${JSON.stringify(commentBraceViolations)}`,
+)
+assert.equal(commentBraceViolations[0]!.functionName, 'commentBraceTruncation')
+
+// A `{` inside a string literal must not be counted as opening a real
+// block -- it must not make the scan overrun into (or swallow) the next
+// function looking for a closing brace that was never coming.
+const STRING_BRACE_FIXTURE = `
+  async function stringBraceOverextension(itemId: string): Promise<boolean> {
+    const item = findItem(itemId)
+    if (!item) return false
+    const note = 'unexpected token: {'
+    const response = await performFetch('/x', {})
+    item.stages.COMMIT = { status: 'approved' }
+    return true
+  }
+
+  function afterStringBrace(): void {
+    doSomething()
+  }
+`
+
+const stringBraceFunctions = extractFunctionBodies(STRING_BRACE_FIXTURE)
+assert.equal(
+  stringBraceFunctions.map((f) => f.name).join(','),
+  'stringBraceOverextension,afterStringBrace',
+  `a '{' inside a string literal must not extend a function's body into ` +
+    `the next function, got: ${stringBraceFunctions.map((f) => f.name).join(',')}`,
+)
+assert.ok(
+  !stringBraceFunctions[0]!.body.includes('afterStringBrace'),
+  "stringBraceOverextension's body must not swallow the next function's source",
+)
+
+// A guard condition inside a function whose body also contains a
+// comment/string brace must still resolve correctly (findGuardIntervals
+// shares the same masking).
+const guardWithStringBrace = findGuardIntervals(
+  `if (item.stages.COMMIT.status === 'in-progress') { const n = 'note: {'; item.stages.COMMIT = { status: 'approved' } }`,
+)
+assert.equal(
+  guardWithStringBrace.length,
+  1,
+  'a guard interval containing a string-literal brace must still resolve to exactly one interval',
+)
+assert.equal(guardWithStringBrace[0]!.key, 'COMMIT')
+
+// computeCodeMask itself: spot-check that comment/string content is masked
+// out and real code is not.
+const maskSample = "a{'{'}b" // code, quote, code, quote, code -- only the outer a/{/}/b are real code
+const mask = computeCodeMask(maskSample)
+assert.equal(mask[0], true, "'a' is real code")
+assert.equal(mask[1], true, "the first '{' is real code")
+assert.equal(mask[2], false, 'the opening quote starts a string and is masked')
+assert.equal(mask[3], false, "the '{' inside the string is masked")
+assert.equal(mask[4], false, 'the closing quote is masked')
+assert.equal(mask[5], true, "the second '}' is real code")
+assert.equal(mask[6], true, "'b' is real code")
+
+console.log(
+  'Model Builder completion-gate checker verified: a comment/string ' +
+    "literal's brace no longer truncates or overruns function extraction, " +
+    'and a real violation past such a comment is still flagged.',
 )

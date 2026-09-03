@@ -117,7 +117,7 @@
           </button>
 
           <button
-            class="btn btn-ghost rounded-xl"
+            class="kr-btn-ghost-md"
             :class="compact ? 'btn-sm' : ''"
             type="button"
             @click="clearReaction"

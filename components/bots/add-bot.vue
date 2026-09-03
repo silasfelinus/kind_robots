@@ -459,7 +459,7 @@
 
       <footer class="flex flex-col gap-2 sm:flex-row sm:justify-end">
         <button
-          class="btn btn-ghost rounded-xl"
+          class="kr-btn-ghost-md"
           type="button"
           @click="emit('cancel')"
         >

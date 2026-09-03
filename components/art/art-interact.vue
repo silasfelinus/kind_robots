@@ -27,7 +27,7 @@
 
         <button
           v-if="currentArtImage"
-          class="btn btn-xs btn-ghost rounded-xl sm:btn-sm"
+          class="kr-btn-ghost-xs sm:btn-sm"
           type="button"
           @click="deselectAndReturn"
         >
@@ -72,7 +72,7 @@
         <template v-if="currentArtImage && canDeleteCurrentImage">
           <button
             v-if="!deleteArmed"
-            class="btn btn-xs btn-ghost rounded-xl border border-error/30 text-error sm:btn-sm hover:btn-error hover:text-error-content"
+            class="kr-btn-ghost-xs border border-error/30 text-error sm:btn-sm hover:btn-error hover:text-error-content"
             type="button"
             title="Delete this image"
             @click="deleteArmed = true"

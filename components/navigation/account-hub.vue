@@ -234,7 +234,7 @@
           <button
             v-if="userStore.isLoggedIn"
             type="button"
-            class="btn btn-xs btn-ghost rounded-xl text-error"
+            class="kr-btn-ghost-xs text-error"
             @click="logout"
           >
             <Icon name="kind-icon:logout" class="h-3.5 w-3.5" />

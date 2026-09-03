@@ -44,7 +44,7 @@
         </button>
         <button
           type="button"
-          class="btn btn-xs btn-ghost rounded-xl text-base-content/60"
+          class="kr-btn-ghost-xs text-base-content/60"
           @click="store.resetRun()"
         >
           <Icon name="kind-icon:arrow-left" class="h-3.5 w-3.5" />

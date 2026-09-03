@@ -102,7 +102,7 @@
         <div class="flex items-center gap-2">
           <button
             type="button"
-            class="btn btn-ghost btn-sm rounded-2xl"
+            class="kr-btn-ghost-2xl"
             @click="closePage"
           >
             <Icon name="mdi:arrow-left" class="h-4 w-4" />
@@ -116,7 +116,7 @@
         <div class="flex items-center gap-1.5">
           <button
             type="button"
-            class="btn btn-ghost btn-sm rounded-2xl"
+            class="kr-btn-ghost-2xl"
             title="Undo last fill"
             @click="coloringStore.undo()"
           >
@@ -125,7 +125,7 @@
           </button>
           <button
             type="button"
-            class="btn btn-ghost btn-sm rounded-2xl"
+            class="kr-btn-ghost-2xl"
             title="Clear all fills"
             @click="coloringStore.resetPage()"
           >
@@ -134,7 +134,7 @@
           </button>
           <button
             type="button"
-            class="btn btn-ghost btn-sm rounded-2xl"
+            class="kr-btn-ghost-2xl"
             title="Download your colored page as a PNG image"
             :disabled="isExporting"
             @click="saveImage"
@@ -148,7 +148,7 @@
           </button>
           <button
             type="button"
-            class="btn btn-ghost btn-sm rounded-2xl"
+            class="kr-btn-ghost-2xl"
             title="Download your color assignments as JSON"
             @click="downloadAssignments"
           >

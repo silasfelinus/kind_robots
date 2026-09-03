@@ -421,7 +421,7 @@
                   <div class="flex flex-wrap gap-2">
                     <button
                       type="button"
-                      class="btn btn-ghost btn-sm rounded-2xl"
+                      class="kr-btn-ghost-2xl"
                       :disabled="isNarratorResponding"
                       @click="clearNarratorThread"
                     >

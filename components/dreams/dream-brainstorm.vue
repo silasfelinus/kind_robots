@@ -46,7 +46,7 @@
 
           <button
             type="button"
-            class="btn btn-ghost btn-sm rounded-2xl"
+            class="kr-btn-ghost-2xl"
             @click="resetSession"
           >
             <Icon name="kind-icon:x" class="h-4 w-4" />

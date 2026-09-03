@@ -28,7 +28,7 @@
         <div class="flex flex-wrap gap-2">
           <button
             type="button"
-            class="btn btn-ghost btn-sm rounded-2xl"
+            class="kr-btn-ghost-2xl"
             @click="randomizeSeed"
           >
             <Icon name="kind-icon:dice" class="h-4 w-4" />

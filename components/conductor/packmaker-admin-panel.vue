@@ -219,7 +219,7 @@
         </button>
         <button
           v-else
-          class="btn btn-ghost btn-sm rounded-2xl"
+          class="kr-btn-ghost-2xl"
           @click="packStore.markPackDraft(selectedPack.id)"
         >
           Back to draft

@@ -6,7 +6,7 @@
     >
       <div class="flex flex-wrap justify-center gap-2 lg:justify-end">
         <button
-          class="btn btn-primary rounded-xl"
+          class="kr-btn-primary-md"
           type="button"
           @click="startServerPreset('COMFY')"
         >

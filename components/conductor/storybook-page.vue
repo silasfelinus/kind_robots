@@ -537,7 +537,7 @@
             <button
               v-if="setupStep < setupSteps.length - 1"
               type="button"
-              class="btn btn-primary rounded-xl"
+              class="kr-btn-primary-md"
               :disabled="!canAdvance"
               @click="advanceSetup"
             >
@@ -546,7 +546,7 @@
             <button
               v-else
               type="button"
-              class="btn btn-primary rounded-xl"
+              class="kr-btn-primary-md"
               :disabled="!canBegin || store.isWeaving"
               @click="beginStory"
             >

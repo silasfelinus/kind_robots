@@ -653,6 +653,16 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply btn btn-primary btn-sm rounded-xl;
   }
 
+  /* Second-most-repeated filled-button shape (interface-vision t-104 slice 58):
+   * DaisyUI's own default (unmodified) button size — no `btn-sm` utility at
+   * all — with the same `rounded-xl` override as .kr-btn-primary, `btn
+   * btn-primary rounded-xl`, previously hand-rolled in 15 files (17
+   * occurrences). Suffixed `-md` for the default size, mirroring
+   * .kr-btn-ghost-md's identical size-ladder convention on the ghost family. */
+  .kr-btn-primary-md {
+    @apply btn btn-primary rounded-xl;
+  }
+
   /* The most-repeated *unstyled* (no color modifier, no ghost) button shape
    * in the app (interface-vision t-104 slice 52): the same `sm`/`rounded-xl`
    * shape as .kr-btn-ghost and .kr-btn-primary, but with neither `btn-ghost`

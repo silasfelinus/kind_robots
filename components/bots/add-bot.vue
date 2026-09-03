@@ -485,7 +485,7 @@
         </button>
 
         <button
-          class="btn btn-primary rounded-xl"
+          class="kr-btn-primary-md"
           type="button"
           :disabled="botStore.isSaving || !canSave"
           @click="saveBot"

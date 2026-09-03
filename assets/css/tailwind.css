@@ -582,6 +582,13 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply btn btn-ghost btn-sm rounded-xl;
   }
 
+  /* Second-most-repeated ghost-button shape (interface-vision t-104 slice 43):
+   * the same low-emphasis action button as .kr-btn-ghost, one size down —
+   * `btn btn-ghost btn-xs rounded-xl`, previously hand-rolled in 20+ files. */
+  .kr-btn-ghost-xs {
+    @apply btn btn-ghost btn-xs rounded-xl;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

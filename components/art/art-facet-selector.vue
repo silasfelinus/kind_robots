@@ -13,7 +13,7 @@
       <button
         v-if="modelValue.length"
         type="button"
-        class="btn btn-ghost btn-xs rounded-xl"
+        class="kr-btn-ghost-xs"
         @click="emitValue([])"
       >
         Clear
@@ -115,7 +115,7 @@
             <button
               v-if="!facetArtwork(facet)"
               type="button"
-              class="btn btn-ghost btn-xs rounded-xl"
+              class="kr-btn-ghost-xs"
               :disabled="artRequests.requesting[facet.id]"
               :title="`Request curated artwork for ${facet.title}`"
               @click="requestArtwork(facet)"

@@ -55,7 +55,7 @@
           </button>
           <button
             type="button"
-            class="btn btn-ghost btn-xs rounded-xl"
+            class="kr-btn-ghost-xs"
             @click="store.stop()"
           >
             <Icon name="mdi:stop" class="h-3.5 w-3.5" />
@@ -63,7 +63,7 @@
         </template>
         <button
           type="button"
-          class="btn btn-ghost btn-xs rounded-xl"
+          class="kr-btn-ghost-xs"
           @click="store.persist()"
         >
           <Icon name="mdi:content-save" class="h-3.5 w-3.5" />
@@ -392,7 +392,7 @@
 
                 <button
                   type="button"
-                  class="btn btn-ghost btn-xs rounded-xl"
+                  class="kr-btn-ghost-xs"
                   @click="clearPendingCastMember"
                 >
                   <Icon name="mdi:close" class="h-3.5 w-3.5" />
@@ -431,7 +431,7 @@
                   <button
                     v-if="canAddSlot(role.key)"
                     type="button"
-                    class="btn btn-ghost btn-xs rounded-xl"
+                    class="kr-btn-ghost-xs"
                     @click="store.addCastSlot(role.key)"
                   >
                     <Icon name="mdi:plus" class="h-3.5 w-3.5" />

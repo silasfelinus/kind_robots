@@ -56,7 +56,7 @@
             <div class="flex flex-wrap gap-2">
               <NuxtLink
                 :to="section.to"
-                class="btn btn-ghost btn-xs rounded-xl"
+                class="kr-btn-ghost-xs"
               >
                 <Icon name="kind-icon:external-link" class="h-4 w-4" />
                 Open {{ section.label }}

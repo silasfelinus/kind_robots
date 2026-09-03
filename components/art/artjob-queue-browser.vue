@@ -264,7 +264,7 @@
               </label>
               <button
                 type="button"
-                class="btn btn-ghost btn-xs rounded-xl"
+                class="kr-btn-ghost-xs"
                 :disabled="artJobStore.loadingJobs"
                 @click="applyPageSize"
               >

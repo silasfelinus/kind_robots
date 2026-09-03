@@ -32,7 +32,7 @@
           New pack
         </button>
         <button
-          class="btn btn-ghost btn-xs rounded-xl"
+          class="kr-btn-ghost-xs"
           @click="showImport = !showImport"
         >
           Load manifest JSON
@@ -108,7 +108,7 @@
           >{{ packStore.packBuildStatus(selectedPack.id) }}</span
         >
         <button
-          class="btn btn-ghost btn-xs rounded-xl"
+          class="kr-btn-ghost-xs"
           title="Rename the pack or edit its manifest entries"
           @click="editorMode = 'edit'"
         >
@@ -187,7 +187,7 @@
             </button>
             <button
               v-if="stateFor(item.id).refId"
-              class="btn btn-ghost btn-xs rounded-xl"
+              class="kr-btn-ghost-xs"
               :disabled="isBusy(item.id)"
               title="Forget the local link and start this item over as a fresh row"
               @click="packStore.resetItem(selectedPack.id, item.id)"

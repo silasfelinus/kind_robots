@@ -7,16 +7,20 @@ on:
       - 'prisma/agent-profile.prisma'
       - 'prisma/migrations/**agent_checkins_notes/**'
       - 'prisma/migrations/**agent_attention_requests/**'
+      - 'prisma/migrations/**agent_profile_messages/**'
       - 'utils/agentCredentialScopes.ts'
       - 'server/utils/authGuard.ts'
       - 'server/utils/agentAttentionRequests.ts'
       - 'server/utils/agentProfileRuntime.ts'
       - 'server/utils/agentWorkingContext.ts'
+      - 'server/utils/agentMessaging.ts'
+      - 'server/utils/agentMessagingPolicy.ts'
       - 'server/api/v1/agent/**'
       - 'server/api/agent-profiles/**'
       - 'utils/scripts/verifyAgentCheckins.test.ts'
       - 'utils/scripts/verifyAgentWorkingContext.test.ts'
       - 'tests/contracts/verifyAgentAttentionRequests.ts'
+      - 'tests/contracts/verifyAgentMessaging.ts'
       - '.github/workflows/agent-checkin-contract.yml'
   push:
     branches: [main]
@@ -24,16 +28,20 @@ on:
       - 'prisma/agent-profile.prisma'
       - 'prisma/migrations/**agent_checkins_notes/**'
       - 'prisma/migrations/**agent_attention_requests/**'
+      - 'prisma/migrations/**agent_profile_messages/**'
       - 'utils/agentCredentialScopes.ts'
       - 'server/utils/authGuard.ts'
       - 'server/utils/agentAttentionRequests.ts'
       - 'server/utils/agentProfileRuntime.ts'
       - 'server/utils/agentWorkingContext.ts'
+      - 'server/utils/agentMessaging.ts'
+      - 'server/utils/agentMessagingPolicy.ts'
       - 'server/api/v1/agent/**'
       - 'server/api/agent-profiles/**'
       - 'utils/scripts/verifyAgentCheckins.test.ts'
       - 'utils/scripts/verifyAgentWorkingContext.test.ts'
       - 'tests/contracts/verifyAgentAttentionRequests.ts'
+      - 'tests/contracts/verifyAgentMessaging.ts'
       - '.github/workflows/agent-checkin-contract.yml'
   workflow_dispatch:
 
@@ -59,3 +67,5 @@ jobs:
         run: npx tsx utils/scripts/verifyAgentWorkingContext.test.ts
       - name: Verify agent human-attention request contract
         run: npx tsx tests/contracts/verifyAgentAttentionRequests.ts
+      - name: Verify AgentProfile messaging contract
+        run: npx tsx tests/contracts/verifyAgentMessaging.ts

@@ -74,7 +74,7 @@
 
         <div v-if="showLaunchButton" class="grid grid-cols-2 gap-2 pt-1">
           <button
-            class="btn btn-sm btn-primary rounded-xl text-primary-content"
+            class="kr-btn-primary text-primary-content"
             type="button"
             @click.stop="launchBot"
           >

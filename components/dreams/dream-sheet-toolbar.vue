@@ -15,7 +15,7 @@
 
       <div class="flex flex-wrap gap-2">
         <button
-          class="btn btn-outline btn-sm rounded-xl"
+          class="kr-btn btn-outline"
           type="button"
           :disabled="sheetStore.loading || sheetStore.isSaving"
           @click="refreshSheets"
@@ -25,7 +25,7 @@
         </button>
 
         <button
-          class="btn btn-primary btn-sm rounded-xl text-white"
+          class="kr-btn-primary text-white"
           type="button"
           :disabled="!missingDreams.length || sheetStore.isSaving"
           @click="createMissingSheets"

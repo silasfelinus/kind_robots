@@ -27,6 +27,10 @@ const unraidUserScript = readFileSync(
   join(root, 'scripts/unraid-user-script.sh'),
   'utf8',
 )
+const databaseHealth = readFileSync(
+  join(root, 'server/api/health/database.get.ts'),
+  'utf8',
+)
 const agents = readFileSync(join(root, 'AGENTS.md'), 'utf8')
 const unraidRunbook = readFileSync(
   join(root, 'docs/runbooks/unraid-auto-deploy.md'),
@@ -35,7 +39,6 @@ const unraidRunbook = readFileSync(
 
 // -------------------------------------------------- the image can migrate
 
-// Only the runtime stage matters; the build stage has the whole repo anyway.
 const runtimeStage = dockerfile.slice(dockerfile.lastIndexOf('FROM '))
 
 for (const required of ['prisma', 'scripts', 'prisma.config.ts']) {
@@ -206,6 +209,34 @@ assert.match(
   'automatic migration-before-update requires a documented old-build/new-schema compatibility rule',
 )
 
+// -------------------------------------- health means schema-current, not SELECT 1
+
+assert.match(
+  dockerfile,
+  /api\/health\/database/,
+  'the production Docker healthcheck must use the database health endpoint',
+)
+assert.match(
+  databaseHealth,
+  /FROM _prisma_migrations/,
+  'database health must read Prisma migration history',
+)
+assert.match(
+  databaseHealth,
+  /hasMigrationDrift\(report\)/,
+  'database health must compare migration history with this image',
+)
+assert.match(
+  databaseHealth,
+  /statusCode = 503/,
+  'pending or failed migrations must make the container unhealthy',
+)
+assert.match(
+  databaseHealth,
+  /schemaCurrent: false/,
+  'schema drift must be visible in the health payload',
+)
+
 // ------------------------------------------- agents cannot lose the handoff
 
 assert.match(
@@ -230,5 +261,5 @@ assert.match(
 )
 
 console.log(
-  'Migrate-on-deploy verified: compose and Alexandria both migrate before serving new code; User Scripts owns persistent scheduling; migration credentials stay scoped; all agents carry the self-hosted handoff contract.',
+  'Migrate-on-deploy verified: compose and Alexandria both migrate before serving new code; User Scripts owns persistent scheduling; Docker health rejects schema drift; migration credentials stay scoped; all agents carry the self-hosted handoff contract.',
 )

@@ -128,8 +128,10 @@ export async function syncCharacterFacetsInTransaction(
   )
 
   if (!lookupKeys.length) {
+    // Scoped to this function's own rows only -- see the note on the second
+    // deleteMany below for why an unscoped delete here is the bug.
     await tx.characterFacet.deleteMany({
-      where: { characterId: character.id },
+      where: { characterId: character.id, source: 'CHARACTER_MUTATION' },
     })
     return 0
   }
@@ -195,7 +197,27 @@ export async function syncCharacterFacetsInTransaction(
     })
   }
 
-  await tx.characterFacet.deleteMany({ where: { characterId: character.id } })
+  // Scoped to `source: 'CHARACTER_MUTATION'` -- this function's own rows --
+  // not every row the Character has. An unscoped delete here silently erased
+  // Facets attached through PUT /api/characters/:id/facets (source CURATED /
+  // MANUAL, the Daily Dream pipeline's path) on the next unrelated PATCH,
+  // because CHARACTER_FIELD_TAXONOMIES only recognizes Facet vocabulary
+  // written literally into genre/species/class/alignment/gender/personality/
+  // backstory/quirks/role -- ordinary prose in those fields (a character's
+  // `backstory`, say) matches nothing, so `pending` comes back empty and the
+  // deleteMany ran with zero replacements. Observed live 2026-09-03: a prose
+  // repair that PATCHed only `backstory` on Character #3294 (a field this
+  // sync already tracks, but whose sentence contained no literal Facet alias)
+  // wiped its six Daily Dream Facets, though it never touched Facets at all.
+  // `fieldKey` cannot be the scope instead -- `characterFacetFieldKey()`
+  // assigns the *same* fieldKey names to pipeline-sourced Facets, so a
+  // fieldKey-scoped delete (the pattern `syncBotFacetsInTransaction` uses,
+  // safely, only because Bot's fieldKeys are disjoint from any other source)
+  // would still catch pipeline rows here. `source` is the one column that
+  // actually distinguishes what this function wrote from what did not.
+  await tx.characterFacet.deleteMany({
+    where: { characterId: character.id, source: 'CHARACTER_MUTATION' },
+  })
   if (rows.size) {
     await tx.characterFacet.createMany({
       data: Array.from(rows.values()),

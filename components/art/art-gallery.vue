@@ -43,7 +43,7 @@
 
           <button
             v-if="activeGroup"
-            class="btn btn-ghost btn-xs rounded-lg"
+            class="kr-btn-ghost-xs-lg"
             type="button"
             @click="clearActiveGroup"
           >
@@ -81,7 +81,7 @@
 
           <button
             v-if="selectedImageForOverlay"
-            class="btn btn-ghost btn-xs rounded-lg"
+            class="kr-btn-ghost-xs-lg"
             type="button"
             @click="clearSelectedImage"
           >

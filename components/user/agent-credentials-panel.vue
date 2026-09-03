@@ -22,7 +22,7 @@
         >{{ justCreatedToken }}</code>
         <button
           type="button"
-          class="btn btn-ghost btn-xs rounded-lg"
+          class="kr-btn-ghost-xs-lg"
           @click="copyToken"
         >
           {{ copied ? 'Copied' : 'Copy' }}
@@ -40,7 +40,7 @@
         </button>
         <button
           type="button"
-          class="btn btn-ghost btn-xs rounded-lg"
+          class="kr-btn-ghost-xs-lg"
           @click="dismissCreatedToken"
         >
           Done
@@ -115,7 +115,7 @@
         <div v-if="!credential.revokedAt" class="mt-3 flex flex-wrap gap-2">
           <button
             type="button"
-            class="btn btn-ghost btn-xs rounded-lg"
+            class="kr-btn-ghost-xs-lg"
             @click="prepareReplacement(credential)"
           >
             Replace
@@ -143,7 +143,7 @@
         <button
           v-if="replacingCredentialId"
           type="button"
-          class="btn btn-ghost btn-xs rounded-lg"
+          class="kr-btn-ghost-xs-lg"
           @click="resetForm"
         >
           Cancel replacement

@@ -12,7 +12,7 @@
       <div class="flex shrink-0 items-center gap-1">
         <button
           type="button"
-          class="btn btn-xs btn-ghost rounded-xl text-base-content/60"
+          class="kr-btn-ghost-xs text-base-content/60"
           :disabled="store.loadingRuns || Boolean(cancellingRunId)"
           @click="store.fetchRuns()"
         >

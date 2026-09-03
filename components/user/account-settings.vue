@@ -63,7 +63,7 @@
             <button
               v-if="userEmail && !emailVerified"
               type="button"
-              class="btn btn-outline btn-sm rounded-xl"
+              class="kr-btn btn-outline"
               :disabled="account.isSaving"
               @click="onSendVerification"
             >

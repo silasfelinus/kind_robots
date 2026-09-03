@@ -489,6 +489,17 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'tapestry-loom',
+    label: 'Tapestry Loom',
+    reveal: 'The pattern completes',
+    icon: 'kind-icon:shirt',
+    tooltip:
+      'A shuttle glides row by row across the warp, weaving stripes into chevrons into diamonds before unraveling back to bare thread and starting a new palette; hover to slow the shuttle and trace a row, click to pluck a thread 🧵',
+    color: '#b5652c',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

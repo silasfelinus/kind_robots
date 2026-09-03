@@ -500,6 +500,17 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'hourglass-cascade',
+    label: 'Hourglass Cascade',
+    reveal: 'The hourglass turns',
+    icon: 'kind-icon:clock',
+    tooltip:
+      'Grains stream from the top bulb into a self-leveling pile below, occasionally slumping past their angle of repose, until the whole glass flips over and pours the other way ⏳ hover the neck to narrow the stream, click to flip early',
+    color: '#c2833f',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

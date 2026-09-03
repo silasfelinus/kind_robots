@@ -18,7 +18,7 @@
         </div>
         <button
           type="button"
-          class="btn btn-primary btn-sm rounded-xl"
+          class="kr-btn-primary"
           :disabled="loading"
           @click="draftsStore.populate()"
         >

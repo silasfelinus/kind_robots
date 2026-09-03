@@ -5,16 +5,26 @@
         <div>
           <h1 class="text-xl font-black">Mandarin catalog</h1>
           <p class="mt-1 max-w-3xl text-xs leading-5 text-base-content/55">
-            Curate one canonical learner-facing entry while the pinned source data stays untouched. Changes are global overrides with an append-only audit trail, not parallel editions.
+            Curate one canonical learner-facing entry while the pinned source
+            data stays untouched. Changes are global overrides with an
+            append-only audit trail, not parallel editions.
           </p>
         </div>
-        <button class="btn btn-sm rounded-xl" type="button" :disabled="loading" @click="store.load()">
+        <button
+          class="btn btn-sm rounded-xl"
+          type="button"
+          :disabled="loading"
+          @click="store.load()"
+        >
           <span v-if="loading" class="loading loading-spinner loading-xs" />
           Refresh
         </button>
       </div>
 
-      <div v-if="payload" class="stats stats-horizontal max-w-full overflow-x-auto bg-base-200 shadow-sm">
+      <div
+        v-if="payload"
+        class="stats stats-horizontal max-w-full overflow-x-auto bg-base-200 shadow-sm"
+      >
         <div class="stat px-4 py-2">
           <div class="stat-title text-xs">Canonical cards</div>
           <div class="stat-value text-xl">{{ payload.stats.cards }}</div>
@@ -37,9 +47,19 @@
         </div>
       </div>
 
-      <div class="grid gap-3" style="grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));">
+      <div
+        class="grid gap-3"
+        style="
+          grid-template-columns: repeat(
+            auto-fit,
+            minmax(min(12rem, 100%), 1fr)
+          );
+        "
+      >
         <label class="form-control gap-1">
-          <span class="text-xs font-black text-base-content/55">Search catalog</span>
+          <span class="text-xs font-black text-base-content/55"
+            >Search catalog</span
+          >
           <input
             v-model="search"
             type="search"
@@ -50,9 +70,16 @@
 
         <label class="form-control gap-1">
           <span class="text-xs font-black text-base-content/55">Category</span>
-          <select v-model="categoryFilter" class="select select-bordered select-sm rounded-xl">
+          <select
+            v-model="categoryFilter"
+            class="select select-bordered select-sm rounded-xl"
+          >
             <option value="all">All categories</option>
-            <option v-for="category in payload?.categories || []" :key="category" :value="category">
+            <option
+              v-for="category in payload?.categories || []"
+              :key="category"
+              :value="category"
+            >
               {{ category }}
             </option>
           </select>
@@ -60,7 +87,10 @@
 
         <label class="form-control gap-1">
           <span class="text-xs font-black text-base-content/55">HSK</span>
-          <select v-model="hskFilter" class="select select-bordered select-sm rounded-xl">
+          <select
+            v-model="hskFilter"
+            class="select select-bordered select-sm rounded-xl"
+          >
             <option value="all">All levels</option>
             <option value="1">HSK 1</option>
             <option value="2">HSK 2</option>
@@ -69,7 +99,10 @@
 
         <label class="form-control gap-1">
           <span class="text-xs font-black text-base-content/55">Sort</span>
-          <select v-model="sortKey" class="select select-bordered select-sm rounded-xl">
+          <select
+            v-model="sortKey"
+            class="select select-bordered select-sm rounded-xl"
+          >
             <option value="hsk">HSK / frequency</option>
             <option value="hanzi">Hanzi</option>
             <option value="pinyin">Pinyin</option>
@@ -78,36 +111,57 @@
           </select>
         </label>
 
-        <label class="mt-auto flex cursor-pointer items-center gap-2 rounded-xl border border-base-300 px-3 py-2 text-sm font-bold">
-          <input v-model="overrideOnly" type="checkbox" class="checkbox checkbox-sm" />
+        <label
+          class="mt-auto flex cursor-pointer items-center gap-2 rounded-xl border border-base-300 px-3 py-2 text-sm font-bold"
+        >
+          <input
+            v-model="overrideOnly"
+            type="checkbox"
+            class="checkbox checkbox-sm"
+          />
           Changed only
         </label>
       </div>
     </div>
 
-    <div v-if="notice" class="alert border border-success/25 bg-success/10 text-sm">
+    <div
+      v-if="notice"
+      class="alert border border-success/25 bg-success/10 text-sm"
+    >
       <span>{{ notice }}</span>
-      <button class="kr-btn-ghost-xs-plain" type="button" @click="notice = ''">Dismiss</button>
+      <button class="kr-btn-ghost-xs-plain" type="button" @click="notice = ''">
+        Dismiss
+      </button>
     </div>
     <div v-if="error" class="alert border border-error/25 bg-error/10 text-sm">
       <span class="min-w-0 flex-1 break-words">{{ error }}</span>
-      <button class="kr-btn-ghost-xs-plain" type="button" @click="error = ''">Dismiss</button>
+      <button class="kr-btn-ghost-xs-plain" type="button" @click="error = ''">
+        Dismiss
+      </button>
     </div>
 
-    <div v-if="loading && !payload" class="grid min-h-64 place-items-center kr-panel">
+    <div
+      v-if="loading && !payload"
+      class="grid min-h-64 place-items-center kr-panel"
+    >
       <span class="loading loading-spinner loading-lg text-primary" />
     </div>
 
     <div
       v-else
       class="grid min-h-0 gap-4"
-      style="grid-template-columns: repeat(auto-fit, minmax(min(25rem, 100%), 1fr));"
+      style="
+        grid-template-columns: repeat(auto-fit, minmax(min(25rem, 100%), 1fr));
+      "
     >
       <div class="kr-panel min-w-0 overflow-hidden">
-        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-base-300 bg-base-200/60 px-4 py-3">
+        <div
+          class="flex flex-wrap items-center justify-between gap-2 border-b border-base-300 bg-base-200/60 px-4 py-3"
+        >
           <p class="font-black">{{ visibleRows.length }} words shown</p>
           <p class="text-xs text-base-content/45">
-            Source identity is immutable. Select a row to edit its effective learner-facing values.
+            Source identity is immutable. Select a row to edit its effective
+            learner-facing values.
           </p>
         </div>
 
@@ -135,21 +189,34 @@
               >
                 <td>
                   <div class="flex items-center gap-2">
-                    <span class="text-2xl font-black">{{ row.effective.simplified }}</span>
-                    <span v-if="row.effective.traditional" class="text-xs text-base-content/45">
+                    <span class="text-2xl font-black">{{
+                      row.effective.simplified
+                    }}</span>
+                    <span
+                      v-if="row.effective.traditional"
+                      class="text-xs text-base-content/45"
+                    >
                       {{ row.effective.traditional }}
                     </span>
                   </div>
                 </td>
                 <td class="font-semibold">
                   {{ row.effective.pinyin }}
-                  <span v-if="fieldChanged(row, 'pinyin')" class="text-warning" title="Admin override">•</span>
+                  <span
+                    v-if="fieldChanged(row, 'pinyin')"
+                    class="text-warning"
+                    title="Admin override"
+                    >•</span
+                  >
                 </td>
                 <td class="max-w-80">
                   <span class="line-clamp-2">{{ row.effective.meaning }}</span>
                 </td>
                 <td>
-                  <span v-if="row.effective.hskLevel" class="badge badge-sm badge-outline">
+                  <span
+                    v-if="row.effective.hskLevel"
+                    class="badge badge-sm badge-outline"
+                  >
                     {{ row.effective.hskLevel }}
                   </span>
                 </td>
@@ -165,16 +232,33 @@
                   </div>
                 </td>
                 <td>
-                  <span class="badge badge-sm" :class="row.audioReady ? 'badge-success badge-outline' : 'badge-ghost'">
+                  <span
+                    class="badge badge-sm"
+                    :class="
+                      row.audioReady
+                        ? 'badge-success badge-outline'
+                        : 'badge-ghost'
+                    "
+                  >
                     {{ row.audioReady ? 'audio' : 'no audio' }}
                   </span>
                 </td>
                 <td>
-                  <span v-if="row.hasOverride" class="badge badge-warning badge-sm">overridden</span>
-                  <span v-else class="text-xs text-base-content/35">source</span>
+                  <span
+                    v-if="row.hasOverride"
+                    class="badge badge-warning badge-sm"
+                    >overridden</span
+                  >
+                  <span v-else class="text-xs text-base-content/35"
+                    >source</span
+                  >
                 </td>
                 <td>
-                  <button class="kr-btn-ghost-xs-plain" type="button" @click.stop="store.selectCard(row.cardKey)">
+                  <button
+                    class="kr-btn-ghost-xs-plain"
+                    type="button"
+                    @click.stop="store.selectCard(row.cardKey)"
+                  >
                     Edit
                   </button>
                 </td>
@@ -184,19 +268,35 @@
         </div>
       </div>
 
-      <aside v-if="selectedRow && draft" class="kr-panel min-w-0 overflow-hidden xl:sticky xl:top-4 xl:self-start">
-        <div class="flex items-start justify-between gap-3 border-b border-base-300 bg-base-200/60 p-4">
+      <aside
+        v-if="selectedRow && draft"
+        class="kr-panel min-w-0 overflow-hidden xl:sticky xl:top-4 xl:self-start"
+      >
+        <div
+          class="flex items-start justify-between gap-3 border-b border-base-300 bg-base-200/60 p-4"
+        >
           <div>
             <div class="flex flex-wrap items-center gap-2">
-              <span class="text-4xl font-black">{{ selectedRow.effective.simplified }}</span>
-              <span v-if="selectedRow.hasOverride" class="badge badge-warning">global override</span>
-              <span v-if="draftDirty" class="badge badge-info badge-outline">unsaved</span>
+              <span class="text-4xl font-black">{{
+                selectedRow.effective.simplified
+              }}</span>
+              <span v-if="selectedRow.hasOverride" class="badge badge-warning"
+                >global override</span
+              >
+              <span v-if="draftDirty" class="badge badge-info badge-outline"
+                >unsaved</span
+              >
             </div>
             <p class="mt-1 text-xs text-base-content/50">
               {{ selectedRow.cardKey }} · {{ selectedRow.source.sourceLabel }}
             </p>
           </div>
-          <button class="btn btn-circle btn-ghost btn-sm" type="button" aria-label="Close editor" @click="store.closeEditor()">
+          <button
+            class="btn btn-circle btn-ghost btn-sm"
+            type="button"
+            aria-label="Close editor"
+            @click="store.closeEditor()"
+          >
             ×
           </button>
         </div>
@@ -207,51 +307,92 @@
             class="rounded-xl border border-info/30 bg-info/10 p-3 text-xs leading-5"
             role="status"
           >
-            This draft has unsaved changes. Saving, discarding, or restoring to the source is explicit so a row switch cannot erase work silently.
+            This draft has unsaved changes. Saving, discarding, or restoring to
+            the source is explicit so a row switch cannot erase work silently.
           </div>
 
-          <div class="rounded-xl border border-base-300 bg-base-200/40 p-3 text-xs leading-5">
-            <p class="font-black uppercase tracking-wide text-base-content/55">Immutable source</p>
+          <div
+            class="rounded-xl border border-base-300 bg-base-200/40 p-3 text-xs leading-5"
+          >
+            <p class="font-black uppercase tracking-wide text-base-content/55">
+              Immutable source
+            </p>
             <p class="mt-1">
-              <strong>{{ selectedRow.source.pinyin }}</strong> · {{ selectedRow.source.meaning }}
+              <strong>{{ selectedRow.source.pinyin }}</strong> ·
+              {{ selectedRow.source.meaning }}
             </p>
             <p class="mt-1 text-base-content/50">
               {{ selectedRow.source.sourceVersion }}
             </p>
             <div class="mt-2 flex flex-wrap gap-1">
-              <span v-for="category in selectedRow.source.categories" :key="category" class="badge badge-ghost badge-xs">
+              <span
+                v-for="category in selectedRow.source.categories"
+                :key="category"
+                class="badge badge-ghost badge-xs"
+              >
                 {{ category }}
               </span>
             </div>
           </div>
 
-          <div v-if="selectedRow.overriddenFields.length" class="flex flex-wrap gap-1">
+          <div
+            v-if="selectedRow.overriddenFields.length"
+            class="flex flex-wrap gap-1"
+          >
             <span class="mr-1 text-xs font-black">Overridden:</span>
-            <span v-for="field in selectedRow.overriddenFields" :key="field" class="badge badge-warning badge-outline badge-sm">
+            <span
+              v-for="field in selectedRow.overriddenFields"
+              :key="field"
+              class="badge badge-warning badge-outline badge-sm"
+            >
               {{ field }}
             </span>
           </div>
 
           <label class="form-control gap-1">
             <span class="text-xs font-black">Traditional form</span>
-            <input v-model="draft.traditional" class="input input-bordered input-sm rounded-xl" placeholder="Leave blank if none" />
+            <input
+              v-model="draft.traditional"
+              class="input input-bordered input-sm rounded-xl"
+              placeholder="Leave blank if none"
+            />
           </label>
 
           <label class="form-control gap-1">
-            <span class="flex items-center justify-between gap-2 text-xs font-black">
+            <span
+              class="flex items-center justify-between gap-2 text-xs font-black"
+            >
               Pinyin
-              <span v-if="draft.pinyin !== selectedRow.source.pinyin" class="text-warning">changed</span>
+              <span
+                v-if="draft.pinyin !== selectedRow.source.pinyin"
+                class="text-warning"
+                >changed</span
+              >
             </span>
-            <input v-model="draft.pinyin" class="input input-bordered input-sm rounded-xl" />
-            <span class="text-[11px] text-base-content/45">Use tone marks, not tone numbers.</span>
+            <input
+              v-model="draft.pinyin"
+              class="input input-bordered input-sm rounded-xl"
+            />
+            <span class="text-[11px] text-base-content/45"
+              >Use tone marks, not tone numbers.</span
+            >
           </label>
 
           <label class="form-control gap-1">
-            <span class="flex items-center justify-between gap-2 text-xs font-black">
+            <span
+              class="flex items-center justify-between gap-2 text-xs font-black"
+            >
               Primary meaning
-              <span v-if="draft.meaning !== selectedRow.source.meaning" class="text-warning">changed</span>
+              <span
+                v-if="draft.meaning !== selectedRow.source.meaning"
+                class="text-warning"
+                >changed</span
+              >
             </span>
-            <input v-model="draft.meaning" class="input input-bordered input-sm rounded-xl" />
+            <input
+              v-model="draft.meaning"
+              class="input input-bordered input-sm rounded-xl"
+            />
           </label>
 
           <label class="form-control gap-1">
@@ -261,7 +402,10 @@
               class="textarea textarea-bordered min-h-28 rounded-xl text-sm leading-5"
               placeholder="One sense per line"
             />
-            <span class="text-[11px] text-base-content/45">One sense per line. The primary meaning is always kept first.</span>
+            <span class="text-[11px] text-base-content/45"
+              >One sense per line. The primary meaning is always kept
+              first.</span
+            >
           </label>
 
           <label class="form-control gap-1">
@@ -272,7 +416,8 @@
               placeholder="animals, food-drink, casino"
             />
             <span class="text-[11px] leading-5 text-base-content/45">
-              Comma-separated. Beginner and HSK tags are source-controlled and cannot be removed here.
+              Comma-separated. Beginner and HSK tags are source-controlled and
+              cannot be removed here.
             </span>
           </label>
 
@@ -292,11 +437,18 @@
               class="textarea textarea-bordered min-h-16 rounded-xl text-sm leading-5"
               placeholder="Why are we changing this entry?"
             />
-            <span class="text-[11px] text-base-content/45">Stored with the audit record. Useful, but not required.</span>
+            <span class="text-[11px] text-base-content/45"
+              >Stored with the audit record. Useful, but not required.</span
+            >
           </label>
 
           <div class="flex flex-wrap gap-2">
-            <button class="btn btn-primary btn-sm rounded-xl" type="button" :disabled="!canSave" @click="store.saveSelected()">
+            <button
+              class="kr-btn-primary"
+              type="button"
+              :disabled="!canSave"
+              @click="store.saveSelected()"
+            >
               <span v-if="saving" class="loading loading-spinner loading-xs" />
               Save changes
             </button>
@@ -309,22 +461,40 @@
             >
               Discard draft
             </button>
-            <button class="btn btn-outline btn-sm rounded-xl" type="button" :disabled="saving" @click="store.resetDraftToSource()">
+            <button
+              class="btn btn-outline btn-sm rounded-xl"
+              type="button"
+              :disabled="saving"
+              @click="store.resetDraftToSource()"
+            >
               Restore source values
             </button>
           </div>
 
-          <details v-if="selectedRow.changes.length" class="rounded-xl border border-base-300 bg-base-100 p-3">
+          <details
+            v-if="selectedRow.changes.length"
+            class="rounded-xl border border-base-300 bg-base-100 p-3"
+          >
             <summary class="cursor-pointer text-xs font-black">
-              Audit history · {{ selectedRow.changes.length }} recent change{{ selectedRow.changes.length === 1 ? '' : 's' }}
+              Audit history · {{ selectedRow.changes.length }} recent change{{
+                selectedRow.changes.length === 1 ? '' : 's'
+              }}
             </summary>
             <div class="mt-3 space-y-3">
-              <article v-for="change in selectedRow.changes" :key="change.id" class="rounded-lg bg-base-200/60 p-3 text-xs leading-5">
-                <div class="flex flex-wrap justify-between gap-2 text-base-content/50">
+              <article
+                v-for="change in selectedRow.changes"
+                :key="change.id"
+                class="rounded-lg bg-base-200/60 p-3 text-xs leading-5"
+              >
+                <div
+                  class="flex flex-wrap justify-between gap-2 text-base-content/50"
+                >
                   <span>#{{ change.id }} · admin {{ change.adminUserId }}</span>
                   <span>{{ formatTime(change.createdAt) }}</span>
                 </div>
-                <p v-if="change.note" class="mt-1 font-semibold">{{ change.note }}</p>
+                <p v-if="change.note" class="mt-1 font-semibold">
+                  {{ change.note }}
+                </p>
                 <p class="mt-1">
                   <span class="text-base-content/45">Before:</span>
                   {{ change.before.pinyin }} · {{ change.before.meaning }}

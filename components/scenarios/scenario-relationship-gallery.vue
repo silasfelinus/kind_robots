@@ -38,7 +38,7 @@
           <button
             v-if="allowAdd"
             type="button"
-            class="btn btn-primary btn-sm rounded-xl"
+            class="kr-btn-primary"
             @click="startAddingScenario"
           >
             <Icon name="kind-icon:plus" class="h-4 w-4" />
@@ -125,7 +125,7 @@
         <button
           v-if="allowAdd && !searchQuery"
           type="button"
-          class="btn btn-primary btn-sm rounded-xl"
+          class="kr-btn-primary"
           @click="startAddingScenario"
         >
           <Icon name="kind-icon:plus" class="h-4 w-4" />

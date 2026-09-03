@@ -4,7 +4,10 @@
      undefined, which Vue drops entirely, leaving the reader's global theme
      in charge — see storybookStore reading-mode state. -->
 <template>
-  <section :data-theme="store.dataTheme" class="kr-surface gap-4 kr-panel-flat p-4">
+  <section
+    :data-theme="store.dataTheme"
+    class="kr-surface gap-4 kr-panel-flat p-4"
+  >
     <header class="flex shrink-0 flex-wrap items-start gap-3">
       <div
         class="flex size-12 shrink-0 items-center justify-center rounded-2xl border border-primary/30 bg-primary/10 text-primary"
@@ -49,7 +52,7 @@
         <button
           v-if="store.canFinish"
           type="button"
-          class="btn btn-primary btn-sm rounded-xl"
+          class="kr-btn-primary"
           @click="store.finishStory()"
         >
           <Icon name="kind-icon:moon" class="size-4" /> Finish this tale

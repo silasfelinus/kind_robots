@@ -117,7 +117,7 @@
           <div class="flex items-center gap-3 sm:col-span-2">
             <button
               type="submit"
-              class="btn btn-primary btn-sm rounded-xl"
+              class="kr-btn-primary"
               :disabled="account.isSaving || !canSubmitPassword"
             >
               <span

@@ -266,7 +266,7 @@
       <button
         v-if="canInteract"
         type="button"
-        class="btn btn-primary btn-sm rounded-xl"
+        class="kr-btn-primary"
         @click="emit('interact')"
       >
         {{ interactLabel }}

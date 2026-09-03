@@ -18,7 +18,7 @@
         >
           <button
             type="button"
-            class="btn btn-primary btn-sm rounded-xl"
+            class="kr-btn-primary"
             title="Start a Storybook story seeded with this Scenario"
             @click="startStoryWithScenario"
           >

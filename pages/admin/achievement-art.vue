@@ -1,19 +1,22 @@
 <template>
   <main class="kr-surface h-full min-h-0 overflow-hidden">
     <div class="kr-scroll kr-container-wide space-y-4 p-4 md:p-6">
-      <header class="kr-toolbar flex flex-wrap items-start justify-between gap-4">
+      <header
+        class="kr-toolbar flex flex-wrap items-start justify-between gap-4"
+      >
         <div>
           <p class="text-xs font-black uppercase tracking-widest text-primary">
             Achievement administration
           </p>
           <p class="mt-1 text-2xl font-black">Achievement artwork</p>
           <p class="mt-1 text-sm text-base-content/60">
-            Generate, upload, and replace the image attached to each achievement definition.
+            Generate, upload, and replace the image attached to each achievement
+            definition.
           </p>
         </div>
         <button
           type="button"
-          class="btn btn-primary btn-sm rounded-xl"
+          class="kr-btn-primary"
           :disabled="loading"
           @click="loadAchievements(true)"
         >
@@ -30,17 +33,23 @@
         v-else-if="!userStore.isAdmin"
         class="kr-note kr-note-error p-8 text-center font-normal"
       >
-        <p class="text-xl font-black text-base-content">Administrator access required</p>
+        <p class="text-xl font-black text-base-content">
+          Administrator access required
+        </p>
         <p class="mt-2 text-sm text-base-content/60">
           Achievement artwork management is restricted to administrators.
         </p>
       </div>
 
       <template v-else>
-        <section class="grid gap-4 lg:grid-cols-[minmax(260px,0.38fr)_minmax(0,1fr)]">
+        <section
+          class="grid gap-4 lg:grid-cols-[minmax(260px,0.38fr)_minmax(0,1fr)]"
+        >
           <aside class="kr-panel space-y-3 p-4">
             <label class="form-control gap-1">
-              <span class="text-xs font-bold text-base-content/60">Find achievement</span>
+              <span class="text-xs font-bold text-base-content/60"
+                >Find achievement</span
+              >
               <input
                 v-model="search"
                 type="search"
@@ -49,8 +58,12 @@
               />
             </label>
             <div class="flex flex-wrap gap-2 text-xs">
-              <span class="badge badge-ghost">{{ achievements.length }} total</span>
-              <span class="badge badge-warning">{{ missingArtCount }} without art</span>
+              <span class="badge badge-ghost"
+                >{{ achievements.length }} total</span
+              >
+              <span class="badge badge-warning"
+                >{{ missingArtCount }} without art</span
+              >
             </div>
             <div class="space-y-2 pr-1">
               <button
@@ -58,22 +71,32 @@
                 :key="achievement.id"
                 type="button"
                 class="flex w-full items-center gap-3 rounded-xl border p-2 text-left transition"
-                :class="selectedId === achievement.id
-                  ? 'border-primary bg-primary/10'
-                  : 'border-base-300 bg-base-100 hover:border-primary/50'"
+                :class="
+                  selectedId === achievement.id
+                    ? 'border-primary bg-primary/10'
+                    : 'border-base-300 bg-base-100 hover:border-primary/50'
+                "
                 @click="selectedId = achievement.id"
               >
-                <div class="grid size-12 shrink-0 place-items-center overflow-hidden rounded-xl bg-base-200">
+                <div
+                  class="grid size-12 shrink-0 place-items-center overflow-hidden rounded-xl bg-base-200"
+                >
                   <img
                     v-if="achievement.imagePath"
                     :src="achievement.imagePath"
                     :alt="achievement.label"
                     class="size-full object-cover"
                   />
-                  <Icon v-else name="kind-icon:trophy" class="size-5 text-base-content/35" />
+                  <Icon
+                    v-else
+                    name="kind-icon:trophy"
+                    class="size-5 text-base-content/35"
+                  />
                 </div>
                 <div class="min-w-0 flex-1">
-                  <p class="truncate text-sm font-black">{{ achievement.label }}</p>
+                  <p class="truncate text-sm font-black">
+                    {{ achievement.label }}
+                  </p>
                   <p class="truncate text-xs text-base-content/50">
                     {{ achievement.triggerCode || achievement.message }}
                   </p>
@@ -103,12 +126,21 @@
                   >
                     {{ selectedAchievement.triggerCode }}
                   </p>
-                  <h2 class="mt-1 text-xl font-black">{{ selectedAchievement.label }}</h2>
+                  <h2 class="mt-1 text-xl font-black">
+                    {{ selectedAchievement.label }}
+                  </h2>
                   <p class="mt-2 max-w-3xl text-sm text-base-content/60">
                     {{ selectedAchievement.message }}
                   </p>
                 </div>
-                <span class="badge" :class="selectedAchievement.isActive ? 'badge-success' : 'badge-ghost'">
+                <span
+                  class="badge"
+                  :class="
+                    selectedAchievement.isActive
+                      ? 'badge-success'
+                      : 'badge-ghost'
+                  "
+                >
                   {{ selectedAchievement.isActive ? 'Active' : 'Inactive' }}
                 </span>
               </div>
@@ -123,7 +155,10 @@
             />
           </section>
 
-          <div v-else class="grid min-h-72 place-items-center kr-panel text-base-content/50">
+          <div
+            v-else
+            class="grid min-h-72 place-items-center kr-panel text-base-content/50"
+          >
             Select an achievement to manage its artwork.
           </div>
         </section>
@@ -157,13 +192,19 @@ const artSlots = [
 
 const achievements = computed(() => achievementStore.achievements)
 const missingArtCount = computed(
-  () => achievements.value.filter((achievement) => !achievement.imagePath).length,
+  () =>
+    achievements.value.filter((achievement) => !achievement.imagePath).length,
 )
 const filteredAchievements = computed(() => {
   const query = search.value.trim().toLowerCase()
   if (!query) return achievements.value
   return achievements.value.filter((achievement) =>
-    [achievement.label, achievement.triggerCode, achievement.message, achievement.tooltip]
+    [
+      achievement.label,
+      achievement.triggerCode,
+      achievement.message,
+      achievement.tooltip,
+    ]
       .filter(Boolean)
       .some((value) => String(value).toLowerCase().includes(query)),
   )
@@ -182,7 +223,10 @@ async function loadAchievements(force = false) {
   loading.value = true
   try {
     await achievementStore.initialize({ force, fetchRemote: true })
-    if (!selectedId.value || !achievements.value.some((item) => item.id === selectedId.value)) {
+    if (
+      !selectedId.value ||
+      !achievements.value.some((item) => item.id === selectedId.value)
+    ) {
       selectedId.value = achievements.value[0]?.id ?? null
     }
   } finally {
@@ -191,7 +235,9 @@ async function loadAchievements(force = false) {
 }
 
 function applyUpdate(updated: Record<string, unknown>) {
-  const achievement = achievements.value.find((item) => item.id === Number(updated.id))
+  const achievement = achievements.value.find(
+    (item) => item.id === Number(updated.id),
+  )
   if (achievement) Object.assign(achievement, updated as Partial<Achievement>)
 }
 </script>

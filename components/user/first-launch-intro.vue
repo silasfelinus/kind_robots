@@ -12,9 +12,7 @@
         class="flex shrink-0 items-start justify-between gap-3 border-b border-base-300 bg-base-100 p-4"
       >
         <div class="min-w-0">
-          <p
-            class="text-xs font-black uppercase tracking-widest text-primary"
-          >
+          <p class="text-xs font-black uppercase tracking-widest text-primary">
             {{ step + 1 }} / {{ steps.length }}
           </p>
           <h2 class="mt-0.5 truncate text-lg font-black sm:text-xl">
@@ -22,11 +20,7 @@
           </h2>
         </div>
 
-        <button
-          class="kr-btn-ghost"
-          type="button"
-          @click="dismiss"
-        >
+        <button class="kr-btn-ghost" type="button" @click="dismiss">
           Skip
         </button>
       </header>
@@ -99,19 +93,14 @@
 
           <button
             v-if="step < steps.length - 1"
-            class="btn btn-primary btn-sm rounded-xl"
+            class="kr-btn-primary"
             type="button"
             @click="next"
           >
             Next
           </button>
 
-          <button
-            v-else
-            class="btn btn-primary btn-sm rounded-xl"
-            type="button"
-            @click="dismiss"
-          >
+          <button v-else class="kr-btn-primary" type="button" @click="dismiss">
             <Icon name="kind-icon:check" class="h-4 w-4" />
             Let's go
           </button>
@@ -163,7 +152,7 @@ const steps: IntroStep[] = [
   {
     title: 'Karma and mana',
     icon: 'kind-icon:jellybean',
-    body: "Karma is your standing on the site — it only ever grows, earned by creating, sharing, and discovering. Mana is your usage budget for AI generation — it refills on its own schedule and has a cap, so it can run low and recover. Karma is a record; mana is a resource.",
+    body: 'Karma is your standing on the site — it only ever grows, earned by creating, sharing, and discovering. Mana is your usage budget for AI generation — it refills on its own schedule and has a cap, so it can run low and recover. Karma is a record; mana is a resource.',
   },
   {
     title: 'Seven kinds of things to build',

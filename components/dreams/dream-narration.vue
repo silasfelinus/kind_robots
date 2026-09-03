@@ -18,7 +18,7 @@
           <button
             v-if="locationStorySlug"
             type="button"
-            class="btn btn-primary btn-sm rounded-xl"
+            class="kr-btn-primary"
             title="Start a Storybook story seeded with this Location"
             @click="startStoryWithLocation"
           >
@@ -26,11 +26,7 @@
             <span class="hidden sm:inline">Start a story with this</span>
           </button>
 
-          <button
-            type="button"
-            class="kr-btn-ghost"
-            @click="backToGallery"
-          >
+          <button type="button" class="kr-btn-ghost" @click="backToGallery">
             <Icon name="kind-icon:arrow-left" class="h-4 w-4" />
             All Dreams
           </button>

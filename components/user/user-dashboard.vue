@@ -1,9 +1,7 @@
 <!-- /components/content/user/user-dashboard.vue -->
 <template>
   <section class="kr-surface gap-4 rounded-2xl bg-base-200 p-3 sm:p-4">
-    <header
-      class="kr-toolbar kr-panel-flat px-4 py-3"
-    >
+    <header class="kr-toolbar kr-panel-flat px-4 py-3">
       <Icon name="kind-icon:sparkles" class="h-5 w-5 shrink-0 text-primary" />
 
       <div class="min-w-0 flex-1">
@@ -26,11 +24,7 @@
         Replay intro
       </button>
 
-      <NuxtLink
-        v-if="isGuest"
-        to="/login"
-        class="btn btn-primary btn-sm rounded-xl"
-      >
+      <NuxtLink v-if="isGuest" to="/login" class="kr-btn-primary">
         <Icon name="kind-icon:login" class="h-4 w-4" />
         Sign in
       </NuxtLink>
@@ -75,15 +69,15 @@
             class="grid w-full grid-cols-1 gap-4 xl:grid-cols-[minmax(16rem,22rem)_minmax(0,1fr)]"
           >
             <aside class="flex w-full flex-col gap-3">
-              <div
-                class="flex flex-col items-center gap-3 kr-panel-flat p-4"
-              >
+              <div class="flex flex-col items-center gap-3 kr-panel-flat p-4">
                 <user-avatar
                   class="h-24 w-24 rounded-full ring-2 ring-accent ring-offset-2 ring-offset-base-100"
                 />
 
                 <div class="flex w-full flex-col items-center gap-1">
-                  <h2 class="max-w-full truncate text-xl font-black text-base-content">
+                  <h2
+                    class="max-w-full truncate text-xl font-black text-base-content"
+                  >
                     {{ displayName }}
                   </h2>
 
@@ -147,9 +141,7 @@
 
               <!-- Karma / mana / achievements ─────────────────────────────── -->
               <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
-                <div
-                  class="kr-panel-flat p-4"
-                >
+                <div class="kr-panel-flat p-4">
                   <div class="flex items-center gap-2">
                     <Icon
                       name="kind-icon:jellybean"
@@ -165,9 +157,7 @@
                   <p class="mt-1 text-xs text-base-content/55">
                     {{ karmaStore.transactions.length }} recent
                     {{
-                      karmaStore.transactions.length === 1
-                        ? 'entry'
-                        : 'entries'
+                      karmaStore.transactions.length === 1 ? 'entry' : 'entries'
                     }}
                   </p>
 
@@ -179,9 +169,7 @@
                   </NuxtLink>
                 </div>
 
-                <div
-                  class="kr-panel-flat p-4"
-                >
+                <div class="kr-panel-flat p-4">
                   <div class="flex items-center gap-2">
                     <Icon
                       name="kind-icon:sparkles"
@@ -212,9 +200,7 @@
                   </p>
                 </div>
 
-                <div
-                  class="kr-panel-flat p-4"
-                >
+                <div class="kr-panel-flat p-4">
                   <div class="flex items-center gap-2">
                     <Icon
                       name="kind-icon:trophy"
@@ -239,11 +225,10 @@
                 </div>
               </div>
 
-              <div
-                v-if="earnedAchievements.length"
-                class="kr-panel-flat p-3"
-              >
-                <p class="mb-2 text-xs font-black uppercase tracking-widest text-base-content/50">
+              <div v-if="earnedAchievements.length" class="kr-panel-flat p-3">
+                <p
+                  class="mb-2 text-xs font-black uppercase tracking-widest text-base-content/50"
+                >
                   Recent achievements
                 </p>
 
@@ -259,9 +244,7 @@
 
               <!-- Theme / maturity / server preferences ───────────────────── -->
               <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
-                <div
-                  class="flex flex-col gap-2 kr-panel-flat p-4"
-                >
+                <div class="flex flex-col gap-2 kr-panel-flat p-4">
                   <div class="flex items-center gap-2">
                     <Icon
                       name="kind-icon:paintbrush"
@@ -283,9 +266,7 @@
                   </button>
                 </div>
 
-                <div
-                  class="flex flex-col gap-2 kr-panel-flat p-4"
-                >
+                <div class="flex flex-col gap-2 kr-panel-flat p-4">
                   <label class="flex cursor-pointer items-center gap-2">
                     <Icon name="kind-icon:eye" class="h-5 w-5 text-warning" />
                     <span class="text-sm font-black">Show mature content</span>
@@ -311,14 +292,9 @@
                   </label>
                 </div>
 
-                <div
-                  class="flex flex-col gap-2 kr-panel-flat p-4"
-                >
+                <div class="flex flex-col gap-2 kr-panel-flat p-4">
                   <div class="flex items-center gap-2">
-                    <Icon
-                      name="kind-icon:server"
-                      class="h-5 w-5 text-info"
-                    />
+                    <Icon name="kind-icon:server" class="h-5 w-5 text-info" />
                     <span class="text-sm font-black">Server preferences</span>
                   </div>
 

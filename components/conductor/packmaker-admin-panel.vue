@@ -31,10 +31,7 @@
           <Icon name="kind-icon:plus" class="size-3.5" />
           New pack
         </button>
-        <button
-          class="kr-btn-ghost-xs"
-          @click="showImport = !showImport"
-        >
+        <button class="kr-btn-ghost-xs" @click="showImport = !showImport">
           Load manifest JSON
         </button>
       </div>
@@ -58,9 +55,7 @@
         placeholder='{"schemaVersion": 1, "id": "my-pack", "title": "My Pack", "visibility": "draft", "price": {"hook": "free"}, "items": [...]}'
       />
       <div class="flex items-center gap-2">
-        <button class="btn btn-primary btn-sm rounded-xl" @click="onImport">
-          Import pack
-        </button>
+        <button class="kr-btn-primary" @click="onImport">Import pack</button>
         <span
           v-if="importMessage"
           class="text-xs font-semibold"

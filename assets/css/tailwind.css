@@ -640,6 +640,19 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply btn btn-ghost rounded-xl;
   }
 
+  /* The most-repeated *filled* (non-ghost) button shape in the app
+   * (interface-vision t-104 slice 51): the primary-color small action
+   * button used for form submits and gallery/manager primary actions —
+   * `btn btn-primary btn-sm rounded-xl`, previously hand-rolled in 31
+   * files (39 occurrences). Named to mirror the .kr-btn-ghost* family:
+   * same size/radius shape, filled with the primary color instead of
+   * ghost. Near-miss sites with extra appended classes (gap-1.5, mt-3,
+   * text-white, focus-visible:* utilities) are left out of scope for a
+   * follow-up slice, matching the ghost family's own convention. */
+  .kr-btn-primary {
+    @apply btn btn-primary btn-sm rounded-xl;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

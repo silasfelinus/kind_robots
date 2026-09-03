@@ -36,7 +36,7 @@
       </label>
       <button
         type="submit"
-        class="btn btn-primary btn-sm rounded-xl"
+        class="kr-btn-primary"
         :disabled="account.isSaving || !email"
       >
         <span
@@ -75,7 +75,7 @@
       </label>
       <button
         type="submit"
-        class="btn btn-primary btn-sm rounded-xl"
+        class="kr-btn-primary"
         :disabled="account.isSaving || next.length < 8 || next !== confirm"
       >
         <span

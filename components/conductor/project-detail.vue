@@ -21,23 +21,35 @@
         <button
           type="button"
           class="btn btn-circle btn-ghost btn-xs"
-          :class="linkedProject.isPublic ? 'text-success' : 'text-base-content/35'"
+          :class="
+            linkedProject.isPublic ? 'text-success' : 'text-base-content/35'
+          "
           :title="linkedProject.isPublic ? 'Public project' : 'Private project'"
-          :aria-label="linkedProject.isPublic ? 'Make project private' : 'Make project public'"
+          :aria-label="
+            linkedProject.isPublic
+              ? 'Make project private'
+              : 'Make project public'
+          "
           :disabled="projectSaving"
           @click="patchProject({ isPublic: !linkedProject.isPublic })"
         >
           <Icon
-            :name="linkedProject.isPublic ? 'kind-icon:eye' : 'kind-icon:eye-off'"
+            :name="
+              linkedProject.isPublic ? 'kind-icon:eye' : 'kind-icon:eye-off'
+            "
             class="size-3.5"
           />
         </button>
         <button
           type="button"
           class="btn btn-circle btn-ghost btn-xs"
-          :class="linkedProject.isMature ? 'text-warning' : 'text-base-content/35'"
+          :class="
+            linkedProject.isMature ? 'text-warning' : 'text-base-content/35'
+          "
           :title="linkedProject.isMature ? 'Mature content' : 'Safe content'"
-          :aria-label="linkedProject.isMature ? 'Mark project safe' : 'Mark project mature'"
+          :aria-label="
+            linkedProject.isMature ? 'Mark project safe' : 'Mark project mature'
+          "
           :disabled="projectSaving"
           @click="patchProject({ isMature: !linkedProject.isMature })"
         >
@@ -46,9 +58,13 @@
         <button
           type="button"
           class="btn btn-circle btn-ghost btn-xs"
-          :class="linkedProject.allowReviews ? 'text-success' : 'text-base-content/35'"
+          :class="
+            linkedProject.allowReviews ? 'text-success' : 'text-base-content/35'
+          "
           :title="linkedProject.allowReviews ? 'Reviews on' : 'Reviews off'"
-          :aria-label="linkedProject.allowReviews ? 'Turn reviews off' : 'Turn reviews on'"
+          :aria-label="
+            linkedProject.allowReviews ? 'Turn reviews off' : 'Turn reviews on'
+          "
           :disabled="projectSaving"
           @click="patchProject({ allowReviews: !linkedProject.allowReviews })"
         >
@@ -129,12 +145,18 @@
 
       <div class="flex min-w-0 flex-col gap-2">
         <section class="kr-panel-flat overflow-hidden" data-project-profile>
-          <header class="flex items-center gap-2 border-b border-base-300/70 px-3 py-2">
+          <header
+            class="flex items-center gap-2 border-b border-base-300/70 px-3 py-2"
+          >
             <Icon name="kind-icon:dream" class="size-4 text-primary" />
-            <span class="text-xs font-bold uppercase tracking-wide text-base-content/60">
+            <span
+              class="text-xs font-bold uppercase tracking-wide text-base-content/60"
+            >
               Project Profile
             </span>
-            <span class="ml-auto text-[0.65rem] text-base-content/35">saves on blur</span>
+            <span class="ml-auto text-[0.65rem] text-base-content/35"
+              >saves on blur</span
+            >
           </header>
           <div class="project-profile-fields grid gap-2 p-3">
             <div class="form-control min-w-0">
@@ -152,7 +174,9 @@
             </div>
             <div class="form-control min-w-0">
               <label class="label py-0.5">
-                <span class="label-text text-xs font-semibold">Description</span>
+                <span class="label-text text-xs font-semibold"
+                  >Description</span
+                >
               </label>
               <textarea
                 class="textarea textarea-bordered min-h-16 w-full rounded-xl text-sm leading-relaxed"
@@ -236,7 +260,9 @@
           @submit.prevent="submitProjectTask"
         >
           <label class="min-w-0">
-            <span class="mb-1 block text-[0.65rem] font-bold uppercase tracking-wide text-base-content/50">
+            <span
+              class="mb-1 block text-[0.65rem] font-bold uppercase tracking-wide text-base-content/50"
+            >
               Add task / comment
             </span>
             <textarea
@@ -267,7 +293,7 @@
             </select>
             <button
               type="submit"
-              class="btn btn-primary btn-sm rounded-xl"
+              class="kr-btn-primary"
               :disabled="!projectTaskText.trim() || projectTaskSubmitting"
             >
               <span
@@ -294,7 +320,9 @@
           name="kind-icon:chevron-right"
           class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
         />
-        <span class="text-xs font-bold uppercase tracking-wide text-base-content/60">
+        <span
+          class="text-xs font-bold uppercase tracking-wide text-base-content/60"
+        >
           Roadmap
         </span>
         <span class="badge badge-ghost badge-xs ml-auto">
@@ -318,11 +346,15 @@
               <p class="break-words text-sm font-semibold leading-snug">
                 {{ task.title }}
               </p>
-              <div class="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-base-content/50">
+              <div
+                class="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-base-content/50"
+              >
                 <span>{{ task.id }}</span>
                 <span v-if="task.milestone">· {{ task.milestone }}</span>
                 <span v-if="task.owner">· {{ task.owner }}</span>
-                <span v-if="task.passes > 0" class="text-warning">· pass {{ task.passes }}/3</span>
+                <span v-if="task.passes > 0" class="text-warning"
+                  >· pass {{ task.passes }}/3</span
+                >
                 <span
                   v-if="task.stakes && task.stakes !== 'reversible'"
                   class="badge badge-xs"
@@ -362,11 +394,15 @@
               class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
             />
             Completed
-            <span class="badge badge-success badge-xs ml-auto">{{ doneTaskCount }}</span>
+            <span class="badge badge-success badge-xs ml-auto">{{
+              doneTaskCount
+            }}</span>
           </summary>
           <div class="space-y-2 px-3 pb-3">
             <div v-for="group in doneTasksByMilestone" :key="group.id">
-              <p class="mb-1 text-[0.65rem] font-bold uppercase tracking-wide text-base-content/40">
+              <p
+                class="mb-1 text-[0.65rem] font-bold uppercase tracking-wide text-base-content/40"
+              >
                 {{ group.title }}
               </p>
               <div class="space-y-1">
@@ -375,12 +411,19 @@
                   :key="task.id"
                   class="flex items-start gap-2 rounded-lg bg-base-100/60 px-2.5 py-2"
                 >
-                  <Icon name="kind-icon:check" class="mt-0.5 size-3.5 shrink-0 text-success/70" />
+                  <Icon
+                    name="kind-icon:check"
+                    class="mt-0.5 size-3.5 shrink-0 text-success/70"
+                  />
                   <div class="min-w-0 flex-1">
-                    <p class="break-words text-xs font-medium leading-snug text-base-content/70">
+                    <p
+                      class="break-words text-xs font-medium leading-snug text-base-content/70"
+                    >
                       {{ task.title }}
                     </p>
-                    <span class="text-[0.65rem] text-base-content/40">{{ task.id }}</span>
+                    <span class="text-[0.65rem] text-base-content/40">{{
+                      task.id
+                    }}</span>
                   </div>
                 </div>
               </div>
@@ -402,7 +445,9 @@
           name="kind-icon:chevron-right"
           class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
         />
-        <span class="text-xs font-bold uppercase tracking-wide text-base-content/60">
+        <span
+          class="text-xs font-bold uppercase tracking-wide text-base-content/60"
+        >
           Milestones
         </span>
         <span class="badge badge-ghost badge-xs ml-auto">
@@ -429,7 +474,8 @@
               <span v-if="milestoneTaskCounts.get(milestone.id)?.total">
                 {{ milestoneTaskCounts.get(milestone.id)?.done }}/{{
                   milestoneTaskCounts.get(milestone.id)?.total
-                }} done
+                }}
+                done
               </span>
               <span v-else>weight {{ milestone.weight }}</span>
             </p>
@@ -457,7 +503,9 @@
           class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
         />
         <Icon name="kind-icon:document" class="size-4 text-info" />
-        <span class="text-xs font-bold uppercase tracking-wide text-base-content/60">
+        <span
+          class="text-xs font-bold uppercase tracking-wide text-base-content/60"
+        >
           Project Notes
         </span>
         <span class="ml-auto text-xs text-base-content/35">Conductor</span>
@@ -511,9 +559,27 @@ const projectTaskSubmitting = ref(false)
 let saveMessageTimer: ReturnType<typeof setTimeout> | null = null
 
 const projectArtSlots = [
-  { field: 'heroPath', label: 'Hero', aspect: '16 / 9', width: 1280, height: 720 },
-  { field: 'cardPath', label: 'Card', aspect: '2 / 3', width: 512, height: 768 },
-  { field: 'imagePath', label: 'Icon', aspect: '1 / 1', width: 256, height: 256 },
+  {
+    field: 'heroPath',
+    label: 'Hero',
+    aspect: '16 / 9',
+    width: 1280,
+    height: 720,
+  },
+  {
+    field: 'cardPath',
+    label: 'Card',
+    aspect: '2 / 3',
+    width: 512,
+    height: 768,
+  },
+  {
+    field: 'imagePath',
+    label: 'Icon',
+    aspect: '1 / 1',
+    width: 256,
+    height: 256,
+  },
 ]
 
 type ProjectPatch = {
@@ -539,7 +605,9 @@ const LIFECYCLE_PRIORITIES: ProjectPriorityLevel[] = ['HIGH', 'NORMAL', 'LOW']
 
 const linkedProject = computed(() => projectStore.projectForSlug(props.slug))
 
-function projectRecordToConductor(project: ProjectWithRelations): ConductorProject {
+function projectRecordToConductor(
+  project: ProjectWithRelations,
+): ConductorProject {
   return {
     slug: project.conductorSlug || project.slug || props.slug,
     name: project.title,
@@ -554,9 +622,13 @@ function projectRecordToConductor(project: ProjectWithRelations): ConductorProje
 }
 
 const selectedProject = computed<ConductorProject | null>(() => {
-  const projected = conductorStore.projects.find((project) => project.slug === props.slug)
+  const projected = conductorStore.projects.find(
+    (project) => project.slug === props.slug,
+  )
   if (projected) return projected
-  return linkedProject.value ? projectRecordToConductor(linkedProject.value) : null
+  return linkedProject.value
+    ? projectRecordToConductor(linkedProject.value)
+    : null
 })
 
 const matchedProjectCollection = computed(() => {
@@ -566,17 +638,24 @@ const matchedProjectCollection = computed(() => {
 
 const projectCollectionSlides = computed(() => {
   if (!matchedProjectCollection.value) return []
-  const images = collectionStore.getCollectionImages?.(matchedProjectCollection.value.id) ?? []
+  const images =
+    collectionStore.getCollectionImages?.(matchedProjectCollection.value.id) ??
+    []
   return images
     .map((image, index) => ({
-      src: image.imagePath || (image as { path?: string | null }).path || image.fileName || '',
+      src:
+        image.imagePath ||
+        (image as { path?: string | null }).path ||
+        image.fileName ||
+        '',
       label: `Collection ${index + 1}`,
     }))
     .filter((slide) => Boolean(slide.src))
 })
 
 const activeTasks = computed(
-  () => selectedProject.value?.tasks.filter((task) => task.status !== 'done') ?? [],
+  () =>
+    selectedProject.value?.tasks.filter((task) => task.status !== 'done') ?? [],
 )
 
 const doneTasksByMilestone = computed(() => {
@@ -595,7 +674,8 @@ const doneTasksByMilestone = computed(() => {
   const groups: { id: string; title: string; tasks: ConductorTask[] }[] = []
   for (const milestone of project.milestones) {
     const tasks = doneByMilestone.get(milestone.id)
-    if (tasks?.length) groups.push({ id: milestone.id, title: milestone.title, tasks })
+    if (tasks?.length)
+      groups.push({ id: milestone.id, title: milestone.title, tasks })
     doneByMilestone.delete(milestone.id)
   }
   for (const [key, tasks] of doneByMilestone) {
@@ -605,7 +685,10 @@ const doneTasksByMilestone = computed(() => {
 })
 
 const doneTaskCount = computed(() =>
-  doneTasksByMilestone.value.reduce((total, group) => total + group.tasks.length, 0),
+  doneTasksByMilestone.value.reduce(
+    (total, group) => total + group.tasks.length,
+    0,
+  ),
 )
 
 const milestoneTaskCounts = computed(() => {
@@ -622,11 +705,20 @@ const milestoneTaskCounts = computed(() => {
   return counts
 })
 
-const statusOrder = ['done', 'review', 'claimed', 'ready', 'waiting', 'blocked', 'needs-human']
+const statusOrder = [
+  'done',
+  'review',
+  'claimed',
+  'ready',
+  'waiting',
+  'blocked',
+  'needs-human',
+]
 
 function taskStatusSummary(project: ConductorProject): [string, number][] {
   const counts: Record<string, number> = {}
-  for (const task of project.tasks) counts[task.status] = (counts[task.status] ?? 0) + 1
+  for (const task of project.tasks)
+    counts[task.status] = (counts[task.status] ?? 0) + 1
   return Object.entries(counts).sort(([a], [b]) => {
     const ai = statusOrder.indexOf(a)
     const bi = statusOrder.indexOf(b)
@@ -692,7 +784,8 @@ function milestoneIcon(status: string): string {
 
 function milestoneIconClass(status: string): string {
   if (status === 'done') return 'border-success/40 bg-success/10 text-success'
-  if (status === 'in-progress') return 'border-warning/40 bg-warning/10 text-warning'
+  if (status === 'in-progress')
+    return 'border-warning/40 bg-warning/10 text-warning'
   return 'border-base-300 bg-base-200 text-base-content/40'
 }
 
@@ -738,20 +831,25 @@ async function patchProject(patch: ProjectPatch) {
     await projectStore.updateProject(linkedProject.value.id, patch)
     showSaveMessage('Saved')
   } catch (error) {
-    showSaveMessage(error instanceof Error ? error.message : 'Save failed', true)
+    showSaveMessage(
+      error instanceof Error ? error.message : 'Save failed',
+      true,
+    )
   } finally {
     projectSaving.value = false
   }
 }
 
 function onStatusSelect(event: Event) {
-  const value = (event.target as HTMLSelectElement).value as ProjectLifecycleStatus
+  const value = (event.target as HTMLSelectElement)
+    .value as ProjectLifecycleStatus
   if (!linkedProject.value || value === linkedProject.value.status) return
   patchProject({ status: value })
 }
 
 function onPrioritySelect(event: Event) {
-  const value = (event.target as HTMLSelectElement).value as ProjectPriorityLevel
+  const value = (event.target as HTMLSelectElement)
+    .value as ProjectPriorityLevel
   if (!linkedProject.value || value === linkedProject.value.priority) return
   patchProject({ priority: value })
 }
@@ -761,7 +859,9 @@ async function autosave(field: keyof ProjectPatch, event: FocusEvent) {
   const element = event.target as HTMLInputElement | HTMLTextAreaElement | null
   if (!element) return
   const value = element.value.trim() || null
-  const current = (linkedProject.value[field as keyof typeof linkedProject.value] ?? null) as string | null
+  const current = (linkedProject.value[
+    field as keyof typeof linkedProject.value
+  ] ?? null) as string | null
   if (value === current) return
   await patchProject({ [field]: value })
 }
@@ -770,11 +870,15 @@ async function refreshProject() {
   refreshing.value = true
   try {
     await Promise.all([
-      projectStore.fetchProjects({ includeInactive: true, includeMature: true }, true),
+      projectStore.fetchProjects(
+        { includeInactive: true, includeMature: true },
+        true,
+      ),
       conductorStore.fetchProjects(true),
       collectionStore.fetchCollections(),
     ])
-    if (linkedProject.value?.id) await todoStore.fetchProjectTodos(linkedProject.value.id)
+    if (linkedProject.value?.id)
+      await todoStore.fetchProjectTodos(linkedProject.value.id)
   } finally {
     refreshing.value = false
   }
@@ -808,7 +912,9 @@ async function submitProjectTask() {
       .trim()
     const description =
       projectTaskCategory.value === 'AGENT'
-        ? [`Project: ${selectedProject.value.slug}`, userContext].filter(Boolean).join('\n\n')
+        ? [`Project: ${selectedProject.value.slug}`, userContext]
+            .filter(Boolean)
+            .join('\n\n')
         : userContext || null
 
     const created = await todoStore.createTodo({
@@ -878,7 +984,9 @@ onBeforeUnmount(() => {
   display: none;
 }
 
-:deep(.project-art-compact:has(.group.relative.mt-3.min-h-40) .mt-3.grid.gap-3) {
+:deep(
+  .project-art-compact:has(.group.relative.mt-3.min-h-40) .mt-3.grid.gap-3
+) {
   display: none;
 }
 

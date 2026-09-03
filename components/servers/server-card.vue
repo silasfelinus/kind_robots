@@ -48,7 +48,7 @@
       <div v-if="showUseButtons" class="mt-3 flex flex-wrap gap-2">
         <button
           v-if="isArtServer"
-          class="btn btn-sm btn-primary rounded-xl"
+          class="kr-btn-primary"
           type="button"
           @click="useForArt"
         >

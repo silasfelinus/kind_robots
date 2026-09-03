@@ -4,31 +4,34 @@ Kind Robots production runs on the Alexandria Unraid host as the `KindRobots` Do
 
 The production path is therefore host-driven:
 
-1. Alexandria polls the registry every five minutes.
-2. A new image is pulled locally.
-3. Pending Prisma migrations from that image run through the isolated `kindrobot_migrate` credential.
-4. Only after migrations succeed does Unraid's own DockerMan updater recreate `KindRobots` from its saved template.
-5. The script waits for the container health check before reporting success.
+1. Unraid User Scripts runs the Kind Robots deployment launcher on a schedule.
+2. The launcher fast-forwards the clean production checkout to `origin/main`.
+3. The deployer pulls the current `ghcr.io/silasfelinus/kind_robots:latest` image.
+4. Pending Prisma migrations from that image run through the isolated `kindrobot_migrate` credential.
+5. Only after migrations succeed does Unraid's own DockerMan updater recreate `KindRobots` from its saved template.
+6. The script waits for the container health check before reporting success.
 
 If migration fails, the container update is not attempted. The long-running application never receives `MIGRATION_DATABASE_URL`.
 
-## One-time installation
+## One-time setup in Unraid User Scripts
 
-On Alexandria:
+First make sure Alexandria has the current scripts:
 
 ```bash
 cd /mnt/user/appdata/kind_robots
 git switch main
 git pull --ff-only
-bash scripts/install-unraid-auto-deploy.sh
+bash scripts/unraid-user-script.sh
 ```
 
-The installer writes only deployment scheduling state to the flash drive:
+That last line performs one guarded deployment check immediately. Once it succeeds, create one User Script in the Unraid UI named something like **Kind Robots Auto Deploy** with this body:
 
-- `/boot/config/plugins/kindrobots-auto-deploy/run.sh`
-- `/boot/config/plugins/custom_cron/kindrobots-auto-deploy.cron`
+```bash
+#!/bin/bash
+exec /bin/bash /mnt/user/appdata/kind_robots/scripts/unraid-user-script.sh
+```
 
-It then calls Unraid's `update_cron`, so the schedule survives reboot without depending on the Community Applications User Scripts plugin.
+Schedule it for every **5 minutes**. User Scripts owns the schedule and persistence across Unraid restarts; the repository owns the deployment behavior.
 
 The migration credential remains where it already belongs:
 
@@ -36,31 +39,25 @@ The migration credential remains where it already belongs:
 /mnt/user/appdata/kind_robots/.secrets/kindrobots-db-migrate.env
 ```
 
-The installer immediately runs one deployment check. That is intentional: missing credentials, a missing DockerMan template, or a broken migration should fail during installation instead of becoming a silent cron problem.
+The deployer's persistent state also lives under the appdata checkout, not in Unraid's volatile root filesystem:
+
+```text
+/mnt/user/appdata/kind_robots/.deploy-state/
+```
 
 ## Normal operation
 
-No human migration step is required after ordinary merges once the installer is active.
+No human migration step is required after ordinary merges once the User Script is active.
 
-The scheduled launcher refreshes a clean `main` checkout with `git pull --ff-only`, then runs:
+The scheduled launcher refreshes a clean `main` checkout with `git pull --ff-only`, then runs `scripts/deploy-unraid.sh`.
 
-```bash
-bash /mnt/user/appdata/kind_robots/scripts/deploy-unraid.sh
-```
+The deployer uses `flock`, so overlapping User Script runs cannot race each other. It records the image whose migrations were last verified and rechecks migrations at least once per day even when the image has not changed. This repairs the common failure mode where a container was manually Force Updated while the migration step was skipped.
 
-The deployer uses `flock`, so overlapping cron runs cannot race each other. It also records the image whose migrations were last verified and rechecks migrations at least once per day even when the image has not changed. This repairs the common failure mode where a container was manually Force Updated while the migration step was skipped.
-
-Logs are written to:
-
-```text
-/var/log/kindrobots-auto-deploy.log
-```
-
-Useful checks:
+User Scripts captures each run's output. For direct troubleshooting, run:
 
 ```bash
-tail -n 100 /var/log/kindrobots-auto-deploy.log
-cat /boot/config/plugins/custom_cron/kindrobots-auto-deploy.cron
+cd /mnt/user/appdata/kind_robots
+bash scripts/unraid-user-script.sh
 docker inspect KindRobots --format '{{.Image}} {{.State.Health.Status}}'
 ```
 
@@ -75,6 +72,12 @@ bash scripts/deploy-unraid.sh
 
 Do not use the Unraid **Force Update** button as the normal Kind Robots deployment path. It recreates the container but has no awareness of Prisma migrations. The CLI deployer calls the same DockerMan update machinery only after the matching image has successfully migrated the database.
 
+## Migration compatibility rule
+
+The normal automatic deployment path migrates the database before replacing the currently running container. Therefore migrations shipped through this path must be compatible with both the old and new application builds during that short handoff window.
+
+Additive migrations are the default: new tables, nullable columns, indexes, and other changes the previous build can safely ignore. Destructive contract migrations such as dropping or renaming a column still used by the current production image require an explicit staged rollout. Do not put a destructive schema contraction into ordinary unattended deployment and assume timing will save it.
+
 ## Agent handoff contract
 
 A change can be **merged** without yet being **published**, and can be **published** without yet being **deployed**. Agents must keep those states distinct.
@@ -82,6 +85,7 @@ A change can be **merged** without yet being **published**, and can be **publish
 Any agent that adds or changes `prisma/schema.prisma` or `prisma/migrations/**` must:
 
 - call out that the change is schema-affecting in its PR/handoff;
+- verify the migration is safe for the automatic old-build/new-schema handoff, or explicitly stage it if destructive;
 - rely on this automatic Alexandria path rather than assuming GitHub or container publication applied the migration;
 - never describe production as migrated merely because CI passed;
 - if automation is unavailable or known unhealthy, give Silas the exact `scripts/deploy-unraid.sh` command before calling the operational work complete.

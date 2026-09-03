@@ -209,7 +209,7 @@
         <div class="modal-action">
           <button class="kr-btn-ghost-md" @click="closeCreate">Cancel</button>
           <button
-            class="btn btn-primary rounded-xl"
+            class="kr-btn-primary-md"
             :disabled="store.isSaving || !createForm.username"
             @click="onCreate"
           >
@@ -238,7 +238,7 @@
         <div class="modal-action">
           <button class="kr-btn-ghost-md" @click="closePassword">Cancel</button>
           <button
-            class="btn btn-primary rounded-xl"
+            class="kr-btn-primary-md"
             :disabled="store.isSaving || newPassword.length < 8"
             @click="onSetPassword"
           >

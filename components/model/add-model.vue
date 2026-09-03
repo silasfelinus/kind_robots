@@ -158,7 +158,7 @@
       </label>
 
       <button
-        class="btn btn-primary rounded-xl"
+        class="kr-btn-primary-md"
         type="submit"
         :disabled="isSaving || !canSubmit"
       >

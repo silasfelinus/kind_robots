@@ -495,7 +495,7 @@
         </button>
 
         <button
-          class="btn btn-primary rounded-xl"
+          class="kr-btn-primary-md"
           type="button"
           :disabled="characterStore.isSaving || !canSave"
           @click="saveCharacter"

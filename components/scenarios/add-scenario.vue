@@ -179,11 +179,7 @@
             class="textarea textarea-bordered min-h-12 bg-base-200"
           />
 
-          <button
-            class="btn btn-primary rounded-xl"
-            type="button"
-            @click="addIntro"
-          >
+          <button class="kr-btn-primary-md" type="button" @click="addIntro">
             <Icon name="kind-icon:plus" class="h-4 w-4" />
             Add
           </button>
@@ -268,7 +264,7 @@
             </label>
 
             <button
-              class="btn btn-primary rounded-xl"
+              class="kr-btn-primary-md"
               type="button"
               :disabled="isGeneratingArt"
               @click="generateArtImage"

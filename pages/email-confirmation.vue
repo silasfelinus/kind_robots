@@ -39,7 +39,7 @@
           </div>
 
           <div class="flex flex-wrap justify-center gap-3">
-            <NuxtLink to="/account" class="btn btn-primary rounded-xl">
+            <NuxtLink to="/account" class="kr-btn-primary-md">
               Open account settings
             </NuxtLink>
             <NuxtLink to="/" class="btn btn-outline rounded-xl">

@@ -337,7 +337,7 @@
             </div>
 
             <button
-              class="btn btn-xs btn-ghost rounded-xl"
+              class="kr-btn-ghost-xs"
               type="button"
               @click="inspectValues = null"
             >

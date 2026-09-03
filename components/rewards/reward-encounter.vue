@@ -224,7 +224,7 @@
             :class="sessionChats.length === 0 ? 'mb-2' : ''"
           >
             <button
-              class="btn btn-xs btn-ghost rounded-xl"
+              class="kr-btn-ghost-xs"
               type="button"
               :disabled="isStarting"
               @click="clearPromptOptions"
@@ -233,7 +233,7 @@
             </button>
 
             <button
-              class="btn btn-xs btn-ghost rounded-xl"
+              class="kr-btn-ghost-xs"
               type="button"
               :disabled="isStarting"
               @click="newStory"
@@ -242,7 +242,7 @@
             </button>
 
             <button
-              class="btn btn-xs btn-ghost rounded-xl"
+              class="kr-btn-ghost-xs"
               type="button"
               :disabled="!rewardPromptPreview"
               @click="copyPrompt"

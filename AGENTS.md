@@ -75,6 +75,32 @@ The database holds real data.
   `prisma migrate resolve --applied <name>`. Explain what happened.
 - Prefer API writes over raw SQL when a route already exists.
 
+## Self-hosted production — merge is not deploy
+
+Production is Alexandria/Unraid. A GitHub merge, a green workflow, and a published GHCR
+image are **not** proof that production is running that code or that its migrations ran.
+Keep these states distinct in every handoff: **merged → image published → deployed → schema
+verified**.
+
+- The canonical Alexandria path is `scripts/deploy-unraid.sh`, normally invoked by the
+  persistent schedule installed with `scripts/install-unraid-auto-deploy.sh`. It pulls the
+  new image, runs that image's pending migrations with the isolated migration credential,
+  and only then asks Unraid DockerMan to replace `KindRobots`.
+- **Do not tell Silas to use Force Update as the normal Kind Robots deploy step.** Force
+  Update knows how to recreate the container but knows nothing about Prisma migrations.
+- Any change to `prisma/schema.prisma` or `prisma/migrations/**` must be called out as
+  **schema-affecting** in the PR/session handoff. Do not describe it as live merely because
+  CI passed or the image was published.
+- If the automatic Alexandria deployer is installed and healthy, routine schema changes do
+  not require a separate human migration instruction. If automation is unavailable, broken,
+  or not yet installed, give Silas the exact `bash scripts/deploy-unraid.sh` production
+  command before calling the operational work complete.
+- Never place `MIGRATION_DATABASE_URL` in the long-running application environment to make
+  deployment easier. The elevated credential belongs only to the throwaway migration
+  process documented in `docs/runbooks/migration-credential-boundary.md`.
+- Read `docs/runbooks/unraid-auto-deploy.md` before changing the production container,
+  migration wrapper, deployment scripts, image publication, or Unraid update behavior.
+
 ## Routes and surfaces
 
 Before adding a route, tab, page, or manager, inspect the Ecosystem Map and the relevant

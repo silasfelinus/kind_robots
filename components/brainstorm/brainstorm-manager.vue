@@ -481,7 +481,7 @@
               </p>
               <button
                 type="button"
-                class="btn btn-ghost btn-xs"
+                class="kr-btn-ghost-xs-plain"
                 :disabled="isPersisting"
                 data-testid="brainstorm-load-saved-list"
                 @click="loadSavedSessions"

@@ -589,6 +589,17 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply btn btn-ghost btn-xs rounded-xl;
   }
 
+  /* Third-most-repeated ghost-button shape (interface-vision t-104 slice 44):
+   * same size as .kr-btn-ghost-xs but with no rounded-* override, so it
+   * renders at DaisyUI's own default button radius instead of rounded-xl —
+   * `btn btn-ghost btn-xs`, previously hand-rolled in 17 files. Suffixed
+   * `-plain` (not `-xs`, already taken by the rounded-xl shape above) to
+   * keep the "no radius override" case a distinct, correctly-named primitive
+   * rather than conflating it with the rounded variant. */
+  .kr-btn-ghost-xs-plain {
+    @apply btn btn-ghost btn-xs;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

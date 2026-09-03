@@ -29,11 +29,11 @@
 
     <div v-if="notice" class="alert border border-info/25 bg-info/10">
       <span>{{ notice }}</span>
-      <button class="btn btn-ghost btn-xs" type="button" @click="notice = ''">Dismiss</button>
+      <button class="kr-btn-ghost-xs-plain" type="button" @click="notice = ''">Dismiss</button>
     </div>
     <div v-if="error" class="alert border border-error/25 bg-error/10">
       <span class="min-w-0 flex-1 break-words">{{ error }}</span>
-      <button class="btn btn-ghost btn-xs" type="button" @click="error = ''">Dismiss</button>
+      <button class="kr-btn-ghost-xs-plain" type="button" @click="error = ''">Dismiss</button>
     </div>
 
     <div v-if="loading" class="grid min-h-64 place-items-center kr-panel">
@@ -62,7 +62,7 @@
               </div>
               <p class="mt-1 text-xs italic text-base-content/50">{{ fish.species }}</p>
             </div>
-            <a :href="fish.sourceUrl" target="_blank" rel="noreferrer" class="btn btn-ghost btn-xs">
+            <a :href="fish.sourceUrl" target="_blank" rel="noreferrer" class="kr-btn-ghost-xs-plain">
               YAML ↗
             </a>
           </div>

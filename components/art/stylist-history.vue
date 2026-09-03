@@ -59,7 +59,7 @@
           </span>
           <button
             type="button"
-            class="btn btn-ghost btn-xs"
+            class="kr-btn-ghost-xs-plain"
             @click="toggleReceipt(appointment.id)"
           >
             Receipt

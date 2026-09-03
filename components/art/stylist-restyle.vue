@@ -333,7 +333,7 @@
             <button
               v-if="job.status === 'failed'"
               type="button"
-              class="btn btn-ghost btn-xs"
+              class="kr-btn-ghost-xs-plain"
               @click="stylist.retryJob(job.id)"
             >
               Retry
@@ -385,7 +385,7 @@
         </span>
         <span v-if="stylist.isLoadingHistory" class="loading loading-spinner loading-xs text-primary" />
         <div class="flex-1" />
-        <button type="button" class="btn btn-ghost btn-xs" @click="stylist.loadHistory(true)">
+        <button type="button" class="kr-btn-ghost-xs-plain" @click="stylist.loadHistory(true)">
           Refresh
         </button>
       </div>

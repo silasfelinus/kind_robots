@@ -45,7 +45,7 @@
             <span v-if="store.state.winner === side" class="badge badge-success badge-sm">🏆 winner</span>
           </div>
           <button
-            class="btn btn-ghost btn-xs"
+            class="kr-btn-ghost-xs-plain"
             :disabled="running"
             :title="`Copy Build ${side}'s entire config onto Build ${side === 'A' ? 'B' : 'A'}`"
             @click="store.cloneTo(side)"
@@ -201,7 +201,7 @@
             <span class="ml-1 opacity-60">{{ m.note }}</span>
           </span>
           <span class="flex gap-1">
-            <button class="btn btn-ghost btn-xs" @click="store.loadSaved(m)">Load</button>
+            <button class="kr-btn-ghost-xs-plain" @click="store.loadSaved(m)">Load</button>
             <button class="btn btn-ghost btn-xs text-error" @click="store.deleteSaved(m.id)">✕</button>
           </span>
         </li>

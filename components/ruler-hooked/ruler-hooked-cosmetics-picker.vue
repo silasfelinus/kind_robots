@@ -66,7 +66,7 @@
           class="size-8 rounded object-cover"
         />
         {{ customFile.name }}
-        <button type="button" class="btn btn-ghost btn-xs" @click="clearCustom">
+        <button type="button" class="kr-btn-ghost-xs-plain" @click="clearCustom">
           clear
         </button>
       </span>

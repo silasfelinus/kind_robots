@@ -61,7 +61,7 @@
               <Icon name="kind-icon:image" class="size-3.5" />
               {{ openGalleryId === customer.id ? 'Close gallery' : 'Open gallery' }}
             </button>
-            <button type="button" class="btn btn-ghost btn-xs" @click="edit(customer)">Edit</button>
+            <button type="button" class="kr-btn-ghost-xs-plain" @click="edit(customer)">Edit</button>
             <button type="button" class="btn btn-ghost btn-xs text-error" @click="confirmRemove(customer)">Delete</button>
           </div>
         </div>

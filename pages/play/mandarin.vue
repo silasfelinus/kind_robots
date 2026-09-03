@@ -175,11 +175,11 @@
               </span>
             </div>
             <div class="flex items-center gap-1">
-              <button v-if="focusKey" type="button" class="btn btn-ghost btn-xs" @click="store.clearFocus()">
+              <button v-if="focusKey" type="button" class="kr-btn-ghost-xs-plain" @click="store.clearFocus()">
                 Return to deck
               </button>
-              <button type="button" class="btn btn-ghost btn-xs" @click="workspaceView = 'sets'">Change set</button>
-              <button type="button" class="btn btn-ghost btn-xs" @click="workspaceView = 'gallery'">Gallery</button>
+              <button type="button" class="kr-btn-ghost-xs-plain" @click="workspaceView = 'sets'">Change set</button>
+              <button type="button" class="kr-btn-ghost-xs-plain" @click="workspaceView = 'gallery'">Gallery</button>
             </div>
           </div>
 
@@ -307,7 +307,7 @@
                       <button
                         v-if="currentArtJobId"
                         type="button"
-                        class="btn btn-ghost btn-xs"
+                        class="kr-btn-ghost-xs-plain"
                         :disabled="artBusy"
                         @click="refreshCurrentIllustration"
                       >
@@ -369,7 +369,7 @@
                   <button v-if="canQueueArt" type="button" class="btn btn-outline btn-xs" :disabled="artBusy" @click="queueCurrentIllustration">
                     {{ artBusy ? 'Submitting…' : 'Request illustration' }}
                   </button>
-                  <button v-if="currentArtJobId" type="button" class="btn btn-ghost btn-xs" :disabled="artBusy" @click="refreshCurrentIllustration">
+                  <button v-if="currentArtJobId" type="button" class="kr-btn-ghost-xs-plain" :disabled="artBusy" @click="refreshCurrentIllustration">
                     Check art #{{ currentArtJobId }}
                   </button>
                 </div>

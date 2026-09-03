@@ -16,7 +16,7 @@
           <span class="font-medium">{{ slot.name }}</span>
           <span class="ml-2 text-xs opacity-60">turn {{ slot.turnCount }} · {{ slot.status.toLowerCase() }}</span>
         </button>
-        <button type="button" class="btn btn-ghost btn-xs" @click="rename(slot.saveId, slot.name)">rename</button>
+        <button type="button" class="kr-btn-ghost-xs-plain" @click="rename(slot.saveId, slot.name)">rename</button>
         <button type="button" class="btn btn-ghost btn-xs text-error" @click="store.deleteSlot(slot.saveId)">delete</button>
       </div>
     </div>

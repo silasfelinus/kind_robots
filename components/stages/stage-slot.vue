@@ -27,7 +27,7 @@
         </div>
 
         <button
-          class="btn btn-ghost btn-xs"
+          class="kr-btn-ghost-xs-plain"
           title="Clear slot"
           @click="emit('clear', slot.slotId)"
         >
@@ -77,7 +77,7 @@
         </select>
 
         <button
-          class="btn btn-ghost btn-xs"
+          class="kr-btn-ghost-xs-plain"
           title="Generate temporary bot for this role"
           @click="emit('requestTemporary', slot.slotId, slot.roleKey)"
         >
@@ -86,7 +86,7 @@
 
         <button
           v-if="removable"
-          class="btn btn-ghost btn-xs"
+          class="kr-btn-ghost-xs-plain"
           title="Remove slot"
           @click="emit('removeSlot', slot.slotId)"
         >

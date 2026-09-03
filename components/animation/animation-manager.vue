@@ -136,7 +136,7 @@
             </h3>
           </div>
           <button
-            class="btn btn-ghost btn-xs"
+            class="kr-btn-ghost-xs-plain"
             type="button"
             title="Close details"
             @click="store.selectSlug(null)"

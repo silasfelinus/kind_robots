@@ -37,7 +37,7 @@
       <button
         v-if="hasPainted"
         type="button"
-        class="btn btn-ghost btn-xs"
+        class="kr-btn-ghost-xs-plain"
         @click="clear"
       >
         <Icon name="mdi:eraser" class="h-3.5 w-3.5" /> Clear

@@ -201,7 +201,7 @@
             >
               <div class="flex items-start justify-between gap-3">
                 <pre class="whitespace-pre-wrap font-sans text-sm text-error">{{ store.error }}</pre>
-                <button class="btn btn-ghost btn-xs" type="button" @click="store.clearError()">Dismiss</button>
+                <button class="kr-btn-ghost-xs-plain" type="button" @click="store.clearError()">Dismiss</button>
               </div>
             </div>
 

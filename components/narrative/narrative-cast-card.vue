@@ -12,6 +12,7 @@
 -->
 <template>
   <li
+    :data-cast-member="member.slug"
     class="flex flex-col overflow-hidden rounded-2xl border bg-base-100 transition"
     :class="[
       role ? 'border-secondary/60 ring-1 ring-secondary/30' : 'border-base-300',
@@ -74,6 +75,7 @@
       <button
         v-for="option in NARRATIVE_ROLES"
         :key="option.key"
+        :data-role-key="option.key"
         type="button"
         class="btn btn-xs rounded-lg px-1.5 text-[0.65rem] font-bold"
         :class="role === option.key ? 'btn-secondary' : 'btn-ghost'"

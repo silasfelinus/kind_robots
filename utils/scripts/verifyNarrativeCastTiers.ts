@@ -108,6 +108,18 @@ check(
     /closest\('\[data-cast-role\]'\)/.test(component),
   'touch drag completion resolves the role slot under the pointer',
 )
+check(
+  /:data-cast-member="member\.slug"/.test(card) &&
+    /:data-role-key="option\.key"/.test(card),
+  'cast cards expose stable member/role markers for post-move focus lookup',
+)
+check(
+  /refocusRoleButton\(slug, key\)/.test(component) &&
+    /nextTick\(/.test(component) &&
+    /data-cast-member/.test(component) &&
+    /data-role-key/.test(component),
+  'toggling a role refocuses the pressed chip after a tier move, so keyboard casting does not lose its place',
+)
 
 if (failures) {
   console.error(

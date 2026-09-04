@@ -143,6 +143,8 @@
     >
       {{ duplicateWarning }}
     </p>
+
+    <p class="sr-only" role="status" aria-live="polite">{{ announcement }}</p>
   </div>
 </template>
 
@@ -167,6 +169,7 @@ const emit = defineEmits<{
 
 const draggingSlug = ref<string | null>(null)
 const dragOverRole = ref<string | null>(null)
+const announcement = ref('')
 
 const roleFor = (slug: string): string | null => props.modelValue[slug] ?? null
 
@@ -195,9 +198,25 @@ function toggle(slug: string, key: string): void {
   const next = Object.fromEntries(
     Object.entries(props.modelValue).filter(([entry]) => entry !== slug),
   )
-  if (roleFor(slug) !== key) next[slug] = key
+  const assigning = roleFor(slug) !== key
+  if (assigning) next[slug] = key
   emit('update:modelValue', next)
   refocusRoleButton(slug, key)
+  announceRole(slug, assigning ? key : null)
+}
+
+/**
+ * The board otherwise gives no feedback a screen reader can hear: focus now
+ * follows a tier-changing press (see refocusRoleButton), but nothing ever
+ * says what the press actually did. Mirrors duplicateWarning's existing
+ * role="status" pattern, in its own sr-only region so it doesn't compete
+ * visually with the warning.
+ */
+function announceRole(slug: string, key: string | null): void {
+  const title = props.members.find((member) => member.slug === slug)?.title
+  announcement.value = key
+    ? `${title} is now the ${narrativeRoleLabel(key)}.`
+    : `${title} is now unassigned.`
 }
 
 /**
@@ -226,6 +245,7 @@ function refocusRoleButton(slug: string, key: string): void {
 
 function assignRole(slug: string, key: string): void {
   emit('update:modelValue', { ...props.modelValue, [slug]: key })
+  announceRole(slug, key)
 }
 
 function startDrag(slug: string): void {

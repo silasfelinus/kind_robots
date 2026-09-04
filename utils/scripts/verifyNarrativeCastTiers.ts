@@ -120,6 +120,17 @@ check(
     /data-role-key/.test(component),
   'toggling a role refocuses the pressed chip after a tier move, so keyboard casting does not lose its place',
 )
+check(
+  /aria-live="polite"/.test(component) &&
+    /class="sr-only"/.test(component) &&
+    /\{\{ announcement \}\}/.test(component),
+  'the board has an sr-only live region for role-change announcements',
+)
+check(
+  /announceRole\(slug, assigning \? key : null\)/.test(component) &&
+    /announceRole\(slug, key\)/.test(component),
+  'both the chip toggle and the drag-drop assignment announce the role change',
+)
 
 if (failures) {
   console.error(

@@ -6,6 +6,8 @@
     "audit": "node ./utils/scripts/audit.mjs",
     "audit:channel-assets": "tsx utils/scripts/auditChannelAssets.ts",
     "audit:default-art": "tsx utils/scripts/auditDefaultArt.ts",
+    "audit:icons": "tsx utils/scripts/auditIcons.ts",
+    "test:icons-selftest": "tsx utils/scripts/auditIcons.ts --self-test",
     "audit:mandarin-provenance": "tsx utils/scripts/auditMandarinCatalog.ts",
     "test:mandarin-content-audit": "tsx utils/scripts/auditMandarinCatalog.ts --self-test",
     "audit:mandarin-proficiency-coverage": "tsx utils/scripts/auditMandarinProficiencyCoverage.ts",

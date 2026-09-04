@@ -14,8 +14,8 @@ import {
 } from '../utils/suggest/suggestProviders'
 import {
   getRuntimeAnthropicKey,
-  resolveGatedProviderKey,
   getRuntimeOpenAiKey,
+  resolveGatedProviderKey,
 } from '../utils/textProviderService'
 import type { SuggestBody } from '../utils/suggest/suggestTypes'
 

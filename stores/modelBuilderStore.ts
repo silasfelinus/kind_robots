@@ -3314,6 +3314,20 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     draftingField.value = null
     // See runEpoch's own doc comment (model-builder/t-029, cycle 76).
     runEpoch++
+    // openRun()'s own ticket (openRunRequestId) only guards a second openRun()
+    // call against an earlier one -- it does nothing to stop a slow, still-
+    // in-flight openRun() fetch from landing *after* the user abandons it a
+    // different way (model-builder/t-029, cycle 97). Run History's "New run"
+    // button sits right next to "Open" with no guard between them: click Open
+    // on a run that isn't cached yet (falls through to the network fetch),
+    // then New run before that fetch resolves -- resetRun() above already
+    // nulls state.run and flips state.step back to 'source', but nothing told
+    // the pending openRun() its response is now stale, so it still lands,
+    // unconditionally reassigning state.run and flipping state.step back to
+    // 'run'. Bumping the same ticket here invalidates any openRun() fetch
+    // outstanding at reset time, the same way a second openRun() call already
+    // invalidates a slower first one.
+    openRunRequestId++
     safeRemove(runIdKey)
     clearStatus()
   }
@@ -3339,6 +3353,11 @@ export const useModelBuilderStore = defineStore('modelBuilderStore', () => {
     draftingField.value = null
     // See runEpoch's own doc comment (model-builder/t-029, cycle 76).
     runEpoch++
+    // See resetRun()'s identical fix and doc comment (model-builder/t-029,
+    // cycle 97) -- resetAll() is the same "abandon this run" moment as
+    // resetRun(), reachable from a different button, so a still-in-flight
+    // openRun() fetch needs the same invalidation here.
+    openRunRequestId++
     safeRemove(runIdKey)
     clearStatus()
   }

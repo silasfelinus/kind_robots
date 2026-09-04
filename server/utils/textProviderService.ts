@@ -96,6 +96,43 @@ export function resolveApiKeyPrecedence(options: {
   )
 }
 
+/** Gated variant of `resolveApiKeyPrecedence` for routes that sit behind
+ * `manaGate`. Same precedence (user key > stored Server key > site/runtime
+ * key), except the site key is only reachable when the gate said it may be
+ * (`gate.siteKeyAllowed` -- see server/utils/siteProviderKeyPolicy.ts). A
+ * request whose charge was waived because it claimed its own resource, but
+ * which attached no key of its own, gets a 402 here instead of silently
+ * spending the site's provider credits. Returns '' (for the caller's own
+ * `assertProviderApiKey`) only when no key exists at any level. */
+export function resolveGatedProviderKey(options: {
+  siteKeyAllowed: boolean
+  userApiKey?: string | null
+  serverApiKey?: string | null
+  runtimeApiKey?: string | null
+  providerLabel: string
+}): string {
+  const ownKey =
+    cleanProviderKey(options.userApiKey) ||
+    cleanProviderKey(options.serverApiKey)
+
+  if (ownKey) return ownKey
+
+  const runtimeKey = cleanProviderKey(options.runtimeApiKey)
+
+  if (runtimeKey && !options.siteKeyAllowed) {
+    throw createError({
+      statusCode: 402,
+      message:
+        `This request was not charged because it uses its own resource, so ` +
+        `the site's ${options.providerLabel} key cannot back it. Supply a ` +
+        `userApiKey, choose a server that stores its own key, or drop ` +
+        `useOwnResource to pay with mana.`,
+    })
+  }
+
+  return runtimeKey
+}
+
 /** Auth-header construction for a stored `Server` profile, generalized from
  * the Ollama route's `authType`-driven builder (`NONE`/`BEARER`/`HEADER`/
  * `API_KEY`). Any text-capable server type can reuse this -- it does not

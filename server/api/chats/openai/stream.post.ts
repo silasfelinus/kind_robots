@@ -11,7 +11,7 @@ import {
   buildCloudProviderAuthHeaders,
   getErrorStatusCode,
   getRuntimeOpenAiKey,
-  resolveApiKeyPrecedence,
+  resolveGatedProviderKey,
   resolveOptionalTextServer,
   sendMeteredStream,
   setStreamHeaders,
@@ -68,10 +68,12 @@ export default defineEventHandler(async (event) => {
 
     const messages = normalizeMessages(body)
     const endpoint = getOpenAiCompatibleEndpoint(server)
-    const apiKey = resolveApiKeyPrecedence({
+    const apiKey = resolveGatedProviderKey({
+      siteKeyAllowed: gate.siteKeyAllowed,
       userApiKey: body.userApiKey,
       serverApiKey: server?.apiKey,
       runtimeApiKey: getRuntimeOpenAiKey(config),
+      providerLabel: 'OpenAI',
     })
 
     assertProviderApiKey({

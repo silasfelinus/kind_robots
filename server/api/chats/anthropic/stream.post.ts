@@ -11,7 +11,7 @@ import {
   buildCloudProviderAuthHeaders,
   getErrorStatusCode,
   getRuntimeAnthropicKey,
-  resolveApiKeyPrecedence,
+  resolveGatedProviderKey,
   resolveOptionalTextServer,
   sendMeteredStream,
   setStreamHeaders,
@@ -66,10 +66,12 @@ export default defineEventHandler(async (event) => {
 
     const messages = normalizeMessages(body)
     const endpoint = getAnthropicEndpoint(server)
-    const apiKey = resolveApiKeyPrecedence({
+    const apiKey = resolveGatedProviderKey({
+      siteKeyAllowed: gate.siteKeyAllowed,
       userApiKey: body.userApiKey,
       serverApiKey: server?.apiKey,
       runtimeApiKey: getRuntimeAnthropicKey(config),
+      providerLabel: 'Anthropic',
     })
 
     assertProviderApiKey({

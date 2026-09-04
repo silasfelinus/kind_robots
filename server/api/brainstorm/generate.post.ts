@@ -23,6 +23,11 @@ import {
 } from '../../../types/brainstorm'
 import { errorHandler } from '../../utils/error'
 import { manaGate } from '../../utils/manaGate'
+import {
+  getRuntimeAnthropicKey,
+  getRuntimeOpenAiKey,
+  resolveGatedProviderKey,
+} from '../../utils/textProviderService'
 import { estimateTextCostUsd } from '../../utils/manaCost'
 import {
   canReadServer,
@@ -390,11 +395,18 @@ export default defineEventHandler(async (event) => {
       model,
       count: request.count,
       maxTokens,
-      apiKey: brainstormProviderApiKey(provider, {
-        serverApiKey: server.apiKey,
-        anthropicApiKey: config.anthropicApiKey,
-        openaiApiKey: config.openaiApiKey,
-      }),
+      apiKey:
+        provider === 'anthropic' || provider === 'openai'
+          ? resolveGatedProviderKey({
+              siteKeyAllowed: gate.siteKeyAllowed,
+              serverApiKey: server.apiKey,
+              runtimeApiKey:
+                provider === 'anthropic'
+                  ? getRuntimeAnthropicKey(config)
+                  : getRuntimeOpenAiKey(config),
+              providerLabel: provider === 'anthropic' ? 'Anthropic' : 'OpenAI',
+            }) || undefined
+          : brainstormProviderApiKey(provider, { serverApiKey: server.apiKey }),
       baseUrl:
         provider === 'ollama'
           ? str(

@@ -10,6 +10,10 @@ import { resolveSpendResource } from './manaSpendResolution'
 import { resolveManaAttribution } from './manaAttribution'
 import type { ManaSource } from './manaAttribution'
 import {
+  siteKeyAllowedForFreeReason,
+  type FreeGenerationReason,
+} from './siteProviderKeyPolicy'
+import {
   computeRevenueSplit,
   computePaymentProcessingFeeCents,
   tokensToGrossCents,
@@ -53,6 +57,16 @@ type ManaGateResult = {
   }
   cost: number
   free: boolean
+  // Why `free` is true, or null when the request is actually being charged.
+  freeReason: FreeGenerationReason | null
+  // May this request be backed by the SITE's cloud provider key (runtime
+  // ANTHROPIC_API_KEY / OPENAI_API_KEY)? False when the charge was waived
+  // because the request claimed its own resource (`useOwnResource`, or a
+  // public non-official Server) -- such a request must bring its own key.
+  // See server/utils/siteProviderKeyPolicy.ts. Routes that talk to a cloud
+  // provider MUST pass this into resolveGatedProviderKey() rather than
+  // falling through to the runtime key unconditionally.
+  siteKeyAllowed: boolean
   // kind-economy/t-006: which pool `cost` will actually be drawn from if
   // committed -- 'TOKENS' when the user's paid balance alone covers it,
   // 'MANA' as the fallback (preserves pre-split "any balance that covers
@@ -108,7 +122,7 @@ export async function manaGate(
     })
   }
 
-  const free = await isFreeGeneration({
+  const freeReason = await freeGenerationReason({
     userId: user.id,
     serverId: input.serverId ?? null,
     useOwnResource: input.useOwnResource ?? false,
@@ -120,6 +134,8 @@ export async function manaGate(
     userRoles: [...userRoles(user)],
     kind: input.kind,
   })
+  const free = freeReason !== null
+  const siteKeyAllowed = siteKeyAllowedForFreeReason(freeReason)
 
   const cost = free
     ? 0
@@ -149,6 +165,8 @@ export async function manaGate(
     user,
     cost,
     free,
+    freeReason,
+    siteKeyAllowed,
     fundedBy,
     commit: async (refId: string, providerCostUsd?: number) => {
       // fundedBy is only ever null when cost <= 0 (see resolution above --
@@ -173,7 +191,7 @@ export async function manaGate(
       const result = await applyMana({
         userId: user.id,
         amount: -cost,
-        // input.kind === 'free' here is unreachable in practice (isFreeGeneration
+        // input.kind === 'free' here is unreachable in practice (freeGenerationReason
         // forces cost to 0 for 'free', which returns above before this call), but
         // REASON_BY_KIND has no 'free' entry, so this ternary is kept for type
         // safety. `resource` is always passed explicitly regardless of reason.
@@ -251,7 +269,12 @@ export async function manaGate(
   }
 }
 
-async function isFreeGeneration(input: {
+/** Returns WHY the request is free, or null when it should be charged. The
+ * order matters only for the label: the first matching reason wins, and the
+ * labels feed siteKeyAllowedForFreeReason() (see siteProviderKeyPolicy.ts),
+ * so a caller that is both an admin and claims useOwnResource is reported as
+ * 'admin' and keeps site-key access. */
+async function freeGenerationReason(input: {
   userId: number
   serverId?: number | null
   useOwnResource: boolean
@@ -262,23 +285,25 @@ async function isFreeGeneration(input: {
   // holds FAMILY as a secondary role.
   userRoles?: readonly string[] | null
   kind: ManaGateKind
-}): Promise<boolean> {
-  if (input.kind === 'free') return true
-  if (input.useOwnResource) return true
-  if (input.isAdmin) return true
-  if (input.isServerKey) return true
+}): Promise<FreeGenerationReason | null> {
+  if (input.kind === 'free') return 'kind-free'
+  if (input.isAdmin) return 'admin'
+  if (input.isServerKey) return 'server-key'
   if (
     (input.userRoles ?? []).some(
       (role) => String(role).toUpperCase() === 'FAMILY',
     )
   ) {
-    return true
+    return 'family'
   }
+  if (input.useOwnResource) return 'own-resource'
 
-  return await isFreeServerForUser({
+  const freeServer = await isFreeServerForUser({
     userId: input.userId,
     serverId: input.serverId ?? null,
   })
+
+  return freeServer ? 'free-server' : null
 }
 
 async function isFreeServerForUser(input: {

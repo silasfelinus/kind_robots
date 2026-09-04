@@ -6,6 +6,7 @@ import { manaGate } from '@/server/utils/manaGate'
 import { estimateTextCostUsd } from '@/server/utils/manaCost'
 import { resolveServer } from '@/server/utils/serverResolver'
 import { createTextCompletion } from '@/server/utils/textServer'
+import { resolveGatedProviderKey } from '@/server/utils/textProviderService'
 import {
   ServerAccessMode,
   ServerAuthType,
@@ -47,15 +48,6 @@ type TextResponsePayload = {
   }
 }
 
-function cleanProviderKey(value?: string | null): string {
-  return (
-    value
-      ?.trim()
-      .replace(/^Bearer\s+/i, '')
-      .trim() || ''
-  )
-}
-
 function looksLikeOpenAiKey(value: string): boolean {
   return value.startsWith('sk-')
 }
@@ -67,17 +59,21 @@ function looksLikeAnthropicKey(value: string): boolean {
 function getProviderApiKey(options: {
   server: Server
   userApiKey?: string | null
+  siteKeyAllowed: boolean
 }): string {
-  const userApiKey = cleanProviderKey(options.userApiKey)
-  const serverApiKey = cleanProviderKey(options.server.apiKey)
-  const runtimeOpenAiKey = cleanProviderKey(process.env.OPENAI_API_KEY)
+  const ownKey = resolveGatedProviderKey({
+    siteKeyAllowed: options.siteKeyAllowed,
+    userApiKey: options.userApiKey,
+    serverApiKey: options.server.apiKey,
+    // Only the true OpenAI cloud server may fall through to the site key.
+    runtimeApiKey:
+      options.server.serverType === 'OPENAI'
+        ? process.env.OPENAI_API_KEY
+        : null,
+    providerLabel: 'OpenAI',
+  })
 
-  if (userApiKey) return userApiKey
-  if (serverApiKey) return serverApiKey
-
-  if (options.server.serverType === 'OPENAI') {
-    return runtimeOpenAiKey
-  }
+  if (ownKey) return ownKey
 
   return ''
 }
@@ -237,6 +233,7 @@ export default defineEventHandler(async (event) => {
     const apiKey = getProviderApiKey({
       server,
       userApiKey: body.userApiKey,
+      siteKeyAllowed: gate.siteKeyAllowed,
     })
 
     assertProviderKeyMatchesServer({

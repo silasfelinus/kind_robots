@@ -25,7 +25,7 @@ import {
   getRuntimeAnthropicKey,
   getRuntimeOpenAiKey,
   readJsonWithSizeCap,
-  resolveApiKeyPrecedence,
+  resolveGatedProviderKey,
   sendMeteredStream,
   setStreamHeaders,
 } from '../../utils/textProviderService'
@@ -124,6 +124,7 @@ export default defineEventHandler(async (event) => {
       provider,
       server,
       userApiKey: body.userApiKey,
+      siteKeyAllowed: gate.siteKeyAllowed,
       config,
     })
 
@@ -282,9 +283,10 @@ async function buildUpstreamAuth(input: {
   provider: GenerationProvider
   server: Server | null
   userApiKey?: string | null
+  siteKeyAllowed: boolean
   config: ReturnType<typeof useRuntimeConfig>
 }): Promise<UpstreamAuth> {
-  const { provider, server, userApiKey, config } = input
+  const { provider, server, userApiKey, siteKeyAllowed, config } = input
 
   if (provider === 'ollama') {
     // Guaranteed non-null by the caller's earlier 400 guard.
@@ -293,13 +295,15 @@ async function buildUpstreamAuth(input: {
     return { headers, apiKeyPrefix: '', apiKeyLength: 0 }
   }
 
-  const apiKey = resolveApiKeyPrecedence({
+  const apiKey = resolveGatedProviderKey({
+    siteKeyAllowed,
     userApiKey,
     serverApiKey: server?.apiKey,
     runtimeApiKey:
       provider === 'anthropic'
         ? getRuntimeAnthropicKey(config)
         : getRuntimeOpenAiKey(config),
+    providerLabel: provider === 'anthropic' ? 'Anthropic' : 'OpenAI',
   })
 
   assertProviderApiKey({

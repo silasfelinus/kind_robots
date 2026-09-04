@@ -14,6 +14,7 @@ import {
 } from '../utils/suggest/suggestProviders'
 import {
   getRuntimeAnthropicKey,
+  resolveGatedProviderKey,
   getRuntimeOpenAiKey,
 } from '../utils/textProviderService'
 import type { SuggestBody } from '../utils/suggest/suggestTypes'
@@ -120,11 +121,16 @@ export default defineEventHandler(async (event) => {
       model,
       maxTokens,
       apiKey:
-        provider === 'anthropic'
-          ? str(config.anthropicApiKey) || getRuntimeAnthropicKey(config)
-          : provider === 'openai'
-            ? str(config.openaiApiKey) || getRuntimeOpenAiKey(config)
-            : undefined,
+        provider === 'anthropic' || provider === 'openai'
+          ? resolveGatedProviderKey({
+              siteKeyAllowed: gate.siteKeyAllowed,
+              runtimeApiKey:
+                provider === 'anthropic'
+                  ? getRuntimeAnthropicKey(config)
+                  : getRuntimeOpenAiKey(config),
+              providerLabel: provider === 'anthropic' ? 'Anthropic' : 'OpenAI',
+            }) || undefined
+          : undefined,
       baseUrl:
         provider === 'ollama'
           ? str(

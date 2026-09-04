@@ -56,7 +56,7 @@
         />
       </label>
       <label
-        class="btn btn-primary btn-sm"
+        class="kr-btn-primary-plain"
         :class="{ 'btn-disabled': uploading }"
       >
         <span v-if="uploading" class="loading loading-spinner loading-xs" />

@@ -96,7 +96,7 @@
           class="input input-bordered input-sm flex-1"
           placeholder="Serendipity, turn butterflies on"
         />
-        <button class="btn btn-sm btn-primary" type="submit">Send</button>
+        <button class="kr-btn-primary-plain" type="submit">Send</button>
       </form>
     </div>
 

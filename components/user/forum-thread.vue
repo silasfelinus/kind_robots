@@ -32,7 +32,7 @@
         </h2>
         <button
           v-if="userStore.isLoggedIn"
-          class="btn btn-sm btn-primary"
+          class="kr-btn-primary-plain"
           @click="startNewThread(channel.slug)"
         >
           ➕ New Post
@@ -145,7 +145,7 @@
               placeholder="Write a reply…"
             />
             <button
-              class="btn btn-sm btn-primary"
+              class="kr-btn-primary-plain"
               :disabled="posting || !replyDrafts[thread.id]?.trim()"
               @click="postReply(thread.id)"
             >

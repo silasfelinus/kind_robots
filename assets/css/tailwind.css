@@ -663,6 +663,16 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply btn btn-primary rounded-xl;
   }
 
+  /* Third filled-button shape (interface-vision t-104 slice 60): the same
+   * `sm` size as .kr-btn-primary, but with no `rounded-xl` override, so it
+   * renders at DaisyUI's own default button radius — `btn btn-primary
+   * btn-sm`, previously hand-rolled in 16 files (19 occurrences). Suffixed
+   * `-plain` for the dropped radius override, mirroring
+   * .kr-btn-ghost-plain's identical naming on the ghost family. */
+  .kr-btn-primary-plain {
+    @apply btn btn-primary btn-sm;
+  }
+
   /* The most-repeated *unstyled* (no color modifier, no ghost) button shape
    * in the app (interface-vision t-104 slice 52): the same `sm`/`rounded-xl`
    * shape as .kr-btn-ghost and .kr-btn-primary, but with neither `btn-ghost`

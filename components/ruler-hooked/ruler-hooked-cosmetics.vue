@@ -16,7 +16,7 @@
       <div class="flex justify-end gap-2">
         <button
           type="button"
-          class="btn btn-primary btn-sm"
+          class="kr-btn-primary-plain"
           :disabled="saving"
           @click="save"
         >

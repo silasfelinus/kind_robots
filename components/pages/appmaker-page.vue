@@ -75,7 +75,7 @@
           </label>
           <div class="flex items-center gap-3">
             <button
-              class="btn btn-primary btn-sm"
+              class="kr-btn-primary-plain"
               :disabled="creating || !form.title.trim() || !!slugError"
               @click="createApp"
             >

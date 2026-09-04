@@ -36,8 +36,9 @@
 
       <button
         type="button"
+        tabindex="-1"
+        aria-hidden="true"
         class="absolute right-2 top-2 z-10 cursor-grab touch-none rounded-lg bg-base-100/90 px-2 py-1 text-xs font-black shadow active:cursor-grabbing"
-        :aria-label="`Drag ${member.title} to a part`"
         title="Drag to a part"
         @pointerdown="startPointerDrag"
         @pointermove="movePointerDrag"

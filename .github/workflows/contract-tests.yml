@@ -755,6 +755,12 @@ jobs:
       - name: Model Builder openRun request guard contract
         run: npm run test:model-builder-open-run-request-guard
 
+      - name: Model Builder reset/openRun race guard checker self-test
+        run: npm run test:model-builder-reset-open-run-guard-selftest
+
+      - name: Model Builder reset/openRun race guard contract
+        run: npm run test:model-builder-reset-open-run-guard
+
       - name: Model Builder openRun cancelled-run guard checker self-test
         run: npm run test:model-builder-open-run-cancelled-guard-selftest
 

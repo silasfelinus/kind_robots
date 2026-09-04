@@ -711,6 +711,18 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply btn btn-sm;
   }
 
+  /* The most-repeated *icon* button shape in the app (interface-vision t-104
+   * slice 64): a small circular ghost button used for close/dismiss/icon-only
+   * controls — `btn btn-ghost btn-xs btn-circle`, previously hand-rolled in
+   * 5 files (12 occurrences, split across two class-order variants:
+   * `btn btn-ghost btn-xs btn-circle` and `btn btn-circle btn-ghost btn-xs`).
+   * Named `.kr-btn-ghost-circle-xs` (color-shape-size) to add the `btn-circle`
+   * shape modifier as its own dimension alongside the existing color/size/
+   * radius axes, rather than overloading an existing suffix. */
+  .kr-btn-ghost-circle-xs {
+    @apply btn btn-ghost btn-xs btn-circle;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

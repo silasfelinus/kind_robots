@@ -340,7 +340,7 @@
             </button>
             <button
               type="button"
-              class="btn btn-circle btn-ghost btn-xs"
+              class="kr-btn-ghost-circle-xs"
               title="Dismiss"
               @click="stylist.dismissJob(job.id)"
             >

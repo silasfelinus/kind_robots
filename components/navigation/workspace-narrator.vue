@@ -46,7 +46,7 @@
                   <div class="flex shrink-0 gap-1">
                     <button
                       type="button"
-                      class="btn btn-ghost btn-xs btn-circle"
+                      class="kr-btn-ghost-circle-xs"
                       :class="pinOpen ? 'text-primary' : ''"
                       :title="
                         pinOpen ? 'Narrator pinned open' : 'Pin narrator open'
@@ -58,7 +58,7 @@
 
                     <button
                       type="button"
-                      class="btn btn-ghost btn-xs btn-circle"
+                      class="kr-btn-ghost-circle-xs"
                       aria-label="Close narrator"
                       @click="closeNarrator"
                     >
@@ -222,7 +222,7 @@
                   <div class="flex shrink-0 gap-1">
                     <button
                       type="button"
-                      class="btn btn-ghost btn-xs btn-circle"
+                      class="kr-btn-ghost-circle-xs"
                       :class="showTopics ? 'text-primary' : ''"
                       aria-label="Toggle narrator topics"
                       @click="showTopics = !showTopics"
@@ -232,7 +232,7 @@
 
                     <button
                       type="button"
-                      class="btn btn-ghost btn-xs btn-circle"
+                      class="kr-btn-ghost-circle-xs"
                       aria-label="Return to narrator portrait"
                       @click="closeChatFace"
                     >

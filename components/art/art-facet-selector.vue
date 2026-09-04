@@ -129,7 +129,7 @@
             </button>
             <button
               type="button"
-              class="btn btn-ghost btn-xs btn-circle"
+              class="kr-btn-ghost-circle-xs"
               :disabled="selectedSet.has(facet.id)"
               aria-label="Add Facet"
               @click="addFacet(facet.id)"

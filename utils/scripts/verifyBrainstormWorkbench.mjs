@@ -123,7 +123,7 @@ assert.doesNotMatch(card, /(?:sm|md|lg|xl):grid-cols-/)
 // silently regaining visibility on pending/rejected ones.
 assert.match(
   card,
-  /v-if="candidate\.status === 'kept'"\s*\n\s*type="button"\s*\n\s*class="btn btn-outline btn-sm"\s*\n\s*data-testid="brainstorm-promote-to-character"/,
+  /v-if="candidate\.status === 'kept'"\s*\n\s*type="button"\s*\n\s*class="kr-btn-outline-plain"\s*\n\s*data-testid="brainstorm-promote-to-character"/,
   'the "Promote to Character" button must stay gated to kept candidates only',
 )
 

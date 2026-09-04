@@ -53,9 +53,12 @@ expectContains('server/api/suggest.post.ts', [
   "builder === 'art-asset'",
   'resolveArtModelContext',
   'buildSuggestUserPrompt',
-  "import {\n  getRuntimeAnthropicKey,\n  getRuntimeOpenAiKey,\n} from '../utils/textProviderService'",
+  "import {\n  getRuntimeAnthropicKey,\n  getRuntimeOpenAiKey,\n  resolveGatedProviderKey,\n} from '../utils/textProviderService'",
   'getRuntimeAnthropicKey(config)',
   'getRuntimeOpenAiKey(config)',
+  // The site key is only reachable when manaGate allowed it -- an
+  // own-resource / free-server request must bring its own key.
+  'siteKeyAllowed: gate.siteKeyAllowed',
 ])
 
 expectContains('server/utils/textProviderService.ts', [

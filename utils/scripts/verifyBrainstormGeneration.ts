@@ -443,8 +443,23 @@ const suggestEndpoint = readFileSync(
 )
 assert.match(
   suggestEndpoint,
-  /provider === 'openai'[\s\S]*?str\(config\.openaiApiKey\)[\s\S]*?: undefined/,
+  /provider === 'anthropic' \|\| provider === 'openai'[\s\S]*?resolveGatedProviderKey\([\s\S]*?: undefined/,
   'first-party OpenAI keys must not fall through to arbitrary compatible URLs',
 )
+assert.doesNotMatch(
+  suggestEndpoint,
+  /str\(config\.(openai|anthropic)ApiKey\)/,
+  'suggest must resolve site keys through resolveGatedProviderKey, never read them raw',
+)
+for (const [label, source] of [
+  ['brainstorm/generate', endpoint],
+  ['suggest', suggestEndpoint],
+] as const) {
+  assert.match(
+    source,
+    /siteKeyAllowed: gate\.siteKeyAllowed/,
+    `${label} must gate the site provider key on manaGate's siteKeyAllowed (an own-resource/free-server request must never spend the site key)`,
+  )
+}
 
 console.log('Brainstorm generation contract passed.')

@@ -17,6 +17,11 @@ import {
   str,
 } from '../../utils/suggest/suggestProviders'
 import type { SuggestServerSnapshot } from '../../utils/suggest/suggestTypes'
+import {
+  getRuntimeAnthropicKey,
+  getRuntimeOpenAiKey,
+  resolveGatedProviderKey,
+} from '../../utils/textProviderService'
 
 type Dimension = 'intonation' | 'timing' | 'dynamics' | 'arrangement'
 
@@ -119,9 +124,16 @@ export default defineEventHandler(async (event) => {
       model,
       maxTokens,
       apiKey:
-        provider === 'anthropic'
-          ? str(config.anthropicApiKey)
-          : str(config.openaiApiKey),
+        provider === 'anthropic' || provider === 'openai'
+          ? resolveGatedProviderKey({
+              siteKeyAllowed: gate.siteKeyAllowed,
+              runtimeApiKey:
+                provider === 'anthropic'
+                  ? getRuntimeAnthropicKey(config)
+                  : getRuntimeOpenAiKey(config),
+              providerLabel: provider === 'anthropic' ? 'Anthropic' : 'OpenAI',
+            }) || undefined
+          : undefined,
       baseUrl:
         provider === 'ollama'
           ? str(

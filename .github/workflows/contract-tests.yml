@@ -965,6 +965,9 @@ jobs:
       - name: Text-provider-service shared mechanics contract
         run: npm run test:text-provider-service
 
+      - name: Site provider key policy contract (own-resource requests never spend the site key)
+        run: npm run test:site-provider-key-policy
+
       - name: Server capability routing contract
         run: npm run test:server-capability-routing
 

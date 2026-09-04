@@ -673,6 +673,15 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply btn btn-primary btn-sm;
   }
 
+  /* The most-repeated *secondary*-color button shape (interface-vision t-104
+   * slice 61): the same `sm`/`rounded-xl` shape as .kr-btn-primary, filled
+   * with the secondary color instead — `btn btn-secondary btn-sm rounded-xl`,
+   * previously hand-rolled in 11 files (12 occurrences). Named to mirror
+   * .kr-btn-primary's own naming on the color-filled branch of the family. */
+  .kr-btn-secondary {
+    @apply btn btn-secondary btn-sm rounded-xl;
+  }
+
   /* The most-repeated *unstyled* (no color modifier, no ghost) button shape
    * in the app (interface-vision t-104 slice 52): the same `sm`/`rounded-xl`
    * shape as .kr-btn-ghost and .kr-btn-primary, but with neither `btn-ghost`

@@ -35,7 +35,7 @@
             </div>
 
             <button
-              class="btn btn-sm btn-secondary rounded-xl"
+              class="kr-btn-secondary"
               type="button"
               @click="seedCharacter"
             >
@@ -289,7 +289,7 @@
           </div>
 
           <button
-            class="btn btn-sm btn-secondary rounded-xl"
+            class="kr-btn-secondary"
             type="button"
             @click="characterStore.rerollCharacterStats"
           >

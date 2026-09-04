@@ -48,7 +48,7 @@
     <div v-else class="flex flex-wrap items-center gap-2">
       <button
         type="button"
-        class="btn btn-primary btn-sm rounded-2xl"
+        class="kr-btn-primary rounded-2xl"
         :disabled="purchasing"
         @click="purchase"
       >

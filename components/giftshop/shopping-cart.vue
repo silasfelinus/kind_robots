@@ -42,7 +42,7 @@
         The butterflies have returned the receipt printer to sleep mode.
       </p>
       <div class="mt-5 flex flex-wrap justify-center gap-2">
-        <NuxtLink to="/sanctuary" class="btn btn-primary rounded-2xl">
+        <NuxtLink to="/sanctuary" class="kr-btn-primary-md-2xl">
           Browse the giftshop
         </NuxtLink>
         <NuxtLink to="/giving" class="kr-btn-outline-md rounded-2xl">

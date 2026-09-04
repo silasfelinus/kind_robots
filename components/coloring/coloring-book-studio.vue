@@ -434,7 +434,7 @@
           <button
             v-if="userStore.isAdmin"
             type="button"
-            class="btn btn-primary rounded-2xl"
+            class="kr-btn-primary-md-2xl"
             :disabled="
               !promptDirty ||
               studio.savingPrompt ||

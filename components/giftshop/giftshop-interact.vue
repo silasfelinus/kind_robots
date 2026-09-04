@@ -27,11 +27,7 @@
             </p>
           </div>
 
-          <button
-            type="button"
-            class="btn btn-primary rounded-2xl"
-            @click="goToCart"
-          >
+          <button type="button" class="kr-btn-primary-md-2xl" @click="goToCart">
             <Icon name="kind-icon:cart" class="h-4 w-4" />
             Cart
             <span v-if="cartStore.totalItems" class="badge badge-secondary">
@@ -199,11 +195,7 @@
           </div>
         </div>
 
-        <button
-          type="button"
-          class="btn btn-primary rounded-2xl"
-          @click="goToCart"
-        >
+        <button type="button" class="kr-btn-primary-md-2xl" @click="goToCart">
           <Icon name="kind-icon:cart" class="h-4 w-4" />
           Review cart
         </button>

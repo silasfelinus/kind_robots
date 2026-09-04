@@ -27,11 +27,7 @@
         </p>
 
         <div class="mt-6 flex flex-wrap justify-center gap-3">
-          <button
-            type="button"
-            class="btn btn-primary rounded-2xl"
-            @click="goHome"
-          >
+          <button type="button" class="kr-btn-primary-md-2xl" @click="goHome">
             Go home
           </button>
           <button

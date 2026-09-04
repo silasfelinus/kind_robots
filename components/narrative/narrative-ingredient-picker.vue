@@ -260,6 +260,23 @@ watch(
   },
 )
 
+/* modelValue can arrive already set to a pick from an earlier session --
+   Storybook's setupDraft persists to localStorage and restores it. If that
+   pick sorts beyond the initial collapsed slice, the picker would render
+   collapsed with no card showing as selected at all, and nothing on screen
+   would say a choice was already made. Auto-expand to reveal it; this only
+   ever turns expanded on, never off, so it never fights a manual toggle or
+   the reset above. */
+watch(
+  () => [props.items, props.modelValue] as const,
+  ([items, value]) => {
+    if (!value) return
+    const index = items.findIndex((item) => item.slug === value)
+    if (index >= Math.max(1, props.initialLimit)) expanded.value = true
+  },
+  { immediate: true },
+)
+
 watch(searchVisible, (visible) => {
   if (!visible) query.value = ''
 })

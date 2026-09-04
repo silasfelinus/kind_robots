@@ -195,7 +195,7 @@
             </div>
 
             <button
-              class="btn btn-secondary rounded-xl"
+              class="kr-btn-secondary-md"
               type="button"
               @click="useRandomArtImage"
             >
@@ -468,7 +468,7 @@
 
         <button
           v-if="mode === 'edit'"
-          class="btn btn-secondary rounded-xl"
+          class="kr-btn-secondary-md"
           type="button"
           @click="resetFromSelected"
         >
@@ -477,7 +477,7 @@
 
         <button
           v-else
-          class="btn btn-secondary rounded-xl"
+          class="kr-btn-secondary-md"
           type="button"
           @click="resetForAdd"
         >

@@ -219,6 +219,22 @@ watch(
   },
 )
 
+/* Same hidden-selection case as narrative-ingredient-picker.vue, extended to
+   multiple selections: expand if ANY selected slug sorts beyond the initial
+   collapsed slice, so a restored setupDraft never shows selected Facets or
+   Rewards as if nothing were picked. Only ever turns expanded on. */
+watch(
+  () => [props.items, props.modelValue] as const,
+  ([items, values]) => {
+    if (!values.length) return
+    const maxIndex = Math.max(
+      ...values.map((slug) => items.findIndex((item) => item.slug === slug)),
+    )
+    if (maxIndex >= Math.max(1, props.initialLimit)) expanded.value = true
+  },
+  { immediate: true },
+)
+
 watch(searchVisible, (visible) => {
   if (!visible) query.value = ''
 })

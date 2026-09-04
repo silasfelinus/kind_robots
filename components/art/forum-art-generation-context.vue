@@ -128,7 +128,7 @@
       <div class="mt-4 flex flex-wrap items-center gap-2">
         <button
           type="button"
-          class="btn btn-primary rounded-2xl"
+          class="kr-btn-primary-md-2xl"
           :disabled="
             store.queueing || activeJob || store.promptDraft.trim().length < 3
           "

@@ -658,7 +658,7 @@
         v-for="(batch, index) in batches"
         :key="batch.id"
         type="button"
-        class="btn btn-sm"
+        class="kr-btn-plain"
         :class="batch.id === activeBatchId ? 'btn-primary' : 'btn-ghost'"
         :disabled="isGenerating"
         @click="setActiveBatch(batch.id)"

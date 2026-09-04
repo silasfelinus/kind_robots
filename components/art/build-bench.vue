@@ -183,7 +183,7 @@
         placeholder="Notes on this matchup (why the winner won)…"
         class="input input-bordered input-sm flex-1"
       />
-      <button class="btn btn-sm" @click="store.saveMatchup">Save matchup</button>
+      <button class="kr-btn-plain" @click="store.saveMatchup">Save matchup</button>
     </div>
 
     <!-- saved matchups -->

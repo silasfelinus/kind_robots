@@ -54,7 +54,7 @@
 
       <div v-if="store.error" class="alert alert-error text-sm" role="alert">
         <span>{{ store.error }}</span>
-        <button class="btn btn-sm" type="button" @click="store.loadCatalog()">Retry</button>
+        <button class="kr-btn-plain" type="button" @click="store.loadCatalog()">Retry</button>
       </div>
 
       <div v-if="loading && !initialized" class="flex min-h-64 items-center justify-center">

@@ -9,7 +9,7 @@
       <button
         v-for="channel in channels"
         :key="channel.slug"
-        class="btn btn-sm"
+        class="kr-btn-plain"
         :class="{
           'btn-accent': visibleChannels.includes(channel.slug),
           'btn-outline': !visibleChannels.includes(channel.slug),

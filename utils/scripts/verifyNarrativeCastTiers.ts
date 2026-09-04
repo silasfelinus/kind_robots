@@ -99,6 +99,15 @@ check(
   'the touch drag handle suppresses browser panning while a pointer drag is active',
 )
 check(
+  /tabindex="-1"[^>]*aria-hidden="true"[\s\S]{0,200}?@pointerdown="startPointerDrag"/.test(
+    card,
+  ) ||
+    /aria-hidden="true"[^>]*tabindex="-1"[\s\S]{0,200}?@pointerdown="startPointerDrag"/.test(
+      card,
+    ),
+  'the pointer-only touch drag handle is out of the tab order and hidden from assistive tech, since keyboard/screen-reader users have no pointermove/pointerup path to complete a drag with it and the pressable role chips are their real path',
+)
+check(
   /:aria-pressed="role === option\.key"/.test(card) &&
     /@click="emit\('toggle-role', option\.key\)"/.test(card),
   'pressable role chips remain as the keyboard/accessibility fallback',

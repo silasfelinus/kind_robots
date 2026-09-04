@@ -147,7 +147,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import {
   duplicateSingularRoles,
   NARRATIVE_ROLES,
@@ -197,6 +197,31 @@ function toggle(slug: string, key: string): void {
   )
   if (roleFor(slug) !== key) next[slug] = key
   emit('update:modelValue', next)
+  refocusRoleButton(slug, key)
+}
+
+/**
+ * A role toggle can move a card to a different tier -- a different `<ul>`
+ * entirely (protagonist/antagonist/support/back are four separate v-for
+ * blocks, not one list Vue can reorder in place). That unmounts the pressed
+ * button and mounts a new one in the new tier, dropping keyboard focus back
+ * to the document body. Find the same member's same-role button in its new
+ * position and refocus it, so a keyboard user can keep casting without
+ * re-navigating from the top every time a press changes tiers.
+ */
+function refocusRoleButton(slug: string, key: string): void {
+  if (typeof document === 'undefined') return
+  nextTick(() => {
+    const card = Array.from(
+      document.querySelectorAll<HTMLElement>('[data-cast-member]'),
+    ).find((el) => el.dataset.castMember === slug)
+    const button = card
+      ? Array.from(
+          card.querySelectorAll<HTMLButtonElement>('[data-role-key]'),
+        ).find((el) => el.dataset.roleKey === key)
+      : null
+    button?.focus()
+  })
 }
 
 function assignRole(slug: string, key: string): void {

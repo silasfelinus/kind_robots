@@ -326,7 +326,7 @@
               </button>
 
               <button
-                class="btn btn-secondary rounded-xl"
+                class="kr-btn-secondary-md"
                 type="button"
                 :disabled="!characterStore.selectedCharacter || isSendingChat"
                 @click="seedGettingToKnowYouQuestion"
@@ -385,7 +385,7 @@
 
             <div class="mt-3 flex flex-col gap-2 sm:flex-row sm:justify-end">
               <button
-                class="btn btn-secondary rounded-xl"
+                class="kr-btn-secondary-md"
                 type="button"
                 @click="buildAdventurePrompt"
               >

@@ -187,7 +187,7 @@
             </button>
 
             <button
-              class="btn btn-secondary rounded-xl"
+              class="kr-btn-secondary-md"
               type="button"
               @click="useRandomArtImage"
             >
@@ -487,7 +487,7 @@
         </button>
 
         <button
-          class="btn btn-secondary rounded-xl"
+          class="kr-btn-secondary-md"
           type="button"
           @click="mode === 'edit' ? resetFromSelected() : resetForAdd()"
         >

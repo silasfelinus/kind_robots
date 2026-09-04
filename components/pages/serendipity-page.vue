@@ -42,7 +42,7 @@
           {{ voice.connected ? 'Relay connected' : 'Relay offline' }}
         </span>
         <button
-          class="btn btn-sm"
+          class="kr-btn-plain"
           :class="voice.polling ? 'btn-warning' : 'btn-primary'"
           type="button"
           @click="toggleConnection"

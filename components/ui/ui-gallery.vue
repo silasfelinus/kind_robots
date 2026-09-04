@@ -410,7 +410,7 @@
                 Uses primary as the surface with primary-content text.
               </p>
               <div class="card-actions justify-end">
-                <button class="btn btn-sm">Act</button>
+                <button class="kr-btn-plain">Act</button>
               </div>
             </div>
           </div>

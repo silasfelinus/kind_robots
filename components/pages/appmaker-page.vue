@@ -19,7 +19,7 @@
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <button class="btn btn-sm" :disabled="loading" @click="refresh">
+        <button class="kr-btn-plain" :disabled="loading" @click="refresh">
           {{ loading ? 'Refreshing…' : 'Refresh' }}
         </button>
         <button

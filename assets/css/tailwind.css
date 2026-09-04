@@ -692,6 +692,15 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply btn btn-sm rounded-xl;
   }
 
+  /* Same bare (no color modifier, no ghost) `sm` button as .kr-btn, but with
+   * no `rounded-xl` override, so it renders at DaisyUI's own default button
+   * radius instead — `btn btn-sm`, previously hand-rolled in 10 files (11
+   * occurrences). Named for the dropped radius override, matching the
+   * `-plain` convention already used on the ghost and primary families. */
+  .kr-btn-plain {
+    @apply btn btn-sm;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

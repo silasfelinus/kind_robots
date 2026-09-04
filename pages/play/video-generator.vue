@@ -20,7 +20,7 @@
             v-for="opt in engines"
             :key="opt.value"
             type="button"
-            class="btn btn-sm"
+            class="kr-btn-plain"
             :class="engine === opt.value ? 'btn-accent' : 'btn-outline'"
             @click="selectEngine(opt.value)"
           >
@@ -206,7 +206,7 @@
             v-for="opt in outputFormats"
             :key="opt.value"
             type="button"
-            class="btn btn-sm"
+            class="kr-btn-plain"
             :class="outputFormat === opt.value ? 'btn-accent' : 'btn-outline'"
             @click="outputFormat = opt.value"
           >

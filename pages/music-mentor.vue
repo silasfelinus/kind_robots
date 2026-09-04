@@ -68,7 +68,7 @@
             v-for="opt in DIMENSIONS"
             :key="opt.value"
             type="button"
-            class="btn btn-sm"
+            class="kr-btn-plain"
             :class="selected.includes(opt.value) ? 'btn-accent' : 'btn-outline'"
             @click="toggle(opt.value)"
           >

@@ -37,7 +37,7 @@
         <span class="flex-1">{{ lastError }}</span>
         <button
           type="button"
-          class="btn btn-sm"
+          class="kr-btn-plain"
           @click="mermaidsStore.loadDraft(true)"
         >
           Retry load

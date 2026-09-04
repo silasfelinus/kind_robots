@@ -38,7 +38,7 @@
     </div>
 
     <label
-      v-if="items.length > initialLimit"
+      v-if="searchVisible"
       class="input input-bordered input-sm flex w-full items-center gap-2 rounded-xl bg-base-100"
     >
       <Icon
@@ -243,12 +243,26 @@ const showToggle = computed(
     filteredItems.value.length > Math.max(1, props.initialLimit),
 )
 
+/* The search box only renders while the list is longer than the initial
+   limit. The option lists are store-derived (browseCharacters, the Dream and
+   Reward stores' active filters) and can shrink after a query has been typed
+   -- when that happens the box disappears but the query kept filtering, so
+   the reader was left staring at "No matching characters. Clear the search"
+   with no search left to clear. Drop the query the moment its input goes. */
+const searchVisible = computed(
+  () => props.items.length > Math.max(1, props.initialLimit),
+)
+
 watch(
   () => props.items.length,
   () => {
     expanded.value = false
   },
 )
+
+watch(searchVisible, (visible) => {
+  if (!visible) query.value = ''
+})
 
 function select(value: string | null) {
   emit('update:modelValue', value)

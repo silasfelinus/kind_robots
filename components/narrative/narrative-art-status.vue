@@ -106,6 +106,14 @@ const altText = computed(
 const statusMessage = computed(() => {
   const art = props.art
   if (!art) return ''
+  /* narrativeArtJobsHelper stops polling after MAX_POLL_ATTEMPTS and records
+     why on `error` while leaving the status at queued/rendering. The busy
+     branch below shows this message, so without this line a stalled job kept
+     a spinner and "is queued." on screen indefinitely while nothing was still
+     checking on it. */
+  if (art.error && (art.status === 'queued' || art.status === 'rendering')) {
+    return art.error
+  }
   if (art.status === 'rendering') return 'The scene illustration is rendering.'
   if (art.status === 'queued') return 'The scene illustration is queued.'
   if (art.status === 'queueing') return 'Preparing the scene illustration.'

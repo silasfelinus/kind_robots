@@ -43,7 +43,7 @@
     </p>
 
     <label
-      v-if="items.length > initialLimit"
+      v-if="searchVisible"
       class="input input-bordered input-sm flex w-full items-center gap-2 rounded-xl bg-base-100"
     >
       <Icon
@@ -175,8 +175,20 @@ const query = ref('')
 const expanded = ref(false)
 
 const atLimit = computed(() => props.modelValue.length >= props.maxSelections)
+/* The count badge is v-else to the loading spinner, so while loading its id
+   does not exist in the DOM; pointing aria-describedby at it then is a
+   dangling reference for screen readers. */
 const describedBy = computed(() =>
-  [props.helper ? helperId : '', countId].filter(Boolean).join(' '),
+  [props.helper ? helperId : '', props.loading ? '' : countId]
+    .filter(Boolean)
+    .join(' '),
+)
+
+/* See narrative-ingredient-picker.vue: the search box only renders while the
+   list is longer than the initial limit, and the store-derived lists can
+   shrink after a query has been typed. Drop the query when its input goes. */
+const searchVisible = computed(
+  () => props.items.length > Math.max(1, props.initialLimit),
 )
 
 const filteredItems = computed(() => {
@@ -206,6 +218,10 @@ watch(
     expanded.value = false
   },
 )
+
+watch(searchVisible, (visible) => {
+  if (!visible) query.value = ''
+})
 
 function toggle(slug: string) {
   if (props.modelValue.includes(slug)) {

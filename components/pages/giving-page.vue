@@ -75,7 +75,7 @@
           <button
             v-if="added || cartStore.hasItems"
             type="button"
-            class="btn btn-primary btn-sm rounded-2xl"
+            class="kr-btn-primary rounded-2xl"
             @click="openCart"
           >
             <Icon name="kind-icon:cart" class="h-4 w-4" />

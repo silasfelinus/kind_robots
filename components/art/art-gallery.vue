@@ -53,7 +53,7 @@
 
           <button
             v-if="activeGroup"
-            class="btn btn-xs rounded-lg"
+            class="kr-btn-xs-lg"
             :class="bulkSelectEnabled ? 'btn-primary' : 'btn-ghost'"
             type="button"
             @click="toggleBulkSelect"

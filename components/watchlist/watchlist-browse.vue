@@ -391,7 +391,7 @@
               v-for="monthOption in MONTH_LABELS"
               :key="monthOption.value"
               type="button"
-              class="btn btn-xs rounded-lg"
+              class="kr-btn-xs-lg"
               :class="
                 activeMonths.has(monthOption.value)
                   ? 'btn-primary'

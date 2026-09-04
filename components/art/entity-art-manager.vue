@@ -38,7 +38,7 @@
         v-for="slot in slots"
         :key="slot.field"
         type="button"
-        class="btn btn-xs rounded-lg"
+        class="kr-btn-xs-lg"
         :class="selectedField === slot.field ? 'btn-secondary' : 'btn-ghost border border-base-300'"
         @click="selectSlot(slot.field)"
       >

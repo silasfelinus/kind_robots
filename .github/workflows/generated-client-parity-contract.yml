@@ -1,1 +1,40 @@
-bmFtZTogR2VuZXJhdGVkIENsaWVudCBQYXJpdHkKCiMga2luZC1yb2JvdHMvdC0wODc6IGNhdGNoIGEgcHJpc21hL3NjaGVtYS5wcmlzbWEgZWRpdCB0aGF0IHNoaXBzIHdpdGggYQojIHN0YWxlIGNoZWNrZWQtaW4gcHJpc21hL2dlbmVyYXRlZC8gY2xpZW50IC0tIHRoZSBjbGFzcyBvZiBidWcgdGhhdCBsZWZ0CiMgc2VydmVyL2FwaS9hZ2VudC1wcm9maWxlcy8qLnRzIHNpbGVudGx5IHR5cGUtYnJva2VuIG9uIG1haW4gYWZ0ZXIgUFIgIzIyODQKIyBhZGRlZCBBZ2VudFByb2ZpbGUvQWdlbnRQcm9maWxlQ3JlZGVudGlhbCB0byB0aGUgc2NoZW1hIHdpdGhvdXQKIyByZWdlbmVyYXRpbmcgdGhlIGNvbW1pdHRlZCBjbGllbnQuIFNlZQojIHV0aWxzL3NjcmlwdHMvdmVyaWZ5R2VuZXJhdGVkQ2xpZW50UGFyaXR5LnRzLgoKb246CiAgcHVsbF9yZXF1ZXN0OgogICAgYnJhbmNoZXM6IFttYWluXQogIHdvcmtmbG93X2Rpc3BhdGNoOgoKY29uY3VycmVuY3k6CiAgZ3JvdXA6IGdlbmVyYXRlZC1jbGllbnQtcGFyaXR5LSR7eyBnaXRodWIucmVmIH19CiAgY2FuY2VsLWluLXByb2dyZXNzOiB0cnVlCgpqb2JzOgogIHZlcmlmeToKICAgIHJ1bnMtb246IHVidW50dS1sYXRlc3QKICAgIHRpbWVvdXQtbWludXRlczogMTAKICAgIGVudjoKICAgICAgQ1lQUkVTU19JTlNUQUxMX0JJTkFSWTogJzAnCiAgICAgIERBVEFCQVNFX1VSTDogJ215c3FsOi8vdXNlcjpwYXNzQDEyNy4wLjAuMTozMzA2L2tpbmRyb2JvdHMnCiAgICBzdGVwczoKICAgICAgLSBuYW1lOiBDaGVja291dAogICAgICAgIHVzZXM6IGFjdGlvbnMvY2hlY2tvdXRANAoKICAgICAgLSBuYW1lOiBTZXQgdXAgTm9kZQogICAgICAgIHVzZXM6IGFjdGlvbnMvc2V0dXAtbm9kZUB2NAogICAgICAgIHdpdGg6CiAgICAgICAgICBub2RlLXZlcnNpb246ICcyNCcKICAgICAgICAgIGNhY2hlOiAnbnBtJwoKICAgICAgLSBuYW1lOiBJbnN0YWxsIGRlcGVuZGVuY2llcwogICAgICAgIHJ1bjogbnBtIGNpCgogICAgICAtIG5hbWU6IEdlbmVyYXRlZCBQcmlzbWEgY2xpZW50IHBhcml0eQogICAgICAgIHJ1bjogbnBtIHJ1biB0ZXN0OmdlbmVyYXRlZC1jbGllbnQtcGFyaXR5Cg==
+name: Generated Client Parity
+
+# kind-robots/t-087: catch a prisma/schema.prisma edit that ships with a
+# stale checked-in prisma/generated/ client -- the class of bug that left
+# server/api/agent-profiles/*.ts silently type-broken on main after PR #2284
+# added AgentProfile/AgentProfileCredential to the schema without
+# regenerating the committed client. See
+# utils/scripts/verifyGeneratedClientParity.ts.
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: generated-client-parity-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CYPRESS_INSTALL_BINARY: '0'
+      DATABASE_URL: 'mysql://user:pass@127.0.0.1:3306/kindrobots'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generated Prisma client parity
+        run: npm run test:generated-client-parity

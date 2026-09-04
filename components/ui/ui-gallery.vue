@@ -260,7 +260,7 @@
           </div>
           <div class="flex flex-wrap items-center gap-2">
             <button class="btn btn-primary btn-xs">xs</button>
-            <button class="btn btn-primary btn-sm">sm</button>
+            <button class="kr-btn-primary-plain">sm</button>
             <button class="btn btn-primary">md</button>
             <button class="btn btn-primary btn-lg">lg</button>
             <button class="btn btn-primary">
@@ -399,7 +399,7 @@
                 A dream with an orderable wishlist of desired features.
               </p>
               <div class="card-actions justify-end">
-                <button class="btn btn-primary btn-sm">Open</button>
+                <button class="kr-btn-primary-plain">Open</button>
               </div>
             </div>
           </div>

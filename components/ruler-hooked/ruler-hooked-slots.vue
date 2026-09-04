@@ -41,7 +41,7 @@
             <option v-for="h in honorificSuggestions" :key="h" :value="h" />
           </datalist>
         </label>
-        <button type="button" class="btn btn-primary btn-sm" :disabled="!rulerName.trim()" @click="start">
+        <button type="button" class="kr-btn-primary-plain" :disabled="!rulerName.trim()" @click="start">
           New reign
         </button>
       </div>

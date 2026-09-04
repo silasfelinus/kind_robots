@@ -158,7 +158,7 @@
                   <p class="font-semibold">Not in the catalog yet.</p>
                   <p class="text-xs opacity-60">Create “{{ searchQuery.trim() }}” as a requested learning card.</p>
                 </div>
-                <button class="btn btn-primary btn-sm" type="button" :disabled="requestingWord" @click="requestCurrentWord">
+                <button class="kr-btn-primary-plain" type="button" :disabled="requestingWord" @click="requestCurrentWord">
                   <span v-if="requestingWord" class="loading loading-spinner loading-xs" />
                   {{ requestingWord ? 'Creating…' : 'Create requested card' }}
                 </button>

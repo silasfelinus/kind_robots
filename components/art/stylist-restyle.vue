@@ -108,7 +108,7 @@
         <!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
         <video ref="videoEl" autoplay playsinline class="max-h-64 w-full rounded-lg bg-black object-contain" />
         <div class="flex gap-2">
-          <button type="button" class="btn btn-primary btn-sm" @click="capturePhoto">
+          <button type="button" class="kr-btn-primary-plain" @click="capturePhoto">
             <Icon name="kind-icon:camera" class="h-4 w-4" /> Capture
           </button>
           <button type="button" class="kr-btn-ghost-plain" @click="closeCamera">Cancel</button>
@@ -269,7 +269,7 @@
     <!-- Action -->
     <button
       type="button"
-      class="btn btn-primary btn-sm"
+      class="kr-btn-primary-plain"
       :disabled="!canGenerate"
       @click="submit"
     >

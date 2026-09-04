@@ -16,7 +16,7 @@
         <span class="text-xs font-black">Email (optional)</span>
         <input v-model="email" type="email" placeholder="For receipt prefill" class="input input-sm input-bordered w-full" />
       </label>
-      <button type="submit" class="btn btn-primary btn-sm" :disabled="!name.trim()">
+      <button type="submit" class="kr-btn-primary-plain" :disabled="!name.trim()">
         {{ editingId ? 'Update' : 'Add client' }}
       </button>
       <button v-if="editingId" type="button" class="kr-btn-ghost-plain" @click="resetForm">Cancel</button>

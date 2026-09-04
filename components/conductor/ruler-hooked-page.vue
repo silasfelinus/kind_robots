@@ -22,7 +22,7 @@
           <div class="flex gap-2">
             <button
               type="button"
-              class="btn btn-primary btn-sm"
+              class="kr-btn-primary-plain"
               @click="pwa?.install()"
             >
               Install

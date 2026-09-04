@@ -63,7 +63,7 @@
 
             <div class="mt-3 flex gap-2">
               <button
-                class="btn btn-primary btn-sm"
+                class="kr-btn-primary-plain"
                 type="button"
                 @click="toggleCollection(Number(item.id))"
               >

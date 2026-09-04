@@ -970,7 +970,7 @@
             </button>
             <button
               type="button"
-              class="btn btn-primary btn-sm"
+              class="kr-btn-primary-plain"
               :disabled="!canConfirmBreed"
               @click="onConfirmBreed"
             >

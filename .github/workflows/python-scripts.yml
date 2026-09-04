@@ -1,0 +1,70 @@
+name: Python scripts
+
+# scripts/ holds Python that runs on Alexandria, pulled straight off this
+# checkout by the auto-deploy every five minutes -- so a bad merge is on the
+# box within minutes, with no build step in between to catch it. This is the
+# gate that stands in for one.
+#
+# container_log_triage.py prints log lines from ~50 containers into a terminal
+# whose output Silas pastes back, which makes its redaction path a hard safety
+# rule (AGENTS.md 15), not a nicety. Those tests have to run in the CI that
+# gates deployment; tests one repo away from the code they guard are tests
+# that quietly stop running.
+
+on:
+  pull_request:
+    paths:
+      - "scripts/**.py"
+      - "tests/python/**"
+      - ".github/workflows/python-scripts.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/**.py"
+      - "tests/python/**"
+      - ".github/workflows/python-scripts.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Python script tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pytest
+      - name: pytest
+        run: python -m pytest tests/python/ -q
+
+      # The deployed script is executed directly by the User Script entry, so
+      # a lost executable bit breaks the nightly run with a bare "Permission
+      # denied" and no other signal.
+      - name: container_log_triage.py stays executable
+        run: |
+          test -x scripts/container_log_triage.py \
+            || { echo "::error::scripts/container_log_triage.py is not executable"; exit 1; }
+
+      # It ships as a single standalone file with no pip install on the box.
+      - name: standard library only
+        run: |
+          python - <<'PY'
+          import ast, sys
+          tree = ast.parse(open("scripts/container_log_triage.py").read())
+          roots = set()
+          for node in ast.walk(tree):
+              if isinstance(node, ast.Import):
+                  roots.update(a.name.split(".")[0] for a in node.names)
+              elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
+                  roots.add(node.module.split(".")[0])
+          third_party = sorted(r for r in roots if r not in sys.stdlib_module_names)
+          if third_party:
+              print("::error::non-stdlib imports would break the Unraid run: %s" % third_party)
+              raise SystemExit(1)
+          print("stdlib only: %d module(s)" % len(roots))
+          PY

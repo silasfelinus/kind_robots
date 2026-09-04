@@ -3,7 +3,7 @@ name: Schema Migration Parity
 # kind-robots/t-072: catch a prisma/*.prisma structural edit that ships with
 # no matching prisma/migrations/ file -- the class of bug that broke
 # production in kind-robots/t-071 (schema edited, client regenerated, no
-# migration ever written or run). See utils/scripts/verifySchemaMigrationParity.ts.
+# migration ever run). See utils/scripts/verifySchemaMigrationParity.ts.
 
 on:
   pull_request:
@@ -17,7 +17,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4

@@ -31,7 +31,7 @@
         </div>
         <button
           type="button"
-          class="btn btn-primary btn-sm rounded-2xl"
+          class="kr-btn-primary rounded-2xl"
           :disabled="loading"
           @click="refresh"
         >

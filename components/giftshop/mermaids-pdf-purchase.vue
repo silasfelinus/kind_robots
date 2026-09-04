@@ -24,7 +24,7 @@
         <Icon name="kind-icon:sparkles" class="h-3.5 w-3.5" />
         PDF edition — $9.99
       </span>
-      <NuxtLink to="/login" class="btn btn-outline btn-sm rounded-2xl">
+      <NuxtLink to="/login" class="kr-btn-outline-plain rounded-2xl">
         Log in to buy the PDF
       </NuxtLink>
     </div>

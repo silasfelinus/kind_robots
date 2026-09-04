@@ -74,7 +74,7 @@
           {{ errorMessage }}
         </p>
         <button
-          class="btn btn-outline btn-sm rounded-2xl"
+          class="kr-btn-outline-plain rounded-2xl"
           type="button"
           @click="refreshChats"
         >

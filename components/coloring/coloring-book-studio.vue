@@ -16,7 +16,7 @@
 
       <button
         type="button"
-        class="btn btn-outline rounded-2xl"
+        class="kr-btn-outline-md rounded-2xl"
         :disabled="studio.loading"
         @click="studio.fetchStudio()"
       >

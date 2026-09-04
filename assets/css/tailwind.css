@@ -735,6 +735,26 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply btn btn-outline btn-sm;
   }
 
+  /* The outline-family counterpart to .kr-btn-primary-md (interface-vision
+   * t-104 slice 70): DaisyUI's own default button size on the outline
+   * branch, with the same `rounded-xl` override as .kr-btn -- `btn
+   * btn-outline rounded-xl`, previously hand-rolled in 4 files (6
+   * occurrences). Suffixed `-md` for the default size, mirroring
+   * .kr-btn-primary-md's identical naming on the primary-color branch. */
+  .kr-btn-outline-md {
+    @apply btn btn-outline rounded-xl;
+  }
+
+  /* The outline-family `xs` shape (interface-vision t-104 slice 70): a
+   * small outline button with no radius override -- `btn btn-outline
+   * btn-xs`, previously hand-rolled in 3 files (5 occurrences). Named
+   * `.kr-btn-outline-xs` (color-size) to add the `xs` size as its own
+   * dimension, mirroring `.kr-btn-ghost-circle-xs`'s convention of naming
+   * a shape that isn't already covered by the `-plain`/`-md` suffixes. */
+  .kr-btn-outline-xs {
+    @apply btn btn-outline btn-xs;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

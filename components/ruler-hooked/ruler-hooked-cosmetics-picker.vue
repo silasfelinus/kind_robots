@@ -46,7 +46,7 @@
     <div
       class="flex flex-wrap items-center gap-2 border-t border-base-300 pt-2"
     >
-      <label class="btn btn-outline btn-xs">
+      <label class="kr-btn-outline-xs">
         Use my own picture instead
         <input
           type="file"

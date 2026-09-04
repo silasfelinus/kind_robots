@@ -42,7 +42,7 @@
             <NuxtLink to="/account" class="kr-btn-primary-md">
               Open account settings
             </NuxtLink>
-            <NuxtLink to="/" class="btn btn-outline rounded-xl">
+            <NuxtLink to="/" class="kr-btn-outline-md">
               Return home
             </NuxtLink>
           </div>

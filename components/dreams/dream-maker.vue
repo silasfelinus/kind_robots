@@ -36,7 +36,7 @@
           </button>
           <button
             type="button"
-            class="btn btn-outline btn-sm rounded-2xl"
+            class="kr-btn-outline-plain rounded-2xl"
             @click="clearForm"
           >
             <Icon name="kind-icon:x" class="h-4 w-4" />

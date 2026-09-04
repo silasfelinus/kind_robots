@@ -38,7 +38,7 @@
         <NuxtLink
           v-if="state === 'error' || state === 'unpaid'"
           to="/cart"
-          class="btn btn-outline rounded-2xl"
+          class="kr-btn-outline-md rounded-2xl"
         >
           <Icon name="kind-icon:cart" class="h-4 w-4" />
           Review cart

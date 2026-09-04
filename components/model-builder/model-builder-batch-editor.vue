@@ -58,7 +58,7 @@
       <div class="flex flex-wrap gap-1.5">
         <button
           type="button"
-          class="btn btn-xs rounded-lg"
+          class="kr-btn-xs-lg"
           :disabled="anyBatching || store.autoBuilding"
           @click="draftAll('pitch')"
         >
@@ -68,7 +68,7 @@
         <button
           v-if="!isAsset"
           type="button"
-          class="btn btn-xs rounded-lg"
+          class="kr-btn-xs-lg"
           :disabled="anyBatching || store.autoBuilding"
           @click="draftAll('fields')"
         >
@@ -78,7 +78,7 @@
         <button
           v-if="wantArt"
           type="button"
-          class="btn btn-xs rounded-lg"
+          class="kr-btn-xs-lg"
           :disabled="anyBatching || store.autoBuilding"
           @click="draftAll('artPrompt')"
         >
@@ -161,7 +161,7 @@
           />
           <button
             type="button"
-            class="btn btn-xs rounded-lg"
+            class="kr-btn-xs-lg"
             :disabled="
               anyBatching || store.autoBuilding || !batchValues[field.key]
             "

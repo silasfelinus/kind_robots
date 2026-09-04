@@ -103,7 +103,7 @@
 
           <div class="mt-auto flex flex-wrap items-center gap-2">
             <button
-              class="btn btn-xs rounded-lg"
+              class="kr-btn-xs-lg"
               :class="store.isEffectActive(effect.id) ? 'btn-secondary' : 'btn-outline'"
               type="button"
               :title="store.isEffectActive(effect.id) ? 'Turn this effect off' : 'Trigger this effect live on screen'"

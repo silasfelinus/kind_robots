@@ -68,7 +68,7 @@
           v-for="chip in TIME_CHIPS"
           :key="chip.minutes"
           type="button"
-          class="btn btn-xs rounded-lg"
+          class="kr-btn-xs-lg"
           :class="totalMinutes === chip.minutes ? 'btn-primary' : 'btn-ghost border border-base-300'"
           @click="setMinutes(chip.minutes)"
         >

@@ -78,7 +78,7 @@
         :key="option.key"
         :data-role-key="option.key"
         type="button"
-        class="btn btn-xs rounded-lg px-1.5 text-[0.65rem] font-bold"
+        class="kr-btn-xs-lg px-1.5 text-[0.65rem] font-bold"
         :class="role === option.key ? 'btn-secondary' : 'btn-ghost'"
         :aria-pressed="role === option.key"
         :title="`${option.label} — ${option.description}`"

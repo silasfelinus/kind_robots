@@ -226,7 +226,7 @@
 
             <button
               v-if="canEditSelected"
-              class="btn btn-secondary btn-sm rounded-xl"
+              class="kr-btn-secondary"
               type="button"
               @click="startEditingReward"
             >

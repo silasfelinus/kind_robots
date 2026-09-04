@@ -151,7 +151,7 @@
         <button
           v-for="platform in sharePlatforms"
           :key="platform.key"
-          class="btn btn-sm btn-secondary rounded-xl"
+          class="kr-btn-secondary"
           type="button"
           @click="share(platform.key)"
         >

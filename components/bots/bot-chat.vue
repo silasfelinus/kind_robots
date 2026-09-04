@@ -78,11 +78,7 @@
           </div>
 
           <div class="flex shrink-0 flex-col gap-2">
-            <button
-              class="btn btn-sm btn-secondary rounded-xl"
-              type="button"
-              @click="newChat"
-            >
+            <button class="kr-btn-secondary" type="button" @click="newChat">
               New Chat
             </button>
 

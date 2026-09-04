@@ -58,7 +58,7 @@
         </p>
         <button
           type="button"
-          class="btn btn-secondary btn-sm rounded-xl"
+          class="kr-btn-secondary"
           :disabled="loading"
           @click="createDailyDream"
         >

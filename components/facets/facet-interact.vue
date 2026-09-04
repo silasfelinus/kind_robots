@@ -13,11 +13,7 @@
 <template>
   <div v-if="!selectedFacet" class="flex h-full min-h-0 flex-col gap-2">
     <div class="flex shrink-0 justify-end">
-      <button
-        type="button"
-        class="btn btn-secondary btn-sm rounded-xl"
-        @click="goToCreateFacet"
-      >
+      <button type="button" class="kr-btn-secondary" @click="goToCreateFacet">
         <Icon name="kind-icon:plus" class="size-3.5" />
         New Facet
       </button>

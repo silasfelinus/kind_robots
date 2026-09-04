@@ -57,7 +57,7 @@
 
         <button
           v-if="isTextServer"
-          class="btn btn-sm btn-secondary rounded-xl"
+          class="kr-btn-secondary"
           type="button"
           @click="useForText"
         >

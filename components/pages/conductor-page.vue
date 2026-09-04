@@ -63,7 +63,7 @@
           <span class="mx-0.5 h-3.5 w-px shrink-0 bg-base-content/10" />
           <button
             type="button"
-            class="btn btn-circle btn-ghost btn-xs"
+            class="kr-btn-ghost-circle-xs"
             :class="linkedProject.isPublic ? 'text-success' : 'text-base-content/35'"
             :title="linkedProject.isPublic ? 'Public project' : 'Private project'"
             :aria-label="linkedProject.isPublic ? 'Make project private' : 'Make project public'"
@@ -77,7 +77,7 @@
           </button>
           <button
             type="button"
-            class="btn btn-circle btn-ghost btn-xs"
+            class="kr-btn-ghost-circle-xs"
             :class="linkedProject.isMature ? 'text-warning' : 'text-base-content/35'"
             :title="linkedProject.isMature ? 'Mature content' : 'Safe content'"
             :aria-label="linkedProject.isMature ? 'Mark project safe' : 'Mark project mature'"
@@ -88,7 +88,7 @@
           </button>
           <button
             type="button"
-            class="btn btn-circle btn-ghost btn-xs"
+            class="kr-btn-ghost-circle-xs"
             :class="linkedProject.allowReviews ? 'text-success' : 'text-base-content/35'"
             :title="linkedProject.allowReviews ? 'Reviews on' : 'Reviews off'"
             :aria-label="linkedProject.allowReviews ? 'Turn reviews off' : 'Turn reviews on'"

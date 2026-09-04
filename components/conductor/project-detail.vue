@@ -20,7 +20,7 @@
         <span class="mx-0.5 h-3.5 w-px shrink-0 bg-base-content/10" />
         <button
           type="button"
-          class="btn btn-circle btn-ghost btn-xs"
+          class="kr-btn-ghost-circle-xs"
           :class="
             linkedProject.isPublic ? 'text-success' : 'text-base-content/35'
           "
@@ -42,7 +42,7 @@
         </button>
         <button
           type="button"
-          class="btn btn-circle btn-ghost btn-xs"
+          class="kr-btn-ghost-circle-xs"
           :class="
             linkedProject.isMature ? 'text-warning' : 'text-base-content/35'
           "
@@ -57,7 +57,7 @@
         </button>
         <button
           type="button"
-          class="btn btn-circle btn-ghost btn-xs"
+          class="kr-btn-ghost-circle-xs"
           :class="
             linkedProject.allowReviews ? 'text-success' : 'text-base-content/35'
           "

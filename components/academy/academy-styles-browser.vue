@@ -79,7 +79,7 @@
           :aria-label="`${academyStore.viewedLessons.length} of ${academyStore.timeline.length} Academy lessons explored`"
         />
       </div>
-      <button type="button" class="btn btn-primary btn-sm rounded-2xl" @click="openNextLesson">
+      <button type="button" class="kr-btn-primary rounded-2xl" @click="openNextLesson">
         <Icon
           :name="nextLesson ? 'kind-icon:arrow-right' : 'kind-icon:refresh'"
           class="h-4 w-4"

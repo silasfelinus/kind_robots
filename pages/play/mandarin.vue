@@ -393,7 +393,7 @@
 
                 <div class="flex items-center justify-between gap-2 border-t border-base-300 pt-3">
                   <button type="button" class="kr-btn-ghost-plain" :disabled="focusNavigationLocked" @click="store.previousCard()">Previous</button>
-                  <button type="button" class="btn btn-outline btn-sm" @click="store.toggleDetails()">{{ detailsVisible ? 'Hide parts' : 'Parts & history' }}</button>
+                  <button type="button" class="kr-btn-outline-plain" @click="store.toggleDetails()">{{ detailsVisible ? 'Hide parts' : 'Parts & history' }}</button>
                   <button type="button" class="kr-btn-ghost-plain" :disabled="focusNavigationLocked" @click="store.nextCard()">Next</button>
                 </div>
               </div>

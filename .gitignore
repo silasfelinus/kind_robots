@@ -47,3 +47,8 @@ kindblank_*.sql
 
 # Claude Code harness state (background-agent worktree isolation, etc.) -- never repo content
 .claude/
+
+# Python bytecode from scripts/ and tests/python/
+__pycache__/
+*.py[cod]
+.pytest_cache/

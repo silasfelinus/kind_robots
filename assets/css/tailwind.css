@@ -723,6 +723,18 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply btn btn-ghost btn-xs btn-circle;
   }
 
+  /* The outline-family counterpart to .kr-btn-plain (interface-vision t-104
+   * slice 69): a bare `sm` outline button with no `rounded-xl` override, so
+   * it renders at DaisyUI's own default button radius — `btn btn-outline
+   * btn-sm`, previously hand-rolled in 7 files (7 occurrences, split across
+   * two class-order variants: `btn btn-outline btn-sm` and `btn btn-sm
+   * btn-outline`). Named `.kr-btn-outline-plain` to mirror `.kr-btn-plain`'s
+   * `-plain` convention (dropped radius override) on the outline branch of
+   * the family. */
+  .kr-btn-outline-plain {
+    @apply btn btn-outline btn-sm;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

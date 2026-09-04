@@ -152,7 +152,7 @@
             </template>
             <div class="card-actions justify-end pt-1">
               <button
-                class="btn btn-sm btn-outline"
+                class="kr-btn-outline-plain"
                 @click="pageStore.setWorkspaceCardKey(app.slug)"
               >
                 Open project

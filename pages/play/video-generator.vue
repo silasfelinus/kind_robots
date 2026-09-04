@@ -387,7 +387,7 @@
         <a
           :href="videoStore.state.videoSrc"
           :download="downloadFilename"
-          class="btn btn-sm btn-outline"
+          class="kr-btn-outline-plain"
         >
           ⬇ Download clip
         </a>

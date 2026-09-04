@@ -963,7 +963,7 @@
           <div class="flex gap-2">
             <button
               type="button"
-              class="btn btn-outline btn-sm"
+              class="kr-btn-outline-plain"
               @click="breedConfirmPair = null"
             >
               Cancel

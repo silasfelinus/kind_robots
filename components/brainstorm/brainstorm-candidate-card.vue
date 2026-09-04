@@ -360,7 +360,7 @@
         <button
           v-if="candidate.status === 'kept'"
           type="button"
-          class="btn btn-outline btn-sm"
+          class="kr-btn-outline-plain"
           data-testid="brainstorm-promote-to-character"
           :disabled="disabled"
           @click="promote"

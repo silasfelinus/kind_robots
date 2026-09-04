@@ -133,7 +133,7 @@
           </div>
         </details>
 
-        <button class="btn btn-outline btn-sm" :disabled="running" @click="store.runSide(side)">
+        <button class="kr-btn-outline-plain" :disabled="running" @click="store.runSide(side)">
           Render Build {{ side }}
         </button>
 

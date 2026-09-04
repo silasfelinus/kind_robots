@@ -191,7 +191,7 @@
                 />
                 <button
                   type="button"
-                  class="btn btn-outline rounded-2xl"
+                  class="kr-btn-outline-md rounded-2xl"
                   :disabled="!validLegacyPath || studio.requestingAction"
                   @click="adoptExisting"
                 >

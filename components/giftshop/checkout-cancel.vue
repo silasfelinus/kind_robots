@@ -36,7 +36,7 @@
           Return to cart
         </NuxtLink>
 
-        <NuxtLink to="/sanctuary" class="btn btn-outline rounded-2xl">
+        <NuxtLink to="/sanctuary" class="kr-btn-outline-md rounded-2xl">
           Continue browsing
         </NuxtLink>
       </div>

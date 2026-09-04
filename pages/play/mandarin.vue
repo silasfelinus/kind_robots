@@ -250,7 +250,7 @@
                         @error="markArtBroken"
                       />
                     </div>
-                    <button v-if="canQueueArt" type="button" class="btn btn-outline btn-xs" :disabled="artBusy" @click="queueCurrentIllustration">
+                    <button v-if="canQueueArt" type="button" class="kr-btn-outline-xs" :disabled="artBusy" @click="queueCurrentIllustration">
                       {{ artBusy ? 'Submitting…' : 'Request illustration' }}
                     </button>
                     <p v-if="artNotice" class="mt-1 text-xs text-success">{{ artNotice }}</p>
@@ -297,7 +297,7 @@
                       <button
                         v-if="canQueueArt"
                         type="button"
-                        class="btn btn-outline btn-xs"
+                        class="kr-btn-outline-xs"
                         :disabled="artBusy"
                         @click="queueCurrentIllustration"
                       >
@@ -366,7 +366,7 @@
                 <p class="text-xl font-bold tracking-wide">{{ currentCard.pinyin }}</p>
                 <p v-if="currentCard.traditional" class="text-xs opacity-55">Traditional: {{ currentCard.traditional }}</p>
                 <div class="flex flex-wrap justify-center gap-1">
-                  <button v-if="canQueueArt" type="button" class="btn btn-outline btn-xs" :disabled="artBusy" @click="queueCurrentIllustration">
+                  <button v-if="canQueueArt" type="button" class="kr-btn-outline-xs" :disabled="artBusy" @click="queueCurrentIllustration">
                     {{ artBusy ? 'Submitting…' : 'Request illustration' }}
                   </button>
                   <button v-if="currentArtJobId" type="button" class="kr-btn-ghost-xs-plain" :disabled="artBusy" @click="refreshCurrentIllustration">

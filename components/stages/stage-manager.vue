@@ -638,7 +638,7 @@
           <div class="flex items-center gap-3 pt-2">
             <button
               type="button"
-              class="btn btn-outline rounded-xl"
+              class="kr-btn-outline-md"
               @click="activeCard = 'cast'"
             >
               <Icon name="mdi:arrow-left" class="h-4 w-4" /> Back

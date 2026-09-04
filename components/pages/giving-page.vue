@@ -64,7 +64,7 @@
         <div class="mt-4 flex flex-wrap gap-2">
           <button
             type="button"
-            class="btn btn-outline btn-sm rounded-2xl"
+            class="kr-btn-outline-plain rounded-2xl"
             :disabled="!donationItem"
             @click="addDonationToCart"
           >

@@ -196,7 +196,7 @@
       <!-- Pack-level actions -->
       <div class="flex flex-wrap items-center gap-2">
         <button
-          class="btn btn-outline btn-sm rounded-2xl"
+          class="kr-btn-outline-plain rounded-2xl"
           :disabled="anyBusy"
           @click="onGenerateAll"
         >

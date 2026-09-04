@@ -78,7 +78,7 @@
           class="flex flex-col gap-2 rounded-lg bg-base-200 p-2"
         >
           <pre class="whitespace-pre-wrap text-xs">{{ superkate.receiptText(appointment) }}</pre>
-          <a :href="superkate.receiptMailto(appointment)" class="btn btn-outline btn-xs">
+          <a :href="superkate.receiptMailto(appointment)" class="kr-btn-outline-xs">
             <Icon name="mdi:email-outline" class="h-4 w-4" />
             Open receipt email
           </a>

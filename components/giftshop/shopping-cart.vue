@@ -45,7 +45,7 @@
         <NuxtLink to="/sanctuary" class="btn btn-primary rounded-2xl">
           Browse the giftshop
         </NuxtLink>
-        <NuxtLink to="/giving" class="btn btn-outline rounded-2xl">
+        <NuxtLink to="/giving" class="kr-btn-outline-md rounded-2xl">
           Support Against Malaria
         </NuxtLink>
       </div>

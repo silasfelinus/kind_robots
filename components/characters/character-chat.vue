@@ -432,7 +432,7 @@
 
             <div class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
               <button
-                class="btn btn-outline rounded-xl"
+                class="kr-btn-outline-md"
                 type="button"
                 @click="buildCharacterPrompt"
               >
@@ -440,7 +440,7 @@
               </button>
 
               <button
-                class="btn btn-outline rounded-xl"
+                class="kr-btn-outline-md"
                 type="button"
                 @click="copyPromptToChat"
               >

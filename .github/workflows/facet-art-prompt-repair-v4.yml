@@ -1,10 +1,12 @@
-name: Facet Art Prompt Repair v4
+name: Krea Entity Art Prompt Repair v4
 
-# One-shot production repair for the v2/v3 Facet Krea producer. The workflow is
-# intentionally triggered only by this file landing on main; after a successful
-# repair run the worker deletes this workflow in a cleanup PR. The repair keeps
-# old ArtImages as provenance and enqueues semantic v4 replacements only for
-# legacy jobs that still own their Facet slot.
+# One-shot production repair for contextual Krea prompts. Facet v2/v3 has a
+# provenance-specific repair; the second pass covers contextual entity-art jobs
+# for the main Kind Robots object families (Facet, Character, Bot, Dream,
+# Scenario, Reward). Old ArtImages are preserved and replacements are only
+# queued when the tainted job still owns, or is still filling, its target slot.
+# The workflow is intentionally triggered only by this file landing on main;
+# after a successful repair run the worker deletes it in a cleanup PR.
 
 on:
   push:
@@ -14,7 +16,7 @@ on:
       - '.github/workflows/facet-art-prompt-repair-v4.yml'
 
 concurrency:
-  group: facet-art-prompt-repair-v4
+  group: krea-entity-art-prompt-repair-v4
   cancel-in-progress: false
 
 jobs:
@@ -65,13 +67,19 @@ jobs:
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
 
-      - name: Resubmit tainted Facet artwork with semantic Krea prompts
+      - name: Resubmit tainted Facet v2/v3 artwork with semantic Krea prompts
         run: >-
           npx tsx scripts/run_facet_catalog_maintenance.ts
           --art-only
           --repair-tainted
           --reason=one-shot-krea-context-prompt-repair-v4
 
+      - name: Audit contextual Krea entity-art jobs
+        run: npx tsx scripts/repair_krea_context_entity_art.ts
+
+      - name: Resubmit contextual Krea entity-art jobs
+        run: npx tsx scripts/repair_krea_context_entity_art.ts --write
+
       - name: Report replacement ArtJob IDs
         run: |
-          npx tsx -e 'import { createScriptPrismaClient } from "./scripts/lib/databaseRetry"; (async () => { const prisma = createScriptPrismaClient(); try { const jobs = await prisma.artJob.findMany({ where: { projectSlug: "facet-catalog", payload: { contains: "\"repairReason\":\"krea-context-prompt-text\"" } }, orderBy: { id: "asc" }, select: { id: true, status: true, artImageId: true } }); console.log("[facet-art-repair] replacement ArtJobs:", jobs); } finally { await prisma.$disconnect(); } })().catch((error) => { console.error(error); process.exit(1); })'
+          npx tsx -e 'import { createScriptPrismaClient } from "./scripts/lib/databaseRetry"; (async () => { const prisma = createScriptPrismaClient(); try { const facetJobs = await prisma.artJob.findMany({ where: { projectSlug: "facet-catalog", payload: { contains: "\"repairReason\":\"krea-context-prompt-text\"" } }, orderBy: { id: "asc" }, select: { id: true, status: true, artImageId: true } }); const entityJobs = await prisma.artJob.findMany({ where: { payload: { contains: "\"kreaSemanticRepair\"" } }, orderBy: { id: "asc" }, select: { id: true, status: true, artImageId: true, projectSlug: true } }); console.log("[krea-art-repair] Facet v4 replacement ArtJobs:", facetJobs); console.log("[krea-art-repair] main-entity replacement ArtJobs:", entityJobs); } finally { await prisma.$disconnect(); } })().catch((error) => { console.error(error); process.exit(1); })'

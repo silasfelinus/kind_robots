@@ -808,6 +808,19 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply btn btn-xs rounded-2xl;
   }
 
+  /* The bare-family counterpart to .kr-btn-primary-md-2xl (interface-vision
+   * t-104 slice 81): DaisyUI's own default (unmodified) button size — no
+   * `btn-sm`/`btn-xs` utility at all — combined with a wider `rounded-2xl`
+   * corner radius instead of `rounded-xl` — `btn rounded-2xl`, previously
+   * hand-rolled in 4 files (5 occurrences, all identical class order).
+   * Suffixed `-md-2xl` (size then radius) since both the size and the
+   * radius deviate from the base .kr-btn shape at once, mirroring
+   * `.kr-btn-primary-md-2xl`'s identical two-axis naming on the primary
+   * branch of this family. */
+  .kr-btn-md-2xl {
+    @apply btn rounded-2xl;
+  }
+
   /* The joined-button-group shape (interface-vision t-104 slice 73): a bare
    * (no color modifier, no ghost) `sm` button with DaisyUI's `join-item`
    * modifier for `.join` button groups — `btn btn-sm join-item`, previously

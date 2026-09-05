@@ -463,7 +463,7 @@
           <button
             v-if="userStore.isAdmin"
             type="button"
-            class="btn rounded-2xl"
+            class="kr-btn-md-2xl"
             :class="requestNeedsForce ? 'btn-secondary' : 'btn-accent'"
             :disabled="studio.requestingRender || promptDirty"
             @click="requestRender"

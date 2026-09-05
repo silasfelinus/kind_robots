@@ -136,7 +136,7 @@
 
         <button
           type="button"
-          class="btn rounded-2xl"
+          class="kr-btn-md-2xl"
           :class="canRequestBw ? 'btn-secondary' : 'btn-disabled'"
           :disabled="!canRequestBw || studio.requestingAction"
           @click="requestBw(false)"

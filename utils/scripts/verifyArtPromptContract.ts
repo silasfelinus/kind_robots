@@ -1,8 +1,8 @@
 // Contract test for server/utils/artPromptContract.ts.
 //
-// Every case below is a prompt that actually rendered on 2026-08-08 and produced
-// a wrong image. This file is the regression net for that day: if a rule is
-// weakened, the exact prompt that caused the damage stops being rejected here.
+// Every failure case below is a prompt shape that actually rendered wrong art.
+// If a rule is weakened, the exact prompt class that caused the damage stops
+// being rejected here.
 import assert from 'node:assert/strict'
 import {
   checkArtPromptContract,
@@ -49,9 +49,42 @@ const BACKDROP_AS_SHIPPED =
   'of genders, races, ages, body sizes and body shapes, mixing humans, robots, ' +
   'animal-like beings and original nonhuman companions naturally and respectfully.'
 assert.ok(
-  rules({ prompt: BACKDROP_AS_SHIPPED, engine: 'krea2' })
-    .includes('conditional-instruction'),
+  rules({ prompt: BACKDROP_AS_SHIPPED, engine: 'krea2' }).includes(
+    'conditional-instruction',
+  ),
   'the "when any figures appear" casting conditional must be rejected',
+)
+
+// 2026-09-05 Facet screenshot: Krea painted the Kind Robots logo, "Facet",
+// "Surreal Horror", and garbled prompt prose directly into the illustration.
+// These are the literal v3 generator wrappers that supplied those concrete nouns.
+const FACET_AS_SHIPPED =
+  'Illustrate the Facet concept “Surreal Horror”. A dream logic nightmare where ' +
+  'ordinary reality bends into impossible dread. Build one iconic scene that ' +
+  'communicates the concept through subject, environment, action, and atmosphere.\n\n' +
+  'Create a square catalog illustration for Kind Robots Genre: Surreal Horror.\n\n' +
+  'One decisive square composition with excellent thumbnail readability.'
+const facetRules = rules({
+  prompt: FACET_AS_SHIPPED,
+  engine: 'krea2',
+  steps: 8,
+  cfg: 1,
+})
+assert.ok(
+  facetRules.includes('contextual-wrapper'),
+  'the v3 Facet app/taxonomy wrapper must be rejected',
+)
+
+// A curated custom base prompt could skip the first v2/v3 wrapper while still
+// receiving the second one from buildFacetVariantPrompt. That path must also be
+// stopped before an old pending job can render.
+assert.ok(
+  rules({
+    prompt:
+      'red moon over a drowned carnival, wet oil paint. Create this as primary square catalog artwork for Kind Robots Genre: Surreal Horror.',
+    engine: 'krea2',
+  }).includes('contextual-wrapper'),
+  'the v2 "for Kind Robots" variant wrapper must be rejected even with a custom base prompt',
 )
 
 // Scoped to a cast noun plus a presence verb, so prose about people is fine.
@@ -74,13 +107,15 @@ assert.deepEqual(
 
 // skill-ghost-ring-reading: rendered as a trading card with a rules box.
 assert.ok(
-  rules({ prompt: 'a rare-tier ability card illustration of Ghost-Ring Reading' })
-    .includes('format-vocabulary'),
+  rules({ prompt: 'a rare-tier ability card illustration of Ghost-Ring Reading' }).includes(
+    'format-vocabulary',
+  ),
   '"ability card illustration" must be rejected',
 )
 assert.ok(
-  rules({ prompt: 'subject here, 2:3 portrait card composition, lit warmly' })
-    .includes('format-vocabulary'),
+  rules({ prompt: 'subject here, 2:3 portrait card composition, lit warmly' }).includes(
+    'format-vocabulary',
+  ),
   '"card composition" must be rejected — it asks for the object, not the ratio',
 )
 
@@ -140,8 +175,9 @@ assert.deepEqual(
   'poster COMPOSITION is framing, not a request for a poster',
 )
 assert.ok(
-  rules({ prompt: 'a vintage movie poster for a lost film', engine: 'krea2' })
-    .includes('format-vocabulary'),
+  rules({ prompt: 'a vintage movie poster for a lost film', engine: 'krea2' }).includes(
+    'format-vocabulary',
+  ),
   'a movie poster as an OBJECT must still be rejected',
 )
 
@@ -159,10 +195,23 @@ assert.deepEqual(
   'at cfg 7 the negative prompt works, so exclusions are not pathological',
 )
 
+// The contextual-wrapper rule is Krea-specific. A non-Krea text/image workflow
+// may legitimately include prose instructions that its own interpreter consumes.
+assert.deepEqual(
+  rules({
+    prompt: 'Illustrate the Facet concept “Surreal Horror”.',
+    engine: 'comfy',
+    cfg: 7,
+  }),
+  [],
+  'the contextual wrapper gate must stay scoped to Krea 2',
+)
+
 // The phrase that used to be rewritten downstream into the casting block.
 assert.ok(
-  rules({ prompt: 'a ladle, cohesive Kind Robots visual style' })
-    .includes('vague-brand-style'),
+  rules({ prompt: 'a ladle, cohesive Kind Robots visual style' }).includes(
+    'vague-brand-style',
+  ),
   '"Kind Robots visual style" must be rejected',
 )
 
@@ -227,6 +276,18 @@ assert.deepEqual(
   'the repaired ladle prompt must pass — three exclusions is under the pile threshold',
 )
 
+assert.deepEqual(
+  rules({
+    prompt:
+      'Surreal Horror. dream logic nightmare in a rain-black forest, red-haired revenant and kneeling traveler, impossible perspective, wet oil paint. Iconic scene, concrete focal subject, environment, action, strong atmosphere. One decisive square composition with excellent thumbnail readability. Polished fantasy illustration. Rich controlled lighting. Crisp subject separation. Clean unmarked surfaces.',
+    engine: 'krea2',
+    steps: 8,
+    cfg: 1,
+  }),
+  [],
+  'the semantic Facet v4 prompt must pass without app/taxonomy context',
+)
+
 // A dream whose subject genuinely is a card catalog must still be renderable.
 assert.deepEqual(
   rules({
@@ -284,6 +345,6 @@ assert.doesNotThrow(
 )
 
 console.log(
-  'Art prompt contract passed: conditionals, format vocabulary, negation piles, ' +
-    'vague brand style, and distilled-engine parameters are all rejected at enqueue.',
+  'Art prompt contract passed: conditionals, format vocabulary, contextual Krea wrappers, ' +
+    'negation piles, vague brand style, and distilled-engine parameters are rejected at enqueue.',
 )

@@ -196,7 +196,7 @@
             </p>
 
             <button
-              class="btn btn-error btn-xs rounded-xl"
+              class="kr-btn-xs btn-error"
               type="button"
               @click="removeIntro(index)"
             >

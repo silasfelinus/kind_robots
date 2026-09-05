@@ -1,0 +1,130 @@
+# Entity art slot cleanup — manual, operator-dispatched only.
+#
+# Silas, 2026-09-05: "we really don't need three different images just so we
+# can show a hero view, card view, icon view. We can just have an image and
+# selectively display parts depending on what object it is."
+#
+# The 2026-09-05 Krea semantic repair enqueued ~1800 replacement renders for
+# exactly the cardPath/heroPath/iconPath slots that collapse is going to
+# retire. This workflow cancels those still-PENDING jobs so the render box
+# spends its hours on art we are keeping.
+#
+# It only ever cancels PENDING jobs. RUNNING renders finish, DONE jobs and
+# every existing ArtImage are untouched, and cancellation is reversible — the
+# ordinary producers can re-enqueue this coverage if the collapse is dropped.
+#
+# Runs here rather than from a sandbox because the DB host is a tailnet
+# address; without the Tailscale step every Prisma call fails as a 10s pool
+# timeout (`active=0 idle=0`) that looks like a dead database.
+#
+# Required repository Actions secrets (same as krea-semantic-art-repair.yml):
+#   DATABASE_URL
+#   DATABASE_SSL_CA_BASE64 or DATABASE_SSL_CA
+#   TS_OAUTH_CLIENT_ID
+#   TS_OAUTH_SECRET
+name: Entity art slot cleanup
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'dry-run reports the plan; write cancels the pending jobs'
+        type: choice
+        options:
+          - dry-run
+          - write
+        default: dry-run
+      fields:
+        description: 'Comma-separated entity art slots to clear pending jobs for'
+        type: string
+        default: 'cardPath,heroPath,iconPath'
+      include_unmarked:
+        description: 'Also cancel pending jobs for these slots that are NOT semantic-repair replacements'
+        type: boolean
+        default: false
+
+concurrency:
+  group: entity-art-slot-cleanup
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_SSL_CA_BASE64: ${{ secrets.DATABASE_SSL_CA_BASE64 }}
+      DATABASE_SSL_CA: ${{ secrets.DATABASE_SSL_CA }}
+      CLEANUP_MODE: ${{ inputs.mode }}
+      CLEANUP_FIELDS: ${{ inputs.fields }}
+      CLEANUP_INCLUDE_UNMARKED: ${{ inputs.include_unmarked }}
+    steps:
+      - name: Require secrets
+        env:
+          TS_OAUTH_CLIENT_ID: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          TS_OAUTH_SECRET: ${{ secrets.TS_OAUTH_SECRET }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::DATABASE_URL is empty. Add it as a REPOSITORY ACTIONS SECRET (Settings → Secrets and variables → Actions)."
+            exit 1
+          fi
+          if [ -z "$TS_OAUTH_CLIENT_ID" ] || [ -z "$TS_OAUTH_SECRET" ]; then
+            echo "::error::TS_OAUTH_CLIENT_ID / TS_OAUTH_SECRET are empty. The database host is a tailnet address; without them this fails as a Prisma pool timeout."
+            exit 1
+          fi
+          echo "mode=$CLEANUP_MODE fields=$CLEANUP_FIELDS include_unmarked=$CLEANUP_INCLUDE_UNMARKED"
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Cancel pending jobs for retiring slots
+        run: |
+          mkdir -p cleanup-output
+          ARGS="--fields=$CLEANUP_FIELDS"
+          if [ "$CLEANUP_MODE" = "write" ]; then ARGS="$ARGS --write"; fi
+          if [ "$CLEANUP_INCLUDE_UNMARKED" = "true" ]; then ARGS="$ARGS --include-unmarked"; fi
+          echo "Running with $ARGS"
+          npx tsx scripts/cancel_entity_art_slot_jobs.ts $ARGS \
+            2>&1 | tee cleanup-output/slot-cleanup.log
+          test "${PIPESTATUS[0]}" -eq 0
+
+      - name: Summarize
+        if: always()
+        run: |
+          {
+            echo "## Entity art slot cleanup — mode: $CLEANUP_MODE, fields: $CLEANUP_FIELDS"
+            if [ -f cleanup-output/slot-cleanup.log ]; then
+              echo
+              echo '```'
+              tail -c 6000 cleanup-output/slot-cleanup.log
+              echo '```'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload cleanup report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: entity-art-slot-cleanup-${{ inputs.mode }}-${{ github.run_id }}
+          path: cleanup-output/
+          retention-days: 90
+          if-no-files-found: ignore

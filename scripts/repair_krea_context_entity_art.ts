@@ -68,7 +68,7 @@ type Candidate = {
   priority: number
   projectSlug: string | null
   projectId: number | null
-  userId: number | null
+  userId: number
   artImageId: number | null
 }
 

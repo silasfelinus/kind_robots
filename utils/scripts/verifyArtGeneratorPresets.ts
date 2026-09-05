@@ -11,6 +11,7 @@ import {
 } from '../artGeneratorPresets'
 import {
   artLoraCompatibilityRank,
+  flux2LoraCompatibilityRank,
   krea2LoraCompatibilityRank,
 } from '../loraSelection'
 
@@ -109,6 +110,16 @@ const krea1Lora = {
   generation: 'Krea 1',
   supportedServer: 'COMFY',
 }
+const flux2Lora = {
+  id: 6,
+  generation: 'Flux.2 Klein',
+  supportedServer: 'FLUX',
+}
+const genericFlux2Lora = {
+  id: 7,
+  generation: 'Flux 2',
+  supportedServer: 'GENERIC',
+}
 
 assert.equal(krea2LoraCompatibilityRank(krea2Lora), 30)
 assert.equal(krea2LoraCompatibilityRank(genericKreaLora), 20)
@@ -118,11 +129,14 @@ assert.equal(krea2LoraCompatibilityRank(krea1Lora), 0)
 assert.equal(artLoraCompatibilityRank(fluxLora, 'krea2'), 0)
 assert.equal(artLoraCompatibilityRank(kontextLora, 'krea2'), 0)
 assert.equal(artLoraCompatibilityRank(krea2Lora, 'krea2'), 30)
-assert.equal(
-  artLoraCompatibilityRank(fluxLora, 'flux2'),
-  30,
-  'splitting Krea compatibility must not silently change the existing Flux.2 policy',
-)
+
+assert.equal(flux2LoraCompatibilityRank(fluxLora), 0)
+assert.equal(flux2LoraCompatibilityRank(kontextLora), 0)
+assert.equal(flux2LoraCompatibilityRank(flux2Lora), 30)
+assert.equal(flux2LoraCompatibilityRank(genericFlux2Lora), 10)
+assert.equal(artLoraCompatibilityRank(fluxLora, 'flux2'), 0)
+assert.equal(artLoraCompatibilityRank(kontextLora, 'flux2'), 0)
+assert.equal(artLoraCompatibilityRank(flux2Lora, 'flux2'), 30)
 
 for (const name of [
   'dreamshaperXL_v21TurboDPMSDE.safetensors',
@@ -172,8 +186,12 @@ assert.ok(
   'the enqueue resolver must enforce the same Krea family check as the picker',
 )
 assert.ok(
+  loraResolver.includes('flux2LoraCompatibilityRank(resource)'),
+  'the enqueue resolver must enforce the same Flux.2 generation check as the picker',
+)
+assert.ok(
   loraResolver.includes('generation: true'),
-  'the enqueue resolver must fetch Resource.generation before checking Krea compatibility',
+  'the enqueue resolver must fetch Resource.generation before checking model-family compatibility',
 )
 
 function laneBody(marker: string): string {
@@ -231,5 +249,5 @@ assert.ok(bench.includes('defaultsFromPreset'))
 assert.ok(!bench.includes('POLL_TIMEOUT_MS'))
 
 console.log(
-  'Art generation quality contract OK: presets are product-owned, Krea LoRAs stay in the Krea family, shared generation uses the canonical profile registry, and browser polling follows durable ArtJobs until terminal state.',
+  'Art generation quality contract OK: Krea and Flux.2 LoRAs stay in their model families, presets are product-owned, shared generation uses the canonical profile registry, and browser polling follows durable ArtJobs until terminal state.',
 )

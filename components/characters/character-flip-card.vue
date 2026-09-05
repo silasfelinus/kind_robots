@@ -228,7 +228,7 @@
               </button>
 
               <button
-                class="btn btn-primary rounded-xl text-white"
+                class="kr-btn-primary-md-white"
                 type="button"
                 :disabled="!canSendChat"
                 @click="sendCharacterChat"
@@ -285,7 +285,7 @@
               </button>
 
               <button
-                class="btn btn-primary rounded-xl text-white"
+                class="kr-btn-primary-md-white"
                 type="button"
                 :disabled="!adventurePrompt"
                 @click="copyAdventurePrompt"
@@ -327,7 +327,7 @@
               </button>
 
               <button
-                class="btn btn-primary rounded-xl text-white"
+                class="kr-btn-primary-md-white"
                 type="button"
                 :disabled="!promptText.trim()"
                 @click="copyPrompt"

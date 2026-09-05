@@ -128,7 +128,7 @@
         </div>
 
         <button
-          class="btn btn-primary rounded-xl text-white"
+          class="kr-btn-primary-md-white"
           :class="compact ? 'btn-sm' : ''"
           type="button"
           :disabled="isSubmitting || !canSubmit"

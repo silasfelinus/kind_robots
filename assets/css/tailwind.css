@@ -725,6 +725,19 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply btn btn-primary btn-xs rounded-lg;
   }
 
+  /* Seventh filled-button shape (interface-vision t-104 slice 79): closes
+   * the `text-white` near-miss `.kr-btn-primary`'s own comment (slice 51)
+   * flagged as deferred scope. DaisyUI's own default (unmodified) button
+   * size plus the same `rounded-xl` override as .kr-btn-primary-md, with an
+   * explicit `text-white` override on top — `btn btn-primary rounded-xl
+   * text-white`, previously hand-rolled in 4 files (7 occurrences, all in
+   * the identical class order). Suffixed `-md-white` (size then text-color)
+   * mirroring `.kr-btn-primary-md-2xl`'s identical two-axis naming on this
+   * same family, with `white` naming the added axis instead of a radius. */
+  .kr-btn-primary-md-white {
+    @apply btn btn-primary rounded-xl text-white;
+  }
+
   /* The most-repeated *secondary*-color button shape (interface-vision t-104
    * slice 61): the same `sm`/`rounded-xl` shape as .kr-btn-primary, filled
    * with the secondary color instead — `btn btn-secondary btn-sm rounded-xl`,

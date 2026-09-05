@@ -46,8 +46,14 @@ const LEGACY_FACET_ART_VERSIONS = new Set([
 // provenance, not curated prose. Recognize only the generator signature so a
 // human-authored artPrompt is never rewritten just because it contains words
 // such as "facet" or "illustrate" somewhere in its subject matter.
+//
+// The quoted title may itself contain straight quotes (`Carries a candle
+// everywhere "just in case."`), so a curly-quoted title runs to the closing
+// curly quote and a straight-quoted one to the closing straight quote; a
+// single character class excluding both left ten wrapper prompts unrecognized
+// and the contract then rejected them at write time (2026-09-05 repair run).
 const LEGACY_GENERATED_IDENTITY =
-  /^Illustrate the Facet concept [“"][^”"]+[”"]\.\s*/i
+  /^Illustrate the Facet concept (?:“[^”]+”|"[^"]+")\.\s*/i
 
 // Order matters. It is the same coverage fallback contract used by the UI and
 // claim-time deduper: a general image is most reusable, then card, hero, icon.
@@ -829,40 +835,44 @@ export async function main(): Promise<void> {
         }
       }
 
-      if (WRITE) {
-        // Build and validate the complete replacement job payload set BEFORE
-        // committing any mutation. buildFacetArtPayload() synchronously
-        // throws via assertArtPromptContract() on an invalid prompt, so
-        // constructing jobRows first guarantees a bad entry aborts the whole
-        // write before any legacy job is cancelled or Facet.artPrompt is
-        // rewritten. Previously this ran last, after the cancellation and
-        // prompt-update writes had already committed — if any single entry's
-        // payload failed to build, those writes were left in place with no
-        // replacement ArtJob created, silently stranding the facet
-        // (dream-cycle/t-006 pass 1 + pass 2 review finding on PR #2414).
-        const jobRows = queue.map((entry) => ({
-          engine: 'COMFY' as const,
-          userId: entry.facet.userId,
-          projectSlug: PROJECT_SLUG,
-          priority: entry.repairSourceJobId
-            ? repairPriority(entry.profile)
-            : priorityFor(entry.profile),
-          payload: JSON.stringify(
-            buildFacetArtPayload(
-              entry.facet,
-              entry.profile,
-              entry.identityPrompt,
-              entry.variant,
-              entry.repairSourceJobId && entry.repairSourceVersion
-                ? {
-                    sourceJobId: entry.repairSourceJobId,
-                    sourceVersion: entry.repairSourceVersion,
-                  }
-                : undefined,
-            ),
+      // Build and validate the complete replacement job payload set BEFORE
+      // committing any mutation. buildFacetArtPayload() synchronously
+      // throws via assertArtPromptContract() on an invalid prompt, so
+      // constructing jobRows first guarantees a bad entry aborts the whole
+      // write before any legacy job is cancelled or Facet.artPrompt is
+      // rewritten. Previously this ran last, after the cancellation and
+      // prompt-update writes had already committed — if any single entry's
+      // payload failed to build, those writes were left in place with no
+      // replacement ArtJob created, silently stranding the facet
+      // (dream-cycle/t-006 pass 1 + pass 2 review finding on PR #2414).
+      //
+      // Built in dry-run mode too, so a dry run exercises the same prompt
+      // contract as the write and reports a rejected prompt instead of
+      // passing a plan the write then refuses.
+      const jobRows = queue.map((entry) => ({
+        engine: 'COMFY' as const,
+        userId: entry.facet.userId,
+        projectSlug: PROJECT_SLUG,
+        priority: entry.repairSourceJobId
+          ? repairPriority(entry.profile)
+          : priorityFor(entry.profile),
+        payload: JSON.stringify(
+          buildFacetArtPayload(
+            entry.facet,
+            entry.profile,
+            entry.identityPrompt,
+            entry.variant,
+            entry.repairSourceJobId && entry.repairSourceVersion
+              ? {
+                  sourceJobId: entry.repairSourceJobId,
+                  sourceVersion: entry.repairSourceVersion,
+                }
+              : undefined,
           ),
-        }))
+        ),
+      }))
 
+      if (WRITE) {
         if (REPAIR_TAINTED && legacyPendingIds.length) {
           await prisma.artJob.updateMany({
             where: {

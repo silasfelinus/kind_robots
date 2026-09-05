@@ -67,7 +67,7 @@
         />
         <div class="flex gap-2">
           <button
-            class="btn btn-primary"
+            class="kr-btn-primary-md-plain"
             :disabled="posting"
             @click="postThread(channel.slug)"
           >

@@ -8,7 +8,8 @@ const cleanupPath = path.join(
   root,
   'utils/scripts/cleanupRetiredFacetShells.ts',
 )
-const artPath = path.join(root, 'scripts/generate_facet_art.ts')
+const artPath = path.join(root, 'scripts/generate_facet_art_v4.ts')
+const legacyArtPath = path.join(root, 'scripts/generate_facet_art.ts')
 const runnerPath = path.join(root, 'scripts/run_facet_catalog_maintenance.ts')
 const publishWorkflowPath = path.join(
   root,
@@ -25,6 +26,7 @@ const queueClaimPath = path.join(root, 'server/api/art/queue/claim.post.ts')
 
 const cleanup = fs.readFileSync(cleanupPath, 'utf8')
 const art = fs.readFileSync(artPath, 'utf8')
+const legacyArt = fs.readFileSync(legacyArtPath, 'utf8')
 const runner = fs.readFileSync(runnerPath, 'utf8')
 const publishWorkflow = fs.readFileSync(publishWorkflowPath, 'utf8')
 const schema = fs.readFileSync(schemaPath, 'utf8')
@@ -91,8 +93,11 @@ for (const required of [
   'width: 1280',
   'height: 720',
   "const PROJECT_SLUG = 'facet-catalog'",
-  "const FACET_ART_VERSION = 'facet-coverage-krea2-v3'",
+  "const FACET_ART_VERSION = 'facet-coverage-krea2-v4'",
+  "'facet-multi-art-krea2-v2'",
+  "'facet-coverage-krea2-v3'",
   "const ALL_VARIANTS = process.argv.includes('--all-variants')",
+  "const REPAIR_TAINTED = process.argv.includes('--repair-tainted')",
   "const NEGATIVE_PROMPT = ''",
   'assertArtPromptContract',
   "engine: 'krea2'",
@@ -102,13 +107,27 @@ for (const required of [
   'requireCompletionProof: true',
   'facets: [facetSnapshot',
   'priorityFor',
+  'repairPriority',
   'artPrompt: entry.identityPrompt',
   "coverageMode: ALL_VARIANTS ? 'all-variants' : 'baseline'",
   'payload: { contains: \'"entityType":"facet"\' }',
   'variant: ART_VARIANTS[0]',
+  'isLegacyGeneratedFacetPrompt',
+  'legacyPendingIds',
+  "status: 'CANCELLED'",
+  "reason: 'facet-krea-context-prompt-repair-v4'",
+  "repairReason: 'krea-context-prompt-text'",
+  "mode: 'NEW_OUTPUT'",
 ]) {
   assert.ok(art.includes(required), `Missing Facet art contract: ${required}`)
 }
+
+assert.ok(
+  legacyArt.includes("from './generate_facet_art_v4'") &&
+    legacyArt.includes("export * from './generate_facet_art_v4'") &&
+    legacyArt.includes('main().catch'),
+  'The stable generate_facet_art.ts entrypoint must delegate to the audited v4 producer.',
+)
 
 const producerImagePathOrder = art.indexOf("field: 'imagePath'")
 const producerCardPathOrder = art.indexOf("field: 'cardPath'")
@@ -129,7 +148,7 @@ for (const required of [
   'variant: ART_VARIANTS[0]',
   'Explicit enhancement mode',
   "ALL_VARIANTS ? 'all-variants' : 'baseline'",
-  'Reuse any PENDING or RUNNING Facet ArtJob regardless of artwork-version marker',
+  'Reuse ANY active Facet ArtJob during ordinary coverage',
 ]) {
   assert.ok(
     art.includes(required),
@@ -141,10 +160,27 @@ for (const forbidden of [
   'portrait card artwork',
   'room for card chrome',
   'icon logo artwork',
+  '`Illustrate the Facet concept “${facet.title}”.`',
+  'for Kind Robots ${label}',
+  'Scientific identity: ${scientificName}',
+  'Catalog category: ${category}',
 ]) {
   assert.ok(
     !art.includes(forbidden),
-    `Facet prompt vocabulary must not contain legacy format language: ${forbidden}`,
+    `Facet prompt vocabulary must not contain legacy contextual/format language: ${forbidden}`,
+  )
+}
+
+for (const required of [
+  'Krea 2 is intentionally treated as a caption-conditioned image model here',
+  '`${facet.title}.`',
+  'taxonomyVisualLanguage',
+  'Polished fantasy illustration.',
+  'Clean unmarked surfaces.',
+]) {
+  assert.ok(
+    art.includes(required),
+    `Facet v4 must preserve semantic image-only prompting: ${required}`,
   )
 }
 
@@ -260,6 +296,10 @@ for (const required of [
   "script: 'utils/scripts/cleanupRetiredFacetShells.ts'",
   "script: 'utils/scripts/auditFacetCatalogOddities.ts'",
   "script: 'scripts/generate_facet_art.ts'",
+  "const artOnly = process.argv.includes('--art-only')",
+  "const repairTainted = process.argv.includes('--repair-tainted')",
+  "args: ['--write', ...(repairTainted ? ['--repair-tainted'] : [])]",
+  'const steps: Step[] = artOnly ? [artStep] : fullMaintenanceSteps',
 ]) {
   assert.ok(
     runner.includes(required),
@@ -280,7 +320,8 @@ const seedHook = "script: 'utils/scripts/runFacetCatalogSeed.ts'"
 const directivesHook = "script: 'utils/scripts/applyFacetCatalogDirectives.ts'"
 const cleanupHook = "script: 'utils/scripts/cleanupRetiredFacetShells.ts'"
 const auditHook = "script: 'utils/scripts/auditFacetCatalogOddities.ts'"
-const artHook = "script: 'scripts/generate_facet_art.ts'"
+const fullMaintenanceStart = runner.indexOf('const fullMaintenanceSteps')
+const artStepReference = runner.indexOf('\n  artStep,\n', fullMaintenanceStart)
 
 assert.ok(
   runner.indexOf(seedHook) < runner.indexOf(directivesHook),
@@ -295,8 +336,8 @@ assert.ok(
   'Retired shell cleanup must finish before the whole-catalog audit.',
 )
 assert.ok(
-  runner.indexOf(auditHook) < runner.indexOf(artHook),
-  'The whole-catalog audit must run before Facet artwork is queued.',
+  artStepReference >= 0 && runner.indexOf(auditHook) < artStepReference,
+  'The whole-catalog audit must run before Facet artwork is queued in full maintenance mode.',
 )
 
 assert.ok(
@@ -318,4 +359,6 @@ assert.ok(
   'An out-of-band Facet catalog maintenance workflow must exist because production image publication does not own maintenance.',
 )
 
-console.log('Facet catalog maintenance and artwork queue contract verified.')
+console.log(
+  'Facet catalog maintenance, semantic Krea prompting, and repair queue contract verified.',
+)

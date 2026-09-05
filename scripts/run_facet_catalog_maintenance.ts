@@ -4,6 +4,11 @@
 // MariaDB named lock. Serverless production deployments can overlap, but canonical
 // seeding, merge cleanup, taxonomy curation, and ArtJob creation must behave as
 // one ordered catalog operation rather than several interleaved writers.
+//
+// --art-only keeps the same production lock while running only the Facet artwork
+// producer. It exists for scoped queue repairs that should not opportunistically
+// rerun unrelated catalog curation. --repair-tainted is passed through only to
+// that art step.
 
 import 'dotenv/config'
 import { spawn } from 'node:child_process'
@@ -25,6 +30,8 @@ const LOCK_PING_INTERVAL_MS = 20_000
 const binExtension = process.platform === 'win32' ? '.cmd' : ''
 const tsxBinary = path.resolve(`node_modules/.bin/tsx${binExtension}`)
 const runCanonicalSeed = process.argv.includes('--seed')
+const artOnly = process.argv.includes('--art-only')
+const repairTainted = process.argv.includes('--repair-tainted')
 const reasonArgument = process.argv.find((argument) =>
   argument.startsWith('--reason='),
 )
@@ -37,7 +44,15 @@ type Step = {
   label: string
 }
 
-const steps: Step[] = [
+const artStep: Step = {
+  script: 'scripts/generate_facet_art.ts',
+  args: ['--write', ...(repairTainted ? ['--repair-tainted'] : [])],
+  label: repairTainted
+    ? 'Repairing tainted Facet artwork with semantic Krea prompts'
+    : 'Queueing missing primary Facet artwork after the full catalog audit',
+}
+
+const fullMaintenanceSteps: Step[] = [
   ...(runCanonicalSeed
     ? [
         {
@@ -103,13 +118,10 @@ const steps: Step[] = [
     args: ['--top=60'],
     label: 'Auditing the complete Facet catalog for remaining oddities',
   },
-  {
-    script: 'scripts/generate_facet_art.ts',
-    args: ['--write'],
-    label:
-      'Queueing missing primary Facet artwork after the full catalog audit',
-  },
+  artStep,
 ]
+
+const steps: Step[] = artOnly ? [artStep] : fullMaintenanceSteps
 
 async function runStep(step: Step, abortSignal: AbortSignal): Promise<void> {
   throwIfFacetMaintenanceAborted(abortSignal)
@@ -270,7 +282,11 @@ async function main(): Promise<void> {
         })
     }, LOCK_PING_INTERVAL_MS)
 
-    if (!runCanonicalSeed) {
+    if (artOnly) {
+      console.log(
+        `[facet-maintenance] Art-only mode: skipping catalog seed/curation and running the serialized artwork step${repairTainted ? ' with tainted-output repair' : ''}.`,
+      )
+    } else if (!runCanonicalSeed) {
       console.log(
         `[facet-maintenance] Skipping unchanged canonical seed: ${seedReason}`,
       )

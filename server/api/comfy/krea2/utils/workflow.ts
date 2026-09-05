@@ -6,6 +6,12 @@
 // Qwen-Image VAE, plain KSampler (no FluxGuidance). Negatives are inert at
 // cfg 1 but correctly wired.
 //
+// Krea is caption-conditioned rather than instruction-following. Every caller
+// reaches the semantic prompt scrubber here, including direct ArtJob producers,
+// so application/entity labels and prompt-writing instructions cannot leak into
+// the positive conditioning even when an upstream surface still carries them as
+// request metadata.
+//
 // VERIFY the three filenames against the ComfyUI models folders you download
 // into; GGUF users flip KREA2_UNET_LOADER to 'UnetLoaderGGUF' and point
 // KREA2_MODEL at the .gguf (lighter on 12GB VRAM).
@@ -14,6 +20,10 @@ import {
   type ComfyWorkflow,
 } from '../../utils/simpleCheckpointWorkflow'
 import type { LoraSelectionInput } from '../../utils/loraChain'
+import {
+  buildKreaSemanticPrompt,
+  rewriteKreaWorkflowPositivePrompt,
+} from '../../../../../utils/kreaSemanticPrompt'
 
 export const KREA2_UNET_LOADER: 'UNETLoader' | 'UnetLoaderGGUF' =
   'UnetLoaderGGUF'
@@ -43,8 +53,10 @@ export function buildKrea2WorkflowFromRequest(input: {
   loraStrength?: number | null
   loras?: LoraSelectionInput[] | null
 }): { workflow: ComfyWorkflow; seed: number } {
-  return buildSimpleCheckpointWorkflow({
-    prompt: input.prompt?.trim() || '',
+  const requestPrompt = input.prompt?.trim() || ''
+  const semanticPrompt = buildKreaSemanticPrompt(requestPrompt)
+  const built = buildSimpleCheckpointWorkflow({
+    prompt: semanticPrompt,
     negativePrompt: input.negativePrompt ?? '',
     width: input.width ?? KREA2_DEFAULT_WIDTH,
     height: input.height ?? KREA2_DEFAULT_HEIGHT,
@@ -64,4 +76,15 @@ export function buildKrea2WorkflowFromRequest(input: {
     loraStrength: input.loraStrength ?? null,
     loras: input.loras ?? null,
   })
+
+  // Preserve the caller's raw request only as Comfy `_meta` provenance. The
+  // positive CLIP node continues to receive semanticPrompt. This keeps legacy
+  // ArtJob provenance checks able to reconcile the request without ever feeding
+  // the contextual wording to Krea.
+  const rewritten = rewriteKreaWorkflowPositivePrompt(
+    built.workflow,
+    requestPrompt || semanticPrompt,
+  )
+
+  return { workflow: rewritten.workflow, seed: built.seed }
 }

@@ -4,10 +4,11 @@
 // boundary so it binds every producer — Conductor scripts, the art workbench,
 // narrative beats, backfill jobs — without each having to remember the rules.
 //
-// Every rule here is a bug that actually shipped on 2026-08-08 and rendered.
-// The full sequence, because the pattern matters more than any single rule:
-// the Reward `item-tidefortune-ladle` came back as a picture of fifteen
-// strangers and no ladle, and each fix uncovered the next cause underneath.
+// Every rule here is a bug that actually shipped and rendered. The first group
+// came from the 2026-08-08 art sweep; contextual-wrapper was added after a
+// 2026-09-05 Facet screenshot showed Krea faithfully painting the app/taxonomy
+// wrapper itself (Kind Robots logo, "Facet", the Facet title, and prompt prose).
+// The pattern matters more than any single wording:
 //
 //   1. A CONDITIONAL instruction. Prompts carried "cast characters naturally
 //      across many species...; include robots only when the subject or scene
@@ -29,9 +30,16 @@
 //      budget; jobs ran at cfg 7 / 20 steps because the queue builder resolved
 //      steps per-engine but hardcoded a single generic cfg.
 //
+//   5. CONTEXTUAL WRAPPERS. "Illustrate the Facet concept ..." followed by
+//      "Create ... for Kind Robots ..." is useful instruction text for a chat
+//      model and harmful conditioning for Krea. Krea does not need to know what
+//      database entity or application surface an image belongs to. It needs the
+//      concrete visual words: subject, scene, medium, composition, lighting,
+//      texture. The app words became literal logo/title copy in production.
+//
 // Cost of catching these in CI or review: nothing. Cost of not catching them:
-// roughly 150 wasted renders and a day of the owner's attention, discovered
-// from a screenshot rather than a test.
+// wasted renders and owner attention, discovered from screenshots rather than
+// tests.
 //
 // Violations are hard errors, not warnings. A warning on a background pipeline
 // is a log line nobody reads; the whole failure mode here was bad art rendering
@@ -121,6 +129,17 @@ const FORMAT_PATTERNS: Array<{ pattern: RegExp; rule: string }> = [
 // rewritten downstream into a block that carried the casting instruction.
 const VAGUE_BRAND_STYLE =
   /\b(?:(?:rich|cohesive|friendly)\s+)?Kind Robots\s+(?:visual\s+)?(?:style|language)\b/i
+
+// These are deliberately the *known shipped generator wrappers*, not a blanket
+// ban on verbs such as "create" or legitimate scene text containing "Kind
+// Robots". The v2/v3 Facet producer attached application context to every Krea
+// prompt. In the 2026-09-05 failure Krea rendered those nouns as actual UI/logo
+// copy. A caption-conditioned image model should not receive database/app
+// instructions in its positive conditioning.
+const CONTEXTUAL_WRAPPER_PATTERNS = [
+  /\bIllustrate the Facet concept\b/i,
+  /\bCreate (?:this as|a) [^.\n]{0,160}\bfor Kind Robots\b/i,
+]
 
 // The damage was specific: FIVE text-related nouns ("no readable text, no
 // lettering, no logos, no watermark, no signature") in the POSITIVE prompt of a
@@ -230,6 +249,20 @@ export function checkArtPromptContract(
   }
 
   const engineName = String(input.engine || '').trim().toLowerCase()
+  if (engineName === 'krea2') {
+    for (const pattern of CONTEXTUAL_WRAPPER_PATTERNS) {
+      const match = prompt.match(pattern)
+      if (!match) continue
+      violations.push({
+        rule: 'contextual-wrapper',
+        detail:
+          `"${match[0]}" is application/prompt-writing context, not image content. ` +
+          'Krea is caption-conditioned: give it the visual subject, scene, medium, ' +
+          'composition, lighting, and texture without entity/app instructions.',
+      })
+    }
+  }
+
   const textNos = textExclusions(prompt)
   if (
     textNos.length > MAX_TEXT_EXCLUSIONS &&

@@ -12,7 +12,7 @@
       <button
         v-if="showRefresh"
         type="button"
-        class="btn btn-xs btn-outline rounded-xl"
+        class="kr-btn-xs btn-outline"
         :disabled="isLoading"
         @click="refreshList"
       >

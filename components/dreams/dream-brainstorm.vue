@@ -76,7 +76,7 @@
             </div>
             <button
               type="button"
-              class="btn btn-xs btn-outline rounded-xl"
+              class="kr-btn-xs btn-outline"
               :disabled="dreamStore.loading"
               @click="refreshDreams"
             >
@@ -273,7 +273,7 @@
                   <div class="flex gap-1">
                     <button
                       type="button"
-                      class="btn btn-primary btn-xs rounded-xl"
+                      class="kr-btn-xs btn-primary"
                       :disabled="candidate.status === 'accepted'"
                       @click="acceptCandidate(candidate.id)"
                     >
@@ -281,7 +281,7 @@
                     </button>
                     <button
                       type="button"
-                      class="btn btn-error btn-outline btn-xs rounded-xl"
+                      class="kr-btn-xs btn-error btn-outline"
                       :disabled="candidate.status === 'rejected'"
                       @click="rejectCandidate(candidate.id)"
                     >
@@ -329,7 +329,7 @@
                   </button>
                   <button
                     type="button"
-                    class="btn btn-secondary btn-xs rounded-xl"
+                    class="kr-btn-xs btn-secondary"
                     @click="copyCandidateToExamples(candidate)"
                   >
                     Add Example
@@ -479,7 +479,7 @@
               />
               <button
                 type="button"
-                class="btn btn-square btn-ghost btn-xs rounded-xl text-error"
+                class="kr-btn-xs btn-square btn-ghost text-error"
                 @click="removeExample(index)"
               >
                 <Icon name="kind-icon:x" class="h-3 w-3" />

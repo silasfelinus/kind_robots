@@ -997,6 +997,9 @@ jobs:
       - name: Narrator Dream-switch seed reset contract
         run: npm run test:narrator-dream-switch-seed-reset-guard
 
+      - name: Narrator send-message Dream-switch contract
+        run: npm run test:narrator-send-message-dream-switch-guard
+
       - name: Fetch main for capture-group guard diff
         run: git fetch origin main
 

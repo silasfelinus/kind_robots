@@ -197,6 +197,11 @@ export const useNarratorStore = defineStore('narratorStore', () => {
   let bubbleTimer: ReturnType<typeof setTimeout> | null = null
   let livenessTimer: ReturnType<typeof setTimeout> | null = null
   let livenessPausedUntil = 0
+  // Bumped every time the active Dream changes (see the activeDream.value?.id
+  // watch below). sendNarratorMessage() captures this before its first await
+  // and re-checks it after each one, so a send that outlives a Dream switch
+  // can't resurrect its chat under the new Dream's narratorSessionIds.
+  let narratorSessionEpoch = 0
   let tabHidden = false
 
   const isDreamWorkspace = computed(() => {
@@ -445,6 +450,7 @@ export const useNarratorStore = defineStore('narratorStore', () => {
   watch(
     () => activeDream.value?.id,
     async () => {
+      narratorSessionEpoch++
       narratorSessionIds.value = []
       narratorMessage.value = ''
       statusMessage.value = ''
@@ -1344,6 +1350,12 @@ export const useNarratorStore = defineStore('narratorStore', () => {
 
     if (!bot || !content || isNarratorResponding.value) return
 
+    // Captured before the first await: if the user switches Dreams while
+    // addChat()/streamResponse() are in flight, the watch above bumps this
+    // and every guard below turns the now-abandoned send into a silent
+    // no-op instead of pushing its chat id into the new Dream's session.
+    const requestEpoch = narratorSessionEpoch
+
     statusMessage.value = ''
     promptStore.currentPrompt = content
     setEmotion('CHEERING', false)
@@ -1371,6 +1383,8 @@ export const useNarratorStore = defineStore('narratorStore', () => {
         throw new Error('Failed to create Narrator message.')
       }
 
+      if (requestEpoch !== narratorSessionEpoch) return
+
       narratorSessionIds.value.push(newChat.id)
       narratorMessage.value = ''
 
@@ -1385,8 +1399,12 @@ export const useNarratorStore = defineStore('narratorStore', () => {
         stream: true,
       })
 
+      if (requestEpoch !== narratorSessionEpoch) return
+
       setEmotion('JOYFUL')
     } catch (error) {
+      if (requestEpoch !== narratorSessionEpoch) return
+
       setEmotion('THINKING')
       setStatus(
         error instanceof Error

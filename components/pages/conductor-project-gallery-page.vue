@@ -161,7 +161,7 @@
             <button
               v-for="option in filters"
               :key="option.value"
-              class="btn btn-xs gap-1 rounded-xl"
+              class="kr-btn-xs gap-1"
               :class="filter === option.value ? 'btn-primary' : 'btn-ghost'"
               :aria-pressed="filter === option.value"
               @click="filter = option.value"
@@ -173,7 +173,7 @@
 
             <button
               v-if="syncIssueCount"
-              class="btn btn-xs gap-1 rounded-xl"
+              class="kr-btn-xs gap-1"
               :class="showSync ? 'btn-warning' : 'btn-ghost'"
               :aria-pressed="showSync"
               @click="showSync = !showSync"
@@ -185,7 +185,7 @@
 
             <button
               v-if="blockedTasks.length"
-              class="btn btn-xs gap-1 rounded-xl"
+              class="kr-btn-xs gap-1"
               :class="showBlocked ? 'btn-error' : 'btn-ghost'"
               :aria-pressed="showBlocked"
               @click="showBlocked = !showBlocked"
@@ -196,7 +196,7 @@
             </button>
 
             <button
-              class="btn btn-xs gap-1 rounded-xl"
+              class="kr-btn-xs gap-1"
               :class="createOpen ? 'btn-primary' : 'btn-ghost'"
               :aria-expanded="createOpen"
               @click="createOpen = !createOpen"

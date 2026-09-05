@@ -320,9 +320,8 @@ const seedHook = "script: 'utils/scripts/runFacetCatalogSeed.ts'"
 const directivesHook = "script: 'utils/scripts/applyFacetCatalogDirectives.ts'"
 const cleanupHook = "script: 'utils/scripts/cleanupRetiredFacetShells.ts'"
 const auditHook = "script: 'utils/scripts/auditFacetCatalogOddities.ts'"
-const artHook = "script: 'scripts/generate_facet_art.ts'"
 const fullMaintenanceStart = runner.indexOf('const fullMaintenanceSteps')
-const artHookInFullMaintenance = runner.indexOf(artHook, fullMaintenanceStart)
+const artStepReference = runner.indexOf('\n  artStep,\n', fullMaintenanceStart)
 
 assert.ok(
   runner.indexOf(seedHook) < runner.indexOf(directivesHook),
@@ -337,8 +336,7 @@ assert.ok(
   'Retired shell cleanup must finish before the whole-catalog audit.',
 )
 assert.ok(
-  artHookInFullMaintenance >= 0 &&
-    runner.indexOf(auditHook) < artHookInFullMaintenance,
+  artStepReference >= 0 && runner.indexOf(auditHook) < artStepReference,
   'The whole-catalog audit must run before Facet artwork is queued in full maintenance mode.',
 )
 

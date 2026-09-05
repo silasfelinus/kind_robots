@@ -106,6 +106,22 @@ function normalize(value: unknown): string {
     .trim()
 }
 
+// Whitespace-only normalization, byte-for-byte what
+// server/utils/artJobProvenance.ts#normalizeArtPrompt applies to the
+// top-level promptString. The `_meta.request_prompt` provenance copy must
+// use THIS, not normalize(): provenance reconciles the request by exact
+// string equality against the workflow's text candidates, so folding curly
+// quotes to straight ones there made every request containing ’ “ ” fail
+// enqueue with "workflow prompt does not match the top-level promptString"
+// (22 Facet titles such as "Pallas’s Cat" and "Can’t resist counting things
+// aloud." hit it in the 2026-09-05 repair run; any user-typed smart quote
+// hit it through /api/art/enqueue).
+function normalizeWhitespace(value: unknown): string {
+  return String(value || '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 function cleanFragment(value: string): string {
   let text = normalize(value)
   if (!text) return ''
@@ -261,7 +277,7 @@ export function rewriteKreaWorkflowPositivePrompt<T>(
   const workflow = structuredClone(workflowValue) as T
   const root = asRecord(workflow)
   const semanticPrompt = buildKreaSemanticPrompt(requestPrompt)
-  const rawPrompt = normalize(requestPrompt)
+  const rawPrompt = normalizeWhitespace(requestPrompt)
   let rewrittenNodes = 0
   let provenanceAttached = false
 

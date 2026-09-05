@@ -173,6 +173,23 @@ assert.equal(
   'raw request stays available only as non-conditioning provenance metadata',
 )
 
+// Provenance is reconciled by exact string equality against the top-level
+// promptString, which server/utils/artJobProvenance.ts normalizes for
+// whitespace only. The `_meta.request_prompt` copy must therefore keep curly
+// quotes verbatim; folding them to straight quotes made every request
+// containing ’ “ ” fail enqueue (2026-09-05 Facet repair run).
+const curlyRequest = 'Pallas’s Cat, “the last lamp”  at dawn'
+const curlyRewritten = rewriteKreaWorkflowPositivePrompt(
+  rawWorkflow,
+  curlyRequest,
+)
+assert.equal(
+  (curlyRewritten.workflow['1']._meta as { request_prompt?: string })
+    .request_prompt,
+  'Pallas’s Cat, “the last lamp” at dawn',
+  'raw request provenance must preserve curly quotes and normalize whitespace only',
+)
+
 // Scoped to a cast noun plus a presence verb, so prose about people is fine.
 assert.deepEqual(
   rules({

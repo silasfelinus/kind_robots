@@ -216,7 +216,7 @@
                   v-for="prompt in promptModes"
                   :key="prompt.value"
                   type="button"
-                  class="btn btn-xs join-item"
+                  class="kr-btn-join-xs"
                   :class="studyPromptMode === prompt.value ? 'btn-secondary' : 'btn-ghost'"
                   :title="prompt.title"
                   @click="studyPromptMode = prompt.value"

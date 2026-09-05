@@ -14,7 +14,7 @@
         <div class="join" aria-label="LoRA browser size">
           <button
             type="button"
-            class="btn btn-xs join-item"
+            class="kr-btn-join-xs"
             :class="browserSize === 'comfortable' ? 'btn-accent' : 'btn-ghost'"
             @click="browserSize = 'comfortable'"
           >
@@ -22,7 +22,7 @@
           </button>
           <button
             type="button"
-            class="btn btn-xs join-item"
+            class="kr-btn-join-xs"
             :class="browserSize === 'expanded' ? 'btn-accent' : 'btn-ghost'"
             @click="browserSize = 'expanded'"
           >

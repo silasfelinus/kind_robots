@@ -747,6 +747,17 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply btn btn-sm join-item;
   }
 
+  /* The `xs`-size counterpart to .kr-btn-join-sm (interface-vision t-104
+   * slice 74): the same bare (no color modifier, no ghost) join-group shape,
+   * one size down — `btn btn-xs join-item`, previously hand-rolled in 3
+   * files (5 occurrences, split across two class-order variants: `btn
+   * btn-xs join-item` and `btn join-item btn-xs`). Named `.kr-btn-join-xs`
+   * (shape-size) mirroring `.kr-btn-join-sm`'s naming on the `sm` branch of
+   * the same shape axis. */
+  .kr-btn-join-xs {
+    @apply btn btn-xs join-item;
+  }
+
   /* The most-repeated *icon* button shape in the app (interface-vision t-104
    * slice 64): a small circular ghost button used for close/dismiss/icon-only
    * controls — `btn btn-ghost btn-xs btn-circle`, previously hand-rolled in

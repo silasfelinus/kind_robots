@@ -213,7 +213,7 @@
 
             <button
               type="button"
-              class="btn btn-xs btn-secondary rounded-xl"
+              class="kr-btn-xs btn-secondary"
               @click="addAccount"
             >
               <Icon name="kind-icon:plus" class="h-3.5 w-3.5" />
@@ -224,7 +224,7 @@
           <NuxtLink
             v-else
             to="/login"
-            class="btn btn-primary btn-xs w-full justify-center gap-1.5 rounded-xl"
+            class="kr-btn-xs btn-primary w-full justify-center gap-1.5"
             @click="store.close"
           >
             <Icon name="kind-icon:login" class="h-3.5 w-3.5 shrink-0" />

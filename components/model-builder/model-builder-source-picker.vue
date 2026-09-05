@@ -88,7 +88,7 @@
         {{ store.sourcesError }}
         <button
           type="button"
-          class="btn btn-xs btn-ghost mt-1 rounded-xl"
+          class="kr-btn-xs btn-ghost mt-1"
           @click="store.loadSources()"
         >
           Retry

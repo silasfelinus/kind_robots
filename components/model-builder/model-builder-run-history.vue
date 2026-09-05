@@ -21,7 +21,7 @@
         </button>
         <button
           type="button"
-          class="btn btn-xs btn-primary rounded-xl"
+          class="kr-btn-xs btn-primary"
           :disabled="Boolean(cancellingRunId)"
           @click="startNew"
         >

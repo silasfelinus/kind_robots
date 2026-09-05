@@ -15,7 +15,7 @@
       </div>
       <button
         type="button"
-        class="btn btn-xs btn-ghost shrink-0 rounded-xl text-base-content/60"
+        class="kr-btn-xs btn-ghost shrink-0 text-base-content/60"
         :disabled="store.startingRun"
         @click="store.goToStep('source')"
       >

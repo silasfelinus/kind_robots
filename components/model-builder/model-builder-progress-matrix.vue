@@ -23,7 +23,7 @@
       <div class="flex shrink-0 items-center gap-1">
         <button
           type="button"
-          class="btn btn-xs btn-primary rounded-xl"
+          class="kr-btn-xs btn-primary"
           :disabled="autoBuildAllDisabled"
           :title="autoBuildAllTitle"
           :aria-busy="store.autoBuilding"

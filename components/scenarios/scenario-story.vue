@@ -186,7 +186,7 @@
 
       <div class="mt-2 flex items-center justify-between gap-2 px-1">
         <button
-          class="btn btn-ghost btn-xs rounded-xl text-smart-caption"
+          class="kr-btn-xs btn-ghost text-smart-caption"
           type="button"
           :disabled="!storyStore.storyPromptPreview"
           @click="copyPrompt"
@@ -292,7 +292,7 @@
             </div>
 
             <button
-              class="btn btn-ghost btn-xs shrink-0 rounded-xl text-smart-caption"
+              class="kr-btn-xs btn-ghost shrink-0 text-smart-caption"
               type="button"
               :disabled="storyStore.isBusy"
               @click="storyStore.setCustomDirection('')"

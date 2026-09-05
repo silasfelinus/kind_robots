@@ -264,7 +264,7 @@
             </button>
 
             <button
-              class="btn btn-ghost btn-xs ml-auto rounded-xl"
+              class="kr-btn-xs btn-ghost ml-auto"
               type="button"
               :disabled="isBatchWorking"
               @click="toggleBulkSelect"
@@ -292,7 +292,7 @@
             </select>
 
             <button
-              class="btn btn-secondary btn-xs rounded-xl"
+              class="kr-btn-xs btn-secondary"
               type="button"
               :disabled="
                 isBatchWorking ||
@@ -306,7 +306,7 @@
             </button>
 
             <button
-              class="btn btn-warning btn-xs rounded-xl"
+              class="kr-btn-xs btn-warning"
               type="button"
               :disabled="
                 isBatchWorking ||
@@ -321,7 +321,7 @@
 
             <button
               v-if="activeGroup && activeGroup.id > 0"
-              class="btn btn-warning btn-xs rounded-xl"
+              class="kr-btn-xs btn-warning"
               type="button"
               :disabled="isBatchWorking || !selectedImageCount"
               @click="removeSelectedFromActiveCollection"
@@ -353,7 +353,7 @@
             </select>
 
             <button
-              class="btn btn-info btn-xs rounded-xl"
+              class="kr-btn-xs btn-info"
               type="button"
               :disabled="isBatchWorking || !canBatchModifyImages"
               @click="applySelectedImageFlags"
@@ -363,7 +363,7 @@
             </button>
 
             <button
-              class="btn btn-error btn-xs rounded-xl"
+              class="kr-btn-xs btn-error"
               type="button"
               :disabled="isBatchWorking || !canBatchModifyImages"
               @click="deleteSelectedImages"

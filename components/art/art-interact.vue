@@ -17,7 +17,7 @@
 
       <div class="flex shrink-0 flex-wrap gap-2">
         <button
-          class="btn btn-xs btn-outline rounded-xl sm:btn-sm"
+          class="kr-btn-xs btn-outline sm:btn-sm"
           type="button"
           @click="navStore.setDashboardTab('art', 'gallery')"
         >
@@ -37,7 +37,7 @@
 
         <button
           v-if="userStore.isLoggedIn"
-          class="btn btn-xs rounded-xl sm:btn-sm"
+          class="kr-btn-xs sm:btn-sm"
           :class="
             isCurrentAvatar ? 'btn-success text-success-content' : 'btn-outline'
           "
@@ -59,7 +59,7 @@
         </button>
 
         <button
-          class="btn btn-xs btn-primary rounded-xl text-white sm:btn-sm"
+          class="kr-btn-xs btn-primary text-white sm:btn-sm"
           type="button"
           :disabled="!currentArtImage"
           @click="startRemix"
@@ -83,7 +83,7 @@
 
           <button
             v-else
-            class="btn btn-xs btn-error rounded-xl text-error-content sm:btn-sm"
+            class="kr-btn-xs btn-error text-error-content sm:btn-sm"
             type="button"
             :disabled="isDeleting"
             @click="confirmDelete"

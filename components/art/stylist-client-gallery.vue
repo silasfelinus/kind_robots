@@ -15,7 +15,7 @@
 
       <button
         type="button"
-        class="btn btn-xs gap-1 rounded-xl"
+        class="kr-btn-xs gap-1"
         :class="uploadOpen ? 'btn-primary' : 'btn-ghost'"
         :aria-expanded="uploadOpen"
         @click="uploadOpen = !uploadOpen"

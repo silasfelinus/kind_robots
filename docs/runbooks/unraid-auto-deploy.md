@@ -10,6 +10,7 @@ The production path is therefore host-driven:
 4. Pending Prisma migrations from that image run through the isolated `kindrobot_migrate` credential.
 5. Only after migrations succeed does Unraid's own DockerMan updater recreate `KindRobots` from its saved template.
 6. The script waits for the container health check before reporting success.
+7. After a healthy handoff, the deployer removes dangling Docker images carrying Kind Robots' `org.opencontainers.image.source` label. It does not run a host-wide image prune or touch other projects' images.
 
 If migration fails, the container update is not attempted. The long-running application never receives `MIGRATION_DATABASE_URL`.
 
@@ -52,6 +53,8 @@ No human migration step is required after ordinary merges once the User Script i
 The scheduled launcher refreshes a clean `main` checkout with `git pull --ff-only`, then runs `scripts/deploy-unraid.sh`.
 
 The deployer uses `flock`, so overlapping User Script runs cannot race each other. It records the image whose migrations were last verified and rechecks migrations at least once per day even when the image has not changed. This repairs the common failure mode where a container was manually Force Updated while the migration step was skipped.
+
+DockerMan's `latest`-tag handoff can leave the previously running image untagged, which Unraid displays as an **orphan image**. Each scheduled deploy check now removes only dangling images labeled as originating from `silasfelinus/kind_robots`, including backlog from earlier deploys. Images belonging to Kapowarr or any other container are outside this cleanup's scope.
 
 User Scripts captures each run's output. For direct troubleshooting, run:
 

@@ -21,7 +21,10 @@
 
 import 'dotenv/config'
 import { buildKrea2WorkflowFromRequest } from '../server/api/comfy/krea2/utils/workflow'
-import { assertArtPromptContract } from '../server/utils/artPromptContract'
+import {
+  assertArtPromptContract,
+  checkArtPromptContract,
+} from '../server/utils/artPromptContract'
 import { enrichArtJobPayload } from '../server/utils/artJobProvenance'
 import {
   auditFacetCatalog,
@@ -220,6 +223,28 @@ function compactLines(values: unknown[]): string[] {
   return values.map(clean).filter(Boolean)
 }
 
+// FacetProfile.metadata.artworkPrompt is seed-time provenance written for the
+// old contextual producers ("Kind Robots premium Builder card illustration for
+// Dream Types: Art. ...", "Expressive inclusive character-card illustration
+// representing ..."). It restates the description and adds app-name and
+// card-format vocabulary that Krea paints literally and the prompt contract
+// rejects (2026-09-05 repair run: 28 Facets, format-vocabulary). Only a
+// metadata prompt that stands on its own as a caption is used; otherwise the
+// title/description/flavor prose carries the identity, as for every other
+// Facet.
+function usableMetadataArtworkPrompt(metadata: JsonObject): string {
+  const prompt = metadataArtworkPrompt(metadata)
+  if (!prompt) return ''
+  if (/\bKind Robots\b/i.test(prompt)) return ''
+  const violations = checkArtPromptContract({
+    prompt,
+    engine: 'krea2',
+    steps: 8,
+    cfg: 1,
+  })
+  return violations.length ? '' : prompt
+}
+
 function metadataArtworkPrompt(metadata: JsonObject): string {
   const direct = clean(metadata.artworkPrompt)
   if (direct) return direct
@@ -290,7 +315,7 @@ export function buildFacetIdentityPrompt(
   if (existing && !isLegacyGeneratedFacetPrompt(existing)) return existing
 
   const metadata = parseMetadata(profile.metadata)
-  const metadataPrompt = metadataArtworkPrompt(metadata)
+  const metadataPrompt = usableMetadataArtworkPrompt(metadata)
   const scientificName = clean(metadata.scientificName)
   const category = clean(metadata.category)
   const prose = compactLines([

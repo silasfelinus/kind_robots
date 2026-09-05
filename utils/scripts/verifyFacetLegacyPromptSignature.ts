@@ -10,7 +10,11 @@
 // used one character class excluding both quote styles, so those prompts read
 // as curated, went to Krea verbatim, and the prompt contract rejected them.
 import assert from 'node:assert/strict'
-import { isLegacyGeneratedFacetPrompt } from '../../scripts/generate_facet_art_v4'
+import { checkArtPromptContract } from '../../server/utils/artPromptContract'
+import {
+  buildFacetIdentityPrompt,
+  isLegacyGeneratedFacetPrompt,
+} from '../../scripts/generate_facet_art_v4'
 
 const wrapperPrompts = [
   'Illustrate the Facet concept “Surreal Horror”. A dream logic nightmare. Build one iconic scene.',
@@ -43,5 +47,75 @@ for (const prompt of curatedPrompts) {
     `curated or empty prompt must never be treated as the generated wrapper: ${String(prompt)}`,
   )
 }
+
+// FacetProfile.metadata.artworkPrompt is seed-time provenance for the old
+// contextual producers. It must never reach the identity prompt when it names
+// the app or asks for a card format (2026-09-05 repair run: 28 Facets rejected
+// by the format-vocabulary rule), while a metadata prompt that is a usable
+// caption on its own is still honoured.
+const seedFacet = {
+  id: 1757,
+  title: 'Art',
+  slug: 'art',
+  description:
+    'A visual seed for image generation, mood boards, covers, and weird little art goblins.',
+  flavorText: null,
+  examples: null,
+  artPrompt: 'Illustrate the Facet concept “Art”. A visual seed for image generation.',
+  userId: 1,
+  isPublic: true,
+  isMature: false,
+}
+const seedProfile = (artworkPrompt: string) => ({
+  facetId: 1757,
+  taxonomy: 'DREAM_TYPE',
+  canonicalValue: 'art',
+  groupKey: null,
+  groupLabel: null,
+  isRandomizable: false,
+  randomWeight: 0,
+  artRequired: true,
+  sourceRank: null,
+  metadata: JSON.stringify({ source: 'seed', artworkPrompt }),
+})
+
+const provenanceIdentity = buildFacetIdentityPrompt(
+  seedFacet as never,
+  seedProfile(
+    'Kind Robots premium Builder card illustration for Dream Types: Art. A visual seed for image generation. Single centered subject or emblem, polished fantasy-software dashboard art, readable silhouette, no text, WebP.',
+  ) as never,
+)
+assert.doesNotMatch(provenanceIdentity, /Kind Robots|card illustration|WebP/i)
+assert.match(provenanceIdentity, /^Art\. A visual seed for image generation/)
+assert.deepEqual(
+  checkArtPromptContract({
+    prompt: provenanceIdentity,
+    engine: 'krea2',
+    steps: 8,
+    cfg: 1,
+  }),
+  [],
+  'a seed-provenance metadata prompt must not leak into the identity prompt',
+)
+
+const cardIdentity = buildFacetIdentityPrompt(
+  seedFacet as never,
+  seedProfile(
+    'Expressive inclusive character-card illustration representing non-binary identity, confident and specific.',
+  ) as never,
+)
+assert.doesNotMatch(cardIdentity, /card illustration/i)
+
+const captionIdentity = buildFacetIdentityPrompt(
+  seedFacet as never,
+  seedProfile(
+    'A paint-splattered easel under a skylight, brushes fanned in a jar, one canvas turned to the wall.',
+  ) as never,
+)
+assert.match(
+  captionIdentity,
+  /paint-splattered easel under a skylight/,
+  'a metadata prompt that is a usable caption on its own is still honoured',
+)
 
 console.log('Facet legacy prompt signature contract verified.')

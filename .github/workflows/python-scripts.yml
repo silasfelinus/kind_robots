@@ -8,19 +8,21 @@ name: Python scripts
 # container_log_triage.py prints log lines from ~50 containers into a terminal
 # whose output Silas pastes back, which makes its redaction path a hard safety
 # rule (AGENTS.md 15), not a nicety. Those tests have to run in the CI that
-# gates deployment; tests one repo away from the code they guard are tests
-# that quietly stop running.
+# gates deployment; tests one repo away from the code they guard are tests that
+# quietly stop running.
 
 on:
   pull_request:
     paths:
       - "scripts/**.py"
+      - "scripts/deploy-unraid.sh"
       - "tests/python/**"
       - ".github/workflows/python-scripts.yml"
   push:
     branches: [main]
     paths:
       - "scripts/**.py"
+      - "scripts/deploy-unraid.sh"
       - "tests/python/**"
       - ".github/workflows/python-scripts.yml"
   workflow_dispatch:

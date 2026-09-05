@@ -91,7 +91,7 @@
               <div class="join">
                 <button
                   type="button"
-                  class="btn join-item btn-xs"
+                  class="kr-btn-join-xs"
                   :class="
                     sectionDisplayModes[section.key] === 'list'
                       ? 'btn-secondary'
@@ -103,7 +103,7 @@
                 </button>
                 <button
                   type="button"
-                  class="btn join-item btn-xs"
+                  class="kr-btn-join-xs"
                   :class="
                     sectionDisplayModes[section.key] === 'gallery'
                       ? 'btn-secondary'

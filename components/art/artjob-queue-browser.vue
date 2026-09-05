@@ -116,7 +116,7 @@
                 <div class="flex shrink-0 items-center gap-1">
                   <button
                     type="button"
-                    class="btn btn-ghost btn-xs rounded-xl px-2"
+                    class="kr-btn-xs btn-ghost px-2"
                     :disabled="refreshingServerIds.includes(server.id)"
                     title="Re-check this server now"
                     @click="refreshServer(server.id)"
@@ -129,7 +129,7 @@
                   </button>
                   <button
                     type="button"
-                    class="btn btn-ghost btn-xs rounded-xl px-2 text-error"
+                    class="kr-btn-xs btn-ghost px-2 text-error"
                     :disabled="removingServerIds.includes(server.id)"
                     title="Remove this server"
                     @click="removeServer(server)"

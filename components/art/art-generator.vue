@@ -193,7 +193,7 @@
               </span>
               <button
                 type="button"
-                class="btn btn-secondary btn-xs rounded-xl"
+                class="kr-btn-xs btn-secondary"
                 :disabled="artStore.isGenerating"
                 @click="randomStore.applyMakePretty()"
               >
@@ -201,7 +201,7 @@
               </button>
               <button
                 type="button"
-                class="btn btn-accent btn-xs rounded-xl"
+                class="kr-btn-xs btn-accent"
                 :disabled="artStore.isGenerating"
                 @click="randomStore.applySurprise()"
               >
@@ -278,7 +278,7 @@
                 This checkpoint usually wants
                 <button
                   type="button"
-                  class="btn btn-outline btn-xs rounded-xl"
+                  class="kr-btn-xs btn-outline"
                   @click="applyPreset(recommendedPreset.id)"
                 >
                   {{ recommendedPreset.label }}

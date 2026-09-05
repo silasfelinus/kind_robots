@@ -197,7 +197,7 @@
               </summary>
               <button
                 type="button"
-                class="btn btn-xs rounded-xl mt-2"
+                class="kr-btn-xs mt-2"
                 @click="copyPayloadJson"
               >
                 {{ copiedJson ? 'Copied' : 'Copy JSON' }}

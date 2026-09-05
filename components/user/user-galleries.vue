@@ -64,7 +64,7 @@
 
               <button
                 type="button"
-                class="btn btn-xs rounded-xl"
+                class="kr-btn-xs"
                 :class="expandedSections[section.key] ? 'btn-primary' : 'btn-ghost'"
                 :disabled="section.items.length === 0"
                 @click="toggleSection(section.key)"

@@ -204,7 +204,7 @@
           <div v-if="userStore.isLoggedIn" class="grid grid-cols-2 gap-2">
             <button
               type="button"
-              class="btn btn-xs rounded-xl"
+              class="kr-btn-xs"
               @click="captureCurrent"
             >
               <Icon name="kind-icon:save" class="h-3.5 w-3.5" />

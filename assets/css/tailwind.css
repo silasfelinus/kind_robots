@@ -788,6 +788,17 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply btn btn-sm;
   }
 
+  /* The bare-family counterpart to .kr-btn-ghost-xs (interface-vision t-104
+   * slice 83): the `xs` size with no color modifier, no ghost, and the same
+   * `rounded-xl` override as .kr-btn — `btn btn-xs rounded-xl`, previously
+   * hand-rolled in 4 files (5 occurrences). Named `.kr-btn-xs` (size only,
+   * no radius suffix) since `rounded-xl` is this family's default radius
+   * override, mirroring `.kr-btn-ghost-xs`'s identical naming on the ghost
+   * branch of the family. */
+  .kr-btn-xs {
+    @apply btn btn-xs rounded-xl;
+  }
+
   /* The bare-family counterpart to .kr-btn-ghost-xs-lg (interface-vision
    * t-104 slice 72): the `xs` size with no color modifier, no ghost, and a
    * `rounded-lg` override instead of .kr-btn's `rounded-xl` — `btn btn-xs

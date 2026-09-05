@@ -511,6 +511,17 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'geode-bloom',
+    label: 'Geode Bloom',
+    reveal: 'Crystal catches the light',
+    icon: 'kind-icon:gem',
+    tooltip:
+      'Faceted crystal clusters nucleate in a hollow geode cavity, grow outward along fixed lattice directions until they catch the light, then recede facet-by-facet to free room for the next formation 💎 hover for a glint, click to seed a new cluster',
+    color: '#3fb6d1',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

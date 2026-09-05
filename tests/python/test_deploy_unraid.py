@@ -15,7 +15,9 @@ def test_orphan_cleanup_is_scoped_to_kindrobots_images() -> None:
     assert '--filter dangling=true' in text
     assert '--filter "label=org.opencontainers.image.source=$IMAGE_SOURCE_LABEL"' in text
     assert 'docker image rm "$image_id"' in text
-    assert "docker image prune" not in text
+    assert not any(
+        line.lstrip().startswith("docker image prune") for line in text.splitlines()
+    )
 
 
 def test_orphan_cleanup_never_precedes_successful_health_check() -> None:

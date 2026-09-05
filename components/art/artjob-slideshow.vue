@@ -277,7 +277,7 @@
                   v-for="choice in intervalChoices"
                   :key="choice"
                   type="button"
-                  class="btn btn-xs rounded-2xl"
+                  class="kr-btn-xs-2xl"
                   :class="
                     intervalSeconds === choice ? 'btn-primary' : 'btn-ghost'
                   "
@@ -299,7 +299,7 @@
                   v-for="choice in depthChoices"
                   :key="choice"
                   type="button"
-                  class="btn btn-xs rounded-2xl"
+                  class="kr-btn-xs-2xl"
                   :class="depth === choice ? 'btn-primary' : 'btn-ghost'"
                   @click="selectDepth(choice)"
                 >

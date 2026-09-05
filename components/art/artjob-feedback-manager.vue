@@ -36,7 +36,7 @@
           v-for="option in reviewModes"
           :key="option.value"
           type="button"
-          class="btn btn-xs rounded-2xl"
+          class="kr-btn-xs-2xl"
           :class="reviewMode === option.value ? 'btn-primary' : 'btn-ghost'"
           @click="reviewMode = option.value"
         >

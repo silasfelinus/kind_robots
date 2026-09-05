@@ -202,7 +202,7 @@
 
         <button
           type="button"
-          class="btn btn-ghost rounded-2xl"
+          class="kr-btn-ghost-md-2xl"
           :disabled="!cartStore.hasItems"
           @click="cartStore.clearCart()"
         >

@@ -42,7 +42,7 @@
           v-for="tab in modeTabs"
           :key="tab.key"
           type="button"
-          class="btn btn-sm rounded-2xl"
+          class="kr-btn-2xl"
           :class="
             activeMode === tab.key ? 'btn-primary text-white' : 'btn-ghost'
           "

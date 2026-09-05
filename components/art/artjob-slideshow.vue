@@ -99,7 +99,7 @@
               </button>
               <button
                 type="button"
-                class="btn btn-sm rounded-2xl"
+                class="kr-btn-2xl"
                 :class="isPlaying ? 'btn-ghost' : 'btn-primary'"
                 title="Play or pause (space)"
                 @click="togglePlaying"
@@ -124,7 +124,7 @@
               </button>
               <button
                 type="button"
-                class="btn btn-sm rounded-2xl"
+                class="kr-btn-2xl"
                 :class="settingsOpen ? 'btn-primary' : 'btn-ghost'"
                 title="Slideshow options (s)"
                 @click="settingsOpen = !settingsOpen"

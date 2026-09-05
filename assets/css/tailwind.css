@@ -651,6 +651,18 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply btn btn-ghost rounded-xl;
   }
 
+  /* The `md`-size counterpart to .kr-btn-ghost-2xl (interface-vision t-104
+   * slice 82): the same DaisyUI default (unmodified) button size as
+   * .kr-btn-ghost-md, but with a wider `rounded-2xl` corner radius instead
+   * of `rounded-xl` — `btn btn-ghost rounded-2xl`, previously hand-rolled in
+   * 5 files (5 occurrences, all in the identical class order). Suffixed
+   * `-md-2xl` (size then radius) mirroring `.kr-btn-primary-md-2xl`'s
+   * identical two-axis naming convention on the primary-color branch of
+   * this family. */
+  .kr-btn-ghost-md-2xl {
+    @apply btn btn-ghost rounded-2xl;
+  }
+
   /* The most-repeated *filled* (non-ghost) button shape in the app
    * (interface-vision t-104 slice 51): the primary-color small action
    * button used for form submits and gallery/manager primary actions —

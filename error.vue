@@ -32,7 +32,7 @@
           </button>
           <button
             type="button"
-            class="btn btn-ghost rounded-2xl"
+            class="kr-btn-ghost-md-2xl"
             @click="retry"
           >
             Try again

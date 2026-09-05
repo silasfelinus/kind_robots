@@ -244,7 +244,7 @@
             </span>
 
             <button
-              class="btn btn-xs rounded-xl"
+              class="kr-btn-xs"
               type="button"
               :disabled="isBatchWorking"
               @click="selectAllFilteredImages"

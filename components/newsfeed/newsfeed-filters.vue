@@ -138,7 +138,7 @@
           v-for="source in feedPreferenceStore.availableSources"
           :key="source.id"
           type="button"
-          class="btn btn-xs rounded-xl"
+          class="kr-btn-xs"
           :class="
             feedPreferenceStore.isSourceDisabled(source.id)
               ? 'btn-ghost border border-base-300 opacity-50'
@@ -163,7 +163,7 @@
           v-for="mode in perspectiveModes"
           :key="mode.value"
           type="button"
-          class="btn btn-xs rounded-xl"
+          class="kr-btn-xs"
           :class="
             feedPreferenceStore.perspectiveMode === mode.value
               ? 'btn-primary'

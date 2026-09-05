@@ -281,7 +281,7 @@
       <div class="mt-auto flex flex-wrap items-center justify-between gap-2">
         <button
           type="button"
-          class="btn btn-ghost btn-xs rounded-2xl"
+          class="kr-btn-ghost-xs-2xl"
           :disabled="!jobPrompt || !canShowJobContent"
           :title="
             canShowJobContent
@@ -347,7 +347,7 @@
           <button
             v-if="job.status === 'FAILED'"
             type="button"
-            class="btn btn-ghost btn-xs rounded-2xl"
+            class="kr-btn-ghost-xs-2xl"
             @click="artJobStore.requeueJob(job.id)"
           >
             Resume unchanged

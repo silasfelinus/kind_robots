@@ -276,7 +276,7 @@
             <div class="flex items-center gap-2">
               <button
                 type="button"
-                class="btn btn-ghost btn-xs rounded-2xl"
+                class="kr-btn-ghost-xs-2xl"
                 :disabled="
                   !artJobStore.jobHasPreviousPage || artJobStore.loadingJobs
                 "
@@ -298,7 +298,7 @@
               </label>
               <button
                 type="button"
-                class="btn btn-ghost btn-xs rounded-2xl"
+                class="kr-btn-ghost-xs-2xl"
                 :disabled="
                   !artJobStore.jobHasNextPage || artJobStore.loadingJobs
                 "

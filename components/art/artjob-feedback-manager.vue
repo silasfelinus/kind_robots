@@ -19,7 +19,7 @@
         </div>
         <button
           type="button"
-          class="btn btn-ghost btn-xs rounded-2xl"
+          class="kr-btn-ghost-xs-2xl"
           :disabled="artJobStore.loadingTrainerJobs"
           @click="artJobStore.fetchTrainerJobs()"
         >

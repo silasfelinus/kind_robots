@@ -90,27 +90,23 @@ for (const entry of entries) {
    * A Facet description is also an ART PROMPT, and that was learned the
    * expensive way.
    *
-   * `generate_facet_art.ts` composes each job's prompt out of the Facet's own
-   * title, description, flavor text and examples, and `/api/art/enqueue` gates
-   * the FULL composed string. So an ordinary English phrase in a description
-   * rejects the job -- and because the maintenance run enqueues inside a
-   * serialized session, one bad row fails the ENTIRE run at the last step,
-   * after the catalog work has already committed.
+   * `generate_facet_art_v4.ts` composes Krea conditioning from the Facet title,
+   * description, flavor text, examples, and visual descriptors. It deliberately
+   * does NOT wrap those words in "Illustrate the Facet concept" / "for Kind
+   * Robots" instructions: a caption-conditioned image model paints concrete
+   * words instead of reasoning about why the application supplied them.
    *
-   * That is exactly what happened on 2026-08-14 (run 31765805301). MATERIAL
-   * "Moonstone" read "Sheens blue when turned, and only when turned" -- good
-   * prose, and "only when" is a conditional the contract refuses. One of 565
-   * descriptions took down a run covering 714 facets, six minutes in.
+   * `/api/art/enqueue` gates the full composed string. So an ordinary English
+   * phrase in a description can still reject the job. That happened on
+   * 2026-08-14 (run 31765805301): MATERIAL "Moonstone" read "Sheens blue when
+   * turned, and only when turned". One description took down a run covering
+   * hundreds of Facets at its final art step.
    *
-   * The dream prompts in config/art-coverage were checked against this contract
-   * before anything was spent. These were not, purely because a description did
-   * not look like a prompt. It is one.
+   * Keep this test shaped like the semantic portion of the production prompt:
+   * title + authored prose. App/entity context belongs in ArtJob metadata, not
+   * Krea positive conditioning.
    */
-  const composed = [
-    `Illustrate the Facet concept “${entry.title}”.`,
-    description,
-    entry.flavorText || '',
-  ]
+  const composed = [entry.title, description, entry.flavorText || '']
     .filter(Boolean)
     .join('\n')
   for (const violation of checkArtPromptContract({
@@ -146,7 +142,9 @@ const byTaxonomy = new Map<string, number>()
 for (const entry of entries) {
   byTaxonomy.set(entry.taxonomy, (byTaxonomy.get(entry.taxonomy) ?? 0) + 1)
 }
-const words = entries.map((e) => e.description.trim().split(/\s+/).length).sort((a, b) => a - b)
+const words = entries
+  .map((e) => e.description.trim().split(/\s+/).length)
+  .sort((a, b) => a - b)
 console.log(
   `Facet content quality verified: ${entries.length} description(s) across ` +
     `${byTaxonomy.size} taxonomy/taxonomies, ` +

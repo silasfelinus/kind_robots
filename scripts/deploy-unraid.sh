@@ -13,6 +13,7 @@ LOCK_FILE="${KIND_ROBOTS_DEPLOY_LOCK:-/var/lock/kindrobots-auto-deploy.lock}"
 UNRAID_UPDATE_SCRIPT="${KIND_ROBOTS_UNRAID_UPDATE_SCRIPT:-/usr/local/emhttp/plugins/dynamix.docker.manager/scripts/update_container}"
 MIGRATION_RECHECK_SECONDS="${KIND_ROBOTS_MIGRATION_RECHECK_SECONDS:-86400}"
 HEALTH_TIMEOUT_SECONDS="${KIND_ROBOTS_HEALTH_TIMEOUT_SECONDS:-120}"
+IMAGE_SOURCE_LABEL="${KIND_ROBOTS_IMAGE_SOURCE_LABEL:-https://github.com/silasfelinus/kind_robots}"
 
 log() {
   printf '[kindrobots-deploy] %s %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*"
@@ -113,6 +114,36 @@ wait_for_health() {
   fail "container did not become healthy within ${HEALTH_TIMEOUT_SECONDS}s"
 }
 
+cleanup_dangling_kindrobots_images() {
+  local current_id="$1"
+  local image_id removed=0
+
+  # DockerMan retags `latest` to the new image when it recreates the container,
+  # which leaves the prior locally-pulled build as a dangling image. Only remove
+  # dangling images that carry Kind Robots' OCI source label. This deliberately
+  # avoids a host-wide `docker image prune`, so other containers keep their own
+  # rollback/cache images.
+  while IFS= read -r image_id; do
+    [[ -n "$image_id" ]] || continue
+    [[ "$image_id" == "$current_id" ]] && continue
+
+    if docker image rm "$image_id" >/dev/null 2>&1; then
+      removed=$((removed + 1))
+    else
+      log "WARNING: could not remove dangling KindRobots image $image_id; leaving it alone"
+    fi
+  done < <(
+    docker image ls \
+      --quiet \
+      --filter dangling=true \
+      --filter "label=org.opencontainers.image.source=$IMAGE_SOURCE_LABEL"
+  )
+
+  if (( removed > 0 )); then
+    log "removed $removed dangling KindRobots image(s)"
+  fi
+}
+
 log "checking registry image $IMAGE"
 docker pull "$IMAGE"
 
@@ -134,6 +165,7 @@ else
 fi
 
 if [[ "$needs_update" == false ]]; then
+  cleanup_dangling_kindrobots_images "$running_id"
   log 'KindRobots already runs the latest image'
   exit 0
 fi
@@ -156,4 +188,5 @@ fi
 wait_for_health
 
 final_id="$(docker inspect -f '{{.Image}}' "$CONTAINER")"
+cleanup_dangling_kindrobots_images "$final_id"
 log "deploy complete: container=$CONTAINER image=$final_id"

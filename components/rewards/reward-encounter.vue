@@ -435,7 +435,7 @@
 
             <button
               v-if="characterStore.selectedCharacter"
-              class="btn btn-ghost btn-xs mt-3 rounded-xl"
+              class="kr-btn-xs btn-ghost mt-3"
               type="button"
               :disabled="isStarting"
               @click="characterStore.deselectCharacter?.()"
@@ -468,7 +468,7 @@
             </button>
 
             <button
-              class="btn btn-xs btn-ghost shrink-0 rounded-xl"
+              class="kr-btn-xs btn-ghost shrink-0"
               type="button"
               :disabled="!rewardPromptPreview"
               @click="copyPrompt"

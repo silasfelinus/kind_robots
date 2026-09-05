@@ -10,6 +10,7 @@
 // - never replaces a slot when a different ArtImage now owns it
 // - cancels only still-PENDING tainted jobs; RUNNING jobs are allowed to finish
 //   but receive a semantic replacement
+// - cancellation + replacement creation is atomic for jobs that need replacement
 // - legacy Facet v2/v3 jobs are left to generate_facet_art.ts --repair-tainted,
 //   whose provenance-aware catalog repair is more specific
 //
@@ -34,7 +35,6 @@ import {
   KREA2_MODEL,
 } from '../server/api/comfy/krea2/utils/workflow'
 import {
-  buildKreaSemanticPrompt,
   kreaPromptHasContextNoise,
   rewriteKreaWorkflowPositivePrompt,
 } from '../utils/kreaSemanticPrompt'
@@ -332,31 +332,33 @@ export async function main(): Promise<void> {
         })
 
         if (WRITE) {
-          if (source.status === 'PENDING') {
-            await prisma.artJob.update({
-              where: { id: source.id },
+          const created = await prisma.$transaction(async (tx) => {
+            if (source.status === 'PENDING') {
+              await tx.artJob.update({
+                where: { id: source.id },
+                data: {
+                  status: 'CANCELLED',
+                  claimedAt: null,
+                  claimedBy: null,
+                  error:
+                    'Cancelled by Krea semantic entity-art repair: contextual positive conditioning replaced by semantic-only conditioning.',
+                },
+              })
+            }
+
+            return tx.artJob.create({
               data: {
-                status: 'CANCELLED',
-                claimedAt: null,
-                claimedBy: null,
-                error:
-                  'Cancelled by Krea semantic entity-art repair: contextual positive conditioning replaced by semantic-only conditioning.',
+                engine: 'COMFY',
+                payload: JSON.stringify(replacement.payload),
+                attemptFingerprint: attemptFingerprintFromPayload(replacement.payload),
+                priority: Math.max(100, source.priority),
+                projectSlug: source.projectSlug,
+                projectId: source.projectId,
+                userId: source.userId,
               },
             })
-            cancelledPending.push(source.id)
-          }
-
-          const created = await prisma.artJob.create({
-            data: {
-              engine: 'COMFY',
-              payload: JSON.stringify(replacement.payload),
-              attemptFingerprint: attemptFingerprintFromPayload(replacement.payload),
-              priority: Math.max(100, source.priority),
-              projectSlug: source.projectSlug,
-              projectId: source.projectId,
-              userId: source.userId,
-            },
           })
+          if (source.status === 'PENDING') cancelledPending.push(source.id)
           replacementIds.push(created.id)
         }
 

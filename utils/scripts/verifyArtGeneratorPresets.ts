@@ -9,6 +9,10 @@ import {
   getPreset,
   presetForCheckpoint,
 } from '../artGeneratorPresets'
+import {
+  artLoraCompatibilityRank,
+  krea2LoraCompatibilityRank,
+} from '../loraSelection'
 
 function preset(id: string) {
   const found = ART_GENERATOR_PRESETS.find((entry) => entry.id === id)
@@ -80,6 +84,46 @@ for (const engine of ['krea2', 'flux2'] as const) {
   )
 }
 
+const krea2Lora = {
+  id: 1,
+  generation: 'Krea 2',
+  supportedServer: 'COMFY',
+}
+const genericKreaLora = {
+  id: 2,
+  generation: 'Krea',
+  supportedServer: 'GENERIC',
+}
+const fluxLora = {
+  id: 3,
+  generation: 'Flux.1 D',
+  supportedServer: 'FLUX',
+}
+const kontextLora = {
+  id: 4,
+  generation: 'Flux.1 Kontext',
+  supportedServer: 'KONTEXT',
+}
+const krea1Lora = {
+  id: 5,
+  generation: 'Krea 1',
+  supportedServer: 'COMFY',
+}
+
+assert.equal(krea2LoraCompatibilityRank(krea2Lora), 30)
+assert.equal(krea2LoraCompatibilityRank(genericKreaLora), 20)
+assert.equal(krea2LoraCompatibilityRank(fluxLora), 0)
+assert.equal(krea2LoraCompatibilityRank(kontextLora), 0)
+assert.equal(krea2LoraCompatibilityRank(krea1Lora), 0)
+assert.equal(artLoraCompatibilityRank(fluxLora, 'krea2'), 0)
+assert.equal(artLoraCompatibilityRank(kontextLora, 'krea2'), 0)
+assert.equal(artLoraCompatibilityRank(krea2Lora, 'krea2'), 30)
+assert.equal(
+  artLoraCompatibilityRank(fluxLora, 'flux2'),
+  30,
+  'splitting Krea compatibility must not silently change the existing Flux.2 policy',
+)
+
 for (const name of [
   'dreamshaperXL_v21TurboDPMSDE.safetensors',
   'RealitiesEdgeXLLIGHTNING_TURBOV7.safetensors',
@@ -120,6 +164,16 @@ const enqueue = readFileSync('server/api/art/enqueue.post.ts', 'utf8')
 assert.ok(
   !enqueue.includes("from '../../utils/artGeneratorPresets'"),
   'the enqueue API must not import product preset policy',
+)
+
+const loraResolver = readFileSync('server/utils/artLoraResource.ts', 'utf8')
+assert.ok(
+  loraResolver.includes('krea2LoraCompatibilityRank(resource)'),
+  'the enqueue resolver must enforce the same Krea family check as the picker',
+)
+assert.ok(
+  loraResolver.includes('generation: true'),
+  'the enqueue resolver must fetch Resource.generation before checking Krea compatibility',
 )
 
 function laneBody(marker: string): string {
@@ -177,5 +231,5 @@ assert.ok(bench.includes('defaultsFromPreset'))
 assert.ok(!bench.includes('POLL_TIMEOUT_MS'))
 
 console.log(
-  'Art generation quality contract OK: presets are product-owned, shared generation uses the canonical profile registry, and browser polling follows durable ArtJobs until terminal state.',
+  'Art generation quality contract OK: presets are product-owned, Krea LoRAs stay in the Krea family, shared generation uses the canonical profile registry, and browser polling follows durable ArtJobs until terminal state.',
 )

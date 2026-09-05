@@ -297,7 +297,7 @@
           <button
             v-if="job.status === 'PENDING'"
             type="button"
-            class="btn btn-xs rounded-2xl"
+            class="kr-btn-xs-2xl"
             :class="job.priority > 0 ? 'btn-outline' : 'btn-accent'"
             :disabled="priorityStore.prioritizingJobIds.includes(job.id)"
             @click="togglePriority"

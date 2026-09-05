@@ -84,7 +84,7 @@
             <h3 class="text-sm font-semibold">Private art servers</h3>
             <button
               type="button"
-              class="btn btn-xs rounded-2xl"
+              class="kr-btn-xs-2xl"
               :class="
                 artJobStore.queuePaused
                   ? 'btn-success'
@@ -230,7 +230,7 @@
                 v-for="filter in statusFilters"
                 :key="filter"
                 type="button"
-                class="btn btn-xs rounded-2xl"
+                class="kr-btn-xs-2xl"
                 :class="
                   artJobStore.jobStatusFilter === filter
                     ? 'btn-primary'

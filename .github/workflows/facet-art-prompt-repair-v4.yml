@@ -66,4 +66,8 @@ jobs:
           tags: tag:ci
 
       - name: Resubmit tainted Facet artwork with semantic Krea prompts
-        run: npx tsx scripts/generate_facet_art.ts --write --repair-tainted
+        run: >-
+          npx tsx scripts/run_facet_catalog_maintenance.ts
+          --art-only
+          --repair-tainted
+          --reason=one-shot-krea-context-prompt-repair-v4

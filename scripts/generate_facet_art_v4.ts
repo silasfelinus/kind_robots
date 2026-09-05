@@ -830,6 +830,39 @@ export async function main(): Promise<void> {
       }
 
       if (WRITE) {
+        // Build and validate the complete replacement job payload set BEFORE
+        // committing any mutation. buildFacetArtPayload() synchronously
+        // throws via assertArtPromptContract() on an invalid prompt, so
+        // constructing jobRows first guarantees a bad entry aborts the whole
+        // write before any legacy job is cancelled or Facet.artPrompt is
+        // rewritten. Previously this ran last, after the cancellation and
+        // prompt-update writes had already committed — if any single entry's
+        // payload failed to build, those writes were left in place with no
+        // replacement ArtJob created, silently stranding the facet
+        // (dream-cycle/t-006 pass 1 + pass 2 review finding on PR #2414).
+        const jobRows = queue.map((entry) => ({
+          engine: 'COMFY' as const,
+          userId: entry.facet.userId,
+          projectSlug: PROJECT_SLUG,
+          priority: entry.repairSourceJobId
+            ? repairPriority(entry.profile)
+            : priorityFor(entry.profile),
+          payload: JSON.stringify(
+            buildFacetArtPayload(
+              entry.facet,
+              entry.profile,
+              entry.identityPrompt,
+              entry.variant,
+              entry.repairSourceJobId && entry.repairSourceVersion
+                ? {
+                    sourceJobId: entry.repairSourceJobId,
+                    sourceVersion: entry.repairSourceVersion,
+                  }
+                : undefined,
+            ),
+          ),
+        }))
+
         if (REPAIR_TAINTED && legacyPendingIds.length) {
           await prisma.artJob.updateMany({
             where: {
@@ -863,29 +896,6 @@ export async function main(): Promise<void> {
             data: { artPrompt: entry.identityPrompt },
           })
         })
-
-        const jobRows = queue.map((entry) => ({
-          engine: 'COMFY' as const,
-          userId: entry.facet.userId,
-          projectSlug: PROJECT_SLUG,
-          priority: entry.repairSourceJobId
-            ? repairPriority(entry.profile)
-            : priorityFor(entry.profile),
-          payload: JSON.stringify(
-            buildFacetArtPayload(
-              entry.facet,
-              entry.profile,
-              entry.identityPrompt,
-              entry.variant,
-              entry.repairSourceJobId && entry.repairSourceVersion
-                ? {
-                    sourceJobId: entry.repairSourceJobId,
-                    sourceVersion: entry.repairSourceVersion,
-                  }
-                : undefined,
-            ),
-          ),
-        }))
 
         let inserted = 0
         for (let index = 0; index < jobRows.length; index += 25) {

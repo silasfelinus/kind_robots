@@ -241,7 +241,7 @@
               <h3 class="text-sm font-black">Slideshow options</h3>
               <button
                 type="button"
-                class="btn btn-ghost btn-xs rounded-2xl"
+                class="kr-btn-ghost-xs-2xl"
                 @click="settingsOpen = false"
               >
                 Done

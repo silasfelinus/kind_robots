@@ -11,6 +11,7 @@ export type LoraPick = {
 
 export type LoraResourceLike = {
   id: number
+  generation?: string | null
   supportedServer?: string | null
   defaultTrigger?: string | null
   triggerWords?: string | null
@@ -18,6 +19,20 @@ export type LoraResourceLike = {
 
 function normalizedServer(resource: LoraResourceLike): string {
   return String(resource.supportedServer || '').trim().toUpperCase()
+}
+
+function normalizedGeneration(resource: LoraResourceLike): string {
+  return String(resource.generation || '').trim().toUpperCase()
+}
+
+export function krea2LoraCompatibilityRank(resource: LoraResourceLike): number {
+  const server = normalizedServer(resource)
+  const generation = normalizedGeneration(resource)
+
+  if (server !== 'COMFY' && server !== 'GENERIC') return 0
+  if (/\bKREA[\s._-]*2\b/.test(generation)) return 30
+  if (generation === 'KREA') return 20
+  return 0
 }
 
 export function videoLoraCompatible(
@@ -35,7 +50,11 @@ export function artLoraCompatibilityRank(
 ): number {
   const server = normalizedServer(resource)
 
-  if (engine === 'krea2' || engine === 'flux2') {
+  if (engine === 'krea2') {
+    return krea2LoraCompatibilityRank(resource)
+  }
+
+  if (engine === 'flux2') {
     if (server === 'FLUX') return 30
     if (server === 'KONTEXT') return 20
     if (server === 'GENERIC') return 10

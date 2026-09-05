@@ -2,6 +2,7 @@
 import { createError } from 'h3'
 import { ResourceType, SupportedServer } from '~/prisma/generated/prisma/client'
 import { resolveMaturityPrivacy } from '~/utils/maturityPrivacy'
+import { krea2LoraCompatibilityRank } from '~/utils/loraSelection'
 import { MAX_LORAS_PER_JOB } from '~/server/api/comfy/utils/loraChain'
 import prisma from './prisma'
 
@@ -30,6 +31,7 @@ type LoraResourceRecord = {
   customUrl: string | null
   civitaiUrl: string | null
   huggingUrl: string | null
+  generation: string | null
   supportedServer: SupportedServer
   defaultTrigger: string | null
   triggerWords: string | null
@@ -153,7 +155,11 @@ function compatibilityRank(
     if (resource.supportedServer === SupportedServer.GENERIC) return 10
   }
 
-  if (engine === 'krea2' || engine === 'flux2') {
+  if (engine === 'krea2') {
+    return krea2LoraCompatibilityRank(resource)
+  }
+
+  if (engine === 'flux2') {
     if (resource.supportedServer === SupportedServer.FLUX) return 30
     if (resource.supportedServer === SupportedServer.KONTEXT) return 20
     if (resource.supportedServer === SupportedServer.GENERIC) return 10
@@ -366,6 +372,7 @@ export async function resolveEnqueueLoraResource(input: {
     customUrl: true,
     civitaiUrl: true,
     huggingUrl: true,
+    generation: true,
     supportedServer: true,
     defaultTrigger: true,
     triggerWords: true,

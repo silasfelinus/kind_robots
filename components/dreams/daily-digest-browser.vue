@@ -171,7 +171,7 @@
         <div class="join shrink-0">
           <button
             type="button"
-            class="btn join-item btn-sm"
+            class="kr-btn-join-sm"
             :disabled="!canGoOlder"
             aria-label="Show the previous daily digest"
             @click="showOlder"
@@ -181,7 +181,7 @@
           </button>
           <button
             type="button"
-            class="btn join-item btn-sm"
+            class="kr-btn-join-sm"
             :disabled="!canGoNewer"
             aria-label="Show the next daily digest"
             @click="showNewer"

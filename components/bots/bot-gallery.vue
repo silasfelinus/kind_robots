@@ -467,7 +467,7 @@
                 v-for="segment in botTypeSegments"
                 :key="segment.value"
                 type="button"
-                class="btn join-item btn-sm"
+                class="kr-btn-join-sm"
                 :class="
                   botTypeFilter === segment.value
                     ? 'btn-primary'

@@ -22,7 +22,7 @@
               v-for="option in lessonFilterOptions"
               :key="option.value"
               type="button"
-              class="btn btn-sm join-item"
+              class="kr-btn-join-sm"
               :class="lessonFilter === option.value ? 'btn-primary' : 'btn-ghost'"
               :aria-pressed="lessonFilter === option.value"
               @click="lessonFilter = option.value"

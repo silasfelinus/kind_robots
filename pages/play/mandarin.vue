@@ -17,7 +17,7 @@
             type="button"
             role="tab"
             :aria-selected="interactionMode === 'study'"
-            class="btn btn-sm join-item"
+            class="kr-btn-join-sm"
             :class="interactionMode === 'study' ? 'btn-primary' : 'btn-ghost'"
             @click="setMode('study')"
           >
@@ -27,7 +27,7 @@
             type="button"
             role="tab"
             :aria-selected="interactionMode === 'explore'"
-            class="btn btn-sm join-item"
+            class="kr-btn-join-sm"
             :class="interactionMode === 'explore' ? 'btn-primary' : 'btn-ghost'"
             @click="setMode('explore')"
           >
@@ -41,7 +41,7 @@
             :key="view.value"
             type="button"
             role="tab"
-            class="btn btn-sm join-item"
+            class="kr-btn-join-sm"
             :class="workspaceView === view.value ? 'btn-accent' : 'btn-ghost'"
             :aria-selected="workspaceView === view.value"
             @click="workspaceView = view.value"

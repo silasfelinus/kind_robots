@@ -35,6 +35,17 @@ export function krea2LoraCompatibilityRank(resource: LoraResourceLike): number {
   return 0
 }
 
+export function flux2LoraCompatibilityRank(resource: LoraResourceLike): number {
+  const server = normalizedServer(resource)
+  const generation = normalizedGeneration(resource)
+
+  if (!/\bFLUX[\s._-]*2\b/.test(generation)) return 0
+  if (server === 'FLUX') return 30
+  if (server === 'COMFY') return 20
+  if (server === 'GENERIC') return 10
+  return 0
+}
+
 export function videoLoraCompatible(
   resource: LoraResourceLike,
   engine: VideoEngine,
@@ -55,10 +66,7 @@ export function artLoraCompatibilityRank(
   }
 
   if (engine === 'flux2') {
-    if (server === 'FLUX') return 30
-    if (server === 'KONTEXT') return 20
-    if (server === 'GENERIC') return 10
-    return 0
+    return flux2LoraCompatibilityRank(resource)
   }
 
   if (engine !== 'comfy') return 0

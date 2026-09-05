@@ -24,7 +24,7 @@
             type="button"
             role="tab"
             :aria-selected="activeTier === tier.key"
-            class="btn btn-sm rounded-2xl"
+            class="kr-btn-2xl"
             :class="
               activeTier === tier.key
                 ? 'btn-primary'

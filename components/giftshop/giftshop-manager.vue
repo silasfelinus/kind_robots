@@ -14,7 +14,7 @@
 
       <button
         type="button"
-        class="btn btn-sm rounded-2xl"
+        class="kr-btn-2xl"
         :class="managerError ? 'btn-error' : 'btn-ghost'"
         :disabled="isLoadingManager"
         @click="refreshManagerData"

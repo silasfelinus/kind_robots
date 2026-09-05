@@ -734,6 +734,17 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply btn btn-xs rounded-lg;
   }
 
+  /* The bare-family counterpart to .kr-btn-ghost-2xl (interface-vision
+   * t-104 slice 75): the same `sm` size as .kr-btn, but with a wider
+   * `rounded-2xl` corner radius instead of `rounded-xl` — `btn btn-sm
+   * rounded-2xl`, previously hand-rolled in 7 files (8 occurrences). Named
+   * for the radius it overrides (not a size suffix) since the size matches
+   * the base .kr-btn shape, mirroring `.kr-btn-ghost-2xl`'s identical
+   * naming on the ghost branch of the family. */
+  .kr-btn-2xl {
+    @apply btn btn-sm rounded-2xl;
+  }
+
   /* The joined-button-group shape (interface-vision t-104 slice 73): a bare
    * (no color modifier, no ghost) `sm` button with DaisyUI's `join-item`
    * modifier for `.join` button groups — `btn btn-sm join-item`, previously

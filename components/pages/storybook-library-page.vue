@@ -170,21 +170,21 @@
           <div class="mt-3 flex flex-wrap gap-2">
             <button
               type="button"
-              class="btn btn-primary btn-xs rounded-xl"
+              class="kr-btn-xs btn-primary"
               @click="openStory(story.id)"
             >
               {{ story.status === 'complete' ? 'Open' : 'Resume' }}
             </button>
             <button
               type="button"
-              class="btn btn-ghost btn-xs rounded-xl border border-base-300"
+              class="kr-btn-xs btn-ghost border border-base-300"
               @click="duplicateStory(story.id)"
             >
               Duplicate
             </button>
             <button
               type="button"
-              class="btn btn-ghost btn-xs rounded-xl border border-base-300"
+              class="kr-btn-xs btn-ghost border border-base-300"
               @click="downloadStory(story.id, 'markdown')"
             >
               Export

@@ -296,6 +296,10 @@ for (const required of [
   "script: 'utils/scripts/cleanupRetiredFacetShells.ts'",
   "script: 'utils/scripts/auditFacetCatalogOddities.ts'",
   "script: 'scripts/generate_facet_art.ts'",
+  "const artOnly = process.argv.includes('--art-only')",
+  "const repairTainted = process.argv.includes('--repair-tainted')",
+  "args: ['--write', ...(repairTainted ? ['--repair-tainted'] : [])]",
+  'const steps: Step[] = artOnly ? [artStep] : fullMaintenanceSteps',
 ]) {
   assert.ok(
     runner.includes(required),
@@ -317,6 +321,8 @@ const directivesHook = "script: 'utils/scripts/applyFacetCatalogDirectives.ts'"
 const cleanupHook = "script: 'utils/scripts/cleanupRetiredFacetShells.ts'"
 const auditHook = "script: 'utils/scripts/auditFacetCatalogOddities.ts'"
 const artHook = "script: 'scripts/generate_facet_art.ts'"
+const fullMaintenanceStart = runner.indexOf('const fullMaintenanceSteps')
+const artHookInFullMaintenance = runner.indexOf(artHook, fullMaintenanceStart)
 
 assert.ok(
   runner.indexOf(seedHook) < runner.indexOf(directivesHook),
@@ -331,8 +337,9 @@ assert.ok(
   'Retired shell cleanup must finish before the whole-catalog audit.',
 )
 assert.ok(
-  runner.indexOf(auditHook) < runner.indexOf(artHook),
-  'The whole-catalog audit must run before Facet artwork is queued.',
+  artHookInFullMaintenance >= 0 &&
+    runner.indexOf(auditHook) < artHookInFullMaintenance,
+  'The whole-catalog audit must run before Facet artwork is queued in full maintenance mode.',
 )
 
 assert.ok(
@@ -354,4 +361,6 @@ assert.ok(
   'An out-of-band Facet catalog maintenance workflow must exist because production image publication does not own maintenance.',
 )
 
-console.log('Facet catalog maintenance, semantic Krea prompting, and repair queue contract verified.')
+console.log(
+  'Facet catalog maintenance, semantic Krea prompting, and repair queue contract verified.',
+)

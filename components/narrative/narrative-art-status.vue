@@ -47,7 +47,7 @@
       </div>
       <button
         type="button"
-        class="btn btn-error btn-outline btn-xs rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error/70 motion-reduce:transform-none motion-reduce:transition-none"
+        class="kr-btn-xs btn-error btn-outline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error/70 motion-reduce:transform-none motion-reduce:transition-none"
         @click="$emit('retry')"
       >
         Retry image

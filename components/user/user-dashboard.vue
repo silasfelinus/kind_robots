@@ -163,7 +163,7 @@
 
                   <NuxtLink
                     to="/wallet"
-                    class="btn btn-ghost btn-xs mt-2 w-full rounded-xl"
+                    class="kr-btn-xs btn-ghost mt-2 w-full"
                   >
                     Full history
                   </NuxtLink>
@@ -217,7 +217,7 @@
 
                   <button
                     type="button"
-                    class="btn btn-ghost btn-xs mt-2 w-full rounded-xl"
+                    class="kr-btn-xs btn-ghost mt-2 w-full"
                     @click="goToAchievementsTab"
                   >
                     See all
@@ -259,7 +259,7 @@
 
                   <button
                     type="button"
-                    class="btn btn-ghost btn-xs w-full rounded-xl"
+                    class="kr-btn-xs btn-ghost w-full"
                     @click="goToThemesTab"
                   >
                     Change theme

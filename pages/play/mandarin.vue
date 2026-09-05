@@ -257,7 +257,7 @@
                   </div>
                   <div v-else class="space-y-3">
                     <Icon name="kind-icon:volume" class="mx-auto size-12 opacity-60" />
-                    <button type="button" class="btn btn-primary" @click="store.speak(currentCard)">Hear prompt</button>
+                    <button type="button" class="kr-btn-primary-md-plain" @click="store.speak(currentCard)">Hear prompt</button>
                     <p class="text-xs opacity-55">Listen without seeing the answer.</p>
                   </div>
                 </div>
@@ -287,7 +287,7 @@
               <div class="flex min-h-72 flex-col justify-between gap-4 p-4 sm:p-5">
                 <div v-if="studyPhase !== 'revealed'" class="my-auto space-y-3 text-center">
                   <p class="text-sm font-semibold opacity-55">Recall the meaning before revealing.</p>
-                  <button type="button" class="btn btn-primary" @click="store.revealStudyCard()">Reveal answer</button>
+                  <button type="button" class="kr-btn-primary-md-plain" @click="store.revealStudyCard()">Reveal answer</button>
                 </div>
 
                 <div v-else class="space-y-3">
@@ -384,7 +384,7 @@
                 </div>
 
                 <div class="my-auto py-5 text-center">
-                  <button v-if="!meaningVisible" type="button" class="btn btn-primary" @click="store.toggleMeaning()">Reveal meaning</button>
+                  <button v-if="!meaningVisible" type="button" class="kr-btn-primary-md-plain" @click="store.toggleMeaning()">Reveal meaning</button>
                   <div v-else class="space-y-1">
                     <p class="text-3xl font-bold">{{ currentCard.meaning }}</p>
                     <p v-if="currentCard.meanings.length > 1" class="text-sm opacity-60">{{ currentCard.meanings.slice(1).join(' · ') }}</p>

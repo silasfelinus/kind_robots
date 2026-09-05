@@ -21,7 +21,7 @@
           </div>
           <button
             type="button"
-            class="btn btn-primary"
+            class="kr-btn-primary-md-plain"
             :disabled="!store.canFish"
             @click="store.startFishing()"
           >

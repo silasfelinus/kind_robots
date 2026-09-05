@@ -172,7 +172,7 @@
         </dl>
 
         <button
-          class="btn btn-primary"
+          class="kr-btn-primary-md-plain"
           type="button"
           @click="store.previewEffect(store.selectedItem.id)"
         >

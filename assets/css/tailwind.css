@@ -697,6 +697,20 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply btn btn-primary rounded-2xl;
   }
 
+  /* Fifth filled-button shape (interface-vision t-104 slice 77): DaisyUI's
+   * pure, wholly unmodified `btn btn-primary` — no `btn-sm` utility and no
+   * `rounded-*` override at all — previously hand-rolled in 6 files (7
+   * occurrences; ui-gallery.vue's 4 identical-looking occurrences are its
+   * intentional style-guide demo and stay out of scope, matching every
+   * prior slice's convention for that page). Suffixed `-md-plain` (size
+   * then dropped radius) since it combines .kr-btn-primary-md's default
+   * size with .kr-btn-primary-plain's dropped radius override — both axes
+   * at once, mirroring .kr-btn-primary-md-2xl's identical two-axis naming
+   * on this same family. */
+  .kr-btn-primary-md-plain {
+    @apply btn btn-primary;
+  }
+
   /* The most-repeated *secondary*-color button shape (interface-vision t-104
    * slice 61): the same `sm`/`rounded-xl` shape as .kr-btn-primary, filled
    * with the secondary color instead — `btn btn-secondary btn-sm rounded-xl`,

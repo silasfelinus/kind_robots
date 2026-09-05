@@ -2,7 +2,10 @@
 import { createError } from 'h3'
 import { ResourceType, SupportedServer } from '~/prisma/generated/prisma/client'
 import { resolveMaturityPrivacy } from '~/utils/maturityPrivacy'
-import { krea2LoraCompatibilityRank } from '~/utils/loraSelection'
+import {
+  flux2LoraCompatibilityRank,
+  krea2LoraCompatibilityRank,
+} from '~/utils/loraSelection'
 import { MAX_LORAS_PER_JOB } from '~/server/api/comfy/utils/loraChain'
 import prisma from './prisma'
 
@@ -160,9 +163,7 @@ function compatibilityRank(
   }
 
   if (engine === 'flux2') {
-    if (resource.supportedServer === SupportedServer.FLUX) return 30
-    if (resource.supportedServer === SupportedServer.KONTEXT) return 20
-    if (resource.supportedServer === SupportedServer.GENERIC) return 10
+    return flux2LoraCompatibilityRank(resource)
   }
 
   if (engine === 'sdxl-img2img') {

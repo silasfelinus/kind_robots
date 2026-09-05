@@ -19,7 +19,7 @@
           v-for="option in filters"
           :key="option.value"
           type="button"
-          class="btn btn-sm join-item"
+          class="kr-btn-join-sm"
           :class="filter === option.value ? 'btn-secondary' : 'btn-ghost'"
           @click="filter = option.value"
         >

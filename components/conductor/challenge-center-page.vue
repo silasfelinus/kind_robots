@@ -103,7 +103,7 @@
                   v-for="option in statusOptions"
                   :key="option"
                   type="button"
-                  class="btn btn-sm join-item"
+                  class="kr-btn-join-sm"
                   :class="statusFilter === option ? 'btn-secondary' : 'btn-ghost'"
                   @click="statusFilter = option"
                 >

@@ -8,7 +8,7 @@
         <div class="join">
           <button
             type="button"
-            class="btn btn-sm join-item"
+            class="kr-btn-join-sm"
             :class="visitorPreview ? 'btn-ghost' : 'btn-primary'"
             @click="visitorPreview = false"
           >
@@ -16,7 +16,7 @@
           </button>
           <button
             type="button"
-            class="btn btn-sm join-item"
+            class="kr-btn-join-sm"
             :class="visitorPreview ? 'btn-primary' : 'btn-ghost'"
             @click="visitorPreview = true"
           >

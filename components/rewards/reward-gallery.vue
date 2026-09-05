@@ -25,7 +25,7 @@
             </p>
 
             <button
-              class="btn btn-primary btn-xs shrink-0 rounded-xl"
+              class="kr-btn-xs btn-primary shrink-0"
               type="button"
               @click="continueWithSelected"
             >

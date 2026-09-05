@@ -711,6 +711,20 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply btn btn-primary;
   }
 
+  /* Sixth filled-button shape (interface-vision t-104 slice 78): a small
+   * `xs` primary button with a `rounded-lg` corner radius instead of
+   * `rounded-xl` — `btn btn-primary btn-xs rounded-lg`, previously
+   * hand-rolled in 4 files (8 occurrences, split across two class-order
+   * variants: `btn btn-xs btn-primary rounded-lg` and `btn btn-primary
+   * btn-xs rounded-lg`). Suffixed `-xs-lg` (size then radius) mirroring
+   * `.kr-btn-ghost-xs-lg`'s identical two-axis naming on the ghost family.
+   * Near-miss sites with extra appended classes (shrink-0, gap-1, gap-1.5)
+   * are left out of scope for a follow-up slice, matching this family's
+   * own convention. */
+  .kr-btn-primary-xs-lg {
+    @apply btn btn-primary btn-xs rounded-lg;
+  }
+
   /* The most-repeated *secondary*-color button shape (interface-vision t-104
    * slice 61): the same `sm`/`rounded-xl` shape as .kr-btn-primary, filled
    * with the secondary color instead — `btn btn-secondary btn-sm rounded-xl`,

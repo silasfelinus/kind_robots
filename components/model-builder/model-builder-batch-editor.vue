@@ -98,7 +98,7 @@
         </button>
         <button
           type="button"
-          class="btn btn-xs btn-primary rounded-lg"
+          class="kr-btn-primary-xs-lg"
           :disabled="anyBatching || store.autoBuilding"
           :title="autoBuildGroupTitle"
           @click="store.batchAutoBuild(group.outputKey)"

@@ -883,14 +883,14 @@ onMounted(async () => {
                   @input="updateSeed"
                 />
                 <button
-                  class="btn rounded-2xl"
+                  class="kr-btn-md-2xl"
                   type="button"
                   @click="seed = null"
                 >
                   ⟳
                 </button>
                 <button
-                  class="btn rounded-2xl"
+                  class="kr-btn-md-2xl"
                   type="button"
                   @click="seed = Math.floor(Math.random() * 999999999)"
                 >

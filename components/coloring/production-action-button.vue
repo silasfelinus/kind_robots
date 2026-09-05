@@ -1,7 +1,7 @@
 <template>
   <button
     type="button"
-    class="btn rounded-2xl"
+    class="kr-btn-md-2xl"
     :class="armed ? 'btn-warning' : enabled ? 'btn-primary' : 'btn-disabled'"
     :disabled="!enabled || busy"
     @click="emit('click')"

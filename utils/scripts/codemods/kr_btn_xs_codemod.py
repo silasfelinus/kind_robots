@@ -8,6 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CLASS_ATTR = re.compile(r'class="([^"]*)"')
 REQUIRED = {"btn", "btn-xs", "rounded-xl"}
+EXCLUDED_PARTS = {"node_modules", ".nuxt", "abandonware"}
 
 
 def rewrite_classes(value: str) -> tuple[str, bool]:
@@ -33,22 +34,38 @@ def rewrite_text(text: str) -> tuple[str, int]:
     return CLASS_ATTR.sub(replace, text), count
 
 
-def candidates() -> list[Path]:
+def candidates(scopes: list[str]) -> list[Path]:
+    roots = [ROOT / scope for scope in scopes] if scopes else [ROOT]
+    paths: set[Path] = set()
+    for root in roots:
+        if root.is_file() and root.suffix == ".vue":
+            paths.add(root)
+            continue
+        if root.is_dir():
+            paths.update(root.rglob("*.vue"))
+
     return sorted(
         path
-        for path in ROOT.rglob("*.vue")
-        if "node_modules" not in path.parts and ".nuxt" not in path.parts
+        for path in paths
+        if path.is_relative_to(ROOT)
+        and not EXCLUDED_PARTS.intersection(path.relative_to(ROOT).parts)
     )
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--apply", action="store_true")
+    parser.add_argument(
+        "--path",
+        action="append",
+        default=[],
+        help="Limit the scan to a repo-relative .vue file or directory; repeatable.",
+    )
     args = parser.parse_args()
 
     total = 0
     changed_files = 0
-    for path in candidates():
+    for path in candidates(args.path):
         original = path.read_text(encoding="utf-8")
         rewritten, count = rewrite_text(original)
         if not count:

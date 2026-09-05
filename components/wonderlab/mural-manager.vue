@@ -118,7 +118,7 @@
               </button>
 
               <button
-                class="btn btn-ghost btn-xs self-center rounded-xl"
+                class="kr-btn-xs btn-ghost self-center"
                 type="button"
                 :disabled="!isCustomColor(color.id)"
                 :title="
@@ -277,7 +277,7 @@
                 </div>
 
                 <button
-                  class="btn btn-xs btn-secondary rounded-xl text-white"
+                  class="kr-btn-xs btn-secondary text-white"
                   type="button"
                   @click="coloringStore.paintGroup(group.id)"
                 >

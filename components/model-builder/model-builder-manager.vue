@@ -20,7 +20,7 @@
           v-for="(crumb, index) in crumbs"
           :key="crumb.step"
           type="button"
-          class="btn btn-xs h-7 min-h-7 rounded-xl px-2 text-xs font-semibold"
+          class="kr-btn-xs h-7 min-h-7 px-2 text-xs font-semibold"
           :class="
             store.step === crumb.step
               ? 'btn-primary'
@@ -39,7 +39,7 @@
       <button
         ref="historyToggleButton"
         type="button"
-        class="btn btn-xs btn-ghost ml-auto h-7 min-h-7 rounded-xl px-2"
+        class="kr-btn-xs btn-ghost ml-auto h-7 min-h-7 px-2"
         :class="
           showHistory
             ? 'text-primary'
@@ -56,7 +56,7 @@
 
       <button
         type="button"
-        class="btn btn-xs btn-ghost h-7 min-h-7 rounded-xl px-2 text-base-content/60 hover:text-error"
+        class="kr-btn-xs btn-ghost h-7 min-h-7 px-2 text-base-content/60 hover:text-error"
         :disabled="store.startingRun || resumingRun"
         aria-label="Reset Model Builder"
         @click="store.resetAll()"

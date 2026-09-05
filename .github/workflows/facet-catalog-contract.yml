@@ -74,6 +74,9 @@ jobs:
       - name: Verify retired Facet cleanup and artwork queue
         run: npx tsx utils/scripts/verifyFacetCatalogMaintenance.ts
 
+      - name: Verify legacy Facet art prompt signature
+        run: npx tsx utils/scripts/verifyFacetLegacyPromptSignature.ts
+
       - name: Verify whole-catalog Facet audit
         run: npx tsx utils/scripts/verifyFacetCatalogAudit.ts
 

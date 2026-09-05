@@ -350,7 +350,21 @@ def redact(text):
 # Skeletonization — collapse a line to its shape so repeats collapse together
 # --------------------------------------------------------------------------
 
+_MONTHS = r"(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)"
+_DAYS = r"(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)"
+
 SKELETON_STEPS = (
+    # Word-form timestamps first, before the numeric rules below chew them up
+    # piecemeal. Apache's error log stamps every line `[Sat Sep 05 05:35:07.291452
+    # 2026]`; the generic rules turned that into `[sat sep <num> <ts> <num>]`,
+    # which keeps the WEEKDAY, so one scoopspress PHP warning earned a fresh
+    # fingerprint every day and was reported as `new` on 2026-09-03, 09-04 and
+    # 09-05 in turn -- never once as spiking or quiet, and never against a
+    # baseline. Same shape covers the CLF access-log form `[05/Sep/2026:05:35:07
+    # +0000]` and the syslog form `Sep  5 05:35:07`.
+    (re.compile(r"\b" + _DAYS + r" " + _MONTHS + r" +\d{1,2} \d{2}:\d{2}:\d{2}(?:[.,]\d+)? \d{4}\b"), "<TS>"),
+    (re.compile(r"\b\d{1,2}/" + _MONTHS + r"/\d{4}:\d{2}:\d{2}:\d{2}(?: [+-]\d{4})?\b"), "<TS>"),
+    (re.compile(r"\b" + _MONTHS + r" +\d{1,2} \d{2}:\d{2}:\d{2}(?:[.,]\d+)?\b"), "<TS>"),
     (re.compile(r"\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:[.,]\d+)?(?:Z|[+-]\d{2}:?\d{2})?"), "<TS>"),
     (re.compile(r"\b\d{2}:\d{2}:\d{2}(?:[.,]\d+)?\b"), "<TS>"),
     (re.compile(r"\b\d{4}-\d{2}-\d{2}\b"), "<DATE>"),

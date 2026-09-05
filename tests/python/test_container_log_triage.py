@@ -203,6 +203,32 @@ def test_timestamps_do_not_split_a_signature():
     assert a == b
 
 
+def test_word_form_timestamps_do_not_split_a_signature():
+    # Apache's error log leads with `[Sat Sep 05 05:35:07.291452 2026]`. The
+    # numeric rules alone left `[sat sep <num> <ts> <num>]` behind -- the
+    # weekday survived -- so scoopspress's one standing PHP warning was
+    # reported as a brand-new signature on three consecutive days (2026-09-03
+    # to 09-05) instead of once, and could never accumulate a baseline.
+    apache = [
+        skeletonize("[Thu Sep 03 08:17:14.569014 2026] [php:warn] [pid 53:tid 53] "
+                    "[client 1.2.3.4:0] PHP Warning:  Undefined variable $x in /a/b.php on line 90"),
+        skeletonize("[Fri Sep 04 02:20:15.941655 2026] [php:warn] [pid 103:tid 103] "
+                    "[client 5.6.7.8:0] PHP Warning:  Undefined variable $x in /a/b.php on line 90"),
+        skeletonize("[Sat Sep 05 00:39:51.669169 2026] [php:warn] [pid 322:tid 322] "
+                    "[client 9.9.9.9:0] PHP Warning:  Undefined variable $x in /a/b.php on line 90"),
+    ]
+    assert len(set(apache)) == 1
+    assert "sat" not in apache[0] and "sep" not in apache[0]
+
+    clf_a = skeletonize('1.2.3.4 - - [05/Sep/2026:05:35:07 +0000] "GET /phpinfo.php HTTP/1.1" 404 196')
+    clf_b = skeletonize('5.6.7.8 - - [06/Oct/2026:23:01:59 -0700] "GET /wp-login.php HTTP/1.1" 404 196')
+    assert clf_a == clf_b
+
+    syslog_a = skeletonize("Sep  5 05:35:07 alexandria kernel: eth0: link down")
+    syslog_b = skeletonize("Dec 25 23:59:59 alexandria kernel: eth0: link down")
+    assert syslog_a == syslog_b
+
+
 def test_fingerprint_is_per_container():
     skeleton = skeletonize("connection refused")
     assert fingerprint("plex", skeleton) != fingerprint("sonarr", skeleton)

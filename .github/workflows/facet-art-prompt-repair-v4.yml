@@ -71,3 +71,7 @@ jobs:
           --art-only
           --repair-tainted
           --reason=one-shot-krea-context-prompt-repair-v4
+
+      - name: Report replacement ArtJob IDs
+        run: |
+          npx tsx -e 'import { createScriptPrismaClient } from "./scripts/lib/databaseRetry"; (async () => { const prisma = createScriptPrismaClient(); try { const jobs = await prisma.artJob.findMany({ where: { projectSlug: "facet-catalog", payload: { contains: "\"repairReason\":\"krea-context-prompt-text\"" } }, orderBy: { id: "asc" }, select: { id: true, status: true, artImageId: true } }); console.log("[facet-art-repair] replacement ArtJobs:", jobs); } finally { await prisma.$disconnect(); } })().catch((error) => { console.error(error); process.exit(1); })'

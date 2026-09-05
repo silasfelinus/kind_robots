@@ -98,7 +98,7 @@
           </button>
           <button
             type="button"
-            class="btn btn-xs btn-primary rounded-lg"
+            class="kr-btn-primary-xs-lg"
             :disabled="isLocked('PITCH') || !pitch.trim()"
             @click="approve('PITCH')"
           >
@@ -213,7 +213,7 @@
           </button>
           <button
             type="button"
-            class="btn btn-xs btn-primary rounded-lg"
+            class="kr-btn-primary-xs-lg"
             :disabled="isLocked('FIELDS_AND_PROMPTS')"
             @click="approve('FIELDS_AND_PROMPTS')"
           >
@@ -345,7 +345,7 @@
           </button>
           <button
             type="button"
-            class="btn btn-xs btn-primary rounded-lg"
+            class="kr-btn-primary-xs-lg"
             :disabled="!canApproveAssets"
             @click="approve('GENERATE_ASSETS')"
           >

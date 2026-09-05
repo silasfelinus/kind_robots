@@ -70,7 +70,7 @@
           />
 
           <button
-            class="btn btn-primary btn-xs rounded-lg"
+            class="kr-btn-primary-xs-lg"
             type="button"
             :disabled="isLoading"
             @click="refreshGallery"

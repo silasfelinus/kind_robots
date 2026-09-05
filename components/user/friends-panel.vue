@@ -27,7 +27,7 @@
           >
           <div class="flex gap-1">
             <button
-              class="btn btn-primary btn-xs rounded-lg"
+              class="kr-btn-primary-xs-lg"
               @click="friends.confirmRequest(r.id)"
             >
               Accept
@@ -71,7 +71,7 @@
           </div>
           <div class="flex gap-1">
             <button
-              class="btn btn-primary btn-xs rounded-lg"
+              class="kr-btn-primary-xs-lg"
               @click="message(id)"
             >
               Message
@@ -129,7 +129,7 @@
               v-if="
                 friends.relationship(u.id) === 'none' && u.allowFriendRequests
               "
-              class="btn btn-primary btn-xs rounded-lg"
+              class="kr-btn-primary-xs-lg"
               @click="friends.sendFriendRequest(u.id)"
             >
               Add friend

@@ -40,7 +40,7 @@
           <button
             v-if="!store.isPaused"
             type="button"
-            class="btn btn-warning btn-xs rounded-xl"
+            class="kr-btn-xs btn-warning"
             @click="store.pause()"
           >
             <Icon name="mdi:pause" class="h-3.5 w-3.5" /> Pause
@@ -48,7 +48,7 @@
           <button
             v-else
             type="button"
-            class="btn btn-success btn-xs rounded-xl"
+            class="kr-btn-xs btn-success"
             @click="store.resume()"
           >
             <Icon name="mdi:play" class="h-3.5 w-3.5" /> Resume
@@ -70,7 +70,7 @@
         </button>
         <button
           type="button"
-          class="btn btn-ghost btn-xs rounded-xl text-error/60 hover:text-error"
+          class="kr-btn-xs btn-ghost text-error/60 hover:text-error"
           @click="store.clearTranscript()"
         >
           <Icon name="mdi:broom" class="h-3.5 w-3.5" />

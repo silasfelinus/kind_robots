@@ -66,7 +66,14 @@ def main() -> int:
     total = 0
     changed_files = 0
     for path in candidates(args.path):
-        original = path.read_text(encoding="utf-8")
+        # newline="" disables universal-newline translation on read AND write,
+        # so a CRLF source file round-trips as CRLF instead of silently
+        # collapsing to LF on every line -- not just the lines this codemod
+        # actually touches. Path.read_text()/write_text() always translate
+        # newlines and have no `newline=` param before Python 3.13, so this
+        # opens the file directly instead.
+        with path.open(encoding="utf-8", newline="") as fh:
+            original = fh.read()
         rewritten, count = rewrite_text(original)
         if not count:
             continue
@@ -74,7 +81,8 @@ def main() -> int:
         changed_files += 1
         print(f"{path.relative_to(ROOT)}: {count}")
         if args.apply:
-            path.write_text(rewritten, encoding="utf-8")
+            with path.open("w", encoding="utf-8", newline="") as fh:
+                fh.write(rewritten)
 
     mode = "applied" if args.apply else "would replace"
     print(f"{mode} {total} occurrence(s) across {changed_files} file(s)")

@@ -150,7 +150,7 @@
               >
               <button
                 type="button"
-                class="btn btn-ghost btn-xs rounded-xl gap-1 border border-base-300"
+                class="kr-btn-xs btn-ghost gap-1 border border-base-300"
                 :disabled="!form.name.trim() || llmLoading"
                 @click="generatePrompt"
               >
@@ -181,7 +181,7 @@
               >
               <button
                 type="button"
-                class="btn btn-ghost btn-xs rounded-xl gap-1 border border-base-300"
+                class="kr-btn-xs btn-ghost gap-1 border border-base-300"
                 :disabled="!form.name.trim()"
                 @click="buildArtPrompt"
               >
@@ -449,7 +449,7 @@
             />
             <button
               type="button"
-              class="btn btn-primary btn-xs rounded-xl"
+              class="kr-btn-xs btn-primary"
               @click="addCustomTrait"
             >
               Add

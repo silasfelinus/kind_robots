@@ -27,7 +27,7 @@
         </div>
       </div>
       <div class="flex items-center gap-1.5">
-        <button class="btn btn-primary btn-xs rounded-xl" @click="openNewPack">
+        <button class="kr-btn-xs btn-primary" @click="openNewPack">
           <Icon name="kind-icon:plus" class="size-3.5" />
           New pack
         </button>
@@ -158,7 +158,7 @@
           <div class="flex shrink-0 items-center gap-1.5">
             <button
               v-if="!stateFor(item.id).refId"
-              class="btn btn-primary btn-xs rounded-xl"
+              class="kr-btn-xs btn-primary"
               :disabled="isBusy(item.id)"
               @click="onCreate(item.id)"
             >
@@ -170,7 +170,7 @@
             </button>
             <button
               v-if="stateFor(item.id).refId && !stateFor(item.id).artImageId"
-              class="btn btn-secondary btn-xs rounded-xl"
+              class="kr-btn-xs btn-secondary"
               :disabled="isBusy(item.id)"
               @click="onArt(item.id)"
             >

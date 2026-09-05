@@ -35,7 +35,7 @@
       />
       <div class="flex items-center gap-2">
         <button
-          class="btn btn-secondary btn-xs rounded-xl"
+          class="kr-btn-xs btn-secondary"
           :disabled="scaffolding"
           @click="onScaffold"
         >

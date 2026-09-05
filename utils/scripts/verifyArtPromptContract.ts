@@ -9,6 +9,11 @@ import {
   assertArtPromptContract,
   DISTILLED_ENGINE_LIMITS,
 } from '../../server/utils/artPromptContract'
+import {
+  buildKreaSemanticPrompt,
+  kreaPromptHasContextNoise,
+  rewriteKreaWorkflowPositivePrompt,
+} from '../kreaSemanticPrompt'
 
 function rules(input: Parameters<typeof checkArtPromptContract>[0]): string[] {
   return checkArtPromptContract(input).map((violation) => violation.rule)
@@ -85,6 +90,87 @@ assert.ok(
     engine: 'krea2',
   }).includes('contextual-wrapper'),
   'the v2 "for Kind Robots" variant wrapper must be rejected even with a custom base prompt',
+)
+
+// The Krea workflow builder now has a final semantic scrubber because entity-art
+// callers still carry database context for non-Krea engines. Krea must receive
+// only the useful visual values, never the labels or app-purpose prose.
+const ENTITY_CHARACTER_AS_SHIPPED =
+  'moonlit marsh cartographer with copper instruments. Compose this as a vertical portrait composition with a clear foreground subject and layered depth for the following character. Name: Mira Vale Species: heron-folk Class: cartographer Role: guide Personality: patient, curious, observant Backstory: maps impossible tidal roads by lantern light Existing art prompt: weathered field coat, brass compass, luminous marsh fog Treat the first paragraph as the primary art direction. Use the entity context for identity and continuity, not as a checklist and not as text to render. Every surface in frame is blank and unmarked.'
+assert.equal(
+  kreaPromptHasContextNoise(ENTITY_CHARACTER_AS_SHIPPED),
+  true,
+  'entity-art prompt labels and wrapper prose must be recognized as Krea context noise',
+)
+const semanticCharacter = buildKreaSemanticPrompt(ENTITY_CHARACTER_AS_SHIPPED)
+for (const wanted of [
+  'moonlit marsh cartographer',
+  'vertical portrait composition',
+  'heron-folk',
+  'patient, curious, observant',
+  'weathered field coat',
+]) {
+  assert.match(
+    semanticCharacter,
+    new RegExp(wanted.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'),
+    `semantic Krea prompt must preserve visual content: ${wanted}`,
+  )
+}
+for (const forbidden of [
+  'Mira Vale',
+  'Name:',
+  'Species:',
+  'Existing art prompt:',
+  'following character',
+  'Treat the first paragraph',
+  'text to render',
+  'blank and unmarked',
+]) {
+  assert.doesNotMatch(
+    semanticCharacter,
+    new RegExp(forbidden.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'),
+    `semantic Krea prompt must remove contextual wording: ${forbidden}`,
+  )
+}
+
+const semanticFacet = buildKreaSemanticPrompt(FACET_AS_SHIPPED)
+assert.match(semanticFacet, /Surreal Horror/i)
+assert.match(semanticFacet, /dream logic nightmare/i)
+assert.doesNotMatch(semanticFacet, /Kind Robots/i)
+assert.doesNotMatch(semanticFacet, /Facet concept/i)
+assert.doesNotMatch(semanticFacet, /Genre:/i)
+
+const rawWorkflow = {
+  '1': {
+    class_type: 'CLIPTextEncode',
+    inputs: { text: ENTITY_CHARACTER_AS_SHIPPED, clip: ['9', 0] },
+    _meta: { title: 'Positive Prompt' },
+  },
+  '2': {
+    class_type: 'CLIPTextEncode',
+    inputs: { text: 'blurry, low quality', clip: ['9', 0] },
+    _meta: { title: 'Negative Prompt' },
+  },
+}
+const rewritten = rewriteKreaWorkflowPositivePrompt(
+  rawWorkflow,
+  ENTITY_CHARACTER_AS_SHIPPED,
+)
+assert.equal(rewritten.rewrittenNodes, 1)
+assert.equal(
+  (rewritten.workflow['1'].inputs as { text: string }).text,
+  semanticCharacter,
+  'only semantic content may reach the positive CLIP node',
+)
+assert.equal(
+  (rewritten.workflow['2'].inputs as { text: string }).text,
+  'blurry, low quality',
+  'negative conditioning must not be rewritten by the semantic scrubber',
+)
+assert.equal(
+  (rewritten.workflow['1']._meta as { request_prompt?: string }).request_prompt,
+  ENTITY_CHARACTER_AS_SHIPPED.replace(/\s+/g, ' ').trim(),
+  'raw request stays available only as non-conditioning provenance metadata',
 )
 
 // Scoped to a cast noun plus a presence verb, so prose about people is fine.
@@ -346,5 +432,5 @@ assert.doesNotThrow(
 
 console.log(
   'Art prompt contract passed: conditionals, format vocabulary, contextual Krea wrappers, ' +
-    'negation piles, vague brand style, and distilled-engine parameters are rejected at enqueue.',
+    'semantic entity conditioning, negation piles, vague brand style, and distilled-engine parameters are enforced.',
 )

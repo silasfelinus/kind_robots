@@ -6,6 +6,7 @@ import {
   hashArtImageData,
   validateArtJobCompletionProof,
 } from '../../server/utils/artJobProvenance'
+import { rewriteKreaWorkflowPositivePrompt } from '../kreaSemanticPrompt'
 
 function workflow(prompt: string, seed: number) {
   return {
@@ -203,6 +204,34 @@ assert.throws(
 assert.throws(
   () => validateArtJobCompletionProof(attemptA.payload, null),
   /requires completion provenance/i,
+)
+
+// 2026-09-05: a prompt containing curly quotes must still enqueue through the
+// Krea semantic rewrite. rewriteKreaWorkflowPositivePrompt keeps the raw
+// request in `_meta.request_prompt` so this reconciliation can find it; that
+// copy used to fold ’ “ ” to straight quotes, so it never equalled the
+// whitespace-normalized promptString and every such request was refused as
+// "workflow prompt does not match" (22 Facet titles, plus any user-typed
+// smart quote via /api/art/enqueue).
+const curlyPrompt = 'Pallas’s Cat, “the last lamp” at dawn,  one full creature'
+const curlyRewrite = rewriteKreaWorkflowPositivePrompt(
+  workflow(curlyPrompt, 840011),
+  curlyPrompt,
+)
+assert.equal(curlyRewrite.rewrittenNodes, 1)
+const curlyAttempt = enrichArtJobPayload('COMFY', {
+  promptString: curlyPrompt,
+  workflow: curlyRewrite.workflow,
+})
+assert.equal(
+  curlyAttempt.payload.promptString,
+  'Pallas’s Cat, “the last lamp” at dawn, one full creature',
+  'the top-level promptString keeps its curly quotes, whitespace-normalized only',
+)
+assert.equal(
+  curlyAttempt.provenance.workflowPromptMatches,
+  true,
+  'a curly-quoted request must reconcile against its own _meta.request_prompt provenance',
 )
 
 console.log('ArtJob prompt provenance contract passed.')

@@ -16,7 +16,7 @@
       </div>
       <button
         type="button"
-        class="btn btn-ghost btn-xs rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        class="kr-btn-xs btn-ghost focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         @click="feedPreferenceStore.resetToDefaults()"
       >
         Reset to defaults

@@ -1,0 +1,154 @@
+# Krea semantic art repair — manual, operator-dispatched only.
+#
+# dream-cycle/t-006 (kind_robots#2414): Krea 2 is caption-conditioned, so the
+# contextual entity-art prompts (`Name:`, `Species:`, `Illustrate the Facet
+# concept ...`) were painted into the renders as text. #2414 fixed the prompt
+# path and shipped two repair scripts but deliberately did NOT run them on
+# merge: mutating production ArtJob/Facet rows unattended is a human gate.
+#
+# This workflow is that human-approved run. It never fires on a schedule or a
+# push — only `workflow_dispatch`, and the default mode is a dry run that
+# writes nothing. Selecting `write` cancels still-pending tainted jobs and
+# enqueues semantic NEW_OUTPUT replacements; completed ArtImages are never
+# deleted (the queue's completion path archives the prior render into entity
+# art history when the replacement lands).
+#
+# Runs here rather than from a sandbox because the DB host is a tailnet
+# address; without the Tailscale step every Prisma call fails as a 10s pool
+# timeout (`active=0 idle=0`) that looks like a dead database.
+#
+# Required repository Actions secrets (same as facet-catalog-maintenance.yml):
+#   DATABASE_URL
+#   DATABASE_SSL_CA_BASE64 or DATABASE_SSL_CA
+#   TS_OAUTH_CLIENT_ID
+#   TS_OAUTH_SECRET
+name: Krea semantic art repair
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'dry-run reports the plan; write cancels tainted pending jobs and enqueues semantic replacements'
+        type: choice
+        options:
+          - dry-run
+          - write
+        default: dry-run
+      scope:
+        description: 'facet = legacy v2/v3 Facet catalog jobs; entity = Character/Bot/Dream/Scenario/Reward/Facet contextual jobs; both runs facet then entity'
+        type: choice
+        options:
+          - both
+          - facet
+          - entity
+        default: both
+
+concurrency:
+  group: krea-semantic-art-repair
+  cancel-in-progress: false
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_SSL_CA_BASE64: ${{ secrets.DATABASE_SSL_CA_BASE64 }}
+      DATABASE_SSL_CA: ${{ secrets.DATABASE_SSL_CA }}
+      REPAIR_MODE: ${{ inputs.mode }}
+      REPAIR_SCOPE: ${{ inputs.scope }}
+    steps:
+      - name: Require secrets
+        env:
+          TS_OAUTH_CLIENT_ID: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          TS_OAUTH_SECRET: ${{ secrets.TS_OAUTH_SECRET }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::DATABASE_URL is empty. Add it as a REPOSITORY ACTIONS SECRET (Settings → Secrets and variables → Actions)."
+            exit 1
+          fi
+          if [ -z "$TS_OAUTH_CLIENT_ID" ] || [ -z "$TS_OAUTH_SECRET" ]; then
+            echo "::error::TS_OAUTH_CLIENT_ID / TS_OAUTH_SECRET are empty. The database host is a tailnet address; without them this fails as a Prisma pool timeout."
+            exit 1
+          fi
+          if [ -z "$DATABASE_SSL_CA_BASE64" ] && [ -z "$DATABASE_SSL_CA" ]; then
+            echo "::warning::No database CA secret set. ProxySQL enforces TLS, so this run will likely fail with 'Access denied ... SSL is required'."
+          fi
+          echo "mode=$REPAIR_MODE scope=$REPAIR_SCOPE"
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Facet v2/v3 tainted-job repair
+        if: inputs.scope != 'entity'
+        run: |
+          mkdir -p repair-output
+          if [ "$REPAIR_MODE" = "write" ]; then
+            # The serialized maintenance runner holds the Facet catalog's
+            # named DB lock so this cannot race the weekly maintenance job.
+            npx tsx scripts/run_facet_catalog_maintenance.ts \
+              --art-only --repair-tainted \
+              "--reason=krea semantic repair, ${{ github.event_name }} run ${{ github.run_id }}" \
+              2>&1 | tee repair-output/facet-repair.log
+          else
+            npx tsx scripts/generate_facet_art.ts --repair-tainted \
+              2>&1 | tee repair-output/facet-repair.log
+          fi
+          test "${PIPESTATUS[0]}" -eq 0
+
+      - name: Contextual entity-art repair (Character/Bot/Dream/Scenario/Reward/Facet)
+        if: inputs.scope != 'facet'
+        run: |
+          mkdir -p repair-output
+          if [ "$REPAIR_MODE" = "write" ]; then
+            npx tsx scripts/repair_krea_context_entity_art.ts --write \
+              2>&1 | tee repair-output/entity-repair.log
+          else
+            npx tsx scripts/repair_krea_context_entity_art.ts \
+              2>&1 | tee repair-output/entity-repair.log
+          fi
+          test "${PIPESTATUS[0]}" -eq 0
+
+      - name: Summarize
+        if: always()
+        run: |
+          {
+            echo "## Krea semantic art repair — mode: $REPAIR_MODE, scope: $REPAIR_SCOPE"
+            for f in repair-output/*.log; do
+              [ -f "$f" ] || continue
+              echo
+              echo "### $(basename "$f")"
+              echo '```'
+              # The scripts print one JSON report; keep the summary readable.
+              tail -c 6000 "$f"
+              echo '```'
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload repair reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: krea-semantic-art-repair-${{ inputs.mode }}-${{ github.run_id }}
+          path: repair-output/
+          retention-days: 90
+          if-no-files-found: ignore

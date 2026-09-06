@@ -386,7 +386,7 @@
                 <input
                   v-model="characterStore.keepField[field.key]"
                   type="checkbox"
-                  class="checkbox checkbox-sm checkbox-primary"
+                  class="kr-checkbox-primary-sm"
                   @change="handleKeepFieldChange(field.key)"
                 />
               </label>

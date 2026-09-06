@@ -254,7 +254,7 @@
             <input
               v-model="showNextTime"
               type="checkbox"
-              class="checkbox checkbox-sm checkbox-primary"
+              class="kr-checkbox-primary-sm"
             />
             <span class="font-medium text-base-content/70">
               Show this next time

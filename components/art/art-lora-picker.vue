@@ -212,7 +212,7 @@
                   </span>
                 </span>
 
-                <span class="badge badge-secondary badge-xs rounded-lg">
+                <span class="kr-badge-secondary-xs rounded-lg">
                   {{ entry.resource.supportedServer }}
                 </span>
 

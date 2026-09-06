@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 """Find or migrate hand-rolled kr-badge-{ghost,warning,outline,primary,secondary}-sm
-and kr-badge-{ghost,outline,primary,warning}-xs badges.
+and kr-badge-{ghost,outline,primary,warning,success,error,secondary,accent,info,neutral}-xs
+badges.
 
 Dry-run is the default. Pass --write to update matching Vue files in place.
 Only the approved badge shapes are touched (`badge badge-ghost badge-sm`,
 `badge badge-warning badge-sm`, `badge badge-outline badge-sm`, `badge
 badge-primary badge-sm`, `badge badge-secondary badge-sm`, `badge
 badge-ghost badge-xs`, `badge badge-outline badge-xs`, `badge badge-primary
-badge-xs`, `badge badge-warning badge-xs`), and only in static
+badge-xs`, `badge badge-warning badge-xs`, `badge badge-success badge-xs`,
+`badge badge-error badge-xs`, `badge badge-secondary badge-xs`, `badge
+badge-accent badge-xs`, `badge badge-info badge-xs`, `badge badge-neutral
+badge-xs`), and only in static
 `class="..."` attributes -- never `:class`/`v-bind:class` bindings, and
 regardless of the base tokens' order in the source (`badge-ghost badge-sm`
 counts the same as `badge-sm badge-ghost`). A source that already carries
@@ -48,6 +52,12 @@ FAMILIES = [
     ("kr-badge-outline-xs", {"badge", "badge-outline", "badge-xs"}),
     ("kr-badge-primary-xs", {"badge", "badge-primary", "badge-xs"}),
     ("kr-badge-warning-xs", {"badge", "badge-warning", "badge-xs"}),
+    ("kr-badge-success-xs", {"badge", "badge-success", "badge-xs"}),
+    ("kr-badge-error-xs", {"badge", "badge-error", "badge-xs"}),
+    ("kr-badge-secondary-xs", {"badge", "badge-secondary", "badge-xs"}),
+    ("kr-badge-accent-xs", {"badge", "badge-accent", "badge-xs"}),
+    ("kr-badge-info-xs", {"badge", "badge-info", "badge-xs"}),
+    ("kr-badge-neutral-xs", {"badge", "badge-neutral", "badge-xs"}),
 ]
 
 

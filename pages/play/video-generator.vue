@@ -67,7 +67,7 @@
                 {{ preset.label }}
                 <span
                   v-if="preset.id === defaultPreset.id"
-                  class="badge badge-xs badge-accent"
+                  class="kr-badge-accent-xs"
                 >
                   default
                 </span>

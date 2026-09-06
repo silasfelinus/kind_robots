@@ -102,13 +102,11 @@
         v-if="activeSelected || (collection.isMature && !showMature)"
         class="absolute left-2 top-2 flex flex-wrap gap-1"
       >
-        <span v-if="collection.isPublic" class="badge badge-success badge-xs"
+        <span v-if="collection.isPublic" class="kr-badge-success-xs"
           >Public</span
         >
         <span v-else class="kr-badge-warning-xs">Private</span>
-        <span v-if="collection.isMature" class="badge badge-error badge-xs"
-          >Mature</span
-        >
+        <span v-if="collection.isMature" class="kr-badge-error-xs">Mature</span>
         <span v-if="activeSelected" class="kr-badge-primary-xs">Selected</span>
       </div>
 

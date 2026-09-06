@@ -470,7 +470,7 @@
           class="absolute left-1.5 top-1.5"
           title="Loaded from resource DB"
         >
-          <span class="badge badge-xs badge-success px-1">DB</span>
+          <span class="kr-badge-success-xs px-1">DB</span>
         </div>
       </button>
     </div>

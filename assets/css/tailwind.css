@@ -1019,6 +1019,35 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply badge badge-warning badge-xs;
   }
 
+  /* The remaining `badge-xs` color variants (interface-vision t-104 slice
+   * 114), rounding out full xs-size coverage alongside ghost/outline/
+   * primary/warning above: `badge-success`, `badge-error`, `badge-secondary`,
+   * `badge-accent`, `badge-info`, `badge-neutral`, each `badge-xs` -- the
+   * last 24 hand-rolled occurrences across 12 files. */
+  .kr-badge-success-xs {
+    @apply badge badge-success badge-xs;
+  }
+
+  .kr-badge-error-xs {
+    @apply badge badge-error badge-xs;
+  }
+
+  .kr-badge-secondary-xs {
+    @apply badge badge-secondary badge-xs;
+  }
+
+  .kr-badge-accent-xs {
+    @apply badge badge-accent badge-xs;
+  }
+
+  .kr-badge-info-xs {
+    @apply badge badge-info badge-xs;
+  }
+
+  .kr-badge-neutral-xs {
+    @apply badge badge-neutral badge-xs;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

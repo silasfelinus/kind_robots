@@ -87,20 +87,20 @@
         v-if="showDebug"
         class="absolute left-1.5 top-1.5 flex flex-wrap gap-1"
       >
-        <span v-if="displayImage.imageData" class="badge badge-success badge-xs"
+        <span v-if="displayImage.imageData" class="kr-badge-success-xs"
           >data</span
         >
         <span v-else-if="displayImage.imagePath" class="kr-badge-warning-xs"
           >path</span
         >
-        <span v-else class="badge badge-error badge-xs">none</span>
+        <span v-else class="kr-badge-error-xs">none</span>
       </div>
 
       <div
         v-if="selected && size !== 'xs'"
         class="absolute left-1.5 top-1.5 flex flex-wrap gap-1"
       >
-        <span v-if="displayImage.isMature" class="badge badge-error badge-xs"
+        <span v-if="displayImage.isMature" class="kr-badge-error-xs"
           >Mature</span
         >
         <span v-if="!displayImage.isPublic" class="kr-badge-warning-xs"
@@ -157,10 +157,7 @@
         class="rounded-xl border border-base-300 bg-base-100 p-2 text-xs"
       >
         <div class="flex flex-wrap gap-1.5">
-          <span
-            class="badge badge-info badge-xs"
-            :title="`Image #${displayImage.id}`"
-          >
+          <span class="kr-badge-info-xs" :title="`Image #${displayImage.id}`">
             Image #{{ displayImage.id }}
           </span>
           <span class="badge badge-xs" :class="imageDataBadgeClass">

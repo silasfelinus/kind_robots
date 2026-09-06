@@ -37,7 +37,7 @@
       >
       <span
         v-if="todo.priority === 'HIGH'"
-        class="badge badge-error badge-xs shrink-0"
+        class="kr-badge-error-xs shrink-0"
         >🔴 high</span
       >
       <span
@@ -47,7 +47,7 @@
       >
       <span
         v-if="showCategoryBadge"
-        class="badge badge-accent badge-xs shrink-0"
+        class="kr-badge-accent-xs shrink-0"
         >🍯 honey do</span
       >
       <span

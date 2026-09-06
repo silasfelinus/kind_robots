@@ -197,7 +197,7 @@
         >
           <span class="truncate">
             <strong>{{ engineLabel(m.a.engine) }}</strong> vs <strong>{{ engineLabel(m.b.engine) }}</strong>
-            <span v-if="m.winner" class="badge badge-success badge-xs ml-1">{{ m.winner }} won</span>
+            <span v-if="m.winner" class="kr-badge-success-xs ml-1">{{ m.winner }} won</span>
             <span class="ml-1 opacity-60">{{ m.note }}</span>
           </span>
           <span class="flex gap-1">

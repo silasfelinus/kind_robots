@@ -54,7 +54,7 @@
                 </span>
               </div>
               <span
-                class="badge badge-neutral badge-xs absolute left-1.5 top-1.5 max-w-[calc(100%-0.75rem)] truncate rounded-md shadow"
+                class="kr-badge-neutral-xs absolute left-1.5 top-1.5 max-w-[calc(100%-0.75rem)] truncate rounded-md shadow"
               >
                 {{ item.role }}
               </span>

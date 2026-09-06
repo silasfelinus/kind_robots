@@ -194,7 +194,7 @@
         <select
           v-if="digestDreams.length"
           v-model.number="selectedDreamId"
-          class="select select-bordered select-sm min-w-0 flex-1 rounded-xl"
+          class="kr-select-sm min-w-0 flex-1"
           aria-label="Choose a daily digest"
         >
           <option v-for="dream in digestDreams" :key="dream.id" :value="dream.id">

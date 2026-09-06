@@ -351,7 +351,7 @@
             >
             <select
               v-model="sourceModelType"
-              class="select select-bordered select-sm rounded-xl bg-base-100"
+              class="kr-select-sm bg-base-100"
               data-testid="brainstorm-source-type"
             >
               <option v-for="adapter in sourceAdapters" :key="adapter.modelType" :value="adapter.modelType">
@@ -368,7 +368,7 @@
             <input
               v-model="sourceQuery"
               type="search"
-              class="input input-bordered input-sm rounded-xl bg-base-100"
+              class="kr-input-sm bg-base-100"
               placeholder="Search by name…"
               data-testid="brainstorm-source-query"
               @keydown.enter.prevent="runSourceSearch"

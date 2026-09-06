@@ -46,7 +46,7 @@
       <input
         v-model="search"
         type="search"
-        class="input input-bordered input-sm w-full rounded-xl bg-base-200"
+        class="kr-input-sm w-full bg-base-200"
         placeholder="Search title, taxonomy, slug, or alias — try species, cow, cows..."
         @focus="showResults = true"
       />
@@ -129,7 +129,7 @@
         <input
           v-model="newAliases"
           type="text"
-          class="input input-bordered input-sm rounded-xl sm:col-span-2"
+          class="kr-input-sm sm:col-span-2"
           placeholder="Aliases separated by commas, e.g. cow, cows"
         />
         <button

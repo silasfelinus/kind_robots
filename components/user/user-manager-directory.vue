@@ -23,12 +23,9 @@
           v-model="store.search"
           type="search"
           placeholder="Search name, email, id…"
-          class="input input-bordered input-sm w-48 rounded-xl bg-base-200"
+          class="kr-input-sm w-48 bg-base-200"
         />
-        <select
-          v-model="store.roleFilter"
-          class="select select-bordered select-sm rounded-xl bg-base-200"
-        >
+        <select v-model="store.roleFilter" class="kr-select-sm bg-base-200">
           <option value="ALL">All roles</option>
           <option v-for="r in ROLES" :key="r" :value="r">{{ r }}</option>
         </select>

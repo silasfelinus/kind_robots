@@ -306,7 +306,7 @@
           v-model="search"
           type="search"
           placeholder="Search title or author…"
-          class="input input-sm input-bordered w-full rounded-xl sm:w-56"
+          class="kr-input-sm w-full sm:w-56"
         />
 
         <button
@@ -417,7 +417,7 @@
             max="99"
             placeholder="Any"
             aria-label="Season number (TV only)"
-            class="input input-sm input-bordered w-16 rounded-xl"
+            class="kr-input-sm w-16"
           />
         </label>
 

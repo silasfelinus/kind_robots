@@ -255,7 +255,7 @@
           <input
             v-model="speciesSearch"
             type="text"
-            class="input input-bordered input-sm rounded-xl bg-base-100 focus:border-primary"
+            class="kr-input-sm bg-base-100 focus:border-primary"
             placeholder="Filter species..."
           />
 
@@ -321,7 +321,7 @@
             <input
               v-model="form.species"
               type="text"
-              class="input input-bordered input-sm flex-1 rounded-xl bg-base-100 focus:border-primary"
+              class="kr-input-sm flex-1 bg-base-100 focus:border-primary"
               placeholder="Enter species name..."
               maxlength="100"
               autofocus
@@ -373,7 +373,7 @@
           <input
             v-model="traitSearch"
             type="text"
-            class="input input-bordered input-sm rounded-xl bg-base-100 focus:border-primary"
+            class="kr-input-sm bg-base-100 focus:border-primary"
             placeholder="Filter traits..."
           />
 
@@ -442,7 +442,7 @@
             <input
               v-model="customTraitInput"
               type="text"
-              class="input input-bordered input-sm flex-1 rounded-xl bg-base-100 focus:border-primary"
+              class="kr-input-sm flex-1 bg-base-100 focus:border-primary"
               placeholder="Describe a personality trait..."
               maxlength="100"
               @keydown.enter="addCustomTrait"

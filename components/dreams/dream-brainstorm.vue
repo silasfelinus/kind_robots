@@ -292,7 +292,7 @@
 
                 <input
                   v-model="candidate.title"
-                  class="input input-bordered input-sm mb-2 w-full rounded-xl bg-base-100 font-bold"
+                  class="kr-input-sm mb-2 w-full bg-base-100 font-bold"
                   placeholder="Idea title"
                   @input="editCandidate(candidate.id)"
                 />

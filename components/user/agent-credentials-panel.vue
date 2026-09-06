@@ -154,7 +154,7 @@
         v-model="newLabel"
         type="text"
         placeholder="Label, e.g. Rainbow research agent"
-        class="input input-bordered input-sm w-full rounded-xl bg-base-200"
+        class="kr-input-sm w-full bg-base-200"
         required
       />
 
@@ -162,7 +162,7 @@
         <span class="label-text mb-1 text-xs font-bold">Bot identity</span>
         <select
           v-model.number="newBotId"
-          class="select select-bordered select-sm w-full rounded-xl bg-base-200"
+          class="kr-select-sm w-full bg-base-200"
           required
         >
           <option :value="0" disabled>Choose one of your Bots</option>
@@ -203,7 +203,7 @@
         <span class="label-text mb-1 text-xs font-bold">Expiry</span>
         <select
           v-model="expiryChoice"
-          class="select select-bordered select-sm w-full rounded-xl bg-base-200"
+          class="kr-select-sm w-full bg-base-200"
         >
           <option value="30">30 days</option>
           <option value="90">90 days</option>

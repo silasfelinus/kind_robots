@@ -83,7 +83,7 @@
     -->
     <div
       v-else
-      class="input input-bordered input-sm flex w-full min-w-0 items-center gap-2 rounded-xl bg-base-200"
+      class="kr-input-sm flex w-full min-w-0 items-center gap-2 bg-base-200"
     >
       <Icon name="kind-icon:search" class="h-4 w-4 shrink-0 opacity-50" />
 

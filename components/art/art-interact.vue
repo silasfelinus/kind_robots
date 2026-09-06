@@ -233,7 +233,7 @@
                 <input
                   v-model="editForm.designer"
                   type="text"
-                  class="input input-bordered input-sm rounded-xl bg-base-100"
+                  class="kr-input-sm bg-base-100"
                   placeholder="Kind Designer"
                 />
               </label>
@@ -247,7 +247,7 @@
                 <input
                   v-model="editForm.sampler"
                   type="text"
-                  class="input input-bordered input-sm rounded-xl bg-base-100"
+                  class="kr-input-sm bg-base-100"
                 />
               </label>
 
@@ -260,7 +260,7 @@
                 <input
                   v-model="editForm.checkpoint"
                   type="text"
-                  class="input input-bordered input-sm rounded-xl bg-base-100"
+                  class="kr-input-sm bg-base-100"
                 />
               </label>
 
@@ -272,7 +272,7 @@
                   v-model.number="editForm.steps"
                   type="number"
                   min="1"
-                  class="input input-bordered input-sm rounded-xl bg-base-100"
+                  class="kr-input-sm bg-base-100"
                 />
               </label>
 
@@ -283,7 +283,7 @@
                 <input
                   v-model.number="editForm.seed"
                   type="number"
-                  class="input input-bordered input-sm rounded-xl bg-base-100"
+                  class="kr-input-sm bg-base-100"
                 />
               </label>
 
@@ -295,7 +295,7 @@
                   v-model.number="editForm.cfg"
                   type="number"
                   step="0.5"
-                  class="input input-bordered input-sm rounded-xl bg-base-100"
+                  class="kr-input-sm bg-base-100"
                 />
               </label>
 
@@ -420,7 +420,7 @@
                 <input
                   v-model="collectionSearch"
                   type="search"
-                  class="input input-bordered input-sm mb-2 w-full rounded-xl bg-base-200"
+                  class="kr-input-sm mb-2 w-full bg-base-200"
                   placeholder="Search collections..."
                 />
 

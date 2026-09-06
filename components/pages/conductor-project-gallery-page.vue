@@ -42,7 +42,7 @@
               ref="slugInputRef"
               v-model="createForm.slug"
               type="text"
-              class="input input-bordered input-sm rounded-xl font-mono"
+              class="kr-input-sm font-mono"
               :class="{ 'input-error': slugError }"
               placeholder="project-slug"
               @input="onSlugInput"

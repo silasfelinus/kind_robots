@@ -35,7 +35,7 @@
             v-model="tryText"
             type="text"
             placeholder="Serendipity: turn butterflies on"
-            class="input input-bordered input-sm min-w-0 flex-1 rounded-xl"
+            class="kr-input-sm min-w-0 flex-1"
             :disabled="voice.sending"
           />
           <button

@@ -28,12 +28,13 @@ on:
   workflow_dispatch:
     inputs:
       task:
-        description: 'cancel-pending-jobs clears queued work for retiring slots; link-inspiration turns rendered card/hero/icon art into inspiration entries; ensure-primary backfills Bot.imagePath and promotes a secondary render for any object with no primary'
+        description: 'cancel-pending-jobs clears queued work for retiring slots; link-inspiration turns rendered card/hero/icon art into inspiration entries; ensure-primary backfills Bot.imagePath and promotes a secondary render for any object with no primary; clear-slots retags and clears the retired columns (fail-closed)'
         type: choice
         options:
           - cancel-pending-jobs
           - link-inspiration
           - ensure-primary
+          - clear-slots
         default: cancel-pending-jobs
       mode:
         description: 'dry-run reports the plan; write applies it'
@@ -142,6 +143,22 @@ jobs:
           echo "Running with ${ARGS:-<dry-run>}"
           npx tsx scripts/ensure_entity_primary_art.ts $ARGS \
             2>&1 | tee cleanup-output/ensure-primary.log
+          test "${PIPESTATUS[0]}" -eq 0
+
+      # The one destructive step, and the only one that can lose anything, so
+      # it fails closed: a slot is cleared only once the object has a primary,
+      # the ArtImage exists, and it is already linked as inspiration. Every
+      # image is retagged BEFORE its column is cleared so it never sits
+      # untagged and cannot fall to the landing zone triage deletes.
+      - name: Clear retired slot columns
+        if: inputs.task == 'clear-slots'
+        run: |
+          mkdir -p cleanup-output
+          ARGS=""
+          if [ "$CLEANUP_MODE" = "write" ]; then ARGS="--write"; fi
+          echo "Running with ${ARGS:-<dry-run>}"
+          npx tsx scripts/clear_retired_entity_art_slots.ts $ARGS \
+            2>&1 | tee cleanup-output/clear-slots.log
           test "${PIPESTATUS[0]}" -eq 0
 
       - name: Summarize

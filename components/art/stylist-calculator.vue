@@ -5,9 +5,7 @@
   Time is hours/minutes with preset chips; product cost defaults to $0.00.
 -->
 <template>
-  <section
-    class="stylist-calculator flex flex-col gap-4 rounded-2xl border border-base-300 bg-base-200 p-4"
-  >
+  <section class="flex flex-col gap-4 kr-panel-muted-md">
     <header class="flex items-center gap-2">
       <Icon name="kind-icon:sparkles" class="h-5 w-5 text-primary" />
       <h2 class="text-base font-black text-base-content">New Appointment</h2>

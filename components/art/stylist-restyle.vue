@@ -11,9 +11,7 @@
   superkate-hairstyle-ai t-007 (navigable async) and t-008 (durable per-client gallery).
 -->
 <template>
-  <section
-    class="stylist-restyle flex flex-col gap-4 rounded-2xl border border-base-300 bg-base-200 p-4"
-  >
+  <section class="flex flex-col gap-4 kr-panel-muted-md">
     <header class="flex items-center gap-2">
       <Icon name="kind-icon:magic" class="h-5 w-5 text-primary" />
       <h2 class="text-base font-black text-base-content">Hair Studio</h2>

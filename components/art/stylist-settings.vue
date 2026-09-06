@@ -5,9 +5,7 @@
   booking/contact link, and reply contact. Live receipt preview included.
 -->
 <template>
-  <section
-    class="stylist-settings flex flex-col gap-4 rounded-2xl border border-base-300 bg-base-200 p-4"
-  >
+  <section class="flex flex-col gap-4 kr-panel-muted-md">
     <header class="flex items-center gap-2">
       <Icon name="kind-icon:adjust" class="h-5 w-5 text-primary" />
       <h2 class="text-base font-black text-base-content">Receipt Settings</h2>

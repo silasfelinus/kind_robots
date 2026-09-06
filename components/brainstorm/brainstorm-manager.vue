@@ -210,7 +210,7 @@
             <label class="flex cursor-pointer items-start gap-3">
               <input
                 type="checkbox"
-                class="checkbox checkbox-secondary checkbox-sm mt-0.5"
+                class="kr-checkbox-secondary-sm mt-0.5"
                 :checked="returnTypeSelected(option.id)"
                 :disabled="isGenerating"
                 :data-testid="`brainstorm-return-type-${option.id}`"
@@ -605,7 +605,7 @@
         >
           <input
             type="checkbox"
-            class="checkbox checkbox-sm checkbox-secondary mt-0.5"
+            class="kr-checkbox-secondary-sm mt-0.5"
             :checked="!excludedKeptIds.has(candidate.id)"
             :data-testid="`brainstorm-kept-select-${candidate.id}`"
             @change="toggleKeptSelection(candidate.id)"

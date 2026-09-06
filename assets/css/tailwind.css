@@ -938,6 +938,14 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply checkbox checkbox-sm checkbox-primary;
   }
 
+  /* The secondary-colored counterpart to .kr-checkbox-primary-sm (interface-
+   * vision t-104 slice 107): the same small checkbox shape on DaisyUI's
+   * secondary color -- `checkbox checkbox-sm checkbox-secondary`, previously
+   * hand-rolled in 4 files (5 occurrences). */
+  .kr-checkbox-secondary-sm {
+    @apply checkbox checkbox-sm checkbox-secondary;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

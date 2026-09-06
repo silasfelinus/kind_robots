@@ -4,7 +4,7 @@
     <header class="mb-3 flex flex-wrap items-center gap-2">
       <Icon name="kind-icon:image" class="size-4 text-primary" />
       <h3 class="font-black">{{ client.name }}’s gallery</h3>
-      <span class="badge badge-ghost badge-sm">{{ photos.length }}</span>
+      <span class="kr-badge-ghost-sm">{{ photos.length }}</span>
       <div class="flex-1" />
       <select v-model="folderFilter" class="select select-bordered select-xs">
         <option value="">All folders</option>

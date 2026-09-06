@@ -112,7 +112,7 @@
               <Icon :name="store.isEffectActive(effect.id) ? 'kind-icon:x' : 'kind-icon:eye'" class="h-3 w-3" />
               {{ store.isEffectActive(effect.id) ? 'Stop' : 'Preview' }}
             </button>
-            <span class="badge badge-ghost badge-sm">
+            <span class="kr-badge-ghost-sm">
               {{ surfaceLabel(effect.preferredSurface) }}
             </span>
             <span v-if="effect.generationSafe" class="badge badge-success badge-outline badge-sm">

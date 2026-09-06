@@ -118,7 +118,7 @@
         <div class="flex flex-wrap items-center gap-2">
           <h3 class="text-2xl font-black text-base-content">{{ lesson.name }}</h3>
           <span class="badge badge-primary badge-sm font-bold">{{ lesson.era }}</span>
-          <span class="badge badge-ghost badge-sm">{{ lesson.region }}</span>
+          <span class="kr-badge-ghost-sm">{{ lesson.region }}</span>
         </div>
         <p class="max-w-3xl text-sm leading-relaxed text-base-content/75">
           {{ lesson.keyIdeas }}

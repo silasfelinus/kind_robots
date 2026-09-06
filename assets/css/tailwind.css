@@ -954,6 +954,28 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply checkbox checkbox-xs checkbox-primary;
   }
 
+  /* First badge-family primitive (interface-vision t-104 slice 109): the
+   * small, ghost-styled DaisyUI badge -- `badge badge-ghost badge-sm` --
+   * the single most common hand-rolled badge shape in the codebase (31
+   * exact-match occurrences across 24 files). */
+  .kr-badge-ghost-sm {
+    @apply badge badge-ghost badge-sm;
+  }
+
+  /* The warning-colored counterpart to .kr-badge-ghost-sm (same slice):
+   * `badge badge-warning badge-sm`, previously hand-rolled in 12 files (13
+   * occurrences). */
+  .kr-badge-warning-sm {
+    @apply badge badge-warning badge-sm;
+  }
+
+  /* The outline counterpart to .kr-badge-ghost-sm (same slice): `badge
+   * badge-outline badge-sm`, previously hand-rolled in 10 files (12
+   * occurrences). */
+  .kr-badge-outline-sm {
+    @apply badge badge-outline badge-sm;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

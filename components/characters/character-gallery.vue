@@ -223,18 +223,18 @@
                 Public
               </span>
 
-              <span v-else class="badge badge-ghost badge-sm"> Private </span>
+              <span v-else class="kr-badge-ghost-sm"> Private </span>
 
               <span
                 v-if="characterStore.selectedCharacter.isMature"
-                class="badge badge-warning badge-sm"
+                class="kr-badge-warning-sm"
               >
                 Mature
               </span>
 
               <span
                 v-if="characterStore.selectedCharacter.genre"
-                class="badge badge-outline badge-sm"
+                class="kr-badge-outline-sm"
               >
                 {{ characterStore.selectedCharacter.genre }}
               </span>

@@ -82,7 +82,7 @@
             >
               <span class="flex items-start justify-between gap-2">
                 <span class="font-bold">{{ set.label }}</span>
-                <span class="badge badge-ghost badge-sm">{{ set.cardKeys.length }}</span>
+                <span class="kr-badge-ghost-sm">{{ set.cardKeys.length }}</span>
               </span>
               <span class="mt-1 block text-xs leading-relaxed opacity-65">{{ set.description }}</span>
             </button>
@@ -117,7 +117,7 @@
             <template #toolbar>
               <div class="flex min-w-0 flex-wrap items-center gap-2">
                 <b class="truncate">{{ selectedSet?.label || 'Study set' }}</b>
-                <span class="badge badge-ghost badge-sm">{{ galleryItems.length }}</span>
+                <span class="kr-badge-ghost-sm">{{ galleryItems.length }}</span>
                 <span class="text-xs opacity-55">Tap a card to study it.</span>
               </div>
             </template>
@@ -200,13 +200,13 @@
           >
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-base-300 p-3">
               <div class="flex flex-wrap items-center gap-2 text-xs">
-                <span v-if="currentCard.hskLevel" class="badge badge-outline badge-sm">HSK {{ currentCard.hskLevel }}</span>
-                <span class="badge badge-ghost badge-sm">{{ currentPositionLabel }}</span>
-                <span class="badge badge-ghost badge-sm">{{ studySessionRatedForSet }} rated</span>
+                <span v-if="currentCard.hskLevel" class="kr-badge-outline-sm">HSK {{ currentCard.hskLevel }}</span>
+                <span class="kr-badge-ghost-sm">{{ currentPositionLabel }}</span>
+                <span class="kr-badge-ghost-sm">{{ studySessionRatedForSet }} rated</span>
                 <span v-if="studyDiagnostics?.dueCount" class="badge badge-primary badge-outline badge-sm">
                   {{ studyDiagnostics.dueCount }} due
                 </span>
-                <span v-if="studyDiagnostics?.retentionRate !== null && studyDiagnostics?.retentionRate !== undefined" class="badge badge-ghost badge-sm">
+                <span v-if="studyDiagnostics?.retentionRate !== null && studyDiagnostics?.retentionRate !== undefined" class="kr-badge-ghost-sm">
                   {{ Math.round(studyDiagnostics.retentionRate * 100) }}% retention
                 </span>
               </div>
@@ -378,9 +378,9 @@
 
               <div class="flex min-h-64 flex-col p-5">
                 <div class="flex flex-wrap gap-1">
-                  <span v-if="currentCard.hskLevel" class="badge badge-outline badge-sm">HSK {{ currentCard.hskLevel }}</span>
-                  <span v-if="currentCard.radical" class="badge badge-outline badge-sm">Radical {{ currentCard.radical }}</span>
-                  <span v-for="category in currentCard.categories.slice(0, 4)" :key="category" class="badge badge-ghost badge-sm">{{ category }}</span>
+                  <span v-if="currentCard.hskLevel" class="kr-badge-outline-sm">HSK {{ currentCard.hskLevel }}</span>
+                  <span v-if="currentCard.radical" class="kr-badge-outline-sm">Radical {{ currentCard.radical }}</span>
+                  <span v-for="category in currentCard.categories.slice(0, 4)" :key="category" class="kr-badge-ghost-sm">{{ category }}</span>
                 </div>
 
                 <div class="my-auto py-5 text-center">

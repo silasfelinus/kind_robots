@@ -72,9 +72,7 @@
             <div class="min-w-0">
               <div class="flex flex-wrap items-center gap-2">
                 <h2 class="text-xl font-black">{{ fish.name }}</h2>
-                <span class="badge badge-sm badge-outline">{{
-                  fish.rarity
-                }}</span>
+                <span class="kr-badge-outline-sm">{{ fish.rarity }}</span>
               </div>
               <p class="mt-1 text-xs italic text-base-content/50">
                 {{ fish.species }}

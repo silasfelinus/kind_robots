@@ -154,7 +154,7 @@
               <span class="badge badge-primary badge-outline">
                 {{ channel.tabs.length }} tabs
               </span>
-              <span v-if="channel.requiredRole" class="badge badge-warning badge-sm">
+              <span v-if="channel.requiredRole" class="kr-badge-warning-sm">
                 {{ channel.requiredRole }}
               </span>
             </div>

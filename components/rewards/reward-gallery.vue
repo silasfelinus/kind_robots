@@ -272,16 +272,16 @@
                 Public
               </span>
 
-              <span v-else class="badge badge-ghost badge-sm">Private</span>
+              <span v-else class="kr-badge-ghost-sm">Private</span>
 
               <span
                 v-if="rewardStore.selectedReward.isMature"
-                class="badge badge-warning badge-sm"
+                class="kr-badge-warning-sm"
               >
                 Mature
               </span>
 
-              <span class="badge badge-outline badge-sm">
+              <span class="kr-badge-outline-sm">
                 {{ rewardStore.selectedReward.rarity }}
               </span>
 

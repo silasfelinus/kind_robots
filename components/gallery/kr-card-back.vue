@@ -120,7 +120,7 @@
           <span
             v-for="badge in badges"
             :key="badge"
-            class="badge badge-outline badge-sm"
+            class="kr-badge-outline-sm"
           >
             {{ badge }}
           </span>

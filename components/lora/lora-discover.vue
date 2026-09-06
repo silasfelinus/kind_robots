@@ -122,7 +122,7 @@
             <span v-if="card.baseModel" class="badge badge-secondary badge-sm">
               {{ card.baseModel }}
             </span>
-            <span v-if="card.isMature" class="badge badge-warning badge-sm">
+            <span v-if="card.isMature" class="kr-badge-warning-sm">
               Mature
             </span>
           </div>

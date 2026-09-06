@@ -49,7 +49,7 @@
         </span>
         <span
           v-if="checkpoint.isMature && showMatureBadge"
-          class="badge badge-warning badge-sm"
+          class="kr-badge-warning-sm"
         >
           Mature
         </span>
@@ -82,10 +82,10 @@
       </p>
 
       <div v-if="showMeta" class="flex flex-wrap justify-center gap-2">
-        <span v-if="checkpointLocalPath" class="badge badge-outline badge-sm">
+        <span v-if="checkpointLocalPath" class="kr-badge-outline-sm">
           Local
         </span>
-        <span v-if="checkpoint.artImageId" class="badge badge-ghost badge-sm">
+        <span v-if="checkpoint.artImageId" class="kr-badge-ghost-sm">
           Preview
         </span>
         <span v-if="checkpoint.userId" class="badge badge-primary badge-sm">

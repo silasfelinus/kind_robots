@@ -528,7 +528,7 @@
                     </span>
                   </span>
                   <span class="flex shrink-0 flex-col items-end gap-0.5">
-                    <span class="badge badge-ghost badge-sm">
+                    <span class="kr-badge-ghost-sm">
                       {{ saved.candidateCount }} idea{{
                         saved.candidateCount === 1 ? '' : 's'
                       }}

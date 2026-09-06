@@ -143,7 +143,7 @@
 
                   <span
                     v-if="rewardStore.selectedReward.collection"
-                    class="badge badge-outline badge-sm"
+                    class="kr-badge-outline-sm"
                   >
                     {{ rewardStore.selectedReward.collection }}
                   </span>

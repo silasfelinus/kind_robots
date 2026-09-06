@@ -944,18 +944,18 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
 
   /* The most-repeated hand-rolled text-input shape in the app (interface-
    * vision t-104 slice 104): a small, rounded DaisyUI input used across
-   * curation/facet/admin forms -- `input input-bordered input-sm
+   * curation/facet/admin forms -- `input input-sm
    * rounded-xl`, previously hand-rolled in 9+ files (29 occurrences). */
   .kr-input-sm {
-    @apply input input-bordered input-sm rounded-xl;
+    @apply input input-sm rounded-xl;
   }
 
   /* The `select` counterpart to .kr-input-sm (interface-vision t-104 slice
    * 104): the same small/rounded shape on DaisyUI's select control --
-   * `select select-bordered select-sm rounded-xl`, previously hand-rolled
+   * `select select-sm rounded-xl`, previously hand-rolled
    * in 13+ files (31 occurrences). */
   .kr-select-sm {
-    @apply select select-bordered select-sm rounded-xl;
+    @apply select select-sm rounded-xl;
   }
 
   /* The most-repeated hand-rolled checkbox shape (interface-vision t-104

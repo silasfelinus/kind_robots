@@ -51,6 +51,10 @@ on:
         description: 'Also cancel pending jobs for these slots that are NOT semantic-repair replacements'
         type: boolean
         default: false
+      adopt_path_only:
+        description: 'link-inspiration only: create an ArtImage row for a legacy bare-path slot so its reference survives the column drop'
+        type: boolean
+        default: false
 
 concurrency:
   group: entity-art-slot-cleanup
@@ -68,6 +72,7 @@ jobs:
       CLEANUP_MODE: ${{ inputs.mode }}
       CLEANUP_FIELDS: ${{ inputs.fields }}
       CLEANUP_INCLUDE_UNMARKED: ${{ inputs.include_unmarked }}
+      CLEANUP_ADOPT_PATH_ONLY: ${{ inputs.adopt_path_only }}
     steps:
       - name: Require secrets
         env:
@@ -127,6 +132,7 @@ jobs:
           mkdir -p cleanup-output
           ARGS=""
           if [ "$CLEANUP_MODE" = "write" ]; then ARGS="--write"; fi
+          if [ "$CLEANUP_ADOPT_PATH_ONLY" = "true" ]; then ARGS="$ARGS --adopt-path-only"; fi
           echo "Running with ${ARGS:-<dry-run>}"
           npx tsx scripts/link_entity_art_slots_as_inspiration.ts $ARGS \
             2>&1 | tee cleanup-output/inspiration-link.log

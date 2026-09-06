@@ -152,7 +152,7 @@
               Art prompt
               <span
                 v-if="fish.curation.promptOverride"
-                class="badge badge-xs badge-warning"
+                class="kr-badge-warning-xs"
                 >draft override</span
               >
             </span>

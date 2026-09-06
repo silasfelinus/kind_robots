@@ -105,13 +105,11 @@
         <span v-if="collection.isPublic" class="badge badge-success badge-xs"
           >Public</span
         >
-        <span v-else class="badge badge-warning badge-xs">Private</span>
+        <span v-else class="kr-badge-warning-xs">Private</span>
         <span v-if="collection.isMature" class="badge badge-error badge-xs"
           >Mature</span
         >
-        <span v-if="activeSelected" class="badge badge-primary badge-xs"
-          >Selected</span
-        >
+        <span v-if="activeSelected" class="kr-badge-primary-xs">Selected</span>
       </div>
 
       <div
@@ -143,7 +141,7 @@
       </div>
       <div v-if="showMeta" class="flex flex-wrap items-center gap-1">
         <span class="kr-badge-outline-xs">{{ imageCountLabel }}</span>
-        <span v-if="collectionUsername" class="badge badge-primary badge-xs">
+        <span v-if="collectionUsername" class="kr-badge-primary-xs">
           {{ collectionUsername }}
         </span>
       </div>

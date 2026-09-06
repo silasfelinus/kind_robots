@@ -189,7 +189,7 @@
                 <span class="font-black">{{ tab.label }}</span>
                 <span
                   v-if="tab.tabKey === channel.defaultTab"
-                  class="badge badge-primary badge-xs"
+                  class="kr-badge-primary-xs"
                 >
                   default
                 </span>

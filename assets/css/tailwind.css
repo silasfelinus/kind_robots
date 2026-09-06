@@ -1004,6 +1004,21 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply badge badge-outline badge-xs;
   }
 
+  /* The primary-colored counterpart to .kr-badge-primary-sm at the xs size
+   * (interface-vision t-104 slice 113): `badge badge-primary badge-xs`, the
+   * largest remaining hand-rolled `badge-xs` pool surveyed (6 files, 10
+   * occurrences). */
+  .kr-badge-primary-xs {
+    @apply badge badge-primary badge-xs;
+  }
+
+  /* The warning-colored counterpart to .kr-badge-warning-sm at the xs size
+   * (same slice): `badge badge-warning badge-xs`, tied with success/error-xs
+   * as the next-largest pool (5 files, 6 occurrences). */
+  .kr-badge-warning-xs {
+    @apply badge badge-warning badge-xs;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

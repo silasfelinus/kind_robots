@@ -97,7 +97,7 @@
                 </span>
                 <span
                   v-if="isAdminOnlyTab(channel, tab)"
-                  class="badge badge-warning badge-xs shrink-0 font-bold uppercase"
+                  class="kr-badge-warning-xs shrink-0 font-bold uppercase"
                   title="Admin-only page"
                 >
                   Admin

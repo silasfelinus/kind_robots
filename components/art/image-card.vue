@@ -90,9 +90,7 @@
         <span v-if="displayImage.imageData" class="badge badge-success badge-xs"
           >data</span
         >
-        <span
-          v-else-if="displayImage.imagePath"
-          class="badge badge-warning badge-xs"
+        <span v-else-if="displayImage.imagePath" class="kr-badge-warning-xs"
           >path</span
         >
         <span v-else class="badge badge-error badge-xs">none</span>
@@ -105,7 +103,7 @@
         <span v-if="displayImage.isMature" class="badge badge-error badge-xs"
           >Mature</span
         >
-        <span v-if="!displayImage.isPublic" class="badge badge-warning badge-xs"
+        <span v-if="!displayImage.isPublic" class="kr-badge-warning-xs"
           >Private</span
         >
       </div>
@@ -205,7 +203,7 @@
 
         <span
           v-if="displayImage.designer && size === 'lg'"
-          class="badge badge-primary badge-xs"
+          class="kr-badge-primary-xs"
         >
           {{ displayImage.designer }}
         </span>

@@ -144,7 +144,7 @@
                 {{ app.taskDone }} of {{ app.taskTotal }} tasks done
                 <span
                   v-if="app.needsHuman > 0"
-                  class="badge badge-primary badge-xs ml-1"
+                  class="kr-badge-primary-xs ml-1"
                 >
                   {{ app.needsHuman }} need you
                 </span>

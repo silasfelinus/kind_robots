@@ -421,11 +421,7 @@
           />
         </label>
 
-        <select
-          v-model="sort"
-          class="select select-sm select-bordered rounded-xl"
-          aria-label="Sort order"
-        >
+        <select v-model="sort" class="kr-select-sm" aria-label="Sort order">
           <option value="date_desc">Newest first</option>
           <option value="date_asc">Oldest first</option>
           <option value="title_asc">Title A–Z</option>

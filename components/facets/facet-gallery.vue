@@ -25,7 +25,7 @@
       />
       <select
         v-model="taxonomyFilter"
-        class="select select-bordered select-sm rounded-xl"
+        class="kr-select-sm"
         aria-label="Filter by taxonomy"
       >
         <option :value="null">All taxonomies ({{ totalCount }})</option>

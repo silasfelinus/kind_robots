@@ -95,7 +95,7 @@
                 type="text"
                 maxlength="255"
                 placeholder="Who are you?"
-                class="input input-bordered input-sm rounded-xl"
+                class="kr-input-sm"
               />
             </label>
             <label class="form-control w-full max-w-sm">
@@ -107,7 +107,7 @@
                 type="text"
                 maxlength="255"
                 placeholder="e.g. quiet epic, folk tale, heist"
-                class="input input-bordered input-sm rounded-xl"
+                class="kr-input-sm"
               />
             </label>
             <button

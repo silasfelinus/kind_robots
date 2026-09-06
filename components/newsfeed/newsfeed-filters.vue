@@ -194,7 +194,7 @@
       <label for="newsfeed-sort-mode" class="text-xs font-bold">Sort by</label>
       <select
         id="newsfeed-sort-mode"
-        class="select select-sm select-bordered rounded-xl"
+        class="kr-select-sm"
         :value="feedPreferenceStore.sortMode"
         @change="
           feedPreferenceStore.setSortMode(

@@ -32,7 +32,7 @@
           <span class="label py-1 text-xs font-bold">Characters</span>
           <select
             v-model.number="characterCount"
-            class="select select-bordered select-sm rounded-xl"
+            class="kr-select-sm"
           >
             <option :value="1">1</option>
             <option :value="2">2</option>
@@ -44,7 +44,7 @@
           <span class="label py-1 text-xs font-bold">Objects</span>
           <select
             v-model.number="rewardCount"
-            class="select select-bordered select-sm rounded-xl"
+            class="kr-select-sm"
           >
             <option :value="1">1</option>
             <option :value="2">2</option>

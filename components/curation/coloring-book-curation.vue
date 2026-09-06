@@ -5,7 +5,7 @@
         <span class="text-xs font-bold text-base-content/55">Book</span>
         <select
           :value="store.selectedBookSlug"
-          class="select select-bordered select-sm rounded-xl"
+          class="kr-select-sm"
           @change="store.selectBook(eventValue($event))"
         >
           <option
@@ -26,7 +26,7 @@
         <input
           v-model="search"
           type="search"
-          class="input input-bordered input-sm rounded-xl"
+          class="kr-input-sm"
           placeholder="title, prompt, notes..."
         />
       </label>

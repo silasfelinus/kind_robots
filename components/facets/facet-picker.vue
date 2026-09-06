@@ -111,12 +111,12 @@
         <input
           v-model="newTitle"
           type="text"
-          class="input input-bordered input-sm rounded-xl"
+          class="kr-input-sm"
           placeholder="Canonical title, e.g. CowCore"
         />
         <select
           v-model="newTaxonomy"
-          class="select select-bordered select-sm rounded-xl"
+          class="kr-select-sm"
         >
           <option
             v-for="taxonomy in FACET_TAXONOMIES"

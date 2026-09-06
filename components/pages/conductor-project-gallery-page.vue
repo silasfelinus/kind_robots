@@ -28,7 +28,7 @@
             <input
               v-model="createForm.title"
               type="text"
-              class="input input-bordered input-sm rounded-xl"
+              class="kr-input-sm"
               placeholder="Project title"
               @input="onTitleInput"
             />

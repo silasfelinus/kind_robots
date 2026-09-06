@@ -74,7 +74,7 @@
             <span class="text-xs font-bold text-base-content/60">Method</span>
             <select
               v-model="mode"
-              class="select select-bordered select-sm rounded-xl"
+              class="kr-select-sm"
               :disabled="submitting"
             >
               <option value="recreate">Redo from prompt</option>
@@ -86,7 +86,7 @@
             <span class="text-xs font-bold text-base-content/60">Engine</span>
             <select
               v-model="engine"
-              class="select select-bordered select-sm rounded-xl"
+              class="kr-select-sm"
               :disabled="submitting"
             >
               <template v-if="mode === 'recreate'">
@@ -104,7 +104,7 @@
             <span class="text-xs font-bold text-base-content/60">Strength</span>
             <select
               v-model="presetKey"
-              class="select select-bordered select-sm rounded-xl"
+              class="kr-select-sm"
               :disabled="submitting"
             >
               <option

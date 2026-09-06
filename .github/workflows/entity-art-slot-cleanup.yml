@@ -27,8 +27,15 @@ name: Entity art slot cleanup
 on:
   workflow_dispatch:
     inputs:
+      task:
+        description: 'cancel-pending-jobs clears queued work for retiring slots; link-inspiration turns rendered card/hero/icon art into inspiration entries'
+        type: choice
+        options:
+          - cancel-pending-jobs
+          - link-inspiration
+        default: cancel-pending-jobs
       mode:
-        description: 'dry-run reports the plan; write cancels the pending jobs'
+        description: 'dry-run reports the plan; write applies it'
         type: choice
         options:
           - dry-run
@@ -55,6 +62,7 @@ jobs:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       DATABASE_SSL_CA_BASE64: ${{ secrets.DATABASE_SSL_CA_BASE64 }}
       DATABASE_SSL_CA: ${{ secrets.DATABASE_SSL_CA }}
+      CLEANUP_TASK: ${{ inputs.task }}
       CLEANUP_MODE: ${{ inputs.mode }}
       CLEANUP_FIELDS: ${{ inputs.fields }}
       CLEANUP_INCLUDE_UNMARKED: ${{ inputs.include_unmarked }}
@@ -72,7 +80,7 @@ jobs:
             echo "::error::TS_OAUTH_CLIENT_ID / TS_OAUTH_SECRET are empty. The database host is a tailnet address; without them this fails as a Prisma pool timeout."
             exit 1
           fi
-          echo "mode=$CLEANUP_MODE fields=$CLEANUP_FIELDS include_unmarked=$CLEANUP_INCLUDE_UNMARKED"
+          echo "task=$CLEANUP_TASK mode=$CLEANUP_MODE fields=$CLEANUP_FIELDS include_unmarked=$CLEANUP_INCLUDE_UNMARKED"
 
       - uses: actions/checkout@v4
 
@@ -97,6 +105,7 @@ jobs:
           tags: tag:ci
 
       - name: Cancel pending jobs for retiring slots
+        if: inputs.task == 'cancel-pending-jobs'
         run: |
           mkdir -p cleanup-output
           ARGS="--fields=$CLEANUP_FIELDS"
@@ -107,24 +116,40 @@ jobs:
             2>&1 | tee cleanup-output/slot-cleanup.log
           test "${PIPESTATUS[0]}" -eq 0
 
+      # Insert-only: every rendered card/hero/icon image gains an
+      # EntityArtImage join row so it shows up as inspiration. Nothing is
+      # deleted, moved or rewritten -- see the script header.
+      - name: Link retired slot art as inspiration
+        if: inputs.task == 'link-inspiration'
+        run: |
+          mkdir -p cleanup-output
+          ARGS=""
+          if [ "$CLEANUP_MODE" = "write" ]; then ARGS="--write"; fi
+          echo "Running with ${ARGS:-<dry-run>}"
+          npx tsx scripts/link_entity_art_slots_as_inspiration.ts $ARGS \
+            2>&1 | tee cleanup-output/inspiration-link.log
+          test "${PIPESTATUS[0]}" -eq 0
+
       - name: Summarize
         if: always()
         run: |
           {
-            echo "## Entity art slot cleanup — mode: $CLEANUP_MODE, fields: $CLEANUP_FIELDS"
-            if [ -f cleanup-output/slot-cleanup.log ]; then
+            echo "## Entity art slot cleanup — task: $CLEANUP_TASK, mode: $CLEANUP_MODE"
+            for f in cleanup-output/*.log; do
+              [ -f "$f" ] || continue
               echo
+              echo "### $(basename "$f")"
               echo '```'
-              tail -c 6000 cleanup-output/slot-cleanup.log
+              tail -c 6000 "$f"
               echo '```'
-            fi
+            done
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload cleanup report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: entity-art-slot-cleanup-${{ inputs.mode }}-${{ github.run_id }}
+          name: entity-art-slot-cleanup-${{ inputs.task }}-${{ inputs.mode }}-${{ github.run_id }}
           path: cleanup-output/
           retention-days: 90
           if-no-files-found: ignore

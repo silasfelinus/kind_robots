@@ -109,17 +109,24 @@ const VARIANT_DATA_KEYS = {
 } as const
 
 /**
- * Renderable source for a purpose-built art variant.
+ * Renderable source for an entity's art in a requested shape.
  *
- * These three slots have existed on the type since the card/hero/icon migration
- * (interface-vision t-007), but until now nothing read them: the only resolvers
- * were the full-size and thumbnail ones, so every card fell back to the entity's
- * avatar or primary image. That left hundreds of rendered card images sitting in
- * the database, invisible.
+ * PRIMARY FIRST (2026-09-05). Entity art is collapsing from four stored slots
+ * per object to one primary render plus an inspiration gallery, because four
+ * renders per object made the library unwieldy for no display benefit -- the
+ * frames differ, but the picture does not need to. The primary now wins, and
+ * the purpose-built variants are only a fallback for an object that has no
+ * primary yet.
  *
- * Degrades deliberately: requested variant path -> requested variant base64 ->
- * the full-size resolver -> `fallback`. A gallery that asks for a card therefore
- * gets the card when one exists and the general imagePath when it does not.
+ * The old order (variant first) is exactly what made every object cost four
+ * renders. Keeping the variants as a fallback rather than deleting the branch
+ * means nothing goes blank during the migration: the entities that have variant
+ * art but no primary keep rendering as before until a primary arrives.
+ *
+ * Degrades: primary -> requested variant path -> requested variant base64 ->
+ * `fallback`. Callers that need to know which they got -- a stand-in primary
+ * must be re-cropped, a composed variant must not -- read `origin` from
+ * resolveArtVariantSource().
  */
 export function resolveArtVariantSrc(
   image: ArtImageSrcLike,
@@ -142,6 +149,9 @@ export function resolveArtVariantSource(
   variant: ArtVariant,
   fallback = '',
 ): ResolvedArtSrc {
+  const primary = resolveArtImageSrc(image)
+  if (primary) return { src: primary, origin: 'primary' }
+
   const path = cleanValue(image?.[VARIANT_PATH_KEYS[variant]])
   if (path) return { src: path, origin: 'variant' }
 
@@ -150,9 +160,6 @@ export function resolveArtVariantSource(
     image?.fileType,
   )
   if (data) return { src: data, origin: 'variant' }
-
-  const primary = resolveArtImageSrc(image)
-  if (primary) return { src: primary, origin: 'primary' }
 
   const cleanFallback = cleanValue(fallback)
   return cleanFallback

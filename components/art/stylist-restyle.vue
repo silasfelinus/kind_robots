@@ -129,7 +129,7 @@
       </div>
 
       <label v-if="sourceImageData" class="flex items-center gap-2">
-        <input v-model="maskEnabled" type="checkbox" class="checkbox checkbox-xs checkbox-primary" />
+        <input v-model="maskEnabled" type="checkbox" class="kr-checkbox-primary-xs" />
         <span class="text-xs text-base-content/70">
           Only restyle the hair (paint a mask instead of changing the whole photo)
         </span>
@@ -226,7 +226,7 @@
         <span>Keep it them</span>
       </div>
       <label class="flex items-start gap-2 pt-1">
-        <input v-model="protectIdentity" type="checkbox" class="checkbox checkbox-xs checkbox-primary mt-0.5" />
+        <input v-model="protectIdentity" type="checkbox" class="kr-checkbox-primary-xs mt-0.5" />
         <span class="text-xs text-base-content/70">
           Extra-protect the face &amp; identity (a little slower — guards against turning
           them into someone else)

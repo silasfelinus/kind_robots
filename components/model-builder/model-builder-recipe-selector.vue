@@ -145,7 +145,7 @@
         >
           <input
             type="checkbox"
-            class="checkbox checkbox-xs checkbox-primary"
+            class="kr-checkbox-primary-xs"
             :checked="store.includeArt"
             :disabled="store.startingRun"
             @change="onIncludeArt($event)"

@@ -146,7 +146,7 @@
       </div>
     </section>
 
-    <main class="kr-scroll rounded-xl border border-base-300 bg-base-100 p-3">
+    <main class="kr-scroll kr-panel-compact">
       <kr-gallery
         :items="galleryItems"
         :mode="galleryMode"

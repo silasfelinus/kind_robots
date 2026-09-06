@@ -265,7 +265,7 @@
                 <input
                   v-model="useGenerated[field.key]"
                   type="checkbox"
-                  class="checkbox checkbox-sm checkbox-secondary"
+                  class="kr-checkbox-secondary-sm"
                   :disabled="isKept(field.key)"
                 />
               </label>

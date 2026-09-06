@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
-"""Find or migrate hand-rolled kr-checkbox-primary-sm form controls.
+"""Find or migrate hand-rolled kr-checkbox-{primary,secondary}-sm form controls.
 
 Dry-run is the default. Pass --write to update matching Vue files in place.
-Only the approved small/primary-colored DaisyUI checkbox shape is touched
-(`checkbox checkbox-sm checkbox-primary`), and only in static `class="..."`
-attributes -- never `:class`/`v-bind:class` bindings, and regardless of the
-base tokens' order in the source (`checkbox-primary checkbox-sm` counts the
-same as `checkbox-sm checkbox-primary`). A source that already carries the
-target primitive, or is missing any one of the base tokens, is left
-untouched. Extra tokens beyond the base set (mt-1, ...) are preserved
-verbatim after the primitive class, matching the kr-input-sm/kr-select-sm
-codemod's subset-match convention -- they're plain Tailwind utilities layered
-on top, not another component-root class, so resolution order is unaffected
-by folding the three base tokens into one name.
+Only the approved small/colored DaisyUI checkbox shapes are touched
+(`checkbox checkbox-sm checkbox-primary` and `checkbox checkbox-sm
+checkbox-secondary`), and only in static `class="..."` attributes -- never
+`:class`/`v-bind:class` bindings, and regardless of the base tokens' order in
+the source (`checkbox-primary checkbox-sm` counts the same as `checkbox-sm
+checkbox-primary`). A source that already carries the target primitive, or is
+missing any one of the base tokens, is left untouched. Extra tokens beyond
+the base set (mt-1, mt-0.5, ...) are preserved verbatim after the primitive
+class, matching the kr-input-sm/kr-select-sm codemod's subset-match
+convention -- they're plain Tailwind utilities layered on top, not another
+component-root class, so resolution order is unaffected by folding the three
+base tokens into one name.
 """
 
 from __future__ import annotations
@@ -25,6 +26,7 @@ CLASS_ATTR = re.compile(r'class="([^"]*)"')
 
 FAMILIES = [
     ("kr-checkbox-primary-sm", {"checkbox", "checkbox-sm", "checkbox-primary"}),
+    ("kr-checkbox-secondary-sm", {"checkbox", "checkbox-sm", "checkbox-secondary"}),
 ]
 
 
@@ -77,17 +79,19 @@ def main() -> int:
         # CRLF, and translating those to LF on write would turn a one-line
         # class-attribute change into a whole-file rewrite (kind_robots
         # add-bot.vue, interface-vision t-104 slice 106).
-        text = path.read_text(encoding="utf-8", newline="")
+        with path.open(encoding="utf-8", newline="") as f:
+            text = f.read()
         migrated, count = migrate_text(text, args.exact_only)
         if not count:
             continue
         total += count
         print(f"{path.relative_to(args.root)}: {count}")
         if args.write:
-            path.write_text(migrated, encoding="utf-8", newline="")
+            with path.open("w", encoding="utf-8", newline="") as f:
+                f.write(migrated)
 
     mode = "migrated" if args.write else "candidate"
-    print(f"kr-checkbox-primary-sm {mode} occurrences: {total}")
+    print(f"kr-checkbox-*-sm {mode} occurrences: {total}")
     return 0
 
 

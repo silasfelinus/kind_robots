@@ -136,7 +136,7 @@
           <input
             v-model="preserveOriginal"
             type="checkbox"
-            class="checkbox checkbox-secondary checkbox-sm mt-0.5"
+            class="kr-checkbox-secondary-sm mt-0.5"
             :disabled="submitting"
           />
           <span>

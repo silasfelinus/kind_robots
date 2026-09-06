@@ -78,14 +78,16 @@ def main() -> int:
         # class-attribute change into a whole-file rewrite (kind_robots
         # add-bot.vue, caught while extending this codemod's sibling for
         # interface-vision t-104 slice 106).
-        text = path.read_text(encoding="utf-8", newline="")
+        with path.open(encoding="utf-8", newline="") as f:
+            text = f.read()
         migrated, count = migrate_text(text, args.exact_only)
         if not count:
             continue
         total += count
         print(f"{path.relative_to(args.root)}: {count}")
         if args.write:
-            path.write_text(migrated, encoding="utf-8", newline="")
+            with path.open("w", encoding="utf-8", newline="") as f:
+                f.write(migrated)
 
     mode = "migrated" if args.write else "candidate"
     print(f"kr-input-sm/kr-select-sm {mode} occurrences: {total}")

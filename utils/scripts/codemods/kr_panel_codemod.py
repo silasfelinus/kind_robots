@@ -95,9 +95,17 @@ SAFE_EXTRA_RE = re.compile(
     r"(mx-auto|my-auto|mt-auto|mb-auto|ml-auto|mr-auto)|"
     r"aspect-\S+|"
     r"group|"
-    r"kr-(pane|pane-scroll|surface|stage|unbound|container|container-wide|section|toolbar)"
+    r"kr-(pane|pane-scroll|surface|stage|unbound|container|container-wide|section|toolbar|scroll)"
     r")$"
 )
+# 2026-09-06 (t-104 slice 119) addition: `kr-scroll` -- `@apply min-h-0 flex-1
+# overflow-y-auto overscroll-contain` in tailwind.css; pure layout/scroll
+# behavior, same verified-empty-of-bg/border/radius category as the other
+# listed kr-* primitives. Unblocks the one occurrence this slice's own note
+# (t-104 slice 118) flagged as the next candidate:
+# components/pages/conductor-project-gallery-page.vue's
+# `kr-scroll rounded-xl border border-base-300 bg-base-100 p-3` (kr-panel-compact).
+#
 # 2026-08-09 (t-104 slice 15) additions, each verified against the compiled
 # Tailwind output (`npx @tailwindcss/cli -i assets/css/tailwind.css -o -`)
 # to declare NO background-color/border-color/border-radius of its own, so

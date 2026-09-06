@@ -40,6 +40,9 @@ jobs:
       - name: Art-request YAML indentation contract
         run: npm run test:art-request-yaml
 
+      - name: Entity art primary/crop contract
+        run: npm run test:entity-art-primary-crop
+
       - name: GitHub file-read contract
         run: npm run test:github-file-contents
 

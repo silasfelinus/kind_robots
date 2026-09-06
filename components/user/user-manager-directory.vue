@@ -229,7 +229,7 @@
           v-model="newPassword"
           type="password"
           placeholder="New password (min 8)"
-          class="input input-bordered w-full rounded-xl bg-base-200"
+          class="kr-input-muted rounded-xl"
         />
         <p v-if="pwError" class="mt-2 text-sm text-error">{{ pwError }}</p>
         <div class="modal-action">

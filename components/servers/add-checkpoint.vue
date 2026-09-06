@@ -39,7 +39,7 @@
 
         <input
           v-model="form.name"
-          class="input input-bordered w-full bg-base-200"
+          class="kr-input-muted"
           type="text"
           autocomplete="off"
           placeholder="ponyFaetality_v11.safetensors"
@@ -54,7 +54,7 @@
 
         <input
           v-model="form.customLabel"
-          class="input input-bordered w-full bg-base-200"
+          class="kr-input-muted"
           type="text"
           autocomplete="off"
           placeholder="Pony Faetality"
@@ -112,7 +112,7 @@
 
       <input
         v-model="form.localPath"
-        class="input input-bordered w-full bg-base-200 font-mono text-sm"
+        class="kr-input-muted font-mono text-sm"
         type="text"
         autocomplete="off"
         placeholder="SDXL/ponyFaetality_v11.safetensors"
@@ -127,7 +127,7 @@
 
         <input
           v-model="form.civitaiUrl"
-          class="input input-bordered w-full bg-base-200"
+          class="kr-input-muted"
           type="url"
           autocomplete="off"
           placeholder="https://civitai.com/..."
@@ -141,7 +141,7 @@
 
         <input
           v-model="form.huggingUrl"
-          class="input input-bordered w-full bg-base-200"
+          class="kr-input-muted"
           type="url"
           autocomplete="off"
           placeholder="https://huggingface.co/..."
@@ -155,7 +155,7 @@
 
         <input
           v-model="form.customUrl"
-          class="input input-bordered w-full bg-base-200"
+          class="kr-input-muted"
           type="url"
           autocomplete="off"
           placeholder="https://..."
@@ -170,7 +170,7 @@
 
       <input
         v-model="form.MediaPath"
-        class="input input-bordered w-full bg-base-200"
+        class="kr-input-muted"
         type="text"
         autocomplete="off"
         placeholder="/images/checkpoints/preview.webp"

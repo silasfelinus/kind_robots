@@ -50,7 +50,7 @@
               <input
                 v-model="characterStore.characterForm.name"
                 type="text"
-                class="input input-bordered mt-1 w-full bg-base-200"
+                class="kr-input-muted mt-1"
                 placeholder="Moss Lantern"
                 :disabled="isKept('name')"
               />
@@ -61,7 +61,7 @@
               <input
                 v-model="characterStore.characterForm.honorific"
                 type="text"
-                class="input input-bordered mt-1 w-full bg-base-200"
+                class="kr-input-muted mt-1"
                 placeholder="the Unreasonably Prepared"
                 :disabled="isKept('honorific')"
               />
@@ -72,7 +72,7 @@
               <input
                 v-model="characterStore.characterForm.role"
                 type="text"
-                class="input input-bordered mt-1 w-full bg-base-200"
+                class="kr-input-muted mt-1"
                 placeholder="guide, rival, archivist..."
               />
             </label>
@@ -82,7 +82,7 @@
               <input
                 v-model="characterStore.characterForm.title"
                 type="text"
-                class="input input-bordered mt-1 w-full bg-base-200"
+                class="kr-input-muted mt-1"
                 placeholder="Keeper of the Last Teacup"
               />
             </label>
@@ -92,7 +92,7 @@
               <input
                 v-model="characterStore.characterForm.class"
                 type="text"
-                class="input input-bordered mt-1 w-full bg-base-200"
+                class="kr-input-muted mt-1"
                 placeholder="storm librarian"
                 :disabled="isKept('class')"
               />
@@ -103,7 +103,7 @@
               <input
                 v-model="characterStore.characterForm.species"
                 type="text"
-                class="input input-bordered mt-1 w-full bg-base-200"
+                class="kr-input-muted mt-1"
                 placeholder="human, robot, mothfolk..."
                 :disabled="isKept('species')"
               />
@@ -114,7 +114,7 @@
               <input
                 v-model="characterStore.characterForm.genre"
                 type="text"
-                class="input input-bordered mt-1 w-full bg-base-200"
+                class="kr-input-muted mt-1"
                 placeholder="cozy fantasy"
                 :disabled="isKept('genre')"
               />
@@ -125,7 +125,7 @@
               <input
                 v-model="characterStore.characterForm.gender"
                 type="text"
-                class="input input-bordered mt-1 w-full bg-base-200"
+                class="kr-input-muted mt-1"
                 placeholder="Optional"
               />
             </label>
@@ -135,7 +135,7 @@
               <input
                 v-model="characterStore.characterForm.presentation"
                 type="text"
-                class="input input-bordered mt-1 w-full bg-base-200"
+                class="kr-input-muted mt-1"
                 placeholder="How they present visually and socially"
               />
             </label>
@@ -258,7 +258,7 @@
               <input
                 v-model="characterStore.characterForm.drive"
                 type="text"
-                class="input input-bordered mt-1 w-full bg-base-200"
+                class="kr-input-muted mt-1"
                 placeholder="What they want badly enough to act"
                 :disabled="isKept('drive')"
               />
@@ -418,7 +418,7 @@
               v-model.number="characterStore.characterForm.level"
               type="number"
               min="1"
-              class="input input-bordered mt-1 w-full bg-base-200"
+              class="kr-input-muted mt-1"
             />
           </label>
 
@@ -428,7 +428,7 @@
               v-model.number="characterStore.characterForm.experience"
               type="number"
               min="0"
-              class="input input-bordered mt-1 w-full bg-base-200"
+              class="kr-input-muted mt-1"
             />
           </label>
 
@@ -437,7 +437,7 @@
             <input
               v-model="characterStore.characterForm.designer"
               type="text"
-              class="input input-bordered mt-1 w-full bg-base-200"
+              class="kr-input-muted mt-1"
             />
           </label>
 

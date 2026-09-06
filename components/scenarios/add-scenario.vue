@@ -37,7 +37,7 @@
             v-model="scenarioStore.scenarioForm.title"
             type="text"
             placeholder="The Casino Under the Moon"
-            class="input input-bordered w-full bg-base-100"
+            class="kr-input"
           />
         </label>
 

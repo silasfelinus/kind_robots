@@ -69,7 +69,7 @@
             v-model="form[field.key]"
             :type="field.type"
             :placeholder="field.placeholder"
-            class="input input-bordered w-full rounded-2xl bg-base-200"
+            class="kr-input-muted rounded-2xl"
           />
         </label>
       </div>

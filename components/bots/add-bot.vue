@@ -53,7 +53,7 @@
               <input
                 v-model="botStore.botForm.name"
                 type="text"
-                class="input input-bordered w-full bg-base-200"
+                class="kr-input-muted"
                 placeholder="Dotti"
                 :disabled="isKept('name')"
               />
@@ -67,7 +67,7 @@
               <input
                 v-model="botStore.botForm.subtitle"
                 type="text"
-                class="input input-bordered w-full bg-base-200"
+                class="kr-input-muted"
                 placeholder="Tiny robot, big opinions"
                 :disabled="isKept('subtitle')"
               />
@@ -94,7 +94,7 @@
               <input
                 v-model="botStore.botForm.tagline"
                 type="text"
-                class="input input-bordered w-full bg-base-200"
+                class="kr-input-muted"
                 placeholder="Now with 30% more charm."
                 :disabled="isKept('tagline')"
               />
@@ -125,7 +125,7 @@
               <input
                 v-model="botStore.botForm.designer"
                 type="text"
-                class="input input-bordered w-full bg-base-200"
+                class="kr-input-muted"
                 :disabled="!canEditDesigner"
               />
             </label>
@@ -138,7 +138,7 @@
               <input
                 v-model="botStore.botForm.theme"
                 type="text"
-                class="input input-bordered w-full bg-base-200"
+                class="kr-input-muted"
                 placeholder="cyber-cafe, moth-oracle, bot-lab..."
               />
             </label>
@@ -175,7 +175,7 @@
               <input
                 v-model="avatarImageModel"
                 type="text"
-                class="input input-bordered w-full bg-base-200"
+                class="kr-input-muted"
                 placeholder="/images/bot.webp"
                 :disabled="isKept('avatarImage')"
               />

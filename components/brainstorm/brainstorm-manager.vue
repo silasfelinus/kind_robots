@@ -431,7 +431,7 @@
             <input
               id="brainstorm-session-name"
               v-model="sessionNameModel"
-              class="input input-bordered mt-2 w-full bg-base-100"
+              class="kr-input mt-2"
               maxlength="255"
               :placeholder="suggestedSessionName"
               :disabled="isPersisting"

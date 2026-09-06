@@ -726,7 +726,7 @@
                       <button
                         v-else
                         type="button"
-                        class="btn btn-warning btn-xs rounded-xl"
+                        class="kr-btn-xs btn-warning"
                         :disabled="item.status === 'queued'"
                         @click="store.applyWriteBack(item.beatId)"
                       >

@@ -330,7 +330,7 @@
           </div>
           <button
             type="button"
-            class="btn btn-ghost btn-xs rounded-xl text-error"
+            class="kr-btn-xs btn-ghost text-error"
             data-testid="brainstorm-source-remove"
             @click="clearSource"
           >

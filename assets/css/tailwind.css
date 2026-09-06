@@ -568,6 +568,24 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply rounded-2xl border border-base-300 bg-base-100;
   }
 
+  /* The hand-rolled toggle-row label: a bordered muted strip pairing a
+   * label with a DaisyUI `toggle` input (Public/Mature/Active-style
+   * checkboxes) — same rounded-2xl/border-base-300/bg-base-200 surface as
+   * .kr-panel-muted, but with asymmetric row padding instead of a uniform
+   * `p-*` (interface-vision t-104 slice 122: previously hand-rolled across
+   * 9 occurrences at this padding, in add-bot.vue, add-reward.vue,
+   * add-scenario.vue, and add-collection.vue). */
+  .kr-toggle-row {
+    @apply label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-4 py-3;
+  }
+
+  /* The denser counterpart to .kr-toggle-row (interface-vision t-104 slice
+   * 122): same shape, one padding step down — previously hand-rolled across
+   * 4 occurrences in dream-maker.vue. */
+  .kr-toggle-row-sm {
+    @apply label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-2;
+  }
+
   /* Larger-radius page-section surface: coloring-book studio panels and
    * conductor-app project pages. Approved by Silas (interface-vision/t-123)
    * as the named primitive for the previously hand-rolled

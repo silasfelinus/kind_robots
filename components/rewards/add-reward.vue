@@ -156,9 +156,7 @@
         </div>
 
         <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
-          <label
-            class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
-          >
+          <label class="kr-toggle-row">
             <span class="label-text font-bold">Public</span>
             <input
               v-model="rewardStore.rewardForm.isPublic"
@@ -167,9 +165,7 @@
             />
           </label>
 
-          <label
-            class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
-          >
+          <label class="kr-toggle-row">
             <span class="label-text font-bold">Mature</span>
             <input
               v-model="rewardStore.rewardForm.isMature"

@@ -454,10 +454,7 @@
             </button>
           </div>
 
-          <details
-            v-if="selectedRow.changes.length"
-            class="rounded-xl border border-base-300 bg-base-100 p-3"
-          >
+          <details v-if="selectedRow.changes.length" class="kr-panel-compact">
             <summary class="cursor-pointer text-xs font-black">
               Audit history · {{ selectedRow.changes.length }} recent change{{
                 selectedRow.changes.length === 1 ? '' : 's'

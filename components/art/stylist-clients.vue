@@ -7,7 +7,7 @@
       <span class="kr-badge-ghost-sm">{{ superkate.sortedCustomers.length }}</span>
     </header>
 
-    <form class="flex flex-wrap items-end gap-2 rounded-xl border border-base-300 bg-base-100 p-3" @submit.prevent="save">
+    <form class="flex flex-wrap items-end gap-2 kr-panel-compact" @submit.prevent="save">
       <label class="flex min-w-40 flex-1 flex-col gap-1">
         <span class="text-xs font-black">Name</span>
         <input v-model="name" type="text" placeholder="Client name" class="input input-sm input-bordered w-full" />

@@ -2,8 +2,8 @@
 """
 kr_panel_codemod.py — mechanical, byte-exact substitution of the hand-rolled
 kr-panel / kr-panel-muted / kr-panel-muted-sm / kr-panel-muted-md /
-kr-panel-flat utility sequences for the shared class, in static
-`class="..."` attributes inside .vue templates only.
+kr-panel-flat / kr-panel-compact utility sequences for the shared class, in
+static `class="..."` attributes inside .vue templates only.
 
 Scope, deliberately narrow (interface-vision/t-115's "if (b)" instruction):
   - Only static `class="..."` attributes (never `:class=`, `v-bind:class=`,
@@ -47,6 +47,11 @@ VARIANTS = [
     ("kr-panel-muted-sm", ["rounded-2xl", "border", "border-base-300", "bg-base-200", "p-3"]),
     ("kr-panel-muted-md", ["rounded-2xl", "border", "border-base-300", "bg-base-200", "p-4"]),
     ("kr-panel-flat", ["rounded-2xl", "border", "border-base-300", "bg-base-100"]),
+    # t-104 slice 118: the base-100 counterpart to kr-panel-muted-sm, at a
+    # smaller rounded-xl radius rather than rounded-2xl -- the leading
+    # radius token never overlaps with any other variant above, so list
+    # position doesn't matter for correctness here.
+    ("kr-panel-compact", ["rounded-xl", "border", "border-base-300", "bg-base-100", "p-3"]),
 ]
 
 CLASS_ATTR_RE = re.compile(r'(?<![:\w-])class="([^"]*)"')

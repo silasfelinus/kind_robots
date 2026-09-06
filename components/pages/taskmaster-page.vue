@@ -680,7 +680,7 @@
                     <div
                       v-for="item in sessionRecap"
                       :key="item.label"
-                      class="rounded-xl border border-base-300 bg-base-100 p-3"
+                      class="kr-panel-compact"
                     >
                       <dt class="font-bold text-base-content/70">{{ item.label }}</dt>
                       <dd class="mt-0.5 text-base-content/60">{{ item.value }}</dd>
@@ -706,7 +706,7 @@
                   <article
                     v-for="item in store.pendingWriteBacks"
                     :key="item.beatId"
-                    class="rounded-xl border border-base-300 bg-base-100 p-3 text-xs leading-relaxed"
+                    class="kr-panel-compact text-xs leading-relaxed"
                   >
                     <div class="flex items-start gap-2">
                       <div class="min-w-0 flex-1">

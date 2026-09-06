@@ -61,7 +61,7 @@
     </div>
 
     <!-- Time spent -->
-    <div class="flex flex-col gap-2 rounded-xl border border-base-300 bg-base-100 p-3">
+    <div class="flex flex-col gap-2 kr-panel-compact">
       <span class="text-xs font-black text-base-content">Time spent</span>
       <div class="flex flex-wrap gap-1">
         <button

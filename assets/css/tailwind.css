@@ -551,6 +551,18 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply rounded-2xl border border-base-300 bg-base-200 p-4;
   }
 
+  /* The compact bordered surface on the "plain" base-100 background
+   * (interface-vision t-104 slice 118): a smaller radius than .kr-panel
+   * (rounded-xl, not rounded-2xl) at the dense `p-3` padding used for
+   * nested rows/cards/list items — the base-100 counterpart to
+   * .kr-panel-muted-sm's base-200 shape, previously hand-rolled across 29
+   * occurrences, the largest bounded pool surveyed this slice. Named
+   * distinctly from the -sm/-md ladder above since the radius itself
+   * differs, not just the padding. */
+  .kr-panel-compact {
+    @apply rounded-xl border border-base-300 bg-base-100 p-3;
+  }
+
   /* Flat bordered surface for dense lists, rows, and inboxes. */
   .kr-panel-flat {
     @apply rounded-2xl border border-base-300 bg-base-100;

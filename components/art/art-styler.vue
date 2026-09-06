@@ -20,9 +20,7 @@
       </button>
     </div>
 
-    <div
-      class="flex flex-col gap-2 rounded-xl border border-base-300 bg-base-100 p-3"
-    >
+    <div class="flex flex-col gap-2 kr-panel-compact">
       <div class="flex items-center gap-2">
         <Icon name="kind-icon:image" class="h-4 w-4 text-primary" />
         <span class="text-xs font-black text-base-content">Source Image</span>
@@ -292,7 +290,7 @@
     <Transition name="slide-fade">
       <div
         v-if="selectedSourceImage || resultImage"
-        class="flex items-center gap-3 rounded-xl border border-base-300 bg-base-100 p-3"
+        class="flex items-center gap-3 kr-panel-compact"
       >
         <div
           class="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-base-300"

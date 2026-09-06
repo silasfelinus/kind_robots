@@ -30,7 +30,7 @@
     </header>
 
     <!-- Client -->
-    <div class="rounded-xl border border-base-300 bg-base-100 p-3">
+    <div class="kr-panel-compact">
       <label class="flex flex-col gap-1">
         <span class="text-xs font-black text-base-content">Client</span>
         <input
@@ -51,7 +51,7 @@
     </div>
 
     <!-- Source image -->
-    <div class="flex flex-col gap-2 rounded-xl border border-base-300 bg-base-100 p-3">
+    <div class="flex flex-col gap-2 kr-panel-compact">
       <div class="flex items-center gap-2">
         <Icon name="kind-icon:image" class="h-4 w-4 text-primary" />
         <span class="text-xs font-black text-base-content">Client Photo</span>
@@ -152,7 +152,7 @@
     </div>
 
     <!-- What to change -->
-    <div class="flex flex-col gap-3 rounded-xl border border-base-300 bg-base-100 p-3">
+    <div class="flex flex-col gap-3 kr-panel-compact">
       <span class="text-xs font-black text-base-content">What are we changing?</span>
 
       <label class="flex items-start gap-2">
@@ -207,7 +207,7 @@
     </div>
 
     <!-- How much to keep them looking like themselves -->
-    <div class="flex flex-col gap-2 rounded-xl border border-base-300 bg-base-100 p-3">
+    <div class="flex flex-col gap-2 kr-panel-compact">
       <div class="flex items-center justify-between">
         <span class="text-xs font-black text-base-content">How much should it still look like them?</span>
         <span class="text-xs font-bold text-primary">{{ preserveLabel }}</span>

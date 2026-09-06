@@ -8,7 +8,7 @@
         <input
           v-model="search"
           type="search"
-          class="input input-bordered input-sm rounded-xl"
+          class="kr-input-sm"
           placeholder="name, species, lore..."
         />
       </label>
@@ -220,10 +220,7 @@
             <div class="flex flex-wrap gap-3">
               <label class="form-control min-w-52 flex-1 gap-1">
                 <span class="text-xs font-black">Render preset</span>
-                <select
-                  v-model="draft.presetId"
-                  class="select select-bordered select-sm rounded-xl"
-                >
+                <select v-model="draft.presetId" class="kr-select-sm">
                   <option
                     v-for="preset in presets"
                     :key="preset.id"
@@ -241,10 +238,7 @@
 
               <label class="form-control min-w-52 flex-1 gap-1">
                 <span class="text-xs font-black">Starting point</span>
-                <select
-                  v-model="draft.sourceMode"
-                  class="select select-bordered select-sm rounded-xl"
-                >
+                <select v-model="draft.sourceMode" class="kr-select-sm">
                   <option value="fresh">Fresh composition</option>
                   <option value="existing">Existing candidate art</option>
                 </select>
@@ -259,10 +253,7 @@
               class="form-control mt-3 gap-1"
             >
               <span class="text-xs font-black">SDXL checkpoint</span>
-              <select
-                v-model="draft.checkpoint"
-                class="select select-bordered select-sm rounded-xl"
-              >
+              <select v-model="draft.checkpoint" class="kr-select-sm">
                 <option value="">Choose checkpoint</option>
                 <option
                   v-for="checkpoint in checkpoints"
@@ -279,10 +270,7 @@
               class="form-control mt-3 gap-1"
             >
               <span class="text-xs font-black">Source ArtImage</span>
-              <select
-                v-model.number="draft.sourceImageId"
-                class="select select-bordered select-sm rounded-xl"
-              >
+              <select v-model.number="draft.sourceImageId" class="kr-select-sm">
                 <option :value="0">Choose candidate</option>
                 <option
                   v-if="fish.curation.selectedDesignImageId"

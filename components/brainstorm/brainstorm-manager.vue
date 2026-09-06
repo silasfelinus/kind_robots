@@ -706,7 +706,7 @@
           <span class="sr-only">Art engine</span>
           <select
             v-model="artEngine"
-            class="select select-bordered select-sm rounded-xl"
+            class="kr-select-sm"
             :disabled="isGeneratingArt"
             data-testid="brainstorm-art-engine"
             aria-label="Art engine"

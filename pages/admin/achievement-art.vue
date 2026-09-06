@@ -53,7 +53,7 @@
               <input
                 v-model="search"
                 type="search"
-                class="input input-bordered input-sm rounded-xl"
+                class="kr-input-sm"
                 placeholder="Search label, trigger, or message"
               />
             </label>

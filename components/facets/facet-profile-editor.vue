@@ -7,7 +7,7 @@
         <input
           v-model="form.title"
           type="text"
-          class="input input-bordered input-sm rounded-xl"
+          class="kr-input-sm"
           placeholder="CowCore"
         />
       </label>
@@ -16,7 +16,7 @@
         <input
           v-model="form.canonicalValue"
           type="text"
-          class="input input-bordered input-sm rounded-xl"
+          class="kr-input-sm"
           placeholder="Defaults to title"
         />
       </label>
@@ -24,7 +24,7 @@
         <span class="label-text text-xs">Taxonomy</span>
         <select
           v-model="form.taxonomy"
-          class="select select-bordered select-sm rounded-xl"
+          class="kr-select-sm"
         >
           <option
             v-for="taxonomy in FACET_TAXONOMIES"
@@ -40,7 +40,7 @@
         <input
           v-model="form.aliases"
           type="text"
-          class="input input-bordered input-sm rounded-xl"
+          class="kr-input-sm"
           placeholder="Aliases separated by commas"
         />
       </label>
@@ -49,7 +49,7 @@
         <input
           v-model="form.groupKey"
           type="text"
-          class="input input-bordered input-sm rounded-xl"
+          class="kr-input-sm"
           placeholder="cosmic-species"
         />
       </label>
@@ -58,7 +58,7 @@
         <input
           v-model="form.groupLabel"
           type="text"
-          class="input input-bordered input-sm rounded-xl"
+          class="kr-input-sm"
           placeholder="Cosmic Species"
         />
       </label>
@@ -68,7 +68,7 @@
           v-model.number="form.sortOrder"
           type="number"
           step="1"
-          class="input input-bordered input-sm rounded-xl"
+          class="kr-input-sm"
         />
       </label>
       <label class="form-control">
@@ -78,7 +78,7 @@
           type="number"
           min="0"
           step="1"
-          class="input input-bordered input-sm rounded-xl"
+          class="kr-input-sm"
         />
       </label>
       <label class="form-control">
@@ -88,7 +88,7 @@
           type="number"
           min="0"
           step="0.1"
-          class="input input-bordered input-sm rounded-xl"
+          class="kr-input-sm"
         />
       </label>
       <label class="form-control sm:col-span-2 xl:col-span-3">
@@ -137,7 +137,7 @@
             <input
               v-model="form.imagePath"
               type="text"
-              class="input input-bordered input-sm rounded-xl"
+              class="kr-input-sm"
               placeholder="/images/facets/example.webp"
             />
           </label>
@@ -146,7 +146,7 @@
             <input
               v-model="form.iconPath"
               type="text"
-              class="input input-bordered input-sm rounded-xl"
+              class="kr-input-sm"
               placeholder="/images/facets/icons/example.webp"
             />
           </label>
@@ -155,7 +155,7 @@
             <input
               v-model="form.cardPath"
               type="text"
-              class="input input-bordered input-sm rounded-xl"
+              class="kr-input-sm"
               placeholder="/images/facets/cards/example.webp"
             />
           </label>
@@ -164,7 +164,7 @@
             <input
               v-model="form.heroPath"
               type="text"
-              class="input input-bordered input-sm rounded-xl"
+              class="kr-input-sm"
               placeholder="/images/facets/heroes/example.webp"
             />
           </label>

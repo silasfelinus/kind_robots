@@ -273,14 +273,14 @@
               <div class="flex flex-wrap items-center gap-2">
                 <select
                   v-model="newTodoCategory"
-                  class="select select-bordered select-sm rounded-xl"
+                  class="kr-select-sm"
                 >
                   <option value="AGENT">🤖 Agent Task</option>
                   <option value="HONEYDO">🍯 Honey Do</option>
                 </select>
                 <select
                   v-model="newTodoPriority"
-                  class="select select-bordered select-sm rounded-xl"
+                  class="kr-select-sm"
                 >
                   <option value="HIGH">🔴 High</option>
                   <option value="NORMAL">🟡 Normal</option>
@@ -636,7 +636,7 @@
                 <div class="flex flex-wrap items-center gap-2">
                   <select
                     v-model="projectTaskCategory"
-                    class="select select-bordered select-sm rounded-xl"
+                    class="kr-select-sm"
                   >
                     <option value="AGENT">🤖 Agent Task / Comment</option>
                     <option value="HONEYDO">🍯 Honey Do</option>
@@ -644,7 +644,7 @@
                   </select>
                   <select
                     v-model="projectTaskPriority"
-                    class="select select-bordered select-sm rounded-xl"
+                    class="kr-select-sm"
                   >
                     <option value="HIGH">🔴 High</option>
                     <option value="NORMAL">🟡 Normal</option>

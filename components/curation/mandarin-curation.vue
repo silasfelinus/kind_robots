@@ -63,17 +63,14 @@
           <input
             v-model="search"
             type="search"
-            class="input input-bordered input-sm rounded-xl"
+            class="kr-input-sm"
             placeholder="Hanzi, pinyin, meaning, source…"
           />
         </label>
 
         <label class="form-control gap-1">
           <span class="text-xs font-black text-base-content/55">Category</span>
-          <select
-            v-model="categoryFilter"
-            class="select select-bordered select-sm rounded-xl"
-          >
+          <select v-model="categoryFilter" class="kr-select-sm">
             <option value="all">All categories</option>
             <option
               v-for="category in payload?.categories || []"
@@ -87,10 +84,7 @@
 
         <label class="form-control gap-1">
           <span class="text-xs font-black text-base-content/55">HSK</span>
-          <select
-            v-model="hskFilter"
-            class="select select-bordered select-sm rounded-xl"
-          >
+          <select v-model="hskFilter" class="kr-select-sm">
             <option value="all">All levels</option>
             <option value="1">HSK 1</option>
             <option value="2">HSK 2</option>
@@ -99,10 +93,7 @@
 
         <label class="form-control gap-1">
           <span class="text-xs font-black text-base-content/55">Sort</span>
-          <select
-            v-model="sortKey"
-            class="select select-bordered select-sm rounded-xl"
-          >
+          <select v-model="sortKey" class="kr-select-sm">
             <option value="hsk">HSK / frequency</option>
             <option value="hanzi">Hanzi</option>
             <option value="pinyin">Pinyin</option>
@@ -353,7 +344,7 @@
             <span class="text-xs font-black">Traditional form</span>
             <input
               v-model="draft.traditional"
-              class="input input-bordered input-sm rounded-xl"
+              class="kr-input-sm"
               placeholder="Leave blank if none"
             />
           </label>
@@ -369,10 +360,7 @@
                 >changed</span
               >
             </span>
-            <input
-              v-model="draft.pinyin"
-              class="input input-bordered input-sm rounded-xl"
-            />
+            <input v-model="draft.pinyin" class="kr-input-sm" />
             <span class="text-[11px] text-base-content/45"
               >Use tone marks, not tone numbers.</span
             >
@@ -389,10 +377,7 @@
                 >changed</span
               >
             </span>
-            <input
-              v-model="draft.meaning"
-              class="input input-bordered input-sm rounded-xl"
-            />
+            <input v-model="draft.meaning" class="kr-input-sm" />
           </label>
 
           <label class="form-control gap-1">
@@ -412,7 +397,7 @@
             <span class="text-xs font-black">Topical categories</span>
             <input
               v-model="draft.categoriesText"
-              class="input input-bordered input-sm rounded-xl"
+              class="kr-input-sm"
               placeholder="animals, food-drink, casino"
             />
             <span class="text-[11px] leading-5 text-base-content/45">

@@ -259,7 +259,7 @@
       <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <label class="form-control gap-1">
           <span class="text-xs font-semibold text-base-content/60">Target</span>
-          <select v-model="selectedField" class="select select-bordered select-sm rounded-xl" :disabled="submitting">
+          <select v-model="selectedField" class="kr-select-sm" :disabled="submitting">
             <option v-for="slot in slots" :key="slot.field" :value="slot.field">
               {{ slot.label }}
             </option>
@@ -268,7 +268,7 @@
 
         <label class="form-control gap-1">
           <span class="text-xs font-semibold text-base-content/60">Method</span>
-          <select v-model="generationMode" class="select select-bordered select-sm rounded-xl" :disabled="submitting">
+          <select v-model="generationMode" class="kr-select-sm" :disabled="submitting">
             <option value="recreate">New prompt · recreate</option>
             <option value="img2img" :disabled="!currentSrc">Current image · img2img</option>
           </select>
@@ -276,7 +276,7 @@
 
         <label class="form-control gap-1">
           <span class="text-xs font-semibold text-base-content/60">Engine</span>
-          <select v-model="generationEngine" class="select select-bordered select-sm rounded-xl" :disabled="submitting">
+          <select v-model="generationEngine" class="kr-select-sm" :disabled="submitting">
             <template v-if="generationMode === 'recreate'">
               <option value="krea2">Krea 2 · default</option>
               <option value="comfy">SDXL · prompt only</option>
@@ -290,7 +290,7 @@
 
         <label class="form-control gap-1">
           <span class="text-xs font-semibold text-base-content/60">Preset</span>
-          <select v-model="presetKey" class="select select-bordered select-sm rounded-xl" :disabled="submitting">
+          <select v-model="presetKey" class="kr-select-sm" :disabled="submitting">
             <option v-for="preset in availablePresets" :key="preset.key" :value="preset.key">
               {{ preset.label }}
             </option>
@@ -320,7 +320,7 @@
           <span class="text-xs font-semibold text-base-content/60">SDXL checkpoint</span>
           <select
             v-model.number="checkpointResourceId"
-            class="select select-bordered select-sm rounded-xl"
+            class="kr-select-sm"
             :disabled="submitting || loadingResources"
           >
             <option :value="0">Use current quality default</option>
@@ -422,7 +422,7 @@
       <div class="grid gap-3 sm:grid-cols-2">
         <label class="form-control gap-1">
           <span class="text-xs font-semibold text-base-content/60">Target</span>
-          <select v-model="selectedField" class="select select-bordered select-sm rounded-xl" :disabled="submitting">
+          <select v-model="selectedField" class="kr-select-sm" :disabled="submitting">
             <option v-for="slot in slots" :key="slot.field" :value="slot.field">
               {{ slot.label }}
             </option>

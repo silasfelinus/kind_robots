@@ -80,7 +80,7 @@
                   :min="field.min"
                   :max="field.max"
                   :step="field.step"
-                  class="input input-bordered input-sm rounded-xl"
+                  class="kr-input-sm"
                   :placeholder="field.placeholder"
                 />
               </label>
@@ -90,7 +90,7 @@
                 <input
                   v-model="form.sampler"
                   list="artjob-sampler-presets"
-                  class="input input-bordered input-sm rounded-xl"
+                  class="kr-input-sm"
                 />
               </label>
               <label class="flex flex-col gap-1 text-xs">
@@ -98,7 +98,7 @@
                 <input
                   v-model="form.scheduler"
                   list="artjob-scheduler-presets"
-                  class="input input-bordered input-sm rounded-xl"
+                  class="kr-input-sm"
                 />
               </label>
             </div>
@@ -129,7 +129,7 @@
                     min="0.25"
                     max="30"
                     step="0.25"
-                    class="input input-bordered input-sm rounded-xl"
+                    class="kr-input-sm"
                   />
                 </label>
 
@@ -141,7 +141,7 @@
                     min="1"
                     max="60"
                     step="1"
-                    class="input input-bordered input-sm rounded-xl"
+                    class="kr-input-sm"
                   />
                 </label>
 

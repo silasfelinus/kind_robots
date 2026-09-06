@@ -18,7 +18,7 @@
           </span>
           <select
             v-model="mode"
-            class="select select-bordered select-sm rounded-xl"
+            class="kr-select-sm"
             :disabled="submitting"
           >
             <option value="TEXT">Prompt-only redo</option>
@@ -34,7 +34,7 @@
           </span>
           <select
             v-model="model"
-            class="select select-bordered select-sm rounded-xl"
+            class="kr-select-sm"
             :disabled="submitting"
           >
             <option value="SDXL">SDXL img2img</option>

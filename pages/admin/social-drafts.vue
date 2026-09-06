@@ -77,7 +77,7 @@
             <span class="text-xs font-bold text-base-content/60">Status</span>
             <select
               v-model="draftsStore.statusFilter"
-              class="select select-bordered select-sm rounded-xl"
+              class="kr-select-sm"
               @change="draftsStore.fetchDrafts()"
             >
               <option value="DRAFT">Pending review</option>
@@ -90,7 +90,7 @@
             <span class="text-xs font-bold text-base-content/60">Platform</span>
             <select
               v-model="draftsStore.platformFilter"
-              class="select select-bordered select-sm rounded-xl"
+              class="kr-select-sm"
               @change="draftsStore.fetchDrafts()"
             >
               <option value="">All</option>

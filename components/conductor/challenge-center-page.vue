@@ -141,7 +141,7 @@
               v-for="(challenge, index) in challenges"
               :key="challenge.id"
               :to="`/play/challenges/${challenge.slug}`"
-              class="group relative flex min-h-64 flex-col overflow-hidden rounded-3xl border border-base-300 bg-base-100 p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-primary/50 hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+              class="kr-panel-section group relative flex min-h-64 flex-col overflow-hidden transition duration-200 hover:-translate-y-1 hover:border-primary/50 hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
             >
               <div
                 class="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-secondary to-accent opacity-60 transition group-hover:opacity-100"

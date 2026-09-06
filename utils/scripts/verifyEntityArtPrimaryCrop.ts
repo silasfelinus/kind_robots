@@ -15,6 +15,11 @@
 //      purpose-built variant is NOT. Variants are composed for their aspect;
 //      re-cropping one fights the composition, while failing to crop a
 //      stand-in square into 2:3 cuts the subject's head off.
+//
+// And since 2026-09-05 the primary WINS over a stored variant, which is the
+// change that actually retires three renders per object. The variant branch
+// stays as a fallback purely so an object with variant art but no primary does
+// not go blank mid-migration.
 import assert from 'node:assert/strict'
 import {
   ART_VARIANT_FOCUS,
@@ -53,6 +58,31 @@ assert.equal(
 // ── Origin reporting drives the crop ────────────────────────────────────────
 
 for (const variant of VARIANTS) {
+  // The collapse itself: one good primary beats three purpose-built variants.
+  assert.deepEqual(
+    resolveArtVariantSource(
+      {
+        imagePath: '/primary.webp',
+        cardPath: '/card.webp',
+        heroPath: '/hero.webp',
+        iconPath: '/icon.webp',
+      },
+      variant,
+    ),
+    { src: '/primary.webp', origin: 'primary' },
+    `${variant}: the primary render must win over a stored variant`,
+  )
+
+  // A Bot's avatar is a primary too, so it also outranks stored variants.
+  assert.deepEqual(
+    resolveArtVariantSource(
+      { avatarImage: '/avatar.webp', cardPath: '/card.webp' },
+      variant,
+    ),
+    { src: '/avatar.webp', origin: 'primary' },
+    `${variant}: a Bot's avatar counts as the primary and outranks variants`,
+  )
+
   const composed = resolveArtVariantSource(
     { cardPath: '/card.webp', heroPath: '/hero.webp', iconPath: '/icon.webp' },
     variant,
@@ -60,7 +90,7 @@ for (const variant of VARIANTS) {
   assert.equal(
     composed.origin,
     'variant',
-    `${variant}: a purpose-built variant must report origin 'variant' so it is shown as composed`,
+    `${variant}: with no primary, the stored variant is the fallback and is shown as composed`,
   )
 
   const standIn = resolveArtVariantSource(
@@ -118,5 +148,6 @@ for (const source of cases) {
 }
 
 console.log(
-  'Entity art primary/crop contract verified: Bot primaries resolve, and only a stand-in primary is re-cropped.',
+  'Entity art primary/crop contract verified: the primary wins, Bot primaries resolve, ' +
+    'and only a stand-in primary is re-cropped.',
 )

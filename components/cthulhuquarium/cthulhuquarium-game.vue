@@ -207,7 +207,7 @@
           <div
             v-for="entry in tankStore.stock"
             :key="entry.id"
-            class="rounded-xl border border-base-300 bg-base-100 p-3"
+            class="kr-panel-compact"
           >
             <div class="flex items-start justify-between gap-2">
               <div>
@@ -336,7 +336,7 @@
           <div
             v-for="entry in tankStore.catalog"
             :key="entry.id"
-            class="flex items-start gap-2 rounded-xl border border-base-300 bg-base-100 p-3"
+            class="flex items-start gap-2 kr-panel-compact"
           >
             <kr-art-plate
               :source="entry"
@@ -414,7 +414,7 @@
             <div
               v-for="entry in tankStore.bestiary"
               :key="entry.id"
-              class="flex items-start gap-2 rounded-xl border border-base-300 bg-base-100 p-3"
+              class="flex items-start gap-2 kr-panel-compact"
               :class="{ 'opacity-60': !entry.collected }"
             >
               <kr-art-plate
@@ -502,7 +502,7 @@
             <div
               v-for="entry in tankStore.setCatalog"
               :key="entry.kind"
-              class="flex flex-col gap-1 rounded-xl border border-base-300 bg-base-100 p-3"
+              class="flex flex-col gap-1 kr-panel-compact"
               :class="{ 'border-primary/60': entry.equipped }"
             >
               <div class="flex items-start justify-between gap-2">
@@ -581,7 +581,7 @@
             <div
               v-for="entry in tankStore.decorCatalog"
               :key="entry.kind"
-              class="flex flex-col gap-1 rounded-xl border border-base-300 bg-base-100 p-3"
+              class="flex flex-col gap-1 kr-panel-compact"
               :class="{
                 'border-primary/60': tankStore.pendingDecorKind === entry.kind,
               }"
@@ -691,7 +691,7 @@
             <div
               v-for="entry in tankStore.eggCatalog"
               :key="`${entry.rarity}-${entry.size}`"
-              class="flex items-start gap-2 rounded-xl border border-base-300 bg-base-100 p-3"
+              class="flex items-start gap-2 kr-panel-compact"
             >
               <span class="text-3xl leading-none" aria-hidden="true">{{
                 entry.icon

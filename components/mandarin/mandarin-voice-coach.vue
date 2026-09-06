@@ -111,7 +111,7 @@
           <div
             v-for="observation in toneAnalysis.observations"
             :key="`${observation.syllable}:${observation.expectedTone}`"
-            class="rounded-xl border border-base-300 bg-base-100 p-3"
+            class="kr-panel-compact"
           >
             <div class="flex flex-wrap items-center gap-2">
               <span class="text-lg font-bold">{{ observation.syllable }}</span>

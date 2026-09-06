@@ -47,7 +47,7 @@
       </label>
     </div>
 
-    <div class="flex flex-col gap-1 rounded-xl border border-base-300 bg-base-100 p-3">
+    <div class="flex flex-col gap-1 kr-panel-compact">
       <span class="text-xs font-black text-base-content">Receipt preview</span>
       <pre class="whitespace-pre-wrap text-xs text-base-content/70">{{ preview }}</pre>
     </div>

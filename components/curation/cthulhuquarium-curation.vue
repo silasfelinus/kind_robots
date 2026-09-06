@@ -186,7 +186,7 @@
 
           <details
             v-if="fish.curation.inspirations.length"
-            class="rounded-xl border border-base-300 bg-base-100 p-3"
+            class="kr-panel-compact"
           >
             <summary class="cursor-pointer text-xs font-black">
               All inspiration art
@@ -214,7 +214,7 @@
             </div>
           </details>
 
-          <div class="rounded-xl border border-base-300 bg-base-100 p-3">
+          <div class="kr-panel-compact">
             <div class="flex flex-wrap gap-3">
               <label class="form-control min-w-52 flex-1 gap-1">
                 <span class="text-xs font-black">Render preset</span>

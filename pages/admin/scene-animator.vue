@@ -117,7 +117,7 @@
               </span>
             </label>
 
-            <label class="flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-base-300 bg-base-100 p-3">
+            <label class="flex cursor-pointer items-center justify-between gap-4 kr-panel-compact">
               <div>
                 <span class="block text-sm font-black">Mature batch</span>
                 <span class="block text-xs text-base-content/50">
@@ -133,7 +133,7 @@
               />
             </label>
 
-            <details class="rounded-xl border border-base-300 bg-base-100 p-3 text-sm">
+            <details class="kr-panel-compact text-sm">
               <summary class="cursor-pointer font-black">Automatic motion direction</summary>
               <p class="mt-2 leading-relaxed text-base-content/60">
                 Bring this still scene naturally to life with subtle coherent motion. Preserve the

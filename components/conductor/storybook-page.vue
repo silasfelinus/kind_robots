@@ -575,26 +575,24 @@
             {{ store.session.bible.title }} · Story bible
           </summary>
           <div class="mt-3 grid gap-2 text-xs leading-relaxed sm:grid-cols-2">
-            <p
-              class="rounded-xl border border-base-300 bg-base-100 p-3 sm:col-span-2"
-            >
+            <p class="kr-panel-compact sm:col-span-2">
               {{ store.session.bible.premise }}
             </p>
-            <p class="rounded-xl border border-base-300 bg-base-100 p-3">
+            <p class="kr-panel-compact">
               <span class="font-bold">Cast:</span>
               {{
                 store.session.bible.cast.map((item) => item.title).join(', ') ||
                 'Invented as needed'
               }}
             </p>
-            <p class="rounded-xl border border-base-300 bg-base-100 p-3">
+            <p class="kr-panel-compact">
               <span class="font-bold">World:</span>
               {{
                 store.session.bible.location?.title ||
                 'Invented from the premise'
               }}
             </p>
-            <p class="rounded-xl border border-base-300 bg-base-100 p-3">
+            <p class="kr-panel-compact">
               <span class="font-bold">Facets:</span>
               {{
                 store.session.bible.facets
@@ -602,7 +600,7 @@
                   .join(', ') || 'None selected'
               }}
             </p>
-            <p class="rounded-xl border border-base-300 bg-base-100 p-3">
+            <p class="kr-panel-compact">
               <span class="font-bold">Reward pool:</span>
               {{
                 store.session.bible.rewards

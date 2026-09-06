@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Find or migrate hand-rolled kr-checkbox-{primary,secondary}-sm form controls.
+"""Find or migrate hand-rolled kr-checkbox-{primary,secondary}-sm/xs form controls.
 
 Dry-run is the default. Pass --write to update matching Vue files in place.
 Only the approved small/colored DaisyUI checkbox shapes are touched
-(`checkbox checkbox-sm checkbox-primary` and `checkbox checkbox-sm
-checkbox-secondary`), and only in static `class="..."` attributes -- never
+(`checkbox checkbox-sm checkbox-primary`, `checkbox checkbox-sm
+checkbox-secondary`, and `checkbox checkbox-xs checkbox-primary`), and only
+in static `class="..."` attributes -- never
 `:class`/`v-bind:class` bindings, and regardless of the base tokens' order in
 the source (`checkbox-primary checkbox-sm` counts the same as `checkbox-sm
 checkbox-primary`). A source that already carries the target primitive, or is
@@ -27,6 +28,7 @@ CLASS_ATTR = re.compile(r'class="([^"]*)"')
 FAMILIES = [
     ("kr-checkbox-primary-sm", {"checkbox", "checkbox-sm", "checkbox-primary"}),
     ("kr-checkbox-secondary-sm", {"checkbox", "checkbox-sm", "checkbox-secondary"}),
+    ("kr-checkbox-primary-xs", {"checkbox", "checkbox-xs", "checkbox-primary"}),
 ]
 
 
@@ -91,7 +93,7 @@ def main() -> int:
                 f.write(migrated)
 
     mode = "migrated" if args.write else "candidate"
-    print(f"kr-checkbox-*-sm {mode} occurrences: {total}")
+    print(f"kr-checkbox-* {mode} occurrences: {total}")
     return 0
 
 

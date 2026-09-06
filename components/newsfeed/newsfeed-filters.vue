@@ -114,7 +114,7 @@
           v-for="category in categories"
           :key="category"
           type="button"
-          class="btn btn-xs gap-1 rounded-xl"
+          class="kr-btn-xs gap-1"
           :class="
             isCategorySelected(category)
               ? 'btn-primary'

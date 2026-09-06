@@ -7,13 +7,14 @@
 // That is correct for explicit rerenders and terrible for a coverage backlog:
 // the Facet catalog historically queued imagePath + iconPath + cardPath +
 // heroPath independently, so one database object could consume four renders
-// while another object still had none.
+// while another object still had none. The slot collapse retired the three
+// secondary slots outright, so only imagePath remains to coordinate -- this
+// module still matters because coverage work can still pile up on it.
 //
 // This module applies two conservative rules immediately before claim:
-//   1. Facet baseline coverage keeps at most ONE active slot job, preferring
-//      imagePath -> cardPath -> heroPath -> iconPath. Existing art satisfies the
-//      baseline and cancels still-pending coverage work. RUNNING work is never
-//      cancelled.
+//   1. Facet baseline coverage keeps at most ONE active imagePath job.
+//      Existing art satisfies the baseline and cancels still-pending coverage
+//      work. RUNNING work is never cancelled.
 //   2. Static delivery jobs with the exact same repo + path + normalized prompt
 //      are duplicate work. Keep the candidate (or an already-RUNNING sibling)
 //      and cancel the other PENDING copies.
@@ -179,9 +180,6 @@ async function reconcileFacetCoverage(
     where: { id: target.facetId },
     select: {
       imagePath: true,
-      cardPath: true,
-      heroPath: true,
-      iconPath: true,
       artImageId: true,
     },
   })
@@ -220,13 +218,7 @@ async function reconcileFacetCoverage(
     }))
     .filter((job) => job.target?.facetId === target.facetId)
 
-  const hasDisplayArt = Boolean(
-    clean(facet.imagePath) ||
-    clean(facet.cardPath) ||
-    clean(facet.heroPath) ||
-    clean(facet.iconPath) ||
-    facet.artImageId,
-  )
+  const hasDisplayArt = Boolean(clean(facet.imagePath) || facet.artImageId)
 
   if (hasDisplayArt) {
     const pendingIds = active

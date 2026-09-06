@@ -115,14 +115,6 @@ export function fromSeedScenario(scenario: ScenarioSeedInput): ScenarioView {
     artImageId: scenario.artImageId ?? null,
     imagePath: scenario.imagePath ?? null,
     icon: scenario.icon ?? null,
-    iconPath: scenario.iconPath ?? null,
-    cardPath: scenario.cardPath ?? null,
-    heroPath: scenario.heroPath ?? null,
-    // Per-slot ArtImage ids. A seed scenario has no generated art behind it,
-    // so these stay null; they exist here only to satisfy ScenarioView.
-    iconArtImageId: scenario.iconArtImageId ?? null,
-    cardArtImageId: scenario.cardArtImageId ?? null,
-    heroArtImageId: scenario.heroArtImageId ?? null,
     // Schema default is true. A seed scenario arriving without the field was
     // being presented as reviews-off, which is not what the column says and not
     // what the owner chose.

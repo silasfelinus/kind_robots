@@ -34,7 +34,9 @@
     -->
     <div class="kr-scroll relative z-10 flex flex-col">
       <template v-if="!store.session">
-        <header class="taskmaster-hero relative flex min-h-64 items-start p-4 sm:min-h-72 sm:p-6 lg:min-h-80 lg:p-8">
+        <header
+          class="taskmaster-hero relative flex min-h-64 items-start p-4 sm:min-h-72 sm:p-6 lg:min-h-80 lg:p-8"
+        >
           <div class="taskmaster-hero-copy max-w-2xl">
             <span
               class="inline-flex items-center gap-2 rounded-full border border-secondary/30 bg-base-100/80 px-3 py-1.5 text-[0.68rem] font-black uppercase tracking-[0.16em] text-secondary shadow-sm backdrop-blur"
@@ -87,7 +89,9 @@
                 <h3 class="truncate text-lg font-black">Serendipity</h3>
               </div>
             </div>
-            <p class="mt-3 text-xs font-medium leading-relaxed text-base-content/65">
+            <p
+              class="mt-3 text-xs font-medium leading-relaxed text-base-content/65"
+            >
               I’ll help turn this objective into an adventure that moves you
               forward without disguising the real work.
             </p>
@@ -121,8 +125,8 @@
                   What needs to move?
                 </h3>
                 <p class="mt-1 text-xs leading-relaxed text-base-content/55">
-                  Be plain and specific. Serendipity can make it magical after it
-                  is honest.
+                  Be plain and specific. Serendipity can make it magical after
+                  it is honest.
                 </p>
               </div>
             </div>
@@ -141,7 +145,9 @@
                   class="label-text text-[0.68rem] font-black uppercase tracking-[0.12em] text-base-content/55"
                 >
                   Project or task source
-                  <span class="font-normal normal-case tracking-normal">(optional)</span>
+                  <span class="font-normal normal-case tracking-normal"
+                    >(optional)</span
+                  >
                 </span>
               </div>
               <select
@@ -201,7 +207,9 @@
                 class="flex cursor-pointer list-none items-center gap-3 rounded-2xl border border-secondary/25 bg-base-100/85 p-3 md:hidden [&::-webkit-details-marker]:hidden"
               >
                 <span class="min-w-0 flex-1">
-                  <span class="block text-sm font-black">Recipe ingredients</span>
+                  <span class="block text-sm font-black"
+                    >Recipe ingredients</span
+                  >
                   <span class="block truncate text-xs text-base-content/50">
                     {{ selectedTone }} · {{ selectedLocationLabel }} ·
                     {{ selectedGrammarLabel }}
@@ -325,7 +333,9 @@
                       class="label-text text-[0.68rem] font-black uppercase tracking-[0.12em] text-base-content/55"
                     >
                       Extra flavor
-                      <span class="font-normal normal-case tracking-normal">(optional)</span>
+                      <span class="font-normal normal-case tracking-normal"
+                        >(optional)</span
+                      >
                     </span>
                   </div>
                   <input
@@ -360,7 +370,9 @@
                   >
                     Serendipity says
                   </p>
-                  <p class="text-sm font-black">Small steps still count as adventure.</p>
+                  <p class="text-sm font-black">
+                    Small steps still count as adventure.
+                  </p>
                 </div>
               </div>
             </div>
@@ -398,7 +410,10 @@
             :disabled="store.isWeaving || !canBegin"
             @click="begin(false)"
           >
-            <span v-if="store.isWeaving" class="loading loading-dots loading-sm" />
+            <span
+              v-if="store.isWeaving"
+              class="loading loading-dots loading-sm"
+            />
             <template v-else>
               Build my quest
               <Icon name="kind-icon:chevron-right" class="size-4" />
@@ -414,7 +429,9 @@
       </template>
 
       <template v-else-if="store.session.status === 'draft'">
-        <header class="taskmaster-state-hero relative px-4 pb-8 pt-5 sm:px-6 lg:px-8">
+        <header
+          class="taskmaster-state-hero relative px-4 pb-8 pt-5 sm:px-6 lg:px-8"
+        >
           <div class="flex flex-wrap items-start justify-between gap-3">
             <div class="max-w-2xl">
               <p
@@ -425,9 +442,11 @@
               <h2 class="mt-1 text-2xl font-black leading-tight sm:text-3xl">
                 Review the practical plan
               </h2>
-              <p class="mt-2 max-w-xl text-sm leading-relaxed text-base-content/65">
-                The quest starts with real checkpoints. The story can embellish the
-                road, never quietly move the destination.
+              <p
+                class="mt-2 max-w-xl text-sm leading-relaxed text-base-content/65"
+              >
+                The quest starts with real checkpoints. The story can embellish
+                the road, never quietly move the destination.
               </p>
             </div>
             <button
@@ -514,7 +533,9 @@
                   >
                     Quest briefing
                   </p>
-                  <p class="text-base font-black">Check the map before departure</p>
+                  <p class="text-base font-black">
+                    Check the map before departure
+                  </p>
                 </div>
               </div>
               <dl class="mt-4 space-y-3 text-sm">
@@ -525,7 +546,9 @@
                     Objective
                   </dt>
                   <dd class="mt-0.5 font-black">
-                    {{ store.session.seed.taskTitle || 'Linked project objective' }}
+                    {{
+                      store.session.seed.taskTitle || 'Linked project objective'
+                    }}
                   </dd>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
@@ -535,7 +558,9 @@
                     >
                       Tone
                     </dt>
-                    <dd class="mt-0.5 capitalize">{{ store.session.seed.tone }}</dd>
+                    <dd class="mt-0.5 capitalize">
+                      {{ store.session.seed.tone }}
+                    </dd>
                   </div>
                   <div>
                     <dt
@@ -544,7 +569,9 @@
                       Setting
                     </dt>
                     <dd class="mt-0.5">
-                      {{ store.session.location?.title || 'Taskmaster chooses' }}
+                      {{
+                        store.session.location?.title || 'Taskmaster chooses'
+                      }}
                     </dd>
                   </div>
                 </div>
@@ -582,7 +609,11 @@
               </div>
             </section>
 
-            <p v-if="store.errorMessage" class="text-xs text-error" role="alert">
+            <p
+              v-if="store.errorMessage"
+              class="text-xs text-error"
+              role="alert"
+            >
               {{ store.errorMessage }}
             </p>
 
@@ -668,7 +699,9 @@
                   class="space-y-3 rounded-2xl border border-secondary/30 bg-secondary/10 p-4"
                 >
                   <div class="text-center">
-                    <p class="text-sm font-black text-secondary">Quest complete</p>
+                    <p class="text-sm font-black text-secondary">
+                      Quest complete
+                    </p>
                     <p class="mt-1 text-xs text-base-content/60">
                       Review any real-world updates below before applying them.
                     </p>
@@ -682,8 +715,12 @@
                       :key="item.label"
                       class="kr-panel-compact"
                     >
-                      <dt class="font-bold text-base-content/70">{{ item.label }}</dt>
-                      <dd class="mt-0.5 text-base-content/60">{{ item.value }}</dd>
+                      <dt class="font-bold text-base-content/70">
+                        {{ item.label }}
+                      </dt>
+                      <dd class="mt-0.5 text-base-content/60">
+                        {{ item.value }}
+                      </dd>
                     </div>
                   </dl>
                 </div>
@@ -693,7 +730,10 @@
                   class="space-y-2 rounded-2xl border border-warning/30 bg-warning/10 p-4"
                 >
                   <div class="flex items-center gap-2">
-                    <Icon name="kind-icon:gearhammer" class="size-4 text-warning" />
+                    <Icon
+                      name="kind-icon:gearhammer"
+                      class="size-4 text-warning"
+                    />
                     <h3
                       class="text-xs font-black uppercase tracking-wide text-warning"
                     >
@@ -701,7 +741,8 @@
                     </h3>
                   </div>
                   <p class="text-[0.7rem] leading-relaxed text-base-content/50">
-                    Nothing is written automatically. Apply only the updates you want.
+                    Nothing is written automatically. Apply only the updates you
+                    want.
                   </p>
                   <article
                     v-for="item in store.pendingWriteBacks"
@@ -711,7 +752,9 @@
                     <div class="flex items-start gap-2">
                       <div class="min-w-0 flex-1">
                         <p class="font-bold">{{ item.title }}</p>
-                        <p class="mt-1 text-base-content/70">“{{ item.answer }}”</p>
+                        <p class="mt-1 text-base-content/70">
+                          “{{ item.answer }}”
+                        </p>
                         <p class="mt-1 text-base-content/50">
                           <span class="font-semibold">Apply will:</span>
                           {{ item.proposedWrite }}
@@ -743,7 +786,11 @@
             </KrChatWindow>
 
             <section
-              v-if="!store.isComplete && store.awaitingAnswer && store.currentCheckpoint"
+              v-if="
+                !store.isComplete &&
+                store.awaitingAnswer &&
+                store.currentCheckpoint
+              "
               class="taskmaster-panel shrink-0 space-y-2 border border-info/30 p-3"
             >
               <div>
@@ -753,8 +800,8 @@
                   What happened in the real world?
                 </p>
                 <p class="mt-1 text-xs text-base-content/55">
-                  Choose the honest checkpoint outcome, then describe what happened
-                  below.
+                  Choose the honest checkpoint outcome, then describe what
+                  happened below.
                 </p>
               </div>
               <kr-choice-list
@@ -763,7 +810,9 @@
                 :choices="outcomeChoices"
                 :selected-key="selectedOutcome"
                 :show-index="false"
-                @select="selectedOutcome = $event.key as TaskmasterCheckpointOutcome"
+                @select="
+                  selectedOutcome = $event.key as TaskmasterCheckpointOutcome
+                "
               />
             </section>
 
@@ -811,7 +860,10 @@
                   >
                     Practical checkpoint plan
                   </p>
-                  <p v-if="store.currentCheckpoint" class="mt-1 text-sm font-black">
+                  <p
+                    v-if="store.currentCheckpoint"
+                    class="mt-1 text-sm font-black"
+                  >
                     Current action: {{ store.currentCheckpoint.title }}
                   </p>
                   <p v-else class="mt-1 text-xs text-base-content/55">
@@ -867,20 +919,27 @@
               v-if="store.currentHookContext && store.awaitingAnswer"
               class="taskmaster-panel flex items-start gap-2 border border-info/30 p-3"
             >
-              <Icon name="kind-icon:alert" class="mt-0.5 size-4 shrink-0 text-info" />
+              <Icon
+                name="kind-icon:alert"
+                class="mt-0.5 size-4 shrink-0 text-info"
+              />
               <div class="min-w-0 flex-1 text-xs leading-relaxed">
                 <p class="font-bold text-info">This scene connects to:</p>
                 <p class="mt-0.5 text-base-content/75">
                   {{ store.currentHookContext.title }}
                 </p>
                 <p class="mt-1 text-base-content/45">
-                  An answer proposes progress. It does not approve or complete the
-                  work.
+                  An answer proposes progress. It does not approve or complete
+                  the work.
                 </p>
               </div>
             </div>
 
-            <p v-if="store.errorMessage" class="text-xs text-error" role="alert">
+            <p
+              v-if="store.errorMessage"
+              class="text-xs text-error"
+              role="alert"
+            >
               {{ store.errorMessage }}
             </p>
 
@@ -932,10 +991,7 @@ import {
   pickRandomNarrativeIngredient,
   type NarrativeIngredientOption,
 } from '@/utils/narrativeIngredients'
-import {
-  beatIdFromTurnId,
-  narrativeBeatsToTurns,
-} from '@/utils/narrativeTurns'
+import { beatIdFromTurnId, narrativeBeatsToTurns } from '@/utils/narrativeTurns'
 
 const store = useTaskmasterStore()
 
@@ -948,8 +1004,8 @@ const pageStore = usePageStore()
 const hasGeneratedBackdrop = computed(() =>
   Boolean(
     pageStore.backgroundMobile ||
-      pageStore.backgroundTablet ||
-      pageStore.backgroundDesktop,
+    pageStore.backgroundTablet ||
+    pageStore.backgroundDesktop,
   ),
 )
 const dreamStore = useDreamStore()
@@ -1021,8 +1077,8 @@ function beatForTurn(turn: NarrativeTurn) {
   return store.session?.beats.find((beat) => beat.id === beatId) ?? null
 }
 
-const canBegin = computed(
-  () => Boolean(taskInput.value.trim() || selectedProjectSlug.value),
+const canBegin = computed(() =>
+  Boolean(taskInput.value.trim() || selectedProjectSlug.value),
 )
 
 const locationDreams = computed(() =>
@@ -1055,7 +1111,13 @@ const selectedLocationLabel = computed(
     )?.title || 'Let Taskmaster choose',
 )
 
-const storyGrammarTaxonomies = new Set(['GENRE', 'CORE', 'THEME', 'MOOD', 'STYLE'])
+const storyGrammarTaxonomies = new Set([
+  'GENRE',
+  'CORE',
+  'THEME',
+  'MOOD',
+  'STYLE',
+])
 const grammarFacets = computed(() =>
   facetStore.activeFacets.filter(
     (facet) => storyGrammarTaxonomies.has(facet.taxonomy) && facet.slug,
@@ -1070,8 +1132,6 @@ const grammarOptions = computed<NarrativeIngredientOption[]>(() =>
     description: facet.description,
     flavorText: facet.flavorText,
     imagePath: facet.imagePath,
-    cardPath: facet.cardPath,
-    heroPath: facet.heroPath,
     icon: facet.icon,
     badge: taxonomyLabel(facet.taxonomy),
   })),
@@ -1079,9 +1139,8 @@ const grammarOptions = computed<NarrativeIngredientOption[]>(() =>
 
 const selectedGrammarLabel = computed(
   () =>
-    grammarOptions.value.find(
-      (item) => item.slug === selectedGrammarSlug.value,
-    )?.title || 'Any adventure',
+    grammarOptions.value.find((item) => item.slug === selectedGrammarSlug.value)
+      ?.title || 'Any adventure',
 )
 
 const sessionRecap = computed(() => {
@@ -1146,9 +1205,8 @@ async function begin(surprise: boolean) {
   if (!canBegin.value) return
 
   const tone = surprise
-    ? (TASKMASTER_TONES[
-        Math.floor(Math.random() * TASKMASTER_TONES.length)
-      ] ?? 'surprising')
+    ? (TASKMASTER_TONES[Math.floor(Math.random() * TASKMASTER_TONES.length)] ??
+      'surprising')
     : selectedTone.value
   const location = surprise
     ? toIngredient(pickRandomNarrativeIngredient(locationOptions.value))
@@ -1209,7 +1267,8 @@ onMounted(() => {
 }
 
 .taskmaster-hero-copy {
-  text-shadow: 0 2px 14px color-mix(in oklab, var(--color-base-100) 82%, transparent);
+  text-shadow: 0 2px 14px
+    color-mix(in oklab, var(--color-base-100) 82%, transparent);
 }
 
 .taskmaster-panel {

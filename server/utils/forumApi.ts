@@ -108,10 +108,7 @@ export const forumPostSelect = {
       name: true,
       backstory: true,
       drive: true,
-      cardPath: true,
-      heroPath: true,
       imagePath: true,
-      iconPath: true,
       isPublic: true,
       isMature: true,
       isActive: true,
@@ -170,9 +167,9 @@ export function requireForumChannel(value: unknown): ForumChannel {
 function hasSuppliedAuth(event: H3Event): boolean {
   return Boolean(
     getHeader(event, 'authorization') ||
-      getHeader(event, 'x-api-key') ||
-      getHeader(event, 'x-beta-admin-token') ||
-      getHeader(event, 'x-admin-token'),
+    getHeader(event, 'x-api-key') ||
+    getHeader(event, 'x-beta-admin-token') ||
+    getHeader(event, 'x-admin-token'),
   )
 }
 
@@ -198,8 +195,8 @@ export async function getForumReadContext(
 
   const includeMature = Boolean(
     auth &&
-      !isMaturityRestricted(auth.user) &&
-      (requestedMature || effectiveShowMature(auth.user)),
+    !isMaturityRestricted(auth.user) &&
+    (requestedMature || effectiveShowMature(auth.user)),
   )
 
   return { auth, includeMature }
@@ -260,7 +257,8 @@ export async function requireForumWriter(event: H3Event): Promise<ForumActor> {
   if (!auth.botId) {
     throw createError({
       statusCode: 403,
-      message: 'Forum-writing agent credentials must be bound to a Kind Robots Bot.',
+      message:
+        'Forum-writing agent credentials must be bound to a Kind Robots Bot.',
     })
   }
 
@@ -279,7 +277,8 @@ export async function requireForumWriter(event: H3Event): Promise<ForumActor> {
   if (!bot) {
     throw createError({
       statusCode: 403,
-      message: 'The Bot bound to this credential is unavailable or no longer owned by the authenticated user.',
+      message:
+        'The Bot bound to this credential is unavailable or no longer owned by the authenticated user.',
     })
   }
 
@@ -477,7 +476,8 @@ export function assertMatureForumWriteAllowed(
   if (isMature && isMaturityRestricted(auth.user)) {
     throw createError({
       statusCode: 403,
-      message: 'This account cannot create or participate in mature forum content.',
+      message:
+        'This account cannot create or participate in mature forum content.',
     })
   }
 }
@@ -530,7 +530,11 @@ export function parseForumAttachmentReferences(
       })
     }
 
-    if (typeof row.id !== 'number' || !Number.isInteger(row.id) || row.id <= 0) {
+    if (
+      typeof row.id !== 'number' ||
+      !Number.isInteger(row.id) ||
+      row.id <= 0
+    ) {
       throw createError({
         statusCode: 400,
         message: `attachments[${index}].id must be a positive integer.`,
@@ -580,7 +584,8 @@ export async function requireForumAttachmentRelations(
       if (art.isMature && !options.isMature) {
         throw createError({
           statusCode: 400,
-          message: 'A mature ArtImage may only be attached to a mature forum post.',
+          message:
+            'A mature ArtImage may only be attached to a mature forum post.',
         })
       }
 
@@ -609,7 +614,8 @@ export async function requireForumAttachmentRelations(
       if (project.isMature && !options.isMature) {
         throw createError({
           statusCode: 400,
-          message: 'A mature Project may only be attached to a mature forum post.',
+          message:
+            'A mature Project may only be attached to a mature forum post.',
         })
       }
 
@@ -637,7 +643,8 @@ export async function requireForumAttachmentRelations(
     if (character.isMature && !options.isMature) {
       throw createError({
         statusCode: 400,
-        message: 'A mature Character may only be attached to a mature forum post.',
+        message:
+          'A mature Character may only be attached to a mature forum post.',
       })
     }
 
@@ -712,7 +719,8 @@ export async function requireForumReplyParent(
   if (!parent || !forumParentBelongsToThread(threadId, parent)) {
     throw createError({
       statusCode: 400,
-      message: 'The requested reply parent does not belong to this forum thread.',
+      message:
+        'The requested reply parent does not belong to this forum thread.',
     })
   }
 
@@ -727,7 +735,9 @@ export async function requireForumReplyParent(
   return parent
 }
 
-function absoluteKindRobotsUrl(value: string | null | undefined): string | null {
+function absoluteKindRobotsUrl(
+  value: string | null | undefined,
+): string | null {
   const raw = value?.trim()
   if (!raw) return null
 
@@ -768,8 +778,12 @@ function serializeForumAttachments(
     }
     attachments.push({
       ...reference,
-      title: post.ArtImage.fileName?.trim() || `Kind Robots art #${post.ArtImage.id}`,
-      summary: summarizeAttachment(post.ArtImage.promptString ?? post.ArtImage.artPrompt),
+      title:
+        post.ArtImage.fileName?.trim() ||
+        `Kind Robots art #${post.ArtImage.id}`,
+      summary: summarizeAttachment(
+        post.ArtImage.promptString ?? post.ArtImage.artPrompt,
+      ),
       imageUrl: absoluteKindRobotsUrl(
         post.ArtImage.thumbnailPath ??
           post.ArtImage.cardPath ??
@@ -791,7 +805,9 @@ function serializeForumAttachments(
     attachments.push({
       ...reference,
       title: post.Project.title,
-      summary: summarizeAttachment(post.Project.description ?? post.Project.goal),
+      summary: summarizeAttachment(
+        post.Project.description ?? post.Project.goal,
+      ),
       imageUrl: absoluteKindRobotsUrl(
         post.Project.cardPath ??
           post.Project.heroPath ??
@@ -814,13 +830,10 @@ function serializeForumAttachments(
     attachments.push({
       ...reference,
       title: post.Character.name,
-      summary: summarizeAttachment(post.Character.backstory ?? post.Character.drive),
-      imageUrl: absoluteKindRobotsUrl(
-        post.Character.cardPath ??
-          post.Character.heroPath ??
-          post.Character.imagePath ??
-          post.Character.iconPath,
+      summary: summarizeAttachment(
+        post.Character.backstory ?? post.Character.drive,
       ),
+      imageUrl: absoluteKindRobotsUrl(post.Character.imagePath),
       canonicalUrl: `${KIND_ROBOTS_ORIGIN}${forumAttachmentCanonicalPath(reference)}`,
     })
   }

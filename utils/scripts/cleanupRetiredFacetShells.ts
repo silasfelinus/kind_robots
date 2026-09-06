@@ -127,7 +127,9 @@ async function findCanonicalFacet(
 
   const canonicalSlug = String(metadata.canonicalSlug || '').trim()
   if (canonicalSlug) {
-    const bySlug = await prisma.facet.findUnique({ where: { slug: canonicalSlug } })
+    const bySlug = await prisma.facet.findUnique({
+      where: { slug: canonicalSlug },
+    })
     if (bySlug && bySlug.id !== duplicate.id) return bySlug
   }
 
@@ -163,9 +165,6 @@ function replaceFacetJobPayload(
         slug: canonical.slug,
         artPrompt: canonical.artPrompt,
         imagePath: canonical.imagePath,
-        cardPath: canonical.cardPath,
-        heroPath: canonical.heroPath,
-        iconPath: canonical.iconPath,
       }
     })
   }
@@ -296,7 +295,10 @@ async function migrateMergedShell(
   if (APPLY) {
     if (characterLinks.length) {
       await prisma.characterFacet.createMany({
-        data: characterLinks.map((link) => ({ ...link, facetId: canonical.id })),
+        data: characterLinks.map((link) => ({
+          ...link,
+          facetId: canonical.id,
+        })),
         skipDuplicates: true,
       })
     }
@@ -386,13 +388,9 @@ async function migrateMergedShell(
         examples: canonical.examples || duplicate.examples,
         artPrompt: canonical.artPrompt || duplicate.artPrompt,
         imagePath: canonical.imagePath || duplicate.imagePath,
-        cardPath: canonical.cardPath || duplicate.cardPath,
-        heroPath: canonical.heroPath || duplicate.heroPath,
-        iconPath: canonical.iconPath || duplicate.iconPath,
         icon: canonical.icon || duplicate.icon,
         artImageId: canonical.artImageId ?? duplicate.artImageId,
-        artCollectionId:
-          canonical.artCollectionId ?? duplicate.artCollectionId,
+        artCollectionId: canonical.artCollectionId ?? duplicate.artCollectionId,
         isActive: true,
       },
     })
@@ -408,14 +406,17 @@ async function migrateMergedShell(
         where: { facetId: canonical.id },
         create: {
           facetId: canonical.id,
-          taxonomy: canonicalProfile?.taxonomy ?? duplicateProfile?.taxonomy ?? 'OTHER',
+          taxonomy:
+            canonicalProfile?.taxonomy ?? duplicateProfile?.taxonomy ?? 'OTHER',
           canonicalValue:
             canonicalProfile?.canonicalValue ??
             duplicateProfile?.canonicalValue ??
             canonical.title,
           groupKey: canonicalProfile?.groupKey ?? duplicateProfile?.groupKey,
-          groupLabel: canonicalProfile?.groupLabel ?? duplicateProfile?.groupLabel,
-          sortOrder: canonicalProfile?.sortOrder ?? duplicateProfile?.sortOrder ?? 0,
+          groupLabel:
+            canonicalProfile?.groupLabel ?? duplicateProfile?.groupLabel,
+          sortOrder:
+            canonicalProfile?.sortOrder ?? duplicateProfile?.sortOrder ?? 0,
           isRandomizable:
             canonicalProfile?.isRandomizable ??
             duplicateProfile?.isRandomizable ??
@@ -425,7 +426,9 @@ async function migrateMergedShell(
             duplicateProfile?.randomWeight ?? 0,
           ),
           artRequired:
-            canonicalProfile?.artRequired ?? duplicateProfile?.artRequired ?? true,
+            canonicalProfile?.artRequired ??
+            duplicateProfile?.artRequired ??
+            true,
           sourceRank: Math.min(
             canonicalProfile?.sourceRank ?? 100,
             duplicateProfile?.sourceRank ?? 100,
@@ -433,14 +436,20 @@ async function migrateMergedShell(
           metadata: JSON.stringify({
             ...duplicateMetadata,
             ...canonicalMetadata,
-            catalogCleanup: { batchId: BATCH_ID, action: 'merged-shell-removed' },
+            catalogCleanup: {
+              batchId: BATCH_ID,
+              action: 'merged-shell-removed',
+            },
           }),
         },
         update: {
           metadata: JSON.stringify({
             ...duplicateMetadata,
             ...canonicalMetadata,
-            catalogCleanup: { batchId: BATCH_ID, action: 'merged-shell-removed' },
+            catalogCleanup: {
+              batchId: BATCH_ID,
+              action: 'merged-shell-removed',
+            },
           }),
         },
       })
@@ -453,7 +462,9 @@ async function migrateMergedShell(
       prisma.dreamFacet.deleteMany({ where: { facetId: duplicate.id } }),
       prisma.scenarioFacet.deleteMany({ where: { facetId: duplicate.id } }),
       prisma.facetArtImage.deleteMany({ where: { facetId: duplicate.id } }),
-      prisma.facetArtCollection.deleteMany({ where: { facetId: duplicate.id } }),
+      prisma.facetArtCollection.deleteMany({
+        where: { facetId: duplicate.id },
+      }),
       prisma.facetRelation.deleteMany({
         where: {
           OR: [{ fromFacetId: duplicate.id }, { toFacetId: duplicate.id }],
@@ -586,17 +597,18 @@ async function main(): Promise<void> {
       }
 
       const metadataCleaned = await stripHistoricalMetadata(prisma)
-      const [remainingMergedShells, remainingRecipeProfiles] = await Promise.all([
-        prisma.facet.count({
-          where: {
-            OR: [
-              { designer: 'facet-catalog-merged' },
-              { slug: { contains: '-merged-' } },
-            ],
-          },
-        }),
-        prisma.facetProfile.count({ where: { groupKey: 'genre-recipe' } }),
-      ])
+      const [remainingMergedShells, remainingRecipeProfiles] =
+        await Promise.all([
+          prisma.facet.count({
+            where: {
+              OR: [
+                { designer: 'facet-catalog-merged' },
+                { slug: { contains: '-merged-' } },
+              ],
+            },
+          }),
+          prisma.facetProfile.count({ where: { groupKey: 'genre-recipe' } }),
+        ])
 
       const report = {
         mode: APPLY ? 'apply' : 'dry-run',

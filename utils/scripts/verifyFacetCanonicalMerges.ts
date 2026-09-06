@@ -60,9 +60,10 @@ async function main(): Promise<void> {
     'flavorText: canonical.flavorText || duplicate.flavorText',
     'examples: canonical.examples || duplicate.examples',
     'artPrompt: canonical.artPrompt || duplicate.artPrompt',
+    // cardPath/heroPath were dropped with the entity-art slot collapse: one
+    // primary render now serves every view, so there is no secondary slot left
+    // for a merge to carry across.
     'imagePath: canonical.imagePath || duplicate.imagePath',
-    'cardPath: canonical.cardPath || duplicate.cardPath',
-    'heroPath: canonical.heroPath || duplicate.heroPath',
     'icon: canonical.icon || duplicate.icon',
     'artImageId: canonical.artImageId ?? duplicate.artImageId',
     'canonical.artCollectionId ?? duplicate.artCollectionId',

@@ -20,11 +20,7 @@ type QualificationDefinition = {
   expectedTaxonomy: FacetTaxonomy
   title: string
   family:
-    | 'punk-aesthetic'
-    | 'art-mood'
-    | 'personality'
-    | 'bot-type'
-    | 'dream-type'
+    'punk-aesthetic' | 'art-mood' | 'personality' | 'bot-type' | 'dream-type'
   note: string
 }
 
@@ -104,8 +100,7 @@ const QUALIFICATIONS: readonly QualificationDefinition[] = [
     expectedTaxonomy: 'MOOD',
     title: 'Whimsical Art Mood',
     family: 'art-mood',
-    note:
-      'Distinguishes the art-builder MOOD from the Whimsical PERSONALITY and the general Whimsical Tone recipe component.',
+    note: 'Distinguishes the art-builder MOOD from the Whimsical PERSONALITY and the general Whimsical Tone recipe component.',
   },
   {
     slug: 'personality-loyal',
@@ -212,8 +207,6 @@ async function main(): Promise<void> {
       examples: true,
       artPrompt: true,
       imagePath: true,
-      cardPath: true,
-      heroPath: true,
       icon: true,
       artImageId: true,
       artCollectionId: true,
@@ -221,7 +214,9 @@ async function main(): Promise<void> {
   })
   const bySlug = new Map(
     facets
-      .filter((facet): facet is typeof facet & { slug: string } => Boolean(facet.slug))
+      .filter((facet): facet is typeof facet & { slug: string } =>
+        Boolean(facet.slug),
+      )
       .map((facet) => [facet.slug, facet]),
   )
   const facetIds = facets.map((facet) => facet.id)
@@ -253,7 +248,9 @@ async function main(): Promise<void> {
       }),
     ])
 
-  const profileByFacet = new Map(profiles.map((profile) => [profile.facetId, profile]))
+  const profileByFacet = new Map(
+    profiles.map((profile) => [profile.facetId, profile]),
+  )
   const joinedArtIds = new Set([
     ...artImageLinks.map((link) => link.facetId),
     ...artCollectionLinks.map((link) => link.facetId),
@@ -299,12 +296,10 @@ async function main(): Promise<void> {
 
     const artBacked = Boolean(
       facet.imagePath ||
-        facet.cardPath ||
-        facet.heroPath ||
-        facet.icon ||
-        facet.artImageId !== null ||
-        facet.artCollectionId !== null ||
-        joinedArtIds.has(facet.id),
+      facet.icon ||
+      facet.artImageId !== null ||
+      facet.artCollectionId !== null ||
+      joinedArtIds.has(facet.id),
     )
 
     reports.push({
@@ -357,7 +352,8 @@ async function main(): Promise<void> {
         summary: {
           expected: QUALIFICATIONS.length,
           found: facets.length,
-          qualified: reports.filter((report) => report.action === 'qualified').length,
+          qualified: reports.filter((report) => report.action === 'qualified')
+            .length,
           alreadyQualified: reports.filter(
             (report) => report.action === 'already-qualified',
           ).length,

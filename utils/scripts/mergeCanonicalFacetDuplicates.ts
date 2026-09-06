@@ -288,8 +288,6 @@ async function mergeDefinition(definition: MergeDefinition): Promise<object> {
       examples: canonical.examples || duplicate.examples,
       artPrompt: canonical.artPrompt || duplicate.artPrompt,
       imagePath: canonical.imagePath || duplicate.imagePath,
-      cardPath: canonical.cardPath || duplicate.cardPath,
-      heroPath: canonical.heroPath || duplicate.heroPath,
       icon: canonical.icon || duplicate.icon,
       artImageId: canonical.artImageId ?? duplicate.artImageId,
       artCollectionId: canonical.artCollectionId ?? duplicate.artCollectionId,

@@ -45,8 +45,6 @@ export type FacetCatalogEntry = {
   examples: string | null
   artPrompt: string | null
   imagePath: string | null
-  cardPath: string | null
-  heroPath: string | null
   icon: string | null
   groupKey: string | null
   groupLabel: string | null
@@ -72,8 +70,6 @@ const facetCatalogSelect = {
   examples: true,
   artPrompt: true,
   imagePath: true,
-  cardPath: true,
-  heroPath: true,
   icon: true,
   userId: true,
   isPublic: true,

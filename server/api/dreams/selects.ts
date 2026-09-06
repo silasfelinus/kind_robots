@@ -15,8 +15,6 @@ export const dreamMutationSelect = {
   examples: true,
   artPrompt: true,
   imagePath: true,
-  cardPath: true,
-  heroPath: true,
   highlightImage: true,
   icon: true,
   designer: true,

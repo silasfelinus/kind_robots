@@ -22,10 +22,7 @@
       </label>
       <label class="form-control">
         <span class="label-text text-xs">Taxonomy</span>
-        <select
-          v-model="form.taxonomy"
-          class="kr-select-sm"
-        >
+        <select v-model="form.taxonomy" class="kr-select-sm">
           <option
             v-for="taxonomy in FACET_TAXONOMIES"
             :key="taxonomy"
@@ -100,7 +97,9 @@
         />
       </label>
       <label class="form-control sm:col-span-2 xl:col-span-4">
-        <span class="label-text text-xs">Structured metadata (JSON object)</span>
+        <span class="label-text text-xs"
+          >Structured metadata (JSON object)</span
+        >
         <textarea
           v-model="form.metadata"
           class="textarea textarea-bordered min-h-28 rounded-xl font-mono text-xs"
@@ -129,7 +128,11 @@
             :alt="`${form.title || 'Facet'} artwork preview`"
             class="size-full object-contain"
           />
-          <Icon v-else name="kind-icon:image" class="size-9 text-base-content/20" />
+          <Icon
+            v-else
+            name="kind-icon:image"
+            class="size-9 text-base-content/20"
+          />
         </div>
         <div class="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
           <label class="form-control">
@@ -139,33 +142,6 @@
               type="text"
               class="kr-input-sm"
               placeholder="/images/facets/example.webp"
-            />
-          </label>
-          <label class="form-control">
-            <span class="label-text text-xs">Icon / logo path</span>
-            <input
-              v-model="form.iconPath"
-              type="text"
-              class="kr-input-sm"
-              placeholder="/images/facets/icons/example.webp"
-            />
-          </label>
-          <label class="form-control">
-            <span class="label-text text-xs">Card / portrait path</span>
-            <input
-              v-model="form.cardPath"
-              type="text"
-              class="kr-input-sm"
-              placeholder="/images/facets/cards/example.webp"
-            />
-          </label>
-          <label class="form-control">
-            <span class="label-text text-xs">Hero / wide path</span>
-            <input
-              v-model="form.heroPath"
-              type="text"
-              class="kr-input-sm"
-              placeholder="/images/facets/heroes/example.webp"
             />
           </label>
           <label class="form-control sm:col-span-2 xl:col-span-3">
@@ -236,13 +212,14 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { FACET_TAXONOMIES, type FacetTaxonomy } from '@/stores/facetCatalogStore'
+import {
+  FACET_TAXONOMIES,
+  type FacetTaxonomy,
+} from '@/stores/facetCatalogStore'
 import type { FacetProfileForm } from '@/utils/facetProfileForm'
 
 const form = defineModel<FacetProfileForm>({ required: true })
-const previewPath = computed(
-  () => form.value.cardPath.trim() || form.value.imagePath.trim() || form.value.heroPath.trim(),
-)
+const previewPath = computed(() => form.value.imagePath.trim())
 
 function taxonomyLabel(taxonomy: FacetTaxonomy): string {
   return taxonomy

@@ -127,14 +127,6 @@ export default defineEventHandler(async (event) => {
       setTextField(dataInput, 'imagePath', body.imagePath)
     }
 
-    if (body.cardPath !== undefined) {
-      setTextField(dataInput, 'cardPath', body.cardPath)
-    }
-
-    if (body.heroPath !== undefined) {
-      setTextField(dataInput, 'heroPath', body.heroPath)
-    }
-
     if (body.highlightImage !== undefined) {
       setTextField(dataInput, 'highlightImage', body.highlightImage)
     }
@@ -183,10 +175,7 @@ export default defineEventHandler(async (event) => {
       body.characterIds,
       'characterIds',
     )
-    const rewardIds = normalizeBoundedDreamIdArray(
-      body.rewardIds,
-      'rewardIds',
-    )
+    const rewardIds = normalizeBoundedDreamIdArray(body.rewardIds, 'rewardIds')
     const artImageIds = normalizeBoundedDreamIdArray(
       body.artImageIds,
       'artImageIds',

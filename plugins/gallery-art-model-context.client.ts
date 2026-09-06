@@ -35,8 +35,6 @@ function sameSource(source: string, candidate: unknown): boolean {
 }
 
 function dreamImageField(dream: DreamWithRelations, source: string): string {
-  if (sameSource(source, dream.cardPath)) return 'cardPath'
-  if (sameSource(source, dream.heroPath)) return 'heroPath'
   if (sameSource(source, dream.highlightImage)) return 'highlightImage'
   if (sameSource(source, dream.imagePath)) return 'imagePath'
   return 'galleryArtwork'

@@ -30,14 +30,20 @@ type DashboardObject = {
   imagePath: string | null
 }
 
-function clip(value: string | null | undefined, limit = EXCERPT_LIMIT): string | null {
+function clip(
+  value: string | null | undefined,
+  limit = EXCERPT_LIMIT,
+): string | null {
   if (!value) return null
   const trimmed = value.trim()
   if (!trimmed) return null
   return trimmed.length > limit ? `${trimmed.slice(0, limit - 1)}…` : trimmed
 }
 
-async function loadRecentDirectReplies(input: { userId: number; includeMature: boolean }) {
+async function loadRecentDirectReplies(input: {
+  userId: number
+  includeMature: boolean
+}) {
   const rows = await prisma.$queryRaw<RecentReplyRow[]>(Prisma.sql`
     SELECT
       reply.id AS id,
@@ -75,7 +81,10 @@ async function loadRecentDirectReplies(input: { userId: number; includeMature: b
   }))
 }
 
-async function loadRecentObjects(input: { userId: number; includeMature: boolean }) {
+async function loadRecentObjects(input: {
+  userId: number
+  includeMature: boolean
+}) {
   const matureWhere = input.includeMature ? {} : { isMature: false }
 
   const [artImages, characters, projects] = await Promise.all([
@@ -118,8 +127,6 @@ async function loadRecentObjects(input: { userId: number; includeMature: boolean
         title: true,
         species: true,
         role: true,
-        iconPath: true,
-        cardPath: true,
         imagePath: true,
       },
     }),
@@ -150,7 +157,9 @@ async function loadRecentObjects(input: { userId: number; includeMature: boolean
     ...artImages.map((item) => ({
       kind: 'ART_IMAGE' as const,
       id: item.id,
-      label: clip(item.artPrompt || item.promptString, 120) || `ArtImage #${item.id}`,
+      label:
+        clip(item.artPrompt || item.promptString, 120) ||
+        `ArtImage #${item.id}`,
       detail: clip(item.promptString || item.artPrompt, 280),
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,
@@ -167,7 +176,7 @@ async function loadRecentObjects(input: { userId: number; includeMature: boolean
       updatedAt: item.updatedAt,
       isPublic: item.isPublic,
       isMature: item.isMature,
-      imagePath: item.iconPath || item.cardPath || item.imagePath,
+      imagePath: item.imagePath,
     })),
     ...projects.map((item) => ({
       kind: 'PROJECT' as const,

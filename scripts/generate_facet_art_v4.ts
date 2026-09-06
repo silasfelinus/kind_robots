@@ -141,14 +141,8 @@ type FacetRow = {
   examples: string | null
   artPrompt: string | null
   imagePath: string | null
-  cardPath: string | null
-  heroPath: string | null
-  iconPath: string | null
   icon: string | null
   artImageId: number | null
-  cardArtImageId: number | null
-  heroArtImageId: number | null
-  iconArtImageId: number | null
   artCollectionId: number | null
   userId: number
   isPublic: boolean
@@ -176,9 +170,6 @@ type FacetSnapshot = {
   canonicalValue: string | null
   artPrompt: string | null
   imagePath: string | null
-  cardPath: string | null
-  heroPath: string | null
-  iconPath: string | null
 }
 
 type HistoryJob = {
@@ -378,9 +369,6 @@ function facetSnapshot(
     canonicalValue: profile.canonicalValue,
     artPrompt,
     imagePath: facet.imagePath,
-    cardPath: facet.cardPath,
-    heroPath: facet.heroPath,
-    iconPath: facet.iconPath,
   }
 }
 
@@ -507,21 +495,18 @@ function fieldVariant(field: FacetArtField): FacetArtVariant {
   return ART_VARIANTS.find((variant) => variant.field === field)!
 }
 
+/*
+ * Only imagePath survives the entity-art slot collapse. The retired fields stay
+ * in ART_VARIANTS so repair can still map a legacy job's stored field onto its
+ * variant geometry, but a Facet row no longer carries them -- so they resolve
+ * to "nothing here", which is exactly what the coverage checks should see.
+ */
 function slotArtImageId(facet: FacetRow, field: FacetArtField): number | null {
-  switch (field) {
-    case 'imagePath':
-      return facet.artImageId
-    case 'cardPath':
-      return facet.cardArtImageId
-    case 'heroPath':
-      return facet.heroArtImageId
-    case 'iconPath':
-      return facet.iconArtImageId
-  }
+  return field === 'imagePath' ? facet.artImageId : null
 }
 
 function slotPath(facet: FacetRow, field: FacetArtField): string {
-  return clean(facet[field])
+  return field === 'imagePath' ? clean(facet.imagePath) : ''
 }
 
 function likelyStillCarriesLegacyOutput(
@@ -584,14 +569,8 @@ export async function main(): Promise<void> {
             examples: true,
             artPrompt: true,
             imagePath: true,
-            cardPath: true,
-            heroPath: true,
-            iconPath: true,
             icon: true,
             artImageId: true,
-            cardArtImageId: true,
-            heroArtImageId: true,
-            iconArtImageId: true,
             artCollectionId: true,
             userId: true,
             isPublic: true,
@@ -688,9 +667,6 @@ export async function main(): Promise<void> {
           aliases: aliasesByFacet.get(facet.id) ?? [],
           artBacked: Boolean(
             facet.imagePath ||
-            facet.cardPath ||
-            facet.heroPath ||
-            facet.iconPath ||
             facet.icon ||
             facet.artImageId !== null ||
             facet.artCollectionId !== null ||
@@ -745,7 +721,7 @@ export async function main(): Promise<void> {
             variant.field === 'imagePath' &&
             (facet.artImageId !== null || linkedPrimaryArt.has(facet.id)),
           )
-          if (clean(facet[variant.field]) || primaryLinked) {
+          if (slotPath(facet, variant.field) || primaryLinked) {
             available.set(
               variant.field,
               (available.get(variant.field) ?? 0) + 1,
@@ -756,9 +732,6 @@ export async function main(): Promise<void> {
         if (!ALL_VARIANTS) {
           const hasDisplayArt = Boolean(
             clean(facet.imagePath) ||
-            clean(facet.cardPath) ||
-            clean(facet.heroPath) ||
-            clean(facet.iconPath) ||
             facet.artImageId !== null ||
             linkedPrimaryArt.has(facet.id),
           )
@@ -796,7 +769,7 @@ export async function main(): Promise<void> {
             variant.field === 'imagePath' &&
             (facet.artImageId !== null || linkedPrimaryArt.has(facet.id)),
           )
-          if (clean(facet[variant.field]) || primaryLinked) continue
+          if (slotPath(facet, variant.field) || primaryLinked) continue
           if (pendingFacetFields.has(`${facet.id}:${variant.field}`)) {
             reused.push({ id: facet.id, field: variant.field })
             continue

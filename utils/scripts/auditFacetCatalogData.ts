@@ -96,19 +96,11 @@ function splitScalar(fieldKey: string, value: unknown): string[] {
 
 function hasUsableArt(facet: {
   imagePath: string | null
-  cardPath: string | null
-  heroPath: string | null
-  iconPath: string | null
   artImageId: number | null
   artCollectionId: number | null
 }): boolean {
   return Boolean(
-    facet.imagePath?.trim() ||
-      facet.cardPath?.trim() ||
-      facet.heroPath?.trim() ||
-      facet.iconPath?.trim() ||
-      facet.artImageId ||
-      facet.artCollectionId,
+    facet.imagePath?.trim() || facet.artImageId || facet.artCollectionId,
   )
 }
 
@@ -133,9 +125,6 @@ async function main(): Promise<void> {
         slug: true,
         isActive: true,
         imagePath: true,
-        cardPath: true,
-        heroPath: true,
-        iconPath: true,
         artImageId: true,
         artCollectionId: true,
       },
@@ -237,11 +226,17 @@ async function main(): Promise<void> {
     severe.push({
       code: 'FACET_WITHOUT_PROFILE',
       message: `${missingProfiles.length} active Facets do not have a FacetProfile.`,
-      details: missingProfiles.map(({ id, title, slug }) => ({ id, title, slug })),
+      details: missingProfiles.map(({ id, title, slug }) => ({
+        id,
+        title,
+        slug,
+      })),
     })
   }
 
-  const orphanProfiles = profiles.filter((profile) => !facetById.has(profile.facetId))
+  const orphanProfiles = profiles.filter(
+    (profile) => !facetById.has(profile.facetId),
+  )
   if (orphanProfiles.length) {
     severe.push({
       code: 'PROFILE_WITHOUT_FACET',
@@ -251,13 +246,17 @@ async function main(): Promise<void> {
   }
 
   const facetsWithoutAliases = facets.filter(
-    (facet) => facet.isActive && !(aliasesByFacetId.get(facet.id)?.length),
+    (facet) => facet.isActive && !aliasesByFacetId.get(facet.id)?.length,
   )
   if (facetsWithoutAliases.length) {
     severe.push({
       code: 'ACTIVE_FACET_WITHOUT_ALIAS',
       message: `${facetsWithoutAliases.length} active Facets have no active alias lookup.`,
-      details: facetsWithoutAliases.map(({ id, title, slug }) => ({ id, title, slug })),
+      details: facetsWithoutAliases.map(({ id, title, slug }) => ({
+        id,
+        title,
+        slug,
+      })),
     })
   }
 
@@ -311,7 +310,11 @@ async function main(): Promise<void> {
     warnings.push({
       code: 'MISSING_REQUIRED_ART',
       message: `${missingRequiredArt.length} active art-required Facets have no usable media.`,
-      details: missingRequiredArt.map(({ id, title, slug }) => ({ id, title, slug })),
+      details: missingRequiredArt.map(({ id, title, slug }) => ({
+        id,
+        title,
+        slug,
+      })),
     })
   }
 

@@ -2,10 +2,7 @@
 import 'dotenv/config'
 import { PrismaClient } from './../../prisma/generated/prisma/client'
 import { createDatabaseAdapter } from './../../server/utils/databaseAdapterConfig'
-import {
-  auditFacetCatalog,
-  type FacetAuditInput,
-} from './../facetCatalogAudit'
+import { auditFacetCatalog, type FacetAuditInput } from './../facetCatalogAudit'
 
 const databaseUrl = process.env.DATABASE_URL
 if (!databaseUrl) throw new Error('DATABASE_URL is missing')
@@ -40,8 +37,6 @@ async function main(): Promise<void> {
           examples: true,
           artPrompt: true,
           imagePath: true,
-          cardPath: true,
-          heroPath: true,
           icon: true,
           artImageId: true,
           artCollectionId: true,
@@ -99,13 +94,11 @@ async function main(): Promise<void> {
       aliases: aliasesByFacet.get(facet.id) ?? [],
       artBacked: Boolean(
         facet.imagePath ||
-          facet.cardPath ||
-          facet.heroPath ||
-          facet.icon ||
-          facet.artImageId !== null ||
-          facet.artCollectionId !== null ||
-          artImageFacetIds.has(facet.id) ||
-          artCollectionFacetIds.has(facet.id),
+        facet.icon ||
+        facet.artImageId !== null ||
+        facet.artCollectionId !== null ||
+        artImageFacetIds.has(facet.id) ||
+        artCollectionFacetIds.has(facet.id),
       ),
     }
   })
@@ -124,8 +117,7 @@ async function main(): Promise<void> {
         'Keep distinct and connect with RELATED rather than forcing an alias.',
       composite:
         'Keep the historic row as a nonrandom recipe and create reusable component Facets.',
-      lowValue:
-        'Remove from random selection before considering deletion.',
+      lowValue: 'Remove from random selection before considering deletion.',
     },
     totals: report.totals,
     byTaxonomy: report.byTaxonomy,

@@ -84,8 +84,6 @@ export default defineEventHandler(async (event) => {
       examples: normalizeOptionalText(body.examples) ?? null,
       artPrompt: normalizeOptionalText(body.artPrompt) ?? null,
       imagePath: normalizeOptionalText(body.imagePath) ?? null,
-      cardPath: normalizeOptionalText(body.cardPath) ?? null,
-      heroPath: normalizeOptionalText(body.heroPath) ?? null,
       highlightImage: normalizeOptionalText(body.highlightImage) ?? null,
       icon: normalizeOptionalText(body.icon) ?? 'kind-icon:dream',
       // Card theme, never left NULL on creation. Silas, 2026-08-10: "When we

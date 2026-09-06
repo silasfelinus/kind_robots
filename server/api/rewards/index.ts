@@ -38,9 +38,6 @@ export type RewardMutationInput = {
   userId?: number | null
   artImageId?: number | null
   imagePath?: string | null
-  iconPath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   allowReviews?: unknown
   artPrompt?: string | null
   isMature?: boolean
@@ -204,9 +201,6 @@ export function buildCreateData(
   const icon = toNullableString(input.icon, 256)
   const collection = toNullableString(input.collection, 764)
   const imagePath = toNullableString(input.imagePath, 764)
-  const iconPath = toNullableString(input.iconPath)
-  const cardPath = toNullableString(input.cardPath)
-  const heroPath = toNullableString(input.heroPath)
   const artPrompt = toNullableString(input.artPrompt)
   const artImageId = toPositiveInt(input.artImageId)
 
@@ -227,9 +221,6 @@ export function buildCreateData(
     rarity,
     rewardType,
     imagePath,
-    iconPath,
-    cardPath,
-    heroPath,
     artPrompt,
     isMature: toBoolean(input.isMature) ?? false,
     isPublic: toBoolean(input.isPublic) ?? true,
@@ -275,9 +266,6 @@ export function buildUpdateData(
   const icon = toNullableString(input.icon, 256)
   const collection = toNullableString(input.collection, 764)
   const imagePath = toNullableString(input.imagePath, 764)
-  const iconPath = toNullableString(input.iconPath)
-  const cardPath = toNullableString(input.cardPath)
-  const heroPath = toNullableString(input.heroPath)
   const artPrompt = toNullableString(input.artPrompt)
   const rarity = normalizeRarity(input.rarity)
   const rewardType =
@@ -324,18 +312,6 @@ export function buildUpdateData(
 
   if (input.imagePath !== undefined) {
     data.imagePath = imagePath
-  }
-
-  if (input.iconPath !== undefined) {
-    data.iconPath = iconPath
-  }
-
-  if (input.cardPath !== undefined) {
-    data.cardPath = cardPath
-  }
-
-  if (input.heroPath !== undefined) {
-    data.heroPath = heroPath
   }
 
   if (input.artPrompt !== undefined) {

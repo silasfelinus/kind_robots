@@ -256,24 +256,15 @@ const primaryArt = computed<Partial<ArtImage> | null>(() => {
 })
 
 /**
- * The variant's own stored path first, then the generic ones. Half the Dreams
- * have no cardPath at all, so the chain past the first entry is the common
- * case rather than the exception — a mode must still render something when its
- * dedicated art was never generated.
+ * One primary render per Dream, cropped per mode by the plate.
  *
- * There is deliberately no `icon` branch: unlike Bot, Character, Reward and
- * Scenario, the Dream model never got an `iconPath` column (`icon` on Dream is
- * a name, not a path — see the split in #1258). Icons mode therefore shows
- * card art cropped square, which is why it is a real mode rather than a broken
- * one. Giving Dream an iconPath is a schema change, tracked separately.
+ * Dream used to read a per-variant path first and fall back to the generic
+ * one; the entity-art slot collapse retired those columns, so the primary IS
+ * the art and every mode crops it. `icon` on Dream stays a NAME, not a path
+ * (the #1258 split), so there is still deliberately no `icon` branch here.
  */
 const explicitDreamImagePath = computed(() => {
-  const variantPath =
-    props.variant === 'hero' ? props.dream.heroPath : props.dream.cardPath
-
   return (
-    normalizeImagePath(variantPath) ||
-    normalizeImagePath(props.dream.cardPath) ||
     normalizeImagePath(props.dream.imagePath) ||
     normalizeImagePath(props.dream.highlightImage) ||
     ''

@@ -153,9 +153,6 @@ export default defineEventHandler(async (event) => {
         examples: optionalText(body.examples),
         artPrompt: optionalText(body.artPrompt),
         imagePath: optionalText(body.imagePath),
-        cardPath: optionalText(body.cardPath),
-        heroPath: optionalText(body.heroPath),
-        iconPath: optionalText(body.iconPath),
         icon: optionalText(body.icon),
         designer: optionalText(body.designer),
         // Card theme, never NULL on creation -- see dreams/index.post.ts.

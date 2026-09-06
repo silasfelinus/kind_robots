@@ -199,18 +199,12 @@ async function findCanonical(definition: MergeDefinition) {
 async function hasArtwork(facet: {
   id: number
   imagePath: string | null
-  cardPath: string | null
-  heroPath: string | null
-  iconPath: string | null
   icon: string | null
   artImageId: number | null
   artCollectionId: number | null
 }): Promise<boolean> {
   if (
     facet.imagePath ||
-    facet.cardPath ||
-    facet.heroPath ||
-    facet.iconPath ||
     facet.icon ||
     facet.artImageId !== null ||
     facet.artCollectionId !== null
@@ -474,9 +468,6 @@ async function migrateDuplicate(
   const mergedArtworkPaths = uniqueStrings([
     ...priorArtworkPaths,
     duplicate.imagePath,
-    duplicate.cardPath,
-    duplicate.heroPath,
-    duplicate.iconPath,
     duplicate.icon,
   ])
 
@@ -494,9 +485,6 @@ async function migrateDuplicate(
       examples: canonical.examples || duplicate.examples,
       artPrompt: canonical.artPrompt || duplicate.artPrompt,
       imagePath: canonical.imagePath || duplicate.imagePath,
-      cardPath: canonical.cardPath || circusCardPath || duplicate.cardPath,
-      heroPath: canonical.heroPath || duplicate.heroPath,
-      iconPath: canonical.iconPath || duplicate.iconPath,
       icon: canonical.icon || duplicate.icon,
       artImageId: canonical.artImageId ?? duplicate.artImageId,
       artCollectionId: canonical.artCollectionId ?? duplicate.artCollectionId,

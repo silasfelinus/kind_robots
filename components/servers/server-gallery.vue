@@ -22,7 +22,7 @@
 
       <button
         v-if="showCardActions"
-        class="btn btn-xs btn-primary shrink-0 rounded-xl"
+        class="kr-btn-xs btn-primary shrink-0"
         type="button"
         @click="startAddServer"
       >

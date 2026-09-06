@@ -331,7 +331,7 @@
           <section class="kr-panel-flat p-4">
             <h2 class="text-lg font-black">Preview</h2>
             <div
-              class="mt-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+              class="mt-3 kr-panel-muted-sm"
             >
               <div class="flex items-start gap-3">
                 <Icon

@@ -189,7 +189,7 @@
           <div
             v-for="(intro, index) in intros"
             :key="`${intro}-${index}`"
-            class="flex items-start justify-between gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+            class="flex items-start justify-between gap-3 kr-panel-muted-sm"
           >
             <p class="text-sm text-base-content">
               {{ intro }}

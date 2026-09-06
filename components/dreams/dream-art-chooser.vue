@@ -1,6 +1,6 @@
 <!-- /components/dreams/dream-art-chooser.vue -->
 <template>
-  <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
+  <section class="kr-panel-muted-sm">
     <div class="flex flex-wrap items-start justify-between gap-2">
       <div class="min-w-0">
         <div class="flex flex-wrap items-center gap-2">

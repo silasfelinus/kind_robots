@@ -133,7 +133,7 @@
         <article
           v-for="entry in entries"
           :key="entry.key"
-          class="flex gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+          class="flex gap-3 kr-panel-muted-sm"
         >
           <img
             v-if="entry.image"

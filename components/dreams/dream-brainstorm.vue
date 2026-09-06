@@ -1,7 +1,7 @@
 <!-- /components/dreams/dream-brainstorm.vue -->
 <template>
   <section
-    class="kr-surface rounded-2xl border border-base-300 bg-base-200 p-3"
+    class="kr-surface kr-panel-muted-sm"
   >
     <header class="shrink-0 kr-panel-flat p-4">
       <div
@@ -207,7 +207,7 @@
         </section>
 
         <section class="kr-pane-scroll p-3">
-          <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
+          <section class="kr-panel-muted-sm">
             <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
               <div>
                 <h2 class="text-lg font-black">Fresh Ideas</h2>
@@ -396,7 +396,7 @@
       </main>
 
       <aside class="kr-pane gap-3 kr-panel-flat p-3">
-        <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
+        <section class="kr-panel-muted-sm">
           <h2 class="mb-3 text-lg font-black">Text Server</h2>
           <div class="grid gap-3">
             <label class="form-control">
@@ -447,7 +447,7 @@
           </div>
         </section>
 
-        <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
+        <section class="kr-panel-muted-sm">
           <h2 class="mb-3 text-lg font-black">Examples</h2>
           <div class="flex flex-wrap gap-2">
             <button

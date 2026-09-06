@@ -1,7 +1,7 @@
 <!-- /components/content/user/user-panel.vue -->
 <template>
   <section
-    class="flex h-full min-h-0 w-full flex-col gap-4 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-4"
+    class="flex h-full min-h-0 w-full flex-col gap-4 overflow-hidden kr-panel-muted-md"
   >
     <header
       class="flex shrink-0 flex-col gap-3 kr-panel-flat p-4 md:flex-row md:items-center md:justify-between"

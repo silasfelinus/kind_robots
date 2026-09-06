@@ -156,10 +156,7 @@
             </div>
           </article>
 
-          <div
-            v-else
-            class="rounded-2xl border border-base-300 bg-base-200 p-4 text-sm text-base-content/60"
-          >
+          <div v-else class="kr-panel-muted-md text-sm text-base-content/60">
             No reward selected. Head back to the gallery and pick something.
           </div>
         </div>

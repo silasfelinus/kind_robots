@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
 kr_panel_codemod.py — mechanical, byte-exact substitution of the hand-rolled
-kr-panel / kr-panel-muted / kr-panel-flat utility sequences for the shared
-class, in static `class="..."` attributes inside .vue templates only.
+kr-panel / kr-panel-muted / kr-panel-muted-sm / kr-panel-muted-md /
+kr-panel-flat utility sequences for the shared class, in static
+`class="..."` attributes inside .vue templates only.
 
 Scope, deliberately narrow (interface-vision/t-115's "if (b)" instruction):
   - Only static `class="..."` attributes (never `:class=`, `v-bind:class=`,
@@ -38,6 +39,13 @@ VARIANTS = [
     # (name, token sequence, longest first)
     ("kr-panel", ["rounded-2xl", "border", "border-base-300", "bg-base-100", "p-6", "shadow-sm"]),
     ("kr-panel-muted", ["rounded-2xl", "border", "border-base-300", "bg-base-200", "p-6"]),
+    # t-104 slice 117: the -sm/-md padding variants of kr-panel-muted, for
+    # the dense-nested-panel shape found at p-3/p-4 instead of the base p-6.
+    # Only the trailing padding token differs between these two and the base
+    # kr-panel-muted sequence above, so they're mutually exclusive at any
+    # given position -- order between them doesn't matter for correctness.
+    ("kr-panel-muted-sm", ["rounded-2xl", "border", "border-base-300", "bg-base-200", "p-3"]),
+    ("kr-panel-muted-md", ["rounded-2xl", "border", "border-base-300", "bg-base-200", "p-4"]),
     ("kr-panel-flat", ["rounded-2xl", "border", "border-base-300", "bg-base-100"]),
 ]
 

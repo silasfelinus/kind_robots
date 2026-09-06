@@ -125,7 +125,7 @@
         </label>
       </section>
 
-      <section class="rounded-2xl border border-base-300 bg-base-200 p-4">
+      <section class="kr-panel-muted-md">
         <h3
           class="mb-3 text-sm font-black uppercase tracking-wide text-base-content/60"
         >
@@ -192,7 +192,7 @@
         </div>
       </section>
 
-      <section class="rounded-2xl border border-base-300 bg-base-200 p-4">
+      <section class="kr-panel-muted-md">
         <h3
           class="mb-3 text-sm font-black uppercase tracking-wide text-base-content/60"
         >

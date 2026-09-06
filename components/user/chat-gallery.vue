@@ -1,7 +1,7 @@
 <!-- /components/content/user/chat-gallery.vue -->
 <template>
   <section
-    class="flex h-full min-h-0 w-full flex-col gap-4 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-3"
+    class="flex h-full min-h-0 w-full flex-col gap-4 overflow-hidden kr-panel-muted-sm"
   >
     <header class="flex shrink-0 flex-col gap-3">
       <div class="flex items-start justify-between gap-3">
@@ -101,7 +101,7 @@
             v-for="thread in visibleThreads"
             :key="thread.threadKey"
             type="button"
-            class="group flex w-full items-start gap-3 rounded-2xl border border-base-300 bg-base-200 p-3 text-left transition hover:border-primary hover:bg-base-300"
+            class="group flex w-full items-start gap-3 kr-panel-muted-sm text-left transition hover:border-primary hover:bg-base-300"
             @click="openThread(thread)"
           >
             <div

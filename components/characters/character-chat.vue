@@ -114,7 +114,7 @@
             <div
               v-for="stat in selectedCharacterStats"
               :key="stat.key"
-              class="rounded-2xl border border-base-300 bg-base-200 p-3"
+              class="kr-panel-muted-sm"
             >
               <p class="text-xs font-bold uppercase text-base-content/50">
                 {{ stat.label }}
@@ -226,7 +226,7 @@
                  never auto-scrolled -- so adopting the shared window fixes a
                  live bug, not just a duplication. -->
             <kr-chat-window
-              class="mb-3 max-h-96 min-h-40 rounded-2xl border border-base-300 bg-base-200 p-3"
+              class="mb-3 max-h-96 min-h-40 kr-panel-muted-sm"
               :turns="chatTurns"
               :label="`${selectedCharacterName} conversation`"
               :is-streaming="isSendingChat"
@@ -251,9 +251,7 @@
               </button>
             </div>
 
-            <details
-              class="mb-3 rounded-2xl border border-base-300 bg-base-200 p-3"
-            >
+            <details class="mb-3 kr-panel-muted-sm">
               <summary
                 class="cursor-pointer text-sm font-bold text-base-content"
               >
@@ -356,7 +354,7 @@
             </h2>
 
             <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+              <div class="kr-panel-muted-sm">
                 <scenario-gallery
                   variant="dropdown"
                   title="Scenario"
@@ -366,7 +364,7 @@
                 />
               </div>
 
-              <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+              <div class="kr-panel-muted-sm">
                 <reward-gallery
                   variant="dropdown"
                   title="Reward"
@@ -402,10 +400,7 @@
               </button>
             </div>
 
-            <section
-              v-if="adventurePrompt"
-              class="mt-4 rounded-2xl border border-base-300 bg-base-200 p-4"
-            >
+            <section v-if="adventurePrompt" class="mt-4 kr-panel-muted-md">
               <h2 class="mb-3 text-lg font-bold text-base-content">
                 Adventure Prompt Preview
               </h2>

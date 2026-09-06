@@ -90,7 +90,7 @@
             </button>
           </section>
 
-          <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
+          <section class="kr-panel-muted-sm">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div class="min-w-0">
                 <h3 class="font-black text-primary">Connections</h3>

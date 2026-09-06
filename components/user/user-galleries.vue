@@ -1,7 +1,7 @@
 <!-- /components/content/user/user-galleries.vue -->
 <template>
   <section
-    class="flex h-full min-h-0 w-full flex-col gap-4 overflow-hidden rounded-2xl border border-base-300 bg-base-200 p-4"
+    class="flex h-full min-h-0 w-full flex-col gap-4 overflow-hidden kr-panel-muted-md"
   >
     <header class="shrink-0 kr-panel-flat p-4">
       <h2 class="text-xl font-black">User Galleries</h2>
@@ -84,7 +84,7 @@
 
           <div
             v-if="expandedSections[section.key]"
-            class="mt-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+            class="mt-3 kr-panel-muted-sm"
           >
             <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
               <p class="text-sm font-bold">Inline {{ section.label }} preview</p>

@@ -1,8 +1,6 @@
 <!-- /components/dreams/dream-narration.vue -->
 <template>
-  <section
-    class="kr-surface rounded-2xl border border-base-300 bg-base-200 p-3"
-  >
+  <section class="kr-surface kr-panel-muted-sm">
     <header class="shrink-0 kr-panel-flat p-3">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="min-w-0">
@@ -79,7 +77,7 @@
           @edit="editDream"
         />
 
-        <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
+        <section class="kr-panel-muted-sm">
           <h2 class="font-black">Organic Assets</h2>
           <p class="mt-1 text-sm text-base-content/60">
             The selected Dream is the anchor. Use these panels to move through
@@ -111,7 +109,7 @@
         v-else-if="workspaceStore.dreamPanel === 'characters'"
         class="grid gap-3"
       >
-        <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
+        <section class="kr-panel-muted-sm">
           <h2 class="font-black">Dream Cast</h2>
           <p class="mt-1 text-sm text-base-content/60">
             Characters connected to this Dream.
@@ -124,7 +122,7 @@
         v-else-if="workspaceStore.dreamPanel === 'rewards'"
         class="grid gap-3"
       >
-        <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
+        <section class="kr-panel-muted-sm">
           <h2 class="font-black">Dream Rewards</h2>
           <p class="mt-1 text-sm text-base-content/60">
             Rewards and narrative items connected to this Dream.
@@ -143,7 +141,7 @@
       </div>
 
       <div v-else class="grid gap-3">
-        <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
+        <section class="kr-panel-muted-sm">
           <h2 class="font-black">Dream Chat</h2>
           <p class="mt-1 text-sm text-base-content/60">
             Conversation threads attached to this Dream.

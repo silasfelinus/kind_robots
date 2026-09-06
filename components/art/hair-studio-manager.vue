@@ -1,9 +1,7 @@
 <!-- /components/art/hair-studio-manager.vue -->
 <template>
   <section class="flex h-full min-h-0 w-full flex-col gap-3">
-    <header
-      class="flex flex-wrap items-center gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
-    >
+    <header class="flex flex-wrap items-center gap-3 kr-panel-muted-sm">
       <span
         class="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/15 text-primary"
       >

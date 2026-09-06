@@ -65,7 +65,7 @@
         <article
           v-for="effect in store.galleryItems"
           :key="effect.id"
-          class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3 transition-shadow hover:shadow-lg"
+          class="flex flex-col gap-3 kr-panel-muted-sm transition-shadow hover:shadow-lg"
           :class="store.selectedSlug === effect.id ? 'ring-2 ring-primary' : ''"
         >
           <button

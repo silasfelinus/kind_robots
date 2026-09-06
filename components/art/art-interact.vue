@@ -1,8 +1,6 @@
 <!-- /components/content/art/art-interact.vue -->
 <template>
-  <section
-    class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
-  >
+  <section class="flex h-full min-h-0 w-full flex-col gap-3 kr-panel-muted-sm">
     <header
       class="flex shrink-0 flex-col gap-2 kr-panel-flat p-3 md:flex-row md:items-center md:justify-between"
     >
@@ -197,7 +195,7 @@
       <main class="kr-pane-scroll kr-panel-flat">
         <div class="grid gap-3 p-3">
           <!-- Quick Edit -->
-          <section class="rounded-2xl border border-base-300 bg-base-200 p-3">
+          <section class="kr-panel-muted-sm">
             <div class="mb-3 flex items-center justify-between gap-2">
               <div class="min-w-0">
                 <h2 class="truncate text-base font-black text-base-content">
@@ -363,9 +361,7 @@
           <!-- Collections / Tags / Remix -->
           <section class="grid grid-cols-1 gap-3 xl:grid-cols-3">
             <!-- Collections -->
-            <div
-              class="relative rounded-2xl border border-base-300 bg-base-200 p-3"
-            >
+            <div class="relative kr-panel-muted-sm">
               <div class="mb-2 flex items-center justify-between gap-2">
                 <div class="min-w-0">
                   <h2 class="truncate text-base font-black text-base-content">

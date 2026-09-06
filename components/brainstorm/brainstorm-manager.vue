@@ -55,7 +55,7 @@
         <textarea
           id="brainstorm-premise"
           v-model="premiseModel"
-          class="textarea textarea-bordered mt-2 min-h-28 w-full resize-y bg-base-100 text-base leading-6"
+          class="kr-textarea mt-2 min-h-28 resize-y text-base leading-6"
           maxlength="12000"
           placeholder="Invent ten terrible ice cream flavors with an actual comic premise…"
           :disabled="isGenerating"
@@ -267,7 +267,7 @@
             <textarea
               id="brainstorm-constraints"
               v-model="constraintsModel"
-              class="textarea textarea-bordered mt-1 min-h-24 w-full resize-y bg-base-100"
+              class="kr-textarea mt-1 min-h-24 resize-y"
               maxlength="8000"
               placeholder="Each under 15 words. No repeats. Make the danger obvious but cartoonish."
               :disabled="isGenerating"
@@ -280,7 +280,7 @@
             <textarea
               id="brainstorm-examples"
               v-model="examplesText"
-              class="textarea textarea-bordered mt-1 min-h-24 w-full resize-y bg-base-100"
+              class="kr-textarea mt-1 min-h-24 resize-y"
               maxlength="12000"
               placeholder="One example per line. These are context, not a mold."
               :disabled="isGenerating"

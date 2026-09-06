@@ -298,7 +298,7 @@
                 />
                 <textarea
                   v-model="candidate.pitch"
-                  class="textarea textarea-bordered min-h-28 w-full rounded-2xl bg-base-100 text-sm leading-relaxed"
+                  class="kr-textarea min-h-28 rounded-2xl text-sm leading-relaxed"
                   placeholder="Idea pitch"
                   @input="editCandidate(candidate.id)"
                 />

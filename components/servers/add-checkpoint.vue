@@ -184,7 +184,7 @@
 
       <textarea
         v-model="form.description"
-        class="textarea textarea-bordered min-h-28 w-full bg-base-200"
+        class="kr-textarea-muted min-h-28"
         placeholder="What does this resource do, where does it live, and why should future-you care?"
       />
     </label>
@@ -196,7 +196,7 @@
 
       <textarea
         v-model="form.generation"
-        class="textarea textarea-bordered min-h-24 w-full bg-base-200"
+        class="kr-textarea-muted min-h-24"
         placeholder="Optional generation notes, trigger words, recommended sampler, CFG, etc."
       />
     </label>

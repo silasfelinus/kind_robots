@@ -207,7 +207,7 @@
 
             <textarea
               v-model="dreamStore.dreamForm.artPrompt"
-              class="textarea textarea-bordered mt-3 min-h-32 w-full rounded-2xl bg-base-200 leading-relaxed"
+              class="kr-textarea-muted mt-3 min-h-32 rounded-2xl leading-relaxed"
               placeholder="Cinematic establishing shot of the Dream, clear composition, emotional lighting..."
             />
           </div>

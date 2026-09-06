@@ -191,7 +191,7 @@
 
       <textarea
         v-model="form.description"
-        class="textarea textarea-bordered min-h-24 w-full bg-base-200"
+        class="kr-textarea-muted min-h-24"
         placeholder="What this LoRA does, recommended weight, notes."
       />
     </label>

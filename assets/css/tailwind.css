@@ -1048,6 +1048,27 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply badge badge-neutral badge-xs;
   }
 
+  /* The most-repeated hand-rolled textarea shape (interface-vision t-104
+   * slice 115): a full-width, bordered DaisyUI textarea on the "plain"
+   * base-100 background -- `textarea textarea-bordered w-full
+   * bg-base-100`, previously hand-rolled in 7 files (11 occurrences,
+   * always paired with a per-instance `min-h-*` utility that stays
+   * alongside the primitive since the height varies per usage). Named to
+   * mirror .kr-panel's base-100 "plain" vs .kr-panel-muted's base-200
+   * convention below. */
+  .kr-textarea {
+    @apply textarea textarea-bordered w-full bg-base-100;
+  }
+
+  /* The base-200 "muted" counterpart to .kr-textarea (interface-vision
+   * t-104 slice 115): the same full-width bordered textarea shape on the
+   * muted background -- `textarea textarea-bordered w-full bg-base-200`,
+   * previously hand-rolled in 12 files (30 occurrences), the larger of
+   * the two background pools. */
+  .kr-textarea-muted {
+    @apply textarea textarea-bordered w-full bg-base-200;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

@@ -150,7 +150,7 @@
 
         <textarea
           :value="storyStore.customDirection"
-          class="textarea textarea-bordered min-h-28 w-full resize-none rounded-2xl bg-base-200 text-smart"
+          class="kr-textarea-muted min-h-28 resize-none rounded-2xl text-smart"
           placeholder="Add a tone, goal, complication, question, or narrative twist..."
           :disabled="storyStore.isBusy"
           @input="
@@ -304,7 +304,7 @@
 
         <textarea
           :value="storyStore.customDirection"
-          class="textarea textarea-bordered min-h-20 w-full resize-none rounded-2xl bg-base-200 text-smart"
+          class="kr-textarea-muted min-h-20 resize-none rounded-2xl text-smart"
           placeholder="Choose a reply above, type your own action, ask a question, or do something deeply unwise..."
           :disabled="storyStore.isBusy"
           @input="

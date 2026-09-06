@@ -61,7 +61,7 @@
             v-if="field.type === 'textarea'"
             v-model="form[field.key]"
             :placeholder="field.placeholder"
-            class="textarea textarea-bordered min-h-28 w-full resize-none rounded-2xl bg-base-200"
+            class="kr-textarea-muted min-h-28 resize-none rounded-2xl"
           />
 
           <input

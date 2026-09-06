@@ -18,7 +18,7 @@
       </div>
 
       <button
-        class="btn btn-sm btn-ghost rounded-xl"
+        class="kr-btn-ghost"
         type="button"
         title="Close"
         @click="closeForm"

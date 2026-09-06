@@ -23,7 +23,7 @@
 
         <div class="flex flex-wrap items-center gap-2">
           <button
-            class="btn btn-sm btn-ghost rounded-xl"
+            class="kr-btn-ghost"
             type="button"
             @click="coloringStore.undo()"
           >
@@ -32,7 +32,7 @@
           </button>
 
           <button
-            class="btn btn-sm btn-ghost rounded-xl"
+            class="kr-btn-ghost"
             type="button"
             @click="coloringStore.resetPage()"
           >
@@ -41,7 +41,7 @@
           </button>
 
           <button
-            class="btn btn-sm btn-ghost rounded-xl"
+            class="kr-btn-ghost"
             type="button"
             title="Download the colored mural plan as a PNG image"
             :disabled="isExporting || !pageDefinition"

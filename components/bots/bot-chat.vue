@@ -82,11 +82,7 @@
               New Chat
             </button>
 
-            <button
-              class="btn btn-sm btn-ghost rounded-xl"
-              type="button"
-              @click="clearBot"
-            >
+            <button class="kr-btn-ghost" type="button" @click="clearBot">
               Clear Bot
             </button>
           </div>

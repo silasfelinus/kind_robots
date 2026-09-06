@@ -87,7 +87,7 @@
         </button>
         <button
           type="button"
-          class="btn btn-xs btn-ghost rounded-lg"
+          class="kr-btn-ghost-xs-lg"
           :disabled="anyBatching || store.autoBuilding"
           @click="
             store.batchApproveStage(group.outputKey, 'FIELDS_AND_PROMPTS')
@@ -205,7 +205,7 @@
           </span>
           <button
             type="button"
-            class="btn btn-xs btn-ghost rounded-lg"
+            class="kr-btn-ghost-xs-lg"
             @click="emit('select-item', item.id)"
           >
             <Icon name="kind-icon:pencil" class="h-3 w-3" />

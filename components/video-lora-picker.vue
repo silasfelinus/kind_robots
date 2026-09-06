@@ -32,7 +32,7 @@
         <button
           v-if="modelValue.length"
           type="button"
-          class="btn btn-xs btn-ghost"
+          class="kr-btn-ghost-xs-plain"
           @click="emitValue([])"
         >
           Clear all

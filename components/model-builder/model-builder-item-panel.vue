@@ -81,7 +81,7 @@
         <button
           v-if="item.stages.PITCH.status === 'approved'"
           type="button"
-          class="btn btn-xs btn-ghost rounded-lg"
+          class="kr-btn-ghost-xs-lg"
           :disabled="isCommitting"
           @click="store.reopenStage(item.id, 'PITCH')"
         >
@@ -196,7 +196,7 @@
         <button
           v-if="item.stages.FIELDS_AND_PROMPTS.status === 'approved'"
           type="button"
-          class="btn btn-xs btn-ghost rounded-lg"
+          class="kr-btn-ghost-xs-lg"
           :disabled="isCommitting"
           @click="store.reopenStage(item.id, 'FIELDS_AND_PROMPTS')"
         >
@@ -328,7 +328,7 @@
         <button
           v-if="item.stages.GENERATE_ASSETS.status === 'approved'"
           type="button"
-          class="btn btn-xs btn-ghost rounded-lg"
+          class="kr-btn-ghost-xs-lg"
           :disabled="isCommitting"
           @click="store.reopenStage(item.id, 'GENERATE_ASSETS')"
         >

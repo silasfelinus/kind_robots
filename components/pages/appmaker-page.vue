@@ -23,7 +23,7 @@
           {{ loading ? 'Refreshing…' : 'Refresh' }}
         </button>
         <button
-          class="btn btn-sm btn-ghost"
+          class="kr-btn-ghost-plain"
           @click="pageStore.setWorkspaceCardKey('overview')"
         >
           ← Workspace

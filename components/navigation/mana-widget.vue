@@ -56,7 +56,7 @@
           </NuxtLink>
           <NuxtLink
             to="/giving#monthly-support"
-            class="btn btn-sm btn-primary rounded-xl"
+            class="kr-btn-primary"
             @click="open = false"
           >
             Get more mana 🚀

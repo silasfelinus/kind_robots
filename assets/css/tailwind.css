@@ -944,18 +944,18 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
 
   /* The most-repeated hand-rolled text-input shape in the app (interface-
    * vision t-104 slice 104): a small, rounded DaisyUI input used across
-   * curation/facet/admin forms -- `input input-bordered input-sm
+   * curation/facet/admin forms -- `input input-sm
    * rounded-xl`, previously hand-rolled in 9+ files (29 occurrences). */
   .kr-input-sm {
-    @apply input input-bordered input-sm rounded-xl;
+    @apply input input-sm rounded-xl;
   }
 
   /* The `select` counterpart to .kr-input-sm (interface-vision t-104 slice
    * 104): the same small/rounded shape on DaisyUI's select control --
-   * `select select-bordered select-sm rounded-xl`, previously hand-rolled
+   * `select select-sm rounded-xl`, previously hand-rolled
    * in 13+ files (31 occurrences). */
   .kr-select-sm {
-    @apply select select-bordered select-sm rounded-xl;
+    @apply select select-sm rounded-xl;
   }
 
   /* The most-repeated hand-rolled checkbox shape (interface-vision t-104
@@ -1080,23 +1080,23 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
 
   /* The most-repeated hand-rolled textarea shape (interface-vision t-104
    * slice 115): a full-width, bordered DaisyUI textarea on the "plain"
-   * base-100 background -- `textarea textarea-bordered w-full
+   * base-100 background -- `textarea w-full
    * bg-base-100`, previously hand-rolled in 7 files (11 occurrences,
    * always paired with a per-instance `min-h-*` utility that stays
    * alongside the primitive since the height varies per usage). Named to
    * mirror .kr-panel's base-100 "plain" vs .kr-panel-muted's base-200
    * convention below. */
   .kr-textarea {
-    @apply textarea textarea-bordered w-full bg-base-100;
+    @apply textarea w-full bg-base-100;
   }
 
   /* The base-200 "muted" counterpart to .kr-textarea (interface-vision
    * t-104 slice 115): the same full-width bordered textarea shape on the
-   * muted background -- `textarea textarea-bordered w-full bg-base-200`,
+   * muted background -- `textarea w-full bg-base-200`,
    * previously hand-rolled in 12 files (30 occurrences), the larger of
    * the two background pools. */
   .kr-textarea-muted {
-    @apply textarea textarea-bordered w-full bg-base-200;
+    @apply textarea w-full bg-base-200;
   }
 
   /* The `input` counterpart to .kr-textarea (interface-vision t-104 slice
@@ -1104,16 +1104,16 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
    * text input, "plain" base-100 background -- `input input-bordered
    * w-full bg-base-100`, previously hand-rolled (8 occurrences). */
   .kr-input {
-    @apply input input-bordered w-full bg-base-100;
+    @apply input w-full bg-base-100;
   }
 
   /* The base-200 "muted" counterpart to .kr-input (interface-vision t-104
    * slice 116): the same full-width bordered input shape on the muted
-   * background -- `input input-bordered w-full bg-base-200`, previously
+   * background -- `input w-full bg-base-200`, previously
    * hand-rolled across curation/creation forms (47 occurrences, the
    * larger of the two background pools). */
   .kr-input-muted {
-    @apply input input-bordered w-full bg-base-200;
+    @apply input w-full bg-base-200;
   }
 
   .text-smart {

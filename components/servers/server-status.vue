@@ -25,7 +25,7 @@
           </button>
           <button
             v-if="isA1111"
-            class="btn btn-sm btn-primary rounded-xl"
+            class="kr-btn-primary"
             type="button"
             :disabled="!activeServer"
             @click="fetchModelOptions"

@@ -41,7 +41,7 @@
           />
           <button
             type="button"
-            class="btn btn-sm btn-primary rounded-xl"
+            class="kr-btn-primary"
             :disabled="!includeDraft.trim()"
             @click="submitInclude()"
           >
@@ -81,7 +81,7 @@
           />
           <button
             type="button"
-            class="btn btn-sm btn-primary rounded-xl"
+            class="kr-btn-primary"
             :disabled="!excludeDraft.trim()"
             @click="submitExclude()"
           >

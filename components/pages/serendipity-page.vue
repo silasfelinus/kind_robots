@@ -83,7 +83,7 @@
         <button
           v-for="phrase in quickPhrases"
           :key="phrase"
-          class="btn btn-xs btn-outline"
+          class="kr-btn-outline-xs"
           type="button"
           @click="send(phrase)"
         >

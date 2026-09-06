@@ -92,7 +92,7 @@
             </label>
             <button
               type="button"
-              class="btn btn-xs btn-outline"
+              class="kr-btn-outline-xs"
               @click="useLogoAsFirst"
             >
               Use logo
@@ -166,7 +166,7 @@
           <label class="font-semibold">Motion prompt</label>
           <button
             type="button"
-            class="btn btn-xs btn-ghost"
+            class="kr-btn-ghost-xs-plain"
             @click="prompt = WINK_PRESET"
           >
             ✨ Wink &amp; grin preset

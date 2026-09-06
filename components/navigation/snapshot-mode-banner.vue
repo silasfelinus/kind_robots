@@ -17,7 +17,7 @@
       <span
         v-for="model in snapshotActiveModels"
         :key="model"
-        class="badge badge-warning badge-outline badge-xs"
+        class="kr-badge-outline-xs badge-warning"
       >
         {{ model }}
       </span>

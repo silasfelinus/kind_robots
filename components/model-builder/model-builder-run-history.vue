@@ -76,7 +76,7 @@
               <span class="truncate text-sm font-bold text-base-content">
                 {{ run.sourceLabel || `#${run.sourceId}` }}
               </span>
-              <span class="badge badge-xs badge-ghost">{{
+              <span class="kr-badge-ghost-xs">{{
                 run.sourceType
               }}</span>
             </div>

@@ -158,7 +158,7 @@
                     {{ pitch.projectTarget }}
                   </span>
                   <span v-if="pitch.date">{{ pitch.date }}</span>
-                  <span v-if="pitch.effort" class="badge badge-ghost badge-xs rounded-xl">
+                  <span v-if="pitch.effort" class="kr-badge-ghost-xs rounded-xl">
                     {{ pitch.effort }} effort
                   </span>
                 </div>

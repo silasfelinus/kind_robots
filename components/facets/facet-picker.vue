@@ -78,7 +78,7 @@
               class="size-5 text-base-content/40"
             />
           </span>
-          <span class="badge badge-outline badge-xs shrink-0">{{
+          <span class="kr-badge-outline-xs shrink-0">{{
             taxonomyLabel(facet.taxonomy)
           }}</span>
           <span class="min-w-0 flex-1">

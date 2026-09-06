@@ -117,7 +117,7 @@
         <summary
           class="flex cursor-pointer flex-wrap items-center gap-2 px-3 py-2"
         >
-          <span class="badge badge-xs rounded-lg badge-ghost">{{
+          <span class="kr-badge-ghost-xs rounded-lg">{{
             item.type
           }}</span>
           <span class="text-sm font-bold">{{

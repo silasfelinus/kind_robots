@@ -81,7 +81,7 @@
               <span
                 v-for="meta in item.meta.slice(0, 1)"
                 :key="meta"
-                class="badge badge-ghost badge-xs max-w-full truncate rounded-md"
+                class="kr-badge-ghost-xs max-w-full truncate rounded-md"
               >
                 {{ meta }}
               </span>

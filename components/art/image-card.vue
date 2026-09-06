@@ -191,7 +191,7 @@
       >
         <button
           v-if="checkpointDisplay"
-          class="badge badge-outline badge-xs max-w-full cursor-copy gap-1 truncate hover:badge-primary transition-colors"
+          class="kr-badge-outline-xs max-w-full cursor-copy gap-1 truncate hover:badge-primary transition-colors"
           type="button"
           :title="checkpointTitle"
           @click.stop="copyCheckpoint"
@@ -199,7 +199,7 @@
           <span class="truncate">{{ checkpointDisplay }}</span>
         </button>
 
-        <span v-if="displayImage.sampler" class="badge badge-ghost badge-xs">
+        <span v-if="displayImage.sampler" class="kr-badge-ghost-xs">
           {{ displayImage.sampler }}
         </span>
 

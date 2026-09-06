@@ -6,7 +6,7 @@
         <div class="flex items-center gap-2">
           <Icon name="kind-icon:palette" class="size-4 text-secondary" />
           <h3 class="text-sm font-black">Artwork</h3>
-          <span class="badge badge-ghost badge-xs">{{ entityLabel }}</span>
+          <span class="kr-badge-ghost-xs">{{ entityLabel }}</span>
         </div>
         <p class="mt-1 text-xs text-base-content/50">
           Recreate with Krea, edit the current image with SDXL or Kontext, or upload a finished replacement.
@@ -100,7 +100,7 @@
           <h4 class="text-xs font-black uppercase tracking-wide text-base-content/55">
             Inspiration history
           </h4>
-          <span class="badge badge-ghost badge-xs ml-auto">{{ filteredHistory.length }}</span>
+          <span class="kr-badge-ghost-xs ml-auto">{{ filteredHistory.length }}</span>
         </div>
         <div v-if="filteredHistory.length" class="grid max-h-72 grid-cols-2 gap-2 overflow-y-auto">
           <article

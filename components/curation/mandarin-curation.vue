@@ -317,7 +317,7 @@
               <span
                 v-for="category in selectedRow.source.categories"
                 :key="category"
-                class="badge badge-ghost badge-xs"
+                class="kr-badge-ghost-xs"
               >
                 {{ category }}
               </span>

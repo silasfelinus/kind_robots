@@ -142,7 +142,7 @@
         </p>
       </div>
       <div v-if="showMeta" class="flex flex-wrap items-center gap-1">
-        <span class="badge badge-outline badge-xs">{{ imageCountLabel }}</span>
+        <span class="kr-badge-outline-xs">{{ imageCountLabel }}</span>
         <span v-if="collectionUsername" class="badge badge-primary badge-xs">
           {{ collectionUsername }}
         </span>

@@ -112,7 +112,7 @@
                 Queue
                 <span
                   v-if="artJobWorkspaceTab === 'queue'"
-                  class="badge badge-success badge-outline badge-xs rounded-2xl"
+                  class="kr-badge-outline-xs badge-success rounded-2xl"
                 >
                   Live · 15s
                 </span>

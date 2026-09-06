@@ -105,7 +105,7 @@
         >
           <Icon name="kind-icon:bolt" class="h-3.5 w-3.5" />
           Auto-build group
-          <span v-if="busyCount" class="badge badge-xs badge-ghost"
+          <span v-if="busyCount" class="kr-badge-ghost-xs"
             >{{ busyCount }} busy</span
           >
         </button>

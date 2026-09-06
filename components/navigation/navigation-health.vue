@@ -195,11 +195,11 @@
                 </span>
                 <span
                   v-if="tab.dashboardKey"
-                  class="badge badge-warning badge-outline badge-xs"
+                  class="kr-badge-outline-xs badge-warning"
                 >
                   {{ tab.dashboardKey }}/{{ tab.dashboardTab }}
                 </span>
-                <span v-if="tab.requiredRole" class="badge badge-error badge-outline badge-xs">
+                <span v-if="tab.requiredRole" class="kr-badge-outline-xs badge-error">
                   {{ tab.requiredRole }}
                 </span>
               </div>

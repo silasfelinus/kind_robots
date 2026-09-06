@@ -325,7 +325,7 @@
         >
           Roadmap
         </span>
-        <span class="badge badge-ghost badge-xs ml-auto">
+        <span class="kr-badge-ghost-xs ml-auto">
           {{ selectedProject.tasks.length }} tasks
         </span>
       </summary>
@@ -450,7 +450,7 @@
         >
           Milestones
         </span>
-        <span class="badge badge-ghost badge-xs ml-auto">
+        <span class="kr-badge-ghost-xs ml-auto">
           {{ selectedProject.milestones.length }}
         </span>
       </summary>

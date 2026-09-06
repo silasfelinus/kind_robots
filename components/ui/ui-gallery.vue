@@ -551,12 +551,12 @@
               <tr>
                 <td>Wire desired-features list</td>
                 <td>global-ui</td>
-                <td><span class="badge badge-warning badge-sm">ready</span></td>
+                <td><span class="kr-badge-warning-sm">ready</span></td>
               </tr>
               <tr>
                 <td>Site-audit agent</td>
                 <td>global-ui</td>
-                <td><span class="badge badge-ghost badge-sm">claimed</span></td>
+                <td><span class="kr-badge-ghost-sm">claimed</span></td>
               </tr>
             </tbody>
           </table>

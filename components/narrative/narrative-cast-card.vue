@@ -50,7 +50,7 @@
 
       <span
         v-if="role"
-        class="badge badge-secondary badge-sm absolute left-2 top-2 gap-1 rounded-xl shadow"
+        class="kr-badge-secondary-sm absolute left-2 top-2 gap-1 rounded-xl shadow"
       >
         <Icon
           v-if="roleIcon"

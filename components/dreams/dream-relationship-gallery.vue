@@ -18,10 +18,7 @@
 
         <div class="kr-toolbar">
           <span class="badge badge-ghost">{{ filteredDreams.length }}</span>
-          <span
-            v-if="resolvedDreamId"
-            class="badge badge-primary badge-sm rounded-xl"
-          >
+          <span v-if="resolvedDreamId" class="kr-badge-primary-sm rounded-xl">
             Dream #{{ resolvedDreamId }}
           </span>
 

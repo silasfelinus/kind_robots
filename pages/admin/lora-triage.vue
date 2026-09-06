@@ -229,7 +229,7 @@
                 </span>
                 <span
                   v-if="triageStore.decisionFor(resource.id)"
-                  class="badge badge-sm badge-primary"
+                  class="kr-badge-primary-sm"
                 >
                   Confirmed
                   {{ triageStore.decisionFor(resource.id)?.toUpperCase() }}

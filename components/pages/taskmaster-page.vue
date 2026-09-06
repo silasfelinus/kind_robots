@@ -818,7 +818,7 @@
                     Every planned checkpoint has an outcome.
                   </p>
                 </div>
-                <span class="badge badge-secondary badge-sm rounded-xl">
+                <span class="kr-badge-secondary-sm rounded-xl">
                   {{ store.remainingCheckpoints.length }} left
                 </span>
               </div>

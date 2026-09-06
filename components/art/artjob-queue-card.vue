@@ -165,10 +165,7 @@
         >
           {{ jobVisibility.isPublic ? 'Public' : 'Private' }}
         </span>
-        <span
-          v-if="job.projectSlug"
-          class="badge badge-secondary badge-sm rounded-2xl"
-        >
+        <span v-if="job.projectSlug" class="kr-badge-secondary-sm rounded-2xl">
           {{ job.projectSlug }}
         </span>
         <span

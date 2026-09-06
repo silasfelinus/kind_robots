@@ -137,7 +137,7 @@
                   </span>
                   <span
                     v-if="!thread.latest.isRead && isIncoming(thread.latest)"
-                    class="badge badge-primary badge-sm rounded-xl"
+                    class="kr-badge-primary-sm rounded-xl"
                   >
                     New
                   </span>

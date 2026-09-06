@@ -153,7 +153,7 @@
               </div>
 
               <div class="relative flex flex-wrap items-center gap-2">
-                <span class="badge badge-primary badge-sm rounded-lg font-black">
+                <span class="kr-badge-primary-sm rounded-lg font-black">
                   {{ challenge.challengeType }}
                 </span>
                 <span

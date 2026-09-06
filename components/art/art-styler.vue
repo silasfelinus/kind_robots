@@ -7,7 +7,7 @@
       <div class="flex items-center gap-2">
         <Icon name="kind-icon:magic" class="h-5 w-5 text-primary" />
         <h2 class="text-base font-black text-base-content">Style Transfer</h2>
-        <span class="badge badge-primary badge-sm">Kontext</span>
+        <span class="kr-badge-primary-sm">Kontext</span>
       </div>
       <button
         v-if="showClose"

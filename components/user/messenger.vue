@@ -51,7 +51,7 @@
               <span class="truncate font-semibold">{{
                 peer(c)?.username || 'Conversation'
               }}</span>
-              <span v-if="c.unreadCount" class="badge badge-primary badge-sm">{{
+              <span v-if="c.unreadCount" class="kr-badge-primary-sm">{{
                 c.unreadCount
               }}</span>
             </div>

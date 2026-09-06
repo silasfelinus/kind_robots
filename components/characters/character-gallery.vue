@@ -241,7 +241,7 @@
 
               <span
                 v-if="characterStore.selectedCharacter.level"
-                class="badge badge-secondary badge-sm"
+                class="kr-badge-secondary-sm"
               >
                 Level {{ characterStore.selectedCharacter.level }}
               </span>

@@ -25,7 +25,7 @@
       </div>
       <span
         v-if="assignedCount"
-        class="badge badge-secondary badge-sm shrink-0"
+        class="kr-badge-secondary-sm shrink-0"
       >
         {{ assignedCount }} cast
       </span>

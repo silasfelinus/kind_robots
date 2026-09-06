@@ -976,6 +976,20 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply badge badge-outline badge-sm;
   }
 
+  /* The primary-colored small badge (interface-vision t-104 slice 111):
+   * `badge badge-primary badge-sm`, previously hand-rolled in 23 files (26
+   * occurrences). */
+  .kr-badge-primary-sm {
+    @apply badge badge-primary badge-sm;
+  }
+
+  /* The secondary-colored counterpart to .kr-badge-primary-sm (same slice):
+   * `badge badge-secondary badge-sm`, previously hand-rolled in 13 files
+   * (16 occurrences). */
+  .kr-badge-secondary-sm {
+    @apply badge badge-secondary badge-sm;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

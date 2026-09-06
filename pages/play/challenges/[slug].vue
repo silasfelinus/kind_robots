@@ -204,7 +204,7 @@
                     </span>
                     <span
                       v-if="submission.isBestVariant"
-                      class="badge badge-secondary badge-sm rounded-lg font-black"
+                      class="kr-badge-secondary-sm rounded-lg font-black"
                       title="Top-scoring prompt variant from this contender in this challenge"
                     >
                       Best variant

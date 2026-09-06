@@ -16,7 +16,7 @@
       />
 
       <div class="absolute left-2 top-2 flex flex-wrap gap-1">
-        <span class="badge badge-primary badge-sm">
+        <span class="kr-badge-primary-sm">
           {{ resource.resourceType }}
         </span>
         <span v-if="resource.generation" class="badge badge-neutral badge-sm">

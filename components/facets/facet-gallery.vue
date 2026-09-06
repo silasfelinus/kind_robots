@@ -77,7 +77,7 @@
           <h2 class="text-lg font-black">
             {{ taxonomyLabel(group.taxonomy) }}
           </h2>
-          <span class="badge badge-secondary badge-sm">{{ group.total }}</span>
+          <span class="kr-badge-secondary-sm">{{ group.total }}</span>
         </div>
 
         <kr-gallery

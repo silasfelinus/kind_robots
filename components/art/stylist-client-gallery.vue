@@ -124,7 +124,7 @@
               </div>
               <span
                 v-if="photoById.get(Number(item.id))!.isPrimary"
-                class="badge badge-primary badge-sm absolute left-2 top-2"
+                class="kr-badge-primary-sm absolute left-2 top-2"
               >
                 Primary
               </span>

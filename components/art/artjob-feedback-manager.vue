@@ -8,7 +8,7 @@
         <div>
           <div class="flex items-center gap-2">
             <h3 class="text-sm font-semibold">Art trainer</h3>
-            <span class="badge badge-primary badge-sm rounded-2xl">
+            <span class="kr-badge-primary-sm rounded-2xl">
               {{ pendingCount }} waiting
             </span>
           </div>
@@ -99,7 +99,7 @@
                 </span>
                 <span
                   v-if="job.projectSlug"
-                  class="badge badge-secondary badge-sm rounded-2xl"
+                  class="kr-badge-secondary-sm rounded-2xl"
                 >
                   {{ job.projectSlug }}
                 </span>

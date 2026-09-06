@@ -304,20 +304,24 @@ for await (const file of walk('components')) {
 ok('no gallery hand-rolls its own mode bar')
 
 /* ------------------------------------------------------------------ *
- * 6. Every core object carries all four art variants.
+ * 6. Every core object carries a primary image.
  * ------------------------------------------------------------------ */
 //
-// Silas, 2026-08-04: "please make sure that all our major objects have the
-// needs image variables: card icon hero and path."
+// This began as "all four art variants are required on a core object"
+// (Silas, 2026-08-04: "please make sure that all our major objects have the
+// needs image variables: card icon hero and path."), because a gallery mode
+// whose column did not exist fell through resolveArtVariantSrc and rendered
+// another mode's art -- indistinguishable from a wrong-shape bug.
 //
-// The gallery vocabulary is only as real as the schema behind it: a mode whose
-// column does not exist silently falls back through resolveArtVariantSrc and
-// renders the same art as another mode, which is indistinguishable from the
-// bug where the shape was wrong. Dream was missing iconPath (t-077) and Project
-// was missing it too and had never been filed -- found by auditing all four
-// fields across every core model instead of acting on the one known report.
+// The slot collapse removed the premise rather than the guarantee. cardPath,
+// heroPath and iconPath (and their ArtImage ids) are gone from every core
+// model except Project, which keeps its own art flow. resolveArtVariantSource
+// now resolves primary-first and crops per frame via ART_VARIANT_FOCUS, so a
+// mode has art whenever the object has a primary -- there is no longer a
+// per-mode column that can be missing. What still has to hold is the input to
+// that: one primary image field per core object. The precedence itself is
+// pinned by verifyEntityArtPrimaryCrop.
 const SCHEMA = await readFile('prisma/schema.prisma', 'utf8')
-const ART_FIELDS = ['imagePath', 'cardPath', 'heroPath', 'iconPath']
 const CORE_MODELS = [
   'Bot',
   'Character',
@@ -327,6 +331,7 @@ const CORE_MODELS = [
   'Facet',
   'Project',
 ]
+const RETIRED_ART_FIELDS = ['cardPath', 'heroPath', 'iconPath']
 
 for (const model of CORE_MODELS) {
   const body = SCHEMA.match(
@@ -340,20 +345,34 @@ for (const model of CORE_MODELS) {
     continue
   }
 
-  const missing = ART_FIELDS.filter(
-    (field) => !new RegExp(`^\\s*${field}\\s+`, 'm').test(body),
+  // Bot's primary is avatarImage; resolveArtImageSrc normalizes it.
+  const primary = model === 'Bot' ? 'avatarImage' : 'imagePath'
+
+  if (!new RegExp(`^\\s*${primary}\\s+`, 'm').test(body)) {
+    fail(
+      `${model} is missing ${primary}. Every core object needs one primary ` +
+        'image: card, hero and icon frames all crop it now, so an object ' +
+        'without one renders blank in every gallery mode.',
+    )
+  }
+
+  // Project is the deliberate exception -- it kept its own slots and gallery.
+  if (model === 'Project') continue
+
+  const revived = RETIRED_ART_FIELDS.filter((field) =>
+    new RegExp(`^\\s*${field}\\s+`, 'm').test(body),
   )
 
-  if (missing.length) {
+  if (revived.length) {
     fail(
-      `${model} is missing ${missing.join(', ')}. All four art variants are ` +
-        'required on a core object: imagePath (square), cardPath (vertical), ' +
-        'heroPath (horizontal), iconPath (square). A gallery mode whose column ' +
-        "does not exist renders another mode's art and looks like a layout bug.",
+      `${model} has re-added ${revived.join(', ')}. The secondary art slots ` +
+        'were dropped in the slot collapse; a re-added column would take ' +
+        'precedence in some resolver and quietly reintroduce four-way drift. ' +
+        'Add supplemental art as EntityArtImage inspiration entries instead.',
     )
   }
 }
-ok(`${CORE_MODELS.length} core objects carry all four art variants`)
+ok(`${CORE_MODELS.length} core objects carry a primary image`)
 
 /* ------------------------------------------------------------------ *
  * 7. kr-gallery's built-in renderer must implement the same vocabulary.

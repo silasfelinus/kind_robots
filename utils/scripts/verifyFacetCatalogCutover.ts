@@ -215,7 +215,9 @@ async function main(): Promise<void> {
   requireText(files.facetManager, text.facetManager, 'FacetProfileEditor')
   requireText(files.facetManager, text.facetManager, 'facetProfilePayload')
   requireText(files.facetEditor, text.facetEditor, 'EntityArtManager')
-  requireText(files.facetEditor, text.facetEditor, "field: 'iconPath'")
+  // Was field: 'iconPath'. The slot collapse retired icon/card/hero, so the
+  // editor offers the one slot that still enqueues.
+  requireText(files.facetEditor, text.facetEditor, "field: 'imagePath'")
   forbidText(files.facetManager, text.facetManager, 'requestPrimaryArtwork')
   forbidText(files.facetManager, text.facetManager, 'useFacetArtRequestStore')
   forbidText(files.facetEditor, text.facetEditor, 'requestPrimaryArtwork')

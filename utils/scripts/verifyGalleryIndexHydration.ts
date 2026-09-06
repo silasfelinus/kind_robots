@@ -252,13 +252,10 @@ for (const token of [
   'species: true',
   'genre: true',
   'artImageId: true',
-  'cardArtImageId: true',
-  'heroArtImageId: true',
-  'iconArtImageId: true',
+  // The card/hero/icon ids and paths used to be listed here too. The slot
+  // collapse dropped those columns: every gallery mode now crops the primary,
+  // so artImageId + imagePath is the whole art payload a browse card needs.
   'imagePath: true',
-  'cardPath: true',
-  'heroPath: true',
-  'iconPath: true',
   'isPublic: true',
   'isMature: true',
   'isActive: true',

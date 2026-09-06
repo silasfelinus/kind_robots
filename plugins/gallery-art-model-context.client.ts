@@ -41,8 +41,8 @@ function dreamImageField(dream: DreamWithRelations, source: string): string {
 }
 
 function facetImageField(facet: FacetCatalogEntry, source: string): string {
-  if (sameSource(source, facet.cardPath)) return 'cardPath'
-  if (sameSource(source, facet.heroPath)) return 'heroPath'
+  // Was a cardPath -> heroPath -> imagePath walk. Those slots were dropped in
+  // the art collapse, so a Facet has one image field left to name.
   if (sameSource(source, facet.imagePath)) return 'imagePath'
   return 'galleryArtwork'
 }

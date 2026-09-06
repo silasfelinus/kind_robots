@@ -224,26 +224,27 @@ async function main(): Promise<void> {
     'imagePath: candidate.imagePath || winner.imagePath',
   )
 
-  // Facet -> canonical API -> Builder card. The richer card/hero fallbacks remain
-  // available for manually authored Facets, while Adventure choice art continues
-  // to work through imagePath.
-  for (const field of ['imagePath: true', 'cardPath: true', 'heroPath: true']) {
-    requireText('server/utils/facetCatalog.ts', catalogApi, field)
-  }
+  // Facet -> canonical API -> Builder card. This used to require cardPath and
+  // heroPath alongside imagePath, and the store to fall back through all three.
+  // The slot collapse dropped those columns: one primary render serves every
+  // frame now, so the fallback chain has exactly one link left. Keeping the old
+  // chain here would have been worse than dead code -- FacetCatalogEntry is a
+  // hand-declared interface, so a store still reading entry.cardPath type-checks
+  // happily against an API that stopped returning it.
+  requireText('server/utils/facetCatalog.ts', catalogApi, 'imagePath: true')
   requireText(
     'stores/facetCatalogStore.ts',
     catalogStore,
-    'image: entry.cardPath || entry.imagePath || entry.heroPath || undefined',
+    'image: entry.imagePath || undefined',
   )
 
-  // General Facet CRUD and assignment summaries must not downgrade richer artwork.
-  // These surfaces feed the Facet Library and owner assignment stores, so omitting
-  // card/hero paths here would make curated media disappear after a normal refresh.
+  // General Facet CRUD and assignment summaries must not downgrade artwork.
+  // These surfaces feed the Facet Library and owner assignment stores, so
+  // omitting the primary here would make curated media disappear after a normal
+  // refresh. cardPath/heroPath were required here too until the slot collapse.
   for (const field of [
     "| 'artPrompt'",
     "| 'imagePath'",
-    "| 'cardPath'",
-    "| 'heroPath'",
     "| 'artImageId'",
     "| 'artCollectionId'",
   ]) {
@@ -253,8 +254,6 @@ async function main(): Promise<void> {
   for (const field of [
     'artPrompt: true',
     'imagePath: true',
-    'cardPath: true',
-    'heroPath: true',
     'artImageId: true',
     'artCollectionId: true',
   ]) {
@@ -293,13 +292,14 @@ async function main(): Promise<void> {
     '<FacetProfileEditor v-model="createForm" />',
   )
 
+  // The art slots were imagePath + iconPath + cardPath + heroPath. Only the
+  // primary is generated now; the retired fields are rejected at enqueue, so
+  // offering their upload slots here would have been three buttons that 400.
   for (const field of [
     '<FacetProfileEditor v-model="editForm" />',
     'entity-type="facet"',
     "field: 'imagePath'",
-    "field: 'iconPath'",
-    "field: 'cardPath'",
-    "field: 'heroPath'",
+    "aspect: '1 / 1'",
   ]) {
     requireText('components/facets/facet-editor.vue', facetEditor, field)
   }
@@ -322,12 +322,8 @@ async function main(): Promise<void> {
    */
   for (const field of [
     'imagePath: facet.imagePath',
-    'cardPath: facet.cardPath',
-    'heroPath: facet.heroPath',
     'artPrompt: facet.artPrompt',
     'imagePath: optional(form.imagePath)',
-    'cardPath: optional(form.cardPath)',
-    'heroPath: optional(form.heroPath)',
     'artPrompt: optional(form.artPrompt)',
   ]) {
     requireText('utils/facetProfileForm.ts', facetProfileForm, field)

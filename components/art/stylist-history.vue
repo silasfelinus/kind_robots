@@ -4,9 +4,7 @@
   by date, review totals, and open the warm receipt email for any appointment.
 -->
 <template>
-  <section
-    class="stylist-history flex flex-col gap-4 rounded-2xl border border-base-300 bg-base-200 p-4"
-  >
+  <section class="flex flex-col gap-4 kr-panel-muted-md">
     <header class="flex items-center gap-2">
       <Icon name="kind-icon:book" class="h-5 w-5 text-primary" />
       <h2 class="text-base font-black text-base-content">Appointments</h2>

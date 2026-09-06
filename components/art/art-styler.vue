@@ -1,8 +1,6 @@
 <!-- /components/art/art-styler.vue -->
 <template>
-  <section
-    class="art-styler flex flex-col gap-4 rounded-2xl border border-base-300 bg-base-200 p-4"
-  >
+  <section class="flex flex-col gap-4 kr-panel-muted-md">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-2">
         <Icon name="kind-icon:magic" class="h-5 w-5 text-primary" />

@@ -115,7 +115,7 @@
                     class="toggle toggle-warning toggle-sm"
                   />
                   <span>Show paused projects</span>
-                  <span class="badge badge-ghost badge-sm rounded-lg">
+                  <span class="kr-badge-ghost-sm rounded-lg">
                     {{ conductorStore.pausedHumanGates.length }}
                   </span>
                 </label>
@@ -182,13 +182,13 @@
                 <div class="mt-3 flex flex-wrap gap-1.5">
                   <span
                     v-if="gate.task.stakes"
-                    class="badge badge-ghost badge-sm rounded-xl"
+                    class="kr-badge-ghost-sm rounded-xl"
                   >
                     {{ gate.task.stakes }}
                   </span>
                   <span
                     v-if="!gate.task.softGate && !isPausedGate(gate)"
-                    class="badge badge-outline badge-sm rounded-xl"
+                    class="kr-badge-outline-sm rounded-xl"
                   >
                     blocking work
                   </span>
@@ -358,7 +358,7 @@
                   </div>
                   <span
                     v-if="pitch.effort"
-                    class="badge badge-ghost badge-sm rounded-xl"
+                    class="kr-badge-ghost-sm rounded-xl"
                   >
                     {{ pitch.effort }}
                   </span>

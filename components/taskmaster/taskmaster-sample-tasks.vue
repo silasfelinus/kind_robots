@@ -21,7 +21,7 @@
       </div>
       <span
         v-if="gateProject"
-        class="badge badge-warning badge-outline badge-sm h-auto rounded-xl py-1 text-[0.65rem]"
+        class="kr-badge-warning-sm badge-outline h-auto rounded-xl py-1 text-[0.65rem]"
       >
         {{ gateProject.gateCount }} human
         {{ gateProject.gateCount === 1 ? 'gate' : 'gates' }}

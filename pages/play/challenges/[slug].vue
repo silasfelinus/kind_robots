@@ -199,7 +199,7 @@
                     >
                       #{{ submission.rank }}
                     </span>
-                    <span class="badge badge-outline badge-sm rounded-lg">
+                    <span class="kr-badge-outline-sm rounded-lg">
                       {{ submission.variantKey }}
                     </span>
                     <span

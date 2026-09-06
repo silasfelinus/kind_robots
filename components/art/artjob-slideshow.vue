@@ -68,7 +68,7 @@
                 {{ isPlaying ? `${intervalSeconds}s` : 'Paused' }}
               </span>
               <span
-                class="badge badge-outline badge-sm rounded-2xl"
+                class="kr-badge-outline-sm rounded-2xl"
                 :title="`Drawing at random from the ${depth} most recent finished jobs`"
               >
                 depth {{ slideshowStore.pool.length }}/{{ depth }}
@@ -169,7 +169,7 @@
               </span>
               <span
                 v-if="currentJob?.engine"
-                class="badge badge-outline badge-sm rounded-2xl"
+                class="kr-badge-outline-sm rounded-2xl"
               >
                 {{ currentJob.engine }}
               </span>
@@ -203,7 +203,7 @@
               <span
                 v-for="setting in slideSettings"
                 :key="setting"
-                class="badge badge-ghost badge-sm h-auto rounded-2xl py-1 text-[10px]"
+                class="kr-badge-ghost-sm h-auto rounded-2xl py-1 text-[10px]"
               >
                 {{ setting }}
               </span>

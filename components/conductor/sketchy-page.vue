@@ -49,14 +49,14 @@
             <span
               v-for="dim in activeSample.scoredDimensions"
               :key="dim"
-              class="badge badge-sm badge-primary badge-outline rounded-xl"
+              class="kr-badge-outline-sm badge-primary rounded-xl"
             >
               {{ dim }}
             </span>
             <span
               v-for="dim in activeSample.sometimesDimensions"
               :key="dim"
-              class="badge badge-sm badge-ghost rounded-xl"
+              class="kr-badge-ghost-sm rounded-xl"
             >
               {{ dim }} (sometimes)
             </span>

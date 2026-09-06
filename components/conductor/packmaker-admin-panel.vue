@@ -90,7 +90,7 @@
     <template v-if="selectedPack">
       <!-- Pack header -->
       <div class="flex flex-wrap items-center gap-2">
-        <span class="badge badge-outline badge-sm rounded-xl">{{
+        <span class="kr-badge-outline-sm rounded-xl">{{
           selectedPack.price.hook
         }}</span>
         <span

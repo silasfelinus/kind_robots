@@ -332,7 +332,7 @@
             <span
               v-for="field in selectedRow.overriddenFields"
               :key="field"
-              class="badge badge-warning badge-outline badge-sm"
+              class="kr-badge-warning-sm badge-outline"
             >
               {{ field }}
             </span>

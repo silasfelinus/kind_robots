@@ -14,8 +14,8 @@
           <div class="min-w-0 flex-1">
             <div class="flex flex-wrap items-center gap-2">
               <span class="badge badge-primary badge-sm rounded-lg">{{ typeLabel }}</span>
-              <span class="badge badge-ghost badge-sm rounded-lg">#{{ entity.id }}</span>
-              <span v-if="entity.slug" class="badge badge-outline badge-sm max-w-full truncate rounded-lg">
+              <span class="kr-badge-ghost-sm rounded-lg">#{{ entity.id }}</span>
+              <span v-if="entity.slug" class="kr-badge-outline-sm max-w-full truncate rounded-lg">
                 {{ entity.slug }}
               </span>
             </div>

@@ -227,7 +227,7 @@
                   </div>
                   <span
                     v-if="leaders[challenge.slug]"
-                    class="badge badge-ghost badge-sm rounded-lg font-black"
+                    class="kr-badge-ghost-sm rounded-lg font-black"
                   >
                     {{ signedScore(leaders[challenge.slug]?.netScore || 0) }}
                   </span>

@@ -104,7 +104,7 @@
             <Icon name="kind-icon:question" class="h-4 w-4" />
           </span>
           <h2 class="text-sm font-black text-base-content">Undiscovered</h2>
-          <span class="ml-auto badge badge-ghost badge-sm">{{
+          <span class="kr-badge-ghost-sm ml-auto">{{
             unearnedAchievements.length
           }}</span>
         </div>

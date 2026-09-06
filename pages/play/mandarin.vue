@@ -170,7 +170,7 @@
             <div class="min-w-0">
               <b>{{ focusKey ? 'Focused card' : selectedSet.label }}</b>
               <span v-if="!focusKey" class="ml-2 opacity-55">{{ selectedSet.description }}</span>
-              <span v-else-if="focusPosition && focusPosition.total > 1" class="ml-2 badge badge-ghost badge-sm">
+              <span v-else-if="focusPosition && focusPosition.total > 1" class="kr-badge-ghost-sm ml-2">
                 result {{ focusPosition.index + 1 }} / {{ focusPosition.total }}
               </span>
             </div>
@@ -203,7 +203,7 @@
                 <span v-if="currentCard.hskLevel" class="kr-badge-outline-sm">HSK {{ currentCard.hskLevel }}</span>
                 <span class="kr-badge-ghost-sm">{{ currentPositionLabel }}</span>
                 <span class="kr-badge-ghost-sm">{{ studySessionRatedForSet }} rated</span>
-                <span v-if="studyDiagnostics?.dueCount" class="badge badge-primary badge-outline badge-sm">
+                <span v-if="studyDiagnostics?.dueCount" class="kr-badge-outline-sm badge-primary">
                   {{ studyDiagnostics.dueCount }} due
                 </span>
                 <span v-if="studyDiagnostics?.retentionRate !== null && studyDiagnostics?.retentionRate !== undefined" class="kr-badge-ghost-sm">

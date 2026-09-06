@@ -115,7 +115,7 @@
             <span class="kr-badge-ghost-sm">
               {{ surfaceLabel(effect.preferredSurface) }}
             </span>
-            <span v-if="effect.generationSafe" class="badge badge-success badge-outline badge-sm">
+            <span v-if="effect.generationSafe" class="kr-badge-outline-sm badge-success">
               generation-safe
             </span>
           </div>

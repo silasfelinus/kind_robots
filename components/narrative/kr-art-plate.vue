@@ -30,6 +30,7 @@
           : '',
       ]"
       :eager="eager"
+      :style="objectPosition ? { objectPosition } : undefined"
       @error="onError"
     />
 
@@ -58,7 +59,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import {
-  resolveArtVariantSrc,
+  ART_VARIANT_FOCUS,
+  resolveArtVariantSource,
   type ArtVariant,
   type ArtImageSrcLike,
 } from '@/utils/artImageSrc'
@@ -96,6 +98,12 @@ const props = withDefaults(
      * contain, which is why this is a prop and not a constant.
      */
     fit?: 'cover' | 'contain'
+    /**
+     * CSS object-position for the crop. Left unset, a purpose-built variant is
+     * shown as composed and a primary standing in for a missing variant gets
+     * that variant's ART_VARIANT_FOCUS. Set it to art-direct one surface.
+     */
+    position?: string
     /** The gallery-card lift: art scales slightly on the ancestor's :hover. */
     hoverZoom?: boolean
     eager?: boolean
@@ -110,6 +118,7 @@ const props = withDefaults(
     compact: false,
     frame: 'plate',
     fit: 'cover',
+    position: '',
     hoverZoom: false,
     eager: false,
     placeholderIcon: 'kind-icon:image',
@@ -143,21 +152,39 @@ function onError(event: Event): void {
   }
 }
 
+const resolved = computed(() =>
+  resolveArtVariantSource(props.source, props.variant, props.fallback),
+)
+
 const src = computed(() => {
-  const resolved = resolveArtVariantSrc(
-    props.source,
-    props.variant,
-    props.fallback,
-  )
-  if (resolved && !failedSources.value.includes(resolved)) return resolved
+  const candidate = resolved.value.src
+  if (candidate && !failedSources.value.includes(candidate)) return candidate
   if (
     props.fallback &&
-    props.fallback !== resolved &&
+    props.fallback !== candidate &&
     !failedSources.value.includes(props.fallback)
   ) {
     return props.fallback
   }
   return ''
+})
+
+/*
+ * A purpose-built variant is already composed FOR this frame -- the card prompt
+ * asks for breathing room around the subject, the hero for the subject inside
+ * the centre region -- so it is shown exactly as stored. A primary standing in
+ * for a missing variant is a different situation: object-cover is cropping it,
+ * and a centred crop of a square portrait into 2:3 or 16:9 reliably cuts the
+ * head off. That case, and only that case, gets the variant's focus.
+ *
+ * 'contain' never crops, so it never needs repositioning.
+ */
+const objectPosition = computed(() => {
+  if (props.position) return props.position
+  if (props.fit === 'contain') return undefined
+  return resolved.value.origin === 'primary'
+    ? ART_VARIANT_FOCUS[props.variant]
+    : undefined
 })
 
 /*

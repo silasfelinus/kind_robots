@@ -161,6 +161,7 @@
     "test:github-file-contents": "tsx utils/scripts/verifyGithubFileContents.ts",
     "test:art-prompt-repair": "tsx utils/scripts/verifyArtPromptRepair.ts",
     "test:art-prompt-contract": "tsx utils/scripts/verifyArtPromptContract.ts",
+    "test:entity-art-primary-crop": "tsx utils/scripts/verifyEntityArtPrimaryCrop.ts",
     "test:artjob-sampler-repair": "tsx utils/scripts/verifyArtJobSamplerRepair.ts",
     "test:comfy-only-generation": "tsx utils/scripts/verifyComfyOnlyGeneration.ts",
     "test:art-generator-presets": "tsx utils/scripts/verifyArtGeneratorPresets.ts",

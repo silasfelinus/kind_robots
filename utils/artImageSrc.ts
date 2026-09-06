@@ -9,6 +9,16 @@
 export type ArtImageSrcLike =
   | {
       imagePath?: string | null
+      /**
+       * Bot's primary render lives in `avatarImage`, not `imagePath` -- a
+       * naming split that predates the shared entity-art slots and forced every
+       * bot surface to special-case its own primary. Resolving it here makes
+       * one good render enough for a Bot exactly as it already is for every
+       * other entity (Silas, 2026-09-05: normalize Bot onto the common
+       * primary). `Bot.imagePath` exists too and wins when populated, so the
+       * eventual backfill needs no code change.
+       */
+      avatarImage?: string | null
       path?: string | null
       thumbnailPath?: string | null
       cardPath?: string | null
@@ -47,12 +57,44 @@ export function resolveArtImageSrc(
   image: ArtImageSrcLike,
   fallback = '',
 ): string {
-  const path = cleanValue(image?.imagePath) || cleanValue(image?.path)
+  const path =
+    cleanValue(image?.imagePath) ||
+    cleanValue(image?.avatarImage) ||
+    cleanValue(image?.path)
   if (path) return path
   return toArtDataUri(image?.imageData, image?.fileType) || fallback
 }
 
 export type ArtVariant = 'card' | 'hero' | 'icon'
+
+/**
+ * Where to anchor a crop when a purpose-built variant does not exist and the
+ * primary render has to fill the frame instead.
+ *
+ * A purpose-built variant is already COMPOSED for its aspect -- the card prompt
+ * asks for "a vertical 2:3 composition with breathing room around the focal
+ * subject", the hero for "the focal subject safely inside the center region".
+ * Cropping one of those again would fight the composition, so these offsets are
+ * applied only to a primary standing in for a missing variant.
+ *
+ * Vertical bias, not centre: entity primaries are overwhelmingly figures and
+ * objects with their subject in the upper half, so a centred crop of a square
+ * into 2:3 or 16:9 reliably cuts heads off. 35% keeps the head and loses the
+ * feet, which is the right trade for a card.
+ */
+export const ART_VARIANT_FOCUS: Record<ArtVariant, string> = {
+  card: '50% 35%',
+  hero: '50% 40%',
+  icon: '50% 30%',
+}
+
+/** Where a resolved source came from, so callers know whether to re-crop it. */
+export type ArtSrcOrigin = 'variant' | 'primary' | 'fallback' | 'none'
+
+export type ResolvedArtSrc = {
+  src: string
+  origin: ArtSrcOrigin
+}
 
 const VARIANT_PATH_KEYS = {
   card: 'cardPath',
@@ -84,13 +126,38 @@ export function resolveArtVariantSrc(
   variant: ArtVariant,
   fallback = '',
 ): string {
+  return resolveArtVariantSource(image, variant, fallback).src
+}
+
+/**
+ * As resolveArtVariantSrc, but also reports WHERE the source came from.
+ *
+ * Display surfaces need that distinction to crop correctly: a purpose-built
+ * variant is composed for its frame and must be shown as-is, while a primary
+ * standing in for a missing variant wants ART_VARIANT_FOCUS applied. The
+ * string-returning wrapper above keeps every existing caller working.
+ */
+export function resolveArtVariantSource(
+  image: ArtImageSrcLike,
+  variant: ArtVariant,
+  fallback = '',
+): ResolvedArtSrc {
   const path = cleanValue(image?.[VARIANT_PATH_KEYS[variant]])
-  if (path) return path
+  if (path) return { src: path, origin: 'variant' }
 
-  const data = toArtDataUri(image?.[VARIANT_DATA_KEYS[variant]], image?.fileType)
-  if (data) return data
+  const data = toArtDataUri(
+    image?.[VARIANT_DATA_KEYS[variant]],
+    image?.fileType,
+  )
+  if (data) return { src: data, origin: 'variant' }
 
-  return resolveArtImageSrc(image, fallback)
+  const primary = resolveArtImageSrc(image)
+  if (primary) return { src: primary, origin: 'primary' }
+
+  const cleanFallback = cleanValue(fallback)
+  return cleanFallback
+    ? { src: cleanFallback, origin: 'fallback' }
+    : { src: '', origin: 'none' }
 }
 
 /**

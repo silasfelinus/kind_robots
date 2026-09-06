@@ -222,7 +222,7 @@
               </span>
             </span>
             <select
-              class="select select-bordered select-sm rounded-xl bg-base-200"
+              class="kr-select-sm bg-base-200"
               :value="consent.messagePolicy"
               :disabled="account.isSaving"
               @change="onMessagePolicy($event)"

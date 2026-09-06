@@ -39,7 +39,7 @@
 
     <label
       v-if="searchVisible"
-      class="input input-bordered input-sm flex w-full items-center gap-2 rounded-xl bg-base-100"
+      class="kr-input-sm flex w-full items-center gap-2 bg-base-100"
     >
       <Icon
         name="kind-icon:search"

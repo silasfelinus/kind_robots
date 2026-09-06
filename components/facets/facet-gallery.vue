@@ -50,7 +50,7 @@
 
       <select
         v-model="mode"
-        class="select select-bordered select-sm shrink-0 rounded-xl"
+        class="kr-select-sm shrink-0"
         aria-label="Facet gallery layout"
       >
         <option

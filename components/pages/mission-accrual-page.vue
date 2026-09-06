@@ -154,7 +154,7 @@
                 step="0.01"
                 required
                 placeholder="25.00"
-                class="input input-bordered input-sm rounded-xl bg-base-200"
+                class="kr-input-sm bg-base-200"
               />
             </label>
             <label class="form-control sm:col-span-2">
@@ -164,7 +164,7 @@
                 type="text"
                 required
                 placeholder="Against Malaria Foundation direct donation, receipt #..."
-                class="input input-bordered input-sm rounded-xl bg-base-200"
+                class="kr-input-sm bg-base-200"
               />
             </label>
             <label class="form-control sm:col-span-1">
@@ -173,7 +173,7 @@
                 v-model="form.reference"
                 type="text"
                 placeholder="RCPT-123"
-                class="input input-bordered input-sm rounded-xl bg-base-200"
+                class="kr-input-sm bg-base-200"
               />
             </label>
             <div class="sm:col-span-4 flex items-center gap-3">

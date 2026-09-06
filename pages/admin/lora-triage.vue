@@ -104,14 +104,14 @@
             <input
               v-model="query"
               type="search"
-              class="input input-bordered input-sm min-w-52 flex-1 rounded-xl"
+              class="kr-input-sm min-w-52 flex-1"
               placeholder="Search name, trigger, or base model"
               aria-label="Search LoRAs"
             />
 
             <select
               v-model="generation"
-              class="select select-bordered select-sm w-auto max-w-56 rounded-xl"
+              class="kr-select-sm w-auto max-w-56"
               aria-label="Filter by base model"
             >
               <option value="ALL">All base models</option>

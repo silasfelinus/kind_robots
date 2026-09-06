@@ -193,7 +193,7 @@
               </label>
               <input
                 type="url"
-                class="input input-bordered input-sm w-full rounded-xl text-sm"
+                class="kr-input-sm w-full text-sm"
                 placeholder="https://…"
                 :value="linkedProject.liveUrl ?? ''"
                 :disabled="projectSaving"
@@ -206,7 +206,7 @@
               </label>
               <input
                 type="url"
-                class="input input-bordered input-sm w-full rounded-xl text-sm"
+                class="kr-input-sm w-full text-sm"
                 placeholder="https://github.com/…"
                 :value="linkedProject.repoUrl ?? ''"
                 :disabled="projectSaving"
@@ -219,7 +219,7 @@
                   <span class="label-text text-xs font-semibold">Status</span>
                 </label>
                 <select
-                  class="select select-bordered select-sm w-full rounded-xl text-sm"
+                  class="kr-select-sm w-full text-sm"
                   :value="linkedProject.status"
                   :disabled="projectSaving"
                   @change="onStatusSelect"
@@ -240,7 +240,7 @@
                   <span class="label-text text-xs font-semibold">Priority</span>
                 </label>
                 <select
-                  class="select select-bordered select-sm w-full rounded-xl text-sm"
+                  class="kr-select-sm w-full text-sm"
                   :value="linkedProject.priority"
                   :disabled="projectSaving"
                   @change="onPrioritySelect"
@@ -276,7 +276,7 @@
           <div class="flex flex-wrap items-center gap-2">
             <select
               v-model="projectTaskCategory"
-              class="select select-bordered select-sm min-w-40 flex-1 rounded-xl"
+              class="kr-select-sm min-w-40 flex-1"
               :disabled="projectTaskSubmitting"
             >
               <option value="AGENT">🤖 Agent / comment</option>
@@ -284,7 +284,7 @@
             </select>
             <select
               v-model="projectTaskPriority"
-              class="select select-bordered select-sm min-w-32 flex-1 rounded-xl"
+              class="kr-select-sm min-w-32 flex-1"
               :disabled="projectTaskSubmitting"
             >
               <option value="HIGH">🔴 High</option>

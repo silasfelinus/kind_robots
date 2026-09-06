@@ -48,7 +48,7 @@
       <input
         v-model="search"
         type="search"
-        class="input input-bordered input-sm w-full rounded-xl bg-base-200"
+        class="kr-input-sm w-full bg-base-200"
         placeholder="Search or browse styles, themes, moods, materials, traits…"
         @focus="open = true"
         @keydown.esc="open = false"

@@ -36,7 +36,7 @@
             v-model="includeDraft"
             type="text"
             placeholder="e.g. robotics"
-            class="input input-sm input-bordered w-full rounded-xl"
+            class="kr-input-sm w-full"
             @keydown.enter.prevent="submitInclude()"
           />
           <button
@@ -76,7 +76,7 @@
             v-model="excludeDraft"
             type="text"
             placeholder="e.g. crypto"
-            class="input input-sm input-bordered w-full rounded-xl"
+            class="kr-input-sm w-full"
             @keydown.enter.prevent="submitExclude()"
           />
           <button

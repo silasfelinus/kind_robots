@@ -156,7 +156,7 @@
         <input
           v-model="search"
           type="search"
-          class="input input-bordered input-sm w-full rounded-xl bg-base-200"
+          class="kr-input-sm w-full bg-base-200"
           placeholder="Search compatible LoRAs by name, path, or trigger word…"
         />
 

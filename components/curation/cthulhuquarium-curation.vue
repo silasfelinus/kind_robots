@@ -173,7 +173,7 @@
             <input
               v-model="draft.inspirationUrl"
               type="url"
-              class="input input-bordered input-sm min-w-56 flex-1 rounded-xl"
+              class="kr-input-sm min-w-56 flex-1"
               placeholder="Add inspiration image URL"
             />
             <button

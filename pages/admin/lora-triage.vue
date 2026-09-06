@@ -337,7 +337,7 @@
           </div>
           <button
             type="button"
-            class="btn btn-ghost btn-xs rounded-xl text-base-content/50"
+            class="kr-btn-xs btn-ghost text-base-content/50"
             :disabled="triageStore.confirmedCount === 0"
             @click="clearProgress"
           >

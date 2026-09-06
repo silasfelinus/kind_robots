@@ -89,7 +89,7 @@
           class="flex items-center justify-between rounded-xl border border-base-300 bg-base-100 px-3 py-2"
         >
           <dt class="truncate text-sm">{{ taxonomyLabel(taxonomy) }}</dt>
-          <dd class="badge badge-ghost badge-sm shrink-0">
+          <dd class="kr-badge-ghost-sm shrink-0">
             {{ taxonomyCounts[taxonomy] || 0 }}
           </dd>
         </div>

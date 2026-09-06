@@ -87,7 +87,7 @@
           <span
             v-for="scope in credential.scopes"
             :key="scope"
-            class="badge badge-ghost badge-sm font-mono text-[0.65rem]"
+            class="kr-badge-ghost-sm font-mono text-[0.65rem]"
           >
             {{ scope }}
           </span>

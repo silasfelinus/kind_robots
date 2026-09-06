@@ -425,7 +425,7 @@
             <span>{{ promptDraft.length }} characters</span>
             <span
               v-if="promptDirty"
-              class="badge badge-warning badge-sm rounded-2xl"
+              class="kr-badge-warning-sm rounded-2xl"
             >
               Unsaved changes
             </span>

@@ -405,7 +405,7 @@
             <div class="min-w-0">
               <h2 class="text-lg font-bold text-base-content">
                 Add a Character
-                <span class="badge badge-ghost badge-sm ml-2">Optional</span>
+                <span class="kr-badge-ghost-sm ml-2">Optional</span>
               </h2>
 
               <p class="mt-0.5 truncate text-sm text-base-content/60">

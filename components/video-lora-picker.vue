@@ -227,7 +227,7 @@
                 <span class="flex shrink-0 items-center gap-1">
                   <span
                     v-if="resource.isMature"
-                    class="badge badge-error badge-outline badge-sm"
+                    class="kr-badge-outline-sm badge-error"
                   >
                     18+
                   </span>

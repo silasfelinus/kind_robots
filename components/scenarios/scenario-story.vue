@@ -55,7 +55,7 @@
       <div class="flex shrink-0 items-center gap-1.5">
         <span
           v-if="selectedScenario?.isMature"
-          class="badge badge-warning badge-sm text-smart-caption"
+          class="kr-badge-warning-sm text-smart-caption"
         >
           Mature
         </span>

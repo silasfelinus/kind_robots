@@ -79,7 +79,7 @@
       <div
         class="absolute right-2 top-2 flex max-w-[65%] flex-wrap justify-end gap-1"
       >
-        <span class="badge badge-outline badge-sm rounded-2xl">
+        <span class="kr-badge-outline-sm rounded-2xl">
           {{ job.engine }}
         </span>
         <span
@@ -108,7 +108,7 @@
           </span>
         </div>
         <div class="flex flex-wrap justify-end gap-1">
-          <span class="badge badge-outline badge-sm rounded-2xl">
+          <span class="kr-badge-outline-sm rounded-2xl">
             {{ job.engine }}
           </span>
           <span
@@ -134,10 +134,7 @@
               Destination · {{ jobPageLabel }}
             </p>
           </div>
-          <span
-            v-if="jobVariant"
-            class="badge badge-ghost badge-sm rounded-2xl"
-          >
+          <span v-if="jobVariant" class="kr-badge-ghost-sm rounded-2xl">
             {{ jobVariant }}
           </span>
         </div>
@@ -176,7 +173,7 @@
         </span>
         <span
           v-if="jobRequestId"
-          class="badge badge-ghost badge-sm max-w-full truncate rounded-2xl"
+          class="kr-badge-ghost-sm max-w-full truncate rounded-2xl"
           :title="jobRequestId"
         >
           {{ jobRequestId }}
@@ -200,7 +197,7 @@
         <span
           v-for="setting in jobSettings.slice(0, 6)"
           :key="setting"
-          class="badge badge-ghost badge-sm h-auto rounded-2xl py-1 text-[10px]"
+          class="kr-badge-ghost-sm h-auto rounded-2xl py-1 text-[10px]"
         >
           {{ setting }}
         </span>
@@ -269,7 +266,7 @@
               <span
                 v-for="setting in jobSettings"
                 :key="setting"
-                class="badge badge-outline badge-sm h-auto rounded-2xl py-1 text-[10px]"
+                class="kr-badge-outline-sm h-auto rounded-2xl py-1 text-[10px]"
               >
                 {{ setting }}
               </span>

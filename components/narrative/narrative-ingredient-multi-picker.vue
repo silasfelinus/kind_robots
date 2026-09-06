@@ -31,7 +31,7 @@
       <span
         v-else
         :id="countId"
-        class="badge badge-ghost badge-sm rounded-xl"
+        class="kr-badge-ghost-sm rounded-xl"
         aria-live="polite"
       >
         {{ modelValue.length }} / {{ maxSelections }} selected

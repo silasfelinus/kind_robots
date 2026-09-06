@@ -30,7 +30,7 @@
       />
       <span
         v-else
-        class="badge badge-ghost badge-sm rounded-xl"
+        class="kr-badge-ghost-sm rounded-xl"
         aria-live="polite"
       >
         {{ items.length }} options

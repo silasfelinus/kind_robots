@@ -92,7 +92,7 @@
 
         <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-base-content/45">
           <span>{{ promptDraft.length }} characters</span>
-          <span v-if="promptDirty" class="badge badge-warning badge-sm rounded-2xl">
+          <span v-if="promptDirty" class="kr-badge-warning-sm rounded-2xl">
             Unsaved changes
           </span>
         </div>

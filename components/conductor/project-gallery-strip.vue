@@ -13,7 +13,7 @@
       >
         {{ title }}
       </h3>
-      <span class="badge badge-ghost badge-sm ml-auto rounded-lg">{{
+      <span class="kr-badge-ghost-sm ml-auto rounded-lg">{{
         images.length
       }}</span>
     </div>

@@ -283,7 +283,7 @@
                       Topics & Threads
                     </p>
 
-                    <span class="badge badge-outline badge-sm rounded-xl">
+                    <span class="kr-badge-outline-sm rounded-xl">
                       {{ topicButtons.length }}
                     </span>
                   </div>

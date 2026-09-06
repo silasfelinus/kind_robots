@@ -30,7 +30,7 @@
         </p>
       </div>
 
-      <span class="badge badge-outline badge-sm shrink-0">
+      <span class="kr-badge-outline-sm shrink-0">
         {{ selectedFacet.canonicalValue }}
       </span>
 

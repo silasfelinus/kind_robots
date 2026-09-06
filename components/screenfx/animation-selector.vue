@@ -21,7 +21,7 @@
         </div>
       </div>
 
-      <span class="badge badge-outline badge-sm gap-1 border-info/40 text-info">
+      <span class="kr-badge-outline-sm gap-1 border-info/40 text-info">
         <Icon name="kind-icon:save" class="h-3 w-3" />
         local storage
       </span>
@@ -99,7 +99,7 @@
       >
         <span class="flex items-center justify-between gap-2 text-xs">
           <span class="font-black text-base-content/70">{{ control.label }}</span>
-          <span class="badge badge-ghost badge-sm font-mono">
+          <span class="kr-badge-ghost-sm font-mono">
             {{ formatValue(control.key) }}
           </span>
         </span>

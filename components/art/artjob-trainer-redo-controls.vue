@@ -4,7 +4,7 @@
     <summary class="cursor-pointer list-none text-xs font-semibold marker:hidden">
       <span class="flex flex-wrap items-center justify-between gap-2">
         <span>Revise and queue a real redo</span>
-        <span class="badge badge-warning badge-outline badge-sm rounded-2xl">
+        <span class="kr-badge-warning-sm badge-outline rounded-2xl">
           priority 100
         </span>
       </span>

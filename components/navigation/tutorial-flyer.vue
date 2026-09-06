@@ -55,7 +55,7 @@
 
           <span
             v-if="section.underConstruction"
-            class="badge badge-warning badge-sm gap-1 rounded-lg font-semibold"
+            class="kr-badge-warning-sm gap-1 rounded-lg font-semibold"
           >
             <Icon name="kind-icon:wrench" class="h-3 w-3" />
             Coming soon
@@ -214,7 +214,7 @@
 
                     <span
                       v-if="section.underConstruction"
-                      class="badge badge-warning badge-sm gap-1 rounded-lg font-semibold"
+                      class="kr-badge-warning-sm gap-1 rounded-lg font-semibold"
                     >
                       <Icon name="kind-icon:wrench" class="h-3 w-3" />
                       Coming soon

@@ -28,9 +28,7 @@
         </h2>
       </div>
       <div class="flex shrink-0 items-center gap-2">
-        <span class="badge badge-ghost badge-sm rounded-lg">{{
-          entry.mediaType
-        }}</span>
+        <span class="kr-badge-ghost-sm rounded-lg">{{ entry.mediaType }}</span>
         <slot name="close" />
       </div>
     </div>
@@ -186,7 +184,7 @@
             name="kind-icon:star"
             class="size-3 shrink-0 text-warning"
           />
-          <span class="badge badge-ghost badge-sm rounded-lg">{{
+          <span class="kr-badge-ghost-sm rounded-lg">{{
             related.mediaType
           }}</span>
           <span>{{ related.year ?? 'Year unknown' }}</span>

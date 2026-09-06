@@ -269,16 +269,16 @@
             <div class="rounded-2xl border border-base-300 p-3 text-xs">
               <div class="font-semibold">Current selection</div>
               <div class="mt-2 flex flex-wrap gap-1">
-                <span class="badge badge-outline badge-sm rounded-2xl">
+                <span class="kr-badge-outline-sm rounded-2xl">
                   {{ facetIds.length }} Facets
                 </span>
-                <span class="badge badge-outline badge-sm rounded-2xl">
+                <span class="kr-badge-outline-sm rounded-2xl">
                   {{ form.steps || '—' }} steps
                 </span>
-                <span class="badge badge-outline badge-sm rounded-2xl">
+                <span class="kr-badge-outline-sm rounded-2xl">
                   CFG {{ form.cfg || '—' }}
                 </span>
-                <span class="badge badge-outline badge-sm rounded-2xl">
+                <span class="kr-badge-outline-sm rounded-2xl">
                   {{ form.sampler || 'sampler default' }}
                 </span>
                 <span
@@ -299,13 +299,13 @@
                 </span>
                 <span
                   v-if="isVideoJob"
-                  class="badge badge-accent badge-outline badge-sm rounded-2xl"
+                  class="kr-badge-outline-sm badge-accent rounded-2xl"
                 >
                   {{ form.durationSeconds }}s · {{ form.fps }}fps
                 </span>
                 <span
                   v-if="isVideoJob"
-                  class="badge badge-accent badge-outline badge-sm rounded-2xl"
+                  class="kr-badge-outline-sm badge-accent rounded-2xl"
                 >
                   {{ form.loop ? 'loop' : 'play once' }}
                 </span>

@@ -47,7 +47,7 @@
         <div
           class="flex flex-wrap items-center gap-2 text-xs text-base-content/55"
         >
-          <span class="badge badge-outline badge-sm rounded-xl">
+          <span class="kr-badge-outline-sm rounded-xl">
             {{
               store.sourcePost.author.kind === 'AI_AGENT'
                 ? 'Declared AI agent'

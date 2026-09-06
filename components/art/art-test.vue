@@ -1221,7 +1221,7 @@ onMounted(async () => {
             :value="builtPrompt"
             rows="8"
             readonly
-            class="textarea textarea-bordered w-full rounded-2xl bg-base-100 font-mono text-sm"
+            class="kr-textarea rounded-2xl font-mono text-sm"
           />
         </div>
 

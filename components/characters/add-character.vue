@@ -165,7 +165,7 @@
             <span class="label-text font-bold">Art prompt</span>
             <textarea
               v-model="characterStore.characterForm.artPrompt"
-              class="textarea textarea-bordered mt-1 min-h-28 w-full bg-base-200"
+              class="kr-textarea-muted mt-1 min-h-28"
               placeholder="Describe the portrait you want..."
               :disabled="isKept('artPrompt')"
             />
@@ -209,7 +209,7 @@
               <span class="label-text font-bold">Personality</span>
               <textarea
                 v-model="characterStore.characterForm.personality"
-                class="textarea textarea-bordered mt-1 min-h-32 w-full bg-base-200"
+                class="kr-textarea-muted mt-1 min-h-32"
                 placeholder="Temperament, habits, contradictions..."
                 :disabled="isKept('personality')"
               />
@@ -219,7 +219,7 @@
               <span class="label-text font-bold">Voice</span>
               <textarea
                 v-model="characterStore.characterForm.voice"
-                class="textarea textarea-bordered mt-1 min-h-28 w-full bg-base-200"
+                class="kr-textarea-muted mt-1 min-h-28"
                 placeholder="How this character sounds"
                 :disabled="isKept('voice')"
               />
@@ -229,7 +229,7 @@
               <span class="label-text font-bold">Sample response</span>
               <textarea
                 v-model="characterStore.characterForm.sampleResponse"
-                class="textarea textarea-bordered mt-1 min-h-28 w-full bg-base-200"
+                class="kr-textarea-muted mt-1 min-h-28"
                 placeholder="A line that sounds unmistakably like them"
                 :disabled="isKept('sampleResponse')"
               />
@@ -247,7 +247,7 @@
               <span class="label-text font-bold">Backstory</span>
               <textarea
                 v-model="characterStore.characterForm.backstory"
-                class="textarea textarea-bordered mt-1 min-h-36 w-full bg-base-200"
+                class="kr-textarea-muted mt-1 min-h-36"
                 placeholder="Where they came from and what still follows them"
                 :disabled="isKept('backstory')"
               />
@@ -268,7 +268,7 @@
               <span class="label-text font-bold">Quirks</span>
               <textarea
                 v-model="characterStore.characterForm.quirks"
-                class="textarea textarea-bordered mt-1 min-h-28 w-full bg-base-200"
+                class="kr-textarea-muted mt-1 min-h-28"
                 placeholder="Odd rules, tells, comforts, and tiny disasters"
                 :disabled="isKept('quirks')"
               />

@@ -307,7 +307,7 @@
 
             <textarea
               v-model="chatMessage"
-              class="textarea textarea-bordered min-h-32 w-full resize-none rounded-2xl bg-base-200"
+              class="kr-textarea-muted min-h-32 resize-none rounded-2xl"
               placeholder="Say something to the character..."
               :disabled="!characterStore.selectedCharacter || isSendingChat"
               @input="syncSelectedPromptFromText"
@@ -379,7 +379,7 @@
 
             <textarea
               v-model="adventureDirection"
-              class="textarea textarea-bordered mt-4 min-h-32 w-full resize-none rounded-2xl bg-base-200"
+              class="kr-textarea-muted mt-4 min-h-32 resize-none rounded-2xl"
               placeholder="What should happen next? Skill check, reward use, inventory item, dialogue, chaos goblin cameo..."
             />
 
@@ -426,7 +426,7 @@
 
             <textarea
               v-model="promptText"
-              class="textarea textarea-bordered min-h-56 w-full resize-none rounded-2xl bg-base-200"
+              class="kr-textarea-muted min-h-56 resize-none rounded-2xl"
               placeholder="Build or edit a reusable character prompt..."
             />
 

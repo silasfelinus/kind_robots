@@ -72,7 +72,7 @@
           <textarea
             v-model="scenarioStore.scenarioForm.description"
             placeholder="Describe your scenario..."
-            class="textarea textarea-bordered min-h-32 w-full bg-base-100"
+            class="kr-textarea min-h-32"
           />
         </label>
       </section>
@@ -93,7 +93,7 @@
           <textarea
             v-model="scenarioStore.scenarioForm.inspirations"
             placeholder="Studio Ghibli, Disco Elysium, The Princess Bride, Kafka..."
-            class="textarea textarea-bordered min-h-28 w-full bg-base-200"
+            class="kr-textarea-muted min-h-28"
           />
         </label>
 
@@ -258,7 +258,7 @@
               <textarea
                 v-model="scenarioStore.scenarioForm.artPrompt"
                 placeholder="Describe your scenario's appearance..."
-                class="textarea textarea-bordered min-h-32 w-full bg-base-200"
+                class="kr-textarea-muted min-h-32"
                 :disabled="keepArtPrompt || isGeneratingArt"
               />
             </label>

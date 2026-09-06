@@ -159,7 +159,7 @@
               <textarea
                 v-model="store.setupDraft.premise"
                 rows="5"
-                class="textarea textarea-bordered w-full rounded-xl bg-base-100 text-sm leading-relaxed"
+                class="kr-textarea rounded-xl text-sm leading-relaxed"
                 placeholder="Every midnight, the town's abandoned observatory receives a letter from a star that should not exist…"
               />
               <span class="mt-1 text-[0.7rem] text-base-content/45">
@@ -333,7 +333,7 @@
               <textarea
                 v-model="store.setupDraft.notes"
                 rows="3"
-                class="textarea textarea-bordered w-full rounded-xl bg-base-100 text-sm leading-relaxed"
+                class="kr-textarea rounded-xl text-sm leading-relaxed"
                 placeholder="Keep the rivalry affectionate. Let every machine feel slightly alive. Avoid a chosen-one prophecy."
               />
             </label>

@@ -249,7 +249,7 @@
                         v-model="
                           gateMessages[gateKey(gate.project.slug, gate.task.id)]
                         "
-                        class="textarea textarea-bordered min-h-24 w-full rounded-xl bg-base-100 text-sm"
+                        class="kr-textarea min-h-24 rounded-xl text-sm"
                         placeholder="Add context, requested changes, or a note…"
                         :disabled="
                           taskIsUpdating(gate.project.slug, gate.task.id)

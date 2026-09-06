@@ -63,7 +63,7 @@
           <textarea
             v-model="rewardStore.rewardForm.description"
             placeholder="Describe what this reward is..."
-            class="textarea textarea-bordered min-h-24 w-full bg-base-100"
+            class="kr-textarea min-h-24"
           />
         </label>
 
@@ -89,7 +89,7 @@
           <textarea
             v-model="rewardStore.rewardForm.effect"
             placeholder="Describe what this reward does when played into a scene..."
-            class="textarea textarea-bordered min-h-28 w-full bg-base-100"
+            class="kr-textarea min-h-28"
           />
         </label>
       </section>
@@ -244,7 +244,7 @@
               <textarea
                 v-model="rewardStore.rewardForm.artPrompt"
                 placeholder="Describe the reward's appearance..."
-                class="textarea textarea-bordered min-h-32 w-full bg-base-200"
+                class="kr-textarea-muted min-h-32"
                 :disabled="isGeneratingArt"
               />
             </label>

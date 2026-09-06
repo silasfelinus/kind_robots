@@ -80,7 +80,7 @@
 
               <textarea
                 v-model="botStore.botForm.description"
-                class="textarea textarea-bordered min-h-28 w-full bg-base-200"
+                class="kr-textarea-muted min-h-28"
                 placeholder="Describe what this bot does..."
                 :disabled="isKept('description')"
               />
@@ -301,7 +301,7 @@
 
               <textarea
                 v-model="botStore.botForm.personality"
-                class="textarea textarea-bordered min-h-32 w-full bg-base-200"
+                class="kr-textarea-muted min-h-32"
                 placeholder="How should this bot behave?"
                 :disabled="isKept('personality')"
               />
@@ -314,7 +314,7 @@
 
               <textarea
                 v-model="botStore.botForm.prompt"
-                class="textarea textarea-bordered min-h-44 w-full bg-base-200"
+                class="kr-textarea-muted min-h-44"
                 placeholder="Core model instructions..."
                 :disabled="isKept('prompt')"
               />
@@ -327,7 +327,7 @@
 
               <textarea
                 v-model="botStore.botForm.sampleResponse"
-                class="textarea textarea-bordered min-h-28 w-full bg-base-200"
+                class="kr-textarea-muted min-h-28"
                 placeholder="Example of how this bot answers..."
                 :disabled="isKept('sampleResponse')"
               />
@@ -348,7 +348,7 @@
 
               <textarea
                 v-model="botStore.botForm.botIntro"
-                class="textarea textarea-bordered min-h-36 w-full bg-base-200"
+                class="kr-textarea-muted min-h-36"
                 placeholder="Opening message from the bot..."
                 :disabled="isKept('botIntro')"
               />
@@ -361,7 +361,7 @@
 
               <textarea
                 v-model="botStore.botForm.userIntro"
-                class="textarea textarea-bordered min-h-36 w-full bg-base-200"
+                class="kr-textarea-muted min-h-36"
                 placeholder="Suggested first user prompt. Separate quick prompts with |"
                 :disabled="isKept('userIntro')"
               />
@@ -374,7 +374,7 @@
 
               <textarea
                 v-model="botStore.botForm.modules"
-                class="textarea textarea-bordered min-h-24 w-full bg-base-200"
+                class="kr-textarea-muted min-h-24"
                 placeholder="Optional module notes..."
               />
             </label>

@@ -26,7 +26,7 @@
           <span class="text-xs font-semibold text-base-content/50">
             {{ userStore.isAdmin ? 'Conductor' : 'Projects' }}
           </span>
-          <span v-if="userStore.isAdmin" class="badge badge-primary badge-xs"
+          <span v-if="userStore.isAdmin" class="kr-badge-primary-xs"
             >ADMIN</span
           >
         </span>
@@ -38,7 +38,7 @@
           >· Tasks
           <span
             v-if="todoStore.openTodos.length"
-            class="badge badge-primary badge-xs ml-1"
+            class="kr-badge-primary-xs ml-1"
             >{{ todoStore.openTodos.length }}</span
           >
         </span>
@@ -312,7 +312,7 @@
                   🤖 Agent
                   <span
                     v-if="todoStore.regularAgentTodos.length"
-                    class="badge badge-xs badge-primary"
+                    class="kr-badge-primary-xs"
                     >{{ todoStore.regularAgentTodos.length }}</span
                   >
                 </button>

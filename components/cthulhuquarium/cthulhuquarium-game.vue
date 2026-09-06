@@ -509,7 +509,7 @@
                 <p class="text-sm font-bold">{{ entry.title }}</p>
                 <span
                   v-if="entry.equipped"
-                  class="badge badge-primary badge-xs shrink-0"
+                  class="kr-badge-primary-xs shrink-0"
                 >
                   Equipped
                 </span>
@@ -747,7 +747,7 @@
             <p class="text-sm font-bold">{{ tankStore.finaleConfig.title }}</p>
             <span
               v-if="tankStore.finaleTriggered"
-              class="badge badge-primary badge-xs shrink-0"
+              class="kr-badge-primary-xs shrink-0"
             >
               Yours
             </span>

@@ -8,9 +8,18 @@
 // state.autoBuilding), the fixed shape (all five functions), a partial fix
 // that leaves one batch function behind, and all five target functions
 // being absent entirely.
+//
+// Also exercises checkProgressMatrixAutoBuildAllDisabledGuard() (cycle 101),
+// added to close the coverage gap cycle 100 noted: the store-side checks
+// above never read model-builder-progress-matrix.vue's own
+// autoBuildAllDisabled computed, which reimplements the same "in flight"
+// condition for the UI rather than calling the store's helper.
 import assert from 'node:assert/strict'
 
-import { checkAutoBuildBatchExclusionGuard } from './verifyModelBuilderAutoBuildBatchExclusionGuard.js'
+import {
+  checkAutoBuildBatchExclusionGuard,
+  checkProgressMatrixAutoBuildAllDisabledGuard,
+} from './verifyModelBuilderAutoBuildBatchExclusionGuard.js'
 
 const BUGGY_FIXTURE = `
   function isRunOperationInFlight(): boolean {
@@ -283,4 +292,68 @@ console.log(
     'state.autoBuilding bail-out, clears the fixed shape, flags a partial ' +
     'fix that leaves one batch function behind, and flags all five target ' +
     'functions being absent.',
+)
+
+const PROGRESS_MATRIX_FIXED_FIXTURE = `
+  const batchInProgress = computed(() => store.batchingOutputKey !== null)
+  const autoBuildAllDisabled = computed(
+    () => store.autoBuilding || batchInProgress.value,
+  )
+`
+
+const PROGRESS_MATRIX_REGRESSED_FIXTURE = `
+  const batchInProgress = computed(() => store.batchingOutputKey !== null)
+  const autoBuildAllDisabled = computed(() => store.autoBuilding)
+`
+
+const PROGRESS_MATRIX_MISSING_FIXTURE = `
+  const busyCount = computed(
+    () =>
+      run.value?.items.filter((item) => store.isItemManualActionInFlight(item.id))
+        .length ?? 0,
+  )
+`
+
+const progressMatrixFixedErrors = checkProgressMatrixAutoBuildAllDisabledGuard(
+  PROGRESS_MATRIX_FIXED_FIXTURE,
+)
+assert.equal(
+  progressMatrixFixedErrors.length,
+  0,
+  'expected the fixed progress-matrix shape to raise no errors, got: ' +
+    JSON.stringify(progressMatrixFixedErrors),
+)
+
+const progressMatrixRegressedErrors =
+  checkProgressMatrixAutoBuildAllDisabledGuard(
+    PROGRESS_MATRIX_REGRESSED_FIXTURE,
+  )
+assert.equal(
+  progressMatrixRegressedErrors.length,
+  1,
+  'expected the regressed progress-matrix shape (missing batchInProgress) ' +
+    `to raise exactly 1 error, got ${progressMatrixRegressedErrors.length}: ` +
+    JSON.stringify(progressMatrixRegressedErrors),
+)
+assert.ok(
+  progressMatrixRegressedErrors[0]!.includes('batchInProgress'),
+  'expected the error to call out the missing batchInProgress check',
+)
+
+const progressMatrixMissingErrors =
+  checkProgressMatrixAutoBuildAllDisabledGuard(PROGRESS_MATRIX_MISSING_FIXTURE)
+assert.equal(
+  progressMatrixMissingErrors.length,
+  1,
+  'expected the missing-computed shape to raise exactly 1 "could not find" ' +
+    `error, got ${progressMatrixMissingErrors.length}: ` +
+    JSON.stringify(progressMatrixMissingErrors),
+)
+assert.ok(progressMatrixMissingErrors[0]!.startsWith('Could not find'))
+
+console.log(
+  'model-builder-progress-matrix.vue autoBuildAllDisabled guard checker ' +
+    'verified: clears the fixed shape (both store.autoBuilding and ' +
+    'batchInProgress), flags a regression that drops the batchInProgress ' +
+    'check, and flags the computed being absent entirely.',
 )

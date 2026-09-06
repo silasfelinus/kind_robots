@@ -40,6 +40,20 @@
 // if a future refactor drops either side, the two orchestration loops can
 // run concurrently again with no error and no warning until a user
 // happens to trigger both from the UI at once.
+//
+// Coverage gap closed (cycle 101): the store-side checks above only assert
+// isRunOperationInFlight()/autoBuildRun()/the four batch functions --
+// nothing here ever read model-builder-progress-matrix.vue's own
+// `autoBuildAllDisabled` computed, which independently reimplements the
+// same "is a run operation in flight" condition for the UI (`store.
+// autoBuilding || batchInProgress.value`, batchInProgress itself `store.
+// batchingOutputKey !== null`) rather than calling the store's helper. A
+// regression dropping `|| batchInProgress.value` from that computed would
+// leave the whole-run "Auto-build all" button clickable while a group batch
+// operation is running -- reintroducing the exact concurrent-loop race this
+// guard exists to prevent -- and every store-side check above would still
+// pass. checkProgressMatrixAutoBuildAllDisabledGuard() below asserts the
+// computed's text still references both flags.
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -50,6 +64,13 @@ const scriptDirectory = dirname(fileURLToPath(import.meta.url))
 const repositoryRoot = resolve(scriptDirectory, '../..')
 
 const STORE_PATH = join(repositoryRoot, 'stores/modelBuilderStore.ts')
+const PROGRESS_MATRIX_PATH = join(
+  repositoryRoot,
+  'components/model-builder/model-builder-progress-matrix.vue',
+)
+
+const AUTO_BUILD_ALL_DISABLED_PATTERN =
+  /const\s+autoBuildAllDisabled\s*=\s*computed\(\s*\(\)\s*=>\s*([^)]+)\)/
 
 const BATCH_FUNCTIONS = [
   'batchDraftField',
@@ -133,14 +154,62 @@ export function checkAutoBuildBatchExclusionGuard(content: string): string[] {
   return errors
 }
 
+// Checks model-builder-progress-matrix.vue's own `autoBuildAllDisabled`
+// computed against the full source text of that file. Exported separately
+// from checkAutoBuildBatchExclusionGuard (rather than folded into it) since
+// it reads a different file and the self-test below exercises it against
+// its own synthetic .vue-shaped fixtures.
+export function checkProgressMatrixAutoBuildAllDisabledGuard(
+  content: string,
+): string[] {
+  const errors: string[] = []
+
+  const match = AUTO_BUILD_ALL_DISABLED_PATTERN.exec(content)
+  if (!match) {
+    errors.push(
+      'Could not find a `const autoBuildAllDisabled = computed(() => ...)` ' +
+        'definition in model-builder-progress-matrix.vue -- has it been ' +
+        'renamed, removed, or restructured? If so, this guard (and the ' +
+        'button-disabled half of the fix it protects) needs to move with it.',
+    )
+    return errors
+  }
+
+  const body = match[1] ?? ''
+  if (!/store\.autoBuilding/.test(body)) {
+    errors.push(
+      'autoBuildAllDisabled does not check store.autoBuilding -- the ' +
+        '"Auto-build all" button would stay clickable while a whole-run ' +
+        'auto-build is already in progress.',
+    )
+  }
+  if (!/batchInProgress/.test(body)) {
+    errors.push(
+      'autoBuildAllDisabled does not check batchInProgress -- the ' +
+        '"Auto-build all" button would stay clickable while a group batch ' +
+        'operation (Draft pitches/fields/prompts, Approve fields, or ' +
+        'Auto-build group) is already running for this run, letting a ' +
+        "user start a second, fully concurrent walk over the same run's " +
+        'items.',
+    )
+  }
+
+  return errors
+}
+
 function main(): void {
   const content = readFileSync(STORE_PATH, 'utf8')
   const errors = checkAutoBuildBatchExclusionGuard(content)
 
+  const progressMatrixContent = readFileSync(PROGRESS_MATRIX_PATH, 'utf8')
+  errors.push(
+    ...checkProgressMatrixAutoBuildAllDisabledGuard(progressMatrixContent),
+  )
+
   if (errors.length) {
     console.error(
       'Model Builder auto-build/batch mutual-exclusion guard contract ' +
-        'failed in modelBuilderStore.ts:',
+        'failed:',
     )
     for (const error of errors) console.error(`- ${error}`)
     process.exitCode = 1
@@ -150,8 +219,10 @@ function main(): void {
   console.log(
     'Model Builder auto-build/batch mutual-exclusion guard contract ' +
       'passed: autoBuildRun() refuses to start while a group batch ' +
-      'operation is in flight, and every group batch operation refuses to ' +
-      'start while a whole-run auto-build is in flight.',
+      'operation is in flight, every group batch operation refuses to ' +
+      'start while a whole-run auto-build is in flight, and ' +
+      "model-builder-progress-matrix.vue's own autoBuildAllDisabled " +
+      'computed still gates the UI button on both flags.',
   )
 }
 

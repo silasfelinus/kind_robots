@@ -95,6 +95,17 @@ const ART_VARIANTS = [
   },
 ] as const
 
+/**
+ * Slots the entity-art collapse retired. Kept as data rather than removed from
+ * ART_VARIANTS because repair still has to map a legacy job's stored field back
+ * onto its variant geometry; only NEW queueing is suppressed.
+ */
+const RETIRED_VARIANT_FIELDS = new Set<string>([
+  'cardPath',
+  'heroPath',
+  'iconPath',
+])
+
 type FacetArtField = (typeof ART_VARIANTS)[number]['field']
 type FacetArtVariant = (typeof ART_VARIANTS)[number]
 
@@ -677,14 +688,14 @@ export async function main(): Promise<void> {
           aliases: aliasesByFacet.get(facet.id) ?? [],
           artBacked: Boolean(
             facet.imagePath ||
-              facet.cardPath ||
-              facet.heroPath ||
-              facet.iconPath ||
-              facet.icon ||
-              facet.artImageId !== null ||
-              facet.artCollectionId !== null ||
-              linkedPrimaryArt.has(facet.id) ||
-              linkedCollections.has(facet.id),
+            facet.cardPath ||
+            facet.heroPath ||
+            facet.iconPath ||
+            facet.icon ||
+            facet.artImageId !== null ||
+            facet.artCollectionId !== null ||
+            linkedPrimaryArt.has(facet.id) ||
+            linkedCollections.has(facet.id),
           ),
         }
       })
@@ -732,7 +743,7 @@ export async function main(): Promise<void> {
         for (const variant of ART_VARIANTS) {
           const primaryLinked = Boolean(
             variant.field === 'imagePath' &&
-              (facet.artImageId !== null || linkedPrimaryArt.has(facet.id)),
+            (facet.artImageId !== null || linkedPrimaryArt.has(facet.id)),
           )
           if (clean(facet[variant.field]) || primaryLinked) {
             available.set(
@@ -745,11 +756,11 @@ export async function main(): Promise<void> {
         if (!ALL_VARIANTS) {
           const hasDisplayArt = Boolean(
             clean(facet.imagePath) ||
-              clean(facet.cardPath) ||
-              clean(facet.heroPath) ||
-              clean(facet.iconPath) ||
-              facet.artImageId !== null ||
-              linkedPrimaryArt.has(facet.id),
+            clean(facet.cardPath) ||
+            clean(facet.heroPath) ||
+            clean(facet.iconPath) ||
+            facet.artImageId !== null ||
+            linkedPrimaryArt.has(facet.id),
           )
           if (hasDisplayArt) continue
 
@@ -771,9 +782,19 @@ export async function main(): Promise<void> {
         }
 
         for (const variant of ART_VARIANTS) {
+          /*
+           * The slot collapse (2026-09-05): card/hero/icon are retired, so even
+           * --all-variants only tops up the primary now. This producer writes
+           * ArtJobs straight to the table rather than going through
+           * prepareEntityArtEnqueue, so it does not inherit that gate and has
+           * to refuse the retired slots itself. Repair still maps a legacy
+           * job's field back onto its variant via fieldVariant(), which is why
+           * the entries stay in ART_VARIANTS rather than being deleted.
+           */
+          if (RETIRED_VARIANT_FIELDS.has(variant.field)) continue
           const primaryLinked = Boolean(
             variant.field === 'imagePath' &&
-              (facet.artImageId !== null || linkedPrimaryArt.has(facet.id)),
+            (facet.artImageId !== null || linkedPrimaryArt.has(facet.id)),
           )
           if (clean(facet[variant.field]) || primaryLinked) continue
           if (pendingFacetFields.has(`${facet.id}:${variant.field}`)) {
@@ -811,7 +832,8 @@ export async function main(): Promise<void> {
       if (REPAIR_TAINTED) {
         for (const job of history) {
           const target = artTarget(job.payload)
-          if (!target || !LEGACY_FACET_ART_VERSIONS.has(target.version)) continue
+          if (!target || !LEGACY_FACET_ART_VERSIONS.has(target.version))
+            continue
           if (!['PENDING', 'RUNNING', 'DONE'].includes(job.status)) continue
 
           const key = `${target.entityId}:${target.field}`
@@ -827,11 +849,7 @@ export async function main(): Promise<void> {
 
           if (
             job.status === 'DONE' &&
-            !likelyStillCarriesLegacyOutput(
-              facet,
-              target.field,
-              job.artImageId,
-            )
+            !likelyStillCarriesLegacyOutput(facet, target.field, job.artImageId)
           ) {
             repairSkippedSuperseded.push(job.id)
             continue
@@ -843,7 +861,8 @@ export async function main(): Promise<void> {
           // needs repair.
           if (
             job.status === 'PENDING' &&
-            (slotArtImageId(facet, target.field) || slotPath(facet, target.field))
+            (slotArtImageId(facet, target.field) ||
+              slotPath(facet, target.field))
           ) {
             continue
           }

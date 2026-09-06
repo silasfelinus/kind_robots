@@ -6,14 +6,8 @@ import { createError, getRequestURL, type H3Event } from 'h3'
  * breaks that contract. This file is intentionally excluded from prettier
  * formatting for that reason.
  */
-import type {
-  Prisma,
-  PrismaClient,
-} from '~/prisma/generated/prisma/client'
-import {
-  artContextRules,
-  artSlotFraming,
-} from '~/utils/entityArtPromptFraming'
+import type { Prisma, PrismaClient } from '~/prisma/generated/prisma/client'
+import { artContextRules, artSlotFraming } from '~/utils/entityArtPromptFraming'
 
 export type EntityArtType =
   | 'bot'
@@ -69,6 +63,15 @@ type EntityArtFieldConfig = {
   width: number
   height: number
   primary: boolean
+  /**
+   * A slot that is no longer generated. Entity art is collapsing to one
+   * primary render plus the inspiration gallery (Silas, 2026-09-05), so
+   * card/hero/icon are retired: prepareEntityArtEnqueue refuses new work for
+   * them, while completion, reads and the existing stored images are all left
+   * alone so any straggler already in the queue still lands and no rendered
+   * art disappears from a page.
+   */
+  retired?: boolean
 }
 
 export const ENTITY_FIELDS: Record<
@@ -105,18 +108,21 @@ export const ENTITY_FIELDS: Record<
       width: 256,
       height: 256,
       primary: false,
+      retired: true,
     },
     cardPath: {
       label: 'Card',
       width: 512,
       height: 768,
       primary: false,
+      retired: true,
     },
     heroPath: {
       label: 'Hero',
       width: 1280,
       height: 720,
       primary: false,
+      retired: true,
     },
   },
   dream: {
@@ -139,18 +145,21 @@ export const ENTITY_FIELDS: Record<
       width: 256,
       height: 256,
       primary: false,
+      retired: true,
     },
     cardPath: {
       label: 'Card',
       width: 512,
       height: 768,
       primary: false,
+      retired: true,
     },
     heroPath: {
       label: 'Hero',
       width: 1280,
       height: 720,
       primary: false,
+      retired: true,
     },
   },
   scenario: {
@@ -165,18 +174,21 @@ export const ENTITY_FIELDS: Record<
       width: 256,
       height: 256,
       primary: false,
+      retired: true,
     },
     cardPath: {
       label: 'Card',
       width: 512,
       height: 768,
       primary: false,
+      retired: true,
     },
     heroPath: {
       label: 'Hero',
       width: 1280,
       height: 720,
       primary: false,
+      retired: true,
     },
   },
   reward: {
@@ -191,18 +203,21 @@ export const ENTITY_FIELDS: Record<
       width: 256,
       height: 256,
       primary: false,
+      retired: true,
     },
     cardPath: {
       label: 'Card',
       width: 512,
       height: 768,
       primary: false,
+      retired: true,
     },
     heroPath: {
       label: 'Hero',
       width: 1280,
       height: 720,
       primary: false,
+      retired: true,
     },
   },
   facet: {
@@ -217,18 +232,21 @@ export const ENTITY_FIELDS: Record<
       width: 256,
       height: 256,
       primary: false,
+      retired: true,
     },
     cardPath: {
       label: 'Card',
       width: 512,
       height: 768,
       primary: false,
+      retired: true,
     },
     heroPath: {
       label: 'Hero',
       width: 1280,
       height: 720,
       primary: false,
+      retired: true,
     },
   },
   achievement: {
@@ -251,12 +269,14 @@ export const ENTITY_FIELDS: Record<
       width: 512,
       height: 768,
       primary: false,
+      retired: true,
     },
     heroPath: {
       label: 'Hero',
       width: 1280,
       height: 720,
       primary: false,
+      retired: true,
     },
   },
 }
@@ -1126,6 +1146,20 @@ export async function prepareEntityArtEnqueue(
     request.field,
     auth,
   )
+  /*
+   * The enqueue gate for the slot collapse. Refusing here rather than in
+   * getEntityArtFieldConfig is deliberate: completion, reads and history all
+   * resolve the same config, and blocking those would strand jobs already in
+   * the queue and hide art that is still on the page.
+   */
+  if (target.config.retired) {
+    throw createError({
+      statusCode: 400,
+      message:
+        `The ${target.config.label} slot is no longer generated. One primary image now serves every ` +
+        `view, cropped per frame, and previous renders remain available as inspiration.`,
+    })
+  }
   const mode =
     safeText(request.mode).toLowerCase() === 'img2img' ? 'img2img' : 'recreate'
   const metadata: EntityArtMetadata = {

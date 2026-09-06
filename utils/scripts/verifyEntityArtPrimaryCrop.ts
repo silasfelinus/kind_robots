@@ -21,6 +21,8 @@
 // stays as a fallback purely so an object with variant art but no primary does
 // not go blank mid-migration.
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+import { resolve as resolvePath } from 'node:path'
 import {
   ART_VARIANT_FOCUS,
   resolveArtImageSrc,
@@ -150,4 +152,41 @@ for (const source of cases) {
 console.log(
   'Entity art primary/crop contract verified: the primary wins, Bot primaries resolve, ' +
     'and only a stand-in primary is re-cropped.',
+)
+
+// ── Retired slots must not accept new work ──────────────────────────────────
+//
+// The collapse only holds if nothing keeps queueing the slots it retires. Two
+// independent producers had to be stopped, and each is easy to regress:
+// prepareEntityArtEnqueue (the API path) and generate_facet_art_v4 (which
+// writes ArtJobs straight to the table and so inherits no API gate).
+const entityArtSource = readFileSync(
+  resolvePath(process.cwd(), 'server/utils/entityArt.ts'),
+  'utf8',
+)
+const facetProducerSource = readFileSync(
+  resolvePath(process.cwd(), 'scripts/generate_facet_art_v4.ts'),
+  'utf8',
+)
+
+assert.ok(
+  /if \(target\.config\.retired\) \{/.test(entityArtSource),
+  'prepareEntityArtEnqueue must refuse a retired slot, or the collapse keeps queueing card/hero/icon',
+)
+assert.equal(
+  (entityArtSource.match(/^\s+retired: true,$/gm) || []).length,
+  17,
+  'every card/hero/icon slot across bot/character/scenario/reward/facet/project must be marked retired',
+)
+assert.ok(
+  !/^\s+primary: true,\n\s+retired: true,$/m.test(entityArtSource),
+  'a primary slot must never be marked retired -- that would block the one render we keep',
+)
+assert.ok(
+  /RETIRED_VARIANT_FIELDS\.has\(variant\.field\)/.test(facetProducerSource),
+  'generate_facet_art_v4 writes ArtJobs directly, so it must skip retired variants itself',
+)
+
+console.log(
+  'Retired-slot producers verified: no new card/hero/icon work is queued.',
 )

@@ -146,7 +146,7 @@
           Clean
           <span
             v-if="tankStore.pendingCleanClicks > 0"
-            class="badge badge-neutral badge-xs ml-1"
+            class="kr-badge-neutral-xs ml-1"
           >
             ×{{ tankStore.pendingCleanClicks }}
           </span>

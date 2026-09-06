@@ -326,7 +326,7 @@
                   ✨ Story
                   <span
                     v-if="todoStore.serendipityAgentTodos.length"
-                    class="badge badge-xs badge-secondary"
+                    class="kr-badge-secondary-xs"
                     >{{ todoStore.serendipityAgentTodos.length }}</span
                   >
                 </button>
@@ -340,7 +340,7 @@
                   🍯 Honey Do
                   <span
                     v-if="todoStore.honeyDoTodos.length"
-                    class="badge badge-xs badge-accent"
+                    class="kr-badge-accent-xs"
                     >{{ todoStore.honeyDoTodos.length }}</span
                   >
                 </button>
@@ -438,7 +438,7 @@
                     >
                     <span
                       v-if="todo.priority === 'HIGH'"
-                      class="badge badge-error badge-xs shrink-0"
+                      class="kr-badge-error-xs shrink-0"
                       >🔴 high</span
                     >
                     <span
@@ -448,7 +448,7 @@
                     >
                     <span
                       v-if="todoStore.isSerendipityAgentTodo(todo)"
-                      class="badge badge-secondary badge-xs shrink-0"
+                      class="kr-badge-secondary-xs shrink-0"
                       >✨ story</span
                     >
                     <div class="flex shrink-0 gap-1">

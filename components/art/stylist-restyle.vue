@@ -327,8 +327,8 @@
               <span class="loading loading-spinner loading-xs" />
               {{ job.queueState === 'rendering' ? 'rendering' : 'queued' }}
             </span>
-            <span v-else-if="job.status === 'failed'" class="badge badge-error badge-xs">failed</span>
-            <span v-else class="badge badge-success badge-xs">done</span>
+            <span v-else-if="job.status === 'failed'" class="kr-badge-error-xs">failed</span>
+            <span v-else class="kr-badge-success-xs">done</span>
             <div class="flex-1" />
             <button
               v-if="job.status === 'failed'"

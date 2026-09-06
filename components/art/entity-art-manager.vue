@@ -164,13 +164,13 @@
         </span>
         <span
           v-if="history.length"
-          class="badge badge-info badge-xs"
+          class="kr-badge-info-xs"
         >
           {{ history.length }} inspiration{{ history.length === 1 ? '' : 's' }}
         </span>
         <span
           v-if="collectionSlides.length"
-          class="badge badge-secondary badge-xs"
+          class="kr-badge-secondary-xs"
         >
           {{ collectionSlides.length }} collection
         </span>

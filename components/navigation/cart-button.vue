@@ -10,7 +10,7 @@
   >
     <span class="indicator">
       <Icon name="kind-icon:cart" class="h-5 w-5" />
-      <span class="badge indicator-item badge-secondary badge-xs">
+      <span class="kr-badge-secondary-xs indicator-item">
         {{ compactItemCount }}
       </span>
     </span>

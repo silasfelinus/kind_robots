@@ -394,9 +394,7 @@
               class="size-3.5 shrink-0 transition-transform group-open:rotate-90"
             />
             Completed
-            <span class="badge badge-success badge-xs ml-auto">{{
-              doneTaskCount
-            }}</span>
+            <span class="kr-badge-success-xs ml-auto">{{ doneTaskCount }}</span>
           </summary>
           <div class="space-y-2 px-3 pb-3">
             <div v-for="group in doneTasksByMilestone" :key="group.id">

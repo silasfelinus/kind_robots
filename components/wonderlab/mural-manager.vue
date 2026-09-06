@@ -174,9 +174,7 @@
       </aside>
 
       <main class="kr-pane-scroll kr-panel-flat p-4">
-        <div
-          class="rounded-2xl border border-base-300 bg-base-200 p-3 shadow-inner"
-        >
+        <div class="kr-panel-muted-sm shadow-inner">
           <coloring-canvas
             ref="canvasRef"
             :page="pageDefinition"
@@ -191,7 +189,7 @@
         </div>
 
         <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+          <div class="kr-panel-muted-md">
             <p
               class="text-xs font-bold uppercase tracking-wide text-base-content/45"
             >
@@ -202,7 +200,7 @@
             </p>
           </div>
 
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+          <div class="kr-panel-muted-md">
             <p
               class="text-xs font-bold uppercase tracking-wide text-base-content/45"
             >
@@ -213,7 +211,7 @@
             </p>
           </div>
 
-          <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+          <div class="kr-panel-muted-md">
             <p
               class="text-xs font-bold uppercase tracking-wide text-base-content/45"
             >
@@ -265,7 +263,7 @@
             <article
               v-for="group in groups"
               :key="group.id"
-              class="rounded-2xl border border-base-300 bg-base-200 p-3"
+              class="kr-panel-muted-sm"
             >
               <div class="flex items-start justify-between gap-3">
                 <div>

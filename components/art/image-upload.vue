@@ -1,8 +1,6 @@
 <!-- /components/art/image-upload.vue -->
 <template>
-  <section
-    class="flex w-full flex-col gap-4 rounded-2xl border border-base-300 bg-base-200 p-4"
-  >
+  <section class="flex w-full flex-col gap-4 kr-panel-muted-md">
     <input
       ref="fileInput"
       type="file"

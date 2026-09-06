@@ -15,13 +15,13 @@
       </header>
 
       <div class="grid gap-3 md:grid-cols-2">
-        <article class="rounded-2xl border border-base-300 bg-base-200 p-4">
+        <article class="kr-panel-muted-md">
           <h3 class="font-bold">Planned flow</h3>
           <p class="mt-2 text-sm leading-relaxed text-base-content/70">
             Let the user add a Porto server address, validate that the endpoint responds, then save the server metadata through the normal server records instead of hiding it in component state.
           </p>
         </article>
-        <article class="rounded-2xl border border-base-300 bg-base-200 p-4">
+        <article class="kr-panel-muted-md">
           <h3 class="font-bold">Not built yet</h3>
           <p class="mt-2 text-sm leading-relaxed text-base-content/70">
             The UI here is intentionally a placeholder so the Conductor tab split can land without inventing the Porto persistence contract too early. Tiny robot bureaucracy, but make it safe.

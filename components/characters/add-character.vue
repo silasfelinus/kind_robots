@@ -354,7 +354,7 @@
           <div
             v-for="field in aiFields"
             :key="field.key"
-            class="rounded-2xl border border-base-300 bg-base-200 p-3"
+            class="kr-panel-muted-sm"
           >
             <div class="flex items-start justify-between gap-3">
               <div>
@@ -442,7 +442,7 @@
           </label>
 
           <label
-            class="flex items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+            class="flex items-center justify-between gap-3 kr-panel-muted-sm"
           >
             <span class="font-bold">Public</span>
             <input
@@ -453,7 +453,7 @@
           </label>
 
           <label
-            class="flex items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+            class="flex items-center justify-between gap-3 kr-panel-muted-sm"
           >
             <span class="font-bold">Mature</span>
             <input

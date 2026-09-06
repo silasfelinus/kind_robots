@@ -95,7 +95,7 @@
       <label
         v-for="control in controls"
         :key="control.key"
-        class="flex flex-col gap-2 rounded-2xl border border-base-300 bg-base-200 p-3"
+        class="flex flex-col gap-2 kr-panel-muted-sm"
       >
         <span class="flex items-center justify-between gap-2 text-xs">
           <span class="font-black text-base-content/70">{{ control.label }}</span>

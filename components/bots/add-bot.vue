@@ -182,7 +182,7 @@
             </label>
 
             <div
-              class="flex items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+              class="flex items-center justify-between gap-3 kr-panel-muted-sm"
             >
               <span class="text-sm font-bold">Keep avatar</span>
 
@@ -240,7 +240,7 @@
           <div
             v-for="field in aiFields"
             :key="field.key"
-            class="rounded-2xl border border-base-300 bg-base-200 p-3"
+            class="kr-panel-muted-sm"
           >
             <div class="flex items-start justify-between gap-3">
               <div>

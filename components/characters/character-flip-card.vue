@@ -120,7 +120,7 @@
             </div>
 
             <div
-              class="mb-3 flex max-h-96 min-h-40 flex-col gap-3 overflow-y-auto rounded-2xl border border-base-300 bg-base-200 p-3"
+              class="mb-3 flex max-h-96 min-h-40 flex-col gap-3 overflow-y-auto kr-panel-muted-sm"
             >
               <div
                 v-if="chatMessages.length === 0"
@@ -248,7 +248,7 @@
             </h2>
 
             <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+              <div class="kr-panel-muted-sm">
                 <scenario-gallery
                   variant="dropdown"
                   title="Scenario"
@@ -258,7 +258,7 @@
                 />
               </div>
 
-              <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+              <div class="kr-panel-muted-sm">
                 <reward-gallery
                   variant="dropdown"
                   title="Reward"

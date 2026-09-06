@@ -1,6 +1,6 @@
 <!-- /components/art/stylist-client-gallery.vue -->
 <template>
-  <section class="mt-3 rounded-2xl border border-base-300 bg-base-200 p-3">
+  <section class="mt-3 kr-panel-muted-sm">
     <header class="mb-3 flex flex-wrap items-center gap-2">
       <Icon name="kind-icon:image" class="size-4 text-primary" />
       <h3 class="font-black">{{ client.name }}’s gallery</h3>

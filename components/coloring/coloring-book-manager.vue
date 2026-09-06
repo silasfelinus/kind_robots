@@ -3,7 +3,7 @@
   <section class="flex flex-col gap-4">
     <template v-if="!openDefinition">
       <header
-        class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-200 p-4"
+        class="flex flex-wrap items-center justify-between gap-2 kr-panel-muted-md"
       >
         <div class="flex flex-col gap-1">
           <h2
@@ -97,7 +97,7 @@
 
     <template v-else>
       <header
-        class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-200 p-3"
+        class="flex flex-wrap items-center justify-between gap-2 kr-panel-muted-sm"
       >
         <div class="flex items-center gap-2">
           <button

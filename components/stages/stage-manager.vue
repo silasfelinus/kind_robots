@@ -288,7 +288,7 @@
             </div>
 
             <!-- Performer gallery toggle -->
-            <div class="rounded-2xl border border-base-300 bg-base-200 p-3">
+            <div class="kr-panel-muted-sm">
               <button
                 type="button"
                 class="flex items-center gap-2 text-sm font-semibold text-base-content/70 hover:text-base-content"

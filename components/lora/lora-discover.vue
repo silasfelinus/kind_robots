@@ -11,7 +11,7 @@
     class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl bg-base-300 p-3"
   >
     <header
-      class="flex shrink-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+      class="flex shrink-0 flex-col gap-3 kr-panel-muted-sm"
     >
       <div class="min-w-0">
         <h2 class="truncate text-lg font-bold text-base-content">

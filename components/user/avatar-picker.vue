@@ -1,7 +1,7 @@
 <!-- /components/content/user/avatar-picker.vue -->
 <template>
   <section
-    class="flex h-full min-h-0 w-full flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3 sm:p-4"
+    class="flex h-full min-h-0 w-full flex-col gap-3 kr-panel-muted-sm sm:p-4"
   >
     <!-- ── Header ──────────────────────────────────────────────────────── -->
     <header

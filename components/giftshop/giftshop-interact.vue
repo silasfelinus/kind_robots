@@ -40,7 +40,7 @@
           <article
             v-for="feature in giftshopFeatures"
             :key="feature.title"
-            class="rounded-2xl border border-base-300 bg-base-200 p-4 transition hover:border-primary/50 hover:bg-primary/10"
+            class="kr-panel-muted-md transition hover:border-primary/50 hover:bg-primary/10"
           >
             <Icon :name="feature.icon" class="mb-3 h-7 w-7 text-secondary" />
 
@@ -135,7 +135,7 @@
           <article
             v-for="item in showcaseItems"
             :key="item.title"
-            class="rounded-2xl border border-base-300 bg-base-200 p-4"
+            class="kr-panel-muted-md"
           >
             <div class="flex items-start justify-between gap-3">
               <div class="space-y-1">
@@ -179,7 +179,7 @@
       </div>
 
       <div class="mt-4 grid gap-3">
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+        <div class="kr-panel-muted-md">
           <div class="text-sm text-base-content/60">Items</div>
 
           <div class="text-3xl font-black text-primary">
@@ -187,7 +187,7 @@
           </div>
         </div>
 
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+        <div class="kr-panel-muted-md">
           <div class="text-sm text-base-content/60">Total</div>
 
           <div class="text-3xl font-black text-secondary">

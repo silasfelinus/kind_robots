@@ -713,7 +713,7 @@ onMounted(async () => {
   <div class="flex min-h-full w-full flex-col gap-6">
     <div
       v-if="showHeader"
-      class="rounded-2xl border border-base-300 bg-base-200 p-4 shadow-lg md:p-6"
+      class="kr-panel-muted-md shadow-lg md:p-6"
     >
       <div
         class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
@@ -747,7 +747,7 @@ onMounted(async () => {
 
     <div class="grid gap-6 xl:grid-cols-[340px_1fr]">
       <aside class="flex flex-col gap-6">
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+        <div class="kr-panel-muted-md">
           <div
             class="mb-3 text-sm font-bold uppercase tracking-widest opacity-60"
           >
@@ -776,7 +776,7 @@ onMounted(async () => {
           </div>
         </div>
 
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+        <div class="kr-panel-muted-md">
           <div
             class="mb-3 text-sm font-bold uppercase tracking-widest opacity-60"
           >
@@ -815,7 +815,7 @@ onMounted(async () => {
           </div>
         </div>
 
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+        <div class="kr-panel-muted-md">
           <div
             class="mb-3 text-sm font-bold uppercase tracking-widest opacity-60"
           >
@@ -966,7 +966,7 @@ onMounted(async () => {
           </div>
         </div>
 
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-4">
+        <div class="kr-panel-muted-md">
           <div
             class="mb-3 text-sm font-bold uppercase tracking-widest opacity-60"
           >
@@ -996,7 +996,7 @@ onMounted(async () => {
       </aside>
 
       <main class="flex flex-col gap-6">
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-4 md:p-6">
+        <div class="kr-panel-muted-md md:p-6">
           <div class="mb-4 text-lg font-bold">Test Builder</div>
 
           <div v-if="endpointDef.mode === 'text'" class="flex flex-col gap-6">
@@ -1211,7 +1211,7 @@ onMounted(async () => {
           </div>
         </div>
 
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-4 md:p-6">
+        <div class="kr-panel-muted-md md:p-6">
           <div class="mb-3 flex items-center justify-between gap-3">
             <div class="text-lg font-bold">Built Prompt</div>
             <div class="text-sm opacity-60">{{ endpointDef.label }}</div>
@@ -1227,7 +1227,7 @@ onMounted(async () => {
 
         <div
           v-if="showPayload"
-          class="rounded-2xl border border-base-300 bg-base-200 p-4 md:p-6"
+          class="kr-panel-muted-md md:p-6"
         >
           <div class="mb-3 text-lg font-bold">Payload Preview</div>
           <pre
@@ -1236,7 +1236,7 @@ onMounted(async () => {
           >
         </div>
 
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-4 md:p-6">
+        <div class="kr-panel-muted-md md:p-6">
           <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
             <div>
               <div class="text-lg font-bold">Generate</div>
@@ -1282,7 +1282,7 @@ onMounted(async () => {
           </div>
         </div>
 
-        <div class="rounded-2xl border border-base-300 bg-base-200 p-4 md:p-6">
+        <div class="kr-panel-muted-md md:p-6">
           <div class="mb-4 flex items-center justify-between gap-3">
             <div class="text-lg font-bold">Result</div>
 
@@ -1339,7 +1339,7 @@ onMounted(async () => {
 
         <div
           v-if="showRawResult && resultData"
-          class="rounded-2xl border border-base-300 bg-base-200 p-4 md:p-6"
+          class="kr-panel-muted-md md:p-6"
         >
           <div class="mb-3 text-lg font-bold">Raw API / Store Result</div>
           <pre

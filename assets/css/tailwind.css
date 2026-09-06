@@ -533,6 +533,24 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply rounded-2xl border border-base-300 bg-base-200 p-6;
   }
 
+  /* The most-repeated hand-rolled nested-panel shape (interface-vision
+   * t-104 slice 117): the same rounded-2xl/border-base-300/bg-base-200
+   * surface as .kr-panel-muted, but at the compact `p-3` padding used for
+   * dense nested rows/cards/list items rather than a full panel --
+   * previously hand-rolled across 19 occurrences, the larger of the two
+   * padding pools found. Named as a size variant of .kr-panel-muted, same
+   * convention as the .kr-btn-ghost/-md size ladder. */
+  .kr-panel-muted-sm {
+    @apply rounded-2xl border border-base-300 bg-base-200 p-3;
+  }
+
+  /* The `p-4` counterpart to .kr-panel-muted-sm (interface-vision t-104
+   * slice 117): same rounded-2xl/border-base-300/bg-base-200 surface, one
+   * padding step up from -sm — previously hand-rolled (14 occurrences). */
+  .kr-panel-muted-md {
+    @apply rounded-2xl border border-base-300 bg-base-200 p-4;
+  }
+
   /* Flat bordered surface for dense lists, rows, and inboxes. */
   .kr-panel-flat {
     @apply rounded-2xl border border-base-300 bg-base-100;

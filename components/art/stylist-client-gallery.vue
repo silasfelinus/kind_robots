@@ -131,10 +131,10 @@
             </div>
             <div class="flex flex-col gap-1 p-2">
               <div class="flex flex-wrap gap-1">
-                <span class="badge badge-outline badge-xs">
+                <span class="kr-badge-outline-xs">
                   {{ photoById.get(Number(item.id))!.folder }}
                 </span>
-                <span class="badge badge-ghost badge-xs">
+                <span class="kr-badge-ghost-xs">
                   {{ photoById.get(Number(item.id))!.kind }}
                 </span>
               </div>

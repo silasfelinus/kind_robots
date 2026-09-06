@@ -19,7 +19,7 @@
           <template v-if="entryFor(fish.slug)">
             <div class="flex flex-wrap items-center gap-2">
               <span class="badge badge-xs" :class="affinityClass(fish.affinity)">{{ fish.affinity }}</span>
-              <span class="badge badge-outline badge-xs">{{ fish.rarity }}</span>
+              <span class="kr-badge-outline-xs">{{ fish.rarity }}</span>
               <span class="text-xs opacity-50">×{{ entryFor(fish.slug)!.countCaught }}</span>
             </div>
             <h4 class="mt-2 font-black">{{ fish.name }}</h4>

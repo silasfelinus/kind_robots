@@ -42,7 +42,7 @@
       >
       <span
         v-else-if="todo.priority === 'LOW'"
-        class="badge badge-ghost badge-xs shrink-0"
+        class="kr-badge-ghost-xs shrink-0"
         >🟢 low</span
       >
       <span

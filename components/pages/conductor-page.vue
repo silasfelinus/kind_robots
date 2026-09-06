@@ -443,7 +443,7 @@
                     >
                     <span
                       v-else-if="todo.priority === 'LOW'"
-                      class="badge badge-ghost badge-xs shrink-0"
+                      class="kr-badge-ghost-xs shrink-0"
                       >🟢 low</span
                     >
                     <span
@@ -849,7 +849,7 @@
                   class="text-xs font-bold uppercase tracking-wide text-base-content/60"
                   >Milestones</span
                 >
-                <span class="badge badge-ghost badge-xs ml-auto">
+                <span class="kr-badge-ghost-xs ml-auto">
                   {{ selectedProject.milestones.length }}
                 </span>
               </summary>
@@ -907,7 +907,7 @@
                   class="text-xs font-bold uppercase tracking-wide text-base-content/60"
                   >Roadmap</span
                 >
-                <span class="badge badge-ghost badge-xs ml-auto">
+                <span class="kr-badge-ghost-xs ml-auto">
                   {{ selectedProject.tasks.length }} tasks
                 </span>
               </summary>

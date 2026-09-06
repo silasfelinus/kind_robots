@@ -65,13 +65,13 @@
 
           <span
             v-if="authorOf(review)"
-            class="badge badge-primary badge-outline badge-xs"
+            class="kr-badge-outline-xs badge-primary"
             :title="`Written in character, published by a Kind Robots account`"
           >
             {{ authorOf(review)?.kind === 'BOT' ? 'bot' : 'character' }}
           </span>
 
-          <span v-if="roleFor(review)" class="badge badge-outline badge-xs">
+          <span v-if="roleFor(review)" class="kr-badge-outline-xs">
             {{ roleFor(review) }}
           </span>
 

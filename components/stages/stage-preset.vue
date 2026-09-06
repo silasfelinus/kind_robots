@@ -46,7 +46,7 @@
         <span
           v-for="role in preset.roles"
           :key="role.key"
-          class="badge badge-outline badge-xs gap-1"
+          class="kr-badge-outline-xs gap-1"
         >
           <img
             v-if="role.badgeImagePath"

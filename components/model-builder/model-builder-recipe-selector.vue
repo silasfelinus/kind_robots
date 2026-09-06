@@ -93,7 +93,7 @@
             <span class="truncate text-sm font-bold text-base-content">
               {{ output.label }}
             </span>
-            <span class="badge badge-xs badge-ghost">{{
+            <span class="kr-badge-ghost-xs">{{
               output.generation
             }}</span>
             <span v-if="output.size" class="text-[10px] text-base-content/40">

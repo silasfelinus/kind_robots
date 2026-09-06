@@ -138,7 +138,7 @@
                   </div>
                   <span
                     v-if="getItemVisibility(item)"
-                    class="badge badge-outline badge-xs"
+                    class="kr-badge-outline-xs"
                   >
                     {{ getItemVisibility(item) }}
                   </span>

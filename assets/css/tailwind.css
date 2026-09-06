@@ -990,6 +990,20 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply badge badge-secondary badge-sm;
   }
 
+  /* The extra-small, ghost-styled counterpart to .kr-badge-ghost-sm
+   * (interface-vision t-104 slice 112): `badge badge-ghost badge-xs`, the
+   * largest hand-rolled `badge-xs` pool surveyed (16 files, 21 occurrences). */
+  .kr-badge-ghost-xs {
+    @apply badge badge-ghost badge-xs;
+  }
+
+  /* The extra-small outline counterpart to .kr-badge-outline-sm (same
+   * slice): `badge badge-outline badge-xs`, previously hand-rolled in 16
+   * files (18 occurrences). */
+  .kr-badge-outline-xs {
+    @apply badge badge-outline badge-xs;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

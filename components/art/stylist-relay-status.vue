@@ -95,13 +95,13 @@
             <span
               v-for="engine in agent.engines"
               :key="engine"
-              class="badge badge-outline badge-xs rounded-2xl"
+              class="kr-badge-outline-xs rounded-2xl"
             >
               {{ engine }}
             </span>
             <span
               v-if="!agent.engines.length"
-              class="badge badge-ghost badge-xs rounded-2xl"
+              class="kr-badge-ghost-xs rounded-2xl"
             >
               no engines declared
             </span>

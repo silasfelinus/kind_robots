@@ -51,7 +51,7 @@
         {{ humanDescription }}
       </p>
 
-      <span v-if="showsServerBadge" class="badge badge-outline badge-xs w-fit">
+      <span v-if="showsServerBadge" class="kr-badge-outline-xs w-fit">
         {{ resource.supportedServer }}
       </span>
     </div>

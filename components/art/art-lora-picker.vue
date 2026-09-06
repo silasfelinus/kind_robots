@@ -206,7 +206,7 @@
                   </span>
                   <span
                     v-if="entry.resource.isMature"
-                    class="badge badge-error badge-outline badge-xs shrink-0"
+                    class="kr-badge-outline-xs badge-error shrink-0"
                   >
                     18+
                   </span>

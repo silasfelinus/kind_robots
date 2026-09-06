@@ -37,7 +37,7 @@
           <template v-else>
             <Icon name="kind-icon:bolt" class="h-3.5 w-3.5" />
             Auto-build all
-            <span v-if="busyCount" class="badge badge-xs badge-ghost"
+            <span v-if="busyCount" class="kr-badge-ghost-xs"
               >{{ busyCount }} busy</span
             >
           </template>
@@ -75,7 +75,7 @@
           <span class="truncate text-sm font-bold text-base-content">
             {{ run?.sourceLabel }}
           </span>
-          <span class="badge badge-xs badge-ghost">{{ run?.sourceType }}</span>
+          <span class="kr-badge-ghost-xs">{{ run?.sourceType }}</span>
           <span class="text-[10px] text-base-content/35">#{{ run?.sourceId }}</span>
         </div>
         <p

@@ -181,7 +181,7 @@
                         </span>
                         <span
                           v-if="interaction.isSelfAttribution"
-                          class="badge badge-ghost badge-xs"
+                          class="kr-badge-ghost-xs"
                         >
                           Self-generated
                         </span>

@@ -36,6 +36,19 @@ import {
 } from './lib/databaseRetry'
 
 const WRITE = process.argv.includes('--write')
+/**
+ * Adopt slots holding a bare path with no ArtImage row behind them.
+ *
+ * These are legacy static assets -- Facet 16 "Circus" points its cardPath at
+ * /images/adventure/genre/carnival.webp, written before this table tracked art.
+ * They cannot be linked as inspiration because there is no id to join to, so
+ * the clearing guard refuses to touch them and dropping the column would
+ * silently discard the reference. Adopting gives the path a real ArtImage row
+ * (the same thing createHistoryReference does for this exact legacy case),
+ * links it as inspiration, and points the slot at it, so the ordinary
+ * clear-slots path can then handle it like any other slot.
+ */
+const ADOPT_PATH_ONLY = process.argv.includes('--adopt-path-only')
 
 /**
  * Only these carry per-slot ArtImage foreign keys. Dream's secondary slots are
@@ -85,6 +98,7 @@ type Report = {
   alreadyLinked: number
   pathOnlyNoArtImage: number
   missingArtImageRow: number
+  adopted: number
 }
 
 function emptyReport(): Report {
@@ -93,7 +107,17 @@ function emptyReport(): Report {
     alreadyLinked: 0,
     pathOnlyNoArtImage: 0,
     missingArtImageRow: 0,
+    adopted: 0,
   }
+}
+
+function text(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : ''
+}
+
+function fileTypeFromPath(path: string): string {
+  const match = /\.([a-z0-9]+)(?:\?|$)/i.exec(path)
+  return match?.[1]?.toLowerCase() || 'webp'
 }
 
 export async function main(): Promise<void> {
@@ -101,7 +125,10 @@ export async function main(): Promise<void> {
     const prisma = createScriptPrismaClient()
     const client = prisma as unknown as Record<
       string,
-      { findMany: (args: unknown) => Promise<Array<Record<string, unknown>>> }
+      {
+        findMany: (args: unknown) => Promise<Array<Record<string, unknown>>>
+        update: (args: unknown) => Promise<unknown>
+      }
     >
 
     try {
@@ -112,7 +139,12 @@ export async function main(): Promise<void> {
         const fields = SLOT_FKS[entityType]
         byEntity[entityType] = {}
 
-        const select: Record<string, boolean> = { id: true }
+        const select: Record<string, boolean> = {
+          id: true,
+          userId: true,
+          isPublic: true,
+          isMature: true,
+        }
         for (const [pathField, fkField] of Object.entries(fields)) {
           select[pathField] = true
           select[fkField] = true
@@ -123,15 +155,72 @@ export async function main(): Promise<void> {
         for (const [pathField, fkField] of Object.entries(fields)) {
           const report = emptyReport()
 
+          const pathOnly: Array<{ entityId: number; path: string }> = []
           const candidates = rows.filter((row) => {
             const id = Number(row[fkField])
-            const path =
-              typeof row[pathField] === 'string' ? row[pathField] : ''
+            const path = text(row[pathField])
             if (Number.isInteger(id) && id > 0) return true
-            // Populated as a bare path with no ArtImage behind it: not linkable.
-            if (path) report.pathOnlyNoArtImage += 1
+            // Populated as a bare path with no ArtImage behind it: not linkable
+            // as-is. --adopt-path-only gives it a real row so it can be.
+            if (path) {
+              report.pathOnlyNoArtImage += 1
+              pathOnly.push({ entityId: Number(row.id), path })
+            }
             return false
           })
+
+          /*
+           * Adopt legacy static-asset slots. Mirrors createHistoryReference's
+           * handling of the same case: a bare path needs a real ArtImage row
+           * before anything can link to it. The row is tagged straight into the
+           * history form, since this slot is being retired, and the entity's FK
+           * is pointed at it so the ordinary clear-slots guard can then verify
+           * and clear it like any other slot.
+           */
+          if (ADOPT_PATH_ONLY && pathOnly.length) {
+            for (const orphan of pathOnly) {
+              if (!WRITE) {
+                report.adopted += 1
+                continue
+              }
+              const owner = rows.find(
+                (row) => Number(row.id) === orphan.entityId,
+              )
+              const created = (await prisma.artImage.create({
+                data: {
+                  userId: Number(owner?.userId) || 1,
+                  fileName: `${entityType}-${orphan.entityId}-${pathField}-adopted-${Date.now()}`,
+                  fileType: fileTypeFromPath(orphan.path),
+                  imagePath: orphan.path,
+                  path: `entity:${entityType}:${orphan.entityId}:history:${pathField}:${Date.now()}`,
+                  artPrompt: `Legacy ${pathField} asset retained as inspiration`,
+                  seed: -1,
+                  cfg: 3,
+                  designer: 'Kind Robots',
+                  isPublic: Boolean(owner?.isPublic ?? true),
+                  isMature: Boolean(owner?.isMature ?? false),
+                  isActive: true,
+                },
+                select: { id: true },
+              })) as { id: number }
+
+              await prisma.entityArtImage.createMany({
+                data: [
+                  {
+                    entityType,
+                    entityId: orphan.entityId,
+                    artImageId: created.id,
+                  },
+                ],
+                skipDuplicates: true,
+              })
+              await client[DELEGATE[entityType]]!.update({
+                where: { id: orphan.entityId },
+                data: { [fkField]: created.id },
+              })
+              report.adopted += 1
+            }
+          }
 
           const artImageIds = [
             ...new Set(candidates.map((row) => Number(row[fkField]))),
@@ -196,6 +285,7 @@ export async function main(): Promise<void> {
           totals.alreadyLinked += report.alreadyLinked
           totals.pathOnlyNoArtImage += report.pathOnlyNoArtImage
           totals.missingArtImageRow += report.missingArtImageRow
+          totals.adopted += report.adopted
         }
       }
 
@@ -209,9 +299,10 @@ export async function main(): Promise<void> {
               wouldLink: WRITE ? 0 : totals.linked,
             },
             byEntity,
+            adoptPathOnly: ADOPT_PATH_ONLY,
             policy:
-              'Insert-only. Every card/hero/icon render becomes an inspiration entry via one EntityArtImage join row. No ArtImage, entity row, slot column or path is modified, and no image is deleted.',
-            note: 'pathOnlyNoArtImage slots hold a bare path with no ArtImage row to join to. They must be resolved before any slot column is cleared, or those images would end up unreferenced.',
+              'Insert-only for linking: an existing render becomes an inspiration entry via one EntityArtImage join row, and no ArtImage, entity row, slot column or path is modified. --adopt-path-only additionally CREATES an ArtImage row for a legacy bare-path slot and points the slot at it, so that reference survives the column drop. No image is ever deleted.',
+            note: 'pathOnlyNoArtImage slots hold a bare path with no ArtImage row to join to. Without --adopt-path-only they are reported and left alone, and the clearing guard refuses to touch them -- so dropping the column would discard the reference.',
           },
           null,
           2,

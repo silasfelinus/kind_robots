@@ -145,7 +145,7 @@
               <input
                 v-model="store.setupDraft.title"
                 type="text"
-                class="input input-bordered w-full rounded-xl bg-base-100"
+                class="kr-input rounded-xl"
                 placeholder="The Clockwork Orchard"
               />
             </label>

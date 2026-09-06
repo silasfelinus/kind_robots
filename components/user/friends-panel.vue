@@ -100,7 +100,7 @@
         v-model="search"
         type="search"
         placeholder="Search the directory…"
-        class="input input-bordered mb-3 w-full rounded-xl bg-base-200"
+        class="kr-input-muted mb-3 rounded-xl"
         @input="onSearch"
       />
       <p v-if="isSearching" class="text-sm text-base-content/50">Searching…</p>

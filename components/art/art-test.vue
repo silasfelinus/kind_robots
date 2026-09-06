@@ -879,7 +879,7 @@ onMounted(async () => {
                   :value="seed ?? ''"
                   type="number"
                   placeholder="random"
-                  class="input input-bordered w-full rounded-2xl bg-base-100"
+                  class="kr-input rounded-2xl"
                   @input="updateSeed"
                 />
                 <button

@@ -89,7 +89,7 @@
               v-model="pw.current"
               type="password"
               autocomplete="current-password"
-              class="input input-bordered w-full rounded-xl bg-base-200"
+              class="kr-input-muted rounded-xl"
             />
           </label>
           <label class="flex flex-col gap-1">
@@ -100,7 +100,7 @@
               v-model="pw.next"
               type="password"
               autocomplete="new-password"
-              class="input input-bordered w-full rounded-xl bg-base-200"
+              class="kr-input-muted rounded-xl"
             />
           </label>
           <label class="flex flex-col gap-1">
@@ -111,7 +111,7 @@
               v-model="pw.confirm"
               type="password"
               autocomplete="new-password"
-              class="input input-bordered w-full rounded-xl bg-base-200"
+              class="kr-input-muted rounded-xl"
             />
           </label>
           <div class="flex items-center gap-3 sm:col-span-2">

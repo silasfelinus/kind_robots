@@ -37,7 +37,7 @@
             v-model="rewardStore.rewardForm.name"
             type="text"
             placeholder="The Coin of Questionable Wisdom"
-            class="input input-bordered w-full bg-base-100"
+            class="kr-input"
           />
         </label>
 
@@ -50,7 +50,7 @@
             v-model="rewardStore.rewardForm.collection"
             type="text"
             placeholder="starter, weirdlandia, relics..."
-            class="input input-bordered w-full bg-base-100"
+            class="kr-input"
           />
         </label>
 
@@ -77,7 +77,7 @@
             v-model="rewardStore.rewardForm.flavorText"
             type="text"
             placeholder="It says please. It still works."
-            class="input input-bordered w-full bg-base-100"
+            class="kr-input"
           />
         </label>
 
@@ -104,7 +104,7 @@
             v-model="rewardStore.rewardForm.icon"
             type="text"
             placeholder="kind-icon:gift"
-            class="input input-bordered w-full bg-base-100"
+            class="kr-input"
           />
         </label>
 

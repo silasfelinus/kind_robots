@@ -31,7 +31,7 @@
           v-model="email"
           type="email"
           autocomplete="email"
-          class="input input-bordered w-full rounded-xl bg-base-200"
+          class="kr-input-muted rounded-xl"
         />
       </label>
       <button
@@ -59,7 +59,7 @@
           v-model="next"
           type="password"
           autocomplete="new-password"
-          class="input input-bordered w-full rounded-xl bg-base-200"
+          class="kr-input-muted rounded-xl"
         />
       </label>
       <label class="flex flex-col gap-1">
@@ -70,7 +70,7 @@
           v-model="confirm"
           type="password"
           autocomplete="new-password"
-          class="input input-bordered w-full rounded-xl bg-base-200"
+          class="kr-input-muted rounded-xl"
         />
       </label>
       <button

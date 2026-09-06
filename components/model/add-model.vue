@@ -46,7 +46,7 @@
 
         <input
           v-model="form.name"
-          class="input input-bordered w-full bg-base-200"
+          class="kr-input-muted"
           type="text"
           autocomplete="off"
           placeholder="dreamshaperXL_v21TurboDPMSDE.safetensors"
@@ -62,7 +62,7 @@
 
         <input
           v-model="form.customLabel"
-          class="input input-bordered w-full bg-base-200"
+          class="kr-input-muted"
           type="text"
           autocomplete="off"
           placeholder="DreamShaper XL Turbo"
@@ -95,7 +95,7 @@
 
       <input
         v-model="form.localPath"
-        class="input input-bordered w-full bg-base-200 font-mono text-sm"
+        class="kr-input-muted font-mono text-sm"
         type="text"
         autocomplete="off"
         placeholder="SDXL/dreamshaperXL_v21TurboDPMSDE.safetensors"
@@ -110,7 +110,7 @@
 
         <input
           v-model="form.previewImageUrl"
-          class="input input-bordered w-full bg-base-200"
+          class="kr-input-muted"
           type="url"
           autocomplete="off"
           placeholder="https://image.civitai.com/..."
@@ -124,7 +124,7 @@
 
         <input
           v-model="form.civitaiUrl"
-          class="input input-bordered w-full bg-base-200"
+          class="kr-input-muted"
           type="url"
           autocomplete="off"
           placeholder="https://civitai.com/models/..."

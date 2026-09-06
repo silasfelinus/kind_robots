@@ -1069,6 +1069,23 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply textarea textarea-bordered w-full bg-base-200;
   }
 
+  /* The `input` counterpart to .kr-textarea (interface-vision t-104 slice
+   * 116): the same full-width, bordered DaisyUI shape on a single-line
+   * text input, "plain" base-100 background -- `input input-bordered
+   * w-full bg-base-100`, previously hand-rolled (8 occurrences). */
+  .kr-input {
+    @apply input input-bordered w-full bg-base-100;
+  }
+
+  /* The base-200 "muted" counterpart to .kr-input (interface-vision t-104
+   * slice 116): the same full-width bordered input shape on the muted
+   * background -- `input input-bordered w-full bg-base-200`, previously
+   * hand-rolled across curation/creation forms (47 occurrences, the
+   * larger of the two background pools). */
+  .kr-input-muted {
+    @apply input input-bordered w-full bg-base-200;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

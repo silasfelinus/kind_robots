@@ -28,11 +28,12 @@ on:
   workflow_dispatch:
     inputs:
       task:
-        description: 'cancel-pending-jobs clears queued work for retiring slots; link-inspiration turns rendered card/hero/icon art into inspiration entries'
+        description: 'cancel-pending-jobs clears queued work for retiring slots; link-inspiration turns rendered card/hero/icon art into inspiration entries; ensure-primary backfills Bot.imagePath and promotes a secondary render for any object with no primary'
         type: choice
         options:
           - cancel-pending-jobs
           - link-inspiration
+          - ensure-primary
         default: cancel-pending-jobs
       mode:
         description: 'dry-run reports the plan; write applies it'
@@ -128,6 +129,19 @@ jobs:
           echo "Running with ${ARGS:-<dry-run>}"
           npx tsx scripts/link_entity_art_slots_as_inspiration.ts $ARGS \
             2>&1 | tee cleanup-output/inspiration-link.log
+          test "${PIPESTATUS[0]}" -eq 0
+
+      # Fills an empty primary only -- never overwrites art anyone chose, and
+      # promotes the object's own existing image rather than generating one.
+      - name: Ensure every object has a primary render
+        if: inputs.task == 'ensure-primary'
+        run: |
+          mkdir -p cleanup-output
+          ARGS=""
+          if [ "$CLEANUP_MODE" = "write" ]; then ARGS="--write"; fi
+          echo "Running with ${ARGS:-<dry-run>}"
+          npx tsx scripts/ensure_entity_primary_art.ts $ARGS \
+            2>&1 | tee cleanup-output/ensure-primary.log
           test "${PIPESTATUS[0]}" -eq 0
 
       - name: Summarize

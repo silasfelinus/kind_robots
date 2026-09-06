@@ -404,9 +404,7 @@
         </div>
 
         <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
-          <label
-            class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
-          >
+          <label class="kr-toggle-row">
             <span class="label-text font-bold">Public</span>
 
             <input
@@ -416,9 +414,7 @@
             />
           </label>
 
-          <label
-            class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
-          >
+          <label class="kr-toggle-row">
             <span class="label-text font-bold">Under Construction</span>
 
             <input
@@ -428,9 +424,7 @@
             />
           </label>
 
-          <label
-            class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
-          >
+          <label class="kr-toggle-row">
             <span class="label-text font-bold">Can Delete</span>
 
             <input

@@ -275,9 +275,7 @@
           <section class="kr-panel-flat p-4">
             <h2 class="text-lg font-black">Visibility</h2>
             <div class="mt-3 grid gap-2">
-              <label
-                class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
-              >
+              <label class="kr-toggle-row-sm">
                 <span class="label-text font-bold">Public</span>
                 <input
                   v-model="dreamStore.dreamForm.isPublic"
@@ -286,9 +284,7 @@
                 />
               </label>
 
-              <label
-                class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
-              >
+              <label class="kr-toggle-row-sm">
                 <span class="label-text font-bold">Mature</span>
                 <input
                   v-model="dreamStore.dreamForm.isMature"
@@ -303,9 +299,7 @@
                 control; Dream's owners could not reach their own allowReviews
                 column from the UI at all.
               -->
-              <label
-                class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
-              >
+              <label class="kr-toggle-row-sm">
                 <span class="label-text font-bold">Reviews</span>
                 <input
                   v-model="dreamStore.dreamForm.allowReviews"
@@ -314,9 +308,7 @@
                 />
               </label>
 
-              <label
-                class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-3 py-2"
-              >
+              <label class="kr-toggle-row-sm">
                 <span class="label-text font-bold">Active</span>
                 <input
                   v-model="dreamStore.dreamForm.isActive"

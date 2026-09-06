@@ -44,9 +44,7 @@
       </label>
 
       <div v-if="showFlags" class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-        <label
-          class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
-        >
+        <label class="kr-toggle-row">
           <span class="label-text font-bold">Public</span>
 
           <input
@@ -57,9 +55,7 @@
           />
         </label>
 
-        <label
-          class="label cursor-pointer justify-between rounded-2xl border border-base-300 bg-base-200 px-4 py-3"
-        >
+        <label class="kr-toggle-row">
           <span class="label-text font-bold">Mature</span>
 
           <input

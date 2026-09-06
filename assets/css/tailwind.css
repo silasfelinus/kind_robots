@@ -928,6 +928,16 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply select select-bordered select-sm rounded-xl;
   }
 
+  /* The most-repeated hand-rolled checkbox shape (interface-vision t-104
+   * slice 106): a small, primary-colored DaisyUI checkbox used across
+   * character/bot/model-builder creation forms -- `checkbox checkbox-sm
+   * checkbox-primary`, previously hand-rolled in 6 files (8 occurrences,
+   * including one class-order variant: `checkbox checkbox-primary
+   * checkbox-sm`). */
+  .kr-checkbox-primary-sm {
+    @apply checkbox checkbox-sm checkbox-primary;
+  }
+
   .text-smart {
     @apply text-sm md:text-lg lg:text-lg xl:text-xl;
   }

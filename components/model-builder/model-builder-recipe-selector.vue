@@ -82,7 +82,7 @@
       >
         <input
           type="checkbox"
-          class="checkbox checkbox-sm checkbox-primary"
+          class="kr-checkbox-primary-sm"
           :checked="store.selections[output.key]?.on"
           :disabled="store.startingRun"
           @change="store.toggleOutput(output.key)"

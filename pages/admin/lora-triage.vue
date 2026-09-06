@@ -211,7 +211,7 @@
               >
                 <input
                   type="checkbox"
-                  class="checkbox checkbox-primary checkbox-sm"
+                  class="kr-checkbox-primary-sm"
                   :checked="triageStore.isSelected(resource.id)"
                   :aria-label="`Select ${resourceLabel(resource)}`"
                   @change="handleSelection(resource.id, $event)"

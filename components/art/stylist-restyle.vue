@@ -156,7 +156,7 @@
       <span class="text-xs font-black text-base-content">What are we changing?</span>
 
       <label class="flex items-start gap-2">
-        <input v-model="changeColor" type="checkbox" class="checkbox checkbox-sm checkbox-primary mt-1" />
+        <input v-model="changeColor" type="checkbox" class="kr-checkbox-primary-sm mt-1" />
         <div class="flex flex-1 flex-col gap-1">
           <span class="text-sm font-bold">Change color</span>
           <input
@@ -170,7 +170,7 @@
       </label>
 
       <label class="flex items-start gap-2">
-        <input v-model="changeStyle" type="checkbox" class="checkbox checkbox-sm checkbox-primary mt-1" />
+        <input v-model="changeStyle" type="checkbox" class="kr-checkbox-primary-sm mt-1" />
         <div class="flex flex-1 flex-col gap-1">
           <span class="text-sm font-bold">Change style</span>
           <input
@@ -184,7 +184,7 @@
       </label>
 
       <label class="flex items-start gap-2">
-        <input v-model="enhanceImage" type="checkbox" class="checkbox checkbox-sm checkbox-primary mt-1" />
+        <input v-model="enhanceImage" type="checkbox" class="kr-checkbox-primary-sm mt-1" />
         <div class="flex flex-1 flex-col gap-1">
           <span class="text-sm font-bold">Improve the overall image</span>
           <span class="text-xs text-base-content/50">Cleaner lighting, sharper detail — face and identity kept.</span>

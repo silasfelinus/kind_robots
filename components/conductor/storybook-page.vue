@@ -850,8 +850,6 @@ const facetOptions = computed<NarrativeIngredientOption[]>(() =>
       description: facet.description,
       flavorText: facet.flavorText,
       imagePath: facet.imagePath,
-      cardPath: facet.cardPath,
-      heroPath: facet.heroPath,
       icon: facet.icon,
       badge: taxonomyLabel(facet.taxonomy),
     })),

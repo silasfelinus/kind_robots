@@ -247,12 +247,18 @@ assert.ok(
   'Coverage cleanup may cancel PENDING jobs but must never rewrite a RUNNING job to CANCELLED.',
 )
 
-for (const required of [
-  'iconPath           String?',
-  'cardPath           String?',
-  'heroPath           String?',
-]) {
-  assert.ok(schema.includes(required), `Facet schema is missing ${required}`)
+// This required iconPath/cardPath/heroPath on Facet. The slot collapse dropped
+// them, and the old check would have kept passing anyway -- it searched the
+// whole schema text, and Project still carries all three. Assert their absence
+// from the Facet model specifically, which is what it was always trying to say.
+const facetModel = schema.match(/^model Facet \{([\s\S]*?)^\}/m)?.[1] ?? ''
+assert.ok(facetModel, 'prisma/schema.prisma: model Facet not found')
+for (const retired of ['iconPath', 'cardPath', 'heroPath']) {
+  assert.ok(
+    !new RegExp(`^\\s*${retired}\\s+String`, 'm').test(facetModel),
+    `Facet re-added ${retired}. The secondary art slots were dropped in the ` +
+      'slot collapse; supplemental art belongs in EntityArtImage.',
+  )
 }
 
 for (const required of [
@@ -266,13 +272,20 @@ for (const required of [
   assert.ok(entityArt.includes(required), `Entity art is missing ${required}`)
 }
 
+// Was "must expose canonical icon, card, and hero variants" (256/512/1280).
+// Those slots are rejected at enqueue now, so the editor offers the primary
+// alone; entityArt.ts still declares the retired configs above because
+// completion and history reads share them.
 assert.ok(
-  editor.includes("field: 'iconPath'") &&
-    editor.includes('width: 256') &&
-    editor.includes('width: 512') &&
-    editor.includes('width: 1280'),
-  'Facet editor must expose canonical icon, card, and hero variants.',
+  editor.includes("field: 'imagePath'") && editor.includes('width: 1024'),
+  'Facet editor must expose the primary art slot.',
 )
+for (const retired of ["field: 'iconPath'", "field: 'cardPath'", "field: 'heroPath'"]) {
+  assert.ok(
+    !editor.includes(retired),
+    `Facet editor still offers ${retired}, which the enqueue gate rejects.`,
+  )
+}
 assert.ok(
   !manager.includes('useFacetArtRequestStore') &&
     !editor.includes('useFacetArtRequestStore') &&

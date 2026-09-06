@@ -29,12 +29,7 @@ export type DailyDreamCharacterBlueprint = {
 }
 
 export type DailyDreamRewardType =
-  | 'SKILL'
-  | 'ITEM'
-  | 'POWER'
-  | 'PET'
-  | 'MAGIC'
-  | 'FAVOR'
+  'SKILL' | 'ITEM' | 'POWER' | 'PET' | 'MAGIC' | 'FAVOR'
 
 export type DailyDreamRewardBlueprint = {
   name: string
@@ -229,7 +224,7 @@ function use(
     title: entry.title,
     value: value(entry),
     artPrompt: entry.artPrompt,
-    imagePath: entry.cardPath || entry.imagePath || entry.heroPath,
+    imagePath: entry.imagePath,
   }
 }
 
@@ -296,7 +291,8 @@ export async function buildDailyDreamFacetBlueprint(options: {
     (entry): entry is FacetCatalogEntry => Boolean(entry),
   )
   const dreamValues = dreamEntries.map(value)
-  const titleCore = value(theme) || value(setting) || value(genre) || 'Daily Dream'
+  const titleCore =
+    value(theme) || value(setting) || value(genre) || 'Daily Dream'
   const title = `${titleCore}: ${value(genre) || value(style) || 'A Strange Invitation'}`
 
   const facetByEnum = (taxonomy: FacetTaxonomy, enumValue: string) =>
@@ -359,12 +355,16 @@ export async function buildDailyDreamFacetBlueprint(options: {
     const speciesValue = value(species) || 'Mysterious Being'
     const alignmentValue = value(alignment) || 'Uncertain'
     const personalityValue = sentenceList(personalities.map(value)) || 'curious'
-    const quirkValue = sentenceList(quirks.map(value)) || 'impossible to overlook'
+    const quirkValue =
+      sentenceList(quirks.map(value)) || 'impossible to overlook'
     const backstoryValue =
       value(backstory) || 'They arrived carrying a history nobody agrees on.'
     const facetUses = [
       use(species, 'species'),
-      use(characterClass, characterClass?.taxonomy === 'ROLE' ? 'role' : 'class'),
+      use(
+        characterClass,
+        characterClass?.taxonomy === 'ROLE' ? 'role' : 'class',
+      ),
       use(alignment, 'alignment'),
       ...uses(personalities, 'personality'),
       ...uses(quirks, 'quirks'),

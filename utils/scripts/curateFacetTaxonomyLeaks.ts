@@ -26,9 +26,6 @@ type FacetRow = {
   slug: string | null
   description: string | null
   imagePath: string | null
-  cardPath: string | null
-  heroPath: string | null
-  iconPath: string | null
   icon: string | null
   artImageId: number | null
   artCollectionId: number | null
@@ -232,9 +229,6 @@ async function getProfile(facetId: number): Promise<ProfileRow | null> {
 async function hasArtwork(facet: FacetRow): Promise<boolean> {
   if (
     facet.imagePath ||
-    facet.cardPath ||
-    facet.heroPath ||
-    facet.iconPath ||
     facet.icon ||
     facet.artImageId !== null ||
     facet.artCollectionId !== null

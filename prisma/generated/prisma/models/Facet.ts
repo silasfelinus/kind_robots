@@ -31,9 +31,6 @@ export type FacetAvgAggregateOutputType = {
   id: number | null
   userId: number | null
   artImageId: number | null
-  cardArtImageId: number | null
-  heroArtImageId: number | null
-  iconArtImageId: number | null
   artCollectionId: number | null
   packId: number | null
 }
@@ -42,9 +39,6 @@ export type FacetSumAggregateOutputType = {
   id: number | null
   userId: number | null
   artImageId: number | null
-  cardArtImageId: number | null
-  heroArtImageId: number | null
-  iconArtImageId: number | null
   artCollectionId: number | null
   packId: number | null
 }
@@ -60,17 +54,11 @@ export type FacetMinAggregateOutputType = {
   examples: string | null
   artPrompt: string | null
   imagePath: string | null
-  cardPath: string | null
-  heroPath: string | null
   icon: string | null
-  iconPath: string | null
   designer: string | null
   creationSource: $Enums.CreationSource | null
   userId: number | null
   artImageId: number | null
-  cardArtImageId: number | null
-  heroArtImageId: number | null
-  iconArtImageId: number | null
   artCollectionId: number | null
   packId: number | null
   allowReviews: boolean | null
@@ -91,17 +79,11 @@ export type FacetMaxAggregateOutputType = {
   examples: string | null
   artPrompt: string | null
   imagePath: string | null
-  cardPath: string | null
-  heroPath: string | null
   icon: string | null
-  iconPath: string | null
   designer: string | null
   creationSource: $Enums.CreationSource | null
   userId: number | null
   artImageId: number | null
-  cardArtImageId: number | null
-  heroArtImageId: number | null
-  iconArtImageId: number | null
   artCollectionId: number | null
   packId: number | null
   allowReviews: boolean | null
@@ -122,17 +104,11 @@ export type FacetCountAggregateOutputType = {
   examples: number
   artPrompt: number
   imagePath: number
-  cardPath: number
-  heroPath: number
   icon: number
-  iconPath: number
   designer: number
   creationSource: number
   userId: number
   artImageId: number
-  cardArtImageId: number
-  heroArtImageId: number
-  iconArtImageId: number
   artCollectionId: number
   packId: number
   allowReviews: number
@@ -148,9 +124,6 @@ export type FacetAvgAggregateInputType = {
   id?: true
   userId?: true
   artImageId?: true
-  cardArtImageId?: true
-  heroArtImageId?: true
-  iconArtImageId?: true
   artCollectionId?: true
   packId?: true
 }
@@ -159,9 +132,6 @@ export type FacetSumAggregateInputType = {
   id?: true
   userId?: true
   artImageId?: true
-  cardArtImageId?: true
-  heroArtImageId?: true
-  iconArtImageId?: true
   artCollectionId?: true
   packId?: true
 }
@@ -177,17 +147,11 @@ export type FacetMinAggregateInputType = {
   examples?: true
   artPrompt?: true
   imagePath?: true
-  cardPath?: true
-  heroPath?: true
   icon?: true
-  iconPath?: true
   designer?: true
   creationSource?: true
   userId?: true
   artImageId?: true
-  cardArtImageId?: true
-  heroArtImageId?: true
-  iconArtImageId?: true
   artCollectionId?: true
   packId?: true
   allowReviews?: true
@@ -208,17 +172,11 @@ export type FacetMaxAggregateInputType = {
   examples?: true
   artPrompt?: true
   imagePath?: true
-  cardPath?: true
-  heroPath?: true
   icon?: true
-  iconPath?: true
   designer?: true
   creationSource?: true
   userId?: true
   artImageId?: true
-  cardArtImageId?: true
-  heroArtImageId?: true
-  iconArtImageId?: true
   artCollectionId?: true
   packId?: true
   allowReviews?: true
@@ -239,17 +197,11 @@ export type FacetCountAggregateInputType = {
   examples?: true
   artPrompt?: true
   imagePath?: true
-  cardPath?: true
-  heroPath?: true
   icon?: true
-  iconPath?: true
   designer?: true
   creationSource?: true
   userId?: true
   artImageId?: true
-  cardArtImageId?: true
-  heroArtImageId?: true
-  iconArtImageId?: true
   artCollectionId?: true
   packId?: true
   allowReviews?: true
@@ -357,17 +309,11 @@ export type FacetGroupByOutputType = {
   examples: string | null
   artPrompt: string | null
   imagePath: string | null
-  cardPath: string | null
-  heroPath: string | null
   icon: string | null
-  iconPath: string | null
   designer: string | null
   creationSource: $Enums.CreationSource
   userId: number | null
   artImageId: number | null
-  cardArtImageId: number | null
-  heroArtImageId: number | null
-  iconArtImageId: number | null
   artCollectionId: number | null
   packId: number | null
   allowReviews: boolean
@@ -411,17 +357,11 @@ export type FacetWhereInput = {
   examples?: Prisma.StringNullableFilter<"Facet"> | string | null
   artPrompt?: Prisma.StringNullableFilter<"Facet"> | string | null
   imagePath?: Prisma.StringNullableFilter<"Facet"> | string | null
-  cardPath?: Prisma.StringNullableFilter<"Facet"> | string | null
-  heroPath?: Prisma.StringNullableFilter<"Facet"> | string | null
   icon?: Prisma.StringNullableFilter<"Facet"> | string | null
-  iconPath?: Prisma.StringNullableFilter<"Facet"> | string | null
   designer?: Prisma.StringNullableFilter<"Facet"> | string | null
   creationSource?: Prisma.EnumCreationSourceFilter<"Facet"> | $Enums.CreationSource
   userId?: Prisma.IntNullableFilter<"Facet"> | number | null
   artImageId?: Prisma.IntNullableFilter<"Facet"> | number | null
-  cardArtImageId?: Prisma.IntNullableFilter<"Facet"> | number | null
-  heroArtImageId?: Prisma.IntNullableFilter<"Facet"> | number | null
-  iconArtImageId?: Prisma.IntNullableFilter<"Facet"> | number | null
   artCollectionId?: Prisma.IntNullableFilter<"Facet"> | number | null
   packId?: Prisma.IntNullableFilter<"Facet"> | number | null
   allowReviews?: Prisma.BoolFilter<"Facet"> | boolean
@@ -458,17 +398,11 @@ export type FacetOrderByWithRelationInput = {
   examples?: Prisma.SortOrderInput | Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
-  cardPath?: Prisma.SortOrderInput | Prisma.SortOrder
-  heroPath?: Prisma.SortOrderInput | Prisma.SortOrder
   icon?: Prisma.SortOrderInput | Prisma.SortOrder
-  iconPath?: Prisma.SortOrderInput | Prisma.SortOrder
   designer?: Prisma.SortOrderInput | Prisma.SortOrder
   creationSource?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
-  cardArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
-  heroArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
-  iconArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   artCollectionId?: Prisma.SortOrderInput | Prisma.SortOrder
   packId?: Prisma.SortOrderInput | Prisma.SortOrder
   allowReviews?: Prisma.SortOrder
@@ -509,17 +443,11 @@ export type FacetWhereUniqueInput = Prisma.AtLeast<{
   examples?: Prisma.StringNullableFilter<"Facet"> | string | null
   artPrompt?: Prisma.StringNullableFilter<"Facet"> | string | null
   imagePath?: Prisma.StringNullableFilter<"Facet"> | string | null
-  cardPath?: Prisma.StringNullableFilter<"Facet"> | string | null
-  heroPath?: Prisma.StringNullableFilter<"Facet"> | string | null
   icon?: Prisma.StringNullableFilter<"Facet"> | string | null
-  iconPath?: Prisma.StringNullableFilter<"Facet"> | string | null
   designer?: Prisma.StringNullableFilter<"Facet"> | string | null
   creationSource?: Prisma.EnumCreationSourceFilter<"Facet"> | $Enums.CreationSource
   userId?: Prisma.IntNullableFilter<"Facet"> | number | null
   artImageId?: Prisma.IntNullableFilter<"Facet"> | number | null
-  cardArtImageId?: Prisma.IntNullableFilter<"Facet"> | number | null
-  heroArtImageId?: Prisma.IntNullableFilter<"Facet"> | number | null
-  iconArtImageId?: Prisma.IntNullableFilter<"Facet"> | number | null
   artCollectionId?: Prisma.IntNullableFilter<"Facet"> | number | null
   packId?: Prisma.IntNullableFilter<"Facet"> | number | null
   allowReviews?: Prisma.BoolFilter<"Facet"> | boolean
@@ -556,17 +484,11 @@ export type FacetOrderByWithAggregationInput = {
   examples?: Prisma.SortOrderInput | Prisma.SortOrder
   artPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
   imagePath?: Prisma.SortOrderInput | Prisma.SortOrder
-  cardPath?: Prisma.SortOrderInput | Prisma.SortOrder
-  heroPath?: Prisma.SortOrderInput | Prisma.SortOrder
   icon?: Prisma.SortOrderInput | Prisma.SortOrder
-  iconPath?: Prisma.SortOrderInput | Prisma.SortOrder
   designer?: Prisma.SortOrderInput | Prisma.SortOrder
   creationSource?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   artImageId?: Prisma.SortOrderInput | Prisma.SortOrder
-  cardArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
-  heroArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
-  iconArtImageId?: Prisma.SortOrderInput | Prisma.SortOrder
   artCollectionId?: Prisma.SortOrderInput | Prisma.SortOrder
   packId?: Prisma.SortOrderInput | Prisma.SortOrder
   allowReviews?: Prisma.SortOrder
@@ -595,17 +517,11 @@ export type FacetScalarWhereWithAggregatesInput = {
   examples?: Prisma.StringNullableWithAggregatesFilter<"Facet"> | string | null
   artPrompt?: Prisma.StringNullableWithAggregatesFilter<"Facet"> | string | null
   imagePath?: Prisma.StringNullableWithAggregatesFilter<"Facet"> | string | null
-  cardPath?: Prisma.StringNullableWithAggregatesFilter<"Facet"> | string | null
-  heroPath?: Prisma.StringNullableWithAggregatesFilter<"Facet"> | string | null
   icon?: Prisma.StringNullableWithAggregatesFilter<"Facet"> | string | null
-  iconPath?: Prisma.StringNullableWithAggregatesFilter<"Facet"> | string | null
   designer?: Prisma.StringNullableWithAggregatesFilter<"Facet"> | string | null
   creationSource?: Prisma.EnumCreationSourceWithAggregatesFilter<"Facet"> | $Enums.CreationSource
   userId?: Prisma.IntNullableWithAggregatesFilter<"Facet"> | number | null
   artImageId?: Prisma.IntNullableWithAggregatesFilter<"Facet"> | number | null
-  cardArtImageId?: Prisma.IntNullableWithAggregatesFilter<"Facet"> | number | null
-  heroArtImageId?: Prisma.IntNullableWithAggregatesFilter<"Facet"> | number | null
-  iconArtImageId?: Prisma.IntNullableWithAggregatesFilter<"Facet"> | number | null
   artCollectionId?: Prisma.IntNullableWithAggregatesFilter<"Facet"> | number | null
   packId?: Prisma.IntNullableWithAggregatesFilter<"Facet"> | number | null
   allowReviews?: Prisma.BoolWithAggregatesFilter<"Facet"> | boolean
@@ -625,15 +541,9 @@ export type FacetCreateInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   allowReviews?: boolean
   isPublic?: boolean
   isMature?: boolean
@@ -668,17 +578,11 @@ export type FacetUncheckedCreateInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
   artImageId?: number | null
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   artCollectionId?: number | null
   packId?: number | null
   allowReviews?: boolean
@@ -710,15 +614,9 @@ export type FacetUpdateInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -753,17 +651,11 @@ export type FacetUncheckedUpdateInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -796,17 +688,11 @@ export type FacetCreateManyInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
   artImageId?: number | null
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   artCollectionId?: number | null
   packId?: number | null
   allowReviews?: boolean
@@ -826,15 +712,9 @@ export type FacetUpdateManyMutationInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -853,17 +733,11 @@ export type FacetUncheckedUpdateManyInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -905,17 +779,11 @@ export type FacetCountOrderByAggregateInput = {
   examples?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
-  cardPath?: Prisma.SortOrder
-  heroPath?: Prisma.SortOrder
   icon?: Prisma.SortOrder
-  iconPath?: Prisma.SortOrder
   designer?: Prisma.SortOrder
   creationSource?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
-  cardArtImageId?: Prisma.SortOrder
-  heroArtImageId?: Prisma.SortOrder
-  iconArtImageId?: Prisma.SortOrder
   artCollectionId?: Prisma.SortOrder
   packId?: Prisma.SortOrder
   allowReviews?: Prisma.SortOrder
@@ -929,9 +797,6 @@ export type FacetAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
-  cardArtImageId?: Prisma.SortOrder
-  heroArtImageId?: Prisma.SortOrder
-  iconArtImageId?: Prisma.SortOrder
   artCollectionId?: Prisma.SortOrder
   packId?: Prisma.SortOrder
 }
@@ -947,17 +812,11 @@ export type FacetMaxOrderByAggregateInput = {
   examples?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
-  cardPath?: Prisma.SortOrder
-  heroPath?: Prisma.SortOrder
   icon?: Prisma.SortOrder
-  iconPath?: Prisma.SortOrder
   designer?: Prisma.SortOrder
   creationSource?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
-  cardArtImageId?: Prisma.SortOrder
-  heroArtImageId?: Prisma.SortOrder
-  iconArtImageId?: Prisma.SortOrder
   artCollectionId?: Prisma.SortOrder
   packId?: Prisma.SortOrder
   allowReviews?: Prisma.SortOrder
@@ -978,17 +837,11 @@ export type FacetMinOrderByAggregateInput = {
   examples?: Prisma.SortOrder
   artPrompt?: Prisma.SortOrder
   imagePath?: Prisma.SortOrder
-  cardPath?: Prisma.SortOrder
-  heroPath?: Prisma.SortOrder
   icon?: Prisma.SortOrder
-  iconPath?: Prisma.SortOrder
   designer?: Prisma.SortOrder
   creationSource?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
-  cardArtImageId?: Prisma.SortOrder
-  heroArtImageId?: Prisma.SortOrder
-  iconArtImageId?: Prisma.SortOrder
   artCollectionId?: Prisma.SortOrder
   packId?: Prisma.SortOrder
   allowReviews?: Prisma.SortOrder
@@ -1002,9 +855,6 @@ export type FacetSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   artImageId?: Prisma.SortOrder
-  cardArtImageId?: Prisma.SortOrder
-  heroArtImageId?: Prisma.SortOrder
-  iconArtImageId?: Prisma.SortOrder
   artCollectionId?: Prisma.SortOrder
   packId?: Prisma.SortOrder
 }
@@ -1362,15 +1212,9 @@ export type FacetCreateWithoutFacetAliasInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   allowReviews?: boolean
   isPublic?: boolean
   isMature?: boolean
@@ -1404,17 +1248,11 @@ export type FacetUncheckedCreateWithoutFacetAliasInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
   artImageId?: number | null
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   artCollectionId?: number | null
   packId?: number | null
   allowReviews?: boolean
@@ -1461,15 +1299,9 @@ export type FacetUpdateWithoutFacetAliasInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1503,17 +1335,11 @@ export type FacetUncheckedUpdateWithoutFacetAliasInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1544,15 +1370,9 @@ export type FacetCreateWithoutCharacterLinksInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   allowReviews?: boolean
   isPublic?: boolean
   isMature?: boolean
@@ -1586,17 +1406,11 @@ export type FacetUncheckedCreateWithoutCharacterLinksInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
   artImageId?: number | null
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   artCollectionId?: number | null
   packId?: number | null
   allowReviews?: boolean
@@ -1643,15 +1457,9 @@ export type FacetUpdateWithoutCharacterLinksInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1685,17 +1493,11 @@ export type FacetUncheckedUpdateWithoutCharacterLinksInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1726,15 +1528,9 @@ export type FacetCreateWithoutBotLinksInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   allowReviews?: boolean
   isPublic?: boolean
   isMature?: boolean
@@ -1768,17 +1564,11 @@ export type FacetUncheckedCreateWithoutBotLinksInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
   artImageId?: number | null
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   artCollectionId?: number | null
   packId?: number | null
   allowReviews?: boolean
@@ -1825,15 +1615,9 @@ export type FacetUpdateWithoutBotLinksInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1867,17 +1651,11 @@ export type FacetUncheckedUpdateWithoutBotLinksInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1908,15 +1686,9 @@ export type FacetCreateWithoutRewardLinksInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   allowReviews?: boolean
   isPublic?: boolean
   isMature?: boolean
@@ -1950,17 +1722,11 @@ export type FacetUncheckedCreateWithoutRewardLinksInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
   artImageId?: number | null
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   artCollectionId?: number | null
   packId?: number | null
   allowReviews?: boolean
@@ -2007,15 +1773,9 @@ export type FacetUpdateWithoutRewardLinksInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2049,17 +1809,11 @@ export type FacetUncheckedUpdateWithoutRewardLinksInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2090,15 +1844,9 @@ export type FacetCreateWithoutArtImageInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   allowReviews?: boolean
   isPublic?: boolean
   isMature?: boolean
@@ -2132,16 +1880,10 @@ export type FacetUncheckedCreateWithoutArtImageInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   artCollectionId?: number | null
   packId?: number | null
   allowReviews?: boolean
@@ -2203,17 +1945,11 @@ export type FacetScalarWhereInput = {
   examples?: Prisma.StringNullableFilter<"Facet"> | string | null
   artPrompt?: Prisma.StringNullableFilter<"Facet"> | string | null
   imagePath?: Prisma.StringNullableFilter<"Facet"> | string | null
-  cardPath?: Prisma.StringNullableFilter<"Facet"> | string | null
-  heroPath?: Prisma.StringNullableFilter<"Facet"> | string | null
   icon?: Prisma.StringNullableFilter<"Facet"> | string | null
-  iconPath?: Prisma.StringNullableFilter<"Facet"> | string | null
   designer?: Prisma.StringNullableFilter<"Facet"> | string | null
   creationSource?: Prisma.EnumCreationSourceFilter<"Facet"> | $Enums.CreationSource
   userId?: Prisma.IntNullableFilter<"Facet"> | number | null
   artImageId?: Prisma.IntNullableFilter<"Facet"> | number | null
-  cardArtImageId?: Prisma.IntNullableFilter<"Facet"> | number | null
-  heroArtImageId?: Prisma.IntNullableFilter<"Facet"> | number | null
-  iconArtImageId?: Prisma.IntNullableFilter<"Facet"> | number | null
   artCollectionId?: Prisma.IntNullableFilter<"Facet"> | number | null
   packId?: Prisma.IntNullableFilter<"Facet"> | number | null
   allowReviews?: Prisma.BoolFilter<"Facet"> | boolean
@@ -2233,15 +1969,9 @@ export type FacetCreateWithoutArtCollectionInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   allowReviews?: boolean
   isPublic?: boolean
   isMature?: boolean
@@ -2275,17 +2005,11 @@ export type FacetUncheckedCreateWithoutArtCollectionInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
   artImageId?: number | null
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   packId?: number | null
   allowReviews?: boolean
   isPublic?: boolean
@@ -2342,15 +2066,9 @@ export type FacetCreateWithoutDreamLinksInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   allowReviews?: boolean
   isPublic?: boolean
   isMature?: boolean
@@ -2384,17 +2102,11 @@ export type FacetUncheckedCreateWithoutDreamLinksInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
   artImageId?: number | null
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   artCollectionId?: number | null
   packId?: number | null
   allowReviews?: boolean
@@ -2441,15 +2153,9 @@ export type FacetUpdateWithoutDreamLinksInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2483,17 +2189,11 @@ export type FacetUncheckedUpdateWithoutDreamLinksInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2524,15 +2224,9 @@ export type FacetCreateWithoutScenarioLinksInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   allowReviews?: boolean
   isPublic?: boolean
   isMature?: boolean
@@ -2566,17 +2260,11 @@ export type FacetUncheckedCreateWithoutScenarioLinksInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
   artImageId?: number | null
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   artCollectionId?: number | null
   packId?: number | null
   allowReviews?: boolean
@@ -2623,15 +2311,9 @@ export type FacetUpdateWithoutScenarioLinksInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2665,17 +2347,11 @@ export type FacetUncheckedUpdateWithoutScenarioLinksInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2706,15 +2382,9 @@ export type FacetCreateWithoutProjectLinksInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   allowReviews?: boolean
   isPublic?: boolean
   isMature?: boolean
@@ -2748,17 +2418,11 @@ export type FacetUncheckedCreateWithoutProjectLinksInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
   artImageId?: number | null
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   artCollectionId?: number | null
   packId?: number | null
   allowReviews?: boolean
@@ -2805,15 +2469,9 @@ export type FacetUpdateWithoutProjectLinksInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2847,17 +2505,11 @@ export type FacetUncheckedUpdateWithoutProjectLinksInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2888,15 +2540,9 @@ export type FacetCreateWithoutArtImageLinksInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   allowReviews?: boolean
   isPublic?: boolean
   isMature?: boolean
@@ -2930,17 +2576,11 @@ export type FacetUncheckedCreateWithoutArtImageLinksInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
   artImageId?: number | null
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   artCollectionId?: number | null
   packId?: number | null
   allowReviews?: boolean
@@ -2987,15 +2627,9 @@ export type FacetUpdateWithoutArtImageLinksInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3029,17 +2663,11 @@ export type FacetUncheckedUpdateWithoutArtImageLinksInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3070,15 +2698,9 @@ export type FacetCreateWithoutArtCollectionLinksInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   allowReviews?: boolean
   isPublic?: boolean
   isMature?: boolean
@@ -3112,17 +2734,11 @@ export type FacetUncheckedCreateWithoutArtCollectionLinksInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
   artImageId?: number | null
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   artCollectionId?: number | null
   packId?: number | null
   allowReviews?: boolean
@@ -3169,15 +2785,9 @@ export type FacetUpdateWithoutArtCollectionLinksInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3211,17 +2821,11 @@ export type FacetUncheckedUpdateWithoutArtCollectionLinksInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3252,15 +2856,9 @@ export type FacetCreateWithoutRelationsFromInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   allowReviews?: boolean
   isPublic?: boolean
   isMature?: boolean
@@ -3294,17 +2892,11 @@ export type FacetUncheckedCreateWithoutRelationsFromInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
   artImageId?: number | null
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   artCollectionId?: number | null
   packId?: number | null
   allowReviews?: boolean
@@ -3340,15 +2932,9 @@ export type FacetCreateWithoutRelationsToInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   allowReviews?: boolean
   isPublic?: boolean
   isMature?: boolean
@@ -3382,17 +2968,11 @@ export type FacetUncheckedCreateWithoutRelationsToInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
   artImageId?: number | null
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   artCollectionId?: number | null
   packId?: number | null
   allowReviews?: boolean
@@ -3439,15 +3019,9 @@ export type FacetUpdateWithoutRelationsFromInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3481,17 +3055,11 @@ export type FacetUncheckedUpdateWithoutRelationsFromInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3533,15 +3101,9 @@ export type FacetUpdateWithoutRelationsToInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3575,17 +3137,11 @@ export type FacetUncheckedUpdateWithoutRelationsToInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3616,15 +3172,9 @@ export type FacetCreateWithoutPackInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   allowReviews?: boolean
   isPublic?: boolean
   isMature?: boolean
@@ -3658,17 +3208,11 @@ export type FacetUncheckedCreateWithoutPackInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
   artImageId?: number | null
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   artCollectionId?: number | null
   allowReviews?: boolean
   isPublic?: boolean
@@ -3725,15 +3269,9 @@ export type FacetCreateWithoutReactionsInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   allowReviews?: boolean
   isPublic?: boolean
   isMature?: boolean
@@ -3767,17 +3305,11 @@ export type FacetUncheckedCreateWithoutReactionsInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
   artImageId?: number | null
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   artCollectionId?: number | null
   packId?: number | null
   allowReviews?: boolean
@@ -3824,15 +3356,9 @@ export type FacetUpdateWithoutReactionsInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3866,17 +3392,11 @@ export type FacetUncheckedUpdateWithoutReactionsInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3907,15 +3427,9 @@ export type FacetCreateWithoutUserInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   allowReviews?: boolean
   isPublic?: boolean
   isMature?: boolean
@@ -3949,16 +3463,10 @@ export type FacetUncheckedCreateWithoutUserInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   artImageId?: number | null
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   artCollectionId?: number | null
   packId?: number | null
   allowReviews?: boolean
@@ -4017,16 +3525,10 @@ export type FacetCreateManyArtImageInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   artCollectionId?: number | null
   packId?: number | null
   allowReviews?: boolean
@@ -4046,15 +3548,9 @@ export type FacetUpdateWithoutArtImageInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4088,16 +3584,10 @@ export type FacetUncheckedUpdateWithoutArtImageInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4130,16 +3620,10 @@ export type FacetUncheckedUpdateManyWithoutArtImageInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4160,17 +3644,11 @@ export type FacetCreateManyArtCollectionInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
   artImageId?: number | null
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   packId?: number | null
   allowReviews?: boolean
   isPublic?: boolean
@@ -4189,15 +3667,9 @@ export type FacetUpdateWithoutArtCollectionInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4231,17 +3703,11 @@ export type FacetUncheckedUpdateWithoutArtCollectionInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4273,17 +3739,11 @@ export type FacetUncheckedUpdateManyWithoutArtCollectionInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4303,17 +3763,11 @@ export type FacetCreateManyPackInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   userId?: number | null
   artImageId?: number | null
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   artCollectionId?: number | null
   allowReviews?: boolean
   isPublic?: boolean
@@ -4332,15 +3786,9 @@ export type FacetUpdateWithoutPackInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4374,17 +3822,11 @@ export type FacetUncheckedUpdateWithoutPackInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4416,17 +3858,11 @@ export type FacetUncheckedUpdateManyWithoutPackInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   userId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4446,16 +3882,10 @@ export type FacetCreateManyUserInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
   icon?: string | null
-  iconPath?: string | null
   designer?: string | null
   creationSource?: $Enums.CreationSource
   artImageId?: number | null
-  cardArtImageId?: number | null
-  heroArtImageId?: number | null
-  iconArtImageId?: number | null
   artCollectionId?: number | null
   packId?: number | null
   allowReviews?: boolean
@@ -4475,15 +3905,9 @@ export type FacetUpdateWithoutUserInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isMature?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4517,16 +3941,10 @@ export type FacetUncheckedUpdateWithoutUserInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4559,16 +3977,10 @@ export type FacetUncheckedUpdateManyWithoutUserInput = {
   examples?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   artPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imagePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  cardPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  heroPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  iconPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   creationSource?: Prisma.EnumCreationSourceFieldUpdateOperationsInput | $Enums.CreationSource
   artImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  cardArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  heroArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  iconArtImageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   artCollectionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   allowReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4719,17 +4131,11 @@ export type FacetSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   examples?: boolean
   artPrompt?: boolean
   imagePath?: boolean
-  cardPath?: boolean
-  heroPath?: boolean
   icon?: boolean
-  iconPath?: boolean
   designer?: boolean
   creationSource?: boolean
   userId?: boolean
   artImageId?: boolean
-  cardArtImageId?: boolean
-  heroArtImageId?: boolean
-  iconArtImageId?: boolean
   artCollectionId?: boolean
   packId?: boolean
   allowReviews?: boolean
@@ -4769,17 +4175,11 @@ export type FacetSelectScalar = {
   examples?: boolean
   artPrompt?: boolean
   imagePath?: boolean
-  cardPath?: boolean
-  heroPath?: boolean
   icon?: boolean
-  iconPath?: boolean
   designer?: boolean
   creationSource?: boolean
   userId?: boolean
   artImageId?: boolean
-  cardArtImageId?: boolean
-  heroArtImageId?: boolean
-  iconArtImageId?: boolean
   artCollectionId?: boolean
   packId?: boolean
   allowReviews?: boolean
@@ -4789,7 +4189,7 @@ export type FacetSelectScalar = {
   theme?: boolean
 }
 
-export type FacetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "slug" | "description" | "flavorText" | "examples" | "artPrompt" | "imagePath" | "cardPath" | "heroPath" | "icon" | "iconPath" | "designer" | "creationSource" | "userId" | "artImageId" | "cardArtImageId" | "heroArtImageId" | "iconArtImageId" | "artCollectionId" | "packId" | "allowReviews" | "isPublic" | "isMature" | "isActive" | "theme", ExtArgs["result"]["facet"]>
+export type FacetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "slug" | "description" | "flavorText" | "examples" | "artPrompt" | "imagePath" | "icon" | "designer" | "creationSource" | "userId" | "artImageId" | "artCollectionId" | "packId" | "allowReviews" | "isPublic" | "isMature" | "isActive" | "theme", ExtArgs["result"]["facet"]>
 export type FacetInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   DreamLinks?: boolean | Prisma.Facet$DreamLinksArgs<ExtArgs>
   ArtCollection?: boolean | Prisma.Facet$ArtCollectionArgs<ExtArgs>
@@ -4841,17 +4241,11 @@ export type $FacetPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     examples: string | null
     artPrompt: string | null
     imagePath: string | null
-    cardPath: string | null
-    heroPath: string | null
     icon: string | null
-    iconPath: string | null
     designer: string | null
     creationSource: $Enums.CreationSource
     userId: number | null
     artImageId: number | null
-    cardArtImageId: number | null
-    heroArtImageId: number | null
-    iconArtImageId: number | null
     artCollectionId: number | null
     packId: number | null
     allowReviews: boolean
@@ -5258,17 +4652,11 @@ export interface FacetFieldRefs {
   readonly examples: Prisma.FieldRef<"Facet", 'String'>
   readonly artPrompt: Prisma.FieldRef<"Facet", 'String'>
   readonly imagePath: Prisma.FieldRef<"Facet", 'String'>
-  readonly cardPath: Prisma.FieldRef<"Facet", 'String'>
-  readonly heroPath: Prisma.FieldRef<"Facet", 'String'>
   readonly icon: Prisma.FieldRef<"Facet", 'String'>
-  readonly iconPath: Prisma.FieldRef<"Facet", 'String'>
   readonly designer: Prisma.FieldRef<"Facet", 'String'>
   readonly creationSource: Prisma.FieldRef<"Facet", 'CreationSource'>
   readonly userId: Prisma.FieldRef<"Facet", 'Int'>
   readonly artImageId: Prisma.FieldRef<"Facet", 'Int'>
-  readonly cardArtImageId: Prisma.FieldRef<"Facet", 'Int'>
-  readonly heroArtImageId: Prisma.FieldRef<"Facet", 'Int'>
-  readonly iconArtImageId: Prisma.FieldRef<"Facet", 'Int'>
   readonly artCollectionId: Prisma.FieldRef<"Facet", 'Int'>
   readonly packId: Prisma.FieldRef<"Facet", 'Int'>
   readonly allowReviews: Prisma.FieldRef<"Facet", 'Boolean'>

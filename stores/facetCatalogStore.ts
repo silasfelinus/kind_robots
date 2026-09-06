@@ -47,9 +47,6 @@ export type FacetCatalogEntry = {
   examples: string | null
   artPrompt: string | null
   imagePath: string | null
-  cardPath: string | null
-  heroPath: string | null
-  iconPath: string | null
   icon: string | null
   groupKey: string | null
   groupLabel: string | null
@@ -218,7 +215,7 @@ function builderChoiceForEntry(
       entry.title,
     label: entry.title,
     subtext: entry.description || entry.flavorText || undefined,
-    image: entry.cardPath || entry.imagePath || entry.heroPath || undefined,
+    image: entry.imagePath || undefined,
     icon: entry.icon || undefined,
     payload: {
       facetId: entry.id,

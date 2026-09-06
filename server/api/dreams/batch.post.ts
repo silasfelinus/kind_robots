@@ -18,10 +18,7 @@ import {
   normalizeBoundedDreamScenarioIds,
   type DreamMutationBody,
 } from './mutation'
-import {
-  dreamMutationSelect,
-  type DreamMutationResult,
-} from './selects'
+import { dreamMutationSelect, type DreamMutationResult } from './selects'
 
 const DREAM_BATCH_LIMIT = 100
 
@@ -43,7 +40,9 @@ function getDreamsFromBody(body: unknown): DreamMutationBody[] {
 
   if (body && typeof body === 'object') {
     const record = body as Record<string, unknown>
-    const unsupported = Object.keys(record).filter((field) => field !== 'dreams')
+    const unsupported = Object.keys(record).filter(
+      (field) => field !== 'dreams',
+    )
 
     if (unsupported.length) {
       throw createError({
@@ -90,10 +89,7 @@ async function createDreamFromInput(
     body.characterIds,
     'characterIds',
   )
-  const rewardIds = normalizeBoundedDreamIdArray(
-    body.rewardIds,
-    'rewardIds',
-  )
+  const rewardIds = normalizeBoundedDreamIdArray(body.rewardIds, 'rewardIds')
   const artImageIds = normalizeBoundedDreamIdArray(
     body.artImageIds,
     'artImageIds',
@@ -118,8 +114,6 @@ async function createDreamFromInput(
     examples: normalizeOptionalText(body.examples) ?? null,
     artPrompt: normalizeOptionalText(body.artPrompt) ?? null,
     imagePath: normalizeOptionalText(body.imagePath) ?? null,
-    cardPath: normalizeOptionalText(body.cardPath) ?? null,
-    heroPath: normalizeOptionalText(body.heroPath) ?? null,
     highlightImage: normalizeOptionalText(body.highlightImage) ?? null,
     icon: normalizeOptionalText(body.icon) ?? 'kind-icon:dream',
     designer,

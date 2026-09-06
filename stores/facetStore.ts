@@ -16,9 +16,6 @@ export type FacetWithAliases = Pick<
   | 'examples'
   | 'artPrompt'
   | 'imagePath'
-  | 'cardPath'
-  | 'heroPath'
-  | 'iconPath'
   | 'icon'
   | 'artImageId'
   | 'artCollectionId'
@@ -70,9 +67,6 @@ export type FacetCreateInput = {
   examples?: string | null
   artPrompt?: string | null
   imagePath?: string | null
-  cardPath?: string | null
-  heroPath?: string | null
-  iconPath?: string | null
   icon?: string | null
   artImageId?: number | null
   artCollectionId?: number | null

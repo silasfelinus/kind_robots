@@ -112,7 +112,9 @@ async function mergeDefinition(definition: MergeDefinition): Promise<object> {
     where: { slug: definition.canonicalSlug },
   })
   if (!canonical) {
-    throw new Error(`Canonical Facet ${definition.canonicalSlug} does not exist.`)
+    throw new Error(
+      `Canonical Facet ${definition.canonicalSlug} does not exist.`,
+    )
   }
 
   const duplicate = await prisma.facet.findUnique({
@@ -352,12 +354,9 @@ async function mergeDefinition(definition: MergeDefinition): Promise<object> {
       examples: canonical.examples || duplicate.examples,
       artPrompt: canonical.artPrompt || duplicate.artPrompt,
       imagePath: canonical.imagePath || duplicate.imagePath,
-      cardPath: canonical.cardPath || duplicate.cardPath,
-      heroPath: canonical.heroPath || duplicate.heroPath,
       icon: canonical.icon || duplicate.icon,
       artImageId: canonical.artImageId ?? duplicate.artImageId,
-      artCollectionId:
-        canonical.artCollectionId ?? duplicate.artCollectionId,
+      artCollectionId: canonical.artCollectionId ?? duplicate.artCollectionId,
       isActive: true,
     },
   })
@@ -369,10 +368,16 @@ async function mergeDefinition(definition: MergeDefinition): Promise<object> {
       taxonomy: 'PERSONALITY',
       canonicalValue:
         canonicalProfile?.canonicalValue || canonical.title.toLowerCase(),
-      groupKey: canonicalProfile?.groupKey ?? duplicateProfile?.groupKey ?? 'personality',
+      groupKey:
+        canonicalProfile?.groupKey ??
+        duplicateProfile?.groupKey ??
+        'personality',
       groupLabel:
-        canonicalProfile?.groupLabel ?? duplicateProfile?.groupLabel ?? 'Personality',
-      sortOrder: canonicalProfile?.sortOrder ?? duplicateProfile?.sortOrder ?? 0,
+        canonicalProfile?.groupLabel ??
+        duplicateProfile?.groupLabel ??
+        'Personality',
+      sortOrder:
+        canonicalProfile?.sortOrder ?? duplicateProfile?.sortOrder ?? 0,
       isRandomizable: true,
       randomWeight: Math.max(
         canonicalProfile?.randomWeight ?? 1,
@@ -397,10 +402,16 @@ async function mergeDefinition(definition: MergeDefinition): Promise<object> {
       taxonomy: 'PERSONALITY',
       canonicalValue:
         canonicalProfile?.canonicalValue || canonical.title.toLowerCase(),
-      groupKey: canonicalProfile?.groupKey ?? duplicateProfile?.groupKey ?? 'personality',
+      groupKey:
+        canonicalProfile?.groupKey ??
+        duplicateProfile?.groupKey ??
+        'personality',
       groupLabel:
-        canonicalProfile?.groupLabel ?? duplicateProfile?.groupLabel ?? 'Personality',
-      sortOrder: canonicalProfile?.sortOrder ?? duplicateProfile?.sortOrder ?? 0,
+        canonicalProfile?.groupLabel ??
+        duplicateProfile?.groupLabel ??
+        'Personality',
+      sortOrder:
+        canonicalProfile?.sortOrder ?? duplicateProfile?.sortOrder ?? 0,
       isRandomizable: true,
       randomWeight: Math.max(
         canonicalProfile?.randomWeight ?? 1,

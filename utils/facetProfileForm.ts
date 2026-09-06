@@ -1,8 +1,5 @@
 // /utils/facetProfileForm.ts
-import type {
-  FacetCreateInput,
-  FacetWithAliases,
-} from '@/stores/facetStore'
+import type { FacetCreateInput, FacetWithAliases } from '@/stores/facetStore'
 import type { FacetTaxonomy } from '@/stores/facetCatalogStore'
 
 export type FacetProfileForm = {
@@ -17,9 +14,6 @@ export type FacetProfileForm = {
   sourceRank: number
   metadata: string
   imagePath: string
-  cardPath: string
-  heroPath: string
-  iconPath: string
   artPrompt: string
   randomWeight: number
   isRandomizable: boolean
@@ -42,9 +36,6 @@ export function blankFacetProfileForm(): FacetProfileForm {
     sourceRank: 100,
     metadata: '',
     imagePath: '',
-    cardPath: '',
-    heroPath: '',
-    iconPath: '',
     artPrompt: '',
     randomWeight: 1,
     isRandomizable: true,
@@ -68,9 +59,6 @@ export function facetToProfileForm(facet: FacetWithAliases): FacetProfileForm {
     sourceRank: facet.sourceRank,
     metadata: facet.metadata ? JSON.stringify(facet.metadata, null, 2) : '',
     imagePath: facet.imagePath || '',
-    cardPath: facet.cardPath || '',
-    heroPath: facet.heroPath || '',
-    iconPath: facet.iconPath || '',
     artPrompt: facet.artPrompt || '',
     randomWeight: facet.randomWeight,
     isRandomizable: facet.isRandomizable,
@@ -123,9 +111,6 @@ export function facetProfilePayload(form: FacetProfileForm): FacetCreateInput {
     sourceRank: Math.max(0, Math.trunc(Number(form.sourceRank) || 0)),
     metadata: parseFacetMetadata(form.metadata),
     imagePath: optional(form.imagePath),
-    cardPath: optional(form.cardPath),
-    heroPath: optional(form.heroPath),
-    iconPath: optional(form.iconPath),
     artPrompt: optional(form.artPrompt),
     randomWeight: Math.max(0, Number(form.randomWeight) || 0),
     isRandomizable: form.isRandomizable,

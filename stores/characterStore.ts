@@ -39,18 +39,12 @@ export type CharacterBrowse = Pick<
   | 'species'
   | 'genre'
   | 'artImageId'
-  | 'cardArtImageId'
-  | 'heroArtImageId'
-  | 'iconArtImageId'
   | 'isPublic'
   | 'userId'
   | 'packId'
   | 'honorific'
   | 'imagePath'
   | 'icon'
-  | 'iconPath'
-  | 'cardPath'
-  | 'heroPath'
   | 'allowReviews'
   | 'designer'
   | 'isMature'
@@ -76,12 +70,7 @@ const selectedCharacterStorageKey = 'selectedCharacter'
 const characterPlaceholder = '/images/character-placeholder.webp'
 
 type CharacterStatKey =
-  | 'luck'
-  | 'might'
-  | 'wits'
-  | 'grace'
-  | 'charm'
-  | 'empathy'
+  'luck' | 'might' | 'wits' | 'grace' | 'charm' | 'empathy'
 
 const characterRandomFields = [
   'name',
@@ -187,18 +176,12 @@ function toCharacterBrowse(character: Character): CharacterBrowse {
     species: character.species,
     genre: character.genre,
     artImageId: character.artImageId,
-    cardArtImageId: character.cardArtImageId,
-    heroArtImageId: character.heroArtImageId,
-    iconArtImageId: character.iconArtImageId,
     isPublic: character.isPublic,
     userId: character.userId,
     packId: character.packId,
     honorific: character.honorific,
     imagePath: character.imagePath,
     icon: character.icon,
-    iconPath: character.iconPath,
-    cardPath: character.cardPath,
-    heroPath: character.heroPath,
     allowReviews: character.allowReviews,
     designer: character.designer,
     isMature: character.isMature,

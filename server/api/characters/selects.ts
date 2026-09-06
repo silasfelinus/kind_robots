@@ -16,18 +16,12 @@ export const characterBrowseSelect = {
   species: true,
   genre: true,
   artImageId: true,
-  cardArtImageId: true,
-  heroArtImageId: true,
-  iconArtImageId: true,
   isPublic: true,
   userId: true,
   packId: true,
   honorific: true,
   imagePath: true,
   icon: true,
-  iconPath: true,
-  cardPath: true,
-  heroPath: true,
   allowReviews: true,
   designer: true,
   isMature: true,
@@ -54,7 +48,9 @@ export type CharacterBrowseResult = Prisma.CharacterGetPayload<{
  * Mutation responses feed selected/editing state and the rich detail cache, so
  * this select must remain the complete Character scalar model. Keeping it here
  * avoids a create/update response that TypeScript calls Character while runtime
- * silently omits newer card/hero/icon/theme fields.
+ * silently omits newer fields (the card/hero/icon slots this once guarded were
+ * retired by the entity-art slot collapse; theme and everything after it are
+ * still the point).
  */
 export const characterMutationSelect = {
   id: true,
@@ -72,9 +68,6 @@ export const characterMutationSelect = {
   quirks: true,
   genre: true,
   artImageId: true,
-  cardArtImageId: true,
-  heroArtImageId: true,
-  iconArtImageId: true,
   isPublic: true,
   userId: true,
   packId: true,
@@ -82,9 +75,6 @@ export const characterMutationSelect = {
   honorific: true,
   imagePath: true,
   icon: true,
-  iconPath: true,
-  cardPath: true,
-  heroPath: true,
   allowReviews: true,
   designer: true,
   personality: true,

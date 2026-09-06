@@ -189,14 +189,12 @@ type Source = {
 }
 
 async function collect(prisma: PrismaClient): Promise<Map<string, string[]>> {
-  // Every model whose stored art the site renders directly. cardPath/heroPath/
-  // iconPath are deliberately included: they are the columns t-064 added, and
-  // the same prefix mistake is available to them.
+  // Every model whose stored art the site renders directly. This used to sweep
+  // cardPath/heroPath/iconPath as well -- the columns t-064 added, equally
+  // exposed to the prefix mistake. The slot collapse dropped them, so the
+  // primary is the only stored path left to get wrong.
   const art = {
     imagePath: true,
-    cardPath: true,
-    heroPath: true,
-    iconPath: true,
   }
 
   const sources: Source[] = [

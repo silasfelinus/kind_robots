@@ -30,9 +30,8 @@ async function main(): Promise<void> {
     'isRandomizable',
     'artRequired',
     'imagePath',
-    'cardPath',
-    'heroPath',
-    'iconPath',
+    // cardPath/heroPath/iconPath were listed here until the slot collapse
+    // dropped the columns; imagePath is the whole art profile now.
     'artPrompt',
   ]) {
     if (
@@ -51,7 +50,9 @@ async function main(): Promise<void> {
   // than an editor expanding inside a grid cell. The Library tab keeps
   // creation and the catalog fetch.
   requireText(files.facetEditor, facetEditor, 'EntityArtManager')
-  requireText(files.facetEditor, facetEditor, "field: 'iconPath'")
+  // Was field: 'iconPath'. Icon/card/hero are rejected at enqueue since the
+  // slot collapse, so the primary is the slot the editor still offers.
+  requireText(files.facetEditor, facetEditor, "field: 'imagePath'")
   requireText(files.facetEditor, facetEditor, 'Save canonical profile')
   for (const [label, text] of [
     [files.manager, manager],

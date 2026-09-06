@@ -12,10 +12,7 @@ import type {
   Scenario,
 } from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
-import {
-  artContextRules,
-  artSlotFraming,
-} from '~/utils/entityArtPromptFraming'
+import { artContextRules, artSlotFraming } from '~/utils/entityArtPromptFraming'
 
 export type DailyDreamArchiveArt = Pick<
   ArtImage,
@@ -27,9 +24,6 @@ export type DailyDreamArchiveArt = Pick<
   | 'path'
   | 'imagePath'
   | 'thumbnailPath'
-  | 'cardPath'
-  | 'heroPath'
-  | 'iconPath'
   | 'artPrompt'
   | 'promptString'
   | 'userId'
@@ -84,11 +78,7 @@ export type DailyDreamArchiveEntry = Dream & {
 }
 
 export type DailyDreamArchiveObjectType =
-  | 'dream'
-  | 'character'
-  | 'reward'
-  | 'scenario'
-  | 'bot'
+  'dream' | 'character' | 'reward' | 'scenario' | 'bot'
 
 export type DailyDreamArchiveObject = Record<string, unknown> & {
   id: number
@@ -265,7 +255,9 @@ export const useDailyDreamArchiveStore = defineStore(
           scenario: dream.Scenarios as unknown as DailyDreamArchiveObject[],
           bot: dream.Bots as unknown as DailyDreamArchiveObject[],
         }
-        const found = collections[objectType]?.find((item) => item.id === objectId)
+        const found = collections[objectType]?.find(
+          (item) => item.id === objectId,
+        )
         if (found) Object.assign(found, update)
       }
     }
@@ -294,7 +286,9 @@ export const useDailyDreamArchiveStore = defineStore(
           scenario: dream.Scenarios as unknown as DailyDreamArchiveObject[],
           bot: dream.Bots as unknown as DailyDreamArchiveObject[],
         }
-        const found = collections[objectType]?.find((item) => item.id === objectId)
+        const found = collections[objectType]?.find(
+          (item) => item.id === objectId,
+        )
         if (found) return found
       }
       return null
@@ -383,7 +377,9 @@ export const useDailyDreamArchiveStore = defineStore(
       input: DailyDreamArtQueueInput,
     ): Promise<{ success: boolean; message: string; jobId: number | null }> {
       try {
-        const directSource = normalizeImageSource(input.entity[input.slot.field])
+        const directSource = normalizeImageSource(
+          input.entity[input.slot.field],
+        )
         const nestedSource = normalizeImageSource(
           input.entity.ArtImage?.imagePath || input.entity.ArtImage?.path,
         )
@@ -480,7 +476,8 @@ export const useDailyDreamArchiveStore = defineStore(
       } catch (error) {
         return {
           success: false,
-          message: error instanceof Error ? error.message : 'Queue check failed.',
+          message:
+            error instanceof Error ? error.message : 'Queue check failed.',
           job: null,
         }
       }

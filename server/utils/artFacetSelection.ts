@@ -9,8 +9,6 @@ import {
 export type ArtFacetSnapshot = ArtFacetPromptEntry & {
   slug: string | null
   imagePath: string | null
-  cardPath: string | null
-  heroPath: string | null
 }
 
 type JsonRecord = Record<string, unknown>
@@ -25,9 +23,7 @@ export function normalizeArtFacetIds(value: unknown): number[] {
   if (!Array.isArray(value)) return []
   return [
     ...new Set(
-      value
-        .map(Number)
-        .filter((id) => Number.isInteger(id) && id > 0),
+      value.map(Number).filter((id) => Number.isInteger(id) && id > 0),
     ),
   ].slice(0, 50)
 }
@@ -37,7 +33,9 @@ export function readArtFacetSnapshots(payload: unknown): ArtFacetSnapshot[] {
   if (!Array.isArray(facets)) return []
   return facets
     .map((value) => asRecord(value))
-    .filter((value) => Number.isInteger(Number(value.id)) && Number(value.id) > 0)
+    .filter(
+      (value) => Number.isInteger(Number(value.id)) && Number(value.id) > 0,
+    )
     .map((value) => ({
       id: Number(value.id),
       title: String(value.title || '').trim(),
@@ -53,7 +51,9 @@ export function readArtFacetSnapshots(payload: unknown): ArtFacetSnapshot[] {
 }
 
 export function readArtFacetIds(payload: unknown): number[] {
-  return normalizeArtFacetIds(readArtFacetSnapshots(payload).map((facet) => facet.id))
+  return normalizeArtFacetIds(
+    readArtFacetSnapshots(payload).map((facet) => facet.id),
+  )
 }
 
 export async function resolveArtFacetSelection(options: {
@@ -91,8 +91,6 @@ export async function resolveArtFacetSelection(options: {
       canonicalValue: entry.canonicalValue,
       artPrompt: entry.artPrompt,
       imagePath: entry.imagePath,
-      cardPath: entry.cardPath,
-      heroPath: entry.heroPath,
     }
   })
 }
@@ -102,7 +100,9 @@ export function applyArtFacetsToPayload(
   basePromptString: string,
   facets: readonly ArtFacetSnapshot[],
 ): string {
-  const basePrompt = String(basePromptString || '').replace(/\s+/g, ' ').trim()
+  const basePrompt = String(basePromptString || '')
+    .replace(/\s+/g, ' ')
+    .trim()
   const promptString = composeArtPromptWithFacets(basePrompt, facets)
   payload.basePromptString = basePrompt
   payload.promptString = promptString

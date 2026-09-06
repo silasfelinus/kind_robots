@@ -58,7 +58,7 @@
             <span class="text-xs text-base-content/50">approved today</span>
             <span
               v-if="row.approvedToday >= row.ceiling"
-              class="badge badge-warning badge-sm"
+              class="kr-badge-warning-sm"
             >
               ceiling reached
             </span>

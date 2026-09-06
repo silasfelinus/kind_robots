@@ -384,18 +384,18 @@
                 Public
               </span>
 
-              <span v-else class="badge badge-ghost badge-sm">Private</span>
+              <span v-else class="kr-badge-ghost-sm">Private</span>
 
               <span
                 v-if="dreamStore.selectedDream.isMature"
-                class="badge badge-warning badge-sm"
+                class="kr-badge-warning-sm"
               >
                 Mature
               </span>
 
               <span
                 v-if="dreamStore.selectedDream.dreamType"
-                class="badge badge-outline badge-sm"
+                class="kr-badge-outline-sm"
               >
                 {{ dreamTypeLabel(dreamStore.selectedDream.dreamType) }}
               </span>

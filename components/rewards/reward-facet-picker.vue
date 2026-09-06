@@ -11,7 +11,7 @@
         </p>
       </div>
       <span v-if="loading || saving" class="loading loading-spinner loading-xs" />
-      <span class="badge badge-ghost badge-sm">{{ selectedFacets.length }}</span>
+      <span class="kr-badge-ghost-sm">{{ selectedFacets.length }}</span>
     </div>
 
     <div v-if="selectedFacets.length" class="flex flex-wrap gap-2">

@@ -16,7 +16,7 @@
           and let the Kontext engine repaint it the way the masters would have.
         </p>
       </div>
-      <span class="badge badge-ghost badge-sm">
+      <span class="kr-badge-ghost-sm">
         {{ academyStore.stylesRemixedCount }}/{{ academyStore.styles.length }}
         styles remixed
       </span>

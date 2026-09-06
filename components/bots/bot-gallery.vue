@@ -332,18 +332,18 @@
                 Public
               </span>
 
-              <span v-else class="badge badge-ghost badge-sm"> Private </span>
+              <span v-else class="kr-badge-ghost-sm"> Private </span>
 
               <span
                 v-if="botStore.currentBot.isMature"
-                class="badge badge-warning badge-sm"
+                class="kr-badge-warning-sm"
               >
                 Mature
               </span>
 
               <span
                 v-if="botStore.currentBot.underConstruction"
-                class="badge badge-warning badge-sm"
+                class="kr-badge-warning-sm"
               >
                 Building
               </span>

@@ -122,10 +122,10 @@
         <span
           class="ml-auto hidden flex-wrap items-center gap-1.5 text-xs text-base-content/50 sm:flex"
         >
-          <span class="badge badge-ghost badge-sm">
+          <span class="kr-badge-ghost-sm">
             {{ visibleGroups.length }} collections
           </span>
-          <span class="badge badge-ghost badge-sm">
+          <span class="kr-badge-ghost-sm">
             {{ totalImageCount }} images
           </span>
           <span v-if="activeGroup" class="badge badge-primary badge-sm">

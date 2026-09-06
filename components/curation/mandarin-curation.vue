@@ -206,7 +206,7 @@
                 <td>
                   <span
                     v-if="row.effective.hskLevel"
-                    class="badge badge-sm badge-outline"
+                    class="kr-badge-outline-sm"
                   >
                     {{ row.effective.hskLevel }}
                   </span>
@@ -216,7 +216,7 @@
                     <span
                       v-for="category in row.effective.categories"
                       :key="category"
-                      class="badge badge-ghost badge-sm"
+                      class="kr-badge-ghost-sm"
                     >
                       {{ category }}
                     </span>
@@ -235,9 +235,7 @@
                   </span>
                 </td>
                 <td>
-                  <span
-                    v-if="row.hasOverride"
-                    class="badge badge-warning badge-sm"
+                  <span v-if="row.hasOverride" class="kr-badge-warning-sm"
                     >overridden</span
                   >
                   <span v-else class="text-xs text-base-content/35"

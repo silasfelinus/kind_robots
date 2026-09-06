@@ -58,9 +58,7 @@
           >
             <div class="flex items-start justify-between gap-2">
               <div class="flex items-center gap-2">
-                <span class="badge badge-warning badge-sm">
-                  pending review
-                </span>
+                <span class="kr-badge-warning-sm"> pending review </span>
                 <span v-if="post.channel" class="badge badge-outline">
                   {{ post.channel }}
                 </span>

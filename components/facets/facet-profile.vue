@@ -94,7 +94,7 @@
             <span
               v-for="alias in selectedFacet.aliases"
               :key="alias"
-              class="badge badge-ghost badge-sm"
+              class="kr-badge-ghost-sm"
             >
               {{ alias }}
             </span>
@@ -112,7 +112,7 @@
             </span>
             <span
               v-if="selectedFacet.artRequired"
-              class="badge badge-warning badge-sm"
+              class="kr-badge-warning-sm"
             >
               art expected
             </span>

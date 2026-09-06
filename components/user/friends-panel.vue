@@ -136,7 +136,7 @@
             </button>
             <span
               v-else-if="friends.relationship(u.id) === 'outgoing'"
-              class="badge badge-ghost badge-sm"
+              class="kr-badge-ghost-sm"
               >Requested</span
             >
             <span

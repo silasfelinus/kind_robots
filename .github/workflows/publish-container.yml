@@ -11,6 +11,7 @@ on:
       - package.json
       - package-lock.json
       - prisma/**
+      - assets/css/**
       - .github/workflows/publish-container.yml
   workflow_dispatch:
 

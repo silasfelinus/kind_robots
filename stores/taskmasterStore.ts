@@ -642,7 +642,12 @@ export const useTaskmasterStore = defineStore('taskmasterStore', () => {
       session.value = restored
       resumeNarrativeArtJobs()
     } catch {
-      localStorage.removeItem(STORAGE_KEY)
+      try {
+        localStorage.removeItem(STORAGE_KEY)
+      } catch {
+        // Storage itself can be unavailable (for example in privacy modes).
+        // Recovery cleanup is best-effort and must not rethrow from onMounted().
+      }
     }
   }
 

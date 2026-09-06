@@ -287,7 +287,7 @@
 
               <span
                 v-if="rewardStore.selectedReward.collection"
-                class="badge badge-secondary badge-sm"
+                class="kr-badge-secondary-sm"
               >
                 {{ rewardStore.selectedReward.collection }}
               </span>

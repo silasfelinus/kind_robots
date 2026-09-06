@@ -43,7 +43,7 @@
       <div class="absolute left-2 top-2 flex flex-wrap gap-1">
         <span
           v-if="isActive && showActiveBadge"
-          class="badge badge-primary badge-sm"
+          class="kr-badge-primary-sm"
         >
           Active
         </span>
@@ -88,10 +88,10 @@
         <span v-if="checkpoint.artImageId" class="kr-badge-ghost-sm">
           Preview
         </span>
-        <span v-if="checkpoint.userId" class="badge badge-primary badge-sm">
+        <span v-if="checkpoint.userId" class="kr-badge-primary-sm">
           User
         </span>
-        <span class="badge badge-secondary badge-sm">
+        <span class="kr-badge-secondary-sm">
           {{ compatibilityLabel }}
         </span>
         <span v-if="!isCompatible" class="badge badge-error badge-sm">
@@ -99,7 +99,7 @@
         </span>
         <span
           v-if="checkpointGeneration"
-          class="badge badge-secondary badge-sm"
+          class="kr-badge-secondary-sm"
         >
           {{ checkpointGeneration }}
         </span>

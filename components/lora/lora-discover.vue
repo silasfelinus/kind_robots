@@ -119,7 +119,7 @@
           </div>
 
           <div class="absolute left-2 top-2 flex flex-wrap gap-1">
-            <span v-if="card.baseModel" class="badge badge-secondary badge-sm">
+            <span v-if="card.baseModel" class="kr-badge-secondary-sm">
               {{ card.baseModel }}
             </span>
             <span v-if="card.isMature" class="kr-badge-warning-sm">

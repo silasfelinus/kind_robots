@@ -137,7 +137,7 @@
                 </p>
 
                 <div class="mt-3 flex flex-wrap gap-2">
-                  <span class="badge badge-primary badge-sm">
+                  <span class="kr-badge-primary-sm">
                     {{ rewardStore.selectedReward.rewardType }}
                   </span>
 

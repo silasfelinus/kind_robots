@@ -352,7 +352,7 @@
 
               <span
                 v-if="botStore.currentBot.BotType"
-                class="badge badge-secondary badge-sm"
+                class="kr-badge-secondary-sm"
               >
                 {{ botStore.currentBot.BotType }}
               </span>

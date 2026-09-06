@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Find or migrate hand-rolled kr-badge-{ghost,warning,outline}-sm badges.
+"""Find or migrate hand-rolled kr-badge-{ghost,warning,outline,primary,secondary}-sm badges.
 
 Dry-run is the default. Pass --write to update matching Vue files in place.
 Only the approved small badge shapes are touched (`badge badge-ghost
-badge-sm`, `badge badge-warning badge-sm`, `badge badge-outline badge-sm`),
-and only in static `class="..."` attributes -- never `:class`/`v-bind:class`
+badge-sm`, `badge badge-warning badge-sm`, `badge badge-outline badge-sm`,
+`badge badge-primary badge-sm`, `badge badge-secondary badge-sm`), and only
+in static `class="..."` attributes -- never `:class`/`v-bind:class`
 bindings, and regardless of the base tokens' order in the source
 (`badge-ghost badge-sm` counts the same as `badge-sm badge-ghost`). A source
 that already carries the target primitive, or is missing any one of the base
@@ -13,13 +14,17 @@ shrink-0, rounded-lg, ...) are preserved verbatim after the primitive class,
 matching the kr-input-sm/kr-checkbox-* codemods' subset-match convention --
 they're plain Tailwind utilities layered on top, not another component-root
 class, so resolution order is unaffected by folding the three base tokens
-into one name.
+into one name. This includes a second color modifier (e.g. `badge-outline`
+alongside `badge-primary`) preserved as an "extra" token verbatim -- the
+same latent behavior the ghost/warning/outline families already had for a
+stray color token, not new to this pair.
 
 FAMILIES is ordered most-specific-first on purpose: each entry's base token
-set differs only in its color modifier (ghost/warning/outline), so order
-among them doesn't matter for correctness here, but a future plain-size
-family (e.g. a colorless `kr-badge-sm`) would need to come LAST, since its
-smaller base set is a subset of every colored family's tokens above.
+set differs only in its color modifier (ghost/warning/outline/primary/
+secondary), so order among them doesn't matter for correctness here, but a
+future plain-size family (e.g. a colorless `kr-badge-sm`) would need to come
+LAST, since its smaller base set is a subset of every colored family's
+tokens above.
 """
 
 from __future__ import annotations
@@ -34,6 +39,8 @@ FAMILIES = [
     ("kr-badge-ghost-sm", {"badge", "badge-ghost", "badge-sm"}),
     ("kr-badge-warning-sm", {"badge", "badge-warning", "badge-sm"}),
     ("kr-badge-outline-sm", {"badge", "badge-outline", "badge-sm"}),
+    ("kr-badge-primary-sm", {"badge", "badge-primary", "badge-sm"}),
+    ("kr-badge-secondary-sm", {"badge", "badge-secondary", "badge-sm"}),
 ]
 
 

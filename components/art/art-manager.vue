@@ -128,7 +128,7 @@
                 Art trainer
                 <span
                   v-if="pendingTrainerCount"
-                  class="badge badge-primary badge-sm rounded-2xl"
+                  class="kr-badge-primary-sm rounded-2xl"
                 >
                   {{ pendingTrainerCount }}
                 </span>

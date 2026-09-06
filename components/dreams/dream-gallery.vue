@@ -41,7 +41,7 @@
           >
             {{ title }}
           </h2>
-          <span class="badge badge-primary badge-sm rounded-xl">
+          <span class="kr-badge-primary-sm rounded-xl">
             {{ filteredDreams.length }}
           </span>
         </div>

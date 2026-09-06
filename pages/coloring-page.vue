@@ -20,7 +20,7 @@
             <p class="text-2xl font-black tracking-tight text-base-content">
               Coloring Page Maker
             </p>
-            <span class="badge badge-primary badge-sm font-bold">New</span>
+            <span class="kr-badge-primary-sm font-bold">New</span>
           </div>
           <p class="max-w-2xl text-sm text-base-content/60">
             Turn any photo or finished design into a printable black-and-white

@@ -6,16 +6,13 @@
         <div class="flex flex-wrap items-center gap-2">
           <h2 class="font-black text-primary">Dream Art Links</h2>
 
-          <span
-            v-if="activeArtImageId"
-            class="badge badge-primary badge-sm rounded-xl"
-          >
+          <span v-if="activeArtImageId" class="kr-badge-primary-sm rounded-xl">
             Image #{{ activeArtImageId }}
           </span>
 
           <span
             v-if="activeCollectionId"
-            class="badge badge-secondary badge-sm rounded-xl"
+            class="kr-badge-secondary-sm rounded-xl"
           >
             Collection #{{ activeCollectionId }}
           </span>

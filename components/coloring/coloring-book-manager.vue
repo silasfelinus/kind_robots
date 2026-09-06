@@ -78,7 +78,7 @@
               </span>
               <span
                 v-if="isInProgress(set.slug, pageRef.id)"
-                class="badge badge-primary badge-sm"
+                class="kr-badge-primary-sm"
               >
                 In progress
               </span>

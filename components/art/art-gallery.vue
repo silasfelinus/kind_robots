@@ -128,7 +128,7 @@
           <span class="kr-badge-ghost-sm">
             {{ totalImageCount }} images
           </span>
-          <span v-if="activeGroup" class="badge badge-primary badge-sm">
+          <span v-if="activeGroup" class="kr-badge-primary-sm">
             {{ filteredActiveImages.length }} in view
           </span>
         </span>
@@ -221,7 +221,7 @@
           >
             Unsorted
           </span>
-          <span class="badge badge-primary badge-sm shrink-0">
+          <span class="kr-badge-primary-sm shrink-0">
             {{ filteredActiveImages.length }}
           </span>
           <button
@@ -239,7 +239,7 @@
           class="flex flex-col gap-2 rounded-xl border border-primary/30 bg-base-100 p-3 shadow-sm"
         >
           <div class="flex flex-wrap items-center gap-2">
-            <span class="badge badge-primary badge-sm">
+            <span class="kr-badge-primary-sm">
               {{ selectedImageCount }} selected
             </span>
 

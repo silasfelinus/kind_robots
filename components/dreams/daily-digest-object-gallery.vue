@@ -15,7 +15,7 @@
           </p>
         </div>
       </div>
-      <span class="badge badge-primary badge-sm shrink-0 rounded-lg">
+      <span class="kr-badge-primary-sm shrink-0 rounded-lg">
         {{ items.length }} objects
       </span>
     </header>

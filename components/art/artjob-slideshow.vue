@@ -163,7 +163,7 @@
               <span class="text-lg font-black">{{ slideTitle }}</span>
               <span
                 v-if="currentJob?.projectSlug"
-                class="badge badge-secondary badge-sm rounded-2xl"
+                class="kr-badge-secondary-sm rounded-2xl"
               >
                 {{ currentJob.projectSlug }}
               </span>

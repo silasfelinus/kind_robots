@@ -99,9 +99,45 @@ export async function main(): Promise<void> {
         const tally = { cleared: 0, skipped: 0 }
         summary[entityType] = tally
 
+        /*
+         * Batch the lookups. Asking per slot cost two sequential round trips
+         * each, which over the tailnet ran ~40 slots a minute -- slower than
+         * the job timeout allows for 1800 of them. Every id this entity type
+         * could touch is fetched in two queries instead.
+         */
+        const slotIds = [
+          ...new Set(
+            rows.flatMap((row) =>
+              SLOTS.map((slot) => positiveId(row[slot.fk])).filter(
+                (id): id is number => id !== null,
+              ),
+            ),
+          ),
+        ]
+        const artImages = new Map<number, string>()
+        const linked = new Set<string>()
+        for (let index = 0; index < slotIds.length; index += 500) {
+          const chunk = slotIds.slice(index, index + 500)
+          const [images, links] = await Promise.all([
+            prisma.artImage.findMany({
+              where: { id: { in: chunk } },
+              select: { id: true, path: true },
+            }) as Promise<Array<{ id: number; path: string | null }>>,
+            prisma.entityArtImage.findMany({
+              where: { entityType, artImageId: { in: chunk } },
+              select: { entityId: true, artImageId: true },
+            }) as Promise<Array<{ entityId: number; artImageId: number }>>,
+          ])
+          for (const image of images) artImages.set(image.id, image.path ?? '')
+          for (const link of links)
+            linked.add(`${link.entityId}:${link.artImageId}`)
+        }
+
         for (const row of rows) {
           const entityId = Number(row.id)
           const primaryId = positiveId(row.artImageId)
+          // Accumulated so a row's slots clear in ONE update, not three.
+          const clearData: Record<string, null> = {}
           const hasPrimary =
             text(row.imagePath) ||
             primaryId ||
@@ -135,16 +171,10 @@ export async function main(): Promise<void> {
               continue
             }
 
-            const [artImage, link] = await Promise.all([
-              prisma.artImage.findUnique({
-                where: { id: slotArtImageId },
-                select: { id: true, path: true },
-              }) as Promise<{ id: number; path: string | null } | null>,
-              prisma.entityArtImage.findFirst({
-                where: { entityType, entityId, artImageId: slotArtImageId },
-                select: { artImageId: true },
-              }) as Promise<{ artImageId: number } | null>,
-            ])
+            const artImage = artImages.has(slotArtImageId)
+              ? { path: artImages.get(slotArtImageId) ?? '' }
+              : null
+            const link = linked.has(`${entityId}:${slotArtImageId}`)
 
             if (!artImage) {
               skipped.push({
@@ -179,18 +209,16 @@ export async function main(): Promise<void> {
                 `entity:${entityType}:${entityId}:current:`,
               ) || !currentTag
 
-            if (WRITE) {
-              if (needsRetag) {
-                await prisma.artImage.update({
-                  where: { id: slotArtImageId },
-                  data: { path: nextTag },
-                })
-              }
-              await client[entityType as Entity]!.update({
-                where: { id: entityId },
-                data: { [slot.path]: null, [slot.fk]: null },
+            if (WRITE && needsRetag) {
+              // Retag first: the image must never sit untagged, even for the
+              // instant between these two writes.
+              await prisma.artImage.update({
+                where: { id: slotArtImageId },
+                data: { path: nextTag },
               })
             }
+            clearData[slot.path] = null
+            clearData[slot.fk] = null
 
             if (needsRetag) {
               if (isAlsoPrimary) retaggedPrimary += 1
@@ -198,6 +226,13 @@ export async function main(): Promise<void> {
             }
             cleared += 1
             tally.cleared += 1
+          }
+
+          if (WRITE && Object.keys(clearData).length) {
+            await client[entityType as Entity]!.update({
+              where: { id: entityId },
+              data: clearData,
+            })
           }
         }
       }

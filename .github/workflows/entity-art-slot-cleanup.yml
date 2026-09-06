@@ -59,7 +59,7 @@ concurrency:
 jobs:
   cleanup:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       DATABASE_SSL_CA_BASE64: ${{ secrets.DATABASE_SSL_CA_BASE64 }}

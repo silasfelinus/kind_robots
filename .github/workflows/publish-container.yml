@@ -11,6 +11,9 @@ on:
       - package.json
       - package-lock.json
       - prisma/**
+      # Shared Tailwind/DaisyUI primitives must prove they compile in the real
+      # production image before merge; ordinary contract checks do not catch
+      # invalid component modifiers inside Tailwind v4 @apply rules.
       - assets/css/**
       - .github/workflows/publish-container.yml
   workflow_dispatch:

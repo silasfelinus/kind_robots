@@ -40,7 +40,7 @@
         class="modal-box flex max-h-[88dvh] w-[min(94vw,58rem)] max-w-none flex-col overflow-hidden rounded-3xl border-2 border-primary/60 bg-base-100 p-0 shadow-2xl"
       >
         <header
-          class="flex shrink-0 items-start gap-3 border-b border-base-300 p-3 sm:p-4"
+          class="flex shrink-0 items-start gap-3 kr-panel-header-sm sm:p-4"
         >
           <div class="min-w-0 flex-1">
             <p

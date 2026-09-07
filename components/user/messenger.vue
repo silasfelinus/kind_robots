@@ -10,9 +10,7 @@
   >
     <!-- Conversation list -->
     <aside class="kr-pane w-full max-w-xs kr-panel-flat sm:w-72">
-      <header
-        class="flex items-center justify-between border-b border-base-300 p-3"
-      >
+      <header class="flex items-center justify-between kr-panel-header-sm">
         <h2 class="font-black">Messages</h2>
         <button
           class="kr-btn-ghost-xs-plain"
@@ -66,7 +64,7 @@
     <!-- Active thread -->
     <div class="kr-pane min-w-0 kr-panel-flat">
       <template v-if="convo.activeId">
-        <header class="flex items-center gap-2 border-b border-base-300 p-3">
+        <header class="flex items-center gap-2 kr-panel-header-sm">
           <div class="avatar">
             <div class="h-8 w-8 rounded-full bg-base-300">
               <img

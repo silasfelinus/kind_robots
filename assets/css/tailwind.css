@@ -813,6 +813,18 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply border-b border-base-300 p-4;
   }
 
+  /* .kr-panel-header's own shape at a tighter `p-3` padding step instead of
+   * `p-4` (interface-vision t-104 slice 143) -- same -sm suffix convention
+   * as the muted/tint padding ladders elsewhere in this file (p-3 = -sm,
+   * p-4 = -md). Previously hand-rolled identically across 5 occurrences in
+   * 5 files (messenger.vue x2, home-object-sheet.vue,
+   * artjob-feedback-manager.vue, mandarin.vue), all header rows with a
+   * bottom divider and no background fill, sitting atop a bordered
+   * panel/pane. */
+  .kr-panel-header-sm {
+    @apply border-b border-base-300 p-3;
+  }
+
   /* An inline section divider (interface-vision t-104 slice 135): a top
    * border rule with top-only spacing (`pt-3`, no bottom/left/right padding)
    * used inside a flex-col stack to separate a trailing block (actions,

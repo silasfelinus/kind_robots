@@ -605,6 +605,35 @@ async function handleSubscriptionLifecycle(subscription: Stripe.Subscription) {
   )
 }
 
+// Which checkout-session handler above should fulfill a given session, in
+// the exact priority order the dispatch below applies it (mana_topup wins
+// over mode/productSlug/giftshop_checkout if metadata is ever ambiguous).
+// Pulled out as a pure function -- no Stripe API call, no Prisma -- so the
+// routing decision itself has fixture coverage without a live database or
+// Stripe account (kind-economy/t-011's offline-fixture kaizen suggestion;
+// see utils/scripts/verifyStripeWebhookFixture.test.ts).
+export type CheckoutSessionRoute =
+  | 'mana_topup'
+  | 'subscription'
+  | 'product_purchase'
+  | 'giftshop_cart'
+  | 'unhandled'
+
+export function resolveCheckoutSessionRoute(
+  session: Pick<Stripe.Checkout.Session, 'metadata' | 'mode'>,
+): CheckoutSessionRoute {
+  if (session.metadata?.kind === 'mana_topup') return 'mana_topup'
+  if (session.mode === 'subscription') return 'subscription'
+  if (session.mode === 'payment' && session.metadata?.productSlug)
+    return 'product_purchase'
+  if (
+    session.mode === 'payment' &&
+    session.metadata?.kind === 'giftshop_checkout'
+  )
+    return 'giftshop_cart'
+  return 'unhandled'
+}
+
 export default defineEventHandler(async (event) => {
   let response
 
@@ -635,17 +664,21 @@ export default defineEventHandler(async (event) => {
 
     if (stripeEvent.type === 'checkout.session.completed') {
       const session = stripeEvent.data.object as Stripe.Checkout.Session
-      if (session.metadata?.kind === 'mana_topup') {
-        await handleManaTopup(session)
-      } else if (session.mode === 'subscription') {
-        await handleSubscriptionCheckout(session)
-      } else if (session.mode === 'payment' && session.metadata?.productSlug) {
-        await handleProductPurchase(session)
-      } else if (
-        session.mode === 'payment' &&
-        session.metadata?.kind === 'giftshop_checkout'
-      ) {
-        await handleGiftshopCartPurchase(session)
+      switch (resolveCheckoutSessionRoute(session)) {
+        case 'mana_topup':
+          await handleManaTopup(session)
+          break
+        case 'subscription':
+          await handleSubscriptionCheckout(session)
+          break
+        case 'product_purchase':
+          await handleProductPurchase(session)
+          break
+        case 'giftshop_cart':
+          await handleGiftshopCartPurchase(session)
+          break
+        case 'unhandled':
+          break
       }
     } else if (
       stripeEvent.type === 'customer.subscription.updated' ||

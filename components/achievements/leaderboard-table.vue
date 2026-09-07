@@ -5,18 +5,18 @@
   >
     <thead>
       <tr class="bg-base-200">
-        <th class="border border-base-300 px-4 py-2">Rank</th>
-        <th class="border border-base-300 px-4 py-2">Username</th>
-        <th class="border border-base-300 px-4 py-2">{{ scoreLabel }}</th>
+        <th class="kr-table-cell">Rank</th>
+        <th class="kr-table-cell">Username</th>
+        <th class="kr-table-cell">{{ scoreLabel }}</th>
       </tr>
     </thead>
     <tbody>
       <tr v-for="(row, index) in rows" :key="row.id" class="hover:bg-base-100">
-        <td class="border border-base-300 px-4 py-2 text-center">
+        <td class="kr-table-cell text-center">
           {{ index + 1 }}
         </td>
-        <td class="border border-base-300 px-4 py-2">{{ row.username }}</td>
-        <td class="border border-base-300 px-4 py-2 text-center">
+        <td class="kr-table-cell">{{ row.username }}</td>
+        <td class="kr-table-cell text-center">
           {{ row[scoreKey] ?? 'N/A' }}
         </td>
       </tr>

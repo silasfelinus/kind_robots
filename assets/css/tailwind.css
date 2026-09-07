@@ -851,6 +851,20 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply rounded-2xl border border-dashed border-base-300 p-8;
   }
 
+  /* A distinct family from the kr-panel-* surfaces above: individual
+   * <table> cell borders rather than a floating panel shape (no radius, no
+   * background) -- flagged explicitly in slice 138's note as a candidate
+   * left for its own name rather than forced into kr-panel-*. Previously
+   * hand-rolled across 6 occurrences in one file (leaderboard-table.vue's
+   * single <table>, shared by click-leaderboard.vue and match-leaderboard.vue
+   * per that component's own header comment) -- both <th> and <td> cells use
+   * the identical border/padding shape, differing only by an optional
+   * trailing text-center utility preserved verbatim after this class
+   * (interface-vision t-104 slice 139). */
+  .kr-table-cell {
+    @apply border border-base-300 px-4 py-2;
+  }
+
   /*
    * Status callouts — inline tinted notices (the most-repeated surface in
    * the app, previously written by hand with drifting opacities like

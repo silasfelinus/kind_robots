@@ -115,6 +115,16 @@ VARIANTS = [
     # .kr-panel-muted-compact-xs, same naming relationship as
     # .kr-panel-compact-xs -> .kr-panel-compact-70-row's `-row` suffix.
     ("kr-panel-muted-compact-row", ["rounded-xl", "border", "border-base-300", "bg-base-200", "px-3", "py-2"]),
+    # t-104 slice 131: the rounded-3xl/bg-base-100 radius family already named
+    # by .kr-panel-section (rounded-3xl/border-base-300/bg-base-100/p-5/
+    # shadow-sm), but at .kr-panel-muted-md's p-4 padding step and with no
+    # shadow -- a distinct, separately hand-rolled shape (10 occurrences
+    # across 6 files), not a drifting duplicate of -section (both p-4 and
+    # p-5 rounded-3xl panels appear in the same files, e.g.
+    # coloring-book-studio.vue). Five tokens, one shorter than -section's
+    # six (no shadow-sm), so an exact-match attempt at a given position can
+    # only ever succeed for one of them -- no collision.
+    ("kr-panel-section-flat", ["rounded-3xl", "border", "border-base-300", "bg-base-100", "p-4"]),
 ]
 
 CLASS_ATTR_RE = re.compile(r'(?<![:\w-])class="([^"]*)"')

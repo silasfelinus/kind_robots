@@ -109,7 +109,7 @@
           v-for="entry in filteredEntries"
           :key="entry.proposal.id"
           type="button"
-          class="flex flex-col gap-3 rounded-3xl border border-base-300 bg-base-100 p-4 text-left transition hover:-translate-y-0.5 hover:border-primary hover:shadow-md"
+          class="flex flex-col gap-3 kr-panel-section-flat text-left transition hover:-translate-y-0.5 hover:border-primary hover:shadow-md"
           @click="openProposal(entry.proposal.id)"
         >
           <div class="flex items-start justify-between gap-3">

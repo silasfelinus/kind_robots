@@ -75,7 +75,7 @@
         </div>
       </article>
 
-      <article class="flex flex-col gap-4 rounded-3xl border border-base-300 bg-base-100 p-4">
+      <article class="flex flex-col gap-4 kr-panel-section-flat">
         <div>
           <h4 class="text-xl font-black">Cover art prompt</h4>
           <p v-if="cover.sourceRef" class="mt-1 break-all text-xs text-base-content/45">

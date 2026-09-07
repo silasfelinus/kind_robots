@@ -136,7 +136,7 @@
         <article
           v-for="book in studio.books"
           :key="book.slug"
-          class="flex flex-col gap-4 rounded-3xl border border-base-300 bg-base-100 p-5"
+          class="flex flex-col gap-4 kr-panel-section-plain"
         >
           <div class="flex items-start justify-between gap-3">
             <div>
@@ -297,7 +297,7 @@
         class="grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(22rem,0.9fr)]"
       >
         <article
-          class="flex flex-col gap-4 rounded-3xl border border-base-300 bg-base-100 p-5"
+          class="flex flex-col gap-4 kr-panel-section-plain"
         >
           <div
             class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
@@ -397,7 +397,7 @@
         </article>
 
         <aside
-          class="flex flex-col gap-4 rounded-3xl border border-base-300 bg-base-100 p-5"
+          class="flex flex-col gap-4 kr-panel-section-plain"
         >
           <div>
             <h4 class="text-xl font-black">Canonical production prompt</h4>
@@ -500,7 +500,7 @@
 
       <div v-if="activeMode === 'queue'" class="flex flex-col gap-4">
         <div
-          class="flex flex-col gap-2 rounded-3xl border border-base-300 bg-base-100 p-5 sm:flex-row sm:items-center sm:justify-between"
+          class="flex flex-col gap-2 kr-panel-section-plain sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
             <h4 class="text-xl font-black">Queue &amp; review problems</h4>

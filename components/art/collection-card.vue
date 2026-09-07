@@ -145,7 +145,7 @@
       </div>
       <div
         v-if="showStats && activeSelected"
-        class="grid grid-cols-2 gap-1.5 rounded-xl border border-base-300 bg-base-100 p-2 text-xs"
+        class="grid grid-cols-2 gap-1.5 kr-panel-compact-xs text-xs"
       >
         <div>
           <p class="font-bold uppercase text-base-content/40">Images</p>
@@ -182,11 +182,7 @@
         </button>
       </div>
 
-      <details
-        v-if="showDebug"
-        class="rounded-xl border border-base-300 bg-base-100 p-2"
-        @click.stop
-      >
+      <details v-if="showDebug" class="kr-panel-compact-xs" @click.stop>
         <summary class="cursor-pointer text-xs font-bold text-base-content/70">
           Debug
         </summary>

@@ -76,6 +76,11 @@ VARIANTS = [
     # radius token never overlaps with any other variant above, so list
     # position doesn't matter for correctness here.
     ("kr-panel-compact", ["rounded-xl", "border", "border-base-300", "bg-base-100", "p-3"]),
+    # t-104 slice 128: kr-panel-compact's own shape at a tighter p-2 padding
+    # step. This sequence's trailing token (p-2) differs from kr-panel-
+    # compact's own p-3, so an exact-match attempt at a given position can
+    # only ever succeed for one of them -- no collision.
+    ("kr-panel-compact-xs", ["rounded-xl", "border", "border-base-300", "bg-base-100", "p-2"]),
     # t-104 slice 125: kr-panel-compact's own shape at 70% background opacity
     # instead of a solid fill -- bg-base-100/70 never collides with the solid
     # bg-base-100 token above.

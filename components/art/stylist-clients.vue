@@ -31,7 +31,7 @@
       <li
         v-for="customer in superkate.sortedCustomers"
         :key="customer.id"
-        class="rounded-xl border border-base-300 bg-base-100 p-2"
+        class="kr-panel-compact-xs"
       >
         <div class="flex flex-wrap items-center gap-3">
           <div class="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-base-300 bg-base-200">

@@ -41,7 +41,7 @@
       <li
         v-for="appointment in results"
         :key="appointment.id"
-        class="flex flex-col gap-2 rounded-xl border border-base-300 bg-base-100 p-2"
+        class="flex flex-col gap-2 kr-panel-compact-xs"
       >
         <div class="flex flex-wrap items-center gap-2">
           <div class="flex min-w-0 flex-1 flex-col">

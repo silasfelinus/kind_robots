@@ -308,7 +308,7 @@
         <article
           v-for="job in visibleJobs"
           :key="job.id"
-          class="flex flex-col gap-2 rounded-xl border border-base-300 bg-base-100 p-2"
+          class="flex flex-col gap-2 kr-panel-compact-xs"
         >
           <div class="flex items-center gap-2 text-xs">
             <span class="font-bold">{{ job.client || 'Unnamed client' }}</span>

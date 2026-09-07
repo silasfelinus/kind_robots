@@ -622,6 +622,17 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply rounded-xl border border-base-300 bg-base-100 p-3;
   }
 
+  /* .kr-panel-compact's own shape at a tighter `p-2` padding step instead of
+   * `p-3` (interface-vision t-104 slice 128) -- one step down the padding
+   * ladder, same `-xs` suffix already used by the .kr-btn-ghost-xs family
+   * for the smallest size in a ladder. Previously hand-rolled across 10
+   * occurrences in 8 files (navigation-trimmed.vue, stylist-clients.vue,
+   * stylist-restyle.vue, collection-card.vue x2, stylist-history.vue,
+   * image-card.vue x3, mandarin.vue). */
+  .kr-panel-compact-xs {
+    @apply rounded-xl border border-base-300 bg-base-100 p-2;
+  }
+
   /* .kr-panel-compact's own bg-base-100 at 70% opacity instead of a solid
    * fill (interface-vision t-104 slice 125) -- same opacity-suffix
    * convention as the tint-family additions above, previously hand-rolled

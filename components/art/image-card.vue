@@ -154,7 +154,7 @@
 
       <div
         v-if="showImageStatus && selected"
-        class="rounded-xl border border-base-300 bg-base-100 p-2 text-xs"
+        class="kr-panel-compact-xs text-xs"
       >
         <div class="flex flex-wrap gap-1.5">
           <span class="kr-badge-info-xs" :title="`Image #${displayImage.id}`">
@@ -208,7 +208,7 @@
 
       <div
         v-if="showGenerationMeta && size === 'lg'"
-        class="grid grid-cols-2 gap-2 rounded-xl border border-base-300 bg-base-100 p-2 text-xs"
+        class="grid grid-cols-2 gap-2 kr-panel-compact-xs text-xs"
       >
         <div>
           <p
@@ -278,11 +278,7 @@
         </button>
       </div>
 
-      <details
-        v-if="showDebug"
-        class="rounded-xl border border-base-300 bg-base-100 p-2"
-        @click.stop
-      >
+      <details v-if="showDebug" class="kr-panel-compact-xs" @click.stop>
         <summary class="cursor-pointer text-xs font-bold text-base-content/70">
           Debug
         </summary>

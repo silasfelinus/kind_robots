@@ -96,6 +96,12 @@ VARIANTS = [
     # position (token 3 differs: `border-dashed` vs `border-base-300`).
     ("kr-panel-dashed", ["rounded-2xl", "border", "border-dashed", "border-base-300", "bg-base-200/50", "p-6"]),
     ("kr-panel-dashed-compact", ["rounded-xl", "border", "border-dashed", "border-base-300", "bg-base-200/50", "p-3"]),
+    # t-104 slice 129: .kr-panel-muted's solid bg-base-200 fill at
+    # .kr-panel-compact's rounded-xl radius and p-2 padding -- diverges from
+    # kr-panel-compact-xs at the background token (bg-base-200 vs
+    # bg-base-100) and from kr-panel-tint-compact/-50 at the background
+    # token (solid vs opacity), so no collision at this list position.
+    ("kr-panel-muted-compact-xs", ["rounded-xl", "border", "border-base-300", "bg-base-200", "p-2"]),
 ]
 
 CLASS_ATTR_RE = re.compile(r'(?<![:\w-])class="([^"]*)"')

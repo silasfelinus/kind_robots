@@ -34,7 +34,7 @@
 
     <p
       v-if="!supported"
-      class="rounded-xl border border-dashed border-base-300 bg-base-200/50 p-3 text-xs text-base-content/60"
+      class="kr-panel-dashed-compact text-xs text-base-content/60"
     >
       {{ engineLabel }} builds its model into the workflow and ignores LoRAs.
       Switch to a preset that supports them to use this.
@@ -145,7 +145,7 @@
 
       <p
         v-else-if="!rankedLoras.length"
-        class="rounded-xl border border-dashed border-base-300 bg-base-200/50 p-3 text-center text-xs text-base-content/60"
+        class="kr-panel-dashed-compact text-center text-xs text-base-content/60"
       >
         No compatible LoRA Resources are available for {{ compatibilityLabel }}.
         Switch the model/checkpoint, add a compatible Resource, or enable mature

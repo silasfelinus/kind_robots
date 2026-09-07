@@ -73,6 +73,12 @@ VARIANTS = [
     # instead of a solid fill -- bg-base-100/70 never collides with the solid
     # bg-base-100 token above.
     ("kr-panel-compact-70", ["rounded-xl", "border", "border-base-300", "bg-base-100/70", "p-3"]),
+    # t-104 slice 126: the dashed-border empty-state placeholder family.
+    # `border-dashed` sits between `border` and `border-base-300`, so these
+    # sequences never overlap any solid-border variant above at the same
+    # position (token 3 differs: `border-dashed` vs `border-base-300`).
+    ("kr-panel-dashed", ["rounded-2xl", "border", "border-dashed", "border-base-300", "bg-base-200/50", "p-6"]),
+    ("kr-panel-dashed-compact", ["rounded-xl", "border", "border-dashed", "border-base-300", "bg-base-200/50", "p-3"]),
 ]
 
 CLASS_ATTR_RE = re.compile(r'(?<![:\w-])class="([^"]*)"')

@@ -46,7 +46,7 @@
 
       <template v-else-if="challenge">
         <header
-          class="relative isolate overflow-hidden rounded-3xl border border-base-300 bg-base-100 p-5 shadow-xl sm:p-8"
+          class="relative isolate overflow-hidden kr-panel-section-plain shadow-xl sm:p-8"
         >
           <div
             class="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-secondary/20"

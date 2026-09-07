@@ -146,7 +146,7 @@
 
       <div
         v-if="showShare"
-        class="flex flex-wrap justify-center gap-2 border-t border-base-300 pt-3"
+        class="flex flex-wrap justify-center gap-2 kr-panel-divider"
       >
         <button
           v-for="platform in sharePlatforms"

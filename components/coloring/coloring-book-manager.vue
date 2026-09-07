@@ -223,7 +223,7 @@
 
           <div
             v-if="groupNames.length"
-            class="flex flex-col gap-1.5 border-t border-base-300 pt-3"
+            class="flex flex-col gap-1.5 kr-panel-divider"
           >
             <p
               class="text-xs font-black uppercase tracking-wide text-base-content/60"

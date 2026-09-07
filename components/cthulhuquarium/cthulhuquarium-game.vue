@@ -380,7 +380,7 @@
            completionist book, not part of the tank's own poll loop. Formal
            name on the cover; Charlotte and Wilbur would just call it "the
            book" (SYSTEMS.md). -->
-      <div class="flex flex-col gap-2 border-t border-base-300 pt-3">
+      <div class="flex flex-col gap-2 kr-panel-divider">
         <button
           type="button"
           class="flex items-center justify-between gap-2 text-left"
@@ -472,7 +472,7 @@
            combos (SYSTEMS.md's own framing) -- so unlike the bestiary this
            panel is about a small, legible, COUNTED choice (setSlotsCap),
            not a big collected list. -->
-      <div class="flex flex-col gap-2 border-t border-base-300 pt-3">
+      <div class="flex flex-col gap-2 kr-panel-divider">
         <button
           type="button"
           class="flex items-center justify-between gap-2 text-left"
@@ -550,7 +550,7 @@
            buying the same item twice is fine). Choosing an item here sets
            pendingDecorKind; the next tap on the tank places and pays for it.
            An already-placed item can be dragged directly on the canvas. -->
-      <div class="flex flex-col gap-2 border-t border-base-300 pt-3">
+      <div class="flex flex-col gap-2 kr-panel-divider">
         <button
           type="button"
           class="flex items-center justify-between gap-2 text-left"
@@ -623,7 +623,7 @@
            COMMON egg are both real, separately-priced offers. Buying is the
            decision (the cost is seen up front); hatching is free and
            always shown, never silent. -->
-      <div class="flex flex-col gap-2 border-t border-base-300 pt-3">
+      <div class="flex flex-col gap-2 kr-panel-divider">
         <button
           type="button"
           class="flex items-center justify-between gap-2 text-left"
@@ -731,7 +731,7 @@
            icon-plus-text layout above. -->
       <div
         v-if="tankStore.finaleConfig"
-        class="flex items-start gap-2 border-t border-base-300 pt-3"
+        class="flex items-start gap-2 kr-panel-divider"
       >
         <kr-art-plate
           :source="{ imagePath: setLastAquariumArt }"
@@ -772,7 +772,7 @@
            change that. Read-only for visitors either way: the toggle only
            ever writes the owner's own tank. -->
       <div
-        class="flex flex-wrap items-center justify-between gap-2 border-t border-base-300 pt-3"
+        class="flex flex-wrap items-center justify-between gap-2 kr-panel-divider"
       >
         <label class="flex cursor-pointer items-center gap-2">
           <input

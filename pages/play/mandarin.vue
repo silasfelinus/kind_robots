@@ -88,7 +88,7 @@
             </button>
           </div>
 
-          <form class="border-t border-base-300 pt-3" @submit.prevent="createSet">
+          <form class="kr-panel-divider" @submit.prevent="createSet">
             <label class="form-control gap-1">
               <span class="text-xs font-semibold opacity-65">New custom deck</span>
               <div class="join w-full max-w-xl">
@@ -330,7 +330,7 @@
                   </details>
                 </div>
 
-                <div class="flex items-center justify-between gap-2 border-t border-base-300 pt-3">
+                <div class="flex items-center justify-between gap-2 kr-panel-divider">
                   <button type="button" class="kr-btn-ghost-plain" :disabled="focusNavigationLocked" @click="store.previousCard()">
                     <Icon name="kind-icon:back" class="size-4" />
                     Previous
@@ -391,7 +391,7 @@
                   </div>
                 </div>
 
-                <div class="flex items-center justify-between gap-2 border-t border-base-300 pt-3">
+                <div class="flex items-center justify-between gap-2 kr-panel-divider">
                   <button type="button" class="kr-btn-ghost-plain" :disabled="focusNavigationLocked" @click="store.previousCard()">Previous</button>
                   <button type="button" class="kr-btn-outline-plain" @click="store.toggleDetails()">{{ detailsVisible ? 'Hide parts' : 'Parts & history' }}</button>
                   <button type="button" class="kr-btn-ghost-plain" :disabled="focusNavigationLocked" @click="store.nextCard()">Next</button>

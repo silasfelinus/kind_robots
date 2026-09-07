@@ -121,7 +121,7 @@
     </div>
 
     <footer
-      class="flex flex-wrap items-center justify-between gap-2 border-t border-base-300 pt-3 text-[0.68rem] text-base-content/45"
+      class="flex flex-wrap items-center justify-between gap-2 kr-panel-divider text-[0.68rem] text-base-content/45"
     >
       <span>Nothing here is sent to the server or attached to your account.</span>
       <code class="rounded-lg bg-base-200 px-2 py-1">

@@ -72,7 +72,7 @@
     </p>
     <p v-if="error" class="mt-3 text-sm text-error" role="alert">{{ error }}</p>
 
-    <div v-if="audioUrl" class="mt-4 rounded-2xl border border-base-300 bg-base-200/40 p-4">
+    <div v-if="audioUrl" class="mt-4 kr-panel-tint-md">
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p class="text-xs font-semibold uppercase tracking-wide opacity-55">Your attempt</p>
@@ -87,7 +87,7 @@
       class="mt-4 grid grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))] gap-4"
       aria-live="polite"
     >
-      <div class="rounded-2xl border border-base-300 bg-base-200/40 p-4">
+      <div class="kr-panel-tint-md">
         <p class="text-xs font-semibold uppercase tracking-wide opacity-55">What I heard</p>
         <p v-if="transcript" class="mt-2 text-2xl font-bold">{{ transcript }}</p>
         <p v-else class="mt-2 text-sm opacity-60">The transcript was unavailable.</p>
@@ -105,7 +105,7 @@
         </p>
       </div>
 
-      <div class="rounded-2xl border border-base-300 bg-base-200/40 p-4">
+      <div class="kr-panel-tint-md">
         <p class="text-xs font-semibold uppercase tracking-wide opacity-55">Tone shape</p>
         <div v-if="toneAnalysis?.observations.length" class="mt-2 space-y-2">
           <div

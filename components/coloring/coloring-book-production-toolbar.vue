@@ -76,7 +76,7 @@
 
     <div
       v-if="production?.bwUrl || proposal.bwUrl"
-      class="grid gap-4 rounded-2xl border border-base-300 bg-base-200/40 p-4 lg:grid-cols-[10rem_minmax(0,1fr)]"
+      class="grid gap-4 kr-panel-tint-md lg:grid-cols-[10rem_minmax(0,1fr)]"
     >
       <img
         :src="production?.bwUrl || proposal.bwUrl || ''"

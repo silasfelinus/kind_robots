@@ -24,6 +24,7 @@ import type { H3Event } from 'h3'
 import { createError, defineEventHandler, getQuery, setHeader } from 'h3'
 import prisma from '@/server/utils/prisma'
 import { errorHandler } from '@/server/utils/error'
+import type { Prisma } from '~/prisma/generated/prisma/client'
 import type { ShowcaseArt, ShowcaseKind } from '@/utils/homeShowcase'
 
 /** Public showcase gate, applied to every table this endpoint reads. */
@@ -33,13 +34,72 @@ const PUBLIC = {
   isMature: false,
 } as const
 
-/** The art columns kr-art-plate reads, shared by every entity table. */
-const ENTITY_ART = {
-  imagePath: true,
+/**
+ * The art columns kr-art-plate reads.
+ *
+ * Only `imagePath` is still an entity column. The entity-art slot collapse
+ * (1e4ca2a, 2026-09-06) dropped cardPath/heroPath/iconPath from Dream,
+ * Character, Bot, Reward, Scenario and Facet -- one primary render per object,
+ * cropped per frame on the ArtImage it points at -- so the crops are read
+ * through that relation now. Selecting them as entity columns raised
+ * "Unknown field `cardPath` for select statement on model `Dream`", a Prisma
+ * VALIDATION error that answered 400 for all six kinds while `art` and
+ * `project` kept working (2026-09-07).
+ */
+const ENTITY_ART_COLUMNS = { imagePath: true } as const
+
+/** Where the crops live now: the object's primary render. */
+const PRIMARY_RENDER = {
+  ArtImage: {
+    select: {
+      imagePath: true,
+      cardPath: true,
+      heroPath: true,
+      iconPath: true,
+      fileType: true,
+    },
+  },
+} as const
+
+const ENTITY_ART = { ...ENTITY_ART_COLUMNS, ...PRIMARY_RENDER } as const
+
+/** Project is the one model that kept its own four slots. */
+const PROJECT_ART_COLUMNS = {
+  ...ENTITY_ART_COLUMNS,
   cardPath: true,
   heroPath: true,
   iconPath: true,
 } as const
+
+const PROJECT_ART = { ...PROJECT_ART_COLUMNS, ...PRIMARY_RENDER } as const
+
+/**
+ * Every column above must exist on every model that selects it.
+ *
+ * `satisfies Prisma.DreamSelect` CANNOT express this: the generated Select
+ * types are wrapped in the client's `GetSelect<>` and carry an index signature
+ * for client extensions, so they accept any key at all
+ * (`'madeUpField' extends keyof Prisma.DreamSelect` is true). `SelectScalar` is
+ * the plain columns-only form with no index signature, and is checked one model
+ * at a time -- an intersection would accept a field present on only ONE member,
+ * which is exactly how Project's surviving cardPath vouched for six models that
+ * had lost it. Each entry is `never` while valid and resolves to the offending
+ * field name when not, so the assignment fails naming the field.
+ */
+type UnknownOn<Keys, Model> = Exclude<Keys, keyof Model>
+type EntityArtColumn = keyof typeof ENTITY_ART_COLUMNS
+
+const _artColumnsAreValid: [never, never, never, never, never, never, never] =
+  [] as unknown as [
+    UnknownOn<EntityArtColumn, Prisma.DreamSelectScalar>,
+    UnknownOn<EntityArtColumn, Prisma.CharacterSelectScalar>,
+    UnknownOn<EntityArtColumn, Prisma.BotSelectScalar>,
+    UnknownOn<EntityArtColumn, Prisma.RewardSelectScalar>,
+    UnknownOn<EntityArtColumn, Prisma.ScenarioSelectScalar>,
+    UnknownOn<EntityArtColumn, Prisma.FacetSelectScalar>,
+    UnknownOn<keyof typeof PROJECT_ART_COLUMNS, Prisma.ProjectSelectScalar>,
+  ]
+void _artColumnsAreValid
 
 export type ShowcaseFact = { label: string; value: string }
 
@@ -97,15 +157,27 @@ function facts(entries: Array<[string, unknown]>): ShowcaseFact[] {
   return out
 }
 
+/**
+ * The object's own art columns, filled in per field from its primary render.
+ *
+ * Merged rather than "own or else the relation": since the slot collapse the
+ * six non-Project entities carry only `imagePath` themselves and their crops
+ * live on the ArtImage they point at, so both halves are needed to describe one
+ * plate. Project's own values simply win each field, and an ArtImage row (the
+ * `art`/`animation` kinds) has no relation to merge and is unaffected.
+ */
 function art(
-  row: Partial<Record<keyof ShowcaseArt, string | null>>,
+  row: Partial<Record<keyof ShowcaseArt, string | null>> & {
+    ArtImage?: Partial<Record<keyof ShowcaseArt, string | null>> | null
+  },
 ): ShowcaseArt {
+  const primary = row.ArtImage
   return {
-    imagePath: row.imagePath ?? null,
-    cardPath: row.cardPath ?? null,
-    heroPath: row.heroPath ?? null,
-    iconPath: row.iconPath ?? null,
-    fileType: row.fileType ?? null,
+    imagePath: row.imagePath || primary?.imagePath || null,
+    cardPath: row.cardPath || primary?.cardPath || null,
+    heroPath: row.heroPath || primary?.heroPath || null,
+    iconPath: row.iconPath || primary?.iconPath || null,
+    fileType: row.fileType || primary?.fileType || null,
   }
 }
 
@@ -463,7 +535,7 @@ async function loadDetail(event: H3Event): Promise<ShowcaseDetail> {
       conductorSlug: true,
       liveUrl: true,
       repoUrl: true,
-      ...ENTITY_ART,
+      ...PROJECT_ART,
     },
   })
   if (!row) throw missing()

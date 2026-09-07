@@ -107,7 +107,7 @@
       >
         Create a new Facet
       </summary>
-      <div class="grid gap-2 border-t border-base-300 p-3 sm:grid-cols-2">
+      <div class="grid gap-2 kr-panel-footer-bare sm:grid-cols-2">
         <input
           v-model="newTitle"
           type="text"

@@ -342,7 +342,7 @@
                 </div>
               </div>
               <figcaption
-                class="border-t border-base-300 p-3 text-center font-black"
+                class="kr-panel-footer-bare text-center font-black"
               >
                 Current color master
               </figcaption>
@@ -367,7 +367,7 @@
                 </div>
               </div>
               <figcaption
-                class="border-t border-base-300 p-3 text-center font-black"
+                class="kr-panel-footer-bare text-center font-black"
               >
                 Current black &amp; white
               </figcaption>

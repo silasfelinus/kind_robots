@@ -216,7 +216,7 @@
         <summary class="cursor-pointer px-3 py-2 text-xs font-semibold">
           Full brief and generation fields
         </summary>
-        <div class="flex flex-col gap-3 border-t border-base-300 p-3 text-xs">
+        <div class="flex flex-col gap-3 kr-panel-footer-bare text-xs">
           <div
             v-if="!canShowJobContent"
             class="rounded-xl border border-warning/30 bg-warning/10 p-3 text-warning-content"

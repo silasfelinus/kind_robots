@@ -132,10 +132,7 @@
           </div>
         </div>
 
-        <form
-          class="shrink-0 border-t border-base-300 p-3"
-          @submit.prevent="addColor"
-        >
+        <form class="shrink-0 kr-panel-footer-bare" @submit.prevent="addColor">
           <div class="grid gap-2">
             <input
               v-model="newColorName"

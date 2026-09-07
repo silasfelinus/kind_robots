@@ -581,6 +581,25 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply rounded-xl border border-base-300 bg-base-200/60 p-3;
   }
 
+  /* A second opacity step in the .kr-panel-tint-sm shape (interface-vision
+   * t-104 slice 125): identical rounded-2xl/border-base-300/p-3 shape, but
+   * at 50% background opacity instead of .kr-panel-tint-sm's 40% -- a
+   * distinct hand-rolled pool (4 occurrences), not a drifting duplicate of
+   * the 40% one (both appear side-by-side in different components).
+   * Suffixed with the literal opacity since -sm/-md are already spoken for
+   * as the padding ladder within a single opacity. */
+  .kr-panel-tint-sm-50 {
+    @apply rounded-2xl border border-base-300 bg-base-200/50 p-3;
+  }
+
+  /* The .kr-panel-tint-compact radius/padding shape (rounded-xl/p-3) at 50%
+   * opacity instead of .kr-panel-tint-compact's 60% (interface-vision t-104
+   * slice 125) -- previously hand-rolled across 2 occurrences. Same
+   * opacity-suffix naming as .kr-panel-tint-sm-50 above. */
+  .kr-panel-tint-compact-50 {
+    @apply rounded-xl border border-base-300 bg-base-200/50 p-3;
+  }
+
   /* The compact bordered surface on the "plain" base-100 background
    * (interface-vision t-104 slice 118): a smaller radius than .kr-panel
    * (rounded-xl, not rounded-2xl) at the dense `p-3` padding used for
@@ -591,6 +610,14 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
    * differs, not just the padding. */
   .kr-panel-compact {
     @apply rounded-xl border border-base-300 bg-base-100 p-3;
+  }
+
+  /* .kr-panel-compact's own bg-base-100 at 70% opacity instead of a solid
+   * fill (interface-vision t-104 slice 125) -- same opacity-suffix
+   * convention as the tint-family additions above, previously hand-rolled
+   * across 2 occurrences. */
+  .kr-panel-compact-70 {
+    @apply rounded-xl border border-base-300 bg-base-100/70 p-3;
   }
 
   /* Flat bordered surface for dense lists, rows, and inboxes. */

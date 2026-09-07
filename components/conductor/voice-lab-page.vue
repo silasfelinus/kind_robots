@@ -56,7 +56,7 @@
 
         <div
           v-if="voice.recentMessages.length"
-          class="flex max-h-40 flex-col gap-1 overflow-y-auto rounded-2xl border border-base-300 bg-base-200/50 p-3"
+          class="flex max-h-40 flex-col gap-1 overflow-y-auto kr-panel-tint-sm-50"
         >
           <p
             v-for="message in voice.recentMessages.slice(-6)"

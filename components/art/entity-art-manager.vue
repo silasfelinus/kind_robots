@@ -94,7 +94,7 @@
         </div>
       </div>
 
-      <aside v-if="history.length" class="rounded-xl border border-base-300 bg-base-200/50 p-3">
+      <aside v-if="history.length" class="kr-panel-tint-compact-50">
         <div class="mb-2 flex items-center gap-2">
           <Icon name="kind-icon:history" class="size-3.5 text-base-content/50" />
           <h4 class="text-xs font-black uppercase tracking-wide text-base-content/55">
@@ -314,7 +314,7 @@
 
       <div
         v-if="showCheckpointSelector"
-        class="grid gap-3 rounded-xl border border-base-300 bg-base-100/70 p-3 sm:grid-cols-[minmax(0,1fr)_auto]"
+        class="grid gap-3 kr-panel-compact-70 sm:grid-cols-[minmax(0,1fr)_auto]"
       >
         <label class="form-control gap-1">
           <span class="text-xs font-semibold text-base-content/60">SDXL checkpoint</span>

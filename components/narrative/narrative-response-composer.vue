@@ -1,7 +1,7 @@
 <!-- /components/narrative/narrative-response-composer.vue -->
 <template>
   <form
-    class="space-y-2 rounded-2xl border border-base-300 bg-base-200/50 p-3"
+    class="space-y-2 kr-panel-tint-sm-50"
     :aria-busy="loading"
     @submit.prevent="submit()"
   >

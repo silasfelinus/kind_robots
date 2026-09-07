@@ -58,12 +58,21 @@ VARIANTS = [
     # shape, at 60% opacity instead of 40% -- distinct radius from the -sm/-md
     # pair above, so it can't collide with either at the same list position.
     ("kr-panel-tint-compact", ["rounded-xl", "border", "border-base-300", "bg-base-200/60", "p-3"]),
+    # t-104 slice 125: a second opacity step (50%) of the two shapes above --
+    # bg-base-200/50 never collides with bg-base-200/40 or bg-base-200/60 at
+    # the same list position since the opacity token itself differs.
+    ("kr-panel-tint-sm-50", ["rounded-2xl", "border", "border-base-300", "bg-base-200/50", "p-3"]),
+    ("kr-panel-tint-compact-50", ["rounded-xl", "border", "border-base-300", "bg-base-200/50", "p-3"]),
     ("kr-panel-flat", ["rounded-2xl", "border", "border-base-300", "bg-base-100"]),
     # t-104 slice 118: the base-100 counterpart to kr-panel-muted-sm, at a
     # smaller rounded-xl radius rather than rounded-2xl -- the leading
     # radius token never overlaps with any other variant above, so list
     # position doesn't matter for correctness here.
     ("kr-panel-compact", ["rounded-xl", "border", "border-base-300", "bg-base-100", "p-3"]),
+    # t-104 slice 125: kr-panel-compact's own shape at 70% background opacity
+    # instead of a solid fill -- bg-base-100/70 never collides with the solid
+    # bg-base-100 token above.
+    ("kr-panel-compact-70", ["rounded-xl", "border", "border-base-300", "bg-base-100/70", "p-3"]),
 ]
 
 CLASS_ATTR_RE = re.compile(r'(?<![:\w-])class="([^"]*)"')

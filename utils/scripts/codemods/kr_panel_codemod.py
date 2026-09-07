@@ -2,9 +2,9 @@
 """
 kr_panel_codemod.py — mechanical, byte-exact substitution of the hand-rolled
 kr-panel / kr-panel-muted / kr-panel-muted-sm / kr-panel-muted-md /
-kr-panel-tint-sm / kr-panel-tint-md / kr-panel-flat / kr-panel-compact
-utility sequences for the shared class, in static `class="..."` attributes
-inside .vue templates only.
+kr-panel-tint-sm / kr-panel-tint-md / kr-panel-tint-compact / kr-panel-flat /
+kr-panel-compact utility sequences for the shared class, in static
+`class="..."` attributes inside .vue templates only.
 
 Scope, deliberately narrow (interface-vision/t-115's "if (b)" instruction):
   - Only static `class="..."` attributes (never `:class=`, `v-bind:class=`,
@@ -54,6 +54,10 @@ VARIANTS = [
     # token run matches exactly one of the two, never both.
     ("kr-panel-tint-sm", ["rounded-2xl", "border", "border-base-300", "bg-base-200/40", "p-3"]),
     ("kr-panel-tint-md", ["rounded-2xl", "border", "border-base-300", "bg-base-200/40", "p-4"]),
+    # t-104 slice 124: the rounded-xl/p-3 counterpart of kr-panel-tint-sm's
+    # shape, at 60% opacity instead of 40% -- distinct radius from the -sm/-md
+    # pair above, so it can't collide with either at the same list position.
+    ("kr-panel-tint-compact", ["rounded-xl", "border", "border-base-300", "bg-base-200/60", "p-3"]),
     ("kr-panel-flat", ["rounded-2xl", "border", "border-base-300", "bg-base-100"]),
     # t-104 slice 118: the base-100 counterpart to kr-panel-muted-sm, at a
     # smaller rounded-xl radius rather than rounded-2xl -- the leading

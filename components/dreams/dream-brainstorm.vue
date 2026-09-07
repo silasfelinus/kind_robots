@@ -66,7 +66,7 @@
 
     <div class="kr-panes grid-cols-1 xl:grid-cols-[22rem_minmax(0,1fr)_22rem]">
       <aside class="kr-pane kr-panel-flat">
-        <div class="shrink-0 border-b border-base-300 bg-base-200 p-3">
+        <div class="shrink-0 kr-panel-header-muted">
           <div class="flex items-center justify-between gap-2">
             <div>
               <h2 class="font-black">Source Dreams</h2>
@@ -135,7 +135,7 @@
       </aside>
 
       <main class="kr-pane kr-panel-flat">
-        <section class="shrink-0 border-b border-base-300 bg-base-200 p-3">
+        <section class="shrink-0 kr-panel-header-muted">
           <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_14rem]">
             <label class="form-control">
               <span class="label py-1"

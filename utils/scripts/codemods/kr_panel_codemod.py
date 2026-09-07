@@ -160,6 +160,16 @@ VARIANTS = [
     # sequence only in padding value, not length, so an exact-match attempt
     # at a given position can only ever succeed for one of them.
     ("kr-panel-header-sm", ["border-b", "border-base-300", "p-3"]),
+    # t-104 slice 144: the solid bg-base-200 filled counterpart to
+    # .kr-panel-header-sm -- same border-b/p-3 shape but with a recessed
+    # background instead of sitting flush against a parent that already
+    # supplies one. One token longer than kr-panel-header-sm's own sequence
+    # (the inserted bg-base-200), diverging at position 3, so an exact-match
+    # attempt at a given position can only ever succeed for one of them.
+    # Previously hand-rolled identically across 4 occurrences in 3 files
+    # (chat-gallery.vue, dream-brainstorm.vue x2, dream-list.vue), all
+    # sticky/shrink-0 header rows atop a scrollable list.
+    ("kr-panel-header-muted", ["border-b", "border-base-300", "bg-base-200", "p-3"]),
     # t-104 slice 135: an inline section divider -- a top border rule with
     # top-only spacing (pt-3, no other padding) used inside a flex-col stack
     # to separate a trailing block from the content above it. `pt-3` as the

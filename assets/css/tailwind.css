@@ -825,6 +825,17 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply border-b border-base-300 p-3;
   }
 
+  /* The solid bg-base-200 filled counterpart to .kr-panel-header-sm
+   * (interface-vision t-104 slice 144): same border-b/p-3 shape but with a
+   * recessed background, used for sticky/shrink-0 header rows atop a
+   * scrollable list rather than sitting flush against a parent that already
+   * supplies its own background. Previously hand-rolled identically across
+   * 4 occurrences in 3 files (chat-gallery.vue, dream-brainstorm.vue x2,
+   * dream-list.vue). */
+  .kr-panel-header-muted {
+    @apply border-b border-base-300 bg-base-200 p-3;
+  }
+
   /* An inline section divider (interface-vision t-104 slice 135): a top
    * border rule with top-only spacing (`pt-3`, no bottom/left/right padding)
    * used inside a flex-col stack to separate a trailing block (actions,

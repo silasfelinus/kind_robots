@@ -18,7 +18,7 @@
 
     <div class="grid gap-2 sm:grid-cols-2">
       <label
-        class="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-base-300 bg-base-200/50 px-3 py-2"
+        class="flex cursor-pointer items-center justify-between gap-3 kr-panel-tint-compact-50-row"
       >
         <span>
           <span class="block text-sm font-semibold">Mature</span>
@@ -34,7 +34,7 @@
       </label>
 
       <label
-        class="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-base-300 bg-base-200/50 px-3 py-2"
+        class="flex cursor-pointer items-center justify-between gap-3 kr-panel-tint-compact-50-row"
       >
         <span>
           <span class="block text-sm font-semibold">Public</span>

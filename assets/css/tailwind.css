@@ -600,6 +600,16 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply rounded-xl border border-base-300 bg-base-200/50 p-3;
   }
 
+  /* .kr-panel-tint-compact-50's own shape at the asymmetric row padding used
+   * for clickable list rows (interface-vision t-104 slice 127) -- `px-3
+   * py-2` rather than a uniform `p-3`, same two-token padding shape as
+   * .kr-toggle-row/-sm below. Suffixed `-row` for the same reason: it's a
+   * denser horizontal strip, not a boxier padded panel. Previously
+   * hand-rolled across 2 occurrences (content-visibility-controls.vue). */
+  .kr-panel-tint-compact-50-row {
+    @apply rounded-xl border border-base-300 bg-base-200/50 px-3 py-2;
+  }
+
   /* The compact bordered surface on the "plain" base-100 background
    * (interface-vision t-104 slice 118): a smaller radius than .kr-panel
    * (rounded-xl, not rounded-2xl) at the dense `p-3` padding used for
@@ -618,6 +628,15 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
    * across 2 occurrences. */
   .kr-panel-compact-70 {
     @apply rounded-xl border border-base-300 bg-base-100/70 p-3;
+  }
+
+  /* .kr-panel-compact-70's own shape at the asymmetric row padding used for
+   * clickable list rows (interface-vision t-104 slice 127) -- `px-3 py-2`
+   * rather than a uniform `p-3`, same -row suffix convention as
+   * .kr-panel-tint-compact-50-row above. Previously hand-rolled across 1
+   * occurrence (artjob-trainer-redo-controls.vue). */
+  .kr-panel-compact-70-row {
+    @apply rounded-xl border border-base-300 bg-base-100/70 px-3 py-2;
   }
 
   /* Flat bordered surface for dense lists, rows, and inboxes. */

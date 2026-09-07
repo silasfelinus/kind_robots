@@ -77,7 +77,7 @@
       class="kr-panes grid-cols-1 xl:grid-cols-[minmax(280px,360px)_minmax(0,1fr)_minmax(280px,360px)]"
     >
       <aside class="kr-pane kr-panel-flat">
-        <div class="shrink-0 border-b border-base-300 p-4">
+        <div class="shrink-0 kr-panel-header">
           <h2 class="text-lg font-black">Saved Colors</h2>
           <p class="mt-1 text-sm text-base-content/60">
             Pick one, then click a section or flood a group.
@@ -223,7 +223,7 @@
       </main>
 
       <aside class="kr-pane kr-panel-flat">
-        <div class="shrink-0 border-b border-base-300 p-4">
+        <div class="shrink-0 kr-panel-header">
           <h2 class="text-lg font-black">Sections & Groups</h2>
           <p class="mt-1 text-sm text-base-content/60">
             Use groups for shared paint IDs, then click exact sections for

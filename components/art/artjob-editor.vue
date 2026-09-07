@@ -11,7 +11,7 @@
       class="flex max-h-[94vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-2xl"
     >
       <header
-        class="flex items-start justify-between gap-3 border-b border-base-300 p-4"
+        class="flex items-start justify-between gap-3 kr-panel-header"
       >
         <div>
           <h3 id="artjob-editor-title" class="text-lg font-semibold">

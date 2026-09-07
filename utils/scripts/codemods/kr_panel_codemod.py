@@ -142,6 +142,14 @@ VARIANTS = [
     # above (one token longer than kr-panel-compact's own sequence, diverging
     # at the final token, so no collision).
     ("kr-panel-compact-row", ["rounded-xl", "border", "border-base-300", "bg-base-100", "px-3", "py-2"]),
+    # t-104 slice 134: the header-bar counterpart to kr-panel-footer -- a
+    # single bottom divider (border-b, not the all-sides `border` every
+    # other kr-panel* variant uses) at a wider p-4 padding step, with no
+    # background fill. Distinct token 1 (`border-b` vs `border`) means this
+    # can never collide with any solid-border variant above, and it's one
+    # token shorter than kr-panel-footer's own sequence (no bg-base-100), so
+    # it can't collide with that either.
+    ("kr-panel-header", ["border-b", "border-base-300", "p-4"]),
 ]
 
 CLASS_ATTR_RE = re.compile(r'(?<![:\w-])class="([^"]*)"')

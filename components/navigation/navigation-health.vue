@@ -122,7 +122,7 @@
         :key="channel.channelKey"
         class="overflow-hidden kr-panel p-0"
       >
-        <header class="relative overflow-hidden border-b border-base-300 p-4">
+        <header class="relative overflow-hidden kr-panel-header">
           <img
             v-if="channel.image"
             :src="channel.image"

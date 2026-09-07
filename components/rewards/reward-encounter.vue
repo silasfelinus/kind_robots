@@ -84,7 +84,7 @@
       <div
         class="grid min-h-[70vh] grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden kr-panel-flat xl:min-h-0"
       >
-        <div class="shrink-0 border-b border-base-300 p-4">
+        <div class="shrink-0 kr-panel-header">
           <article v-if="rewardStore.selectedReward">
             <div class="flex flex-col gap-4 sm:flex-row">
               <div

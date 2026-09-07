@@ -312,7 +312,7 @@
 
         <div
           v-if="artJobStore.loadingJobs && !artJobStore.jobs.length"
-          class="mt-3 flex min-h-40 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-base-300 p-8 text-center"
+          class="mt-3 flex min-h-40 flex-col items-center justify-center gap-3 kr-panel-dashed-plain text-center"
         >
           <span class="loading loading-spinner loading-md text-primary" />
           <p class="text-sm text-base-content/70">{{ queueLoadMessage }}</p>
@@ -328,7 +328,7 @@
 
           <div
             v-if="!artJobStore.jobs.length && !artJobStore.loadingJobs"
-            class="rounded-2xl border border-dashed border-base-300 p-8 text-center text-sm text-base-content/50 xl:col-span-2"
+            class="kr-panel-dashed-plain text-center text-sm text-base-content/50 xl:col-span-2"
           >
             No {{ artJobStore.jobStatusFilter }} jobs on this page.
           </div>

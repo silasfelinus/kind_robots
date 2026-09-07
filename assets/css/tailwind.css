@@ -840,6 +840,17 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply rounded-3xl border border-base-300 bg-base-100 p-5;
   }
 
+  /* A third padding step of the dashed empty-state family (.kr-panel-dashed's
+   * p-6, .kr-panel-dashed-compact's p-3), but with NO background fill at all
+   * (interface-vision t-104 slice 138) -- unlike both of those, which carry
+   * bg-base-200/50. A visually distinct shape, not just another padding size
+   * of the same tint. Previously hand-rolled across 4 occurrences in 3 files
+   * (facet-gallery.vue, stylist-relay-status.vue, artjob-queue-browser.vue x2),
+   * all "nothing here yet" placeholder blocks. */
+  .kr-panel-dashed-plain {
+    @apply rounded-2xl border border-dashed border-base-300 p-8;
+  }
+
   /*
    * Status callouts — inline tinted notices (the most-repeated surface in
    * the app, previously written by hand with drifting opacities like

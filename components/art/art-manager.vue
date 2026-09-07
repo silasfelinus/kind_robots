@@ -2,19 +2,21 @@
 <template>
   <section class="kr-surface gap-0">
     <div
-      v-if="isLoadingManager"
+      v-if="isLoadingManager && activeTab !== 'artjob'"
       class="flex h-full min-h-0 flex-1 items-center justify-center kr-panel"
     >
       <div class="flex flex-col items-center gap-3 text-center">
         <span class="loading loading-spinner loading-lg text-primary" />
         <p class="text-sm text-base-content/70">
-          Loading images, collections, checkpoints, and pixel goblin
-          infrastructure...
+          {{ managerLoadMessage }}
         </p>
       </div>
     </div>
 
-    <div v-else-if="managerError" class="kr-stage kr-note kr-note-error">
+    <div
+      v-else-if="managerError && activeTab !== 'artjob'"
+      class="kr-stage kr-note kr-note-error"
+    >
       <div class="flex flex-wrap items-center justify-between gap-3">
         <span>{{ managerError }}</span>
         <button
@@ -219,6 +221,7 @@ import { useArtJobStore } from '@/stores/artJobStore'
 import { useArtStore } from '@/stores/artStore'
 import { useCheckpointStore } from '@/stores/checkpointStore'
 import { useCollectionStore } from '@/stores/collectionStore'
+import { useLoadStore } from '@/stores/loadStore'
 import { useNavStore } from '@/stores/navStore'
 import { useServerStore } from '@/stores/serverStore'
 import { useUserStore } from '@/stores/userStore'
@@ -244,6 +247,7 @@ const artJobStore = useArtJobStore()
 const artStore = useArtStore()
 const checkpointStore = useCheckpointStore()
 const collectionStore = useCollectionStore()
+const loadStore = useLoadStore()
 const navStore = useNavStore()
 const serverStore = useServerStore()
 const userStore = useUserStore()
@@ -264,7 +268,9 @@ const validTabs: LegacyArtTab[] = [
 ]
 
 const isLoadingManager = ref(false)
+const managerDataLoaded = ref(false)
 const managerError = ref<string | null>(null)
+const managerLoadMessage = ref(loadStore.randomLoadMessage())
 const artJobWorkspaceTab = ref<ArtJobWorkspaceTab>('queue')
 const artPreviewDialog = ref<HTMLDialogElement | null>(null)
 const artPreviewSrc = ref('')
@@ -307,8 +313,11 @@ const pendingTrainerCount = computed(() => {
 })
 
 async function loadManagerData(force = false) {
+  if (!force && (managerDataLoaded.value || isLoadingManager.value)) return
+
   isLoadingManager.value = true
   managerError.value = null
+  managerLoadMessage.value = loadStore.randomLoadMessage()
 
   try {
     await Promise.all([
@@ -327,6 +336,7 @@ async function loadManagerData(force = false) {
     if (!checkpointStore.selectedSampler) {
       checkpointStore.selectSamplerByName('Euler a')
     }
+    managerDataLoaded.value = true
   } catch (error) {
     managerError.value =
       error instanceof Error ? error.message : 'Failed to load image manager.'
@@ -424,6 +434,11 @@ function clearArtPreview(): void {
 }
 
 watch(shouldLiveRefreshArtJobs, syncArtJobLiveRefresh, { immediate: true })
+watch(activeTab, (tab) => {
+  if (tab !== 'artjob') {
+    void loadManagerData()
+  }
+})
 
 /**
  * Open the gallery on the ArtImage named in the route.
@@ -443,7 +458,9 @@ async function syncArtFromRoute(): Promise<void> {
 
 onMounted(async () => {
   document.addEventListener('visibilitychange', handleVisibilityChange)
-  await loadManagerData()
+  if (activeTab.value !== 'artjob') {
+    await loadManagerData()
+  }
   await syncArtFromRoute()
 
   watch(

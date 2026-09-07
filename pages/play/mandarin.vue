@@ -145,7 +145,7 @@
                   v-for="card in searchResults"
                   :key="card.key"
                   type="button"
-                  class="rounded-xl border border-base-300 bg-base-100 p-2 text-left transition hover:border-accent"
+                  class="kr-panel-compact-xs text-left transition hover:border-accent"
                   @click="focusSearchCard(card.key)"
                 >
                   <span class="text-xl font-semibold">{{ card.simplified }}</span>

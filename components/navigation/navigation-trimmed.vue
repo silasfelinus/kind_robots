@@ -69,7 +69,7 @@
         <li v-for="tab in channel.visibleTabs" :key="tab.tabKey">
           <NuxtLink
             :to="tabTo(channel, tab)"
-            class="flex h-full items-center gap-3 rounded-xl border border-base-300 bg-base-100 p-2 transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md"
+            class="flex h-full items-center gap-3 kr-panel-compact-xs transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md"
           >
             <span
               class="relative flex h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-base-200"

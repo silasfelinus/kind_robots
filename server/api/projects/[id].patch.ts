@@ -1,5 +1,5 @@
 // /server/api/projects/[id].patch.ts
-import { defineEventHandler, readBody } from 'h3'
+import { createError, defineEventHandler, readBody } from 'h3'
 import type {
   Prisma,
   ProjectPriority,
@@ -87,7 +87,23 @@ export default defineEventHandler(async (event) => {
     }
     if (body.goal !== undefined) data.goal = normalizeOptionalText(body.goal)
     if (body.conductorSlug !== undefined) {
-      data.conductorSlug = normalizeSlug(body.conductorSlug)
+      const nextConductorSlug = normalizeSlug(body.conductorSlug)
+      // conductorSlug is the join key between this row and its
+      // projects/<slug>/roadmap.yaml directory in Conductor (PROJECT-
+      // CREATION.md). It is assigned once, exactly like
+      // conductor/sync.post.ts's own `existing.conductorSlug ?? project.slug`
+      // write path, and immutable thereafter -- otherwise Conductor and this
+      // app could silently disagree about which project a row belongs to.
+      if (
+        existing.conductorSlug &&
+        nextConductorSlug !== existing.conductorSlug
+      ) {
+        throw createError({
+          statusCode: 409,
+          message: `conductorSlug is immutable once set (already linked to '${existing.conductorSlug}').`,
+        })
+      }
+      data.conductorSlug = nextConductorSlug
     }
     if (body.lastSyncedAt !== undefined) {
       data.lastSyncedAt = normalizeNullableDateTime(body.lastSyncedAt)

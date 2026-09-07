@@ -150,6 +150,16 @@ VARIANTS = [
     # token shorter than kr-panel-footer's own sequence (no bg-base-100), so
     # it can't collide with that either.
     ("kr-panel-header", ["border-b", "border-base-300", "p-4"]),
+    # t-104 slice 143: .kr-panel-header's own shape at a tighter p-3 padding
+    # step instead of p-4 -- same -sm suffix convention as the muted/tint
+    # ladders above (p-3 = -sm, p-4 = -md). Previously hand-rolled
+    # identically across 5 occurrences in 5 files (messenger.vue x2,
+    # home-object-sheet.vue, artjob-feedback-manager.vue, mandarin.vue), all
+    # header rows with a bottom divider and no background fill, sitting atop
+    # a bordered panel/pane. One token shorter than kr-panel-header's own
+    # sequence only in padding value, not length, so an exact-match attempt
+    # at a given position can only ever succeed for one of them.
+    ("kr-panel-header-sm", ["border-b", "border-base-300", "p-3"]),
     # t-104 slice 135: an inline section divider -- a top border rule with
     # top-only spacing (pt-3, no other padding) used inside a flex-col stack
     # to separate a trailing block from the content above it. `pt-3` as the

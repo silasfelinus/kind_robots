@@ -3,7 +3,7 @@
   <section
     class="flex h-full min-h-0 flex-col overflow-hidden kr-panel-flat"
   >
-    <div class="border-b border-base-300 p-3">
+    <div class="kr-panel-header-sm">
       <div class="flex flex-wrap items-start justify-between gap-2">
         <div>
           <div class="flex items-center gap-2">

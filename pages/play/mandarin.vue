@@ -198,7 +198,7 @@
             ref="cardPanel"
             class="overflow-hidden rounded-3xl border border-base-300 bg-base-100 shadow-lg"
           >
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-base-300 p-3">
+            <div class="flex flex-wrap items-center justify-between gap-2 kr-panel-header-sm">
               <div class="flex flex-wrap items-center gap-2 text-xs">
                 <span v-if="currentCard.hskLevel" class="kr-badge-outline-sm">HSK {{ currentCard.hskLevel }}</span>
                 <span class="kr-badge-ghost-sm">{{ currentPositionLabel }}</span>

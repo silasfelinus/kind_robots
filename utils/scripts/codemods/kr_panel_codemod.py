@@ -63,6 +63,13 @@ VARIANTS = [
     # the same list position since the opacity token itself differs.
     ("kr-panel-tint-sm-50", ["rounded-2xl", "border", "border-base-300", "bg-base-200/50", "p-3"]),
     ("kr-panel-tint-compact-50", ["rounded-xl", "border", "border-base-300", "bg-base-200/50", "p-3"]),
+    # t-104 slice 127: the same shape as kr-panel-tint-compact-50 above, but
+    # at the asymmetric row padding (px-3 py-2, TWO trailing tokens) used for
+    # clickable list rows rather than a uniform p-3. This sequence is one
+    # token longer and diverges from kr-panel-tint-compact-50's at the final
+    # token (px-3 vs p-3), so an exact-match attempt on either sequence at a
+    # given position can only ever succeed for one of them -- no collision.
+    ("kr-panel-tint-compact-50-row", ["rounded-xl", "border", "border-base-300", "bg-base-200/50", "px-3", "py-2"]),
     ("kr-panel-flat", ["rounded-2xl", "border", "border-base-300", "bg-base-100"]),
     # t-104 slice 118: the base-100 counterpart to kr-panel-muted-sm, at a
     # smaller rounded-xl radius rather than rounded-2xl -- the leading
@@ -73,6 +80,11 @@ VARIANTS = [
     # instead of a solid fill -- bg-base-100/70 never collides with the solid
     # bg-base-100 token above.
     ("kr-panel-compact-70", ["rounded-xl", "border", "border-base-300", "bg-base-100/70", "p-3"]),
+    # t-104 slice 127: kr-panel-compact-70's own shape at the asymmetric row
+    # padding (px-3 py-2) instead of a uniform p-3 -- same reasoning as
+    # kr-panel-tint-compact-50-row above; the extra trailing token means this
+    # never collides with kr-panel-compact-70's own 5-token sequence.
+    ("kr-panel-compact-70-row", ["rounded-xl", "border", "border-base-300", "bg-base-100/70", "px-3", "py-2"]),
     # t-104 slice 126: the dashed-border empty-state placeholder family.
     # `border-dashed` sits between `border` and `border-base-300`, so these
     # sequences never overlap any solid-border variant above at the same

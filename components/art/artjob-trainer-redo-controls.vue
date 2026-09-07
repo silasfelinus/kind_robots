@@ -44,7 +44,7 @@
 
         <div
           v-else
-          class="rounded-xl border border-base-300 bg-base-100/70 px-3 py-2 text-xs text-base-content/55"
+          class="kr-panel-compact-70-row text-xs text-base-content/55"
         >
           <span class="font-semibold">Model:</span> SDXL · prompt only
         </div>

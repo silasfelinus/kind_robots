@@ -156,6 +156,14 @@ VARIANTS = [
     # third token means this can never collide with kr-panel-footer's
     # (`bg-base-100`) or kr-panel-header's (`p-4`) own sequences.
     ("kr-panel-divider", ["border-t", "border-base-300", "pt-3"]),
+    # t-104 slice 136: the .kr-panel-footer shape (border-t, uniform p-3) but
+    # with no background fill -- used as a flush footer/action bar inside a
+    # parent surface that already supplies its own background (same reasoning
+    # as .kr-panel-header dropping .kr-panel-footer's bg-base-100). Distinct
+    # from .kr-panel-divider's own 3-token sequence at the third token (`p-3`
+    # vs `pt-3`), so an exact-match attempt at a given position can only ever
+    # succeed for one of them -- no collision.
+    ("kr-panel-footer-bare", ["border-t", "border-base-300", "p-3"]),
 ]
 
 CLASS_ATTR_RE = re.compile(r'(?<![:\w-])class="([^"]*)"')

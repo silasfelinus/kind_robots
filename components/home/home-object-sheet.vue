@@ -244,7 +244,7 @@
           </div>
         </section>
 
-        <footer class="kr-toolbar justify-between border-t border-base-300 p-3">
+        <footer class="kr-toolbar justify-between kr-panel-footer-bare">
           <p class="text-[0.65rem] text-base-content/45">
             {{ createdLabel }}
           </p>

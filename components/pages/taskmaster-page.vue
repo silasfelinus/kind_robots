@@ -257,7 +257,7 @@
                       class="size-4 text-base-content/45 transition-transform group-open:rotate-180"
                     />
                   </summary>
-                  <div class="border-t border-base-300 p-3">
+                  <div class="kr-panel-footer-bare">
                     <NarrativeIngredientPicker
                       v-model="selectedLocationSlug"
                       :items="locationOptions"
@@ -301,7 +301,7 @@
                       class="size-4 text-base-content/45 transition-transform group-open:rotate-180"
                     />
                   </summary>
-                  <div class="border-t border-base-300 p-3">
+                  <div class="kr-panel-footer-bare">
                     <NarrativeIngredientPicker
                       v-model="selectedGrammarSlug"
                       :items="grammarOptions"

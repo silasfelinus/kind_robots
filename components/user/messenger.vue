@@ -108,7 +108,7 @@
         </div>
 
         <form
-          class="flex items-center gap-2 border-t border-base-300 p-3"
+          class="flex items-center gap-2 kr-panel-footer-bare"
           @submit.prevent="onSend"
         >
           <input

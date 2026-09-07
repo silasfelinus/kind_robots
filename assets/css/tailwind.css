@@ -810,6 +810,20 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply border-t border-base-300 pt-3;
   }
 
+  /* .kr-panel-footer's own shape (border-t, uniform p-3) with no background
+   * fill (interface-vision t-104 slice 136) -- used as a flush footer/action
+   * bar inside a parent surface that already supplies its own background,
+   * same reasoning as .kr-panel-header dropping .kr-panel-footer's
+   * bg-base-100. Distinct from .kr-panel-divider's own sequence at the third
+   * token (`p-3` vs `pt-3`), so it can't collide with that either.
+   * Previously hand-rolled across 9 occurrences in 7 files (messenger.vue,
+   * mural-manager.vue, facet-picker.vue, home-object-sheet.vue,
+   * coloring-book-studio.vue x2, artjob-queue-card.vue, taskmaster-page.vue
+   * x2). */
+  .kr-panel-footer-bare {
+    @apply border-t border-base-300 p-3;
+  }
+
   /*
    * Status callouts — inline tinted notices (the most-repeated surface in
    * the app, previously written by hand with drifting opacities like
